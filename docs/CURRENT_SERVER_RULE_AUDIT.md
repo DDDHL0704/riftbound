@@ -14,6 +14,9 @@
 
 ## 2026-05-09 开发进度更新
 
+- P1-002/P1-004 第二百九十批补充：补齐《睿智长者》（OGN·065/298）“拥有增益时额外 +1 战力”的服务端代表路径。Core 现在在 authoritative 战斗伤害计算中识别正面、单位、带 `增益` 标签的 OGN·065 来源，把 +1 计入 `DAMAGE_APPLIED.staticPowerBonus` 和 `combatPower`；未拥有增益时不加成。前端仍只展示服务端战斗事件和 snapshot，不根据标签在浏览器侧自行修正战力。
+- 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79WiseElder|FullyQualifiedName~P4WiseElderTargetRejectedFixture|FullyQualifiedName~P79BattlefieldStaticPowerAddsOneToBattleParticipants|FullyQualifiedName~P79BilgewaterBully"` 通过 6/6；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3207/3207；`source ../../scripts/dev-env.sh && npm run build` 通过。本批为服务端战斗静态代表路径补齐，无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke。整体仍 **NOT READY**，因为完整条件式费用/静态族、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-002/P1-004 第二百八十九批补充：补齐《竞技场勤务小队》（OGN·091/298）“当你打出一件装备时，让我变为活跃状态”的服务端代表路径。Core 现在只在真实装备 `PLAY_CARD` 路径中解析当前玩家控制的正面 OGN·091 单位，打出《长剑》等服务端已登记装备时立即写入 `ARENA_SERVICE_CREW_EQUIPMENT_READY` 触发并把来源单位置为活跃；对手打出装备不会误触发，前端仍只展示服务端事件和 authoritative snapshot，不在浏览器侧监听装备或自行切换活跃状态。
 - 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；《竞技场勤务小队》装备打出活跃 paired fixture、P7.9 直接引擎正/反向、既有 OGN·091 带目标拒绝与《长剑》装备打出回归 5/5 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3205/3205；`source ../../scripts/dev-env.sh && npm run build` 通过。本批为服务端规则代表路径补齐，无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke，避免占用前台或常驻资源。整体仍 **NOT READY**，因为完整条件式费用/静态族、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

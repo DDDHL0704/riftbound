@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百九十批补齐《睿智长者》（OGN·065/298）拥有增益时战斗静态 +1 代表路径。服务端在 `DECLARE_BATTLE` 战斗伤害计算中识别带 `增益` 标签的 OGN·065 单位，把 +1 写入 `DAMAGE_APPLIED.staticPowerBonus`、`combatPower` 和最终伤害；无增益时不加成。前端不新增本地战力裁决，继续展示服务端战斗事件和 authoritative snapshot。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；Wise Elder 正/反向战斗静态、既有 OGN·065 带目标拒绝、战场全体静态与增益游走回归 6/6 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3207/3207；`source ../../scripts/dev-env.sh && npm run build` 通过。本批为服务端规则代表路径补齐，无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为完整条件式费用/静态族、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - 第二百八十九批补齐《竞技场勤务小队》（OGN·091/298）装备打出触发活跃代表路径。服务端在真实装备 `PLAY_CARD` 路径中解析当前玩家控制的正面 OGN·091 单位，打出《长剑》等装备时广播 `ARENA_SERVICE_CREW_EQUIPMENT_READY` 并写入 `UNIT_READIED`，把来源单位置为活跃；对手装备不会触发。前端无需新增本地裁决，只继续展示服务端事件和 authoritative snapshot。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；Arena Service Crew paired fixture、P7.9 正/反向、既有带目标拒绝与《长剑》装备打出回归 5/5 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3205/3205；`source ../../scripts/dev-env.sh && npm run build` 通过。本批为服务端规则代表路径补齐，无 DevUi 运行时代码变更，不启动业务 Chrome smoke，目标端口保持无监听。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为完整条件式费用/静态族、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

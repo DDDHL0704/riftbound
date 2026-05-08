@@ -36296,6 +36296,56 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79WiseElderWithBoonAddsPowerInBattle()
+    {
+        var state = WiseElderBoonBattleState(hasBoon: true);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-wise-elder-boon-power", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-WISE-ELDER"],
+                ["P2-WISE-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var wiseDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-WISE-ELDER", StringComparison.Ordinal));
+        Assert.Equal(4, wiseDamageEvent.Payload["basePower"]);
+        Assert.Equal(1, wiseDamageEvent.Payload["staticPowerBonus"]);
+        Assert.Equal(5, wiseDamageEvent.Payload["combatPower"]);
+        Assert.Equal(5, wiseDamageEvent.Payload["damage"]);
+    }
+
+    [Fact]
+    public async Task P79WiseElderWithoutBoonSkipsPowerBonus()
+    {
+        var state = WiseElderBoonBattleState(hasBoon: false);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-wise-elder-no-boon-power", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-WISE-ELDER"],
+                ["P2-WISE-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var wiseDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-WISE-ELDER", StringComparison.Ordinal));
+        Assert.Equal(4, wiseDamageEvent.Payload["basePower"]);
+        Assert.False(wiseDamageEvent.Payload.ContainsKey("staticPowerBonus"));
+        Assert.Equal(4, wiseDamageEvent.Payload["combatPower"]);
+        Assert.Equal(4, wiseDamageEvent.Payload["damage"]);
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticPreventMoveToBaseRejectsMoveUnit()
     {
         var state = BattlefieldStaticPreventMoveBaseState();
@@ -53871,6 +53921,45 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BILGEWATER-DOCK"] = new("P1", "BATTLEFIELD", "P1-BILGEWATER-DOCK"),
                 ["P1-BILGEWATER-BULLY"] = new("P1", "BATTLEFIELD", "P1-BILGEWATER-DOCK")
+            }
+        };
+    }
+
+    private static MatchState WiseElderBoonBattleState(bool hasBoon)
+    {
+        string[] wiseTags = hasBoon
+            ? [CardObjectTags.UnitCard, CardObjectTags.Boon]
+            : [CardObjectTags.UnitCard];
+
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-WISE-ELDER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-WISE-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-WISE-ELDER"] = new(
+                    "P1-WISE-ELDER",
+                    cardNo: "OGN·065/298",
+                    power: 4,
+                    tags: wiseTags,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-WISE-DEFENDER"] = new(
+                    "P2-WISE-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 10,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
             }
         };
     }
