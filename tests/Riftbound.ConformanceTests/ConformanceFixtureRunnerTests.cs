@@ -15348,8 +15348,6 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-prominent-patron-hold-gold-static.fixture.json", "P1-UNIT-PROMINENT-PATRON", 5)]
     [InlineData("p2-preflight-play-royal-attendant-legend-ready-static.fixture.json", "P1-UNIT-ROYAL-ATTENDANT", 4)]
     [InlineData("p2-preflight-play-sfd-049-aphelios-weapon-trigger-static.fixture.json", "P1-UNIT-SFD-049-APHELIOS", 4)]
-    [InlineData("p2-preflight-play-sfd-058-ornn-equipment-look-static.fixture.json", "P1-UNIT-SFD-058-ORNN", 5)]
-    [InlineData("p2-preflight-play-sfd-058a-ornn-equipment-look-static.fixture.json", "P1-UNIT-SFD-058A-ORNN", 5)]
     [InlineData("p2-preflight-play-sfd-bard-no-optional-legend-static.fixture.json", "P1-UNIT-SFD-BARD", 4)]
     [InlineData("p2-preflight-play-big-swindler-gold-choice-static.fixture.json", "P1-UNIT-BIG-SWINDLER", 3)]
     [InlineData("p2-preflight-play-sfd-jayce-no-optional-equipment-static.fixture.json", "P1-UNIT-SFD-JAYCE", 4)]
@@ -37134,6 +37132,104 @@ public sealed class ConformanceFixtureRunnerTests
         }
     }
 
+    [Theory]
+    [InlineData("SFD·058/221", "P1-UNIT-SFD-058-ORNN")]
+    [InlineData("SFD·058a/221", "P1-UNIT-SFD-058A-ORNN")]
+    public async Task P79OrnnDrawsSelectedTopEquipmentAndRecyclesRest(string cardNo, string sourceObjectId)
+    {
+        var state = OrnnEquipmentLookState(cardNo, sourceObjectId);
+        var engine = new CoreRuleEngine();
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent($"intent-ornn-{cardNo}-play", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                sourceObjectId,
+                cardNo,
+                ["P1-ORNN-EQUIPMENT-001"]),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent($"intent-ornn-{cardNo}-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent($"intent-ornn-{cardNo}-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted, play.ErrorMessage);
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Equal([sourceObjectId], p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Contains("P1-ORNN-EQUIPMENT-001", p2Pass.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain("P1-ORNN-EQUIPMENT-001", p2Pass.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains("P1-ORNN-DECK-TAIL-001", p2Pass.State.PlayerZones["P1"].MainDeck);
+
+        var drawEvent = Assert.Single(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Equal("P1", drawEvent.Payload["playerId"]);
+        Assert.Equal(1, drawEvent.Payload["count"]);
+        var recycleEvent = Assert.Single(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal));
+        Assert.Equal("P1", recycleEvent.Payload["playerId"]);
+        Assert.Equal(3, recycleEvent.Payload["count"]);
+        Assert.Equal(
+            ["P1-ORNN-EQUIPMENT-002", "P1-ORNN-SPELL-001", "P1-ORNN-UNIT-001"],
+            Assert.IsAssignableFrom<IEnumerable<string>>(recycleEvent.Payload["cardIds"])
+                .Order(StringComparer.Ordinal)
+                .ToArray());
+    }
+
+    [Fact]
+    public async Task P79OrnnRejectsNonEquipmentTopDeckSelection()
+    {
+        var state = OrnnEquipmentLookState("SFD·058/221", "P1-UNIT-SFD-058-ORNN");
+        var engine = new CoreRuleEngine();
+
+        var result = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-ornn-invalid-top-unit", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-SFD-058-ORNN",
+                "SFD·058/221",
+                ["P1-ORNN-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal(state.Tick, result.State.Tick);
+        Assert.Equal(["P1-UNIT-SFD-058-ORNN"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(
+            ["P1-ORNN-EQUIPMENT-001", "P1-ORNN-UNIT-001", "P1-ORNN-SPELL-001", "P1-ORNN-EQUIPMENT-002", "P1-ORNN-DECK-TAIL-001"],
+            result.State.PlayerZones["P1"].MainDeck);
+    }
+
+    [Fact]
+    public void P79OrnnPromptExposesTopEquipmentChoicesOnly()
+    {
+        var state = OrnnEquipmentLookState("SFD·058/221", "P1-UNIT-SFD-058-ORNN");
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+
+        Assert.Equal("P1-UNIT-SFD-058-ORNN", Assert.IsType<string>(sourceRequirement["sourceObjectId"]));
+        Assert.Equal("己方主牌堆牌", Assert.IsType<string>(sourceRequirement["targetScopeLabel"]));
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
+        var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
+            .Select(choice => choice.Id)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(["P1-ORNN-EQUIPMENT-001", "P1-ORNN-EQUIPMENT-002"], choices);
+    }
+
     [Fact]
     public async Task P79EclipseVanguardReadiesAndGainsPowerWhenControllerStunsEnemyUnit()
     {
@@ -55231,6 +55327,63 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "OGN·257/298",
                     ownerId: "P2",
                     controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState OrnnEquipmentLookState(string cardNo, string sourceObjectId)
+    {
+        return PunishmentState(mana: 5) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck =
+                    [
+                        "P1-ORNN-EQUIPMENT-001",
+                        "P1-ORNN-UNIT-001",
+                        "P1-ORNN-SPELL-001",
+                        "P1-ORNN-EQUIPMENT-002",
+                        "P1-ORNN-DECK-TAIL-001"
+                    ],
+                    Hand = [sourceObjectId]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    cardNo: cardNo,
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-ORNN-EQUIPMENT-001"] = new(
+                    "P1-ORNN-EQUIPMENT-001",
+                    cardNo: "SFD·022/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-ORNN-UNIT-001"] = new(
+                    "P1-ORNN-UNIT-001",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-ORNN-SPELL-001"] = new(
+                    "P1-ORNN-SPELL-001",
+                    cardNo: "OGN·058/298",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-ORNN-EQUIPMENT-002"] = new(
+                    "P1-ORNN-EQUIPMENT-002",
+                    cardNo: "SFD·022/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1")
             }
         };
     }

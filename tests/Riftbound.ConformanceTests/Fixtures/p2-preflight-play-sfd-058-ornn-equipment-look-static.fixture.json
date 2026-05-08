@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-sfd-058-ornn-equipment-look-static",
-  "description": "SFD 058 Ornn enters as a unit while its equipment look trigger is deferred.",
+  "description": "SFD 058 Ornn enters as a unit, draws a selected top equipment, and recycles the rest of the looked cards.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "SFD·058/221 奥恩",
-      "note": "官方卡面：费用 5；英雄单位；战力 5；当控制者打出其时，或当其据守一处战场时，查看主牌堆顶部四张牌，可展示并抽取一件装备，回收其余卡牌。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象；顶部查看、装备选择、抽取和回收路径暂缓。"
+      "note": "官方卡面：费用 5；英雄单位；战力 5；当控制者打出其时，或当其据守一处战场时，查看主牌堆顶部四张牌，可展示并抽取一件装备，回收其余卡牌。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象，选择主牌堆顶四张中的装备抽取，并回收其余被查看卡牌。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -36,7 +36,7 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
+        "mainDeck": ["P1-ORNN-EQUIPMENT-001", "P1-ORNN-UNIT-001", "P1-ORNN-SPELL-001", "P1-ORNN-EQUIPMENT-002", "P1-ORNN-DECK-TAIL-001"],
         "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
         "hand": ["P1-UNIT-SFD-058-ORNN"],
         "base": [],
@@ -58,7 +58,32 @@
         "championZone": ["P2-CHAMPION-001"]
       }
     },
-    "cardObjects": {}
+    "cardObjects": {
+      "P1-ORNN-EQUIPMENT-001": {
+        "cardNo": "SFD·022/221",
+        "tags": ["CARD_TYPE:EQUIPMENT", "武装"],
+        "ownerId": "P1",
+        "controllerId": "P1"
+      },
+      "P1-ORNN-UNIT-001": {
+        "cardNo": "SFD·125/221",
+        "power": 3,
+        "tags": ["CARD_TYPE:UNIT"],
+        "ownerId": "P1",
+        "controllerId": "P1"
+      },
+      "P1-ORNN-SPELL-001": {
+        "cardNo": "OGN·058/298",
+        "ownerId": "P1",
+        "controllerId": "P1"
+      },
+      "P1-ORNN-EQUIPMENT-002": {
+        "cardNo": "SFD·022/221",
+        "tags": ["CARD_TYPE:EQUIPMENT", "武装"],
+        "ownerId": "P1",
+        "controllerId": "P1"
+      }
+    }
   },
   "commands": [
     {
@@ -68,7 +93,7 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-UNIT-SFD-058-ORNN",
         "cardNo": "SFD·058/221",
-        "targetObjectIds": []
+        "targetObjectIds": ["P1-ORNN-EQUIPMENT-001"]
       }
     },
     { "playerId": "P1", "clientIntentId": "intent-p2-preflight-sfd-058-ornn-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
@@ -83,7 +108,9 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_PLAYED_TO_BASE"
+      "UNIT_PLAYED_TO_BASE",
+      "CARD_DRAWN",
+      "CARDS_RECYCLED"
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {
@@ -99,8 +126,7 @@
       },
       "players": {
         "P1": {
-          "mainDeck": ["P1-MAIN-001"],
-          "hand": [],
+          "hand": ["P1-ORNN-EQUIPMENT-001"],
           "base": ["P1-UNIT-SFD-058-ORNN"],
           "graveyard": []
         }

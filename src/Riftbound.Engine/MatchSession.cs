@@ -4618,11 +4618,39 @@ internal static class ActionPromptBuilder
         CardBehaviorDefinition behavior,
         int targetIndex)
     {
+        if (behavior.MainDeckLookCount > 0
+            && targetIndex >= behavior.MainDeckLookTargetStartIndex
+            && string.Equals(behavior.TargetScope, CardTargetScopes.FriendlyMainDeckCard, StringComparison.Ordinal))
+        {
+            return PromptFriendlyMainDeckLookTargetChoices(state, playerId, behavior);
+        }
+
         return PromptTargetCandidateIds(state, playerId, behavior.TargetScope, targetIndex)
             .Where(objectId => IsPromptTargetObjectInScope(state, playerId, objectId, behavior.TargetScope, targetIndex))
             .Select(objectId => IsPromptStackSpellItem(state, objectId)
                 ? StackItemChoice(state, objectId, "legal stack spell target")
                 : ObjectChoice(state, objectId, PromptTargetReasonForScope(behavior.TargetScope, targetIndex)))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> PromptFriendlyMainDeckLookTargetChoices(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return [];
+        }
+
+        return zones.MainDeck
+            .Take(behavior.MainDeckLookCount)
+            .Where(objectId => IsPromptKnownCardObject(state, objectId))
+            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+                && (string.IsNullOrWhiteSpace(behavior.MainDeckTargetRequiredTag)
+                    || cardObject.Tags.Contains(behavior.MainDeckTargetRequiredTag, StringComparer.Ordinal)))
+            .Select(objectId => ObjectChoice(state, objectId, "己方主牌堆查看候选"))
             .ToArray();
     }
 
@@ -8699,6 +8727,7 @@ public sealed class MatchSession : IMatchSession
         {
             "basic-play" => BuildBasicPlayScenario(current, seed),
             "royal-attendant-legend-mode" => BuildRoyalAttendantLegendModeScenario(current, seed),
+            "ornn-equipment-look" => BuildOrnnEquipmentLookScenario(current, seed),
             "movement" => BuildMovementScenario(current, seed),
             "spell-duel" => BuildSpellDuelScenario(current, seed),
             "spell-duel-focus" => BuildSpellDuelFocusScenario(current, seed),
@@ -9007,6 +9036,76 @@ public sealed class MatchSession : IMatchSession
                     cardNo: "OGN·257/298",
                     ownerId: seed.P2,
                     controllerId: seed.P2)
+            });
+    }
+
+    private static MatchState BuildOrnnEquipmentLookScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303073,
+            173,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(5, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck:
+                    [
+                        "P1-ORNN-EQUIPMENT-001",
+                        "P1-ORNN-UNIT-001",
+                        "P1-ORNN-SPELL-001",
+                        "P1-ORNN-EQUIPMENT-002",
+                        "P1-ORNN-DECK-TAIL-001"
+                    ],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    hand: ["P1-UNIT-SFD-058-ORNN"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-SFD-058-ORNN"] = new(
+                    "P1-UNIT-SFD-058-ORNN",
+                    cardNo: "SFD·058/221",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    manaCost: 5,
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-ORNN-EQUIPMENT-001"] = new(
+                    "P1-ORNN-EQUIPMENT-001",
+                    cardNo: "SFD·022/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-ORNN-UNIT-001"] = new(
+                    "P1-ORNN-UNIT-001",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-ORNN-SPELL-001"] = new(
+                    "P1-ORNN-SPELL-001",
+                    cardNo: "OGN·058/298",
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-ORNN-EQUIPMENT-002"] = new(
+                    "P1-ORNN-EQUIPMENT-002",
+                    cardNo: "SFD·022/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
             });
     }
 
