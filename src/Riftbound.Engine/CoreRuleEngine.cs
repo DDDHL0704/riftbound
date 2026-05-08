@@ -20804,7 +20804,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         string targetObjectId)
     {
         if (!playerZones.TryGetValue(playerId, out var zones)
-            || !zones.Graveyard.Contains(targetObjectId, StringComparer.Ordinal))
+            || !zones.Graveyard.Contains(targetObjectId, StringComparer.Ordinal)
+            || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, targetObjectId))
         {
             return false;
         }

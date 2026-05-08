@@ -5897,6 +5897,66 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineHarrowingResolutionSkipsOpponentControlledOwnGraveyardTarget()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            ActivePlayerId = "P1",
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-HARROWING-DIRTY-GRAVEYARD",
+                    "P1",
+                    "P1-SPELL-HARROWING",
+                    "HARROWING_PLAY_GRAVEYARD_UNIT_TO_BASE",
+                    "OGN·198/298",
+                    ["P1-GRAVE-DIRTY-P2-UNIT"])
+            ],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Graveyard = ["P1-GRAVE-UNIT-001", "P1-GRAVE-DIRTY-P2-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-GRAVE-UNIT-001"] = new(
+                    "P1-GRAVE-UNIT-001",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-GRAVE-DIRTY-P2-UNIT"] = new(
+                    "P1-GRAVE-DIRTY-P2-UNIT",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+        var engine = new CoreRuleEngine();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-harrowing-dirty-resolution-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-harrowing-dirty-resolution-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Empty(p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-GRAVE-UNIT-001", "P1-GRAVE-DIRTY-P2-UNIT", "P1-SPELL-HARROWING"], p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysSteadfastLoyaltyPlayLowCostGraveyardUnitToBase()
     {
         var fixture = await ConformanceFixture.LoadAsync(
