@@ -64,6 +64,7 @@ public static class ErrorCodes
     public const string InvalidDeck = "INVALID_DECK";
     public const string UnsupportedCardBehavior = "UNSUPPORTED_CARD_BEHAVIOR";
     public const string RecoveryInconsistent = "RECOVERY_INCONSISTENT";
+    public const string PromptExpired = "PROMPT_EXPIRED";
 }
 
 public sealed record ErrorDto(
@@ -180,6 +181,35 @@ public sealed record SnapshotDto(
     IReadOnlyDictionary<string, object?> Timing,
     string TurnState);
 
+public static class PromptTypes
+{
+    public const string RoomSetup = "ROOM_SETUP";
+    public const string Mulligan = "MULLIGAN";
+    public const string MainAction = "MAIN_ACTION";
+    public const string StackPriority = "STACK_PRIORITY";
+    public const string SpellDuelFocus = "SPELL_DUEL_FOCUS";
+    public const string SpellDuelAction = "SPELL_DUEL_ACTION";
+    public const string BattleDeclaration = "BATTLE_DECLARATION";
+    public const string AssignCombatDamage = "ASSIGN_COMBAT_DAMAGE";
+    public const string PayCost = "PAY_COST";
+    public const string OrderTriggers = "ORDER_TRIGGERS";
+    public const string TaskQueue = "TASK_QUEUE";
+    public const string Wait = "WAIT";
+    public const string MatchResult = "MATCH_RESULT";
+}
+
+public sealed record PromptViewDto(
+    string Type,
+    string Title,
+    string Message,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? RelatedBattlefieldId = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? RelatedStackItemId = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? RelatedBattleId = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? RelatedSpellDuelId = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? MinSelection = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? MaxSelection = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<string, object?>? Metadata = null);
+
 public sealed record ActionPromptDto(
     string PlayerId,
     bool Actionable,
@@ -187,7 +217,8 @@ public sealed record ActionPromptDto(
     IReadOnlyList<string> Actions,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? PromptId = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] long? SnapshotTick = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ActionPromptCandidateDto>? Candidates = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ActionPromptCandidateDto>? Candidates = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] PromptViewDto? View = null);
 
 public sealed record ActionPromptCandidateDto(
     string Action,

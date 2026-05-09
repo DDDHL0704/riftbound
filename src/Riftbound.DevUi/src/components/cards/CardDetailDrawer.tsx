@@ -38,6 +38,9 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
   const states = objectStateLabels(card.object);
   const sourceObjectId = card.objectId ?? card.object?.objectId;
   const sourceActions = hidden ? [] : sourceCandidatesFor(prompt, sourceObjectId);
+  const stampedOnCommand = onCommand
+    ? (command: GameCommand) => onCommand(withPromptStamp(command, prompt))
+    : undefined;
 
   return (
     <div className="detail-layer" role="dialog" aria-modal="true" aria-label="卡牌详情">
@@ -116,7 +119,7 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
                           card={card}
                           key={candidate.action}
                           onClose={onClose}
-                          onCommand={onCommand}
+                          onCommand={stampedOnCommand}
                           sourceObjectId={sourceObjectId}
                         />
                       );
@@ -128,7 +131,7 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
                           candidate={candidate}
                           key={candidate.action}
                           onClose={onClose}
-                          onCommand={onCommand}
+                          onCommand={stampedOnCommand}
                           sourceObjectId={sourceObjectId}
                         />
                       );
@@ -140,7 +143,7 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
                           candidate={candidate}
                           key={candidate.action}
                           onClose={onClose}
-                          onCommand={onCommand}
+                          onCommand={stampedOnCommand}
                           sourceObjectId={sourceObjectId}
                         />
                       );
@@ -152,7 +155,7 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
                           candidate={candidate}
                           key={candidate.action}
                           onClose={onClose}
-                          onCommand={onCommand}
+                          onCommand={stampedOnCommand}
                           sourceObjectId={sourceObjectId}
                         />
                       );
@@ -164,7 +167,7 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
                           candidate={candidate}
                           key={candidate.action}
                           onClose={onClose}
-                          onCommand={onCommand}
+                          onCommand={stampedOnCommand}
                           sourceObjectId={sourceObjectId}
                         />
                       );
@@ -176,7 +179,7 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
                           candidate={candidate}
                           key={candidate.action}
                           onClose={onClose}
-                          onCommand={onCommand}
+                          onCommand={stampedOnCommand}
                           sourceObjectId={sourceObjectId}
                         />
                       );
@@ -188,7 +191,7 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
                           candidate={candidate}
                           key={candidate.action}
                           onClose={onClose}
-                          onCommand={onCommand}
+                          onCommand={stampedOnCommand}
                           sourceObjectId={sourceObjectId}
                         />
                       );
@@ -200,7 +203,7 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
                           candidate={candidate}
                           key={candidate.action}
                           onClose={onClose}
-                          onCommand={onCommand}
+                          onCommand={stampedOnCommand}
                           sourceObjectId={sourceObjectId}
                         />
                       );
@@ -208,12 +211,12 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
 
                     return (
                       <Button
-                        disabled={!candidate.enabled || !command || !onCommand}
+                        disabled={!candidate.enabled || !command || !stampedOnCommand}
                         icon={<Play size={16} />}
                         key={candidate.action}
                         onClick={() => {
-                          if (command && onCommand) {
-                            onCommand(command);
+                          if (command && stampedOnCommand) {
+                            stampedOnCommand(command);
                             onClose();
                           }
                         }}
@@ -260,6 +263,18 @@ function commandForSourceCandidate(
   }
 
   return undefined;
+}
+
+function withPromptStamp(command: GameCommand, prompt: ActionPromptDto | undefined): GameCommand {
+  if (!prompt || (command.promptId != null && command.snapshotTick != null)) {
+    return command;
+  }
+
+  return {
+    ...command,
+    promptId: command.promptId ?? prompt.promptId ?? null,
+    snapshotTick: command.snapshotTick ?? prompt.snapshotTick ?? null
+  };
 }
 
 function formatLocation(location?: Record<string, unknown> | null): string {

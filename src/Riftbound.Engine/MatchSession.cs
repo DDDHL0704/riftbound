@@ -277,6 +277,8 @@ public sealed record TurnWindowState(
 public sealed record SpellDuelState(
     bool IsActive,
     bool IsClosed,
+    string? SpellDuelId,
+    string? BattlefieldObjectId,
     string? FocusPlayerId,
     IReadOnlyList<string> PassedFocusPlayerIds,
     IReadOnlyList<string> StackItemIds,
@@ -284,10 +286,28 @@ public sealed record SpellDuelState(
 
 public sealed record BattleState(
     bool IsActive,
+    string? BattleId,
     string? BattlefieldObjectId,
     IReadOnlyList<string> AttackerObjectIds,
     IReadOnlyList<string> DefenderObjectIds,
     IReadOnlyDictionary<string, string> ParticipantControllerIds);
+
+internal static class BattleLifecycleIds
+{
+    public static string? SpellDuelIdForBattlefield(string? battlefieldObjectId)
+    {
+        return string.IsNullOrWhiteSpace(battlefieldObjectId)
+            ? null
+            : $"spell-duel:{battlefieldObjectId}";
+    }
+
+    public static string? BattleIdForBattlefield(string? battlefieldObjectId)
+    {
+        return string.IsNullOrWhiteSpace(battlefieldObjectId)
+            ? null
+            : $"battle:{battlefieldObjectId}";
+    }
+}
 
 public static class ContinuousEffectLayers
 {
@@ -332,7 +352,7 @@ public sealed record CardObjectState
         IsFaceDown = isFaceDown;
         IsAttacking = isAttacking;
         IsDefending = isDefending;
-        Power = Math.Max(0, power);
+        Power = power;
         UntilEndOfTurnPowerModifier = untilEndOfTurnPowerModifier;
         IsExhausted = isExhausted;
         Tags = NormalizeTags(tags);
@@ -796,9 +816,10 @@ public sealed record MatchState
             || state.StackItems.Any(item => string.Equals(item.TimingContext, TimingStates.SpellDuelOpen, StringComparison.Ordinal));
         if (!isActive)
         {
-            return new SpellDuelState(false, false, null, [], [], []);
+            return new SpellDuelState(false, false, null, null, null, [], [], []);
         }
 
+        var battlefieldObjectId = SpellDuelBattlefieldObjectId(state);
         var stackItems = state.StackItems
             .Where(item => string.Equals(item.TimingContext, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
                 || IsSpellDuelTimingState(state.TimingState))
@@ -806,6 +827,8 @@ public sealed record MatchState
         return new SpellDuelState(
             true,
             state.TurnWindow.IsClosed,
+            SpellDuelIdForBattlefieldOrState(battlefieldObjectId, state, stackItems),
+            battlefieldObjectId,
             state.FocusPlayerId,
             state.PassedFocusPlayerIds,
             stackItems.Select(item => item.StackItemId).ToArray(),
@@ -851,13 +874,49 @@ public sealed record MatchState
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
+        var battlefieldObjectId = battlefieldObjectIds.Length == 1 ? battlefieldObjectIds[0] : null;
 
         return new BattleState(
             participantObjectIds.Length > 0,
-            battlefieldObjectIds.Length == 1 ? battlefieldObjectIds[0] : null,
+            BattleLifecycleIds.BattleIdForBattlefield(battlefieldObjectId),
+            battlefieldObjectId,
             attackerObjectIds,
             defenderObjectIds,
             participantControllerIds);
+    }
+
+    private static string? SpellDuelBattlefieldObjectId(MatchState state)
+    {
+        var contestedBattlefieldObjectIds = state.BattlefieldStates.Values
+            .Where(battlefield => battlefield.Contested)
+            .Select(battlefield => battlefield.BattlefieldObjectId)
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+        return contestedBattlefieldObjectIds.Length == 1 ? contestedBattlefieldObjectIds[0] : null;
+    }
+
+    private static string? SpellDuelIdForBattlefieldOrState(
+        string? battlefieldObjectId,
+        MatchState state,
+        IReadOnlyList<StackItemState> stackItems)
+    {
+        var battlefieldSpellDuelId = BattleLifecycleIds.SpellDuelIdForBattlefield(battlefieldObjectId);
+        if (!string.IsNullOrWhiteSpace(battlefieldSpellDuelId))
+        {
+            return battlefieldSpellDuelId;
+        }
+
+        var stackItemId = stackItems
+            .Select(item => item.StackItemId)
+            .FirstOrDefault(stackId => !string.IsNullOrWhiteSpace(stackId));
+        if (!string.IsNullOrWhiteSpace(stackItemId))
+        {
+            return $"spell-duel:stack:{stackItemId}";
+        }
+
+        return $"spell-duel:turn:{state.TurnNumber}";
     }
 
     private static bool IsSpellDuelTimingState(string timingState)
@@ -960,21 +1019,27 @@ public sealed record MatchState
                 continue;
             }
 
-            if (cardObject.Power > 0 && cardObject.Damage < cardObject.Power)
+            if (cardObject.Damage <= 0)
             {
                 continue;
             }
 
-            var isZeroPower = IsZeroPowerCleanupCandidate(cardObject);
-            if (cardObject.Power <= 0 && !isZeroPower)
+            if (cardObject.Power <= 0)
+            {
+                if (!IsZeroOrNegativePowerDamagedCleanupCandidate(cardObject))
+                {
+                    continue;
+                }
+            }
+            else if (cardObject.Damage < cardObject.Power)
             {
                 continue;
             }
 
             tasks.Add(new CleanupTaskState(
-                isZeroPower ? $"cleanup:zero-power:{objectId}" : $"cleanup:lethal:{objectId}",
-                isZeroPower ? "DESTROY_ZERO_POWER_UNIT" : "DESTROY_LETHAL_UNIT",
-                isZeroPower ? "ZERO_POWER" : "LETHAL_DAMAGE",
+                $"cleanup:lethal:{objectId}",
+                "DESTROY_LETHAL_UNIT",
+                "LETHAL_DAMAGE",
                 location.PlayerId,
                 objectId,
                 state.ObjectLocations.TryGetValue(objectId, out var objectLocation)
@@ -1122,20 +1187,6 @@ public sealed record MatchState
         return cardObject.OwnerId ?? string.Empty;
     }
 
-    private static bool HasOwnerOrControllerIdentity(CardObjectState cardObject)
-    {
-        return !string.IsNullOrWhiteSpace(cardObject.OwnerId)
-            || !string.IsNullOrWhiteSpace(cardObject.ControllerId);
-    }
-
-    private static bool IsZeroPowerCleanupCandidate(CardObjectState cardObject)
-    {
-        return cardObject.Power <= 0
-            && !cardObject.IsFaceDown
-            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && HasOwnerOrControllerIdentity(cardObject);
-    }
-
     private static PendingTaskQueueState BuildPendingTaskQueue(MatchState state)
     {
         var tasks = state.PendingCleanupTasks
@@ -1198,6 +1249,21 @@ public sealed record MatchState
         }
 
         return tasks[0];
+    }
+
+    private static bool HasOwnerOrControllerIdentity(CardObjectState cardObject)
+    {
+        return !string.IsNullOrWhiteSpace(cardObject.OwnerId)
+            || !string.IsNullOrWhiteSpace(cardObject.ControllerId);
+    }
+
+    private static bool IsZeroOrNegativePowerDamagedCleanupCandidate(CardObjectState cardObject)
+    {
+        return cardObject.Power <= 0
+            && cardObject.Damage > 0
+            && !cardObject.IsFaceDown
+            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && HasOwnerOrControllerIdentity(cardObject);
     }
 
     private static string PendingTaskQueuePhase(MatchState state, CleanupTaskState? activeTask)
@@ -1336,7 +1402,7 @@ public sealed record MatchState
 
     private static int ResolveBasePower(CardObjectState cardObject)
     {
-        return Math.Max(0, cardObject.Power - cardObject.UntilEndOfTurnPowerModifier);
+        return cardObject.Power - cardObject.UntilEndOfTurnPowerModifier;
     }
 
     private static bool IsBattlefieldCardStateObject(
@@ -1779,6 +1845,8 @@ public sealed record ResolutionResult(
         {
             ["isActive"] = spellDuel.IsActive,
             ["isClosed"] = spellDuel.IsClosed,
+            ["spellDuelId"] = spellDuel.SpellDuelId,
+            ["battlefieldObjectId"] = spellDuel.BattlefieldObjectId,
             ["focusPlayerId"] = spellDuel.FocusPlayerId,
             ["passedFocusPlayerIds"] = spellDuel.PassedFocusPlayerIds,
             ["stackItemIds"] = spellDuel.StackItemIds,
@@ -1791,6 +1859,7 @@ public sealed record ResolutionResult(
         return new Dictionary<string, object?>
         {
             ["isActive"] = battle.IsActive,
+            ["battleId"] = battle.BattleId,
             ["battlefieldObjectId"] = battle.BattlefieldObjectId,
             ["attackerObjectIds"] = battle.AttackerObjectIds,
             ["defenderObjectIds"] = battle.DefenderObjectIds,
@@ -1800,7 +1869,7 @@ public sealed record ResolutionResult(
 
     private static Dictionary<string, object?> BuildBattlefieldTaskSnapshotView(BattlefieldTaskState task)
     {
-        return new Dictionary<string, object?>
+        var view = new Dictionary<string, object?>
         {
             ["taskId"] = task.TaskId,
             ["kind"] = task.Kind,
@@ -1812,6 +1881,16 @@ public sealed record ResolutionResult(
             ["actingPlayerId"] = task.ActingPlayerId,
             ["stackItemIds"] = task.StackItemIds
         };
+        if (string.Equals(task.Kind, "START_SPELL_DUEL", StringComparison.Ordinal))
+        {
+            view["spellDuelId"] = BattleLifecycleIds.SpellDuelIdForBattlefield(task.BattlefieldObjectId);
+        }
+        else if (string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal))
+        {
+            view["battleId"] = BattleLifecycleIds.BattleIdForBattlefield(task.BattlefieldObjectId);
+        }
+
+        return view;
     }
 
     private static Dictionary<string, object?> BuildBattlefieldResolutionSnapshotView(BattlefieldResolutionState resolution)
@@ -2084,7 +2163,7 @@ public sealed record ResolutionResult(
 
     private static int ResolveBasePower(CardObjectState cardObject)
     {
-        return Math.Max(0, cardObject.Power - cardObject.UntilEndOfTurnPowerModifier);
+        return cardObject.Power - cardObject.UntilEndOfTurnPowerModifier;
     }
 
     private static Dictionary<string, object?> BuildObjectLocationSnapshotView(ObjectLocationState location)
@@ -3107,6 +3186,7 @@ internal static class ActionPromptBuilder
         var candidates = normalizedActions
             .Select(action => BuildCandidate(state, playerId, action, actionable, reason))
             .ToArray();
+        var view = BuildView(state, playerId, actionable, reason, normalizedActions);
 
         return new ActionPromptDto(
             playerId,
@@ -3115,7 +3195,192 @@ internal static class ActionPromptBuilder
             normalizedActions,
             promptId,
             state.Tick,
-            candidates);
+            candidates,
+            view);
+    }
+
+    private static PromptViewDto BuildView(
+        MatchState state,
+        string playerId,
+        bool actionable,
+        string reason,
+        IReadOnlyList<string> actions)
+    {
+        var type = PromptTypeFor(state, playerId, actionable, actions);
+        return new PromptViewDto(
+            type,
+            PromptTitleFor(type),
+            PromptMessageFor(type, state, playerId, reason),
+            RelatedBattlefieldIdFor(state, type),
+            RelatedStackItemIdFor(state, type),
+            RelatedBattleIdFor(state, type),
+            RelatedSpellDuelIdFor(state, type),
+            type == PromptTypes.Mulligan && actions.Contains("MULLIGAN", StringComparer.Ordinal) ? 0 : null,
+            type == PromptTypes.Mulligan && actions.Contains("MULLIGAN", StringComparer.Ordinal)
+                ? OfficialDeckValidator.MaximumMulliganCount
+                : null);
+    }
+
+    private static string PromptTypeFor(
+        MatchState state,
+        string playerId,
+        bool actionable,
+        IReadOnlyList<string> actions)
+    {
+        if (string.Equals(state.Status, MatchStatuses.Finished, StringComparison.Ordinal))
+        {
+            return PromptTypes.MatchResult;
+        }
+
+        if (!string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal))
+        {
+            return PromptTypes.RoomSetup;
+        }
+
+        if (string.Equals(state.Phase, MatchPhases.Mulligan, StringComparison.Ordinal))
+        {
+            return PromptTypes.Mulligan;
+        }
+
+        if (state.StackItems.Count > 0 && !string.IsNullOrWhiteSpace(state.PriorityPlayerId))
+        {
+            return PromptTypes.StackPriority;
+        }
+
+        if (string.Equals(state.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(state.FocusPlayerId))
+        {
+            return PromptTypes.SpellDuelFocus;
+        }
+
+        if (ResolutionResult.ActiveStartBattleTask(state) is not null)
+        {
+            return PromptTypes.BattleDeclaration;
+        }
+
+        if (ResolutionResult.HasBlockingPendingTaskQueue(state))
+        {
+            return PromptTypes.TaskQueue;
+        }
+
+        return actionable && actions.Any(action => !string.Equals(action, "WAIT", StringComparison.Ordinal))
+            ? PromptTypes.MainAction
+            : PromptTypes.Wait;
+    }
+
+    private static string PromptTitleFor(string type)
+    {
+        return type switch
+        {
+            PromptTypes.RoomSetup => "房间准备",
+            PromptTypes.Mulligan => "起手调度",
+            PromptTypes.MainAction => "主行动",
+            PromptTypes.StackPriority => "优先行动",
+            PromptTypes.SpellDuelFocus => "法术对决",
+            PromptTypes.BattleDeclaration => "声明战斗",
+            PromptTypes.TaskQueue => "任务队列",
+            PromptTypes.MatchResult => "对局结束",
+            _ => "等待"
+        };
+    }
+
+    private static string PromptMessageFor(
+        string type,
+        MatchState state,
+        string playerId,
+        string reason)
+    {
+        if (string.Equals(type, PromptTypes.MatchResult, StringComparison.Ordinal))
+        {
+            if (string.Equals(state.WinnerPlayerId, playerId, StringComparison.Ordinal))
+            {
+                return "对局结束，你已获胜。";
+            }
+
+            return string.IsNullOrWhiteSpace(state.WinnerPlayerId)
+                ? "对局已结束。"
+                : "对局结束，对手已获胜。";
+        }
+
+        return string.IsNullOrWhiteSpace(reason)
+            ? "等待服务端确认下一步。"
+            : reason;
+    }
+
+    private static string? RelatedBattlefieldIdFor(MatchState state, string type)
+    {
+        if (string.Equals(type, PromptTypes.BattleDeclaration, StringComparison.Ordinal))
+        {
+            return FirstNonEmpty(
+                ResolutionResult.ActiveStartBattleTask(state)?.BattlefieldObjectId,
+                state.BattleState.BattlefieldObjectId);
+        }
+
+        if (string.Equals(type, PromptTypes.TaskQueue, StringComparison.Ordinal))
+        {
+            var activeTask = ActivePendingTask(state);
+            return FirstNonEmpty(activeTask?.BattlefieldObjectId);
+        }
+
+        if (string.Equals(type, PromptTypes.SpellDuelFocus, StringComparison.Ordinal))
+        {
+            return FirstNonEmpty(
+                state.SpellDuelState.BattlefieldObjectId,
+                state.BattlefieldTasks.FirstOrDefault(task =>
+                    string.Equals(task.Kind, "START_SPELL_DUEL", StringComparison.Ordinal)
+                    && string.Equals(task.Status, "ACTIVE", StringComparison.Ordinal))?.BattlefieldObjectId);
+        }
+
+        return null;
+    }
+
+    private static string? RelatedBattleIdFor(MatchState state, string type)
+    {
+        if (string.Equals(type, PromptTypes.BattleDeclaration, StringComparison.Ordinal))
+        {
+            return FirstNonEmpty(
+                BattleLifecycleIds.BattleIdForBattlefield(ResolutionResult.ActiveStartBattleTask(state)?.BattlefieldObjectId),
+                state.BattleState.BattleId);
+        }
+
+        return null;
+    }
+
+    private static string? RelatedSpellDuelIdFor(MatchState state, string type)
+    {
+        if (string.Equals(type, PromptTypes.SpellDuelFocus, StringComparison.Ordinal))
+        {
+            return FirstNonEmpty(
+                state.SpellDuelState.SpellDuelId,
+                BattleLifecycleIds.SpellDuelIdForBattlefield(state.BattlefieldTasks.FirstOrDefault(task =>
+                    string.Equals(task.Kind, "START_SPELL_DUEL", StringComparison.Ordinal)
+                    && string.Equals(task.Status, "ACTIVE", StringComparison.Ordinal))?.BattlefieldObjectId));
+        }
+
+        return null;
+    }
+
+    private static string? RelatedStackItemIdFor(MatchState state, string type)
+    {
+        if (!string.Equals(type, PromptTypes.StackPriority, StringComparison.Ordinal)
+            && !string.Equals(type, PromptTypes.SpellDuelFocus, StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        return FirstNonEmpty(state.StackItems.LastOrDefault()?.StackItemId);
+    }
+
+    private static CleanupTaskState? ActivePendingTask(MatchState state)
+    {
+        var queue = state.PendingTaskQueue;
+        return queue.Tasks.FirstOrDefault(task => string.Equals(task.TaskId, queue.ActiveTaskId, StringComparison.Ordinal))
+            ?? queue.Tasks.FirstOrDefault();
+    }
+
+    private static string? FirstNonEmpty(params string?[] values)
+    {
+        return values.FirstOrDefault(value => !string.IsNullOrWhiteSpace(value));
     }
 
     private static ActionPromptCandidateDto BuildCandidate(
@@ -8995,9 +9260,17 @@ public sealed class MatchSession : IMatchSession
 
             var startedTick = state.Tick;
             var startedEventSequence = lastEventSequence;
-            var intent = new PlayerIntent(normalizedIntentId, normalizedPlayerId, command.CmdType);
-            var result = await ruleEngine.ResolveAsync(state, intent, command, cancellationToken)
-                .ConfigureAwait(false);
+            ResolutionResult result;
+            if (TryRejectStalePrompt(state, normalizedPlayerId, rawCommand, out var promptRejection))
+            {
+                result = promptRejection;
+            }
+            else
+            {
+                var intent = new PlayerIntent(normalizedIntentId, normalizedPlayerId, command.CmdType);
+                result = await ruleEngine.ResolveAsync(state, intent, command, cancellationToken)
+                    .ConfigureAwait(false);
+            }
             var completedEventSequence = startedEventSequence + result.Events.Count;
             await journal.RecordAsync(new MatchJournalEntry(
                     RoomId,
@@ -9034,6 +9307,85 @@ public sealed class MatchSession : IMatchSession
     }
 
     private sealed record CachedResolution(string CommandType, ResolutionResult Result);
+
+    private static bool TryRejectStalePrompt(
+        MatchState state,
+        string playerId,
+        JsonElement? rawCommand,
+        out ResolutionResult rejection)
+    {
+        rejection = default!;
+        if (rawCommand is not { ValueKind: JsonValueKind.Object } command)
+        {
+            return false;
+        }
+
+        var hasPromptId = TryReadStringProperty(command, "promptId", out var submittedPromptId);
+        var hasSnapshotTick = TryReadLongProperty(command, "snapshotTick", out var submittedSnapshotTick);
+        if (!hasPromptId && !hasSnapshotTick)
+        {
+            return false;
+        }
+
+        var currentPrompt = ResolutionResult.BuildPrompts(state)[playerId];
+        if (hasPromptId
+            && !string.Equals(submittedPromptId, currentPrompt.PromptId, StringComparison.Ordinal))
+        {
+            rejection = ResolutionResult.Rejected(
+                state,
+                "行动窗口已过期，请按最新提示重新提交。",
+                ErrorCodes.PromptExpired);
+            return true;
+        }
+
+        if (hasSnapshotTick
+            && submittedSnapshotTick != currentPrompt.SnapshotTick)
+        {
+            rejection = ResolutionResult.Rejected(
+                state,
+                "行动快照已过期，请按最新状态重新提交。",
+                ErrorCodes.PromptExpired);
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryReadStringProperty(JsonElement element, string propertyName, out string value)
+    {
+        value = string.Empty;
+        if (!element.TryGetProperty(propertyName, out var property)
+            || property.ValueKind != JsonValueKind.String)
+        {
+            return false;
+        }
+
+        value = property.GetString()?.Trim() ?? string.Empty;
+        return !string.IsNullOrWhiteSpace(value);
+    }
+
+    private static bool TryReadLongProperty(JsonElement element, string propertyName, out long value)
+    {
+        value = 0;
+        if (!element.TryGetProperty(propertyName, out var property))
+        {
+            return false;
+        }
+
+        if (property.ValueKind == JsonValueKind.Number
+            && property.TryGetInt64(out value))
+        {
+            return true;
+        }
+
+        if (property.ValueKind == JsonValueKind.String
+            && long.TryParse(property.GetString(), out value))
+        {
+            return true;
+        }
+
+        return false;
+    }
 
     private static MatchState RestoreState(MatchRecoveryFrame recovery)
     {

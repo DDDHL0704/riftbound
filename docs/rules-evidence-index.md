@@ -1,6 +1,6 @@
 # 规则证据索引
 
-更新时间：2026-05-03
+更新时间：2026-05-09
 
 ## 1. 目的
 
@@ -43,7 +43,9 @@
 | 打出卡牌 | `CORE-260330` p36 onward, rules 349+; `JFAQ-251023` p1-p4, questions 1.1-2.5 | 打出/确认流程需要选择、费用、合法性、待处理效果；触发式技能费用可拒付。 |
 | 抽牌 | `CORE-260330` p57, rule 413 | 抽牌是限定行动；牌堆不足触发燃尽。 |
 | 符文池与资源 | `CORE-260330` p20, rules 164-167; p29-p31, rules 315.4, 317.2 | 法力/符能进入符文池后再支付；抽牌阶段结束和回合结束清空。 |
+| 战力、0/负战力与伤害 | `CORE-260330` p14-p15, rules 142-143; p31-p33, rules 318-324; p77, rule 460; `SOUL-OFAQ-260114` p19-p20 | 单位战力可以为 0 或负数；战力不高于 0 的单位不会仅因战力值自动被摧毁；必须受到至少 1 点有效伤害后才会在清理中被摧毁。负战力单位在战斗伤害输出/分配计算中按 0 处理，但对象实际战力值仍保留，用于后续增减计算。 |
 | 战场控制权 | `CORE-260330` p24-p26, rules 187-189; `JFAQ-251023` p5-p7, questions 4.1-5.4; `SOUL-OFAQ-260114` p21 | 战场争夺期间控制权通常冻结；“恶意收购”类场景存在官方特例，必须以 FAQ 修正 Java 行为。 |
+| 精确战场目的地与对象 ID | `CORE-260330` p4-p8, rules 107-129; `CATALOG` 2026-04-27 snapshot: OGN·276a/298, OGN·278a/298, OGN·293a/298 | `BATTLEFIELD:<objectId>` 这类协议字段只能规范化 zone 部分；冒号后的官方对象/card id 必须保持原始大小写。当前官方快照存在小写 `a` 的战场卡号，任何 `ToUpperInvariant()` 全串规范化都会制造无法匹配的 object id。 |
 | 战斗与得分 | `CORE-260330` p77-p78, rules 461-464; `JFAQ-251023` p7-p10, questions 5.3-6.x; `SOUL-JFAQ-260114` p4-p5 | 战斗清理、征服/据守、胜利分数、无法得分转抽牌等都需要专门 fixture。 |
 | 装备/贴附/顶部卡牌 | `CORE-260330` p89, rules 718-719; `SOUL-JFAQ-260114` p22-p23 | 装备控制权、顶部卡牌、卸除顺序和区域归属必须独立建模。 |
 | 关键词 | `CORE-260330` p92-p105, rules 800+; `SOUL-OFAQ-260114` p1-p4, p21; `SOUL-JFAQ-260114` p2, p19 | 法盾、回响、急速、百炼等存在 FAQ 修正；关键词实现前必须逐条查 FAQ。 |
@@ -58,6 +60,7 @@
 | `JFAQ-251023` p5-p7 | 战场控制权、清理、特殊清理 | 战斗中控制权冻结、待命牌移除时机、清理不结算合法项目。 |
 | `JFAQ-251023` p7-p10 | 战斗、伤害分配、卡牌 Q&A | 战斗清理、壁垒/伤害分配同优先级选择、牌堆为空时特定触发。 |
 | `SOUL-OFAQ-260114` p1-p4 | 官方勘误、法盾、从牌堆打出 | 法盾按每次选为目标收费；从牌堆打出的卡先放逐再打出。 |
+| `SOUL-OFAQ-260114` p19-p20 | 降低战力的卡牌、0/负战力单位 | 战力可以降到 0 或负数；0/负战力单位不会自动被摧毁；至少受到 1 点伤害才会被摧毁；负战力战斗伤害输出按 0，但实际战力保留。 |
 | `SOUL-OFAQ-260114` p21 | 恶意收购、回响、百炼 | 控制权导致非战斗法术对决、回响重复“指示”、百炼为可选。 |
 | `SOUL-JFAQ-260114` p1-p5 | 系列勘误、战斗得分 | 星落/艾卡西亚暴雨、法盾、征服/据守与胜利分数。 |
 | `SOUL-JFAQ-260114` p19 | 回响与费用 | 回响重复流程和费用判定。 |
@@ -1348,6 +1351,47 @@
 - `PASS`：`CORE-260330` 将“让过”分别放在 FEPR 和法术对决语境中，且优先行动权/焦点决定谁能行动。`JFAQ-251023` questions 3.1-3.3 澄清焦点、活跃玩家和初始结算链；`BREAK-JFAQ-260416` p2-p5 的普通开环/法术对决个案未发现推翻通用 `PASS` 语义的条目。当前旧 Java 把初始 `PASS` 记成 `TURN_ENDED`，这是 legacy mismatch candidate。
 - `END_TURN`：`CORE-260330` rules 316.6-317.3 支持主阶段结束后进入回合结束流程，并在下一回合开始执行召出、抽牌等步骤。`JFAQ-251023` questions 5.1-5.2 补充清理和特殊清理；`BREAK-JFAQ-260416` p11 仅发现额外回合相关个案，未改变裸 `END_TURN` 通用流程。
 - `duplicate-pass`：这是网络重试和服务端权威幂等 fixture，不由游戏规则 PDF 裁决。它的验收依据是 command log 唯一键、同一 `clientIntentId` 不重复推进 tick、不重复写事件。
+
+## 6.2 2026-05-09 P0 证据补录
+
+### P0E-001 0/负战力 FAQ 语义
+
+证据：
+- `CORE-260330` p14-p15 rules 142-143：伤害是单位上的非零数值标记；单位受到的非零伤害等于或超过其战力时，才会被摧毁。战力低于 0 时，对法术/技能引用和战斗伤害分配按 0 视作，但实际数值不是 0，后续战力增减应使用实际值。
+- `CORE-260330` p31-p33 rules 318-324：清理只处理规则列出的未决任务；其中状态性摧毁条件是“非零伤害标记等同于或超过其战力”。
+- `SOUL-OFAQ-260114` p19-p20：FAQ 明确 0 或负战力单位可以留在场上；它们受到至少 1 点伤害后才会被摧毁；负战力在造成战斗伤害时按 0 输出，但真实战力值保留。
+
+开发影响：
+- 禁止把 `Power <= 0` 本身当作清理摧毁条件。
+- `Damage == 0` 不是有效伤害，不能触发 0/负战力单位被摧毁。
+- `Damage >= 1 && Power <= 0` 应在清理中视为满足致命伤害。
+- 战斗伤害计算可以 clamp 到 0；对象 `Power` / `effectivePower` 视图不能因此被改写成 0。
+
+### P0E-002 审计基线/历史服务端冲突点与第一轮修复
+
+证据读取点：
+- `dda6385` 基线 / B 并行修复前，`src/Riftbound.Engine/MatchSession.cs` 的 pending cleanup 任务候选使用 `IsZeroPowerCleanupCandidate` 并暴露 `DESTROY_ZERO_POWER_UNIT` / `ZERO_POWER`。
+- `dda6385` 基线 / B 并行修复前，`MatchSession` 侧 `IsZeroPowerCleanupCandidate` 只检查 `Power <= 0`、非背面、非待命和 owner/controller 身份，未要求至少 1 点伤害。
+- `dda6385` 基线 / B 并行修复前，`src/Riftbound.Engine/CoreRuleEngine.cs` 的状态性清理把 `IsZeroPowerCleanupCandidate` 纳入 removal set，并可用 `ZERO_POWER` 作为摧毁原因。
+- `dda6385` 基线 / B 并行修复前，Core 侧 `IsZeroPowerCleanupCandidate` 同样以 `Power <= 0` 为核心条件，未要求 `Damage > 0`。
+- 2026-05-09 第一轮 B 修复后，`Power <= 0 && Damage == 0` 不再生成 blocking cleanup task，也不会自动入墓；`Power <= 0 && Damage > 0` 改走 `DESTROY_LETHAL_UNIT` / `LETHAL_DAMAGE`。
+- A 主控验收：聚焦测试 11/11 通过，后端 full test 3304/3304 通过，`git diff --check` 通过。
+
+结论：
+- `dda6385` 基线冲突已作为 P0 证据记录；第一轮修复已清理自动死亡语义。
+- 旧批次文字和兼容字符串仍可能在历史审计中出现，不能误读为当前引擎仍会生成 `DESTROY_ZERO_POWER_UNIT`。
+
+### P0E-003 具体战场 destination 大小写风险
+
+证据读取点：
+- 审计基线提交为 `dda6385 feat: support concrete battlefield moves`。
+- `dda6385` 基线中，`src/Riftbound.Engine/CoreRuleEngine.cs` 的移动 destination 规范化路径曾对整个输入使用 `ToUpperInvariant()`，可能把 `BATTLEFIELD:<objectId>` 冒号后的 object id 一并转大写。
+- `data/official/card-catalog.zh-CN.json:39244`、`:39367`、`:40039`：官方快照存在 `OGN·276a/298`、`OGN·278a/298`、`OGN·293a/298` 三个小写 `a` 战场卡号。
+- 2026-05-09 第一轮 B 修复后，移动 location 解析只规范化冒号前的 zone，保留冒号后 objectId 原始大小写，并补小写 `a` 战场移动回归测试。
+
+开发影响：
+- 具体战场移动、待命额外战场 destination、声明战斗 destination 和任何 `BATTLEFIELD:<objectId>` 协议字段都必须只规范化 zone 前缀，保留 object id 原始大小写。
+- 后续新增任何 `ZONE:<objectId>` 风格协议解析时，都应复用“只规范化 zone、不改 objectId”的约束。
 
 ## 7. 索引维护规则
 

@@ -33,7 +33,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
 
   return (
     <div className="match-page">
-      <MatchTopBar playerId={settings.playerId} snapshot={snapshot} status={controller.state.status} />
+      <MatchTopBar playerId={settings.playerId} prompt={controller.state.prompt} snapshot={snapshot} status={controller.state.status} />
       <section className="match-command-row">
         <Button icon={<RefreshCw size={16} />} onClick={() => void controller.join()} variant="secondary">连接/重连</Button>
         <Button onClick={() => void controller.requestSnapshot()} variant="ghost">重新同步快照</Button>

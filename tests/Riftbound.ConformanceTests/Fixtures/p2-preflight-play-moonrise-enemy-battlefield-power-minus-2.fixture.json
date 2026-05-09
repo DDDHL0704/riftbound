@@ -168,9 +168,9 @@
           "sourceObjectId": "P1-SPELL-MOONRISE",
           "targetObjectId": "P2-BATTLEFIELD-UNIT-002",
           "powerDelta": -2,
-          "appliedPowerDelta": -1,
+          "appliedPowerDelta": -2,
           "minimumPower": 0,
-          "resultingPower": 0
+          "resultingPower": -1
         }
       }
     ],
@@ -229,8 +229,8 @@
         },
         "P2-BATTLEFIELD-UNIT-002": {
           "damage": 0,
-          "power": 0,
-          "untilEndOfTurnPowerModifier": -1
+          "power": -1,
+          "untilEndOfTurnPowerModifier": -2
         }
       }
     },

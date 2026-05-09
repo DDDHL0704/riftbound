@@ -233,6 +233,193 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptViewMarksMainActionWindow()
+    {
+        var state = new MatchState(
+            "prompt-view-main-room",
+            4,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen);
+
+        var prompts = ResolutionResult.BuildPrompts(state);
+        var activeView = Assert.IsType<PromptViewDto>(prompts["P1"].View);
+        var waitingView = Assert.IsType<PromptViewDto>(prompts["P2"].View);
+
+        Assert.Equal(PromptTypes.MainAction, activeView.Type);
+        Assert.Equal("主行动", activeView.Title);
+        Assert.Contains("普通开环行动", activeView.Message, StringComparison.Ordinal);
+        Assert.Equal(PromptTypes.Wait, waitingView.Type);
+        Assert.Equal("等待", waitingView.Title);
+        Assert.Contains("\"view\":{\"type\":\"MAIN_ACTION\"", CanonicalJson.Serialize(prompts["P1"]), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ActionPromptViewMarksMulliganWindow()
+    {
+        var state = new MatchState(
+            "prompt-view-mulligan-room",
+            2,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Mulligan,
+            timingState: TimingStates.Mulligan,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HAND-1", "P1-HAND-2"]
+                },
+                ["P2"] = PlayerZones.Empty
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var view = Assert.IsType<PromptViewDto>(prompt.View);
+
+        Assert.Equal(PromptTypes.Mulligan, view.Type);
+        Assert.Equal("起手调度", view.Title);
+        Assert.Contains("起手牌", view.Message, StringComparison.Ordinal);
+        Assert.Equal(0, view.MinSelection);
+        Assert.Equal(OfficialDeckValidator.MaximumMulliganCount, view.MaxSelection);
+    }
+
+    [Fact]
+    public void ActionPromptViewCarriesSpellDuelRelatedIds()
+    {
+        var state = PromptViewContestedBattlefieldState(
+            TimingStates.SpellDuelOpen,
+            focusPlayerId: "P1");
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var view = Assert.IsType<PromptViewDto>(prompt.View);
+
+        Assert.Equal(PromptTypes.SpellDuelFocus, view.Type);
+        Assert.Equal("BF-1", view.RelatedBattlefieldId);
+        Assert.Equal("spell-duel:BF-1", view.RelatedSpellDuelId);
+        Assert.Null(view.RelatedBattleId);
+
+        var snapshot = ResolutionResult.BuildSnapshots(state)["P1"];
+        var spellDuel = Assert.IsType<Dictionary<string, object?>>(snapshot.Timing["spellDuel"]);
+        Assert.Equal("spell-duel:BF-1", Assert.IsType<string>(spellDuel["spellDuelId"]));
+        Assert.Equal("BF-1", Assert.IsType<string>(spellDuel["battlefieldObjectId"]));
+
+        var battlefieldTasks = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(snapshot.Timing["battlefieldTasks"]);
+        var spellDuelTask = Assert.Single(battlefieldTasks, task =>
+            string.Equals(Assert.IsType<string>(task["kind"]), "START_SPELL_DUEL", StringComparison.Ordinal));
+        Assert.Equal("spell-duel:BF-1", Assert.IsType<string>(spellDuelTask["spellDuelId"]));
+    }
+
+    [Fact]
+    public void ActionPromptViewCarriesBattleDeclarationRelatedIds()
+    {
+        var state = PromptViewContestedBattlefieldState(
+            TimingStates.NeutralOpen,
+            untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted("BF-1")]);
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var view = Assert.IsType<PromptViewDto>(prompt.View);
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.BattleDeclaration, view.Type);
+        Assert.Equal("BF-1", view.RelatedBattlefieldId);
+        Assert.Equal("battle:BF-1", view.RelatedBattleId);
+        Assert.Null(view.RelatedSpellDuelId);
+
+        var snapshot = ResolutionResult.BuildSnapshots(state)["P1"];
+        var battle = Assert.IsType<Dictionary<string, object?>>(snapshot.Timing["battle"]);
+        Assert.Null(battle["battleId"]);
+
+        var battlefieldTasks = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(snapshot.Timing["battlefieldTasks"]);
+        var startBattleTask = Assert.Single(battlefieldTasks, task =>
+            string.Equals(Assert.IsType<string>(task["kind"]), "START_BATTLE", StringComparison.Ordinal));
+        Assert.Equal("battle:BF-1", Assert.IsType<string>(startBattleTask["battleId"]));
+    }
+
+    private static MatchState PromptViewContestedBattlefieldState(
+        string timingState,
+        string activePlayerId = "P1",
+        string? focusPlayerId = null,
+        IReadOnlyList<string>? passedFocusPlayerIds = null,
+        IReadOnlyList<string>? untilEndOfTurnEffects = null)
+    {
+        return new MatchState(
+            "prompt-view-contested-battlefield-room",
+            8,
+            3,
+            activePlayerId,
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: timingState,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["BF-1", "P1-UNIT-1"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-UNIT-1"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new(
+                    "BF-1",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-1"] = new(
+                    "P1-UNIT-1",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-UNIT-1"] = new(
+                    "P2-UNIT-1",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            focusPlayerId: focusPlayerId,
+            passedFocusPlayerIds: passedFocusPlayerIds,
+            untilEndOfTurnEffects: untilEndOfTurnEffects,
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new("P1", "BATTLEFIELD", "BF-1"),
+                ["P1-UNIT-1"] = new("P1", "BATTLEFIELD", "BF-1"),
+                ["P2-UNIT-1"] = new("P2", "BATTLEFIELD", "BF-1")
+            });
+    }
+
+    [Fact]
     public void SnapshotsDoNotExposeRandomSeedOrCursor()
     {
         var state = new MatchState(
@@ -1198,7 +1385,7 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
-    public async Task PendingTaskQueueExposesZeroPowerFromPowerModifierAsStateBasedTask()
+    public async Task PendingTaskQueueDoesNotExposeUndamagedZeroPowerFromPowerModifierAsStateBasedTask()
     {
         var state = new MatchState(
             "zero-power-modifier-task-room",
@@ -1244,39 +1431,105 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal(4, powerEffect.BasePower);
         Assert.Equal(0, powerEffect.EffectivePower);
 
-        var cleanupTask = Assert.Single(state.PendingCleanupTasks);
-        Assert.Equal("cleanup:zero-power:B-ZERO-MODIFIER-UNIT", cleanupTask.TaskId);
-        Assert.Equal("DESTROY_ZERO_POWER_UNIT", cleanupTask.Kind);
-        Assert.Equal("ZERO_POWER", cleanupTask.Reason);
-        Assert.Equal("bob", cleanupTask.PlayerId);
-        Assert.Equal("B-ZERO-MODIFIER-UNIT", cleanupTask.ObjectId);
-        Assert.True(state.PendingTaskQueue.IsBlocking);
-        Assert.Equal("STATE_BASED_CLEANUP", state.PendingTaskQueue.Phase);
-        Assert.Equal(cleanupTask.TaskId, state.PendingTaskQueue.ActiveTaskId);
+        Assert.Empty(state.PendingCleanupTasks);
+        Assert.False(state.PendingTaskQueue.IsBlocking);
+        Assert.Equal("IDLE", state.PendingTaskQueue.Phase);
+        Assert.Null(state.PendingTaskQueue.ActiveTaskId);
 
         var snapshot = ResolutionResult.BuildSnapshots(state)["alice"];
         var taskQueue = Assert.IsType<Dictionary<string, object?>>(snapshot.Timing["pendingTaskQueue"]);
-        Assert.True(Assert.IsType<bool>(taskQueue["isBlocking"]));
-        Assert.Equal("STATE_BASED_CLEANUP", Assert.IsType<string>(taskQueue["phase"]));
+        Assert.False(Assert.IsType<bool>(taskQueue["isBlocking"]));
+        Assert.Equal("IDLE", Assert.IsType<string>(taskQueue["phase"]));
         var taskQueueItems = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(taskQueue["tasks"]);
-        var taskView = Assert.Single(taskQueueItems);
-        Assert.Equal("DESTROY_ZERO_POWER_UNIT", Assert.IsType<string>(taskView["kind"]));
+        Assert.Empty(taskQueueItems);
 
         var prompt = ResolutionResult.BuildPrompts(state)["alice"];
-        Assert.False(prompt.Actionable);
-        Assert.Equal(["WAIT", "SURRENDER"], prompt.Actions);
-        Assert.Contains("0 战力清理", prompt.Reason, StringComparison.Ordinal);
+        Assert.True(prompt.Actionable);
+        Assert.Contains("END_TURN", prompt.Actions);
+        Assert.DoesNotContain("0 战力清理", prompt.Reason, StringComparison.Ordinal);
         Assert.DoesNotContain("DESTROY_ZERO_POWER_UNIT", prompt.Reason, StringComparison.Ordinal);
 
-        var blocked = await new CoreRuleEngine().ResolveAsync(
+        var accepted = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("blocked-zero-power-end-turn", "alice", "END_TURN"),
             new EndTurnCommand(),
             CancellationToken.None);
-        Assert.False(blocked.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, blocked.ErrorCode);
-        Assert.Contains("0 战力清理", blocked.ErrorMessage, StringComparison.Ordinal);
-        Assert.DoesNotContain("DESTROY_ZERO_POWER_UNIT", blocked.ErrorMessage, StringComparison.Ordinal);
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.DoesNotContain(accepted.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
+        Assert.Equal(["B-ZERO-MODIFIER-UNIT"], accepted.State.PlayerZones["bob"].Base);
+    }
+
+    [Fact]
+    public async Task TurnEndCleanupRestoresNegativeBasePowerAfterPositiveModifierExpires()
+    {
+        const string objectId = "B-NEGATIVE-BASE-BUFFED-UNIT";
+        var state = new MatchState(
+            "negative-base-power-modifier-expiry-room",
+            15,
+            4,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            turnPlayerId: "alice",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty,
+                ["bob"] = PlayerZones.Empty with
+                {
+                    Base = [objectId]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [objectId] = new(
+                    objectId,
+                    power: 1,
+                    untilEndOfTurnPowerModifier: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "bob")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [objectId] = new("bob", "BASE")
+            });
+
+        var powerEffect = Assert.Single(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.TargetObjectId, objectId, StringComparison.Ordinal));
+        Assert.Equal(3, powerEffect.PowerDelta);
+        Assert.Equal(-2, powerEffect.BasePower);
+        Assert.Equal(1, powerEffect.EffectivePower);
+        var snapshot = ResolutionResult.BuildSnapshots(state)["alice"];
+        var bob = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["bob"]);
+        var objects = Assert.IsType<Dictionary<string, object?>>(bob["objects"]);
+        var unitView = Assert.IsType<Dictionary<string, object?>>(objects[objectId]);
+        Assert.Equal(-2, Assert.IsType<int>(unitView["basePower"]));
+        Assert.Equal(1, Assert.IsType<int>(unitView["effectivePower"]));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("expire-positive-modifier-negative-base", "alice", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var unit = result.State.CardObjects[objectId];
+        Assert.Equal(-2, unit.Power);
+        Assert.Equal(0, unit.UntilEndOfTurnPowerModifier);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_MODIFIER_EXPIRED", StringComparison.Ordinal)
+            && Assert.IsAssignableFrom<IReadOnlyList<string>>(gameEvent.Payload["objectIds"])
+                .Contains(objectId, StringComparer.Ordinal));
     }
 
     [Fact]

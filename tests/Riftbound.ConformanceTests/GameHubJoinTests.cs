@@ -685,7 +685,12 @@ public sealed class GameHubJoinTests
         Assert.Empty(playClients.CallerClient.Errors);
         var playEvents = EventsFor(playClients);
         var costEvent = Assert.Single(playEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal("PLAY_CARD", Assert.IsType<string>(costEvent.Payload["paymentWindow"]));
+        Assert.StartsWith("PLAY_CARD:", Assert.IsType<string>(costEvent.Payload["paymentId"]), StringComparison.Ordinal);
         Assert.Equal(2, costEvent.Payload["power"]);
+        Assert.Equal(0, Assert.IsType<int>(costEvent.Payload["remainingPower"]));
+        var remainingPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["remainingPowerByTrait"]);
+        Assert.DoesNotContain(RuneTrait.Red, remainingPowerByTrait.Keys);
         var snapshot = SnapshotFor(playClients, "P1");
         var stackItem = Assert.IsType<Dictionary<string, object?>>(Assert.Single(snapshot.Stack));
         Assert.Equal(2, Assert.IsType<int>(stackItem["damageAmount"]));
@@ -694,6 +699,133 @@ public sealed class GameHubJoinTests
         Assert.Equal(0, Assert.IsType<int>(runePool["power"]));
         var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(runePool["powerByTrait"]);
         Assert.DoesNotContain(RuneTrait.Red, powerByTrait.Keys);
+    }
+
+    [Fact]
+    public async Task SubmitIntentAcceptsMatchingPromptStamp()
+    {
+        const string roomId = "prompt-stamp-matching-core";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "typed-power-payment", "seed-prompt-stamp-matching");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var prompt = PromptFor(seedClients, "P1");
+        Assert.False(string.IsNullOrWhiteSpace(prompt.PromptId));
+        Assert.True(prompt.SnapshotTick.HasValue);
+
+        var playClients = new RecordingHubClients();
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-matching-prompt-stamp", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PLAY_CARD",
+                sourceObjectId = "P1-SPELL-BULLET-TIME",
+                cardNo = "OGN·268/298",
+                targetObjectIds = Array.Empty<string>(),
+                optionalCosts = new[] { "SPEND_POWER:red:2" },
+                promptId = prompt.PromptId,
+                snapshotTick = prompt.SnapshotTick
+            }));
+
+        Assert.Empty(playClients.CallerClient.Errors);
+        var events = EventsFor(playClients);
+        Assert.Contains(events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task SubmitIntentRejectsStalePromptStamp()
+    {
+        const string roomId = "prompt-stamp-expired-core";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "typed-power-payment", "seed-prompt-stamp-expired");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var prompt = PromptFor(seedClients, "P1");
+        Assert.False(string.IsNullOrWhiteSpace(prompt.PromptId));
+
+        var staleClients = new RecordingHubClients();
+        await CreateHub(staleClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-stale-prompt-stamp", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PLAY_CARD",
+                sourceObjectId = "P1-SPELL-BULLET-TIME",
+                cardNo = "OGN·268/298",
+                targetObjectIds = Array.Empty<string>(),
+                optionalCosts = new[] { "SPEND_POWER:red:2" },
+                promptId = $"{prompt.PromptId}:stale",
+                snapshotTick = prompt.SnapshotTick
+            }));
+
+        var error = Assert.Single(staleClients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.PromptExpired, payload.Code);
+        Assert.Empty(staleClients.GroupClient.EventMessages);
+    }
+
+    [Fact]
+    public async Task SubmitIntentRejectsStaleSnapshotTickWithMatchingPromptId()
+    {
+        const string roomId = "prompt-stamp-stale-snapshot-core";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "typed-power-payment", "seed-prompt-stamp-stale-snapshot");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var prompt = PromptFor(seedClients, "P1");
+        Assert.False(string.IsNullOrWhiteSpace(prompt.PromptId));
+        Assert.True(prompt.SnapshotTick.HasValue);
+
+        var staleClients = new RecordingHubClients();
+        await CreateHub(staleClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-stale-snapshot-stamp", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PLAY_CARD",
+                sourceObjectId = "P1-SPELL-BULLET-TIME",
+                cardNo = "OGN·268/298",
+                targetObjectIds = Array.Empty<string>(),
+                optionalCosts = new[] { "SPEND_POWER:red:2" },
+                promptId = prompt.PromptId,
+                snapshotTick = prompt.SnapshotTick.Value + 1
+            }));
+
+        var error = Assert.Single(staleClients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.PromptExpired, payload.Code);
+        Assert.Empty(staleClients.GroupClient.EventMessages);
     }
 
     [Fact]
@@ -2140,6 +2272,10 @@ public sealed class GameHubJoinTests
         var recycleEvent = Assert.Single(events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
         Assert.Equal("ASSEMBLE_EQUIPMENT", recycleEvent.Payload["paymentWindow"]);
         var costEvent = Assert.Single(events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal("ASSEMBLE_EQUIPMENT", Assert.IsType<string>(costEvent.Payload["paymentWindow"]));
+        var paymentId = Assert.IsType<string>(costEvent.Payload["paymentId"]);
+        Assert.StartsWith("ASSEMBLE_EQUIPMENT:", paymentId, StringComparison.Ordinal);
+        Assert.Equal(paymentId, Assert.IsType<string>(recycleEvent.Payload["paymentId"]));
         Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
 
         var snapshot = SnapshotFor(attachClients, "P1");
@@ -2153,6 +2289,8 @@ public sealed class GameHubJoinTests
         var runePool = Assert.IsType<Dictionary<string, object?>>(p1["runePool"]);
         var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(runePool["powerByTrait"]);
         Assert.DoesNotContain(RuneTrait.Red, powerByTrait.Keys);
+        var remainingAssemblePowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["remainingPowerByTrait"]);
+        Assert.DoesNotContain(RuneTrait.Red, remainingAssemblePowerByTrait.Keys);
     }
 
     [Fact]

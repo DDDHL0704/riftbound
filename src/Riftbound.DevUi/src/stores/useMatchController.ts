@@ -126,9 +126,10 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
 
   const submitCommand = useCallback(
     async (command: GameCommand) => {
-      await socket.submitIntent(roomId, playerId, intentId(playerId, command.cmdType), command);
+      const stampedCommand = withCurrentPromptStamp(command, state.prompt);
+      await socket.submitIntent(roomId, playerId, intentId(playerId, command.cmdType), stampedCommand);
     },
-    [playerId, roomId, socket]
+    [playerId, roomId, socket, state.prompt]
   );
 
   const submitStarterDeck = useCallback(async () => {
@@ -153,6 +154,18 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
 
 function intentId(playerId: string, commandType: string): string {
   return `${playerId}-${commandType}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function withCurrentPromptStamp(command: GameCommand, prompt: ActionPromptDto | undefined): GameCommand {
+  if (!prompt || (command.promptId != null && command.snapshotTick != null)) {
+    return command;
+  }
+
+  return {
+    ...command,
+    promptId: command.promptId ?? prompt.promptId ?? null,
+    snapshotTick: command.snapshotTick ?? prompt.snapshotTick ?? null
+  };
 }
 
 function sessionKey(roomId: string, playerId: string): string {

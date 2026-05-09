@@ -2,6 +2,7 @@ import { Check, Flag, Hourglass, Play, Send, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, ConnectionStatus, GameCommand, SnapshotDto } from "../../types/protocol";
 import { connectionStatusLabel, promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
+import { redactInternalText } from "../../utils/redaction";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
 
@@ -19,19 +20,27 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
   const candidates = (prompt?.candidates ?? []).filter((candidate) => candidate.enabled);
   const connected = connectionStatus === "connected";
   const canAct = connected && prompt?.actionable && prompt.playerId === playerId;
+  const promptView = prompt?.view;
+  const promptTitle = promptView?.title?.trim() || "当前行动";
+  const promptMessage = promptView?.message?.trim()
+    || (prompt ? promptReasonLabel(prompt.reason, "服务端行动提示") : "尚未收到行动提示");
 
   return (
     <section className="side-panel action-panel">
       <header>
         <span className="eyebrow">服务端行动提示</span>
-        <h2>当前行动</h2>
+        <h2>{promptTitle}</h2>
       </header>
       <div className="prompt-summary">
         <StatusPill tone={canAct ? "good" : "neutral"}>{canAct ? "轮到你操作" : "等待服务端或对手"}</StatusPill>
         <span>提示状态：{prompt ? "已收到" : "无"}</span>
-        <span>原因：{prompt ? promptReasonLabel(prompt.reason, "服务端行动提示") : "尚未收到行动提示"}</span>
+        {promptView?.type && <span>类型：{promptView.type}</span>}
+        <span>{promptView ? "说明" : "原因"}：{promptMessage}</span>
+        {promptView?.relatedBattlefieldId && <span>关联战场：{promptView.relatedBattlefieldId}</span>}
+        {promptView?.relatedStackItemId && <span>关联结算链：{promptView.relatedStackItemId}</span>}
         {!connected && <span>连接状态：{connectionStatusLabel(connectionStatus)}，行动入口已暂停。</span>}
       </div>
+      {prompt && shouldShowGenericPromptDetails(prompt) && <GenericPromptDetails prompt={prompt} />}
       <div className="action-buttons">
         {candidates.length === 0 && <span className="empty-hint">服务端暂未提供可提交候选。</span>}
         {candidates.map((candidate) => candidate.action === "MULLIGAN" ? (
@@ -40,6 +49,7 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
             disabledByConnection={!connected}
             key={`${candidate.action}-${candidate.label}`}
             onCommand={onCommand}
+            prompt={prompt}
           />
         ) : (
           <CandidateButton
@@ -49,6 +59,7 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
             onReady={onReady}
             onSubmitStarterDeck={onSubmitStarterDeck}
             disabledByConnection={!connected}
+            prompt={prompt}
             snapshot={snapshot}
           />
         ))}
@@ -57,14 +68,59 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
   );
 }
 
+function GenericPromptDetails({ prompt }: { prompt: ActionPromptDto }) {
+  const metadataEntries = Object.entries(prompt.view?.metadata ?? {})
+    .filter(([, value]) => value != null)
+    .slice(0, 6);
+  const candidates = (prompt.candidates ?? []).slice(0, 6);
+
+  return (
+    <div className="generic-prompt-details">
+      <strong>服务端选项</strong>
+      {candidates.length === 0 && <span className="empty-hint">当前窗口没有服务端可提交选项。</span>}
+      {candidates.map((candidate) => (
+        <div className="generic-prompt-option" key={`${candidate.action}-${candidate.label}`}>
+          <span>{promptActionLabel(candidate)}</span>
+          <small>{candidate.enabled ? promptReasonLabel(candidate.reason, "可提交") : promptReasonLabel(candidate.reason, "暂不可提交")}</small>
+          <ChoicePreview title="来源" choices={candidate.sources} />
+          <ChoicePreview title="目标" choices={candidate.targets} />
+          <ChoicePreview title="位置" choices={candidate.destinations} />
+          <ChoicePreview title="模式" choices={candidate.modes} />
+          <ChoicePreview title="费用" choices={candidate.optionalCosts} />
+        </div>
+      ))}
+      {metadataEntries.length > 0 && (
+        <div className="generic-prompt-metadata">
+          <strong>窗口数据</strong>
+          {metadataEntries.map(([key, value]) => (
+            <span key={key}>{redactInternalText(key)}：{safePromptValue(key, value)}</span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ChoicePreview({ title, choices }: { title: string; choices?: ActionPromptChoiceDto[] | null }) {
+  if (!choices || choices.length === 0) {
+    return null;
+  }
+
+  return (
+    <span>{title}：{choices.slice(0, 4).map(choiceLabel).join("、")}{choices.length > 4 ? ` 等 ${choices.length} 项` : ""}</span>
+  );
+}
+
 function MulliganCandidate({
   candidate,
   disabledByConnection,
-  onCommand
+  onCommand,
+  prompt
 }: {
   candidate: ActionPromptCandidateDto;
   disabledByConnection: boolean;
   onCommand: (command: GameCommand) => void;
+  prompt?: ActionPromptDto;
 }) {
   const choices = useMemo(() => candidate.sources ?? [], [candidate.sources]);
   const maxSelectionCount = numberMetadata(candidate.metadata, "maxSelectionCount");
@@ -111,7 +167,7 @@ function MulliganCandidate({
       <Button
         disabled={!canSubmit}
         icon={<Check size={16} />}
-        onClick={() => onCommand({ cmdType: "MULLIGAN", handObjectIds: selectedObjectIds })}
+        onClick={() => onCommand(withPromptStamp({ cmdType: "MULLIGAN", handObjectIds: selectedObjectIds }, prompt))}
         title={disabledByConnection ? "连接恢复前不能提交起手调整" : promptReasonTitle(candidate.reason)}
         variant={candidate.enabled ? "primary" : "ghost"}
       >
@@ -157,6 +213,7 @@ function CandidateButton({
   onCommand,
   onReady,
   onSubmitStarterDeck,
+  prompt,
   snapshot
 }: {
   candidate: ActionPromptCandidateDto;
@@ -164,6 +221,7 @@ function CandidateButton({
   onCommand: (command: GameCommand) => void;
   onReady: () => void;
   onSubmitStarterDeck: () => void;
+  prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;
 }) {
   const [confirmingSurrender, setConfirmingSurrender] = useState(false);
@@ -184,7 +242,7 @@ function CandidateButton({
             <Button
               disabled={disabled}
               icon={<Flag size={16} />}
-              onClick={() => onCommand(command)}
+              onClick={() => onCommand(withPromptStamp(command, prompt))}
               title={disabledByConnection ? "连接恢复前不能提交行动" : promptReasonTitle(candidate.reason)}
               variant="danger"
             >
@@ -219,7 +277,7 @@ function CandidateButton({
         if (directAction) {
           directAction();
         } else if (command) {
-          onCommand(command);
+          onCommand(withPromptStamp(command, prompt));
         }
       }}
       title={disabledByConnection ? "连接恢复前不能提交行动" : promptReasonTitle(candidate.reason)}
@@ -313,6 +371,85 @@ function findCardNo(snapshot: SnapshotDto | undefined, objectId: string): string
 
   return undefined;
 }
+
+function shouldShowGenericPromptDetails(prompt: ActionPromptDto): boolean {
+  const type = prompt.view?.type?.trim();
+  if (!type) {
+    return false;
+  }
+
+  return complexPromptTypes.has(type) || !knownPromptTypes.has(type);
+}
+
+function choiceLabel(choice: ActionPromptChoiceDto): string {
+  return redactInternalText(choice.label || choice.id || "服务端选项");
+}
+
+function safePromptValue(key: string, value: unknown): string {
+  if (typeof value === "string") {
+    return safeStringMetadataKeys.has(key) ? redactInternalText(value) || "文本" : "文本";
+  }
+
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+
+  if (Array.isArray(value)) {
+    return `${value.length} 项`;
+  }
+
+  if (value && typeof value === "object") {
+    return `${Object.keys(value).length} 项`;
+  }
+
+  return "无";
+}
+
+function withPromptStamp(command: GameCommand, prompt: ActionPromptDto | undefined): GameCommand {
+  if (!prompt || (command.promptId != null && command.snapshotTick != null)) {
+    return command;
+  }
+
+  return {
+    ...command,
+    promptId: command.promptId ?? prompt.promptId ?? null,
+    snapshotTick: command.snapshotTick ?? prompt.snapshotTick ?? null
+  };
+}
+
+const knownPromptTypes = new Set<string>([
+  "ROOM_SETUP",
+  "MULLIGAN",
+  "MAIN_ACTION",
+  "STACK_PRIORITY",
+  "SPELL_DUEL_FOCUS",
+  "SPELL_DUEL_ACTION",
+  "BATTLE_DECLARATION",
+  "ASSIGN_COMBAT_DAMAGE",
+  "PAY_COST",
+  "ORDER_TRIGGERS",
+  "TASK_QUEUE",
+  "WAIT",
+  "MATCH_RESULT"
+]);
+
+const complexPromptTypes = new Set<string>([
+  "PAY_COST",
+  "ORDER_TRIGGERS",
+  "ASSIGN_COMBAT_DAMAGE",
+  "SPELL_DUEL_ACTION"
+]);
+
+const safeStringMetadataKeys = new Set<string>([
+  "action",
+  "actionType",
+  "kind",
+  "phase",
+  "promptType",
+  "state",
+  "status",
+  "window"
+]);
 
 function numberMetadata(metadata: Record<string, unknown> | null | undefined, key: string): number | undefined {
   const value = metadata?.[key];

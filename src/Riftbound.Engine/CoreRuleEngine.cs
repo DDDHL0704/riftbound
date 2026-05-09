@@ -892,6 +892,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        const string paymentWindow = "PLAY_CARD";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            intent.PlayerId,
+            command.SourceObjectId);
         var paymentEvents = new List<GameEvent>();
         var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, plan.SourceZones, command.SourceObjectId);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -903,7 +909,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             objectLocations,
             intent.PlayerId,
             plan.RecycledPaymentRuneObjectIds,
-            paymentEvents);
+            paymentEvents,
+            paymentWindow,
+            paymentId);
         runePools = PayRuneCosts(
             runePools,
             intent.PlayerId,
@@ -1030,7 +1038,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             new GameEvent(
                 "COST_PAID",
                 $"{intent.PlayerId} 支付 {plan.TotalManaCost} 点费用",
-                new Dictionary<string, object?>
+                PaymentCostRules.BuildCostPaidPayload(
+                    paymentId,
+                    paymentWindow,
+                    intent.PlayerId,
+                    runePools,
+                    playerExperience,
+                    new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
                     ["mana"] = plan.TotalManaCost,
@@ -1050,7 +1064,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["optionalCosts"] = plan.OptionalCosts.ToArray(),
                     ["paymentResourceActions"] = plan.PaymentResourceActions.ToArray(),
                     ["recycledRuneObjectIds"] = plan.RecycledPaymentRuneObjectIds.ToArray()
-                }));
+                })));
         if (battlefieldNextSpellEchoConsumed)
         {
             events.Add(new GameEvent(
@@ -1335,6 +1349,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var runePools = PayRuneCosts(state, intent.PlayerId, behavior.ManaCost, 0);
+        const string paymentWindow = "PLAY_CARD";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            intent.PlayerId,
+            command.SourceObjectId);
         var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, zones, command.SourceObjectId);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
@@ -1389,7 +1409,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             new(
                 "COST_PAID",
                 $"{intent.PlayerId} 支付 {behavior.ManaCost} 点费用",
-                new Dictionary<string, object?>
+                PaymentCostRules.BuildCostPaidPayload(
+                    paymentId,
+                    paymentWindow,
+                    intent.PlayerId,
+                    runePools,
+                    state.PlayerExperience,
+                    new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
                     ["mana"] = behavior.ManaCost,
@@ -1397,7 +1423,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["experience"] = 0,
                     ["baseMana"] = behavior.ManaCost,
                     ["optionalCosts"] = Array.Empty<string>()
-                }),
+                })),
             new(
                 "STACK_ITEM_ADDED",
                 $"{behavior.DisplayName}加入结算链",
@@ -1551,6 +1577,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
+        const string paymentWindow = "ASSEMBLE_EQUIPMENT";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            intent.PlayerId,
+            command.SourceObjectId);
         var paymentEvents = new List<GameEvent>();
         var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -1563,7 +1595,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             recycledRuneObjectIds,
             paymentEvents,
-            "ASSEMBLE_EQUIPMENT");
+            paymentWindow,
+            paymentId);
         var paymentAdjustedPool = runePools.TryGetValue(intent.PlayerId, out var adjustedPool)
             ? adjustedPool
             : RunePool.Empty;
@@ -1667,7 +1700,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             new(
                 "COST_PAID",
                 $"{intent.PlayerId} 支付{assembleProfile.DisplayName}装配费用",
-                new Dictionary<string, object?>
+                PaymentCostRules.BuildCostPaidPayload(
+                    paymentId,
+                    paymentWindow,
+                    intent.PlayerId,
+                    runePools,
+                    playerExperience,
+                    new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
                     ["mana"] = assembleManaCost,
@@ -1681,7 +1720,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["paymentResourceActions"] = paymentResourceActions.ToArray(),
                     ["destroyedAdditionalCostTargetObjectIds"] = destroyedAdditionalCostTargetObjectIds.ToArray(),
                     ["recycledAdditionalCostTargetObjectIds"] = recycledAdditionalCostTargetObjectIds.ToArray()
-                }));
+                })));
         events.AddRange(assembleRemovalEvents);
         events.AddRange(assembleRecycleEvents);
         events.Add(
@@ -2765,6 +2804,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             ability.ManaCost,
             ability.PowerCost);
+        const string paymentWindow = "ACTIVATE_ABILITY";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            intent.PlayerId,
+            command.SourceObjectId,
+            command.AbilityId);
         var stackItem = new StackItemState(
             $"STACK-{state.Tick + 1}-{command.SourceObjectId}-ABILITY",
             intent.PlayerId,
@@ -2801,13 +2847,19 @@ public sealed class CoreRuleEngine : IRuleEngine
             new(
                 "COST_PAID",
                 $"{intent.PlayerId} 支付蔚技能费用",
-                new Dictionary<string, object?>
+                PaymentCostRules.BuildCostPaidPayload(
+                    paymentId,
+                    paymentWindow,
+                    intent.PlayerId,
+                    runePools,
+                    state.PlayerExperience,
+                    new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
                     ["mana"] = ability.ManaCost,
                     ["power"] = ability.PowerCost,
                     ["abilityId"] = command.AbilityId
-                }),
+                })),
             new(
                 "STACK_ITEM_ADDED",
                 "蔚的技能加入结算链",
@@ -3175,6 +3227,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var runePools = PayRuneCosts(state, intent.PlayerId, manaCost, 0);
         var playerExperience = PayExperienceCosts(state, intent.PlayerId, ability.ExperienceCost);
+        const string paymentWindow = "LEGEND_ACT";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            intent.PlayerId,
+            command.SourceObjectId,
+            command.AbilityId);
         IReadOnlyDictionary<string, int> playerScores = NormalizeScoresForSeats(state);
         var winnerPlayerId = state.WinnerPlayerId;
         var rngCursor = state.RngCursor;
@@ -3196,13 +3255,19 @@ public sealed class CoreRuleEngine : IRuleEngine
             events.Add(new GameEvent(
                 "COST_PAID",
                 $"{intent.PlayerId} 支付{ability.DisplayName}费用",
-                new Dictionary<string, object?>
+                PaymentCostRules.BuildCostPaidPayload(
+                    paymentId,
+                    paymentWindow,
+                    intent.PlayerId,
+                    runePools,
+                    playerExperience,
+                    new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
                     ["mana"] = manaCost,
                     ["power"] = 0,
                     ["abilityId"] = command.AbilityId
-                }));
+                })));
         }
 
         if (ability.ExperienceCost > 0)
@@ -4735,6 +4800,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             spellshieldTaxMana,
             ability.PowerCost);
+        const string paymentWindow = "ACTIVATE_ABILITY";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            intent.PlayerId,
+            command.SourceObjectId,
+            command.AbilityId);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         cardObjects[command.SourceObjectId] = sourceState with
         {
@@ -4784,7 +4856,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             new(
                 "COST_PAID",
                 $"{intent.PlayerId} 支付泽拉斯技能费用",
-                new Dictionary<string, object?>
+                PaymentCostRules.BuildCostPaidPayload(
+                    paymentId,
+                    paymentWindow,
+                    intent.PlayerId,
+                    runePools,
+                    state.PlayerExperience,
+                    new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
                     ["mana"] = spellshieldTaxMana,
@@ -4792,7 +4870,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["abilityId"] = command.AbilityId,
                     ["spellshieldTaxMana"] = spellshieldTaxMana,
                     ["spellshieldTaxTargetObjectIds"] = spellshieldTaxTargetObjectIds.ToArray()
-                }),
+                })),
             new(
                 "UNIT_EXHAUSTED",
                 "泽拉斯横置支付技能费用",
@@ -4995,6 +5073,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         cardObjects[command.SourceObjectId] = hiddenState;
 
+        const string paymentWindow = "HIDE_CARD";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            intent.PlayerId,
+            command.SourceObjectId);
         var costPaidPayload = new Dictionary<string, object?>
         {
             ["playerId"] = intent.PlayerId,
@@ -5016,7 +5100,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             new(
                 "COST_PAID",
                 $"{intent.PlayerId} 支付 {standbyHideManaCost} 点费用",
-                costPaidPayload)
+                PaymentCostRules.BuildCostPaidPayload(
+                    paymentId,
+                    paymentWindow,
+                    intent.PlayerId,
+                    runePools,
+                    state.PlayerExperience,
+                    costPaidPayload))
         };
         if (usesBattlefieldExtraStandby)
         {
@@ -5647,7 +5737,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         string playerId,
         IReadOnlyList<string> recycledRuneObjectIds,
         List<GameEvent> events,
-        string paymentWindow = "PLAY_CARD")
+        string paymentWindow = "PLAY_CARD",
+        string? paymentId = null)
     {
         var runePools = currentRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         if (recycledRuneObjectIds.Count == 0)
@@ -5704,6 +5795,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["trait"] = runeTrait,
                     ["power"] = BasicRuneRecyclePowerGain,
                     ["paymentWindow"] = paymentWindow,
+                    ["paymentId"] = paymentId,
                     ["runeDeckCountAfter"] = playerZones[playerId].RuneDeck.Count
                 }));
             events.Add(new GameEvent(
@@ -5717,6 +5809,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["trait"] = runeTrait,
                     ["power"] = BasicRuneRecyclePowerGain,
                     ["paymentWindow"] = paymentWindow,
+                    ["paymentId"] = paymentId,
                     ["powerAfter"] = currentPool.TotalPower,
                     ["traitPowerAfter"] = powerByTrait[runeTrait]
                 }));
@@ -9275,7 +9368,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         cardObjects[targetObjectId] = targetState with
         {
             Damage = 0,
-            Power = Math.Max(0, targetState.Power - 1),
+            Power = targetState.Power - 1,
             IsExhausted = true,
             Tags = nextTags
         };
@@ -9318,7 +9411,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = legendObjectId,
                     ["targetObjectId"] = targetObjectId,
                     ["previousPower"] = targetState.Power,
-                    ["power"] = Math.Max(0, targetState.Power - 1)
+                    ["power"] = targetState.Power - 1
                 }),
             new GameEvent(
                 "LEGEND_EXHAUSTED",
@@ -12057,7 +12150,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        var nextPower = Math.Max(0, targetState.Power - 1);
+        var nextPower = targetState.Power - 1;
         cardObjects[targetObjectId] = targetState with
         {
             Power = nextPower,
@@ -13669,6 +13762,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
         if (stackItem is not null)
         {
+            const string paymentWindow = "REVEAL_CARD";
+            var paymentId = PaymentCostRules.BuildPaymentId(
+                state.Tick + 1,
+                paymentWindow,
+                intent.PlayerId,
+                command.SourceObjectId);
             events.AddRange(
             [
                 new GameEvent(
@@ -13685,14 +13784,20 @@ public sealed class CoreRuleEngine : IRuleEngine
                 new GameEvent(
                     "COST_PAID",
                     $"{intent.PlayerId} 支付 0 点费用",
-                    new Dictionary<string, object?>
+                    PaymentCostRules.BuildCostPaidPayload(
+                        paymentId,
+                        paymentWindow,
+                        intent.PlayerId,
+                        state.RunePools,
+                        state.PlayerExperience,
+                        new Dictionary<string, object?>
                     {
                         ["playerId"] = intent.PlayerId,
                         ["mana"] = 0,
                         ["power"] = 0,
                         ["baseMana"] = 0,
                         ["optionalCosts"] = optionalCosts.ToArray()
-                    }),
+                    })),
                 new GameEvent(
                     "STACK_ITEM_ADDED",
                     $"{behavior.DisplayName}加入结算链",
@@ -16273,7 +16378,16 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static string NormalizeMoveUnitLocation(string value)
     {
-        return value.Trim().ToUpperInvariant();
+        var trimmed = value.Trim();
+        var separatorIndex = trimmed.IndexOf(':', StringComparison.Ordinal);
+        if (separatorIndex < 0)
+        {
+            return trimmed.ToUpperInvariant();
+        }
+
+        var zone = trimmed[..separatorIndex].Trim().ToUpperInvariant();
+        var objectId = trimmed[(separatorIndex + 1)..].Trim();
+        return $"{zone}:{objectId}";
     }
 
     private static string PreciseBattlefieldLocationObjectId(string location)
@@ -16448,12 +16562,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         int powerCost,
         IReadOnlyDictionary<string, int>? powerCostByTrait = null)
     {
-        return PayRuneCosts(
-            state.RunePools,
-            playerId,
-            manaCost,
-            powerCost,
-            powerCostByTrait);
+        return PaymentCostRules.PayRuneCosts(state, playerId, manaCost, powerCost, powerCostByTrait);
     }
 
     private static Dictionary<string, RunePool> PayRuneCosts(
@@ -16463,18 +16572,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         int powerCost,
         IReadOnlyDictionary<string, int>? powerCostByTrait = null)
     {
-        var runePools = currentRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
-        var (remainingAnyPower, remainingPowerByTrait) = PayPowerCost(
-            currentPool,
-            powerCost,
-            powerCostByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
-        runePools[playerId] = new RunePool(
-            currentPool.Mana - manaCost,
-            remainingAnyPower,
-            remainingPowerByTrait);
-
-        return runePools;
+        return PaymentCostRules.PayRuneCosts(currentRunePools, playerId, manaCost, powerCost, powerCostByTrait);
     }
 
     private static bool CanPayRuneCosts(
@@ -16483,13 +16581,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         int anyPowerCost,
         IReadOnlyDictionary<string, int>? powerCostByTrait = null)
     {
-        return manaCost >= 0
-            && anyPowerCost >= 0
-            && pool.Mana >= manaCost
-            && CanPayPowerCost(
-                pool,
-                anyPowerCost,
-                powerCostByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
+        return PaymentCostRules.CanPayRuneCosts(pool, manaCost, anyPowerCost, powerCostByTrait);
     }
 
     private static bool CanPayPowerCost(
@@ -16497,24 +16589,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         int anyPowerCost,
         IReadOnlyDictionary<string, int> powerCostByTrait)
     {
-        if (anyPowerCost < 0)
-        {
-            return false;
-        }
-
-        var remainingPowerByTrait = pool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        foreach (var cost in NormalizePowerCostByTrait(powerCostByTrait))
-        {
-            if (!remainingPowerByTrait.TryGetValue(cost.Key, out var available)
-                || available < cost.Value)
-            {
-                return false;
-            }
-
-            remainingPowerByTrait[cost.Key] = available - cost.Value;
-        }
-
-        return pool.Power + remainingPowerByTrait.Values.Sum() >= anyPowerCost;
+        return PaymentCostRules.CanPayPowerCost(pool, anyPowerCost, powerCostByTrait);
     }
 
     private static (int AnyPower, IReadOnlyDictionary<string, int> PowerByTrait) PayPowerCost(
@@ -16522,48 +16597,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         int anyPowerCost,
         IReadOnlyDictionary<string, int> powerCostByTrait)
     {
-        var remainingAnyPower = pool.Power;
-        var remainingPowerByTrait = pool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        foreach (var cost in NormalizePowerCostByTrait(powerCostByTrait))
-        {
-            remainingPowerByTrait[cost.Key] -= cost.Value;
-        }
-
-        var remainingAnyCost = anyPowerCost;
-        var paidFromAny = Math.Min(remainingAnyPower, remainingAnyCost);
-        remainingAnyPower -= paidFromAny;
-        remainingAnyCost -= paidFromAny;
-
-        foreach (var trait in remainingPowerByTrait.Keys.OrderBy(key => key, StringComparer.Ordinal).ToArray())
-        {
-            if (remainingAnyCost <= 0)
-            {
-                break;
-            }
-
-            var paidFromTrait = Math.Min(remainingPowerByTrait[trait], remainingAnyCost);
-            remainingPowerByTrait[trait] -= paidFromTrait;
-            remainingAnyCost -= paidFromTrait;
-        }
-
-        return (
-            remainingAnyPower,
-            remainingPowerByTrait
-                .Where(entry => entry.Value > 0)
-                .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal));
+        return PaymentCostRules.PayPowerCost(pool, anyPowerCost, powerCostByTrait);
     }
 
     private static IReadOnlyDictionary<string, int> NormalizePowerCostByTrait(
         IReadOnlyDictionary<string, int> powerCostByTrait)
     {
-        return powerCostByTrait
-            .Where(entry => !string.IsNullOrWhiteSpace(entry.Key) && entry.Value > 0)
-            .GroupBy(entry => RuneTrait.Normalize(entry.Key), StringComparer.Ordinal)
-            .Where(group => !string.IsNullOrWhiteSpace(group.Key))
-            .ToDictionary(
-                group => group.Key,
-                group => group.Sum(entry => Math.Max(0, entry.Value)),
-                StringComparer.Ordinal);
+        return PaymentCostRules.NormalizePowerCostByTrait(powerCostByTrait);
     }
 
     private static Dictionary<string, PlayerZones> RemoveSourceCardFromHand(
@@ -23147,9 +23187,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         out GameEvent powerEvent)
     {
         var previousPower = targetState.Power;
-        var resultingPower = Math.Max(
-            behavior.MinimumPowerAfterModifier,
-            previousPower + powerModifierAmount);
+        var rawResultingPower = previousPower + powerModifierAmount;
+        var resultingPower = behavior.MinimumPowerAfterModifier > 0
+            ? Math.Max(behavior.MinimumPowerAfterModifier, rawResultingPower)
+            : rawResultingPower;
         var appliedPowerDelta = resultingPower - previousPower;
         var nextTargetState = targetState with
         {
@@ -23750,7 +23791,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         targetState = targetState with
         {
             Damage = 0,
-            Power = Math.Max(0, targetState.Power - targetState.UntilEndOfTurnPowerModifier),
+            Power = targetState.Power - targetState.UntilEndOfTurnPowerModifier,
             UntilEndOfTurnEffects = [],
             UntilEndOfTurnPowerModifier = 0,
             IsExhausted = false
@@ -24375,7 +24416,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObjects[targetObjectId] = targetState with
             {
                 Damage = 0,
-                Power = Math.Max(0, targetState.Power - targetState.UntilEndOfTurnPowerModifier),
+                Power = targetState.Power - targetState.UntilEndOfTurnPowerModifier,
                 UntilEndOfTurnEffects = [],
                 UntilEndOfTurnPowerModifier = 0,
                 IsExhausted = false
@@ -24575,7 +24616,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         cardObjects[targetObjectId] = targetState with
         {
             Damage = 0,
-            Power = Math.Max(0, targetState.Power - targetState.UntilEndOfTurnPowerModifier),
+            Power = targetState.Power - targetState.UntilEndOfTurnPowerModifier,
             UntilEndOfTurnEffects = [],
             UntilEndOfTurnPowerModifier = 0,
             IsExhausted = false
@@ -24615,7 +24656,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             targetState = targetState with
             {
                 Damage = 0,
-                Power = Math.Max(0, targetState.Power - targetState.UntilEndOfTurnPowerModifier),
+                Power = targetState.Power - targetState.UntilEndOfTurnPowerModifier,
                 UntilEndOfTurnEffects = string.IsNullOrWhiteSpace(statusEffectId)
                     ? []
                     : targetState.UntilEndOfTurnEffects
@@ -24677,7 +24718,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             targetState = targetState with
             {
                 Damage = 0,
-                Power = Math.Max(0, targetState.Power - targetState.UntilEndOfTurnPowerModifier),
+                Power = targetState.Power - targetState.UntilEndOfTurnPowerModifier,
                 UntilEndOfTurnEffects = [],
                 UntilEndOfTurnPowerModifier = 0,
                 IsExhausted = false
@@ -25423,7 +25464,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var destroyedUnitOwnerIds = new List<string>();
         var nextRunePools = runePools;
         var stateBasedRemovalObjectIds = cardObjects
-            .Where(entry => (IsZeroPowerCleanupCandidate(entry.Value)
+            .Where(entry => (IsZeroOrNegativePowerDamagedCleanupCandidate(entry.Value)
                     || (entry.Value.Power > 0
                         && entry.Value.Damage > 0
                         && entry.Value.Damage >= entry.Value.Power)
@@ -25437,8 +25478,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             var destroyReason = damageTriggeredDestroyTargetObjectIds.Contains(objectId)
                 ? "DAMAGE_TRIGGERED_DESTROY"
-                : cardObjects.TryGetValue(objectId, out var objectState) && objectState.Power <= 0
-                    ? "ZERO_POWER"
                 : "LETHAL_DAMAGE";
             if (nextRunePools is not null
                 && TryApplySettLegendDestroyReplacement(
@@ -25480,7 +25519,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             var removalDescription = destroyReason switch
             {
                 "DAMAGE_TRIGGERED_DESTROY" => "伤害触发效果",
-                "ZERO_POWER" => "0 战力清理",
                 _ => "致命伤害"
             };
             events.Add(BuildFieldRemovalEvent(
@@ -25514,9 +25552,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !string.IsNullOrWhiteSpace(cardObject.ControllerId);
     }
 
-    private static bool IsZeroPowerCleanupCandidate(CardObjectState cardObject)
+    private static bool IsZeroOrNegativePowerDamagedCleanupCandidate(CardObjectState cardObject)
     {
         return cardObject.Power <= 0
+            && cardObject.Damage > 0
             && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !cardObject.IsFaceDown
             && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
@@ -25971,7 +26010,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 {
                     Damage = 0,
                     UntilEndOfTurnEffects = [],
-                    Power = Math.Max(0, objectState.Power - objectState.UntilEndOfTurnPowerModifier),
+                    Power = objectState.Power - objectState.UntilEndOfTurnPowerModifier,
                     UntilEndOfTurnPowerModifier = 0
                 };
             },
@@ -26488,18 +26527,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string playerId,
         int experienceCost)
     {
-        if (experienceCost <= 0)
-        {
-            return state.PlayerExperience;
-        }
-
-        var playerExperience = NormalizeExperienceForSeats(state);
-        playerExperience[playerId] = Math.Max(
-            0,
-            playerExperience.TryGetValue(playerId, out var currentExperience)
-                ? currentExperience - experienceCost
-                : 0);
-        return playerExperience;
+        return PaymentCostRules.PayExperienceCosts(state, playerId, experienceCost);
     }
 
     private static IReadOnlyDictionary<string, int> IncrementPlayerCardsPlayedThisTurn(

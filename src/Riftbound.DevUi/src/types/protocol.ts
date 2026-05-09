@@ -46,6 +46,36 @@ export type ActionPromptCandidateDto = {
   metadata?: Record<string, unknown> | null;
 };
 
+export type KnownPromptType =
+  | "ROOM_SETUP"
+  | "MULLIGAN"
+  | "MAIN_ACTION"
+  | "STACK_PRIORITY"
+  | "SPELL_DUEL_FOCUS"
+  | "SPELL_DUEL_ACTION"
+  | "BATTLE_DECLARATION"
+  | "ASSIGN_COMBAT_DAMAGE"
+  | "PAY_COST"
+  | "ORDER_TRIGGERS"
+  | "TASK_QUEUE"
+  | "WAIT"
+  | "MATCH_RESULT";
+
+export type PromptType = KnownPromptType | (string & {});
+
+export type PromptViewDto = {
+  type: PromptType;
+  title: string;
+  message: string;
+  relatedBattlefieldId?: string | null;
+  relatedStackItemId?: string | null;
+  relatedBattleId?: string | null;
+  relatedSpellDuelId?: string | null;
+  minSelection?: number | null;
+  maxSelection?: number | null;
+  metadata?: Record<string, unknown> | null;
+};
+
 export type ActionPromptDto = {
   playerId: string;
   actionable: boolean;
@@ -54,6 +84,7 @@ export type ActionPromptDto = {
   promptId?: string | null;
   snapshotTick?: number | null;
   candidates?: ActionPromptCandidateDto[] | null;
+  view?: PromptViewDto | null;
 };
 
 export type RunePoolView = {
@@ -133,7 +164,12 @@ export type SubmitDeckCommand = {
   battlefields: string[];
 };
 
-export type GameCommand =
+type PromptStampedCommand = {
+  promptId?: string | null;
+  snapshotTick?: number | null;
+};
+
+export type GameCommand = PromptStampedCommand & (
   | SubmitDeckCommand
   | { cmdType: "MULLIGAN"; handObjectIds: string[] }
   | { cmdType: "PASS_PRIORITY" }
@@ -150,4 +186,5 @@ export type GameCommand =
   | { cmdType: "ASSEMBLE_EQUIPMENT"; sourceObjectId: string; targetObjectId?: string; optionalCosts?: string[] }
   | { cmdType: "DECLARE_BATTLE"; battlefieldId?: string; attackerObjectIds?: string[]; defenderObjectIds?: string[]; battlefieldTargetObjectIds?: string[]; optionalCosts?: string[] }
   | { cmdType: "ACTIVATE_ABILITY"; sourceObjectId: string; abilityId: string; targetObjectIds: string[]; optionalCosts?: string[] }
-  | { cmdType: "LEGEND_ACT"; sourceObjectId: string; abilityId: string; targetObjectIds: string[]; optionalCosts?: string[] };
+  | { cmdType: "LEGEND_ACT"; sourceObjectId: string; abilityId: string; targetObjectIds: string[]; optionalCosts?: string[] }
+);

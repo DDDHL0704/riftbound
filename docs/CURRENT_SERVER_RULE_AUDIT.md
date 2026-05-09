@@ -14,6 +14,9 @@
 
 ## 2026-05-09 开发进度更新
 
+- E 证据审计第一轮 P0 补录：已把 `SOUL-OFAQ-260114` p19-p20 的 0/负战力 FAQ 语义落到 `docs/rules-evidence-index.md`。官方口径为：单位战力可以为 0 或负数；不因 `Power <= 0` 自动被摧毁；需要至少 1 点有效伤害后才会在清理中被摧毁；负战力在战斗伤害输出/分配计算中按 0 处理，但对象实际战力保留。同步记录 `dda6385` 基线/历史服务端冲突点：`MatchSession` / `CoreRuleEngine` 中曾有 `DESTROY_ZERO_POWER_UNIT`、`ZERO_POWER` 与 `IsZeroPowerCleanupCandidate(Power <= 0)` 风险，不能再作为官方已完成证据。另记录 `dda6385` 具体战场移动大小写风险：移动 destination 规范化曾对整个 `BATTLEFIELD:<objectId>` 使用 `ToUpperInvariant()`，而官方快照存在 `OGN·276a/298`、`OGN·278a/298`、`OGN·293a/298`。结论保持 **NOT READY**。
+- B 服务端 P0 第一轮修复已通过 A 主控验收：1) `Power <= 0 && Damage == 0` 的正面场上单位不再暴露 blocking cleanup task，也不会自动入墓；2) `Power <= 0 && Damage > 0` 走 `DESTROY_LETHAL_UNIT` / `LETHAL_DAMAGE` 清理；3) 负战力单位参与战斗时输出伤害按 0，战后对象实际 `Power` 保留负值；4) `BATTLEFIELD:<objectId>` 只规范化 `BATTLEFIELD` zone，冒号后 objectId/cardNo 大小写逐字保留；5) 已覆盖小写 `a` 战场移动。A 主控验证：聚焦测试 11/11 通过，`git diff --check` 通过，后端 full test 3304/3304 通过。
+
 - P1-002/P1-004 第三百四十五批补充：补齐基地单位移动到“服务端确认的具体战场”路径，并同步修正 ActionPrompt 条件减费合法性。`MOVE_UNIT` 现在可接受 `BASE -> BATTLEFIELD:<battlefieldObjectId>`，校验目标战场对象必须是已知官方战场牌，移动后写入精确 `ObjectLocationState.BattlefieldObjectId`，并在移动到已有敌方单位的战场时触发战场争夺与法术对决。ActionPrompt 对基地单位移动不再只给粗粒度 `BATTLEFIELD`，而是公开当前可选的具体战场 destination；同时 `PLAY_CARD` prompt 的基础减费改为复用与 Core 结算一致的条件判断，避免像《诺克萨斯新兵》（OGN·012/298）这类“本回合已打出另一张牌才减费”的卡，在条件未满足且当前法力不足时被前端展示为可打出。
 - 已补验证与后台浏览器 smoke：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；新增/相关 focused filter 通过 6/6；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 通过 129/129；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3299/3299；`source ../../scripts/dev-env.sh && npm run build` 通过。后台 headless Chrome/CDP smoke 使用房间 `smoke-battlefield-contest-1778307710672`：P1 先通过 SignalR 入座，P2 Web UI 设置 `serverUrl=http://127.0.0.1:5093` 与 `playerId=P2` 后连接，P1 seed `battlefield-contest-stack`，P2 页面点击“让过优先权”和“让过焦点”，P1 提交 `DECLARE_BATTLE`；UI 在结算后显示“战斗结束 / 战场控制结算 / 待命清理”，authoritative snapshot 复核 `controllerId=P2`、`standbyObjectIds=[]`、`P1-STANDBY-CONTEST-001` 已离开 battlefield 并进入 P1 graveyard。reload/reconnect 后页面恢复最终 snapshot（事件日志不重播历史事件），Hub error 0，API/Vite/SignalR/headless Chrome 测试资源已清理，5092/5093/5094/5175/5176/9223/9224 无监听。整体仍 **NOT READY**，因为完整正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未完成最终 completion audit。
 
@@ -1172,7 +1175,7 @@
 
 ### P0-002 战场、待命区、控制权和单位位置模型不足
 
-当前状态：**PARTIALLY RESOLVED / 对象位置索引、权威派生战场状态和权威 battlefield task 视图已落地，完整战场任务状态机仍待建模**
+当前状态：**PARTIALLY RESOLVED / 对象位置索引、权威派生战场状态、权威 battlefield task 视图与具体战场移动已落地；objectId 大小写保留风险已修复，完整战场任务状态机仍待建模**
 
 规则依据：自查文档 4、10；核心规则关于基地、战场、待命区、战场控制权、占领/争夺、单位移动与区域归属的要求。
 
@@ -1181,45 +1184,51 @@
 - `src/Riftbound.Engine/MatchSession.cs` 新增 `BattlefieldState` 与 `MatchState.BattlefieldStates`，snapshot 复用该服务端状态视图，而不是自行重算 UI 专用结构。
 - `src/Riftbound.Engine/MatchSession.cs` 新增 `BattlefieldTaskState` 与 `MatchState.BattlefieldTasks`，争夺战场会公开 `START_SPELL_DUEL`、`START_BATTLE` 的任务状态、参与者和关联 stack/focus 信息。
 - `src/Riftbound.Engine/CoreRuleEngine.cs` 的打出、结算、移动、调度、召符文路径开始同步 `ObjectLocations`。
+- `dda6385` 基线中，`src/Riftbound.Engine/CoreRuleEngine.cs` 的移动 origin/destination 规范化曾使用全串 `ToUpperInvariant()`；这会把 `BATTLEFIELD:<objectId>` 冒号后的 objectId 一并改写。2026-05-09 第一轮 B 修复后，当前移动 location 解析只规范化冒号前 zone，保留 objectId 原始大小写，并已补小写 `a` 官方战场测试。
 - 仍缺：每个战场的 held/conquered/占领结果、待命容量和 control/contest 变更由统一 task queue 推进。
 
-现象：系统现在可以在权威状态中表达对象所在粗粒度区域和精确战场 object id，并拒绝来源位置与权威状态不一致的精确游走；`MatchState.BattlefieldStates` 能从服务端状态统一暴露已知战场的占据/争夺/待命视图；`MatchState.BattlefieldTasks` 能把争夺战场后续 spell duel/battle 任务公开给 UI 和日志。但战场本身仍没有完整控制权变更、占据、征服、战斗/法术对决任务推进生命周期，因此 P0-002 仍只能降级为部分解决。
+现象：系统现在可以在权威状态中表达对象所在粗粒度区域和精确战场 object id，并拒绝来源位置与权威状态不一致的精确游走；`MatchState.BattlefieldStates` 能从服务端状态统一暴露已知战场的占据/争夺/待命视图；`MatchState.BattlefieldTasks` 能把争夺战场后续 spell duel/battle 任务公开给 UI 和日志。`dda6385` 具体战场移动提交曾存在大小写风险；第一轮已确认官方 card catalog 中小写 `a` 战场 `OGN·276a/298` 能在 `BATTLEFIELD:<objectId>` 目的地中逐字保留，并写回 `ObjectLocations.BattlefieldObjectId`。战场本身仍没有完整控制权变更、占据、征服、战斗/法术对决任务推进生命周期，因此 P0-002 仍只能降级为部分解决。
 
-最小复现场景：在两个友方战场之间提交精确 `MOVE_UNIT` 游走。当前结果会写回 `ObjectLocations[source].BattlefieldObjectId`；如果客户端提交的 origin 与权威位置不一致，服务端会拒绝。
+最小复现场景：在两个友方战场之间提交精确 `MOVE_UNIT` 游走。当前结果会写回 `ObjectLocations[source].BattlefieldObjectId`；如果客户端提交的 origin 与权威位置不一致，服务端会拒绝。第一轮回归场景已覆盖：目的地为 `BATTLEFIELD:<小写 a 战场 objectId>` 时，规范化只影响 zone，不会把 objectId 改成大写 `A`。
 
 建议修复：
 - 在当前 snapshot 视图基础上继续把 `BattlefieldState`/`BattlefieldTaskState` 接入真正的 `PendingTaskQueue`，覆盖 held/conquered、控制权改变和占领结果。
 - 将 `PlayerZones.Battlefields` 从“对象列表”升级为“玩家战场槽位 + 位置引用”，并让 `CardObjectState` 或 location index 记录对象所在具体位置。
+- 保持移动/战斗/待命 destination 规范化约束：只允许 `BASE` / `BATTLEFIELD` zone 大小写规范化，冒号后的 objectId 必须逐字保留。
 
 建议测试：
 - 单位从基地到战场、战场到基地、战场间游走。
+- 以 `OGN·276a/298`、`OGN·278a/298`、`OGN·293a/298` 对应战场对象覆盖 prompt destination、submit destination、`ObjectLocations.BattlefieldObjectId`、`BattlefieldStates` snapshot 和 reconnect/recovery 后的大小写保持。
 - 移入空战场、敌方控制战场、双方争夺战场后的控制权、占领、战斗/法术对决 pending 状态。
 - 待命区容量、面朝下信息、revealed 后转移。
 
 ### P0-003 通用清理检查与任务队列缺失
 
-当前状态：**PARTIALLY RESOLVED / 状态性 cleanup task、battlefield task 视图、致命伤害/0 战力 cleanup loop、非法待命栈后自动清理、战力修正到 0 的 blocking task 证据与 blocking guard 已接入，完整统一任务队列仍缺失**
+当前状态：**PARTIALLY RESOLVED / 状态性 cleanup task、battlefield task 视图、致命伤害 cleanup loop、非法待命栈后自动清理与 blocking guard 已接入；0/负战力自动清理语义已按 FAQ 收窄，完整统一任务队列仍缺失**
 
-规则依据：自查文档 5；核心规则关于“任意状态变化后进行清理检查、重复直到稳定、触发待处理任务、清理期间不能响应”的要求。
+规则依据：自查文档 5；核心规则关于“任意状态变化后进行清理检查、重复直到稳定、触发待处理任务、清理期间不能响应”的要求。`SOUL-OFAQ-260114` p19-p20 进一步澄清：0/负战力单位不会自动被摧毁，必须受到至少 1 点有效伤害后才会死亡；负战力战斗伤害输出按 0，但实际战力值保留。
 
 代码位置：
 - `src/Riftbound.Engine/CoreRuleEngine.cs:18896` 有局部 `ApplyLethalDamageCleanup`。
 - `src/Riftbound.Engine/CoreRuleEngine.cs:19362` 有回合结束清理。
 - `src/Riftbound.Engine/CoreRuleEngine.cs:10641` 的 `ResolveEndTurn` 只在回合结束路径调用 `ApplyTurnEndCleanup`，然后直接 `ResolveTurnStart`。
-- `src/Riftbound.Engine/MatchSession.cs` 新增 `PendingCleanupTasks`，当前可显式暴露致命伤害、0 战力现代权威单位清理和战场争夺检查任务；`BattlefieldTasks` 可进一步暴露争夺后的 spell duel/battle 任务状态。
+- `dda6385` 基线中，`src/Riftbound.Engine/MatchSession.cs` 的 `PendingCleanupTasks` 可显式暴露致命伤害、`DESTROY_ZERO_POWER_UNIT` 和战场争夺检查任务；其中 `DESTROY_ZERO_POWER_UNIT` 是 P0 冲突点，不能按官方 FAQ 视为已完成。2026-05-09 第一轮 B 修复后，当前引擎不再生成仅因 `Power <= 0` 的 cleanup task。
 - `src/Riftbound.Engine/MatchSession.cs` 新增 `PendingTaskQueue`，按状态性清理、战场争夺、法术对决启动、战斗启动的顺序公开当前 active task 和 blocking phase。
 - `src/Riftbound.Engine/CoreRuleEngine.cs` 新增 `RunStateBasedCleanupLoop`，移动和结算链结算后会重复执行致命伤害/0 战力/非法待命清理直到稳定；`ResolveAsync` 会在 blocking pending task queue 期间拒绝普通玩家命令。
+- `dda6385` 基线中，`MatchSession` / `CoreRuleEngine` 的 `IsZeroPowerCleanupCandidate` 以 `Power <= 0` 作为 zero power cleanup candidate 的核心条件，未要求 `Damage >= 1`。2026-05-09 第一轮 B 修复已改为 0/负战力且有非零伤害才进入致命伤害清理。
 
-现象：当前清理仍没有完全升级为官方意义上的“所有状态变化后统一检查并重复”的持久任务队列。移动、栈项目结算、战斗伤害、Xerath 技能伤害和回合开始战场群体伤害会运行状态性致命伤害 cleanup loop 并同步位置；有明确 owner/controller 的 0 战力场上单位也会在该 loop 中按 `ZERO_POWER` 清理；因临时战力修正降到 0 的场上单位已有 pending task / blocking prompt 证据，代表性法术栈结算把单位实际修正到 0 后也会立即进入同一状态性清理并入墓；栈结算后若发现非法待命，也会通过同一 cleanup loop 移入墓地、翻面、同步位置并清空该 pending task；`PendingCleanupTasks` 已能列出待处理的致命伤害、0 战力、非法待命、战场争夺、`START_SPELL_DUEL` 与 `START_BATTLE` 任务；`PendingTaskQueue` 能按清理优先级公开 active task 和 blocking phase；`BattlefieldTasks` 能给这些战场任务附带状态和参与者。服务端 prompt/command guard 已阻止普通行动在 blocking queue 期间继续执行，例如行动前已处于致命伤害、0 战力或非法待命待清理时，玩家不能继续绕过。由战场控制权变化、替代效果、所有进出战场路径等触发的 pending duel/battle/控制权变化仍无法通过一个中央状态机保证。
+现象：当前清理仍没有完全升级为官方意义上的“所有状态变化后统一检查并重复”的持久任务队列。移动、栈项目结算、战斗伤害、Xerath 技能伤害和回合开始战场群体伤害会运行状态性致命伤害 cleanup loop 并同步位置；栈结算后若发现非法待命，也会通过同一 cleanup loop 移入墓地、翻面、同步位置并清空该 pending task；`PendingCleanupTasks` 已能列出待处理的致命伤害、非法待命、战场争夺、`START_SPELL_DUEL` 与 `START_BATTLE` 任务；`PendingTaskQueue` 能按清理优先级公开 active task 和 blocking phase；`BattlefieldTasks` 能给这些战场任务附带状态和参与者。服务端 prompt/command guard 已阻止普通行动在 blocking queue 期间继续执行。2026-05-09 第一轮已修正 0/负战力自动死亡冲突：`Power <= 0 && Damage == 0` 不清理，`Power <= 0 && Damage > 0` 走致命伤害清理。由战场控制权变化、替代效果、所有进出战场路径等触发的 pending duel/battle/控制权变化仍无法通过一个中央状态机保证。
 
-最小复现场景：尝试移动一个已经带致命伤害的单位，当前会因 `DESTROY_LETHAL_UNIT` blocking task 被拒绝；结算一个无行为栈项目时，如果场上已有致命伤害单位、有 owner/controller 的 0 战力现代权威单位或非法待命，都会在栈结算后被状态性清理兜底处理；结算 `PERFECT_FINALE_BATTLEFIELD_POWER_MINUS_4` 把战场单位从 4 战力修正到 0 时，服务端会广播战力修正并立刻以 `ZERO_POWER` 摧毁入墓。但如果移动导致战场控制权/争夺状态变化，仍没有统一 cleanup loop 能保证后续待处理任务被稳定排入并按官方顺序解决。
+最小复现场景：尝试移动一个已经带致命伤害的单位，当前会因 `DESTROY_LETHAL_UNIT` blocking task 被拒绝；结算一个无行为栈项目时，如果场上已有致命伤害单位或非法待命，会在栈结算后被状态性清理兜底处理。第一轮新增验收覆盖：正面场上单位被修正到 0 或负数但没有伤害时继续留场；同一类单位受到至少 1 点伤害后会在清理中被摧毁；负战力战斗输出为 0 但对象实际战力保留。如果移动导致战场控制权/争夺状态变化，仍没有统一 cleanup loop 能保证后续待处理任务被稳定排入并按官方顺序解决。
 
 建议修复：
-- 引入 `PendingTaskQueue` 与 `RunCleanupLoop`，统一处理致命伤害、0 战力、离场、战场控制变化、法术对决/战斗启动、胜负检查。
+- 保持第一轮修复后的 `DESTROY_LETHAL_UNIT` / `LETHAL_DAMAGE` 语义：`Power <= 0` 不是自动清理条件；只有 `Damage >= 1` 且满足清理时才应进入摧毁流程。
+- 引入 `PendingTaskQueue` 与 `RunCleanupLoop`，统一处理致命伤害、离场、战场控制变化、法术对决/战斗启动、胜负检查。
 - 所有命令、栈结算、触发结算、移动、进场/离场之后必须进入同一 cleanup loop。
 
 建议测试：
-- 已新增：移动、栈结算、战斗伤害、Xerath 技能伤害、回合开始战场伤害进入同一 cleanup loop；0 战力现代权威单位清理进入同一 cleanup loop；因临时战力修正降到 0 的单位会暴露 `DESTROY_ZERO_POWER_UNIT` blocking task，且代表性法术栈结算把单位修正到 0 后会立刻触发 `ZERO_POWER` 入墓；非法待命会暴露 `REMOVE_ILLEGAL_STANDBY` blocking task，且代表性栈结算后会自动翻面入墓并清空该 pending task；争夺战场暴露 START_SPELL_DUEL/START_BATTLE 任务及 `BattlefieldTasks` 权威任务视图；待清理 blocking queue 会关闭普通 prompt 并拒绝普通命令。
+- 已新增：移动、栈结算、战斗伤害、Xerath 技能伤害、回合开始战场伤害进入 cleanup loop；非法待命会暴露 `REMOVE_ILLEGAL_STANDBY` blocking task，且代表性栈结算后会自动翻面入墓并清空该 pending task；争夺战场暴露 START_SPELL_DUEL/START_BATTLE 任务及 `BattlefieldTasks` 权威任务视图；待清理 blocking queue 会关闭普通 prompt 并拒绝普通命令。
+- 已补：`Power <= 0 && Damage == 0` 不暴露 blocking cleanup task、不自动入墓；`Power <= 0 && Damage > 0` 在清理中入墓；负战力单位战斗输出按 0，但对象实际战力值保留。
 - 待补：替代效果、所有进出战场路径都触发同一持久 cleanup task queue。
 - cleanup loop 重复直到稳定。
 - 已新增：cleanup/task queue 阻塞期间 prompt 只给 `WAIT`，普通命令被 `PhaseNotAllowed` 拒绝。

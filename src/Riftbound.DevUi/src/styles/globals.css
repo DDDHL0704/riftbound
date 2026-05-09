@@ -670,6 +670,7 @@ button.card-face:hover {
 .stack-item,
 .task-queue,
 .prompt-summary,
+.generic-prompt-details,
 .log-row {
   display: grid;
   gap: 5px;
@@ -678,6 +679,35 @@ button.card-face:hover {
   background: rgba(255, 255, 255, 0.06);
   padding: 10px;
   overflow-wrap: anywhere;
+}
+
+.generic-prompt-details {
+  margin-top: 8px;
+}
+
+.generic-prompt-details > strong,
+.generic-prompt-metadata > strong {
+  color: var(--text-primary);
+  font-size: 0.86rem;
+}
+
+.generic-prompt-option,
+.generic-prompt-metadata {
+  display: grid;
+  gap: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 8px;
+}
+
+.generic-prompt-option span {
+  color: var(--text-primary);
+  font-size: 0.84rem;
+}
+
+.generic-prompt-option small,
+.generic-prompt-metadata span {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
 }
 
 .mulligan-selector {
