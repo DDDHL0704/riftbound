@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 第三百零九批补齐《斯特拉克的挑战护手》（SFD·056/221）绿色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在覆盖《长剑》红色、《布甲》蓝色与《斯特拉克》绿色三条武装/灵便装备装配路径；ActionPrompt 只公开《斯特拉克》的 `ASSEMBLE_GREEN`、绿色符能要求、合法单位目标和绿色回收符文支付资源，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 36/36、后端 full test 3252/3252、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第三百零八批补齐《布甲》（SFD·064/221）蓝色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` 现在按装备 cardNo 区分《长剑》红色装配与《布甲》蓝色装配；ActionPrompt 只公开《布甲》的 `ASSEMBLE_BLUE`、蓝色符能要求、合法单位目标和蓝色回收符文支付资源，前端继续只展示并提交这些服务端候选，不读取卡面自行推断装配颜色。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 34/34 通过，后端 full test 3250/3250 通过，DevUi build 通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
 - 第三百零七批补齐《奥恩》不选择装备分支的服务端证据。Hub prompt 已证明 `PLAY_CARD.sourceRequirements.minTargetCount=0`，前端可显示“不选择”但仍只提交空目标意图；服务端结算时不抽牌，回收查看到的四张牌并写入 `CARDS_RECYCLED.count=4`。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke，目标端口保持无监听；Ornn 过滤 11/11 通过，后端 full test 3248/3248 通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。
@@ -637,8 +639,8 @@
 - `MOVE_UNIT` 来源进一步收紧：只暴露正面、受控、非战斗中的单位；基地单位公开“基地 -> 战场”，战场单位在未被静态效果禁止时公开“战场 -> 基地”，有游走权限且能从权威位置索引精确定位时才公开游走目的地与必需 `ROAM` 可选费用。
 - 卡牌详情抽屉新增移动单位组合器：只读取服务端 `sourceRequirements` 渲染移动模式、目的地和费用确认；确认命令只提交服务端提供的 `origin`、`destination`、`optionalCosts`，不从卡面文本、关键词或客户端位置自行裁决。
 - 当前已通过真实 UI 将已结算到基地的《军团后卫》移动到战场；事件日志出现 `UNIT_MOVED_TO_BATTLEFIELD`，后续移动候选仍由服务端 prompt 决定。
-- `ASSEMBLE_EQUIPMENT` prompt 从泛化来源/目标升级为每来源 `sourceRequirements` 元数据。服务端现在只对已实现代表路径的未贴附《长剑》公开装配来源、单位目标候选、必需 `ASSEMBLE_RED` 费用、红色符能费用和 `composable` 状态。
-- `ASSEMBLE_EQUIPMENT` 来源继续收紧：只有基地中正面、受控、未贴附、具备长剑/武装/灵便身份、存在合法单位目标且 `powerByTrait.red >= 1` 时才暴露；泛化符能不再被当作红色装配费用，提交侧也会以 `INSUFFICIENT_COST` 拒绝。
+- `ASSEMBLE_EQUIPMENT` prompt 从泛化来源/目标升级为每来源 `sourceRequirements` 元数据。服务端现在只对已实现代表路径的未贴附《长剑》《布甲》《斯特拉克的挑战护手》公开装配来源、单位目标候选、必需装配费用、有色符能费用和 `composable` 状态。
+- `ASSEMBLE_EQUIPMENT` 来源继续收紧：只有基地中正面、受控、未贴附、具备服务端已实现 cardNo / 武装 / 灵便身份、存在合法单位目标且对应颜色符能或服务端支付资源足够时才暴露；泛化符能不再被当作有色装配费用，提交侧也会以 `INSUFFICIENT_COST` 拒绝。
 - 卡牌详情抽屉新增装备装配组合器：只读取服务端 `sourceRequirements` 渲染目标和费用，确认命令只提交服务端给出的 `sourceObjectId`、`targetObjectId`、`optionalCosts`，不从卡面文本或关键词自行判断。
 - Development `equipment` seed 已补齐手牌长剑与目标单位的 cardNo、owner/controller 和红色符能池，避免 smoke 场景出现 prompt 来源可见但 snapshot 缺对象详情的断裂。
 - 当前已通过真实 UI 将《长剑》从手牌打出、P1/P2 过优先权结算到基地，再从详情抽屉按服务端候选装配到《大力仙灵》；事件日志出现 `EQUIPMENT_PLAYED_TO_BASE`、`COST_PAID`、`EQUIPMENT_ATTACHED`，最终 snapshot 显示长剑 `attachedToObjectId = P1-UNIT-ASSEMBLE-TARGET`。
@@ -849,10 +851,10 @@
 - `REVEAL_CARD` 已有服务端每来源元数据和前端卡牌详情待命翻开/反应打出组合器；普通开环翻回基地与优先权闭环作为反应入栈都只按服务端候选展示和提交，真实 UI smoke 已覆盖待命反应入栈、事件日志和 reload/reconnect；后端 full test 当前通过 2949/2949，前端 build 已通过。
 - `PLAY_CARD` 首个产品级选择器已由服务端每来源元数据驱动，可真实打出无目标单位牌并走完优先权结算；普通结算链优先权窗口现已能只按服务端候选公开反应牌来源、栈目标和模式，真实 UI smoke 已覆盖《强买强卖》反制栈上法术、事件日志和 reload/reconnect。
 - `MOVE_UNIT` 已有服务端每来源元数据和前端卡牌详情移动组合器，可真实把基地单位移动到战场；前端不再自行判断移动目的地或游走费用。
-- `ASSEMBLE_EQUIPMENT` 已有长剑代表路径的服务端每来源元数据、红色符能候选收紧和前端卡牌详情装配组合器，可真实打出装备并装配到服务端给出的单位目标。
-- `ASSEMBLE_EQUIPMENT` 来源现在要求服务端明确 `cardNo = SFD·022/221`，未知/无卡号装备对象不会被公开为可装配来源；未知装备 prompt hygiene 已通过 Hub 测试和后台 headless Chrome/CDP smoke。
+- `ASSEMBLE_EQUIPMENT` 已有《长剑》红色、《布甲》蓝色和《斯特拉克的挑战护手》绿色代表路径的服务端每来源元数据、有色符能候选收紧和前端卡牌详情装配组合器，可真实打出装备并装配到服务端给出的单位目标。
+- `ASSEMBLE_EQUIPMENT` 来源现在要求服务端明确 cardNo 且落在已实现 profile 中；未知/无卡号装备对象不会被公开为可装配来源，未实现装配 profile 的装备仍保持 disabled；未知装备 prompt hygiene 已通过 Hub 测试和后台 headless Chrome/CDP smoke。
 - `ASSEMBLE_EQUIPMENT` 目标现在也要求服务端明确目标单位 `cardNo`；未知/无卡号单位不会被公开为可装配目标，未知装配目标 prompt/Core hygiene 已通过 Hub 测试、后端 full test 和后台 headless Chrome/CDP smoke。
-- `ASSEMBLE_EQUIPMENT` 支付资源动作已覆盖代表性红色装配费用：0 红色符能但有可回收红符文时，前端只按服务端 `paymentResourceChoices` 选择并提交 `RECYCLE_RUNE:*`，真实 UI smoke 已覆盖确认按钮禁用/启用、回收事件、贴附结果和 reload/reconnect。
+- `ASSEMBLE_EQUIPMENT` 支付资源动作已覆盖代表性有色装配费用：0 对应颜色符能但有同色可回收基础符文时，前端只按服务端 `paymentResourceChoices` 选择并提交 `RECYCLE_RUNE:*`，真实 UI smoke 已覆盖红色长剑的确认按钮禁用/启用、回收事件、贴附结果和 reload/reconnect。
 - `ACTIVATE_ABILITY` 已有 Vi、Xerath 和蜕变花园授予能力代表路径的服务端每来源元数据、目标/费用/Spellshield 加税候选过滤和前端卡牌详情激活组合器；前端不再自行判断可激活来源、能力目标或横置费用。
 - `ACTIVATE_ABILITY` 目标现在要求服务端明确目标单位 `cardNo`；未知/无卡号单位不会被公开为泽拉斯目标技能候选，未知激活能力目标 prompt/Core hygiene 已通过 Hub 测试、后端 full test 和后台 headless Chrome/CDP smoke。
 - `LEGEND_ACT` 已有代表性传奇行动的服务端每来源元数据、经验/资源/时点/前置条件过滤和前端卡牌详情传奇行动组合器；Poppy 抽牌路径已完成真实 UI smoke。

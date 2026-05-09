@@ -2344,6 +2344,9 @@ internal static class ActionPromptBuilder
     private const string ClothArmorCardNo = "SFD·064/221";
     private const int ClothArmorAssemblePowerCost = 1;
     private const string ClothArmorAssembleOptionalCost = "ASSEMBLE_BLUE";
+    private const string SteraksGageCardNo = "SFD·056/221";
+    private const int SteraksGageAssemblePowerCost = 1;
+    private const string SteraksGageAssembleOptionalCost = "ASSEMBLE_GREEN";
     private sealed record AssembleEquipmentProfile(
         string CardNo,
         string DisplayName,
@@ -2371,7 +2374,15 @@ internal static class ActionPromptBuilder
                 "装配蓝色符能",
                 RuneTrait.Blue,
                 ClothArmorAssemblePowerCost,
-                "payment resource action: recycle blue rune for assemble cost")
+                "payment resource action: recycle blue rune for assemble cost"),
+            [SteraksGageCardNo] = new(
+                SteraksGageCardNo,
+                "斯特拉克的挑战护手",
+                SteraksGageAssembleOptionalCost,
+                "装配绿色符能",
+                RuneTrait.Green,
+                SteraksGageAssemblePowerCost,
+                "payment resource action: recycle green rune for assemble cost")
         };
     private const string CrescentGuardCardNo = "UNL-122/219";
     private const int CrescentGuardReadyPowerCost = 1;

@@ -34,6 +34,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string ClothArmorCardNo = "SFD·064/221";
     private const string ClothArmorAssembleOptionalCost = "ASSEMBLE_BLUE";
     private const int ClothArmorAssemblePowerCost = 1;
+    private const string SteraksGageCardNo = "SFD·056/221";
+    private const string SteraksGageAssembleOptionalCost = "ASSEMBLE_GREEN";
+    private const int SteraksGageAssemblePowerCost = 1;
     private sealed record AssembleEquipmentProfile(
         string CardNo,
         string DisplayName,
@@ -55,7 +58,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "布甲",
                 ClothArmorAssembleOptionalCost,
                 RuneTrait.Blue,
-                ClothArmorAssemblePowerCost)
+                ClothArmorAssemblePowerCost),
+            [SteraksGageCardNo] = new(
+                SteraksGageCardNo,
+                "斯特拉克的挑战护手",
+                SteraksGageAssembleOptionalCost,
+                RuneTrait.Green,
+                SteraksGageAssemblePowerCost)
         };
     private const string WatchfulSentinelCardNo = "OGN·096/298";
     private const string WatchfulSentinelLastBreathDrawEffectKind = "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";

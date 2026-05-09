@@ -3422,6 +3422,101 @@ public sealed class ConformanceFixtureShapeTests
         var clothArmorPaymentResourcePower = clothArmorPaymentResourcePowerByChoice["RECYCLE_RUNE:P1-RUNE-BLUE-ASSEMBLE-PAYMENT"];
         Assert.Equal(RuneTrait.Blue, Assert.IsType<string>(clothArmorPaymentResourcePower["trait"]));
         Assert.Equal(1, Assert.IsType<int>(clothArmorPaymentResourcePower["power"]));
+
+        var steraksGageState = clothArmorState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Green] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-STERAKS-GAGE", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-STERAKS-GAGE"] = new(
+                    "P1-STERAKS-GAGE",
+                    cardNo: "SFD·056/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装", "灵便"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var steraksGagePrompt = ResolutionResult.BuildPrompts(steraksGageState)["P1"];
+        var steraksGageCandidate = Assert.Single(
+            steraksGagePrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(steraksGageCandidate.Enabled);
+        Assert.Equal(["P1-STERAKS-GAGE"], (steraksGageCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_GREEN"], (steraksGageCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var steraksGageMetadata = Assert.IsType<Dictionary<string, object?>>(steraksGageCandidate.Metadata);
+        var steraksGageRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(steraksGageMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·056/221", Assert.IsType<string>(steraksGageRequirement["equipmentCardNo"]));
+        var steraksGageOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            steraksGageRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_GREEN"], steraksGageOptionalCostChoices.Select(cost => cost.Id).ToArray());
+
+        var steraksGageRecyclePaymentState = steraksGageState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-STERAKS-GAGE", "P1-UNIT", "P1-RUNE-GREEN-ASSEMBLE-PAYMENT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(steraksGageState.CardObjects, StringComparer.Ordinal)
+            {
+                ["P1-RUNE-GREEN-ASSEMBLE-PAYMENT"] = new(
+                    "P1-RUNE-GREEN-ASSEMBLE-PAYMENT",
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:green"],
+                    cardNo: "UNL-R02",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var steraksGageRecyclePrompt = ResolutionResult.BuildPrompts(steraksGageRecyclePaymentState)["P1"];
+        var steraksGageRecycleCandidate = Assert.Single(
+            steraksGageRecyclePrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(steraksGageRecycleCandidate.Enabled);
+        var steraksGageRecycleMetadata = Assert.IsType<Dictionary<string, object?>>(steraksGageRecycleCandidate.Metadata);
+        var steraksGageRecycleRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(steraksGageRecycleMetadata["sourceRequirements"]));
+        var steraksGagePaymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            steraksGageRecycleRequirement["paymentResourceChoices"]);
+        Assert.Equal(["RECYCLE_RUNE:P1-RUNE-GREEN-ASSEMBLE-PAYMENT"], steraksGagePaymentResourceChoices.Select(choice => choice.Id).ToArray());
+        var steraksGagePaymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            steraksGageRecycleRequirement["paymentResourcePowerByChoice"]);
+        var steraksGagePaymentResourcePower = steraksGagePaymentResourcePowerByChoice["RECYCLE_RUNE:P1-RUNE-GREEN-ASSEMBLE-PAYMENT"];
+        Assert.Equal(RuneTrait.Green, Assert.IsType<string>(steraksGagePaymentResourcePower["trait"]));
     }
 
     [Fact]
