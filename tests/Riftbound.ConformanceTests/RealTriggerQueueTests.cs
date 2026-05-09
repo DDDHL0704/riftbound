@@ -487,6 +487,156 @@ public sealed class RealTriggerQueueTests
     }
 
     [Fact]
+    public async Task StateBasedCleanupSadPorosTriggerOrderAndDrawThroughStack()
+    {
+        var engine = new CoreRuleEngine();
+        var cleanup = await ResolveStarfallCleanupAsync(
+            engine,
+            BuildStarfallDestroyingSadPorosState(),
+            "sad-poros");
+
+        Assert.Equal(2, cleanup.State.TriggerQueue.Count);
+        Assert.All(cleanup.State.TriggerQueue, trigger =>
+        {
+            Assert.Equal("SAD_PORO_LAST_BREATH_DRAW_1", trigger.EffectKind);
+            Assert.Equal("UNIT_DESTROYED", trigger.TriggeredByEventKind);
+        });
+        Assert.Empty(cleanup.State.PlayerZones["P1"].Hand);
+        Assert.Empty(cleanup.State.PlayerZones["P2"].Hand);
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+
+        var final = await OrderAndResolveTwoDrawTriggersThroughStackAsync(
+            engine,
+            cleanup.State,
+            "sad-poros",
+            "SAD_PORO_LAST_BREATH_DRAW_1",
+            "P1-CLEANUP-SAD-PORO-SFD",
+            "P2-CLEANUP-SAD-PORO-UNL",
+            "P1-SAD-PORO-DRAW-001",
+            "P2-SAD-PORO-DRAW-001");
+
+        Assert.Empty(final.State.TriggerQueue);
+        Assert.Empty(final.State.StackItems);
+        Assert.Equal(["P1-SAD-PORO-DRAW-001"], final.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-SAD-PORO-DRAW-001"], final.State.PlayerZones["P2"].Hand);
+    }
+
+    [Fact]
+    public async Task StateBasedCleanupSadPoroSkipsWhenNotIsolated()
+    {
+        var engine = new CoreRuleEngine();
+        var cleanup = await ResolveStarfallCleanupAsync(
+            engine,
+            BuildStarfallDestroyingSadPoroWithAllyState(),
+            "sad-poro-not-isolated");
+
+        Assert.Empty(cleanup.State.TriggerQueue);
+        Assert.Empty(cleanup.State.StackItems);
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal));
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.NotEqual(PromptTypes.OrderTriggers, cleanup.Prompts["P1"].View?.Type);
+        Assert.Equal(["P1-CLEANUP-SAD-PORO-ALLY"], cleanup.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-SAD-PORO-DRAW-001"], cleanup.State.PlayerZones["P1"].MainDeck);
+        Assert.Empty(cleanup.State.PlayerZones["P1"].Hand);
+    }
+
+    [Fact]
+    public async Task StateBasedCleanupLoyalPoroTriggersWhenNotIsolatedAndDrawsThroughStack()
+    {
+        var engine = new CoreRuleEngine();
+        var cleanup = await ResolveStarfallCleanupAsync(
+            engine,
+            BuildStarfallDestroyingLoyalPorosWithAlliesState(),
+            "loyal-poros");
+
+        Assert.Equal(2, cleanup.State.TriggerQueue.Count);
+        Assert.All(cleanup.State.TriggerQueue, trigger =>
+        {
+            Assert.Equal("LOYAL_PORO_LAST_BREATH_DRAW_1", trigger.EffectKind);
+            Assert.Equal("UNIT_DESTROYED", trigger.TriggeredByEventKind);
+        });
+        Assert.Equal(["P1-CLEANUP-LOYAL-PORO-ALLY"], cleanup.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-CLEANUP-LOYAL-PORO-ALLY"], cleanup.State.PlayerZones["P2"].Base);
+
+        var final = await OrderAndResolveTwoDrawTriggersThroughStackAsync(
+            engine,
+            cleanup.State,
+            "loyal-poros",
+            "LOYAL_PORO_LAST_BREATH_DRAW_1",
+            "P1-CLEANUP-LOYAL-PORO",
+            "P2-CLEANUP-LOYAL-PORO",
+            "P1-LOYAL-PORO-DRAW-001",
+            "P2-LOYAL-PORO-DRAW-001");
+
+        Assert.Empty(final.State.TriggerQueue);
+        Assert.Empty(final.State.StackItems);
+        Assert.Equal(["P1-CLEANUP-LOYAL-PORO-ALLY"], final.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-CLEANUP-LOYAL-PORO-ALLY"], final.State.PlayerZones["P2"].Base);
+        Assert.Equal(["P1-LOYAL-PORO-DRAW-001"], final.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-LOYAL-PORO-DRAW-001"], final.State.PlayerZones["P2"].Hand);
+    }
+
+    [Fact]
+    public async Task StateBasedCleanupLoyalPoroSkipsWhenIsolated()
+    {
+        var engine = new CoreRuleEngine();
+        var cleanup = await ResolveStarfallCleanupAsync(
+            engine,
+            BuildStarfallDestroyingIsolatedLoyalPorosState(),
+            "loyal-poros-isolated");
+
+        Assert.Empty(cleanup.State.TriggerQueue);
+        Assert.Empty(cleanup.State.StackItems);
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal));
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.NotEqual(PromptTypes.OrderTriggers, cleanup.Prompts["P1"].View?.Type);
+        Assert.Equal(["P1-LOYAL-PORO-DRAW-001"], cleanup.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P2-LOYAL-PORO-DRAW-001"], cleanup.State.PlayerZones["P2"].MainDeck);
+        Assert.Empty(cleanup.State.PlayerZones["P1"].Hand);
+        Assert.Empty(cleanup.State.PlayerZones["P2"].Hand);
+    }
+
+    [Fact]
+    public async Task StateBasedCleanupLoyalPoroSkipsWhenOnlyOtherFriendlyAlsoDies()
+    {
+        var engine = new CoreRuleEngine();
+        var cleanup = await ResolveStarfallCleanupAsync(
+            engine,
+            BuildStarfallDestroyingLoyalPoroWithDyingAllyState(),
+            "loyal-poro-ally-also-dies");
+
+        Assert.Empty(cleanup.State.TriggerQueue);
+        Assert.Empty(cleanup.State.StackItems);
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal));
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.NotEqual(PromptTypes.OrderTriggers, cleanup.Prompts["P1"].View?.Type);
+        Assert.Empty(cleanup.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-LOYAL-PORO-DRAW-001"], cleanup.State.PlayerZones["P1"].MainDeck);
+        Assert.Empty(cleanup.State.PlayerZones["P1"].Hand);
+    }
+
+    [Fact]
+    public async Task StateBasedCleanupHiddenPorosDoNotEnqueueTriggers()
+    {
+        var engine = new CoreRuleEngine();
+        var cleanup = await ResolveStarfallCleanupAsync(
+            engine,
+            BuildStarfallDestroyingHiddenPorosState(),
+            "hidden-poros");
+
+        Assert.Empty(cleanup.State.TriggerQueue);
+        Assert.Empty(cleanup.State.StackItems);
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal));
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal));
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.NotEqual(PromptTypes.OrderTriggers, cleanup.Prompts["P1"].View?.Type);
+        Assert.Equal(["P1-HIDDEN-PORO-DRAW-001"], cleanup.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P2-STANDBY-PORO-DRAW-001"], cleanup.State.PlayerZones["P2"].MainDeck);
+        Assert.Empty(cleanup.State.PlayerZones["P1"].Hand);
+        Assert.Empty(cleanup.State.PlayerZones["P2"].Hand);
+    }
+
+    [Fact]
     public async Task RealWatchfulSentinelLastBreathTriggersEnterApnapOrderWindowAndResolveThroughStack()
     {
         var engine = new CoreRuleEngine();
@@ -909,6 +1059,136 @@ public sealed class RealTriggerQueueTests
         Assert.Equal(["P2-STANDBY-SCOUTING-WARHAWK-RUNE"], p2Pass.State.PlayerZones["P2"].RuneDeck);
     }
 
+    private static async Task<ResolutionResult> ResolveStarfallCleanupAsync(
+        CoreRuleEngine engine,
+        MatchState state,
+        string label)
+    {
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent($"intent-cleanup-{label}-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent($"intent-cleanup-{label}-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Empty(p2Pass.State.StackItems);
+        Assert.Equal(2, p2Pass.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)));
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "LETHAL_DAMAGE", StringComparison.Ordinal));
+
+        return p2Pass;
+    }
+
+    private static async Task<ResolutionResult> OrderAndResolveTwoDrawTriggersThroughStackAsync(
+        CoreRuleEngine engine,
+        MatchState state,
+        string label,
+        string effectKind,
+        string p1SourceObjectId,
+        string p2SourceObjectId,
+        string p1DrawObjectId,
+        string p2DrawObjectId)
+    {
+        var p1Trigger = Assert.Single(state.TriggerQueue, trigger =>
+            string.Equals(trigger.ControllerId, "P1", StringComparison.Ordinal));
+        var p2Trigger = Assert.Single(state.TriggerQueue, trigger =>
+            string.Equals(trigger.ControllerId, "P2", StringComparison.Ordinal));
+        Assert.Equal(p1SourceObjectId, p1Trigger.SourceObjectId);
+        Assert.Equal(p2SourceObjectId, p2Trigger.SourceObjectId);
+        Assert.Equal(effectKind, p1Trigger.EffectKind);
+        Assert.Equal(effectKind, p2Trigger.EffectKind);
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.OrderTriggers, prompt.View?.Type);
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.OrderTriggers, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        var defaultOrder = Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["orderedTriggerIds"]);
+        Assert.Equal([p2Trigger.TriggerId, p1Trigger.TriggerId], defaultOrder);
+        var triggerViews = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["triggers"]).ToArray();
+        var p1TriggerView = Assert.Single(triggerViews, trigger =>
+            string.Equals(trigger["triggerId"] as string, p1Trigger.TriggerId, StringComparison.Ordinal));
+        Assert.Equal(p1SourceObjectId, Assert.IsType<string>(p1TriggerView["sourceObjectId"]));
+        Assert.Equal(effectKind, Assert.IsType<string>(p1TriggerView["effectKind"]));
+        Assert.Contains("UNIT_DESTROYED", Assert.IsType<string>(p1TriggerView["visibleText"]), StringComparison.Ordinal);
+
+        var illegalReorder = await engine.ResolveAsync(
+            state,
+            new PlayerIntent($"intent-cleanup-{label}-illegal-raw-order", "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(OrderedTriggerIds: [p1Trigger.TriggerId, p2Trigger.TriggerId]),
+            CancellationToken.None);
+        Assert.False(illegalReorder.Accepted);
+        Assert.Equal(ErrorCodes.InvalidPayload, illegalReorder.ErrorCode);
+        Assert.Equal(state.Tick, illegalReorder.State.Tick);
+        Assert.Empty(illegalReorder.State.StackItems);
+        Assert.Equal(
+            state.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray(),
+            illegalReorder.State.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray());
+        Assert.Empty(illegalReorder.State.PlayerZones["P1"].Hand);
+        Assert.Empty(illegalReorder.State.PlayerZones["P2"].Hand);
+        Assert.Equal([p1DrawObjectId], illegalReorder.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal([p2DrawObjectId], illegalReorder.State.PlayerZones["P2"].MainDeck);
+
+        var ordered = await engine.ResolveAsync(
+            state,
+            new PlayerIntent($"intent-cleanup-{label}-default-order", "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(OrderedTriggerIds: defaultOrder),
+            CancellationToken.None);
+        Assert.True(ordered.Accepted, ordered.ErrorMessage);
+        Assert.Empty(ordered.State.TriggerQueue);
+        Assert.Equal(
+            [$"ordered-{p1Trigger.TriggerId}", $"ordered-{p2Trigger.TriggerId}"],
+            ordered.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.Equal("P2", ordered.State.PriorityPlayerId);
+
+        var p2TriggerPass = await engine.ResolveAsync(
+            ordered.State,
+            new PlayerIntent($"intent-cleanup-{label}-p2-trigger-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p1ResolvesP2Trigger = await engine.ResolveAsync(
+            p2TriggerPass.State,
+            new PlayerIntent($"intent-cleanup-{label}-p1-resolves-p2-trigger", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        Assert.True(p1ResolvesP2Trigger.Accepted, p1ResolvesP2Trigger.ErrorMessage);
+        Assert.Contains(p1ResolvesP2Trigger.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, effectKind, StringComparison.Ordinal));
+        Assert.Contains(p1ResolvesP2Trigger.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal));
+        Assert.Equal([p2DrawObjectId], p1ResolvesP2Trigger.State.PlayerZones["P2"].Hand);
+        Assert.Single(p1ResolvesP2Trigger.State.StackItems);
+        Assert.Equal("P1", p1ResolvesP2Trigger.State.PriorityPlayerId);
+
+        var p1TriggerPass = await engine.ResolveAsync(
+            p1ResolvesP2Trigger.State,
+            new PlayerIntent($"intent-cleanup-{label}-p1-trigger-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2ResolvesP1Trigger = await engine.ResolveAsync(
+            p1TriggerPass.State,
+            new PlayerIntent($"intent-cleanup-{label}-p2-resolves-p1-trigger", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        Assert.True(p2ResolvesP1Trigger.Accepted, p2ResolvesP1Trigger.ErrorMessage);
+        Assert.Contains(p2ResolvesP1Trigger.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal));
+
+        return p2ResolvesP1Trigger;
+    }
+
     private static MatchState BuildSpiritFireDestroyingTwoWatchfulSentinelsState()
     {
         return new MatchState(
@@ -1190,6 +1470,489 @@ public sealed class RealTriggerQueueTests
             p2IsFaceDown: false,
             p1Tags: [CardObjectTags.UnitCard, "鸟类"],
             p2Tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "鸟类"]);
+    }
+
+    private static MatchState BuildStarfallDestroyingSadPorosState()
+    {
+        return new MatchState(
+            "cleanup-sad-poro-trigger-room",
+            31,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-SAD-PORO-DRAW-001"],
+                    Base = ["P1-CLEANUP-SAD-PORO-SFD"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P2-SAD-PORO-DRAW-001"],
+                    Base = ["P2-CLEANUP-SAD-PORO-UNL"]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-CLEANUP-SAD-PORO-SFD"] = new(
+                    "P1-CLEANUP-SAD-PORO-SFD",
+                    cardNo: "SFD·036/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-CLEANUP-SAD-PORO-UNL"] = new(
+                    "P2-CLEANUP-SAD-PORO-UNL",
+                    cardNo: "UNL-221/219",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-SPELL-STARFALL"] = new(
+                    "P1-SPELL-STARFALL",
+                    cardNo: "OGN·029/298",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            priorityPlayerId: "P1",
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-STARFALL-CLEANUP-SAD-POROS",
+                    "P1",
+                    "P1-SPELL-STARFALL",
+                    "STARFALL_DAMAGE_3_TWICE",
+                    "OGN·029/298",
+                    ["P1-CLEANUP-SAD-PORO-SFD", "P2-CLEANUP-SAD-PORO-UNL"])
+            ],
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            });
+    }
+
+    private static MatchState BuildStarfallDestroyingSadPoroWithAllyState()
+    {
+        return new MatchState(
+            "cleanup-sad-poro-not-isolated-room",
+            32,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-SAD-PORO-DRAW-001"],
+                    Base = ["P1-CLEANUP-SAD-PORO-SFD", "P1-CLEANUP-SAD-PORO-ALLY"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-CLEANUP-SAD-PORO-SFD"] = new(
+                    "P1-CLEANUP-SAD-PORO-SFD",
+                    cardNo: "SFD·036/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-CLEANUP-SAD-PORO-ALLY"] = new(
+                    "P1-CLEANUP-SAD-PORO-ALLY",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-SPELL-STARFALL"] = new(
+                    "P1-SPELL-STARFALL",
+                    cardNo: "OGN·029/298",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            priorityPlayerId: "P1",
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-STARFALL-CLEANUP-SAD-PORO-NOT-ISOLATED",
+                    "P1",
+                    "P1-SPELL-STARFALL",
+                    "STARFALL_DAMAGE_3_TWICE",
+                    "OGN·029/298",
+                    ["P1-CLEANUP-SAD-PORO-SFD", "P1-CLEANUP-SAD-PORO-ALLY"])
+            ],
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            });
+    }
+
+    private static MatchState BuildStarfallDestroyingLoyalPorosWithAlliesState()
+    {
+        return new MatchState(
+            "cleanup-loyal-poro-trigger-room",
+            33,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-LOYAL-PORO-DRAW-001"],
+                    Base = ["P1-CLEANUP-LOYAL-PORO", "P1-CLEANUP-LOYAL-PORO-ALLY"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P2-LOYAL-PORO-DRAW-001"],
+                    Base = ["P2-CLEANUP-LOYAL-PORO", "P2-CLEANUP-LOYAL-PORO-ALLY"]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-CLEANUP-LOYAL-PORO"] = new(
+                    "P1-CLEANUP-LOYAL-PORO",
+                    cardNo: "UNL-156/219",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-CLEANUP-LOYAL-PORO"] = new(
+                    "P2-CLEANUP-LOYAL-PORO",
+                    cardNo: "UNL-156/219",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-CLEANUP-LOYAL-PORO-ALLY"] = new(
+                    "P1-CLEANUP-LOYAL-PORO-ALLY",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-CLEANUP-LOYAL-PORO-ALLY"] = new(
+                    "P2-CLEANUP-LOYAL-PORO-ALLY",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-SPELL-STARFALL"] = new(
+                    "P1-SPELL-STARFALL",
+                    cardNo: "OGN·029/298",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            priorityPlayerId: "P1",
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-STARFALL-CLEANUP-LOYAL-POROS",
+                    "P1",
+                    "P1-SPELL-STARFALL",
+                    "STARFALL_DAMAGE_3_TWICE",
+                    "OGN·029/298",
+                    ["P1-CLEANUP-LOYAL-PORO", "P2-CLEANUP-LOYAL-PORO"])
+            ],
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            });
+    }
+
+    private static MatchState BuildStarfallDestroyingIsolatedLoyalPorosState()
+    {
+        return new MatchState(
+            "cleanup-isolated-loyal-poro-room",
+            34,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-LOYAL-PORO-DRAW-001"],
+                    Base = ["P1-CLEANUP-LOYAL-PORO"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P2-LOYAL-PORO-DRAW-001"],
+                    Base = ["P2-CLEANUP-LOYAL-PORO"]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-CLEANUP-LOYAL-PORO"] = new(
+                    "P1-CLEANUP-LOYAL-PORO",
+                    cardNo: "UNL-156/219",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-CLEANUP-LOYAL-PORO"] = new(
+                    "P2-CLEANUP-LOYAL-PORO",
+                    cardNo: "UNL-156/219",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-SPELL-STARFALL"] = new(
+                    "P1-SPELL-STARFALL",
+                    cardNo: "OGN·029/298",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            priorityPlayerId: "P1",
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-STARFALL-CLEANUP-LOYAL-POROS-ISOLATED",
+                    "P1",
+                    "P1-SPELL-STARFALL",
+                    "STARFALL_DAMAGE_3_TWICE",
+                    "OGN·029/298",
+                    ["P1-CLEANUP-LOYAL-PORO", "P2-CLEANUP-LOYAL-PORO"])
+            ],
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            });
+    }
+
+    private static MatchState BuildStarfallDestroyingLoyalPoroWithDyingAllyState()
+    {
+        return new MatchState(
+            "cleanup-loyal-poro-ally-also-dies-room",
+            36,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-LOYAL-PORO-DRAW-001"],
+                    Base = ["P1-CLEANUP-LOYAL-PORO", "P1-CLEANUP-LOYAL-PORO-DYING-ALLY"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-CLEANUP-LOYAL-PORO"] = new(
+                    "P1-CLEANUP-LOYAL-PORO",
+                    cardNo: "UNL-156/219",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-CLEANUP-LOYAL-PORO-DYING-ALLY"] = new(
+                    "P1-CLEANUP-LOYAL-PORO-DYING-ALLY",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-SPELL-STARFALL"] = new(
+                    "P1-SPELL-STARFALL",
+                    cardNo: "OGN·029/298",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            priorityPlayerId: "P1",
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-STARFALL-CLEANUP-LOYAL-PORO-ALLY-ALSO-DIES",
+                    "P1",
+                    "P1-SPELL-STARFALL",
+                    "STARFALL_DAMAGE_3_TWICE",
+                    "OGN·029/298",
+                    ["P1-CLEANUP-LOYAL-PORO", "P1-CLEANUP-LOYAL-PORO-DYING-ALLY"])
+            ],
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            });
+    }
+
+    private static MatchState BuildStarfallDestroyingHiddenPorosState()
+    {
+        return new MatchState(
+            "cleanup-hidden-poros-room",
+            35,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-HIDDEN-PORO-DRAW-001"],
+                    Base = ["P1-CLEANUP-HIDDEN-SAD-PORO"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P2-STANDBY-PORO-DRAW-001"],
+                    Base = ["P2-CLEANUP-STANDBY-LOYAL-PORO", "P2-CLEANUP-STANDBY-LOYAL-PORO-ALLY"]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-CLEANUP-HIDDEN-SAD-PORO"] = new(
+                    "P1-CLEANUP-HIDDEN-SAD-PORO",
+                    cardNo: "SFD·036/221",
+                    power: 3,
+                    isFaceDown: true,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-CLEANUP-STANDBY-LOYAL-PORO"] = new(
+                    "P2-CLEANUP-STANDBY-LOYAL-PORO",
+                    cardNo: "UNL-156/219",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-CLEANUP-STANDBY-LOYAL-PORO-ALLY"] = new(
+                    "P2-CLEANUP-STANDBY-LOYAL-PORO-ALLY",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-SPELL-STARFALL"] = new(
+                    "P1-SPELL-STARFALL",
+                    cardNo: "OGN·029/298",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            priorityPlayerId: "P1",
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-STARFALL-CLEANUP-HIDDEN-POROS",
+                    "P1",
+                    "P1-SPELL-STARFALL",
+                    "STARFALL_DAMAGE_3_TWICE",
+                    "OGN·029/298",
+                    ["P1-CLEANUP-HIDDEN-SAD-PORO", "P2-CLEANUP-STANDBY-LOYAL-PORO"])
+            ],
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            });
     }
 
     private static MatchState BuildStarfallDestroyingWatchfulSentinelsState(

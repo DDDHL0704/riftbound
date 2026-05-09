@@ -4027,6 +4027,34 @@ public sealed class CoreRuleEngine : IRuleEngine
                 StringComparison.Ordinal));
     }
 
+    private static bool HasOtherFriendlyBaseUnitAtSamePositionOutsideRemoval(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string objectId,
+        string controllerId,
+        IReadOnlySet<string> removalObjectIds)
+    {
+        var location = FindFieldObjectLocation(playerZones, objectId);
+        if (location is null
+            || !string.Equals(location.Value.Zone, MoveUnitBaseZone, StringComparison.Ordinal)
+            || !playerZones.TryGetValue(location.Value.PlayerId, out var zones))
+        {
+            return false;
+        }
+
+        return zones.Base.Any(candidateObjectId =>
+            !string.Equals(candidateObjectId, objectId, StringComparison.Ordinal)
+            && !removalObjectIds.Contains(candidateObjectId)
+            && cardObjects.TryGetValue(candidateObjectId, out var candidate)
+            && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !candidate.IsFaceDown
+            && !candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && string.Equals(
+                EffectiveFieldControllerId(playerZones, candidateObjectId, candidate),
+                controllerId,
+                StringComparison.Ordinal));
+    }
+
     private static TriggerQueueItemState BuildLastBreathTriggerQueueItem(
         StackItemState stackItem,
         string sourceObjectId,
@@ -20538,6 +20566,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveWatchfulSentinelLastBreathStackItem(state, stackItem);
         }
 
+        if (string.Equals(stackItem.EffectKind, SadPoroLastBreathDrawEffectKind, StringComparison.Ordinal) ||
+            string.Equals(stackItem.EffectKind, LoyalPoroLastBreathDrawEffectKind, StringComparison.Ordinal))
+        {
+            return ResolveWatchfulSentinelLastBreathStackItem(state, stackItem);
+        }
+
         if (string.Equals(stackItem.EffectKind, HonestBrokerLastBreathCreateGoldEffectKind, StringComparison.Ordinal))
         {
             return ResolveHonestBrokerLastBreathStackItem(state, stackItem);
@@ -27049,6 +27083,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Select(entry => entry.Key)
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray();
+        var stateBasedRemovalObjectIdSet = stateBasedRemovalObjectIds.ToHashSet(StringComparer.Ordinal);
 
         foreach (var objectId in stateBasedRemovalObjectIds)
         {
@@ -27092,6 +27127,37 @@ public sealed class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
+            var cleanupLocation = FindFieldObjectLocation(playerZones, objectId);
+            var cleanupObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal);
+            var sadPoroLastBreathDrawPlayerId = cleanupLocation is not null &&
+                string.Equals(cleanupLocation.Value.Zone, MoveUnitBaseZone, StringComparison.Ordinal)
+                    ? ResolveSadPoroLastBreathDrawPlayerId(
+                        playerZones,
+                        cardObjects,
+                        cleanupObjectLocations,
+                        objectId,
+                        destroyedState)
+                    : null;
+            var loyalPoroLastBreathDrawPlayerId = cleanupLocation is not null &&
+                string.Equals(cleanupLocation.Value.Zone, MoveUnitBaseZone, StringComparison.Ordinal)
+                    ? ResolveLoyalPoroLastBreathDrawPlayerId(
+                        playerZones,
+                        cardObjects,
+                        cleanupObjectLocations,
+                        objectId,
+                        destroyedState)
+                    : null;
+            if (loyalPoroLastBreathDrawPlayerId is not null &&
+                !HasOtherFriendlyBaseUnitAtSamePositionOutsideRemoval(
+                    playerZones,
+                    cardObjects,
+                    objectId,
+                    loyalPoroLastBreathDrawPlayerId,
+                    stateBasedRemovalObjectIdSet))
+            {
+                loyalPoroLastBreathDrawPlayerId = null;
+            }
+
             if (!TryDestroyTarget(playerZones, cardObjects, objectId, out var removalResult))
             {
                 continue;
@@ -27129,6 +27195,28 @@ public sealed class CoreRuleEngine : IRuleEngine
                     objectId,
                     watchfulSentinelControllerId,
                     WatchfulSentinelLastBreathDrawEffectKind);
+                events.Add(BuildTriggerQueuedEvent(trigger));
+                triggerQueue.Add(trigger);
+            }
+
+            if (sadPoroLastBreathDrawPlayerId is not null)
+            {
+                var trigger = BuildLastBreathTriggerQueueItem(
+                    stackItem,
+                    objectId,
+                    sadPoroLastBreathDrawPlayerId,
+                    SadPoroLastBreathDrawEffectKind);
+                events.Add(BuildTriggerQueuedEvent(trigger));
+                triggerQueue.Add(trigger);
+            }
+
+            if (loyalPoroLastBreathDrawPlayerId is not null)
+            {
+                var trigger = BuildLastBreathTriggerQueueItem(
+                    stackItem,
+                    objectId,
+                    loyalPoroLastBreathDrawPlayerId,
+                    LoyalPoroLastBreathDrawEffectKind);
                 events.Add(BuildTriggerQueuedEvent(trigger));
                 triggerQueue.Add(trigger);
             }

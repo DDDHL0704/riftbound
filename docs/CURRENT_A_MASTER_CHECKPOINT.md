@@ -1290,13 +1290,69 @@ A 主控复验：
 4C-8 仍保留 P0/P1：
 
 - 完整 trigger engine。
-- Sad / Loyal Poro。
+- Sad / Loyal Poro（4C-9 后续已补 state-based cleanup 条件抽牌代表路径；不再作为当前独立 P0 子项）。
 - 其他 last-breath / destroyed / friendly-destroyed functional units。
 - hidden / face-down 原始触发建模。
 - FAQ regression。
 - 1009 entries / 811 functional units full-official 覆盖、正式 18-step E2E、completion audit 仍未完成。
 
 4C-8 结论：**通过**。没有新增 P0/P1，没有协议或前端字段变化，没有把 hidden / face-down / standby Warhawk cleanup 路径误入队或误触发 `RUNES_CALLED`；允许继续阶段 4C 下一批。阶段 4C 仍在逐 FU、逐测试批量推进；项目整体仍 **NOT READY**。
+
+## 0.19 阶段 4C-9 Poro Cleanup Trigger Enqueue 小批
+
+阶段 4C-9 继续按 functional unit / engine blocker 小批推进。本批只把 Sad / Loyal Poro 条件抽牌的 state-based cleanup lethal damage 代表路径接入服务端权威触发队列；支撑来源为 `Starfall` / `OGN·029/298` 造成 lethal damage 后的 state-based cleanup。项目整体仍 **NOT READY**。
+
+4C-9 服务端改动：
+
+- 覆盖 `FU-f8bfd5c6f9` / `SFD·036/221` Sad Poro / `SAD_PORO_LAST_BREATH_DRAW_1`。
+- 覆盖 `FU-938b749c23` / `UNL-221/219` Sad Poro / `SAD_PORO_LAST_BREATH_DRAW_1`。
+- 覆盖 `FU-0415e3b46d` / `UNL-156/219` Loyal Poro / `LOYAL_PORO_LAST_BREATH_DRAW_1`。
+- 官方化路径串成：Starfall lethal damage -> state-based cleanup `LETHAL_DAMAGE` `UNIT_DESTROYED` -> visible base-zone Poro condition -> `TriggerQueue` -> `ORDER_TRIGGERS` -> `StackItems` -> priority pass -> `TRIGGER_RESOLVED` / `CARD_DRAWN`。
+- Sad 条件：base-zone、visible、非 face-down、非 standby，且同位置无其他友方正面非待命单位时触发。
+- Loyal 条件：base-zone、visible、非 face-down、非 standby，且同位置有至少一个其他友方正面非待命单位，并且该友方不在本轮 cleanup removal set 中时触发。
+- hidden / face-down / standby Poro cleanup 路径不入队、不显示 prompt metadata、不抽牌。
+- 同位置其他友方也同时被 cleanup 摧毁的落单判定未官方化；runtime 对 Loyal 采取保守不入队，本批不宣称完整规则。
+- 现有 explicit destroy P79 Sad / Loyal immediate compatibility 保留。
+- 本批没有协议或前端字段变化，不进入 1009 full-official，不宣称完整 trigger engine。
+
+4C-9 文档改动：
+
+- 新增 `docs/CURRENT_STAGE4C_BATCH9_PORO_CLEANUP_TRIGGER_AUDIT.md`。
+- 新增 `docs/CURRENT_STAGE4C_BATCH9_PORO_CLEANUP_TRIGGER_EVIDENCE.md`。
+- 更新 `docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/rules-evidence-index.md` 与本 checkpoint。
+- 更新 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`、`docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`、`docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`，记录 3 个 Poro FU 的 `stage4C9` cleanup overlay。
+- 矩阵口径保持 1009 snapshot entries / 811 functional units；`stage4C9` tagged FUs = 3；cumulative real-trigger enqueue verified FUs = 6；cumulative state-based cleanup trigger enqueue verified FUs = 6；`fullOfficialUpgrades = 0`。
+- 本批没有服务端协议或前端改动，不触碰 `riftbound-dotnet.sln`。
+
+4C-9 A 复核命令：
+
+- focused：通过，21/21。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：通过，3358/3358。
+- frontend build：passed。
+- Chrome smoke：passed。
+- Stage 3 preflight：passed。
+- `git diff --check`：passed。
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`：passed。
+- 矩阵结构断言：1009 / 811 不变，`stage4C9` 仅标记 `FU-f8bfd5c6f9`、`FU-938b749c23`、`FU-0415e3b46d`，三者 `fullOfficial=false`，`fullOfficialUpgrades=0`。
+
+4C-9 关闭的 P0 子项：
+
+- Sad Poro / `SFD·036/221` state-based cleanup 条件抽牌 real trigger enqueue representative。
+- Sad Poro / `UNL-221/219` state-based cleanup 条件抽牌 real trigger enqueue representative。
+- Loyal Poro / `UNL-156/219` state-based cleanup 条件抽牌 real trigger enqueue representative。
+- hidden / face-down / standby Poro cleanup 路径不入队、不显示 prompt metadata、不抽牌的信息泄漏护栏。
+
+4C-9 仍保留 P0/P1：
+
+- 完整 trigger engine。
+- 其他 last-breath / destroyed / friendly-destroyed functional units。
+- battlefield objectLocation Poro condition matrix。
+- simultaneous cleanup condition timing，尤其同位置其他友方也同时被 cleanup 摧毁时的 Sad / Loyal 判定。
+- hidden / face-down 原始触发建模。
+- FAQ regression。
+- 1009 entries / 811 functional units full-official 覆盖、正式 18-step E2E、completion audit 仍未完成。
+
+4C-9 结论：**通过**。没有新增 P0/P1，没有协议或前端字段变化，没有把 hidden / face-down / standby Poro cleanup 路径误入队或误抽牌；允许继续阶段 4C 下一批。阶段 4C 仍在逐 FU、逐测试批量推进；项目整体仍 **NOT READY**。
 
 ## 1. 总目标
 
