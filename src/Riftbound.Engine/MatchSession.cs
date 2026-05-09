@@ -2353,6 +2353,9 @@ internal static class ActionPromptBuilder
     private const string DoransRingCardNo = "SFD·124/221";
     private const int DoransRingAssemblePowerCost = 1;
     private const string DoransRingAssembleOptionalCost = "ASSEMBLE_PURPLE";
+    private const string DoransBladeCardNo = "SFD·095/221";
+    private const int DoransBladeAssemblePowerCost = 1;
+    private const string DoransBladeAssembleOptionalCost = "ASSEMBLE_ORANGE";
     private sealed record AssembleEquipmentProfile(
         string CardNo,
         string DisplayName,
@@ -2404,7 +2407,15 @@ internal static class ActionPromptBuilder
                 "装配紫色符能",
                 RuneTrait.Purple,
                 DoransRingAssemblePowerCost,
-                "payment resource action: recycle purple rune for assemble cost")
+                "payment resource action: recycle purple rune for assemble cost"),
+            [DoransBladeCardNo] = new(
+                DoransBladeCardNo,
+                "多兰之刃",
+                DoransBladeAssembleOptionalCost,
+                "装配橙色符能",
+                RuneTrait.Orange,
+                DoransBladeAssemblePowerCost,
+                "payment resource action: recycle orange rune for assemble cost")
         };
     private const string CrescentGuardCardNo = "UNL-122/219";
     private const int CrescentGuardReadyPowerCost = 1;

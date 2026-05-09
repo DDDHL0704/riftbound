@@ -3611,6 +3611,59 @@ public sealed class ConformanceFixtureShapeTests
         var doransRingOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             doransRingRequirement["optionalCostChoices"]);
         Assert.Equal(["ASSEMBLE_PURPLE"], doransRingOptionalCostChoices.Select(cost => cost.Id).ToArray());
+
+        var doransBladeState = steraksGageState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Orange] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-DORANS-BLADE", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-DORANS-BLADE"] = new(
+                    "P1-DORANS-BLADE",
+                    cardNo: "SFD·095/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var doransBladePrompt = ResolutionResult.BuildPrompts(doransBladeState)["P1"];
+        var doransBladeCandidate = Assert.Single(
+            doransBladePrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(doransBladeCandidate.Enabled);
+        Assert.Equal(["P1-DORANS-BLADE"], (doransBladeCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_ORANGE"], (doransBladeCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var doransBladeMetadata = Assert.IsType<Dictionary<string, object?>>(doransBladeCandidate.Metadata);
+        var doransBladeRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(doransBladeMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·095/221", Assert.IsType<string>(doransBladeRequirement["equipmentCardNo"]));
+        var doransBladeOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            doransBladeRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_ORANGE"], doransBladeOptionalCostChoices.Select(cost => cost.Id).ToArray());
     }
 
     [Fact]
