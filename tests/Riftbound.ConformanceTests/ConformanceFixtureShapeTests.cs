@@ -3340,6 +3340,48 @@ public sealed class ConformanceFixtureShapeTests
             jaggedDirkRequirement["optionalCostChoices"]);
         Assert.Equal(["ASSEMBLE_RED"], jaggedDirkOptionalCostChoices.Select(cost => cost.Id).ToArray());
 
+        var recurveBowState = payableState with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-RECURVE-BOW", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-RECURVE-BOW"] = new(
+                    "P1-RECURVE-BOW",
+                    cardNo: "SFD·016/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var recurveBowPrompt = ResolutionResult.BuildPrompts(recurveBowState)["P1"];
+        var recurveBowCandidate = Assert.Single(
+            recurveBowPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(recurveBowCandidate.Enabled);
+        Assert.Equal(["P1-RECURVE-BOW"], (recurveBowCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_RED"], (recurveBowCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var recurveBowMetadata = Assert.IsType<Dictionary<string, object?>>(recurveBowCandidate.Metadata);
+        var recurveBowRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(recurveBowMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·016/221", Assert.IsType<string>(recurveBowRequirement["equipmentCardNo"]));
+        var recurveBowOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            recurveBowRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_RED"], recurveBowOptionalCostChoices.Select(cost => cost.Id).ToArray());
+
         var clothArmorState = noPowerState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)

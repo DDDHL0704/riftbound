@@ -34,6 +34,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string JaggedDirkCardNo = "SFD·009/221";
     private const string JaggedDirkAssembleOptionalCost = "ASSEMBLE_RED";
     private const int JaggedDirkAssemblePowerCost = 1;
+    private const string RecurveBowCardNo = "SFD·016/221";
+    private const string RecurveBowAssembleOptionalCost = "ASSEMBLE_RED";
+    private const int RecurveBowAssemblePowerCost = 1;
     private const string ClothArmorCardNo = "SFD·064/221";
     private const string ClothArmorAssembleOptionalCost = "ASSEMBLE_BLUE";
     private const int ClothArmorAssemblePowerCost = 1;
@@ -77,6 +80,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 JaggedDirkAssembleOptionalCost,
                 RuneTrait.Red,
                 JaggedDirkAssemblePowerCost),
+            [RecurveBowCardNo] = new(
+                RecurveBowCardNo,
+                "反曲之弓",
+                RecurveBowAssembleOptionalCost,
+                RuneTrait.Red,
+                RecurveBowAssemblePowerCost),
             [ClothArmorCardNo] = new(
                 ClothArmorCardNo,
                 "布甲",

@@ -2344,6 +2344,9 @@ internal static class ActionPromptBuilder
     private const string JaggedDirkCardNo = "SFD·009/221";
     private const int JaggedDirkAssemblePowerCost = 1;
     private const string JaggedDirkAssembleOptionalCost = "ASSEMBLE_RED";
+    private const string RecurveBowCardNo = "SFD·016/221";
+    private const int RecurveBowAssemblePowerCost = 1;
+    private const string RecurveBowAssembleOptionalCost = "ASSEMBLE_RED";
     private const string ClothArmorCardNo = "SFD·064/221";
     private const int ClothArmorAssemblePowerCost = 1;
     private const string ClothArmorAssembleOptionalCost = "ASSEMBLE_BLUE";
@@ -2392,6 +2395,14 @@ internal static class ActionPromptBuilder
                 "装配红色符能",
                 RuneTrait.Red,
                 JaggedDirkAssemblePowerCost,
+                "payment resource action: recycle red rune for assemble cost"),
+            [RecurveBowCardNo] = new(
+                RecurveBowCardNo,
+                "反曲之弓",
+                RecurveBowAssembleOptionalCost,
+                "装配红色符能",
+                RuneTrait.Red,
+                RecurveBowAssemblePowerCost,
                 "payment resource action: recycle red rune for assemble cost"),
             [ClothArmorCardNo] = new(
                 ClothArmorCardNo,
