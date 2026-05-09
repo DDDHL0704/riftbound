@@ -2341,6 +2341,9 @@ internal static class ActionPromptBuilder
     private const string LongSwordCardNo = "SFD·022/221";
     private const int LongSwordAssemblePowerCost = 1;
     private const string LongSwordAssembleOptionalCost = "ASSEMBLE_RED";
+    private const string SoulSwordCardNo = "UNL-039/219";
+    private const int SoulSwordAssemblePowerCost = 1;
+    private const string SoulSwordAssembleOptionalCost = "ASSEMBLE_GREEN";
     private const string JaggedDirkCardNo = "SFD·009/221";
     private const int JaggedDirkAssemblePowerCost = 1;
     private const string JaggedDirkAssembleOptionalCost = "ASSEMBLE_RED";
@@ -2394,6 +2397,14 @@ internal static class ActionPromptBuilder
                 RuneTrait.Red,
                 LongSwordAssemblePowerCost,
                 "payment resource action: recycle red rune for assemble cost"),
+            [SoulSwordCardNo] = new(
+                SoulSwordCardNo,
+                "灵魂之剑",
+                SoulSwordAssembleOptionalCost,
+                "装配绿色符能",
+                RuneTrait.Green,
+                SoulSwordAssemblePowerCost,
+                "payment resource action: recycle green rune for assemble cost"),
             [JaggedDirkCardNo] = new(
                 JaggedDirkCardNo,
                 "锯齿短匕",

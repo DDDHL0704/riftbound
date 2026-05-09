@@ -31,6 +31,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string LongSwordCardNo = "SFD·022/221";
     private const string LongSwordAssembleOptionalCost = "ASSEMBLE_RED";
     private const int LongSwordAssemblePowerCost = 1;
+    private const string SoulSwordCardNo = "UNL-039/219";
+    private const string SoulSwordAssembleOptionalCost = "ASSEMBLE_GREEN";
+    private const int SoulSwordAssemblePowerCost = 1;
     private const string JaggedDirkCardNo = "SFD·009/221";
     private const string JaggedDirkAssembleOptionalCost = "ASSEMBLE_RED";
     private const int JaggedDirkAssemblePowerCost = 1;
@@ -80,6 +83,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 LongSwordAssembleOptionalCost,
                 RuneTrait.Red,
                 LongSwordAssemblePowerCost),
+            [SoulSwordCardNo] = new(
+                SoulSwordCardNo,
+                "灵魂之剑",
+                SoulSwordAssembleOptionalCost,
+                RuneTrait.Green,
+                SoulSwordAssemblePowerCost),
             [JaggedDirkCardNo] = new(
                 JaggedDirkCardNo,
                 "锯齿短匕",

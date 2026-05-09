@@ -3686,6 +3686,48 @@ public sealed class ConformanceFixtureShapeTests
             guardianAngelRequirement["optionalCostChoices"]);
         Assert.Equal(["ASSEMBLE_GREEN"], guardianAngelOptionalCostChoices.Select(cost => cost.Id).ToArray());
 
+        var soulSwordState = steraksGageState with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-SOUL-SWORD", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SOUL-SWORD"] = new(
+                    "P1-SOUL-SWORD",
+                    cardNo: "UNL-039/219",
+                    tags: [CardObjectTags.EquipmentCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var soulSwordPrompt = ResolutionResult.BuildPrompts(soulSwordState)["P1"];
+        var soulSwordCandidate = Assert.Single(
+            soulSwordPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(soulSwordCandidate.Enabled);
+        Assert.Equal(["P1-SOUL-SWORD"], (soulSwordCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_GREEN"], (soulSwordCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var soulSwordMetadata = Assert.IsType<Dictionary<string, object?>>(soulSwordCandidate.Metadata);
+        var soulSwordRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(soulSwordMetadata["sourceRequirements"]));
+        Assert.Equal("UNL-039/219", Assert.IsType<string>(soulSwordRequirement["equipmentCardNo"]));
+        var soulSwordOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            soulSwordRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_GREEN"], soulSwordOptionalCostChoices.Select(cost => cost.Id).ToArray());
+
         var steraksGageRecyclePaymentState = steraksGageState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
