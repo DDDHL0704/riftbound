@@ -2383,6 +2383,9 @@ internal static class ActionPromptBuilder
     private const string TrinityForceCardNo = "SFD·115/221";
     private const int TrinityForceAssemblePowerCost = 1;
     private const string TrinityForceAssembleOptionalCost = "ASSEMBLE_ORANGE";
+    private const string BootsOfSwiftnessCardNo = "SFD·133/221";
+    private const int BootsOfSwiftnessAssemblePowerCost = 1;
+    private const string BootsOfSwiftnessAssembleOptionalCost = "ASSEMBLE_PURPLE";
     private const string VanguardsEyeCardNo = "SFD·153/221";
     private const int VanguardsEyeAssemblePowerCost = 1;
     private const string VanguardsEyeAssembleOptionalCost = "ASSEMBLE_YELLOW";
@@ -2518,6 +2521,14 @@ internal static class ActionPromptBuilder
                 RuneTrait.Orange,
                 TrinityForceAssemblePowerCost,
                 "payment resource action: recycle orange rune for assemble cost"),
+            [BootsOfSwiftnessCardNo] = new(
+                BootsOfSwiftnessCardNo,
+                "轻灵之靴",
+                BootsOfSwiftnessAssembleOptionalCost,
+                "装配紫色符能",
+                RuneTrait.Purple,
+                BootsOfSwiftnessAssemblePowerCost,
+                "payment resource action: recycle purple rune for assemble cost"),
             [VanguardsEyeCardNo] = new(
                 VanguardsEyeCardNo,
                 "先锋之眼",

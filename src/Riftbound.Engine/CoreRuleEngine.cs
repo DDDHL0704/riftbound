@@ -73,6 +73,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string TrinityForceCardNo = "SFD·115/221";
     private const string TrinityForceAssembleOptionalCost = "ASSEMBLE_ORANGE";
     private const int TrinityForceAssemblePowerCost = 1;
+    private const string BootsOfSwiftnessCardNo = "SFD·133/221";
+    private const string BootsOfSwiftnessAssembleOptionalCost = "ASSEMBLE_PURPLE";
+    private const int BootsOfSwiftnessAssemblePowerCost = 1;
     private const string VanguardsEyeCardNo = "SFD·153/221";
     private const string VanguardsEyeAssembleOptionalCost = "ASSEMBLE_YELLOW";
     private const int VanguardsEyeAssemblePowerCost = 1;
@@ -176,6 +179,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 TrinityForceAssembleOptionalCost,
                 RuneTrait.Orange,
                 TrinityForceAssemblePowerCost),
+            [BootsOfSwiftnessCardNo] = new(
+                BootsOfSwiftnessCardNo,
+                "轻灵之靴",
+                BootsOfSwiftnessAssembleOptionalCost,
+                RuneTrait.Purple,
+                BootsOfSwiftnessAssemblePowerCost),
             [VanguardsEyeCardNo] = new(
                 VanguardsEyeCardNo,
                 "先锋之眼",
