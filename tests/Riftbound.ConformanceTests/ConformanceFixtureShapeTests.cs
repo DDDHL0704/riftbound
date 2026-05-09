@@ -3382,6 +3382,48 @@ public sealed class ConformanceFixtureShapeTests
             recurveBowRequirement["optionalCostChoices"]);
         Assert.Equal(["ASSEMBLE_RED"], recurveBowOptionalCostChoices.Select(cost => cost.Id).ToArray());
 
+        var arionsFallState = payableState with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-ARIONS-FALL", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-ARIONS-FALL"] = new(
+                    "P1-ARIONS-FALL",
+                    cardNo: "SFD·030/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var arionsFallPrompt = ResolutionResult.BuildPrompts(arionsFallState)["P1"];
+        var arionsFallCandidate = Assert.Single(
+            arionsFallPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(arionsFallCandidate.Enabled);
+        Assert.Equal(["P1-ARIONS-FALL"], (arionsFallCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_RED"], (arionsFallCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var arionsFallMetadata = Assert.IsType<Dictionary<string, object?>>(arionsFallCandidate.Metadata);
+        var arionsFallRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(arionsFallMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·030/221", Assert.IsType<string>(arionsFallRequirement["equipmentCardNo"]));
+        var arionsFallOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            arionsFallRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_RED"], arionsFallOptionalCostChoices.Select(cost => cost.Id).ToArray());
+
         var clothArmorState = noPowerState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)

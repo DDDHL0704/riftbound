@@ -40,6 +40,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string RecurveBowCardNo = "SFD·016/221";
     private const string RecurveBowAssembleOptionalCost = "ASSEMBLE_RED";
     private const int RecurveBowAssemblePowerCost = 1;
+    private const string ArionsFallCardNo = "SFD·030/221";
+    private const string ArionsFallAssembleOptionalCost = "ASSEMBLE_RED";
+    private const int ArionsFallAssemblePowerCost = 1;
     private const string BrutalizerCardNo = "SFD·042/221";
     private const string BrutalizerAssembleOptionalCost = "ASSEMBLE_GREEN";
     private const int BrutalizerAssemblePowerCost = 1;
@@ -125,6 +128,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 RecurveBowAssembleOptionalCost,
                 RuneTrait.Red,
                 RecurveBowAssemblePowerCost),
+            [ArionsFallCardNo] = new(
+                ArionsFallCardNo,
+                "阿瑞昂的陨落",
+                ArionsFallAssembleOptionalCost,
+                RuneTrait.Red,
+                ArionsFallAssemblePowerCost),
             [BrutalizerCardNo] = new(
                 BrutalizerCardNo,
                 "残暴之力",

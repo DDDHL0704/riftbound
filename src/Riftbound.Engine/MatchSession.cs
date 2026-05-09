@@ -2350,6 +2350,9 @@ internal static class ActionPromptBuilder
     private const string RecurveBowCardNo = "SFD·016/221";
     private const int RecurveBowAssemblePowerCost = 1;
     private const string RecurveBowAssembleOptionalCost = "ASSEMBLE_RED";
+    private const string ArionsFallCardNo = "SFD·030/221";
+    private const int ArionsFallAssemblePowerCost = 1;
+    private const string ArionsFallAssembleOptionalCost = "ASSEMBLE_RED";
     private const string BrutalizerCardNo = "SFD·042/221";
     private const int BrutalizerAssemblePowerCost = 1;
     private const string BrutalizerAssembleOptionalCost = "ASSEMBLE_GREEN";
@@ -2444,6 +2447,14 @@ internal static class ActionPromptBuilder
                 "装配红色符能",
                 RuneTrait.Red,
                 RecurveBowAssemblePowerCost,
+                "payment resource action: recycle red rune for assemble cost"),
+            [ArionsFallCardNo] = new(
+                ArionsFallCardNo,
+                "阿瑞昂的陨落",
+                ArionsFallAssembleOptionalCost,
+                "装配红色符能",
+                RuneTrait.Red,
+                ArionsFallAssemblePowerCost,
                 "payment resource action: recycle red rune for assemble cost"),
             [BrutalizerCardNo] = new(
                 BrutalizerCardNo,
