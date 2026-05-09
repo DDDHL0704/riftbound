@@ -4129,6 +4129,59 @@ public sealed class ConformanceFixtureShapeTests
             bootsOfSwiftnessRequirement["optionalCostChoices"]);
         Assert.Equal(["ASSEMBLE_PURPLE"], bootsOfSwiftnessOptionalCostChoices.Select(cost => cost.Id).ToArray());
 
+        var cullState = steraksGageState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Purple] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-CULL", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-CULL"] = new(
+                    "P1-CULL",
+                    cardNo: "SFD·134/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var cullPrompt = ResolutionResult.BuildPrompts(cullState)["P1"];
+        var cullCandidate = Assert.Single(
+            cullPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(cullCandidate.Enabled);
+        Assert.Equal(["P1-CULL"], (cullCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_PURPLE"], (cullCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var cullMetadata = Assert.IsType<Dictionary<string, object?>>(cullCandidate.Metadata);
+        var cullRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(cullMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·134/221", Assert.IsType<string>(cullRequirement["equipmentCardNo"]));
+        var cullOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            cullRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_PURPLE"], cullOptionalCostChoices.Select(cost => cost.Id).ToArray());
+
         var vanguardsEyeState = steraksGageState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)

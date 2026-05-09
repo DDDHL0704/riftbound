@@ -76,6 +76,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BootsOfSwiftnessCardNo = "SFD·133/221";
     private const string BootsOfSwiftnessAssembleOptionalCost = "ASSEMBLE_PURPLE";
     private const int BootsOfSwiftnessAssemblePowerCost = 1;
+    private const string CullCardNo = "SFD·134/221";
+    private const string CullAssembleOptionalCost = "ASSEMBLE_PURPLE";
+    private const int CullAssemblePowerCost = 1;
     private const string VanguardsEyeCardNo = "SFD·153/221";
     private const string VanguardsEyeAssembleOptionalCost = "ASSEMBLE_YELLOW";
     private const int VanguardsEyeAssemblePowerCost = 1;
@@ -185,6 +188,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 BootsOfSwiftnessAssembleOptionalCost,
                 RuneTrait.Purple,
                 BootsOfSwiftnessAssemblePowerCost),
+            [CullCardNo] = new(
+                CullCardNo,
+                "萃取",
+                CullAssembleOptionalCost,
+                RuneTrait.Purple,
+                CullAssemblePowerCost),
             [VanguardsEyeCardNo] = new(
                 VanguardsEyeCardNo,
                 "先锋之眼",
