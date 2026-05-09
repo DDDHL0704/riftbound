@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 第三百二十二批补齐《三相之力》（SFD·115/221）橙色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在在橙色代表路径中覆盖《多兰之刃》《海克斯饮魔刀》《狂徒铠甲》和《三相之力》四张官方装备；ActionPrompt 只公开《三相之力》的 `ASSEMBLE_ORANGE`、橙色符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 49/49、后端 full test 3265/3265、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第三百二十一批补齐《狂徒铠甲》（SFD·108/221）橙色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在在橙色代表路径中覆盖《多兰之刃》《海克斯饮魔刀》和《狂徒铠甲》三张官方装备；ActionPrompt 只公开《狂徒铠甲》的 `ASSEMBLE_ORANGE`、橙色符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 48/48、后端 full test 3264/3264、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
 - 第三百二十批补齐《海克斯饮魔刀》（SFD·102/221）橙色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在在橙色代表路径中覆盖《多兰之刃》和《海克斯饮魔刀》两张官方装备；ActionPrompt 只公开《海克斯饮魔刀》的 `ASSEMBLE_ORANGE`、橙色符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 47/47、后端 full test 3263/3263、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。

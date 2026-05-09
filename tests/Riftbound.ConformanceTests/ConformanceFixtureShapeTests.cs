@@ -4023,6 +4023,59 @@ public sealed class ConformanceFixtureShapeTests
             warmogsArmorRequirement["optionalCostChoices"]);
         Assert.Equal(["ASSEMBLE_ORANGE"], warmogsArmorOptionalCostChoices.Select(cost => cost.Id).ToArray());
 
+        var trinityForceState = steraksGageState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Orange] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-TRINITY-FORCE", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-TRINITY-FORCE"] = new(
+                    "P1-TRINITY-FORCE",
+                    cardNo: "SFD·115/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var trinityForcePrompt = ResolutionResult.BuildPrompts(trinityForceState)["P1"];
+        var trinityForceCandidate = Assert.Single(
+            trinityForcePrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(trinityForceCandidate.Enabled);
+        Assert.Equal(["P1-TRINITY-FORCE"], (trinityForceCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_ORANGE"], (trinityForceCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var trinityForceMetadata = Assert.IsType<Dictionary<string, object?>>(trinityForceCandidate.Metadata);
+        var trinityForceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(trinityForceMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·115/221", Assert.IsType<string>(trinityForceRequirement["equipmentCardNo"]));
+        var trinityForceOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            trinityForceRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_ORANGE"], trinityForceOptionalCostChoices.Select(cost => cost.Id).ToArray());
+
         var vanguardsEyeState = steraksGageState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
