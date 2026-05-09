@@ -27146,6 +27146,20 @@ public sealed class CoreRuleEngine : IRuleEngine
                 events.Add(BuildTriggerQueuedEvent(trigger));
                 triggerQueue.Add(trigger);
             }
+
+            var scoutingWarhawkControllerId = ResolveScoutingWarhawkLastBreathRunePlayerId(
+                destroyedState,
+                removalResult);
+            if (scoutingWarhawkControllerId is not null)
+            {
+                var trigger = BuildLastBreathTriggerQueueItem(
+                    stackItem,
+                    objectId,
+                    scoutingWarhawkControllerId,
+                    ScoutingWarhawkLastBreathCallRuneEffectKind);
+                events.Add(BuildTriggerQueuedEvent(trigger));
+                triggerQueue.Add(trigger);
+            }
         }
 
         return new LethalDamageCleanupResult(

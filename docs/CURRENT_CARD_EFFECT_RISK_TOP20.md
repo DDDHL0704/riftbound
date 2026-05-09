@@ -2,11 +2,11 @@
 
 更新时间：2026-05-10
 
-阶段：**阶段 4C-7 / E 卡牌覆盖矩阵 post-freeze overlay**
+阶段：**阶段 4C-8 / E 卡牌覆盖矩阵 post-freeze overlay**
 
 结论：**NOT READY；不允许进入 1009 张卡牌效果批量覆盖。**
 
-本文以阶段 2 风险排序为基础，并叠加阶段 3A/3B/3C/3D 的最小证据 overlay、阶段 4B 冻结状态、阶段 4C-1 APNAP `ORDER_TRIGGERS` 部分 blocker 降低、阶段 4C-2/4C-3 real trigger enqueue、阶段 4C-4 trigger payment、阶段 4C-5 Watchful state-based cleanup trigger enqueue、阶段 4C-6 Honest Broker state-based cleanup trigger enqueue 和阶段 4C-7 Scouting Warhawk explicit destroy trigger enqueue；它不是功能实现清单，也不是错误断言。排名用于告诉后续阶段先审哪里：哪些 functional unit 同时碰到 FAQ、费用、触发/替换、持续效果、战斗/法术对决、隐藏信息或非 PLAY_CARD 规则域。
+本文以阶段 2 风险排序为基础，并叠加阶段 3A/3B/3C/3D 的最小证据 overlay、阶段 4B 冻结状态、阶段 4C-1 APNAP `ORDER_TRIGGERS` 部分 blocker 降低、阶段 4C-2/4C-3 real trigger enqueue、阶段 4C-4 trigger payment、阶段 4C-5 Watchful state-based cleanup trigger enqueue、阶段 4C-6 Honest Broker state-based cleanup trigger enqueue、阶段 4C-7 Scouting Warhawk explicit destroy trigger enqueue 和阶段 4C-8 Scouting Warhawk state-based cleanup trigger enqueue；它不是功能实现清单，也不是错误断言。排名用于告诉后续阶段先审哪里：哪些 functional unit 同时碰到 FAQ、费用、触发/替换、持续效果、战斗/法术对决、隐藏信息或非 PLAY_CARD 规则域。
 
 ## 1. 数据来源
 
@@ -129,7 +129,7 @@ Functional unit primary status：
 
 Top uncovered/full-official blockers 仍从 Top20 开始：`FU-fb79eea7fc`、`FU-2653af0380`、`FU-104211dbbc`、`FU-964b214448`、`FU-2dca1ad450`、`FU-9f7cb73dc4`、`FU-422b450261`、`FU-05ce012700`、`FU-1945f6918c`、`FU-813144e7d4`。即使 primary status 是 `IMPLEMENTED_TESTED`，只要带 `NEEDS_ENGINE_SUPPORT` / `NEEDS_FAQ_REVIEW` flag，就不能升级 full-official。
 
-4C 批量顺序建议：4C-1 已先降低 `ORDER_TRIGGERS` 的保守 APNAP controller-block / battle initial stack 代表路径 / hidden trigger metadata redaction blocker；4C-2 / 4C-3 已验证 Watchful Sentinel 与 Honest Broker 两个 last-breath real enqueue 切片；4C-4 已验证 Treasure Pile trigger payment；4C-5 / 4C-6 已验证 visible Watchful / Honest Broker state-based cleanup trigger enqueue；4C-7 已验证 Scouting Warhawk explicit destroy real trigger enqueue。下一批应扩展 Scouting Warhawk state-based cleanup、Sad / Loyal Poro、Unsung Hero、destroyed / friendly-destroyed families、hidden origin visibility、FAQ adjudication、battle/damage 压测和 full E2E guardrails。
+4C 批量顺序建议：4C-1 已先降低 `ORDER_TRIGGERS` 的保守 APNAP controller-block / battle initial stack 代表路径 / hidden trigger metadata redaction blocker；4C-2 / 4C-3 已验证 Watchful Sentinel 与 Honest Broker 两个 last-breath real enqueue 切片；4C-4 已验证 Treasure Pile trigger payment；4C-5 / 4C-6 已验证 visible Watchful / Honest Broker state-based cleanup trigger enqueue；4C-7 / 4C-8 已验证 Scouting Warhawk explicit destroy 与 state-based cleanup real trigger enqueue。下一批应扩展 Sad / Loyal Poro、Unsung Hero、Kogmaw/Karthus/Undercover Agent、destroyed / friendly-destroyed families、hidden origin visibility、FAQ adjudication、battle/damage 压测和 full E2E guardrails。
 
 ## 8. Stage 4C-1 Trigger Ordering Overlay
 
@@ -305,7 +305,33 @@ Top20 中 `ORDER_TRIGGERS` / battle initial stack blocker 被部分降低的 FUs
 
 仍缺：完整 trigger engine、Scouting Warhawk state-based cleanup enqueue、其他 last-breath / destroyed / friendly-destroyed FUs、隐藏 / face-down trigger original visibility modeling、FAQ adjudication / regression、1009/811 full-official 覆盖、正式 18-step E2E。
 
-## 15. Top20 高风险 Functional Units
+## 15. Stage 4C-8 Scouting Warhawk Cleanup Trigger Enqueue Overlay
+
+4C-8 只更新覆盖矩阵 / 风险证据，不升级 full-official。`docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已新增 `stage4CBatch8ScoutingWarhawkCleanupTriggerEnqueue`，并只为 `FU-0500c77a70` 增加 `functionalUnits[].stage4C8` overlay；4C-7 explicit destroy overlay 保留不回退。
+
+4C-8 已部分降低的 blocker：
+
+- `OGN·216/298`《侦察飞鹰》对应 `FU-0500c77a70`，本批验证 state-based cleanup lethal damage 产生的 `SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1` 真实入队路径。
+- 支撑源牌为 `OGN·029/298`《星落》，对应 `FU-56d6b01aa1` / `STARFALL_DAMAGE_3_TWICE`；该 FU 只作为 lethal damage + cleanup source，不被本批标为已实现或 full-official。
+- 验证路径：`Starfall lethal damage -> state-based cleanup LETHAL_DAMAGE UNIT_DESTROYED -> visible Scouting Warhawk SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1 -> TriggerQueue -> ORDER_TRIGGERS -> StackItems -> priority pass -> TRIGGER_RESOLVED -> RUNES_CALLED`。
+- hidden / face-down / standby Warhawk 不入队、不泄漏、不 `RUNES_CALLED`；这不是完整隐藏来源触发建模。
+- A 验证结果：focused RealTriggerQueue 11/11、backend full 3352/3352、frontend build passed、Chrome smoke passed、Stage 3 preflight passed。
+
+本批已验证 FU：`FU-0500c77a70` / `OGN·216/298`《侦察飞鹰》。overlay status 为 `STATE_BASED_CLEANUP_TRIGGER_ENQUEUE_PARTIALLY_REDUCED_NOT_FULL_OFFICIAL`，4B `freezeStatus` / `statusFlags` 不变，仍不能升级 full-official。
+
+4C-8 next-pressure 候选只记录在顶层，不标已实现：
+
+- Poro conditional draw：`FU-f8bfd5c6f9`、`FU-938b749c23`、`FU-0415e3b46d`
+- simple state cleanup last-breath：`FU-1701d1d89a`
+- complex state cleanup last-breath：`FU-af8b05c294`、`FU-ee1dfb3ed3`、`FU-6a52b04cb2`、`FU-b829fb32b9`、`FU-f67078d119`、`FU-16d3a6dd4e`
+- destroyed / friendly-destroyed：`FU-b5cb36a5c9`、`FU-c146331876`、`FU-0f2c4a3ea5`
+- high-complexity holdback：`FU-4e2e19359f`、`FU-f9eb8c6f71`
+
+后续批量顺序建议：先扩展 Sad / Loyal Poro conditional cleanup draw，再做 Unsung Hero cleanup draw，之后再压 destroyed / friendly-destroyed families 与 hidden-origin trigger model。
+
+仍缺：完整 trigger engine、其他 last-breath / destroyed / friendly-destroyed FUs、隐藏 / face-down trigger original visibility modeling、FAQ adjudication / regression、1009/811 full-official 覆盖、正式 18-step E2E。
+
+## 16. Top20 高风险 Functional Units
 
 | # | FU | Representative | 类型/条目数 | 当前代表映射 | FAQ 候选页 | 风险依据 | 依赖规则域 |
 |---:|---|---|---:|---|---|---|---|
@@ -330,7 +356,7 @@ Top20 中 `ORDER_TRIGGERS` / battle initial stack blocker 被部分降低的 FUs
 | 19 | `FU-804412488c` | `SFD·139/221` 夜之锋刃 | 装备 / 1 | 代表路径：EDGE_OF_NIGHT_PLAY_EQUIPMENT | SOUL-OFAQ-260114 p10<br>SOUL-OFAQ-260114 p9 | 控制权/区域移动、FAQ 提及、隐藏信息/随机/牌堆、效果层/持续效果、费用/支付、目标/结算链/时机 | FEPR/Targeting/TimingWindows, LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, VisibilityFilter/RandomAndHiddenZones, ZoneOwnership/ControlChange/Movement |
 | 20 | `FU-9a623b3185` | `SFD·059/221` 斯弗尔尚歌 | 装备 / 1 | 代表路径：SFUR_SONG_PLAY_EQUIPMENT | SOUL-JFAQ-260114 p24<br>SOUL-JFAQ-260114 p25<br>SOUL-JFAQ-260114 p8<br>SOUL-OFAQ-260114 p18<br>SOUL-OFAQ-260114 p19 | 控制权/区域移动、FAQ 提及、效果层/持续效果、费用/支付 | LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, ZoneOwnership/ControlChange/Movement |
 
-## 16. 未覆盖效果分类
+## 17. 未覆盖效果分类
 
 | 分类 | 含义 | 当前阻断关系 |
 |---|---|---|
@@ -344,13 +370,13 @@ Top20 中 `ORDER_TRIGGERS` / battle initial stack blocker 被部分降低的 FUs
 | `non-play-domain` | 传奇、战场、符文、指示物等非普通 PLAY_CARD 域。 | 需要专门域矩阵，不可与普通出牌效果混算。 |
 | `faq-mentioned` | 五份 PDF/FAQ 中出现卡名的候选项。 | 必须人工判定问题是否真的约束该 FU，并补测试。 |
 
-## 17. P0/P1 仍未清零
+## 18. P0/P1 仍未清零
 
 P0：
 
 - central cleanup queue 未完整官方化。
 - spell duel / battle 完整生命周期仍未完成。
-- `PAY_COST` 已有 3A 最小 runtime，4C-4 已验证 `SFD·220/221` `TRIGGER_PAYMENT` 支付 / 拒付代表路径，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime，`ORDER_TRIGGERS` 已升级为 4C-1 保守 APNAP controller-block 子集，4C-2 / 4C-3 只验证 Watchful Sentinel 与 Honest Broker real trigger enqueue，4C-5 / 4C-6 只验证 visible Watchful Sentinel 与 visible Honest Broker 的 state-based cleanup trigger enqueue，4C-7 只验证 visible Scouting Warhawk explicit destroy trigger enqueue；完整 PaymentEngine、完整 damage assignment 全规则矩阵、完整 trigger engine / battle initial stack 全规则仍未完成。
+- `PAY_COST` 已有 3A 最小 runtime，4C-4 已验证 `SFD·220/221` `TRIGGER_PAYMENT` 支付 / 拒付代表路径，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime，`ORDER_TRIGGERS` 已升级为 4C-1 保守 APNAP controller-block 子集，4C-2 / 4C-3 只验证 Watchful Sentinel 与 Honest Broker real trigger enqueue，4C-5 / 4C-6 只验证 visible Watchful Sentinel 与 visible Honest Broker 的 state-based cleanup trigger enqueue，4C-7 / 4C-8 只验证 visible Scouting Warhawk explicit destroy 与 state-based cleanup trigger enqueue；完整 PaymentEngine、完整 damage assignment 全规则矩阵、完整 trigger engine / battle initial stack 全规则仍未完成。
 - 正式 18 步 E2E 未最终收口。
 - 1009 entries / 811 FUs 的 FAQ 证据与 full-official 测试矩阵未完成。
 

@@ -2,11 +2,11 @@
 
 更新时间：2026-05-10
 
-阶段：**阶段 4C-7 / E 卡牌覆盖矩阵 post-freeze overlay**
+阶段：**阶段 4C-8 / E 卡牌覆盖矩阵 post-freeze overlay**
 
 结论：**NOT READY；不允许进入 1009 张卡牌效果批量覆盖。**
 
-本文只建立统计口径、只读数据基线、矩阵字段、风险排序和阶段性证据 overlay，不实现或修改任何卡牌效果。阶段 1/2 建立卡牌覆盖基线；阶段 3A/3B/3C/3D 只给最小 runtime / lifecycle / battle-damage / trigger-ordering 切片补证据标签；阶段 4B 冻结 card entry -> functional unit -> oracle/effectId -> evidence/tests/status 矩阵；阶段 4C-1 记录 APNAP `ORDER_TRIGGERS` 保守 controller-block 子集；阶段 4C-2 / 4C-3 记录 Watchful Sentinel 与 Honest Broker 真实 last-breath 入队；阶段 4C-4 记录 Treasure Pile trigger payment；阶段 4C-5 / 4C-6 记录 Starfall damage 造成 visible Watchful Sentinel / Honest Broker state-based cleanup last-breath 入队；阶段 4C-7 记录 Spirit Fire explicit destroy 造成 visible Scouting Warhawk last-breath rune-call 入队，并记录 hidden / face-down / standby source 不入队防 metadata 泄漏，防止把局部 runtime 误判为全官方卡牌完成。
+本文只建立统计口径、只读数据基线、矩阵字段、风险排序和阶段性证据 overlay，不实现或修改任何卡牌效果。阶段 1/2 建立卡牌覆盖基线；阶段 3A/3B/3C/3D 只给最小 runtime / lifecycle / battle-damage / trigger-ordering 切片补证据标签；阶段 4B 冻结 card entry -> functional unit -> oracle/effectId -> evidence/tests/status 矩阵；阶段 4C-1 记录 APNAP `ORDER_TRIGGERS` 保守 controller-block 子集；阶段 4C-2 / 4C-3 记录 Watchful Sentinel 与 Honest Broker 真实 last-breath 入队；阶段 4C-4 记录 Treasure Pile trigger payment；阶段 4C-5 / 4C-6 记录 Starfall damage 造成 visible Watchful Sentinel / Honest Broker state-based cleanup last-breath 入队；阶段 4C-7 记录 Spirit Fire explicit destroy 造成 visible Scouting Warhawk last-breath rune-call 入队；阶段 4C-8 记录 Starfall lethal damage + state-based cleanup 造成 visible Scouting Warhawk last-breath rune-call 入队，并记录 hidden / face-down / standby source 不入队防 metadata 泄漏，防止把局部 runtime 误判为全官方卡牌完成。
 
 ## 1. 已读取依据
 
@@ -182,7 +182,7 @@ P0 仍存在：
 
 - central cleanup queue 未完整官方化。
 - spell duel / battle 完整生命周期仍未完成。
-- `PAY_COST` 已有 3A 最小 runtime，4C-4 已有 Treasure Pile `TRIGGER_PAYMENT` 代表路径，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime，`ORDER_TRIGGERS` 已从 3D 最小 runtime window 升级为 4C-1 保守 APNAP controller-block 子集，4C-2 / 4C-3 / 4C-5 / 4C-6 / 4C-7 只验证 Watchful Sentinel、Honest Broker、visible Watchful cleanup、visible Honest Broker cleanup 与 Scouting Warhawk explicit destroy 五个触发入队切片；完整 PaymentEngine、完整 damage assignment 全规则矩阵、完整 trigger engine 仍未正式完成。
+- `PAY_COST` 已有 3A 最小 runtime，4C-4 已有 Treasure Pile `TRIGGER_PAYMENT` 代表路径，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime，`ORDER_TRIGGERS` 已从 3D 最小 runtime window 升级为 4C-1 保守 APNAP controller-block 子集，4C-2 / 4C-3 / 4C-5 / 4C-6 / 4C-7 / 4C-8 只验证 Watchful Sentinel、Honest Broker、visible Watchful cleanup、visible Honest Broker cleanup、Scouting Warhawk explicit destroy 与 Scouting Warhawk cleanup 六个触发入队切片；完整 PaymentEngine、完整 damage assignment 全规则矩阵、完整 trigger engine 仍未正式完成。
 - 正式 18 步 E2E 未最终收口。
 - 1009 张官方卡牌效果与 FAQ 证据矩阵未完成。
 
@@ -214,6 +214,57 @@ P1 仍存在：
 - `src/**`
 
 是否允许进入卡牌效果批量覆盖：**不允许。**
+
+## 20. 阶段 4C-8 E 汇总
+
+阶段 4C-8 名称：Scouting Warhawk state-based cleanup trigger enqueue 最小覆盖矩阵 overlay。E 只更新覆盖矩阵与风险证据，不修改服务端/前端代码，不修改 A checkpoint，不触碰 `riftbound-dotnet.sln`，不进入 1009 张卡 full-official 实现。
+
+B/A 已提供的新事实：
+
+- 代表 FU：`FU-0500c77a70` / `OGN·216/298`《侦察飞鹰》。
+- 支撑源牌：`OGN·029/298`《星落》，对应 `FU-56d6b01aa1`，只作为 lethal damage + cleanup source，不因本 overlay 升级 full-official。
+- 路径：Starfall lethal damage -> state-based cleanup `LETHAL_DAMAGE` `UNIT_DESTROYED` -> visible Scouting Warhawk `SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1` -> `TriggerQueue` -> `ORDER_TRIGGERS` -> `StackItems` -> priority pass -> `TRIGGER_RESOLVED` / `RUNES_CALLED`。
+- hidden / face-down / standby Warhawk 不入队、不泄漏、不 `RUNES_CALLED`。
+- 4C-7 explicit destroy overlay 保留；本批是同一 FU 的 cleanup overlay。
+- A 已验证：focused RealTriggerQueue 11/11、backend full 3352/3352、frontend build passed、Chrome smoke passed、Stage 3 preflight passed。
+
+4C-8 矩阵 overlay 统计：
+
+| 项 | 数量 |
+|---|---:|
+| frozen snapshot entries | 1009 |
+| frozen functional units | 811 |
+| `stage4C8` verified FUs | 1 |
+| `stage4C8` verified snapshot entries | 1 |
+| supporting source snapshot entries | 1 |
+| cumulative real-trigger enqueue verified FUs | 3 |
+| cumulative state-based cleanup trigger enqueue verified FUs | 3 |
+| next-pressure candidate FUs | 15 |
+| full-official upgrades | 0 |
+
+已部分降低 blocker 的本批 FU：`FU-0500c77a70` / `OGN·216/298`《侦察飞鹰》。overlay status：`STATE_BASED_CLEANUP_TRIGGER_ENQUEUE_PARTIALLY_REDUCED_NOT_FULL_OFFICIAL`。
+
+同族候选只记录为 next-pressure，未标为已实现：Sad / Loyal Poro cleanup draw、Unsung Hero cleanup draw、Kogmaw / Karthus / Undercover Agent、destroyed / friendly-destroyed families。
+
+新增文件：
+
+- `docs/CURRENT_STAGE4C_BATCH8_SCOUTING_WARHAWK_CLEANUP_TRIGGER_EVIDENCE.md`
+
+修改文件：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`
+- `docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`
+
+仍存在 P0/P1：
+
+- 完整 trigger engine 仍未关闭；4C-8 只覆盖 visible Scouting Warhawk state-based cleanup 入队切片。
+- 其他 last-breath / destroyed / friendly-destroyed functional units 尚未逐项验证。
+- hidden / face-down trigger original visibility modeling 仍未完整官方化；本批只验证 no-enqueue / no-rune metadata leak guard。
+- FAQ adjudication / regression、1009/811 full-official、正式 18-step E2E 仍未完成。
+
+是否允许进入 1009 张卡批量 full-official 覆盖：**不允许。**
 
 ## 19. 阶段 4C-7 E 汇总
 
