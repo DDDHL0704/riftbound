@@ -2392,6 +2392,9 @@ internal static class ActionPromptBuilder
     private const string VanguardsEyeCardNo = "SFD·153/221";
     private const int VanguardsEyeAssemblePowerCost = 1;
     private const string VanguardsEyeAssembleOptionalCost = "ASSEMBLE_YELLOW";
+    private const string BfSwordCardNo = "SFD·161/221";
+    private const int BfSwordAssemblePowerCost = 1;
+    private const string BfSwordAssembleOptionalCost = "ASSEMBLE_YELLOW";
     private const string SacredShearsCardNo = "SFD·172/221";
     private const int SacredShearsAssemblePowerCost = 1;
     private const string SacredShearsAssembleOptionalCost = "ASSEMBLE_YELLOW";
@@ -2550,6 +2553,14 @@ internal static class ActionPromptBuilder
                 "装配黄色符能",
                 RuneTrait.Yellow,
                 VanguardsEyeAssemblePowerCost,
+                "payment resource action: recycle yellow rune for assemble cost"),
+            [BfSwordCardNo] = new(
+                BfSwordCardNo,
+                "暴风大剑",
+                BfSwordAssembleOptionalCost,
+                "装配黄色符能",
+                RuneTrait.Yellow,
+                BfSwordAssemblePowerCost,
                 "payment resource action: recycle yellow rune for assemble cost"),
             [SacredShearsCardNo] = new(
                 SacredShearsCardNo,

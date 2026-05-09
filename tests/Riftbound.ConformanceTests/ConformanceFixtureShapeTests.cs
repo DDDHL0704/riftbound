@@ -4235,6 +4235,59 @@ public sealed class ConformanceFixtureShapeTests
             vanguardsEyeRequirement["optionalCostChoices"]);
         Assert.Equal(["ASSEMBLE_YELLOW"], vanguardsEyeOptionalCostChoices.Select(cost => cost.Id).ToArray());
 
+        var bfSwordState = steraksGageState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Yellow] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-BF-SWORD", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BF-SWORD"] = new(
+                    "P1-BF-SWORD",
+                    cardNo: "SFD·161/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var bfSwordPrompt = ResolutionResult.BuildPrompts(bfSwordState)["P1"];
+        var bfSwordCandidate = Assert.Single(
+            bfSwordPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(bfSwordCandidate.Enabled);
+        Assert.Equal(["P1-BF-SWORD"], (bfSwordCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_YELLOW"], (bfSwordCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var bfSwordMetadata = Assert.IsType<Dictionary<string, object?>>(bfSwordCandidate.Metadata);
+        var bfSwordRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(bfSwordMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·161/221", Assert.IsType<string>(bfSwordRequirement["equipmentCardNo"]));
+        var bfSwordOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            bfSwordRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_YELLOW"], bfSwordOptionalCostChoices.Select(cost => cost.Id).ToArray());
+
         var sacredShearsState = steraksGageState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)

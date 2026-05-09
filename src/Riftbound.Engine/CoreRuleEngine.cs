@@ -82,6 +82,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string VanguardsEyeCardNo = "SFD·153/221";
     private const string VanguardsEyeAssembleOptionalCost = "ASSEMBLE_YELLOW";
     private const int VanguardsEyeAssemblePowerCost = 1;
+    private const string BfSwordCardNo = "SFD·161/221";
+    private const string BfSwordAssembleOptionalCost = "ASSEMBLE_YELLOW";
+    private const int BfSwordAssemblePowerCost = 1;
     private const string SacredShearsCardNo = "SFD·172/221";
     private const string SacredShearsAssembleOptionalCost = "ASSEMBLE_YELLOW";
     private const int SacredShearsAssemblePowerCost = 1;
@@ -203,6 +206,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 VanguardsEyeAssembleOptionalCost,
                 RuneTrait.Yellow,
                 VanguardsEyeAssemblePowerCost),
+            [BfSwordCardNo] = new(
+                BfSwordCardNo,
+                "暴风大剑",
+                BfSwordAssembleOptionalCost,
+                RuneTrait.Yellow,
+                BfSwordAssemblePowerCost),
             [SacredShearsCardNo] = new(
                 SacredShearsCardNo,
                 "神圣剪刀",
