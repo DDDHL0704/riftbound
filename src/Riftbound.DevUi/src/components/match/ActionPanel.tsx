@@ -73,10 +73,18 @@ function GenericPromptDetails({ prompt }: { prompt: ActionPromptDto }) {
     .filter(([, value]) => value != null)
     .slice(0, 6);
   const candidates = (prompt.candidates ?? []).slice(0, 6);
+  const type = prompt.view?.type?.trim() ?? "";
+  const fallbackLabel = knownPromptTypes.has(type) ? "复杂窗口" : "未知窗口";
 
   return (
     <div className="generic-prompt-details">
-      <strong>服务端选项</strong>
+      <div className="generic-prompt-heading">
+        <strong>服务端选项</strong>
+        <StatusPill tone="warn">{fallbackLabel}</StatusPill>
+      </div>
+      <p className="generic-prompt-note">
+        该窗口需要服务端正式交互字段支持；当前只展示安全候选摘要，不在前端计算或模拟规则结果。
+      </p>
       {candidates.length === 0 && <span className="empty-hint">当前窗口没有服务端可提交选项。</span>}
       {candidates.map((candidate) => (
         <div className="generic-prompt-option" key={`${candidate.action}-${candidate.label}`}>

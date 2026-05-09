@@ -22,11 +22,11 @@
 - `ActionPromptCandidateDto`：以 `action`、`label`、`enabled`、`reason`、`sources`、`targets`、`destinations`、`modes`、`optionalCosts`、`metadata` 表达当前可提交候选。
 - `EVENTS`：`GameEvent` 只稳定提供 `kind`、`description`、`payload`。
 - `ERROR`：`ErrorDto` 只稳定提供 `code`、`message`。
-- 命令：C#/TS 已覆盖 `SUBMIT_DECK`、`MULLIGAN`、`PASS_PRIORITY`、`PASS_FOCUS`、`PASS`、`END_TURN`、`SURRENDER`、`PLAY_CARD`、`HIDE_CARD`、`REVEAL_CARD`、`TAP_RUNE`、`RECYCLE_RUNE`、`MOVE_UNIT`、`ASSEMBLE_EQUIPMENT`、`DECLARE_BATTLE`、`ACTIVATE_ABILITY`、`LEGEND_ACT`。
+- 命令：C#/TS 已覆盖 `SUBMIT_DECK`、`MULLIGAN`、`PASS_PRIORITY`、`PASS_FOCUS`、`PASS`、`END_TURN`、`SURRENDER`、`PLAY_CARD`、`HIDE_CARD`、`REVEAL_CARD`、`TAP_RUNE`、`RECYCLE_RUNE`、`MOVE_UNIT`、`ASSEMBLE_EQUIPMENT`、`DECLARE_BATTLE`、`ACTIVATE_ABILITY`、`LEGEND_ACT`、`PAY_COST`、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS`。
 
 当前仓库没有独立 `MatchSnapshot`、`LegalAction`、`RoomState`、`GameLogEntry`、`ActionError` DTO；对应能力分别落在 `SnapshotDto`、`ActionPromptDto/ActionPromptCandidateDto`、未开局 snapshot/prompt/session、`GameEvent[]`、`ErrorDto` 上。
 
-这个模型足够支撑 DevUi 作为服务端联调桌面。第二轮已追加最小 `PromptView/PromptType` 入口，第三轮已追加复杂 prompt 的安全降级展示，但它仍只是现有 prompt 的兼容视图；距离需求文档中的完整正式 prompt 契约，还缺少通用约束 schema、提交 payload schema 与复杂规则窗口的结构化解释。
+这个模型足够支撑 DevUi 作为服务端联调桌面。第二轮已追加最小 `PromptView/PromptType` 入口，第三轮已追加复杂 prompt 的安全降级展示，阶段 2 B 已补后三类复杂命令的首版 schema skeleton；距离需求文档中的完整正式 prompt 契约，还缺少 runtime 约束、状态机绑定与复杂规则窗口的结构化解释。
 
 ## 2. 已可由 ActionPrompt/snapshot 驱动的 UI
 
@@ -50,7 +50,7 @@
 
 ### P0：PromptView 仍缺少复杂窗口契约
 
-需求文档要求所有玩家决策窗口由 `PromptView.type` 驱动，例如 `PAY_COST`、`ORDER_TRIGGERS`、`ASSIGN_COMBAT_DAMAGE`、`SPELL_DUEL_ACTION`。当前 C#/TS 契约已具备 `ActionPromptDto.view` 的最小入口，并且已经把复杂 prompt 降级展示与正式 payload 缺口分开。
+需求文档要求所有玩家决策窗口由 `PromptView.type` 驱动，例如 `PAY_COST`、`ORDER_TRIGGERS`、`ASSIGN_COMBAT_DAMAGE`、`SPELL_DUEL_ACTION`。当前 C#/TS 契约已具备 `ActionPromptDto.view` 的最小入口，并且已经把复杂 prompt 降级展示、正式 command/schema 骨架、真实 runtime prompt 缺口分开。
 
 阶段 1 已完成/正在做：
 
@@ -59,11 +59,31 @@
 - `promptId + snapshotTick` 的服务端过期错误语义已具备最小实现：前端提交命令时会附带当前 prompt 戳，服务端若发现与当前权威 prompt 不匹配，返回 `PROMPT_EXPIRED` 且不进入规则引擎。
 - 这条路径只允许“服务端已经声明的候选”被展示，不在前端计算费用、排序触发、分配伤害或推进法术对决。
 
+阶段 2 B 已同步的契约骨架：
+
+- 新增 `ErrorCodes.InvalidPayload`，malformed `PAY_COST` / `ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` payload 可稳定返回 `INVALID_PAYLOAD`。
+- 新增 `PayCostCommand(paymentId, paymentWindow, paymentChoiceIds)`。
+- 新增 `CombatDamageAssignmentDto(sourceObjectId, targetObjectId, damage)` 与 `AssignCombatDamageCommand(battleId, battlefieldId, assignments)`。
+- 新增 `OrderTriggersCommand(triggerIds)`。
+- 新增 `ActionPromptContractDto` / `ActionPromptContracts`，用于描述复杂 prompt 的 required payload、legal choices、validation errors、visible metadata 与 hidden metadata。
+
+C 可同步类型和做安全承接：
+
+- 同步 TS command union、`ActionPromptContractDto`、错误码文案和调试展示。
+- 在服务端实际发出 runtime prompt/candidate 时，继续使用现有降级面板展示服务端声明的候选和安全 metadata。
+- 对 malformed payload / stale prompt / unsupported command 做可见错误提示。
+
+C 暂不得做复杂专用交互：
+
+- 不实现手动支付向导、伤害分配器、触发拖拽排序或法术对决复杂选择器。
+- 不在浏览器侧构造服务端未声明的 `paymentChoiceIds`、`assignments`、`triggerIds`。
+- 不把合法形状 command 能被识别误读为规则窗口已开放；真实 PAY_COST runtime、damage assignment 状态机、ORDER_TRIGGERS 状态机仍未关闭。
+
 仍缺正式产品契约：
 
 - `options/selectableCards/selectableTargets/selectableZones/constraints/defaultAction` 等 typed 字段。
-- 复杂 prompt 提交 payload 的统一命令或 discriminated union。
-- `PAY_COST`、`ORDER_TRIGGERS`、`ASSIGN_COMBAT_DAMAGE`、`SPELL_DUEL_ACTION` 的专用交互模型、错误 details 和 E2E 断言点。
+- runtime prompt 里的合法选择、默认动作、constraints 与 typed error details。
+- `PAY_COST`、`ORDER_TRIGGERS`、`ASSIGN_COMBAT_DAMAGE`、`SPELL_DUEL_ACTION` 的专用交互模型和 E2E 断言点。
 - 未知 prompt 的通用渲染协议仍需稳定：标题、说明、安全 JSON 摘要、默认动作约定、不可提交策略。
 
 正式 UI 可继续兼容 `ActionPromptCandidateDto`，但复杂窗口需要服务端提供显式 prompt 类型与专用 payload。
@@ -80,20 +100,20 @@
 
 ### P0：damage assignment 窗口缺口
 
-当前无 `ASSIGN_COMBAT_DAMAGE` prompt，也无对应命令。阶段 1 已有 `DECLARE_BATTLE` 代表路径、`PromptView.relatedBattleId` 和 `timing.battle/battleResolutions` 摘要，但这些不能替代独立伤害分配窗口。正式伤害分配 UI 需要服务端下发：
+当前已有 `ASSIGN_COMBAT_DAMAGE` command/schema 骨架和 `CombatDamageAssignmentDto`，但 runtime `ASSIGN_COMBAT_DAMAGE` prompt 尚未开放。阶段 1 已有 `DECLARE_BATTLE` 代表路径、`PromptView.relatedBattleId` 和 `timing.battle/battleResolutions` 摘要，阶段 2 只关闭“无正式 schema/无稳定拒绝语义”的子项；这些都不能替代独立伤害分配窗口。正式伤害分配 UI 需要服务端下发：
 
 - `battleId`、`battlefieldId`、`assigningPlayerId`、进攻/防守身份、关联战斗阶段。
 - 可分配总伤害、每个伤害来源、是否同时造成伤害。
 - 可被分配单位列表：`objectId`、controller、当前战力、已有伤害、致命阈值、壁垒/后排/不可分配等标记。
 - 约束：每个单位 min/max、必须先致命/不能过量、可重复/不可重复、剩余伤害处理、合法默认方案。
-- 提交命令：按对象提交 `{ targetObjectId, amount }[]`，带 `promptId/snapshotTick`。
+- 提交命令：按服务端 schema 提交 `assignments[].sourceObjectId/targetObjectId/damage`，带 `promptId/snapshotTick`。
 - 服务端错误：非法分配的具体原因，用于 UI 提示。
 
 前端不得根据单位战力自行判定最终合法分配；只能禁用明显不满足服务端 constraints 的输入。
 
 ### P0：trigger ordering 窗口缺口
 
-当前只在事件中看到 `TRIGGER_QUEUED/TRIGGER_RESOLVED`，没有 `ORDER_TRIGGERS` prompt 和命令。阶段 1 只有 prompt type 预留和降级面板承接能力，服务端尚未实际发出排序 payload。正式 UI 需要服务端下发：
+当前已有 `ORDER_TRIGGERS(triggerIds)` command/schema 骨架，但 runtime `ORDER_TRIGGERS` prompt 尚未开放。阶段 1 只有 prompt type 预留和降级面板承接能力，阶段 2 只关闭“无正式 schema/无稳定拒绝语义”的子项；服务端尚未实际发出排序 payload。正式 UI 需要服务端下发：
 
 - 待排序触发列表：`triggerId`、controller、sourceObjectId、sourceCardNo、触发时机、简短文本、是否可选。
 - 排序约束：哪些触发必须相邻、哪些不可调整、默认顺序、是否允许取消可选触发。
@@ -104,13 +124,13 @@
 
 ### P0：payment plan 窗口缺口
 
-当前出牌/装配 composer 能读取部分 `sourceRequirements` 里的费用、可选费用、支付资源；服务端已有部分 `PaymentCostRules` / 支付事件包络可以降低审计风险。但这不是通用 `PAY_COST` prompt，也没有 `DECLINE_PAY_COST`、pending payment state 或统一 Quote/Authorize/Commit 生命周期。正式 UI 需要服务端提供稳定支付计划：
+当前已有 `PAY_COST(paymentId,paymentWindow,paymentChoiceIds)` command/schema 骨架，出牌/装配 composer 也能读取部分 `sourceRequirements` 里的费用、可选费用、支付资源；服务端已有部分 `PaymentCostRules` / 支付事件包络可以降低审计风险。但 runtime `PAY_COST` prompt 尚未开放，也没有 `DECLINE_PAY_COST`、pending payment state 或统一 Quote/Authorize/Commit 生命周期。正式 UI 需要服务端提供稳定支付计划：
 
 - 费用项列表：基础费用、强制额外费用、可选额外费用、触发费用、替代费用、减少/增加费用来源。
 - 可用资源来源：法力、符能按特性、可回收/可横置/可消费对象及其贡献。
 - 自动支付预览：如果服务端自动支付，需返回支付方案和解释。
 - 手动支付约束：是否必须精确支付、是否允许超付、是否可拒绝支付、是否可取消。
-- 提交命令：独立 `PAY_COST`/`DECLINE_PAY_COST`，或在当前 action 中带结构化 `paymentPlanId` 与选择项。
+- 提交命令：`PAY_COST(paymentId,paymentWindow,paymentChoiceIds)` 已有 skeleton；下一步仍需 `DECLINE_PAY_COST` 或等价拒付语义，并把选择项绑定到服务端 payment plan。
 
 仅靠 `optionalCosts: string[]` 无法表达通用触发费用、拒绝支付、替代费用和自动支付说明。
 
@@ -206,9 +226,9 @@
 - 已在正式协议追加 `ActionPromptDto.view`，字段类型为 `PromptViewDto`；旧 `ActionPromptDto(playerId, actionable, reason, actions, ...)` 构造保持兼容。
 - `PromptViewDto` 当前最小字段包含 `type/title/message`，并预留关联战场、结算链项目、战斗、法术对决、选择上下限与 metadata。
 - 后端 `ActionPromptBuilder.Build` 已为现有 prompt 生成 view，不改变 `actions/candidates` 语义；已覆盖 `ROOM_SETUP`、`MULLIGAN`、`MAIN_ACTION`、`STACK_PRIORITY`、`SPELL_DUEL_FOCUS`、`BATTLE_DECLARATION`、`TASK_QUEUE`、`WAIT`、`MATCH_RESULT`。
-- 契约已预留但尚未实际发出 `SPELL_DUEL_ACTION`、`PAY_COST`、`ORDER_TRIGGERS`、`ASSIGN_COMBAT_DAMAGE`。
+- 契约已预留但尚未实际发出 runtime `SPELL_DUEL_ACTION`、`PAY_COST`、`ORDER_TRIGGERS`、`ASSIGN_COMBAT_DAMAGE` prompt；其中阶段 2 B 已为后三者补 command/schema skeleton。
 - DevUi 已同步 TypeScript 类型，可读取 `prompt.view.type`；`ActionPanel` 与 `MatchTopBar` 已开始消费该视图。
-- 本轮仍不实现 damage assignment、payment engine、trigger ordering，也不补完整 battle/spell duel 生命周期。
+- 本轮仍不实现 damage assignment 状态机、payment engine、trigger ordering 状态机，也不补完整 battle/spell duel 生命周期。
 
 ## 7. 第二轮 DevUi PromptView 消费记录
 
@@ -221,7 +241,7 @@
 - 后端已为 `snapshot.timing.spellDuel` 追加 `spellDuelId` 与 `battlefieldObjectId`，为 `snapshot.timing.battle` 追加 `battleId`。
 - `timing.battlefieldTasks` 的 `START_SPELL_DUEL` / `START_BATTLE` 任务已分别带 `spellDuelId` / `battleId`。
 - `PromptView.relatedSpellDuelId` 已在法术对决焦点窗口填充；`PromptView.relatedBattleId` 已在声明战斗窗口填充。
-- 本轮仍未实现 `ASSIGN_COMBAT_DAMAGE` prompt/command，也未把战斗从 `DECLARE_BATTLE` 同步结算拆成多阶段状态机。
+- 本轮仍未开放 runtime `ASSIGN_COMBAT_DAMAGE` prompt，也未把战斗从 `DECLARE_BATTLE` 同步结算拆成多阶段状态机；阶段 2 B 的 command/schema skeleton 只关闭无正式字段名与 malformed payload 稳定拒绝语义。
 
 ## 9. 第三轮 DevUi 顶栏 PromptView 消费记录
 
@@ -231,8 +251,8 @@
 
 ## 10. 第三轮复杂 PromptType 预留记录
 
-- C#/TS 契约均已预留 `SPELL_DUEL_ACTION`、`ASSIGN_COMBAT_DAMAGE`、`PAY_COST`、`ORDER_TRIGGERS`。
-- 本轮只稳定正式 UI 后续要识别的窗口名称，不发出这些窗口，不新增提交 payload，也不新增本地裁决。
+- C#/TS 契约均已预留 `SPELL_DUEL_ACTION`、`ASSIGN_COMBAT_DAMAGE`、`PAY_COST`、`ORDER_TRIGGERS` prompt type；阶段 2 B 已追加 `PAY_COST`、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS` command/schema skeleton 和 `ActionPromptContractDto` 类型。
+- 本轮只稳定正式 UI 后续要识别的窗口名称与后三者的命令骨架；runtime prompt 尚未发出，不新增本地裁决。
 - 已验证：Contracts build 通过、DevUi build 通过、后端 conformance 3308/3308 通过、`git diff --check` 通过。
 
 ## 11. 第三轮 prompt 戳过期保护记录
@@ -240,13 +260,13 @@
 - DevUi `GameCommand` 已支持可选 `promptId/snapshotTick`，`useMatchController.submitCommand` 会把当前服务端 `ActionPromptDto` 的戳附到命令上；错误文案已覆盖 `PROMPT_EXPIRED`。
 - 服务端 `MatchSession.SubmitAsync` 会在进入规则引擎前检查这些可选字段；若客户端提交的 prompt 戳已过期，返回 `PROMPT_EXPIRED`。
 - 旧客户端不传 `promptId/snapshotTick` 时仍走原有规则检查路径，保证兼容。
-- 本轮只处理过期窗口错误语义，不实现 `PAY_COST` / `ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` 的正式 payload schema。
+- 本轮只处理过期窗口错误语义；阶段 2 B 后续已补 `PAY_COST` / `ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` command/schema skeleton，但真实 runtime prompt 和状态机仍未实现。
 
 ## 12. 第三轮复杂 PromptView 降级渲染记录
 
 - `ActionPanel` 已为 `PAY_COST`、`ORDER_TRIGGERS`、`ASSIGN_COMBAT_DAMAGE`、`SPELL_DUEL_ACTION` 增加通用服务端选项面板。
 - 面板只展示候选来源、目标、位置、模式、费用和安全 metadata 摘要；不根据这些字段本地裁决规则，也不生成服务端未提供的命令。
-- 该渲染用于正式复杂 prompt 接入前的安全降级；完整 payload schema、手动支付、伤害分配和触发排序交互仍是 P0 缺口。
+- 该渲染用于正式复杂 prompt 接入前的安全降级；阶段 2 B 已补后三类命令骨架，但 runtime prompt、手动支付、伤害分配状态机和触发排序状态机仍是 P0 缺口。
 - 已验证：DevUi build 通过。
 
 ## 13. 阶段 1 D 汇总
@@ -255,7 +275,7 @@
 
 - 新增 `docs/CURRENT_STAGE1_PROTOCOL_BASELINE.md`，记录 `SnapshotDto`、`ActionPromptDto`、`PromptViewDto`、`ActionPromptCandidateDto`、`GameEvent`、`ErrorDto` 的真实字段。
 - 明确当前没有独立 `MatchSnapshot`、`LegalAction`、`RoomState`、`GameLogEntry`、`ActionError` DTO，避免后续任务引用不存在的协议名。
-- 本文件已区分“复杂 prompt 降级展示已做/正在做”和“正式 payload/command/专用交互仍缺”。
+- 本文件已区分“复杂 prompt 降级展示已做/正在做”和“正式 runtime payload/command/专用交互仍缺”；阶段 2 后续已进一步关闭后三类复杂命令的 schema skeleton 子项。
 - 已把阶段 1 服务端 P0 阻断映射到前端契约视角：ActionPrompt/command/payload、snapshot/visibility、Payment/trigger/damage assignment、battle/spellDuel lifecycle。
 
 本轮修改/新增文件：
@@ -268,10 +288,27 @@
 
 - 本轮 D 只做文档与规则证据审计，没有关闭新的功能 P0/P1。
 - 已关闭口径风险：prompt 戳过期保护、复杂 prompt 降级展示、`PromptView` 最小入口不应继续被描述为“完全没有”。
-- 仍存在 P0：复杂 prompt 正式 payload/command、`PAY_COST`/`DECLINE_PAY_COST`、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS`、battle/spellDuel 完整生命周期、snapshot/visibility typed contract、正式 18 步 E2E。
+- 仍存在 P0：复杂 prompt runtime payload/状态机、`PAY_COST`/`DECLINE_PAY_COST`、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS`、battle/spellDuel 完整生命周期、snapshot/visibility typed contract、正式 18 步 E2E。
 - 仍存在 P1：layer/effect explanation、typed error details、stack/timing/object state 的长期稳定字段。
 
 文档风险：
 
-- `docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 本轮按锁不修改，仍需 A/E 同步阶段 1 协议基线和 P0 状态。
+- 阶段 1 当轮 `docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 按锁不修改；阶段 2 后续已由 D/E/A 按新写入锁继续同步。
 - 当前基线来自源码字段审计，不等同于官方规则完成度证明；READY 判断仍必须等服务端规则、前端 E2E、证据索引一起清零。
+
+## 14. 阶段 2 B 契约骨架补同步记录
+
+完成项：
+
+- 已同步 B 新增的 `INVALID_PAYLOAD`、`PAY_COST`、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS`、`ActionPromptContractDto` / `ActionPromptContracts` 口径。
+- 已把“无正式 schema / 无稳定拒绝语义”从“真实 runtime 未完成”里拆开：前者已关闭，后者仍是 P0。
+- 已明确 C 可同步 TS 类型、错误文案和调试展示，但不得实现手动支付、伤害分配、触发排序等复杂专用交互。
+
+关闭/仍存在 P0：
+
+- 已关闭子项：后三类复杂命令没有稳定 command 名称、payload 字段名、malformed payload error code。
+- 仍存在 P0：`PAY_COST` runtime prompt 与 PaymentEngine、damage assignment phase/state machine、`ORDER_TRIGGERS` trigger batch state machine、`SPELL_DUEL_ACTION` runtime lifecycle、复杂 prompt E2E。
+
+文档风险：
+
+- 当前文档反映的是契约骨架，不代表 Core 已开放这些 runtime prompt。后续如果 B 改动 `ActionPromptContracts` 字段名，D 需要同步本文件、`CURRENT_STAGE2_P0_CONTRACT_PLAN.md` 和 `CURRENT_RULE_EVIDENCE_TODO.md`。

@@ -460,6 +460,39 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task SubmitIntentKnownP0ContractCommandsUseCoreValidationShell()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom("room-a", "bob");
+        await ReadyBothAsync(registry);
+
+        var cases = new[]
+        {
+            ("intent-known-pay-cost", """{"cmdType":"PAY_COST"}"""),
+            ("intent-known-assign-damage", """{"cmdType":"ASSIGN_COMBAT_DAMAGE"}"""),
+            ("intent-known-order-triggers", """{"cmdType":"ORDER_TRIGGERS"}""")
+        };
+
+        foreach (var (intentId, commandJson) in cases)
+        {
+            var clients = new RecordingHubClients();
+            var cmd = JsonDocument.Parse(commandJson).RootElement.Clone();
+
+            await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+                .SubmitIntent("room-a", "alice", intentId, cmd);
+
+            var error = Assert.Single(clients.CallerClient.Errors);
+            var payload = Assert.IsType<ErrorDto>(error.Payload);
+            Assert.Equal(ErrorCodes.InvalidPayload, payload.Code);
+            Assert.Empty(clients.GroupClient.EventMessages);
+            Assert.Empty(clients.GroupClient.Snapshots);
+        }
+    }
+
+    [Fact]
     public async Task SubmitIntentDuplicateConflictReturnsStableErrorCode()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);

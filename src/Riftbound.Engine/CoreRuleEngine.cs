@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
@@ -739,6 +740,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ValueTask.FromResult(ResolveSurrender(state, intent));
         }
 
+        if (TryResolveP0ContractCommand(state, intent, command, out var p0ContractResult))
+        {
+            return ValueTask.FromResult(p0ContractResult);
+        }
+
         if (command is DeclareBattleCommand activeTaskDeclareBattleCommand
             && ResolutionResult.ActiveStartBattleTask(state) is not null
             && string.Equals(intent.PlayerId, state.ActivePlayerId, StringComparison.Ordinal))
@@ -851,6 +857,324 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return fallback.ResolveAsync(state, intent, command, cancellationToken);
+    }
+
+    private static bool TryResolveP0ContractCommand(
+        MatchState state,
+        PlayerIntent intent,
+        GameCommand command,
+        out ResolutionResult result)
+    {
+        result = default!;
+        if (string.Equals(command.CmdType, CommandTypes.PayCost, StringComparison.Ordinal))
+        {
+            result = ResolvePayCostContractShell(state, command);
+            return true;
+        }
+
+        if (string.Equals(command.CmdType, CommandTypes.AssignCombatDamage, StringComparison.Ordinal))
+        {
+            result = ResolveAssignCombatDamageContractShell(state, command);
+            return true;
+        }
+
+        if (string.Equals(command.CmdType, CommandTypes.OrderTriggers, StringComparison.Ordinal))
+        {
+            result = ResolveOrderTriggersContractShell(state, intent, command);
+            return true;
+        }
+
+        return false;
+    }
+
+    private static ResolutionResult ResolvePayCostContractShell(
+        MatchState state,
+        GameCommand command)
+    {
+        if (!TryReadPayCostPayload(command, out var paymentId, out var paymentWindow, out var paymentChoiceIds)
+            || string.IsNullOrWhiteSpace(paymentId)
+            || string.IsNullOrWhiteSpace(paymentWindow)
+            || paymentChoiceIds is null)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "PAY_COST 需要 paymentId、paymentWindow 与 paymentChoiceIds。",
+                ErrorCodes.InvalidPayload);
+        }
+
+        return RejectWithCorePrompts(
+            state,
+            "当前没有服务端支付窗口可处理 PAY_COST。",
+            ErrorCodes.PhaseNotAllowed);
+    }
+
+    private static ResolutionResult ResolveAssignCombatDamageContractShell(
+        MatchState state,
+        GameCommand command)
+    {
+        if (!TryReadAssignCombatDamagePayload(command, out var battleId, out var battlefieldId, out var assignments)
+            || string.IsNullOrWhiteSpace(battleId)
+            || string.IsNullOrWhiteSpace(battlefieldId)
+            || assignments is null
+            || assignments.Count == 0
+            || assignments.Any(assignment =>
+                string.IsNullOrWhiteSpace(assignment.SourceObjectId)
+                || string.IsNullOrWhiteSpace(assignment.TargetObjectId)
+                || assignment.Damage < 0))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "ASSIGN_COMBAT_DAMAGE 需要 battleId、battlefieldId 与非空 assignments。",
+                ErrorCodes.InvalidPayload);
+        }
+
+        var battle = state.BattleState;
+        if (!battle.IsActive
+            || !string.Equals(battle.BattleId, battleId, StringComparison.Ordinal)
+            || !string.Equals(battle.BattlefieldObjectId, battlefieldId, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "当前没有匹配的战斗伤害分配窗口。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        var participantIds = battle.AttackerObjectIds
+            .Concat(battle.DefenderObjectIds)
+            .ToHashSet(StringComparer.Ordinal);
+        if (assignments.Any(assignment =>
+            !participantIds.Contains(assignment.SourceObjectId)
+            || !participantIds.Contains(assignment.TargetObjectId)))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "ASSIGN_COMBAT_DAMAGE 只能引用当前战斗参与者。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        return RejectWithCorePrompts(
+            state,
+            "独立战斗伤害分配状态机尚未开放。",
+            ErrorCodes.UnsupportedCommand);
+    }
+
+    private static ResolutionResult ResolveOrderTriggersContractShell(
+        MatchState state,
+        PlayerIntent intent,
+        GameCommand command)
+    {
+        if (!TryReadOrderTriggersPayload(command, out var triggerIds)
+            || triggerIds is null
+            || triggerIds.Count == 0
+            || triggerIds.Distinct(StringComparer.Ordinal).Count() != triggerIds.Count)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "ORDER_TRIGGERS 需要非空且不重复的 triggerIds。",
+                ErrorCodes.InvalidPayload);
+        }
+
+        if (state.TriggerQueue.Count <= 1)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "当前没有需要排序的触发队列。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        var orderingPlayerId = state.TriggerQueue[0].ControllerId;
+        if (!string.Equals(intent.PlayerId, orderingPlayerId, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "只有当前触发控制者可以排序触发队列。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (triggerIds.Count != state.TriggerQueue.Count)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "ORDER_TRIGGERS 必须提交完整触发队列顺序。",
+                ErrorCodes.InvalidPayload);
+        }
+
+        var legalTriggerIds = state.TriggerQueue
+            .Select(trigger => trigger.TriggerId)
+            .ToHashSet(StringComparer.Ordinal);
+        if (triggerIds.Any(triggerId => !legalTriggerIds.Contains(triggerId)))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "ORDER_TRIGGERS 包含非法触发编号。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        return RejectWithCorePrompts(
+            state,
+            "触发排序窗口已校验，队列重排与结算状态机尚未开放。",
+            ErrorCodes.UnsupportedCommand);
+    }
+
+    private static bool TryReadPayCostPayload(
+        GameCommand command,
+        out string paymentId,
+        out string paymentWindow,
+        out IReadOnlyList<string>? paymentChoiceIds)
+    {
+        paymentId = string.Empty;
+        paymentWindow = string.Empty;
+        paymentChoiceIds = null;
+        if (command is PayCostCommand typed)
+        {
+            paymentId = typed.PaymentId?.Trim() ?? string.Empty;
+            paymentWindow = typed.PaymentWindow?.Trim() ?? string.Empty;
+            paymentChoiceIds = typed.PaymentChoiceIds?.ToArray();
+            return true;
+        }
+
+        if (TryGetRawPayload(command, out var payload))
+        {
+            paymentId = ReadText(payload, "paymentId");
+            paymentWindow = ReadText(payload, "paymentWindow");
+            paymentChoiceIds = TryReadTextArray(payload, "paymentChoiceIds", out var choices)
+                ? choices
+                : null;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryReadAssignCombatDamagePayload(
+        GameCommand command,
+        out string battleId,
+        out string battlefieldId,
+        out IReadOnlyList<CombatDamageAssignmentDto>? assignments)
+    {
+        battleId = string.Empty;
+        battlefieldId = string.Empty;
+        assignments = null;
+        if (command is AssignCombatDamageCommand typed)
+        {
+            battleId = typed.BattleId?.Trim() ?? string.Empty;
+            battlefieldId = typed.BattlefieldId?.Trim() ?? string.Empty;
+            assignments = typed.Assignments?.ToArray();
+            return true;
+        }
+
+        if (TryGetRawPayload(command, out var payload))
+        {
+            battleId = ReadText(payload, "battleId");
+            battlefieldId = ReadText(payload, "battlefieldId");
+            assignments = TryReadCombatDamageAssignments(payload, out var parsedAssignments)
+                ? parsedAssignments
+                : null;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryReadOrderTriggersPayload(
+        GameCommand command,
+        out IReadOnlyList<string>? triggerIds)
+    {
+        triggerIds = null;
+        if (command is OrderTriggersCommand typed)
+        {
+            triggerIds = typed.TriggerIds?.ToArray();
+            return true;
+        }
+
+        if (TryGetRawPayload(command, out var payload))
+        {
+            triggerIds = TryReadTextArray(payload, "triggerIds", out var parsedTriggerIds)
+                ? parsedTriggerIds
+                : null;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryGetRawPayload(GameCommand command, out JsonElement payload)
+    {
+        payload = default;
+        if (command is UnsupportedCommand unsupported
+            && unsupported.Payload is { ValueKind: JsonValueKind.Object } rawPayload)
+        {
+            payload = rawPayload;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static string ReadText(JsonElement payload, string propertyName)
+    {
+        return payload.TryGetProperty(propertyName, out var property)
+            && property.ValueKind == JsonValueKind.String
+                ? property.GetString()?.Trim() ?? string.Empty
+                : string.Empty;
+    }
+
+    private static bool TryReadTextArray(
+        JsonElement payload,
+        string propertyName,
+        out IReadOnlyList<string> values)
+    {
+        values = [];
+        if (!payload.TryGetProperty(propertyName, out var property)
+            || property.ValueKind != JsonValueKind.Array)
+        {
+            return false;
+        }
+
+        values = property
+            .EnumerateArray()
+            .Where(item => item.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(item.GetString()))
+            .Select(item => item.GetString()!.Trim())
+            .ToArray();
+        return true;
+    }
+
+    private static bool TryReadCombatDamageAssignments(
+        JsonElement payload,
+        out IReadOnlyList<CombatDamageAssignmentDto> assignments)
+    {
+        assignments = [];
+        if (!payload.TryGetProperty("assignments", out var property)
+            || property.ValueKind != JsonValueKind.Array)
+        {
+            return false;
+        }
+
+        var parsedAssignments = new List<CombatDamageAssignmentDto>();
+        foreach (var item in property.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.Object
+                || !TryReadInt(item, "damage", out var damage))
+            {
+                return false;
+            }
+
+            parsedAssignments.Add(new CombatDamageAssignmentDto(
+                ReadText(item, "sourceObjectId"),
+                ReadText(item, "targetObjectId"),
+                damage));
+        }
+
+        assignments = parsedAssignments;
+        return true;
+    }
+
+    private static bool TryReadInt(JsonElement payload, string propertyName, out int value)
+    {
+        value = 0;
+        return payload.TryGetProperty(propertyName, out var property)
+            && property.ValueKind == JsonValueKind.Number
+            && property.TryGetInt32(out value);
     }
 
     private static ResolutionResult ResolvePlayCard(

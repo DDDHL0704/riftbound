@@ -60,11 +60,37 @@ public static class ErrorCodes
     public const string PhaseNotAllowed = "PHASE_NOT_ALLOWED";
     public const string InsufficientCost = "INSUFFICIENT_COST";
     public const string InvalidTarget = "INVALID_TARGET";
+    public const string InvalidPayload = "INVALID_PAYLOAD";
     public const string CardNotInHand = "CARD_NOT_IN_HAND";
     public const string InvalidDeck = "INVALID_DECK";
     public const string UnsupportedCardBehavior = "UNSUPPORTED_CARD_BEHAVIOR";
     public const string RecoveryInconsistent = "RECOVERY_INCONSISTENT";
     public const string PromptExpired = "PROMPT_EXPIRED";
+}
+
+public static class CommandTypes
+{
+    public const string Ready = "READY";
+    public const string SubmitDeck = "SUBMIT_DECK";
+    public const string Mulligan = "MULLIGAN";
+    public const string PassPriority = "PASS_PRIORITY";
+    public const string PassFocus = "PASS_FOCUS";
+    public const string Pass = "PASS";
+    public const string EndTurn = "END_TURN";
+    public const string Surrender = "SURRENDER";
+    public const string PlayCard = "PLAY_CARD";
+    public const string ActivateAbility = "ACTIVATE_ABILITY";
+    public const string LegendAct = "LEGEND_ACT";
+    public const string HideCard = "HIDE_CARD";
+    public const string TapRune = "TAP_RUNE";
+    public const string RecycleRune = "RECYCLE_RUNE";
+    public const string RevealCard = "REVEAL_CARD";
+    public const string MoveUnit = "MOVE_UNIT";
+    public const string AssembleEquipment = "ASSEMBLE_EQUIPMENT";
+    public const string DeclareBattle = "DECLARE_BATTLE";
+    public const string PayCost = "PAY_COST";
+    public const string AssignCombatDamage = "ASSIGN_COMBAT_DAMAGE";
+    public const string OrderTriggers = "ORDER_TRIGGERS";
 }
 
 public sealed record ErrorDto(
@@ -158,6 +184,24 @@ public sealed record DeclareBattleCommand(
     IReadOnlyList<string>? OptionalCosts = null,
     IReadOnlyList<string>? BattlefieldTargetObjectIds = null) : GameCommand("DECLARE_BATTLE");
 
+public sealed record PayCostCommand(
+    string PaymentId = "",
+    string PaymentWindow = "",
+    IReadOnlyList<string>? PaymentChoiceIds = null) : GameCommand(CommandTypes.PayCost);
+
+public sealed record CombatDamageAssignmentDto(
+    string SourceObjectId,
+    string TargetObjectId,
+    int Damage);
+
+public sealed record AssignCombatDamageCommand(
+    string BattleId = "",
+    string BattlefieldId = "",
+    IReadOnlyList<CombatDamageAssignmentDto>? Assignments = null) : GameCommand(CommandTypes.AssignCombatDamage);
+
+public sealed record OrderTriggersCommand(
+    IReadOnlyList<string>? TriggerIds = null) : GameCommand(CommandTypes.OrderTriggers);
+
 public sealed record UnsupportedCommand(string RawCmdType, JsonElement? Payload = null)
     : GameCommand(RawCmdType);
 
@@ -196,6 +240,53 @@ public static class PromptTypes
     public const string TaskQueue = "TASK_QUEUE";
     public const string Wait = "WAIT";
     public const string MatchResult = "MATCH_RESULT";
+}
+
+public sealed record ActionPromptContractDto(
+    string PromptKind,
+    string CandidateAction,
+    IReadOnlyList<string> RequiredPayload,
+    IReadOnlyList<string> LegalChoices,
+    IReadOnlyList<string> ValidationErrors,
+    IReadOnlyList<string> VisibleMetadata,
+    IReadOnlyList<string> HiddenMetadata);
+
+public static class ActionPromptContracts
+{
+    public static ActionPromptContractDto PayCost { get; } = new(
+        PromptTypes.PayCost,
+        CommandTypes.PayCost,
+        ["paymentId", "paymentWindow", "paymentChoiceIds"],
+        ["candidate.metadata.paymentChoices", "candidate.metadata.paymentResourceChoices"],
+        [ErrorCodes.InvalidPayload, ErrorCodes.PhaseNotAllowed, ErrorCodes.InsufficientCost],
+        ["paymentId", "paymentWindow", "cost", "paymentChoices", "paymentResourceChoices"],
+        ["serverPaymentState", "resourceLedgerBeforePayment"]);
+
+    public static ActionPromptContractDto AssignCombatDamage { get; } = new(
+        PromptTypes.AssignCombatDamage,
+        CommandTypes.AssignCombatDamage,
+        ["battleId", "battlefieldId", "assignments[].sourceObjectId", "assignments[].targetObjectId", "assignments[].damage"],
+        ["candidate.metadata.assignmentChoices", "candidate.metadata.battleParticipants"],
+        [ErrorCodes.InvalidPayload, ErrorCodes.PhaseNotAllowed, ErrorCodes.InvalidTarget],
+        ["battleId", "battlefieldId", "assignmentChoices", "battleParticipants"],
+        ["battleState", "participantControllerIds", "damageLedger"]);
+
+    public static ActionPromptContractDto OrderTriggers { get; } = new(
+        PromptTypes.OrderTriggers,
+        CommandTypes.OrderTriggers,
+        ["triggerIds"],
+        ["candidate.metadata.triggerChoices"],
+        [ErrorCodes.InvalidPayload, ErrorCodes.PhaseNotAllowed, ErrorCodes.InvalidTarget],
+        ["triggerChoices", "triggeredByEventKind"],
+        ["triggerQueue"]);
+
+    public static IReadOnlyDictionary<string, ActionPromptContractDto> ByPromptKind { get; } =
+        new Dictionary<string, ActionPromptContractDto>(StringComparer.Ordinal)
+        {
+            [PayCost.PromptKind] = PayCost,
+            [AssignCombatDamage.PromptKind] = AssignCombatDamage,
+            [OrderTriggers.PromptKind] = OrderTriggers
+        };
 }
 
 public sealed record PromptViewDto(

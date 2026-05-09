@@ -39,6 +39,7 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - B-Review / Bohr：`019e0bbc-d5d3-75a2-bde2-13e99da8ed76`
 - C-Review / Copernicus：`019e0bbc-df6f-7151-baf5-f79ff466c5a9`
 - D-Review / Pasteur：`019e0bbc-ece9-7fe1-a2ea-8e2afee1f5a2`
+- E-Review / Dewey：`019e0bdf-e12c-71c3-a394-cbfa3b7942a1`
 
 ## 0.2 阶段 0 当前基线
 
@@ -354,6 +355,162 @@ P1：
 
 阶段 1 完成后必须等待用户确认，再进入阶段 2。
 
+## 0.4 阶段 2 服务端 P0 契约收口 + 前端基础页面 / 数据层汇总
+
+阶段 2 已按用户确认后的阶段门槛执行，范围限定为服务端 P0 契约骨架、复杂 prompt / command / payload schema、前端基础 UI / 数据层安全外壳、规则证据链与卡牌覆盖矩阵框架；未进入完整前端重建，未进入 1009 张卡全量实现，未启动最终 18 步 E2E，结论仍为 **NOT READY**。
+
+阶段 2 开始前 checkpoint 保护：
+
+- 已创建阶段 1 WIP commit：`78b6896 checkpoint: complete stage 1 protocol baseline`
+- 已创建阶段 1 保护记录 commit：`bc0872d docs: record stage 1 checkpoint protection`
+- `riftbound-dotnet.sln` 是本地不交付文件，阶段 2 仍未纳入。
+
+### B 服务端协议 / P0 契约骨架
+
+完成项：
+
+- 在 `src/Riftbound.Contracts/Protocol.cs` 增加 `CommandTypes` 常量，并为 `PAY_COST`、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS` 建立正式 command / payload DTO 壳。
+- 新增 `ActionPromptContractDto` 与 `ActionPromptContracts`，明确三类复杂 prompt 的 `promptKind`、candidate action、required payload、legal choices、validation error、visible metadata、hidden metadata 口径。
+- 新增 `ErrorCodes.InvalidPayload = "INVALID_PAYLOAD"`，让 malformed payload 有稳定错误码。
+- 在 `CoreRuleEngine` 为三类复杂命令加入当前阶段的服务端权威入口与稳定拒绝路径：没有正式运行窗口时拒绝，不让前端自行裁决。
+- 补 conformance / hub / fixture shape 测试，覆盖 schema 注册、字段形状、错误语义和无窗口拒绝。
+
+关闭：
+
+- `PAY_COST` / `ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` 不再是“完全没有正式命令 / payload 名称”的 P0 子阻断。
+- malformed 复杂命令 payload 不再缺稳定错误语义。
+
+未关闭：
+
+- 真实 `PAY_COST` pending window、`DECLINE_PAY_COST`、PaymentEngine 统一支付状态机仍缺。
+- 真实伤害分配状态机、合法性校验、battle cleanup 仍缺。
+- 真实触发排序 pending window、触发队列、同控触发排序规则仍缺。
+- battlefield / standby / control / held / conquer lifecycle、central cleanup queue、spell duel / battle lifecycle 仍未完整官方化。
+
+### C 前端基础 UI / 数据层
+
+完成项：
+
+- 新增 `SnapshotDebugPanel`，只展示权威 snapshot / prompt 摘要：tick、turn、active player、phase、stack、task count、prompt stamp、candidate、public zone counts。
+- 在 `MatchPage` 接入 debug panel，在 `ActionPanel` 对复杂 / 未知 prompt 保持安全降级：只展示服务端候选摘要与“需要服务端正式交互支持”，不计算规则结果。
+- 前端协议类型同步阶段 2 schema：`ActionPromptContractDto`、`ActionPromptContracts`、`CombatDamageAssignmentDto`、三类复杂 `GameCommand` union。
+- 错误文案同步 `INVALID_PAYLOAD`。
+
+未做且禁止在本阶段做：
+
+- 未实现或模拟 `PAY_COST` 实际支付结果。
+- 未实现或模拟 `ASSIGN_COMBAT_DAMAGE` 合法性 / 分配结果。
+- 未实现或模拟 `ORDER_TRIGGERS` 排序结果。
+- 未实现 spell duel / battle / conquer / victory 的本地裁决。
+
+### D 规则证据 / 审计文档
+
+完成项：
+
+- 新增 `docs/CURRENT_STAGE2_P0_CONTRACT_PLAN.md`，记录阶段 2 三类复杂 prompt 契约计划与运行时缺口。
+- 更新 `docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_FRONTEND_CONTRACT_GAPS.md` 与 `docs/rules-evidence-index.md`。
+- 为 battlefield / standby / control / held / conquer lifecycle、cleanup queue、spell duel / battle lifecycle、damage assignment、`PAY_COST`、`ORDER_TRIGGERS` 建立规则证据链入口。
+- 标记阶段 1/2 已替代的历史口径：0 / 负战力、具体战场 objectId、replay/final hash 旧 wording、复杂 prompt “无入口”旧 wording。
+
+### E 卡牌覆盖矩阵 / FAQ 框架
+
+完成项：
+
+- 更新 `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`。
+- 新增 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`。
+- 新增 `docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`。
+- 建立当前只读矩阵统计：1009 snapshot entries、811 functional units、694 direct card behavior functional units、117 non-`PLAY_CARD` representative domain units、179 FAQ candidate units、227 FAQ candidate snapshot entries。
+- 输出前 20 个高风险 functional units，供后续阶段优先实现和测试。
+
+仍禁止：
+
+- 不进入 1009 张卡全量效果实现。
+- 不修改核心规则引擎。
+
+### 阶段 2 修改 / 新增文件
+
+阶段 2 新增：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`
+- `docs/CURRENT_STAGE2_P0_CONTRACT_PLAN.md`
+- `src/Riftbound.DevUi/src/components/match/SnapshotDebugPanel.tsx`
+
+阶段 2 修改：
+
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`
+- `docs/CURRENT_FRONTEND_CONTRACT_GAPS.md`
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`
+- `docs/rules-evidence-index.md`
+- `src/Riftbound.Contracts/Protocol.cs`
+- `src/Riftbound.Engine/CoreRuleEngine.cs`
+- `src/Riftbound.DevUi/src/components/match/ActionPanel.tsx`
+- `src/Riftbound.DevUi/src/pages/MatchPage.tsx`
+- `src/Riftbound.DevUi/src/styles/globals.css`
+- `src/Riftbound.DevUi/src/types/protocol.ts`
+- `src/Riftbound.DevUi/src/utils/errors.ts`
+- `tests/Riftbound.ConformanceTests/ConformanceFixtureShapeTests.cs`
+- `tests/Riftbound.ConformanceTests/GameHubJoinTests.cs`
+
+阶段 2 仍未提交；`riftbound-dotnet.sln` 仍为本地不交付未跟踪文件，不应纳入。
+
+### 阶段 2 验收命令
+
+A 主控复验：
+
+- `git diff --check`：通过。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：3318/3318 通过。
+- `source ../../scripts/dev-env.sh && npm run build`：通过；包含 `check:event-labels` 与 `check:user-facing-text`。
+- Chrome smoke：当前仓库未发现既有 smoke 脚本，阶段 2 未运行；C 的下一步应先补一个最小 smoke 脚本，再进入正式 UI smoke。
+
+子 agent 报告的补充验证：
+
+- B 聚焦新增测试 6/6 通过，相关回归 7/7 通过，完整 conformance 3318/3318 通过。
+- C DevUi build 通过，前端锁定文件 `git diff --check` 通过。
+- D 文档 diff check 通过。
+- E JSON skeleton `jq empty` 通过，diff check 通过。
+
+### 阶段 2 判断
+
+- 关闭的 P0/P1：**未关闭完整 P0/P1**；仅关闭三类复杂 prompt “无正式 schema / command 名称”的 P0 子阻断与 malformed payload 稳定错误语义缺口。
+- 服务端协议是否可以冻结：**只能冻结阶段 2 契约壳**。`PAY_COST`、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS` 的 command / payload 名称与 prompt contract 字段可作为前端迁移基线；真实 runtime window、合法性、结算顺序和状态机尚不能冻结。
+- 是否允许 C 进入正式前端 UI 开发：**只允许继续基础页面、数据层、UI shell、safe fallback 与 smoke 脚本**；不得实现支付、伤害分配、触发排序、battle / spell duel / conquer / victory 的本地规则结果。
+- 是否允许 E 进入卡牌效果批量覆盖：**不允许**。E 只能继续矩阵、FAQ 证据、风险排序和代表单元拆分。
+- 是否标记 READY：**不允许**。
+
+### 阶段 2 后仍存在的 P0/P1
+
+P0：
+
+- `PAY_COST` 真实 pending window / choice validation / decline / PaymentEngine 状态机仍缺。
+- `ASSIGN_COMBAT_DAMAGE` 真实 battle damage assignment window / legality / cleanup 仍缺。
+- `ORDER_TRIGGERS` 真实 trigger queue / ordering window / deterministic resolution 仍缺。
+- battlefield / standby / control / held / conquer lifecycle 仍未完整官方化。
+- central cleanup task queue 仍未覆盖替代效果、状态变化和进出区域路径。
+- spell duel / battle lifecycle 仍缺完整 pending / focus / initial-stack / damage assignment / cleanup 状态机。
+- 最终 18 步 E2E 与 Chrome smoke 正式链路未启动。
+
+P1：
+
+- PaymentEngine 自动触发 / 替代费用路径仍未完全统一。
+- LayerEngine / 持续效果 / 替代效果 / 禁止效果未最终收口。
+- 1009 张卡 full-official 覆盖矩阵、官方文本、FAQ 证据与自动化测试未完成。
+- replay / recovery / determinism 仍需最终审计。
+- `GameCommandJsonMapper` 尚未把三类复杂命令映射成强类型解析路径，当前阶段依赖 raw command 稳定拒绝与契约壳。
+
+### 下一阶段建议
+
+阶段 3 建议仍按小切片推进，禁止同时大改：
+
+- B 优先从 `PAY_COST` 真实 pending window 与 decline/validation 状态机切入；每完成一个窗口就补 conformance / hub 测试。
+- C 先补最小 Chrome smoke 脚本，再继续首页 / 大厅 / 房间 / Match UI shell；复杂 prompt 只消费 B 已冻结的字段。
+- D 继续把阶段 2 证据链落到具体规则页码 / FAQ 条目，并保持 superseded 口径。
+- E 继续高风险 functional unit 的 FAQ 映射与测试设计，不进入全量实现。
+
+阶段 2 完成后必须等待用户确认，再进入阶段 3。
+
 ## 1. 总目标
 
 以当前仓库五份官方规则 / FAQ PDF 与 `data/official/card-catalog.zh-CN.json` 的 2026-04-27 官网卡牌快照为准，完成本地双人 1v1 标准构筑产品级 Web 游戏基线：
@@ -373,7 +530,7 @@ P1：
 
 ## 2. 当前仓库基线
 
-当前 HEAD：`dda6385 feat: support concrete battlefield moves`
+当前 HEAD：`bc0872d docs: record stage 1 checkpoint protection`
 
 当前工作区预期：
 

@@ -2,11 +2,11 @@
 
 更新时间：2026-05-09
 
-阶段：**阶段 1 / E 卡牌覆盖基线与证据矩阵**
+阶段：**阶段 2 / E 卡牌覆盖矩阵框架与 FAQ 证据候选**
 
 结论：**NOT READY；不允许进入 1009 张卡牌效果批量覆盖。**
 
-本文只建立统计口径、只读数据基线和后续矩阵骨架，不实现或修改任何卡牌效果。阶段 1 的目标是防止把现有代表路径、旧阶段口径或图鉴展示误判为全官方卡牌完成。
+本文只建立统计口径、只读数据基线、矩阵字段和风险排序，不实现或修改任何卡牌效果。阶段 1/2 的目标是防止把现有代表路径、旧阶段口径或图鉴展示误判为全官方卡牌完成。
 
 ## 1. 已读取依据
 
@@ -16,7 +16,7 @@
 - `docs/rules-evidence-index.md`：当前已有规则域和 fixture 证据目录；该文件不是 1009 张卡覆盖矩阵。
 - `data/official/card-catalog.zh-CN.json`：固定官网快照，`fetchedAt = 2026-04-27`，声明 `total = 1009`。
 
-注意：`docs/CURRENT_RULE_EVIDENCE_TODO.md` 当前为未跟踪已有文件，本轮按写入锁要求视为可能由 D/其他 worker 持有，不修改、不追加。
+注意：`docs/CURRENT_RULE_EVIDENCE_TODO.md` 不在阶段 2 E 写入锁内；若该文件已有改动，视为 D/A 或其他 worker 持有，本轮不修改、不追加。
 
 ## 2. 阶段 1 统计口径
 
@@ -128,9 +128,9 @@
 
 ## 4. 最小覆盖矩阵骨架
 
-阶段 1 只建立列与状态，不填满 1009 行。
+阶段 2 已新增机器可读骨架 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`。该文件填入 1009 条 snapshot entry 到 811 个 functional unit 的映射，以及当前 representative route / FAQ 候选 / 风险标签，但仍不代表 full-official 完成。
 
-| 矩阵域 | 最小字段 | 阶段 1 状态 | 阶段 4 才能完成 |
+| 矩阵域 | 最小字段 | 阶段 1/2 状态 | 阶段 4 才能完成 |
 |---|---|---|---|
 | 官方条目身份 | `id`, `cardNo`, `cardName`, `cardCategoryName`, `setPrefix`, `frontImage` | 快照完整，1009/1009 可统计。 | 每个条目都映射到 oracle/effectId 或阻断项。 |
 | collector 映射 | `cardNo`, `baseCollectorNo`, `variantKind` | 已发现 127 个 base collector 重复组。 | 所有变体精确映射，不以 base collector 覆盖精确编号。 |
@@ -143,9 +143,24 @@
 
 建议阶段 4 实体矩阵文件再拆为机器可读数据与人工审计文档，避免把长表塞进 `rules-evidence-index.md`。
 
+阶段 2 机器可读骨架统计：
+
+| 项 | 数量 |
+|---|---:|
+| snapshot entries | 1009 |
+| functional units | 811 |
+| direct card behavior FUs | 694 |
+| non PLAY_CARD domain representative FUs | 117 |
+| direct card behavior snapshot entries | 785 |
+| non PLAY_CARD domain representative snapshot entries | 224 |
+| PDF/FAQ 卡名候选 FUs | 179 |
+| PDF/FAQ 卡名候选 snapshot entries | 227 |
+
+这些 implementation 数字只表示当前仓库有 representative route 或专门域 route；在 P0/P1 规则域、FAQ adjudication 和逐项测试完成前，`full-official-rule-pass` 仍不得授予。
+
 ## 5. 阶段 4 才能做的事项
 
-以下事项不得在阶段 1 启动：
+以下事项不得在阶段 1/2 启动：
 
 1. 不逐张实现 1009 个 card entries。
 2. 不把 811 个 functional units 批量写成 `CardBehaviorDefinition`。
@@ -196,6 +211,33 @@ P1 仍存在：
 - `docs/CURRENT_RULE_EVIDENCE_TODO.md`：已有未跟踪改动，按锁规则未覆盖。
 - `docs/rules-evidence-index.md`
 - `data/official/card-catalog.zh-CN.json`
+- `src/**`
+
+是否允许进入卡牌效果批量覆盖：**不允许。**
+
+## 8. 阶段 2 E 汇总
+
+完成项：
+
+- 新增 1009 snapshot entries -> 811 functional units 的机器可读矩阵骨架。
+- 为每个 snapshot entry 建立 `cardId/cardNo/baseCollectorNo/functionalUnitId/implementationStatus/faqRefs/uncoveredEffectCategories` 字段。
+- 为每个 functional unit 建立 `representativeCardNo/cardNos/implementation/faqRefs/rulesRefs/dependsOnP0RuleDomains/riskScore` 字段。
+- 从五份 PDF/FAQ 逐页抽取卡名命中候选；不依赖 `cardQaList`。
+- 输出前 20 个最高风险 functional units，供后续阶段先做人工 adjudication、实现和测试。
+
+新增文件：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`
+
+修改文件：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`
+
+未修改文件：
+
+- `data/official/card-catalog.zh-CN.json`
+- `docs/rules-evidence-index.md`
 - `src/**`
 
 是否允许进入卡牌效果批量覆盖：**不允许。**

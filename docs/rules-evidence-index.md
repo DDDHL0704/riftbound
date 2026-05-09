@@ -1380,6 +1380,7 @@
 结论：
 - `dda6385` 基线冲突已作为 P0 证据记录；第一轮修复已清理自动死亡语义。
 - 旧批次文字和兼容字符串仍可能在历史审计中出现，不能误读为当前引擎仍会生成 `DESTROY_ZERO_POWER_UNIT`。
+- 阶段 2 状态：该项已 superseded 为防回归证据，不再作为未清零 P0；后续若重新出现 `Power <= 0` 自动死亡，应按本条恢复为 P0。
 
 ### P0E-003 具体战场 destination 大小写风险
 
@@ -1392,6 +1393,96 @@
 开发影响：
 - 具体战场移动、待命额外战场 destination、声明战斗 destination 和任何 `BATTLEFIELD:<objectId>` 协议字段都必须只规范化 zone 前缀，保留 object id 原始大小写。
 - 后续新增任何 `ZONE:<objectId>` 风格协议解析时，都应复用“只规范化 zone、不改 objectId”的约束。
+- 阶段 2 状态：该项已 superseded 为防回归证据，不再作为未清零 P0；后续任何新 parser 都必须复用此约束。
+
+## 6.3 2026-05-09 阶段 2 P0 证据链
+
+### P0E-004 battlefield / standby / control / held / conquer lifecycle
+
+证据：
+- `CORE-260330` p4-p8 rules 107.2-107.3：战场是公开位置；每处战场有独立待命子区域；待命容量、控制者限制、失控后下一次清理移除待命牌必须建模。
+- `CORE-260330` p22-p26 rules 187-189：战场控制权、争夺状态、控制权冻结、战场技能控制者和费用支付责任必须稳定。
+- `CORE-260330` p28-p33 rules 315.2.b.2、319-323：据守、清理、场地状态、失控、待命移除、待发生法术对决和待发生战斗属于同一任务链。
+- `CORE-260330` p35-p36 rules 344-348：争夺无人控制战场会在清理中开启非战斗法术对决；关闭后可能建立控制并征服。
+- `CORE-260330` p77-p78 rules 461-464：战斗清理、清除争夺、移除非法待命、建立控制、征服/据守得分与战斗结果相关。
+- `JFAQ-251023` p5-p7 questions 4.1-5.4：战斗/法术对决期间控制权冻结；战斗结束、争夺清除后的下一次清理才移除失控待命。
+- `SOUL-OFAQ-260114` p21：恶意收购类场景会触发非战斗法术对决，并存在控制权冻结特例。
+- `SOUL-JFAQ-260114` p4-p5：战斗胜负、征服/据守、得分替代与得分触发存在 FAQ 边界。
+
+开发影响：
+- `BattlefieldState` 不能只做 snapshot 投影，必须连接到权威 board task。
+- 失控待命移除、控制权冻结/释放、征服/据守得分和战场触发必须统一进任务状态机。
+- 当前对象位置和小写 objectId 修复只是前置条件，不等于该 P0 已完成。
+
+### P0E-005 cleanup queue
+
+证据：
+- `CORE-260330` p31-p33 rules 319-324：开闭环转换、阶段转换、结算链项目变化、对象进出场、状态变化、移动完成都会产生清理未决任务；清理中不结算合法项目；清理重复直到状态稳定。
+- `CORE-260330` p31-p33 rules 323.1-323.13：清理任务顺序覆盖胜负、攻防身份、场地状态、致命伤害、开放战场失控、非法待命/未贴附装备召回、待发生法术对决和战斗。
+- `JFAQ-251023` p6-p7 questions 5.1-5.2：清理期间不传递优先行动权或焦点；特殊清理引发的新清理是常规清理。
+- `SOUL-OFAQ-260114` p19-p20：0/负战力必须按“至少 1 点有效伤害”语义接入清理。
+
+开发影响：
+- 所有 command、stack resolve、trigger resolve、move、enter、leave、damage、power change 都必须 enqueue cleanup。
+- `PendingTaskQueue` 应成为推进规则任务的权威队列，而不是只暴露 UI 视图。
+- 任何 cleanup 中需要玩家选择的步骤，必须转为正式 prompt。
+
+### P0E-006 spell duel / battle lifecycle
+
+证据：
+- `CORE-260330` p26-p28 rules 307-313：普通/法术对决、开环/闭环、优先行动权、焦点共同决定行动窗口。
+- `CORE-260330` p33-p36 rules 333-348：HOT FEPR、优先权、让过、法术对决开始、焦点传递、让过焦点关闭法术对决。
+- `CORE-260330` p77-p78 rules 454-461：战斗待发生、战斗法术对决、进攻/防守身份、战斗结算链、战斗伤害、战斗清理、战斗结果和控制权确立。
+- `JFAQ-251023` p4-p5 questions 3.1-3.3：获得资源技能不传递焦点；初始结算链结束后焦点不转移；待处理触发会暂时阻塞行动。
+- `JFAQ-251023` p2-p4 questions 2.3-2.4：战斗初始结算链的触发排序、进攻/防守触发每场战斗只触发一次。
+
+开发影响：
+- `DECLARE_BATTLE` 不能长期兼任启动、选择、伤害、清理和结果结算。
+- `SpellDuelState` / `BattleState` 需要可推进 lifecycle：created、initial-stack、focus、closed、damage-assignment、cleanup、result、completed。
+- `SPELL_DUEL_ACTION` 后续必须有正式 prompt payload，而不是仅靠 `PASS_FOCUS` 与 generic candidate。
+
+### P0E-007 damage assignment
+
+证据：
+- `CORE-260330` p14-p15 rules 142-143：战力、伤害和负战力参与战斗伤害计算有明确边界。
+- `CORE-260330` p62-p63 rule 417：分配伤害不是造成伤害；所有伤害分配完成时才同时造成；战斗伤害来源视为单位。
+- `CORE-260330` p77-p78 rule 460：进攻方和防守方按战力总和分配伤害；必须先分配致命伤害；多个同优先级要求时由分配者决定顺序；无法承受伤害的单位无需分配致命伤害。
+- `JFAQ-251023` p7-p10 questions 6.1-6.4：分配伤害与造成伤害不同、战斗伤害来源、壁垒/后排/互斥分配要求需要专门规则处理。
+- `SOUL-OFAQ-260114` p19-p20：负战力单位战斗输出按 0，但真实战力保留。
+
+开发影响：
+- 代表性 `BuildBattleDamageAssignmentOrder` 不是正式 damage assignment contract。
+- 必须新增 `ASSIGN_COMBAT_DAMAGE` prompt/command/payload，表达 damage pool、目标、致命阈值、优先级、限制、默认方案和非法原因。
+- 前端不得按单位战力自行推断最终合法分配。
+
+### P0E-008 `PAY_COST` / payment windows
+
+证据：
+- `CORE-260330` p10-p13 rules 131, 135.2.e：卡牌费用、法力费用、符能费用、`[A]` 任意符能和特定特性符能。
+- `CORE-260330` p20 rules 162-167：符文产出法力/符能，资源先进入符文池后再用于支付，特性符能与通用符能需区分。
+- `CORE-260330` p39-p42 rules 356-357：确定总费用、强制额外费用、可选额外费用、增费、减费和支付费用步骤。
+- `CORE-260330` p52-p55 rules 377, 403-405：主动/触发技能也要做选择、确定总费用、支付费用、检查合法性；触发式技能费用可拒付。
+- `CORE-260330` p61-p67 rules 414, 416：休眠、回收等非标准费用必须能完成才可支付。
+- `JFAQ-251023` p2-p4 question 2.5：玩家可拒绝支付触发式技能费用，拒付后技能从结算链移除。
+- `SOUL-OFAQ-260114` p1-p4, p19-p21：`[A]`/`[C]`、法盾强制额外费用、回响/急速可选额外费用、装配不是可选额外费用、回响费用按印刷费用等边界。
+
+开发影响：
+- `COST_PAID` 事件包络和 `PaymentCostRules` 只是审计/兼容层，不等于独立 `PAY_COST` window。
+- 需要 `PaymentPlan/paymentPlanId/paymentWindow`、Quote/Authorize/Commit、`PAY_COST` / `DECLINE_PAY_COST` command 和 typed error details。
+- prompt 与 Core 不能继续各自重复计算费用。
+
+### P0E-009 `ORDER_TRIGGERS`
+
+证据：
+- `CORE-260330` p33-p35 rules 333-340：任务和待处理项目进入结算链后走 HOT FEPR。
+- `CORE-260330` p52-p55 rules 383.3.d-383.3.e：同一时间多个触发由控制者决定顺序；多个玩家同时触发时从回合玩家开始按回合顺序处理；附加条件不满足则不入链。
+- `JFAQ-251023` p2-p4 questions 2.2-2.3：同时触发排序和战斗初始结算链有特殊顺序，防守方触发在最后。
+- `JFAQ-251023` p2-p4 question 2.5：触发式技能可能产生费用，排序后仍需进入确认/支付/合法性流程。
+
+开发影响：
+- `TRIGGER_QUEUED` / `TRIGGER_RESOLVED` 事件不能替代 `ORDER_TRIGGERS` prompt。
+- 需要 `TriggerInstance`、trigger batch、可选触发选择、排序 command、战斗初始结算链特殊排序和触发费用衔接。
+- 当前没有正式 `ORDER_TRIGGERS` payload，仍为 P0。
 
 ## 7. 索引维护规则
 

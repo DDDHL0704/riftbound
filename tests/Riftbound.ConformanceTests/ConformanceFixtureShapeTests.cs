@@ -679,6 +679,169 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ProtocolDefinesP0PromptCommandContracts()
+    {
+        Assert.Equal("PAY_COST", CommandTypes.PayCost);
+        Assert.Equal("ASSIGN_COMBAT_DAMAGE", CommandTypes.AssignCombatDamage);
+        Assert.Equal("ORDER_TRIGGERS", CommandTypes.OrderTriggers);
+
+        Assert.Equal(PromptTypes.PayCost, ActionPromptContracts.PayCost.PromptKind);
+        Assert.Equal(CommandTypes.PayCost, ActionPromptContracts.PayCost.CandidateAction);
+        Assert.Contains("paymentId", ActionPromptContracts.PayCost.RequiredPayload);
+        Assert.Contains("paymentWindow", ActionPromptContracts.PayCost.RequiredPayload);
+        Assert.Contains("paymentChoiceIds", ActionPromptContracts.PayCost.RequiredPayload);
+        Assert.Contains(ErrorCodes.InvalidPayload, ActionPromptContracts.PayCost.ValidationErrors);
+        Assert.Contains("paymentChoices", ActionPromptContracts.PayCost.VisibleMetadata);
+        Assert.Contains("serverPaymentState", ActionPromptContracts.PayCost.HiddenMetadata);
+
+        Assert.Equal(PromptTypes.AssignCombatDamage, ActionPromptContracts.AssignCombatDamage.PromptKind);
+        Assert.Equal(CommandTypes.AssignCombatDamage, ActionPromptContracts.AssignCombatDamage.CandidateAction);
+        Assert.Contains("assignments[].sourceObjectId", ActionPromptContracts.AssignCombatDamage.RequiredPayload);
+        Assert.Contains("assignments[].targetObjectId", ActionPromptContracts.AssignCombatDamage.RequiredPayload);
+        Assert.Contains("candidate.metadata.assignmentChoices", ActionPromptContracts.AssignCombatDamage.LegalChoices);
+        Assert.Contains(ErrorCodes.InvalidTarget, ActionPromptContracts.AssignCombatDamage.ValidationErrors);
+        Assert.Contains("damageLedger", ActionPromptContracts.AssignCombatDamage.HiddenMetadata);
+
+        Assert.Equal(PromptTypes.OrderTriggers, ActionPromptContracts.OrderTriggers.PromptKind);
+        Assert.Equal(CommandTypes.OrderTriggers, ActionPromptContracts.OrderTriggers.CandidateAction);
+        Assert.Contains("triggerIds", ActionPromptContracts.OrderTriggers.RequiredPayload);
+        Assert.Contains("candidate.metadata.triggerChoices", ActionPromptContracts.OrderTriggers.LegalChoices);
+        Assert.Contains("triggerQueue", ActionPromptContracts.OrderTriggers.HiddenMetadata);
+        Assert.Same(ActionPromptContracts.PayCost, ActionPromptContracts.ByPromptKind[PromptTypes.PayCost]);
+        Assert.Same(ActionPromptContracts.AssignCombatDamage, ActionPromptContracts.ByPromptKind[PromptTypes.AssignCombatDamage]);
+        Assert.Same(ActionPromptContracts.OrderTriggers, ActionPromptContracts.ByPromptKind[PromptTypes.OrderTriggers]);
+    }
+
+    [Fact]
+    public async Task P0ContractCommandShellsRejectMalformedPayloads()
+    {
+        var state = BuildP0ContractMainState();
+        var engine = new CoreRuleEngine();
+
+        var payCostResult = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-pay-cost", "P1", CommandTypes.PayCost),
+            new PayCostCommand(PaymentWindow: "PLAY_CARD", PaymentChoiceIds: []),
+            CancellationToken.None);
+        var assignDamageResult = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-assign-damage", "P1", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand("battle:BATTLEFIELD:P1-MAIN", "BATTLEFIELD:P1-MAIN", []),
+            CancellationToken.None);
+        var orderTriggersResult = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-order-triggers", "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(["TRIGGER-1", "TRIGGER-1"]),
+            CancellationToken.None);
+
+        Assert.False(payCostResult.Accepted);
+        Assert.Equal(ErrorCodes.InvalidPayload, payCostResult.ErrorCode);
+        Assert.False(assignDamageResult.Accepted);
+        Assert.Equal(ErrorCodes.InvalidPayload, assignDamageResult.ErrorCode);
+        Assert.False(orderTriggersResult.Accepted);
+        Assert.Equal(ErrorCodes.InvalidPayload, orderTriggersResult.ErrorCode);
+    }
+
+    [Fact]
+    public async Task P0ContractCommandShellsRejectClosedWindows()
+    {
+        var state = BuildP0ContractMainState();
+        var engine = new CoreRuleEngine();
+
+        var payCostResult = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-pay-cost", "P1", CommandTypes.PayCost),
+            new PayCostCommand("PAY-1", "PLAY_CARD", []),
+            CancellationToken.None);
+        var assignDamageResult = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-assign-damage", "P1", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand(
+                "battle:BATTLEFIELD:P1-MAIN",
+                "BATTLEFIELD:P1-MAIN",
+                [new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 1)]),
+            CancellationToken.None);
+        var orderTriggersResult = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-order-triggers", "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(["TRIGGER-1", "TRIGGER-2"]),
+            CancellationToken.None);
+
+        Assert.False(payCostResult.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, payCostResult.ErrorCode);
+        Assert.False(assignDamageResult.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, assignDamageResult.ErrorCode);
+        Assert.False(orderTriggersResult.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, orderTriggersResult.ErrorCode);
+        Assert.Equal(state.Tick, payCostResult.State.Tick);
+        Assert.Empty(payCostResult.Events);
+    }
+
+    [Fact]
+    public async Task AssignCombatDamageShellValidatesCurrentBattleParticipants()
+    {
+        var state = BuildP0ContractBattleState();
+        var engine = new CoreRuleEngine();
+
+        var invalidTargetResult = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-invalid-assign-damage", "P1", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand(
+                "battle:BATTLEFIELD:P1-MAIN",
+                "BATTLEFIELD:P1-MAIN",
+                [new CombatDamageAssignmentDto("P1-ATTACKER", "P2-NOT-IN-BATTLE", 1)]),
+            CancellationToken.None);
+        var validShellResult = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-valid-assign-damage", "P1", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand(
+                "battle:BATTLEFIELD:P1-MAIN",
+                "BATTLEFIELD:P1-MAIN",
+                [new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 1)]),
+            CancellationToken.None);
+
+        Assert.False(invalidTargetResult.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, invalidTargetResult.ErrorCode);
+        Assert.False(validShellResult.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, validShellResult.ErrorCode);
+        Assert.Equal("独立战斗伤害分配状态机尚未开放。", validShellResult.ErrorMessage);
+        Assert.Equal(state.Tick, validShellResult.State.Tick);
+        Assert.Empty(validShellResult.Events);
+    }
+
+    [Fact]
+    public async Task OrderTriggersShellValidatesControllerAndLegalChoices()
+    {
+        var state = BuildP0ContractTriggerQueueState();
+        var engine = new CoreRuleEngine();
+
+        var wrongPlayerResult = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-wrong-player-order", "P2", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(["TRIGGER-2", "TRIGGER-1"]),
+            CancellationToken.None);
+        var invalidTargetResult = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-invalid-order", "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(["TRIGGER-1", "TRIGGER-3"]),
+            CancellationToken.None);
+        var validShellResult = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-valid-order", "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(["TRIGGER-2", "TRIGGER-1"]),
+            CancellationToken.None);
+
+        Assert.False(wrongPlayerResult.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, wrongPlayerResult.ErrorCode);
+        Assert.False(invalidTargetResult.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, invalidTargetResult.ErrorCode);
+        Assert.False(validShellResult.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, validShellResult.ErrorCode);
+        Assert.Equal("触发排序窗口已校验，队列重排与结算状态机尚未开放。", validShellResult.ErrorMessage);
+        Assert.Equal(["TRIGGER-1", "TRIGGER-2"], validShellResult.State.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray());
+    }
+
+    [Fact]
     public void ActionPromptDeclareBattleMetadataFiltersSourcesDefendersBattlefieldsAndCosts()
     {
         var state = new MatchState(
@@ -7130,6 +7293,104 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Contains(
             playCandidate.Sources ?? [],
             source => string.Equals(source.Id, "P1-UNIT-MIGHTY-FAERIE", StringComparison.Ordinal));
+    }
+
+    private static MatchState BuildP0ContractMainState()
+    {
+        return new MatchState(
+            "p0-contract-room",
+            12,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty
+            });
+    }
+
+    private static MatchState BuildP0ContractBattleState()
+    {
+        return new MatchState(
+            "p0-contract-battle-room",
+            12,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-DEFENDER"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-ATTACKER"] = new(
+                    "P1-ATTACKER",
+                    isAttacking: true,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-DEFENDER"] = new(
+                    "P2-DEFENDER",
+                    isDefending: true,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-ATTACKER"] = new("P1", "BATTLEFIELD", "BATTLEFIELD:P1-MAIN"),
+                ["P2-DEFENDER"] = new("P2", "BATTLEFIELD", "BATTLEFIELD:P1-MAIN")
+            });
+    }
+
+    private static MatchState BuildP0ContractTriggerQueueState()
+    {
+        return BuildP0ContractMainState() with
+        {
+            TriggerQueue =
+            [
+                new TriggerQueueItemState(
+                    "TRIGGER-1",
+                    "P1",
+                    "P1-SOURCE-1",
+                    "DRAW_ONE",
+                    "UNIT_DESTROYED"),
+                new TriggerQueueItemState(
+                    "TRIGGER-2",
+                    "P1",
+                    "P1-SOURCE-2",
+                    "GAIN_POWER",
+                    "UNIT_DESTROYED")
+            ]
+        };
     }
 
     private sealed class RecordingMatchJournal : IMatchJournal

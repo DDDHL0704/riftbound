@@ -12,6 +12,29 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-09 阶段 2 D P0 证据链复审
+
+阶段 2 D 证据链详见 `docs/CURRENT_STAGE2_P0_CONTRACT_PLAN.md`。本节只记录服务端自查的同步口径：阶段 1 协议壳、`PromptView` 最小入口、复杂 prompt 安全降级展示、`promptId/snapshotTick` 过期保护、0/负战力修复、具体战场 objectId 大小写修复、representative replay/final hash verifier 都不能误判为 READY；它们只是把旧 P0 的部分风险降为防回归或口径风险。
+
+阶段 2 B 补同步：服务端已新增 `ErrorCodes.InvalidPayload`、`CommandTypes.PayCost/AssignCombatDamage/OrderTriggers`、`PayCostCommand`、`CombatDamageAssignmentDto`、`AssignCombatDamageCommand`、`OrderTriggersCommand`、`ActionPromptContractDto` / `ActionPromptContracts`。这只关闭“无正式 schema / 无稳定 malformed payload 拒绝语义”的 P0 子项；合法形状且进入未实现执行点的 command 仍以 `UNSUPPORTED_COMMAND` 拒绝，真实 `PAY_COST` runtime、damage assignment 状态机、`ORDER_TRIGGERS` 状态机仍未关闭。
+
+阶段 2 剩余 P0 证据链：
+
+| P0 | 规则依据 | 当前实现状态 | 归属 agent | 下一步 |
+| --- | --- | --- | --- | --- |
+| P0-S2-001 battlefield / standby / control / held / conquer lifecycle | `CORE-260330` rules 107.2-107.3, 187-189, 315.2.b.2, 319-323, 344-348, 461-464；`JFAQ-251023` q4.1-5.4；`SOUL-OFAQ-260114` p21；`SOUL-JFAQ-260114` p4-p5 | `ObjectLocations`、`BattlefieldStates`、`BattlefieldTasks`、具体战场移动与部分 smoke 已有；完整 control freeze/release、standby removal、held/conquer scoring、battlefield trigger lifecycle 仍缺 | B 主实现；E 补证据/fixture；C 等正式 schema；D 维护证据链 | 把 `BattlefieldTaskState` 升级为权威 board task model，覆盖 `CONTROL_CHECK`、`REMOVE_STANDBY`、`CONQUER_SCORE`、`HELD_SCORE` |
+| P0-S2-002 cleanup queue | `CORE-260330` rules 319-324；`JFAQ-251023` q5.1-5.2；`SOUL-OFAQ-260114` p19-p20 | `PendingTaskQueue`、`PendingCleanupTasks`、`RunStateBasedCleanupLoop` 与 blocking guard 已有；未覆盖所有状态变化、替代效果、控制权变化和任务稳定循环 | B 主实现；E 场景证据；D 文档 | 让所有 command/stack/trigger/move/enter/leave/damage/power change 统一 enqueue cleanup |
+| P0-S2-003 spell duel / battle lifecycle | `CORE-260330` rules 307-313, 333-348, 454-461；`JFAQ-251023` q2.3-q2.4, q3.1-q3.3 | `TurnWindowState`、`SpellDuelState`、`BattleState`、关联 id 和焦点恢复已有；`DECLARE_BATTLE` 仍是同步代表路径，不是官方多阶段 task | B 主实现；E 初始链/焦点/触发 fixture；C 等 typed prompt；D 文档 | 由 cleanup queue 创建并推进 `START_SPELL_DUEL` / `START_BATTLE`，拆出 focus/pass/swift/reaction/close/result |
+| P0-S2-004 damage assignment | `CORE-260330` rules 142-143, 417, 460；`JFAQ-251023` q6.1-q6.4；`SOUL-OFAQ-260114` p19-p20 | 代表性 `BuildBattleDamageAssignmentOrder` 已有；`ASSIGN_COMBAT_DAMAGE` command/schema skeleton 与 `INVALID_PAYLOAD` 已补；runtime prompt、pending battle phase、damage assignment 状态机仍缺 | B 主实现；E 多单位/壁垒/后排/负战力 fixture；C 仅同步类型/调试展示；D 文档 | 在 battle state 中加入 damage assignment phase，服务端下发 damage pool、targets、constraints、defaultAssignment |
+| P0-S2-005 `PAY_COST` / payment windows | `CORE-260330` rules 131, 135.2.e, 162-167, 356-357, 377, 403-405, 414, 416；`JFAQ-251023` q2.5；`SOUL-OFAQ-260114` p1-p4, p19-p21 | `PaymentCostRules`、typed `RunePool`、代表性 `COST_PAID` 包络和部分支付资源动作已有；`PAY_COST` command/schema skeleton 与 `INVALID_PAYLOAD` 已补；runtime prompt、`DECLINE_PAY_COST`、pending payment state、Quote/Authorize/Commit 仍缺 | B 主实现；E 支付/拒付/替代费用 fixture；C 仅同步类型/调试展示；D 文档 | 建立 `PaymentPlan/paymentPlanId/paymentWindow`，先覆盖触发技能费用拒付和出牌支付资源动作 |
+| P0-S2-006 `ORDER_TRIGGERS` | `CORE-260330` rules 333-340, 383.3.d-383.3.e；`JFAQ-251023` q2.2-q2.3, q2.5 | `TRIGGER_QUEUED` / `TRIGGER_RESOLVED` 和部分 triggerQueue view 已有；`ORDER_TRIGGERS` command/schema skeleton 与 `INVALID_PAYLOAD` 已补；runtime prompt、trigger batch ordering 状态机、可选触发选择仍缺 | B 主实现；E 同时触发/战斗初始触发 fixture；C 仅同步类型/调试展示；D 文档 | 建立 `TriggerInstance` 与 trigger batch，按控制者/回合顺序发 `ORDER_TRIGGERS` 后再入结算链 |
+
+阶段 2 superseded 口径：
+
+- 0/负战力与具体战场大小写：已由阶段 1 修复和 A 验收替代，保留为防回归，不再列为未清零 P0。
+- replay/final hash：历史“仍缺严格 action-log replay final-state 校验”已被当前 P1-004 状态替代；当前代表性 verifier、恢复前审计和 Postgres smoke 已有，剩余是全命令/全恢复/全随机 property 覆盖不足。
+- 复杂 prompt：历史“完全没有复杂 prompt 入口”已被阶段 1 `PromptView`/降级展示替代；历史“`PAY_COST`、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS` 完全没有 command/schema 或 malformed payload 拒绝语义”已被阶段 2 B 契约骨架替代；三者 runtime prompt 与状态机仍是 P0。
+
 ## 2026-05-09 开发进度更新
 
 - E 证据审计第一轮 P0 补录：已把 `SOUL-OFAQ-260114` p19-p20 的 0/负战力 FAQ 语义落到 `docs/rules-evidence-index.md`。官方口径为：单位战力可以为 0 或负数；不因 `Power <= 0` 自动被摧毁；需要至少 1 点有效伤害后才会在清理中被摧毁；负战力在战斗伤害输出/分配计算中按 0 处理，但对象实际战力保留。同步记录 `dda6385` 基线/历史服务端冲突点：`MatchSession` / `CoreRuleEngine` 中曾有 `DESTROY_ZERO_POWER_UNIT`、`ZERO_POWER` 与 `IsZeroPowerCleanupCandidate(Power <= 0)` 风险，不能再作为官方已完成证据。另记录 `dda6385` 具体战场移动大小写风险：移动 destination 规范化曾对整个 `BATTLEFIELD:<objectId>` 使用 `ToUpperInvariant()`，而官方快照存在 `OGN·276a/298`、`OGN·278a/298`、`OGN·293a/298`。结论保持 **NOT READY**。
@@ -1449,7 +1472,7 @@
 | 连续效果层 | RISKY | 已有 `ContinuousEffectState`、`basePower`、`effectivePower` 视图；仍缺完整 LayerEngine/timestamp/dependency 重算。 |
 | 关键词 | RISKY | 已有 `KeywordCoverageReporter` 暴露 implemented/delegated/deferred 边界；多个关键词族仍需真实执行矩阵。 |
 | 全卡牌效果 | RISKY | BehaviorSpec 已降义为 representative-rule-pass 且 full-official-rule-pass=0；仍需逐卡提升证据。 |
-| 日志/replay/观战 | RISKY | 有 journal/recovery、普通 snapshot 随机裁剪、spectator replay redaction 与 authoritative state hash；仍缺严格 action-log replay final-state 校验。 |
+| 日志/replay/观战 | RISKY | 有 journal/recovery、普通 snapshot 随机裁剪、spectator replay redaction、authoritative state hash、给定初始状态的 action-log final hash verifier、恢复前审计与 Postgres smoke；历史“仍缺严格 action-log replay final-state 校验”口径已 superseded，剩余风险是全命令、全恢复、全随机路径 determinism/property 覆盖不足。 |
 
 ## 建议下一步开发顺序
 

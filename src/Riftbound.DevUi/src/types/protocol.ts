@@ -76,6 +76,18 @@ export type PromptViewDto = {
   metadata?: Record<string, unknown> | null;
 };
 
+export type ActionPromptContractDto = {
+  promptKind: string;
+  candidateAction: string;
+  requiredPayload: string[];
+  legalChoices: string[];
+  validationErrors: string[];
+  visibleMetadata: string[];
+  hiddenMetadata: string[];
+};
+
+export type ActionPromptContracts = Record<string, ActionPromptContractDto>;
+
 export type ActionPromptDto = {
   playerId: string;
   actionable: boolean;
@@ -169,6 +181,12 @@ type PromptStampedCommand = {
   snapshotTick?: number | null;
 };
 
+export type CombatDamageAssignmentDto = {
+  sourceObjectId: string;
+  targetObjectId: string;
+  damage: number;
+};
+
 export type GameCommand = PromptStampedCommand & (
   | SubmitDeckCommand
   | { cmdType: "MULLIGAN"; handObjectIds: string[] }
@@ -187,4 +205,7 @@ export type GameCommand = PromptStampedCommand & (
   | { cmdType: "DECLARE_BATTLE"; battlefieldId?: string; attackerObjectIds?: string[]; defenderObjectIds?: string[]; battlefieldTargetObjectIds?: string[]; optionalCosts?: string[] }
   | { cmdType: "ACTIVATE_ABILITY"; sourceObjectId: string; abilityId: string; targetObjectIds: string[]; optionalCosts?: string[] }
   | { cmdType: "LEGEND_ACT"; sourceObjectId: string; abilityId: string; targetObjectIds: string[]; optionalCosts?: string[] }
+  | { cmdType: "PAY_COST"; paymentId?: string; paymentWindow?: string; paymentChoiceIds?: string[] | null }
+  | { cmdType: "ASSIGN_COMBAT_DAMAGE"; battleId?: string; battlefieldId?: string; assignments?: CombatDamageAssignmentDto[] | null }
+  | { cmdType: "ORDER_TRIGGERS"; triggerIds?: string[] | null }
 );

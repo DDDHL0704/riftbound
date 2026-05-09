@@ -8,6 +8,7 @@ import { BattlefieldArea } from "../components/match/BattlefieldArea";
 import { EventLog } from "../components/match/EventLog";
 import { MatchTopBar } from "../components/match/MatchTopBar";
 import { PlayerBoard } from "../components/match/PlayerBoard";
+import { SnapshotDebugPanel } from "../components/match/SnapshotDebugPanel";
 import { StackPanel } from "../components/match/StackPanel";
 import { Button } from "../components/ui/Button";
 import { useCatalog } from "../stores/catalogStore";
@@ -57,6 +58,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         </main>
         <aside className="right-rail">
           <StackPanel snapshot={snapshot} />
+          <SnapshotDebugPanel prompt={controller.state.prompt} snapshot={snapshot} />
           <ActionPanel
             connectionStatus={controller.state.status}
             onCommand={(command) => void controller.submitCommand(command)}

@@ -685,14 +685,33 @@ button.card-face:hover {
   margin-top: 8px;
 }
 
+.generic-prompt-heading,
+.snapshot-debug-panel header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .generic-prompt-details > strong,
+.generic-prompt-heading > strong,
 .generic-prompt-metadata > strong {
   color: var(--text-primary);
   font-size: 0.86rem;
 }
 
+.generic-prompt-note,
+.snapshot-debug-note {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
 .generic-prompt-option,
-.generic-prompt-metadata {
+.generic-prompt-metadata,
+.snapshot-debug-section,
+.snapshot-player-row {
   display: grid;
   gap: 4px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -705,9 +724,46 @@ button.card-face:hover {
 }
 
 .generic-prompt-option small,
-.generic-prompt-metadata span {
+.generic-prompt-metadata span,
+.snapshot-debug-section span,
+.snapshot-player-row span {
   color: var(--text-secondary);
   font-size: 0.78rem;
+}
+
+.snapshot-debug-panel {
+  gap: 10px;
+}
+
+.snapshot-debug-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.snapshot-debug-metric {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 7px;
+}
+
+.snapshot-debug-metric span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+}
+
+.snapshot-debug-metric strong,
+.snapshot-debug-section strong,
+.snapshot-player-row strong {
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
 }
 
 .mulligan-selector {
