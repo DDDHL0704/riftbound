@@ -3812,6 +3812,20 @@ public sealed class CoreRuleEngine : IRuleEngine
             ?? removalResult.OwnerPlayerId;
     }
 
+    private static string? ResolveVisibleWatchfulSentinelCleanupLastBreathDrawPlayerId(
+        CardObjectState destroyedState,
+        FieldRemovalResult removalResult)
+    {
+        if (destroyedState.IsFaceDown
+            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+        {
+            return null;
+        }
+
+        return ResolveWatchfulSentinelLastBreathDrawPlayerId(destroyedState, removalResult);
+    }
+
     private static string? ResolveScoutingWarhawkLastBreathRunePlayerId(
         CardObjectState destroyedState,
         FieldRemovalResult removalResult)
@@ -15677,6 +15691,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                     objectLocations: objectLocations);
                 resolvedRunePools = postStackCleanup.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
                 postStackCleanupEvents = postStackCleanup.Events.ToArray();
+                queuedTriggers = queuedTriggers
+                    .Concat(postStackCleanup.TriggerQueue)
+                    .Where(trigger => !string.IsNullOrWhiteSpace(trigger.TriggerId))
+                    .ToArray();
                 resolvedDestroyedUnitOwnerIds = stackResolution.DestroyedUnitOwnerIds
                     .Concat(postStackCleanup.DestroyedUnitOwnerIds)
                     .Where(ownerId => !string.IsNullOrWhiteSpace(ownerId))
@@ -15757,8 +15775,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["effectKind"] = resolvedItem.EffectKind
                 }));
             events.AddRange(stackResolution.Events);
-            events.AddRange(triggerHandoffEvents);
             events.AddRange(postStackCleanupEvents);
+            events.AddRange(triggerHandoffEvents);
         }
         else
         {
@@ -22876,6 +22894,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         destroyedObjectIds.AddRange(lethalCleanup.DestroyedObjectIds
             .Where(objectId => stackItem.TargetObjectIds.Contains(objectId, StringComparer.Ordinal)));
         destroyedUnitOwnerIds.AddRange(lethalCleanup.DestroyedUnitOwnerIds);
+        officialLastBreathTriggers.AddRange(lethalCleanup.TriggerQueue);
 
         var drawCount = drawCountOverride ?? ResolveDrawCount(playerZones, cardObjects, stackItem.ControllerId, behavior);
         if (ShouldDrawForBehavior(behavior, stackItem, destroyedObjectIds, drawCount))
@@ -26650,6 +26669,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var events = new List<GameEvent>();
         var destroyedObjectIds = new List<string>();
         var destroyedUnitOwnerIds = new List<string>();
+        var triggerQueue = new List<TriggerQueueItemState>();
         var nextRunePools = runePools;
         var firstPassDamageTriggeredDestroyTargetObjectIds =
             damageTriggeredDestroyTargetObjectIds ?? new HashSet<string>(StringComparer.Ordinal);
@@ -26673,6 +26693,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 : ApplyUnattachedEquipmentCleanup(playerZones, cardObjects, objectLocations);
             if (cleanup.Events.Count == 0
                 && cleanup.DestroyedObjectIds.Count == 0
+                && cleanup.TriggerQueue.Count == 0
                 && illegalStandbyCleanup.Events.Count == 0
                 && illegalStandbyCleanup.RemovedObjectIds.Count == 0
                 && unattachedEquipmentCleanup.Events.Count == 0
@@ -26686,6 +26707,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             events.AddRange(unattachedEquipmentCleanup.Events);
             destroyedObjectIds.AddRange(cleanup.DestroyedObjectIds);
             destroyedUnitOwnerIds.AddRange(cleanup.DestroyedUnitOwnerIds);
+            triggerQueue.AddRange(cleanup.TriggerQueue);
             nextRunePools = cleanup.RunePools;
         }
 
@@ -26700,7 +26722,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
                 .ToArray(),
-            nextRunePools);
+            nextRunePools,
+            triggerQueue
+                .GroupBy(trigger => trigger.TriggerId, StringComparer.Ordinal)
+                .Select(group => group.First())
+                .ToArray());
     }
 
     private static IllegalStandbyCleanupResult ApplyIllegalStandbyCleanup(
@@ -26957,6 +26983,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var events = new List<GameEvent>();
         var destroyedObjectIds = new List<string>();
         var destroyedUnitOwnerIds = new List<string>();
+        var triggerQueue = new List<TriggerQueueItemState>();
         var nextRunePools = runePools;
         var stateBasedRemovalObjectIds = cardObjects
             .Where(entry => (IsZeroOrNegativePowerDamagedCleanupCandidate(entry.Value)
@@ -27006,6 +27033,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
+            if (!cardObjects.TryGetValue(objectId, out var destroyedState))
+            {
+                continue;
+            }
+
             if (!TryDestroyTarget(playerZones, cardObjects, objectId, out var removalResult))
             {
                 continue;
@@ -27032,13 +27064,28 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
             }
+
+            var watchfulSentinelControllerId = ResolveVisibleWatchfulSentinelCleanupLastBreathDrawPlayerId(
+                destroyedState,
+                removalResult);
+            if (watchfulSentinelControllerId is not null)
+            {
+                var trigger = BuildLastBreathTriggerQueueItem(
+                    stackItem,
+                    objectId,
+                    watchfulSentinelControllerId,
+                    WatchfulSentinelLastBreathDrawEffectKind);
+                events.Add(BuildTriggerQueuedEvent(trigger));
+                triggerQueue.Add(trigger);
+            }
         }
 
         return new LethalDamageCleanupResult(
             events,
             destroyedObjectIds,
             destroyedUnitOwnerIds,
-            nextRunePools ?? new Dictionary<string, RunePool>(StringComparer.Ordinal));
+            nextRunePools ?? new Dictionary<string, RunePool>(StringComparer.Ordinal),
+            triggerQueue);
     }
 
     private static bool HasOwnerOrControllerIdentity(CardObjectState cardObject)
@@ -28631,7 +28678,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<GameEvent> Events,
         IReadOnlyList<string> DestroyedObjectIds,
         IReadOnlyList<string> DestroyedUnitOwnerIds,
-        IReadOnlyDictionary<string, RunePool> RunePools);
+        IReadOnlyDictionary<string, RunePool> RunePools,
+        IReadOnlyList<TriggerQueueItemState> TriggerQueue);
 
     private sealed record IllegalStandbyCleanupResult(
         IReadOnlyList<GameEvent> Events,
@@ -28655,7 +28703,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<GameEvent> Events,
         IReadOnlyList<string> DestroyedObjectIds,
         IReadOnlyList<string> DestroyedUnitOwnerIds,
-        IReadOnlyDictionary<string, RunePool> RunePools);
+        IReadOnlyDictionary<string, RunePool> RunePools,
+        IReadOnlyList<TriggerQueueItemState> TriggerQueue);
 
     private sealed record TemporaryControlReturnResult(
         IReadOnlyDictionary<string, PlayerZones> PlayerZones,

@@ -1119,6 +1119,47 @@ A 主控复验：
 
 4C-4 结论：**通过**。没有新增 P0/P1，没有前端本地规则裁决路径，没有发现 hidden information 泄漏；允许继续阶段 4C 下一批。下一批建议优先 state-based cleanup trigger enqueue 或继续扩展 triggered-cost payment windows，但仍必须逐 FU、逐测试推进。项目整体仍 **NOT READY**。
 
+## 0.15 阶段 4C-5 State-Based Cleanup Trigger Enqueue 小批
+
+阶段 4C-5 进入 state-based cleanup -> trigger enqueue 的最小真实卡牌切片。本批只把可见、非 face-down、非 standby 的 `OGN·096/298`《警觉的哨兵》接入 state-based cleanup `LETHAL_DAMAGE` 触发入队代表路径，不宣称完整 trigger engine、不进入 1009 full-official 覆盖。项目整体仍 **NOT READY**。
+
+4C-5 服务端改动：
+
+- `OGN·029/298`《星落》造成致命伤害后，state-based cleanup `LETHAL_DAMAGE` 可摧毁两名可见 Watchful Sentinel。
+- 两名 Watchful Sentinel 的绝念抽牌触发串成 `TRIGGER_QUEUED` -> `ORDER_TRIGGERS` -> `StackItems` -> priority pass -> `TRIGGER_RESOLVED` / `CARD_DRAWN`。
+- hidden / standby Watchful Sentinel 不入队，避免 trigger metadata 泄漏不可见或待命来源。
+- 本批不扩完整 trigger engine，不授予 full-official，不覆盖其他 destroyed / last-breath / friendly-destroyed functional units。
+
+4C-5 文档改动：
+
+- 新增 `docs/CURRENT_STAGE4C_BATCH5_STATE_CLEANUP_TRIGGER_AUDIT.md`。
+- 更新 `docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/rules-evidence-index.md` 与本 checkpoint。
+- 本批 D 未修改服务端、前端、覆盖矩阵 JSON、coverage baseline、risk top20、stage4B freeze 或 `riftbound-dotnet.sln`。
+
+4C-5 A 复核命令：
+
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~RealTriggerQueueTests"`：通过，4/4。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：通过，3346/3346。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：通过；只有既有 SignalR / Rollup `PURE` 注释警告。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：通过。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && node scripts/stage3-preflight.mjs --start-api`：通过。
+- `git diff --check -- src/Riftbound.Engine/CoreRuleEngine.cs tests/Riftbound.ConformanceTests/RealTriggerQueueTests.cs`：通过。
+
+4C-5 关闭的 P0 子项：
+
+- state-based cleanup `LETHAL_DAMAGE` -> visible Watchful Sentinel last-breath enqueue representative。
+- hidden / standby Watchful Sentinel 不入队的 metadata 泄漏护栏。
+
+4C-5 仍保留 P0/P1：
+
+- 完整 trigger engine。
+- 其他 destroyed / last-breath / friendly-destroyed functional units。
+- 隐藏 / face-down 原始触发建模。
+- 完整 effect resolution、FAQ regression。
+- 1009 entries / 811 functional units full-official 覆盖、正式 18 步 E2E、completion audit 仍未完成。
+
+4C-5 结论：**通过**。没有新增 P0/P1，没有前端本地规则裁决路径，没有把 hidden / standby Watchful 误入队；允许继续阶段 4C 下一批。下一批建议继续扩展其他 destroyed-family 或 hidden / face-down trigger policy，但仍必须逐 FU、逐测试推进。项目整体仍 **NOT READY**。
+
 ## 1. 总目标
 
 以当前仓库五份官方规则 / FAQ PDF 与 `data/official/card-catalog.zh-CN.json` 的 2026-04-27 官网卡牌快照为准，完成本地双人 1v1 标准构筑产品级 Web 游戏基线：

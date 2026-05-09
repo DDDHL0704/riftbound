@@ -72,7 +72,7 @@
 
 本节只给阶段 3 smoke / E2E / 服务端阻断关闭提供证据入口，不代表流程已经 READY。具体当前状态见 `docs/CURRENT_STAGE3_CORE_FLOW_AUDIT.md`。
 
-阶段 3A 已完成 smoke 基线、复杂命令强类型映射、`PAY_COST` 最小 runtime 和前端外壳安全接线，详见 `docs/CURRENT_STAGE3A_PLAN.md`。阶段 3B/3C/3D 后续已分别补 battlefield / cleanup、battle / damage、`ORDER_TRIGGERS` 最小 window；阶段 4C-1 补 `ORDER_TRIGGERS` 保守 APNAP controller-block 子集，阶段 4C-2 补 Watchful Sentinel 真实多触发入队代表路径，阶段 4C-3 补 Honest Broker 遗言金币真实入队代表路径，阶段 4C-4 补 Treasure Pile 触发支付 / 拒付代表路径。完整 18 步 E2E、1009 全量、完整 battle/damage/order/runtime、完整 PaymentEngine、完整触发引擎与完整 battlefield lifecycle 仍不代表 READY。
+阶段 3A 已完成 smoke 基线、复杂命令强类型映射、`PAY_COST` 最小 runtime 和前端外壳安全接线，详见 `docs/CURRENT_STAGE3A_PLAN.md`。阶段 3B/3C/3D 后续已分别补 battlefield / cleanup、battle / damage、`ORDER_TRIGGERS` 最小 window；阶段 4C-1 补 `ORDER_TRIGGERS` 保守 APNAP controller-block 子集，阶段 4C-2 补 Watchful Sentinel 真实多触发入队代表路径，阶段 4C-3 补 Honest Broker 遗言金币真实入队代表路径，阶段 4C-4 补 Treasure Pile 触发支付 / 拒付代表路径，阶段 4C-5 补 state-based cleanup -> visible Watchful last-breath enqueue 代表路径。完整 18 步 E2E、1009 全量、完整 battle/damage/order/runtime、完整 PaymentEngine、完整触发引擎与完整 battlefield lifecycle 仍不代表 READY。
 
 | 阶段 3 流程 | 证据入口 | 必须证明的审计点 |
 |---|---|---|
@@ -130,6 +130,17 @@
 | Trigger payment / decline | `CATALOG` SFD·220/221；`CORE-260330` p52-p55 rules 377, 403-405；`JFAQ-251023` p2-p4 q2.5 | 4C-4 已覆盖 Treasure Pile 征服触发进入 `TRIGGER_PAYMENT`，玩家可 `PAY_COST(SPEND_MANA:1)` 或 `PAY_COST(DECLINE)` | 其他 triggered-cost FUs、完整 PaymentEngine、触发费用与 stack item 的通用语义 |
 | Payment validation no mutation | `CORE-260330` p39-p42 rules 356-357；p52-p55 rules 403-405 | wrong player / stale prompt / unknown choice / duplicate choice / pay+decline / malformed / insufficient 都拒绝且不突变权威状态 | 替代/额外费用、减费/增费、来源选择、更多非出牌支付窗口 |
 | Frontend authority | 阶段 4 服务端权威原则；`EventLog` label coverage | 前端只补 `PAYMENT_WINDOW_OPENED` / `TRIGGER_PAYMENT_DECLINED` 中文 label，不计算支付或触发结果 | 产品级 trigger payment UX 和更多 fixture |
+
+### 6.5 阶段 4C-5 state-based cleanup trigger enqueue 证据入口
+
+阶段 4C-5 细化审计见 `docs/CURRENT_STAGE4C_BATCH5_STATE_CLEANUP_TRIGGER_AUDIT.md`。本节只提供证据索引，不表示项目 READY。
+
+| 规则域 | 证据入口 | 当前 4C-5 状态 | 仍缺 |
+|---|---|---|---|
+| State-based cleanup lethal destroy | `CORE-260330` p31-p33 rules 318-324；`CORE-260330` p14-p15 rules 142-143；`CORE-260330` p77 rule 460；`SOUL-OFAQ-260114` p19-p20 | 4C-5 已覆盖 `OGN·029/298`《星落》造成致命伤害后，cleanup `LETHAL_DAMAGE` 摧毁两名可见 Watchful Sentinel | 替代 / 预防、repeat-until-stable、其他 cleanup 来源和更多 destroyed-family |
+| Visible Watchful last-breath enqueue | `CATALOG` OGN·096/298；`CORE-260330` p52-p55 rules 383.3.d-383.3.e；`JFAQ-251023` p2-p4 q2.2-q2.3 | 两名可见、非 face-down、非 standby Watchful Sentinel 被 state-based cleanup 摧毁后进入 `TriggerQueue`、`ORDER_TRIGGERS`、`StackItems` 并抽牌 | 其他 last-breath / friendly-destroyed FUs 与完整 trigger engine |
+| Hidden / standby source redaction | `CORE-260330` p4-p8 rules 107-129；更精确 FAQ 页码 TODO | hidden / standby Watchful Sentinel 不入队，避免 prompt metadata 泄漏不可见来源 | face-down 原始触发建模、显露窗口、viewer 级 trigger metadata 全路径 |
+| Starfall representative source | `CATALOG` OGN·029/298；`CORE-260330` p14-p15 rules 142-143；`CORE-260330` p39-p42 rules 355-356 | Starfall 只作为本批致命伤害和 cleanup 入口代表，不表示全部伤害 / 清理 / 触发组合完成 | FAQ regression 与更多法术 / 技能 / 战斗伤害来源 |
 
 ## 7. 当前 Fixture 审查映射
 
@@ -1555,10 +1566,10 @@
 
 开发影响：
 - `TRIGGER_QUEUED` / `TRIGGER_RESOLVED` 事件不能替代 `ORDER_TRIGGERS` prompt。
-- 阶段 3D 已补最小 `ORDER_TRIGGERS` runtime / UI / evidence；阶段 4C-1 已补保守 APNAP controller-block 子集、top-first 默认顺序、跨控制者不可重排拒绝且 no mutation、battle initial stack 代表路径和 face-down standby source 脱敏；阶段 4C-2 已补 Watchful Sentinel 多触发真实 `UNIT_DESTROYED` -> `TriggerQueue` -> `ORDER_TRIGGERS` -> `StackItems` -> priority -> draw 代表路径；阶段 4C-3 已补 Honest Broker 遗言金币真实 `UNIT_DESTROYED` -> `TriggerQueue` -> `ORDER_TRIGGERS` -> `StackItems` -> priority -> `EQUIPMENT_TOKEN_CREATED` 代表路径；阶段 4C-4 已补 Treasure Pile 触发支付 / 拒付代表路径。
+- 阶段 3D 已补最小 `ORDER_TRIGGERS` runtime / UI / evidence；阶段 4C-1 已补保守 APNAP controller-block 子集、top-first 默认顺序、跨控制者不可重排拒绝且 no mutation、battle initial stack 代表路径和 face-down standby source 脱敏；阶段 4C-2 已补 Watchful Sentinel 多触发真实 `UNIT_DESTROYED` -> `TriggerQueue` -> `ORDER_TRIGGERS` -> `StackItems` -> priority -> draw 代表路径；阶段 4C-3 已补 Honest Broker 遗言金币真实 `UNIT_DESTROYED` -> `TriggerQueue` -> `ORDER_TRIGGERS` -> `StackItems` -> priority -> `EQUIPMENT_TOKEN_CREATED` 代表路径；阶段 4C-4 已补 Treasure Pile 触发支付 / 拒付代表路径；阶段 4C-5 已补 state-based cleanup `LETHAL_DAMAGE` -> visible Watchful Sentinel last-breath enqueue 代表路径。
 - 单触发 Watchful Sentinel / Honest Broker 仍保留即时结算兼容，本索引不把它外推为统一单触发策略。
-- 仍需要完整 `TriggerInstance`、trigger batch、可选触发选择、其他 destroyed-family、state-based cleanup 触发入队、完整 effect resolution、战斗初始结算链全官方特殊排序和触发费用 / 拒付 / PaymentEngine 衔接。
-- 因此 4C-4 只关闭 P0 子项，完整 `ORDER_TRIGGERS` / trigger engine / PaymentEngine 规则域仍为 P0，项目仍 **NOT READY**。
+- 仍需要完整 `TriggerInstance`、trigger batch、可选触发选择、其他 destroyed / last-breath / friendly-destroyed FUs、隐藏 / face-down 原始触发建模、完整 effect resolution、战斗初始结算链全官方特殊排序和触发费用 / 拒付 / PaymentEngine 衔接。
+- 因此 4C-5 只关闭 P0 子项，完整 `ORDER_TRIGGERS` / trigger engine / PaymentEngine 规则域仍为 P0，项目仍 **NOT READY**。
 
 ## 7. 索引维护规则
 
