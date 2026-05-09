@@ -771,7 +771,18 @@ A 主控复验：
 
 ## 0.8 阶段 3D 第三阶段收口审计
 
-阶段 3D 按用户确认范围执行：D 只做文档 / 规则证据 / 第三阶段收口审计；B/C/E 已并行完成 `ORDER_TRIGGERS` 最小 runtime / UI / evidence。阶段 3D 不启动最终验收版 18 步 E2E，不进入 1009 张卡 full-official 实现，不提交 git，结论仍为 **NOT READY**。
+阶段 3D 按用户确认范围执行：D 只做文档 / 规则证据 / 第三阶段收口审计；B/C/E 已并行完成 `ORDER_TRIGGERS` 最小 runtime / UI / evidence。阶段 3D 不启动最终验收版 18 步 E2E，不进入 1009 张卡 full-official 实现，结论仍为 **NOT READY**。
+
+阶段 3D checkpoint 保护：
+
+- 已创建 commit：`698c4ae7545b60c383e974e796eb8e2b06835a64 checkpoint: complete stage 3 core flow baseline`
+- commit 后工作树状态：仅剩未跟踪本地文件 `riftbound-dotnet.sln`，该文件不属于交付，未纳入 commit。
+- commit 后后端测试：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过，3333/3333。
+- commit 后前端 build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过；仅保留 SignalR / Rollup `PURE` 注释提示。
+- commit 后 Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过，覆盖 `/`、`/lobby`、`/decks`、`/cards`、`/rooms/stage3-smoke`、`/matches/stage3-smoke`、`/matches/stage3-smoke/result`。
+- 第三阶段结论：**DONE**。
+- 项目整体结论：仍为 **NOT READY**。
+- 下一阶段建议：阶段 4 大任务，即全量卡牌效果覆盖 + FAQ 回归 + 正式 18 步 E2E + 最终审计。
 
 本阶段核心产物：
 
@@ -832,6 +843,34 @@ A 主控复验：
 - `src/Riftbound.DevUi/src/types/protocol.ts`
 - `src/Riftbound.DevUi/src/utils/formatters.ts`
 - 明确排除：`riftbound-dotnet.sln`。
+
+## 0.9 阶段 4 / 4A 第三阶段基线复核
+
+阶段 4 主控任务已固化到 `docs/CURRENT_STAGE4_MASTER_PLAN.md`。阶段 4 范围是全量卡牌效果覆盖 + FAQ 回归 + 正式 18 步 E2E + 最终审计；当前仍 **NOT READY**，不得自动 `update_goal complete`，不得自动标记最终 READY。
+
+4A 复核范围：
+
+- 复核阶段 3D checkpoint commit。
+- 复核后端 full test、前端 build、Chrome smoke。
+- 复核 `PAY_COST` / `ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` 三类复杂 prompt 仍工作。
+- 复核 battlefield / standby / control / conquer / cleanup / battle / damage 基线仍工作。
+- 复核隐藏信息不泄漏。
+- 更新本 checkpoint。
+
+4A 复核结果：
+
+- 3D checkpoint commit：`698c4ae7545b60c383e974e796eb8e2b06835a64 checkpoint: complete stage 3 core flow baseline` 已存在于 `main`。
+- 4A 前工作树：仅有 `docs/CURRENT_A_MASTER_CHECKPOINT.md` 的 3D post-commit 记录和未跟踪本地 `riftbound-dotnet.sln`；后续新增本阶段计划文档 `docs/CURRENT_STAGE4_MASTER_PLAN.md`。`riftbound-dotnet.sln` 继续不提交。
+- 后端 full test：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过，3333/3333。
+- 前端 build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过；仅保留 SignalR / Rollup `PURE` 注释提示。
+- Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过，覆盖 `/`、`/lobby`、`/decks`、`/cards`、`/rooms/stage3-smoke`、`/matches/stage3-smoke`、`/matches/stage3-smoke/result`。
+- Stage 3 preflight 复核：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && node scripts/stage3-preflight.mjs --start-api` 通过；日志在脚本成功后出现 API 关停期间的 SignalR / Npgsql cancellation 记录，不作为阻断。
+- 复杂 prompt 证据：`tests/Riftbound.ConformanceTests/ConformanceFixtureShapeTests.cs` 仍覆盖 `PayCostPromptExposesPendingPaymentWindow`、`AssignCombatDamagePromptExposesRuntimeMetadataAndHidesOpponentStandby`、`OrderTriggersPromptExposesRuntimeMetadata`、`TRIGGERS_ORDERED` / `TRIGGERS_MOVED_TO_STACK`，并由 full test 覆盖。
+- 核心生命周期证据：同一测试文件仍覆盖 standby visibility、illegal standby cleanup、unattached equipment cleanup、pending cleanup task、battle / spell duel / damage assignment 代表链。
+- 隐藏信息证据：服务端测试仍覆盖 face-down standby redaction、`handHidden` 计数、random seed / cursor redaction；Chrome smoke 和 stage3 preflight 继续断言 debug 页面不出现 `mainDeck`、`runeDeck`、`handHidden`、`damageLedger`、`triggerQueue` 等 raw hidden 字段。
+- 前端权威性复核：`ActionPanel` 仍只根据服务端 `prompt.view` / `candidate.action` 渲染复杂 prompt，并提交服务端声明的 command；未发现前端自行裁决支付、伤害分配、触发排序、战场控制、战斗结果、法术对决结果、得分或胜负。
+
+4A 结论：**通过**。没有新增 P0/P1；允许进入 4B 卡牌覆盖矩阵冻结。项目整体仍 **NOT READY**。
 
 ## 1. 总目标
 
