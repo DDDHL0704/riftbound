@@ -1201,6 +1201,54 @@ A 主控复验：
 
 4C-6 结论：**通过**。没有新增 P0/P1，没有协议或前端改动，没有把 hidden / standby Honest Broker 误入队或误创建 token；允许继续阶段 4C 下一批。下一批建议继续扩展其他 destroyed-family 或 hidden / face-down trigger policy，但仍必须逐 FU、逐测试推进。项目整体仍 **NOT READY**。
 
+## 0.17 阶段 4C-7 Scouting Warhawk Explicit Destroy Trigger Enqueue 小批
+
+阶段 4C-7 继续按 functional unit / engine blocker 小批推进。本批只把 `Scouting Warhawk` / `OGN·216/298` / `FU-0500c77a70` 的 explicit destroy last-breath 召符文代表路径接入服务端权威触发队列；支撑摧毁来源为 `Spirit Fire` / `OGN·256/298`，不是 state cleanup。项目整体仍 **NOT READY**。
+
+4C-7 服务端改动：
+
+- explicit destroy `UNIT_DESTROYED` 可识别可见 Scouting Warhawk 的 `SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1`。
+- 官方化路径串成：explicit destroy `UNIT_DESTROYED` -> visible Scouting Warhawk trigger -> `TriggerQueue` -> `ORDER_TRIGGERS` -> `StackItems` -> priority pass -> `TRIGGER_RESOLVED` / `RUNES_CALLED`。
+- hidden / face-down / standby Warhawk 不入队、不显示 prompt metadata、不触发 `RUNES_CALLED`。
+- single-trigger compatibility 保留，既有 `P79ScoutingWarhawk` 测试继续通过。
+- 本批没有协议或前端字段变化，不进入 1009 full-official，不宣称完整 trigger engine。
+
+4C-7 文档改动：
+
+- 新增 `docs/CURRENT_STAGE4C_BATCH7_SCOUTING_WARHAWK_TRIGGER_AUDIT.md`。
+- 新增 `docs/CURRENT_STAGE4C_BATCH7_SCOUTING_WARHAWK_TRIGGER_EVIDENCE.md`。
+- 更新 `docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/rules-evidence-index.md` 与本 checkpoint。
+- 更新 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`、`docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`、`docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`，记录 `FU-0500c77a70` 的 `stage4C7` overlay。
+- 矩阵口径保持 1009 snapshot entries / 811 functional units；`stage4C7` tagged FUs = 1；`fullOfficialUpgrades = 0`。
+- 本批没有服务端协议或前端改动，不触碰 `riftbound-dotnet.sln`。
+
+4C-7 A 复核命令：
+
+- focused：通过，9/9。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：通过，3350/3350。
+- frontend build：passed。
+- Chrome smoke：passed。
+- Stage 3 preflight：passed。
+- `git diff --check`：passed。
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`：passed。
+- 矩阵结构断言：1009 / 811 不变，`stage4C7` 仅 `FU-0500c77a70`，Warhawk `fullOfficial=false`，`fullOfficialUpgrades=0`。
+
+4C-7 关闭的 P0 子项：
+
+- Scouting Warhawk explicit destroy real trigger enqueue representative。
+- hidden / face-down / standby Warhawk 不入队、不显示 prompt metadata、不触发 `RUNES_CALLED` 的信息泄漏护栏。
+
+4C-7 仍保留 P0/P1：
+
+- 完整 trigger engine。
+- state cleanup Warhawk。
+- 其他 last-breath / destroyed / friendly-destroyed functional units。
+- hidden / face-down 原始触发建模。
+- FAQ regression。
+- 1009 entries / 811 functional units full-official 覆盖、正式 18-step E2E、completion audit 仍未完成。
+
+4C-7 结论：**通过**。没有新增 P0/P1，没有协议或前端字段变化，没有把 hidden / face-down / standby Warhawk 误入队或误触发 `RUNES_CALLED`；允许继续阶段 4C 下一批。阶段 4C 仍在逐 FU、逐测试批量推进；项目整体仍 **NOT READY**。
+
 ## 1. 总目标
 
 以当前仓库五份官方规则 / FAQ PDF 与 `data/official/card-catalog.zh-CN.json` 的 2026-04-27 官网卡牌快照为准，完成本地双人 1v1 标准构筑产品级 Web 游戏基线：

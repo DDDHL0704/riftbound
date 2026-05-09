@@ -72,7 +72,7 @@
 
 本节只给阶段 3 smoke / E2E / 服务端阻断关闭提供证据入口，不代表流程已经 READY。具体当前状态见 `docs/CURRENT_STAGE3_CORE_FLOW_AUDIT.md`。
 
-阶段 3A 已完成 smoke 基线、复杂命令强类型映射、`PAY_COST` 最小 runtime 和前端外壳安全接线，详见 `docs/CURRENT_STAGE3A_PLAN.md`。阶段 3B/3C/3D 后续已分别补 battlefield / cleanup、battle / damage、`ORDER_TRIGGERS` 最小 window；阶段 4C-1 补 `ORDER_TRIGGERS` 保守 APNAP controller-block 子集，阶段 4C-2 补 Watchful Sentinel 真实多触发入队代表路径，阶段 4C-3 补 Honest Broker 遗言金币真实入队代表路径，阶段 4C-4 补 Treasure Pile 触发支付 / 拒付代表路径，阶段 4C-5 补 state-based cleanup -> visible Watchful last-breath enqueue 代表路径，阶段 4C-6 补 state-based cleanup -> visible Honest Broker last-breath enqueue 代表路径。完整 18 步 E2E、1009 全量、完整 battle/damage/order/runtime、完整 PaymentEngine、完整触发引擎与完整 battlefield lifecycle 仍不代表 READY。
+阶段 3A 已完成 smoke 基线、复杂命令强类型映射、`PAY_COST` 最小 runtime 和前端外壳安全接线，详见 `docs/CURRENT_STAGE3A_PLAN.md`。阶段 3B/3C/3D 后续已分别补 battlefield / cleanup、battle / damage、`ORDER_TRIGGERS` 最小 window；阶段 4C-1 补 `ORDER_TRIGGERS` 保守 APNAP controller-block 子集，阶段 4C-2 补 Watchful Sentinel 真实多触发入队代表路径，阶段 4C-3 补 Honest Broker 遗言金币真实入队代表路径，阶段 4C-4 补 Treasure Pile 触发支付 / 拒付代表路径，阶段 4C-5 补 state-based cleanup -> visible Watchful last-breath enqueue 代表路径，阶段 4C-6 补 state-based cleanup -> visible Honest Broker last-breath enqueue 代表路径，阶段 4C-7 补 Scouting Warhawk explicit destroy trigger enqueue 代表路径。完整 18 步 E2E、1009 全量、完整 battle/damage/order/runtime、完整 PaymentEngine、完整触发引擎与完整 battlefield lifecycle 仍不代表 READY。
 
 | 阶段 3 流程 | 证据入口 | 必须证明的审计点 |
 |---|---|---|
@@ -152,6 +152,17 @@
 | Visible Honest Broker last-breath enqueue | `CATALOG` SFD·155/221；`CORE-260330` p52-p55 rules 383.3.d-383.3.e；`JFAQ-251023` p2-p4 q2.2-q2.3 | 两个可见、非 face-down、非 standby Honest Broker 被 state-based cleanup 摧毁后进入 `TriggerQueue`、`ORDER_TRIGGERS`、`StackItems` 并创建金币装备 token | 其他 last-breath / friendly-destroyed FUs 与完整 trigger engine |
 | Hidden / standby source redaction | `CORE-260330` p4-p8 rules 107-129；更精确 FAQ 页码 TODO | hidden / standby Honest Broker 不入队、不创建 token，避免 prompt metadata 泄漏不可见来源 | face-down 原始触发建模、显露窗口、viewer 级 trigger metadata 全路径 |
 | Starfall representative source | `CATALOG` OGN·029/298；`CORE-260330` p14-p15 rules 142-143；`CORE-260330` p39-p42 rules 355-356 | Starfall 只作为本批致命伤害和 cleanup 入口代表，不表示全部伤害 / 清理 / 触发组合完成 | FAQ regression 与更多法术 / 技能 / 战斗伤害来源 |
+
+### 6.7 阶段 4C-7 Scouting Warhawk explicit destroy trigger enqueue 证据入口
+
+阶段 4C-7 细化审计见 `docs/CURRENT_STAGE4C_BATCH7_SCOUTING_WARHAWK_TRIGGER_AUDIT.md`。本节只提供证据索引，不表示项目 READY。
+
+| 规则域 | 证据入口 | 当前 4C-7 状态 | 仍缺 |
+|---|---|---|---|
+| Scouting Warhawk last-breath enqueue | `CATALOG` OGN·216/298；`CORE-260330` p52-p55 rules 383.3.d-383.3.e；`JFAQ-251023` p2-p4 q2.2-q2.3 | 4C-7 已覆盖 explicit destroy `UNIT_DESTROYED` -> visible Scouting Warhawk `SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1` -> `TriggerQueue` -> `ORDER_TRIGGERS` -> `StackItems` -> priority pass -> `TRIGGER_RESOLVED` / `RUNES_CALLED` | state cleanup Warhawk、其他 last-breath / destroyed / friendly-destroyed FUs 与完整 trigger engine |
+| Spirit Fire explicit destroy source | `CATALOG` OGN·256/298；`CORE-260330` p39-p42 rules 355-356；`CORE-260330` p62-p63 rule 428 | Spirit Fire 是本批 explicit destroy source；不是 state cleanup 入口 | 更多 explicit destroy source、替代 / 预防、目标税与 FAQ 回归 |
+| Hidden / face-down / standby source guard | `CORE-260330` p4-p8 rules 107-129；更精确 FAQ 页码 TODO | hidden / face-down / standby Warhawk 不入队、不显示 prompt metadata、不触发 `RUNES_CALLED` | face-down 原始触发建模、显露窗口、viewer 级 trigger metadata 全路径 |
+| Single-trigger compatibility | 既有 `P79ScoutingWarhawk` 测试；`CATALOG` OGN·216/298 | single-trigger compatibility 保留，旧代表测试继续通过 | 统一单触发策略仍需后续文档 / 引擎收口 |
 
 ## 7. 当前 Fixture 审查映射
 
@@ -1577,10 +1588,10 @@
 
 开发影响：
 - `TRIGGER_QUEUED` / `TRIGGER_RESOLVED` 事件不能替代 `ORDER_TRIGGERS` prompt。
-- 阶段 3D 已补最小 `ORDER_TRIGGERS` runtime / UI / evidence；阶段 4C-1 已补保守 APNAP controller-block 子集、top-first 默认顺序、跨控制者不可重排拒绝且 no mutation、battle initial stack 代表路径和 face-down standby source 脱敏；阶段 4C-2 已补 Watchful Sentinel 多触发真实 `UNIT_DESTROYED` -> `TriggerQueue` -> `ORDER_TRIGGERS` -> `StackItems` -> priority -> draw 代表路径；阶段 4C-3 已补 Honest Broker 遗言金币真实 `UNIT_DESTROYED` -> `TriggerQueue` -> `ORDER_TRIGGERS` -> `StackItems` -> priority -> `EQUIPMENT_TOKEN_CREATED` 代表路径；阶段 4C-4 已补 Treasure Pile 触发支付 / 拒付代表路径；阶段 4C-5 已补 state-based cleanup `LETHAL_DAMAGE` -> visible Watchful Sentinel last-breath enqueue 代表路径；阶段 4C-6 已补 state-based cleanup `LETHAL_DAMAGE` -> visible Honest Broker last-breath enqueue 代表路径。
+- 阶段 3D 已补最小 `ORDER_TRIGGERS` runtime / UI / evidence；阶段 4C-1 已补保守 APNAP controller-block 子集、top-first 默认顺序、跨控制者不可重排拒绝且 no mutation、battle initial stack 代表路径和 face-down standby source 脱敏；阶段 4C-2 已补 Watchful Sentinel 多触发真实 `UNIT_DESTROYED` -> `TriggerQueue` -> `ORDER_TRIGGERS` -> `StackItems` -> priority -> draw 代表路径；阶段 4C-3 已补 Honest Broker 遗言金币真实 `UNIT_DESTROYED` -> `TriggerQueue` -> `ORDER_TRIGGERS` -> `StackItems` -> priority -> `EQUIPMENT_TOKEN_CREATED` 代表路径；阶段 4C-4 已补 Treasure Pile 触发支付 / 拒付代表路径；阶段 4C-5 已补 state-based cleanup `LETHAL_DAMAGE` -> visible Watchful Sentinel last-breath enqueue 代表路径；阶段 4C-6 已补 state-based cleanup `LETHAL_DAMAGE` -> visible Honest Broker last-breath enqueue 代表路径；阶段 4C-7 已补 Scouting Warhawk explicit destroy -> `TriggerQueue` -> `ORDER_TRIGGERS` -> `StackItems` -> priority -> `RUNES_CALLED` 代表路径。
 - 单触发 Watchful Sentinel / Honest Broker 仍保留即时结算兼容，本索引不把它外推为统一单触发策略。
 - 仍需要完整 `TriggerInstance`、trigger batch、可选触发选择、其他 destroyed / last-breath / friendly-destroyed FUs、隐藏 / face-down 原始触发建模、完整 effect resolution、战斗初始结算链全官方特殊排序和触发费用 / 拒付 / PaymentEngine 衔接。
-- 因此 4C-6 只关闭 P0 子项，完整 `ORDER_TRIGGERS` / trigger engine / PaymentEngine 规则域仍为 P0，项目仍 **NOT READY**。
+- 因此 4C-7 只关闭 P0 子项，完整 `ORDER_TRIGGERS` / trigger engine / PaymentEngine 规则域仍为 P0，项目仍 **NOT READY**。
 
 ## 7. 索引维护规则
 

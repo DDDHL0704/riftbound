@@ -20543,6 +20543,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveHonestBrokerLastBreathStackItem(state, stackItem);
         }
 
+        if (string.Equals(stackItem.EffectKind, ScoutingWarhawkLastBreathCallRuneEffectKind, StringComparison.Ordinal))
+        {
+            return ResolveScoutingWarhawkLastBreathStackItem(state, stackItem);
+        }
+
         if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.ViDoublePowerAbilityEffectKind, StringComparison.Ordinal))
         {
             return ResolveViDoublePowerAbilityStackItem(state, stackItem);
@@ -22407,20 +22412,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                                     warhawkRunePlayerId,
                                     ScoutingWarhawkLastBreathCallRuneEffectKind);
                                 events.Add(BuildTriggerQueuedEvent(trigger));
-                                events.Add(BuildTriggerResolvedEvent(trigger));
-
-                                var runeCallResult = CallRunes(playerZones, cardObjects, warhawkRunePlayerId, 1);
-                                events.Add(new GameEvent(
-                                    "RUNES_CALLED",
-                                    $"{warhawkRunePlayerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张休眠符文",
-                                    new Dictionary<string, object?>
-                                    {
-                                        ["playerId"] = warhawkRunePlayerId,
-                                        ["sourceObjectId"] = targetObjectId,
-                                        ["count"] = runeCallResult.CalledRuneObjectIds.Count,
-                                        ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray(),
-                                        ["reason"] = ScoutingWarhawkLastBreathCallRuneEffectKind
-                                    }));
+                                officialLastBreathTriggers.Add(trigger);
                             }
 
                             var mechanicalTricksterMinionPlayerId = ResolveMechanicalTricksterLastBreathMinionPlayerId(
@@ -23040,6 +23032,21 @@ public sealed class CoreRuleEngine : IRuleEngine
                     BuildStackItemForLastBreathTrigger(trigger, HonestBrokerCardNo),
                     events);
             }
+            else if (string.Equals(trigger.EffectKind, ScoutingWarhawkLastBreathCallRuneEffectKind, StringComparison.Ordinal))
+            {
+                var runeCallResult = CallRunes(playerZones, cardObjects, trigger.ControllerId, 1);
+                events.Add(new GameEvent(
+                    "RUNES_CALLED",
+                    $"{trigger.ControllerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张休眠符文",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = trigger.ControllerId,
+                        ["sourceObjectId"] = trigger.SourceObjectId,
+                        ["count"] = runeCallResult.CalledRuneObjectIds.Count,
+                        ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray(),
+                        ["reason"] = ScoutingWarhawkLastBreathCallRuneEffectKind
+                    }));
+            }
         }
         else if (officialLastBreathTriggers.Count > 1)
         {
@@ -23135,6 +23142,53 @@ public sealed class CoreRuleEngine : IRuleEngine
             HonestBrokerLastBreathCreateGoldBehavior,
             stackItem,
             events);
+
+        return new StackResolutionResult(
+            playerZones,
+            cardObjects,
+            state.PlayerScores,
+            NormalizeExperienceForSeats(state),
+            state.RunePools,
+            state.UntilEndOfTurnEffects,
+            null,
+            events,
+            [],
+            null,
+            [],
+            null,
+            [],
+            state.RngCursor);
+    }
+
+    private static StackResolutionResult ResolveScoutingWarhawkLastBreathStackItem(
+        MatchState state,
+        StackItemState stackItem)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var events = new List<GameEvent>
+        {
+            BuildTriggerResolvedEvent(new TriggerQueueItemState(
+                stackItem.StackItemId.StartsWith("ordered-", StringComparison.Ordinal)
+                    ? stackItem.StackItemId["ordered-".Length..]
+                    : stackItem.StackItemId,
+                stackItem.ControllerId,
+                stackItem.SourceObjectId,
+                stackItem.EffectKind,
+                "UNIT_DESTROYED"))
+        };
+        var runeCallResult = CallRunes(playerZones, cardObjects, stackItem.ControllerId, 1);
+        events.Add(new GameEvent(
+            "RUNES_CALLED",
+            $"{stackItem.ControllerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张休眠符文",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = stackItem.ControllerId,
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["count"] = runeCallResult.CalledRuneObjectIds.Count,
+                ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray(),
+                ["reason"] = ScoutingWarhawkLastBreathCallRuneEffectKind
+            }));
 
         return new StackResolutionResult(
             playerZones,
