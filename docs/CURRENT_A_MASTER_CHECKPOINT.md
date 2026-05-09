@@ -185,6 +185,13 @@ P1：
 
 阶段 1 已按 `docs/A_MASTER_AGENT_GOAL.md` 执行，范围限定为协议、`ActionPrompt` / command / payload、snapshot / visibility、服务端 P0 阻断梳理与小范围初步收口；未进入完整前端重建，未进入 1009 张卡全量实现，结论仍为 **NOT READY**。
 
+阶段 1 checkpoint 保护：
+
+- 已创建 commit：`78b6896 checkpoint: complete stage 1 protocol baseline`
+- 该 commit 纳入 `docs/A_MASTER_AGENT_GOAL.md`、`docs/CURRENT_A_MASTER_CHECKPOINT.md`、`docs/CURRENT_STAGE1_PROTOCOL_BASELINE.md`、`docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`、`docs/CURRENT_FRONTEND_CONTRACT_GAPS.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md` 与被 `CoreRuleEngine` 引用的 `src/Riftbound.Engine/PaymentCostRules.cs`。
+- `riftbound-dotnet.sln` 是本地不交付文件，未纳入 commit。
+- commit 前验证：`git diff --check` 通过；`dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore` 3312/3312 通过；`npm run build` 通过。
+
 ### B 服务端协议 / 规则 / 测试
 
 完成项：
