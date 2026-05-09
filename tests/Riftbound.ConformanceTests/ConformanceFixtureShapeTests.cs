@@ -3664,6 +3664,59 @@ public sealed class ConformanceFixtureShapeTests
         var doransBladeOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             doransBladeRequirement["optionalCostChoices"]);
         Assert.Equal(["ASSEMBLE_ORANGE"], doransBladeOptionalCostChoices.Select(cost => cost.Id).ToArray());
+
+        var vanguardsEyeState = steraksGageState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Yellow] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-VANGUARDS-EYE", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-VANGUARDS-EYE"] = new(
+                    "P1-VANGUARDS-EYE",
+                    cardNo: "SFD·153/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var vanguardsEyePrompt = ResolutionResult.BuildPrompts(vanguardsEyeState)["P1"];
+        var vanguardsEyeCandidate = Assert.Single(
+            vanguardsEyePrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(vanguardsEyeCandidate.Enabled);
+        Assert.Equal(["P1-VANGUARDS-EYE"], (vanguardsEyeCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_YELLOW"], (vanguardsEyeCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var vanguardsEyeMetadata = Assert.IsType<Dictionary<string, object?>>(vanguardsEyeCandidate.Metadata);
+        var vanguardsEyeRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(vanguardsEyeMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·153/221", Assert.IsType<string>(vanguardsEyeRequirement["equipmentCardNo"]));
+        var vanguardsEyeOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            vanguardsEyeRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_YELLOW"], vanguardsEyeOptionalCostChoices.Select(cost => cost.Id).ToArray());
     }
 
     [Fact]
