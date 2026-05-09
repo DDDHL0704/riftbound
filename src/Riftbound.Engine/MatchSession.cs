@@ -2425,6 +2425,9 @@ internal static class ActionPromptBuilder
     private const string SacredShearsCardNo = "SFD·172/221";
     private const int SacredShearsAssemblePowerCost = 1;
     private const string SacredShearsAssembleOptionalCost = "ASSEMBLE_YELLOW";
+    private const string SpinningAxeCardNo = "SFD·186/221";
+    private const int SpinningAxeAssemblePowerCost = 1;
+    private const string SpinningAxeAssembleOptionalCost = "ASSEMBLE_ANY_POWER";
     private sealed record AssembleEquipmentProfile(
         string CardNo,
         string DisplayName,
@@ -2668,7 +2671,15 @@ internal static class ActionPromptBuilder
                 "装配黄色符能",
                 RuneTrait.Yellow,
                 SacredShearsAssemblePowerCost,
-                "payment resource action: recycle yellow rune for assemble cost")
+                "payment resource action: recycle yellow rune for assemble cost"),
+            [SpinningAxeCardNo] = new(
+                SpinningAxeCardNo,
+                "旋转飞斧",
+                SpinningAxeAssembleOptionalCost,
+                "装配任意符能",
+                string.Empty,
+                SpinningAxeAssemblePowerCost,
+                "payment resource action: recycle any rune for assemble cost")
         };
     private const string CrescentGuardCardNo = "UNL-122/219";
     private const int CrescentGuardReadyPowerCost = 1;
@@ -4629,6 +4640,11 @@ internal static class ActionPromptBuilder
         var availablePowerByTrait = PlayCardAvailablePowerByTrait(
             runePool,
             paymentResourcePowerByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
+        if (AssembleEquipmentUsesAnyPower(assembleProfile))
+        {
+            return runePool.Power + availablePowerByTrait.Values.Sum() >= assembleProfile.PowerCost;
+        }
+
         return availablePowerByTrait.TryGetValue(assembleProfile.PowerTrait, out var power)
             && power >= assembleProfile.PowerCost;
     }
@@ -4655,7 +4671,8 @@ internal static class ActionPromptBuilder
             .Where(objectId => IsRecycleRuneSource(state, playerId, objectId))
             .Where(objectId => state.CardObjects.TryGetValue(objectId, out var runeState)
                 && TryGetRuneTrait(runeState, out var runeTrait)
-                && string.Equals(runeTrait, assembleProfile.PowerTrait, StringComparison.Ordinal))
+                && (AssembleEquipmentUsesAnyPower(assembleProfile)
+                    || string.Equals(runeTrait, assembleProfile.PowerTrait, StringComparison.Ordinal)))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .Select(objectId =>
             {
@@ -4679,6 +4696,27 @@ internal static class ActionPromptBuilder
             return new Dictionary<string, int>(StringComparer.Ordinal);
         }
 
+        if (AssembleEquipmentUsesAnyPower(assembleProfile))
+        {
+            var choiceIds = choices
+                .Select(choice => choice.Id)
+                .ToHashSet(StringComparer.Ordinal);
+            return state.PlayerZones.TryGetValue(playerId, out var zones)
+                ? zones.Base
+                    .Where(objectId => choiceIds.Contains($"{RecycleRunePaymentOptionalCostPrefix}{objectId}"))
+                    .Select(objectId => state.CardObjects.TryGetValue(objectId, out var runeState)
+                        && TryGetRuneTrait(runeState, out var runeTrait)
+                            ? runeTrait
+                            : string.Empty)
+                    .Where(trait => !string.IsNullOrWhiteSpace(trait))
+                    .GroupBy(trait => trait, StringComparer.Ordinal)
+                    .ToDictionary(
+                        group => group.Key,
+                        group => group.Count() * BasicRuneRecyclePowerGain,
+                        StringComparer.Ordinal)
+                : new Dictionary<string, int>(StringComparer.Ordinal);
+        }
+
         return new Dictionary<string, int>(StringComparer.Ordinal)
         {
             [assembleProfile.PowerTrait] = choices.Count * BasicRuneRecyclePowerGain
@@ -4698,12 +4736,32 @@ internal static class ActionPromptBuilder
 
         return choices.ToDictionary(
             choice => choice.Id,
-            _ => (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>(StringComparer.Ordinal)
+            choice =>
             {
-                ["trait"] = assembleProfile.PowerTrait,
-                ["power"] = BasicRuneRecyclePowerGain
+                var trait = assembleProfile.PowerTrait;
+                if (AssembleEquipmentUsesAnyPower(assembleProfile)
+                    && choice.Id.StartsWith(RecycleRunePaymentOptionalCostPrefix, StringComparison.Ordinal))
+                {
+                    var objectId = choice.Id[RecycleRunePaymentOptionalCostPrefix.Length..];
+                    if (state.CardObjects.TryGetValue(objectId, out var runeState)
+                        && TryGetRuneTrait(runeState, out var runeTrait))
+                    {
+                        trait = runeTrait;
+                    }
+                }
+
+                return (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["trait"] = trait,
+                    ["power"] = BasicRuneRecyclePowerGain
+                };
             },
             StringComparer.Ordinal);
+    }
+
+    private static bool AssembleEquipmentUsesAnyPower(AssembleEquipmentProfile assembleProfile)
+    {
+        return string.IsNullOrWhiteSpace(assembleProfile.PowerTrait);
     }
 
     private static bool IsImplementedAssembleEquipmentTarget(MatchState state, string playerId, string objectId)

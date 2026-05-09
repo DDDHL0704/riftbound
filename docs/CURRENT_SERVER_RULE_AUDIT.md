@@ -14,6 +14,9 @@
 
 ## 2026-05-09 开发进度更新
 
+- P1-002/P1-004 第三百三十六批补充：把《旋转飞斧》（SFD·186/221）的“装配 A”接入服务端权威 `ASSEMBLE_EQUIPMENT` profile，并把装配费用模型扩展为可表达“任意符能”最小路径。Core 现在接受当前玩家基地中公开、受控、未贴附、带 `CARD_TYPE:EQUIPMENT` 且 cardNo 为《旋转飞斧》的来源，必须支付 `ASSEMBLE_ANY_POWER` 与 1 点任意符能并选择服务端已知受控单位目标；需要回收符文补足任意符能时，ActionPrompt 只公开服务端候选支付资源。灵便反应即时贴附和未贴附瞬息开始阶段摧毁仍不在本批伪造。
+- 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~AssembleEquipment"` 通过 63/63；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3279/3279；`source ../../scripts/dev-env.sh && npm run build` 通过；`git diff --check` 通过。本批仍无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke。整体仍 **NOT READY**，因为灵便反应自动贴附、未贴附瞬息清理、放逐打出、复制技能文字、待命即时贴附、更多装备装配 profile、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-002/P1-004 第三百三十五批补充：把《Z型驱动》（SFD·090/221）的“装配蓝色”接入服务端权威 `ASSEMBLE_EQUIPMENT` profile。Core 现在接受当前玩家基地中公开、受控、未贴附、带 `CARD_TYPE:EQUIPMENT` 且 cardNo 为《Z型驱动》的来源，必须支付 `ASSEMBLE_BLUE` 与 1 点蓝色符能并选择服务端已知受控单位目标；放逐打出能力属于独立能力分支，仍不在本批伪造。ActionPrompt 同步公开《Z型驱动》的 `ASSEMBLE_BLUE`、蓝色符能要求和合法目标候选，前端继续只按服务端候选提交。
 - 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~AssembleEquipment"` 通过 62/62；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3278/3278；`source ../../scripts/dev-env.sh && npm run build` 通过；`git diff --check` 通过。本批仍无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke。整体仍 **NOT READY**，因为放逐打出、复制技能文字、待命即时贴附、灵便反应自动贴附、更多装备装配 profile、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

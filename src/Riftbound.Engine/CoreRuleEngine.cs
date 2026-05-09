@@ -115,6 +115,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SacredShearsCardNo = "SFD·172/221";
     private const string SacredShearsAssembleOptionalCost = "ASSEMBLE_YELLOW";
     private const int SacredShearsAssemblePowerCost = 1;
+    private const string SpinningAxeCardNo = "SFD·186/221";
+    private const string SpinningAxeAssembleOptionalCost = "ASSEMBLE_ANY_POWER";
+    private const int SpinningAxeAssemblePowerCost = 1;
     private sealed record AssembleEquipmentProfile(
         string CardNo,
         string DisplayName,
@@ -298,7 +301,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "神圣剪刀",
                 SacredShearsAssembleOptionalCost,
                 RuneTrait.Yellow,
-                SacredShearsAssemblePowerCost)
+                SacredShearsAssemblePowerCost),
+            [SpinningAxeCardNo] = new(
+                SpinningAxeCardNo,
+                "旋转飞斧",
+                SpinningAxeAssembleOptionalCost,
+                string.Empty,
+                SpinningAxeAssemblePowerCost)
         };
     private const string WatchfulSentinelCardNo = "OGN·096/298";
     private const string WatchfulSentinelLastBreathDrawEffectKind = "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
@@ -1441,13 +1450,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCommand);
         }
 
+        var assembleAnyPowerCost = AssembleEquipmentAnyPowerCost(assembleProfile);
+        var assemblePowerCostByTrait = AssembleEquipmentPowerCostByTrait(assembleProfile);
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
         if (!AreRecycleRunePaymentResourceActionsRequired(
                 currentPool,
                 state.CardObjects,
                 recycledRuneObjectIds,
-                0,
-                AssembleEquipmentPowerCostByTrait(assembleProfile)))
+                assembleAnyPowerCost,
+                assemblePowerCostByTrait))
         {
             return RejectWithCorePrompts(
                 state,
@@ -1471,7 +1482,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var paymentAdjustedPool = runePools.TryGetValue(intent.PlayerId, out var adjustedPool)
             ? adjustedPool
             : RunePool.Empty;
-        if (!CanPayRuneCosts(paymentAdjustedPool, 0, 0, AssembleEquipmentPowerCostByTrait(assembleProfile)))
+        if (!CanPayRuneCosts(paymentAdjustedPool, 0, assembleAnyPowerCost, assemblePowerCostByTrait))
         {
             return RejectWithCorePrompts(
                 state,
@@ -1479,7 +1490,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
-        runePools = PayRuneCosts(runePools, intent.PlayerId, 0, 0, AssembleEquipmentPowerCostByTrait(assembleProfile));
+        runePools = PayRuneCosts(runePools, intent.PlayerId, 0, assembleAnyPowerCost, assemblePowerCostByTrait);
         var equipmentWithIdentity = WithFieldIdentityDefaults(equipmentState, intent.PlayerId);
         var targetWithIdentity = WithFieldIdentityDefaults(targetState, intent.PlayerId);
         cardObjects[command.SourceObjectId] = equipmentWithIdentity with
@@ -1615,10 +1626,20 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static IReadOnlyDictionary<string, int> AssembleEquipmentPowerCostByTrait(AssembleEquipmentProfile profile)
     {
+        if (string.IsNullOrWhiteSpace(profile.PowerTrait))
+        {
+            return new Dictionary<string, int>(StringComparer.Ordinal);
+        }
+
         return new Dictionary<string, int>(StringComparer.Ordinal)
         {
             [profile.PowerTrait] = profile.PowerCost
         };
+    }
+
+    private static int AssembleEquipmentAnyPowerCost(AssembleEquipmentProfile profile)
+    {
+        return string.IsNullOrWhiteSpace(profile.PowerTrait) ? profile.PowerCost : 0;
     }
 
     private static CardObjectState WithFieldIdentityDefaults(CardObjectState cardObject, string playerId)

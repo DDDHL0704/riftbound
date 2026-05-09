@@ -4762,6 +4762,97 @@ public sealed class ConformanceFixtureShapeTests
         var sacredShearsOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             sacredShearsRequirement["optionalCostChoices"]);
         Assert.Equal(["ASSEMBLE_YELLOW"], sacredShearsOptionalCostChoices.Select(cost => cost.Id).ToArray());
+
+        var spinningAxeState = steraksGageState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(0, 1),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-SPINNING-AXE", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPINNING-AXE"] = new(
+                    "P1-SPINNING-AXE",
+                    cardNo: "SFD·186/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装", "灵便", "瞬息"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var spinningAxePrompt = ResolutionResult.BuildPrompts(spinningAxeState)["P1"];
+        var spinningAxeCandidate = Assert.Single(
+            spinningAxePrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(spinningAxeCandidate.Enabled);
+        Assert.Equal(["P1-SPINNING-AXE"], (spinningAxeCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_ANY_POWER"], (spinningAxeCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var spinningAxeMetadata = Assert.IsType<Dictionary<string, object?>>(spinningAxeCandidate.Metadata);
+        var spinningAxeRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(spinningAxeMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·186/221", Assert.IsType<string>(spinningAxeRequirement["equipmentCardNo"]));
+        var spinningAxeOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            spinningAxeRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_ANY_POWER"], spinningAxeOptionalCostChoices.Select(cost => cost.Id).ToArray());
+        Assert.Equal(1, Assert.IsType<int>(spinningAxeRequirement["powerCost"]));
+
+        var spinningAxeRecyclePaymentState = spinningAxeState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-SPINNING-AXE", "P1-UNIT", "P1-RUNE-RED-ASSEMBLE-PAYMENT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(spinningAxeState.CardObjects, StringComparer.Ordinal)
+            {
+                ["P1-RUNE-RED-ASSEMBLE-PAYMENT"] = new(
+                    "P1-RUNE-RED-ASSEMBLE-PAYMENT",
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    cardNo: "UNL-R01",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var spinningAxeRecyclePrompt = ResolutionResult.BuildPrompts(spinningAxeRecyclePaymentState)["P1"];
+        var spinningAxeRecycleCandidate = Assert.Single(
+            spinningAxeRecyclePrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(spinningAxeRecycleCandidate.Enabled);
+        var spinningAxeRecycleMetadata = Assert.IsType<Dictionary<string, object?>>(spinningAxeRecycleCandidate.Metadata);
+        var spinningAxeRecycleRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(spinningAxeRecycleMetadata["sourceRequirements"]));
+        var spinningAxePaymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            spinningAxeRecycleRequirement["paymentResourceChoices"]);
+        Assert.Equal(["RECYCLE_RUNE:P1-RUNE-RED-ASSEMBLE-PAYMENT"], spinningAxePaymentResourceChoices.Select(choice => choice.Id).ToArray());
+        var spinningAxePaymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            spinningAxeRecycleRequirement["paymentResourcePowerByChoice"]);
+        var spinningAxePaymentResourcePower = spinningAxePaymentResourcePowerByChoice["RECYCLE_RUNE:P1-RUNE-RED-ASSEMBLE-PAYMENT"];
+        Assert.Equal(RuneTrait.Red, Assert.IsType<string>(spinningAxePaymentResourcePower["trait"]));
+        Assert.Equal(1, Assert.IsType<int>(spinningAxePaymentResourcePower["power"]));
     }
 
     [Fact]
