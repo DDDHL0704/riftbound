@@ -4160,6 +4160,59 @@ public sealed class ConformanceFixtureShapeTests
             trinityForceRequirement["optionalCostChoices"]);
         Assert.Equal(["ASSEMBLE_ORANGE"], trinityForceOptionalCostChoices.Select(cost => cost.Id).ToArray());
 
+        var huntersMacheteState = steraksGageState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Orange] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-HUNTERS-MACHETE", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HUNTERS-MACHETE"] = new(
+                    "P1-HUNTERS-MACHETE",
+                    cardNo: "UNL-096/219",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var huntersMachetePrompt = ResolutionResult.BuildPrompts(huntersMacheteState)["P1"];
+        var huntersMacheteCandidate = Assert.Single(
+            huntersMachetePrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(huntersMacheteCandidate.Enabled);
+        Assert.Equal(["P1-HUNTERS-MACHETE"], (huntersMacheteCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_ORANGE"], (huntersMacheteCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var huntersMacheteMetadata = Assert.IsType<Dictionary<string, object?>>(huntersMacheteCandidate.Metadata);
+        var huntersMacheteRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(huntersMacheteMetadata["sourceRequirements"]));
+        Assert.Equal("UNL-096/219", Assert.IsType<string>(huntersMacheteRequirement["equipmentCardNo"]));
+        var huntersMacheteOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            huntersMacheteRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_ORANGE"], huntersMacheteOptionalCostChoices.Select(cost => cost.Id).ToArray());
+
         var bootsOfSwiftnessState = steraksGageState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)

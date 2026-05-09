@@ -79,6 +79,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string TrinityForceCardNo = "SFD·115/221";
     private const string TrinityForceAssembleOptionalCost = "ASSEMBLE_ORANGE";
     private const int TrinityForceAssemblePowerCost = 1;
+    private const string HuntersMacheteCardNo = "UNL-096/219";
+    private const string HuntersMacheteAssembleOptionalCost = "ASSEMBLE_ORANGE";
+    private const int HuntersMacheteAssemblePowerCost = 1;
     private const string BootsOfSwiftnessCardNo = "SFD·133/221";
     private const string BootsOfSwiftnessAssembleOptionalCost = "ASSEMBLE_PURPLE";
     private const int BootsOfSwiftnessAssemblePowerCost = 1;
@@ -206,6 +209,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 TrinityForceAssembleOptionalCost,
                 RuneTrait.Orange,
                 TrinityForceAssemblePowerCost),
+            [HuntersMacheteCardNo] = new(
+                HuntersMacheteCardNo,
+                "猎人的宽刃刀",
+                HuntersMacheteAssembleOptionalCost,
+                RuneTrait.Orange,
+                HuntersMacheteAssemblePowerCost),
             [BootsOfSwiftnessCardNo] = new(
                 BootsOfSwiftnessCardNo,
                 "轻灵之靴",

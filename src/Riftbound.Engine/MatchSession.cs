@@ -2389,6 +2389,9 @@ internal static class ActionPromptBuilder
     private const string TrinityForceCardNo = "SFD·115/221";
     private const int TrinityForceAssemblePowerCost = 1;
     private const string TrinityForceAssembleOptionalCost = "ASSEMBLE_ORANGE";
+    private const string HuntersMacheteCardNo = "UNL-096/219";
+    private const int HuntersMacheteAssemblePowerCost = 1;
+    private const string HuntersMacheteAssembleOptionalCost = "ASSEMBLE_ORANGE";
     private const string BootsOfSwiftnessCardNo = "SFD·133/221";
     private const int BootsOfSwiftnessAssemblePowerCost = 1;
     private const string BootsOfSwiftnessAssembleOptionalCost = "ASSEMBLE_PURPLE";
@@ -2551,6 +2554,14 @@ internal static class ActionPromptBuilder
                 "装配橙色符能",
                 RuneTrait.Orange,
                 TrinityForceAssemblePowerCost,
+                "payment resource action: recycle orange rune for assemble cost"),
+            [HuntersMacheteCardNo] = new(
+                HuntersMacheteCardNo,
+                "猎人的宽刃刀",
+                HuntersMacheteAssembleOptionalCost,
+                "装配橙色符能",
+                RuneTrait.Orange,
+                HuntersMacheteAssemblePowerCost,
                 "payment resource action: recycle orange rune for assemble cost"),
             [BootsOfSwiftnessCardNo] = new(
                 BootsOfSwiftnessCardNo,

@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 第三百二十九批补齐《猎人的宽刃刀》（UNL-096/219）橙色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在在橙色代表路径中覆盖《多兰之刃》《海克斯饮魔刀》《狂徒铠甲》《三相之力》和《猎人的宽刃刀》五张官方装备；ActionPrompt 只公开《猎人的宽刃刀》的 `ASSEMBLE_ORANGE`、橙色符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 56/56、后端 full test 3272/3272、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第三百二十八批补齐《阿瑞昂的陨落》（SFD·030/221）红色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在在红色代表路径中覆盖《长剑》《锯齿短匕》《反曲之弓》和《阿瑞昂的陨落》四张官方装备；ActionPrompt 只公开《阿瑞昂的陨落》的 `ASSEMBLE_RED`、红色符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 55/55、后端 full test 3271/3271、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
 - 第三百二十七批补齐《云游图鉴》（SFD·086/221）蓝色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在在蓝色代表路径中覆盖《布甲》《海克斯注力刚壁》和《云游图鉴》三张官方装备；ActionPrompt 只公开《云游图鉴》的 `ASSEMBLE_BLUE`、蓝色符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 54/54、后端 full test 3270/3270、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。
