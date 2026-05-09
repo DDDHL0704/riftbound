@@ -97,6 +97,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string CullCardNo = "SFD·134/221";
     private const string CullAssembleOptionalCost = "ASSEMBLE_PURPLE";
     private const int CullAssemblePowerCost = 1;
+    private const string EdgeOfNightCardNo = "SFD·139/221";
+    private const string EdgeOfNightAssembleOptionalCost = "ASSEMBLE_PURPLE";
+    private const int EdgeOfNightAssemblePowerCost = 1;
     private const string VanguardsEyeCardNo = "SFD·153/221";
     private const string VanguardsEyeAssembleOptionalCost = "ASSEMBLE_YELLOW";
     private const int VanguardsEyeAssemblePowerCost = 1;
@@ -254,6 +257,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 CullAssembleOptionalCost,
                 RuneTrait.Purple,
                 CullAssemblePowerCost),
+            [EdgeOfNightCardNo] = new(
+                EdgeOfNightCardNo,
+                "夜之锋刃",
+                EdgeOfNightAssembleOptionalCost,
+                RuneTrait.Purple,
+                EdgeOfNightAssemblePowerCost),
             [VanguardsEyeCardNo] = new(
                 VanguardsEyeCardNo,
                 "先锋之眼",

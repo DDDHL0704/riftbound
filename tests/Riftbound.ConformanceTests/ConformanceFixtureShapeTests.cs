@@ -4467,6 +4467,59 @@ public sealed class ConformanceFixtureShapeTests
             cullRequirement["optionalCostChoices"]);
         Assert.Equal(["ASSEMBLE_PURPLE"], cullOptionalCostChoices.Select(cost => cost.Id).ToArray());
 
+        var edgeOfNightState = steraksGageState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Purple] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-EDGE-OF-NIGHT", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-EDGE-OF-NIGHT"] = new(
+                    "P1-EDGE-OF-NIGHT",
+                    cardNo: "SFD·139/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var edgeOfNightPrompt = ResolutionResult.BuildPrompts(edgeOfNightState)["P1"];
+        var edgeOfNightCandidate = Assert.Single(
+            edgeOfNightPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(edgeOfNightCandidate.Enabled);
+        Assert.Equal(["P1-EDGE-OF-NIGHT"], (edgeOfNightCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_PURPLE"], (edgeOfNightCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var edgeOfNightMetadata = Assert.IsType<Dictionary<string, object?>>(edgeOfNightCandidate.Metadata);
+        var edgeOfNightRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(edgeOfNightMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·139/221", Assert.IsType<string>(edgeOfNightRequirement["equipmentCardNo"]));
+        var edgeOfNightOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            edgeOfNightRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_PURPLE"], edgeOfNightOptionalCostChoices.Select(cost => cost.Id).ToArray());
+
         var vanguardsEyeState = steraksGageState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)

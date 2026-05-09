@@ -14,6 +14,9 @@
 
 ## 2026-05-09 开发进度更新
 
+- P1-002/P1-004 第三百三十三批补充：把《夜之锋刃》（SFD·139/221）的“装配紫色”接入服务端权威 `ASSEMBLE_EQUIPMENT` profile。Core 现在接受当前玩家基地中公开、受控、未贴附、带 `CARD_TYPE:EQUIPMENT` 且 cardNo 为《夜之锋刃》的来源，必须支付 `ASSEMBLE_PURPLE` 与 1 点紫色符能并选择服务端已知受控单位目标；待命正面朝下打出与即时贴附仍是独立高阶分支，不在本批伪造。ActionPrompt 同步公开《夜之锋刃》的 `ASSEMBLE_PURPLE`、紫色符能要求和合法目标候选，前端继续只按服务端候选提交。
+- 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~AssembleEquipment"` 通过 60/60；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3276/3276；`source ../../scripts/dev-env.sh && npm run build` 通过；`git diff --check` 通过。本批仍无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke。整体仍 **NOT READY**，因为待命即时贴附、灵便反应自动贴附、更多装备装配 profile、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-002/P1-004 第三百三十二批补充：把 promo 编号《碎骨棒》（SFD·118a/221·P）的“装配橙色”作为独立 profile 接入服务端权威 `ASSEMBLE_EQUIPMENT`。Core 现在接受当前玩家基地中公开、受控、未贴附、带 `CARD_TYPE:EQUIPMENT` 且 cardNo 为 promo 编号《碎骨棒》的来源，必须支付 `ASSEMBLE_ORANGE` 与 1 点橙色符能并选择服务端已知受控单位目标；普通编号与 promo 编号各自保留官方 cardNo，不互相混用。ActionPrompt 同步公开 promo 编号《碎骨棒》的 `ASSEMBLE_ORANGE`、橙色符能要求和合法目标候选，前端继续只按服务端候选提交。
 - 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~AssembleEquipment"` 通过 59/59；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3275/3275；`source ../../scripts/dev-env.sh && npm run build` 通过；`git diff --check` 通过。本批仍无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke。整体仍 **NOT READY**，因为灵便反应自动贴附、更多装备装配 profile、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

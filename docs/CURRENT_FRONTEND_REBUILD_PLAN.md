@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 第三百三十三批补齐《夜之锋刃》（SFD·139/221）紫色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在在紫色代表路径中覆盖《多兰之戒》《轻灵之靴》《萃取》和《夜之锋刃》四张官方装备；ActionPrompt 只公开《夜之锋刃》的 `ASSEMBLE_PURPLE`、紫色符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 60/60、后端 full test 3276/3276、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第三百三十二批补齐 promo 编号《碎骨棒》（SFD·118a/221·P）橙色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在在橙色代表路径中覆盖《多兰之刃》《海克斯饮魔刀》《狂徒铠甲》《三相之力》《猎人的宽刃刀》、普通编号《碎骨棒》和 promo 编号《碎骨棒》七张官方装备；ActionPrompt 只公开 promo 编号《碎骨棒》的 `ASSEMBLE_ORANGE`、橙色符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 59/59、后端 full test 3275/3275、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
 - 第三百三十一批补齐普通编号《碎骨棒》（SFD·118/221）橙色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在在橙色代表路径中覆盖《多兰之刃》《海克斯饮魔刀》《狂徒铠甲》《三相之力》《猎人的宽刃刀》和普通编号《碎骨棒》六张官方装备；ActionPrompt 只公开普通编号《碎骨棒》的 `ASSEMBLE_ORANGE`、橙色符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 58/58、后端 full test 3274/3274、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。

@@ -2407,6 +2407,9 @@ internal static class ActionPromptBuilder
     private const string CullCardNo = "SFD·134/221";
     private const int CullAssemblePowerCost = 1;
     private const string CullAssembleOptionalCost = "ASSEMBLE_PURPLE";
+    private const string EdgeOfNightCardNo = "SFD·139/221";
+    private const int EdgeOfNightAssemblePowerCost = 1;
+    private const string EdgeOfNightAssembleOptionalCost = "ASSEMBLE_PURPLE";
     private const string VanguardsEyeCardNo = "SFD·153/221";
     private const int VanguardsEyeAssemblePowerCost = 1;
     private const string VanguardsEyeAssembleOptionalCost = "ASSEMBLE_YELLOW";
@@ -2611,6 +2614,14 @@ internal static class ActionPromptBuilder
                 "装配紫色符能",
                 RuneTrait.Purple,
                 CullAssemblePowerCost,
+                "payment resource action: recycle purple rune for assemble cost"),
+            [EdgeOfNightCardNo] = new(
+                EdgeOfNightCardNo,
+                "夜之锋刃",
+                EdgeOfNightAssembleOptionalCost,
+                "装配紫色符能",
+                RuneTrait.Purple,
+                EdgeOfNightAssemblePowerCost,
                 "payment resource action: recycle purple rune for assemble cost"),
             [VanguardsEyeCardNo] = new(
                 VanguardsEyeCardNo,
