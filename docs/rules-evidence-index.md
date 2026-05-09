@@ -72,7 +72,7 @@
 
 本节只给阶段 3 smoke / E2E / 服务端阻断关闭提供证据入口，不代表流程已经 READY。具体当前状态见 `docs/CURRENT_STAGE3_CORE_FLOW_AUDIT.md`。
 
-阶段 3A 已完成 smoke 基线、复杂命令强类型映射、`PAY_COST` 最小 runtime 和前端外壳安全接线，详见 `docs/CURRENT_STAGE3A_PLAN.md`。阶段 3B/3C/3D 后续已分别补 battlefield / cleanup、battle / damage、`ORDER_TRIGGERS` 最小 window；阶段 4C-1 补 `ORDER_TRIGGERS` 保守 APNAP controller-block 子集，阶段 4C-2 补 Watchful Sentinel 真实多触发入队代表路径，阶段 4C-3 补 Honest Broker 遗言金币真实入队代表路径。完整 18 步 E2E、1009 全量、完整 battle/damage/order/runtime、完整 PaymentEngine、完整触发引擎与完整 battlefield lifecycle 仍不代表 READY。
+阶段 3A 已完成 smoke 基线、复杂命令强类型映射、`PAY_COST` 最小 runtime 和前端外壳安全接线，详见 `docs/CURRENT_STAGE3A_PLAN.md`。阶段 3B/3C/3D 后续已分别补 battlefield / cleanup、battle / damage、`ORDER_TRIGGERS` 最小 window；阶段 4C-1 补 `ORDER_TRIGGERS` 保守 APNAP controller-block 子集，阶段 4C-2 补 Watchful Sentinel 真实多触发入队代表路径，阶段 4C-3 补 Honest Broker 遗言金币真实入队代表路径，阶段 4C-4 补 Treasure Pile 触发支付 / 拒付代表路径。完整 18 步 E2E、1009 全量、完整 battle/damage/order/runtime、完整 PaymentEngine、完整触发引擎与完整 battlefield lifecycle 仍不代表 READY。
 
 | 阶段 3 流程 | 证据入口 | 必须证明的审计点 |
 |---|---|---|
@@ -120,6 +120,16 @@
 | Watchful + Honest last-breath 代表覆盖 | `CATALOG` OGN·096/298；`CATALOG` SFD·155/221；`CORE-260330` p52-p55 rules 383.3.d-383.3.e；`JFAQ-251023` p2-p4 q2.2-q2.3 | 4C-2 + 4C-3 后，Watchful Sentinel 抽牌和 Honest Broker 创建金币装备两条 last-breath 代表路径已有 real enqueue 证据 | 不能外推为完整 last-breath engine 或统一单触发策略完成 |
 | Cross-controller APNAP no mutation | `CORE-260330` p52-p55 rules 383.3.d-383.3.e；`JFAQ-251023` p2-p4 q2.2-q2.3 | 跨控制者真实 last-breath APNAP 默认顺序可直接提交 accepted；非法跨控制者排序 rejected 且 no state mutation | 完整 APNAP 多玩家独立排序、复杂 controller block 与 FAQ 回归 |
 | State-based cleanup trigger enqueue | `CORE-260330` p31-p33 rules 318-324；更精确 FAQ 页码 TODO | 本批证明真实 `UNIT_DESTROYED` 代表路径可入队，不等于所有清理来源统一入队 | state-based cleanup 触发入队、repeat-until-stable 与替代 / 预防交织 |
+
+### 6.4 阶段 4C-4 Treasure Pile trigger payment 证据入口
+
+阶段 4C-4 细化审计见 `docs/CURRENT_STAGE4C_BATCH4_TRIGGER_PAYMENT_AUDIT.md`。本节只提供证据索引，不表示项目 READY。
+
+| 规则域 | 证据入口 | 当前 4C-4 状态 | 仍缺 |
+|---|---|---|---|
+| Trigger payment / decline | `CATALOG` SFD·220/221；`CORE-260330` p52-p55 rules 377, 403-405；`JFAQ-251023` p2-p4 q2.5 | 4C-4 已覆盖 Treasure Pile 征服触发进入 `TRIGGER_PAYMENT`，玩家可 `PAY_COST(SPEND_MANA:1)` 或 `PAY_COST(DECLINE)` | 其他 triggered-cost FUs、完整 PaymentEngine、触发费用与 stack item 的通用语义 |
+| Payment validation no mutation | `CORE-260330` p39-p42 rules 356-357；p52-p55 rules 403-405 | wrong player / stale prompt / unknown choice / duplicate choice / pay+decline / malformed / insufficient 都拒绝且不突变权威状态 | 替代/额外费用、减费/增费、来源选择、更多非出牌支付窗口 |
+| Frontend authority | 阶段 4 服务端权威原则；`EventLog` label coverage | 前端只补 `PAYMENT_WINDOW_OPENED` / `TRIGGER_PAYMENT_DECLINED` 中文 label，不计算支付或触发结果 | 产品级 trigger payment UX 和更多 fixture |
 
 ## 7. 当前 Fixture 审查映射
 
@@ -1531,6 +1541,7 @@
 
 开发影响：
 - `COST_PAID` 事件包络和 `PaymentCostRules` 只是审计/兼容层，不等于独立 `PAY_COST` window。
+- 阶段 4C-4 已补 `SFD·220/221`《珍宝堆》`TRIGGER_PAYMENT` 代表路径：支付、拒付、支付失败 no-mutation 和 Hub stale prompt 均有证据；该证据不外推为完整 PaymentEngine。
 - 需要 `PaymentPlan/paymentPlanId/paymentWindow`、Quote/Authorize/Commit、`PAY_COST` / `DECLINE_PAY_COST` command 和 typed error details。
 - prompt 与 Core 不能继续各自重复计算费用。
 
@@ -1544,10 +1555,10 @@
 
 开发影响：
 - `TRIGGER_QUEUED` / `TRIGGER_RESOLVED` 事件不能替代 `ORDER_TRIGGERS` prompt。
-- 阶段 3D 已补最小 `ORDER_TRIGGERS` runtime / UI / evidence；阶段 4C-1 已补保守 APNAP controller-block 子集、top-first 默认顺序、跨控制者不可重排拒绝且 no mutation、battle initial stack 代表路径和 face-down standby source 脱敏；阶段 4C-2 已补 Watchful Sentinel 多触发真实 `UNIT_DESTROYED` -> `TriggerQueue` -> `ORDER_TRIGGERS` -> `StackItems` -> priority -> draw 代表路径；阶段 4C-3 已补 Honest Broker 遗言金币真实 `UNIT_DESTROYED` -> `TriggerQueue` -> `ORDER_TRIGGERS` -> `StackItems` -> priority -> `EQUIPMENT_TOKEN_CREATED` 代表路径。
+- 阶段 3D 已补最小 `ORDER_TRIGGERS` runtime / UI / evidence；阶段 4C-1 已补保守 APNAP controller-block 子集、top-first 默认顺序、跨控制者不可重排拒绝且 no mutation、battle initial stack 代表路径和 face-down standby source 脱敏；阶段 4C-2 已补 Watchful Sentinel 多触发真实 `UNIT_DESTROYED` -> `TriggerQueue` -> `ORDER_TRIGGERS` -> `StackItems` -> priority -> draw 代表路径；阶段 4C-3 已补 Honest Broker 遗言金币真实 `UNIT_DESTROYED` -> `TriggerQueue` -> `ORDER_TRIGGERS` -> `StackItems` -> priority -> `EQUIPMENT_TOKEN_CREATED` 代表路径；阶段 4C-4 已补 Treasure Pile 触发支付 / 拒付代表路径。
 - 单触发 Watchful Sentinel / Honest Broker 仍保留即时结算兼容，本索引不把它外推为统一单触发策略。
 - 仍需要完整 `TriggerInstance`、trigger batch、可选触发选择、其他 destroyed-family、state-based cleanup 触发入队、完整 effect resolution、战斗初始结算链全官方特殊排序和触发费用 / 拒付 / PaymentEngine 衔接。
-- 因此 4C-3 只关闭 P0 子项，完整 `ORDER_TRIGGERS` / trigger engine 规则域仍为 P0，项目仍 **NOT READY**。
+- 因此 4C-4 只关闭 P0 子项，完整 `ORDER_TRIGGERS` / trigger engine / PaymentEngine 规则域仍为 P0，项目仍 **NOT READY**。
 
 ## 7. 索引维护规则
 

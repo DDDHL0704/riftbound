@@ -214,9 +214,33 @@ Top risk remains the Stage 2 Top20 with 4B statuses overlaid:
 
 仍缺：完整 trigger engine、其他 last-breath / destroyed / friendly-destroyed 族、state-based cleanup trigger enqueue、trigger payment / decline、FAQ adjudication 和 1009/811 full-official 覆盖。
 
-## 11. 4B / 4C-1 / 4C-2 / 4C-3 Blocker
+## 11. Post-Freeze 4C-4 Overlay
 
-4B freeze、4C-1 overlay、4C-2 overlay 和 4C-3 overlay 本身无文档阻断。仍阻断 READY / full-official 的事项：
+4C-4 不改变 4B frozen counts、primary status counts 或 full-official 口径，只记录 B/A 已完成并通过测试的局部 runtime 证据：
+
+| 项 | 4C-4 记录 |
+|---|---|
+| verified FU | `FU-4694e33f45` / `SFD·220/221`《珍宝堆》 |
+| trigger payment route | `BATTLEFIELD_CONQUERED -> PAYMENT_WINDOW_OPENED -> PAY_COST(SPEND_MANA:1 or DECLINE) -> PAYMENT_WINDOW_CLOSED` |
+| accepted path | `COST_PAID -> BATTLEFIELD_TRIGGER_RESOLVED -> EQUIPMENT_TOKEN_CREATED` |
+| declined path | `TRIGGER_PAYMENT_DECLINED`，不扣费、不创建指示物。 |
+| validation | wrong player / stale prompt / unknown choice / duplicate choice / pay+decline / malformed payload / insufficient mana 拒绝且 no mutation。 |
+| validation commands | focused 11/11、trigger regression 13/13、backend full 3344/3344、frontend build passed、Chrome smoke passed、stage3 preflight passed after sequential rerun。 |
+
+矩阵 overlay 数字：
+
+- `stage4C4` verified FUs：1
+- `stage4C4` verified snapshot entries：1
+- cumulative trigger-payment verified FUs：1
+- full-official upgrades：0
+
+其他 triggered-cost / PaymentEngine FUs 只记录为 next-pressure candidates，不标为已实现。
+
+仍缺：完整 PaymentEngine、其他 triggered-cost functional units、state-based cleanup trigger payment、FAQ adjudication 和 1009/811 full-official 覆盖。
+
+## 12. 4B / 4C-1 / 4C-2 / 4C-3 / 4C-4 Blocker
+
+4B freeze、4C-1 overlay、4C-2 overlay、4C-3 overlay 和 4C-4 overlay 本身无文档阻断。仍阻断 READY / full-official 的事项：
 
 - 0/811 functional units 获得 full-official。
 - P0/P1 engine support 仍影响 762 FUs by status flag。

@@ -34906,11 +34906,12 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P79BattlefieldConquerGoldPaysOneToCreateDormantGold()
+    public async Task P79BattlefieldConquerGoldOpensPaymentThenPaysOneToCreateDormantGold()
     {
         var state = BattlefieldConquerGoldState();
+        var engine = new CoreRuleEngine();
 
-        var result = await new CoreRuleEngine().ResolveAsync(
+        var result = await engine.ResolveAsync(
             state,
             new PlayerIntent("intent-p7-9-battlefield-gold", "P1", "DECLARE_BATTLE"),
             new DeclareBattleCommand(
@@ -34921,17 +34922,38 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
-        Assert.Equal(0, result.State.RunePools["P1"].Mana);
-        Assert.Contains(result.Events, gameEvent =>
+        Assert.Equal(1, result.State.RunePools["P1"].Mana);
+        var payment = result.State.PendingPayment;
+        Assert.NotNull(payment);
+        Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
+        Assert.Equal(["SPEND_MANA:1", "DECLINE"], payment.LegalPaymentChoiceIds);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD", StringComparison.Ordinal));
-        var tokenEvent = Assert.Single(result.Events, gameEvent =>
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "EQUIPMENT_TOKEN_CREATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["abilityId"] as string, "BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD", StringComparison.Ordinal));
+
+        var paid = await engine.ResolveAsync(
+            result.State,
+            new PlayerIntent("intent-p7-9-battlefield-gold-pay", "P1", "PAY_COST"),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]),
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Equal(0, paid.State.RunePools["P1"].Mana);
+        Assert.Contains(paid.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD", StringComparison.Ordinal));
+        var tokenEvent = Assert.Single(paid.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "EQUIPMENT_TOKEN_CREATED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["abilityId"] as string, "BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD", StringComparison.Ordinal));
         var tokenObjectId = Assert.IsType<string>(tokenEvent.Payload["tokenObjectId"]);
-        Assert.Contains(tokenObjectId, result.State.PlayerZones["P1"].Base);
-        Assert.True(result.State.CardObjects[tokenObjectId].IsExhausted);
-        Assert.Contains("金币", result.State.CardObjects[tokenObjectId].Tags);
+        Assert.Contains(tokenObjectId, paid.State.PlayerZones["P1"].Base);
+        Assert.True(paid.State.CardObjects[tokenObjectId].IsExhausted);
+        Assert.Contains("金币", paid.State.CardObjects[tokenObjectId].Tags);
     }
 
     [Fact]

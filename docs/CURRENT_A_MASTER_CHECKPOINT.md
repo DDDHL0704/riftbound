@@ -1,6 +1,6 @@
 # A 主控 Checkpoint
 
-更新日期：2026-05-09
+更新日期：2026-05-10
 当前结论：**NOT READY**
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
@@ -1068,6 +1068,56 @@ A 主控复验：
 - 正式 trigger DTO / 解释字段 / 单触发兼容策略文档化仍为 P1。
 
 4C-3 结论：**通过**。没有新增 P0/P1，没有前端本地规则裁决路径，没有发现 hidden information 泄漏；允许继续阶段 4C 下一批。下一批建议继续扩展 destroyed-family 或进入 trigger payment / decline，但必须继续逐 FU、逐测试推进。项目整体仍 **NOT READY**。
+
+## 0.14 阶段 4C-4 Treasure Pile Trigger Payment 小批
+
+阶段 4C-4 进入 trigger payment / decline / payment failure 的最小真实卡牌切片。本批只把 `SFD·220/221`《珍宝堆》/ `FU-4694e33f45` 的征服触发支付窗口服务端官方化，不宣称完整 PaymentEngine、不进入 1009 full-official 覆盖。项目整体仍 **NOT READY**。
+
+4C-4 服务端 / 前端改动：
+
+- `CoreRuleEngine` 将 `BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD` 从自动支付并自动创建金币，改为打开 `PendingPaymentState`：`paymentWindow = TRIGGER_PAYMENT`。
+- 现有 `PAY_COST` command 复用于触发支付窗口；合法 choice 只有 `SPEND_MANA:1` 和 `DECLINE`。
+- `SPEND_MANA:1` 路径会扣 1 点法力、创建休眠“金币”装备指示物、关闭窗口，并写入 `COST_PAID`、`BATTLEFIELD_TRIGGER_RESOLVED`、`EQUIPMENT_TOKEN_CREATED`、`PAYMENT_WINDOW_CLOSED`。
+- `DECLINE` 路径会关闭窗口且不扣费、不创建指示物，并写入 `TRIGGER_PAYMENT_DECLINED`、`PAYMENT_WINDOW_CLOSED`。
+- wrong player、stale prompt、unknown choice、duplicate choice、pay+decline、malformed payload、insufficient mana 都已覆盖拒绝 / no mutation。
+- 前端只补 `PAYMENT_WINDOW_OPENED`、`TRIGGER_PAYMENT_DECLINED` 的中文事件 label，不计算支付合法性或触发结算。
+
+4C-4 覆盖矩阵 / 文档改动：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 新增 `stage4CBatch4TriggerPayment` 顶层 overlay。
+- 确认 `SFD·220/221` 对应 `FU-4694e33f45`，仅该 FU 添加 `stage4C4` overlay。
+- overlay status：`TRIGGER_PAYMENT_PARTIALLY_REDUCED_NOT_FULL_OFFICIAL`。
+- 新增 `docs/CURRENT_STAGE4C_BATCH4_TRIGGER_PAYMENT_EVIDENCE.md`。
+- 新增 `docs/CURRENT_STAGE4C_BATCH4_TRIGGER_PAYMENT_AUDIT.md`。
+- 更新 `docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/rules-evidence-index.md`、`docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`、`docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`、`docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`。
+
+4C-4 A 复核命令：
+
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~TriggerPayment|FullyQualifiedName~BattlefieldConquerGold|FullyQualifiedName~PayCost"`：通过，11/11。
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~RealTriggerQueue|FullyQualifiedName~OrderTriggers|FullyQualifiedName~HonestBroker|FullyQualifiedName~WatchfulSentinel"`：通过，13/13。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：通过，3344/3344。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：通过；仅保留 SignalR / Rollup `PURE` 注释提示。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：通过。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && node scripts/stage3-preflight.mjs --start-api`：第一次与 smoke 并行抢占 API 端口失败；sequential rerun 通过，player-a / player-b 双上下文均 OK；尾部 499/143 和 allocator 记录来自脚本关停 / 本地 Chrome 噪声，不作为阻断。
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`：通过。
+- 结构抽检：snapshot entries = 1009、functional units = 811、`stage4CBatch4TriggerPayment` 存在、`stage4C4` verified FU = `FU-4694e33f45`、full-official upgrades = 0。
+- `git diff --check`：通过。
+
+4C-4 关闭的 P0 子项：
+
+- `SFD·220/221`《珍宝堆》征服触发支付 / 拒付代表路径。
+- 触发支付 choice 校验和支付失败 no-mutation 代表路径。
+- Hub stale prompt 对 trigger payment 拒绝且不广播突变。
+
+4C-4 仍保留 P0/P1：
+
+- 完整 PaymentEngine 尚未完成。
+- `SFD·220/221` 之外的 triggered-cost functional units 未完成。
+- 完整 trigger engine、state-based cleanup trigger enqueue、完整 effect resolution、FAQ adjudication 仍待后续批次。
+- 1009 entries / 811 functional units full-official 覆盖、正式 18 步 E2E、completion audit 仍未完成。
+- `TRIGGER_PAYMENT` 长期 DTO / UX 契约冻结仍为 P1。
+
+4C-4 结论：**通过**。没有新增 P0/P1，没有前端本地规则裁决路径，没有发现 hidden information 泄漏；允许继续阶段 4C 下一批。下一批建议优先 state-based cleanup trigger enqueue 或继续扩展 triggered-cost payment windows，但仍必须逐 FU、逐测试推进。项目整体仍 **NOT READY**。
 
 ## 1. 总目标
 

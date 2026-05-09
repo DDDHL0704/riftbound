@@ -204,7 +204,30 @@ Top20 中 `ORDER_TRIGGERS` / battle initial stack blocker 被部分降低的 FUs
 
 仍缺：完整 trigger engine、其他 last-breath / destroyed / friendly-destroyed 族、state-based cleanup trigger enqueue、trigger payment / decline、FAQ adjudication、1009/811 full-official 覆盖。
 
-## 11. Top20 高风险 Functional Units
+## 11. Stage 4C-4 Trigger Payment Overlay
+
+4C-4 只更新覆盖矩阵 / 风险证据，不升级 full-official。`docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已新增 `stage4CBatch4TriggerPayment`，并只为 `FU-4694e33f45` 增加 `functionalUnits[].stage4C4` overlay。
+
+4C-4 已部分降低的 blocker：
+
+- `SFD·220/221`《珍宝堆》对应 `FU-4694e33f45`，冻结实现口径仍是非 PLAY_CARD 战场规则域 `BATTLEFIELD_RULE_DOMAIN`。
+- 征服该战场后打开服务端权威 `TRIGGER_PAYMENT`，前端只提交服务端 `PAY_COST` candidate。
+- `SPEND_MANA:1` 路径扣 1 点法力并创建休眠“金币”装备指示物；`DECLINE` 路径关闭窗口且不扣费、不创建指示物。
+- wrong player / stale prompt / unknown choice / duplicate choice / pay+decline / malformed payload / insufficient mana 都拒绝且 no mutation。
+- A 验证结果：focused trigger payment 11/11、trigger regression 13/13、backend full 3344/3344、frontend build passed、Chrome smoke passed、stage3 preflight passed after sequential rerun。
+
+本批已验证 FU：`FU-4694e33f45` / `SFD·220/221`《珍宝堆》。overlay status 为 `TRIGGER_PAYMENT_PARTIALLY_REDUCED_NOT_FULL_OFFICIAL`，仍不能升级 full-official。
+
+4C-4 next-pressure 候选只记录在顶层，不标已实现：
+
+- triggered costs：`FU-67c6b0186e`、`FU-c170628e3a`、`FU-b829fb32b9`、`FU-f18a49e06d`、`FU-05ce012700`、`FU-c027639a3c`
+- PaymentEngine families：替代 / 额外费用、触发费用进入结算链项目、state-based cleanup 生成的支付窗口、跨触发族 FAQ 拒付语义。
+
+后续批量顺序建议：先补 state-based cleanup trigger enqueue，再扩展 triggered-cost payment windows，之后才压 attack / defense / conquer real trigger enqueue 与 FAQ adjudication。
+
+仍缺：完整 PaymentEngine、`SFD·220/221` 之外 triggered-cost FUs、state-based cleanup trigger payment、FAQ adjudication、1009/811 full-official 覆盖。
+
+## 12. Top20 高风险 Functional Units
 
 | # | FU | Representative | 类型/条目数 | 当前代表映射 | FAQ 候选页 | 风险依据 | 依赖规则域 |
 |---:|---|---|---:|---|---|---|---|
@@ -229,7 +252,7 @@ Top20 中 `ORDER_TRIGGERS` / battle initial stack blocker 被部分降低的 FUs
 | 19 | `FU-804412488c` | `SFD·139/221` 夜之锋刃 | 装备 / 1 | 代表路径：EDGE_OF_NIGHT_PLAY_EQUIPMENT | SOUL-OFAQ-260114 p10<br>SOUL-OFAQ-260114 p9 | 控制权/区域移动、FAQ 提及、隐藏信息/随机/牌堆、效果层/持续效果、费用/支付、目标/结算链/时机 | FEPR/Targeting/TimingWindows, LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, VisibilityFilter/RandomAndHiddenZones, ZoneOwnership/ControlChange/Movement |
 | 20 | `FU-9a623b3185` | `SFD·059/221` 斯弗尔尚歌 | 装备 / 1 | 代表路径：SFUR_SONG_PLAY_EQUIPMENT | SOUL-JFAQ-260114 p24<br>SOUL-JFAQ-260114 p25<br>SOUL-JFAQ-260114 p8<br>SOUL-OFAQ-260114 p18<br>SOUL-OFAQ-260114 p19 | 控制权/区域移动、FAQ 提及、效果层/持续效果、费用/支付 | LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, ZoneOwnership/ControlChange/Movement |
 
-## 12. 未覆盖效果分类
+## 13. 未覆盖效果分类
 
 | 分类 | 含义 | 当前阻断关系 |
 |---|---|---|
@@ -243,13 +266,13 @@ Top20 中 `ORDER_TRIGGERS` / battle initial stack blocker 被部分降低的 FUs
 | `non-play-domain` | 传奇、战场、符文、指示物等非普通 PLAY_CARD 域。 | 需要专门域矩阵，不可与普通出牌效果混算。 |
 | `faq-mentioned` | 五份 PDF/FAQ 中出现卡名的候选项。 | 必须人工判定问题是否真的约束该 FU，并补测试。 |
 
-## 13. P0/P1 仍未清零
+## 14. P0/P1 仍未清零
 
 P0：
 
 - central cleanup queue 未完整官方化。
 - spell duel / battle 完整生命周期仍未完成。
-- `PAY_COST` 已有 3A 最小 runtime，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime，`ORDER_TRIGGERS` 已升级为 4C-1 保守 APNAP controller-block 子集，4C-2 / 4C-3 只验证 Watchful Sentinel 与 Honest Broker real trigger enqueue；完整 PaymentEngine、完整 damage assignment 全规则矩阵、完整 trigger engine / battle initial stack 全规则仍未完成。
+- `PAY_COST` 已有 3A 最小 runtime，4C-4 已验证 `SFD·220/221` `TRIGGER_PAYMENT` 支付 / 拒付代表路径，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime，`ORDER_TRIGGERS` 已升级为 4C-1 保守 APNAP controller-block 子集，4C-2 / 4C-3 只验证 Watchful Sentinel 与 Honest Broker real trigger enqueue；完整 PaymentEngine、完整 damage assignment 全规则矩阵、完整 trigger engine / battle initial stack 全规则仍未完成。
 - 正式 18 步 E2E 未最终收口。
 - 1009 entries / 811 FUs 的 FAQ 证据与 full-official 测试矩阵未完成。
 

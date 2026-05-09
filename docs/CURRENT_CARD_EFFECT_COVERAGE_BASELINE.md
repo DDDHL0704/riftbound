@@ -616,3 +616,40 @@ Snapshot entry primary status counts：
 - 4C 批量实现仍需 A 明确授权和写入锁。
 
 是否允许进入卡牌效果批量覆盖：**不允许。**
+
+## 14. 阶段 4C-4 E 汇总
+
+阶段 4C-4 名称：Treasure Pile trigger payment / decline / payment failure 最小真实卡牌切片。E 只更新矩阵与证据边界，不授予 full-official，不进入 1009 张卡批量实现。
+
+完成项：
+
+- 在 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 新增 `stage4CBatch4TriggerPayment` 顶层 overlay。
+- 为 `FU-4694e33f45` / `SFD·220/221`《珍宝堆》增加 `functionalUnits[].stage4C4`。
+- 标注服务端 runtime 路径：`TRIGGER_PAYMENT` + `PAY_COST`，合法 choices 为 `SPEND_MANA:1` 与 `DECLINE`。
+- 标注负例：wrong player、stale prompt、unknown choice、duplicate choice、pay+decline、malformed payload、insufficient mana 都是 no-mutation 拒绝。
+- 明确 4B freezeStatus / statusFlags 不变；`fullOfficial` 仍为 `false`。
+
+新增文件：
+
+- `docs/CURRENT_STAGE4C_BATCH4_TRIGGER_PAYMENT_EVIDENCE.md`
+- `docs/CURRENT_STAGE4C_BATCH4_TRIGGER_PAYMENT_AUDIT.md`
+
+修改文件：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`
+- `docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`
+- `docs/rules-evidence-index.md`
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+
+仍存在 P0/P1：
+
+- 完整 PaymentEngine 未完成。
+- `SFD·220/221` 之外的 triggered-cost functional units 未完成。
+- 完整 trigger engine、state-based cleanup trigger enqueue、FAQ adjudication 和正式 18 步 E2E 未完成。
+- 1009 snapshot entries / 811 functional units 的 full-official 覆盖仍为 0。
+
+是否允许批量 full-official 覆盖：**不允许。**
