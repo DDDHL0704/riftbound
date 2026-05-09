@@ -2353,6 +2353,9 @@ internal static class ActionPromptBuilder
     private const string ArionsFallCardNo = "SFD·030/221";
     private const int ArionsFallAssemblePowerCost = 1;
     private const string ArionsFallAssembleOptionalCost = "ASSEMBLE_RED";
+    private const string WitheredBattleaxeCardNo = "UNL-019/219";
+    private const int WitheredBattleaxeAssemblePowerCost = 1;
+    private const string WitheredBattleaxeAssembleOptionalCost = "ASSEMBLE_RED";
     private const string BrutalizerCardNo = "SFD·042/221";
     private const int BrutalizerAssemblePowerCost = 1;
     private const string BrutalizerAssembleOptionalCost = "ASSEMBLE_GREEN";
@@ -2458,6 +2461,14 @@ internal static class ActionPromptBuilder
                 "装配红色符能",
                 RuneTrait.Red,
                 ArionsFallAssemblePowerCost,
+                "payment resource action: recycle red rune for assemble cost"),
+            [WitheredBattleaxeCardNo] = new(
+                WitheredBattleaxeCardNo,
+                "枯萎战斧",
+                WitheredBattleaxeAssembleOptionalCost,
+                "装配红色符能",
+                RuneTrait.Red,
+                WitheredBattleaxeAssemblePowerCost,
                 "payment resource action: recycle red rune for assemble cost"),
             [BrutalizerCardNo] = new(
                 BrutalizerCardNo,

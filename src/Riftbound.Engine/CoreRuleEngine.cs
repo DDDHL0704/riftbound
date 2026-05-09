@@ -43,6 +43,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string ArionsFallCardNo = "SFD·030/221";
     private const string ArionsFallAssembleOptionalCost = "ASSEMBLE_RED";
     private const int ArionsFallAssemblePowerCost = 1;
+    private const string WitheredBattleaxeCardNo = "UNL-019/219";
+    private const string WitheredBattleaxeAssembleOptionalCost = "ASSEMBLE_RED";
+    private const int WitheredBattleaxeAssemblePowerCost = 1;
     private const string BrutalizerCardNo = "SFD·042/221";
     private const string BrutalizerAssembleOptionalCost = "ASSEMBLE_GREEN";
     private const int BrutalizerAssemblePowerCost = 1;
@@ -137,6 +140,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ArionsFallAssembleOptionalCost,
                 RuneTrait.Red,
                 ArionsFallAssemblePowerCost),
+            [WitheredBattleaxeCardNo] = new(
+                WitheredBattleaxeCardNo,
+                "枯萎战斧",
+                WitheredBattleaxeAssembleOptionalCost,
+                RuneTrait.Red,
+                WitheredBattleaxeAssemblePowerCost),
             [BrutalizerCardNo] = new(
                 BrutalizerCardNo,
                 "残暴之力",

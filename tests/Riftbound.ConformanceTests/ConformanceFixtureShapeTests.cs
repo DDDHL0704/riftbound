@@ -3424,6 +3424,48 @@ public sealed class ConformanceFixtureShapeTests
             arionsFallRequirement["optionalCostChoices"]);
         Assert.Equal(["ASSEMBLE_RED"], arionsFallOptionalCostChoices.Select(cost => cost.Id).ToArray());
 
+        var witheredBattleaxeState = payableState with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-WITHERED-BATTLEAXE", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-WITHERED-BATTLEAXE"] = new(
+                    "P1-WITHERED-BATTLEAXE",
+                    cardNo: "UNL-019/219",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var witheredBattleaxePrompt = ResolutionResult.BuildPrompts(witheredBattleaxeState)["P1"];
+        var witheredBattleaxeCandidate = Assert.Single(
+            witheredBattleaxePrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(witheredBattleaxeCandidate.Enabled);
+        Assert.Equal(["P1-WITHERED-BATTLEAXE"], (witheredBattleaxeCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_RED"], (witheredBattleaxeCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var witheredBattleaxeMetadata = Assert.IsType<Dictionary<string, object?>>(witheredBattleaxeCandidate.Metadata);
+        var witheredBattleaxeRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(witheredBattleaxeMetadata["sourceRequirements"]));
+        Assert.Equal("UNL-019/219", Assert.IsType<string>(witheredBattleaxeRequirement["equipmentCardNo"]));
+        var witheredBattleaxeOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            witheredBattleaxeRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_RED"], witheredBattleaxeOptionalCostChoices.Select(cost => cost.Id).ToArray());
+
         var clothArmorState = noPowerState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
