@@ -1,12 +1,12 @@
 # Stage 4B Card Coverage Freeze
 
-日期：2026-05-09；4C-1 / 4C-2 overlay 追加：2026-05-09
+日期：2026-05-09；4C-1 / 4C-2 / 4C-3 overlay 追加：2026-05-09
 
 阶段：**阶段 4B / E 卡牌覆盖矩阵冻结**
 
-结论：**4B freeze 完成；4C-1 / 4C-2 post-freeze overlay 已记录；NOT READY；不允许 1009 张卡批量实现。**
+结论：**4B freeze 完成；4C-1 / 4C-2 / 4C-3 post-freeze overlay 已记录；NOT READY；不允许 1009 张卡批量实现。**
 
-本文冻结卡牌覆盖矩阵、official text / FAQ evidence、functional units、测试优先级和阶段 4 批量顺序。4C-1 只在冻结矩阵上追加 APNAP `ORDER_TRIGGERS` / battle initial stack / hidden trigger metadata redaction overlay；4C-2 只追加 Watchful Sentinel real trigger enqueue overlay。E 不修改服务端/前端代码，不修改 A checkpoint，不触碰 `riftbound-dotnet.sln`。
+本文冻结卡牌覆盖矩阵、official text / FAQ evidence、functional units、测试优先级和阶段 4 批量顺序。4C-1 只在冻结矩阵上追加 APNAP `ORDER_TRIGGERS` / battle initial stack / hidden trigger metadata redaction overlay；4C-2 / 4C-3 只追加 Watchful Sentinel 与 Honest Broker real trigger enqueue overlay。E 不修改服务端/前端代码，不修改 A checkpoint，不触碰 `riftbound-dotnet.sln`。
 
 ## 1. Source Snapshot
 
@@ -189,9 +189,34 @@ Top risk remains the Stage 2 Top20 with 4B statuses overlaid:
 
 仍缺：完整 trigger engine、其他 last-breath 族、trigger payment / decline、state-based cleanup trigger enqueue、FAQ adjudication 和 1009/811 full-official 覆盖。
 
-## 10. 4B / 4C-1 / 4C-2 Blocker
+## 10. Post-Freeze 4C-3 Overlay
 
-4B freeze、4C-1 overlay 和 4C-2 overlay 本身无文档阻断。仍阻断 READY / full-official 的事项：
+4C-3 不改变 4B frozen counts、primary status counts 或 full-official 口径，只记录 B/A 已完成并通过测试的局部 runtime 证据：
+
+| 项 | 4C-3 记录 |
+|---|---|
+| verified FU | `FU-3acf92c924` / `SFD·155/221`《诚实掮客》 |
+| real trigger route | `UNIT_DESTROYED -> TriggerQueue -> ORDER_TRIGGERS -> StackItems -> priority pass -> TRIGGER_RESOLVED -> EQUIPMENT_TOKEN_CREATED` |
+| effect kinds | `HONEST_BROKER_LAST_BREATH_GOLD_PLAY_UNIT` -> `HONEST_BROKER_LAST_BREATH_CREATE_GOLD` |
+| compatibility | 单个 Watchful / Honest Broker 仍保留旧即时结算兼容；多个官方化 last-breath 触发同时产生时进入排序窗口。 |
+| validation | focused 13/13、backend full 3339/3339、frontend build passed、Chrome smoke passed、stage3 preflight passed。 |
+
+矩阵 overlay 数字：
+
+- `stage4C3` verified FUs：1
+- `stage4C3` verified snapshot entries：1
+- cumulative real-trigger enqueue verified FUs：2
+- cumulative real-trigger enqueue verified snapshot entries：2
+- next-pressure candidate FUs：23
+- full-official upgrades：0
+
+同族 last-breath / destroyed / friendly-destroyed / on-play trigger / attack / defense / conquer FUs 只记录为 next-pressure candidates，不标为已实现。
+
+仍缺：完整 trigger engine、其他 last-breath / destroyed / friendly-destroyed 族、state-based cleanup trigger enqueue、trigger payment / decline、FAQ adjudication 和 1009/811 full-official 覆盖。
+
+## 11. 4B / 4C-1 / 4C-2 / 4C-3 Blocker
+
+4B freeze、4C-1 overlay、4C-2 overlay 和 4C-3 overlay 本身无文档阻断。仍阻断 READY / full-official 的事项：
 
 - 0/811 functional units 获得 full-official。
 - P0/P1 engine support 仍影响 762 FUs by status flag。

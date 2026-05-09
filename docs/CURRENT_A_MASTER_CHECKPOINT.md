@@ -1022,6 +1022,53 @@ A 主控复验：
 
 4C-2 结论：**通过**。没有新增 P0/P1，没有前端本地规则裁决路径，没有发现 hidden information 泄漏；允许继续阶段 4C 下一批。下一批建议扩展 last-breath / destroyed-family real enqueue，但仍按小批、逐 FU、逐测试推进。项目整体仍 **NOT READY**。
 
+## 0.13 阶段 4C-3 Honest Broker Last-Breath Enqueue 小批
+
+阶段 4C-3 继续扩展 last-breath / destroyed-family real enqueue，但仍保持小批范围。本批只把 `Honest Broker` / `SFD·155/221` / `FU-3acf92c924` 的多真实遗言金币触发接入服务端权威触发队列，不宣称完整 trigger engine、不进入 1009 full-official 覆盖。项目整体仍 **NOT READY**。
+
+4C-3 服务端改动：
+
+- `HonestBrokerCardNo` / `HONEST_BROKER_LAST_BREATH_CREATE_GOLD` 扩展到真实多触发路径：`UNIT_DESTROYED -> TriggerQueue -> ORDER_TRIGGERS -> StackItems -> priority pass -> TRIGGER_RESOLVED -> EQUIPMENT_TOKEN_CREATED`。
+- 多控制者真实 last-breath 触发沿用 4C-1 APNAP 默认 `orderedTriggerIds`，可直接提交并 accepted。
+- 非法跨控制者排序 rejected，且失败命令不改变 authoritative state。
+- 与 4C-2 合并后，`Watchful Sentinel` 与 `Honest Broker` 两条 last-breath 代表路径已有 real enqueue 证据。
+- 单触发 `Watchful Sentinel` / `Honest Broker` 仍保留即时结算兼容；本批不宣称统一单触发策略完成。
+
+4C-3 覆盖矩阵 / 文档改动：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 新增 `stage4CBatch3LastBreathEnqueue` 顶层 overlay。
+- 确认 `SFD·155/221` 对应 `FU-3acf92c924`，仅该 FU 添加 `stage4C3` overlay。
+- 未回退 4C-2 `FU-67568b793d` overlay；累计 real-trigger enqueue verified FUs = 2。
+- 新增 `docs/CURRENT_STAGE4C_BATCH3_LAST_BREATH_ENQUEUE_EVIDENCE.md`。
+- 新增 `docs/CURRENT_STAGE4C_BATCH3_LAST_BREATH_ENQUEUE_AUDIT.md`。
+- 更新 `docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/rules-evidence-index.md`、`docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`、`docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`、`docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`。
+
+4C-3 A 复核命令：
+
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~RealTriggerQueueTests|FullyQualifiedName~OrderTriggers|FullyQualifiedName~WatchfulSentinel|FullyQualifiedName~HonestBroker"`：通过，13/13。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：通过，3339/3339。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：通过；仅保留 SignalR / Rollup `PURE` 注释提示。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：通过。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && node scripts/stage3-preflight.mjs --start-api`：通过，player-a / player-b 双上下文均 OK；尾部 499/143、allocator、Chrome WebApp 和 mojo 记录来自脚本关停 / 本地 Chrome 噪声，不作为阻断。
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`：通过。
+- 结构抽检：snapshot entries = 1009、functional units = 811、`stage4CBatch3LastBreathEnqueue` 存在、`stage4C2` verified FU = `FU-67568b793d`、`stage4C3` verified FU = `FU-3acf92c924`、full-official upgrades = 0。
+- `git diff --check`：通过。
+
+4C-3 关闭的 P0 子项：
+
+- `Honest Broker` 遗言金币真实多触发排序 / 入栈 / 结算代表路径。
+- Watchful + Honest Broker 两条 last-breath 代表路径具备 real enqueue 证据。
+- 多控制者真实 last-breath APNAP 默认排序 accepted；非法跨控制者排序 no-mutation 拒绝。
+
+4C-3 仍保留 P0/P1：
+
+- 完整 trigger engine 尚未完成。
+- 其他 destroyed-family、state-based cleanup trigger enqueue、trigger payment / decline / payment failure、完整 effect resolution、FAQ adjudication 仍待后续批次。
+- 1009 entries / 811 functional units full-official 覆盖、正式 18 步 E2E、completion audit 仍未完成。
+- 正式 trigger DTO / 解释字段 / 单触发兼容策略文档化仍为 P1。
+
+4C-3 结论：**通过**。没有新增 P0/P1，没有前端本地规则裁决路径，没有发现 hidden information 泄漏；允许继续阶段 4C 下一批。下一批建议继续扩展 destroyed-family 或进入 trigger payment / decline，但必须继续逐 FU、逐测试推进。项目整体仍 **NOT READY**。
+
 ## 1. 总目标
 
 以当前仓库五份官方规则 / FAQ PDF 与 `data/official/card-catalog.zh-CN.json` 的 2026-04-27 官网卡牌快照为准，完成本地双人 1v1 标准构筑产品级 Web 游戏基线：

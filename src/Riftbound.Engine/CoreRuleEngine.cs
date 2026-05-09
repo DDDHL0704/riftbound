@@ -20259,6 +20259,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveWatchfulSentinelLastBreathStackItem(state, stackItem);
         }
 
+        if (string.Equals(stackItem.EffectKind, HonestBrokerLastBreathCreateGoldEffectKind, StringComparison.Ordinal))
+        {
+            return ResolveHonestBrokerLastBreathStackItem(state, stackItem);
+        }
+
         if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.ViDoublePowerAbilityEffectKind, StringComparison.Ordinal))
         {
             return ResolveViDoublePowerAbilityStackItem(state, stackItem);
@@ -20298,7 +20303,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             .OrderBy(effectId => effectId, StringComparer.Ordinal)
             .ToList();
         var events = new List<GameEvent>();
-        var watchfulSentinelLastBreathTriggers = new List<TriggerQueueItemState>();
+        var officialLastBreathTriggers = new List<TriggerQueueItemState>();
         var destroyedObjectIds = new List<string>();
         var destroyedUnitOwnerIds = new List<string>();
         var counteredStackItemIds = new List<string>();
@@ -22109,7 +22114,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                                     lastBreathDrawPlayerId,
                                     WatchfulSentinelLastBreathDrawEffectKind);
                                 events.Add(BuildTriggerQueuedEvent(trigger));
-                                watchfulSentinelLastBreathTriggers.Add(trigger);
+                                officialLastBreathTriggers.Add(trigger);
                             }
 
                             var warhawkRunePlayerId = ResolveScoutingWarhawkLastBreathRunePlayerId(
@@ -22202,19 +22207,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                                     honestBrokerGoldPlayerId,
                                     HonestBrokerLastBreathCreateGoldEffectKind);
                                 events.Add(BuildTriggerQueuedEvent(trigger));
-                                events.Add(BuildTriggerResolvedEvent(trigger));
-                                var tokenStackItem = new StackItemState(
-                                    stackItemId: trigger.TriggerId,
-                                    controllerId: honestBrokerGoldPlayerId,
-                                    sourceObjectId: targetObjectId,
-                                    effectKind: HonestBrokerLastBreathCreateGoldEffectKind,
-                                    cardNo: HonestBrokerCardNo);
-                                CreateBaseEquipmentTokens(
-                                    playerZones,
-                                    cardObjects,
-                                    HonestBrokerLastBreathCreateGoldBehavior,
-                                    tokenStackItem,
-                                    events);
+                                officialLastBreathTriggers.Add(trigger);
                             }
 
                             var unsungHeroDrawPlayerId = ResolveUnsungHeroLastBreathDrawPlayerId(
@@ -22740,25 +22733,37 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var triggerQueue = Array.Empty<TriggerQueueItemState>();
-        if (watchfulSentinelLastBreathTriggers.Count == 1)
+        if (officialLastBreathTriggers.Count == 1)
         {
-            var trigger = watchfulSentinelLastBreathTriggers[0];
+            var trigger = officialLastBreathTriggers[0];
             events.Add(BuildTriggerResolvedEvent(trigger));
-            var drawApplication = ApplyDrawToPlayer(
-                state,
-                playerZones,
-                playerScores,
-                trigger.ControllerId,
-                1,
-                rngCursor,
-                events);
-            playerScores = drawApplication.PlayerScores;
-            winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
-            rngCursor = drawApplication.RngCursor;
+            if (string.Equals(trigger.EffectKind, WatchfulSentinelLastBreathDrawEffectKind, StringComparison.Ordinal))
+            {
+                var drawApplication = ApplyDrawToPlayer(
+                    state,
+                    playerZones,
+                    playerScores,
+                    trigger.ControllerId,
+                    1,
+                    rngCursor,
+                    events);
+                playerScores = drawApplication.PlayerScores;
+                winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
+                rngCursor = drawApplication.RngCursor;
+            }
+            else if (string.Equals(trigger.EffectKind, HonestBrokerLastBreathCreateGoldEffectKind, StringComparison.Ordinal))
+            {
+                CreateBaseEquipmentTokens(
+                    playerZones,
+                    cardObjects,
+                    HonestBrokerLastBreathCreateGoldBehavior,
+                    BuildStackItemForLastBreathTrigger(trigger, HonestBrokerCardNo),
+                    events);
+            }
         }
-        else if (watchfulSentinelLastBreathTriggers.Count > 1)
+        else if (officialLastBreathTriggers.Count > 1)
         {
-            triggerQueue = watchfulSentinelLastBreathTriggers.ToArray();
+            triggerQueue = officialLastBreathTriggers.ToArray();
         }
 
         untilEndOfTurnEffects = MarkPlayersWhoGainedExperienceThisTurn(untilEndOfTurnEffects, events).ToList();
@@ -22825,6 +22830,59 @@ public sealed class CoreRuleEngine : IRuleEngine
             null,
             [],
             drawApplication.RngCursor);
+    }
+
+    private static StackResolutionResult ResolveHonestBrokerLastBreathStackItem(
+        MatchState state,
+        StackItemState stackItem)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var events = new List<GameEvent>
+        {
+            BuildTriggerResolvedEvent(new TriggerQueueItemState(
+                stackItem.StackItemId.StartsWith("ordered-", StringComparison.Ordinal)
+                    ? stackItem.StackItemId["ordered-".Length..]
+                    : stackItem.StackItemId,
+                stackItem.ControllerId,
+                stackItem.SourceObjectId,
+                stackItem.EffectKind,
+                "UNIT_DESTROYED"))
+        };
+        CreateBaseEquipmentTokens(
+            playerZones,
+            cardObjects,
+            HonestBrokerLastBreathCreateGoldBehavior,
+            stackItem,
+            events);
+
+        return new StackResolutionResult(
+            playerZones,
+            cardObjects,
+            state.PlayerScores,
+            NormalizeExperienceForSeats(state),
+            state.RunePools,
+            state.UntilEndOfTurnEffects,
+            null,
+            events,
+            [],
+            null,
+            [],
+            null,
+            [],
+            state.RngCursor);
+    }
+
+    private static StackItemState BuildStackItemForLastBreathTrigger(
+        TriggerQueueItemState trigger,
+        string cardNo)
+    {
+        return new StackItemState(
+            stackItemId: trigger.TriggerId,
+            controllerId: trigger.ControllerId,
+            sourceObjectId: trigger.SourceObjectId,
+            effectKind: trigger.EffectKind,
+            cardNo: cardNo);
     }
 
     private static StackResolutionResult ResolveViDoublePowerAbilityStackItem(
