@@ -115,6 +115,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SacredShearsCardNo = "SFD·172/221";
     private const string SacredShearsAssembleOptionalCost = "ASSEMBLE_YELLOW";
     private const int SacredShearsAssemblePowerCost = 1;
+    private const string BladeOfTheRuinedKingCardNo = "SFD·178/221";
+    private const string BladeOfTheRuinedKingAssembleOptionalCost = "ASSEMBLE_YELLOW";
+    private const int BladeOfTheRuinedKingAssemblePowerCost = 1;
     private const string SpinningAxeCardNo = "SFD·186/221";
     private const string SpinningAxeAssembleOptionalCost = "ASSEMBLE_ANY_POWER";
     private const int SpinningAxeAssemblePowerCost = 1;
@@ -136,7 +139,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         string OptionalCost,
         string PowerTrait,
         int PowerCost,
-        int ExperienceCost = 0);
+        int ExperienceCost = 0,
+        bool RequiresDestroyFriendlyUnitCost = false);
 
     private static readonly IReadOnlyDictionary<string, AssembleEquipmentProfile> ImplementedAssembleEquipmentProfiles =
         new Dictionary<string, AssembleEquipmentProfile>(StringComparer.Ordinal)
@@ -315,6 +319,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 SacredShearsAssembleOptionalCost,
                 RuneTrait.Yellow,
                 SacredShearsAssemblePowerCost),
+            [BladeOfTheRuinedKingCardNo] = new(
+                BladeOfTheRuinedKingCardNo,
+                "破败王者之刃",
+                BladeOfTheRuinedKingAssembleOptionalCost,
+                RuneTrait.Yellow,
+                BladeOfTheRuinedKingAssemblePowerCost,
+                RequiresDestroyFriendlyUnitCost: true),
             [SpinningAxeCardNo] = new(
                 SpinningAxeCardNo,
                 "旋转飞斧",
@@ -1465,7 +1476,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         PlayerIntent intent,
         AssembleEquipmentCommand command)
     {
-        if (!TryBuildMinimalAssembleEquipmentPlan(state, intent, command, out var equipmentState, out var targetState, out var assembleProfile))
+        if (!TryBuildMinimalAssembleEquipmentPlan(
+                state,
+                intent,
+                command,
+                out var equipmentState,
+                out var targetState,
+                out var assembleProfile,
+                out var destroyedAdditionalCostTargetObjectIds))
         {
             return RejectWithCorePrompts(
                 state,
@@ -1541,6 +1559,43 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         runePools = PayRuneCosts(runePools, intent.PlayerId, 0, assembleAnyPowerCost, assemblePowerCostByTrait);
         var playerExperience = PayExperienceCosts(state, intent.PlayerId, assembleProfile.ExperienceCost);
+        var destroyedAdditionalCostOwnerIds = new List<string>();
+        var assembleRemovalEvents = new List<GameEvent>();
+        if (destroyedAdditionalCostTargetObjectIds.Count > 0)
+        {
+            var assembleStackItem = new StackItemState(
+                $"ASSEMBLE_EQUIPMENT:{command.SourceObjectId}:{state.Tick + 1}",
+                intent.PlayerId,
+                command.SourceObjectId,
+                "ASSEMBLE_EQUIPMENT",
+                assembleProfile.CardNo,
+                [command.TargetObjectId],
+                optionalCosts: optionalCosts);
+            foreach (var additionalCostTargetObjectId in destroyedAdditionalCostTargetObjectIds)
+            {
+                if (!TryDestroyTarget(playerZones, cardObjects, additionalCostTargetObjectId, out var removalResult))
+                {
+                    return RejectWithCorePrompts(
+                        state,
+                        AssembleEquipmentUnsupportedMessage,
+                        ErrorCodes.UnsupportedCommand);
+                }
+
+                assembleRemovalEvents.Add(BuildFieldRemovalEvent(
+                    assembleProfile.DisplayName,
+                    assembleStackItem,
+                    additionalCostTargetObjectId,
+                    removalResult,
+                    "ADDITIONAL_COST"));
+                if (removalResult.WasDestroyed)
+                {
+                    destroyedAdditionalCostOwnerIds.Add(removalResult.OwnerPlayerId);
+                }
+            }
+
+            objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
+        }
+
         var equipmentWithIdentity = WithFieldIdentityDefaults(equipmentState, intent.PlayerId);
         var targetWithIdentity = WithFieldIdentityDefaults(targetState, intent.PlayerId);
         cardObjects[command.SourceObjectId] = equipmentWithIdentity with
@@ -1557,10 +1612,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             PlayerZones = playerZones,
             CardObjects = cardObjects,
             ObjectLocations = objectLocations,
+            DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(
+                state.DestroyedUnitOwnerIdsThisTurn,
+                destroyedAdditionalCostOwnerIds),
             PassedPriorityPlayerIds = []
         };
-        var events = new List<GameEvent>(paymentEvents)
-        {
+        var events = new List<GameEvent>(paymentEvents);
+        events.Add(
             new(
                 "COST_PAID",
                 $"{intent.PlayerId} 支付{assembleProfile.DisplayName}装配费用",
@@ -1573,8 +1631,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = command.SourceObjectId,
                     ["targetObjectId"] = command.TargetObjectId,
                     ["optionalCosts"] = optionalCosts.ToArray(),
-                    ["paymentResourceActions"] = paymentResourceActions.ToArray()
-                }),
+                    ["paymentResourceActions"] = paymentResourceActions.ToArray(),
+                    ["destroyedAdditionalCostTargetObjectIds"] = destroyedAdditionalCostTargetObjectIds.ToArray()
+                }));
+        events.AddRange(assembleRemovalEvents);
+        events.Add(
             new(
                 "EQUIPMENT_ATTACHED",
                 $"{intent.PlayerId} 装配{assembleProfile.DisplayName}",
@@ -1590,8 +1651,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["targetPower"] = targetWithIdentity.Power,
                     ["optionalCosts"] = optionalCosts.ToArray(),
                     ["paymentResourceActions"] = paymentResourceActions.ToArray()
-                })
-        };
+                }));
 
         return new ResolutionResult(
             true,
@@ -1608,11 +1668,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         AssembleEquipmentCommand command,
         out CardObjectState equipmentState,
         out CardObjectState targetState,
-        out AssembleEquipmentProfile assembleProfile)
+        out AssembleEquipmentProfile assembleProfile,
+        out IReadOnlyList<string> destroyedAdditionalCostTargetObjectIds)
     {
         equipmentState = default!;
         targetState = default!;
         assembleProfile = default!;
+        destroyedAdditionalCostTargetObjectIds = [];
 
         if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
             || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
@@ -1630,7 +1692,6 @@ public sealed class CoreRuleEngine : IRuleEngine
                 out var behaviorOptionalCosts,
                 out _,
                 out _)
-            || behaviorOptionalCosts.Count != 1
             || string.IsNullOrWhiteSpace(command.SourceObjectId)
             || string.IsNullOrWhiteSpace(command.TargetObjectId)
             || string.Equals(command.SourceObjectId, command.TargetObjectId, StringComparison.Ordinal))
@@ -1652,8 +1713,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         if (string.IsNullOrWhiteSpace(knownEquipmentState.CardNo)
-            || !ImplementedAssembleEquipmentProfiles.TryGetValue(knownEquipmentState.CardNo, out var knownAssembleProfile)
-            || !string.Equals(behaviorOptionalCosts[0], knownAssembleProfile.OptionalCost, StringComparison.Ordinal))
+            || !ImplementedAssembleEquipmentProfiles.TryGetValue(knownEquipmentState.CardNo, out var knownAssembleProfile))
         {
             return false;
         }
@@ -1670,9 +1730,60 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (!TryBuildAssembleEquipmentBehaviorCosts(
+                state,
+                intent.PlayerId,
+                command.TargetObjectId,
+                knownAssembleProfile,
+                behaviorOptionalCosts,
+                out destroyedAdditionalCostTargetObjectIds))
+        {
+            return false;
+        }
+
         equipmentState = knownEquipmentState;
         targetState = knownTargetState;
         assembleProfile = knownAssembleProfile;
+        return true;
+    }
+
+    private static bool TryBuildAssembleEquipmentBehaviorCosts(
+        MatchState state,
+        string playerId,
+        string targetObjectId,
+        AssembleEquipmentProfile assembleProfile,
+        IReadOnlyList<string> behaviorOptionalCosts,
+        out IReadOnlyList<string> destroyedAdditionalCostTargetObjectIds)
+    {
+        destroyedAdditionalCostTargetObjectIds = [];
+        if (!assembleProfile.RequiresDestroyFriendlyUnitCost)
+        {
+            return behaviorOptionalCosts.Count == 1
+                && string.Equals(behaviorOptionalCosts[0], assembleProfile.OptionalCost, StringComparison.Ordinal);
+        }
+
+        if (behaviorOptionalCosts.Count != 2
+            || behaviorOptionalCosts.Count(cost => string.Equals(
+                cost,
+                assembleProfile.OptionalCost,
+                StringComparison.Ordinal)) != 1)
+        {
+            return false;
+        }
+
+        var destroyFriendlyUnitCost = behaviorOptionalCosts.FirstOrDefault(cost =>
+            !string.Equals(cost, assembleProfile.OptionalCost, StringComparison.Ordinal));
+        if (string.IsNullOrWhiteSpace(destroyFriendlyUnitCost)
+            || !TryParseDestroyFriendlyUnitAdditionalCost(
+                destroyFriendlyUnitCost,
+                out var destroyedFriendlyUnitTargetObjectId)
+            || string.Equals(destroyedFriendlyUnitTargetObjectId, targetObjectId, StringComparison.Ordinal)
+            || !CanDestroyFriendlyUnitAsAdditionalCost(state, playerId, destroyedFriendlyUnitTargetObjectId))
+        {
+            return false;
+        }
+
+        destroyedAdditionalCostTargetObjectIds = [destroyedFriendlyUnitTargetObjectId];
         return true;
     }
 

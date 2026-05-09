@@ -5149,6 +5149,104 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptShowsDestroyFriendlyUnitCostAssembleEquipmentSource()
+    {
+        var state = new MatchState(
+            "prompt-assemble-destroy-friendly-unit-source-room",
+            24,
+            6,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Yellow] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base =
+                    [
+                        "P1-BLADE-RUINED-KING",
+                        "P1-UNIT-ASSEMBLE-TARGET",
+                        "P1-UNIT-ASSEMBLE-COST"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BLADE-RUINED-KING"] = new(
+                    "P1-BLADE-RUINED-KING",
+                    cardNo: "SFD·178/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-ASSEMBLE-TARGET"] = new(
+                    "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-ASSEMBLE-COST"] = new(
+                    "P1-UNIT-ASSEMBLE-COST",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var assembleCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+
+        Assert.True(assembleCandidate.Enabled);
+        Assert.Equal(["P1-BLADE-RUINED-KING"], (assembleCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        var metadata = Assert.IsType<Dictionary<string, object?>>(assembleCandidate.Metadata);
+        var sourceRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+        Assert.Equal("SFD·178/221", sourceRequirement["equipmentCardNo"]);
+        Assert.Equal("破败王者之刃", sourceRequirement["displayName"]);
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["powerCost"]));
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["experienceCost"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["requiredAdditionalCostChoiceCount"]));
+        Assert.Equal(["ASSEMBLE_YELLOW"], Assert.IsAssignableFrom<IEnumerable<string>>(
+            sourceRequirement["requiredOptionalCosts"]).ToArray());
+        Assert.Equal(["ASSEMBLE_YELLOW"], Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["optionalCostChoices"]).Select(choice => choice.Id).ToArray());
+        Assert.Equal(
+            ["P1-UNIT-ASSEMBLE-TARGET", "P1-UNIT-ASSEMBLE-COST"],
+            Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["targetChoices"]).Select(choice => choice.Id).ToArray());
+        Assert.Equal(
+            [
+                "DESTROY_FRIENDLY_UNIT:P1-UNIT-ASSEMBLE-COST",
+                "DESTROY_FRIENDLY_UNIT:P1-UNIT-ASSEMBLE-TARGET"
+            ],
+            Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["additionalCostChoices"]).Select(choice => choice.Id).ToArray());
+    }
+
+    [Fact]
     public void ActionPromptHidesAssembleEquipmentTargetWhenUnitHasNoCardNo()
     {
         var state = new MatchState(

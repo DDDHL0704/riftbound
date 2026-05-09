@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 第三百四十二批补齐《破败王者之刃》（SFD·178/221）黄色符能 + 摧毁友方单位额外费用装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在可表达 `ASSEMBLE_YELLOW` 与 `DESTROY_FRIENDLY_UNIT:<objectId>` 的组合费用，Core 会先支付黄色符能、摧毁服务端确认的友方单位，再将装备贴附到另一个合法己方单位；缺少摧毁费用、摧毁目标与装配目标相同或费用不足均拒绝且零副作用。ActionPrompt 公开 `additionalCostChoices` / `requiredAdditionalCostChoiceCount=1`，DevUi 装配面板新增“额外费用”选择并只提交服务端候选。本批 Browser Use smoke 已覆盖 P1 打开详情、选择服务端候选并确认装配，UI 显示“支付费用 / 单位摧毁 / 装备装配”，authoritative snapshot 确认费用单位进墓地、装备贴附、reload/reconnect 可恢复；build、focused 3/3、`AssembleEquipment` 70/70、`GameHubJoinTests` 127/127、后端 full test 3288/3288 与 DevUi build 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%+**。
+
 - 第三百四十一批补齐《牧人的传家宝》（UNL-158/219）经验消耗装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在可表达 `SPEND_EXPERIENCE:1`，Core 扣除 1 经验后把基地中未贴附《牧人的传家宝》贴附到己方单位，经验不足则拒绝且零副作用；ActionPrompt 只在经验足够时公开该来源、经验费用和合法目标，DevUi 装配面板显示服务端给出的经验费用。本批新增 `assemble-experience` 开发种子和 Hub 级提交测试，不启动业务 Chrome smoke；build 通过，focused 经验装配 3/3、`AssembleEquipment` 回归 68/68、后端 full test 3285/3285、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%+**。
 
 - 第三百四十批补复杂/延迟装配费用护栏。《牧人的传家宝》（UNL-158/219）的装配费用是消耗 1 经验，当前完整经验费用装配模型仍 deferred；本批锁定服务端行为为 ActionPrompt 不公开该装备作为 `ASSEMBLE_EQUIPMENT` 来源，Core 对 `SPEND_EXPERIENCE:1` 直接装配命令保持拒绝且零副作用，避免前端把未支持能力显示成可玩。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 68/68、后端 full test 3284/3284、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%+**。

@@ -2827,7 +2827,7 @@ P4 延展 158. 已完成：新增《蜜糖果实》带目标打出拒绝 fixture
 
 P4 延展 159. 已完成：新增《临终仪式》带目标打出拒绝 fixture。`PLAY_CARD sourceObjectId=P1-EQUIPMENT-LAST-RITES cardNo=SFD·150/221 targetObjectIds=["P1-LAST-RITES-BASE-UNIT-001"]` 给当前 0 目标装备入场路径提供显式单位目标时不满足当前手牌打出目标数量要求；命令被拒绝后 tick、事件、符文池、手牌、主牌堆、基地目标对象和结算链均不改变，3 点费用保留未支付。P4.223 同时把该 fixture 纳入基础动作聚合回放，装配和废牌堆回收分支仍暂缓。
 
-P4 延展 160. 已完成：新增《破败王者之刃》带目标打出拒绝 fixture。`PLAY_CARD sourceObjectId=P1-EQUIPMENT-BLADE-OF-RUINED-KING cardNo=SFD·178/221 targetObjectIds=["P1-BLADE-OF-RUINED-KING-BASE-UNIT-001"]` 给当前 0 目标装备入场路径提供显式单位目标时不满足当前手牌打出目标数量要求；命令被拒绝后 tick、事件、符文池、手牌、主牌堆、基地目标对象和结算链均不改变，3 点费用保留未支付。P4.224 同时把该 fixture 纳入基础动作聚合回放，装配、额外费用和贴附分支仍暂缓。
+P4 延展 160. 已完成：新增《破败王者之刃》带目标打出拒绝 fixture。`PLAY_CARD sourceObjectId=P1-EQUIPMENT-BLADE-OF-RUINED-KING cardNo=SFD·178/221 targetObjectIds=["P1-BLADE-OF-RUINED-KING-BASE-UNIT-001"]` 给当前 0 目标装备入场路径提供显式单位目标时不满足当前手牌打出目标数量要求；命令被拒绝后 tick、事件、符文池、手牌、主牌堆、基地目标对象和结算链均不改变，3 点费用保留未支付。P4.224 同时把该 fixture 纳入基础动作聚合回放；第三百四十二批另补基地中未贴附《破败王者之刃》支付 `ASSEMBLE_YELLOW` 并用 `DESTROY_FRIENDLY_UNIT:<objectId>` 摧毁另一名友方单位作为额外费用后装配到己方单位的服务端代表路径，缺少额外费用、摧毁目标与装配目标相同或费用不足拒绝且零副作用。
 
 P4 延展 161. 已完成：新增《来路不明的武器》带目标打出拒绝 fixture。`PLAY_CARD sourceObjectId=P1-EQUIPMENT-MYSTERIOUS-WEAPON cardNo=OGN·023/298 targetObjectIds=["P1-MYSTERIOUS-WEAPON-BASE-UNIT-001"]` 给当前 0 目标装备入场路径提供显式单位目标时不满足当前手牌打出目标数量要求；命令被拒绝后 tick、事件、符文池、手牌、主牌堆、基地目标对象和结算链均不改变，2 点费用保留未支付。P4.225 同时把该 fixture 纳入基础动作聚合回放，弃牌横置和摧毁替代效果仍暂缓。
 

@@ -50903,6 +50903,133 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4AssembleEquipmentCommandAttachesBladeOfTheRuinedKingWithDestroyFriendlyUnitCost()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Yellow] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base =
+                    [
+                        "P1-EQUIPMENT-BLADE-RUINED-KING",
+                        "P1-UNIT-ASSEMBLE-TARGET",
+                        "P1-UNIT-ASSEMBLE-COST"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-EQUIPMENT-BLADE-RUINED-KING"] = new(
+                    "P1-EQUIPMENT-BLADE-RUINED-KING",
+                    cardNo: "SFD·178/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-ASSEMBLE-TARGET"] = new(
+                    "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-ASSEMBLE-COST"] = new(
+                    "P1-UNIT-ASSEMBLE-COST",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-assemble-equipment-blade-destroy-friendly-unit", "P1", "ASSEMBLE_EQUIPMENT"),
+            new AssembleEquipmentCommand(
+                "P1-EQUIPMENT-BLADE-RUINED-KING",
+                "P1-UNIT-ASSEMBLE-TARGET",
+                ["ASSEMBLE_YELLOW", "DESTROY_FRIENDLY_UNIT:P1-UNIT-ASSEMBLE-COST"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        Assert.Equal(["COST_PAID", "UNIT_DESTROYED", "EQUIPMENT_ATTACHED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Equal(
+            ["P1-EQUIPMENT-BLADE-RUINED-KING", "P1-UNIT-ASSEMBLE-TARGET"],
+            result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-UNIT-ASSEMBLE-COST"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.False(result.State.CardObjects.ContainsKey("P1-UNIT-ASSEMBLE-COST"));
+        Assert.Equal(
+            "P1-UNIT-ASSEMBLE-TARGET",
+            result.State.CardObjects["P1-EQUIPMENT-BLADE-RUINED-KING"].AttachedToObjectId);
+        Assert.Equal(["P1"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.Empty(result.State.StackItems);
+
+        var costPaidPayload = result.Events[0].Payload;
+        Assert.Equal(1, costPaidPayload["power"]);
+        Assert.Equal(0, costPaidPayload["experience"]);
+        Assert.Equal(
+            ["ASSEMBLE_YELLOW", "DESTROY_FRIENDLY_UNIT:P1-UNIT-ASSEMBLE-COST"],
+            Assert.IsAssignableFrom<IEnumerable<string>>(costPaidPayload["optionalCosts"]).ToArray());
+        Assert.Equal(
+            ["P1-UNIT-ASSEMBLE-COST"],
+            Assert.IsAssignableFrom<IEnumerable<string>>(costPaidPayload["destroyedAdditionalCostTargetObjectIds"]).ToArray());
+
+        var destroyedPayload = result.Events[1].Payload;
+        Assert.Equal("P1-UNIT-ASSEMBLE-COST", destroyedPayload["targetObjectId"]);
+        Assert.Equal("GRAVEYARD", destroyedPayload["destinationZone"]);
+        Assert.Equal("ADDITIONAL_COST", destroyedPayload["reason"]);
+
+        var sameTargetResult = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-assemble-equipment-blade-destroy-host", "P1", "ASSEMBLE_EQUIPMENT"),
+            new AssembleEquipmentCommand(
+                "P1-EQUIPMENT-BLADE-RUINED-KING",
+                "P1-UNIT-ASSEMBLE-TARGET",
+                ["ASSEMBLE_YELLOW", "DESTROY_FRIENDLY_UNIT:P1-UNIT-ASSEMBLE-TARGET"]),
+            CancellationToken.None);
+        Assert.False(sameTargetResult.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, sameTargetResult.ErrorCode);
+        Assert.Empty(sameTargetResult.Events);
+        Assert.Equal(0, sameTargetResult.State.Tick);
+        Assert.Equal(
+            ["P1-EQUIPMENT-BLADE-RUINED-KING", "P1-UNIT-ASSEMBLE-TARGET", "P1-UNIT-ASSEMBLE-COST"],
+            sameTargetResult.State.PlayerZones["P1"].Base);
+        Assert.Null(sameTargetResult.State.CardObjects["P1-EQUIPMENT-BLADE-RUINED-KING"].AttachedToObjectId);
+
+        var missingDestroyCostResult = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-assemble-equipment-blade-missing-destroy", "P1", "ASSEMBLE_EQUIPMENT"),
+            new AssembleEquipmentCommand(
+                "P1-EQUIPMENT-BLADE-RUINED-KING",
+                "P1-UNIT-ASSEMBLE-TARGET",
+                ["ASSEMBLE_YELLOW"]),
+            CancellationToken.None);
+        Assert.False(missingDestroyCostResult.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, missingDestroyCostResult.ErrorCode);
+        Assert.Empty(missingDestroyCostResult.Events);
+        Assert.Equal(0, missingDestroyCostResult.State.Tick);
+        Assert.Equal(1, missingDestroyCostResult.State.RunePools["P1"].PowerByTrait[RuneTrait.Yellow]);
+        Assert.True(missingDestroyCostResult.State.CardObjects.ContainsKey("P1-UNIT-ASSEMBLE-COST"));
+    }
+
+    [Fact]
     public async Task P4AssembleEquipmentCommandWithHandSourceIsRejectedUntilEquipmentSystemExists()
     {
         var state = PunishmentState(mana: 0) with

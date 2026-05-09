@@ -2219,6 +2219,78 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79AssembleDestroyFriendlyUnitSeedOffersCostAndAttachesThroughHub()
+    {
+        const string roomId = "p7-9-assemble-destroy-friendly-unit-core";
+        const string equipmentObjectId = "P1-EQUIPMENT-BLADE-RUINED-KING-ASSEMBLE";
+        const string targetObjectId = "P1-UNIT-BLADE-RUINED-KING-TARGET";
+        const string costObjectId = "P1-UNIT-BLADE-RUINED-KING-COST";
+        var destroyAdditionalCost = $"DESTROY_FRIENDLY_UNIT:{costObjectId}";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "assemble-destroy-friendly-unit", "seed-p7-9-assemble-destroy-friendly-unit");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var assembleCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(assembleCandidate.Enabled);
+        Assert.Equal([equipmentObjectId], (assembleCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        var metadata = Assert.IsType<Dictionary<string, object?>>(assembleCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        Assert.Equal("SFD·178/221", sourceRequirement["equipmentCardNo"]);
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["requiredAdditionalCostChoiceCount"]));
+        Assert.Contains(
+            Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(sourceRequirement["additionalCostChoices"]),
+            choice => string.Equals(choice.Id, destroyAdditionalCost, StringComparison.Ordinal));
+
+        var attachClients = new RecordingHubClients();
+        await CreateHub(attachClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-assemble-destroy-friendly-unit", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "ASSEMBLE_EQUIPMENT",
+                sourceObjectId = equipmentObjectId,
+                targetObjectId,
+                optionalCosts = new[] { "ASSEMBLE_YELLOW", destroyAdditionalCost }
+            }));
+
+        Assert.Empty(attachClients.CallerClient.Errors);
+        var events = EventsFor(attachClients);
+        Assert.Equal(
+            ["COST_PAID", "UNIT_DESTROYED", "EQUIPMENT_ATTACHED"],
+            events.Select(gameEvent => gameEvent.Kind).ToArray());
+        var costEvent = Assert.Single(events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(
+            [costObjectId],
+            Assert.IsAssignableFrom<IEnumerable<string>>(
+                costEvent.Payload["destroyedAdditionalCostTargetObjectIds"]).ToArray());
+        var destroyedEvent = Assert.Single(events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
+        Assert.Equal("ADDITIONAL_COST", destroyedEvent.Payload["reason"]);
+
+        var snapshot = SnapshotFor(attachClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.DoesNotContain(costObjectId, Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["base"]));
+        Assert.Equal([costObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["graveyard"]));
+        var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
+        var equipment = Assert.IsType<Dictionary<string, object?>>(p1Objects[equipmentObjectId]);
+        Assert.Equal(targetObjectId, Assert.IsType<string>(equipment["attachedToObjectId"]));
+    }
+
+    [Fact]
     public async Task P6SpellDuelSeedTransfersOnlinePriorityAfterSpellIsPlayed()
     {
         const string roomId = "p6-3a-response-window";

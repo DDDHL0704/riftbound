@@ -18,6 +18,8 @@ import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
 import { InspectedCard, objectStateLabels } from "./CardFace";
 
+const DESTROY_FRIENDLY_UNIT_COST_PREFIX = "DESTROY_FRIENDLY_UNIT:";
+
 type CardDetailDrawerProps = {
   card?: InspectedCard;
   onClose: () => void;
@@ -383,6 +385,8 @@ type AssembleEquipmentSourceRequirement = {
   displayName: string;
   targetChoices: ActionPromptChoiceDto[];
   optionalCostChoices: ActionPromptChoiceDto[];
+  additionalCostChoices: ActionPromptChoiceDto[];
+  requiredAdditionalCostChoiceCount: number;
   paymentResourceChoices: ActionPromptChoiceDto[];
   paymentResourcePowerByChoice: Record<string, PaymentResourceContribution>;
   availablePowerByTrait: Record<string, number>;
@@ -1152,11 +1156,17 @@ function AssembleEquipmentComposer({
   const selectedRequirement = requirements[0];
   const [targetObjectId, setTargetObjectId] = useState<string>("");
   const [optionalCosts, setOptionalCosts] = useState<string[]>([]);
+  const [additionalCost, setAdditionalCost] = useState<string>("");
   const [paymentResourceCosts, setPaymentResourceCosts] = useState<string[]>([]);
 
   useEffect(() => {
-    setTargetObjectId(selectedRequirement?.targetChoices[0]?.id ?? "");
+    const nextTargetObjectId = selectedRequirement?.targetChoices[0]?.id ?? "";
+    setTargetObjectId(nextTargetObjectId);
     setOptionalCosts([]);
+    setAdditionalCost(
+      selectedRequirement?.additionalCostChoices.find((choice) =>
+        destroyFriendlyUnitCostTargetObjectId(choice.id) !== nextTargetObjectId)?.id ?? ""
+    );
     setPaymentResourceCosts([]);
   }, [selectedRequirement]);
 
@@ -1188,12 +1198,29 @@ function AssembleEquipmentComposer({
     optionalCostLabel(selectedRequirement.optionalCostChoices, cost));
   const paymentResourceRequired = selectedRequirement.paymentResourceChoices.length > 0;
   const paymentResourceSelectionValid = !paymentResourceRequired || paymentResourceCosts.length === 1;
-  const commandOptionalCosts = uniqueStrings([...requiredCosts, ...optionalCosts, ...paymentResourceCosts]);
+  const selectedAdditionalCost = selectedRequirement.additionalCostChoices.find((choice) => choice.id === additionalCost);
+  const additionalCostTargetObjectId = selectedAdditionalCost
+    ? destroyFriendlyUnitCostTargetObjectId(selectedAdditionalCost.id)
+    : "";
+  const additionalCostRequired = selectedRequirement.requiredAdditionalCostChoiceCount > 0;
+  const additionalCostSelectionValid = !additionalCostRequired || Boolean(
+    selectedAdditionalCost
+    && additionalCostTargetObjectId
+    && additionalCostTargetObjectId !== targetObjectId
+    && selectedRequirement.requiredAdditionalCostChoiceCount === 1
+  );
+  const commandOptionalCosts = uniqueStrings([
+    ...requiredCosts,
+    ...optionalCosts,
+    ...paymentResourceCosts,
+    ...(selectedAdditionalCost ? [selectedAdditionalCost.id] : [])
+  ]);
   const canSubmit = Boolean(
     candidate.enabled
     && selectedRequirement.composable
     && targetObjectId
     && paymentResourceSelectionValid
+    && additionalCostSelectionValid
     && onCommand
   );
 
@@ -1242,6 +1269,23 @@ function AssembleEquipmentComposer({
           ))}
         </ChoiceGroup>
       )}
+      {selectedRequirement.additionalCostChoices.length > 0 && (
+        <ChoiceGroup label="额外费用">
+          {selectedRequirement.additionalCostChoices.map((choice) => {
+            const active = additionalCost === choice.id;
+            return (
+              <ChoiceButton
+                active={active}
+                key={choice.id}
+                onClick={() => setAdditionalCost(active && !additionalCostRequired ? "" : choice.id)}
+                title={choiceTitle(choice)}
+              >
+                {choice.label}
+              </ChoiceButton>
+            );
+          })}
+        </ChoiceGroup>
+      )}
       {selectedRequirement.paymentResourceChoices.length > 0 && (
         <ChoiceGroup label="支付资源">
           {selectedRequirement.paymentResourceChoices.map((choice) => {
@@ -1262,6 +1306,9 @@ function AssembleEquipmentComposer({
       )}
       {paymentResourceRequired && !paymentResourceSelectionValid && selectedRequirement.composable && (
         <p className="composer-warning">需要选择服务端给出的回收符文支付资源。</p>
+      )}
+      {additionalCostRequired && !additionalCostSelectionValid && selectedRequirement.composable && (
+        <p className="composer-warning">需要选择服务端给出的额外费用目标，且不能与装配目标相同。</p>
       )}
       {!selectedRequirement.composable && (
         <p className="composer-warning">{unsupportedWarning(selectedRequirement.unsupportedReason, "服务端标记该装配当前不能由前端组合提交。")}</p>
@@ -2184,6 +2231,8 @@ function parseAssembleEquipmentRequirement(value: unknown): AssembleEquipmentSou
     displayName: stringField(record, "displayName") || equipmentCardNo,
     targetChoices: choiceList(record.targetChoices),
     optionalCostChoices: choiceList(record.optionalCostChoices),
+    additionalCostChoices: choiceList(record.additionalCostChoices),
+    requiredAdditionalCostChoiceCount: numberField(record, "requiredAdditionalCostChoiceCount"),
     paymentResourceChoices: choiceList(record.paymentResourceChoices),
     paymentResourcePowerByChoice: paymentResourceContributionRecord(record.paymentResourcePowerByChoice),
     availablePowerByTrait: numberRecord(record.availablePowerByTrait),
@@ -2428,6 +2477,12 @@ function toggleValue(values: string[], value: string): string[] {
 
 function optionalCostLabel(choices: ActionPromptChoiceDto[], cost: string): string {
   return choices.find((choice) => choice.id === cost)?.label ?? "服务端费用";
+}
+
+function destroyFriendlyUnitCostTargetObjectId(cost: string): string {
+  return cost.startsWith(DESTROY_FRIENDLY_UNIT_COST_PREFIX)
+    ? cost.slice(DESTROY_FRIENDLY_UNIT_COST_PREFIX.length)
+    : "";
 }
 
 function toggleOptionalCost(values: string[], value: string): string[] {

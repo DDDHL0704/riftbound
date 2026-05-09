@@ -2324,6 +2324,7 @@ public sealed record ResolutionResult(
 internal static class ActionPromptBuilder
 {
     private const string RecycleRunePaymentOptionalCostPrefix = "RECYCLE_RUNE:";
+    private const string DestroyFriendlyUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_UNIT:";
     private const int BasicRuneRecyclePowerGain = 1;
     private const string StandbyHideDestination = "STANDBY";
     private const string StandbyHideOptionalCost = "STANDBY_A";
@@ -2425,6 +2426,9 @@ internal static class ActionPromptBuilder
     private const string SacredShearsCardNo = "SFD·172/221";
     private const int SacredShearsAssemblePowerCost = 1;
     private const string SacredShearsAssembleOptionalCost = "ASSEMBLE_YELLOW";
+    private const string BladeOfTheRuinedKingCardNo = "SFD·178/221";
+    private const int BladeOfTheRuinedKingAssemblePowerCost = 1;
+    private const string BladeOfTheRuinedKingAssembleOptionalCost = "ASSEMBLE_YELLOW";
     private const string SpinningAxeCardNo = "SFD·186/221";
     private const int SpinningAxeAssemblePowerCost = 1;
     private const string SpinningAxeAssembleOptionalCost = "ASSEMBLE_ANY_POWER";
@@ -2448,7 +2452,8 @@ internal static class ActionPromptBuilder
         string PowerTrait,
         int PowerCost,
         string PaymentResourceReason,
-        int ExperienceCost = 0);
+        int ExperienceCost = 0,
+        bool RequiresDestroyFriendlyUnitCost = false);
 
     private static readonly IReadOnlyDictionary<string, AssembleEquipmentProfile> ImplementedAssembleEquipmentProfiles =
         new Dictionary<string, AssembleEquipmentProfile>(StringComparer.Ordinal)
@@ -2685,6 +2690,15 @@ internal static class ActionPromptBuilder
                 RuneTrait.Yellow,
                 SacredShearsAssemblePowerCost,
                 "payment resource action: recycle yellow rune for assemble cost"),
+            [BladeOfTheRuinedKingCardNo] = new(
+                BladeOfTheRuinedKingCardNo,
+                "破败王者之刃",
+                BladeOfTheRuinedKingAssembleOptionalCost,
+                "装配黄色符能",
+                RuneTrait.Yellow,
+                BladeOfTheRuinedKingAssemblePowerCost,
+                "payment resource action: recycle yellow rune for assemble cost",
+                RequiresDestroyFriendlyUnitCost: true),
             [SpinningAxeCardNo] = new(
                 SpinningAxeCardNo,
                 "旋转飞斧",
@@ -2828,6 +2842,8 @@ internal static class ActionPromptBuilder
         string DisplayName,
         IReadOnlyList<ActionPromptChoiceDto> TargetChoices,
         IReadOnlyList<ActionPromptChoiceDto> OptionalCostChoices,
+        IReadOnlyList<ActionPromptChoiceDto> AdditionalCostChoices,
+        int RequiredAdditionalCostChoiceCount,
         IReadOnlyList<ActionPromptChoiceDto> PaymentResourceChoices,
         IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> PaymentResourcePowerByChoice,
         IReadOnlyDictionary<string, int> AvailablePowerByTrait,
@@ -4612,13 +4628,17 @@ internal static class ActionPromptBuilder
             : RunePool.Empty;
         var paymentResourceChoices = AssembleEquipmentPaymentResourceChoices(state, playerId, assembleProfile);
         var paymentResourcePowerByTrait = AssembleEquipmentPaymentResourcePowerByTrait(state, playerId, assembleProfile);
+        var targetChoices = AssembleEquipmentTargetChoicesForSource(state, playerId, objectId);
+        var additionalCostChoices = AssembleEquipmentAdditionalCostChoices(state, playerId, objectId, assembleProfile);
 
         return new AssembleEquipmentPromptRequirement(
             objectId,
             assembleProfile.CardNo,
             assembleProfile.DisplayName,
-            AssembleEquipmentTargetChoicesForSource(state, playerId, objectId),
+            targetChoices,
             [new ActionPromptChoiceDto(assembleProfile.OptionalCost, assembleProfile.OptionalCostLabel)],
+            additionalCostChoices,
+            assembleProfile.RequiresDestroyFriendlyUnitCost ? 1 : 0,
             paymentResourceChoices,
             AssembleEquipmentPaymentResourcePowerByChoice(state, playerId, assembleProfile),
             PlayCardAvailablePowerByTrait(runePool, new Dictionary<string, int>(StringComparer.Ordinal)),
@@ -4640,6 +4660,53 @@ internal static class ActionPromptBuilder
             .Where(objectId => IsImplementedAssembleEquipmentTarget(state, playerId, objectId))
             .Select(objectId => ObjectChoice(state, objectId, "implemented controlled unit host"))
             .ToArray();
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> AssembleEquipmentAdditionalCostChoices(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        AssembleEquipmentProfile assembleProfile)
+    {
+        if (!assembleProfile.RequiresDestroyFriendlyUnitCost)
+        {
+            return [];
+        }
+
+        return AssembleEquipmentDestroyFriendlyUnitTargetObjectIds(state, playerId, sourceObjectId)
+            .Select(objectId =>
+            {
+                var choice = ObjectChoice(state, objectId, "required destroy friendly unit assemble cost");
+                return new ActionPromptChoiceDto(
+                    $"{DestroyFriendlyUnitAdditionalCostPrefix}{objectId}",
+                    $"摧毁友方单位：{choice.Label}",
+                    choice.Reason);
+            })
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> AssembleEquipmentDestroyFriendlyUnitTargetObjectIds(
+        MatchState state,
+        string playerId,
+        string sourceObjectId)
+    {
+        return ControlledBoardObjects(state, playerId)
+            .Where(objectId => !string.Equals(objectId, sourceObjectId, StringComparison.Ordinal))
+            .Where(objectId => IsImplementedAssembleEquipmentDestroyFriendlyUnitCostTarget(state, playerId, objectId))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static bool IsImplementedAssembleEquipmentDestroyFriendlyUnitCostTarget(
+        MatchState state,
+        string playerId,
+        string objectId)
+    {
+        return state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+            && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !string.IsNullOrWhiteSpace(cardObject.CardNo)
+            && !cardObject.IsFaceDown;
     }
 
     private static bool IsImplementedAssembleEquipmentSource(MatchState state, string playerId, string objectId)
@@ -4667,13 +4734,32 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
+        var targetChoices = AssembleEquipmentTargetChoicesForSource(state, playerId, objectId);
+        if (targetChoices.Count == 0)
+        {
+            return false;
+        }
+
+        if (assembleProfile.RequiresDestroyFriendlyUnitCost)
+        {
+            var destroyCostTargetObjectIds = AssembleEquipmentDestroyFriendlyUnitTargetObjectIds(
+                state,
+                playerId,
+                objectId);
+            if (!targetChoices.Any(targetChoice => destroyCostTargetObjectIds.Any(
+                    destroyObjectId => !string.Equals(destroyObjectId, targetChoice.Id, StringComparison.Ordinal))))
+            {
+                return false;
+            }
+        }
+
         return CanPayAssembleEquipmentCost(
                 state,
                 playerId,
                 runePool,
                 assembleProfile,
                 AssembleEquipmentPaymentResourcePowerByTrait(state, playerId, assembleProfile))
-            && AssembleEquipmentTargetChoicesForSource(state, playerId, objectId).Count > 0;
+            && targetChoices.Count > 0;
     }
 
     private static AssembleEquipmentProfile? AssembleEquipmentProfileForObject(MatchState state, string objectId)
@@ -6942,6 +7028,8 @@ internal static class ActionPromptBuilder
             ["displayName"] = requirement.DisplayName,
             ["targetChoices"] = requirement.TargetChoices,
             ["optionalCostChoices"] = requirement.OptionalCostChoices,
+            ["additionalCostChoices"] = requirement.AdditionalCostChoices,
+            ["requiredAdditionalCostChoiceCount"] = requirement.RequiredAdditionalCostChoiceCount,
             ["paymentResourceChoices"] = requirement.PaymentResourceChoices,
             ["paymentResourcePowerByChoice"] = requirement.PaymentResourcePowerByChoice,
             ["availablePowerByTrait"] = requirement.AvailablePowerByTrait,
@@ -9227,6 +9315,7 @@ public sealed class MatchSession : IMatchSession
             "unknown-declare-battle-battlefield-prompt" => BuildUnknownDeclareBattleBattlefieldPromptScenario(current, seed),
             "assemble-payment-recycle" => BuildAssemblePaymentRecycleScenario(current, seed),
             "assemble-experience" => BuildAssembleExperienceScenario(current, seed),
+            "assemble-destroy-friendly-unit" => BuildAssembleDestroyFriendlyUnitScenario(current, seed),
             "echo-stack" => BuildEchoStackScenario(current, seed),
             "priority-reaction-counter" => BuildPriorityReactionCounterScenario(current, seed),
             "standby-reaction" => BuildStandbyReactionScenario(current, seed),
@@ -10940,6 +11029,68 @@ public sealed class MatchSession : IMatchSession
                 [seed.P2] = 0
             }
         };
+    }
+
+    private static MatchState BuildAssembleDestroyFriendlyUnitScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603304166,
+            4166,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Yellow] = 1
+                    }),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    baseZone:
+                    [
+                        "P1-EQUIPMENT-BLADE-RUINED-KING-ASSEMBLE",
+                        "P1-UNIT-BLADE-RUINED-KING-TARGET",
+                        "P1-UNIT-BLADE-RUINED-KING-COST"
+                    ],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-EQUIPMENT-BLADE-RUINED-KING-ASSEMBLE"] = new(
+                    "P1-EQUIPMENT-BLADE-RUINED-KING-ASSEMBLE",
+                    cardNo: "SFD·178/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-UNIT-BLADE-RUINED-KING-TARGET"] = new(
+                    "P1-UNIT-BLADE-RUINED-KING-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-UNIT-BLADE-RUINED-KING-COST"] = new(
+                    "P1-UNIT-BLADE-RUINED-KING-COST",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
     }
 
     private static MatchState BuildMovementScenario(MatchState current, DevScenarioSeed seed)
