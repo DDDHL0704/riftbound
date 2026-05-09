@@ -30,6 +30,13 @@ export function MatchStatusPanel({
   const actingPlayerId = asString(turnWindow.actingPlayerId, asString(timing.priorityPlayerId, "无"));
   const focusPlayerId = asString(spellDuel.focusPlayerId, asString(timing.focusPlayerId, "无"));
   const promptOwner = prompt?.playerId ?? asString(timing.promptPlayerId, "无");
+  const spellDuelStackItemIds = asArray<string>(spellDuel.stackItemIds);
+  const battleAttackerIds = asArray<string>(battle.attackerObjectIds);
+  const battleDefenderIds = asArray<string>(battle.defenderObjectIds);
+  const battleParticipantControllers = new Set(
+    Object.values(asRecord(battle.participantControllerIds))
+      .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+  );
 
   return (
     <section className="side-panel match-status-panel">
@@ -60,9 +67,12 @@ export function MatchStatusPanel({
           title="法术对决"
           active={Boolean(spellDuel.isActive)}
           rows={[
+            ["当前状态", spellDuelStateLabel(spellDuel, windowState)],
             ["ID", asString(spellDuel.spellDuelId, "无")],
-            ["关联战场", asString(spellDuel.battlefieldObjectId, "无")],
-            ["焦点", focusPlayerId],
+            ["战场 ID", asString(spellDuel.battlefieldObjectId, "无")],
+            ["焦点玩家", focusPlayerId],
+            ["优先行动玩家", actingPlayerId],
+            ["结算链", idsSummary(spellDuelStackItemIds)],
             ["已让过", `${asArray(spellDuel.passedFocusPlayerIds).length} 人`]
           ]}
         />
@@ -71,10 +81,14 @@ export function MatchStatusPanel({
           title="战斗"
           active={Boolean(battle.isActive)}
           rows={[
+            ["当前状态", battleStateLabel(battle)],
             ["ID", asString(battle.battleId, "无")],
-            ["关联战场", asString(battle.battlefieldObjectId, "无")],
-            ["进攻单位", `${asArray(battle.attackerObjectIds).length} 个`],
-            ["防守单位", `${asArray(battle.defenderObjectIds).length} 个`]
+            ["战场 ID", asString(battle.battlefieldObjectId, "无")],
+            ["优先行动玩家", actingPlayerId],
+            ["进攻方", idsSummary(battleAttackerIds)],
+            ["防守方", idsSummary(battleDefenderIds)],
+            ["参与控制者", `${battleParticipantControllers.size} 项`],
+            ["伤害分配", prompt?.view?.type === "ASSIGN_COMBAT_DAMAGE" ? "服务端窗口" : "等待服务端窗口"]
           ]}
         />
         <LifecycleCard
@@ -139,6 +153,29 @@ function cleanupTaskKindLabel(kind: string): string {
 
 function activeTaskLabel(value: unknown): string {
   return asString(value, "") ? "处理中" : "无";
+}
+
+function spellDuelStateLabel(spellDuel: Record<string, unknown>, windowState: string): string {
+  if (!spellDuel.isActive) {
+    return "未开启";
+  }
+  if (spellDuel.isClosed) {
+    return "已关闭";
+  }
+  return timingStateLabel(windowState);
+}
+
+function battleStateLabel(battle: Record<string, unknown>): string {
+  return battle.isActive ? "进行中" : "未开启";
+}
+
+function idsSummary(ids: string[]): string {
+  const safeIds = ids.filter((id) => typeof id === "string" && id.trim().length > 0);
+  if (safeIds.length === 0) {
+    return "无";
+  }
+
+  return `${safeIds.slice(0, 2).join("、")}${safeIds.length > 2 ? ` 等 ${safeIds.length} 项` : ""}`;
 }
 
 function StatusMetric({

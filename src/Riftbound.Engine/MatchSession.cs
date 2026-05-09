@@ -1760,6 +1760,131 @@ public sealed record ResolutionResult(
             && string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal));
     }
 
+    internal static bool HasOpenBattleDamageAssignmentWindow(MatchState state)
+    {
+        var battle = state.BattleState;
+        return string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal)
+            && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            && string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            && state.PendingPayment is null
+            && state.StackItems.Count == 0
+            && battle.IsActive
+            && !string.IsNullOrWhiteSpace(battle.BattleId)
+            && !string.IsNullOrWhiteSpace(battle.BattlefieldObjectId)
+            && battle.AttackerObjectIds.Count > 0
+            && battle.DefenderObjectIds.Count > 0
+            && !string.IsNullOrWhiteSpace(BattleDamageAssigningPlayerId(state));
+    }
+
+    internal static string? BattleDamageAssigningPlayerId(MatchState state)
+    {
+        var battle = state.BattleState;
+        var attackerControllerIds = battle.AttackerObjectIds
+            .Select(objectId => battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
+                ? controllerId
+                : string.Empty)
+            .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        return attackerControllerIds.Length == 1 ? attackerControllerIds[0] : null;
+    }
+
+    internal static IReadOnlyDictionary<string, int> BattleDamagePoolFor(MatchState state, BattleState battle)
+    {
+        return BattleParticipantObjectIds(battle)
+            .ToDictionary(
+                objectId => objectId,
+                objectId => Math.Max(0, BattleEffectivePowerFor(state, objectId)),
+                StringComparer.Ordinal);
+    }
+
+    internal static IReadOnlyDictionary<string, IReadOnlyList<string>> BattleDamageLegalTargetsFor(BattleState battle)
+    {
+        return BattleParticipantObjectIds(battle)
+            .ToDictionary(
+                objectId => objectId,
+                objectId => BattleLegalTargetsForSource(battle, objectId),
+                StringComparer.Ordinal);
+    }
+
+    internal static IReadOnlyDictionary<string, int> BattleExistingDamageFor(MatchState state, BattleState battle)
+    {
+        return BattleParticipantObjectIds(battle)
+            .ToDictionary(
+                objectId => objectId,
+                objectId => state.CardObjects.TryGetValue(objectId, out var cardObject) ? cardObject.Damage : 0,
+                StringComparer.Ordinal);
+    }
+
+    internal static IReadOnlyDictionary<string, int> BattleLethalDamageThresholdFor(MatchState state, BattleState battle)
+    {
+        return BattleParticipantObjectIds(battle)
+            .ToDictionary(
+                objectId => objectId,
+                objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                    ? Math.Max(0, BattleEffectivePowerFor(state, objectId) - cardObject.Damage)
+                    : 0,
+                StringComparer.Ordinal);
+    }
+
+    internal static IReadOnlyList<IReadOnlyDictionary<string, object?>> BattleRequiredAssignmentsFor(MatchState state, BattleState battle)
+    {
+        var damagePool = BattleDamagePoolFor(state, battle);
+        var legalTargets = BattleDamageLegalTargetsFor(battle);
+        return damagePool
+            .Where(entry => entry.Value > 0 && legalTargets.TryGetValue(entry.Key, out var targets) && targets.Count > 0)
+            .Select(entry => (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>
+            {
+                ["sourceObjectId"] = entry.Key,
+                ["damage"] = entry.Value,
+                ["legalTargetObjectIds"] = legalTargets[entry.Key]
+            })
+            .ToArray();
+    }
+
+    internal static int BattleEffectivePowerFor(MatchState state, string objectId)
+    {
+        return state.CardObjects.TryGetValue(objectId, out var cardObject)
+            ? cardObject.Power + cardObject.UntilEndOfTurnPowerModifier
+            : 0;
+    }
+
+    internal static IReadOnlyList<string> BattleParticipantObjectIds(BattleState battle)
+    {
+        return battle.AttackerObjectIds
+            .Concat(battle.DefenderObjectIds)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    internal static IReadOnlyList<string> BattleLegalTargetsForSource(BattleState battle, string sourceObjectId)
+    {
+        if (battle.AttackerObjectIds.Contains(sourceObjectId, StringComparer.Ordinal))
+        {
+            return battle.DefenderObjectIds.ToArray();
+        }
+
+        if (battle.DefenderObjectIds.Contains(sourceObjectId, StringComparer.Ordinal))
+        {
+            return battle.AttackerObjectIds.ToArray();
+        }
+
+        return [];
+    }
+
+    internal static string BattleParticipantRole(BattleState battle, string objectId)
+    {
+        if (battle.AttackerObjectIds.Contains(objectId, StringComparer.Ordinal))
+        {
+            return "ATTACKER";
+        }
+
+        return battle.DefenderObjectIds.Contains(objectId, StringComparer.Ordinal)
+            ? "DEFENDER"
+            : "UNKNOWN";
+    }
+
     public static string BlockingPendingTaskQueueReason(MatchState state)
     {
         var queue = state.PendingTaskQueue;
@@ -1829,7 +1954,7 @@ public sealed record ResolutionResult(
                 ["destroyedUnitOwnerIdsThisTurn"] = state.DestroyedUnitOwnerIdsThisTurn,
                 ["turnWindow"] = BuildTurnWindowSnapshotView(state.TurnWindow),
                 ["spellDuel"] = BuildSpellDuelSnapshotView(state.SpellDuelState),
-                ["battle"] = BuildBattleSnapshotView(state.BattleState),
+                ["battle"] = BuildBattleSnapshotView(state, state.BattleState),
                 ["battleResolutions"] = state.BattleResolutions.Select(BuildBattleResolutionSnapshotView).ToArray(),
                 ["battlefieldTasks"] = state.BattlefieldTasks.Select(BuildBattlefieldTaskSnapshotView).ToArray(),
                 ["battlefieldResolutions"] = state.BattlefieldResolutions.Select(BuildBattlefieldResolutionSnapshotView).ToArray(),
@@ -1968,7 +2093,7 @@ public sealed record ResolutionResult(
         };
     }
 
-    private static Dictionary<string, object?> BuildBattleSnapshotView(BattleState battle)
+    private static Dictionary<string, object?> BuildBattleSnapshotView(MatchState state, BattleState battle)
     {
         return new Dictionary<string, object?>
         {
@@ -1977,7 +2102,33 @@ public sealed record ResolutionResult(
             ["battlefieldObjectId"] = battle.BattlefieldObjectId,
             ["attackerObjectIds"] = battle.AttackerObjectIds,
             ["defenderObjectIds"] = battle.DefenderObjectIds,
-            ["participantControllerIds"] = battle.ParticipantControllerIds
+            ["participantControllerIds"] = battle.ParticipantControllerIds,
+            ["damageAssignment"] = BuildBattleDamageAssignmentSnapshotView(state, battle)
+        };
+    }
+
+    private static Dictionary<string, object?> BuildBattleDamageAssignmentSnapshotView(MatchState state, BattleState battle)
+    {
+        if (!HasOpenBattleDamageAssignmentWindow(state))
+        {
+            return new Dictionary<string, object?>
+            {
+                ["isPending"] = false
+            };
+        }
+
+        return new Dictionary<string, object?>
+        {
+            ["isPending"] = true,
+            ["phase"] = "DAMAGE_ASSIGNMENT",
+            ["battleId"] = battle.BattleId,
+            ["battlefieldId"] = battle.BattlefieldObjectId,
+            ["assigningPlayerId"] = BattleDamageAssigningPlayerId(state),
+            ["damagePool"] = BattleDamagePoolFor(state, battle),
+            ["legalTargets"] = BattleDamageLegalTargetsFor(battle),
+            ["existingDamage"] = BattleExistingDamageFor(state, battle),
+            ["lethalDamageThreshold"] = BattleLethalDamageThresholdFor(state, battle),
+            ["requiredAssignments"] = BattleRequiredAssignmentsFor(state, battle)
         };
     }
 
@@ -2661,6 +2812,25 @@ public sealed record ResolutionResult(
                 string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal)
                     ? WithSurrender(ActionPromptBuilder.SpellDuelFocusActions(state, playerId))
                     : WithSurrender("WAIT")));
+        }
+
+        if (ResolutionResult.HasOpenBattleDamageAssignmentWindow(state))
+        {
+            var assigningPlayerId = BattleDamageAssigningPlayerId(state);
+            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId =>
+            {
+                var canAssignDamage = string.Equals(playerId, assigningPlayerId, StringComparison.Ordinal);
+                return ActionPromptBuilder.Build(
+                    state,
+                    playerId,
+                    canAssignDamage,
+                    canAssignDamage
+                        ? "请提交战斗伤害分配"
+                        : "等待对手提交战斗伤害分配",
+                    canAssignDamage
+                        ? WithSurrender(CommandTypes.AssignCombatDamage)
+                        : WithSurrender("WAIT"));
+            });
         }
 
         if (ActiveStartBattleTask(state) is not null)
@@ -3586,7 +3756,7 @@ internal static class ActionPromptBuilder
             type == PromptTypes.Mulligan && actions.Contains("MULLIGAN", StringComparer.Ordinal)
                 ? OfficialDeckValidator.MaximumMulliganCount
                 : null,
-            PaymentPromptViewMetadata(state, type));
+            PromptViewMetadata(state, playerId, type));
     }
 
     private static string PromptTypeFor(
@@ -3626,6 +3796,11 @@ internal static class ActionPromptBuilder
             return PromptTypes.SpellDuelFocus;
         }
 
+        if (ResolutionResult.HasOpenBattleDamageAssignmentWindow(state))
+        {
+            return PromptTypes.AssignCombatDamage;
+        }
+
         if (ResolutionResult.ActiveStartBattleTask(state) is not null)
         {
             return PromptTypes.BattleDeclaration;
@@ -3652,6 +3827,7 @@ internal static class ActionPromptBuilder
             PromptTypes.StackPriority => "优先行动",
             PromptTypes.SpellDuelFocus => "法术对决",
             PromptTypes.BattleDeclaration => "声明战斗",
+            PromptTypes.AssignCombatDamage => "分配战斗伤害",
             PromptTypes.TaskQueue => "任务队列",
             PromptTypes.MatchResult => "对局结束",
             _ => "等待"
@@ -3681,23 +3857,29 @@ internal static class ActionPromptBuilder
             : reason;
     }
 
-    private static IReadOnlyDictionary<string, object?>? PaymentPromptViewMetadata(
+    private static IReadOnlyDictionary<string, object?>? PromptViewMetadata(
         MatchState state,
+        string playerId,
         string type)
     {
         var payment = state.PendingPayment;
-        if (payment is null || !string.Equals(type, PromptTypes.PayCost, StringComparison.Ordinal))
+        if (payment is not null && string.Equals(type, PromptTypes.PayCost, StringComparison.Ordinal))
         {
-            return null;
+            return new Dictionary<string, object?>
+            {
+                ["paymentId"] = payment.PaymentId,
+                ["paymentWindow"] = payment.PaymentWindow,
+                ["cost"] = PendingPaymentCostView(payment),
+                ["paymentChoices"] = PendingPaymentChoiceDtos(payment)
+            };
         }
 
-        return new Dictionary<string, object?>
+        if (string.Equals(type, PromptTypes.AssignCombatDamage, StringComparison.Ordinal))
         {
-            ["paymentId"] = payment.PaymentId,
-            ["paymentWindow"] = payment.PaymentWindow,
-            ["cost"] = PendingPaymentCostView(payment),
-            ["paymentChoices"] = PendingPaymentChoiceDtos(payment)
-        };
+            return AssignCombatDamageMetadataFor(state, playerId);
+        }
+
+        return null;
     }
 
     private static string? RelatedBattlefieldIdFor(MatchState state, string type)
@@ -3707,6 +3889,11 @@ internal static class ActionPromptBuilder
             return FirstNonEmpty(
                 ResolutionResult.ActiveStartBattleTask(state)?.BattlefieldObjectId,
                 state.BattleState.BattlefieldObjectId);
+        }
+
+        if (string.Equals(type, PromptTypes.AssignCombatDamage, StringComparison.Ordinal))
+        {
+            return FirstNonEmpty(state.BattleState.BattlefieldObjectId);
         }
 
         if (string.Equals(type, PromptTypes.TaskQueue, StringComparison.Ordinal))
@@ -3734,6 +3921,11 @@ internal static class ActionPromptBuilder
             return FirstNonEmpty(
                 BattleLifecycleIds.BattleIdForBattlefield(ResolutionResult.ActiveStartBattleTask(state)?.BattlefieldObjectId),
                 state.BattleState.BattleId);
+        }
+
+        if (string.Equals(type, PromptTypes.AssignCombatDamage, StringComparison.Ordinal))
+        {
+            return FirstNonEmpty(state.BattleState.BattleId);
         }
 
         return null;
@@ -7739,6 +7931,7 @@ internal static class ActionPromptBuilder
             "MOVE_UNIT" => MoveUnitMetadataFor(state, playerId),
             "ASSEMBLE_EQUIPMENT" => AssembleEquipmentMetadataFor(state, playerId),
             "DECLARE_BATTLE" => DeclareBattleMetadataFor(state, playerId),
+            "ASSIGN_COMBAT_DAMAGE" => AssignCombatDamageMetadataFor(state, playerId),
             "LEGEND_ACT" => LegendActionMetadataFor(state, playerId),
             _ => null
         };
@@ -7772,6 +7965,67 @@ internal static class ActionPromptBuilder
                 ["mana"] = runePool.Mana,
                 ["power"] = runePool.Power,
                 ["powerByTrait"] = runePool.PowerByTrait
+            }
+        };
+    }
+
+    private static IReadOnlyDictionary<string, object?> AssignCombatDamageMetadataFor(MatchState state, string playerId)
+    {
+        var battle = state.BattleState;
+        if (!ResolutionResult.HasOpenBattleDamageAssignmentWindow(state))
+        {
+            return new Dictionary<string, object?>
+            {
+                ["assignmentState"] = "WAIT"
+            };
+        }
+
+        var assigningPlayerId = ResolutionResult.BattleDamageAssigningPlayerId(state) ?? string.Empty;
+        var damagePool = ResolutionResult.BattleDamagePoolFor(state, battle);
+        var legalTargets = ResolutionResult.BattleDamageLegalTargetsFor(battle);
+        var existingDamage = ResolutionResult.BattleExistingDamageFor(state, battle);
+        var lethalDamageThreshold = ResolutionResult.BattleLethalDamageThresholdFor(state, battle);
+        var requiredAssignments = ResolutionResult.BattleRequiredAssignmentsFor(state, battle);
+        var battleParticipants = ResolutionResult.BattleParticipantObjectIds(battle)
+            .Select(objectId => new Dictionary<string, object?>
+            {
+                ["objectId"] = objectId,
+                ["role"] = ResolutionResult.BattleParticipantRole(battle, objectId),
+                ["controllerId"] = battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
+                    ? controllerId
+                    : string.Empty,
+                ["power"] = ResolutionResult.BattleEffectivePowerFor(state, objectId),
+                ["damage"] = existingDamage.TryGetValue(objectId, out var damage) ? damage : 0
+            })
+            .ToArray();
+        var assignmentChoices = damagePool
+            .Where(entry => entry.Value > 0 && legalTargets.TryGetValue(entry.Key, out var targets) && targets.Count > 0)
+            .SelectMany(entry => legalTargets[entry.Key].Select(targetObjectId => new ActionPromptChoiceDto(
+                $"{entry.Key}->{targetObjectId}",
+                $"{entry.Key} -> {targetObjectId}",
+                $"分配 {entry.Value} 点战斗伤害候选")))
+            .ToArray();
+
+        return new Dictionary<string, object?>
+        {
+            ["battleId"] = battle.BattleId,
+            ["battlefieldId"] = battle.BattlefieldObjectId,
+            ["assigningPlayerId"] = assigningPlayerId,
+            ["damagePool"] = damagePool,
+            ["legalTargets"] = legalTargets,
+            ["existingDamage"] = existingDamage,
+            ["lethalDamageThreshold"] = lethalDamageThreshold,
+            ["requiredAssignments"] = requiredAssignments,
+            ["assignmentChoices"] = assignmentChoices,
+            ["battleParticipants"] = battleParticipants,
+            ["battleState"] = string.Equals(playerId, assigningPlayerId, StringComparison.Ordinal)
+                ? "PENDING_ASSIGNMENT"
+                : "WAITING_FOR_ASSIGNMENT",
+            ["participantControllerIds"] = battle.ParticipantControllerIds,
+            ["damageLedger"] = new Dictionary<string, object?>
+            {
+                ["existingDamage"] = existingDamage,
+                ["pendingDamage"] = damagePool
             }
         };
     }
@@ -8588,6 +8842,7 @@ internal static class ActionPromptBuilder
             "TAP_RUNE" => "横置符文",
             "RECYCLE_RUNE" => "回收符文",
             "PAY_COST" => "支付费用",
+            "ASSIGN_COMBAT_DAMAGE" => "分配战斗伤害",
             "LEGEND_ACT" => "传奇行动",
             "PASS" => "让过",
             "PASS_PRIORITY" => "让过优先权",

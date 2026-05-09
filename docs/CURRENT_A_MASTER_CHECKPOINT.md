@@ -677,6 +677,16 @@ A 主控复验：
 - `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：通过；包含 `check:event-labels` 与 `check:user-facing-text`，仅有 SignalR 依赖的 Rollup PURE 注释 warning。
 - `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：通过；API health、DevUi preview、Chrome headless / CDP 路由 smoke 通过，`/matches/stage3-smoke` 覆盖中央清理、中央战场、待命区、服务端行动提示和权威快照摘要，并断言 debug 页面不出现 `mainDeck/runeDeck/handHidden/stackItemId/reconnectToken` raw 字段。
 
+阶段 3B checkpoint 保护：
+
+- 已创建 commit：`a74beac78ec3f555dd478b61b012d875d81dfa5c checkpoint: complete stage 3B battlefield cleanup baseline`。
+- commit 后 `git status --short --branch`：仅剩未跟踪本地文件 `riftbound-dotnet.sln`，未纳入 checkpoint。
+- commit 后后端验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过，3325/3325 passed。
+- commit 后前端 build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过；仍只有 SignalR/Rollup PURE 注释 warning。
+- commit 后 Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过，`/`、`/lobby`、`/decks`、`/cards`、`/rooms/stage3-smoke`、`/matches/stage3-smoke`、`/matches/stage3-smoke/result` 均 OK。
+- 当前结论仍是 **NOT READY**。
+- 下一阶段建议为阶段 3C；开始前仍需用户明确确认。
+
 阶段 3B 判断：
 
 - 阶段 3B 收口标准：**已满足当前最小切片**。
@@ -696,8 +706,58 @@ A 主控复验：
 
 下一阶段建议：
 
-- 先由 A 输出阶段 3B 审查总结并等待用户确认；若确认保护，再创建阶段 3B checkpoint commit，继续排除 `riftbound-dotnet.sln`。
-- 后续 3C 建议优先切 control freeze/release、battle task lifecycle 与 damage assignment 的最小服务端窗口，同时补双窗口 reload/reconnect 隐藏信息 smoke；仍不进入最终 18 步 E2E 或 1009 全量。
+- 阶段 3B checkpoint commit 已创建并通过 post-commit 后端测试、前端 build 与 Chrome smoke；继续排除 `riftbound-dotnet.sln`。
+- 等待用户确认后，阶段 3C 建议优先切 control freeze/release、battle task lifecycle 与 damage assignment 的最小服务端窗口，同时补双窗口 reload/reconnect 隐藏信息 smoke；仍不进入最终 18 步 E2E 或 1009 全量。
+
+## 0.7 阶段 3C Spell Duel / Battle Lifecycle / ASSIGN_COMBAT_DAMAGE 汇总
+
+阶段 3C 已按用户确认范围执行：只收口 spell duel / battle lifecycle 的最小官方化切片、`ASSIGN_COMBAT_DAMAGE` 服务端权威 runtime prompt / validation / simultaneous commit、battle cleanup 代表链，以及前端 spell duel / battle / damage assignment UI 安全接线。未启动最终 18 步 E2E，未进入 1009 张卡 full-official 实现，结论仍为 **NOT READY**。
+
+本阶段核心产物：
+
+- 服务端 `ASSIGN_COMBAT_DAMAGE` 不再停在 shell：最小 runtime 会验证 battleId / battlefieldId、wrong player、stale prompt、unknown target、damage total mismatch、非法超分配、lethal-first violation、malformed payload，并保证失败命令不改变权威状态。
+- 服务端 prompt / snapshot 表达 `battleId`、`battlefieldId`、`assigningPlayerId`、`damagePool`、`legalTargets`、`existingDamage`、`lethalDamageThreshold`、`requiredAssignments`；合法提交后同时造成战斗伤害，致命单位进入 cleanup，battle close 后重新计算 battlefield control / contested。
+- 服务端测试覆盖 spell duel pass close -> damage assignment -> legal assignment -> simultaneous damage -> battle cleanup -> battlefield control update 的连续路径，同时覆盖 illegal assignment、stale prompt 和隐藏待命不泄漏。
+- 前端只读取服务端 snapshot/prompt candidate：展示 spell duel / battle 状态、focus / priority、attacker / defender、battlefieldId、damage assignment prompt 与服务端合法目标；只提交服务端支持的 `ASSIGN_COMBAT_DAMAGE` command，不本地裁决伤害、战斗结果、战场控制或胜负。
+- 文档和卡牌矩阵已补 3C 证据边界：`docs/CURRENT_STAGE3C_SPELL_DUEL_BATTLE_DAMAGE_EVIDENCE.md`、`docs/CURRENT_CARD_EFFECT_STAGE3C_BATTLE_DAMAGE_EVIDENCE.md`、server/frontend gaps、rule evidence todo、card coverage baseline/matrix/risk。
+
+阶段 3C 修改 / 新增文件：
+
+- 服务端 / 协议 / 测试：`src/Riftbound.Contracts/Protocol.cs`、`src/Riftbound.Engine/CoreRuleEngine.cs`、`src/Riftbound.Engine/MatchSession.cs`、`tests/Riftbound.ConformanceTests/ConformanceFixtureShapeTests.cs`。
+- 前端 / smoke：`src/Riftbound.DevUi/scripts/chrome-smoke.mjs`、`src/Riftbound.DevUi/src/components/match/ActionPanel.tsx`、`src/Riftbound.DevUi/src/components/match/EventLog.tsx`、`src/Riftbound.DevUi/src/components/match/MatchStatusPanel.tsx`、`src/Riftbound.DevUi/src/styles/globals.css`。
+- 文档 / 证据：`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_CONTRACT_GAPS.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`、`docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`、`docs/CURRENT_A_MASTER_CHECKPOINT.md`。
+- 新增文档：`docs/CURRENT_STAGE3C_SPELL_DUEL_BATTLE_DAMAGE_EVIDENCE.md`、`docs/CURRENT_CARD_EFFECT_STAGE3C_BATTLE_DAMAGE_EVIDENCE.md`。
+- `riftbound-dotnet.sln` 仍是本地未跟踪文件，不应纳入 checkpoint commit。
+
+阶段 3C 验收命令：
+
+- `git diff --check`：通过。
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`：通过。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：3329/3329 通过。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：通过；包含 `check:event-labels` 与 `check:user-facing-text`，仅有 SignalR 依赖的 Rollup PURE 注释 warning。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：通过；API health、DevUi preview、Chrome headless / CDP 路由 smoke 通过，`/matches/stage3-smoke` 覆盖法术对决、战斗、伤害分配、中央清理、战场、待命区、服务端行动提示和权威快照摘要，并断言 debug 页面不出现 `mainDeck/runeDeck/handHidden/stackItemId/reconnectToken/battleState/damageLedger/participantControllerIds` raw 字段。
+
+阶段 3C 判断：
+
+- 阶段 3C 收口标准：**已满足当前最小切片**。
+- 是否标记 READY：**不允许**。
+- 是否启动最终 18 步 E2E：**不允许**。
+- 是否进入 1009 张卡全量：**不允许**。
+- 是否允许前端进入后续 battle / damage UI 联调：可以继续基于服务端 snapshot/prompt 做只读展示和 prompt candidate 提交；仍不得本地裁决 battle、damage assignment、battlefield control 或 victory。
+
+仍存在 P0/P1：
+
+- P0：完整 spell duel lifecycle 未完成，尤其 `SPELL_DUEL_ACTION`、全反应链、触发排序和全部 close -> next task 全路径。
+- P0：完整 battle lifecycle 未完成，尤其完整 battle task、战斗响应窗口、初始栈、所有多攻防组合和 control freeze/release。
+- P0：完整 `ASSIGN_COMBAT_DAMAGE` full-rule runtime 未完成，3C 只关闭最小 prompt / validation / simultaneous commit；壁垒、后排、同优先级、负战力、不可分配和替代/预防矩阵仍缺。
+- P0：battle cleanup 全路径未完成，替代/预防、LayerEngine、control freeze/release 与 cleanup queue 全触发面仍缺。
+- P0：完整 `ORDER_TRIGGERS` runtime、完整 PaymentEngine / LayerEngine、最终 18 步 E2E、1009 张卡 full-official 矩阵仍未关闭。
+- P1：`SpellDuelView` / `BattleView` / `BattleResolutionView` / `DamageAssignmentPromptView` 正式 DTO 尚未冻结，当前仍偏 DevUi / dictionary view。
+
+下一阶段建议：
+
+- 先由 A 输出阶段 3C 汇总并等待用户确认；若确认保护，再创建阶段 3C checkpoint commit，继续排除 `riftbound-dotnet.sln`。
+- 后续建议进入阶段 3D 或用户指定的下一切片，优先处理 `ORDER_TRIGGERS` runtime、battle initial stack / trigger ordering、control freeze/release、以及双窗口 reload/reconnect 隐藏信息 smoke；仍不进入最终 18 步 E2E 或 1009 全量，除非用户明确开启对应阶段。
 
 ## 1. 总目标
 

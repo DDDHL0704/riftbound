@@ -2,11 +2,11 @@
 
 更新时间：2026-05-09
 
-阶段：**阶段 3B / E 卡牌覆盖矩阵与 Battlefield lifecycle 证据 overlay**
+阶段：**阶段 3C / E 卡牌覆盖矩阵与 Spell duel / Battle / ASSIGN_COMBAT_DAMAGE 证据 overlay**
 
 结论：**NOT READY；不允许进入 1009 张卡牌效果批量覆盖。**
 
-本文以阶段 2 风险排序为基础，并叠加阶段 3A/3B 的最小证据 overlay；它不是功能实现清单，也不是错误断言。排名用于告诉后续阶段先审哪里：哪些 functional unit 同时碰到 FAQ、费用、触发/替换、持续效果、战斗/法术对决、隐藏信息或非 PLAY_CARD 规则域。
+本文以阶段 2 风险排序为基础，并叠加阶段 3A/3B/3C 的最小证据 overlay；它不是功能实现清单，也不是错误断言。排名用于告诉后续阶段先审哪里：哪些 functional unit 同时碰到 FAQ、费用、触发/替换、持续效果、战斗/法术对决、隐藏信息或非 PLAY_CARD 规则域。
 
 ## 1. 数据来源
 
@@ -73,7 +73,28 @@
 
 3B 依赖统计：649 个 lifecycle/cleanup 广义候选、520 个 3B core 候选、287 个 battle/spell-duel 候选、282 个 cleanup 候选、286 个 control/zone/movement 候选、54 个 battlefield rule-domain FUs、12 个 standby 命名或 effect-kind 候选、44 个 legend action domain FUs。这些统计是风险范围，不是实施授权。
 
-## 5. Top20 高风险 Functional Units
+## 5. Stage 3C Spell Duel / Battle / Damage Overlay
+
+阶段 3C 只服务 spell duel / battle / `ASSIGN_COMBAT_DAMAGE` 最小证据切片，不进入 1009 张卡全量实现，也不关闭完整 battle runtime。以下口径已同步到 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 的 `stage3CBattleDamage`：
+
+| FU | 代表卡 | Stage 3C 处理 |
+|---|---|---|
+| `FU-fda6183f9d` | `OGS·007/024` 盖伦 | 3C P0；只作 declare-battle attacker/body fixture 和 damage payload guard，不宣称盖伦 full-official。 |
+| `FU-6582231b22` | `UNL-036/219` 变异猫咪 | 3C P0；只作 defender/body fixture 和 damage payload guard，不扩张到全战斗模型。 |
+| `FU-44f29ad8f7` | `OGN·004/298` 顺劈 | 3C P0；只作 swift spell duel / focus pass / combat trick 代表，不批量开放所有迅捷/反应卡。 |
+| `FU-104211dbbc` | `SFD·148/221` 德莱文 | 3C P0；Top20 #3，高风险 battle lifecycle / FAQ 候选，只做证据边界。 |
+| `FU-964b214448` | `SFD·020/221` 德莱文 | 3C P0；Top20 #4，较简单 battle body / FAQ baseline，仍非 full-official。 |
+| `FU-2dca1ad450` | `SFD·082/221` 伊泽瑞尔 | 3C P0；Top20 #5，combat damage 后续移动压力候选，不实现完整触发/移动链。 |
+| `FU-422b450261` | `SFD·170/221` 雷克塞 | 3C P1；attack trigger / hidden-info / `ORDER_TRIGGERS` 压测候选，3C 不实现完整 reveal 或触发排序。 |
+| `FU-1945f6918c` | `SFD·029/221` 雷克塞 | 3C P1；overwhelm / battle-damage 压力候选，不关闭关键字全族。 |
+| `FU-9f7cb73dc4` | `UNL-150/219` 薇古丝 | 3C P1；spellshield / stun timing 边界，不关闭 spell duel 全族。 |
+| `FU-b646702ec0` | `OGN·268/298` 弹幕时间 | 3C holdback；3A 只覆盖 `PAY_COST` 最小 runtime，非战斗伤害不进入 3C battle damage assignment。 |
+
+3C 依赖统计：287 个 battle / spell-duel / `ASSIGN_COMBAT_DAMAGE` 广义候选、7 个 spell-duel effect-kind FUs、145 个 battle / attack / combat effect-kind FUs、60 个 damage effect-kind FUs、55 个 `ORDER_TRIGGERS` 压测候选。这些统计是风险范围，不是实施授权。
+
+后续 `ORDER_TRIGGERS` 压测候选：`FU-422b450261`、`FU-67c6b0186e`、`FU-bf81341dd2`、`FU-5cea85e7c3`、`FU-c170628e3a`、`FU-16d3a6dd4e`、`FU-4e2e19359f`、`FU-7f4a387b92`、`FU-c027639a3c`、`FU-8dae5c40be`。3C 只记录这些候选，不进入 runtime 实现。
+
+## 6. Top20 高风险 Functional Units
 
 | # | FU | Representative | 类型/条目数 | 当前代表映射 | FAQ 候选页 | 风险依据 | 依赖规则域 |
 |---:|---|---|---:|---|---|---|---|
@@ -98,7 +119,7 @@
 | 19 | `FU-804412488c` | `SFD·139/221` 夜之锋刃 | 装备 / 1 | 代表路径：EDGE_OF_NIGHT_PLAY_EQUIPMENT | SOUL-OFAQ-260114 p10<br>SOUL-OFAQ-260114 p9 | 控制权/区域移动、FAQ 提及、隐藏信息/随机/牌堆、效果层/持续效果、费用/支付、目标/结算链/时机 | FEPR/Targeting/TimingWindows, LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, VisibilityFilter/RandomAndHiddenZones, ZoneOwnership/ControlChange/Movement |
 | 20 | `FU-9a623b3185` | `SFD·059/221` 斯弗尔尚歌 | 装备 / 1 | 代表路径：SFUR_SONG_PLAY_EQUIPMENT | SOUL-JFAQ-260114 p24<br>SOUL-JFAQ-260114 p25<br>SOUL-JFAQ-260114 p8<br>SOUL-OFAQ-260114 p18<br>SOUL-OFAQ-260114 p19 | 控制权/区域移动、FAQ 提及、效果层/持续效果、费用/支付 | LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, ZoneOwnership/ControlChange/Movement |
 
-## 6. 未覆盖效果分类
+## 7. 未覆盖效果分类
 
 | 分类 | 含义 | 当前阻断关系 |
 |---|---|---|
@@ -112,13 +133,13 @@
 | `non-play-domain` | 传奇、战场、符文、指示物等非普通 PLAY_CARD 域。 | 需要专门域矩阵，不可与普通出牌效果混算。 |
 | `faq-mentioned` | 五份 PDF/FAQ 中出现卡名的候选项。 | 必须人工判定问题是否真的约束该 FU，并补测试。 |
 
-## 7. P0/P1 仍未清零
+## 8. P0/P1 仍未清零
 
 P0：
 
 - central cleanup queue 未完整官方化。
 - spell duel / battle 完整生命周期仍未完成。
-- `PAY_COST`, `ASSIGN_COMBAT_DAMAGE`, `ORDER_TRIGGERS` 等复杂 prompt / command / payload schema 未完成。
+- `PAY_COST` 已有 3A 最小 runtime，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime；完整 PaymentEngine、完整 damage assignment 全规则矩阵、`ORDER_TRIGGERS` runtime 仍未完成。
 - 正式 18 步 E2E 未最终收口。
 - 1009 entries / 811 FUs 的 FAQ 证据与 full-official 测试矩阵未完成。
 

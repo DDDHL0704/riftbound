@@ -87,10 +87,18 @@
         "allowedIn3B": "battlefield-domain-core, control-change-core, movement-cleanup-core, standby-visibility-support, conquer-trigger-support, conquer-recall-support, cleanup-control-support, unit-body-support, pressure-only, or hold-back.",
         "riskTags": "3B-specific lifecycle tags layered over Stage 2 riskScore and P0/P1 rule-domain dependencies.",
         "useBoundary": "Explicit guardrail preventing Stage 3B from becoming full battle/damage/runtime or 1009 full-official implementation."
+      },
+      "stage3C": {
+        "battleRoles": "Stage 3C spell duel / battle / ASSIGN_COMBAT_DAMAGE evidence tags; not full battle runtime or full-official card coverage.",
+        "evidencePriority": "P0 = required 3C evidence boundary; P1 = supporting pressure/test-deck fixture; P2 = hold back or ORDER_TRIGGERS pressure only.",
+        "allowedIn3C": "battle-body-core, battle-lifecycle-core, spell-duel-core, spell-duel-specific-support, combat-trick-support, battlefield-status-support, damage-assignment-core, damage-assignment-support, battle-trigger-support, battle-keyword-support, battle-spell-duel-support, order-triggers-pressure-only, hold-back-noncombat-damage, or battle-body-support.",
+        "riskTags": "3C-specific battle/spell/damage tags layered over Stage 2 riskScore and P0/P1 rule-domain dependencies.",
+        "useBoundary": "Explicit guardrail preventing Stage 3C from becoming ORDER_TRIGGERS runtime, complete battle/damage implementation, or 1009 full-official implementation."
       }
     },
     "stage3ASmokePayCost": "Stage 3A overlay for smoke baseline, strongly typed complex command parsing, and PAY_COST minimal runtime slice. This explicitly excludes battle/damage/order runtime and 1009 full-official coverage.",
-    "stage3BBattlefieldLifecycle": "Stage 3B overlay for Battlefield / Standby / Control / Conquer lifecycle and Central cleanup queue minimal officialization slice. This does not authorize core engine edits, READY, battle damage assignment, or full-official card coverage."
+    "stage3BBattlefieldLifecycle": "Stage 3B overlay for Battlefield / Standby / Control / Conquer lifecycle and Central cleanup queue minimal officialization slice. This does not authorize core engine edits, READY, battle damage assignment, or full-official card coverage.",
+    "stage3CBattleDamage": "Stage 3C overlay for spell duel / battle / ASSIGN_COMBAT_DAMAGE dependency tagging and evidence boundaries. This does not authorize core engine edits, READY, ORDER_TRIGGERS runtime, or full-official card coverage."
   },
   "snapshotEntries": [
     {
@@ -23927,7 +23935,43 @@
         "FEPR/Targeting/TimingWindows",
         "LayerEngine/ContinuousEffects"
       ],
-      "riskScore": 55
+      "riskScore": 55,
+      "stage3C": {
+        "evidencePriority": "P0",
+        "allowedIn3C": "spell-duel-core",
+        "battleRoles": [
+          "swift-spell-duel-representative",
+          "attacking-power-modifier",
+          "overwhelm-combat-trick"
+        ],
+        "riskTags": [
+          "spell-duel",
+          "focus-pass",
+          "combat-trick",
+          "overwhelm"
+        ],
+        "sourceScenarios": [
+          "p4-play-swift-cleave-in-spell-duel-focus",
+          "3C-spell-duel-focus-pass"
+        ],
+        "useBoundary": "Use as the narrow swift spell-duel representative. Do not batch-enable all swift/reaction cards.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 55,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "layer-continuous-effect",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-bd42ed1a1d",
@@ -25437,6 +25481,41 @@
           "payment-cost",
           "targeting-stack-timing"
         ]
+      },
+      "stage3C": {
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "battleRoles": [
+          "conquer-trigger",
+          "recall-after-score pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "conquer",
+          "recall"
+        ],
+        "sourceScenarios": [
+          "future-conquer-recall-ordering"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS pressure; 3B only mapped conquer/recall boundary.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 70,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
       }
     },
     {
@@ -26391,6 +26470,39 @@
           "layer-continuous-effect",
           "targeting-stack-timing"
         ]
+      },
+      "stage3C": {
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "battleRoles": [
+          "conquer-trigger",
+          "score-trigger pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "conquer",
+          "layer-risk"
+        ],
+        "sourceScenarios": [
+          "future-conquer-trigger-ordering"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS pressure; 3B only mapped conquer hook.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 58,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "layer-continuous-effect",
+          "targeting-stack-timing"
+        ]
       }
     },
     {
@@ -26439,7 +26551,46 @@
         "PaymentEngine/PAY_COST",
         "VisibilityFilter/RandomAndHiddenZones"
       ],
-      "riskScore": 83
+      "riskScore": 83,
+      "stage3C": {
+        "evidencePriority": "P1",
+        "allowedIn3C": "combat-trick-support",
+        "battleRoles": [
+          "defending-power-modifier",
+          "barrier/steadfast pressure",
+          "damage-prevention-adjacent"
+        ],
+        "riskTags": [
+          "combat-trick",
+          "defender",
+          "barrier",
+          "layer-risk"
+        ],
+        "sourceScenarios": [
+          "3C-defender-combat-trick-boundary"
+        ],
+        "useBoundary": "Use as defender combat-trick pressure. Barrier/steadfast and layer behavior remain not full-official.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 83,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-d8b80b770e",
@@ -28373,7 +28524,46 @@
         "CleanupQueue/ReplacementEffects",
         "FEPR/Targeting/TimingWindows"
       ],
-      "riskScore": 63
+      "riskScore": 63,
+      "stage3C": {
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "battleRoles": [
+          "spell-trigger",
+          "ORDER_TRIGGERS pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "future-order-triggers-spell-trigger"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS pressure only.",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p10",
+          "JFAQ-251023 p2",
+          "SOUL-JFAQ-260114 p10",
+          "SOUL-JFAQ-260114 p15"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p10",
+          "JFAQ-251023 p2",
+          "SOUL-JFAQ-260114 p10",
+          "SOUL-JFAQ-260114 p15"
+        ],
+        "riskScore": 63,
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "faq-mentioned",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-7f739598a3",
@@ -29207,6 +29397,44 @@
           "payment-cost",
           "targeting-stack-timing"
         ]
+      },
+      "stage3C": {
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "battleRoles": [
+          "standby-defend-trigger",
+          "reveal during battle pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "standby",
+          "defend-trigger",
+          "hidden-info-risk"
+        ],
+        "sourceScenarios": [
+          "future-standby-defend-trigger-ordering"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS and hidden-information pressure.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 82,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
       }
     },
     {
@@ -29513,7 +29741,37 @@
         "FEPR/Targeting/TimingWindows",
         "LayerEngine/ContinuousEffects"
       ],
-      "riskScore": 38
+      "riskScore": 38,
+      "stage3C": {
+        "evidencePriority": "P1",
+        "allowedIn3C": "damage-assignment-support",
+        "battleRoles": [
+          "mutual-power-damage",
+          "damage-vs-power math"
+        ],
+        "riskTags": [
+          "mutual-damage",
+          "power-damage"
+        ],
+        "sourceScenarios": [
+          "future-duel-mutual-damage-pressure"
+        ],
+        "useBoundary": "Use as simple mutual-damage pressure; not full battle damage assignment.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 38,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "layer-continuous-effect",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-0c814f5298",
@@ -33434,7 +33692,49 @@
         "PaymentEngine/PAY_COST",
         "VisibilityFilter/RandomAndHiddenZones"
       ],
-      "riskScore": 77
+      "riskScore": 77,
+      "stage3C": {
+        "evidencePriority": "P1",
+        "allowedIn3C": "battlefield-status-support",
+        "battleRoles": [
+          "friendly-and-enemy-battlefield-units",
+          "stun both sides",
+          "cleanup-after-status"
+        ],
+        "riskTags": [
+          "battlefield-units",
+          "stun",
+          "faq-mentioned",
+          "cleanup-risk"
+        ],
+        "sourceScenarios": [
+          "p2-preflight-play-skullcrack-stun-friendly-and-enemy-battlefield-units"
+        ],
+        "useBoundary": "Use as both-sides battlefield unit status pressure. Do not infer full battle lifecycle completion.",
+        "faqCandidate": true,
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p23"
+        ],
+        "rulesRefs": [
+          "SOUL-JFAQ-260114 p23"
+        ],
+        "riskScore": 77,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-c48eba69f1",
@@ -34927,7 +35227,47 @@
         "PaymentEngine/PAY_COST",
         "VisibilityFilter/RandomAndHiddenZones"
       ],
-      "riskScore": 80
+      "riskScore": 80,
+      "stage3C": {
+        "evidencePriority": "P1",
+        "allowedIn3C": "damage-assignment-support",
+        "battleRoles": [
+          "multi-unit-destroy",
+          "battlefield-unit-selection",
+          "cleanup pressure"
+        ],
+        "riskTags": [
+          "multi-unit",
+          "destroy",
+          "cleanup-risk"
+        ],
+        "sourceScenarios": [
+          "p2-preflight-play-spirit-fire-destroy-total-power-four"
+        ],
+        "useBoundary": "Use as multi-unit battlefield pressure for later damage/cleanup tests. Not battle damage assignment completion.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [
+          "CORE-260330 p40"
+        ],
+        "riskScore": 80,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-9790ed5fde",
@@ -35147,7 +35487,41 @@
         "FEPR/Targeting/TimingWindows",
         "ZoneOwnership/ControlChange/Movement"
       ],
-      "riskScore": 51
+      "riskScore": 51,
+      "stage3C": {
+        "evidencePriority": "P1",
+        "allowedIn3C": "battlefield-status-support",
+        "battleRoles": [
+          "enemy-battlefield-unit-target",
+          "stun",
+          "cleanup-after-status"
+        ],
+        "riskTags": [
+          "enemy-battlefield-target",
+          "stun",
+          "cleanup-risk"
+        ],
+        "sourceScenarios": [
+          "p2-preflight-play-zenith-blade-stun-enemy-battlefield-unit"
+        ],
+        "useBoundary": "Use as enemy battlefield target/status evidence. Optional move and full control/cleanup remain outside 3C.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 51,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-ca921a56da",
@@ -35414,6 +35788,45 @@
         ],
         "useBoundary": "3A may assert PAY_COST command parsing, payment resources, COST_PAID envelope, and stack damageAmount metadata only. Do not treat this as full Bullet Time damage assignment, battle lifecycle, or full-official card coverage.",
         "faqRefs": [
+          "JFAQ-251023 p6"
+        ],
+        "riskScore": 47,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "faq-mentioned",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      "stage3C": {
+        "evidencePriority": "P2",
+        "allowedIn3C": "hold-back-noncombat-damage",
+        "battleRoles": [
+          "non-combat damage to enemy battlefield units",
+          "PAY_COST already in 3A",
+          "damage runtime holdback"
+        ],
+        "riskTags": [
+          "hold-back",
+          "pay-cost",
+          "noncombat-damage",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "typed-power-payment",
+          "future-noncombat-damage-pressure"
+        ],
+        "useBoundary": "Keep Bullet Time out of 3C battle damage assignment. 3A covered PAY_COST only; full damage runtime is later.",
+        "faqCandidate": true,
+        "faqRefs": [
+          "JFAQ-251023 p6"
+        ],
+        "rulesRefs": [
           "JFAQ-251023 p6"
         ],
         "riskScore": 47,
@@ -37042,7 +37455,36 @@
       "dependsOnP0RuleDomains": [
         "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE"
       ],
-      "riskScore": 22
+      "riskScore": 22,
+      "stage3C": {
+        "evidencePriority": "P0",
+        "allowedIn3C": "battle-body-core",
+        "battleRoles": [
+          "declare-battle-attacker-fixture",
+          "battlefield-unit-body",
+          "ASSIGN_COMBAT_DAMAGE payload guard"
+        ],
+        "riskTags": [
+          "battle-lifecycle",
+          "assign-combat-damage",
+          "body-fixture"
+        ],
+        "sourceScenarios": [
+          "p4-declare-battle-* rejected fixtures",
+          "3C-declare-battle-minimal"
+        ],
+        "useBoundary": "Use as a known attacker/body fixture for DECLARE_BATTLE and ASSIGN_COMBAT_DAMAGE schema evidence. Do not claim full Garen card text coverage.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 22,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-265c03a141",
@@ -37086,7 +37528,41 @@
         "FEPR/Targeting/TimingWindows",
         "LayerEngine/ContinuousEffects"
       ],
-      "riskScore": 53
+      "riskScore": 53,
+      "stage3C": {
+        "evidencePriority": "P1",
+        "allowedIn3C": "damage-assignment-support",
+        "battleRoles": [
+          "mutual-power-damage",
+          "damage-vs-power math",
+          "cleanup pressure"
+        ],
+        "riskTags": [
+          "mutual-damage",
+          "power-damage",
+          "cleanup-risk"
+        ],
+        "sourceScenarios": [
+          "future-mutual-power-damage-pressure"
+        ],
+        "useBoundary": "Use as mutual-damage math pressure; not a battle damage assignment proof.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 53,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "layer-continuous-effect",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-1dfdb7c9a5",
@@ -37858,7 +38334,51 @@
         "LayerEngine/ContinuousEffects",
         "PaymentEngine/PAY_COST"
       ],
-      "riskScore": 81
+      "riskScore": 81,
+      "stage3C": {
+        "evidencePriority": "P1",
+        "allowedIn3C": "combat-trick-support",
+        "battleRoles": [
+          "attacking-power-modifier",
+          "echo-combat-trick",
+          "overwhelm pressure"
+        ],
+        "riskTags": [
+          "combat-trick",
+          "echo",
+          "overwhelm",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "3C-attacker-combat-trick-boundary"
+        ],
+        "useBoundary": "Use as attacking combat-trick pressure. Echo/payment and overwhelm full behavior remain outside 3C.",
+        "faqCandidate": true,
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p17",
+          "SOUL-JFAQ-260114 p3",
+          "SOUL-OFAQ-260114 p8"
+        ],
+        "rulesRefs": [
+          "SOUL-JFAQ-260114 p17",
+          "SOUL-JFAQ-260114 p3",
+          "SOUL-OFAQ-260114 p8"
+        ],
+        "riskScore": 81,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "faq-mentioned",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-dd0c89c363",
@@ -38456,7 +38976,42 @@
         "PaymentEngine/PAY_COST",
         "VisibilityFilter/RandomAndHiddenZones"
       ],
-      "riskScore": 71
+      "riskScore": 71,
+      "stage3C": {
+        "evidencePriority": "P1",
+        "allowedIn3C": "damage-assignment-support",
+        "battleRoles": [
+          "attacking-target-damage",
+          "damage amount depends on attacking identity"
+        ],
+        "riskTags": [
+          "attacking-target",
+          "damage",
+          "cleanup-risk"
+        ],
+        "sourceScenarios": [
+          "p2-preflight-play-thundering-drop-attacking-damage-stack"
+        ],
+        "useBoundary": "Use as attacking-identity damage pressure. This is not combat damage assignment completion.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 71,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-f0d905623d",
@@ -38603,7 +39158,54 @@
         "FEPR/Targeting/TimingWindows",
         "PaymentEngine/PAY_COST"
       ],
-      "riskScore": 103
+      "riskScore": 103,
+      "stage3C": {
+        "evidencePriority": "P0",
+        "allowedIn3C": "battle-lifecycle-core",
+        "battleRoles": [
+          "basic-battle-unit",
+          "attack/defense identity candidate",
+          "FAQ battle baseline"
+        ],
+        "riskTags": [
+          "top20-risk",
+          "battle-lifecycle",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "3C-basic-battle-baseline"
+        ],
+        "useBoundary": "Use as a simpler Draven battle body / FAQ baseline. Do not turn this into full official Draven coverage.",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p4",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-JFAQ-260114 p4",
+          "SOUL-OFAQ-260114 p16",
+          "SOUL-OFAQ-260114 p17"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p4",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-JFAQ-260114 p4",
+          "SOUL-OFAQ-260114 p16",
+          "SOUL-OFAQ-260114 p17"
+        ],
+        "riskScore": 103,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "faq-mentioned",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-6d0971786b",
@@ -39093,7 +39695,53 @@
         "PaymentEngine/PAY_COST",
         "VisibilityFilter/RandomAndHiddenZones"
       ],
-      "riskScore": 93
+      "riskScore": 93,
+      "stage3C": {
+        "evidencePriority": "P1",
+        "allowedIn3C": "battle-keyword-support",
+        "battleRoles": [
+          "overwhelm-keyword",
+          "battle-damage pressure",
+          "hidden-info-risk"
+        ],
+        "riskTags": [
+          "top20-risk",
+          "overwhelm",
+          "battle-lifecycle",
+          "hidden-info-risk"
+        ],
+        "sourceScenarios": [
+          "3C-overwhelm-pressure"
+        ],
+        "useBoundary": "Use as overwhelm pressure marker. Do not close full overwhelm or battle damage assignment behavior in 3C.",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-OFAQ-260114 p4"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-OFAQ-260114 p4"
+        ],
+        "riskScore": 93,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-21d25fa80f",
@@ -39570,7 +40218,42 @@
         "FEPR/Targeting/TimingWindows",
         "PaymentEngine/PAY_COST"
       ],
-      "riskScore": 53
+      "riskScore": 53,
+      "stage3C": {
+        "evidencePriority": "P1",
+        "allowedIn3C": "combat-trick-support",
+        "battleRoles": [
+          "attacking-unit-target",
+          "stun in battle context",
+          "target legality guard"
+        ],
+        "riskTags": [
+          "attacking-target",
+          "stun",
+          "payment-cost-adjacent"
+        ],
+        "sourceScenarios": [
+          "p2-preflight-play-kerplunk-stun-attacking-unit",
+          "p4-play-kerplunk-non-attacking-target-rejected"
+        ],
+        "useBoundary": "Use for attacking-target legality evidence. Do not claim full combat runtime or repeat/echo coverage.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 53,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-6ae0ac0a81",
@@ -39978,7 +40661,47 @@
         "FEPR/Targeting/TimingWindows",
         "LayerEngine/ContinuousEffects"
       ],
-      "riskScore": 66
+      "riskScore": 66,
+      "stage3C": {
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "battleRoles": [
+          "triggered-weapon-selection",
+          "ORDER_TRIGGERS pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "faq-mentioned",
+          "layer-risk"
+        ],
+        "sourceScenarios": [
+          "future-order-triggers-aphelios"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS pressure only. Do not include in 3C battle runtime.",
+        "faqCandidate": true,
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p21",
+          "SOUL-JFAQ-260114 p24",
+          "SOUL-OFAQ-260114 p19"
+        ],
+        "rulesRefs": [
+          "SOUL-JFAQ-260114 p21",
+          "SOUL-JFAQ-260114 p24",
+          "SOUL-OFAQ-260114 p19"
+        ],
+        "riskScore": 66,
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "faq-mentioned",
+          "layer-continuous-effect",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-105abedc17",
@@ -41541,7 +42264,56 @@
         "PaymentEngine/PAY_COST",
         "ZoneOwnership/ControlChange/Movement"
       ],
-      "riskScore": 103
+      "riskScore": 103,
+      "stage3C": {
+        "evidencePriority": "P0",
+        "allowedIn3C": "damage-assignment-core",
+        "battleRoles": [
+          "combat-damage-trigger",
+          "post-combat-move",
+          "ASSIGN_COMBAT_DAMAGE pressure"
+        ],
+        "riskTags": [
+          "top20-risk",
+          "combat-damage",
+          "control-zone-movement",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "3C-combat-damage-move-pressure"
+        ],
+        "useBoundary": "Use to track combat-damage-aftereffect pressure. Do not implement or certify full Ezreal damage/move behavior in 3C.",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p5",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-OFAQ-260114 p20"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p5",
+          "CORE-260330 p42",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-OFAQ-260114 p20"
+        ],
+        "riskScore": 103,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "faq-mentioned",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-7bb1b2d84a",
@@ -43643,7 +44415,45 @@
         "FEPR/Targeting/TimingWindows",
         "ZoneOwnership/ControlChange/Movement"
       ],
-      "riskScore": 62
+      "riskScore": 62,
+      "stage3C": {
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "battleRoles": [
+          "defense-trigger",
+          "initial-battle-stack pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "defense-trigger",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "future-order-triggers-defense"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS pressure only.",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p4"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p4"
+        ],
+        "riskScore": 62,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "faq-mentioned",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-6bcef271ca",
@@ -44474,7 +45284,51 @@
         "PaymentEngine/PAY_COST",
         "VisibilityFilter/RandomAndHiddenZones"
       ],
-      "riskScore": 89
+      "riskScore": 89,
+      "stage3C": {
+        "evidencePriority": "P1",
+        "allowedIn3C": "damage-assignment-support",
+        "battleRoles": [
+          "battlefield-power-swap",
+          "damage math pressure",
+          "layer risk"
+        ],
+        "riskTags": [
+          "top20-risk",
+          "power-swap",
+          "damage-math",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "3C-power-swap-damage-pressure"
+        ],
+        "useBoundary": "Use as damage math pressure. Full Switcheroo/layer behavior remains outside 3C.",
+        "faqCandidate": true,
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p14"
+        ],
+        "rulesRefs": [
+          "SOUL-JFAQ-260114 p14"
+        ],
+        "riskScore": 89,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-0cb736834e",
@@ -44624,7 +45478,55 @@
         "FEPR/Targeting/TimingWindows",
         "PaymentEngine/PAY_COST"
       ],
-      "riskScore": 104
+      "riskScore": 104,
+      "stage3C": {
+        "evidencePriority": "P0",
+        "allowedIn3C": "battle-lifecycle-core",
+        "battleRoles": [
+          "high-risk-battle-unit",
+          "attack/defense identity candidate",
+          "battle-initial-stack candidate"
+        ],
+        "riskTags": [
+          "top20-risk",
+          "battle-lifecycle",
+          "faq-mentioned",
+          "payment-cost-adjacent"
+        ],
+        "sourceScenarios": [
+          "3C-high-risk-battle-pressure"
+        ],
+        "useBoundary": "Use as a Top20 high-risk battle unit candidate. Do not claim full Draven card text or battle trigger completion in 3C.",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p4",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-JFAQ-260114 p4",
+          "SOUL-OFAQ-260114 p16",
+          "SOUL-OFAQ-260114 p17"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p4",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-JFAQ-260114 p4",
+          "SOUL-OFAQ-260114 p16",
+          "SOUL-OFAQ-260114 p17"
+        ],
+        "riskScore": 104,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "faq-mentioned",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-68aa4e3d18",
@@ -45352,7 +46254,47 @@
         "PaymentEngine/PAY_COST",
         "VisibilityFilter/RandomAndHiddenZones"
       ],
-      "riskScore": 69
+      "riskScore": 69,
+      "stage3C": {
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "battleRoles": [
+          "last-breath-trigger",
+          "cleanup-trigger pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "last-breath",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "future-last-breath-ordering"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS / cleanup trigger pressure only.",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p7"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p7"
+        ],
+        "riskScore": 69,
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-83dfb0c79a",
@@ -45586,7 +46528,54 @@
         "VisibilityFilter/RandomAndHiddenZones",
         "ZoneOwnership/ControlChange/Movement"
       ],
-      "riskScore": 94
+      "riskScore": 94,
+      "stage3C": {
+        "evidencePriority": "P1",
+        "allowedIn3C": "battle-trigger-support",
+        "battleRoles": [
+          "attack-trigger",
+          "hidden-info-reveal",
+          "ORDER_TRIGGERS future pressure"
+        ],
+        "riskTags": [
+          "top20-risk",
+          "attack-trigger",
+          "hidden-info-risk",
+          "order-triggers-pressure"
+        ],
+        "sourceScenarios": [
+          "3C-attack-trigger-boundary",
+          "future-order-triggers-pressure"
+        ],
+        "useBoundary": "Use as attack-trigger evidence boundary only. Full reveal, trigger ordering, and hidden-information behavior remain outside 3C.",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-OFAQ-260114 p4"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-OFAQ-260114 p4"
+        ],
+        "riskScore": 94,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-4938fc84a4",
@@ -49981,7 +50970,36 @@
       "dependsOnP0RuleDomains": [
         "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE"
       ],
-      "riskScore": 19
+      "riskScore": 19,
+      "stage3C": {
+        "evidencePriority": "P0",
+        "allowedIn3C": "battle-body-core",
+        "battleRoles": [
+          "declare-battle-defender-fixture",
+          "battlefield-unit-body",
+          "ASSIGN_COMBAT_DAMAGE payload guard"
+        ],
+        "riskTags": [
+          "battle-lifecycle",
+          "assign-combat-damage",
+          "body-fixture"
+        ],
+        "sourceScenarios": [
+          "p4-declare-battle-* rejected fixtures",
+          "3C-declare-battle-minimal"
+        ],
+        "useBoundary": "Use as a known defender/body fixture for DECLARE_BATTLE and ASSIGN_COMBAT_DAMAGE schema evidence. Do not claim full Mutant Kitten card text coverage.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 19,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-bac68354a4",
@@ -51462,7 +52480,40 @@
         "FEPR/Targeting/TimingWindows",
         "PaymentEngine/PAY_COST"
       ],
-      "riskScore": 55
+      "riskScore": 55,
+      "stage3C": {
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "battleRoles": [
+          "attack-trigger-with-payment",
+          "trigger-cost-decline pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "attack-trigger",
+          "payment-cost"
+        ],
+        "sourceScenarios": [
+          "future-trigger-payment-decline"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS + trigger payment pressure only.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 55,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-746a2f40cf",
@@ -52041,7 +53092,45 @@
         "VisibilityFilter/RandomAndHiddenZones",
         "ZoneOwnership/ControlChange/Movement"
       ],
-      "riskScore": 79
+      "riskScore": 79,
+      "stage3C": {
+        "evidencePriority": "P1",
+        "allowedIn3C": "spell-duel-specific-support",
+        "battleRoles": [
+          "spell-duel-static",
+          "insight",
+          "hidden-info-risk"
+        ],
+        "riskTags": [
+          "spell-duel",
+          "hidden-info-risk",
+          "layer-risk"
+        ],
+        "sourceScenarios": [
+          "future-spell-duel-static-pressure"
+        ],
+        "useBoundary": "Use as spell-duel-specific card mapping only; not a 3C runtime implementation target.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 79,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-085a7d6c4b",
@@ -52709,7 +53798,38 @@
         "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
         "CleanupQueue/ReplacementEffects"
       ],
-      "riskScore": 30
+      "riskScore": 30,
+      "stage3C": {
+        "evidencePriority": "P1",
+        "allowedIn3C": "battle-body-support",
+        "battleRoles": [
+          "alternate-defender-body",
+          "cleanup-after-battle-candidate"
+        ],
+        "riskTags": [
+          "battle-lifecycle",
+          "cleanup-risk",
+          "body-fixture"
+        ],
+        "sourceScenarios": [
+          "p4-declare-battle-* rejected fixtures"
+        ],
+        "useBoundary": "Use only as an alternate battlefield unit body and cleanup candidate; do not expand to LeBlanc trigger/last-breath behavior.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [
+          "CORE-260330 p79"
+        ],
+        "riskScore": 30,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-d2d57704dc",
@@ -54773,7 +55893,47 @@
         "VisibilityFilter/RandomAndHiddenZones",
         "ZoneOwnership/ControlChange/Movement"
       ],
-      "riskScore": 78
+      "riskScore": 78,
+      "stage3C": {
+        "evidencePriority": "P1",
+        "allowedIn3C": "combat-trick-support",
+        "battleRoles": [
+          "attacking-enemy-target",
+          "stun-then-return",
+          "target legality guard"
+        ],
+        "riskTags": [
+          "attacking-target",
+          "stun",
+          "return",
+          "payment-cost-adjacent"
+        ],
+        "sourceScenarios": [
+          "p2-preflight-play-existential-dread-echo-stun-then-return",
+          "p4-play-existential-dread-friendly-attacking-target-rejected"
+        ],
+        "useBoundary": "Use as attacking enemy target and stun/return pressure. Do not close full echo or battle runtime.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 78,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-ec855c568c",
@@ -55440,7 +56600,40 @@
         "LayerEngine/ContinuousEffects",
         "PaymentEngine/PAY_COST"
       ],
-      "riskScore": 53
+      "riskScore": 53,
+      "stage3C": {
+        "evidencePriority": "P1",
+        "allowedIn3C": "spell-duel-specific-support",
+        "battleRoles": [
+          "spell-duel-static",
+          "echo/payment-adjacent"
+        ],
+        "riskTags": [
+          "spell-duel",
+          "echo",
+          "payment-cost-adjacent"
+        ],
+        "sourceScenarios": [
+          "future-spell-duel-echo-pressure"
+        ],
+        "useBoundary": "Use as spell-duel-specific pressure only; full echo/payment stays out of 3C.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 53,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-40dbb39029",
@@ -55713,7 +56906,53 @@
         "PaymentEngine/PAY_COST",
         "ZoneOwnership/ControlChange/Movement"
       ],
-      "riskScore": 96
+      "riskScore": 96,
+      "stage3C": {
+        "evidencePriority": "P1",
+        "allowedIn3C": "battle-spell-duel-support",
+        "battleRoles": [
+          "spellshield",
+          "stun in battle context",
+          "battle/spell-duel timing"
+        ],
+        "riskTags": [
+          "top20-risk",
+          "spellshield",
+          "stun",
+          "battle-lifecycle"
+        ],
+        "sourceScenarios": [
+          "3C-spellshield-stun-pressure"
+        ],
+        "useBoundary": "Use as spellshield/stun timing pressure. Do not adjudicate full Vex behavior in 3C.",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p5",
+          "BREAK-JFAQ-260416 p9",
+          "SOUL-JFAQ-260114 p17"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p5",
+          "BREAK-JFAQ-260416 p9",
+          "SOUL-JFAQ-260114 p17"
+        ],
+        "riskScore": 96,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "faq-mentioned",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-4d8ee1696b",
@@ -57165,6 +58404,43 @@
           "payment-cost",
           "targeting-stack-timing"
         ]
+      },
+      "stage3C": {
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "battleRoles": [
+          "last-breath-trigger",
+          "move-after-death pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "last-breath",
+          "movement"
+        ],
+        "sourceScenarios": [
+          "future-last-breath-move-ordering"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS pressure. It was already held back from 3B core.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 77,
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
       }
     },
     {
@@ -58065,7 +59341,42 @@
         "FEPR/Targeting/TimingWindows",
         "ZoneOwnership/ControlChange/Movement"
       ],
-      "riskScore": 51
+      "riskScore": 51,
+      "stage3C": {
+        "evidencePriority": "P1",
+        "allowedIn3C": "damage-assignment-support",
+        "battleRoles": [
+          "negative-power-before-battle",
+          "combat-damage-output-clamp",
+          "cleanup regression"
+        ],
+        "riskTags": [
+          "negative-power",
+          "combat-damage-clamp",
+          "cleanup-risk"
+        ],
+        "sourceScenarios": [
+          "p2-preflight-play-moonrise-enemy-battlefield-power-minus-2",
+          "negative-power-combat-damage-output"
+        ],
+        "useBoundary": "Use as negative-power / combat-output clamp evidence. Do not treat the card as full-official.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 51,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-a348cbb2e2",
@@ -62109,6 +63420,3018 @@
         "contract": "conquer/hold scoring hooks",
         "evidencePriority": "P1",
         "note": "3B may map conquer/hold trigger candidates, but full trigger ordering and scoring replacement runtime remain out of scope."
+      }
+    ]
+  },
+  "stage3CBattleDamage": {
+    "stage": "Stage 3C spell duel / battle / ASSIGN_COMBAT_DAMAGE evidence overlay",
+    "updatedAt": "2026-05-09",
+    "notFullOfficialCoverage": true,
+    "doesNotAuthorizeBatchCoverage": true,
+    "doesNotModifyCoreRules": true,
+    "scope": [
+      "spell duel focus/pass/open/closed evidence mapping",
+      "battle body and declare-battle fixture mapping",
+      "attack/defense identity and combat trick evidence boundaries",
+      "ASSIGN_COMBAT_DAMAGE dependency mapping and payload/test-deck evidence boundary",
+      "battle damage math pressure candidates, including negative-power output clamp boundaries"
+    ],
+    "explicitlyOutOfScope": [
+      "1009 card full-official implementation",
+      "core rule engine changes",
+      "frontend or server test changes",
+      "READY marking",
+      "complete battle lifecycle implementation",
+      "complete ASSIGN_COMBAT_DAMAGE runtime implementation",
+      "ORDER_TRIGGERS runtime prompt or trigger batch ordering implementation",
+      "complete spell duel runtime for all quick/reaction cards",
+      "LayerEngine / replacement / prevention full expansion",
+      "full official coverage for any selected representative card"
+    ],
+    "faqSourcePolicy": "Use the five PDF/FAQ sources already extracted in sourceEvidence and rule refs from docs/rules-evidence-index.md; do not use cardQaList.",
+    "dependencyFilter": {
+      "broadDependency": "functionalUnits where uncoveredEffectCategories contains battle-spell-duel or dependsOnP0RuleDomains contains BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+      "spellDuelSpecific": "implementation.effectKinds containing SPELL_DUEL / DUEL",
+      "battleSpecific": "implementation.effectKinds containing BATTLE / ATTACK / DEFEND / COMBAT / ASSAULT / OVERWHELM",
+      "damageSpecific": "implementation.effectKinds containing DAMAGE / COMBAT_DAMAGE",
+      "orderTriggerPressure": "implementation.effectKinds containing TRIGGER / CONQUER / LAST_BREATH / ATTACK / COMBAT_DAMAGE / STANDBY"
+    },
+    "aggregateDependencyCounts": {
+      "battleSpellDuelCategoryFunctionalUnits": 287,
+      "assignCombatDamageP0DomainFunctionalUnits": 287,
+      "spellDuelEffectKindFunctionalUnits": 7,
+      "battleAttackCombatEffectKindFunctionalUnits": 145,
+      "damageEffectKindFunctionalUnits": 60,
+      "orderTriggerCandidateEffectKindFunctionalUnits": 55,
+      "selectedStage3CTaggedFunctionalUnits": 34
+    },
+    "officialRuleEvidenceRefs": [
+      "CORE-260330 p26-p28 rules 307-313: open/closed states, priority and focus",
+      "CORE-260330 p33-p36 rules 333-348: HOT FEPR, spell duel start, focus passing and closure",
+      "CORE-260330 p77-p78 rules 454-461: pending battle, battle spell duel, attack/defense identity, battle stack, battle damage and cleanup",
+      "CORE-260330 p62-p63 rule 417: assigning damage is not dealing damage; assigned damage is dealt simultaneously after all assignment is complete",
+      "CORE-260330 p77-p78 rule 460: attacker/defender allocate damage by total power, lethal-damage requirements and assignment choice order",
+      "JFAQ-251023 p2-p4 q2.3-q2.4: initial battle stack and attack/defense trigger ordering",
+      "JFAQ-251023 p4-p5 q3.1-q3.3: focus, active player and initial-stack focus behavior",
+      "JFAQ-251023 p7-p10 q6.1-q6.4: damage assignment vs damage dealt, battle damage source, barrier/back-row/exclusive assignment requirements",
+      "SOUL-OFAQ-260114 p19-p20: negative-power units output 0 battle damage but preserve real power value"
+    ],
+    "selectedDependencyFunctionalUnits": [
+      {
+        "functionalUnitId": "FU-fda6183f9d",
+        "representativeCardNo": "OGS·007/024",
+        "name": "盖伦",
+        "category": "英雄单位",
+        "evidencePriority": "P0",
+        "allowedIn3C": "battle-body-core",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 22,
+        "battleRoles": [
+          "declare-battle-attacker-fixture",
+          "battlefield-unit-body",
+          "ASSIGN_COMBAT_DAMAGE payload guard"
+        ],
+        "riskTags": [
+          "battle-lifecycle",
+          "assign-combat-damage",
+          "body-fixture"
+        ],
+        "sourceScenarios": [
+          "p4-declare-battle-* rejected fixtures",
+          "3C-declare-battle-minimal"
+        ],
+        "useBoundary": "Use as a known attacker/body fixture for DECLARE_BATTLE and ASSIGN_COMBAT_DAMAGE schema evidence. Do not claim full Garen card text coverage.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-6582231b22",
+        "representativeCardNo": "UNL-036/219",
+        "name": "变异猫咪",
+        "category": "单位",
+        "evidencePriority": "P0",
+        "allowedIn3C": "battle-body-core",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 19,
+        "battleRoles": [
+          "declare-battle-defender-fixture",
+          "battlefield-unit-body",
+          "ASSIGN_COMBAT_DAMAGE payload guard"
+        ],
+        "riskTags": [
+          "battle-lifecycle",
+          "assign-combat-damage",
+          "body-fixture"
+        ],
+        "sourceScenarios": [
+          "p4-declare-battle-* rejected fixtures",
+          "3C-declare-battle-minimal"
+        ],
+        "useBoundary": "Use as a known defender/body fixture for DECLARE_BATTLE and ASSIGN_COMBAT_DAMAGE schema evidence. Do not claim full Mutant Kitten card text coverage.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-1fdf2a082a",
+        "representativeCardNo": "UNL-090/219",
+        "name": "乐芙兰",
+        "category": "英雄单位",
+        "evidencePriority": "P1",
+        "allowedIn3C": "battle-body-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [
+          "CORE-260330 p79"
+        ],
+        "riskScore": 30,
+        "battleRoles": [
+          "alternate-defender-body",
+          "cleanup-after-battle-candidate"
+        ],
+        "riskTags": [
+          "battle-lifecycle",
+          "cleanup-risk",
+          "body-fixture"
+        ],
+        "sourceScenarios": [
+          "p4-declare-battle-* rejected fixtures"
+        ],
+        "useBoundary": "Use only as an alternate battlefield unit body and cleanup candidate; do not expand to LeBlanc trigger/last-breath behavior.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-44f29ad8f7",
+        "representativeCardNo": "OGN·004/298",
+        "name": "顺劈",
+        "category": "法术",
+        "evidencePriority": "P0",
+        "allowedIn3C": "spell-duel-core",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 55,
+        "battleRoles": [
+          "swift-spell-duel-representative",
+          "attacking-power-modifier",
+          "overwhelm-combat-trick"
+        ],
+        "riskTags": [
+          "spell-duel",
+          "focus-pass",
+          "combat-trick",
+          "overwhelm"
+        ],
+        "sourceScenarios": [
+          "p4-play-swift-cleave-in-spell-duel-focus",
+          "3C-spell-duel-focus-pass"
+        ],
+        "useBoundary": "Use as the narrow swift spell-duel representative. Do not batch-enable all swift/reaction cards.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "layer-continuous-effect",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-4215291160",
+        "representativeCardNo": "UNL-079/219",
+        "name": "黛安娜",
+        "category": "英雄单位",
+        "evidencePriority": "P1",
+        "allowedIn3C": "spell-duel-specific-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 79,
+        "battleRoles": [
+          "spell-duel-static",
+          "insight",
+          "hidden-info-risk"
+        ],
+        "riskTags": [
+          "spell-duel",
+          "hidden-info-risk",
+          "layer-risk"
+        ],
+        "sourceScenarios": [
+          "future-spell-duel-static-pressure"
+        ],
+        "useBoundary": "Use as spell-duel-specific card mapping only; not a 3C runtime implementation target.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-bf350b5796",
+        "representativeCardNo": "UNL-146/219",
+        "name": "辛德拉",
+        "category": "英雄单位",
+        "evidencePriority": "P1",
+        "allowedIn3C": "spell-duel-specific-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 53,
+        "battleRoles": [
+          "spell-duel-static",
+          "echo/payment-adjacent"
+        ],
+        "riskTags": [
+          "spell-duel",
+          "echo",
+          "payment-cost-adjacent"
+        ],
+        "sourceScenarios": [
+          "future-spell-duel-echo-pressure"
+        ],
+        "useBoundary": "Use as spell-duel-specific pressure only; full echo/payment stays out of 3C.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-104211dbbc",
+        "representativeCardNo": "SFD·148/221",
+        "name": "德莱文",
+        "category": "英雄单位",
+        "evidencePriority": "P0",
+        "allowedIn3C": "battle-lifecycle-core",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p4",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-JFAQ-260114 p4",
+          "SOUL-OFAQ-260114 p16",
+          "SOUL-OFAQ-260114 p17"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p4",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-JFAQ-260114 p4",
+          "SOUL-OFAQ-260114 p16",
+          "SOUL-OFAQ-260114 p17"
+        ],
+        "riskScore": 104,
+        "battleRoles": [
+          "high-risk-battle-unit",
+          "attack/defense identity candidate",
+          "battle-initial-stack candidate"
+        ],
+        "riskTags": [
+          "top20-risk",
+          "battle-lifecycle",
+          "faq-mentioned",
+          "payment-cost-adjacent"
+        ],
+        "sourceScenarios": [
+          "3C-high-risk-battle-pressure"
+        ],
+        "useBoundary": "Use as a Top20 high-risk battle unit candidate. Do not claim full Draven card text or battle trigger completion in 3C.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "faq-mentioned",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-964b214448",
+        "representativeCardNo": "SFD·020/221",
+        "name": "德莱文",
+        "category": "英雄单位",
+        "evidencePriority": "P0",
+        "allowedIn3C": "battle-lifecycle-core",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p4",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-JFAQ-260114 p4",
+          "SOUL-OFAQ-260114 p16",
+          "SOUL-OFAQ-260114 p17"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p4",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-JFAQ-260114 p4",
+          "SOUL-OFAQ-260114 p16",
+          "SOUL-OFAQ-260114 p17"
+        ],
+        "riskScore": 103,
+        "battleRoles": [
+          "basic-battle-unit",
+          "attack/defense identity candidate",
+          "FAQ battle baseline"
+        ],
+        "riskTags": [
+          "top20-risk",
+          "battle-lifecycle",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "3C-basic-battle-baseline"
+        ],
+        "useBoundary": "Use as a simpler Draven battle body / FAQ baseline. Do not turn this into full official Draven coverage.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "faq-mentioned",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-2dca1ad450",
+        "representativeCardNo": "SFD·082/221",
+        "name": "伊泽瑞尔",
+        "category": "英雄单位",
+        "evidencePriority": "P0",
+        "allowedIn3C": "damage-assignment-core",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p5",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-OFAQ-260114 p20"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p5",
+          "CORE-260330 p42",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-OFAQ-260114 p20"
+        ],
+        "riskScore": 103,
+        "battleRoles": [
+          "combat-damage-trigger",
+          "post-combat-move",
+          "ASSIGN_COMBAT_DAMAGE pressure"
+        ],
+        "riskTags": [
+          "top20-risk",
+          "combat-damage",
+          "control-zone-movement",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "3C-combat-damage-move-pressure"
+        ],
+        "useBoundary": "Use to track combat-damage-aftereffect pressure. Do not implement or certify full Ezreal damage/move behavior in 3C.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "faq-mentioned",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-422b450261",
+        "representativeCardNo": "SFD·170/221",
+        "name": "雷克塞",
+        "category": "英雄单位",
+        "evidencePriority": "P1",
+        "allowedIn3C": "battle-trigger-support",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-OFAQ-260114 p4"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-OFAQ-260114 p4"
+        ],
+        "riskScore": 94,
+        "battleRoles": [
+          "attack-trigger",
+          "hidden-info-reveal",
+          "ORDER_TRIGGERS future pressure"
+        ],
+        "riskTags": [
+          "top20-risk",
+          "attack-trigger",
+          "hidden-info-risk",
+          "order-triggers-pressure"
+        ],
+        "sourceScenarios": [
+          "3C-attack-trigger-boundary",
+          "future-order-triggers-pressure"
+        ],
+        "useBoundary": "Use as attack-trigger evidence boundary only. Full reveal, trigger ordering, and hidden-information behavior remain outside 3C.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-1945f6918c",
+        "representativeCardNo": "SFD·029/221",
+        "name": "雷克塞",
+        "category": "英雄单位",
+        "evidencePriority": "P1",
+        "allowedIn3C": "battle-keyword-support",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-OFAQ-260114 p4"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-OFAQ-260114 p4"
+        ],
+        "riskScore": 93,
+        "battleRoles": [
+          "overwhelm-keyword",
+          "battle-damage pressure",
+          "hidden-info-risk"
+        ],
+        "riskTags": [
+          "top20-risk",
+          "overwhelm",
+          "battle-lifecycle",
+          "hidden-info-risk"
+        ],
+        "sourceScenarios": [
+          "3C-overwhelm-pressure"
+        ],
+        "useBoundary": "Use as overwhelm pressure marker. Do not close full overwhelm or battle damage assignment behavior in 3C.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-9f7cb73dc4",
+        "representativeCardNo": "UNL-150/219",
+        "name": "薇古丝",
+        "category": "英雄单位",
+        "evidencePriority": "P1",
+        "allowedIn3C": "battle-spell-duel-support",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p5",
+          "BREAK-JFAQ-260416 p9",
+          "SOUL-JFAQ-260114 p17"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p5",
+          "BREAK-JFAQ-260416 p9",
+          "SOUL-JFAQ-260114 p17"
+        ],
+        "riskScore": 96,
+        "battleRoles": [
+          "spellshield",
+          "stun in battle context",
+          "battle/spell-duel timing"
+        ],
+        "riskTags": [
+          "top20-risk",
+          "spellshield",
+          "stun",
+          "battle-lifecycle"
+        ],
+        "sourceScenarios": [
+          "3C-spellshield-stun-pressure"
+        ],
+        "useBoundary": "Use as spellshield/stun timing pressure. Do not adjudicate full Vex behavior in 3C.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "faq-mentioned",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-50ceb593ab",
+        "representativeCardNo": "OGN·057/298",
+        "name": "格挡",
+        "category": "法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "combat-trick-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 83,
+        "battleRoles": [
+          "defending-power-modifier",
+          "barrier/steadfast pressure",
+          "damage-prevention-adjacent"
+        ],
+        "riskTags": [
+          "combat-trick",
+          "defender",
+          "barrier",
+          "layer-risk"
+        ],
+        "sourceScenarios": [
+          "3C-defender-combat-trick-boundary"
+        ],
+        "useBoundary": "Use as defender combat-trick pressure. Barrier/steadfast and layer behavior remain not full-official.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-201e46695b",
+        "representativeCardNo": "SFD·003/221",
+        "name": "血性冲刺",
+        "category": "法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "combat-trick-support",
+        "faqCandidate": true,
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p17",
+          "SOUL-JFAQ-260114 p3",
+          "SOUL-OFAQ-260114 p8"
+        ],
+        "rulesRefs": [
+          "SOUL-JFAQ-260114 p17",
+          "SOUL-JFAQ-260114 p3",
+          "SOUL-OFAQ-260114 p8"
+        ],
+        "riskScore": 81,
+        "battleRoles": [
+          "attacking-power-modifier",
+          "echo-combat-trick",
+          "overwhelm pressure"
+        ],
+        "riskTags": [
+          "combat-trick",
+          "echo",
+          "overwhelm",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "3C-attacker-combat-trick-boundary"
+        ],
+        "useBoundary": "Use as attacking combat-trick pressure. Echo/payment and overwhelm full behavior remain outside 3C.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "faq-mentioned",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-4e1eb0d231",
+        "representativeCardNo": "SFD·040/221",
+        "name": "扑咚！",
+        "category": "法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "combat-trick-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 53,
+        "battleRoles": [
+          "attacking-unit-target",
+          "stun in battle context",
+          "target legality guard"
+        ],
+        "riskTags": [
+          "attacking-target",
+          "stun",
+          "payment-cost-adjacent"
+        ],
+        "sourceScenarios": [
+          "p2-preflight-play-kerplunk-stun-attacking-unit",
+          "p4-play-kerplunk-non-attacking-target-rejected"
+        ],
+        "useBoundary": "Use for attacking-target legality evidence. Do not claim full combat runtime or repeat/echo coverage.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-f9f5c508c0",
+        "representativeCardNo": "UNL-134/219",
+        "name": "存在焦虑",
+        "category": "法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "combat-trick-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 78,
+        "battleRoles": [
+          "attacking-enemy-target",
+          "stun-then-return",
+          "target legality guard"
+        ],
+        "riskTags": [
+          "attacking-target",
+          "stun",
+          "return",
+          "payment-cost-adjacent"
+        ],
+        "sourceScenarios": [
+          "p2-preflight-play-existential-dread-echo-stun-then-return",
+          "p4-play-existential-dread-friendly-attacking-target-rejected"
+        ],
+        "useBoundary": "Use as attacking enemy target and stun/return pressure. Do not close full echo or battle runtime.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-ee886701e4",
+        "representativeCardNo": "OGN·220/298",
+        "name": "强手裂颅",
+        "category": "法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "battlefield-status-support",
+        "faqCandidate": true,
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p23"
+        ],
+        "rulesRefs": [
+          "SOUL-JFAQ-260114 p23"
+        ],
+        "riskScore": 77,
+        "battleRoles": [
+          "friendly-and-enemy-battlefield-units",
+          "stun both sides",
+          "cleanup-after-status"
+        ],
+        "riskTags": [
+          "battlefield-units",
+          "stun",
+          "faq-mentioned",
+          "cleanup-risk"
+        ],
+        "sourceScenarios": [
+          "p2-preflight-play-skullcrack-stun-friendly-and-enemy-battlefield-units"
+        ],
+        "useBoundary": "Use as both-sides battlefield unit status pressure. Do not infer full battle lifecycle completion.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-5164c0d190",
+        "representativeCardNo": "SFD·017/221",
+        "name": "雷霆突降",
+        "category": "法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "damage-assignment-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 71,
+        "battleRoles": [
+          "attacking-target-damage",
+          "damage amount depends on attacking identity"
+        ],
+        "riskTags": [
+          "attacking-target",
+          "damage",
+          "cleanup-risk"
+        ],
+        "sourceScenarios": [
+          "p2-preflight-play-thundering-drop-attacking-damage-stack"
+        ],
+        "useBoundary": "Use as attacking-identity damage pressure. This is not combat damage assignment completion.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-4329e00e20",
+        "representativeCardNo": "UNL-198/219",
+        "name": "月之降临",
+        "category": "专属法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "damage-assignment-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 51,
+        "battleRoles": [
+          "negative-power-before-battle",
+          "combat-damage-output-clamp",
+          "cleanup regression"
+        ],
+        "riskTags": [
+          "negative-power",
+          "combat-damage-clamp",
+          "cleanup-risk"
+        ],
+        "sourceScenarios": [
+          "p2-preflight-play-moonrise-enemy-battlefield-power-minus-2",
+          "negative-power-combat-damage-output"
+        ],
+        "useBoundary": "Use as negative-power / combat-output clamp evidence. Do not treat the card as full-official.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-0b6332bbf0",
+        "representativeCardNo": "SFD·145/221",
+        "name": "换换乐",
+        "category": "法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "damage-assignment-support",
+        "faqCandidate": true,
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p14"
+        ],
+        "rulesRefs": [
+          "SOUL-JFAQ-260114 p14"
+        ],
+        "riskScore": 89,
+        "battleRoles": [
+          "battlefield-power-swap",
+          "damage math pressure",
+          "layer risk"
+        ],
+        "riskTags": [
+          "top20-risk",
+          "power-swap",
+          "damage-math",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "3C-power-swap-damage-pressure"
+        ],
+        "useBoundary": "Use as damage math pressure. Full Switcheroo/layer behavior remains outside 3C.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-a9dc3495e1",
+        "representativeCardNo": "OGN·256/298",
+        "name": "妖异狐火",
+        "category": "专属法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "damage-assignment-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [
+          "CORE-260330 p40"
+        ],
+        "riskScore": 80,
+        "battleRoles": [
+          "multi-unit-destroy",
+          "battlefield-unit-selection",
+          "cleanup pressure"
+        ],
+        "riskTags": [
+          "multi-unit",
+          "destroy",
+          "cleanup-risk"
+        ],
+        "sourceScenarios": [
+          "p2-preflight-play-spirit-fire-destroy-total-power-four"
+        ],
+        "useBoundary": "Use as multi-unit battlefield pressure for later damage/cleanup tests. Not battle damage assignment completion.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-64a7f67581",
+        "representativeCardNo": "OGN·262/298",
+        "name": "天顶之刃",
+        "category": "专属法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "battlefield-status-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 51,
+        "battleRoles": [
+          "enemy-battlefield-unit-target",
+          "stun",
+          "cleanup-after-status"
+        ],
+        "riskTags": [
+          "enemy-battlefield-target",
+          "stun",
+          "cleanup-risk"
+        ],
+        "sourceScenarios": [
+          "p2-preflight-play-zenith-blade-stun-enemy-battlefield-unit"
+        ],
+        "useBoundary": "Use as enemy battlefield target/status evidence. Optional move and full control/cleanup remain outside 3C.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-265c03a141",
+        "representativeCardNo": "OGS·008/024",
+        "name": "绅士决斗",
+        "category": "法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "damage-assignment-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 53,
+        "battleRoles": [
+          "mutual-power-damage",
+          "damage-vs-power math",
+          "cleanup pressure"
+        ],
+        "riskTags": [
+          "mutual-damage",
+          "power-damage",
+          "cleanup-risk"
+        ],
+        "sourceScenarios": [
+          "future-mutual-power-damage-pressure"
+        ],
+        "useBoundary": "Use as mutual-damage math pressure; not a battle damage assignment proof.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "layer-continuous-effect",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-2779c06158",
+        "representativeCardNo": "OGN·128/298",
+        "name": "决斗",
+        "category": "法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "damage-assignment-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 38,
+        "battleRoles": [
+          "mutual-power-damage",
+          "damage-vs-power math"
+        ],
+        "riskTags": [
+          "mutual-damage",
+          "power-damage"
+        ],
+        "sourceScenarios": [
+          "future-duel-mutual-damage-pressure"
+        ],
+        "useBoundary": "Use as simple mutual-damage pressure; not full battle damage assignment.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "layer-continuous-effect",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-b646702ec0",
+        "representativeCardNo": "OGN·268/298",
+        "name": "弹幕时间",
+        "category": "专属法术",
+        "evidencePriority": "P2",
+        "allowedIn3C": "hold-back-noncombat-damage",
+        "faqCandidate": true,
+        "faqRefs": [
+          "JFAQ-251023 p6"
+        ],
+        "rulesRefs": [
+          "JFAQ-251023 p6"
+        ],
+        "riskScore": 47,
+        "battleRoles": [
+          "non-combat damage to enemy battlefield units",
+          "PAY_COST already in 3A",
+          "damage runtime holdback"
+        ],
+        "riskTags": [
+          "hold-back",
+          "pay-cost",
+          "noncombat-damage",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "typed-power-payment",
+          "future-noncombat-damage-pressure"
+        ],
+        "useBoundary": "Keep Bullet Time out of 3C battle damage assignment. 3A covered PAY_COST only; full damage runtime is later.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "faq-mentioned",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-67c6b0186e",
+        "representativeCardNo": "SFD·049/221",
+        "name": "厄斐琉斯",
+        "category": "英雄单位",
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "faqCandidate": true,
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p21",
+          "SOUL-JFAQ-260114 p24",
+          "SOUL-OFAQ-260114 p19"
+        ],
+        "rulesRefs": [
+          "SOUL-JFAQ-260114 p21",
+          "SOUL-JFAQ-260114 p24",
+          "SOUL-OFAQ-260114 p19"
+        ],
+        "riskScore": 66,
+        "battleRoles": [
+          "triggered-weapon-selection",
+          "ORDER_TRIGGERS pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "faq-mentioned",
+          "layer-risk"
+        ],
+        "sourceScenarios": [
+          "future-order-triggers-aphelios"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS pressure only. Do not include in 3C battle runtime.",
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "faq-mentioned",
+          "layer-continuous-effect",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-bf81341dd2",
+        "representativeCardNo": "OGN·103/298",
+        "name": "拉文布鲁姆学生",
+        "category": "单位",
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p10",
+          "JFAQ-251023 p2",
+          "SOUL-JFAQ-260114 p10",
+          "SOUL-JFAQ-260114 p15"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p10",
+          "JFAQ-251023 p2",
+          "SOUL-JFAQ-260114 p10",
+          "SOUL-JFAQ-260114 p15"
+        ],
+        "riskScore": 63,
+        "battleRoles": [
+          "spell-trigger",
+          "ORDER_TRIGGERS pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "future-order-triggers-spell-trigger"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS pressure only.",
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "faq-mentioned",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-5cea85e7c3",
+        "representativeCardNo": "SFD·128/221",
+        "name": "狂热粉丝",
+        "category": "单位",
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p4"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p4"
+        ],
+        "riskScore": 62,
+        "battleRoles": [
+          "defense-trigger",
+          "initial-battle-stack pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "defense-trigger",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "future-order-triggers-defense"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS pressure only.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "faq-mentioned",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-c170628e3a",
+        "representativeCardNo": "UNL-065/219",
+        "name": "冰谷弓箭手",
+        "category": "单位",
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 55,
+        "battleRoles": [
+          "attack-trigger-with-payment",
+          "trigger-cost-decline pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "attack-trigger",
+          "payment-cost"
+        ],
+        "sourceScenarios": [
+          "future-trigger-payment-decline"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS + trigger payment pressure only.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-16d3a6dd4e",
+        "representativeCardNo": "SFD·165/221",
+        "name": "戈拉斯克调酒师",
+        "category": "单位",
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p7"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p7"
+        ],
+        "riskScore": 69,
+        "battleRoles": [
+          "last-breath-trigger",
+          "cleanup-trigger pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "last-breath",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "future-last-breath-ordering"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS / cleanup trigger pressure only.",
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-4e2e19359f",
+        "representativeCardNo": "UNL-179/219",
+        "name": "峡谷先锋",
+        "category": "单位",
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 77,
+        "battleRoles": [
+          "last-breath-trigger",
+          "move-after-death pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "last-breath",
+          "movement"
+        ],
+        "sourceScenarios": [
+          "future-last-breath-move-ordering"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS pressure. It was already held back from 3B core.",
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-7f4a387b92",
+        "representativeCardNo": "OGN·056/298",
+        "name": "自适应机器人",
+        "category": "单位",
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 58,
+        "battleRoles": [
+          "conquer-trigger",
+          "score-trigger pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "conquer",
+          "layer-risk"
+        ],
+        "sourceScenarios": [
+          "future-conquer-trigger-ordering"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS pressure; 3B only mapped conquer hook.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "layer-continuous-effect",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-c027639a3c",
+        "representativeCardNo": "OGN·035/298",
+        "name": "薇恩",
+        "category": "英雄单位",
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 70,
+        "battleRoles": [
+          "conquer-trigger",
+          "recall-after-score pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "conquer",
+          "recall"
+        ],
+        "sourceScenarios": [
+          "future-conquer-recall-ordering"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS pressure; 3B only mapped conquer/recall boundary.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-8dae5c40be",
+        "representativeCardNo": "OGN·121/298",
+        "name": "提莫",
+        "category": "英雄单位",
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 82,
+        "battleRoles": [
+          "standby-defend-trigger",
+          "reveal during battle pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "standby",
+          "defend-trigger",
+          "hidden-info-risk"
+        ],
+        "sourceScenarios": [
+          "future-standby-defend-trigger-ordering"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS and hidden-information pressure.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
+    ],
+    "testDeckFunctionalUnits": [
+      {
+        "functionalUnitId": "FU-fda6183f9d",
+        "representativeCardNo": "OGS·007/024",
+        "name": "盖伦",
+        "category": "英雄单位",
+        "evidencePriority": "P0",
+        "allowedIn3C": "battle-body-core",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 22,
+        "battleRoles": [
+          "declare-battle-attacker-fixture",
+          "battlefield-unit-body",
+          "ASSIGN_COMBAT_DAMAGE payload guard"
+        ],
+        "riskTags": [
+          "battle-lifecycle",
+          "assign-combat-damage",
+          "body-fixture"
+        ],
+        "sourceScenarios": [
+          "p4-declare-battle-* rejected fixtures",
+          "3C-declare-battle-minimal"
+        ],
+        "useBoundary": "Use as a known attacker/body fixture for DECLARE_BATTLE and ASSIGN_COMBAT_DAMAGE schema evidence. Do not claim full Garen card text coverage.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-6582231b22",
+        "representativeCardNo": "UNL-036/219",
+        "name": "变异猫咪",
+        "category": "单位",
+        "evidencePriority": "P0",
+        "allowedIn3C": "battle-body-core",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 19,
+        "battleRoles": [
+          "declare-battle-defender-fixture",
+          "battlefield-unit-body",
+          "ASSIGN_COMBAT_DAMAGE payload guard"
+        ],
+        "riskTags": [
+          "battle-lifecycle",
+          "assign-combat-damage",
+          "body-fixture"
+        ],
+        "sourceScenarios": [
+          "p4-declare-battle-* rejected fixtures",
+          "3C-declare-battle-minimal"
+        ],
+        "useBoundary": "Use as a known defender/body fixture for DECLARE_BATTLE and ASSIGN_COMBAT_DAMAGE schema evidence. Do not claim full Mutant Kitten card text coverage.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-1fdf2a082a",
+        "representativeCardNo": "UNL-090/219",
+        "name": "乐芙兰",
+        "category": "英雄单位",
+        "evidencePriority": "P1",
+        "allowedIn3C": "battle-body-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [
+          "CORE-260330 p79"
+        ],
+        "riskScore": 30,
+        "battleRoles": [
+          "alternate-defender-body",
+          "cleanup-after-battle-candidate"
+        ],
+        "riskTags": [
+          "battle-lifecycle",
+          "cleanup-risk",
+          "body-fixture"
+        ],
+        "sourceScenarios": [
+          "p4-declare-battle-* rejected fixtures"
+        ],
+        "useBoundary": "Use only as an alternate battlefield unit body and cleanup candidate; do not expand to LeBlanc trigger/last-breath behavior.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-44f29ad8f7",
+        "representativeCardNo": "OGN·004/298",
+        "name": "顺劈",
+        "category": "法术",
+        "evidencePriority": "P0",
+        "allowedIn3C": "spell-duel-core",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 55,
+        "battleRoles": [
+          "swift-spell-duel-representative",
+          "attacking-power-modifier",
+          "overwhelm-combat-trick"
+        ],
+        "riskTags": [
+          "spell-duel",
+          "focus-pass",
+          "combat-trick",
+          "overwhelm"
+        ],
+        "sourceScenarios": [
+          "p4-play-swift-cleave-in-spell-duel-focus",
+          "3C-spell-duel-focus-pass"
+        ],
+        "useBoundary": "Use as the narrow swift spell-duel representative. Do not batch-enable all swift/reaction cards.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "layer-continuous-effect",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-4215291160",
+        "representativeCardNo": "UNL-079/219",
+        "name": "黛安娜",
+        "category": "英雄单位",
+        "evidencePriority": "P1",
+        "allowedIn3C": "spell-duel-specific-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 79,
+        "battleRoles": [
+          "spell-duel-static",
+          "insight",
+          "hidden-info-risk"
+        ],
+        "riskTags": [
+          "spell-duel",
+          "hidden-info-risk",
+          "layer-risk"
+        ],
+        "sourceScenarios": [
+          "future-spell-duel-static-pressure"
+        ],
+        "useBoundary": "Use as spell-duel-specific card mapping only; not a 3C runtime implementation target.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-bf350b5796",
+        "representativeCardNo": "UNL-146/219",
+        "name": "辛德拉",
+        "category": "英雄单位",
+        "evidencePriority": "P1",
+        "allowedIn3C": "spell-duel-specific-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 53,
+        "battleRoles": [
+          "spell-duel-static",
+          "echo/payment-adjacent"
+        ],
+        "riskTags": [
+          "spell-duel",
+          "echo",
+          "payment-cost-adjacent"
+        ],
+        "sourceScenarios": [
+          "future-spell-duel-echo-pressure"
+        ],
+        "useBoundary": "Use as spell-duel-specific pressure only; full echo/payment stays out of 3C.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-50ceb593ab",
+        "representativeCardNo": "OGN·057/298",
+        "name": "格挡",
+        "category": "法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "combat-trick-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 83,
+        "battleRoles": [
+          "defending-power-modifier",
+          "barrier/steadfast pressure",
+          "damage-prevention-adjacent"
+        ],
+        "riskTags": [
+          "combat-trick",
+          "defender",
+          "barrier",
+          "layer-risk"
+        ],
+        "sourceScenarios": [
+          "3C-defender-combat-trick-boundary"
+        ],
+        "useBoundary": "Use as defender combat-trick pressure. Barrier/steadfast and layer behavior remain not full-official.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-201e46695b",
+        "representativeCardNo": "SFD·003/221",
+        "name": "血性冲刺",
+        "category": "法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "combat-trick-support",
+        "faqCandidate": true,
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p17",
+          "SOUL-JFAQ-260114 p3",
+          "SOUL-OFAQ-260114 p8"
+        ],
+        "rulesRefs": [
+          "SOUL-JFAQ-260114 p17",
+          "SOUL-JFAQ-260114 p3",
+          "SOUL-OFAQ-260114 p8"
+        ],
+        "riskScore": 81,
+        "battleRoles": [
+          "attacking-power-modifier",
+          "echo-combat-trick",
+          "overwhelm pressure"
+        ],
+        "riskTags": [
+          "combat-trick",
+          "echo",
+          "overwhelm",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "3C-attacker-combat-trick-boundary"
+        ],
+        "useBoundary": "Use as attacking combat-trick pressure. Echo/payment and overwhelm full behavior remain outside 3C.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "faq-mentioned",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-4e1eb0d231",
+        "representativeCardNo": "SFD·040/221",
+        "name": "扑咚！",
+        "category": "法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "combat-trick-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 53,
+        "battleRoles": [
+          "attacking-unit-target",
+          "stun in battle context",
+          "target legality guard"
+        ],
+        "riskTags": [
+          "attacking-target",
+          "stun",
+          "payment-cost-adjacent"
+        ],
+        "sourceScenarios": [
+          "p2-preflight-play-kerplunk-stun-attacking-unit",
+          "p4-play-kerplunk-non-attacking-target-rejected"
+        ],
+        "useBoundary": "Use for attacking-target legality evidence. Do not claim full combat runtime or repeat/echo coverage.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-f9f5c508c0",
+        "representativeCardNo": "UNL-134/219",
+        "name": "存在焦虑",
+        "category": "法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "combat-trick-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 78,
+        "battleRoles": [
+          "attacking-enemy-target",
+          "stun-then-return",
+          "target legality guard"
+        ],
+        "riskTags": [
+          "attacking-target",
+          "stun",
+          "return",
+          "payment-cost-adjacent"
+        ],
+        "sourceScenarios": [
+          "p2-preflight-play-existential-dread-echo-stun-then-return",
+          "p4-play-existential-dread-friendly-attacking-target-rejected"
+        ],
+        "useBoundary": "Use as attacking enemy target and stun/return pressure. Do not close full echo or battle runtime.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-ee886701e4",
+        "representativeCardNo": "OGN·220/298",
+        "name": "强手裂颅",
+        "category": "法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "battlefield-status-support",
+        "faqCandidate": true,
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p23"
+        ],
+        "rulesRefs": [
+          "SOUL-JFAQ-260114 p23"
+        ],
+        "riskScore": 77,
+        "battleRoles": [
+          "friendly-and-enemy-battlefield-units",
+          "stun both sides",
+          "cleanup-after-status"
+        ],
+        "riskTags": [
+          "battlefield-units",
+          "stun",
+          "faq-mentioned",
+          "cleanup-risk"
+        ],
+        "sourceScenarios": [
+          "p2-preflight-play-skullcrack-stun-friendly-and-enemy-battlefield-units"
+        ],
+        "useBoundary": "Use as both-sides battlefield unit status pressure. Do not infer full battle lifecycle completion.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-5164c0d190",
+        "representativeCardNo": "SFD·017/221",
+        "name": "雷霆突降",
+        "category": "法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "damage-assignment-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 71,
+        "battleRoles": [
+          "attacking-target-damage",
+          "damage amount depends on attacking identity"
+        ],
+        "riskTags": [
+          "attacking-target",
+          "damage",
+          "cleanup-risk"
+        ],
+        "sourceScenarios": [
+          "p2-preflight-play-thundering-drop-attacking-damage-stack"
+        ],
+        "useBoundary": "Use as attacking-identity damage pressure. This is not combat damage assignment completion.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-4329e00e20",
+        "representativeCardNo": "UNL-198/219",
+        "name": "月之降临",
+        "category": "专属法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "damage-assignment-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 51,
+        "battleRoles": [
+          "negative-power-before-battle",
+          "combat-damage-output-clamp",
+          "cleanup regression"
+        ],
+        "riskTags": [
+          "negative-power",
+          "combat-damage-clamp",
+          "cleanup-risk"
+        ],
+        "sourceScenarios": [
+          "p2-preflight-play-moonrise-enemy-battlefield-power-minus-2",
+          "negative-power-combat-damage-output"
+        ],
+        "useBoundary": "Use as negative-power / combat-output clamp evidence. Do not treat the card as full-official.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "targeting-stack-timing"
+        ]
+      }
+    ],
+    "highRiskBattleDamageFunctionalUnits": [
+      {
+        "functionalUnitId": "FU-104211dbbc",
+        "representativeCardNo": "SFD·148/221",
+        "name": "德莱文",
+        "category": "英雄单位",
+        "evidencePriority": "P0",
+        "allowedIn3C": "battle-lifecycle-core",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p4",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-JFAQ-260114 p4",
+          "SOUL-OFAQ-260114 p16",
+          "SOUL-OFAQ-260114 p17"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p4",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-JFAQ-260114 p4",
+          "SOUL-OFAQ-260114 p16",
+          "SOUL-OFAQ-260114 p17"
+        ],
+        "riskScore": 104,
+        "battleRoles": [
+          "high-risk-battle-unit",
+          "attack/defense identity candidate",
+          "battle-initial-stack candidate"
+        ],
+        "riskTags": [
+          "top20-risk",
+          "battle-lifecycle",
+          "faq-mentioned",
+          "payment-cost-adjacent"
+        ],
+        "sourceScenarios": [
+          "3C-high-risk-battle-pressure"
+        ],
+        "useBoundary": "Use as a Top20 high-risk battle unit candidate. Do not claim full Draven card text or battle trigger completion in 3C.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "faq-mentioned",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-964b214448",
+        "representativeCardNo": "SFD·020/221",
+        "name": "德莱文",
+        "category": "英雄单位",
+        "evidencePriority": "P0",
+        "allowedIn3C": "battle-lifecycle-core",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p4",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-JFAQ-260114 p4",
+          "SOUL-OFAQ-260114 p16",
+          "SOUL-OFAQ-260114 p17"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p4",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-JFAQ-260114 p4",
+          "SOUL-OFAQ-260114 p16",
+          "SOUL-OFAQ-260114 p17"
+        ],
+        "riskScore": 103,
+        "battleRoles": [
+          "basic-battle-unit",
+          "attack/defense identity candidate",
+          "FAQ battle baseline"
+        ],
+        "riskTags": [
+          "top20-risk",
+          "battle-lifecycle",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "3C-basic-battle-baseline"
+        ],
+        "useBoundary": "Use as a simpler Draven battle body / FAQ baseline. Do not turn this into full official Draven coverage.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "faq-mentioned",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-2dca1ad450",
+        "representativeCardNo": "SFD·082/221",
+        "name": "伊泽瑞尔",
+        "category": "英雄单位",
+        "evidencePriority": "P0",
+        "allowedIn3C": "damage-assignment-core",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p5",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-OFAQ-260114 p20"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p5",
+          "CORE-260330 p42",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-OFAQ-260114 p20"
+        ],
+        "riskScore": 103,
+        "battleRoles": [
+          "combat-damage-trigger",
+          "post-combat-move",
+          "ASSIGN_COMBAT_DAMAGE pressure"
+        ],
+        "riskTags": [
+          "top20-risk",
+          "combat-damage",
+          "control-zone-movement",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "3C-combat-damage-move-pressure"
+        ],
+        "useBoundary": "Use to track combat-damage-aftereffect pressure. Do not implement or certify full Ezreal damage/move behavior in 3C.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "faq-mentioned",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-422b450261",
+        "representativeCardNo": "SFD·170/221",
+        "name": "雷克塞",
+        "category": "英雄单位",
+        "evidencePriority": "P1",
+        "allowedIn3C": "battle-trigger-support",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-OFAQ-260114 p4"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-OFAQ-260114 p4"
+        ],
+        "riskScore": 94,
+        "battleRoles": [
+          "attack-trigger",
+          "hidden-info-reveal",
+          "ORDER_TRIGGERS future pressure"
+        ],
+        "riskTags": [
+          "top20-risk",
+          "attack-trigger",
+          "hidden-info-risk",
+          "order-triggers-pressure"
+        ],
+        "sourceScenarios": [
+          "3C-attack-trigger-boundary",
+          "future-order-triggers-pressure"
+        ],
+        "useBoundary": "Use as attack-trigger evidence boundary only. Full reveal, trigger ordering, and hidden-information behavior remain outside 3C.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-1945f6918c",
+        "representativeCardNo": "SFD·029/221",
+        "name": "雷克塞",
+        "category": "英雄单位",
+        "evidencePriority": "P1",
+        "allowedIn3C": "battle-keyword-support",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-OFAQ-260114 p4"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-OFAQ-260114 p4"
+        ],
+        "riskScore": 93,
+        "battleRoles": [
+          "overwhelm-keyword",
+          "battle-damage pressure",
+          "hidden-info-risk"
+        ],
+        "riskTags": [
+          "top20-risk",
+          "overwhelm",
+          "battle-lifecycle",
+          "hidden-info-risk"
+        ],
+        "sourceScenarios": [
+          "3C-overwhelm-pressure"
+        ],
+        "useBoundary": "Use as overwhelm pressure marker. Do not close full overwhelm or battle damage assignment behavior in 3C.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-9f7cb73dc4",
+        "representativeCardNo": "UNL-150/219",
+        "name": "薇古丝",
+        "category": "英雄单位",
+        "evidencePriority": "P1",
+        "allowedIn3C": "battle-spell-duel-support",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p5",
+          "BREAK-JFAQ-260416 p9",
+          "SOUL-JFAQ-260114 p17"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p5",
+          "BREAK-JFAQ-260416 p9",
+          "SOUL-JFAQ-260114 p17"
+        ],
+        "riskScore": 96,
+        "battleRoles": [
+          "spellshield",
+          "stun in battle context",
+          "battle/spell-duel timing"
+        ],
+        "riskTags": [
+          "top20-risk",
+          "spellshield",
+          "stun",
+          "battle-lifecycle"
+        ],
+        "sourceScenarios": [
+          "3C-spellshield-stun-pressure"
+        ],
+        "useBoundary": "Use as spellshield/stun timing pressure. Do not adjudicate full Vex behavior in 3C.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "faq-mentioned",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
+    ],
+    "damageMathPressureFunctionalUnits": [
+      {
+        "functionalUnitId": "FU-0b6332bbf0",
+        "representativeCardNo": "SFD·145/221",
+        "name": "换换乐",
+        "category": "法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "damage-assignment-support",
+        "faqCandidate": true,
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p14"
+        ],
+        "rulesRefs": [
+          "SOUL-JFAQ-260114 p14"
+        ],
+        "riskScore": 89,
+        "battleRoles": [
+          "battlefield-power-swap",
+          "damage math pressure",
+          "layer risk"
+        ],
+        "riskTags": [
+          "top20-risk",
+          "power-swap",
+          "damage-math",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "3C-power-swap-damage-pressure"
+        ],
+        "useBoundary": "Use as damage math pressure. Full Switcheroo/layer behavior remains outside 3C.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-a9dc3495e1",
+        "representativeCardNo": "OGN·256/298",
+        "name": "妖异狐火",
+        "category": "专属法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "damage-assignment-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [
+          "CORE-260330 p40"
+        ],
+        "riskScore": 80,
+        "battleRoles": [
+          "multi-unit-destroy",
+          "battlefield-unit-selection",
+          "cleanup pressure"
+        ],
+        "riskTags": [
+          "multi-unit",
+          "destroy",
+          "cleanup-risk"
+        ],
+        "sourceScenarios": [
+          "p2-preflight-play-spirit-fire-destroy-total-power-four"
+        ],
+        "useBoundary": "Use as multi-unit battlefield pressure for later damage/cleanup tests. Not battle damage assignment completion.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-64a7f67581",
+        "representativeCardNo": "OGN·262/298",
+        "name": "天顶之刃",
+        "category": "专属法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "battlefield-status-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 51,
+        "battleRoles": [
+          "enemy-battlefield-unit-target",
+          "stun",
+          "cleanup-after-status"
+        ],
+        "riskTags": [
+          "enemy-battlefield-target",
+          "stun",
+          "cleanup-risk"
+        ],
+        "sourceScenarios": [
+          "p2-preflight-play-zenith-blade-stun-enemy-battlefield-unit"
+        ],
+        "useBoundary": "Use as enemy battlefield target/status evidence. Optional move and full control/cleanup remain outside 3C.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-265c03a141",
+        "representativeCardNo": "OGS·008/024",
+        "name": "绅士决斗",
+        "category": "法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "damage-assignment-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 53,
+        "battleRoles": [
+          "mutual-power-damage",
+          "damage-vs-power math",
+          "cleanup pressure"
+        ],
+        "riskTags": [
+          "mutual-damage",
+          "power-damage",
+          "cleanup-risk"
+        ],
+        "sourceScenarios": [
+          "future-mutual-power-damage-pressure"
+        ],
+        "useBoundary": "Use as mutual-damage math pressure; not a battle damage assignment proof.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "layer-continuous-effect",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-2779c06158",
+        "representativeCardNo": "OGN·128/298",
+        "name": "决斗",
+        "category": "法术",
+        "evidencePriority": "P1",
+        "allowedIn3C": "damage-assignment-support",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 38,
+        "battleRoles": [
+          "mutual-power-damage",
+          "damage-vs-power math"
+        ],
+        "riskTags": [
+          "mutual-damage",
+          "power-damage"
+        ],
+        "sourceScenarios": [
+          "future-duel-mutual-damage-pressure"
+        ],
+        "useBoundary": "Use as simple mutual-damage pressure; not full battle damage assignment.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "layer-continuous-effect",
+          "targeting-stack-timing"
+        ]
+      }
+    ],
+    "holdBackFunctionalUnits": [
+      {
+        "functionalUnitId": "FU-b646702ec0",
+        "representativeCardNo": "OGN·268/298",
+        "name": "弹幕时间",
+        "category": "专属法术",
+        "evidencePriority": "P2",
+        "allowedIn3C": "hold-back-noncombat-damage",
+        "faqCandidate": true,
+        "faqRefs": [
+          "JFAQ-251023 p6"
+        ],
+        "rulesRefs": [
+          "JFAQ-251023 p6"
+        ],
+        "riskScore": 47,
+        "battleRoles": [
+          "non-combat damage to enemy battlefield units",
+          "PAY_COST already in 3A",
+          "damage runtime holdback"
+        ],
+        "riskTags": [
+          "hold-back",
+          "pay-cost",
+          "noncombat-damage",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "typed-power-payment",
+          "future-noncombat-damage-pressure"
+        ],
+        "useBoundary": "Keep Bullet Time out of 3C battle damage assignment. 3A covered PAY_COST only; full damage runtime is later.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "faq-mentioned",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
+    ],
+    "recommendedOrderTriggersPressureFunctionalUnits": [
+      {
+        "functionalUnitId": "FU-422b450261",
+        "representativeCardNo": "SFD·170/221",
+        "name": "雷克塞",
+        "category": "英雄单位",
+        "evidencePriority": "P1",
+        "allowedIn3C": "battle-trigger-support",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-OFAQ-260114 p4"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-OFAQ-260114 p4"
+        ],
+        "riskScore": 94,
+        "battleRoles": [
+          "attack-trigger",
+          "hidden-info-reveal",
+          "ORDER_TRIGGERS future pressure"
+        ],
+        "riskTags": [
+          "top20-risk",
+          "attack-trigger",
+          "hidden-info-risk",
+          "order-triggers-pressure"
+        ],
+        "sourceScenarios": [
+          "3C-attack-trigger-boundary",
+          "future-order-triggers-pressure"
+        ],
+        "useBoundary": "Use as attack-trigger evidence boundary only. Full reveal, trigger ordering, and hidden-information behavior remain outside 3C.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-67c6b0186e",
+        "representativeCardNo": "SFD·049/221",
+        "name": "厄斐琉斯",
+        "category": "英雄单位",
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "faqCandidate": true,
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p21",
+          "SOUL-JFAQ-260114 p24",
+          "SOUL-OFAQ-260114 p19"
+        ],
+        "rulesRefs": [
+          "SOUL-JFAQ-260114 p21",
+          "SOUL-JFAQ-260114 p24",
+          "SOUL-OFAQ-260114 p19"
+        ],
+        "riskScore": 66,
+        "battleRoles": [
+          "triggered-weapon-selection",
+          "ORDER_TRIGGERS pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "faq-mentioned",
+          "layer-risk"
+        ],
+        "sourceScenarios": [
+          "future-order-triggers-aphelios"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS pressure only. Do not include in 3C battle runtime.",
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "faq-mentioned",
+          "layer-continuous-effect",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-bf81341dd2",
+        "representativeCardNo": "OGN·103/298",
+        "name": "拉文布鲁姆学生",
+        "category": "单位",
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p10",
+          "JFAQ-251023 p2",
+          "SOUL-JFAQ-260114 p10",
+          "SOUL-JFAQ-260114 p15"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p10",
+          "JFAQ-251023 p2",
+          "SOUL-JFAQ-260114 p10",
+          "SOUL-JFAQ-260114 p15"
+        ],
+        "riskScore": 63,
+        "battleRoles": [
+          "spell-trigger",
+          "ORDER_TRIGGERS pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "future-order-triggers-spell-trigger"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS pressure only.",
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "faq-mentioned",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-5cea85e7c3",
+        "representativeCardNo": "SFD·128/221",
+        "name": "狂热粉丝",
+        "category": "单位",
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p4"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p4"
+        ],
+        "riskScore": 62,
+        "battleRoles": [
+          "defense-trigger",
+          "initial-battle-stack pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "defense-trigger",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "future-order-triggers-defense"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS pressure only.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "faq-mentioned",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-c170628e3a",
+        "representativeCardNo": "UNL-065/219",
+        "name": "冰谷弓箭手",
+        "category": "单位",
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 55,
+        "battleRoles": [
+          "attack-trigger-with-payment",
+          "trigger-cost-decline pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "attack-trigger",
+          "payment-cost"
+        ],
+        "sourceScenarios": [
+          "future-trigger-payment-decline"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS + trigger payment pressure only.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-16d3a6dd4e",
+        "representativeCardNo": "SFD·165/221",
+        "name": "戈拉斯克调酒师",
+        "category": "单位",
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p7"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p7"
+        ],
+        "riskScore": 69,
+        "battleRoles": [
+          "last-breath-trigger",
+          "cleanup-trigger pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "last-breath",
+          "faq-mentioned"
+        ],
+        "sourceScenarios": [
+          "future-last-breath-ordering"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS / cleanup trigger pressure only.",
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-4e2e19359f",
+        "representativeCardNo": "UNL-179/219",
+        "name": "峡谷先锋",
+        "category": "单位",
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 77,
+        "battleRoles": [
+          "last-breath-trigger",
+          "move-after-death pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "last-breath",
+          "movement"
+        ],
+        "sourceScenarios": [
+          "future-last-breath-move-ordering"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS pressure. It was already held back from 3B core.",
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-7f4a387b92",
+        "representativeCardNo": "OGN·056/298",
+        "name": "自适应机器人",
+        "category": "单位",
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 58,
+        "battleRoles": [
+          "conquer-trigger",
+          "score-trigger pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "conquer",
+          "layer-risk"
+        ],
+        "sourceScenarios": [
+          "future-conquer-trigger-ordering"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS pressure; 3B only mapped conquer hook.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "layer-continuous-effect",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-c027639a3c",
+        "representativeCardNo": "OGN·035/298",
+        "name": "薇恩",
+        "category": "英雄单位",
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 70,
+        "battleRoles": [
+          "conquer-trigger",
+          "recall-after-score pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "conquer",
+          "recall"
+        ],
+        "sourceScenarios": [
+          "future-conquer-recall-ordering"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS pressure; 3B only mapped conquer/recall boundary.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-8dae5c40be",
+        "representativeCardNo": "OGN·121/298",
+        "name": "提莫",
+        "category": "英雄单位",
+        "evidencePriority": "P2",
+        "allowedIn3C": "order-triggers-pressure-only",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 82,
+        "battleRoles": [
+          "standby-defend-trigger",
+          "reveal during battle pressure"
+        ],
+        "riskTags": [
+          "order-triggers-pressure",
+          "standby",
+          "defend-trigger",
+          "hidden-info-risk"
+        ],
+        "sourceScenarios": [
+          "future-standby-defend-trigger-ordering"
+        ],
+        "useBoundary": "Recommended for later ORDER_TRIGGERS and hidden-information pressure.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
+    ],
+    "nonCard3CContracts": [
+      {
+        "contract": "ASSIGN_COMBAT_DAMAGE command / payload evidence boundary",
+        "evidencePriority": "P0",
+        "note": "3C maps card functional units that depend on damage assignment, but does not implement or certify the runtime prompt/state machine."
+      },
+      {
+        "contract": "spell duel focus and pass loop",
+        "evidencePriority": "P0",
+        "note": "3C evidence must preserve focus/priority distinctions from normal open/closed state; all quick/reaction cards are not batch-enabled."
+      },
+      {
+        "contract": "battle initial stack and attack/defense identity",
+        "evidencePriority": "P0",
+        "note": "Initial battle triggers and attack/defense identity are mapped as evidence, while ORDER_TRIGGERS remains a future runtime blocker."
       }
     ]
   }

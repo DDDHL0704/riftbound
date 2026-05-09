@@ -2,11 +2,11 @@
 
 更新时间：2026-05-09
 
-阶段：**阶段 3B / E 卡牌覆盖矩阵与 Battlefield lifecycle 证据 overlay**
+阶段：**阶段 3C / E 卡牌覆盖矩阵与 Spell duel / Battle / ASSIGN_COMBAT_DAMAGE 证据 overlay**
 
 结论：**NOT READY；不允许进入 1009 张卡牌效果批量覆盖。**
 
-本文只建立统计口径、只读数据基线、矩阵字段、风险排序和阶段性证据 overlay，不实现或修改任何卡牌效果。阶段 1/2 建立卡牌覆盖基线；阶段 3A/3B 只给最小 runtime / lifecycle 切片补证据标签，防止把代表路径、旧阶段口径或图鉴展示误判为全官方卡牌完成。
+本文只建立统计口径、只读数据基线、矩阵字段、风险排序和阶段性证据 overlay，不实现或修改任何卡牌效果。阶段 1/2 建立卡牌覆盖基线；阶段 3A/3B/3C 只给最小 runtime / lifecycle / battle-damage 切片补证据标签，防止把代表路径、旧阶段口径或图鉴展示误判为全官方卡牌完成。
 
 ## 1. 已读取依据
 
@@ -16,7 +16,7 @@
 - `docs/rules-evidence-index.md`：当前已有规则域和 fixture 证据目录；该文件不是 1009 张卡覆盖矩阵。
 - `data/official/card-catalog.zh-CN.json`：固定官网快照，`fetchedAt = 2026-04-27`，声明 `total = 1009`。
 
-注意：`docs/CURRENT_RULE_EVIDENCE_TODO.md` 可能由 D/A 或其他 worker 持有；本轮 3B E 不修改、不追加。
+注意：`docs/CURRENT_RULE_EVIDENCE_TODO.md` 可能由 D/A 或其他 worker 持有；本轮 3C E 不修改、不追加。
 
 ## 2. 阶段 1 统计口径
 
@@ -182,7 +182,7 @@ P0 仍存在：
 
 - central cleanup queue 未完整官方化。
 - spell duel / battle 完整生命周期仍未完成。
-- `PAY_COST`、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS` 等复杂 prompt / command / payload schema 仍未正式完成。
+- `PAY_COST` 已有 3A 最小 runtime，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime；完整 PaymentEngine、完整 damage assignment 全规则矩阵、`ORDER_TRIGGERS` runtime 仍未正式完成。
 - 正式 18 步 E2E 未最终收口。
 - 1009 张官方卡牌效果与 FAQ 证据矩阵未完成。
 
@@ -318,6 +318,47 @@ P1 仍存在：
 - central cleanup queue 仍需由服务端规则实现与测试证明全路径 enqueue / repeat-until-stable。
 - battle / spell duel lifecycle、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS` 仍未 full-official。
 - 控制权冻结/释放、失控待命移除、征服/据守得分触发与替代仍需后续实现/测试闭合。
+- 1009 snapshot entries / 811 functional units 的 FAQ adjudication 与 full-official 测试矩阵仍未完成。
+
+是否允许进入卡牌效果批量覆盖：**不允许。**
+
+## 11. 阶段 3C E 汇总
+
+阶段 3C 名称：Spell duel / Battle / `ASSIGN_COMBAT_DAMAGE` 最小官方化证据 overlay。E 只标记依赖关系、测试卡组边界、FAQ/规则证据与后续压测候选，不修改核心规则引擎，不进入 1009 张卡 full-official 覆盖。
+
+完成项：
+
+- 在机器矩阵中新增 `stage3C` / `stage3CBattleDamage` overlay，补充 3C selected functional units 的 `battleRoles`、`evidencePriority`、`allowedIn3C`、`riskTags`、`useBoundary`。
+- 标注 3C 依赖统计：287 个 battle / spell-duel / `ASSIGN_COMBAT_DAMAGE` 广义候选、7 个 spell-duel effect-kind FUs、145 个 battle / attack / combat effect-kind FUs、60 个 damage effect-kind FUs、55 个后续 `ORDER_TRIGGERS` 压测候选。
+- 将 `FU-fda6183f9d`《盖伦》、`FU-6582231b22`《变异猫咪》、`FU-44f29ad8f7`《顺劈》、`FU-104211dbbc` / `FU-964b214448`《德莱文》、`FU-2dca1ad450`《伊泽瑞尔》标为 3C P0 证据核心，但仍不是 full-official 单卡完成。
+- 将 combat trick、战场状态、负战力 / 伤害数学、spell duel static、battle trigger 等候选标为 P1/P2 支撑或压测边界；`FU-b646702ec0`《弹幕时间》继续作为非战斗伤害 holdback，不进入 3C battle damage assignment。
+- 输出后续 `ORDER_TRIGGERS` 压测清单：`FU-422b450261`、`FU-67c6b0186e`、`FU-bf81341dd2`、`FU-5cea85e7c3`、`FU-c170628e3a`、`FU-16d3a6dd4e`、`FU-4e2e19359f`、`FU-7f4a387b92`、`FU-c027639a3c`、`FU-8dae5c40be`；3C 只记录，不实现。
+
+新增文件：
+
+- `docs/CURRENT_CARD_EFFECT_STAGE3C_BATTLE_DAMAGE_EVIDENCE.md`
+
+修改文件：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`
+
+未修改文件：
+
+- `data/official/card-catalog.zh-CN.json`
+- `docs/rules-evidence-index.md`
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+- `src/**`
+- `src/Riftbound.DevUi/**`
+- `riftbound-dotnet.sln`
+
+仍存在 P0/P1：
+
+- spell duel 完整 lifecycle、完整 battle task、完整 `ASSIGN_COMBAT_DAMAGE` choices / constraints 全规则矩阵仍未 full-official；3C 只关闭最小 runtime。
+- `ORDER_TRIGGERS` runtime、attack/defense initial stack ordering、last-breath / conquest / standby trigger prompt 仍未进入 3C。
+- LayerEngine、替代/预防、控制冻结/释放、隐藏信息、负战力 / barrier / back-row 全族矩阵仍需后续阶段补实现和测试。
 - 1009 snapshot entries / 811 functional units 的 FAQ adjudication 与 full-official 测试矩阵仍未完成。
 
 是否允许进入卡牌效果批量覆盖：**不允许。**

@@ -722,6 +722,7 @@ button.card-face:hover {
 .stack-item,
 .task-queue,
 .prompt-summary,
+.damage-assignment-panel,
 .generic-prompt-details,
 .log-row {
   display: grid;
@@ -738,6 +739,7 @@ button.card-face:hover {
 }
 
 .generic-prompt-heading,
+.damage-assignment-heading,
 .lifecycle-card header,
 .score-track header,
 .snapshot-debug-panel header {
@@ -755,6 +757,7 @@ button.card-face:hover {
 }
 
 .generic-prompt-note,
+.damage-assignment-note,
 .snapshot-debug-note {
   margin: 0;
   color: var(--text-secondary);
@@ -779,6 +782,8 @@ button.card-face:hover {
 
 .generic-prompt-option small,
 .generic-prompt-metadata span,
+.damage-assignment-summary span,
+.damage-assignment-row small,
 .snapshot-debug-section span,
 .snapshot-player-row span {
   color: var(--text-secondary);
@@ -895,6 +900,60 @@ button.card-face:hover {
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.06);
   padding: 10px;
+}
+
+.damage-assignment-panel {
+  gap: 9px;
+}
+
+.damage-assignment-heading > strong {
+  color: var(--text-primary);
+  font-size: 0.86rem;
+}
+
+.damage-assignment-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px 8px;
+}
+
+.damage-assignment-list {
+  display: grid;
+  gap: 6px;
+}
+
+.damage-assignment-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 8px;
+}
+
+.damage-assignment-row > span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.damage-assignment-row strong {
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  overflow-wrap: anywhere;
+}
+
+.damage-assignment-row input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 6px;
+  background: rgba(8, 12, 18, 0.74);
+  color: var(--text-primary);
+  padding: 7px 8px;
 }
 
 .surrender-confirm {

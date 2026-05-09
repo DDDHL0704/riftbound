@@ -772,7 +772,12 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Contains("assignments[].sourceObjectId", ActionPromptContracts.AssignCombatDamage.RequiredPayload);
         Assert.Contains("assignments[].targetObjectId", ActionPromptContracts.AssignCombatDamage.RequiredPayload);
         Assert.Contains("candidate.metadata.assignmentChoices", ActionPromptContracts.AssignCombatDamage.LegalChoices);
+        Assert.Contains("candidate.metadata.legalTargets", ActionPromptContracts.AssignCombatDamage.LegalChoices);
         Assert.Contains(ErrorCodes.InvalidTarget, ActionPromptContracts.AssignCombatDamage.ValidationErrors);
+        Assert.Contains("assigningPlayerId", ActionPromptContracts.AssignCombatDamage.VisibleMetadata);
+        Assert.Contains("damagePool", ActionPromptContracts.AssignCombatDamage.VisibleMetadata);
+        Assert.Contains("legalTargets", ActionPromptContracts.AssignCombatDamage.VisibleMetadata);
+        Assert.Contains("lethalDamageThreshold", ActionPromptContracts.AssignCombatDamage.VisibleMetadata);
         Assert.Contains("damageLedger", ActionPromptContracts.AssignCombatDamage.HiddenMetadata);
 
         Assert.Equal(PromptTypes.OrderTriggers, ActionPromptContracts.OrderTriggers.PromptKind);
@@ -956,7 +961,57 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
-    public async Task AssignCombatDamageShellValidatesCurrentBattleParticipants()
+    public void AssignCombatDamagePromptExposesRuntimeMetadataAndHidesOpponentStandby()
+    {
+        var state = BuildP0ContractBattleState(includeHiddenStandby: true);
+
+        var prompts = ResolutionResult.BuildPrompts(state);
+        var p1Prompt = prompts["P1"];
+
+        Assert.True(p1Prompt.Actionable);
+        Assert.Equal(["ASSIGN_COMBAT_DAMAGE", "SURRENDER"], p1Prompt.Actions);
+        Assert.Equal(PromptTypes.AssignCombatDamage, p1Prompt.View?.Type);
+        Assert.Equal("battle:BATTLEFIELD:P1-MAIN", p1Prompt.View?.RelatedBattleId);
+        Assert.Equal("BATTLEFIELD:P1-MAIN", p1Prompt.View?.RelatedBattlefieldId);
+        var candidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.AssignCombatDamage, StringComparison.Ordinal));
+        Assert.True(candidate.Enabled);
+        var metadata = Assert.IsType<Dictionary<string, object?>>(candidate.Metadata);
+        Assert.Equal("battle:BATTLEFIELD:P1-MAIN", Assert.IsType<string>(metadata["battleId"]));
+        Assert.Equal("BATTLEFIELD:P1-MAIN", Assert.IsType<string>(metadata["battlefieldId"]));
+        Assert.Equal("P1", Assert.IsType<string>(metadata["assigningPlayerId"]));
+        var damagePool = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(metadata["damagePool"]);
+        Assert.Equal(2, damagePool["P1-ATTACKER"]);
+        Assert.Equal(2, damagePool["P2-DEFENDER"]);
+        var legalTargets = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<string>>>(metadata["legalTargets"]);
+        Assert.Equal(["P2-DEFENDER"], legalTargets["P1-ATTACKER"]);
+        Assert.Equal(["P1-ATTACKER"], legalTargets["P2-DEFENDER"]);
+        var lethalThreshold = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(metadata["lethalDamageThreshold"]);
+        Assert.Equal(2, lethalThreshold["P1-ATTACKER"]);
+        Assert.Equal(2, lethalThreshold["P2-DEFENDER"]);
+        Assert.NotEmpty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["requiredAssignments"]));
+        Assert.NotEmpty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["assignmentChoices"]));
+
+        var p2Prompt = prompts["P2"];
+        Assert.False(p2Prompt.Actionable);
+        Assert.Equal(PromptTypes.AssignCombatDamage, p2Prompt.View?.Type);
+        var p1Snapshot = ResolutionResult.BuildSnapshots(state)["P1"];
+        var p2ZonesForP1 = ZoneView(PlayerView(p1Snapshot, "P2"));
+        Assert.DoesNotContain("P2-HIDDEN-STANDBY", StringList(p2ZonesForP1["battlefields"]));
+        var p2ObjectsForP1 = ObjectView(PlayerView(p1Snapshot, "P2"));
+        if (p2ObjectsForP1.TryGetValue("P2-HIDDEN-STANDBY", out var hiddenObject))
+        {
+            var hiddenView = Assert.IsType<Dictionary<string, object?>>(hiddenObject);
+            Assert.True(Assert.IsType<bool>(hiddenView["isFaceDown"]));
+            Assert.DoesNotContain("power", hiddenView.Keys);
+            Assert.DoesNotContain("tags", hiddenView.Keys);
+            Assert.DoesNotContain("cardNo", hiddenView.Keys);
+        }
+    }
+
+    [Fact]
+    public async Task AssignCombatDamageRuntimeValidatesCurrentBattleParticipants()
     {
         var state = BuildP0ContractBattleState();
         var engine = new CoreRuleEngine();
@@ -975,16 +1030,212 @@ public sealed class ConformanceFixtureShapeTests
             new AssignCombatDamageCommand(
                 "battle:BATTLEFIELD:P1-MAIN",
                 "BATTLEFIELD:P1-MAIN",
-                [new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 1)]),
+                [
+                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 2),
+                    new CombatDamageAssignmentDto("P2-DEFENDER", "P1-ATTACKER", 2)
+                ]),
             CancellationToken.None);
 
         Assert.False(invalidTargetResult.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, invalidTargetResult.ErrorCode);
-        Assert.False(validShellResult.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, validShellResult.ErrorCode);
-        Assert.Equal("独立战斗伤害分配状态机尚未开放。", validShellResult.ErrorMessage);
-        Assert.Equal(state.Tick, validShellResult.State.Tick);
-        Assert.Empty(validShellResult.Events);
+        Assert.True(validShellResult.Accepted, validShellResult.ErrorMessage);
+        Assert.Equal(state.Tick + 1, validShellResult.State.Tick);
+        Assert.False(validShellResult.State.BattleState.IsActive);
+        Assert.Contains(validShellResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_STEP_STARTED", StringComparison.Ordinal));
+        Assert.Contains(validShellResult.Events, gameEvent => string.Equals(gameEvent.Kind, "COMBAT_DAMAGE_ASSIGNED", StringComparison.Ordinal));
+        Assert.Equal(2, validShellResult.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)));
+        Assert.Contains(validShellResult.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-ATTACKER", StringComparison.Ordinal));
+        Assert.Contains(validShellResult.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-DEFENDER", StringComparison.Ordinal));
+        Assert.Contains(validShellResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_NO_RESULT", StringComparison.Ordinal));
+        Assert.Contains(validShellResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTROL_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["resolution"] as string, "UNCONTROLLED", StringComparison.Ordinal));
+        Assert.Contains(validShellResult.State.PlayerZones["P1"].Graveyard, objectId => string.Equals(objectId, "P1-ATTACKER", StringComparison.Ordinal));
+        Assert.Contains(validShellResult.State.PlayerZones["P2"].Graveyard, objectId => string.Equals(objectId, "P2-DEFENDER", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task AssignCombatDamageRuntimeRejectsIllegalCommandsWithoutChangingState()
+    {
+        var state = BuildP0ContractBattleState();
+        var multiDefenderState = BuildP0ContractMultiDefenderBattleState();
+        var engine = new CoreRuleEngine();
+        var legalAssignments = new[]
+        {
+            new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 2),
+            new CombatDamageAssignmentDto("P2-DEFENDER", "P1-ATTACKER", 2)
+        };
+
+        var wrongPlayer = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-wrong-player-assign-damage", "P2", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand("battle:BATTLEFIELD:P1-MAIN", "BATTLEFIELD:P1-MAIN", legalAssignments),
+            CancellationToken.None);
+        var unknownTarget = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-unknown-target-assign-damage", "P1", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand(
+                "battle:BATTLEFIELD:P1-MAIN",
+                "BATTLEFIELD:P1-MAIN",
+                [
+                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-NOT-IN-BATTLE", 2),
+                    new CombatDamageAssignmentDto("P2-DEFENDER", "P1-ATTACKER", 2)
+                ]),
+            CancellationToken.None);
+        var damageMismatch = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-damage-mismatch-assign-damage", "P1", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand(
+                "battle:BATTLEFIELD:P1-MAIN",
+                "BATTLEFIELD:P1-MAIN",
+                [
+                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 1),
+                    new CombatDamageAssignmentDto("P2-DEFENDER", "P1-ATTACKER", 2)
+                ]),
+            CancellationToken.None);
+        var overassign = await engine.ResolveAsync(
+            multiDefenderState,
+            new PlayerIntent("intent-overassign-assign-damage", "P1", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand(
+                "battle:BATTLEFIELD:P1-MAIN",
+                "BATTLEFIELD:P1-MAIN",
+                [
+                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER-A", 3),
+                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER-B", 2),
+                    new CombatDamageAssignmentDto("P2-DEFENDER-A", "P1-ATTACKER", 2),
+                    new CombatDamageAssignmentDto("P2-DEFENDER-B", "P1-ATTACKER", 2)
+                ]),
+            CancellationToken.None);
+        var lethalFirst = await engine.ResolveAsync(
+            multiDefenderState,
+            new PlayerIntent("intent-lethal-first-assign-damage", "P1", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand(
+                "battle:BATTLEFIELD:P1-MAIN",
+                "BATTLEFIELD:P1-MAIN",
+                [
+                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER-A", 1),
+                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER-B", 4),
+                    new CombatDamageAssignmentDto("P2-DEFENDER-A", "P1-ATTACKER", 2),
+                    new CombatDamageAssignmentDto("P2-DEFENDER-B", "P1-ATTACKER", 2)
+                ]),
+            CancellationToken.None);
+
+        AssertAssignRejectedWithoutMutation(wrongPlayer, state, ErrorCodes.PhaseNotAllowed);
+        AssertAssignRejectedWithoutMutation(unknownTarget, state, ErrorCodes.InvalidTarget);
+        AssertAssignRejectedWithoutMutation(damageMismatch, state, ErrorCodes.InvalidPayload);
+        AssertAssignRejectedWithoutMutation(overassign, multiDefenderState, ErrorCodes.InvalidPayload);
+        AssertAssignRejectedWithoutMutation(lethalFirst, multiDefenderState, ErrorCodes.InvalidPayload);
+    }
+
+    [Fact]
+    public async Task AssignCombatDamagePromptStampRejectsStaleEnvelopeWithoutChangingState()
+    {
+        var state = BuildP0ContractBattleState();
+        var session = new MatchSession(state, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var prompt = session.PromptFor("P1");
+
+        var stale = await session.SubmitAsync(
+            "P1",
+            "intent-assign-damage-stale-prompt",
+            new AssignCombatDamageCommand(
+                "battle:BATTLEFIELD:P1-MAIN",
+                "BATTLEFIELD:P1-MAIN",
+                [
+                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 2),
+                    new CombatDamageAssignmentDto("P2-DEFENDER", "P1-ATTACKER", 2)
+                ]),
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.AssignCombatDamage,
+                battleId = "battle:BATTLEFIELD:P1-MAIN",
+                battlefieldId = "BATTLEFIELD:P1-MAIN",
+                assignments = new[]
+                {
+                    new { sourceObjectId = "P1-ATTACKER", targetObjectId = "P2-DEFENDER", damage = 2 },
+                    new { sourceObjectId = "P2-DEFENDER", targetObjectId = "P1-ATTACKER", damage = 2 }
+                },
+                promptId = $"{prompt.PromptId}:stale",
+                snapshotTick = prompt.SnapshotTick
+            }),
+            CancellationToken.None);
+
+        Assert.False(stale.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, stale.ErrorCode);
+        Assert.Equal(state.Tick, stale.State.Tick);
+        Assert.Empty(stale.Events);
+
+        var matching = await session.SubmitAsync(
+            "P1",
+            "intent-assign-damage-matching-prompt",
+            new AssignCombatDamageCommand(
+                "battle:BATTLEFIELD:P1-MAIN",
+                "BATTLEFIELD:P1-MAIN",
+                [
+                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 2),
+                    new CombatDamageAssignmentDto("P2-DEFENDER", "P1-ATTACKER", 2)
+                ]),
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.AssignCombatDamage,
+                battleId = "battle:BATTLEFIELD:P1-MAIN",
+                battlefieldId = "BATTLEFIELD:P1-MAIN",
+                assignments = new[]
+                {
+                    new { sourceObjectId = "P1-ATTACKER", targetObjectId = "P2-DEFENDER", damage = 2 },
+                    new { sourceObjectId = "P2-DEFENDER", targetObjectId = "P1-ATTACKER", damage = 2 }
+                },
+                promptId = prompt.PromptId,
+                snapshotTick = prompt.SnapshotTick
+            }),
+            CancellationToken.None);
+
+        Assert.True(matching.Accepted, matching.ErrorMessage);
+    }
+
+    [Fact]
+    public async Task SpellDuelPassCloseEntersDamageAssignmentThenBattleCleanupUpdatesControl()
+    {
+        var state = BuildP0ContractSpellDuelBattleState();
+        var engine = new CoreRuleEngine();
+
+        var pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p1-pass-focus-close", "P1", CommandTypes.PassFocus),
+            new PassFocusCommand(),
+            CancellationToken.None);
+
+        Assert.True(pass.Accepted, pass.ErrorMessage);
+        Assert.Contains(pass.Events, gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
+        Assert.True(pass.State.BattleState.IsActive);
+        Assert.Equal(PromptTypes.AssignCombatDamage, pass.Prompts["P1"].View?.Type);
+
+        var assign = await engine.ResolveAsync(
+            pass.State,
+            new PlayerIntent("intent-assign-after-spell-duel", "P1", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand(
+                "battle:BATTLEFIELD:P1-MAIN",
+                "BATTLEFIELD:P1-MAIN",
+                [
+                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 3),
+                    new CombatDamageAssignmentDto("P2-DEFENDER", "P1-ATTACKER", 1)
+                ]),
+            CancellationToken.None);
+
+        Assert.True(assign.Accepted, assign.ErrorMessage);
+        Assert.False(assign.State.BattleState.IsActive);
+        Assert.Contains(assign.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal));
+        Assert.Contains(assign.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-DEFENDER", StringComparison.Ordinal));
+        Assert.Contains(assign.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        var controlEvent = Assert.Single(assign.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTROL_RESOLVED", StringComparison.Ordinal));
+        Assert.Equal("P1", Assert.IsType<string>(controlEvent.Payload["controllerId"]));
+        Assert.True(Assert.IsType<bool>(controlEvent.Payload["changed"]));
+        Assert.Contains(assign.State.PlayerZones["P1"].Battlefields, objectId => string.Equals(objectId, "P1-ATTACKER", StringComparison.Ordinal));
+        Assert.Contains(assign.State.PlayerZones["P2"].Graveyard, objectId => string.Equals(objectId, "P2-DEFENDER", StringComparison.Ordinal));
+        Assert.False(assign.State.CardObjects["P1-ATTACKER"].IsAttacking);
+        Assert.Equal(0, assign.State.CardObjects["P1-ATTACKER"].Damage);
     }
 
     [Fact]
@@ -7550,8 +7801,73 @@ public sealed class ConformanceFixtureShapeTests
         };
     }
 
-    private static MatchState BuildP0ContractBattleState()
+    private static void AssertAssignRejectedWithoutMutation(
+        ResolutionResult result,
+        MatchState originalState,
+        string expectedErrorCode)
     {
+        Assert.False(result.Accepted);
+        Assert.Equal(expectedErrorCode, result.ErrorCode);
+        Assert.Equal(originalState.Tick, result.State.Tick);
+        Assert.Empty(result.Events);
+        Assert.True(result.State.BattleState.IsActive);
+        foreach (var objectId in originalState.BattleState.AttackerObjectIds.Concat(originalState.BattleState.DefenderObjectIds))
+        {
+            Assert.True(result.State.CardObjects.ContainsKey(objectId));
+            Assert.Equal(originalState.CardObjects[objectId].Damage, result.State.CardObjects[objectId].Damage);
+        }
+    }
+
+    private static MatchState BuildP0ContractBattleState(
+        int attackerPower = 2,
+        int defenderPower = 2,
+        string battlefieldControllerId = "P1",
+        bool includeHiddenStandby = false)
+    {
+        var p2Battlefields = includeHiddenStandby
+            ? new[] { "P2-DEFENDER", "P2-HIDDEN-STANDBY" }
+            : ["P2-DEFENDER"];
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            ["BATTLEFIELD:P1-MAIN"] = new(
+                "BATTLEFIELD:P1-MAIN",
+                cardNo: "OGN·275/298",
+                tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                ownerId: "P1",
+                controllerId: battlefieldControllerId),
+            ["P1-ATTACKER"] = new(
+                "P1-ATTACKER",
+                isAttacking: true,
+                power: attackerPower,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P1",
+                controllerId: "P1"),
+            ["P2-DEFENDER"] = new(
+                "P2-DEFENDER",
+                isDefending: true,
+                power: defenderPower,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P2",
+                controllerId: "P2")
+        };
+        var objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+        {
+            ["BATTLEFIELD:P1-MAIN"] = new("P1", "BATTLEFIELD", "BATTLEFIELD:P1-MAIN"),
+            ["P1-ATTACKER"] = new("P1", "BATTLEFIELD", "BATTLEFIELD:P1-MAIN"),
+            ["P2-DEFENDER"] = new("P2", "BATTLEFIELD", "BATTLEFIELD:P1-MAIN")
+        };
+        if (includeHiddenStandby)
+        {
+            cardObjects["P2-HIDDEN-STANDBY"] = new(
+                "P2-HIDDEN-STANDBY",
+                isFaceDown: true,
+                power: 1,
+                tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                ownerId: "P2",
+                controllerId: "P2");
+            objectLocations["P2-HIDDEN-STANDBY"] = new("P2", "BATTLEFIELD", "BATTLEFIELD:P1-MAIN");
+        }
+
         return new MatchState(
             "p0-contract-battle-room",
             12,
@@ -7571,24 +7887,69 @@ public sealed class ConformanceFixtureShapeTests
             {
                 ["P1"] = PlayerZones.Empty with
                 {
-                    Battlefields = ["P1-ATTACKER"]
+                    Battlefields = ["BATTLEFIELD:P1-MAIN", "P1-ATTACKER"]
                 },
                 ["P2"] = PlayerZones.Empty with
                 {
-                    Battlefields = ["P2-DEFENDER"]
+                    Battlefields = p2Battlefields
+                }
+            },
+            cardObjects: cardObjects,
+            objectLocations: objectLocations);
+    }
+
+    private static MatchState BuildP0ContractMultiDefenderBattleState()
+    {
+        return new MatchState(
+            "p0-contract-multi-defender-battle-room",
+            12,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["BATTLEFIELD:P1-MAIN", "P1-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-DEFENDER-A", "P2-DEFENDER-B"]
                 }
             },
             cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
+                ["BATTLEFIELD:P1-MAIN"] = new(
+                    "BATTLEFIELD:P1-MAIN",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
                 ["P1-ATTACKER"] = new(
                     "P1-ATTACKER",
                     isAttacking: true,
-                    power: 2,
+                    power: 5,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
-                ["P2-DEFENDER"] = new(
-                    "P2-DEFENDER",
+                ["P2-DEFENDER-A"] = new(
+                    "P2-DEFENDER-A",
+                    isDefending: true,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-DEFENDER-B"] = new(
+                    "P2-DEFENDER-B",
                     isDefending: true,
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
@@ -7597,9 +7958,24 @@ public sealed class ConformanceFixtureShapeTests
             },
             objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
             {
+                ["BATTLEFIELD:P1-MAIN"] = new("P1", "BATTLEFIELD", "BATTLEFIELD:P1-MAIN"),
                 ["P1-ATTACKER"] = new("P1", "BATTLEFIELD", "BATTLEFIELD:P1-MAIN"),
-                ["P2-DEFENDER"] = new("P2", "BATTLEFIELD", "BATTLEFIELD:P1-MAIN")
+                ["P2-DEFENDER-A"] = new("P2", "BATTLEFIELD", "BATTLEFIELD:P1-MAIN"),
+                ["P2-DEFENDER-B"] = new("P2", "BATTLEFIELD", "BATTLEFIELD:P1-MAIN")
             });
+    }
+
+    private static MatchState BuildP0ContractSpellDuelBattleState()
+    {
+        return BuildP0ContractBattleState(
+            attackerPower: 3,
+            defenderPower: 1,
+            battlefieldControllerId: "P2") with
+        {
+            TimingState = TimingStates.SpellDuelOpen,
+            FocusPlayerId = "P1",
+            PassedFocusPlayerIds = ["P2"]
+        };
     }
 
     private static MatchState BuildP0ContractTriggerQueueState()

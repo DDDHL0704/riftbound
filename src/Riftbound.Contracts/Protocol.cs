@@ -266,9 +266,9 @@ public static class ActionPromptContracts
         PromptTypes.AssignCombatDamage,
         CommandTypes.AssignCombatDamage,
         ["battleId", "battlefieldId", "assignments[].sourceObjectId", "assignments[].targetObjectId", "assignments[].damage"],
-        ["candidate.metadata.assignmentChoices", "candidate.metadata.battleParticipants"],
+        ["candidate.metadata.assignmentChoices", "candidate.metadata.legalTargets", "candidate.metadata.battleParticipants"],
         [ErrorCodes.InvalidPayload, ErrorCodes.PhaseNotAllowed, ErrorCodes.InvalidTarget],
-        ["battleId", "battlefieldId", "assignmentChoices", "battleParticipants"],
+        ["battleId", "battlefieldId", "assigningPlayerId", "damagePool", "legalTargets", "existingDamage", "lethalDamageThreshold", "requiredAssignments", "assignmentChoices", "battleParticipants"],
         ["battleState", "participantControllerIds", "damageLedger"]);
 
     public static ActionPromptContractDto OrderTriggers { get; } = new(

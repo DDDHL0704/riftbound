@@ -11,6 +11,7 @@
 - `src/Riftbound.Contracts/Protocol.cs`
 - `docs/CURRENT_STAGE1_PROTOCOL_BASELINE.md`
 - `docs/CURRENT_STAGE3B_PLAN.md`
+- `docs/CURRENT_STAGE3C_SPELL_DUEL_BATTLE_DAMAGE_EVIDENCE.md`
 - `docs/符文战场_前端Web开发需求文档_给Codex.md`
 
 ## 1. 当前协议基线
@@ -84,7 +85,7 @@ C 暂不得做复杂专用交互：
 
 - `options/selectableCards/selectableTargets/selectableZones/constraints/defaultAction` 等 typed 字段。
 - runtime prompt 里的合法选择、默认动作、constraints 与 typed error details。
-- `PAY_COST` 已有阶段 3A 最小 runtime 切片，但完整 PaymentEngine / decline / 替代费用 / 额外费用 / 非出牌支付窗口仍缺；`ORDER_TRIGGERS`、`ASSIGN_COMBAT_DAMAGE`、`SPELL_DUEL_ACTION` 的专用交互模型和 E2E 断言点仍缺。
+- `PAY_COST` 已有阶段 3A 最小 runtime 切片，`ASSIGN_COMBAT_DAMAGE` 已有阶段 3C 最小 runtime / UI 切片；完整 PaymentEngine / decline / 替代费用 / 额外费用 / 非出牌支付窗口、完整 damage assignment 全规则矩阵、`ORDER_TRIGGERS`、`SPELL_DUEL_ACTION` 的专用交互模型和 E2E 断言点仍缺。
 - 未知 prompt 的通用渲染协议仍需稳定：标题、说明、安全 JSON 摘要、默认动作约定、不可提交策略。
 
 正式 UI 可继续兼容 `ActionPromptCandidateDto`，但复杂窗口需要服务端提供显式 prompt 类型与专用 payload。
@@ -101,7 +102,7 @@ C 暂不得做复杂专用交互：
 
 ### P0：damage assignment 窗口缺口
 
-当前已有 `ASSIGN_COMBAT_DAMAGE` command/schema 骨架和 `CombatDamageAssignmentDto`，但 runtime `ASSIGN_COMBAT_DAMAGE` prompt 尚未开放。阶段 1 已有 `DECLARE_BATTLE` 代表路径、`PromptView.relatedBattleId` 和 `timing.battle/battleResolutions` 摘要，阶段 2 只关闭“无正式 schema/无稳定拒绝语义”的子项；这些都不能替代独立伤害分配窗口。正式伤害分配 UI 需要服务端下发：
+当前已有 `ASSIGN_COMBAT_DAMAGE` command/schema 骨架、`CombatDamageAssignmentDto` 和阶段 3C 最小 runtime prompt / UI。阶段 1 已有 `DECLARE_BATTLE` 代表路径、`PromptView.relatedBattleId` 和 `timing.battle/battleResolutions` 摘要，阶段 2 关闭“无正式 schema/无稳定拒绝语义”的子项，阶段 3C 关闭最小 damage assignment window；这些仍不能替代完整全规则伤害分配窗口。正式伤害分配 UI 还需要服务端继续冻结：
 
 - `battleId`、`battlefieldId`、`assigningPlayerId`、进攻/防守身份、关联战斗阶段。
 - 可分配总伤害、每个伤害来源、是否同时造成伤害。
@@ -111,6 +112,13 @@ C 暂不得做复杂专用交互：
 - 服务端错误：非法分配的具体原因，用于 UI 提示。
 
 前端不得根据单位战力自行判定最终合法分配；只能禁用明显不满足服务端 constraints 的输入。
+
+阶段 3C 前端口径：
+
+- C 已同步 `ASSIGN_COMBAT_DAMAGE` typed command、`CombatDamageAssignmentDto`、`ActionPromptContracts.AssignCombatDamage` 和错误文案。
+- C 已在服务端 runtime prompt 出现时，用专用面板展示 `damagePool`、`legalTargets`、`existingDamage`、`lethalDamageThreshold`、`assignmentChoices` / `battleParticipants` / visible metadata，并提交服务端支持的 command。
+- C 暂不得本地计算致命/过量/壁垒/后排顺序、不得本地结算伤害结果、不得从 `BattleResolutionState` 反推出可提交 assignments。
+- 3C 需要服务端补齐一条最小 prompt + submit + reject 证据后，D/A 才能考虑关闭 `ASSIGN_COMBAT_DAMAGE` runtime 子项。
 
 ### P0：trigger ordering 窗口缺口
 
@@ -175,6 +183,13 @@ C 暂不得做复杂专用交互：
 - 前端展示用 summary：当前等待谁、为什么等待、下一步可能进入什么窗口。
 
 没有这些字段，正式 UI 只能显示碎片化状态，无法做战场高亮、焦点提示、战斗阶段条和可靠 E2E 断言。
+
+阶段 3C 前端口径：
+
+- C 可以继续只读展示 `timing.spellDuel`、`timing.battle`、`timing.battleResolutions` 与服务端 prompt 关联字段。
+- C 不得根据事件日志或 battle resolution 自行推进 battle phase、关闭法术对决、生成 `PASS_FOCUS` / `DECLARE_BATTLE` / `ASSIGN_COMBAT_DAMAGE` 命令。
+- 3C 需要服务端正式冻结 `SpellDuelView`、`BattleView`、`BattleResolutionView` 与 `DamageAssignmentPromptView` 字段后，前端才可做专用交互和阶段条。
+- 当前 `p2-preflight-spell-duel-pass-focus-closes-window` 已确认存在，但 3C 专项 close -> next task / battle cleanup UI 证据仍待 B/C 补齐。
 
 ### P1：layer/effect explanation 缺口
 
@@ -260,7 +275,7 @@ C 暂不得做复杂专用交互：
 - 后端已为 `snapshot.timing.spellDuel` 追加 `spellDuelId` 与 `battlefieldObjectId`，为 `snapshot.timing.battle` 追加 `battleId`。
 - `timing.battlefieldTasks` 的 `START_SPELL_DUEL` / `START_BATTLE` 任务已分别带 `spellDuelId` / `battleId`。
 - `PromptView.relatedSpellDuelId` 已在法术对决焦点窗口填充；`PromptView.relatedBattleId` 已在声明战斗窗口填充。
-- 本轮仍未开放 runtime `ASSIGN_COMBAT_DAMAGE` prompt，也未把战斗从 `DECLARE_BATTLE` 同步结算拆成多阶段状态机；阶段 2 B 的 command/schema skeleton 只关闭无正式字段名与 malformed payload 稳定拒绝语义。
+- 历史第二轮仍未开放 runtime `ASSIGN_COMBAT_DAMAGE` prompt；阶段 3C 已补最小 runtime prompt/UI，但完整战斗仍未从 `DECLARE_BATTLE` 同步代表路径全面拆成多阶段状态机。
 
 ## 9. 第三轮 DevUi 顶栏 PromptView 消费记录
 
@@ -271,7 +286,7 @@ C 暂不得做复杂专用交互：
 ## 10. 第三轮复杂 PromptType 预留记录
 
 - C#/TS 契约均已预留 `SPELL_DUEL_ACTION`、`ASSIGN_COMBAT_DAMAGE`、`PAY_COST`、`ORDER_TRIGGERS` prompt type；阶段 2 B 已追加 `PAY_COST`、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS` command/schema skeleton 和 `ActionPromptContractDto` 类型。
-- 本轮历史记录只稳定正式 UI 后续要识别的窗口名称与后三者的命令骨架；其中 `PAY_COST` 最小 runtime 已在阶段 3A 被后续工作替代，`ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` runtime 仍未发出，前端仍不得本地裁决。
+- 本轮历史记录只稳定正式 UI 后续要识别的窗口名称与后三者的命令骨架；其中 `PAY_COST` 最小 runtime 已在阶段 3A 被后续工作替代，`ASSIGN_COMBAT_DAMAGE` 最小 runtime 已在阶段 3C 被后续工作替代；`ORDER_TRIGGERS` runtime 仍未发出，前端仍不得本地裁决。
 - 已验证：Contracts build 通过、DevUi build 通过、后端 conformance 3308/3308 通过、`git diff --check` 通过。
 
 ## 11. 第三轮 prompt 戳过期保护记录
@@ -279,7 +294,7 @@ C 暂不得做复杂专用交互：
 - DevUi `GameCommand` 已支持可选 `promptId/snapshotTick`，`useMatchController.submitCommand` 会把当前服务端 `ActionPromptDto` 的戳附到命令上；错误文案已覆盖 `PROMPT_EXPIRED`。
 - 服务端 `MatchSession.SubmitAsync` 会在进入规则引擎前检查这些可选字段；若客户端提交的 prompt 戳已过期，返回 `PROMPT_EXPIRED`。
 - 旧客户端不传 `promptId/snapshotTick` 时仍走原有规则检查路径，保证兼容。
-- 本轮历史记录只处理过期窗口错误语义；阶段 2 B 后续已补 `PAY_COST` / `ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` command/schema skeleton。阶段 3A 已补 `PAY_COST` 最小 runtime，完整 PaymentEngine 与 `ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` 状态机仍未实现。
+- 本轮历史记录只处理过期窗口错误语义；阶段 2 B 后续已补 `PAY_COST` / `ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` command/schema skeleton。阶段 3A 已补 `PAY_COST` 最小 runtime，阶段 3C 已补 `ASSIGN_COMBAT_DAMAGE` 最小 runtime；完整 PaymentEngine、完整 damage assignment 全规则矩阵与 `ORDER_TRIGGERS` 状态机仍未实现。
 
 ## 12. 第三轮复杂 PromptView 降级渲染记录
 
@@ -345,3 +360,18 @@ C 暂不得做复杂专用交互：
 - 可候选关闭：前端能展示服务端已给出的 battlefield / standby / pending task / battlefield result 摘要，不在本地裁决规则。
 - 仍存在 P0：正式 DTO 未冻结、cleanup 中需要选择时必须转 prompt、双窗口隐藏信息和 reload/reconnect 仍需 3B smoke 证据。
 - 仍存在 P1：DevUi 字段较多仍为 `Record<string, unknown>`，后续产品 UI 需要稳定枚举和解释字段。
+
+## 16. 阶段 3C 前端契约补同步记录
+
+完成项：
+
+- 已把 `docs/CURRENT_STAGE3C_SPELL_DUEL_BATTLE_DAMAGE_EVIDENCE.md` 纳入本文件依据。
+- 已补阶段 3C 口径：spell duel / battle / `ASSIGN_COMBAT_DAMAGE` / battle cleanup 只能作为服务端 prompt/snapshot 驱动的只读展示或安全降级来源。
+- 已明确 `ASSIGN_COMBAT_DAMAGE` 的 3C 最小 runtime prompt、damage pool、constraints、submit/reject 和前端 UI 已关闭；完整全规则伤害分配矩阵仍未关闭。
+- 已明确 `p2-preflight-spell-duel-pass-focus-closes-window` 已用 `rg` 确认存在，3C 专项 close -> damage assignment -> battle cleanup/control update 已由 B/C 补证据。
+
+关闭/仍存在 P0/P1：
+
+- 可候选关闭：C 可同步 `SpellDuelState`、`BattleState`、`BattleResolutionState`、`AssignCombatDamageCommand` 和 `ActionPromptContracts.AssignCombatDamage` 的类型与只读展示。
+- 仍存在 P0：正式 `SPELL_DUEL_ACTION`、完整 battle phase、完整 `ASSIGN_COMBAT_DAMAGE` 全规则矩阵、battle cleanup 选择窗口和最终 18 步 E2E 仍未关闭。
+- 仍存在 P1：`SpellDuelView`、`BattleView`、`BattleResolutionView`、`DamageAssignmentPromptView` 的正式 DTO 尚未冻结，当前字段仍偏 DevUi / dictionary view。

@@ -1,6 +1,6 @@
 import { Check, Flag, Hourglass, Play, Send, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, ConnectionStatus, GameCommand, SnapshotDto } from "../../types/protocol";
+import type { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, CombatDamageAssignmentDto, ConnectionStatus, GameCommand, SnapshotDto } from "../../types/protocol";
 import { connectionStatusLabel, promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
 import { redactInternalText } from "../../utils/redaction";
 import { Button } from "../ui/Button";
@@ -37,6 +37,8 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
         {promptView?.type && <span>类型：{promptView.type}</span>}
         <span>{promptView ? "说明" : "原因"}：{promptMessage}</span>
         {promptView?.relatedBattlefieldId && <span>关联战场：{promptView.relatedBattlefieldId}</span>}
+        {promptView?.relatedBattleId && <span>关联战斗：{promptView.relatedBattleId}</span>}
+        {promptView?.relatedSpellDuelId && <span>关联法术对决：{promptView.relatedSpellDuelId}</span>}
         {promptView?.relatedStackItemId && <span>关联结算链：{promptView.relatedStackItemId}</span>}
         {!connected && <span>连接状态：{connectionStatusLabel(connectionStatus)}，行动入口已暂停。</span>}
       </div>
@@ -50,6 +52,15 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
             key={`${candidate.action}-${candidate.label}`}
             onCommand={onCommand}
             prompt={prompt}
+          />
+        ) : candidate.action === "ASSIGN_COMBAT_DAMAGE" ? (
+          <DamageAssignmentCandidate
+            candidate={candidate}
+            disabledByConnection={!connected}
+            key={`${candidate.action}-${candidate.label}`}
+            onCommand={onCommand}
+            prompt={prompt}
+            snapshot={snapshot}
           />
         ) : (
           <CandidateButton
@@ -213,6 +224,272 @@ function MulliganChoiceButton({
       <small>{selected ? "将调度" : lockedByLimit ? "已达上限" : "保留"}</small>
     </button>
   );
+}
+
+type DamageAssignmentChoice = {
+  key: string;
+  sourceObjectId: string;
+  sourceLabel: string;
+  targetObjectId: string;
+  targetLabel: string;
+  existingDamage?: number;
+  lethalThreshold?: number;
+  sourceDamagePool?: number;
+};
+
+type DamageAssignmentModel = {
+  battleId: string;
+  battlefieldId: string;
+  damagePoolLabel?: string;
+  choices: DamageAssignmentChoice[];
+  resetKey: string;
+};
+
+function DamageAssignmentCandidate({
+  candidate,
+  disabledByConnection,
+  onCommand,
+  prompt,
+  snapshot
+}: {
+  candidate: ActionPromptCandidateDto;
+  disabledByConnection: boolean;
+  onCommand: (command: GameCommand) => void;
+  prompt?: ActionPromptDto;
+  snapshot?: SnapshotDto;
+}) {
+  const model = useMemo(() => buildDamageAssignmentModel(candidate, prompt, snapshot), [candidate, prompt, snapshot]);
+  const [damageByKey, setDamageByKey] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    setDamageByKey((current) => {
+      const allowed = new Set(model.choices.map((choice) => choice.key));
+      return Object.fromEntries(
+        Object.entries(current)
+          .filter(([key]) => allowed.has(key))
+          .map(([key, value]) => [key, clampDamageInput(value)])
+      );
+    });
+  }, [model.resetKey, model.choices]);
+
+  const assignments: CombatDamageAssignmentDto[] = model.choices
+    .map((choice) => ({
+      sourceObjectId: choice.sourceObjectId,
+      targetObjectId: choice.targetObjectId,
+      damage: clampDamageInput(damageByKey[choice.key] ?? 0)
+    }))
+    .filter((assignment) => assignment.damage > 0);
+  const assignedDamage = assignments.reduce((total, assignment) => total + assignment.damage, 0);
+  const canSubmit = !disabledByConnection
+    && candidate.enabled
+    && model.battleId.length > 0
+    && model.battlefieldId.length > 0
+    && assignments.length > 0;
+
+  return (
+    <div className="damage-assignment-panel">
+      <div className="damage-assignment-heading">
+        <strong>{promptActionLabel(candidate)}</strong>
+        <StatusPill tone={canSubmit ? "warn" : "neutral"}>{assignments.length > 0 ? "待服务端校验" : "等待分配"}</StatusPill>
+      </div>
+      <div className="damage-assignment-summary">
+        <span>战斗：{model.battleId || "服务端未提供"}</span>
+        <span>战场：{model.battlefieldId || "服务端未提供"}</span>
+        <span>伤害池：{model.damagePoolLabel ?? "服务端未提供"}</span>
+        <span>已填写：{assignedDamage}</span>
+        <span>合法目标：{model.choices.length} 项</span>
+      </div>
+      <p className="damage-assignment-note">
+        仅按服务端候选提交伤害分配；总量、致命阈值和最终结算都由服务端校验。
+      </p>
+      <div className="damage-assignment-list">
+        {model.choices.length === 0 && <span className="empty-hint">等待服务端提供伤害分配候选。</span>}
+        {model.choices.map((choice) => (
+          <label className="damage-assignment-row" key={choice.key}>
+            <span>
+              <strong>{choice.sourceLabel}</strong>
+              <small>→ {choice.targetLabel}</small>
+              <small>
+                已有伤害 {choice.existingDamage ?? "未提供"} · 致命阈值 {choice.lethalThreshold ?? "未提供"}
+                {choice.sourceDamagePool == null ? "" : ` · 来源伤害池 ${choice.sourceDamagePool}`}
+              </small>
+            </span>
+            <input
+              aria-label={`${choice.sourceLabel} 对 ${choice.targetLabel} 分配伤害`}
+              disabled={disabledByConnection || !candidate.enabled}
+              inputMode="numeric"
+              min={0}
+              onChange={(event) => {
+                const value = Number.parseInt(event.currentTarget.value, 10);
+                setDamageByKey((current) => ({ ...current, [choice.key]: clampDamageInput(value) }));
+              }}
+              step={1}
+              type="number"
+              value={damageByKey[choice.key] ?? 0}
+            />
+          </label>
+        ))}
+      </div>
+      <Button
+        disabled={!canSubmit}
+        icon={<Send size={16} />}
+        onClick={() => onCommand(withPromptStamp({
+          cmdType: "ASSIGN_COMBAT_DAMAGE",
+          battleId: model.battleId,
+          battlefieldId: model.battlefieldId,
+          assignments
+        }, prompt))}
+        title={disabledByConnection ? "连接恢复前不能提交伤害分配" : promptReasonTitle(candidate.reason)}
+        variant={candidate.enabled ? "primary" : "ghost"}
+      >
+        提交伤害分配
+      </Button>
+    </div>
+  );
+}
+
+function buildDamageAssignmentModel(
+  candidate: ActionPromptCandidateDto,
+  prompt: ActionPromptDto | undefined,
+  snapshot: SnapshotDto | undefined
+): DamageAssignmentModel {
+  const metadata = candidate.metadata ?? {};
+  const battleId = stringMetadata(metadata, "battleId") ?? prompt?.view?.relatedBattleId ?? "";
+  const battlefieldId = stringMetadata(metadata, "battlefieldId")
+    ?? stringMetadata(metadata, "battlefieldObjectId")
+    ?? prompt?.view?.relatedBattlefieldId
+    ?? "";
+  const scalarDamagePool = firstNumberMetadata(metadata, ["damagePool", "totalDamage", "assignableDamage"]);
+  const damagePoolBySource = numberMapMetadata(metadata, ["damagePool", "damagePoolBySource"]);
+  const damagePoolLabel = scalarDamagePool == null
+    ? damagePoolBySource.size > 0 ? `${damagePoolBySource.size} 个来源` : undefined
+    : String(scalarDamagePool);
+  const assignmentRecords = recordArrayMetadata(metadata.assignmentChoices);
+  const existingDamageByTarget = numberMapMetadata(metadata, ["existingDamage", "existingDamageByTarget", "damageByTarget"]);
+  const lethalThresholdByTarget = numberMapMetadata(metadata, ["lethalThreshold", "lethalThresholdByTarget", "lethalThresholds", "lethalDamageThreshold"]);
+  const legalTargetsBySource = stringListMapMetadata(metadata, ["legalTargets", "legalTargetsBySource"]);
+  const choices = assignmentRecords
+    .map((record) => damageChoiceFromRecord(record, snapshot, existingDamageByTarget, lethalThresholdByTarget, damagePoolBySource))
+    .filter((choice): choice is DamageAssignmentChoice => choice != null);
+
+  const fallbackChoices = choices.length > 0
+    ? choices
+    : legalTargetsBySource.size > 0
+      ? damageChoicesFromLegalTargets(legalTargetsBySource, snapshot, existingDamageByTarget, lethalThresholdByTarget, damagePoolBySource)
+      : damageChoicesFromCandidate(candidate, snapshot, existingDamageByTarget, lethalThresholdByTarget, damagePoolBySource);
+  const dedupedChoices = uniqueDamageChoices(fallbackChoices);
+
+  return {
+    battleId,
+    battlefieldId,
+    damagePoolLabel,
+    choices: dedupedChoices,
+    resetKey: [
+      battleId,
+      battlefieldId,
+      damagePoolLabel ?? "none",
+      dedupedChoices.map((choice) => choice.key).join("|")
+    ].join("::")
+  };
+}
+
+function damageChoiceFromRecord(
+  record: Record<string, unknown>,
+  snapshot: SnapshotDto | undefined,
+  existingDamageByTarget: Map<string, number>,
+  lethalThresholdByTarget: Map<string, number>,
+  damagePoolBySource: Map<string, number>
+): DamageAssignmentChoice | undefined {
+  const parsedChoiceId = parseAssignmentChoiceId(firstStringFromRecord(record, ["id", "choiceId"]));
+  const sourceObjectId = firstStringFromRecord(record, ["sourceObjectId", "sourceId", "attackerObjectId", "objectId"])
+    ?? parsedChoiceId?.sourceObjectId;
+  const targetObjectId = firstStringFromRecord(record, ["targetObjectId", "targetId", "defenderObjectId", "legalTargetId"])
+    ?? parsedChoiceId?.targetObjectId;
+  if (!sourceObjectId || !targetObjectId) {
+    return undefined;
+  }
+
+  return makeDamageChoice({
+    sourceObjectId,
+    sourceLabel: firstStringFromRecord(record, ["sourceLabel", "sourceName"]) ?? objectLabel(snapshot, sourceObjectId),
+    targetObjectId,
+    targetLabel: firstStringFromRecord(record, ["targetLabel", "targetName", "label"]) ?? objectLabel(snapshot, targetObjectId),
+    existingDamage: firstNumberFromRecord(record, ["existingDamage", "currentDamage"])
+      ?? existingDamageByTarget.get(targetObjectId)
+      ?? findObject(snapshot, targetObjectId)?.damage,
+    lethalThreshold: firstNumberFromRecord(record, ["lethalThreshold", "lethalDamage", "lethalAt"])
+      ?? lethalThresholdByTarget.get(targetObjectId),
+    sourceDamagePool: firstNumberFromRecord(record, ["sourceDamagePool", "damagePool", "assignableDamage", "maxDamage"])
+      ?? damagePoolBySource.get(sourceObjectId)
+  });
+}
+
+function damageChoicesFromLegalTargets(
+  legalTargetsBySource: Map<string, string[]>,
+  snapshot: SnapshotDto | undefined,
+  existingDamageByTarget: Map<string, number>,
+  lethalThresholdByTarget: Map<string, number>,
+  damagePoolBySource: Map<string, number>
+): DamageAssignmentChoice[] {
+  return [...legalTargetsBySource.entries()].flatMap(([sourceObjectId, targetObjectIds]) =>
+    targetObjectIds.map((targetObjectId) => makeDamageChoice({
+      sourceObjectId,
+      sourceLabel: objectLabel(snapshot, sourceObjectId),
+      targetObjectId,
+      targetLabel: objectLabel(snapshot, targetObjectId),
+      existingDamage: existingDamageByTarget.get(targetObjectId) ?? findObject(snapshot, targetObjectId)?.damage,
+      lethalThreshold: lethalThresholdByTarget.get(targetObjectId),
+      sourceDamagePool: damagePoolBySource.get(sourceObjectId)
+    }))
+  );
+}
+
+function damageChoicesFromCandidate(
+  candidate: ActionPromptCandidateDto,
+  snapshot: SnapshotDto | undefined,
+  existingDamageByTarget: Map<string, number>,
+  lethalThresholdByTarget: Map<string, number>,
+  damagePoolBySource: Map<string, number>
+): DamageAssignmentChoice[] {
+  const sources = candidate.sources ?? [];
+  const targets = candidate.targets ?? [];
+  if (sources.length !== 1 || targets.length === 0) {
+    return [];
+  }
+
+  const source = sources[0];
+  return targets.map((target) => makeDamageChoice({
+    sourceObjectId: source.id,
+    sourceLabel: choiceLabel(source),
+    targetObjectId: target.id,
+    targetLabel: choiceLabel(target),
+    existingDamage: existingDamageByTarget.get(target.id) ?? findObject(snapshot, target.id)?.damage,
+    lethalThreshold: lethalThresholdByTarget.get(target.id),
+    sourceDamagePool: damagePoolBySource.get(source.id)
+  }));
+}
+
+function makeDamageChoice(choice: Omit<DamageAssignmentChoice, "key">): DamageAssignmentChoice {
+  return {
+    ...choice,
+    key: `${choice.sourceObjectId}->${choice.targetObjectId}`
+  };
+}
+
+function uniqueDamageChoices(choices: DamageAssignmentChoice[]): DamageAssignmentChoice[] {
+  const seen = new Set<string>();
+  const result: DamageAssignmentChoice[] = [];
+  for (const choice of choices) {
+    if (!seen.has(choice.key)) {
+      seen.add(choice.key);
+      result.push(choice);
+    }
+  }
+  return result;
+}
+
+function clampDamageInput(value: number): number {
+  return Number.isFinite(value) && value > 0 ? Math.floor(value) : 0;
 }
 
 function CandidateButton({
@@ -380,18 +657,27 @@ function hasSingleChoice(choices?: Array<{ id: string }> | null): boolean {
 }
 
 function findCardNo(snapshot: SnapshotDto | undefined, objectId: string): string | undefined {
+  return findObject(snapshot, objectId)?.cardNo ?? undefined;
+}
+
+function findObject(snapshot: SnapshotDto | undefined, objectId: string) {
   if (!snapshot) {
     return undefined;
   }
 
   for (const player of Object.values(snapshot.players)) {
-    const cardNo = player.objects?.[objectId]?.cardNo;
-    if (cardNo) {
-      return cardNo;
+    const cardObject = player.objects?.[objectId];
+    if (cardObject) {
+      return cardObject;
     }
   }
 
   return undefined;
+}
+
+function objectLabel(snapshot: SnapshotDto | undefined, objectId: string): string {
+  const cardNo = findCardNo(snapshot, objectId);
+  return cardNo ? `${cardNo} · ${objectId}` : objectId;
 }
 
 function shouldShowGenericPromptDetails(prompt: ActionPromptDto): boolean {
@@ -478,6 +764,16 @@ function numberMetadata(metadata: Record<string, unknown> | null | undefined, ke
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }
 
+function firstNumberMetadata(metadata: Record<string, unknown>, keys: string[]): number | undefined {
+  for (const key of keys) {
+    const value = numberMetadata(metadata, key);
+    if (value != null) {
+      return value;
+    }
+  }
+  return undefined;
+}
+
 function stringMetadata(metadata: Record<string, unknown>, key: string): string | undefined {
   const value = metadata[key];
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
@@ -491,6 +787,85 @@ function stringArrayMetadata(metadata: Record<string, unknown>, key: string): st
 
   const values = value.map((item) => typeof item === "string" ? item.trim() : "");
   return values.every((item) => item.length > 0) ? values : undefined;
+}
+
+function recordArrayMetadata(value: unknown): Array<Record<string, unknown>> {
+  if (Array.isArray(value)) {
+    return value.filter(isRecord);
+  }
+
+  if (isRecord(value)) {
+    return Object.values(value).filter(isRecord);
+  }
+
+  return [];
+}
+
+function numberMapMetadata(metadata: Record<string, unknown>, keys: string[]): Map<string, number> {
+  for (const key of keys) {
+    const value = metadata[key];
+    if (isRecord(value)) {
+      return new Map(
+        Object.entries(value)
+          .filter((entry): entry is [string, number] => typeof entry[1] === "number" && Number.isFinite(entry[1]))
+      );
+    }
+  }
+
+  return new Map();
+}
+
+function stringListMapMetadata(metadata: Record<string, unknown>, keys: string[]): Map<string, string[]> {
+  for (const key of keys) {
+    const value = metadata[key];
+    if (isRecord(value)) {
+      return new Map(
+        Object.entries(value)
+          .map(([sourceObjectId, targets]) => [
+            sourceObjectId,
+            Array.isArray(targets)
+              ? targets.filter((target): target is string => typeof target === "string" && target.trim().length > 0)
+              : []
+          ] as const)
+          .filter(([, targets]) => targets.length > 0)
+      );
+    }
+  }
+
+  return new Map();
+}
+
+function parseAssignmentChoiceId(value: string | undefined): { sourceObjectId: string; targetObjectId: string } | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  const [sourceObjectId, targetObjectId] = value.split("->").map((part) => part.trim());
+  return sourceObjectId && targetObjectId ? { sourceObjectId, targetObjectId } : undefined;
+}
+
+function firstStringFromRecord(record: Record<string, unknown>, keys: string[]): string | undefined {
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === "string" && value.trim().length > 0) {
+      return value.trim();
+    }
+  }
+  return undefined;
+}
+
+function firstNumberFromRecord(record: Record<string, unknown>, keys: string[]): number | undefined {
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return value;
+    }
+  }
+  return undefined;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
 export function candidateListLabel(prompt?: ActionPromptDto): string {

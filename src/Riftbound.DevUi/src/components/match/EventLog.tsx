@@ -7,6 +7,7 @@ export type LogDensity = "compact" | "standard" | "detailed";
 const eventKindLabels: Record<string, string> = {
   ABILITY_ACTIVATED: "激活能力",
   BATTLE_CLOSED: "战斗结束",
+  BATTLE_DAMAGE_STEP_STARTED: "战斗伤害步骤",
   BATTLE_DECLARED: "声明战斗",
   BATTLEFIELD_CONTESTED: "战场争夺",
   BATTLEFIELD_CONTROL_RESOLVED: "战场控制结算",
@@ -33,6 +34,7 @@ const eventKindLabels: Record<string, string> = {
   CARD_RETURNED_TO_HAND: "卡牌回手",
   CARD_REVEALED: "翻开待命",
   CLEANUP_REPEATED: "清理循环",
+  COMBAT_DAMAGE_ASSIGNED: "战斗伤害分配",
   COST_PAID: "支付费用",
   PAYMENT_WINDOW_CLOSED: "支付窗口关闭",
   DAMAGE_APPLIED: "造成伤害",

@@ -22,8 +22,8 @@ const routes = [
   { path: "/rooms/stage3-smoke", texts: ["房间", "连接/重连并入座", "选择卡组"] },
   {
     path: "/matches/stage3-smoke",
-    texts: ["对战状态", "正式桌面状态", "中央清理", "中央战场", "待命区", "服务端行动提示", "权威快照摘要"],
-    absentTexts: ["mainDeck", "runeDeck", "handHidden", "stackItemId", "reconnectToken"]
+    texts: ["对战状态", "正式桌面状态", "法术对决", "战斗", "伤害分配", "中央清理", "中央战场", "待命区", "服务端行动提示", "权威快照摘要"],
+    absentTexts: ["mainDeck", "runeDeck", "handHidden", "stackItemId", "reconnectToken", "battleState", "damageLedger", "participantControllerIds"]
   },
   { path: "/matches/stage3-smoke/result", texts: ["结算", "结果只读取服务端权威快照"] }
 ];
@@ -65,7 +65,10 @@ try {
     }
 
     if (message.method === "Runtime.consoleAPICalled" && message.params?.type === "error") {
-      browserErrors.push(`console.error: ${consoleArgs(message.params.args)}`);
+      const text = consoleArgs(message.params.args);
+      if (!isIgnorableConsoleError(text)) {
+        browserErrors.push(`console.error: ${text}`);
+      }
     }
 
     if (message.method === "Log.entryAdded" && message.params?.entry?.level === "error") {
@@ -269,7 +272,16 @@ function consoleArgs(args = []) {
 }
 
 function isIgnorableResourceLog(text) {
-  return text.includes("Failed to load resource: the server responded with a status of 404");
+  return text.includes("Failed to load resource: the server responded with a status of 404")
+    || (!startApi && text.includes("Failed to load resource: net::ERR_CONNECTION_REFUSED"));
+}
+
+function isIgnorableConsoleError(text) {
+  return !startApi
+    && (
+      text.includes("Failed to complete negotiation with the server")
+      || text.includes("Failed to start the connection")
+    );
 }
 
 function delay(ms) {

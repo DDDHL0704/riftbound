@@ -882,7 +882,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         if (string.Equals(command.CmdType, CommandTypes.AssignCombatDamage, StringComparison.Ordinal))
         {
-            result = ResolveAssignCombatDamageContractShell(state, command);
+            result = ResolveAssignCombatDamageRuntime(state, intent, command);
             return true;
         }
 
@@ -1035,8 +1035,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             BuildCorePrompts(nextState));
     }
 
-    private static ResolutionResult ResolveAssignCombatDamageContractShell(
+    private static ResolutionResult ResolveAssignCombatDamageRuntime(
         MatchState state,
+        PlayerIntent intent,
         GameCommand command)
     {
         if (!TryReadAssignCombatDamagePayload(command, out var battleId, out var battlefieldId, out var assignments)
@@ -1047,7 +1048,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || assignments.Any(assignment =>
                 string.IsNullOrWhiteSpace(assignment.SourceObjectId)
                 || string.IsNullOrWhiteSpace(assignment.TargetObjectId)
-                || assignment.Damage < 0))
+                || assignment.Damage <= 0))
         {
             return RejectWithCorePrompts(
                 state,
@@ -1056,7 +1057,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var battle = state.BattleState;
-        if (!battle.IsActive
+        if (!HasOpenBattleDamageAssignmentWindow(state)
             || !string.Equals(battle.BattleId, battleId, StringComparison.Ordinal)
             || !string.Equals(battle.BattlefieldObjectId, battlefieldId, StringComparison.Ordinal))
         {
@@ -1066,23 +1067,421 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.PhaseNotAllowed);
         }
 
-        var participantIds = battle.AttackerObjectIds
-            .Concat(battle.DefenderObjectIds)
-            .ToHashSet(StringComparer.Ordinal);
-        if (assignments.Any(assignment =>
-            !participantIds.Contains(assignment.SourceObjectId)
-            || !participantIds.Contains(assignment.TargetObjectId)))
+        var assigningPlayerId = BattleDamageAssigningPlayerId(state, battle);
+        if (!string.Equals(intent.PlayerId, assigningPlayerId, StringComparison.Ordinal))
         {
             return RejectWithCorePrompts(
                 state,
-                "ASSIGN_COMBAT_DAMAGE 只能引用当前战斗参与者。",
-                ErrorCodes.InvalidTarget);
+                "只有当前战斗伤害分配玩家可以提交 ASSIGN_COMBAT_DAMAGE。",
+                ErrorCodes.PhaseNotAllowed);
         }
 
-        return RejectWithCorePrompts(
+        var validation = ValidateCombatDamageAssignments(state, battle, assignments);
+        if (!validation.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                validation.Message,
+                validation.ErrorCode);
+        }
+
+        return CommitCombatDamageAssignments(
             state,
-            "独立战斗伤害分配状态机尚未开放。",
-            ErrorCodes.UnsupportedCommand);
+            intent,
+            battle,
+            assignments,
+            validation.DamagePool,
+            validation.LethalDamageThreshold);
+    }
+
+    private static bool HasOpenBattleDamageAssignmentWindow(MatchState state)
+    {
+        var battle = state.BattleState;
+        return string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal)
+            && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            && string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            && state.PendingPayment is null
+            && state.StackItems.Count == 0
+            && battle.IsActive
+            && !string.IsNullOrWhiteSpace(battle.BattleId)
+            && !string.IsNullOrWhiteSpace(battle.BattlefieldObjectId)
+            && battle.AttackerObjectIds.Count > 0
+            && battle.DefenderObjectIds.Count > 0
+            && !string.IsNullOrWhiteSpace(BattleDamageAssigningPlayerId(state, battle));
+    }
+
+    private static string? BattleDamageAssigningPlayerId(MatchState state, BattleState battle)
+    {
+        var attackerControllerIds = battle.AttackerObjectIds
+            .Select(objectId => battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
+                ? controllerId
+                : string.Empty)
+            .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        return attackerControllerIds.Length == 1 ? attackerControllerIds[0] : state.ActivePlayerId;
+    }
+
+    private static CombatDamageAssignmentValidationResult ValidateCombatDamageAssignments(
+        MatchState state,
+        BattleState battle,
+        IReadOnlyList<CombatDamageAssignmentDto> assignments)
+    {
+        var damagePool = BuildCombatDamagePool(state, battle);
+        var legalTargets = BuildCombatDamageLegalTargets(battle);
+        var lethalThreshold = BuildCombatLethalDamageThreshold(state, battle);
+        var participantIds = damagePool.Keys.ToHashSet(StringComparer.Ordinal);
+        var sourceTargetDamage = new Dictionary<(string Source, string Target), int>();
+        foreach (var assignment in assignments)
+        {
+            if (!participantIds.Contains(assignment.SourceObjectId)
+                || !participantIds.Contains(assignment.TargetObjectId))
+            {
+                return CombatDamageAssignmentValidationResult.Rejected(
+                    ErrorCodes.InvalidTarget,
+                    "ASSIGN_COMBAT_DAMAGE 只能引用当前战斗参与者。",
+                    damagePool,
+                    lethalThreshold);
+            }
+
+            if (!legalTargets.TryGetValue(assignment.SourceObjectId, out var legalTargetsForSource)
+                || !legalTargetsForSource.Contains(assignment.TargetObjectId, StringComparer.Ordinal))
+            {
+                return CombatDamageAssignmentValidationResult.Rejected(
+                    ErrorCodes.InvalidTarget,
+                    "ASSIGN_COMBAT_DAMAGE 只能分配给敌方战斗参与者。",
+                    damagePool,
+                    lethalThreshold);
+            }
+
+            var key = (assignment.SourceObjectId, assignment.TargetObjectId);
+            sourceTargetDamage[key] = sourceTargetDamage.TryGetValue(key, out var existingDamage)
+                ? existingDamage + assignment.Damage
+                : assignment.Damage;
+        }
+
+        foreach (var sourceEntry in damagePool)
+        {
+            if (!legalTargets.TryGetValue(sourceEntry.Key, out var legalTargetsForSource)
+                || legalTargetsForSource.Count == 0)
+            {
+                continue;
+            }
+
+            var assignedDamage = sourceTargetDamage
+                .Where(entry => string.Equals(entry.Key.Source, sourceEntry.Key, StringComparison.Ordinal))
+                .Sum(entry => entry.Value);
+            if (assignedDamage != sourceEntry.Value)
+            {
+                return CombatDamageAssignmentValidationResult.Rejected(
+                    ErrorCodes.InvalidPayload,
+                    "ASSIGN_COMBAT_DAMAGE 必须为每个伤害源完整分配其战斗伤害池。",
+                    damagePool,
+                    lethalThreshold);
+            }
+
+            for (var targetIndex = 0; targetIndex < legalTargetsForSource.Count; targetIndex++)
+            {
+                var targetObjectId = legalTargetsForSource[targetIndex];
+                var assignedToTarget = sourceTargetDamage.TryGetValue((sourceEntry.Key, targetObjectId), out var targetDamage)
+                    ? targetDamage
+                    : 0;
+                var lethalDamage = lethalThreshold.TryGetValue(targetObjectId, out var threshold)
+                    ? threshold
+                    : 0;
+                var isLastLegalTarget = targetIndex == legalTargetsForSource.Count - 1;
+                if (!isLastLegalTarget && assignedToTarget > lethalDamage)
+                {
+                    return CombatDamageAssignmentValidationResult.Rejected(
+                        ErrorCodes.InvalidPayload,
+                        "ASSIGN_COMBAT_DAMAGE 对非末位目标不能超过致命伤害。",
+                        damagePool,
+                        lethalThreshold);
+                }
+
+                if (isLastLegalTarget || assignedToTarget >= lethalDamage)
+                {
+                    continue;
+                }
+
+                var laterTargetHasDamage = legalTargetsForSource
+                    .Skip(targetIndex + 1)
+                    .Any(laterTarget => sourceTargetDamage.TryGetValue((sourceEntry.Key, laterTarget), out var laterDamage)
+                        && laterDamage > 0);
+                if (laterTargetHasDamage)
+                {
+                    return CombatDamageAssignmentValidationResult.Rejected(
+                        ErrorCodes.InvalidPayload,
+                        "ASSIGN_COMBAT_DAMAGE 必须先向前序目标分配致命伤害。",
+                        damagePool,
+                        lethalThreshold);
+                }
+            }
+        }
+
+        return CombatDamageAssignmentValidationResult.AcceptedResult(damagePool, lethalThreshold);
+    }
+
+    private static ResolutionResult CommitCombatDamageAssignments(
+        MatchState state,
+        PlayerIntent intent,
+        BattleState battle,
+        IReadOnlyList<CombatDamageAssignmentDto> assignments,
+        IReadOnlyDictionary<string, int> damagePool,
+        IReadOnlyDictionary<string, int> lethalDamageThreshold)
+    {
+        var battlefieldId = battle.BattlefieldObjectId ?? string.Empty;
+        var battleId = battle.BattleId ?? string.Empty;
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var damageTriggeredDestroyTargetObjectIds = new HashSet<string>(StringComparer.Ordinal);
+        var combatEvents = new List<GameEvent>
+        {
+            new(
+                "BATTLE_DAMAGE_STEP_STARTED",
+                "战斗进入伤害分配步骤",
+                new Dictionary<string, object?>
+                {
+                    ["battleId"] = battleId,
+                    ["battlefieldId"] = battlefieldId,
+                    ["assigningPlayerId"] = intent.PlayerId,
+                    ["attackerObjectIds"] = battle.AttackerObjectIds.ToArray(),
+                    ["defenderObjectIds"] = battle.DefenderObjectIds.ToArray()
+                }),
+            new(
+                "COMBAT_DAMAGE_ASSIGNED",
+                $"{intent.PlayerId} 提交战斗伤害分配",
+                new Dictionary<string, object?>
+                {
+                    ["battleId"] = battleId,
+                    ["battlefieldId"] = battlefieldId,
+                    ["assigningPlayerId"] = intent.PlayerId,
+                    ["damagePool"] = damagePool,
+                    ["lethalDamageThreshold"] = lethalDamageThreshold,
+                    ["assignments"] = assignments
+                })
+        };
+
+        foreach (var assignment in assignments)
+        {
+            var damageApplication = ApplyDamageToCardObject(
+                cardObjects,
+                assignment.TargetObjectId,
+                assignment.Damage,
+                damageTriggeredDestroyTargetObjectIds);
+            var payload = BuildDamagePayload(assignment.SourceObjectId, assignment.TargetObjectId, damageApplication);
+            payload["battleId"] = battleId;
+            payload["battlefieldId"] = battlefieldId;
+            payload["reason"] = "ASSIGN_COMBAT_DAMAGE";
+            payload["sourceDamagePool"] = damagePool.TryGetValue(assignment.SourceObjectId, out var sourceDamagePool)
+                ? sourceDamagePool
+                : 0;
+            payload["targetLethalDamageThreshold"] = lethalDamageThreshold.TryGetValue(assignment.TargetObjectId, out var targetThreshold)
+                ? targetThreshold
+                : 0;
+            combatEvents.Add(new GameEvent(
+                "DAMAGE_APPLIED",
+                "战斗伤害同时造成",
+                payload));
+        }
+
+        var combatStackItem = new StackItemState(
+            $"assign-combat-damage-{state.Tick + 1}",
+            intent.PlayerId,
+            battle.AttackerObjectIds.FirstOrDefault() ?? intent.PlayerId,
+            "ASSIGN_COMBAT_DAMAGE",
+            string.Empty,
+            battle.AttackerObjectIds.Concat(battle.DefenderObjectIds).ToArray(),
+            0);
+        var lethalCleanup = RunStateBasedCleanupLoop(
+            playerZones,
+            cardObjects,
+            combatStackItem,
+            state.RunePools,
+            battlefieldId,
+            damageTriggeredDestroyTargetObjectIds,
+            objectLocations);
+        var runePools = lethalCleanup.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        combatEvents.AddRange(lethalCleanup.Events);
+        objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
+
+        var defendingPlayerId = BattleDefendingPlayerId(battle);
+        string? resolvedBattleWinnerPlayerId = null;
+        if (TryResolveBattleWinnerPlayerId(
+                playerZones,
+                cardObjects,
+                battle.AttackerObjectIds,
+                battle.DefenderObjectIds,
+                defendingPlayerId,
+                intent.PlayerId,
+                out var battleWinnerPlayerId))
+        {
+            resolvedBattleWinnerPlayerId = battleWinnerPlayerId;
+        }
+        else
+        {
+            combatEvents.Add(BuildBattleNoResultEvent(
+                playerZones,
+                cardObjects,
+                battlefieldId,
+                battle.AttackerObjectIds,
+                battle.DefenderObjectIds,
+                intent.PlayerId,
+                defendingPlayerId));
+        }
+
+        ApplyBattleCleanup(
+            playerZones,
+            cardObjects,
+            battlefieldId,
+            battle.AttackerObjectIds,
+            battle.DefenderObjectIds,
+            combatEvents);
+        objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
+        CloseResolvedBattle(
+            cardObjects,
+            battlefieldId,
+            battle.AttackerObjectIds,
+            battle.DefenderObjectIds,
+            combatEvents);
+        combatEvents.AddRange(ResolveBattlefieldControlAfterBattle(
+            playerZones,
+            cardObjects,
+            objectLocations,
+            battlefieldId,
+            resolvedBattleWinnerPlayerId));
+        objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
+        var battlefieldResolutions = AppendBattlefieldResolutionEvents(
+            state.BattlefieldResolutions,
+            combatEvents,
+            state.Tick + 1);
+        var battleResolutions = AppendBattleResolutionEvents(
+            state.BattleResolutions,
+            combatEvents,
+            state.Tick + 1,
+            battlefieldId,
+            intent.PlayerId,
+            defendingPlayerId,
+            resolvedBattleWinnerPlayerId,
+            battle.AttackerObjectIds,
+            battle.DefenderObjectIds,
+            playerZones,
+            cardObjects);
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            ActivePlayerId = state.TurnPlayerId,
+            TimingState = TimingStates.NeutralOpen,
+            PriorityPlayerId = null,
+            PassedPriorityPlayerIds = [],
+            FocusPlayerId = null,
+            PassedFocusPlayerIds = [],
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            RunePools = runePools,
+            BattlefieldResolutions = battlefieldResolutions,
+            BattleResolutions = battleResolutions,
+            DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(
+                state.DestroyedUnitOwnerIdsThisTurn,
+                lethalCleanup.DestroyedUnitOwnerIds)
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            combatEvents,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static IReadOnlyDictionary<string, int> BuildCombatDamagePool(MatchState state, BattleState battle)
+    {
+        return battle.AttackerObjectIds
+            .Concat(battle.DefenderObjectIds)
+            .Distinct(StringComparer.Ordinal)
+            .ToDictionary(
+                objectId => objectId,
+                objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                    ? Math.Max(0, cardObject.Power + cardObject.UntilEndOfTurnPowerModifier)
+                    : 0,
+                StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlyList<string>> BuildCombatDamageLegalTargets(BattleState battle)
+    {
+        return battle.AttackerObjectIds
+            .Concat(battle.DefenderObjectIds)
+            .Distinct(StringComparer.Ordinal)
+            .ToDictionary(
+                objectId => objectId,
+                objectId => battle.AttackerObjectIds.Contains(objectId, StringComparer.Ordinal)
+                    ? (IReadOnlyList<string>)battle.DefenderObjectIds.ToArray()
+                    : battle.DefenderObjectIds.Contains(objectId, StringComparer.Ordinal)
+                        ? battle.AttackerObjectIds.ToArray()
+                        : [],
+                StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<string, int> BuildCombatLethalDamageThreshold(MatchState state, BattleState battle)
+    {
+        return battle.AttackerObjectIds
+            .Concat(battle.DefenderObjectIds)
+            .Distinct(StringComparer.Ordinal)
+            .ToDictionary(
+                objectId => objectId,
+                objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                    ? Math.Max(0, cardObject.Power + cardObject.UntilEndOfTurnPowerModifier - cardObject.Damage)
+                    : 0,
+                StringComparer.Ordinal);
+    }
+
+    private static string? BattleDefendingPlayerId(BattleState battle)
+    {
+        var defenderControllerIds = battle.DefenderObjectIds
+            .Select(objectId => battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
+                ? controllerId
+                : string.Empty)
+            .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        return defenderControllerIds.Length == 1 ? defenderControllerIds[0] : null;
+    }
+
+    private sealed record CombatDamageAssignmentValidationResult(
+        bool Accepted,
+        string ErrorCode,
+        string Message,
+        IReadOnlyDictionary<string, int> DamagePool,
+        IReadOnlyDictionary<string, int> LethalDamageThreshold)
+    {
+        public static CombatDamageAssignmentValidationResult AcceptedResult(
+            IReadOnlyDictionary<string, int> damagePool,
+            IReadOnlyDictionary<string, int> lethalDamageThreshold)
+        {
+            return new CombatDamageAssignmentValidationResult(
+                true,
+                string.Empty,
+                string.Empty,
+                damagePool,
+                lethalDamageThreshold);
+        }
+
+        public static CombatDamageAssignmentValidationResult Rejected(
+            string errorCode,
+            string message,
+            IReadOnlyDictionary<string, int> damagePool,
+            IReadOnlyDictionary<string, int> lethalDamageThreshold)
+        {
+            return new CombatDamageAssignmentValidationResult(
+                false,
+                errorCode,
+                message,
+                damagePool,
+                lethalDamageThreshold);
+        }
     }
 
     private static ResolutionResult ResolveOrderTriggersContractShell(
