@@ -19,6 +19,7 @@ import { StatusPill } from "../ui/StatusPill";
 import { InspectedCard, objectStateLabels } from "./CardFace";
 
 const DESTROY_FRIENDLY_UNIT_COST_PREFIX = "DESTROY_FRIENDLY_UNIT:";
+const RECYCLE_GRAVEYARD_CARD_COST_PREFIX = "RECYCLE_GRAVEYARD_CARD:";
 
 type CardDetailDrawerProps = {
   card?: InspectedCard;
@@ -1156,17 +1157,14 @@ function AssembleEquipmentComposer({
   const selectedRequirement = requirements[0];
   const [targetObjectId, setTargetObjectId] = useState<string>("");
   const [optionalCosts, setOptionalCosts] = useState<string[]>([]);
-  const [additionalCost, setAdditionalCost] = useState<string>("");
+  const [additionalCosts, setAdditionalCosts] = useState<string[]>([]);
   const [paymentResourceCosts, setPaymentResourceCosts] = useState<string[]>([]);
 
   useEffect(() => {
     const nextTargetObjectId = selectedRequirement?.targetChoices[0]?.id ?? "";
     setTargetObjectId(nextTargetObjectId);
     setOptionalCosts([]);
-    setAdditionalCost(
-      selectedRequirement?.additionalCostChoices.find((choice) =>
-        destroyFriendlyUnitCostTargetObjectId(choice.id) !== nextTargetObjectId)?.id ?? ""
-    );
+    setAdditionalCosts(selectDefaultAdditionalCosts(selectedRequirement, nextTargetObjectId));
     setPaymentResourceCosts([]);
   }, [selectedRequirement]);
 
@@ -1198,22 +1196,22 @@ function AssembleEquipmentComposer({
     optionalCostLabel(selectedRequirement.optionalCostChoices, cost));
   const paymentResourceRequired = selectedRequirement.paymentResourceChoices.length > 0;
   const paymentResourceSelectionValid = !paymentResourceRequired || paymentResourceCosts.length === 1;
-  const selectedAdditionalCost = selectedRequirement.additionalCostChoices.find((choice) => choice.id === additionalCost);
-  const additionalCostTargetObjectId = selectedAdditionalCost
-    ? destroyFriendlyUnitCostTargetObjectId(selectedAdditionalCost.id)
-    : "";
+  const additionalCostChoicesById = new Map(selectedRequirement.additionalCostChoices.map((choice) => [choice.id, choice]));
+  const selectedAdditionalCosts = additionalCosts
+    .map((cost) => additionalCostChoicesById.get(cost))
+    .filter((choice): choice is ActionPromptChoiceDto => Boolean(choice));
+  const validAdditionalCostChoices = selectedRequirement.additionalCostChoices.filter((choice) =>
+    additionalCostChoiceCompatibleWithTarget(choice.id, targetObjectId));
   const additionalCostRequired = selectedRequirement.requiredAdditionalCostChoiceCount > 0;
   const additionalCostSelectionValid = !additionalCostRequired || Boolean(
-    selectedAdditionalCost
-    && additionalCostTargetObjectId
-    && additionalCostTargetObjectId !== targetObjectId
-    && selectedRequirement.requiredAdditionalCostChoiceCount === 1
+    selectedAdditionalCosts.length === selectedRequirement.requiredAdditionalCostChoiceCount
+    && selectedAdditionalCosts.every((choice) => validAdditionalCostChoices.some((candidateChoice) => candidateChoice.id === choice.id))
   );
   const commandOptionalCosts = uniqueStrings([
     ...requiredCosts,
     ...optionalCosts,
     ...paymentResourceCosts,
-    ...(selectedAdditionalCost ? [selectedAdditionalCost.id] : [])
+    ...selectedAdditionalCosts.map((choice) => choice.id)
   ]);
   const canSubmit = Boolean(
     candidate.enabled
@@ -1241,7 +1239,10 @@ function AssembleEquipmentComposer({
           <ChoiceButton
             active={targetObjectId === choice.id}
             key={choice.id}
-            onClick={() => setTargetObjectId(choice.id)}
+            onClick={() => {
+              setTargetObjectId(choice.id);
+              setAdditionalCosts(selectDefaultAdditionalCosts(selectedRequirement, choice.id));
+            }}
             title={choiceTitle(choice)}
           >
             {choice.label}
@@ -1272,12 +1273,21 @@ function AssembleEquipmentComposer({
       {selectedRequirement.additionalCostChoices.length > 0 && (
         <ChoiceGroup label="额外费用">
           {selectedRequirement.additionalCostChoices.map((choice) => {
-            const active = additionalCost === choice.id;
+            const active = additionalCosts.includes(choice.id);
+            const compatibleWithTarget = additionalCostChoiceCompatibleWithTarget(choice.id, targetObjectId);
+            const disabled = !compatibleWithTarget
+              || (!active
+                && additionalCostRequired
+                && selectedAdditionalCosts.length >= selectedRequirement.requiredAdditionalCostChoiceCount);
             return (
               <ChoiceButton
                 active={active}
+                disabled={disabled}
                 key={choice.id}
-                onClick={() => setAdditionalCost(active && !additionalCostRequired ? "" : choice.id)}
+                onClick={() => setAdditionalCosts((current) => toggleAdditionalCost(
+                  current,
+                  choice.id,
+                  selectedRequirement.requiredAdditionalCostChoiceCount))}
                 title={choiceTitle(choice)}
               >
                 {choice.label}
@@ -1308,7 +1318,7 @@ function AssembleEquipmentComposer({
         <p className="composer-warning">需要选择服务端给出的回收符文支付资源。</p>
       )}
       {additionalCostRequired && !additionalCostSelectionValid && selectedRequirement.composable && (
-        <p className="composer-warning">需要选择服务端给出的额外费用目标，且不能与装配目标相同。</p>
+        <p className="composer-warning">需要选择服务端给出的额外费用目标，且摧毁费用不能与装配目标相同。</p>
       )}
       {!selectedRequirement.composable && (
         <p className="composer-warning">{unsupportedWarning(selectedRequirement.unsupportedReason, "服务端标记该装配当前不能由前端组合提交。")}</p>
@@ -2483,6 +2493,47 @@ function destroyFriendlyUnitCostTargetObjectId(cost: string): string {
   return cost.startsWith(DESTROY_FRIENDLY_UNIT_COST_PREFIX)
     ? cost.slice(DESTROY_FRIENDLY_UNIT_COST_PREFIX.length)
     : "";
+}
+
+function recycleGraveyardCardCostTargetObjectId(cost: string): string {
+  return cost.startsWith(RECYCLE_GRAVEYARD_CARD_COST_PREFIX)
+    ? cost.slice(RECYCLE_GRAVEYARD_CARD_COST_PREFIX.length)
+    : "";
+}
+
+function additionalCostChoiceCompatibleWithTarget(cost: string, targetObjectId: string): boolean {
+  const destroyTargetObjectId = destroyFriendlyUnitCostTargetObjectId(cost);
+  if (recycleGraveyardCardCostTargetObjectId(cost)) {
+    return true;
+  }
+
+  return !destroyTargetObjectId || destroyTargetObjectId !== targetObjectId;
+}
+
+function selectDefaultAdditionalCosts(
+  requirement: AssembleEquipmentSourceRequirement | undefined,
+  targetObjectId: string
+): string[] {
+  if (!requirement || requirement.requiredAdditionalCostChoiceCount <= 0) {
+    return [];
+  }
+
+  return requirement.additionalCostChoices
+    .filter((choice) => additionalCostChoiceCompatibleWithTarget(choice.id, targetObjectId))
+    .slice(0, requirement.requiredAdditionalCostChoiceCount)
+    .map((choice) => choice.id);
+}
+
+function toggleAdditionalCost(values: string[], value: string, requiredCount: number): string[] {
+  if (values.includes(value)) {
+    return values.filter((current) => current !== value);
+  }
+
+  if (requiredCount > 0 && values.length >= requiredCount) {
+    return [...values.slice(1), value];
+  }
+
+  return [...values, value];
 }
 
 function toggleOptionalCost(values: string[], value: string): string[] {

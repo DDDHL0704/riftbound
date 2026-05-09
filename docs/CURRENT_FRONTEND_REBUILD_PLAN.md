@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 第三百四十三批补齐《临终仪式》（SFD·150/221）紫色符能 + 废牌堆两张回收额外费用装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在可表达 `ASSEMBLE_PURPLE` 与两个 `RECYCLE_GRAVEYARD_CARD:<objectId>` 的组合费用，Core 会支付紫色符能、把服务端确认的两张己方废牌堆卡牌回收到主牌堆底，再将装备贴附到合法己方单位；缺少、重复或非法回收目标均拒绝且零副作用。ActionPrompt 公开 `additionalCostChoices` / `requiredAdditionalCostChoiceCount=2`，DevUi 装配面板支持多选“回收废牌堆”额外费用并只提交服务端候选。本批后台 headless Chrome/CDP smoke 已覆盖 P1 打开详情、确认服务端两项回收费用并装配，authoritative snapshot 确认废牌堆 0、主牌堆 2、装备贴附、reload/reconnect 可恢复；build、focused 3/3、`AssembleEquipment` 72/72、`GameHubJoinTests` 128/128、后端 full test 3291/3291 与 DevUi build 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%+**。
+
 - 第三百四十二批补齐《破败王者之刃》（SFD·178/221）黄色符能 + 摧毁友方单位额外费用装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在可表达 `ASSEMBLE_YELLOW` 与 `DESTROY_FRIENDLY_UNIT:<objectId>` 的组合费用，Core 会先支付黄色符能、摧毁服务端确认的友方单位，再将装备贴附到另一个合法己方单位；缺少摧毁费用、摧毁目标与装配目标相同或费用不足均拒绝且零副作用。ActionPrompt 公开 `additionalCostChoices` / `requiredAdditionalCostChoiceCount=1`，DevUi 装配面板新增“额外费用”选择并只提交服务端候选。本批 Browser Use smoke 已覆盖 P1 打开详情、选择服务端候选并确认装配，UI 显示“支付费用 / 单位摧毁 / 装备装配”，authoritative snapshot 确认费用单位进墓地、装备贴附、reload/reconnect 可恢复；build、focused 3/3、`AssembleEquipment` 70/70、`GameHubJoinTests` 127/127、后端 full test 3288/3288 与 DevUi build 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%+**。
 
 - 第三百四十一批补齐《牧人的传家宝》（UNL-158/219）经验消耗装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在可表达 `SPEND_EXPERIENCE:1`，Core 扣除 1 经验后把基地中未贴附《牧人的传家宝》贴附到己方单位，经验不足则拒绝且零副作用；ActionPrompt 只在经验足够时公开该来源、经验费用和合法目标，DevUi 装配面板显示服务端给出的经验费用。本批新增 `assemble-experience` 开发种子和 Hub 级提交测试，不启动业务 Chrome smoke；build 通过，focused 经验装配 3/3、`AssembleEquipment` 回归 68/68、后端 full test 3285/3285、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%+**。

@@ -2291,6 +2291,85 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79AssembleRecycleGraveyardSeedOffersCostAndAttachesThroughHub()
+    {
+        const string roomId = "p7-9-assemble-recycle-graveyard-core";
+        const string equipmentObjectId = "P1-EQUIPMENT-LAST-RITES-ASSEMBLE";
+        const string targetObjectId = "P1-UNIT-LAST-RITES-TARGET";
+        const string recycleObjectId1 = "P1-LAST-RITES-RECYCLE-001";
+        const string recycleObjectId2 = "P1-LAST-RITES-RECYCLE-002";
+        var recycleAdditionalCost1 = $"RECYCLE_GRAVEYARD_CARD:{recycleObjectId1}";
+        var recycleAdditionalCost2 = $"RECYCLE_GRAVEYARD_CARD:{recycleObjectId2}";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "assemble-recycle-graveyard", "seed-p7-9-assemble-recycle-graveyard");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var assembleCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(assembleCandidate.Enabled);
+        Assert.Equal([equipmentObjectId], (assembleCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        var metadata = Assert.IsType<Dictionary<string, object?>>(assembleCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        Assert.Equal("SFD·150/221", sourceRequirement["equipmentCardNo"]);
+        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["requiredAdditionalCostChoiceCount"]));
+        Assert.Equal(
+            [recycleAdditionalCost1, recycleAdditionalCost2],
+            Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(sourceRequirement["additionalCostChoices"])
+                .Select(choice => choice.Id)
+                .ToArray());
+
+        var attachClients = new RecordingHubClients();
+        await CreateHub(attachClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-assemble-recycle-graveyard", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "ASSEMBLE_EQUIPMENT",
+                sourceObjectId = equipmentObjectId,
+                targetObjectId,
+                optionalCosts = new[] { "ASSEMBLE_PURPLE", recycleAdditionalCost1, recycleAdditionalCost2 }
+            }));
+
+        Assert.Empty(attachClients.CallerClient.Errors);
+        var events = EventsFor(attachClients);
+        Assert.Equal(
+            ["COST_PAID", "CARDS_RECYCLED", "EQUIPMENT_ATTACHED"],
+            events.Select(gameEvent => gameEvent.Kind).ToArray());
+        var costEvent = Assert.Single(events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(
+            [recycleObjectId1, recycleObjectId2],
+            Assert.IsAssignableFrom<IEnumerable<string>>(
+                    costEvent.Payload["recycledAdditionalCostTargetObjectIds"])
+                .Order(StringComparer.Ordinal)
+                .ToArray());
+        var recycleEvent = Assert.Single(events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal));
+        Assert.Equal("ADDITIONAL_COST", recycleEvent.Payload["reason"]);
+        Assert.Equal(2, recycleEvent.Payload["count"]);
+
+        var snapshot = SnapshotFor(attachClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["graveyard"]));
+        Assert.Equal(2, Assert.IsType<int>(p1Zones["mainDeckCount"]));
+        var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
+        var equipment = Assert.IsType<Dictionary<string, object?>>(p1Objects[equipmentObjectId]);
+        Assert.Equal(targetObjectId, Assert.IsType<string>(equipment["attachedToObjectId"]));
+    }
+
+    [Fact]
     public async Task P6SpellDuelSeedTransfersOnlinePriorityAfterSpellIsPlayed()
     {
         const string roomId = "p6-3a-response-window";

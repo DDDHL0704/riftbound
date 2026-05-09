@@ -51030,6 +51030,131 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4AssembleEquipmentCommandAttachesLastRitesWithGraveyardRecycleCost()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Purple] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-EQUIPMENT-LAST-RITES", "P1-UNIT-ASSEMBLE-TARGET"],
+                    Graveyard = ["P1-LAST-RITES-RECYCLE-001", "P1-LAST-RITES-RECYCLE-002"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-EQUIPMENT-LAST-RITES"] = new(
+                    "P1-EQUIPMENT-LAST-RITES",
+                    cardNo: "SFD·150/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-ASSEMBLE-TARGET"] = new(
+                    "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LAST-RITES-RECYCLE-001"] = new(
+                    "P1-LAST-RITES-RECYCLE-001",
+                    cardNo: "SFD·013/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LAST-RITES-RECYCLE-002"] = new(
+                    "P1-LAST-RITES-RECYCLE-002",
+                    cardNo: "SFD·067/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-assemble-equipment-last-rites-recycle-graveyard", "P1", "ASSEMBLE_EQUIPMENT"),
+            new AssembleEquipmentCommand(
+                "P1-EQUIPMENT-LAST-RITES",
+                "P1-UNIT-ASSEMBLE-TARGET",
+                [
+                    "ASSEMBLE_PURPLE",
+                    "RECYCLE_GRAVEYARD_CARD:P1-LAST-RITES-RECYCLE-001",
+                    "RECYCLE_GRAVEYARD_CARD:P1-LAST-RITES-RECYCLE-002"
+                ]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        Assert.Equal([ "COST_PAID", "CARDS_RECYCLED", "EQUIPMENT_ATTACHED" ], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-EQUIPMENT-LAST-RITES", "P1-UNIT-ASSEMBLE-TARGET"], result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(
+            ["P1-LAST-RITES-RECYCLE-001", "P1-LAST-RITES-RECYCLE-002"],
+            result.State.PlayerZones["P1"].MainDeck.Order(StringComparer.Ordinal).ToArray());
+        Assert.Equal("P1-UNIT-ASSEMBLE-TARGET", result.State.CardObjects["P1-EQUIPMENT-LAST-RITES"].AttachedToObjectId);
+        Assert.Empty(result.State.StackItems);
+
+        var costPaidPayload = result.Events[0].Payload;
+        Assert.Equal(1, costPaidPayload["power"]);
+        Assert.Equal(
+            [
+                "RECYCLE_GRAVEYARD_CARD:P1-LAST-RITES-RECYCLE-001",
+                "RECYCLE_GRAVEYARD_CARD:P1-LAST-RITES-RECYCLE-002"
+            ],
+            Assert.IsAssignableFrom<IEnumerable<string>>(costPaidPayload["recycledAdditionalCostTargetObjectIds"])
+                .Select(objectId => $"RECYCLE_GRAVEYARD_CARD:{objectId}")
+                .Order(StringComparer.Ordinal)
+                .ToArray());
+
+        var recyclePayload = result.Events[1].Payload;
+        Assert.Equal("ADDITIONAL_COST", recyclePayload["reason"]);
+        Assert.Equal(2, recyclePayload["count"]);
+        Assert.Equal(
+            ["P1-LAST-RITES-RECYCLE-001", "P1-LAST-RITES-RECYCLE-002"],
+            Assert.IsAssignableFrom<IEnumerable<string>>(recyclePayload["cardIds"])
+                .Order(StringComparer.Ordinal)
+                .ToArray());
+
+        Assert.Equal("MAIN_DECK", result.State.ObjectLocations["P1-LAST-RITES-RECYCLE-001"].Zone);
+        Assert.Equal("MAIN_DECK", result.State.ObjectLocations["P1-LAST-RITES-RECYCLE-002"].Zone);
+
+        var missingRecycleCostResult = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-assemble-equipment-last-rites-missing-recycle", "P1", "ASSEMBLE_EQUIPMENT"),
+            new AssembleEquipmentCommand(
+                "P1-EQUIPMENT-LAST-RITES",
+                "P1-UNIT-ASSEMBLE-TARGET",
+                ["ASSEMBLE_PURPLE", "RECYCLE_GRAVEYARD_CARD:P1-LAST-RITES-RECYCLE-001"]),
+            CancellationToken.None);
+
+        Assert.False(missingRecycleCostResult.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, missingRecycleCostResult.ErrorCode);
+        Assert.Empty(missingRecycleCostResult.Events);
+        Assert.Equal(0, missingRecycleCostResult.State.Tick);
+        Assert.Equal(1, missingRecycleCostResult.State.RunePools["P1"].PowerByTrait[RuneTrait.Purple]);
+        Assert.Equal(
+            ["P1-LAST-RITES-RECYCLE-001", "P1-LAST-RITES-RECYCLE-002"],
+            missingRecycleCostResult.State.PlayerZones["P1"].Graveyard);
+        Assert.Null(missingRecycleCostResult.State.CardObjects["P1-EQUIPMENT-LAST-RITES"].AttachedToObjectId);
+    }
+
+    [Fact]
     public async Task P4AssembleEquipmentCommandWithHandSourceIsRejectedUntilEquipmentSystemExists()
     {
         var state = PunishmentState(mana: 0) with

@@ -106,6 +106,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string EdgeOfNightCardNo = "SFD·139/221";
     private const string EdgeOfNightAssembleOptionalCost = "ASSEMBLE_PURPLE";
     private const int EdgeOfNightAssemblePowerCost = 1;
+    private const string LastRitesCardNo = "SFD·150/221";
+    private const string LastRitesAssembleOptionalCost = "ASSEMBLE_PURPLE";
+    private const int LastRitesAssemblePowerCost = 1;
+    private const int LastRitesRequiredGraveyardRecycleCardCount = 2;
     private const string VanguardsEyeCardNo = "SFD·153/221";
     private const string VanguardsEyeAssembleOptionalCost = "ASSEMBLE_YELLOW";
     private const int VanguardsEyeAssemblePowerCost = 1;
@@ -140,6 +144,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string PowerTrait,
         int PowerCost,
         int ExperienceCost = 0,
+        int RequiredGraveyardRecycleCardCount = 0,
         bool RequiresDestroyFriendlyUnitCost = false);
 
     private static readonly IReadOnlyDictionary<string, AssembleEquipmentProfile> ImplementedAssembleEquipmentProfiles =
@@ -301,6 +306,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 EdgeOfNightAssembleOptionalCost,
                 RuneTrait.Purple,
                 EdgeOfNightAssemblePowerCost),
+            [LastRitesCardNo] = new(
+                LastRitesCardNo,
+                "临终仪式",
+                LastRitesAssembleOptionalCost,
+                RuneTrait.Purple,
+                LastRitesAssemblePowerCost,
+                RequiredGraveyardRecycleCardCount: LastRitesRequiredGraveyardRecycleCardCount),
             [VanguardsEyeCardNo] = new(
                 VanguardsEyeCardNo,
                 "先锋之眼",
@@ -431,6 +443,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string DestroyFriendlyUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_UNIT:";
     private const string DestroyFriendlyPowerfulUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_POWERFUL_UNIT:";
     private const string DestroyFriendlyTraitUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_TRAIT_UNIT:";
+    private const string RecycleGraveyardCardAdditionalCostPrefix = "RECYCLE_GRAVEYARD_CARD:";
     private const string ReturnFriendlyEquipmentAdditionalCostPrefix = "RETURN_FRIENDLY_EQUIPMENT:";
     private const string DiscardHandCardOptionalCostPrefix = "DISCARD_HAND_CARD:";
     private const string SpendPowerOptionalCostPrefix = "SPEND_POWER:";
@@ -1483,7 +1496,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 out var equipmentState,
                 out var targetState,
                 out var assembleProfile,
-                out var destroyedAdditionalCostTargetObjectIds))
+                out var destroyedAdditionalCostTargetObjectIds,
+                out var recycledAdditionalCostTargetObjectIds))
         {
             return RejectWithCorePrompts(
                 state,
@@ -1596,6 +1610,21 @@ public sealed class CoreRuleEngine : IRuleEngine
             objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
         }
 
+        var rngCursor = state.RngCursor;
+        var assembleRecycleEvents = new List<GameEvent>();
+        if (recycledAdditionalCostTargetObjectIds.Count > 0)
+        {
+            var recycleResult = RecycleGraveyardCardsAsAdditionalCost(
+                state,
+                playerZones,
+                intent.PlayerId,
+                command.SourceObjectId,
+                recycledAdditionalCostTargetObjectIds);
+            rngCursor = recycleResult.RngCursor;
+            assembleRecycleEvents.AddRange(recycleResult.Events);
+            objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
+        }
+
         var equipmentWithIdentity = WithFieldIdentityDefaults(equipmentState, intent.PlayerId);
         var targetWithIdentity = WithFieldIdentityDefaults(targetState, intent.PlayerId);
         cardObjects[command.SourceObjectId] = equipmentWithIdentity with
@@ -1612,6 +1641,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             PlayerZones = playerZones,
             CardObjects = cardObjects,
             ObjectLocations = objectLocations,
+            RngCursor = rngCursor,
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(
                 state.DestroyedUnitOwnerIdsThisTurn,
                 destroyedAdditionalCostOwnerIds),
@@ -1632,9 +1662,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["targetObjectId"] = command.TargetObjectId,
                     ["optionalCosts"] = optionalCosts.ToArray(),
                     ["paymentResourceActions"] = paymentResourceActions.ToArray(),
-                    ["destroyedAdditionalCostTargetObjectIds"] = destroyedAdditionalCostTargetObjectIds.ToArray()
+                    ["destroyedAdditionalCostTargetObjectIds"] = destroyedAdditionalCostTargetObjectIds.ToArray(),
+                    ["recycledAdditionalCostTargetObjectIds"] = recycledAdditionalCostTargetObjectIds.ToArray()
                 }));
         events.AddRange(assembleRemovalEvents);
+        events.AddRange(assembleRecycleEvents);
         events.Add(
             new(
                 "EQUIPMENT_ATTACHED",
@@ -1669,12 +1701,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         out CardObjectState equipmentState,
         out CardObjectState targetState,
         out AssembleEquipmentProfile assembleProfile,
-        out IReadOnlyList<string> destroyedAdditionalCostTargetObjectIds)
+        out IReadOnlyList<string> destroyedAdditionalCostTargetObjectIds,
+        out IReadOnlyList<string> recycledAdditionalCostTargetObjectIds)
     {
         equipmentState = default!;
         targetState = default!;
         assembleProfile = default!;
         destroyedAdditionalCostTargetObjectIds = [];
+        recycledAdditionalCostTargetObjectIds = [];
 
         if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
             || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
@@ -1736,7 +1770,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 command.TargetObjectId,
                 knownAssembleProfile,
                 behaviorOptionalCosts,
-                out destroyedAdditionalCostTargetObjectIds))
+                out destroyedAdditionalCostTargetObjectIds,
+                out recycledAdditionalCostTargetObjectIds))
         {
             return false;
         }
@@ -1753,16 +1788,20 @@ public sealed class CoreRuleEngine : IRuleEngine
         string targetObjectId,
         AssembleEquipmentProfile assembleProfile,
         IReadOnlyList<string> behaviorOptionalCosts,
-        out IReadOnlyList<string> destroyedAdditionalCostTargetObjectIds)
+        out IReadOnlyList<string> destroyedAdditionalCostTargetObjectIds,
+        out IReadOnlyList<string> recycledAdditionalCostTargetObjectIds)
     {
         destroyedAdditionalCostTargetObjectIds = [];
-        if (!assembleProfile.RequiresDestroyFriendlyUnitCost)
+        recycledAdditionalCostTargetObjectIds = [];
+        var requiredAdditionalCostCount = (assembleProfile.RequiresDestroyFriendlyUnitCost ? 1 : 0)
+            + assembleProfile.RequiredGraveyardRecycleCardCount;
+        if (requiredAdditionalCostCount == 0)
         {
             return behaviorOptionalCosts.Count == 1
                 && string.Equals(behaviorOptionalCosts[0], assembleProfile.OptionalCost, StringComparison.Ordinal);
         }
 
-        if (behaviorOptionalCosts.Count != 2
+        if (behaviorOptionalCosts.Count != 1 + requiredAdditionalCostCount
             || behaviorOptionalCosts.Count(cost => string.Equals(
                 cost,
                 assembleProfile.OptionalCost,
@@ -1771,20 +1810,124 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        var destroyFriendlyUnitCost = behaviorOptionalCosts.FirstOrDefault(cost =>
-            !string.Equals(cost, assembleProfile.OptionalCost, StringComparison.Ordinal));
-        if (string.IsNullOrWhiteSpace(destroyFriendlyUnitCost)
-            || !TryParseDestroyFriendlyUnitAdditionalCost(
-                destroyFriendlyUnitCost,
-                out var destroyedFriendlyUnitTargetObjectId)
-            || string.Equals(destroyedFriendlyUnitTargetObjectId, targetObjectId, StringComparison.Ordinal)
-            || !CanDestroyFriendlyUnitAsAdditionalCost(state, playerId, destroyedFriendlyUnitTargetObjectId))
+        var additionalCosts = behaviorOptionalCosts
+            .Where(cost => !string.Equals(cost, assembleProfile.OptionalCost, StringComparison.Ordinal))
+            .ToArray();
+
+        if (assembleProfile.RequiresDestroyFriendlyUnitCost)
+        {
+            var destroyFriendlyUnitCosts = additionalCosts
+                .Where(cost => cost.StartsWith(DestroyFriendlyUnitAdditionalCostPrefix, StringComparison.Ordinal))
+                .ToArray();
+            if (destroyFriendlyUnitCosts.Length != 1
+                || !TryParseDestroyFriendlyUnitAdditionalCost(
+                    destroyFriendlyUnitCosts[0],
+                    out var destroyedFriendlyUnitTargetObjectId)
+                || string.Equals(destroyedFriendlyUnitTargetObjectId, targetObjectId, StringComparison.Ordinal)
+                || !CanDestroyFriendlyUnitAsAdditionalCost(state, playerId, destroyedFriendlyUnitTargetObjectId))
+            {
+                return false;
+            }
+
+            destroyedAdditionalCostTargetObjectIds = [destroyedFriendlyUnitTargetObjectId];
+        }
+        else if (additionalCosts.Any(cost => cost.StartsWith(DestroyFriendlyUnitAdditionalCostPrefix, StringComparison.Ordinal)))
         {
             return false;
         }
 
-        destroyedAdditionalCostTargetObjectIds = [destroyedFriendlyUnitTargetObjectId];
+        var recycleGraveyardCardCosts = additionalCosts
+            .Where(cost => cost.StartsWith(RecycleGraveyardCardAdditionalCostPrefix, StringComparison.Ordinal))
+            .ToArray();
+        if (assembleProfile.RequiredGraveyardRecycleCardCount > 0)
+        {
+            if (recycleGraveyardCardCosts.Length != assembleProfile.RequiredGraveyardRecycleCardCount)
+            {
+                return false;
+            }
+
+            var recycledTargetObjectIds = new List<string>();
+            foreach (var recycleGraveyardCardCost in recycleGraveyardCardCosts)
+            {
+                if (!TryParseRecycleGraveyardCardAdditionalCost(
+                        recycleGraveyardCardCost,
+                        out var recycledTargetObjectId)
+                    || !CanRecycleGraveyardCardAsAdditionalCost(state, playerId, recycledTargetObjectId))
+                {
+                    return false;
+                }
+
+                recycledTargetObjectIds.Add(recycledTargetObjectId);
+            }
+
+            if (recycledTargetObjectIds.Distinct(StringComparer.Ordinal).Count() != recycledTargetObjectIds.Count)
+            {
+                return false;
+            }
+
+            recycledAdditionalCostTargetObjectIds = recycledTargetObjectIds.ToArray();
+        }
+        else if (recycleGraveyardCardCosts.Length > 0)
+        {
+            return false;
+        }
+
+        if (additionalCosts.Any(cost =>
+                !cost.StartsWith(DestroyFriendlyUnitAdditionalCostPrefix, StringComparison.Ordinal)
+                && !cost.StartsWith(RecycleGraveyardCardAdditionalCostPrefix, StringComparison.Ordinal)))
+        {
+            return false;
+        }
+
         return true;
+    }
+
+    private static RecycleResult RecycleGraveyardCardsAsAdditionalCost(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        string playerId,
+        string sourceObjectId,
+        IReadOnlyList<string> recycledObjectIds)
+    {
+        var events = new List<GameEvent>();
+        var rngCursor = state.RngCursor;
+        if (recycledObjectIds.Count == 0
+            || !playerZones.TryGetValue(playerId, out var zones))
+        {
+            return new RecycleResult(events, rngCursor);
+        }
+
+        var recycledSet = recycledObjectIds.ToHashSet(StringComparer.Ordinal);
+        var randomizedCardIds = RandomizeForMainDeckBottom(
+            recycledObjectIds,
+            state.Seed,
+            rngCursor,
+            sourceObjectId);
+        if (recycledObjectIds.Count > 1)
+        {
+            rngCursor++;
+        }
+
+        playerZones[playerId] = zones with
+        {
+            MainDeck = zones.MainDeck.Concat(randomizedCardIds).ToArray(),
+            Graveyard = zones.Graveyard
+                .Where(objectId => !recycledSet.Contains(objectId))
+                .ToArray()
+        };
+        events.Add(new GameEvent(
+            "CARDS_RECYCLED",
+            $"{playerId} 回收 {randomizedCardIds.Count} 张牌",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = sourceObjectId,
+                ["cardIds"] = randomizedCardIds,
+                ["count"] = randomizedCardIds.Count,
+                ["reason"] = "ADDITIONAL_COST"
+            }));
+
+        return new RecycleResult(events, rngCursor);
     }
 
     private static IReadOnlyDictionary<string, int> AssembleEquipmentPowerCostByTrait(AssembleEquipmentProfile profile)
@@ -17511,6 +17654,20 @@ public sealed class CoreRuleEngine : IRuleEngine
         return !string.IsNullOrWhiteSpace(targetObjectId);
     }
 
+    private static bool TryParseRecycleGraveyardCardAdditionalCost(
+        string optionalCost,
+        out string targetObjectId)
+    {
+        targetObjectId = string.Empty;
+        if (!optionalCost.StartsWith(RecycleGraveyardCardAdditionalCostPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        targetObjectId = optionalCost[RecycleGraveyardCardAdditionalCostPrefix.Length..].Trim();
+        return !string.IsNullOrWhiteSpace(targetObjectId);
+    }
+
     private static bool TryParseDiscardHandCardOptionalCost(
         string optionalCost,
         out string targetObjectId)
@@ -17628,6 +17785,17 @@ public sealed class CoreRuleEngine : IRuleEngine
         string targetObjectId)
     {
         return IsFriendlyEquipmentObject(state, playerId, targetObjectId);
+    }
+
+    private static bool CanRecycleGraveyardCardAsAdditionalCost(
+        MatchState state,
+        string playerId,
+        string targetObjectId)
+    {
+        return state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.Graveyard.Contains(targetObjectId, StringComparer.Ordinal)
+            && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            && SourceObjectControlledByPlayerOrLegacyOwned(targetState, playerId);
     }
 
     private static bool CanDiscardHandCardAsOptionalCost(

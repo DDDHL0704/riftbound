@@ -2325,6 +2325,7 @@ internal static class ActionPromptBuilder
 {
     private const string RecycleRunePaymentOptionalCostPrefix = "RECYCLE_RUNE:";
     private const string DestroyFriendlyUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_UNIT:";
+    private const string RecycleGraveyardCardAdditionalCostPrefix = "RECYCLE_GRAVEYARD_CARD:";
     private const int BasicRuneRecyclePowerGain = 1;
     private const string StandbyHideDestination = "STANDBY";
     private const string StandbyHideOptionalCost = "STANDBY_A";
@@ -2417,6 +2418,10 @@ internal static class ActionPromptBuilder
     private const string EdgeOfNightCardNo = "SFD·139/221";
     private const int EdgeOfNightAssemblePowerCost = 1;
     private const string EdgeOfNightAssembleOptionalCost = "ASSEMBLE_PURPLE";
+    private const string LastRitesCardNo = "SFD·150/221";
+    private const int LastRitesAssemblePowerCost = 1;
+    private const string LastRitesAssembleOptionalCost = "ASSEMBLE_PURPLE";
+    private const int LastRitesRequiredGraveyardRecycleCardCount = 2;
     private const string VanguardsEyeCardNo = "SFD·153/221";
     private const int VanguardsEyeAssemblePowerCost = 1;
     private const string VanguardsEyeAssembleOptionalCost = "ASSEMBLE_YELLOW";
@@ -2453,6 +2458,7 @@ internal static class ActionPromptBuilder
         int PowerCost,
         string PaymentResourceReason,
         int ExperienceCost = 0,
+        int RequiredGraveyardRecycleCardCount = 0,
         bool RequiresDestroyFriendlyUnitCost = false);
 
     private static readonly IReadOnlyDictionary<string, AssembleEquipmentProfile> ImplementedAssembleEquipmentProfiles =
@@ -2666,6 +2672,15 @@ internal static class ActionPromptBuilder
                 RuneTrait.Purple,
                 EdgeOfNightAssemblePowerCost,
                 "payment resource action: recycle purple rune for assemble cost"),
+            [LastRitesCardNo] = new(
+                LastRitesCardNo,
+                "临终仪式",
+                LastRitesAssembleOptionalCost,
+                "装配紫色符能",
+                RuneTrait.Purple,
+                LastRitesAssemblePowerCost,
+                "payment resource action: recycle purple rune for assemble cost",
+                RequiredGraveyardRecycleCardCount: LastRitesRequiredGraveyardRecycleCardCount),
             [VanguardsEyeCardNo] = new(
                 VanguardsEyeCardNo,
                 "先锋之眼",
@@ -4638,7 +4653,7 @@ internal static class ActionPromptBuilder
             targetChoices,
             [new ActionPromptChoiceDto(assembleProfile.OptionalCost, assembleProfile.OptionalCostLabel)],
             additionalCostChoices,
-            assembleProfile.RequiresDestroyFriendlyUnitCost ? 1 : 0,
+            AssembleEquipmentRequiredAdditionalCostChoiceCount(assembleProfile),
             paymentResourceChoices,
             AssembleEquipmentPaymentResourcePowerByChoice(state, playerId, assembleProfile),
             PlayCardAvailablePowerByTrait(runePool, new Dictionary<string, int>(StringComparer.Ordinal)),
@@ -4668,21 +4683,40 @@ internal static class ActionPromptBuilder
         string sourceObjectId,
         AssembleEquipmentProfile assembleProfile)
     {
-        if (!assembleProfile.RequiresDestroyFriendlyUnitCost)
+        var choices = new List<ActionPromptChoiceDto>();
+        if (assembleProfile.RequiresDestroyFriendlyUnitCost)
         {
-            return [];
+            choices.AddRange(AssembleEquipmentDestroyFriendlyUnitTargetObjectIds(state, playerId, sourceObjectId)
+                .Select(objectId =>
+                {
+                    var choice = ObjectChoice(state, objectId, "required destroy friendly unit assemble cost");
+                    return new ActionPromptChoiceDto(
+                        $"{DestroyFriendlyUnitAdditionalCostPrefix}{objectId}",
+                        $"摧毁友方单位：{choice.Label}",
+                        choice.Reason);
+                }));
         }
 
-        return AssembleEquipmentDestroyFriendlyUnitTargetObjectIds(state, playerId, sourceObjectId)
-            .Select(objectId =>
-            {
-                var choice = ObjectChoice(state, objectId, "required destroy friendly unit assemble cost");
-                return new ActionPromptChoiceDto(
-                    $"{DestroyFriendlyUnitAdditionalCostPrefix}{objectId}",
-                    $"摧毁友方单位：{choice.Label}",
-                    choice.Reason);
-            })
-            .ToArray();
+        if (assembleProfile.RequiredGraveyardRecycleCardCount > 0)
+        {
+            choices.AddRange(AssembleEquipmentGraveyardRecycleTargetObjectIds(state, playerId)
+                .Select(objectId =>
+                {
+                    var choice = ObjectChoice(state, objectId, "required recycle graveyard card assemble cost");
+                    return new ActionPromptChoiceDto(
+                        $"{RecycleGraveyardCardAdditionalCostPrefix}{objectId}",
+                        $"回收废牌堆：{choice.Label}",
+                        choice.Reason);
+                }));
+        }
+
+        return choices.ToArray();
+    }
+
+    private static int AssembleEquipmentRequiredAdditionalCostChoiceCount(AssembleEquipmentProfile assembleProfile)
+    {
+        return (assembleProfile.RequiresDestroyFriendlyUnitCost ? 1 : 0)
+            + assembleProfile.RequiredGraveyardRecycleCardCount;
     }
 
     private static IReadOnlyList<string> AssembleEquipmentDestroyFriendlyUnitTargetObjectIds(
@@ -4707,6 +4741,29 @@ internal static class ActionPromptBuilder
             && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !string.IsNullOrWhiteSpace(cardObject.CardNo)
             && !cardObject.IsFaceDown;
+    }
+
+    private static IReadOnlyList<string> AssembleEquipmentGraveyardRecycleTargetObjectIds(
+        MatchState state,
+        string playerId)
+    {
+        return state.PlayerZones.TryGetValue(playerId, out var zones)
+            ? zones.Graveyard
+                .Where(objectId => IsImplementedAssembleEquipmentGraveyardRecycleCostTarget(state, playerId, objectId))
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(objectId => objectId, StringComparer.Ordinal)
+                .ToArray()
+            : [];
+    }
+
+    private static bool IsImplementedAssembleEquipmentGraveyardRecycleCostTarget(
+        MatchState state,
+        string playerId,
+        string objectId)
+    {
+        return state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+            && !string.IsNullOrWhiteSpace(cardObject.CardNo);
     }
 
     private static bool IsImplementedAssembleEquipmentSource(MatchState state, string playerId, string objectId)
@@ -4751,6 +4808,12 @@ internal static class ActionPromptBuilder
             {
                 return false;
             }
+        }
+
+        if (assembleProfile.RequiredGraveyardRecycleCardCount > 0
+            && AssembleEquipmentGraveyardRecycleTargetObjectIds(state, playerId).Count < assembleProfile.RequiredGraveyardRecycleCardCount)
+        {
+            return false;
         }
 
         return CanPayAssembleEquipmentCost(
@@ -9316,6 +9379,7 @@ public sealed class MatchSession : IMatchSession
             "assemble-payment-recycle" => BuildAssemblePaymentRecycleScenario(current, seed),
             "assemble-experience" => BuildAssembleExperienceScenario(current, seed),
             "assemble-destroy-friendly-unit" => BuildAssembleDestroyFriendlyUnitScenario(current, seed),
+            "assemble-recycle-graveyard" => BuildAssembleRecycleGraveyardScenario(current, seed),
             "echo-stack" => BuildEchoStackScenario(current, seed),
             "priority-reaction-counter" => BuildPriorityReactionCounterScenario(current, seed),
             "standby-reaction" => BuildStandbyReactionScenario(current, seed),
@@ -11087,6 +11151,77 @@ public sealed class MatchSession : IMatchSession
                     "P1-UNIT-BLADE-RUINED-KING-COST",
                     cardNo: "SFD·125/221",
                     power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildAssembleRecycleGraveyardScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603304167,
+            4167,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Purple] = 1
+                    }),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    baseZone:
+                    [
+                        "P1-EQUIPMENT-LAST-RITES-ASSEMBLE",
+                        "P1-UNIT-LAST-RITES-TARGET"
+                    ],
+                    graveyard:
+                    [
+                        "P1-LAST-RITES-RECYCLE-001",
+                        "P1-LAST-RITES-RECYCLE-002"
+                    ],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-EQUIPMENT-LAST-RITES-ASSEMBLE"] = new(
+                    "P1-EQUIPMENT-LAST-RITES-ASSEMBLE",
+                    cardNo: "SFD·150/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-UNIT-LAST-RITES-TARGET"] = new(
+                    "P1-UNIT-LAST-RITES-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-LAST-RITES-RECYCLE-001"] = new(
+                    "P1-LAST-RITES-RECYCLE-001",
+                    cardNo: "SFD·013/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-LAST-RITES-RECYCLE-002"] = new(
+                    "P1-LAST-RITES-RECYCLE-002",
+                    cardNo: "SFD·067/221",
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
                     controllerId: seed.P1)

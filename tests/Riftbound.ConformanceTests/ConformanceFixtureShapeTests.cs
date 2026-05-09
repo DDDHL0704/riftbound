@@ -5247,6 +5247,103 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptShowsGraveyardRecycleCostAssembleEquipmentSource()
+    {
+        var state = new MatchState(
+            "prompt-assemble-recycle-graveyard-source-room",
+            25,
+            7,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Purple] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-LAST-RITES", "P1-UNIT-ASSEMBLE-TARGET"],
+                    Graveyard = ["P1-LAST-RITES-RECYCLE-001", "P1-LAST-RITES-RECYCLE-002"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-LAST-RITES"] = new(
+                    "P1-LAST-RITES",
+                    cardNo: "SFD·150/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-ASSEMBLE-TARGET"] = new(
+                    "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LAST-RITES-RECYCLE-001"] = new(
+                    "P1-LAST-RITES-RECYCLE-001",
+                    cardNo: "SFD·013/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LAST-RITES-RECYCLE-002"] = new(
+                    "P1-LAST-RITES-RECYCLE-002",
+                    cardNo: "SFD·067/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var assembleCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+
+        Assert.True(assembleCandidate.Enabled);
+        Assert.Equal(["P1-LAST-RITES"], (assembleCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        var metadata = Assert.IsType<Dictionary<string, object?>>(assembleCandidate.Metadata);
+        var sourceRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+        Assert.Equal("SFD·150/221", sourceRequirement["equipmentCardNo"]);
+        Assert.Equal("临终仪式", sourceRequirement["displayName"]);
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["powerCost"]));
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["experienceCost"]));
+        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["requiredAdditionalCostChoiceCount"]));
+        Assert.Equal(["ASSEMBLE_PURPLE"], Assert.IsAssignableFrom<IEnumerable<string>>(
+            sourceRequirement["requiredOptionalCosts"]).ToArray());
+        Assert.Equal(["ASSEMBLE_PURPLE"], Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["optionalCostChoices"]).Select(choice => choice.Id).ToArray());
+        Assert.Equal(["P1-UNIT-ASSEMBLE-TARGET"], Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["targetChoices"]).Select(choice => choice.Id).ToArray());
+        Assert.Equal(
+            [
+                "RECYCLE_GRAVEYARD_CARD:P1-LAST-RITES-RECYCLE-001",
+                "RECYCLE_GRAVEYARD_CARD:P1-LAST-RITES-RECYCLE-002"
+            ],
+            Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["additionalCostChoices"]).Select(choice => choice.Id).ToArray());
+    }
+
+    [Fact]
     public void ActionPromptHidesAssembleEquipmentTargetWhenUnitHasNoCardNo()
     {
         var state = new MatchState(
