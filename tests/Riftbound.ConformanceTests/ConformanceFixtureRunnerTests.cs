@@ -35670,21 +35670,50 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P1-FRIENDLY-TARGET", destroyedEvent.Payload["targetObjectId"]);
         Assert.Equal("P1", destroyedEvent.Payload["ownerPlayerId"]);
 
-        var powerEvent = Assert.Single(p2Pass.Events, gameEvent =>
+        var queuedEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2", StringComparison.Ordinal));
+        Assert.Equal("P1-GHOSTLY-CENTAUR", queuedEvent.Payload["sourceObjectId"]);
+        Assert.Contains(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGERS_MOVED_TO_STACK", StringComparison.Ordinal));
+        Assert.Empty(p2Pass.State.TriggerQueue);
+        var ghostlyTriggerStackItem = Assert.Single(p2Pass.State.StackItems);
+        Assert.Equal("P1", ghostlyTriggerStackItem.ControllerId);
+        Assert.Equal("P1-GHOSTLY-CENTAUR", ghostlyTriggerStackItem.SourceObjectId);
+        Assert.Equal("GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2", ghostlyTriggerStackItem.EffectKind);
+        Assert.Equal("P1", p2Pass.State.PriorityPlayerId);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal));
+        Assert.Equal(5, p2Pass.State.CardObjects["P1-GHOSTLY-CENTAUR"].Power);
+
+        var triggerP1Pass = await engine.ResolveAsync(
+            p2Pass.State,
+            new PlayerIntent("intent-p7-9-ghostly-centaur-trigger-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var triggerP2Pass = await engine.ResolveAsync(
+            triggerP1Pass.State,
+            new PlayerIntent("intent-p7-9-ghostly-centaur-trigger-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(triggerP1Pass.Accepted, triggerP1Pass.ErrorMessage);
+        Assert.True(triggerP2Pass.Accepted, triggerP2Pass.ErrorMessage);
+        var powerEvent = Assert.Single(triggerP2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal));
         Assert.Equal("P1-GHOSTLY-CENTAUR", powerEvent.Payload["sourceObjectId"]);
         Assert.Equal("P1-GHOSTLY-CENTAUR", powerEvent.Payload["targetObjectId"]);
         Assert.Equal(2, powerEvent.Payload["powerDelta"]);
         Assert.Equal(2, powerEvent.Payload["appliedPowerDelta"]);
         Assert.Equal(7, powerEvent.Payload["resultingPower"]);
-        Assert.Equal(7, p2Pass.State.CardObjects["P1-GHOSTLY-CENTAUR"].Power);
-        Assert.Equal(2, p2Pass.State.CardObjects["P1-GHOSTLY-CENTAUR"].UntilEndOfTurnPowerModifier);
-        Assert.Equal(5, p2Pass.State.CardObjects["P1-GHOSTLY-CENTAUR-FACEDOWN"].Power);
-        Assert.Equal(5, p2Pass.State.CardObjects["P1-GHOSTLY-CENTAUR-STANDBY"].Power);
-        Assert.Equal(5, p2Pass.State.CardObjects["P2-GHOSTLY-CENTAUR"].Power);
-        Assert.Contains("P1-FRIENDLY-TARGET", p2Pass.State.PlayerZones["P1"].Graveyard);
-        Assert.Contains("P1-SPELL-VENGEANCE", p2Pass.State.PlayerZones["P1"].Graveyard);
-        Assert.False(p2Pass.State.CardObjects.ContainsKey("P1-FRIENDLY-TARGET"));
+        Assert.Empty(triggerP2Pass.State.StackItems);
+        Assert.Equal(7, triggerP2Pass.State.CardObjects["P1-GHOSTLY-CENTAUR"].Power);
+        Assert.Equal(2, triggerP2Pass.State.CardObjects["P1-GHOSTLY-CENTAUR"].UntilEndOfTurnPowerModifier);
+        Assert.Equal(5, triggerP2Pass.State.CardObjects["P1-GHOSTLY-CENTAUR-FACEDOWN"].Power);
+        Assert.Equal(5, triggerP2Pass.State.CardObjects["P1-GHOSTLY-CENTAUR-STANDBY"].Power);
+        Assert.Equal(5, triggerP2Pass.State.CardObjects["P2-GHOSTLY-CENTAUR"].Power);
+        Assert.Contains("P1-FRIENDLY-TARGET", triggerP2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains("P1-SPELL-VENGEANCE", triggerP2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.False(triggerP2Pass.State.CardObjects.ContainsKey("P1-FRIENDLY-TARGET"));
     }
 
     [Fact]
@@ -35781,22 +35810,54 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(firstPlay.Accepted, firstPlay.ErrorMessage);
         Assert.True(firstP1Pass.Accepted, firstP1Pass.ErrorMessage);
         Assert.True(firstP2Pass.Accepted, firstP2Pass.ErrorMessage);
-        var triggerEvent = Assert.Single(firstP2Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+        var queuedEvent = Assert.Single(firstP2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectKind"] as string, "RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1", StringComparison.Ordinal));
-        Assert.Equal("P1", triggerEvent.Payload["playerId"]);
-        Assert.Equal("P1-RESONANT-SOUL", triggerEvent.Payload["sourceObjectId"]);
-        var firstDrawEvent = Assert.Single(firstP2Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
-        Assert.Equal("P1", firstDrawEvent.Payload["playerId"]);
-        Assert.Equal(1, firstDrawEvent.Payload["count"]);
-        Assert.Equal(["P1-SPELL-VENGEANCE-2", "P1-RESONANT-SOUL-DRAW-001"], firstP2Pass.State.PlayerZones["P1"].Hand);
-        Assert.Equal(["P1-RESONANT-SOUL-DRAW-002"], firstP2Pass.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal("P1", queuedEvent.Payload["controllerId"]);
+        Assert.Equal("P1-RESONANT-SOUL", queuedEvent.Payload["sourceObjectId"]);
+        Assert.Contains(firstP2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGERS_MOVED_TO_STACK", StringComparison.Ordinal));
+        Assert.DoesNotContain(firstP2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Empty(firstP2Pass.State.TriggerQueue);
+        var resonantTriggerStackItem = Assert.Single(firstP2Pass.State.StackItems);
+        Assert.Equal("P1", resonantTriggerStackItem.ControllerId);
+        Assert.Equal("P1-RESONANT-SOUL", resonantTriggerStackItem.SourceObjectId);
+        Assert.Equal("RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1", resonantTriggerStackItem.EffectKind);
+        Assert.Equal("P1", firstP2Pass.State.PriorityPlayerId);
+        Assert.Equal(["P1-SPELL-VENGEANCE-2"], firstP2Pass.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-RESONANT-SOUL-DRAW-001", "P1-RESONANT-SOUL-DRAW-002"], firstP2Pass.State.PlayerZones["P1"].MainDeck);
         Assert.Equal(["P2-RESONANT-SOUL-DRAW-001"], firstP2Pass.State.PlayerZones["P2"].MainDeck);
         Assert.Contains("P1", firstP2Pass.State.DestroyedUnitOwnerIdsThisTurn);
 
-        var secondPlay = await engine.ResolveAsync(
+        var firstTriggerP1Pass = await engine.ResolveAsync(
             firstP2Pass.State,
+            new PlayerIntent("intent-p7-9-resonant-soul-trigger-p1-pass-1", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var firstTriggerP2Pass = await engine.ResolveAsync(
+            firstTriggerP1Pass.State,
+            new PlayerIntent("intent-p7-9-resonant-soul-trigger-p2-pass-1", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(firstTriggerP1Pass.Accepted, firstTriggerP1Pass.ErrorMessage);
+        Assert.True(firstTriggerP2Pass.Accepted, firstTriggerP2Pass.ErrorMessage);
+        var triggerEvent = Assert.Single(firstTriggerP2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1", StringComparison.Ordinal));
+        Assert.Equal("P1", triggerEvent.Payload["controllerId"]);
+        Assert.Equal("P1-RESONANT-SOUL", triggerEvent.Payload["sourceObjectId"]);
+        var firstDrawEvent = Assert.Single(firstTriggerP2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Equal("P1", firstDrawEvent.Payload["playerId"]);
+        Assert.Equal(1, firstDrawEvent.Payload["count"]);
+        Assert.Empty(firstTriggerP2Pass.State.StackItems);
+        Assert.Equal(["P1-SPELL-VENGEANCE-2", "P1-RESONANT-SOUL-DRAW-001"], firstTriggerP2Pass.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-RESONANT-SOUL-DRAW-002"], firstTriggerP2Pass.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P2-RESONANT-SOUL-DRAW-001"], firstTriggerP2Pass.State.PlayerZones["P2"].MainDeck);
+        Assert.Contains("P1", firstTriggerP2Pass.State.DestroyedUnitOwnerIdsThisTurn);
+
+        var secondPlay = await engine.ResolveAsync(
+            firstTriggerP2Pass.State,
             new PlayerIntent("intent-p7-9-resonant-soul-play-vengeance-2", "P1", "PLAY_CARD"),
             new PlayCardCommand("P1-SPELL-VENGEANCE-2", "OGN·229/298", ["P1-FRIENDLY-TARGET-2"]),
             CancellationToken.None);

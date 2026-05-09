@@ -884,6 +884,91 @@ public sealed class RealTriggerQueueTests
     }
 
     [Fact]
+    public async Task RealGhostlyCentaurFriendlyDestroyedTriggersEnterApnapOrderWindowAndGainPowerThroughStack()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildSpiritFireDestroyingGhostlyCentaurFriendlyUnitsState();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-real-ghostly-centaur-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-real-ghostly-centaur-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Empty(p2Pass.State.StackItems);
+        Assert.Equal(2, p2Pass.State.TriggerQueue.Count);
+        Assert.Equal(2, p2Pass.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)));
+        Assert.Equal(2, p2Pass.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal)));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal));
+        Assert.Equal(5, p2Pass.State.CardObjects["P1-REAL-GHOSTLY-CENTAUR"].Power);
+        Assert.Equal(5, p2Pass.State.CardObjects["P2-REAL-GHOSTLY-CENTAUR"].Power);
+
+        var final = await OrderAndResolveTwoGhostlyCentaurTriggersThroughStackAsync(
+            engine,
+            p2Pass.State,
+            "real-ghostly-centaurs",
+            "P1-REAL-GHOSTLY-CENTAUR",
+            "P2-REAL-GHOSTLY-CENTAUR");
+
+        Assert.Empty(final.State.TriggerQueue);
+        Assert.Empty(final.State.StackItems);
+        Assert.Equal(7, final.State.CardObjects["P1-REAL-GHOSTLY-CENTAUR"].Power);
+        Assert.Equal(7, final.State.CardObjects["P2-REAL-GHOSTLY-CENTAUR"].Power);
+        Assert.Equal(2, final.State.CardObjects["P1-REAL-GHOSTLY-CENTAUR"].UntilEndOfTurnPowerModifier);
+        Assert.Equal(2, final.State.CardObjects["P2-REAL-GHOSTLY-CENTAUR"].UntilEndOfTurnPowerModifier);
+    }
+
+    [Fact]
+    public async Task RealResonantSoulFirstFriendlyDestroyedTriggersEnterApnapOrderWindowAndDrawThroughStack()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildSpiritFireDestroyingResonantSoulFriendlyUnitsState();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-real-resonant-soul-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-real-resonant-soul-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Empty(p2Pass.State.StackItems);
+        Assert.Equal(2, p2Pass.State.TriggerQueue.Count);
+        Assert.Equal(2, p2Pass.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)));
+        Assert.Equal(2, p2Pass.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal)));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Empty(p2Pass.State.PlayerZones["P1"].Hand);
+        Assert.Empty(p2Pass.State.PlayerZones["P2"].Hand);
+
+        var final = await OrderAndResolveTwoDrawTriggersThroughStackAsync(
+            engine,
+            p2Pass.State,
+            "real-resonant-souls",
+            "RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1",
+            "P1-REAL-RESONANT-SOUL",
+            "P2-REAL-RESONANT-SOUL",
+            "P1-REAL-RESONANT-DRAW-001",
+            "P2-REAL-RESONANT-DRAW-001");
+
+        Assert.Empty(final.State.TriggerQueue);
+        Assert.Empty(final.State.StackItems);
+        Assert.Equal(["P1-REAL-RESONANT-DRAW-001"], final.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-REAL-RESONANT-DRAW-001"], final.State.PlayerZones["P2"].Hand);
+    }
+
+    [Fact]
     public async Task RealWatchfulSentinelLastBreathTriggersEnterApnapOrderWindowAndResolveThroughStack()
     {
         var engine = new CoreRuleEngine();
@@ -1635,6 +1720,186 @@ public sealed class RealTriggerQueueTests
                     "SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4",
                     "OGN·256/298",
                     ["P1-WATCHFUL-SENTINEL", "P2-WATCHFUL-SENTINEL"])
+            ],
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            });
+    }
+
+    private static MatchState BuildSpiritFireDestroyingGhostlyCentaurFriendlyUnitsState()
+    {
+        return new MatchState(
+            "real-ghostly-centaur-trigger-room",
+            47,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-REAL-GHOSTLY-CENTAUR", "P1-REAL-GHOSTLY-TARGET"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-REAL-GHOSTLY-CENTAUR", "P2-REAL-GHOSTLY-TARGET"]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-REAL-GHOSTLY-CENTAUR"] = new(
+                    "P1-REAL-GHOSTLY-CENTAUR",
+                    cardNo: "UNL-068/219",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, "灵体"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-REAL-GHOSTLY-CENTAUR"] = new(
+                    "P2-REAL-GHOSTLY-CENTAUR",
+                    cardNo: "UNL-068/219",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, "灵体"],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-REAL-GHOSTLY-TARGET"] = new(
+                    "P1-REAL-GHOSTLY-TARGET",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-REAL-GHOSTLY-TARGET"] = new(
+                    "P2-REAL-GHOSTLY-TARGET",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-SPELL-SPIRIT-FIRE"] = new(
+                    "P1-SPELL-SPIRIT-FIRE",
+                    cardNo: "OGN·256/298",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            priorityPlayerId: "P1",
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-SPIRIT-FIRE-GHOSTLY-CENTAURS",
+                    "P1",
+                    "P1-SPELL-SPIRIT-FIRE",
+                    "SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4",
+                    "OGN·256/298",
+                    ["P1-REAL-GHOSTLY-TARGET", "P2-REAL-GHOSTLY-TARGET"])
+            ],
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            });
+    }
+
+    private static MatchState BuildSpiritFireDestroyingResonantSoulFriendlyUnitsState()
+    {
+        return new MatchState(
+            "real-resonant-soul-trigger-room",
+            48,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-REAL-RESONANT-DRAW-001"],
+                    Base = ["P1-REAL-RESONANT-SOUL", "P1-REAL-RESONANT-TARGET"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P2-REAL-RESONANT-DRAW-001"],
+                    Base = ["P2-REAL-RESONANT-SOUL", "P2-REAL-RESONANT-TARGET"]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-REAL-RESONANT-SOUL"] = new(
+                    "P1-REAL-RESONANT-SOUL",
+                    cardNo: "OGN·118/298",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, "灵体"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-REAL-RESONANT-SOUL"] = new(
+                    "P2-REAL-RESONANT-SOUL",
+                    cardNo: "OGN·118/298",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, "灵体"],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-REAL-RESONANT-TARGET"] = new(
+                    "P1-REAL-RESONANT-TARGET",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-REAL-RESONANT-TARGET"] = new(
+                    "P2-REAL-RESONANT-TARGET",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-SPELL-SPIRIT-FIRE"] = new(
+                    "P1-SPELL-SPIRIT-FIRE",
+                    cardNo: "OGN·256/298",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            priorityPlayerId: "P1",
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-SPIRIT-FIRE-RESONANT-SOULS",
+                    "P1",
+                    "P1-SPELL-SPIRIT-FIRE",
+                    "SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4",
+                    "OGN·256/298",
+                    ["P1-REAL-RESONANT-TARGET", "P2-REAL-RESONANT-TARGET"])
             ],
             playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
             {

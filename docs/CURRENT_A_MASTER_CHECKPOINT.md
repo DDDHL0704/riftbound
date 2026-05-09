@@ -1417,7 +1417,7 @@ A 主控复验：
 - hidden / face-down / standby / opponent-controlled source 不入队、不显示 prompt metadata、不加战力。
 - source 同时在本轮 cleanup removal set 中时保守不入队；本批不裁定完整同时死亡触发次数。
 - 同一 Ghostly source 在同一个 cleanup pass 中最多入队一次，这是 4C-11 保守边界，不代表完整规则。
-- 真实 stack destruction Ghostly 旧 P79 immediate compatibility 保留，未迁移到 `TriggerQueue`；这是 P1 / 后续。
+- 真实 stack destruction Ghostly 旧 P79 immediate compatibility 保留，未迁移到 `TriggerQueue`；这是 4C-11 当时 P1，4C-13 后已迁移关闭。
 - 本批不覆盖 Viktor / Resonant Soul / Kogmaw / Karthus / Undercover Agent，不进入 full-official，不宣称完整 trigger engine。
 
 4C-11 文档改动：
@@ -1455,7 +1455,7 @@ A 主控复验：
 - hidden / face-down 原始触发建模。
 - FAQ regression。
 - 1009 entries / 811 functional units full-official 覆盖、正式 18-step E2E、completion audit 仍未完成。
-- P1：真实 stack destruction Ghostly 旧 P79 immediate compatibility 后续迁移到 `TriggerQueue`。
+- 历史 P1（4C-13 后已关闭）：真实 stack destruction Ghostly 旧 P79 immediate compatibility 后续迁移到 `TriggerQueue`。
 
 4C-11 结论：**通过**。没有新增 P0/P1，没有协议或前端字段变化，没有把 hidden / face-down / standby / opponent-controlled Ghostly source 误入队或误加战力；允许继续阶段 4C 下一批。阶段 4C 仍在逐 FU、逐测试批量推进；项目整体仍 **NOT READY**。
 
@@ -1470,7 +1470,7 @@ A 主控复验：
 - hidden / face-down / standby / opponent-controlled source 不入队、不显示 prompt metadata、不抽牌。
 - source 同时在本轮 cleanup removal set 中时保守不入队；本批不裁定完整同时死亡触发次数。
 - 每 owner 每 cleanup pass 只按首次 destroyed unit 生成本批 source set；同回合已经记录 destroyed owner 时不入队。
-- true stack destruction Resonant 旧 P79 immediate compatibility 保留，未迁移到 `TriggerQueue`；cleanup 事件跳过旧 immediate helper 防重复。
+- true stack destruction Resonant 旧 P79 immediate compatibility 保留，未迁移到 `TriggerQueue`；cleanup 事件跳过旧 immediate helper 防重复；这是 4C-12 当时 P1，4C-13 后已迁移关闭。
 - 本批不覆盖 Viktor / Ghostly 后续 / Kogmaw / Karthus / Undercover Agent，不进入 full-official，不宣称完整 trigger engine。
 
 4C-12 文档改动：
@@ -1509,9 +1509,64 @@ A 主控复验：
 - hidden / face-down 原始触发建模。
 - FAQ regression。
 - 1009 entries / 811 functional units full-official 覆盖、正式 18-step E2E、completion audit 仍未完成。
-- P1：true stack destruction Resonant 旧 P79 immediate compatibility 后续迁移到 `TriggerQueue`。
+- 历史 P1（4C-13 后已关闭）：true stack destruction Resonant 旧 P79 immediate compatibility 后续迁移到 `TriggerQueue`。
 
 4C-12 结论：**通过**。没有新增 P0/P1，没有协议或前端字段变化，没有把 hidden / face-down / standby / opponent-controlled Resonant Soul source 误入队或误抽牌；cleanup 路径跳过旧 immediate helper，避免重复触发；允许继续阶段 4C 下一批。阶段 4C 仍在逐 FU、逐测试批量推进；项目整体仍 **NOT READY**。
+
+## 0.23 阶段 4C-13 Stack Destroyed Trigger Migration 小批
+
+阶段 4C-13 继续按 functional unit / engine blocker 小批推进。本批不新增 FU；只迁移 / 关闭 4C-11 / 4C-12 留下的 P1：Ghostly Centaur + Resonant Soul true stack destruction 旧 immediate compatibility -> real trigger queue。项目整体仍 **NOT READY**。
+
+4C-13 服务端改动：
+
+- 覆盖 `FU-0f2c4a3ea5` / `UNL-068/219` Ghostly Centaur，以及 `FU-c146331876` / `OGN·118/298` Resonant Soul。
+- 官方化路径串成：true stack destruction 非 cleanup `UNIT_DESTROYED` -> `TriggerQueue` -> `ORDER_TRIGGERS` or single-trigger auto-stack -> `StackItems` -> priority pass -> `TRIGGER_RESOLVED` -> Ghostly `POWER_MODIFIED_UNTIL_END_OF_TURN` +2 / Resonant `CARD_DRAWN` 1。
+- cleanup path 继续通过 `IsStateBasedCleanupDestroyedEvent` 排除旧 stack helper，避免重复入队。
+- hidden / face-down / standby / opponent-controlled source 不入队；source 必须留场、正面、非 standby、同 controller。
+- Resonant 继续尊重 `DestroyedUnitOwnerIdsThisTurn`。
+- 旧 P79 tests 已更新为 queue / stack / priority 语义。
+- 本批不覆盖 Viktor / Kogmaw / Karthus / Undercover Agent，不进入 full-official，不宣称完整 trigger engine。
+
+4C-13 文档改动：
+
+- 新增 `docs/CURRENT_STAGE4C_BATCH13_STACK_DESTROYED_TRIGGER_MIGRATION_AUDIT.md`。
+- 新增 `docs/CURRENT_STAGE4C_BATCH13_STACK_DESTROYED_TRIGGER_MIGRATION_EVIDENCE.md`。
+- 更新 `docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/rules-evidence-index.md` 与本 checkpoint。
+- 更新 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`、`docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`、`docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`。
+- 本批不修改前端运行时代码或 `riftbound-dotnet.sln`。
+
+4C-13 A 复核命令：
+
+- B focused：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~RealTriggerQueueTests|FullyQualifiedName~P79GhostlyCentaur|FullyQualifiedName~P79ResonantSoul"` 通过，30/30。
+- B full backend：passed，3370/3370。
+- A backend full：passed，3370/3370。
+- `git diff --check -- src/Riftbound.Engine/CoreRuleEngine.cs tests/Riftbound.ConformanceTests/RealTriggerQueueTests.cs tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs`：passed。
+- A frontend build：passed。
+- A Chrome smoke：passed。
+- A Stage 3 preflight：passed。
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`：passed。
+- 4C-13 矩阵结构断言：passed；route-upgraded FUs = 2（`FU-0f2c4a3ea5`、`FU-c146331876`），unique new FU coverage = 0，cumulative real trigger enqueue FUs = 9，cumulative state-based cleanup trigger enqueue FUs = 9，`fullOfficialUpgrades = 0`，1009 / 811 冻结计数不变。
+- false-completion 窄断言：passed；未发现候选就绪、正式 E2E 已通过或 `fullOfficial: true` 误宣称。
+
+4C-13 关闭的 P1 / P0 子项：
+
+- P1：Ghostly Centaur true stack destruction 旧 immediate compatibility -> real trigger queue / stack / priority 迁移。
+- P1：Resonant Soul true stack destruction 旧 immediate compatibility -> real trigger queue / stack / priority 迁移。
+- P0 子项：Ghostly Centaur 与 Resonant Soul 两个既有 FU 现在同时具备 cleanup representative 与 true stack destruction representative 的 real enqueue 证据。
+- P0 子项：cleanup path 通过事件来源护栏避免旧 stack helper 重复入队。
+
+4C-13 仍保留 P0/P1：
+
+- 完整 trigger engine。
+- 其他 last-breath / destroyed / friendly-destroyed functional units。
+- Viktor / Kogmaw / Karthus / Undercover Agent。
+- 完整“每回合首次”时序、完整同时死亡触发次数、同一 cleanup pass 多对象排序、source 同时死亡时的官方裁定。
+- hidden / face-down 原始触发建模。
+- FAQ regression。
+- 1009 entries / 811 functional units full-official 覆盖、正式 18-step E2E、completion audit 仍未完成。
+- P1：trigger batch 正式 DTO、触发来源解释字段、hidden / standby / face-down trigger policy 文档化。
+
+4C-13 结论：**通过**。没有新增 FU，没有新增 P0/P1，没有协议或前端字段变化；4C-11 / 4C-12 留下的 stack destruction immediate migration P1 已关闭。允许继续阶段 4C 下一批；阶段 4C 仍在逐 FU、逐测试批量推进；项目整体仍 **NOT READY**。
 
 ## 1. 总目标
 
