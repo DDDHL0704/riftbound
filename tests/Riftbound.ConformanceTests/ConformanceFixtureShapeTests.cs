@@ -4913,6 +4913,60 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal(["ASSEMBLE_ANY_POWER"], rabadonsDeathcapOptionalCostChoices.Select(cost => cost.Id).ToArray());
         Assert.Equal(1, Assert.IsType<int>(rabadonsDeathcapRequirement["powerCost"]));
 
+        var shurelyasRequiemState = steraksGageState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Green] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-SHURELYAS-REQUIEM", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SHURELYAS-REQUIEM"] = new(
+                    "P1-SHURELYAS-REQUIEM",
+                    cardNo: "SFD·192/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var shurelyasRequiemPrompt = ResolutionResult.BuildPrompts(shurelyasRequiemState)["P1"];
+        var shurelyasRequiemCandidate = Assert.Single(
+            shurelyasRequiemPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(shurelyasRequiemCandidate.Enabled);
+        Assert.Equal(["P1-SHURELYAS-REQUIEM"], (shurelyasRequiemCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_ANY_POWER"], (shurelyasRequiemCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var shurelyasRequiemMetadata = Assert.IsType<Dictionary<string, object?>>(shurelyasRequiemCandidate.Metadata);
+        var shurelyasRequiemRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(shurelyasRequiemMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·192/221", Assert.IsType<string>(shurelyasRequiemRequirement["equipmentCardNo"]));
+        var shurelyasRequiemOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            shurelyasRequiemRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_ANY_POWER"], shurelyasRequiemOptionalCostChoices.Select(cost => cost.Id).ToArray());
+        Assert.Equal(1, Assert.IsType<int>(shurelyasRequiemRequirement["powerCost"]));
+
         var spinningAxeRecyclePaymentState = spinningAxeState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)

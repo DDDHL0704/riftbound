@@ -2841,7 +2841,7 @@ Prompt-to-artifact checklist：
 
 ## P4.138 Shurelya's Requiem Target Rejection Fixture Slice
 
-本阶段继续 completion audit：P4 仍不能标记 goal complete。已有直接 engine 测试覆盖《舒瑞娅的安魂曲》带目标打出时拒绝；本批次只把该 0 目标专属装备打出边界提升为可回放 fixture。
+本阶段继续 completion audit：P4 仍不能标记 goal complete。已有直接 engine 测试覆盖《舒瑞娅的安魂曲》带目标打出时拒绝；本批次只把该 0 目标专属装备打出边界提升为可回放 fixture。第三百三十九批已补基地中未贴附《舒瑞娅的安魂曲》支付 `ASSEMBLE_ANY_POWER` / 任意符能装配到己方单位的服务端代表路径，唯我构筑限制仍暂缓。
 
 - `PLAY_CARD sourceObjectId=P1-EQUIPMENT-SHURELYAS-REQUIEM cardNo=SFD·192/221 targetObjectIds=["P1-SHURELYA-BASE-UNIT-001"]` 为《舒瑞娅的安魂曲》的 0 目标装备入场并活跃己方单位路径提供显式单位目标，不满足目标数量要求；命令返回 `INVALID_TARGET`，不推进 tick、不写事件、不支付费用、不移动手牌、不入场装备、不活跃单位，也不创建 stack item。
 - 新增 fixture `p4-play-shurelyas-requiem-target-rejected.fixture.json` 和回放测试 `P4ShurelyasRequiemTargetRejectedFixture`，把《舒瑞娅的安魂曲》带目标打出拒绝边界纳入 conformance 证据。

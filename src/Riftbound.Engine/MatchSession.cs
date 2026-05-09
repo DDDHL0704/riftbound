@@ -2434,6 +2434,9 @@ internal static class ActionPromptBuilder
     private const string RabadonsDeathcapCardNo = "SFD·191/221";
     private const int RabadonsDeathcapAssemblePowerCost = 1;
     private const string RabadonsDeathcapAssembleOptionalCost = "ASSEMBLE_ANY_POWER";
+    private const string ShurelyasRequiemCardNo = "SFD·192/221";
+    private const int ShurelyasRequiemAssemblePowerCost = 1;
+    private const string ShurelyasRequiemAssembleOptionalCost = "ASSEMBLE_ANY_POWER";
     private sealed record AssembleEquipmentProfile(
         string CardNo,
         string DisplayName,
@@ -2701,6 +2704,14 @@ internal static class ActionPromptBuilder
                 "装配任意符能",
                 string.Empty,
                 RabadonsDeathcapAssemblePowerCost,
+                "payment resource action: recycle any rune for assemble cost"),
+            [ShurelyasRequiemCardNo] = new(
+                ShurelyasRequiemCardNo,
+                "舒瑞娅的安魂曲",
+                ShurelyasRequiemAssembleOptionalCost,
+                "装配任意符能",
+                string.Empty,
+                ShurelyasRequiemAssemblePowerCost,
                 "payment resource action: recycle any rune for assemble cost")
         };
     private const string CrescentGuardCardNo = "UNL-122/219";

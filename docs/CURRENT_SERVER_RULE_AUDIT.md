@@ -14,6 +14,9 @@
 
 ## 2026-05-09 开发进度更新
 
+- P1-002/P1-004 第三百三十九批补充：把《舒瑞娅的安魂曲》（SFD·192/221）的“装配 A”接入服务端权威 `ASSEMBLE_EQUIPMENT` profile，继续复用任意符能费用模型。该牌“打出时让你的所有单位变为活跃状态”的入场路径已由既有 preflight 覆盖；本批只补基地中公开、受控、未贴附、带 `CARD_TYPE:EQUIPMENT` 且 cardNo 为《舒瑞娅的安魂曲》的来源支付 `ASSEMBLE_ANY_POWER` 与 1 点任意符能后贴附到服务端已知受控单位。`唯我` 构筑限制仍不在本批伪造。
+- 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~AssembleEquipment"` 通过 66/66；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3282/3282；`source ../../scripts/dev-env.sh && npm run build` 通过；`git diff --check` 通过。本批仍无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke。整体仍 **NOT READY**，因为 `唯我` 完整构筑约束、灵便反应自动贴附、未贴附瞬息清理、待命即时贴附、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-002/P1-004 第三百三十八批补充：把《灭世者的死亡之冠》（SFD·191/221）的“装配 A”接入服务端权威 `ASSEMBLE_EQUIPMENT` profile，继续复用任意符能费用模型。Core 现在接受当前玩家基地中公开、受控、未贴附、带 `CARD_TYPE:EQUIPMENT` 且 cardNo 为《灭世者的死亡之冠》的来源，必须支付 `ASSEMBLE_ANY_POWER` 与 1 点任意符能并选择服务端已知受控单位目标；ActionPrompt 只公开该 profile 的任意符能、合法目标和服务端候选支付资源。`唯我` 构筑限制仍不在本批伪造。
 - 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~AssembleEquipment"` 通过 65/65；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3281/3281；`source ../../scripts/dev-env.sh && npm run build` 通过；`git diff --check` 通过。本批仍无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke。整体仍 **NOT READY**，因为 `唯我` 完整构筑约束、灵便反应自动贴附、未贴附瞬息清理、待命即时贴附、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
