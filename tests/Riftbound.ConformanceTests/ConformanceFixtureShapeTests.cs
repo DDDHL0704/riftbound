@@ -3728,6 +3728,48 @@ public sealed class ConformanceFixtureShapeTests
             steraksGageRequirement["optionalCostChoices"]);
         Assert.Equal(["ASSEMBLE_GREEN"], steraksGageOptionalCostChoices.Select(cost => cost.Id).ToArray());
 
+        var svarshangSongState = steraksGageState with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-SVARSHANG-SONG", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SVARSHANG-SONG"] = new(
+                    "P1-SVARSHANG-SONG",
+                    cardNo: "SFD·059/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var svarshangSongPrompt = ResolutionResult.BuildPrompts(svarshangSongState)["P1"];
+        var svarshangSongCandidate = Assert.Single(
+            svarshangSongPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(svarshangSongCandidate.Enabled);
+        Assert.Equal(["P1-SVARSHANG-SONG"], (svarshangSongCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_GREEN"], (svarshangSongCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var svarshangSongMetadata = Assert.IsType<Dictionary<string, object?>>(svarshangSongCandidate.Metadata);
+        var svarshangSongRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(svarshangSongMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·059/221", Assert.IsType<string>(svarshangSongRequirement["equipmentCardNo"]));
+        var svarshangSongOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            svarshangSongRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_GREEN"], svarshangSongOptionalCostChoices.Select(cost => cost.Id).ToArray());
+
         var brutalizerState = steraksGageState with
         {
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)

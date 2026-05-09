@@ -64,6 +64,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SteraksGageCardNo = "SFD·056/221";
     private const string SteraksGageAssembleOptionalCost = "ASSEMBLE_GREEN";
     private const int SteraksGageAssemblePowerCost = 1;
+    private const string SvarshangSongCardNo = "SFD·059/221";
+    private const string SvarshangSongAssembleOptionalCost = "ASSEMBLE_GREEN";
+    private const int SvarshangSongAssemblePowerCost = 1;
     private const string DoransShieldCardNo = "SFD·033/221";
     private const string DoransShieldAssembleOptionalCost = "ASSEMBLE_GREEN";
     private const int DoransShieldAssemblePowerCost = 1;
@@ -191,6 +194,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 SteraksGageAssembleOptionalCost,
                 RuneTrait.Green,
                 SteraksGageAssemblePowerCost),
+            [SvarshangSongCardNo] = new(
+                SvarshangSongCardNo,
+                "斯弗尔尚歌",
+                SvarshangSongAssembleOptionalCost,
+                RuneTrait.Green,
+                SvarshangSongAssemblePowerCost),
             [DoransShieldCardNo] = new(
                 DoransShieldCardNo,
                 "多兰之盾",
