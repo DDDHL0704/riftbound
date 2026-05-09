@@ -35566,19 +35566,49 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P1-FRIENDLY-TARGET", destroyedEvent.Payload["targetObjectId"]);
         Assert.Equal("P1", destroyedEvent.Payload["ownerPlayerId"]);
 
-        var experienceEvent = Assert.Single(p2Pass.Events, gameEvent =>
+        var queuedEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1", StringComparison.Ordinal));
+        Assert.Equal("P1-SAVAGE-JAWFISH", queuedEvent.Payload["sourceObjectId"]);
+        Assert.Contains(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGERS_MOVED_TO_STACK", StringComparison.Ordinal));
+        Assert.Empty(p2Pass.State.TriggerQueue);
+        var savageTriggerStackItem = Assert.Single(p2Pass.State.StackItems);
+        Assert.Equal("P1", savageTriggerStackItem.ControllerId);
+        Assert.Equal("P1-SAVAGE-JAWFISH", savageTriggerStackItem.SourceObjectId);
+        Assert.Equal("SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1", savageTriggerStackItem.EffectKind);
+        Assert.Equal("P1", p2Pass.State.PriorityPlayerId);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "EXPERIENCE_GAINED", StringComparison.Ordinal));
+        Assert.Equal(0, p2Pass.State.PlayerExperience["P1"]);
+        Assert.Equal(0, p2Pass.State.PlayerExperience["P2"]);
+
+        var triggerP1Pass = await engine.ResolveAsync(
+            p2Pass.State,
+            new PlayerIntent("intent-p7-9-savage-jawfish-trigger-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var triggerP2Pass = await engine.ResolveAsync(
+            triggerP1Pass.State,
+            new PlayerIntent("intent-p7-9-savage-jawfish-trigger-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(triggerP1Pass.Accepted, triggerP1Pass.ErrorMessage);
+        Assert.True(triggerP2Pass.Accepted, triggerP2Pass.ErrorMessage);
+        var experienceEvent = Assert.Single(triggerP2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "EXPERIENCE_GAINED", StringComparison.Ordinal));
         Assert.Equal("P1", experienceEvent.Payload["playerId"]);
         Assert.Equal("P1-SAVAGE-JAWFISH", experienceEvent.Payload["sourceObjectId"]);
         Assert.Equal("UNL-129/219", experienceEvent.Payload["cardNo"]);
         Assert.Equal(1, experienceEvent.Payload["amount"]);
         Assert.Equal(1, experienceEvent.Payload["totalExperience"]);
-        Assert.Equal(1, p2Pass.State.PlayerExperience["P1"]);
-        Assert.Equal(0, p2Pass.State.PlayerExperience["P2"]);
-        Assert.Contains("P1-SAVAGE-JAWFISH", p2Pass.State.PlayerZones["P1"].Base);
-        Assert.Contains("P1-FRIENDLY-TARGET", p2Pass.State.PlayerZones["P1"].Graveyard);
-        Assert.Contains("P1-SPELL-VENGEANCE", p2Pass.State.PlayerZones["P1"].Graveyard);
-        Assert.False(p2Pass.State.CardObjects.ContainsKey("P1-FRIENDLY-TARGET"));
+        Assert.Empty(triggerP2Pass.State.StackItems);
+        Assert.Equal(1, triggerP2Pass.State.PlayerExperience["P1"]);
+        Assert.Equal(0, triggerP2Pass.State.PlayerExperience["P2"]);
+        Assert.Contains("P1-SAVAGE-JAWFISH", triggerP2Pass.State.PlayerZones["P1"].Base);
+        Assert.Contains("P1-FRIENDLY-TARGET", triggerP2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains("P1-SPELL-VENGEANCE", triggerP2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.False(triggerP2Pass.State.CardObjects.ContainsKey("P1-FRIENDLY-TARGET"));
     }
 
     [Fact]

@@ -1568,6 +1568,58 @@ A 主控复验：
 
 4C-13 结论：**通过**。没有新增 FU，没有新增 P0/P1，没有协议或前端字段变化；4C-11 / 4C-12 留下的 stack destruction immediate migration P1 已关闭。允许继续阶段 4C 下一批；阶段 4C 仍在逐 FU、逐测试批量推进；项目整体仍 **NOT READY**。
 
+## 0.24 阶段 4C-14 Savage Jawfish Trigger Enqueue Baseline 小批
+
+阶段 4C-14 继续按 functional unit / engine blocker 小批推进。本批新增一个 FU 的 real trigger enqueue baseline：Savage Jawfish / `UNL-129/219` / `FU-bd94334cc5`。项目整体仍 **NOT READY**，不得标记 READY / READY-CANDIDATE。
+
+4C-14 服务端改动：
+
+- 覆盖 `FU-bd94334cc5` / `UNL-129/219` Savage Jawfish / 凶残颚鱼。
+- true stack `UNIT_DESTROYED` 与 Starfall lethal state-based cleanup `UNIT_DESTROYED` 均进入 `TriggerQueue`。
+- 多触发走 `ORDER_TRIGGERS`；单触发 auto-stack。
+- priority 双方 pass 后 `TRIGGER_RESOLVED` -> `EXPERIENCE_GAINED` +1。
+- Guard：来源必须仍在场、face-up、non-standby、同 controller，不能是被摧毁对象 / cleanup removal set。
+- hidden face-down / standby / opponent-controlled source 不 enqueue、不泄漏、不加经验。
+- 旧 P79 Savage Jawfish fixture 已更新为 queue / stack / priority semantics。
+- 明确边界：同一来源同一 cleanup / stack pass 多个友方被摧毁时，当前最小切片保守 cap 为每 source 每 pass 最多一次；这不是 full official trigger-count matrix，作为 P1 / TODO 保留。
+- 本批不覆盖 Viktor / Kogmaw / Karthus / Undercover Agent，不进入 full-official，不宣称完整 trigger engine。
+
+4C-14 文档改动：
+
+- 新增 `docs/CURRENT_STAGE4C_BATCH14_SAVAGE_JAWFISH_TRIGGER_AUDIT.md`。
+- 更新 `docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/rules-evidence-index.md` 与本 checkpoint。
+- D 本批不修改服务端 / 前端代码、E 矩阵 / evidence 文件或 `riftbound-dotnet.sln`。
+
+4C-14 A 复核命令：
+
+- Focused：`RealTriggerQueueTests|P79SavageJawfish` 通过，33/33。
+- Backend full：passed，3374/3374。
+- Frontend build：passed。
+- Chrome smoke：passed。
+- Stage 3 preflight：passed。
+- `git diff --check`：passed。
+
+4C-14 关闭的 P0 子项：
+
+- Savage Jawfish / `UNL-129/219` trigger enqueue baseline。
+- true stack `UNIT_DESTROYED` -> `TriggerQueue` -> `ORDER_TRIGGERS` 或 single-trigger auto-stack -> `StackItems` -> priority -> `TRIGGER_RESOLVED` -> `EXPERIENCE_GAINED` +1。
+- Starfall lethal state-based cleanup `UNIT_DESTROYED` -> `TriggerQueue` -> `ORDER_TRIGGERS` 或 single-trigger auto-stack -> `StackItems` -> priority -> `TRIGGER_RESOLVED` -> `EXPERIENCE_GAINED` +1。
+- hidden face-down / standby / opponent-controlled source 不入队、不泄漏、不加经验；source 不能是 destroyed object / cleanup removal set。
+
+4C-14 仍保留 P0/P1：
+
+- 完整 trigger engine。
+- 其他 last-breath / destroyed / friendly-destroyed functional units。
+- Viktor / Kogmaw / Karthus / Undercover Agent。
+- 完整“每回合首次”时序、完整同时死亡触发次数、同一 cleanup / stack pass 多对象排序、source 同时死亡时的官方裁定。
+- Savage Jawfish 同一来源同一 pass 多个友方被摧毁时的 full official trigger-count matrix。
+- hidden / face-down 原始触发建模。
+- FAQ regression。
+- 1009 entries / 811 functional units full-official 覆盖、正式 18-step E2E、completion audit 仍未完成。
+- P1：trigger batch 正式 DTO、触发来源解释字段、hidden / standby / face-down trigger policy 文档化。
+
+4C-14 结论：**通过**。没有协议或前端字段变化；本批新增 1 个 FU 的代表性 real enqueue baseline，但 `fullOfficialUpgrades=0`，不代表 full official，不代表 READY-CANDIDATE。允许继续阶段 4C 下一批；阶段 4C 仍在逐 FU、逐测试批量推进；项目整体仍 **NOT READY**。
+
 ## 1. 总目标
 
 以当前仓库五份官方规则 / FAQ PDF 与 `data/official/card-catalog.zh-CN.json` 的 2026-04-27 官网卡牌快照为准，完成本地双人 1v1 标准构筑产品级 Web 游戏基线：

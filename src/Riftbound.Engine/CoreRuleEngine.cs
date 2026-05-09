@@ -578,6 +578,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BilgewaterBullyCardNo = "OGN·125/298";
     private const string DuneDrakeCardNo = "OGN·131/298";
     private const string SavageJawfishCardNo = "UNL-129/219";
+    private const string SavageJawfishFriendlyDestroyedExperienceEffectKind = "SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1";
     private const string GhostlyCentaurCardNo = "UNL-068/219";
     private const string GhostlyCentaurFriendlyDestroyedPowerEffectKind = "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
     private static readonly CardBehaviorDefinition GhostlyCentaurFriendlyDestroyedPowerBehavior = new(
@@ -4143,6 +4144,41 @@ public sealed class CoreRuleEngine : IRuleEngine
                 destroyedOwnerPlayerId,
                 sourceObjectId,
                 ResonantSoulFirstFriendlyDestroyedDrawEffectKind,
+                "UNIT_DESTROYED"))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<TriggerQueueItemState> BuildSavageJawfishFriendlyDestroyedTriggerQueueItems(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlySet<string> stateBasedRemovalObjectIds,
+        IReadOnlySet<string> alreadyQueuedSourceObjectIds,
+        StackItemState stackItem,
+        string destroyedObjectId,
+        string destroyedOwnerPlayerId)
+    {
+        return playerZones
+            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
+            .Distinct(StringComparer.Ordinal)
+            .Where(sourceObjectId => !string.Equals(sourceObjectId, destroyedObjectId, StringComparison.Ordinal))
+            .Where(sourceObjectId => !stateBasedRemovalObjectIds.Contains(sourceObjectId))
+            .Where(sourceObjectId => !alreadyQueuedSourceObjectIds.Contains(sourceObjectId))
+            .Where(sourceObjectId => cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                && IsSavageJawfishCardNo(sourceState.CardNo)
+                && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !sourceState.IsFaceDown
+                && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                && IsObjectOnField(playerZones, sourceObjectId)
+                && string.Equals(
+                    EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
+                    destroyedOwnerPlayerId,
+                    StringComparison.Ordinal))
+            .OrderBy(sourceObjectId => sourceObjectId, StringComparer.Ordinal)
+            .Select(sourceObjectId => new TriggerQueueItemState(
+                $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{destroyedObjectId}-{SavageJawfishFriendlyDestroyedExperienceEffectKind}",
+                destroyedOwnerPlayerId,
+                sourceObjectId,
+                SavageJawfishFriendlyDestroyedExperienceEffectKind,
                 "UNIT_DESTROYED"))
             .ToArray();
     }
@@ -17174,17 +17210,19 @@ public sealed class CoreRuleEngine : IRuleEngine
         return events;
     }
 
-    private static Dictionary<string, int> ResolveSavageJawfishFriendlyDestroyedUnitExperience(
+    private static IReadOnlyList<TriggerQueueItemState> BuildSavageJawfishFriendlyDestroyedTriggerQueueItems(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        IReadOnlyDictionary<string, int> currentExperience,
         StackItemState stackItem,
         List<GameEvent> events)
     {
+        var triggerQueue = new List<TriggerQueueItemState>();
+        var queuedSourceObjectIds = new HashSet<string>(StringComparer.Ordinal);
         var destroyedUnits = events
             .Where(gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
                 && TryGetPayloadString(gameEvent, "targetObjectId", out _)
-                && TryGetPayloadString(gameEvent, "ownerPlayerId", out _))
+                && TryGetPayloadString(gameEvent, "ownerPlayerId", out _)
+                && !IsStateBasedCleanupDestroyedEvent(gameEvent))
             .Select(gameEvent =>
             {
                 _ = TryGetPayloadString(gameEvent, "targetObjectId", out var destroyedObjectId);
@@ -17194,52 +17232,26 @@ public sealed class CoreRuleEngine : IRuleEngine
             .ToArray();
         if (destroyedUnits.Length == 0)
         {
-            return currentExperience.ToDictionary(
-                entry => entry.Key,
-                entry => entry.Value,
-                StringComparer.Ordinal);
+            return [];
         }
 
-        var playerExperience = currentExperience.ToDictionary(
-            entry => entry.Key,
-            entry => entry.Value,
-            StringComparer.Ordinal);
         foreach (var destroyedUnit in destroyedUnits)
         {
-            var triggerSources = playerZones
-                .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
-                .Distinct(StringComparer.Ordinal)
-                .Where(sourceObjectId => !string.Equals(
-                    sourceObjectId,
-                    destroyedUnit.DestroyedObjectId,
-                    StringComparison.Ordinal))
-                .Where(sourceObjectId => cardObjects.TryGetValue(sourceObjectId, out var sourceState)
-                    && IsSavageJawfishCardNo(sourceState.CardNo)
-                    && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                    && !sourceState.IsFaceDown
-                    && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-                    && IsObjectOnField(playerZones, sourceObjectId)
-                    && string.Equals(
-                        EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
-                        destroyedUnit.OwnerPlayerId,
-                        StringComparison.Ordinal))
-                .OrderBy(sourceObjectId => sourceObjectId, StringComparer.Ordinal)
-                .ToArray();
-
-            foreach (var sourceObjectId in triggerSources)
+            foreach (var trigger in BuildSavageJawfishFriendlyDestroyedTriggerQueueItems(
+                playerZones,
+                cardObjects,
+                new HashSet<string>(StringComparer.Ordinal),
+                queuedSourceObjectIds,
+                stackItem,
+                destroyedUnit.DestroyedObjectId,
+                destroyedUnit.OwnerPlayerId))
             {
-                playerExperience = GainExperience(
-                    playerExperience,
-                    destroyedUnit.OwnerPlayerId,
-                    1,
-                    stackItem,
-                    events,
-                    sourceObjectId,
-                    SavageJawfishCardNo);
+                triggerQueue.Add(trigger);
+                queuedSourceObjectIds.Add(trigger.SourceObjectId);
             }
         }
 
-        return playerExperience;
+        return triggerQueue;
     }
 
     private static IReadOnlyList<TriggerQueueItemState> BuildGhostlyCentaurFriendlyDestroyedTriggerQueueItems(
@@ -20605,6 +20617,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveWatchfulSentinelLastBreathStackItem(state, stackItem);
         }
 
+        if (string.Equals(stackItem.EffectKind, SavageJawfishFriendlyDestroyedExperienceEffectKind, StringComparison.Ordinal))
+        {
+            return ResolveSavageJawfishFriendlyDestroyedExperienceStackItem(state, stackItem);
+        }
+
         if (string.Equals(stackItem.EffectKind, SadPoroLastBreathDrawEffectKind, StringComparison.Ordinal) ||
             string.Equals(stackItem.EffectKind, LoyalPoroLastBreathDrawEffectKind, StringComparison.Ordinal))
         {
@@ -23029,12 +23046,17 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones,
             cardObjects,
             destroyedUnitOwnerIds));
-        playerExperience = ResolveSavageJawfishFriendlyDestroyedUnitExperience(
+
+        foreach (var trigger in BuildSavageJawfishFriendlyDestroyedTriggerQueueItems(
             playerZones,
             cardObjects,
-            playerExperience,
             stackItem,
-            events);
+            events))
+        {
+            events.Add(BuildTriggerQueuedEvent(trigger));
+            officialLastBreathTriggers.Add(trigger);
+        }
+
         foreach (var trigger in BuildGhostlyCentaurFriendlyDestroyedTriggerQueueItems(
             playerZones,
             cardObjects,
@@ -23398,10 +23420,67 @@ public sealed class CoreRuleEngine : IRuleEngine
             state.RngCursor);
     }
 
+    private static StackResolutionResult ResolveSavageJawfishFriendlyDestroyedExperienceStackItem(
+        MatchState state,
+        StackItemState stackItem)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var playerExperience = NormalizeExperienceForSeats(state);
+        var events = new List<GameEvent>
+        {
+            BuildTriggerResolvedEvent(new TriggerQueueItemState(
+                stackItem.StackItemId.StartsWith("ordered-", StringComparison.Ordinal)
+                    ? stackItem.StackItemId["ordered-".Length..]
+                    : stackItem.StackItemId,
+                stackItem.ControllerId,
+                stackItem.SourceObjectId,
+                stackItem.EffectKind,
+                "UNIT_DESTROYED"))
+        };
+
+        if (state.CardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
+            && IsSavageJawfishCardNo(sourceState.CardNo)
+            && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !sourceState.IsFaceDown
+            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && IsObjectOnField(playerZones, stackItem.SourceObjectId)
+            && string.Equals(
+                EffectiveFieldControllerId(playerZones, stackItem.SourceObjectId, sourceState),
+                stackItem.ControllerId,
+                StringComparison.Ordinal))
+        {
+            playerExperience = GainExperience(
+                playerExperience,
+                stackItem.ControllerId,
+                1,
+                stackItem,
+                events,
+                stackItem.SourceObjectId,
+                SavageJawfishCardNo);
+        }
+
+        return new StackResolutionResult(
+            playerZones,
+            state.CardObjects,
+            state.PlayerScores,
+            playerExperience,
+            state.RunePools,
+            state.UntilEndOfTurnEffects,
+            null,
+            events,
+            [],
+            null,
+            [],
+            null,
+            [],
+            state.RngCursor);
+    }
+
     private static bool ShouldResolveSingleOfficialTriggerImmediately(TriggerQueueItemState trigger)
     {
         return !string.Equals(trigger.EffectKind, GhostlyCentaurFriendlyDestroyedPowerEffectKind, StringComparison.Ordinal)
-            && !string.Equals(trigger.EffectKind, ResonantSoulFirstFriendlyDestroyedDrawEffectKind, StringComparison.Ordinal);
+            && !string.Equals(trigger.EffectKind, ResonantSoulFirstFriendlyDestroyedDrawEffectKind, StringComparison.Ordinal)
+            && !string.Equals(trigger.EffectKind, SavageJawfishFriendlyDestroyedExperienceEffectKind, StringComparison.Ordinal);
     }
 
     private static StackItemState BuildStackItemForLastBreathTrigger(
@@ -27245,6 +27324,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var triggerQueue = new List<TriggerQueueItemState>();
         var queuedGhostlyCentaurSourceObjectIds = new HashSet<string>(StringComparer.Ordinal);
         var queuedResonantSoulOwnerIds = new HashSet<string>(StringComparer.Ordinal);
+        var queuedSavageJawfishSourceObjectIds = new HashSet<string>(StringComparer.Ordinal);
         var nextRunePools = runePools;
         var stateBasedRemovalObjectIds = cardObjects
             .Where(entry => (IsZeroOrNegativePowerDamagedCleanupCandidate(entry.Value)
@@ -27476,6 +27556,23 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 events.Add(BuildTriggerQueuedEvent(trigger));
                 triggerQueue.Add(trigger);
+            }
+
+            var savageJawfishTriggers = removalResult.WasUnit
+                ? BuildSavageJawfishFriendlyDestroyedTriggerQueueItems(
+                    playerZones,
+                    cardObjects,
+                    stateBasedRemovalObjectIdSet,
+                    queuedSavageJawfishSourceObjectIds,
+                    stackItem,
+                    objectId,
+                    removalResult.OwnerPlayerId)
+                : Array.Empty<TriggerQueueItemState>();
+            foreach (var trigger in savageJawfishTriggers)
+            {
+                events.Add(BuildTriggerQueuedEvent(trigger));
+                triggerQueue.Add(trigger);
+                queuedSavageJawfishSourceObjectIds.Add(trigger.SourceObjectId);
             }
         }
 
