@@ -52,6 +52,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string HextechInfusedBulwarkCardNo = "SFD·073/221";
     private const string HextechInfusedBulwarkAssembleOptionalCost = "ASSEMBLE_BLUE";
     private const int HextechInfusedBulwarkAssemblePowerCost = 1;
+    private const string WanderersGuidebookCardNo = "SFD·086/221";
+    private const string WanderersGuidebookAssembleOptionalCost = "ASSEMBLE_BLUE";
+    private const int WanderersGuidebookAssemblePowerCost = 1;
     private const string SteraksGageCardNo = "SFD·056/221";
     private const string SteraksGageAssembleOptionalCost = "ASSEMBLE_GREEN";
     private const int SteraksGageAssemblePowerCost = 1;
@@ -146,6 +149,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 HextechInfusedBulwarkAssembleOptionalCost,
                 RuneTrait.Blue,
                 HextechInfusedBulwarkAssemblePowerCost),
+            [WanderersGuidebookCardNo] = new(
+                WanderersGuidebookCardNo,
+                "云游图鉴",
+                WanderersGuidebookAssembleOptionalCost,
+                RuneTrait.Blue,
+                WanderersGuidebookAssemblePowerCost),
             [SteraksGageCardNo] = new(
                 SteraksGageCardNo,
                 "斯特拉克的挑战护手",

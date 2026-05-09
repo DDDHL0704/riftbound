@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 第三百二十七批补齐《云游图鉴》（SFD·086/221）蓝色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在在蓝色代表路径中覆盖《布甲》《海克斯注力刚壁》和《云游图鉴》三张官方装备；ActionPrompt 只公开《云游图鉴》的 `ASSEMBLE_BLUE`、蓝色符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 54/54、后端 full test 3270/3270、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第三百二十六批补齐《暴风大剑》（SFD·161/221）黄色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在在黄色代表路径中覆盖《先锋之眼》《暴风大剑》和《神圣剪刀》三张官方装备；ActionPrompt 只公开《暴风大剑》的 `ASSEMBLE_YELLOW`、黄色符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 53/53、后端 full test 3269/3269、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
 - 第三百二十五批补齐《神圣剪刀》（SFD·172/221）黄色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在在黄色代表路径中覆盖《先锋之眼》和《神圣剪刀》两张官方装备；ActionPrompt 只公开《神圣剪刀》的 `ASSEMBLE_YELLOW`、黄色符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 52/52、后端 full test 3268/3268、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。

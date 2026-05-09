@@ -48524,6 +48524,64 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4AssembleEquipmentCommandAttachesWanderersGuidebookWithBlueCost()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Blue] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-EQUIPMENT-WANDERERS-GUIDEBOOK", "P1-UNIT-ASSEMBLE-TARGET"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-EQUIPMENT-WANDERERS-GUIDEBOOK"] = new(
+                    "P1-EQUIPMENT-WANDERERS-GUIDEBOOK",
+                    cardNo: "SFD·086/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"]),
+                ["P1-UNIT-ASSEMBLE-TARGET"] = new(
+                    "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-assemble-equipment-wanderers-guidebook", "P1", "ASSEMBLE_EQUIPMENT"),
+            new AssembleEquipmentCommand(
+                "P1-EQUIPMENT-WANDERERS-GUIDEBOOK",
+                "P1-UNIT-ASSEMBLE-TARGET",
+                ["ASSEMBLE_BLUE"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Equal(
+            "P1-UNIT-ASSEMBLE-TARGET",
+            result.State.CardObjects["P1-EQUIPMENT-WANDERERS-GUIDEBOOK"].AttachedToObjectId);
+        var costPaidEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(["ASSEMBLE_BLUE"], Assert.IsType<string[]>(costPaidEvent.Payload["optionalCosts"]));
+        var attachedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_ATTACHED", StringComparison.Ordinal));
+        Assert.Equal("SFD·086/221", attachedEvent.Payload["equipmentCardNo"]);
+    }
+
+    [Fact]
     public async Task P4AssembleEquipmentCommandAttachesSteraksGageToFriendlyUnit()
     {
         var state = PunishmentState(mana: 0) with

@@ -2362,6 +2362,9 @@ internal static class ActionPromptBuilder
     private const string HextechInfusedBulwarkCardNo = "SFD·073/221";
     private const int HextechInfusedBulwarkAssemblePowerCost = 1;
     private const string HextechInfusedBulwarkAssembleOptionalCost = "ASSEMBLE_BLUE";
+    private const string WanderersGuidebookCardNo = "SFD·086/221";
+    private const int WanderersGuidebookAssemblePowerCost = 1;
+    private const string WanderersGuidebookAssembleOptionalCost = "ASSEMBLE_BLUE";
     private const string SteraksGageCardNo = "SFD·056/221";
     private const int SteraksGageAssemblePowerCost = 1;
     private const string SteraksGageAssembleOptionalCost = "ASSEMBLE_GREEN";
@@ -2473,6 +2476,14 @@ internal static class ActionPromptBuilder
                 "装配蓝色符能",
                 RuneTrait.Blue,
                 HextechInfusedBulwarkAssemblePowerCost,
+                "payment resource action: recycle blue rune for assemble cost"),
+            [WanderersGuidebookCardNo] = new(
+                WanderersGuidebookCardNo,
+                "云游图鉴",
+                WanderersGuidebookAssembleOptionalCost,
+                "装配蓝色符能",
+                RuneTrait.Blue,
+                WanderersGuidebookAssemblePowerCost,
                 "payment resource action: recycle blue rune for assemble cost"),
             [SteraksGageCardNo] = new(
                 SteraksGageCardNo,

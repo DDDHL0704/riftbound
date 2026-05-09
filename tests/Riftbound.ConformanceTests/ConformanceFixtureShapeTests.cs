@@ -3549,6 +3549,48 @@ public sealed class ConformanceFixtureShapeTests
             hextechInfusedBulwarkRequirement["optionalCostChoices"]);
         Assert.Equal(["ASSEMBLE_BLUE"], hextechInfusedBulwarkOptionalCostChoices.Select(cost => cost.Id).ToArray());
 
+        var wanderersGuidebookState = clothArmorState with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-WANDERERS-GUIDEBOOK", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-WANDERERS-GUIDEBOOK"] = new(
+                    "P1-WANDERERS-GUIDEBOOK",
+                    cardNo: "SFD·086/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var wanderersGuidebookPrompt = ResolutionResult.BuildPrompts(wanderersGuidebookState)["P1"];
+        var wanderersGuidebookCandidate = Assert.Single(
+            wanderersGuidebookPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(wanderersGuidebookCandidate.Enabled);
+        Assert.Equal(["P1-WANDERERS-GUIDEBOOK"], (wanderersGuidebookCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_BLUE"], (wanderersGuidebookCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var wanderersGuidebookMetadata = Assert.IsType<Dictionary<string, object?>>(wanderersGuidebookCandidate.Metadata);
+        var wanderersGuidebookRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(wanderersGuidebookMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·086/221", Assert.IsType<string>(wanderersGuidebookRequirement["equipmentCardNo"]));
+        var wanderersGuidebookOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            wanderersGuidebookRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_BLUE"], wanderersGuidebookOptionalCostChoices.Select(cost => cost.Id).ToArray());
+
         var steraksGageState = clothArmorState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
