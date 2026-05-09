@@ -923,6 +923,57 @@ A 主控复验：
 
 4B 结论：**通过**。矩阵可以解释 1009 / 811 差异，没有新增 P0/P1；允许进入 4C 高风险 functional units 批量实现与测试。项目整体仍 **NOT READY**。
 
+## 0.11 阶段 4C-1 ORDER_TRIGGERS APNAP / battle initial stack 第一批
+
+阶段 4C-1 按 functional unit / engine blocker 推进，不按卡号盲目实现。本批只处理高风险 trigger ordering 基础能力：`ORDER_TRIGGERS` 的保守 APNAP controller-block runtime、battle initial stack 代表路径、hidden trigger source metadata redaction，以及覆盖矩阵 / 规则证据 overlay。未进入 1009 张卡 full-official 实现，未启动正式 18 步 E2E，项目整体仍 **NOT READY**。
+
+4C-1 服务端改动：
+
+- `ORDER_TRIGGERS` ordering player 从“队列第一项控制者”调整为 APNAP controller-block 排序玩家。
+- prompt metadata 中 `triggerIds` 保留 raw queue order，`orderedTriggerIds` 改为服务端可直接提交的 `STACK_RESOLUTION_ORDER_TOP_FIRST` 默认合法顺序。
+- validation 要求 submitted order 匹配保守 APNAP legal resolution controller blocks；允许同控制者 block 内重排，拒绝跨控制者 block 非法重排。
+- 合法排序后按确定顺序进入 stack，事件记录 `orderingPolicy`、`controllerBlockOrder`、`legalResolutionControllerBlockOrder`。
+- `BuildCorePrompts` 在 battle/start-battle task 之前优先公开 `ORDER_TRIGGERS` window。
+- snapshot / prompt trigger views 对对手 hidden face-down standby source 做 viewer-level redaction：`sourceObjectId = HIDDEN`、`effectKind = HIDDEN`、`sourceVisibility = HIDDEN`。
+- 新增 battle initial stack 代表测试，覆盖进入 `ORDER_TRIGGERS` 后再进入 `STACK_PRIORITY`。
+
+4C-1 覆盖矩阵 / 文档改动：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 新增 `stage4CBatch1TriggerOrdering` 顶层 overlay。
+- 67 个 `ORDER_TRIGGERS` dependency functional units 增加 `stage4C1` overlay。
+- Top20 中 6 个 FU 的 `ORDER_TRIGGERS` / battle initial stack blocker 被部分降低，但 full-official upgrades 仍为 0。
+- 新增 `docs/CURRENT_STAGE4C_BATCH1_TRIGGER_ORDERING_EVIDENCE.md`。
+- 新增 `docs/CURRENT_STAGE4C_BATCH1_TRIGGER_ORDERING_AUDIT.md`。
+- 更新 `docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/rules-evidence-index.md`、`docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`、`docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`、`docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`。
+
+4C-1 A 复核命令：
+
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`：通过。
+- `git diff --check`：通过。
+- 结构抽检：snapshot entries = 1009、functional units = 811、`stage4C1` tagged = 67、full-official upgrades = 0、`stage4CBatch1TriggerOrdering` 存在。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：通过，3337/3337。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：通过；仅保留 SignalR / Rollup `PURE` 注释提示。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：通过，覆盖首页、lobby、decks、cards、room、match、result smoke 页面。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && node scripts/stage3-preflight.mjs --start-api`：通过，player-a / player-b 双上下文均 OK；尾部 499/143 与 allocator 记录来自脚本关停，不作为阻断。
+
+4C-1 关闭的 P0 子项：
+
+- `ORDER_TRIGGERS` 保守 APNAP controller-block runtime 子集。
+- `orderedTriggerIds` 作为服务端可提交默认合法顺序的 prompt candidate 语义。
+- 跨控制者非法重排拒绝且失败命令不改变 authoritative state。
+- battle initial stack 代表触发排序窗口。
+- hidden face-down standby trigger source redaction。
+
+4C-1 仍保留 P0/P1：
+
+- 完整 trigger engine、真实卡牌全触发生成、完整 effect resolution 尚未完成。
+- trigger payment / decline / payment failure 尚未完成。
+- 完整 APNAP 多玩家独立排序、battle initial stack full official matrix、FAQ adjudication 仍待 4C/4D。
+- 1009 entries / 811 functional units full-official 覆盖仍未完成。
+- 正式 18 步 E2E、completion audit、P0/P1 清零证明仍未完成。
+
+4C-1 结论：**通过**。没有新增 P0/P1，没有前端本地规则裁决路径，没有发现 hidden information 泄漏；允许继续阶段 4C 下一批。下一批建议优先做完整 trigger engine + real card-trigger enqueue，然后处理 trigger payment / decline / payment failure。项目整体仍 **NOT READY**。
+
 ## 1. 总目标
 
 以当前仓库五份官方规则 / FAQ PDF 与 `data/official/card-catalog.zh-CN.json` 的 2026-04-27 官网卡牌快照为准，完成本地双人 1v1 标准构筑产品级 Web 游戏基线：

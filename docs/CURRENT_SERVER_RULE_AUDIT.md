@@ -1,6 +1,6 @@
 # 符文战场服务端核心规则自查报告
 
-自查日期：2026-05-09
+自查日期：2026-05-10
 审计基准提交：`45bb446`；本轮复审代码提交至本批 battlefield standby cleanup/control lifecycle / illegal standby task visibility / battlefield resolution snapshot / battle resolution snapshot / basic rune recycle / recovery action-log audit / multi-defender declare battle prompt / multi-attacker declare battle representative path / multi-participant declare battle representative path / same-priority battle damage assignment order / battle no-result visibility / haste payment resource evidence / haste payment resource hub-browser evidence / haste colored payment resource evidence / all haste colored payment profile evidence / payment failure state hash matrix / typed spend power prompt / typed spend power amount prompt / typed spend power payment resource combo / over-recycle payment guard / payment resource contribution metadata / required double payment resources / mixed trait payment resources / generic mixed trait payment resources / legacy prompt fixture gate cleanup / spellshield multi-target hub-ui evidence / echo reduction prompt-ui evidence / granted echo prompt-ui evidence / equipment cost reduction prompt-ui evidence / held unit cost increase prompt-ui evidence / prevent unit play destination prompt evidence / standby hide prompt-ui evidence / standby reveal prompt-ui evidence / priority reaction prompt-ui evidence / spellshield insufficient target prompt-ui evidence / unknown cardNo prompt-ui evidence / unknown assemble prompt-ui evidence / assemble payment resource prompt-ui evidence / unknown legend action prompt-ui evidence / unknown activate ability prompt-ui evidence / unknown move unit prompt-ui evidence / unknown move unit battlefield prompt-ui evidence / unknown rune prompt-ui evidence / unknown declare battle prompt-ui evidence / unknown declare battle battlefield prompt-ui evidence / unknown standby hide-reveal prompt-ui evidence / unknown play target prompt-ui evidence / unknown assemble target prompt-ui evidence / unknown legend action target prompt-ui evidence / unknown activate ability target prompt-ui evidence / play card command cardNo guard / end turn command window guard / turn-end state cleanup loop / turn-start command guard / finished match command guard / finished mulligan guard / finished submit error guard / finished submit deck error guard / xerath cleanup rune pool guard / turn-start cleanup object location guard / play additional cost object location guard / legend action object location guard / standby reaction object location guard / Jinx turn-start draw object location guard / tap rune object location guard / recycle rune object location guard / battlefield experience ability object location guard / activated ability stack object location guard / recovery spectator frame validator guard / service-driven mulligan selection guard / card detail evidence display guard / standby source control guard / move unit source control guard / activate ability source control guard / declare battle participant control guard / play card source control guard / assemble equipment control guard / legend action control guard / play card target control guard / play card private-zone target control guard / play card enemy target control guard / play card opponent private target control guard / play card any hand target control guard / play card any main deck top-five target control guard / play card sacred judgment keep target control guard / mulligan hand selection control guard / mulligan replacement draw control guard / play card main deck look-window control guard / rune deck call control guard / main deck draw control guard / burnout graveyard recycle control guard / main deck reveal trigger control guard / recycle target control guard / battlefield recycle rune control guard / LeBlanc trigger control guard / graveyard unit banish control guard / battlefield discard draw hand control guard / discard all hands control guard / any hand discard resolution guard / friendly hand discard resolution guard / graveyard return hand resolution guard / graveyard play base resolution guard / hand play base resolution guard / opponent top main deck play base resolution guard / target owner main deck resolution guard / target return hand resolution guard / banish play field resolution guard / gain control resolution guard / move target owner base resolution guard / move target battlefield resolution guard / move target unit location resolution guard / swap target location resolution guard / destroy target resolution guard / field target mutation resolution guard / special target interaction resolution guard / field area selection resolution guard / battlefield static source control guard / battlefield movement static source guard / battlefield scoring start source guard / battlefield prompt source guard / standby destination prompt source guard / standby destination command source guard / battlefield granted ability source guard / battlefield required legend source guard / battlefield return-call-rune source guard / battlefield held conquest unit source guard / legend trigger source guard / battlefield conquer target source guard / rune source prompt payment guard / activate ability prompt source guard / move unit prompt source guard / battlefield snapshot controller guard / battlefield standby controller fallback guard / zero power cleanup identity guard / battlefield control occupant source guard / battlefield control standby source guard / battlefield defender move source guard / battlefield unit experience source guard / unattached equipment cleanup / legacy unattached equipment cleanup / spell duel close cleanup / spell duel cleanup battle invalidation / official deck session error localization / room reconnect error localization / frontend fallback text gate / petal pixie static power / scarlet pigeon multi-attacker power / soul shepherd token static power / scouting warhawk last breath rune / mechanical trickster last breath minions / ironclad vanguard last breath robots / honest broker last breath gold / unsung hero last breath draw / ghostly centaur destroyed-unit power / eclipse vanguard stun trigger / last rites graveyard recycle assemble / hextech gauntlet dynamic assemble 补丁
 自查依据：`docs/符文战场_服务端核心规则自查文档.md`、仓库内五个官方规则 PDF 对应的核心规则/FAQ/勘误要求，以及当前 `src/Riftbound.Engine`、`src/Riftbound.Api`、`tests/Riftbound.ConformanceTests` 实现。
 
@@ -10,7 +10,41 @@
 
 当前服务端已经具备产品原型可用的联机房间、服务端权威提交、按玩家视角发送 snapshot/prompt、动作幂等、开发场景、相当数量的代表性卡牌效果和 conformance fixture 覆盖。但如果按自查文档的最终门槛判断为“完整符合官方核心规则、所有官方卡牌均可页面操作且不误导为 CONFORMANCE_PASS”，目前仍存在 P0 级缺口。
 
-最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
+最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
+
+## 2026-05-10 阶段 4C-1 触发排序审计
+
+阶段 4C-1 审计入口：`docs/CURRENT_STAGE4C_BATCH1_TRIGGER_ORDERING_AUDIT.md`。D 只更新规则证据 / P0-P1 审计口径；不修改服务端、前端、覆盖矩阵、A checkpoint 或 `riftbound-dotnet.sln`。项目仍 **NOT READY**。
+
+4C-1 可关闭的 P0 子项：
+
+- `ORDER_TRIGGERS` 从 3D 最小 runtime window 升级为保守 APNAP controller-block 子集。
+- prompt metadata 约定已更新：`orderedTriggerIds` 是合法 APNAP resolution top-first 默认提交顺序，`triggerIds` 是 raw queue order。
+- `legalOrderingConstraints` 已明确 APNAP policy、top-first semantics、controller block order、legal resolution block order、跨控制者不可重排、同控制者可重排。
+- runtime 校验覆盖合法排序 accepted；非法跨控制者重排 rejected 且 no state mutation。
+- `BuildCorePrompts` 中 `ORDER_TRIGGERS` window 优先于 `START_BATTLE` / task prompt。
+- battle initial stack 代表证据已补：active battle attacker / defender 初始触发 -> `ORDER_TRIGGERS` -> stack priority。
+- trigger prompt / snapshot 对不可见 face-down standby source 做 viewer 级脱敏。
+
+规则证据入口：
+
+- Trigger ordering / APNAP：`CORE-260330` p33-p35 rules 333-340；`CORE-260330` p52-p55 rules 383.3.d-383.3.e；`JFAQ-251023` p2-p4 q2.2-q2.3。
+- Trigger payment / decline：`CORE-260330` p52-p55 rules 377, 403-405；`JFAQ-251023` p2-p4 q2.5。
+- Battle initial stack：`CORE-260330` p35-p36 rules 341-348；`CORE-260330` p77-p78 rules 454-461；`JFAQ-251023` p2-p4 q2.2-q2.4。
+- Hidden information / face-down standby source：`CORE-260330` p4-p8 rules 107-129；待命 / 显露相关 evidence 继续复用 `CORE-260330` p39-p42 rules 355-356。更精确 FAQ 页码暂标 evidence TODO，不编造。
+
+验证记录：
+
+- A 后端 full test：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过，3337/3337。
+
+仍缺 P0/P1：
+
+- P0：完整 trigger engine、完整 effect resolution、真实卡牌全触发生成。
+- P0：trigger payment / decline / payment failure 与完整 PaymentEngine 统一。
+- P0：完整 APNAP 多玩家独立排序；4C-1 只覆盖保守 controller-block 子集。
+- P0：battle initial stack 全官方规则、攻防触发特殊排序、battle response window 与 FAQ 回归。
+- P0：最终正式 18 步 E2E、1009 张卡 full-official 覆盖。
+- P1：`TriggerInstance` / `TriggerBatchPromptView` / `legalOrderingConstraints` 正式 DTO、产品解释字段、多语言 UI 文案和证据链接。
 
 ## 2026-05-09 阶段 3D 第三阶段收口审计
 
@@ -60,7 +94,7 @@
 - `ASSIGN_COMBAT_DAMAGE` runtime：从现有 schema/shell 推进到服务端 prompt、合法分配约束、提交校验与零副作用失败。
 - Battle cleanup：战斗伤害造成后，攻防身份、致命伤害、战斗结果、控制/待命/战场结果与 cleanup queue 的衔接。
 
-3C 不进入：最终 18 步 E2E、1009 张卡全量、完整 `ORDER_TRIGGERS` runtime、完整 PaymentEngine / `DECLINE_PAY_COST`、LayerEngine、全路径 replay/determinism，也不把 3B battlefield / standby / control / conquer 全量重新拉入本轮。
+3C 不进入：最终 18 步 E2E、1009 张卡全量、`ORDER_TRIGGERS` 完整 trigger engine / APNAP / battle initial stack / trigger payment、完整 PaymentEngine / `DECLINE_PAY_COST`、LayerEngine、全路径 replay/determinism，也不把 3B battlefield / standby / control / conquer 全量重新拉入本轮。4C-1 后 `ORDER_TRIGGERS` 已收窄出 controller-block 子项，但完整触发系统仍 P0。
 
 3C 当前关闭候选 P0 子项：
 
@@ -91,7 +125,7 @@
 - Central cleanup queue 的最小 official slice：state-based cleanup、active task、blocking guard、非法待命 / 致命伤害 / 未贴附装备等代表任务。
 - 前端只读展示这些服务端字段，不裁决控制权、待命合法性、清理、得分或胜负。
 
-3B 未进入且当前仍未关闭：最终 18 步 E2E、1009 张卡全量、完整 battle / spell duel lifecycle、完整 `ASSIGN_COMBAT_DAMAGE` runtime、完整 `ORDER_TRIGGERS` runtime、完整 PaymentEngine、LayerEngine、全路径 replay/determinism。
+3B 未进入且当前仍未关闭：最终 18 步 E2E、1009 张卡全量、完整 battle / spell duel lifecycle、完整 `ASSIGN_COMBAT_DAMAGE` runtime、`ORDER_TRIGGERS` 完整 trigger engine / APNAP / battle initial stack / trigger payment、完整 PaymentEngine、LayerEngine、全路径 replay/determinism。4C-1 后 `ORDER_TRIGGERS` 已收窄出 controller-block 子项，但完整触发系统仍 P0。
 
 3B 当前关闭候选 P0 子项：
 
@@ -167,13 +201,13 @@
 | P0-S2-003 spell duel / battle lifecycle | `CORE-260330` rules 307-313, 333-348, 454-461；`JFAQ-251023` q2.3-q2.4, q3.1-q3.3 | `TurnWindowState`、`SpellDuelState`、`BattleState`、关联 id 和焦点恢复已有；`DECLARE_BATTLE` 仍是同步代表路径，不是官方多阶段 task | B 主实现；E 初始链/焦点/触发 fixture；C 等 typed prompt；D 文档 | 由 cleanup queue 创建并推进 `START_SPELL_DUEL` / `START_BATTLE`，拆出 focus/pass/swift/reaction/close/result |
 | P0-S2-004 damage assignment | `CORE-260330` rules 142-143, 417, 460；`JFAQ-251023` q6.1-q6.4；`SOUL-OFAQ-260114` p19-p20 | 3C 已补最小 `ASSIGN_COMBAT_DAMAGE` runtime prompt、damagePool/legalTargets/lethal threshold、submit/reject、stale prompt 与 simultaneous damage commit；完整全规则矩阵仍缺 | B 主实现；E 多单位/壁垒/后排/负战力 fixture；C 仅同步类型/调试展示；D 文档 | 后续扩展壁垒/后排/同优先级/负战力/不可分配全矩阵和完整 battle task |
 | P0-S2-005 `PAY_COST` / payment windows | `CORE-260330` rules 131, 135.2.e, 162-167, 356-357, 377, 403-405, 414, 416；`JFAQ-251023` q2.5；`SOUL-OFAQ-260114` p1-p4, p19-p21 | `PaymentCostRules`、typed `RunePool`、代表性 `COST_PAID` 包络和部分支付资源动作已有；`PAY_COST` command/schema skeleton 与 `INVALID_PAYLOAD` 已补；阶段 3A 已补最小 pending payment prompt/submit；完整 `DECLINE_PAY_COST`、PaymentEngine、替代/额外费用、非出牌支付窗口、Quote/Authorize/Commit 仍缺 | B 主实现；E 支付/拒付/替代费用 fixture；C 仅同步类型/调试展示；D 文档 | 建立完整 `PaymentPlan/paymentPlanId/paymentWindow`，先覆盖触发技能费用拒付和非出牌支付资源动作 |
-| P0-S2-006 `ORDER_TRIGGERS` | `CORE-260330` rules 333-340, 383.3.d-383.3.e；`JFAQ-251023` q2.2-q2.3, q2.5 | 3D 已补最小 runtime window / UI / evidence：prompt metadata、`orderedTriggerIds` command、ordered stack move、priority player、`TRIGGERS_ORDERED` / `TRIGGERS_MOVED_TO_STACK`；完整 trigger engine、完整 effect resolution、APNAP / 跨控制者复杂排序、battle initial stack 全规则、trigger cost / decline / payment 仍缺 | B 主实现；E 同时触发/战斗初始触发 fixture；C 只提交服务端 prompt；D 文档 | 以 3D 最小 runtime 为基线，继续扩 APNAP、battle initial stack、trigger payment/decline |
+| P0-S2-006 `ORDER_TRIGGERS` | `CORE-260330` rules 333-340, 383.3.d-383.3.e；`JFAQ-251023` q2.2-q2.3, q2.5 | 3D 已补最小 runtime / UI / evidence；4C-1 已补保守 APNAP controller-block 子集、top-first 默认顺序、跨控制者不可重排拒绝且 no mutation、battle initial stack 代表路径和 face-down standby source 脱敏；完整 trigger engine、完整 effect resolution、真实卡牌全触发生成、trigger payment / decline、完整 APNAP 多玩家独立排序、battle initial stack 全官方规则和 FAQ 回归仍缺 | B 主实现；E 同时触发/战斗初始触发/隐藏信息 fixture；C 只提交服务端 prompt；D 文档 | 以 4C-1 controller-block 子集为基线，继续扩完整 APNAP、多玩家独立排序、触发费用拒付、真实卡牌触发生成和 FAQ 回归 |
 
 阶段 2 superseded 口径：
 
 - 0/负战力与具体战场大小写：已由阶段 1 修复和 A 验收替代，保留为防回归，不再列为未清零 P0。
 - replay/final hash：历史“仍缺严格 action-log replay final-state 校验”已被当前 P1-004 状态替代；当前代表性 verifier、恢复前审计和 Postgres smoke 已有，剩余是全命令/全恢复/全随机 property 覆盖不足。
-- 复杂 prompt：历史“完全没有复杂 prompt 入口”已被阶段 1 `PromptView`/降级展示替代；历史“`PAY_COST`、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS` 完全没有 command/schema 或 malformed payload 拒绝语义”已被阶段 2 B 契约骨架替代；阶段 3A 已补 `PAY_COST` 最小 runtime，阶段 3C 已补 `ASSIGN_COMBAT_DAMAGE` 最小 runtime。完整 PaymentEngine、`ASSIGN_COMBAT_DAMAGE` 全规则矩阵、`ORDER_TRIGGERS` runtime prompt 与状态机仍是 P0。
+- 复杂 prompt：历史“完全没有复杂 prompt 入口”已被阶段 1 `PromptView`/降级展示替代；历史“`PAY_COST`、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS` 完全没有 command/schema 或 malformed payload 拒绝语义”已被阶段 2 B 契约骨架替代；阶段 3A 已补 `PAY_COST` 最小 runtime，阶段 3C 已补 `ASSIGN_COMBAT_DAMAGE` 最小 runtime，阶段 3D / 4C-1 已把 `ORDER_TRIGGERS` 推进到最小 window 与保守 APNAP controller-block 子集。完整 PaymentEngine、`ASSIGN_COMBAT_DAMAGE` 全规则矩阵、完整 trigger engine / effect resolution / 真实卡牌全触发生成 / trigger payment / 完整 APNAP / battle initial stack 全官方规则仍是 P0。
 
 ## 2026-05-09 开发进度更新
 

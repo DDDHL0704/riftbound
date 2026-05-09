@@ -1773,7 +1773,17 @@ public sealed record ResolutionResult(
 
     internal static string? OrderTriggersOrderingPlayerId(MatchState state)
     {
-        return state.TriggerQueue.FirstOrDefault()?.ControllerId;
+        var controllerIds = state.TriggerQueue
+            .Select(trigger => trigger.ControllerId)
+            .Where(controllerId => !string.IsNullOrWhiteSpace(controllerId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        if (controllerIds.Contains(state.ActivePlayerId, StringComparer.Ordinal))
+        {
+            return state.ActivePlayerId;
+        }
+
+        return OrderTriggerApnapControllerIds(state, controllerIds).FirstOrDefault();
     }
 
     internal static IReadOnlyList<string> OrderTriggerIds(MatchState state)
@@ -1784,84 +1794,152 @@ public sealed record ResolutionResult(
             .ToArray();
     }
 
-    internal static IReadOnlyList<IReadOnlyDictionary<string, object?>> OrderTriggerViews(MatchState state)
+    internal static IReadOnlyList<string> OrderTriggerLegalResolutionIds(MatchState state)
+    {
+        var triggerIdsByController = state.TriggerQueue
+            .Where(trigger => !string.IsNullOrWhiteSpace(trigger.ControllerId))
+            .GroupBy(trigger => trigger.ControllerId, StringComparer.Ordinal)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Select(trigger => trigger.TriggerId).ToArray(),
+                StringComparer.Ordinal);
+
+        return OrderTriggerApnapControllerIds(state, triggerIdsByController.Keys)
+            .Reverse()
+            .SelectMany(controllerId => triggerIdsByController.TryGetValue(controllerId, out var triggerIds)
+                ? triggerIds
+                : [])
+            .ToArray();
+    }
+
+    internal static IReadOnlyList<IReadOnlyDictionary<string, object?>> OrderTriggerViews(
+        MatchState state,
+        string viewerPlayerId)
     {
         return state.TriggerQueue
             .Select(trigger => (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>
             {
                 ["triggerId"] = trigger.TriggerId,
-                ["sourceObjectId"] = trigger.SourceObjectId,
+                ["sourceObjectId"] = OrderTriggerSourceObjectIdForViewer(state, trigger, viewerPlayerId),
+                ["sourceVisibility"] = IsHiddenTriggerSourceForViewer(state, trigger, viewerPlayerId) ? "HIDDEN" : "VISIBLE",
                 ["controllerId"] = trigger.ControllerId,
-                ["effectKind"] = trigger.EffectKind,
+                ["effectKind"] = OrderTriggerEffectKindForViewer(state, trigger, viewerPlayerId),
                 ["triggeredByEventKind"] = trigger.TriggeredByEventKind,
-                ["summary"] = OrderTriggerSummary(trigger),
-                ["visibleText"] = OrderTriggerVisibleText(trigger)
+                ["summary"] = OrderTriggerSummary(state, trigger, viewerPlayerId),
+                ["visibleText"] = OrderTriggerVisibleText(state, trigger, viewerPlayerId)
             })
             .ToArray();
     }
 
-    internal static IReadOnlyList<ActionPromptChoiceDto> OrderTriggerChoices(MatchState state)
+    internal static IReadOnlyList<ActionPromptChoiceDto> OrderTriggerChoices(
+        MatchState state,
+        string viewerPlayerId)
     {
         return state.TriggerQueue
             .Select(trigger => new ActionPromptChoiceDto(
                 trigger.TriggerId,
-                OrderTriggerSummary(trigger),
-                OrderTriggerVisibleText(trigger)))
+                OrderTriggerSummary(state, trigger, viewerPlayerId),
+                OrderTriggerVisibleText(state, trigger, viewerPlayerId)))
             .ToArray();
     }
 
     internal static IReadOnlyDictionary<string, object?> OrderTriggerLegalOrderingConstraints(MatchState state)
     {
-        var blocks = OrderTriggerControllerBlocks(state.TriggerQueue);
+        var controllerBlockOrder = OrderTriggerControllerBlockOrder(state);
+        var legalResolutionBlockOrder = controllerBlockOrder.Reverse().ToArray();
         return new Dictionary<string, object?>
         {
+            ["orderingPolicy"] = "APNAP_CONTROLLER_BLOCKS_CONSERVATIVE",
+            ["orderedTriggerIdsSemantics"] = "STACK_RESOLUTION_ORDER_TOP_FIRST",
             ["mustContainExactly"] = OrderTriggerIds(state),
             ["noDuplicates"] = true,
             ["unknownTriggerIdsRejected"] = true,
+            ["crossControllerReorderingAllowed"] = false,
+            ["withinControllerReorderingAllowed"] = true,
             ["preserveControllerBlocks"] = true,
-            ["controllerBlockOrder"] = blocks,
+            ["controllerBlockOrder"] = controllerBlockOrder,
+            ["legalResolutionControllerBlockOrder"] = legalResolutionBlockOrder,
+            ["activePlayerId"] = state.ActivePlayerId,
+            ["turnPlayerId"] = state.TurnPlayerId,
             ["orderingPlayerId"] = OrderTriggersOrderingPlayerId(state) ?? string.Empty
         };
     }
 
-    internal static IReadOnlyList<IReadOnlyDictionary<string, object?>> OrderTriggerControllerBlocks(
-        IReadOnlyList<TriggerQueueItemState> triggerQueue)
+    internal static IReadOnlyList<IReadOnlyDictionary<string, object?>> OrderTriggerControllerBlockOrder(MatchState state)
     {
-        var blocks = new List<IReadOnlyDictionary<string, object?>>();
-        foreach (var trigger in triggerQueue)
-        {
-            var last = blocks.LastOrDefault();
-            if (last is not null
-                && string.Equals(last["controllerId"] as string, trigger.ControllerId, StringComparison.Ordinal))
-            {
-                var existingIds = last["triggerIds"] as IReadOnlyList<string> ?? [];
-                blocks[^1] = new Dictionary<string, object?>
+        var triggerIdsByController = state.TriggerQueue
+            .Where(trigger => !string.IsNullOrWhiteSpace(trigger.ControllerId))
+            .GroupBy(trigger => trigger.ControllerId, StringComparer.Ordinal)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Select(trigger => trigger.TriggerId).ToArray(),
+                StringComparer.Ordinal);
+
+        return OrderTriggerApnapControllerIds(state, triggerIdsByController.Keys)
+            .Select(controllerId => (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>
                 {
-                    ["controllerId"] = trigger.ControllerId,
-                    ["triggerIds"] = existingIds.Concat([trigger.TriggerId]).ToArray()
-                };
-                continue;
-            }
-
-            blocks.Add(new Dictionary<string, object?>
-            {
-                ["controllerId"] = trigger.ControllerId,
-                ["triggerIds"] = new[] { trigger.TriggerId }
-            });
-        }
-
-        return blocks;
+                    ["controllerId"] = controllerId,
+                    ["triggerIds"] = triggerIdsByController.TryGetValue(controllerId, out var triggerIds)
+                        ? triggerIds
+                        : []
+                })
+            .ToArray();
     }
 
-    internal static string OrderTriggerSummary(TriggerQueueItemState trigger)
+    private static IReadOnlyList<string> OrderTriggerApnapControllerIds(
+        MatchState state,
+        IEnumerable<string> controllerIds)
     {
+        var remaining = controllerIds
+            .Where(controllerId => !string.IsNullOrWhiteSpace(controllerId))
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+        var ordered = new List<string>();
+
+        if (remaining.Remove(state.ActivePlayerId))
+        {
+            ordered.Add(state.ActivePlayerId);
+        }
+
+        foreach (var seatPlayerId in state.Seats
+            .OrderBy(entry => entry.Value, StringComparer.Ordinal)
+            .Select(entry => entry.Key))
+        {
+            if (remaining.Remove(seatPlayerId))
+            {
+                ordered.Add(seatPlayerId);
+            }
+        }
+
+        ordered.AddRange(remaining);
+        return ordered;
+    }
+
+    internal static string OrderTriggerSummary(
+        MatchState state,
+        TriggerQueueItemState trigger,
+        string viewerPlayerId)
+    {
+        if (IsHiddenTriggerSourceForViewer(state, trigger, viewerPlayerId))
+        {
+            return $"隐藏来源触发 ({trigger.TriggerId})";
+        }
+
         return string.IsNullOrWhiteSpace(trigger.EffectKind)
             ? trigger.TriggerId
             : $"{trigger.EffectKind} ({trigger.TriggerId})";
     }
 
-    internal static string OrderTriggerVisibleText(TriggerQueueItemState trigger)
+    internal static string OrderTriggerVisibleText(
+        MatchState state,
+        TriggerQueueItemState trigger,
+        string viewerPlayerId)
     {
+        if (IsHiddenTriggerSourceForViewer(state, trigger, viewerPlayerId))
+        {
+            return "对手隐藏来源的触发能力";
+        }
+
         var source = string.IsNullOrWhiteSpace(trigger.SourceObjectId)
             ? "未知来源"
             : trigger.SourceObjectId;
@@ -1869,6 +1947,35 @@ public sealed record ResolutionResult(
             ? "触发事件"
             : trigger.TriggeredByEventKind;
         return $"{source} 的触发能力，来源事件：{eventKind}";
+    }
+
+    private static string OrderTriggerSourceObjectIdForViewer(
+        MatchState state,
+        TriggerQueueItemState trigger,
+        string viewerPlayerId)
+    {
+        return IsHiddenTriggerSourceForViewer(state, trigger, viewerPlayerId)
+            ? "HIDDEN"
+            : trigger.SourceObjectId;
+    }
+
+    private static string OrderTriggerEffectKindForViewer(
+        MatchState state,
+        TriggerQueueItemState trigger,
+        string viewerPlayerId)
+    {
+        return IsHiddenTriggerSourceForViewer(state, trigger, viewerPlayerId)
+            ? "HIDDEN"
+            : trigger.EffectKind;
+    }
+
+    private static bool IsHiddenTriggerSourceForViewer(
+        MatchState state,
+        TriggerQueueItemState trigger,
+        string viewerPlayerId)
+    {
+        return !string.IsNullOrWhiteSpace(trigger.SourceObjectId)
+            && IsHiddenBattlefieldStandbyForViewer(state, trigger.SourceObjectId, viewerPlayerId);
     }
 
     internal static bool HasOpenBattleDamageAssignmentWindow(MatchState state)
@@ -2072,7 +2179,9 @@ public sealed record ResolutionResult(
                 ["pendingTaskQueue"] = BuildPendingTaskQueueSnapshotView(state, state.PendingTaskQueue, viewerPlayerId),
                 ["pendingPayment"] = BuildPendingPaymentSnapshotView(state.PendingPayment),
                 ["continuousEffects"] = state.ContinuousEffects.Select(BuildContinuousEffectSnapshotView).ToArray(),
-                ["triggerQueue"] = state.TriggerQueue.Select(BuildTriggerQueueItemSnapshotView).ToArray(),
+                ["triggerQueue"] = state.TriggerQueue
+                    .Select(trigger => BuildTriggerQueueItemSnapshotView(state, trigger, viewerPlayerId))
+                    .ToArray(),
                 ["winningScore"] = EffectiveWinningScore(state),
                 ["roomStatus"] = state.Status,
                 ["readyPlayerIds"] = state.ReadyPlayerIds
@@ -2122,14 +2231,19 @@ public sealed record ResolutionResult(
         return view;
     }
 
-    private static Dictionary<string, object?> BuildTriggerQueueItemSnapshotView(TriggerQueueItemState item)
+    private static Dictionary<string, object?> BuildTriggerQueueItemSnapshotView(
+        MatchState state,
+        TriggerQueueItemState item,
+        string viewerPlayerId)
     {
+        var hiddenSource = IsHiddenTriggerSourceForViewer(state, item, viewerPlayerId);
         return new Dictionary<string, object?>
         {
             ["triggerId"] = item.TriggerId,
             ["controllerId"] = item.ControllerId,
-            ["sourceObjectId"] = item.SourceObjectId,
-            ["effectKind"] = item.EffectKind,
+            ["sourceObjectId"] = hiddenSource ? "HIDDEN" : item.SourceObjectId,
+            ["sourceVisibility"] = hiddenSource ? "HIDDEN" : "VISIBLE",
+            ["effectKind"] = hiddenSource ? "HIDDEN" : item.EffectKind,
             ["triggeredByEventKind"] = item.TriggeredByEventKind
         };
     }
@@ -8184,13 +8298,14 @@ internal static class ActionPromptBuilder
 
         var orderingPlayerId = ResolutionResult.OrderTriggersOrderingPlayerId(state) ?? string.Empty;
         var triggerIds = ResolutionResult.OrderTriggerIds(state);
+        var legalResolutionTriggerIds = ResolutionResult.OrderTriggerLegalResolutionIds(state);
         return new Dictionary<string, object?>
         {
             ["orderingPlayerId"] = orderingPlayerId,
-            ["orderedTriggerIds"] = triggerIds,
+            ["orderedTriggerIds"] = legalResolutionTriggerIds,
             ["triggerIds"] = triggerIds,
-            ["triggers"] = ResolutionResult.OrderTriggerViews(state),
-            ["triggerChoices"] = ResolutionResult.OrderTriggerChoices(state),
+            ["triggers"] = ResolutionResult.OrderTriggerViews(state, playerId),
+            ["triggerChoices"] = ResolutionResult.OrderTriggerChoices(state, playerId),
             ["legalOrderingConstraints"] = ResolutionResult.OrderTriggerLegalOrderingConstraints(state),
             ["triggeredByEventKind"] = state.TriggerQueue.FirstOrDefault()?.TriggeredByEventKind ?? string.Empty,
             ["orderingState"] = string.Equals(playerId, orderingPlayerId, StringComparison.Ordinal)

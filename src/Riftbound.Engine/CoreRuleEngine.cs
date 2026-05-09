@@ -1510,12 +1510,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.PhaseNotAllowed);
         }
 
-        var orderingPlayerId = state.TriggerQueue[0].ControllerId;
+        var orderingPlayerId = ResolveOrderTriggersOrderingPlayerId(state);
         if (!string.Equals(intent.PlayerId, orderingPlayerId, StringComparison.Ordinal))
         {
             return RejectWithCorePrompts(
                 state,
-                "只有当前触发控制者可以排序触发队列。",
+                "只有当前 APNAP 排序玩家可以排序触发队列。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -1549,11 +1549,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var orderedTriggers = triggerIds.Select(triggerId => triggersById[triggerId]).ToArray();
-        if (!PreservesTriggerControllerBlocks(state.TriggerQueue, orderedTriggers))
+        if (!MatchesLegalApnapResolutionOrder(state, orderedTriggers))
         {
             return RejectWithCorePrompts(
                 state,
-                "ORDER_TRIGGERS 当前切片要求保持触发控制者区块顺序。",
+                "ORDER_TRIGGERS 当前切片要求按 APNAP controller block 的合法结算顺序提交。",
                 ErrorCodes.InvalidPayload);
         }
 
@@ -1579,9 +1579,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["orderingPlayerId"] = intent.PlayerId,
+                    ["orderingPolicy"] = "APNAP_CONTROLLER_BLOCKS_CONSERVATIVE",
                     ["orderedTriggerIds"] = triggerIds.ToArray(),
                     ["previousTriggerIds"] = state.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray(),
-                    ["triggerCount"] = triggerIds.Count
+                    ["triggerCount"] = triggerIds.Count,
+                    ["controllerBlockOrder"] = TriggerControllerBlockViews(BuildApnapTriggerControllerBlocks(state)),
+                    ["legalResolutionControllerBlockOrder"] = TriggerControllerBlockViews(BuildLegalResolutionTriggerControllerBlocks(state))
                 }),
             new(
                 "TRIGGERS_MOVED_TO_STACK",
@@ -1604,32 +1607,112 @@ public sealed class CoreRuleEngine : IRuleEngine
             BuildCorePrompts(nextState));
     }
 
-    private static bool PreservesTriggerControllerBlocks(
-        IReadOnlyList<TriggerQueueItemState> currentQueue,
+    private static string? ResolveOrderTriggersOrderingPlayerId(MatchState state)
+    {
+        var controllerIds = state.TriggerQueue
+            .Select(trigger => trigger.ControllerId)
+            .Where(controllerId => !string.IsNullOrWhiteSpace(controllerId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        if (controllerIds.Contains(state.ActivePlayerId, StringComparer.Ordinal))
+        {
+            return state.ActivePlayerId;
+        }
+
+        return OrderTriggerApnapControllerIds(state, controllerIds).FirstOrDefault();
+    }
+
+    private static bool MatchesLegalApnapResolutionOrder(
+        MatchState state,
         IReadOnlyList<TriggerQueueItemState> orderedTriggers)
     {
-        var currentBlocks = BuildTriggerControllerBlocks(currentQueue);
-        var orderedBlocks = BuildTriggerControllerBlocks(orderedTriggers);
-        if (currentBlocks.Count != orderedBlocks.Count)
+        var legalBlocks = BuildLegalResolutionTriggerControllerBlocks(state);
+        var submittedBlocks = BuildTriggerControllerBlocks(orderedTriggers);
+        if (legalBlocks.Count != submittedBlocks.Count)
         {
             return false;
         }
 
-        for (var index = 0; index < currentBlocks.Count; index++)
+        for (var index = 0; index < legalBlocks.Count; index++)
         {
-            if (!string.Equals(currentBlocks[index].ControllerId, orderedBlocks[index].ControllerId, StringComparison.Ordinal))
+            if (!string.Equals(legalBlocks[index].ControllerId, submittedBlocks[index].ControllerId, StringComparison.Ordinal))
             {
                 return false;
             }
 
-            if (!currentBlocks[index].TriggerIds.ToHashSet(StringComparer.Ordinal)
-                    .SetEquals(orderedBlocks[index].TriggerIds))
+            if (!legalBlocks[index].TriggerIds.ToHashSet(StringComparer.Ordinal)
+                    .SetEquals(submittedBlocks[index].TriggerIds))
             {
                 return false;
             }
         }
 
         return true;
+    }
+
+    private static IReadOnlyList<TriggerControllerBlock> BuildLegalResolutionTriggerControllerBlocks(MatchState state)
+    {
+        return BuildApnapTriggerControllerBlocks(state)
+            .Reverse()
+            .ToArray();
+    }
+
+    private static IReadOnlyList<TriggerControllerBlock> BuildApnapTriggerControllerBlocks(MatchState state)
+    {
+        var triggerIdsByController = state.TriggerQueue
+            .Where(trigger => !string.IsNullOrWhiteSpace(trigger.ControllerId))
+            .GroupBy(trigger => trigger.ControllerId, StringComparer.Ordinal)
+            .ToDictionary(
+                group => group.Key,
+                group => (IReadOnlyList<string>)group.Select(trigger => trigger.TriggerId).ToArray(),
+                StringComparer.Ordinal);
+
+        return OrderTriggerApnapControllerIds(state, triggerIdsByController.Keys)
+            .Select(controllerId => new TriggerControllerBlock(
+                controllerId,
+                triggerIdsByController.TryGetValue(controllerId, out var triggerIds) ? triggerIds : []))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> OrderTriggerApnapControllerIds(
+        MatchState state,
+        IEnumerable<string> controllerIds)
+    {
+        var remaining = controllerIds
+            .Where(controllerId => !string.IsNullOrWhiteSpace(controllerId))
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+        var ordered = new List<string>();
+
+        if (remaining.Remove(state.ActivePlayerId))
+        {
+            ordered.Add(state.ActivePlayerId);
+        }
+
+        foreach (var seatPlayerId in state.Seats
+            .OrderBy(entry => entry.Value, StringComparer.Ordinal)
+            .Select(entry => entry.Key))
+        {
+            if (remaining.Remove(seatPlayerId))
+            {
+                ordered.Add(seatPlayerId);
+            }
+        }
+
+        ordered.AddRange(remaining);
+        return ordered;
+    }
+
+    private static IReadOnlyList<IReadOnlyDictionary<string, object?>> TriggerControllerBlockViews(
+        IReadOnlyList<TriggerControllerBlock> blocks)
+    {
+        return blocks
+            .Select(block => (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>
+            {
+                ["controllerId"] = block.ControllerId,
+                ["triggerIds"] = block.TriggerIds
+            })
+            .ToArray();
     }
 
     private static IReadOnlyList<TriggerControllerBlock> BuildTriggerControllerBlocks(
@@ -27675,6 +27758,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal)
                     ? WithSurrender(ActionPromptBuilder.SpellDuelFocusActions(state, playerId))
                     : WithSurrender("WAIT")));
+        }
+
+        if (ResolutionResult.HasOpenOrderTriggersWindow(state))
+        {
+            return ResolutionResult.BuildPrompts(state);
         }
 
         if (ResolutionResult.ActiveStartBattleTask(state) is not null)

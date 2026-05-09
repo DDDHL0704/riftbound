@@ -1,6 +1,6 @@
 # 当前规则证据 TODO
 
-更新时间：2026-05-09
+更新时间：2026-05-10
 结论：**NOT READY**
 
 本文记录 E 证据/审计 worker 第一轮 P0 交接项、阶段 1 D 协议审计、阶段 2 D P0 规则证据链和 A 主控验收结果，不替代 `docs/CURRENT_SERVER_RULE_AUDIT.md`。
@@ -13,6 +13,7 @@
 阶段 3B 当前计划：`docs/CURRENT_STAGE3B_PLAN.md`
 阶段 3C 当前证据：`docs/CURRENT_STAGE3C_SPELL_DUEL_BATTLE_DAMAGE_EVIDENCE.md`
 阶段 3D / 第三阶段收口审计：`docs/CURRENT_STAGE3_COMPLETION_AUDIT.md`
+阶段 4C-1 触发排序审计：`docs/CURRENT_STAGE4C_BATCH1_TRIGGER_ORDERING_AUDIT.md`
 
 ## B 修复验收
 
@@ -58,7 +59,7 @@
 | spell duel / battle lifecycle | `CORE-260330` rules 307-313, 333-348, 454-461；`JFAQ-251023` q2.3-q2.4, q3.1-q3.3 | `SpellDuelState`、`BattleState`、关联 id 和焦点恢复已有；`DECLARE_BATTLE` 仍是同步代表路径 | B 主实现；E 初始链/焦点/触发 fixture；C 等 typed prompt；D 文档 | 由 cleanup queue 创建并推进 spell duel / battle task |
 | damage assignment | `CORE-260330` rules 142-143, 417, 460；`JFAQ-251023` q6.1-q6.4；`SOUL-OFAQ-260114` p19-p20 | 阶段 3C 已补最小 `ASSIGN_COMBAT_DAMAGE` runtime prompt、damagePool/legalTargets、合法/非法/stale、零副作用拒绝和 simultaneous commit；完整壁垒/后排/负战力/不可分配矩阵仍缺 | B 主实现；E 多单位/壁垒/后排 fixture；C 仅同步类型/调试展示；D 文档 | 后续扩展完整 damage assignment constraints 和 battle task |
 | `PAY_COST` / payment windows | `CORE-260330` rules 131, 135.2.e, 162-167, 356-357, 377, 403-405, 414, 416；`JFAQ-251023` q2.5；`SOUL-OFAQ-260114` p1-p4, p19-p21 | `PaymentCostRules`、typed `RunePool`、代表性 `COST_PAID` 已有；阶段 2 B 已补 `PAY_COST` command/schema skeleton 与 `INVALID_PAYLOAD`；阶段 3A 已补最小 pending payment prompt/submit；完整 `DECLINE_PAY_COST`、PaymentEngine、替代/额外费用、非出牌支付窗口仍缺 | B 主实现；E 支付/拒付 fixture；C 仅同步类型/调试展示；D 文档 | 建 `PaymentPlan/paymentPlanId/paymentWindow` 与 Quote/Authorize/Commit |
-| `ORDER_TRIGGERS` | `CORE-260330` rules 333-340, 383.3.d-383.3.e；`JFAQ-251023` q2.2-q2.3, q2.5 | 阶段 3D 已补最小 runtime window / UI / evidence：prompt metadata、`orderedTriggerIds` command、ordered stack move、priority player、`TRIGGERS_ORDERED` / `TRIGGERS_MOVED_TO_STACK`；完整 trigger engine、完整 effect resolution、APNAP / 跨控制者复杂排序、battle initial stack 全规则、trigger cost / decline / payment 仍缺 | B 主实现；E 同时触发/战斗初始触发 fixture；C 只提交服务端 prompt；D 文档 | 以 3D 最小 runtime 为基线，继续扩 APNAP、battle initial stack、trigger payment/decline |
+| `ORDER_TRIGGERS` | `CORE-260330` rules 333-340, 383.3.d-383.3.e；`JFAQ-251023` q2.2-q2.3, q2.5 | 阶段 3D 已补最小 runtime window / UI / evidence；阶段 4C-1 已补保守 APNAP controller-block 子集、top-first 默认顺序、跨控制者不可重排拒绝且 no mutation、battle initial stack 代表路径和 face-down standby source 脱敏；完整 trigger engine、完整 effect resolution、真实卡牌全触发生成、trigger payment / decline、完整 APNAP 多玩家独立排序、battle initial stack 全官方规则和 FAQ 回归仍缺 | B 主实现；E 同时触发/战斗初始触发/隐藏信息 fixture；C 只提交服务端 prompt；D 文档 | 以 4C-1 controller-block 子集为基线，继续扩完整 APNAP、多玩家独立排序、触发费用拒付、真实卡牌触发生成和 FAQ 回归 |
 
 ## superseded / 防误读
 
@@ -66,7 +67,7 @@
 - 具体战场 objectId 大小写：阶段 1 已修复并由 A 验收；后续只保留防回归，不再列为未清零 P0。
 - replay/final hash：历史“仍缺严格 action-log replay final-state 校验”口径已被当前 P1-004 状态替代；当前有 representative verifier、恢复前审计和 Postgres smoke，剩余风险是全命令/全恢复/全随机 property。
 - 复杂 prompt 降级展示：阶段 1 已完成安全降级与 prompt 戳过期保护；历史“完全没有复杂 prompt 入口”已 superseded。
-- 复杂 prompt schema：阶段 2 B 已补 `PAY_COST` / `ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` command/schema skeleton 与 malformed payload 稳定拒绝；历史“完全没有正式 schema/稳定拒绝语义”已 superseded。阶段 3A 已补 `PAY_COST` 最小 runtime；阶段 3C 已补 `ASSIGN_COMBAT_DAMAGE` 最小 runtime；阶段 3D 已补 `ORDER_TRIGGERS` 最小 runtime / UI。`PAY_COST` 完整 PaymentEngine、`ASSIGN_COMBAT_DAMAGE` 全规则矩阵、`ORDER_TRIGGERS` 完整 trigger engine / APNAP / battle initial stack / trigger payment 仍是 P0。
+- 复杂 prompt schema：阶段 2 B 已补 `PAY_COST` / `ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` command/schema skeleton 与 malformed payload 稳定拒绝；历史“完全没有正式 schema/稳定拒绝语义”已 superseded。阶段 3A 已补 `PAY_COST` 最小 runtime；阶段 3C 已补 `ASSIGN_COMBAT_DAMAGE` 最小 runtime；阶段 3D 已补 `ORDER_TRIGGERS` 最小 runtime / UI；阶段 4C-1 已补 `ORDER_TRIGGERS` 保守 APNAP controller-block 子集。`PAY_COST` 完整 PaymentEngine、`ASSIGN_COMBAT_DAMAGE` 全规则矩阵、`ORDER_TRIGGERS` 完整 trigger engine / effect resolution / 真实卡牌全触发生成 / trigger payment / 完整 APNAP / battle initial stack 全官方规则仍是 P0。
 - 阶段 3A OPEN 口径：阶段 3A 已由 A 验收并关闭 smoke 基线、三类复杂命令强类型映射、`PAY_COST` 最小 runtime 和前端外壳安全接线；历史“3A 仍待验证/未完成”表述已 superseded。不得把 3A 关闭误读为 Stage 3、3B 或 READY。
 
 ## 阶段 2 B 已关闭的 P0 子项
@@ -183,14 +184,48 @@
 - B 验证：`ConformanceFixtureShapeTests` 109/109 通过；full `dotnet test Riftbound.slnx --no-restore` 3333/3333 通过；`git diff --check` 通过。
 - C 已实现 `ORDER_TRIGGERS` UI，上移 / 下移排序，提交 `orderedTriggerIds`，不本地结算；build / smoke / `stage3-preflight.mjs` 通过。
 - E 已补 stage3D 矩阵 overlay 和 `ORDER_TRIGGERS` 证据文档。
-- 仍缺 P0：完整 trigger engine、完整 effect resolution、APNAP / 跨控制者复杂排序、battle initial stack 全规则、trigger cost / decline / payment。
-- 阶段 4 建议：以最小 runtime 为基线扩 APNAP / 跨控制者排序，再扩 battle initial stack / attacker-defender order，最后接触发费用拒付和 PaymentEngine。
+- 仍缺 P0：完整 trigger engine、完整 effect resolution、真实卡牌全触发生成、完整 APNAP 多玩家独立排序、battle initial stack 全官方规则、trigger cost / decline / payment。
+- 阶段 4C-1 已把最小 runtime 推进到 APNAP controller-block 子集；后续继续扩完整 APNAP / 多玩家独立排序、battle initial stack / attacker-defender order、真实卡牌触发生成和触发费用拒付 / PaymentEngine。
 
 阶段 4 / 最终边界：
 
 - 必须进阶段 4：完整 trigger engine / APNAP / battle initial stack / trigger payment、priority/focus 与 `SPELL_DUEL_ACTION`、完整 battle task、damage assignment 全规则矩阵、battle cleanup / control freeze-release、cleanup queue 全触发面、PaymentEngine、正式 snapshot/prompt DTO 与双窗口隐藏信息 smoke。
 - 必须留到最终验收：最终正式 18 步 E2E、1009 张卡 full-official 覆盖、LayerEngine / 替代 / 预防全模型、replay/recovery/determinism 全边界、产品 UI polish。
 - A 主控 final validation 已通过，第三阶段可判定 **DONE**；可以准备进入阶段 4，但仍 **NOT READY**。
+
+### 阶段 4C-1 触发排序审计
+
+4C-1 证据入口：`docs/CURRENT_STAGE4C_BATCH1_TRIGGER_ORDERING_AUDIT.md`。本节只更新规则证据 / P0-P1 审计，不代表 READY，不代表 1009 full-official。
+
+4C-1 关闭的 P0 子项：
+
+- `ORDER_TRIGGERS` 升级为保守 APNAP controller-block 子集。
+- prompt metadata 约定：`orderedTriggerIds` 是合法 APNAP resolution top-first 默认提交顺序，`triggerIds` 是 raw queue order。
+- `legalOrderingConstraints` 明确 APNAP policy、top-first semantics、controller block order、legal resolution block order、跨控制者不可重排、同控制者可重排。
+- runtime 校验覆盖合法排序 accepted；非法跨控制者重排 rejected 且 no state mutation。
+- `ORDER_TRIGGERS` prompt 优先于 `START_BATTLE` / task prompt。
+- battle initial stack 代表证据覆盖 active battle attacker / defender 初始触发 -> `ORDER_TRIGGERS` -> stack priority。
+- trigger prompt / snapshot 对不可见 face-down standby source 做 viewer 级脱敏。
+
+规则证据入口：
+
+- Trigger ordering / APNAP：`CORE-260330` p33-p35 rules 333-340；`CORE-260330` p52-p55 rules 383.3.d-383.3.e；`JFAQ-251023` p2-p4 q2.2-q2.3。
+- Trigger payment / decline：`CORE-260330` p52-p55 rules 377, 403-405；`JFAQ-251023` p2-p4 q2.5。
+- Battle initial stack：`CORE-260330` p35-p36 rules 341-348；`CORE-260330` p77-p78 rules 454-461；`JFAQ-251023` p2-p4 q2.2-q2.4。
+- Hidden information / face-down standby source：`CORE-260330` p4-p8 rules 107-129；待命 / 显露相关 evidence 继续复用 `CORE-260330` p39-p42 rules 355-356；更精确 FAQ 页码暂为 evidence TODO。
+
+验证记录：
+
+- A 后端 full test：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过，3337/3337。
+
+仍缺 P0/P1：
+
+- P0：完整 trigger engine、完整 effect resolution、真实卡牌全触发生成。
+- P0：trigger payment / decline / payment failure 与完整 PaymentEngine 统一。
+- P0：完整 APNAP 多玩家独立排序；4C-1 只关闭 controller-block 子集。
+- P0：battle initial stack 全官方规则、攻防触发特殊排序、battle response window 与 FAQ 回归。
+- P0：最终正式 18 步 E2E、1009 张卡 full-official 覆盖。
+- P1：`TriggerInstance` / `TriggerBatchPromptView` / `legalOrderingConstraints` 正式 DTO、产品解释字段、多语言 UI 文案和证据链接。
 
 | 流程 / P0 | 规则依据入口 | 当前实现状态 | 分类 | 归属 agent | 下一步 |
 | --- | --- | --- | --- | --- | --- |
@@ -210,7 +245,7 @@
 - P0-S2-003 spell duel / battle lifecycle 进入 3C 最小切片；focus/pass、battle view、battle resolution 代表子项可候选关闭，但完整 lifecycle 未完成。
 - P0-S2-004 `ASSIGN_COMBAT_DAMAGE` runtime 进入 3C 最小切片；schema skeleton、最小 runtime prompt、damage assignment phase、submit/reject 和 simultaneous commit 子项已关闭，完整全规则矩阵未完成。
 - P0-S2-005 `PAY_COST` 完整 PaymentEngine 与 `DECLINE_PAY_COST` / 替代费用 / 额外费用 / 非出牌支付窗口仍未完成；阶段 3A 最小 runtime 切片已关闭。
-- P0-S2-006 `ORDER_TRIGGERS` 最小 runtime / UI / evidence 子项已关闭；完整 trigger engine、完整 effect resolution、APNAP / 跨控制者复杂排序、battle initial stack 全规则、trigger cost / decline / payment 未完成。
+- P0-S2-006 `ORDER_TRIGGERS` 最小 runtime / UI / evidence 子项已关闭；4C-1 APNAP controller-block 子集、battle initial stack 代表证据和 hidden trigger source redaction 子项已关闭；完整 trigger engine、完整 effect resolution、真实卡牌全触发生成、trigger payment / decline、完整 APNAP 多玩家独立排序、battle initial stack 全官方规则和 FAQ 回归未完成。
 - 3A-P0-001 / 002 / 003 / 004 已关闭；不得把这些 3A 子项误读为完整 Stage 3 或 READY。
 - 3B-CAND-001 / 002 / 003 / 004 只能作为阶段 3B 关闭候选；D/A 证据入账前不得移出 P0。
 - 3C-CAND-001 / 002 / 003 / 004 只能作为阶段 3C 关闭候选；D/A 证据入账前不得移出 P0，且不得替代最终 18 步 E2E。
@@ -233,9 +268,9 @@
 - D-Stage3C：维护 `docs/CURRENT_STAGE3C_SPELL_DUEL_BATTLE_DAMAGE_EVIDENCE.md`，阶段 3C 只跟踪 spell duel / battle / `ASSIGN_COMBAT_DAMAGE` / battle cleanup 的规则证据、关闭候选和仍缺口，不扩大到最终 18 步 E2E、1009 全量、完整 PaymentEngine / `ORDER_TRIGGERS` / LayerEngine。
 - D-Stage3D：维护 `docs/CURRENT_STAGE3_COMPLETION_AUDIT.md`，第三阶段收口只判断阶段性关闭项、仍缺 P0/P1、阶段 4 入口和最终验收边界；不得宣称 READY。
 - D-Stage3Flow：维护 `docs/CURRENT_STAGE3_CORE_FLOW_AUDIT.md`，每次 B/C 报告阶段 3 smoke 或服务端阻断关闭时，补规则依据、实现状态、测试证据、仍缺口和是否仍阻断。
-- D-FrontendContract：继续把正式复杂 prompt 字段草案拆成 `PAY_COST`、`ORDER_TRIGGERS`、`ASSIGN_COMBAT_DAMAGE`、`SPELL_DUEL_ACTION` 四张契约清单；标注 `PAY_COST` 只有最小 runtime、完整 PaymentEngine 未开放，`ASSIGN_COMBAT_DAMAGE` 只有最小 runtime、完整全规则矩阵未开放，`ORDER_TRIGGERS` 只有最小 runtime、完整 trigger engine / APNAP / battle initial stack / trigger payment 未开放，`SPELL_DUEL_ACTION` 仍没有完整 runtime prompt，现有降级面板只能临时承接展示。
+- D-FrontendContract：继续把正式复杂 prompt 字段草案拆成 `PAY_COST`、`ORDER_TRIGGERS`、`ASSIGN_COMBAT_DAMAGE`、`SPELL_DUEL_ACTION` 四张契约清单；标注 `PAY_COST` 只有最小 runtime、完整 PaymentEngine 未开放，`ASSIGN_COMBAT_DAMAGE` 只有最小 runtime、完整全规则矩阵未开放，`ORDER_TRIGGERS` 已到 APNAP controller-block 子集但完整 trigger engine / effect resolution / 真实卡牌全触发生成 / trigger payment / 完整 APNAP / battle initial stack 全官方规则未开放，`SPELL_DUEL_ACTION` 仍没有完整 runtime prompt，现有降级面板只能临时承接展示。
 - E-RuleEvidence：把五份官方规则/FAQ PDF 与 2026-04-27 官网卡牌快照继续映射到 P0-S2-001 至 P0-S2-006，尤其补 `JFAQ` q2.2/q2.3/q2.5/q5.4/q6.x 和 `SOUL-OFAQ` p21 的 fixture 锚点。
-- E-Conformance：为仍未清零 P0 建最小官方场景，优先覆盖失控待命延迟移除、恶意收购非战斗法术对决、触发排序、触发费用拒付、多单位伤害分配、战斗清理与征服/据守得分。
+- E-Conformance：为仍未清零 P0 建最小官方场景，优先覆盖失控待命延迟移除、恶意收购非战斗法术对决、完整 APNAP 多玩家独立排序、触发费用拒付、真实卡牌全触发生成、多单位伤害分配、战斗清理与征服/据守得分。
 
 ## A 主控验收记录
 

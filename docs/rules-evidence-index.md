@@ -1,6 +1,6 @@
 # 规则证据索引
 
-更新时间：2026-05-09
+更新时间：2026-05-10
 
 ## 1. 目的
 
@@ -72,7 +72,7 @@
 
 本节只给阶段 3 smoke / E2E / 服务端阻断关闭提供证据入口，不代表流程已经 READY。具体当前状态见 `docs/CURRENT_STAGE3_CORE_FLOW_AUDIT.md`。
 
-阶段 3A 已完成 smoke 基线、复杂命令强类型映射、`PAY_COST` 最小 runtime 和前端外壳安全接线，详见 `docs/CURRENT_STAGE3A_PLAN.md`。当前执行范围为阶段 3B，详见 `docs/CURRENT_STAGE3B_PLAN.md`；3B 只使用下表中的战场 / 待命 / 控制权 / 征服据守 / 清理相关证据入口来收口最小官方化切片。完整 18 步 E2E、1009 全量、完整 battle/damage/order/runtime、完整 PaymentEngine 与完整 battlefield lifecycle 仍不进入本轮。
+阶段 3A 已完成 smoke 基线、复杂命令强类型映射、`PAY_COST` 最小 runtime 和前端外壳安全接线，详见 `docs/CURRENT_STAGE3A_PLAN.md`。阶段 3B/3C/3D 后续已分别补 battlefield / cleanup、battle / damage、`ORDER_TRIGGERS` 最小 window；阶段 4C-1 又补 `ORDER_TRIGGERS` 保守 APNAP controller-block 子集。完整 18 步 E2E、1009 全量、完整 battle/damage/order/runtime、完整 PaymentEngine 与完整 battlefield lifecycle 仍不代表 READY。
 
 | 阶段 3 流程 | 证据入口 | 必须证明的审计点 |
 |---|---|---|
@@ -87,6 +87,17 @@
 | 战斗 / 伤害分配 | `CORE-260330` rules 142-143、417、454-461；`JFAQ-251023` q6.1-q6.4 | 阶段 2 `ASSIGN_COMBAT_DAMAGE` schema skeleton 不等于 damage assignment 状态机 READY。 |
 | 结束回合 / 清理 / 下一回合 | `CORE-260330` rules 316-324；`JFAQ-251023` q5.1-q5.2 | 特殊清理、常规清理、符文池清空、下一回合开始必须由服务端推进。 |
 | 得分 / 控制权 / 投降或胜负 | `CORE-260330` rule 323.1；rules 461-464；产品会话契约 | 征服/据守/控制权/胜负结果不能由前端推断；投降或 winner/result 必须来自服务端事件和 snapshot。 |
+
+### 6.1 阶段 4C-1 trigger ordering 证据入口
+
+阶段 4C-1 细化审计见 `docs/CURRENT_STAGE4C_BATCH1_TRIGGER_ORDERING_AUDIT.md`。本节只提供证据索引，不表示项目 READY。
+
+| 规则域 | 证据入口 | 当前 4C-1 状态 | 仍缺 |
+|---|---|---|---|
+| `ORDER_TRIGGERS` / APNAP controller-block | `CORE-260330` p33-p35 rules 333-340；`CORE-260330` p52-p55 rules 383.3.d-383.3.e；`JFAQ-251023` p2-p4 q2.2-q2.3 | 4C-1 已支持保守 controller-block 子集：`orderedTriggerIds` 为合法 APNAP resolution top-first 默认提交顺序，`triggerIds` 为 raw queue order；跨控制者不可重排，同控制者可重排；非法跨控制者重排拒绝且 no state mutation | 完整 APNAP 多玩家独立排序、可选触发选择、真实卡牌全触发生成、完整 effect resolution |
+| Battle initial stack 代表路径 | `CORE-260330` p35-p36 rules 341-348；`CORE-260330` p77-p78 rules 454-461；`JFAQ-251023` p2-p4 q2.2-q2.4 | 4C-1 已覆盖 active battle attacker / defender 初始触发 -> `ORDER_TRIGGERS` -> stack priority 的代表证据 | battle initial stack 全官方规则、攻防触发特殊排序、battle response window 与 FAQ 回归 |
+| Trigger payment / decline | `CORE-260330` p52-p55 rules 377, 403-405；`JFAQ-251023` p2-p4 q2.5 | 本批未关闭；只作为后续入口记录 | 触发费用确认、拒付、支付失败 no mutation 与 PaymentEngine 统一 |
+| Face-down standby trigger source redaction | `CORE-260330` p4-p8 rules 107-129；待命 / 显露相关 evidence 复用 `CORE-260330` p39-p42 rules 355-356 | 4C-1 已记录 trigger prompt / snapshot 对不可见 face-down standby source viewer 级脱敏 | face-down standby trigger 的所有实际卡牌路径、目标选择与完整隐藏区交互；更精确 FAQ 页码为 evidence TODO |
 
 ## 7. 当前 Fixture 审查映射
 
@@ -1511,8 +1522,9 @@
 
 开发影响：
 - `TRIGGER_QUEUED` / `TRIGGER_RESOLVED` 事件不能替代 `ORDER_TRIGGERS` prompt。
-- 需要 `TriggerInstance`、trigger batch、可选触发选择、排序 command、战斗初始结算链特殊排序和触发费用衔接。
-- 当前没有正式 `ORDER_TRIGGERS` payload，仍为 P0。
+- 阶段 3D 已补最小 `ORDER_TRIGGERS` runtime / UI / evidence；阶段 4C-1 已补保守 APNAP controller-block 子集、top-first 默认顺序、跨控制者不可重排拒绝且 no mutation、battle initial stack 代表路径和 face-down standby source 脱敏。
+- 仍需要完整 `TriggerInstance`、trigger batch、可选触发选择、真实卡牌全触发生成、完整 APNAP 多玩家独立排序、战斗初始结算链全官方特殊排序和触发费用 / 拒付 / PaymentEngine 衔接。
+- 因此 4C-1 只关闭 P0 子项，完整 `ORDER_TRIGGERS` 规则域仍为 P0，项目仍 **NOT READY**。
 
 ## 7. 索引维护规则
 

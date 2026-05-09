@@ -1279,6 +1279,7 @@ public sealed class ConformanceFixtureShapeTests
         var constraints = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(metadata["legalOrderingConstraints"]);
         Assert.True(Assert.IsType<bool>(constraints["noDuplicates"]));
         Assert.True(Assert.IsType<bool>(constraints["preserveControllerBlocks"]));
+        Assert.Equal("APNAP_CONTROLLER_BLOCKS_CONSERVATIVE", Assert.IsType<string>(constraints["orderingPolicy"]));
 
         var p2Prompt = prompts["P2"];
         Assert.False(p2Prompt.Actionable);
@@ -1325,6 +1326,130 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public async Task OrderTriggersApnapPromptMetadataExposesLegalDefaultOrderAndRedactsHiddenSources()
+    {
+        var state = BuildP0ContractBattleInitialApnapTriggerQueueState(includeHiddenTrigger: true);
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.OrderTriggers, prompt.View?.Type);
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.OrderTriggers, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        Assert.Equal("P1", Assert.IsType<string>(metadata["orderingPlayerId"]));
+        var defaultOrderedTriggerIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["orderedTriggerIds"]);
+        Assert.Equal(
+            ["TRIGGER-BATTLE-DEFENDER", "TRIGGER-BATTLE-HIDDEN", "TRIGGER-BATTLE-ATTACKER"],
+            defaultOrderedTriggerIds);
+        Assert.Equal(
+            ["TRIGGER-BATTLE-ATTACKER", "TRIGGER-BATTLE-DEFENDER", "TRIGGER-BATTLE-HIDDEN"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["triggerIds"]));
+        var constraints = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(metadata["legalOrderingConstraints"]);
+        Assert.Equal("APNAP_CONTROLLER_BLOCKS_CONSERVATIVE", Assert.IsType<string>(constraints["orderingPolicy"]));
+        Assert.Equal("STACK_RESOLUTION_ORDER_TOP_FIRST", Assert.IsType<string>(constraints["orderedTriggerIdsSemantics"]));
+        Assert.False(Assert.IsType<bool>(constraints["crossControllerReorderingAllowed"]));
+        Assert.True(Assert.IsType<bool>(constraints["withinControllerReorderingAllowed"]));
+
+        var placementBlocks = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(constraints["controllerBlockOrder"]).ToArray();
+        Assert.Equal(["P1", "P2"], placementBlocks.Select(block => Assert.IsType<string>(block["controllerId"])).ToArray());
+        var resolutionBlocks = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(constraints["legalResolutionControllerBlockOrder"]).ToArray();
+        Assert.Equal(["P2", "P1"], resolutionBlocks.Select(block => Assert.IsType<string>(block["controllerId"])).ToArray());
+
+        var triggers = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["triggers"]).ToArray();
+        var hiddenTrigger = Assert.Single(triggers, trigger =>
+            string.Equals(trigger["triggerId"] as string, "TRIGGER-BATTLE-HIDDEN", StringComparison.Ordinal));
+        Assert.Equal("HIDDEN", Assert.IsType<string>(hiddenTrigger["sourceObjectId"]));
+        Assert.Equal("HIDDEN", Assert.IsType<string>(hiddenTrigger["effectKind"]));
+        Assert.Equal("HIDDEN", Assert.IsType<string>(hiddenTrigger["sourceVisibility"]));
+        Assert.DoesNotContain("P2-HIDDEN-STANDBY", hiddenTrigger.Values.Select(value => value?.ToString() ?? string.Empty));
+        Assert.DoesNotContain("SECRET_HIDDEN_STANDBY_TRIGGER", hiddenTrigger.Values.Select(value => value?.ToString() ?? string.Empty));
+
+        var directSubmit = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-apnap-default-metadata-order", "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(OrderedTriggerIds: defaultOrderedTriggerIds),
+            CancellationToken.None);
+        Assert.True(directSubmit.Accepted, directSubmit.ErrorMessage);
+        Assert.Empty(directSubmit.State.TriggerQueue);
+    }
+
+    [Fact]
+    public async Task OrderTriggersApnapLegalOrderingAcceptedAndMovesToStackDeterministically()
+    {
+        var state = BuildP0ContractBattleInitialApnapTriggerQueueState();
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.OrderTriggers, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        var defaultOrderedTriggerIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["orderedTriggerIds"]);
+        Assert.Equal(["TRIGGER-BATTLE-DEFENDER", "TRIGGER-BATTLE-ATTACKER"], defaultOrderedTriggerIds);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-apnap-order", "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(OrderedTriggerIds: defaultOrderedTriggerIds),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Empty(result.State.TriggerQueue);
+        Assert.Equal(
+            ["ordered-TRIGGER-BATTLE-ATTACKER", "ordered-TRIGGER-BATTLE-DEFENDER"],
+            result.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.Equal("ordered-TRIGGER-BATTLE-DEFENDER", result.State.StackItems[^1].StackItemId);
+        Assert.Equal("P2", result.State.PriorityPlayerId);
+        Assert.Equal(PromptTypes.StackPriority, result.Prompts["P2"].View?.Type);
+        var orderedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGERS_ORDERED", StringComparison.Ordinal));
+        Assert.Equal("APNAP_CONTROLLER_BLOCKS_CONSERVATIVE", Assert.IsType<string>(orderedEvent.Payload["orderingPolicy"]));
+        Assert.Equal(
+            ["TRIGGER-BATTLE-DEFENDER", "TRIGGER-BATTLE-ATTACKER"],
+            Assert.IsType<string[]>(orderedEvent.Payload["orderedTriggerIds"]));
+    }
+
+    [Fact]
+    public async Task OrderTriggersApnapIllegalCrossControllerReorderRejectedWithoutChangingState()
+    {
+        var state = BuildP0ContractBattleInitialApnapTriggerQueueState();
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-apnap-illegal-order", "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(OrderedTriggerIds:
+            [
+                "TRIGGER-BATTLE-ATTACKER",
+                "TRIGGER-BATTLE-DEFENDER"
+            ]),
+            CancellationToken.None);
+
+        AssertOrderRejectedWithoutMutation(result, state, ErrorCodes.InvalidPayload);
+    }
+
+    [Fact]
+    public async Task BattleInitialTriggerOrderingRepresentativePathEntersOrderTriggersThenStackPriority()
+    {
+        var state = BuildP0ContractBattleInitialApnapTriggerQueueState();
+
+        Assert.True(state.BattleState.IsActive);
+        Assert.All(state.TriggerQueue, trigger => Assert.Equal("BATTLE_INITIAL_STACK", trigger.TriggeredByEventKind));
+        Assert.Equal(PromptTypes.OrderTriggers, ResolutionResult.BuildPrompts(state)["P1"].View?.Type);
+
+        var ordered = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-battle-initial-order", "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(OrderedTriggerIds:
+            [
+                "TRIGGER-BATTLE-DEFENDER",
+                "TRIGGER-BATTLE-ATTACKER"
+            ]),
+            CancellationToken.None);
+
+        Assert.True(ordered.Accepted, ordered.ErrorMessage);
+        Assert.Equal(PromptTypes.StackPriority, ordered.Prompts["P2"].View?.Type);
+        Assert.Empty(ordered.State.TriggerQueue);
+        Assert.Equal("ordered-TRIGGER-BATTLE-DEFENDER", ordered.State.StackItems[^1].StackItemId);
+    }
+
+    [Fact]
     public async Task OrderTriggersRuntimeRejectsIllegalCommandsWithoutChangingState()
     {
         var state = BuildP0ContractTriggerQueueState();
@@ -1359,7 +1484,7 @@ public sealed class ConformanceFixtureShapeTests
         var illegalOrdering = await engine.ResolveAsync(
             mixedControllerState,
             new PlayerIntent("intent-illegal-order", "P1", CommandTypes.OrderTriggers),
-            new OrderTriggersCommand(OrderedTriggerIds: ["TRIGGER-3", "TRIGGER-1", "TRIGGER-2"]),
+            new OrderTriggersCommand(OrderedTriggerIds: ["TRIGGER-1", "TRIGGER-2", "TRIGGER-3"]),
             CancellationToken.None);
 
         AssertOrderRejectedWithoutMutation(wrongPlayer, state, ErrorCodes.PhaseNotAllowed);
@@ -8260,6 +8385,40 @@ public sealed class ConformanceFixtureShapeTests
                     "DRAW_ONE",
                     "UNIT_DESTROYED")
             ]
+        };
+    }
+
+    private static MatchState BuildP0ContractBattleInitialApnapTriggerQueueState(bool includeHiddenTrigger = false)
+    {
+        var state = BuildP0ContractBattleState(includeHiddenStandby: includeHiddenTrigger);
+        var triggerQueue = new List<TriggerQueueItemState>
+        {
+            new(
+                "TRIGGER-BATTLE-ATTACKER",
+                "P1",
+                "P1-ATTACKER",
+                "BATTLE_INITIAL_ATTACKER_REPRESENTATIVE",
+                "BATTLE_INITIAL_STACK"),
+            new(
+                "TRIGGER-BATTLE-DEFENDER",
+                "P2",
+                "P2-DEFENDER",
+                "BATTLE_INITIAL_DEFENDER_REPRESENTATIVE",
+                "BATTLE_INITIAL_STACK")
+        };
+        if (includeHiddenTrigger)
+        {
+            triggerQueue.Add(new TriggerQueueItemState(
+                "TRIGGER-BATTLE-HIDDEN",
+                "P2",
+                "P2-HIDDEN-STANDBY",
+                "SECRET_HIDDEN_STANDBY_TRIGGER",
+                "BATTLE_INITIAL_STACK"));
+        }
+
+        return state with
+        {
+            TriggerQueue = triggerQueue
         };
     }
 

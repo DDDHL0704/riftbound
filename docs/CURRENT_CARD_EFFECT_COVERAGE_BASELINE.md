@@ -1,12 +1,12 @@
 # 当前卡牌效果覆盖基线
 
-更新时间：2026-05-09
+更新时间：2026-05-10
 
-阶段：**阶段 4B / E 卡牌覆盖矩阵冻结**
+阶段：**阶段 4C-1 / E 卡牌覆盖矩阵 post-freeze overlay**
 
 结论：**NOT READY；不允许进入 1009 张卡牌效果批量覆盖。**
 
-本文只建立统计口径、只读数据基线、矩阵字段、风险排序和阶段性证据 overlay，不实现或修改任何卡牌效果。阶段 1/2 建立卡牌覆盖基线；阶段 3A/3B/3C/3D 只给最小 runtime / lifecycle / battle-damage / trigger-ordering 切片补证据标签；阶段 4B 冻结 card entry -> functional unit -> oracle/effectId -> evidence/tests/status 矩阵，防止把代表路径、旧阶段口径或图鉴展示误判为全官方卡牌完成。
+本文只建立统计口径、只读数据基线、矩阵字段、风险排序和阶段性证据 overlay，不实现或修改任何卡牌效果。阶段 1/2 建立卡牌覆盖基线；阶段 3A/3B/3C/3D 只给最小 runtime / lifecycle / battle-damage / trigger-ordering 切片补证据标签；阶段 4B 冻结 card entry -> functional unit -> oracle/effectId -> evidence/tests/status 矩阵；阶段 4C-1 只记录 B 已完成的 APNAP `ORDER_TRIGGERS` 保守 controller-block 子集、battle initial stack 代表路径和隐藏触发 metadata 脱敏证据，防止把代表路径、旧阶段口径或局部 runtime 误判为全官方卡牌完成。
 
 ## 1. 已读取依据
 
@@ -182,7 +182,7 @@ P0 仍存在：
 
 - central cleanup queue 未完整官方化。
 - spell duel / battle 完整生命周期仍未完成。
-- `PAY_COST` 已有 3A 最小 runtime，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime，`ORDER_TRIGGERS` 已有 3D 最小 runtime window；完整 PaymentEngine、完整 damage assignment 全规则矩阵、完整 trigger engine 仍未正式完成。
+- `PAY_COST` 已有 3A 最小 runtime，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime，`ORDER_TRIGGERS` 已从 3D 最小 runtime window 升级为 4C-1 保守 APNAP controller-block 子集；完整 PaymentEngine、完整 damage assignment 全规则矩阵、完整 trigger engine 仍未正式完成。
 - 正式 18 步 E2E 未最终收口。
 - 1009 张官方卡牌效果与 FAQ 证据矩阵未完成。
 
@@ -214,6 +214,53 @@ P1 仍存在：
 - `src/**`
 
 是否允许进入卡牌效果批量覆盖：**不允许。**
+
+## 14. 阶段 4C-1 E 汇总
+
+阶段 4C-1 名称：APNAP `ORDER_TRIGGERS` / battle initial stack / hidden trigger metadata redaction 覆盖矩阵 overlay。E 只更新覆盖矩阵与风险证据，不修改服务端/前端代码，不修改 A checkpoint，不触碰 `riftbound-dotnet.sln`，不进入 1009 张卡 full-official 实现。
+
+B/A 已提供的新事实：
+
+- `ORDER_TRIGGERS` 从 3D 最小 runtime window 升级为保守 APNAP controller-block 子集。
+- prompt metadata 中 `triggerIds` 表示 raw queue order，`orderedTriggerIds` 表示服务端推荐的合法 APNAP resolution top-first 默认提交顺序。
+- `legalOrderingConstraints` 记录 `orderingPolicy=APNAP_CONTROLLER_BLOCKS_CONSERVATIVE`、`orderedTriggerIdsSemantics=STACK_RESOLUTION_ORDER_TOP_FIRST`、`controllerBlockOrder`、`legalResolutionControllerBlockOrder`、`crossControllerReorderingAllowed=false`、`withinControllerReorderingAllowed=true`。
+- runtime 校验跨控制者 block 非法重排会零副作用失败；同控制者 block 内重排合法；合法排序进入 `StackItems` / stack priority。
+- active battle 的 attacker / defender 初始触发已有代表测试进入 `ORDER_TRIGGERS`，再合法排序进入 stack priority。
+- 不可见 face-down standby trigger source 在 trigger prompt / snapshot 中按 viewer 脱敏。
+- A 后端 full test：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 3337/3337。
+
+4C-1 矩阵 overlay 统计：
+
+| 项 | 数量 |
+|---|---:|
+| frozen snapshot entries | 1009 |
+| frozen functional units | 811 |
+| `ORDER_TRIGGERS` dependency FUs | 67 |
+| `stage4C1` tagged FUs | 67 |
+| Top20 中 blocker 被部分降低的 FUs | 6 |
+| battle initial stack pressure FUs | 31 |
+| hidden trigger metadata redaction candidates | 11 |
+| tagged FUs 中仍需 FAQ adjudication | 18 |
+| full-official upgrades | 0 |
+
+Top20 中 blocker 被部分降低但仍非 full-official 的 FUs：`FU-104211dbbc`、`FU-2dca1ad450`、`FU-964b214448`、`FU-05ce012700`、`FU-422b450261`、`FU-813144e7d4`。
+
+修改 / 新增文件：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`
+- `docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`
+- `docs/CURRENT_STAGE4C_BATCH1_TRIGGER_ORDERING_EVIDENCE.md`
+
+仍存在 P0/P1：
+
+- 完整 trigger engine、真实卡牌触发全规则入队、trigger payment / decline / payment failure 仍未关闭。
+- 完整 APNAP 多玩家独立排序、保守 controller-block 子集之外的复杂跨控制者排序、battle initial stack 全规则仍未关闭。
+- FAQ adjudication 与 ruling-backed tests 仍未覆盖 1009 snapshot entries / 811 functional units。
+- 完整 PaymentEngine、完整 `ASSIGN_COMBAT_DAMAGE` 全规则矩阵、spell duel / battle 全生命周期、LayerEngine、替代/预防、隐藏信息仍未 full-official。
+
+是否允许进入 1009 张卡批量 full-official 覆盖：**不允许。**
 
 ## 8. 阶段 2 E 汇总
 
@@ -364,14 +411,14 @@ P1 仍存在：
 是否允许进入卡牌效果批量覆盖：**不允许。**
 ## 12. 阶段 3D E 汇总
 
-阶段 3D 名称：卡牌覆盖矩阵 / complex prompt dependency / `ORDER_TRIGGERS` 证据 overlay。B 已关闭 `ORDER_TRIGGERS` 最小 runtime window：prompt、`orderedTriggerIds` command、validation、合法排序入 `StackItems`、事件日志。E 只维护矩阵索引、FAQ 证据和阶段 4 优先级，不修改核心规则引擎，不启动最终 18 步 E2E，不进入 1009 张卡 full-official 覆盖。
+阶段 3D 名称：卡牌覆盖矩阵 / complex prompt dependency / `ORDER_TRIGGERS` 证据 overlay。3D 当时关闭 `ORDER_TRIGGERS` 最小 runtime window：prompt、`orderedTriggerIds` command、validation、合法排序入 `StackItems`、事件日志；该口径已在 4C-1 被保守 APNAP controller-block 子集覆盖。E 只维护矩阵索引、FAQ 证据和阶段 4 优先级，不修改核心规则引擎，不启动最终 18 步 E2E，不进入 1009 张卡 full-official 覆盖。
 
 完成项：
 
 - 在机器矩阵中新增 `stage3DComplexPromptLifecycle` overlay，并为阶段 4 优先 / FAQ / 压测 / 可复用 oracle 候选补 `functionalUnits[].stage3D` 标签。
 - 标注复杂 prompt / lifecycle 依赖桶：370 个 `PAY_COST` FUs、287 个 `ASSIGN_COMBAT_DAMAGE` FUs、67 个 `ORDER_TRIGGERS` / battle initial stack 压测 FUs、358 个 battlefield / control / conquer FUs、288 个 spell duel / battle FUs。
 - 标注阶段 4 优先级：Top20 high-risk FUs、179 个 FAQ 命中候选、阶段 4 压测卡组 FUs、113 个可复用 oracle / effectId implementation 候选。
-- 输出后续适合压测 `ORDER_TRIGGERS` / battle initial stack / trigger ordering 的清单；3D 最小 runtime window 已关闭，但完整 trigger engine、真实卡牌触发全规则入队、APNAP / 跨控制者复杂排序、trigger cost / decline / payment 仍不关闭。
+- 输出后续适合压测 `ORDER_TRIGGERS` / battle initial stack / trigger ordering 的清单；4C-1 已部分关闭保守 APNAP controller-block 排序，但完整 trigger engine、真实卡牌触发全规则入队、完整 APNAP 多玩家独立排序、trigger cost / decline / payment 仍不关闭。
 
 新增文件：
 
@@ -395,7 +442,7 @@ P1 仍存在：
 
 仍存在 P0/P1：
 
-- `ORDER_TRIGGERS` 最小 runtime window 已关闭，但完整 trigger engine、真实卡牌触发全规则入队、APNAP / 跨控制者复杂排序仍未关闭。
+- `ORDER_TRIGGERS` 已升级到 4C-1 保守 APNAP controller-block 子集，但完整 trigger engine、真实卡牌触发全规则入队、完整 APNAP 多玩家独立排序仍未关闭。
 - battle initial stack 全规则、attack/defense/conquer/last-breath/standby trigger ordering 全矩阵、trigger cost / decline / payment 仍需后续阶段实现和测试。
 - 完整 PaymentEngine、完整 `ASSIGN_COMBAT_DAMAGE` 全规则矩阵、spell duel / battle 全生命周期、LayerEngine、替代/预防、隐藏信息仍未 full-official。
 - 1009 snapshot entries / 811 functional units 的 official text、FAQ adjudication、实现、测试闭环仍未完成。
@@ -403,7 +450,7 @@ P1 仍存在：
 是否允许进入卡牌效果批量覆盖：**不允许。**
 ## 13. 阶段 4B E 汇总
 
-阶段 4B 名称：卡牌覆盖矩阵冻结。E 只冻结 2026-04-27 官网快照、functional unit、官方文本 / FAQ / rules evidence、测试证据和状态口径；不实现卡牌效果，不进入 4C，不修改服务端/前端/A checkpoint/`riftbound-dotnet.sln`。
+阶段 4B 名称：卡牌覆盖矩阵冻结。E 只冻结 2026-04-27 官网快照、functional unit、官方文本 / FAQ / rules evidence、测试证据和状态口径；4B 本身不实现卡牌效果，不进入 4C，不修改服务端/前端/A checkpoint/`riftbound-dotnet.sln`。
 
 完成项：
 
