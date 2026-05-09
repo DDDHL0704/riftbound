@@ -2347,6 +2347,9 @@ internal static class ActionPromptBuilder
     private const string RecurveBowCardNo = "SFD·016/221";
     private const int RecurveBowAssemblePowerCost = 1;
     private const string RecurveBowAssembleOptionalCost = "ASSEMBLE_RED";
+    private const string BrutalizerCardNo = "SFD·042/221";
+    private const int BrutalizerAssemblePowerCost = 1;
+    private const string BrutalizerAssembleOptionalCost = "ASSEMBLE_GREEN";
     private const string ClothArmorCardNo = "SFD·064/221";
     private const int ClothArmorAssemblePowerCost = 1;
     private const string ClothArmorAssembleOptionalCost = "ASSEMBLE_BLUE";
@@ -2404,6 +2407,14 @@ internal static class ActionPromptBuilder
                 RuneTrait.Red,
                 RecurveBowAssemblePowerCost,
                 "payment resource action: recycle red rune for assemble cost"),
+            [BrutalizerCardNo] = new(
+                BrutalizerCardNo,
+                "残暴之力",
+                BrutalizerAssembleOptionalCost,
+                "装配绿色符能",
+                RuneTrait.Green,
+                BrutalizerAssemblePowerCost,
+                "payment resource action: recycle green rune for assemble cost"),
             [ClothArmorCardNo] = new(
                 ClothArmorCardNo,
                 "布甲",

@@ -3602,6 +3602,48 @@ public sealed class ConformanceFixtureShapeTests
             steraksGageRequirement["optionalCostChoices"]);
         Assert.Equal(["ASSEMBLE_GREEN"], steraksGageOptionalCostChoices.Select(cost => cost.Id).ToArray());
 
+        var brutalizerState = steraksGageState with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-BRUTALIZER", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BRUTALIZER"] = new(
+                    "P1-BRUTALIZER",
+                    cardNo: "SFD·042/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var brutalizerPrompt = ResolutionResult.BuildPrompts(brutalizerState)["P1"];
+        var brutalizerCandidate = Assert.Single(
+            brutalizerPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(brutalizerCandidate.Enabled);
+        Assert.Equal(["P1-BRUTALIZER"], (brutalizerCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_GREEN"], (brutalizerCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var brutalizerMetadata = Assert.IsType<Dictionary<string, object?>>(brutalizerCandidate.Metadata);
+        var brutalizerRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(brutalizerMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·042/221", Assert.IsType<string>(brutalizerRequirement["equipmentCardNo"]));
+        var brutalizerOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            brutalizerRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_GREEN"], brutalizerOptionalCostChoices.Select(cost => cost.Id).ToArray());
+
         var steraksGageRecyclePaymentState = steraksGageState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
