@@ -40,6 +40,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string DoransShieldCardNo = "SFD·033/221";
     private const string DoransShieldAssembleOptionalCost = "ASSEMBLE_GREEN";
     private const int DoransShieldAssemblePowerCost = 1;
+    private const string DoransRingCardNo = "SFD·124/221";
+    private const string DoransRingAssembleOptionalCost = "ASSEMBLE_PURPLE";
+    private const int DoransRingAssemblePowerCost = 1;
     private sealed record AssembleEquipmentProfile(
         string CardNo,
         string DisplayName,
@@ -73,7 +76,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "多兰之盾",
                 DoransShieldAssembleOptionalCost,
                 RuneTrait.Green,
-                DoransShieldAssemblePowerCost)
+                DoransShieldAssemblePowerCost),
+            [DoransRingCardNo] = new(
+                DoransRingCardNo,
+                "多兰之戒",
+                DoransRingAssembleOptionalCost,
+                RuneTrait.Purple,
+                DoransRingAssemblePowerCost)
         };
     private const string WatchfulSentinelCardNo = "OGN·096/298";
     private const string WatchfulSentinelLastBreathDrawEffectKind = "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";

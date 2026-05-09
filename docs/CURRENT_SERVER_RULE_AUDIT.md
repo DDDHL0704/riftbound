@@ -14,6 +14,9 @@
 
 ## 2026-05-09 开发进度更新
 
+- P1-002/P1-004 第三百一十一批补充：把《多兰之戒》（SFD·124/221）的“装配紫色”接入服务端权威 `ASSEMBLE_EQUIPMENT` profile。Core 现在接受当前玩家基地中公开、受控、未贴附、带 `CARD_TYPE:EQUIPMENT` 且 cardNo 为《多兰之戒》的来源，必须支付 `ASSEMBLE_PURPLE` 与 1 点紫色符能并选择服务端已知受控单位目标；其他颜色或未公开 optional cost 仍不能替代。ActionPrompt 同步公开《多兰之戒》的 `ASSEMBLE_PURPLE`、紫色符能要求和合法目标候选，前端继续只展示并提交服务端候选。
+- 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~AssembleEquipment"` 通过 38/38；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3254/3254；`source ../../scripts/dev-env.sh && npm run build` 通过；`git diff --check` 通过。本批仍无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke。整体仍 **NOT READY**，因为灵便反应自动贴附、更多装备装配 profile、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-002/P1-004 第三百一十批补充：修正 `ASSEMBLE_EQUIPMENT` 对“灵便/武装”标签的过窄前提，并补齐《多兰之盾》（SFD·033/221）“装配绿色”的服务端代表路径。装配来源现在仍必须是当前玩家控制、基地中公开、未贴附、带 `CARD_TYPE:EQUIPMENT` 且 cardNo 落在服务端已实现 profile 中的对象，但不再要求装备同时带 `武装` / `灵便` 标签；这让官方有“装配”但没有“灵便”的装备可以被服务端权威 prompt/命令覆盖，同时未知 cardNo 或未登记 profile 仍不会开放。ActionPrompt 同步公开《多兰之盾》的 `ASSEMBLE_GREEN`、绿色符能要求和合法单位目标，前端继续只按服务端候选提交。
 - 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~AssembleEquipment"` 通过 37/37；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3253/3253；`source ../../scripts/dev-env.sh && npm run build` 通过；`git diff --check` 通过。本批仍无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke，目标端口保持清理。整体仍 **NOT READY**，因为灵便反应自动贴附、更多装备装配 profile、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
