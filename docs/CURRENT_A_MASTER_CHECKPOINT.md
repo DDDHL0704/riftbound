@@ -363,6 +363,7 @@ P1：
 
 - 已创建阶段 1 WIP commit：`78b6896 checkpoint: complete stage 1 protocol baseline`
 - 已创建阶段 1 保护记录 commit：`bc0872d docs: record stage 1 checkpoint protection`
+- 已创建阶段 2 checkpoint commit：`dfc4bd4 checkpoint: complete stage 2 protocol and frontend baseline`
 - `riftbound-dotnet.sln` 是本地不交付文件，阶段 2 仍未纳入。
 
 ### B 服务端协议 / P0 契约骨架
@@ -454,7 +455,7 @@ P1：
 - `tests/Riftbound.ConformanceTests/ConformanceFixtureShapeTests.cs`
 - `tests/Riftbound.ConformanceTests/GameHubJoinTests.cs`
 
-阶段 2 仍未提交；`riftbound-dotnet.sln` 仍为本地不交付未跟踪文件，不应纳入。
+阶段 2 已提交为 `dfc4bd4 checkpoint: complete stage 2 protocol and frontend baseline`；`riftbound-dotnet.sln` 仍为本地不交付未跟踪文件，不应纳入。
 
 ### 阶段 2 验收命令
 
@@ -530,7 +531,7 @@ P1：
 
 ## 2. 当前仓库基线
 
-当前 HEAD：`bc0872d docs: record stage 1 checkpoint protection`
+当前阶段 2 checkpoint：`dfc4bd4 checkpoint: complete stage 2 protocol and frontend baseline`。其后的保护记录提交只更新本 checkpoint，恢复时以 `git log --oneline -8` 对齐最新 HEAD。
 
 当前工作区预期：
 
