@@ -1760,6 +1760,117 @@ public sealed record ResolutionResult(
             && string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal));
     }
 
+    internal static bool HasOpenOrderTriggersWindow(MatchState state)
+    {
+        return string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal)
+            && !string.Equals(state.Phase, MatchPhases.Mulligan, StringComparison.Ordinal)
+            && state.PendingPayment is null
+            && !HasOpenStackPriority(state)
+            && !HasOpenSpellDuelFocus(state)
+            && state.TriggerQueue.Count > 1
+            && !string.IsNullOrWhiteSpace(OrderTriggersOrderingPlayerId(state));
+    }
+
+    internal static string? OrderTriggersOrderingPlayerId(MatchState state)
+    {
+        return state.TriggerQueue.FirstOrDefault()?.ControllerId;
+    }
+
+    internal static IReadOnlyList<string> OrderTriggerIds(MatchState state)
+    {
+        return state.TriggerQueue
+            .Select(trigger => trigger.TriggerId)
+            .Where(triggerId => !string.IsNullOrWhiteSpace(triggerId))
+            .ToArray();
+    }
+
+    internal static IReadOnlyList<IReadOnlyDictionary<string, object?>> OrderTriggerViews(MatchState state)
+    {
+        return state.TriggerQueue
+            .Select(trigger => (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>
+            {
+                ["triggerId"] = trigger.TriggerId,
+                ["sourceObjectId"] = trigger.SourceObjectId,
+                ["controllerId"] = trigger.ControllerId,
+                ["effectKind"] = trigger.EffectKind,
+                ["triggeredByEventKind"] = trigger.TriggeredByEventKind,
+                ["summary"] = OrderTriggerSummary(trigger),
+                ["visibleText"] = OrderTriggerVisibleText(trigger)
+            })
+            .ToArray();
+    }
+
+    internal static IReadOnlyList<ActionPromptChoiceDto> OrderTriggerChoices(MatchState state)
+    {
+        return state.TriggerQueue
+            .Select(trigger => new ActionPromptChoiceDto(
+                trigger.TriggerId,
+                OrderTriggerSummary(trigger),
+                OrderTriggerVisibleText(trigger)))
+            .ToArray();
+    }
+
+    internal static IReadOnlyDictionary<string, object?> OrderTriggerLegalOrderingConstraints(MatchState state)
+    {
+        var blocks = OrderTriggerControllerBlocks(state.TriggerQueue);
+        return new Dictionary<string, object?>
+        {
+            ["mustContainExactly"] = OrderTriggerIds(state),
+            ["noDuplicates"] = true,
+            ["unknownTriggerIdsRejected"] = true,
+            ["preserveControllerBlocks"] = true,
+            ["controllerBlockOrder"] = blocks,
+            ["orderingPlayerId"] = OrderTriggersOrderingPlayerId(state) ?? string.Empty
+        };
+    }
+
+    internal static IReadOnlyList<IReadOnlyDictionary<string, object?>> OrderTriggerControllerBlocks(
+        IReadOnlyList<TriggerQueueItemState> triggerQueue)
+    {
+        var blocks = new List<IReadOnlyDictionary<string, object?>>();
+        foreach (var trigger in triggerQueue)
+        {
+            var last = blocks.LastOrDefault();
+            if (last is not null
+                && string.Equals(last["controllerId"] as string, trigger.ControllerId, StringComparison.Ordinal))
+            {
+                var existingIds = last["triggerIds"] as IReadOnlyList<string> ?? [];
+                blocks[^1] = new Dictionary<string, object?>
+                {
+                    ["controllerId"] = trigger.ControllerId,
+                    ["triggerIds"] = existingIds.Concat([trigger.TriggerId]).ToArray()
+                };
+                continue;
+            }
+
+            blocks.Add(new Dictionary<string, object?>
+            {
+                ["controllerId"] = trigger.ControllerId,
+                ["triggerIds"] = new[] { trigger.TriggerId }
+            });
+        }
+
+        return blocks;
+    }
+
+    internal static string OrderTriggerSummary(TriggerQueueItemState trigger)
+    {
+        return string.IsNullOrWhiteSpace(trigger.EffectKind)
+            ? trigger.TriggerId
+            : $"{trigger.EffectKind} ({trigger.TriggerId})";
+    }
+
+    internal static string OrderTriggerVisibleText(TriggerQueueItemState trigger)
+    {
+        var source = string.IsNullOrWhiteSpace(trigger.SourceObjectId)
+            ? "未知来源"
+            : trigger.SourceObjectId;
+        var eventKind = string.IsNullOrWhiteSpace(trigger.TriggeredByEventKind)
+            ? "触发事件"
+            : trigger.TriggeredByEventKind;
+        return $"{source} 的触发能力，来源事件：{eventKind}";
+    }
+
     internal static bool HasOpenBattleDamageAssignmentWindow(MatchState state)
     {
         var battle = state.BattleState;
@@ -2814,6 +2925,25 @@ public sealed record ResolutionResult(
                     : WithSurrender("WAIT")));
         }
 
+        if (HasOpenOrderTriggersWindow(state))
+        {
+            var orderingPlayerId = OrderTriggersOrderingPlayerId(state);
+            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId =>
+            {
+                var canOrderTriggers = string.Equals(playerId, orderingPlayerId, StringComparison.Ordinal);
+                return ActionPromptBuilder.Build(
+                    state,
+                    playerId,
+                    canOrderTriggers,
+                    canOrderTriggers
+                        ? "请提交触发能力的结算顺序"
+                        : "等待对手排序触发能力",
+                    canOrderTriggers
+                        ? WithSurrender(CommandTypes.OrderTriggers)
+                        : WithSurrender("WAIT"));
+            });
+        }
+
         if (ResolutionResult.HasOpenBattleDamageAssignmentWindow(state))
         {
             var assigningPlayerId = BattleDamageAssigningPlayerId(state);
@@ -3796,6 +3926,11 @@ internal static class ActionPromptBuilder
             return PromptTypes.SpellDuelFocus;
         }
 
+        if (ResolutionResult.HasOpenOrderTriggersWindow(state))
+        {
+            return PromptTypes.OrderTriggers;
+        }
+
         if (ResolutionResult.HasOpenBattleDamageAssignmentWindow(state))
         {
             return PromptTypes.AssignCombatDamage;
@@ -3828,6 +3963,7 @@ internal static class ActionPromptBuilder
             PromptTypes.SpellDuelFocus => "法术对决",
             PromptTypes.BattleDeclaration => "声明战斗",
             PromptTypes.AssignCombatDamage => "分配战斗伤害",
+            PromptTypes.OrderTriggers => "触发排序",
             PromptTypes.TaskQueue => "任务队列",
             PromptTypes.MatchResult => "对局结束",
             _ => "等待"
@@ -3877,6 +4013,11 @@ internal static class ActionPromptBuilder
         if (string.Equals(type, PromptTypes.AssignCombatDamage, StringComparison.Ordinal))
         {
             return AssignCombatDamageMetadataFor(state, playerId);
+        }
+
+        if (string.Equals(type, PromptTypes.OrderTriggers, StringComparison.Ordinal))
+        {
+            return OrderTriggersMetadataFor(state, playerId);
         }
 
         return null;
@@ -7932,6 +8073,7 @@ internal static class ActionPromptBuilder
             "ASSEMBLE_EQUIPMENT" => AssembleEquipmentMetadataFor(state, playerId),
             "DECLARE_BATTLE" => DeclareBattleMetadataFor(state, playerId),
             "ASSIGN_COMBAT_DAMAGE" => AssignCombatDamageMetadataFor(state, playerId),
+            "ORDER_TRIGGERS" => OrderTriggersMetadataFor(state, playerId),
             "LEGEND_ACT" => LegendActionMetadataFor(state, playerId),
             _ => null
         };
@@ -8027,6 +8169,33 @@ internal static class ActionPromptBuilder
                 ["existingDamage"] = existingDamage,
                 ["pendingDamage"] = damagePool
             }
+        };
+    }
+
+    private static IReadOnlyDictionary<string, object?> OrderTriggersMetadataFor(MatchState state, string playerId)
+    {
+        if (!ResolutionResult.HasOpenOrderTriggersWindow(state))
+        {
+            return new Dictionary<string, object?>
+            {
+                ["orderingState"] = "WAIT"
+            };
+        }
+
+        var orderingPlayerId = ResolutionResult.OrderTriggersOrderingPlayerId(state) ?? string.Empty;
+        var triggerIds = ResolutionResult.OrderTriggerIds(state);
+        return new Dictionary<string, object?>
+        {
+            ["orderingPlayerId"] = orderingPlayerId,
+            ["orderedTriggerIds"] = triggerIds,
+            ["triggerIds"] = triggerIds,
+            ["triggers"] = ResolutionResult.OrderTriggerViews(state),
+            ["triggerChoices"] = ResolutionResult.OrderTriggerChoices(state),
+            ["legalOrderingConstraints"] = ResolutionResult.OrderTriggerLegalOrderingConstraints(state),
+            ["triggeredByEventKind"] = state.TriggerQueue.FirstOrDefault()?.TriggeredByEventKind ?? string.Empty,
+            ["orderingState"] = string.Equals(playerId, orderingPlayerId, StringComparison.Ordinal)
+                ? "PENDING_ORDER"
+                : "WAITING_FOR_ORDER"
         };
     }
 
@@ -8843,6 +9012,7 @@ internal static class ActionPromptBuilder
             "RECYCLE_RUNE" => "回收符文",
             "PAY_COST" => "支付费用",
             "ASSIGN_COMBAT_DAMAGE" => "分配战斗伤害",
+            "ORDER_TRIGGERS" => "排序触发",
             "LEGEND_ACT" => "传奇行动",
             "PASS" => "让过",
             "PASS_PRIORITY" => "让过优先权",

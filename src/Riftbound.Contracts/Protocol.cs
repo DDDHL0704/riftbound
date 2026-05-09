@@ -200,7 +200,8 @@ public sealed record AssignCombatDamageCommand(
     IReadOnlyList<CombatDamageAssignmentDto>? Assignments = null) : GameCommand(CommandTypes.AssignCombatDamage);
 
 public sealed record OrderTriggersCommand(
-    IReadOnlyList<string>? TriggerIds = null) : GameCommand(CommandTypes.OrderTriggers);
+    IReadOnlyList<string>? TriggerIds = null,
+    IReadOnlyList<string>? OrderedTriggerIds = null) : GameCommand(CommandTypes.OrderTriggers);
 
 public sealed record UnsupportedCommand(string RawCmdType, JsonElement? Payload = null)
     : GameCommand(RawCmdType);
@@ -274,10 +275,10 @@ public static class ActionPromptContracts
     public static ActionPromptContractDto OrderTriggers { get; } = new(
         PromptTypes.OrderTriggers,
         CommandTypes.OrderTriggers,
-        ["triggerIds"],
-        ["candidate.metadata.triggerChoices"],
+        ["orderedTriggerIds"],
+        ["candidate.metadata.triggerChoices", "candidate.metadata.orderedTriggerIds"],
         [ErrorCodes.InvalidPayload, ErrorCodes.PhaseNotAllowed, ErrorCodes.InvalidTarget],
-        ["triggerChoices", "triggeredByEventKind"],
+        ["orderingPlayerId", "triggerIds", "triggers", "triggerChoices", "legalOrderingConstraints", "triggeredByEventKind"],
         ["triggerQueue"]);
 
     public static IReadOnlyDictionary<string, ActionPromptContractDto> ByPromptKind { get; } =

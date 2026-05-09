@@ -225,5 +225,5 @@ export type GameCommand = PromptStampedCommand & (
   | { cmdType: "LEGEND_ACT"; sourceObjectId: string; abilityId: string; targetObjectIds: string[]; optionalCosts?: string[] }
   | { cmdType: "PAY_COST"; paymentId?: string; paymentWindow?: string; paymentChoiceIds?: string[] | null }
   | { cmdType: "ASSIGN_COMBAT_DAMAGE"; battleId?: string; battlefieldId?: string; assignments?: CombatDamageAssignmentDto[] | null }
-  | { cmdType: "ORDER_TRIGGERS"; triggerIds?: string[] | null }
+  | { cmdType: "ORDER_TRIGGERS"; orderedTriggerIds?: string[] | null; triggerIds?: string[] | null }
 );

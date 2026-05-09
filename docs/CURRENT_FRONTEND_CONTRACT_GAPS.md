@@ -12,6 +12,7 @@
 - `docs/CURRENT_STAGE1_PROTOCOL_BASELINE.md`
 - `docs/CURRENT_STAGE3B_PLAN.md`
 - `docs/CURRENT_STAGE3C_SPELL_DUEL_BATTLE_DAMAGE_EVIDENCE.md`
+- `docs/CURRENT_STAGE3_COMPLETION_AUDIT.md`
 - `docs/符文战场_前端Web开发需求文档_给Codex.md`
 
 ## 1. 当前协议基线
@@ -75,17 +76,17 @@ C 可同步类型和做安全承接：
 - 在服务端实际发出 runtime prompt/candidate 时，继续使用现有降级面板展示服务端声明的候选和安全 metadata。
 - 对 malformed payload / stale prompt / unsupported command 做可见错误提示。
 
-C 暂不得做复杂专用交互：
+C 当前复杂交互边界：
 
-- 不实现手动支付向导、伤害分配器、触发拖拽排序或法术对决复杂选择器。
-- 不在浏览器侧构造服务端未声明的 `paymentChoiceIds`、`assignments`、`triggerIds`。
-- 不把合法形状 command 能被识别误读为规则窗口已开放；真实 PAY_COST runtime、damage assignment 状态机、ORDER_TRIGGERS 状态机仍未关闭。
+- 不实现手动支付向导、完整伤害分配器、完整 APNAP / 跨控制者触发排序或法术对决复杂选择器；3D 仅允许 `ORDER_TRIGGERS` 最小上移 / 下移排序 UI。
+- 不在浏览器侧构造服务端未声明的 `paymentChoiceIds`、`assignments`、`triggerIds` 或 `orderedTriggerIds`。
+- 不把合法形状 command 能被识别误读为完整规则窗口已开放；`PAY_COST`、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS` 只有阶段性最小 runtime，完整 PaymentEngine / damage matrix / trigger engine 仍未关闭。
 
 仍缺正式产品契约：
 
 - `options/selectableCards/selectableTargets/selectableZones/constraints/defaultAction` 等 typed 字段。
 - runtime prompt 里的合法选择、默认动作、constraints 与 typed error details。
-- `PAY_COST` 已有阶段 3A 最小 runtime 切片，`ASSIGN_COMBAT_DAMAGE` 已有阶段 3C 最小 runtime / UI 切片；完整 PaymentEngine / decline / 替代费用 / 额外费用 / 非出牌支付窗口、完整 damage assignment 全规则矩阵、`ORDER_TRIGGERS`、`SPELL_DUEL_ACTION` 的专用交互模型和 E2E 断言点仍缺。
+- `PAY_COST` 已有阶段 3A 最小 runtime 切片，`ASSIGN_COMBAT_DAMAGE` 已有阶段 3C 最小 runtime / UI 切片，`ORDER_TRIGGERS` 已有阶段 3D 最小 runtime / UI 切片；完整 PaymentEngine / decline / 替代费用 / 额外费用 / 非出牌支付窗口、完整 damage assignment 全规则矩阵、完整 trigger engine / APNAP / battle initial stack、`SPELL_DUEL_ACTION` 的专用交互模型和 E2E 断言点仍缺。
 - 未知 prompt 的通用渲染协议仍需稳定：标题、说明、安全 JSON 摘要、默认动作约定、不可提交策略。
 
 正式 UI 可继续兼容 `ActionPromptCandidateDto`，但复杂窗口需要服务端提供显式 prompt 类型与专用 payload。
@@ -118,18 +119,26 @@ C 暂不得做复杂专用交互：
 - C 已同步 `ASSIGN_COMBAT_DAMAGE` typed command、`CombatDamageAssignmentDto`、`ActionPromptContracts.AssignCombatDamage` 和错误文案。
 - C 已在服务端 runtime prompt 出现时，用专用面板展示 `damagePool`、`legalTargets`、`existingDamage`、`lethalDamageThreshold`、`assignmentChoices` / `battleParticipants` / visible metadata，并提交服务端支持的 command。
 - C 暂不得本地计算致命/过量/壁垒/后排顺序、不得本地结算伤害结果、不得从 `BattleResolutionState` 反推出可提交 assignments。
-- 3C 需要服务端补齐一条最小 prompt + submit + reject 证据后，D/A 才能考虑关闭 `ASSIGN_COMBAT_DAMAGE` runtime 子项。
+- 3C 已关闭最小 prompt + submit + reject + simultaneous commit 子项；完整全规则伤害分配矩阵仍需阶段 4 / 最终验收。
 
 ### P0：trigger ordering 窗口缺口
 
-当前已有 `ORDER_TRIGGERS(triggerIds)` command/schema 骨架，但 runtime `ORDER_TRIGGERS` prompt 尚未开放。阶段 1 只有 prompt type 预留和降级面板承接能力，阶段 2 只关闭“无正式 schema/无稳定拒绝语义”的子项；服务端尚未实际发出排序 payload。正式 UI 需要服务端下发：
+当前已有 `ORDER_TRIGGERS(triggerIds)` command/schema 骨架，并且阶段 3D 已开放最小 runtime prompt / UI。服务端 prompt metadata 包含 `orderingPlayerId`、`orderedTriggerIds`、`triggerIds`、`triggers`、`triggerChoices`、`legalOrderingConstraints`、`triggeredByEventKind`；command 支持 `orderedTriggerIds` 并兼容 `triggerIds`。正式完整 UI 仍需要服务端继续冻结：
 
 - 待排序触发列表：`triggerId`、controller、sourceObjectId、sourceCardNo、触发时机、简短文本、是否可选。
 - 排序约束：哪些触发必须相邻、哪些不可调整、默认顺序、是否允许取消可选触发。
 - 目的地：加入结算链、立即结算、进入任务队列。
-- 提交命令：`triggerIds` 的最终顺序与可选触发选择。
+- 提交命令：`orderedTriggerIds` 的最终顺序与可选触发选择。
 
 拖拽排序只能收集用户选择，结算链顺序仍由服务端确认。
+
+阶段 3D 前端口径：
+
+- C 已实现 `ORDER_TRIGGERS` UI：上移 / 下移排序，提交 `orderedTriggerIds`，不在浏览器侧结算触发。
+- C 侧 build / smoke / `stage3-preflight.mjs` 已通过。
+- C 暂不得实现触发费用拒付、完整 APNAP / 跨控制者复杂排序或 battle initial stack 全规则交互。
+- C 不得根据事件日志、卡面文本或本地控制者顺序生成服务端未声明的 trigger id；只能重排服务端 runtime prompt 明确给出的 trigger choices。
+- 阶段 4 需要继续冻结完整 `TriggerInstance` / `TriggerBatchPromptView` 字段，并接入 battle initial stack / trigger payment / decline。
 
 ### P0：payment plan 窗口缺口
 
@@ -189,7 +198,7 @@ C 暂不得做复杂专用交互：
 - C 可以继续只读展示 `timing.spellDuel`、`timing.battle`、`timing.battleResolutions` 与服务端 prompt 关联字段。
 - C 不得根据事件日志或 battle resolution 自行推进 battle phase、关闭法术对决、生成 `PASS_FOCUS` / `DECLARE_BATTLE` / `ASSIGN_COMBAT_DAMAGE` 命令。
 - 3C 需要服务端正式冻结 `SpellDuelView`、`BattleView`、`BattleResolutionView` 与 `DamageAssignmentPromptView` 字段后，前端才可做专用交互和阶段条。
-- 当前 `p2-preflight-spell-duel-pass-focus-closes-window` 已确认存在，但 3C 专项 close -> next task / battle cleanup UI 证据仍待 B/C 补齐。
+- 当前 `p2-preflight-spell-duel-pass-focus-closes-window` 已确认存在，且 3C 已补 close -> damage assignment -> battle cleanup/control update 代表证据；完整 `SPELL_DUEL_ACTION`、battle phase 和正式 DTO 仍留阶段 4。
 
 ### P1：layer/effect explanation 缺口
 
@@ -260,7 +269,7 @@ C 暂不得做复杂专用交互：
 - 已在正式协议追加 `ActionPromptDto.view`，字段类型为 `PromptViewDto`；旧 `ActionPromptDto(playerId, actionable, reason, actions, ...)` 构造保持兼容。
 - `PromptViewDto` 当前最小字段包含 `type/title/message`，并预留关联战场、结算链项目、战斗、法术对决、选择上下限与 metadata。
 - 后端 `ActionPromptBuilder.Build` 已为现有 prompt 生成 view，不改变 `actions/candidates` 语义；已覆盖 `ROOM_SETUP`、`MULLIGAN`、`MAIN_ACTION`、`STACK_PRIORITY`、`SPELL_DUEL_FOCUS`、`BATTLE_DECLARATION`、`TASK_QUEUE`、`WAIT`、`MATCH_RESULT`。
-- 契约已预留但尚未实际发出 runtime `SPELL_DUEL_ACTION`、`PAY_COST`、`ORDER_TRIGGERS`、`ASSIGN_COMBAT_DAMAGE` prompt；其中阶段 2 B 已为后三者补 command/schema skeleton。
+- 历史第二轮仅预留 `SPELL_DUEL_ACTION`、`PAY_COST`、`ORDER_TRIGGERS`、`ASSIGN_COMBAT_DAMAGE` prompt type；其中阶段 2 B 已为后三者补 command/schema skeleton，后续阶段 3A/3C 分别补了 `PAY_COST` 与 `ASSIGN_COMBAT_DAMAGE` 最小 runtime。
 - DevUi 已同步 TypeScript 类型，可读取 `prompt.view.type`；`ActionPanel` 与 `MatchTopBar` 已开始消费该视图。
 - 本轮仍不实现 damage assignment 状态机、payment engine、trigger ordering 状态机，也不补完整 battle/spell duel 生命周期。
 
@@ -286,7 +295,7 @@ C 暂不得做复杂专用交互：
 ## 10. 第三轮复杂 PromptType 预留记录
 
 - C#/TS 契约均已预留 `SPELL_DUEL_ACTION`、`ASSIGN_COMBAT_DAMAGE`、`PAY_COST`、`ORDER_TRIGGERS` prompt type；阶段 2 B 已追加 `PAY_COST`、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS` command/schema skeleton 和 `ActionPromptContractDto` 类型。
-- 本轮历史记录只稳定正式 UI 后续要识别的窗口名称与后三者的命令骨架；其中 `PAY_COST` 最小 runtime 已在阶段 3A 被后续工作替代，`ASSIGN_COMBAT_DAMAGE` 最小 runtime 已在阶段 3C 被后续工作替代；`ORDER_TRIGGERS` runtime 仍未发出，前端仍不得本地裁决。
+- 本轮历史记录只稳定正式 UI 后续要识别的窗口名称与后三者的命令骨架；其中 `PAY_COST` 最小 runtime 已在阶段 3A 被后续工作替代，`ASSIGN_COMBAT_DAMAGE` 最小 runtime 已在阶段 3C 被后续工作替代，`ORDER_TRIGGERS` 最小 runtime / UI 已在阶段 3D 被后续工作替代；前端仍不得本地裁决触发效果或结算结果。
 - 已验证：Contracts build 通过、DevUi build 通过、后端 conformance 3308/3308 通过、`git diff --check` 通过。
 
 ## 11. 第三轮 prompt 戳过期保护记录
@@ -294,13 +303,13 @@ C 暂不得做复杂专用交互：
 - DevUi `GameCommand` 已支持可选 `promptId/snapshotTick`，`useMatchController.submitCommand` 会把当前服务端 `ActionPromptDto` 的戳附到命令上；错误文案已覆盖 `PROMPT_EXPIRED`。
 - 服务端 `MatchSession.SubmitAsync` 会在进入规则引擎前检查这些可选字段；若客户端提交的 prompt 戳已过期，返回 `PROMPT_EXPIRED`。
 - 旧客户端不传 `promptId/snapshotTick` 时仍走原有规则检查路径，保证兼容。
-- 本轮历史记录只处理过期窗口错误语义；阶段 2 B 后续已补 `PAY_COST` / `ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` command/schema skeleton。阶段 3A 已补 `PAY_COST` 最小 runtime，阶段 3C 已补 `ASSIGN_COMBAT_DAMAGE` 最小 runtime；完整 PaymentEngine、完整 damage assignment 全规则矩阵与 `ORDER_TRIGGERS` 状态机仍未实现。
+- 本轮历史记录只处理过期窗口错误语义；阶段 2 B 后续已补 `PAY_COST` / `ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` command/schema skeleton。阶段 3A 已补 `PAY_COST` 最小 runtime，阶段 3C 已补 `ASSIGN_COMBAT_DAMAGE` 最小 runtime，阶段 3D 已补 `ORDER_TRIGGERS` 最小 runtime / UI；完整 PaymentEngine、完整 damage assignment 全规则矩阵与完整 trigger engine 仍未实现。
 
 ## 12. 第三轮复杂 PromptView 降级渲染记录
 
 - `ActionPanel` 已为 `PAY_COST`、`ORDER_TRIGGERS`、`ASSIGN_COMBAT_DAMAGE`、`SPELL_DUEL_ACTION` 增加通用服务端选项面板。
 - 面板只展示候选来源、目标、位置、模式、费用和安全 metadata 摘要；不根据这些字段本地裁决规则，也不生成服务端未提供的命令。
-- 该渲染用于正式复杂 prompt 接入前的安全降级；阶段 2 B 已补后三类命令骨架，阶段 3A 已补 `PAY_COST` 最小 runtime。完整手动支付 / decline / PaymentEngine、伤害分配状态机和触发排序状态机仍是 P0 缺口。
+- 该渲染用于正式复杂 prompt 接入前的安全降级；阶段 2 B 已补后三类命令骨架，阶段 3A 已补 `PAY_COST` 最小 runtime，阶段 3C 已补 `ASSIGN_COMBAT_DAMAGE` 最小 runtime，阶段 3D 已补 `ORDER_TRIGGERS` 最小 runtime / UI。完整手动支付 / decline / PaymentEngine、伤害分配全规则矩阵、完整 trigger engine 与 battle initial stack 仍是 P0 缺口。
 - 已验证：DevUi build 通过。
 
 ## 13. 阶段 1 D 汇总
@@ -322,7 +331,7 @@ C 暂不得做复杂专用交互：
 
 - 本轮 D 只做文档与规则证据审计，没有关闭新的功能 P0/P1。
 - 已关闭口径风险：prompt 戳过期保护、复杂 prompt 降级展示、`PromptView` 最小入口不应继续被描述为“完全没有”。
-- 仍存在 P0：复杂 prompt runtime payload/状态机中除 `PAY_COST` 最小切片外的完整 PaymentEngine / `DECLINE_PAY_COST`、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS`、battle/spellDuel 完整生命周期、snapshot/visibility typed contract、正式 18 步 E2E。
+- 仍存在 P0：复杂 prompt runtime payload/状态机中除 `PAY_COST`、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS` 最小切片外的完整 PaymentEngine / `DECLINE_PAY_COST`、`ASSIGN_COMBAT_DAMAGE` 全规则矩阵、完整 trigger engine / APNAP / battle initial stack、battle/spellDuel 完整生命周期、snapshot/visibility typed contract、正式 18 步 E2E。
 - 仍存在 P1：layer/effect explanation、typed error details、stack/timing/object state 的长期稳定字段。
 
 文档风险：
@@ -341,7 +350,7 @@ C 暂不得做复杂专用交互：
 关闭/仍存在 P0：
 
 - 已关闭子项：后三类复杂命令没有稳定 command 名称、payload 字段名、malformed payload error code。
-- 仍存在 P0：`PAY_COST` 最小 runtime 之外的完整 PaymentEngine / decline / 替代费用、damage assignment phase/state machine、`ORDER_TRIGGERS` trigger batch state machine、`SPELL_DUEL_ACTION` runtime lifecycle、复杂 prompt E2E。
+- 仍存在 P0：`PAY_COST` 最小 runtime 之外的完整 PaymentEngine / decline / 替代费用、`ASSIGN_COMBAT_DAMAGE` 最小 runtime 之外的全规则矩阵、`ORDER_TRIGGERS` 最小 runtime 之外的完整 trigger engine / APNAP / battle initial stack / trigger payment、`SPELL_DUEL_ACTION` runtime lifecycle、复杂 prompt E2E。
 
 文档风险：
 
@@ -375,3 +384,25 @@ C 暂不得做复杂专用交互：
 - 可候选关闭：C 可同步 `SpellDuelState`、`BattleState`、`BattleResolutionState`、`AssignCombatDamageCommand` 和 `ActionPromptContracts.AssignCombatDamage` 的类型与只读展示。
 - 仍存在 P0：正式 `SPELL_DUEL_ACTION`、完整 battle phase、完整 `ASSIGN_COMBAT_DAMAGE` 全规则矩阵、battle cleanup 选择窗口和最终 18 步 E2E 仍未关闭。
 - 仍存在 P1：`SpellDuelView`、`BattleView`、`BattleResolutionView`、`DamageAssignmentPromptView` 的正式 DTO 尚未冻结，当前字段仍偏 DevUi / dictionary view。
+
+## 17. 阶段 3D 第三阶段收口记录
+
+完成项：
+
+- 已把 `docs/CURRENT_STAGE3_COMPLETION_AUDIT.md` 纳入本文件依据。
+- 已明确第三阶段 preflight / smoke 不是最终验收版 18 步 E2E，前端不得据此宣称产品 READY。
+- 已明确 3A 关闭前端外壳安全接线，3B 关闭 battlefield / cleanup 只读展示最小切片，3C 关闭 damage assignment 最小 UI 切片，3D 关闭 `ORDER_TRIGGERS` 最小 UI / preflight 子项。
+- 已记录 C 侧 `ORDER_TRIGGERS` UI：上移 / 下移排序，提交 `orderedTriggerIds`，不本地结算；build / smoke / `stage3-preflight.mjs` 通过。
+
+仍存在 P0/P1：
+
+- P0：完整 trigger engine、完整 effect resolution、APNAP / 跨控制者复杂排序、trigger cost / decline / payment 和 battle initial stack 全规则仍未开放。
+- P0：完整 `SPELL_DUEL_ACTION`、battle phase、control freeze/release、cleanup queue 全触发面和 full damage assignment matrix 仍需服务端先冻结。
+- P0：最终 18 步 E2E 与双窗口隐藏信息三层断言仍未完成。
+- P1：正式 snapshot/prompt DTO、规则解释字段、产品 UI polish 和可访问性仍需阶段 4 / 最终验收。
+- 第三阶段 A final validation 已通过；前端侧确认 3D 最小 `ORDER_TRIGGERS` UI 子项关闭，第三阶段可判定 DONE，但项目仍 NOT READY。
+
+阶段 4 前端建议：
+
+- 可以进入阶段 4 的前端联调，但必须继续以服务端 snapshot/prompt 为唯一规则权威。
+- 不允许进入 1009 全量卡牌 UI 验收或最终 18 步 E2E，除非 A/用户单独开启。

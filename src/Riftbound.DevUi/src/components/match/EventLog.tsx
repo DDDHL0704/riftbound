@@ -93,6 +93,8 @@ const eventKindLabels: Record<string, string> = {
   STATUS_EFFECT_APPLIED: "状态效果",
   TRIGGER_QUEUED: "触发排队",
   TRIGGER_RESOLVED: "触发结算",
+  TRIGGERS_MOVED_TO_STACK: "触发进入结算链",
+  TRIGGERS_ORDERED: "触发排序完成",
   TURN_BEGAN: "回合开始",
   TURN_ENDED: "回合结束",
   TURN_END_CLEANUP_STARTED: "回合结束清理",

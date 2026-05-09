@@ -326,6 +326,9 @@ export function actionLabel(action: string): string {
     DECLARE_BATTLE: "声明战斗",
     ACTIVATE_ABILITY: "激活技能",
     LEGEND_ACT: "传奇行动",
+    PAY_COST: "支付费用",
+    ASSIGN_COMBAT_DAMAGE: "分配战斗伤害",
+    ORDER_TRIGGERS: "排列触发",
     WAIT: "等待服务端规则任务"
   };
   return labels[action] ?? protocolFallback(action, "服务端操作", "服务端操作");

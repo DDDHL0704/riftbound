@@ -702,7 +702,13 @@ public sealed class ConformanceFixtureShapeTests
         var orderTriggers = Assert.IsType<OrderTriggersCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
             {
               "cmdType": "ORDER_TRIGGERS",
-              "triggerIds": ["TRIGGER-2", "TRIGGER-1"]
+              "orderedTriggerIds": ["TRIGGER-2", "TRIGGER-1"]
+            }
+            """).RootElement));
+        var legacyOrderTriggers = Assert.IsType<OrderTriggersCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "ORDER_TRIGGERS",
+              "triggerIds": ["TRIGGER-1", "TRIGGER-2"]
             }
             """).RootElement));
 
@@ -716,6 +722,8 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal("B", assignment.TargetObjectId);
         Assert.Equal(2, assignment.Damage);
         Assert.Equal(["TRIGGER-2", "TRIGGER-1"], orderTriggers.TriggerIds);
+        Assert.Equal(["TRIGGER-2", "TRIGGER-1"], orderTriggers.OrderedTriggerIds);
+        Assert.Equal(["TRIGGER-1", "TRIGGER-2"], legacyOrderTriggers.TriggerIds);
     }
 
     [Fact]
@@ -742,13 +750,14 @@ public sealed class ConformanceFixtureShapeTests
         var orderTriggers = Assert.IsType<OrderTriggersCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
             {
               "cmdType": "ORDER_TRIGGERS",
-              "triggerIds": "TRIGGER-1"
+              "orderedTriggerIds": "TRIGGER-1"
             }
             """).RootElement));
 
         Assert.Null(payCost.PaymentChoiceIds);
         Assert.Null(assignDamage.Assignments);
         Assert.Null(orderTriggers.TriggerIds);
+        Assert.Null(orderTriggers.OrderedTriggerIds);
     }
 
     [Fact]
@@ -782,8 +791,10 @@ public sealed class ConformanceFixtureShapeTests
 
         Assert.Equal(PromptTypes.OrderTriggers, ActionPromptContracts.OrderTriggers.PromptKind);
         Assert.Equal(CommandTypes.OrderTriggers, ActionPromptContracts.OrderTriggers.CandidateAction);
-        Assert.Contains("triggerIds", ActionPromptContracts.OrderTriggers.RequiredPayload);
+        Assert.Contains("orderedTriggerIds", ActionPromptContracts.OrderTriggers.RequiredPayload);
         Assert.Contains("candidate.metadata.triggerChoices", ActionPromptContracts.OrderTriggers.LegalChoices);
+        Assert.Contains("orderingPlayerId", ActionPromptContracts.OrderTriggers.VisibleMetadata);
+        Assert.Contains("legalOrderingConstraints", ActionPromptContracts.OrderTriggers.VisibleMetadata);
         Assert.Contains("triggerQueue", ActionPromptContracts.OrderTriggers.HiddenMetadata);
         Assert.Same(ActionPromptContracts.PayCost, ActionPromptContracts.ByPromptKind[PromptTypes.PayCost]);
         Assert.Same(ActionPromptContracts.AssignCombatDamage, ActionPromptContracts.ByPromptKind[PromptTypes.AssignCombatDamage]);
@@ -1239,7 +1250,44 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
-    public async Task OrderTriggersShellValidatesControllerAndLegalChoices()
+    public void OrderTriggersPromptExposesRuntimeMetadata()
+    {
+        var state = BuildP0ContractTriggerQueueState();
+        var prompts = ResolutionResult.BuildPrompts(state);
+
+        var p1Prompt = prompts["P1"];
+        Assert.True(p1Prompt.Actionable);
+        Assert.Equal(["ORDER_TRIGGERS", "SURRENDER"], p1Prompt.Actions);
+        Assert.Equal(PromptTypes.OrderTriggers, p1Prompt.View?.Type);
+        Assert.NotNull(p1Prompt.PromptId);
+        Assert.Equal(state.Tick, p1Prompt.SnapshotTick);
+
+        var candidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.OrderTriggers, StringComparison.Ordinal));
+        Assert.True(candidate.Enabled);
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        Assert.Equal("P1", Assert.IsType<string>(metadata["orderingPlayerId"]));
+        Assert.Equal(["TRIGGER-1", "TRIGGER-2"], Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["triggerIds"]));
+        Assert.Equal(["TRIGGER-1", "TRIGGER-2"], Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["orderedTriggerIds"]));
+        Assert.NotEmpty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["triggerChoices"]));
+        var triggers = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["triggers"]);
+        Assert.Contains(triggers, trigger =>
+            string.Equals(trigger["triggerId"] as string, "TRIGGER-1", StringComparison.Ordinal)
+            && string.Equals(trigger["controllerId"] as string, "P1", StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(trigger["visibleText"] as string));
+        var constraints = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(metadata["legalOrderingConstraints"]);
+        Assert.True(Assert.IsType<bool>(constraints["noDuplicates"]));
+        Assert.True(Assert.IsType<bool>(constraints["preserveControllerBlocks"]));
+
+        var p2Prompt = prompts["P2"];
+        Assert.False(p2Prompt.Actionable);
+        Assert.Equal(["WAIT", "SURRENDER"], p2Prompt.Actions);
+        Assert.Equal(PromptTypes.OrderTriggers, p2Prompt.View?.Type);
+    }
+
+    [Fact]
+    public async Task OrderTriggersRuntimeOrdersTriggersOntoStack()
     {
         var state = BuildP0ContractTriggerQueueState();
         var engine = new CoreRuleEngine();
@@ -1257,17 +1305,185 @@ public sealed class ConformanceFixtureShapeTests
         var validShellResult = await engine.ResolveAsync(
             state,
             new PlayerIntent("intent-valid-order", "P1", CommandTypes.OrderTriggers),
-            new OrderTriggersCommand(["TRIGGER-2", "TRIGGER-1"]),
+            new OrderTriggersCommand(OrderedTriggerIds: ["TRIGGER-2", "TRIGGER-1"]),
             CancellationToken.None);
 
         Assert.False(wrongPlayerResult.Accepted);
         Assert.Equal(ErrorCodes.PhaseNotAllowed, wrongPlayerResult.ErrorCode);
         Assert.False(invalidTargetResult.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, invalidTargetResult.ErrorCode);
-        Assert.False(validShellResult.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, validShellResult.ErrorCode);
-        Assert.Equal("触发排序窗口已校验，队列重排与结算状态机尚未开放。", validShellResult.ErrorMessage);
-        Assert.Equal(["TRIGGER-1", "TRIGGER-2"], validShellResult.State.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray());
+        Assert.True(validShellResult.Accepted, validShellResult.ErrorMessage);
+        Assert.Equal(state.Tick + 1, validShellResult.State.Tick);
+        Assert.Empty(validShellResult.State.TriggerQueue);
+        Assert.Equal(["ordered-TRIGGER-1", "ordered-TRIGGER-2"], validShellResult.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.Equal("ordered-TRIGGER-2", validShellResult.State.StackItems[^1].StackItemId);
+        Assert.Equal("P1", validShellResult.State.PriorityPlayerId);
+        Assert.Equal(PromptTypes.StackPriority, validShellResult.Prompts["P1"].View?.Type);
+        Assert.Equal(["TRIGGERS_ORDERED", "TRIGGERS_MOVED_TO_STACK"], validShellResult.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        var orderedEvent = Assert.Single(validShellResult.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGERS_ORDERED", StringComparison.Ordinal));
+        Assert.Equal(["TRIGGER-2", "TRIGGER-1"], Assert.IsType<string[]>(orderedEvent.Payload["orderedTriggerIds"]));
+    }
+
+    [Fact]
+    public async Task OrderTriggersRuntimeRejectsIllegalCommandsWithoutChangingState()
+    {
+        var state = BuildP0ContractTriggerQueueState();
+        var mixedControllerState = BuildP0ContractMixedControllerTriggerQueueState();
+        var engine = new CoreRuleEngine();
+
+        var wrongPlayer = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-wrong-player-order-no-mutation", "P2", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(OrderedTriggerIds: ["TRIGGER-2", "TRIGGER-1"]),
+            CancellationToken.None);
+        var missing = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-missing-order", "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(OrderedTriggerIds: ["TRIGGER-1"]),
+            CancellationToken.None);
+        var duplicate = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-duplicate-order", "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(OrderedTriggerIds: ["TRIGGER-1", "TRIGGER-1"]),
+            CancellationToken.None);
+        var unknown = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-unknown-order", "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(OrderedTriggerIds: ["TRIGGER-1", "TRIGGER-X"]),
+            CancellationToken.None);
+        var malformed = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-malformed-order", "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(),
+            CancellationToken.None);
+        var illegalOrdering = await engine.ResolveAsync(
+            mixedControllerState,
+            new PlayerIntent("intent-illegal-order", "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(OrderedTriggerIds: ["TRIGGER-3", "TRIGGER-1", "TRIGGER-2"]),
+            CancellationToken.None);
+
+        AssertOrderRejectedWithoutMutation(wrongPlayer, state, ErrorCodes.PhaseNotAllowed);
+        AssertOrderRejectedWithoutMutation(missing, state, ErrorCodes.InvalidPayload);
+        AssertOrderRejectedWithoutMutation(duplicate, state, ErrorCodes.InvalidPayload);
+        AssertOrderRejectedWithoutMutation(unknown, state, ErrorCodes.InvalidTarget);
+        AssertOrderRejectedWithoutMutation(malformed, state, ErrorCodes.InvalidPayload);
+        AssertOrderRejectedWithoutMutation(illegalOrdering, mixedControllerState, ErrorCodes.InvalidPayload);
+    }
+
+    [Fact]
+    public async Task OrderTriggersPromptStampRejectsStaleEnvelopeWithoutChangingState()
+    {
+        var state = BuildP0ContractTriggerQueueState();
+        var session = new MatchSession(state, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var prompt = session.PromptFor("P1");
+
+        var stale = await session.SubmitAsync(
+            "P1",
+            "intent-order-stale-prompt",
+            new OrderTriggersCommand(OrderedTriggerIds: ["TRIGGER-2", "TRIGGER-1"]),
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.OrderTriggers,
+                orderedTriggerIds = new[] { "TRIGGER-2", "TRIGGER-1" },
+                promptId = $"{prompt.PromptId}:stale",
+                snapshotTick = prompt.SnapshotTick
+            }),
+            CancellationToken.None);
+
+        Assert.False(stale.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, stale.ErrorCode);
+        Assert.Equal(state.Tick, stale.State.Tick);
+        Assert.Equal(["TRIGGER-1", "TRIGGER-2"], stale.State.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray());
+        Assert.Empty(stale.Events);
+
+        var matching = await session.SubmitAsync(
+            "P1",
+            "intent-order-matching-prompt",
+            new OrderTriggersCommand(OrderedTriggerIds: ["TRIGGER-2", "TRIGGER-1"]),
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.OrderTriggers,
+                orderedTriggerIds = new[] { "TRIGGER-2", "TRIGGER-1" },
+                promptId = prompt.PromptId,
+                snapshotTick = prompt.SnapshotTick
+            }),
+            CancellationToken.None);
+
+        Assert.True(matching.Accepted, matching.ErrorMessage);
+    }
+
+    [Fact]
+    public async Task Stage3PreflightCoversBattleDamageOrderTriggersCleanupAndOpponentTurn()
+    {
+        var state = BuildP0ContractSpellDuelBattleState(includeHiddenStandby: true);
+        var engine = new CoreRuleEngine();
+        var p1Snapshot = ResolutionResult.BuildSnapshots(state)["P1"];
+        var p2ZonesForP1 = ZoneView(PlayerView(p1Snapshot, "P2"));
+        Assert.DoesNotContain("P2-HIDDEN-STANDBY", StringList(p2ZonesForP1["battlefields"]));
+        var p2ObjectsForP1 = ObjectView(PlayerView(p1Snapshot, "P2"));
+        if (p2ObjectsForP1.TryGetValue("P2-HIDDEN-STANDBY", out var p2HiddenObject))
+        {
+            var hiddenObject = Assert.IsType<Dictionary<string, object?>>(p2HiddenObject);
+            Assert.True(Assert.IsType<bool>(hiddenObject["isFaceDown"]));
+            Assert.DoesNotContain("cardNo", hiddenObject.Keys);
+        }
+
+        var pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("preflight-pass-focus", "P1", CommandTypes.PassFocus),
+            new PassFocusCommand(),
+            CancellationToken.None);
+        Assert.True(pass.Accepted, pass.ErrorMessage);
+        Assert.Contains(pass.Events, gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
+        Assert.Equal(PromptTypes.AssignCombatDamage, pass.Prompts["P1"].View?.Type);
+
+        var assign = await engine.ResolveAsync(
+            pass.State,
+            new PlayerIntent("preflight-assign-damage", "P1", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand(
+                "battle:BATTLEFIELD:P1-MAIN",
+                "BATTLEFIELD:P1-MAIN",
+                [
+                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 3),
+                    new CombatDamageAssignmentDto("P2-DEFENDER", "P1-ATTACKER", 1)
+                ]),
+            CancellationToken.None);
+        Assert.True(assign.Accepted, assign.ErrorMessage);
+        Assert.Contains(assign.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTROL_RESOLVED", StringComparison.Ordinal));
+
+        var triggerState = assign.State with
+        {
+            TriggerQueue = BuildP0ContractTriggerQueueState().TriggerQueue
+        };
+        Assert.Equal(PromptTypes.OrderTriggers, ResolutionResult.BuildPrompts(triggerState)["P1"].View?.Type);
+
+        var ordered = await engine.ResolveAsync(
+            triggerState,
+            new PlayerIntent("preflight-order-triggers", "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(OrderedTriggerIds: ["TRIGGER-2", "TRIGGER-1"]),
+            CancellationToken.None);
+        Assert.True(ordered.Accepted, ordered.ErrorMessage);
+        Assert.Empty(ordered.State.TriggerQueue);
+        Assert.Contains(ordered.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGERS_MOVED_TO_STACK", StringComparison.Ordinal));
+        Assert.Equal(PromptTypes.StackPriority, ordered.Prompts["P1"].View?.Type);
+
+        var triggerStackDrainedState = ordered.State with
+        {
+            StackItems = [],
+            PriorityPlayerId = null,
+            PassedPriorityPlayerIds = [],
+            TimingState = TimingStates.NeutralOpen,
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1"
+        };
+        var endTurn = await engine.ResolveAsync(
+            triggerStackDrainedState,
+            new PlayerIntent("preflight-end-turn", "P1", CommandTypes.EndTurn),
+            new EndTurnCommand(),
+            CancellationToken.None);
+        Assert.True(endTurn.Accepted, endTurn.ErrorMessage);
+        Assert.Equal("P2", endTurn.State.ActivePlayerId);
+        Assert.Equal("P2", endTurn.State.TurnPlayerId);
     }
 
     [Fact]
@@ -7818,6 +8034,24 @@ public sealed class ConformanceFixtureShapeTests
         }
     }
 
+    private static void AssertOrderRejectedWithoutMutation(
+        ResolutionResult result,
+        MatchState originalState,
+        string expectedErrorCode)
+    {
+        Assert.False(result.Accepted);
+        Assert.Equal(expectedErrorCode, result.ErrorCode);
+        Assert.Equal(originalState.Tick, result.State.Tick);
+        Assert.Empty(result.Events);
+        Assert.Equal(
+            originalState.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray(),
+            result.State.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray());
+        Assert.Equal(
+            originalState.StackItems.Select(item => item.StackItemId).ToArray(),
+            result.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.Equal(originalState.PriorityPlayerId, result.State.PriorityPlayerId);
+    }
+
     private static MatchState BuildP0ContractBattleState(
         int attackerPower = 2,
         int defenderPower = 2,
@@ -7965,12 +8199,13 @@ public sealed class ConformanceFixtureShapeTests
             });
     }
 
-    private static MatchState BuildP0ContractSpellDuelBattleState()
+    private static MatchState BuildP0ContractSpellDuelBattleState(bool includeHiddenStandby = false)
     {
         return BuildP0ContractBattleState(
             attackerPower: 3,
             defenderPower: 1,
-            battlefieldControllerId: "P2") with
+            battlefieldControllerId: "P2",
+            includeHiddenStandby: includeHiddenStandby) with
         {
             TimingState = TimingStates.SpellDuelOpen,
             FocusPlayerId = "P1",
@@ -7995,6 +8230,34 @@ public sealed class ConformanceFixtureShapeTests
                     "P1",
                     "P1-SOURCE-2",
                     "GAIN_POWER",
+                    "UNIT_DESTROYED")
+            ]
+        };
+    }
+
+    private static MatchState BuildP0ContractMixedControllerTriggerQueueState()
+    {
+        return BuildP0ContractMainState() with
+        {
+            TriggerQueue =
+            [
+                new TriggerQueueItemState(
+                    "TRIGGER-1",
+                    "P1",
+                    "P1-SOURCE-1",
+                    "DRAW_ONE",
+                    "UNIT_DESTROYED"),
+                new TriggerQueueItemState(
+                    "TRIGGER-2",
+                    "P1",
+                    "P1-SOURCE-2",
+                    "GAIN_POWER",
+                    "UNIT_DESTROYED"),
+                new TriggerQueueItemState(
+                    "TRIGGER-3",
+                    "P2",
+                    "P2-SOURCE-1",
+                    "DRAW_ONE",
                     "UNIT_DESTROYED")
             ]
         };

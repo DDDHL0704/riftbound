@@ -888,7 +888,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         if (string.Equals(command.CmdType, CommandTypes.OrderTriggers, StringComparison.Ordinal))
         {
-            result = ResolveOrderTriggersContractShell(state, intent, command);
+            result = ResolveOrderTriggersRuntime(state, intent, command);
             return true;
         }
 
@@ -1484,7 +1484,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
     }
 
-    private static ResolutionResult ResolveOrderTriggersContractShell(
+    private static ResolutionResult ResolveOrderTriggersRuntime(
         MatchState state,
         PlayerIntent intent,
         GameCommand command)
@@ -1492,15 +1492,17 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!TryReadOrderTriggersPayload(command, out var triggerIds)
             || triggerIds is null
             || triggerIds.Count == 0
+            || triggerIds.Any(string.IsNullOrWhiteSpace)
             || triggerIds.Distinct(StringComparer.Ordinal).Count() != triggerIds.Count)
         {
             return RejectWithCorePrompts(
                 state,
-                "ORDER_TRIGGERS 需要非空且不重复的 triggerIds。",
+                "ORDER_TRIGGERS 需要非空且不重复的 orderedTriggerIds。",
                 ErrorCodes.InvalidPayload);
         }
 
-        if (state.TriggerQueue.Count <= 1)
+        triggerIds = triggerIds.Select(triggerId => triggerId.Trim()).ToArray();
+        if (!ResolutionResult.HasOpenOrderTriggersWindow(state))
         {
             return RejectWithCorePrompts(
                 state,
@@ -1525,9 +1527,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidPayload);
         }
 
-        var legalTriggerIds = state.TriggerQueue
-            .Select(trigger => trigger.TriggerId)
-            .ToHashSet(StringComparer.Ordinal);
+        var triggersById = state.TriggerQueue.ToDictionary(
+            trigger => trigger.TriggerId,
+            trigger => trigger,
+            StringComparer.Ordinal);
+        var legalTriggerIds = triggersById.Keys.ToHashSet(StringComparer.Ordinal);
         if (triggerIds.Any(triggerId => !legalTriggerIds.Contains(triggerId)))
         {
             return RejectWithCorePrompts(
@@ -1536,11 +1540,139 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        return RejectWithCorePrompts(
-            state,
-            "触发排序窗口已校验，队列重排与结算状态机尚未开放。",
-            ErrorCodes.UnsupportedCommand);
+        if (!triggerIds.ToHashSet(StringComparer.Ordinal).SetEquals(legalTriggerIds))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "ORDER_TRIGGERS 必须提交完整触发队列顺序。",
+                ErrorCodes.InvalidPayload);
+        }
+
+        var orderedTriggers = triggerIds.Select(triggerId => triggersById[triggerId]).ToArray();
+        if (!PreservesTriggerControllerBlocks(state.TriggerQueue, orderedTriggers))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "ORDER_TRIGGERS 当前切片要求保持触发控制者区块顺序。",
+                ErrorCodes.InvalidPayload);
+        }
+
+        var stackItemsToAppend = orderedTriggers
+            .Reverse()
+            .Select(trigger => BuildStackItemForOrderedTrigger(state, trigger))
+            .ToArray();
+        var topStackItem = stackItemsToAppend.LastOrDefault();
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            TriggerQueue = [],
+            StackItems = state.StackItems.Concat(stackItemsToAppend).ToArray(),
+            PriorityPlayerId = topStackItem?.ControllerId,
+            PassedPriorityPlayerIds = [],
+            TimingState = TimingStates.NeutralOpen
+        };
+        var events = new GameEvent[]
+        {
+            new(
+                "TRIGGERS_ORDERED",
+                "玩家提交触发能力结算顺序",
+                new Dictionary<string, object?>
+                {
+                    ["orderingPlayerId"] = intent.PlayerId,
+                    ["orderedTriggerIds"] = triggerIds.ToArray(),
+                    ["previousTriggerIds"] = state.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray(),
+                    ["triggerCount"] = triggerIds.Count
+                }),
+            new(
+                "TRIGGERS_MOVED_TO_STACK",
+                "触发能力按顺序加入结算链",
+                new Dictionary<string, object?>
+                {
+                    ["orderedTriggerIds"] = triggerIds.ToArray(),
+                    ["stackItemIds"] = stackItemsToAppend.Select(item => item.StackItemId).ToArray(),
+                    ["topStackItemId"] = topStackItem?.StackItemId ?? string.Empty,
+                    ["nextPriorityPlayerId"] = topStackItem?.ControllerId ?? string.Empty
+                })
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
     }
+
+    private static bool PreservesTriggerControllerBlocks(
+        IReadOnlyList<TriggerQueueItemState> currentQueue,
+        IReadOnlyList<TriggerQueueItemState> orderedTriggers)
+    {
+        var currentBlocks = BuildTriggerControllerBlocks(currentQueue);
+        var orderedBlocks = BuildTriggerControllerBlocks(orderedTriggers);
+        if (currentBlocks.Count != orderedBlocks.Count)
+        {
+            return false;
+        }
+
+        for (var index = 0; index < currentBlocks.Count; index++)
+        {
+            if (!string.Equals(currentBlocks[index].ControllerId, orderedBlocks[index].ControllerId, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            if (!currentBlocks[index].TriggerIds.ToHashSet(StringComparer.Ordinal)
+                    .SetEquals(orderedBlocks[index].TriggerIds))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static IReadOnlyList<TriggerControllerBlock> BuildTriggerControllerBlocks(
+        IReadOnlyList<TriggerQueueItemState> triggerQueue)
+    {
+        var blocks = new List<TriggerControllerBlock>();
+        foreach (var trigger in triggerQueue)
+        {
+            var last = blocks.LastOrDefault();
+            if (last is not null
+                && string.Equals(last.ControllerId, trigger.ControllerId, StringComparison.Ordinal))
+            {
+                blocks[^1] = last with
+                {
+                    TriggerIds = last.TriggerIds.Concat([trigger.TriggerId]).ToArray()
+                };
+                continue;
+            }
+
+            blocks.Add(new TriggerControllerBlock(trigger.ControllerId, [trigger.TriggerId]));
+        }
+
+        return blocks;
+    }
+
+    private static StackItemState BuildStackItemForOrderedTrigger(MatchState state, TriggerQueueItemState trigger)
+    {
+        var cardNo = state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
+            ? sourceObject.CardNo
+            : string.Empty;
+        return new StackItemState(
+            stackItemId: $"ordered-{trigger.TriggerId}",
+            controllerId: trigger.ControllerId,
+            sourceObjectId: trigger.SourceObjectId,
+            effectKind: trigger.EffectKind,
+            cardNo: cardNo,
+            targetObjectIds: [],
+            timingContext: "ORDERED_TRIGGER");
+    }
+
+    private sealed record TriggerControllerBlock(
+        string ControllerId,
+        IReadOnlyList<string> TriggerIds);
 
     private static bool TryReadPayCostPayload(
         GameCommand command,
@@ -1609,13 +1741,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         triggerIds = null;
         if (command is OrderTriggersCommand typed)
         {
-            triggerIds = typed.TriggerIds?.ToArray();
+            triggerIds = (typed.OrderedTriggerIds ?? typed.TriggerIds)?.ToArray();
             return true;
         }
 
         if (TryGetRawPayload(command, out var payload))
         {
-            triggerIds = TryReadTextArray(payload, "triggerIds", out var parsedTriggerIds)
+            triggerIds = TryReadTextArray(payload, "orderedTriggerIds", out var parsedTriggerIds)
+                || TryReadTextArray(payload, "triggerIds", out parsedTriggerIds)
                 ? parsedTriggerIds
                 : null;
             return true;

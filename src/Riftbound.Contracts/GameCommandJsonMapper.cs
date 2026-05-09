@@ -84,8 +84,7 @@ public static class GameCommandJsonMapper
                 Text(cmd, "battleId"),
                 Text(cmd, "battlefieldId"),
                 CombatDamageAssignments(cmd)),
-            "ORDER_TRIGGERS" => new OrderTriggersCommand(
-                StrictTextArray(cmd, "triggerIds")),
+            "ORDER_TRIGGERS" => OrderTriggers(cmd),
             _ => new UnsupportedCommand(cmdType, cmd.Clone())
         };
     }
@@ -137,6 +136,25 @@ public static class GameCommandJsonMapper
         }
 
         return values.ToArray();
+    }
+
+    private static IReadOnlyList<string>? OrderedTriggerIds(JsonElement cmd)
+    {
+        return HasProperty(cmd, "orderedTriggerIds")
+            ? StrictTextArray(cmd, "orderedTriggerIds")
+            : StrictTextArray(cmd, "triggerIds");
+    }
+
+    private static OrderTriggersCommand OrderTriggers(JsonElement cmd)
+    {
+        var orderedTriggerIds = OrderedTriggerIds(cmd);
+        return new OrderTriggersCommand(orderedTriggerIds, orderedTriggerIds);
+    }
+
+    private static bool HasProperty(JsonElement cmd, string propertyName)
+    {
+        return cmd.ValueKind == JsonValueKind.Object
+            && cmd.TryGetProperty(propertyName, out _);
     }
 
     private static IReadOnlyList<CombatDamageAssignmentDto>? CombatDamageAssignments(JsonElement cmd)

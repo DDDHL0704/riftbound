@@ -2,11 +2,11 @@
 
 更新时间：2026-05-09
 
-阶段：**阶段 3C / E 卡牌覆盖矩阵与 Spell duel / Battle / ASSIGN_COMBAT_DAMAGE 证据 overlay**
+阶段：**阶段 3D / E 卡牌覆盖矩阵与 ORDER_TRIGGERS 证据 overlay**
 
 结论：**NOT READY；不允许进入 1009 张卡牌效果批量覆盖。**
 
-本文以阶段 2 风险排序为基础，并叠加阶段 3A/3B/3C 的最小证据 overlay；它不是功能实现清单，也不是错误断言。排名用于告诉后续阶段先审哪里：哪些 functional unit 同时碰到 FAQ、费用、触发/替换、持续效果、战斗/法术对决、隐藏信息或非 PLAY_CARD 规则域。
+本文以阶段 2 风险排序为基础，并叠加阶段 3A/3B/3C/3D 的最小证据 overlay；它不是功能实现清单，也不是错误断言。排名用于告诉后续阶段先审哪里：哪些 functional unit 同时碰到 FAQ、费用、触发/替换、持续效果、战斗/法术对决、隐藏信息或非 PLAY_CARD 规则域。
 
 ## 1. 数据来源
 
@@ -94,7 +94,23 @@
 
 后续 `ORDER_TRIGGERS` 压测候选：`FU-422b450261`、`FU-67c6b0186e`、`FU-bf81341dd2`、`FU-5cea85e7c3`、`FU-c170628e3a`、`FU-16d3a6dd4e`、`FU-4e2e19359f`、`FU-7f4a387b92`、`FU-c027639a3c`、`FU-8dae5c40be`。3C 只记录这些候选，不进入 runtime 实现。
 
-## 6. Top20 高风险 Functional Units
+## 6. Stage 3D Complex Prompt / Trigger Overlay
+
+阶段 3D 建立 complex prompt 与 lifecycle dependency 索引，并对齐 B 已关闭的 `ORDER_TRIGGERS` 最小 runtime window：prompt、`orderedTriggerIds` command、validation、合法排序入 `StackItems`、事件日志。不启动最终 18 步 E2E，不进入完整 trigger engine，也不进入 1009 张卡 full-official 覆盖。以下口径已同步到 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 的 `stage3DComplexPromptLifecycle`：
+
+| 依赖桶 | FU 数 | 来源阶段 | Stage 4 用途 |
+|---|---:|---|---|
+| `PAY_COST` | 370 | 3A | PaymentEngine、替代/额外费用、资源支付和 card text 费用窗口优先级。 |
+| `ASSIGN_COMBAT_DAMAGE` | 287 | 3C | battle damage assignment、damage pool、合法分配和零副作用拒绝矩阵。 |
+| `ORDER_TRIGGERS` / battle initial stack | 67 | 3D | 最小 runtime window 已关闭；继续压测完整 trigger engine、真实卡牌触发入队、APNAP / 跨控制者排序、trigger cost / decline / payment。 |
+| battlefield / control / conquer | 358 | 3B | 战场、控制权、待命、征服/据守、zone movement lifecycle 压测。 |
+| spell duel / battle | 288 | 3C | spell duel、battle task、attack/defense identity、combat trick 压测。 |
+
+3D 还标注 179 个 FAQ 命中 FUs、113 个可复用 oracle / effectId implementation 候选，以及 61 个阶段 4 优先 / FAQ / 压测 / 复用候选 `functionalUnits[].stage3D` 标签。
+
+后续 `ORDER_TRIGGERS` / battle initial stack / trigger ordering 压测首批候选：`FU-104211dbbc`、`FU-2dca1ad450`、`FU-964b214448`、`FU-05ce012700`、`FU-422b450261`、`FU-813144e7d4`、`FU-50ceb593ab`、`FU-8dae5c40be`、`FU-201e46695b`、`FU-f076dbf9ee`、`FU-f9f5c508c0`、`FU-4e2e19359f`、`FU-f9eb8c6f71`、`FU-5164c0d190`、`FU-c027639a3c`、`FU-16d3a6dd4e`、`FU-3e9cb3904e`、`FU-7d0b8868b`、`FU-1563edad5f`、`FU-67c6b0186e`、`FU-bf81341dd2`、`FU-5cea85e7c3`、`FU-e3dcc3b30f`、`FU-7f4a387b92`。3D 最小 runtime window 不等于这些 FUs 的 full-official 完成。
+
+## 7. Top20 高风险 Functional Units
 
 | # | FU | Representative | 类型/条目数 | 当前代表映射 | FAQ 候选页 | 风险依据 | 依赖规则域 |
 |---:|---|---|---:|---|---|---|---|
@@ -119,7 +135,7 @@
 | 19 | `FU-804412488c` | `SFD·139/221` 夜之锋刃 | 装备 / 1 | 代表路径：EDGE_OF_NIGHT_PLAY_EQUIPMENT | SOUL-OFAQ-260114 p10<br>SOUL-OFAQ-260114 p9 | 控制权/区域移动、FAQ 提及、隐藏信息/随机/牌堆、效果层/持续效果、费用/支付、目标/结算链/时机 | FEPR/Targeting/TimingWindows, LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, VisibilityFilter/RandomAndHiddenZones, ZoneOwnership/ControlChange/Movement |
 | 20 | `FU-9a623b3185` | `SFD·059/221` 斯弗尔尚歌 | 装备 / 1 | 代表路径：SFUR_SONG_PLAY_EQUIPMENT | SOUL-JFAQ-260114 p24<br>SOUL-JFAQ-260114 p25<br>SOUL-JFAQ-260114 p8<br>SOUL-OFAQ-260114 p18<br>SOUL-OFAQ-260114 p19 | 控制权/区域移动、FAQ 提及、效果层/持续效果、费用/支付 | LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, ZoneOwnership/ControlChange/Movement |
 
-## 7. 未覆盖效果分类
+## 8. 未覆盖效果分类
 
 | 分类 | 含义 | 当前阻断关系 |
 |---|---|---|
@@ -133,13 +149,13 @@
 | `non-play-domain` | 传奇、战场、符文、指示物等非普通 PLAY_CARD 域。 | 需要专门域矩阵，不可与普通出牌效果混算。 |
 | `faq-mentioned` | 五份 PDF/FAQ 中出现卡名的候选项。 | 必须人工判定问题是否真的约束该 FU，并补测试。 |
 
-## 8. P0/P1 仍未清零
+## 9. P0/P1 仍未清零
 
 P0：
 
 - central cleanup queue 未完整官方化。
 - spell duel / battle 完整生命周期仍未完成。
-- `PAY_COST` 已有 3A 最小 runtime，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime；完整 PaymentEngine、完整 damage assignment 全规则矩阵、`ORDER_TRIGGERS` runtime 仍未完成。
+- `PAY_COST` 已有 3A 最小 runtime，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime，`ORDER_TRIGGERS` 已有 3D 最小 runtime window；完整 PaymentEngine、完整 damage assignment 全规则矩阵、完整 trigger engine / battle initial stack 全规则仍未完成。
 - 正式 18 步 E2E 未最终收口。
 - 1009 entries / 811 FUs 的 FAQ 证据与 full-official 测试矩阵未完成。
 

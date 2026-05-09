@@ -2,11 +2,11 @@
 
 更新时间：2026-05-09
 
-阶段：**阶段 3C / E 卡牌覆盖矩阵与 Spell duel / Battle / ASSIGN_COMBAT_DAMAGE 证据 overlay**
+阶段：**阶段 3D / E 卡牌覆盖矩阵与 ORDER_TRIGGERS 证据 overlay**
 
 结论：**NOT READY；不允许进入 1009 张卡牌效果批量覆盖。**
 
-本文只建立统计口径、只读数据基线、矩阵字段、风险排序和阶段性证据 overlay，不实现或修改任何卡牌效果。阶段 1/2 建立卡牌覆盖基线；阶段 3A/3B/3C 只给最小 runtime / lifecycle / battle-damage 切片补证据标签，防止把代表路径、旧阶段口径或图鉴展示误判为全官方卡牌完成。
+本文只建立统计口径、只读数据基线、矩阵字段、风险排序和阶段性证据 overlay，不实现或修改任何卡牌效果。阶段 1/2 建立卡牌覆盖基线；阶段 3A/3B/3C/3D 只给最小 runtime / lifecycle / battle-damage / trigger-ordering 切片补证据标签，防止把代表路径、旧阶段口径或图鉴展示误判为全官方卡牌完成。
 
 ## 1. 已读取依据
 
@@ -16,7 +16,7 @@
 - `docs/rules-evidence-index.md`：当前已有规则域和 fixture 证据目录；该文件不是 1009 张卡覆盖矩阵。
 - `data/official/card-catalog.zh-CN.json`：固定官网快照，`fetchedAt = 2026-04-27`，声明 `total = 1009`。
 
-注意：`docs/CURRENT_RULE_EVIDENCE_TODO.md` 可能由 D/A 或其他 worker 持有；本轮 3C E 不修改、不追加。
+注意：`docs/CURRENT_RULE_EVIDENCE_TODO.md` 可能由 D/A 或其他 worker 持有；本轮 3D E 不修改、不追加。
 
 ## 2. 阶段 1 统计口径
 
@@ -182,7 +182,7 @@ P0 仍存在：
 
 - central cleanup queue 未完整官方化。
 - spell duel / battle 完整生命周期仍未完成。
-- `PAY_COST` 已有 3A 最小 runtime，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime；完整 PaymentEngine、完整 damage assignment 全规则矩阵、`ORDER_TRIGGERS` runtime 仍未正式完成。
+- `PAY_COST` 已有 3A 最小 runtime，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime，`ORDER_TRIGGERS` 已有 3D 最小 runtime window；完整 PaymentEngine、完整 damage assignment 全规则矩阵、完整 trigger engine 仍未正式完成。
 - 正式 18 步 E2E 未最终收口。
 - 1009 张官方卡牌效果与 FAQ 证据矩阵未完成。
 
@@ -360,5 +360,44 @@ P1 仍存在：
 - `ORDER_TRIGGERS` runtime、attack/defense initial stack ordering、last-breath / conquest / standby trigger prompt 仍未进入 3C。
 - LayerEngine、替代/预防、控制冻结/释放、隐藏信息、负战力 / barrier / back-row 全族矩阵仍需后续阶段补实现和测试。
 - 1009 snapshot entries / 811 functional units 的 FAQ adjudication 与 full-official 测试矩阵仍未完成。
+
+是否允许进入卡牌效果批量覆盖：**不允许。**
+## 12. 阶段 3D E 汇总
+
+阶段 3D 名称：卡牌覆盖矩阵 / complex prompt dependency / `ORDER_TRIGGERS` 证据 overlay。B 已关闭 `ORDER_TRIGGERS` 最小 runtime window：prompt、`orderedTriggerIds` command、validation、合法排序入 `StackItems`、事件日志。E 只维护矩阵索引、FAQ 证据和阶段 4 优先级，不修改核心规则引擎，不启动最终 18 步 E2E，不进入 1009 张卡 full-official 覆盖。
+
+完成项：
+
+- 在机器矩阵中新增 `stage3DComplexPromptLifecycle` overlay，并为阶段 4 优先 / FAQ / 压测 / 可复用 oracle 候选补 `functionalUnits[].stage3D` 标签。
+- 标注复杂 prompt / lifecycle 依赖桶：370 个 `PAY_COST` FUs、287 个 `ASSIGN_COMBAT_DAMAGE` FUs、67 个 `ORDER_TRIGGERS` / battle initial stack 压测 FUs、358 个 battlefield / control / conquer FUs、288 个 spell duel / battle FUs。
+- 标注阶段 4 优先级：Top20 high-risk FUs、179 个 FAQ 命中候选、阶段 4 压测卡组 FUs、113 个可复用 oracle / effectId implementation 候选。
+- 输出后续适合压测 `ORDER_TRIGGERS` / battle initial stack / trigger ordering 的清单；3D 最小 runtime window 已关闭，但完整 trigger engine、真实卡牌触发全规则入队、APNAP / 跨控制者复杂排序、trigger cost / decline / payment 仍不关闭。
+
+新增文件：
+
+- `docs/CURRENT_CARD_EFFECT_STAGE3D_ORDER_TRIGGERS_EVIDENCE.md`
+
+修改文件：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`
+
+未修改文件：
+
+- `data/official/card-catalog.zh-CN.json`
+- `docs/rules-evidence-index.md`
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+- `src/**`
+- `src/Riftbound.DevUi/**`
+- `riftbound-dotnet.sln`
+
+仍存在 P0/P1：
+
+- `ORDER_TRIGGERS` 最小 runtime window 已关闭，但完整 trigger engine、真实卡牌触发全规则入队、APNAP / 跨控制者复杂排序仍未关闭。
+- battle initial stack 全规则、attack/defense/conquer/last-breath/standby trigger ordering 全矩阵、trigger cost / decline / payment 仍需后续阶段实现和测试。
+- 完整 PaymentEngine、完整 `ASSIGN_COMBAT_DAMAGE` 全规则矩阵、spell duel / battle 全生命周期、LayerEngine、替代/预防、隐藏信息仍未 full-official。
+- 1009 snapshot entries / 811 functional units 的 official text、FAQ adjudication、实现、测试闭环仍未完成。
 
 是否允许进入卡牌效果批量覆盖：**不允许。**

@@ -737,6 +737,16 @@ A 主控复验：
 - `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：通过；包含 `check:event-labels` 与 `check:user-facing-text`，仅有 SignalR 依赖的 Rollup PURE 注释 warning。
 - `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：通过；API health、DevUi preview、Chrome headless / CDP 路由 smoke 通过，`/matches/stage3-smoke` 覆盖法术对决、战斗、伤害分配、中央清理、战场、待命区、服务端行动提示和权威快照摘要，并断言 debug 页面不出现 `mainDeck/runeDeck/handHidden/stackItemId/reconnectToken/battleState/damageLedger/participantControllerIds` raw 字段。
 
+阶段 3C checkpoint 保护：
+
+- 已创建 commit：`2c10a1b3f433cb28a4bc806753e02236da831a15` (`checkpoint: complete stage 3C battle damage baseline`)。
+- commit 后 `git status --short --branch`：仅剩未跟踪本地文件 `riftbound-dotnet.sln`，未纳入 checkpoint。
+- commit 后后端验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过，3329/3329 passed。
+- commit 后前端 build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过；仍只有 SignalR/Rollup PURE 注释 warning。
+- commit 后 Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过，`/`、`/lobby`、`/decks`、`/cards`、`/rooms/stage3-smoke`、`/matches/stage3-smoke`、`/matches/stage3-smoke/result` 均 OK。
+- 当前结论仍是 **NOT READY**。
+- 下一阶段建议为阶段 3D / 第三阶段收口；开始前仍需用户明确确认。
+
 阶段 3C 判断：
 
 - 阶段 3C 收口标准：**已满足当前最小切片**。
@@ -751,13 +761,77 @@ A 主控复验：
 - P0：完整 battle lifecycle 未完成，尤其完整 battle task、战斗响应窗口、初始栈、所有多攻防组合和 control freeze/release。
 - P0：完整 `ASSIGN_COMBAT_DAMAGE` full-rule runtime 未完成，3C 只关闭最小 prompt / validation / simultaneous commit；壁垒、后排、同优先级、负战力、不可分配和替代/预防矩阵仍缺。
 - P0：battle cleanup 全路径未完成，替代/预防、LayerEngine、control freeze/release 与 cleanup queue 全触发面仍缺。
-- P0：完整 `ORDER_TRIGGERS` runtime、完整 PaymentEngine / LayerEngine、最终 18 步 E2E、1009 张卡 full-official 矩阵仍未关闭。
+- P0：`ORDER_TRIGGERS` 完整 trigger engine / APNAP / battle initial stack / trigger payment、完整 PaymentEngine / LayerEngine、最终 18 步 E2E、1009 张卡 full-official 矩阵仍未关闭；3D 后已关闭的只是最小 runtime / UI / evidence 子项。
 - P1：`SpellDuelView` / `BattleView` / `BattleResolutionView` / `DamageAssignmentPromptView` 正式 DTO 尚未冻结，当前仍偏 DevUi / dictionary view。
 
 下一阶段建议：
 
-- 先由 A 输出阶段 3C 汇总并等待用户确认；若确认保护，再创建阶段 3C checkpoint commit，继续排除 `riftbound-dotnet.sln`。
-- 后续建议进入阶段 3D 或用户指定的下一切片，优先处理 `ORDER_TRIGGERS` runtime、battle initial stack / trigger ordering、control freeze/release、以及双窗口 reload/reconnect 隐藏信息 smoke；仍不进入最终 18 步 E2E 或 1009 全量，除非用户明确开启对应阶段。
+- 阶段 3C checkpoint 已保护，继续排除 `riftbound-dotnet.sln`。
+- 等待用户确认后进入阶段 3D / 第三阶段收口；该项后续已由 3D 更新为：`ORDER_TRIGGERS` 最小 runtime / UI / evidence 已关闭，battle initial stack / 完整 trigger ordering、control freeze/release、双窗口 reload/reconnect 隐藏信息 smoke 仍留后续；仍不进入最终 18 步 E2E 或 1009 全量，除非用户明确开启对应阶段。
+
+## 0.8 阶段 3D 第三阶段收口审计
+
+阶段 3D 按用户确认范围执行：D 只做文档 / 规则证据 / 第三阶段收口审计；B/C/E 已并行完成 `ORDER_TRIGGERS` 最小 runtime / UI / evidence。阶段 3D 不启动最终验收版 18 步 E2E，不进入 1009 张卡 full-official 实现，不提交 git，结论仍为 **NOT READY**。
+
+本阶段核心产物：
+
+- 新增 `docs/CURRENT_STAGE3_COMPLETION_AUDIT.md`，汇总 3A / 3B / 3C / 3D 的关闭子项、仍缺 P0/P1、阶段 4 入口和最终验收边界。
+- `ORDER_TRIGGERS` / 多触发排序最小 runtime 已由 B 完成：prompt metadata 包含 `orderingPlayerId/orderedTriggerIds/triggerIds/triggers/triggerChoices/legalOrderingConstraints/triggeredByEventKind`；command 支持 `orderedTriggerIds` 并兼容 `triggerIds`；合法排序清空 `TriggerQueue`、按顺序加入 `StackItems`、设置 priority player，并发出 `TRIGGERS_ORDERED` / `TRIGGERS_MOVED_TO_STACK`。
+- C 已完成 `ORDER_TRIGGERS` UI：上移 / 下移排序，提交 `orderedTriggerIds`，不本地结算触发；新增 `stage3-preflight.mjs`，C 侧 build / smoke / preflight 通过。
+- E 已补 stage3D 矩阵 overlay 和 `ORDER_TRIGGERS` 证据文档。
+- B 验证记录：`ConformanceFixtureShapeTests` 109/109 通过；full `dotnet test Riftbound.slnx --no-restore` 3333/3333 通过；`git diff --check` 通过。
+- A 主控最终验证：`git diff --check` 通过；`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 3333/3333 通过；`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过；`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过；`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && node scripts/stage3-preflight.mjs --start-api` 通过。
+- 已把 priority/focus、spell duel close、battle lifecycle、damage assignment、battle cleanup、battlefield control update、conquer/hold scoring、standby visibility、cleanup queue 的第三阶段证据状态整理为“已有关联证据 / 仍缺口 / 下一阶段”。
+- 明确第三阶段 preflight / smoke 不是最终验收版 18 步 E2E；不得宣称 1009 张卡已经覆盖。
+
+第三阶段收口判断：
+
+- 3A 已关闭：Chrome route smoke 基线、三类复杂命令 typed mapper、`PAY_COST` 最小 runtime、前端外壳不裁决规则。
+- 3B 已关闭：battlefield / standby snapshot 只读字段、非法待命 cleanup 代表路径、control / held / conquer 代表结果、central cleanup queue 最小 task view。
+- 3C 已关闭：spell duel focus/pass/close 代表链、battle view / battle resolution 最小 task、`ASSIGN_COMBAT_DAMAGE` 最小 runtime prompt / submit / reject / simultaneous commit、battle damage -> cleanup -> control update 代表链。
+- 3D 已关闭：`ORDER_TRIGGERS` 最小 runtime / UI / evidence 子项、第三阶段收口审计口径、阶段 4 / 最终验收边界文档风险。
+- 上述关闭均为阶段性最小切片，不等于 READY。
+
+仍存在 P0/P1：
+
+- P0：完整 trigger engine、完整 effect resolution、APNAP / 跨控制者复杂排序、battle initial stack 全规则、trigger cost / decline / payment 未完成。
+- P0：完整 priority/focus / `SPELL_DUEL_ACTION`、spell duel 全反应链和触发排序交织未完成。
+- P0：完整 battle lifecycle、battle response window、control freeze/release 和 next task 全路径未完成。
+- P0：`ASSIGN_COMBAT_DAMAGE` 全规则矩阵仍缺壁垒、后排、同优先级、负战力、不可分配和替代/预防。
+- P0：battle cleanup 全路径、cleanup queue 全触发面、standby 全时机、conquer/hold scoring order 未完成。
+- P0：完整 PaymentEngine / `DECLINE_PAY_COST`、LayerEngine、最终 18 步 E2E、1009 张卡 full-official 覆盖仍未完成。
+- P1：正式 DTO、隐藏信息三层断言、产品 UI polish、replay/recovery/determinism 全边界仍需后续审计。
+
+是否允许进入阶段 4：
+
+- A 主控判断：**第三阶段 DONE，可以准备进入阶段 4**。
+- 不允许把阶段 4 入口误读为 READY、最终验收版 18 步 E2E 或 1009 全量阶段。
+
+阶段 3D checkpoint commit 建议文件列表：
+
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`
+- `docs/CURRENT_CARD_EFFECT_STAGE3D_ORDER_TRIGGERS_EVIDENCE.md`
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`
+- `docs/CURRENT_FRONTEND_CONTRACT_GAPS.md`
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`
+- `docs/CURRENT_STAGE3_COMPLETION_AUDIT.md`
+- `src/Riftbound.Contracts/GameCommandJsonMapper.cs`
+- `src/Riftbound.Contracts/Protocol.cs`
+- `src/Riftbound.Engine/CoreRuleEngine.cs`
+- `src/Riftbound.Engine/MatchSession.cs`
+- `tests/Riftbound.ConformanceTests/ConformanceFixtureShapeTests.cs`
+- `src/Riftbound.DevUi/scripts/chrome-smoke.mjs`
+- `src/Riftbound.DevUi/scripts/stage3-preflight.mjs`
+- `src/Riftbound.DevUi/src/components/match/ActionPanel.tsx`
+- `src/Riftbound.DevUi/src/components/match/EventLog.tsx`
+- `src/Riftbound.DevUi/src/components/match/MatchStatusPanel.tsx`
+- `src/Riftbound.DevUi/src/styles/globals.css`
+- `src/Riftbound.DevUi/src/types/protocol.ts`
+- `src/Riftbound.DevUi/src/utils/formatters.ts`
+- 明确排除：`riftbound-dotnet.sln`。
 
 ## 1. 总目标
 

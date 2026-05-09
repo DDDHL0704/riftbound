@@ -8,28 +8,19 @@ import { fileURLToPath } from "node:url";
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const appRoot = path.resolve(scriptDir, "..");
 const repoRoot = path.resolve(scriptDir, "../../..");
-const frontendPort = Number(process.env.RIFTBOUND_SMOKE_FRONTEND_PORT ?? 5173);
-const debugPort = Number(process.env.RIFTBOUND_SMOKE_CHROME_DEBUG_PORT ?? 9338);
+const frontendPort = Number(process.env.RIFTBOUND_PREFLIGHT_FRONTEND_PORT ?? 5174);
 const serverUrl = process.env.RIFTBOUND_SERVER_URL ?? "http://127.0.0.1:5088";
 const frontendUrl = `http://127.0.0.1:${frontendPort}`;
+const roomId = process.env.RIFTBOUND_PREFLIGHT_ROOM_ID ?? "stage3-preflight";
 const startApi = process.argv.includes("--start-api");
-
-const routes = [
-  { path: "/", texts: ["符文战场", "进入大厅"] },
-  { path: "/lobby", texts: ["创建或加入", "玩家名称", "房间码"] },
-  { path: "/decks", texts: ["本地测试卡组", "等待服务端验证"] },
-  { path: "/cards", texts: ["卡牌图鉴", "官方卡牌视图"] },
-  { path: "/rooms/stage3-smoke", texts: ["房间", "连接/重连并入座", "选择卡组"] },
-  {
-    path: "/matches/stage3-smoke",
-    texts: ["对战状态", "正式桌面状态", "法术对决", "战斗", "伤害分配", "支付费用", "触发排序", "触发队列", "中央清理", "中央战场", "待命区", "服务端行动提示", "权威快照摘要"],
-    absentTexts: ["mainDeck", "runeDeck", "handHidden", "stackItemId", "reconnectToken", "battleState", "damageLedger", "participantControllerIds", "serverPaymentState", "resourceLedgerBeforePayment", "triggerQueue"]
-  },
-  { path: "/matches/stage3-smoke/result", texts: ["结算", "结果只读取服务端权威快照"] }
+const clients = [
+  { debugPort: 9340, name: "player-a", playerId: "preflight-alpha" },
+  { debugPort: 9341, name: "player-b", playerId: "preflight-beta" }
 ];
 
 const children = [];
-let userDataDir;
+const userDataDirs = [];
+const browserErrors = [];
 
 try {
   if (startApi) {
@@ -43,67 +34,68 @@ try {
   children.push(preview);
   await waitForHttp(`${frontendUrl}/`, 30_000);
 
-  userDataDir = await mkdtemp(path.join(tmpdir(), "riftbound-chrome-smoke-"));
-  const chrome = spawnChild(chromePath(), [
-    "--headless=new",
-    "--disable-gpu",
-    "--no-first-run",
-    "--no-default-browser-check",
-    `--remote-debugging-port=${debugPort}`,
-    `--user-data-dir=${userDataDir}`,
-    "about:blank"
-  ], { name: "chrome" });
-  children.push(chrome);
-  await waitForHttp(`http://127.0.0.1:${debugPort}/json/version`, 15_000);
-
-  const tab = await openChromeTab(`${frontendUrl}/`);
-  const cdp = await connectCdp(tab.webSocketDebuggerUrl);
-  const browserErrors = [];
-  cdp.onEvent((message) => {
-    if (message.method === "Runtime.exceptionThrown") {
-      browserErrors.push(`exception: ${message.params?.exceptionDetails?.text ?? "unknown"}`);
-    }
-
-    if (message.method === "Runtime.consoleAPICalled" && message.params?.type === "error") {
-      const text = consoleArgs(message.params.args);
-      if (!isIgnorableConsoleError(text)) {
-        browserErrors.push(`console.error: ${text}`);
-      }
-    }
-
-    if (message.method === "Log.entryAdded" && message.params?.entry?.level === "error") {
-      const text = String(message.params.entry.text ?? "");
-      if (!text.includes(serverUrl) && !isIgnorableResourceLog(text)) {
-        browserErrors.push(`log.error: ${text}`);
-      }
-    }
-  });
-
-  await cdp.send("Page.enable");
-  await cdp.send("Runtime.enable");
-  await cdp.send("Log.enable");
-
-  for (const route of routes) {
-    await cdp.send("Page.navigate", { url: `${frontendUrl}${route.path}` });
-    await waitForText(cdp, route.texts);
-    await expectAbsentText(cdp, route.absentTexts ?? []);
-    console.log(`Chrome smoke OK: ${route.path}`);
+  for (const client of clients) {
+    await runClientPreflight(client);
   }
 
   if (browserErrors.length > 0) {
-    throw new Error(`Chrome reported errors:\n${browserErrors.join("\n")}`);
+    throw new Error(`Chrome preflight reported errors:\n${browserErrors.join("\n")}`);
   }
 
-  await cdp.close();
-  console.log("Chrome smoke passed.");
+  console.log("Stage 3 preflight passed.");
 } finally {
   for (const child of children.reverse()) {
     child.kill("SIGTERM");
   }
 
-  if (userDataDir) {
-    await rm(userDataDir, { force: true, recursive: true });
+  await delay(300);
+  for (const userDataDir of userDataDirs) {
+    await rm(userDataDir, { force: true, recursive: true, maxRetries: 5, retryDelay: 150 });
   }
+}
+
+async function runClientPreflight(client) {
+  const userDataDir = await mkdtemp(path.join(tmpdir(), `riftbound-${client.name}-`));
+  userDataDirs.push(userDataDir);
+  const chrome = spawnChild(chromePath(), [
+    "--headless=new",
+    "--disable-gpu",
+    "--no-first-run",
+    "--no-default-browser-check",
+    `--remote-debugging-port=${client.debugPort}`,
+    `--user-data-dir=${userDataDir}`,
+    "about:blank"
+  ], { name: `chrome-${client.name}` });
+  children.push(chrome);
+  await waitForHttp(`http://127.0.0.1:${client.debugPort}/json/version`, 15_000);
+
+  const tab = await openChromeTab(client.debugPort, `${frontendUrl}/`);
+  const cdp = await connectCdp(tab.webSocketDebuggerUrl, client.name);
+  await cdp.send("Page.enable");
+  await cdp.send("Runtime.enable");
+  await cdp.send("Log.enable");
+
+  await cdp.send("Page.navigate", { url: `${frontendUrl}/` });
+  await waitForText(cdp, ["符文战场", "进入大厅"]);
+  await setClientSettings(cdp, client.playerId);
+  await cdp.send("Page.navigate", { url: `${frontendUrl}/rooms/${roomId}` });
+  await waitForText(cdp, ["房间", "连接/重连并入座", "选择卡组"]);
+  await clickButton(cdp, "连接/重连并入座");
+  await waitForText(cdp, ["进入对战桌面"]);
+  await cdp.send("Page.navigate", { url: `${frontendUrl}/matches/${roomId}` });
+  await waitForText(cdp, ["对战状态", "正式桌面状态", "战场", "支付费用", "伤害分配", "触发排序", "服务端行动提示", "权威快照摘要"]);
+  await expectAbsentText(cdp, [
+    "mainDeck",
+    "runeDeck",
+    "handHidden",
+    "reconnectToken",
+    "serverPaymentState",
+    "resourceLedgerBeforePayment",
+    "damageLedger",
+    "triggerQueue"
+  ]);
+  await cdp.close();
+  console.log(`Stage 3 preflight OK: ${client.name}`);
 }
 
 async function ensureApi() {
@@ -150,13 +142,13 @@ function chromePath() {
   ].filter(Boolean);
   const found = candidates.find((candidate) => existsSync(candidate));
   if (!found) {
-    throw new Error("Google Chrome was not found. Set CHROME_PATH to run Chrome smoke.");
+    throw new Error("Google Chrome was not found. Set CHROME_PATH to run Stage 3 preflight.");
   }
 
   return found;
 }
 
-async function openChromeTab(url) {
+async function openChromeTab(debugPort, url) {
   const endpoint = `http://127.0.0.1:${debugPort}/json/new?${encodeURIComponent(url)}`;
   let response = await fetch(endpoint, { method: "PUT" });
   if (!response.ok) {
@@ -170,7 +162,7 @@ async function openChromeTab(url) {
   return response.json();
 }
 
-async function connectCdp(webSocketDebuggerUrl) {
+async function connectCdp(webSocketDebuggerUrl, clientName) {
   const ws = new WebSocket(webSocketDebuggerUrl);
   const pending = new Map();
   const eventHandlers = [];
@@ -199,9 +191,25 @@ async function connectCdp(webSocketDebuggerUrl) {
     }
   });
 
+  eventHandlers.push((message) => {
+    if (message.method === "Runtime.exceptionThrown") {
+      browserErrors.push(`${clientName} exception: ${message.params?.exceptionDetails?.text ?? "unknown"}`);
+    }
+
+    if (message.method === "Runtime.consoleAPICalled" && message.params?.type === "error") {
+      browserErrors.push(`${clientName} console.error: ${consoleArgs(message.params.args)}`);
+    }
+
+    if (message.method === "Log.entryAdded" && message.params?.entry?.level === "error") {
+      const text = String(message.params.entry.text ?? "");
+      if (!text.includes(serverUrl) && !text.includes("Failed to load resource: the server responded with a status of 404")) {
+        browserErrors.push(`${clientName} log.error: ${text}`);
+      }
+    }
+  });
+
   return {
     close: () => ws.close(),
-    onEvent: (handler) => eventHandlers.push(handler),
     send: (method, params = {}) => new Promise((resolve, reject) => {
       const id = nextId++;
       pending.set(id, { resolve, reject });
@@ -210,8 +218,39 @@ async function connectCdp(webSocketDebuggerUrl) {
   };
 }
 
+async function setClientSettings(cdp, playerId) {
+  await cdp.send("Runtime.evaluate", {
+    expression: `
+      localStorage.setItem("riftbound.serverUrl", ${JSON.stringify(serverUrl)});
+      localStorage.setItem("riftbound.playerId", ${JSON.stringify(playerId)});
+      localStorage.setItem("riftbound.logDensity", "compact");
+      localStorage.setItem("riftbound.animationLevel", "off");
+      true;
+    `,
+    returnByValue: true
+  });
+}
+
+async function clickButton(cdp, text) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `
+      (() => {
+        const button = Array.from(document.querySelectorAll("button"))
+          .find((item) => item.innerText.includes(${JSON.stringify(text)}));
+        if (!button) return false;
+        button.click();
+        return true;
+      })()
+    `,
+    returnByValue: true
+  });
+  if (!result.result?.value) {
+    throw new Error(`Could not click button containing text: ${text}`);
+  }
+}
+
 async function waitForText(cdp, texts) {
-  const deadline = Date.now() + 10_000;
+  const deadline = Date.now() + 12_000;
   let bodyText = "";
   while (Date.now() < deadline) {
     bodyText = await readBodyText(cdp);
@@ -225,10 +264,6 @@ async function waitForText(cdp, texts) {
 }
 
 async function expectAbsentText(cdp, texts) {
-  if (texts.length === 0) {
-    return;
-  }
-
   const bodyText = await readBodyText(cdp);
   const leaked = texts.filter((text) => bodyText.includes(text));
   if (leaked.length > 0) {
@@ -269,19 +304,6 @@ function consoleArgs(args = []) {
   return args
     .map((arg) => String(arg.value ?? arg.description ?? arg.type ?? "unknown"))
     .join(" ");
-}
-
-function isIgnorableResourceLog(text) {
-  return text.includes("Failed to load resource: the server responded with a status of 404")
-    || (!startApi && text.includes("Failed to load resource: net::ERR_CONNECTION_REFUSED"));
-}
-
-function isIgnorableConsoleError(text) {
-  return !startApi
-    && (
-      text.includes("Failed to complete negotiation with the server")
-      || text.includes("Failed to start the connection")
-    );
 }
 
 function delay(ms) {

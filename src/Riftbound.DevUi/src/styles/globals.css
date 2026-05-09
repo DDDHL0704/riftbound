@@ -723,6 +723,7 @@ button.card-face:hover {
 .task-queue,
 .prompt-summary,
 .damage-assignment-panel,
+.trigger-order-panel,
 .generic-prompt-details,
 .log-row {
   display: grid;
@@ -740,6 +741,7 @@ button.card-face:hover {
 
 .generic-prompt-heading,
 .damage-assignment-heading,
+.trigger-order-heading,
 .lifecycle-card header,
 .score-track header,
 .snapshot-debug-panel header {
@@ -758,6 +760,7 @@ button.card-face:hover {
 
 .generic-prompt-note,
 .damage-assignment-note,
+.trigger-order-note,
 .snapshot-debug-note {
   margin: 0;
   color: var(--text-secondary);
@@ -784,6 +787,9 @@ button.card-face:hover {
 .generic-prompt-metadata span,
 .damage-assignment-summary span,
 .damage-assignment-row small,
+.trigger-order-summary span,
+.trigger-order-constraints span,
+.trigger-order-row small,
 .snapshot-debug-section span,
 .snapshot-player-row span {
   color: var(--text-secondary);
@@ -954,6 +960,89 @@ button.card-face:hover {
   background: rgba(8, 12, 18, 0.74);
   color: var(--text-primary);
   padding: 7px 8px;
+}
+
+.trigger-order-panel {
+  gap: 9px;
+}
+
+.trigger-order-heading > strong {
+  color: var(--text-primary);
+  font-size: 0.86rem;
+}
+
+.trigger-order-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px 8px;
+}
+
+.trigger-order-constraints,
+.trigger-order-list {
+  display: grid;
+  gap: 6px;
+}
+
+.trigger-order-constraints {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 8px;
+}
+
+.trigger-order-row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 8px;
+}
+
+.trigger-order-index {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: rgba(227, 186, 116, 0.16);
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.trigger-order-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.trigger-order-copy strong {
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  overflow-wrap: anywhere;
+}
+
+.trigger-order-controls {
+  display: grid;
+  gap: 4px;
+}
+
+.trigger-order-move {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
+.trigger-order-move:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
 }
 
 .surrender-confirm {

@@ -1,4 +1,4 @@
-import { Check, Flag, Hourglass, Play, Send, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, Flag, Hourglass, ListOrdered, Play, Send, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, CombatDamageAssignmentDto, ConnectionStatus, GameCommand, SnapshotDto } from "../../types/protocol";
 import { connectionStatusLabel, promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
@@ -17,10 +17,14 @@ type ActionPanelProps = {
 };
 
 export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onReady, onSubmitStarterDeck, onCommand }: ActionPanelProps) {
-  const candidates = (prompt?.candidates ?? []).filter((candidate) => candidate.enabled);
+  const allCandidates = prompt?.candidates ?? [];
+  const candidates = allCandidates.filter((candidate) => candidate.enabled);
   const connected = connectionStatus === "connected";
   const canAct = connected && prompt?.actionable && prompt.playerId === playerId;
   const promptView = prompt?.view;
+  const orderTriggersCandidate = allCandidates.find((candidate) => candidate.action === "ORDER_TRIGGERS");
+  const showReadonlyOrderTriggers = promptView?.type === "ORDER_TRIGGERS"
+    && !candidates.some((candidate) => candidate.action === "ORDER_TRIGGERS");
   const promptTitle = promptView?.title?.trim() || "当前行动";
   const promptMessage = promptView?.message?.trim()
     || (prompt ? promptReasonLabel(prompt.reason, "服务端行动提示") : "尚未收到行动提示");
@@ -44,7 +48,17 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
       </div>
       {prompt && shouldShowGenericPromptDetails(prompt) && <GenericPromptDetails prompt={prompt} />}
       <div className="action-buttons">
-        {candidates.length === 0 && <span className="empty-hint">服务端暂未提供可提交候选。</span>}
+        {showReadonlyOrderTriggers && (
+          <OrderTriggersCandidate
+            canAct={false}
+            candidate={orderTriggersCandidate}
+            disabledByConnection={!connected}
+            onCommand={onCommand}
+            prompt={prompt}
+            readOnly
+          />
+        )}
+        {candidates.length === 0 && !showReadonlyOrderTriggers && <span className="empty-hint">服务端暂未提供可提交候选。</span>}
         {candidates.map((candidate) => candidate.action === "MULLIGAN" ? (
           <MulliganCandidate
             candidate={candidate}
@@ -61,6 +75,15 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
             onCommand={onCommand}
             prompt={prompt}
             snapshot={snapshot}
+          />
+        ) : candidate.action === "ORDER_TRIGGERS" ? (
+          <OrderTriggersCandidate
+            canAct={Boolean(canAct)}
+            candidate={candidate}
+            disabledByConnection={!connected}
+            key={`${candidate.action}-${candidate.label}`}
+            onCommand={onCommand}
+            prompt={prompt}
           />
         ) : (
           <CandidateButton
@@ -492,6 +515,237 @@ function clampDamageInput(value: number): number {
   return Number.isFinite(value) && value > 0 ? Math.floor(value) : 0;
 }
 
+type TriggerOrderItem = {
+  triggerId: string;
+  label: string;
+  source?: string;
+  controller?: string;
+  summary?: string;
+  constraint?: string;
+};
+
+type OrderTriggersModel = {
+  constraints: string[];
+  triggeredByEventKind?: string;
+  triggers: TriggerOrderItem[];
+  resetKey: string;
+};
+
+function OrderTriggersCandidate({
+  canAct,
+  candidate,
+  disabledByConnection,
+  onCommand,
+  prompt,
+  readOnly = false
+}: {
+  canAct: boolean;
+  candidate?: ActionPromptCandidateDto;
+  disabledByConnection: boolean;
+  onCommand: (command: GameCommand) => void;
+  prompt?: ActionPromptDto;
+  readOnly?: boolean;
+}) {
+  const model = useMemo(() => buildOrderTriggersModel(candidate, prompt), [candidate, prompt]);
+  const [orderedTriggerIds, setOrderedTriggerIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    setOrderedTriggerIds(model.triggers.map((trigger) => trigger.triggerId));
+  }, [model.resetKey, model.triggers]);
+
+  const triggerById = new Map(model.triggers.map((trigger) => [trigger.triggerId, trigger]));
+  const orderedTriggers = orderedTriggerIds
+    .map((triggerId) => triggerById.get(triggerId))
+    .filter((trigger): trigger is TriggerOrderItem => trigger != null);
+  const submitIds = orderedTriggers.map((trigger) => trigger.triggerId);
+  const canSubmit = !readOnly
+    && canAct
+    && !disabledByConnection
+    && Boolean(candidate?.enabled)
+    && submitIds.length === model.triggers.length
+    && submitIds.length > 0;
+
+  return (
+    <div className="trigger-order-panel">
+      <div className="trigger-order-heading">
+        <strong>{candidate ? promptActionLabel(candidate) : "排列触发"}</strong>
+        <StatusPill tone={canSubmit ? "warn" : "neutral"}>{canSubmit ? "待服务端校验" : "只读等待"}</StatusPill>
+      </div>
+      <div className="trigger-order-summary">
+        <span>触发数量：{model.triggers.length} 项</span>
+        <span>来源事件：{model.triggeredByEventKind ?? "服务端未提供"}</span>
+        <span>排序约束：{model.constraints.length > 0 ? `${model.constraints.length} 项` : "服务端未提供"}</span>
+      </div>
+      <p className="trigger-order-note">
+        仅提交服务端触发候选的顺序；排序合法性和触发结算都由服务端处理。
+      </p>
+      {model.constraints.length > 0 && (
+        <div className="trigger-order-constraints">
+          {model.constraints.slice(0, 4).map((constraint, index) => (
+            <span key={`${constraint}-${index}`}>约束：{constraint}</span>
+          ))}
+          {model.constraints.length > 4 && <span>另有 {model.constraints.length - 4} 项服务端约束。</span>}
+        </div>
+      )}
+      <div className="trigger-order-list">
+        {orderedTriggers.length === 0 && <span className="empty-hint">等待服务端提供可排序触发。</span>}
+        {orderedTriggers.map((trigger, index) => (
+          <article className="trigger-order-row" key={trigger.triggerId}>
+            <span className="trigger-order-index">{index + 1}</span>
+            <div className="trigger-order-copy">
+              <strong>{trigger.label}</strong>
+              <small>ID：{trigger.triggerId}</small>
+              {trigger.summary && <small>说明：{trigger.summary}</small>}
+              <small>来源：{trigger.source ?? "服务端未提供"} · 控制者：{trigger.controller ?? "服务端未提供"}</small>
+              {trigger.constraint && <small>约束：{trigger.constraint}</small>}
+            </div>
+            <div className="trigger-order-controls">
+              <button
+                aria-label={`${trigger.label} 上移`}
+                className="trigger-order-move"
+                disabled={readOnly || !canAct || index === 0}
+                onClick={() => setOrderedTriggerIds((current) => moveTriggerId(current, trigger.triggerId, -1))}
+                type="button"
+              >
+                <ArrowUp size={14} />
+              </button>
+              <button
+                aria-label={`${trigger.label} 下移`}
+                className="trigger-order-move"
+                disabled={readOnly || !canAct || index === orderedTriggers.length - 1}
+                onClick={() => setOrderedTriggerIds((current) => moveTriggerId(current, trigger.triggerId, 1))}
+                type="button"
+              >
+                <ArrowDown size={14} />
+              </button>
+            </div>
+          </article>
+        ))}
+      </div>
+      <Button
+        disabled={!canSubmit}
+        icon={<ListOrdered size={16} />}
+        onClick={() => onCommand(withPromptStamp({
+          cmdType: "ORDER_TRIGGERS",
+          orderedTriggerIds: submitIds,
+          triggerIds: submitIds
+        }, prompt))}
+        title={disabledByConnection ? "连接恢复前不能提交触发排序" : promptReasonTitle(candidate?.reason)}
+        variant={canSubmit ? "primary" : "ghost"}
+      >
+        提交触发顺序
+      </Button>
+    </div>
+  );
+}
+
+function buildOrderTriggersModel(candidate: ActionPromptCandidateDto | undefined, prompt: ActionPromptDto | undefined): OrderTriggersModel {
+  const metadata = {
+    ...(prompt?.view?.metadata ?? {}),
+    ...(candidate?.metadata ?? {})
+  };
+  const triggerChoices = choiceArrayMetadata(metadata.triggerChoices);
+  const triggerRecords = [
+    ...recordArrayMetadata(metadata.triggers),
+    ...recordArrayMetadata(metadata.triggerOrdering)
+  ];
+  const preferredOrder = firstStringArrayMetadata(metadata, ["orderedTriggerIds", "triggerIds"])
+    ?? firstStringArrayFromRecord(metadata.triggerOrdering, ["orderedTriggerIds", "triggerIds", "order"])
+    ?? stringArrayFromValue(metadata.triggerOrdering, true)
+    ?? triggerChoices.map((choice) => choice.id);
+  const sourceItems = [
+    ...triggerRecords.map(triggerItemFromRecord).filter((item): item is TriggerOrderItem => item != null),
+    ...triggerChoices.map(triggerItemFromChoice),
+    ...(candidate?.sources ?? []).map(triggerItemFromChoice),
+    ...preferredOrder.map((triggerId) => triggerItemFromId(triggerId))
+  ];
+  const triggers = orderTriggerItems(uniqueTriggerItems(sourceItems), preferredOrder);
+  const constraints = constraintSummaries(
+    metadata.legalOrderingConstraints
+      ?? metadata.orderingConstraints
+      ?? metadata.constraints
+      ?? (isRecord(metadata.triggerOrdering) ? metadata.triggerOrdering.constraints : undefined)
+  );
+  const triggeredByEventKind = safeOptionalText(stringMetadata(metadata, "triggeredByEventKind"));
+
+  return {
+    constraints,
+    triggeredByEventKind,
+    triggers,
+    resetKey: [
+      triggeredByEventKind ?? "none",
+      triggers.map((trigger) => trigger.triggerId).join("|"),
+      constraints.join("|")
+    ].join("::")
+  };
+}
+
+function triggerItemFromChoice(choice: ActionPromptChoiceDto): TriggerOrderItem {
+  return {
+    triggerId: choice.id,
+    label: choiceLabel(choice),
+    summary: safeOptionalText(choice.reason ?? undefined)
+  };
+}
+
+function triggerItemFromId(triggerId: string): TriggerOrderItem {
+  return {
+    triggerId,
+    label: triggerId
+  };
+}
+
+function triggerItemFromRecord(record: Record<string, unknown>): TriggerOrderItem | undefined {
+  const triggerId = firstStringFromRecord(record, ["triggerId", "id", "choiceId"]);
+  if (!triggerId) {
+    return undefined;
+  }
+
+  return {
+    triggerId,
+    label: safeOptionalText(firstStringFromRecord(record, ["label", "summary", "visibleText", "text", "title", "name"])) ?? triggerId,
+    source: safeOptionalText(firstStringFromRecord(record, ["source", "sourceLabel", "sourceId", "sourceObjectId", "sourceCardNo"])),
+    controller: safeOptionalText(firstStringFromRecord(record, ["controller", "controllerId", "playerId"])),
+    summary: safeOptionalText(firstStringFromRecord(record, ["summary", "visibleText", "text", "description"])),
+    constraint: safePromptSummary(record.legalOrderingConstraint ?? record.orderingConstraint ?? record.constraint ?? record.constraints)
+  };
+}
+
+function uniqueTriggerItems(items: TriggerOrderItem[]): TriggerOrderItem[] {
+  const byId = new Map<string, TriggerOrderItem>();
+  for (const item of items) {
+    const existing = byId.get(item.triggerId);
+    byId.set(item.triggerId, existing ? { ...item, ...existing } : item);
+  }
+  return [...byId.values()];
+}
+
+function orderTriggerItems(items: TriggerOrderItem[], preferredOrder: string[]): TriggerOrderItem[] {
+  if (preferredOrder.length === 0) {
+    return items;
+  }
+
+  const byId = new Map(items.map((item) => [item.triggerId, item]));
+  const ordered = preferredOrder
+    .map((triggerId) => byId.get(triggerId) ?? triggerItemFromId(triggerId))
+    .filter((item, index, array) => array.findIndex((candidate) => candidate.triggerId === item.triggerId) === index);
+  const orderedIds = new Set(ordered.map((item) => item.triggerId));
+  return [...ordered, ...items.filter((item) => !orderedIds.has(item.triggerId))];
+}
+
+function moveTriggerId(triggerIds: string[], triggerId: string, delta: number): string[] {
+  const from = triggerIds.indexOf(triggerId);
+  const to = from + delta;
+  if (from < 0 || to < 0 || to >= triggerIds.length) {
+    return triggerIds;
+  }
+
+  const next = [...triggerIds];
+  const [moved] = next.splice(from, 1);
+  next.splice(to, 0, moved);
+  return next;
+}
+
 function CandidateButton({
   candidate,
   disabledByConnection,
@@ -781,12 +1035,50 @@ function stringMetadata(metadata: Record<string, unknown>, key: string): string 
 
 function stringArrayMetadata(metadata: Record<string, unknown>, key: string): string[] | undefined {
   const value = metadata[key];
+  return stringArrayFromValue(value);
+}
+
+function firstStringArrayMetadata(metadata: Record<string, unknown>, keys: string[]): string[] | undefined {
+  for (const key of keys) {
+    const values = stringArrayFromValue(metadata[key], true);
+    if (values && values.length > 0) {
+      return values;
+    }
+  }
+  return undefined;
+}
+
+function firstStringArrayFromRecord(value: unknown, keys: string[]): string[] | undefined {
+  if (!isRecord(value)) {
+    return undefined;
+  }
+
+  return firstStringArrayMetadata(value, keys);
+}
+
+function stringArrayFromValue(value: unknown, requireNonEmpty = false): string[] | undefined {
   if (!Array.isArray(value)) {
     return undefined;
   }
 
   const values = value.map((item) => typeof item === "string" ? item.trim() : "");
-  return values.every((item) => item.length > 0) ? values : undefined;
+  return (!requireNonEmpty || values.length > 0) && values.every((item) => item.length > 0) ? values : undefined;
+}
+
+function choiceArrayMetadata(value: unknown): ActionPromptChoiceDto[] {
+  const choices: ActionPromptChoiceDto[] = [];
+  for (const record of recordArrayMetadata(value)) {
+    const id = firstStringFromRecord(record, ["id", "triggerId", "choiceId"]);
+    if (id) {
+      choices.push({
+        id,
+        label: firstStringFromRecord(record, ["label", "summary", "visibleText", "text", "title", "name"]) ?? id,
+        reason: firstStringFromRecord(record, ["reason", "description"])
+      });
+    }
+  }
+
+  return choices;
 }
 
 function recordArrayMetadata(value: unknown): Array<Record<string, unknown>> {
@@ -842,6 +1134,51 @@ function parseAssignmentChoiceId(value: string | undefined): { sourceObjectId: s
 
   const [sourceObjectId, targetObjectId] = value.split("->").map((part) => part.trim());
   return sourceObjectId && targetObjectId ? { sourceObjectId, targetObjectId } : undefined;
+}
+
+function constraintSummaries(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value
+      .map(safePromptSummary)
+      .filter((item): item is string => item != null)
+      .slice(0, 12);
+  }
+
+  const summary = safePromptSummary(value);
+  return summary ? [summary] : [];
+}
+
+function safePromptSummary(value: unknown): string | undefined {
+  if (typeof value === "string") {
+    return safeOptionalText(value);
+  }
+
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+
+  if (Array.isArray(value)) {
+    const stringValues = value
+      .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+      .map((item) => safeOptionalText(item))
+      .filter((item): item is string => item != null);
+    return stringValues.length > 0 ? stringValues.slice(0, 3).join("、") : `${value.length} 项`;
+  }
+
+  if (isRecord(value)) {
+    const label = firstStringFromRecord(value, ["label", "summary", "visibleText", "text", "description"]);
+    return safeOptionalText(label) ?? `${Object.keys(value).length} 项`;
+  }
+
+  return undefined;
+}
+
+function safeOptionalText(value: string | undefined): string | undefined {
+  if (!value?.trim()) {
+    return undefined;
+  }
+
+  return redactInternalText(value);
 }
 
 function firstStringFromRecord(record: Record<string, unknown>, keys: string[]): string | undefined {

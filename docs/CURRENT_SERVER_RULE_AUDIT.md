@@ -12,6 +12,43 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-09 阶段 3D 第三阶段收口审计
+
+阶段 3D 审计入口为 `docs/CURRENT_STAGE3_COMPLETION_AUDIT.md`。D 只修改文档；B/C/E 已完成 `ORDER_TRIGGERS` 最小 runtime / UI / evidence 子项。项目仍 **NOT READY**。
+
+第三阶段收口判断：
+
+| 阶段 | 已关闭子项 | 仍未关闭 |
+| --- | --- | --- |
+| 3A | Chrome route smoke、三类复杂命令 typed mapper、`PAY_COST` 最小 runtime、前端外壳不裁决规则 | 完整 PaymentEngine、`ORDER_TRIGGERS`、battle / spell duel、最终 18 步 E2E |
+| 3B | battlefield / standby snapshot、非法待命 cleanup 代表路径、control / held / conquer 代表结果、central cleanup queue 最小 task view | cleanup queue 全触发面、control freeze/release、standby 全时机、scoring order |
+| 3C | spell duel close 代表链、battle view / resolution、`ASSIGN_COMBAT_DAMAGE` 最小 runtime、battle cleanup -> control update 代表链 | 完整 battle lifecycle、full-rule damage assignment、替代/预防、LayerEngine |
+| 3D | `ORDER_TRIGGERS` 最小 runtime window / UI / evidence；第三阶段收口审计、阶段 4 / 最终验收边界 | 完整 trigger engine、完整 effect resolution、APNAP / 跨控制者复杂排序、battle initial stack 全规则、trigger cost / decline / payment |
+
+当前证据状态：
+
+- priority / focus：已有 `PASS_PRIORITY`、`PASS_FOCUS`、prompt stamp、spell duel focus 代表证据；完整 `SPELL_DUEL_ACTION`、全反应/迅捷/反制链和触发排序交织仍缺。
+- spell duel close：3C 已有 close -> damage assignment -> cleanup/control update 代表链；所有 close -> next task、非战斗法术对决和触发排序仍缺。
+- battle lifecycle：已有 `BattleState`、`BattleResolutionState`、多攻防代表路径和 3C 最小 damage assignment；完整 battle task、初始战斗结算链、响应窗口和 freeze/release 仍缺。
+- damage assignment：3C 最小 prompt / validation / submit / reject / simultaneous commit 已关闭；壁垒、后排、同优先级、负战力、不可分配、替代/预防矩阵仍缺。
+- battle cleanup：3C 已有 battle damage -> lethal cleanup -> battle close -> battlefield control update；cleanup queue 全触发面、LayerEngine、control freeze/release 全路径仍缺。
+- battlefield control update / conquer / hold / standby visibility / cleanup queue：3B/3C 已有代表证据；正式 DTO、全时机、全触发面和 scoring order 仍缺。
+
+`ORDER_TRIGGERS` / 多触发排序 3D 证据状态：
+
+- 已有：`ORDER_TRIGGERS(triggerIds)` command/schema skeleton、`INVALID_PAYLOAD`、`TRIGGER_QUEUED` / `TRIGGER_RESOLVED` 代表事件。
+- B 已实现最小 runtime window：prompt metadata 包含 `orderingPlayerId`、`orderedTriggerIds`、`triggerIds`、`triggers`、`triggerChoices`、`legalOrderingConstraints`、`triggeredByEventKind`。
+- command 支持 `orderedTriggerIds` 并兼容 `triggerIds`；合法排序清空 `TriggerQueue`、按顺序加入 `StackItems`、设置 priority player，并广播 `TRIGGERS_ORDERED` / `TRIGGERS_MOVED_TO_STACK`。
+- B 验证：`ConformanceFixtureShapeTests` 109/109 通过；full `dotnet test Riftbound.slnx --no-restore` 3333/3333 通过；`git diff --check` 通过。
+- C 已实现 `ORDER_TRIGGERS` UI，上移 / 下移排序，提交 `orderedTriggerIds`，不本地结算；C 侧 build / smoke / `stage3-preflight.mjs` 通过。
+- E 已补 stage3D 矩阵 overlay 和 `ORDER_TRIGGERS` 证据文档。
+- 规则入口：`CORE-260330` rules 333-340、383.3.d-383.3.e；`JFAQ-251023` q2.2-q2.3、q2.5；battle initial stack 还关联 rules 454-461 与 q2.3-q2.4。
+- 仍缺 P0：完整 trigger engine、完整 effect resolution、APNAP / 跨控制者复杂排序、battle initial stack 全规则、trigger cost / decline / payment。
+
+阶段 4 建议范围：完整 trigger engine / APNAP / battle initial stack、priority/focus 与 `SPELL_DUEL_ACTION`、battle/control freeze-release、cleanup queue 全触发面、full damage assignment matrix、PaymentEngine / LayerEngine。最终验收再启动正式 18 步 E2E、1009 全量、replay/recovery/determinism 与产品 UI polish。
+
+第三阶段 A final validation 已通过，第三阶段可判定 **DONE**；当前服务端审计确认 3D 最小 `ORDER_TRIGGERS` 子项关闭，项目仍 **NOT READY**。
+
 ## 2026-05-09 阶段 3C D 范围修正
 
 当前执行范围已切换为阶段 3C，证据入口为 `docs/CURRENT_STAGE3C_SPELL_DUEL_BATTLE_DAMAGE_EVIDENCE.md`，对齐 3B checkpoint `a74beac`。3C 名称为 **Spell duel / Battle / ASSIGN_COMBAT_DAMAGE / Battle cleanup 规则证据与最小官方化切片**。
@@ -94,7 +131,7 @@
 | 3A-P0-003 `PAY_COST` 最小 runtime | 已关闭最小切片：pending payment prompt、choices、合法提交、stale/invalid/零副作用测试已通过 | B / E / C / D | 完整 PaymentEngine、decline、替代/额外费用仍是后续 P0 |
 | 3A-P0-004 前端外壳不裁决规则 | 已关闭 3A 外壳：只消费 snapshot/prompt、只提交服务端候选；未冻结 complex prompt safe fallback | C / D | 正式复杂交互等待服务端 runtime 冻结 |
 
-3A 未进入且当前仍未关闭：最终正式 18 步 E2E、1009 张卡 full-official 覆盖、完整 battle runtime、完整 `ASSIGN_COMBAT_DAMAGE` runtime、完整 `ORDER_TRIGGERS` runtime、完整 battlefield / standby / control / held / conquer lifecycle、完整 PaymentEngine / LayerEngine。
+3A 未进入且当前仍未关闭：最终正式 18 步 E2E、1009 张卡 full-official 覆盖、完整 battle runtime、完整 `ASSIGN_COMBAT_DAMAGE` runtime、`ORDER_TRIGGERS` 完整 trigger engine / APNAP / battle initial stack / trigger payment、完整 battlefield / standby / control / held / conquer lifecycle、完整 PaymentEngine / LayerEngine。3D 已关闭的是 `ORDER_TRIGGERS` 最小 runtime / UI / evidence 子项，不能外推为完整触发系统。
 
 ## 2026-05-09 阶段 3 D 对战桌面 / 核心 1v1 流程审计
 
@@ -105,12 +142,12 @@
 | 分类 | 当前阻断 | 当前实现状态 | 归属 agent | 下一步 |
 | --- | --- | --- | --- | --- |
 | 阻断 smoke 的 P0 | 3A 基础 Chrome route smoke 已关闭；room -> match 双浏览器连续链路、起手与隐藏信息浏览器断言、第一回合、打牌、移动、争夺/stack、结束回合、投降/结果仍未在同一阶段 3 smoke 闭环 | 后端与 UI 有分散代表测试；3B 已有后台 headless Chrome/CDP battlefield contest smoke 记录，但不是最终 18 步 E2E | C 主实现 smoke；B 维护服务端；D 审计；A 验收 | C 继续补双浏览器连续 smoke，B 保持服务端权威，D 记录规则依据、测试证据、剩余缺口 |
-| 可在阶段 3 内继续的 P0 | spell duel / battle lifecycle、`ASSIGN_COMBAT_DAMAGE` runtime、battle cleanup、完整 PaymentEngine、`ORDER_TRIGGERS` runtime、battlefield / standby / control / held / conquer lifecycle、central cleanup queue | 阶段 2 已有 schema skeleton 与代表路径；3A 已补 `PAY_COST` 最小 runtime；3B 已建立 battlefield/cleanup 最小切片；3C 聚焦 spell duel/battle/damage/cleanup | B 主实现；E 补 fixture；C 等正式 schema；D 审计 | 每关闭一个阻断，必须补规则依据、实现状态、测试证据、仍缺口，再由 D/A 复核 |
+| 可在阶段 3 内继续的 P0 | spell duel / battle lifecycle、`ASSIGN_COMBAT_DAMAGE` runtime、battle cleanup、完整 PaymentEngine、`ORDER_TRIGGERS` 完整 trigger engine / APNAP / battle initial stack / trigger payment、battlefield / standby / control / held / conquer lifecycle、central cleanup queue | 阶段 2 已有 schema skeleton 与代表路径；3A 已补 `PAY_COST` 最小 runtime；3B 已建立 battlefield/cleanup 最小切片；3C 聚焦 spell duel/battle/damage/cleanup；3D 已补 `ORDER_TRIGGERS` 最小 runtime / UI / evidence | B 主实现；E 补 fixture；C 等正式 schema；D 审计 | 每关闭一个阻断，必须补规则依据、实现状态、测试证据、仍缺口，再由 D/A 复核 |
 | 暂不阻断阶段 3 初始 smoke 但阻断 READY | 1009 张卡 full-official 覆盖矩阵、LayerEngine、全路径 replay / recovery / determinism、产品级视觉 polish | E 已建矩阵 skeleton 和风险 Top20；representative verifier / recovery smoke 有；完整覆盖未完成 | E/B/C；D 审计 | 阶段 3 smoke 可用代表卡组，但最终 READY 必须回到全量矩阵、层系统和 determinism 审计 |
 
 阶段 2 已替代但阶段 3 仍未关闭的口径：
 
-- `PAY_COST` / `ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` 已有 command/schema skeleton 和 `INVALID_PAYLOAD`；`PAY_COST` 已有 3A 最小 runtime。完整 PaymentEngine、`ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` runtime prompt、合法选择、状态机和结算仍是 P0。
+- `PAY_COST` / `ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` 已有 command/schema skeleton 和 `INVALID_PAYLOAD`；`PAY_COST` 已有 3A 最小 runtime，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime，`ORDER_TRIGGERS` 已有 3D 最小 runtime / UI / evidence。完整 PaymentEngine、`ASSIGN_COMBAT_DAMAGE` full-rule matrix、`ORDER_TRIGGERS` 完整 trigger engine / effect resolution / APNAP / battle initial stack / trigger payment 仍是 P0。
 - 复杂 prompt 降级展示只能保证安全承接未知窗口，不能替代正式产品交互。
 - 0/负战力、具体战场 objectId 大小写已进入防回归，不再列为当前 P0。
 - 代表 battlefield contest / stack / spell duel / battle smoke 不能替代完整官方 lifecycle，也不能支撑 READY。
@@ -130,13 +167,13 @@
 | P0-S2-003 spell duel / battle lifecycle | `CORE-260330` rules 307-313, 333-348, 454-461；`JFAQ-251023` q2.3-q2.4, q3.1-q3.3 | `TurnWindowState`、`SpellDuelState`、`BattleState`、关联 id 和焦点恢复已有；`DECLARE_BATTLE` 仍是同步代表路径，不是官方多阶段 task | B 主实现；E 初始链/焦点/触发 fixture；C 等 typed prompt；D 文档 | 由 cleanup queue 创建并推进 `START_SPELL_DUEL` / `START_BATTLE`，拆出 focus/pass/swift/reaction/close/result |
 | P0-S2-004 damage assignment | `CORE-260330` rules 142-143, 417, 460；`JFAQ-251023` q6.1-q6.4；`SOUL-OFAQ-260114` p19-p20 | 3C 已补最小 `ASSIGN_COMBAT_DAMAGE` runtime prompt、damagePool/legalTargets/lethal threshold、submit/reject、stale prompt 与 simultaneous damage commit；完整全规则矩阵仍缺 | B 主实现；E 多单位/壁垒/后排/负战力 fixture；C 仅同步类型/调试展示；D 文档 | 后续扩展壁垒/后排/同优先级/负战力/不可分配全矩阵和完整 battle task |
 | P0-S2-005 `PAY_COST` / payment windows | `CORE-260330` rules 131, 135.2.e, 162-167, 356-357, 377, 403-405, 414, 416；`JFAQ-251023` q2.5；`SOUL-OFAQ-260114` p1-p4, p19-p21 | `PaymentCostRules`、typed `RunePool`、代表性 `COST_PAID` 包络和部分支付资源动作已有；`PAY_COST` command/schema skeleton 与 `INVALID_PAYLOAD` 已补；阶段 3A 已补最小 pending payment prompt/submit；完整 `DECLINE_PAY_COST`、PaymentEngine、替代/额外费用、非出牌支付窗口、Quote/Authorize/Commit 仍缺 | B 主实现；E 支付/拒付/替代费用 fixture；C 仅同步类型/调试展示；D 文档 | 建立完整 `PaymentPlan/paymentPlanId/paymentWindow`，先覆盖触发技能费用拒付和非出牌支付资源动作 |
-| P0-S2-006 `ORDER_TRIGGERS` | `CORE-260330` rules 333-340, 383.3.d-383.3.e；`JFAQ-251023` q2.2-q2.3, q2.5 | `TRIGGER_QUEUED` / `TRIGGER_RESOLVED` 和部分 triggerQueue view 已有；`ORDER_TRIGGERS` command/schema skeleton 与 `INVALID_PAYLOAD` 已补；runtime prompt、trigger batch ordering 状态机、可选触发选择仍缺 | B 主实现；E 同时触发/战斗初始触发 fixture；C 仅同步类型/调试展示；D 文档 | 建立 `TriggerInstance` 与 trigger batch，按控制者/回合顺序发 `ORDER_TRIGGERS` 后再入结算链 |
+| P0-S2-006 `ORDER_TRIGGERS` | `CORE-260330` rules 333-340, 383.3.d-383.3.e；`JFAQ-251023` q2.2-q2.3, q2.5 | 3D 已补最小 runtime window / UI / evidence：prompt metadata、`orderedTriggerIds` command、ordered stack move、priority player、`TRIGGERS_ORDERED` / `TRIGGERS_MOVED_TO_STACK`；完整 trigger engine、完整 effect resolution、APNAP / 跨控制者复杂排序、battle initial stack 全规则、trigger cost / decline / payment 仍缺 | B 主实现；E 同时触发/战斗初始触发 fixture；C 只提交服务端 prompt；D 文档 | 以 3D 最小 runtime 为基线，继续扩 APNAP、battle initial stack、trigger payment/decline |
 
 阶段 2 superseded 口径：
 
 - 0/负战力与具体战场大小写：已由阶段 1 修复和 A 验收替代，保留为防回归，不再列为未清零 P0。
 - replay/final hash：历史“仍缺严格 action-log replay final-state 校验”已被当前 P1-004 状态替代；当前代表性 verifier、恢复前审计和 Postgres smoke 已有，剩余是全命令/全恢复/全随机 property 覆盖不足。
-- 复杂 prompt：历史“完全没有复杂 prompt 入口”已被阶段 1 `PromptView`/降级展示替代；历史“`PAY_COST`、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS` 完全没有 command/schema 或 malformed payload 拒绝语义”已被阶段 2 B 契约骨架替代；阶段 3A 已补 `PAY_COST` 最小 runtime。完整 PaymentEngine、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS` runtime prompt 与状态机仍是 P0。
+- 复杂 prompt：历史“完全没有复杂 prompt 入口”已被阶段 1 `PromptView`/降级展示替代；历史“`PAY_COST`、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS` 完全没有 command/schema 或 malformed payload 拒绝语义”已被阶段 2 B 契约骨架替代；阶段 3A 已补 `PAY_COST` 最小 runtime，阶段 3C 已补 `ASSIGN_COMBAT_DAMAGE` 最小 runtime。完整 PaymentEngine、`ASSIGN_COMBAT_DAMAGE` 全规则矩阵、`ORDER_TRIGGERS` runtime prompt 与状态机仍是 P0。
 
 ## 2026-05-09 开发进度更新
 
