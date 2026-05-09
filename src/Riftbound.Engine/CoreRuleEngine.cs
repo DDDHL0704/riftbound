@@ -82,6 +82,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string VanguardsEyeCardNo = "SFD·153/221";
     private const string VanguardsEyeAssembleOptionalCost = "ASSEMBLE_YELLOW";
     private const int VanguardsEyeAssemblePowerCost = 1;
+    private const string SacredShearsCardNo = "SFD·172/221";
+    private const string SacredShearsAssembleOptionalCost = "ASSEMBLE_YELLOW";
+    private const int SacredShearsAssemblePowerCost = 1;
     private sealed record AssembleEquipmentProfile(
         string CardNo,
         string DisplayName,
@@ -199,7 +202,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "先锋之眼",
                 VanguardsEyeAssembleOptionalCost,
                 RuneTrait.Yellow,
-                VanguardsEyeAssemblePowerCost)
+                VanguardsEyeAssemblePowerCost),
+            [SacredShearsCardNo] = new(
+                SacredShearsCardNo,
+                "神圣剪刀",
+                SacredShearsAssembleOptionalCost,
+                RuneTrait.Yellow,
+                SacredShearsAssemblePowerCost)
         };
     private const string WatchfulSentinelCardNo = "OGN·096/298";
     private const string WatchfulSentinelLastBreathDrawEffectKind = "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
