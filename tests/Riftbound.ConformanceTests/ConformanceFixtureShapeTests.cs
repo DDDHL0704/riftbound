@@ -3970,6 +3970,59 @@ public sealed class ConformanceFixtureShapeTests
             hexdrinkerRequirement["optionalCostChoices"]);
         Assert.Equal(["ASSEMBLE_ORANGE"], hexdrinkerOptionalCostChoices.Select(cost => cost.Id).ToArray());
 
+        var warmogsArmorState = steraksGageState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Orange] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-WARMOGS-ARMOR", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-WARMOGS-ARMOR"] = new(
+                    "P1-WARMOGS-ARMOR",
+                    cardNo: "SFD·108/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var warmogsArmorPrompt = ResolutionResult.BuildPrompts(warmogsArmorState)["P1"];
+        var warmogsArmorCandidate = Assert.Single(
+            warmogsArmorPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(warmogsArmorCandidate.Enabled);
+        Assert.Equal(["P1-WARMOGS-ARMOR"], (warmogsArmorCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_ORANGE"], (warmogsArmorCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var warmogsArmorMetadata = Assert.IsType<Dictionary<string, object?>>(warmogsArmorCandidate.Metadata);
+        var warmogsArmorRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(warmogsArmorMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·108/221", Assert.IsType<string>(warmogsArmorRequirement["equipmentCardNo"]));
+        var warmogsArmorOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            warmogsArmorRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_ORANGE"], warmogsArmorOptionalCostChoices.Select(cost => cost.Id).ToArray());
+
         var vanguardsEyeState = steraksGageState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)

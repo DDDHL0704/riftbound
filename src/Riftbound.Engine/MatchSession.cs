@@ -2377,6 +2377,9 @@ internal static class ActionPromptBuilder
     private const string HexdrinkerCardNo = "SFD·102/221";
     private const int HexdrinkerAssemblePowerCost = 1;
     private const string HexdrinkerAssembleOptionalCost = "ASSEMBLE_ORANGE";
+    private const string WarmogsArmorCardNo = "SFD·108/221";
+    private const int WarmogsArmorAssemblePowerCost = 1;
+    private const string WarmogsArmorAssembleOptionalCost = "ASSEMBLE_ORANGE";
     private const string VanguardsEyeCardNo = "SFD·153/221";
     private const int VanguardsEyeAssemblePowerCost = 1;
     private const string VanguardsEyeAssembleOptionalCost = "ASSEMBLE_YELLOW";
@@ -2495,6 +2498,14 @@ internal static class ActionPromptBuilder
                 "装配橙色符能",
                 RuneTrait.Orange,
                 HexdrinkerAssemblePowerCost,
+                "payment resource action: recycle orange rune for assemble cost"),
+            [WarmogsArmorCardNo] = new(
+                WarmogsArmorCardNo,
+                "狂徒铠甲",
+                WarmogsArmorAssembleOptionalCost,
+                "装配橙色符能",
+                RuneTrait.Orange,
+                WarmogsArmorAssemblePowerCost,
                 "payment resource action: recycle orange rune for assemble cost"),
             [VanguardsEyeCardNo] = new(
                 VanguardsEyeCardNo,

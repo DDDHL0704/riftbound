@@ -67,6 +67,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string HexdrinkerCardNo = "SFD·102/221";
     private const string HexdrinkerAssembleOptionalCost = "ASSEMBLE_ORANGE";
     private const int HexdrinkerAssemblePowerCost = 1;
+    private const string WarmogsArmorCardNo = "SFD·108/221";
+    private const string WarmogsArmorAssembleOptionalCost = "ASSEMBLE_ORANGE";
+    private const int WarmogsArmorAssemblePowerCost = 1;
     private const string VanguardsEyeCardNo = "SFD·153/221";
     private const string VanguardsEyeAssembleOptionalCost = "ASSEMBLE_YELLOW";
     private const int VanguardsEyeAssemblePowerCost = 1;
@@ -158,6 +161,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 HexdrinkerAssembleOptionalCost,
                 RuneTrait.Orange,
                 HexdrinkerAssemblePowerCost),
+            [WarmogsArmorCardNo] = new(
+                WarmogsArmorCardNo,
+                "狂徒铠甲",
+                WarmogsArmorAssembleOptionalCost,
+                RuneTrait.Orange,
+                WarmogsArmorAssemblePowerCost),
             [VanguardsEyeCardNo] = new(
                 VanguardsEyeCardNo,
                 "先锋之眼",
