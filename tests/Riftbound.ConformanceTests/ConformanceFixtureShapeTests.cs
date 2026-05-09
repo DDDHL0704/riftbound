@@ -3917,6 +3917,59 @@ public sealed class ConformanceFixtureShapeTests
             doransBladeRequirement["optionalCostChoices"]);
         Assert.Equal(["ASSEMBLE_ORANGE"], doransBladeOptionalCostChoices.Select(cost => cost.Id).ToArray());
 
+        var hexdrinkerState = steraksGageState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Orange] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-HEXDRINKER", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HEXDRINKER"] = new(
+                    "P1-HEXDRINKER",
+                    cardNo: "SFD·102/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var hexdrinkerPrompt = ResolutionResult.BuildPrompts(hexdrinkerState)["P1"];
+        var hexdrinkerCandidate = Assert.Single(
+            hexdrinkerPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(hexdrinkerCandidate.Enabled);
+        Assert.Equal(["P1-HEXDRINKER"], (hexdrinkerCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_ORANGE"], (hexdrinkerCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var hexdrinkerMetadata = Assert.IsType<Dictionary<string, object?>>(hexdrinkerCandidate.Metadata);
+        var hexdrinkerRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(hexdrinkerMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·102/221", Assert.IsType<string>(hexdrinkerRequirement["equipmentCardNo"]));
+        var hexdrinkerOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            hexdrinkerRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_ORANGE"], hexdrinkerOptionalCostChoices.Select(cost => cost.Id).ToArray());
+
         var vanguardsEyeState = steraksGageState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)

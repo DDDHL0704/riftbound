@@ -2374,6 +2374,9 @@ internal static class ActionPromptBuilder
     private const string DoransBladeCardNo = "SFD·095/221";
     private const int DoransBladeAssemblePowerCost = 1;
     private const string DoransBladeAssembleOptionalCost = "ASSEMBLE_ORANGE";
+    private const string HexdrinkerCardNo = "SFD·102/221";
+    private const int HexdrinkerAssemblePowerCost = 1;
+    private const string HexdrinkerAssembleOptionalCost = "ASSEMBLE_ORANGE";
     private const string VanguardsEyeCardNo = "SFD·153/221";
     private const int VanguardsEyeAssemblePowerCost = 1;
     private const string VanguardsEyeAssembleOptionalCost = "ASSEMBLE_YELLOW";
@@ -2484,6 +2487,14 @@ internal static class ActionPromptBuilder
                 "装配橙色符能",
                 RuneTrait.Orange,
                 DoransBladeAssemblePowerCost,
+                "payment resource action: recycle orange rune for assemble cost"),
+            [HexdrinkerCardNo] = new(
+                HexdrinkerCardNo,
+                "海克斯饮魔刀",
+                HexdrinkerAssembleOptionalCost,
+                "装配橙色符能",
+                RuneTrait.Orange,
+                HexdrinkerAssemblePowerCost,
                 "payment resource action: recycle orange rune for assemble cost"),
             [VanguardsEyeCardNo] = new(
                 VanguardsEyeCardNo,

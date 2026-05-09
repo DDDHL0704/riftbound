@@ -64,6 +64,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string DoransBladeCardNo = "SFD·095/221";
     private const string DoransBladeAssembleOptionalCost = "ASSEMBLE_ORANGE";
     private const int DoransBladeAssemblePowerCost = 1;
+    private const string HexdrinkerCardNo = "SFD·102/221";
+    private const string HexdrinkerAssembleOptionalCost = "ASSEMBLE_ORANGE";
+    private const int HexdrinkerAssemblePowerCost = 1;
     private const string VanguardsEyeCardNo = "SFD·153/221";
     private const string VanguardsEyeAssembleOptionalCost = "ASSEMBLE_YELLOW";
     private const int VanguardsEyeAssemblePowerCost = 1;
@@ -149,6 +152,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 DoransBladeAssembleOptionalCost,
                 RuneTrait.Orange,
                 DoransBladeAssemblePowerCost),
+            [HexdrinkerCardNo] = new(
+                HexdrinkerCardNo,
+                "海克斯饮魔刀",
+                HexdrinkerAssembleOptionalCost,
+                RuneTrait.Orange,
+                HexdrinkerAssemblePowerCost),
             [VanguardsEyeCardNo] = new(
                 VanguardsEyeCardNo,
                 "先锋之眼",
