@@ -2395,6 +2395,9 @@ internal static class ActionPromptBuilder
     private const string HuntersMacheteCardNo = "UNL-096/219";
     private const int HuntersMacheteAssemblePowerCost = 1;
     private const string HuntersMacheteAssembleOptionalCost = "ASSEMBLE_ORANGE";
+    private const string BoneClubCardNo = "SFD·118/221";
+    private const int BoneClubAssemblePowerCost = 1;
+    private const string BoneClubAssembleOptionalCost = "ASSEMBLE_ORANGE";
     private const string BootsOfSwiftnessCardNo = "SFD·133/221";
     private const int BootsOfSwiftnessAssemblePowerCost = 1;
     private const string BootsOfSwiftnessAssembleOptionalCost = "ASSEMBLE_PURPLE";
@@ -2573,6 +2576,14 @@ internal static class ActionPromptBuilder
                 "装配橙色符能",
                 RuneTrait.Orange,
                 HuntersMacheteAssemblePowerCost,
+                "payment resource action: recycle orange rune for assemble cost"),
+            [BoneClubCardNo] = new(
+                BoneClubCardNo,
+                "碎骨棒",
+                BoneClubAssembleOptionalCost,
+                "装配橙色符能",
+                RuneTrait.Orange,
+                BoneClubAssemblePowerCost,
                 "payment resource action: recycle orange rune for assemble cost"),
             [BootsOfSwiftnessCardNo] = new(
                 BootsOfSwiftnessCardNo,

@@ -85,6 +85,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string HuntersMacheteCardNo = "UNL-096/219";
     private const string HuntersMacheteAssembleOptionalCost = "ASSEMBLE_ORANGE";
     private const int HuntersMacheteAssemblePowerCost = 1;
+    private const string BoneClubCardNo = "SFD·118/221";
+    private const string BoneClubAssembleOptionalCost = "ASSEMBLE_ORANGE";
+    private const int BoneClubAssemblePowerCost = 1;
     private const string BootsOfSwiftnessCardNo = "SFD·133/221";
     private const string BootsOfSwiftnessAssembleOptionalCost = "ASSEMBLE_PURPLE";
     private const int BootsOfSwiftnessAssemblePowerCost = 1;
@@ -224,6 +227,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 HuntersMacheteAssembleOptionalCost,
                 RuneTrait.Orange,
                 HuntersMacheteAssemblePowerCost),
+            [BoneClubCardNo] = new(
+                BoneClubCardNo,
+                "碎骨棒",
+                BoneClubAssembleOptionalCost,
+                RuneTrait.Orange,
+                BoneClubAssemblePowerCost),
             [BootsOfSwiftnessCardNo] = new(
                 BootsOfSwiftnessCardNo,
                 "轻灵之靴",
