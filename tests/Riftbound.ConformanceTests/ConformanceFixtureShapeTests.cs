@@ -5344,6 +5344,103 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptShowsDynamicManaAssembleEquipmentSource()
+    {
+        var state = new MatchState(
+            "prompt-assemble-dynamic-mana-source-room",
+            25,
+            7,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(1, 1),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base =
+                    [
+                        "P1-HEXTECH-GAUNTLET",
+                        "P1-UNIT-ASSEMBLE-TARGET",
+                        "P1-UNIT-ASSEMBLE-TOO-SMALL"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HEXTECH-GAUNTLET"] = new(
+                    "P1-HEXTECH-GAUNTLET",
+                    cardNo: "UNL-188/219",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-ASSEMBLE-TARGET"] = new(
+                    "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-ASSEMBLE-TOO-SMALL"] = new(
+                    "P1-UNIT-ASSEMBLE-TOO-SMALL",
+                    cardNo: "SFD·013/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var assembleCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+
+        Assert.True(assembleCandidate.Enabled);
+        Assert.Equal(["P1-HEXTECH-GAUNTLET"], (assembleCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        var metadata = Assert.IsType<Dictionary<string, object?>>(assembleCandidate.Metadata);
+        var sourceRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+        Assert.Equal("UNL-188/219", sourceRequirement["equipmentCardNo"]);
+        Assert.Equal("海克斯科技护手", sourceRequirement["displayName"]);
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["manaCost"]));
+        Assert.Equal(3, Assert.IsType<int>(sourceRequirement["baseManaCost"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["powerCost"]));
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["experienceCost"]));
+        Assert.Equal(["ASSEMBLE_3_ANY_POWER"], Assert.IsAssignableFrom<IEnumerable<string>>(
+            sourceRequirement["requiredOptionalCosts"]).ToArray());
+        Assert.Equal(["ASSEMBLE_3_ANY_POWER"], Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["optionalCostChoices"]).Select(choice => choice.Id).ToArray());
+        Assert.Equal(["P1-UNIT-ASSEMBLE-TARGET"], Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["targetChoices"]).Select(choice => choice.Id).ToArray());
+        Assert.Equal(
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-ASSEMBLE-TARGET"] = 1
+            },
+            Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(sourceRequirement["manaCostByTargetObjectId"]));
+        Assert.Equal(
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-ASSEMBLE-TARGET"] = 2
+            },
+            Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
+                sourceRequirement["targetPowerManaReductionByTargetObjectId"]));
+    }
+
+    [Fact]
     public void ActionPromptHidesAssembleEquipmentTargetWhenUnitHasNoCardNo()
     {
         var state = new MatchState(

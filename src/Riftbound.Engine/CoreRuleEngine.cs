@@ -134,6 +134,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string ShurelyasRequiemCardNo = "SFD·192/221";
     private const string ShurelyasRequiemAssembleOptionalCost = "ASSEMBLE_ANY_POWER";
     private const int ShurelyasRequiemAssemblePowerCost = 1;
+    private const string HextechGauntletCardNo = "UNL-188/219";
+    private const string HextechGauntletAssembleOptionalCost = "ASSEMBLE_3_ANY_POWER";
+    private const int HextechGauntletAssembleManaCost = 3;
+    private const int HextechGauntletAssemblePowerCost = 1;
     private const string ShepherdsHeirloomCardNo = "UNL-158/219";
     private const string ShepherdsHeirloomAssembleOptionalCost = "SPEND_EXPERIENCE:1";
     private const int ShepherdsHeirloomAssembleExperienceCost = 1;
@@ -145,7 +149,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         int PowerCost,
         int ExperienceCost = 0,
         int RequiredGraveyardRecycleCardCount = 0,
-        bool RequiresDestroyFriendlyUnitCost = false);
+        bool RequiresDestroyFriendlyUnitCost = false,
+        int ManaCost = 0,
+        bool ReduceManaCostByTargetPower = false);
 
     private static readonly IReadOnlyDictionary<string, AssembleEquipmentProfile> ImplementedAssembleEquipmentProfiles =
         new Dictionary<string, AssembleEquipmentProfile>(StringComparer.Ordinal)
@@ -362,6 +368,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ShurelyasRequiemAssembleOptionalCost,
                 string.Empty,
                 ShurelyasRequiemAssemblePowerCost),
+            [HextechGauntletCardNo] = new(
+                HextechGauntletCardNo,
+                "海克斯科技护手",
+                HextechGauntletAssembleOptionalCost,
+                string.Empty,
+                HextechGauntletAssemblePowerCost,
+                ManaCost: HextechGauntletAssembleManaCost,
+                ReduceManaCostByTargetPower: true),
             [ShepherdsHeirloomCardNo] = new(
                 ShepherdsHeirloomCardNo,
                 "牧人的传家宝",
@@ -1520,6 +1534,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCommand);
         }
 
+        var assembleManaCost = AssembleEquipmentManaCost(assembleProfile, targetState);
         var assembleAnyPowerCost = AssembleEquipmentAnyPowerCost(assembleProfile);
         var assemblePowerCostByTrait = AssembleEquipmentPowerCostByTrait(assembleProfile);
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
@@ -1552,7 +1567,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var paymentAdjustedPool = runePools.TryGetValue(intent.PlayerId, out var adjustedPool)
             ? adjustedPool
             : RunePool.Empty;
-        if (!CanPayRuneCosts(paymentAdjustedPool, 0, assembleAnyPowerCost, assemblePowerCostByTrait))
+        if (!CanPayRuneCosts(paymentAdjustedPool, assembleManaCost, assembleAnyPowerCost, assemblePowerCostByTrait))
         {
             return RejectWithCorePrompts(
                 state,
@@ -1571,7 +1586,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
-        runePools = PayRuneCosts(runePools, intent.PlayerId, 0, assembleAnyPowerCost, assemblePowerCostByTrait);
+        runePools = PayRuneCosts(runePools, intent.PlayerId, assembleManaCost, assembleAnyPowerCost, assemblePowerCostByTrait);
         var playerExperience = PayExperienceCosts(state, intent.PlayerId, assembleProfile.ExperienceCost);
         var destroyedAdditionalCostOwnerIds = new List<string>();
         var assembleRemovalEvents = new List<GameEvent>();
@@ -1655,7 +1670,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
-                    ["mana"] = 0,
+                    ["mana"] = assembleManaCost,
+                    ["baseManaCost"] = assembleProfile.ManaCost,
+                    ["targetPowerManaReduction"] = AssembleEquipmentTargetPowerManaReduction(assembleProfile, targetWithIdentity),
                     ["power"] = assembleProfile.PowerCost,
                     ["experience"] = assembleProfile.ExperienceCost,
                     ["sourceObjectId"] = command.SourceObjectId,
@@ -1946,6 +1963,18 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static int AssembleEquipmentAnyPowerCost(AssembleEquipmentProfile profile)
     {
         return string.IsNullOrWhiteSpace(profile.PowerTrait) ? profile.PowerCost : 0;
+    }
+
+    private static int AssembleEquipmentManaCost(AssembleEquipmentProfile profile, CardObjectState targetState)
+    {
+        return Math.Max(0, profile.ManaCost - AssembleEquipmentTargetPowerManaReduction(profile, targetState));
+    }
+
+    private static int AssembleEquipmentTargetPowerManaReduction(
+        AssembleEquipmentProfile profile,
+        CardObjectState targetState)
+    {
+        return profile.ReduceManaCostByTargetPower ? Math.Max(0, targetState.Power) : 0;
     }
 
     private static CardObjectState WithFieldIdentityDefaults(CardObjectState cardObject, string playerId)

@@ -51155,6 +51155,92 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4AssembleEquipmentCommandAttachesHextechGauntletWithTargetPowerManaReduction()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(1, 1),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-EQUIPMENT-HEXTECH-GAUNTLET", "P1-UNIT-ASSEMBLE-TARGET"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-EQUIPMENT-HEXTECH-GAUNTLET"] = new(
+                    "P1-EQUIPMENT-HEXTECH-GAUNTLET",
+                    cardNo: "UNL-188/219",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-ASSEMBLE-TARGET"] = new(
+                    "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-assemble-equipment-hextech-gauntlet", "P1", "ASSEMBLE_EQUIPMENT"),
+            new AssembleEquipmentCommand(
+                "P1-EQUIPMENT-HEXTECH-GAUNTLET",
+                "P1-UNIT-ASSEMBLE-TARGET",
+                ["ASSEMBLE_3_ANY_POWER"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Equal(
+            "P1-UNIT-ASSEMBLE-TARGET",
+            result.State.CardObjects["P1-EQUIPMENT-HEXTECH-GAUNTLET"].AttachedToObjectId);
+
+        var costPaidPayload = result.Events[0].Payload;
+        Assert.Equal(1, costPaidPayload["mana"]);
+        Assert.Equal(3, costPaidPayload["baseManaCost"]);
+        Assert.Equal(2, costPaidPayload["targetPowerManaReduction"]);
+        Assert.Equal(1, costPaidPayload["power"]);
+        Assert.Equal(["ASSEMBLE_3_ANY_POWER"], Assert.IsType<string[]>(costPaidPayload["optionalCosts"]));
+
+        var insufficientManaState = state with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(0, 1),
+                ["P2"] = RunePool.Empty
+            }
+        };
+        var insufficientManaResult = await new CoreRuleEngine().ResolveAsync(
+            insufficientManaState,
+            new PlayerIntent("intent-p4-assemble-equipment-hextech-gauntlet-insufficient-mana", "P1", "ASSEMBLE_EQUIPMENT"),
+            new AssembleEquipmentCommand(
+                "P1-EQUIPMENT-HEXTECH-GAUNTLET",
+                "P1-UNIT-ASSEMBLE-TARGET",
+                ["ASSEMBLE_3_ANY_POWER"]),
+            CancellationToken.None);
+
+        Assert.False(insufficientManaResult.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, insufficientManaResult.ErrorCode);
+        Assert.Empty(insufficientManaResult.Events);
+        Assert.Equal(0, insufficientManaResult.State.Tick);
+        Assert.Equal(new RunePool(0, 1), insufficientManaResult.State.RunePools["P1"]);
+        Assert.Null(insufficientManaResult.State.CardObjects["P1-EQUIPMENT-HEXTECH-GAUNTLET"].AttachedToObjectId);
+    }
+
+    [Fact]
     public async Task P4AssembleEquipmentCommandWithHandSourceIsRejectedUntilEquipmentSystemExists()
     {
         var state = PunishmentState(mana: 0) with

@@ -2446,6 +2446,10 @@ internal static class ActionPromptBuilder
     private const string ShurelyasRequiemCardNo = "SFD·192/221";
     private const int ShurelyasRequiemAssemblePowerCost = 1;
     private const string ShurelyasRequiemAssembleOptionalCost = "ASSEMBLE_ANY_POWER";
+    private const string HextechGauntletCardNo = "UNL-188/219";
+    private const int HextechGauntletAssembleManaCost = 3;
+    private const int HextechGauntletAssemblePowerCost = 1;
+    private const string HextechGauntletAssembleOptionalCost = "ASSEMBLE_3_ANY_POWER";
     private const string ShepherdsHeirloomCardNo = "UNL-158/219";
     private const int ShepherdsHeirloomAssembleExperienceCost = 1;
     private const string ShepherdsHeirloomAssembleOptionalCost = "SPEND_EXPERIENCE:1";
@@ -2459,7 +2463,9 @@ internal static class ActionPromptBuilder
         string PaymentResourceReason,
         int ExperienceCost = 0,
         int RequiredGraveyardRecycleCardCount = 0,
-        bool RequiresDestroyFriendlyUnitCost = false);
+        bool RequiresDestroyFriendlyUnitCost = false,
+        int ManaCost = 0,
+        bool ReduceManaCostByTargetPower = false);
 
     private static readonly IReadOnlyDictionary<string, AssembleEquipmentProfile> ImplementedAssembleEquipmentProfiles =
         new Dictionary<string, AssembleEquipmentProfile>(StringComparer.Ordinal)
@@ -2746,6 +2752,16 @@ internal static class ActionPromptBuilder
                 string.Empty,
                 ShurelyasRequiemAssemblePowerCost,
                 "payment resource action: recycle any rune for assemble cost"),
+            [HextechGauntletCardNo] = new(
+                HextechGauntletCardNo,
+                "海克斯科技护手",
+                HextechGauntletAssembleOptionalCost,
+                "装配 3 法力 + 任意符能（按目标战力减费）",
+                string.Empty,
+                HextechGauntletAssemblePowerCost,
+                "payment resource action: recycle any rune for assemble cost",
+                ManaCost: HextechGauntletAssembleManaCost,
+                ReduceManaCostByTargetPower: true),
             [ShepherdsHeirloomCardNo] = new(
                 ShepherdsHeirloomCardNo,
                 "牧人的传家宝",
@@ -2864,6 +2880,10 @@ internal static class ActionPromptBuilder
         IReadOnlyDictionary<string, int> AvailablePowerByTrait,
         IReadOnlyDictionary<string, int> AvailablePowerByTraitWithPaymentResources,
         IReadOnlyList<string> RequiredOptionalCosts,
+        int ManaCost,
+        int BaseManaCost,
+        IReadOnlyDictionary<string, int> ManaCostByTargetObjectId,
+        IReadOnlyDictionary<string, int> TargetPowerManaReductionByTargetObjectId,
         int PowerCost,
         int ExperienceCost,
         bool Composable,
@@ -4643,8 +4663,21 @@ internal static class ActionPromptBuilder
             : RunePool.Empty;
         var paymentResourceChoices = AssembleEquipmentPaymentResourceChoices(state, playerId, assembleProfile);
         var paymentResourcePowerByTrait = AssembleEquipmentPaymentResourcePowerByTrait(state, playerId, assembleProfile);
-        var targetChoices = AssembleEquipmentTargetChoicesForSource(state, playerId, objectId);
+        var targetChoices = AssembleEquipmentTargetChoicesForSource(
+            state,
+            playerId,
+            objectId,
+            assembleProfile,
+            paymentResourcePowerByTrait);
         var additionalCostChoices = AssembleEquipmentAdditionalCostChoices(state, playerId, objectId, assembleProfile);
+        var manaCostByTargetObjectId = AssembleEquipmentManaCostByTargetObjectId(state, targetChoices, assembleProfile);
+        var targetPowerManaReductionByTargetObjectId = AssembleEquipmentTargetPowerManaReductionByTargetObjectId(
+            state,
+            targetChoices,
+            assembleProfile);
+        var manaCost = manaCostByTargetObjectId.Count > 0
+            ? manaCostByTargetObjectId.Values.Min()
+            : assembleProfile.ManaCost;
 
         return new AssembleEquipmentPromptRequirement(
             objectId,
@@ -4659,6 +4692,10 @@ internal static class ActionPromptBuilder
             PlayCardAvailablePowerByTrait(runePool, new Dictionary<string, int>(StringComparer.Ordinal)),
             PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait),
             [assembleProfile.OptionalCost],
+            manaCost,
+            assembleProfile.ManaCost,
+            manaCostByTargetObjectId,
+            targetPowerManaReductionByTargetObjectId,
             assembleProfile.PowerCost,
             assembleProfile.ExperienceCost,
             true,
@@ -4668,11 +4705,26 @@ internal static class ActionPromptBuilder
     private static IReadOnlyList<ActionPromptChoiceDto> AssembleEquipmentTargetChoicesForSource(
         MatchState state,
         string playerId,
-        string sourceObjectId)
+        string sourceObjectId,
+        AssembleEquipmentProfile? assembleProfile = null,
+        IReadOnlyDictionary<string, int>? paymentResourcePowerByTrait = null)
     {
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+
         return ControlledBoardObjects(state, playerId)
             .Where(objectId => !string.Equals(objectId, sourceObjectId, StringComparison.Ordinal))
             .Where(objectId => IsImplementedAssembleEquipmentTarget(state, playerId, objectId))
+            .Where(objectId => assembleProfile is null
+                || (state.CardObjects.TryGetValue(objectId, out var targetState)
+                    && CanPayAssembleEquipmentCost(
+                        state,
+                        playerId,
+                        runePool,
+                        assembleProfile,
+                        paymentResourcePowerByTrait,
+                        AssembleEquipmentManaCost(assembleProfile, targetState))))
             .Select(objectId => ObjectChoice(state, objectId, "implemented controlled unit host"))
             .ToArray();
     }
@@ -4791,7 +4843,13 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        var targetChoices = AssembleEquipmentTargetChoicesForSource(state, playerId, objectId);
+        var paymentResourcePowerByTrait = AssembleEquipmentPaymentResourcePowerByTrait(state, playerId, assembleProfile);
+        var targetChoices = AssembleEquipmentTargetChoicesForSource(
+            state,
+            playerId,
+            objectId,
+            assembleProfile,
+            paymentResourcePowerByTrait);
         if (targetChoices.Count == 0)
         {
             return false;
@@ -4816,13 +4874,14 @@ internal static class ActionPromptBuilder
             return false;
         }
 
-        return CanPayAssembleEquipmentCost(
+        return targetChoices.Any(targetChoice => state.CardObjects.TryGetValue(targetChoice.Id, out var targetState)
+            && CanPayAssembleEquipmentCost(
                 state,
                 playerId,
                 runePool,
                 assembleProfile,
-                AssembleEquipmentPaymentResourcePowerByTrait(state, playerId, assembleProfile))
-            && targetChoices.Count > 0;
+                paymentResourcePowerByTrait,
+                AssembleEquipmentManaCost(assembleProfile, targetState)));
     }
 
     private static AssembleEquipmentProfile? AssembleEquipmentProfileForObject(MatchState state, string objectId)
@@ -4839,8 +4898,14 @@ internal static class ActionPromptBuilder
         string playerId,
         RunePool runePool,
         AssembleEquipmentProfile assembleProfile,
-        IReadOnlyDictionary<string, int>? paymentResourcePowerByTrait = null)
+        IReadOnlyDictionary<string, int>? paymentResourcePowerByTrait = null,
+        int manaCost = 0)
     {
+        if (runePool.Mana < manaCost)
+        {
+            return false;
+        }
+
         var availableExperience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
             ? currentExperience
             : 0;
@@ -4859,6 +4924,32 @@ internal static class ActionPromptBuilder
 
         return availablePowerByTrait.TryGetValue(assembleProfile.PowerTrait, out var power)
             && power >= assembleProfile.PowerCost;
+    }
+
+    private static IReadOnlyDictionary<string, int> AssembleEquipmentManaCostByTargetObjectId(
+        MatchState state,
+        IReadOnlyList<ActionPromptChoiceDto> targetChoices,
+        AssembleEquipmentProfile assembleProfile)
+    {
+        return targetChoices
+            .Where(choice => state.CardObjects.ContainsKey(choice.Id))
+            .ToDictionary(
+                choice => choice.Id,
+                choice => AssembleEquipmentManaCost(assembleProfile, state.CardObjects[choice.Id]),
+                StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<string, int> AssembleEquipmentTargetPowerManaReductionByTargetObjectId(
+        MatchState state,
+        IReadOnlyList<ActionPromptChoiceDto> targetChoices,
+        AssembleEquipmentProfile assembleProfile)
+    {
+        return targetChoices
+            .Where(choice => state.CardObjects.ContainsKey(choice.Id))
+            .ToDictionary(
+                choice => choice.Id,
+                choice => AssembleEquipmentTargetPowerManaReduction(assembleProfile, state.CardObjects[choice.Id]),
+                StringComparer.Ordinal);
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto> AssembleEquipmentPaymentResourceChoices(
@@ -4974,6 +5065,18 @@ internal static class ActionPromptBuilder
     private static bool AssembleEquipmentUsesAnyPower(AssembleEquipmentProfile assembleProfile)
     {
         return string.IsNullOrWhiteSpace(assembleProfile.PowerTrait);
+    }
+
+    private static int AssembleEquipmentManaCost(AssembleEquipmentProfile assembleProfile, CardObjectState targetState)
+    {
+        return Math.Max(0, assembleProfile.ManaCost - AssembleEquipmentTargetPowerManaReduction(assembleProfile, targetState));
+    }
+
+    private static int AssembleEquipmentTargetPowerManaReduction(
+        AssembleEquipmentProfile assembleProfile,
+        CardObjectState targetState)
+    {
+        return assembleProfile.ReduceManaCostByTargetPower ? Math.Max(0, targetState.Power) : 0;
     }
 
     private static bool IsImplementedAssembleEquipmentTarget(MatchState state, string playerId, string objectId)
@@ -7098,6 +7201,10 @@ internal static class ActionPromptBuilder
             ["availablePowerByTrait"] = requirement.AvailablePowerByTrait,
             ["availablePowerByTraitWithPaymentResources"] = requirement.AvailablePowerByTraitWithPaymentResources,
             ["requiredOptionalCosts"] = requirement.RequiredOptionalCosts,
+            ["manaCost"] = requirement.ManaCost,
+            ["baseManaCost"] = requirement.BaseManaCost,
+            ["manaCostByTargetObjectId"] = requirement.ManaCostByTargetObjectId,
+            ["targetPowerManaReductionByTargetObjectId"] = requirement.TargetPowerManaReductionByTargetObjectId,
             ["powerCost"] = requirement.PowerCost,
             ["experienceCost"] = requirement.ExperienceCost,
             ["composable"] = requirement.Composable,
@@ -9380,6 +9487,7 @@ public sealed class MatchSession : IMatchSession
             "assemble-experience" => BuildAssembleExperienceScenario(current, seed),
             "assemble-destroy-friendly-unit" => BuildAssembleDestroyFriendlyUnitScenario(current, seed),
             "assemble-recycle-graveyard" => BuildAssembleRecycleGraveyardScenario(current, seed),
+            "assemble-dynamic-mana" => BuildAssembleDynamicManaScenario(current, seed),
             "echo-stack" => BuildEchoStackScenario(current, seed),
             "priority-reaction-counter" => BuildPriorityReactionCounterScenario(current, seed),
             "standby-reaction" => BuildStandbyReactionScenario(current, seed),
@@ -11222,6 +11330,62 @@ public sealed class MatchSession : IMatchSession
                 ["P1-LAST-RITES-RECYCLE-002"] = new(
                     "P1-LAST-RITES-RECYCLE-002",
                     cardNo: "SFD·067/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildAssembleDynamicManaScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603304168,
+            4168,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(1, 1),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    baseZone:
+                    [
+                        "P1-EQUIPMENT-HEXTECH-GAUNTLET-ASSEMBLE",
+                        "P1-UNIT-HEXTECH-GAUNTLET-TARGET",
+                        "P1-UNIT-HEXTECH-GAUNTLET-TOO-SMALL"
+                    ],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-EQUIPMENT-HEXTECH-GAUNTLET-ASSEMBLE"] = new(
+                    "P1-EQUIPMENT-HEXTECH-GAUNTLET-ASSEMBLE",
+                    cardNo: "UNL-188/219",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-UNIT-HEXTECH-GAUNTLET-TARGET"] = new(
+                    "P1-UNIT-HEXTECH-GAUNTLET-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-UNIT-HEXTECH-GAUNTLET-TOO-SMALL"] = new(
+                    "P1-UNIT-HEXTECH-GAUNTLET-TOO-SMALL",
+                    cardNo: "SFD·013/221",
+                    power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
                     controllerId: seed.P1)

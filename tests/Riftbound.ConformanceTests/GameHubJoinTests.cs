@@ -2370,6 +2370,74 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79AssembleDynamicManaSeedOffersCostAndAttachesThroughHub()
+    {
+        const string roomId = "p7-9-assemble-dynamic-mana-core";
+        const string equipmentObjectId = "P1-EQUIPMENT-HEXTECH-GAUNTLET-ASSEMBLE";
+        const string targetObjectId = "P1-UNIT-HEXTECH-GAUNTLET-TARGET";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "assemble-dynamic-mana", "seed-p7-9-assemble-dynamic-mana");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var assembleCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(assembleCandidate.Enabled);
+        Assert.Equal([equipmentObjectId], (assembleCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        var metadata = Assert.IsType<Dictionary<string, object?>>(assembleCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        Assert.Equal("UNL-188/219", sourceRequirement["equipmentCardNo"]);
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["manaCost"]));
+        Assert.Equal(3, Assert.IsType<int>(sourceRequirement["baseManaCost"]));
+        Assert.Equal(
+            [targetObjectId],
+            Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(sourceRequirement["targetChoices"])
+                .Select(choice => choice.Id)
+                .ToArray());
+        Assert.Equal(["ASSEMBLE_3_ANY_POWER"], Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["optionalCostChoices"]).Select(choice => choice.Id).ToArray());
+
+        var attachClients = new RecordingHubClients();
+        await CreateHub(attachClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-assemble-dynamic-mana", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "ASSEMBLE_EQUIPMENT",
+                sourceObjectId = equipmentObjectId,
+                targetObjectId,
+                optionalCosts = new[] { "ASSEMBLE_3_ANY_POWER" }
+            }));
+
+        Assert.Empty(attachClients.CallerClient.Errors);
+        var events = EventsFor(attachClients);
+        Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], events.Select(gameEvent => gameEvent.Kind).ToArray());
+        var costEvent = Assert.Single(events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(1, costEvent.Payload["mana"]);
+        Assert.Equal(3, costEvent.Payload["baseManaCost"]);
+        Assert.Equal(2, costEvent.Payload["targetPowerManaReduction"]);
+        Assert.Equal(1, costEvent.Payload["power"]);
+
+        var snapshot = SnapshotFor(attachClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
+        var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
+        var equipment = Assert.IsType<Dictionary<string, object?>>(p1Objects[equipmentObjectId]);
+        Assert.Equal(targetObjectId, Assert.IsType<string>(equipment["attachedToObjectId"]));
+    }
+
+    [Fact]
     public async Task P6SpellDuelSeedTransfersOnlinePriorityAfterSpellIsPlayed()
     {
         const string roomId = "p6-3a-response-window";

@@ -393,6 +393,10 @@ type AssembleEquipmentSourceRequirement = {
   availablePowerByTrait: Record<string, number>;
   availablePowerByTraitWithPaymentResources: Record<string, number>;
   requiredOptionalCosts: string[];
+  manaCost: number;
+  baseManaCost: number;
+  manaCostByTargetObjectId: Record<string, number>;
+  targetPowerManaReductionByTargetObjectId: Record<string, number>;
   powerCost: number;
   experienceCost: number;
   composable: boolean;
@@ -1213,6 +1217,8 @@ function AssembleEquipmentComposer({
     ...paymentResourceCosts,
     ...selectedAdditionalCosts.map((choice) => choice.id)
   ]);
+  const selectedManaCost = assembleEquipmentManaCostForTarget(selectedRequirement, targetObjectId);
+  const selectedManaReduction = assembleEquipmentManaReductionForTarget(selectedRequirement, targetObjectId);
   const canSubmit = Boolean(
     candidate.enabled
     && selectedRequirement.composable
@@ -1230,6 +1236,10 @@ function AssembleEquipmentComposer({
       </div>
       <div className="composer-meta">
         <span>{selectedRequirement.displayName}</span>
+        {selectedRequirement.baseManaCost > 0 && <span>法力费用 {selectedManaCost}</span>}
+        {selectedManaReduction > 0 && selectedRequirement.baseManaCost > selectedManaCost && (
+          <span>目标战力减免 {selectedManaReduction}</span>
+        )}
         {selectedRequirement.powerCost > 0 && <span>符能费用 {selectedRequirement.powerCost}</span>}
         {selectedRequirement.experienceCost > 0 && <span>经验费用 {selectedRequirement.experienceCost}</span>}
       </div>
@@ -2248,6 +2258,10 @@ function parseAssembleEquipmentRequirement(value: unknown): AssembleEquipmentSou
     availablePowerByTrait: numberRecord(record.availablePowerByTrait),
     availablePowerByTraitWithPaymentResources: numberRecord(record.availablePowerByTraitWithPaymentResources),
     requiredOptionalCosts: stringList(record.requiredOptionalCosts),
+    manaCost: numberField(record, "manaCost"),
+    baseManaCost: numberField(record, "baseManaCost"),
+    manaCostByTargetObjectId: numberRecord(record.manaCostByTargetObjectId),
+    targetPowerManaReductionByTargetObjectId: numberRecord(record.targetPowerManaReductionByTargetObjectId),
     powerCost: numberField(record, "powerCost"),
     experienceCost: numberField(record, "experienceCost"),
     composable: booleanField(record, "composable", true),
@@ -2487,6 +2501,24 @@ function toggleValue(values: string[], value: string): string[] {
 
 function optionalCostLabel(choices: ActionPromptChoiceDto[], cost: string): string {
   return choices.find((choice) => choice.id === cost)?.label ?? "服务端费用";
+}
+
+function assembleEquipmentManaCostForTarget(
+  requirement: AssembleEquipmentSourceRequirement,
+  targetObjectId: string
+): number {
+  return targetObjectId
+    ? requirement.manaCostByTargetObjectId[targetObjectId] ?? requirement.manaCost
+    : requirement.manaCost;
+}
+
+function assembleEquipmentManaReductionForTarget(
+  requirement: AssembleEquipmentSourceRequirement,
+  targetObjectId: string
+): number {
+  return targetObjectId
+    ? requirement.targetPowerManaReductionByTargetObjectId[targetObjectId] ?? 0
+    : 0;
 }
 
 function destroyFriendlyUnitCostTargetObjectId(cost: string): string {
