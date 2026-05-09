@@ -1,12 +1,12 @@
 # Stage 4B Card Coverage Freeze
 
-日期：2026-05-09；4C-1 / 4C-2 / 4C-3 overlay 追加：2026-05-09；4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 overlay 追加：2026-05-10
+日期：2026-05-09；4C-1 / 4C-2 / 4C-3 overlay 追加：2026-05-09；4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 overlay 追加：2026-05-10
 
 阶段：**阶段 4B / E 卡牌覆盖矩阵冻结**
 
-结论：**4B freeze 完成；4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 post-freeze overlay 已记录；NOT READY；不允许 1009 张卡批量实现。**
+结论：**4B freeze 完成；4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 post-freeze overlay 已记录；NOT READY；不允许 1009 张卡批量实现。**
 
-本文冻结卡牌覆盖矩阵、official text / FAQ evidence、functional units、测试优先级和阶段 4 批量顺序。4C-1 只在冻结矩阵上追加 APNAP `ORDER_TRIGGERS` / battle initial stack / hidden trigger metadata redaction overlay；4C-2 / 4C-3 只追加 Watchful Sentinel 与 Honest Broker real trigger enqueue overlay；4C-4 只追加 Treasure Pile trigger payment overlay；4C-5 / 4C-6 只追加 visible Watchful Sentinel / Honest Broker state-based cleanup trigger enqueue overlay；4C-7 / 4C-8 只追加 visible Scouting Warhawk explicit destroy / state-based cleanup trigger enqueue overlay；4C-9 只追加 visible Sad/Loyal Poro conditional state-based cleanup trigger enqueue overlay；4C-10 只追加 visible Unsung Hero powerful state-based cleanup trigger enqueue overlay。E 不修改服务端/前端代码，不修改 A checkpoint，不触碰 `riftbound-dotnet.sln`。
+本文冻结卡牌覆盖矩阵、official text / FAQ evidence、functional units、测试优先级和阶段 4 批量顺序。4C-1 只在冻结矩阵上追加 APNAP `ORDER_TRIGGERS` / battle initial stack / hidden trigger metadata redaction overlay；4C-2 / 4C-3 只追加 Watchful Sentinel 与 Honest Broker real trigger enqueue overlay；4C-4 只追加 Treasure Pile trigger payment overlay；4C-5 / 4C-6 只追加 visible Watchful Sentinel / Honest Broker state-based cleanup trigger enqueue overlay；4C-7 / 4C-8 只追加 visible Scouting Warhawk explicit destroy / state-based cleanup trigger enqueue overlay；4C-9 只追加 visible Sad/Loyal Poro conditional state-based cleanup trigger enqueue overlay；4C-10 只追加 visible Unsung Hero powerful state-based cleanup trigger enqueue overlay；4C-11 只追加 visible surviving friendly Ghostly Centaur friendly-destroyed cleanup trigger enqueue overlay。E 不修改服务端/前端代码，不修改 A checkpoint，不触碰 `riftbound-dotnet.sln`。
 
 ## 1. Source Snapshot
 
@@ -404,9 +404,39 @@ Top risk remains the Stage 2 Top20 with 4B statuses overlaid:
 
 仍缺：完整 trigger engine、LayerEngine / effective power / temporary modifier powerful adjudication、battlefield objectLocation 全矩阵、explicit destroy migration、其他 last-breath / destroyed / friendly-destroyed functional units、隐藏 / face-down trigger original visibility modeling、FAQ adjudication / regression、正式 18-step E2E 和 1009/811 full-official 覆盖。
 
-## 18. 4B / 4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 Blocker
+## 18. Post-Freeze 4C-11 Overlay
 
-4B freeze、4C-1 overlay、4C-2 overlay、4C-3 overlay、4C-4 overlay、4C-5 overlay、4C-6 overlay、4C-7 overlay、4C-8 overlay、4C-9 overlay 和 4C-10 overlay 本身无文档阻断。仍阻断 READY / full-official 的事项：
+4C-11 不改变 4B frozen counts、primary status counts 或 full-official 口径，只记录 B/A 已完成并通过测试的局部 runtime 证据：
+
+| 项 | 4C-11 记录 |
+|---|---|
+| verified FU | `FU-0f2c4a3ea5` / `UNL-068/219`《幽魂半人马》 |
+| supporting source | `FU-56d6b01aa1` / `OGN·029/298`《星落》 |
+| state cleanup route | `Starfall lethal damage -> state-based cleanup LETHAL_DAMAGE / UNIT_DESTROYED -> visible surviving friendly Ghostly source -> TriggerQueue -> ORDER_TRIGGERS -> StackItems -> priority pass -> TRIGGER_RESOLVED -> POWER_MODIFIED_UNTIL_END_OF_TURN +2` |
+| source guards | hidden / face-down / standby / opponent-controlled source 不入队、不泄漏、不加战力；source 也在 cleanup removal set 时不入队。 |
+| simultaneity guard | same source 同一轮 cleanup pass 中多个友方同时死亡保守封顶为 1 个 trigger；不是 full-official。 |
+| non-covered FUs | 不覆盖 Viktor / Resonant Soul / Kogmaw / Karthus / Undercover Agent。 |
+| compatibility | true stack destruction immediate P79 compatibility 保留，本批不迁移。 |
+| overlay status | `FRIENDLY_DESTROYED_CLEANUP_TRIGGER_ENQUEUE_PARTIALLY_REDUCED_NOT_FULL_OFFICIAL` |
+| validation | focused RealTriggerQueue 23/23、backend full 3364/3364、frontend build passed、Chrome smoke passed、Stage 3 preflight passed、diff check passed。 |
+
+矩阵 overlay 数字：
+
+- `stage4C11` verified FUs：1
+- `stage4C11` verified snapshot entries：1
+- supporting source snapshot entries：1
+- cumulative real-trigger enqueue verified FUs：8
+- cumulative state-based cleanup trigger enqueue verified FUs：8
+- next-pressure candidate FUs：10
+- full-official upgrades：0
+
+同族 destroyed / friendly-destroyed / complex last-breath / hidden-origin FUs 只记录为 next-pressure candidates，不标为已实现。
+
+仍缺：完整 trigger engine、Viktor / Resonant Soul / Kogmaw / Karthus / Undercover Agent、same-source 多友方同时死亡 full-official、true stack destruction queued migration、LayerEngine / temporary power duration cleanup matrix、隐藏 / face-down trigger original visibility modeling、FAQ adjudication / regression、正式 18-step E2E 和 1009/811 full-official 覆盖。
+
+## 19. 4B / 4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 Blocker
+
+4B freeze、4C-1 overlay、4C-2 overlay、4C-3 overlay、4C-4 overlay、4C-5 overlay、4C-6 overlay、4C-7 overlay、4C-8 overlay、4C-9 overlay、4C-10 overlay 和 4C-11 overlay 本身无文档阻断。仍阻断 READY / full-official 的事项：
 
 - 0/811 functional units 获得 full-official。
 - P0/P1 engine support 仍影响 762 FUs by status flag。

@@ -4069,6 +4069,41 @@ public sealed class CoreRuleEngine : IRuleEngine
             "UNIT_DESTROYED");
     }
 
+    private static IReadOnlyList<TriggerQueueItemState> BuildGhostlyCentaurFriendlyDestroyedTriggerQueueItems(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlySet<string> stateBasedRemovalObjectIds,
+        IReadOnlySet<string> alreadyQueuedSourceObjectIds,
+        StackItemState stackItem,
+        string destroyedObjectId,
+        string destroyedOwnerPlayerId)
+    {
+        return playerZones
+            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
+            .Distinct(StringComparer.Ordinal)
+            .Where(sourceObjectId => !string.Equals(sourceObjectId, destroyedObjectId, StringComparison.Ordinal))
+            .Where(sourceObjectId => !stateBasedRemovalObjectIds.Contains(sourceObjectId))
+            .Where(sourceObjectId => !alreadyQueuedSourceObjectIds.Contains(sourceObjectId))
+            .Where(sourceObjectId => cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                && string.Equals(sourceState.CardNo, GhostlyCentaurCardNo, StringComparison.Ordinal)
+                && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !sourceState.IsFaceDown
+                && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                && IsObjectOnField(playerZones, sourceObjectId)
+                && string.Equals(
+                    EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
+                    destroyedOwnerPlayerId,
+                    StringComparison.Ordinal))
+            .OrderBy(sourceObjectId => sourceObjectId, StringComparer.Ordinal)
+            .Select(sourceObjectId => new TriggerQueueItemState(
+                $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{destroyedObjectId}-{GhostlyCentaurFriendlyDestroyedPowerEffectKind}",
+                destroyedOwnerPlayerId,
+                sourceObjectId,
+                GhostlyCentaurFriendlyDestroyedPowerEffectKind,
+                "UNIT_DESTROYED"))
+            .ToArray();
+    }
+
     private static GameEvent BuildTriggerQueuedEvent(TriggerQueueItemState trigger)
     {
         return new GameEvent(
@@ -17163,7 +17198,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         var destroyedUnits = events
             .Where(gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
                 && TryGetPayloadString(gameEvent, "targetObjectId", out _)
-                && TryGetPayloadString(gameEvent, "ownerPlayerId", out _))
+                && TryGetPayloadString(gameEvent, "ownerPlayerId", out _)
+                && !IsStateBasedCleanupDestroyedEvent(gameEvent))
             .Select(gameEvent =>
             {
                 _ = TryGetPayloadString(gameEvent, "targetObjectId", out var destroyedObjectId);
@@ -17217,6 +17253,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 events.Add(powerEvent);
             }
         }
+    }
+
+    private static bool IsStateBasedCleanupDestroyedEvent(GameEvent gameEvent)
+    {
+        return TryGetPayloadString(gameEvent, "reason", out var reason)
+            && (string.Equals(reason, "LETHAL_DAMAGE", StringComparison.Ordinal)
+                || string.Equals(reason, "DAMAGE_TRIGGERED_DESTROY", StringComparison.Ordinal));
     }
 
     private static ResonantSoulTriggerResult ResolveResonantSoulFirstFriendlyDestroyedUnitDraw(
@@ -20587,6 +20630,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveScoutingWarhawkLastBreathStackItem(state, stackItem);
         }
 
+        if (string.Equals(stackItem.EffectKind, GhostlyCentaurFriendlyDestroyedPowerEffectKind, StringComparison.Ordinal))
+        {
+            return ResolveGhostlyCentaurFriendlyDestroyedPowerStackItem(state, stackItem);
+        }
+
         if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.ViDoublePowerAbilityEffectKind, StringComparison.Ordinal))
         {
             return ResolveViDoublePowerAbilityStackItem(state, stackItem);
@@ -23257,6 +23305,62 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray(),
                 ["reason"] = ScoutingWarhawkLastBreathCallRuneEffectKind
             }));
+
+        return new StackResolutionResult(
+            playerZones,
+            cardObjects,
+            state.PlayerScores,
+            NormalizeExperienceForSeats(state),
+            state.RunePools,
+            state.UntilEndOfTurnEffects,
+            null,
+            events,
+            [],
+            null,
+            [],
+            null,
+            [],
+            state.RngCursor);
+    }
+
+    private static StackResolutionResult ResolveGhostlyCentaurFriendlyDestroyedPowerStackItem(
+        MatchState state,
+        StackItemState stackItem)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var events = new List<GameEvent>
+        {
+            BuildTriggerResolvedEvent(new TriggerQueueItemState(
+                stackItem.StackItemId.StartsWith("ordered-", StringComparison.Ordinal)
+                    ? stackItem.StackItemId["ordered-".Length..]
+                    : stackItem.StackItemId,
+                stackItem.ControllerId,
+                stackItem.SourceObjectId,
+                stackItem.EffectKind,
+                "UNIT_DESTROYED"))
+        };
+
+        if (cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
+            && string.Equals(sourceState.CardNo, GhostlyCentaurCardNo, StringComparison.Ordinal)
+            && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !sourceState.IsFaceDown
+            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && IsObjectOnField(playerZones, stackItem.SourceObjectId)
+            && string.Equals(
+                EffectiveFieldControllerId(playerZones, stackItem.SourceObjectId, sourceState),
+                stackItem.ControllerId,
+                StringComparison.Ordinal))
+        {
+            cardObjects[stackItem.SourceObjectId] = ApplyPowerModifier(
+                sourceState,
+                GhostlyCentaurFriendlyDestroyedPowerBehavior,
+                stackItem,
+                stackItem.SourceObjectId,
+                GhostlyCentaurFriendlyDestroyedPowerBehavior.PowerModifierAmount,
+                out var powerEvent);
+            events.Add(powerEvent);
+        }
 
         return new StackResolutionResult(
             playerZones,
@@ -27106,6 +27210,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var destroyedObjectIds = new List<string>();
         var destroyedUnitOwnerIds = new List<string>();
         var triggerQueue = new List<TriggerQueueItemState>();
+        var queuedGhostlyCentaurSourceObjectIds = new HashSet<string>(StringComparer.Ordinal);
         var nextRunePools = runePools;
         var stateBasedRemovalObjectIds = cardObjects
             .Where(entry => (IsZeroOrNegativePowerDamagedCleanupCandidate(entry.Value)
@@ -27298,6 +27403,23 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ScoutingWarhawkLastBreathCallRuneEffectKind);
                 events.Add(BuildTriggerQueuedEvent(trigger));
                 triggerQueue.Add(trigger);
+            }
+
+            var ghostlyCentaurTriggers = removalResult.WasUnit
+                ? BuildGhostlyCentaurFriendlyDestroyedTriggerQueueItems(
+                    playerZones,
+                    cardObjects,
+                    stateBasedRemovalObjectIdSet,
+                    queuedGhostlyCentaurSourceObjectIds,
+                    stackItem,
+                    objectId,
+                    removalResult.OwnerPlayerId)
+                : Array.Empty<TriggerQueueItemState>();
+            foreach (var trigger in ghostlyCentaurTriggers)
+            {
+                events.Add(BuildTriggerQueuedEvent(trigger));
+                triggerQueue.Add(trigger);
+                queuedGhostlyCentaurSourceObjectIds.Add(trigger.SourceObjectId);
             }
         }
 
