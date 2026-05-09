@@ -2340,6 +2340,7 @@ internal static class ActionPromptBuilder
     private const string StandbyReactionMode = "STANDBY_REACTION";
     private const string StandbyReactionModeLabel = "作为反应打出";
     private const string StandbyReactionDestination = "STACK";
+    private const int BaseWinningScore = 8;
     private const string LongSwordCardNo = "SFD·022/221";
     private const int LongSwordAssemblePowerCost = 1;
     private const string LongSwordAssembleOptionalCost = "ASSEMBLE_RED";
@@ -3448,13 +3449,17 @@ internal static class ActionPromptBuilder
         {
             if (zones.Base.Contains(objectId, StringComparer.Ordinal))
             {
+                var battlefieldDestinations = MoveUnitBaseToBattlefieldDestinationChoices(state)
+                    .ToArray();
                 requirements.Add(new MoveUnitPromptRequirement(
                     objectId,
                     MoveUnitBaseZone,
                     "基地",
                     "BASE_TO_BATTLEFIELD",
                     "基地 -> 战场",
-                    [new ActionPromptChoiceDto(MoveUnitBattlefieldZone, "战场", "implemented coarse battlefield destination")],
+                    battlefieldDestinations.Length > 0
+                        ? battlefieldDestinations
+                        : [new ActionPromptChoiceDto(MoveUnitBattlefieldZone, "战场", "implemented coarse battlefield destination")],
                     [],
                     [],
                     true,
@@ -3606,6 +3611,21 @@ internal static class ActionPromptBuilder
                 "己方主战场",
                 "implemented precise battlefield roam destination"))
             .Where(choice => !string.Equals(choice.Id, origin, StringComparison.Ordinal))
+            .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+            .Select(group => group.First());
+    }
+
+    private static IEnumerable<ActionPromptChoiceDto> MoveUnitBaseToBattlefieldDestinationChoices(MatchState state)
+    {
+        return state.BattlefieldStates.Values
+            .OrderBy(battlefield => battlefield.BattlefieldObjectId, StringComparer.Ordinal)
+            .Where(battlefield => state.CardObjects.TryGetValue(battlefield.BattlefieldObjectId, out var cardObject)
+                && IsPromptBattlefieldCardObject(cardObject)
+                && !string.IsNullOrWhiteSpace(cardObject.CardNo))
+            .Select(battlefield => BattlefieldDestinationChoice(
+                state,
+                battlefield.BattlefieldObjectId,
+                "服务端合法战场目的地"))
             .GroupBy(choice => choice.Id, StringComparer.Ordinal)
             .Select(group => group.First());
     }
@@ -5144,9 +5164,7 @@ internal static class ActionPromptBuilder
         CardBehaviorDefinition behavior,
         string? sourceObjectId = null)
     {
-        var reduction = string.Equals(behavior.CostReductionConditionKind, CardCostReductionConditionKinds.None, StringComparison.Ordinal)
-            ? 0
-            : behavior.CostReductionMana;
+        var reduction = PromptCostReductionMana(state, playerId, behavior);
         var experience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
             ? currentExperience
             : 0;
@@ -5165,6 +5183,116 @@ internal static class ActionPromptBuilder
         }
 
         return reduction + PromptBattlefieldEquipmentCostReductionMana(state, playerId, behavior);
+    }
+
+    private static int PromptCostReductionMana(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        if (behavior.CostReductionMana <= 0
+            || string.Equals(behavior.CostReductionConditionKind, CardCostReductionConditionKinds.None, StringComparison.Ordinal))
+        {
+            return 0;
+        }
+
+        return behavior.CostReductionConditionKind switch
+        {
+            CardCostReductionConditionKinds.EnemyUnitDestroyedThisTurn
+                => PromptEnemyUnitDestroyedThisTurn(state, playerId) ? behavior.CostReductionMana : 0,
+            CardCostReductionConditionKinds.ControllerHighestUnitPower
+                => Math.Min(behavior.CostReductionMana, PromptHighestControlledUnitPower(state, playerId)),
+            CardCostReductionConditionKinds.OpponentWithinThreeOfWinningScore
+                => PromptOpponentWithinWinningScoreDistance(state, playerId, 3) ? behavior.CostReductionMana : 0,
+            CardCostReductionConditionKinds.ControllerControlsTaggedUnit
+                => PromptControllerControlsTaggedUnit(state, playerId, behavior.CostReductionUnitTag)
+                    ? behavior.CostReductionMana
+                    : 0,
+            CardCostReductionConditionKinds.ControllerPlayedAnotherCardThisTurn
+                => PromptControllerPlayedAnotherCardThisTurn(state, playerId) ? behavior.CostReductionMana : 0,
+            _ => 0
+        };
+    }
+
+    private static bool PromptControllerPlayedAnotherCardThisTurn(MatchState state, string playerId)
+    {
+        return state.PlayerCardsPlayedThisTurn.TryGetValue(playerId, out var count)
+            && count > 0;
+    }
+
+    private static bool PromptEnemyUnitDestroyedThisTurn(MatchState state, string playerId)
+    {
+        return state.DestroyedUnitOwnerIdsThisTurn.Any(ownerPlayerId =>
+            !string.Equals(ownerPlayerId, playerId, StringComparison.Ordinal));
+    }
+
+    private static int PromptHighestControlledUnitPower(MatchState state, string playerId)
+    {
+        return state.PlayerZones.TryGetValue(playerId, out var zones)
+            ? zones.Base.Concat(zones.Battlefields)
+                .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject) ? cardObject.Power : 0)
+                .DefaultIfEmpty(0)
+                .Max()
+            : 0;
+    }
+
+    private static bool PromptControllerControlsTaggedUnit(
+        MatchState state,
+        string playerId,
+        string requiredTag)
+    {
+        return !string.IsNullOrWhiteSpace(requiredTag)
+            && state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.Base.Concat(zones.Battlefields)
+                .Any(objectId => PromptCardObjectHasTags(state.CardObjects, objectId, requiredTag));
+    }
+
+    private static bool PromptCardObjectHasTags(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string objectId,
+        string requiredTags)
+    {
+        return cardObjects.TryGetValue(objectId, out var cardObject)
+            && PromptDelimitedValues(requiredTags)
+                .All(tag => cardObject.Tags.Contains(tag, StringComparer.Ordinal));
+    }
+
+    private static bool PromptOpponentWithinWinningScoreDistance(
+        MatchState state,
+        string playerId,
+        int distance)
+    {
+        var opponentId = PromptOpponentOf(state, playerId);
+        return opponentId is not null
+            && state.PlayerScores.TryGetValue(opponentId, out var opponentScore)
+            && opponentScore >= PromptEffectiveWinningScore(state) - distance;
+    }
+
+    private static string? PromptOpponentOf(MatchState state, string playerId)
+    {
+        return state.Seats.Keys.FirstOrDefault(seatPlayerId =>
+            !string.Equals(seatPlayerId, playerId, StringComparison.Ordinal));
+    }
+
+    private static int PromptEffectiveWinningScore(MatchState state)
+    {
+        var modifier = state.PlayerZones
+            .Sum(entry => entry.Value.Battlefields.Count(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && (string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreCardNo, StringComparison.Ordinal)
+                    || string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreAltCardNo, StringComparison.Ordinal))
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key)));
+        return BaseWinningScore + modifier;
+    }
+
+    private static IReadOnlyList<string> PromptDelimitedValues(string values)
+    {
+        return string.IsNullOrWhiteSpace(values)
+            ? []
+            : values
+                .Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .ToArray();
     }
 
     private static bool HasPromptDiscardHandCardOptionalCostTarget(

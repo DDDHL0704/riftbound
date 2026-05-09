@@ -2,10 +2,12 @@
 
 更新日期：2026-05-09
 当前结论：**NOT READY**
-当前完成度：约 **99%**，预计仍需 completion audit 与少量收口修复。
+当前完成度：约 **99%+**，预计仍需 completion audit 与正式 18 步 E2E 收口修复。
 用途：作为本轮“产品级 Web 前端重建 + 服务端规则补齐”的短入口，后续每个批次都应回到本文更新范围、验收和剩余风险。
 
 最新批次补充：
+
+- 第三百四十五批补齐基地单位移动到具体战场与条件减费 prompt 合法性。服务端 `MOVE_UNIT` 现在支持 `BASE -> BATTLEFIELD:<battlefieldObjectId>`，ActionPrompt 对基地单位移动公开服务端确认的具体战场 destination，Core 会写入精确对象位置并在移入敌方已占战场时触发战场争夺/法术对决；`PLAY_CARD` prompt 的条件减费与 Core 结算保持一致，未满足“本回合已打出另一张牌”等条件时不会把实际支付不起的《诺克萨斯新兵》（OGN·012/298）暴露为可打出。本批后台 headless Chrome/CDP smoke 覆盖 P2 Web UI 点击“让过优先权/让过焦点”、P1 SignalR 声明战斗、UI 显示“战斗结束 / 战场控制结算 / 待命清理”、authoritative snapshot 确认 `controllerId=P2`、`standbyObjectIds=[]`、`P1-STANDBY-CONTEST-001` 进墓地，以及 reload/reconnect 恢复最终 snapshot；build、focused 6/6、`GameHubJoinTests` 129/129、后端 full test 3299/3299 与 DevUi build 均通过。整体仍 **NOT READY**，当前完成度约 **99%+**。
 
 - 第三百四十四批补齐《海克斯科技护手》（UNL-188/219）`装配 3A` 的动态法力减费代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在可表达基础 3 点法力 + 1 任意符能，并按所选目标当前战力降低法力费用；ActionPrompt 输出 `manaCostByTargetObjectId` / `targetPowerManaReductionByTargetObjectId`，并过滤资源不足的目标。DevUi 装配面板显示服务端给出的“法力费用 1 / 目标战力减免 2”，仍只提交 `ASSEMBLE_3_ANY_POWER` 与服务端公开目标。本批后台 headless Chrome/CDP smoke 已覆盖 P1 连接、P2 后台入座、seed `assemble-dynamic-mana`、打开详情、确认低战力非法目标未暴露、点击确认装配、authoritative snapshot 贴附成功、`COST_PAID` 动态费用 payload 正确，以及 reload/reconnect 恢复；build、focused 3/3、`AssembleEquipment` 74/74、`GameHubJoinTests` 129/129、后端 full test 3294/3294 与 DevUi build 均通过。整体仍 **NOT READY**，当前完成度约 **99%+**。
 

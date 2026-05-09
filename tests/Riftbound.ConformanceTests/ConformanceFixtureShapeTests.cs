@@ -1749,6 +1749,123 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptHidesConditionalReductionPlayCardSourceBeforeConditionApplies()
+    {
+        var state = new MatchState(
+            "prompt-encourage-reduction-inactive-room",
+            14,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(3, 0),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-NOXIAN-RECRUIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-NOXIAN-RECRUIT"] = new(
+                    "P1-UNIT-NOXIAN-RECRUIT",
+                    cardNo: "OGN·012/298",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+
+        Assert.False(playCandidate.Enabled);
+        Assert.DoesNotContain(
+            playCandidate.Sources ?? [],
+            source => string.Equals(source.Id, "P1-UNIT-NOXIAN-RECRUIT", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+    }
+
+    [Fact]
+    public void ActionPromptShowsConditionalReductionPlayCardSourceAfterConditionApplies()
+    {
+        var state = new MatchState(
+            "prompt-encourage-reduction-active-room",
+            14,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(3, 0),
+                ["P2"] = RunePool.Empty
+            },
+            playerCardsPlayedThisTurn: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 1
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-NOXIAN-RECRUIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-NOXIAN-RECRUIT"] = new(
+                    "P1-UNIT-NOXIAN-RECRUIT",
+                    cardNo: "OGN·012/298",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(
+            playCandidate.Sources ?? [],
+            source => string.Equals(source.Id, "P1-UNIT-NOXIAN-RECRUIT", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        Assert.Equal("P1-UNIT-NOXIAN-RECRUIT", Assert.IsType<string>(sourceRequirement["sourceObjectId"]));
+        Assert.Equal(4, Assert.IsType<int>(sourceRequirement["manaCost"]));
+        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["minimumManaCost"]));
+    }
+
+    [Fact]
     public void ActionPromptExposesCrescentGuardReadyPaymentAfterSpell()
     {
         var paymentRuneObjectId = "P1-RUNE-PURPLE-CRESCENT-001";
@@ -2960,6 +3077,79 @@ public sealed class ConformanceFixtureShapeTests
         var destinationChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             sourceRequirement["destinationChoices"]);
         Assert.Equal(["BATTLEFIELD"], destinationChoices.Select(destination => destination.Id).ToArray());
+    }
+
+    [Fact]
+    public void ActionPromptOffersConcreteBattlefieldsForBaseUnitMove()
+    {
+        var state = new MatchState(
+            "prompt-move-concrete-battlefield-room",
+            15,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-READY-UNIT"],
+                    Battlefields = ["P1-BATTLEFIELD-A"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-B"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-READY-UNIT"] = new(
+                    "P1-READY-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-A"] = new(
+                    "P1-BATTLEFIELD-A",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-B"] = new(
+                    "P2-BATTLEFIELD-B",
+                    cardNo: "OGN·276/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var moveCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "MOVE_UNIT", StringComparison.Ordinal));
+
+        Assert.True(moveCandidate.Enabled);
+        Assert.Equal(
+            ["BATTLEFIELD:P1-BATTLEFIELD-A", "BATTLEFIELD:P2-BATTLEFIELD-B"],
+            (moveCandidate.Destinations ?? []).Select(destination => destination.Id).ToArray());
+        var metadata = Assert.IsType<Dictionary<string, object?>>(moveCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]);
+        var sourceRequirement = Assert.Single(sourceRequirements);
+        var concreteDestinationChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["destinationChoices"]);
+        Assert.Equal(
+            ["BATTLEFIELD:P1-BATTLEFIELD-A", "BATTLEFIELD:P2-BATTLEFIELD-B"],
+            concreteDestinationChoices.Select(destination => destination.Id).ToArray());
     }
 
     [Fact]

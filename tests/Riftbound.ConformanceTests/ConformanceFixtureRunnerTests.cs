@@ -47551,6 +47551,159 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4MoveUnitCommandMovesBaseUnitToConcreteBattlefield()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-MOVE-BASE-UNIT-001"],
+                    Battlefields = ["P1-BATTLEFIELD-CONCRETE-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-CONCRETE-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-MOVE-BASE-UNIT-001"] = new(
+                    "P1-MOVE-BASE-UNIT-001",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-CONCRETE-001"] = new(
+                    "P1-BATTLEFIELD-CONCRETE-001",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-CONCRETE-001"] = new(
+                    "P2-BATTLEFIELD-CONCRETE-001",
+                    cardNo: "OGN·276/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-MOVE-BASE-UNIT-001"] = new("P1", "BASE"),
+                ["P1-BATTLEFIELD-CONCRETE-001"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-CONCRETE-001"),
+                ["P2-BATTLEFIELD-CONCRETE-001"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-CONCRETE-001")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-move-base-to-concrete-battlefield", "P1", "MOVE_UNIT"),
+            new MoveUnitCommand(
+                "P1-MOVE-BASE-UNIT-001",
+                "BASE",
+                "BATTLEFIELD:P1-BATTLEFIELD-CONCRETE-001",
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var moveEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BATTLEFIELD", StringComparison.Ordinal));
+        Assert.Equal("BATTLEFIELD:P1-BATTLEFIELD-CONCRETE-001", moveEvent.Payload["destination"]);
+        Assert.Equal("P1-BATTLEFIELD-CONCRETE-001", moveEvent.Payload["battlefieldObjectId"]);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.Equal(
+            ["P1-BATTLEFIELD-CONCRETE-001", "P1-MOVE-BASE-UNIT-001"],
+            result.State.PlayerZones["P1"].Battlefields);
+        var location = result.State.ObjectLocations["P1-MOVE-BASE-UNIT-001"];
+        Assert.Equal("P1", location.PlayerId);
+        Assert.Equal("BATTLEFIELD", location.Zone);
+        Assert.Equal("P1-BATTLEFIELD-CONCRETE-001", location.BattlefieldObjectId);
+    }
+
+    [Fact]
+    public async Task P4MoveUnitCommandStartsBattlefieldContestWhenBaseUnitMovesToOccupiedEnemyBattlefield()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            ActivePlayerId = "P2",
+            TurnPlayerId = "P2",
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-CONTEST-001", "P1-FIELD-UNIT-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BASE-CONTESTER-001"],
+                    Battlefields = ["P2-BATTLEFIELD-CONTEST-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-CONTEST-001"] = new(
+                    "P1-BATTLEFIELD-CONTEST-001",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-CONTEST-001"] = new(
+                    "P2-BATTLEFIELD-CONTEST-001",
+                    cardNo: "OGN·276/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-FIELD-UNIT-001"] = new(
+                    "P1-FIELD-UNIT-001",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BASE-CONTESTER-001"] = new(
+                    "P2-BASE-CONTESTER-001",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-CONTEST-001"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-CONTEST-001"),
+                ["P2-BATTLEFIELD-CONTEST-001"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-CONTEST-001"),
+                ["P1-FIELD-UNIT-001"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-CONTEST-001"),
+                ["P2-BASE-CONTESTER-001"] = new("P2", "BASE")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-move-base-to-enemy-battlefield", "P2", "MOVE_UNIT"),
+            new MoveUnitCommand(
+                "P2-BASE-CONTESTER-001",
+                "BASE",
+                "BATTLEFIELD:P1-BATTLEFIELD-CONTEST-001",
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BATTLEFIELD", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal));
+        Assert.Equal(TimingStates.SpellDuelOpen, result.State.TimingState);
+        Assert.Equal("P2", result.State.FocusPlayerId);
+        Assert.True(result.State.BattlefieldStates["P1-BATTLEFIELD-CONTEST-001"].Contested);
+        Assert.Equal(
+            ["P1", "P2"],
+            result.State.BattlefieldStates["P1-BATTLEFIELD-CONTEST-001"].OccupantControllerIds);
+        Assert.Equal(
+            "P1-BATTLEFIELD-CONTEST-001",
+            result.State.ObjectLocations["P2-BASE-CONTESTER-001"].BattlefieldObjectId);
+    }
+
+    [Fact]
     public async Task P4MoveUnitCommandRejectsPreciseBattlefieldOriginWithoutRoamCost()
     {
         var state = PunishmentState(mana: 0) with

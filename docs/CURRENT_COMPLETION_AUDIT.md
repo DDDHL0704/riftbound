@@ -1,6 +1,6 @@
 # 符文战场当前 Completion Audit
 
-审计日期：2026-05-08
+审计日期：2026-05-09
 审计结论：**NOT READY**
 
 本文件是 active goal 的当前收口审计清单，不代表最终完成验收。只有当本文所有 P0/P1 阻断清零、后端 full test、前端 build、Browser smoke / E2E 与隐藏信息检查全部通过后，才允许把 goal 标记为 complete。
@@ -8,6 +8,15 @@
 ## 1. 修改文件列表
 
 当前第二百五十九批修改：
+
+- 第三百四十五批追加修改：
+  - `src/Riftbound.Engine/CoreRuleEngine.cs`
+  - `src/Riftbound.Engine/MatchSession.cs`
+  - `tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs`
+  - `tests/Riftbound.ConformanceTests/ConformanceFixtureShapeTests.cs`
+  - `docs/CURRENT_COMPLETION_AUDIT.md`
+  - `docs/CURRENT_FRONTEND_REBUILD_PLAN.md`
+  - `docs/CURRENT_SERVER_RULE_AUDIT.md`
 
 - `src/Riftbound.Api/Program.cs`
 - `src/Riftbound.DevUi/package.json`
@@ -65,6 +74,7 @@
 仍需收口：
 
 - 以双浏览器或等效 E2E 覆盖 `docs/任务补充.md` 的 18 步最低主流程。
+- 第三百四十五批已补一段 seeded battle/control/reconnect smoke，并修复正式流程中暴露的基地单位具体战场移动与条件减费 prompt 合法性缺口；完整正式 18 步 E2E 仍需最终 completion audit 单独通过。
 - 继续补响应窗口、复杂费用、目标法术、战场得分与胜负结算的产品级真实操作 smoke。
 - 确认所有玩家可见页面不再裸显协议词、对象 ID、raw enum、fixture/debug 文本或未授权隐藏信息。
 

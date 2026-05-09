@@ -5843,6 +5843,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (!originUsesPreciseLocation
+            && destinationUsesPreciseLocation
+            && string.Equals(originZone, MoveUnitBaseZone, StringComparison.Ordinal)
+            && string.Equals(destinationZone, MoveUnitBattlefieldZone, StringComparison.Ordinal))
+        {
+            return ResolveBaseToPreciseBattlefieldMoveUnit(
+                state,
+                intent,
+                command,
+                optionalCosts);
+        }
+
         if (originUsesPreciseLocation || destinationUsesPreciseLocation)
         {
             return ResolvePreciseRoamMoveUnit(
@@ -6109,6 +6121,193 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return events;
+    }
+
+    private static ResolutionResult ResolveBaseToPreciseBattlefieldMoveUnit(
+        MatchState state,
+        PlayerIntent intent,
+        MoveUnitCommand command,
+        IReadOnlyList<string> optionalCosts)
+    {
+        if (optionalCosts.Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "移动单位的额外费用暂未开放。",
+                ErrorCodes.UnsupportedCommand);
+        }
+
+        var destinationLocation = NormalizeMoveUnitLocation(command.Destination);
+        var destinationBattlefieldObjectId = PreciseBattlefieldLocationObjectId(destinationLocation);
+        if (destinationBattlefieldObjectId.EndsWith("-MAIN", StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "精确战场移动路径暂未开放。",
+                ErrorCodes.UnsupportedCommand);
+        }
+
+        if (string.IsNullOrWhiteSpace(destinationBattlefieldObjectId)
+            || !state.BattlefieldStates.ContainsKey(destinationBattlefieldObjectId)
+            || !state.CardObjects.TryGetValue(destinationBattlefieldObjectId, out var battlefieldObject)
+            || string.IsNullOrWhiteSpace(battlefieldObject.CardNo)
+            || !IsBattlefieldCardObject(battlefieldObject))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "精确战场移动需要服务端已确认的战场牌信息。",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        var sourceLocation = FindFieldObjectLocation(state.PlayerZones, command.SourceObjectId);
+        if (sourceLocation is null
+            || !string.Equals(sourceLocation.Value.PlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || !string.Equals(sourceLocation.Value.Zone, MoveUnitBaseZone, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "移动单位来源不在提交的起点，或不由该玩家控制。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
+            || sourceState.IsFaceDown
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "移动单位需要选择正面单位。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "移动单位只能选择当前玩家控制的单位。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (string.IsNullOrWhiteSpace(sourceState.CardNo))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "移动单位需要服务端已确认的单位牌信息。",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        if (sourceState.IsAttacking || sourceState.IsDefending)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "战斗中的单位不能移动。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var attachedEquipmentObjectIds = AttachedEquipmentObjectIds(state.CardObjects, command.SourceObjectId);
+        if (attachedEquipmentObjectIds.Count > 0
+            && !CanMoveExplicitAttachedEquipmentWithHost(
+                state.PlayerZones,
+                state.CardObjects,
+                intent.PlayerId,
+                sourceState,
+                attachedEquipmentObjectIds))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "带有贴附装备的单位移动暂未开放。",
+                ErrorCodes.UnsupportedCommand);
+        }
+
+        var playerZones = NormalizeZonesForSeats(state);
+        RemoveFieldObjectFromLocation(playerZones, intent.PlayerId, MoveUnitBaseZone, command.SourceObjectId);
+        AddFieldObjectToLocation(playerZones, intent.PlayerId, MoveUnitBattlefieldZone, command.SourceObjectId);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var movementTriggerEvents = ApplyBattlefieldMovedUnitPowerPlusOne(
+            state,
+            cardObjects,
+            intent.PlayerId,
+            command.SourceObjectId,
+            MoveUnitBaseZone,
+            MoveUnitBattlefieldZone);
+        var attachedEquipmentMoves = MoveAttachedEquipmentWithHost(
+            playerZones,
+            attachedEquipmentObjectIds,
+            intent.PlayerId,
+            command.SourceObjectId,
+            MoveUnitBattlefieldZone);
+        var objectLocations = state.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[command.SourceObjectId] = new ObjectLocationState(
+            intent.PlayerId,
+            MoveUnitBattlefieldZone,
+            destinationBattlefieldObjectId);
+        foreach (var attachedEquipmentObjectId in attachedEquipmentObjectIds)
+        {
+            objectLocations[attachedEquipmentObjectId] = new ObjectLocationState(
+                intent.PlayerId,
+                MoveUnitBattlefieldZone,
+                destinationBattlefieldObjectId);
+        }
+
+        var cleanupStackItem = new StackItemState(
+            $"move-unit-{state.Tick + 1}",
+            intent.PlayerId,
+            command.SourceObjectId,
+            "MOVE_UNIT",
+            sourceState.CardNo,
+            [command.SourceObjectId],
+            optionalCosts: optionalCosts);
+        var lethalCleanup = RunStateBasedCleanupLoop(
+            playerZones,
+            cardObjects,
+            cleanupStackItem,
+            state.RunePools,
+            objectLocations: objectLocations);
+        var runePools = lethalCleanup.RunePools;
+        objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
+
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            RunePools = runePools,
+            CardObjects = cardObjects,
+            PassedPriorityPlayerIds = []
+        };
+
+        var events = new List<GameEvent>
+        {
+            new(
+                "UNIT_MOVED_TO_BATTLEFIELD",
+                $"{intent.PlayerId} 将单位移动到战场",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["targetObjectId"] = command.SourceObjectId,
+                    ["originZone"] = MoveUnitBaseZone,
+                    ["destinationZone"] = MoveUnitBattlefieldZone,
+                    ["destination"] = destinationLocation,
+                    ["battlefieldObjectId"] = destinationBattlefieldObjectId,
+                    ["optionalCosts"] = optionalCosts.ToArray()
+                })
+        };
+        events.AddRange(attachedEquipmentMoves);
+        events.AddRange(movementTriggerEvents);
+        events.AddRange(lethalCleanup.Events);
+
+        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId);
+        nextState = taskAdvance.State;
+        events.AddRange(taskAdvance.Events);
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
     }
 
     private static ResolutionResult ResolvePreciseRoamMoveUnit(
