@@ -50813,7 +50813,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P4AssembleEquipmentCommandRejectsDeferredExperienceCostEquipmentProfile()
+    public async Task P4AssembleEquipmentCommandAttachesShepherdsHeirloomWithExperienceCost()
     {
         var state = PunishmentState(mana: 0) with
         {
@@ -50850,23 +50850,56 @@ public sealed class ConformanceFixtureRunnerTests
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
-            new PlayerIntent("intent-p4-assemble-equipment-shepherds-heirloom-deferred", "P1", "ASSEMBLE_EQUIPMENT"),
+            new PlayerIntent("intent-p4-assemble-equipment-shepherds-heirloom-experience", "P1", "ASSEMBLE_EQUIPMENT"),
             new AssembleEquipmentCommand(
                 "P1-EQUIPMENT-SHEPHERDS-HEIRLOOM",
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["SPEND_EXPERIENCE:1"]),
             CancellationToken.None);
 
-        Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("当前装备装配路径尚未由服务端开放。", result.ErrorMessage);
-        Assert.Empty(result.Events);
-        Assert.Equal(0, result.State.Tick);
-        Assert.Equal(1, result.State.PlayerExperience["P1"]);
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        Assert.Equal(2, result.Events.Count);
+        Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(0, result.State.PlayerExperience["P1"]);
         Assert.Equal(["P1-EQUIPMENT-SHEPHERDS-HEIRLOOM", "P1-UNIT-ASSEMBLE-TARGET"], result.State.PlayerZones["P1"].Base);
-        Assert.Null(result.State.CardObjects["P1-EQUIPMENT-SHEPHERDS-HEIRLOOM"].AttachedToObjectId);
+        Assert.Equal("P1-UNIT-ASSEMBLE-TARGET", result.State.CardObjects["P1-EQUIPMENT-SHEPHERDS-HEIRLOOM"].AttachedToObjectId);
         Assert.Null(result.State.CardObjects["P1-UNIT-ASSEMBLE-TARGET"].AttachedToObjectId);
         Assert.Empty(result.State.StackItems);
+
+        var costPaidPayload = result.Events[0].Payload;
+        Assert.Equal("P1", costPaidPayload["playerId"]);
+        Assert.Equal(0, costPaidPayload["mana"]);
+        Assert.Equal(0, costPaidPayload["power"]);
+        Assert.Equal(1, costPaidPayload["experience"]);
+        Assert.Equal(["SPEND_EXPERIENCE:1"], Assert.IsAssignableFrom<IEnumerable<string>>(costPaidPayload["optionalCosts"]));
+        var attachPayload = result.Events[1].Payload;
+        Assert.Equal("UNL-158/219", attachPayload["equipmentCardNo"]);
+        Assert.Equal("P1-UNIT-ASSEMBLE-TARGET", attachPayload["attachedToObjectId"]);
+
+        var insufficientResult = await new CoreRuleEngine().ResolveAsync(
+            state with
+            {
+                PlayerExperience = new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    ["P1"] = 0,
+                    ["P2"] = 0
+                }
+            },
+            new PlayerIntent("intent-p4-assemble-equipment-shepherds-heirloom-no-experience", "P1", "ASSEMBLE_EQUIPMENT"),
+            new AssembleEquipmentCommand(
+                "P1-EQUIPMENT-SHEPHERDS-HEIRLOOM",
+                "P1-UNIT-ASSEMBLE-TARGET",
+                ["SPEND_EXPERIENCE:1"]),
+            CancellationToken.None);
+
+        Assert.False(insufficientResult.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, insufficientResult.ErrorCode);
+        Assert.Empty(insufficientResult.Events);
+        Assert.Equal(0, insufficientResult.State.Tick);
+        Assert.Equal(0, insufficientResult.State.PlayerExperience["P1"]);
+        Assert.Null(insufficientResult.State.CardObjects["P1-EQUIPMENT-SHEPHERDS-HEIRLOOM"].AttachedToObjectId);
     }
 
     [Fact]

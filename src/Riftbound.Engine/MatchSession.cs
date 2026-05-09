@@ -2437,6 +2437,9 @@ internal static class ActionPromptBuilder
     private const string ShurelyasRequiemCardNo = "SFD·192/221";
     private const int ShurelyasRequiemAssemblePowerCost = 1;
     private const string ShurelyasRequiemAssembleOptionalCost = "ASSEMBLE_ANY_POWER";
+    private const string ShepherdsHeirloomCardNo = "UNL-158/219";
+    private const int ShepherdsHeirloomAssembleExperienceCost = 1;
+    private const string ShepherdsHeirloomAssembleOptionalCost = "SPEND_EXPERIENCE:1";
     private sealed record AssembleEquipmentProfile(
         string CardNo,
         string DisplayName,
@@ -2444,7 +2447,8 @@ internal static class ActionPromptBuilder
         string OptionalCostLabel,
         string PowerTrait,
         int PowerCost,
-        string PaymentResourceReason);
+        string PaymentResourceReason,
+        int ExperienceCost = 0);
 
     private static readonly IReadOnlyDictionary<string, AssembleEquipmentProfile> ImplementedAssembleEquipmentProfiles =
         new Dictionary<string, AssembleEquipmentProfile>(StringComparer.Ordinal)
@@ -2712,7 +2716,16 @@ internal static class ActionPromptBuilder
                 "装配任意符能",
                 string.Empty,
                 ShurelyasRequiemAssemblePowerCost,
-                "payment resource action: recycle any rune for assemble cost")
+                "payment resource action: recycle any rune for assemble cost"),
+            [ShepherdsHeirloomCardNo] = new(
+                ShepherdsHeirloomCardNo,
+                "牧人的传家宝",
+                ShepherdsHeirloomAssembleOptionalCost,
+                "消耗 1 经验",
+                string.Empty,
+                0,
+                "experience assemble cost",
+                ShepherdsHeirloomAssembleExperienceCost)
         };
     private const string CrescentGuardCardNo = "UNL-122/219";
     private const int CrescentGuardReadyPowerCost = 1;
@@ -2821,6 +2834,7 @@ internal static class ActionPromptBuilder
         IReadOnlyDictionary<string, int> AvailablePowerByTraitWithPaymentResources,
         IReadOnlyList<string> RequiredOptionalCosts,
         int PowerCost,
+        int ExperienceCost,
         bool Composable,
         string? UnsupportedReason);
 
@@ -4611,6 +4625,7 @@ internal static class ActionPromptBuilder
             PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait),
             [assembleProfile.OptionalCost],
             assembleProfile.PowerCost,
+            assembleProfile.ExperienceCost,
             true,
             null);
     }
@@ -4652,7 +4667,12 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        return CanPayAssembleEquipmentCost(runePool, assembleProfile, AssembleEquipmentPaymentResourcePowerByTrait(state, playerId, assembleProfile))
+        return CanPayAssembleEquipmentCost(
+                state,
+                playerId,
+                runePool,
+                assembleProfile,
+                AssembleEquipmentPaymentResourcePowerByTrait(state, playerId, assembleProfile))
             && AssembleEquipmentTargetChoicesForSource(state, playerId, objectId).Count > 0;
     }
 
@@ -4666,10 +4686,20 @@ internal static class ActionPromptBuilder
     }
 
     private static bool CanPayAssembleEquipmentCost(
+        MatchState state,
+        string playerId,
         RunePool runePool,
         AssembleEquipmentProfile assembleProfile,
         IReadOnlyDictionary<string, int>? paymentResourcePowerByTrait = null)
     {
+        var availableExperience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
+            ? currentExperience
+            : 0;
+        if (availableExperience < assembleProfile.ExperienceCost)
+        {
+            return false;
+        }
+
         var availablePowerByTrait = PlayCardAvailablePowerByTrait(
             runePool,
             paymentResourcePowerByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
@@ -4690,7 +4720,7 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        if (CanPayAssembleEquipmentCost(runePool, assembleProfile))
+        if (CanPayAssembleEquipmentCost(state, playerId, runePool, assembleProfile))
         {
             return [];
         }
@@ -6918,6 +6948,7 @@ internal static class ActionPromptBuilder
             ["availablePowerByTraitWithPaymentResources"] = requirement.AvailablePowerByTraitWithPaymentResources,
             ["requiredOptionalCosts"] = requirement.RequiredOptionalCosts,
             ["powerCost"] = requirement.PowerCost,
+            ["experienceCost"] = requirement.ExperienceCost,
             ["composable"] = requirement.Composable,
             ["unsupportedReason"] = requirement.UnsupportedReason
         };
@@ -9195,6 +9226,7 @@ public sealed class MatchSession : IMatchSession
             "unknown-declare-battle-source-prompt" => BuildUnknownDeclareBattleSourcePromptScenario(current, seed),
             "unknown-declare-battle-battlefield-prompt" => BuildUnknownDeclareBattleBattlefieldPromptScenario(current, seed),
             "assemble-payment-recycle" => BuildAssemblePaymentRecycleScenario(current, seed),
+            "assemble-experience" => BuildAssembleExperienceScenario(current, seed),
             "echo-stack" => BuildEchoStackScenario(current, seed),
             "priority-reaction-counter" => BuildPriorityReactionCounterScenario(current, seed),
             "standby-reaction" => BuildStandbyReactionScenario(current, seed),
@@ -10851,6 +10883,63 @@ public sealed class MatchSession : IMatchSession
                     ownerId: seed.P1,
                     controllerId: seed.P1)
             });
+    }
+
+    private static MatchState BuildAssembleExperienceScenario(MatchState current, DevScenarioSeed seed)
+    {
+        var state = BuildScenarioState(
+            current,
+            seed,
+            2603304165,
+            4165,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    baseZone:
+                    [
+                        "P1-EQUIPMENT-SHEPHERDS-HEIRLOOM-ASSEMBLE",
+                        "P1-UNIT-SHEPHERDS-HEIRLOOM-TARGET"
+                    ],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-EQUIPMENT-SHEPHERDS-HEIRLOOM-ASSEMBLE"] = new(
+                    "P1-EQUIPMENT-SHEPHERDS-HEIRLOOM-ASSEMBLE",
+                    cardNo: "UNL-158/219",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-UNIT-SHEPHERDS-HEIRLOOM-TARGET"] = new(
+                    "P1-UNIT-SHEPHERDS-HEIRLOOM-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
+
+        return state with
+        {
+            PlayerExperience = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [seed.P1] = 1,
+                [seed.P2] = 0
+            }
+        };
     }
 
     private static MatchState BuildMovementScenario(MatchState current, DevScenarioSeed seed)

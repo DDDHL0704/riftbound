@@ -2156,6 +2156,69 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79AssembleExperienceSeedOffersExperienceCostAndAttachesThroughHub()
+    {
+        const string roomId = "p7-9-assemble-experience-core";
+        const string equipmentObjectId = "P1-EQUIPMENT-SHEPHERDS-HEIRLOOM-ASSEMBLE";
+        const string targetObjectId = "P1-UNIT-SHEPHERDS-HEIRLOOM-TARGET";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "assemble-experience", "seed-p7-9-assemble-experience");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var assembleCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(assembleCandidate.Enabled);
+        Assert.Equal([equipmentObjectId], (assembleCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        var metadata = Assert.IsType<Dictionary<string, object?>>(assembleCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        Assert.Equal("UNL-158/219", sourceRequirement["equipmentCardNo"]);
+        Assert.Equal("牧人的传家宝", sourceRequirement["displayName"]);
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["experienceCost"]));
+        Assert.Equal(["SPEND_EXPERIENCE:1"], Assert.IsAssignableFrom<IEnumerable<string>>(
+            sourceRequirement["requiredOptionalCosts"]).ToArray());
+
+        var attachClients = new RecordingHubClients();
+        await CreateHub(attachClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-assemble-experience", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "ASSEMBLE_EQUIPMENT",
+                sourceObjectId = equipmentObjectId,
+                targetObjectId,
+                optionalCosts = new[] { "SPEND_EXPERIENCE:1" }
+            }));
+
+        Assert.Empty(attachClients.CallerClient.Errors);
+        var events = EventsFor(attachClients);
+        Assert.Equal(
+            ["COST_PAID", "EQUIPMENT_ATTACHED"],
+            events.Select(gameEvent => gameEvent.Kind).ToArray());
+        var costEvent = Assert.Single(events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(1, costEvent.Payload["experience"]);
+
+        var snapshot = SnapshotFor(attachClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
+        Assert.Equal(0, Assert.IsType<int>(p1["experience"]));
+        var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
+        var equipment = Assert.IsType<Dictionary<string, object?>>(p1Objects[equipmentObjectId]);
+        Assert.Equal(targetObjectId, Assert.IsType<string>(equipment["attachedToObjectId"]));
+    }
+
+    [Fact]
     public async Task P6SpellDuelSeedTransfersOnlinePriorityAfterSpellIsPlayed()
     {
         const string roomId = "p6-3a-response-window";

@@ -127,12 +127,16 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string ShurelyasRequiemCardNo = "SFD·192/221";
     private const string ShurelyasRequiemAssembleOptionalCost = "ASSEMBLE_ANY_POWER";
     private const int ShurelyasRequiemAssemblePowerCost = 1;
+    private const string ShepherdsHeirloomCardNo = "UNL-158/219";
+    private const string ShepherdsHeirloomAssembleOptionalCost = "SPEND_EXPERIENCE:1";
+    private const int ShepherdsHeirloomAssembleExperienceCost = 1;
     private sealed record AssembleEquipmentProfile(
         string CardNo,
         string DisplayName,
         string OptionalCost,
         string PowerTrait,
-        int PowerCost);
+        int PowerCost,
+        int ExperienceCost = 0);
 
     private static readonly IReadOnlyDictionary<string, AssembleEquipmentProfile> ImplementedAssembleEquipmentProfiles =
         new Dictionary<string, AssembleEquipmentProfile>(StringComparer.Ordinal)
@@ -334,7 +338,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "舒瑞娅的安魂曲",
                 ShurelyasRequiemAssembleOptionalCost,
                 string.Empty,
-                ShurelyasRequiemAssemblePowerCost)
+                ShurelyasRequiemAssemblePowerCost),
+            [ShepherdsHeirloomCardNo] = new(
+                ShepherdsHeirloomCardNo,
+                "牧人的传家宝",
+                ShepherdsHeirloomAssembleOptionalCost,
+                string.Empty,
+                0,
+                ShepherdsHeirloomAssembleExperienceCost)
         };
     private const string WatchfulSentinelCardNo = "OGN·096/298";
     private const string WatchfulSentinelLastBreathDrawEffectKind = "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
@@ -1517,7 +1528,19 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
+        var currentExperience = state.PlayerExperience.TryGetValue(intent.PlayerId, out var availableExperience)
+            ? availableExperience
+            : 0;
+        if (currentExperience < assembleProfile.ExperienceCost)
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"Not enough experience to assemble {assembleProfile.DisplayName}.",
+                ErrorCodes.InsufficientCost);
+        }
+
         runePools = PayRuneCosts(runePools, intent.PlayerId, 0, assembleAnyPowerCost, assemblePowerCostByTrait);
+        var playerExperience = PayExperienceCosts(state, intent.PlayerId, assembleProfile.ExperienceCost);
         var equipmentWithIdentity = WithFieldIdentityDefaults(equipmentState, intent.PlayerId);
         var targetWithIdentity = WithFieldIdentityDefaults(targetState, intent.PlayerId);
         cardObjects[command.SourceObjectId] = equipmentWithIdentity with
@@ -1530,6 +1553,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             Tick = state.Tick + 1,
             RunePools = runePools,
+            PlayerExperience = playerExperience,
             PlayerZones = playerZones,
             CardObjects = cardObjects,
             ObjectLocations = objectLocations,
@@ -1545,6 +1569,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["playerId"] = intent.PlayerId,
                     ["mana"] = 0,
                     ["power"] = assembleProfile.PowerCost,
+                    ["experience"] = assembleProfile.ExperienceCost,
                     ["sourceObjectId"] = command.SourceObjectId,
                     ["targetObjectId"] = command.TargetObjectId,
                     ["optionalCosts"] = optionalCosts.ToArray(),

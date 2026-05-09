@@ -5077,7 +5077,7 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
-    public void ActionPromptHidesDeferredExperienceCostAssembleEquipmentSource()
+    public void ActionPromptShowsExperienceCostAssembleEquipmentSource()
     {
         var state = new MatchState(
             "prompt-assemble-deferred-experience-source-room",
@@ -5129,11 +5129,23 @@ public sealed class ConformanceFixtureShapeTests
             prompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
 
-        Assert.False(assembleCandidate.Enabled);
-        Assert.Empty(assembleCandidate.Sources ?? []);
+        Assert.True(assembleCandidate.Enabled);
+        Assert.Equal(["P1-SHEPHERDS-HEIRLOOM"], (assembleCandidate.Sources ?? []).Select(source => source.Id).ToArray());
         var metadata = Assert.IsType<Dictionary<string, object?>>(assembleCandidate.Metadata);
-        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-            metadata["sourceRequirements"]));
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]).ToArray();
+        var sourceRequirement = Assert.Single(sourceRequirements);
+        Assert.Equal("P1-SHEPHERDS-HEIRLOOM", sourceRequirement["sourceObjectId"]);
+        Assert.Equal("UNL-158/219", sourceRequirement["equipmentCardNo"]);
+        Assert.Equal("牧人的传家宝", sourceRequirement["displayName"]);
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["powerCost"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["experienceCost"]));
+        Assert.Equal(["SPEND_EXPERIENCE:1"], Assert.IsAssignableFrom<IEnumerable<string>>(
+            sourceRequirement["requiredOptionalCosts"]).ToArray());
+        Assert.Equal(["SPEND_EXPERIENCE:1"], Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["optionalCostChoices"]).Select(choice => choice.Id).ToArray());
+        Assert.Equal(["P1-UNIT-ASSEMBLE-TARGET"], Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["targetChoices"]).Select(choice => choice.Id).ToArray());
     }
 
     [Fact]

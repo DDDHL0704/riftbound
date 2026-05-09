@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 第三百四十一批补齐《牧人的传家宝》（UNL-158/219）经验消耗装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在可表达 `SPEND_EXPERIENCE:1`，Core 扣除 1 经验后把基地中未贴附《牧人的传家宝》贴附到己方单位，经验不足则拒绝且零副作用；ActionPrompt 只在经验足够时公开该来源、经验费用和合法目标，DevUi 装配面板显示服务端给出的经验费用。本批新增 `assemble-experience` 开发种子和 Hub 级提交测试，不启动业务 Chrome smoke；build 通过，focused 经验装配 3/3、`AssembleEquipment` 回归 68/68、后端 full test 3285/3285、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%+**。
+
 - 第三百四十批补复杂/延迟装配费用护栏。《牧人的传家宝》（UNL-158/219）的装配费用是消耗 1 经验，当前完整经验费用装配模型仍 deferred；本批锁定服务端行为为 ActionPrompt 不公开该装备作为 `ASSEMBLE_EQUIPMENT` 来源，Core 对 `SPEND_EXPERIENCE:1` 直接装配命令保持拒绝且零副作用，避免前端把未支持能力显示成可玩。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 68/68、后端 full test 3284/3284、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%+**。
 
 - 第三百三十九批补齐《舒瑞娅的安魂曲》（SFD·192/221）`装配A` 任意符能代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在在任意符能装配路径中覆盖《旋转飞斧》《炉火斗篷》《灭世者的死亡之冠》和《舒瑞娅的安魂曲》四张官方装备；ActionPrompt 只公开《舒瑞娅的安魂曲》的 `ASSEMBLE_ANY_POWER`、任意符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 66/66、后端 full test 3282/3282、DevUi build 与 `git diff --check` 均通过。`唯我` 完整构筑约束仍需后续构筑/牌表校验支持；整体仍 **NOT READY**，当前完成度仍约 **99%**。

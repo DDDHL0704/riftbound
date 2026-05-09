@@ -389,6 +389,7 @@ type AssembleEquipmentSourceRequirement = {
   availablePowerByTraitWithPaymentResources: Record<string, number>;
   requiredOptionalCosts: string[];
   powerCost: number;
+  experienceCost: number;
   composable: boolean;
   unsupportedReason?: string;
 };
@@ -1204,7 +1205,8 @@ function AssembleEquipmentComposer({
       </div>
       <div className="composer-meta">
         <span>{selectedRequirement.displayName}</span>
-        <span>符能费用 {selectedRequirement.powerCost}</span>
+        {selectedRequirement.powerCost > 0 && <span>符能费用 {selectedRequirement.powerCost}</span>}
+        {selectedRequirement.experienceCost > 0 && <span>经验费用 {selectedRequirement.experienceCost}</span>}
       </div>
       <ChoiceGroup label="装配目标">
         {selectedRequirement.targetChoices.length === 0 && <span className="composer-warning">服务端没有给出可装配单位。</span>}
@@ -2188,6 +2190,7 @@ function parseAssembleEquipmentRequirement(value: unknown): AssembleEquipmentSou
     availablePowerByTraitWithPaymentResources: numberRecord(record.availablePowerByTraitWithPaymentResources),
     requiredOptionalCosts: stringList(record.requiredOptionalCosts),
     powerCost: numberField(record, "powerCost"),
+    experienceCost: numberField(record, "experienceCost"),
     composable: booleanField(record, "composable", true),
     unsupportedReason: nullableStringField(record, "unsupportedReason")
   };

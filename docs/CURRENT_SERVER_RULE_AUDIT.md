@@ -14,6 +14,9 @@
 
 ## 2026-05-09 开发进度更新
 
+- P1-002/P1-004 第三百四十一批补充：把《牧人的传家宝》（UNL-158/219）的“装配 — 消耗 1 经验”接入服务端权威 `ASSEMBLE_EQUIPMENT` profile。Core 现在接受当前玩家基地中公开、受控、未贴附、带 `CARD_TYPE:EQUIPMENT` 且 cardNo 为《牧人的传家宝》的来源，必须支付 `SPEND_EXPERIENCE:1`、扣除 1 经验并选择服务端已知受控单位目标；经验不足时拒绝且不改变 tick、事件、经验、基地对象、贴附关系或结算链。ActionPrompt 同步只在经验足够时公开该来源、经验费用和合法目标，DevUi 装配面板显示服务端提供的经验费用，不自行裁决装配可行性。
+- 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；新增经验装配 focused filter 通过 3/3；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~AssembleEquipment"` 通过 68/68；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3285/3285；`source ../../scripts/dev-env.sh && npm run build` 通过；`git diff --check` 通过。新增 `assemble-experience` 开发种子与 Hub 级提交测试；本批未启动 API/Vite/Chrome 业务 smoke。整体仍 **NOT READY**，因为动态费用、对象牺牲/回收型装配、百炼即时装配、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-002/P1-004 第三百四十批补充：补复杂/延迟装配费用的“不公开 + 拒绝”护栏，以《牧人的传家宝》（UNL-158/219）为代表。该牌文本中的装配费用为消耗 1 经验，不属于当前已开放的静态指定颜色符能或任意符能 `ASSEMBLE_EQUIPMENT` profile；Core 即使在 P1 拥有 1 经验且命令携带 `SPEND_EXPERIENCE:1` 时也拒绝直接装配，保持 tick、事件、经验、基地对象、贴附关系和结算链不变。ActionPrompt 同步不公开该来源，不向前端提供未支持的经验装配候选，前端继续只展示服务端已给出的合法动作。
 - 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~AssembleEquipment"` 通过 68/68；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3284/3284；`source ../../scripts/dev-env.sh && npm run build` 通过；`git diff --check` 通过。本批为测试/文档护栏，无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke。整体仍 **NOT READY**，因为完整经验费用模型、动态费用、对象牺牲/回收型装配、百炼即时装配、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
