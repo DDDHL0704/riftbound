@@ -14,6 +14,9 @@
 
 ## 2026-05-09 开发进度更新
 
+- P1-002/P1-004 第三百四十批补充：补复杂/延迟装配费用的“不公开 + 拒绝”护栏，以《牧人的传家宝》（UNL-158/219）为代表。该牌文本中的装配费用为消耗 1 经验，不属于当前已开放的静态指定颜色符能或任意符能 `ASSEMBLE_EQUIPMENT` profile；Core 即使在 P1 拥有 1 经验且命令携带 `SPEND_EXPERIENCE:1` 时也拒绝直接装配，保持 tick、事件、经验、基地对象、贴附关系和结算链不变。ActionPrompt 同步不公开该来源，不向前端提供未支持的经验装配候选，前端继续只展示服务端已给出的合法动作。
+- 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~AssembleEquipment"` 通过 68/68；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3284/3284；`source ../../scripts/dev-env.sh && npm run build` 通过；`git diff --check` 通过。本批为测试/文档护栏，无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke。整体仍 **NOT READY**，因为完整经验费用模型、动态费用、对象牺牲/回收型装配、百炼即时装配、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-002/P1-004 第三百三十九批补充：把《舒瑞娅的安魂曲》（SFD·192/221）的“装配 A”接入服务端权威 `ASSEMBLE_EQUIPMENT` profile，继续复用任意符能费用模型。该牌“打出时让你的所有单位变为活跃状态”的入场路径已由既有 preflight 覆盖；本批只补基地中公开、受控、未贴附、带 `CARD_TYPE:EQUIPMENT` 且 cardNo 为《舒瑞娅的安魂曲》的来源支付 `ASSEMBLE_ANY_POWER` 与 1 点任意符能后贴附到服务端已知受控单位。`唯我` 构筑限制仍不在本批伪造。
 - 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~AssembleEquipment"` 通过 66/66；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3282/3282；`source ../../scripts/dev-env.sh && npm run build` 通过；`git diff --check` 通过。本批仍无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke。整体仍 **NOT READY**，因为 `唯我` 完整构筑约束、灵便反应自动贴附、未贴附瞬息清理、待命即时贴附、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

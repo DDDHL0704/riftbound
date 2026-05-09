@@ -50813,6 +50813,63 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4AssembleEquipmentCommandRejectsDeferredExperienceCostEquipmentProfile()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerExperience = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 1,
+                ["P2"] = 0
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-EQUIPMENT-SHEPHERDS-HEIRLOOM", "P1-UNIT-ASSEMBLE-TARGET"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-EQUIPMENT-SHEPHERDS-HEIRLOOM"] = new(
+                    "P1-EQUIPMENT-SHEPHERDS-HEIRLOOM",
+                    cardNo: "UNL-158/219",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-ASSEMBLE-TARGET"] = new(
+                    "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-assemble-equipment-shepherds-heirloom-deferred", "P1", "ASSEMBLE_EQUIPMENT"),
+            new AssembleEquipmentCommand(
+                "P1-EQUIPMENT-SHEPHERDS-HEIRLOOM",
+                "P1-UNIT-ASSEMBLE-TARGET",
+                ["SPEND_EXPERIENCE:1"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+        Assert.Equal("当前装备装配路径尚未由服务端开放。", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(1, result.State.PlayerExperience["P1"]);
+        Assert.Equal(["P1-EQUIPMENT-SHEPHERDS-HEIRLOOM", "P1-UNIT-ASSEMBLE-TARGET"], result.State.PlayerZones["P1"].Base);
+        Assert.Null(result.State.CardObjects["P1-EQUIPMENT-SHEPHERDS-HEIRLOOM"].AttachedToObjectId);
+        Assert.Null(result.State.CardObjects["P1-UNIT-ASSEMBLE-TARGET"].AttachedToObjectId);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4AssembleEquipmentCommandWithHandSourceIsRejectedUntilEquipmentSystemExists()
     {
         var state = PunishmentState(mana: 0) with
