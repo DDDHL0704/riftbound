@@ -2350,6 +2350,9 @@ internal static class ActionPromptBuilder
     private const string BrutalizerCardNo = "SFD·042/221";
     private const int BrutalizerAssemblePowerCost = 1;
     private const string BrutalizerAssembleOptionalCost = "ASSEMBLE_GREEN";
+    private const string GuardianAngelCardNo = "SFD·051/221";
+    private const int GuardianAngelAssemblePowerCost = 1;
+    private const string GuardianAngelAssembleOptionalCost = "ASSEMBLE_GREEN";
     private const string ClothArmorCardNo = "SFD·064/221";
     private const int ClothArmorAssemblePowerCost = 1;
     private const string ClothArmorAssembleOptionalCost = "ASSEMBLE_BLUE";
@@ -2414,6 +2417,14 @@ internal static class ActionPromptBuilder
                 "装配绿色符能",
                 RuneTrait.Green,
                 BrutalizerAssemblePowerCost,
+                "payment resource action: recycle green rune for assemble cost"),
+            [GuardianAngelCardNo] = new(
+                GuardianAngelCardNo,
+                "守护天使",
+                GuardianAngelAssembleOptionalCost,
+                "装配绿色符能",
+                RuneTrait.Green,
+                GuardianAngelAssemblePowerCost,
                 "payment resource action: recycle green rune for assemble cost"),
             [ClothArmorCardNo] = new(
                 ClothArmorCardNo,

@@ -3644,6 +3644,48 @@ public sealed class ConformanceFixtureShapeTests
             brutalizerRequirement["optionalCostChoices"]);
         Assert.Equal(["ASSEMBLE_GREEN"], brutalizerOptionalCostChoices.Select(cost => cost.Id).ToArray());
 
+        var guardianAngelState = steraksGageState with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-GUARDIAN-ANGEL", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-GUARDIAN-ANGEL"] = new(
+                    "P1-GUARDIAN-ANGEL",
+                    cardNo: "SFD·051/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var guardianAngelPrompt = ResolutionResult.BuildPrompts(guardianAngelState)["P1"];
+        var guardianAngelCandidate = Assert.Single(
+            guardianAngelPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(guardianAngelCandidate.Enabled);
+        Assert.Equal(["P1-GUARDIAN-ANGEL"], (guardianAngelCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_GREEN"], (guardianAngelCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var guardianAngelMetadata = Assert.IsType<Dictionary<string, object?>>(guardianAngelCandidate.Metadata);
+        var guardianAngelRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(guardianAngelMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·051/221", Assert.IsType<string>(guardianAngelRequirement["equipmentCardNo"]));
+        var guardianAngelOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            guardianAngelRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_GREEN"], guardianAngelOptionalCostChoices.Select(cost => cost.Id).ToArray());
+
         var steraksGageRecyclePaymentState = steraksGageState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)

@@ -40,6 +40,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BrutalizerCardNo = "SFD·042/221";
     private const string BrutalizerAssembleOptionalCost = "ASSEMBLE_GREEN";
     private const int BrutalizerAssemblePowerCost = 1;
+    private const string GuardianAngelCardNo = "SFD·051/221";
+    private const string GuardianAngelAssembleOptionalCost = "ASSEMBLE_GREEN";
+    private const int GuardianAngelAssemblePowerCost = 1;
     private const string ClothArmorCardNo = "SFD·064/221";
     private const string ClothArmorAssembleOptionalCost = "ASSEMBLE_BLUE";
     private const int ClothArmorAssemblePowerCost = 1;
@@ -95,6 +98,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 BrutalizerAssembleOptionalCost,
                 RuneTrait.Green,
                 BrutalizerAssemblePowerCost),
+            [GuardianAngelCardNo] = new(
+                GuardianAngelCardNo,
+                "守护天使",
+                GuardianAngelAssembleOptionalCost,
+                RuneTrait.Green,
+                GuardianAngelAssemblePowerCost),
             [ClothArmorCardNo] = new(
                 ClothArmorCardNo,
                 "布甲",
