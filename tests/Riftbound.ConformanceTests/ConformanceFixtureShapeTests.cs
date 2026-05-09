@@ -4811,6 +4811,60 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal(["ASSEMBLE_ANY_POWER"], spinningAxeOptionalCostChoices.Select(cost => cost.Id).ToArray());
         Assert.Equal(1, Assert.IsType<int>(spinningAxeRequirement["powerCost"]));
 
+        var hearthfireCloakState = steraksGageState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Blue] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-HEARTHFIRE-CLOAK", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HEARTHFIRE-CLOAK"] = new(
+                    "P1-HEARTHFIRE-CLOAK",
+                    cardNo: "SFD·190/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var hearthfireCloakPrompt = ResolutionResult.BuildPrompts(hearthfireCloakState)["P1"];
+        var hearthfireCloakCandidate = Assert.Single(
+            hearthfireCloakPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(hearthfireCloakCandidate.Enabled);
+        Assert.Equal(["P1-HEARTHFIRE-CLOAK"], (hearthfireCloakCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_ANY_POWER"], (hearthfireCloakCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var hearthfireCloakMetadata = Assert.IsType<Dictionary<string, object?>>(hearthfireCloakCandidate.Metadata);
+        var hearthfireCloakRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(hearthfireCloakMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·190/221", Assert.IsType<string>(hearthfireCloakRequirement["equipmentCardNo"]));
+        var hearthfireCloakOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            hearthfireCloakRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_ANY_POWER"], hearthfireCloakOptionalCostChoices.Select(cost => cost.Id).ToArray());
+        Assert.Equal(1, Assert.IsType<int>(hearthfireCloakRequirement["powerCost"]));
+
         var spinningAxeRecyclePaymentState = spinningAxeState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)

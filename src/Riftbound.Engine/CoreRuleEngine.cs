@@ -118,6 +118,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SpinningAxeCardNo = "SFD·186/221";
     private const string SpinningAxeAssembleOptionalCost = "ASSEMBLE_ANY_POWER";
     private const int SpinningAxeAssemblePowerCost = 1;
+    private const string HearthfireCloakCardNo = "SFD·190/221";
+    private const string HearthfireCloakAssembleOptionalCost = "ASSEMBLE_ANY_POWER";
+    private const int HearthfireCloakAssemblePowerCost = 1;
     private sealed record AssembleEquipmentProfile(
         string CardNo,
         string DisplayName,
@@ -307,7 +310,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "旋转飞斧",
                 SpinningAxeAssembleOptionalCost,
                 string.Empty,
-                SpinningAxeAssemblePowerCost)
+                SpinningAxeAssemblePowerCost),
+            [HearthfireCloakCardNo] = new(
+                HearthfireCloakCardNo,
+                "炉火斗篷",
+                HearthfireCloakAssembleOptionalCost,
+                string.Empty,
+                HearthfireCloakAssemblePowerCost)
         };
     private const string WatchfulSentinelCardNo = "OGN·096/298";
     private const string WatchfulSentinelLastBreathDrawEffectKind = "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";

@@ -2428,6 +2428,9 @@ internal static class ActionPromptBuilder
     private const string SpinningAxeCardNo = "SFD·186/221";
     private const int SpinningAxeAssemblePowerCost = 1;
     private const string SpinningAxeAssembleOptionalCost = "ASSEMBLE_ANY_POWER";
+    private const string HearthfireCloakCardNo = "SFD·190/221";
+    private const int HearthfireCloakAssemblePowerCost = 1;
+    private const string HearthfireCloakAssembleOptionalCost = "ASSEMBLE_ANY_POWER";
     private sealed record AssembleEquipmentProfile(
         string CardNo,
         string DisplayName,
@@ -2679,6 +2682,14 @@ internal static class ActionPromptBuilder
                 "装配任意符能",
                 string.Empty,
                 SpinningAxeAssemblePowerCost,
+                "payment resource action: recycle any rune for assemble cost"),
+            [HearthfireCloakCardNo] = new(
+                HearthfireCloakCardNo,
+                "炉火斗篷",
+                HearthfireCloakAssembleOptionalCost,
+                "装配任意符能",
+                string.Empty,
+                HearthfireCloakAssemblePowerCost,
                 "payment resource action: recycle any rune for assemble cost")
         };
     private const string CrescentGuardCardNo = "UNL-122/219";

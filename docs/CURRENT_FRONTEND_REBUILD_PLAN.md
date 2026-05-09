@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 第三百三十七批补齐《炉火斗篷》（SFD·190/221）`装配A` 任意符能代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在在任意符能装配路径中覆盖《旋转飞斧》和《炉火斗篷》两张官方装备；ActionPrompt 只公开《炉火斗篷》的 `ASSEMBLE_ANY_POWER`、任意符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 64/64、后端 full test 3280/3280、DevUi build 与 `git diff --check` 均通过。`唯我` 完整构筑约束仍需后续构筑/牌表校验支持；整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第三百三十六批补齐《旋转飞斧》（SFD·186/221）`装配A` 任意符能代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在可表达指定颜色符能和任意符能两类装配费用；ActionPrompt 只公开《旋转飞斧》的 `ASSEMBLE_ANY_POWER`、任意符能要求、合法单位目标，以及需要回收符文时的服务端支付资源候选，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 63/63、后端 full test 3279/3279、DevUi build 通过，`git diff --check` 通过。灵便即时贴附和未贴附瞬息清理仍需后续任务/清理系统支持；整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
 - 第三百三十五批补齐《Z型驱动》（SFD·090/221）蓝色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在在蓝色代表路径中覆盖《布甲》《海克斯注力刚壁》《云游图鉴》和《Z型驱动》四张官方装备；ActionPrompt 只公开《Z型驱动》的 `ASSEMBLE_BLUE`、蓝色符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 62/62、后端 full test 3278/3278、DevUi build 通过，`git diff --check` 通过。放逐打出能力仍需后续装备能力/打出窗口支持；整体仍 **NOT READY**，当前完成度仍约 **99%**。
