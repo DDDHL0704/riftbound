@@ -3517,6 +3517,47 @@ public sealed class ConformanceFixtureShapeTests
             steraksGageRecycleRequirement["paymentResourcePowerByChoice"]);
         var steraksGagePaymentResourcePower = steraksGagePaymentResourcePowerByChoice["RECYCLE_RUNE:P1-RUNE-GREEN-ASSEMBLE-PAYMENT"];
         Assert.Equal(RuneTrait.Green, Assert.IsType<string>(steraksGagePaymentResourcePower["trait"]));
+
+        var doransShieldState = steraksGageState with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-DORANS-SHIELD", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-DORANS-SHIELD"] = new(
+                    "P1-DORANS-SHIELD",
+                    cardNo: "SFD·033/221",
+                    tags: [CardObjectTags.EquipmentCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var doransShieldPrompt = ResolutionResult.BuildPrompts(doransShieldState)["P1"];
+        var doransShieldCandidate = Assert.Single(
+            doransShieldPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(doransShieldCandidate.Enabled);
+        Assert.Equal(["P1-DORANS-SHIELD"], (doransShieldCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        var doransShieldMetadata = Assert.IsType<Dictionary<string, object?>>(doransShieldCandidate.Metadata);
+        var doransShieldRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(doransShieldMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·033/221", Assert.IsType<string>(doransShieldRequirement["equipmentCardNo"]));
+        var doransShieldOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            doransShieldRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_GREEN"], doransShieldOptionalCostChoices.Select(cost => cost.Id).ToArray());
     }
 
     [Fact]

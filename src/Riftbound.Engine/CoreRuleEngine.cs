@@ -37,6 +37,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SteraksGageCardNo = "SFD·056/221";
     private const string SteraksGageAssembleOptionalCost = "ASSEMBLE_GREEN";
     private const int SteraksGageAssemblePowerCost = 1;
+    private const string DoransShieldCardNo = "SFD·033/221";
+    private const string DoransShieldAssembleOptionalCost = "ASSEMBLE_GREEN";
+    private const int DoransShieldAssemblePowerCost = 1;
     private sealed record AssembleEquipmentProfile(
         string CardNo,
         string DisplayName,
@@ -64,7 +67,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "斯特拉克的挑战护手",
                 SteraksGageAssembleOptionalCost,
                 RuneTrait.Green,
-                SteraksGageAssemblePowerCost)
+                SteraksGageAssemblePowerCost),
+            [DoransShieldCardNo] = new(
+                DoransShieldCardNo,
+                "多兰之盾",
+                DoransShieldAssembleOptionalCost,
+                RuneTrait.Green,
+                DoransShieldAssemblePowerCost)
         };
     private const string WatchfulSentinelCardNo = "OGN·096/298";
     private const string WatchfulSentinelLastBreathDrawEffectKind = "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
@@ -1348,8 +1357,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !state.CardObjects.TryGetValue(command.SourceObjectId, out var knownEquipmentState)
             || knownEquipmentState.IsFaceDown
             || !knownEquipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            || !knownEquipmentState.Tags.Contains("武装", StringComparer.Ordinal)
-            || !knownEquipmentState.Tags.Contains("灵便", StringComparer.Ordinal)
             || !string.IsNullOrWhiteSpace(knownEquipmentState.AttachedToObjectId)
             || !SourceObjectControlledByPlayerOrLegacyOwned(knownEquipmentState, sourceLocation.Value.PlayerId))
         {

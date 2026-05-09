@@ -2347,6 +2347,9 @@ internal static class ActionPromptBuilder
     private const string SteraksGageCardNo = "SFD·056/221";
     private const int SteraksGageAssemblePowerCost = 1;
     private const string SteraksGageAssembleOptionalCost = "ASSEMBLE_GREEN";
+    private const string DoransShieldCardNo = "SFD·033/221";
+    private const int DoransShieldAssemblePowerCost = 1;
+    private const string DoransShieldAssembleOptionalCost = "ASSEMBLE_GREEN";
     private sealed record AssembleEquipmentProfile(
         string CardNo,
         string DisplayName,
@@ -2382,6 +2385,14 @@ internal static class ActionPromptBuilder
                 "装配绿色符能",
                 RuneTrait.Green,
                 SteraksGageAssemblePowerCost,
+                "payment resource action: recycle green rune for assemble cost"),
+            [DoransShieldCardNo] = new(
+                DoransShieldCardNo,
+                "多兰之盾",
+                DoransShieldAssembleOptionalCost,
+                "装配绿色符能",
+                RuneTrait.Green,
+                DoransShieldAssemblePowerCost,
                 "payment resource action: recycle green rune for assemble cost")
         };
     private const string CrescentGuardCardNo = "UNL-122/219";
@@ -4303,8 +4314,6 @@ internal static class ActionPromptBuilder
             || !state.CardObjects.TryGetValue(objectId, out var cardObject)
             || cardObject.IsFaceDown
             || !cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            || !cardObject.Tags.Contains("武装", StringComparer.Ordinal)
-            || !cardObject.Tags.Contains("灵便", StringComparer.Ordinal)
             || !string.IsNullOrWhiteSpace(cardObject.AttachedToObjectId))
         {
             return false;
