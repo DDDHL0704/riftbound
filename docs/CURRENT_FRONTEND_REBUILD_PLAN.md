@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 第三百一十五批补齐《海克斯注力刚壁》（SFD·073/221）蓝色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在在蓝色代表路径中覆盖《布甲》和《海克斯注力刚壁》两张官方装备；ActionPrompt 只公开《海克斯注力刚壁》的 `ASSEMBLE_BLUE`、蓝色符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 42/42、后端 full test 3258/3258、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第三百一十四批补齐《锯齿短匕》（SFD·009/221）红色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在在红色代表路径中覆盖《长剑》和《锯齿短匕》两张官方装备；ActionPrompt 只公开《锯齿短匕》的 `ASSEMBLE_RED`、红色符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 41/41、后端 full test 3257/3257、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
 - 第三百一十三批补齐《先锋之眼》（SFD·153/221）黄色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在覆盖红/蓝/绿/紫/橙/黄六类已登记代表费用；ActionPrompt 只公开《先锋之眼》的 `ASSEMBLE_YELLOW`、黄色符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 40/40、后端 full test 3256/3256、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。
@@ -649,7 +651,7 @@
 - `MOVE_UNIT` 来源进一步收紧：只暴露正面、受控、非战斗中的单位；基地单位公开“基地 -> 战场”，战场单位在未被静态效果禁止时公开“战场 -> 基地”，有游走权限且能从权威位置索引精确定位时才公开游走目的地与必需 `ROAM` 可选费用。
 - 卡牌详情抽屉新增移动单位组合器：只读取服务端 `sourceRequirements` 渲染移动模式、目的地和费用确认；确认命令只提交服务端提供的 `origin`、`destination`、`optionalCosts`，不从卡面文本、关键词或客户端位置自行裁决。
 - 当前已通过真实 UI 将已结算到基地的《军团后卫》移动到战场；事件日志出现 `UNIT_MOVED_TO_BATTLEFIELD`，后续移动候选仍由服务端 prompt 决定。
-- `ASSEMBLE_EQUIPMENT` prompt 从泛化来源/目标升级为每来源 `sourceRequirements` 元数据。服务端现在只对已实现代表路径的未贴附《长剑》《锯齿短匕》《布甲》《斯特拉克的挑战护手》《多兰之盾》《多兰之戒》《多兰之刃》《先锋之眼》公开装配来源、单位目标候选、必需装配费用、有色符能费用和 `composable` 状态。
+- `ASSEMBLE_EQUIPMENT` prompt 从泛化来源/目标升级为每来源 `sourceRequirements` 元数据。服务端现在只对已实现代表路径的未贴附《长剑》《锯齿短匕》《布甲》《海克斯注力刚壁》《斯特拉克的挑战护手》《多兰之盾》《多兰之戒》《多兰之刃》《先锋之眼》公开装配来源、单位目标候选、必需装配费用、有色符能费用和 `composable` 状态。
 - `ASSEMBLE_EQUIPMENT` 来源继续收紧：只有基地中正面、受控、未贴附、带 `CARD_TYPE:EQUIPMENT` 且 cardNo 命中服务端已实现装配 profile、存在合法单位目标且对应颜色符能或服务端支付资源足够时才暴露；泛化符能不再被当作有色装配费用，提交侧也会以 `INSUFFICIENT_COST` 拒绝。
 - 卡牌详情抽屉新增装备装配组合器：只读取服务端 `sourceRequirements` 渲染目标和费用，确认命令只提交服务端给出的 `sourceObjectId`、`targetObjectId`、`optionalCosts`，不从卡面文本或关键词自行判断。
 - Development `equipment` seed 已补齐手牌长剑与目标单位的 cardNo、owner/controller 和红色符能池，避免 smoke 场景出现 prompt 来源可见但 snapshot 缺对象详情的断裂。
@@ -695,7 +697,7 @@
 - 新增 Development-only `unknown-play-target-prompt` seed，用于 smoke“手牌《海克斯射线》公开可见，但唯一战场单位目标 `cardNo = null`”的 UI 场景。服务端 Hub 测试覆盖 `PLAY_CARD.enabled=false`、`sources=[]`、`targets=[]`、`sourceRequirements=[]`，P1 手牌仍包含 `P1-SPELL-UNKNOWN-PLAY-TARGET`，P2 自视角仍能看到未知目标对象且 `cardNo` 为空。
 - `PLAY_CARD` 命令侧同步补齐无权威身份边界：Core 现在要求已知来源对象的 `cardNo` 非空且与命令提交卡号一致；带 owner/controller 的公开目标对象也必须有非空 `cardNo`。这关闭了客户端绕过 prompt 直接提交未知来源、伪造来源卡号或把未知公开目标放进 `targetObjectIds` 的路径；前端仍只展示和提交服务端 `sourceRequirements` / `targets` 候选。
 - 本批没有前端 UI 代码变更，因此未新增 browser 进程；沿用前序 `unknown-play-source-prompt` 与 `unknown-play-target-prompt` 的后台 headless Chrome/CDP UI smoke 证据。新增命令侧测试 3 个，相关未知来源/目标回归 7/7、后端 full test 2999/2999、GameHub 118/118、前端 build 均已通过。当前完成度仍约 **99%**，结论仍 **NOT READY**，进入 completion audit 前继续补 command-side hidden-info hardening 与少量收口修复。
-- `ASSEMBLE_EQUIPMENT` 来源过滤也补齐无行为定义边界：代表性装配路径只支持服务端明确识别并登记 profile 的《长剑》`SFD·022/221`、《锯齿短匕》`SFD·009/221`、《布甲》`SFD·064/221`、《斯特拉克的挑战护手》`SFD·056/221`、《多兰之盾》`SFD·033/221`、《多兰之戒》`SFD·124/221`、《多兰之刃》`SFD·095/221` 与《先锋之眼》`SFD·153/221`；基地装备对象即使带有 `EquipmentCard` / `武装` / `灵便` 标签，只要缺少 `cardNo` 或未登记 profile，就不会出现在 `ASSEMBLE_EQUIPMENT.sources` 或 `sourceRequirements`。前端仍展示 snapshot 中的装备对象，但行动面板只显示 disabled 的“装配装备（需选择）”，卡牌详情不会渲染“确认装配”。
+- `ASSEMBLE_EQUIPMENT` 来源过滤也补齐无行为定义边界：代表性装配路径只支持服务端明确识别并登记 profile 的《长剑》`SFD·022/221`、《锯齿短匕》`SFD·009/221`、《布甲》`SFD·064/221`、《海克斯注力刚壁》`SFD·073/221`、《斯特拉克的挑战护手》`SFD·056/221`、《多兰之盾》`SFD·033/221`、《多兰之戒》`SFD·124/221`、《多兰之刃》`SFD·095/221` 与《先锋之眼》`SFD·153/221`；基地装备对象即使带有 `EquipmentCard` / `武装` / `灵便` 标签，只要缺少 `cardNo` 或未登记 profile，就不会出现在 `ASSEMBLE_EQUIPMENT.sources` 或 `sourceRequirements`。前端仍展示 snapshot 中的装备对象，但行动面板只显示 disabled 的“装配装备（需选择）”，卡牌详情不会渲染“确认装配”。
 - 新增 Development-only `unknown-assemble-source-prompt` seed，用于 smoke“基地装备对象存在但 `cardNo = null`，同时有合法单位目标和红色符能”的 UI 场景。服务端 Hub 测试覆盖 `ASSEMBLE_EQUIPMENT.enabled=false`、`sources=[]`、`sourceRequirements=[]`、P1 基地仍包含 `P1-EQUIPMENT-UNKNOWN-ASSEMBLE-SOURCE` 且该对象 `cardNo` 为空。
 - `ASSEMBLE_EQUIPMENT` 目标过滤也补齐无权威身份边界：代表性长剑装配目标必须是服务端已知 `cardNo` 的公开单位。若基地单位对象缺少 `cardNo`，前端仍可按 snapshot 看到该对象或隐藏占位，但不会收到可点击的 `targets` / `sourceRequirements.targetChoicesByIndex`，也不会构造客户端自判装配命令。
 - 新增 Development-only `unknown-assemble-target-prompt` seed，用于 smoke“基地《长剑》公开可见且红色符能足够，但唯一单位目标 `cardNo = null`”的 UI 场景。服务端 Hub 测试覆盖 `ASSEMBLE_EQUIPMENT.enabled=false`、`sources=[]`、`targets=[]`、`sourceRequirements=[]`，P1 基地仍包含已知长剑和未知目标单位。
@@ -861,7 +863,7 @@
 - `REVEAL_CARD` 已有服务端每来源元数据和前端卡牌详情待命翻开/反应打出组合器；普通开环翻回基地与优先权闭环作为反应入栈都只按服务端候选展示和提交，真实 UI smoke 已覆盖待命反应入栈、事件日志和 reload/reconnect；后端 full test 当前通过 2949/2949，前端 build 已通过。
 - `PLAY_CARD` 首个产品级选择器已由服务端每来源元数据驱动，可真实打出无目标单位牌并走完优先权结算；普通结算链优先权窗口现已能只按服务端候选公开反应牌来源、栈目标和模式，真实 UI smoke 已覆盖《强买强卖》反制栈上法术、事件日志和 reload/reconnect。
 - `MOVE_UNIT` 已有服务端每来源元数据和前端卡牌详情移动组合器，可真实把基地单位移动到战场；前端不再自行判断移动目的地或游走费用。
-- `ASSEMBLE_EQUIPMENT` 已有《长剑》《锯齿短匕》红色、《布甲》蓝色、《斯特拉克的挑战护手》绿色、《多兰之盾》绿色、《多兰之戒》紫色、《多兰之刃》橙色和《先锋之眼》黄色代表路径的服务端每来源元数据、有色符能候选收紧和前端卡牌详情装配组合器，可真实打出装备并装配到服务端给出的单位目标。
+- `ASSEMBLE_EQUIPMENT` 已有《长剑》《锯齿短匕》红色、《布甲》《海克斯注力刚壁》蓝色、《斯特拉克的挑战护手》绿色、《多兰之盾》绿色、《多兰之戒》紫色、《多兰之刃》橙色和《先锋之眼》黄色代表路径的服务端每来源元数据、有色符能候选收紧和前端卡牌详情装配组合器，可真实打出装备并装配到服务端给出的单位目标。
 - `ASSEMBLE_EQUIPMENT` 来源现在要求服务端明确 cardNo 且落在已实现 profile 中；未知/无卡号装备对象不会被公开为可装配来源，未实现装配 profile 的装备仍保持 disabled；未知装备 prompt hygiene 已通过 Hub 测试和后台 headless Chrome/CDP smoke。
 - `ASSEMBLE_EQUIPMENT` 目标现在也要求服务端明确目标单位 `cardNo`；未知/无卡号单位不会被公开为可装配目标，未知装配目标 prompt/Core hygiene 已通过 Hub 测试、后端 full test 和后台 headless Chrome/CDP smoke。
 - `ASSEMBLE_EQUIPMENT` 支付资源动作已覆盖代表性有色装配费用：0 对应颜色符能但有同色可回收基础符文时，前端只按服务端 `paymentResourceChoices` 选择并提交 `RECYCLE_RUNE:*`，真实 UI smoke 已覆盖红色长剑的确认按钮禁用/启用、回收事件、贴附结果和 reload/reconnect。

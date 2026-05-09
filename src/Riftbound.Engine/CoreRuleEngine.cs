@@ -37,6 +37,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string ClothArmorCardNo = "SFD·064/221";
     private const string ClothArmorAssembleOptionalCost = "ASSEMBLE_BLUE";
     private const int ClothArmorAssemblePowerCost = 1;
+    private const string HextechInfusedBulwarkCardNo = "SFD·073/221";
+    private const string HextechInfusedBulwarkAssembleOptionalCost = "ASSEMBLE_BLUE";
+    private const int HextechInfusedBulwarkAssemblePowerCost = 1;
     private const string SteraksGageCardNo = "SFD·056/221";
     private const string SteraksGageAssembleOptionalCost = "ASSEMBLE_GREEN";
     private const int SteraksGageAssemblePowerCost = 1;
@@ -80,6 +83,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ClothArmorAssembleOptionalCost,
                 RuneTrait.Blue,
                 ClothArmorAssemblePowerCost),
+            [HextechInfusedBulwarkCardNo] = new(
+                HextechInfusedBulwarkCardNo,
+                "海克斯注力刚壁",
+                HextechInfusedBulwarkAssembleOptionalCost,
+                RuneTrait.Blue,
+                HextechInfusedBulwarkAssemblePowerCost),
             [SteraksGageCardNo] = new(
                 SteraksGageCardNo,
                 "斯特拉克的挑战护手",

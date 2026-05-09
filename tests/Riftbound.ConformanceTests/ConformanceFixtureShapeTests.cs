@@ -3465,6 +3465,48 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal(RuneTrait.Blue, Assert.IsType<string>(clothArmorPaymentResourcePower["trait"]));
         Assert.Equal(1, Assert.IsType<int>(clothArmorPaymentResourcePower["power"]));
 
+        var hextechInfusedBulwarkState = clothArmorState with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-HEXTECH-INFUSED-BULWARK", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HEXTECH-INFUSED-BULWARK"] = new(
+                    "P1-HEXTECH-INFUSED-BULWARK",
+                    cardNo: "SFD·073/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var hextechInfusedBulwarkPrompt = ResolutionResult.BuildPrompts(hextechInfusedBulwarkState)["P1"];
+        var hextechInfusedBulwarkCandidate = Assert.Single(
+            hextechInfusedBulwarkPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(hextechInfusedBulwarkCandidate.Enabled);
+        Assert.Equal(["P1-HEXTECH-INFUSED-BULWARK"], (hextechInfusedBulwarkCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_BLUE"], (hextechInfusedBulwarkCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var hextechInfusedBulwarkMetadata = Assert.IsType<Dictionary<string, object?>>(hextechInfusedBulwarkCandidate.Metadata);
+        var hextechInfusedBulwarkRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(hextechInfusedBulwarkMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·073/221", Assert.IsType<string>(hextechInfusedBulwarkRequirement["equipmentCardNo"]));
+        var hextechInfusedBulwarkOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            hextechInfusedBulwarkRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_BLUE"], hextechInfusedBulwarkOptionalCostChoices.Select(cost => cost.Id).ToArray());
+
         var steraksGageState = clothArmorState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
