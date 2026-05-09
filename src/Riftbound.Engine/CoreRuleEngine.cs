@@ -20572,6 +20572,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveWatchfulSentinelLastBreathStackItem(state, stackItem);
         }
 
+        if (string.Equals(stackItem.EffectKind, UnsungHeroLastBreathPowerfulDrawEffectKind, StringComparison.Ordinal))
+        {
+            return ResolveUnsungHeroLastBreathStackItem(state, stackItem);
+        }
+
         if (string.Equals(stackItem.EffectKind, HonestBrokerLastBreathCreateGoldEffectKind, StringComparison.Ordinal))
         {
             return ResolveHonestBrokerLastBreathStackItem(state, stackItem);
@@ -23057,6 +23062,20 @@ public sealed class CoreRuleEngine : IRuleEngine
                 winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
                 rngCursor = drawApplication.RngCursor;
             }
+            else if (string.Equals(trigger.EffectKind, UnsungHeroLastBreathPowerfulDrawEffectKind, StringComparison.Ordinal))
+            {
+                var drawApplication = ApplyDrawToPlayer(
+                    state,
+                    playerZones,
+                    playerScores,
+                    trigger.ControllerId,
+                    2,
+                    rngCursor,
+                    events);
+                playerScores = drawApplication.PlayerScores;
+                winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
+                rngCursor = drawApplication.RngCursor;
+            }
             else if (string.Equals(trigger.EffectKind, HonestBrokerLastBreathCreateGoldEffectKind, StringComparison.Ordinal))
             {
                 CreateBaseEquipmentTokens(
@@ -23115,6 +23134,21 @@ public sealed class CoreRuleEngine : IRuleEngine
         MatchState state,
         StackItemState stackItem)
     {
+        return ResolveLastBreathDrawStackItem(state, stackItem, drawCount: 1);
+    }
+
+    private static StackResolutionResult ResolveUnsungHeroLastBreathStackItem(
+        MatchState state,
+        StackItemState stackItem)
+    {
+        return ResolveLastBreathDrawStackItem(state, stackItem, drawCount: 2);
+    }
+
+    private static StackResolutionResult ResolveLastBreathDrawStackItem(
+        MatchState state,
+        StackItemState stackItem,
+        int drawCount)
+    {
         var playerZones = NormalizeZonesForSeats(state);
         var events = new List<GameEvent>
         {
@@ -23132,7 +23166,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones,
             state.PlayerScores,
             stackItem.ControllerId,
-            1,
+            drawCount,
             state.RngCursor,
             events);
 
@@ -27195,6 +27229,23 @@ public sealed class CoreRuleEngine : IRuleEngine
                     objectId,
                     watchfulSentinelControllerId,
                     WatchfulSentinelLastBreathDrawEffectKind);
+                events.Add(BuildTriggerQueuedEvent(trigger));
+                triggerQueue.Add(trigger);
+            }
+
+            var unsungHeroDrawPlayerId = cleanupLocation is not null &&
+                string.Equals(cleanupLocation.Value.Zone, MoveUnitBaseZone, StringComparison.Ordinal)
+                    ? ResolveUnsungHeroLastBreathDrawPlayerId(
+                        destroyedState,
+                        removalResult)
+                    : null;
+            if (unsungHeroDrawPlayerId is not null)
+            {
+                var trigger = BuildLastBreathTriggerQueueItem(
+                    stackItem,
+                    objectId,
+                    unsungHeroDrawPlayerId,
+                    UnsungHeroLastBreathPowerfulDrawEffectKind);
                 events.Add(BuildTriggerQueuedEvent(trigger));
                 triggerQueue.Add(trigger);
             }

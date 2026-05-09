@@ -1354,6 +1354,58 @@ A 主控复验：
 
 4C-9 结论：**通过**。没有新增 P0/P1，没有协议或前端字段变化，没有把 hidden / face-down / standby Poro cleanup 路径误入队或误抽牌；允许继续阶段 4C 下一批。阶段 4C 仍在逐 FU、逐测试批量推进；项目整体仍 **NOT READY**。
 
+## 0.20 阶段 4C-10 Unsung Hero Cleanup Trigger Enqueue 小批
+
+阶段 4C-10 继续按 functional unit / engine blocker 小批推进。本批只把 Unsung Hero / `SFD·167/221` / `FU-1701d1d89a` 的 state-based cleanup powerful last-breath draw-2 代表路径接入服务端权威触发队列；支撑来源为 `Starfall` / `OGN·029/298` 造成 lethal damage 后的 state-based cleanup。项目整体仍 **NOT READY**。
+
+4C-10 服务端改动：
+
+- 覆盖 `FU-1701d1d89a` / `SFD·167/221` Unsung Hero / `UNSUNG_HERO_LAST_BREATH_DRAW_2_IF_POWERFUL`。
+- 官方化路径串成：Starfall lethal damage -> state-based cleanup `LETHAL_DAMAGE` `UNIT_DESTROYED` -> visible base-zone Unsung Hero power >= 5 -> `TriggerQueue` -> `ORDER_TRIGGERS` -> `StackItems` -> priority pass -> `TRIGGER_RESOLVED` / `CARD_DRAWN` x2。
+- power < 5 cleanup 路径不入队、不抽牌。
+- hidden / face-down / standby Unsung Hero cleanup 路径不入队、不显示 prompt metadata、不抽牌。
+- 现有 explicit destroy P79 Unsung immediate compatibility 保留。
+- 严格边界：本批只用 `CardObjectState.Power >= 5` 代表强力；不覆盖 LayerEngine / effective power / temporary modifier；不覆盖 battlefield objectLocation 全矩阵；不迁移 explicit destroy。
+- 本批没有协议或前端字段变化，不进入 1009 full-official，不宣称完整 trigger engine。
+
+4C-10 文档改动：
+
+- 新增 `docs/CURRENT_STAGE4C_BATCH10_UNSUNG_HERO_CLEANUP_TRIGGER_AUDIT.md`。
+- 新增 `docs/CURRENT_STAGE4C_BATCH10_UNSUNG_HERO_CLEANUP_TRIGGER_EVIDENCE.md`。
+- 更新 `docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/rules-evidence-index.md` 与本 checkpoint。
+- 更新 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`、`docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`、`docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`。
+- 本批不修改前端运行时代码或 `riftbound-dotnet.sln`。
+
+4C-10 A 复核命令：
+
+- focused：通过，21/21。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：通过，3361/3361。
+- frontend build：passed。
+- Chrome smoke：passed。
+- Stage 3 preflight：passed。
+- `git diff --check`：passed。
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`：passed。
+- 4C-10 矩阵结构断言：passed；`stage4C10` tagged FU = 1（`FU-1701d1d89a`），cumulative real trigger enqueue FUs = 7，cumulative state-based cleanup trigger enqueue FUs = 7，`fullOfficialUpgrades = 0`，1009 / 811 冻结计数不变。
+- false-completion 窄断言：passed；未发现候选就绪、正式 E2E 已通过或 `fullOfficial: true` 误宣称。
+
+4C-10 关闭的 P0 子项：
+
+- Unsung Hero / `SFD·167/221` state-based cleanup powerful last-breath draw-2 real trigger enqueue representative。
+- power < 5 cleanup 路径不入队、不抽牌的阈值护栏。
+- hidden / face-down / standby Unsung Hero cleanup 路径不入队、不显示 prompt metadata、不抽牌的信息泄漏护栏。
+
+4C-10 仍保留 P0/P1：
+
+- 完整 trigger engine。
+- 其他 last-breath / destroyed / friendly-destroyed functional units。
+- effective power / LayerEngine、temporary modifier 和完整强力判定。
+- battlefield objectLocation matrix。
+- hidden / face-down 原始触发建模。
+- FAQ regression。
+- 1009 entries / 811 functional units full-official 覆盖、正式 18-step E2E、completion audit 仍未完成。
+
+4C-10 结论：**通过**。没有新增 P0/P1，没有协议或前端字段变化，没有把 power < 5 或 hidden / face-down / standby Unsung Hero cleanup 路径误入队或误抽牌；允许继续阶段 4C 下一批。阶段 4C 仍在逐 FU、逐测试批量推进；项目整体仍 **NOT READY**。
+
 ## 1. 总目标
 
 以当前仓库五份官方规则 / FAQ PDF 与 `data/official/card-catalog.zh-CN.json` 的 2026-04-27 官网卡牌快照为准，完成本地双人 1v1 标准构筑产品级 Web 游戏基线：

@@ -637,6 +637,84 @@ public sealed class RealTriggerQueueTests
     }
 
     [Fact]
+    public async Task StateBasedCleanupUnsungHeroesTriggerOrderAndDrawTwoThroughStack()
+    {
+        var engine = new CoreRuleEngine();
+        var cleanup = await ResolveStarfallCleanupAsync(
+            engine,
+            BuildStarfallDestroyingPowerfulUnsungHeroesState(),
+            "unsung-heroes");
+
+        Assert.Equal(2, cleanup.State.TriggerQueue.Count);
+        Assert.All(cleanup.State.TriggerQueue, trigger =>
+        {
+            Assert.Equal("UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2", trigger.EffectKind);
+            Assert.Equal("UNIT_DESTROYED", trigger.TriggeredByEventKind);
+        });
+        Assert.Empty(cleanup.State.PlayerZones["P1"].Hand);
+        Assert.Empty(cleanup.State.PlayerZones["P2"].Hand);
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+
+        var final = await OrderAndResolveTwoDrawTriggersThroughStackAsync(
+            engine,
+            cleanup.State,
+            "unsung-heroes",
+            "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2",
+            "P1-CLEANUP-UNSUNG-HERO",
+            "P2-CLEANUP-UNSUNG-HERO",
+            ["P1-UNSUNG-HERO-DRAW-001", "P1-UNSUNG-HERO-DRAW-002"],
+            ["P2-UNSUNG-HERO-DRAW-001", "P2-UNSUNG-HERO-DRAW-002"]);
+
+        Assert.Empty(final.State.TriggerQueue);
+        Assert.Empty(final.State.StackItems);
+        Assert.Equal(["P1-UNSUNG-HERO-DRAW-001", "P1-UNSUNG-HERO-DRAW-002"], final.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-UNSUNG-HERO-DRAW-001", "P2-UNSUNG-HERO-DRAW-002"], final.State.PlayerZones["P2"].Hand);
+        Assert.Empty(final.State.PlayerZones["P1"].MainDeck);
+        Assert.Empty(final.State.PlayerZones["P2"].MainDeck);
+    }
+
+    [Fact]
+    public async Task StateBasedCleanupUnsungHeroSkipsWhenBelowPowerful()
+    {
+        var engine = new CoreRuleEngine();
+        var cleanup = await ResolveStarfallCleanupAsync(
+            engine,
+            BuildStarfallDestroyingBelowPowerfulUnsungHeroesState(),
+            "unsung-heroes-below-powerful");
+
+        Assert.Empty(cleanup.State.TriggerQueue);
+        Assert.Empty(cleanup.State.StackItems);
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal));
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.NotEqual(PromptTypes.OrderTriggers, cleanup.Prompts["P1"].View?.Type);
+        Assert.Equal(["P1-UNSUNG-HERO-DRAW-001", "P1-UNSUNG-HERO-DRAW-002"], cleanup.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P2-UNSUNG-HERO-DRAW-001", "P2-UNSUNG-HERO-DRAW-002"], cleanup.State.PlayerZones["P2"].MainDeck);
+        Assert.Empty(cleanup.State.PlayerZones["P1"].Hand);
+        Assert.Empty(cleanup.State.PlayerZones["P2"].Hand);
+    }
+
+    [Fact]
+    public async Task StateBasedCleanupHiddenUnsungHeroesDoNotEnqueueTriggers()
+    {
+        var engine = new CoreRuleEngine();
+        var cleanup = await ResolveStarfallCleanupAsync(
+            engine,
+            BuildStarfallDestroyingHiddenUnsungHeroesState(),
+            "hidden-unsung-heroes");
+
+        Assert.Empty(cleanup.State.TriggerQueue);
+        Assert.Empty(cleanup.State.StackItems);
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal));
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal));
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.NotEqual(PromptTypes.OrderTriggers, cleanup.Prompts["P1"].View?.Type);
+        Assert.Equal(["P1-HIDDEN-UNSUNG-HERO-DRAW-001", "P1-HIDDEN-UNSUNG-HERO-DRAW-002"], cleanup.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P2-STANDBY-UNSUNG-HERO-DRAW-001", "P2-STANDBY-UNSUNG-HERO-DRAW-002"], cleanup.State.PlayerZones["P2"].MainDeck);
+        Assert.Empty(cleanup.State.PlayerZones["P1"].Hand);
+        Assert.Empty(cleanup.State.PlayerZones["P2"].Hand);
+    }
+
+    [Fact]
     public async Task RealWatchfulSentinelLastBreathTriggersEnterApnapOrderWindowAndResolveThroughStack()
     {
         var engine = new CoreRuleEngine();
@@ -1096,6 +1174,27 @@ public sealed class RealTriggerQueueTests
         string p1DrawObjectId,
         string p2DrawObjectId)
     {
+        return await OrderAndResolveTwoDrawTriggersThroughStackAsync(
+            engine,
+            state,
+            label,
+            effectKind,
+            p1SourceObjectId,
+            p2SourceObjectId,
+            [p1DrawObjectId],
+            [p2DrawObjectId]);
+    }
+
+    private static async Task<ResolutionResult> OrderAndResolveTwoDrawTriggersThroughStackAsync(
+        CoreRuleEngine engine,
+        MatchState state,
+        string label,
+        string effectKind,
+        string p1SourceObjectId,
+        string p2SourceObjectId,
+        IReadOnlyList<string> p1DrawObjectIds,
+        IReadOnlyList<string> p2DrawObjectIds)
+    {
         var p1Trigger = Assert.Single(state.TriggerQueue, trigger =>
             string.Equals(trigger.ControllerId, "P1", StringComparison.Ordinal));
         var p2Trigger = Assert.Single(state.TriggerQueue, trigger =>
@@ -1135,8 +1234,8 @@ public sealed class RealTriggerQueueTests
             illegalReorder.State.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray());
         Assert.Empty(illegalReorder.State.PlayerZones["P1"].Hand);
         Assert.Empty(illegalReorder.State.PlayerZones["P2"].Hand);
-        Assert.Equal([p1DrawObjectId], illegalReorder.State.PlayerZones["P1"].MainDeck);
-        Assert.Equal([p2DrawObjectId], illegalReorder.State.PlayerZones["P2"].MainDeck);
+        Assert.Equal(p1DrawObjectIds, illegalReorder.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(p2DrawObjectIds, illegalReorder.State.PlayerZones["P2"].MainDeck);
 
         var ordered = await engine.ResolveAsync(
             state,
@@ -1167,7 +1266,7 @@ public sealed class RealTriggerQueueTests
         Assert.Contains(p1ResolvesP2Trigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal));
-        Assert.Equal([p2DrawObjectId], p1ResolvesP2Trigger.State.PlayerZones["P2"].Hand);
+        Assert.Equal(p2DrawObjectIds, p1ResolvesP2Trigger.State.PlayerZones["P2"].Hand);
         Assert.Single(p1ResolvesP2Trigger.State.StackItems);
         Assert.Equal("P1", p1ResolvesP2Trigger.State.PriorityPlayerId);
 
@@ -1947,6 +2046,156 @@ public sealed class RealTriggerQueueTests
                     "STARFALL_DAMAGE_3_TWICE",
                     "OGN·029/298",
                     ["P1-CLEANUP-HIDDEN-SAD-PORO", "P2-CLEANUP-STANDBY-LOYAL-PORO"])
+            ],
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            });
+    }
+
+    private static MatchState BuildStarfallDestroyingPowerfulUnsungHeroesState()
+    {
+        return BuildStarfallDestroyingUnsungHeroesState(
+            "cleanup-unsung-hero-trigger-room",
+            "P1-CLEANUP-UNSUNG-HERO",
+            "P2-CLEANUP-UNSUNG-HERO",
+            ["P1-UNSUNG-HERO-DRAW-001", "P1-UNSUNG-HERO-DRAW-002"],
+            ["P2-UNSUNG-HERO-DRAW-001", "P2-UNSUNG-HERO-DRAW-002"],
+            p1Power: 5,
+            p2Power: 5,
+            p1Damage: 2,
+            p2Damage: 2,
+            p1IsFaceDown: false,
+            p2IsFaceDown: false,
+            p1Tags: [CardObjectTags.UnitCard, "精锐"],
+            p2Tags: [CardObjectTags.UnitCard, "精锐"]);
+    }
+
+    private static MatchState BuildStarfallDestroyingBelowPowerfulUnsungHeroesState()
+    {
+        return BuildStarfallDestroyingUnsungHeroesState(
+            "cleanup-unsung-hero-below-powerful-room",
+            "P1-CLEANUP-UNSUNG-HERO",
+            "P2-CLEANUP-UNSUNG-HERO",
+            ["P1-UNSUNG-HERO-DRAW-001", "P1-UNSUNG-HERO-DRAW-002"],
+            ["P2-UNSUNG-HERO-DRAW-001", "P2-UNSUNG-HERO-DRAW-002"],
+            p1Power: 4,
+            p2Power: 4,
+            p1Damage: 1,
+            p2Damage: 1,
+            p1IsFaceDown: false,
+            p2IsFaceDown: false,
+            p1Tags: [CardObjectTags.UnitCard, "精锐"],
+            p2Tags: [CardObjectTags.UnitCard, "精锐"]);
+    }
+
+    private static MatchState BuildStarfallDestroyingHiddenUnsungHeroesState()
+    {
+        return BuildStarfallDestroyingUnsungHeroesState(
+            "cleanup-hidden-unsung-hero-room",
+            "P1-CLEANUP-HIDDEN-UNSUNG-HERO",
+            "P2-CLEANUP-STANDBY-UNSUNG-HERO",
+            ["P1-HIDDEN-UNSUNG-HERO-DRAW-001", "P1-HIDDEN-UNSUNG-HERO-DRAW-002"],
+            ["P2-STANDBY-UNSUNG-HERO-DRAW-001", "P2-STANDBY-UNSUNG-HERO-DRAW-002"],
+            p1Power: 5,
+            p2Power: 5,
+            p1Damage: 2,
+            p2Damage: 2,
+            p1IsFaceDown: true,
+            p2IsFaceDown: false,
+            p1Tags: [CardObjectTags.UnitCard, "精锐"],
+            p2Tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "精锐"]);
+    }
+
+    private static MatchState BuildStarfallDestroyingUnsungHeroesState(
+        string roomId,
+        string p1UnsungHeroObjectId,
+        string p2UnsungHeroObjectId,
+        IReadOnlyList<string> p1MainDeck,
+        IReadOnlyList<string> p2MainDeck,
+        int p1Power,
+        int p2Power,
+        int p1Damage,
+        int p2Damage,
+        bool p1IsFaceDown,
+        bool p2IsFaceDown,
+        IReadOnlyList<string> p1Tags,
+        IReadOnlyList<string> p2Tags)
+    {
+        return new MatchState(
+            roomId,
+            37,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = p1MainDeck,
+                    Base = [p1UnsungHeroObjectId]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = p2MainDeck,
+                    Base = [p2UnsungHeroObjectId]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [p1UnsungHeroObjectId] = new(
+                    p1UnsungHeroObjectId,
+                    cardNo: "SFD·167/221",
+                    power: p1Power,
+                    damage: p1Damage,
+                    isFaceDown: p1IsFaceDown,
+                    tags: p1Tags,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [p2UnsungHeroObjectId] = new(
+                    p2UnsungHeroObjectId,
+                    cardNo: "SFD·167/221",
+                    power: p2Power,
+                    damage: p2Damage,
+                    isFaceDown: p2IsFaceDown,
+                    tags: p2Tags,
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-SPELL-STARFALL"] = new(
+                    "P1-SPELL-STARFALL",
+                    cardNo: "OGN·029/298",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            priorityPlayerId: "P1",
+            stackItems:
+            [
+                new StackItemState(
+                    $"STACK-STARFALL-{roomId}",
+                    "P1",
+                    "P1-SPELL-STARFALL",
+                    "STARFALL_DAMAGE_3_TWICE",
+                    "OGN·029/298",
+                    [p1UnsungHeroObjectId, p2UnsungHeroObjectId])
             ],
             playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
             {
