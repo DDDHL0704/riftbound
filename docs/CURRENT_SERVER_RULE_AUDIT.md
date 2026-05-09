@@ -12,6 +12,47 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-09 阶段 3A D 范围修正
+
+当前执行范围已收窄为阶段 3A，计划入口为 `docs/CURRENT_STAGE3A_PLAN.md`。下方“阶段 3 对战桌面 / 核心 1v1 流程审计”保留为宽阶段 3 总图和后续 backlog；本轮不得把完整阶段 3 / 18 步 E2E / 1009 全量 / 完整 battle-damage-order-runtime 纳入验收。
+
+3A 只收口：
+
+- Smoke 基线。
+- `PAY_COST` / `ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` 强类型复杂命令解析。
+- `PAY_COST` 最小 runtime 切片。
+- 对战桌面外壳安全接线，前端不得裁决规则。
+
+3A 当前 P0：
+
+| P0 | 当前实现状态 | 归属 agent | 下一步 |
+| --- | --- | --- | --- |
+| 3A-P0-001 Chrome smoke 基线 | 已关闭：`npm run smoke:chrome -- --start-api` 验证 API / DevUi / Chrome headless-CDP 与 7 个基础路由 | C / A / D | 3B 再扩双人连续流程与隐藏信息断言 |
+| 3A-P0-002 三类复杂命令强类型映射 | 已关闭：三类 JSON command -> typed command mapper 已落地，malformed payload 稳定拒绝，后端 full test 3324/3324 通过 | B / D | 后续 runtime 逐类开放时补对应合法性测试 |
+| 3A-P0-003 `PAY_COST` 最小 runtime | 已关闭最小切片：pending payment prompt、choices、合法提交、stale/invalid/零副作用测试已通过 | B / E / C / D | 完整 PaymentEngine、decline、替代/额外费用仍是后续 P0 |
+| 3A-P0-004 前端外壳不裁决规则 | 已关闭 3A 外壳：只消费 snapshot/prompt、只提交服务端候选；未冻结 complex prompt safe fallback | C / D | 正式复杂交互等待服务端 runtime 冻结 |
+
+3A 暂不进入：最终正式 18 步 E2E、1009 张卡 full-official 覆盖、完整 battle runtime、完整 `ASSIGN_COMBAT_DAMAGE` runtime、完整 `ORDER_TRIGGERS` runtime、完整 battlefield / standby / control / held / conquer lifecycle、完整 PaymentEngine / LayerEngine。
+
+## 2026-05-09 阶段 3 D 对战桌面 / 核心 1v1 流程审计
+
+阶段 3 审计入口：`docs/CURRENT_STAGE3_CORE_FLOW_AUDIT.md`。本节只同步服务端审计口径：宽阶段 3 未来会围绕创建 / 加入、卡组、准备、开局、起手、第一回合、召符文、打牌、移动、争夺或结算链或法术对决、结束回合、投降做 Chrome smoke 和后端验证；当前阶段 3A 只执行上节列出的四个小目标，项目仍 **NOT READY**。
+
+阶段 3 当前 P0/P1 分类：
+
+| 分类 | 当前阻断 | 当前实现状态 | 归属 agent | 下一步 |
+| --- | --- | --- | --- | --- |
+| 阻断 smoke 的 P0 | 最小 Chrome smoke 缺失；room -> match 连续链路未证明；起手与隐藏信息浏览器断言未收口；第一回合、打牌、移动、争夺/stack、结束回合、投降/结果未在同一阶段 3 smoke 闭环 | 后端与 UI 有分散代表测试；阶段 2 checkpoint 明确未启动正式 Chrome smoke / 18 步 E2E | C 主实现 smoke；B 维护服务端；D 审计；A 验收 | C 先补最小双浏览器 smoke，B 保持服务端权威，D 记录规则依据、测试证据、剩余缺口 |
+| 可在阶段 3 内继续的 P0 | `PAY_COST` runtime、`ASSIGN_COMBAT_DAMAGE` runtime、`ORDER_TRIGGERS` runtime、battlefield / standby / control / held / conquer lifecycle、central cleanup queue、spell duel / battle lifecycle | 阶段 2 已有 schema skeleton 与代表路径；真实 runtime prompt / 状态机未关闭 | B 主实现；E 补 fixture；C 等正式 schema；D 审计 | 每关闭一个阻断，必须补规则依据、实现状态、测试证据、仍缺口，再由 D/A 复核 |
+| 暂不阻断阶段 3 初始 smoke 但阻断 READY | 1009 张卡 full-official 覆盖矩阵、LayerEngine、全路径 replay / recovery / determinism、产品级视觉 polish | E 已建矩阵 skeleton 和风险 Top20；representative verifier / recovery smoke 有；完整覆盖未完成 | E/B/C；D 审计 | 阶段 3 smoke 可用代表卡组，但最终 READY 必须回到全量矩阵、层系统和 determinism 审计 |
+
+阶段 2 已替代但阶段 3 仍未关闭的口径：
+
+- `PAY_COST` / `ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` 已有 command/schema skeleton 和 `INVALID_PAYLOAD`；真实 runtime prompt、合法选择、状态机和结算仍是 P0。
+- 复杂 prompt 降级展示只能保证安全承接未知窗口，不能替代正式产品交互。
+- 0/负战力、具体战场 objectId 大小写已进入防回归，不再列为当前 P0。
+- 代表 battlefield contest / stack / spell duel smoke 不能替代完整官方 lifecycle，也不能支撑 READY。
+
 ## 2026-05-09 阶段 2 D P0 证据链复审
 
 阶段 2 D 证据链详见 `docs/CURRENT_STAGE2_P0_CONTRACT_PLAN.md`。本节只记录服务端自查的同步口径：阶段 1 协议壳、`PromptView` 最小入口、复杂 prompt 安全降级展示、`promptId/snapshotTick` 过期保护、0/负战力修复、具体战场 objectId 大小写修复、representative replay/final hash verifier 都不能误判为 READY；它们只是把旧 P0 的部分风险降为防回归或口径风险。

@@ -76,6 +76,16 @@ public static class GameCommandJsonMapper
                 TextArray(cmd, "defenderObjectIds"),
                 TextArray(cmd, "optionalCosts"),
                 TextArray(cmd, "battlefieldTargetObjectIds")),
+            "PAY_COST" => new PayCostCommand(
+                Text(cmd, "paymentId"),
+                Text(cmd, "paymentWindow"),
+                StrictTextArray(cmd, "paymentChoiceIds")),
+            "ASSIGN_COMBAT_DAMAGE" => new AssignCombatDamageCommand(
+                Text(cmd, "battleId"),
+                Text(cmd, "battlefieldId"),
+                CombatDamageAssignments(cmd)),
+            "ORDER_TRIGGERS" => new OrderTriggersCommand(
+                StrictTextArray(cmd, "triggerIds")),
             _ => new UnsupportedCommand(cmdType, cmd.Clone())
         };
     }
@@ -103,5 +113,58 @@ public static class GameCommandJsonMapper
             .Where(item => item.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(item.GetString()))
             .Select(item => item.GetString()!.Trim())
             .ToArray();
+    }
+
+    private static IReadOnlyList<string>? StrictTextArray(JsonElement cmd, string propertyName)
+    {
+        if (cmd.ValueKind != JsonValueKind.Object
+            || !cmd.TryGetProperty(propertyName, out var property)
+            || property.ValueKind != JsonValueKind.Array)
+        {
+            return null;
+        }
+
+        var values = new List<string>();
+        foreach (var item in property.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.String
+                || string.IsNullOrWhiteSpace(item.GetString()))
+            {
+                return null;
+            }
+
+            values.Add(item.GetString()!.Trim());
+        }
+
+        return values.ToArray();
+    }
+
+    private static IReadOnlyList<CombatDamageAssignmentDto>? CombatDamageAssignments(JsonElement cmd)
+    {
+        if (cmd.ValueKind != JsonValueKind.Object
+            || !cmd.TryGetProperty("assignments", out var property)
+            || property.ValueKind != JsonValueKind.Array)
+        {
+            return null;
+        }
+
+        var assignments = new List<CombatDamageAssignmentDto>();
+        foreach (var item in property.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.Object
+                || !item.TryGetProperty("damage", out var damageProperty)
+                || damageProperty.ValueKind != JsonValueKind.Number
+                || !damageProperty.TryGetInt32(out var damage))
+            {
+                return null;
+            }
+
+            assignments.Add(new CombatDamageAssignmentDto(
+                Text(item, "sourceObjectId"),
+                Text(item, "targetObjectId"),
+                damage));
+        }
+
+        return assignments.ToArray();
     }
 }

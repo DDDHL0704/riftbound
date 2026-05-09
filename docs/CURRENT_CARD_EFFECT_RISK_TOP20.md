@@ -37,7 +37,24 @@
 | FAQ candidate FUs | 179 |
 | FAQ candidate snapshot entries | 227 |
 
-## 3. Top20 高风险 Functional Units
+## 3. Stage 3A Smoke / PAY_COST Holdback
+
+阶段 3A 只服务 Smoke 基线、强类型复杂命令解析、`PAY_COST` 最小 runtime 切片与对战桌面外壳，不进入 Top20 批量实现。以下口径已同步到 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 的 `stage3ASmokePayCost`：
+
+| FU | 代表卡 | Stage 3A 处理 |
+|---|---|---|
+| `FU-b646702ec0` | `OGN·268/298` 弹幕时间 | 允许进入 3A，但只作为 `PAY_COST` 最小 runtime P0 代表；不扩张到完整伤害分配、战斗或法术对决。 |
+| `FU-0ec69ae7e6` | `OGN·007/298` 炽烈符文 | 允许进入 3A，作为红色符文 / 基础符文支付资源域代表；不是全部符文 full-official。 |
+| `FU-39041f4562` | `OGN·042/298` 翠意符文 | 仅作 payment-resource filtering support；不 adjudicate 全部颜色/特性规则。 |
+| `FU-95b4531e4e` | `SFD·125/221` 大力仙灵 | 仅作《弹幕时间》目标 / body fixture；不执行该卡自身移动支付文本。 |
+| `FU-5accdd09f9` | `SFD·022/221` 长剑 | 不进入 3A；装备、装配、LayerEngine 完整链留到后续阶段。 |
+| `FU-5bcc4063c2` | `SFD·143/221` 希维尔 | 不进入 3A；haste optional payment 和持续/清理风险留到后续切片。 |
+| `FU-00ee09c2cc` | `SFD·202/221` 恶意收购 | Top20 #16；控制权改变、隐藏信息、FAQ 与支付风险过高，不进入 3A。 |
+| Top20 其余 FU | 见下表 | 默认阶段 4+，除非 A 明确指定单卡切片并给出写入锁。 |
+
+3A smoke-only 候选只限：`FU-02075a26e3` 黑默丁格、`FU-af2c43c430` 嚼火者手雷、`FU-441cb9fb7f` 海克斯射线。它们只用于官方开局 / 桌面 shell 可见性和详情 smoke，不进入 spell duel / stack resolution / damage runtime。
+
+## 4. Top20 高风险 Functional Units
 
 | # | FU | Representative | 类型/条目数 | 当前代表映射 | FAQ 候选页 | 风险依据 | 依赖规则域 |
 |---:|---|---|---:|---|---|---|---|
@@ -62,7 +79,7 @@
 | 19 | `FU-804412488c` | `SFD·139/221` 夜之锋刃 | 装备 / 1 | 代表路径：EDGE_OF_NIGHT_PLAY_EQUIPMENT | SOUL-OFAQ-260114 p10<br>SOUL-OFAQ-260114 p9 | 控制权/区域移动、FAQ 提及、隐藏信息/随机/牌堆、效果层/持续效果、费用/支付、目标/结算链/时机 | FEPR/Targeting/TimingWindows, LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, VisibilityFilter/RandomAndHiddenZones, ZoneOwnership/ControlChange/Movement |
 | 20 | `FU-9a623b3185` | `SFD·059/221` 斯弗尔尚歌 | 装备 / 1 | 代表路径：SFUR_SONG_PLAY_EQUIPMENT | SOUL-JFAQ-260114 p24<br>SOUL-JFAQ-260114 p25<br>SOUL-JFAQ-260114 p8<br>SOUL-OFAQ-260114 p18<br>SOUL-OFAQ-260114 p19 | 控制权/区域移动、FAQ 提及、效果层/持续效果、费用/支付 | LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, ZoneOwnership/ControlChange/Movement |
 
-## 4. 未覆盖效果分类
+## 5. 未覆盖效果分类
 
 | 分类 | 含义 | 当前阻断关系 |
 |---|---|---|
@@ -76,7 +93,7 @@
 | `non-play-domain` | 传奇、战场、符文、指示物等非普通 PLAY_CARD 域。 | 需要专门域矩阵，不可与普通出牌效果混算。 |
 | `faq-mentioned` | 五份 PDF/FAQ 中出现卡名的候选项。 | 必须人工判定问题是否真的约束该 FU，并补测试。 |
 
-## 5. P0/P1 仍未清零
+## 6. P0/P1 仍未清零
 
 P0：
 

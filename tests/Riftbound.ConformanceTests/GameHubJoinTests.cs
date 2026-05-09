@@ -434,6 +434,58 @@ public sealed class GameHubJoinTests
         var recycleZones = ZoneView(recyclePlayer);
         Assert.DoesNotContain(runeSourceId, StringList(recycleZones["base"]));
         Assert.True(Assert.IsType<int>(recycleZones["runeDeckCount"]) > 0);
+
+        var nextPlayerId = string.Equals(activePlayerId, "P1", StringComparison.Ordinal) ? "P2" : "P1";
+        var endTurnClients = new RecordingHubClients();
+        await CreateHub(
+                endTurnClients,
+                new RecordingGroupManager(),
+                string.Equals(activePlayerId, "P1", StringComparison.Ordinal) ? "connection-1" : "connection-2",
+                registry)
+            .SubmitIntent(roomId, activePlayerId, "end-turn-active", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "END_TURN"
+            }));
+
+        Assert.Empty(endTurnClients.CallerClient.Errors);
+        var endTurnEvents = EventsFor(endTurnClients);
+        Assert.Contains(endTurnEvents, gameEvent => string.Equals(gameEvent.Kind, "TURN_END_DECLARED", StringComparison.Ordinal));
+        Assert.Contains(endTurnEvents, gameEvent => string.Equals(gameEvent.Kind, "TURN_PLAYER_ADVANCED", StringComparison.Ordinal));
+        Assert.Contains(endTurnEvents, gameEvent => string.Equals(gameEvent.Kind, "TURN_START_BEGAN", StringComparison.Ordinal));
+        Assert.Contains(endTurnEvents, gameEvent => string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal));
+        Assert.Contains(endTurnEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Contains(endTurnEvents, gameEvent => string.Equals(gameEvent.Kind, "MAIN_PHASE_BEGAN", StringComparison.Ordinal));
+        var nextSnapshot = SnapshotFor(endTurnClients, nextPlayerId);
+        Assert.Equal(nextPlayerId, nextSnapshot.ActivePlayerId);
+        Assert.Equal(nextPlayerId, Assert.IsType<string>(nextSnapshot.Timing["turnPlayerId"]));
+        Assert.Equal(MatchPhases.Main, Assert.IsType<string>(nextSnapshot.Timing["phase"]));
+        Assert.Equal(TimingStates.NeutralOpen, Assert.IsType<string>(nextSnapshot.Timing["timingState"]));
+        var nextPrompt = PromptFor(endTurnClients, nextPlayerId);
+        Assert.True(nextPrompt.Actionable);
+        Assert.Contains("TAP_RUNE", nextPrompt.Actions);
+        Assert.Contains("SURRENDER", nextPrompt.Actions);
+
+        var surrenderClients = new RecordingHubClients();
+        await CreateHub(
+                surrenderClients,
+                new RecordingGroupManager(),
+                string.Equals(nextPlayerId, "P1", StringComparison.Ordinal) ? "connection-1" : "connection-2",
+                registry)
+            .SubmitIntent(roomId, nextPlayerId, "surrender-next-turn-player", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "SURRENDER"
+            }));
+
+        Assert.Empty(surrenderClients.CallerClient.Errors);
+        var surrenderEvent = Assert.Single(
+            EventsFor(surrenderClients),
+            gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
+        Assert.Equal(activePlayerId, Assert.IsType<string>(surrenderEvent.Payload["winnerPlayerId"]));
+        Assert.Equal(nextPlayerId, Assert.IsType<string>(surrenderEvent.Payload["surrenderedPlayerId"]));
+        Assert.Equal("SURRENDER", Assert.IsType<string>(surrenderEvent.Payload["reason"]));
+        var surrenderSnapshot = SnapshotFor(surrenderClients, activePlayerId);
+        Assert.Equal(MatchStatuses.Finished, Assert.IsType<string>(surrenderSnapshot.Timing["roomStatus"]));
+        Assert.Equal(activePlayerId, Assert.IsType<string>(surrenderSnapshot.Timing["winnerPlayerId"]));
     }
 
     [Fact]
@@ -490,6 +542,113 @@ public sealed class GameHubJoinTests
             Assert.Empty(clients.GroupClient.EventMessages);
             Assert.Empty(clients.GroupClient.Snapshots);
         }
+    }
+
+    [Fact]
+    public async Task SubmitIntentPayCostWindowUsesPromptStampAndClosesRuntimeSlice()
+    {
+        const string roomId = "pay-cost-window-core";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "pay-cost-window", "seed-pay-cost-window");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var prompt = PromptFor(seedClients, "P1");
+        Assert.True(prompt.Actionable);
+        Assert.Equal(["PAY_COST", "SURRENDER"], prompt.Actions);
+        Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(candidate.Metadata);
+        Assert.Equal("PAY-3A-MANA-1", Assert.IsType<string>(metadata["paymentId"]));
+        Assert.Equal("TEST_PAYMENT", Assert.IsType<string>(metadata["paymentWindow"]));
+        var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentChoices"]);
+        Assert.Contains(choices, choice => string.Equals(choice.Id, "SPEND_MANA:1", StringComparison.Ordinal));
+
+        var stalePromptClients = new RecordingHubClients();
+        await CreateHub(stalePromptClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-pay-cost-stale-prompt", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PAY_COST",
+                paymentId = "PAY-3A-MANA-1",
+                paymentWindow = "TEST_PAYMENT",
+                paymentChoiceIds = new[] { "SPEND_MANA:1" },
+                promptId = $"{prompt.PromptId}:stale",
+                snapshotTick = prompt.SnapshotTick
+            }));
+
+        var stalePromptError = Assert.Single(stalePromptClients.CallerClient.Errors);
+        Assert.Equal(ErrorCodes.PromptExpired, Assert.IsType<ErrorDto>(stalePromptError.Payload).Code);
+        Assert.Empty(stalePromptClients.GroupClient.EventMessages);
+        Assert.Empty(stalePromptClients.GroupClient.Snapshots);
+
+        var staleSnapshotClients = new RecordingHubClients();
+        await CreateHub(staleSnapshotClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-pay-cost-stale-snapshot", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PAY_COST",
+                paymentId = "PAY-3A-MANA-1",
+                paymentWindow = "TEST_PAYMENT",
+                paymentChoiceIds = new[] { "SPEND_MANA:1" },
+                promptId = prompt.PromptId,
+                snapshotTick = prompt.SnapshotTick.GetValueOrDefault() + 1
+            }));
+
+        var staleSnapshotError = Assert.Single(staleSnapshotClients.CallerClient.Errors);
+        Assert.Equal(ErrorCodes.PromptExpired, Assert.IsType<ErrorDto>(staleSnapshotError.Payload).Code);
+        Assert.Empty(staleSnapshotClients.GroupClient.EventMessages);
+        Assert.Empty(staleSnapshotClients.GroupClient.Snapshots);
+
+        var invalidChoiceClients = new RecordingHubClients();
+        await CreateHub(invalidChoiceClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-pay-cost-invalid-choice", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PAY_COST",
+                paymentId = "PAY-3A-MANA-1",
+                paymentWindow = "TEST_PAYMENT",
+                paymentChoiceIds = new[] { "SPEND_MANA:2" },
+                promptId = prompt.PromptId,
+                snapshotTick = prompt.SnapshotTick
+            }));
+
+        var invalidChoiceError = Assert.Single(invalidChoiceClients.CallerClient.Errors);
+        Assert.Equal(ErrorCodes.InvalidTarget, Assert.IsType<ErrorDto>(invalidChoiceError.Payload).Code);
+        Assert.Empty(invalidChoiceClients.GroupClient.EventMessages);
+        Assert.Empty(invalidChoiceClients.GroupClient.Snapshots);
+
+        var payClients = new RecordingHubClients();
+        await CreateHub(payClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-pay-cost-valid", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PAY_COST",
+                paymentId = "PAY-3A-MANA-1",
+                paymentWindow = "TEST_PAYMENT",
+                paymentChoiceIds = new[] { "SPEND_MANA:1" },
+                promptId = prompt.PromptId,
+                snapshotTick = prompt.SnapshotTick
+            }));
+
+        Assert.Empty(payClients.CallerClient.Errors);
+        var events = EventsFor(payClients);
+        Assert.Contains(events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Contains(events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        var snapshot = SnapshotFor(payClients, "P1");
+        Assert.Null(snapshot.Timing["pendingPayment"]);
+        var p1 = PlayerView(snapshot, "P1");
+        var runePool = Assert.IsType<Dictionary<string, object?>>(p1["runePool"]);
+        Assert.Equal(0, Assert.IsType<int>(runePool["mana"]));
     }
 
     [Fact]

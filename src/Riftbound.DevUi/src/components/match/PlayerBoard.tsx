@@ -32,6 +32,11 @@ export function PlayerBoard({ playerId, player, perspectivePlayerId, specs, onIn
         </div>
       </header>
       <div className="resource-line">{runePoolText(player.runePool)}</div>
+      <div className="player-state-strip">
+        <span>{player.deckSubmitted ? "卡组已提交" : "等待卡组"}</span>
+        <span>{player.mulliganCompleted ? "起手已确认" : "起手未确认"}</span>
+        <span>本回合已出牌 {player.cardsPlayedThisTurn ?? 0}</span>
+      </div>
       <ZoneStrip onInspectCard={onInspectCard} title="传奇" ids={zones.legendZone ?? []} objects={objects} specs={specs} compact />
       <ZoneStrip onInspectCard={onInspectCard} title="英雄" ids={zones.championZone ?? []} objects={objects} specs={specs} compact />
       <ZoneStrip onInspectCard={onInspectCard} title="基地" ids={zones.base ?? []} objects={objects} specs={specs} compact />

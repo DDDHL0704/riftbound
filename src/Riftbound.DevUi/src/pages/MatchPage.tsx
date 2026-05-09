@@ -6,6 +6,7 @@ import { InspectedCard } from "../components/cards/CardFace";
 import { ActionPanel } from "../components/match/ActionPanel";
 import { BattlefieldArea } from "../components/match/BattlefieldArea";
 import { EventLog } from "../components/match/EventLog";
+import { MatchStatusPanel } from "../components/match/MatchStatusPanel";
 import { MatchTopBar } from "../components/match/MatchTopBar";
 import { PlayerBoard } from "../components/match/PlayerBoard";
 import { SnapshotDebugPanel } from "../components/match/SnapshotDebugPanel";
@@ -43,6 +44,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       </section>
       <div className="match-layout">
         <aside className="left-rail">
+          <MatchStatusPanel playerId={settings.playerId} prompt={controller.state.prompt} snapshot={snapshot} />
           <EventLog density={settings.logDensity} errors={controller.state.errors} events={controller.state.events} />
         </aside>
         <main className="play-surface">

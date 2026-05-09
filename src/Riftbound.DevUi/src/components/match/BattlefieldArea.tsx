@@ -24,6 +24,10 @@ export function BattlefieldArea({ onInspectCard, snapshot, specs }: { onInspectC
           const cardNo = asString(field.cardNo, "");
           const occupants = asArray<string>(field.occupantObjectIds);
           const standby = asArray<string>(field.standbyObjectIds);
+          const status = asString(field.status, field.contested ? "CONTESTED" : "");
+          const controllerId = asString(field.controllerId, "无人");
+          const occupantControllers = asArray<string>(field.occupantControllerIds);
+          const pendingTaskKinds = asArray<string>(field.pendingTaskKinds);
           return (
             <article className="battlefield-card" key={asString(field.battlefieldObjectId, `battlefield-${index}`)}>
               <header>
@@ -31,8 +35,20 @@ export function BattlefieldArea({ onInspectCard, snapshot, specs }: { onInspectC
                   <span className="eyebrow">战场 {index + 1}</span>
                   <h3>{specs[cardNo]?.cardName ?? (cardNo || "未命名战场")}</h3>
                 </div>
-                <StatusPill tone={field.contested ? "warn" : "neutral"}>{field.contested ? "争夺中" : `控制：${asString(field.controllerId, "无人")}`}</StatusPill>
+                <StatusPill tone={field.contested ? "warn" : controllerId === "无人" ? "neutral" : "good"}>
+                  {field.contested ? "争夺中" : `控制：${controllerId}`}
+                </StatusPill>
               </header>
+              <div className="battlefield-state-line">
+                <span>{battlefieldStatusLabel(status)}</span>
+                <span>参战方 {occupantControllers.length || 0}</span>
+                <span>待命 {standby.length} / 面朝下 {Number(field.faceDownStandbyCount ?? 0)}</span>
+              </div>
+              {pendingTaskKinds.length > 0 && (
+                <div className="battlefield-task-line">
+                  {pendingTaskKinds.slice(0, 3).map((kind) => <span key={kind}>{battlefieldTaskLabel(kind)}</span>)}
+                </div>
+              )}
               <CardFace
                 compact
                 object={{
@@ -62,6 +78,34 @@ export function BattlefieldArea({ onInspectCard, snapshot, specs }: { onInspectC
       </div>
     </section>
   );
+}
+
+function battlefieldStatusLabel(status: string): string {
+  switch (status) {
+    case "CONTROLLED":
+      return "已控制";
+    case "CONTESTED":
+      return "争夺中";
+    case "UNCONTROLLED":
+      return "无人控制";
+    default:
+      return status ? "服务端战场状态" : "等待状态";
+  }
+}
+
+function battlefieldTaskLabel(kind: string): string {
+  switch (kind) {
+    case "BATTLEFIELD_CONTESTED":
+      return "控制检查";
+    case "START_SPELL_DUEL":
+      return "法术对决";
+    case "START_BATTLE":
+      return "战斗";
+    case "REMOVE_ILLEGAL_STANDBY":
+      return "待命清理";
+    default:
+      return /^[A-Z0-9_:-]+$/.test(kind) ? "服务端任务" : kind;
+  }
 }
 
 function BattlefieldObjectStrip({

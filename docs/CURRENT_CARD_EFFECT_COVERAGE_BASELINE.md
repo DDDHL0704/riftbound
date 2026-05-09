@@ -241,3 +241,42 @@ P1 仍存在：
 - `src/**`
 
 是否允许进入卡牌效果批量覆盖：**不允许。**
+
+## 9. 阶段 3A E 汇总
+
+阶段 3A 目标：只服务 Smoke 基线、强类型复杂命令解析、`PAY_COST` 最小 runtime 切片、对战桌面外壳；不进入 1009 张卡全量实现，不修改核心规则引擎。
+
+完成项：
+
+- 在机器矩阵中新增 `stage3A` / `stage3ASmokePayCost` overlay，补充 3A functional units 的 `evidencePriority`、`faqCandidate`、`riskTags`、`allowedIn3A`、`useBoundary`。
+- 将 `OGN·268/298`《弹幕时间》标为 3A `PAY_COST` 最小 runtime P0 代表，只覆盖 typed power、`SPEND_POWER`、`RECYCLE_RUNE` 支付资源、`COST_PAID` envelope 与 prompt stamp 边界。
+- 将符文资源域 `FU-0ec69ae7e6`、`FU-39041f4562` 和 body fixture `SFD·125/221` 标为 3A PAY_COST 支撑 functional units。
+- 将正式开局 smoke observed hand 候选 `ARC-003/006`、`OGN·006/298`、`OGN·009/298` 标为 smoke-only，不进入 spell duel / damage runtime。
+- 将 `SFD·202/221`、`SFD·022/221`、`SFD·143/221`、完整 battle/damage/order/runtime、装备/LayerEngine 链与 Top20 高风险卡明确标为 3A holdback。
+- 新增 3A Smoke / PAY_COST 证据文档，明确所有卡牌仍是 representative 3A evidence，不是 full-official 覆盖。
+
+新增文件：
+
+- `docs/CURRENT_CARD_EFFECT_STAGE3A_SMOKE_PAY_COST_EVIDENCE.md`
+
+修改文件：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`
+
+未修改文件：
+
+- `data/official/card-catalog.zh-CN.json`
+- `docs/rules-evidence-index.md`
+- `src/**`
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`
+
+仍存在 P0/P1：
+
+- battlefield / standby / control / held / conquer task lifecycle 仍未 full-official。
+- central cleanup queue、PaymentEngine、LayerEngine、battle / spell duel 完整生命周期仍未清零；3A 只取 `PAY_COST` 最小 runtime 切片。
+- 1009 snapshot entries / 811 functional units 的 FAQ adjudication 与测试矩阵仍未完成。
+
+是否允许进入卡牌效果批量覆盖：**不允许。**

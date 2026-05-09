@@ -679,6 +679,79 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperParsesP0ContractPayloads()
+    {
+        var payCost = Assert.IsType<PayCostCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "PAY_COST",
+              "paymentId": "PAY-1",
+              "paymentWindow": "TEST_PAYMENT",
+              "paymentChoiceIds": ["SPEND_MANA:1"]
+            }
+            """).RootElement));
+        var assignDamage = Assert.IsType<AssignCombatDamageCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "ASSIGN_COMBAT_DAMAGE",
+              "battleId": "battle:BF-1",
+              "battlefieldId": "BF-1",
+              "assignments": [
+                { "sourceObjectId": "A", "targetObjectId": "B", "damage": 2 }
+              ]
+            }
+            """).RootElement));
+        var orderTriggers = Assert.IsType<OrderTriggersCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "ORDER_TRIGGERS",
+              "triggerIds": ["TRIGGER-2", "TRIGGER-1"]
+            }
+            """).RootElement));
+
+        Assert.Equal("PAY-1", payCost.PaymentId);
+        Assert.Equal("TEST_PAYMENT", payCost.PaymentWindow);
+        Assert.Equal(["SPEND_MANA:1"], payCost.PaymentChoiceIds);
+        Assert.Equal("battle:BF-1", assignDamage.BattleId);
+        Assert.Equal("BF-1", assignDamage.BattlefieldId);
+        var assignment = Assert.Single(assignDamage.Assignments ?? []);
+        Assert.Equal("A", assignment.SourceObjectId);
+        Assert.Equal("B", assignment.TargetObjectId);
+        Assert.Equal(2, assignment.Damage);
+        Assert.Equal(["TRIGGER-2", "TRIGGER-1"], orderTriggers.TriggerIds);
+    }
+
+    [Fact]
+    public void GameCommandMapperPreservesMalformedP0PayloadsForStableValidation()
+    {
+        var payCost = Assert.IsType<PayCostCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "PAY_COST",
+              "paymentId": "PAY-1",
+              "paymentWindow": "TEST_PAYMENT",
+              "paymentChoiceIds": "SPEND_MANA:1"
+            }
+            """).RootElement));
+        var assignDamage = Assert.IsType<AssignCombatDamageCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "ASSIGN_COMBAT_DAMAGE",
+              "battleId": "battle:BF-1",
+              "battlefieldId": "BF-1",
+              "assignments": [
+                { "sourceObjectId": "A", "targetObjectId": "B", "damage": "2" }
+              ]
+            }
+            """).RootElement));
+        var orderTriggers = Assert.IsType<OrderTriggersCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "ORDER_TRIGGERS",
+              "triggerIds": "TRIGGER-1"
+            }
+            """).RootElement));
+
+        Assert.Null(payCost.PaymentChoiceIds);
+        Assert.Null(assignDamage.Assignments);
+        Assert.Null(orderTriggers.TriggerIds);
+    }
+
+    [Fact]
     public void ProtocolDefinesP0PromptCommandContracts()
     {
         Assert.Equal("PAY_COST", CommandTypes.PayCost);
@@ -775,6 +848,111 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal(ErrorCodes.PhaseNotAllowed, orderTriggersResult.ErrorCode);
         Assert.Equal(state.Tick, payCostResult.State.Tick);
         Assert.Empty(payCostResult.Events);
+    }
+
+    [Fact]
+    public void PayCostPromptExposesPendingPaymentWindow()
+    {
+        var state = BuildP0ContractPaymentState();
+        var prompts = ResolutionResult.BuildPrompts(state);
+
+        var p1Prompt = prompts["P1"];
+        Assert.True(p1Prompt.Actionable);
+        Assert.Equal(["PAY_COST", "SURRENDER"], p1Prompt.Actions);
+        Assert.Equal(PromptTypes.PayCost, p1Prompt.View?.Type);
+        Assert.NotNull(p1Prompt.PromptId);
+        Assert.Equal(state.Tick, p1Prompt.SnapshotTick);
+        var candidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+        Assert.True(candidate.Enabled);
+        var metadata = Assert.IsType<Dictionary<string, object?>>(candidate.Metadata);
+        Assert.Equal("PAY-3A-MANA-1", Assert.IsType<string>(metadata["paymentId"]));
+        Assert.Equal("TEST_PAYMENT", Assert.IsType<string>(metadata["paymentWindow"]));
+        var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentChoices"]);
+        Assert.Contains(choices, choice => string.Equals(choice.Id, "SPEND_MANA:1", StringComparison.Ordinal));
+        Assert.Equal("PENDING", Assert.IsType<string>(metadata["serverPaymentState"]));
+        var ledger = Assert.IsType<Dictionary<string, object?>>(metadata["resourceLedgerBeforePayment"]);
+        Assert.Equal(1, Assert.IsType<int>(ledger["mana"]));
+
+        var p2Prompt = prompts["P2"];
+        Assert.False(p2Prompt.Actionable);
+        Assert.Equal(["WAIT", "SURRENDER"], p2Prompt.Actions);
+        Assert.Equal(PromptTypes.PayCost, p2Prompt.View?.Type);
+    }
+
+    [Fact]
+    public async Task PayCostRuntimeAcceptsLegalPaymentAndClosesWindow()
+    {
+        var state = BuildP0ContractPaymentState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-pay-cost", "P1", CommandTypes.PayCost),
+            new PayCostCommand("PAY-3A-MANA-1", "TEST_PAYMENT", ["SPEND_MANA:1"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(state.Tick + 1, result.State.Tick);
+        Assert.Null(result.State.PendingPayment);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.Equal(["COST_PAID", "PAYMENT_WINDOW_CLOSED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal("PAY-3A-MANA-1", costEvent.Payload["paymentId"]);
+        Assert.Equal("TEST_PAYMENT", costEvent.Payload["paymentWindow"]);
+        Assert.Equal(["SPEND_MANA:1"], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        Assert.Contains("END_TURN", result.Prompts["P1"].Actions);
+    }
+
+    [Fact]
+    public async Task PayCostRuntimeRejectsInvalidPaymentsWithoutChangingState()
+    {
+        var state = BuildP0ContractPaymentState();
+        var engine = new CoreRuleEngine();
+
+        var invalidChoice = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-pay-cost-invalid", "P1", CommandTypes.PayCost),
+            new PayCostCommand("PAY-3A-MANA-1", "TEST_PAYMENT", ["SPEND_MANA:2"]),
+            CancellationToken.None);
+        var wrongCommand = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-pay-cost-wrong-command", "P1", CommandTypes.EndTurn),
+            new EndTurnCommand(),
+            CancellationToken.None);
+        var insufficient = await engine.ResolveAsync(
+            state with
+            {
+                RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+                {
+                    ["P1"] = RunePool.Empty,
+                    ["P2"] = RunePool.Empty
+                }
+            },
+            new PlayerIntent("intent-pay-cost-insufficient", "P1", CommandTypes.PayCost),
+            new PayCostCommand("PAY-3A-MANA-1", "TEST_PAYMENT", ["SPEND_MANA:1"]),
+            CancellationToken.None);
+
+        Assert.False(invalidChoice.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, invalidChoice.ErrorCode);
+        Assert.Equal(state.Tick, invalidChoice.State.Tick);
+        Assert.NotNull(invalidChoice.State.PendingPayment);
+        Assert.Equal(1, invalidChoice.State.RunePools["P1"].Mana);
+        Assert.Empty(invalidChoice.Events);
+
+        Assert.False(wrongCommand.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, wrongCommand.ErrorCode);
+        Assert.Equal(state.Tick, wrongCommand.State.Tick);
+        Assert.NotNull(wrongCommand.State.PendingPayment);
+        Assert.Equal(1, wrongCommand.State.RunePools["P1"].Mana);
+        Assert.Empty(wrongCommand.Events);
+
+        Assert.False(insufficient.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, insufficient.ErrorCode);
+        Assert.Equal(state.Tick, insufficient.State.Tick);
+        Assert.NotNull(insufficient.State.PendingPayment);
+        Assert.Equal(0, insufficient.State.RunePools["P1"].Mana);
+        Assert.Empty(insufficient.Events);
     }
 
     [Fact]
@@ -7317,6 +7495,25 @@ public sealed class ConformanceFixtureShapeTests
                 ["P1"] = PlayerZones.Empty,
                 ["P2"] = PlayerZones.Empty
             });
+    }
+
+    private static MatchState BuildP0ContractPaymentState()
+    {
+        return BuildP0ContractMainState() with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(1, 0),
+                ["P2"] = RunePool.Empty
+            },
+            PendingPayment = new PendingPaymentState(
+                "PAY-3A-MANA-1",
+                "TEST_PAYMENT",
+                "P1",
+                manaCost: 1,
+                legalPaymentChoiceIds: ["SPEND_MANA:1"],
+                reason: "3A PAY_COST 最小支付窗口")
+        };
     }
 
     private static MatchState BuildP0ContractBattleState()

@@ -332,6 +332,8 @@ function simpleCommand(candidate: ActionPromptCandidateDto, snapshot?: SnapshotD
       return { cmdType: "END_TURN" };
     case "SURRENDER":
       return { cmdType: "SURRENDER" };
+    case "PAY_COST":
+      return payCostCommand(candidate);
     case "WAIT":
       return undefined;
     default:
@@ -350,6 +352,18 @@ function simpleCommand(candidate: ActionPromptCandidateDto, snapshot?: SnapshotD
       }
       return undefined;
   }
+}
+
+function payCostCommand(candidate: ActionPromptCandidateDto): GameCommand | undefined {
+  const metadata = candidate.metadata ?? {};
+  const paymentId = stringMetadata(metadata, "paymentId");
+  const paymentWindow = stringMetadata(metadata, "paymentWindow");
+  const paymentChoiceIds = stringArrayMetadata(metadata, "paymentChoiceIds");
+  if (!paymentId || !paymentWindow || paymentChoiceIds == null) {
+    return undefined;
+  }
+
+  return { cmdType: "PAY_COST", paymentId, paymentWindow, paymentChoiceIds };
 }
 
 function requiresFurtherChoice(candidate: ActionPromptCandidateDto): boolean {
@@ -462,6 +476,21 @@ const safeStringMetadataKeys = new Set<string>([
 function numberMetadata(metadata: Record<string, unknown> | null | undefined, key: string): number | undefined {
   const value = metadata?.[key];
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function stringMetadata(metadata: Record<string, unknown>, key: string): string | undefined {
+  const value = metadata[key];
+  return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
+}
+
+function stringArrayMetadata(metadata: Record<string, unknown>, key: string): string[] | undefined {
+  const value = metadata[key];
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+
+  const values = value.map((item) => typeof item === "string" ? item.trim() : "");
+  return values.every((item) => item.length > 0) ? values : undefined;
 }
 
 export function candidateListLabel(prompt?: ActionPromptDto): string {

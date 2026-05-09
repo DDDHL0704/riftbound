@@ -34,6 +34,7 @@ const eventKindLabels: Record<string, string> = {
   CARD_REVEALED: "翻开待命",
   CLEANUP_REPEATED: "清理循环",
   COST_PAID: "支付费用",
+  PAYMENT_WINDOW_CLOSED: "支付窗口关闭",
   DAMAGE_APPLIED: "造成伤害",
   DAMAGE_REMOVED: "移除伤害",
   DECK_SUBMITTED: "提交卡组",

@@ -512,6 +512,135 @@ P1：
 
 阶段 2 完成后必须等待用户确认，再进入阶段 3。
 
+## 0.5 阶段 3A Smoke 基线 / 强类型复杂命令 / PAY_COST 最小 runtime / 对战桌面外壳汇总
+
+阶段 3 已按用户补充要求收窄为 3A / 3B / 3C。当前只执行并收口 **阶段 3A**；不继续推进完整阶段 3，不启动最终 18 步 E2E，不进入 1009 张卡全量实现，结论仍为 **NOT READY**。
+
+当前阶段 3A 基线：
+
+- 当前保护提交仍是 `4b41e81 docs: record stage 2 checkpoint protection` 之后的未提交工作区。
+- 阶段 3A 计划入口：`docs/CURRENT_STAGE3A_PLAN.md`。
+- `docs/CURRENT_STAGE3_CORE_FLOW_AUDIT.md` 只保留为宽阶段 3 总审计图，不作为当前 3A 验收范围。
+- `riftbound-dotnet.sln` 仍是本地不交付未跟踪文件，不应纳入后续 checkpoint commit。
+
+### B 服务端 3A 切片
+
+完成项：
+
+- `GameCommandJsonMapper` 已把 `PAY_COST`、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS` 从 raw payload 映射为对应强类型 command。
+- malformed complex payload 稳定走 `INVALID_PAYLOAD` 或等价稳定错误路径；unsupported/raw command 兼容行为未破坏。
+- 新增 `PendingPaymentState` 与 `pay-cost-window` development seed，只实现一个最小 `PAY_COST` runtime 窗口。
+- 服务端 `PAY_COST` prompt 暴露 `paymentId`、`paymentWindow`、cost、legal payment choices / choice ids 等元数据。
+- 合法 `PAY_COST` 可提交并关闭窗口；非法 choice、错误玩家、错误窗口、资源不足、非 `PAY_COST` 命令均拒绝且不改变 authoritative state。
+- Hub 层已覆盖 stale `promptId` / stale `snapshotTick` 拒绝，失败命令不广播 snapshot / event。
+
+关闭的 3A P0 子项：
+
+- 3A-P0-002：三类复杂命令强类型映射。
+- 3A-P0-003：`PAY_COST` 最小 runtime 切片。
+
+仍未关闭：
+
+- 完整 PaymentEngine、decline / optional / replacement / trigger cost 全路径。
+- `ASSIGN_COMBAT_DAMAGE` 真实 runtime。
+- `ORDER_TRIGGERS` 真实 runtime。
+- 完整 battle / spell duel / cleanup / battlefield lifecycle。
+
+### C 前端 3A 外壳 / Smoke
+
+完成项：
+
+- 新增 `npm run smoke:chrome`，脚本可启动 API、启动 DevUi preview、启动 Google Chrome headless / CDP 并打开 3A 基础路由。
+- Smoke 覆盖 `/`、`/lobby`、`/decks`、`/cards`、`/rooms/stage3-smoke`、`/matches/stage3-smoke`、`/matches/stage3-smoke/result`。
+- 对战桌面外壳增加房间 / match status / battlefield / hand / ActionPanel / log / snapshot debug 的安全展示。
+- 前端 `PAY_COST` 只在服务端 candidate metadata 明确提供 `paymentId`、`paymentWindow`、`paymentChoiceIds` 时提交对应服务端候选，不计算支付结果。
+- `ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS`、`SPELL_DUEL_ACTION` 和未知复杂 prompt 继续安全降级，不在前端计算伤害、触发排序、战场控制、胜负。
+- A 验证时为新增后端事件 `PAYMENT_WINDOW_CLOSED` 补了一个 EventLog 中文标签，属于 build 阻断的小型展示修复。
+
+关闭的 3A P0 子项：
+
+- 3A-P0-001：Chrome smoke 基线已存在并通过。
+- 3A-P0-004：前端对战桌面外壳保持服务端权威与 safe fallback。
+
+仍未关闭：
+
+- 真实房间创建 / 加入 / 准备 / 开始 / 连续对战 18 步 E2E。
+- 正式支付选择 UI、伤害分配 UI、触发排序 UI。
+- 战场控制、争夺、胜负、battle / spell duel 的完整产品交互。
+
+### D 3A 审计 / 证据
+
+完成项：
+
+- 新增 `docs/CURRENT_STAGE3A_PLAN.md`，明确 3A 范围、P0/P1、证据位和验收红线。
+- 新增 `docs/CURRENT_STAGE3_CORE_FLOW_AUDIT.md` 作为宽阶段 3 总图，但当前不按该文档展开实现。
+- 更新 `docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/rules-evidence-index.md`。
+
+### E 3A 卡牌 / FAQ 证据
+
+完成项：
+
+- 更新 `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`、`docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`。
+- 新增 `docs/CURRENT_CARD_EFFECT_STAGE3A_SMOKE_PAY_COST_EVIDENCE.md`。
+- 只建立 3A smoke / PAY_COST 最小切片相关 functional units 与 FAQ 证据入口，不进入 1009 张卡全量效果实现。
+
+### 阶段 3A 修改 / 新增文件
+
+阶段 3A 新增：
+
+- `docs/CURRENT_CARD_EFFECT_STAGE3A_SMOKE_PAY_COST_EVIDENCE.md`
+- `docs/CURRENT_STAGE3A_PLAN.md`
+- `docs/CURRENT_STAGE3_CORE_FLOW_AUDIT.md`
+- `src/Riftbound.DevUi/scripts/chrome-smoke.mjs`
+- `src/Riftbound.DevUi/src/components/match/MatchStatusPanel.tsx`
+
+阶段 3A 修改：
+
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`
+- `docs/rules-evidence-index.md`
+- `src/Riftbound.Contracts/GameCommandJsonMapper.cs`
+- `src/Riftbound.Engine/CoreRuleEngine.cs`
+- `src/Riftbound.Engine/MatchSession.cs`
+- `tests/Riftbound.ConformanceTests/ConformanceFixtureShapeTests.cs`
+- `tests/Riftbound.ConformanceTests/GameHubJoinTests.cs`
+- `src/Riftbound.DevUi/package.json`
+- `src/Riftbound.DevUi/src/components/match/ActionPanel.tsx`
+- `src/Riftbound.DevUi/src/components/match/BattlefieldArea.tsx`
+- `src/Riftbound.DevUi/src/components/match/EventLog.tsx`
+- `src/Riftbound.DevUi/src/components/match/PlayerBoard.tsx`
+- `src/Riftbound.DevUi/src/pages/MatchPage.tsx`
+- `src/Riftbound.DevUi/src/pages/RoomPage.tsx`
+- `src/Riftbound.DevUi/src/styles/globals.css`
+- `src/Riftbound.DevUi/src/types/protocol.ts`
+
+### 阶段 3A 验收命令
+
+A 主控复验：
+
+- `git diff --check`：通过。
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`：通过。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：3324/3324 通过。
+- `source ../../scripts/dev-env.sh && npm run build`：通过；包含 `check:event-labels` 与 `check:user-facing-text`。Vite 仅输出 SignalR 依赖的 Rollup 注释提示。
+- `source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：通过；API health、DevUi preview、Chrome headless / CDP 7 个基础路由均 OK，无脚本捕获的 runtime error。
+
+### 阶段 3A 判断
+
+- 阶段 3A 收口标准：**已满足**。
+- 是否标记 READY：**不允许**。
+- 是否进入阶段 3B / 3C：**不允许自动进入**，必须等待用户确认。
+- 是否允许 C 开始正式复杂交互：仅 `PAY_COST` 最小窗口可基于服务端 candidate 做安全提交；`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS`、battle / spell duel / battlefield control 仍只能 safe fallback。
+- 是否允许 E 进入 1009 全量：**不允许**。
+
+下一阶段建议：
+
+- 先创建阶段 3A checkpoint commit，仍排除 `riftbound-dotnet.sln`。
+- 阶段 3B 再做房间 / 起手 / 第一回合的连续流程；阶段 3C 再扩大 battle / spell duel / damage / trigger 的 runtime 和交互。
+
 ## 1. 总目标
 
 以当前仓库五份官方规则 / FAQ PDF 与 `data/official/card-catalog.zh-CN.json` 的 2026-04-27 官网卡牌快照为准，完成本地双人 1v1 标准构筑产品级 Web 游戏基线：

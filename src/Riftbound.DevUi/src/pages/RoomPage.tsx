@@ -36,6 +36,11 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
         />
         <Button icon={<Swords size={18} />} onClick={() => onNavigate({ name: "match", matchId: roomId })}>进入对战桌面</Button>
       </section>
+      <RoomSetupChecklist
+        candidateActions={controller.state.prompt?.candidates?.filter((candidate) => candidate.enabled).map((candidate) => candidate.action) ?? []}
+        playerCount={Object.keys(snapshot?.players ?? {}).length}
+        players={Object.values(snapshot?.players ?? {})}
+      />
       <section className="seat-grid">
         {Object.entries(snapshot?.players ?? {}).map(([playerId, player]) => (
           <article className="seat-card" key={playerId}>
@@ -82,6 +87,38 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
         </div>
       </section>
     </div>
+  );
+}
+
+function RoomSetupChecklist({
+  candidateActions,
+  playerCount,
+  players
+}: {
+  candidateActions: string[];
+  playerCount: number;
+  players: Array<{ deckSubmitted?: boolean; ready?: boolean }>;
+}) {
+  const submittedCount = players.filter((player) => player.deckSubmitted).length;
+  const readyCount = players.filter((player) => player.ready).length;
+  const canSubmitDeck = candidateActions.includes("SUBMIT_DECK");
+  const canReady = candidateActions.includes("READY");
+
+  return (
+    <section className="room-flow-panel">
+      <article>
+        <strong>1. 入座</strong>
+        <span>{playerCount}/2 名玩家由服务端快照确认。</span>
+      </article>
+      <article>
+        <strong>2. 选择卡组</strong>
+        <span>{submittedCount}/2 已提交；{canSubmitDeck ? "当前 prompt 可提交测试卡组。" : "等待服务端提交候选。"}</span>
+      </article>
+      <article>
+        <strong>3. 准备开始</strong>
+        <span>{readyCount}/2 已准备；{canReady ? "当前 prompt 可准备。" : "等待服务端准备候选。"}</span>
+      </article>
+    </section>
   );
 }
 

@@ -521,6 +521,61 @@ public sealed record TriggerQueueItemState
     }
 }
 
+public sealed record PendingPaymentState
+{
+    [JsonConstructor]
+    public PendingPaymentState(
+        string? paymentId = null,
+        string? paymentWindow = null,
+        string? playerId = null,
+        int manaCost = 0,
+        int powerCost = 0,
+        IReadOnlyDictionary<string, int>? powerCostByTrait = null,
+        IReadOnlyList<string>? legalPaymentChoiceIds = null,
+        string? reason = null)
+    {
+        PaymentId = Normalize(paymentId);
+        PaymentWindow = Normalize(paymentWindow);
+        PlayerId = Normalize(playerId);
+        ManaCost = Math.Max(0, manaCost);
+        PowerCost = Math.Max(0, powerCost);
+        PowerCostByTrait = PaymentCostRules.NormalizePowerCostByTrait(
+            powerCostByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
+        LegalPaymentChoiceIds = NormalizeList(legalPaymentChoiceIds);
+        Reason = Normalize(reason);
+    }
+
+    public string PaymentId { get; init; }
+
+    public string PaymentWindow { get; init; }
+
+    public string PlayerId { get; init; }
+
+    public int ManaCost { get; init; }
+
+    public int PowerCost { get; init; }
+
+    public IReadOnlyDictionary<string, int> PowerCostByTrait { get; init; }
+
+    public IReadOnlyList<string> LegalPaymentChoiceIds { get; init; }
+
+    public string Reason { get; init; }
+
+    private static string Normalize(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
+    }
+
+    private static IReadOnlyList<string> NormalizeList(IReadOnlyList<string>? values)
+    {
+        return (values ?? [])
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Select(value => value.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+}
+
 public sealed record MatchState
 {
     public MatchState(
@@ -568,7 +623,8 @@ public sealed record MatchState
         string? openingSecondActionPlayerId = null,
         IReadOnlyDictionary<string, ObjectLocationState>? objectLocations = null,
         IReadOnlyList<BattlefieldResolutionState>? battlefieldResolutions = null,
-        IReadOnlyList<BattleResolutionState>? battleResolutions = null)
+        IReadOnlyList<BattleResolutionState>? battleResolutions = null,
+        PendingPaymentState? pendingPayment = null)
     {
         RoomId = roomId;
         Tick = tick;
@@ -602,6 +658,7 @@ public sealed record MatchState
         CardObjects = NormalizeCardObjects(cardObjects);
         BattlefieldResolutions = NormalizeBattlefieldResolutions(battlefieldResolutions);
         BattleResolutions = NormalizeBattleResolutions(battleResolutions);
+        PendingPayment = NormalizePendingPayment(pendingPayment);
         PriorityPlayerId = NormalizeOptionalText(priorityPlayerId);
         PassedPriorityPlayerIds = NormalizeTextList(passedPriorityPlayerIds);
         StackItems = NormalizeStackItems(stackItems);
@@ -661,6 +718,8 @@ public sealed record MatchState
     public PendingTaskQueueState PendingTaskQueue => BuildPendingTaskQueue(this);
 
     public IReadOnlyList<ContinuousEffectState> ContinuousEffects => BuildContinuousEffectStates(this);
+
+    public PendingPaymentState? PendingPayment { get; init; }
 
     public IReadOnlyDictionary<string, int> PlayerScores { get; init; }
 
@@ -1548,6 +1607,27 @@ public sealed record MatchState
             .ToArray();
     }
 
+    private static PendingPaymentState? NormalizePendingPayment(PendingPaymentState? pendingPayment)
+    {
+        if (pendingPayment is null
+            || string.IsNullOrWhiteSpace(pendingPayment.PaymentId)
+            || string.IsNullOrWhiteSpace(pendingPayment.PaymentWindow)
+            || string.IsNullOrWhiteSpace(pendingPayment.PlayerId))
+        {
+            return null;
+        }
+
+        return new PendingPaymentState(
+            pendingPayment.PaymentId,
+            pendingPayment.PaymentWindow,
+            pendingPayment.PlayerId,
+            pendingPayment.ManaCost,
+            pendingPayment.PowerCost,
+            pendingPayment.PowerCostByTrait,
+            pendingPayment.LegalPaymentChoiceIds,
+            pendingPayment.Reason);
+    }
+
     private static IReadOnlyList<BattlefieldResolutionState> NormalizeBattlefieldResolutions(
         IReadOnlyList<BattlefieldResolutionState>? battlefieldResolutions)
     {
@@ -1748,6 +1828,7 @@ public sealed record ResolutionResult(
                 ["battlefieldTasks"] = state.BattlefieldTasks.Select(BuildBattlefieldTaskSnapshotView).ToArray(),
                 ["battlefieldResolutions"] = state.BattlefieldResolutions.Select(BuildBattlefieldResolutionSnapshotView).ToArray(),
                 ["pendingTaskQueue"] = BuildPendingTaskQueueSnapshotView(state.PendingTaskQueue),
+                ["pendingPayment"] = BuildPendingPaymentSnapshotView(state.PendingPayment),
                 ["continuousEffects"] = state.ContinuousEffects.Select(BuildContinuousEffectSnapshotView).ToArray(),
                 ["triggerQueue"] = state.TriggerQueue.Select(BuildTriggerQueueItemSnapshotView).ToArray(),
                 ["winningScore"] = EffectiveWinningScore(state),
@@ -1808,6 +1889,33 @@ public sealed record ResolutionResult(
             ["sourceObjectId"] = item.SourceObjectId,
             ["effectKind"] = item.EffectKind,
             ["triggeredByEventKind"] = item.TriggeredByEventKind
+        };
+    }
+
+    private static Dictionary<string, object?>? BuildPendingPaymentSnapshotView(PendingPaymentState? payment)
+    {
+        if (payment is null)
+        {
+            return null;
+        }
+
+        return new Dictionary<string, object?>
+        {
+            ["paymentId"] = payment.PaymentId,
+            ["paymentWindow"] = payment.PaymentWindow,
+            ["playerId"] = payment.PlayerId,
+            ["cost"] = BuildPaymentCostView(payment),
+            ["paymentChoices"] = payment.LegalPaymentChoiceIds
+        };
+    }
+
+    private static Dictionary<string, object?> BuildPaymentCostView(PendingPaymentState payment)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["mana"] = payment.ManaCost,
+            ["power"] = payment.PowerCost,
+            ["powerByTrait"] = payment.PowerCostByTrait
         };
     }
 
@@ -2265,6 +2373,20 @@ public sealed record ResolutionResult(
                     : "等待对手完成起手调度",
                 string.Equals(playerId, mulliganPlayerId, StringComparison.Ordinal)
                     ? WithSurrender("MULLIGAN")
+                    : WithSurrender("WAIT")));
+        }
+
+        if (state.PendingPayment is not null)
+        {
+            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
+                state,
+                playerId,
+                string.Equals(playerId, state.PendingPayment.PlayerId, StringComparison.Ordinal),
+                string.Equals(playerId, state.PendingPayment.PlayerId, StringComparison.Ordinal)
+                    ? "请选择服务端允许的支付项"
+                    : "等待对手支付费用",
+                string.Equals(playerId, state.PendingPayment.PlayerId, StringComparison.Ordinal)
+                    ? WithSurrender(CommandTypes.PayCost)
                     : WithSurrender("WAIT")));
         }
 
@@ -3218,7 +3340,8 @@ internal static class ActionPromptBuilder
             type == PromptTypes.Mulligan && actions.Contains("MULLIGAN", StringComparer.Ordinal) ? 0 : null,
             type == PromptTypes.Mulligan && actions.Contains("MULLIGAN", StringComparer.Ordinal)
                 ? OfficialDeckValidator.MaximumMulliganCount
-                : null);
+                : null,
+            PaymentPromptViewMetadata(state, type));
     }
 
     private static string PromptTypeFor(
@@ -3240,6 +3363,11 @@ internal static class ActionPromptBuilder
         if (string.Equals(state.Phase, MatchPhases.Mulligan, StringComparison.Ordinal))
         {
             return PromptTypes.Mulligan;
+        }
+
+        if (state.PendingPayment is not null)
+        {
+            return PromptTypes.PayCost;
         }
 
         if (state.StackItems.Count > 0 && !string.IsNullOrWhiteSpace(state.PriorityPlayerId))
@@ -3275,6 +3403,7 @@ internal static class ActionPromptBuilder
             PromptTypes.RoomSetup => "房间准备",
             PromptTypes.Mulligan => "起手调度",
             PromptTypes.MainAction => "主行动",
+            PromptTypes.PayCost => "支付费用",
             PromptTypes.StackPriority => "优先行动",
             PromptTypes.SpellDuelFocus => "法术对决",
             PromptTypes.BattleDeclaration => "声明战斗",
@@ -3305,6 +3434,25 @@ internal static class ActionPromptBuilder
         return string.IsNullOrWhiteSpace(reason)
             ? "等待服务端确认下一步。"
             : reason;
+    }
+
+    private static IReadOnlyDictionary<string, object?>? PaymentPromptViewMetadata(
+        MatchState state,
+        string type)
+    {
+        var payment = state.PendingPayment;
+        if (payment is null || !string.Equals(type, PromptTypes.PayCost, StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        return new Dictionary<string, object?>
+        {
+            ["paymentId"] = payment.PaymentId,
+            ["paymentWindow"] = payment.PaymentWindow,
+            ["cost"] = PendingPaymentCostView(payment),
+            ["paymentChoices"] = PendingPaymentChoiceDtos(payment)
+        };
     }
 
     private static string? RelatedBattlefieldIdFor(MatchState state, string type)
@@ -7328,6 +7476,7 @@ internal static class ActionPromptBuilder
                 ["maxSelectionCount"] = OfficialDeckValidator.MaximumMulliganCount
             },
             "PLAY_CARD" => PlayCardMetadataFor(state, playerId),
+            "PAY_COST" => PayCostMetadataFor(state, playerId),
             "HIDE_CARD" => HideCardMetadataFor(state, playerId),
             "REVEAL_CARD" => RevealCardMetadataFor(state, playerId),
             "TAP_RUNE" => new Dictionary<string, object?>
@@ -7348,6 +7497,72 @@ internal static class ActionPromptBuilder
             "LEGEND_ACT" => LegendActionMetadataFor(state, playerId),
             _ => null
         };
+    }
+
+    private static IReadOnlyDictionary<string, object?> PayCostMetadataFor(MatchState state, string playerId)
+    {
+        var payment = state.PendingPayment;
+        if (payment is null
+            || !string.Equals(payment.PlayerId, playerId, StringComparison.Ordinal))
+        {
+            return new Dictionary<string, object?>
+            {
+                ["paymentState"] = "WAIT"
+            };
+        }
+
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        return new Dictionary<string, object?>
+        {
+            ["paymentId"] = payment.PaymentId,
+            ["paymentWindow"] = payment.PaymentWindow,
+            ["cost"] = PendingPaymentCostView(payment),
+            ["paymentChoices"] = PendingPaymentChoiceDtos(payment),
+            ["paymentResourceChoices"] = PendingPaymentChoiceDtos(payment),
+            ["serverPaymentState"] = "PENDING",
+            ["resourceLedgerBeforePayment"] = new Dictionary<string, object?>
+            {
+                ["mana"] = runePool.Mana,
+                ["power"] = runePool.Power,
+                ["powerByTrait"] = runePool.PowerByTrait
+            }
+        };
+    }
+
+    private static Dictionary<string, object?> PendingPaymentCostView(PendingPaymentState payment)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["mana"] = payment.ManaCost,
+            ["power"] = payment.PowerCost,
+            ["powerByTrait"] = payment.PowerCostByTrait
+        };
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> PendingPaymentChoiceDtos(PendingPaymentState payment)
+    {
+        return payment.LegalPaymentChoiceIds
+            .Select(choiceId => new ActionPromptChoiceDto(choiceId, PaymentChoiceLabel(choiceId), "服务端支付候选"))
+            .ToArray();
+    }
+
+    private static string PaymentChoiceLabel(string choiceId)
+    {
+        const string spendManaPrefix = "SPEND_MANA:";
+        const string spendPowerPrefix = "SPEND_POWER:";
+        if (choiceId.StartsWith(spendManaPrefix, StringComparison.Ordinal))
+        {
+            return $"支付 {choiceId[spendManaPrefix.Length..]} 法力";
+        }
+
+        if (choiceId.StartsWith(spendPowerPrefix, StringComparison.Ordinal))
+        {
+            return $"支付 {choiceId[spendPowerPrefix.Length..]} 能量";
+        }
+
+        return choiceId;
     }
 
     private static IReadOnlyDictionary<string, object?> HideCardMetadataFor(MatchState state, string playerId)
@@ -8127,6 +8342,7 @@ internal static class ActionPromptBuilder
             "REVEAL_CARD" => "翻开待命",
             "TAP_RUNE" => "横置符文",
             "RECYCLE_RUNE" => "回收符文",
+            "PAY_COST" => "支付费用",
             "LEGEND_ACT" => "传奇行动",
             "PASS" => "让过",
             "PASS_PRIORITY" => "让过优先权",
@@ -9939,6 +10155,7 @@ public sealed class MatchSession : IMatchSession
             "battlefield-illegal-standby" => BuildBattlefieldIllegalStandbyScenario(current, seed),
             "battlefield-unattached-equipment-cleanup" => BuildBattlefieldUnattachedEquipmentCleanupScenario(current, seed),
             "typed-power-payment" => BuildTypedPowerPaymentScenario(current, seed),
+            "pay-cost-window" => BuildPayCostWindowScenario(current, seed),
             "typed-power-payment-recycle" => BuildTypedPowerPaymentRecycleScenario(current, seed),
             "typed-power-payment-over-recycle" => BuildTypedPowerPaymentOverRecycleScenario(current, seed),
             "typed-power-payment-double-recycle" => BuildTypedPowerPaymentDoubleRecycleScenario(current, seed),
@@ -10366,6 +10583,40 @@ public sealed class MatchSession : IMatchSession
                     ownerId: seed.P2,
                     controllerId: seed.P2)
             });
+    }
+
+    private static MatchState BuildPayCostWindowScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603302691,
+            691,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(1, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal))
+            with
+            {
+                PendingPayment = new PendingPaymentState(
+                    "PAY-3A-MANA-1",
+                    "TEST_PAYMENT",
+                    seed.P1,
+                    manaCost: 1,
+                    legalPaymentChoiceIds: ["SPEND_MANA:1"],
+                    reason: "3A PAY_COST 最小支付窗口")
+            };
     }
 
     private static MatchState BuildTypedPowerPaymentRecycleScenario(MatchState current, DevScenarioSeed seed)
@@ -16627,7 +16878,8 @@ public sealed class MatchSession : IMatchSession
             Seed = scenarioSeed,
             RngCursor = 0,
             UntilEndOfTurnEffects = [],
-            ExtraTurnPlayerId = null
+            ExtraTurnPlayerId = null,
+            PendingPayment = null
         };
     }
 

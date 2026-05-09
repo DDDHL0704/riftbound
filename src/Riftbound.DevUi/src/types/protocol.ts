@@ -151,6 +151,7 @@ export type PlayerSnapshotView = {
   handSize?: number;
   score?: number;
   experience?: number;
+  cardsPlayedThisTurn?: number;
   runePool?: RunePoolView;
   zones?: ZoneView;
   objects?: Record<string, CardObjectView>;

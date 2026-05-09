@@ -73,8 +73,16 @@
       "implementation": "current read-only mapping to CardBehaviorRegistry or known non-PLAY_CARD domain route",
       "faqRefs": "candidate page refs from PDF/FAQ card-name mentions; must be manually adjudicated before tests",
       "dependsOnP0RuleDomains": "rule domains that must be complete before full-official coverage can be claimed",
-      "riskScore": "heuristic prioritization score used only for Stage 2 triage"
-    }
+      "riskScore": "heuristic prioritization score used only for Stage 2 triage",
+      "stage3A": {
+        "smokeRoles": "Stage 3A smoke/card-shell roles only; not full-official card effect coverage.",
+        "payCostRuntimeRole": "PAY_COST minimal runtime evidence roles, especially typed SPEND_POWER and RECYCLE_RUNE payment-resource options.",
+        "evidencePriority": "P0 = required evidence boundary for 3A smoke/PAY_COST sign-off; P1 = useful supporting/display-only evidence; P2 = hold back from 3A.",
+        "riskTags": "3A-specific triage tags layered over Stage 2 riskScore and P0/P1 rule-domain dependencies.",
+        "allowedIn3A": "pay-cost-core, smoke-only, support-only, or no."
+      }
+    },
+    "stage3ASmokePayCost": "Stage 3A overlay for smoke baseline, strongly typed complex command parsing, and PAY_COST minimal runtime slice. This explicitly excludes battle/damage/order runtime and 1009 full-official coverage."
   },
   "snapshotEntries": [
     {
@@ -23307,7 +23315,39 @@
       "dependsOnP0RuleDomains": [
         "PaymentEngine/PAY_COST"
       ],
-      "riskScore": 30
+      "riskScore": 30,
+      "stage3A": {
+        "smokeRoles": [
+          "official-opening-observed-hand",
+          "desktop-shell-card-candidate"
+        ],
+        "payCostRuntimeRole": "none",
+        "evidencePriority": "P1",
+        "faqCandidate": true,
+        "riskTags": [
+          "smoke-baseline-only",
+          "faq-mentioned",
+          "do-not-exercise-copied-tap-skill"
+        ],
+        "allowedIn3A": "smoke-only",
+        "sourceScenarios": [
+          "OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub",
+          "official opening smoke"
+        ],
+        "useBoundary": "May appear in opening hand/card shell smoke. Do not treat Heimerdinger copied tap-skill behavior as in-scope for 3A.",
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p11",
+          "SOUL-JFAQ-260114 p22"
+        ],
+        "riskScore": 30,
+        "dependsOnP0RuleDomains": [
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "faq-mentioned",
+          "payment-cost"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-dd7f403f76",
@@ -23965,7 +24005,39 @@
         "FEPR/Targeting/TimingWindows",
         "PaymentEngine/PAY_COST"
       ],
-      "riskScore": 39
+      "riskScore": 39,
+      "stage3A": {
+        "smokeRoles": [
+          "official-opening-observed-hand",
+          "desktop-shell-card-candidate"
+        ],
+        "payCostRuntimeRole": "none",
+        "evidencePriority": "P1",
+        "faqCandidate": false,
+        "riskTags": [
+          "smoke-baseline-only",
+          "payment-cost-risk",
+          "cleanup-risk"
+        ],
+        "allowedIn3A": "smoke-only",
+        "sourceScenarios": [
+          "OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub",
+          "official opening smoke"
+        ],
+        "useBoundary": "May appear in opening hand/card shell smoke. Do not exercise discard alternative play or cleanup behavior in 3A.",
+        "faqRefs": [],
+        "riskScore": 39,
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-0ec69ae7e6",
@@ -24026,7 +24098,34 @@
         "non-play-domain"
       ],
       "dependsOnP0RuleDomains": [],
-      "riskScore": 8
+      "riskScore": 8,
+      "stage3A": {
+        "smokeRoles": [
+          "pay-cost-resource-domain",
+          "red-rune-payment-resource"
+        ],
+        "payCostRuntimeRole": "red rune / basic rune resource domain representative for RECYCLE_RUNE payment-resource actions.",
+        "evidencePriority": "P0",
+        "faqCandidate": false,
+        "riskTags": [
+          "pay-cost-min-runtime",
+          "rune-resource-domain",
+          "non-play-domain"
+        ],
+        "allowedIn3A": "pay-cost-core",
+        "sourceScenarios": [
+          "typed-power-payment-recycle",
+          "typed-power-payment-double-recycle",
+          "typed-power-payment-mixed-recycle"
+        ],
+        "useBoundary": "Only the resource-domain payment contribution is in 3A. Do not claim all rune card entries or all resource timing windows are full-official.",
+        "faqRefs": [],
+        "riskScore": 8,
+        "dependsOnP0RuleDomains": [],
+        "uncoveredEffectCategories": [
+          "non-play-domain"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-87def1409d",
@@ -24122,7 +24221,43 @@
         "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
         "FEPR/Targeting/TimingWindows"
       ],
-      "riskScore": 62
+      "riskScore": 62,
+      "stage3A": {
+        "smokeRoles": [
+          "official-opening-observed-hand",
+          "desktop-shell-card-candidate"
+        ],
+        "payCostRuntimeRole": "none",
+        "evidencePriority": "P1",
+        "faqCandidate": true,
+        "riskTags": [
+          "smoke-baseline-only",
+          "faq-mentioned",
+          "spell-duel-excluded"
+        ],
+        "allowedIn3A": "smoke-only",
+        "sourceScenarios": [
+          "OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub",
+          "official opening smoke"
+        ],
+        "useBoundary": "May appear in opening hand/card detail smoke. Do not enter spell duel, stack resolution, or damage runtime through Hextech Ray in 3A.",
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p7",
+          "BREAK-JFAQ-260416 p9",
+          "JFAQ-251023 p7",
+          "SOUL-JFAQ-260114 p10"
+        ],
+        "riskScore": 62,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "faq-mentioned",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-c5c698baf9",
@@ -25557,7 +25692,33 @@
         "non-play-domain"
       ],
       "dependsOnP0RuleDomains": [],
-      "riskScore": 8
+      "riskScore": 8,
+      "stage3A": {
+        "smokeRoles": [
+          "pay-cost-resource-domain",
+          "off-trait-payment-resource-fixture"
+        ],
+        "payCostRuntimeRole": "off-trait/basic rune resource fixture used to prove server-provided paymentResourcePowerByChoice controls UI/command validity.",
+        "evidencePriority": "P1",
+        "faqCandidate": false,
+        "riskTags": [
+          "pay-cost-min-runtime",
+          "payment-resource-filtering",
+          "non-play-domain"
+        ],
+        "allowedIn3A": "support-only",
+        "sourceScenarios": [
+          "typed-power-payment-mixed-recycle",
+          "typed-power-payment-generic-mixed-recycle"
+        ],
+        "useBoundary": "Use only as a payment-resource filtering fixture. Do not adjudicate full rune taxonomy or all color/trait interactions in 3A.",
+        "faqRefs": [],
+        "riskScore": 8,
+        "dependsOnP0RuleDomains": [],
+        "uncoveredEffectCategories": [
+          "non-play-domain"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-1586b6cdd9",
@@ -35013,7 +35174,49 @@
         "FEPR/Targeting/TimingWindows",
         "PaymentEngine/PAY_COST"
       ],
-      "riskScore": 47
+      "riskScore": 47,
+      "stage3A": {
+        "smokeRoles": [
+          "pay-cost-runtime-primary",
+          "typed-power-payment-seed",
+          "card-detail-evidence-smoke"
+        ],
+        "payCostRuntimeRole": "primary PLAY_CARD PAY_COST representative for SPEND_POWER amount choices, typed red power spend, RECYCLE_RUNE payment resources, payment envelope, and prompt stamp guarded submit.",
+        "evidencePriority": "P0",
+        "faqCandidate": true,
+        "riskTags": [
+          "pay-cost-min-runtime",
+          "typed-power",
+          "spend-power-amount",
+          "payment-resource-recycle",
+          "faq-mentioned",
+          "no-damage-assignment"
+        ],
+        "allowedIn3A": "pay-cost-core",
+        "sourceScenarios": [
+          "typed-power-payment",
+          "typed-power-payment-recycle",
+          "typed-power-payment-double-recycle",
+          "typed-power-payment-mixed-recycle",
+          "typed-power-payment-generic-mixed-recycle"
+        ],
+        "useBoundary": "3A may assert PAY_COST command parsing, payment resources, COST_PAID envelope, and stack damageAmount metadata only. Do not treat this as full Bullet Time damage assignment, battle lifecycle, or full-official card coverage.",
+        "faqRefs": [
+          "JFAQ-251023 p6"
+        ],
+        "riskScore": 47,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "faq-mentioned",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-6308c2db01",
@@ -38192,7 +38395,41 @@
         "PaymentEngine/PAY_COST",
         "ZoneOwnership/ControlChange/Movement"
       ],
-      "riskScore": 51
+      "riskScore": 51,
+      "stage3A": {
+        "smokeRoles": [
+          "test-deck-display-only",
+          "equipment-holdback"
+        ],
+        "payCostRuntimeRole": "none",
+        "evidencePriority": "P2",
+        "faqCandidate": false,
+        "riskTags": [
+          "equipment-excluded",
+          "layer-engine-excluded",
+          "assemble-excluded"
+        ],
+        "allowedIn3A": "no",
+        "sourceScenarios": [
+          "BuildTestDecksScenario",
+          "assemble-payment-recycle"
+        ],
+        "useBoundary": "Do not pull equipment/assemble or LayerEngine behavior into 3A.",
+        "faqRefs": [],
+        "riskScore": 51,
+        "dependsOnP0RuleDomains": [
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "control-zone-movement",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-343cbefe89",
@@ -42916,7 +43153,42 @@
         "PaymentEngine/PAY_COST",
         "ZoneOwnership/ControlChange/Movement"
       ],
-      "riskScore": 35
+      "riskScore": 35,
+      "stage3A": {
+        "smokeRoles": [
+          "pay-cost-target-body",
+          "test-fixture-unit-body"
+        ],
+        "payCostRuntimeRole": "enemy battlefield unit body for Bullet Time runtime smoke.",
+        "evidencePriority": "P1",
+        "faqCandidate": false,
+        "riskTags": [
+          "fixture-body",
+          "payment-cost-dependent",
+          "no-card-text-claim"
+        ],
+        "allowedIn3A": "support-only",
+        "sourceScenarios": [
+          "typed-power-payment",
+          "typed-power-payment-recycle",
+          "typed-power-payment-double-recycle",
+          "typed-power-payment-mixed-recycle",
+          "typed-power-payment-generic-mixed-recycle"
+        ],
+        "useBoundary": "Use as a target/body object in PAY_COST smoke. Do not exercise Mighty Faerie card text or movement-payment behavior in 3A.",
+        "faqRefs": [],
+        "riskScore": 35,
+        "dependsOnP0RuleDomains": [
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "control-zone-movement",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-5ae73e0960",
@@ -43709,7 +43981,41 @@
         "PaymentEngine/PAY_COST",
         "ZoneOwnership/ControlChange/Movement"
       ],
-      "riskScore": 62
+      "riskScore": 62,
+      "stage3A": {
+        "smokeRoles": [
+          "haste-payment-holdback"
+        ],
+        "payCostRuntimeRole": "none",
+        "evidencePriority": "P2",
+        "faqCandidate": false,
+        "riskTags": [
+          "haste-payment-excluded",
+          "layer-engine-excluded",
+          "cleanup-risk"
+        ],
+        "allowedIn3A": "no",
+        "sourceScenarios": [
+          "haste-payment-recycle"
+        ],
+        "useBoundary": "Haste optional payment remains outside 3A unless A explicitly opens that slice.",
+        "faqRefs": [],
+        "riskScore": 62,
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-744cc1a6f0",
@@ -46395,7 +46701,46 @@
         "VisibilityFilter/RandomAndHiddenZones",
         "ZoneOwnership/ControlChange/Movement"
       ],
-      "riskScore": 86
+      "riskScore": 86,
+      "stage3A": {
+        "smokeRoles": [
+          "control-change-holdback"
+        ],
+        "payCostRuntimeRole": "none",
+        "evidencePriority": "P2",
+        "faqCandidate": true,
+        "riskTags": [
+          "top20-risk",
+          "control-change-excluded",
+          "hidden-info-excluded",
+          "battle-lifecycle-excluded"
+        ],
+        "allowedIn3A": "no",
+        "sourceScenarios": [
+          "BuildTestDecksScenario"
+        ],
+        "useBoundary": "Do not use Hostile Takeover in 3A smoke/PAY_COST runtime.",
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p22",
+          "SOUL-OFAQ-260114 p21"
+        ],
+        "riskScore": 86,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-2b584efcef",
@@ -59917,5 +60262,330 @@
       ],
       "riskScore": 83
     }
-  ]
+  ],
+  "stage3ASmokePayCost": {
+    "stage": "Stage 3A smoke baseline and PAY_COST minimal runtime overlay",
+    "updatedAt": "2026-05-09",
+    "notFullOfficialCoverage": true,
+    "doesNotAuthorizeBatchCoverage": true,
+    "scope": [
+      "official opening / desktop-shell smoke card visibility",
+      "strongly typed PLAY_CARD optionalCosts parsing for SPEND_POWER and RECYCLE_RUNE payment resources",
+      "PAY_COST minimal runtime payment envelope and resource debit evidence"
+    ],
+    "explicitlyOutOfScope": [
+      "1009 card full-official implementation",
+      "full battle lifecycle",
+      "ASSIGN_COMBAT_DAMAGE / full damage assignment",
+      "ORDER_TRIGGERS runtime",
+      "complete spell duel runtime",
+      "equipment/assemble/LayerEngine expansion",
+      "control-change gameplay beyond existing targeted slices"
+    ],
+    "faqSourcePolicy": "Use the five PDF/FAQ sources already extracted in sourceEvidence; do not use cardQaList.",
+    "smokeBaselineFunctionalUnits": [
+      {
+        "functionalUnitId": "FU-02075a26e3",
+        "representativeCardNo": "ARC-003/006",
+        "name": "黑默丁格",
+        "category": "英雄单位",
+        "evidencePriority": "P1",
+        "faqCandidate": true,
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p11",
+          "SOUL-JFAQ-260114 p22"
+        ],
+        "riskScore": 30,
+        "riskTags": [
+          "smoke-baseline-only",
+          "faq-mentioned",
+          "do-not-exercise-copied-tap-skill"
+        ],
+        "allowedIn3A": "smoke-only",
+        "smokeRoles": [
+          "official-opening-observed-hand",
+          "desktop-shell-card-candidate"
+        ],
+        "payCostRuntimeRole": "none",
+        "sourceScenarios": [
+          "OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub",
+          "official opening smoke"
+        ],
+        "useBoundary": "May appear in opening hand/card shell smoke. Do not treat Heimerdinger copied tap-skill behavior as in-scope for 3A."
+      },
+      {
+        "functionalUnitId": "FU-af2c43c430",
+        "representativeCardNo": "OGN·006/298",
+        "name": "嚼火者手雷",
+        "category": "单位",
+        "evidencePriority": "P1",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "riskScore": 39,
+        "riskTags": [
+          "smoke-baseline-only",
+          "payment-cost-risk",
+          "cleanup-risk"
+        ],
+        "allowedIn3A": "smoke-only",
+        "smokeRoles": [
+          "official-opening-observed-hand",
+          "desktop-shell-card-candidate"
+        ],
+        "payCostRuntimeRole": "none",
+        "sourceScenarios": [
+          "OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub",
+          "official opening smoke"
+        ],
+        "useBoundary": "May appear in opening hand/card shell smoke. Do not exercise discard alternative play or cleanup behavior in 3A."
+      },
+      {
+        "functionalUnitId": "FU-441cb9fb7f",
+        "representativeCardNo": "OGN·009/298",
+        "name": "海克斯射线",
+        "category": "法术",
+        "evidencePriority": "P1",
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p7",
+          "BREAK-JFAQ-260416 p9",
+          "JFAQ-251023 p7",
+          "SOUL-JFAQ-260114 p10"
+        ],
+        "riskScore": 62,
+        "riskTags": [
+          "smoke-baseline-only",
+          "faq-mentioned",
+          "spell-duel-excluded"
+        ],
+        "allowedIn3A": "smoke-only",
+        "smokeRoles": [
+          "official-opening-observed-hand",
+          "desktop-shell-card-candidate"
+        ],
+        "payCostRuntimeRole": "none",
+        "sourceScenarios": [
+          "OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub",
+          "official opening smoke"
+        ],
+        "useBoundary": "May appear in opening hand/card detail smoke. Do not enter spell duel, stack resolution, or damage runtime through Hextech Ray in 3A."
+      }
+    ],
+    "payCostMinimalRuntimeFunctionalUnits": [
+      {
+        "functionalUnitId": "FU-b646702ec0",
+        "representativeCardNo": "OGN·268/298",
+        "name": "弹幕时间",
+        "category": "专属法术",
+        "evidencePriority": "P0",
+        "faqCandidate": true,
+        "faqRefs": [
+          "JFAQ-251023 p6"
+        ],
+        "riskScore": 47,
+        "riskTags": [
+          "pay-cost-min-runtime",
+          "typed-power",
+          "spend-power-amount",
+          "payment-resource-recycle",
+          "faq-mentioned",
+          "no-damage-assignment"
+        ],
+        "allowedIn3A": "pay-cost-core",
+        "smokeRoles": [
+          "pay-cost-runtime-primary",
+          "typed-power-payment-seed",
+          "card-detail-evidence-smoke"
+        ],
+        "payCostRuntimeRole": "primary PLAY_CARD PAY_COST representative for SPEND_POWER amount choices, typed red power spend, RECYCLE_RUNE payment resources, payment envelope, and prompt stamp guarded submit.",
+        "sourceScenarios": [
+          "typed-power-payment",
+          "typed-power-payment-recycle",
+          "typed-power-payment-double-recycle",
+          "typed-power-payment-mixed-recycle",
+          "typed-power-payment-generic-mixed-recycle"
+        ],
+        "useBoundary": "3A may assert PAY_COST command parsing, payment resources, COST_PAID envelope, and stack damageAmount metadata only. Do not treat this as full Bullet Time damage assignment, battle lifecycle, or full-official card coverage."
+      },
+      {
+        "functionalUnitId": "FU-0ec69ae7e6",
+        "representativeCardNo": "OGN·007/298",
+        "name": "炽烈符文",
+        "category": "符文",
+        "evidencePriority": "P0",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "riskScore": 8,
+        "riskTags": [
+          "pay-cost-min-runtime",
+          "rune-resource-domain",
+          "non-play-domain"
+        ],
+        "allowedIn3A": "pay-cost-core",
+        "smokeRoles": [
+          "pay-cost-resource-domain",
+          "red-rune-payment-resource"
+        ],
+        "payCostRuntimeRole": "red rune / basic rune resource domain representative for RECYCLE_RUNE payment-resource actions.",
+        "sourceScenarios": [
+          "typed-power-payment-recycle",
+          "typed-power-payment-double-recycle",
+          "typed-power-payment-mixed-recycle"
+        ],
+        "useBoundary": "Only the resource-domain payment contribution is in 3A. Do not claim all rune card entries or all resource timing windows are full-official."
+      },
+      {
+        "functionalUnitId": "FU-39041f4562",
+        "representativeCardNo": "OGN·042/298",
+        "name": "翠意符文",
+        "category": "符文",
+        "evidencePriority": "P1",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "riskScore": 8,
+        "riskTags": [
+          "pay-cost-min-runtime",
+          "payment-resource-filtering",
+          "non-play-domain"
+        ],
+        "allowedIn3A": "support-only",
+        "smokeRoles": [
+          "pay-cost-resource-domain",
+          "off-trait-payment-resource-fixture"
+        ],
+        "payCostRuntimeRole": "off-trait/basic rune resource fixture used to prove server-provided paymentResourcePowerByChoice controls UI/command validity.",
+        "sourceScenarios": [
+          "typed-power-payment-mixed-recycle",
+          "typed-power-payment-generic-mixed-recycle"
+        ],
+        "useBoundary": "Use only as a payment-resource filtering fixture. Do not adjudicate full rune taxonomy or all color/trait interactions in 3A."
+      },
+      {
+        "functionalUnitId": "FU-95b4531e4e",
+        "representativeCardNo": "SFD·125/221",
+        "name": "大力仙灵",
+        "category": "单位",
+        "evidencePriority": "P1",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "riskScore": 35,
+        "riskTags": [
+          "fixture-body",
+          "payment-cost-dependent",
+          "no-card-text-claim"
+        ],
+        "allowedIn3A": "support-only",
+        "smokeRoles": [
+          "pay-cost-target-body",
+          "test-fixture-unit-body"
+        ],
+        "payCostRuntimeRole": "enemy battlefield unit body for Bullet Time runtime smoke.",
+        "sourceScenarios": [
+          "typed-power-payment",
+          "typed-power-payment-recycle",
+          "typed-power-payment-double-recycle",
+          "typed-power-payment-mixed-recycle",
+          "typed-power-payment-generic-mixed-recycle"
+        ],
+        "useBoundary": "Use as a target/body object in PAY_COST smoke. Do not exercise Mighty Faerie card text or movement-payment behavior in 3A."
+      }
+    ],
+    "holdBackFunctionalUnits": [
+      {
+        "functionalUnitId": "FU-5accdd09f9",
+        "representativeCardNo": "SFD·022/221",
+        "name": "长剑",
+        "category": "装备",
+        "evidencePriority": "P2",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "riskScore": 51,
+        "riskTags": [
+          "equipment-excluded",
+          "layer-engine-excluded",
+          "assemble-excluded"
+        ],
+        "allowedIn3A": "no",
+        "smokeRoles": [
+          "test-deck-display-only",
+          "equipment-holdback"
+        ],
+        "payCostRuntimeRole": "none",
+        "sourceScenarios": [
+          "BuildTestDecksScenario",
+          "assemble-payment-recycle"
+        ],
+        "useBoundary": "Do not pull equipment/assemble or LayerEngine behavior into 3A."
+      },
+      {
+        "functionalUnitId": "FU-5bcc4063c2",
+        "representativeCardNo": "SFD·143/221",
+        "name": "希维尔",
+        "category": "英雄单位",
+        "evidencePriority": "P2",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "riskScore": 62,
+        "riskTags": [
+          "haste-payment-excluded",
+          "layer-engine-excluded",
+          "cleanup-risk"
+        ],
+        "allowedIn3A": "no",
+        "smokeRoles": [
+          "haste-payment-holdback"
+        ],
+        "payCostRuntimeRole": "none",
+        "sourceScenarios": [
+          "haste-payment-recycle"
+        ],
+        "useBoundary": "Haste optional payment remains outside 3A unless A explicitly opens that slice."
+      },
+      {
+        "functionalUnitId": "FU-00ee09c2cc",
+        "representativeCardNo": "SFD·202/221",
+        "name": "恶意收购",
+        "category": "专属法术",
+        "evidencePriority": "P2",
+        "faqCandidate": true,
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p22",
+          "SOUL-OFAQ-260114 p21"
+        ],
+        "riskScore": 86,
+        "riskTags": [
+          "top20-risk",
+          "control-change-excluded",
+          "hidden-info-excluded",
+          "battle-lifecycle-excluded"
+        ],
+        "allowedIn3A": "no",
+        "smokeRoles": [
+          "control-change-holdback"
+        ],
+        "payCostRuntimeRole": "none",
+        "sourceScenarios": [
+          "BuildTestDecksScenario"
+        ],
+        "useBoundary": "Do not use Hostile Takeover in 3A smoke/PAY_COST runtime."
+      }
+    ],
+    "nonCard3AContracts": [
+      {
+        "contract": "PAY_COST command payload parsing",
+        "evidencePriority": "P0",
+        "note": "Typed optionalCosts such as SPEND_POWER:red:2 and RECYCLE_RUNE:<objectId> are command/protocol evidence, not extra card coverage."
+      },
+      {
+        "contract": "promptId / snapshotTick guard",
+        "evidencePriority": "P0",
+        "note": "Prompt stamp acceptance/rejection supports 3A command correctness but maps to no functional unit."
+      },
+      {
+        "contract": "desktop shell smoke",
+        "evidencePriority": "P1",
+        "note": "Card visibility/detail evidence must not be upgraded to implemented full text."
+      }
+    ]
+  }
 }

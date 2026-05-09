@@ -68,7 +68,27 @@
 | `BREAK-JFAQ-260416` p1-p5 | 破限后规则更新相关卡牌 | 2026-03-30 规则后发生变化的答案，优先于旧系列 FAQ。 |
 | `BREAK-JFAQ-260416` p5-p11 | 新增 Q&A 与其他常见卡牌 Q&A | 后续实现破限卡牌前逐条纳入 fixture。 |
 
-## 6. 当前 Fixture 审查映射
+## 6. 阶段 3 核心 1v1 流程证据入口
+
+本节只给阶段 3 smoke / E2E / 服务端阻断关闭提供证据入口，不代表流程已经 READY。具体当前状态见 `docs/CURRENT_STAGE3_CORE_FLOW_AUDIT.md`。
+
+当前执行范围已收窄为阶段 3A，详见 `docs/CURRENT_STAGE3A_PLAN.md`。3A 只使用下表中的创建 / 加入 / 隐藏信息 / 支付相关证据入口来收口 smoke 基线、复杂命令强类型映射、`PAY_COST` 最小 runtime 和前端外壳安全接线；完整 18 步 E2E、1009 全量、完整 battle/damage/order/runtime 与完整 battlefield lifecycle 暂不进入。
+
+| 阶段 3 流程 | 证据入口 | 必须证明的审计点 |
+|---|---|---|
+| 创建 / 加入 / 重连 | `CORE-260330` rules 107-129；工程会话契约 | 双浏览器上下文不得共享授权状态；snapshot/prompt 只能按 viewer 下发；重连恢复不能泄漏隐藏信息。 |
+| 卡组选择 / 提交 | `CORE-260330` rule 103；2026-04-27 `data/official/card-catalog.zh-CN.json` | 合法标准构筑可提交；非法构筑返回可见错误且零副作用；卡牌数据口径固定，不实时抓官网。 |
+| 准备 / 开局 | `CORE-260330` rule 103；开局区规则 | 双方 ready 后由服务端开始；初始区域、对象 owner/controller、隐藏信息边界由 authoritative snapshot 确认。 |
+| 起手调整 | `CORE-260330` rules 107-129；开局流程；既有 mulligan fixtures | 每名玩家只看己方手牌；替换抽牌、手牌数量和对手隐藏信息由服务端验证。 |
+| 第一回合 / 召符文 / 抽牌 | `CORE-260330` p20 rules 164-167；p28-p29 rule 315；rule 481.7 | 召出符文、抽牌、清空符文池、active player、phase 和 prompt 均来自服务端 snapshot。 |
+| 打出卡牌 / 支付 | `CORE-260330` rules 349+、355-357、377、403-405、414、416；`JFAQ-251023` q2.5 | 前端只提交服务端候选；阶段 2 `PAY_COST` schema skeleton 不等于 PaymentEngine READY。 |
+| 移动到战场 | `CORE-260330` rules 107-129、187-189；官方战场 objectId 证据 | `BATTLEFIELD:<objectId>` 保持官方 objectId 大小写；控制者、区域、待命/战场状态不由前端推断。 |
+| 争夺 / 结算链 / 法术对决 | `CORE-260330` rules 307-313、333-348、344-348；`JFAQ-251023` q2.2-q5.4 | 可以用代表路径做阶段 3 smoke，但完整 focus / initial stack / trigger ordering / control freeze 仍需官方 fixture。 |
+| 战斗 / 伤害分配 | `CORE-260330` rules 142-143、417、454-461；`JFAQ-251023` q6.1-q6.4 | 阶段 2 `ASSIGN_COMBAT_DAMAGE` schema skeleton 不等于 damage assignment 状态机 READY。 |
+| 结束回合 / 清理 / 下一回合 | `CORE-260330` rules 316-324；`JFAQ-251023` q5.1-q5.2 | 特殊清理、常规清理、符文池清空、下一回合开始必须由服务端推进。 |
+| 得分 / 控制权 / 投降或胜负 | `CORE-260330` rule 323.1；rules 461-464；产品会话契约 | 征服/据守/控制权/胜负结果不能由前端推断；投降或 winner/result 必须来自服务端事件和 snapshot。 |
+
+## 7. 当前 Fixture 审查映射
 
 | Fixture | 状态 | 初始证据 | 下一步 |
 |---|---|---|---|

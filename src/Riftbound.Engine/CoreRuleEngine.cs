@@ -745,6 +745,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ValueTask.FromResult(p0ContractResult);
         }
 
+        if (state.PendingPayment is not null)
+        {
+            return ValueTask.FromResult(RejectWithCorePrompts(
+                state,
+                "当前需要先完成服务端支付窗口。",
+                ErrorCodes.PhaseNotAllowed));
+        }
+
         if (command is DeclareBattleCommand activeTaskDeclareBattleCommand
             && ResolutionResult.ActiveStartBattleTask(state) is not null
             && string.Equals(intent.PlayerId, state.ActivePlayerId, StringComparison.Ordinal))
@@ -868,7 +876,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         result = default!;
         if (string.Equals(command.CmdType, CommandTypes.PayCost, StringComparison.Ordinal))
         {
-            result = ResolvePayCostContractShell(state, command);
+            result = ResolvePayCostContractShell(state, intent, command);
             return true;
         }
 
@@ -889,6 +897,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static ResolutionResult ResolvePayCostContractShell(
         MatchState state,
+        PlayerIntent intent,
         GameCommand command)
     {
         if (!TryReadPayCostPayload(command, out var paymentId, out var paymentWindow, out var paymentChoiceIds)
@@ -902,10 +911,128 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidPayload);
         }
 
+        var pendingPayment = state.PendingPayment;
+        if (pendingPayment is not null)
+        {
+            return ResolvePendingPayCost(
+                state,
+                intent,
+                pendingPayment,
+                paymentId,
+                paymentWindow,
+                paymentChoiceIds);
+        }
+
         return RejectWithCorePrompts(
             state,
             "当前没有服务端支付窗口可处理 PAY_COST。",
             ErrorCodes.PhaseNotAllowed);
+    }
+
+    private static ResolutionResult ResolvePendingPayCost(
+        MatchState state,
+        PlayerIntent intent,
+        PendingPaymentState pendingPayment,
+        string paymentId,
+        string paymentWindow,
+        IReadOnlyList<string> paymentChoiceIds)
+    {
+        if (!string.Equals(intent.PlayerId, pendingPayment.PlayerId, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "只有当前支付玩家可以提交 PAY_COST。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (!string.Equals(paymentId, pendingPayment.PaymentId, StringComparison.Ordinal)
+            || !string.Equals(paymentWindow, pendingPayment.PaymentWindow, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "PAY_COST 与当前服务端支付窗口不匹配。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        var submittedChoices = paymentChoiceIds
+            .Where(choiceId => !string.IsNullOrWhiteSpace(choiceId))
+            .Select(choiceId => choiceId.Trim())
+            .ToArray();
+        var legalChoices = pendingPayment.LegalPaymentChoiceIds.ToHashSet(StringComparer.Ordinal);
+        if (submittedChoices.Length != paymentChoiceIds.Count
+            || submittedChoices.Distinct(StringComparer.Ordinal).Count() != submittedChoices.Length
+            || submittedChoices.Length != legalChoices.Count
+            || submittedChoices.Any(choiceId => !legalChoices.Contains(choiceId)))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "PAY_COST 包含非法支付选项。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool)
+            ? runePool
+            : RunePool.Empty;
+        if (!CanPayRuneCosts(
+                currentPool,
+                pendingPayment.ManaCost,
+                pendingPayment.PowerCost,
+                pendingPayment.PowerCostByTrait))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "支付窗口资源不足。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var runePools = PayRuneCosts(
+            state,
+            intent.PlayerId,
+            pendingPayment.ManaCost,
+            pendingPayment.PowerCost,
+            pendingPayment.PowerCostByTrait);
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            RunePools = runePools,
+            PendingPayment = null
+        };
+        var events = new[]
+        {
+            new GameEvent(
+                "COST_PAID",
+                $"{intent.PlayerId} 完成服务端支付窗口",
+                PaymentCostRules.BuildCostPaidPayload(
+                    pendingPayment.PaymentId,
+                    pendingPayment.PaymentWindow,
+                    intent.PlayerId,
+                    runePools,
+                    null,
+                    new Dictionary<string, object?>
+                    {
+                        ["mana"] = pendingPayment.ManaCost,
+                        ["power"] = pendingPayment.PowerCost,
+                        ["powerByTrait"] = pendingPayment.PowerCostByTrait,
+                        ["paymentChoiceIds"] = submittedChoices
+                    })),
+            new GameEvent(
+                "PAYMENT_WINDOW_CLOSED",
+                "服务端支付窗口已关闭",
+                new Dictionary<string, object?>
+                {
+                    ["paymentId"] = pendingPayment.PaymentId,
+                    ["paymentWindow"] = pendingPayment.PaymentWindow,
+                    ["playerId"] = intent.PlayerId
+                })
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
     }
 
     private static ResolutionResult ResolveAssignCombatDamageContractShell(
@@ -26886,6 +27013,20 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (string.Equals(state.Phase, MatchPhases.Mulligan, StringComparison.Ordinal))
         {
             return ResolutionResult.BuildPrompts(state);
+        }
+
+        if (state.PendingPayment is not null)
+        {
+            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
+                state,
+                playerId,
+                string.Equals(playerId, state.PendingPayment.PlayerId, StringComparison.Ordinal),
+                string.Equals(playerId, state.PendingPayment.PlayerId, StringComparison.Ordinal)
+                    ? "请选择服务端允许的支付项"
+                    : "等待对手支付费用",
+                string.Equals(playerId, state.PendingPayment.PlayerId, StringComparison.Ordinal)
+                    ? WithSurrender(CommandTypes.PayCost)
+                    : WithSurrender("WAIT")));
         }
 
         if (state.StackItems.Count > 0 && !string.IsNullOrWhiteSpace(state.PriorityPlayerId))
