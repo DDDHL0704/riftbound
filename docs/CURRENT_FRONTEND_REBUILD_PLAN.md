@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 第三百零八批补齐《布甲》（SFD·064/221）蓝色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` 现在按装备 cardNo 区分《长剑》红色装配与《布甲》蓝色装配；ActionPrompt 只公开《布甲》的 `ASSEMBLE_BLUE`、蓝色符能要求、合法单位目标和蓝色回收符文支付资源，前端继续只展示并提交这些服务端候选，不读取卡面自行推断装配颜色。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 34/34 通过，后端 full test 3250/3250 通过，DevUi build 通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第三百零七批补齐《奥恩》不选择装备分支的服务端证据。Hub prompt 已证明 `PLAY_CARD.sourceRequirements.minTargetCount=0`，前端可显示“不选择”但仍只提交空目标意图；服务端结算时不抽牌，回收查看到的四张牌并写入 `CARDS_RECYCLED.count=4`。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke，目标端口保持无监听；Ornn 过滤 11/11 通过，后端 full test 3248/3248 通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
 - 第三百零六批补齐《奥恩》（SFD·058/221 与 SFD·058a/221）打出时查看顶部四张并抽取装备的服务端代表路径。服务端 `PLAY_CARD` prompt 现在只公开主牌堆顶部四张中权威可选的装备候选，前端详情抽屉显示这些候选并提交服务端候选目标；结算仍完全由服务端移动源单位、抽取选中装备、回收其余查看候选，前端不读取卡面自行筛选牌堆。

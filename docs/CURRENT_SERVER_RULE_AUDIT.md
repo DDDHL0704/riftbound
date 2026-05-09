@@ -14,6 +14,9 @@
 
 ## 2026-05-09 开发进度更新
 
+- P1-002/P1-004 第三百零八批补充：把《布甲》（SFD·064/221）的“装配蓝色”接入既有服务端权威 `ASSEMBLE_EQUIPMENT` 代表路径。Core 现在按装备 cardNo 选择装配 profile：《长剑》仍要求 `ASSEMBLE_RED` 与红色符能，《布甲》要求 `ASSEMBLE_BLUE` 与蓝色符能；错误颜色、泛化符能或未公开 optional cost 不会被接受。ActionPrompt 同步只向前端公开服务端支持的《布甲》来源、目标、`ASSEMBLE_BLUE` optional cost、蓝色支付资源候选和蓝色符能贡献元数据，前端仍不根据卡面自行裁决装配颜色。
+- 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~AssembleEquipment"` 通过 34/34；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3250/3250；`source ../../scripts/dev-env.sh && npm run build` 通过。本批无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke，目标端口保持清理。整体仍 **NOT READY**，因为灵便反应自动贴附、更多装备装配 profile、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-002/P1-004 第三百零七批补充：补齐《奥恩》（SFD·058/221 与 SFD·058a/221）“可以不选择装备”的服务端证据。既有 `MainDeckLookCount=4` / `MinTargetCount=0` 解析在 0 目标时不会写入 `CARD_DRAWN`，而是将查看到的四张全部按主牌堆底部回收流程处理并写入 `CARDS_RECYCLED.count=4`；Hub seed 也确认 `PLAY_CARD.sourceRequirements.minTargetCount=0`，前端可展示“不选择”入口但仍只提交服务端 prompt 支持的空目标命令。此批不新增前端运行时代码。
 - 已补验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Ornn"` 通过 11/11；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3248/3248。本批为测试/文档证据补齐，无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke，目标端口保持无监听。整体仍 **NOT READY**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

@@ -2341,6 +2341,38 @@ internal static class ActionPromptBuilder
     private const string LongSwordCardNo = "SFD·022/221";
     private const int LongSwordAssemblePowerCost = 1;
     private const string LongSwordAssembleOptionalCost = "ASSEMBLE_RED";
+    private const string ClothArmorCardNo = "SFD·064/221";
+    private const int ClothArmorAssemblePowerCost = 1;
+    private const string ClothArmorAssembleOptionalCost = "ASSEMBLE_BLUE";
+    private sealed record AssembleEquipmentProfile(
+        string CardNo,
+        string DisplayName,
+        string OptionalCost,
+        string OptionalCostLabel,
+        string PowerTrait,
+        int PowerCost,
+        string PaymentResourceReason);
+
+    private static readonly IReadOnlyDictionary<string, AssembleEquipmentProfile> ImplementedAssembleEquipmentProfiles =
+        new Dictionary<string, AssembleEquipmentProfile>(StringComparer.Ordinal)
+        {
+            [LongSwordCardNo] = new(
+                LongSwordCardNo,
+                "长剑",
+                LongSwordAssembleOptionalCost,
+                "装配红色符能",
+                RuneTrait.Red,
+                LongSwordAssemblePowerCost,
+                "payment resource action: recycle red rune for assemble cost"),
+            [ClothArmorCardNo] = new(
+                ClothArmorCardNo,
+                "布甲",
+                ClothArmorAssembleOptionalCost,
+                "装配蓝色符能",
+                RuneTrait.Blue,
+                ClothArmorAssemblePowerCost,
+                "payment resource action: recycle blue rune for assemble cost")
+        };
     private const string CrescentGuardCardNo = "UNL-122/219";
     private const int CrescentGuardReadyPowerCost = 1;
     private const string BattlefieldEphemeralUnitsSteadfastCardNo = "UNL-208/219";
@@ -4218,24 +4250,26 @@ internal static class ActionPromptBuilder
         string playerId,
         string objectId)
     {
+        var assembleProfile = AssembleEquipmentProfileForObject(state, objectId)
+            ?? ImplementedAssembleEquipmentProfiles[LongSwordCardNo];
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        var paymentResourceChoices = AssembleEquipmentPaymentResourceChoices(state, playerId);
-        var paymentResourcePowerByTrait = AssembleEquipmentPaymentResourcePowerByTrait(state, playerId);
+        var paymentResourceChoices = AssembleEquipmentPaymentResourceChoices(state, playerId, assembleProfile);
+        var paymentResourcePowerByTrait = AssembleEquipmentPaymentResourcePowerByTrait(state, playerId, assembleProfile);
 
         return new AssembleEquipmentPromptRequirement(
             objectId,
-            LongSwordCardNo,
-            "长剑",
+            assembleProfile.CardNo,
+            assembleProfile.DisplayName,
             AssembleEquipmentTargetChoicesForSource(state, playerId, objectId),
-            [new ActionPromptChoiceDto(LongSwordAssembleOptionalCost, "装配红色符能")],
+            [new ActionPromptChoiceDto(assembleProfile.OptionalCost, assembleProfile.OptionalCostLabel)],
             paymentResourceChoices,
-            AssembleEquipmentPaymentResourcePowerByChoice(state, playerId),
+            AssembleEquipmentPaymentResourcePowerByChoice(state, playerId, assembleProfile),
             PlayCardAvailablePowerByTrait(runePool, new Dictionary<string, int>(StringComparer.Ordinal)),
             PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait),
-            [LongSwordAssembleOptionalCost],
-            LongSwordAssemblePowerCost,
+            [assembleProfile.OptionalCost],
+            assembleProfile.PowerCost,
             true,
             null);
     }
@@ -4270,7 +4304,8 @@ internal static class ActionPromptBuilder
             return false;
         }
 
-        if (!string.Equals(cardObject.CardNo, LongSwordCardNo, StringComparison.Ordinal))
+        var assembleProfile = AssembleEquipmentProfileForObject(state, objectId);
+        if (assembleProfile is null)
         {
             return false;
         }
@@ -4278,29 +4313,40 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        return CanPayLongSwordAssembleCost(runePool, AssembleEquipmentPaymentResourcePowerByTrait(state, playerId))
+        return CanPayAssembleEquipmentCost(runePool, assembleProfile, AssembleEquipmentPaymentResourcePowerByTrait(state, playerId, assembleProfile))
             && AssembleEquipmentTargetChoicesForSource(state, playerId, objectId).Count > 0;
     }
 
-    private static bool CanPayLongSwordAssembleCost(
+    private static AssembleEquipmentProfile? AssembleEquipmentProfileForObject(MatchState state, string objectId)
+    {
+        return state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && !string.IsNullOrWhiteSpace(cardObject.CardNo)
+            && ImplementedAssembleEquipmentProfiles.TryGetValue(cardObject.CardNo, out var assembleProfile)
+                ? assembleProfile
+                : null;
+    }
+
+    private static bool CanPayAssembleEquipmentCost(
         RunePool runePool,
+        AssembleEquipmentProfile assembleProfile,
         IReadOnlyDictionary<string, int>? paymentResourcePowerByTrait = null)
     {
         var availablePowerByTrait = PlayCardAvailablePowerByTrait(
             runePool,
             paymentResourcePowerByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
-        return availablePowerByTrait.TryGetValue(RuneTrait.Red, out var redPower)
-            && redPower >= LongSwordAssemblePowerCost;
+        return availablePowerByTrait.TryGetValue(assembleProfile.PowerTrait, out var power)
+            && power >= assembleProfile.PowerCost;
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto> AssembleEquipmentPaymentResourceChoices(
         MatchState state,
-        string playerId)
+        string playerId,
+        AssembleEquipmentProfile assembleProfile)
     {
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        if (CanPayLongSwordAssembleCost(runePool))
+        if (CanPayAssembleEquipmentCost(runePool, assembleProfile))
         {
             return [];
         }
@@ -4314,11 +4360,11 @@ internal static class ActionPromptBuilder
             .Where(objectId => IsRecycleRuneSource(state, playerId, objectId))
             .Where(objectId => state.CardObjects.TryGetValue(objectId, out var runeState)
                 && TryGetRuneTrait(runeState, out var runeTrait)
-                && string.Equals(runeTrait, RuneTrait.Red, StringComparison.Ordinal))
+                && string.Equals(runeTrait, assembleProfile.PowerTrait, StringComparison.Ordinal))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .Select(objectId =>
             {
-                var choice = ObjectChoice(state, objectId, "payment resource action: recycle red rune for assemble cost");
+                var choice = ObjectChoice(state, objectId, assembleProfile.PaymentResourceReason);
                 return new ActionPromptChoiceDto(
                     $"{RecycleRunePaymentOptionalCostPrefix}{objectId}",
                     $"回收符文支付：{choice.Label}",
@@ -4329,9 +4375,10 @@ internal static class ActionPromptBuilder
 
     private static IReadOnlyDictionary<string, int> AssembleEquipmentPaymentResourcePowerByTrait(
         MatchState state,
-        string playerId)
+        string playerId,
+        AssembleEquipmentProfile assembleProfile)
     {
-        var choices = AssembleEquipmentPaymentResourceChoices(state, playerId);
+        var choices = AssembleEquipmentPaymentResourceChoices(state, playerId, assembleProfile);
         if (choices.Count == 0)
         {
             return new Dictionary<string, int>(StringComparer.Ordinal);
@@ -4339,15 +4386,16 @@ internal static class ActionPromptBuilder
 
         return new Dictionary<string, int>(StringComparer.Ordinal)
         {
-            [RuneTrait.Red] = choices.Count * BasicRuneRecyclePowerGain
+            [assembleProfile.PowerTrait] = choices.Count * BasicRuneRecyclePowerGain
         };
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> AssembleEquipmentPaymentResourcePowerByChoice(
         MatchState state,
-        string playerId)
+        string playerId,
+        AssembleEquipmentProfile assembleProfile)
     {
-        var choices = AssembleEquipmentPaymentResourceChoices(state, playerId);
+        var choices = AssembleEquipmentPaymentResourceChoices(state, playerId, assembleProfile);
         if (choices.Count == 0)
         {
             return new Dictionary<string, IReadOnlyDictionary<string, object?>>(StringComparer.Ordinal);
@@ -4357,7 +4405,7 @@ internal static class ActionPromptBuilder
             choice => choice.Id,
             _ => (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>(StringComparer.Ordinal)
             {
-                ["trait"] = RuneTrait.Red,
+                ["trait"] = assembleProfile.PowerTrait,
                 ["power"] = BasicRuneRecyclePowerGain
             },
             StringComparer.Ordinal);

@@ -3297,6 +3297,131 @@ public sealed class ConformanceFixtureShapeTests
         var requiredOptionalCosts = Assert.IsAssignableFrom<IEnumerable<string>>(
             sourceRequirement["requiredOptionalCosts"]);
         Assert.Equal(["ASSEMBLE_RED"], requiredOptionalCosts.ToArray());
+
+        var clothArmorState = noPowerState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Blue] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-CLOTH-ARMOR", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-CLOTH-ARMOR"] = new(
+                    "P1-CLOTH-ARMOR",
+                    cardNo: "SFD·064/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装", "灵便"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var clothArmorPrompt = ResolutionResult.BuildPrompts(clothArmorState)["P1"];
+        var clothArmorCandidate = Assert.Single(
+            clothArmorPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(clothArmorCandidate.Enabled);
+        Assert.Equal(["P1-CLOTH-ARMOR"], (clothArmorCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["P1-UNIT"], (clothArmorCandidate.Targets ?? []).Select(target => target.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_BLUE"], (clothArmorCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+
+        var clothArmorMetadata = Assert.IsType<Dictionary<string, object?>>(clothArmorCandidate.Metadata);
+        var clothArmorRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(clothArmorMetadata["sourceRequirements"]));
+        Assert.Equal("P1-CLOTH-ARMOR", Assert.IsType<string>(clothArmorRequirement["sourceObjectId"]));
+        Assert.Equal("SFD·064/221", Assert.IsType<string>(clothArmorRequirement["equipmentCardNo"]));
+        Assert.Equal(1, Assert.IsType<int>(clothArmorRequirement["powerCost"]));
+        var clothArmorOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            clothArmorRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_BLUE"], clothArmorOptionalCostChoices.Select(cost => cost.Id).ToArray());
+        var clothArmorRequiredOptionalCosts = Assert.IsAssignableFrom<IEnumerable<string>>(
+            clothArmorRequirement["requiredOptionalCosts"]);
+        Assert.Equal(["ASSEMBLE_BLUE"], clothArmorRequiredOptionalCosts.ToArray());
+
+        var clothArmorRedOnlyState = clothArmorState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Red] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            }
+        };
+        var clothArmorRedOnlyPrompt = ResolutionResult.BuildPrompts(clothArmorRedOnlyState)["P1"];
+        var clothArmorRedOnlyCandidate = Assert.Single(
+            clothArmorRedOnlyPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.False(clothArmorRedOnlyCandidate.Enabled);
+        Assert.Empty(clothArmorRedOnlyCandidate.Sources ?? []);
+
+        var clothArmorRecyclePaymentState = clothArmorState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-CLOTH-ARMOR", "P1-UNIT", "P1-RUNE-BLUE-ASSEMBLE-PAYMENT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(clothArmorState.CardObjects, StringComparer.Ordinal)
+            {
+                ["P1-RUNE-BLUE-ASSEMBLE-PAYMENT"] = new(
+                    "P1-RUNE-BLUE-ASSEMBLE-PAYMENT",
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:blue"],
+                    cardNo: "UNL-R03",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var clothArmorRecyclePrompt = ResolutionResult.BuildPrompts(clothArmorRecyclePaymentState)["P1"];
+        var clothArmorRecycleCandidate = Assert.Single(
+            clothArmorRecyclePrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(clothArmorRecycleCandidate.Enabled);
+        Assert.Equal(["P1-CLOTH-ARMOR"], (clothArmorRecycleCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        var clothArmorRecycleMetadata = Assert.IsType<Dictionary<string, object?>>(clothArmorRecycleCandidate.Metadata);
+        var clothArmorRecycleRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(clothArmorRecycleMetadata["sourceRequirements"]));
+        var clothArmorPaymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            clothArmorRecycleRequirement["paymentResourceChoices"]);
+        Assert.Equal(["RECYCLE_RUNE:P1-RUNE-BLUE-ASSEMBLE-PAYMENT"], clothArmorPaymentResourceChoices.Select(choice => choice.Id).ToArray());
+        var clothArmorPaymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            clothArmorRecycleRequirement["paymentResourcePowerByChoice"]);
+        var clothArmorPaymentResourcePower = clothArmorPaymentResourcePowerByChoice["RECYCLE_RUNE:P1-RUNE-BLUE-ASSEMBLE-PAYMENT"];
+        Assert.Equal(RuneTrait.Blue, Assert.IsType<string>(clothArmorPaymentResourcePower["trait"]));
+        Assert.Equal(1, Assert.IsType<int>(clothArmorPaymentResourcePower["power"]));
     }
 
     [Fact]

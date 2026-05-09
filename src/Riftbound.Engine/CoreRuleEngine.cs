@@ -31,10 +31,31 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string LongSwordCardNo = "SFD·022/221";
     private const string LongSwordAssembleOptionalCost = "ASSEMBLE_RED";
     private const int LongSwordAssemblePowerCost = 1;
-    private static readonly IReadOnlyDictionary<string, int> LongSwordAssemblePowerCostByTrait =
-        new Dictionary<string, int>(StringComparer.Ordinal)
+    private const string ClothArmorCardNo = "SFD·064/221";
+    private const string ClothArmorAssembleOptionalCost = "ASSEMBLE_BLUE";
+    private const int ClothArmorAssemblePowerCost = 1;
+    private sealed record AssembleEquipmentProfile(
+        string CardNo,
+        string DisplayName,
+        string OptionalCost,
+        string PowerTrait,
+        int PowerCost);
+
+    private static readonly IReadOnlyDictionary<string, AssembleEquipmentProfile> ImplementedAssembleEquipmentProfiles =
+        new Dictionary<string, AssembleEquipmentProfile>(StringComparer.Ordinal)
         {
-            [RuneTrait.Red] = LongSwordAssemblePowerCost
+            [LongSwordCardNo] = new(
+                LongSwordCardNo,
+                "长剑",
+                LongSwordAssembleOptionalCost,
+                RuneTrait.Red,
+                LongSwordAssemblePowerCost),
+            [ClothArmorCardNo] = new(
+                ClothArmorCardNo,
+                "布甲",
+                ClothArmorAssembleOptionalCost,
+                RuneTrait.Blue,
+                ClothArmorAssemblePowerCost)
         };
     private const string WatchfulSentinelCardNo = "OGN·096/298";
     private const string WatchfulSentinelLastBreathDrawEffectKind = "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
@@ -1154,7 +1175,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         PlayerIntent intent,
         AssembleEquipmentCommand command)
     {
-        if (!TryBuildMinimalAssembleEquipmentPlan(state, intent, command, out var equipmentState, out var targetState))
+        if (!TryBuildMinimalAssembleEquipmentPlan(state, intent, command, out var equipmentState, out var targetState, out var assembleProfile))
         {
             return RejectWithCorePrompts(
                 state,
@@ -1183,11 +1204,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 state.CardObjects,
                 recycledRuneObjectIds,
                 0,
-                LongSwordAssemblePowerCostByTrait))
+                AssembleEquipmentPowerCostByTrait(assembleProfile)))
         {
             return RejectWithCorePrompts(
                 state,
-                "Recycle rune payment resources are not required to assemble Long Sword.",
+                $"Recycle rune payment resources are not required to assemble {assembleProfile.DisplayName}.",
                 ErrorCodes.InsufficientCost);
         }
 
@@ -1207,15 +1228,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         var paymentAdjustedPool = runePools.TryGetValue(intent.PlayerId, out var adjustedPool)
             ? adjustedPool
             : RunePool.Empty;
-        if (!CanPayRuneCosts(paymentAdjustedPool, 0, 0, LongSwordAssemblePowerCostByTrait))
+        if (!CanPayRuneCosts(paymentAdjustedPool, 0, 0, AssembleEquipmentPowerCostByTrait(assembleProfile)))
         {
             return RejectWithCorePrompts(
                 state,
-                "Not enough resources to assemble Long Sword.",
+                $"Not enough resources to assemble {assembleProfile.DisplayName}.",
                 ErrorCodes.InsufficientCost);
         }
 
-        runePools = PayRuneCosts(runePools, intent.PlayerId, 0, 0, LongSwordAssemblePowerCostByTrait);
+        runePools = PayRuneCosts(runePools, intent.PlayerId, 0, 0, AssembleEquipmentPowerCostByTrait(assembleProfile));
         var equipmentWithIdentity = WithFieldIdentityDefaults(equipmentState, intent.PlayerId);
         var targetWithIdentity = WithFieldIdentityDefaults(targetState, intent.PlayerId);
         cardObjects[command.SourceObjectId] = equipmentWithIdentity with
@@ -1237,12 +1258,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             new(
                 "COST_PAID",
-                $"{intent.PlayerId} 支付长剑装配费用",
+                $"{intent.PlayerId} 支付{assembleProfile.DisplayName}装配费用",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
                     ["mana"] = 0,
-                    ["power"] = LongSwordAssemblePowerCost,
+                    ["power"] = assembleProfile.PowerCost,
                     ["sourceObjectId"] = command.SourceObjectId,
                     ["targetObjectId"] = command.TargetObjectId,
                     ["optionalCosts"] = optionalCosts.ToArray(),
@@ -1250,7 +1271,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }),
             new(
                 "EQUIPMENT_ATTACHED",
-                $"{intent.PlayerId} 装配长剑",
+                $"{intent.PlayerId} 装配{assembleProfile.DisplayName}",
                 new Dictionary<string, object?>
                 {
                     ["sourceObjectId"] = command.SourceObjectId,
@@ -1259,7 +1280,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["controllerId"] = intent.PlayerId,
                     ["ownerId"] = intent.PlayerId,
                     ["attachedToObjectId"] = command.TargetObjectId,
-                    ["equipmentCardNo"] = string.IsNullOrWhiteSpace(equipmentWithIdentity.CardNo) ? LongSwordCardNo : equipmentWithIdentity.CardNo,
+                    ["equipmentCardNo"] = string.IsNullOrWhiteSpace(equipmentWithIdentity.CardNo) ? assembleProfile.CardNo : equipmentWithIdentity.CardNo,
                     ["targetPower"] = targetWithIdentity.Power,
                     ["optionalCosts"] = optionalCosts.ToArray(),
                     ["paymentResourceActions"] = paymentResourceActions.ToArray()
@@ -1280,10 +1301,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         PlayerIntent intent,
         AssembleEquipmentCommand command,
         out CardObjectState equipmentState,
-        out CardObjectState targetState)
+        out CardObjectState targetState,
+        out AssembleEquipmentProfile assembleProfile)
     {
         equipmentState = default!;
         targetState = default!;
+        assembleProfile = default!;
 
         if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
             || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
@@ -1302,7 +1325,6 @@ public sealed class CoreRuleEngine : IRuleEngine
                 out _,
                 out _)
             || behaviorOptionalCosts.Count != 1
-            || !string.Equals(behaviorOptionalCosts[0], LongSwordAssembleOptionalCost, StringComparison.Ordinal)
             || string.IsNullOrWhiteSpace(command.SourceObjectId)
             || string.IsNullOrWhiteSpace(command.TargetObjectId)
             || string.Equals(command.SourceObjectId, command.TargetObjectId, StringComparison.Ordinal))
@@ -1325,7 +1347,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (!string.Equals(knownEquipmentState.CardNo, LongSwordCardNo, StringComparison.Ordinal))
+        if (string.IsNullOrWhiteSpace(knownEquipmentState.CardNo)
+            || !ImplementedAssembleEquipmentProfiles.TryGetValue(knownEquipmentState.CardNo, out var knownAssembleProfile)
+            || !string.Equals(behaviorOptionalCosts[0], knownAssembleProfile.OptionalCost, StringComparison.Ordinal))
         {
             return false;
         }
@@ -1344,7 +1368,16 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         equipmentState = knownEquipmentState;
         targetState = knownTargetState;
+        assembleProfile = knownAssembleProfile;
         return true;
+    }
+
+    private static IReadOnlyDictionary<string, int> AssembleEquipmentPowerCostByTrait(AssembleEquipmentProfile profile)
+    {
+        return new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            [profile.PowerTrait] = profile.PowerCost
+        };
     }
 
     private static CardObjectState WithFieldIdentityDefaults(CardObjectState cardObject, string playerId)
