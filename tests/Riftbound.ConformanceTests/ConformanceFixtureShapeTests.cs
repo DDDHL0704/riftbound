@@ -3298,6 +3298,48 @@ public sealed class ConformanceFixtureShapeTests
             sourceRequirement["requiredOptionalCosts"]);
         Assert.Equal(["ASSEMBLE_RED"], requiredOptionalCosts.ToArray());
 
+        var jaggedDirkState = payableState with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-JAGGED-DIRK", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-JAGGED-DIRK"] = new(
+                    "P1-JAGGED-DIRK",
+                    cardNo: "SFD·009/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var jaggedDirkPrompt = ResolutionResult.BuildPrompts(jaggedDirkState)["P1"];
+        var jaggedDirkCandidate = Assert.Single(
+            jaggedDirkPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(jaggedDirkCandidate.Enabled);
+        Assert.Equal(["P1-JAGGED-DIRK"], (jaggedDirkCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_RED"], (jaggedDirkCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var jaggedDirkMetadata = Assert.IsType<Dictionary<string, object?>>(jaggedDirkCandidate.Metadata);
+        var jaggedDirkRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(jaggedDirkMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·009/221", Assert.IsType<string>(jaggedDirkRequirement["equipmentCardNo"]));
+        var jaggedDirkOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            jaggedDirkRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_RED"], jaggedDirkOptionalCostChoices.Select(cost => cost.Id).ToArray());
+
         var clothArmorState = noPowerState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
