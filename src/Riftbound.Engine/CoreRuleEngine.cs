@@ -121,6 +121,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string HearthfireCloakCardNo = "SFD·190/221";
     private const string HearthfireCloakAssembleOptionalCost = "ASSEMBLE_ANY_POWER";
     private const int HearthfireCloakAssemblePowerCost = 1;
+    private const string RabadonsDeathcapCardNo = "SFD·191/221";
+    private const string RabadonsDeathcapAssembleOptionalCost = "ASSEMBLE_ANY_POWER";
+    private const int RabadonsDeathcapAssemblePowerCost = 1;
     private sealed record AssembleEquipmentProfile(
         string CardNo,
         string DisplayName,
@@ -316,7 +319,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "炉火斗篷",
                 HearthfireCloakAssembleOptionalCost,
                 string.Empty,
-                HearthfireCloakAssemblePowerCost)
+                HearthfireCloakAssemblePowerCost),
+            [RabadonsDeathcapCardNo] = new(
+                RabadonsDeathcapCardNo,
+                "灭世者的死亡之冠",
+                RabadonsDeathcapAssembleOptionalCost,
+                string.Empty,
+                RabadonsDeathcapAssemblePowerCost)
         };
     private const string WatchfulSentinelCardNo = "OGN·096/298";
     private const string WatchfulSentinelLastBreathDrawEffectKind = "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";

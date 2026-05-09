@@ -4865,6 +4865,54 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal(["ASSEMBLE_ANY_POWER"], hearthfireCloakOptionalCostChoices.Select(cost => cost.Id).ToArray());
         Assert.Equal(1, Assert.IsType<int>(hearthfireCloakRequirement["powerCost"]));
 
+        var rabadonsDeathcapState = steraksGageState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(0, 1),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-RABADONS-DEATHCAP", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-RABADONS-DEATHCAP"] = new(
+                    "P1-RABADONS-DEATHCAP",
+                    cardNo: "SFD·191/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var rabadonsDeathcapPrompt = ResolutionResult.BuildPrompts(rabadonsDeathcapState)["P1"];
+        var rabadonsDeathcapCandidate = Assert.Single(
+            rabadonsDeathcapPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(rabadonsDeathcapCandidate.Enabled);
+        Assert.Equal(["P1-RABADONS-DEATHCAP"], (rabadonsDeathcapCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_ANY_POWER"], (rabadonsDeathcapCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var rabadonsDeathcapMetadata = Assert.IsType<Dictionary<string, object?>>(rabadonsDeathcapCandidate.Metadata);
+        var rabadonsDeathcapRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(rabadonsDeathcapMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·191/221", Assert.IsType<string>(rabadonsDeathcapRequirement["equipmentCardNo"]));
+        var rabadonsDeathcapOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            rabadonsDeathcapRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_ANY_POWER"], rabadonsDeathcapOptionalCostChoices.Select(cost => cost.Id).ToArray());
+        Assert.Equal(1, Assert.IsType<int>(rabadonsDeathcapRequirement["powerCost"]));
+
         var spinningAxeRecyclePaymentState = spinningAxeState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)

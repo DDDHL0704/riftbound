@@ -2431,6 +2431,9 @@ internal static class ActionPromptBuilder
     private const string HearthfireCloakCardNo = "SFD·190/221";
     private const int HearthfireCloakAssemblePowerCost = 1;
     private const string HearthfireCloakAssembleOptionalCost = "ASSEMBLE_ANY_POWER";
+    private const string RabadonsDeathcapCardNo = "SFD·191/221";
+    private const int RabadonsDeathcapAssemblePowerCost = 1;
+    private const string RabadonsDeathcapAssembleOptionalCost = "ASSEMBLE_ANY_POWER";
     private sealed record AssembleEquipmentProfile(
         string CardNo,
         string DisplayName,
@@ -2690,6 +2693,14 @@ internal static class ActionPromptBuilder
                 "装配任意符能",
                 string.Empty,
                 HearthfireCloakAssemblePowerCost,
+                "payment resource action: recycle any rune for assemble cost"),
+            [RabadonsDeathcapCardNo] = new(
+                RabadonsDeathcapCardNo,
+                "灭世者的死亡之冠",
+                RabadonsDeathcapAssembleOptionalCost,
+                "装配任意符能",
+                string.Empty,
+                RabadonsDeathcapAssemblePowerCost,
                 "payment resource action: recycle any rune for assemble cost")
         };
     private const string CrescentGuardCardNo = "UNL-122/219";

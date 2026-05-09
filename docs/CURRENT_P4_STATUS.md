@@ -3572,7 +3572,7 @@ Prompt-to-artifact checklist：
 
 ## P4.231 Rabadons Deathcap Target Rejection Fixture Slice
 
-本阶段继续 completion audit：P4 仍不能标记 goal complete。已有直接 engine 测试覆盖《灭世者的死亡之冠》带目标打出时拒绝；本批次只把该 0 目标专属装备入场边界提升为可回放 fixture，唯我构筑限制和装配贴附继续暂缓。
+本阶段继续 completion audit：P4 仍不能标记 goal complete。已有直接 engine 测试覆盖《灭世者的死亡之冠》带目标打出时拒绝；本批次只把该 0 目标专属装备入场边界提升为可回放 fixture。第三百三十八批已补基地中未贴附《灭世者的死亡之冠》支付 `ASSEMBLE_ANY_POWER` / 任意符能装配到己方单位的服务端代表路径，唯我构筑限制仍暂缓。
 
 - `PLAY_CARD sourceObjectId=P1-EQUIPMENT-RABADONS-DEATHCAP cardNo=SFD·191/221 targetObjectIds=["P1-RABADONS-DEATHCAP-BASE-UNIT-001"]` 为《灭世者的死亡之冠》的当前 0 目标装备入场路径提供显式单位目标，不满足目标数量要求；命令返回 `INVALID_TARGET`，不推进 tick、不写事件、不支付 4 点费用、不移动手牌、不入场装备，也不创建 stack item。
 - 新增 fixture `p4-play-rabadons-deathcap-target-rejected.fixture.json` 和回放测试 `P4RabadonsDeathcapTargetRejectedFixture`，把《灭世者的死亡之冠》带目标打出拒绝边界纳入 conformance 证据。
