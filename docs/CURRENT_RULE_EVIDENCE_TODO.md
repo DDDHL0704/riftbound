@@ -18,6 +18,7 @@
 阶段 4C-3 绝念真实触发入队审计：`docs/CURRENT_STAGE4C_BATCH3_LAST_BREATH_ENQUEUE_AUDIT.md`
 阶段 4C-4 触发支付 / 拒付审计：`docs/CURRENT_STAGE4C_BATCH4_TRIGGER_PAYMENT_AUDIT.md`
 阶段 4C-5 state-based cleanup trigger enqueue 审计：`docs/CURRENT_STAGE4C_BATCH5_STATE_CLEANUP_TRIGGER_AUDIT.md`
+阶段 4C-6 Honest Broker cleanup trigger enqueue 审计：`docs/CURRENT_STAGE4C_BATCH6_HONEST_CLEANUP_TRIGGER_AUDIT.md`
 
 ## B 修复验收
 
@@ -63,7 +64,7 @@
 | spell duel / battle lifecycle | `CORE-260330` rules 307-313, 333-348, 454-461；`JFAQ-251023` q2.3-q2.4, q3.1-q3.3 | `SpellDuelState`、`BattleState`、关联 id 和焦点恢复已有；`DECLARE_BATTLE` 仍是同步代表路径 | B 主实现；E 初始链/焦点/触发 fixture；C 等 typed prompt；D 文档 | 由 cleanup queue 创建并推进 spell duel / battle task |
 | damage assignment | `CORE-260330` rules 142-143, 417, 460；`JFAQ-251023` q6.1-q6.4；`SOUL-OFAQ-260114` p19-p20 | 阶段 3C 已补最小 `ASSIGN_COMBAT_DAMAGE` runtime prompt、damagePool/legalTargets、合法/非法/stale、零副作用拒绝和 simultaneous commit；完整壁垒/后排/负战力/不可分配矩阵仍缺 | B 主实现；E 多单位/壁垒/后排 fixture；C 仅同步类型/调试展示；D 文档 | 后续扩展完整 damage assignment constraints 和 battle task |
 | `PAY_COST` / payment windows | `CORE-260330` rules 131, 135.2.e, 162-167, 356-357, 377, 403-405, 414, 416；`JFAQ-251023` q2.5；`SOUL-OFAQ-260114` p1-p4, p19-p21 | `PaymentCostRules`、typed `RunePool`、代表性 `COST_PAID` 已有；阶段 2 B 已补 `PAY_COST` command/schema skeleton 与 `INVALID_PAYLOAD`；阶段 3A 已补最小 pending payment prompt/submit；阶段 4C-4 已补 `SFD·220/221` `TRIGGER_PAYMENT` 支付 / 拒付 / 支付失败 no-mutation 代表路径；完整 PaymentEngine、替代/额外费用、非出牌支付窗口仍缺 | B 主实现；E 支付/拒付 fixture；C 仅同步类型/调试展示；D 文档 | 建 `PaymentPlan/paymentPlanId/paymentWindow` 与 Quote/Authorize/Commit，并扩到更多 triggered-cost FUs |
-| `ORDER_TRIGGERS` / trigger payment | `CORE-260330` rules 318-324, 333-340, 377, 383.3.d-383.3.e, 403-405；`JFAQ-251023` q2.2-q2.3, q2.5 | 阶段 3D 已补最小 runtime window / UI / evidence；阶段 4C-1 已补保守 APNAP controller-block 子集、battle initial stack 代表路径和 face-down standby source 脱敏；阶段 4C-2 已补 Watchful Sentinel 多触发真实 `UNIT_DESTROYED` -> `TriggerQueue` -> `ORDER_TRIGGERS` -> `StackItems` -> priority -> draw 代表路径；阶段 4C-3 已补 Honest Broker 遗言金币真实 `UNIT_DESTROYED` -> `TriggerQueue` -> `ORDER_TRIGGERS` -> `StackItems` -> priority -> `EQUIPMENT_TOKEN_CREATED` 代表路径，以及非法排序 no mutation 复核；阶段 4C-4 已补 `SFD·220/221` trigger payment / decline / payment failure no-mutation 代表路径；阶段 4C-5 已补 state-based cleanup `LETHAL_DAMAGE` -> visible Watchful Sentinel last-breath enqueue 代表路径，并确认 hidden / standby Watchful 不入队避免 metadata 泄漏；完整 trigger engine、其他 destroyed / last-breath / friendly-destroyed FUs、隐藏 / face-down 原始触发建模、更多 trigger payment、完整 effect resolution、FAQ regression、1009/811 full-official 仍缺 | B 主实现；E 触发族 / FAQ fixture；C 只提交服务端 prompt；D 文档 | 以 Watchful Sentinel + Honest Broker 两条 last-breath real enqueue、Treasure Pile 触发支付和 visible Watchful cleanup enqueue 代表路径为基线，继续扩其他 destroyed-family、hidden / face-down trigger policy、更多触发费用拒付、effect resolution 和 FAQ regression |
+| `ORDER_TRIGGERS` / trigger payment | `CORE-260330` rules 318-324, 333-340, 377, 383.3.d-383.3.e, 403-405；`JFAQ-251023` q2.2-q2.3, q2.5 | 阶段 3D 已补最小 runtime window / UI / evidence；阶段 4C-1 已补保守 APNAP controller-block 子集、battle initial stack 代表路径和 face-down standby source 脱敏；阶段 4C-2 已补 Watchful Sentinel 多触发真实 `UNIT_DESTROYED` -> `TriggerQueue` -> `ORDER_TRIGGERS` -> `StackItems` -> priority -> draw 代表路径；阶段 4C-3 已补 Honest Broker 遗言金币真实 `UNIT_DESTROYED` -> `TriggerQueue` -> `ORDER_TRIGGERS` -> `StackItems` -> priority -> `EQUIPMENT_TOKEN_CREATED` 代表路径，以及非法排序 no mutation 复核；阶段 4C-4 已补 `SFD·220/221` trigger payment / decline / payment failure no-mutation 代表路径；阶段 4C-5 已补 state-based cleanup `LETHAL_DAMAGE` -> visible Watchful Sentinel last-breath enqueue 代表路径；阶段 4C-6 已补 state-based cleanup `LETHAL_DAMAGE` -> visible Honest Broker last-breath enqueue 代表路径，并确认 hidden / standby Watchful 与 Honest Broker 不入队避免 metadata 泄漏；完整 trigger engine、其他 destroyed / last-breath / friendly-destroyed FUs、hidden / face-down 原始触发建模、更多 trigger payment、完整 effect resolution、FAQ regression、1009/811 full-official 仍缺 | B 主实现；E 触发族 / FAQ fixture；C 只提交服务端 prompt；D 文档 | 以 Watchful Sentinel + Honest Broker 两条 last-breath real enqueue、Treasure Pile 触发支付、visible Watchful cleanup enqueue 和 visible Honest cleanup enqueue 代表路径为基线，继续扩其他 destroyed-family、hidden / face-down trigger policy、更多触发费用拒付、effect resolution 和 FAQ regression |
 
 ## superseded / 防误读
 
@@ -71,7 +72,7 @@
 - 具体战场 objectId 大小写：阶段 1 已修复并由 A 验收；后续只保留防回归，不再列为未清零 P0。
 - replay/final hash：历史“仍缺严格 action-log replay final-state 校验”口径已被当前 P1-004 状态替代；当前有 representative verifier、恢复前审计和 Postgres smoke，剩余风险是全命令/全恢复/全随机 property。
 - 复杂 prompt 降级展示：阶段 1 已完成安全降级与 prompt 戳过期保护；历史“完全没有复杂 prompt 入口”已 superseded。
-- 复杂 prompt schema：阶段 2 B 已补 `PAY_COST` / `ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` command/schema skeleton 与 malformed payload 稳定拒绝；历史“完全没有正式 schema/稳定拒绝语义”已 superseded。阶段 3A 已补 `PAY_COST` 最小 runtime；阶段 3C 已补 `ASSIGN_COMBAT_DAMAGE` 最小 runtime；阶段 3D 已补 `ORDER_TRIGGERS` 最小 runtime / UI；阶段 4C-1 已补 `ORDER_TRIGGERS` 保守 APNAP controller-block 子集；阶段 4C-2 已补 Watchful Sentinel 真实多触发入队代表路径；阶段 4C-3 已补 Honest Broker 遗言金币真实入队代表路径；阶段 4C-4 已补 `SFD·220/221` trigger payment / decline 代表路径；阶段 4C-5 已补 state-based cleanup -> visible Watchful last-breath enqueue 代表路径。`PAY_COST` 完整 PaymentEngine、`ASSIGN_COMBAT_DAMAGE` 全规则矩阵、`ORDER_TRIGGERS` 完整 trigger engine / 其他 destroyed-family / hidden 或 face-down 原始触发建模 / effect resolution / 更多 trigger payment / FAQ regression 仍是 P0。
+- 复杂 prompt schema：阶段 2 B 已补 `PAY_COST` / `ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` command/schema skeleton 与 malformed payload 稳定拒绝；历史“完全没有正式 schema/稳定拒绝语义”已 superseded。阶段 3A 已补 `PAY_COST` 最小 runtime；阶段 3C 已补 `ASSIGN_COMBAT_DAMAGE` 最小 runtime；阶段 3D 已补 `ORDER_TRIGGERS` 最小 runtime / UI；阶段 4C-1 已补 `ORDER_TRIGGERS` 保守 APNAP controller-block 子集；阶段 4C-2 已补 Watchful Sentinel 真实多触发入队代表路径；阶段 4C-3 已补 Honest Broker 遗言金币真实入队代表路径；阶段 4C-4 已补 `SFD·220/221` trigger payment / decline 代表路径；阶段 4C-5 / 4C-6 已补 state-based cleanup -> visible Watchful / Honest Broker last-breath enqueue 代表路径。`PAY_COST` 完整 PaymentEngine、`ASSIGN_COMBAT_DAMAGE` 全规则矩阵、`ORDER_TRIGGERS` 完整 trigger engine / 其他 destroyed-family / hidden 或 face-down 原始触发建模 / effect resolution / 更多 trigger payment / FAQ regression 仍是 P0。
 - 阶段 3A OPEN 口径：阶段 3A 已由 A 验收并关闭 smoke 基线、三类复杂命令强类型映射、`PAY_COST` 最小 runtime 和前端外壳安全接线；历史“3A 仍待验证/未完成”表述已 superseded。不得把 3A 关闭误读为 Stage 3、3B 或 READY。
 
 ## 阶段 2 B 已关闭的 P0 子项
@@ -374,6 +375,43 @@
 - P0：1009 / 811 full-official 覆盖、最终正式 18 步 E2E。
 - P1：trigger batch 正式 DTO、触发来源解释字段、hidden / standby trigger policy 文档化。
 
+### 阶段 4C-6 Honest Broker Cleanup Trigger Enqueue 审计
+
+4C-6 证据入口：`docs/CURRENT_STAGE4C_BATCH6_HONEST_CLEANUP_TRIGGER_AUDIT.md`。本节只更新规则证据 / P0-P1 审计，不代表 READY，不代表 1009 / 811 full-official。
+
+4C-6 关闭的 P0 子项：
+
+- State-based cleanup `LETHAL_DAMAGE` -> visible Honest Broker last-breath enqueue representative。
+- 服务端只接入可见、非 face-down、非 standby 的 Honest Broker / 《诚实掮客》（`CATALOG` SFD·155/221）。
+- Starfall / 《星落》（`CATALOG` OGN·029/298）造成致命伤害后，state-based cleanup `LETHAL_DAMAGE` 摧毁两个 Honest Broker，并串成 `TRIGGER_QUEUED` -> `ORDER_TRIGGERS` -> `StackItems` -> priority pass -> `TRIGGER_RESOLVED` / `EQUIPMENT_TOKEN_CREATED`。
+- hidden / standby Honest Broker 不入队、不创建 token，避免 trigger metadata 泄漏不可见或待命来源。
+- 本批不改协议或前端，不授予 full-official，不扩完整 trigger engine。
+
+规则证据入口：
+
+- State-based cleanup lethal destroy：`CORE-260330` p31-p33 rules 318-324；`CORE-260330` p14-p15 rules 142-143；`CORE-260330` p77 rule 460；`SOUL-OFAQ-260114` p19-p20。
+- Honest Broker last-breath enqueue：`CATALOG` SFD·155/221；`CORE-260330` p52-p55 rules 383.3.d-383.3.e；`JFAQ-251023` p2-p4 q2.2-q2.3。
+- Starfall lethal cleanup representative：`CATALOG` OGN·029/298；`CORE-260330` p14-p15 rules 142-143；`CORE-260330` p39-p42 rules 355-356。
+- Hidden / standby source redaction：`CORE-260330` p4-p8 rules 107-129；更精确 FAQ 页码暂为 TODO。
+
+验证记录：
+
+- A focused RealTriggerQueueTests：6/6 通过。
+- A backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过，3348/3348。
+- A frontend build：通过，仅有既有 SignalR / Rollup `PURE` 注释警告。
+- A Chrome smoke：通过。
+- A stage3 preflight：通过。
+- A B-file diff check：`git diff --check -- src/Riftbound.Engine/CoreRuleEngine.cs tests/Riftbound.ConformanceTests/RealTriggerQueueTests.cs` 通过。
+
+仍缺 P0/P1：
+
+- P0：完整 trigger engine。
+- P0：其他 destroyed / last-breath / friendly-destroyed functional units。
+- P0：hidden / face-down 原始触发建模和 viewer 级 metadata 全路径。
+- P0：完整 effect resolution 与完整 FAQ regression。
+- P0：1009 / 811 full-official 覆盖、最终正式 18 步 E2E。
+- P1：trigger batch 正式 DTO、触发来源解释字段、hidden / standby trigger policy 文档化。
+
 | 流程 / P0 | 规则依据入口 | 当前实现状态 | 分类 | 归属 agent | 下一步 |
 | --- | --- | --- | --- | --- | --- |
 | 创建 / 加入 / 卡组 / 准备 / 开局连续链路 | `CORE-260330` rule 103；rules 107-129；工程会话契约 | 后端和 UI 有分散代表路径；缺同一双浏览器阶段 3 smoke | 阻断 smoke | B/C；D 审计 | C 补最小 Chrome smoke，B 保持服务端权威，D 记录证据 |
@@ -392,7 +430,7 @@
 - P0-S2-003 spell duel / battle lifecycle 进入 3C 最小切片；focus/pass、battle view、battle resolution 代表子项可候选关闭，但完整 lifecycle 未完成。
 - P0-S2-004 `ASSIGN_COMBAT_DAMAGE` runtime 进入 3C 最小切片；schema skeleton、最小 runtime prompt、damage assignment phase、submit/reject 和 simultaneous commit 子项已关闭，完整全规则矩阵未完成。
 - P0-S2-005 `PAY_COST` 完整 PaymentEngine 与 `DECLINE_PAY_COST` / 替代费用 / 额外费用 / 非出牌支付窗口仍未完成；阶段 3A 最小 runtime 切片已关闭。
-- P0-S2-006 `ORDER_TRIGGERS` 最小 runtime / UI / evidence 子项已关闭；4C-1 APNAP controller-block 子集、battle initial stack 代表证据和 hidden trigger source redaction 子项已关闭；4C-2 Watchful Sentinel 多触发真实入队、经排序 / stack / priority 结算和非法排序 no mutation 子项已关闭；4C-3 Honest Broker 遗言金币真实多触发排序 / 入栈 / 结算代表路径已关闭；4C-4 Treasure Pile 触发支付 / 拒付 / 支付失败 no-mutation 代表路径已关闭；4C-5 state-based cleanup `LETHAL_DAMAGE` -> visible Watchful last-breath enqueue 代表路径已关闭；完整 trigger engine、其他 destroyed / last-breath / friendly-destroyed FUs、隐藏 / face-down 原始触发建模、更多 trigger payment / decline、完整 effect resolution、FAQ regression、1009/811 full-official 未完成。
+- P0-S2-006 `ORDER_TRIGGERS` 最小 runtime / UI / evidence 子项已关闭；4C-1 APNAP controller-block 子集、battle initial stack 代表证据和 hidden trigger source redaction 子项已关闭；4C-2 Watchful Sentinel 多触发真实入队、经排序 / stack / priority 结算和非法排序 no mutation 子项已关闭；4C-3 Honest Broker 遗言金币真实多触发排序 / 入栈 / 结算代表路径已关闭；4C-4 Treasure Pile 触发支付 / 拒付 / 支付失败 no-mutation 代表路径已关闭；4C-5 state-based cleanup `LETHAL_DAMAGE` -> visible Watchful last-breath enqueue 代表路径已关闭；4C-6 state-based cleanup `LETHAL_DAMAGE` -> visible Honest Broker last-breath enqueue 代表路径已关闭；完整 trigger engine、其他 destroyed / last-breath / friendly-destroyed FUs、hidden / face-down 原始触发建模、更多 trigger payment / decline、完整 effect resolution、FAQ regression、1009/811 full-official 未完成。
 - 3A-P0-001 / 002 / 003 / 004 已关闭；不得把这些 3A 子项误读为完整 Stage 3 或 READY。
 - 3B-CAND-001 / 002 / 003 / 004 只能作为阶段 3B 关闭候选；D/A 证据入账前不得移出 P0。
 - 3C-CAND-001 / 002 / 003 / 004 只能作为阶段 3C 关闭候选；D/A 证据入账前不得移出 P0，且不得替代最终 18 步 E2E。
@@ -415,7 +453,7 @@
 - D-Stage3C：维护 `docs/CURRENT_STAGE3C_SPELL_DUEL_BATTLE_DAMAGE_EVIDENCE.md`，阶段 3C 只跟踪 spell duel / battle / `ASSIGN_COMBAT_DAMAGE` / battle cleanup 的规则证据、关闭候选和仍缺口，不扩大到最终 18 步 E2E、1009 全量、完整 PaymentEngine / `ORDER_TRIGGERS` / LayerEngine。
 - D-Stage3D：维护 `docs/CURRENT_STAGE3_COMPLETION_AUDIT.md`，第三阶段收口只判断阶段性关闭项、仍缺 P0/P1、阶段 4 入口和最终验收边界；不得宣称 READY。
 - D-Stage3Flow：维护 `docs/CURRENT_STAGE3_CORE_FLOW_AUDIT.md`，每次 B/C 报告阶段 3 smoke 或服务端阻断关闭时，补规则依据、实现状态、测试证据、仍缺口和是否仍阻断。
-- D-FrontendContract：继续把正式复杂 prompt 字段草案拆成 `PAY_COST`、`ORDER_TRIGGERS`、`ASSIGN_COMBAT_DAMAGE`、`SPELL_DUEL_ACTION` 四张契约清单；标注 `PAY_COST` 已有最小 runtime 和 `SFD·220/221` `TRIGGER_PAYMENT` 代表路径、完整 PaymentEngine 未开放，`ASSIGN_COMBAT_DAMAGE` 只有最小 runtime、完整全规则矩阵未开放，`ORDER_TRIGGERS` 已到 Watchful Sentinel + Honest Broker 两条 last-breath real enqueue 与 visible Watchful cleanup enqueue 代表路径，但完整 trigger engine / 其他 destroyed-family / hidden 或 face-down 原始触发建模 / effect resolution / 更多 trigger payment / FAQ regression 未开放，`SPELL_DUEL_ACTION` 仍没有完整 runtime prompt，现有降级面板只能临时承接展示。
+- D-FrontendContract：继续把正式复杂 prompt 字段草案拆成 `PAY_COST`、`ORDER_TRIGGERS`、`ASSIGN_COMBAT_DAMAGE`、`SPELL_DUEL_ACTION` 四张契约清单；标注 `PAY_COST` 已有最小 runtime 和 `SFD·220/221` `TRIGGER_PAYMENT` 代表路径、完整 PaymentEngine 未开放，`ASSIGN_COMBAT_DAMAGE` 只有最小 runtime、完整全规则矩阵未开放，`ORDER_TRIGGERS` 已到 Watchful Sentinel + Honest Broker 两条 last-breath real enqueue 与 visible Watchful / Honest cleanup enqueue 代表路径，但完整 trigger engine / 其他 destroyed-family / hidden 或 face-down 原始触发建模 / effect resolution / 更多 trigger payment / FAQ regression 未开放，`SPELL_DUEL_ACTION` 仍没有完整 runtime prompt，现有降级面板只能临时承接展示。
 - E-RuleEvidence：把五份官方规则/FAQ PDF 与 2026-04-27 官网卡牌快照继续映射到 P0-S2-001 至 P0-S2-006，尤其补 `JFAQ` q2.2/q2.3/q2.5/q5.4/q6.x 和 `SOUL-OFAQ` p21 的 fixture 锚点。
 - E-Conformance：为仍未清零 P0 建最小官方场景，优先覆盖失控待命延迟移除、恶意收购非战斗法术对决、完整 APNAP 多玩家独立排序、其他 destroyed / last-breath / friendly-destroyed FUs、hidden / face-down 原始触发建模、触发费用拒付、多单位伤害分配、战斗清理与征服/据守得分。
 

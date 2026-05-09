@@ -27078,6 +27078,20 @@ public sealed class CoreRuleEngine : IRuleEngine
                 events.Add(BuildTriggerQueuedEvent(trigger));
                 triggerQueue.Add(trigger);
             }
+
+            var honestBrokerControllerId = ResolveHonestBrokerLastBreathGoldPlayerId(
+                destroyedState,
+                removalResult);
+            if (honestBrokerControllerId is not null)
+            {
+                var trigger = BuildLastBreathTriggerQueueItem(
+                    stackItem,
+                    objectId,
+                    honestBrokerControllerId,
+                    HonestBrokerLastBreathCreateGoldEffectKind);
+                events.Add(BuildTriggerQueuedEvent(trigger));
+                triggerQueue.Add(trigger);
+            }
         }
 
         return new LethalDamageCleanupResult(

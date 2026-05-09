@@ -156,6 +156,164 @@ public sealed class RealTriggerQueueTests
     }
 
     [Fact]
+    public async Task StateBasedCleanupHonestBrokerTriggersOrderAndCreateGoldThroughStack()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildStarfallDestroyingTwoHonestBrokersState();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-cleanup-honest-broker-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-cleanup-honest-broker-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Empty(p2Pass.State.StackItems);
+        Assert.Equal(2, p2Pass.State.TriggerQueue.Count);
+        Assert.Equal(2, p2Pass.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)));
+        Assert.Equal(2, p2Pass.Events.Count(gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "LETHAL_DAMAGE", StringComparison.Ordinal)));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_TOKEN_CREATED", StringComparison.Ordinal));
+
+        var p1Trigger = Assert.Single(p2Pass.State.TriggerQueue, trigger =>
+            string.Equals(trigger.ControllerId, "P1", StringComparison.Ordinal));
+        var p2Trigger = Assert.Single(p2Pass.State.TriggerQueue, trigger =>
+            string.Equals(trigger.ControllerId, "P2", StringComparison.Ordinal));
+        Assert.Equal("P1-CLEANUP-HONEST-BROKER", p1Trigger.SourceObjectId);
+        Assert.Equal("P2-CLEANUP-HONEST-BROKER", p2Trigger.SourceObjectId);
+        Assert.Equal("HONEST_BROKER_LAST_BREATH_CREATE_GOLD", p1Trigger.EffectKind);
+        Assert.All(p2Pass.State.TriggerQueue, trigger => Assert.Equal("UNIT_DESTROYED", trigger.TriggeredByEventKind));
+
+        var prompt = p2Pass.Prompts["P1"];
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.OrderTriggers, prompt.View?.Type);
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.OrderTriggers, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        var defaultOrder = Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["orderedTriggerIds"]);
+        Assert.Equal([p2Trigger.TriggerId, p1Trigger.TriggerId], defaultOrder);
+        var triggerViews = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["triggers"]).ToArray();
+        var p2TriggerView = Assert.Single(triggerViews, trigger =>
+            string.Equals(trigger["triggerId"] as string, p2Trigger.TriggerId, StringComparison.Ordinal));
+        Assert.Equal("P2-CLEANUP-HONEST-BROKER", Assert.IsType<string>(p2TriggerView["sourceObjectId"]));
+        Assert.Equal("HONEST_BROKER_LAST_BREATH_CREATE_GOLD", Assert.IsType<string>(p2TriggerView["effectKind"]));
+        Assert.Contains("UNIT_DESTROYED", Assert.IsType<string>(p2TriggerView["visibleText"]), StringComparison.Ordinal);
+
+        var illegalReorder = await engine.ResolveAsync(
+            p2Pass.State,
+            new PlayerIntent("intent-cleanup-honest-broker-illegal-raw-order", "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(OrderedTriggerIds: [p1Trigger.TriggerId, p2Trigger.TriggerId]),
+            CancellationToken.None);
+        Assert.False(illegalReorder.Accepted);
+        Assert.Equal(ErrorCodes.InvalidPayload, illegalReorder.ErrorCode);
+        Assert.Equal(p2Pass.State.Tick, illegalReorder.State.Tick);
+        Assert.Empty(illegalReorder.State.StackItems);
+        Assert.Equal(
+            p2Pass.State.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray(),
+            illegalReorder.State.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray());
+        Assert.Empty(illegalReorder.State.PlayerZones["P1"].Base);
+        Assert.Empty(illegalReorder.State.PlayerZones["P2"].Base);
+        Assert.DoesNotContain("P1-CLEANUP-HONEST-BROKER-TOKEN-001", illegalReorder.State.CardObjects.Keys);
+        Assert.DoesNotContain("P2-CLEANUP-HONEST-BROKER-TOKEN-001", illegalReorder.State.CardObjects.Keys);
+
+        var ordered = await engine.ResolveAsync(
+            p2Pass.State,
+            new PlayerIntent("intent-cleanup-honest-broker-default-order", "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(OrderedTriggerIds: defaultOrder),
+            CancellationToken.None);
+        Assert.True(ordered.Accepted, ordered.ErrorMessage);
+        Assert.Empty(ordered.State.TriggerQueue);
+        Assert.Equal(
+            [$"ordered-{p1Trigger.TriggerId}", $"ordered-{p2Trigger.TriggerId}"],
+            ordered.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.Equal("P2", ordered.State.PriorityPlayerId);
+
+        var p2TriggerPass = await engine.ResolveAsync(
+            ordered.State,
+            new PlayerIntent("intent-cleanup-honest-broker-p2-trigger-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p1ResolvesP2Trigger = await engine.ResolveAsync(
+            p2TriggerPass.State,
+            new PlayerIntent("intent-cleanup-honest-broker-p1-resolves-p2-trigger", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        Assert.True(p1ResolvesP2Trigger.Accepted, p1ResolvesP2Trigger.ErrorMessage);
+        Assert.Contains(p1ResolvesP2Trigger.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "HONEST_BROKER_LAST_BREATH_CREATE_GOLD", StringComparison.Ordinal));
+        var p2TokenEvent = Assert.Single(p1ResolvesP2Trigger.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "EQUIPMENT_TOKEN_CREATED", StringComparison.Ordinal));
+        Assert.Equal("P2", p2TokenEvent.Payload["playerId"]);
+        Assert.Equal("P2-CLEANUP-HONEST-BROKER", p2TokenEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P2-CLEANUP-HONEST-BROKER-TOKEN-001", p2TokenEvent.Payload["tokenObjectId"]);
+        Assert.Equal(true, p2TokenEvent.Payload["isExhausted"]);
+        Assert.Equal(["P2-CLEANUP-HONEST-BROKER-TOKEN-001"], p1ResolvesP2Trigger.State.PlayerZones["P2"].Base);
+        Assert.Single(p1ResolvesP2Trigger.State.StackItems);
+        Assert.Equal("P1", p1ResolvesP2Trigger.State.PriorityPlayerId);
+
+        var p1TriggerPass = await engine.ResolveAsync(
+            p1ResolvesP2Trigger.State,
+            new PlayerIntent("intent-cleanup-honest-broker-p1-trigger-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2ResolvesP1Trigger = await engine.ResolveAsync(
+            p1TriggerPass.State,
+            new PlayerIntent("intent-cleanup-honest-broker-p2-resolves-p1-trigger", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        Assert.True(p2ResolvesP1Trigger.Accepted, p2ResolvesP1Trigger.ErrorMessage);
+        var p1TokenEvent = Assert.Single(p2ResolvesP1Trigger.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "EQUIPMENT_TOKEN_CREATED", StringComparison.Ordinal));
+        Assert.Equal("P1", p1TokenEvent.Payload["playerId"]);
+        Assert.Equal("P1-CLEANUP-HONEST-BROKER", p1TokenEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P1-CLEANUP-HONEST-BROKER-TOKEN-001", p1TokenEvent.Payload["tokenObjectId"]);
+        Assert.Empty(p2ResolvesP1Trigger.State.TriggerQueue);
+        Assert.Empty(p2ResolvesP1Trigger.State.StackItems);
+        Assert.Equal(["P1-CLEANUP-HONEST-BROKER-TOKEN-001"], p2ResolvesP1Trigger.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-CLEANUP-HONEST-BROKER-TOKEN-001"], p2ResolvesP1Trigger.State.PlayerZones["P2"].Base);
+        Assert.True(p2ResolvesP1Trigger.State.CardObjects["P1-CLEANUP-HONEST-BROKER-TOKEN-001"].IsExhausted);
+        Assert.True(p2ResolvesP1Trigger.State.CardObjects["P2-CLEANUP-HONEST-BROKER-TOKEN-001"].IsExhausted);
+        Assert.Equal([CardObjectTags.EquipmentCard], p2ResolvesP1Trigger.State.CardObjects["P1-CLEANUP-HONEST-BROKER-TOKEN-001"].Tags);
+        Assert.Equal([CardObjectTags.EquipmentCard], p2ResolvesP1Trigger.State.CardObjects["P2-CLEANUP-HONEST-BROKER-TOKEN-001"].Tags);
+    }
+
+    [Fact]
+    public async Task StateBasedCleanupHiddenHonestBrokersDoNotEnqueueTriggers()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildStarfallDestroyingHiddenHonestBrokersState();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-cleanup-hidden-honest-broker-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-cleanup-hidden-honest-broker-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Empty(p2Pass.State.TriggerQueue);
+        Assert.Empty(p2Pass.State.StackItems);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_TOKEN_CREATED", StringComparison.Ordinal));
+        Assert.NotEqual(PromptTypes.OrderTriggers, p2Pass.Prompts["P1"].View?.Type);
+    }
+
+    [Fact]
     public async Task RealWatchfulSentinelLastBreathTriggersEnterApnapOrderWindowAndResolveThroughStack()
     {
         var engine = new CoreRuleEngine();
@@ -514,6 +672,30 @@ public sealed class RealTriggerQueueTests
             p2Tags: [CardObjectTags.UnitCard, CardObjectTags.Standby]);
     }
 
+    private static MatchState BuildStarfallDestroyingTwoHonestBrokersState()
+    {
+        return BuildStarfallDestroyingHonestBrokersState(
+            "cleanup-honest-broker-trigger-room",
+            "P1-CLEANUP-HONEST-BROKER",
+            "P2-CLEANUP-HONEST-BROKER",
+            p1IsFaceDown: false,
+            p2IsFaceDown: false,
+            p1Tags: [CardObjectTags.UnitCard],
+            p2Tags: [CardObjectTags.UnitCard]);
+    }
+
+    private static MatchState BuildStarfallDestroyingHiddenHonestBrokersState()
+    {
+        return BuildStarfallDestroyingHonestBrokersState(
+            "cleanup-hidden-honest-broker-trigger-room",
+            "P1-HIDDEN-HONEST-BROKER",
+            "P2-STANDBY-HONEST-BROKER",
+            p1IsFaceDown: true,
+            p2IsFaceDown: false,
+            p1Tags: [CardObjectTags.UnitCard],
+            p2Tags: [CardObjectTags.UnitCard, CardObjectTags.Standby]);
+    }
+
     private static MatchState BuildStarfallDestroyingWatchfulSentinelsState(
         string roomId,
         string p1WatchfulObjectId,
@@ -594,6 +776,92 @@ public sealed class RealTriggerQueueTests
                     "STARFALL_DAMAGE_3_TWICE",
                     "OGN·029/298",
                     [p1WatchfulObjectId, p2WatchfulObjectId])
+            ],
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            });
+    }
+
+    private static MatchState BuildStarfallDestroyingHonestBrokersState(
+        string roomId,
+        string p1HonestBrokerObjectId,
+        string p2HonestBrokerObjectId,
+        bool p1IsFaceDown,
+        bool p2IsFaceDown,
+        IReadOnlyList<string> p1Tags,
+        IReadOnlyList<string> p2Tags)
+    {
+        return new MatchState(
+            roomId,
+            19,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = [p1HonestBrokerObjectId]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = [p2HonestBrokerObjectId]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [p1HonestBrokerObjectId] = new(
+                    p1HonestBrokerObjectId,
+                    cardNo: "SFD·155/221",
+                    power: 3,
+                    isFaceDown: p1IsFaceDown,
+                    tags: p1Tags,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [p2HonestBrokerObjectId] = new(
+                    p2HonestBrokerObjectId,
+                    cardNo: "SFD·155/221",
+                    power: 3,
+                    isFaceDown: p2IsFaceDown,
+                    tags: p2Tags,
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-SPELL-STARFALL"] = new(
+                    "P1-SPELL-STARFALL",
+                    cardNo: "OGN·029/298",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            priorityPlayerId: "P1",
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-STARFALL-CLEANUP-HONEST-BROKER",
+                    "P1",
+                    "P1-SPELL-STARFALL",
+                    "STARFALL_DAMAGE_3_TWICE",
+                    "OGN·029/298",
+                    [p1HonestBrokerObjectId, p2HonestBrokerObjectId])
             ],
             playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
             {
