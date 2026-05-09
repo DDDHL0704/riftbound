@@ -15396,6 +15396,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             var stackResolution = ResolveStackItemEffect(state, resolvedItem);
             var resolvedStack = stackResolution.StackItems ?? remainingStack;
             var nextStack = RemoveCounteredStackItems(resolvedStack, stackResolution.CounteredStackItemIds);
+            var queuedTriggers = stackResolution.TriggerQueue
+                .Where(trigger => !string.IsNullOrWhiteSpace(trigger.TriggerId))
+                .ToArray();
+            var triggerHandoffEvents = new List<GameEvent>();
             var resolvedPlayerZones = stackResolution.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
             var resolvedCardObjects = stackResolution.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
             var resolvedRunePools = stackResolution.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -15422,12 +15426,33 @@ public sealed class CoreRuleEngine : IRuleEngine
 
             objectLocations = ReconcileObjectLocations(objectLocations, resolvedPlayerZones);
             ApplyResolvedStackSourceLocation(objectLocations, resolvedPlayerZones, resolvedItem);
+            if (queuedTriggers.Length == 1)
+            {
+                var singleTriggerStackItem = BuildStackItemForOrderedTrigger(
+                    state with { CardObjects = resolvedCardObjects },
+                    queuedTriggers[0]);
+                nextStack = nextStack.Concat([singleTriggerStackItem]).ToArray();
+                triggerHandoffEvents.Add(new GameEvent(
+                    "TRIGGERS_MOVED_TO_STACK",
+                    "单一触发能力自动加入结算链",
+                    new Dictionary<string, object?>
+                    {
+                        ["orderedTriggerIds"] = queuedTriggers.Select(trigger => trigger.TriggerId).ToArray(),
+                        ["stackItemIds"] = new[] { singleTriggerStackItem.StackItemId },
+                        ["topStackItemId"] = singleTriggerStackItem.StackItemId,
+                        ["nextPriorityPlayerId"] = singleTriggerStackItem.ControllerId,
+                        ["orderingPolicy"] = "SINGLE_TRIGGER_AUTO_STACK"
+                    }));
+                queuedTriggers = [];
+            }
+
             var returnsToSpellDuel = nextStack.Length == 0
+                && queuedTriggers.Length == 0
                 && string.Equals(resolvedItem.TimingContext, TimingStates.SpellDuelOpen, StringComparison.Ordinal);
             var nextFocusPlayerId = returnsToSpellDuel
                 ? NextPlayerIdAfter(state, resolvedItem.ControllerId)
                 : null;
-            var nextPriorityPlayerId = nextStack.Length == 0
+            var nextPriorityPlayerId = nextStack.Length == 0 || queuedTriggers.Length > 1
                 ? null
                 : nextStack[^1].ControllerId;
             nextState = state with
@@ -15442,6 +15467,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 PriorityPlayerId = nextPriorityPlayerId,
                 PassedPriorityPlayerIds = [],
                 StackItems = nextStack,
+                TriggerQueue = queuedTriggers,
                 PlayerZones = resolvedPlayerZones,
                 ObjectLocations = objectLocations,
                 PlayerScores = stackResolution.PlayerScores,
@@ -15470,6 +15496,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["effectKind"] = resolvedItem.EffectKind
                 }));
             events.AddRange(stackResolution.Events);
+            events.AddRange(triggerHandoffEvents);
             events.AddRange(postStackCleanupEvents);
         }
         else
@@ -20227,6 +20254,11 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)
     {
+        if (string.Equals(stackItem.EffectKind, WatchfulSentinelLastBreathDrawEffectKind, StringComparison.Ordinal))
+        {
+            return ResolveWatchfulSentinelLastBreathStackItem(state, stackItem);
+        }
+
         if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.ViDoublePowerAbilityEffectKind, StringComparison.Ordinal))
         {
             return ResolveViDoublePowerAbilityStackItem(state, stackItem);
@@ -20254,6 +20286,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 null,
                 [],
                 null,
+                [],
                 state.RngCursor);
         }
 
@@ -20265,6 +20298,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             .OrderBy(effectId => effectId, StringComparer.Ordinal)
             .ToList();
         var events = new List<GameEvent>();
+        var watchfulSentinelLastBreathTriggers = new List<TriggerQueueItemState>();
         var destroyedObjectIds = new List<string>();
         var destroyedUnitOwnerIds = new List<string>();
         var counteredStackItemIds = new List<string>();
@@ -22075,19 +22109,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                                     lastBreathDrawPlayerId,
                                     WatchfulSentinelLastBreathDrawEffectKind);
                                 events.Add(BuildTriggerQueuedEvent(trigger));
-                                events.Add(BuildTriggerResolvedEvent(trigger));
-
-                                var drawApplication = ApplyDrawToPlayer(
-                                    state,
-                                    playerZones,
-                                    playerScores,
-                                    lastBreathDrawPlayerId,
-                                    1,
-                                    rngCursor,
-                                    events);
-                                playerScores = drawApplication.PlayerScores;
-                                winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
-                                rngCursor = drawApplication.RngCursor;
+                                watchfulSentinelLastBreathTriggers.Add(trigger);
                             }
 
                             var warhawkRunePlayerId = ResolveScoutingWarhawkLastBreathRunePlayerId(
@@ -22717,6 +22739,28 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones[stackItem.ControllerId] = controllerZones;
         }
 
+        var triggerQueue = Array.Empty<TriggerQueueItemState>();
+        if (watchfulSentinelLastBreathTriggers.Count == 1)
+        {
+            var trigger = watchfulSentinelLastBreathTriggers[0];
+            events.Add(BuildTriggerResolvedEvent(trigger));
+            var drawApplication = ApplyDrawToPlayer(
+                state,
+                playerZones,
+                playerScores,
+                trigger.ControllerId,
+                1,
+                rngCursor,
+                events);
+            playerScores = drawApplication.PlayerScores;
+            winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
+            rngCursor = drawApplication.RngCursor;
+        }
+        else if (watchfulSentinelLastBreathTriggers.Count > 1)
+        {
+            triggerQueue = watchfulSentinelLastBreathTriggers.ToArray();
+        }
+
         untilEndOfTurnEffects = MarkPlayersWhoGainedExperienceThisTurn(untilEndOfTurnEffects, events).ToList();
         return new StackResolutionResult(
             playerZones,
@@ -22737,7 +22781,50 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .OrderBy(stackItemId => stackItemId, StringComparer.Ordinal)
                 .ToArray(),
             extraTurnPlayerId,
+            triggerQueue,
             rngCursor);
+    }
+
+    private static StackResolutionResult ResolveWatchfulSentinelLastBreathStackItem(
+        MatchState state,
+        StackItemState stackItem)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var events = new List<GameEvent>
+        {
+            BuildTriggerResolvedEvent(new TriggerQueueItemState(
+                stackItem.StackItemId.StartsWith("ordered-", StringComparison.Ordinal)
+                    ? stackItem.StackItemId["ordered-".Length..]
+                    : stackItem.StackItemId,
+                stackItem.ControllerId,
+                stackItem.SourceObjectId,
+                stackItem.EffectKind,
+                "UNIT_DESTROYED"))
+        };
+        var drawApplication = ApplyDrawToPlayer(
+            state,
+            playerZones,
+            state.PlayerScores,
+            stackItem.ControllerId,
+            1,
+            state.RngCursor,
+            events);
+
+        return new StackResolutionResult(
+            playerZones,
+            state.CardObjects,
+            drawApplication.PlayerScores,
+            NormalizeExperienceForSeats(state),
+            state.RunePools,
+            state.UntilEndOfTurnEffects,
+            drawApplication.WinnerPlayerId,
+            events,
+            [],
+            null,
+            [],
+            null,
+            [],
+            drawApplication.RngCursor);
     }
 
     private static StackResolutionResult ResolveViDoublePowerAbilityStackItem(
@@ -22782,6 +22869,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             null,
             [],
             null,
+            [],
             state.RngCursor);
     }
 
@@ -22847,6 +22935,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             null,
             [],
             null,
+            [],
             state.RngCursor);
     }
 
@@ -28183,6 +28272,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<StackItemState>? StackItems,
         IReadOnlyList<string> CounteredStackItemIds,
         string? ExtraTurnPlayerId,
+        IReadOnlyList<TriggerQueueItemState> TriggerQueue,
         long RngCursor);
 
     private sealed record RecycleResult(

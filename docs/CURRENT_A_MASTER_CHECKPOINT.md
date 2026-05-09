@@ -974,6 +974,54 @@ A 主控复验：
 
 4C-1 结论：**通过**。没有新增 P0/P1，没有前端本地规则裁决路径，没有发现 hidden information 泄漏；允许继续阶段 4C 下一批。下一批建议优先做完整 trigger engine + real card-trigger enqueue，然后处理 trigger payment / decline / payment failure。项目整体仍 **NOT READY**。
 
+## 0.12 阶段 4C-2 Real Card-Trigger Enqueue 第一小批
+
+阶段 4C-2 继续按 functional unit / engine blocker 小批推进。本批只把 `Watchful Sentinel` / `OGN·096/298` / `FU-67568b793d` 的多真实遗言触发代表路径接入服务端权威触发队列，不扩展到所有 last-breath / destroyed / attack / conquer 触发族，不进入 1009 full-official 覆盖。项目整体仍 **NOT READY**。
+
+4C-2 服务端改动：
+
+- `CoreRuleEngine` 在真实 `UNIT_DESTROYED` 路径中，当多个 `Watchful Sentinel` 遗言抽牌触发同时产生时，改为生成 `TriggerQueue`。
+- 多触发路径进入 `ORDER_TRIGGERS prompt -> StackItems -> pass priority -> TRIGGER_RESOLVED / CARD_DRAWN`。
+- prompt metadata 的 APNAP 默认 `orderedTriggerIds` 可直接提交并 accepted。
+- 非法跨控制者排序 rejected，且失败命令不改变 authoritative state。
+- 单个 `Watchful Sentinel` 遗言继续保留旧即时结算兼容；本批不把它宣称为统一单触发策略。
+- 新增 `tests/Riftbound.ConformanceTests/RealTriggerQueueTests.cs` 覆盖真实卡牌事件入队、排序、非法排序无副作用和栈结算。
+
+4C-2 覆盖矩阵 / 文档改动：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 新增 `stage4CBatch2RealTriggerEnqueue` 顶层 overlay。
+- 确认 `OGN·096/298` 对应 `FU-67568b793d`，仅该 FU 添加 `stage4C2` overlay。
+- overlay status：`REAL_CARD_TRIGGER_ENQUEUE_PARTIALLY_REDUCED_NOT_FULL_OFFICIAL`。
+- 新增 `docs/CURRENT_STAGE4C_BATCH2_REAL_TRIGGER_ENQUEUE_EVIDENCE.md`。
+- 新增 `docs/CURRENT_STAGE4C_BATCH2_REAL_TRIGGER_ENQUEUE_AUDIT.md`。
+- 更新 `docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/rules-evidence-index.md`、`docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`、`docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`、`docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`。
+
+4C-2 A 复核命令：
+
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~RealTriggerQueueTests|FullyQualifiedName~OrderTriggers|FullyQualifiedName~WatchfulSentinel"`：通过，11/11。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：通过，3338/3338。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：通过；仅保留 SignalR / Rollup `PURE` 注释提示。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：通过。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && node scripts/stage3-preflight.mjs --start-api`：通过，player-a / player-b 双上下文均 OK；尾部 499/143、allocator 与连接 abort 记录来自脚本关停，不作为阻断。
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`：通过。
+- 结构抽检：snapshot entries = 1009、functional units = 811、`stage4CBatch2RealTriggerEnqueue` 存在、`stage4C2` verified FU = `FU-67568b793d`、full-official upgrades = 0、full-official uncovered = 811。
+- `git diff --check`：通过。
+
+4C-2 关闭的 P0 子项：
+
+- 真实 `UNIT_DESTROYED` 事件生成 `Watchful Sentinel` 多触发 `TriggerQueue` 的代表路径。
+- 真实触发经 `ORDER_TRIGGERS` 排序后进入 stack 并由 priority pass 结算。
+- 真实触发非法跨控制者排序 no-mutation 拒绝。
+
+4C-2 仍保留 P0/P1：
+
+- 完整 trigger engine 尚未完成。
+- `Watchful Sentinel` 之外的 last-breath / friendly-destroyed / on-play registered trigger / attack / defense / conquer 触发族仍未统一入队。
+- state-based cleanup trigger enqueue、trigger payment / decline / payment failure、完整 effect resolution、FAQ adjudication 仍待后续批次。
+- 1009 entries / 811 functional units full-official 覆盖、正式 18 步 E2E、completion audit 仍未完成。
+
+4C-2 结论：**通过**。没有新增 P0/P1，没有前端本地规则裁决路径，没有发现 hidden information 泄漏；允许继续阶段 4C 下一批。下一批建议扩展 last-breath / destroyed-family real enqueue，但仍按小批、逐 FU、逐测试推进。项目整体仍 **NOT READY**。
+
 ## 1. 总目标
 
 以当前仓库五份官方规则 / FAQ PDF 与 `data/official/card-catalog.zh-CN.json` 的 2026-04-27 官网卡牌快照为准，完成本地双人 1v1 标准构筑产品级 Web 游戏基线：

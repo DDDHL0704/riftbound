@@ -1,12 +1,12 @@
 # 当前卡牌效果高风险 Top20
 
-更新时间：2026-05-10
+更新时间：2026-05-09
 
-阶段：**阶段 4C-1 / E 卡牌覆盖矩阵 post-freeze overlay**
+阶段：**阶段 4C-2 / E 卡牌覆盖矩阵 post-freeze overlay**
 
 结论：**NOT READY；不允许进入 1009 张卡牌效果批量覆盖。**
 
-本文以阶段 2 风险排序为基础，并叠加阶段 3A/3B/3C/3D 的最小证据 overlay、阶段 4B 冻结状态和阶段 4C-1 APNAP `ORDER_TRIGGERS` 部分 blocker 降低；它不是功能实现清单，也不是错误断言。排名用于告诉后续阶段先审哪里：哪些 functional unit 同时碰到 FAQ、费用、触发/替换、持续效果、战斗/法术对决、隐藏信息或非 PLAY_CARD 规则域。
+本文以阶段 2 风险排序为基础，并叠加阶段 3A/3B/3C/3D 的最小证据 overlay、阶段 4B 冻结状态、阶段 4C-1 APNAP `ORDER_TRIGGERS` 部分 blocker 降低和阶段 4C-2 Watchful Sentinel real trigger enqueue 最小切片；它不是功能实现清单，也不是错误断言。排名用于告诉后续阶段先审哪里：哪些 functional unit 同时碰到 FAQ、费用、触发/替换、持续效果、战斗/法术对决、隐藏信息或非 PLAY_CARD 规则域。
 
 ## 1. 数据来源
 
@@ -129,7 +129,7 @@ Functional unit primary status：
 
 Top uncovered/full-official blockers 仍从 Top20 开始：`FU-fb79eea7fc`、`FU-2653af0380`、`FU-104211dbbc`、`FU-964b214448`、`FU-2dca1ad450`、`FU-9f7cb73dc4`、`FU-422b450261`、`FU-05ce012700`、`FU-1945f6918c`、`FU-813144e7d4`。即使 primary status 是 `IMPLEMENTED_TESTED`，只要带 `NEEDS_ENGINE_SUPPORT` / `NEEDS_FAQ_REVIEW` flag，就不能升级 full-official。
 
-4C 批量顺序建议：4C-1 已先降低 `ORDER_TRIGGERS` 的保守 APNAP controller-block / battle initial stack 代表路径 / hidden trigger metadata redaction blocker；下一批应继续补完整 trigger engine 与真实卡牌触发入队，再做 trigger payment / decline、FAQ adjudication、battle/damage 压测和 hidden-info 回归。
+4C 批量顺序建议：4C-1 已先降低 `ORDER_TRIGGERS` 的保守 APNAP controller-block / battle initial stack 代表路径 / hidden trigger metadata redaction blocker；4C-2 已验证 Watchful Sentinel real trigger enqueue 最小切片。下一批应扩展 last-breath / destroyed-family enqueue，再做 trigger payment / decline、FAQ adjudication、battle/damage 压测和 hidden-info 回归。
 
 ## 8. Stage 4C-1 Trigger Ordering Overlay
 
@@ -147,15 +147,40 @@ Top20 中 `ORDER_TRIGGERS` / battle initial stack blocker 被部分降低的 FUs
 
 4C 后续批量顺序建议：
 
-1. `4C-2` complete trigger engine + real card-trigger enqueue：从真实卡牌规则生成 last-breath / conquer / attack / defense / standby trigger queue。
+1. `4C-2` complete trigger engine + real card-trigger enqueue：已完成 Watchful Sentinel 最小切片；仍需扩展到其他 last-breath / conquer / attack / defense / standby trigger queue。
 2. `4C-3` trigger payment / decline / payment failure：覆盖触发费用、可选/拒绝、支付失败 rollback。
 3. `4C-4` FAQ adjudication for trigger / battle ordering：把 PDF/FAQ 候选判定为适用 / 不适用 / 通用规则并补 ruling-backed tests。
 4. `4C-5` battle initial stack + `ASSIGN_COMBAT_DAMAGE` pressure matrix：扩展到完整 battle initial stack、伤害分配、预防/替代和 battle cleanup ordering。
 5. `4C-6` hidden information regression pack：压测 face-down standby、reveal、随机/牌堆、viewer-specific prompt metadata。
 
-仍缺：完整 trigger engine、真实卡牌全触发生成、trigger payment / decline、完整 APNAP 多玩家独立排序、FAQ adjudication、1009/811 full-official 覆盖。
+仍缺：完整 trigger engine、Watchful 之外的真实卡牌全触发生成、trigger payment / decline、完整 APNAP 多玩家独立排序、FAQ adjudication、1009/811 full-official 覆盖。
 
-## 9. Top20 高风险 Functional Units
+## 9. Stage 4C-2 Real Trigger Enqueue Overlay
+
+4C-2 只更新覆盖矩阵 / 风险证据，不实现卡牌效果，不升级 full-official。`docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已新增 `stage4CBatch2RealTriggerEnqueue`，并只为 `FU-67568b793d` 增加 `functionalUnits[].stage4C2` overlay。
+
+4C-2 已部分降低的 blocker：
+
+- `OGN·096/298`《警觉的哨兵》对应 `FU-67568b793d`，registry effect kind 为 `WATCHFUL_SENTINEL_PLAY_UNIT`。
+- 多个 Watchful Sentinel 的真实 `UNIT_DESTROYED` 路径产生 `WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1`，进入 `TriggerQueue -> ORDER_TRIGGERS prompt -> StackItems -> pass priority -> TRIGGER_RESOLVED / CARD_DRAWN`。
+- 单个 Watchful Sentinel 仍保留旧即时结算兼容路径。
+- 跨控制者 APNAP 默认 `orderedTriggerIds` 可直接提交 accepted；非法跨控制者排序拒绝且 no mutation。
+- A 验证结果：focused 11/11、backend full 3338/3338、frontend build passed、Chrome smoke passed、stage3 preflight passed。
+
+已验证 FU：`FU-67568b793d` / `OGN·096/298`《警觉的哨兵》。overlay status：`REAL_CARD_TRIGGER_ENQUEUE_PARTIALLY_REDUCED_NOT_FULL_OFFICIAL`。该 FU 仍保留 `NEEDS_ENGINE_SUPPORT` / `NEEDS_FAQ_REVIEW`，不能升级 full-official。
+
+4C-2 next-pressure 候选只记录在顶层，不标已实现：
+
+- destroyed / friendly-destroyed：`FU-b5cb36a5c9`、`FU-c146331876`、`FU-0f2c4a3ea5`
+- last-breath：`FU-3acf92c924`、`FU-6a52b04cb2`、`FU-af8b05c294`、`FU-ee1dfb3ed3`、`FU-b829fb32b9`、`FU-16d3a6dd4e`、`FU-4e2e19359f`、`FU-f9eb8c6f71`、`FU-1701d1d89a`
+- on-play registered trigger：`FU-d5e1143438`、`FU-bf81341dd2`、`FU-e8d8846d73`、`FU-808f8b89db`、`FU-f18a49e06d`、`FU-67c6b0186e`
+- attack / defense / conquer：`FU-661793867e`、`FU-5cea85e7c3`、`FU-422b450261`、`FU-7f4a387b92`、`FU-c027639a3c`、`FU-3e9cb3904e`
+
+后续批量顺序建议：先扩展 last-breath / destroyed-family real enqueue，再做 trigger payment / decline / payment failure，再补 state-based cleanup trigger enqueue，之后才压 attack / defense / conquer real trigger enqueue 与 FAQ adjudication。
+
+仍缺：完整 trigger engine、其他 last-breath 族、trigger payment / decline、state-based cleanup trigger enqueue、FAQ adjudication、1009/811 full-official 覆盖。
+
+## 10. Top20 高风险 Functional Units
 
 | # | FU | Representative | 类型/条目数 | 当前代表映射 | FAQ 候选页 | 风险依据 | 依赖规则域 |
 |---:|---|---|---:|---|---|---|---|
@@ -180,7 +205,7 @@ Top20 中 `ORDER_TRIGGERS` / battle initial stack blocker 被部分降低的 FUs
 | 19 | `FU-804412488c` | `SFD·139/221` 夜之锋刃 | 装备 / 1 | 代表路径：EDGE_OF_NIGHT_PLAY_EQUIPMENT | SOUL-OFAQ-260114 p10<br>SOUL-OFAQ-260114 p9 | 控制权/区域移动、FAQ 提及、隐藏信息/随机/牌堆、效果层/持续效果、费用/支付、目标/结算链/时机 | FEPR/Targeting/TimingWindows, LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, VisibilityFilter/RandomAndHiddenZones, ZoneOwnership/ControlChange/Movement |
 | 20 | `FU-9a623b3185` | `SFD·059/221` 斯弗尔尚歌 | 装备 / 1 | 代表路径：SFUR_SONG_PLAY_EQUIPMENT | SOUL-JFAQ-260114 p24<br>SOUL-JFAQ-260114 p25<br>SOUL-JFAQ-260114 p8<br>SOUL-OFAQ-260114 p18<br>SOUL-OFAQ-260114 p19 | 控制权/区域移动、FAQ 提及、效果层/持续效果、费用/支付 | LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, ZoneOwnership/ControlChange/Movement |
 
-## 10. 未覆盖效果分类
+## 11. 未覆盖效果分类
 
 | 分类 | 含义 | 当前阻断关系 |
 |---|---|---|
@@ -194,13 +219,13 @@ Top20 中 `ORDER_TRIGGERS` / battle initial stack blocker 被部分降低的 FUs
 | `non-play-domain` | 传奇、战场、符文、指示物等非普通 PLAY_CARD 域。 | 需要专门域矩阵，不可与普通出牌效果混算。 |
 | `faq-mentioned` | 五份 PDF/FAQ 中出现卡名的候选项。 | 必须人工判定问题是否真的约束该 FU，并补测试。 |
 
-## 11. P0/P1 仍未清零
+## 12. P0/P1 仍未清零
 
 P0：
 
 - central cleanup queue 未完整官方化。
 - spell duel / battle 完整生命周期仍未完成。
-- `PAY_COST` 已有 3A 最小 runtime，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime，`ORDER_TRIGGERS` 已升级为 4C-1 保守 APNAP controller-block 子集；完整 PaymentEngine、完整 damage assignment 全规则矩阵、完整 trigger engine / battle initial stack 全规则仍未完成。
+- `PAY_COST` 已有 3A 最小 runtime，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime，`ORDER_TRIGGERS` 已升级为 4C-1 保守 APNAP controller-block 子集，4C-2 只验证 Watchful Sentinel real trigger enqueue；完整 PaymentEngine、完整 damage assignment 全规则矩阵、完整 trigger engine / battle initial stack 全规则仍未完成。
 - 正式 18 步 E2E 未最终收口。
 - 1009 entries / 811 FUs 的 FAQ 证据与 full-official 测试矩阵未完成。
 
