@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 第三百三十二批补齐 promo 编号《碎骨棒》（SFD·118a/221·P）橙色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在在橙色代表路径中覆盖《多兰之刃》《海克斯饮魔刀》《狂徒铠甲》《三相之力》《猎人的宽刃刀》、普通编号《碎骨棒》和 promo 编号《碎骨棒》七张官方装备；ActionPrompt 只公开 promo 编号《碎骨棒》的 `ASSEMBLE_ORANGE`、橙色符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 59/59、后端 full test 3275/3275、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第三百三十一批补齐普通编号《碎骨棒》（SFD·118/221）橙色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在在橙色代表路径中覆盖《多兰之刃》《海克斯饮魔刀》《狂徒铠甲》《三相之力》《猎人的宽刃刀》和普通编号《碎骨棒》六张官方装备；ActionPrompt 只公开普通编号《碎骨棒》的 `ASSEMBLE_ORANGE`、橙色符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 58/58、后端 full test 3274/3274、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
 - 第三百三十批补齐《枯萎战斧》（UNL-019/219）红色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在在红色代表路径中覆盖《长剑》《锯齿短匕》《反曲之弓》《阿瑞昂的陨落》和《枯萎战斧》五张官方装备；ActionPrompt 只公开《枯萎战斧》的 `ASSEMBLE_RED`、红色符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 57/57、后端 full test 3273/3273、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。

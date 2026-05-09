@@ -4308,6 +4308,59 @@ public sealed class ConformanceFixtureShapeTests
             boneClubRequirement["optionalCostChoices"]);
         Assert.Equal(["ASSEMBLE_ORANGE"], boneClubOptionalCostChoices.Select(cost => cost.Id).ToArray());
 
+        var boneClubPromoState = steraksGageState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Orange] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-BONE-CLUB-PROMO", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BONE-CLUB-PROMO"] = new(
+                    "P1-BONE-CLUB-PROMO",
+                    cardNo: "SFD·118a/221·P",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var boneClubPromoPrompt = ResolutionResult.BuildPrompts(boneClubPromoState)["P1"];
+        var boneClubPromoCandidate = Assert.Single(
+            boneClubPromoPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(boneClubPromoCandidate.Enabled);
+        Assert.Equal(["P1-BONE-CLUB-PROMO"], (boneClubPromoCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_ORANGE"], (boneClubPromoCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var boneClubPromoMetadata = Assert.IsType<Dictionary<string, object?>>(boneClubPromoCandidate.Metadata);
+        var boneClubPromoRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(boneClubPromoMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·118a/221·P", Assert.IsType<string>(boneClubPromoRequirement["equipmentCardNo"]));
+        var boneClubPromoOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            boneClubPromoRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_ORANGE"], boneClubPromoOptionalCostChoices.Select(cost => cost.Id).ToArray());
+
         var bootsOfSwiftnessState = steraksGageState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)

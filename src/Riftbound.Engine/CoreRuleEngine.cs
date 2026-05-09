@@ -88,6 +88,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BoneClubCardNo = "SFD·118/221";
     private const string BoneClubAssembleOptionalCost = "ASSEMBLE_ORANGE";
     private const int BoneClubAssemblePowerCost = 1;
+    private const string BoneClubPromoCardNo = "SFD·118a/221·P";
+    private const string BoneClubPromoAssembleOptionalCost = "ASSEMBLE_ORANGE";
+    private const int BoneClubPromoAssemblePowerCost = 1;
     private const string BootsOfSwiftnessCardNo = "SFD·133/221";
     private const string BootsOfSwiftnessAssembleOptionalCost = "ASSEMBLE_PURPLE";
     private const int BootsOfSwiftnessAssemblePowerCost = 1;
@@ -233,6 +236,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 BoneClubAssembleOptionalCost,
                 RuneTrait.Orange,
                 BoneClubAssemblePowerCost),
+            [BoneClubPromoCardNo] = new(
+                BoneClubPromoCardNo,
+                "碎骨棒",
+                BoneClubPromoAssembleOptionalCost,
+                RuneTrait.Orange,
+                BoneClubPromoAssemblePowerCost),
             [BootsOfSwiftnessCardNo] = new(
                 BootsOfSwiftnessCardNo,
                 "轻灵之靴",
