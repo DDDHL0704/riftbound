@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 第三百三十五批补齐《Z型驱动》（SFD·090/221）蓝色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在在蓝色代表路径中覆盖《布甲》《海克斯注力刚壁》《云游图鉴》和《Z型驱动》四张官方装备；ActionPrompt 只公开《Z型驱动》的 `ASSEMBLE_BLUE`、蓝色符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 62/62、后端 full test 3278/3278、DevUi build 通过，`git diff --check` 通过。放逐打出能力仍需后续装备能力/打出窗口支持；整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第三百三十四批补齐《斯弗尔尚歌》（SFD·059/221）绿色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在在绿色代表路径中覆盖《灵魂之剑》《斯特拉克的挑战护手》《斯弗尔尚歌》《多兰之盾》《残暴之力》和《守护天使》六张官方装备；ActionPrompt 只公开《斯弗尔尚歌》的 `ASSEMBLE_GREEN`、绿色符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 61/61、后端 full test 3277/3277、DevUi build 通过，`git diff --check` 通过。复制宿主技能文字仍需后续持续文本/层系统支持；整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
 - 第三百三十三批补齐《夜之锋刃》（SFD·139/221）紫色装配代表路径。服务端 `ASSEMBLE_EQUIPMENT` profile 现在在紫色代表路径中覆盖《多兰之戒》《轻灵之靴》《萃取》和《夜之锋刃》四张官方装备；ActionPrompt 只公开《夜之锋刃》的 `ASSEMBLE_PURPLE`、紫色符能要求和合法单位目标，前端继续只按服务端候选渲染装配组合器。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke；build 通过，`AssembleEquipment` 回归 60/60、后端 full test 3276/3276、DevUi build 与 `git diff --check` 均通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。

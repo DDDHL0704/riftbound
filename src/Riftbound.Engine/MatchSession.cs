@@ -2371,6 +2371,9 @@ internal static class ActionPromptBuilder
     private const string WanderersGuidebookCardNo = "SFD·086/221";
     private const int WanderersGuidebookAssemblePowerCost = 1;
     private const string WanderersGuidebookAssembleOptionalCost = "ASSEMBLE_BLUE";
+    private const string ZDriveCardNo = "SFD·090/221";
+    private const int ZDriveAssemblePowerCost = 1;
+    private const string ZDriveAssembleOptionalCost = "ASSEMBLE_BLUE";
     private const string SteraksGageCardNo = "SFD·056/221";
     private const int SteraksGageAssemblePowerCost = 1;
     private const string SteraksGageAssembleOptionalCost = "ASSEMBLE_GREEN";
@@ -2521,6 +2524,14 @@ internal static class ActionPromptBuilder
                 "装配蓝色符能",
                 RuneTrait.Blue,
                 WanderersGuidebookAssemblePowerCost,
+                "payment resource action: recycle blue rune for assemble cost"),
+            [ZDriveCardNo] = new(
+                ZDriveCardNo,
+                "Z型驱动",
+                ZDriveAssembleOptionalCost,
+                "装配蓝色符能",
+                RuneTrait.Blue,
+                ZDriveAssemblePowerCost,
                 "payment resource action: recycle blue rune for assemble cost"),
             [SteraksGageCardNo] = new(
                 SteraksGageCardNo,

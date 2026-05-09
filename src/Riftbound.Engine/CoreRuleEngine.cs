@@ -61,6 +61,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string WanderersGuidebookCardNo = "SFD·086/221";
     private const string WanderersGuidebookAssembleOptionalCost = "ASSEMBLE_BLUE";
     private const int WanderersGuidebookAssemblePowerCost = 1;
+    private const string ZDriveCardNo = "SFD·090/221";
+    private const string ZDriveAssembleOptionalCost = "ASSEMBLE_BLUE";
+    private const int ZDriveAssemblePowerCost = 1;
     private const string SteraksGageCardNo = "SFD·056/221";
     private const string SteraksGageAssembleOptionalCost = "ASSEMBLE_GREEN";
     private const int SteraksGageAssemblePowerCost = 1;
@@ -188,6 +191,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 WanderersGuidebookAssembleOptionalCost,
                 RuneTrait.Blue,
                 WanderersGuidebookAssemblePowerCost),
+            [ZDriveCardNo] = new(
+                ZDriveCardNo,
+                "Z型驱动",
+                ZDriveAssembleOptionalCost,
+                RuneTrait.Blue,
+                ZDriveAssemblePowerCost),
             [SteraksGageCardNo] = new(
                 SteraksGageCardNo,
                 "斯特拉克的挑战护手",

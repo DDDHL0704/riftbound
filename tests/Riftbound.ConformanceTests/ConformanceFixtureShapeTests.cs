@@ -3675,6 +3675,48 @@ public sealed class ConformanceFixtureShapeTests
             wanderersGuidebookRequirement["optionalCostChoices"]);
         Assert.Equal(["ASSEMBLE_BLUE"], wanderersGuidebookOptionalCostChoices.Select(cost => cost.Id).ToArray());
 
+        var zDriveState = clothArmorState with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-Z-DRIVE", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-Z-DRIVE"] = new(
+                    "P1-Z-DRIVE",
+                    cardNo: "SFD·090/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var zDrivePrompt = ResolutionResult.BuildPrompts(zDriveState)["P1"];
+        var zDriveCandidate = Assert.Single(
+            zDrivePrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(zDriveCandidate.Enabled);
+        Assert.Equal(["P1-Z-DRIVE"], (zDriveCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_BLUE"], (zDriveCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        var zDriveMetadata = Assert.IsType<Dictionary<string, object?>>(zDriveCandidate.Metadata);
+        var zDriveRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(zDriveMetadata["sourceRequirements"]));
+        Assert.Equal("SFD·090/221", Assert.IsType<string>(zDriveRequirement["equipmentCardNo"]));
+        var zDriveOptionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            zDriveRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_BLUE"], zDriveOptionalCostChoices.Select(cost => cost.Id).ToArray());
+
         var steraksGageState = clothArmorState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
