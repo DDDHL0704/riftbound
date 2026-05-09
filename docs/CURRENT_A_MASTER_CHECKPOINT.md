@@ -1459,6 +1459,60 @@ A 主控复验：
 
 4C-11 结论：**通过**。没有新增 P0/P1，没有协议或前端字段变化，没有把 hidden / face-down / standby / opponent-controlled Ghostly source 误入队或误加战力；允许继续阶段 4C 下一批。阶段 4C 仍在逐 FU、逐测试批量推进；项目整体仍 **NOT READY**。
 
+## 0.22 阶段 4C-12 Resonant Soul Cleanup Trigger Enqueue 小批
+
+阶段 4C-12 继续按 functional unit / engine blocker 小批推进。本批只把 Resonant Soul / `OGN·118/298` / `FU-c146331876` 的 first-friendly-destroyed draw 代表路径接入 state-based cleanup 后的服务端权威触发队列；支撑来源为 `Starfall` / `OGN·029/298` 造成 lethal damage 后的 state-based cleanup。项目整体仍 **NOT READY**。
+
+4C-12 服务端改动：
+
+- 覆盖 `FU-c146331876` / `OGN·118/298` Resonant Soul / 残响之魂 first-friendly-destroyed draw 最小真实触发队列切片。
+- 官方化路径串成：Starfall lethal damage -> state-based cleanup `LETHAL_DAMAGE` / `UNIT_DESTROYED` -> visible surviving friendly Resonant Soul source，owner not already in `DestroyedUnitOwnerIdsThisTurn` -> `TriggerQueue` -> `ORDER_TRIGGERS` -> `StackItems` -> priority pass -> `TRIGGER_RESOLVED` -> `CARD_DRAWN` 1。
+- hidden / face-down / standby / opponent-controlled source 不入队、不显示 prompt metadata、不抽牌。
+- source 同时在本轮 cleanup removal set 中时保守不入队；本批不裁定完整同时死亡触发次数。
+- 每 owner 每 cleanup pass 只按首次 destroyed unit 生成本批 source set；同回合已经记录 destroyed owner 时不入队。
+- true stack destruction Resonant 旧 P79 immediate compatibility 保留，未迁移到 `TriggerQueue`；cleanup 事件跳过旧 immediate helper 防重复。
+- 本批不覆盖 Viktor / Ghostly 后续 / Kogmaw / Karthus / Undercover Agent，不进入 full-official，不宣称完整 trigger engine。
+
+4C-12 文档改动：
+
+- 新增 `docs/CURRENT_STAGE4C_BATCH12_RESONANT_SOUL_CLEANUP_TRIGGER_AUDIT.md`。
+- 新增 `docs/CURRENT_STAGE4C_BATCH12_RESONANT_SOUL_CLEANUP_TRIGGER_EVIDENCE.md`。
+- 更新 `docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/rules-evidence-index.md` 与本 checkpoint。
+- 更新 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`、`docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`、`docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`。
+- 本批不修改前端运行时代码或 `riftbound-dotnet.sln`。
+
+4C-12 A 复核命令：
+
+- B focused：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~RealTriggerQueueTests|FullyQualifiedName~P79ResonantSoulDrawsOnlyForFirstFriendlyUnitDestroyedEachTurn"` 通过，27/27。
+- `git diff --check -- src/Riftbound.Engine/CoreRuleEngine.cs tests/Riftbound.ConformanceTests/RealTriggerQueueTests.cs`：passed。
+- A backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过，3368/3368。
+- A frontend build：passed。
+- A Chrome smoke：passed。
+- A Stage 3 preflight：passed。
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`：passed。
+- 4C-12 矩阵结构断言：passed；`stage4C12` tagged FU = 1（`FU-c146331876`），cumulative real trigger enqueue FUs = 9，cumulative state-based cleanup trigger enqueue FUs = 9，`fullOfficialUpgrades = 0`，1009 / 811 冻结计数不变。
+- false-completion 窄断言：passed；未发现候选就绪、正式 E2E 已通过或 `fullOfficial: true` 误宣称。
+
+4C-12 关闭的 P0 子项：
+
+- Resonant Soul / `OGN·118/298` first-friendly-destroyed draw state-based cleanup real trigger enqueue representative。
+- hidden / face-down / standby / opponent-controlled Resonant Soul source 不入队、不显示 prompt metadata、不抽牌的信息泄漏与控制权护栏。
+- cleanup removal set 中 source 同时死亡时保守不入队。
+- 每 owner 每 cleanup pass 只按首次 destroyed unit 生成本批 source set；同回合已记录 destroyed owner 时不入队。
+
+4C-12 仍保留 P0/P1：
+
+- 完整 trigger engine。
+- 其他 last-breath / destroyed / friendly-destroyed functional units。
+- Viktor / Ghostly 后续 / Kogmaw / Karthus / Undercover Agent。
+- 完整“每回合首次”时序、完整同时死亡触发次数、同一 cleanup pass 多对象排序、source 同时死亡时的官方裁定。
+- hidden / face-down 原始触发建模。
+- FAQ regression。
+- 1009 entries / 811 functional units full-official 覆盖、正式 18-step E2E、completion audit 仍未完成。
+- P1：true stack destruction Resonant 旧 P79 immediate compatibility 后续迁移到 `TriggerQueue`。
+
+4C-12 结论：**通过**。没有新增 P0/P1，没有协议或前端字段变化，没有把 hidden / face-down / standby / opponent-controlled Resonant Soul source 误入队或误抽牌；cleanup 路径跳过旧 immediate helper，避免重复触发；允许继续阶段 4C 下一批。阶段 4C 仍在逐 FU、逐测试批量推进；项目整体仍 **NOT READY**。
+
 ## 1. 总目标
 
 以当前仓库五份官方规则 / FAQ PDF 与 `data/official/card-catalog.zh-CN.json` 的 2026-04-27 官网卡牌快照为准，完成本地双人 1v1 标准构筑产品级 Web 游戏基线：

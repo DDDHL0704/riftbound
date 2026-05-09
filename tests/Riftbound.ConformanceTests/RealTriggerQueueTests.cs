@@ -787,6 +787,103 @@ public sealed class RealTriggerQueueTests
     }
 
     [Fact]
+    public async Task StateBasedCleanupResonantSoulsTriggerOrderAndDrawThroughStack()
+    {
+        var engine = new CoreRuleEngine();
+        var cleanup = await ResolveStarfallCleanupAsync(
+            engine,
+            BuildStarfallDestroyingResonantSoulFriendlyUnitsState(),
+            "resonant-souls");
+
+        Assert.Equal(2, cleanup.State.TriggerQueue.Count);
+        Assert.All(cleanup.State.TriggerQueue, trigger =>
+        {
+            Assert.Equal("RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1", trigger.EffectKind);
+            Assert.Equal("UNIT_DESTROYED", trigger.TriggeredByEventKind);
+        });
+        Assert.Empty(cleanup.State.PlayerZones["P1"].Hand);
+        Assert.Empty(cleanup.State.PlayerZones["P2"].Hand);
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+
+        var final = await OrderAndResolveTwoDrawTriggersThroughStackAsync(
+            engine,
+            cleanup.State,
+            "resonant-souls",
+            "RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1",
+            "P1-CLEANUP-RESONANT-SOUL",
+            "P2-CLEANUP-RESONANT-SOUL",
+            "P1-RESONANT-SOUL-DRAW-001",
+            "P2-RESONANT-SOUL-DRAW-001");
+
+        Assert.Empty(final.State.TriggerQueue);
+        Assert.Empty(final.State.StackItems);
+        Assert.Equal(["P1-RESONANT-SOUL-DRAW-001"], final.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-RESONANT-SOUL-DRAW-001"], final.State.PlayerZones["P2"].Hand);
+    }
+
+    [Fact]
+    public async Task StateBasedCleanupResonantSoulsSkipWhenOwnersAlreadyDestroyedThisTurn()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildStarfallDestroyingResonantSoulFriendlyUnitsState() with
+        {
+            DestroyedUnitOwnerIdsThisTurn = ["P1", "P2"]
+        };
+        var cleanup = await ResolveStarfallCleanupAsync(
+            engine,
+            state,
+            "resonant-souls-already-destroyed");
+
+        Assert.Empty(cleanup.State.TriggerQueue);
+        Assert.Empty(cleanup.State.StackItems);
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal));
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.NotEqual(PromptTypes.OrderTriggers, cleanup.Prompts["P1"].View?.Type);
+        Assert.Equal(["P1-RESONANT-SOUL-DRAW-001"], cleanup.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P2-RESONANT-SOUL-DRAW-001"], cleanup.State.PlayerZones["P2"].MainDeck);
+        Assert.Empty(cleanup.State.PlayerZones["P1"].Hand);
+        Assert.Empty(cleanup.State.PlayerZones["P2"].Hand);
+    }
+
+    [Fact]
+    public async Task StateBasedCleanupHiddenResonantSoulsDoNotEnqueueTriggers()
+    {
+        var engine = new CoreRuleEngine();
+        var cleanup = await ResolveStarfallCleanupAsync(
+            engine,
+            BuildStarfallDestroyingFriendlyUnitsWithInvalidResonantSoulSourcesState(),
+            "hidden-resonant-souls");
+
+        Assert.Empty(cleanup.State.TriggerQueue);
+        Assert.Empty(cleanup.State.StackItems);
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal));
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal));
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.NotEqual(PromptTypes.OrderTriggers, cleanup.Prompts["P1"].View?.Type);
+        Assert.Equal(["P1-RESONANT-SOUL-DRAW-001"], cleanup.State.PlayerZones["P1"].MainDeck);
+        Assert.Empty(cleanup.State.PlayerZones["P1"].Hand);
+    }
+
+    [Fact]
+    public async Task StateBasedCleanupResonantSoulSkipsWhenSourceAlsoDies()
+    {
+        var engine = new CoreRuleEngine();
+        var cleanup = await ResolveStarfallCleanupAsync(
+            engine,
+            BuildStarfallDestroyingResonantSoulAndFriendlyUnitState(),
+            "resonant-soul-source-also-dies");
+
+        Assert.Empty(cleanup.State.TriggerQueue);
+        Assert.Empty(cleanup.State.StackItems);
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal));
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Empty(cleanup.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-RESONANT-SOUL-DRAW-001"], cleanup.State.PlayerZones["P1"].MainDeck);
+        Assert.Empty(cleanup.State.PlayerZones["P1"].Hand);
+        Assert.NotEqual(PromptTypes.OrderTriggers, cleanup.Prompts["P1"].View?.Type);
+    }
+
+    [Fact]
     public async Task RealWatchfulSentinelLastBreathTriggersEnterApnapOrderWindowAndResolveThroughStack()
     {
         var engine = new CoreRuleEngine();
@@ -2007,6 +2104,275 @@ public sealed class RealTriggerQueueTests
                     "STARFALL_DAMAGE_3_TWICE",
                     "OGN·029/298",
                     ["P1-DYING-GHOSTLY-CENTAUR", "P1-DYING-GHOSTLY-FRIEND"])
+            ],
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            });
+    }
+
+    private static MatchState BuildStarfallDestroyingResonantSoulFriendlyUnitsState()
+    {
+        return new MatchState(
+            "cleanup-resonant-soul-trigger-room",
+            44,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-RESONANT-SOUL-DRAW-001"],
+                    Base = ["P1-CLEANUP-RESONANT-SOUL", "P1-CLEANUP-RESONANT-TARGET"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P2-RESONANT-SOUL-DRAW-001"],
+                    Base = ["P2-CLEANUP-RESONANT-SOUL", "P2-CLEANUP-RESONANT-TARGET"]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-CLEANUP-RESONANT-SOUL"] = new(
+                    "P1-CLEANUP-RESONANT-SOUL",
+                    cardNo: "OGN·118/298",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, "灵体"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-CLEANUP-RESONANT-SOUL"] = new(
+                    "P2-CLEANUP-RESONANT-SOUL",
+                    cardNo: "OGN·118/298",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, "灵体"],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-CLEANUP-RESONANT-TARGET"] = new(
+                    "P1-CLEANUP-RESONANT-TARGET",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-CLEANUP-RESONANT-TARGET"] = new(
+                    "P2-CLEANUP-RESONANT-TARGET",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-SPELL-STARFALL"] = new(
+                    "P1-SPELL-STARFALL",
+                    cardNo: "OGN·029/298",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            priorityPlayerId: "P1",
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-STARFALL-CLEANUP-RESONANT-SOULS",
+                    "P1",
+                    "P1-SPELL-STARFALL",
+                    "STARFALL_DAMAGE_3_TWICE",
+                    "OGN·029/298",
+                    ["P1-CLEANUP-RESONANT-TARGET", "P2-CLEANUP-RESONANT-TARGET"])
+            ],
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            });
+    }
+
+    private static MatchState BuildStarfallDestroyingFriendlyUnitsWithInvalidResonantSoulSourcesState()
+    {
+        return new MatchState(
+            "cleanup-hidden-resonant-soul-trigger-room",
+            45,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-RESONANT-SOUL-DRAW-001"],
+                    Base =
+                    [
+                        "P1-HIDDEN-RESONANT-SOUL",
+                        "P1-STANDBY-RESONANT-SOUL",
+                        "P1-CLEANUP-RESONANT-HIDDEN-TARGET-1",
+                        "P1-CLEANUP-RESONANT-HIDDEN-TARGET-2"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-OPPONENT-RESONANT-SOUL"]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HIDDEN-RESONANT-SOUL"] = new(
+                    "P1-HIDDEN-RESONANT-SOUL",
+                    cardNo: "OGN·118/298",
+                    power: 5,
+                    isFaceDown: true,
+                    tags: [CardObjectTags.UnitCard, "灵体"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-STANDBY-RESONANT-SOUL"] = new(
+                    "P1-STANDBY-RESONANT-SOUL",
+                    cardNo: "OGN·118/298",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "灵体"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-OPPONENT-RESONANT-SOUL"] = new(
+                    "P2-OPPONENT-RESONANT-SOUL",
+                    cardNo: "OGN·118/298",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, "灵体"],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-CLEANUP-RESONANT-HIDDEN-TARGET-1"] = new(
+                    "P1-CLEANUP-RESONANT-HIDDEN-TARGET-1",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-CLEANUP-RESONANT-HIDDEN-TARGET-2"] = new(
+                    "P1-CLEANUP-RESONANT-HIDDEN-TARGET-2",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-SPELL-STARFALL"] = new(
+                    "P1-SPELL-STARFALL",
+                    cardNo: "OGN·029/298",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            priorityPlayerId: "P1",
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-STARFALL-CLEANUP-HIDDEN-RESONANT-SOULS",
+                    "P1",
+                    "P1-SPELL-STARFALL",
+                    "STARFALL_DAMAGE_3_TWICE",
+                    "OGN·029/298",
+                    ["P1-CLEANUP-RESONANT-HIDDEN-TARGET-1", "P1-CLEANUP-RESONANT-HIDDEN-TARGET-2"])
+            ],
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            });
+    }
+
+    private static MatchState BuildStarfallDestroyingResonantSoulAndFriendlyUnitState()
+    {
+        return new MatchState(
+            "cleanup-resonant-soul-source-also-dies-room",
+            46,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-RESONANT-SOUL-DRAW-001"],
+                    Base = ["P1-DYING-RESONANT-SOUL", "P1-DYING-RESONANT-FRIEND"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-DYING-RESONANT-SOUL"] = new(
+                    "P1-DYING-RESONANT-SOUL",
+                    cardNo: "OGN·118/298",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, "灵体"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-DYING-RESONANT-FRIEND"] = new(
+                    "P1-DYING-RESONANT-FRIEND",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-SPELL-STARFALL"] = new(
+                    "P1-SPELL-STARFALL",
+                    cardNo: "OGN·029/298",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            priorityPlayerId: "P1",
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-STARFALL-CLEANUP-DYING-RESONANT-SOUL",
+                    "P1",
+                    "P1-SPELL-STARFALL",
+                    "STARFALL_DAMAGE_3_TWICE",
+                    "OGN·029/298",
+                    ["P1-DYING-RESONANT-SOUL", "P1-DYING-RESONANT-FRIEND"])
             ],
             playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
             {

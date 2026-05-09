@@ -574,6 +574,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         0,
         PowerModifierAmount: 1);
     private const string ResonantSoulCardNo = "OGN·118/298";
+    private const string ResonantSoulFirstFriendlyDestroyedDrawEffectKind = "RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1";
     private const string BilgewaterBullyCardNo = "OGN·125/298";
     private const string DuneDrakeCardNo = "OGN·131/298";
     private const string SavageJawfishCardNo = "UNL-129/219";
@@ -1570,7 +1571,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             state.RunePools,
             battlefieldId,
             damageTriggeredDestroyTargetObjectIds,
-            objectLocations);
+            objectLocations,
+            destroyedUnitOwnerIdsAlreadyThisTurn: state.DestroyedUnitOwnerIdsThisTurn);
         var runePools = lethalCleanup.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         combatEvents.AddRange(lethalCleanup.Events);
         objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
@@ -4100,6 +4102,47 @@ public sealed class CoreRuleEngine : IRuleEngine
                 destroyedOwnerPlayerId,
                 sourceObjectId,
                 GhostlyCentaurFriendlyDestroyedPowerEffectKind,
+                "UNIT_DESTROYED"))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<TriggerQueueItemState> BuildResonantSoulFirstFriendlyDestroyedTriggerQueueItems(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlySet<string> stateBasedRemovalObjectIds,
+        IReadOnlySet<string> destroyedUnitOwnerIdsAlreadyThisTurn,
+        IReadOnlySet<string> alreadyQueuedOwnerIds,
+        StackItemState stackItem,
+        string destroyedObjectId,
+        string destroyedOwnerPlayerId)
+    {
+        if (destroyedUnitOwnerIdsAlreadyThisTurn.Contains(destroyedOwnerPlayerId)
+            || alreadyQueuedOwnerIds.Contains(destroyedOwnerPlayerId))
+        {
+            return [];
+        }
+
+        return playerZones
+            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
+            .Distinct(StringComparer.Ordinal)
+            .Where(sourceObjectId => !string.Equals(sourceObjectId, destroyedObjectId, StringComparison.Ordinal))
+            .Where(sourceObjectId => !stateBasedRemovalObjectIds.Contains(sourceObjectId))
+            .Where(sourceObjectId => cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                && string.Equals(sourceState.CardNo, ResonantSoulCardNo, StringComparison.Ordinal)
+                && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !sourceState.IsFaceDown
+                && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                && IsObjectOnField(playerZones, sourceObjectId)
+                && string.Equals(
+                    EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
+                    destroyedOwnerPlayerId,
+                    StringComparison.Ordinal))
+            .OrderBy(sourceObjectId => sourceObjectId, StringComparer.Ordinal)
+            .Select(sourceObjectId => new TriggerQueueItemState(
+                $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{destroyedObjectId}-{ResonantSoulFirstFriendlyDestroyedDrawEffectKind}",
+                destroyedOwnerPlayerId,
+                sourceObjectId,
+                ResonantSoulFirstFriendlyDestroyedDrawEffectKind,
                 "UNIT_DESTROYED"))
             .ToArray();
     }
@@ -7495,7 +7538,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObjects,
             cleanupStackItem,
             state.RunePools,
-            objectLocations: objectLocations);
+            objectLocations: objectLocations,
+            destroyedUnitOwnerIdsAlreadyThisTurn: state.DestroyedUnitOwnerIdsThisTurn);
         var runePools = lethalCleanup.RunePools;
         objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
 
@@ -7767,7 +7811,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObjects,
             cleanupStackItem,
             state.RunePools,
-            objectLocations: objectLocations);
+            objectLocations: objectLocations,
+            destroyedUnitOwnerIdsAlreadyThisTurn: state.DestroyedUnitOwnerIdsThisTurn);
         var runePools = lethalCleanup.RunePools;
         objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
 
@@ -7967,7 +8012,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObjects,
             cleanupStackItem,
             state.RunePools,
-            objectLocations: objectLocations);
+            objectLocations: objectLocations,
+            destroyedUnitOwnerIdsAlreadyThisTurn: state.DestroyedUnitOwnerIdsThisTurn);
         var runePools = lethalCleanup.RunePools;
         objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
         var nextState = state with
@@ -8318,7 +8364,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             combatStackItem,
             runePools,
             battlefieldId,
-            damageTriggeredDestroyTargetObjectIds);
+            damageTriggeredDestroyTargetObjectIds,
+            destroyedUnitOwnerIdsAlreadyThisTurn: state.DestroyedUnitOwnerIdsThisTurn);
         runePools = lethalCleanup.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         combatEvents.AddRange(lethalCleanup.Events);
         if (!string.IsNullOrWhiteSpace(battlefieldDefenderMoveObjectId))
@@ -15751,7 +15798,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                     resolvedCardObjects,
                     resolvedItem,
                     resolvedRunePools,
-                    objectLocations: objectLocations);
+                    objectLocations: objectLocations,
+                    destroyedUnitOwnerIdsAlreadyThisTurn: state.DestroyedUnitOwnerIdsThisTurn
+                        .Concat(stackResolution.DestroyedUnitOwnerIds)
+                        .ToHashSet(StringComparer.Ordinal));
                 resolvedRunePools = postStackCleanup.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
                 postStackCleanupEvents = postStackCleanup.Events.ToArray();
                 queuedTriggers = queuedTriggers
@@ -15967,7 +16017,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObjects,
             cleanupStackItem,
             state.RunePools,
-            objectLocations: objectLocations);
+            objectLocations: objectLocations,
+            destroyedUnitOwnerIdsAlreadyThisTurn: state.DestroyedUnitOwnerIdsThisTurn);
         if (cleanup.Events.Count == 0
             && cleanup.DestroyedObjectIds.Count == 0
             && cleanup.DestroyedUnitOwnerIds.Count == 0)
@@ -16118,7 +16169,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "TURN_END_CLEANUP",
                 "TURN_END_CLEANUP"),
             cleanupState.RunePools,
-            objectLocations: objectLocations);
+            objectLocations: objectLocations,
+            destroyedUnitOwnerIdsAlreadyThisTurn: cleanupState.DestroyedUnitOwnerIdsThisTurn);
         objectLocations = ReconcileObjectLocations(objectLocations, turnEndPlayerZones);
         var annieTurnEndEvents = ReadyRunesForAnnieAtTurnEnd(
             turnEndPlayerZones,
@@ -17278,7 +17330,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Where(gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
                 && TryGetPayloadString(gameEvent, "targetObjectId", out _)
                 && TryGetPayloadString(gameEvent, "ownerPlayerId", out var ownerPlayerId)
-                && !state.DestroyedUnitOwnerIdsThisTurn.Contains(ownerPlayerId, StringComparer.Ordinal))
+                && !state.DestroyedUnitOwnerIdsThisTurn.Contains(ownerPlayerId, StringComparer.Ordinal)
+                && !IsStateBasedCleanupDestroyedEvent(gameEvent))
             .Select(gameEvent =>
             {
                 _ = TryGetPayloadString(gameEvent, "targetObjectId", out var destroyedObjectId);
@@ -17322,7 +17375,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     {
                         ["playerId"] = destroyedUnit.OwnerPlayerId,
                         ["sourceObjectId"] = sourceObjectId,
-                        ["effectKind"] = "RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1",
+                        ["effectKind"] = ResonantSoulFirstFriendlyDestroyedDrawEffectKind,
                         ["triggeredByEventKind"] = "UNIT_DESTROYED"
                     }));
                 var drawApplication = ApplyDrawToPlayer(
@@ -20609,6 +20662,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveWatchfulSentinelLastBreathStackItem(state, stackItem);
         }
 
+        if (string.Equals(stackItem.EffectKind, ResonantSoulFirstFriendlyDestroyedDrawEffectKind, StringComparison.Ordinal))
+        {
+            return ResolveWatchfulSentinelLastBreathStackItem(state, stackItem);
+        }
+
         if (string.Equals(stackItem.EffectKind, SadPoroLastBreathDrawEffectKind, StringComparison.Ordinal) ||
             string.Equals(stackItem.EffectKind, LoyalPoroLastBreathDrawEffectKind, StringComparison.Ordinal))
         {
@@ -22967,7 +23025,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObjects,
             stackItem,
             runePools,
-            damageTriggeredDestroyTargetObjectIds: damageTriggeredDestroyTargetObjectIds);
+            damageTriggeredDestroyTargetObjectIds: damageTriggeredDestroyTargetObjectIds,
+            destroyedUnitOwnerIdsAlreadyThisTurn: state.DestroyedUnitOwnerIdsThisTurn);
         runePools = lethalCleanup.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         events.AddRange(lethalCleanup.Events);
         destroyedObjectIds.AddRange(lethalCleanup.DestroyedObjectIds
@@ -23097,6 +23156,20 @@ public sealed class CoreRuleEngine : IRuleEngine
             var trigger = officialLastBreathTriggers[0];
             events.Add(BuildTriggerResolvedEvent(trigger));
             if (string.Equals(trigger.EffectKind, WatchfulSentinelLastBreathDrawEffectKind, StringComparison.Ordinal))
+            {
+                var drawApplication = ApplyDrawToPlayer(
+                    state,
+                    playerZones,
+                    playerScores,
+                    trigger.ControllerId,
+                    1,
+                    rngCursor,
+                    events);
+                playerScores = drawApplication.PlayerScores;
+                winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
+                rngCursor = drawApplication.RngCursor;
+            }
+            else if (string.Equals(trigger.EffectKind, ResonantSoulFirstFriendlyDestroyedDrawEffectKind, StringComparison.Ordinal))
             {
                 var drawApplication = ApplyDrawToPlayer(
                     state,
@@ -23480,7 +23553,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObjects,
                 stackItem,
                 state.RunePools,
-                damageTriggeredDestroyTargetObjectIds: damageTriggeredDestroyTargetObjectIds);
+                damageTriggeredDestroyTargetObjectIds: damageTriggeredDestroyTargetObjectIds,
+                destroyedUnitOwnerIdsAlreadyThisTurn: state.DestroyedUnitOwnerIdsThisTurn);
             runePools = lethalCleanup.RunePools;
             events.AddRange(lethalCleanup.Events);
             destroyedUnitOwnerIds.AddRange(lethalCleanup.DestroyedUnitOwnerIds);
@@ -26890,13 +26964,17 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, RunePool> runePools,
         string? battlefieldId = null,
         IReadOnlySet<string>? damageTriggeredDestroyTargetObjectIds = null,
-        Dictionary<string, ObjectLocationState>? objectLocations = null)
+        Dictionary<string, ObjectLocationState>? objectLocations = null,
+        IEnumerable<string>? destroyedUnitOwnerIdsAlreadyThisTurn = null)
     {
         var events = new List<GameEvent>();
         var destroyedObjectIds = new List<string>();
         var destroyedUnitOwnerIds = new List<string>();
         var triggerQueue = new List<TriggerQueueItemState>();
         var nextRunePools = runePools;
+        var knownDestroyedUnitOwnerIds = destroyedUnitOwnerIdsAlreadyThisTurn is null
+            ? new HashSet<string>(StringComparer.Ordinal)
+            : destroyedUnitOwnerIdsAlreadyThisTurn.ToHashSet(StringComparer.Ordinal);
         var firstPassDamageTriggeredDestroyTargetObjectIds =
             damageTriggeredDestroyTargetObjectIds ?? new HashSet<string>(StringComparer.Ordinal);
 
@@ -26909,6 +26987,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 pass == 0
                     ? firstPassDamageTriggeredDestroyTargetObjectIds
                     : new HashSet<string>(StringComparer.Ordinal),
+                knownDestroyedUnitOwnerIds,
                 nextRunePools,
                 battlefieldId);
             var illegalStandbyCleanup = objectLocations is null
@@ -26933,6 +27012,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             events.AddRange(unattachedEquipmentCleanup.Events);
             destroyedObjectIds.AddRange(cleanup.DestroyedObjectIds);
             destroyedUnitOwnerIds.AddRange(cleanup.DestroyedUnitOwnerIds);
+            knownDestroyedUnitOwnerIds.UnionWith(cleanup.DestroyedUnitOwnerIds);
             triggerQueue.AddRange(cleanup.TriggerQueue);
             nextRunePools = cleanup.RunePools;
         }
@@ -27203,6 +27283,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         Dictionary<string, CardObjectState> cardObjects,
         StackItemState stackItem,
         IReadOnlySet<string> damageTriggeredDestroyTargetObjectIds,
+        IReadOnlySet<string> destroyedUnitOwnerIdsAlreadyThisTurn,
         IReadOnlyDictionary<string, RunePool>? runePools = null,
         string? battlefieldId = null)
     {
@@ -27211,6 +27292,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var destroyedUnitOwnerIds = new List<string>();
         var triggerQueue = new List<TriggerQueueItemState>();
         var queuedGhostlyCentaurSourceObjectIds = new HashSet<string>(StringComparer.Ordinal);
+        var queuedResonantSoulOwnerIds = new HashSet<string>(StringComparer.Ordinal);
         var nextRunePools = runePools;
         var stateBasedRemovalObjectIds = cardObjects
             .Where(entry => (IsZeroOrNegativePowerDamagedCleanupCandidate(entry.Value)
@@ -27420,6 +27502,28 @@ public sealed class CoreRuleEngine : IRuleEngine
                 events.Add(BuildTriggerQueuedEvent(trigger));
                 triggerQueue.Add(trigger);
                 queuedGhostlyCentaurSourceObjectIds.Add(trigger.SourceObjectId);
+            }
+
+            var resonantSoulTriggers = removalResult.WasUnit
+                ? BuildResonantSoulFirstFriendlyDestroyedTriggerQueueItems(
+                    playerZones,
+                    cardObjects,
+                    stateBasedRemovalObjectIdSet,
+                    destroyedUnitOwnerIdsAlreadyThisTurn,
+                    queuedResonantSoulOwnerIds,
+                    stackItem,
+                    objectId,
+                    removalResult.OwnerPlayerId)
+                : Array.Empty<TriggerQueueItemState>();
+            if (removalResult.WasUnit)
+            {
+                queuedResonantSoulOwnerIds.Add(removalResult.OwnerPlayerId);
+            }
+
+            foreach (var trigger in resonantSoulTriggers)
+            {
+                events.Add(BuildTriggerQueuedEvent(trigger));
+                triggerQueue.Add(trigger);
             }
         }
 
