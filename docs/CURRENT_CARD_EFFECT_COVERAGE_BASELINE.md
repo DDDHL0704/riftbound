@@ -2,11 +2,11 @@
 
 更新时间：2026-05-09
 
-阶段：**阶段 2 / E 卡牌覆盖矩阵框架与 FAQ 证据候选**
+阶段：**阶段 3B / E 卡牌覆盖矩阵与 Battlefield lifecycle 证据 overlay**
 
 结论：**NOT READY；不允许进入 1009 张卡牌效果批量覆盖。**
 
-本文只建立统计口径、只读数据基线、矩阵字段和风险排序，不实现或修改任何卡牌效果。阶段 1/2 的目标是防止把现有代表路径、旧阶段口径或图鉴展示误判为全官方卡牌完成。
+本文只建立统计口径、只读数据基线、矩阵字段、风险排序和阶段性证据 overlay，不实现或修改任何卡牌效果。阶段 1/2 建立卡牌覆盖基线；阶段 3A/3B 只给最小 runtime / lifecycle 切片补证据标签，防止把代表路径、旧阶段口径或图鉴展示误判为全官方卡牌完成。
 
 ## 1. 已读取依据
 
@@ -16,7 +16,7 @@
 - `docs/rules-evidence-index.md`：当前已有规则域和 fixture 证据目录；该文件不是 1009 张卡覆盖矩阵。
 - `data/official/card-catalog.zh-CN.json`：固定官网快照，`fetchedAt = 2026-04-27`，声明 `total = 1009`。
 
-注意：`docs/CURRENT_RULE_EVIDENCE_TODO.md` 不在阶段 2 E 写入锁内；若该文件已有改动，视为 D/A 或其他 worker 持有，本轮不修改、不追加。
+注意：`docs/CURRENT_RULE_EVIDENCE_TODO.md` 可能由 D/A 或其他 worker 持有；本轮 3B E 不修改、不追加。
 
 ## 2. 阶段 1 统计口径
 
@@ -278,5 +278,46 @@ P1 仍存在：
 - battlefield / standby / control / held / conquer task lifecycle 仍未 full-official。
 - central cleanup queue、PaymentEngine、LayerEngine、battle / spell duel 完整生命周期仍未清零；3A 只取 `PAY_COST` 最小 runtime 切片。
 - 1009 snapshot entries / 811 functional units 的 FAQ adjudication 与测试矩阵仍未完成。
+
+是否允许进入卡牌效果批量覆盖：**不允许。**
+
+## 10. 阶段 3B E 汇总
+
+阶段 3B 名称：Battlefield / Standby / Control / Conquer lifecycle + Central cleanup queue 最小官方化切片。E 只维护卡牌覆盖矩阵与 FAQ/规则证据，不修改核心规则引擎，不进入 1009 张卡 full-official 覆盖。
+
+完成项：
+
+- 在机器矩阵中新增 `stage3B` / `stage3BBattlefieldLifecycle` overlay，补充 3B selected functional units 的 `lifecycleRoles`、`evidencePriority`、`allowedIn3B`、`riskTags`、`useBoundary`。
+- 标注 3B 依赖统计：649 个 lifecycle/cleanup 广义候选、520 个 3B core 候选、287 个 battle/spell-duel 候选、282 个 cleanup 候选、286 个 control/zone/movement 候选、54 个 battlefield rule-domain FUs、12 个 standby 命名或 effect-kind 候选、44 个 legend action domain FUs。
+- 将 `FU-05ce012700`《沉没神庙》、`FU-00ee09c2cc`《恶意收购》、`FU-813144e7d4`《战或逃》标为 3B P0 lifecycle 证据核心，但仍不是 full-official 单卡完成。
+- 将待命、征服/据守、战场 FAQ 和 cleanup/control 支撑候选标为 P1：`FU-8dae5c40be`、`FU-e3dcc3b30f`、`FU-7f4a387b92`、`FU-c027639a3c`、`FU-90673ef9fd`、`FU-6c99fc0e2e`、`FU-d18ac7cbec`、`FU-95b4531e4e`。
+- 输出 3B 测试卡组 / fixture pool 姿态，明确它只服务 battlefield lifecycle 证据，不是完整官方卡组或 full-official card pass。
+- 输出后续 battle / damage assignment 压测清单，但不实现。
+
+新增文件：
+
+- `docs/CURRENT_CARD_EFFECT_STAGE3B_BATTLEFIELD_LIFECYCLE_EVIDENCE.md`
+
+修改文件：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`
+
+未修改文件：
+
+- `data/official/card-catalog.zh-CN.json`
+- `docs/rules-evidence-index.md`
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+- `src/**`
+- `src/Riftbound.DevUi/**`
+
+仍存在 P0/P1：
+
+- central cleanup queue 仍需由服务端规则实现与测试证明全路径 enqueue / repeat-until-stable。
+- battle / spell duel lifecycle、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS` 仍未 full-official。
+- 控制权冻结/释放、失控待命移除、征服/据守得分触发与替代仍需后续实现/测试闭合。
+- 1009 snapshot entries / 811 functional units 的 FAQ adjudication 与 full-official 测试矩阵仍未完成。
 
 是否允许进入卡牌效果批量覆盖：**不允许。**

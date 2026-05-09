@@ -72,7 +72,7 @@
 
 本节只给阶段 3 smoke / E2E / 服务端阻断关闭提供证据入口，不代表流程已经 READY。具体当前状态见 `docs/CURRENT_STAGE3_CORE_FLOW_AUDIT.md`。
 
-当前执行范围已收窄为阶段 3A，详见 `docs/CURRENT_STAGE3A_PLAN.md`。3A 只使用下表中的创建 / 加入 / 隐藏信息 / 支付相关证据入口来收口 smoke 基线、复杂命令强类型映射、`PAY_COST` 最小 runtime 和前端外壳安全接线；完整 18 步 E2E、1009 全量、完整 battle/damage/order/runtime 与完整 battlefield lifecycle 暂不进入。
+阶段 3A 已完成 smoke 基线、复杂命令强类型映射、`PAY_COST` 最小 runtime 和前端外壳安全接线，详见 `docs/CURRENT_STAGE3A_PLAN.md`。当前执行范围为阶段 3B，详见 `docs/CURRENT_STAGE3B_PLAN.md`；3B 只使用下表中的战场 / 待命 / 控制权 / 征服据守 / 清理相关证据入口来收口最小官方化切片。完整 18 步 E2E、1009 全量、完整 battle/damage/order/runtime、完整 PaymentEngine 与完整 battlefield lifecycle 仍不进入本轮。
 
 | 阶段 3 流程 | 证据入口 | 必须证明的审计点 |
 |---|---|---|
@@ -81,7 +81,7 @@
 | 准备 / 开局 | `CORE-260330` rule 103；开局区规则 | 双方 ready 后由服务端开始；初始区域、对象 owner/controller、隐藏信息边界由 authoritative snapshot 确认。 |
 | 起手调整 | `CORE-260330` rules 107-129；开局流程；既有 mulligan fixtures | 每名玩家只看己方手牌；替换抽牌、手牌数量和对手隐藏信息由服务端验证。 |
 | 第一回合 / 召符文 / 抽牌 | `CORE-260330` p20 rules 164-167；p28-p29 rule 315；rule 481.7 | 召出符文、抽牌、清空符文池、active player、phase 和 prompt 均来自服务端 snapshot。 |
-| 打出卡牌 / 支付 | `CORE-260330` rules 349+、355-357、377、403-405、414、416；`JFAQ-251023` q2.5 | 前端只提交服务端候选；阶段 2 `PAY_COST` schema skeleton 不等于 PaymentEngine READY。 |
+| 打出卡牌 / 支付 | `CORE-260330` rules 349+、355-357、377、403-405、414、416；`JFAQ-251023` q2.5 | 前端只提交服务端候选；阶段 3A `PAY_COST` 最小 runtime 不等于完整 PaymentEngine READY。 |
 | 移动到战场 | `CORE-260330` rules 107-129、187-189；官方战场 objectId 证据 | `BATTLEFIELD:<objectId>` 保持官方 objectId 大小写；控制者、区域、待命/战场状态不由前端推断。 |
 | 争夺 / 结算链 / 法术对决 | `CORE-260330` rules 307-313、333-348、344-348；`JFAQ-251023` q2.2-q5.4 | 可以用代表路径做阶段 3 smoke，但完整 focus / initial stack / trigger ordering / control freeze 仍需官方 fixture。 |
 | 战斗 / 伤害分配 | `CORE-260330` rules 142-143、417、454-461；`JFAQ-251023` q6.1-q6.4 | 阶段 2 `ASSIGN_COMBAT_DAMAGE` schema skeleton 不等于 damage assignment 状态机 READY。 |
@@ -1434,6 +1434,11 @@
 - 失控待命移除、控制权冻结/释放、征服/据守得分和战场触发必须统一进任务状态机。
 - 当前对象位置和小写 objectId 修复只是前置条件，不等于该 P0 已完成。
 
+阶段 3B 使用方式：
+- 当前 3B 只尝试关闭最小官方化子项：battlefield/standby snapshot、非法待命 cleanup 代表链、战后 control/held/conquer 代表结果和重连展示。
+- 可用证据入口包括 `MatchStateExposesAuthoritativeBattlefieldAndCleanupTaskViews`、`PendingTaskQueueExposesIllegalStandbyCleanupAsStateBasedTask`、`CoreRuleEngineChangesBattlefieldControllerAfterBattle`、`P79BattlefieldHeldDrawsCardFromBattlefieldObject`、`P79BattlefieldConquerMillsTopTwoFromBattlefieldObject`、GameHub held/conquer seed 和 `smoke-battlefield-contest-*`。
+- 仍不关闭：完整控制权冻结/释放、所有 standby 卡族、所有战场卡、得分替代、付费触发拒付、完整 battle/spell duel lifecycle。
+
 ### P0E-005 cleanup queue
 
 证据：
@@ -1446,6 +1451,11 @@
 - 所有 command、stack resolve、trigger resolve、move、enter、leave、damage、power change 都必须 enqueue cleanup。
 - `PendingTaskQueue` 应成为推进规则任务的权威队列，而不是只暴露 UI 视图。
 - 任何 cleanup 中需要玩家选择的步骤，必须转为正式 prompt。
+
+阶段 3B 使用方式：
+- 当前 3B 只尝试关闭 central cleanup queue 的最小 view 与代表任务：`phase`、`activeTaskId`、`isBlocking`、`tasks`、非法待命、致命伤害、未贴附装备和 battlefield task active view。
+- 可用证据入口包括 `PendingTaskQueueExposesIllegalStandbyCleanupAsStateBasedTask`、`PendingTaskQueueExposesUnattachedBattlefieldEquipmentCleanupAsStateBasedTask`、`PendingTaskQueueUsesSpellDuelTaskAsActiveWhileContestDuelIsOpen`、`PendingTaskQueueUsesStartBattleTaskAfterContestSpellDuelCloses` 和近期 battlefield contest smoke。
+- 仍不关闭：所有 command / stack resolve / trigger resolve / move / enter / leave / damage / power change 统一 enqueue、替代/预防效果穿插、repeat-until-stable 全路径和恢复后 determinism。
 
 ### P0E-006 spell duel / battle lifecycle
 

@@ -39651,6 +39651,51 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHeldScoreCanOnlyScoreSameBattlefieldOncePerTurn()
+    {
+        var state = BattlefieldHeldScoreState() with
+        {
+            UntilEndOfTurnEffects =
+            [
+                BattlefieldTaskMarkers.ScoreGainedThisTurn("P2-BATTLEFIELD-ENERGY-HUB", "P2")
+            ]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-score-once", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-ENERGY-HUB",
+                ["P1-BATTLEFIELD-ENERGY-ATTACKER"],
+                ["P2-BATTLEFIELD-ENERGY-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+        var preventedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_SCORE_PREVENTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_SCORE_ONCE_PER_TURN", StringComparison.Ordinal));
+        Assert.Equal("BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", preventedEvent.Payload["preventedReason"]);
+        Assert.Equal(0, result.State.PlayerScores.TryGetValue("P2", out var score) ? score : 0);
+        Assert.Equal(4, result.State.RunePools["P2"].Power);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("reason", out var reason)
+            && string.Equals(reason as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
+        var battlefields = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(result.Snapshots["P2"].Lanes["battlefields"]);
+        var energyHub = Assert.Single(
+            battlefields,
+            battlefield => string.Equals(
+                battlefield["battlefieldObjectId"] as string,
+                "P2-BATTLEFIELD-ENERGY-HUB",
+                StringComparison.Ordinal));
+        Assert.True(Assert.IsType<bool>(energyHub["scoredThisTurn"]));
+        Assert.Equal(["P2"], Assert.IsAssignableFrom<IReadOnlyList<string>>(energyHub["scoredThisTurnPlayerIds"]));
+    }
+
+    [Fact]
     public async Task P79BattlefieldScoreDelayPreventsHeldScorePaymentBeforeThirdTurn()
     {
         var baseState = BattlefieldHeldScoreState();

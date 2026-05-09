@@ -51,7 +51,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           {opponents.map(([playerId, player]) => (
             <PlayerBoard key={playerId} onInspectCard={setInspectedCard} perspectivePlayerId={settings.playerId} player={player} playerId={playerId} specs={specByNo} />
           ))}
-          <BattlefieldArea onInspectCard={setInspectedCard} snapshot={snapshot} specs={specByNo} />
+          <BattlefieldArea events={controller.state.events} onInspectCard={setInspectedCard} snapshot={snapshot} specs={specByNo} />
           {self ? (
             <PlayerBoard onInspectCard={setInspectedCard} perspectivePlayerId={settings.playerId} player={self[1]} playerId={self[0]} specs={specByNo} />
           ) : (

@@ -12,8 +12,10 @@ type SnapshotDebugPanelProps = {
 
 export function SnapshotDebugPanel({ prompt, snapshot }: SnapshotDebugPanelProps) {
   const timing = asRecord(snapshot?.timing);
+  const lanes = asRecord(snapshot?.lanes);
   const queue = asRecord(timing.pendingTaskQueue);
   const queueTasks = asArray<unknown>(queue.tasks);
+  const battlefields = asArray<unknown>(lanes.battlefields);
   const stackCount = snapshot?.stack.length ?? 0;
   const playerEntries = Object.entries(snapshot?.players ?? {});
   const promptType = prompt?.view?.type?.trim() || "无";
@@ -39,6 +41,8 @@ export function SnapshotDebugPanel({ prompt, snapshot }: SnapshotDebugPanelProps
         <SnapshotMetric label="阶段" value={safeDebugText(phase)} />
         <SnapshotMetric icon={<Activity size={14} />} label="结算链" value={`${stackCount} 项`} />
         <SnapshotMetric label="任务队列" value={`${queueTasks.length} 项`} />
+        <SnapshotMetric label="战场" value={`${battlefields.length} 处`} />
+        <SnapshotMetric label="阻塞" value={queue.isBlocking ? "是" : "否"} />
       </div>
       <div className="snapshot-debug-section">
         <strong>当前 Prompt</strong>

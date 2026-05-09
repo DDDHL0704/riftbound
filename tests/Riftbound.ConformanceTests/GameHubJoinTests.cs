@@ -784,6 +784,20 @@ public sealed class GameHubJoinTests
         Assert.Equal("REMOVE_ILLEGAL_STANDBY", Assert.IsType<string>(task["kind"]));
         Assert.Equal("BATTLEFIELD_CONTROL_CLEANUP", Assert.IsType<string>(task["reason"]));
 
+        var p2Snapshot = SnapshotFor(seedClients, "P2");
+        var p2BattlefieldStates = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(p2Snapshot.Lanes["battlefields"]);
+        var p2Battlefield = Assert.Single(p2BattlefieldStates);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Battlefield["standbyObjectIds"]));
+        Assert.Equal(1, Assert.IsType<int>(p2Battlefield["hiddenStandbyCount"]));
+        var p2TaskQueue = Assert.IsType<Dictionary<string, object?>>(p2Snapshot.Timing["pendingTaskQueue"]);
+        Assert.DoesNotContain(
+            "P1-STANDBY-ILLEGAL-001",
+            Assert.IsType<string>(p2TaskQueue["activeTaskId"]),
+            StringComparison.Ordinal);
+        var p2Task = Assert.Single(Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(p2TaskQueue["tasks"]));
+        Assert.True(Assert.IsType<bool>(p2Task["hiddenObject"]));
+        Assert.DoesNotContain("objectId", p2Task.Keys);
+
         var p1Prompt = PromptFor(seedClients, "P1");
         var p2Prompt = PromptFor(seedClients, "P2");
         Assert.Equal(["WAIT", "SURRENDER"], p1Prompt.Actions);

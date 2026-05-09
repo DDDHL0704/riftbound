@@ -10,6 +10,7 @@
 - `src/Riftbound.DevUi/src/components/cards/CardDetailDrawer.tsx`
 - `src/Riftbound.Contracts/Protocol.cs`
 - `docs/CURRENT_STAGE1_PROTOCOL_BASELINE.md`
+- `docs/CURRENT_STAGE3B_PLAN.md`
 - `docs/符文战场_前端Web开发需求文档_给Codex.md`
 
 ## 1. 当前协议基线
@@ -83,7 +84,7 @@ C 暂不得做复杂专用交互：
 
 - `options/selectableCards/selectableTargets/selectableZones/constraints/defaultAction` 等 typed 字段。
 - runtime prompt 里的合法选择、默认动作、constraints 与 typed error details。
-- `PAY_COST`、`ORDER_TRIGGERS`、`ASSIGN_COMBAT_DAMAGE`、`SPELL_DUEL_ACTION` 的专用交互模型和 E2E 断言点。
+- `PAY_COST` 已有阶段 3A 最小 runtime 切片，但完整 PaymentEngine / decline / 替代费用 / 额外费用 / 非出牌支付窗口仍缺；`ORDER_TRIGGERS`、`ASSIGN_COMBAT_DAMAGE`、`SPELL_DUEL_ACTION` 的专用交互模型和 E2E 断言点仍缺。
 - 未知 prompt 的通用渲染协议仍需稳定：标题、说明、安全 JSON 摘要、默认动作约定、不可提交策略。
 
 正式 UI 可继续兼容 `ActionPromptCandidateDto`，但复杂窗口需要服务端提供显式 prompt 类型与专用 payload。
@@ -124,7 +125,7 @@ C 暂不得做复杂专用交互：
 
 ### P0：payment plan 窗口缺口
 
-当前已有 `PAY_COST(paymentId,paymentWindow,paymentChoiceIds)` command/schema 骨架，出牌/装配 composer 也能读取部分 `sourceRequirements` 里的费用、可选费用、支付资源；服务端已有部分 `PaymentCostRules` / 支付事件包络可以降低审计风险。但 runtime `PAY_COST` prompt 尚未开放，也没有 `DECLINE_PAY_COST`、pending payment state 或统一 Quote/Authorize/Commit 生命周期。正式 UI 需要服务端提供稳定支付计划：
+当前已有 `PAY_COST(paymentId,paymentWindow,paymentChoiceIds)` command/schema 骨架，出牌/装配 composer 也能读取部分 `sourceRequirements` 里的费用、可选费用、支付资源；阶段 3A 已关闭 `PAY_COST` 最小 runtime 切片，服务端可以下发一条 pending payment prompt 并接受合法最小支付提交。但这还不是完整 PaymentEngine，也没有覆盖 `DECLINE_PAY_COST`、触发费用拒付、替代/额外费用全族或统一 Quote/Authorize/Commit 生命周期。正式 UI 需要服务端提供稳定支付计划：
 
 - 费用项列表：基础费用、强制额外费用、可选额外费用、触发费用、替代费用、减少/增加费用来源。
 - 可用资源来源：法力、符能按特性、可回收/可横置/可消费对象及其贡献。
@@ -136,7 +137,7 @@ C 暂不得做复杂专用交互：
 
 ### P0：cleanup queue 窗口/解释缺口
 
-当前 `StackPanel` 可以读取 `timing.pendingTaskQueue` 并展示前 4 个任务摘要，但字段是 `Record<string, unknown>`，没有正式 UI 契约。正式 UI 需要：
+当前 `StackPanel` 可以读取 `timing.pendingTaskQueue` 并展示前 4 个任务摘要；阶段 3B 允许 C 继续做只读展示和 smoke 断言，但字段仍是 `Record<string, unknown>`，没有正式 UI 契约。正式 UI 需要：
 
 - `phase`、`activeTaskId`、`isBlocking` 的稳定枚举与含义。
 - 每个 cleanup task 的 `taskId/kind/reason/relatedObjectIds/relatedBattlefieldId/createdBy/expectedResult/visibility/animationHint`。
@@ -144,6 +145,24 @@ C 暂不得做复杂专用交互：
 - 如果清理中需要玩家选择，必须转换为正式 prompt，而不是只出现在 task queue。
 
 产品 UI 默认不为每次清理弹窗，但必须能解释“服务端正在处理什么”和“为什么普通行动被阻塞”。
+
+阶段 3B 前端口径：
+
+- C 可以展示 `phase/activeTaskId/isBlocking/tasks`、battlefield control/standby/result 摘要和服务端事件。
+- C 不得根据单位位置、战力、控制者或待命数量自行裁决控制权、待命是否合法、清理顺序、征服/据守、胜负或下一步窗口。
+- 如果 cleanup 中需要玩家选择，前端必须等待正式 prompt；不能从 `pendingTaskQueue` 的说明字段自行合成 command。
+- 3B smoke 需要记录 reload/reconnect 后 battlefield result 和 task view 是否仍来自 snapshot，而不是只存在事件日志。
+
+### P0：battlefield / standby / control / conquer 展示契约缺口
+
+阶段 3B 已把 battlefield / standby / control / conquer lifecycle 作为当前最小官方化切片。DevUi 目前可以展示 `snapshot.lanes.battlefields`、`controllerId`、`occupantControllerIds`、`standbyObjectIds`、`faceDownStandbyCount`、`pendingTaskKinds`、`timing.battlefieldResolutions` 等字段，但这些字段仍需要正式契约化：
+
+- `BattlefieldView`：`battlefieldObjectId/cardNo/controllerId/status/occupantControllerIds/unitObjectIds/standbyObjectIds/faceDownStandbyCount/pendingTaskKinds/recentResolutionIds`。
+- `BattlefieldResolutionView`：`resolutionId/kind/battlefieldObjectId/previousControllerId/newControllerId/scoringPlayerId/scoreDelta/triggerIds/eventIds/createdAtTick`。
+- `StandbyView`：公开待命对象、面朝下数量、失控待命 task、可见性原因，且不能给非控制者泄漏 cardNo。
+- `CleanupTaskView`：`taskId/kind/reason/relatedObjectIds/relatedBattlefieldId/createdBy/visibility/isBlocking/expectedResult`。
+
+前端可以用这些字段做高亮、摘要、tooltip 和 smoke 断言；规则结论仍必须由服务端事件和 snapshot 确认。
 
 ### P0：spell duel / battle lifecycle 缺口
 
@@ -252,7 +271,7 @@ C 暂不得做复杂专用交互：
 ## 10. 第三轮复杂 PromptType 预留记录
 
 - C#/TS 契约均已预留 `SPELL_DUEL_ACTION`、`ASSIGN_COMBAT_DAMAGE`、`PAY_COST`、`ORDER_TRIGGERS` prompt type；阶段 2 B 已追加 `PAY_COST`、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS` command/schema skeleton 和 `ActionPromptContractDto` 类型。
-- 本轮只稳定正式 UI 后续要识别的窗口名称与后三者的命令骨架；runtime prompt 尚未发出，不新增本地裁决。
+- 本轮历史记录只稳定正式 UI 后续要识别的窗口名称与后三者的命令骨架；其中 `PAY_COST` 最小 runtime 已在阶段 3A 被后续工作替代，`ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` runtime 仍未发出，前端仍不得本地裁决。
 - 已验证：Contracts build 通过、DevUi build 通过、后端 conformance 3308/3308 通过、`git diff --check` 通过。
 
 ## 11. 第三轮 prompt 戳过期保护记录
@@ -260,13 +279,13 @@ C 暂不得做复杂专用交互：
 - DevUi `GameCommand` 已支持可选 `promptId/snapshotTick`，`useMatchController.submitCommand` 会把当前服务端 `ActionPromptDto` 的戳附到命令上；错误文案已覆盖 `PROMPT_EXPIRED`。
 - 服务端 `MatchSession.SubmitAsync` 会在进入规则引擎前检查这些可选字段；若客户端提交的 prompt 戳已过期，返回 `PROMPT_EXPIRED`。
 - 旧客户端不传 `promptId/snapshotTick` 时仍走原有规则检查路径，保证兼容。
-- 本轮只处理过期窗口错误语义；阶段 2 B 后续已补 `PAY_COST` / `ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` command/schema skeleton，但真实 runtime prompt 和状态机仍未实现。
+- 本轮历史记录只处理过期窗口错误语义；阶段 2 B 后续已补 `PAY_COST` / `ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` command/schema skeleton。阶段 3A 已补 `PAY_COST` 最小 runtime，完整 PaymentEngine 与 `ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` 状态机仍未实现。
 
 ## 12. 第三轮复杂 PromptView 降级渲染记录
 
 - `ActionPanel` 已为 `PAY_COST`、`ORDER_TRIGGERS`、`ASSIGN_COMBAT_DAMAGE`、`SPELL_DUEL_ACTION` 增加通用服务端选项面板。
 - 面板只展示候选来源、目标、位置、模式、费用和安全 metadata 摘要；不根据这些字段本地裁决规则，也不生成服务端未提供的命令。
-- 该渲染用于正式复杂 prompt 接入前的安全降级；阶段 2 B 已补后三类命令骨架，但 runtime prompt、手动支付、伤害分配状态机和触发排序状态机仍是 P0 缺口。
+- 该渲染用于正式复杂 prompt 接入前的安全降级；阶段 2 B 已补后三类命令骨架，阶段 3A 已补 `PAY_COST` 最小 runtime。完整手动支付 / decline / PaymentEngine、伤害分配状态机和触发排序状态机仍是 P0 缺口。
 - 已验证：DevUi build 通过。
 
 ## 13. 阶段 1 D 汇总
@@ -288,7 +307,7 @@ C 暂不得做复杂专用交互：
 
 - 本轮 D 只做文档与规则证据审计，没有关闭新的功能 P0/P1。
 - 已关闭口径风险：prompt 戳过期保护、复杂 prompt 降级展示、`PromptView` 最小入口不应继续被描述为“完全没有”。
-- 仍存在 P0：复杂 prompt runtime payload/状态机、`PAY_COST`/`DECLINE_PAY_COST`、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS`、battle/spellDuel 完整生命周期、snapshot/visibility typed contract、正式 18 步 E2E。
+- 仍存在 P0：复杂 prompt runtime payload/状态机中除 `PAY_COST` 最小切片外的完整 PaymentEngine / `DECLINE_PAY_COST`、`ASSIGN_COMBAT_DAMAGE`、`ORDER_TRIGGERS`、battle/spellDuel 完整生命周期、snapshot/visibility typed contract、正式 18 步 E2E。
 - 仍存在 P1：layer/effect explanation、typed error details、stack/timing/object state 的长期稳定字段。
 
 文档风险：
@@ -307,8 +326,22 @@ C 暂不得做复杂专用交互：
 关闭/仍存在 P0：
 
 - 已关闭子项：后三类复杂命令没有稳定 command 名称、payload 字段名、malformed payload error code。
-- 仍存在 P0：`PAY_COST` runtime prompt 与 PaymentEngine、damage assignment phase/state machine、`ORDER_TRIGGERS` trigger batch state machine、`SPELL_DUEL_ACTION` runtime lifecycle、复杂 prompt E2E。
+- 仍存在 P0：`PAY_COST` 最小 runtime 之外的完整 PaymentEngine / decline / 替代费用、damage assignment phase/state machine、`ORDER_TRIGGERS` trigger batch state machine、`SPELL_DUEL_ACTION` runtime lifecycle、复杂 prompt E2E。
 
 文档风险：
 
-- 当前文档反映的是契约骨架，不代表 Core 已开放这些 runtime prompt。后续如果 B 改动 `ActionPromptContracts` 字段名，D 需要同步本文件、`CURRENT_STAGE2_P0_CONTRACT_PLAN.md` 和 `CURRENT_RULE_EVIDENCE_TODO.md`。
+- 当前文档反映的是契约骨架与阶段 3A/3B 的最小切片，不代表 Core 已开放完整 runtime prompt。后续如果 B 改动 `ActionPromptContracts` 字段名，D 需要同步本文件、`CURRENT_STAGE2_P0_CONTRACT_PLAN.md` 和 `CURRENT_RULE_EVIDENCE_TODO.md`。
+
+## 15. 阶段 3B 前端契约补同步记录
+
+完成项：
+
+- 已把 `docs/CURRENT_STAGE3B_PLAN.md` 纳入本文件依据。
+- 已补阶段 3B 口径：battlefield / standby / control / conquer / cleanup queue 只能作为服务端只读展示和 smoke 断言来源。
+- 已把 `BattlefieldView`、`BattlefieldResolutionView`、`StandbyView`、`CleanupTaskView` 的正式字段草案列为 P0 契约缺口。
+
+关闭/仍存在 P0/P1：
+
+- 可候选关闭：前端能展示服务端已给出的 battlefield / standby / pending task / battlefield result 摘要，不在本地裁决规则。
+- 仍存在 P0：正式 DTO 未冻结、cleanup 中需要选择时必须转 prompt、双窗口隐藏信息和 reload/reconnect 仍需 3B smoke 证据。
+- 仍存在 P1：DevUi 字段较多仍为 `Record<string, unknown>`，后续产品 UI 需要稳定枚举和解释字段。

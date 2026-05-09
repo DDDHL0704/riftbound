@@ -1408,7 +1408,8 @@ public sealed class ConformanceFixtureShapeTests
                 ["A-UNIT-1"] = new("alice", "BATTLEFIELD", "BF-1"),
                 ["B-UNIT-1"] = new("bob", "BATTLEFIELD", "BF-1"),
                 ["A-STANDBY-1"] = new("alice", "BATTLEFIELD", "BF-1")
-            });
+            },
+            untilEndOfTurnEffects: [BattlefieldTaskMarkers.ScoreGainedThisTurn("BF-1", "alice")]);
 
         var snapshot = ResolutionResult.BuildSnapshots(state)["alice"];
         var lanes = Assert.IsType<Dictionary<string, object?>>(snapshot.Lanes);
@@ -1422,6 +1423,29 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal(["A-STANDBY-1"], StringList(battlefield["standbyObjectIds"]));
         Assert.Equal(1, Assert.IsType<int>(battlefield["faceDownStandbyCount"]));
         Assert.Equal(["A-UNIT-1", "B-UNIT-1"], StringList(battlefield["occupantObjectIds"]));
+        var unitsBySide = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<string>>>(battlefield["unitsBySide"]);
+        Assert.Equal(["A-UNIT-1"], unitsBySide["alice"]);
+        Assert.Equal(["B-UNIT-1"], unitsBySide["bob"]);
+        var standbySlots = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(battlefield["standbySlots"]);
+        var standbySlot = Assert.Single(standbySlots);
+        Assert.True(Assert.IsType<bool>(standbySlot["visible"]));
+        Assert.Equal("A-STANDBY-1", Assert.IsType<string>(standbySlot["objectId"]));
+        Assert.True(Assert.IsType<bool>(battlefield["scoredThisTurn"]));
+        Assert.Equal(["alice"], StringList(battlefield["scoredThisTurnPlayerIds"]));
+
+        var bobSnapshot = ResolutionResult.BuildSnapshots(state)["bob"];
+        var bobLanes = Assert.IsType<Dictionary<string, object?>>(bobSnapshot.Lanes);
+        var bobBattlefield = Assert.Single(Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(bobLanes["battlefields"]));
+        Assert.Empty(StringList(bobBattlefield["standbyObjectIds"]));
+        Assert.Equal(1, Assert.IsType<int>(bobBattlefield["hiddenStandbyCount"]));
+        var hiddenSlot = Assert.Single(Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(bobBattlefield["standbySlots"]));
+        Assert.False(Assert.IsType<bool>(hiddenSlot["visible"]));
+        Assert.DoesNotContain("objectId", hiddenSlot.Keys);
+        var aliceForBob = Assert.IsType<Dictionary<string, object?>>(bobSnapshot.Players["alice"]);
+        var aliceZonesForBob = Assert.IsType<Dictionary<string, object?>>(aliceForBob["zones"]);
+        Assert.DoesNotContain("A-STANDBY-1", Assert.IsAssignableFrom<IReadOnlyList<string>>(aliceZonesForBob["battlefields"]));
+        var aliceObjectsForBob = Assert.IsType<Dictionary<string, object?>>(aliceForBob["objects"]);
+        Assert.DoesNotContain("A-STANDBY-1", aliceObjectsForBob.Keys);
     }
 
     [Fact]
@@ -1953,6 +1977,16 @@ public sealed class ConformanceFixtureShapeTests
         var taskQueueItem = Assert.Single(taskQueueItems);
         Assert.Equal("REMOVE_ILLEGAL_STANDBY", Assert.IsType<string>(taskQueueItem["kind"]));
         Assert.Equal("BATTLEFIELD_CONTROL_CLEANUP", Assert.IsType<string>(taskQueueItem["reason"]));
+
+        var bobSnapshot = ResolutionResult.BuildSnapshots(state)["bob"];
+        var bobTaskQueue = Assert.IsType<Dictionary<string, object?>>(bobSnapshot.Timing["pendingTaskQueue"]);
+        var bobActiveTaskId = Assert.IsType<string>(bobTaskQueue["activeTaskId"]);
+        Assert.DoesNotContain("A-STANDBY-1", bobActiveTaskId, StringComparison.Ordinal);
+        var bobTaskQueueItem = Assert.Single(Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(bobTaskQueue["tasks"]));
+        Assert.True(Assert.IsType<bool>(bobTaskQueueItem["hiddenObject"]));
+        Assert.Equal("BATTLEFIELD_STANDBY", Assert.IsType<string>(bobTaskQueueItem["hiddenObjectKind"]));
+        Assert.DoesNotContain("objectId", bobTaskQueueItem.Keys);
+        Assert.DoesNotContain("A-STANDBY-1", Assert.IsType<string>(bobTaskQueueItem["taskId"]), StringComparison.Ordinal);
 
         var prompts = ResolutionResult.BuildPrompts(state);
         Assert.False(prompts["alice"].Actionable);

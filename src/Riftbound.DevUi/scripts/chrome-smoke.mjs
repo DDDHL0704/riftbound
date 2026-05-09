@@ -20,7 +20,11 @@ const routes = [
   { path: "/decks", texts: ["本地测试卡组", "等待服务端验证"] },
   { path: "/cards", texts: ["卡牌图鉴", "官方卡牌视图"] },
   { path: "/rooms/stage3-smoke", texts: ["房间", "连接/重连并入座", "选择卡组"] },
-  { path: "/matches/stage3-smoke", texts: ["对战状态", "正式桌面状态", "中央战场", "服务端行动提示", "权威快照摘要"] },
+  {
+    path: "/matches/stage3-smoke",
+    texts: ["对战状态", "正式桌面状态", "中央清理", "中央战场", "待命区", "服务端行动提示", "权威快照摘要"],
+    absentTexts: ["mainDeck", "runeDeck", "handHidden", "stackItemId", "reconnectToken"]
+  },
   { path: "/matches/stage3-smoke/result", texts: ["结算", "结果只读取服务端权威快照"] }
 ];
 
@@ -79,6 +83,7 @@ try {
   for (const route of routes) {
     await cdp.send("Page.navigate", { url: `${frontendUrl}${route.path}` });
     await waitForText(cdp, route.texts);
+    await expectAbsentText(cdp, route.absentTexts ?? []);
     console.log(`Chrome smoke OK: ${route.path}`);
   }
 
@@ -206,11 +211,7 @@ async function waitForText(cdp, texts) {
   const deadline = Date.now() + 10_000;
   let bodyText = "";
   while (Date.now() < deadline) {
-    const result = await cdp.send("Runtime.evaluate", {
-      expression: "document.body ? document.body.innerText : ''",
-      returnByValue: true
-    });
-    bodyText = String(result.result?.value ?? "");
+    bodyText = await readBodyText(cdp);
     if (texts.every((text) => bodyText.includes(text))) {
       return;
     }
@@ -218,6 +219,26 @@ async function waitForText(cdp, texts) {
   }
 
   throw new Error(`Missing expected text ${texts.join(", ")} in page body:\n${bodyText.slice(0, 1000)}`);
+}
+
+async function expectAbsentText(cdp, texts) {
+  if (texts.length === 0) {
+    return;
+  }
+
+  const bodyText = await readBodyText(cdp);
+  const leaked = texts.filter((text) => bodyText.includes(text));
+  if (leaked.length > 0) {
+    throw new Error(`Unexpected raw debug text on page: ${leaked.join(", ")}`);
+  }
+}
+
+async function readBodyText(cdp) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: "document.body ? document.body.innerText : ''",
+    returnByValue: true
+  });
+  return String(result.result?.value ?? "");
 }
 
 async function waitForHttp(url, timeoutMs) {

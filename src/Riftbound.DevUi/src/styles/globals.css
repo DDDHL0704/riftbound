@@ -662,12 +662,21 @@ button.card-face:hover {
 }
 
 .battlefield-occupants {
+  display: grid;
   align-items: stretch;
+  justify-content: stretch;
 }
 
 .battlefield-occupants div {
   display: grid;
   gap: 5px;
+  min-width: 0;
+}
+
+.battlefield-controller-lanes,
+.battlefield-log {
+  display: grid;
+  gap: 6px;
   min-width: 0;
 }
 
@@ -677,6 +686,23 @@ button.card-face:hover {
   min-width: 0;
   overflow-x: auto;
   padding-bottom: 2px;
+}
+
+.battlefield-log {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 8px;
+}
+
+.battlefield-log strong,
+.battlefield-controller-lanes strong {
+  color: var(--text-primary);
+  font-size: 0.82rem;
+}
+
+.battlefield-log span {
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+  overflow-wrap: anywhere;
 }
 
 .side-panel {

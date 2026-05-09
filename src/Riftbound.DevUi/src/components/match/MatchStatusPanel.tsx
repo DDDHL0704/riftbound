@@ -1,4 +1,4 @@
-import { Crosshair, Flag, Gauge, Swords } from "lucide-react";
+import { Crosshair, Flag, Gauge, ListChecks, Swords } from "lucide-react";
 import type { ReactNode } from "react";
 import { ActionPromptDto, SnapshotDto } from "../../types/protocol";
 import { asArray, asNumber, asRecord, asString } from "../../utils/collections";
@@ -19,6 +19,7 @@ export function MatchStatusPanel({
   const spellDuel = asRecord(timing.spellDuel);
   const battle = asRecord(timing.battle);
   const queue = asRecord(timing.pendingTaskQueue);
+  const queueTasks = asArray<Record<string, unknown>>(queue.tasks);
   const battlefieldTasks = asArray<Record<string, unknown>>(timing.battlefieldTasks);
   const triggerQueue = asArray<Record<string, unknown>>(timing.triggerQueue);
   const players = Object.entries(snapshot?.players ?? {});
@@ -76,15 +77,68 @@ export function MatchStatusPanel({
             ["防守单位", `${asArray(battle.defenderObjectIds).length} 个`]
           ]}
         />
+        <LifecycleCard
+          icon={<ListChecks size={16} />}
+          title="中央清理"
+          active={Boolean(queue.hasTasks ?? queue.isBlocking)}
+          rows={[
+            ["阶段", cleanupPhaseLabel(asString(queue.phase, ""))],
+            ["活动任务", activeTaskLabel(queue.activeTaskId)],
+            ["待处理", `${queueTasks.length} 项`],
+            ["首项", cleanupTaskKindLabel(asString(queueTasks[0]?.kind, ""))]
+          ]}
+        />
       </div>
       <div className="rule-state-strip">
         <span>结算链 {snapshot?.stack.length ?? 0} 项</span>
-        <span>清理队列 {asArray(queue.tasks).length} 项{queue.isBlocking ? " · 阻塞" : ""}</span>
+        <span>清理队列 {queueTasks.length} 项{queue.isBlocking ? " · 阻塞" : ""}</span>
         <span>战场任务 {battlefieldTasks.length} 项</span>
         <span>触发队列 {triggerQueue.length} 项</span>
       </div>
     </section>
   );
+}
+
+function cleanupPhaseLabel(phase: string): string {
+  switch (phase) {
+    case "BATTLE_TASKS":
+      return "战斗任务";
+    case "BATTLEFIELD_TASKS":
+      return "战场任务";
+    case "IDLE":
+      return "空闲";
+    case "SPELL_DUEL_TASKS":
+      return "法术对决任务";
+    case "STATE_BASED_CLEANUP":
+      return "状态清理";
+    default:
+      return phase ? "服务端阶段" : "无";
+  }
+}
+
+function cleanupTaskKindLabel(kind: string): string {
+  switch (kind) {
+    case "BATTLEFIELD_CONTESTED":
+      return "战场争夺";
+    case "DESTROY_LETHAL_UNIT":
+      return "致命伤害";
+    case "DESTROY_ZERO_POWER_UNIT":
+      return "0 战力";
+    case "RECALL_UNATTACHED_EQUIPMENT":
+      return "装备清理";
+    case "REMOVE_ILLEGAL_STANDBY":
+      return "待命清理";
+    case "START_BATTLE":
+      return "开始战斗";
+    case "START_SPELL_DUEL":
+      return "开始法术对决";
+    default:
+      return kind ? "服务端任务" : "无";
+  }
+}
+
+function activeTaskLabel(value: unknown): string {
+  return asString(value, "") ? "处理中" : "无";
 }
 
 function StatusMetric({

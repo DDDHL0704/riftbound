@@ -2,11 +2,11 @@
 
 更新时间：2026-05-09
 
-阶段：**阶段 2 / E 卡牌覆盖矩阵与 FAQ 证据候选**
+阶段：**阶段 3B / E 卡牌覆盖矩阵与 Battlefield lifecycle 证据 overlay**
 
 结论：**NOT READY；不允许进入 1009 张卡牌效果批量覆盖。**
 
-本文是阶段 2 的风险排序与证据候选，不是功能实现清单，也不是错误断言。排名用于告诉后续阶段先审哪里：哪些 functional unit 同时碰到 FAQ、费用、触发/替换、持续效果、战斗/法术对决、隐藏信息或非 PLAY_CARD 规则域。
+本文以阶段 2 风险排序为基础，并叠加阶段 3A/3B 的最小证据 overlay；它不是功能实现清单，也不是错误断言。排名用于告诉后续阶段先审哪里：哪些 functional unit 同时碰到 FAQ、费用、触发/替换、持续效果、战斗/法术对决、隐藏信息或非 PLAY_CARD 规则域。
 
 ## 1. 数据来源
 
@@ -54,7 +54,26 @@
 
 3A smoke-only 候选只限：`FU-02075a26e3` 黑默丁格、`FU-af2c43c430` 嚼火者手雷、`FU-441cb9fb7f` 海克斯射线。它们只用于官方开局 / 桌面 shell 可见性和详情 smoke，不进入 spell duel / stack resolution / damage runtime。
 
-## 4. Top20 高风险 Functional Units
+## 4. Stage 3B Battlefield / Cleanup Overlay
+
+阶段 3B 只服务 Battlefield / Standby / Control / Conquer lifecycle + Central cleanup queue 最小官方化切片，不进入 Top20 批量实现，也不关闭 full battle / damage assignment。以下口径已同步到 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 的 `stage3BBattlefieldLifecycle`：
+
+| FU | 代表卡 | Stage 3B 处理 |
+|---|---|---|
+| `FU-05ce012700` | `SFD·218/221` 沉没神庙 | 3B P0；战场对象 / 控制状态 / 征服据守证据核心，但不是所有战场 full-official。 |
+| `FU-00ee09c2cc` | `SFD·202/221` 恶意收购 | 3B P0；控制权改变和控制冻结 FAQ 候选，只做 lifecycle 证据，不扩张到完整战斗或隐藏信息。 |
+| `FU-813144e7d4` | `OGN·168/298` 战或逃 | 3B P0；战场单位回基地、移动后 cleanup queue 证据，不关闭完整 spell duel / targeting / payment。 |
+| `FU-8dae5c40be` | `OGN·121/298` 提莫 | 3B P1；待命区隐私、失控待命清理候选，不执行完整战斗文本。 |
+| `FU-e3dcc3b30f` | `OGN·199/298` 控潮者 | 3B P1；standby swap / 移动 / 隐私候选，不概括全部 standby。 |
+| `FU-7f4a387b92` | `OGN·056/298` 自适应机器人 | 3B P1；征服 trigger hook 候选，不完成 boon / LayerEngine。 |
+| `FU-c027639a3c` | `OGN·035/298` 薇恩 | 3B P1；征服 recall / control-zone movement 候选，不拉入完整 assault / combat damage。 |
+| `FU-90673ef9fd` | `OGN·285/298` 劫掠船巷 | 3B P1；战场 FAQ、control freeze、cleanup 候选。 |
+| `FU-6c99fc0e2e` | `OGN·277/298` 后巷酒吧 | 3B P1；cleanup / control battlefield-domain 支撑。 |
+| `FU-d18ac7cbec` | `UNL-209/219` 暮色玫瑰实验室 | 3B P1；cleanup / control / visibility 支撑。 |
+
+3B 依赖统计：649 个 lifecycle/cleanup 广义候选、520 个 3B core 候选、287 个 battle/spell-duel 候选、282 个 cleanup 候选、286 个 control/zone/movement 候选、54 个 battlefield rule-domain FUs、12 个 standby 命名或 effect-kind 候选、44 个 legend action domain FUs。这些统计是风险范围，不是实施授权。
+
+## 5. Top20 高风险 Functional Units
 
 | # | FU | Representative | 类型/条目数 | 当前代表映射 | FAQ 候选页 | 风险依据 | 依赖规则域 |
 |---:|---|---|---:|---|---|---|---|
@@ -79,7 +98,7 @@
 | 19 | `FU-804412488c` | `SFD·139/221` 夜之锋刃 | 装备 / 1 | 代表路径：EDGE_OF_NIGHT_PLAY_EQUIPMENT | SOUL-OFAQ-260114 p10<br>SOUL-OFAQ-260114 p9 | 控制权/区域移动、FAQ 提及、隐藏信息/随机/牌堆、效果层/持续效果、费用/支付、目标/结算链/时机 | FEPR/Targeting/TimingWindows, LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, VisibilityFilter/RandomAndHiddenZones, ZoneOwnership/ControlChange/Movement |
 | 20 | `FU-9a623b3185` | `SFD·059/221` 斯弗尔尚歌 | 装备 / 1 | 代表路径：SFUR_SONG_PLAY_EQUIPMENT | SOUL-JFAQ-260114 p24<br>SOUL-JFAQ-260114 p25<br>SOUL-JFAQ-260114 p8<br>SOUL-OFAQ-260114 p18<br>SOUL-OFAQ-260114 p19 | 控制权/区域移动、FAQ 提及、效果层/持续效果、费用/支付 | LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, ZoneOwnership/ControlChange/Movement |
 
-## 5. 未覆盖效果分类
+## 6. 未覆盖效果分类
 
 | 分类 | 含义 | 当前阻断关系 |
 |---|---|---|
@@ -93,7 +112,7 @@
 | `non-play-domain` | 传奇、战场、符文、指示物等非普通 PLAY_CARD 域。 | 需要专门域矩阵，不可与普通出牌效果混算。 |
 | `faq-mentioned` | 五份 PDF/FAQ 中出现卡名的候选项。 | 必须人工判定问题是否真的约束该 FU，并补测试。 |
 
-## 6. P0/P1 仍未清零
+## 7. P0/P1 仍未清零
 
 P0：
 

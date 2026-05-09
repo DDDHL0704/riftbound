@@ -518,10 +518,18 @@ P1：
 
 当前阶段 3A 基线：
 
-- 当前保护提交仍是 `4b41e81 docs: record stage 2 checkpoint protection` 之后的未提交工作区。
+- 阶段 3A checkpoint commit 已创建：`3d70ef0 checkpoint: complete stage 3A smoke mapper and pay cost slice`。
 - 阶段 3A 计划入口：`docs/CURRENT_STAGE3A_PLAN.md`。
 - `docs/CURRENT_STAGE3_CORE_FLOW_AUDIT.md` 只保留为宽阶段 3 总审计图，不作为当前 3A 验收范围。
 - `riftbound-dotnet.sln` 仍是本地不交付未跟踪文件，不应纳入后续 checkpoint commit。
+
+阶段 3A commit 后复验：
+
+- `git status --short --branch`：仅剩未跟踪本地文件 `riftbound-dotnet.sln`。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：3324/3324 通过。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：通过；包含 `check:event-labels` 与 `check:user-facing-text`。Vite 仅输出 SignalR 依赖的 Rollup 注释提示。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：通过；API health、DevUi preview、Chrome headless / CDP 7 个基础路由均 OK，无脚本捕获 runtime error。
+- 当前结论仍是 **NOT READY**。
 
 ### B 服务端 3A 切片
 
@@ -638,8 +646,58 @@ A 主控复验：
 
 下一阶段建议：
 
-- 先创建阶段 3A checkpoint commit，仍排除 `riftbound-dotnet.sln`。
-- 阶段 3B 再做房间 / 起手 / 第一回合的连续流程；阶段 3C 再扩大 battle / spell duel / damage / trigger 的 runtime 和交互。
+- 用户已确认进入阶段 3B；阶段 3A 后续由下方 0.6 记录接续。
+- 仍不得标记 READY，不得启动最终 18 步 E2E，不得进入 1009 张卡全量效果实现。
+
+## 0.6 阶段 3B Battlefield / Standby / Control / Conquer lifecycle + Central cleanup queue 汇总
+
+阶段 3B 已按用户确认范围执行：只收口 battlefield lifecycle、standby lifecycle、control / contested / uncontrolled、conquer / hold scoring 最小流程、central cleanup queue 最小稳定循环，以及前端 battlefield UI 与 authoritative snapshot 联调。未启动最终 18 步 E2E，未进入 1009 张卡 full-official 实现，结论仍为 **NOT READY**。
+
+本阶段核心产物：
+
+- 服务端 snapshot 新增/稳定 `lanes.battlefields[].unitsBySide/standbySlots/standbySlotCount/hiddenStandbyCount/scoredThisTurn/scoredThisTurnPlayerIds`，并为 `timing.pendingTaskQueue` 增加最小 metadata。
+- 对手视角会隐藏 battlefield 面朝下 standby 的 `objectId`，并从 opponent-visible `zones.battlefields`、`objects`、非法待命 cleanup task id 中脱敏。
+- 据守/征服相关得分路径增加 `BATTLEFIELD_SCORE_GAINED_THIS_TURN` marker，同一战场同一回合重复得分返回 `BATTLEFIELD_SCORE_PREVENTED`，且不会重复扣费或改变分数。
+- 前端 battlefield UI 只读取服务端 snapshot/event：两处战场、控制者/无人控制/争夺中、待命区、双方单位、本回合得分状态、中央清理和战场日志；未在前端计算控制权、争夺、得分、胜负、伤害分配或触发排序。
+- 文档和卡牌矩阵已补 3B 证据边界：`docs/CURRENT_STAGE3B_PLAN.md`、server/frontend gaps、rule evidence todo、rules evidence index、card coverage baseline/matrix/risk 与 3B battlefield lifecycle evidence。
+
+阶段 3B 修改 / 新增文件：
+
+- 服务端 / 测试：`src/Riftbound.Engine/MatchSession.cs`、`src/Riftbound.Engine/CoreRuleEngine.cs`、`tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs`、`tests/Riftbound.ConformanceTests/ConformanceFixtureShapeTests.cs`、`tests/Riftbound.ConformanceTests/GameHubJoinTests.cs`。
+- 前端 / smoke：`src/Riftbound.DevUi/scripts/chrome-smoke.mjs`、`src/Riftbound.DevUi/src/components/match/BattlefieldArea.tsx`、`src/Riftbound.DevUi/src/components/match/MatchStatusPanel.tsx`、`src/Riftbound.DevUi/src/components/match/SnapshotDebugPanel.tsx`、`src/Riftbound.DevUi/src/pages/MatchPage.tsx`、`src/Riftbound.DevUi/src/styles/globals.css`、`src/Riftbound.DevUi/src/types/protocol.ts`。
+- 文档 / 证据：`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_CONTRACT_GAPS.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/rules-evidence-index.md`、`docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`、`docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`、`docs/CURRENT_A_MASTER_CHECKPOINT.md`。
+- 新增文档：`docs/CURRENT_STAGE3B_PLAN.md`、`docs/CURRENT_CARD_EFFECT_STAGE3B_BATTLEFIELD_LIFECYCLE_EVIDENCE.md`。
+- `riftbound-dotnet.sln` 仍是本地未跟踪文件，不应纳入 checkpoint commit。
+
+阶段 3B 验收命令：
+
+- `git diff --check`：通过。
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`：通过。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：3325/3325 通过。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：通过；包含 `check:event-labels` 与 `check:user-facing-text`，仅有 SignalR 依赖的 Rollup PURE 注释 warning。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：通过；API health、DevUi preview、Chrome headless / CDP 路由 smoke 通过，`/matches/stage3-smoke` 覆盖中央清理、中央战场、待命区、服务端行动提示和权威快照摘要，并断言 debug 页面不出现 `mainDeck/runeDeck/handHidden/stackItemId/reconnectToken` raw 字段。
+
+阶段 3B 判断：
+
+- 阶段 3B 收口标准：**已满足当前最小切片**。
+- 是否标记 READY：**不允许**。
+- 是否启动最终 18 步 E2E：**不允许**。
+- 是否进入 1009 张卡全量：**不允许**。
+- 是否允许前端进入后续 battlefield / cleanup UI 联调：可以继续基于服务端 snapshot/prompt 做只读展示和 prompt candidate 提交；仍不得本地裁决控制权、争夺、清理、得分或胜负。
+
+仍存在 P0/P1：
+
+- P0：cleanup queue 全触发面统一 enqueue 与 repeat-until-stable 最终审计未完成。
+- P0：control freeze/release 在完整 battle / spell duel 期间的代表 fixture 仍未关闭。
+- P0：失控待命延迟清理的全部时机和所有 standby 卡族仍未关闭。
+- P0：held/conquer scoring order、得分替代、付费触发拒付、同时触发排序和全战场卡仍未关闭。
+- P0：完整 battle lifecycle、完整 damage assignment runtime、完整 `ORDER_TRIGGERS` runtime、完整 PaymentEngine / LayerEngine、最终 18 步 E2E 仍未关闭。
+- P1：前端 battlefield / cleanup 字段仍偏 DevUi，正式 DTO 和解释字段未冻结。
+
+下一阶段建议：
+
+- 先由 A 输出阶段 3B 审查总结并等待用户确认；若确认保护，再创建阶段 3B checkpoint commit，继续排除 `riftbound-dotnet.sln`。
+- 后续 3C 建议优先切 control freeze/release、battle task lifecycle 与 damage assignment 的最小服务端窗口，同时补双窗口 reload/reconnect 隐藏信息 smoke；仍不进入最终 18 步 E2E 或 1009 全量。
 
 ## 1. 总目标
 

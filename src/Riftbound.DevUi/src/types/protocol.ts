@@ -157,6 +157,23 @@ export type PlayerSnapshotView = {
   objects?: Record<string, CardObjectView>;
 };
 
+export type BattlefieldSnapshotView = {
+  battlefieldObjectId?: string;
+  zonePlayerId?: string;
+  cardNo?: string | null;
+  controllerId?: string | null;
+  status?: string;
+  contested?: boolean;
+  occupantObjectIds?: string[];
+  occupantControllerIds?: string[];
+  standbyObjectIds?: string[];
+  faceDownStandbyCount?: number;
+  pendingTaskKinds?: string[];
+  scoredThisTurn?: boolean;
+  scoredPlayerId?: string | null;
+  scoreStatus?: string | null;
+};
+
 export type SnapshotDto = {
   tick: number;
   turnNumber: number;

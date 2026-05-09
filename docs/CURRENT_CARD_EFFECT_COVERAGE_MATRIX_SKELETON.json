@@ -80,9 +80,17 @@
         "evidencePriority": "P0 = required evidence boundary for 3A smoke/PAY_COST sign-off; P1 = useful supporting/display-only evidence; P2 = hold back from 3A.",
         "riskTags": "3A-specific triage tags layered over Stage 2 riskScore and P0/P1 rule-domain dependencies.",
         "allowedIn3A": "pay-cost-core, smoke-only, support-only, or no."
+      },
+      "stage3B": {
+        "lifecycleRoles": "Stage 3B battlefield / standby / control / conquer / central cleanup queue evidence tags; not full-official card coverage.",
+        "evidencePriority": "P0 = required evidence boundary for 3B minimal officialized lifecycle slice; P1 = useful supporting fixture; P2 = hold back or future pressure only.",
+        "allowedIn3B": "battlefield-domain-core, control-change-core, movement-cleanup-core, standby-visibility-support, conquer-trigger-support, conquer-recall-support, cleanup-control-support, unit-body-support, pressure-only, or hold-back.",
+        "riskTags": "3B-specific lifecycle tags layered over Stage 2 riskScore and P0/P1 rule-domain dependencies.",
+        "useBoundary": "Explicit guardrail preventing Stage 3B from becoming full battle/damage/runtime or 1009 full-official implementation."
       }
     },
-    "stage3ASmokePayCost": "Stage 3A overlay for smoke baseline, strongly typed complex command parsing, and PAY_COST minimal runtime slice. This explicitly excludes battle/damage/order runtime and 1009 full-official coverage."
+    "stage3ASmokePayCost": "Stage 3A overlay for smoke baseline, strongly typed complex command parsing, and PAY_COST minimal runtime slice. This explicitly excludes battle/damage/order runtime and 1009 full-official coverage.",
+    "stage3BBattlefieldLifecycle": "Stage 3B overlay for Battlefield / Standby / Control / Conquer lifecycle and Central cleanup queue minimal officialization slice. This does not authorize core engine edits, READY, battle damage assignment, or full-official card coverage."
   },
   "snapshotEntries": [
     {
@@ -25392,7 +25400,44 @@
         "VisibilityFilter/RandomAndHiddenZones",
         "ZoneOwnership/ControlChange/Movement"
       ],
-      "riskScore": 70
+      "riskScore": 70,
+      "stage3B": {
+        "evidencePriority": "P1",
+        "allowedIn3B": "conquer-recall-support",
+        "lifecycleRoles": [
+          "conquer-trigger",
+          "recall-after-conquer",
+          "control-zone-movement"
+        ],
+        "riskTags": [
+          "conquer",
+          "recall",
+          "hidden-info-risk",
+          "battle-adjacent"
+        ],
+        "sourceScenarios": [
+          "3B-conquer-recall-boundary"
+        ],
+        "useBoundary": "Use as a conquer/recall boundary candidate. Do not pull full assault or combat damage processing into 3B.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 70,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-fb6b5139e7",
@@ -26311,7 +26356,42 @@
         "FEPR/Targeting/TimingWindows",
         "LayerEngine/ContinuousEffects"
       ],
-      "riskScore": 58
+      "riskScore": 58,
+      "stage3B": {
+        "evidencePriority": "P1",
+        "allowedIn3B": "conquer-trigger-support",
+        "lifecycleRoles": [
+          "conquer-trigger",
+          "boon-after-conquer",
+          "cleanup-after-score-candidate"
+        ],
+        "riskTags": [
+          "conquer",
+          "cleanup-risk",
+          "layer-risk",
+          "battle-adjacent"
+        ],
+        "sourceScenarios": [
+          "3B-conquer-trigger-minimal"
+        ],
+        "useBoundary": "Use only to tag conquer-trigger evidence for later tests. Do not implement or claim full boon/layer behavior in 3B.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 58,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "layer-continuous-effect",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-50ceb593ab",
@@ -29086,7 +29166,48 @@
         "VisibilityFilter/RandomAndHiddenZones",
         "ZoneOwnership/ControlChange/Movement"
       ],
-      "riskScore": 82
+      "riskScore": 82,
+      "stage3B": {
+        "evidencePriority": "P1",
+        "allowedIn3B": "standby-visibility-support",
+        "lifecycleRoles": [
+          "standby-zone",
+          "face-down/privacy",
+          "standby-defend-reveal",
+          "lost-control-cleanup-candidate"
+        ],
+        "riskTags": [
+          "standby",
+          "hidden-info-risk",
+          "battle-adjacent",
+          "layer-risk"
+        ],
+        "sourceScenarios": [
+          "3B-standby-privacy-smoke",
+          "3B-lost-control-standby-cleanup-candidate"
+        ],
+        "useBoundary": "Use only as a standby/privacy and lost-control cleanup candidate. Do not exercise full Teemo combat text or full battle damage assignment in 3B.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 82,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-e69f8ac2d4",
@@ -31058,7 +31179,56 @@
         "VisibilityFilter/RandomAndHiddenZones",
         "ZoneOwnership/ControlChange/Movement"
       ],
-      "riskScore": 91
+      "riskScore": 91,
+      "stage3B": {
+        "evidencePriority": "P0",
+        "allowedIn3B": "movement-cleanup-core",
+        "lifecycleRoles": [
+          "battlefield-to-base-movement",
+          "zone/control-movement",
+          "cleanup-after-move",
+          "standby-removal-adjacent"
+        ],
+        "riskTags": [
+          "movement-cleanup",
+          "faq-mentioned",
+          "control-zone-movement",
+          "no-damage-assignment"
+        ],
+        "sourceScenarios": [
+          "3B-battlefield-unit-return-to-base",
+          "3B-cleanup-after-move"
+        ],
+        "useBoundary": "Use for battlefield-to-base movement and cleanup enqueue evidence. Do not use it to close complete spell duel, targeting, or payment coverage.",
+        "faqCandidate": true,
+        "faqRefs": [
+          "JFAQ-251023 p4",
+          "SOUL-JFAQ-260114 p12",
+          "SOUL-JFAQ-260114 p16"
+        ],
+        "rulesRefs": [
+          "CORE-260330 p46",
+          "JFAQ-251023 p4",
+          "SOUL-JFAQ-260114 p12",
+          "SOUL-JFAQ-260114 p16"
+        ],
+        "riskScore": 91,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-48662b7661",
@@ -32340,7 +32510,49 @@
         "VisibilityFilter/RandomAndHiddenZones",
         "ZoneOwnership/ControlChange/Movement"
       ],
-      "riskScore": 60
+      "riskScore": 60,
+      "stage3B": {
+        "evidencePriority": "P1",
+        "allowedIn3B": "standby-movement-support",
+        "lifecycleRoles": [
+          "standby-zone",
+          "standby-swap",
+          "control-zone-movement",
+          "privacy-candidate"
+        ],
+        "riskTags": [
+          "standby",
+          "faq-mentioned",
+          "hidden-info-risk",
+          "movement-cleanup"
+        ],
+        "sourceScenarios": [
+          "3B-standby-swap-boundary"
+        ],
+        "useBoundary": "Use as a standby movement/swap evidence candidate only. Do not infer all standby keyword or hidden-information behavior from it.",
+        "faqCandidate": true,
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p6"
+        ],
+        "rulesRefs": [
+          "CORE-260330 p97",
+          "SOUL-JFAQ-260114 p6"
+        ],
+        "riskScore": 60,
+        "dependsOnP0RuleDomains": [
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "control-zone-movement",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-288e286091",
@@ -35579,7 +35791,45 @@
         "CleanupQueue/ReplacementEffects",
         "ZoneOwnership/ControlChange/Movement"
       ],
-      "riskScore": 53
+      "riskScore": 53,
+      "stage3B": {
+        "evidencePriority": "P1",
+        "allowedIn3B": "cleanup-control-support",
+        "lifecycleRoles": [
+          "battlefield-card-domain",
+          "control-zone-movement",
+          "central-cleanup-queue-trigger"
+        ],
+        "riskTags": [
+          "battlefield-lifecycle",
+          "faq-mentioned",
+          "cleanup-risk"
+        ],
+        "sourceScenarios": [
+          "3B-cleanup-control-faq-smoke"
+        ],
+        "useBoundary": "Use as a cleanup/control battlefield-domain fixture. Do not expand to all battlefield replacement or triggered abilities.",
+        "faqCandidate": true,
+        "faqRefs": [
+          "JFAQ-251023 p5",
+          "JFAQ-251023 p6"
+        ],
+        "rulesRefs": [
+          "JFAQ-251023 p5",
+          "JFAQ-251023 p6"
+        ],
+        "riskScore": 53,
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "faq-mentioned",
+          "non-play-domain"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-3f3ba129b5",
@@ -35931,7 +36181,47 @@
         "FEPR/Targeting/TimingWindows",
         "ZoneOwnership/ControlChange/Movement"
       ],
-      "riskScore": 65
+      "riskScore": 65,
+      "stage3B": {
+        "evidencePriority": "P1",
+        "allowedIn3B": "battlefield-faq-support",
+        "lifecycleRoles": [
+          "battlefield-card-domain",
+          "control-freeze-faq-candidate",
+          "cleanup-faq-candidate"
+        ],
+        "riskTags": [
+          "battlefield-lifecycle",
+          "faq-mentioned",
+          "control-zone-movement"
+        ],
+        "sourceScenarios": [
+          "3B-battlefield-faq-smoke"
+        ],
+        "useBoundary": "Use as a page-level FAQ candidate for battlefield lifecycle. Do not mark this battlefield card full-official.",
+        "faqCandidate": true,
+        "faqRefs": [
+          "JFAQ-251023 p5",
+          "JFAQ-251023 p6"
+        ],
+        "rulesRefs": [
+          "JFAQ-251023 p5",
+          "JFAQ-251023 p6"
+        ],
+        "riskScore": 65,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "faq-mentioned",
+          "non-play-domain",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-336e6a7841",
@@ -43188,6 +43478,38 @@
           "payment-cost",
           "targeting-stack-timing"
         ]
+      },
+      "stage3B": {
+        "evidencePriority": "P1",
+        "allowedIn3B": "unit-body-support",
+        "lifecycleRoles": [
+          "battlefield-occupant-body",
+          "movement-target-body",
+          "control-state-fixture"
+        ],
+        "riskTags": [
+          "fixture-body",
+          "control-zone-movement",
+          "payment-cost-dependent"
+        ],
+        "sourceScenarios": [
+          "3B-battlefield-occupant-fixture"
+        ],
+        "useBoundary": "Reuse only as a battlefield occupant/body fixture. Do not exercise Mighty Faerie card text.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 35,
+        "dependsOnP0RuleDomains": [
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "control-zone-movement",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
       }
     },
     {
@@ -44000,6 +44322,43 @@
         ],
         "useBoundary": "Haste optional payment remains outside 3A unless A explicitly opens that slice.",
         "faqRefs": [],
+        "riskScore": 62,
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      "stage3B": {
+        "evidencePriority": "P2",
+        "allowedIn3B": "hold-back",
+        "lifecycleRoles": [
+          "haste-payment",
+          "cleanup-duration-risk",
+          "control-zone-movement"
+        ],
+        "riskTags": [
+          "hold-back",
+          "haste-payment",
+          "layer-engine",
+          "cleanup-risk"
+        ],
+        "sourceScenarios": [
+          "haste-payment-recycle"
+        ],
+        "useBoundary": "Remain held back in 3B unless A explicitly opens haste/payment/layer work.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
         "riskScore": 62,
         "dependsOnP0RuleDomains": [
           "CleanupQueue/ReplacementEffects",
@@ -46740,6 +47099,54 @@
           "payment-cost",
           "targeting-stack-timing"
         ]
+      },
+      "stage3B": {
+        "evidencePriority": "P0",
+        "allowedIn3B": "control-change-core",
+        "lifecycleRoles": [
+          "control-change",
+          "ready-enemy-battlefield-unit",
+          "non-battle-spell-duel-candidate",
+          "control-freeze-faq-candidate"
+        ],
+        "riskTags": [
+          "top20-risk",
+          "control-change",
+          "faq-mentioned",
+          "hidden-info-risk",
+          "battle-lifecycle-adjacent"
+        ],
+        "sourceScenarios": [
+          "3B-hostile-takeover-control-freeze",
+          "BuildTestDecksScenario"
+        ],
+        "useBoundary": "May be used to prove control-change and battlefield-control lifecycle evidence for 3B. Do not expand into complete battle lifecycle, hidden-information adjudication, or full-official Hostile Takeover coverage.",
+        "faqCandidate": true,
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p22",
+          "SOUL-OFAQ-260114 p21"
+        ],
+        "rulesRefs": [
+          "CORE-260330 p46",
+          "SOUL-JFAQ-260114 p22",
+          "SOUL-OFAQ-260114 p21"
+        ],
+        "riskScore": 86,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
       }
     },
     {
@@ -47459,7 +47866,54 @@
         "PaymentEngine/PAY_COST",
         "VisibilityFilter/RandomAndHiddenZones"
       ],
-      "riskScore": 94
+      "riskScore": 94,
+      "stage3B": {
+        "evidencePriority": "P0",
+        "allowedIn3B": "battlefield-domain-core",
+        "lifecycleRoles": [
+          "battlefield-card-domain",
+          "battlefield-control-state",
+          "conquer/hold-scoring-evidence",
+          "central-cleanup-queue-trigger"
+        ],
+        "riskTags": [
+          "battlefield-lifecycle",
+          "non-play-domain",
+          "faq-mentioned",
+          "no-full-battle-damage"
+        ],
+        "sourceScenarios": [
+          "3B-battlefield-domain-smoke",
+          "3B-control-conquer-cleanup-minimal"
+        ],
+        "useBoundary": "Use as a battlefield-domain representative for object/control/scoring evidence only. Do not claim the complete battlefield card text or full BATTLEFIELD_RULE_DOMAIN coverage.",
+        "faqCandidate": true,
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p8",
+          "SOUL-OFAQ-260114 p15"
+        ],
+        "rulesRefs": [
+          "SOUL-JFAQ-260114 p8",
+          "SOUL-OFAQ-260114 p15"
+        ],
+        "riskScore": 94,
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "non-play-domain",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-7652709b3a",
@@ -54586,7 +55040,42 @@
         "PaymentEngine/PAY_COST",
         "ZoneOwnership/ControlChange/Movement"
       ],
-      "riskScore": 50
+      "riskScore": 50,
+      "stage3B": {
+        "evidencePriority": "P2",
+        "allowedIn3B": "pressure-only",
+        "lifecycleRoles": [
+          "control-change",
+          "recall",
+          "cleanup-replacement-duration"
+        ],
+        "riskTags": [
+          "pressure-only",
+          "control-change",
+          "recall",
+          "cleanup-risk"
+        ],
+        "sourceScenarios": [
+          "future-control-change-pressure"
+        ],
+        "useBoundary": "Use later after the 3B minimal control-change slice is stable; not a 3B core fixture.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 50,
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-7d0b8868b7",
@@ -56637,7 +57126,46 @@
         "VisibilityFilter/RandomAndHiddenZones",
         "ZoneOwnership/ControlChange/Movement"
       ],
-      "riskScore": 77
+      "riskScore": 77,
+      "stage3B": {
+        "evidencePriority": "P2",
+        "allowedIn3B": "pressure-only",
+        "lifecycleRoles": [
+          "last-breath",
+          "control-zone-movement",
+          "cleanup-trigger"
+        ],
+        "riskTags": [
+          "pressure-only",
+          "last-breath",
+          "cleanup-risk",
+          "hidden-info-risk"
+        ],
+        "sourceScenarios": [
+          "future-cleanup-pressure"
+        ],
+        "useBoundary": "Good later cleanup pressure candidate. Do not pull last-breath/static timing into 3B minimal slice.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 77,
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-f9eb8c6f71",
@@ -58050,7 +58578,43 @@
         "VisibilityFilter/RandomAndHiddenZones",
         "ZoneOwnership/ControlChange/Movement"
       ],
-      "riskScore": 54
+      "riskScore": 54,
+      "stage3B": {
+        "evidencePriority": "P1",
+        "allowedIn3B": "cleanup-control-support",
+        "lifecycleRoles": [
+          "battlefield-card-domain",
+          "control-zone-movement",
+          "hidden-info-risk",
+          "central-cleanup-queue-trigger"
+        ],
+        "riskTags": [
+          "battlefield-lifecycle",
+          "cleanup-risk",
+          "hidden-info-risk"
+        ],
+        "sourceScenarios": [
+          "3B-cleanup-control-hidden-info-smoke"
+        ],
+        "useBoundary": "Use as a support candidate for cleanup/control/visibility evidence only, not full battlefield card behavior.",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 54,
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "hidden-info-random-zone",
+          "non-play-domain",
+          "targeting-stack-timing"
+        ]
+      }
     },
     {
       "functionalUnitId": "FU-22f877d81b",
@@ -60585,6 +61149,966 @@
         "contract": "desktop shell smoke",
         "evidencePriority": "P1",
         "note": "Card visibility/detail evidence must not be upgraded to implemented full text."
+      }
+    ]
+  },
+  "stage3BBattlefieldLifecycle": {
+    "stage": "Stage 3B battlefield / standby / control / conquer lifecycle and central cleanup queue overlay",
+    "updatedAt": "2026-05-09",
+    "notFullOfficialCoverage": true,
+    "doesNotAuthorizeBatchCoverage": true,
+    "doesNotModifyCoreRules": true,
+    "scope": [
+      "battlefield object and non-PLAY_CARD battlefield domain evidence",
+      "standby zone privacy / lost-control cleanup candidates",
+      "control-change and control-freeze FAQ candidate mapping",
+      "conquer / hold scoring hooks as evidence candidates",
+      "central cleanup queue dependency mapping for move, control, enter/leave, score, and state-based cleanup"
+    ],
+    "explicitlyOutOfScope": [
+      "1009 card full-official implementation",
+      "core rule engine changes",
+      "READY marking",
+      "complete battle lifecycle implementation",
+      "ASSIGN_COMBAT_DAMAGE / full damage assignment",
+      "ORDER_TRIGGERS runtime",
+      "complete spell duel runtime",
+      "all BATTLEFIELD_RULE_DOMAIN cards as full official coverage",
+      "equipment / assemble / LayerEngine expansion beyond already-tagged evidence",
+      "frontend or server code changes"
+    ],
+    "faqSourcePolicy": "Use the five PDF/FAQ sources already extracted in sourceEvidence and rule refs from docs/rules-evidence-index.md; do not use cardQaList.",
+    "aggregateDependencyCounts": {
+      "lifecycleOrCleanupCandidateFunctionalUnits": 649,
+      "core3BCandidateFunctionalUnits": 520,
+      "battleSpellDuelFunctionalUnits": 287,
+      "cleanupReplacementDurationFunctionalUnits": 282,
+      "controlZoneMovementFunctionalUnits": 286,
+      "battlefieldRuleDomainFunctionalUnits": 54,
+      "standbyNamedOrEffectKindFunctionalUnits": 12,
+      "legendActionDomainFunctionalUnits": 44
+    },
+    "officialRuleEvidenceRefs": [
+      "CORE-260330 p4-p8 rules 107.2-107.3: battlefield and standby zone model",
+      "CORE-260330 p22-p26 rules 187-189: owner/controller and battlefield control model",
+      "CORE-260330 p28-p33 rules 315.2.b.2 and 319-323: hold scoring and cleanup queue",
+      "CORE-260330 p35-p36 rules 344-348: non-battle spell duel after contested uncontrolled battlefield",
+      "CORE-260330 p77-p78 rules 461-464: battle cleanup, control establishment, conquer/hold scoring",
+      "JFAQ-251023 p5-p7 questions 4.1-5.4: control freeze and cleanup timing during battle/spell duel",
+      "SOUL-OFAQ-260114 p21: Hostile Takeover style control-change / non-battle spell duel candidate",
+      "SOUL-JFAQ-260114 p4-p5: battle result, conquer/hold, scoring replacement/trigger candidates",
+      "SOUL-OFAQ-260114 p19-p20: zero/negative power cleanup semantics feeding central cleanup queue"
+    ],
+    "lifecycleCoreFunctionalUnits": [
+      {
+        "functionalUnitId": "FU-05ce012700",
+        "representativeCardNo": "SFD·218/221",
+        "name": "沉没神庙",
+        "category": "战场",
+        "evidencePriority": "P0",
+        "faqCandidate": true,
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p8",
+          "SOUL-OFAQ-260114 p15"
+        ],
+        "rulesRefs": [
+          "SOUL-JFAQ-260114 p8",
+          "SOUL-OFAQ-260114 p15"
+        ],
+        "riskScore": 94,
+        "riskTags": [
+          "battlefield-lifecycle",
+          "non-play-domain",
+          "faq-mentioned",
+          "no-full-battle-damage"
+        ],
+        "allowedIn3B": "battlefield-domain-core",
+        "lifecycleRoles": [
+          "battlefield-card-domain",
+          "battlefield-control-state",
+          "conquer/hold-scoring-evidence",
+          "central-cleanup-queue-trigger"
+        ],
+        "sourceScenarios": [
+          "3B-battlefield-domain-smoke",
+          "3B-control-conquer-cleanup-minimal"
+        ],
+        "useBoundary": "Use as a battlefield-domain representative for object/control/scoring evidence only. Do not claim the complete battlefield card text or full BATTLEFIELD_RULE_DOMAIN coverage.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "non-play-domain",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-00ee09c2cc",
+        "representativeCardNo": "SFD·202/221",
+        "name": "恶意收购",
+        "category": "专属法术",
+        "evidencePriority": "P0",
+        "faqCandidate": true,
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p22",
+          "SOUL-OFAQ-260114 p21"
+        ],
+        "rulesRefs": [
+          "CORE-260330 p46",
+          "SOUL-JFAQ-260114 p22",
+          "SOUL-OFAQ-260114 p21"
+        ],
+        "riskScore": 86,
+        "riskTags": [
+          "top20-risk",
+          "control-change",
+          "faq-mentioned",
+          "hidden-info-risk",
+          "battle-lifecycle-adjacent"
+        ],
+        "allowedIn3B": "control-change-core",
+        "lifecycleRoles": [
+          "control-change",
+          "ready-enemy-battlefield-unit",
+          "non-battle-spell-duel-candidate",
+          "control-freeze-faq-candidate"
+        ],
+        "sourceScenarios": [
+          "3B-hostile-takeover-control-freeze",
+          "BuildTestDecksScenario"
+        ],
+        "useBoundary": "May be used to prove control-change and battlefield-control lifecycle evidence for 3B. Do not expand into complete battle lifecycle, hidden-information adjudication, or full-official Hostile Takeover coverage.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-813144e7d4",
+        "representativeCardNo": "OGN·168/298",
+        "name": "战或逃",
+        "category": "法术",
+        "evidencePriority": "P0",
+        "faqCandidate": true,
+        "faqRefs": [
+          "JFAQ-251023 p4",
+          "SOUL-JFAQ-260114 p12",
+          "SOUL-JFAQ-260114 p16"
+        ],
+        "rulesRefs": [
+          "CORE-260330 p46",
+          "JFAQ-251023 p4",
+          "SOUL-JFAQ-260114 p12",
+          "SOUL-JFAQ-260114 p16"
+        ],
+        "riskScore": 91,
+        "riskTags": [
+          "movement-cleanup",
+          "faq-mentioned",
+          "control-zone-movement",
+          "no-damage-assignment"
+        ],
+        "allowedIn3B": "movement-cleanup-core",
+        "lifecycleRoles": [
+          "battlefield-to-base-movement",
+          "zone/control-movement",
+          "cleanup-after-move",
+          "standby-removal-adjacent"
+        ],
+        "sourceScenarios": [
+          "3B-battlefield-unit-return-to-base",
+          "3B-cleanup-after-move"
+        ],
+        "useBoundary": "Use for battlefield-to-base movement and cleanup enqueue evidence. Do not use it to close complete spell duel, targeting, or payment coverage.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-8dae5c40be",
+        "representativeCardNo": "OGN·121/298",
+        "name": "提莫",
+        "category": "英雄单位",
+        "evidencePriority": "P1",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 82,
+        "riskTags": [
+          "standby",
+          "hidden-info-risk",
+          "battle-adjacent",
+          "layer-risk"
+        ],
+        "allowedIn3B": "standby-visibility-support",
+        "lifecycleRoles": [
+          "standby-zone",
+          "face-down/privacy",
+          "standby-defend-reveal",
+          "lost-control-cleanup-candidate"
+        ],
+        "sourceScenarios": [
+          "3B-standby-privacy-smoke",
+          "3B-lost-control-standby-cleanup-candidate"
+        ],
+        "useBoundary": "Use only as a standby/privacy and lost-control cleanup candidate. Do not exercise full Teemo combat text or full battle damage assignment in 3B.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-e3dcc3b30f",
+        "representativeCardNo": "OGN·199/298",
+        "name": "控潮者",
+        "category": "单位",
+        "evidencePriority": "P1",
+        "faqCandidate": true,
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p6"
+        ],
+        "rulesRefs": [
+          "CORE-260330 p97",
+          "SOUL-JFAQ-260114 p6"
+        ],
+        "riskScore": 60,
+        "riskTags": [
+          "standby",
+          "faq-mentioned",
+          "hidden-info-risk",
+          "movement-cleanup"
+        ],
+        "allowedIn3B": "standby-movement-support",
+        "lifecycleRoles": [
+          "standby-zone",
+          "standby-swap",
+          "control-zone-movement",
+          "privacy-candidate"
+        ],
+        "sourceScenarios": [
+          "3B-standby-swap-boundary"
+        ],
+        "useBoundary": "Use as a standby movement/swap evidence candidate only. Do not infer all standby keyword or hidden-information behavior from it.",
+        "dependsOnP0RuleDomains": [
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "control-zone-movement",
+          "faq-mentioned",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-7f4a387b92",
+        "representativeCardNo": "OGN·056/298",
+        "name": "自适应机器人",
+        "category": "单位",
+        "evidencePriority": "P1",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 58,
+        "riskTags": [
+          "conquer",
+          "cleanup-risk",
+          "layer-risk",
+          "battle-adjacent"
+        ],
+        "allowedIn3B": "conquer-trigger-support",
+        "lifecycleRoles": [
+          "conquer-trigger",
+          "boon-after-conquer",
+          "cleanup-after-score-candidate"
+        ],
+        "sourceScenarios": [
+          "3B-conquer-trigger-minimal"
+        ],
+        "useBoundary": "Use only to tag conquer-trigger evidence for later tests. Do not implement or claim full boon/layer behavior in 3B.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "cleanup-replacement-duration",
+          "layer-continuous-effect",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-c027639a3c",
+        "representativeCardNo": "OGN·035/298",
+        "name": "薇恩",
+        "category": "英雄单位",
+        "evidencePriority": "P1",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 70,
+        "riskTags": [
+          "conquer",
+          "recall",
+          "hidden-info-risk",
+          "battle-adjacent"
+        ],
+        "allowedIn3B": "conquer-recall-support",
+        "lifecycleRoles": [
+          "conquer-trigger",
+          "recall-after-conquer",
+          "control-zone-movement"
+        ],
+        "sourceScenarios": [
+          "3B-conquer-recall-boundary"
+        ],
+        "useBoundary": "Use as a conquer/recall boundary candidate. Do not pull full assault or combat damage processing into 3B.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "hidden-info-random-zone",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-90673ef9fd",
+        "representativeCardNo": "OGN·285/298",
+        "name": "劫掠船巷",
+        "category": "战场",
+        "evidencePriority": "P1",
+        "faqCandidate": true,
+        "faqRefs": [
+          "JFAQ-251023 p5",
+          "JFAQ-251023 p6"
+        ],
+        "rulesRefs": [
+          "JFAQ-251023 p5",
+          "JFAQ-251023 p6"
+        ],
+        "riskScore": 65,
+        "riskTags": [
+          "battlefield-lifecycle",
+          "faq-mentioned",
+          "control-zone-movement"
+        ],
+        "allowedIn3B": "battlefield-faq-support",
+        "lifecycleRoles": [
+          "battlefield-card-domain",
+          "control-freeze-faq-candidate",
+          "cleanup-faq-candidate"
+        ],
+        "sourceScenarios": [
+          "3B-battlefield-faq-smoke"
+        ],
+        "useBoundary": "Use as a page-level FAQ candidate for battlefield lifecycle. Do not mark this battlefield card full-official.",
+        "dependsOnP0RuleDomains": [
+          "BattleEngine/SpellDuelLifecycle/ASSIGN_COMBAT_DAMAGE",
+          "FEPR/Targeting/TimingWindows",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "battle-spell-duel",
+          "control-zone-movement",
+          "faq-mentioned",
+          "non-play-domain",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-6c99fc0e2e",
+        "representativeCardNo": "OGN·277/298",
+        "name": "后巷酒吧",
+        "category": "战场",
+        "evidencePriority": "P1",
+        "faqCandidate": true,
+        "faqRefs": [
+          "JFAQ-251023 p5",
+          "JFAQ-251023 p6"
+        ],
+        "rulesRefs": [
+          "JFAQ-251023 p5",
+          "JFAQ-251023 p6"
+        ],
+        "riskScore": 53,
+        "riskTags": [
+          "battlefield-lifecycle",
+          "faq-mentioned",
+          "cleanup-risk"
+        ],
+        "allowedIn3B": "cleanup-control-support",
+        "lifecycleRoles": [
+          "battlefield-card-domain",
+          "control-zone-movement",
+          "central-cleanup-queue-trigger"
+        ],
+        "sourceScenarios": [
+          "3B-cleanup-control-faq-smoke"
+        ],
+        "useBoundary": "Use as a cleanup/control battlefield-domain fixture. Do not expand to all battlefield replacement or triggered abilities.",
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "faq-mentioned",
+          "non-play-domain"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-d18ac7cbec",
+        "representativeCardNo": "UNL-209/219",
+        "name": "暮色玫瑰实验室",
+        "category": "战场",
+        "evidencePriority": "P1",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 54,
+        "riskTags": [
+          "battlefield-lifecycle",
+          "cleanup-risk",
+          "hidden-info-risk"
+        ],
+        "allowedIn3B": "cleanup-control-support",
+        "lifecycleRoles": [
+          "battlefield-card-domain",
+          "control-zone-movement",
+          "hidden-info-risk",
+          "central-cleanup-queue-trigger"
+        ],
+        "sourceScenarios": [
+          "3B-cleanup-control-hidden-info-smoke"
+        ],
+        "useBoundary": "Use as a support candidate for cleanup/control/visibility evidence only, not full battlefield card behavior.",
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "hidden-info-random-zone",
+          "non-play-domain",
+          "targeting-stack-timing"
+        ]
+      }
+    ],
+    "supportFunctionalUnits": [
+      {
+        "functionalUnitId": "FU-95b4531e4e",
+        "representativeCardNo": "SFD·125/221",
+        "name": "大力仙灵",
+        "category": "单位",
+        "evidencePriority": "P1",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 35,
+        "riskTags": [
+          "fixture-body",
+          "control-zone-movement",
+          "payment-cost-dependent"
+        ],
+        "allowedIn3B": "unit-body-support",
+        "lifecycleRoles": [
+          "battlefield-occupant-body",
+          "movement-target-body",
+          "control-state-fixture"
+        ],
+        "sourceScenarios": [
+          "3B-battlefield-occupant-fixture"
+        ],
+        "useBoundary": "Reuse only as a battlefield occupant/body fixture. Do not exercise Mighty Faerie card text.",
+        "dependsOnP0RuleDomains": [
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "control-zone-movement",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
+    ],
+    "holdBackFunctionalUnits": [
+      {
+        "functionalUnitId": "FU-5bcc4063c2",
+        "representativeCardNo": "SFD·143/221",
+        "name": "希维尔",
+        "category": "英雄单位",
+        "evidencePriority": "P2",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 62,
+        "riskTags": [
+          "hold-back",
+          "haste-payment",
+          "layer-engine",
+          "cleanup-risk"
+        ],
+        "allowedIn3B": "hold-back",
+        "lifecycleRoles": [
+          "haste-payment",
+          "cleanup-duration-risk",
+          "control-zone-movement"
+        ],
+        "sourceScenarios": [
+          "haste-payment-recycle"
+        ],
+        "useBoundary": "Remain held back in 3B unless A explicitly opens haste/payment/layer work.",
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-4e2e19359f",
+        "representativeCardNo": "UNL-179/219",
+        "name": "峡谷先锋",
+        "category": "单位",
+        "evidencePriority": "P2",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 77,
+        "riskTags": [
+          "pressure-only",
+          "last-breath",
+          "cleanup-risk",
+          "hidden-info-risk"
+        ],
+        "allowedIn3B": "pressure-only",
+        "lifecycleRoles": [
+          "last-breath",
+          "control-zone-movement",
+          "cleanup-trigger"
+        ],
+        "sourceScenarios": [
+          "future-cleanup-pressure"
+        ],
+        "useBoundary": "Good later cleanup pressure candidate. Do not pull last-breath/static timing into 3B minimal slice.",
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "LayerEngine/ContinuousEffects",
+          "PaymentEngine/PAY_COST",
+          "VisibilityFilter/RandomAndHiddenZones",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "hidden-info-random-zone",
+          "layer-continuous-effect",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      },
+      {
+        "functionalUnitId": "FU-0681eefc4e",
+        "representativeCardNo": "UNL-140/219",
+        "name": "强制征召",
+        "category": "法术",
+        "evidencePriority": "P2",
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "riskScore": 50,
+        "riskTags": [
+          "pressure-only",
+          "control-change",
+          "recall",
+          "cleanup-risk"
+        ],
+        "allowedIn3B": "pressure-only",
+        "lifecycleRoles": [
+          "control-change",
+          "recall",
+          "cleanup-replacement-duration"
+        ],
+        "sourceScenarios": [
+          "future-control-change-pressure"
+        ],
+        "useBoundary": "Use later after the 3B minimal control-change slice is stable; not a 3B core fixture.",
+        "dependsOnP0RuleDomains": [
+          "CleanupQueue/ReplacementEffects",
+          "FEPR/Targeting/TimingWindows",
+          "PaymentEngine/PAY_COST",
+          "ZoneOwnership/ControlChange/Movement"
+        ],
+        "uncoveredEffectCategories": [
+          "cleanup-replacement-duration",
+          "control-zone-movement",
+          "payment-cost",
+          "targeting-stack-timing"
+        ]
+      }
+    ],
+    "recommendedBattleDamagePressureFunctionalUnits": [
+      {
+        "functionalUnitId": "FU-104211dbbc",
+        "representativeCardNo": "SFD·148/221",
+        "name": "德莱文",
+        "category": "英雄单位",
+        "riskScore": 104,
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p4",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-JFAQ-260114 p4",
+          "SOUL-OFAQ-260114 p16",
+          "SOUL-OFAQ-260114 p17"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p4",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-JFAQ-260114 p4",
+          "SOUL-OFAQ-260114 p16",
+          "SOUL-OFAQ-260114 p17"
+        ],
+        "pressureReason": [
+          "battle/spell-duel lifecycle",
+          "damage assignment",
+          "cleanup/replacement duration",
+          "FAQ candidate"
+        ],
+        "useBoundary": "Recommended for later battle/damage pressure testing only; do not implement or mark full-official in Stage 3B."
+      },
+      {
+        "functionalUnitId": "FU-964b214448",
+        "representativeCardNo": "SFD·020/221",
+        "name": "德莱文",
+        "category": "英雄单位",
+        "riskScore": 103,
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p4",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-JFAQ-260114 p4",
+          "SOUL-OFAQ-260114 p16",
+          "SOUL-OFAQ-260114 p17"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p4",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-JFAQ-260114 p4",
+          "SOUL-OFAQ-260114 p16",
+          "SOUL-OFAQ-260114 p17"
+        ],
+        "pressureReason": [
+          "battle/spell-duel lifecycle",
+          "damage assignment",
+          "cleanup/replacement duration",
+          "FAQ candidate"
+        ],
+        "useBoundary": "Recommended for later battle/damage pressure testing only; do not implement or mark full-official in Stage 3B."
+      },
+      {
+        "functionalUnitId": "FU-2dca1ad450",
+        "representativeCardNo": "SFD·082/221",
+        "name": "伊泽瑞尔",
+        "category": "英雄单位",
+        "riskScore": 103,
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p5",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-OFAQ-260114 p20"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p5",
+          "CORE-260330 p42",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-JFAQ-260114 p25",
+          "SOUL-OFAQ-260114 p20"
+        ],
+        "pressureReason": [
+          "battle/spell-duel lifecycle",
+          "damage assignment",
+          "control/zone movement",
+          "FAQ candidate"
+        ],
+        "useBoundary": "Recommended for later battle/damage pressure testing only; do not implement or mark full-official in Stage 3B."
+      },
+      {
+        "functionalUnitId": "FU-422b450261",
+        "representativeCardNo": "SFD·170/221",
+        "name": "雷克塞",
+        "category": "英雄单位",
+        "riskScore": 94,
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-OFAQ-260114 p4"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-OFAQ-260114 p4"
+        ],
+        "pressureReason": [
+          "battle/spell-duel lifecycle",
+          "damage assignment",
+          "control/zone movement",
+          "FAQ candidate"
+        ],
+        "useBoundary": "Recommended for later battle/damage pressure testing only; do not implement or mark full-official in Stage 3B."
+      },
+      {
+        "functionalUnitId": "FU-1945f6918c",
+        "representativeCardNo": "SFD·029/221",
+        "name": "雷克塞",
+        "category": "英雄单位",
+        "riskScore": 93,
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-OFAQ-260114 p4"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p3",
+          "SOUL-JFAQ-260114 p19",
+          "SOUL-OFAQ-260114 p4"
+        ],
+        "pressureReason": [
+          "battle/spell-duel lifecycle",
+          "damage assignment",
+          "FAQ candidate"
+        ],
+        "useBoundary": "Recommended for later battle/damage pressure testing only; do not implement or mark full-official in Stage 3B."
+      },
+      {
+        "functionalUnitId": "FU-9f7cb73dc4",
+        "representativeCardNo": "UNL-150/219",
+        "name": "薇古丝",
+        "category": "英雄单位",
+        "riskScore": 96,
+        "faqCandidate": true,
+        "faqRefs": [
+          "BREAK-JFAQ-260416 p5",
+          "BREAK-JFAQ-260416 p9",
+          "SOUL-JFAQ-260114 p17"
+        ],
+        "rulesRefs": [
+          "BREAK-JFAQ-260416 p5",
+          "BREAK-JFAQ-260416 p9",
+          "SOUL-JFAQ-260114 p17"
+        ],
+        "pressureReason": [
+          "battle/spell-duel lifecycle",
+          "damage assignment",
+          "cleanup/replacement duration",
+          "control/zone movement",
+          "FAQ candidate"
+        ],
+        "useBoundary": "Recommended for later battle/damage pressure testing only; do not implement or mark full-official in Stage 3B."
+      },
+      {
+        "functionalUnitId": "FU-ee886701e4",
+        "representativeCardNo": "OGN·220/298",
+        "name": "强手裂颅",
+        "category": "法术",
+        "riskScore": 77,
+        "faqCandidate": true,
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p23"
+        ],
+        "rulesRefs": [
+          "SOUL-JFAQ-260114 p23"
+        ],
+        "pressureReason": [
+          "battle/spell-duel lifecycle",
+          "damage assignment",
+          "cleanup/replacement duration",
+          "FAQ candidate"
+        ],
+        "useBoundary": "Recommended for later battle/damage pressure testing only; do not implement or mark full-official in Stage 3B."
+      },
+      {
+        "functionalUnitId": "FU-0b6332bbf0",
+        "representativeCardNo": "SFD·145/221",
+        "name": "换换乐",
+        "category": "法术",
+        "riskScore": 89,
+        "faqCandidate": true,
+        "faqRefs": [
+          "SOUL-JFAQ-260114 p14"
+        ],
+        "rulesRefs": [
+          "SOUL-JFAQ-260114 p14"
+        ],
+        "pressureReason": [
+          "battle/spell-duel lifecycle",
+          "damage assignment",
+          "cleanup/replacement duration",
+          "FAQ candidate"
+        ],
+        "useBoundary": "Recommended for later battle/damage pressure testing only; do not implement or mark full-official in Stage 3B."
+      },
+      {
+        "functionalUnitId": "FU-a9dc3495e1",
+        "representativeCardNo": "OGN·256/298",
+        "name": "妖异狐火",
+        "category": "专属法术",
+        "riskScore": 80,
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [
+          "CORE-260330 p40"
+        ],
+        "pressureReason": [
+          "battle/spell-duel lifecycle",
+          "damage assignment",
+          "cleanup/replacement duration"
+        ],
+        "useBoundary": "Recommended for later battle/damage pressure testing only; do not implement or mark full-official in Stage 3B."
+      },
+      {
+        "functionalUnitId": "FU-64a7f67581",
+        "representativeCardNo": "OGN·262/298",
+        "name": "天顶之刃",
+        "category": "专属法术",
+        "riskScore": 51,
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "pressureReason": [
+          "battle/spell-duel lifecycle",
+          "damage assignment",
+          "cleanup/replacement duration",
+          "control/zone movement"
+        ],
+        "useBoundary": "Recommended for later battle/damage pressure testing only; do not implement or mark full-official in Stage 3B."
+      },
+      {
+        "functionalUnitId": "FU-4329e00e20",
+        "representativeCardNo": "UNL-198/219",
+        "name": "月之降临",
+        "category": "专属法术",
+        "riskScore": 51,
+        "faqCandidate": false,
+        "faqRefs": [],
+        "rulesRefs": [],
+        "pressureReason": [
+          "battle/spell-duel lifecycle",
+          "damage assignment",
+          "cleanup/replacement duration",
+          "control/zone movement"
+        ],
+        "useBoundary": "Recommended for later battle/damage pressure testing only; do not implement or mark full-official in Stage 3B."
+      },
+      {
+        "functionalUnitId": "FU-b646702ec0",
+        "representativeCardNo": "OGN·268/298",
+        "name": "弹幕时间",
+        "category": "专属法术",
+        "riskScore": 47,
+        "faqCandidate": true,
+        "faqRefs": [
+          "JFAQ-251023 p6"
+        ],
+        "rulesRefs": [
+          "JFAQ-251023 p6"
+        ],
+        "pressureReason": [
+          "battle/spell-duel lifecycle",
+          "damage assignment",
+          "FAQ candidate"
+        ],
+        "useBoundary": "Recommended for later battle/damage pressure testing only; do not implement or mark full-official in Stage 3B."
+      }
+    ],
+    "nonCard3BContracts": [
+      {
+        "contract": "central cleanup queue evidence boundary",
+        "evidencePriority": "P0",
+        "note": "Every move, control change, enter/leave, power/damage state change, battle/spell-duel transition, and score step must eventually enqueue cleanup before full-official coverage can be claimed."
+      },
+      {
+        "contract": "battlefield control freeze/release",
+        "evidencePriority": "P0",
+        "note": "Control should not be recomputed prematurely during battle/spell-duel; lost-control standby removal belongs to a later cleanup point."
+      },
+      {
+        "contract": "conquer/hold scoring hooks",
+        "evidencePriority": "P1",
+        "note": "3B may map conquer/hold trigger candidates, but full trigger ordering and scoring replacement runtime remain out of scope."
       }
     ]
   }

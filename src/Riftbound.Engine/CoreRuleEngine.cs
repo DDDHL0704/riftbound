@@ -7853,7 +7853,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                         battlefieldScoreEvents,
                         out var battlefieldScoreRunePools,
                         out var battlefieldScorePlayerScores,
-                        out var battlefieldScoreWinnerPlayerId))
+                        out var battlefieldScoreWinnerPlayerId,
+                        out var battlefieldScoreUntilEndOfTurnEffects))
                 {
                     AddBattlefieldHeldEventIfNeeded(
                         combatEvents,
@@ -7866,6 +7867,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     runePools = battlefieldScoreRunePools;
                     playerScores = battlefieldScorePlayerScores;
                     winnerPlayerId = battlefieldScoreWinnerPlayerId ?? winnerPlayerId;
+                    untilEndOfTurnEffects = battlefieldScoreUntilEndOfTurnEffects;
                 }
 
                 var battlefieldSevenUnitsEvents = new List<GameEvent>();
@@ -11311,16 +11313,28 @@ public sealed class CoreRuleEngine : IRuleEngine
         List<GameEvent> events,
         out IReadOnlyDictionary<string, RunePool> nextRunePools,
         out IReadOnlyDictionary<string, int> nextPlayerScores,
-        out string? winnerPlayerId)
+        out string? winnerPlayerId,
+        out IReadOnlyList<string> nextUntilEndOfTurnEffects)
     {
         nextRunePools = runePools;
         nextPlayerScores = playerScores;
         winnerPlayerId = null;
+        nextUntilEndOfTurnEffects = state.UntilEndOfTurnEffects;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
             || !IsBattlefieldHeldPayPowerScoreCardNo(battlefieldState.CardNo))
         {
             return false;
+        }
+
+        if (BattlefieldScoredThisTurn(state.UntilEndOfTurnEffects, battlefieldObjectId))
+        {
+            events.Add(BuildBattlefieldScoreAlreadyGainedEvent(
+                state,
+                playerId,
+                "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE",
+                [battlefieldObjectId]));
+            return true;
         }
 
         if (TryBuildBattlefieldScorePreventedEvent(
@@ -11348,6 +11362,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             StringComparer.Ordinal);
         mutablePlayerScores[playerId] = mutablePlayerScores.TryGetValue(playerId, out var score) ? score + 1 : 1;
         winnerPlayerId = WinningPlayerId(mutablePlayerScores, winningScore);
+        nextUntilEndOfTurnEffects = MarkBattlefieldScoredThisTurn(
+            state.UntilEndOfTurnEffects,
+            battlefieldObjectId,
+            playerId);
 
         events.Add(new GameEvent(
             "BATTLEFIELD_TRIGGER_RESOLVED",
@@ -15381,7 +15399,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             : new ScoreApplicationResult(
                 battlefieldStartDrawResult.PlayerScores,
                 battlefieldStartDrawResult.WinnerPlayerId,
-                []);
+                [],
+                preStartState.UntilEndOfTurnEffects);
 
         var calledRuneTarget = firstTurnScoreResult.WinnerPlayerId is null ? RuneCallCount(preStartState) : 0;
         var calledRunes = TakeControlledRuneDeckPrefix(
@@ -15394,7 +15413,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             ? DrawOne(
                 preStartState with
                 {
-                    PlayerScores = firstTurnScoreResult.PlayerScores
+                    PlayerScores = firstTurnScoreResult.PlayerScores,
+                    UntilEndOfTurnEffects = firstTurnScoreResult.UntilEndOfTurnEffects
                 },
                 turnPlayerId,
                 currentZones)
@@ -15483,7 +15503,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
                 .ToArray(),
-            RngCursor = rngCursor
+            RngCursor = rngCursor,
+            UntilEndOfTurnEffects = firstTurnScoreResult.UntilEndOfTurnEffects
         };
 
         return new ResolutionResult(
@@ -26687,19 +26708,20 @@ public sealed class CoreRuleEngine : IRuleEngine
         var playerScores = NormalizeScoresForSeats(state);
         if (!IsTurnPlayersFirstTurn(state))
         {
-            return new ScoreApplicationResult(playerScores, null, []);
+            return new ScoreApplicationResult(playerScores, null, [], state.UntilEndOfTurnEffects);
         }
 
         var sourceObjectIds = state.PlayerZones
             .SelectMany(entry => entry.Value.Battlefields.Where(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
                 && IsBattlefieldFirstTurnScoreCardNo(cardObject.CardNo)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key)))
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key)
+                && !BattlefieldScoredThisTurn(state.UntilEndOfTurnEffects, objectId)))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray();
         if (sourceObjectIds.Length == 0)
         {
-            return new ScoreApplicationResult(playerScores, null, []);
+            return new ScoreApplicationResult(playerScores, null, [], state.UntilEndOfTurnEffects);
         }
 
         if (TryBuildBattlefieldScorePreventedEvent(
@@ -26710,12 +26732,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                 out var scorePreventedEvent)
             && scorePreventedEvent is not null)
         {
-            return new ScoreApplicationResult(playerScores, null, [scorePreventedEvent]);
+            return new ScoreApplicationResult(playerScores, null, [scorePreventedEvent], state.UntilEndOfTurnEffects);
         }
 
         playerScores[playerId] = playerScores.TryGetValue(playerId, out var score)
             ? score + sourceObjectIds.Length
             : sourceObjectIds.Length;
+        var nextUntilEndOfTurnEffects = sourceObjectIds.Aggregate(
+            state.UntilEndOfTurnEffects,
+            (effects, battlefieldObjectId) => MarkBattlefieldScoredThisTurn(effects, battlefieldObjectId, playerId));
         var events = new List<GameEvent>
         {
             new(
@@ -26744,7 +26769,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         return new ScoreApplicationResult(
             playerScores,
             WinningPlayerId(playerScores, EffectiveWinningScore(state)),
-            events);
+            events,
+            nextUntilEndOfTurnEffects);
     }
 
     private static bool TryBuildBattlefieldScorePreventedEvent(
@@ -26788,6 +26814,67 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["releasedTurnOrdinal"] = BattlefieldScoreDelayReleasedTurnOrdinal
             });
         return true;
+    }
+
+    private static bool BattlefieldScoredThisTurn(IReadOnlyList<string> untilEndOfTurnEffects, string battlefieldObjectId)
+    {
+        return untilEndOfTurnEffects.Any(effectId =>
+            TryParseBattlefieldScoreGainedMarker(effectId, out var markerBattlefieldObjectId, out _)
+            && string.Equals(markerBattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal));
+    }
+
+    private static IReadOnlyList<string> MarkBattlefieldScoredThisTurn(
+        IReadOnlyList<string> untilEndOfTurnEffects,
+        string battlefieldObjectId,
+        string playerId)
+    {
+        return AddUntilEndOfTurnEffect(
+            untilEndOfTurnEffects,
+            BattlefieldTaskMarkers.ScoreGainedThisTurn(battlefieldObjectId, playerId));
+    }
+
+    private static GameEvent BuildBattlefieldScoreAlreadyGainedEvent(
+        MatchState state,
+        string playerId,
+        string preventedReason,
+        IReadOnlyList<string> scoreSourceObjectIds)
+    {
+        return new GameEvent(
+            "BATTLEFIELD_SCORE_PREVENTED",
+            $"{playerId} 本回合已经从该战场获得过分数",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["trigger"] = "BATTLEFIELD_SCORE_ONCE_PER_TURN",
+                ["preventedReason"] = preventedReason,
+                ["scoreSourceObjectIds"] = scoreSourceObjectIds.ToArray(),
+                ["turnOrdinal"] = PlayerTurnOrdinal(state, playerId)
+            });
+    }
+
+    private static bool TryParseBattlefieldScoreGainedMarker(
+        string effectId,
+        out string battlefieldObjectId,
+        out string playerId)
+    {
+        battlefieldObjectId = string.Empty;
+        playerId = string.Empty;
+        if (!effectId.StartsWith(BattlefieldTaskMarkers.ScoreGainedThisTurnPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var marker = effectId[BattlefieldTaskMarkers.ScoreGainedThisTurnPrefix.Length..];
+        var separator = marker.LastIndexOf(':');
+        if (separator <= 0 || separator == marker.Length - 1)
+        {
+            return false;
+        }
+
+        battlefieldObjectId = marker[..separator];
+        playerId = marker[(separator + 1)..];
+        return !string.IsNullOrWhiteSpace(battlefieldObjectId)
+            && !string.IsNullOrWhiteSpace(playerId);
     }
 
     private static int PlayerTurnOrdinal(MatchState state, string playerId)
@@ -27358,7 +27445,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private sealed record ScoreApplicationResult(
         IReadOnlyDictionary<string, int> PlayerScores,
         string? WinnerPlayerId,
-        IReadOnlyList<GameEvent> Events);
+        IReadOnlyList<GameEvent> Events,
+        IReadOnlyList<string> UntilEndOfTurnEffects);
 
     private sealed record BurnoutResult(
         string ScoredPlayerId,
