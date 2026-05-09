@@ -2,11 +2,11 @@
 
 更新时间：2026-05-09
 
-阶段：**阶段 3D / E 卡牌覆盖矩阵与 ORDER_TRIGGERS 证据 overlay**
+阶段：**阶段 4B / E 卡牌覆盖矩阵冻结**
 
 结论：**NOT READY；不允许进入 1009 张卡牌效果批量覆盖。**
 
-本文以阶段 2 风险排序为基础，并叠加阶段 3A/3B/3C/3D 的最小证据 overlay；它不是功能实现清单，也不是错误断言。排名用于告诉后续阶段先审哪里：哪些 functional unit 同时碰到 FAQ、费用、触发/替换、持续效果、战斗/法术对决、隐藏信息或非 PLAY_CARD 规则域。
+本文以阶段 2 风险排序为基础，并叠加阶段 3A/3B/3C/3D 的最小证据 overlay 与阶段 4B 冻结状态；它不是功能实现清单，也不是错误断言。排名用于告诉后续阶段先审哪里：哪些 functional unit 同时碰到 FAQ、费用、触发/替换、持续效果、战斗/法术对决、隐藏信息或非 PLAY_CARD 规则域。
 
 ## 1. 数据来源
 
@@ -110,7 +110,28 @@
 
 后续 `ORDER_TRIGGERS` / battle initial stack / trigger ordering 压测首批候选：`FU-104211dbbc`、`FU-2dca1ad450`、`FU-964b214448`、`FU-05ce012700`、`FU-422b450261`、`FU-813144e7d4`、`FU-50ceb593ab`、`FU-8dae5c40be`、`FU-201e46695b`、`FU-f076dbf9ee`、`FU-f9f5c508c0`、`FU-4e2e19359f`、`FU-f9eb8c6f71`、`FU-5164c0d190`、`FU-c027639a3c`、`FU-16d3a6dd4e`、`FU-3e9cb3904e`、`FU-7d0b8868b`、`FU-1563edad5f`、`FU-67c6b0186e`、`FU-bf81341dd2`、`FU-5cea85e7c3`、`FU-e3dcc3b30f`、`FU-7f4a387b92`。3D 最小 runtime window 不等于这些 FUs 的 full-official 完成。
 
-## 7. Top20 高风险 Functional Units
+## 7. Stage 4B Freeze Status
+
+阶段 4B 冻结 2026-04-27 官方快照，不实时抓官网，不进入 4C 实现。`docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已新增 `stage4BCardCoverageFreeze`、`snapshotEntries[].stage4B`、`functionalUnits[].stage4B`。
+
+冻结统计：1009 snapshot entries、1009 unique cardIds、1009 exact collectorIds、811 functional units、807 unique oracle/effectIds。token、rune、battlefield、promo、`*` 变体、lowercase suffix / 异画均按官方 snapshot entry 计入 1009；functional unit 复用不减少 card entry。
+
+Functional unit primary status：
+
+| status | FUs |
+|---|---:|
+| `IMPLEMENTED_TESTED` | 50 |
+| `IMPLEMENTED_UNTESTED` | 30 |
+| `SHARED_ORACLE_IMPLEMENTATION` | 102 |
+| `NEEDS_ENGINE_SUPPORT` | 501 |
+| `NEEDS_FAQ_REVIEW` | 128 |
+| `BLOCKED` | 0 |
+
+Top uncovered/full-official blockers 仍从 Top20 开始：`FU-fb79eea7fc`、`FU-2653af0380`、`FU-104211dbbc`、`FU-964b214448`、`FU-2dca1ad450`、`FU-9f7cb73dc4`、`FU-422b450261`、`FU-05ce012700`、`FU-1945f6918c`、`FU-813144e7d4`。即使 primary status 是 `IMPLEMENTED_TESTED`，只要带 `NEEDS_ENGINE_SUPPORT` / `NEEDS_FAQ_REVIEW` flag，就不能升级 full-official。
+
+4C 批量顺序建议：先清 P0/P1 engine support blockers，再做 FAQ adjudication + ruling tests，再锁 reusable oracle/effectId clusters，再补 implemented-but-untested direct FUs，最后 review representative tested FUs 是否可逐项升级。
+
+## 8. Top20 高风险 Functional Units
 
 | # | FU | Representative | 类型/条目数 | 当前代表映射 | FAQ 候选页 | 风险依据 | 依赖规则域 |
 |---:|---|---|---:|---|---|---|---|
@@ -135,7 +156,7 @@
 | 19 | `FU-804412488c` | `SFD·139/221` 夜之锋刃 | 装备 / 1 | 代表路径：EDGE_OF_NIGHT_PLAY_EQUIPMENT | SOUL-OFAQ-260114 p10<br>SOUL-OFAQ-260114 p9 | 控制权/区域移动、FAQ 提及、隐藏信息/随机/牌堆、效果层/持续效果、费用/支付、目标/结算链/时机 | FEPR/Targeting/TimingWindows, LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, VisibilityFilter/RandomAndHiddenZones, ZoneOwnership/ControlChange/Movement |
 | 20 | `FU-9a623b3185` | `SFD·059/221` 斯弗尔尚歌 | 装备 / 1 | 代表路径：SFUR_SONG_PLAY_EQUIPMENT | SOUL-JFAQ-260114 p24<br>SOUL-JFAQ-260114 p25<br>SOUL-JFAQ-260114 p8<br>SOUL-OFAQ-260114 p18<br>SOUL-OFAQ-260114 p19 | 控制权/区域移动、FAQ 提及、效果层/持续效果、费用/支付 | LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, ZoneOwnership/ControlChange/Movement |
 
-## 8. 未覆盖效果分类
+## 9. 未覆盖效果分类
 
 | 分类 | 含义 | 当前阻断关系 |
 |---|---|---|
@@ -149,7 +170,7 @@
 | `non-play-domain` | 传奇、战场、符文、指示物等非普通 PLAY_CARD 域。 | 需要专门域矩阵，不可与普通出牌效果混算。 |
 | `faq-mentioned` | 五份 PDF/FAQ 中出现卡名的候选项。 | 必须人工判定问题是否真的约束该 FU，并补测试。 |
 
-## 9. P0/P1 仍未清零
+## 10. P0/P1 仍未清零
 
 P0：
 

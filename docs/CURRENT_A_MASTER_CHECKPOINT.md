@@ -872,6 +872,57 @@ A 主控复验：
 
 4A 结论：**通过**。没有新增 P0/P1；允许进入 4B 卡牌覆盖矩阵冻结。项目整体仍 **NOT READY**。
 
+## 0.10 阶段 4B 卡牌覆盖矩阵冻结
+
+阶段 4B 按阶段 4 主控任务执行：只读取 `data/official/card-catalog.zh-CN.json` 中 2026-04-27 固定官网快照，不实时抓取官网，不实现卡牌效果，不进入 4C 批量代码实现。E 负责覆盖矩阵写入；A 负责只读复核、结构校验和 checkpoint。
+
+4B 产物：
+
+- 新增 `docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`。
+- 更新 `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`。
+- 更新 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`。
+- 更新 `docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`。
+
+4B 冻结口径：
+
+- 官方快照：`data/official/card-catalog.zh-CN.json`。
+- `fetchedAt = 2026-04-27`。
+- snapshot entries = 1009。
+- unique `cardId` = 1009。
+- unique exact collector id / `cardNo` = 1009。
+- functional units = 811。
+- unique oracle/effectIds = 807。
+- token / rune / battlefield / promo / `*` 变体 / lowercase suffix 或异画全部计入 1009 entries：token 13、rune 48、battlefield 59、promo `·P` 4、`*` 变体 36、lowercase suffix / alternate-art 100。
+
+4B status 计数：
+
+| status | functional units | snapshot entries |
+|---|---:|---:|
+| `IMPLEMENTED_TESTED` | 50 | 77 |
+| `IMPLEMENTED_UNTESTED` | 30 | 30 |
+| `SHARED_ORACLE_IMPLEMENTATION` | 102 | 273 |
+| `NEEDS_ENGINE_SUPPORT` | 501 | 501 |
+| `NEEDS_FAQ_REVIEW` | 128 | 128 |
+| `BLOCKED` | 0 | 0 |
+
+4B A 复核命令：
+
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`：通过。
+- `jq -e` 核验 `sourceCatalog.snapshotEntries == 1009`、`sourceCatalog.functionalUnits == 811`、`snapshotEntries.length == 1009`、`functionalUnits.length == 811`、unique `cardId/cardNo` 均为 1009、unique `functionalUnitId` 为 811、`stage4BCardCoverageFreeze` 存在、六类 status definitions 存在、`BLOCKED` 计数为 0：通过。
+- `jq -e` 核验 status counts 合计为 811 / 1009、full-official uncovered list 为 811、`ready == false`、`no4CImplementation == true`：通过。
+- `jq -e` 核验所有 `snapshotEntries[].stage4B` 和 `functionalUnits[].stage4B` 必备字段存在：通过。
+- `git diff --check -- docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json docs/CURRENT_CARD_EFFECT_RISK_TOP20.md docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`：通过。
+
+4B 风险 / 批量顺序：
+
+- full-official coverage 仍为 0/811；4B 只冻结矩阵，不授予 READY 或 full-official。
+- `NEEDS_ENGINE_SUPPORT` status flag 仍影响 762 FUs。
+- `NEEDS_FAQ_REVIEW` status flag 仍影响 179 FUs。
+- Top risk 仍从中娅沙漏、海兽钓钩、德莱文、伊泽瑞尔、薇古丝、雷克塞、沉没神庙、战或逃等高风险 functional units 开始。
+- 4C 建议顺序：先清 P0/P1 engine support blockers，再做 FAQ adjudication + ruling-backed tests，再做 reusable oracle/effectId clusters，再补 implemented-but-untested direct FUs，最后审核 representative tested FUs 是否可升级。
+
+4B 结论：**通过**。矩阵可以解释 1009 / 811 差异，没有新增 P0/P1；允许进入 4C 高风险 functional units 批量实现与测试。项目整体仍 **NOT READY**。
+
 ## 1. 总目标
 
 以当前仓库五份官方规则 / FAQ PDF 与 `data/official/card-catalog.zh-CN.json` 的 2026-04-27 官网卡牌快照为准，完成本地双人 1v1 标准构筑产品级 Web 游戏基线：

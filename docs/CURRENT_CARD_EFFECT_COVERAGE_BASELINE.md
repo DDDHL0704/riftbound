@@ -2,11 +2,11 @@
 
 更新时间：2026-05-09
 
-阶段：**阶段 3D / E 卡牌覆盖矩阵与 ORDER_TRIGGERS 证据 overlay**
+阶段：**阶段 4B / E 卡牌覆盖矩阵冻结**
 
 结论：**NOT READY；不允许进入 1009 张卡牌效果批量覆盖。**
 
-本文只建立统计口径、只读数据基线、矩阵字段、风险排序和阶段性证据 overlay，不实现或修改任何卡牌效果。阶段 1/2 建立卡牌覆盖基线；阶段 3A/3B/3C/3D 只给最小 runtime / lifecycle / battle-damage / trigger-ordering 切片补证据标签，防止把代表路径、旧阶段口径或图鉴展示误判为全官方卡牌完成。
+本文只建立统计口径、只读数据基线、矩阵字段、风险排序和阶段性证据 overlay，不实现或修改任何卡牌效果。阶段 1/2 建立卡牌覆盖基线；阶段 3A/3B/3C/3D 只给最小 runtime / lifecycle / battle-damage / trigger-ordering 切片补证据标签；阶段 4B 冻结 card entry -> functional unit -> oracle/effectId -> evidence/tests/status 矩阵，防止把代表路径、旧阶段口径或图鉴展示误判为全官方卡牌完成。
 
 ## 1. 已读取依据
 
@@ -16,7 +16,7 @@
 - `docs/rules-evidence-index.md`：当前已有规则域和 fixture 证据目录；该文件不是 1009 张卡覆盖矩阵。
 - `data/official/card-catalog.zh-CN.json`：固定官网快照，`fetchedAt = 2026-04-27`，声明 `total = 1009`。
 
-注意：`docs/CURRENT_RULE_EVIDENCE_TODO.md` 可能由 D/A 或其他 worker 持有；本轮 3D E 不修改、不追加。
+注意：`docs/CURRENT_RULE_EVIDENCE_TODO.md` 可能由 D/A 或其他 worker 持有；本轮 4B E 不修改、不追加。
 
 ## 2. 阶段 1 统计口径
 
@@ -399,5 +399,72 @@ P1 仍存在：
 - battle initial stack 全规则、attack/defense/conquer/last-breath/standby trigger ordering 全矩阵、trigger cost / decline / payment 仍需后续阶段实现和测试。
 - 完整 PaymentEngine、完整 `ASSIGN_COMBAT_DAMAGE` 全规则矩阵、spell duel / battle 全生命周期、LayerEngine、替代/预防、隐藏信息仍未 full-official。
 - 1009 snapshot entries / 811 functional units 的 official text、FAQ adjudication、实现、测试闭环仍未完成。
+
+是否允许进入卡牌效果批量覆盖：**不允许。**
+## 13. 阶段 4B E 汇总
+
+阶段 4B 名称：卡牌覆盖矩阵冻结。E 只冻结 2026-04-27 官网快照、functional unit、官方文本 / FAQ / rules evidence、测试证据和状态口径；不实现卡牌效果，不进入 4C，不修改服务端/前端/A checkpoint/`riftbound-dotnet.sln`。
+
+完成项：
+
+- 在 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 新增 `stage4BCardCoverageFreeze` 顶层冻结摘要。
+- 为 1009 个 `snapshotEntries[]` 增加 `stage4B`：`collectorId`、`functionalUnitId`、`freezeStatus`、`statusFlags`、`oracleEffectIds`、rules/FAQ refs、automated test status。
+- 为 811 个 `functionalUnits[]` 增加 `stage4B`：`freezeStatus`、`statusFlags`、effect implementation、official text hash、rules / FAQ evidence、automated test evidence、full-official blockers。
+- 冻结状态枚举：`IMPLEMENTED_TESTED`、`IMPLEMENTED_UNTESTED`、`SHARED_ORACLE_IMPLEMENTATION`、`NEEDS_ENGINE_SUPPORT`、`NEEDS_FAQ_REVIEW`、`BLOCKED`。
+- 明确 token、rune、battlefield、promo、`*` 变体、lowercase suffix / 异画都按官方 snapshot entry 计入 1009；functional unit 复用不减少 card entry 数。
+
+冻结统计：
+
+| 项 | 数量 |
+|---|---:|
+| snapshot entries | 1009 |
+| unique cardIds | 1009 |
+| unique collectorIds / cardNo | 1009 |
+| functional units | 811 |
+| unique oracle/effectIds | 807 |
+| token entries | 13 |
+| rune entries | 48 |
+| battlefield entries | 59 |
+| promo `·P` entries | 4 |
+| `*` variant entries | 36 |
+| lowercase suffix / alternate-art entries | 100 |
+
+Functional unit primary status counts：
+
+| status | FUs |
+|---|---:|
+| `IMPLEMENTED_TESTED` | 50 |
+| `IMPLEMENTED_UNTESTED` | 30 |
+| `SHARED_ORACLE_IMPLEMENTATION` | 102 |
+| `NEEDS_ENGINE_SUPPORT` | 501 |
+| `NEEDS_FAQ_REVIEW` | 128 |
+| `BLOCKED` | 0 |
+
+Snapshot entry primary status counts：
+
+| status | entries |
+|---|---:|
+| `IMPLEMENTED_TESTED` | 77 |
+| `IMPLEMENTED_UNTESTED` | 30 |
+| `SHARED_ORACLE_IMPLEMENTATION` | 273 |
+| `NEEDS_ENGINE_SUPPORT` | 501 |
+| `NEEDS_FAQ_REVIEW` | 128 |
+| `BLOCKED` | 0 |
+
+新增文件：
+
+- `docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`
+
+修改文件：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`
+
+4B 结论：
+
+- 4B freeze 本身无阻断；矩阵已可解释 1009 snapshot entries -> 811 functional units -> implementation/evidence/tests/status。
+- 不授予任何 full-official；`stage4BCardCoverageFreeze.uncoveredSummary.fullOfficialUncoveredFunctionalUnitIds` 仍包含 811/811。
+- 4C 批量实现仍需 A 明确授权和写入锁。
 
 是否允许进入卡牌效果批量覆盖：**不允许。**
