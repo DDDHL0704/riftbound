@@ -84,6 +84,8 @@
 
 阶段 4C-43 补 Sfur Song / 斯弗尔尚歌 ordinary hand play-equipment target guard representative baseline；复制宿主技能文字、持续文本 / layer、完整 assemble / equipment attach lifecycle、装备控制权 / 区域移动、FAQ full behavior、1009/811 与 final 18-step E2E 仍不代表 READY。
 
+阶段 4C-44 补 Akshan / 阿克尚 ordinary hand no-optional / no-extra play-unit guard representative baseline；optional assemble、orange-orange extra play、enemy equipment move / control、weapon attach、control-until-leaves cleanup、LayerEngine / continuous effects、FAQ full behavior、1009/811 与 final 18-step E2E 仍不代表 READY。
+
 | 阶段 3 流程 | 证据入口 | 必须证明的审计点 |
 |---|---|---|
 | 创建 / 加入 / 重连 | `CORE-260330` rules 107-129；工程会话契约 | 双浏览器上下文不得共享授权状态；snapshot/prompt 只能按 viewer 下发；重连恢复不能泄漏隐藏信息。 |
@@ -533,6 +535,15 @@
 | Play-equipment route | `CATALOG` `SFD·059/221`；cardId `33139`；FU `FU-9a623b3185`；`CORE-260330` p39-p42 rules 355-356 | ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base equipment | full official Sfur Song effect |
 | Play guard | `CORE-260330` p4-p8 rules 107-129；p39-p42 rules 355-356 | explicit target、wrong zone / source、opponent source、face-down standby source、insufficient mana all rejected with no mutation / no leak | copied host text、continuous text / layer、full assemble / equipment attach lifecycle、equipment control / zone movement、FAQ full behavior、1009/811、final E2E |
 
+### 6.40 阶段 4C-44 Akshan play guard 证据入口
+
+阶段 4C-44 细化审计见 `docs/CURRENT_STAGE4C_BATCH44_AKSHAN_PLAY_GUARD_AUDIT.md`，证据见 `docs/CURRENT_STAGE4C_BATCH44_AKSHAN_PLAY_GUARD_EVIDENCE.md`。本节提供 Akshan / 阿克尚 `SFD·109/221` / cardId `33194` / `FU-7419ee7d9d` ultra-narrow play-unit guard representative baseline；A focused 通过 189/189；后端 full 3582/3582 passed，前端 build passed，Chrome smoke passed；不表示项目 READY，`fullOfficial=false`。
+
+| 规则域 | 证据入口 | 当前 4C-44 状态 | 仍缺 |
+|---|---|---|---|
+| Play-unit route | `CATALOG` `SFD·109/221`；cardId `33194`；FU `FU-7419ee7d9d`；`CORE-260330` p39-p42 rules 355-356；p92-p105 keyword rules 800+ | ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 4，tags `CARD_TYPE:UNIT` + `哨兵` + `百炼`；no optional assemble / no orange-orange extra cost | full official Akshan effect |
+| Play guard | `CORE-260330` p4-p8 rules 107-129；p39-p42 rules 355-356 | explicit target、wrong zone / source、opponent source、face-down standby source、insufficient mana all rejected with no mutation / no leak | optional assemble、orange-orange extra play、enemy equipment move / control、weapon attach、control-until-leaves cleanup、LayerEngine / continuous effects、FAQ full behavior、1009/811、final E2E |
+
 | 规则域 | 证据入口 | 当前 4C-32 状态 | 仍缺 |
 |---|---|---|---|
 | Ride the Wind move + ready | `CATALOG` `OGN·173/298`；cardId `31403`；FU `FU-6f84196631` | 已记录：P1 打出 Ride the Wind，合法 friendly public battlefield unit target 经 stack priority pass 后 ready 并移动到 owner base | full Ride the Wind official、完整“移动一名友方单位”来源/目的地矩阵、swift / reaction timing |
@@ -869,7 +880,7 @@
 | `p2-preflight-play-sfd-yone-precon-no-optional-assemble` | `RULE_AUDITED` | `CATALOG` SFD·116/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《永恩》从手牌打出且不选择百炼装配时支付基础 5 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 5 战力、带 `恶魔` 和 `百炼` 标签的 `CARD_TYPE:UNIT` 单位对象；百炼装配、武装贴附和征服开放战场后的基地伤害路径暂缓，带目标打出由直接测试拒绝。 |
 | `p2-preflight-play-sfd-ornn-no-optional-assemble-spellshield2` | `RULE_AUDITED` | `CATALOG` SFD·085/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《奥恩》从手牌打出且不选择百炼装配时支付基础 6 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 4 战力、带 `法盾2` 和 `百炼` 标签的 `CARD_TYPE:UNIT` 单位对象；法盾目标税、百炼装配、武装贴附和友方装备静态战力修正路径暂缓，带目标打出由直接测试拒绝。 |
 | `p2-preflight-play-sfd-ornn-alt-a-no-optional-assemble-spellshield2` | `RULE_AUDITED` | `CATALOG` SFD·085a/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《奥恩》异画 A 从手牌打出且不选择百炼装配时支付基础 6 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 4 战力、带 `法盾2` 和 `百炼` 标签的 `CARD_TYPE:UNIT` 单位对象；法盾目标税、百炼装配、武装贴附和友方装备静态战力修正路径暂缓，带目标打出由直接测试拒绝。 |
-| `p2-preflight-play-akshan-no-optional-assemble-no-orange-extra` | `RULE_AUDITED` | `CATALOG` SFD·109/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《阿克尚》从手牌打出且不选择百炼装配、不支付橙色额外费用时支付基础 4 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 4 战力、带 `哨兵` 和 `百炼` 标签的 `CARD_TYPE:UNIT` 单位对象；百炼装配、橙色额外费用、敌方装备移动/控制和武装贴附路径暂缓，带目标打出由直接测试拒绝。 |
+| `p2-preflight-play-akshan-no-optional-assemble-no-orange-extra` | `RULE_AUDITED` | `CATALOG` SFD·109/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《阿克尚》从手牌打出且不选择百炼装配、不支付橙色额外费用时支付基础 4 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 4 战力、带 `哨兵` 和 `百炼` 标签的 `CARD_TYPE:UNIT` 单位对象；4C-44 补 explicit target、wrong zone / source、opponent source、face-down standby source、insufficient mana no-mutation / no-leak guard。百炼装配、橙色额外费用、敌方装备移动/控制和武装贴附路径暂缓，带目标打出由直接测试拒绝。 |
 | `p2-preflight-play-sfd-119-jax-no-optional-assemble` | `RULE_AUDITED` | `CATALOG` SFD·119/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《贾克斯》从手牌打出且不选择百炼装配时支付基础 4 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 3 战力、带 `百炼` 标签的 `CARD_TYPE:UNIT` 单位对象；4C-26 已补 visible face-up Jax 经 existing equipment attach route 被贴附 weapon / armament 后打开 `TRIGGER_PAYMENT` / `PAY_COST`，支付 1 抽 1、拒付不变更、non-Jax / non-armament 与隐藏/待命/对手控制 source guard；百炼装配、完整武装贴附和 full Jax official 暂缓，带目标打出由直接测试拒绝。 |
 | `p2-preflight-play-sfd-119-jax-alt-a-no-optional-assemble` | `RULE_AUDITED` | `CATALOG` SFD·119a/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《贾克斯》异画 A 从手牌打出且不选择百炼装配时支付基础 4 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 3 战力、带 `百炼` 标签的 `CARD_TYPE:UNIT` 单位对象；4C-26 已补 visible face-up Jax 经 existing equipment attach route 被贴附 weapon / armament 后打开 `TRIGGER_PAYMENT` / `PAY_COST`，支付 1 抽 1、拒付不变更、non-Jax / non-armament 与隐藏/待命/对手控制 source guard；百炼装配、完整武装贴附和 full Jax official 暂缓，带目标打出由直接测试拒绝。 |
 | `p2-preflight-play-ogn-draven-score-static-zero` | `RULE_AUDITED` | `CATALOG` OGN·028/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方英雄单位《德莱文》在控制者 0 分时从手牌打出，支付基础 5 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 3 战力 `CARD_TYPE:UNIT` 单位对象；分数静态战力修正路径暂缓；P4.243 以 `p4-play-ogn-028-draven-target-rejected` 覆盖普通手牌打出携带显式目标时拒绝。 |

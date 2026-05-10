@@ -81,6 +81,8 @@
 阶段 4C-42 Time Gate play guard 证据：`docs/CURRENT_STAGE4C_BATCH42_TIME_GATE_PLAY_GUARD_EVIDENCE.md`
 阶段 4C-43 Sfur Song play guard 审计：`docs/CURRENT_STAGE4C_BATCH43_SFUR_SONG_PLAY_GUARD_AUDIT.md`
 阶段 4C-43 Sfur Song play guard 证据：`docs/CURRENT_STAGE4C_BATCH43_SFUR_SONG_PLAY_GUARD_EVIDENCE.md`
+阶段 4C-44 Akshan play guard 审计：`docs/CURRENT_STAGE4C_BATCH44_AKSHAN_PLAY_GUARD_AUDIT.md`
+阶段 4C-44 Akshan play guard 证据：`docs/CURRENT_STAGE4C_BATCH44_AKSHAN_PLAY_GUARD_EVIDENCE.md`
 
 ## B 修复验收
 
@@ -1176,6 +1178,7 @@ D 审计结论：
 - 4C-41 已关闭 Giant Arm Kato / 巨腕加藤 `SFD·112/221` / cardId `33198` / `FU-464ec8c275` ordinary hand play-unit keyword-tag target guard representative baseline；Core gap none；Spellshield target tax、move-to-battlefield trigger、friendly-unit choice / prompt、keyword grant、+power until EOT、LayerEngine / duration cleanup、movement / control matrix、FAQ、1009/811 与 final 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-42 已关闭 Time Gate / 预时之门 `SFD·078/221` / cardId `33158` / `FU-081d97eb3e` ordinary hand play-equipment target guard representative baseline；Core gap none；activated / tap ability、payment `[A]`、next spell gains Echo、optional echo payment / repeat、duration cleanup、equipment exhaust / readiness lifecycle、FAQ timing、1009/811 与 final 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-43 已关闭 Sfur Song / 斯弗尔尚歌 `SFD·059/221` / cardId `33139` / `FU-9a623b3185` ordinary hand play-equipment target guard representative baseline；Core unchanged；复制宿主技能文字、持续文本 / layer、完整 assemble / equipment attach lifecycle、装备控制权 / 区域移动、FAQ full behavior、1009/811 与 final 18-step E2E 仍按 P0/P1 缺口管理。
+- 4C-44 已关闭 Akshan / 阿克尚 `SFD·109/221` / cardId `33194` / `FU-7419ee7d9d` ordinary hand no-optional / no-extra play-unit guard representative baseline；后端 full 3582/3582 passed，前端 build passed，Chrome smoke passed；optional assemble、orange-orange extra play、enemy equipment move / control、weapon attach、control-until-leaves cleanup、LayerEngine / continuous effects、FAQ full behavior、1009/811 与 final 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-15 Viktor `FU-b5cb36a5c9` destroyed non-minion token trigger 已记录为 feasibility blocker；4C-15A 已补 `TOKEN_FAMILY:MINION` 最小前置模型并部分关闭 token classification blocker；4C-15B 已关闭 Viktor 代表性 baseline，但 same-source 多对象 full official matrix、Kogmaw / Karthus / Undercover Agent、完整 trigger engine 仍未关闭。
 - 3A-P0-001 / 002 / 003 / 004 已关闭；不得把这些 3A 子项误读为完整 Stage 3 或 READY。
 - 3B-CAND-001 / 002 / 003 / 004 只能作为阶段 3B 关闭候选；D/A 证据入账前不得移出 P0。
