@@ -515,6 +515,67 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Hunt the Weak 代表路径外推完整 swift、reaction timing、targeting、destroy / cleanup、Last Breath trigger、PaymentEngine、FEPR、named deferred candidates 或 full-official。
 
+## 0.1.9 阶段 4C-31 Reprimand Checkpoint
+
+状态：**已完成极窄代表切片文档收口；项目仍 NOT READY。**
+
+阶段 4C-31 名称：Reprimand return-to-hand guard representative baseline。
+
+本批候选审查事实：
+
+- A 选择 Reprimand / 责退 `OGN·172/298` / `FU-d0383ed260` / `REPRIMAND_RETURN_BATTLEFIELD_UNIT_TO_HAND` 作为 4C-31 narrow return-to-hand guard slice。
+- Reprimand 规则文本：让一名战场上的单位返回其所属的手牌。
+- 代表路径：P1 打出 Reprimand，选择正面公共战场单位目标，双方 priority pass 后结算，目标返回 owner hand。
+- guard：base unit、stale object、face-down standby object、battlefield equipment、battlefield spell object、battlefield rune object 均 `INVALID_TARGET`，no tick / no events / no payment / no hand movement / no stack item / no return-to-hand mutation。
+- hidden-info stance：face-down standby target 被拒绝且不暴露真实身份；opponent hidden info 继续由 viewer-specific snapshot / redaction 保护。
+- 本批不新增 protocol / frontend shape；前端仍只消费既有 play-card / stack / return-to-hand event，不本地裁决目标合法性或回手结算。
+- Hostile Takeover、Berserk Impulse、Edge of Night、Karthus、Aphelios 仍按 deferred / design-gated 候选管理，不由本批关闭。
+
+4C-31 B 服务端修改文件：
+
+- `src/Riftbound.Engine/CoreRuleEngine.cs`（B）
+- `tests/Riftbound.ConformanceTests/ReprimandReturnToHandGuardTests.cs`（B）
+
+4C-31 D 文档修改文件：
+
+- `docs/CURRENT_STAGE4C_BATCH31_REPRIMAND_RETURN_TO_HAND_GUARD_AUDIT.md`（D）
+- `docs/CURRENT_STAGE4C_BATCH31_REPRIMAND_RETURN_TO_HAND_GUARD_EVIDENCE.md`（D）
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`（D）
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`（D）
+- `docs/rules-evidence-index.md`（D）
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`（D write lock）
+
+已跑验证：
+
+- Focused backend：A 记录 focused 通过 58/58。
+- Adjacent guard：A 记录 adjacent guard 通过 24/24。
+- Backend full：A 记录 backend full 通过 3471/3471。
+- Frontend build：A 记录 frontend build passed。
+- Chrome smoke：A 记录 Chrome smoke passed。
+- 以上 focused / adjacent / full / build / smoke 不得替代最终正式 18-step E2E。
+
+本批关闭的代表子项：
+
+- `FU-d0383ed260` / `OGN·172/298` visible spell resolution return public battlefield unit to owner hand 代表路径。
+- public battlefield unit target 的服务端权威 guard。
+- base unit、stale object、face-down standby object、battlefield equipment、battlefield spell object、battlefield rune object invalid-target no-mutation 代表护栏。
+- face-down standby invalid target 不暴露真实身份 / hidden info 的代表性安全口径。
+
+仍缺：
+
+- Reprimand / swift 相关 swift / reaction timing、spell-duel breadth、owner/controller split、attached-equipment replacement、full movement / control-zone matrix 保持 P1/P2 后续项；本批不新增这些方向的 P0。
+- 完整 target prompt、target invalidation、hidden / face-down target policy、Spellshield target tax。
+- 完整 return-to-hand / movement / zone lifecycle、replacement / prevention / cleanup 交织。
+- 完整 PaymentEngine、play-card cost Quote / Authorize / Commit、替代 / 额外费用与支付资源矩阵。
+- Hostile Takeover control lifecycle、Berserk Impulse hidden-zone reveal / choose / recycle、Edge of Night face-down standby attach、Karthus extra Last Breath、Aphelios weapon-attachment three-mode design gates。
+- FAQ regression、1009/811 full-official、正式 18-step E2E、completion audit。
+
+口径：
+
+- `fullOfficial=false`。
+- 不宣称 READY / READY-CANDIDATE。
+- 不因 Reprimand 代表路径外推完整 swift、reaction timing、spell-duel breadth、targeting、return-to-hand、movement、PaymentEngine、FEPR、named deferred candidates 或 full-official。
+
 ## 0.2 阶段 0 当前基线
 
 阶段 0 只做主控建档、只读审计与任务拆分，不实现功能代码。已读取：

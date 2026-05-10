@@ -17012,6 +17012,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || !IsBattleOrFlightTargetAllowed(state, behavior, targetObjectId)
                 || !IsGustTargetAllowed(state, behavior, targetObjectId)
                 || !IsHuntTheWeakTargetAllowed(state, behavior, targetObjectId)
+                || !IsReprimandTargetAllowed(state, behavior, targetObjectId)
                 || !IsMainDeckLookTargetAllowed(state, intent.PlayerId, targetObjectId, targetIndex, behavior)
                 || !IsMainDeckTargetTagAllowed(state, targetObjectId, targetIndex, behavior)
                 || !IsTargetRequiredTagAllowed(state, targetObjectId, behavior)
@@ -20100,6 +20101,30 @@ public sealed class CoreRuleEngine : IRuleEngine
         string objectId)
     {
         if (!string.Equals(behavior.EffectKind, "HUNT_THE_WEAK_DESTROY_BATTLEFIELD_UNIT_POWER_3_OR_LESS", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        if (!state.CardObjects.TryGetValue(objectId, out var targetState)
+            || targetState.IsFaceDown
+            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || targetState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
+            || targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        return targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || targetState.Tags.Count == 0;
+    }
+
+    private static bool IsReprimandTargetAllowed(
+        MatchState state,
+        CardBehaviorDefinition behavior,
+        string objectId)
+    {
+        if (!string.Equals(behavior.EffectKind, "REPRIMAND_RETURN_BATTLEFIELD_UNIT_TO_HAND", StringComparison.Ordinal))
         {
             return true;
         }

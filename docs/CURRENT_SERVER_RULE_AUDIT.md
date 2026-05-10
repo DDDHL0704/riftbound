@@ -12,6 +12,45 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-10 阶段 4C-31 Reprimand Return To Hand Guard 审计
+
+阶段 4C-31 审计入口：`docs/CURRENT_STAGE4C_BATCH31_REPRIMAND_RETURN_TO_HAND_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH31_REPRIMAND_RETURN_TO_HAND_GUARD_EVIDENCE.md`。本批已补 Reprimand / 责退 `OGN·172/298` / `FU-d0383ed260` / `REPRIMAND_RETURN_BATTLEFIELD_UNIT_TO_HAND` 的极窄公共战场单位回手与目标 guard hardening 代表切片。项目仍 **NOT READY**，`fullOfficial=false`。
+
+4C-31 已关闭代表子项：
+
+- P1 打出 Reprimand，选择正面公共战场单位目标，双方 priority pass 后结算，目标返回 owner hand。
+- `REPRIMAND_RETURN_BATTLEFIELD_UNIT_TO_HAND` 在 `PLAY_CARD` validation 中使用服务端权威 target guard，不依赖前端裁决。
+- base unit、stale object、face-down standby object、battlefield equipment、battlefield spell object、battlefield rune object 均 `INVALID_TARGET`，no tick / no events / no payment / no hand movement / no stack item / no return-to-hand mutation。
+- hidden-info stance：face-down standby target 被拒绝且不暴露真实身份；opponent hidden info 仍由 viewer-specific snapshot / redaction 保护。
+- 本批未新增 protocol / frontend shape；前端仍不本地裁决目标合法性或 return-to-hand 结算。
+- Hostile Takeover、Berserk Impulse、Edge of Night、Karthus、Aphelios 仍保持 deferred / design-gated，不由本批关闭。
+
+4C-31 规则依据：
+
+- `CATALOG` `OGN·172/298`；FU `FU-d0383ed260`。
+- `CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356。
+- `JFAQ-251023` p4 作为 Reprimand swift / spell timing regression 入口；本批不关闭完整反应时机或 spell-duel breadth。
+
+4C-31 验证记录：
+
+- Focused backend：A 记录 focused 通过 58/58。
+- Adjacent guard：A 记录 adjacent guard 通过 24/24。
+- Backend full：A 记录 backend full 通过 3471/3471。
+- Frontend build：A 记录 frontend build passed。
+- Chrome smoke：A 记录 Chrome smoke passed。
+- Tests added in `ReprimandReturnToHandGuardTests`：`ReprimandReturnsPublicBattlefieldUnitToOwnerHand`、`ReprimandRejectsInvalidTargetsWithoutMutation`。
+- 上述验证不得替代最终正式 18-step E2E。
+- D 本轮只更新 docs 审计 / 证据 / checkpoint / index / TODO 文档；不修改服务端、前端、coverage matrix JSON、baseline / risk / freeze 文档或 `riftbound-dotnet.sln`。
+
+仍缺 P0/P1：
+
+- P0：完整 PaymentEngine、play-card cost Quote / Authorize / Commit、替代 / 额外费用与支付资源矩阵。
+- P0：Hostile Takeover control lifecycle、Berserk Impulse hidden-zone reveal / choose / recycle、Edge of Night face-down standby attach、Karthus extra Last Breath、Aphelios weapon-attachment three-mode design gates。
+- P0：FAQ regression、1009 entries / 811 functional units full-official、正式 18-step E2E 与 completion audit。
+- P1/P2：Reprimand / swift 相关 swift / reaction timing、spell-duel breadth、owner/controller split、attached-equipment replacement、full movement / control-zone matrix、target prompt、target invalidation、hidden / face-down target policy、Spellshield target tax、event label / replay redaction、targeting UX 与 return-to-hand UX 仍需后续全矩阵证据；本批不新增这些方向的 P0。
+
+4C-31 不宣称 full-official，不宣称 READY / READY-CANDIDATE。
+
 ## 2026-05-10 阶段 4C-30 Hunt the Weak Destroy Guard 审计
 
 阶段 4C-30 审计入口：`docs/CURRENT_STAGE4C_BATCH30_HUNT_THE_WEAK_DESTROY_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH30_HUNT_THE_WEAK_DESTROY_GUARD_EVIDENCE.md`。本批已补 Hunt the Weak / 狩魂 `UNL-159/219` / `FU-282b6e3149` 的极窄公共战场单位 power <= 3 摧毁与目标 guard hardening 代表切片。项目仍 **NOT READY**，`fullOfficial=false`。
