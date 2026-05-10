@@ -1919,6 +1919,33 @@ A 主控复验：
 
 4C-19 结论：**通过 Kogmaw AoE last-breath representative baseline，未关闭 full-official**。项目整体仍 **NOT READY**，不得标记 READY / READY-CANDIDATE。
 
+## 0.32 阶段 4C-20 Optional Trigger / Hidden Choice 分诊
+
+阶段 4C-20 已做 read-only triage，未修改功能代码，未修改覆盖矩阵，未提交 `riftbound-dotnet.sln`。A 暂停直接实现 Karthus / Undercover Agent，原因是两条候选都触发需要裁决的核心规则语义；继续硬写会违反服务端权威和“前端只提交 prompt candidate”的原则。
+
+候选核对：
+
+- Karthus / 卡尔萨斯 `OGN·236/298` / `FU-ee1dfb3ed3` / `OGN_KARTHUS_LAST_BREATH_STATIC_PLAY_UNIT`；冻结矩阵 status flags：`IMPLEMENTED_UNTESTED`、`NEEDS_ENGINE_SUPPORT`、`NEEDS_FAQ_REVIEW`；evidence candidate：`BREAK-JFAQ-260416 p3`。
+- Undercover Agent / 卧底特工 `OGN·178/298` / `FU-6a52b04cb2` / `UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT`；冻结矩阵 status flags：`IMPLEMENTED_UNTESTED`、`NEEDS_ENGINE_SUPPORT`；rules evidence：`CORE-260330 p62`。
+
+分诊结论：
+
+- Karthus 不宜直接做“默认 yes”的 representative implementation。`可以额外触发一次` 涉及 optional choice、是否复制 trigger 或复制 effect、多 Karthus 是否叠加、Karthus 同时死亡是否仍生效、hidden / face-down / standby Karthus 是否提供静态修正，以及与 `ORDER_TRIGGERS` / APNAP / trigger batch 的全局耦合。
+- Undercover Agent 不宜在没有 prompt 的情况下实现。`弃置两张手牌，然后抽两张牌` 发生在 trigger resolution 时，必须由服务端打开 viewer-specific hand choice prompt；自动弃前两张会替玩家选择并可能泄漏隐藏信息。手牌不足两张时的规则也需要裁决。
+- D 建议优先做 Undercover 的 triggered discard hand-choice prompt 前置裁决；B 建议若必须二选一，Karthus 可以做代表性 default yes，但需保留 optional decline P1。A 判断：不要默认 yes；先补基础设施 / 规则裁决。
+
+4C-20 推荐下一步：
+
+- 4C-20A：建立最小 optional-trigger decision / triggered hand-choice prompt 设计裁决文档，冻结 command/prompt 字段前先列出 Karthus optional repeat 与 Undercover discard-choice 的共同需求。
+- 若用户确认 `可以额外触发一次` 可在代表切片中默认选择 yes，才允许 B 做 Karthus representative baseline，并明确 P1：未实现 optional decline。
+- 若用户确认 Undercover 手牌不足规则和弃牌选择 prompt 语义，才允许进入 Undercover implementation。
+
+当前停机原因：
+
+- 需要用户/规则裁决：Karthus optional semantics 与 Undercover triggered hidden hand-choice semantics。
+- 项目整体仍 **NOT READY**。
+- 不得标记 READY / READY-CANDIDATE，不得启动正式 18-step E2E，不得进入 1009 full-official。
+
 ## 1. 总目标
 
 以当前仓库五份官方规则 / FAQ PDF 与 `data/official/card-catalog.zh-CN.json` 的 2026-04-27 官网卡牌快照为准，完成本地双人 1v1 标准构筑产品级 Web 游戏基线：
