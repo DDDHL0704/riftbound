@@ -12,6 +12,44 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-10 阶段 4C-34 Isolate Move Guard 审计
+
+阶段 4C-34 审计入口：`docs/CURRENT_STAGE4C_BATCH34_ISOLATE_MOVE_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH34_ISOLATE_MOVE_GUARD_EVIDENCE.md`。本批已补 Isolate / 隔绝 `UNL-124/219` / cardId `34667` / `FU-175d573ae4` / `ISOLATE_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE_NO_DRAW` 的极窄 enemy public battlefield unit move to owner base no-draw 与目标 guard hardening 代表切片。项目仍 **NOT READY**，`fullOfficial=false`。
+
+4C-34 已关闭代表子项：
+
+- P1 打出 Isolate，选择合法 enemy public battlefield unit target，双方 priority pass 后结算，目标移动到 owner base，并保留 damage / power / exhausted / object identity。
+- 代表路径确认不产生 `CARD_DRAWN`；落单敌方单位抽牌分支仍未关闭。
+- `ISOLATE_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE_NO_DRAW` 在 `PLAY_CARD` validation 中使用服务端权威 target guard，不依赖前端裁决。
+- friendly battlefield unit、enemy base unit、stale unit、face-down standby object、enemy battlefield equipment、enemy battlefield spell object、enemy battlefield rune object 均 `INVALID_TARGET`，no tick / no events / no payment / no hand movement / no stack item / no move / no draw / no leak。
+- hidden-info stance：face-down standby target 被拒绝且不暴露真实身份；opponent hidden info 仍由 viewer-specific snapshot / redaction 保护。
+- 本批未新增 protocol / frontend shape；前端仍不本地裁决目标合法性、movement 结算或 draw 分支。
+- Vengeance 保留为低耦合后续候选；Hostile Takeover、Berserk Impulse、Edge of Night、Karthus、Aphelios 仍保持 deferred / design-gated，不由本批关闭。
+
+4C-34 规则依据：
+
+- `CATALOG` `UNL-124/219`；cardId `34667`；FU `FU-175d573ae4`。
+- `CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356。
+
+4C-34 验证记录：
+
+- Focused backend：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Isolate|FullyQualifiedName~MoveToBase|FullyQualifiedName~MoveGuard"` 通过 46/46。
+- Adjacent guard regression：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~IsolateMoveToBaseGuardTests|FullyQualifiedName~CharmMoveToBaseGuardTests|FullyQualifiedName~BattleOrFlightMoveToBaseTests|FullyQualifiedName~RideTheWindMoveGuardTests|FullyQualifiedName~ReprimandReturnToHandGuardTests|FullyQualifiedName~GustReturnToHandTests|FullyQualifiedName~HuntTheWeakDestroyGuardTests"` 通过 48/48。
+- Backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 3495/3495。
+- Frontend build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过。
+- Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过。
+- Tests added in `IsolateMoveToBaseGuardTests`：`IsolateMovesPublicEnemyBattlefieldUnitToOwnerBaseWithoutDrawing`、`IsolateRejectsInvalidTargetsWithoutMutation`。
+- 上述验证不得替代最终正式 18-step E2E。
+
+仍缺 P0/P1：
+
+- P0：完整 PaymentEngine、play-card cost Quote / Authorize / Commit、替代 / 额外费用与支付资源矩阵。
+- P0：Vengeance destroy target route、Hostile Takeover control lifecycle、Berserk Impulse hidden-zone reveal / choose / recycle、Edge of Night face-down standby attach、Karthus extra Last Breath、Aphelios weapon-attachment three-mode design gates。
+- P0：full FAQ regression、1009 entries / 811 functional units full-official、正式 18-step E2E 与 completion audit。
+- P1/P2：Isolate 落单敌方单位抽牌分支、完整目的地/孤立判定、多位置 battlefield model、owner/controller split、attached-equipment replacement、full movement / roam / precise battlefield / control-zone matrix、target prompt、target invalidation、hidden / face-down target policy、Spellshield target tax、event label / replay redaction、targeting UX 与 movement UX 仍需后续全矩阵证据；本批不新增这些方向的 P0。
+
+4C-34 不宣称 full-official，不宣称 READY / READY-CANDIDATE。
+
 ## 2026-05-10 阶段 4C-33 Charm Move Guard 审计
 
 阶段 4C-33 审计入口：`docs/CURRENT_STAGE4C_BATCH33_CHARM_MOVE_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH33_CHARM_MOVE_GUARD_EVIDENCE.md`。本批已补 Charm / 魅惑妖术 `OGN·043/298` / cardId `31255` / `FU-1586b6cdd9` / `CHARM_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE` 的极窄 enemy public battlefield unit move to owner base 与目标 guard hardening 代表切片。项目仍 **NOT READY**，`fullOfficial=false`。

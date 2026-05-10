@@ -712,6 +712,77 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Charm 代表路径外推完整目的地选择、targeting、movement、roam、precise battlefield、PaymentEngine、FEPR、named deferred candidates 或 full-official。
 
+## 0.1.12 阶段 4C-34 Isolate Checkpoint
+
+状态：**已完成极窄代表切片文档收口；项目仍 NOT READY。**
+
+阶段 4C-34 名称：Isolate move enemy battlefield unit to owner base no-draw target guard representative baseline。
+
+本批候选审查事实：
+
+- A 选择 Isolate / 隔绝 `UNL-124/219` / cardId `34667` / `FU-175d573ae4` / `ISOLATE_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE_NO_DRAW` 作为 4C-34 narrow enemy movement + no-draw target guard slice。
+- Isolate 规则文本：将一名敌方单位从战场移动到其基地；然后若该战场上有落单的敌方单位则抽一张牌。
+- 代表路径：P1 打出 Isolate，选择合法 enemy public battlefield unit target，双方 priority pass 后结算，目标移动到 owner base，并保留 damage / power / exhausted / object identity。
+- 本 fixture 锁定 no-draw 分支，结算事件不包含 `CARD_DRAWN`；落单敌方单位抽牌分支仍未官方化。
+- guard：friendly battlefield unit、enemy base unit、stale unit、face-down standby object、enemy battlefield equipment、enemy battlefield spell object、enemy battlefield rune object 均 `INVALID_TARGET`，no tick / no events / no payment / no hand movement / no stack item / no move / no draw / no leak。
+- hidden-info stance：face-down standby target 被拒绝且不暴露真实身份；opponent hidden info 继续由 viewer-specific snapshot / redaction 保护。
+- 本批不新增 protocol / frontend shape；前端仍只消费既有 play-card / stack / move event，不本地裁决目标合法性、movement 结算或 draw 分支。
+- Vengeance 保留为 4C-35 低耦合候选；Hostile Takeover、Berserk Impulse、Edge of Night、Karthus、Aphelios 仍按 deferred / design-gated 候选管理，不由本批关闭。
+
+4C-34 B 服务端修改文件：
+
+- `src/Riftbound.Engine/CoreRuleEngine.cs`（B）
+- `tests/Riftbound.ConformanceTests/IsolateMoveToBaseGuardTests.cs`（B）
+
+4C-34 D 文档修改文件：
+
+- `docs/CURRENT_STAGE4C_BATCH34_ISOLATE_MOVE_GUARD_AUDIT.md`
+- `docs/CURRENT_STAGE4C_BATCH34_ISOLATE_MOVE_GUARD_EVIDENCE.md`
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`
+- `docs/rules-evidence-index.md`
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+
+4C-34 E 覆盖矩阵 / risk / freeze 修改文件：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`
+- `docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`
+- `docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`
+
+已跑验证：
+
+- Focused backend：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Isolate|FullyQualifiedName~MoveToBase|FullyQualifiedName~MoveGuard"` 通过 46/46。
+- Adjacent guard regression：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~IsolateMoveToBaseGuardTests|FullyQualifiedName~CharmMoveToBaseGuardTests|FullyQualifiedName~BattleOrFlightMoveToBaseTests|FullyQualifiedName~RideTheWindMoveGuardTests|FullyQualifiedName~ReprimandReturnToHandGuardTests|FullyQualifiedName~GustReturnToHandTests|FullyQualifiedName~HuntTheWeakDestroyGuardTests"` 通过 48/48。
+- Backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 3495/3495。
+- Frontend build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过。
+- Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过。
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 通过。
+- 以上 focused / full / smoke 不得替代最终正式 18-step E2E。
+
+本批关闭的代表子项：
+
+- `FU-175d573ae4` / `UNL-124/219` visible spell resolution move enemy public battlefield unit to owner base no-draw 代表路径。
+- enemy public battlefield unit target 的服务端权威 guard。
+- friendly battlefield unit、enemy base unit、stale unit、face-down standby object、enemy battlefield equipment、enemy battlefield spell object、enemy battlefield rune object invalid-target no-mutation / no-draw 代表护栏。
+- face-down standby invalid target 不暴露真实身份 / hidden info 的代表性安全口径。
+
+仍缺：
+
+- Isolate 落单敌方单位抽牌分支、完整目的地/孤立判定、多位置 battlefield model 保持 P1/P2 后续项；本批不新增这些方向的 P0。
+- 完整 target prompt、target invalidation、hidden / face-down target policy、Spellshield target tax。
+- 完整 movement / roam / precise battlefield / control-zone matrix、owner/controller split、attached-equipment replacement。
+- 完整 movement / zone lifecycle、replacement / prevention / cleanup 交织。
+- 完整 PaymentEngine、play-card cost Quote / Authorize / Commit、替代 / 额外费用与支付资源矩阵。
+- Vengeance destroy target route、Hostile Takeover control lifecycle、Berserk Impulse hidden-zone reveal / choose / recycle、Edge of Night face-down standby attach、Karthus extra Last Breath、Aphelios weapon-attachment three-mode design gates。
+- full FAQ regression、1009/811 full-official、正式 18-step E2E、completion audit。
+
+口径：
+
+- `fullOfficial=false`。
+- 不宣称 READY / READY-CANDIDATE。
+- 不因 Isolate 代表路径外推完整落单抽牌、目的地选择、targeting、movement、roam、precise battlefield、PaymentEngine、FEPR、named deferred candidates 或 full-official。
+
 ## 0.2 阶段 0 当前基线
 
 阶段 0 只做主控建档、只读审计与任务拆分，不实现功能代码。已读取：
