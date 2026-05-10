@@ -682,6 +682,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldConquerPayOneCreateGoldEffectKind = "BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD";
     private const string OgnVayneCardNo = "OGN·035/298";
     private const string OgnVayneConquerPayOneRecallEffectKind = "OGN_VAYNE_CONQUER_PAY_1_RECALL";
+    private const string IcevaleArcherCardNo = "UNL-065/219";
+    private const string IcevaleArcherAttackPayOnePowerMinusOneEffectKind = "ICEVALE_ARCHER_ATTACK_PAY_1_POWER_MINUS_1";
     private const string TriggerPaymentWindow = "TRIGGER_PAYMENT";
     private const string DeclinePaymentChoiceId = "DECLINE";
     private const string SpendOneManaPaymentChoiceId = "SPEND_MANA:1";
@@ -1189,6 +1191,22 @@ public sealed class CoreRuleEngine : IRuleEngine
                 vayneSourceObjectId);
         }
 
+        if (TryReadIcevaleArcherAttackPaymentContext(
+                pendingPayment,
+                out var icevaleBattlefieldId,
+                out var icevaleSourceObjectId,
+                out var icevaleTargetObjectId))
+        {
+            return ResolveIcevaleArcherAttackTriggerPayment(
+                state,
+                intent,
+                pendingPayment,
+                submittedChoices,
+                icevaleBattlefieldId,
+                icevaleSourceObjectId,
+                icevaleTargetObjectId);
+        }
+
         return RejectWithCorePrompts(
             state,
             "当前触发支付窗口缺少服务端上下文。",
@@ -1480,6 +1498,116 @@ public sealed class CoreRuleEngine : IRuleEngine
             BuildCorePrompts(nextState));
     }
 
+    private static ResolutionResult ResolveIcevaleArcherAttackTriggerPayment(
+        MatchState state,
+        PlayerIntent intent,
+        PendingPaymentState pendingPayment,
+        IReadOnlyList<string> submittedChoices,
+        string battlefieldId,
+        string sourceObjectId,
+        string targetObjectId)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        if (!TryGetIcevaleArcherAttackSource(cardObjects, playerZones, intent.PlayerId, sourceObjectId, out _)
+            || !TryGetIcevaleArcherAttackTarget(
+                cardObjects,
+                playerZones,
+                state.ObjectLocations,
+                battlefieldId,
+                targetObjectId,
+                out var targetState))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "当前触发支付窗口的冰谷弓箭手来源或目标已不可用。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var runePools = PayRuneCosts(
+            state,
+            intent.PlayerId,
+            pendingPayment.ManaCost,
+            pendingPayment.PowerCost,
+            pendingPayment.PowerCostByTrait);
+        var previousPower = targetState.Power;
+        var rawResultingPower = previousPower - 1;
+        var resultingPower = Math.Max(0, rawResultingPower);
+        var appliedPowerDelta = resultingPower - previousPower;
+        cardObjects[targetObjectId] = targetState with
+        {
+            Power = resultingPower,
+            UntilEndOfTurnPowerModifier = targetState.UntilEndOfTurnPowerModifier + appliedPowerDelta
+        };
+
+        var events = new List<GameEvent>
+        {
+            new(
+                "COST_PAID",
+                $"{intent.PlayerId} 支付冰谷弓箭手进攻触发费用",
+                PaymentCostRules.BuildCostPaidPayload(
+                    pendingPayment.PaymentId,
+                    pendingPayment.PaymentWindow,
+                    intent.PlayerId,
+                    runePools,
+                    null,
+                    new Dictionary<string, object?>
+                    {
+                        ["mana"] = pendingPayment.ManaCost,
+                        ["power"] = pendingPayment.PowerCost,
+                        ["powerByTrait"] = pendingPayment.PowerCostByTrait,
+                        ["paymentChoiceIds"] = submittedChoices.ToArray(),
+                        ["reason"] = IcevaleArcherAttackPayOnePowerMinusOneEffectKind
+                    })),
+            new(
+                "BATTLEFIELD_TRIGGER_RESOLVED",
+                $"{intent.PlayerId} 的冰谷弓箭手进攻触发降低单位战力",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["battlefieldId"] = battlefieldId,
+                    ["trigger"] = IcevaleArcherAttackPayOnePowerMinusOneEffectKind,
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["targetObjectId"] = targetObjectId,
+                    ["paymentId"] = pendingPayment.PaymentId,
+                    ["paymentWindow"] = pendingPayment.PaymentWindow,
+                    ["powerDelta"] = -1,
+                    ["appliedPowerDelta"] = appliedPowerDelta,
+                    ["minimumPower"] = 0,
+                    ["resultingPower"] = resultingPower
+                }),
+            new(
+                "POWER_MODIFIED_UNTIL_END_OF_TURN",
+                $"{targetObjectId} 因冰谷弓箭手本回合内战力 -1",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["targetObjectId"] = targetObjectId,
+                    ["powerDelta"] = -1,
+                    ["appliedPowerDelta"] = appliedPowerDelta,
+                    ["minimumPower"] = 0,
+                    ["resultingPower"] = resultingPower,
+                    ["reason"] = IcevaleArcherAttackPayOnePowerMinusOneEffectKind
+                })
+        };
+        events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
+
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            RunePools = runePools,
+            CardObjects = cardObjects,
+            PendingPayment = null
+        };
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
     private static ResolutionResult ResolveTriggerPaymentDecline(
         MatchState state,
         PlayerIntent intent,
@@ -1563,6 +1691,17 @@ public sealed class CoreRuleEngine : IRuleEngine
             payload["battlefieldId"] = battlefieldId;
             payload["battlefieldObjectId"] = battlefieldObjectId;
             payload["sourceObjectId"] = sourceObjectId;
+        }
+        else if (TryReadIcevaleArcherAttackPaymentContext(
+                     pendingPayment,
+                     out battlefieldId,
+                     out sourceObjectId,
+                     out var targetObjectId))
+        {
+            payload["trigger"] = IcevaleArcherAttackPayOnePowerMinusOneEffectKind;
+            payload["battlefieldId"] = battlefieldId;
+            payload["sourceObjectId"] = sourceObjectId;
+            payload["targetObjectId"] = targetObjectId;
         }
 
         return payload;
@@ -1697,6 +1836,50 @@ public sealed class CoreRuleEngine : IRuleEngine
         battlefieldId = parts[1];
         battlefieldObjectId = parts[2];
         sourceObjectId = parts[3];
+        return true;
+    }
+
+    private static string BuildIcevaleArcherAttackPaymentReason(
+        string battlefieldId,
+        string sourceObjectId,
+        string targetObjectId)
+    {
+        return string.Join(
+            '|',
+            IcevaleArcherAttackPayOnePowerMinusOneEffectKind,
+            battlefieldId,
+            sourceObjectId,
+            targetObjectId);
+    }
+
+    private static bool TryReadIcevaleArcherAttackPaymentContext(
+        PendingPaymentState pendingPayment,
+        out string battlefieldId,
+        out string sourceObjectId,
+        out string targetObjectId)
+    {
+        battlefieldId = string.Empty;
+        sourceObjectId = string.Empty;
+        targetObjectId = string.Empty;
+        if (!string.Equals(pendingPayment.PaymentWindow, TriggerPaymentWindow, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(pendingPayment.Reason))
+        {
+            return false;
+        }
+
+        var parts = pendingPayment.Reason.Split('|', StringSplitOptions.None);
+        if (parts.Length != 4
+            || !string.Equals(parts[0], IcevaleArcherAttackPayOnePowerMinusOneEffectKind, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(parts[1])
+            || string.IsNullOrWhiteSpace(parts[2])
+            || string.IsNullOrWhiteSpace(parts[3]))
+        {
+            return false;
+        }
+
+        battlefieldId = parts[1];
+        sourceObjectId = parts[2];
+        targetObjectId = parts[3];
         return true;
     }
 
@@ -8936,12 +9119,28 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var defendingPlayerId = ResolveSingleDefendingPlayerId(playerZones, defenderObjectIds);
+        var icevaleArcherAttackTargetObjectId = string.Empty;
+        if (!TryResolveIcevaleArcherAttackPaymentChoice(
+                state,
+                playerZones,
+                intent.PlayerId,
+                battlefieldId,
+                attackerObjectId,
+                command.BattlefieldTargetObjectIds,
+                out icevaleArcherAttackTargetObjectId,
+                out var icevaleArcherRejection))
+        {
+            return icevaleArcherRejection;
+        }
+        var defenderBattlefieldTargetObjectIds = string.IsNullOrWhiteSpace(icevaleArcherAttackTargetObjectId)
+            ? command.BattlefieldTargetObjectIds
+            : [];
         if (!TryResolveBattlefieldDefenderSteadfastChoice(
                 state,
                 playerZones,
                 defendingPlayerId ?? string.Empty,
                 battlefieldId,
-                command.BattlefieldTargetObjectIds,
+                defenderBattlefieldTargetObjectIds,
                 defenderObjectIds,
                 out var battlefieldSteadfastObjectId,
                 out var battlefieldSteadfastObjectSourceId,
@@ -8955,7 +9154,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 playerZones,
                 defendingPlayerId ?? string.Empty,
                 battlefieldId,
-                command.BattlefieldTargetObjectIds,
+                defenderBattlefieldTargetObjectIds,
                 defenderObjectIds,
                 out var battlefieldDefenderMoveObjectId,
                 out var battlefieldDefenderMoveObjectSourceId,
@@ -9497,6 +9696,22 @@ public sealed class CoreRuleEngine : IRuleEngine
                 out var ognVaynePendingPayment))
         {
             pendingPayment = ognVaynePendingPayment;
+        }
+        if (pendingPayment is null
+            && !string.IsNullOrWhiteSpace(icevaleArcherAttackTargetObjectId)
+            && TryOpenIcevaleArcherAttackPaymentWindow(
+                playerZones,
+                cardObjects,
+                state.ObjectLocations,
+                intent.PlayerId,
+                battlefieldId,
+                attackerObjectId,
+                icevaleArcherAttackTargetObjectId,
+                state.Tick + 1,
+                combatEvents,
+                out var icevaleArcherPendingPayment))
+        {
+            pendingPayment = icevaleArcherPendingPayment;
         }
 
         if (TryResolveBattleWinnerPlayerId(
@@ -10106,7 +10321,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["battlefieldTargetObjectIds"] = new[]
                         {
                             battlefieldSteadfastObjectId,
-                            battlefieldDefenderMoveObjectId
+                            battlefieldDefenderMoveObjectId,
+                            icevaleArcherAttackTargetObjectId
                         }
                         .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
                         .ToArray()
@@ -13904,6 +14120,49 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryResolveIcevaleArcherAttackPaymentChoice(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string playerId,
+        string battlefieldId,
+        string attackerObjectId,
+        IReadOnlyList<string>? battlefieldTargetObjectIds,
+        out string targetObjectId,
+        out ResolutionResult rejection)
+    {
+        targetObjectId = string.Empty;
+        rejection = default!;
+        var requestedTargetObjectIds = NormalizeTargetObjectIds(battlefieldTargetObjectIds ?? []);
+        if (!TryGetIcevaleArcherAttackSource(state.CardObjects, playerZones, playerId, attackerObjectId, out _))
+        {
+            return true;
+        }
+
+        if (requestedTargetObjectIds.Count == 0)
+        {
+            return true;
+        }
+
+        if (requestedTargetObjectIds.Count != 1
+            || !TryGetIcevaleArcherAttackTarget(
+                state.CardObjects,
+                playerZones,
+                state.ObjectLocations,
+                battlefieldId,
+                requestedTargetObjectIds[0],
+                out _))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                "冰谷弓箭手进攻触发需要选择同一战场的一名正面单位。",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
+        targetObjectId = requestedTargetObjectIds[0];
+        return true;
+    }
+
     private static bool TryResolveBattlefieldDefenderMoveToBaseChoice(
         MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -14806,6 +15065,127 @@ public sealed class CoreRuleEngine : IRuleEngine
             && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
             && IsObjectOnField(playerZones, sourceObjectId);
+    }
+
+    private static bool TryOpenIcevaleArcherAttackPaymentWindow(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        string targetObjectId,
+        long paymentTick,
+        List<GameEvent> events,
+        out PendingPaymentState? pendingPayment)
+    {
+        pendingPayment = null;
+        if (!TryGetIcevaleArcherAttackSource(cardObjects, playerZones, playerId, sourceObjectId, out _)
+            || !TryGetIcevaleArcherAttackTarget(
+                cardObjects,
+                playerZones,
+                objectLocations,
+                battlefieldId,
+                targetObjectId,
+                out _))
+        {
+            return false;
+        }
+
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            paymentTick,
+            TriggerPaymentWindow,
+            playerId,
+            sourceObjectId: sourceObjectId);
+        pendingPayment = new PendingPaymentState(
+            paymentId,
+            TriggerPaymentWindow,
+            playerId,
+            manaCost: 1,
+            legalPaymentChoiceIds: [SpendOneManaPaymentChoiceId, DeclinePaymentChoiceId],
+            reason: BuildIcevaleArcherAttackPaymentReason(battlefieldId, sourceObjectId, targetObjectId));
+        events.Add(new GameEvent(
+            "PAYMENT_WINDOW_OPENED",
+            $"{playerId} 的冰谷弓箭手进攻后等待支付降低战力触发费用",
+            new Dictionary<string, object?>
+            {
+                ["paymentId"] = paymentId,
+                ["paymentWindow"] = TriggerPaymentWindow,
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["trigger"] = IcevaleArcherAttackPayOnePowerMinusOneEffectKind,
+                ["sourceObjectId"] = sourceObjectId,
+                ["targetObjectId"] = targetObjectId,
+                ["mana"] = 1,
+                ["power"] = 0,
+                ["cost"] = new Dictionary<string, object?>
+                {
+                    ["mana"] = 1,
+                    ["power"] = 0,
+                    ["powerByTrait"] = new Dictionary<string, int>(StringComparer.Ordinal)
+                },
+                ["paymentChoices"] = new[] { SpendOneManaPaymentChoiceId, DeclinePaymentChoiceId },
+                ["reason"] = IcevaleArcherAttackPayOnePowerMinusOneEffectKind
+            }));
+        return true;
+    }
+
+    private static bool TryGetIcevaleArcherAttackSource(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string playerId,
+        string sourceObjectId,
+        out CardObjectState sourceState)
+    {
+        sourceState = default!;
+        if (!cardObjects.TryGetValue(sourceObjectId, out var candidate))
+        {
+            return false;
+        }
+
+        sourceState = candidate;
+        return string.Equals(sourceState.CardNo, IcevaleArcherCardNo, StringComparison.Ordinal)
+            && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !sourceState.IsFaceDown
+            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
+            && IsObjectOnField(playerZones, sourceObjectId);
+    }
+
+    private static bool TryGetIcevaleArcherAttackTarget(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        string battlefieldId,
+        string targetObjectId,
+        out CardObjectState targetState)
+    {
+        targetState = default!;
+        if (string.IsNullOrWhiteSpace(targetObjectId)
+            || !cardObjects.TryGetValue(targetObjectId, out var candidate)
+            || !candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || candidate.IsFaceDown
+            || candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !IsObjectLocatedAtBattlefield(playerZones, objectLocations, targetObjectId, battlefieldId))
+        {
+            return false;
+        }
+
+        targetState = candidate;
+        return true;
+    }
+
+    private static bool IsObjectLocatedAtBattlefield(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        string objectId,
+        string battlefieldObjectId)
+    {
+        return FindFieldObjectLocation(playerZones, objectId) is { Zone: MoveUnitBattlefieldZone }
+            && !string.IsNullOrWhiteSpace(battlefieldObjectId)
+            && objectLocations.TryGetValue(objectId, out var location)
+            && string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && string.Equals(location.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal);
     }
 
     private static bool TryResolveBattlefieldConquerPayOneReturnUnitCreateSandSoldierTrigger(

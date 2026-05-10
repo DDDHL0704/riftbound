@@ -820,9 +820,40 @@ Top risk remains the Stage 2 Top20 with 4B statuses overlaid:
 
 4C-24 不关闭 SFD reprint / promo family full-official、Assault3、active-entry、complete conquer/control-zone movement、hidden/random full matrix、PaymentEngine full matrix 或 1009/811 full-official。
 
-## 33. 4B / 4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A / 4C-15B / 4C-16 / 4C-17 / 4C-18 / 4C-19 / 4C-20B / 4C-21 / 4C-22 / 4C-23 / 4C-24 Blocker
+## 33. Post-Freeze 4C-25 Overlay
 
-4B freeze、4C-1 overlay、4C-2 overlay、4C-3 overlay、4C-4 overlay、4C-5 overlay、4C-6 overlay、4C-7 overlay、4C-8 overlay、4C-9 overlay、4C-10 overlay、4C-11 overlay、4C-12 overlay、4C-13 overlay、4C-14 overlay、4C-15A overlay、4C-15B overlay、4C-16 overlay、4C-17 overlay、4C-18 overlay、4C-19 overlay、4C-20B overlay、4C-21 overlay、4C-22 overlay、4C-23 overlay 和 4C-24 overlay 本身无文档阻断。仍阻断 READY / full-official 的事项：
+4C-25 不改变 4B frozen counts、primary status counts 或 full-official 口径，只记录局部 attack trigger payment target-selection runtime 证据：
+
+| 项 | 4C-25 记录 |
+|---|---|
+| verified FU | `FU-c170628e3a` / `UNL-065/219` Icevale Archer / 《冰谷弓箭手》 |
+| oracle/effectId | `ICEVALE_ARCHER_ATTACK_PAYMENT_PLAY_UNIT` |
+| runtime effect kind | `ICEVALE_ARCHER_ATTACK_PAY_1_POWER_MINUS_1` |
+| route | active start-battle task -> visible face-up Icevale attacks -> same-battlefield face-up unit target preselected by `DeclareBattleCommand.BattlefieldTargetObjectIds` -> `TRIGGER_PAYMENT` / `PAY_COST` pay 1 -> target gets -1 power until end of turn |
+| guard | decline / invalid target / invalid source no payment / no mutation / no leak |
+| automated tests | `TriggerPaymentTests` Icevale focused coverage |
+| validation | focused 102/102、backend full 3429/3429、frontend build passed、Chrome smoke passed、JSON / diff check passed。 |
+| status impact | 4B `freezeStatus` / `statusFlags` unchanged；`fullOfficial=false`；full-official upgrades = 0。 |
+| non-covered FUs | Aphelios / `FU-67c6b0186e` retained as dedicated weapon-attachment three-mode candidate；Icevale full-official blockers remain unclosed。 |
+
+矩阵 overlay 数字：
+
+- `stage4C25` verified FUs：1
+- `stage4C25` verified snapshot entries：1
+- cumulative real-trigger enqueue verified FUs：16
+- cumulative state-based cleanup trigger enqueue verified FUs：14
+- cumulative hand-choice prompt verified FUs：1
+- cumulative trigger-payment verified FUs：4；cumulative attack-payment target-selection verified FUs：1
+- cumulative spell-played immediate trigger-event verified FUs：1
+- cumulative conquer-payment recall verified FUs：1
+- full-official upgrades：0
+- full-official still uncovered FUs：811
+
+4C-25 不关闭 complete attack/battle lifecycle、complete target prompt selection UI、FEPR target legality matrix、complete PaymentEngine、Spellshield target tax、LayerEngine temporary modifier matrix、hidden original visibility 或 1009/811 full-official。
+
+## 34. 4B / 4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A / 4C-15B / 4C-16 / 4C-17 / 4C-18 / 4C-19 / 4C-20B / 4C-21 / 4C-22 / 4C-23 / 4C-24 / 4C-25 Blocker
+
+4B freeze、4C-1 overlay、4C-2 overlay、4C-3 overlay、4C-4 overlay、4C-5 overlay、4C-6 overlay、4C-7 overlay、4C-8 overlay、4C-9 overlay、4C-10 overlay、4C-11 overlay、4C-12 overlay、4C-13 overlay、4C-14 overlay、4C-15A overlay、4C-15B overlay、4C-16 overlay、4C-17 overlay、4C-18 overlay、4C-19 overlay、4C-20B overlay、4C-21 overlay、4C-22 overlay、4C-23 overlay、4C-24 overlay 和 4C-25 overlay 本身无文档阻断。仍阻断 READY / full-official 的事项：
 
 - 0/811 functional units 获得 full-official。
 - P0/P1 engine support 仍影响 762 FUs by status flag。

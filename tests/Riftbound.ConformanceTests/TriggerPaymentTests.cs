@@ -9,6 +9,7 @@ public sealed class TriggerPaymentTests
     private const string GoldTrigger = "BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD";
     private const string PowerfulDrawTrigger = "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW";
     private const string VayneTrigger = "OGN_VAYNE_CONQUER_PAY_1_RECALL";
+    private const string IcevaleTrigger = "ICEVALE_ARCHER_ATTACK_PAY_1_POWER_MINUS_1";
     private const string TriggerPaymentWindow = "TRIGGER_PAYMENT";
     private const string PayOneMana = "SPEND_MANA:1";
     private const string Decline = "DECLINE";
@@ -419,6 +420,118 @@ public sealed class TriggerPaymentTests
         Assert.DoesNotContain(result.Events, IsVayneReturnedToHand);
     }
 
+    [Fact]
+    public async Task IcevaleArcherAttackOpensTriggerPaymentPromptForSameBattlefieldTarget()
+    {
+        var result = await DeclareIcevaleBattleAsync(BuildIcevaleArcherAttackState());
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var payment = AssertIcevalePaymentOpen(result);
+        Assert.Equal(TriggerPaymentWindow, payment.PaymentWindow);
+        Assert.Equal("P1", payment.PlayerId);
+        Assert.Equal(1, payment.ManaCost);
+        Assert.Equal(1, result.State.RunePools["P1"].Mana);
+        Assert.Equal(3, result.State.CardObjects["P2-BATTLEFIELD-ICEVALE-TARGET"].Power);
+        Assert.Equal(0, result.State.CardObjects["P2-BATTLEFIELD-ICEVALE-TARGET"].UntilEndOfTurnPowerModifier);
+        Assert.DoesNotContain(result.Events, IsIcevaleTriggerResolved);
+        Assert.DoesNotContain(result.Events, IsIcevalePowerModified);
+    }
+
+    [Fact]
+    public async Task IcevaleArcherAttackPaymentAcceptedAppliesTemporaryPowerMinusOne()
+    {
+        var engine = new CoreRuleEngine();
+        var opened = await DeclareIcevaleBattleAsync(BuildIcevaleArcherAttackState(), engine);
+        var payment = AssertIcevalePaymentOpen(opened);
+
+        var paid = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-icevale-pay", "P1", CommandTypes.PayCost),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [PayOneMana]),
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Equal(0, paid.State.RunePools["P1"].Mana);
+        Assert.Equal(2, paid.State.CardObjects["P2-BATTLEFIELD-ICEVALE-TARGET"].Power);
+        Assert.Equal(-1, paid.State.CardObjects["P2-BATTLEFIELD-ICEVALE-TARGET"].UntilEndOfTurnPowerModifier);
+        Assert.Contains(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Contains(paid.Events, IsIcevaleTriggerResolved);
+        Assert.Contains(paid.Events, IsIcevalePowerModified);
+        Assert.Contains(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task IcevaleArcherAttackPaymentDeclineClosesWithoutPowerChange()
+    {
+        var engine = new CoreRuleEngine();
+        var opened = await DeclareIcevaleBattleAsync(BuildIcevaleArcherAttackState(), engine);
+        var payment = AssertIcevalePaymentOpen(opened);
+
+        var declined = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-icevale-decline", "P1", CommandTypes.PayCost),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [Decline]),
+            CancellationToken.None);
+
+        Assert.True(declined.Accepted, declined.ErrorMessage);
+        Assert.Null(declined.State.PendingPayment);
+        Assert.Equal(1, declined.State.RunePools["P1"].Mana);
+        Assert.Equal(3, declined.State.CardObjects["P2-BATTLEFIELD-ICEVALE-TARGET"].Power);
+        Assert.Equal(0, declined.State.CardObjects["P2-BATTLEFIELD-ICEVALE-TARGET"].UntilEndOfTurnPowerModifier);
+        Assert.Contains(declined.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_PAYMENT_DECLINED", StringComparison.Ordinal));
+        Assert.Contains(declined.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        Assert.DoesNotContain(declined.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.DoesNotContain(declined.Events, IsIcevaleTriggerResolved);
+        Assert.DoesNotContain(declined.Events, IsIcevalePowerModified);
+    }
+
+    [Theory]
+    [InlineData("P2-BATTLEFIELD-ICEVALE-OFF-FIELD")]
+    [InlineData("P2-BATTLEFIELD-ICEVALE-WRONG-BATTLEFIELD")]
+    [InlineData("P2-BATTLEFIELD-ICEVALE-FACE-DOWN-TARGET")]
+    public async Task IcevaleArcherAttackRejectsInvalidPreselectedTargetWithoutMutation(string targetObjectId)
+    {
+        var state = BuildIcevaleArcherAttackState(includeInvalidTargets: true);
+
+        var result = await DeclareIcevaleBattleAsync(state, battlefieldTargetObjectId: targetObjectId);
+
+        Assert.False(result.Accepted);
+        Assert.True(
+            string.Equals(result.ErrorCode, ErrorCodes.InvalidTarget, StringComparison.Ordinal)
+            || string.Equals(result.ErrorCode, ErrorCodes.PhaseNotAllowed, StringComparison.Ordinal),
+            result.ErrorCode);
+        Assert.Equal(state.Tick, result.State.Tick);
+        Assert.Empty(result.Events);
+        Assert.Null(result.State.PendingPayment);
+        Assert.Equal(1, result.State.RunePools["P1"].Mana);
+        Assert.Equal(3, result.State.CardObjects["P2-BATTLEFIELD-ICEVALE-TARGET"].Power);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, IcevaleTrigger, StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(false, false, true)]
+    public async Task IcevaleArcherInvalidSourceDoesNotOpenPayment(
+        bool faceDown,
+        bool standby,
+        bool opponentControlled)
+    {
+        var result = await DeclareIcevaleBattleAsync(
+            BuildIcevaleArcherAttackState(faceDown: faceDown, standby: standby, opponentControlled: opponentControlled),
+            battlefieldTargetObjectId: null);
+
+        Assert.Null(result.State.PendingPayment);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, IcevaleTrigger, StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, IsIcevaleTriggerResolved);
+        Assert.DoesNotContain(result.Events, IsIcevalePowerModified);
+    }
+
     private static async Task<ResolutionResult> DeclareBattleAsync(
         MatchState state,
         CoreRuleEngine? engine = null)
@@ -461,6 +574,23 @@ public sealed class TriggerPaymentTests
                 ["P1-BATTLEFIELD-VAYNE"],
                 ["P2-BATTLEFIELD-VAYNE-DEFENDER"],
                 ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+    }
+
+    private static async Task<ResolutionResult> DeclareIcevaleBattleAsync(
+        MatchState state,
+        CoreRuleEngine? engine = null,
+        string? battlefieldTargetObjectId = "P2-BATTLEFIELD-ICEVALE-TARGET")
+    {
+        return await (engine ?? new CoreRuleEngine()).ResolveAsync(
+            state,
+            new PlayerIntent("intent-icevale-declare-battle", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-ICEVALE-FIELD",
+                ["P1-BATTLEFIELD-ICEVALE"],
+                ["P2-BATTLEFIELD-ICEVALE-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"],
+                string.IsNullOrWhiteSpace(battlefieldTargetObjectId) ? [] : [battlefieldTargetObjectId]),
             CancellationToken.None);
     }
 
@@ -557,6 +687,38 @@ public sealed class TriggerPaymentTests
         return payment;
     }
 
+    private static PendingPaymentState AssertIcevalePaymentOpen(ResolutionResult result)
+    {
+        var payment = result.State.PendingPayment;
+        Assert.NotNull(payment);
+        Assert.Equal(TriggerPaymentWindow, payment.PaymentWindow);
+        var openedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, IcevaleTrigger, StringComparison.Ordinal));
+        Assert.Equal(payment.PaymentId, openedEvent.Payload["paymentId"]);
+        Assert.Equal(payment.PaymentWindow, openedEvent.Payload["paymentWindow"]);
+        Assert.Equal("P1-BATTLEFIELD-ICEVALE-FIELD", openedEvent.Payload["battlefieldId"]);
+        Assert.Equal("P1-BATTLEFIELD-ICEVALE", openedEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P2-BATTLEFIELD-ICEVALE-TARGET", openedEvent.Payload["targetObjectId"]);
+        Assert.Equal([PayOneMana, Decline], Assert.IsType<string[]>(openedEvent.Payload["paymentChoices"]));
+
+        var prompt = result.Prompts["P1"];
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        Assert.Equal(payment.PaymentId, Assert.IsType<string>(metadata["paymentId"]));
+        Assert.Equal(TriggerPaymentWindow, Assert.IsType<string>(metadata["paymentWindow"]));
+        var cost = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(metadata["cost"]);
+        Assert.Equal(1, Assert.IsType<int>(cost["mana"]));
+        var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentChoices"]).ToArray();
+        Assert.Contains(choices, choice => string.Equals(choice.Id, PayOneMana, StringComparison.Ordinal));
+        Assert.Contains(choices, choice => string.Equals(choice.Id, Decline, StringComparison.Ordinal));
+        return payment;
+    }
+
     private static void AssertRejectedNoMutation(
         ResolutionResult result,
         MatchState original,
@@ -591,6 +753,19 @@ public sealed class TriggerPaymentTests
         return string.Equals(gameEvent.Kind, "UNIT_RETURNED_TO_HAND", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["reason"] as string, VayneTrigger, StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-VAYNE", StringComparison.Ordinal);
+    }
+
+    private static bool IsIcevaleTriggerResolved(GameEvent gameEvent)
+    {
+        return string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, IcevaleTrigger, StringComparison.Ordinal);
+    }
+
+    private static bool IsIcevalePowerModified(GameEvent gameEvent)
+    {
+        return string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, IcevaleTrigger, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-ICEVALE-TARGET", StringComparison.Ordinal);
     }
 
     private static IReadOnlyList<string> GoldTokenIds(MatchState state)
@@ -743,6 +918,151 @@ public sealed class TriggerPaymentTests
                 ["P1"] = 0,
                 ["P2"] = 0
             });
+    }
+
+    private static MatchState BuildIcevaleArcherAttackState(
+        int mana = 1,
+        bool faceDown = false,
+        bool standby = false,
+        bool opponentControlled = false,
+        bool includeInvalidTargets = false)
+    {
+        var icevaleTags = standby
+            ? new[] { CardObjectTags.UnitCard, CardObjectTags.Standby }
+            : [CardObjectTags.UnitCard];
+        var p1Battlefields = new List<string>
+        {
+            "P1-BATTLEFIELD-ICEVALE-FIELD",
+            "P1-BATTLEFIELD-ICEVALE"
+        };
+        var p1Base = new List<string>();
+        var p2Battlefields = new List<string>
+        {
+            "P2-BATTLEFIELD-ICEVALE-DEFENDER",
+            "P2-BATTLEFIELD-ICEVALE-TARGET"
+        };
+        var p2Base = new List<string>();
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            ["P1-BATTLEFIELD-ICEVALE-FIELD"] = new(
+                "P1-BATTLEFIELD-ICEVALE-FIELD",
+                cardNo: "SFD·013/221",
+                tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                ownerId: "P1",
+                controllerId: "P1"),
+            ["P1-BATTLEFIELD-ICEVALE"] = new(
+                "P1-BATTLEFIELD-ICEVALE",
+                isFaceDown: faceDown,
+                cardNo: "UNL-065/219",
+                power: 2,
+                tags: icevaleTags,
+                ownerId: "P1",
+                controllerId: opponentControlled ? "P2" : "P1"),
+            ["P2-BATTLEFIELD-ICEVALE-DEFENDER"] = new(
+                "P2-BATTLEFIELD-ICEVALE-DEFENDER",
+                cardNo: "SFD·125/221",
+                power: 1,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P2",
+                controllerId: "P2"),
+            ["P2-BATTLEFIELD-ICEVALE-TARGET"] = new(
+                "P2-BATTLEFIELD-ICEVALE-TARGET",
+                cardNo: "SFD·125/221",
+                power: 3,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P2",
+                controllerId: "P2")
+        };
+        var objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+        {
+            ["P1-BATTLEFIELD-ICEVALE-FIELD"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-ICEVALE-FIELD"),
+            ["P1-BATTLEFIELD-ICEVALE"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-ICEVALE-FIELD"),
+            ["P2-BATTLEFIELD-ICEVALE-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-ICEVALE-FIELD"),
+            ["P2-BATTLEFIELD-ICEVALE-TARGET"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-ICEVALE-FIELD")
+        };
+        if (includeInvalidTargets)
+        {
+            p2Base.Add("P2-BATTLEFIELD-ICEVALE-OFF-FIELD");
+            p2Battlefields.AddRange(
+            [
+                "P2-BATTLEFIELD-ICEVALE-WRONG-BATTLEFIELD",
+                "P2-BATTLEFIELD-ICEVALE-FACE-DOWN-TARGET"
+            ]);
+            cardObjects["P2-BATTLEFIELD-ICEVALE-OFF-FIELD"] = new(
+                "P2-BATTLEFIELD-ICEVALE-OFF-FIELD",
+                cardNo: "SFD·125/221",
+                power: 3,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P2",
+                controllerId: "P2");
+            cardObjects["P2-BATTLEFIELD-ICEVALE-WRONG-BATTLEFIELD"] = new(
+                "P2-BATTLEFIELD-ICEVALE-WRONG-BATTLEFIELD",
+                cardNo: "SFD·125/221",
+                power: 3,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P2",
+                controllerId: "P2");
+            cardObjects["P2-BATTLEFIELD-ICEVALE-FACE-DOWN-TARGET"] = new(
+                "P2-BATTLEFIELD-ICEVALE-FACE-DOWN-TARGET",
+                isFaceDown: true,
+                cardNo: "SFD·125/221",
+                power: 3,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P2",
+                controllerId: "P2");
+            objectLocations["P2-BATTLEFIELD-ICEVALE-OFF-FIELD"] = new("P2", "BASE");
+            objectLocations["P2-BATTLEFIELD-ICEVALE-WRONG-BATTLEFIELD"] = new("P2", "BATTLEFIELD", "P2-OTHER-BATTLEFIELD");
+            objectLocations["P2-BATTLEFIELD-ICEVALE-FACE-DOWN-TARGET"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-ICEVALE-FIELD");
+        }
+
+        return new MatchState(
+            roomId: "trigger-payment-icevale-test",
+            tick: 23,
+            turnNumber: 1,
+            activePlayerId: "P1",
+            seats: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "connection-1",
+                ["P2"] = "connection-2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(mana, 0),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = p1Battlefields,
+                    Base = p1Base
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = p2Battlefields,
+                    Base = p2Base
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: cardObjects,
+            objectLocations: objectLocations,
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            }) with
+            {
+                UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-ICEVALE-FIELD")]
+            };
     }
 
     private static MatchState BuildBattlefieldConquerPowerfulDrawState(

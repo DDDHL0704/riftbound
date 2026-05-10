@@ -172,6 +172,62 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Vayne 代表路径外推完整战斗、征服、支付、回手或隐藏信息矩阵。
 
+## 0.1.3 阶段 4C-25 Icevale Archer Checkpoint
+
+状态：**已完成极窄代表切片文档收口；项目仍 NOT READY。**
+
+阶段 4C-25 名称：Icevale Archer attack payment representative baseline。
+
+本批事实：
+
+- 目标 FU：`FU-c170628e3a`
+- 代表卡：`UNL-065/219` Icevale Archer / 冰谷弓箭手
+- 规则文本：当 Icevale Archer 进攻时，可以选择支付 1，以此让此处的一名单位在本回合内 -1。
+- 代表路径：active start-battle task 下 visible face-up Icevale 作为攻击者 -> `DeclareBattleCommand.BattlefieldTargetObjectIds` 预选同一 battlefield 的正面单位目标 -> 战斗声明后打开 `TRIGGER_PAYMENT` / `PAY_COST` -> `PAY_COST(SPEND_MANA:1)` -> 目标本回合 power -1。
+- decline 路径：`PAY_COST(DECLINE)` 关闭窗口且不修改目标战力。
+- guard：invalid target、hidden / face-down / standby / opponent-controlled source 均 no trigger / no leak / no mutation。
+
+修改文件：
+
+- `src/Riftbound.Engine/CoreRuleEngine.cs`（A）
+- `tests/Riftbound.ConformanceTests/TriggerPaymentTests.cs`（A）
+- `docs/CURRENT_STAGE4C_BATCH25_ICEVALE_ARCHER_ATTACK_PAYMENT_AUDIT.md`
+- `docs/CURRENT_STAGE4C_BATCH25_ICEVALE_ARCHER_ATTACK_PAYMENT_EVIDENCE.md`
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`
+- `docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+
+已跑验证：
+
+- Focused backend：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Icevale|FullyQualifiedName~AttackPayment|FullyQualifiedName~TriggerPayment|FullyQualifiedName~DeclareBattle|FullyQualifiedName~Vayne|FullyQualifiedName~Lux"` 通过 102/102。
+- JSON / diff hygiene：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 通过；`git diff --check` 通过。
+- Backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 3429/3429。
+- Frontend build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过。
+- Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过；覆盖 `/`、`/lobby`、`/decks`、`/cards`、`/rooms/stage3-smoke`、`/matches/stage3-smoke`、`/matches/stage3-smoke/result`。
+
+本批未记录：
+
+- Stage 3 preflight / final 18-step E2E。
+
+仍缺：
+
+- full attack-trigger family、完整 target selection prompt、支付后恢复战斗时点。
+- 完整 spell duel / battle lifecycle、battle response window、damage assignment 与战斗结算全矩阵。
+- 完整 PaymentEngine、triggered-cost 通用模型、Quote / Authorize / Commit、替代 / 额外费用、insufficient / stale / multi-window full matrix。
+- 完整 trigger engine、complete APNAP / trigger batch、optional trigger handling、attack-trigger family 与完整 effect resolution。
+- Spellshield target tax、完整 LayerEngine、temporary modifier timestamp / dependency / cleanup duration matrix。
+- FAQ regression、1009/811 full-official、正式 18-step E2E、completion audit。
+
+口径：
+
+- `fullOfficial=false`。
+- 不宣称 READY / READY-CANDIDATE。
+- 不因 Icevale 代表路径外推完整进攻触发、目标选择、支付、战斗恢复、法盾加税、LayerEngine 或隐藏信息矩阵。
+
 ## 0.2 阶段 0 当前基线
 
 阶段 0 只做主控建档、只读审计与任务拆分，不实现功能代码。已读取：

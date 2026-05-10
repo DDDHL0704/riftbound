@@ -1683,6 +1683,60 @@ Snapshot entry primary status counts：
 
 是否允许批量 full-official 覆盖：**不允许。**
 
+## 38. 阶段 4C-25 E 汇总
+
+阶段 4C-25 名称：Icevale Archer attack payment representative baseline。E/A 只更新覆盖矩阵与审计证据，不触碰 `riftbound-dotnet.sln`，不进入 1009 张卡 full-official 实现。
+
+身份核对：
+
+- `UNL-065/219` Icevale Archer / 《冰谷弓箭手》在冻结矩阵中的真实 FU 为 `FU-c170628e3a`，snapshot entry id / cardId 为 `34598`。
+- 当前 oracle/effectId：`ICEVALE_ARCHER_ATTACK_PAYMENT_PLAY_UNIT`。
+- 4B status：`IMPLEMENTED_TESTED`；statusFlags：`IMPLEMENTED_TESTED`、`NEEDS_ENGINE_SUPPORT`。
+
+本批记录：
+
+- active start-battle task 下 visible face-up Icevale 作为攻击者后开启 `TRIGGER_PAYMENT` / `PAY_COST` pay 1 window。
+- 使用 `DeclareBattleCommand.BattlefieldTargetObjectIds` 预选同一 battlefield 的正面单位目标。
+- 支付 1 后该目标本回合 power -1；decline 不修改资源或目标战力。
+- invalid target、hidden / face-down / standby / opponent-controlled source 不开启支付、不变更状态、不泄漏隐藏信息。
+- 只标 `FU-c170628e3a`；Aphelios / `FU-67c6b0186e` 保留为后续 dedicated weapon-attachment three-mode candidate，不作为 4C-25 完成项。
+
+4C-25 矩阵 overlay 统计：
+
+| 项 | 数量 |
+|---|---:|
+| frozen snapshot entries | 1009 |
+| frozen functional units | 811 |
+| `stage4C25` verified FUs | 1 |
+| `stage4C25` verified snapshot entries | 1 |
+| cumulative real-trigger enqueue verified FUs | 16 |
+| cumulative state-based cleanup trigger enqueue verified FUs | 14 |
+| cumulative hand-choice prompt verified FUs | 1 |
+| cumulative trigger-payment verified FUs | 4 |
+| cumulative spell-played immediate trigger-event verified FUs | 1 |
+| cumulative conquer-payment recall verified FUs | 1 |
+| cumulative attack-payment target-selection verified FUs | 1 |
+| full-official upgrades | 0 |
+| full-official still uncovered FUs | 811 |
+
+验证：
+
+- Focused backend：102/102 通过。
+- JSON / diff hygiene：通过。
+- Backend full：3429/3429 通过。
+- Frontend build：通过。
+- Chrome smoke：通过。
+- 不得用 focused backend 或 smoke 替代正式 18-step E2E。
+
+仍存在 P0/P1：
+
+- 完整 attack-trigger family、完整 target selection prompt、支付后恢复战斗时点未覆盖。
+- complete battle lifecycle、Spellshield target tax、LayerEngine / temporary modifier matrix 未覆盖。
+- hidden / face-down 原始触发建模、完整 PaymentEngine / PAY_COST full matrix 未覆盖。
+- 1009 entries / 811 functional units full-official、FAQ regression、正式 18-step E2E 仍未完成。
+
+是否允许批量 full-official 覆盖：**不允许。**
+
 ## 36. 阶段 4C-23 E 汇总
 
 阶段 4C-23 名称：Lux high-cost spell temporary power representative baseline。E/A 只更新覆盖矩阵与索引证据，不触碰 `riftbound-dotnet.sln`，不进入 1009 张卡 full-official 实现。

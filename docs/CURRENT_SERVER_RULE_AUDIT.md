@@ -12,6 +12,46 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-10 阶段 4C-25 Icevale Archer Attack Payment 审计
+
+阶段 4C-25 审计入口：`docs/CURRENT_STAGE4C_BATCH25_ICEVALE_ARCHER_ATTACK_PAYMENT_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH25_ICEVALE_ARCHER_ATTACK_PAYMENT_EVIDENCE.md`。本批已补 Icevale Archer / 冰谷弓箭手 `UNL-065/219` / `FU-c170628e3a` 的极窄进攻触发支付降战力代表切片。项目仍 **NOT READY**。
+
+4C-25 已关闭代表子项：
+
+- active start-battle task 下，visible face-up Icevale 作为攻击者后打开现有 `TRIGGER_PAYMENT` / `PAY_COST` prompt。
+- 使用 `DeclareBattleCommand.BattlefieldTargetObjectIds` 预选同一 battlefield 的正面单位目标；支付成功后目标本回合 power -1。
+- `PAY_COST(DECLINE)` 关闭支付窗口且不修改目标战力。
+- invalid target、hidden / face-down / standby / opponent-controlled source 均 no trigger / no leak / no mutation。
+
+4C-25 规则依据：
+
+- `CATALOG` `UNL-065/219`；FU `FU-c170628e3a`。
+- `CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356；p52-p55 rules 377, 403-405；p77-p78 rules 454-464。
+- `JFAQ-251023` p2-p4 q2.2-q2.5。
+
+4C-25 验证记录：
+
+- Focused backend：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Icevale|FullyQualifiedName~AttackPayment|FullyQualifiedName~TriggerPayment|FullyQualifiedName~DeclareBattle|FullyQualifiedName~Vayne|FullyQualifiedName~Lux"` 通过 102/102。
+- JSON / diff hygiene：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 通过；`git diff --check` 通过。
+- Backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 3429/3429。
+- Frontend build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过。
+- Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过。
+- 本批未记录 Stage 3 preflight；不得替代最终正式 18-step E2E。
+- D 本轮只更新 docs 审计 / 证据 / checkpoint 文档；A 后续对齐 coverage matrix JSON、baseline / risk / freeze 文档口径；不修改前端或 `riftbound-dotnet.sln`。
+
+仍缺 P0/P1：
+
+- P0：完整 spell duel / battle lifecycle、start-battle task、battle response window、damage assignment 与支付窗口恢复时点。
+- P0：完整 PaymentEngine、triggered-cost 通用模型、Quote / Authorize / Commit、替代 / 额外费用、insufficient / stale / multi-window full matrix。
+- P0：完整 trigger engine、complete APNAP / trigger batch、optional trigger handling、attack-trigger family 与完整 effect resolution。
+- P0：完整 target selection prompt、same-battlefield target matrix、target invalidation、Spellshield target tax。
+- P0：完整 LayerEngine、temporary modifier timestamp / dependency / cleanup duration matrix。
+- P0：hidden / face-down 原始触发建模、viewer-specific metadata 全路径、显露窗口。
+- P0：FAQ regression、1009 entries / 811 functional units full-official、正式 18-step E2E 与 completion audit。
+- P1：Icevale attack payment 的 UI/DTO 解释字段、战斗恢复 UX、event label / replay redaction 仍需后续全矩阵证据。
+
+4C-25 不宣称 full-official，不宣称 READY / READY-CANDIDATE。
+
 ## 2026-05-10 阶段 4C-24 Vayne Conquer Recall 审计
 
 阶段 4C-24 审计入口：`docs/CURRENT_STAGE4C_BATCH24_VAYNE_CONQUER_RECALL_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH24_VAYNE_CONQUER_RECALL_EVIDENCE.md`。本批已补 Vayne / 薇恩 `OGN·035/298` / `FU-c027639a3c` 的极窄征服支付回手代表切片。项目仍 **NOT READY**。

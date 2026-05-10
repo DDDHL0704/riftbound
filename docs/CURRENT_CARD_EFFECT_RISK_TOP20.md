@@ -743,7 +743,27 @@ Viktor boundary：
 
 仍缺：完整 trigger engine、PaymentEngine paid-cost matrix、complete Assault3 / conquer / control-zone movement、hidden/random full matrix、1009/811 full-official 覆盖、正式 18-step E2E。
 
-## 33. Top20 高风险 Functional Units
+## 33. Stage 4C-25 Icevale Archer Attack Payment Overlay
+
+4C-25 只更新覆盖矩阵 / 风险证据，不升级 full-official。`docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已新增 `stage4CBatch25IcevaleArcherAttackPaymentTargetSelection`，并只为 `FU-c170628e3a` 增加 `functionalUnits[].stage4C25` overlay。
+
+4C-25 已部分降低的 blocker：
+
+- `FU-c170628e3a` / `UNL-065/219` Icevale Archer / 《冰谷弓箭手》的 active start-battle attack trigger payment target-selection representative route。
+- route：active start-battle task -> visible face-up Icevale attacks -> `DeclareBattleCommand.BattlefieldTargetObjectIds` preselects same-battlefield face-up unit target -> `TRIGGER_PAYMENT` / `PAY_COST` pay 1 -> accepted payment gives target -1 power until end of turn。
+- decline / invalid target / invalid source no payment / no mutation / no leak。
+- oracle/effectId 保持 `ICEVALE_ARCHER_ATTACK_PAYMENT_PLAY_UNIT`；runtime representative effect kind 为 `ICEVALE_ARCHER_ATTACK_PAY_1_POWER_MINUS_1`。
+- A 验证结果：focused 102/102、backend full 3429/3429、frontend build passed、Chrome smoke passed、JSON / diff check passed。
+
+矩阵数字：`stage4C25` verified FUs = 1，verified snapshot entries = 1，cumulative trigger-payment verified FUs = 4，cumulative attack-payment target-selection verified FUs = 1，full-official upgrades = 0，full-official still uncovered FUs = 811。
+
+本批不关闭 complete attack/battle lifecycle、target prompt selection UI、FEPR target legality matrix、complete PaymentEngine、Spellshield target tax、LayerEngine temporary modifier matrix、hidden original visibility、1009/811 full-official 或正式 18-step E2E。
+
+后续批量顺序建议：Aphelios / `FU-67c6b0186e` 保留为 dedicated weapon-attachment three-mode candidate。Icevale Archer 已有 4C-25 代表覆盖，但 full-official blocker 仍保留。
+
+仍缺：完整 trigger engine、PaymentEngine paid-cost matrix、battle/attack lifecycle、targeting matrix、LayerEngine temporary modifier matrix、hidden original visibility、1009/811 full-official 覆盖、正式 18-step E2E。
+
+## 34. Top20 高风险 Functional Units
 
 | # | FU | Representative | 类型/条目数 | 当前代表映射 | FAQ 候选页 | 风险依据 | 依赖规则域 |
 |---:|---|---|---:|---|---|---|---|
@@ -768,7 +788,7 @@ Viktor boundary：
 | 19 | `FU-804412488c` | `SFD·139/221` 夜之锋刃 | 装备 / 1 | 代表路径：EDGE_OF_NIGHT_PLAY_EQUIPMENT | SOUL-OFAQ-260114 p10<br>SOUL-OFAQ-260114 p9 | 控制权/区域移动、FAQ 提及、隐藏信息/随机/牌堆、效果层/持续效果、费用/支付、目标/结算链/时机 | FEPR/Targeting/TimingWindows, LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, VisibilityFilter/RandomAndHiddenZones, ZoneOwnership/ControlChange/Movement |
 | 20 | `FU-9a623b3185` | `SFD·059/221` 斯弗尔尚歌 | 装备 / 1 | 代表路径：SFUR_SONG_PLAY_EQUIPMENT | SOUL-JFAQ-260114 p24<br>SOUL-JFAQ-260114 p25<br>SOUL-JFAQ-260114 p8<br>SOUL-OFAQ-260114 p18<br>SOUL-OFAQ-260114 p19 | 控制权/区域移动、FAQ 提及、效果层/持续效果、费用/支付 | LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, ZoneOwnership/ControlChange/Movement |
 
-## 34. 未覆盖效果分类
+## 35. 未覆盖效果分类
 
 | 分类 | 含义 | 当前阻断关系 |
 |---|---|---|
@@ -782,7 +802,7 @@ Viktor boundary：
 | `non-play-domain` | 传奇、战场、符文、指示物等非普通 PLAY_CARD 域。 | 需要专门域矩阵，不可与普通出牌效果混算。 |
 | `faq-mentioned` | 五份 PDF/FAQ 中出现卡名的候选项。 | 必须人工判定问题是否真的约束该 FU，并补测试。 |
 
-## 35. P0/P1 仍未清零
+## 36. P0/P1 仍未清零
 
 P0：
 
