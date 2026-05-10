@@ -17014,6 +17014,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || !IsHuntTheWeakTargetAllowed(state, behavior, targetObjectId)
                 || !IsReprimandTargetAllowed(state, behavior, targetObjectId)
                 || !IsRideTheWindTargetAllowed(state, behavior, targetObjectId)
+                || !IsCharmTargetAllowed(state, behavior, targetObjectId)
                 || !IsMainDeckLookTargetAllowed(state, intent.PlayerId, targetObjectId, targetIndex, behavior)
                 || !IsMainDeckTargetTagAllowed(state, targetObjectId, targetIndex, behavior)
                 || !IsTargetRequiredTagAllowed(state, targetObjectId, behavior)
@@ -20150,6 +20151,30 @@ public sealed class CoreRuleEngine : IRuleEngine
         string objectId)
     {
         if (!string.Equals(behavior.EffectKind, "RIDE_THE_WIND_MOVE_FRIENDLY_BATTLEFIELD_UNIT_TO_BASE_READY", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        if (!state.CardObjects.TryGetValue(objectId, out var targetState)
+            || targetState.IsFaceDown
+            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || targetState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
+            || targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        return targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || targetState.Tags.Count == 0;
+    }
+
+    private static bool IsCharmTargetAllowed(
+        MatchState state,
+        CardBehaviorDefinition behavior,
+        string objectId)
+    {
+        if (!string.Equals(behavior.EffectKind, "CHARM_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE", StringComparison.Ordinal))
         {
             return true;
         }
