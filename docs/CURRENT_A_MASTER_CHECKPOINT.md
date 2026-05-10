@@ -910,6 +910,19 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Hostile Takeover 代表路径外推完整待命、反应时机、开战/征服、control lifecycle、end-turn cleanup、targeting、PaymentEngine、FEPR、named deferred candidates 或 full-official。
 
+## 0.1.17 阶段 4C-39 Zhonya's Hourglass Checkpoint
+
+状态：**4C-39 checkpoint ready；项目仍 NOT READY。**
+
+阶段 4C-39 名称：Zhonya's Hourglass play-equipment target guard representative baseline。
+
+- B 完成 Zhonya's Hourglass / 中娅沙漏 `OGN·077/298` / cardId `31291` / `FU-fb79eea7fc` / `ZHONYAS_HOURGLASS_PLAY_EQUIPMENT` guard slice；Core gap none，Core 无改动。
+- 已覆盖普通 hand `PLAY_CARD` 0-target -> stack / pass-pass -> base equipment。
+- 已覆盖 explicit target reject no mutation，以及 source not in hand / wrong zone、opponent source、face-down standby source、insufficient mana no mutation / no leak guard。
+- 验证记录：A/B focused 通过 268/268；A backend full 3552/3552 通过；A frontend build 通过；A Chrome smoke 通过；`jq empty` / matrix targeted assert / `git diff --check` 通过。
+- 本批只关闭 Zhonya 普通 hand play-equipment target guard representative evidence。
+- 仍保持 `fullOfficial=false`；不宣称 READY / READY-CANDIDATE；不关闭 standby / reaction timing、destroy replacement recall、完整 equipment / layer / FAQ、hidden info、1009/811 或 final 18-step E2E。
+
 ## 0.1.16 阶段 4C-38 Edge of Night Checkpoint
 
 状态：**D 最小文档入账；项目仍 NOT READY。**

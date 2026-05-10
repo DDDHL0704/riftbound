@@ -12,6 +12,16 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-10 阶段 4C-39 Zhonya's Hourglass Play Guard 审计
+
+阶段 4C-39 审计入口：`docs/CURRENT_STAGE4C_BATCH39_ZHONYAS_HOURGLASS_PLAY_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH39_ZHONYAS_HOURGLASS_PLAY_GUARD_EVIDENCE.md`。本批已补 Zhonya's Hourglass / 中娅沙漏 `OGN·077/298` / cardId `31291` / `FU-fb79eea7fc` / `ZHONYAS_HOURGLASS_PLAY_EQUIPMENT` 的 play-equipment target guard representative baseline。项目仍 **NOT READY**，`fullOfficial=false`。
+
+- Scope：普通 hand `PLAY_CARD` 0-target -> stack / pass-pass -> base equipment。
+- Guard：explicit target、source not in hand / wrong zone、opponent source、face-down standby source、insufficient mana 均 rejected，no tick / no events / no payment / no hand movement / no stack / no equipment entry / no leak。
+- B slice 为 guard test；Core gap none，Core 无改动。A/B focused 通过 268/268；D 未运行重测试。
+- 本批只关闭 Zhonya ordinary hand play-equipment target guard representative evidence。
+- 不关闭 standby / reaction timing、destroy replacement recall、完整 equipment / layer / FAQ、hidden info、1009/811 full-official 或 final 18-step E2E。
+
 ## 2026-05-10 阶段 4C-38 Edge of Night Assemble Guard 审计
 
 阶段 4C-38 审计入口：`docs/CURRENT_STAGE4C_BATCH38_EDGE_OF_NIGHT_ASSEMBLE_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH38_EDGE_OF_NIGHT_ASSEMBLE_GUARD_EVIDENCE.md`。本批已补 Edge of Night / 夜之锋刃 `SFD·139/221` / cardId `33229` / `FU-804412488c` / `EDGE_OF_NIGHT_PLAY_EQUIPMENT` 的 play-equipment / assemble-purple target guard representative baseline。项目仍 **NOT READY**，`fullOfficial=false`。
