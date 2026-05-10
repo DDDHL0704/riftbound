@@ -1,12 +1,12 @@
 # Stage 4B Card Coverage Freeze
 
-日期：2026-05-09；4C-1 / 4C-2 / 4C-3 overlay 追加：2026-05-09；4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A overlay 追加：2026-05-10
+日期：2026-05-09；4C-1 / 4C-2 / 4C-3 overlay 追加：2026-05-09；4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A / 4C-15B overlay 追加：2026-05-10
 
 阶段：**阶段 4B / E 卡牌覆盖矩阵冻结**
 
-结论：**4B freeze 完成；4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A post-freeze overlay 已记录；NOT READY；不允许 1009 张卡批量实现。**
+结论：**4B freeze 完成；4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A / 4C-15B post-freeze overlay 已记录；NOT READY；不允许 1009 张卡批量实现。**
 
-本文冻结卡牌覆盖矩阵、official text / FAQ evidence、functional units、测试优先级和阶段 4 批量顺序。4C-1 只在冻结矩阵上追加 APNAP `ORDER_TRIGGERS` / battle initial stack / hidden trigger metadata redaction overlay；4C-2 / 4C-3 只追加 Watchful Sentinel 与 Honest Broker real trigger enqueue overlay；4C-4 只追加 Treasure Pile trigger payment overlay；4C-5 / 4C-6 只追加 visible Watchful Sentinel / Honest Broker state-based cleanup trigger enqueue overlay；4C-7 / 4C-8 只追加 visible Scouting Warhawk explicit destroy / state-based cleanup trigger enqueue overlay；4C-9 只追加 visible Sad/Loyal Poro conditional state-based cleanup trigger enqueue overlay；4C-10 只追加 visible Unsung Hero powerful state-based cleanup trigger enqueue overlay；4C-11 只追加 visible surviving friendly Ghostly Centaur friendly-destroyed cleanup trigger enqueue overlay；4C-12 只追加 visible surviving friendly Resonant Soul first-friendly-destroyed cleanup trigger enqueue overlay；4C-13 只追加 Ghostly Centaur / Resonant Soul true stack destruction route migration overlay；4C-14 只追加 Savage Jawfish true stack / cleanup friendly-destroyed experience trigger enqueue overlay；4C-15A 只追加 Minion token family model / infrastructure overlay。E 不修改服务端/前端代码，不修改 A checkpoint，不触碰 `riftbound-dotnet.sln`。
+本文冻结卡牌覆盖矩阵、official text / FAQ evidence、functional units、测试优先级和阶段 4 批量顺序。4C-1 只在冻结矩阵上追加 APNAP `ORDER_TRIGGERS` / battle initial stack / hidden trigger metadata redaction overlay；4C-2 / 4C-3 只追加 Watchful Sentinel 与 Honest Broker real trigger enqueue overlay；4C-4 只追加 Treasure Pile trigger payment overlay；4C-5 / 4C-6 只追加 visible Watchful Sentinel / Honest Broker state-based cleanup trigger enqueue overlay；4C-7 / 4C-8 只追加 visible Scouting Warhawk explicit destroy / state-based cleanup trigger enqueue overlay；4C-9 只追加 visible Sad/Loyal Poro conditional state-based cleanup trigger enqueue overlay；4C-10 只追加 visible Unsung Hero powerful state-based cleanup trigger enqueue overlay；4C-11 只追加 visible surviving friendly Ghostly Centaur friendly-destroyed cleanup trigger enqueue overlay；4C-12 只追加 visible surviving friendly Resonant Soul first-friendly-destroyed cleanup trigger enqueue overlay；4C-13 只追加 Ghostly Centaur / Resonant Soul true stack destruction route migration overlay；4C-14 只追加 Savage Jawfish true stack / cleanup friendly-destroyed experience trigger enqueue overlay；4C-15A 只追加 Minion token family model / infrastructure overlay；4C-15B 只追加 Viktor destroyed non-Minion trigger enqueue representative baseline overlay。E 不修改服务端/前端代码，不修改 A checkpoint，不触碰 `riftbound-dotnet.sln`。
 
 ## 1. Source Snapshot
 
@@ -552,9 +552,36 @@ Top risk remains the Stage 2 Top20 with 4B statuses overlaid:
 
 仍缺：Viktor destroyed non-minion trigger behavior、完整 trigger engine、same-source / same-pass / multi-destroy multiplicity and non-minion classification in real trigger contexts、隐藏 / face-down original visibility modeling、FAQ adjudication / regression、正式 18-step E2E 和 1009/811 full-official 覆盖。
 
-## 23. 4B / 4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A Blocker
+## 23. Post-Freeze 4C-15B Overlay
 
-4B freeze、4C-1 overlay、4C-2 overlay、4C-3 overlay、4C-4 overlay、4C-5 overlay、4C-6 overlay、4C-7 overlay、4C-8 overlay、4C-9 overlay、4C-10 overlay、4C-11 overlay、4C-12 overlay、4C-13 overlay、4C-14 overlay 和 4C-15A overlay 本身无文档阻断。仍阻断 READY / full-official 的事项：
+4C-15B 不改变 4B frozen counts、primary status counts 或 full-official 口径，只记录 B/A 已完成并通过测试的局部 runtime 证据：
+
+| 项 | 4C-15B 记录 |
+|---|---|
+| verified FU | `FU-b5cb36a5c9` / Viktor |
+| associated cardNos | `ARC-006/006`、`OGN·246/298`、`OGN·246a/298` |
+| route | true stack `UNIT_DESTROYED` and Starfall lethal cleanup `UNIT_DESTROYED` -> `TriggerQueue` -> single-trigger auto-stack -> `StackItems` -> priority pass -> `TRIGGER_RESOLVED` -> `UNIT_TOKEN_CREATED` 1-power Zaun minion `OGN·273/298` with `TOKEN_FAMILY:MINION` |
+| destroyed target filter | unit、same controller / friendly、not source、not `CardObjectTags.MinionTokenFamily` |
+| source guard | field、face-up、non-standby、same controller、not removal set |
+| no-enqueue guards | destroyed minion target；hidden / face-down / standby / opponent source；source also dying |
+| non-covered FUs | 不覆盖 Kogmaw / Karthus / Undercover Agent。 |
+| validation | 5 new `RealTriggerQueueTests`；backend full 3380/3380 passed by A。 |
+
+矩阵 overlay 数字：
+
+- `stage4C15B` verified FUs：1
+- `stage4C15B` verified snapshot entries：3
+- cumulative real-trigger enqueue verified FUs：11
+- cumulative state-based cleanup trigger enqueue verified FUs：11
+- full-official upgrades：0
+
+4C-15B 关闭 representative trigger enqueue baseline，但不关闭 full official trigger-count matrix 或 full trigger engine。
+
+仍缺：full official trigger-count matrix for Viktor、完整 trigger engine、multi-source / multi-destroy / simultaneous trigger multiplicity、隐藏 / face-down original visibility modeling、Kogmaw / Karthus / Undercover Agent、FAQ adjudication / regression、正式 18-step E2E 和 1009/811 full-official 覆盖。
+
+## 24. 4B / 4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A / 4C-15B Blocker
+
+4B freeze、4C-1 overlay、4C-2 overlay、4C-3 overlay、4C-4 overlay、4C-5 overlay、4C-6 overlay、4C-7 overlay、4C-8 overlay、4C-9 overlay、4C-10 overlay、4C-11 overlay、4C-12 overlay、4C-13 overlay、4C-14 overlay、4C-15A overlay 和 4C-15B overlay 本身无文档阻断。仍阻断 READY / full-official 的事项：
 
 - 0/811 functional units 获得 full-official。
 - P0/P1 engine support 仍影响 762 FUs by status flag。

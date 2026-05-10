@@ -581,6 +581,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SavageJawfishFriendlyDestroyedExperienceEffectKind = "SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1";
     private const string GhostlyCentaurCardNo = "UNL-068/219";
     private const string GhostlyCentaurFriendlyDestroyedPowerEffectKind = "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
+    private const string ViktorDestroyedNonMinionCreateMinionEffectKind = "VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
+    private const string ViktorDestroyedNonMinionArcCardNo = "ARC-006/006";
+    private const string ViktorDestroyedNonMinionOgnCardNo = "OGN·246/298";
+    private const string ViktorDestroyedNonMinionOgnAltACardNo = "OGN·246a/298";
     private static readonly CardBehaviorDefinition GhostlyCentaurFriendlyDestroyedPowerBehavior = new(
         GhostlyCentaurCardNo,
         "幽魂半人马",
@@ -623,6 +627,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string IvernLegendCardNo = "UNL-195/219";
     private const string BrushBattlefieldTokenCardNo = "UNL·T03";
     private const string DemaciaMinionTokenCardNo = "OGN·271/298";
+    private const string ZaunMinionTokenCardNo = "OGN·273/298";
     private const string WarhawkTokenCardNo = "UNL·T02";
     private const string SettLegendCardNo = "OGN·269/298";
     private const int SettLegendManaCost = 1;
@@ -4179,6 +4184,49 @@ public sealed class CoreRuleEngine : IRuleEngine
                 destroyedOwnerPlayerId,
                 sourceObjectId,
                 SavageJawfishFriendlyDestroyedExperienceEffectKind,
+                "UNIT_DESTROYED"))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<TriggerQueueItemState> BuildViktorDestroyedNonMinionTriggerQueueItems(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlySet<string> pendingRemovalObjectIds,
+        IReadOnlySet<string> alreadyQueuedSourceObjectIds,
+        StackItemState stackItem,
+        string destroyedObjectId,
+        CardObjectState destroyedState,
+        FieldRemovalResult removalResult,
+        string destroyedControllerId)
+    {
+        if (string.IsNullOrWhiteSpace(destroyedControllerId)
+            || !IsViktorDestroyedNonMinionTriggerTarget(destroyedState, removalResult))
+        {
+            return [];
+        }
+
+        return playerZones
+            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
+            .Distinct(StringComparer.Ordinal)
+            .Where(sourceObjectId => !string.Equals(sourceObjectId, destroyedObjectId, StringComparison.Ordinal))
+            .Where(sourceObjectId => !pendingRemovalObjectIds.Contains(sourceObjectId))
+            .Where(sourceObjectId => !alreadyQueuedSourceObjectIds.Contains(sourceObjectId))
+            .Where(sourceObjectId => cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                && IsViktorDestroyedNonMinionCardNo(sourceState.CardNo)
+                && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !sourceState.IsFaceDown
+                && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                && IsObjectOnField(playerZones, sourceObjectId)
+                && string.Equals(
+                    EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
+                    destroyedControllerId,
+                    StringComparison.Ordinal))
+            .OrderBy(sourceObjectId => sourceObjectId, StringComparer.Ordinal)
+            .Select(sourceObjectId => new TriggerQueueItemState(
+                $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{destroyedObjectId}-{ViktorDestroyedNonMinionCreateMinionEffectKind}",
+                destroyedControllerId,
+                sourceObjectId,
+                ViktorDestroyedNonMinionCreateMinionEffectKind,
                 "UNIT_DESTROYED"))
             .ToArray();
     }
@@ -14910,6 +14958,23 @@ public sealed class CoreRuleEngine : IRuleEngine
         return string.Equals(cardNo, SavageJawfishCardNo, StringComparison.Ordinal);
     }
 
+    private static bool IsViktorDestroyedNonMinionCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, ViktorDestroyedNonMinionArcCardNo, StringComparison.Ordinal)
+            || string.Equals(cardNo, ViktorDestroyedNonMinionOgnCardNo, StringComparison.Ordinal)
+            || string.Equals(cardNo, ViktorDestroyedNonMinionOgnAltACardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsViktorDestroyedNonMinionTriggerTarget(
+        CardObjectState destroyedState,
+        FieldRemovalResult removalResult)
+    {
+        return removalResult.WasDestroyed
+            && removalResult.WasUnit
+            && destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !destroyedState.Tags.Contains(CardObjectTags.MinionTokenFamily, StringComparer.Ordinal);
+    }
+
     private static bool IsScarletPigeonCardNo(string? cardNo)
     {
         return string.Equals(cardNo, ScarletPigeonCardNo, StringComparison.Ordinal);
@@ -20648,6 +20713,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveGhostlyCentaurFriendlyDestroyedPowerStackItem(state, stackItem);
         }
 
+        if (string.Equals(stackItem.EffectKind, ViktorDestroyedNonMinionCreateMinionEffectKind, StringComparison.Ordinal))
+        {
+            return ResolveViktorDestroyedNonMinionStackItem(state, stackItem);
+        }
+
         if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.ViDoublePowerAbilityEffectKind, StringComparison.Ordinal))
         {
             return ResolveViDoublePowerAbilityStackItem(state, stackItem);
@@ -20693,6 +20763,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var counteredStackItemIds = new List<string>();
         var targetControllerDrawRecipientIds = new List<string>();
         var damageTriggeredDestroyTargetObjectIds = new HashSet<string>(StringComparer.Ordinal);
+        var queuedViktorSourceObjectIds = new HashSet<string>(StringComparer.Ordinal);
         var rngCursor = state.RngCursor;
         var playerScores = state.PlayerScores;
         var playerExperience = NormalizeExperienceForSeats(state);
@@ -21285,8 +21356,17 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
         else if (behavior.DestroysAllUnits)
         {
-            foreach (var targetObjectId in GetFieldUnitObjectIds(playerZones, cardObjects))
+            var allUnitTargetObjectIds = GetFieldUnitObjectIds(playerZones, cardObjects).ToArray();
+            var allUnitTargetObjectIdSet = allUnitTargetObjectIds.ToHashSet(StringComparer.Ordinal);
+            foreach (var targetObjectId in allUnitTargetObjectIds)
             {
+                var targetStateBeforeDestroy = cardObjects.TryGetValue(targetObjectId, out var existingTargetState)
+                    ? existingTargetState
+                    : new CardObjectState(targetObjectId);
+                var targetControllerId = EffectiveFieldControllerId(
+                    playerZones,
+                    targetObjectId,
+                    targetStateBeforeDestroy);
                 if (!TryDestroyTarget(playerZones, cardObjects, targetObjectId, out var removalResult))
                 {
                     continue;
@@ -21306,6 +21386,22 @@ public sealed class CoreRuleEngine : IRuleEngine
                 if (removalResult.WasUnit)
                 {
                     destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
+                }
+
+                foreach (var trigger in BuildViktorDestroyedNonMinionTriggerQueueItems(
+                    playerZones,
+                    cardObjects,
+                    allUnitTargetObjectIdSet,
+                    queuedViktorSourceObjectIds,
+                    stackItem,
+                    targetObjectId,
+                    targetStateBeforeDestroy,
+                    removalResult,
+                    targetControllerId))
+                {
+                    events.Add(BuildTriggerQueuedEvent(trigger));
+                    officialLastBreathTriggers.Add(trigger);
+                    queuedViktorSourceObjectIds.Add(trigger.SourceObjectId);
                 }
             }
         }
@@ -22142,6 +22238,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             var destroyedPower = cardObjects.TryGetValue(destroyedTargetObjectId, out var destroyedTargetState)
                 ? Math.Max(0, destroyedTargetState.Power)
                 : 0;
+            var destroyedTargetStateBeforeRemoval = cardObjects.TryGetValue(
+                    destroyedTargetObjectId,
+                    out var existingDestroyedTargetState)
+                ? existingDestroyedTargetState
+                : new CardObjectState(destroyedTargetObjectId);
+            var destroyedTargetControllerId = EffectiveFieldControllerId(
+                playerZones,
+                destroyedTargetObjectId,
+                destroyedTargetStateBeforeRemoval);
 
             if (TryDestroyControlledFieldTarget(playerZones, cardObjects, destroyedTargetObjectId, out var removalResult))
             {
@@ -22156,6 +22261,22 @@ public sealed class CoreRuleEngine : IRuleEngine
                     if (removalResult.WasUnit)
                     {
                         destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
+                    }
+
+                    foreach (var trigger in BuildViktorDestroyedNonMinionTriggerQueueItems(
+                        playerZones,
+                        cardObjects,
+                        new HashSet<string>([destroyedTargetObjectId], StringComparer.Ordinal),
+                        queuedViktorSourceObjectIds,
+                        stackItem,
+                        destroyedTargetObjectId,
+                        destroyedTargetStateBeforeRemoval,
+                        removalResult,
+                        destroyedTargetControllerId))
+                    {
+                        events.Add(BuildTriggerQueuedEvent(trigger));
+                        officialLastBreathTriggers.Add(trigger);
+                        queuedViktorSourceObjectIds.Add(trigger.SourceObjectId);
                     }
                 }
             }
@@ -22344,6 +22465,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                             continue;
                         }
 
+                        var statusTargetControllerId = EffectiveFieldControllerId(
+                            playerZones,
+                            targetObjectId,
+                            targetState);
                         if (behavior.DestroysTargetIfAlreadyHasStatusEffect
                             && targetState.UntilEndOfTurnEffects.Contains(primaryStatusEffectId, StringComparer.Ordinal)
                             && TryDestroyControlledFieldTarget(playerZones, cardObjects, targetObjectId, out var statusRemovalResult))
@@ -22361,6 +22486,22 @@ public sealed class CoreRuleEngine : IRuleEngine
                                 if (statusRemovalResult.WasUnit)
                                 {
                                     destroyedUnitOwnerIds.Add(statusRemovalResult.OwnerPlayerId);
+                                }
+
+                                foreach (var trigger in BuildViktorDestroyedNonMinionTriggerQueueItems(
+                                    playerZones,
+                                    cardObjects,
+                                    stackItem.TargetObjectIds.ToHashSet(StringComparer.Ordinal),
+                                    queuedViktorSourceObjectIds,
+                                    stackItem,
+                                    targetObjectId,
+                                    targetState,
+                                    statusRemovalResult,
+                                    statusTargetControllerId))
+                                {
+                                    events.Add(BuildTriggerQueuedEvent(trigger));
+                                    officialLastBreathTriggers.Add(trigger);
+                                    queuedViktorSourceObjectIds.Add(trigger.SourceObjectId);
                                 }
                             }
 
@@ -22470,6 +22611,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                         targetObjectId,
                         targetState);
 
+                    var targetControllerIdBeforeRemoval = EffectiveFieldControllerId(
+                        playerZones,
+                        targetObjectId,
+                        targetState);
                     if (behavior.DestroysTarget
                         && TryDestroyControlledFieldTarget(playerZones, cardObjects, targetObjectId, out var removalResult))
                     {
@@ -22485,6 +22630,22 @@ public sealed class CoreRuleEngine : IRuleEngine
                             if (removalResult.WasUnit)
                             {
                                 destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
+                            }
+
+                            foreach (var trigger in BuildViktorDestroyedNonMinionTriggerQueueItems(
+                                playerZones,
+                                cardObjects,
+                                stackItem.TargetObjectIds.ToHashSet(StringComparer.Ordinal),
+                                queuedViktorSourceObjectIds,
+                                stackItem,
+                                targetObjectId,
+                                targetState,
+                                removalResult,
+                                targetControllerIdBeforeRemoval))
+                            {
+                                events.Add(BuildTriggerQueuedEvent(trigger));
+                                officialLastBreathTriggers.Add(trigger);
+                                queuedViktorSourceObjectIds.Add(trigger.SourceObjectId);
                             }
 
                             var lastBreathDrawPlayerId = ResolveWatchfulSentinelLastBreathDrawPlayerId(
@@ -23476,11 +23637,105 @@ public sealed class CoreRuleEngine : IRuleEngine
             state.RngCursor);
     }
 
+    private static StackResolutionResult ResolveViktorDestroyedNonMinionStackItem(
+        MatchState state,
+        StackItemState stackItem)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var events = new List<GameEvent>
+        {
+            BuildTriggerResolvedEvent(new TriggerQueueItemState(
+                stackItem.StackItemId.StartsWith("ordered-", StringComparison.Ordinal)
+                    ? stackItem.StackItemId["ordered-".Length..]
+                    : stackItem.StackItemId,
+                stackItem.ControllerId,
+                stackItem.SourceObjectId,
+                stackItem.EffectKind,
+                "UNIT_DESTROYED"))
+        };
+
+        if (cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
+            && IsViktorDestroyedNonMinionCardNo(sourceState.CardNo)
+            && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !sourceState.IsFaceDown
+            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && IsObjectOnField(playerZones, stackItem.SourceObjectId)
+            && string.Equals(
+                EffectiveFieldControllerId(playerZones, stackItem.SourceObjectId, sourceState),
+                stackItem.ControllerId,
+                StringComparison.Ordinal))
+        {
+            CreateViktorDestroyedNonMinionMinionToken(
+                playerZones,
+                cardObjects,
+                stackItem,
+                events);
+        }
+
+        return new StackResolutionResult(
+            playerZones,
+            cardObjects,
+            state.PlayerScores,
+            NormalizeExperienceForSeats(state),
+            state.RunePools,
+            state.UntilEndOfTurnEffects,
+            null,
+            events,
+            [],
+            null,
+            [],
+            null,
+            [],
+            state.RngCursor);
+    }
+
+    private static void CreateViktorDestroyedNonMinionMinionToken(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        StackItemState stackItem,
+        List<GameEvent> events)
+    {
+        if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones)
+            || !P6TokenFactoryCatalog.TryGetByCardNo(ZaunMinionTokenCardNo, out var tokenDefinition))
+        {
+            return;
+        }
+
+        var tokenObjectId = NextTokenObjectId(
+            playerZones,
+            cardObjects,
+            stackItem.SourceObjectId,
+            1);
+        var tokenState = tokenDefinition.CreateObject(tokenObjectId, stackItem.ControllerId, stackItem.ControllerId);
+        cardObjects[tokenObjectId] = tokenState;
+        playerZones[stackItem.ControllerId] = zones with
+        {
+            Base = zones.Base.Concat([tokenObjectId]).ToArray()
+        };
+        events.Add(new GameEvent(
+            "UNIT_TOKEN_CREATED",
+            $"{stackItem.SourceObjectId} 打出随从",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = stackItem.ControllerId,
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["tokenObjectId"] = tokenObjectId,
+                ["tokenCardNo"] = tokenDefinition.CardNo,
+                ["tokenName"] = tokenDefinition.TokenFamilyName,
+                ["power"] = tokenState.Power,
+                ["destinationZone"] = "BASE",
+                ["tokenTags"] = tokenState.Tags.ToArray(),
+                ["reason"] = ViktorDestroyedNonMinionCreateMinionEffectKind
+            }));
+    }
+
     private static bool ShouldResolveSingleOfficialTriggerImmediately(TriggerQueueItemState trigger)
     {
         return !string.Equals(trigger.EffectKind, GhostlyCentaurFriendlyDestroyedPowerEffectKind, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, ResonantSoulFirstFriendlyDestroyedDrawEffectKind, StringComparison.Ordinal)
-            && !string.Equals(trigger.EffectKind, SavageJawfishFriendlyDestroyedExperienceEffectKind, StringComparison.Ordinal);
+            && !string.Equals(trigger.EffectKind, SavageJawfishFriendlyDestroyedExperienceEffectKind, StringComparison.Ordinal)
+            && !string.Equals(trigger.EffectKind, ViktorDestroyedNonMinionCreateMinionEffectKind, StringComparison.Ordinal);
     }
 
     private static StackItemState BuildStackItemForLastBreathTrigger(
@@ -27342,6 +27597,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var queuedGhostlyCentaurSourceObjectIds = new HashSet<string>(StringComparer.Ordinal);
         var queuedResonantSoulOwnerIds = new HashSet<string>(StringComparer.Ordinal);
         var queuedSavageJawfishSourceObjectIds = new HashSet<string>(StringComparer.Ordinal);
+        var queuedViktorSourceObjectIds = new HashSet<string>(StringComparer.Ordinal);
         var nextRunePools = runePools;
         var stateBasedRemovalObjectIds = cardObjects
             .Where(entry => (IsZeroOrNegativePowerDamagedCleanupCandidate(entry.Value)
@@ -27397,6 +27653,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
+            var destroyedControllerId = EffectiveFieldControllerId(playerZones, objectId, destroyedState);
             var cleanupLocation = FindFieldObjectLocation(playerZones, objectId);
             var cleanupObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal);
             var sadPoroLastBreathDrawPlayerId = cleanupLocation is not null &&
@@ -27590,6 +27847,25 @@ public sealed class CoreRuleEngine : IRuleEngine
                 events.Add(BuildTriggerQueuedEvent(trigger));
                 triggerQueue.Add(trigger);
                 queuedSavageJawfishSourceObjectIds.Add(trigger.SourceObjectId);
+            }
+
+            var viktorTriggers = removalResult.WasUnit
+                ? BuildViktorDestroyedNonMinionTriggerQueueItems(
+                    playerZones,
+                    cardObjects,
+                    stateBasedRemovalObjectIdSet,
+                    queuedViktorSourceObjectIds,
+                    stackItem,
+                    objectId,
+                    destroyedState,
+                    removalResult,
+                    destroyedControllerId)
+                : Array.Empty<TriggerQueueItemState>();
+            foreach (var trigger in viktorTriggers)
+            {
+                events.Add(BuildTriggerQueuedEvent(trigger));
+                triggerQueue.Add(trigger);
+                queuedViktorSourceObjectIds.Add(trigger.SourceObjectId);
             }
         }
 

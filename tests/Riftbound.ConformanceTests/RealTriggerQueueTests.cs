@@ -1079,6 +1079,174 @@ public sealed class RealTriggerQueueTests
     }
 
     [Fact]
+    public async Task RealViktorDestroyedNonMinionTriggersAutoStackAndCreatesMinionToken()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildSpiritFireDestroyingViktorNonMinionTargetState();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-real-viktor-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-real-viktor-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Empty(p2Pass.State.TriggerQueue);
+        var triggerStackItem = Assert.Single(p2Pass.State.StackItems);
+        Assert.Equal("P1-REAL-ARC-VIKTOR", triggerStackItem.SourceObjectId);
+        Assert.Equal("VIKTOR_DESTROYED_NON_MINION_CREATE_MINION", triggerStackItem.EffectKind);
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "VIKTOR_DESTROYED_NON_MINION_CREATE_MINION", StringComparison.Ordinal));
+        Assert.Contains(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGERS_MOVED_TO_STACK", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
+        Assert.Contains("P1-REAL-ARC-VIKTOR", p2Pass.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain("P1-REAL-VIKTOR-TARGET", p2Pass.State.PlayerZones["P1"].Base);
+
+        var final = await ResolveSingleViktorTriggerThroughStackAsync(
+            engine,
+            p2Pass.State,
+            "real-viktor",
+            "P1-REAL-ARC-VIKTOR");
+
+        Assert.Empty(final.State.TriggerQueue);
+        Assert.Empty(final.State.StackItems);
+        Assert.Contains("P1-REAL-ARC-VIKTOR-TOKEN-001", final.State.PlayerZones["P1"].Base);
+        var token = final.State.CardObjects["P1-REAL-ARC-VIKTOR-TOKEN-001"];
+        Assert.Equal("OGN·273/298", token.CardNo);
+        Assert.Equal(1, token.Power);
+        Assert.Contains(CardObjectTags.UnitCard, token.Tags);
+        Assert.Contains(CardObjectTags.MinionTokenFamily, token.Tags);
+    }
+
+    [Fact]
+    public async Task StateBasedCleanupViktorDestroyedNonMinionTriggersAutoStackAndCreatesMinionToken()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildStarfallDestroyingViktorNonMinionTargetState();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-cleanup-viktor-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-cleanup-viktor-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Empty(p2Pass.State.TriggerQueue);
+        var triggerStackItem = Assert.Single(p2Pass.State.StackItems);
+        Assert.Equal("P1-CLEANUP-OGN-VIKTOR", triggerStackItem.SourceObjectId);
+        Assert.Equal("VIKTOR_DESTROYED_NON_MINION_CREATE_MINION", triggerStackItem.EffectKind);
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-CLEANUP-VIKTOR-TARGET", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "LETHAL_DAMAGE", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
+
+        var final = await ResolveSingleViktorTriggerThroughStackAsync(
+            engine,
+            p2Pass.State,
+            "cleanup-viktor",
+            "P1-CLEANUP-OGN-VIKTOR");
+
+        Assert.Empty(final.State.TriggerQueue);
+        Assert.Empty(final.State.StackItems);
+        Assert.Contains("P1-CLEANUP-OGN-VIKTOR-TOKEN-001", final.State.PlayerZones["P1"].Base);
+        var token = final.State.CardObjects["P1-CLEANUP-OGN-VIKTOR-TOKEN-001"];
+        Assert.Equal("OGN·273/298", token.CardNo);
+        Assert.Equal(1, token.Power);
+        Assert.Contains(CardObjectTags.MinionTokenFamily, token.Tags);
+    }
+
+    [Fact]
+    public async Task ViktorDestroyedMinionTargetDoesNotEnqueueTrigger()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildSpiritFireDestroyingViktorMinionTargetState();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-real-viktor-minion-target-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-real-viktor-minion-target-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Empty(p2Pass.State.TriggerQueue);
+        Assert.Empty(p2Pass.State.StackItems);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.State.PlayerZones["P1"].Base, objectId => objectId.Contains("TOKEN", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task StateBasedCleanupInvalidViktorSourcesDoNotEnqueueOrLeak()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildStarfallDestroyingViktorTargetWithInvalidSourcesState();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-cleanup-invalid-viktor-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-cleanup-invalid-viktor-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Empty(p2Pass.State.TriggerQueue);
+        Assert.Empty(p2Pass.State.StackItems);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
+        Assert.NotEqual(PromptTypes.OrderTriggers, p2Pass.Prompts["P1"].View?.Type);
+        Assert.DoesNotContain(p2Pass.State.PlayerZones["P1"].Base, objectId => objectId.Contains("TOKEN", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.State.PlayerZones["P2"].Base, objectId => objectId.Contains("TOKEN", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task StateBasedCleanupViktorSkipsWhenSourceAlsoDies()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildStarfallDestroyingViktorSourceAndTargetState();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-cleanup-dying-viktor-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-cleanup-dying-viktor-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Empty(p2Pass.State.TriggerQueue);
+        Assert.Empty(p2Pass.State.StackItems);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
+        Assert.Empty(p2Pass.State.PlayerZones["P1"].Base);
+    }
+
+    [Fact]
     public async Task RealWatchfulSentinelLastBreathTriggersEnterApnapOrderWindowAndResolveThroughStack()
     {
         var engine = new CoreRuleEngine();
@@ -1526,6 +1694,48 @@ public sealed class RealTriggerQueueTests
             && string.Equals(gameEvent.Payload["reason"] as string, "LETHAL_DAMAGE", StringComparison.Ordinal));
 
         return p2Pass;
+    }
+
+    private static async Task<ResolutionResult> ResolveSingleViktorTriggerThroughStackAsync(
+        CoreRuleEngine engine,
+        MatchState state,
+        string label,
+        string sourceObjectId)
+    {
+        var triggerStackItem = Assert.Single(state.StackItems);
+        Assert.Equal(sourceObjectId, triggerStackItem.SourceObjectId);
+        Assert.Equal("VIKTOR_DESTROYED_NON_MINION_CREATE_MINION", triggerStackItem.EffectKind);
+        Assert.Equal("P1", state.PriorityPlayerId);
+
+        var p1TriggerPass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent($"intent-{label}-viktor-trigger-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2ResolvesTrigger = await engine.ResolveAsync(
+            p1TriggerPass.State,
+            new PlayerIntent($"intent-{label}-viktor-trigger-p2-resolves", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1TriggerPass.Accepted, p1TriggerPass.ErrorMessage);
+        Assert.True(p2ResolvesTrigger.Accepted, p2ResolvesTrigger.ErrorMessage);
+        Assert.Contains(p2ResolvesTrigger.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "VIKTOR_DESTROYED_NON_MINION_CREATE_MINION", StringComparison.Ordinal));
+        var tokenEvent = Assert.Single(p2ResolvesTrigger.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
+        Assert.Equal("P1", tokenEvent.Payload["playerId"]);
+        Assert.Equal(sourceObjectId, tokenEvent.Payload["sourceObjectId"]);
+        Assert.Equal("OGN·273/298", tokenEvent.Payload["tokenCardNo"]);
+        Assert.Equal("随从", tokenEvent.Payload["tokenName"]);
+        Assert.Equal(1, tokenEvent.Payload["power"]);
+        Assert.Equal("VIKTOR_DESTROYED_NON_MINION_CREATE_MINION", tokenEvent.Payload["reason"]);
+        Assert.Contains(
+            CardObjectTags.MinionTokenFamily,
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(tokenEvent.Payload["tokenTags"]));
+
+        return p2ResolvesTrigger;
     }
 
     private static async Task<ResolutionResult> OrderAndResolveTwoDrawTriggersThroughStackAsync(
@@ -2207,6 +2417,108 @@ public sealed class RealTriggerQueueTests
                     "SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4",
                     "OGN·256/298",
                     ["P1-REAL-SAVAGE-TARGET", "P2-REAL-SAVAGE-TARGET"])
+            ],
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            });
+    }
+
+    private static MatchState BuildSpiritFireDestroyingViktorNonMinionTargetState()
+    {
+        return BuildSpiritFireDestroyingViktorTargetState(
+            "real-viktor-destroyed-non-minion-room",
+            "P1-REAL-ARC-VIKTOR",
+            "ARC-006/006",
+            "P1-REAL-VIKTOR-TARGET",
+            null,
+            [CardObjectTags.UnitCard]);
+    }
+
+    private static MatchState BuildSpiritFireDestroyingViktorMinionTargetState()
+    {
+        return BuildSpiritFireDestroyingViktorTargetState(
+            "real-viktor-destroyed-minion-room",
+            "P1-REAL-OGN-VIKTOR",
+            "OGN·246/298",
+            "P1-REAL-VIKTOR-MINION-TARGET",
+            "OGN·273/298",
+            [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily]);
+    }
+
+    private static MatchState BuildSpiritFireDestroyingViktorTargetState(
+        string roomId,
+        string viktorObjectId,
+        string viktorCardNo,
+        string targetObjectId,
+        string? targetCardNo,
+        IReadOnlyList<string> targetTags)
+    {
+        return new MatchState(
+            roomId,
+            53,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = [viktorObjectId, targetObjectId]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [viktorObjectId] = new(
+                    viktorObjectId,
+                    cardNo: viktorCardNo,
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [targetObjectId] = new(
+                    targetObjectId,
+                    cardNo: targetCardNo,
+                    power: 2,
+                    tags: targetTags,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-SPELL-SPIRIT-FIRE"] = new(
+                    "P1-SPELL-SPIRIT-FIRE",
+                    cardNo: "OGN·256/298",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            priorityPlayerId: "P1",
+            stackItems:
+            [
+                new StackItemState(
+                    $"STACK-SPIRIT-FIRE-{viktorObjectId}",
+                    "P1",
+                    "P1-SPELL-SPIRIT-FIRE",
+                    "SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4",
+                    "OGN·256/298",
+                    [targetObjectId])
             ],
             playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
             {
@@ -3210,6 +3522,264 @@ public sealed class RealTriggerQueueTests
                     "STARFALL_DAMAGE_3_TWICE",
                     "OGN·029/298",
                     ["P1-DYING-SAVAGE-JAWFISH", "P1-DYING-SAVAGE-FRIEND"])
+            ],
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            });
+    }
+
+    private static MatchState BuildStarfallDestroyingViktorNonMinionTargetState()
+    {
+        return new MatchState(
+            "cleanup-viktor-destroyed-non-minion-room",
+            54,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-CLEANUP-OGN-VIKTOR", "P1-CLEANUP-VIKTOR-TARGET"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-CLEANUP-VIKTOR-DUMMY"]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-CLEANUP-OGN-VIKTOR"] = new(
+                    "P1-CLEANUP-OGN-VIKTOR",
+                    cardNo: "OGN·246/298",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-CLEANUP-VIKTOR-TARGET"] = new(
+                    "P1-CLEANUP-VIKTOR-TARGET",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-CLEANUP-VIKTOR-DUMMY"] = new(
+                    "P2-CLEANUP-VIKTOR-DUMMY",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-SPELL-STARFALL"] = new(
+                    "P1-SPELL-STARFALL",
+                    cardNo: "OGN·029/298",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            priorityPlayerId: "P1",
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-STARFALL-CLEANUP-VIKTOR",
+                    "P1",
+                    "P1-SPELL-STARFALL",
+                    "STARFALL_DAMAGE_3_TWICE",
+                    "OGN·029/298",
+                    ["P1-CLEANUP-VIKTOR-TARGET", "P2-CLEANUP-VIKTOR-DUMMY"])
+            ],
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            });
+    }
+
+    private static MatchState BuildStarfallDestroyingViktorTargetWithInvalidSourcesState()
+    {
+        return new MatchState(
+            "cleanup-invalid-viktor-sources-room",
+            55,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base =
+                    [
+                        "P1-HIDDEN-VIKTOR",
+                        "P1-STANDBY-VIKTOR",
+                        "P1-CLEANUP-VIKTOR-HIDDEN-TARGET-1",
+                        "P1-CLEANUP-VIKTOR-HIDDEN-TARGET-2"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-OPPONENT-VIKTOR"]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HIDDEN-VIKTOR"] = new(
+                    "P1-HIDDEN-VIKTOR",
+                    cardNo: "ARC-006/006",
+                    power: 4,
+                    isFaceDown: true,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-STANDBY-VIKTOR"] = new(
+                    "P1-STANDBY-VIKTOR",
+                    cardNo: "OGN·246/298",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-OPPONENT-VIKTOR"] = new(
+                    "P2-OPPONENT-VIKTOR",
+                    cardNo: "OGN·246a/298",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-CLEANUP-VIKTOR-HIDDEN-TARGET-1"] = new(
+                    "P1-CLEANUP-VIKTOR-HIDDEN-TARGET-1",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-CLEANUP-VIKTOR-HIDDEN-TARGET-2"] = new(
+                    "P1-CLEANUP-VIKTOR-HIDDEN-TARGET-2",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-SPELL-STARFALL"] = new(
+                    "P1-SPELL-STARFALL",
+                    cardNo: "OGN·029/298",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            priorityPlayerId: "P1",
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-STARFALL-CLEANUP-INVALID-VIKTOR",
+                    "P1",
+                    "P1-SPELL-STARFALL",
+                    "STARFALL_DAMAGE_3_TWICE",
+                    "OGN·029/298",
+                    ["P1-CLEANUP-VIKTOR-HIDDEN-TARGET-1", "P1-CLEANUP-VIKTOR-HIDDEN-TARGET-2"])
+            ],
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            });
+    }
+
+    private static MatchState BuildStarfallDestroyingViktorSourceAndTargetState()
+    {
+        return new MatchState(
+            "cleanup-viktor-source-also-dies-room",
+            56,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-DYING-VIKTOR", "P1-DYING-VIKTOR-FRIEND"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-DYING-VIKTOR"] = new(
+                    "P1-DYING-VIKTOR",
+                    cardNo: "OGN·246a/298",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-DYING-VIKTOR-FRIEND"] = new(
+                    "P1-DYING-VIKTOR-FRIEND",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-SPELL-STARFALL"] = new(
+                    "P1-SPELL-STARFALL",
+                    cardNo: "OGN·029/298",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            priorityPlayerId: "P1",
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-STARFALL-CLEANUP-DYING-VIKTOR",
+                    "P1",
+                    "P1-SPELL-STARFALL",
+                    "STARFALL_DAMAGE_3_TWICE",
+                    "OGN·029/298",
+                    ["P1-DYING-VIKTOR", "P1-DYING-VIKTOR-FRIEND"])
             ],
             playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
             {

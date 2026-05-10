@@ -1703,6 +1703,56 @@ A 主控复验：
 
 4C-15A 结论：**通过前置模型切片，未关闭 Viktor 本体**。未改协议 record 字段，未改前端，不宣称 full-official，不宣称 READY-CANDIDATE；允许后续在明确 destroyed target pre-removal state 后回到 Viktor。
 
+## 0.27 阶段 4C-15B Viktor Trigger Baseline
+
+前置 commit：`034f1ed checkpoint: complete stage 4C minion token family baseline`。阶段 4C-15B 已由 B 完成 Viktor destroyed non-minion token trigger 最小官方化代表切片；范围不包括 Kogmaw / Karthus / Undercover，不包括完整 trigger engine，不授予 full-official。项目整体仍 **NOT READY**，不得标记 READY / READY-CANDIDATE。
+
+4C-15B 服务端改动事实：
+
+- 修改文件：`src/Riftbound.Engine/CoreRuleEngine.cs`、`tests/Riftbound.ConformanceTests/RealTriggerQueueTests.cs`。
+- 目标 FU：`FU-b5cb36a5c9` / Viktor destroyed non-minion token trigger，覆盖 `ARC-006/006`、`OGN·246/298`、`OGN·246a/298`。
+- visible surviving friendly Viktor source 看到另一名友方非随从单位被摧毁时触发。
+- destroyed target 使用 pre-removal `CardObjectState` 判定：unit、same controller / friendly、not source、not `CardObjectTags.MinionTokenFamily`。
+- source guard：Viktor still on field、face-up、non-standby、same controller、not cleanup removal set。
+- 覆盖 true stack `UNIT_DESTROYED` 与 Starfall lethal state-based cleanup `UNIT_DESTROYED`。
+- trigger path：`TriggerQueue` -> single-trigger auto-stack -> `StackItems` -> priority pass -> `TRIGGER_RESOLVED` -> `UNIT_TOKEN_CREATED`，在 controller base 创建 1-power Zaun minion `OGN·273/298`，并带 `TOKEN_FAMILY:MINION`。
+- minion target 不入队、不造 token；hidden / face-down / standby / opponent source 不入队、不泄漏、不造 token；source also dying 不入队。
+
+4C-15B 新增测试：
+
+- `RealViktorDestroyedNonMinionTriggersAutoStackAndCreatesMinionToken`
+- `StateBasedCleanupViktorDestroyedNonMinionTriggersAutoStackAndCreatesMinionToken`
+- `ViktorDestroyedMinionTargetDoesNotEnqueueTrigger`
+- `StateBasedCleanupInvalidViktorSourcesDoNotEnqueueOrLeak`
+- `StateBasedCleanupViktorSkipsWhenSourceAlsoDies`
+
+4C-15B 文档改动：
+
+- 新增 `docs/CURRENT_STAGE4C_BATCH15B_VIKTOR_TRIGGER_AUDIT.md`。
+- 追加更新 `docs/CURRENT_STAGE4C_BATCH15_VIKTOR_BLOCKER.md`，明确 4C-15A 已关闭模型前置，4C-15B 已实现代表性 baseline，但仍非 full-official。
+- 更新 `docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/rules-evidence-index.md` 与本 checkpoint。
+- D 本批不修改服务端 / 前端代码、E 矩阵 / evidence 文件或 `riftbound-dotnet.sln`。
+
+4C-15B A 复核命令：
+
+- Backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` passed，3380/3380。
+- `git diff --check`：B pending / expected passed；A 将在文档后再次复核。
+
+4C-15B 关闭的 P0/P1 子项：
+
+- Viktor `FU-b5cb36a5c9` destroyed non-minion trigger 的代表性 baseline：true stack 与 Starfall lethal state-based cleanup 两条 `UNIT_DESTROYED` 路径均可进入 `TriggerQueue` / single-trigger auto-stack / `StackItems` / priority / token effect。
+- 4C-15A 模型前置已被 `TOKEN_FAMILY:MINION` 最小切片关闭；4C-15B 使用 pre-removal state 完成非随从 destroyed target 过滤代表路径。
+
+4C-15B 仍保留 P0/P1：
+
+- P1：same source same stack / cleanup pass multiple non-minion friendly deaths 的 full official trigger-count matrix 仍保守 one source once。
+- P0：Kogmaw / Karthus / Undercover Agent 等其他 destroyed-family / friendly-destroyed FUs。
+- P0：完整 trigger engine、完整 effect resolution、trigger batch / 可选触发选择、完整 APNAP 组合。
+- P0：hidden / face-down 原始触发建模和 viewer 级 metadata 全路径。
+- P0：FAQ regression、1009 entries / 811 functional units full-official 覆盖、正式 18-step E2E、completion audit 仍未完成。
+
+4C-15B 结论：**通过 Viktor 代表性 trigger baseline，未关闭 full-official**。未改协议 record 字段，未改前端，不宣称 full trigger engine，不宣称 READY-CANDIDATE；允许 4C 继续扩其他 destroyed-family / friendly-destroyed FUs。
+
 ## 1. 总目标
 
 以当前仓库五份官方规则 / FAQ PDF 与 `data/official/card-catalog.zh-CN.json` 的 2026-04-27 官网卡牌快照为准，完成本地双人 1v1 标准构筑产品级 Web 游戏基线：
