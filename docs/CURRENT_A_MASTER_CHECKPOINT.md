@@ -848,7 +848,7 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 
 ## 0.1.14 阶段 4C-36 Hostile Takeover Checkpoint
 
-状态：**D 文档代表切片已入账；项目仍 NOT READY。**
+状态：**4C-37 representative baseline 已验证并入账；项目仍 NOT READY。**
 
 阶段 4C-36 名称：Hostile Takeover control-ready target guard representative baseline。
 
@@ -909,6 +909,79 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - `fullOfficial=false`。
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Hostile Takeover 代表路径外推完整待命、反应时机、开战/征服、control lifecycle、end-turn cleanup、targeting、PaymentEngine、FEPR、named deferred candidates 或 full-official。
+
+## 0.1.15 阶段 4C-37 Berserk Impulse Checkpoint
+
+状态：**D 文档代表切片已入账；项目仍 NOT READY。**
+
+阶段 4C-37 名称：Berserk Impulse opponent top main-deck unit target-guard representative baseline。
+
+本批候选审查事实：
+
+- A/B 选择 Berserk Impulse / 暴怒冲动 `OGN·025/298` / cardId `31231` / `FU-b05eda44ce` / `BERSERK_IMPULSE_PLAY_OPPONENT_TOP_UNIT` 作为 4C-37 narrow opponent top main-deck unit target guard slice。
+- Berserk Impulse 规则文本锚点：`迅捷`；每名对手展示其主牌堆顶部一张牌，你从中选择一张，并当作自己的牌打出、无视费用，然后回收其余卡牌。
+- 代表路径：P1 从手牌打出 Berserk Impulse 并支付 4，选择 P2 已揭示 / 代表性 public top main-deck unit；双方 priority pass 后，该单位从 P2 main deck 顶部打出到 P1 base。
+- 代表事件语义：`UNIT_PLAYED_TO_BASE` 记录 source spell、target object、`ownerPlayerId=P2`、`playedByPlayerId=P1`、`sourceZone=MAIN_DECK`、`destinationZone=BASE`。
+- 结算后目标单位 damage reset to 0、until-end-of-turn effects / power modifier 清空、exhausted reset to false。
+- target guard：friendly top unit、opponent second main-deck unit、top spell / equipment / rune、face-down top unit、private hand / base / battlefield unit 均 `INVALID_TARGET`，no tick / no events / no payment / no hand movement / no deck movement / no stack item / no unit played / no leak。
+- dirty resolution guard：stack target 结算前不再是 opponent top、target 非 unit、face-down top unit、wrong controller / ownership dirty top target 均不移动，不产生 `UNIT_PLAYED_TO_BASE`；源法术正常入墓。
+- hidden-info stance：本批只覆盖代表性“已揭示 / 可选 top object”目标 guard 与 face-down / private-zone no-leak；不覆盖完整隐藏区展示、选择 prompt、未选牌回收 redaction 或多对手隐私边界。
+- 本批不新增 protocol / frontend shape；前端仍不本地裁决目标合法性、隐藏信息展示或免费打出结算。
+- Edge of Night、Karthus、Aphelios 仍按 deferred / design-gated 候选管理，不由本批关闭。
+
+4C-37 B 服务端修改文件：
+
+- `src/Riftbound.Engine/CoreRuleEngine.cs`（B）
+- `tests/Riftbound.ConformanceTests/BerserkImpulseGuardTests.cs`（B）
+
+4C-37 D 文档修改文件：
+
+- `docs/CURRENT_STAGE4C_BATCH37_BERSERK_IMPULSE_OPPONENT_TOP_UNIT_AUDIT.md`
+- `docs/CURRENT_STAGE4C_BATCH37_BERSERK_IMPULSE_OPPONENT_TOP_UNIT_EVIDENCE.md`
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`
+- `docs/rules-evidence-index.md`
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+
+4C-37 E 覆盖矩阵修改文件：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`
+- `docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`
+- `docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`
+
+验证记录：
+
+- Focused backend：通过 17/17。
+- Matrix / diff：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 通过；`git diff --check` 通过。
+- Backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过，3529/3529。
+- Frontend build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过。
+- Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过。
+- 上述 focused / full / build / smoke 不得替代最终正式 18-step E2E。
+
+本批关闭的代表子项：
+
+- `FU-b05eda44ce` / `OGN·025/298` visible / revealed opponent top main-deck unit played to P1 base representative baseline。
+- opponent top main-deck unit target 的服务端权威 target guard。
+- owner/source/play-by event semantics representative check。
+- damage / until-end-of-turn / exhausted reset representative check。
+- invalid friendly top、opponent second、top spell / equipment / rune、face-down top unit、private hand / base / battlefield target no-mutation / no-leak 代表护栏。
+- dirty resolution top changed / non-unit / face-down / wrong controller no-move 代表护栏。
+
+仍缺：
+
+- Berserk Impulse full-official multi-opponent reveal / choose / recycle、full hidden-zone prompt / redaction、未选牌回收、非单位分支、完整“当作自己的牌打出”owner/controller/payment matrix 保持 P0 / design-gated；最终 READY 前仍不能关闭。
+- 完整 spell duel / reaction timing、target prompt、target invalidation、hidden / random-zone policy。
+- 完整 PaymentEngine、play-card cost Quote / Authorize / Commit、替代 / 额外费用与支付资源矩阵。
+- 完整 LayerEngine、free-play branch interactions、private-zone replay redaction。
+- Edge of Night face-down standby attach、Karthus extra Last Breath、Aphelios weapon-attachment three-mode design gates。
+- full FAQ regression、1009/811 full-official、正式 18-step E2E、completion audit。
+
+口径：
+
+- `fullOfficial=false`。
+- 不宣称 READY / READY-CANDIDATE。
+- 不因 Berserk Impulse 代表路径外推完整 hidden-zone reveal / choose / recycle、spell duel / reaction timing、PaymentEngine、LayerEngine、FAQ closure、1009/811 full-official 或正式 18-step E2E。
 
 ## 0.2 阶段 0 当前基线
 

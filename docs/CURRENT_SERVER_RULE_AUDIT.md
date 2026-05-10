@@ -12,6 +12,45 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-10 阶段 4C-37 Berserk Impulse Opponent Top Unit Guard 审计
+
+阶段 4C-37 审计入口：`docs/CURRENT_STAGE4C_BATCH37_BERSERK_IMPULSE_OPPONENT_TOP_UNIT_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH37_BERSERK_IMPULSE_OPPONENT_TOP_UNIT_EVIDENCE.md`。本批已补 Berserk Impulse / 暴怒冲动 `OGN·025/298` / cardId `31231` / `FU-b05eda44ce` / `BERSERK_IMPULSE_PLAY_OPPONENT_TOP_UNIT` 的极窄 opponent top main-deck unit target guard 代表切片。项目仍 **NOT READY**，`fullOfficial=false`。
+
+4C-37 已关闭代表子项：
+
+- P1 从手牌打出 Berserk Impulse，支付 4 点费用，选择 P2 已揭示 / 代表性 public top main-deck unit；双方 priority pass 后目标打出到 P1 base。
+- `UNIT_PLAYED_TO_BASE` 代表事件记录 source spell、target object、`ownerPlayerId=P2`、`playedByPlayerId=P1`、`sourceZone=MAIN_DECK`、`destinationZone=BASE`。
+- 结算后目标单位 damage reset to 0、until-end-of-turn effects / power modifier 清空、exhausted reset to false。
+- `BERSERK_IMPULSE_PLAY_OPPONENT_TOP_UNIT` 在 `PLAY_CARD` validation 中使用服务端权威 target guard，不依赖前端裁决。
+- friendly top unit、opponent second main-deck unit、top spell / equipment / rune、face-down top unit、private hand / base / battlefield unit 均 `INVALID_TARGET`，no tick / no events / no payment / no hand movement / no deck movement / no stack item / no unit played / no leak。
+- dirty resolution guard：stack target 结算前不再是 opponent top、target 非 unit、face-down top unit、wrong controller / ownership dirty top target 均不移动，不产生 `UNIT_PLAYED_TO_BASE`；源法术正常入墓。
+- hidden-info stance：本批只覆盖代表性“已揭示 / 可选 top object”目标 guard 与 face-down / private-zone no-leak；不覆盖完整隐藏区展示、选择 prompt、未选牌回收 redaction 或多对手隐私边界。
+- 本批未新增 protocol / frontend shape；前端仍不本地裁决目标合法性、隐藏信息展示或免费打出结算。
+- Edge of Night、Karthus、Aphelios 仍保持 deferred / design-gated，不由本批关闭。
+
+4C-37 规则依据：
+
+- `CATALOG` `OGN·025/298`；cardId `31231`；FU `FU-b05eda44ce`。
+- `CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356。
+- `SOUL-OFAQ-260114` p4。
+
+4C-37 验证记录：
+
+- Focused backend：通过 17/17。
+- Tests added in `BerserkImpulseGuardTests`：`BerserkImpulsePlaysOpponentTopMainDeckUnitToControllerBaseAndResetsState`、`BerserkImpulseRejectsInvalidTargetsWithoutMutation`、`BerserkImpulseDirtyResolutionDoesNotMoveInvalidTopDeckTarget`。
+- D 未运行重测试；未记录 backend full / frontend build / Chrome smoke。
+- 上述 focused 不得替代最终正式 18-step E2E。
+
+仍缺 P0/P1：
+
+- P0：Berserk Impulse full hidden-zone reveal / choose / recycle 仍为 final READY 阻断；本批只关闭 narrow target guard P0 / representative evidence。
+- P0：完整 PaymentEngine、play-card cost Quote / Authorize / Commit、替代 / 额外费用与支付资源矩阵。
+- P0：Edge of Night face-down standby attach、Karthus extra Last Breath、Aphelios weapon-attachment three-mode design gates。
+- P0：full FAQ regression、1009 entries / 811 functional units full-official、正式 18-step E2E 与 completion audit。
+- P1/P2：Berserk Impulse multi-opponent reveal / choose / recycle、non-unit branch、hidden-zone prompt / redaction、spell duel / reaction timing、full target prompt / invalidation、free-play branch owner/controller/payment matrix、LayerEngine interactions、private-zone replay redaction、targeting UX 与 hidden-zone UX 仍需后续全矩阵证据；本批不新增这些方向的 P0。
+
+4C-37 不宣称 full-official，不宣称 READY / READY-CANDIDATE。
+
 ## 2026-05-10 阶段 4C-36 Hostile Takeover Control Ready Guard 审计
 
 阶段 4C-36 审计入口：`docs/CURRENT_STAGE4C_BATCH36_HOSTILE_TAKEOVER_CONTROL_READY_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH36_HOSTILE_TAKEOVER_CONTROL_READY_EVIDENCE.md`。本批已补 Hostile Takeover / 恶意收购 `SFD·202/221` / cardId `33301` / `FU-00ee09c2cc` / `HOSTILE_TAKEOVER_GAIN_CONTROL_READY_ENEMY_BATTLEFIELD_UNIT` 的极窄 enemy public battlefield unit gain-control + ready 与目标 guard hardening 代表切片。项目仍 **NOT READY**，`fullOfficial=false`。

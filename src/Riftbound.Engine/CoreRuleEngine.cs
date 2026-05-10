@@ -17018,6 +17018,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || !IsIsolateTargetAllowed(state, behavior, targetObjectId)
                 || !IsVengeanceTargetAllowed(state, behavior, targetObjectId)
                 || !IsHostileTakeoverTargetAllowed(state, behavior, targetObjectId)
+                || !IsBerserkImpulseTargetAllowed(state, behavior, targetObjectId)
                 || !IsMainDeckLookTargetAllowed(state, intent.PlayerId, targetObjectId, targetIndex, behavior)
                 || !IsMainDeckTargetTagAllowed(state, targetObjectId, targetIndex, behavior)
                 || !IsTargetRequiredTagAllowed(state, targetObjectId, behavior)
@@ -20268,6 +20269,19 @@ public sealed class CoreRuleEngine : IRuleEngine
             || targetState.Tags.Count == 0;
     }
 
+    private static bool IsBerserkImpulseTargetAllowed(
+        MatchState state,
+        CardBehaviorDefinition behavior,
+        string objectId)
+    {
+        if (!string.Equals(behavior.EffectKind, "BERSERK_IMPULSE_PLAY_OPPONENT_TOP_UNIT", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return IsPublicUnitCardObject(state.CardObjects, objectId);
+    }
+
     private static bool IsTargetManaCostAllowed(
         MatchState state,
         string playerId,
@@ -22295,6 +22309,19 @@ public sealed class CoreRuleEngine : IRuleEngine
         return cardObjects.TryGetValue(objectId, out var cardObject)
             && ParseDelimitedValues(requiredTag)
                 .All(tag => cardObject.Tags.Contains(tag, StringComparer.Ordinal));
+    }
+
+    private static bool IsPublicUnitCardObject(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string objectId)
+    {
+        return cardObjects.TryGetValue(objectId, out var cardObject)
+            && !cardObject.IsFaceDown
+            && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && !cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            && !cardObject.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
+            && !cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal);
     }
 
     private static bool OpponentWithinWinningScoreDistance(MatchState state, string playerId, int distance)
@@ -29094,6 +29121,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             if (string.Equals(playerId, controllerId, StringComparison.Ordinal)
                 || zones.MainDeck.Count == 0
                 || !string.Equals(zones.MainDeck[0], targetObjectId, StringComparison.Ordinal)
+                || !IsPublicUnitCardObject(cardObjects, targetObjectId)
                 || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, targetObjectId))
             {
                 continue;
