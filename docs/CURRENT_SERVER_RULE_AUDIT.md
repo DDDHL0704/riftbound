@@ -12,6 +12,47 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-10 阶段 4C-30 Hunt the Weak Destroy Guard 审计
+
+阶段 4C-30 审计入口：`docs/CURRENT_STAGE4C_BATCH30_HUNT_THE_WEAK_DESTROY_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH30_HUNT_THE_WEAK_DESTROY_GUARD_EVIDENCE.md`。本批已补 Hunt the Weak / 狩魂 `UNL-159/219` / `FU-282b6e3149` 的极窄公共战场单位 power <= 3 摧毁与目标 guard hardening 代表切片。项目仍 **NOT READY**，`fullOfficial=false`。
+
+4C-30 已关闭代表子项：
+
+- P1 打出 Hunt the Weak，选择正面公共战场单位且 power <= 3 的目标，双方 priority pass 后结算，目标被摧毁并进入 owner graveyard。
+- `HUNT_THE_WEAK_DESTROY_BATTLEFIELD_UNIT_POWER_3_OR_LESS` 在 `PLAY_CARD` validation 中使用服务端权威 target guard，不依赖前端裁决。
+- power > 3、base unit、stale object、face-down standby object、battlefield equipment 均 `INVALID_TARGET`，no tick / no events / no payment / no hand movement / no stack item / no destroy mutation。
+- hidden-info stance：face-down standby target 被拒绝且不暴露真实身份；opponent hidden info 仍由 viewer-specific snapshot / redaction 保护。
+- 本批未新增 protocol / frontend shape；前端仍不本地裁决目标合法性或 destroy 结算。
+- Hostile Takeover、Berserk Impulse、Edge of Night、Karthus、Aphelios 仍保持 deferred / design-gated，不由本批关闭。
+
+4C-30 规则依据：
+
+- `CATALOG` `UNL-159/219`；FU `FU-282b6e3149`。
+- `CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p20 rules 164-167；p31-p35 rules 318-340；p39-p42 rules 355-356；p62-p63 rule 428。
+- `JFAQ-251023` p4 作为 spell timing / stack regression 入口；本批不关闭完整反应时机。
+
+4C-30 验证记录：
+
+- Focused backend：A 记录 Hunt the Weak focused 通过 34/34。
+- Adjacent regression：A 记录 adjacent 通过 19/19。
+- Tests added in `HuntTheWeakDestroyGuardTests`：`HuntTheWeakDestroysPublicSmallBattlefieldUnit`、`HuntTheWeakRejectsInvalidTargetsWithoutMutation`。
+- Backend full：A 记录 `dotnet test Riftbound.slnx --no-restore` 通过 3464/3464。
+- Frontend build：A 记录 `npm run build` 通过。
+- Chrome smoke：A 记录 `npm run smoke:chrome -- --start-api` 通过。
+- 本批未运行 Stage 3 preflight；上述验证不得替代最终正式 18-step E2E。
+- D 本轮只更新 docs 审计 / 证据 / checkpoint / index / TODO 文档；不修改服务端、前端、coverage matrix JSON、baseline / risk / freeze 文档或 `riftbound-dotnet.sln`。
+
+仍缺 P0/P1：
+
+- P0：完整 swift / reaction timing、spell duel / battle lifecycle、priority window 与 FEPR 全矩阵。
+- P0：完整 PaymentEngine、play-card cost Quote / Authorize / Commit、替代 / 额外费用与支付资源矩阵。
+- P0：完整 destroy / cleanup / Last Breath trigger interactions、state-based cleanup 与 simultaneous destruction full-official matrix。
+- P0：Hostile Takeover control lifecycle、Berserk Impulse hidden-zone reveal / choose / recycle、Edge of Night face-down standby attach、Karthus extra Last Breath、Aphelios weapon-attachment three-mode design gates。
+- P0：FAQ regression、1009 entries / 811 functional units full-official、正式 18-step E2E 与 completion audit。
+- P1/P2：Hunt the Weak 相关 replacement / prevention / cleanup / full targeting matrix、target prompt、target invalidation、hidden / face-down target policy、Spellshield target tax、event label / replay redaction、targeting UX 与 destroy UX 仍需后续全矩阵证据；本批不新增这些方向的 P0。
+
+4C-30 不宣称 full-official，不宣称 READY / READY-CANDIDATE。
+
 ## 2026-05-10 阶段 4C-29 Gust Return To Hand Guard 审计
 
 阶段 4C-29 审计入口：`docs/CURRENT_STAGE4C_BATCH29_GUST_RETURN_TO_HAND_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH29_GUST_RETURN_TO_HAND_GUARD_EVIDENCE.md`。本批已补 Gust / 罡风 `OGN·169/298` / `FU-48662b7661` 的极窄公共战场单位 power <= 3 回手与目标 guard hardening 代表切片。项目仍 **NOT READY**，`fullOfficial=false`。

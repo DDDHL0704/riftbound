@@ -174,7 +174,7 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 
 ## 0.1.3 阶段 4C-25 Icevale Archer Checkpoint
 
-状态：**已完成极窄代表切片文档收口；项目仍 NOT READY。**
+状态：**已完成极窄代表切片、验证与文档收口；项目仍 NOT READY。**
 
 阶段 4C-25 名称：Icevale Archer attack payment representative baseline。
 
@@ -445,6 +445,75 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - `fullOfficial=false`。
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Gust 代表路径外推完整 swift、reaction timing、targeting、return-to-hand、movement、PaymentEngine、FEPR、named deferred candidates 或 full-official。
+
+## 0.1.8 阶段 4C-30 Hunt the Weak Checkpoint
+
+状态：**已完成极窄代表切片文档收口；项目仍 NOT READY。**
+
+阶段 4C-30 名称：Hunt the Weak destroy-target guard representative baseline。
+
+本批候选审查事实：
+
+- A 选择 Hunt the Weak / 狩魂 `UNL-159/219` / `FU-282b6e3149` 作为 4C-30 narrow destroy-target guard slice。
+- Hunt the Weak 规则文本：摧毁战场上一名不高于 3 战力的单位。
+- 代表路径：P1 打出 Hunt the Weak，选择正面公共战场单位且 power <= 3 的目标，双方 priority pass 后结算，目标被摧毁并进入 owner graveyard。
+- guard：power > 3、base unit、stale object、face-down standby object、battlefield equipment 均 `INVALID_TARGET`，no tick / no events / no payment / no hand movement / no stack item / no destroy mutation。
+- hidden-info stance：face-down standby target 被拒绝且不暴露真实身份；opponent hidden info 继续由 viewer-specific snapshot / redaction 保护。
+- 本批不新增 protocol / frontend shape；前端仍只消费既有 play-card / stack / destroy event，不本地裁决目标合法性或摧毁结算。
+- Hostile Takeover、Berserk Impulse、Edge of Night、Karthus、Aphelios 仍按 deferred / design-gated 候选管理，不由本批关闭。
+
+4C-30 B 服务端修改文件：
+
+- `src/Riftbound.Engine/CoreRuleEngine.cs`（B）
+- `tests/Riftbound.ConformanceTests/HuntTheWeakDestroyGuardTests.cs`（B）
+
+4C-30 D 文档修改文件：
+
+- `docs/CURRENT_STAGE4C_BATCH30_HUNT_THE_WEAK_DESTROY_GUARD_AUDIT.md`（D）
+- `docs/CURRENT_STAGE4C_BATCH30_HUNT_THE_WEAK_DESTROY_GUARD_EVIDENCE.md`（D）
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`（D）
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`（D）
+- `docs/rules-evidence-index.md`（D）
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`（D write lock）
+
+4C-30 E 覆盖矩阵修改文件：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`（E）
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`（E）
+- `docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`（E）
+- `docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`（E）
+
+已跑验证：
+
+- Focused backend：A 记录 Hunt the Weak focused 通过 34/34。
+- Adjacent regression：A 记录 adjacent 通过 19/19。
+- Backend full：A 记录 `dotnet test Riftbound.slnx --no-restore` 通过 3464/3464。
+- Frontend build：A 记录 `npm run build` 通过。
+- Chrome smoke：A 记录 `npm run smoke:chrome -- --start-api` 通过。
+- 以上 smoke / focused / full test 不得替代最终正式 18-step E2E。
+
+本批关闭的代表子项：
+
+- `FU-282b6e3149` / `UNL-159/219` visible spell resolution destroy public battlefield unit with power <= 3 to owner graveyard 代表路径。
+- public battlefield target power ceiling `<= 3` 的服务端权威 guard。
+- power > 3、base unit、stale object、face-down standby object、battlefield equipment invalid-target no-mutation 代表护栏。
+- face-down standby invalid target 不暴露真实身份 / hidden info 的代表性安全口径。
+
+仍缺：
+
+- 完整 swift / reaction timing、spell duel / battle lifecycle、priority window 与 FEPR 全矩阵。
+- 完整 target prompt、target invalidation、hidden / face-down target policy、Spellshield target tax。
+- Hunt the Weak 相关 replacement / prevention / cleanup / full targeting matrix 保持 P1/P2 后续项；本批不新增这些方向的 P0。
+- 完整 destroy / cleanup / Last Breath trigger interactions、state-based cleanup 与 simultaneous destruction full-official matrix。
+- 完整 PaymentEngine、play-card cost Quote / Authorize / Commit、替代 / 额外费用与支付资源矩阵。
+- Hostile Takeover control lifecycle、Berserk Impulse hidden-zone reveal / choose / recycle、Edge of Night face-down standby attach、Karthus extra Last Breath、Aphelios weapon-attachment three-mode design gates。
+- FAQ regression、1009/811 full-official、正式 18-step E2E、completion audit。
+
+口径：
+
+- `fullOfficial=false`。
+- 不宣称 READY / READY-CANDIDATE。
+- 不因 Hunt the Weak 代表路径外推完整 swift、reaction timing、targeting、destroy / cleanup、Last Breath trigger、PaymentEngine、FEPR、named deferred candidates 或 full-official。
 
 ## 0.2 阶段 0 当前基线
 
