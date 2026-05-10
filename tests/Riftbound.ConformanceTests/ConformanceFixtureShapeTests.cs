@@ -8221,7 +8221,7 @@ public sealed class ConformanceFixtureShapeTests
                 "P2-HIDDEN-STANDBY",
                 isFaceDown: true,
                 power: 1,
-                tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                tags: [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily, CardObjectTags.Standby],
                 ownerId: "P2",
                 controllerId: "P2");
             objectLocations["P2-HIDDEN-STANDBY"] = new("P2", "BATTLEFIELD", "BATTLEFIELD:P1-MAIN");

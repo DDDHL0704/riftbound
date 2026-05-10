@@ -144,7 +144,7 @@
           "tokenName": "随从",
           "power": 1,
           "destinationZone": "BASE",
-          "tokenTags": ["CARD_TYPE:UNIT"]
+          "tokenTags": ["CARD_TYPE:UNIT", "TOKEN_FAMILY:MINION"]
         }
       }
     ],
@@ -185,7 +185,7 @@
         "P1-EQUIPMENT-FUTURE-FORGE-TOKEN-001": {
           "damage": 0,
           "power": 1,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": ["CARD_TYPE:UNIT", "TOKEN_FAMILY:MINION"],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
           "isExhausted": false

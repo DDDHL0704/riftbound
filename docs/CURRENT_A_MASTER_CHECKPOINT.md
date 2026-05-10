@@ -1620,6 +1620,89 @@ A 主控复验：
 
 4C-14 结论：**通过**。没有协议或前端字段变化；本批新增 1 个 FU 的代表性 real enqueue baseline，但 `fullOfficialUpgrades=0`，不代表 full official，不代表 READY-CANDIDATE。允许继续阶段 4C 下一批；阶段 4C 仍在逐 FU、逐测试批量推进；项目整体仍 **NOT READY**。
 
+## 0.25 阶段 4C-15 Viktor Feasibility Blocker
+
+阶段 4C-15 候选为 Viktor destroyed non-minion token trigger / `FU-b5cb36a5c9`。B 本轮只做只读可行性检查，未修改代码，未新增测试。D 本轮只更新文档。4C-14 Savage Jawfish 已 checkpoint：`2deef64 checkpoint: complete stage 4C savage jawfish trigger batch`。
+
+4C-15 阻断原因：
+
+- 当前 `CardObjectTags` 没有 `Minion` / `随从` / subtype 字段。
+- 当前 `CardObjectState` 没有稳定 token family / subtype / `isMinion` 字段。
+- 多个“随从”创建路径经 `CreateBaseUnitTokens` 只落成 `CARD_TYPE:UNIT`，不保留 `cardNo` / `tokenName` / `TokenFamilyName`。
+- 摧毁时无法可靠区分“随从单位”和普通单位。
+- Viktor fixtures 当前也描述 destroyed-listener / non-minion filtering / minion-token path deferred。
+
+4C-15 文档改动：
+
+- 新增 `docs/CURRENT_STAGE4C_BATCH15_VIKTOR_BLOCKER.md`。
+- 更新 `docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/rules-evidence-index.md` 与本 checkpoint。
+- D 本批不修改服务端 / 前端代码、E 矩阵 / evidence 文件或 `riftbound-dotnet.sln`。
+
+4C-15 结论：
+
+- 不建议硬编码 Viktor 的“非随从”判定。
+- 4C-15 未实现，未新增测试，不关闭 `FU-b5cb36a5c9`。
+- 该项作为 P0/P1 blocker 记录，需要先冻结 token subtype / family 模型或由用户裁定官方解释。
+- 后续建议：先做 `CardObjectState` subtype / token-family 模型和随从 token factory 统一写入，再做 Viktor；或者用户确认跳过 Viktor，改做不依赖“非随从”分类的下一个 safe FU。
+- A 推荐路径：先做模型前置切片，再回到 Viktor；在用户确认前，不派发 Viktor 功能实现任务。
+
+4C-15 仍保留 P0/P1：
+
+- Viktor `FU-b5cb36a5c9` destroyed non-minion token trigger。
+- token subtype / token-family / minion classification 模型。
+- 完整 trigger engine。
+- 其他 destroyed / last-breath / friendly-destroyed functional units。
+- Kogmaw / Karthus / Undercover Agent。
+- hidden / face-down 原始触发建模。
+- FAQ regression。
+- 1009 entries / 811 functional units full-official 覆盖、正式 18-step E2E、completion audit 仍未完成。
+
+4C-15 结论：**阻断记录完成，功能未关闭**。项目整体仍 **NOT READY**，不得标记 READY / READY-CANDIDATE；不得宣称 1009 / 811 full-official 或正式 E2E。
+
+## 0.26 阶段 4C-15A Minion Token Family 前置模型切片
+
+阶段 4C-15A 已由 B 完成，范围只限 token subtype / family / minion classification 最小前置模型；不实现 Viktor 本体。项目整体仍 **NOT READY**，不得标记 READY / READY-CANDIDATE。
+
+4C-15A 服务端改动事实：
+
+- 新增稳定 tag：`TOKEN_FAMILY:MINION` / `CardObjectTags.MinionTokenFamily`。
+- `P6TokenFactoryCatalog` 的官方三种“随从”token factory（`OGN·271/298`、`OGN·272/298`、`OGN·273/298`）带该 tag。
+- `CoreRuleEngine.CreateBaseUnitTokens` 对 `tokenName == "随从"` 自动追加 `CARD_TYPE:UNIT` + `TOKEN_FAMILY:MINION`。
+- Viktor legend 直接创建随从路径同步带 `TOKEN_FAMILY:MINION`。
+- Common Cause、Future Forge、Faithful Craftsman、Vanguard Captain、Mechanical Trickster、Viktor legend、battlefield held minion 等可生成带 marker 的随从 token。
+- 普通单位不带 marker；Gold / Sprite / Warhawk / Sand Soldier 等非“随从”token factory 不带 marker。
+- hidden face-down standby 即使内部带 marker，对手 snapshot 仍不泄漏 tags / cardNo / power。
+
+4C-15A 文档改动：
+
+- 新增 `docs/CURRENT_STAGE4C_BATCH15A_MINION_TOKEN_FAMILY_AUDIT.md`。
+- 追加更新 `docs/CURRENT_STAGE4C_BATCH15_VIKTOR_BLOCKER.md`，保留 4C-15 blocker 历史并记录 4C-15A 后续结果。
+- 更新 `docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/rules-evidence-index.md` 与本 checkpoint。
+- D 本批不修改服务端 / 前端代码、E 矩阵 / evidence 文件或 `riftbound-dotnet.sln`。
+
+4C-15A A 复核命令：
+
+- Backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` passed，3375/3375。
+- `git diff --check`：passed。
+
+4C-15A 关闭的 P0/P1 子项：
+
+- 4C-15 blocker 中“随从 token 没有稳定 family marker”的前置模型子项已部分关闭。
+- `TOKEN_FAMILY:MINION` 可作为后续 Viktor 非随从过滤的服务端权威输入之一。
+
+4C-15A 仍保留 P0/P1：
+
+- Viktor `FU-b5cb36a5c9` destroyed non-minion trigger 本体。
+- destroy / cleanup 入队时 destroyed target pre-removal state 判定。
+- 完整 trigger engine。
+- 其他 destroyed / last-breath / friendly-destroyed functional units。
+- Kogmaw / Karthus / Undercover Agent。
+- hidden / face-down 原始触发建模。
+- FAQ regression。
+- 1009 entries / 811 functional units full-official 覆盖、正式 18-step E2E、completion audit 仍未完成。
+
+4C-15A 结论：**通过前置模型切片，未关闭 Viktor 本体**。未改协议 record 字段，未改前端，不宣称 full-official，不宣称 READY-CANDIDATE；允许后续在明确 destroyed target pre-removal state 后回到 Viktor。
+
 ## 1. 总目标
 
 以当前仓库五份官方规则 / FAQ PDF 与 `data/official/card-catalog.zh-CN.json` 的 2026-04-27 官网卡牌快照为准，完成本地双人 1v1 标准构筑产品级 Web 游戏基线：

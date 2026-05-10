@@ -2,11 +2,11 @@
 
 更新时间：2026-05-10
 
-阶段：**阶段 4C-14 / E 卡牌覆盖矩阵 post-freeze overlay**
+阶段：**阶段 4C-15A / E 卡牌覆盖矩阵 post-freeze overlay**
 
 结论：**NOT READY；不允许进入 1009 张卡牌效果批量覆盖。**
 
-本文只建立统计口径、只读数据基线、矩阵字段、风险排序和阶段性证据 overlay，不实现或修改任何卡牌效果。阶段 1/2 建立卡牌覆盖基线；阶段 3A/3B/3C/3D 只给最小 runtime / lifecycle / battle-damage / trigger-ordering 切片补证据标签；阶段 4B 冻结 card entry -> functional unit -> oracle/effectId -> evidence/tests/status 矩阵；阶段 4C-1 记录 APNAP `ORDER_TRIGGERS` 保守 controller-block 子集；阶段 4C-2 / 4C-3 记录 Watchful Sentinel 与 Honest Broker 真实 last-breath 入队；阶段 4C-4 记录 Treasure Pile trigger payment；阶段 4C-5 / 4C-6 记录 Starfall damage 造成 visible Watchful Sentinel / Honest Broker state-based cleanup last-breath 入队；阶段 4C-7 记录 Spirit Fire explicit destroy 造成 visible Scouting Warhawk last-breath rune-call 入队；阶段 4C-8 记录 Starfall lethal damage + state-based cleanup 造成 visible Scouting Warhawk last-breath rune-call 入队；阶段 4C-9 记录 Starfall lethal damage + state-based cleanup 造成 visible Sad/Loyal Poro 条件抽牌 last-breath 入队；阶段 4C-10 记录 Starfall lethal damage + state-based cleanup 造成 visible Unsung Hero 强力条件抽二 last-breath 入队；阶段 4C-11 记录 Starfall lethal damage + state-based cleanup 造成 visible surviving friendly Ghostly Centaur 监听另一友方被摧毁并本回合 +2 入队；阶段 4C-12 记录 visible surviving friendly Resonant Soul 监听 owner 本回合首个友方摧毁并抽 1 入队；阶段 4C-13 记录 Ghostly Centaur / Resonant Soul true stack destruction non-cleanup `UNIT_DESTROYED` route migration；阶段 4C-14 记录 Savage Jawfish / 凶残颚鱼 true stack 与 Starfall cleanup 友方摧毁入队获得经验，防止把局部 runtime 误判为全官方卡牌完成。
+本文只建立统计口径、只读数据基线、矩阵字段、风险排序和阶段性证据 overlay，不实现或修改任何卡牌效果。阶段 1/2 建立卡牌覆盖基线；阶段 3A/3B/3C/3D 只给最小 runtime / lifecycle / battle-damage / trigger-ordering 切片补证据标签；阶段 4B 冻结 card entry -> functional unit -> oracle/effectId -> evidence/tests/status 矩阵；阶段 4C-1 记录 APNAP `ORDER_TRIGGERS` 保守 controller-block 子集；阶段 4C-2 / 4C-3 记录 Watchful Sentinel 与 Honest Broker 真实 last-breath 入队；阶段 4C-4 记录 Treasure Pile trigger payment；阶段 4C-5 / 4C-6 记录 Starfall damage 造成 visible Watchful Sentinel / Honest Broker state-based cleanup last-breath 入队；阶段 4C-7 记录 Spirit Fire explicit destroy 造成 visible Scouting Warhawk last-breath rune-call 入队；阶段 4C-8 记录 Starfall lethal damage + state-based cleanup 造成 visible Scouting Warhawk last-breath rune-call 入队；阶段 4C-9 记录 Starfall lethal damage + state-based cleanup 造成 visible Sad/Loyal Poro 条件抽牌 last-breath 入队；阶段 4C-10 记录 Starfall lethal damage + state-based cleanup 造成 visible Unsung Hero 强力条件抽二 last-breath 入队；阶段 4C-11 记录 Starfall lethal damage + state-based cleanup 造成 visible surviving friendly Ghostly Centaur 监听另一友方被摧毁并本回合 +2 入队；阶段 4C-12 记录 visible surviving friendly Resonant Soul 监听 owner 本回合首个友方摧毁并抽 1 入队；阶段 4C-13 记录 Ghostly Centaur / Resonant Soul true stack destruction non-cleanup `UNIT_DESTROYED` route migration；阶段 4C-14 记录 Savage Jawfish / 凶残颚鱼 true stack 与 Starfall cleanup 友方摧毁入队获得经验；阶段 4C-15A 只记录 Minion token family model / infrastructure marker，防止把局部 runtime 或模型前置条件误判为全官方卡牌完成。
 
 ## 1. 已读取依据
 
@@ -182,7 +182,7 @@ P0 仍存在：
 
 - central cleanup queue 未完整官方化。
 - spell duel / battle 完整生命周期仍未完成。
-- `PAY_COST` 已有 3A 最小 runtime，4C-4 已有 Treasure Pile `TRIGGER_PAYMENT` 代表路径，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime，`ORDER_TRIGGERS` 已从 3D 最小 runtime window 升级为 4C-1 保守 APNAP controller-block 子集，4C-2 / 4C-3 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 只验证 Watchful Sentinel、Honest Broker、visible Watchful cleanup、visible Honest Broker cleanup、Scouting Warhawk explicit destroy、Scouting Warhawk cleanup、Sad/Loyal Poro conditional cleanup、Unsung Hero powerful cleanup、Ghostly Centaur friendly-destroyed cleanup 与 Resonant Soul first-friendly-destroyed cleanup 十类触发入队切片；4C-13 只迁移 Ghostly Centaur / Resonant Soul true stack destruction non-cleanup route；4C-14 只验证 Savage Jawfish true stack 与 Starfall cleanup 友方摧毁入队获得经验切片；完整 PaymentEngine、完整 damage assignment 全规则矩阵、完整 trigger engine 仍未正式完成。
+- `PAY_COST` 已有 3A 最小 runtime，4C-4 已有 Treasure Pile `TRIGGER_PAYMENT` 代表路径，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime，`ORDER_TRIGGERS` 已从 3D 最小 runtime window 升级为 4C-1 保守 APNAP controller-block 子集，4C-2 / 4C-3 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 只验证 Watchful Sentinel、Honest Broker、visible Watchful cleanup、visible Honest Broker cleanup、Scouting Warhawk explicit destroy、Scouting Warhawk cleanup、Sad/Loyal Poro conditional cleanup、Unsung Hero powerful cleanup、Ghostly Centaur friendly-destroyed cleanup 与 Resonant Soul first-friendly-destroyed cleanup 十类触发入队切片；4C-13 只迁移 Ghostly Centaur / Resonant Soul true stack destruction non-cleanup route；4C-14 只验证 Savage Jawfish true stack 与 Starfall cleanup 友方摧毁入队获得经验切片；4C-15A 只降低 token subtype/family/minion-classification 前置 blocker，不实现 Viktor trigger；完整 PaymentEngine、完整 damage assignment 全规则矩阵、完整 trigger engine 仍未正式完成。
 - 正式 18 步 E2E 未最终收口。
 - 1009 张官方卡牌效果与 FAQ 证据矩阵未完成。
 
@@ -214,6 +214,56 @@ P1 仍存在：
 - `src/**`
 
 是否允许进入卡牌效果批量覆盖：**不允许。**
+
+## 27. 阶段 4C-15A E 汇总
+
+阶段 4C-15A 名称：Minion token family model / infrastructure overlay。E 只更新覆盖矩阵与风险证据，不修改功能代码，不修改 D checkpoint / server audit / rules index，不触碰 `riftbound-dotnet.sln`，不进入 1009 张卡 full-official 实现。
+
+B/A 已提供的新事实：
+
+- 4C-15A 是 model / infrastructure overlay，不新增 card effect full-official，不实现 Viktor 本体。
+- 新稳定 tag：`TOKEN_FAMILY:MINION` / `CardObjectTags.MinionTokenFamily`。
+- 官方随从 token factory `OGN·271/298`、`OGN·272/298`、`OGN·273/298` 带 marker。
+- `CreateBaseUnitTokens` 对 `tokenName == "随从"` 自动追加 `CARD_TYPE:UNIT` + `TOKEN_FAMILY:MINION`；Viktor legend 直接随从创建也同步。
+- Common Cause、Future Forge、Faithful Craftsman、Vanguard Captain、Mechanical Trickster、Viktor legend、battlefield-held minion 等随从 token 带 marker。
+- 普通单位不带；Gold / Sprite / Warhawk / Sand Soldier 等非“随从”不带。
+- hidden face-down standby opponent snapshot 不泄漏 tags / cardNo / power。
+- A 独立复核：backend full 3375/3375 passed；`git diff --check` passed。
+
+4C-15A 矩阵 overlay 统计：
+
+| 项 | 数量 / 状态 |
+|---|---:|
+| frozen snapshot entries | 1009 |
+| frozen functional units | 811 |
+| `stage4C15AVerifiedInfrastructure` | true |
+| `stage4C15AFullOfficialFunctionalUnits` | 0 |
+| `stage4C15AFullOfficialSnapshotEntries` | 0 |
+| `stage4C15AFUOverlayTags` | 0 |
+| cumulative real-trigger enqueue verified FUs | 10 |
+| cumulative state-based cleanup trigger enqueue verified FUs | 10 |
+| full-official upgrades | 0 |
+
+Viktor impact：`FU-b5cb36a5c9` 的 token subtype / family / minion-classification 前置 blocker 可被降低或关闭，但 Viktor trigger 未关闭；该 FU 仍为 `SHARED_ORACLE_IMPLEMENTATION` / `NEEDS_ENGINE_SUPPORT`，`fullOfficial=false`。
+
+修改 / 新增文件：
+
+- 修改：`docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`
+- 修改：`docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- 修改：`docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`
+- 修改：`docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`
+- 新增：`docs/CURRENT_STAGE4C_BATCH15A_MINION_TOKEN_FAMILY_EVIDENCE.md`
+
+仍存在 P0/P1：
+
+- Viktor destroyed non-minion trigger behavior 未由 4C-15A 实现或 full-official。
+- complete trigger engine beyond visible verified slices。
+- same-source / same-pass / multi-destroy multiplicity and non-minion classification in real trigger contexts。
+- hidden / face-down original visibility modeling beyond tested snapshot redaction guards。
+- Kogmaw / Karthus / Undercover Agent 未覆盖。
+- FAQ adjudication / regression、1009/811 full-official、正式 18-step E2E 仍未完成。
+
+是否允许进入 1009 张卡批量 full-official 覆盖：**不允许。**
 
 ## 26. 阶段 4C-14 E 汇总
 

@@ -275,6 +275,37 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void P6TokenFactoryMarksOnlyOfficialMinionTokenFamily()
+    {
+        var definitions = P6TokenFactoryCatalog.GetAll();
+        var minionTokenCardNos = new HashSet<string>(StringComparer.Ordinal)
+        {
+            "OGN·271/298",
+            "OGN·272/298",
+            "OGN·273/298"
+        };
+
+        Assert.All(
+            definitions.Where(definition => minionTokenCardNos.Contains(definition.CardNo)),
+            definition =>
+            {
+                Assert.Equal("随从", definition.TokenFamilyName);
+                Assert.Contains(CardObjectTags.UnitCard, definition.Tags);
+                Assert.Contains(CardObjectTags.MinionTokenFamily, definition.Tags);
+
+                var tokenObject = definition.CreateObject(
+                    $"TOKEN-{definition.CardNo}",
+                    ownerId: "P1",
+                    controllerId: "P1");
+                Assert.Contains(CardObjectTags.MinionTokenFamily, tokenObject.Tags);
+            });
+
+        Assert.All(
+            definitions.Where(definition => !minionTokenCardNos.Contains(definition.CardNo)),
+            definition => Assert.DoesNotContain(CardObjectTags.MinionTokenFamily, definition.Tags));
+    }
+
+    [Fact]
     public async Task P6FunctionalUnitCoverageAuditsSameTextVariantsAndReprints()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

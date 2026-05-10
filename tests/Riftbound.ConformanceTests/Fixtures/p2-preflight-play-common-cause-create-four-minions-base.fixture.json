@@ -137,7 +137,8 @@
           "tokenObjectId": "P1-SPELL-COMMON-CAUSE-TOKEN-001",
           "tokenName": "随从",
           "power": 1,
-          "destinationZone": "BASE"
+          "destinationZone": "BASE",
+          "tokenTags": ["CARD_TYPE:UNIT", "TOKEN_FAMILY:MINION"]
         }
       },
       {
@@ -148,7 +149,8 @@
           "tokenObjectId": "P1-SPELL-COMMON-CAUSE-TOKEN-002",
           "tokenName": "随从",
           "power": 1,
-          "destinationZone": "BASE"
+          "destinationZone": "BASE",
+          "tokenTags": ["CARD_TYPE:UNIT", "TOKEN_FAMILY:MINION"]
         }
       },
       {
@@ -159,7 +161,8 @@
           "tokenObjectId": "P1-SPELL-COMMON-CAUSE-TOKEN-003",
           "tokenName": "随从",
           "power": 1,
-          "destinationZone": "BASE"
+          "destinationZone": "BASE",
+          "tokenTags": ["CARD_TYPE:UNIT", "TOKEN_FAMILY:MINION"]
         }
       },
       {
@@ -170,7 +173,8 @@
           "tokenObjectId": "P1-SPELL-COMMON-CAUSE-TOKEN-004",
           "tokenName": "随从",
           "power": 1,
-          "destinationZone": "BASE"
+          "destinationZone": "BASE",
+          "tokenTags": ["CARD_TYPE:UNIT", "TOKEN_FAMILY:MINION"]
         }
       }
     ],
@@ -209,10 +213,10 @@
       },
       "stackItems": [],
       "cardObjects": {
-        "P1-SPELL-COMMON-CAUSE-TOKEN-001": { "power": 1 },
-        "P1-SPELL-COMMON-CAUSE-TOKEN-002": { "power": 1 },
-        "P1-SPELL-COMMON-CAUSE-TOKEN-003": { "power": 1 },
-        "P1-SPELL-COMMON-CAUSE-TOKEN-004": { "power": 1 }
+        "P1-SPELL-COMMON-CAUSE-TOKEN-001": { "power": 1, "tags": ["CARD_TYPE:UNIT", "TOKEN_FAMILY:MINION"] },
+        "P1-SPELL-COMMON-CAUSE-TOKEN-002": { "power": 1, "tags": ["CARD_TYPE:UNIT", "TOKEN_FAMILY:MINION"] },
+        "P1-SPELL-COMMON-CAUSE-TOKEN-003": { "power": 1, "tags": ["CARD_TYPE:UNIT", "TOKEN_FAMILY:MINION"] },
+        "P1-SPELL-COMMON-CAUSE-TOKEN-004": { "power": 1, "tags": ["CARD_TYPE:UNIT", "TOKEN_FAMILY:MINION"] }
       }
     }
   }

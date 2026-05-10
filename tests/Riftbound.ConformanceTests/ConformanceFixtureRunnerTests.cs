@@ -7951,7 +7951,9 @@ public sealed class ConformanceFixtureRunnerTests
             result.FinalState.PlayerZones["P1"].Base);
         Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects["P1-EQUIPMENT-FUTURE-FORGE"].Tags);
         Assert.Equal(1, result.FinalState.CardObjects["P1-EQUIPMENT-FUTURE-FORGE-TOKEN-001"].Power);
-        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-EQUIPMENT-FUTURE-FORGE-TOKEN-001"].Tags);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily],
+            result.FinalState.CardObjects["P1-EQUIPMENT-FUTURE-FORGE-TOKEN-001"].Tags);
     }
 
     [Fact]
@@ -12706,8 +12708,11 @@ public sealed class ConformanceFixtureRunnerTests
             result.FinalState.PlayerZones["P1"].Base);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Graveyard);
         Assert.Equal(2, result.FinalState.CardObjects["P1-UNIT-FAITHFUL-CRAFTSMAN"].Power);
+        Assert.DoesNotContain(CardObjectTags.MinionTokenFamily, result.FinalState.CardObjects["P1-UNIT-FAITHFUL-CRAFTSMAN"].Tags);
         Assert.Equal(1, result.FinalState.CardObjects["P1-UNIT-FAITHFUL-CRAFTSMAN-TOKEN-001"].Power);
-        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-UNIT-FAITHFUL-CRAFTSMAN-TOKEN-001"].Tags);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily],
+            result.FinalState.CardObjects["P1-UNIT-FAITHFUL-CRAFTSMAN-TOKEN-001"].Tags);
     }
 
     [Fact]
@@ -22985,7 +22990,12 @@ public sealed class ConformanceFixtureRunnerTests
             4,
             result.EventKinds.Count(kind => string.Equals(kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)));
         Assert.All(result.FinalState.PlayerZones["P1"].Base, objectId =>
-            Assert.Equal(1, result.FinalState.CardObjects[objectId].Power));
+        {
+            Assert.Equal(1, result.FinalState.CardObjects[objectId].Power);
+            Assert.Equal(
+                [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily],
+                result.FinalState.CardObjects[objectId].Tags);
+        });
     }
 
     [Fact]
@@ -30287,9 +30297,13 @@ public sealed class ConformanceFixtureRunnerTests
             [CardObjectTags.UnitCard, "精锐"],
             result.FinalState.CardObjects["P1-UNIT-VANGUARD-CAPTAIN"].Tags);
         Assert.Equal(1, result.FinalState.CardObjects["P1-UNIT-VANGUARD-CAPTAIN-TOKEN-001"].Power);
-        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-UNIT-VANGUARD-CAPTAIN-TOKEN-001"].Tags);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily],
+            result.FinalState.CardObjects["P1-UNIT-VANGUARD-CAPTAIN-TOKEN-001"].Tags);
         Assert.Equal(1, result.FinalState.CardObjects["P1-UNIT-VANGUARD-CAPTAIN-TOKEN-002"].Power);
-        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-UNIT-VANGUARD-CAPTAIN-TOKEN-002"].Tags);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily],
+            result.FinalState.CardObjects["P1-UNIT-VANGUARD-CAPTAIN-TOKEN-002"].Tags);
         Assert.Equal(2, result.EventKinds.Count(kind => string.Equals(kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)));
     }
 
@@ -31198,6 +31212,7 @@ public sealed class ConformanceFixtureRunnerTests
         var token = result.State.CardObjects["P1-LEGEND-VIKTOR-TOKEN-001"];
         Assert.Equal(1, token.Power);
         Assert.Contains(CardObjectTags.UnitCard, token.Tags);
+        Assert.Contains(CardObjectTags.MinionTokenFamily, token.Tags);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
     }
 
@@ -35131,6 +35146,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P2", tokenState.OwnerId);
         Assert.Equal("P2", tokenState.ControllerId);
         Assert.Contains(CardObjectTags.UnitCard, tokenState.Tags);
+        Assert.Contains(CardObjectTags.MinionTokenFamily, tokenState.Tags);
         var tokenEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
         Assert.Equal(tokenObjectId, tokenEvent.Payload["tokenObjectId"]);
         Assert.Equal("OGN·271/298", tokenEvent.Payload["tokenCardNo"]);
@@ -36191,7 +36207,9 @@ public sealed class ConformanceFixtureRunnerTests
         foreach (var tokenObjectId in p2Pass.State.PlayerZones["P1"].Base)
         {
             Assert.Equal(1, p2Pass.State.CardObjects[tokenObjectId].Power);
-            Assert.Equal([CardObjectTags.UnitCard], p2Pass.State.CardObjects[tokenObjectId].Tags);
+            Assert.Equal(
+                [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily],
+                p2Pass.State.CardObjects[tokenObjectId].Tags);
         }
 
         Assert.Equal(["P1-MECHANICAL-TRICKSTER", "P1-SPELL-VENGEANCE"], p2Pass.State.PlayerZones["P1"].Graveyard);

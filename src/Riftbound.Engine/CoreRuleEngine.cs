@@ -6064,7 +6064,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         cardObjects[tokenObjectId] = new CardObjectState(
             tokenObjectId,
             power: 1,
-            tags: [CardObjectTags.UnitCard],
+            tags: [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily],
             ownerId: playerId,
             controllerId: playerId);
         playerZones[playerId] = zones with
@@ -6083,7 +6083,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["tokenName"] = "随从",
                 ["power"] = 1,
                 ["destinationZone"] = "BASE",
-                ["tokenTags"] = new[] { CardObjectTags.UnitCard }
+                ["tokenTags"] = new[] { CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily }
             }));
     }
 
@@ -24485,6 +24485,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObjects,
             stackItem.ControllerId,
             tokenTags);
+        tokenTags = ApplyMinionTokenFamilyTag(behavior.CreatedBaseUnitTokenName, tokenTags);
         var createdTokenObjectIds = new List<string>();
         for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
         {
@@ -24984,6 +24985,22 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Distinct(StringComparer.Ordinal)
             .OrderBy(value => value, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> ApplyMinionTokenFamilyTag(
+        string tokenName,
+        IReadOnlyList<string> tokenTags)
+    {
+        if (!string.Equals(tokenName, "随从", StringComparison.Ordinal))
+        {
+            return tokenTags;
+        }
+
+        return tokenTags
+            .Concat([CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily])
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(tag => tag, StringComparer.Ordinal)
             .ToArray();
     }
 

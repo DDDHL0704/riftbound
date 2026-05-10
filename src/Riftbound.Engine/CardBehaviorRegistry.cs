@@ -240,6 +240,7 @@ public static class CardObjectTags
     public const string EquipmentCard = "CARD_TYPE:EQUIPMENT";
     public const string RuneCard = "CARD_TYPE:RUNE";
     public const string SpellCard = "CARD_TYPE:SPELL";
+    public const string MinionTokenFamily = "TOKEN_FAMILY:MINION";
     public const string Spellshield = "法盾";
     public const string Standby = "待命";
     public const string Ephemeral = "瞬息";
