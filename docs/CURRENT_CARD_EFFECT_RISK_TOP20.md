@@ -544,6 +544,28 @@ Viktor boundary：
 
 仍缺：full official trigger-count matrix for Viktor、完整 trigger engine、multi-source / multi-destroy / simultaneous trigger multiplicity、隐藏 / face-down original visibility modeling、Kogmaw / Karthus / Undercover Agent、FAQ adjudication / regression、1009/811 full-official 覆盖、正式 18-step E2E。
 
+## 25. Stage 4C-17 Ironclad Vanguard Trigger Enqueue Overlay
+
+4C-17 只更新覆盖矩阵 / 风险证据，不升级 full-official。`docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已新增 `stage4CBatch17IroncladVanguardTriggerEnqueue`，并只为 `FU-6d0971786b` 增加 `functionalUnits[].stage4C17` overlay。
+
+4C-17 已部分降低的 blocker：
+
+- `FU-6d0971786b` / `SFD·021/221` Ironclad Vanguard / 《铁甲先锋》的 true stack last-breath trigger enqueue 代表路径。
+- trigger effect kind：`IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS`。
+- runtime path：true stack `UNIT_DESTROYED` -> `TRIGGER_QUEUED` -> `ORDER_TRIGGERS` for multi-trigger or single-trigger auto-stack -> `StackItems` -> priority pass -> `TRIGGER_RESOLVED` -> `UNIT_TOKEN_CREATED x2` robots。
+- guard：face-down / standby source no enqueue / no metadata / no token。
+- P79 fixture updated to queue / priority semantics。
+- tests：`RealIroncladVanguardLastBreathTriggersOrderAndCreateRobotsThroughStack`、`RealIroncladVanguardHiddenSourcesDoNotEnqueueOrCreateRobots`、`P79IroncladVanguardCreatesTwoRobotsWhenDestroyed updated`；backend full 3384/3384 passed by A。
+- 不覆盖 Kogmaw / Karthus / Undercover Agent，也不覆盖 Ironclad state-based cleanup route。
+
+矩阵数字：`stage4C17` verified FUs = 1，verified snapshot entries = 1，cumulative real-trigger enqueue verified FUs = 13，cumulative state-based cleanup trigger enqueue verified FUs = 11，full-official upgrades = 0。
+
+本批关闭 Ironclad Vanguard true stack representative trigger enqueue baseline，但不覆盖 state-based cleanup route、full trigger engine 或 full trigger-count matrix。`FU-6d0971786b` 的 4B `freezeStatus` / `statusFlags` 不变，仍不能升级 full-official。
+
+后续批量顺序建议：优先考虑安全的 cleanup route 或小型 trigger FU；Kogmaw / Karthus / Undercover Agent 继续保留为需要规则裁决的 complex last-breath holdback。
+
+仍缺：Ironclad Vanguard cleanup route、Mechanical Trickster cleanup route、完整 trigger engine、multi-source / multi-destroy / simultaneous trigger multiplicity、隐藏 / face-down original visibility modeling、Kogmaw / Karthus / Undercover Agent、FAQ adjudication / regression、1009/811 full-official 覆盖、正式 18-step E2E。
+
 ## 24. Stage 4C-16 Mechanical Trickster Trigger Enqueue Overlay
 
 4C-16 只更新覆盖矩阵 / 风险证据，不升级 full-official。`docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已新增 `stage4CBatch16MechanicalTricksterTriggerEnqueue`，并只为 `FU-1a392a4ae2` 增加 `functionalUnits[].stage4C16` overlay。

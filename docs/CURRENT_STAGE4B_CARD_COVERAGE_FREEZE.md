@@ -604,9 +604,34 @@ Top risk remains the Stage 2 Top20 with 4B statuses overlaid:
 
 4C-16 只覆盖 true stack route。Mechanical Trickster state-based cleanup route、full trigger engine、multi-source / simultaneous trigger multiplicity、同族复杂 last-breath FUs 均未关闭。
 
-## 25. 4B / 4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A / 4C-15B / 4C-16 Blocker
+## 25. Post-Freeze 4C-17 Overlay
 
-4B freeze、4C-1 overlay、4C-2 overlay、4C-3 overlay、4C-4 overlay、4C-5 overlay、4C-6 overlay、4C-7 overlay、4C-8 overlay、4C-9 overlay、4C-10 overlay、4C-11 overlay、4C-12 overlay、4C-13 overlay、4C-14 overlay、4C-15A overlay、4C-15B overlay 和 4C-16 overlay 本身无文档阻断。仍阻断 READY / full-official 的事项：
+4C-17 不改变 4B frozen counts、primary status counts 或 full-official 口径，只记录 B/A 已完成并通过测试的局部 runtime 证据：
+
+| 项 | 4C-17 记录 |
+|---|---|
+| verified FU | `FU-6d0971786b` / `SFD·021/221` Ironclad Vanguard / 《铁甲先锋》 |
+| trigger effect kind | `IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS` |
+| route | true stack `UNIT_DESTROYED` -> `TRIGGER_QUEUED` -> `ORDER_TRIGGERS` for multi-trigger or single-trigger auto-stack -> `StackItems` -> priority pass -> `TRIGGER_RESOLVED` -> `UNIT_TOKEN_CREATED x2` robots |
+| source guard | face-down / standby source 不入队、不泄漏 metadata、不创建 token。 |
+| P79 compatibility | `P79IroncladVanguardCreatesTwoRobotsWhenDestroyed` updated to queue / priority semantics。 |
+| non-covered FUs | 不覆盖 Kogmaw / Karthus / Undercover Agent；不覆盖 Ironclad state-based cleanup route。 |
+| overlay status | `IRONCLAD_VANGUARD_TRUE_STACK_LAST_BREATH_TRIGGER_ENQUEUE_PARTIALLY_REDUCED_NOT_FULL_OFFICIAL` |
+| validation | `RealIroncladVanguardLastBreathTriggersOrderAndCreateRobotsThroughStack`、`RealIroncladVanguardHiddenSourcesDoNotEnqueueOrCreateRobots`、P79 fixture updated；backend full 3384/3384 passed by A。 |
+
+矩阵 overlay 数字：
+
+- `stage4C17` verified FUs：1
+- `stage4C17` verified snapshot entries：1
+- cumulative real-trigger enqueue verified FUs：13
+- cumulative state-based cleanup trigger enqueue verified FUs：11
+- full-official upgrades：0
+
+4C-17 只覆盖 true stack route。Ironclad Vanguard state-based cleanup route、full trigger engine、multi-source / simultaneous trigger multiplicity、同族复杂 last-breath FUs 均未关闭。
+
+## 26. 4B / 4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A / 4C-15B / 4C-16 / 4C-17 Blocker
+
+4B freeze、4C-1 overlay、4C-2 overlay、4C-3 overlay、4C-4 overlay、4C-5 overlay、4C-6 overlay、4C-7 overlay、4C-8 overlay、4C-9 overlay、4C-10 overlay、4C-11 overlay、4C-12 overlay、4C-13 overlay、4C-14 overlay、4C-15A overlay、4C-15B overlay、4C-16 overlay 和 4C-17 overlay 本身无文档阻断。仍阻断 READY / full-official 的事项：
 
 - 0/811 functional units 获得 full-official。
 - P0/P1 engine support 仍影响 762 FUs by status flag。

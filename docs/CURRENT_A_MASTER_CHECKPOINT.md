@@ -1799,6 +1799,46 @@ A 主控复验：
 
 4C-16 结论：**通过 Mechanical Trickster 代表性 trigger migration，未关闭 full-official**。未改协议 record 字段，未改前端，不宣称 full trigger engine，不宣称 READY-CANDIDATE；允许 4C 继续扩其他 destroyed-family / friendly-destroyed FUs。
 
+## 0.29 阶段 4C-17 Ironclad Vanguard Trigger Baseline
+
+阶段 4C-17 已把 Ironclad Vanguard / `SFD·021/221` / `IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS` 的旧 immediate last-breath create robots 路径迁移到真实 TriggerQueue / Stack / Priority 代表基线。项目整体仍 **NOT READY**，不得标记 READY / READY-CANDIDATE。
+
+4C-17 已验证实现事实：
+
+- true stack `UNIT_DESTROYED` 后生成 `TRIGGER_QUEUED`。
+- 单触发 auto-stack；多触发走 `ORDER_TRIGGERS` -> `StackItems`。
+- priority pass 后 `TRIGGER_RESOLVED` -> `UNIT_TOKEN_CREATED` x2，创建两名 3 战力 Robot / 机器人 token 到 controller base。
+- face-down / standby Ironclad Vanguard 不入队、不泄漏 prompt metadata、不创建 token。
+- 旧 `P79IroncladVanguardCreatesTwoRobotsWhenDestroyed` fixture 已更新为 queue / priority semantics。
+- 不进入 Kogmaw、Karthus、Undercover，不授予 full-official。
+- 矩阵口径修正：冻结矩阵中 Ironclad Vanguard 的正确 FU 是 `FU-6d0971786b`；`IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS` 作为 4C-17 overlay `triggerEffectKind` 记录，不创建不存在的 `FU-a76d38727a`。
+
+4C-17 文档改动：
+
+- 新增 `docs/CURRENT_STAGE4C_BATCH17_IRONCLAD_VANGUARD_TRIGGER_AUDIT.md`。
+- 更新 `docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/rules-evidence-index.md`、`docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 与本 checkpoint。
+- 未修改前端运行时代码；未提交 `riftbound-dotnet.sln`。
+
+4C-17 A 验证：
+
+- B focused filter：通过 42/42。
+- B backend full：通过 3384/3384。
+- A backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 3384/3384。
+- A frontend build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过。
+- A Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过。
+- `git diff --check`、`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 与 4C-17 矩阵断言通过。
+
+4C-17 当前 P0/P1：
+
+- 关闭 P1 子项：Ironclad Vanguard true stack destruction 旧 immediate migration 已迁移到 real trigger queue / stack / priority 代表路径。
+- 仍留 P1：Ironclad Vanguard state-based cleanup last-breath route 未在本批官方化。
+- P0：Kogmaw / Karthus / Undercover Agent 等 high-risk destroyed-family / friendly-destroyed holdbacks。
+- P0：完整 trigger engine、完整 effect resolution、trigger batch / 可选触发选择、完整 APNAP 组合。
+- P0：hidden / face-down 原始触发建模和 viewer 级 metadata 全路径。
+- P0：FAQ regression、1009 entries / 811 functional units full-official 覆盖、正式 18-step E2E、completion audit 仍未完成。
+
+4C-17 结论：**通过 Ironclad Vanguard 代表性 trigger migration，未关闭 full-official**。只关闭 true stack 代表路径，不宣称 full trigger engine，不宣称 full official coverage，不宣称正式 18-step E2E。
+
 ## 1. 总目标
 
 以当前仓库五份官方规则 / FAQ PDF 与 `data/official/card-catalog.zh-CN.json` 的 2026-04-27 官网卡牌快照为准，完成本地双人 1v1 标准构筑产品级 Web 游戏基线：

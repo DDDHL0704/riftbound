@@ -215,6 +215,56 @@ P1 仍存在：
 
 是否允许进入卡牌效果批量覆盖：**不允许。**
 
+## 30. 阶段 4C-17 E 汇总
+
+阶段 4C-17 名称：Ironclad Vanguard true stack last-breath trigger enqueue。A 修正覆盖矩阵口径并更新证据，不修改前端运行时代码，不触碰 `riftbound-dotnet.sln`，不进入 1009 张卡 full-official 实现。
+
+B/A 已提供的新事实：
+
+- 4C-17 验证 `FU-6d0971786b` / `SFD·021/221` Ironclad Vanguard / 《铁甲先锋》。
+- trigger effect kind：`IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS`。
+- 路径：true stack `UNIT_DESTROYED` -> `TRIGGER_QUEUED` -> `ORDER_TRIGGERS` for multi-trigger or single-trigger auto-stack -> `StackItems` -> priority pass -> `TRIGGER_RESOLVED` -> `UNIT_TOKEN_CREATED x2` robots。
+- guard：face-down / standby source no enqueue / no metadata / no token。
+- P79 fixture updated to queue / priority semantics。
+- Tests：`RealIroncladVanguardLastBreathTriggersOrderAndCreateRobotsThroughStack`、`RealIroncladVanguardHiddenSourcesDoNotEnqueueOrCreateRobots`、`P79IroncladVanguardCreatesTwoRobotsWhenDestroyed updated`；backend full 3384/3384 passed by A。
+- 只标 Ironclad Vanguard FU；不覆盖 Kogmaw、Karthus、Undercover Agent，也不覆盖 Ironclad state-based cleanup route。
+
+4C-17 矩阵 overlay 统计：
+
+| 项 | 数量 |
+|---|---:|
+| frozen snapshot entries | 1009 |
+| frozen functional units | 811 |
+| `stage4C17` verified FUs | 1 |
+| `stage4C17` verified snapshot entries | 1 |
+| cumulative real-trigger enqueue verified FUs | 13 |
+| cumulative state-based cleanup trigger enqueue verified FUs | 11 |
+| full-official upgrades | 0 |
+
+已部分降低 blocker 的本批 FU：`FU-6d0971786b` / `SFD·021/221` Ironclad Vanguard。overlay status：`IRONCLAD_VANGUARD_TRUE_STACK_LAST_BREATH_TRIGGER_ENQUEUE_PARTIALLY_REDUCED_NOT_FULL_OFFICIAL`。4B `freezeStatus` / `statusFlags` 不变，`fullOfficial=false`。
+
+4C-17 关闭 true stack representative trigger enqueue baseline，但不覆盖 state-based cleanup route、full trigger engine 或 full-official trigger-count matrix。
+
+修改 / 新增文件：
+
+- 修改：`docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`
+- 修改：`docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- 修改：`docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`
+- 修改：`docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`
+- 新增：`docs/CURRENT_STAGE4C_BATCH17_IRONCLAD_VANGUARD_TRIGGER_EVIDENCE.md`
+
+仍存在 P0/P1：
+
+- complete trigger engine beyond Ironclad Vanguard true stack representative baseline。
+- Ironclad Vanguard state-based cleanup route 未覆盖；cleanup trigger enqueue verified FUs 保持 11。
+- Mechanical Trickster state-based cleanup route 未覆盖。
+- multi-source / multi-destroy / simultaneous trigger multiplicity。
+- hidden / face-down original visibility modeling beyond tested guards。
+- Kogmaw / Karthus / Undercover Agent 未覆盖。
+- FAQ adjudication / regression、1009/811 full-official、正式 18-step E2E 仍未完成。
+
+是否允许进入 1009 张卡批量 full-official 覆盖：**不允许。**
+
 ## 29. 阶段 4C-16 E 汇总
 
 阶段 4C-16 名称：Mechanical Trickster true stack last-breath trigger enqueue。E 只更新覆盖矩阵与风险证据，不修改功能代码，不修改 D checkpoint / server audit / rules index，不触碰 `riftbound-dotnet.sln`，不进入 1009 张卡 full-official 实现。
