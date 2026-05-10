@@ -2,11 +2,11 @@
 
 更新时间：2026-05-10
 
-阶段：**阶段 4C-21 / E 卡牌覆盖矩阵 post-freeze overlay**
+阶段：**阶段 4C-22 / E 卡牌覆盖矩阵 post-freeze overlay**
 
 结论：**NOT READY；不允许进入 1009 张卡牌效果批量覆盖。**
 
-本文只建立统计口径、只读数据基线、矩阵字段、风险排序和阶段性证据 overlay，不实现或修改任何卡牌效果。阶段 1/2 建立卡牌覆盖基线；阶段 3A/3B/3C/3D 只给最小 runtime / lifecycle / battle-damage / trigger-ordering 切片补证据标签；阶段 4B 冻结 card entry -> functional unit -> oracle/effectId -> evidence/tests/status 矩阵；阶段 4C-1 记录 APNAP `ORDER_TRIGGERS` 保守 controller-block 子集；阶段 4C-2 / 4C-3 记录 Watchful Sentinel 与 Honest Broker 真实 last-breath 入队；阶段 4C-4 记录 Treasure Pile trigger payment；阶段 4C-5 / 4C-6 记录 Starfall damage 造成 visible Watchful Sentinel / Honest Broker state-based cleanup last-breath 入队；阶段 4C-7 记录 Spirit Fire explicit destroy 造成 visible Scouting Warhawk last-breath rune-call 入队；阶段 4C-8 记录 Starfall lethal damage + state-based cleanup 造成 visible Scouting Warhawk last-breath rune-call 入队；阶段 4C-9 记录 Starfall lethal damage + state-based cleanup 造成 visible Sad/Loyal Poro 条件抽牌 last-breath 入队；阶段 4C-10 记录 Starfall lethal damage + state-based cleanup 造成 visible Unsung Hero 强力条件抽二 last-breath 入队；阶段 4C-11 记录 Starfall lethal damage + state-based cleanup 造成 visible surviving friendly Ghostly Centaur 监听另一友方被摧毁并本回合 +2 入队；阶段 4C-12 记录 visible surviving friendly Resonant Soul 监听 owner 本回合首个友方摧毁并抽 1 入队；阶段 4C-13 记录 Ghostly Centaur / Resonant Soul true stack destruction non-cleanup `UNIT_DESTROYED` route migration；阶段 4C-14 记录 Savage Jawfish / 凶残颚鱼 true stack 与 Starfall cleanup 友方摧毁入队获得经验；阶段 4C-15A 记录 Minion token family model / infrastructure marker；阶段 4C-15B 记录 Viktor destroyed non-Minion token trigger 最小代表性 baseline；阶段 4C-16 / 4C-17 记录 Mechanical Trickster / Ironclad Vanguard true stack last-breath trigger enqueue；阶段 4C-18 记录这两个 FU 的 state-based cleanup last-breath trigger enqueue；阶段 4C-19 记录 Kogmaw visible last-breath AoE damage representative route；阶段 4C-20B 记录 Undercover Agent triggered `HAND_CHOICE` prompt 微切片；阶段 4C-21 记录 Sunken Temple / 沉没神庙 authoritative `TRIGGER_PAYMENT` + `PAY_COST` 征服强力单位支付抽牌代表切片，防止把局部 runtime 或模型前置条件误判为全官方卡牌完成。
+本文只建立统计口径、只读数据基线、矩阵字段、风险排序和阶段性证据 overlay，不实现或修改任何卡牌效果。阶段 1/2 建立卡牌覆盖基线；阶段 3A/3B/3C/3D 只给最小 runtime / lifecycle / battle-damage / trigger-ordering 切片补证据标签；阶段 4B 冻结 card entry -> functional unit -> oracle/effectId -> evidence/tests/status 矩阵；阶段 4C-1 记录 APNAP `ORDER_TRIGGERS` 保守 controller-block 子集；阶段 4C-2 / 4C-3 记录 Watchful Sentinel 与 Honest Broker 真实 last-breath 入队；阶段 4C-4 记录 Treasure Pile trigger payment；阶段 4C-5 / 4C-6 记录 Starfall damage 造成 visible Watchful Sentinel / Honest Broker state-based cleanup last-breath 入队；阶段 4C-7 记录 Spirit Fire explicit destroy 造成 visible Scouting Warhawk last-breath rune-call 入队；阶段 4C-8 记录 Starfall lethal damage + state-based cleanup 造成 visible Scouting Warhawk last-breath rune-call 入队；阶段 4C-9 记录 Starfall lethal damage + state-based cleanup 造成 visible Sad/Loyal Poro 条件抽牌 last-breath 入队；阶段 4C-10 记录 Starfall lethal damage + state-based cleanup 造成 visible Unsung Hero 强力条件抽二 last-breath 入队；阶段 4C-11 记录 Starfall lethal damage + state-based cleanup 造成 visible surviving friendly Ghostly Centaur 监听另一友方被摧毁并本回合 +2 入队；阶段 4C-12 记录 visible surviving friendly Resonant Soul 监听 owner 本回合首个友方摧毁并抽 1 入队；阶段 4C-13 记录 Ghostly Centaur / Resonant Soul true stack destruction non-cleanup `UNIT_DESTROYED` route migration；阶段 4C-14 记录 Savage Jawfish / 凶残颚鱼 true stack 与 Starfall cleanup 友方摧毁入队获得经验；阶段 4C-15A 记录 Minion token family model / infrastructure marker；阶段 4C-15B 记录 Viktor destroyed non-Minion token trigger 最小代表性 baseline；阶段 4C-16 / 4C-17 记录 Mechanical Trickster / Ironclad Vanguard true stack last-breath trigger enqueue；阶段 4C-18 记录这两个 FU 的 state-based cleanup last-breath trigger enqueue；阶段 4C-19 记录 Kogmaw visible last-breath AoE damage representative route；阶段 4C-20B 记录 Undercover Agent triggered `HAND_CHOICE` prompt 微切片；阶段 4C-21 记录 Sunken Temple / 沉没神庙 authoritative `TRIGGER_PAYMENT` + `PAY_COST` 征服强力单位支付抽牌代表切片；阶段 4C-22 记录 Muddy Dredger / 腐泥疏浚工 visible state-based cleanup Last Breath -> Warhawk token 代表切片，防止把局部 runtime 或模型前置条件误判为全官方卡牌完成。
 
 ## 1. 已读取依据
 
@@ -182,7 +182,7 @@ P0 仍存在：
 
 - central cleanup queue 未完整官方化。
 - spell duel / battle 完整生命周期仍未完成。
-- `PAY_COST` 已有 3A 最小 runtime，4C-4 已有 Treasure Pile `TRIGGER_PAYMENT` 代表路径，4C-21 已有 Sunken Temple `TRIGGER_PAYMENT` / `PAY_COST` 征服强力单位支付抽牌代表路径，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime，`ORDER_TRIGGERS` 已从 3D 最小 runtime window 升级为 4C-1 保守 APNAP controller-block 子集，4C-2 / 4C-3 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 只验证 Watchful Sentinel、Honest Broker、visible Watchful cleanup、visible Honest Broker cleanup、Scouting Warhawk explicit destroy、Scouting Warhawk cleanup、Sad/Loyal Poro conditional cleanup、Unsung Hero powerful cleanup、Ghostly Centaur friendly-destroyed cleanup 与 Resonant Soul first-friendly-destroyed cleanup 十类触发入队切片；4C-13 只迁移 Ghostly Centaur / Resonant Soul true stack destruction non-cleanup route；4C-14 只验证 Savage Jawfish true stack 与 Starfall cleanup 友方摧毁入队获得经验切片；4C-15A 只降低 token subtype/family/minion-classification 前置 blocker；4C-15B 只关闭 Viktor destroyed non-Minion trigger enqueue 代表性 baseline；4C-16 / 4C-17 只验证 Mechanical Trickster / Ironclad Vanguard true stack last-breath trigger enqueue / priority 代表路径；4C-18 只验证这两个 FU 的 state-based cleanup last-breath trigger enqueue 代表路径；4C-19 只验证 Kogmaw visible last-breath AoE damage representative route；4C-20B 只验证 Undercover Agent triggered hand-choice prompt 微切片；完整 PaymentEngine、完整 damage assignment 全规则矩阵、完整 trigger engine 仍未正式完成。
+- `PAY_COST` 已有 3A 最小 runtime，4C-4 已有 Treasure Pile `TRIGGER_PAYMENT` 代表路径，4C-21 已有 Sunken Temple `TRIGGER_PAYMENT` / `PAY_COST` 征服强力单位支付抽牌代表路径，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime，`ORDER_TRIGGERS` 已从 3D 最小 runtime window 升级为 4C-1 保守 APNAP controller-block 子集，4C-2 / 4C-3 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 只验证 Watchful Sentinel、Honest Broker、visible Watchful cleanup、visible Honest Broker cleanup、Scouting Warhawk explicit destroy、Scouting Warhawk cleanup、Sad/Loyal Poro conditional cleanup、Unsung Hero powerful cleanup、Ghostly Centaur friendly-destroyed cleanup 与 Resonant Soul first-friendly-destroyed cleanup 十类触发入队切片；4C-13 只迁移 Ghostly Centaur / Resonant Soul true stack destruction non-cleanup route；4C-14 只验证 Savage Jawfish true stack 与 Starfall cleanup 友方摧毁入队获得经验切片；4C-15A 只降低 token subtype/family/minion-classification 前置 blocker；4C-15B 只关闭 Viktor destroyed non-Minion trigger enqueue 代表性 baseline；4C-16 / 4C-17 只验证 Mechanical Trickster / Ironclad Vanguard true stack last-breath trigger enqueue / priority 代表路径；4C-18 只验证这两个 FU 的 state-based cleanup last-breath trigger enqueue 代表路径；4C-19 只验证 Kogmaw visible last-breath AoE damage representative route；4C-20B 只验证 Undercover Agent triggered hand-choice prompt 微切片；4C-22 只验证 Muddy Dredger visible face-up state-based cleanup Last Breath -> `TriggerQueue` -> `ORDER_TRIGGERS` / stack / priority -> Warhawk `UNL·T02` token 代表路径；完整 PaymentEngine、完整 damage assignment 全规则矩阵、完整 trigger engine 仍未正式完成。
 - 正式 18 步 E2E 未最终收口。
 - 1009 张官方卡牌效果与 FAQ 证据矩阵未完成。
 
@@ -214,6 +214,61 @@ P1 仍存在：
 - `src/**`
 
 是否允许进入卡牌效果批量覆盖：**不允许。**
+
+## 35. 阶段 4C-22 E 汇总
+
+阶段 4C-22 名称：Muddy Dredger Last Breath Warhawk representative baseline。E/A 只更新覆盖矩阵与索引证据，不触碰 `riftbound-dotnet.sln`，不进入 1009 张卡 full-official 实现。
+
+身份核对：
+
+- `UNL-153/219` Muddy Dredger / 《腐泥疏浚工》在冻结矩阵中的真实 FU 为 `FU-b829fb32b9`，snapshot entry id 为 `34701`。
+- 当前 oracle/effectId：`MUDDY_DREDGER_LAST_BREATH_WARHAWK_STATIC`；runtime 代表效果 kind 为 `MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK`。
+- 4B status：`NEEDS_ENGINE_SUPPORT`；statusFlags：`IMPLEMENTED_UNTESTED`、`NEEDS_ENGINE_SUPPORT`。
+- Token identity：`UNL·T02` Warhawk / 《战鹰》，1 power unit，带 `法盾`。
+
+本批记录：
+
+- visible face-up Muddy Dredger 被 state-based cleanup lethal damage 摧毁后入 `TriggerQueue`。
+- 多触发经 `ORDER_TRIGGERS`，排序后入 `StackItems`，priority pass 后 `TRIGGER_RESOLVED`。
+- 结算创建一名 Warhawk `UNL·T02` 到 controller base，并记录 `UNIT_TOKEN_CREATED`。
+- hidden / face-down / standby / invalid source no enqueue / no leak / no token。
+- 只标 `FU-b829fb32b9`；Aphelios / `FU-67c6b0186e` 保留为下一批 high-payoff candidate，不作为 4C-22 完成项。
+
+4C-22 矩阵 overlay 统计：
+
+| 项 | 数量 |
+|---|---:|
+| frozen snapshot entries | 1009 |
+| frozen functional units | 811 |
+| `stage4C22` verified FUs | 1 |
+| `stage4C22` verified snapshot entries | 1 |
+| cumulative real-trigger enqueue verified FUs | 16 |
+| cumulative state-based cleanup trigger enqueue verified FUs | 14 |
+| cumulative hand-choice prompt verified FUs | 1 |
+| cumulative trigger-payment verified FUs | 2 |
+| full-official upgrades | 0 |
+| full-official still uncovered FUs | 811 |
+
+4B `freezeStatus` / `statusFlags` 不变，`fullOfficial=false`。4C-22 不关闭 true stack Muddy Dredger route、完整 Last Breath family、完整 hidden original visibility、Warhawk “打出”完整语义、Spellshield target tax、FAQ adjudication 或 1009/811 full-official。
+
+A 验证结果：focused 52/52、backend full 3407/3407、frontend build passed、Chrome smoke passed、JSON / diff check passed。
+
+修改文件：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`
+- `docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`
+
+仍存在 P0/P1：
+
+- 完整 trigger engine、complete APNAP / trigger batch、optional trigger handling 与完整 effect resolution 未完成。
+- complete Last Breath / destroyed / friendly-destroyed family、simultaneous destruction multiplicity matrix 未完成。
+- hidden / face-down 原始触发建模、viewer-specific metadata 全路径、显露窗口未完成。
+- Spellshield target tax / mandatory additional cost / multi-target tax / insufficient payment regression 未完成。
+- FAQ regression、1009 entries / 811 functional units full-official、正式 18-step E2E 与 completion audit 未完成。
+
+是否允许升级 full-official：**不允许。**
 
 ## 34. 阶段 4C-21 E 汇总
 

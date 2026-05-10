@@ -12,6 +12,44 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-10 阶段 4C-22 Muddy Dredger Warhawk Baseline 审计
+
+阶段 4C-22 审计入口：`docs/CURRENT_STAGE4C_BATCH22_MUDDY_DREDGER_WARHAWK_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH22_MUDDY_DREDGER_WARHAWK_EVIDENCE.md`。A 已决定本批收 Muddy Dredger / 腐泥疏浚工 `UNL-153/219` / `FU-b829fb32b9`，而不是 E 建议的 Aphelios；理由是 B/D 都判断 Muddy 是低耦合服务端 representative slice，且代码、focused backend 与 backend full 已通过。项目仍 **NOT READY**。
+
+4C-22 已关闭代表子项：
+
+- visible face-up Muddy Dredger 经 state-based cleanup destruction 产生 `UNIT_DESTROYED` 后进入 `TriggerQueue`。
+- 多触发排序沿用 `ORDER_TRIGGERS`，排序后进入 `StackItems`，priority pass 后 `TRIGGER_RESOLVED`。
+- 结算后创建 Warhawk `UNL·T02` token 到 controller base，并以 token tag / identity 代表 Spellshield。
+- hidden / face-down / standby / invalid source 均 no enqueue / no leak / no token。
+
+4C-22 规则依据：
+
+- `CATALOG` `UNL-153/219`；FU `FU-b829fb32b9`。
+- `CATALOG` `UNL·T02` Warhawk / 战鹰 token。
+- `CORE-260330` p14-p15 rules 142-143；p31-p35 rules 318-340；p52-p55 rules 383.3.d-383.3.e；p77 rule 460；p92-p105 keyword rules 800+。
+- `JFAQ-251023` p2-p4 q2.2-q2.3；`SOUL-OFAQ-260114` p19-p20。
+
+4C-22 验证记录：
+
+- Focused backend：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~MuddyDredger|FullyQualifiedName~RealTriggerQueue"` 通过 52/52。
+- Backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 3407/3407。
+- D 本轮只更新 docs 审计 / 证据 / checkpoint 文档；不修改服务端、前端、coverage matrix JSON 或 `riftbound-dotnet.sln`。
+- Frontend build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过。
+- Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过。
+- Stage 3 preflight 本批未运行；不得替代最终正式 18-step E2E。
+
+仍缺 P0/P1：
+
+- P0：完整 trigger engine、complete APNAP / trigger batch、optional trigger handling 与完整 effect resolution。
+- P0：完整 Last Breath / destroyed / friendly-destroyed family、simultaneous destruction multiplicity matrix。
+- P0：hidden / face-down 原始触发建模、viewer-specific metadata 全路径、显露窗口。
+- P0：Spellshield target tax / mandatory additional cost / multi-target tax / insufficient payment regression；4C-22 只记录 Warhawk token tag。
+- P0：FAQ regression、1009 entries / 811 functional units full-official、正式 18-step E2E 与 completion audit。
+- P1：Warhawk token “打出”语义、token source / ownership / controller event fields 与 token family taxonomy。
+
+4C-22 不宣称 full-official，不宣称 READY / READY-CANDIDATE。
+
 ## 2026-05-10 阶段 4C-21 Sunken Temple Trigger Payment 审计
 
 阶段 4C-21 审计入口：`docs/CURRENT_STAGE4C_BATCH21_SUNKEN_TEMPLE_TRIGGER_PAYMENT_AUDIT.md`。本批已补 Sunken Temple / 沉没神庙 `SFD·218/221` / `FU-05ce012700` 的征服强力单位触发支付代表切片；focused backend 通过 13/13。项目仍 **NOT READY**。

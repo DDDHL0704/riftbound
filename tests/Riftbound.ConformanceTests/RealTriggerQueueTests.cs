@@ -244,6 +244,75 @@ public sealed class RealTriggerQueueTests
     }
 
     [Fact]
+    public async Task StateBasedCleanupMuddyDredgersTriggerOrderAndCreateWarhawksThroughStack()
+    {
+        var engine = new CoreRuleEngine();
+        var cleanup = await ResolveStarfallCleanupAsync(
+            engine,
+            BuildStarfallDestroyingTwoMuddyDredgersState(),
+            "muddy-dredgers");
+
+        Assert.Equal(2, cleanup.State.TriggerQueue.Count);
+        Assert.All(cleanup.State.TriggerQueue, trigger =>
+        {
+            Assert.Equal("MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK", trigger.EffectKind);
+            Assert.Equal("UNIT_DESTROYED", trigger.TriggeredByEventKind);
+        });
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal));
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
+        Assert.Empty(cleanup.State.PlayerZones["P1"].Base);
+        Assert.Empty(cleanup.State.PlayerZones["P2"].Base);
+        Assert.DoesNotContain("P1-CLEANUP-MUDDY-DREDGER-TOKEN-001", cleanup.State.CardObjects.Keys);
+        Assert.DoesNotContain("P2-CLEANUP-MUDDY-DREDGER-TOKEN-001", cleanup.State.CardObjects.Keys);
+
+        var final = await OrderAndResolveTwoUnitTokenTriggersThroughStackAsync(
+            engine,
+            cleanup.State,
+            "muddy-dredgers",
+            "MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK",
+            "P1-CLEANUP-MUDDY-DREDGER",
+            "P2-CLEANUP-MUDDY-DREDGER",
+            "战鹰",
+            1,
+            [CardObjectTags.UnitCard, CardObjectTags.Spellshield, "鸟类"],
+            ["P1-CLEANUP-MUDDY-DREDGER-TOKEN-001"],
+            ["P2-CLEANUP-MUDDY-DREDGER-TOKEN-001"],
+            expectedTokenCardNo: "UNL·T02",
+            expectedEventTags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield, "鸟类"]);
+
+        Assert.Empty(final.State.TriggerQueue);
+        Assert.Empty(final.State.StackItems);
+        AssertWarhawkToken(final.State, "P1-CLEANUP-MUDDY-DREDGER-TOKEN-001", "P1");
+        AssertWarhawkToken(final.State, "P2-CLEANUP-MUDDY-DREDGER-TOKEN-001", "P2");
+    }
+
+    [Fact]
+    public async Task StateBasedCleanupHiddenAndStandbyMuddyDredgersDoNotEnqueueTriggers()
+    {
+        var engine = new CoreRuleEngine();
+        var cleanup = await ResolveStarfallCleanupAsync(
+            engine,
+            BuildStarfallDestroyingHiddenMuddyDredgersState(),
+            "hidden-muddy-dredgers");
+
+        AssertNoMuddyDredgerWarhawkLeak(cleanup);
+        Assert.Empty(cleanup.State.PlayerZones["P1"].Base);
+        Assert.Empty(cleanup.State.PlayerZones["P2"].Base);
+    }
+
+    [Fact]
+    public async Task StateBasedCleanupInvalidMuddyDredgerSourcesDoNotEnqueueTriggers()
+    {
+        var engine = new CoreRuleEngine();
+        var cleanup = await ResolveStarfallCleanupAsync(
+            engine,
+            BuildStarfallDestroyingInvalidMuddyDredgerSourcesState(),
+            "invalid-muddy-dredgers");
+
+        AssertNoMuddyDredgerWarhawkLeak(cleanup);
+    }
+
+    [Fact]
     public async Task StateBasedCleanupHiddenMechanicalTrickstersDoNotEnqueueTriggers()
     {
         var engine = new CoreRuleEngine();
@@ -2322,6 +2391,34 @@ public sealed class RealTriggerQueueTests
         return p2Pass;
     }
 
+    private static void AssertWarhawkToken(MatchState state, string tokenObjectId, string playerId)
+    {
+        var token = state.CardObjects[tokenObjectId];
+        Assert.Equal("UNL·T02", token.CardNo);
+        Assert.Equal(1, token.Power);
+        Assert.Equal(playerId, token.OwnerId);
+        Assert.Equal(playerId, token.ControllerId);
+        Assert.Contains(tokenObjectId, state.PlayerZones[playerId].Base);
+        Assert.Contains(CardObjectTags.UnitCard, token.Tags);
+        Assert.Contains(CardObjectTags.Spellshield, token.Tags);
+    }
+
+    private static void AssertNoMuddyDredgerWarhawkLeak(ResolutionResult cleanup)
+    {
+        Assert.Empty(cleanup.State.TriggerQueue);
+        Assert.Empty(cleanup.State.StackItems);
+        Assert.DoesNotContain(cleanup.Events, gameEvent =>
+            gameEvent.Payload.TryGetValue("effectKind", out var effectKind)
+            && string.Equals(effectKind as string, "MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK", StringComparison.Ordinal));
+        Assert.DoesNotContain(cleanup.Events, gameEvent =>
+            gameEvent.Payload.TryGetValue("abilityId", out var abilityId)
+            && string.Equals(abilityId as string, "MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK", StringComparison.Ordinal));
+        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
+        Assert.DoesNotContain(cleanup.State.CardObjects.Values, cardObject =>
+            string.Equals(cardObject.CardNo, "UNL·T02", StringComparison.Ordinal));
+        Assert.NotEqual(PromptTypes.OrderTriggers, cleanup.Prompts["P1"].View?.Type);
+    }
+
     private static async Task<ResolutionResult> ResolveSingleViktorTriggerThroughStackAsync(
         CoreRuleEngine engine,
         MatchState state,
@@ -2547,7 +2644,9 @@ public sealed class RealTriggerQueueTests
         int tokenPower,
         IReadOnlyList<string> expectedTags,
         IReadOnlyList<string> p1TokenObjectIds,
-        IReadOnlyList<string> p2TokenObjectIds)
+        IReadOnlyList<string> p2TokenObjectIds,
+        string expectedTokenCardNo = "",
+        IReadOnlyList<string>? expectedEventTags = null)
     {
         var p1Trigger = Assert.Single(state.TriggerQueue, trigger =>
             string.Equals(trigger.ControllerId, "P1", StringComparison.Ordinal));
@@ -2627,6 +2726,15 @@ public sealed class RealTriggerQueueTests
             Assert.Equal(p2SourceObjectId, gameEvent.Payload["sourceObjectId"]);
             Assert.Equal(tokenName, gameEvent.Payload["tokenName"]);
             Assert.Equal(tokenPower, gameEvent.Payload["power"]);
+            if (!string.IsNullOrWhiteSpace(expectedTokenCardNo))
+            {
+                Assert.Equal(expectedTokenCardNo, gameEvent.Payload["tokenCardNo"]);
+            }
+
+            if (expectedEventTags is not null)
+            {
+                Assert.Equal(expectedEventTags, Assert.IsAssignableFrom<IReadOnlyList<string>>(gameEvent.Payload["tokenTags"]));
+            }
         });
         Assert.Equal(p2TokenObjectIds, p1ResolvesP2Trigger.State.PlayerZones["P2"].Base);
         Assert.Single(p1ResolvesP2Trigger.State.StackItems);
@@ -2647,6 +2755,22 @@ public sealed class RealTriggerQueueTests
             .Where(gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal))
             .ToArray();
         Assert.Equal(p1TokenObjectIds.Count, p1TokenEvents.Length);
+        Assert.All(p1TokenEvents, gameEvent =>
+        {
+            Assert.Equal("P1", gameEvent.Payload["playerId"]);
+            Assert.Equal(p1SourceObjectId, gameEvent.Payload["sourceObjectId"]);
+            Assert.Equal(tokenName, gameEvent.Payload["tokenName"]);
+            Assert.Equal(tokenPower, gameEvent.Payload["power"]);
+            if (!string.IsNullOrWhiteSpace(expectedTokenCardNo))
+            {
+                Assert.Equal(expectedTokenCardNo, gameEvent.Payload["tokenCardNo"]);
+            }
+
+            if (expectedEventTags is not null)
+            {
+                Assert.Equal(expectedEventTags, Assert.IsAssignableFrom<IReadOnlyList<string>>(gameEvent.Payload["tokenTags"]));
+            }
+        });
         Assert.Empty(p2ResolvesP1Trigger.State.TriggerQueue);
         Assert.Empty(p2ResolvesP1Trigger.State.StackItems);
         Assert.Equal(p1TokenObjectIds, p2ResolvesP1Trigger.State.PlayerZones["P1"].Base);
@@ -3810,6 +3934,48 @@ public sealed class RealTriggerQueueTests
             p2IsFaceDown: false,
             p1Tags: [CardObjectTags.UnitCard, "机械", "约德尔人"],
             p2Tags: [CardObjectTags.UnitCard, "机械", "约德尔人", CardObjectTags.Standby]);
+    }
+
+    private static MatchState BuildStarfallDestroyingTwoMuddyDredgersState()
+    {
+        return BuildStarfallDestroyingTokenLastBreathUnitsState(
+            "cleanup-muddy-dredger-trigger-room",
+            "P1-CLEANUP-MUDDY-DREDGER",
+            "P2-CLEANUP-MUDDY-DREDGER",
+            cardNo: "UNL-153/219",
+            power: 1,
+            p1IsFaceDown: false,
+            p2IsFaceDown: false,
+            p1Tags: [CardObjectTags.UnitCard],
+            p2Tags: [CardObjectTags.UnitCard]);
+    }
+
+    private static MatchState BuildStarfallDestroyingHiddenMuddyDredgersState()
+    {
+        return BuildStarfallDestroyingTokenLastBreathUnitsState(
+            "cleanup-hidden-muddy-dredger-trigger-room",
+            "P1-CLEANUP-HIDDEN-MUDDY-DREDGER",
+            "P2-CLEANUP-STANDBY-MUDDY-DREDGER",
+            cardNo: "UNL-153/219",
+            power: 1,
+            p1IsFaceDown: true,
+            p2IsFaceDown: false,
+            p1Tags: [CardObjectTags.UnitCard],
+            p2Tags: [CardObjectTags.UnitCard, CardObjectTags.Standby]);
+    }
+
+    private static MatchState BuildStarfallDestroyingInvalidMuddyDredgerSourcesState()
+    {
+        return BuildStarfallDestroyingTokenLastBreathUnitsState(
+            "cleanup-invalid-muddy-dredger-trigger-room",
+            "P1-CLEANUP-INVALID-MUDDY-DREDGER",
+            "P2-CLEANUP-INVALID-MUDDY-DREDGER",
+            cardNo: "UNL-153/219",
+            power: 1,
+            p1IsFaceDown: false,
+            p2IsFaceDown: false,
+            p1Tags: [],
+            p2Tags: []);
     }
 
     private static MatchState BuildStarfallDestroyingTwoHonestBrokersState()

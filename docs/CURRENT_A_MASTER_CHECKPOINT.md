@@ -36,10 +36,19 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 
 当前常驻审查池：
 
-- B-Review / Bohr：`019e0bbc-d5d3-75a2-bde2-13e99da8ed76`
+- B-Review / Maxwell：`019e1068-5757-7bd1-8129-d401c60e0b7f`
 - C-Review / Copernicus：`019e0bbc-df6f-7151-baf5-f79ff466c5a9`
-- D-Review / Pasteur：`019e0bbc-ece9-7fe1-a2ea-8e2afee1f5a2`
-- E-Review / Dewey：`019e0bdf-e12c-71c3-a394-cbfa3b7942a1`
+- D-Review / Nash：`019e1068-6042-7dc3-a45c-655838d02b92`
+- E-Review / Poincare：`019e1068-6975-7242-9143-1c50d7ce23fa`
+
+旧池记录：Bohr `019e0bbc-d5d3-75a2-bde2-13e99da8ed76`、Pasteur `019e0bbc-ece9-7fe1-a2ea-8e2afee1f5a2`、Dewey `019e0bdf-e12c-71c3-a394-cbfa3b7942a1` 在 4C-22 派单时已无法通信，工具返回 `agent not found`；不要继续依赖这些旧 id。
+
+长期子 agent 规则：
+
+- B/C/D/E 是长期可复用工作池，阶段内不要因为一次超时就 `close_agent`。
+- 超时处理顺序：先 `send_input` 状态询问；再等待；必要时由 A 收回对应写入锁并标记该 agent 暂停，不关闭线程。
+- 只有用户明确要求清理、阶段收口且确认不再复用、或 agent 上下文明显污染/不可通信时，才允许关闭或重建。
+- 如果必须重建常驻池，必须立即更新本节 agent id，并说明旧 id 失效原因。
 
 ## 0.2 阶段 0 当前基线
 
@@ -2031,6 +2040,53 @@ A 主控复验：
 - P1：Sunken Temple full-official timing matrix，包括 effective power / LayerEngine、temporary modifier、征服后变强力、战场上多单位同时离场等组合仍需补证据和测试。
 
 4C-21 结论：**通过 Sunken Temple triggered payment 代表切片，未关闭 full-official**。阶段 4C 可继续推进下一批规则切片；项目整体仍 **NOT READY**。
+
+## 0.35 阶段 4C-22 Muddy Dredger Warhawk Baseline 审计
+
+阶段 4C-22 已由 A 决定收 Muddy Dredger / 腐泥疏浚工 `UNL-153/219` / `FU-b829fb32b9`，而不是 E 建议的 Aphelios。理由是 B/D 都判断 Muddy 是低耦合服务端 representative slice，且代码、focused backend 与 backend full 已通过。本批只关闭 visible face-up Last Breath -> Warhawk token 的代表性服务端子项，不代表 full-official，不得标记 READY / READY-CANDIDATE。项目整体仍 **NOT READY**。
+
+4C-22 基线：从 checkpoint `5241179` `checkpoint: complete stage 4C sunken temple trigger payment baseline` 之后继续推进；不得回滚或覆盖本文件顶部 A 刚加的长期代理池记录。
+
+4C-22 审计入口：
+
+- `docs/CURRENT_STAGE4C_BATCH22_MUDDY_DREDGER_WARHAWK_AUDIT.md`。
+- `docs/CURRENT_STAGE4C_BATCH22_MUDDY_DREDGER_WARHAWK_EVIDENCE.md`。
+
+4C-22 已关闭服务端子项：
+
+- visible face-up Muddy Dredger 被 state-based cleanup 摧毁后产生 `UNIT_DESTROYED` 并进入 `TriggerQueue`。
+- 触发经 `ORDER_TRIGGERS` -> `StackItems` -> priority pass -> `TRIGGER_RESOLVED` 结算。
+- 结算后 `UNIT_TOKEN_CREATED` Warhawk `UNL·T02` 到 controller base。
+- hidden / face-down / standby / invalid source no enqueue / no leak / no token。
+- Spellshield 只以 Warhawk token tag / identity 代表；Spellshield target tax 不在本批关闭。
+
+4C-22 证据入口：
+
+- `CATALOG` `UNL-153/219`：Muddy Dredger / 腐泥疏浚工 Last Breath 创建 / 打出 Warhawk 到你的基地。
+- `CATALOG` `UNL·T02`：Warhawk / 战鹰 1 power token unit，带 Spellshield。
+- `CORE-260330` p14-p15 rules 142-143；p31-p35 rules 318-340；p52-p55 rules 383.3.d-383.3.e；p77 rule 460；p92-p105 keyword rules 800+。
+- `JFAQ-251023` p2-p4 q2.2-q2.3；`SOUL-OFAQ-260114` p19-p20。
+
+4C-22 验证结果：
+
+- Focused backend：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~MuddyDredger|FullyQualifiedName~RealTriggerQueue"` 通过 52/52。
+- Backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 3407/3407。
+- Frontend build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过。
+- Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过。
+- Stage 3 preflight 本批未运行；正式 18-step E2E 未运行。
+- D 本轮只更新 docs 审计 / 证据 / checkpoint 文档；不修改服务端、前端、coverage matrix JSON 或 `riftbound-dotnet.sln`。
+- 正式 18-step E2E 未运行；本批验证不得替代最终验收。
+
+4C-22 后仍保留 P0/P1：
+
+- P0：完整 trigger engine、complete APNAP / trigger batch、optional trigger handling、完整 effect resolution 仍未关闭。
+- P0：完整 Last Breath / destroyed / friendly-destroyed family、same-source / same-pass / simultaneous destruction multiplicity matrix 仍未关闭。
+- P0：hidden / face-down 原始触发建模、viewer-specific metadata 全路径、显露窗口仍未关闭。
+- P0：Spellshield target tax / mandatory additional cost / multi-target tax / insufficient payment regression 不由本批关闭。
+- P0：FAQ regression、1009 entries / 811 functional units full-official、正式 18-step E2E 与 completion audit 仍未完成。
+- P1：Warhawk token “打出”语义、token source / ownership / controller event fields 与 token family taxonomy 仍需后续证据。
+
+4C-22 结论：**通过 Muddy Dredger Warhawk representative baseline，未关闭 full-official**。阶段 4C 可继续推进下一批低耦合规则切片；项目整体仍 **NOT READY**。
 
 ## 1. 总目标
 
