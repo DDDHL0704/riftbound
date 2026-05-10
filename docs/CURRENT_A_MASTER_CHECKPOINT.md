@@ -288,7 +288,7 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 
 ## 0.1.5 阶段 4C-27 Treasure Hunter Checkpoint
 
-状态：**已完成极窄代表切片文档收口；项目仍 NOT READY。**
+状态：**已完成极窄代表切片与文档 / 矩阵收口；项目仍 NOT READY。**
 
 阶段 4C-27 名称：Treasure Hunter move -> dormant Gold representative baseline。
 
@@ -575,6 +575,74 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - `fullOfficial=false`。
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Reprimand 代表路径外推完整 swift、reaction timing、spell-duel breadth、targeting、return-to-hand、movement、PaymentEngine、FEPR、named deferred candidates 或 full-official。
+
+## 0.1.10 阶段 4C-32 Ride the Wind Checkpoint
+
+状态：**已完成极窄代表切片文档收口；项目仍 NOT READY。**
+
+阶段 4C-32 名称：Ride the Wind move friendly battlefield unit to owner base ready guard representative baseline。
+
+本批候选审查事实：
+
+- A 选择 Ride the Wind / 驭风而行 `OGN·173/298` / cardId `31403` / `FU-6f84196631` / `RIDE_THE_WIND_MOVE_FRIENDLY_BATTLEFIELD_UNIT_TO_BASE_READY` 作为 4C-32 narrow movement + ready target guard slice。
+- Ride the Wind 规则文本：迅捷法术，移动一名友方单位，然后让其变为活跃状态。
+- 代表路径：P1 打出 Ride the Wind，选择合法 friendly public battlefield unit target，双方 priority pass 后结算，目标 ready 并移动到 owner base。
+- guard：enemy battlefield unit、friendly base unit、stale unit、face-down standby object、friendly battlefield equipment、friendly battlefield spell object、friendly battlefield rune object 均 `INVALID_TARGET`，no tick / no events / no payment / no hand movement / no stack item / no ready / no move / no leak。
+- hidden-info stance：face-down standby target 被拒绝且不暴露真实身份；opponent hidden info 继续由 viewer-specific snapshot / redaction 保护。
+- 本批不新增 protocol / frontend shape；前端仍只消费既有 play-card / stack / move / ready event，不本地裁决目标合法性或 movement / ready 结算。
+- Hostile Takeover、Berserk Impulse、Edge of Night、Karthus、Aphelios 仍按 deferred / design-gated 候选管理，不由本批关闭。
+
+4C-32 B 服务端修改文件：
+
+- `src/Riftbound.Engine/CoreRuleEngine.cs`（B）
+- `tests/Riftbound.ConformanceTests/RideTheWindMoveGuardTests.cs`（B）
+
+4C-32 D 文档修改文件：
+
+- `docs/CURRENT_STAGE4C_BATCH32_RIDE_THE_WIND_MOVE_GUARD_AUDIT.md`（D）
+- `docs/CURRENT_STAGE4C_BATCH32_RIDE_THE_WIND_MOVE_GUARD_EVIDENCE.md`（D）
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`（D）
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`（D）
+- `docs/rules-evidence-index.md`（D）
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`（D write lock）
+
+4C-32 E 覆盖矩阵 / risk / freeze 修改文件：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`（E）
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`（E）
+- `docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`（E）
+- `docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`（E / A 收尾）
+
+已跑验证：
+
+- Focused backend：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~RideTheWind|FullyQualifiedName~Ride|FullyQualifiedName~MoveGuard"` 通过 11/11。
+- Adjacent guard regression：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~RideTheWindMoveGuardTests|FullyQualifiedName~BattleOrFlightMoveToBaseTests|FullyQualifiedName~ReprimandReturnToHandGuardTests|FullyQualifiedName~GustReturnToHandTests|FullyQualifiedName~HuntTheWeakDestroyGuardTests"` 通过 32/32。
+- Backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 3479/3479。
+- Frontend build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过。
+- Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过。
+- 以上 focused / full / build / smoke 不得替代最终正式 18-step E2E。
+
+本批关闭的代表子项：
+
+- `FU-6f84196631` / `OGN·173/298` visible spell resolution ready + move friendly public battlefield unit to owner base 代表路径。
+- friendly public battlefield unit target 的服务端权威 guard。
+- enemy battlefield unit、friendly base unit、stale unit、face-down standby object、friendly battlefield equipment、friendly battlefield spell object、friendly battlefield rune object invalid-target no-mutation 代表护栏。
+- face-down standby invalid target 不暴露真实身份 / hidden info 的代表性安全口径。
+
+仍缺：
+
+- Ride the Wind / swift 相关 swift / reaction timing、spell-duel breadth、完整 movement / roam / precise battlefield / control-zone matrix、owner/controller split、attached-equipment replacement 保持 P1/P2 后续项；本批不新增这些方向的 P0。
+- 完整 target prompt、target invalidation、hidden / face-down target policy、Spellshield target tax。
+- 完整 ready / move / zone lifecycle、replacement / prevention / cleanup 交织。
+- 完整 PaymentEngine、play-card cost Quote / Authorize / Commit、替代 / 额外费用与支付资源矩阵。
+- Hostile Takeover control lifecycle、Berserk Impulse hidden-zone reveal / choose / recycle、Edge of Night face-down standby attach、Karthus extra Last Breath、Aphelios weapon-attachment three-mode design gates。
+- full FAQ regression、1009/811 full-official、正式 18-step E2E、completion audit。
+
+口径：
+
+- `fullOfficial=false`。
+- 不宣称 READY / READY-CANDIDATE。
+- 不因 Ride the Wind 代表路径外推完整 swift、reaction timing、spell-duel breadth、targeting、movement、roam、precise battlefield、ready、PaymentEngine、FEPR、named deferred candidates 或 full-official。
 
 ## 0.2 阶段 0 当前基线
 
