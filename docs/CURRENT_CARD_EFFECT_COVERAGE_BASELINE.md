@@ -2,11 +2,11 @@
 
 更新时间：2026-05-10
 
-阶段：**阶段 4C-35 / E 卡牌覆盖矩阵 post-freeze overlay**
+阶段：**阶段 4C-36 / E 卡牌覆盖矩阵 post-freeze overlay**
 
 结论：**NOT READY；不允许进入 1009 张卡牌效果批量覆盖。**
 
-本文只建立统计口径、只读数据基线、矩阵字段、风险排序和阶段性证据 overlay，不实现或修改任何卡牌效果。阶段 1/2 建立卡牌覆盖基线；阶段 3A/3B/3C/3D 只给最小 runtime / lifecycle / battle-damage / trigger-ordering 切片补证据标签；阶段 4B 冻结 card entry -> functional unit -> oracle/effectId -> evidence/tests/status 矩阵；阶段 4C-1 记录 APNAP `ORDER_TRIGGERS` 保守 controller-block 子集；阶段 4C-2 / 4C-3 记录 Watchful Sentinel 与 Honest Broker 真实 last-breath 入队；阶段 4C-4 记录 Treasure Pile trigger payment；阶段 4C-5 / 4C-6 记录 Starfall damage 造成 visible Watchful Sentinel / Honest Broker state-based cleanup last-breath 入队；阶段 4C-7 记录 Spirit Fire explicit destroy 造成 visible Scouting Warhawk last-breath rune-call 入队；阶段 4C-8 记录 Starfall lethal damage + state-based cleanup 造成 visible Scouting Warhawk last-breath rune-call 入队；阶段 4C-9 记录 Starfall lethal damage + state-based cleanup 造成 visible Sad/Loyal Poro 条件抽牌 last-breath 入队；阶段 4C-10 记录 Starfall lethal damage + state-based cleanup 造成 visible Unsung Hero 强力条件抽二 last-breath 入队；阶段 4C-11 记录 Starfall lethal damage + state-based cleanup 造成 visible surviving friendly Ghostly Centaur 监听另一友方被摧毁并本回合 +2 入队；阶段 4C-12 记录 visible surviving friendly Resonant Soul 监听 owner 本回合首个友方摧毁并抽 1 入队；阶段 4C-13 记录 Ghostly Centaur / Resonant Soul true stack destruction non-cleanup `UNIT_DESTROYED` route migration；阶段 4C-14 记录 Savage Jawfish / 凶残颚鱼 true stack 与 Starfall cleanup 友方摧毁入队获得经验；阶段 4C-15A 记录 Minion token family model / infrastructure marker；阶段 4C-15B 记录 Viktor destroyed non-Minion token trigger 最小代表性 baseline；阶段 4C-16 / 4C-17 记录 Mechanical Trickster / Ironclad Vanguard true stack last-breath trigger enqueue；阶段 4C-18 记录这两个 FU 的 state-based cleanup last-breath trigger enqueue；阶段 4C-19 记录 Kogmaw visible last-breath AoE damage representative route；阶段 4C-20B 记录 Undercover Agent triggered `HAND_CHOICE` prompt 微切片；阶段 4C-21 记录 Sunken Temple / 沉没神庙 authoritative `TRIGGER_PAYMENT` + `PAY_COST` 征服强力单位支付抽牌代表切片；阶段 4C-22 记录 Muddy Dredger / 腐泥疏浚工 visible state-based cleanup Last Breath -> Warhawk token 代表切片；阶段 4C-23 记录 Lux / 拉克丝 high-cost spell temporary power 代表切片；阶段 4C-24 记录 Vayne / 薇恩 visible face-up conquer -> `TRIGGER_PAYMENT` / `PAY_COST` pay 1 return-self 代表切片；阶段 4C-25 记录 Icevale Archer / 冰谷弓箭手 attack payment target-selection 代表切片；阶段 4C-26 记录 Jax / 贾克斯 weapon attach -> `TRIGGER_PAYMENT` / `PAY_COST` pay 1 draw 1 代表切片；阶段 4C-27 记录 Treasure Hunter / 寻宝猎人移动后创建休眠 Gold 装备指示物代表切片；阶段 4C-28 记录 Battle or Flight / 战或逃目标战场单位移回 owner base 与 target guard hardening 代表切片；阶段 4C-29 记录 Gust / 罡风 valid public battlefield unit power <= 3 return-to-owner-hand 与 invalid target guard 代表切片；阶段 4C-30 记录 Hunt the Weak / 狩魂 valid public battlefield unit power <= 3 destroy-target guard 代表切片；阶段 4C-31 记录 Reprimand / 责退 valid public battlefield unit return-to-owner-hand target guard 代表切片；阶段 4C-32 记录 Ride the Wind / 驭风而行 friendly public battlefield unit ready -> owner base movement target guard 代表切片；阶段 4C-33 记录 Charm / 魅惑妖术 enemy public battlefield unit -> owner base movement target guard 代表切片；阶段 4C-34 记录 Isolate / 隔绝 enemy public battlefield unit -> owner base no-draw movement target guard 代表切片；阶段 4C-35 记录 Vengeance / 复仇 public unit destroy target guard 代表切片，防止把局部 runtime 或模型前置条件误判为全官方卡牌完成。
+本文只建立统计口径、只读数据基线、矩阵字段、风险排序和阶段性证据 overlay，不实现或修改任何卡牌效果。阶段 1/2 建立卡牌覆盖基线；阶段 3A/3B/3C/3D 只给最小 runtime / lifecycle / battle-damage / trigger-ordering 切片补证据标签；阶段 4B 冻结 card entry -> functional unit -> oracle/effectId -> evidence/tests/status 矩阵；阶段 4C-1 记录 APNAP `ORDER_TRIGGERS` 保守 controller-block 子集；阶段 4C-2 / 4C-3 记录 Watchful Sentinel 与 Honest Broker 真实 last-breath 入队；阶段 4C-4 记录 Treasure Pile trigger payment；阶段 4C-5 / 4C-6 记录 Starfall damage 造成 visible Watchful Sentinel / Honest Broker state-based cleanup last-breath 入队；阶段 4C-7 记录 Spirit Fire explicit destroy 造成 visible Scouting Warhawk last-breath rune-call 入队；阶段 4C-8 记录 Starfall lethal damage + state-based cleanup 造成 visible Scouting Warhawk last-breath rune-call 入队；阶段 4C-9 记录 Starfall lethal damage + state-based cleanup 造成 visible Sad/Loyal Poro 条件抽牌 last-breath 入队；阶段 4C-10 记录 Starfall lethal damage + state-based cleanup 造成 visible Unsung Hero 强力条件抽二 last-breath 入队；阶段 4C-11 记录 Starfall lethal damage + state-based cleanup 造成 visible surviving friendly Ghostly Centaur 监听另一友方被摧毁并本回合 +2 入队；阶段 4C-12 记录 visible surviving friendly Resonant Soul 监听 owner 本回合首个友方摧毁并抽 1 入队；阶段 4C-13 记录 Ghostly Centaur / Resonant Soul true stack destruction non-cleanup `UNIT_DESTROYED` route migration；阶段 4C-14 记录 Savage Jawfish / 凶残颚鱼 true stack 与 Starfall cleanup 友方摧毁入队获得经验；阶段 4C-15A 记录 Minion token family model / infrastructure marker；阶段 4C-15B 记录 Viktor destroyed non-Minion token trigger 最小代表性 baseline；阶段 4C-16 / 4C-17 记录 Mechanical Trickster / Ironclad Vanguard true stack last-breath trigger enqueue；阶段 4C-18 记录这两个 FU 的 state-based cleanup last-breath trigger enqueue；阶段 4C-19 记录 Kogmaw visible last-breath AoE damage representative route；阶段 4C-20B 记录 Undercover Agent triggered `HAND_CHOICE` prompt 微切片；阶段 4C-21 记录 Sunken Temple / 沉没神庙 authoritative `TRIGGER_PAYMENT` + `PAY_COST` 征服强力单位支付抽牌代表切片；阶段 4C-22 记录 Muddy Dredger / 腐泥疏浚工 visible state-based cleanup Last Breath -> Warhawk token 代表切片；阶段 4C-23 记录 Lux / 拉克丝 high-cost spell temporary power 代表切片；阶段 4C-24 记录 Vayne / 薇恩 visible face-up conquer -> `TRIGGER_PAYMENT` / `PAY_COST` pay 1 return-self 代表切片；阶段 4C-25 记录 Icevale Archer / 冰谷弓箭手 attack payment target-selection 代表切片；阶段 4C-26 记录 Jax / 贾克斯 weapon attach -> `TRIGGER_PAYMENT` / `PAY_COST` pay 1 draw 1 代表切片；阶段 4C-27 记录 Treasure Hunter / 寻宝猎人移动后创建休眠 Gold 装备指示物代表切片；阶段 4C-28 记录 Battle or Flight / 战或逃目标战场单位移回 owner base 与 target guard hardening 代表切片；阶段 4C-29 记录 Gust / 罡风 valid public battlefield unit power <= 3 return-to-owner-hand 与 invalid target guard 代表切片；阶段 4C-30 记录 Hunt the Weak / 狩魂 valid public battlefield unit power <= 3 destroy-target guard 代表切片；阶段 4C-31 记录 Reprimand / 责退 valid public battlefield unit return-to-owner-hand target guard 代表切片；阶段 4C-32 记录 Ride the Wind / 驭风而行 friendly public battlefield unit ready -> owner base movement target guard 代表切片；阶段 4C-33 记录 Charm / 魅惑妖术 enemy public battlefield unit -> owner base movement target guard 代表切片；阶段 4C-34 记录 Isolate / 隔绝 enemy public battlefield unit -> owner base no-draw movement target guard 代表切片；阶段 4C-35 记录 Vengeance / 复仇 public unit destroy target guard 代表切片；阶段 4C-36 记录 Hostile Takeover / 恶意收购 gain-control ready enemy battlefield unit target guard 代表切片，防止把局部 runtime 或模型前置条件误判为全官方卡牌完成。
 
 ## 1. 已读取依据
 
@@ -2185,6 +2185,52 @@ Snapshot entry primary status counts：
 - 完整 hidden visibility / face-down / standby visibility model 未覆盖。
 - Spellshield target tax、target invalidation、attached-equipment detach / replacement breadth、destroyed-this-turn memory 未覆盖。
 - all destroy-target spell family、1009/811 full-official、正式 18-step E2E 仍未完成。
+
+是否允许批量 full-official 覆盖：**不允许。**
+
+
+## 49. 阶段 4C-36 E 汇总
+
+阶段 4C-36 名称：Hostile Takeover gain-control ready enemy battlefield unit target-guard representative baseline。E/A 只更新覆盖矩阵与风险证据，不触碰 `riftbound-dotnet.sln`，不进入 1009 张卡 full-official 实现。
+
+身份核对：
+
+- `SFD·202/221` Hostile Takeover / 《恶意收购》在冻结矩阵中的真实 FU 为 `FU-00ee09c2cc`。
+- snapshot entry / cardId：`SFD·202/221` / `33301`。
+- 当前 oracle/effectId：`HOSTILE_TAKEOVER_GAIN_CONTROL_READY_ENEMY_BATTLEFIELD_UNIT`。
+- 4B status 保守不变：`IMPLEMENTED_TESTED`；statusFlags：`IMPLEMENTED_TESTED`、`NEEDS_ENGINE_SUPPORT`、`NEEDS_FAQ_REVIEW`。
+- rules / FAQ refs：`CORE-260330 p46`、`SOUL-JFAQ-260114 p22`、`SOUL-OFAQ-260114 p21`；FAQ refs remain open。
+
+本批记录：
+
+- enemy public battlefield unit target -> service-authoritative guard -> gain control -> ready target。
+- invalid target guards：friendly battlefield unit、enemy base unit、stale unit、face-down standby、enemy battlefield equipment、enemy battlefield spell object、enemy battlefield rune object 均 no mutation / no control change / no leak。
+- 验证结果：focused 265/265、adjacent guard 157/157、backend full 3515/3515、frontend build passed、Chrome smoke passed。
+- 只记录 `FU-00ee09c2cc` / `SFD·202/221` 的代表切片；Berserk Impulse / `FU-b05eda44ce`、Edge of Night / `FU-804412488c` 仍为高风险后续候选，Karthus / `FU-ee1dfb3ed3` 与 Aphelios / `FU-67c6b0186e` 仍 design-gated。
+
+4C-36 矩阵 overlay 统计口径：
+
+| 项 | 数量 |
+|---|---:|
+| frozen snapshot entries | 1009 |
+| frozen functional units | 811 |
+| `stage4C36` verified FUs | 1 |
+| `stage4C36` verified snapshot entries | 1 |
+| cumulative targeted movement-to-owner-base verified FUs | 4 |
+| cumulative return-to-owner-hand target-guard verified FUs | 2 |
+| cumulative destroy-target guard verified FUs | 2 |
+| cumulative control-ready target guard verified FUs | 1 |
+| full-official upgrades | 0 |
+| full-official still uncovered FUs | 811 |
+
+仍存在 P0/P1：
+
+- 完整 control-change matrix 未覆盖。
+- 完整 ready / exhaust semantics 未覆盖。
+- 完整 FEPR targeting / target legality matrix 未覆盖。
+- payment / battle / hidden-zone interactions 未覆盖。
+- FAQ adjudication for `SOUL-JFAQ-260114 p22` / `SOUL-OFAQ-260114 p21` 未完成。
+- all gain-control cards、1009/811 full-official、正式 18-step E2E 仍未完成。
 
 是否允许批量 full-official 覆盖：**不允许。**
 

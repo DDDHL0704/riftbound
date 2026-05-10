@@ -846,6 +846,70 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Vengeance 代表路径外推完整 destroy、cleanup、replacement、Last Breath、targeting、PaymentEngine、FEPR、named deferred candidates 或 full-official。
 
+## 0.1.14 阶段 4C-36 Hostile Takeover Checkpoint
+
+状态：**D 文档代表切片已入账；项目仍 NOT READY。**
+
+阶段 4C-36 名称：Hostile Takeover control-ready target guard representative baseline。
+
+本批候选审查事实：
+
+- A/B 选择 Hostile Takeover / 恶意收购 `SFD·202/221` / cardId `33301` / `FU-00ee09c2cc` / `HOSTILE_TAKEOVER_GAIN_CONTROL_READY_ENEMY_BATTLEFIELD_UNIT` 作为 4C-36 narrow control-ready target guard slice。
+- Hostile Takeover 规则文本锚点：获得战场上一名敌方单位的控制权并让其变为活跃状态；回合结束时失去该单位控制权并召回。
+- 代表路径：P1 打出 Hostile Takeover，选择 enemy public battlefield unit，双方 priority pass 后结算，P1 获得该单位控制权并 ready；对象 owner 仍为 P2，controller 变为 P1，仍留在 battlefield，并安排 `RETURN_CONTROL_TO_OWNER_AT_TURN_END:P2`。
+- 代表证据可引用既有 P5 end-turn return / recall fixture：覆盖临时控制状态在回合结束时归还并召回 owner base；该 fixture 只作为代表证据，不升级 full official。
+- guard：friendly battlefield unit、enemy base unit、stale object、face-down standby object、battlefield equipment、battlefield spell object、battlefield rune object、hand / private unit 均 `INVALID_TARGET`，no tick / no events / no payment / no hand movement / no stack item / no control / no ready / no leak。
+- hidden-info stance：face-down standby 与 private-zone target 被拒绝且不暴露真实身份；opponent hidden info 继续由 viewer-specific snapshot / redaction 保护。
+- 本批不新增 protocol / frontend shape；前端仍只消费既有 play-card / stack / control / ready / end-turn event，不本地裁决目标合法性、控制权或召回结算。
+- Berserk Impulse、Edge of Night、Karthus、Aphelios 仍按 deferred / design-gated 候选管理，不由本批关闭。
+
+4C-36 B 服务端修改文件：
+
+- `src/Riftbound.Engine/CoreRuleEngine.cs`（B）
+- `tests/Riftbound.ConformanceTests/HostileTakeoverGuardTests.cs`（B）
+
+4C-36 D 文档修改文件：
+
+- `docs/CURRENT_STAGE4C_BATCH36_HOSTILE_TAKEOVER_CONTROL_READY_AUDIT.md`
+- `docs/CURRENT_STAGE4C_BATCH36_HOSTILE_TAKEOVER_CONTROL_READY_EVIDENCE.md`
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`
+- `docs/rules-evidence-index.md`
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+
+验证占位：
+
+- Focused backend：通过 265/265。
+- Adjacent guard regression：通过 157/157。
+- Backend full：通过 3515/3515。
+- Frontend build：通过。
+- Chrome smoke：通过。
+- 上述 focused / adjacent 不得替代最终正式 18-step E2E。
+
+本批关闭的代表子项：
+
+- `FU-00ee09c2cc` / `SFD·202/221` visible spell resolution gain control + ready enemy public battlefield unit representative baseline。
+- enemy public battlefield unit target 的服务端权威 control-ready target guard。
+- owner/controller split representative check：owner remains P2，controller becomes P1，object remains battlefield。
+- `RETURN_CONTROL_TO_OWNER_AT_TURN_END:P2` scheduling representative check。
+- friendly battlefield unit、enemy base unit、stale object、face-down standby object、battlefield equipment / spell / rune object、hand / private unit invalid-target no-mutation 代表护栏。
+- face-down standby / private-zone invalid target 不暴露真实身份 / hidden info 的代表性安全口径。
+
+仍缺：
+
+- Hostile Takeover full-official standby / reaction timing、battle-start / conquer branch、完整 battlefield / control-zone lifecycle、owner/controller matrix、end-turn cleanup task model 保持 P1/P2 后续项；本批不新增这些方向的 P0。
+- 完整 target prompt、target invalidation、hidden / face-down target policy、Spellshield target tax。
+- 完整 movement / recall / control replacement / cleanup 交织。
+- 完整 PaymentEngine、play-card cost Quote / Authorize / Commit、替代 / 额外费用与支付资源矩阵。
+- Berserk Impulse hidden-zone reveal / choose / recycle、Edge of Night face-down standby attach、Karthus extra Last Breath、Aphelios weapon-attachment three-mode design gates。
+- full FAQ regression、1009/811 full-official、正式 18-step E2E、completion audit。
+
+口径：
+
+- `fullOfficial=false`。
+- 不宣称 READY / READY-CANDIDATE。
+- 不因 Hostile Takeover 代表路径外推完整待命、反应时机、开战/征服、control lifecycle、end-turn cleanup、targeting、PaymentEngine、FEPR、named deferred candidates 或 full-official。
+
 ## 0.2 阶段 0 当前基线
 
 阶段 0 只做主控建档、只读审计与任务拆分，不实现功能代码。已读取：
