@@ -20708,6 +20708,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveScoutingWarhawkLastBreathStackItem(state, stackItem);
         }
 
+        if (string.Equals(stackItem.EffectKind, MechanicalTricksterLastBreathCreateMinionsEffectKind, StringComparison.Ordinal))
+        {
+            return ResolveMechanicalTricksterLastBreathStackItem(state, stackItem);
+        }
+
         if (string.Equals(stackItem.EffectKind, GhostlyCentaurFriendlyDestroyedPowerEffectKind, StringComparison.Ordinal))
         {
             return ResolveGhostlyCentaurFriendlyDestroyedPowerStackItem(state, stackItem);
@@ -22687,19 +22692,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                                     mechanicalTricksterMinionPlayerId,
                                     MechanicalTricksterLastBreathCreateMinionsEffectKind);
                                 events.Add(BuildTriggerQueuedEvent(trigger));
-                                events.Add(BuildTriggerResolvedEvent(trigger));
-                                var tokenStackItem = new StackItemState(
-                                    stackItemId: trigger.TriggerId,
-                                    controllerId: mechanicalTricksterMinionPlayerId,
-                                    sourceObjectId: targetObjectId,
-                                    effectKind: MechanicalTricksterLastBreathCreateMinionsEffectKind,
-                                    cardNo: MechanicalTricksterCardNo);
-                                CreateBaseUnitTokens(
-                                    playerZones,
-                                    cardObjects,
-                                    MechanicalTricksterLastBreathCreateMinionsBehavior,
-                                    tokenStackItem,
-                                    events);
+                                officialLastBreathTriggers.Add(trigger);
                             }
 
                             var ironcladVanguardRobotPlayerId = ResolveIroncladVanguardLastBreathRobotPlayerId(
@@ -23525,6 +23518,47 @@ public sealed class CoreRuleEngine : IRuleEngine
             state.RngCursor);
     }
 
+    private static StackResolutionResult ResolveMechanicalTricksterLastBreathStackItem(
+        MatchState state,
+        StackItemState stackItem)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var events = new List<GameEvent>
+        {
+            BuildTriggerResolvedEvent(new TriggerQueueItemState(
+                stackItem.StackItemId.StartsWith("ordered-", StringComparison.Ordinal)
+                    ? stackItem.StackItemId["ordered-".Length..]
+                    : stackItem.StackItemId,
+                stackItem.ControllerId,
+                stackItem.SourceObjectId,
+                stackItem.EffectKind,
+                "UNIT_DESTROYED"))
+        };
+        CreateBaseUnitTokens(
+            playerZones,
+            cardObjects,
+            MechanicalTricksterLastBreathCreateMinionsBehavior,
+            stackItem,
+            events);
+
+        return new StackResolutionResult(
+            playerZones,
+            cardObjects,
+            state.PlayerScores,
+            NormalizeExperienceForSeats(state),
+            state.RunePools,
+            state.UntilEndOfTurnEffects,
+            null,
+            events,
+            [],
+            null,
+            [],
+            null,
+            [],
+            state.RngCursor);
+    }
+
     private static StackResolutionResult ResolveGhostlyCentaurFriendlyDestroyedPowerStackItem(
         MatchState state,
         StackItemState stackItem)
@@ -23735,7 +23769,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         return !string.Equals(trigger.EffectKind, GhostlyCentaurFriendlyDestroyedPowerEffectKind, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, ResonantSoulFirstFriendlyDestroyedDrawEffectKind, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, SavageJawfishFriendlyDestroyedExperienceEffectKind, StringComparison.Ordinal)
-            && !string.Equals(trigger.EffectKind, ViktorDestroyedNonMinionCreateMinionEffectKind, StringComparison.Ordinal);
+            && !string.Equals(trigger.EffectKind, ViktorDestroyedNonMinionCreateMinionEffectKind, StringComparison.Ordinal)
+            && !string.Equals(trigger.EffectKind, MechanicalTricksterLastBreathCreateMinionsEffectKind, StringComparison.Ordinal);
     }
 
     private static StackItemState BuildStackItemForLastBreathTrigger(

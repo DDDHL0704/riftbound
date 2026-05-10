@@ -1753,6 +1753,52 @@ A 主控复验：
 
 4C-15B 结论：**通过 Viktor 代表性 trigger baseline，未关闭 full-official**。未改协议 record 字段，未改前端，不宣称 full trigger engine，不宣称 READY-CANDIDATE；允许 4C 继续扩其他 destroyed-family / friendly-destroyed FUs。
 
+## 0.28 阶段 4C-16 Mechanical Trickster Trigger Baseline
+
+阶段 4C-16 选择 safe route：Mechanical Trickster / `OGN·239/298` / effect kind `MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS`。本批只把旧 immediate token create 迁移为真实 TriggerQueue / Stack / Priority 语义；不进入 Ironclad Vanguard、Kogmaw、Karthus、Undercover，不授予 full-official。项目整体仍 **NOT READY**，不得标记 READY / READY-CANDIDATE。
+
+4C-16 服务端改动事实：
+
+- 修改文件：`src/Riftbound.Engine/CoreRuleEngine.cs`、`tests/Riftbound.ConformanceTests/RealTriggerQueueTests.cs`、`tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs`。
+- true stack `UNIT_DESTROYED` 后生成 `TRIGGER_QUEUED`。
+- 单触发 auto-stack；多触发走 `ORDER_TRIGGERS` -> `StackItems`。
+- priority pass 后 `TRIGGER_RESOLVED` -> `UNIT_TOKEN_CREATED` x3。
+- face-down / standby Mechanical Trickster 不入队、不泄漏 prompt metadata、不创建 token。
+- 旧 `P79MechanicalTricksterCreatesThreeMinionsWhenDestroyed` fixture 已更新为 queue / priority semantics。
+- 未改协议、未改前端。
+
+4C-16 新增 / 更新测试：
+
+- `RealMechanicalTricksterLastBreathTriggersOrderAndCreateMinionsThroughStack`
+- `RealMechanicalTricksterHiddenSourcesDoNotEnqueueOrCreateMinions`
+- `P79MechanicalTricksterCreatesThreeMinionsWhenDestroyed` updated
+
+4C-16 文档改动：
+
+- 新增 `docs/CURRENT_STAGE4C_BATCH16_MECHANICAL_TRICKSTER_TRIGGER_AUDIT.md`。
+- 更新 `docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/rules-evidence-index.md` 与本 checkpoint。
+- D 本批不修改服务端 / 前端代码、E 矩阵 / evidence 文件或 `riftbound-dotnet.sln`。
+
+4C-16 A 复核命令：
+
+- Backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` passed，3382/3382。
+- Frontend build / smoke：A 将在 D 文档后继续运行；本 checkpoint 先不提前记为完成。
+
+4C-16 关闭的 P0/P1 子项：
+
+- Mechanical Trickster last-breath create minions 的旧 immediate compatibility 已迁移为代表性 real trigger queue / stack / priority 语义。
+- face-down / standby Mechanical Trickster negative guard 已有代表测试，不入队、不泄漏、不造 token。
+
+4C-16 仍保留 P0/P1：
+
+- P1：Ironclad Vanguard 仍是旧 immediate compatibility，未迁移到 real trigger queue。
+- P0：Kogmaw / Karthus / Undercover Agent 等 high-risk destroyed-family / friendly-destroyed holdbacks。
+- P0：完整 trigger engine、完整 effect resolution、trigger batch / 可选触发选择、完整 APNAP 组合。
+- P0：hidden / face-down 原始触发建模和 viewer 级 metadata 全路径。
+- P0：FAQ regression、1009 entries / 811 functional units full-official 覆盖、正式 18-step E2E、completion audit 仍未完成。
+
+4C-16 结论：**通过 Mechanical Trickster 代表性 trigger migration，未关闭 full-official**。未改协议 record 字段，未改前端，不宣称 full trigger engine，不宣称 READY-CANDIDATE；允许 4C 继续扩其他 destroyed-family / friendly-destroyed FUs。
+
 ## 1. 总目标
 
 以当前仓库五份官方规则 / FAQ PDF 与 `data/official/card-catalog.zh-CN.json` 的 2026-04-27 官网卡牌快照为准，完成本地双人 1v1 标准构筑产品级 Web 游戏基线：

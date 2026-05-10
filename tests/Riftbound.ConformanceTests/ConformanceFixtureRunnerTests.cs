@@ -36192,28 +36192,54 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P1-MECHANICAL-TRICKSTER", triggerQueued.Payload["sourceObjectId"]);
         Assert.Equal("P1", triggerQueued.Payload["controllerId"]);
         Assert.Equal("UNIT_DESTROYED", triggerQueued.Payload["triggeredByEventKind"]);
-        Assert.Contains(p2Pass.Events, gameEvent =>
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
+        Assert.Empty(p2Pass.State.TriggerQueue);
+        var triggerStackItem = Assert.Single(p2Pass.State.StackItems);
+        Assert.Equal("P1", triggerStackItem.ControllerId);
+        Assert.Equal("P1-MECHANICAL-TRICKSTER", triggerStackItem.SourceObjectId);
+        Assert.Equal("MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS", triggerStackItem.EffectKind);
+        Assert.Equal("P1", p2Pass.State.PriorityPlayerId);
+        Assert.Empty(p2Pass.State.PlayerZones["P1"].Base);
+
+        var p1TriggerPass = await engine.ResolveAsync(
+            p2Pass.State,
+            new PlayerIntent("intent-p7-9-mechanical-trickster-p1-trigger-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2ResolvesTrigger = await engine.ResolveAsync(
+            p1TriggerPass.State,
+            new PlayerIntent("intent-p7-9-mechanical-trickster-p2-resolves-trigger", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1TriggerPass.Accepted, p1TriggerPass.ErrorMessage);
+        Assert.True(p2ResolvesTrigger.Accepted, p2ResolvesTrigger.ErrorMessage);
+        Assert.Contains(p2ResolvesTrigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectKind"] as string, "MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS", StringComparison.Ordinal));
-
-        Assert.Equal(3, p2Pass.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)));
+        Assert.Equal(3, p2ResolvesTrigger.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)));
         Assert.Equal(
             [
                 "P1-MECHANICAL-TRICKSTER-TOKEN-001",
                 "P1-MECHANICAL-TRICKSTER-TOKEN-002",
                 "P1-MECHANICAL-TRICKSTER-TOKEN-003"
             ],
-            p2Pass.State.PlayerZones["P1"].Base);
-        foreach (var tokenObjectId in p2Pass.State.PlayerZones["P1"].Base)
+            p2ResolvesTrigger.State.PlayerZones["P1"].Base);
+        foreach (var tokenObjectId in p2ResolvesTrigger.State.PlayerZones["P1"].Base)
         {
-            Assert.Equal(1, p2Pass.State.CardObjects[tokenObjectId].Power);
+            Assert.Equal(1, p2ResolvesTrigger.State.CardObjects[tokenObjectId].Power);
             Assert.Equal(
                 [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily],
-                p2Pass.State.CardObjects[tokenObjectId].Tags);
+                p2ResolvesTrigger.State.CardObjects[tokenObjectId].Tags);
         }
 
-        Assert.Equal(["P1-MECHANICAL-TRICKSTER", "P1-SPELL-VENGEANCE"], p2Pass.State.PlayerZones["P1"].Graveyard);
-        Assert.False(p2Pass.State.CardObjects.ContainsKey("P1-MECHANICAL-TRICKSTER"));
+        Assert.Empty(p2ResolvesTrigger.State.TriggerQueue);
+        Assert.Empty(p2ResolvesTrigger.State.StackItems);
+        Assert.Equal(["P1-MECHANICAL-TRICKSTER", "P1-SPELL-VENGEANCE"], p2ResolvesTrigger.State.PlayerZones["P1"].Graveyard);
+        Assert.False(p2ResolvesTrigger.State.CardObjects.ContainsKey("P1-MECHANICAL-TRICKSTER"));
     }
 
     [Fact]
