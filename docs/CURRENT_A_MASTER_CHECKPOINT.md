@@ -1839,6 +1839,45 @@ A 主控复验：
 
 4C-17 结论：**通过 Ironclad Vanguard 代表性 trigger migration，未关闭 full-official**。只关闭 true stack 代表路径，不宣称 full trigger engine，不宣称 full official coverage，不宣称正式 18-step E2E。
 
+## 0.30 阶段 4C-18 Mechanical + Ironclad Cleanup Trigger Baseline
+
+阶段 4C-18 已补齐 Mechanical Trickster + Ironclad Vanguard 在 lethal damage state-based cleanup 后的 `UNIT_DESTROYED` -> `TriggerQueue` / `StackItems` / priority / `TRIGGER_RESOLVED` 代表路线。4C-16 已关闭 Mechanical Trickster true stack migration；4C-17 已关闭 Ironclad Vanguard true stack migration；4C-18 关闭这两个 FU 的 cleanup-route representative trigger enqueue baseline。项目整体仍 **NOT READY**。
+
+4C-18 已验证范围：
+
+- Mechanical Trickster / `OGN·239/298` / `MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS`。
+- Ironclad Vanguard / `SFD·021/221` / 冻结矩阵 FU `FU-6d0971786b` / `IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS`。
+- state-based cleanup `LETHAL_DAMAGE` 产生 `UNIT_DESTROYED` 后，visible、face-up、non-standby source 入队；单触发 auto-stack，多触发走 `ORDER_TRIGGERS`；priority pass 后 Mechanical 创建 minion token x3，Ironclad 创建 robot token x2。
+- hidden / face-down / standby source 不入队、不泄漏 prompt metadata、不创建 token。
+- 代表 lethal damage 来源使用 Starfall cleanup route；不进入 Kogmaw、Karthus、Undercover。
+
+4C-18 文档改动：
+
+- 新增 `docs/CURRENT_STAGE4C_BATCH18_MECHANICAL_IRONCLAD_CLEANUP_TRIGGER_AUDIT.md`。
+- 更新 `docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/rules-evidence-index.md` 与本 checkpoint。
+- D 本批不修改服务端 / 测试 / 前端 / E matrix / coverage 文件或 `riftbound-dotnet.sln`。
+
+4C-18 验证：
+
+- Verified：4C-16 Mechanical Trickster true stack migration；4C-17 Ironclad Vanguard true stack migration。
+- B focused filter：通过 47/47。
+- B backend full：通过 3388/3388。
+- A backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 3388/3388。
+- A frontend build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过。
+- A Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过。
+- `git diff --check`、`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 与 4C-18 matrix assertions 通过。
+- 新增/更新测试：`StateBasedCleanupMechanicalTrickstersTriggerOrderAndCreateMinionsThroughStack`、`StateBasedCleanupIroncladVanguardsTriggerOrderAndCreateRobotsThroughStack`、`StateBasedCleanupHiddenMechanicalTrickstersDoNotEnqueueTriggers`、`StateBasedCleanupHiddenIroncladVanguardsDoNotEnqueueTriggers`。
+
+4C-18 后仍保留 P0/P1：
+
+- P0：Kogmaw / Karthus / Undercover Agent 等 destroyed-family / friendly-destroyed holdbacks。
+- P0：完整 trigger engine、完整 effect resolution、trigger batch / 可选触发选择、完整 APNAP 组合。
+- P1：same source same cleanup pass / same stack pass 多对象触发次数的 full official multiplicity matrix。
+- P0：hidden / face-down 原始触发建模和 viewer 级 metadata 全路径。
+- P0：FAQ regression、1009 entries / 811 functional units full-official 覆盖、正式 18-step E2E、completion audit 仍未完成。
+
+4C-18 结论：**通过 Mechanical Trickster + Ironclad Vanguard cleanup-route representative trigger enqueue baseline，未关闭 full-official**。项目整体仍 **NOT READY**，不得标记 READY / READY-CANDIDATE。
+
 ## 1. 总目标
 
 以当前仓库五份官方规则 / FAQ PDF 与 `data/official/card-catalog.zh-CN.json` 的 2026-04-27 官网卡牌快照为准，完成本地双人 1v1 标准构筑产品级 Web 游戏基线：

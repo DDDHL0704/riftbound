@@ -32,6 +32,7 @@
 阶段 4C-15B Viktor trigger baseline 审计：`docs/CURRENT_STAGE4C_BATCH15B_VIKTOR_TRIGGER_AUDIT.md`
 阶段 4C-16 Mechanical Trickster trigger 审计：`docs/CURRENT_STAGE4C_BATCH16_MECHANICAL_TRICKSTER_TRIGGER_AUDIT.md`
 阶段 4C-17 Ironclad Vanguard trigger 审计：`docs/CURRENT_STAGE4C_BATCH17_IRONCLAD_VANGUARD_TRIGGER_AUDIT.md`
+阶段 4C-18 Mechanical + Ironclad cleanup trigger 审计：`docs/CURRENT_STAGE4C_BATCH18_MECHANICAL_IRONCLAD_CLEANUP_TRIGGER_AUDIT.md`
 
 ## B 修复验收
 
@@ -89,6 +90,8 @@
 
 4C-17 补充：B 已把 Ironclad Vanguard / `SFD·021/221` / `IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS` 旧 immediate last-breath create robots -> real TriggerQueue / Stack / Priority 代表路径迁移完成。true stack `UNIT_DESTROYED` 后生成 `TRIGGER_QUEUED`，单触发 auto-stack，多触发 `ORDER_TRIGGERS` -> `StackItems`，priority pass 后 `TRIGGER_RESOLVED` -> `UNIT_TOKEN_CREATED` x2；face-down / standby source 不入队、不泄漏 prompt metadata、不创建 token；旧 `P79IroncladVanguardCreatesTwoRobotsWhenDestroyed` fixture 已更新为 queue / priority semantics。冻结矩阵中本卡正确 FU 为 `FU-6d0971786b`，本批只以 overlay `triggerEffectKind=IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS` 记录代表路径；不创建不存在的 `FU-a76d38727a`。A 验证后端 full 3384/3384、前端 build、Chrome smoke、diff check、矩阵 JSON/断言均通过；本批只关闭 true stack migration，state-based cleanup route 仍未覆盖。
 
+4C-18 补充：B/A 已验证 Mechanical Trickster + Ironclad Vanguard state-based cleanup last-breath trigger enqueue 代表路径，补齐 lethal damage cleanup `UNIT_DESTROYED` -> `TriggerQueue` -> auto-stack 或 `ORDER_TRIGGERS` -> `StackItems` -> priority -> `TRIGGER_RESOLVED` -> Mechanical `UNIT_TOKEN_CREATED` x3 / Ironclad `UNIT_TOKEN_CREATED` x2。Starfall cleanup route 触发代表路径、focused/full/smoke/diff 结果已回填；本补充只关闭这两个 FU 的 cleanup-route representative baseline，不关闭 full trigger engine。
+
 ## superseded / 防误读
 
 - 0/负战力：阶段 1 已修复并由 A 验收；后续只保留防回归，不再列为未清零 P0。
@@ -96,6 +99,7 @@
 - replay/final hash：历史“仍缺严格 action-log replay final-state 校验”口径已被当前 P1-004 状态替代；当前有 representative verifier、恢复前审计和 Postgres smoke，剩余风险是全命令/全恢复/全随机 property。
 - 复杂 prompt 降级展示：阶段 1 已完成安全降级与 prompt 戳过期保护；历史“完全没有复杂 prompt 入口”已 superseded。
 - 复杂 prompt schema：阶段 2 B 已补 `PAY_COST` / `ASSIGN_COMBAT_DAMAGE` / `ORDER_TRIGGERS` command/schema skeleton 与 malformed payload 稳定拒绝；历史“完全没有正式 schema/稳定拒绝语义”已 superseded。阶段 3A 已补 `PAY_COST` 最小 runtime；阶段 3C 已补 `ASSIGN_COMBAT_DAMAGE` 最小 runtime；阶段 3D 已补 `ORDER_TRIGGERS` 最小 runtime / UI；阶段 4C-1 已补 `ORDER_TRIGGERS` 保守 APNAP controller-block 子集；阶段 4C-2 已补 Watchful Sentinel 真实多触发入队代表路径；阶段 4C-3 已补 Honest Broker 遗言金币真实入队代表路径；阶段 4C-4 已补 `SFD·220/221` trigger payment / decline 代表路径；阶段 4C-5 / 4C-6 已补 state-based cleanup -> visible Watchful / Honest Broker last-breath enqueue 代表路径；阶段 4C-7 已补 Scouting Warhawk explicit destroy real enqueue 代表路径；阶段 4C-8 已补 Scouting Warhawk state-based cleanup lethal damage real enqueue 代表路径；阶段 4C-9 已补 Sad / Loyal Poro state-based cleanup 条件抽牌 real enqueue 代表路径；阶段 4C-10 已补 Unsung Hero state-based cleanup powerful draw-2 real enqueue 代表路径；阶段 4C-11 已补 Ghostly Centaur state-based cleanup friendly-destroyed power +2 real enqueue 代表路径；阶段 4C-12 已补 Resonant Soul state-based cleanup first-friendly-destroyed draw real enqueue 代表路径；阶段 4C-13 已迁移 Ghostly Centaur / Resonant Soul true stack destruction 旧 immediate compatibility 到 real trigger queue / stack / priority 语义；阶段 4C-14 已补 Savage Jawfish true stack 与 state-based cleanup 两条 friendly-destroyed experience +1 real enqueue 代表路径；阶段 4C-15 记录 Viktor non-minion token trigger 模型 blocker；阶段 4C-15A 已补 `TOKEN_FAMILY:MINION` 前置模型切片；阶段 4C-15B 已补 Viktor destroyed non-minion trigger 代表性 baseline；阶段 4C-16 已补 Mechanical Trickster stack trigger migration。`PAY_COST` 完整 PaymentEngine、`ASSIGN_COMBAT_DAMAGE` 全规则矩阵、`ORDER_TRIGGERS` 完整 trigger engine / 其他 destroyed-family / friendly-destroyed FUs / Viktor full official trigger-count matrix / Savage Jawfish full official trigger-count matrix / Ironclad Vanguard state-based cleanup route / 完整“每回合首次”时序 / 完整同时死亡触发次数 / effective power 或 LayerEngine / temporary modifier / battlefield objectLocation matrix / hidden 或 face-down 原始触发建模 / effect resolution / 更多 trigger payment / FAQ regression 仍是 P0。
+- 4C-17 / 4C-18 触发口径：Ironclad Vanguard true stack migration 已由 4C-17 关闭；Mechanical Trickster + Ironclad Vanguard state-based cleanup route 已由 4C-18 关闭代表路径，完整 trigger engine 仍按缺口管理。
 - 阶段 3A OPEN 口径：阶段 3A 已由 A 验收并关闭 smoke 基线、三类复杂命令强类型映射、`PAY_COST` 最小 runtime 和前端外壳安全接线；历史“3A 仍待验证/未完成”表述已 superseded。不得把 3A 关闭误读为 Stage 3、3B 或 READY。
 
 ## 阶段 2 B 已关闭的 P0 子项
@@ -926,6 +930,34 @@ D 审计结论：
 - P0：hidden / face-down 原始触发建模和 viewer 级 metadata 全路径。
 - P0：FAQ regression、1009 / 811 full-official 覆盖、最终正式 18-step E2E。
 
+### 阶段 4C-18 Mechanical + Ironclad Cleanup Trigger 审计
+
+4C-18 证据入口：`docs/CURRENT_STAGE4C_BATCH18_MECHANICAL_IRONCLAD_CLEANUP_TRIGGER_AUDIT.md`。本节记录 cleanup route 的 verified 口径，不代表 full-official，不代表 READY，不代表 1009 / 811 full-official。
+
+4C-18 关闭项：
+
+- Mechanical Trickster / 《机械戏法师》 / `OGN·239/298` / `MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS` 的 state-based cleanup lethal damage 路线。
+- Ironclad Vanguard / 《铁甲先锋》 / `SFD·021/221` / 冻结矩阵 FU `FU-6d0971786b` / `IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS` 的 state-based cleanup lethal damage 路线。
+- 已验证路径：cleanup `LETHAL_DAMAGE` -> `UNIT_DESTROYED` -> `TriggerQueue` -> auto-stack 或 `ORDER_TRIGGERS` -> `StackItems` -> priority pass -> `TRIGGER_RESOLVED` -> Mechanical token x3 / Ironclad token x2。
+- 已验证 guard：hidden / face-down / standby source 不入队、不泄漏 prompt metadata、不创建 token。
+
+已回填证据：
+
+- B focused filter：通过 47/47。
+- B backend full 与 A backend full：通过 3388/3388。
+- A frontend build 与 Chrome smoke：通过。
+- `git diff --check`：通过。
+- 代表 lethal damage 来源：Starfall cleanup route。
+- 代表测试：`StateBasedCleanupMechanicalTrickstersTriggerOrderAndCreateMinionsThroughStack`、`StateBasedCleanupIroncladVanguardsTriggerOrderAndCreateRobotsThroughStack`、`StateBasedCleanupHiddenMechanicalTrickstersDoNotEnqueueTriggers`、`StateBasedCleanupHiddenIroncladVanguardsDoNotEnqueueTriggers`。
+
+仍缺 P0/P1：
+
+- 4C-18 已验证这两个 cleanup-route representative baseline；完整 trigger engine、multiplicity、FAQ regression 与 full-official 仍不能从 P0/P1 列表移除。
+- Kogmaw / Karthus / Undercover Agent。
+- full trigger engine、full effect resolution、trigger batch / optional trigger choice、完整 APNAP。
+- multiplicity：same source same cleanup pass / same stack pass 多对象触发次数矩阵。
+- hidden original visibility、FAQ regression、1009 / 811 full-official、正式 18-step E2E。
+
 | 流程 / P0 | 规则依据入口 | 当前实现状态 | 分类 | 归属 agent | 下一步 |
 | --- | --- | --- | --- | --- | --- |
 | 创建 / 加入 / 卡组 / 准备 / 开局连续链路 | `CORE-260330` rule 103；rules 107-129；工程会话契约 | 后端和 UI 有分散代表路径；缺同一双浏览器阶段 3 smoke | 阻断 smoke | B/C；D 审计 | C 补最小 Chrome smoke，B 保持服务端权威，D 记录证据 |
@@ -945,6 +977,7 @@ D 审计结论：
 - P0-S2-004 `ASSIGN_COMBAT_DAMAGE` runtime 进入 3C 最小切片；schema skeleton、最小 runtime prompt、damage assignment phase、submit/reject 和 simultaneous commit 子项已关闭，完整全规则矩阵未完成。
 - P0-S2-005 `PAY_COST` 完整 PaymentEngine 与 `DECLINE_PAY_COST` / 替代费用 / 额外费用 / 非出牌支付窗口仍未完成；阶段 3A 最小 runtime 切片已关闭。
 - P0-S2-006 `ORDER_TRIGGERS` 最小 runtime / UI / evidence 子项已关闭；4C-1 APNAP controller-block 子集、battle initial stack 代表证据和 hidden trigger source redaction 子项已关闭；4C-2 Watchful Sentinel 多触发真实入队、经排序 / stack / priority 结算和非法排序 no mutation 子项已关闭；4C-3 Honest Broker 遗言金币真实多触发排序 / 入栈 / 结算代表路径已关闭；4C-4 Treasure Pile 触发支付 / 拒付 / 支付失败 no-mutation 代表路径已关闭；4C-5 state-based cleanup `LETHAL_DAMAGE` -> visible Watchful last-breath enqueue 代表路径已关闭；4C-6 state-based cleanup `LETHAL_DAMAGE` -> visible Honest Broker last-breath enqueue 代表路径已关闭；4C-7 Scouting Warhawk explicit destroy real trigger enqueue 代表路径已关闭；4C-8 Scouting Warhawk state-based cleanup lethal damage real trigger enqueue 代表路径已关闭；4C-9 Sad / Loyal Poro state-based cleanup 条件抽牌 real trigger enqueue 代表路径已关闭；4C-10 Unsung Hero state-based cleanup powerful draw-2 real trigger enqueue 代表路径已关闭；4C-11 Ghostly Centaur state-based cleanup friendly-destroyed power +2 real trigger enqueue 代表路径已关闭；4C-12 Resonant Soul state-based cleanup first-friendly-destroyed draw real trigger enqueue 代表路径已关闭；4C-13 Ghostly Centaur / Resonant Soul true stack destruction 旧 immediate compatibility -> real trigger queue / stack / priority 迁移已关闭；4C-14 Savage Jawfish true stack 与 Starfall lethal state-based cleanup 两条 friendly-destroyed experience +1 real trigger enqueue 代表路径已关闭；4C-15B Viktor destroyed non-minion trigger 代表性 baseline 已关闭；4C-16 Mechanical Trickster stack trigger migration 已关闭；完整 trigger engine、其他 destroyed / last-breath / friendly-destroyed FUs、Kogmaw / Karthus / Undercover Agent、Viktor full official trigger-count matrix、Savage Jawfish full official trigger-count matrix、Ironclad Vanguard state-based cleanup route、完整“每回合首次”时序、完整同时死亡触发次数、effective power / LayerEngine、temporary modifier、battlefield objectLocation matrix、hidden / face-down 原始触发建模、更多 trigger payment / decline、完整 effect resolution、FAQ regression、1009/811 full-official 未完成。
+- 4C-18 已关闭 Mechanical Trickster + Ironclad Vanguard state-based cleanup route 的 representative baseline；完整 trigger engine、multiplicity、FAQ regression 与 full-official 仍按 P0/P1 缺口管理。
 - 4C-15 Viktor `FU-b5cb36a5c9` destroyed non-minion token trigger 已记录为 feasibility blocker；4C-15A 已补 `TOKEN_FAMILY:MINION` 最小前置模型并部分关闭 token classification blocker；4C-15B 已关闭 Viktor 代表性 baseline，但 same-source 多对象 full official matrix、Kogmaw / Karthus / Undercover Agent、完整 trigger engine 仍未关闭。
 - 3A-P0-001 / 002 / 003 / 004 已关闭；不得把这些 3A 子项误读为完整 Stage 3 或 READY。
 - 3B-CAND-001 / 002 / 003 / 004 只能作为阶段 3B 关闭候选；D/A 证据入账前不得移出 P0。
@@ -969,6 +1002,7 @@ D 审计结论：
 - D-Stage3D：维护 `docs/CURRENT_STAGE3_COMPLETION_AUDIT.md`，第三阶段收口只判断阶段性关闭项、仍缺 P0/P1、阶段 4 入口和最终验收边界；不得宣称 READY。
 - D-Stage3Flow：维护 `docs/CURRENT_STAGE3_CORE_FLOW_AUDIT.md`，每次 B/C 报告阶段 3 smoke 或服务端阻断关闭时，补规则依据、实现状态、测试证据、仍缺口和是否仍阻断。
 - D-FrontendContract：继续把正式复杂 prompt 字段草案拆成 `PAY_COST`、`ORDER_TRIGGERS`、`ASSIGN_COMBAT_DAMAGE`、`SPELL_DUEL_ACTION` 四张契约清单；标注 `PAY_COST` 已有最小 runtime 和 `SFD·220/221` `TRIGGER_PAYMENT` 代表路径、完整 PaymentEngine 未开放，`ASSIGN_COMBAT_DAMAGE` 只有最小 runtime、完整全规则矩阵未开放，`ORDER_TRIGGERS` 已到 Watchful Sentinel + Honest Broker 两条 last-breath real enqueue、visible Watchful / Honest cleanup enqueue、Warhawk explicit / cleanup enqueue、Sad / Loyal Poro cleanup enqueue、Unsung Hero cleanup enqueue、Ghostly Centaur cleanup / stack enqueue、Resonant Soul cleanup / stack enqueue、Savage Jawfish stack / cleanup enqueue 与 Viktor destroyed non-minion baseline 与 Mechanical Trickster stack trigger migration 代表路径；Ironclad Vanguard true stack migration 已关闭，state-based cleanup route 仍未覆盖，且 4C-15A 已补 `TOKEN_FAMILY:MINION` 前置模型、4C-15B 与 4C-16 均未改协议 / 前端字段，4C-17 已关闭 true stack migration，未改协议 / 前端字段；但完整 trigger engine / 其他 destroyed-family / friendly-destroyed FUs / Viktor full official trigger-count matrix / Savage Jawfish full official trigger-count matrix / Ironclad Vanguard state-based cleanup route / 完整“每回合首次”时序 / 完整同时死亡触发次数 / effective power 或 LayerEngine / temporary modifier / battlefield objectLocation matrix / hidden 或 face-down 原始触发建模 / effect resolution / 更多 trigger payment / FAQ regression 未开放，`SPELL_DUEL_ACTION` 仍没有完整 runtime prompt，现有降级面板只能临时承接展示。
+- D-Stage4C-18：已回填 Mechanical Trickster + Ironclad Vanguard state-based cleanup trigger baseline 的 focused/full/smoke/diff 结果；无协议字段变化，C 无需新增复杂交互。
 - E-RuleEvidence：把五份官方规则/FAQ PDF 与 2026-04-27 官网卡牌快照继续映射到 P0-S2-001 至 P0-S2-006，尤其补 `JFAQ` q2.2/q2.3/q2.5/q5.4/q6.x 和 `SOUL-OFAQ` p21 的 fixture 锚点。
 - E-Conformance：为仍未清零 P0 建最小官方场景，优先覆盖失控待命延迟移除、恶意收购非战斗法术对决、完整 APNAP 多玩家独立排序、其他 destroyed / last-breath / friendly-destroyed FUs、Viktor full official trigger-count matrix、Kogmaw / Karthus / Undercover Agent、Savage Jawfish full official trigger-count matrix、Ironclad Vanguard state-based cleanup route、完整“每回合首次”时序、完整同时死亡触发次数、hidden / face-down 原始触发建模、触发费用拒付、多单位伤害分配、战斗清理与征服/据守得分。
 

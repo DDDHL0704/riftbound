@@ -27863,6 +27863,34 @@ public sealed class CoreRuleEngine : IRuleEngine
                 triggerQueue.Add(trigger);
             }
 
+            var mechanicalTricksterControllerId = ResolveMechanicalTricksterLastBreathMinionPlayerId(
+                destroyedState,
+                removalResult);
+            if (mechanicalTricksterControllerId is not null)
+            {
+                var trigger = BuildLastBreathTriggerQueueItem(
+                    stackItem,
+                    objectId,
+                    mechanicalTricksterControllerId,
+                    MechanicalTricksterLastBreathCreateMinionsEffectKind);
+                events.Add(BuildTriggerQueuedEvent(trigger));
+                triggerQueue.Add(trigger);
+            }
+
+            var ironcladVanguardControllerId = ResolveIroncladVanguardLastBreathRobotPlayerId(
+                destroyedState,
+                removalResult);
+            if (ironcladVanguardControllerId is not null)
+            {
+                var trigger = BuildLastBreathTriggerQueueItem(
+                    stackItem,
+                    objectId,
+                    ironcladVanguardControllerId,
+                    IroncladVanguardLastBreathCreateRobotsEffectKind);
+                events.Add(BuildTriggerQueuedEvent(trigger));
+                triggerQueue.Add(trigger);
+            }
+
             var ghostlyCentaurTriggers = removalResult.WasUnit
                 ? BuildGhostlyCentaurFriendlyDestroyedTriggerQueueItems(
                     playerZones,
