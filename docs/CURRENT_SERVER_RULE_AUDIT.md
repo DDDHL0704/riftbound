@@ -12,6 +12,37 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-10 阶段 4C-23 Lux High-Cost Spell Power 审计
+
+阶段 4C-23 审计入口：`docs/CURRENT_STAGE4C_BATCH23_LUX_HIGH_COST_SPELL_POWER_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH23_LUX_HIGH_COST_SPELL_POWER_EVIDENCE.md`。A 已决定本批收 Lux / 拉克丝 `OGS·006/024` / `FU-f18a49e06d`，而不是 Aphelios；理由是 Lux 可作为低耦合 high-cost spell temporary power representative slice，Aphelios 的武装贴附三模式和本回合 mode memory 需要单独设计批次。项目仍 **NOT READY**。
+
+4C-23 已关闭代表子项：
+
+- visible face-up Lux 由其 controller 打出 cost >= 5 spell 后记录 `TRIGGER_QUEUED` / `TRIGGER_RESOLVED` compatibility events。
+- Lux 本回合战力 +3，`POWER_MODIFIED_UNTIL_END_OF_TURN` 与 `UntilEndOfTurnPowerModifier` 均可追踪。
+- low-cost spell、opponent spell、face-down / standby / invalid source 均 no trigger / no mutation。
+
+4C-23 规则依据：
+
+- `CATALOG` `OGS·006/024`；FU `FU-f18a49e06d`。
+- `CORE-260330` p9；p14-p15 rules 142-143；p31-p33 rules 318-324；p33-p35 rules 333-340；p39-p42 rules 355-356。
+
+4C-23 验证记录：
+
+- Focused backend：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Lux|FullyQualifiedName~HighCostSpell|FullyQualifiedName~Ravenbloom|FullyQualifiedName~RealTriggerQueue"` 通过 67/67。
+- 本批修正 `LuxOpponentHighCostSpellDoesNotTrigger` 的测试对象 id，使 P2 对手法术负例真实使用 P2 手牌对象。
+- Backend full / frontend build / Chrome smoke 待本批最终验收命令刷新后回填。
+
+仍缺 P0/P1：
+
+- P0：完整 trigger engine、complete APNAP / trigger batch、optional trigger handling 与完整 effect resolution。
+- P0：完整 PaymentEngine、paid-cost override、增减费 / 额外费用 / 替代费用 full matrix。
+- P0：完整 LayerEngine、temporary modifier timestamp / dependency / cleanup duration matrix。
+- P0：FAQ regression、1009 entries / 811 functional units full-official、正式 18-step E2E 与 completion audit。
+- P1：Lux high-cost spell family、其它 spell-played temporary power FUs 与 multi-trigger ordering 仍需后续全矩阵证据。
+
+4C-23 不宣称 full-official，不宣称 READY / READY-CANDIDATE。
+
 ## 2026-05-10 阶段 4C-22 Muddy Dredger Warhawk Baseline 审计
 
 阶段 4C-22 审计入口：`docs/CURRENT_STAGE4C_BATCH22_MUDDY_DREDGER_WARHAWK_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH22_MUDDY_DREDGER_WARHAWK_EVIDENCE.md`。A 已决定本批收 Muddy Dredger / 腐泥疏浚工 `UNL-153/219` / `FU-b829fb32b9`，而不是 E 建议的 Aphelios；理由是 B/D 都判断 Muddy 是低耦合服务端 representative slice，且代码、focused backend 与 backend full 已通过。项目仍 **NOT READY**。

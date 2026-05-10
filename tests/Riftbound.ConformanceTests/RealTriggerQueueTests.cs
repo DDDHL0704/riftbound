@@ -6,6 +6,119 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class RealTriggerQueueTests
 {
+    private const string OgsLuxHighCostSpellEffectKind = "OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3";
+
+    [Fact]
+    public async Task LuxHighCostSpellQueuesResolvesAndGainsPowerUntilEndOfTurn()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildLuxHighCostSpellState();
+
+        var result = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-lux-high-cost-spell", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand("P1-SPELL-EVOLUTION-DAY", "OGN·114/298", []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var lux = result.State.CardObjects["P1-LUX"];
+        Assert.Equal(8, lux.Power);
+        Assert.Equal(3, lux.UntilEndOfTurnPowerModifier);
+        Assert.Single(result.State.StackItems);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-LUX", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["controllerId"] as string, "P1", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, OgsLuxHighCostSpellEffectKind, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["triggeredByEventKind"] as string, "CARD_PLAYED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-LUX", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["controllerId"] as string, "P1", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, OgsLuxHighCostSpellEffectKind, StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-LUX", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-LUX", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["powerDelta"], 3)
+            && Equals(gameEvent.Payload["appliedPowerDelta"], 3)
+            && Equals(gameEvent.Payload["resultingPower"], 8));
+    }
+
+    [Fact]
+    public async Task LuxLowCostSpellDoesNotTrigger()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildLuxLowCostSpellState();
+
+        var result = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-lux-low-cost-spell", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand("P1-SPELL-MIGHT-MAKES-RIGHT", "SFD·106/221", []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        AssertLuxDidNotTrigger(result);
+        AssertLuxPowerUnchanged(result);
+    }
+
+    [Fact]
+    public async Task LuxOpponentHighCostSpellDoesNotTrigger()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildLuxHighCostSpellState(
+            spellPlayerId: "P2",
+            activePlayerId: "P2",
+            turnPlayerId: "P2",
+            spellObjectId: "P2-SPELL-EVOLUTION-DAY");
+
+        var result = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-lux-opponent-high-cost-spell", "P2", CommandTypes.PlayCard),
+            new PlayCardCommand("P2-SPELL-EVOLUTION-DAY", "OGN·114/298", []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        AssertLuxDidNotTrigger(result);
+        AssertLuxPowerUnchanged(result);
+    }
+
+    [Theory]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    public async Task LuxHiddenOrStandbyHighCostSpellDoesNotTrigger(bool isFaceDown, bool isStandby)
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildLuxHighCostSpellState(luxIsFaceDown: isFaceDown, luxIsStandby: isStandby);
+
+        var result = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-lux-hidden-or-standby-high-cost-spell", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand("P1-SPELL-EVOLUTION-DAY", "OGN·114/298", []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        AssertLuxDidNotTrigger(result);
+        AssertLuxPowerUnchanged(result);
+    }
+
+    [Fact]
+    public async Task LuxInvalidSourceNotOnFieldDoesNotTrigger()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildLuxHighCostSpellState(luxOnField: false);
+
+        var result = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-lux-invalid-source-high-cost-spell", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand("P1-SPELL-EVOLUTION-DAY", "OGN·114/298", []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        AssertLuxDidNotTrigger(result);
+        AssertLuxPowerUnchanged(result);
+    }
+
     [Fact]
     public async Task StateBasedCleanupWatchfulSentinelTriggersOrderAndResolveThroughStack()
     {
@@ -2997,6 +3110,118 @@ public sealed class RealTriggerQueueTests
         Assert.Equal(1, p1ExperienceEvent.Payload["amount"]);
 
         return p2ResolvesP1Trigger;
+    }
+
+    private static MatchState BuildLuxLowCostSpellState()
+    {
+        return BuildLuxHighCostSpellState(
+            spellObjectId: "P1-SPELL-MIGHT-MAKES-RIGHT",
+            spellCardNo: "SFD·106/221",
+            spellMana: 2);
+    }
+
+    private static MatchState BuildLuxHighCostSpellState(
+        string spellPlayerId = "P1",
+        string activePlayerId = "P1",
+        string turnPlayerId = "P1",
+        string spellObjectId = "P1-SPELL-EVOLUTION-DAY",
+        string spellCardNo = "OGN·114/298",
+        int spellMana = 6,
+        bool luxIsFaceDown = false,
+        bool luxIsStandby = false,
+        bool luxOnField = true)
+    {
+        var p1Base = luxOnField ? new[] { "P1-LUX" } : [];
+        var p1Hand = string.Equals(spellPlayerId, "P1", StringComparison.Ordinal)
+            ? new[] { spellObjectId }
+            : [];
+        var p2Hand = string.Equals(spellPlayerId, "P2", StringComparison.Ordinal)
+            ? new[] { spellObjectId }
+            : [];
+        var luxTags = luxIsStandby
+            ? new[] { CardObjectTags.UnitCard, CardObjectTags.Standby }
+            : [CardObjectTags.UnitCard];
+
+        return new MatchState(
+            "real-lux-high-cost-spell-room",
+            73,
+            1,
+            activePlayerId,
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            turnPlayerId: turnPlayerId,
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = string.Equals(spellPlayerId, "P1", StringComparison.Ordinal)
+                    ? new RunePool(spellMana, 0)
+                    : RunePool.Empty,
+                ["P2"] = string.Equals(spellPlayerId, "P2", StringComparison.Ordinal)
+                    ? new RunePool(spellMana, 0)
+                    : RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = p1Hand,
+                    Base = p1Base
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = p2Hand
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-LUX"] = new(
+                    "P1-LUX",
+                    isFaceDown: luxIsFaceDown,
+                    power: 5,
+                    tags: luxTags,
+                    manaCost: 6,
+                    cardNo: "OGS·006/024",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [spellObjectId] = new(
+                    spellObjectId,
+                    cardNo: spellCardNo,
+                    ownerId: spellPlayerId,
+                    controllerId: spellPlayerId)
+            },
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            });
+    }
+
+    private static void AssertLuxDidNotTrigger(ResolutionResult result)
+    {
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Payload.TryGetValue("effectKind", out var effectKind) ? effectKind as string : null, OgsLuxHighCostSpellEffectKind, StringComparison.Ordinal)
+            || string.Equals(gameEvent.Payload.TryGetValue("trigger", out var trigger) ? trigger as string : null, OgsLuxHighCostSpellEffectKind, StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload.TryGetValue("sourceObjectId", out var sourceObjectId) ? sourceObjectId as string : null, "P1-LUX", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload.TryGetValue("targetObjectId", out var targetObjectId) ? targetObjectId as string : null, "P1-LUX", StringComparison.Ordinal));
+    }
+
+    private static void AssertLuxPowerUnchanged(ResolutionResult result)
+    {
+        var lux = result.State.CardObjects["P1-LUX"];
+        Assert.Equal(5, lux.Power);
+        Assert.Equal(0, lux.UntilEndOfTurnPowerModifier);
     }
 
     private static MatchState BuildSpiritFireDestroyingTwoWatchfulSentinelsState()

@@ -2,11 +2,11 @@
 
 更新时间：2026-05-10
 
-阶段：**阶段 4C-22 / E 卡牌覆盖矩阵 post-freeze overlay**
+阶段：**阶段 4C-23 / E 卡牌覆盖矩阵 post-freeze overlay**
 
 结论：**NOT READY；不允许进入 1009 张卡牌效果批量覆盖。**
 
-本文以阶段 2 风险排序为基础，并叠加阶段 3A/3B/3C/3D 的最小证据 overlay、阶段 4B 冻结状态、阶段 4C-1 APNAP `ORDER_TRIGGERS` 部分 blocker 降低、阶段 4C-2/4C-3 real trigger enqueue、阶段 4C-4 trigger payment、阶段 4C-5 Watchful state-based cleanup trigger enqueue、阶段 4C-6 Honest Broker state-based cleanup trigger enqueue、阶段 4C-7 Scouting Warhawk explicit destroy trigger enqueue、阶段 4C-8 Scouting Warhawk state-based cleanup trigger enqueue、阶段 4C-9 Sad/Loyal Poro conditional cleanup trigger enqueue、阶段 4C-10 Unsung Hero powerful cleanup trigger enqueue、阶段 4C-11 Ghostly Centaur friendly-destroyed cleanup trigger enqueue、阶段 4C-12 Resonant Soul first-friendly-destroyed cleanup trigger enqueue、阶段 4C-13 true stack destruction route migration、阶段 4C-14 Savage Jawfish friendly-destroyed experience trigger enqueue、阶段 4C-15A Minion token family model overlay、阶段 4C-15B Viktor destroyed non-Minion trigger enqueue、阶段 4C-16 / 4C-17 Mechanical Trickster / Ironclad Vanguard true stack last-breath trigger enqueue、阶段 4C-18 Mechanical Trickster + Ironclad Vanguard cleanup trigger enqueue、阶段 4C-19 Kogmaw last-breath AoE damage representative route、阶段 4C-20B Undercover Agent triggered hand-choice prompt、阶段 4C-21 Sunken Temple trigger payment 和阶段 4C-22 Muddy Dredger Warhawk representative baseline；它不是功能实现清单，也不是错误断言。排名用于告诉后续阶段先审哪里：哪些 functional unit 同时碰到 FAQ、费用、触发/替换、持续效果、战斗/法术对决、隐藏信息或非 PLAY_CARD 规则域。
+本文以阶段 2 风险排序为基础，并叠加阶段 3A/3B/3C/3D 的最小证据 overlay、阶段 4B 冻结状态、阶段 4C-1 APNAP `ORDER_TRIGGERS` 部分 blocker 降低、阶段 4C-2/4C-3 real trigger enqueue、阶段 4C-4 trigger payment、阶段 4C-5 Watchful state-based cleanup trigger enqueue、阶段 4C-6 Honest Broker state-based cleanup trigger enqueue、阶段 4C-7 Scouting Warhawk explicit destroy trigger enqueue、阶段 4C-8 Scouting Warhawk state-based cleanup trigger enqueue、阶段 4C-9 Sad/Loyal Poro conditional cleanup trigger enqueue、阶段 4C-10 Unsung Hero powerful cleanup trigger enqueue、阶段 4C-11 Ghostly Centaur friendly-destroyed cleanup trigger enqueue、阶段 4C-12 Resonant Soul first-friendly-destroyed cleanup trigger enqueue、阶段 4C-13 true stack destruction route migration、阶段 4C-14 Savage Jawfish friendly-destroyed experience trigger enqueue、阶段 4C-15A Minion token family model overlay、阶段 4C-15B Viktor destroyed non-Minion trigger enqueue、阶段 4C-16 / 4C-17 Mechanical Trickster / Ironclad Vanguard true stack last-breath trigger enqueue、阶段 4C-18 Mechanical Trickster + Ironclad Vanguard cleanup trigger enqueue、阶段 4C-19 Kogmaw last-breath AoE damage representative route、阶段 4C-20B Undercover Agent triggered hand-choice prompt、阶段 4C-21 Sunken Temple trigger payment、阶段 4C-22 Muddy Dredger Warhawk representative baseline 和阶段 4C-23 Lux high-cost spell temporary power representative baseline；它不是功能实现清单，也不是错误断言。排名用于告诉后续阶段先审哪里：哪些 functional unit 同时碰到 FAQ、费用、触发/替换、持续效果、战斗/法术对决、隐藏信息或非 PLAY_CARD 规则域。
 
 ## 1. 数据来源
 
@@ -703,7 +703,27 @@ Viktor boundary：
 
 仍缺：完整 trigger engine、complete APNAP / trigger batch、complete Last Breath / destroyed family、Spellshield target tax full matrix、1009/811 full-official 覆盖、正式 18-step E2E。
 
-## 31. Top20 高风险 Functional Units
+## 31. Stage 4C-23 Lux High-Cost Spell Power Overlay
+
+4C-23 只更新覆盖矩阵 / 风险证据，不升级 full-official。`docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已新增 `stage4CBatch23LuxHighCostSpellTriggerPower`，并只为 `FU-f18a49e06d` 增加 `functionalUnits[].stage4C23` overlay。
+
+4C-23 已部分降低的 blocker：
+
+- `FU-f18a49e06d` / `OGS·006/024` Lux / 《拉克丝》的 high-cost spell temporary power representative route。
+- route：controller plays cost >= 5 spell -> visible face-up Lux source -> `TRIGGER_QUEUED` / `TRIGGER_RESOLVED` compatibility events -> `POWER_MODIFIED_UNTIL_END_OF_TURN` +3。
+- low-cost spell / opponent spell / face-down / standby / invalid source no trigger / no mutation。
+- oracle/effectId 保持 `OGS_LUX_HIGH_COST_SPELL_TRIGGER_PLAY_UNIT`；runtime representative effect kind 为 `OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3`。
+- A 验证结果：focused 67/67、backend full 3413/3413、frontend build passed、Chrome smoke passed、JSON / diff check passed。
+
+矩阵数字：`stage4C23` verified FUs = 1，verified snapshot entries = 1，cumulative real-trigger enqueue verified FUs = 16; cumulative spell-played immediate trigger-event verified FUs = 1，full-official upgrades = 0，full-official still uncovered FUs = 811。
+
+本批不关闭完整 high-cost spell family、paid-cost override、PaymentEngine、LayerEngine temporary modifier full matrix、complete trigger engine、FAQ adjudication、1009/811 full-official 或正式 18-step E2E。
+
+后续批量顺序建议：Aphelios / `FU-67c6b0186e` 保留为 dedicated weapon-attachment three-mode candidate；Icevale Archer / Vayne 继续作为 triggered-cost / conquer pressure candidates。
+
+仍缺：完整 trigger engine、PaymentEngine paid-cost matrix、LayerEngine temporary modifier matrix、hidden original visibility、1009/811 full-official 覆盖、正式 18-step E2E。
+
+## 32. Top20 高风险 Functional Units
 
 | # | FU | Representative | 类型/条目数 | 当前代表映射 | FAQ 候选页 | 风险依据 | 依赖规则域 |
 |---:|---|---|---:|---|---|---|---|

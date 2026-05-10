@@ -551,12 +551,14 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string OgnFioraCardNo = "OGN·232/298";
     private const string EclipseVanguardCardNo = "OGN·059/298";
     private const string RavenbloomStudentCardNo = "OGN·103/298";
+    private const string OgsLuxHighCostSpellCardNo = "OGS·006/024";
     private const string EagerApprenticeCardNo = "OGN·084/298";
     private const string ArenaServiceCrewCardNo = "OGN·091/298";
     private const string WiseElderCardNo = "OGN·065/298";
     private const string WaterbenderCardNo = "OGN·055/298";
     private const string EclipseVanguardStunTriggerEffectKind = "ECLIPSE_VANGUARD_STUN_TRIGGER_READY_POWER_1";
     private const string RavenbloomStudentSpellPowerEffectKind = "RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1";
+    private const string OgsLuxHighCostSpellPowerEffectKind = "OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3";
     private const string ArenaServiceCrewEquipmentReadyEffectKind = "ARENA_SERVICE_CREW_EQUIPMENT_READY";
     private static readonly CardBehaviorDefinition JinxDiscardedHandCardsBehavior = new(
         OgnJinxDiscardTriggerCardNo,
@@ -574,6 +576,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         0,
         0,
         PowerModifierAmount: 1);
+    private static readonly CardBehaviorDefinition OgsLuxHighCostSpellPowerBehavior = new(
+        OgsLuxHighCostSpellCardNo,
+        "拉克丝",
+        0,
+        OgsLuxHighCostSpellPowerEffectKind,
+        0,
+        0,
+        PowerModifierAmount: 3);
     private static readonly CardBehaviorDefinition EclipseVanguardStunTriggerBehavior = new(
         EclipseVanguardCardNo,
         "星蚀先锋",
@@ -2954,6 +2964,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             stackItem,
             events);
         ResolveRavenbloomStudentSpellPlayedTriggers(
+            playerZones,
+            cardObjects,
+            intent.PlayerId,
+            behavior,
+            stackItem,
+            events);
+        ResolveOgsLuxHighCostSpellPlayedTriggers(
             playerZones,
             cardObjects,
             intent.PlayerId,
@@ -20440,6 +20457,54 @@ public sealed class CoreRuleEngine : IRuleEngine
                 triggerStackItem,
                 sourceObjectId,
                 RavenbloomStudentSpellPowerBehavior.PowerModifierAmount,
+                out var powerEvent);
+            events.Add(powerEvent);
+        }
+    }
+
+    private static void ResolveOgsLuxHighCostSpellPlayedTriggers(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        List<GameEvent> events)
+    {
+        if (!IsHighCostSpellForLux(behavior))
+        {
+            return;
+        }
+
+        foreach (var sourceObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, playerId)
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var sourceState)
+                && string.Equals(sourceState.CardNo, OgsLuxHighCostSpellCardNo, StringComparison.Ordinal)
+                && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !sourceState.IsFaceDown
+                && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal))
+        {
+            var sourceState = cardObjects[sourceObjectId];
+            var trigger = new TriggerQueueItemState(
+                $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{OgsLuxHighCostSpellPowerEffectKind}",
+                playerId,
+                sourceObjectId,
+                OgsLuxHighCostSpellPowerEffectKind,
+                "CARD_PLAYED");
+            var triggerStackItem = new StackItemState(
+                stackItemId: trigger.TriggerId,
+                controllerId: playerId,
+                sourceObjectId: sourceObjectId,
+                effectKind: OgsLuxHighCostSpellPowerEffectKind,
+                cardNo: OgsLuxHighCostSpellCardNo);
+
+            events.Add(BuildTriggerQueuedEvent(trigger));
+            events.Add(BuildTriggerResolvedEvent(trigger));
+            cardObjects[sourceObjectId] = ApplyPowerModifier(
+                sourceState,
+                OgsLuxHighCostSpellPowerBehavior,
+                triggerStackItem,
+                sourceObjectId,
+                OgsLuxHighCostSpellPowerBehavior.PowerModifierAmount,
                 out var powerEvent);
             events.Add(powerEvent);
         }

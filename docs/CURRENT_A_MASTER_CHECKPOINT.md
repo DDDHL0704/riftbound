@@ -50,6 +50,72 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 只有用户明确要求清理、阶段收口且确认不再复用、或 agent 上下文明显污染/不可通信时，才允许关闭或重建。
 - 如果必须重建常驻池，必须立即更新本节 agent id，并说明旧 id 失效原因。
 
+4C-23 agent 事件：
+
+- A 复用 B/D/E 长期代理做 Lux / Aphelios 候选审查。
+- B 超时未落盘时，A 已按长期子 agent 规则先询问状态、等待、再收回本批服务端写入锁；未关闭 B。
+- D/E 输出只读草案；A 执行小范围测试修正与 docs/matrix 收口。
+
+## 0.1.1 阶段 4C-23 Lux Checkpoint
+
+状态：**已完成代表切片收口；项目仍 NOT READY。**
+
+阶段 4C-23 名称：Lux high-cost spell temporary power representative baseline。
+
+本批事实：
+
+- 目标 FU：`FU-f18a49e06d`
+- 代表卡：`OGS·006/024` Lux / 拉克丝，snapshot entry id `31585`
+- 规则文本：controller 打出 cost >= 5 spell 时，Lux 本回合战力 +3。
+- runtime effect：`OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3`
+- 代表路径：`CARD_PLAYED` cost >= 5 spell -> visible face-up Lux source -> `TRIGGER_QUEUED` / `TRIGGER_RESOLVED` compatibility events -> `POWER_MODIFIED_UNTIL_END_OF_TURN` +3。
+- guard：low-cost spell、opponent spell、face-down Lux、standby Lux、source not on field 均 no trigger / no mutation。
+- A 修正测试构造：`LuxOpponentHighCostSpellDoesNotTrigger` 使用 P2 手牌中的 `P2-SPELL-EVOLUTION-DAY`。
+
+修改文件：
+
+- `tests/Riftbound.ConformanceTests/RealTriggerQueueTests.cs`
+- `docs/CURRENT_STAGE4C_BATCH23_LUX_HIGH_COST_SPELL_POWER_AUDIT.md`
+- `docs/CURRENT_STAGE4C_BATCH23_LUX_HIGH_COST_SPELL_POWER_EVIDENCE.md`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`
+- `docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`
+- `docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`
+- `docs/rules-evidence-index.md`
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+
+已跑验证：
+
+- Focused backend：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Lux|FullyQualifiedName~HighCostSpell|FullyQualifiedName~Ravenbloom|FullyQualifiedName~RealTriggerQueue"` 通过 67/67。
+- Backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 3413/3413。
+- Frontend build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过。
+- Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过。
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 通过。
+- `git diff --check` 通过。
+
+矩阵影响：
+
+- `stage4CBatch23LuxHighCostSpellTriggerPower` 顶层 overlay 已新增。
+- `functionalUnits[].stage4C23` 只标 `FU-f18a49e06d`。
+- stage4C23 verified FUs = 1；verified snapshot entries = 1。
+- cumulative real-trigger enqueue verified FUs = 16; cumulative spell-played immediate trigger-event verified FUs = 1。
+- fullOfficialUpgrades = 0；fullOfficialStillUncoveredFunctionalUnits = 811。
+- 4B freezeStatus/statusFlags 不改变；`fullOfficial=false`。
+
+仍缺：
+
+- 完整 trigger engine、complete APNAP / trigger batch、optional trigger handling。
+- 完整 PaymentEngine、paid-cost override / 增减费 / 额外费用 / 替代费用矩阵。
+- 完整 LayerEngine、temporary modifier timestamp / dependency / cleanup duration。
+- FAQ regression、1009/811 full-official、正式 18-step E2E、completion audit。
+
+下一候选建议：
+
+- Aphelios / `FU-67c6b0186e` 仍是 high-payoff 3-entry weapon-attachment trigger candidate，但必须另开 dedicated design batch。
+- Icevale Archer / `FU-c170628e3a` 和 Vayne / `FU-c027639a3c` 保留为 triggered-cost / conquer pressure candidates。
+
 ## 0.2 阶段 0 当前基线
 
 阶段 0 只做主控建档、只读审计与任务拆分，不实现功能代码。已读取：
