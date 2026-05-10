@@ -82,6 +82,8 @@
 
 阶段 4C-42 补 Time Gate / 预时之门 ordinary hand play-equipment target guard representative baseline；activated / tap ability、payment `[A]`、next spell gains Echo、optional echo payment / repeat、duration cleanup、equipment exhaust / readiness lifecycle、FAQ timing、1009/811 与 final 18-step E2E 仍不代表 READY。
 
+阶段 4C-43 补 Sfur Song / 斯弗尔尚歌 ordinary hand play-equipment target guard representative baseline；复制宿主技能文字、持续文本 / layer、完整 assemble / equipment attach lifecycle、装备控制权 / 区域移动、FAQ full behavior、1009/811 与 final 18-step E2E 仍不代表 READY。
+
 | 阶段 3 流程 | 证据入口 | 必须证明的审计点 |
 |---|---|---|
 | 创建 / 加入 / 重连 | `CORE-260330` rules 107-129；工程会话契约 | 双浏览器上下文不得共享授权状态；snapshot/prompt 只能按 viewer 下发；重连恢复不能泄漏隐藏信息。 |
@@ -521,6 +523,15 @@
 |---|---|---|---|
 | Play-equipment route | `CATALOG` `SFD·078/221`；cardId `33158`；FU `FU-081d97eb3e`；`CORE-260330` p39-p42 rules 355-356 | ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base equipment | full official Time Gate effect |
 | Play guard | `CORE-260330` p4-p8 rules 107-129；p39-p42 rules 355-356 | explicit target、wrong zone / source、opponent source、face-down standby source、insufficient mana all rejected with no mutation / no leak | activated / tap ability、payment `[A]`、next spell gains Echo、optional echo payment / repeat、duration cleanup、equipment exhaust / readiness lifecycle、FAQ timing、1009/811、final E2E |
+
+### 6.39 阶段 4C-43 Sfur Song play guard 证据入口
+
+阶段 4C-43 细化审计见 `docs/CURRENT_STAGE4C_BATCH43_SFUR_SONG_PLAY_GUARD_AUDIT.md`，证据见 `docs/CURRENT_STAGE4C_BATCH43_SFUR_SONG_PLAY_GUARD_EVIDENCE.md`。本节提供 Sfur Song / 斯弗尔尚歌 `SFD·059/221` / cardId `33139` / `FU-9a623b3185` play-equipment target guard representative baseline；Core unchanged；A rerun focused 通过 268/268；不表示项目 READY，`fullOfficial=false`。
+
+| 规则域 | 证据入口 | 当前 4C-43 状态 | 仍缺 |
+|---|---|---|---|
+| Play-equipment route | `CATALOG` `SFD·059/221`；cardId `33139`；FU `FU-9a623b3185`；`CORE-260330` p39-p42 rules 355-356 | ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base equipment | full official Sfur Song effect |
+| Play guard | `CORE-260330` p4-p8 rules 107-129；p39-p42 rules 355-356 | explicit target、wrong zone / source、opponent source、face-down standby source、insufficient mana all rejected with no mutation / no leak | copied host text、continuous text / layer、full assemble / equipment attach lifecycle、equipment control / zone movement、FAQ full behavior、1009/811、final E2E |
 
 | 规则域 | 证据入口 | 当前 4C-32 状态 | 仍缺 |
 |---|---|---|---|
@@ -1347,8 +1358,8 @@
 | `p4-play-reversal-shard-target-rejected` | `RULE_AUDITED` | `CATALOG` UNL-174/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方装备《逆转碎片》当前打出路径携带显式目标会拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不入场装备、不创建结算链；开始阶段摧毁触发分支暂缓。 |
 | `p2-preflight-play-assembly-rack-equipment` | `RULE_AUDITED` | `CATALOG` SFD·019/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方装备《装配架》从手牌打出时支付 4 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为带 `CARD_TYPE:EQUIPMENT` 标签的装备对象；P4.197 已补带目标打出拒绝 fixture，横置创建机器人技能暂缓。 |
 | `p4-play-assembly-rack-target-rejected` | `RULE_AUDITED` | `CATALOG` SFD·019/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方装备《装配架》当前打出路径携带显式目标会拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不入场装备、不创建结算链；横置创建机器人技能暂缓。 |
-| `p2-preflight-play-sfur-song-equipment` | `RULE_AUDITED` | `CATALOG` SFD·059/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方装备《斯弗尔尚歌》从手牌打出时支付 3 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为带 `CARD_TYPE:EQUIPMENT` 标签的装备对象；P4.198 已补带目标打出拒绝 fixture，第三百三十四批补齐基地中未贴附《斯弗尔尚歌》支付 `ASSEMBLE_GREEN` / 绿色符能装配到己方单位的服务端代表路径，复制技能文字分支仍暂缓。 |
-| `p4-play-sfur-song-target-rejected` | `RULE_AUDITED` | `CATALOG` SFD·059/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方装备《斯弗尔尚歌》当前打出路径携带显式目标会拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不入场装备、不创建结算链；基地装配绿色贴附已由 `ASSEMBLE_EQUIPMENT` 代表路径覆盖，复制技能文字分支仍暂缓。 |
+| `p2-preflight-play-sfur-song-equipment` | `RULE_AUDITED` | `CATALOG` SFD·059/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方装备《斯弗尔尚歌》从手牌打出时支付 3 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为带 `CARD_TYPE:EQUIPMENT` 标签的装备对象；P4.198 已补带目标打出拒绝 fixture，第三百三十四批补齐基地中未贴附《斯弗尔尚歌》支付 `ASSEMBLE_GREEN` / 绿色符能装配到己方单位的服务端代表路径；4C-43 补 wrong zone / source、opponent source、face-down standby source、insufficient mana no-mutation / no-leak guard。复制技能文字分支仍暂缓。 |
+| `p4-play-sfur-song-target-rejected` | `RULE_AUDITED` | `CATALOG` SFD·059/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方装备《斯弗尔尚歌》当前打出路径携带显式目标会拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不入场装备、不创建结算链；4C-43 将其纳入 play-equipment target guard representative baseline。基地装配绿色贴附已由 `ASSEMBLE_EQUIPMENT` 代表路径覆盖，复制技能文字分支仍暂缓。 |
 | `p2-preflight-play-z-drive-equipment` | `RULE_AUDITED` | `CATALOG` SFD·090/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方装备《Z型驱动》从手牌打出时支付 3 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为带 `CARD_TYPE:EQUIPMENT` 标签的装备对象；P4.199 已补带目标打出拒绝 fixture，第三百三十五批补齐基地中未贴附《Z型驱动》支付 `ASSEMBLE_BLUE` / 蓝色符能装配到己方单位的服务端代表路径，放逐打出分支仍暂缓。 |
 | `p4-play-z-drive-target-rejected` | `RULE_AUDITED` | `CATALOG` SFD·090/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方装备《Z型驱动》当前打出路径携带显式目标会拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不入场装备、不创建结算链；基地装配蓝色贴附已由 `ASSEMBLE_EQUIPMENT` 代表路径覆盖，放逐打出分支仍暂缓。 |
 | `p2-preflight-play-vanguard-armory-equipment` | `RULE_AUDITED` | `CATALOG` SFD·168/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方装备《先锋军备》从手牌打出时支付 7 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为带 `CARD_TYPE:EQUIPMENT` 标签的装备对象；P4.200 已补带目标打出拒绝 fixture，横置创建多个随从分支暂缓。 |

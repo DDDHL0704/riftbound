@@ -12,6 +12,16 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-10 阶段 4C-43 Sfur Song Play Guard 审计
+
+阶段 4C-43 审计入口：`docs/CURRENT_STAGE4C_BATCH43_SFUR_SONG_PLAY_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH43_SFUR_SONG_PLAY_GUARD_EVIDENCE.md`。本批已补 Sfur Song / 斯弗尔尚歌 `SFD·059/221` / cardId `33139` / `FU-9a623b3185` / `SFUR_SONG_PLAY_EQUIPMENT` 的 play-equipment target guard representative baseline。项目仍 **NOT READY**，`fullOfficial=false`。
+
+- Scope：ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base equipment。
+- Guard：explicit target、wrong zone / source、opponent source、face-down standby source、insufficient mana 均 rejected，no tick / no events / no payment / no hand movement / no stack / no equipment entry / no leak。
+- B slice 为 guard test；Core unchanged，Core 无改动。A rerun focused 通过 268/268；A backend full 3576/3576 通过；A frontend build 通过；A Chrome smoke 通过；D 未运行 full tests。
+- 本批只关闭 Sfur Song ordinary hand play-equipment target guard representative evidence。
+- 不关闭复制宿主技能文字、持续文本 / layer、完整 assemble / equipment attach lifecycle、装备控制权 / 区域移动、FAQ full behavior、1009/811 full-official 或 final 18-step E2E。
+
 ## 2026-05-10 阶段 4C-42 Time Gate Play Guard 审计
 
 阶段 4C-42 审计入口：`docs/CURRENT_STAGE4C_BATCH42_TIME_GATE_PLAY_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH42_TIME_GATE_PLAY_GUARD_EVIDENCE.md`。本批已补 Time Gate / 预时之门 `SFD·078/221` / cardId `33158` / `FU-081d97eb3e` / `TIME_GATE_PLAY_EQUIPMENT` 的 play-equipment target guard representative baseline。项目仍 **NOT READY**，`fullOfficial=false`。

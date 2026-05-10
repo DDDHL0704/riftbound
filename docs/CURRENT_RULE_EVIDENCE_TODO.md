@@ -79,6 +79,8 @@
 阶段 4C-41 Giant Arm Kato play keyword guard 证据：`docs/CURRENT_STAGE4C_BATCH41_GIANT_ARM_KATO_PLAY_KEYWORD_GUARD_EVIDENCE.md`
 阶段 4C-42 Time Gate play guard 审计：`docs/CURRENT_STAGE4C_BATCH42_TIME_GATE_PLAY_GUARD_AUDIT.md`
 阶段 4C-42 Time Gate play guard 证据：`docs/CURRENT_STAGE4C_BATCH42_TIME_GATE_PLAY_GUARD_EVIDENCE.md`
+阶段 4C-43 Sfur Song play guard 审计：`docs/CURRENT_STAGE4C_BATCH43_SFUR_SONG_PLAY_GUARD_AUDIT.md`
+阶段 4C-43 Sfur Song play guard 证据：`docs/CURRENT_STAGE4C_BATCH43_SFUR_SONG_PLAY_GUARD_EVIDENCE.md`
 
 ## B 修复验收
 
@@ -185,6 +187,8 @@
 4C-41 补充：B 已完成 Giant Arm Kato / 巨腕加藤 `SFD·112/221` / cardId `33198` / `FU-464ec8c275` / `GIANT_ARM_KATO_PLAY_KEYWORD_UNIT` guard slice。已覆盖 ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 3，tags `CARD_TYPE:UNIT` + `法盾`；explicit target、wrong zone / source、opponent source、face-down standby source、insufficient mana 均 no tick / no events / no payment / no hand movement / no stack / no unit entry / no leak。A/B focused 通过 99/99；Core gap none；D 未运行重测试。本补充只关闭 Giant Arm Kato ordinary hand play-unit keyword-tag target guard representative evidence，不关闭 full-official；Spellshield target tax、move-to-battlefield trigger、friendly-unit choice / prompt、keyword grant、+power until EOT、LayerEngine / duration cleanup、movement / control matrix、FAQ、1009/811 与 final 18-step E2E 仍保持 open。
 
 4C-42 补充：B 已完成 Time Gate / 预时之门 `SFD·078/221` / cardId `33158` / `FU-081d97eb3e` / `TIME_GATE_PLAY_EQUIPMENT` guard slice。已覆盖 ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base equipment；explicit target、wrong zone / source、opponent source、face-down standby source、insufficient mana 均 no tick / no events / no payment / no hand movement / no stack / no equipment entry / no leak。A/B focused 通过 292/292；Core gap none；D 未运行重测试。本补充只关闭 Time Gate ordinary hand play-equipment target guard representative evidence，不关闭 full-official；activated / tap ability、payment `[A]`、next spell gains Echo、optional echo payment / repeat、duration cleanup、equipment exhaust / readiness lifecycle、FAQ timing、1009/811 与 final 18-step E2E 仍保持 open。
+
+4C-43 补充：B 已完成 Sfur Song / 斯弗尔尚歌 `SFD·059/221` / cardId `33139` / `FU-9a623b3185` / `SFUR_SONG_PLAY_EQUIPMENT` guard slice。已覆盖 ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base equipment；explicit target、wrong zone / source、opponent source、face-down standby source、insufficient mana 均 no tick / no events / no payment / no hand movement / no stack / no equipment entry / no leak。A rerun focused 通过 268/268；A backend full 3576/3576 通过；A frontend build 通过；A Chrome smoke 通过；Core unchanged；D 未运行 full tests。本补充只关闭 Sfur Song ordinary hand play-equipment target guard representative evidence，不关闭 full-official；复制宿主技能文字、持续文本 / layer、完整 assemble / equipment attach lifecycle、装备控制权 / 区域移动、FAQ full behavior、1009/811 与 final 18-step E2E 仍保持 open。
 
 ## superseded / 防误读
 
@@ -1171,6 +1175,7 @@ D 审计结论：
 - 4C-40 已关闭 Sea Monster Hook / 海兽钓钩 `OGN·242/298` / cardId `31482` / `FU-2653af0380` ordinary hand play-equipment target guard representative baseline；Core gap none；activated ability：pay 1 + yellow + exhaust、destroy friendly unit、top-five look / choice、free play、recycle remainder、hidden / zone / payment / layer / FAQ、1009/811 与 final 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-41 已关闭 Giant Arm Kato / 巨腕加藤 `SFD·112/221` / cardId `33198` / `FU-464ec8c275` ordinary hand play-unit keyword-tag target guard representative baseline；Core gap none；Spellshield target tax、move-to-battlefield trigger、friendly-unit choice / prompt、keyword grant、+power until EOT、LayerEngine / duration cleanup、movement / control matrix、FAQ、1009/811 与 final 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-42 已关闭 Time Gate / 预时之门 `SFD·078/221` / cardId `33158` / `FU-081d97eb3e` ordinary hand play-equipment target guard representative baseline；Core gap none；activated / tap ability、payment `[A]`、next spell gains Echo、optional echo payment / repeat、duration cleanup、equipment exhaust / readiness lifecycle、FAQ timing、1009/811 与 final 18-step E2E 仍按 P0/P1 缺口管理。
+- 4C-43 已关闭 Sfur Song / 斯弗尔尚歌 `SFD·059/221` / cardId `33139` / `FU-9a623b3185` ordinary hand play-equipment target guard representative baseline；Core unchanged；复制宿主技能文字、持续文本 / layer、完整 assemble / equipment attach lifecycle、装备控制权 / 区域移动、FAQ full behavior、1009/811 与 final 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-15 Viktor `FU-b5cb36a5c9` destroyed non-minion token trigger 已记录为 feasibility blocker；4C-15A 已补 `TOKEN_FAMILY:MINION` 最小前置模型并部分关闭 token classification blocker；4C-15B 已关闭 Viktor 代表性 baseline，但 same-source 多对象 full official matrix、Kogmaw / Karthus / Undercover Agent、完整 trigger engine 仍未关闭。
 - 3A-P0-001 / 002 / 003 / 004 已关闭；不得把这些 3A 子项误读为完整 Stage 3 或 READY。
 - 3B-CAND-001 / 002 / 003 / 004 只能作为阶段 3B 关闭候选；D/A 证据入账前不得移出 P0。

@@ -910,6 +910,19 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Hostile Takeover 代表路径外推完整待命、反应时机、开战/征服、control lifecycle、end-turn cleanup、targeting、PaymentEngine、FEPR、named deferred candidates 或 full-official。
 
+## 0.1.21 阶段 4C-43 Sfur Song Checkpoint
+
+状态：**4C-43 checkpoint ready；项目仍 NOT READY。**
+
+阶段 4C-43 名称：Sfur Song play-equipment target guard representative baseline。
+
+- B 完成 Sfur Song / 斯弗尔尚歌 `SFD·059/221` / cardId `33139` / `FU-9a623b3185` / `SFUR_SONG_PLAY_EQUIPMENT` guard slice；Core unchanged，Core 无改动。
+- 已覆盖 ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base equipment。
+- 已覆盖 explicit target、wrong zone / source、opponent source、face-down standby source、insufficient mana no mutation / no leak guard。
+- 验证记录：A rerun focused 通过 268/268；A backend full 3576/3576 通过；A frontend build 通过；A Chrome smoke 通过；`jq empty` / matrix targeted assert / `git diff --check` 通过；D 未运行 full tests。
+- 本批只关闭 Sfur Song 普通 hand play-equipment target guard representative evidence。
+- 仍保持 `fullOfficial=false`；不宣称 READY / READY-CANDIDATE；不关闭复制宿主技能文字、持续文本 / layer、完整 assemble / equipment attach lifecycle、装备控制权 / 区域移动、FAQ full behavior、1009/811 或 final 18-step E2E。
+
 ## 0.1.20 阶段 4C-42 Time Gate Checkpoint
 
 状态：**4C-42 checkpoint ready；项目仍 NOT READY。**
