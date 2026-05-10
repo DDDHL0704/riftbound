@@ -994,7 +994,27 @@ Viktor boundary：
 
 仍缺：完整 hidden-zone reveal / choice / recycle semantics、完整 target legality matrix、payment / battle / control-zone interactions、FAQ adjudication、1009/811 full-official 覆盖、正式 18-step E2E。
 
-## 46. Top20 高风险 Functional Units
+## 46. Stage 4C-38 Edge of Night Play Equipment Assemble Guard Overlay
+
+4C-38 只更新覆盖矩阵 / 风险证据，不升级 full-official。正确身份为 `FU-804412488c` / `SFD·139/221` / cardId `33229` / Edge of Night / 《夜之锋刃》，oracle/effectId 为 `EDGE_OF_NIGHT_PLAY_EQUIPMENT`。
+
+4C-38 已部分降低的 blocker：
+
+- ordinary play-equipment hand route：0 target -> stack / pass-pass -> base equipment。
+- explicit play target rejected without payment or mutation。
+- valid `ASSEMBLE_PURPLE` route：face-up controlled base Edge of Night -> friendly public unit target -> pay 1 purple -> `COST_PAID` + `EQUIPMENT_ATTACHED`。
+- invalid guards：face-down / hidden source、source in hand、opponent source、already-attached source、unknown source、unknown / opponent / face-down standby / non-unit target、missing / wrong optional cost、insufficient purple no tick / no events / no payment / no stack / no attach / no leak。
+- 4B primary status / flags 不变：`NEEDS_FAQ_REVIEW`，`IMPLEMENTED_UNTESTED`、`NEEDS_ENGINE_SUPPORT`、`NEEDS_FAQ_REVIEW`；`fullOfficial=false`，FAQ refs remain open，full-official upgrades = 0。
+
+矩阵数字口径：`stage4C38` verified FUs = 1，verified snapshot entries = 1，cumulative equipment assemble guard verified FUs = 1，full-official upgrades = 0，full-official still uncovered FUs = 811。
+
+本批不关闭 full Edge of Night official completion、standby immediate attach、complete hidden-zone visibility / redaction、complete equipment layer / attach / detach / replacement matrix、FAQ adjudication for `SOUL-OFAQ-260114 p10` / `SOUL-OFAQ-260114 p9`、1009/811 full-official 或正式 18-step E2E。
+
+后续批量顺序建议：Karthus / `FU-ee1dfb3ed3` 与 Aphelios / `FU-67c6b0186e` 继续 design-gated；下一批应先做新的只读门禁，避免在缺协议解释时推进。
+
+仍缺：完整 standby immediate attach、完整 equipment lifecycle / LayerEngine、hidden-zone prompt / redaction、FAQ adjudication、1009/811 full-official 覆盖、正式 18-step E2E。
+
+## 47. Top20 高风险 Functional Units
 
 | # | FU | Representative | 类型/条目数 | 当前代表映射 | FAQ 候选页 | 风险依据 | 依赖规则域 |
 |---:|---|---|---:|---|---|---|---|
@@ -1019,7 +1039,7 @@ Viktor boundary：
 | 19 | `FU-804412488c` | `SFD·139/221` 夜之锋刃 | 装备 / 1 | 代表路径：EDGE_OF_NIGHT_PLAY_EQUIPMENT | SOUL-OFAQ-260114 p10<br>SOUL-OFAQ-260114 p9 | 控制权/区域移动、FAQ 提及、隐藏信息/随机/牌堆、效果层/持续效果、费用/支付、目标/结算链/时机 | FEPR/Targeting/TimingWindows, LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, VisibilityFilter/RandomAndHiddenZones, ZoneOwnership/ControlChange/Movement |
 | 20 | `FU-9a623b3185` | `SFD·059/221` 斯弗尔尚歌 | 装备 / 1 | 代表路径：SFUR_SONG_PLAY_EQUIPMENT | SOUL-JFAQ-260114 p24<br>SOUL-JFAQ-260114 p25<br>SOUL-JFAQ-260114 p8<br>SOUL-OFAQ-260114 p18<br>SOUL-OFAQ-260114 p19 | 控制权/区域移动、FAQ 提及、效果层/持续效果、费用/支付 | LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, ZoneOwnership/ControlChange/Movement |
 
-## 47. 未覆盖效果分类
+## 48. 未覆盖效果分类
 
 | 分类 | 含义 | 当前阻断关系 |
 |---|---|---|
@@ -1033,7 +1053,7 @@ Viktor boundary：
 | `non-play-domain` | 传奇、战场、符文、指示物等非普通 PLAY_CARD 域。 | 需要专门域矩阵，不可与普通出牌效果混算。 |
 | `faq-mentioned` | 五份 PDF/FAQ 中出现卡名的候选项。 | 必须人工判定问题是否真的约束该 FU，并补测试。 |
 
-## 48. P0/P1 仍未清零
+## 49. P0/P1 仍未清零
 
 P0：
 

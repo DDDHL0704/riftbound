@@ -2281,6 +2281,49 @@ Snapshot entry primary status counts：
 
 是否允许批量 full-official 覆盖：**不允许。**
 
+## 51. 阶段 4C-38 E 汇总
+
+阶段 4C-38 名称：Edge of Night play-equipment / assemble-purple target guard representative baseline。E/A 只更新覆盖矩阵与风险证据，不触碰 `riftbound-dotnet.sln`，不进入 1009 张卡 full-official 实现。
+
+身份核对：
+
+- `SFD·139/221` Edge of Night / 《夜之锋刃》在冻结矩阵中的真实 FU 为 `FU-804412488c`。
+- snapshot entry / cardId：`SFD·139/221` / `33229`。
+- 当前 oracle/effectId：`EDGE_OF_NIGHT_PLAY_EQUIPMENT`。
+- 4B status 保守不变：`NEEDS_FAQ_REVIEW`；statusFlags：`IMPLEMENTED_UNTESTED`、`NEEDS_ENGINE_SUPPORT`、`NEEDS_FAQ_REVIEW`。
+- rules / FAQ ref：`SOUL-OFAQ-260114 p10`、`SOUL-OFAQ-260114 p9`；FAQ refs remain open。
+
+本批记录：
+
+- ordinary play-equipment hand route：0 target -> stack / pass-pass -> base equipment。
+- explicit play target rejected without payment or mutation。
+- valid base Edge of Night `ASSEMBLE_PURPLE` route：friendly public unit target -> pay 1 purple -> `COST_PAID` + `EQUIPMENT_ATTACHED`。
+- invalid assemble guards：face-down / hidden source、source in hand、opponent source、already-attached source、unknown source、unknown / opponent / face-down standby / non-unit target、missing / wrong optional cost、insufficient purple 均 no tick / no events / no payment / no stack / no attach / no leak。
+- 验证结果：focused 98/98 passed；backend full 3546/3546 passed; frontend build passed; Chrome smoke passed。
+- 只记录 `FU-804412488c` / `SFD·139/221` 的代表切片；Karthus / `FU-ee1dfb3ed3` 与 Aphelios / `FU-67c6b0186e` 仍 design-gated。
+
+4C-38 矩阵 overlay 统计口径：
+
+| 项 | 数量 |
+|---|---:|
+| frozen snapshot entries | 1009 |
+| frozen functional units | 811 |
+| `stage4C38` verified FUs | 1 |
+| `stage4C38` verified snapshot entries | 1 |
+| cumulative equipment assemble guard verified FUs | 1 |
+| full-official upgrades | 0 |
+| full-official still uncovered FUs | 811 |
+
+仍存在 P0/P1：
+
+- Edge of Night full standby immediate attach 未覆盖。
+- complete hidden-zone prompt / redaction / visibility policy 未覆盖。
+- complete equipment layer / attach / detach / replacement matrix 未覆盖。
+- FAQ adjudication for `SOUL-OFAQ-260114 p10` / `SOUL-OFAQ-260114 p9` 未完成。
+- 1009/811 full-official、正式 18-step E2E 仍未完成。
+
+是否允许批量 full-official 覆盖：**不允许。**
+
 ## 36. 阶段 4C-23 E 汇总
 
 阶段 4C-23 名称：Lux high-cost spell temporary power representative baseline。E/A 只更新覆盖矩阵与索引证据，不触碰 `riftbound-dotnet.sln`，不进入 1009 张卡 full-official 实现。

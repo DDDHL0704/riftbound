@@ -1280,9 +1280,35 @@ Top risk remains the Stage 2 Top20 with 4B statuses overlaid:
 
 4C-37 不关闭 all opponent-deck play effects、full Berserk Impulse official completion beyond this representative guard slice、complete reveal / choice / recycle semantics、complete hidden-zone visibility matrix、complete FEPR timing / target selection、payment / battle / control-zone interactions、FAQ adjudication 或 1009/811 full-official。
 
-## 46. 4B / 4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A / 4C-15B / 4C-16 / 4C-17 / 4C-18 / 4C-19 / 4C-20B / 4C-21 / 4C-22 / 4C-23 / 4C-24 / 4C-25 / 4C-26 / 4C-27 / 4C-28 / 4C-29 / 4C-30 / 4C-31 / 4C-32 / 4C-33 / 4C-34 / 4C-35 / 4C-36 / 4C-37 Blocker
+## 46. Post-Freeze 4C-38 Overlay
 
-4B freeze、4C-1 overlay、4C-2 overlay、4C-3 overlay、4C-4 overlay、4C-5 overlay、4C-6 overlay、4C-7 overlay、4C-8 overlay、4C-9 overlay、4C-10 overlay、4C-11 overlay、4C-12 overlay、4C-13 overlay、4C-14 overlay、4C-15A overlay、4C-15B overlay、4C-16 overlay、4C-17 overlay、4C-18 overlay、4C-19 overlay、4C-20B overlay、4C-21 overlay、4C-22 overlay、4C-23 overlay、4C-24 overlay、4C-25 overlay、4C-26 overlay、4C-27 overlay、4C-28 overlay、4C-29 overlay、4C-30 overlay、4C-31 overlay、4C-32 overlay、4C-33 overlay、4C-34 overlay、4C-35 overlay、4C-36 overlay 和 4C-37 overlay 本身无文档阻断。仍阻断 READY / full-official 的事项：
+4C-38 不改变 4B frozen counts、primary status counts 或 full-official 口径，只记录局部 play-equipment / assemble-purple target guard runtime 证据：
+
+| 项 | 4C-38 记录 |
+|---|---|
+| verified FU | `FU-804412488c` / `SFD·139/221` Edge of Night / 《夜之锋刃》 |
+| cardId | `33229` |
+| oracle/effectId | `EDGE_OF_NIGHT_PLAY_EQUIPMENT` |
+| route | Edge of Night hand play with 0 targets -> stack / pass-pass -> base equipment；base Edge of Night `ASSEMBLE_PURPLE` -> friendly public unit target -> attach |
+| guard | explicit play target rejected；face-down / hidden source、source in hand、opponent source、already-attached source、unknown source、unknown / opponent / face-down standby / non-unit target、missing / wrong optional cost、insufficient purple no tick / no events / no payment / no stack / no attach / no leak |
+| automated evidence | focused 98/98 passed；backend full 3546/3546 passed; frontend build passed; Chrome smoke passed。 |
+| FAQ boundary | `SOUL-OFAQ-260114 p10` / `SOUL-OFAQ-260114 p9` remain open；4C-38 does not close standby immediate attach, hidden-zone redaction, equipment layer / attach / detach / replacement matrix, or FAQ adjudication。 |
+| status impact | 4B `freezeStatus` / `statusFlags` unchanged；`NEEDS_FAQ_REVIEW` remains primary status；`IMPLEMENTED_UNTESTED` / `NEEDS_ENGINE_SUPPORT` / `NEEDS_FAQ_REVIEW` remain flags；`fullOfficial=false`；full-official upgrades = 0。 |
+| non-covered FUs | Karthus / `FU-ee1dfb3ed3` and Aphelios / `FU-67c6b0186e` remain design-gated。 |
+
+矩阵 overlay 数字：
+
+- `stage4C38` verified FUs：1
+- `stage4C38` verified snapshot entries：1
+- cumulative equipment assemble guard verified FUs：1
+- full-official upgrades：0
+- full-official still uncovered FUs：811
+
+4C-38 不关闭 all equipment effects、full Edge of Night official completion beyond this representative guard slice、standby immediate attach、complete hidden-zone visibility / redaction、complete equipment layer / attach / detach / replacement matrix、FAQ adjudication 或 1009/811 full-official。
+
+## 47. 4B / 4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A / 4C-15B / 4C-16 / 4C-17 / 4C-18 / 4C-19 / 4C-20B / 4C-21 / 4C-22 / 4C-23 / 4C-24 / 4C-25 / 4C-26 / 4C-27 / 4C-28 / 4C-29 / 4C-30 / 4C-31 / 4C-32 / 4C-33 / 4C-34 / 4C-35 / 4C-36 / 4C-37 / 4C-38 Blocker
+
+4B freeze、4C-1 overlay、4C-2 overlay、4C-3 overlay、4C-4 overlay、4C-5 overlay、4C-6 overlay、4C-7 overlay、4C-8 overlay、4C-9 overlay、4C-10 overlay、4C-11 overlay、4C-12 overlay、4C-13 overlay、4C-14 overlay、4C-15A overlay、4C-15B overlay、4C-16 overlay、4C-17 overlay、4C-18 overlay、4C-19 overlay、4C-20B overlay、4C-21 overlay、4C-22 overlay、4C-23 overlay、4C-24 overlay、4C-25 overlay、4C-26 overlay、4C-27 overlay、4C-28 overlay、4C-29 overlay、4C-30 overlay、4C-31 overlay、4C-32 overlay、4C-33 overlay、4C-34 overlay、4C-35 overlay、4C-36 overlay、4C-37 overlay 和 4C-38 overlay 本身无文档阻断。仍阻断 READY / full-official 的事项：
 
 - 0/811 functional units 获得 full-official。
 - P0/P1 engine support 仍影响 762 FUs by status flag。

@@ -910,6 +910,20 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Hostile Takeover 代表路径外推完整待命、反应时机、开战/征服、control lifecycle、end-turn cleanup、targeting、PaymentEngine、FEPR、named deferred candidates 或 full-official。
 
+## 0.1.16 阶段 4C-38 Edge of Night Checkpoint
+
+状态：**D 最小文档入账；项目仍 NOT READY。**
+
+阶段 4C-38 名称：Edge of Night play-equipment / assemble-purple target guard representative baseline。
+
+- B 完成 Edge of Night / 夜之锋刃 `SFD·139/221` / cardId `33229` / `FU-804412488c` / `EDGE_OF_NIGHT_PLAY_EQUIPMENT` 的 test-only narrow representative guard slice；Core gap none，服务端 Core 无改动。
+- 已覆盖普通 `PLAY_CARD` hand route：0 target -> stack / pass-pass -> base equipment；explicit target rejected 且 no payment / no mutation。
+- 已覆盖 face-up controlled base Edge of Night `ASSEMBLE_PURPLE` -> friendly public unit target -> pay 1 purple -> `COST_PAID` + `EQUIPMENT_ATTACHED`。
+- 已覆盖 invalid assemble no tick / no events / no payment / no stack / no attach / no leak：face-down / hidden source、source in hand、opponent source、already-attached source、unknown source、unknown / opponent / face-down standby / non-unit target、missing / wrong optional cost、insufficient purple。
+- 验证记录：A focused filter 通过 98/98；backend full 3546/3546 通过；frontend build 通过；Chrome smoke 通过。
+- 本批只关闭 narrow assemble / play guard representative evidence；Edge of Night face-down standby immediate attach remains P0 / design-gated。
+- 仍保持 `fullOfficial=false`；不宣称 READY / READY-CANDIDATE；不关闭 full official standby immediate attach、hidden redaction、equipment layer、FAQ、1009/811 或 final 18-step E2E。
+
 ## 0.1.15 阶段 4C-37 Berserk Impulse Checkpoint
 
 状态：**D 文档代表切片已入账；项目仍 NOT READY。**
