@@ -86,6 +86,8 @@
 
 阶段 4C-44 补 Akshan / 阿克尚 ordinary hand no-optional / no-extra play-unit guard representative baseline；optional assemble、orange-orange extra play、enemy equipment move / control、weapon attach、control-until-leaves cleanup、LayerEngine / continuous effects、FAQ full behavior、1009/811 与 final 18-step E2E 仍不代表 READY。
 
+阶段 4C-45 补 Switcheroo / 换换乐 representative battlefield power-swap target guard overlay；true LayerEngine、later modifier ordering、duration cleanup / EOT expiry、same-battlefield precision beyond current representative model、damage / battle math、full FAQ `SOUL-JFAQ-260114 p14`、1009/811 与 final 18-step E2E 仍不代表 READY。
+
 | 阶段 3 流程 | 证据入口 | 必须证明的审计点 |
 |---|---|---|
 | 创建 / 加入 / 重连 | `CORE-260330` rules 107-129；工程会话契约 | 双浏览器上下文不得共享授权状态；snapshot/prompt 只能按 viewer 下发；重连恢复不能泄漏隐藏信息。 |
@@ -543,6 +545,15 @@
 |---|---|---|---|
 | Play-unit route | `CATALOG` `SFD·109/221`；cardId `33194`；FU `FU-7419ee7d9d`；`CORE-260330` p39-p42 rules 355-356；p92-p105 keyword rules 800+ | ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 4，tags `CARD_TYPE:UNIT` + `哨兵` + `百炼`；no optional assemble / no orange-orange extra cost | full official Akshan effect |
 | Play guard | `CORE-260330` p4-p8 rules 107-129；p39-p42 rules 355-356 | explicit target、wrong zone / source、opponent source、face-down standby source、insufficient mana all rejected with no mutation / no leak | optional assemble、orange-orange extra play、enemy equipment move / control、weapon attach、control-until-leaves cleanup、LayerEngine / continuous effects、FAQ full behavior、1009/811、final E2E |
+
+### 6.41 阶段 4C-45 Switcheroo swap guard 证据入口
+
+阶段 4C-45 细化审计见 `docs/CURRENT_STAGE4C_BATCH45_SWITCHEROO_SWAP_GUARD_AUDIT.md`，证据见 `docs/CURRENT_STAGE4C_BATCH45_SWITCHEROO_SWAP_GUARD_EVIDENCE.md`。本节提供 Switcheroo / 换换乐 `SFD·145/221` / cardId `33237` / `FU-0b6332bbf0` ultra-narrow battlefield power-swap guard overlay；A focused 通过 284/284；后端 full 3594/3594 passed，前端 build passed，Chrome smoke passed；不表示项目 READY，`fullOfficial=false`。
+
+| 规则域 | 证据入口 | 当前 4C-45 状态 | 仍缺 |
+|---|---|---|---|
+| Power-swap route | `CATALOG` `SFD·145/221`；cardId `33237`；FU `FU-0b6332bbf0`；`CORE-260330` p14-p15 rules 142-143；p31-p33 rules 318-324；p39-p42 rules 355-356 | ordinary hand `PLAY_CARD` with two public battlefield unit targets -> stack / pass-pass -> this-turn power swap representative route | full official Switcheroo effect |
+| Target guard | `CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p33 rules 318-324；p39-p42 rules 355-356 | non-public battlefield unit targets, including equipment / spell / rune / face-down standby / left-play targets, cannot enter stack or cannot create power mutation at resolution | true LayerEngine、later modifier ordering、duration cleanup / EOT expiry、same-battlefield precision beyond current representative model、damage / battle math、full FAQ `SOUL-JFAQ-260114 p14`、1009/811、final E2E |
 
 | 规则域 | 证据入口 | 当前 4C-32 状态 | 仍缺 |
 |---|---|---|---|
@@ -1757,9 +1768,9 @@
 | `p2-preflight-play-savage-strength-echo-power-stack` | `RULE_AUDITED` | `CATALOG` SFD·034/221；`CORE-260330` p39-p42 rules 355-356；p92-p105 keyword rules 800+；p31-p33 rules 318-324 | 已验证官方法术《蛮荒之力》支付回响 2 后重复本回合内战力 +2 修正一次，目标共获得 +4。 |
 | `p2-preflight-play-freeze-echo-power-minus-2` | `RULE_AUDITED` | `CATALOG` SFD·066/221；`CORE-260330` p39-p42 rules 355-356；p92-p105 keyword rules 800+；p31-p33 rules 318-324 | 已验证官方法术《封冻》支付回响 2 后重复本回合内战力 -2 修正一次，目标共获得 -4。 |
 | `p2-preflight-play-distance-break-dance-split-power-modifiers` | `RULE_AUDITED` | `CATALOG` SFD·196/221；`CORE-260330` p39-p42 rules 355-356；p31-p33 rules 318-324 | 已验证官方法术《距破之舞》支付 1 点费用、指定两名不同单位、加入结算链、双方让过后令第一名目标本回合内战力 +2、第二名目标本回合内战力 -2。 |
-| `p2-preflight-play-switcheroo-swap-battlefield-unit-powers` | `RULE_AUDITED` | `CATALOG` SFD·145/221；`CORE-260330` p14-p15 rules 142-143；p31-p33 rules 318-324；p39-p42 rules 355-356 | 已验证官方法术《换换乐》支付 2 点费用、指定两名不同战场单位、加入结算链、双方让过后用本回合内战力修正互换两名目标当前战力；P4.128/P4.129 已补重复目标和基地单位目标拒绝 fixtures。 |
-| `p4-play-switcheroo-duplicate-target-rejected` | `RULE_AUDITED` | `CATALOG` SFD·145/221；`CORE-260330` p14-p15 rules 142-143；p31-p33 rules 318-324；p39-p42 rules 355-356 | 已验证官方法术《换换乐》重复选择同一名战场单位时拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不修改目标战力、不创建结算链。 |
-| `p4-play-switcheroo-base-target-rejected` | `RULE_AUDITED` | `CATALOG` SFD·145/221；`CORE-260330` p14-p15 rules 142-143；p31-p33 rules 318-324；p39-p42 rules 355-356 | 已验证官方法术《换换乐》选择一名基地单位和一名战场单位时拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不修改目标战力、不创建结算链。 |
+| `p2-preflight-play-switcheroo-swap-battlefield-unit-powers` | `RULE_AUDITED` | `CATALOG` SFD·145/221；`CORE-260330` p14-p15 rules 142-143；p31-p33 rules 318-324；p39-p42 rules 355-356 | 已验证官方法术《换换乐》支付 2 点费用、指定两名不同战场单位、加入结算链、双方让过后用本回合内战力修正互换两名目标当前战力；P4.128/P4.129 已补重复目标和基地单位目标拒绝 fixtures；4C-45 补 non-public battlefield unit target guard 与 dirty-resolution left-play no-power-mutation guard。 |
+| `p4-play-switcheroo-duplicate-target-rejected` | `RULE_AUDITED` | `CATALOG` SFD·145/221；`CORE-260330` p14-p15 rules 142-143；p31-p33 rules 318-324；p39-p42 rules 355-356 | 已验证官方法术《换换乐》重复选择同一名战场单位时拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不修改目标战力、不创建结算链；4C-45 将其保留为 power-swap target guard overlay 的既有证据。 |
+| `p4-play-switcheroo-base-target-rejected` | `RULE_AUDITED` | `CATALOG` SFD·145/221；`CORE-260330` p14-p15 rules 142-143；p31-p33 rules 318-324；p39-p42 rules 355-356 | 已验证官方法术《换换乐》选择一名基地单位和一名战场单位时拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不修改目标战力、不创建结算链；4C-45 将其保留为 public battlefield unit target guard 的既有证据。 |
 | `p2-preflight-play-cleave-overwhelm-attacking-power` | `RULE_AUDITED` | `CATALOG` OGN·004/298；`CORE-260330` p14-p15 rules 142-143；p31-p33 rules 318-324；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方法术《顺劈》授予本回合 `OVERWHELM_3` 标记，并在目标为进攻方时给予本回合内战力 +3。 |
 | `p4-play-swift-cleave-in-spell-duel-focus` | `RULE_AUDITED` | `CATALOG` OGN·004/298；`CORE-260330` p35-p36 rules 341-348；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | P4.2 已验证官方法术《顺劈》作为 `迅捷` 代表牌可由焦点玩家在 `SPELL_DUEL_OPEN` 窗口打出，之后复用现有 P2 结算链路径支付费用、选择目标、双方让过并结算 `OVERWHELM_3` 与进攻方战力 +3；当前只接入该验证代表，不批量启用全部迅捷牌。 |
 | `p2-preflight-play-blood-rush-echo-overwhelm-attacking-power` | `RULE_AUDITED` | `CATALOG` SFD·003/221；`CORE-260330` p14-p15 rules 142-143；p31-p33 rules 318-324；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方法术《血性冲刺》支付回响 1 后重复授予本回合 `OVERWHELM_2`，并对进攻方目标重复给予本回合内战力 +2。 |

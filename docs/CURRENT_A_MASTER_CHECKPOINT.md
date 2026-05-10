@@ -910,6 +910,19 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Hostile Takeover 代表路径外推完整待命、反应时机、开战/征服、control lifecycle、end-turn cleanup、targeting、PaymentEngine、FEPR、named deferred candidates 或 full-official。
 
+## 0.1.23 阶段 4C-45 Switcheroo Checkpoint
+
+状态：**4C-45 checkpoint ready；项目仍 NOT READY。**
+
+阶段 4C-45 名称：Switcheroo ultra-narrow representative battlefield power-swap guard overlay。
+
+- B 完成 Switcheroo / 换换乐 `SFD·145/221` / cardId `33237` / `FU-0b6332bbf0` / `SWITCHEROO_SWAP_TWO_BATTLEFIELD_UNIT_POWERS` guard slice；新增 `tests/Riftbound.ConformanceTests/SwitcherooGuardTests.cs`，并最小修改 `src/Riftbound.Engine/CoreRuleEngine.cs`。
+- 已覆盖 ordinary hand `PLAY_CARD` with two public battlefield unit targets -> stack / pass-pass -> this-turn power swap representative route。
+- 已覆盖 non-public battlefield unit target guard：equipment / spell / rune / face-down standby / left-play target 不得入栈或不得在结算时产生 power mutation。
+- 验证记录：A focused 命令 `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Switcheroo|FullyQualifiedName~PowerSwap|FullyQualifiedName~Power"` 通过 284/284；后端 full `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 3594/3594 passed；前端 build `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` passed；Chrome smoke `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` passed。
+- 本批只关闭 Switcheroo representative battlefield power-swap target guard overlay。
+- 仍保持 `fullOfficial=false`；不宣称 READY / READY-CANDIDATE；不关闭 true LayerEngine、later modifier ordering、duration cleanup / EOT expiry、same-battlefield precision beyond current representative model、damage / battle math、full FAQ `SOUL-JFAQ-260114 p14`、1009/811 或 final 18-step E2E。
+
 ## 0.1.22 阶段 4C-44 Akshan Checkpoint
 
 状态：**4C-44 checkpoint ready；项目仍 NOT READY。**

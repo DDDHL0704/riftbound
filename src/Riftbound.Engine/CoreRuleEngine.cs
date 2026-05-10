@@ -17019,6 +17019,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || !IsVengeanceTargetAllowed(state, behavior, targetObjectId)
                 || !IsHostileTakeoverTargetAllowed(state, behavior, targetObjectId)
                 || !IsBerserkImpulseTargetAllowed(state, behavior, targetObjectId)
+                || !IsSwitcherooTargetAllowed(state, behavior, targetObjectId)
                 || !IsMainDeckLookTargetAllowed(state, intent.PlayerId, targetObjectId, targetIndex, behavior)
                 || !IsMainDeckTargetTagAllowed(state, targetObjectId, targetIndex, behavior)
                 || !IsTargetRequiredTagAllowed(state, targetObjectId, behavior)
@@ -20280,6 +20281,30 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return IsPublicUnitCardObject(state.CardObjects, objectId);
+    }
+
+    private static bool IsSwitcherooTargetAllowed(
+        MatchState state,
+        CardBehaviorDefinition behavior,
+        string objectId)
+    {
+        if (!string.Equals(behavior.EffectKind, "SWITCHEROO_SWAP_TWO_BATTLEFIELD_UNIT_POWERS", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        if (!state.CardObjects.TryGetValue(objectId, out var targetState)
+            || targetState.IsFaceDown
+            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || targetState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
+            || targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        return targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || targetState.Tags.Count == 0;
     }
 
     private static bool IsTargetManaCostAllowed(
@@ -24052,8 +24077,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             var firstTargetObjectId = stackItem.TargetObjectIds[0];
             var secondTargetObjectId = stackItem.TargetObjectIds[1];
-            if (IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, firstTargetObjectId)
-                && IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, secondTargetObjectId)
+            if (IsBattlefieldUnitObjectControlledByZonePlayer(playerZones, cardObjects, firstTargetObjectId)
+                && IsBattlefieldUnitObjectControlledByZonePlayer(playerZones, cardObjects, secondTargetObjectId)
                 && cardObjects.TryGetValue(firstTargetObjectId, out var firstTargetState)
                 && cardObjects.TryGetValue(secondTargetObjectId, out var secondTargetState))
             {
@@ -26579,6 +26604,29 @@ public sealed class CoreRuleEngine : IRuleEngine
         var location = FindFieldObjectLocation(playerZones, objectId);
         return location is not null
             && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, location.Value.PlayerId, objectId);
+    }
+
+    private static bool IsBattlefieldUnitObjectControlledByZonePlayer(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string objectId)
+    {
+        var location = FindFieldObjectLocation(playerZones, objectId);
+        if (location is null
+            || !string.Equals(location.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            || !cardObjects.TryGetValue(objectId, out var objectState)
+            || objectState.IsFaceDown
+            || objectState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || objectState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || objectState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
+            || objectState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
+            || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, location.Value.PlayerId, objectId))
+        {
+            return false;
+        }
+
+        return objectState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || objectState.Tags.Count == 0;
     }
 
     private static bool IsControlledFieldUnit(

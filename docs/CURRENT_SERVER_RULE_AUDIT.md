@@ -12,6 +12,16 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-11 阶段 4C-45 Switcheroo Swap Guard 审计
+
+阶段 4C-45 审计入口：`docs/CURRENT_STAGE4C_BATCH45_SWITCHEROO_SWAP_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH45_SWITCHEROO_SWAP_GUARD_EVIDENCE.md`。本批已补 Switcheroo / 换换乐 `SFD·145/221` / cardId `33237` / `FU-0b6332bbf0` / `SWITCHEROO_SWAP_TWO_BATTLEFIELD_UNIT_POWERS` 的 ultra-narrow battlefield power-swap guard overlay。项目仍 **NOT READY**，`fullOfficial=false`。
+
+- Scope：ordinary hand `PLAY_CARD` with two public battlefield unit targets -> stack / pass-pass -> this-turn power swap representative route。
+- Guard：non-public battlefield unit target，包括 equipment / spell / rune / face-down standby / left-play target，均不得入栈或不得在结算时产生 power mutation。
+- B 新增 `tests/Riftbound.ConformanceTests/SwitcherooGuardTests.cs`，并最小修改 `src/Riftbound.Engine/CoreRuleEngine.cs` 修复 Switcheroo target guard。A focused 命令 `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Switcheroo|FullyQualifiedName~PowerSwap|FullyQualifiedName~Power"` 通过 284/284；后端 full `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 3594/3594 passed；前端 build `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` passed；Chrome smoke `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` passed。
+- 本批只关闭 Switcheroo representative battlefield power-swap target guard overlay。
+- 不关闭 true LayerEngine、later modifier ordering、duration cleanup / EOT expiry、same-battlefield precision beyond current representative model、damage / battle math、full FAQ `SOUL-JFAQ-260114 p14`、1009/811 full-official 或 final 18-step E2E。
+
 ## 2026-05-10 阶段 4C-44 Akshan Play Guard 审计
 
 阶段 4C-44 审计入口：`docs/CURRENT_STAGE4C_BATCH44_AKSHAN_PLAY_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH44_AKSHAN_PLAY_GUARD_EVIDENCE.md`。本批已补 Akshan / 阿克尚 `SFD·109/221` / cardId `33194` / `FU-7419ee7d9d` / `AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT` 的 ultra-narrow play-unit guard representative baseline。项目仍 **NOT READY**，`fullOfficial=false`。
