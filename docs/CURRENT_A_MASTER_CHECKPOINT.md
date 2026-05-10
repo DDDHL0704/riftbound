@@ -910,6 +910,19 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Hostile Takeover 代表路径外推完整待命、反应时机、开战/征服、control lifecycle、end-turn cleanup、targeting、PaymentEngine、FEPR、named deferred candidates 或 full-official。
 
+## 0.1.19 阶段 4C-41 Giant Arm Kato Checkpoint
+
+状态：**4C-41 checkpoint ready；项目仍 NOT READY。**
+
+阶段 4C-41 名称：Giant Arm Kato play-unit keyword-tag target guard representative baseline。
+
+- B 完成 Giant Arm Kato / 巨腕加藤 `SFD·112/221` / cardId `33198` / `FU-464ec8c275` / `GIANT_ARM_KATO_PLAY_KEYWORD_UNIT` guard slice；Core gap none，Core 无改动。
+- 已覆盖 ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 3，tags `CARD_TYPE:UNIT` + `法盾`。
+- 已覆盖 explicit target、wrong zone / source、opponent source、face-down standby source、insufficient mana no mutation / no leak guard。
+- 验证记录：A/B focused 通过 99/99；A backend full 3564/3564 通过；A frontend build 通过；A Chrome smoke 通过；`jq empty` / matrix targeted assert / `git diff --check` 通过。
+- 本批只关闭 Giant Arm Kato 普通 hand play-unit keyword-tag target guard representative evidence。
+- 仍保持 `fullOfficial=false`；不宣称 READY / READY-CANDIDATE；不关闭 Spellshield target tax、move-to-battlefield trigger、friendly-unit choice / prompt、keyword grant、+power until EOT、LayerEngine / duration cleanup、movement / control matrix、FAQ、1009/811 或 final 18-step E2E。
+
 ## 0.1.18 阶段 4C-40 Sea Monster Hook Checkpoint
 
 状态：**4C-40 checkpoint ready；项目仍 NOT READY。**

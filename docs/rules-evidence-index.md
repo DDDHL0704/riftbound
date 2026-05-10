@@ -78,6 +78,8 @@
 
 阶段 4C-40 补 Sea Monster Hook / 海兽钓钩 ordinary hand play-equipment target guard representative baseline；activated ability、destroy friendly unit、top-five look / choice、free play、recycle remainder、hidden / zone / payment / layer / FAQ、1009/811 与 final 18-step E2E 仍不代表 READY。
 
+阶段 4C-41 补 Giant Arm Kato / 巨腕加藤 ordinary hand play-unit keyword-tag target guard representative baseline；Spellshield target tax、move-to-battlefield trigger、friendly-unit choice / prompt、keyword grant、+power until EOT、LayerEngine / duration cleanup、movement / control matrix、FAQ、1009/811 与 final 18-step E2E 仍不代表 READY。
+
 | 阶段 3 流程 | 证据入口 | 必须证明的审计点 |
 |---|---|---|
 | 创建 / 加入 / 重连 | `CORE-260330` rules 107-129；工程会话契约 | 双浏览器上下文不得共享授权状态；snapshot/prompt 只能按 viewer 下发；重连恢复不能泄漏隐藏信息。 |
@@ -500,6 +502,15 @@
 | Play-equipment route | `CATALOG` `OGN·242/298`；cardId `31482`；FU `FU-2653af0380`；`CORE-260330` p39-p42 rules 355-356 | ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base equipment | activated ability and full official effect |
 | Play guard | `CORE-260330` p4-p8 rules 107-129；p39-p42 rules 355-356 | explicit target、wrong zone / source、opponent source、face-down standby source、insufficient mana all rejected with no mutation / no leak | pay 1 + yellow + exhaust、destroy friendly unit、top-five look / choice、free play、recycle remainder、hidden / zone / payment / layer / FAQ、1009/811、final E2E |
 
+### 6.37 阶段 4C-41 Giant Arm Kato play keyword guard 证据入口
+
+阶段 4C-41 细化审计见 `docs/CURRENT_STAGE4C_BATCH41_GIANT_ARM_KATO_PLAY_KEYWORD_GUARD_AUDIT.md`，证据见 `docs/CURRENT_STAGE4C_BATCH41_GIANT_ARM_KATO_PLAY_KEYWORD_GUARD_EVIDENCE.md`。本节提供 Giant Arm Kato / 巨腕加藤 `SFD·112/221` / cardId `33198` / `FU-464ec8c275` play-unit keyword-tag target guard representative baseline；Core gap none；A/B focused 通过 99/99；不表示项目 READY，`fullOfficial=false`。
+
+| 规则域 | 证据入口 | 当前 4C-41 状态 | 仍缺 |
+|---|---|---|---|
+| Play-unit route | `CATALOG` `SFD·112/221`；cardId `33198`；FU `FU-464ec8c275`；`CORE-260330` p39-p42 rules 355-356；p92-p105 keyword rules 800+ | ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 3，tags `CARD_TYPE:UNIT` + `法盾` | full official Kato effect |
+| Play guard | `CORE-260330` p4-p8 rules 107-129；p39-p42 rules 355-356 | explicit target、wrong zone / source、opponent source、face-down standby source、insufficient mana all rejected with no mutation / no leak | Spellshield target tax、move-to-battlefield trigger、friendly-unit choice / prompt、keyword grant、+power until EOT、LayerEngine / duration cleanup、movement / control matrix、FAQ、1009/811、final E2E |
+
 | 规则域 | 证据入口 | 当前 4C-32 状态 | 仍缺 |
 |---|---|---|---|
 | Ride the Wind move + ready | `CATALOG` `OGN·173/298`；cardId `31403`；FU `FU-6f84196631` | 已记录：P1 打出 Ride the Wind，合法 friendly public battlefield unit target 经 stack priority pass 后 ready 并移动到 owner base | full Ride the Wind official、完整“移动一名友方单位”来源/目的地矩阵、swift / reaction timing |
@@ -772,7 +783,7 @@
 | `p2-preflight-play-rell-keyword-unit` | `RULE_AUDITED` | `CATALOG` SFD·024/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《芮尔》从手牌打出时支付基础 4 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 4 战力、带 `壁垒` 标签的 `CARD_TYPE:UNIT` 单位对象；壁垒承伤顺序、进攻触发、免费打出武装与贴附路径暂缓，带目标打出由直接测试拒绝。 |
 | `p2-preflight-play-sfd-jax-keyword-unit` | `RULE_AUDITED` | `CATALOG` SFD·054/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《贾克斯》从手牌打出时支付基础 5 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 5 战力、带 `法盾` 标签的 `CARD_TYPE:UNIT` 单位对象；法盾目标税与手牌武装灵便静态授予路径暂缓，带目标打出由直接测试拒绝。 |
 | `p2-preflight-play-sfd-jax-alt-a-keyword-unit` | `RULE_AUDITED` | `CATALOG` SFD·054a/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《贾克斯》A 版本从手牌打出时支付基础 5 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 5 战力、带 `法盾` 标签的 `CARD_TYPE:UNIT` 单位对象；法盾目标税与手牌武装灵便静态授予路径暂缓，带目标打出由直接测试拒绝。 |
-| `p2-preflight-play-giant-arm-kato-keyword-unit` | `RULE_AUDITED` | `CATALOG` SFD·112/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方单位《巨腕加藤》从手牌打出时支付基础 4 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 3 战力、带 `法盾` 标签的 `CARD_TYPE:UNIT` 单位对象；法盾目标税、移动触发、关键词授予和本回合战力修正路径暂缓，带目标打出由直接测试拒绝。 |
+| `p2-preflight-play-giant-arm-kato-keyword-unit` | `RULE_AUDITED` | `CATALOG` SFD·112/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方单位《巨腕加藤》从手牌打出时支付基础 4 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 3 战力、带 `法盾` 标签的 `CARD_TYPE:UNIT` 单位对象；4C-41 补 explicit target、wrong zone / source、opponent source、face-down standby source、insufficient mana no-mutation / no-leak guard。法盾目标税、移动触发、关键词授予和本回合战力修正路径暂缓。 |
 | `p2-preflight-play-xin-zhao-keyword-unit` | `RULE_AUDITED` | `CATALOG` SFD·176/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《赵信》从手牌打出时支付基础 3 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 4 战力、带 `壁垒` 标签的 `CARD_TYPE:UNIT` 单位对象；壁垒承伤顺序和条件活跃进场路径暂缓，带目标打出由直接测试拒绝。 |
 | `p2-preflight-play-sfd-sivir-spellshield2-keyword-unit` | `RULE_AUDITED` | `CATALOG` SFD·120/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《希维尔》从手牌打出时支付基础 6 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 7 战力、带 `法盾2` 标签的 `CARD_TYPE:UNIT` 单位对象；法盾2目标税、进攻征服、过量伤害检查和伤害触发路径暂缓，带目标打出由直接测试拒绝。 |
 | `p2-preflight-play-sfd-sivir-alt-a-spellshield2-keyword-unit` | `RULE_AUDITED` | `CATALOG` SFD·120a/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《希维尔》A 版本从手牌打出时支付基础 6 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 7 战力、带 `法盾2` 标签的 `CARD_TYPE:UNIT` 单位对象；法盾2目标税、进攻征服、过量伤害检查和伤害触发路径暂缓，带目标打出由直接测试拒绝。 |

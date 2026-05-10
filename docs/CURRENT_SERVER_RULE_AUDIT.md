@@ -12,6 +12,16 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-10 阶段 4C-41 Giant Arm Kato Play Keyword Guard 审计
+
+阶段 4C-41 审计入口：`docs/CURRENT_STAGE4C_BATCH41_GIANT_ARM_KATO_PLAY_KEYWORD_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH41_GIANT_ARM_KATO_PLAY_KEYWORD_GUARD_EVIDENCE.md`。本批已补 Giant Arm Kato / 巨腕加藤 `SFD·112/221` / cardId `33198` / `FU-464ec8c275` / `GIANT_ARM_KATO_PLAY_KEYWORD_UNIT` 的 play-unit keyword-tag target guard representative baseline。项目仍 **NOT READY**，`fullOfficial=false`。
+
+- Scope：ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 3，tags `CARD_TYPE:UNIT` + `法盾`。
+- Guard：explicit target、wrong zone / source、opponent source、face-down standby source、insufficient mana 均 rejected，no tick / no events / no payment / no hand movement / no stack / no unit entry / no leak。
+- B slice 为 guard test；Core gap none，Core 无改动。A/B focused 通过 99/99；D 未运行重测试。
+- 本批只关闭 Giant Arm Kato ordinary hand play-unit keyword-tag target guard representative evidence。
+- 不关闭 Spellshield target tax、move-to-battlefield trigger、friendly-unit choice / prompt、keyword grant、+power until EOT、LayerEngine / duration cleanup、movement / control matrix、FAQ、1009/811 full-official 或 final 18-step E2E。
+
 ## 2026-05-10 阶段 4C-40 Sea Monster Hook Play Guard 审计
 
 阶段 4C-40 审计入口：`docs/CURRENT_STAGE4C_BATCH40_SEA_MONSTER_HOOK_PLAY_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH40_SEA_MONSTER_HOOK_PLAY_GUARD_EVIDENCE.md`。本批已补 Sea Monster Hook / 海兽钓钩 `OGN·242/298` / cardId `31482` / `FU-2653af0380` / `SEA_MONSTER_HOOK_PLAY_EQUIPMENT` 的 play-equipment target guard representative baseline。项目仍 **NOT READY**，`fullOfficial=false`。
