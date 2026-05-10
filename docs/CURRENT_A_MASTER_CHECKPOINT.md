@@ -84,6 +84,10 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`
 - `docs/CURRENT_RULE_EVIDENCE_TODO.md`
 - `docs/rules-evidence-index.md`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`
+- `docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`
+- `docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`
 - `docs/CURRENT_A_MASTER_CHECKPOINT.md`
 
 已跑验证：
@@ -115,6 +119,58 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 
 - Aphelios / `FU-67c6b0186e` 仍是 high-payoff 3-entry weapon-attachment trigger candidate，但必须另开 dedicated design batch。
 - Icevale Archer / `FU-c170628e3a` 和 Vayne / `FU-c027639a3c` 保留为 triggered-cost / conquer pressure candidates。
+
+## 0.1.2 阶段 4C-24 Vayne Checkpoint
+
+状态：**已完成极窄代表切片收口；项目仍 NOT READY。**
+
+阶段 4C-24 名称：Vayne conquer recall representative baseline。
+
+本批事实：
+
+- 目标 FU：`FU-c027639a3c`
+- 代表卡：`OGN·035/298` Vayne / 薇恩
+- 规则文本：每当 Vayne 征服一处战场时，可以选择支付 1 来让 Vayne 返回所属的手牌。
+- 代表路径：visible face-up Vayne 征服战场 -> existing `TRIGGER_PAYMENT` / `PAY_COST` prompt -> `PAY_COST(SPEND_MANA:1)` -> Vayne returns to owner hand。
+- decline 路径：`PAY_COST(DECLINE)` 关闭窗口且不回手、不变更。
+- guard：hidden / face-down / standby / opponent-controlled source 均 no trigger / no leak / no mutation。
+
+修改文件：
+
+- `src/Riftbound.Engine/CoreRuleEngine.cs`（B）
+- `tests/Riftbound.ConformanceTests/TriggerPaymentTests.cs`（B）
+- `docs/CURRENT_STAGE4C_BATCH24_VAYNE_CONQUER_RECALL_AUDIT.md`
+- `docs/CURRENT_STAGE4C_BATCH24_VAYNE_CONQUER_RECALL_EVIDENCE.md`
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`
+- `docs/rules-evidence-index.md`
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+
+已跑验证：
+
+- Focused backend：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Vayne|FullyQualifiedName~BattlefieldConquer|FullyQualifiedName~TriggerPayment|FullyQualifiedName~PAY_COST"` 通过 52/52。
+- Backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 3420/3420。
+- Frontend build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过；仅保留既有 SignalR / Rollup PURE 注释 warning。
+- Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过，覆盖 `/`、`/lobby`、`/decks`、`/cards`、`/rooms/stage3-smoke`、`/matches/stage3-smoke`、`/matches/stage3-smoke/result`。
+- JSON / diff hygiene：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 通过；`git diff --check` 通过。
+
+本批未记录：
+
+- Stage 3 preflight / final 18-step E2E。
+
+仍缺：
+
+- 完整 Assault3、active-entry、complete conquer/control-zone matrix。
+- 完整 battlefield / control / conquer lifecycle、control freeze/release、held/conquer scoring order 与 battle cleanup 全矩阵。
+- 完整 PaymentEngine、triggered-cost 通用模型、Quote / Authorize / Commit、替代 / 额外费用、insufficient / stale / multi-window full matrix。
+- 完整 trigger engine、complete APNAP / trigger batch、optional trigger handling、完整 effect resolution。
+- FAQ regression、1009/811 full-official、正式 18-step E2E、completion audit。
+
+口径：
+
+- `fullOfficial=false`。
+- 不宣称 READY / READY-CANDIDATE。
+- 不因 Vayne 代表路径外推完整战斗、征服、支付、回手或隐藏信息矩阵。
 
 ## 0.2 阶段 0 当前基线
 

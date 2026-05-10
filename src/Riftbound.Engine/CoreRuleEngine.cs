@@ -680,6 +680,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo = "SFD·207/221";
     private const string BattlefieldConquerPayOneCreateGoldCardNo = "SFD·220/221";
     private const string BattlefieldConquerPayOneCreateGoldEffectKind = "BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD";
+    private const string OgnVayneCardNo = "OGN·035/298";
+    private const string OgnVayneConquerPayOneRecallEffectKind = "OGN_VAYNE_CONQUER_PAY_1_RECALL";
     private const string TriggerPaymentWindow = "TRIGGER_PAYMENT";
     private const string DeclinePaymentChoiceId = "DECLINE";
     private const string SpendOneManaPaymentChoiceId = "SPEND_MANA:1";
@@ -1171,6 +1173,22 @@ public sealed class CoreRuleEngine : IRuleEngine
                 powerfulSourceObjectId);
         }
 
+        if (TryReadOgnVayneConquerRecallPaymentContext(
+                pendingPayment,
+                out var vayneBattlefieldId,
+                out var vayneBattlefieldObjectId,
+                out var vayneSourceObjectId))
+        {
+            return ResolveOgnVayneConquerRecallTriggerPayment(
+                state,
+                intent,
+                pendingPayment,
+                submittedChoices,
+                vayneBattlefieldId,
+                vayneBattlefieldObjectId,
+                vayneSourceObjectId);
+        }
+
         return RejectWithCorePrompts(
             state,
             "当前触发支付窗口缺少服务端上下文。",
@@ -1368,6 +1386,100 @@ public sealed class CoreRuleEngine : IRuleEngine
             BuildCorePrompts(nextState));
     }
 
+    private static ResolutionResult ResolveOgnVayneConquerRecallTriggerPayment(
+        MatchState state,
+        PlayerIntent intent,
+        PendingPaymentState pendingPayment,
+        IReadOnlyList<string> submittedChoices,
+        string battlefieldId,
+        string battlefieldObjectId,
+        string sourceObjectId)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var resolvedBattlefieldObjectId, out _)
+            || !string.Equals(resolvedBattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+            || !TryGetOgnVayneConquerRecallSource(cardObjects, playerZones, intent.PlayerId, sourceObjectId, out _)
+            || !TryReturnTargetToHand(playerZones, cardObjects, sourceObjectId, out var ownerPlayerId, out _))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "当前触发支付窗口的薇恩来源已不可用。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var runePools = PayRuneCosts(
+            state,
+            intent.PlayerId,
+            pendingPayment.ManaCost,
+            pendingPayment.PowerCost,
+            pendingPayment.PowerCostByTrait);
+        var events = new List<GameEvent>
+        {
+            new(
+                "COST_PAID",
+                $"{intent.PlayerId} 支付薇恩征服触发费用",
+                PaymentCostRules.BuildCostPaidPayload(
+                    pendingPayment.PaymentId,
+                    pendingPayment.PaymentWindow,
+                    intent.PlayerId,
+                    runePools,
+                    null,
+                    new Dictionary<string, object?>
+                    {
+                        ["mana"] = pendingPayment.ManaCost,
+                        ["power"] = pendingPayment.PowerCost,
+                        ["powerByTrait"] = pendingPayment.PowerCostByTrait,
+                        ["paymentChoiceIds"] = submittedChoices.ToArray(),
+                        ["reason"] = OgnVayneConquerPayOneRecallEffectKind
+                    })),
+            new(
+                "BATTLEFIELD_TRIGGER_RESOLVED",
+                $"{intent.PlayerId} 的薇恩因征服战场返回手牌",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["battlefieldId"] = battlefieldId,
+                    ["battlefieldObjectId"] = battlefieldObjectId,
+                    ["trigger"] = OgnVayneConquerPayOneRecallEffectKind,
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["returnedObjectId"] = sourceObjectId,
+                    ["ownerPlayerId"] = ownerPlayerId,
+                    ["paymentId"] = pendingPayment.PaymentId,
+                    ["paymentWindow"] = pendingPayment.PaymentWindow
+                }),
+            new(
+                "UNIT_RETURNED_TO_HAND",
+                $"{sourceObjectId} 返回手牌",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["targetObjectId"] = sourceObjectId,
+                    ["ownerPlayerId"] = ownerPlayerId,
+                    ["reason"] = OgnVayneConquerPayOneRecallEffectKind
+                })
+        };
+        events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
+
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            RunePools = runePools,
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            PendingPayment = null
+        };
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
     private static ResolutionResult ResolveTriggerPaymentDecline(
         MatchState state,
         PlayerIntent intent,
@@ -1437,6 +1549,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                      out sourceObjectId))
         {
             payload["trigger"] = BattlefieldConquerPowerfulPayOneDrawEffectKind;
+            payload["battlefieldId"] = battlefieldId;
+            payload["battlefieldObjectId"] = battlefieldObjectId;
+            payload["sourceObjectId"] = sourceObjectId;
+        }
+        else if (TryReadOgnVayneConquerRecallPaymentContext(
+                     pendingPayment,
+                     out battlefieldId,
+                     out battlefieldObjectId,
+                     out sourceObjectId))
+        {
+            payload["trigger"] = OgnVayneConquerPayOneRecallEffectKind;
             payload["battlefieldId"] = battlefieldId;
             payload["battlefieldObjectId"] = battlefieldObjectId;
             payload["sourceObjectId"] = sourceObjectId;
@@ -1520,6 +1643,50 @@ public sealed class CoreRuleEngine : IRuleEngine
         var parts = pendingPayment.Reason.Split('|', StringSplitOptions.None);
         if (parts.Length != 4
             || !string.Equals(parts[0], BattlefieldConquerPowerfulPayOneDrawEffectKind, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(parts[1])
+            || string.IsNullOrWhiteSpace(parts[2])
+            || string.IsNullOrWhiteSpace(parts[3]))
+        {
+            return false;
+        }
+
+        battlefieldId = parts[1];
+        battlefieldObjectId = parts[2];
+        sourceObjectId = parts[3];
+        return true;
+    }
+
+    private static string BuildOgnVayneConquerRecallPaymentReason(
+        string battlefieldId,
+        string battlefieldObjectId,
+        string sourceObjectId)
+    {
+        return string.Join(
+            '|',
+            OgnVayneConquerPayOneRecallEffectKind,
+            battlefieldId,
+            battlefieldObjectId,
+            sourceObjectId);
+    }
+
+    private static bool TryReadOgnVayneConquerRecallPaymentContext(
+        PendingPaymentState pendingPayment,
+        out string battlefieldId,
+        out string battlefieldObjectId,
+        out string sourceObjectId)
+    {
+        battlefieldId = string.Empty;
+        battlefieldObjectId = string.Empty;
+        sourceObjectId = string.Empty;
+        if (!string.Equals(pendingPayment.PaymentWindow, TriggerPaymentWindow, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(pendingPayment.Reason))
+        {
+            return false;
+        }
+
+        var parts = pendingPayment.Reason.Split('|', StringSplitOptions.None);
+        if (parts.Length != 4
+            || !string.Equals(parts[0], OgnVayneConquerPayOneRecallEffectKind, StringComparison.Ordinal)
             || string.IsNullOrWhiteSpace(parts[1])
             || string.IsNullOrWhiteSpace(parts[2])
             || string.IsNullOrWhiteSpace(parts[3]))
@@ -9032,6 +9199,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 && survivingAttackerState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && IsObjectOnField(playerZones, attackingObjectId))
             .ToArray();
+        var attackerConqueredBattlefield = defenderObjectIds.All(defenderObjectId =>
+                lethalCleanup.DestroyedObjectIds.Contains(defenderObjectId, StringComparer.Ordinal))
+            && survivingConquerAttackerObjectIds.Length > 0;
         var huntConquerSources = survivingConquerAttackerObjectIds
             .Select(objectId => new
             {
@@ -9042,9 +9212,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Where(source => source.HuntAmount > 0)
             .ToArray();
         var huntAmount = huntConquerSources.Sum(source => source.HuntAmount);
-        if (huntAmount > 0
-            && defenderObjectIds.All(defenderObjectId => lethalCleanup.DestroyedObjectIds.Contains(defenderObjectId, StringComparer.Ordinal))
-            && survivingConquerAttackerObjectIds.Length > 0)
+        if (huntAmount > 0 && attackerConqueredBattlefield)
         {
             var huntSource = huntConquerSources[0];
             combatEvents.Add(new GameEvent(
@@ -9315,6 +9483,20 @@ public sealed class CoreRuleEngine : IRuleEngine
                 winnerPlayerId = drawApplication.WinnerPlayerId;
                 rngCursor = drawApplication.RngCursor;
             }
+        }
+        if (attackerConqueredBattlefield
+            && pendingPayment is null
+            && TryOpenOgnVayneConquerRecallPaymentWindow(
+                playerZones,
+                cardObjects,
+                intent.PlayerId,
+                battlefieldId,
+                attackerObjectId,
+                state.Tick + 1,
+                combatEvents,
+                out var ognVaynePendingPayment))
+        {
+            pendingPayment = ognVaynePendingPayment;
         }
 
         if (TryResolveBattleWinnerPlayerId(
@@ -14547,6 +14729,83 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["reason"] = BattlefieldConquerPayOneCreateGoldEffectKind
             }));
         return true;
+    }
+
+    private static bool TryOpenOgnVayneConquerRecallPaymentWindow(
+        Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        long paymentTick,
+        List<GameEvent> events,
+        out PendingPaymentState? pendingPayment)
+    {
+        pendingPayment = null;
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out _)
+            || !TryGetOgnVayneConquerRecallSource(cardObjects, playerZones, playerId, sourceObjectId, out _))
+        {
+            return false;
+        }
+
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            paymentTick,
+            TriggerPaymentWindow,
+            playerId,
+            sourceObjectId: sourceObjectId);
+        pendingPayment = new PendingPaymentState(
+            paymentId,
+            TriggerPaymentWindow,
+            playerId,
+            manaCost: 1,
+            legalPaymentChoiceIds: [SpendOneManaPaymentChoiceId, DeclinePaymentChoiceId],
+            reason: BuildOgnVayneConquerRecallPaymentReason(battlefieldId, battlefieldObjectId, sourceObjectId));
+        events.Add(new GameEvent(
+            "PAYMENT_WINDOW_OPENED",
+            $"{playerId} 的薇恩征服战场后等待支付返回手牌触发费用",
+            new Dictionary<string, object?>
+            {
+                ["paymentId"] = paymentId,
+                ["paymentWindow"] = TriggerPaymentWindow,
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["trigger"] = OgnVayneConquerPayOneRecallEffectKind,
+                ["sourceObjectId"] = sourceObjectId,
+                ["mana"] = 1,
+                ["power"] = 0,
+                ["cost"] = new Dictionary<string, object?>
+                {
+                    ["mana"] = 1,
+                    ["power"] = 0,
+                    ["powerByTrait"] = new Dictionary<string, int>(StringComparer.Ordinal)
+                },
+                ["paymentChoices"] = new[] { SpendOneManaPaymentChoiceId, DeclinePaymentChoiceId },
+                ["reason"] = OgnVayneConquerPayOneRecallEffectKind
+            }));
+        return true;
+    }
+
+    private static bool TryGetOgnVayneConquerRecallSource(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string playerId,
+        string sourceObjectId,
+        out CardObjectState sourceState)
+    {
+        sourceState = default!;
+        if (!cardObjects.TryGetValue(sourceObjectId, out var candidate))
+        {
+            return false;
+        }
+
+        sourceState = candidate;
+        return string.Equals(sourceState.CardNo, OgnVayneCardNo, StringComparison.Ordinal)
+            && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !sourceState.IsFaceDown
+            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
+            && IsObjectOnField(playerZones, sourceObjectId);
     }
 
     private static bool TryResolveBattlefieldConquerPayOneReturnUnitCreateSandSoldierTrigger(

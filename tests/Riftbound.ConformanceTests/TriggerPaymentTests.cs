@@ -8,6 +8,7 @@ public sealed class TriggerPaymentTests
 {
     private const string GoldTrigger = "BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD";
     private const string PowerfulDrawTrigger = "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW";
+    private const string VayneTrigger = "OGN_VAYNE_CONQUER_PAY_1_RECALL";
     private const string TriggerPaymentWindow = "TRIGGER_PAYMENT";
     private const string PayOneMana = "SPEND_MANA:1";
     private const string Decline = "DECLINE";
@@ -311,6 +312,113 @@ public sealed class TriggerPaymentTests
             && string.Equals(gameEvent.Payload["trigger"] as string, PowerfulDrawTrigger, StringComparison.Ordinal));
     }
 
+    [Fact]
+    public async Task OgnVayneConquerOpensTriggerPaymentPromptWithoutReturningBeforePay()
+    {
+        var result = await DeclareVayneBattleAsync(BuildOgnVayneConquerRecallState());
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var payment = AssertVaynePaymentOpen(result);
+        Assert.Equal(TriggerPaymentWindow, payment.PaymentWindow);
+        Assert.Equal("P1", payment.PlayerId);
+        Assert.Equal(1, payment.ManaCost);
+        Assert.Equal(1, result.State.RunePools["P1"].Mana);
+        AssertVayneStillOnBattlefield(result.State);
+        Assert.DoesNotContain("P1-BATTLEFIELD-VAYNE", result.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, IsVayneTriggerResolved);
+        Assert.DoesNotContain(result.Events, IsVayneReturnedToHand);
+    }
+
+    [Fact]
+    public async Task OgnVayneConquerPaymentAcceptedReturnsVayneAndClosesWindow()
+    {
+        var engine = new CoreRuleEngine();
+        var opened = await DeclareVayneBattleAsync(BuildOgnVayneConquerRecallState(), engine);
+        var payment = AssertVaynePaymentOpen(opened);
+
+        var paid = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-vayne-pay", "P1", CommandTypes.PayCost),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [PayOneMana]),
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Equal(0, paid.State.RunePools["P1"].Mana);
+        Assert.Contains("P1-BATTLEFIELD-VAYNE", paid.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain("P1-BATTLEFIELD-VAYNE", paid.State.PlayerZones["P1"].Battlefields);
+        Assert.False(paid.State.CardObjects.ContainsKey("P1-BATTLEFIELD-VAYNE"));
+        Assert.Contains(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Contains(paid.Events, IsVayneTriggerResolved);
+        Assert.Contains(paid.Events, IsVayneReturnedToHand);
+        Assert.Contains(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task OgnVayneConquerPaymentDeclineClosesWithoutReturning()
+    {
+        var engine = new CoreRuleEngine();
+        var opened = await DeclareVayneBattleAsync(BuildOgnVayneConquerRecallState(), engine);
+        var payment = AssertVaynePaymentOpen(opened);
+
+        var declined = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-vayne-decline", "P1", CommandTypes.PayCost),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [Decline]),
+            CancellationToken.None);
+
+        Assert.True(declined.Accepted, declined.ErrorMessage);
+        Assert.Null(declined.State.PendingPayment);
+        Assert.Equal(1, declined.State.RunePools["P1"].Mana);
+        AssertVayneStillOnBattlefield(declined.State);
+        Assert.DoesNotContain("P1-BATTLEFIELD-VAYNE", declined.State.PlayerZones["P1"].Hand);
+        Assert.Contains(declined.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_PAYMENT_DECLINED", StringComparison.Ordinal));
+        Assert.Contains(declined.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        Assert.DoesNotContain(declined.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.DoesNotContain(declined.Events, IsVayneTriggerResolved);
+        Assert.DoesNotContain(declined.Events, IsVayneReturnedToHand);
+    }
+
+    [Fact]
+    public async Task OgnVayneConquerPaymentRejectsInsufficientManaAndKeepsWindow()
+    {
+        var engine = new CoreRuleEngine();
+        var opened = await DeclareVayneBattleAsync(BuildOgnVayneConquerRecallState(mana: 0), engine);
+        var payment = AssertVaynePaymentOpen(opened);
+
+        var insufficient = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-vayne-insufficient", "P1", CommandTypes.PayCost),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [PayOneMana]),
+            CancellationToken.None);
+
+        AssertRejectedNoMutation(insufficient, opened.State, ErrorCodes.InsufficientCost);
+        Assert.NotNull(insufficient.State.PendingPayment);
+        AssertVayneStillOnBattlefield(insufficient.State);
+        Assert.DoesNotContain("P1-BATTLEFIELD-VAYNE", insufficient.State.PlayerZones["P1"].Hand);
+    }
+
+    [Theory]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(false, false, true)]
+    public async Task OgnVayneInvalidSourceDoesNotOpenPayment(
+        bool faceDown,
+        bool standby,
+        bool opponentControlled)
+    {
+        var result = await DeclareVayneBattleAsync(
+            BuildOgnVayneConquerRecallState(faceDown: faceDown, standby: standby, opponentControlled: opponentControlled));
+
+        Assert.Null(result.State.PendingPayment);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, VayneTrigger, StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, IsVayneTriggerResolved);
+        Assert.DoesNotContain(result.Events, IsVayneReturnedToHand);
+    }
+
     private static async Task<ResolutionResult> DeclareBattleAsync(
         MatchState state,
         CoreRuleEngine? engine = null)
@@ -337,6 +445,21 @@ public sealed class TriggerPaymentTests
                 "P1-BATTLEFIELD-SUNKEN-TEMPLE",
                 ["P1-BATTLEFIELD-POWERFUL-ATTACKER"],
                 ["P2-BATTLEFIELD-POWERFUL-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+    }
+
+    private static async Task<ResolutionResult> DeclareVayneBattleAsync(
+        MatchState state,
+        CoreRuleEngine? engine = null)
+    {
+        return await (engine ?? new CoreRuleEngine()).ResolveAsync(
+            state,
+            new PlayerIntent("intent-vayne-declare-battle", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-VAYNE-FIELD",
+                ["P1-BATTLEFIELD-VAYNE"],
+                ["P2-BATTLEFIELD-VAYNE-DEFENDER"],
                 ["COMBAT_ASSIGNMENT"]),
             CancellationToken.None);
     }
@@ -402,6 +525,38 @@ public sealed class TriggerPaymentTests
         return payment;
     }
 
+    private static PendingPaymentState AssertVaynePaymentOpen(ResolutionResult result)
+    {
+        var payment = result.State.PendingPayment;
+        Assert.NotNull(payment);
+        Assert.Equal(TriggerPaymentWindow, payment.PaymentWindow);
+        var openedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, VayneTrigger, StringComparison.Ordinal));
+        Assert.Equal(payment.PaymentId, openedEvent.Payload["paymentId"]);
+        Assert.Equal(payment.PaymentWindow, openedEvent.Payload["paymentWindow"]);
+        Assert.Equal("P1-BATTLEFIELD-VAYNE-FIELD", openedEvent.Payload["battlefieldId"]);
+        Assert.Equal("P1-BATTLEFIELD-VAYNE-FIELD", openedEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal("P1-BATTLEFIELD-VAYNE", openedEvent.Payload["sourceObjectId"]);
+        Assert.Equal([PayOneMana, Decline], Assert.IsType<string[]>(openedEvent.Payload["paymentChoices"]));
+
+        var prompt = result.Prompts["P1"];
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        Assert.Equal(payment.PaymentId, Assert.IsType<string>(metadata["paymentId"]));
+        Assert.Equal(TriggerPaymentWindow, Assert.IsType<string>(metadata["paymentWindow"]));
+        var cost = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(metadata["cost"]);
+        Assert.Equal(1, Assert.IsType<int>(cost["mana"]));
+        var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentChoices"]).ToArray();
+        Assert.Contains(choices, choice => string.Equals(choice.Id, PayOneMana, StringComparison.Ordinal));
+        Assert.Contains(choices, choice => string.Equals(choice.Id, Decline, StringComparison.Ordinal));
+        return payment;
+    }
+
     private static void AssertRejectedNoMutation(
         ResolutionResult result,
         MatchState original,
@@ -417,6 +572,25 @@ public sealed class TriggerPaymentTests
         Assert.Equal(original.PlayerZones["P1"].Hand, result.State.PlayerZones["P1"].Hand);
         Assert.Equal(original.PlayerZones["P1"].MainDeck, result.State.PlayerZones["P1"].MainDeck);
         Assert.Equal(GoldTokenIds(original), GoldTokenIds(result.State));
+    }
+
+    private static void AssertVayneStillOnBattlefield(MatchState state)
+    {
+        Assert.Contains("P1-BATTLEFIELD-VAYNE", state.PlayerZones["P1"].Battlefields);
+        Assert.True(state.CardObjects.ContainsKey("P1-BATTLEFIELD-VAYNE"));
+    }
+
+    private static bool IsVayneTriggerResolved(GameEvent gameEvent)
+    {
+        return string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, VayneTrigger, StringComparison.Ordinal);
+    }
+
+    private static bool IsVayneReturnedToHand(GameEvent gameEvent)
+    {
+        return string.Equals(gameEvent.Kind, "UNIT_RETURNED_TO_HAND", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, VayneTrigger, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-VAYNE", StringComparison.Ordinal);
     }
 
     private static IReadOnlyList<string> GoldTokenIds(MatchState state)
@@ -482,6 +656,82 @@ public sealed class TriggerPaymentTests
                     controllerId: "P1"),
                 ["P2-BATTLEFIELD-GOLD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-GOLD-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            });
+    }
+
+    private static MatchState BuildOgnVayneConquerRecallState(
+        int mana = 1,
+        bool faceDown = false,
+        bool standby = false,
+        bool opponentControlled = false)
+    {
+        var vayneTags = standby
+            ? new[] { CardObjectTags.UnitCard, CardObjectTags.Standby, "强攻3" }
+            : [CardObjectTags.UnitCard, "强攻3"];
+        return new MatchState(
+            roomId: "trigger-payment-vayne-test",
+            tick: 23,
+            turnNumber: 1,
+            activePlayerId: "P1",
+            seats: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "connection-1",
+                ["P2"] = "connection-2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(mana, 0),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-VAYNE-FIELD", "P1-BATTLEFIELD-VAYNE"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-VAYNE-DEFENDER"]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-VAYNE-FIELD"] = new(
+                    "P1-BATTLEFIELD-VAYNE-FIELD",
+                    cardNo: "SFD·013/221",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-VAYNE"] = new(
+                    "P1-BATTLEFIELD-VAYNE",
+                    isFaceDown: faceDown,
+                    cardNo: "OGN·035/298",
+                    power: 2,
+                    tags: vayneTags,
+                    ownerId: "P1",
+                    controllerId: opponentControlled ? "P2" : "P1"),
+                ["P2-BATTLEFIELD-VAYNE-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-VAYNE-DEFENDER",
                     cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],

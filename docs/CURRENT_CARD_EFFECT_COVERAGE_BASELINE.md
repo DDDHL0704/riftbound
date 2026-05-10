@@ -2,11 +2,11 @@
 
 更新时间：2026-05-10
 
-阶段：**阶段 4C-23 / E 卡牌覆盖矩阵 post-freeze overlay**
+阶段：**阶段 4C-24 / E 卡牌覆盖矩阵 post-freeze overlay**
 
 结论：**NOT READY；不允许进入 1009 张卡牌效果批量覆盖。**
 
-本文只建立统计口径、只读数据基线、矩阵字段、风险排序和阶段性证据 overlay，不实现或修改任何卡牌效果。阶段 1/2 建立卡牌覆盖基线；阶段 3A/3B/3C/3D 只给最小 runtime / lifecycle / battle-damage / trigger-ordering 切片补证据标签；阶段 4B 冻结 card entry -> functional unit -> oracle/effectId -> evidence/tests/status 矩阵；阶段 4C-1 记录 APNAP `ORDER_TRIGGERS` 保守 controller-block 子集；阶段 4C-2 / 4C-3 记录 Watchful Sentinel 与 Honest Broker 真实 last-breath 入队；阶段 4C-4 记录 Treasure Pile trigger payment；阶段 4C-5 / 4C-6 记录 Starfall damage 造成 visible Watchful Sentinel / Honest Broker state-based cleanup last-breath 入队；阶段 4C-7 记录 Spirit Fire explicit destroy 造成 visible Scouting Warhawk last-breath rune-call 入队；阶段 4C-8 记录 Starfall lethal damage + state-based cleanup 造成 visible Scouting Warhawk last-breath rune-call 入队；阶段 4C-9 记录 Starfall lethal damage + state-based cleanup 造成 visible Sad/Loyal Poro 条件抽牌 last-breath 入队；阶段 4C-10 记录 Starfall lethal damage + state-based cleanup 造成 visible Unsung Hero 强力条件抽二 last-breath 入队；阶段 4C-11 记录 Starfall lethal damage + state-based cleanup 造成 visible surviving friendly Ghostly Centaur 监听另一友方被摧毁并本回合 +2 入队；阶段 4C-12 记录 visible surviving friendly Resonant Soul 监听 owner 本回合首个友方摧毁并抽 1 入队；阶段 4C-13 记录 Ghostly Centaur / Resonant Soul true stack destruction non-cleanup `UNIT_DESTROYED` route migration；阶段 4C-14 记录 Savage Jawfish / 凶残颚鱼 true stack 与 Starfall cleanup 友方摧毁入队获得经验；阶段 4C-15A 记录 Minion token family model / infrastructure marker；阶段 4C-15B 记录 Viktor destroyed non-Minion token trigger 最小代表性 baseline；阶段 4C-16 / 4C-17 记录 Mechanical Trickster / Ironclad Vanguard true stack last-breath trigger enqueue；阶段 4C-18 记录这两个 FU 的 state-based cleanup last-breath trigger enqueue；阶段 4C-19 记录 Kogmaw visible last-breath AoE damage representative route；阶段 4C-20B 记录 Undercover Agent triggered `HAND_CHOICE` prompt 微切片；阶段 4C-21 记录 Sunken Temple / 沉没神庙 authoritative `TRIGGER_PAYMENT` + `PAY_COST` 征服强力单位支付抽牌代表切片；阶段 4C-22 记录 Muddy Dredger / 腐泥疏浚工 visible state-based cleanup Last Breath -> Warhawk token 代表切片；阶段 4C-23 记录 Lux / 拉克丝 high-cost spell temporary power 代表切片，防止把局部 runtime 或模型前置条件误判为全官方卡牌完成。
+本文只建立统计口径、只读数据基线、矩阵字段、风险排序和阶段性证据 overlay，不实现或修改任何卡牌效果。阶段 1/2 建立卡牌覆盖基线；阶段 3A/3B/3C/3D 只给最小 runtime / lifecycle / battle-damage / trigger-ordering 切片补证据标签；阶段 4B 冻结 card entry -> functional unit -> oracle/effectId -> evidence/tests/status 矩阵；阶段 4C-1 记录 APNAP `ORDER_TRIGGERS` 保守 controller-block 子集；阶段 4C-2 / 4C-3 记录 Watchful Sentinel 与 Honest Broker 真实 last-breath 入队；阶段 4C-4 记录 Treasure Pile trigger payment；阶段 4C-5 / 4C-6 记录 Starfall damage 造成 visible Watchful Sentinel / Honest Broker state-based cleanup last-breath 入队；阶段 4C-7 记录 Spirit Fire explicit destroy 造成 visible Scouting Warhawk last-breath rune-call 入队；阶段 4C-8 记录 Starfall lethal damage + state-based cleanup 造成 visible Scouting Warhawk last-breath rune-call 入队；阶段 4C-9 记录 Starfall lethal damage + state-based cleanup 造成 visible Sad/Loyal Poro 条件抽牌 last-breath 入队；阶段 4C-10 记录 Starfall lethal damage + state-based cleanup 造成 visible Unsung Hero 强力条件抽二 last-breath 入队；阶段 4C-11 记录 Starfall lethal damage + state-based cleanup 造成 visible surviving friendly Ghostly Centaur 监听另一友方被摧毁并本回合 +2 入队；阶段 4C-12 记录 visible surviving friendly Resonant Soul 监听 owner 本回合首个友方摧毁并抽 1 入队；阶段 4C-13 记录 Ghostly Centaur / Resonant Soul true stack destruction non-cleanup `UNIT_DESTROYED` route migration；阶段 4C-14 记录 Savage Jawfish / 凶残颚鱼 true stack 与 Starfall cleanup 友方摧毁入队获得经验；阶段 4C-15A 记录 Minion token family model / infrastructure marker；阶段 4C-15B 记录 Viktor destroyed non-Minion token trigger 最小代表性 baseline；阶段 4C-16 / 4C-17 记录 Mechanical Trickster / Ironclad Vanguard true stack last-breath trigger enqueue；阶段 4C-18 记录这两个 FU 的 state-based cleanup last-breath trigger enqueue；阶段 4C-19 记录 Kogmaw visible last-breath AoE damage representative route；阶段 4C-20B 记录 Undercover Agent triggered `HAND_CHOICE` prompt 微切片；阶段 4C-21 记录 Sunken Temple / 沉没神庙 authoritative `TRIGGER_PAYMENT` + `PAY_COST` 征服强力单位支付抽牌代表切片；阶段 4C-22 记录 Muddy Dredger / 腐泥疏浚工 visible state-based cleanup Last Breath -> Warhawk token 代表切片；阶段 4C-23 记录 Lux / 拉克丝 high-cost spell temporary power 代表切片；阶段 4C-24 记录 Vayne / 薇恩 visible face-up conquer -> `TRIGGER_PAYMENT` / `PAY_COST` pay 1 return-self 代表切片，防止把局部 runtime 或模型前置条件误判为全官方卡牌完成。
 
 ## 1. 已读取依据
 
@@ -1632,6 +1632,54 @@ Snapshot entry primary status counts：
 - `SFD·220/221` 之外的 triggered-cost functional units 未完成。
 - 完整 trigger engine、state-based cleanup trigger enqueue 全族、FAQ adjudication 和正式 18 步 E2E 未完成；4C-5 / 4C-6 后也只覆盖 visible Watchful Sentinel / Honest Broker cleanup 入队代表切片。
 - 1009 snapshot entries / 811 functional units 的 full-official 覆盖仍为 0。
+
+是否允许批量 full-official 覆盖：**不允许。**
+
+## 37. 阶段 4C-24 E 汇总
+
+阶段 4C-24 名称：Vayne conquer pay-one recall representative baseline。E/A 只更新覆盖矩阵与索引证据，不触碰 `riftbound-dotnet.sln`，不进入 1009 张卡 full-official 实现。
+
+身份核对：
+
+- `OGN·035/298` Vayne / 《薇恩》在冻结矩阵中的真实 FU 为 `FU-c027639a3c`，snapshot entry id / cardId 为 `31243`。
+- 当前 oracle/effectId：`OGN_VAYNE_ASSAULT3_CONQUER_RECALL_PLAY_UNIT`。
+- 4B status：`IMPLEMENTED_TESTED`；statusFlags：`IMPLEMENTED_TESTED`、`NEEDS_ENGINE_SUPPORT`。
+
+本批记录：
+
+- visible face-up Vayne 征服后开启 `TRIGGER_PAYMENT` / `PAY_COST` pay 1 window。
+- 支付 1 后将 Vayne 自身返回 owner hand。
+- decline 不召回；invalid source 不开启支付、不移动区域、不泄露状态。
+- 只标 `FU-c027639a3c`；Aphelios / `FU-67c6b0186e` 与 Icevale Archer / `FU-c170628e3a` 保留为后续候选，不作为 4C-24 完成项。
+
+4C-24 矩阵 overlay 统计：
+
+| 项 | 数量 |
+|---|---:|
+| frozen snapshot entries | 1009 |
+| frozen functional units | 811 |
+| `stage4C24` verified FUs | 1 |
+| `stage4C24` verified snapshot entries | 1 |
+| cumulative real-trigger enqueue verified FUs | 16 |
+| cumulative state-based cleanup trigger enqueue verified FUs | 14 |
+| cumulative hand-choice prompt verified FUs | 1 |
+| cumulative trigger-payment verified FUs | 3 |
+| cumulative spell-played immediate trigger-event verified FUs | 1 |
+| cumulative conquer-payment recall verified FUs | 1 |
+| full-official upgrades | 0 |
+| full-official still uncovered FUs | 811 |
+
+验证：
+
+- B 已完成服务端代码并报告 focused 52/52 通过。
+- E 本批只校验覆盖矩阵 JSON / docs diff，不运行或修改服务端、前端、checkpoint、server audit 或 evidence index。
+
+仍存在 P0/P1：
+
+- SFD reprint / promo family full-official 未覆盖。
+- Assault3、active-entry、完整 conquer/control-zone movement matrix 未覆盖。
+- hidden/random full matrix 与完整 PaymentEngine / PAY_COST full matrix 未覆盖。
+- 1009 entries / 811 functional units full-official、正式 18-step E2E 仍未完成。
 
 是否允许批量 full-official 覆盖：**不允许。**
 
