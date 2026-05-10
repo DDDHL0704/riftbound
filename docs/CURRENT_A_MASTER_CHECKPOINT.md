@@ -1988,6 +1988,50 @@ A 主控复验：
 
 4C-20B 结论：**通过 Undercover Agent triggered hand-choice server prompt 微切片，未关闭 full-official**。允许 4C 继续推进前端接线或下一批规则切片；项目整体仍 **NOT READY**。
 
+## 0.34 阶段 4C-21 Sunken Temple Trigger Payment 审计
+
+阶段 4C-21 已由 B 完成 Sunken Temple / 沉没神庙 `SFD·218/221` / `FU-05ce012700` 的征服强力单位触发支付代表切片。本批只把旧 immediate auto pay + draw 改为服务端权威 `TRIGGER_PAYMENT` / `PAY_COST` 窗口，不代表 full-official，不得标记 READY / READY-CANDIDATE。项目整体仍 **NOT READY**。
+
+4C-21 checkpoint commit：本节随 `checkpoint: complete stage 4C sunken temple trigger payment baseline` 一起提交；具体 hash 以 `git log -1 --oneline` 为准。
+
+4C-21 审计入口：
+
+- `docs/CURRENT_STAGE4C_BATCH21_SUNKEN_TEMPLE_TRIGGER_PAYMENT_AUDIT.md`。
+- `docs/CURRENT_STAGE4C_BATCH21_SUNKEN_TEMPLE_TRIGGER_PAYMENT_EVIDENCE.md`。
+
+4C-21 已关闭服务端子项：
+
+- Sunken Temple 征服此处且战场上留存强力单位时打开服务端权威 `TRIGGER_PAYMENT` / `PAY_COST` prompt。
+- 旧 immediate auto pay + draw 口径已 superseded；前端 / 测试不得再把 `SFD·218/221` 解释为自动支付、自动抽牌。
+- `PAY_COST(SPEND_MANA:1)` 支付成功后抽 1；`PAY_COST(DECLINE)` 拒付关闭窗口且不抽牌。
+- focused 覆盖 invalid / stale / insufficient 等 no-mutation 语义；仍不外推为完整 PaymentEngine。
+
+4C-21 证据入口：
+
+- `CATALOG` `SFD·218/221`：沉没神庙文本为“当你征服此处时，如果此战场上留存至少一名强力单位，则你可以选择支付 1 来抽一张牌”。
+- `SOUL-OFAQ-260114` p15：沉没神庙 powerful / conquest timing 证据入口。
+- `CORE-260330` p52-p55 rules 377, 403-405；`JFAQ-251023` p2-p4 q2.5：触发式技能费用、拒付与合法性流程入口。
+
+4C-21 验证结果：
+
+- Focused backend：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~TriggerPaymentTests|FullyQualifiedName~P79BattlefieldConquerPowerfulUnitPaysOneToDraw|FullyQualifiedName~P79BattlefieldConquerPowerfulDrawSeedOffersBattlefieldDestinationAndDraws"` 通过 13/13。
+- Backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 3404/3404。
+- Frontend build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过。
+- Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过。
+- Stage 3 preflight：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && node scripts/stage3-preflight.mjs --start-api` 通过，player-a / player-b 双上下文 OK；尾部 499/143、allocator 与一次 `OperationCanceledException` 记录来自脚本关停 / 本地连接取消噪声，不作为阻断。
+- B changed code/tests：`src/Riftbound.Engine/CoreRuleEngine.cs`、`tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs`、`tests/Riftbound.ConformanceTests/GameHubJoinTests.cs`、`tests/Riftbound.ConformanceTests/TriggerPaymentTests.cs`。
+- A 本轮因子 agent 超时接管了小范围服务端实现、测试校准、文档和矩阵收口；未修改前端功能代码，未触碰 `riftbound-dotnet.sln`。
+- 正式 18-step E2E 未运行；本批验证不得替代最终验收。
+
+4C-21 后仍保留 P0/P1：
+
+- P0：完整 PaymentEngine、triggered-cost 通用模型、Quote / Authorize / Commit、替代 / 额外费用、更多非出牌支付窗口仍未关闭。
+- P0：完整 battlefield / conquer lifecycle、战场控制冻结、battle cleanup 与 conquest scoring 全规则矩阵仍未关闭。
+- P0：完整 trigger engine、完整 effect resolution、FAQ regression、1009 entries / 811 functional units full-official、正式 18-step E2E 仍未完成。
+- P1：Sunken Temple full-official timing matrix，包括 effective power / LayerEngine、temporary modifier、征服后变强力、战场上多单位同时离场等组合仍需补证据和测试。
+
+4C-21 结论：**通过 Sunken Temple triggered payment 代表切片，未关闭 full-official**。阶段 4C 可继续推进下一批规则切片；项目整体仍 **NOT READY**。
+
 ## 1. 总目标
 
 以当前仓库五份官方规则 / FAQ PDF 与 `data/official/card-catalog.zh-CN.json` 的 2026-04-27 官网卡牌快照为准，完成本地双人 1v1 标准构筑产品级 Web 游戏基线：

@@ -12,6 +12,42 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-10 阶段 4C-21 Sunken Temple Trigger Payment 审计
+
+阶段 4C-21 审计入口：`docs/CURRENT_STAGE4C_BATCH21_SUNKEN_TEMPLE_TRIGGER_PAYMENT_AUDIT.md`。本批已补 Sunken Temple / 沉没神庙 `SFD·218/221` / `FU-05ce012700` 的征服强力单位触发支付代表切片；focused backend 通过 13/13。项目仍 **NOT READY**。
+
+4C-21 已关闭代表子项：
+
+- Sunken Temple 征服此处且战场上留存强力单位时打开服务端权威 `TRIGGER_PAYMENT` / `PAY_COST` prompt。
+- 旧 immediate auto pay + draw 口径已 superseded；支付和抽牌不再由测试/前端视为自动发生。
+- `PAY_COST(SPEND_MANA:1)` 支付成功后 `CARD_DRAWN` 1；`PAY_COST(DECLINE)` 拒付关闭窗口且不抽牌。
+- invalid / stale / insufficient 等 no-mutation 语义纳入 focused 覆盖；仍不外推为完整 PaymentEngine。
+
+4C-21 规则依据：
+
+- `CATALOG` `SFD·218/221`；FU `FU-05ce012700`。
+- `SOUL-OFAQ-260114` p15：沉没神庙 powerful / conquest timing 证据入口。
+- `CORE-260330` p52-p55 rules 377, 403-405；`JFAQ-251023` p2-p4 q2.5：触发费用可支付 / 可拒付与合法性入口。
+
+4C-21 验证记录：
+
+- Focused backend：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~TriggerPaymentTests|FullyQualifiedName~P79BattlefieldConquerPowerfulUnitPaysOneToDraw|FullyQualifiedName~P79BattlefieldConquerPowerfulDrawSeedOffersBattlefieldDestinationAndDraws"` 通过 13/13。
+- Backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 3404/3404。
+- Frontend build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过。
+- Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过。
+- Stage 3 preflight：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && node scripts/stage3-preflight.mjs --start-api` 通过。
+- B changed code/tests：`src/Riftbound.Engine/CoreRuleEngine.cs`、`tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs`、`tests/Riftbound.ConformanceTests/GameHubJoinTests.cs`、`tests/Riftbound.ConformanceTests/TriggerPaymentTests.cs`。
+- A 因子 agent 超时接管小范围实现和审计收口；未修改前端功能代码，未触碰 `riftbound-dotnet.sln`。
+
+仍缺 P0/P1：
+
+- P0：完整 PaymentEngine、triggered-cost 通用模型、Quote / Authorize / Commit、替代 / 额外费用、更多非出牌支付窗口。
+- P0：完整 battlefield / conquer lifecycle、战场控制冻结、battle cleanup、征服 / 据守得分全规则矩阵。
+- P0：完整 trigger engine、完整 effect resolution、FAQ regression、1009 / 811 full-official、最终正式 18-step E2E。
+- P1：Sunken Temple timing matrix，包括 effective power / LayerEngine、temporary modifier、征服后变强力、战场上多单位同时离场等组合。
+
+4C-21 不宣称 full-official，不宣称 READY / READY-CANDIDATE。
+
 ## 2026-05-10 阶段 4C-20B Undercover Agent Triggered Hand-Choice 审计
 
 阶段 4C-20B 审计入口：`docs/CURRENT_STAGE4C_BATCH20B_UNDERCOVER_HAND_CHOICE_AUDIT.md`。本批已补 Undercover Agent / 卧底特工 `OGN·178/298` / `FU-6a52b04cb2` 的服务端 `HAND_CHOICE` / `CHOOSE_HAND_CARDS` 微切片；A focused backend `UndercoverAgentTriggerTests` 已通过 6/6。项目仍 **NOT READY**。

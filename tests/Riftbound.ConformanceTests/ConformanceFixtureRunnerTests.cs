@@ -34895,8 +34895,9 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79BattlefieldConquerPowerfulUnitPaysOneToDraw()
     {
         var state = BattlefieldConquerPowerfulDrawState();
+        var engine = new CoreRuleEngine();
 
-        var result = await new CoreRuleEngine().ResolveAsync(
+        var result = await engine.ResolveAsync(
             state,
             new PlayerIntent("intent-p7-9-battlefield-powerful-draw", "P1", "DECLARE_BATTLE"),
             new DeclareBattleCommand(
@@ -34907,15 +34908,34 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
-        Assert.Equal(0, result.State.RunePools["P1"].Mana);
-        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+        Assert.Equal(1, result.State.RunePools["P1"].Mana);
+        var payment = result.State.PendingPayment;
+        Assert.NotNull(payment);
+        Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
+        Assert.Equal(["SPEND_MANA:1", "DECLINE"], payment.LegalPaymentChoiceIds);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW", StringComparison.Ordinal));
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+
+        var paid = await engine.ResolveAsync(
+            result.State,
+            new PlayerIntent("intent-p7-9-battlefield-powerful-draw-pay", "P1", "PAY_COST"),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]),
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Equal(0, paid.State.RunePools["P1"].Mana);
+        var triggerEvent = Assert.Single(paid.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW", StringComparison.Ordinal));
         Assert.Equal("P1-BATTLEFIELD-POWERFUL-ATTACKER", triggerEvent.Payload["powerfulObjectId"]);
         Assert.Equal(1, triggerEvent.Payload["drawCount"]);
-        Assert.Equal(["P1-BATTLEFIELD-POWERFUL-DRAW-001"], result.State.PlayerZones["P1"].Hand);
-        Assert.Equal(["P1-BATTLEFIELD-POWERFUL-DRAW-002"], result.State.PlayerZones["P1"].MainDeck);
-        Assert.Contains(result.Events, gameEvent =>
+        Assert.Equal(["P1-BATTLEFIELD-POWERFUL-DRAW-001"], paid.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-BATTLEFIELD-POWERFUL-DRAW-002"], paid.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains(paid.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW", StringComparison.Ordinal));
     }

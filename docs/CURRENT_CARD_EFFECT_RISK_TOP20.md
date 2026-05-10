@@ -662,7 +662,28 @@ Viktor boundary：
 
 仍缺：Mechanical Trickster cleanup route、完整 trigger engine、multi-source / multi-destroy / simultaneous trigger multiplicity、隐藏 / face-down original visibility modeling、Ironclad Vanguard / Kogmaw / Karthus / Undercover Agent、FAQ adjudication / regression、1009/811 full-official 覆盖、正式 18-step E2E。
 
-## 29. Top20 高风险 Functional Units
+## 29. Stage 4C-21 Sunken Temple Trigger Payment Overlay
+
+4C-21 只更新覆盖矩阵 / 风险证据，不升级 full-official。`docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已新增 `stage4CBatch21SunkenTempleTriggerPayment`，并只为 `FU-05ce012700` 增加 `functionalUnits[].stage4C21` overlay。
+
+4C-21 已部分降低的 blocker：
+
+- `FU-05ce012700` / `SFD·218/221` Sunken Temple / 《沉没神庙》的征服强力单位触发支付代表路径。
+- route：conquer with powerful unit -> authoritative `TRIGGER_PAYMENT` / `PAY_COST` window。
+- accept：`PAY_COST(SPEND_MANA:1)` 支付 1 魔力并抽 1。
+- decline：`PAY_COST(DECLINE)` 关闭窗口，不支付、不抽牌。
+- invalid / stale / insufficient / non-powerful paths no mutation。
+- A 验证结果：focused 13/13、backend full 3404/3404、frontend build passed、Chrome smoke passed、Stage 3 preflight passed、diff check passed。
+
+矩阵数字：`stage4C21` verified FUs = 1，verified snapshot entries = 1，cumulative trigger-payment verified FUs = 2，full-official upgrades = 0，full-official still uncovered FUs = 811。
+
+本批不关闭完整 PaymentEngine、complete conquer / powerful / battlefield lifecycle matrix、LayerEngine effective power edge cases、FAQ adjudication、1009/811 full-official 或正式 18-step E2E。
+
+后续批量顺序建议：继续扩 triggered-cost FUs、PaymentEngine Quote / Authorize / Commit、LayerEngine effective power matrix 与 FAQ regression。
+
+仍缺：完整 PaymentEngine、完整战场征服 / 强力时序、更多非出牌支付窗口、hidden / replay full regression、1009/811 full-official 覆盖、正式 18-step E2E。
+
+## 30. Top20 高风险 Functional Units
 
 | # | FU | Representative | 类型/条目数 | 当前代表映射 | FAQ 候选页 | 风险依据 | 依赖规则域 |
 |---:|---|---|---:|---|---|---|---|
@@ -687,7 +708,7 @@ Viktor boundary：
 | 19 | `FU-804412488c` | `SFD·139/221` 夜之锋刃 | 装备 / 1 | 代表路径：EDGE_OF_NIGHT_PLAY_EQUIPMENT | SOUL-OFAQ-260114 p10<br>SOUL-OFAQ-260114 p9 | 控制权/区域移动、FAQ 提及、隐藏信息/随机/牌堆、效果层/持续效果、费用/支付、目标/结算链/时机 | FEPR/Targeting/TimingWindows, LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, VisibilityFilter/RandomAndHiddenZones, ZoneOwnership/ControlChange/Movement |
 | 20 | `FU-9a623b3185` | `SFD·059/221` 斯弗尔尚歌 | 装备 / 1 | 代表路径：SFUR_SONG_PLAY_EQUIPMENT | SOUL-JFAQ-260114 p24<br>SOUL-JFAQ-260114 p25<br>SOUL-JFAQ-260114 p8<br>SOUL-OFAQ-260114 p18<br>SOUL-OFAQ-260114 p19 | 控制权/区域移动、FAQ 提及、效果层/持续效果、费用/支付 | LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, ZoneOwnership/ControlChange/Movement |
 
-## 30. 未覆盖效果分类
+## 31. 未覆盖效果分类
 
 | 分类 | 含义 | 当前阻断关系 |
 |---|---|---|
@@ -701,13 +722,13 @@ Viktor boundary：
 | `non-play-domain` | 传奇、战场、符文、指示物等非普通 PLAY_CARD 域。 | 需要专门域矩阵，不可与普通出牌效果混算。 |
 | `faq-mentioned` | 五份 PDF/FAQ 中出现卡名的候选项。 | 必须人工判定问题是否真的约束该 FU，并补测试。 |
 
-## 31. P0/P1 仍未清零
+## 32. P0/P1 仍未清零
 
 P0：
 
 - central cleanup queue 未完整官方化。
 - spell duel / battle 完整生命周期仍未完成。
-- `PAY_COST` 已有 3A 最小 runtime，4C-4 已验证 `SFD·220/221` `TRIGGER_PAYMENT` 支付 / 拒付代表路径，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime，`ORDER_TRIGGERS` 已升级为 4C-1 保守 APNAP controller-block 子集，4C-2 / 4C-3 只验证 Watchful Sentinel 与 Honest Broker real trigger enqueue，4C-5 / 4C-6 只验证 visible Watchful Sentinel 与 visible Honest Broker 的 state-based cleanup trigger enqueue，4C-7 / 4C-8 只验证 visible Scouting Warhawk explicit destroy 与 state-based cleanup trigger enqueue，4C-9 只验证 visible Sad/Loyal Poro conditional cleanup trigger enqueue，4C-10 只验证 visible Unsung Hero powerful cleanup trigger enqueue，4C-11 只验证 visible surviving friendly Ghostly Centaur friendly-destroyed cleanup trigger enqueue，4C-12 只验证 visible surviving friendly Resonant Soul first-friendly-destroyed cleanup trigger enqueue，4C-13 只迁移 Ghostly / Resonant true stack destruction non-cleanup route，4C-14 只验证 Savage Jawfish true stack / cleanup friendly-destroyed experience trigger enqueue，4C-15A 只记录 Minion token family infrastructure，4C-15B 只验证 Viktor destroyed non-Minion representative trigger enqueue baseline，4C-16 / 4C-17 只验证 Mechanical Trickster / Ironclad Vanguard true stack last-breath representative trigger enqueue baseline，4C-18 只验证这两个 FU 的 cleanup-route representative trigger enqueue baseline，4C-19 只验证 Kogmaw visible last-breath AoE damage representative route，4C-20B 只验证 Undercover Agent triggered hand-choice prompt 微切片；完整 PaymentEngine、完整 damage assignment 全规则矩阵、完整 trigger engine / battle initial stack 全规则仍未完成。
+- `PAY_COST` 已有 3A 最小 runtime，4C-4 已验证 `SFD·220/221` `TRIGGER_PAYMENT` 支付 / 拒付代表路径，4C-21 已验证 `SFD·218/221` Sunken Temple 征服强力单位 `TRIGGER_PAYMENT` / `PAY_COST` 支付抽牌代表路径，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime，`ORDER_TRIGGERS` 已升级为 4C-1 保守 APNAP controller-block 子集，4C-2 / 4C-3 只验证 Watchful Sentinel 与 Honest Broker real trigger enqueue，4C-5 / 4C-6 只验证 visible Watchful Sentinel 与 visible Honest Broker 的 state-based cleanup trigger enqueue，4C-7 / 4C-8 只验证 visible Scouting Warhawk explicit destroy 与 state-based cleanup trigger enqueue，4C-9 只验证 visible Sad/Loyal Poro conditional cleanup trigger enqueue，4C-10 只验证 visible Unsung Hero powerful cleanup trigger enqueue，4C-11 只验证 visible surviving friendly Ghostly Centaur friendly-destroyed cleanup trigger enqueue，4C-12 只验证 visible surviving friendly Resonant Soul first-friendly-destroyed cleanup trigger enqueue，4C-13 只迁移 Ghostly / Resonant true stack destruction non-cleanup route，4C-14 只验证 Savage Jawfish true stack / cleanup friendly-destroyed experience trigger enqueue，4C-15A 只记录 Minion token family infrastructure，4C-15B 只验证 Viktor destroyed non-Minion representative trigger enqueue baseline，4C-16 / 4C-17 只验证 Mechanical Trickster / Ironclad Vanguard true stack last-breath representative trigger enqueue baseline，4C-18 只验证这两个 FU 的 cleanup-route representative trigger enqueue baseline，4C-19 只验证 Kogmaw visible last-breath AoE damage representative route，4C-20B 只验证 Undercover Agent triggered hand-choice prompt 微切片；完整 PaymentEngine、完整 damage assignment 全规则矩阵、完整 trigger engine / battle initial stack 全规则仍未完成。
 - 正式 18 步 E2E 未最终收口。
 - 1009 entries / 811 FUs 的 FAQ 证据与 full-official 测试矩阵未完成。
 

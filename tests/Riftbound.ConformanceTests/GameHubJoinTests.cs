@@ -4746,15 +4746,52 @@ public sealed class GameHubJoinTests
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-powerful-draw", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
-        var triggerEvent = Assert.Single(EventsFor(battleClients), gameEvent =>
+        var battleEvents = EventsFor(battleClients);
+        Assert.Contains(battleEvents, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal));
+        Assert.DoesNotContain(battleEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW", StringComparison.Ordinal));
-        Assert.Equal("P1-BATTLEFIELD-POWERFUL-ATTACKER", triggerEvent.Payload["powerfulObjectId"]);
-        Assert.Contains(EventsFor(battleClients), gameEvent =>
+        Assert.DoesNotContain(battleEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW", StringComparison.Ordinal));
 
-        var battleSnapshot = SnapshotFor(battleClients, "P1");
+        var payPrompt = PromptFor(battleClients, "P1");
+        Assert.True(payPrompt.Actionable);
+        Assert.Equal(PromptTypes.PayCost, payPrompt.View?.Type);
+        var payCandidate = Assert.Single(
+            payPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(payCandidate.Metadata);
+        var paymentId = Assert.IsType<string>(metadata["paymentId"]);
+        var paymentWindow = Assert.IsType<string>(metadata["paymentWindow"]);
+        Assert.Equal("TRIGGER_PAYMENT", paymentWindow);
+        var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentChoices"]).ToArray();
+        Assert.Contains(choices, choice => string.Equals(choice.Id, "SPEND_MANA:1", StringComparison.Ordinal));
+        Assert.Contains(choices, choice => string.Equals(choice.Id, "DECLINE", StringComparison.Ordinal));
+
+        var payClients = new RecordingHubClients();
+        await CreateHub(payClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-powerful-draw-pay", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PAY_COST",
+                paymentId,
+                paymentWindow,
+                paymentChoiceIds = new[] { "SPEND_MANA:1" },
+                promptId = payPrompt.PromptId,
+                snapshotTick = payPrompt.SnapshotTick
+            }));
+
+        Assert.Empty(payClients.CallerClient.Errors);
+        var payEvents = EventsFor(payClients);
+        var triggerEvent = Assert.Single(payEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-POWERFUL-ATTACKER", triggerEvent.Payload["powerfulObjectId"]);
+        Assert.Contains(payEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW", StringComparison.Ordinal));
+
+        var battleSnapshot = SnapshotFor(payClients, "P1");
         var p1 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P1"]);
         var p1RunePool = Assert.IsType<Dictionary<string, object?>>(p1["runePool"]);
         Assert.Equal(0, Assert.IsType<int>(p1RunePool["mana"]));

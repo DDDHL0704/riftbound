@@ -664,6 +664,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldConquerReadyTwoRunesAtEndCardNo = "OGN·289/298";
     private const string BattlefieldConquerDrawForOtherBattlefieldsCardNo = "SFD·217/221";
     private const string BattlefieldConquerPowerfulPayOneDrawCardNo = "SFD·218/221";
+    private const string BattlefieldConquerPowerfulPayOneDrawEffectKind = "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW";
     private const string BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo = "SFD·207/221";
     private const string BattlefieldConquerPayOneCreateGoldCardNo = "SFD·220/221";
     private const string BattlefieldConquerPayOneCreateGoldEffectKind = "BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD";
@@ -1126,18 +1127,53 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
-        if (!TryReadBattlefieldConquerGoldPaymentContext(
+        if (TryReadBattlefieldConquerGoldPaymentContext(
                 pendingPayment,
-                out var battlefieldId,
-                out var battlefieldObjectId,
-                out var sourceObjectId))
+                out var goldBattlefieldId,
+                out var goldBattlefieldObjectId,
+                out var goldSourceObjectId))
         {
-            return RejectWithCorePrompts(
+            return ResolveBattlefieldConquerGoldTriggerPayment(
                 state,
-                "当前触发支付窗口缺少服务端上下文。",
-                ErrorCodes.InvalidTarget);
+                intent,
+                pendingPayment,
+                submittedChoices,
+                goldBattlefieldId,
+                goldBattlefieldObjectId,
+                goldSourceObjectId);
         }
 
+        if (TryReadBattlefieldConquerPowerfulDrawPaymentContext(
+                pendingPayment,
+                out var powerfulBattlefieldId,
+                out var powerfulBattlefieldObjectId,
+                out var powerfulSourceObjectId))
+        {
+            return ResolveBattlefieldConquerPowerfulDrawTriggerPayment(
+                state,
+                intent,
+                pendingPayment,
+                submittedChoices,
+                powerfulBattlefieldId,
+                powerfulBattlefieldObjectId,
+                powerfulSourceObjectId);
+        }
+
+        return RejectWithCorePrompts(
+            state,
+            "当前触发支付窗口缺少服务端上下文。",
+            ErrorCodes.InvalidTarget);
+    }
+
+    private static ResolutionResult ResolveBattlefieldConquerGoldTriggerPayment(
+        MatchState state,
+        PlayerIntent intent,
+        PendingPaymentState pendingPayment,
+        IReadOnlyList<string> submittedChoices,
+        string battlefieldId,
+        string battlefieldObjectId,
+        string sourceObjectId)
+    {
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var resolvedBattlefieldObjectId, out var battlefieldState)
@@ -1222,6 +1258,104 @@ public sealed class CoreRuleEngine : IRuleEngine
             BuildCorePrompts(nextState));
     }
 
+    private static ResolutionResult ResolveBattlefieldConquerPowerfulDrawTriggerPayment(
+        MatchState state,
+        PlayerIntent intent,
+        PendingPaymentState pendingPayment,
+        IReadOnlyList<string> submittedChoices,
+        string battlefieldId,
+        string battlefieldObjectId,
+        string sourceObjectId)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var resolvedBattlefieldObjectId, out var battlefieldState)
+            || !string.Equals(resolvedBattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+            || !IsBattlefieldConquerPowerfulPayOneDrawCardNo(battlefieldState.CardNo)
+            || !TryGetSurvivingPowerfulUnit(cardObjects, playerZones, sourceObjectId, out var powerfulObjectId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "当前触发支付窗口的沉没神庙来源已不可用。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var runePools = PayRuneCosts(
+            state,
+            intent.PlayerId,
+            pendingPayment.ManaCost,
+            pendingPayment.PowerCost,
+            pendingPayment.PowerCostByTrait);
+        var events = new List<GameEvent>
+        {
+            new(
+                "COST_PAID",
+                $"{intent.PlayerId} 支付沉没神庙征服触发费用",
+                PaymentCostRules.BuildCostPaidPayload(
+                    pendingPayment.PaymentId,
+                    pendingPayment.PaymentWindow,
+                    intent.PlayerId,
+                    runePools,
+                    null,
+                    new Dictionary<string, object?>
+                    {
+                        ["mana"] = pendingPayment.ManaCost,
+                        ["power"] = pendingPayment.PowerCost,
+                        ["powerByTrait"] = pendingPayment.PowerCostByTrait,
+                        ["paymentChoiceIds"] = submittedChoices.ToArray(),
+                        ["reason"] = BattlefieldConquerPowerfulPayOneDrawEffectKind
+                    })),
+            new(
+                "BATTLEFIELD_TRIGGER_RESOLVED",
+                $"{intent.PlayerId} 征服战场并以强力单位抽牌",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["battlefieldId"] = battlefieldId,
+                    ["battlefieldObjectId"] = battlefieldObjectId,
+                    ["battlefieldCardNo"] = battlefieldState.CardNo,
+                    ["trigger"] = BattlefieldConquerPowerfulPayOneDrawEffectKind,
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["powerfulObjectId"] = powerfulObjectId,
+                    ["drawCount"] = 1,
+                    ["paymentId"] = pendingPayment.PaymentId,
+                    ["paymentWindow"] = pendingPayment.PaymentWindow
+                })
+        };
+
+        var drawApplication = ApplyDrawToPlayer(
+            state,
+            playerZones,
+            state.PlayerScores,
+            intent.PlayerId,
+            1,
+            state.RngCursor,
+            events);
+        events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
+
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            RunePools = runePools,
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            PlayerScores = drawApplication.PlayerScores,
+            RngCursor = drawApplication.RngCursor,
+            PendingPayment = null,
+            Status = drawApplication.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
+            WinnerPlayerId = drawApplication.WinnerPlayerId ?? state.WinnerPlayerId
+        };
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
     private static ResolutionResult ResolveTriggerPaymentDecline(
         MatchState state,
         PlayerIntent intent,
@@ -1284,6 +1418,17 @@ public sealed class CoreRuleEngine : IRuleEngine
             payload["battlefieldObjectId"] = battlefieldObjectId;
             payload["sourceObjectId"] = sourceObjectId;
         }
+        else if (TryReadBattlefieldConquerPowerfulDrawPaymentContext(
+                     pendingPayment,
+                     out battlefieldId,
+                     out battlefieldObjectId,
+                     out sourceObjectId))
+        {
+            payload["trigger"] = BattlefieldConquerPowerfulPayOneDrawEffectKind;
+            payload["battlefieldId"] = battlefieldId;
+            payload["battlefieldObjectId"] = battlefieldObjectId;
+            payload["sourceObjectId"] = sourceObjectId;
+        }
 
         return payload;
     }
@@ -1319,6 +1464,50 @@ public sealed class CoreRuleEngine : IRuleEngine
         var parts = pendingPayment.Reason.Split('|', StringSplitOptions.None);
         if (parts.Length != 4
             || !string.Equals(parts[0], BattlefieldConquerPayOneCreateGoldEffectKind, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(parts[1])
+            || string.IsNullOrWhiteSpace(parts[2])
+            || string.IsNullOrWhiteSpace(parts[3]))
+        {
+            return false;
+        }
+
+        battlefieldId = parts[1];
+        battlefieldObjectId = parts[2];
+        sourceObjectId = parts[3];
+        return true;
+    }
+
+    private static string BuildBattlefieldConquerPowerfulDrawPaymentReason(
+        string battlefieldId,
+        string battlefieldObjectId,
+        string sourceObjectId)
+    {
+        return string.Join(
+            '|',
+            BattlefieldConquerPowerfulPayOneDrawEffectKind,
+            battlefieldId,
+            battlefieldObjectId,
+            sourceObjectId);
+    }
+
+    private static bool TryReadBattlefieldConquerPowerfulDrawPaymentContext(
+        PendingPaymentState pendingPayment,
+        out string battlefieldId,
+        out string battlefieldObjectId,
+        out string sourceObjectId)
+    {
+        battlefieldId = string.Empty;
+        battlefieldObjectId = string.Empty;
+        sourceObjectId = string.Empty;
+        if (!string.Equals(pendingPayment.PaymentWindow, TriggerPaymentWindow, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(pendingPayment.Reason))
+        {
+            return false;
+        }
+
+        var parts = pendingPayment.Reason.Split('|', StringSplitOptions.None);
+        if (parts.Length != 4
+            || !string.Equals(parts[0], BattlefieldConquerPowerfulPayOneDrawEffectKind, StringComparison.Ordinal)
             || string.IsNullOrWhiteSpace(parts[1])
             || string.IsNullOrWhiteSpace(parts[2])
             || string.IsNullOrWhiteSpace(parts[3]))
@@ -8918,24 +9107,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                 attackerObjectId);
             runePools = battlefieldReadyLegendTrigger.RunePools;
             combatEvents.AddRange(battlefieldReadyLegendTrigger.Events);
-            if (TryResolveBattlefieldConquerPowerfulPayOneDrawTrigger(
-                    state,
+            if (TryOpenBattlefieldConquerPowerfulPayOneDrawPaymentWindow(
                     playerZones,
                     cardObjects,
-                    runePools,
-                    playerScores,
                     intent.PlayerId,
                     battlefieldId,
                     attackerObjectId,
-                    rngCursor,
+                    state.Tick + 1,
                     combatEvents,
-                    out var battlefieldPowerfulDrawRunePools,
-                    out var battlefieldPowerfulDrawApplication))
+                    out var battlefieldPowerfulDrawPendingPayment))
             {
-                runePools = battlefieldPowerfulDrawRunePools;
-                playerScores = battlefieldPowerfulDrawApplication.PlayerScores;
-                winnerPlayerId = battlefieldPowerfulDrawApplication.WinnerPlayerId;
-                rngCursor = battlefieldPowerfulDrawApplication.RngCursor;
+                pendingPayment = battlefieldPowerfulDrawPendingPayment;
             }
             if (TryOpenBattlefieldConquerPayOneCreateGoldPaymentWindow(
                     playerZones,
@@ -14196,73 +14378,60 @@ public sealed class CoreRuleEngine : IRuleEngine
         ]);
     }
 
-    private static bool TryResolveBattlefieldConquerPowerfulPayOneDrawTrigger(
-        MatchState state,
+    private static bool TryOpenBattlefieldConquerPowerfulPayOneDrawPaymentWindow(
         Dictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        IReadOnlyDictionary<string, RunePool> runePools,
-        IReadOnlyDictionary<string, int> playerScores,
         string playerId,
         string battlefieldId,
         string sourceObjectId,
-        long rngCursor,
+        long paymentTick,
         List<GameEvent> events,
-        out IReadOnlyDictionary<string, RunePool> nextRunePools,
-        out DrawApplicationResult drawApplication)
+        out PendingPaymentState? pendingPayment)
     {
-        nextRunePools = runePools;
-        drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
+        pendingPayment = null;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !IsBattlefieldConquerPowerfulPayOneDrawCardNo(battlefieldState.CardNo)
-            || !TryGetSurvivingPowerfulUnit(cardObjects, playerZones, sourceObjectId, out var powerfulObjectId))
+            || !TryGetSurvivingPowerfulUnit(cardObjects, playerZones, sourceObjectId, out _))
         {
             return false;
         }
 
-        var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
-        if (currentPool.Mana < BattlefieldPowerfulDrawManaCost)
-        {
-            return false;
-        }
-
-        var mutableRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        mutableRunePools[playerId] = currentPool with
-        {
-            Mana = currentPool.Mana - BattlefieldPowerfulDrawManaCost
-        };
-        nextRunePools = mutableRunePools;
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            paymentTick,
+            TriggerPaymentWindow,
+            playerId,
+            sourceObjectId: battlefieldObjectId);
+        pendingPayment = new PendingPaymentState(
+            paymentId,
+            TriggerPaymentWindow,
+            playerId,
+            manaCost: BattlefieldPowerfulDrawManaCost,
+            legalPaymentChoiceIds: [SpendOneManaPaymentChoiceId, DeclinePaymentChoiceId],
+            reason: BuildBattlefieldConquerPowerfulDrawPaymentReason(battlefieldId, battlefieldObjectId, sourceObjectId));
         events.Add(new GameEvent(
-            "BATTLEFIELD_TRIGGER_RESOLVED",
-            $"{playerId} 征服战场并以强力单位抽牌",
+            "PAYMENT_WINDOW_OPENED",
+            $"{playerId} 征服沉没神庙后等待支付抽牌触发费用",
             new Dictionary<string, object?>
             {
+                ["paymentId"] = paymentId,
+                ["paymentWindow"] = TriggerPaymentWindow,
                 ["playerId"] = playerId,
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW",
+                ["trigger"] = BattlefieldConquerPowerfulPayOneDrawEffectKind,
                 ["sourceObjectId"] = sourceObjectId,
-                ["powerfulObjectId"] = powerfulObjectId,
-                ["drawCount"] = 1
-            }));
-        events.Add(new GameEvent(
-            "COST_PAID",
-            $"{playerId} 支付沉没神庙征服触发费用",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
                 ["mana"] = BattlefieldPowerfulDrawManaCost,
                 ["power"] = 0,
-                ["reason"] = "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW"
+                ["cost"] = new Dictionary<string, object?>
+                {
+                    ["mana"] = BattlefieldPowerfulDrawManaCost,
+                    ["power"] = 0,
+                    ["powerByTrait"] = new Dictionary<string, int>(StringComparer.Ordinal)
+                },
+                ["paymentChoices"] = new[] { SpendOneManaPaymentChoiceId, DeclinePaymentChoiceId },
+                ["reason"] = BattlefieldConquerPowerfulPayOneDrawEffectKind
             }));
-        drawApplication = ApplyDrawToPlayer(
-            state,
-            playerZones,
-            playerScores,
-            playerId,
-            1,
-            rngCursor,
-            events);
         return true;
     }
 
