@@ -76,6 +76,8 @@
 
 阶段 4C-39 补 Zhonya's Hourglass / 中娅沙漏 ordinary hand play-equipment target guard representative baseline；standby / reaction timing、destroy replacement recall、完整 equipment / layer / FAQ、hidden info、1009/811 与 final 18-step E2E 仍不代表 READY。
 
+阶段 4C-40 补 Sea Monster Hook / 海兽钓钩 ordinary hand play-equipment target guard representative baseline；activated ability、destroy friendly unit、top-five look / choice、free play、recycle remainder、hidden / zone / payment / layer / FAQ、1009/811 与 final 18-step E2E 仍不代表 READY。
+
 | 阶段 3 流程 | 证据入口 | 必须证明的审计点 |
 |---|---|---|
 | 创建 / 加入 / 重连 | `CORE-260330` rules 107-129；工程会话契约 | 双浏览器上下文不得共享授权状态；snapshot/prompt 只能按 viewer 下发；重连恢复不能泄漏隐藏信息。 |
@@ -488,6 +490,15 @@
 |---|---|---|---|
 | Play-equipment route | `CATALOG` `OGN·077/298`；cardId `31291`；FU `FU-fb79eea7fc`；`CORE-260330` p39-p42 rules 355-356 | ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base equipment | standby / reaction timing |
 | Play guard | `CORE-260330` p4-p8 rules 107-129；p39-p42 rules 355-356 | explicit target、source not in hand / wrong zone、opponent source、face-down standby source、insufficient mana all rejected with no mutation / no leak | destroy replacement recall、full equipment/layer/FAQ、hidden info、1009/811、final E2E |
+
+### 6.36 阶段 4C-40 Sea Monster Hook play guard 证据入口
+
+阶段 4C-40 细化审计见 `docs/CURRENT_STAGE4C_BATCH40_SEA_MONSTER_HOOK_PLAY_GUARD_AUDIT.md`，证据见 `docs/CURRENT_STAGE4C_BATCH40_SEA_MONSTER_HOOK_PLAY_GUARD_EVIDENCE.md`。本节提供 Sea Monster Hook / 海兽钓钩 `OGN·242/298` / cardId `31482` / `FU-2653af0380` play-equipment target guard representative baseline；Core gap none；A/B focused 通过 272/272；不表示项目 READY，`fullOfficial=false`。
+
+| 规则域 | 证据入口 | 当前 4C-40 状态 | 仍缺 |
+|---|---|---|---|
+| Play-equipment route | `CATALOG` `OGN·242/298`；cardId `31482`；FU `FU-2653af0380`；`CORE-260330` p39-p42 rules 355-356 | ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base equipment | activated ability and full official effect |
+| Play guard | `CORE-260330` p4-p8 rules 107-129；p39-p42 rules 355-356 | explicit target、wrong zone / source、opponent source、face-down standby source、insufficient mana all rejected with no mutation / no leak | pay 1 + yellow + exhaust、destroy friendly unit、top-five look / choice、free play、recycle remainder、hidden / zone / payment / layer / FAQ、1009/811、final E2E |
 
 | 规则域 | 证据入口 | 当前 4C-32 状态 | 仍缺 |
 |---|---|---|---|
@@ -1370,8 +1381,8 @@
 | `p4-play-blade-of-ruined-king-target-rejected` | `RULE_AUDITED` | `CATALOG` SFD·178/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方装备《破败王者之刃》当前打出路径携带显式目标会拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不入场装备、不创建结算链；第三百四十二批另验证基地来源携带 `ASSEMBLE_YELLOW` 与 `DESTROY_FRIENDLY_UNIT:<id>` 可装配，缺少或非法额外费用仍拒绝且零副作用。 |
 | `p2-preflight-play-mysterious-weapon-equipment` | `RULE_AUDITED` | `CATALOG` OGN·023/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方装备《来路不明的武器》从手牌打出时支付 2 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为带 `CARD_TYPE:EQUIPMENT` 标签的装备对象；P4.225 已补带目标打出拒绝 fixture，弃牌横置和摧毁替代效果暂缓。 |
 | `p4-play-mysterious-weapon-target-rejected` | `RULE_AUDITED` | `CATALOG` OGN·023/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方装备《来路不明的武器》当前打出路径携带显式目标会拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不入场装备、不创建结算链；弃牌横置和摧毁替代效果暂缓。 |
-| `p2-preflight-play-sea-monster-hook-equipment` | `RULE_AUDITED` | `CATALOG` OGN·242/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方装备《海兽钓钩》从手牌打出时支付 3 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为带 `CARD_TYPE:EQUIPMENT` 标签的装备对象；P4.226 已补带目标打出拒绝 fixture，激活、摧毁、查看和免费打出分支暂缓。 |
-| `p4-play-sea-monster-hook-target-rejected` | `RULE_AUDITED` | `CATALOG` OGN·242/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方装备《海兽钓钩》当前打出路径携带显式目标会拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不入场装备、不创建结算链；激活、摧毁、查看和免费打出分支暂缓。 |
+| `p2-preflight-play-sea-monster-hook-equipment` | `RULE_AUDITED` | `CATALOG` OGN·242/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方装备《海兽钓钩》从手牌打出时支付 3 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为带 `CARD_TYPE:EQUIPMENT` 标签的装备对象；P4.226 已补带目标打出拒绝 fixture；4C-40 补 wrong zone / source、opponent source、face-down standby source、insufficient mana no-mutation / no-leak guard。激活、摧毁、查看和免费打出分支暂缓。 |
+| `p4-play-sea-monster-hook-target-rejected` | `RULE_AUDITED` | `CATALOG` OGN·242/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方装备《海兽钓钩》当前打出路径携带显式目标会拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不入场装备、不创建结算链；4C-40 将其纳入 play-equipment target guard representative baseline。激活、摧毁、查看和免费打出分支暂缓。 |
 | `p2-preflight-play-petricite-monument-equipment-ephemeral` | `RULE_AUDITED` | `CATALOG` SFD·104/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方装备《禁魔石丰碑》从手牌打出时支付 2 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为带 `CARD_TYPE:EQUIPMENT` 与 `瞬息` 标签的装备对象；P4.227 已补带目标打出拒绝 fixture，友方单位法盾静态效果和开始阶段瞬息摧毁暂缓。 |
 | `p4-play-petricite-monument-target-rejected` | `RULE_AUDITED` | `CATALOG` SFD·104/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方装备《禁魔石丰碑》当前打出路径携带显式目标会拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不入场装备、不创建结算链；友方单位法盾静态效果和开始阶段瞬息摧毁暂缓。 |
 | `p2-preflight-play-zhonyas-hourglass-equipment` | `RULE_AUDITED` | `CATALOG` OGN·077/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方装备《中娅沙漏》从手牌正常打出时支付 2 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为带 `CARD_TYPE:EQUIPMENT` 标签的装备对象；P4.228 已补带目标打出拒绝 fixture；4C-39 补 source not in hand / wrong zone、opponent source、face-down standby source、insufficient mana no-mutation / no-leak guard。待命/反应时机和摧毁替代召回效果暂缓。 |

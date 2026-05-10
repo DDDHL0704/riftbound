@@ -910,6 +910,19 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Hostile Takeover 代表路径外推完整待命、反应时机、开战/征服、control lifecycle、end-turn cleanup、targeting、PaymentEngine、FEPR、named deferred candidates 或 full-official。
 
+## 0.1.18 阶段 4C-40 Sea Monster Hook Checkpoint
+
+状态：**4C-40 checkpoint ready；项目仍 NOT READY。**
+
+阶段 4C-40 名称：Sea Monster Hook play-equipment target guard representative baseline。
+
+- B 完成 Sea Monster Hook / 海兽钓钩 `OGN·242/298` / cardId `31482` / `FU-2653af0380` / `SEA_MONSTER_HOOK_PLAY_EQUIPMENT` guard slice；Core gap none，Core 无改动。
+- 已覆盖 ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base equipment。
+- 已覆盖 explicit target、wrong zone / source、opponent source、face-down standby source、insufficient mana no mutation / no leak guard。
+- 验证记录：A/B focused 通过 272/272；A backend full 3558/3558 通过；A frontend build 通过；A Chrome smoke 通过；`jq empty` / matrix targeted assert / `git diff --check` 通过。
+- 本批只关闭 Sea Monster Hook 普通 hand play-equipment target guard representative evidence。
+- 仍保持 `fullOfficial=false`；不宣称 READY / READY-CANDIDATE；不关闭 activated ability：pay 1 + yellow + exhaust、destroy friendly unit、top-five look / choice、free play、recycle remainder、hidden / zone / payment / layer / FAQ、1009/811 或 final 18-step E2E。
+
 ## 0.1.17 阶段 4C-39 Zhonya's Hourglass Checkpoint
 
 状态：**4C-39 checkpoint ready；项目仍 NOT READY。**
