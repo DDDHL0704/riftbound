@@ -80,6 +80,8 @@
 
 阶段 4C-41 补 Giant Arm Kato / 巨腕加藤 ordinary hand play-unit keyword-tag target guard representative baseline；Spellshield target tax、move-to-battlefield trigger、friendly-unit choice / prompt、keyword grant、+power until EOT、LayerEngine / duration cleanup、movement / control matrix、FAQ、1009/811 与 final 18-step E2E 仍不代表 READY。
 
+阶段 4C-42 补 Time Gate / 预时之门 ordinary hand play-equipment target guard representative baseline；activated / tap ability、payment `[A]`、next spell gains Echo、optional echo payment / repeat、duration cleanup、equipment exhaust / readiness lifecycle、FAQ timing、1009/811 与 final 18-step E2E 仍不代表 READY。
+
 | 阶段 3 流程 | 证据入口 | 必须证明的审计点 |
 |---|---|---|
 | 创建 / 加入 / 重连 | `CORE-260330` rules 107-129；工程会话契约 | 双浏览器上下文不得共享授权状态；snapshot/prompt 只能按 viewer 下发；重连恢复不能泄漏隐藏信息。 |
@@ -510,6 +512,15 @@
 |---|---|---|---|
 | Play-unit route | `CATALOG` `SFD·112/221`；cardId `33198`；FU `FU-464ec8c275`；`CORE-260330` p39-p42 rules 355-356；p92-p105 keyword rules 800+ | ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 3，tags `CARD_TYPE:UNIT` + `法盾` | full official Kato effect |
 | Play guard | `CORE-260330` p4-p8 rules 107-129；p39-p42 rules 355-356 | explicit target、wrong zone / source、opponent source、face-down standby source、insufficient mana all rejected with no mutation / no leak | Spellshield target tax、move-to-battlefield trigger、friendly-unit choice / prompt、keyword grant、+power until EOT、LayerEngine / duration cleanup、movement / control matrix、FAQ、1009/811、final E2E |
+
+### 6.38 阶段 4C-42 Time Gate play guard 证据入口
+
+阶段 4C-42 细化审计见 `docs/CURRENT_STAGE4C_BATCH42_TIME_GATE_PLAY_GUARD_AUDIT.md`，证据见 `docs/CURRENT_STAGE4C_BATCH42_TIME_GATE_PLAY_GUARD_EVIDENCE.md`。本节提供 Time Gate / 预时之门 `SFD·078/221` / cardId `33158` / `FU-081d97eb3e` play-equipment target guard representative baseline；Core gap none；A/B focused 通过 292/292；不表示项目 READY，`fullOfficial=false`。
+
+| 规则域 | 证据入口 | 当前 4C-42 状态 | 仍缺 |
+|---|---|---|---|
+| Play-equipment route | `CATALOG` `SFD·078/221`；cardId `33158`；FU `FU-081d97eb3e`；`CORE-260330` p39-p42 rules 355-356 | ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base equipment | full official Time Gate effect |
+| Play guard | `CORE-260330` p4-p8 rules 107-129；p39-p42 rules 355-356 | explicit target、wrong zone / source、opponent source、face-down standby source、insufficient mana all rejected with no mutation / no leak | activated / tap ability、payment `[A]`、next spell gains Echo、optional echo payment / repeat、duration cleanup、equipment exhaust / readiness lifecycle、FAQ timing、1009/811、final E2E |
 
 | 规则域 | 证据入口 | 当前 4C-32 状态 | 仍缺 |
 |---|---|---|---|
@@ -1304,8 +1315,8 @@
 | `p4-play-hextech-anomaly-target-rejected` | `RULE_AUDITED` | `CATALOG` SFD·083/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方装备《海克斯异常体》当前打出路径携带显式目标会拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不入场装备、不创建结算链；横置资源技能暂缓。 |
 | `p2-preflight-play-energy-channel-equipment` | `RULE_AUDITED` | `CATALOG` OGN·098/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方装备《能量通道》从手牌打出时支付 3 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为带 `CARD_TYPE:EQUIPMENT` 标签的装备对象；P4.181 已补带目标打出拒绝 fixture，横置资源技能暂缓。 |
 | `p4-play-energy-channel-target-rejected` | `RULE_AUDITED` | `CATALOG` OGN·098/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方装备《能量通道》当前打出路径携带显式目标会拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不入场装备、不创建结算链；横置资源技能暂缓。 |
-| `p2-preflight-play-time-gate-equipment` | `RULE_AUDITED` | `CATALOG` SFD·078/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方装备《预时之门》从手牌打出时支付 3 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为带 `CARD_TYPE:EQUIPMENT` 标签的装备对象；P4.182 已补带目标打出拒绝 fixture，横置回响授予技能暂缓。 |
-| `p4-play-time-gate-target-rejected` | `RULE_AUDITED` | `CATALOG` SFD·078/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方装备《预时之门》当前打出路径携带显式目标会拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不入场装备、不创建结算链；横置回响授予技能暂缓。 |
+| `p2-preflight-play-time-gate-equipment` | `RULE_AUDITED` | `CATALOG` SFD·078/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方装备《预时之门》从手牌打出时支付 3 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为带 `CARD_TYPE:EQUIPMENT` 标签的装备对象；P4.182 已补带目标打出拒绝 fixture；4C-42 补 wrong zone / source、opponent source、face-down standby source、insufficient mana no-mutation / no-leak guard。横置回响授予技能暂缓。 |
+| `p4-play-time-gate-target-rejected` | `RULE_AUDITED` | `CATALOG` SFD·078/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方装备《预时之门》当前打出路径携带显式目标会拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不入场装备、不创建结算链；4C-42 将其纳入 play-equipment target guard representative baseline。横置回响授予技能暂缓。 |
 | `p2-preflight-play-raven-tome-equipment` | `RULE_AUDITED` | `CATALOG` OGN·032/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方装备《邪鸦魔典》从手牌打出时支付 3 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为带 `CARD_TYPE:EQUIPMENT` 标签的装备对象；P4.183 已补带目标打出拒绝 fixture，横置法术伤害修正技能暂缓。 |
 | `p4-play-raven-tome-target-rejected` | `RULE_AUDITED` | `CATALOG` OGN·032/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方装备《邪鸦魔典》当前打出路径携带显式目标会拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不入场装备、不创建结算链；横置法术伤害修正技能暂缓。 |
 | `p2-preflight-play-sun-disc-equipment` | `RULE_AUDITED` | `CATALOG` OGN·021/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方装备《太阳圆盘》从手牌打出时支付 2 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为带 `CARD_TYPE:EQUIPMENT` 标签的装备对象；P4.184 已补带目标打出拒绝 fixture，横置鼓舞技能暂缓。 |
