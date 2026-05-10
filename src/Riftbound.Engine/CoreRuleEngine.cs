@@ -684,6 +684,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string OgnVayneConquerPayOneRecallEffectKind = "OGN_VAYNE_CONQUER_PAY_1_RECALL";
     private const string IcevaleArcherCardNo = "UNL-065/219";
     private const string IcevaleArcherAttackPayOnePowerMinusOneEffectKind = "ICEVALE_ARCHER_ATTACK_PAY_1_POWER_MINUS_1";
+    private const string SfdJaxWeaponAttachCardNo = "SFD·119/221";
+    private const string SfdJaxWeaponAttachAltCardNo = "SFD·119a/221";
+    private const string JaxWeaponAttachPayOneDrawEffectKind = "JAX_WEAPON_ATTACH_PAY_1_DRAW_1";
     private const string TriggerPaymentWindow = "TRIGGER_PAYMENT";
     private const string DeclinePaymentChoiceId = "DECLINE";
     private const string SpendOneManaPaymentChoiceId = "SPEND_MANA:1";
@@ -1207,6 +1210,20 @@ public sealed class CoreRuleEngine : IRuleEngine
                 icevaleTargetObjectId);
         }
 
+        if (TryReadJaxWeaponAttachPaymentContext(
+                pendingPayment,
+                out var jaxSourceObjectId,
+                out var jaxEquipmentObjectId))
+        {
+            return ResolveJaxWeaponAttachTriggerPayment(
+                state,
+                intent,
+                pendingPayment,
+                submittedChoices,
+                jaxSourceObjectId,
+                jaxEquipmentObjectId);
+        }
+
         return RejectWithCorePrompts(
             state,
             "当前触发支付窗口缺少服务端上下文。",
@@ -1608,6 +1625,97 @@ public sealed class CoreRuleEngine : IRuleEngine
             BuildCorePrompts(nextState));
     }
 
+    private static ResolutionResult ResolveJaxWeaponAttachTriggerPayment(
+        MatchState state,
+        PlayerIntent intent,
+        PendingPaymentState pendingPayment,
+        IReadOnlyList<string> submittedChoices,
+        string sourceObjectId,
+        string equipmentObjectId)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        if (!TryGetJaxWeaponAttachSource(cardObjects, playerZones, intent.PlayerId, sourceObjectId, out _)
+            || !TryGetAttachedArmamentForJax(cardObjects, playerZones, intent.PlayerId, sourceObjectId, equipmentObjectId, out var equipmentState))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "当前触发支付窗口的贾克斯或武装来源已不可用。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var runePools = PayRuneCosts(
+            state,
+            intent.PlayerId,
+            pendingPayment.ManaCost,
+            pendingPayment.PowerCost,
+            pendingPayment.PowerCostByTrait);
+        var events = new List<GameEvent>
+        {
+            new(
+                "COST_PAID",
+                $"{intent.PlayerId} 支付贾克斯贴附武装触发费用",
+                PaymentCostRules.BuildCostPaidPayload(
+                    pendingPayment.PaymentId,
+                    pendingPayment.PaymentWindow,
+                    intent.PlayerId,
+                    runePools,
+                    null,
+                    new Dictionary<string, object?>
+                    {
+                        ["mana"] = pendingPayment.ManaCost,
+                        ["power"] = pendingPayment.PowerCost,
+                        ["powerByTrait"] = pendingPayment.PowerCostByTrait,
+                        ["paymentChoiceIds"] = submittedChoices.ToArray(),
+                        ["reason"] = JaxWeaponAttachPayOneDrawEffectKind
+                    })),
+            new(
+                "TRIGGER_RESOLVED",
+                $"{intent.PlayerId} 的贾克斯贴附武装后抽牌",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["trigger"] = JaxWeaponAttachPayOneDrawEffectKind,
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["equipmentObjectId"] = equipmentObjectId,
+                    ["equipmentCardNo"] = equipmentState.CardNo,
+                    ["drawCount"] = 1,
+                    ["paymentId"] = pendingPayment.PaymentId,
+                    ["paymentWindow"] = pendingPayment.PaymentWindow
+                })
+        };
+
+        var drawApplication = ApplyDrawToPlayer(
+            state,
+            playerZones,
+            state.PlayerScores,
+            intent.PlayerId,
+            1,
+            state.RngCursor,
+            events);
+        events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
+
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            RunePools = runePools,
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            PlayerScores = drawApplication.PlayerScores,
+            RngCursor = drawApplication.RngCursor,
+            PendingPayment = null,
+            Status = drawApplication.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
+            WinnerPlayerId = drawApplication.WinnerPlayerId ?? state.WinnerPlayerId
+        };
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
     private static ResolutionResult ResolveTriggerPaymentDecline(
         MatchState state,
         PlayerIntent intent,
@@ -1702,6 +1810,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             payload["battlefieldId"] = battlefieldId;
             payload["sourceObjectId"] = sourceObjectId;
             payload["targetObjectId"] = targetObjectId;
+        }
+        else if (TryReadJaxWeaponAttachPaymentContext(
+                     pendingPayment,
+                     out sourceObjectId,
+                     out var equipmentObjectId))
+        {
+            payload["trigger"] = JaxWeaponAttachPayOneDrawEffectKind;
+            payload["sourceObjectId"] = sourceObjectId;
+            payload["equipmentObjectId"] = equipmentObjectId;
         }
 
         return payload;
@@ -1880,6 +1997,44 @@ public sealed class CoreRuleEngine : IRuleEngine
         battlefieldId = parts[1];
         sourceObjectId = parts[2];
         targetObjectId = parts[3];
+        return true;
+    }
+
+    private static string BuildJaxWeaponAttachPaymentReason(
+        string sourceObjectId,
+        string equipmentObjectId)
+    {
+        return string.Join(
+            '|',
+            JaxWeaponAttachPayOneDrawEffectKind,
+            sourceObjectId,
+            equipmentObjectId);
+    }
+
+    private static bool TryReadJaxWeaponAttachPaymentContext(
+        PendingPaymentState pendingPayment,
+        out string sourceObjectId,
+        out string equipmentObjectId)
+    {
+        sourceObjectId = string.Empty;
+        equipmentObjectId = string.Empty;
+        if (!string.Equals(pendingPayment.PaymentWindow, TriggerPaymentWindow, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(pendingPayment.Reason))
+        {
+            return false;
+        }
+
+        var parts = pendingPayment.Reason.Split('|', StringSplitOptions.None);
+        if (parts.Length != 3
+            || !string.Equals(parts[0], JaxWeaponAttachPayOneDrawEffectKind, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(parts[1])
+            || string.IsNullOrWhiteSpace(parts[2]))
+        {
+            return false;
+        }
+
+        sourceObjectId = parts[1];
+        equipmentObjectId = parts[2];
         return true;
     }
 
@@ -3870,6 +4025,25 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["optionalCosts"] = optionalCosts.ToArray(),
                     ["paymentResourceActions"] = paymentResourceActions.ToArray()
                 }));
+
+        PendingPaymentState? pendingPayment = null;
+        if (TryOpenJaxWeaponAttachPaymentWindow(
+                playerZones,
+                cardObjects,
+                intent.PlayerId,
+                command.TargetObjectId,
+                command.SourceObjectId,
+                state.Tick + 1,
+                events,
+                out var jaxPendingPayment))
+        {
+            pendingPayment = jaxPendingPayment;
+        }
+
+        nextState = nextState with
+        {
+            PendingPayment = pendingPayment
+        };
 
         return new ResolutionResult(
             true,
@@ -15128,6 +15302,112 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["reason"] = IcevaleArcherAttackPayOnePowerMinusOneEffectKind
             }));
         return true;
+    }
+
+    private static bool TryOpenJaxWeaponAttachPaymentWindow(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string sourceObjectId,
+        string equipmentObjectId,
+        long paymentTick,
+        List<GameEvent> events,
+        out PendingPaymentState? pendingPayment)
+    {
+        pendingPayment = null;
+        if (!TryGetJaxWeaponAttachSource(cardObjects, playerZones, playerId, sourceObjectId, out _)
+            || !TryGetAttachedArmamentForJax(cardObjects, playerZones, playerId, sourceObjectId, equipmentObjectId, out var equipmentState))
+        {
+            return false;
+        }
+
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            paymentTick,
+            TriggerPaymentWindow,
+            playerId,
+            sourceObjectId: sourceObjectId);
+        pendingPayment = new PendingPaymentState(
+            paymentId,
+            TriggerPaymentWindow,
+            playerId,
+            manaCost: 1,
+            legalPaymentChoiceIds: [SpendOneManaPaymentChoiceId, DeclinePaymentChoiceId],
+            reason: BuildJaxWeaponAttachPaymentReason(sourceObjectId, equipmentObjectId));
+        events.Add(new GameEvent(
+            "PAYMENT_WINDOW_OPENED",
+            $"{playerId} 的贾克斯贴附武装后等待支付抽牌触发费用",
+            new Dictionary<string, object?>
+            {
+                ["paymentId"] = paymentId,
+                ["paymentWindow"] = TriggerPaymentWindow,
+                ["playerId"] = playerId,
+                ["trigger"] = JaxWeaponAttachPayOneDrawEffectKind,
+                ["sourceObjectId"] = sourceObjectId,
+                ["equipmentObjectId"] = equipmentObjectId,
+                ["equipmentCardNo"] = equipmentState.CardNo,
+                ["mana"] = 1,
+                ["power"] = 0,
+                ["cost"] = new Dictionary<string, object?>
+                {
+                    ["mana"] = 1,
+                    ["power"] = 0,
+                    ["powerByTrait"] = new Dictionary<string, int>(StringComparer.Ordinal)
+                },
+                ["paymentChoices"] = new[] { SpendOneManaPaymentChoiceId, DeclinePaymentChoiceId },
+                ["reason"] = JaxWeaponAttachPayOneDrawEffectKind
+            }));
+        return true;
+    }
+
+    private static bool TryGetJaxWeaponAttachSource(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string playerId,
+        string sourceObjectId,
+        out CardObjectState sourceState)
+    {
+        sourceState = default!;
+        if (!cardObjects.TryGetValue(sourceObjectId, out var candidate))
+        {
+            return false;
+        }
+
+        sourceState = candidate;
+        return IsJaxWeaponAttachCardNo(sourceState.CardNo)
+            && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !sourceState.IsFaceDown
+            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
+            && IsObjectOnField(playerZones, sourceObjectId);
+    }
+
+    private static bool TryGetAttachedArmamentForJax(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string playerId,
+        string sourceObjectId,
+        string equipmentObjectId,
+        out CardObjectState equipmentState)
+    {
+        equipmentState = default!;
+        if (!cardObjects.TryGetValue(equipmentObjectId, out var candidate))
+        {
+            return false;
+        }
+
+        equipmentState = candidate;
+        return candidate.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            && candidate.Tags.Contains("武装", StringComparer.Ordinal)
+            && !candidate.IsFaceDown
+            && string.Equals(candidate.AttachedToObjectId, sourceObjectId, StringComparison.Ordinal)
+            && SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
+            && IsObjectOnField(playerZones, equipmentObjectId);
+    }
+
+    private static bool IsJaxWeaponAttachCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, SfdJaxWeaponAttachCardNo, StringComparison.Ordinal)
+            || string.Equals(cardNo, SfdJaxWeaponAttachAltCardNo, StringComparison.Ordinal);
     }
 
     private static bool TryGetIcevaleArcherAttackSource(

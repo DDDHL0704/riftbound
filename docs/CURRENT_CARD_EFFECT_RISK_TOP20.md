@@ -2,11 +2,11 @@
 
 更新时间：2026-05-10
 
-阶段：**阶段 4C-24 / E 卡牌覆盖矩阵 post-freeze overlay**
+阶段：**阶段 4C-26 / E 卡牌覆盖矩阵 post-freeze overlay**
 
 结论：**NOT READY；不允许进入 1009 张卡牌效果批量覆盖。**
 
-本文以阶段 2 风险排序为基础，并叠加阶段 3A/3B/3C/3D 的最小证据 overlay、阶段 4B 冻结状态、阶段 4C-1 APNAP `ORDER_TRIGGERS` 部分 blocker 降低、阶段 4C-2/4C-3 real trigger enqueue、阶段 4C-4 trigger payment、阶段 4C-5 Watchful state-based cleanup trigger enqueue、阶段 4C-6 Honest Broker state-based cleanup trigger enqueue、阶段 4C-7 Scouting Warhawk explicit destroy trigger enqueue、阶段 4C-8 Scouting Warhawk state-based cleanup trigger enqueue、阶段 4C-9 Sad/Loyal Poro conditional cleanup trigger enqueue、阶段 4C-10 Unsung Hero powerful cleanup trigger enqueue、阶段 4C-11 Ghostly Centaur friendly-destroyed cleanup trigger enqueue、阶段 4C-12 Resonant Soul first-friendly-destroyed cleanup trigger enqueue、阶段 4C-13 true stack destruction route migration、阶段 4C-14 Savage Jawfish friendly-destroyed experience trigger enqueue、阶段 4C-15A Minion token family model overlay、阶段 4C-15B Viktor destroyed non-Minion trigger enqueue、阶段 4C-16 / 4C-17 Mechanical Trickster / Ironclad Vanguard true stack last-breath trigger enqueue、阶段 4C-18 Mechanical Trickster + Ironclad Vanguard cleanup trigger enqueue、阶段 4C-19 Kogmaw last-breath AoE damage representative route、阶段 4C-20B Undercover Agent triggered hand-choice prompt、阶段 4C-21 Sunken Temple trigger payment、阶段 4C-22 Muddy Dredger Warhawk representative baseline、阶段 4C-23 Lux high-cost spell temporary power representative baseline 和阶段 4C-24 Vayne conquer pay-one recall representative baseline；它不是功能实现清单，也不是错误断言。排名用于告诉后续阶段先审哪里：哪些 functional unit 同时碰到 FAQ、费用、触发/替换、持续效果、战斗/法术对决、隐藏信息或非 PLAY_CARD 规则域。
+本文以阶段 2 风险排序为基础，并叠加阶段 3A/3B/3C/3D 的最小证据 overlay、阶段 4B 冻结状态、阶段 4C-1 APNAP `ORDER_TRIGGERS` 部分 blocker 降低、阶段 4C-2/4C-3 real trigger enqueue、阶段 4C-4 trigger payment、阶段 4C-5 Watchful state-based cleanup trigger enqueue、阶段 4C-6 Honest Broker state-based cleanup trigger enqueue、阶段 4C-7 Scouting Warhawk explicit destroy trigger enqueue、阶段 4C-8 Scouting Warhawk state-based cleanup trigger enqueue、阶段 4C-9 Sad/Loyal Poro conditional cleanup trigger enqueue、阶段 4C-10 Unsung Hero powerful cleanup trigger enqueue、阶段 4C-11 Ghostly Centaur friendly-destroyed cleanup trigger enqueue、阶段 4C-12 Resonant Soul first-friendly-destroyed cleanup trigger enqueue、阶段 4C-13 true stack destruction route migration、阶段 4C-14 Savage Jawfish friendly-destroyed experience trigger enqueue、阶段 4C-15A Minion token family model overlay、阶段 4C-15B Viktor destroyed non-Minion trigger enqueue、阶段 4C-16 / 4C-17 Mechanical Trickster / Ironclad Vanguard true stack last-breath trigger enqueue、阶段 4C-18 Mechanical Trickster + Ironclad Vanguard cleanup trigger enqueue、阶段 4C-19 Kogmaw last-breath AoE damage representative route、阶段 4C-20B Undercover Agent triggered hand-choice prompt、阶段 4C-21 Sunken Temple trigger payment、阶段 4C-22 Muddy Dredger Warhawk representative baseline、阶段 4C-23 Lux high-cost spell temporary power representative baseline、阶段 4C-24 Vayne conquer pay-one recall representative baseline、阶段 4C-25 Icevale Archer attack payment target-selection representative baseline 和阶段 4C-26 Jax weapon attach pay-one draw-one representative baseline；它不是功能实现清单，也不是错误断言。排名用于告诉后续阶段先审哪里：哪些 functional unit 同时碰到 FAQ、费用、触发/替换、持续效果、战斗/法术对决、隐藏信息或非 PLAY_CARD 规则域。
 
 ## 1. 数据来源
 
@@ -763,7 +763,27 @@ Viktor boundary：
 
 仍缺：完整 trigger engine、PaymentEngine paid-cost matrix、battle/attack lifecycle、targeting matrix、LayerEngine temporary modifier matrix、hidden original visibility、1009/811 full-official 覆盖、正式 18-step E2E。
 
-## 34. Top20 高风险 Functional Units
+## 34. Stage 4C-26 Jax Weapon Attach Pay-One Draw-One Overlay
+
+4C-26 只更新覆盖矩阵 / 风险证据，不升级 full-official。`docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已新增 `stage4CBatch26JaxWeaponAttachPayOneDrawOne`，并只为 `FU-73f3be35df` 增加 `functionalUnits[].stage4C26` overlay。
+
+4C-26 已部分降低的 blocker：
+
+- `FU-73f3be35df` / `SFD·119/221` + `SFD·119a/221` Jax / 《贾克斯》的 weapon / armament attach trigger payment draw representative route。
+- route：visible face-up Jax source -> weapon / armament attached to Jax -> `TRIGGER_PAYMENT` / `PAY_COST` pay 1 -> `SPEND_MANA:1` -> draw 1。
+- `DECLINE` no draw / no mutation；non-Jax / non-armament no prompt；hidden / face-down / standby / opponent-controlled source no leak；insufficient payment no draw。
+- oracle/effectIds 保持 `SFD_119_JAX_ALT_A_NO_OPTIONAL_ASSEMBLE_PLAY_UNIT`、`SFD_119_JAX_NO_OPTIONAL_ASSEMBLE_PLAY_UNIT`。
+- FAQ refs `SOUL-JFAQ-260114 p20`、`SOUL-OFAQ-260114 p11` 仍需 FAQ review；4C-26 不关闭 `百炼` / Assemble 或 attachment FAQ adjudication。
+
+矩阵数字：`stage4C26` verified FUs = 1，verified snapshot entries = 2，cumulative trigger-payment verified FUs = 5，cumulative weapon-attachment payment-draw verified FUs = 1，full-official upgrades = 0，full-official still uncovered FUs = 811。
+
+本批不关闭 complete weapon / equipment attachment rules、complete `百炼` / Assemble flow、SFD-119 family full-official、complete PaymentEngine、hidden/random-zone draw matrix、LayerEngine continuous-effect interactions、FAQ adjudication、1009/811 full-official 或正式 18-step E2E。
+
+后续批量顺序建议：Aphelios / `FU-67c6b0186e` 继续 design-gated，等待 mode-choice / mode-memory 契约；Jax 已有 4C-26 代表覆盖，但 full-official blocker 仍保留。
+
+仍缺：完整 trigger engine、PaymentEngine paid-cost matrix、weapon / equipment attachment matrix、hidden source visibility、hidden/random draw matrix、FAQ adjudication、1009/811 full-official 覆盖、正式 18-step E2E。
+
+## 35. Top20 高风险 Functional Units
 
 | # | FU | Representative | 类型/条目数 | 当前代表映射 | FAQ 候选页 | 风险依据 | 依赖规则域 |
 |---:|---|---|---:|---|---|---|---|

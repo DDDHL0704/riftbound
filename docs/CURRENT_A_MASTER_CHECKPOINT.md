@@ -228,6 +228,64 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Icevale 代表路径外推完整进攻触发、目标选择、支付、战斗恢复、法盾加税、LayerEngine 或隐藏信息矩阵。
 
+## 0.1.4 阶段 4C-26 Jax Checkpoint
+
+状态：**已完成极窄代表切片收口；项目仍 NOT READY。**
+
+本批候选审查事实：
+
+- A 继续复用长期 B/C/D/E 子 agent 池；未创建临时替代 agent，未清理长期 agent。
+- Aphelios / `FU-67c6b0186e` 已由 B/C/D/E 做候选审查。C/D/E 均认为可作为 representative-only batch，但 B 判定当前实现需要新的 trigger mode-choice / mode-memory 契约，不能安全塞入现有 `TRIGGER_PAYMENT` / `PAY_COST` 字段。
+- A 判定 Aphelios 暂不进入 4C-26 implementation batch，降级为后续 dedicated design batch candidate。
+- Jax / `FU-73f3be35df` 被选为更低耦合的 4C-26 代表切片。
+- Jax snapshot entries：`SFD·119/221`、`SFD·119a/221`。
+- Jax 代表路径：visible face-up Jax 获得武装贴附 -> existing `EQUIPMENT_ATTACHED` event -> existing `TRIGGER_PAYMENT` / `PAY_COST` -> 支付 1 抽 1；decline 不抽牌、不变更。
+- B/D/E 均给出 Jax GO；C 判定若不新增 prompt shape，则前端无需写入锁。
+
+写入锁与执行状态：
+
+- A 曾授予 B / Maxwell 唯一服务端写入锁，范围仅限 `src/Riftbound.Engine/CoreRuleEngine.cs` 与一个服务端测试文件。
+- B 首轮超时后产生 partial diff；A 已按长期子 agent 规则询问状态、等待、收回写入锁、复现失败，再重新授予 B 仅测试修复锁。
+- B 完成 Jax 服务端实现与 `TriggerPaymentTests` 覆盖；A 未关闭 B，长期子 agent 池继续保留。
+- D 只写审计 / 证据文档；E 只写 coverage / risk / freeze 文档；C 无前端写入锁。
+
+4C-26 修改文件：
+
+- `src/Riftbound.Engine/CoreRuleEngine.cs`（B）
+- `tests/Riftbound.ConformanceTests/TriggerPaymentTests.cs`（B）
+- `docs/CURRENT_STAGE4C_BATCH26_JAX_WEAPON_ATTACH_PAYMENT_DRAW_AUDIT.md`（D）
+- `docs/CURRENT_STAGE4C_BATCH26_JAX_WEAPON_ATTACH_PAYMENT_DRAW_EVIDENCE.md`（D）
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`（D）
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`（D）
+- `docs/rules-evidence-index.md`（D）
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`（E）
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`（E）
+- `docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`（E）
+- `docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`（E）
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`（A）
+
+已跑验证：
+
+- Focused backend：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~JaxWeaponAttach|FullyQualifiedName~TriggerPayment"` 通过 37/37。
+- Small regression：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~JaxWeaponAttach|FullyQualifiedName~Icevale|FullyQualifiedName~Vayne|FullyQualifiedName~Lux|FullyQualifiedName~SunkenTemple|FullyQualifiedName~BattlefieldConquerGold|FullyQualifiedName~TriggerPayment"` 通过 46/46。
+- Backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 3439/3439。
+- Frontend build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过；仅保留既有 SignalR / Rollup `PURE` 注释提示。
+- Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过；覆盖 `/`、`/lobby`、`/decks`、`/cards`、`/rooms/stage3-smoke`、`/matches/stage3-smoke`、`/matches/stage3-smoke/result`。
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 通过。
+- `git diff --check` 通过。
+
+本批关闭的代表子项：
+
+- `FU-73f3be35df` / `SFD·119/221`、`SFD·119a/221` visible face-up Jax weapon attach -> trigger payment -> pay 1 draw 1 代表路径。
+- `DECLINE` no draw / no mutation 代表路径。
+- non-Jax / non-armament no prompt、hidden / face-down / standby / opponent-controlled source no trigger leak、insufficient payment no draw 代表护栏。
+
+当前建议：
+
+- 继续保持 `fullOfficial=false`，不宣称 READY / READY-CANDIDATE。
+- Aphelios / `FU-67c6b0186e` 仍保留为后续 dedicated design batch candidate，需要 trigger mode-choice / mode-memory 契约。
+- 下一批仍应逐 FU、逐测试推进；完整 Forge / 百炼 / assemble、完整 equipment attachment、完整 optional trigger family / order triggers、完整 PaymentEngine、draw / replacement / hidden-zone matrix、FAQ regression、1009/811 full official、最终 18-step E2E 仍未完成。
+
 ## 0.2 阶段 0 当前基线
 
 阶段 0 只做主控建档、只读审计与任务拆分，不实现功能代码。已读取：

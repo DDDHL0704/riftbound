@@ -12,6 +12,47 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-10 阶段 4C-26 Jax Weapon Attach Payment Draw 审计
+
+阶段 4C-26 审计入口：`docs/CURRENT_STAGE4C_BATCH26_JAX_WEAPON_ATTACH_PAYMENT_DRAW_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH26_JAX_WEAPON_ATTACH_PAYMENT_DRAW_EVIDENCE.md`。本批已补 Jax / 贾克斯 `SFD·119/221`、`SFD·119a/221` / `FU-73f3be35df` 的极窄武装贴附触发支付抽牌代表切片。项目仍 **NOT READY**。
+
+4C-26 已关闭代表子项：
+
+- visible face-up Jax 通过现有 equipment attach route 被贴附 weapon / armament 后打开现有 `TRIGGER_PAYMENT` / `PAY_COST` prompt。
+- `PAY_COST(SPEND_MANA:1)` 后控制者抽 1，并关闭支付窗口。
+- `PAY_COST(DECLINE)` 关闭支付窗口且不抽牌、不产生其它 mutation。
+- non-Jax / non-armament no prompt；hidden / face-down / standby / opponent-controlled source no trigger / no leak；insufficient payment rejected without draw。
+
+4C-26 规则依据：
+
+- `CATALOG` `SFD·119/221`、`SFD·119a/221`；FU `FU-73f3be35df`。
+- `CORE-260330` p4-p8 rules 107-129；p52-p57 rules 377, 403-405, 413；p89 rules 718-719。
+- `JFAQ-251023` p2-p4 q2.5；`SOUL-JFAQ-260114` p22-p23。
+
+4C-26 验证记录：
+
+- Focused backend：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~JaxWeaponAttach|FullyQualifiedName~TriggerPayment"` 通过 37/37。
+- Small regression：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~JaxWeaponAttach|FullyQualifiedName~Icevale|FullyQualifiedName~Vayne|FullyQualifiedName~Lux|FullyQualifiedName~SunkenTemple|FullyQualifiedName~BattlefieldConquerGold|FullyQualifiedName~TriggerPayment"` 通过 46/46。
+- Backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 3439/3439。
+- Frontend build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过；仅保留既有 SignalR / Rollup `PURE` 注释提示。
+- Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过；覆盖 `/`、`/lobby`、`/decks`、`/cards`、`/rooms/stage3-smoke`、`/matches/stage3-smoke`、`/matches/stage3-smoke/result`。
+- Tests added in `TriggerPaymentTests`：`JaxWeaponAttachOpensTriggerPaymentPrompt`、`JaxWeaponAttachPaymentAcceptedDrawsOneAndClosesWindow`、`JaxWeaponAttachPaymentDeclineClosesWithoutDraw`、`JaxWeaponAttachNonJaxOrNonEquipmentDoesNotOpenPayment`、`JaxWeaponAttachHiddenStandbyOrOpponentControlledDoesNotOpenPayment`、`JaxWeaponAttachInsufficientPaymentRejectsWithoutDraw`。
+- 本批未记录 Stage 3 preflight；不得替代最终正式 18-step E2E。
+- D 本轮只更新 docs 审计 / 证据 / 索引 / TODO 文档；不修改 A checkpoint、coverage matrix JSON、baseline / risk / freeze 文档、服务端、前端或 `riftbound-dotnet.sln`。
+
+仍缺 P0/P1：
+
+- P0：完整 Forge / 百炼 / assemble lifecycle、打出时可选装配、减费、已贴附武装选择和装配合法性全矩阵。
+- P0：完整 equipment / weapon / armament attachment rules、控制权、卸除、重贴附、区域归属和 attached top-card matrix。
+- P0：完整 trigger engine、complete APNAP / trigger batch、optional trigger handling、order triggers 与完整 effect resolution。
+- P0：完整 PaymentEngine、triggered-cost 通用模型、Quote / Authorize / Commit、替代 / 额外费用、insufficient / stale / wrong-player / multi-window full matrix。
+- P0：draw / replacement / burn-out / hidden-zone visibility / replay redaction 全矩阵。
+- P0：hidden / face-down 原始触发建模、viewer-specific metadata 全路径、显露窗口。
+- P0：FAQ regression、1009 entries / 811 functional units full-official、正式 18-step E2E 与 completion audit。
+- P1：Jax weapon attach payment 的 UI/DTO 解释字段、event label / replay redaction 和 equipment attach UX 仍需后续全矩阵证据。
+
+4C-26 不宣称 full-official，不宣称 READY / READY-CANDIDATE。
+
 ## 2026-05-10 阶段 4C-25 Icevale Archer Attack Payment 审计
 
 阶段 4C-25 审计入口：`docs/CURRENT_STAGE4C_BATCH25_ICEVALE_ARCHER_ATTACK_PAYMENT_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH25_ICEVALE_ARCHER_ATTACK_PAYMENT_EVIDENCE.md`。本批已补 Icevale Archer / 冰谷弓箭手 `UNL-065/219` / `FU-c170628e3a` 的极窄进攻触发支付降战力代表切片。项目仍 **NOT READY**。
