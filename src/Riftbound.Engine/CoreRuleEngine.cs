@@ -687,6 +687,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SfdJaxWeaponAttachCardNo = "SFD·119/221";
     private const string SfdJaxWeaponAttachAltCardNo = "SFD·119a/221";
     private const string JaxWeaponAttachPayOneDrawEffectKind = "JAX_WEAPON_ATTACH_PAY_1_DRAW_1";
+    private const string TreasureHunterCardNo = "SFD·130/221";
+    private const string TreasureHunterMoveCreateGoldEffectKind = "TREASURE_HUNTER_MOVE_CREATE_GOLD";
     private const string TriggerPaymentWindow = "TRIGGER_PAYMENT";
     private const string DeclinePaymentChoiceId = "DECLINE";
     private const string SpendOneManaPaymentChoiceId = "SPEND_MANA:1";
@@ -8678,6 +8680,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             command.SourceObjectId,
             originZone,
             destinationZone);
+        movementTriggerEvents = movementTriggerEvents.Concat(ResolveTreasureHunterMoveGoldTrigger(
+            playerZones,
+            cardObjects,
+            intent.PlayerId,
+            command.SourceObjectId,
+            originZone,
+            destinationZone)).ToArray();
         var attachedEquipmentMoves = MoveAttachedEquipmentWithHost(
             playerZones,
             attachedEquipmentObjectIds,
@@ -8944,6 +8953,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             command.SourceObjectId,
             MoveUnitBaseZone,
             MoveUnitBattlefieldZone);
+        movementTriggerEvents = movementTriggerEvents.Concat(ResolveTreasureHunterMoveGoldTrigger(
+            playerZones,
+            cardObjects,
+            intent.PlayerId,
+            command.SourceObjectId,
+            MoveUnitBaseZone,
+            MoveUnitBattlefieldZone)).ToArray();
         var attachedEquipmentMoves = MoveAttachedEquipmentWithHost(
             playerZones,
             attachedEquipmentObjectIds,
@@ -9164,6 +9180,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             command.SourceObjectId,
             originZone,
             destinationZone);
+        movementTriggerEvents = movementTriggerEvents.Concat(ResolveTreasureHunterMoveGoldTrigger(
+            playerZones,
+            cardObjects,
+            intent.PlayerId,
+            command.SourceObjectId,
+            originLocation,
+            destinationLocation)).ToArray();
         var cleanupStackItem = new StackItemState(
             $"move-unit-{state.Tick + 1}",
             intent.PlayerId,
@@ -19563,6 +19586,61 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["reason"] = "BATTLEFIELD_UNIT_MOVED_POWER_PLUS_1"
                 })
         ];
+    }
+
+    private static IReadOnlyList<GameEvent> ResolveTreasureHunterMoveGoldTrigger(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string sourceObjectId,
+        string originZone,
+        string destinationZone)
+    {
+        var sourceLocation = FindFieldObjectLocation(playerZones, sourceObjectId);
+        if (string.Equals(originZone, destinationZone, StringComparison.Ordinal)
+            || !playerZones.TryGetValue(playerId, out _)
+            || !cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+            || !IsTreasureHunterCardNo(sourceState.CardNo)
+            || sourceState.IsFaceDown
+            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
+            || sourceLocation is null
+            || !string.Equals(sourceLocation.Value.PlayerId, playerId, StringComparison.Ordinal))
+        {
+            return [];
+        }
+
+        var events = new List<GameEvent>
+        {
+            new(
+                "TRIGGER_RESOLVED",
+                $"{playerId} 的寻宝猎人移动触发",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["trigger"] = TreasureHunterMoveCreateGoldEffectKind,
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["originZone"] = originZone,
+                    ["destinationZone"] = destinationZone
+                })
+        };
+        CreateLegendEquipmentToken(
+            playerZones,
+            cardObjects,
+            playerId,
+            sourceObjectId,
+            TreasureHunterMoveCreateGoldEffectKind,
+            "金币",
+            [CardObjectTags.EquipmentCard, "金币", "反应"],
+            isExhausted: true,
+            events);
+        return events;
+    }
+
+    private static bool IsTreasureHunterCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, TreasureHunterCardNo, StringComparison.Ordinal);
     }
 
     private static IReadOnlyList<string> NormalizeOptionalCosts(IReadOnlyList<string>? optionalCosts)

@@ -2,11 +2,11 @@
 
 更新时间：2026-05-10
 
-阶段：**阶段 4C-26 / E 卡牌覆盖矩阵 post-freeze overlay**
+阶段：**阶段 4C-27 / E 卡牌覆盖矩阵 post-freeze overlay**
 
 结论：**NOT READY；不允许进入 1009 张卡牌效果批量覆盖。**
 
-本文以阶段 2 风险排序为基础，并叠加阶段 3A/3B/3C/3D 的最小证据 overlay、阶段 4B 冻结状态、阶段 4C-1 APNAP `ORDER_TRIGGERS` 部分 blocker 降低、阶段 4C-2/4C-3 real trigger enqueue、阶段 4C-4 trigger payment、阶段 4C-5 Watchful state-based cleanup trigger enqueue、阶段 4C-6 Honest Broker state-based cleanup trigger enqueue、阶段 4C-7 Scouting Warhawk explicit destroy trigger enqueue、阶段 4C-8 Scouting Warhawk state-based cleanup trigger enqueue、阶段 4C-9 Sad/Loyal Poro conditional cleanup trigger enqueue、阶段 4C-10 Unsung Hero powerful cleanup trigger enqueue、阶段 4C-11 Ghostly Centaur friendly-destroyed cleanup trigger enqueue、阶段 4C-12 Resonant Soul first-friendly-destroyed cleanup trigger enqueue、阶段 4C-13 true stack destruction route migration、阶段 4C-14 Savage Jawfish friendly-destroyed experience trigger enqueue、阶段 4C-15A Minion token family model overlay、阶段 4C-15B Viktor destroyed non-Minion trigger enqueue、阶段 4C-16 / 4C-17 Mechanical Trickster / Ironclad Vanguard true stack last-breath trigger enqueue、阶段 4C-18 Mechanical Trickster + Ironclad Vanguard cleanup trigger enqueue、阶段 4C-19 Kogmaw last-breath AoE damage representative route、阶段 4C-20B Undercover Agent triggered hand-choice prompt、阶段 4C-21 Sunken Temple trigger payment、阶段 4C-22 Muddy Dredger Warhawk representative baseline、阶段 4C-23 Lux high-cost spell temporary power representative baseline、阶段 4C-24 Vayne conquer pay-one recall representative baseline、阶段 4C-25 Icevale Archer attack payment target-selection representative baseline 和阶段 4C-26 Jax weapon attach pay-one draw-one representative baseline；它不是功能实现清单，也不是错误断言。排名用于告诉后续阶段先审哪里：哪些 functional unit 同时碰到 FAQ、费用、触发/替换、持续效果、战斗/法术对决、隐藏信息或非 PLAY_CARD 规则域。
+本文以阶段 2 风险排序为基础，并叠加阶段 3A/3B/3C/3D 的最小证据 overlay、阶段 4B 冻结状态、阶段 4C-1 APNAP `ORDER_TRIGGERS` 部分 blocker 降低、阶段 4C-2/4C-3 real trigger enqueue、阶段 4C-4 trigger payment、阶段 4C-5 Watchful state-based cleanup trigger enqueue、阶段 4C-6 Honest Broker state-based cleanup trigger enqueue、阶段 4C-7 Scouting Warhawk explicit destroy trigger enqueue、阶段 4C-8 Scouting Warhawk state-based cleanup trigger enqueue、阶段 4C-9 Sad/Loyal Poro conditional cleanup trigger enqueue、阶段 4C-10 Unsung Hero powerful cleanup trigger enqueue、阶段 4C-11 Ghostly Centaur friendly-destroyed cleanup trigger enqueue、阶段 4C-12 Resonant Soul first-friendly-destroyed cleanup trigger enqueue、阶段 4C-13 true stack destruction route migration、阶段 4C-14 Savage Jawfish friendly-destroyed experience trigger enqueue、阶段 4C-15A Minion token family model overlay、阶段 4C-15B Viktor destroyed non-Minion trigger enqueue、阶段 4C-16 / 4C-17 Mechanical Trickster / Ironclad Vanguard true stack last-breath trigger enqueue、阶段 4C-18 Mechanical Trickster + Ironclad Vanguard cleanup trigger enqueue、阶段 4C-19 Kogmaw last-breath AoE damage representative route、阶段 4C-20B Undercover Agent triggered hand-choice prompt、阶段 4C-21 Sunken Temple trigger payment、阶段 4C-22 Muddy Dredger Warhawk representative baseline、阶段 4C-23 Lux high-cost spell temporary power representative baseline、阶段 4C-24 Vayne conquer pay-one recall representative baseline、阶段 4C-25 Icevale Archer attack payment target-selection representative baseline、阶段 4C-26 Jax weapon attach pay-one draw-one representative baseline 和阶段 4C-27 Treasure Hunter move-create dormant Gold representative baseline；它不是功能实现清单，也不是错误断言。排名用于告诉后续阶段先审哪里：哪些 functional unit 同时碰到 FAQ、费用、触发/替换、持续效果、战斗/法术对决、隐藏信息或非 PLAY_CARD 规则域。
 
 ## 1. 数据来源
 
@@ -783,7 +783,27 @@ Viktor boundary：
 
 仍缺：完整 trigger engine、PaymentEngine paid-cost matrix、weapon / equipment attachment matrix、hidden source visibility、hidden/random draw matrix、FAQ adjudication、1009/811 full-official 覆盖、正式 18-step E2E。
 
-## 35. Top20 高风险 Functional Units
+## 35. Stage 4C-27 Treasure Hunter Move Create Dormant Gold Overlay
+
+4C-27 只更新覆盖矩阵 / 风险证据，不升级 full-official。`docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已新增 `stage4CBatch27TreasureHunterMoveCreateDormantGold`，并只为 `FU-6144ab0271` 增加 `functionalUnits[].stage4C27` overlay。
+
+4C-27 已部分降低的 blocker：
+
+- `FU-6144ab0271` / `SFD·130/221` Treasure Hunter / 《寻宝猎人》的 movement trigger create dormant Gold representative route。
+- route：visible face-up Treasure Hunter source -> Treasure Hunter moved -> movement trigger evaluated -> create / play 1 dormant Gold equipment token。
+- non-Treasure Hunter / non-move no Gold；hidden / face-down / standby / opponent-controlled source no trigger / no leak。
+- oracle/effectId 保持 `TREASURE_HUNTER_MOVE_GOLD_PLAY_UNIT`。
+- rules / FAQ refs `CORE-260330 p48`、`SOUL-JFAQ-260114 p21` 仍需 review；4C-27 不关闭 movement 或 Gold-token FAQ adjudication。
+
+矩阵数字：`stage4C27` verified FUs = 1，verified snapshot entries = 1，cumulative movement-Gold creation verified FUs = 1，full-official upgrades = 0，full-official still uncovered FUs = 811。
+
+本批不关闭 complete ZoneOwnership / ControlChange / Movement matrix、complete move-trigger source family、complete Gold equipment token creation / destination matrix、hidden / face-down / standby / opponent-controlled source visibility model、FAQ adjudication、1009/811 full-official 或正式 18-step E2E。
+
+后续批量顺序建议：Karthus / `FU-ee1dfb3ed3` 保持 untagged / design-gated，等待 last-breath static extra-trigger repeat semantics 与 FAQ adjudication；Aphelios / `FU-67c6b0186e` 继续等待 mode-choice / mode-memory 契约。
+
+仍缺：完整 movement matrix、Gold token destination matrix、hidden source visibility、Karthus static last-breath extra-trigger semantics、FAQ adjudication、1009/811 full-official 覆盖、正式 18-step E2E。
+
+## 36. Top20 高风险 Functional Units
 
 | # | FU | Representative | 类型/条目数 | 当前代表映射 | FAQ 候选页 | 风险依据 | 依赖规则域 |
 |---:|---|---|---:|---|---|---|---|
@@ -808,7 +828,7 @@ Viktor boundary：
 | 19 | `FU-804412488c` | `SFD·139/221` 夜之锋刃 | 装备 / 1 | 代表路径：EDGE_OF_NIGHT_PLAY_EQUIPMENT | SOUL-OFAQ-260114 p10<br>SOUL-OFAQ-260114 p9 | 控制权/区域移动、FAQ 提及、隐藏信息/随机/牌堆、效果层/持续效果、费用/支付、目标/结算链/时机 | FEPR/Targeting/TimingWindows, LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, VisibilityFilter/RandomAndHiddenZones, ZoneOwnership/ControlChange/Movement |
 | 20 | `FU-9a623b3185` | `SFD·059/221` 斯弗尔尚歌 | 装备 / 1 | 代表路径：SFUR_SONG_PLAY_EQUIPMENT | SOUL-JFAQ-260114 p24<br>SOUL-JFAQ-260114 p25<br>SOUL-JFAQ-260114 p8<br>SOUL-OFAQ-260114 p18<br>SOUL-OFAQ-260114 p19 | 控制权/区域移动、FAQ 提及、效果层/持续效果、费用/支付 | LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, ZoneOwnership/ControlChange/Movement |
 
-## 35. 未覆盖效果分类
+## 37. 未覆盖效果分类
 
 | 分类 | 含义 | 当前阻断关系 |
 |---|---|---|
@@ -822,7 +842,7 @@ Viktor boundary：
 | `non-play-domain` | 传奇、战场、符文、指示物等非普通 PLAY_CARD 域。 | 需要专门域矩阵，不可与普通出牌效果混算。 |
 | `faq-mentioned` | 五份 PDF/FAQ 中出现卡名的候选项。 | 必须人工判定问题是否真的约束该 FU，并补测试。 |
 
-## 36. P0/P1 仍未清零
+## 38. P0/P1 仍未清零
 
 P0：
 

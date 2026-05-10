@@ -286,6 +286,60 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - Aphelios / `FU-67c6b0186e` 仍保留为后续 dedicated design batch candidate，需要 trigger mode-choice / mode-memory 契约。
 - 下一批仍应逐 FU、逐测试推进；完整 Forge / 百炼 / assemble、完整 equipment attachment、完整 optional trigger family / order triggers、完整 PaymentEngine、draw / replacement / hidden-zone matrix、FAQ regression、1009/811 full official、最终 18-step E2E 仍未完成。
 
+## 0.1.5 阶段 4C-27 Treasure Hunter Checkpoint
+
+状态：**已完成极窄代表切片文档收口；项目仍 NOT READY。**
+
+阶段 4C-27 名称：Treasure Hunter move -> dormant Gold representative baseline。
+
+本批候选审查事实：
+
+- A/B/D 选择 Treasure Hunter / 寻宝猎人 `SFD·130/221` / `FU-6144ab0271`，而不是 Karthus / `FU-ee1dfb3ed3`。
+- Treasure Hunter 规则文本：每当我移动时，打出一个休眠的“金币”装备指示物。
+- 代表路径：visible face-up Treasure Hunter 经 existing authoritative move route 成功移动后，触发 `TREASURE_HUNTER_MOVE_CREATE_GOLD`，结算创建一个休眠 Gold equipment token 到 controller base。
+- 已覆盖两条移动代表来源：base -> battlefield move；precise ROAM battlefield A -> battlefield B。
+- guard：non-Treasure Hunter、hidden / face-down / standby / opponent-controlled source、failed move、no-op move 均 no trigger / no leak / no token。
+- 本批不新增 protocol / frontend shape；前端仍只消费既有 snapshot / event / prompt，不本地裁决移动触发或金币创建。
+- Karthus / `FU-ee1dfb3ed3` 仍保持 design-gated：optional extra Last Breath、multiplicity、multi-Karthus stacking、hidden / face-down / standby visibility 与 `ORDER_TRIGGERS` batch model 均未裁决。
+
+4C-27 D 文档修改文件：
+
+- `docs/CURRENT_STAGE4C_BATCH27_TREASURE_HUNTER_MOVE_GOLD_AUDIT.md`（D）
+- `docs/CURRENT_STAGE4C_BATCH27_TREASURE_HUNTER_MOVE_GOLD_EVIDENCE.md`（D）
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`（D）
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`（D）
+- `docs/rules-evidence-index.md`（D）
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`（D write lock）
+
+已跑验证：
+
+- Focused backend：A 记录 Treasure Hunter focused 通过 82/82。
+- Small regression：A 记录 Treasure Hunter small regression 通过 121/121。
+- Backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 3447/3447。
+- Frontend build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过；仅保留既有 SignalR PURE annotation 警告。
+- Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过；覆盖 `/`、`/lobby`、`/decks`、`/cards`、`/rooms/stage3-smoke`、`/matches/stage3-smoke`、`/matches/stage3-smoke/result`。
+- Matrix / whitespace：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 与 `git diff --check` 均通过。
+
+本批关闭的代表子项：
+
+- `FU-6144ab0271` / `SFD·130/221` visible face-up Treasure Hunter successful move -> dormant Gold equipment token 代表路径。
+- base -> battlefield 与 precise ROAM A -> B 两条移动来源的代表路径。
+- non-Treasure Hunter、hidden / face-down / standby / opponent-controlled source、failed move、no-op move 的 no trigger / no leak / no token 代表护栏。
+
+仍缺：
+
+- 完整 movement / control-zone / roam lifecycle、全部移动来源、移动替代 / 取消 / 同步触发矩阵。
+- 完整 move-trigger family、完整 trigger engine、complete APNAP / trigger batch、optional trigger handling 与完整 effect resolution。
+- Gold token full resource / reaction ability、equipment token 全规则、token ownership / controller / zone matrix。
+- hidden / face-down 原始触发建模、viewer-specific metadata 全路径、replay redaction 与显露窗口。
+- Karthus extra Last Breath design gate、FAQ regression、1009/811 full-official、正式 18-step E2E、completion audit。
+
+口径：
+
+- `fullOfficial=false`。
+- 不宣称 READY / READY-CANDIDATE。
+- 不因 Treasure Hunter 代表路径外推完整移动、触发、金币、装备、隐藏信息、Karthus 或 full-official。
+
 ## 0.2 阶段 0 当前基线
 
 阶段 0 只做主控建档、只读审计与任务拆分，不实现功能代码。已读取：

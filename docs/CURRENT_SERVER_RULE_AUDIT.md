@@ -12,6 +12,44 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-10 阶段 4C-27 Treasure Hunter Move Gold 审计
+
+阶段 4C-27 审计入口：`docs/CURRENT_STAGE4C_BATCH27_TREASURE_HUNTER_MOVE_GOLD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH27_TREASURE_HUNTER_MOVE_GOLD_EVIDENCE.md`。本批已补 Treasure Hunter / 寻宝猎人 `SFD·130/221` / `FU-6144ab0271` 的极窄移动触发创建休眠 Gold 装备指示物代表切片。项目仍 **NOT READY**，`fullOfficial=false`。
+
+4C-27 已关闭代表子项：
+
+- visible face-up Treasure Hunter 通过 existing authoritative move route 成功移动后，触发 `TREASURE_HUNTER_MOVE_CREATE_GOLD` 并创建一个休眠 Gold equipment token 到 controller base。
+- base -> battlefield move 与 precise ROAM battlefield A -> battlefield B 两条移动来源已有代表覆盖。
+- non-Treasure Hunter、hidden / face-down / standby / opponent-controlled source、failed move、no-op move 均 no trigger / no leak / no token。
+- 本批未新增 protocol / frontend shape；前端仍不本地裁决移动触发或 Gold token 创建。
+
+4C-27 规则依据：
+
+- `CATALOG` `SFD·130/221`；FU `FU-6144ab0271`。
+- `CATALOG` Gold token identity。
+- `CORE-260330` p4-p8 rules 107-129；p31-p35 rules 318-340；p39-p42 rules 355-356；p52-p55 rules 383.3.d-383.3.e；p89 rules 718-719。
+- `SOUL-JFAQ-260114` p21 作为 Treasure Hunter / movement / Gold 相关 FAQ regression 入口。
+
+4C-27 验证记录：
+
+- Focused backend：A 记录 Treasure Hunter focused 通过 82/82。
+- Small regression：A 记录 Treasure Hunter small regression 通过 121/121。
+- Tests added in `TreasureHunterMoveTriggerTests`：`TreasureHunterMoveCreatesDormantGoldToken`、`TreasureHunterHiddenStandbyOrOpponentControlledDoesNotTrigger`、`NonTreasureHunterMoveDoesNotTrigger`、`FailedTreasureHunterMoveDoesNotCreateGold`、`TreasureHunterPreciseRoamMoveCreatesDormantGoldToken`、`TreasureHunterPreciseRoamNoOpDoesNotCreateGold`。
+- 本批未记录 backend full / frontend build / Chrome smoke / Stage 3 preflight；不得替代最终正式 18-step E2E。
+- D 本轮只更新 docs 审计 / 证据 / checkpoint / index / TODO 文档；不修改服务端、前端、coverage matrix JSON、baseline / risk / freeze 文档或 `riftbound-dotnet.sln`。
+
+仍缺 P0/P1：
+
+- P0：完整 movement / control-zone / roam lifecycle、全部移动来源、移动替代 / 取消 / 同步触发矩阵。
+- P0：完整 move-trigger family、完整 trigger engine、complete APNAP / trigger batch、optional trigger handling 与完整 effect resolution。
+- P0：Gold token full resource / reaction ability、equipment token 全规则、token ownership / controller / zone matrix。
+- P0：hidden / face-down 原始触发建模、viewer-specific metadata 全路径、replay redaction 与显露窗口。
+- P0：Karthus / `FU-ee1dfb3ed3` extra Last Breath 仍 design-gated；optional choice、multiplicity、multi-Karthus stacking、hidden / face-down / standby visibility 与 `ORDER_TRIGGERS` batch model 未裁决。
+- P0：FAQ regression、1009 entries / 811 functional units full-official、正式 18-step E2E 与 completion audit。
+- P1：Treasure Hunter move Gold 的 event label / replay redaction、Gold token UI 解释字段和 movement UX 仍需后续全矩阵证据。
+
+4C-27 不宣称 full-official，不宣称 READY / READY-CANDIDATE。
+
 ## 2026-05-10 阶段 4C-26 Jax Weapon Attach Payment Draw 审计
 
 阶段 4C-26 审计入口：`docs/CURRENT_STAGE4C_BATCH26_JAX_WEAPON_ATTACH_PAYMENT_DRAW_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH26_JAX_WEAPON_ATTACH_PAYMENT_DRAW_EVIDENCE.md`。本批已补 Jax / 贾克斯 `SFD·119/221`、`SFD·119a/221` / `FU-73f3be35df` 的极窄武装贴附触发支付抽牌代表切片。项目仍 **NOT READY**。
