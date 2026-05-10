@@ -2,11 +2,11 @@
 
 更新时间：2026-05-10
 
-阶段：**阶段 4C-34 / E 卡牌覆盖矩阵 post-freeze overlay**
+阶段：**阶段 4C-35 / E 卡牌覆盖矩阵 post-freeze overlay**
 
 结论：**NOT READY；不允许进入 1009 张卡牌效果批量覆盖。**
 
-本文以阶段 2 风险排序为基础，并叠加阶段 3A/3B/3C/3D 的最小证据 overlay、阶段 4B 冻结状态、阶段 4C-1 APNAP `ORDER_TRIGGERS` 部分 blocker 降低、阶段 4C-2/4C-3 real trigger enqueue、阶段 4C-4 trigger payment、阶段 4C-5 Watchful state-based cleanup trigger enqueue、阶段 4C-6 Honest Broker state-based cleanup trigger enqueue、阶段 4C-7 Scouting Warhawk explicit destroy trigger enqueue、阶段 4C-8 Scouting Warhawk state-based cleanup trigger enqueue、阶段 4C-9 Sad/Loyal Poro conditional cleanup trigger enqueue、阶段 4C-10 Unsung Hero powerful cleanup trigger enqueue、阶段 4C-11 Ghostly Centaur friendly-destroyed cleanup trigger enqueue、阶段 4C-12 Resonant Soul first-friendly-destroyed cleanup trigger enqueue、阶段 4C-13 true stack destruction route migration、阶段 4C-14 Savage Jawfish friendly-destroyed experience trigger enqueue、阶段 4C-15A Minion token family model overlay、阶段 4C-15B Viktor destroyed non-Minion trigger enqueue、阶段 4C-16 / 4C-17 Mechanical Trickster / Ironclad Vanguard true stack last-breath trigger enqueue、阶段 4C-18 Mechanical Trickster + Ironclad Vanguard cleanup trigger enqueue、阶段 4C-19 Kogmaw last-breath AoE damage representative route、阶段 4C-20B Undercover Agent triggered hand-choice prompt、阶段 4C-21 Sunken Temple trigger payment、阶段 4C-22 Muddy Dredger Warhawk representative baseline、阶段 4C-23 Lux high-cost spell temporary power representative baseline、阶段 4C-24 Vayne conquer pay-one recall representative baseline、阶段 4C-25 Icevale Archer attack payment target-selection representative baseline、阶段 4C-26 Jax weapon attach pay-one draw-one representative baseline、阶段 4C-27 Treasure Hunter move-create dormant Gold representative baseline、阶段 4C-28 Battle or Flight move battlefield unit to owner base target-guard representative baseline、阶段 4C-29 Gust power-three-or-less return-to-owner-hand target-guard representative baseline、阶段 4C-30 Hunt the Weak power-three-or-less destroy-target guard representative baseline、阶段 4C-31 Reprimand return-to-owner-hand target-guard representative baseline、阶段 4C-32 Ride the Wind move-friendly-battlefield-unit-to-owner-base ready target-guard representative baseline、阶段 4C-33 Charm move-enemy-battlefield-unit-to-owner-base target-guard representative baseline 和阶段 4C-34 Isolate move-enemy-battlefield-unit-to-owner-base no-draw target-guard representative baseline；它不是功能实现清单，也不是错误断言。排名用于告诉后续阶段先审哪里：哪些 functional unit 同时碰到 FAQ、费用、触发/替换、持续效果、战斗/法术对决、隐藏信息或非 PLAY_CARD 规则域。
+本文以阶段 2 风险排序为基础，并叠加阶段 3A/3B/3C/3D 的最小证据 overlay、阶段 4B 冻结状态、阶段 4C-1 APNAP `ORDER_TRIGGERS` 部分 blocker 降低、阶段 4C-2/4C-3 real trigger enqueue、阶段 4C-4 trigger payment、阶段 4C-5 Watchful state-based cleanup trigger enqueue、阶段 4C-6 Honest Broker state-based cleanup trigger enqueue、阶段 4C-7 Scouting Warhawk explicit destroy trigger enqueue、阶段 4C-8 Scouting Warhawk state-based cleanup trigger enqueue、阶段 4C-9 Sad/Loyal Poro conditional cleanup trigger enqueue、阶段 4C-10 Unsung Hero powerful cleanup trigger enqueue、阶段 4C-11 Ghostly Centaur friendly-destroyed cleanup trigger enqueue、阶段 4C-12 Resonant Soul first-friendly-destroyed cleanup trigger enqueue、阶段 4C-13 true stack destruction route migration、阶段 4C-14 Savage Jawfish friendly-destroyed experience trigger enqueue、阶段 4C-15A Minion token family model overlay、阶段 4C-15B Viktor destroyed non-Minion trigger enqueue、阶段 4C-16 / 4C-17 Mechanical Trickster / Ironclad Vanguard true stack last-breath trigger enqueue、阶段 4C-18 Mechanical Trickster + Ironclad Vanguard cleanup trigger enqueue、阶段 4C-19 Kogmaw last-breath AoE damage representative route、阶段 4C-20B Undercover Agent triggered hand-choice prompt、阶段 4C-21 Sunken Temple trigger payment、阶段 4C-22 Muddy Dredger Warhawk representative baseline、阶段 4C-23 Lux high-cost spell temporary power representative baseline、阶段 4C-24 Vayne conquer pay-one recall representative baseline、阶段 4C-25 Icevale Archer attack payment target-selection representative baseline、阶段 4C-26 Jax weapon attach pay-one draw-one representative baseline、阶段 4C-27 Treasure Hunter move-create dormant Gold representative baseline、阶段 4C-28 Battle or Flight move battlefield unit to owner base target-guard representative baseline、阶段 4C-29 Gust power-three-or-less return-to-owner-hand target-guard representative baseline、阶段 4C-30 Hunt the Weak power-three-or-less destroy-target guard representative baseline、阶段 4C-31 Reprimand return-to-owner-hand target-guard representative baseline、阶段 4C-32 Ride the Wind move-friendly-battlefield-unit-to-owner-base ready target-guard representative baseline、阶段 4C-33 Charm move-enemy-battlefield-unit-to-owner-base target-guard representative baseline、阶段 4C-34 Isolate move-enemy-battlefield-unit-to-owner-base no-draw target-guard representative baseline 和阶段 4C-35 Vengeance public-unit destroy-target guard representative baseline；它不是功能实现清单，也不是错误断言。排名用于告诉后续阶段先审哪里：哪些 functional unit 同时碰到 FAQ、费用、触发/替换、持续效果、战斗/法术对决、隐藏信息或非 PLAY_CARD 规则域。
 
 ## 1. 数据来源
 
@@ -938,7 +938,26 @@ Viktor boundary：
 
 仍缺：完整 target legality matrix、movement / roam / precise battlefield model、movement spell family matrix、hidden visibility、Isolate draw branch、1009/811 full-official 覆盖、正式 18-step E2E。
 
-## 43. Top20 高风险 Functional Units
+## 43. Stage 4C-35 Vengeance Destroy Unit Target Guard Overlay
+
+4C-35 只更新覆盖矩阵 / 风险证据，不升级 full-official。正确身份为 `FU-07104fa58a` / `OGN·229/298` / cardId `31467` / Vengeance / 《复仇》，oracle/effectId 为 `VENGEANCE_DESTROY_UNIT`。
+
+4C-35 已部分降低的 blocker：
+
+- public unit target -> service-authoritative guard -> destroy target to owner graveyard。
+- valid target guards：friendly / enemy public unit targets in base / battlefield 均可摧毁。
+- invalid target guards：stale unit、face-down standby、battlefield / base equipment、battlefield spell object、battlefield rune object、hand / private unit no mutation / no destroy / no leak。
+- 4B primary status / flags 不变：`NEEDS_ENGINE_SUPPORT`，`IMPLEMENTED_UNTESTED`、`NEEDS_ENGINE_SUPPORT`；`fullOfficial=false`，full-official upgrades = 0。
+
+矩阵数字口径：`stage4C35` verified FUs = 1，verified snapshot entries = 1，cumulative destroy-target guard verified FUs = 2，full-official upgrades = 0，full-official still uncovered FUs = 811。
+
+本批不关闭 complete destroy / cleanup / replacement / prevention / Last Breath interaction、complete FEPR target selection / target legality matrix、hidden visibility、Spellshield target tax、attached-equipment detach / replacement breadth、destroyed-this-turn memory、1009/811 full-official 或正式 18-step E2E。
+
+后续批量顺序建议：Hostile Takeover / `FU-00ee09c2cc`、Berserk Impulse / `FU-b05eda44ce`、Edge of Night / `FU-804412488c` 继续保留为高风险后续候选；Karthus / `FU-ee1dfb3ed3` 与 Aphelios / `FU-67c6b0186e` 继续 design-gated。
+
+仍缺：完整 destroy family matrix、完整 target legality matrix、replacement / prevention / Last Breath timing、hidden visibility、1009/811 full-official 覆盖、正式 18-step E2E。
+
+## 44. Top20 高风险 Functional Units
 
 | # | FU | Representative | 类型/条目数 | 当前代表映射 | FAQ 候选页 | 风险依据 | 依赖规则域 |
 |---:|---|---|---:|---|---|---|---|
@@ -963,7 +982,7 @@ Viktor boundary：
 | 19 | `FU-804412488c` | `SFD·139/221` 夜之锋刃 | 装备 / 1 | 代表路径：EDGE_OF_NIGHT_PLAY_EQUIPMENT | SOUL-OFAQ-260114 p10<br>SOUL-OFAQ-260114 p9 | 控制权/区域移动、FAQ 提及、隐藏信息/随机/牌堆、效果层/持续效果、费用/支付、目标/结算链/时机 | FEPR/Targeting/TimingWindows, LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, VisibilityFilter/RandomAndHiddenZones, ZoneOwnership/ControlChange/Movement |
 | 20 | `FU-9a623b3185` | `SFD·059/221` 斯弗尔尚歌 | 装备 / 1 | 代表路径：SFUR_SONG_PLAY_EQUIPMENT | SOUL-JFAQ-260114 p24<br>SOUL-JFAQ-260114 p25<br>SOUL-JFAQ-260114 p8<br>SOUL-OFAQ-260114 p18<br>SOUL-OFAQ-260114 p19 | 控制权/区域移动、FAQ 提及、效果层/持续效果、费用/支付 | LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, ZoneOwnership/ControlChange/Movement |
 
-## 43. 未覆盖效果分类
+## 45. 未覆盖效果分类
 
 | 分类 | 含义 | 当前阻断关系 |
 |---|---|---|
@@ -977,7 +996,7 @@ Viktor boundary：
 | `non-play-domain` | 传奇、战场、符文、指示物等非普通 PLAY_CARD 域。 | 需要专门域矩阵，不可与普通出牌效果混算。 |
 | `faq-mentioned` | 五份 PDF/FAQ 中出现卡名的候选项。 | 必须人工判定问题是否真的约束该 FU，并补测试。 |
 
-## 44. P0/P1 仍未清零
+## 46. P0/P1 仍未清零
 
 P0：
 

@@ -783,6 +783,69 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Isolate 代表路径外推完整落单抽牌、目的地选择、targeting、movement、roam、precise battlefield、PaymentEngine、FEPR、named deferred candidates 或 full-official。
 
+## 0.1.13 阶段 4C-35 Vengeance Checkpoint
+
+状态：**已完成极窄代表切片文档收口；项目仍 NOT READY。**
+
+阶段 4C-35 名称：Vengeance destroy target guard representative baseline。
+
+本批候选审查事实：
+
+- A 选择 Vengeance / 复仇 `OGN·229/298` / cardId `31467` / `FU-07104fa58a` / `VENGEANCE_DESTROY_UNIT` 作为 4C-35 narrow destroy-target guard slice。
+- Vengeance 规则文本：摧毁一名单位。
+- 代表路径：P1 打出 Vengeance，选择合法 public unit target，双方 priority pass 后结算，目标进入 owner graveyard，并从 base / battlefield 与 public object state 移除。
+- 合法目标覆盖：friendly / enemy public unit targets in base / battlefield 均可被摧毁到 owner graveyard；Vengeance 不按 controller 阵营限制目标。
+- guard：stale unit、face-down standby object、battlefield / base equipment、battlefield spell object、battlefield rune object、hand / private unit 均 `INVALID_TARGET`，no tick / no events / no payment / no hand movement / no stack item / no destroy / no leak。
+- hidden-info stance：face-down standby target 与 private hand unit target 被拒绝且不暴露真实身份；opponent hidden info 继续由 viewer-specific snapshot / redaction 保护。
+- 本批不新增 protocol / frontend shape；前端仍只消费既有 play-card / stack / destroy event，不本地裁决目标合法性或 destroy / cleanup 结算。
+- Hostile Takeover、Berserk Impulse、Edge of Night、Karthus、Aphelios 仍按 deferred / design-gated 候选管理，不由本批关闭。
+
+4C-35 B 服务端修改文件：
+
+- `src/Riftbound.Engine/CoreRuleEngine.cs`（B）
+- `tests/Riftbound.ConformanceTests/VengeanceDestroyGuardTests.cs`（B）
+
+4C-35 D 文档修改文件：
+
+- `docs/CURRENT_STAGE4C_BATCH35_VENGEANCE_DESTROY_TARGET_GUARD_AUDIT.md`
+- `docs/CURRENT_STAGE4C_BATCH35_VENGEANCE_DESTROY_TARGET_GUARD_EVIDENCE.md`
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`
+- `docs/rules-evidence-index.md`
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+
+已跑验证：
+
+- Focused backend：通过 107/107。
+- Adjacent guard regression：通过 23/23。
+- `git diff --check` 通过。
+- Backend full：通过 3506/3506。
+- Frontend build：通过。
+- Chrome smoke：通过。
+- 以上 focused / adjacent / diff-check 不得替代最终正式 18-step E2E。
+
+本批关闭的代表子项：
+
+- `FU-07104fa58a` / `OGN·229/298` visible spell resolution destroy public unit target representative baseline。
+- friendly / enemy public unit targets in base / battlefield 的服务端权威 destroy-target guard。
+- stale unit、face-down standby object、battlefield / base equipment、battlefield spell object、battlefield rune object、hand / private unit invalid-target no-mutation 代表护栏。
+- face-down standby / private-zone invalid target 不暴露真实身份 / hidden info 的代表性安全口径。
+
+仍缺：
+
+- Vengeance full-official destroy / cleanup / replacement / prevention / Last Breath interaction 保持 P1/P2 后续项；本批不新增这些方向的 P0。
+- 完整 target prompt、target invalidation、hidden / face-down target policy、Spellshield target tax。
+- 完整 cleanup queue、replacement / prevention duration、attached-equipment detach / replacement breadth、destroyed-this-turn memory 全矩阵。
+- 完整 PaymentEngine、play-card cost Quote / Authorize / Commit、替代 / 额外费用与支付资源矩阵。
+- Hostile Takeover control lifecycle、Berserk Impulse hidden-zone reveal / choose / recycle、Edge of Night face-down standby attach、Karthus extra Last Breath、Aphelios weapon-attachment three-mode design gates。
+- full FAQ regression、1009/811 full-official、正式 18-step E2E、completion audit。
+
+口径：
+
+- `fullOfficial=false`。
+- 不宣称 READY / READY-CANDIDATE。
+- 不因 Vengeance 代表路径外推完整 destroy、cleanup、replacement、Last Breath、targeting、PaymentEngine、FEPR、named deferred candidates 或 full-official。
+
 ## 0.2 阶段 0 当前基线
 
 阶段 0 只做主控建档、只读审计与任务拆分，不实现功能代码。已读取：

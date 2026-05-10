@@ -17016,6 +17016,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || !IsRideTheWindTargetAllowed(state, behavior, targetObjectId)
                 || !IsCharmTargetAllowed(state, behavior, targetObjectId)
                 || !IsIsolateTargetAllowed(state, behavior, targetObjectId)
+                || !IsVengeanceTargetAllowed(state, behavior, targetObjectId)
                 || !IsMainDeckLookTargetAllowed(state, intent.PlayerId, targetObjectId, targetIndex, behavior)
                 || !IsMainDeckTargetTagAllowed(state, targetObjectId, targetIndex, behavior)
                 || !IsTargetRequiredTagAllowed(state, targetObjectId, behavior)
@@ -20200,6 +20201,30 @@ public sealed class CoreRuleEngine : IRuleEngine
         string objectId)
     {
         if (!string.Equals(behavior.EffectKind, "ISOLATE_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE_NO_DRAW", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        if (!state.CardObjects.TryGetValue(objectId, out var targetState)
+            || targetState.IsFaceDown
+            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || targetState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
+            || targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        return targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || targetState.Tags.Count == 0;
+    }
+
+    private static bool IsVengeanceTargetAllowed(
+        MatchState state,
+        CardBehaviorDefinition behavior,
+        string objectId)
+    {
+        if (!string.Equals(behavior.EffectKind, "VENGEANCE_DESTROY_UNIT", StringComparison.Ordinal))
         {
             return true;
         }

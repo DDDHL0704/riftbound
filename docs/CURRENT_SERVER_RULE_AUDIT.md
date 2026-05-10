@@ -12,6 +12,45 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-10 阶段 4C-35 Vengeance Destroy Target Guard 审计
+
+阶段 4C-35 审计入口：`docs/CURRENT_STAGE4C_BATCH35_VENGEANCE_DESTROY_TARGET_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH35_VENGEANCE_DESTROY_TARGET_GUARD_EVIDENCE.md`。本批已补 Vengeance / 复仇 `OGN·229/298` / cardId `31467` / `FU-07104fa58a` / `VENGEANCE_DESTROY_UNIT` 的极窄 public unit destroy target 与目标 guard hardening 代表切片。项目仍 **NOT READY**，`fullOfficial=false`。
+
+4C-35 已关闭代表子项：
+
+- P1 打出 Vengeance，选择合法 public unit target，双方 priority pass 后结算，目标进入 owner graveyard，并从 base / battlefield 与 public object state 移除。
+- 合法目标覆盖 friendly / enemy public unit targets in base / battlefield；Vengeance 不按 controller 阵营限制目标。
+- `VENGEANCE_DESTROY_UNIT` 在 `PLAY_CARD` validation 中使用服务端权威 target guard，不依赖前端裁决。
+- stale unit、face-down standby object、battlefield / base equipment、battlefield spell object、battlefield rune object、hand / private unit 均 `INVALID_TARGET`，no tick / no events / no payment / no hand movement / no stack item / no destroy / no leak。
+- hidden-info stance：face-down standby target 与 private hand unit target 被拒绝且不暴露真实身份；opponent hidden info 仍由 viewer-specific snapshot / redaction 保护。
+- 本批未新增 protocol / frontend shape；前端仍不本地裁决目标合法性或 destroy / cleanup 结算。
+- Hostile Takeover、Berserk Impulse、Edge of Night、Karthus、Aphelios 仍保持 deferred / design-gated，不由本批关闭。
+
+4C-35 规则依据：
+
+- `CATALOG` `OGN·229/298`；cardId `31467`；FU `FU-07104fa58a`。
+- `CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356；p62-p63 rule 428。
+
+4C-35 验证记录：
+
+- Focused backend：通过 107/107。
+- Adjacent guard regression：通过 23/23。
+- `git diff --check` 通过。
+- Backend full：通过 3506/3506。
+- Frontend build：通过。
+- Chrome smoke：通过。
+- Tests added in `VengeanceDestroyGuardTests`：`VengeanceDestroysPublicUnitTargets`、`VengeanceRejectsInvalidTargetsWithoutMutation`。
+- 上述验证不得替代最终正式 18-step E2E。
+
+仍缺 P0/P1：
+
+- P0：完整 PaymentEngine、play-card cost Quote / Authorize / Commit、替代 / 额外费用与支付资源矩阵。
+- P0：Hostile Takeover control lifecycle、Berserk Impulse hidden-zone reveal / choose / recycle、Edge of Night face-down standby attach、Karthus extra Last Breath、Aphelios weapon-attachment three-mode design gates。
+- P0：full FAQ regression、1009 entries / 811 functional units full-official、正式 18-step E2E 与 completion audit。
+- P1/P2：Vengeance full destroy / cleanup / replacement / prevention / Last Breath interaction、target prompt、target invalidation、hidden / face-down target policy、Spellshield target tax、attached-equipment detach / replacement breadth、destroyed-this-turn memory、event label / replay redaction、targeting UX 与 destroy UX 仍需后续全矩阵证据；本批不新增这些方向的 P0。
+
+4C-35 不宣称 full-official，不宣称 READY / READY-CANDIDATE。
+
 ## 2026-05-10 阶段 4C-34 Isolate Move Guard 审计
 
 阶段 4C-34 审计入口：`docs/CURRENT_STAGE4C_BATCH34_ISOLATE_MOVE_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH34_ISOLATE_MOVE_GUARD_EVIDENCE.md`。本批已补 Isolate / 隔绝 `UNL-124/219` / cardId `34667` / `FU-175d573ae4` / `ISOLATE_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE_NO_DRAW` 的极窄 enemy public battlefield unit move to owner base no-draw 与目标 guard hardening 代表切片。项目仍 **NOT READY**，`fullOfficial=false`。

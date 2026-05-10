@@ -1,12 +1,12 @@
 # Stage 4B Card Coverage Freeze
 
-日期：2026-05-09；4C-1 / 4C-2 / 4C-3 overlay 追加：2026-05-09；4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A / 4C-15B / 4C-16 / 4C-17 / 4C-18 / 4C-19 / 4C-20B / 4C-21 / 4C-22 / 4C-23 / 4C-24 / 4C-25 / 4C-26 / 4C-27 / 4C-28 / 4C-29 / 4C-30 / 4C-31 / 4C-32 / 4C-33 / 4C-34 overlay 追加：2026-05-10
+日期：2026-05-09；4C-1 / 4C-2 / 4C-3 overlay 追加：2026-05-09；4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A / 4C-15B / 4C-16 / 4C-17 / 4C-18 / 4C-19 / 4C-20B / 4C-21 / 4C-22 / 4C-23 / 4C-24 / 4C-25 / 4C-26 / 4C-27 / 4C-28 / 4C-29 / 4C-30 / 4C-31 / 4C-32 / 4C-33 / 4C-34 / 4C-35 overlay 追加：2026-05-10
 
 阶段：**阶段 4B / E 卡牌覆盖矩阵冻结**
 
-结论：**4B freeze 完成；4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A / 4C-15B / 4C-16 / 4C-17 / 4C-18 / 4C-19 / 4C-20B / 4C-21 / 4C-22 / 4C-23 / 4C-24 / 4C-25 / 4C-26 / 4C-27 / 4C-28 / 4C-29 / 4C-30 / 4C-31 / 4C-32 / 4C-33 / 4C-34 post-freeze overlay 已记录；NOT READY；不允许 1009 张卡批量实现。**
+结论：**4B freeze 完成；4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A / 4C-15B / 4C-16 / 4C-17 / 4C-18 / 4C-19 / 4C-20B / 4C-21 / 4C-22 / 4C-23 / 4C-24 / 4C-25 / 4C-26 / 4C-27 / 4C-28 / 4C-29 / 4C-30 / 4C-31 / 4C-32 / 4C-33 / 4C-34 / 4C-35 post-freeze overlay 已记录；NOT READY；不允许 1009 张卡批量实现。**
 
-本文冻结卡牌覆盖矩阵、official text / FAQ evidence、functional units、测试优先级和阶段 4 批量顺序。4C-1 只在冻结矩阵上追加 APNAP `ORDER_TRIGGERS` / battle initial stack / hidden trigger metadata redaction overlay；4C-2 / 4C-3 只追加 Watchful Sentinel 与 Honest Broker real trigger enqueue overlay；4C-4 只追加 Treasure Pile trigger payment overlay；4C-5 / 4C-6 只追加 visible Watchful Sentinel / Honest Broker state-based cleanup trigger enqueue overlay；4C-7 / 4C-8 只追加 visible Scouting Warhawk explicit destroy / state-based cleanup trigger enqueue overlay；4C-9 只追加 visible Sad/Loyal Poro conditional state-based cleanup trigger enqueue overlay；4C-10 只追加 visible Unsung Hero powerful state-based cleanup trigger enqueue overlay；4C-11 只追加 visible surviving friendly Ghostly Centaur friendly-destroyed cleanup trigger enqueue overlay；4C-12 只追加 visible surviving friendly Resonant Soul first-friendly-destroyed cleanup trigger enqueue overlay；4C-13 只追加 Ghostly Centaur / Resonant Soul true stack destruction route migration overlay；4C-14 只追加 Savage Jawfish true stack / cleanup friendly-destroyed experience trigger enqueue overlay；4C-15A 只追加 Minion token family model / infrastructure overlay；4C-15B 只追加 Viktor destroyed non-Minion trigger enqueue representative baseline overlay；4C-16 / 4C-17 只追加 Mechanical Trickster / Ironclad Vanguard true stack last-breath trigger enqueue representative baseline overlay；4C-18 只追加这两个 FU 的 state-based cleanup last-breath trigger enqueue representative baseline overlay；4C-19 只追加 Kogmaw visible last-breath AoE damage representative route overlay；4C-20B 只追加 Undercover Agent triggered hand-choice prompt 微切片 overlay；4C-21 只追加 Sunken Temple authoritative trigger-payment 微切片 overlay；4C-22 只追加 Muddy Dredger visible state-based cleanup Last Breath -> Warhawk token representative overlay；4C-23 只追加 Lux high-cost spell temporary power representative overlay；4C-24 只追加 Vayne visible face-up conquer -> `TRIGGER_PAYMENT` / `PAY_COST` pay 1 return-self representative overlay；4C-25 只追加 Icevale Archer attack payment target-selection representative overlay；4C-26 只追加 Jax visible face-up weapon attach -> `TRIGGER_PAYMENT` / `PAY_COST` pay 1 draw 1 representative overlay；4C-27 只追加 Treasure Hunter visible face-up move -> dormant Gold equipment token representative overlay；4C-28 只追加 Battle or Flight valid battlefield unit target -> owner base movement and target guard hardening representative overlay；4C-29 只追加 Gust valid public battlefield unit power <= 3 -> owner hand target guard representative overlay；4C-30 只追加 Hunt the Weak valid public battlefield unit power <= 3 -> destroy target guard representative overlay；4C-31 只追加 Reprimand valid public battlefield unit -> owner hand target guard representative overlay；4C-32 只追加 Ride the Wind friendly public battlefield unit ready -> owner base movement target guard representative overlay；4C-33 只追加 Charm enemy public battlefield unit -> owner base movement target guard representative overlay；4C-34 只追加 Isolate enemy public battlefield unit -> owner base no-draw movement target guard representative overlay。E 不修改服务端/前端代码，不触碰 `riftbound-dotnet.sln`。
+本文冻结卡牌覆盖矩阵、official text / FAQ evidence、functional units、测试优先级和阶段 4 批量顺序。4C-1 只在冻结矩阵上追加 APNAP `ORDER_TRIGGERS` / battle initial stack / hidden trigger metadata redaction overlay；4C-2 / 4C-3 只追加 Watchful Sentinel 与 Honest Broker real trigger enqueue overlay；4C-4 只追加 Treasure Pile trigger payment overlay；4C-5 / 4C-6 只追加 visible Watchful Sentinel / Honest Broker state-based cleanup trigger enqueue overlay；4C-7 / 4C-8 只追加 visible Scouting Warhawk explicit destroy / state-based cleanup trigger enqueue overlay；4C-9 只追加 visible Sad/Loyal Poro conditional state-based cleanup trigger enqueue overlay；4C-10 只追加 visible Unsung Hero powerful state-based cleanup trigger enqueue overlay；4C-11 只追加 visible surviving friendly Ghostly Centaur friendly-destroyed cleanup trigger enqueue overlay；4C-12 只追加 visible surviving friendly Resonant Soul first-friendly-destroyed cleanup trigger enqueue overlay；4C-13 只追加 Ghostly Centaur / Resonant Soul true stack destruction route migration overlay；4C-14 只追加 Savage Jawfish true stack / cleanup friendly-destroyed experience trigger enqueue overlay；4C-15A 只追加 Minion token family model / infrastructure overlay；4C-15B 只追加 Viktor destroyed non-Minion trigger enqueue representative baseline overlay；4C-16 / 4C-17 只追加 Mechanical Trickster / Ironclad Vanguard true stack last-breath trigger enqueue representative baseline overlay；4C-18 只追加这两个 FU 的 state-based cleanup last-breath trigger enqueue representative baseline overlay；4C-19 只追加 Kogmaw visible last-breath AoE damage representative route overlay；4C-20B 只追加 Undercover Agent triggered hand-choice prompt 微切片 overlay；4C-21 只追加 Sunken Temple authoritative trigger-payment 微切片 overlay；4C-22 只追加 Muddy Dredger visible state-based cleanup Last Breath -> Warhawk token representative overlay；4C-23 只追加 Lux high-cost spell temporary power representative overlay；4C-24 只追加 Vayne visible face-up conquer -> `TRIGGER_PAYMENT` / `PAY_COST` pay 1 return-self representative overlay；4C-25 只追加 Icevale Archer attack payment target-selection representative overlay；4C-26 只追加 Jax visible face-up weapon attach -> `TRIGGER_PAYMENT` / `PAY_COST` pay 1 draw 1 representative overlay；4C-27 只追加 Treasure Hunter visible face-up move -> dormant Gold equipment token representative overlay；4C-28 只追加 Battle or Flight valid battlefield unit target -> owner base movement and target guard hardening representative overlay；4C-29 只追加 Gust valid public battlefield unit power <= 3 -> owner hand target guard representative overlay；4C-30 只追加 Hunt the Weak valid public battlefield unit power <= 3 -> destroy target guard representative overlay；4C-31 只追加 Reprimand valid public battlefield unit -> owner hand target guard representative overlay；4C-32 只追加 Ride the Wind friendly public battlefield unit ready -> owner base movement target guard representative overlay；4C-33 只追加 Charm enemy public battlefield unit -> owner base movement target guard representative overlay；4C-34 只追加 Isolate enemy public battlefield unit -> owner base no-draw movement target guard representative overlay；4C-35 只追加 Vengeance public unit destroy target guard representative overlay。E 不修改服务端/前端代码，不触碰 `riftbound-dotnet.sln`。
 
 ## 1. Source Snapshot
 
@@ -1165,9 +1165,46 @@ Top risk remains the Stage 2 Top20 with 4B statuses overlaid:
 
 4C-34 不关闭 Isolate isolated-enemy draw branch、all movement cards、full Isolate official completion beyond this representative guard slice、complete FEPR target selection / target-change matrix、complete ZoneOwnership / ControlChange / Movement matrix、hidden / face-down / standby target visibility model、FAQ adjudication 或 1009/811 full-official。
 
-## 43. 4B / 4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A / 4C-15B / 4C-16 / 4C-17 / 4C-18 / 4C-19 / 4C-20B / 4C-21 / 4C-22 / 4C-23 / 4C-24 / 4C-25 / 4C-26 / 4C-27 / 4C-28 / 4C-29 / 4C-30 / 4C-31 / 4C-32 / 4C-33 / 4C-34 Blocker
+## 43. Post-Freeze 4C-35 Overlay
 
-4B freeze、4C-1 overlay、4C-2 overlay、4C-3 overlay、4C-4 overlay、4C-5 overlay、4C-6 overlay、4C-7 overlay、4C-8 overlay、4C-9 overlay、4C-10 overlay、4C-11 overlay、4C-12 overlay、4C-13 overlay、4C-14 overlay、4C-15A overlay、4C-15B overlay、4C-16 overlay、4C-17 overlay、4C-18 overlay、4C-19 overlay、4C-20B overlay、4C-21 overlay、4C-22 overlay、4C-23 overlay、4C-24 overlay、4C-25 overlay、4C-26 overlay、4C-27 overlay、4C-28 overlay、4C-29 overlay、4C-30 overlay、4C-31 overlay、4C-32 overlay、4C-33 overlay 和 4C-34 overlay 本身无文档阻断。仍阻断 READY / full-official 的事项：
+4C-35 不改变 4B frozen counts、primary status counts 或 full-official 口径，只记录局部 public unit destroy-target guard runtime 证据：
+
+| 项 | 4C-35 记录 |
+|---|---|
+| verified FU | `FU-07104fa58a` / `OGN·229/298` Vengeance / 《复仇》 |
+| cardId | `31467` |
+| oracle/effectId | `VENGEANCE_DESTROY_UNIT` |
+| route | Vengeance played -> valid public unit target selected -> service-authoritative target guard -> destroy target to owner graveyard |
+| guard | stale unit、face-down standby、battlefield / base equipment、battlefield spell object、battlefield rune object、hand / private unit no mutation / no destroy / no leak |
+| automated evidence | focused 107/107 passed；adjacent guard 23/23 passed；backend full 3506/3506 passed；frontend build passed；Chrome smoke passed。 |
+| FAQ boundary | No FAQ refs in matrix；4C-35 does not close full Vengeance official, complete FEPR target selection, replacement / prevention / cleanup matrix, Last Breath timing, visibility, all destroy-target cards, or FAQ adjudication。 |
+| status impact | 4B `freezeStatus` / `statusFlags` unchanged；`fullOfficial=false`；full-official upgrades = 0。 |
+| non-covered FUs | Hostile Takeover / `FU-00ee09c2cc`、Berserk Impulse / `FU-b05eda44ce`、Edge of Night / `FU-804412488c` remain high-risk later candidates；Karthus / `FU-ee1dfb3ed3` and Aphelios / `FU-67c6b0186e` remain design-gated。 |
+
+矩阵 overlay 数字：
+
+- `stage4C35` verified FUs：1
+- `stage4C35` verified snapshot entries：1
+- cumulative real-trigger enqueue verified FUs：16
+- cumulative state-based cleanup trigger enqueue verified FUs：14
+- cumulative hand-choice prompt verified FUs：1
+- cumulative trigger-payment verified FUs：5
+- cumulative spell-played immediate trigger-event verified FUs：1
+- cumulative conquer-payment recall verified FUs：1
+- cumulative attack-payment target-selection verified FUs：1
+- cumulative weapon-attachment payment-draw verified FUs：1
+- cumulative movement-Gold creation verified FUs：1
+- cumulative targeted movement-to-owner-base verified FUs：4
+- cumulative return-to-owner-hand target-guard verified FUs：2
+- cumulative destroy-target guard verified FUs：2
+- full-official upgrades：0
+- full-official still uncovered FUs：811
+
+4C-35 不关闭 all destroy-target cards、full Vengeance official completion beyond this representative guard slice、complete FEPR target selection / target-change matrix、complete replacement / prevention / cleanup / Last Breath interaction、hidden / face-down / standby target visibility model、FAQ adjudication 或 1009/811 full-official。
+
+## 44. 4B / 4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A / 4C-15B / 4C-16 / 4C-17 / 4C-18 / 4C-19 / 4C-20B / 4C-21 / 4C-22 / 4C-23 / 4C-24 / 4C-25 / 4C-26 / 4C-27 / 4C-28 / 4C-29 / 4C-30 / 4C-31 / 4C-32 / 4C-33 / 4C-34 / 4C-35 Blocker
+
+4B freeze、4C-1 overlay、4C-2 overlay、4C-3 overlay、4C-4 overlay、4C-5 overlay、4C-6 overlay、4C-7 overlay、4C-8 overlay、4C-9 overlay、4C-10 overlay、4C-11 overlay、4C-12 overlay、4C-13 overlay、4C-14 overlay、4C-15A overlay、4C-15B overlay、4C-16 overlay、4C-17 overlay、4C-18 overlay、4C-19 overlay、4C-20B overlay、4C-21 overlay、4C-22 overlay、4C-23 overlay、4C-24 overlay、4C-25 overlay、4C-26 overlay、4C-27 overlay、4C-28 overlay、4C-29 overlay、4C-30 overlay、4C-31 overlay、4C-32 overlay、4C-33 overlay、4C-34 overlay 和 4C-35 overlay 本身无文档阻断。仍阻断 READY / full-official 的事项：
 
 - 0/811 functional units 获得 full-official。
 - P0/P1 engine support 仍影响 762 FUs by status flag。
