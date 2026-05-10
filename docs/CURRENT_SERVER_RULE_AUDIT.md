@@ -12,6 +12,41 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-10 阶段 4C-28 Battle or Flight Move To Base 审计
+
+阶段 4C-28 审计入口：`docs/CURRENT_STAGE4C_BATCH28_BATTLE_OR_FLIGHT_MOVE_TO_BASE_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH28_BATTLE_OR_FLIGHT_MOVE_TO_BASE_EVIDENCE.md`。本批已补 Battle or Flight / 战或逃 `OGN·168/298` / `FU-813144e7d4` 的极窄战场单位移动到 owner base 与目标 guard hardening 代表切片。项目仍 **NOT READY**，`fullOfficial=false`。
+
+4C-28 已关闭代表子项：
+
+- P1 打出 Battle or Flight，选择正面战场单位目标，双方 priority pass 后结算，目标移动到 owner base。
+- 移动后保留 damage / power / object identity，避免误判为重新创建对象或错误重置状态。
+- battlefield equipment、base unit、stale object、face-down standby object 均 `INVALID_TARGET`，no tick / no events / no payment / no hand movement / no stack item / no unit movement。
+- 本批未新增 protocol / frontend shape；前端仍不本地裁决目标合法性或 move-to-base 结算。
+
+4C-28 规则依据：
+
+- `CATALOG` `OGN·168/298`；FU `FU-813144e7d4`。
+- `CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356。
+- `JFAQ-251023` p4；`SOUL-JFAQ-260114` p12、p16 作为 Battle or Flight swift / movement FAQ regression 入口。
+
+4C-28 验证记录：
+
+- Focused backend：A 记录 Battle or Flight focused 通过 61/61。
+- Tests added in `BattleOrFlightMoveToBaseTests`：`BattleOrFlightMovesFaceUpBattlefieldUnitToOwnerBase`、`BattleOrFlightRejectsInvalidTargetsWithoutMutation`。
+- 本批未记录 backend full / frontend build / Chrome smoke / Stage 3 preflight；不得替代最终正式 18-step E2E。
+- D 本轮只更新 docs 审计 / 证据 / checkpoint / index / TODO 文档；不修改服务端、前端、coverage matrix JSON、baseline / risk / freeze 文档或 `riftbound-dotnet.sln`。
+
+仍缺 P0/P1：
+
+- P0：完整 spell duel / battle lifecycle、swift / reaction timing、face-down standby play 与 priority window 全矩阵。
+- P0：完整 movement / control-zone / roam lifecycle、owner/controller split、attached equipment、movement replacement / prevention / cleanup 交织。
+- P0：完整 targeting prompt、target invalidation、hidden / face-down target policy、Spellshield target tax。
+- P0：完整 PaymentEngine、play-card cost Quote / Authorize / Commit、替代 / 额外费用与支付资源矩阵。
+- P0：FAQ regression、1009 entries / 811 functional units full-official、正式 18-step E2E 与 completion audit。
+- P1：Battle or Flight move-to-base 的 event label / replay redaction、movement UI 解释字段和 movement UX 仍需后续全矩阵证据。
+
+4C-28 不宣称 full-official，不宣称 READY / READY-CANDIDATE。
+
 ## 2026-05-10 阶段 4C-27 Treasure Hunter Move Gold 审计
 
 阶段 4C-27 审计入口：`docs/CURRENT_STAGE4C_BATCH27_TREASURE_HUNTER_MOVE_GOLD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH27_TREASURE_HUNTER_MOVE_GOLD_EVIDENCE.md`。本批已补 Treasure Hunter / 寻宝猎人 `SFD·130/221` / `FU-6144ab0271` 的极窄移动触发创建休眠 Gold 装备指示物代表切片。项目仍 **NOT READY**，`fullOfficial=false`。

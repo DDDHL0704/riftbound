@@ -17009,6 +17009,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !IsMainDeckLookWindowControlledByPlayer(state, intent.PlayerId, behavior)
             || targetObjectIds.Where((targetObjectId, targetIndex) =>
                 !IsTargetObjectInScope(state, intent.PlayerId, targetObjectId, behavior.TargetScope, targetIndex)
+                || !IsBattleOrFlightTargetAllowed(state, behavior, targetObjectId)
                 || !IsMainDeckLookTargetAllowed(state, intent.PlayerId, targetObjectId, targetIndex, behavior)
                 || !IsMainDeckTargetTagAllowed(state, targetObjectId, targetIndex, behavior)
                 || !IsTargetRequiredTagAllowed(state, targetObjectId, behavior)
@@ -20041,6 +20042,30 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return string.IsNullOrWhiteSpace(behavior.TargetRequiredTag)
             || CardObjectHasTag(state.CardObjects, objectId, behavior.TargetRequiredTag);
+    }
+
+    private static bool IsBattleOrFlightTargetAllowed(
+        MatchState state,
+        CardBehaviorDefinition behavior,
+        string objectId)
+    {
+        if (!string.Equals(behavior.EffectKind, "BATTLE_OR_FLIGHT_MOVE_BATTLEFIELD_UNIT_TO_BASE", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        if (!state.CardObjects.TryGetValue(objectId, out var targetState)
+            || targetState.IsFaceDown
+            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || targetState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
+            || targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        return targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || targetState.Tags.Count == 0;
     }
 
     private static bool IsTargetManaCostAllowed(

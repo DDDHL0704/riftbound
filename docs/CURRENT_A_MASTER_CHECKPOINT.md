@@ -340,6 +340,57 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Treasure Hunter 代表路径外推完整移动、触发、金币、装备、隐藏信息、Karthus 或 full-official。
 
+## 0.1.6 阶段 4C-28 Battle or Flight Checkpoint
+
+状态：**已完成极窄代表切片文档收口；项目仍 NOT READY。**
+
+阶段 4C-28 名称：Battle or Flight move-to-owner-base target guard representative baseline。
+
+本批候选审查事实：
+
+- A/B/D 选择 Battle or Flight / 战或逃 `OGN·168/298` / `FU-813144e7d4`，而不是 Hostile Takeover、Berserk Impulse 或 Edge of Night。
+- Battle or Flight 规则文本：将一名单位从战场上移动到其所属的基地。
+- 代表路径：P1 打出 Battle or Flight，选择正面战场单位目标，双方 priority pass 后结算，目标移动到 owner base，并保留 damage / power / object identity。
+- guard：battlefield equipment、base unit、stale object、face-down standby object 均 `INVALID_TARGET`，no tick / no events / no payment / no hand movement / no stack item / no unit movement。
+- 本批不新增 protocol / frontend shape；前端仍只消费既有 play-card / stack / movement event，不本地裁决目标合法性或移动结算。
+
+4C-28 D 文档修改文件：
+
+- `docs/CURRENT_STAGE4C_BATCH28_BATTLE_OR_FLIGHT_MOVE_TO_BASE_AUDIT.md`（D）
+- `docs/CURRENT_STAGE4C_BATCH28_BATTLE_OR_FLIGHT_MOVE_TO_BASE_EVIDENCE.md`（D）
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`（D）
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`（D）
+- `docs/rules-evidence-index.md`（D）
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`（D write lock）
+
+已跑验证：
+
+- Focused backend：A 记录 Battle or Flight focused 通过 61/61。
+- Backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 3452/3452。
+- Frontend build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过；仅保留既有 SignalR PURE annotation 警告。
+- Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过；覆盖 `/`、`/lobby`、`/decks`、`/cards`、`/rooms/stage3-smoke`、`/matches/stage3-smoke`、`/matches/stage3-smoke/result`。
+- Matrix / whitespace：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 与 `git diff --check` 均通过。
+
+本批关闭的代表子项：
+
+- `FU-813144e7d4` / `OGN·168/298` visible spell resolution move battlefield unit -> owner base 代表路径。
+- 正面战场单位目标移动后保留 damage / power / object identity 的代表路径。
+- battlefield equipment、base unit、stale object、face-down standby object 的 invalid target no-mutation 代表护栏。
+
+仍缺：
+
+- 完整 spell duel / battle lifecycle、swift / reaction timing、face-down standby play 与 priority window 全矩阵。
+- 完整 movement / control-zone / roam lifecycle、owner/controller split、attached equipment、movement replacement / prevention / cleanup 交织。
+- 完整 targeting prompt、target invalidation、hidden / face-down target policy、Spellshield target tax。
+- 完整 PaymentEngine、play-card cost Quote / Authorize / Commit、替代 / 额外费用与支付资源矩阵。
+- FAQ regression、1009/811 full-official、正式 18-step E2E、completion audit。
+
+口径：
+
+- `fullOfficial=false`。
+- 不宣称 READY / READY-CANDIDATE。
+- 不因 Battle or Flight 代表路径外推完整 swift、standby reaction、targeting、movement、PaymentEngine、FEPR 或 full-official。
+
 ## 0.2 阶段 0 当前基线
 
 阶段 0 只做主控建档、只读审计与任务拆分，不实现功能代码。已读取：
