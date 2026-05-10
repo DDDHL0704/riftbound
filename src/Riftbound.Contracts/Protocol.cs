@@ -91,6 +91,7 @@ public static class CommandTypes
     public const string PayCost = "PAY_COST";
     public const string AssignCombatDamage = "ASSIGN_COMBAT_DAMAGE";
     public const string OrderTriggers = "ORDER_TRIGGERS";
+    public const string ChooseHandCards = "CHOOSE_HAND_CARDS";
 }
 
 public sealed record ErrorDto(
@@ -203,6 +204,11 @@ public sealed record OrderTriggersCommand(
     IReadOnlyList<string>? TriggerIds = null,
     IReadOnlyList<string>? OrderedTriggerIds = null) : GameCommand(CommandTypes.OrderTriggers);
 
+public sealed record ChooseHandCardsCommand(
+    string ChoiceId = "",
+    string ChoiceWindow = "",
+    IReadOnlyList<string>? ChosenObjectIds = null) : GameCommand(CommandTypes.ChooseHandCards);
+
 public sealed record UnsupportedCommand(string RawCmdType, JsonElement? Payload = null)
     : GameCommand(RawCmdType);
 
@@ -238,6 +244,7 @@ public static class PromptTypes
     public const string AssignCombatDamage = "ASSIGN_COMBAT_DAMAGE";
     public const string PayCost = "PAY_COST";
     public const string OrderTriggers = "ORDER_TRIGGERS";
+    public const string HandChoice = "HAND_CHOICE";
     public const string TaskQueue = "TASK_QUEUE";
     public const string Wait = "WAIT";
     public const string MatchResult = "MATCH_RESULT";
@@ -281,12 +288,22 @@ public static class ActionPromptContracts
         ["orderingPlayerId", "triggerIds", "triggers", "triggerChoices", "legalOrderingConstraints", "triggeredByEventKind"],
         ["triggerQueue"]);
 
+    public static ActionPromptContractDto HandChoice { get; } = new(
+        PromptTypes.HandChoice,
+        CommandTypes.ChooseHandCards,
+        ["choiceId", "choiceWindow", "chosenObjectIds"],
+        ["candidate.metadata.handChoices"],
+        [ErrorCodes.InvalidPayload, ErrorCodes.PhaseNotAllowed, ErrorCodes.InvalidTarget, ErrorCodes.PromptExpired],
+        ["choiceId", "choiceWindow", "choosingPlayerId", "requiredCount", "maxCount", "handChoices", "reason", "effectKind"],
+        ["serverHandChoiceState", "legalObjectIds"]);
+
     public static IReadOnlyDictionary<string, ActionPromptContractDto> ByPromptKind { get; } =
         new Dictionary<string, ActionPromptContractDto>(StringComparer.Ordinal)
         {
             [PayCost.PromptKind] = PayCost,
             [AssignCombatDamage.PromptKind] = AssignCombatDamage,
-            [OrderTriggers.PromptKind] = OrderTriggers
+            [OrderTriggers.PromptKind] = OrderTriggers,
+            [HandChoice.PromptKind] = HandChoice
         };
 }
 

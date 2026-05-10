@@ -1925,6 +1925,11 @@ A 主控复验：
 
 裁决简报：`docs/CURRENT_STAGE4C_BATCH20_OPTIONAL_TRIGGER_HAND_CHOICE_DECISION.md`。
 
+4C-20A 证据补强（2026-05-10）：
+
+- `《符文战场》破限系列_裁判FAQ_260416.pdf` p3 / `BREAK-JFAQ-260416 p3`：Karthus 与 Gragas Bartender 同时被摧毁时，Gragas Bartender 的 `<绝念>` 触发两次。该证据关闭了“可见 Karthus 与另一个 Last Breath 源同时死亡时是否影响该源”的代表问题，但仍未关闭 optional choice、多 Karthus 叠加、Karthus 自身/多源批量建模、hidden / face-down / standby visibility 边界。
+- `《符文战场》核心规则_260330.pdf` p62 / `CORE-260330 p62` / rule `422.4`：Undercover Agent 的弃牌是效果的一部分；手牌不足两张时弃尽可弃数量，且无论实际弃置几张都抽两张。该证据关闭 Undercover Agent hand-size shortfall ruling，但不关闭 hand-choice prompt、viewer redaction、public discard event payload、stale/wrong-player/no-mutation validation。
+
 候选核对：
 
 - Karthus / 卡尔萨斯 `OGN·236/298` / `FU-ee1dfb3ed3` / `OGN_KARTHUS_LAST_BREATH_STATIC_PLAY_UNIT`；冻结矩阵 status flags：`IMPLEMENTED_UNTESTED`、`NEEDS_ENGINE_SUPPORT`、`NEEDS_FAQ_REVIEW`；evidence candidate：`BREAK-JFAQ-260416 p3`。
@@ -1933,7 +1938,7 @@ A 主控复验：
 分诊结论：
 
 - Karthus 不宜直接做“默认 yes”的 representative implementation。`可以额外触发一次` 涉及 optional choice、是否复制 trigger 或复制 effect、多 Karthus 是否叠加、Karthus 同时死亡是否仍生效、hidden / face-down / standby Karthus 是否提供静态修正，以及与 `ORDER_TRIGGERS` / APNAP / trigger batch 的全局耦合。
-- Undercover Agent 不宜在没有 prompt 的情况下实现。`弃置两张手牌，然后抽两张牌` 发生在 trigger resolution 时，必须由服务端打开 viewer-specific hand choice prompt；自动弃前两张会替玩家选择并可能泄漏隐藏信息。手牌不足两张时的规则也需要裁决。
+- Undercover Agent 不宜在没有 prompt 的情况下实现。`弃置两张手牌，然后抽两张牌` 发生在 trigger resolution 时，必须由服务端打开 viewer-specific hand choice prompt；自动弃前两张会替玩家选择并可能泄漏隐藏信息。手牌不足两张时的规则已由 `CORE-260330 p62` 关闭：弃尽可弃数量后仍抽两张。
 - D 建议优先做 Undercover 的 triggered discard hand-choice prompt 前置裁决；B 建议若必须二选一，Karthus 可以做代表性 default yes，但需保留 optional decline P1。A 判断：不要默认 yes；先补基础设施 / 规则裁决。
 
 4C-20 推荐下一步：
@@ -1944,9 +1949,44 @@ A 主控复验：
 
 当前停机原因：
 
-- 需要用户/规则裁决：Karthus optional semantics 与 Undercover triggered hidden hand-choice semantics。
+- 需要用户/规则裁决：Karthus optional semantics / trigger-generation model 与 Undercover triggered hidden hand-choice prompt / redaction semantics。
 - 项目整体仍 **NOT READY**。
 - 不得标记 READY / READY-CANDIDATE，不得启动正式 18-step E2E，不得进入 1009 full-official。
+
+## 0.33 阶段 4C-20B Undercover Agent Triggered Hand-Choice 审计
+
+阶段 4C-20B 已由 B 完成 Undercover Agent / 卧底特工 `OGN·178/298` / `FU-6a52b04cb2` 的服务端 `HAND_CHOICE` / `CHOOSE_HAND_CARDS` 微切片。本批只关闭 Undercover triggered hand-choice server prompt 的代表性服务端子项，不代表 full-official，不得标记 READY / READY-CANDIDATE。项目整体仍 **NOT READY**。
+
+4C-20B 审计入口：
+
+- `docs/CURRENT_STAGE4C_BATCH20B_UNDERCOVER_HAND_CHOICE_AUDIT.md`。
+
+4C-20B 已关闭服务端子项：
+
+- Undercover Agent 绝念触发结算时由服务端打开 triggered hand-choice prompt。
+- viewer-specific `handChoices` redaction：只有选择玩家能看到候选手牌；非选择玩家只看到脱敏等待信息。
+- wrong player、stale prompt、invalid choice、malformed / illegal payload 拒绝且 no mutation。
+- `CORE-260330` p62 / rule `422.4` 的 1 / 0 手牌 shortfall：手牌不足两张时弃尽可弃数量，仍抽两张。
+
+4C-20B 验证结果：
+
+- A focused backend：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~UndercoverAgentTriggerTests"` 通过 6/6。
+- A backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 3398/3398。
+- A frontend build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过。
+- A Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过。
+- A stage3 preflight：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && node scripts/stage3-preflight.mjs --start-api` 通过。
+- A mechanical checks：`git diff --check` 通过；`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 通过；4C-20B matrix assertion 确认只标记 `FU-6a52b04cb2`，Karthus `FU-ee1dfb3ed3` 未标记。
+- C frontend sync：前端已接入 `HAND_CHOICE` / `CHOOSE_HAND_CARDS` 类型、ActionPanel、状态面板、事件日志、Chrome smoke 与 stage3 preflight 覆盖；前端只展示服务端候选并提交 `CHOOSE_HAND_CARDS`，不结算弃牌或抽牌。
+- D 本轮只更新文档，不修改服务端、前端、coverage matrix JSON 或 `riftbound-dotnet.sln`。
+
+4C-20B 后仍保留 P0/P1：
+
+- P0：Karthus 额外绝念 optional / multiplicity / multi-Karthus / visibility 裁决仍未实现。
+- P0：非 Undercover 的通用 discard / hand-choice engine、其它 hand-choice FUs、完整 trigger engine、完整 effect resolution、完整 APNAP / trigger batch 仍未关闭。
+- P1：public/private discard event redaction 全矩阵、replay / spectator hand-choice redaction、更多 hand-size / replacement / prevention 组合仍需扩展。
+- P0：FAQ regression、1009 entries / 811 functional units full-official、正式 18-step E2E 与 completion audit 仍未完成。
+
+4C-20B 结论：**通过 Undercover Agent triggered hand-choice server prompt 微切片，未关闭 full-official**。允许 4C 继续推进前端接线或下一批规则切片；项目整体仍 **NOT READY**。
 
 ## 1. 总目标
 

@@ -22,8 +22,8 @@ const routes = [
   { path: "/rooms/stage3-smoke", texts: ["房间", "连接/重连并入座", "选择卡组"] },
   {
     path: "/matches/stage3-smoke",
-    texts: ["对战状态", "正式桌面状态", "法术对决", "战斗", "伤害分配", "支付费用", "触发排序", "触发队列", "中央清理", "中央战场", "待命区", "服务端行动提示", "权威快照摘要"],
-    absentTexts: ["mainDeck", "runeDeck", "handHidden", "stackItemId", "reconnectToken", "battleState", "damageLedger", "participantControllerIds", "serverPaymentState", "resourceLedgerBeforePayment", "triggerQueue"]
+    texts: ["对战状态", "正式桌面状态", "法术对决", "战斗", "手牌选择", "伤害分配", "支付费用", "触发排序", "触发队列", "中央清理", "中央战场", "待命区", "服务端行动提示", "权威快照摘要"],
+    absentTexts: ["mainDeck", "runeDeck", "handHidden", "stackItemId", "reconnectToken", "battleState", "damageLedger", "participantControllerIds", "serverPaymentState", "resourceLedgerBeforePayment", "triggerQueue", "handChoices", "legalObjectIds", "serverHandChoiceState"]
   },
   { path: "/matches/stage3-smoke/result", texts: ["结算", "结果只读取服务端权威快照"] }
 ];

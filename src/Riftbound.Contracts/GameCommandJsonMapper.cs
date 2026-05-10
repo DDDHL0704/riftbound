@@ -85,6 +85,10 @@ public static class GameCommandJsonMapper
                 Text(cmd, "battlefieldId"),
                 CombatDamageAssignments(cmd)),
             "ORDER_TRIGGERS" => OrderTriggers(cmd),
+            "CHOOSE_HAND_CARDS" => new ChooseHandCardsCommand(
+                Text(cmd, "choiceId"),
+                Text(cmd, "choiceWindow"),
+                StrictTextArray(cmd, "chosenObjectIds")),
             _ => new UnsupportedCommand(cmdType, cmd.Clone())
         };
     }

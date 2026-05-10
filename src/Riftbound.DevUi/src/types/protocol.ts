@@ -54,6 +54,7 @@ export type KnownPromptType =
   | "SPELL_DUEL_FOCUS"
   | "SPELL_DUEL_ACTION"
   | "BATTLE_DECLARATION"
+  | "HAND_CHOICE"
   | "ASSIGN_COMBAT_DAMAGE"
   | "PAY_COST"
   | "ORDER_TRIGGERS"
@@ -226,4 +227,5 @@ export type GameCommand = PromptStampedCommand & (
   | { cmdType: "PAY_COST"; paymentId?: string; paymentWindow?: string; paymentChoiceIds?: string[] | null }
   | { cmdType: "ASSIGN_COMBAT_DAMAGE"; battleId?: string; battlefieldId?: string; assignments?: CombatDamageAssignmentDto[] | null }
   | { cmdType: "ORDER_TRIGGERS"; orderedTriggerIds?: string[] | null; triggerIds?: string[] | null }
+  | { cmdType: "CHOOSE_HAND_CARDS"; choiceId: string; choiceWindow: string; chosenObjectIds: string[] }
 );

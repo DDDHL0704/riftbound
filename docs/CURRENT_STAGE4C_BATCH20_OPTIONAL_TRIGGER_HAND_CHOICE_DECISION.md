@@ -18,6 +18,19 @@ Observed official text from frozen snapshot:
 - Karthus: your Last Breath effects can trigger one additional time.
 - Undercover Agent: Last Breath, discard two cards from hand, then draw two cards.
 
+## Extracted Rule / FAQ Evidence
+
+Local PDF extraction on 2026-05-10 added two concrete evidence points:
+
+- `BREAK-JFAQ-260416 p3`: when Karthus / 卡尔萨斯 and Gragas Bartender / 戈拉斯克调酒师 are destroyed at the same time, the FAQ answer says Gragas Bartender's Last Breath triggers twice.
+- `CORE-260330 p62`, rule `422.4`: when discard is part of an effect, the player discards the maximum possible count; the Undercover Agent example states that a player with two or more cards discards two, with one card discards one, with no hand cards discards none, and draws two regardless of how many cards were discarded.
+
+Impact:
+
+- Karthus simultaneous-destruction behavior is partially evidenced for at least the Karthus + other Last Breath source case.
+- Undercover Agent hand-size shortfall is no longer an open rules question.
+- Neither evidence removes the need for server-authoritative prompt handling, viewer redaction, stale protection, and no-mutation validation.
+
 ## Server Authority Constraints
 
 - The server must decide legality, visibility, prompt timing, trigger ordering, hidden information, and state mutation.
@@ -33,7 +46,7 @@ Open questions:
 - Does "can trigger one additional time" require an optional yes/no decision per Last Breath trigger?
 - Is the extra occurrence modeled by copying the trigger before `ORDER_TRIGGERS`, copying the effect during resolution, or by a replacement/static modifier attached to trigger generation?
 - If multiple Karthus objects are controlled, do they stack?
-- If Karthus dies simultaneously with another Last Breath source, does Karthus still modify that source?
+- If Karthus dies simultaneously with another Last Breath source, the Karthus + Gragas Bartender FAQ case says the other Last Breath source triggers twice; broader simultaneous-death and self-modification boundaries still need engine-level modeling.
 - Do hidden, face-down, standby, or non-field Karthus objects modify Last Breath triggers?
 - Is the optional choice made before `ORDER_TRIGGERS`, during `ORDER_TRIGGERS`, or when the trigger resolves?
 
@@ -49,11 +62,14 @@ Undercover Agent is a self-contained Last Breath resolver, but it needs hidden h
 
 Open questions:
 
-- Does "discard two cards from hand" require choosing exactly two cards, or discard as many as possible if fewer than two are available?
-- If the player has fewer than two hand cards, does the draw-two part still happen?
 - Should the choice window open only at `TRIGGER_RESOLVED` time, after all previous stack/priority changes?
 - What public event payload should be visible to the opponent before and after discard?
 - Are discarded card identities public once they move to graveyard, or must viewer redaction differ by zone / replay frame?
+
+Resolved by `CORE-260330 p62`, rule `422.4`:
+
+- Discard as many as possible up to two cards.
+- Draw two even if fewer than two cards were discarded.
 
 Recommended ruling before implementation:
 
@@ -62,6 +78,7 @@ Recommended ruling before implementation:
 - Only the choosing player sees candidate hand object ids / card identities.
 - The opponent sees a waiting prompt and public summary only.
 - Wrong player, stale prompt, unknown object, duplicate object, not-in-hand object, and malformed payload must reject with no mutation.
+- If the choosing player has fewer than two cards in hand, the prompt must require the available count, not exactly two; zero-card hands should not open a useless choice prompt and must still draw two through the server-authoritative resolver.
 
 ## Proposed Prompt Skeletons
 
@@ -114,9 +131,9 @@ If the user explicitly authorizes a representative-only downgrade, Karthus can b
 
 - Karthus optional repeat semantics.
 - Karthus multiple-object stacking.
-- Karthus simultaneous death and visibility boundaries.
+- Karthus broader simultaneous-death, self-modification, multi-object, and visibility boundaries.
 - Undercover Agent hand-choice prompt.
-- Undercover Agent hand-size shortfall ruling.
+- Undercover Agent public/private discard event redaction.
 - Full trigger engine and trigger batch model.
 - Hidden / face-down original trigger modeling.
 - FAQ regression.

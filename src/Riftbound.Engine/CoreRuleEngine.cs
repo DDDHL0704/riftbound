@@ -428,6 +428,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string KogmawLastBreathAoeEffectKind = "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT";
     private const int KogmawLastBreathDamage = 4;
     private const string KogmawTriggerBattlefieldMarker = "::BATTLEFIELD::";
+    private const string UndercoverAgentCardNo = "OGN·178/298";
+    private const string UndercoverAgentLastBreathEffectKind = "UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT";
+    private const string UndercoverAgentHandChoiceWindow = "UNDERCOVER_AGENT_LAST_BREATH_DISCARD_DRAW";
     private const string HonestBrokerCardNo = "SFD·155/221";
     private const string HonestBrokerLastBreathCreateGoldEffectKind = "HONEST_BROKER_LAST_BREATH_CREATE_GOLD";
     private static readonly CardBehaviorDefinition HonestBrokerLastBreathCreateGoldBehavior = new(
@@ -768,6 +771,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.PhaseNotAllowed));
         }
 
+        if (state.PendingHandChoice is not null)
+        {
+            return ValueTask.FromResult(RejectWithCorePrompts(
+                state,
+                "当前需要先完成服务端手牌选择窗口。",
+                ErrorCodes.PhaseNotAllowed));
+        }
+
         if (command is DeclareBattleCommand activeTaskDeclareBattleCommand
             && ResolutionResult.ActiveStartBattleTask(state) is not null
             && string.Equals(intent.PlayerId, state.ActivePlayerId, StringComparison.Ordinal))
@@ -904,6 +915,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (string.Equals(command.CmdType, CommandTypes.OrderTriggers, StringComparison.Ordinal))
         {
             result = ResolveOrderTriggersRuntime(state, intent, command);
+            return true;
+        }
+
+        if (string.Equals(command.CmdType, CommandTypes.ChooseHandCards, StringComparison.Ordinal))
+        {
+            result = ResolveChooseHandCardsRuntime(state, intent, command);
             return true;
         }
 
@@ -2019,6 +2036,156 @@ public sealed class CoreRuleEngine : IRuleEngine
         return blocks;
     }
 
+    private static ResolutionResult ResolveChooseHandCardsRuntime(
+        MatchState state,
+        PlayerIntent intent,
+        GameCommand command)
+    {
+        if (!TryReadChooseHandCardsPayload(command, out var choiceId, out var choiceWindow, out var chosenObjectIds)
+            || string.IsNullOrWhiteSpace(choiceId)
+            || string.IsNullOrWhiteSpace(choiceWindow)
+            || chosenObjectIds is null)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "CHOOSE_HAND_CARDS 需要 choiceId、choiceWindow 与 chosenObjectIds。",
+                ErrorCodes.InvalidPayload);
+        }
+
+        var pendingChoice = state.PendingHandChoice;
+        if (pendingChoice is null)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "当前没有服务端手牌选择窗口可处理 CHOOSE_HAND_CARDS。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (!string.Equals(intent.PlayerId, pendingChoice.PlayerId, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "只有当前选择玩家可以提交 CHOOSE_HAND_CARDS。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (!string.Equals(choiceId, pendingChoice.ChoiceId, StringComparison.Ordinal)
+            || !string.Equals(choiceWindow, pendingChoice.ChoiceWindow, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "CHOOSE_HAND_CARDS 与当前服务端手牌选择窗口不匹配。",
+                ErrorCodes.PromptExpired);
+        }
+
+        var submittedObjectIds = chosenObjectIds
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Select(objectId => objectId.Trim())
+            .ToArray();
+        if (submittedObjectIds.Length != chosenObjectIds.Count
+            || submittedObjectIds.Distinct(StringComparer.Ordinal).Count() != submittedObjectIds.Length
+            || submittedObjectIds.Length != pendingChoice.RequiredCount
+            || submittedObjectIds.Length > pendingChoice.MaxCount)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "CHOOSE_HAND_CARDS 提交数量或重复项非法。",
+                ErrorCodes.InvalidPayload);
+        }
+
+        var legalObjectIds = pendingChoice.LegalObjectIds.ToHashSet(StringComparer.Ordinal);
+        var zones = state.PlayerZones.TryGetValue(intent.PlayerId, out var currentZones)
+            ? currentZones
+            : PlayerZones.Empty;
+        if (submittedObjectIds.Any(objectId => !legalObjectIds.Contains(objectId))
+            || submittedObjectIds.Any(objectId => !zones.Hand.Contains(objectId, StringComparer.Ordinal))
+            || submittedObjectIds.Any(objectId => !IsCardObjectControlledByPlayerOrLegacyOwned(state.CardObjects, intent.PlayerId, objectId)))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "CHOOSE_HAND_CARDS 包含非法手牌对象。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var events = new List<GameEvent>();
+        foreach (var objectId in submittedObjectIds)
+        {
+            if (!TryDiscardCardFromHand(playerZones, cardObjects, intent.PlayerId, objectId))
+            {
+                return RejectWithCorePrompts(
+                    state,
+                    "CHOOSE_HAND_CARDS 包含非法手牌对象。",
+                    ErrorCodes.InvalidTarget);
+            }
+
+            events.Add(BuildUndercoverAgentDiscardedEvent(
+                pendingChoice,
+                intent.PlayerId,
+                objectId,
+                autoDiscard: false));
+        }
+
+        ResolveJinxDiscardedHandCardsTrigger(
+            playerZones,
+            cardObjects,
+            intent.PlayerId,
+            "CARD_DISCARDED",
+            pendingChoice.SourceObjectId,
+            submittedObjectIds,
+            events);
+        var untilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(
+                state.UntilEndOfTurnEffects,
+                intent.PlayerId,
+                submittedObjectIds)
+            .ToArray();
+        var drawApplication = ApplyDrawToPlayer(
+            state,
+            playerZones,
+            state.PlayerScores,
+            intent.PlayerId,
+            2,
+            state.RngCursor,
+            events);
+        events.Add(new GameEvent(
+            "HAND_CHOICE_RESOLVED",
+            $"{intent.PlayerId} 完成手牌选择",
+            new Dictionary<string, object?>
+            {
+                ["choiceId"] = pendingChoice.ChoiceId,
+                ["choiceWindow"] = pendingChoice.ChoiceWindow,
+                ["playerId"] = intent.PlayerId,
+                ["sourceObjectId"] = pendingChoice.SourceObjectId,
+                ["effectKind"] = pendingChoice.EffectKind,
+                ["chosenCount"] = submittedObjectIds.Length,
+                ["drawCount"] = 2
+            }));
+
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            ActivePlayerId = state.TurnPlayerId,
+            PlayerZones = playerZones,
+            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones),
+            CardObjects = cardObjects,
+            PlayerScores = drawApplication.PlayerScores,
+            UntilEndOfTurnEffects = untilEndOfTurnEffects,
+            RngCursor = drawApplication.RngCursor,
+            PendingHandChoice = null,
+            Status = drawApplication.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
+            WinnerPlayerId = drawApplication.WinnerPlayerId ?? state.WinnerPlayerId
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
     private static StackItemState BuildStackItemForOrderedTrigger(MatchState state, TriggerQueueItemState trigger)
     {
         var cardNo = state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
@@ -2121,6 +2288,36 @@ public sealed class CoreRuleEngine : IRuleEngine
         return false;
     }
 
+    private static bool TryReadChooseHandCardsPayload(
+        GameCommand command,
+        out string choiceId,
+        out string choiceWindow,
+        out IReadOnlyList<string>? chosenObjectIds)
+    {
+        choiceId = string.Empty;
+        choiceWindow = string.Empty;
+        chosenObjectIds = null;
+        if (command is ChooseHandCardsCommand typed)
+        {
+            choiceId = typed.ChoiceId?.Trim() ?? string.Empty;
+            choiceWindow = typed.ChoiceWindow?.Trim() ?? string.Empty;
+            chosenObjectIds = typed.ChosenObjectIds?.ToArray();
+            return true;
+        }
+
+        if (TryGetRawPayload(command, out var payload))
+        {
+            choiceId = ReadText(payload, "choiceId");
+            choiceWindow = ReadText(payload, "choiceWindow");
+            chosenObjectIds = TryReadStrictTextArray(payload, "chosenObjectIds", out var parsedObjectIds)
+                ? parsedObjectIds
+                : null;
+            return true;
+        }
+
+        return false;
+    }
+
     private static bool TryGetRawPayload(GameCommand command, out JsonElement payload)
     {
         payload = default;
@@ -2159,6 +2356,34 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Where(item => item.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(item.GetString()))
             .Select(item => item.GetString()!.Trim())
             .ToArray();
+        return true;
+    }
+
+    private static bool TryReadStrictTextArray(
+        JsonElement payload,
+        string propertyName,
+        out IReadOnlyList<string> values)
+    {
+        values = [];
+        if (!payload.TryGetProperty(propertyName, out var property)
+            || property.ValueKind != JsonValueKind.Array)
+        {
+            return false;
+        }
+
+        var parsedValues = new List<string>();
+        foreach (var item in property.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.String
+                || string.IsNullOrWhiteSpace(item.GetString()))
+            {
+                return false;
+            }
+
+            parsedValues.Add(item.GetString()!.Trim());
+        }
+
+        values = parsedValues.ToArray();
         return true;
     }
 
@@ -3908,6 +4133,26 @@ public sealed class CoreRuleEngine : IRuleEngine
             || string.IsNullOrWhiteSpace(battlefieldObjectId)
             || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
             || !string.Equals(destroyedState.CardNo, KogmawCardNo, StringComparison.Ordinal)
+            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || destroyedState.IsFaceDown
+            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return null;
+        }
+
+        return destroyedState.ControllerId
+            ?? destroyedState.OwnerId
+            ?? removalResult.OwnerPlayerId;
+    }
+
+    private static string? ResolveUndercoverAgentLastBreathPlayerId(
+        CardObjectState destroyedState,
+        FieldRemovalResult removalResult)
+    {
+        if (!removalResult.WasDestroyed
+            || !removalResult.WasUnit
+            || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
+            || !string.Equals(destroyedState.CardNo, UndercoverAgentCardNo, StringComparison.Ordinal)
             || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || destroyedState.IsFaceDown
             || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
@@ -16023,19 +16268,21 @@ public sealed class CoreRuleEngine : IRuleEngine
                 queuedTriggers = [];
             }
 
-            var returnsToSpellDuel = nextStack.Length == 0
+            var pendingHandChoice = stackResolution.PendingHandChoice;
+            var returnsToSpellDuel = pendingHandChoice is null
+                && nextStack.Length == 0
                 && queuedTriggers.Length == 0
                 && string.Equals(resolvedItem.TimingContext, TimingStates.SpellDuelOpen, StringComparison.Ordinal);
             var nextFocusPlayerId = returnsToSpellDuel
                 ? NextPlayerIdAfter(state, resolvedItem.ControllerId)
                 : null;
-            var nextPriorityPlayerId = nextStack.Length == 0 || queuedTriggers.Length > 1
+            var nextPriorityPlayerId = pendingHandChoice is not null || nextStack.Length == 0 || queuedTriggers.Length > 1
                 ? null
                 : nextStack[^1].ControllerId;
             nextState = state with
             {
                 Tick = state.Tick + 1,
-                ActivePlayerId = nextFocusPlayerId ?? nextPriorityPlayerId ?? state.TurnPlayerId,
+                ActivePlayerId = pendingHandChoice?.PlayerId ?? nextFocusPlayerId ?? nextPriorityPlayerId ?? state.TurnPlayerId,
                 TimingState = nextStack.Length == 0
                     ? returnsToSpellDuel
                         ? TimingStates.SpellDuelOpen
@@ -16045,6 +16292,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 PassedPriorityPlayerIds = [],
                 StackItems = nextStack,
                 TriggerQueue = queuedTriggers,
+                PendingHandChoice = pendingHandChoice,
                 PlayerZones = resolvedPlayerZones,
                 ObjectLocations = objectLocations,
                 PlayerScores = stackResolution.PlayerScores,
@@ -20808,6 +21056,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveKogmawLastBreathStackItem(state, stackItem);
         }
 
+        if (string.Equals(stackItem.EffectKind, UndercoverAgentLastBreathEffectKind, StringComparison.Ordinal)
+            && string.Equals(stackItem.TimingContext, "ORDERED_TRIGGER", StringComparison.Ordinal))
+        {
+            return ResolveUndercoverAgentLastBreathStackItem(state, stackItem);
+        }
+
         if (string.Equals(stackItem.EffectKind, GhostlyCentaurFriendlyDestroyedPowerEffectKind, StringComparison.Ordinal))
         {
             return ResolveGhostlyCentaurFriendlyDestroyedPowerStackItem(state, stackItem);
@@ -22823,6 +23077,20 @@ public sealed class CoreRuleEngine : IRuleEngine
                                 officialLastBreathTriggers.Add(trigger);
                             }
 
+                            var undercoverAgentPlayerId = ResolveUndercoverAgentLastBreathPlayerId(
+                                targetState,
+                                removalResult);
+                            if (undercoverAgentPlayerId is not null)
+                            {
+                                var trigger = BuildLastBreathTriggerQueueItem(
+                                    stackItem,
+                                    targetObjectId,
+                                    undercoverAgentPlayerId,
+                                    UndercoverAgentLastBreathEffectKind);
+                                events.Add(BuildTriggerQueuedEvent(trigger));
+                                officialLastBreathTriggers.Add(trigger);
+                            }
+
                             var honestBrokerGoldPlayerId = ResolveHonestBrokerLastBreathGoldPlayerId(
                                 targetState,
                                 removalResult);
@@ -23761,6 +24029,151 @@ public sealed class CoreRuleEngine : IRuleEngine
             state.RngCursor);
     }
 
+    private static StackResolutionResult ResolveUndercoverAgentLastBreathStackItem(
+        MatchState state,
+        StackItemState stackItem)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var playerScores = state.PlayerScores;
+        var untilEndOfTurnEffects = state.UntilEndOfTurnEffects.ToArray();
+        var rngCursor = state.RngCursor;
+        var events = new List<GameEvent>
+        {
+            BuildTriggerResolvedEvent(new TriggerQueueItemState(
+                stackItem.StackItemId.StartsWith("ordered-", StringComparison.Ordinal)
+                    ? stackItem.StackItemId["ordered-".Length..]
+                    : stackItem.StackItemId,
+                stackItem.ControllerId,
+                stackItem.SourceObjectId,
+                stackItem.EffectKind,
+                "UNIT_DESTROYED"))
+        };
+
+        var handObjectIds = playerZones.TryGetValue(stackItem.ControllerId, out var zones)
+            ? zones.Hand
+                .Where(objectId => IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, stackItem.ControllerId, objectId))
+                .ToArray()
+            : [];
+        var pendingChoice = new PendingHandChoiceState(
+            choiceId: BuildUndercoverAgentHandChoiceId(stackItem),
+            choiceWindow: UndercoverAgentHandChoiceWindow,
+            playerId: stackItem.ControllerId,
+            requiredCount: Math.Min(2, handObjectIds.Length),
+            maxCount: Math.Min(2, handObjectIds.Length),
+            legalObjectIds: handObjectIds,
+            reason: UndercoverAgentLastBreathEffectKind,
+            sourceObjectId: stackItem.SourceObjectId,
+            effectKind: UndercoverAgentLastBreathEffectKind);
+
+        if (handObjectIds.Length >= 2)
+        {
+            events.Add(new GameEvent(
+                "HAND_CHOICE_REQUESTED",
+                "卧底特工要求选择手牌",
+                new Dictionary<string, object?>
+                {
+                    ["choiceId"] = pendingChoice.ChoiceId,
+                    ["choiceWindow"] = pendingChoice.ChoiceWindow,
+                    ["playerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["effectKind"] = UndercoverAgentLastBreathEffectKind,
+                    ["requiredCount"] = pendingChoice.RequiredCount,
+                    ["maxCount"] = pendingChoice.MaxCount,
+                    ["legalCount"] = handObjectIds.Length
+                }));
+
+            return new StackResolutionResult(
+                playerZones,
+                cardObjects,
+                playerScores,
+                NormalizeExperienceForSeats(state),
+                state.RunePools,
+                untilEndOfTurnEffects,
+                null,
+                events,
+                [],
+                null,
+                [],
+                null,
+                [],
+                rngCursor,
+                pendingChoice);
+        }
+
+        if (handObjectIds.Length == 1)
+        {
+            var discardedObjectId = handObjectIds[0];
+            if (TryDiscardCardFromHand(playerZones, cardObjects, stackItem.ControllerId, discardedObjectId))
+            {
+                events.Add(BuildUndercoverAgentDiscardedEvent(
+                    pendingChoice,
+                    stackItem.ControllerId,
+                    discardedObjectId,
+                    autoDiscard: true));
+                ResolveJinxDiscardedHandCardsTrigger(
+                    playerZones,
+                    cardObjects,
+                    stackItem.ControllerId,
+                    "CARD_DISCARDED",
+                    stackItem.SourceObjectId,
+                    [discardedObjectId],
+                    events);
+                untilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(
+                        untilEndOfTurnEffects,
+                        stackItem.ControllerId,
+                        [discardedObjectId])
+                    .ToArray();
+            }
+        }
+        else
+        {
+            events.Add(new GameEvent(
+                "HAND_CHOICE_SKIPPED",
+                "卧底特工无可弃置手牌",
+                new Dictionary<string, object?>
+                {
+                    ["choiceId"] = pendingChoice.ChoiceId,
+                    ["choiceWindow"] = pendingChoice.ChoiceWindow,
+                    ["playerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["effectKind"] = UndercoverAgentLastBreathEffectKind,
+                    ["availableHandCount"] = 0,
+                    ["drawCount"] = 2
+                }));
+        }
+
+        var drawApplication = ApplyDrawToPlayer(
+            state,
+            playerZones,
+            playerScores,
+            stackItem.ControllerId,
+            2,
+            rngCursor,
+            events);
+
+        return new StackResolutionResult(
+            playerZones,
+            cardObjects,
+            drawApplication.PlayerScores,
+            NormalizeExperienceForSeats(state),
+            state.RunePools,
+            untilEndOfTurnEffects,
+            drawApplication.WinnerPlayerId,
+            events,
+            [],
+            null,
+            [],
+            null,
+            [],
+            drawApplication.RngCursor);
+    }
+
+    private static string BuildUndercoverAgentHandChoiceId(StackItemState stackItem)
+    {
+        return $"CHOICE-{stackItem.StackItemId}";
+    }
+
     private static StackResolutionResult ResolveGhostlyCentaurFriendlyDestroyedPowerStackItem(
         MatchState state,
         StackItemState stackItem)
@@ -23974,7 +24387,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             && !string.Equals(trigger.EffectKind, ViktorDestroyedNonMinionCreateMinionEffectKind, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, MechanicalTricksterLastBreathCreateMinionsEffectKind, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, IroncladVanguardLastBreathCreateRobotsEffectKind, StringComparison.Ordinal)
-            && !string.Equals(trigger.EffectKind, KogmawLastBreathAoeEffectKind, StringComparison.Ordinal);
+            && !string.Equals(trigger.EffectKind, KogmawLastBreathAoeEffectKind, StringComparison.Ordinal)
+            && !string.Equals(trigger.EffectKind, UndercoverAgentLastBreathEffectKind, StringComparison.Ordinal);
     }
 
     private static StackItemState BuildStackItemForLastBreathTrigger(
@@ -26832,6 +27246,28 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static GameEvent BuildUndercoverAgentDiscardedEvent(
+        PendingHandChoiceState pendingChoice,
+        string playerId,
+        string targetObjectId,
+        bool autoDiscard)
+    {
+        return new GameEvent(
+            "CARD_DISCARDED",
+            autoDiscard ? "卧底特工弃尽可弃手牌" : "卧底特工弃置所选手牌",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = pendingChoice.SourceObjectId,
+                ["targetObjectId"] = targetObjectId,
+                ["destinationZone"] = "GRAVEYARD",
+                ["choiceId"] = pendingChoice.ChoiceId,
+                ["choiceWindow"] = pendingChoice.ChoiceWindow,
+                ["effectKind"] = pendingChoice.EffectKind,
+                ["autoDiscard"] = autoDiscard
+            });
+    }
+
     private static bool TryDiscardCardFromAnyHand(
         Dictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -28082,6 +28518,20 @@ public sealed class CoreRuleEngine : IRuleEngine
                 triggerQueue.Add(trigger);
             }
 
+            var undercoverAgentPlayerId = ResolveUndercoverAgentLastBreathPlayerId(
+                destroyedState,
+                removalResult);
+            if (undercoverAgentPlayerId is not null)
+            {
+                var trigger = BuildLastBreathTriggerQueueItem(
+                    stackItem,
+                    objectId,
+                    undercoverAgentPlayerId,
+                    UndercoverAgentLastBreathEffectKind);
+                events.Add(BuildTriggerQueuedEvent(trigger));
+                triggerQueue.Add(trigger);
+            }
+
             var mechanicalTricksterControllerId = ResolveMechanicalTricksterLastBreathMinionPlayerId(
                 destroyedState,
                 removalResult);
@@ -29292,6 +29742,20 @@ public sealed class CoreRuleEngine : IRuleEngine
                     : WithSurrender("WAIT")));
         }
 
+        if (state.PendingHandChoice is not null)
+        {
+            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
+                state,
+                playerId,
+                string.Equals(playerId, state.PendingHandChoice.PlayerId, StringComparison.Ordinal),
+                string.Equals(playerId, state.PendingHandChoice.PlayerId, StringComparison.Ordinal)
+                    ? "请选择要弃置的手牌"
+                    : "等待对手选择手牌",
+                string.Equals(playerId, state.PendingHandChoice.PlayerId, StringComparison.Ordinal)
+                    ? WithSurrender(CommandTypes.ChooseHandCards)
+                    : WithSurrender("WAIT")));
+        }
+
         if (state.StackItems.Count > 0 && !string.IsNullOrWhiteSpace(state.PriorityPlayerId))
         {
             return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
@@ -29745,7 +30209,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> CounteredStackItemIds,
         string? ExtraTurnPlayerId,
         IReadOnlyList<TriggerQueueItemState> TriggerQueue,
-        long RngCursor);
+        long RngCursor,
+        PendingHandChoiceState? PendingHandChoice = null);
 
     private sealed record RecycleResult(
         IReadOnlyList<GameEvent> Events,

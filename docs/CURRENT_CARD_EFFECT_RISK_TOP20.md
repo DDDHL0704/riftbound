@@ -2,11 +2,11 @@
 
 更新时间：2026-05-10
 
-阶段：**阶段 4C-19 / E 卡牌覆盖矩阵 post-freeze overlay**
+阶段：**阶段 4C-20B / E 卡牌覆盖矩阵 post-freeze overlay**
 
 结论：**NOT READY；不允许进入 1009 张卡牌效果批量覆盖。**
 
-本文以阶段 2 风险排序为基础，并叠加阶段 3A/3B/3C/3D 的最小证据 overlay、阶段 4B 冻结状态、阶段 4C-1 APNAP `ORDER_TRIGGERS` 部分 blocker 降低、阶段 4C-2/4C-3 real trigger enqueue、阶段 4C-4 trigger payment、阶段 4C-5 Watchful state-based cleanup trigger enqueue、阶段 4C-6 Honest Broker state-based cleanup trigger enqueue、阶段 4C-7 Scouting Warhawk explicit destroy trigger enqueue、阶段 4C-8 Scouting Warhawk state-based cleanup trigger enqueue、阶段 4C-9 Sad/Loyal Poro conditional cleanup trigger enqueue、阶段 4C-10 Unsung Hero powerful cleanup trigger enqueue、阶段 4C-11 Ghostly Centaur friendly-destroyed cleanup trigger enqueue、阶段 4C-12 Resonant Soul first-friendly-destroyed cleanup trigger enqueue、阶段 4C-13 true stack destruction route migration、阶段 4C-14 Savage Jawfish friendly-destroyed experience trigger enqueue、阶段 4C-15A Minion token family model overlay、阶段 4C-15B Viktor destroyed non-Minion trigger enqueue、阶段 4C-16 / 4C-17 Mechanical Trickster / Ironclad Vanguard true stack last-breath trigger enqueue、阶段 4C-18 Mechanical Trickster + Ironclad Vanguard cleanup trigger enqueue 和阶段 4C-19 Kogmaw last-breath AoE damage representative route；它不是功能实现清单，也不是错误断言。排名用于告诉后续阶段先审哪里：哪些 functional unit 同时碰到 FAQ、费用、触发/替换、持续效果、战斗/法术对决、隐藏信息或非 PLAY_CARD 规则域。
+本文以阶段 2 风险排序为基础，并叠加阶段 3A/3B/3C/3D 的最小证据 overlay、阶段 4B 冻结状态、阶段 4C-1 APNAP `ORDER_TRIGGERS` 部分 blocker 降低、阶段 4C-2/4C-3 real trigger enqueue、阶段 4C-4 trigger payment、阶段 4C-5 Watchful state-based cleanup trigger enqueue、阶段 4C-6 Honest Broker state-based cleanup trigger enqueue、阶段 4C-7 Scouting Warhawk explicit destroy trigger enqueue、阶段 4C-8 Scouting Warhawk state-based cleanup trigger enqueue、阶段 4C-9 Sad/Loyal Poro conditional cleanup trigger enqueue、阶段 4C-10 Unsung Hero powerful cleanup trigger enqueue、阶段 4C-11 Ghostly Centaur friendly-destroyed cleanup trigger enqueue、阶段 4C-12 Resonant Soul first-friendly-destroyed cleanup trigger enqueue、阶段 4C-13 true stack destruction route migration、阶段 4C-14 Savage Jawfish friendly-destroyed experience trigger enqueue、阶段 4C-15A Minion token family model overlay、阶段 4C-15B Viktor destroyed non-Minion trigger enqueue、阶段 4C-16 / 4C-17 Mechanical Trickster / Ironclad Vanguard true stack last-breath trigger enqueue、阶段 4C-18 Mechanical Trickster + Ironclad Vanguard cleanup trigger enqueue、阶段 4C-19 Kogmaw last-breath AoE damage representative route 和阶段 4C-20B Undercover Agent triggered hand-choice prompt；它不是功能实现清单，也不是错误断言。排名用于告诉后续阶段先审哪里：哪些 functional unit 同时碰到 FAQ、费用、触发/替换、持续效果、战斗/法术对决、隐藏信息或非 PLAY_CARD 规则域。
 
 ## 1. 数据来源
 
@@ -612,6 +612,34 @@ Viktor boundary：
 
 仍缺：Kogmaw `JFAQ-251023 p7` FAQ adjudication、完整 trigger engine、full AoE damage target/set/prevention/replacement matrix、post-damage cleanup edge cases、Karthus / Undercover Agent、1009/811 full-official 覆盖、正式 18-step E2E。
 
+## 28. Stage 4C-20B Undercover Agent Hand-Choice Overlay
+
+4C-20B 只更新覆盖矩阵 / 风险证据，不升级 full-official。`docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已新增 `stage4CBatch20BUndercoverHandChoice`，并只为 `FU-6a52b04cb2` 增加 `functionalUnits[].stage4C20B` overlay。
+
+身份核对：
+
+- `OGN·178/298` Undercover Agent / 《卧底特工》对应冻结矩阵 `FU-6a52b04cb2`。
+- 当前 oracle/effectId：`UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT`。
+- 4B freezeStatus：`NEEDS_ENGINE_SUPPORT`；statusFlags：`IMPLEMENTED_UNTESTED`、`NEEDS_ENGINE_SUPPORT`。
+- rules refs：`CORE-260330 p62` / rule `422.4`。
+
+4C-20B 已部分降低的 blocker：
+
+- visible face-up field source -> Last Breath trigger -> Stack -> `HAND_CHOICE` prompt if 2+ hand -> `CHOOSE_HAND_CARDS` validation -> discard chosen / max possible -> draw two。
+- 1/0 hand shortfall by `CORE-260330 p62` / rule `422.4`。
+- hidden / face-down / standby source no trigger / no leak。
+- automated tests：`UndercoverAgentTriggerTests`。
+- A 验证结果：focused Undercover 6/6、backend full 3398/3398、frontend build passed、Chrome smoke passed、Stage 3 preflight passed、diff / JSON / matrix assertions passed。
+- Karthus and other FUs remain unmarked。
+
+矩阵数字：`stage4C20B` verified FUs = 1，verified snapshot entries = 1，cumulative real-trigger enqueue verified FUs = 15，cumulative state-based cleanup trigger enqueue verified FUs = 13，cumulative hand-choice prompt verified FUs = 1，full-official upgrades = 0，full-official still uncovered FUs = 811。
+
+本批不关闭通用 discard hand-choice engine、其它 hidden hand-choice FUs、完整 trigger engine 或 hidden-info 全族回归。
+
+后续批量顺序建议：Karthus optional trigger repeat、通用 discard hand-choice engine、其它 hidden hand-choice FUs 继续作为高风险后续。
+
+仍缺：Karthus optional trigger repeat、通用 discard hand-choice engine、其它 hidden hand-choice FUs、完整 trigger engine、hidden / face-down / standby visibility regression beyond this guard、1009/811 full-official 覆盖、正式 18-step E2E。
+
 ## 24. Stage 4C-16 Mechanical Trickster Trigger Enqueue Overlay
 
 4C-16 只更新覆盖矩阵 / 风险证据，不升级 full-official。`docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已新增 `stage4CBatch16MechanicalTricksterTriggerEnqueue`，并只为 `FU-1a392a4ae2` 增加 `functionalUnits[].stage4C16` overlay。
@@ -634,7 +662,7 @@ Viktor boundary：
 
 仍缺：Mechanical Trickster cleanup route、完整 trigger engine、multi-source / multi-destroy / simultaneous trigger multiplicity、隐藏 / face-down original visibility modeling、Ironclad Vanguard / Kogmaw / Karthus / Undercover Agent、FAQ adjudication / regression、1009/811 full-official 覆盖、正式 18-step E2E。
 
-## 28. Top20 高风险 Functional Units
+## 29. Top20 高风险 Functional Units
 
 | # | FU | Representative | 类型/条目数 | 当前代表映射 | FAQ 候选页 | 风险依据 | 依赖规则域 |
 |---:|---|---|---:|---|---|---|---|
@@ -659,7 +687,7 @@ Viktor boundary：
 | 19 | `FU-804412488c` | `SFD·139/221` 夜之锋刃 | 装备 / 1 | 代表路径：EDGE_OF_NIGHT_PLAY_EQUIPMENT | SOUL-OFAQ-260114 p10<br>SOUL-OFAQ-260114 p9 | 控制权/区域移动、FAQ 提及、隐藏信息/随机/牌堆、效果层/持续效果、费用/支付、目标/结算链/时机 | FEPR/Targeting/TimingWindows, LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, VisibilityFilter/RandomAndHiddenZones, ZoneOwnership/ControlChange/Movement |
 | 20 | `FU-9a623b3185` | `SFD·059/221` 斯弗尔尚歌 | 装备 / 1 | 代表路径：SFUR_SONG_PLAY_EQUIPMENT | SOUL-JFAQ-260114 p24<br>SOUL-JFAQ-260114 p25<br>SOUL-JFAQ-260114 p8<br>SOUL-OFAQ-260114 p18<br>SOUL-OFAQ-260114 p19 | 控制权/区域移动、FAQ 提及、效果层/持续效果、费用/支付 | LayerEngine/ContinuousEffects, PaymentEngine/PAY_COST, ZoneOwnership/ControlChange/Movement |
 
-## 29. 未覆盖效果分类
+## 30. 未覆盖效果分类
 
 | 分类 | 含义 | 当前阻断关系 |
 |---|---|---|
@@ -673,13 +701,13 @@ Viktor boundary：
 | `non-play-domain` | 传奇、战场、符文、指示物等非普通 PLAY_CARD 域。 | 需要专门域矩阵，不可与普通出牌效果混算。 |
 | `faq-mentioned` | 五份 PDF/FAQ 中出现卡名的候选项。 | 必须人工判定问题是否真的约束该 FU，并补测试。 |
 
-## 30. P0/P1 仍未清零
+## 31. P0/P1 仍未清零
 
 P0：
 
 - central cleanup queue 未完整官方化。
 - spell duel / battle 完整生命周期仍未完成。
-- `PAY_COST` 已有 3A 最小 runtime，4C-4 已验证 `SFD·220/221` `TRIGGER_PAYMENT` 支付 / 拒付代表路径，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime，`ORDER_TRIGGERS` 已升级为 4C-1 保守 APNAP controller-block 子集，4C-2 / 4C-3 只验证 Watchful Sentinel 与 Honest Broker real trigger enqueue，4C-5 / 4C-6 只验证 visible Watchful Sentinel 与 visible Honest Broker 的 state-based cleanup trigger enqueue，4C-7 / 4C-8 只验证 visible Scouting Warhawk explicit destroy 与 state-based cleanup trigger enqueue，4C-9 只验证 visible Sad/Loyal Poro conditional cleanup trigger enqueue，4C-10 只验证 visible Unsung Hero powerful cleanup trigger enqueue，4C-11 只验证 visible surviving friendly Ghostly Centaur friendly-destroyed cleanup trigger enqueue，4C-12 只验证 visible surviving friendly Resonant Soul first-friendly-destroyed cleanup trigger enqueue，4C-13 只迁移 Ghostly / Resonant true stack destruction non-cleanup route，4C-14 只验证 Savage Jawfish true stack / cleanup friendly-destroyed experience trigger enqueue，4C-15A 只记录 Minion token family infrastructure，4C-15B 只验证 Viktor destroyed non-Minion representative trigger enqueue baseline，4C-16 / 4C-17 只验证 Mechanical Trickster / Ironclad Vanguard true stack last-breath representative trigger enqueue baseline，4C-18 只验证这两个 FU 的 cleanup-route representative trigger enqueue baseline，4C-19 只验证 Kogmaw visible last-breath AoE damage representative route；完整 PaymentEngine、完整 damage assignment 全规则矩阵、完整 trigger engine / battle initial stack 全规则仍未完成。
+- `PAY_COST` 已有 3A 最小 runtime，4C-4 已验证 `SFD·220/221` `TRIGGER_PAYMENT` 支付 / 拒付代表路径，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime，`ORDER_TRIGGERS` 已升级为 4C-1 保守 APNAP controller-block 子集，4C-2 / 4C-3 只验证 Watchful Sentinel 与 Honest Broker real trigger enqueue，4C-5 / 4C-6 只验证 visible Watchful Sentinel 与 visible Honest Broker 的 state-based cleanup trigger enqueue，4C-7 / 4C-8 只验证 visible Scouting Warhawk explicit destroy 与 state-based cleanup trigger enqueue，4C-9 只验证 visible Sad/Loyal Poro conditional cleanup trigger enqueue，4C-10 只验证 visible Unsung Hero powerful cleanup trigger enqueue，4C-11 只验证 visible surviving friendly Ghostly Centaur friendly-destroyed cleanup trigger enqueue，4C-12 只验证 visible surviving friendly Resonant Soul first-friendly-destroyed cleanup trigger enqueue，4C-13 只迁移 Ghostly / Resonant true stack destruction non-cleanup route，4C-14 只验证 Savage Jawfish true stack / cleanup friendly-destroyed experience trigger enqueue，4C-15A 只记录 Minion token family infrastructure，4C-15B 只验证 Viktor destroyed non-Minion representative trigger enqueue baseline，4C-16 / 4C-17 只验证 Mechanical Trickster / Ironclad Vanguard true stack last-breath representative trigger enqueue baseline，4C-18 只验证这两个 FU 的 cleanup-route representative trigger enqueue baseline，4C-19 只验证 Kogmaw visible last-breath AoE damage representative route，4C-20B 只验证 Undercover Agent triggered hand-choice prompt 微切片；完整 PaymentEngine、完整 damage assignment 全规则矩阵、完整 trigger engine / battle initial stack 全规则仍未完成。
 - 正式 18 步 E2E 未最终收口。
 - 1009 entries / 811 FUs 的 FAQ 证据与 full-official 测试矩阵未完成。
 

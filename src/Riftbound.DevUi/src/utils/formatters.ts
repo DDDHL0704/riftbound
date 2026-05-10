@@ -329,6 +329,7 @@ export function actionLabel(action: string): string {
     PAY_COST: "支付费用",
     ASSIGN_COMBAT_DAMAGE: "分配战斗伤害",
     ORDER_TRIGGERS: "排列触发",
+    CHOOSE_HAND_CARDS: "选择手牌",
     WAIT: "等待服务端规则任务"
   };
   return labels[action] ?? protocolFallback(action, "服务端操作", "服务端操作");

@@ -83,7 +83,7 @@ async function runClientPreflight(client) {
   await clickButton(cdp, "连接/重连并入座");
   await waitForText(cdp, ["进入对战桌面"]);
   await cdp.send("Page.navigate", { url: `${frontendUrl}/matches/${roomId}` });
-  await waitForText(cdp, ["对战状态", "正式桌面状态", "战场", "支付费用", "伤害分配", "触发排序", "服务端行动提示", "权威快照摘要"]);
+  await waitForText(cdp, ["对战状态", "正式桌面状态", "战场", "手牌选择", "支付费用", "伤害分配", "触发排序", "服务端行动提示", "权威快照摘要"]);
   await expectAbsentText(cdp, [
     "mainDeck",
     "runeDeck",
@@ -92,7 +92,10 @@ async function runClientPreflight(client) {
     "serverPaymentState",
     "resourceLedgerBeforePayment",
     "damageLedger",
-    "triggerQueue"
+    "triggerQueue",
+    "handChoices",
+    "legalObjectIds",
+    "serverHandChoiceState"
   ]);
   await cdp.close();
   console.log(`Stage 3 preflight OK: ${client.name}`);

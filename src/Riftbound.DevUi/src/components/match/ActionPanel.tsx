@@ -23,8 +23,11 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
   const canAct = connected && prompt?.actionable && prompt.playerId === playerId;
   const promptView = prompt?.view;
   const orderTriggersCandidate = allCandidates.find((candidate) => candidate.action === "ORDER_TRIGGERS");
+  const handChoiceCandidate = allCandidates.find((candidate) => candidate.action === "CHOOSE_HAND_CARDS");
   const showReadonlyOrderTriggers = promptView?.type === "ORDER_TRIGGERS"
     && !candidates.some((candidate) => candidate.action === "ORDER_TRIGGERS");
+  const showReadonlyHandChoice = promptView?.type === "HAND_CHOICE"
+    && !candidates.some((candidate) => candidate.action === "CHOOSE_HAND_CARDS");
   const promptTitle = promptView?.title?.trim() || "当前行动";
   const promptMessage = promptView?.message?.trim()
     || (prompt ? promptReasonLabel(prompt.reason, "服务端行动提示") : "尚未收到行动提示");
@@ -58,9 +61,28 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
             readOnly
           />
         )}
-        {candidates.length === 0 && !showReadonlyOrderTriggers && <span className="empty-hint">服务端暂未提供可提交候选。</span>}
+        {showReadonlyHandChoice && (
+          <HandChoiceCandidate
+            canAct={false}
+            candidate={handChoiceCandidate}
+            disabledByConnection={!connected}
+            onCommand={onCommand}
+            prompt={prompt}
+            readOnly
+          />
+        )}
+        {candidates.length === 0 && !showReadonlyOrderTriggers && !showReadonlyHandChoice && <span className="empty-hint">服务端暂未提供可提交候选。</span>}
         {candidates.map((candidate) => candidate.action === "MULLIGAN" ? (
           <MulliganCandidate
+            candidate={candidate}
+            disabledByConnection={!connected}
+            key={`${candidate.action}-${candidate.label}`}
+            onCommand={onCommand}
+            prompt={prompt}
+          />
+        ) : candidate.action === "CHOOSE_HAND_CARDS" ? (
+          <HandChoiceCandidate
+            canAct={Boolean(canAct)}
             candidate={candidate}
             disabledByConnection={!connected}
             key={`${candidate.action}-${candidate.label}`}
@@ -247,6 +269,189 @@ function MulliganChoiceButton({
       <small>{selected ? "将调度" : lockedByLimit ? "已达上限" : "保留"}</small>
     </button>
   );
+}
+
+type HandChoiceItem = {
+  objectId: string;
+  label: string;
+  reason?: string;
+};
+
+type HandChoiceModel = {
+  choiceId: string;
+  choiceWindow: string;
+  choosingPlayerId?: string;
+  effectKind?: string;
+  reason?: string;
+  requiredCount?: number;
+  maxCount?: number;
+  handChoices: HandChoiceItem[];
+  resetKey: string;
+};
+
+function HandChoiceCandidate({
+  canAct,
+  candidate,
+  disabledByConnection,
+  onCommand,
+  prompt,
+  readOnly = false
+}: {
+  canAct: boolean;
+  candidate?: ActionPromptCandidateDto;
+  disabledByConnection: boolean;
+  onCommand: (command: GameCommand) => void;
+  prompt?: ActionPromptDto;
+  readOnly?: boolean;
+}) {
+  const model = useMemo(() => buildHandChoiceModel(candidate, prompt), [candidate, prompt]);
+  const [selectedObjectIds, setSelectedObjectIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    setSelectedObjectIds((current) => {
+      const allowed = new Set(model.handChoices.map((choice) => choice.objectId));
+      const kept = current.filter((objectId) => allowed.has(objectId));
+      return model.maxCount == null ? kept : kept.slice(0, model.maxCount);
+    });
+  }, [model.resetKey, model.handChoices, model.maxCount]);
+
+  const hasSelectionBounds = model.requiredCount != null && model.maxCount != null;
+  const selectionCountValid = hasSelectionBounds
+    && selectedObjectIds.length >= model.requiredCount!
+    && selectedObjectIds.length <= model.maxCount!;
+  const canSubmit = !readOnly
+    && canAct
+    && !disabledByConnection
+    && Boolean(candidate?.enabled)
+    && model.choiceId.length > 0
+    && model.choiceWindow.length > 0
+    && model.handChoices.length > 0
+    && selectionCountValid;
+
+  return (
+    <div className="hand-choice-panel">
+      <div className="hand-choice-heading">
+        <strong>{candidate ? promptActionLabel(candidate) : "选择手牌"}</strong>
+        <StatusPill tone={canSubmit ? "warn" : "neutral"}>{canSubmit ? "待服务端校验" : "等待选择"}</StatusPill>
+      </div>
+      <div className="hand-choice-summary">
+        <span>窗口：{model.choiceWindow || "服务端未提供"}</span>
+        <span>选择玩家：{model.choosingPlayerId ?? "服务端未提供"}</span>
+        <span>数量：{hasSelectionBounds ? `${model.requiredCount} / ${model.maxCount}` : "服务端未提供"}</span>
+        <span>已选：{selectedObjectIds.length}</span>
+        <span>效果：{model.effectKind ?? "服务端未提供"}</span>
+        <span>原因：{model.reason ?? "服务端未提供"}</span>
+      </div>
+      <p className="hand-choice-note">
+        仅展示服务端发给当前玩家的手牌候选；选择结果和后续弃牌、抽牌或效果结算都由服务端处理。
+      </p>
+      <div className="hand-choice-list">
+        {model.handChoices.length === 0 && (
+          <span className="empty-hint">等待服务端选择窗口；当前视角没有可展示的手牌候选。</span>
+        )}
+        {model.handChoices.map((choice) => {
+          const selected = selectedObjectIds.includes(choice.objectId);
+          const lockedByLimit = !selected && model.maxCount != null && selectedObjectIds.length >= model.maxCount;
+          return (
+            <button
+              className={`hand-choice-row ${selected ? "is-selected" : ""}`}
+              disabled={readOnly || !canAct || disabledByConnection || lockedByLimit}
+              key={choice.objectId}
+              onClick={() => {
+                setSelectedObjectIds((current) => current.includes(choice.objectId)
+                  ? current.filter((objectId) => objectId !== choice.objectId)
+                  : [...current, choice.objectId]);
+              }}
+              title={choice.reason ?? "服务端手牌候选"}
+              type="button"
+            >
+              <span>
+                <strong>{choice.label}</strong>
+                {choice.reason && <small>{choice.reason}</small>}
+              </span>
+              <small>{selected ? "已选择" : lockedByLimit ? "已达上限" : "可选择"}</small>
+            </button>
+          );
+        })}
+      </div>
+      <Button
+        disabled={!canSubmit}
+        icon={<Check size={16} />}
+        onClick={() => onCommand(withPromptStamp({
+          cmdType: "CHOOSE_HAND_CARDS",
+          choiceId: model.choiceId,
+          choiceWindow: model.choiceWindow,
+          chosenObjectIds: selectedObjectIds
+        }, prompt))}
+        title={disabledByConnection ? "连接恢复前不能提交手牌选择" : promptReasonTitle(candidate?.reason)}
+        variant={canSubmit ? "primary" : "ghost"}
+      >
+        提交手牌选择
+      </Button>
+    </div>
+  );
+}
+
+function buildHandChoiceModel(candidate: ActionPromptCandidateDto | undefined, prompt: ActionPromptDto | undefined): HandChoiceModel {
+  const metadata = candidate?.metadata ?? {};
+  const requiredCount = numberMetadata(metadata, "requiredCount") ?? prompt?.view?.minSelection ?? undefined;
+  const maxCount = numberMetadata(metadata, "maxCount") ?? prompt?.view?.maxSelection ?? requiredCount;
+  const legalObjectIds = new Set(stringArrayMetadata(metadata, "legalObjectIds") ?? []);
+  const handChoices = handChoiceItems(metadata.handChoices)
+    .filter((choice) => legalObjectIds.size === 0 || legalObjectIds.has(choice.objectId));
+
+  return {
+    choiceId: stringMetadata(metadata, "choiceId") ?? "",
+    choiceWindow: stringMetadata(metadata, "choiceWindow") ?? "",
+    choosingPlayerId: safeOptionalText(stringMetadata(metadata, "choosingPlayerId")),
+    effectKind: safeOptionalText(stringMetadata(metadata, "effectKind")),
+    reason: safeOptionalText(stringMetadata(metadata, "reason")),
+    requiredCount,
+    maxCount,
+    handChoices,
+    resetKey: [
+      stringMetadata(metadata, "choiceId") ?? "none",
+      stringMetadata(metadata, "choiceWindow") ?? "none",
+      requiredCount ?? "none",
+      maxCount ?? "none",
+      handChoices.map((choice) => choice.objectId).join("|")
+    ].join("::")
+  };
+}
+
+function handChoiceItems(value: unknown): HandChoiceItem[] {
+  if (Array.isArray(value)) {
+    return value
+      .map(handChoiceItem)
+      .filter((choice): choice is HandChoiceItem => choice != null);
+  }
+
+  return [];
+}
+
+function handChoiceItem(value: unknown): HandChoiceItem | undefined {
+  if (typeof value === "string" && value.trim().length > 0) {
+    return {
+      objectId: value.trim(),
+      label: "服务端手牌候选"
+    };
+  }
+
+  if (!isRecord(value)) {
+    return undefined;
+  }
+
+  const objectId = firstStringFromRecord(value, ["objectId", "id", "choiceId", "sourceObjectId"]);
+  if (!objectId) {
+    return undefined;
+  }
+
+  return {
+    objectId,
+    label: safeOptionalText(firstStringFromRecord(value, ["label", "cardName", "cardNo", "summary", "visibleText", "text", "title", "name"]))
+      ?? "服务端手牌候选",
+    reason: safeOptionalText(firstStringFromRecord(value, ["reason", "description"]))
+  };
 }
 
 type DamageAssignmentChoice = {
@@ -987,6 +1192,7 @@ const knownPromptTypes = new Set<string>([
   "SPELL_DUEL_FOCUS",
   "SPELL_DUEL_ACTION",
   "BATTLE_DECLARATION",
+  "HAND_CHOICE",
   "ASSIGN_COMBAT_DAMAGE",
   "PAY_COST",
   "ORDER_TRIGGERS",
@@ -998,6 +1204,7 @@ const knownPromptTypes = new Set<string>([
 const complexPromptTypes = new Set<string>([
   "PAY_COST",
   "ORDER_TRIGGERS",
+  "HAND_CHOICE",
   "ASSIGN_COMBAT_DAMAGE",
   "SPELL_DUEL_ACTION"
 ]);

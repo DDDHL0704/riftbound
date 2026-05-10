@@ -34,6 +34,7 @@
 阶段 4C-17 Ironclad Vanguard trigger 审计：`docs/CURRENT_STAGE4C_BATCH17_IRONCLAD_VANGUARD_TRIGGER_AUDIT.md`
 阶段 4C-18 Mechanical + Ironclad cleanup trigger 审计：`docs/CURRENT_STAGE4C_BATCH18_MECHANICAL_IRONCLAD_CLEANUP_TRIGGER_AUDIT.md`
 阶段 4C-19 Kogmaw last-breath AoE 审计：`docs/CURRENT_STAGE4C_BATCH19_KOGMAW_LAST_BREATH_AOE_AUDIT.md`
+阶段 4C-20B Undercover Agent triggered hand-choice 审计：`docs/CURRENT_STAGE4C_BATCH20B_UNDERCOVER_HAND_CHOICE_AUDIT.md`
 
 ## B 修复验收
 
@@ -94,6 +95,8 @@
 4C-18 补充：B/A 已验证 Mechanical Trickster + Ironclad Vanguard state-based cleanup last-breath trigger enqueue 代表路径，补齐 lethal damage cleanup `UNIT_DESTROYED` -> `TriggerQueue` -> auto-stack 或 `ORDER_TRIGGERS` -> `StackItems` -> priority -> `TRIGGER_RESOLVED` -> Mechanical `UNIT_TOKEN_CREATED` x3 / Ironclad `UNIT_TOKEN_CREATED` x2。Starfall cleanup route 触发代表路径、focused/full/smoke/diff 结果已回填；本补充只关闭这两个 FU 的 cleanup-route representative baseline，不关闭 full trigger engine。
 
 4C-19 补充：B/A 已验证 Kogmaw / 克格莫 `OGN·190/298` / `FU-af8b05c294` 绝念 AoE damage 代表切片，路径为 `UNIT_DESTROYED` -> `TriggerQueue` -> auto-stack 或 `ORDER_TRIGGERS` -> `StackItems` -> priority -> `TRIGGER_RESOLVED` -> battlefield units take 4 damage -> cleanup queue stabilizes。focused 4/4、backend full 3392/3392、frontend build、Chrome smoke、diff / JSON / matrix 断言均通过；本补充只关闭 Kogmaw representative baseline，不关闭 full-official。
+
+4C-20B 补充：B/A 已验证 Undercover Agent / 卧底特工 `OGN·178/298` / `FU-6a52b04cb2` triggered hand-choice server prompt 微切片。服务端在 Undercover 绝念触发结算时打开 `HAND_CHOICE` / `CHOOSE_HAND_CARDS`，只向选择玩家暴露 `handChoices` 候选；wrong player、stale、invalid、malformed / illegal payload 均 no mutation 拒绝；`CORE-260330` p62 / rule `422.4` 关闭 1 / 0 手牌 shortfall 裁决：弃尽可弃数量后仍抽两张。C 已完成前端 `HAND_CHOICE` 展示与 `CHOOSE_HAND_CARDS` 提交接线，前端不结算弃牌或抽牌。A focused backend `UndercoverAgentTriggerTests` 通过 6/6。本补充只关闭 Undercover prompt 微切片，不关闭非 Undercover 的通用 discard / hand-choice engine，不关闭 Karthus 额外绝念。
 
 ## superseded / 防误读
 
@@ -989,6 +992,31 @@ D 审计结论：
 - multiplicity：same source same pass / simultaneous destruction / AoE damage 后多轮 cleanup 与触发交织矩阵。
 - hidden original visibility、FAQ regression、1009 / 811 full-official、正式 18-step E2E。
 
+### 阶段 4C-20B Undercover Agent Triggered Hand-Choice 审计
+
+4C-20B 证据入口：`docs/CURRENT_STAGE4C_BATCH20B_UNDERCOVER_HAND_CHOICE_AUDIT.md`。本节记录 Undercover Agent 服务端 hand-choice prompt 微切片，不代表 READY，不代表 1009 / 811 full-official。
+
+4C-20B 关闭项：
+
+- Undercover Agent / 卧底特工 / `OGN·178/298` / `FU-6a52b04cb2`。
+- 只覆盖 Undercover 绝念触发结算中的服务端 `HAND_CHOICE` / `CHOOSE_HAND_CARDS` prompt。
+- viewer-specific `handChoices` redaction：选择玩家可见候选手牌，对手只看到脱敏等待信息。
+- wrong player、stale prompt、invalid choice、malformed / illegal payload 拒绝且 no mutation。
+- `CORE-260330` p62 / rule `422.4`：1 / 0 手牌 shortfall 已裁决，弃尽可弃数量后仍抽两张。
+
+已回填证据：
+
+- A focused backend：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~UndercoverAgentTriggerTests"` 通过 6/6。
+- 协议 / 前端状态：服务端 prompt 微切片已落地；C frontend sync 已完成，前端只展示服务端候选并提交 `CHOOSE_HAND_CARDS`，不得本地裁决。
+
+仍缺 P0/P1：
+
+- Karthus 额外绝念 optional / multiplicity / multi-Karthus / visibility 裁决。
+- 非 Undercover 的通用 discard / hand-choice engine、其它 hand-choice FUs。
+- full trigger engine、full effect resolution、trigger batch、完整 APNAP。
+- public/private discard event redaction 全矩阵、replay / spectator hand-choice redaction。
+- hidden original visibility、FAQ regression、1009 / 811 full-official、正式 18-step E2E。
+
 | 流程 / P0 | 规则依据入口 | 当前实现状态 | 分类 | 归属 agent | 下一步 |
 | --- | --- | --- | --- | --- | --- |
 | 创建 / 加入 / 卡组 / 准备 / 开局连续链路 | `CORE-260330` rule 103；rules 107-129；工程会话契约 | 后端和 UI 有分散代表路径；缺同一双浏览器阶段 3 smoke | 阻断 smoke | B/C；D 审计 | C 补最小 Chrome smoke，B 保持服务端权威，D 记录证据 |
@@ -1010,6 +1038,7 @@ D 审计结论：
 - P0-S2-006 `ORDER_TRIGGERS` 最小 runtime / UI / evidence 子项已关闭；4C-1 APNAP controller-block 子集、battle initial stack 代表证据和 hidden trigger source redaction 子项已关闭；4C-2 Watchful Sentinel 多触发真实入队、经排序 / stack / priority 结算和非法排序 no mutation 子项已关闭；4C-3 Honest Broker 遗言金币真实多触发排序 / 入栈 / 结算代表路径已关闭；4C-4 Treasure Pile 触发支付 / 拒付 / 支付失败 no-mutation 代表路径已关闭；4C-5 state-based cleanup `LETHAL_DAMAGE` -> visible Watchful last-breath enqueue 代表路径已关闭；4C-6 state-based cleanup `LETHAL_DAMAGE` -> visible Honest Broker last-breath enqueue 代表路径已关闭；4C-7 Scouting Warhawk explicit destroy real trigger enqueue 代表路径已关闭；4C-8 Scouting Warhawk state-based cleanup lethal damage real trigger enqueue 代表路径已关闭；4C-9 Sad / Loyal Poro state-based cleanup 条件抽牌 real trigger enqueue 代表路径已关闭；4C-10 Unsung Hero state-based cleanup powerful draw-2 real trigger enqueue 代表路径已关闭；4C-11 Ghostly Centaur state-based cleanup friendly-destroyed power +2 real trigger enqueue 代表路径已关闭；4C-12 Resonant Soul state-based cleanup first-friendly-destroyed draw real trigger enqueue 代表路径已关闭；4C-13 Ghostly Centaur / Resonant Soul true stack destruction 旧 immediate compatibility -> real trigger queue / stack / priority 迁移已关闭；4C-14 Savage Jawfish true stack 与 Starfall lethal state-based cleanup 两条 friendly-destroyed experience +1 real trigger enqueue 代表路径已关闭；4C-15B Viktor destroyed non-minion trigger 代表性 baseline 已关闭；4C-16 Mechanical Trickster stack trigger migration 已关闭；完整 trigger engine、其他 destroyed / last-breath / friendly-destroyed FUs、Kogmaw / Karthus / Undercover Agent、Viktor full official trigger-count matrix、Savage Jawfish full official trigger-count matrix、Ironclad Vanguard state-based cleanup route、完整“每回合首次”时序、完整同时死亡触发次数、effective power / LayerEngine、temporary modifier、battlefield objectLocation matrix、hidden / face-down 原始触发建模、更多 trigger payment / decline、完整 effect resolution、FAQ regression、1009/811 full-official 未完成。
 - 4C-18 已关闭 Mechanical Trickster + Ironclad Vanguard state-based cleanup route 的 representative baseline；完整 trigger engine、multiplicity、FAQ regression 与 full-official 仍按 P0/P1 缺口管理。
 - 4C-19 已关闭 Kogmaw last-breath AoE damage representative baseline；Kogmaw FAQ adjudication、full AoE damage matrix 与 full-official 仍按 P0/P1 缺口管理。
+- 4C-20B 已关闭 Undercover Agent triggered hand-choice prompt 微切片和前端安全接线；非 Undercover 通用 discard / hand-choice engine、Karthus 额外绝念、其它 hand-choice FUs、full-official 仍按 P0/P1 缺口管理。
 - 4C-15 Viktor `FU-b5cb36a5c9` destroyed non-minion token trigger 已记录为 feasibility blocker；4C-15A 已补 `TOKEN_FAMILY:MINION` 最小前置模型并部分关闭 token classification blocker；4C-15B 已关闭 Viktor 代表性 baseline，但 same-source 多对象 full official matrix、Kogmaw / Karthus / Undercover Agent、完整 trigger engine 仍未关闭。
 - 3A-P0-001 / 002 / 003 / 004 已关闭；不得把这些 3A 子项误读为完整 Stage 3 或 READY。
 - 3B-CAND-001 / 002 / 003 / 004 只能作为阶段 3B 关闭候选；D/A 证据入账前不得移出 P0。

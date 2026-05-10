@@ -55,6 +55,7 @@ export function MatchStatusPanel({
         <StatusMetric label="焦点" mine={focusPlayerId === playerId} value={focusPlayerId} />
         <StatusMetric label="提示归属" mine={promptOwner === playerId} value={promptOwner} />
         <StatusMetric label="候选" value={`${prompt?.candidates?.filter((candidate) => candidate.enabled).length ?? 0} 项`} />
+        <StatusMetric label="手牌选择" value={promptType === "HAND_CHOICE" ? "服务端窗口" : "等待服务端窗口"} />
         <StatusMetric label="支付费用" value={promptType === "PAY_COST" ? "服务端窗口" : "等待服务端窗口"} />
         <StatusMetric label="触发排序" value={promptType === "ORDER_TRIGGERS" ? "服务端窗口" : "等待服务端窗口"} />
       </div>
@@ -111,6 +112,7 @@ export function MatchStatusPanel({
         <span>清理队列 {queueTasks.length} 项{queue.isBlocking ? " · 阻塞" : ""}</span>
         <span>战场任务 {battlefieldTasks.length} 项</span>
         <span>触发队列 {triggerQueue.length} 项</span>
+        <span>手牌选择 {promptType === "HAND_CHOICE" ? "服务端窗口" : "等待服务端窗口"}</span>
         <span>支付费用 {promptType === "PAY_COST" ? "服务端窗口" : "等待服务端窗口"}</span>
         <span>触发排序 {promptType === "ORDER_TRIGGERS" ? "服务端窗口" : "等待服务端窗口"}</span>
       </div>

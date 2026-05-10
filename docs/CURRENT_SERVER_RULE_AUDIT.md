@@ -12,6 +12,32 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-10 阶段 4C-20B Undercover Agent Triggered Hand-Choice 审计
+
+阶段 4C-20B 审计入口：`docs/CURRENT_STAGE4C_BATCH20B_UNDERCOVER_HAND_CHOICE_AUDIT.md`。本批已补 Undercover Agent / 卧底特工 `OGN·178/298` / `FU-6a52b04cb2` 的服务端 `HAND_CHOICE` / `CHOOSE_HAND_CARDS` 微切片；A focused backend `UndercoverAgentTriggerTests` 已通过 6/6。项目仍 **NOT READY**。
+
+4C-20B 已关闭代表子项：
+
+- Undercover Agent 绝念触发结算中的服务端权威 hand-choice prompt。
+- viewer-specific `handChoices` redaction：只有选择玩家看到候选手牌，对手看到脱敏等待信息。
+- wrong player、stale prompt、invalid choice、malformed / illegal payload 拒绝且 no mutation。
+- `CORE-260330` p62 / rule `422.4` 的 1 / 0 手牌 shortfall：弃尽可弃数量后仍抽两张。
+
+4C-20B 验证记录：
+
+- Focused backend：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~UndercoverAgentTriggerTests"` 通过 6/6。
+- 前端专用接线：C 已完成 `HAND_CHOICE` 展示与 `CHOOSE_HAND_CARDS` 提交接线；前端仍不得本地裁决弃牌合法性、弃牌结果或抽牌结果。
+- D 未修改服务端、前端、coverage matrix JSON 或 `riftbound-dotnet.sln`。
+
+仍缺 P0/P1：
+
+- P0：Karthus 额外绝念 optional / multiplicity / multi-Karthus / visibility 裁决仍未实现。
+- P0：非 Undercover 的通用 discard / hand-choice engine、其它 hand-choice FUs、完整 trigger engine、完整 effect resolution、完整 APNAP / trigger batch。
+- P1：public/private discard event redaction 全矩阵、replay / spectator hand-choice redaction、更多 hand-size / replacement / prevention 组合。
+- P0：FAQ regression、1009 / 811 full-official、最终正式 18-step E2E。
+
+4C-20B 不宣称 full-official，不宣称 READY / READY-CANDIDATE。
+
 ## 2026-05-10 阶段 4C-19 Kogmaw Last-Breath AoE Baseline 审计
 
 阶段 4C-19 审计入口：`docs/CURRENT_STAGE4C_BATCH19_KOGMAW_LAST_BREATH_AOE_AUDIT.md`。本批已补 Kogmaw / 克格莫 `OGN·190/298` / `FU-af8b05c294` visible face-up field source 绝念 AoE damage 代表切片；A 已验证 focused/backend full/frontend build/Chrome smoke/diff/矩阵断言。项目仍 **NOT READY**。
@@ -957,6 +983,8 @@
 4C-18 补充：B/A 已验证 Mechanical Trickster + Ironclad Vanguard state-based cleanup last-breath trigger enqueue 代表路径。Mechanical Trickster cleanup route 与 Ironclad Vanguard cleanup route 已记录为 4C-18 verified baseline；focused tests、backend full、frontend build、Chrome smoke 与 `git diff --check` 均通过。
 
 4C-19 补充：B/A 已验证 Kogmaw / 克格莫 `OGN·190/298` / `FU-af8b05c294` last-breath AoE damage 代表切片。visible face-up field Kogmaw source 被摧毁时，经 `UNIT_DESTROYED` -> `TriggerQueue` -> auto-stack 或 `ORDER_TRIGGERS` -> `StackItems` -> priority -> `TRIGGER_RESOLVED`，按 source pre-removal battlefield location 对该 battlefield 当前单位各造成 4 点伤害，并让后续 cleanup queue 稳定收口；hidden / face-down / standby source 与缺少 battlefield location 的 source 不入队、不泄漏、不造成伤害。Kogmaw 只关闭 representative baseline；FAQ adjudication、full AoE damage matrix 与 full-official 仍未关闭。
+
+4C-20B 补充：B/A 已验证 Undercover Agent / 卧底特工 `OGN·178/298` / `FU-6a52b04cb2` triggered hand-choice server prompt 微切片。服务端在 Undercover 绝念触发结算时打开 `HAND_CHOICE` / `CHOOSE_HAND_CARDS`，只向选择玩家暴露 `handChoices` 候选；wrong player、stale、invalid、malformed / illegal payload 均 no mutation 拒绝；`CORE-260330` p62 / rule `422.4` 已关闭 1 / 0 手牌 shortfall 裁决：弃尽可弃数量后仍抽两张。C 已完成前端展示 / 提交接线，前端只提交服务端候选，不结算弃牌或抽牌。该批不关闭非 Undercover 的通用 discard / hand-choice engine，不关闭 Karthus 额外绝念，不关闭 full-official。
 
 阶段 2 superseded 口径：
 
