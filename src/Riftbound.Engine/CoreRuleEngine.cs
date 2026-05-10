@@ -424,6 +424,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         CreatedBaseUnitTokenPower: 3,
         CreatedBaseUnitTokenName: "机器人",
         CreatedBaseUnitTokenTags: CardObjectTags.UnitCard + "|机械");
+    private const string KogmawCardNo = "OGN·190/298";
+    private const string KogmawLastBreathAoeEffectKind = "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT";
+    private const int KogmawLastBreathDamage = 4;
+    private const string KogmawTriggerBattlefieldMarker = "::BATTLEFIELD::";
     private const string HonestBrokerCardNo = "SFD·155/221";
     private const string HonestBrokerLastBreathCreateGoldEffectKind = "HONEST_BROKER_LAST_BREATH_CREATE_GOLD";
     private static readonly CardBehaviorDefinition HonestBrokerLastBreathCreateGoldBehavior = new(
@@ -3894,6 +3898,47 @@ public sealed class CoreRuleEngine : IRuleEngine
             ?? removalResult.OwnerPlayerId;
     }
 
+    private static string? ResolveKogmawLastBreathAoePlayerId(
+        CardObjectState destroyedState,
+        FieldRemovalResult removalResult,
+        string? battlefieldObjectId)
+    {
+        if (!removalResult.WasDestroyed
+            || !removalResult.WasUnit
+            || string.IsNullOrWhiteSpace(battlefieldObjectId)
+            || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
+            || !string.Equals(destroyedState.CardNo, KogmawCardNo, StringComparison.Ordinal)
+            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || destroyedState.IsFaceDown
+            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return null;
+        }
+
+        return destroyedState.ControllerId
+            ?? destroyedState.OwnerId
+            ?? removalResult.OwnerPlayerId;
+    }
+
+    private static string? ResolveDestroyedSourceBattlefieldObjectId(
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
+        string sourceObjectId,
+        string? fallbackBattlefieldObjectId = null)
+    {
+        if (objectLocations is not null
+            && objectLocations.TryGetValue(sourceObjectId, out var location)
+            && string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(location.BattlefieldObjectId)
+            && !string.Equals(location.BattlefieldObjectId, sourceObjectId, StringComparison.Ordinal))
+        {
+            return location.BattlefieldObjectId;
+        }
+
+        return string.IsNullOrWhiteSpace(fallbackBattlefieldObjectId)
+            ? null
+            : fallbackBattlefieldObjectId;
+    }
+
     private static string? ResolveHonestBrokerLastBreathGoldPlayerId(
         CardObjectState destroyedState,
         FieldRemovalResult removalResult)
@@ -4077,6 +4122,38 @@ public sealed class CoreRuleEngine : IRuleEngine
             "UNIT_DESTROYED");
     }
 
+    private static TriggerQueueItemState BuildKogmawLastBreathTriggerQueueItem(
+        StackItemState stackItem,
+        string sourceObjectId,
+        string controllerId,
+        string battlefieldObjectId)
+    {
+        return new TriggerQueueItemState(
+            $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{KogmawLastBreathAoeEffectKind}{KogmawTriggerBattlefieldMarker}{battlefieldObjectId}",
+            controllerId,
+            sourceObjectId,
+            KogmawLastBreathAoeEffectKind,
+            "UNIT_DESTROYED");
+    }
+
+    private static bool TryReadKogmawTriggerBattlefieldObjectId(
+        string triggerOrStackItemId,
+        out string battlefieldObjectId)
+    {
+        battlefieldObjectId = string.Empty;
+        var triggerId = triggerOrStackItemId.StartsWith("ordered-", StringComparison.Ordinal)
+            ? triggerOrStackItemId["ordered-".Length..]
+            : triggerOrStackItemId;
+        var markerIndex = triggerId.LastIndexOf(KogmawTriggerBattlefieldMarker, StringComparison.Ordinal);
+        if (markerIndex < 0)
+        {
+            return false;
+        }
+
+        battlefieldObjectId = triggerId[(markerIndex + KogmawTriggerBattlefieldMarker.Length)..];
+        return !string.IsNullOrWhiteSpace(battlefieldObjectId);
+    }
+
     private static IReadOnlyList<TriggerQueueItemState> BuildGhostlyCentaurFriendlyDestroyedTriggerQueueItems(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -4233,17 +4310,24 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static GameEvent BuildTriggerQueuedEvent(TriggerQueueItemState trigger)
     {
+        var payload = new Dictionary<string, object?>
+        {
+            ["triggerId"] = trigger.TriggerId,
+            ["controllerId"] = trigger.ControllerId,
+            ["sourceObjectId"] = trigger.SourceObjectId,
+            ["effectKind"] = trigger.EffectKind,
+            ["triggeredByEventKind"] = trigger.TriggeredByEventKind
+        };
+        if (string.Equals(trigger.EffectKind, KogmawLastBreathAoeEffectKind, StringComparison.Ordinal)
+            && TryReadKogmawTriggerBattlefieldObjectId(trigger.TriggerId, out var battlefieldObjectId))
+        {
+            payload["battlefieldObjectId"] = battlefieldObjectId;
+        }
+
         return new GameEvent(
             "TRIGGER_QUEUED",
             "触发能力加入队列",
-            new Dictionary<string, object?>
-            {
-                ["triggerId"] = trigger.TriggerId,
-                ["controllerId"] = trigger.ControllerId,
-                ["sourceObjectId"] = trigger.SourceObjectId,
-                ["effectKind"] = trigger.EffectKind,
-                ["triggeredByEventKind"] = trigger.TriggeredByEventKind
-            });
+            payload);
     }
 
     private static GameEvent BuildTriggerResolvedEvent(TriggerQueueItemState trigger)
@@ -20718,6 +20802,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveIroncladVanguardLastBreathStackItem(state, stackItem);
         }
 
+        if (string.Equals(stackItem.EffectKind, KogmawLastBreathAoeEffectKind, StringComparison.Ordinal)
+            && TryReadKogmawTriggerBattlefieldObjectId(stackItem.StackItemId, out _))
+        {
+            return ResolveKogmawLastBreathStackItem(state, stackItem);
+        }
+
         if (string.Equals(stackItem.EffectKind, GhostlyCentaurFriendlyDestroyedPowerEffectKind, StringComparison.Ordinal))
         {
             return ResolveGhostlyCentaurFriendlyDestroyedPowerStackItem(state, stackItem);
@@ -22625,6 +22715,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                         playerZones,
                         targetObjectId,
                         targetState);
+                    var kogmawBattlefieldObjectIdBeforeRemoval = ResolveDestroyedSourceBattlefieldObjectId(
+                        state.ObjectLocations,
+                        targetObjectId);
                     if (behavior.DestroysTarget
                         && TryDestroyControlledFieldTarget(playerZones, cardObjects, targetObjectId, out var removalResult))
                     {
@@ -22710,6 +22803,22 @@ public sealed class CoreRuleEngine : IRuleEngine
                                     targetObjectId,
                                     ironcladVanguardRobotPlayerId,
                                     IroncladVanguardLastBreathCreateRobotsEffectKind);
+                                events.Add(BuildTriggerQueuedEvent(trigger));
+                                officialLastBreathTriggers.Add(trigger);
+                            }
+
+                            var kogmawAoePlayerId = ResolveKogmawLastBreathAoePlayerId(
+                                targetState,
+                                removalResult,
+                                kogmawBattlefieldObjectIdBeforeRemoval);
+                            if (kogmawAoePlayerId is not null
+                                && !string.IsNullOrWhiteSpace(kogmawBattlefieldObjectIdBeforeRemoval))
+                            {
+                                var trigger = BuildKogmawLastBreathTriggerQueueItem(
+                                    stackItem,
+                                    targetObjectId,
+                                    kogmawAoePlayerId,
+                                    kogmawBattlefieldObjectIdBeforeRemoval);
                                 events.Add(BuildTriggerQueuedEvent(trigger));
                                 officialLastBreathTriggers.Add(trigger);
                             }
@@ -23122,12 +23231,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             rngCursor = recycleResult.RngCursor;
         }
 
+        var lethalCleanupObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
         var lethalCleanup = RunStateBasedCleanupLoop(
             playerZones,
             cardObjects,
             stackItem,
             runePools,
             damageTriggeredDestroyTargetObjectIds: damageTriggeredDestroyTargetObjectIds,
+            objectLocations: lethalCleanupObjectLocations,
             destroyedUnitOwnerIdsAlreadyThisTurn: state.DestroyedUnitOwnerIdsThisTurn);
         runePools = lethalCleanup.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         events.AddRange(lethalCleanup.Events);
@@ -23593,6 +23704,63 @@ public sealed class CoreRuleEngine : IRuleEngine
             state.RngCursor);
     }
 
+    private static StackResolutionResult ResolveKogmawLastBreathStackItem(
+        MatchState state,
+        StackItemState stackItem)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var events = new List<GameEvent>
+        {
+            BuildTriggerResolvedEvent(new TriggerQueueItemState(
+                stackItem.StackItemId.StartsWith("ordered-", StringComparison.Ordinal)
+                    ? stackItem.StackItemId["ordered-".Length..]
+                    : stackItem.StackItemId,
+                stackItem.ControllerId,
+                stackItem.SourceObjectId,
+                stackItem.EffectKind,
+                "UNIT_DESTROYED"))
+        };
+
+        if (TryReadKogmawTriggerBattlefieldObjectId(stackItem.StackItemId, out var battlefieldObjectId))
+        {
+            var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+            foreach (var targetObjectId in GetBattlefieldUnitObjectIdsAtBattlefield(
+                playerZones,
+                cardObjects,
+                objectLocations,
+                battlefieldObjectId))
+            {
+                var damageApplication = ApplyDamageToCardObject(
+                    cardObjects,
+                    targetObjectId,
+                    KogmawLastBreathDamage);
+                var payload = BuildDamagePayload(stackItem.SourceObjectId, targetObjectId, damageApplication);
+                payload["battlefieldObjectId"] = battlefieldObjectId;
+                events.Add(new GameEvent(
+                    "DAMAGE_APPLIED",
+                    $"克格莫造成 {damageApplication.DamageAmount} 点伤害",
+                    payload));
+            }
+        }
+
+        return new StackResolutionResult(
+            playerZones,
+            cardObjects,
+            state.PlayerScores,
+            NormalizeExperienceForSeats(state),
+            state.RunePools,
+            state.UntilEndOfTurnEffects,
+            null,
+            events,
+            [],
+            null,
+            [],
+            null,
+            [],
+            state.RngCursor);
+    }
+
     private static StackResolutionResult ResolveGhostlyCentaurFriendlyDestroyedPowerStackItem(
         MatchState state,
         StackItemState stackItem)
@@ -23805,7 +23973,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             && !string.Equals(trigger.EffectKind, SavageJawfishFriendlyDestroyedExperienceEffectKind, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, ViktorDestroyedNonMinionCreateMinionEffectKind, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, MechanicalTricksterLastBreathCreateMinionsEffectKind, StringComparison.Ordinal)
-            && !string.Equals(trigger.EffectKind, IroncladVanguardLastBreathCreateRobotsEffectKind, StringComparison.Ordinal);
+            && !string.Equals(trigger.EffectKind, IroncladVanguardLastBreathCreateRobotsEffectKind, StringComparison.Ordinal)
+            && !string.Equals(trigger.EffectKind, KogmawLastBreathAoeEffectKind, StringComparison.Ordinal);
     }
 
     private static StackItemState BuildStackItemForLastBreathTrigger(
@@ -24177,6 +24346,31 @@ public sealed class CoreRuleEngine : IRuleEngine
             .OrderBy(entry => entry.Key, StringComparer.Ordinal)
             .SelectMany(entry => entry.Value.Battlefields)
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Where(objectId => IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, objectId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> GetBattlefieldUnitObjectIdsAtBattlefield(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        string battlefieldObjectId)
+    {
+        if (string.IsNullOrWhiteSpace(battlefieldObjectId))
+        {
+            return [];
+        }
+
+        return playerZones
+            .OrderBy(entry => entry.Key, StringComparer.Ordinal)
+            .SelectMany(entry => entry.Value.Battlefields)
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Where(objectId => objectLocations.TryGetValue(objectId, out var location)
+                && string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                && string.Equals(location.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal))
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var objectState)
+                && objectState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
             .Where(objectId => IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, objectId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
@@ -27362,7 +27556,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     : new HashSet<string>(StringComparer.Ordinal),
                 knownDestroyedUnitOwnerIds,
                 nextRunePools,
-                battlefieldId);
+                battlefieldId,
+                objectLocations);
             var illegalStandbyCleanup = objectLocations is null
                 ? IllegalStandbyCleanupResult.Empty
                 : ApplyIllegalStandbyCleanup(playerZones, cardObjects, objectLocations);
@@ -27658,7 +27853,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlySet<string> damageTriggeredDestroyTargetObjectIds,
         IReadOnlySet<string> destroyedUnitOwnerIdsAlreadyThisTurn,
         IReadOnlyDictionary<string, RunePool>? runePools = null,
-        string? battlefieldId = null)
+        string? battlefieldId = null,
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations = null)
     {
         var events = new List<GameEvent>();
         var destroyedObjectIds = new List<string>();
@@ -27725,6 +27921,13 @@ public sealed class CoreRuleEngine : IRuleEngine
 
             var destroyedControllerId = EffectiveFieldControllerId(playerZones, objectId, destroyedState);
             var cleanupLocation = FindFieldObjectLocation(playerZones, objectId);
+            var kogmawBattlefieldObjectIdBeforeRemoval = ResolveDestroyedSourceBattlefieldObjectId(
+                objectLocations,
+                objectId,
+                cleanupLocation is not null
+                    && string.Equals(cleanupLocation.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                    ? battlefieldId
+                    : null);
             var cleanupObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal);
             var sadPoroLastBreathDrawPlayerId = cleanupLocation is not null &&
                 string.Equals(cleanupLocation.Value.Zone, MoveUnitBaseZone, StringComparison.Ordinal)
@@ -27859,6 +28062,22 @@ public sealed class CoreRuleEngine : IRuleEngine
                     objectId,
                     scoutingWarhawkControllerId,
                     ScoutingWarhawkLastBreathCallRuneEffectKind);
+                events.Add(BuildTriggerQueuedEvent(trigger));
+                triggerQueue.Add(trigger);
+            }
+
+            var kogmawAoePlayerId = ResolveKogmawLastBreathAoePlayerId(
+                destroyedState,
+                removalResult,
+                kogmawBattlefieldObjectIdBeforeRemoval);
+            if (kogmawAoePlayerId is not null
+                && !string.IsNullOrWhiteSpace(kogmawBattlefieldObjectIdBeforeRemoval))
+            {
+                var trigger = BuildKogmawLastBreathTriggerQueueItem(
+                    stackItem,
+                    objectId,
+                    kogmawAoePlayerId,
+                    kogmawBattlefieldObjectIdBeforeRemoval);
                 events.Add(BuildTriggerQueuedEvent(trigger));
                 triggerQueue.Add(trigger);
             }

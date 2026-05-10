@@ -282,6 +282,147 @@ public sealed class RealTriggerQueueTests
     }
 
     [Fact]
+    public async Task RealKogmawLastBreathDealsFourToDestroyedBattlefieldAndCleanupStabilizes()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildSpiritFireDestroyingKogmawOnBattlefieldState();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-real-kogmaw-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-real-kogmaw-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        var triggerQueued = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT", StringComparison.Ordinal));
+        Assert.Equal("P1-KOGMAW", triggerQueued.Payload["sourceObjectId"]);
+        Assert.Equal("P1-BATTLEFIELD-KOGMAW", triggerQueued.Payload["battlefieldObjectId"]);
+        Assert.Empty(p2Pass.State.TriggerQueue);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-KOGMAW", StringComparison.Ordinal));
+
+        var final = await ResolveSingleKogmawTriggerThroughStackAsync(
+            engine,
+            p2Pass.State,
+            "real-kogmaw",
+            expectedDestroyedVictimObjectId: "P2-KOGMAW-SAME-BATTLEFIELD-VICTIM");
+
+        Assert.Empty(final.State.TriggerQueue);
+        Assert.Empty(final.State.StackItems);
+        Assert.Equal(4, final.State.CardObjects["P1-KOGMAW-SAME-BATTLEFIELD-ALLY"].Damage);
+        Assert.Equal(0, final.State.CardObjects["P1-KOGMAW-OTHER-BATTLEFIELD-ALLY"].Damage);
+        Assert.False(final.State.CardObjects.ContainsKey("P2-KOGMAW-SAME-BATTLEFIELD-VICTIM"));
+        Assert.Equal(["P2-KOGMAW-SAME-BATTLEFIELD-VICTIM"], final.State.PlayerZones["P2"].Graveyard);
+    }
+
+    [Fact]
+    public async Task StateBasedCleanupKogmawLastBreathDealsFourToDestroyedBattlefield()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildStarfallDestroyingKogmawOnBattlefieldState();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-cleanup-kogmaw-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-cleanup-kogmaw-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-KOGMAW", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "LETHAL_DAMAGE", StringComparison.Ordinal));
+        Assert.Empty(p2Pass.State.TriggerQueue);
+        var triggerStackItem = Assert.Single(p2Pass.State.StackItems);
+        Assert.Equal("P1-KOGMAW", triggerStackItem.SourceObjectId);
+        Assert.Equal("OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT", triggerStackItem.EffectKind);
+
+        var final = await ResolveSingleKogmawTriggerThroughStackAsync(
+            engine,
+            p2Pass.State,
+            "cleanup-kogmaw",
+            expectedDestroyedVictimObjectId: "P2-KOGMAW-SAME-BATTLEFIELD-VICTIM");
+
+        Assert.Empty(final.State.TriggerQueue);
+        Assert.Empty(final.State.StackItems);
+        Assert.Equal(4, final.State.CardObjects["P1-KOGMAW-SAME-BATTLEFIELD-ALLY"].Damage);
+        Assert.Equal(3, final.State.CardObjects["P1-KOGMAW-OTHER-BATTLEFIELD-ALLY"].Damage);
+        Assert.False(final.State.CardObjects.ContainsKey("P2-KOGMAW-SAME-BATTLEFIELD-VICTIM"));
+    }
+
+    [Fact]
+    public async Task StateBasedCleanupHiddenKogmawsDoNotEnqueueOrDealAoeDamage()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildStarfallDestroyingHiddenKogmawsOnBattlefieldState();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-cleanup-hidden-kogmaw-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-cleanup-hidden-kogmaw-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Empty(p2Pass.State.TriggerQueue);
+        Assert.Empty(p2Pass.State.StackItems);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && ((gameEvent.Payload["sourceObjectId"] as string) ?? string.Empty).Contains("KOGMAW", StringComparison.Ordinal));
+        Assert.NotEqual(PromptTypes.OrderTriggers, p2Pass.Prompts["P1"].View?.Type);
+        Assert.Equal(0, p2Pass.State.CardObjects["P1-KOGMAW-HIDDEN-BYSTANDER"].Damage);
+    }
+
+    [Fact]
+    public async Task RealKogmawDestroyedWithoutBattlefieldLocationDoesNotEnqueueOrDealDamage()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildSpiritFireDestroyingKogmawWithoutBattlefieldLocationState();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-real-kogmaw-unsupported-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-real-kogmaw-unsupported-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Empty(p2Pass.State.TriggerQueue);
+        Assert.Empty(p2Pass.State.StackItems);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT", StringComparison.Ordinal));
+        Assert.Equal(0, p2Pass.State.CardObjects["P1-KOGMAW-SAME-BATTLEFIELD-ALLY"].Damage);
+        Assert.Equal(0, p2Pass.State.CardObjects["P2-KOGMAW-SAME-BATTLEFIELD-VICTIM"].Damage);
+    }
+
+    [Fact]
     public async Task StateBasedCleanupHonestBrokerTriggersOrderAndCreateGoldThroughStack()
     {
         var engine = new CoreRuleEngine();
@@ -2223,6 +2364,54 @@ public sealed class RealTriggerQueueTests
         return p2ResolvesTrigger;
     }
 
+    private static async Task<ResolutionResult> ResolveSingleKogmawTriggerThroughStackAsync(
+        CoreRuleEngine engine,
+        MatchState state,
+        string label,
+        string expectedDestroyedVictimObjectId)
+    {
+        var triggerStackItem = Assert.Single(state.StackItems);
+        Assert.Equal("P1-KOGMAW", triggerStackItem.SourceObjectId);
+        Assert.Equal("OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT", triggerStackItem.EffectKind);
+        Assert.Equal("P1", state.PriorityPlayerId);
+
+        var p1TriggerPass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent($"intent-{label}-kogmaw-trigger-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2ResolvesTrigger = await engine.ResolveAsync(
+            p1TriggerPass.State,
+            new PlayerIntent($"intent-{label}-kogmaw-trigger-p2-resolves", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1TriggerPass.Accepted, p1TriggerPass.ErrorMessage);
+        Assert.True(p2ResolvesTrigger.Accepted, p2ResolvesTrigger.ErrorMessage);
+        Assert.Contains(p2ResolvesTrigger.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT", StringComparison.Ordinal));
+        var kogmawDamageEvents = p2ResolvesTrigger.Events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-KOGMAW", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(2, kogmawDamageEvents.Length);
+        Assert.Equal(
+            ["P1-KOGMAW-SAME-BATTLEFIELD-ALLY", "P2-KOGMAW-SAME-BATTLEFIELD-VICTIM"],
+            kogmawDamageEvents.Select(gameEvent => Assert.IsType<string>(gameEvent.Payload["targetObjectId"])).OrderBy(objectId => objectId, StringComparer.Ordinal).ToArray());
+        Assert.All(kogmawDamageEvents, gameEvent =>
+        {
+            Assert.Equal(4, gameEvent.Payload["damage"]);
+            Assert.Equal("P1-BATTLEFIELD-KOGMAW", gameEvent.Payload["battlefieldObjectId"]);
+        });
+        Assert.Contains(p2ResolvesTrigger.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, expectedDestroyedVictimObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "LETHAL_DAMAGE", StringComparison.Ordinal));
+
+        return p2ResolvesTrigger;
+    }
+
     private static async Task<ResolutionResult> OrderAndResolveTwoDrawTriggersThroughStackAsync(
         CoreRuleEngine engine,
         MatchState state,
@@ -3134,6 +3323,285 @@ public sealed class RealTriggerQueueTests
                 ["P1"] = 0,
                 ["P2"] = 0
             });
+    }
+
+    private static MatchState BuildSpiritFireDestroyingKogmawOnBattlefieldState()
+    {
+        return BuildKogmawBattlefieldState(
+            "real-kogmaw-aoe-room",
+            "STACK-SPIRIT-FIRE-KOGMAW",
+            "P1-SPELL-SPIRIT-FIRE",
+            "SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4",
+            "OGN·256/298",
+            ["P1-KOGMAW"],
+            kogmawIsFaceDown: false,
+            kogmawTags: [CardObjectTags.UnitCard],
+            kogmawPower: 1,
+            includeKogmawBattlefieldLocation: true);
+    }
+
+    private static MatchState BuildStarfallDestroyingKogmawOnBattlefieldState()
+    {
+        return BuildKogmawBattlefieldState(
+            "cleanup-kogmaw-aoe-room",
+            "STACK-STARFALL-KOGMAW",
+            "P1-SPELL-STARFALL",
+            "STARFALL_DAMAGE_3_TWICE",
+            "OGN·029/298",
+            ["P1-KOGMAW", "P1-KOGMAW-OTHER-BATTLEFIELD-ALLY"],
+            kogmawIsFaceDown: false,
+            kogmawTags: [CardObjectTags.UnitCard],
+            kogmawPower: 1,
+            includeKogmawBattlefieldLocation: true);
+    }
+
+    private static MatchState BuildStarfallDestroyingHiddenKogmawsOnBattlefieldState()
+    {
+        return new MatchState(
+            "cleanup-hidden-kogmaw-aoe-room",
+            71,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields =
+                    [
+                        "P1-BATTLEFIELD-KOGMAW",
+                        "P1-HIDDEN-KOGMAW",
+                        "P1-KOGMAW-HIDDEN-BYSTANDER"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-STANDBY-KOGMAW"]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-KOGMAW"] = new(
+                    "P1-BATTLEFIELD-KOGMAW",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-HIDDEN-KOGMAW"] = new(
+                    "P1-HIDDEN-KOGMAW",
+                    cardNo: "OGN·190/298",
+                    power: 1,
+                    isFaceDown: true,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-STANDBY-KOGMAW"] = new(
+                    "P2-STANDBY-KOGMAW",
+                    cardNo: "OGN·190/298",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-KOGMAW-HIDDEN-BYSTANDER"] = new(
+                    "P1-KOGMAW-HIDDEN-BYSTANDER",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-SPELL-STARFALL"] = new(
+                    "P1-SPELL-STARFALL",
+                    cardNo: "OGN·029/298",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            priorityPlayerId: "P1",
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-STARFALL-HIDDEN-KOGMAW",
+                    "P1",
+                    "P1-SPELL-STARFALL",
+                    "STARFALL_DAMAGE_3_TWICE",
+                    "OGN·029/298",
+                    ["P1-HIDDEN-KOGMAW", "P2-STANDBY-KOGMAW"])
+            ],
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-KOGMAW"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-KOGMAW"),
+                ["P1-HIDDEN-KOGMAW"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-KOGMAW"),
+                ["P2-STANDBY-KOGMAW"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-KOGMAW"),
+                ["P1-KOGMAW-HIDDEN-BYSTANDER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-KOGMAW")
+            });
+    }
+
+    private static MatchState BuildSpiritFireDestroyingKogmawWithoutBattlefieldLocationState()
+    {
+        return BuildKogmawBattlefieldState(
+            "real-kogmaw-no-battlefield-location-room",
+            "STACK-SPIRIT-FIRE-KOGMAW-NO-LOCATION",
+            "P1-SPELL-SPIRIT-FIRE",
+            "SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4",
+            "OGN·256/298",
+            ["P1-KOGMAW"],
+            kogmawIsFaceDown: false,
+            kogmawTags: [CardObjectTags.UnitCard],
+            kogmawPower: 1,
+            includeKogmawBattlefieldLocation: false);
+    }
+
+    private static MatchState BuildKogmawBattlefieldState(
+        string roomId,
+        string stackItemId,
+        string spellObjectId,
+        string effectKind,
+        string cardNo,
+        IReadOnlyList<string> targetObjectIds,
+        bool kogmawIsFaceDown,
+        IReadOnlyList<string> kogmawTags,
+        int kogmawPower,
+        bool includeKogmawBattlefieldLocation)
+    {
+        var objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+        {
+            ["P1-BATTLEFIELD-KOGMAW"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-KOGMAW"),
+            ["P1-KOGMAW-SAME-BATTLEFIELD-ALLY"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-KOGMAW"),
+            ["P2-KOGMAW-SAME-BATTLEFIELD-VICTIM"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-KOGMAW"),
+            ["P1-BATTLEFIELD-OTHER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-OTHER"),
+            ["P1-KOGMAW-OTHER-BATTLEFIELD-ALLY"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-OTHER")
+        };
+        if (includeKogmawBattlefieldLocation)
+        {
+            objectLocations["P1-KOGMAW"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-KOGMAW");
+        }
+
+        return new MatchState(
+            roomId,
+            71,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields =
+                    [
+                        "P1-BATTLEFIELD-KOGMAW",
+                        "P1-KOGMAW",
+                        "P1-KOGMAW-SAME-BATTLEFIELD-ALLY",
+                        "P1-BATTLEFIELD-OTHER",
+                        "P1-KOGMAW-OTHER-BATTLEFIELD-ALLY"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-KOGMAW-SAME-BATTLEFIELD-VICTIM"]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-KOGMAW"] = new(
+                    "P1-BATTLEFIELD-KOGMAW",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-OTHER"] = new(
+                    "P1-BATTLEFIELD-OTHER",
+                    cardNo: "OGN·276/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-KOGMAW"] = new(
+                    "P1-KOGMAW",
+                    cardNo: "OGN·190/298",
+                    power: kogmawPower,
+                    isFaceDown: kogmawIsFaceDown,
+                    tags: kogmawTags,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-KOGMAW-SAME-BATTLEFIELD-ALLY"] = new(
+                    "P1-KOGMAW-SAME-BATTLEFIELD-ALLY",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-KOGMAW-SAME-BATTLEFIELD-VICTIM"] = new(
+                    "P2-KOGMAW-SAME-BATTLEFIELD-VICTIM",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-KOGMAW-OTHER-BATTLEFIELD-ALLY"] = new(
+                    "P1-KOGMAW-OTHER-BATTLEFIELD-ALLY",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [spellObjectId] = new(
+                    spellObjectId,
+                    cardNo: cardNo,
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            priorityPlayerId: "P1",
+            stackItems:
+            [
+                new StackItemState(
+                    stackItemId,
+                    "P1",
+                    spellObjectId,
+                    effectKind,
+                    cardNo,
+                    targetObjectIds)
+            ],
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            objectLocations: objectLocations);
     }
 
     private static MatchState BuildSpiritFireDestroyingTwoScoutingWarhawksState()

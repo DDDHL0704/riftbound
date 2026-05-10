@@ -1878,6 +1878,47 @@ A 主控复验：
 
 4C-18 结论：**通过 Mechanical Trickster + Ironclad Vanguard cleanup-route representative trigger enqueue baseline，未关闭 full-official**。项目整体仍 **NOT READY**，不得标记 READY / READY-CANDIDATE。
 
+## 0.31 阶段 4C-19 Kogmaw Last-Breath AoE Baseline 审计
+
+阶段 4C-19 已补 Kogmaw / 克格莫 `OGN·190/298` / `FU-af8b05c294` 的 visible face-up field source 绝念 AoE damage 代表切片。A 已验证 focused/backend full/frontend build/Chrome smoke/diff/矩阵断言；本批只关闭 Kogmaw representative baseline，不关闭 full-official。项目整体仍 **NOT READY**。
+
+4C-19 已验证范围：
+
+- Kogmaw visible、face-up、field source 的 last-breath AoE damage representative baseline。
+- 路径：`UNIT_DESTROYED` -> `TriggerQueue` -> auto-stack 或 `ORDER_TRIGGERS` -> `StackItems` -> priority -> `TRIGGER_RESOLVED` -> battlefield units take 4 damage -> cleanup queue stabilizes。
+- AoE 使用 source pre-removal battlefield location，只伤害该 battlefield 的当前单位；其他 battlefield 单位不受伤害。
+- hidden / face-down / standby Kogmaw source 不入队、不泄漏 prompt metadata、不造成 AoE damage。
+- Kogmaw 被摧毁但缺少 battlefield location 时安全降级为 no-enqueue / no-damage。
+- 不实现 Karthus 额外绝念，不实现 Undercover Agent discard / draw，不进入 full trigger engine 或 full-official。
+
+4C-19 文档改动：
+
+- 新增 `docs/CURRENT_STAGE4C_BATCH19_KOGMAW_LAST_BREATH_AOE_AUDIT.md`。
+- 更新 `docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/rules-evidence-index.md` 与本 checkpoint。
+- 更新 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`、`docs/CURRENT_CARD_EFFECT_RISK_TOP20.md`、`docs/CURRENT_STAGE4B_CARD_COVERAGE_FREEZE.md`。
+- 新增 `docs/CURRENT_STAGE4C_BATCH19_KOGMAW_LAST_BREATH_AOE_EVIDENCE.md`。
+- 服务端修改限于 `src/Riftbound.Engine/CoreRuleEngine.cs` 与 `tests/Riftbound.ConformanceTests/RealTriggerQueueTests.cs`；未修改前端协议/组件。
+
+4C-19 验证结果：
+
+- Focused：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~RealTriggerQueueTests&FullyQualifiedName~Kogmaw"` 通过 4/4。
+- Backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 3392/3392。
+- Frontend build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过。
+- Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过。
+- Hygiene：`git diff --check`、`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 与 4C-19 matrix assertions 通过。
+- 新增/更新测试：`RealKogmawLastBreathDealsFourToDestroyedBattlefieldAndCleanupStabilizes`、`StateBasedCleanupKogmawLastBreathDealsFourToDestroyedBattlefield`、`StateBasedCleanupHiddenKogmawsDoNotEnqueueOrDealAoeDamage`、`RealKogmawDestroyedWithoutBattlefieldLocationDoesNotEnqueueOrDealDamage`。
+- Matrix：`stage4CBatch19KogmawLastBreathAoeDamage` 只标记 `FU-af8b05c294`，`fullOfficialUpgrades=0`，`fullOfficialStillUncoveredFunctionalUnits=811`；Karthus / Undercover Agent 未标记。
+
+4C-19 后仍保留 P0/P1：
+
+- P0：Karthus / Undercover Agent 等 destroyed-family / friendly-destroyed holdbacks。
+- P0：完整 trigger engine、完整 effect resolution、trigger batch / 可选触发选择、完整 APNAP 组合。
+- P1：same source same pass / simultaneous destruction / AoE damage 后多轮 cleanup 与触发交织的 full official multiplicity matrix。
+- P0：hidden / face-down 原始触发建模和 viewer 级 metadata 全路径。
+- P0：FAQ regression、1009 entries / 811 functional units full-official 覆盖、正式 18-step E2E、completion audit 仍未完成。
+
+4C-19 结论：**通过 Kogmaw AoE last-breath representative baseline，未关闭 full-official**。项目整体仍 **NOT READY**，不得标记 READY / READY-CANDIDATE。
+
 ## 1. 总目标
 
 以当前仓库五份官方规则 / FAQ PDF 与 `data/official/card-catalog.zh-CN.json` 的 2026-04-27 官网卡牌快照为准，完成本地双人 1v1 标准构筑产品级 Web 游戏基线：

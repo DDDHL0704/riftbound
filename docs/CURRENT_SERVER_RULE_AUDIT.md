@@ -12,6 +12,39 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-10 阶段 4C-19 Kogmaw Last-Breath AoE Baseline 审计
+
+阶段 4C-19 审计入口：`docs/CURRENT_STAGE4C_BATCH19_KOGMAW_LAST_BREATH_AOE_AUDIT.md`。本批已补 Kogmaw / 克格莫 `OGN·190/298` / `FU-af8b05c294` visible face-up field source 绝念 AoE damage 代表切片；A 已验证 focused/backend full/frontend build/Chrome smoke/diff/矩阵断言。项目仍 **NOT READY**。
+
+4C-19 已关闭代表子项：
+
+- visible、face-up、field source Kogmaw 被摧毁后触发 last-breath AoE damage。
+- 路径：`UNIT_DESTROYED` -> `TriggerQueue` -> auto-stack 或 `ORDER_TRIGGERS` -> `StackItems` -> priority -> `TRIGGER_RESOLVED` -> battlefield units take 4 damage -> cleanup queue stabilizes。
+- AoE 使用 source pre-removal battlefield location，只伤害该 battlefield 的当前单位；其他 battlefield 单位不受伤害。
+- hidden / face-down / standby Kogmaw source 不入队、不泄漏 prompt metadata、不造成 AoE damage。
+- Kogmaw 缺少 battlefield location 时安全降级为 no-enqueue / no-damage。
+- AoE 后伤害、后续 state-based cleanup 与 trigger queue 交织只作为代表切片验证，不外推 full official damage / cleanup matrix。
+
+4C-19 验证记录：
+
+- Focused：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~RealTriggerQueueTests&FullyQualifiedName~Kogmaw"` 通过 4/4。
+- Backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 3392/3392。
+- Frontend build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过。
+- Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过。
+- `git diff --check`、`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 与 4C-19 matrix assertions 通过。
+- 代表测试：`RealKogmawLastBreathDealsFourToDestroyedBattlefieldAndCleanupStabilizes`、`StateBasedCleanupKogmawLastBreathDealsFourToDestroyedBattlefield`、`StateBasedCleanupHiddenKogmawsDoNotEnqueueOrDealAoeDamage`、`RealKogmawDestroyedWithoutBattlefieldLocationDoesNotEnqueueOrDealDamage`。
+- 协议/前端字段：本批无变更，DevUi 仍只消费 authoritative snapshot / prompt candidate。
+
+仍缺 P0/P1：
+
+- P0：Karthus 额外绝念、Undercover Agent discard / draw 仍未实现；Kogmaw 本批也只计划 representative baseline。
+- P0：完整 trigger engine、完整 effect resolution、trigger batch / 可选触发选择、完整 APNAP 组合。
+- P1：same source same pass / simultaneous destruction / AoE damage 后多轮 cleanup 与触发交织的 full official multiplicity matrix。
+- P0：hidden / face-down 原始触发建模和 viewer 级 metadata 全路径。
+- P0：FAQ regression、1009 / 811 full-official 覆盖、最终正式 18-step E2E。
+
+4C-19 不宣称 full-official，不宣称 READY / READY-CANDIDATE。
+
 ## 2026-05-10 阶段 4C-18 Mechanical + Ironclad Cleanup Trigger Baseline 审计
 
 阶段 4C-18 审计入口：`docs/CURRENT_STAGE4C_BATCH18_MECHANICAL_IRONCLAD_CLEANUP_TRIGGER_AUDIT.md`。本批已补 Mechanical Trickster / `OGN·239/298` 与 Ironclad Vanguard / `SFD·021/221` 的 state-based cleanup last-breath trigger enqueue baseline；4C-16 / 4C-17 true stack 代表路径已关闭，4C-18 cleanup route 代表路径也已通过。项目仍 **NOT READY**。
@@ -922,6 +955,8 @@
 4C-15 / 4C-15A / 4C-15B 补充：Viktor `FU-b5cb36a5c9` destroyed non-minion token trigger 已由 B 先做只读可行性检查，4C-15 结论是不应硬编码；4C-15A 已补 `TOKEN_FAMILY:MINION` / `CardObjectTags.MinionTokenFamily`、官方三种“随从”token factory marker、`CreateBaseUnitTokens(tokenName == "随从")` 自动 marker、Viktor legend 创建随从同步 marker，以及 hidden face-down standby 不泄漏 marker 的验证；4C-15B 已在此前置模型上补 Viktor 代表性 trigger baseline，并使用 pre-removal `CardObjectState` 完成非随从 destroyed target 过滤。仍未关闭：same source same stack / cleanup pass multiple non-minion friendly deaths full official trigger-count matrix、Kogmaw / Karthus / Undercover Agent、完整 trigger engine、FAQ regression、1009/811 full-official。
 
 4C-18 补充：B/A 已验证 Mechanical Trickster + Ironclad Vanguard state-based cleanup last-breath trigger enqueue 代表路径。Mechanical Trickster cleanup route 与 Ironclad Vanguard cleanup route 已记录为 4C-18 verified baseline；focused tests、backend full、frontend build、Chrome smoke 与 `git diff --check` 均通过。
+
+4C-19 补充：B/A 已验证 Kogmaw / 克格莫 `OGN·190/298` / `FU-af8b05c294` last-breath AoE damage 代表切片。visible face-up field Kogmaw source 被摧毁时，经 `UNIT_DESTROYED` -> `TriggerQueue` -> auto-stack 或 `ORDER_TRIGGERS` -> `StackItems` -> priority -> `TRIGGER_RESOLVED`，按 source pre-removal battlefield location 对该 battlefield 当前单位各造成 4 点伤害，并让后续 cleanup queue 稳定收口；hidden / face-down / standby source 与缺少 battlefield location 的 source 不入队、不泄漏、不造成伤害。Kogmaw 只关闭 representative baseline；FAQ adjudication、full AoE damage matrix 与 full-official 仍未关闭。
 
 阶段 2 superseded 口径：
 
