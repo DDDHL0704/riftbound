@@ -391,6 +391,61 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Battle or Flight 代表路径外推完整 swift、standby reaction、targeting、movement、PaymentEngine、FEPR 或 full-official。
 
+## 0.1.7 阶段 4C-29 Gust Checkpoint
+
+状态：**已完成极窄代表切片文档收口；项目仍 NOT READY。**
+
+阶段 4C-29 名称：Gust return-to-hand target guard representative baseline。
+
+本批候选审查事实：
+
+- A 采纳 D 的低耦合建议选择 Gust / 罡风 `OGN·169/298` / `FU-48662b7661`；B 的 4C-29 写入锁因超时无 diff 已收回但长期代理保留，C/E 的替代建议未作为本批实现目标。
+- Gust 规则文本：让战场上一名不高于 3 战力的单位返回其所属的手牌。
+- 代表路径：P1 打出 Gust，选择正面公共战场单位且 power <= 3 的目标，双方 priority pass 后结算，目标返回 owner hand。
+- guard：power > 3、base unit、stale object、face-down standby object、battlefield equipment 均 `INVALID_TARGET`，no tick / no events / no payment / no hand movement / no stack item / no return-to-hand mutation。
+- 本批不新增 protocol / frontend shape；前端仍只消费既有 play-card / stack / return-to-hand event，不本地裁决目标合法性或回手结算。
+- Hostile Takeover、Berserk Impulse、Edge of Night、Karthus、Aphelios 仍按 deferred / design-gated 候选管理，不由本批关闭。
+
+4C-29 D 文档修改文件：
+
+- `docs/CURRENT_STAGE4C_BATCH29_GUST_RETURN_TO_HAND_GUARD_AUDIT.md`（D）
+- `docs/CURRENT_STAGE4C_BATCH29_GUST_RETURN_TO_HAND_GUARD_EVIDENCE.md`（D）
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`（D）
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`（D）
+- `docs/rules-evidence-index.md`（D）
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`（D write lock）
+
+已跑验证：
+
+- Focused backend：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Gust|FullyQualifiedName~ReturnToHand|FullyQualifiedName~Return|FullyQualifiedName~Hand"` 通过 112/112。
+- Small combined regression：GustReturnToHandTests + BattleOrFlight + existing Gust rejection 通过 13/13。
+- Backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 3458/3458。
+- Frontend build：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` 通过；仅保留既有 SignalR / Rollup PURE annotation warning。
+- Chrome smoke：`cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` 通过；覆盖 `/`、`/lobby`、`/decks`、`/cards`、`/rooms/stage3-smoke`、`/matches/stage3-smoke`、`/matches/stage3-smoke/result`。
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`：E 已运行通过。
+- 以上不替代最终正式 18-step E2E。
+
+本批关闭的代表子项：
+
+- `FU-48662b7661` / `OGN·169/298` visible spell resolution return public battlefield unit with power <= 3 to owner hand 代表路径。
+- public battlefield target power ceiling `<= 3` 的服务端权威 guard。
+- power > 3、base unit、stale object、face-down standby object、battlefield equipment invalid-target no-mutation 代表护栏。
+
+仍缺：
+
+- 完整 swift / reaction timing、spell duel / battle lifecycle、priority window 与 FEPR 全矩阵。
+- 完整 return-to-hand / movement / control-zone lifecycle、owner/controller split、attached equipment、replacement / prevention / cleanup 交织。
+- 完整 targeting prompt、target invalidation、hidden / face-down target policy、Spellshield target tax。
+- 完整 PaymentEngine、play-card cost Quote / Authorize / Commit、替代 / 额外费用与支付资源矩阵。
+- Hostile Takeover control lifecycle、Berserk Impulse hidden-zone reveal / choose / recycle、Edge of Night face-down standby attach、Karthus extra Last Breath、Aphelios weapon-attachment three-mode design gates。
+- FAQ regression、1009/811 full-official、正式 18-step E2E、completion audit。
+
+口径：
+
+- `fullOfficial=false`。
+- 不宣称 READY / READY-CANDIDATE。
+- 不因 Gust 代表路径外推完整 swift、reaction timing、targeting、return-to-hand、movement、PaymentEngine、FEPR、named deferred candidates 或 full-official。
+
 ## 0.2 阶段 0 当前基线
 
 阶段 0 只做主控建档、只读审计与任务拆分，不实现功能代码。已读取：
