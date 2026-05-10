@@ -1923,6 +1923,8 @@ A 主控复验：
 
 阶段 4C-20 已做 read-only triage，未修改功能代码，未修改覆盖矩阵，未提交 `riftbound-dotnet.sln`。A 暂停直接实现 Karthus / Undercover Agent，原因是两条候选都触发需要裁决的核心规则语义；继续硬写会违反服务端权威和“前端只提交 prompt candidate”的原则。
 
+裁决简报：`docs/CURRENT_STAGE4C_BATCH20_OPTIONAL_TRIGGER_HAND_CHOICE_DECISION.md`。
+
 候选核对：
 
 - Karthus / 卡尔萨斯 `OGN·236/298` / `FU-ee1dfb3ed3` / `OGN_KARTHUS_LAST_BREATH_STATIC_PLAY_UNIT`；冻结矩阵 status flags：`IMPLEMENTED_UNTESTED`、`NEEDS_ENGINE_SUPPORT`、`NEEDS_FAQ_REVIEW`；evidence candidate：`BREAK-JFAQ-260416 p3`。
