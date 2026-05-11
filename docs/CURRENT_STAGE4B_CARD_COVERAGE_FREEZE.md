@@ -1,14 +1,14 @@
 # Stage 4B Card Coverage Freeze
 
-日期：2026-05-09；4C-1 / 4C-2 / 4C-3 overlay 追加：2026-05-09；4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A / 4C-15B / 4C-16 / 4C-17 / 4C-18 / 4C-19 / 4C-20B / 4C-21 / 4C-22 / 4C-23 / 4C-24 / 4C-25 / 4C-26 / 4C-27 / 4C-28 / 4C-29 / 4C-30 / 4C-31 / 4C-32 / 4C-33 / 4C-34 / 4C-35 / 4C-36 / 4C-37 / 4C-38 / 4C-39 / 4C-40 / 4C-41 / 4C-42 / 4C-43 / 4C-44 overlay 追加：2026-05-10；4C-45 / 4C-46 / 4C-47 / 4C-48 / 4C-49 / 4C-50 overlay 追加：2026-05-11
+日期：2026-05-09；4C-1 / 4C-2 / 4C-3 overlay 追加：2026-05-09；4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A / 4C-15B / 4C-16 / 4C-17 / 4C-18 / 4C-19 / 4C-20B / 4C-21 / 4C-22 / 4C-23 / 4C-24 / 4C-25 / 4C-26 / 4C-27 / 4C-28 / 4C-29 / 4C-30 / 4C-31 / 4C-32 / 4C-33 / 4C-34 / 4C-35 / 4C-36 / 4C-37 / 4C-38 / 4C-39 / 4C-40 / 4C-41 / 4C-42 / 4C-43 / 4C-44 overlay 追加：2026-05-10；4C-45 / 4C-46 / 4C-47 / 4C-48 / 4C-49 / 4C-50 / 4C-51 overlay 追加：2026-05-11
 
 阶段：**阶段 4B / E 卡牌覆盖矩阵冻结**
 
-结论：**4B freeze 完成；4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A / 4C-15B / 4C-16 / 4C-17 / 4C-18 / 4C-19 / 4C-20B / 4C-21 / 4C-22 / 4C-23 / 4C-24 / 4C-25 / 4C-26 / 4C-27 / 4C-28 / 4C-29 / 4C-30 / 4C-31 / 4C-32 / 4C-33 / 4C-34 / 4C-35 / 4C-36 / 4C-37 / 4C-38 / 4C-39 / 4C-40 / 4C-41 / 4C-42 / 4C-43 / 4C-44 / 4C-45 / 4C-46 / 4C-47 / 4C-48 / 4C-49 / 4C-50 post-freeze overlay 已记录；NOT READY；不允许 1009 张卡批量实现。**
+结论：**4B freeze 完成；4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A / 4C-15B / 4C-16 / 4C-17 / 4C-18 / 4C-19 / 4C-20B / 4C-21 / 4C-22 / 4C-23 / 4C-24 / 4C-25 / 4C-26 / 4C-27 / 4C-28 / 4C-29 / 4C-30 / 4C-31 / 4C-32 / 4C-33 / 4C-34 / 4C-35 / 4C-36 / 4C-37 / 4C-38 / 4C-39 / 4C-40 / 4C-41 / 4C-42 / 4C-43 / 4C-44 / 4C-45 / 4C-46 / 4C-47 / 4C-48 / 4C-49 / 4C-50 / 4C-51 post-freeze overlay 已记录；NOT READY；不允许 1009 张卡批量实现。**
 
 本文冻结卡牌覆盖矩阵、official text / FAQ evidence、functional units、测试优先级和阶段 4 批量顺序。4C-1 只在冻结矩阵上追加 APNAP `ORDER_TRIGGERS` / battle initial stack / hidden trigger metadata redaction overlay；4C-2 / 4C-3 只追加 Watchful Sentinel 与 Honest Broker real trigger enqueue overlay；4C-4 只追加 Treasure Pile trigger payment overlay；4C-5 / 4C-6 只追加 visible Watchful Sentinel / Honest Broker state-based cleanup trigger enqueue overlay；4C-7 / 4C-8 只追加 visible Scouting Warhawk explicit destroy / state-based cleanup trigger enqueue overlay；4C-9 只追加 visible Sad/Loyal Poro conditional state-based cleanup trigger enqueue overlay；4C-10 只追加 visible Unsung Hero powerful state-based cleanup trigger enqueue overlay；4C-11 只追加 visible surviving friendly Ghostly Centaur friendly-destroyed cleanup trigger enqueue overlay；4C-12 只追加 visible surviving friendly Resonant Soul first-friendly-destroyed cleanup trigger enqueue overlay；4C-13 只追加 Ghostly Centaur / Resonant Soul true stack destruction route migration overlay；4C-14 只追加 Savage Jawfish true stack / cleanup friendly-destroyed experience trigger enqueue overlay；4C-15A 只追加 Minion token family model / infrastructure overlay；4C-15B 只追加 Viktor destroyed non-Minion trigger enqueue representative baseline overlay；4C-16 / 4C-17 只追加 Mechanical Trickster / Ironclad Vanguard true stack last-breath trigger enqueue representative baseline overlay；4C-18 只追加这两个 FU 的 state-based cleanup last-breath trigger enqueue representative baseline overlay；4C-19 只追加 Kogmaw visible last-breath AoE damage representative route overlay；4C-20B 只追加 Undercover Agent triggered hand-choice prompt 微切片 overlay；4C-21 只追加 Sunken Temple authoritative trigger-payment 微切片 overlay；4C-22 只追加 Muddy Dredger visible state-based cleanup Last Breath -> Warhawk token representative overlay；4C-23 只追加 Lux high-cost spell temporary power representative overlay；4C-24 只追加 Vayne visible face-up conquer -> `TRIGGER_PAYMENT` / `PAY_COST` pay 1 return-self representative overlay；4C-25 只追加 Icevale Archer attack payment target-selection representative overlay；4C-26 只追加 Jax visible face-up weapon attach -> `TRIGGER_PAYMENT` / `PAY_COST` pay 1 draw 1 representative overlay；4C-27 只追加 Treasure Hunter visible face-up move -> dormant Gold equipment token representative overlay；4C-28 只追加 Battle or Flight valid battlefield unit target -> owner base movement and target guard hardening representative overlay；4C-29 只追加 Gust valid public battlefield unit power <= 3 -> owner hand target guard representative overlay；4C-30 只追加 Hunt the Weak valid public battlefield unit power <= 3 -> destroy target guard representative overlay；4C-31 只追加 Reprimand valid public battlefield unit -> owner hand target guard representative overlay；4C-32 只追加 Ride the Wind friendly public battlefield unit ready -> owner base movement target guard representative overlay；4C-33 只追加 Charm enemy public battlefield unit -> owner base movement target guard representative overlay；4C-34 只追加 Isolate enemy public battlefield unit -> owner base no-draw movement target guard representative overlay；4C-35 只追加 Vengeance public unit destroy target guard representative overlay；4C-36 只追加 Hostile Takeover valid enemy public battlefield unit gain-control ready target guard representative overlay；4C-37 只追加 Berserk Impulse valid opponent top main-deck unit play target guard representative overlay；4C-38 只追加 Edge of Night play-equipment / assemble-purple guard representative overlay；4C-39 只追加 Zhonya's Hourglass play-equipment guard representative overlay；4C-40 只追加 Sea Monster Hook play-equipment guard representative overlay；4C-41 只追加 Giant Arm Kato play-keyword-unit guard representative overlay；4C-42 只追加 Time Gate play-equipment guard representative overlay；4C-43 只追加 Sfur Song play-equipment guard representative overlay；4C-44 只追加 Akshan play-unit guard representative overlay；4C-45 只追加 Switcheroo battlefield power-swap guard representative overlay；4C-46 只追加 Void Burrower `LEGEND_ACTION_DOMAIN` shared-oracle design gate overlay，不记录 verified implementation；4C-47 只追加 Draven battle body / play-unit guard shared-oracle representative overlay；4C-48 只追加 Vex `PLAY_CARD` 0-target + `法盾` / `约德尔人` tag invalid-input guard representative overlay，不标 `UNL-150a/219`。E 不修改服务端/前端代码，不触碰 `riftbound-dotnet.sln`。
 
-4C-49 只追加 Ezreal combat-damage text ordinary play-unit guard representative overlay；4C-50 只追加 Draven keyword-unit combat text ordinary play-unit + `法盾` tag guard representative overlay。二者均不改变 4B primary status、statusFlags、1009/811 frozen counts 或 full-official 口径。
+4C-49 只追加 Ezreal combat-damage text ordinary play-unit guard representative overlay；4C-50 只追加 Draven keyword-unit combat text ordinary play-unit + `法盾` tag guard representative overlay；4C-51 只追加 Rek'Sai attack reveal / movement text ordinary play-unit guard representative overlay。这些 overlay 均不改变 4B primary status、statusFlags、1009/811 frozen counts 或 full-official 口径。
 
 ## 1. Source Snapshot
 
@@ -1583,7 +1583,7 @@ Top risk remains the Stage 2 Top20 with 4B statuses overlaid:
 | automated evidence | focused 21/21 passed；backend full 3617/3617 passed；frontend build passed；Chrome smoke passed。 |
 | FAQ boundary | `BREAK-JFAQ-260416 p5` / `SOUL-JFAQ-260114 p19` / `SOUL-JFAQ-260114 p25` / `SOUL-OFAQ-260114 p20` remain open；4C-49 does not close actual combat damage trigger/runtime, move-after-combat-damage behavior, cannot-combat-damage static, blue swift move, PaymentEngine, Layer/effective power, or FAQ adjudication。 |
 | status impact | 4B `freezeStatus` / `statusFlags` unchanged；`IMPLEMENTED_TESTED` remains primary status；`IMPLEMENTED_TESTED` / `SHARED_ORACLE_IMPLEMENTATION` / `NEEDS_ENGINE_SUPPORT` / `NEEDS_FAQ_REVIEW` remain flags；`fullOfficial=false`；full-official upgrades = 0。 |
-| follow-on candidates | Draven keyword-unit combat text / `FU-104211dbbc` entered 4C-50 ordinary play-unit + `法盾` tag guard；Rek'Sai attack reveal / movement / `FU-422b450261`、Sett / `FU-6308c2db01` remain high-pressure follow-on candidates。 |
+| follow-on candidates | Draven keyword-unit combat text / `FU-104211dbbc` entered 4C-50 ordinary play-unit + `法盾` tag guard；Rek'Sai attack reveal / movement / `FU-422b450261` entered 4C-51 ordinary play-unit guard；Rek'Sai play-unit no-optional keyword / `FU-1945f6918c`、Sett / `FU-6308c2db01` remain high-pressure follow-on candidates。 |
 
 矩阵 overlay 数字：
 
@@ -1609,7 +1609,7 @@ Top risk remains the Stage 2 Top20 with 4B statuses overlaid:
 | automated evidence | focused 17/17 passed；backend full 3625/3625 passed；frontend build passed；Chrome smoke passed。 |
 | FAQ boundary | `BREAK-JFAQ-260416 p4` / `SOUL-JFAQ-260114 p25` / `SOUL-JFAQ-260114 p4` / `SOUL-OFAQ-260114 p16` / `SOUL-OFAQ-260114 p17` remain open；4C-50 does not close battle win score、destroyed-in-battle score、Spellshield target tax、full battle scoring、PaymentEngine、targeting / stack timing 或 FAQ adjudication。 |
 | status impact | 4B `freezeStatus` / `statusFlags` unchanged；`IMPLEMENTED_TESTED` remains primary status；`IMPLEMENTED_TESTED` / `SHARED_ORACLE_IMPLEMENTATION` / `NEEDS_ENGINE_SUPPORT` / `NEEDS_FAQ_REVIEW` remain flags；`fullOfficial=false`；full-official upgrades = 0。 |
-| follow-on candidates | Rek'Sai attack reveal / movement / `FU-422b450261`、Sett / `FU-6308c2db01` remain high-pressure follow-on candidates。 |
+| follow-on candidates | Rek'Sai attack reveal / movement / `FU-422b450261` entered 4C-51 ordinary play-unit guard；Rek'Sai play-unit no-optional keyword / `FU-1945f6918c`、Sett / `FU-6308c2db01` remain high-pressure follow-on candidates。 |
 
 矩阵 overlay 数字：
 
@@ -1620,9 +1620,34 @@ Top risk remains the Stage 2 Top20 with 4B statuses overlaid:
 
 4C-50 不关闭 all Draven official text、battle win score、destroyed-in-battle score、Spellshield target tax、full battle scoring、battle lifecycle full matrix、PaymentEngine、targeting / stack timing、FAQ adjudication 或 1009/811 full-official。
 
-## 59. 4B / 4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A / 4C-15B / 4C-16 / 4C-17 / 4C-18 / 4C-19 / 4C-20B / 4C-21 / 4C-22 / 4C-23 / 4C-24 / 4C-25 / 4C-26 / 4C-27 / 4C-28 / 4C-29 / 4C-30 / 4C-31 / 4C-32 / 4C-33 / 4C-34 / 4C-35 / 4C-36 / 4C-37 / 4C-38 / 4C-39 / 4C-40 / 4C-41 / 4C-42 / 4C-43 / 4C-44 / 4C-45 / 4C-46 / 4C-47 / 4C-48 / 4C-49 / 4C-50 Blocker
+## 59. Post-Freeze 4C-51 Overlay
 
-4B freeze、4C-1 overlay、4C-2 overlay、4C-3 overlay、4C-4 overlay、4C-5 overlay、4C-6 overlay、4C-7 overlay、4C-8 overlay、4C-9 overlay、4C-10 overlay、4C-11 overlay、4C-12 overlay、4C-13 overlay、4C-14 overlay、4C-15A overlay、4C-15B overlay、4C-16 overlay、4C-17 overlay、4C-18 overlay、4C-19 overlay、4C-20B overlay、4C-21 overlay、4C-22 overlay、4C-23 overlay、4C-24 overlay、4C-25 overlay、4C-26 overlay、4C-27 overlay、4C-28 overlay、4C-29 overlay、4C-30 overlay、4C-31 overlay、4C-32 overlay、4C-33 overlay、4C-34 overlay、4C-35 overlay、4C-36 overlay、4C-37 overlay、4C-38 overlay、4C-39 overlay、4C-40 overlay、4C-41 overlay、4C-42 overlay、4C-43 overlay、4C-44 overlay、4C-45 overlay、4C-46 overlay、4C-47 overlay、4C-48 overlay、4C-49 overlay 和 4C-50 overlay 本身无文档阻断。仍阻断 READY / full-official 的事项：
+4C-51 不改变 4B frozen counts、primary status counts 或 full-official 口径，只记录局部 Rek'Sai attack reveal / movement text play-unit guard 证据：
+
+| 项 | 4C-51 记录 |
+|---|---|
+| verified FU | `FU-422b450261` / `SFD·170/221` Rek'Sai / 《雷克塞》 |
+| cardIds | `SFD·170/221` / `33264`；`SFD·170a/221` / `33265` |
+| oracle/effectId | `SFD_170_REKSAI_ATTACK_REVEAL_PLAY_UNIT` / `SFD_170A_REKSAI_ATTACK_REVEAL_PLAY_UNIT` |
+| route | Representative ordinary hand play-unit guard baseline for the Rek'Sai attack reveal / movement text family |
+| guard | invalid input rejected without mutation or leak |
+| automated evidence | focused 25/25 passed；backend full 3633/3633 passed；frontend build passed；Chrome smoke passed。 |
+| FAQ boundary | `BREAK-JFAQ-260416 p3` / `SOUL-JFAQ-260114 p19` / `SOUL-OFAQ-260114 p4` remain open；4C-51 does not close attack reveal runtime、top-2 reveal、free play、recycle remainder、unit destination to current battlefield / here、hidden-info redaction / reveal matrix、`ORDER_TRIGGERS`、movement / control-zone 或 FAQ adjudication。 |
+| status impact | 4B `freezeStatus` / `statusFlags` unchanged；`IMPLEMENTED_TESTED` remains primary status；`IMPLEMENTED_TESTED` / `SHARED_ORACLE_IMPLEMENTATION` / `NEEDS_ENGINE_SUPPORT` / `NEEDS_FAQ_REVIEW` remain flags；`fullOfficial=false`；full-official upgrades = 0。 |
+| follow-on candidates | Rek'Sai play-unit no-optional keyword / `FU-1945f6918c`、Sett / `FU-6308c2db01` remain high-pressure follow-on candidates。 |
+
+矩阵 overlay 数字：
+
+- `stage4C51` verified FUs：1
+- `stage4C51` verified snapshot entries：2
+- full-official upgrades：0
+- full-official still uncovered FUs：811
+
+4C-51 不关闭 all Rek'Sai official text、attack reveal runtime、top-2 reveal、free play、recycle remainder、unit destination to current battlefield / here、hidden-info redaction / reveal matrix、`ORDER_TRIGGERS`、movement / control-zone、FAQ adjudication 或 1009/811 full-official。
+
+## 60. 4B / 4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A / 4C-15B / 4C-16 / 4C-17 / 4C-18 / 4C-19 / 4C-20B / 4C-21 / 4C-22 / 4C-23 / 4C-24 / 4C-25 / 4C-26 / 4C-27 / 4C-28 / 4C-29 / 4C-30 / 4C-31 / 4C-32 / 4C-33 / 4C-34 / 4C-35 / 4C-36 / 4C-37 / 4C-38 / 4C-39 / 4C-40 / 4C-41 / 4C-42 / 4C-43 / 4C-44 / 4C-45 / 4C-46 / 4C-47 / 4C-48 / 4C-49 / 4C-50 / 4C-51 Blocker
+
+4B freeze、4C-1 overlay、4C-2 overlay、4C-3 overlay、4C-4 overlay、4C-5 overlay、4C-6 overlay、4C-7 overlay、4C-8 overlay、4C-9 overlay、4C-10 overlay、4C-11 overlay、4C-12 overlay、4C-13 overlay、4C-14 overlay、4C-15A overlay、4C-15B overlay、4C-16 overlay、4C-17 overlay、4C-18 overlay、4C-19 overlay、4C-20B overlay、4C-21 overlay、4C-22 overlay、4C-23 overlay、4C-24 overlay、4C-25 overlay、4C-26 overlay、4C-27 overlay、4C-28 overlay、4C-29 overlay、4C-30 overlay、4C-31 overlay、4C-32 overlay、4C-33 overlay、4C-34 overlay、4C-35 overlay、4C-36 overlay、4C-37 overlay、4C-38 overlay、4C-39 overlay、4C-40 overlay、4C-41 overlay、4C-42 overlay、4C-43 overlay、4C-44 overlay、4C-45 overlay、4C-46 overlay、4C-47 overlay、4C-48 overlay、4C-49 overlay、4C-50 overlay 和 4C-51 overlay 本身无文档阻断。仍阻断 READY / full-official 的事项：
 
 - 0/811 functional units 获得 full-official。
 - P0/P1 engine support 仍影响 762 FUs by status flag。

@@ -2,13 +2,13 @@
 
 更新时间：2026-05-11
 
-阶段：**阶段 4C-50 / E 卡牌覆盖矩阵 post-freeze overlay**
+阶段：**阶段 4C-51 / E 卡牌覆盖矩阵 post-freeze overlay**
 
 结论：**NOT READY；不允许进入 1009 张卡牌效果批量覆盖。**
 
 本文以阶段 2 风险排序为基础，并叠加阶段 3A/3B/3C/3D 的最小证据 overlay、阶段 4B 冻结状态、阶段 4C-1 APNAP `ORDER_TRIGGERS` 部分 blocker 降低、阶段 4C-2/4C-3 real trigger enqueue、阶段 4C-4 trigger payment、阶段 4C-5 Watchful state-based cleanup trigger enqueue、阶段 4C-6 Honest Broker state-based cleanup trigger enqueue、阶段 4C-7 Scouting Warhawk explicit destroy trigger enqueue、阶段 4C-8 Scouting Warhawk state-based cleanup trigger enqueue、阶段 4C-9 Sad/Loyal Poro conditional cleanup trigger enqueue、阶段 4C-10 Unsung Hero powerful cleanup trigger enqueue、阶段 4C-11 Ghostly Centaur friendly-destroyed cleanup trigger enqueue、阶段 4C-12 Resonant Soul first-friendly-destroyed cleanup trigger enqueue、阶段 4C-13 true stack destruction route migration、阶段 4C-14 Savage Jawfish friendly-destroyed experience trigger enqueue、阶段 4C-15A Minion token family model overlay、阶段 4C-15B Viktor destroyed non-Minion trigger enqueue、阶段 4C-16 / 4C-17 Mechanical Trickster / Ironclad Vanguard true stack last-breath trigger enqueue、阶段 4C-18 Mechanical Trickster + Ironclad Vanguard cleanup trigger enqueue、阶段 4C-19 Kogmaw last-breath AoE damage representative route、阶段 4C-20B Undercover Agent triggered hand-choice prompt、阶段 4C-21 Sunken Temple trigger payment、阶段 4C-22 Muddy Dredger Warhawk representative baseline、阶段 4C-23 Lux high-cost spell temporary power representative baseline、阶段 4C-24 Vayne conquer pay-one recall representative baseline、阶段 4C-25 Icevale Archer attack payment target-selection representative baseline、阶段 4C-26 Jax weapon attach pay-one draw-one representative baseline、阶段 4C-27 Treasure Hunter move-create dormant Gold representative baseline、阶段 4C-28 Battle or Flight move battlefield unit to owner base target-guard representative baseline、阶段 4C-29 Gust power-three-or-less return-to-owner-hand target-guard representative baseline、阶段 4C-30 Hunt the Weak power-three-or-less destroy-target guard representative baseline、阶段 4C-31 Reprimand return-to-owner-hand target-guard representative baseline、阶段 4C-32 Ride the Wind move-friendly-battlefield-unit-to-owner-base ready target-guard representative baseline、阶段 4C-33 Charm move-enemy-battlefield-unit-to-owner-base target-guard representative baseline、阶段 4C-34 Isolate move-enemy-battlefield-unit-to-owner-base no-draw target-guard representative baseline、阶段 4C-35 Vengeance public-unit destroy-target guard representative baseline、阶段 4C-36 Hostile Takeover control-ready target-guard representative baseline、阶段 4C-37 Berserk Impulse opponent top-unit play target-guard representative baseline、阶段 4C-38 Edge of Night play-equipment / assemble-purple guard representative baseline、阶段 4C-39 Zhonya's Hourglass play-equipment guard representative baseline、阶段 4C-40 Sea Monster Hook play-equipment guard representative baseline、阶段 4C-41 Giant Arm Kato play-keyword-unit guard representative baseline、阶段 4C-42 Time Gate play-equipment guard representative baseline、阶段 4C-43 Sfur Song play-equipment guard representative baseline、阶段 4C-44 Akshan play-unit guard representative baseline、阶段 4C-45 Switcheroo battlefield power-swap guard representative baseline、阶段 4C-46 Void Burrower legend-domain shared-oracle design-gated baseline、阶段 4C-47 Draven battle body / play-unit guard representative baseline、阶段 4C-48 Vex spellshield opponent-unit stun guard representative baseline 和阶段 4C-49 Ezreal combat-damage text play-unit guard representative baseline；它不是功能实现清单，也不是错误断言。排名用于告诉后续阶段先审哪里：哪些 functional unit 同时碰到 FAQ、费用、触发/替换、持续效果、战斗/法术对决、隐藏信息或非 PLAY_CARD 规则域。
 
-阶段 4C-50 追加 Draven keyword-unit combat text ordinary play-unit + `法盾` tag guard representative baseline，只降低 `FU-104211dbbc` 的局部 guard 证据风险，不改变 Top20 full-official 阻断或 4B primary status。
+阶段 4C-50 追加 Draven keyword-unit combat text ordinary play-unit + `法盾` tag guard representative baseline；阶段 4C-51 追加 Rek'Sai attack reveal / movement text ordinary play-unit guard representative baseline。两者只降低对应 FU 的局部 guard 证据风险，不改变 Top20 full-official 阻断或 4B primary status。
 
 ## 1. 数据来源
 
@@ -1214,7 +1214,7 @@ Viktor boundary：
 
 本批不关闭 actual combat damage trigger/runtime、move-after-combat-damage behavior、battle lifecycle full matrix、movement/control-zone full matrix、LayerEngine、PaymentEngine、targeting/stack timing、FAQ adjudication for Ezreal refs、all Ezreal official text、1009/811 full-official 或正式 18-step E2E。
 
-后续批量顺序建议：Draven keyword-unit combat text / `FU-104211dbbc` 已进入 4C-50 ordinary play-unit + `法盾` tag guard；Rek'Sai attack reveal / movement `FU-422b450261` 仍为高压候选；Sett / `FU-6308c2db01` 继续等待 `LEGEND_ACTION_DOMAIN` shared-oracle design batch。
+后续批量顺序建议：Draven keyword-unit combat text / `FU-104211dbbc` 已进入 4C-50 ordinary play-unit + `法盾` tag guard；Rek'Sai attack reveal / movement `FU-422b450261` 已进入 4C-51 ordinary play-unit guard；Rek'Sai play-unit no-optional keyword `FU-1945f6918c` 仍为高压候选；Sett / `FU-6308c2db01` 继续等待 `LEGEND_ACTION_DOMAIN` shared-oracle design batch。
 
 仍缺：actual combat damage trigger/runtime、move-after-combat-damage、battle lifecycle、movement/control-zone、LayerEngine、PaymentEngine、targeting/stack timing、FAQ adjudication、1009/811 full-official 覆盖、正式 18-step E2E。
 
@@ -1235,9 +1235,30 @@ Viktor boundary：
 
 本批不关闭 battle win score、destroyed-in-battle score、Spellshield target tax、full battle scoring、battle lifecycle full matrix、PaymentEngine、targeting/stack timing、FAQ adjudication for Draven refs、all Draven official text、1009/811 full-official 或正式 18-step E2E。
 
-后续批量顺序建议：Rek'Sai attack reveal / movement `FU-422b450261` 仍为高压候选；Sett / `FU-6308c2db01` 继续等待 `LEGEND_ACTION_DOMAIN` shared-oracle design batch。
+后续批量顺序建议：Rek'Sai attack reveal / movement `FU-422b450261` 已进入 4C-51 ordinary play-unit guard；Rek'Sai play-unit no-optional keyword `FU-1945f6918c` 仍为高压候选；Sett / `FU-6308c2db01` 继续等待 `LEGEND_ACTION_DOMAIN` shared-oracle design batch。
 
 仍缺：battle win score、destroyed-in-battle score、Spellshield target tax、full battle scoring、battle lifecycle、PaymentEngine、targeting/stack timing、FAQ adjudication、1009/811 full-official 覆盖、正式 18-step E2E。
+
+## 55D. Stage 4C-51 Rek'Sai Attack Reveal Play-Unit Guard Overlay
+
+4C-51 只更新覆盖矩阵 / 风险证据，不升级 full-official。正确身份为 `FU-422b450261` / representative `SFD·170/221` / cardId `33264` / Rek'Sai / 《雷克塞》，snapshot entries 为 `SFD·170/221` / `33264` 与 `SFD·170a/221` / `33265`，oracle/effectId 为 `SFD_170_REKSAI_ATTACK_REVEAL_PLAY_UNIT` / `SFD_170A_REKSAI_ATTACK_REVEAL_PLAY_UNIT`。
+
+4C-51 已部分降低的 blocker：
+
+- ordinary play-unit guard baseline for the Rek'Sai attack reveal / movement text family。
+- invalid input rejected without mutation or leak。
+- 4B primary status / flags 不变：`IMPLEMENTED_TESTED`，`IMPLEMENTED_TESTED`、`SHARED_ORACLE_IMPLEMENTATION`、`NEEDS_ENGINE_SUPPORT`、`NEEDS_FAQ_REVIEW`；`fullOfficial=false`，FAQ refs remain open，full-official upgrades = 0。
+- attack reveal runtime、top-2 reveal、free play、recycle remainder、unit destination to current battlefield / here、hidden-info redaction / reveal matrix、`ORDER_TRIGGERS` and movement/control-zone remain holdback。
+
+矩阵数字口径：`stage4C51` verified FUs = 1，verified snapshot entries = 2，full-official upgrades = 0，full-official still uncovered FUs = 811。
+
+验证记录：focused 25/25 passed；backend full 3633/3633 passed；frontend build passed；Chrome smoke passed。
+
+本批不关闭 attack reveal runtime、top-2 reveal、free play、recycle remainder、unit destination to current battlefield / here、hidden-info redaction / reveal matrix、`ORDER_TRIGGERS`、movement/control-zone、FAQ adjudication for Rek'Sai refs、all Rek'Sai official text、1009/811 full-official 或正式 18-step E2E。
+
+后续批量顺序建议：Rek'Sai play-unit no-optional keyword `FU-1945f6918c` 仍为高压候选；Sett / `FU-6308c2db01` 继续等待 `LEGEND_ACTION_DOMAIN` shared-oracle design batch。
+
+仍缺：attack reveal runtime、top-2 reveal、free play、recycle remainder、unit destination to current battlefield / here、hidden-info redaction / reveal matrix、`ORDER_TRIGGERS`、movement/control-zone、FAQ adjudication、1009/811 full-official 覆盖、正式 18-step E2E。
 
 ## 56. Top20 高风险 Functional Units
 
@@ -1287,6 +1308,7 @@ P0：
 - `PAY_COST` 已有 3A 最小 runtime，4C-4 已验证 `SFD·220/221` `TRIGGER_PAYMENT` 支付 / 拒付代表路径，4C-21 已验证 `SFD·218/221` Sunken Temple 征服强力单位 `TRIGGER_PAYMENT` / `PAY_COST` 支付抽牌代表路径，`ASSIGN_COMBAT_DAMAGE` 已有 3C 最小 runtime，`ORDER_TRIGGERS` 已升级为 4C-1 保守 APNAP controller-block 子集，4C-2 / 4C-3 只验证 Watchful Sentinel 与 Honest Broker real trigger enqueue，4C-5 / 4C-6 只验证 visible Watchful Sentinel 与 visible Honest Broker 的 state-based cleanup trigger enqueue，4C-7 / 4C-8 只验证 visible Scouting Warhawk explicit destroy 与 state-based cleanup trigger enqueue，4C-9 只验证 visible Sad/Loyal Poro conditional cleanup trigger enqueue，4C-10 只验证 visible Unsung Hero powerful cleanup trigger enqueue，4C-11 只验证 visible surviving friendly Ghostly Centaur friendly-destroyed cleanup trigger enqueue，4C-12 只验证 visible surviving friendly Resonant Soul first-friendly-destroyed cleanup trigger enqueue，4C-13 只迁移 Ghostly / Resonant true stack destruction non-cleanup route，4C-14 只验证 Savage Jawfish true stack / cleanup friendly-destroyed experience trigger enqueue，4C-15A 只记录 Minion token family infrastructure，4C-15B 只验证 Viktor destroyed non-Minion representative trigger enqueue baseline，4C-16 / 4C-17 只验证 Mechanical Trickster / Ironclad Vanguard true stack last-breath representative trigger enqueue baseline，4C-18 只验证这两个 FU 的 cleanup-route representative trigger enqueue baseline，4C-19 只验证 Kogmaw visible last-breath AoE damage representative route，4C-20B 只验证 Undercover Agent triggered hand-choice prompt 微切片，4C-22 只验证 Muddy Dredger state-based cleanup Warhawk token representative route；完整 PaymentEngine、完整 damage assignment 全规则矩阵、完整 trigger engine / battle initial stack 全规则仍未完成。
 - 4C-29 / 4C-30 / 4C-31 / 4C-32 / 4C-33 / 4C-34 / 4C-35 / 4C-36 / 4C-37 / 4C-38 / 4C-39 / 4C-40 / 4C-41 / 4C-42 / 4C-43 / 4C-44 / 4C-45 / 4C-47 / 4C-48 / 4C-49 只验证 Gust return-to-owner-hand、Hunt the Weak destroy-target、Reprimand return-to-owner-hand、Ride the Wind ready/move-to-base、Charm move-to-base、Isolate move-to-base no-draw、Vengeance destroy-target、Hostile Takeover control-ready、Berserk Impulse opponent top-unit play、Edge of Night play-equipment / assemble-purple、Zhonya's Hourglass play-equipment guard、Sea Monster Hook play-equipment guard、Giant Arm Kato play-keyword-unit guard、Time Gate play-equipment guard、Sfur Song play-equipment guard、Akshan play-unit guard、Switcheroo battlefield power-swap guard、Draven battle body / play-unit guard、Vex `PLAY_CARD` 0-target + `法盾` / `约德尔人` tag invalid-input guard 与 Ezreal combat-damage text ordinary play-unit guard 的代表切片；4C-46 只记录 Void Burrower legend-domain shared-oracle design gate，verified implementation 仍为 0。完整 target legality、movement/control-zone、movement/roam、replacement / prevention / cleanup、visibility / reveal / recycle、control-change、equipment layer、activated ability、top-five/free-play/recycle、Spellshield target tax、actual stun/cannot-move static、keyword grant、+power until EOT、next spell Echo、optional echo payment/repeat、duration cleanup、copied host skill text、complete assemble / attach lifecycle、optional assemble、extra play semantics、full battle math、power-swap layer semantics、actual combat damage / move runtime、battle win Gold、attack/defense red payment、legend-domain active/optional/reveal/payment/redaction design、FAQ adjudication 与全 card-family matrix 仍未完成。
 - 4C-50 只验证 Draven keyword-unit combat text ordinary play-unit + `法盾` tag guard 的代表切片；battle win score、destroyed-in-battle score、Spellshield target tax、full battle scoring、FAQ adjudication 与全 Draven card-family matrix 仍未完成。
+- 4C-51 只验证 Rek'Sai attack reveal / movement text ordinary play-unit guard 的代表切片；attack reveal runtime、top-2 reveal、free play、recycle remainder、unit destination to current battlefield / here、hidden-info redaction / reveal matrix、`ORDER_TRIGGERS`、movement/control-zone、FAQ adjudication 与全 Rek'Sai card-family matrix 仍未完成。
 - 正式 18 步 E2E 未最终收口。
 - 1009 entries / 811 FUs 的 FAQ 证据与 full-official 测试矩阵未完成。
 

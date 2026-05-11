@@ -910,6 +910,19 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Hostile Takeover 代表路径外推完整待命、反应时机、开战/征服、control lifecycle、end-turn cleanup、targeting、PaymentEngine、FEPR、named deferred candidates 或 full-official。
 
+## 0.1.29 阶段 4C-51 Rek'Sai Attack Reveal Checkpoint
+
+状态：**4C-51 docs checkpoint recorded；项目仍 NOT READY。**
+
+阶段 4C-51 名称：Rek'Sai attack reveal / movement text play-unit guard representative baseline。
+
+- 本批只记录 Rek'Sai / 雷克塞 `SFD·170/221` / cardId `33264`、`SFD·170a/221` / cardId `33265` / `FU-422b450261` ordinary hand play-unit guard baseline。
+- 已验证范围只限 ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 5，tag `CARD_TYPE:UNIT`，two printings covered。
+- 已覆盖 invalid target、wrong zone-source、opponent source、face-down standby source、insufficient mana no mutation / no leak guard。
+- 验证记录：focused 25/25 passed；backend full 3633/3633 passed；frontend build passed；Chrome smoke passed。
+- 本批只关闭 Rek'Sai `SFD·170` / `SFD·170a` ordinary hand play-unit guard representative evidence。
+- 仍保持 `fullOfficial=false`；不宣称 READY / READY-CANDIDATE；不实现 / 不宣称 attack reveal runtime 或 movement runtime；不关闭 attack reveal runtime、top-2 reveal、free play、recycle remainder、unit destination to current battlefield / "here"、hidden-info redaction / reveal matrix、`ORDER_TRIGGERS`、battle lifecycle full matrix、movement / control-zone、FAQ refs、1009/811 或 formal 18-step E2E。
+
 ## 0.1.28 阶段 4C-50 Draven Keyword Unit Checkpoint
 
 状态：**4C-50 docs checkpoint recorded；项目仍 NOT READY。**

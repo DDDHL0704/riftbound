@@ -12,6 +12,16 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-11 阶段 4C-51 Rek'Sai Attack Reveal Guard 审计
+
+阶段 4C-51 审计入口：`docs/CURRENT_STAGE4C_BATCH51_REKSAI_ATTACK_REVEAL_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH51_REKSAI_ATTACK_REVEAL_GUARD_EVIDENCE.md`。本批只记录 Rek'Sai / 雷克塞 `SFD·170/221` / cardId `33264`、`SFD·170a/221` / cardId `33265` / `FU-422b450261` 的 attack reveal / movement text ordinary hand play-unit guard representative baseline。项目仍 **NOT READY**，`fullOfficial=false`。
+
+- Scope：ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 5，tag `CARD_TYPE:UNIT`，two printings covered。
+- Guard：invalid target、wrong zone-source、opponent source、face-down standby source、insufficient mana 均 rejected，no mutation / no leak。
+- Validation：focused 25/25 passed；backend full 3633/3633 passed；frontend build passed；Chrome smoke passed。
+- 本批只关闭 Rek'Sai `SFD·170` / `SFD·170a` ordinary hand play-unit guard representative evidence。
+- 不实现 / 不宣称 attack reveal runtime 或 movement runtime；attack reveal runtime、top-2 reveal、free play、recycle remainder、unit destination to current battlefield / "here"、hidden-info redaction / reveal matrix、`ORDER_TRIGGERS`、battle lifecycle full matrix、movement / control-zone、FAQ refs、1009/811 full-official 与 formal 18-step E2E 均保持 open。
+
 ## 2026-05-11 阶段 4C-50 Draven Keyword Unit Guard 审计
 
 阶段 4C-50 审计入口：`docs/CURRENT_STAGE4C_BATCH50_DRAVEN_KEYWORD_UNIT_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH50_DRAVEN_KEYWORD_UNIT_GUARD_EVIDENCE.md`。本批只记录 Draven / 德莱文 `SFD·148/221` / cardId `33240`、`SFD·148a/221` / cardId `33241` / `FU-104211dbbc` 的 keyword-unit combat text ordinary hand play-unit + `法盾` tag guard representative baseline。项目仍 **NOT READY**，`fullOfficial=false`。
