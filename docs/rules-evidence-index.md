@@ -106,6 +106,8 @@
 
 阶段 4C-54 记录 Void Burrower / 虚空遁地兽 SFD·187 / SFD·243 representative automated evidence overlay；只关闭 `FU-6e7d0dba2c` automated evidence gap，不做 direct runtime implementation，不关闭 full-official NO-GO。LegendActivePredicate、LegendOptionalTrigger、RevealChoice、shared oracle mapping、hidden / reveal redaction matrix、optional trigger prompt / decline、free-play official semantics、recycle remainder official semantics、unit destination / zone ownership details、`ORDER_TRIGGERS` / battle lifecycle full matrix、FAQ adjudication、1009/811 与 formal E2E 仍不代表 READY。
 
+阶段 4C-55 记录 Vex alt A / 薇古丝 UNL-150a test-only spellshield / Yordle play-unit guard representative evidence；只关闭 `FU-4d8ee1696b` ordinary hand guard evidence，不实现 / 不宣称 opponent-unit stun / cannot-move runtime。Spellshield full target tax、movement / control effects、FAQ adjudication、1009/811 与 formal 18-step E2E 仍不代表 READY。
+
 | 阶段 3 流程 | 证据入口 | 必须证明的审计点 |
 |---|---|---|
 | 创建 / 加入 / 重连 | `CORE-260330` rules 107-129；工程会话契约 | 双浏览器上下文不得共享授权状态；snapshot/prompt 只能按 viewer 下发；重连恢复不能泄漏隐藏信息。 |
@@ -654,6 +656,15 @@
 |---|---|---|---|
 | Void Burrower automated reveal / play / recycle evidence | `CATALOG` `SFD·187/221` / cardId `33285`；`SFD·243/221` / cardId `33354`；FU `FU-6e7d0dba2c`；`SOUL-JFAQ-260114 p14`；`SOUL-OFAQ-260114 p4`；existing tests `P79LegendTriggerReksaiRevealsTopTwoPlaysUnitAndRecyclesRestOnConquer` / `P79LegendTriggerReksaiRecyclesBothRevealedCardsWhenNoTopUnit` | 代表路径记录：active legend 征服后自动休眠，展示 top two，存在单位时打出一张并回收其余；无可打出单位时回收两张 | direct runtime implementation、official optional trigger prompt / decline、RevealChoice、free-play official semantics、recycle remainder official semantics |
 | Void Burrower automated active-legend guard | `CATALOG` `SFD·187/221` / cardId `33285`；existing test `P79LegendTriggerReksaiRequiresActiveLegend` | 代表路径记录：inactive / exhausted legend 不触发自动 reveal / play / recycle route | LegendActivePredicate、LegendOptionalTrigger、shared oracle mapping、hidden / reveal redaction matrix、unit destination / zone ownership details、`ORDER_TRIGGERS` / battle lifecycle full matrix、FAQ adjudication、1009/811、formal E2E |
+
+### 6.51 阶段 4C-55 Vex alt spellshield guard 证据入口
+
+阶段 4C-55 细化审计见 `docs/CURRENT_STAGE4C_BATCH55_VEX_ALT_SPELLSHIELD_GUARD_AUDIT.md`，证据见 `docs/CURRENT_STAGE4C_BATCH55_VEX_ALT_SPELLSHIELD_GUARD_EVIDENCE.md`。本节只提供 Vex alt A / 薇古丝 `UNL-150a/219` / cardId `34698` / `FU-4d8ee1696b` / `VEX_ALT_A_SPELLSHIELD_OPPONENT_UNIT_STUN_STATIC` test-only spellshield / Yordle play-unit guard representative evidence；focused 59/59 passed，backend full 3656/3656 passed，frontend build passed，Chrome smoke passed；不表示项目 READY，`fullOfficial=false`。
+
+| 规则域 | 证据入口 | 当前 4C-55 状态 | 仍缺 |
+|---|---|---|---|
+| Play-unit spellshield / Yordle route | `CATALOG` `UNL-150a/219` / cardId `34698`；FU `FU-4d8ee1696b`；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+；fixture `p2-preflight-play-vex-alt-a-spellshield-stun-static` | ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 4，tags `CARD_TYPE:UNIT` + `法盾` + `约德尔人` | opponent-unit stun / cannot-move runtime、opponent unit-play listener、battlefield-only condition |
+| Test-only guard boundary | `CATALOG` `UNL-150a/219`；FU `FU-4d8ee1696b`；4C-55 D audit / evidence files | invalid source / target / timing rejected with no mutation / no leak；focused 59/59 passed，backend full 3656/3656 passed，frontend build passed，Chrome smoke passed | `STUNNED` application、cannot-move-this-turn duration、movement / control effects、Spellshield full target tax、FAQ adjudication、1009/811、formal 18-step E2E |
 
 | 规则域 | 证据入口 | 当前 4C-32 状态 | 仍缺 |
 |---|---|---|---|

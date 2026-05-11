@@ -1325,6 +1325,28 @@ Viktor boundary：
 
 仍缺：full `LEGEND_ACTION_DOMAIN` matrix、optional trigger、`RevealChoice`、hidden / reveal / redaction、shared-oracle official mapping、BattleEngine / SpellDuel lifecycle、`ASSIGN_COMBAT_DAMAGE`、FEPR targeting / timing、LayerEngine、control-zone movement、FAQ adjudication、1009/811 full-official 覆盖、正式 18-step E2E。
 
+## 55H. Stage 4C-55 Vex Alt A Spellshield / Yordle Play-Unit Guard Overlay
+
+4C-55 只更新覆盖矩阵 / 风险证据，不升级 full-official。正确身份为 `FU-4d8ee1696b` / representative `UNL-150a/219` / cardId `34698` / Vex alt A / 《薇古丝》，snapshot entry 为 `UNL-150a/219` / `34698`，oracle/effectId 为 `VEX_ALT_A_SPELLSHIELD_OPPONENT_UNIT_STUN_STATIC`。
+
+4C-55 已部分降低的 blocker：
+
+- test-only ordinary hand `PLAY_CARD` 0-target + spellshield / Yordle tag guard baseline for the alternate Vex entry。
+- invalid input rejected without mutation or leak。
+- 4B primary status / flags 不变：`NEEDS_FAQ_REVIEW`，`IMPLEMENTED_UNTESTED`、`NEEDS_ENGINE_SUPPORT`、`NEEDS_FAQ_REVIEW`；`fullOfficial=false`，FAQ refs remain open，full-official upgrades = 0。
+- `UNL-150/219` / `FU-9f7cb73dc4` already-tagged 4C-48 FU is explicitly out of 4C-55 scope；all Vex variants are not claimed。
+- actual opponent-unit stun / cannot-move static behavior、spell duel lifecycle、movement / control-zone full matrix、cleanup / replacement / duration、PaymentEngine、FAQ adjudication remain holdback。
+
+矩阵数字口径：`stage4C55` verified FUs = 1，verified snapshot entries = 1，cumulative spellshield opponent-unit stun guard verified FUs = 2，full-official upgrades = 0，full-official still uncovered FUs = 811。
+
+验证记录：focused 59/59 passed；backend full 3656/3656 passed；frontend build passed；Chrome smoke passed。
+
+本批不关闭 actual opponent-unit stun / cannot-move static、all Vex variants、spell duel lifecycle、movement/control-zone full matrix、cleanup/replacement/duration、PaymentEngine、FAQ adjudication for Vex refs、1009/811 full-official 或正式 18-step E2E。
+
+后续批量顺序建议：`FU-3461727400` / `OGN·053/298` remains a clean single-entry high-risk direct spell candidate；`FU-f0eb0fb704` / `UNL-083/219` remains a movement/swap/draw candidate with higher coupling。
+
+仍缺：actual opponent-unit stun / cannot-move static、all Vex variants、spell duel lifecycle、movement/control-zone、cleanup/replacement/duration、PaymentEngine full officialization、FAQ adjudication、1009/811 full-official 覆盖、正式 18-step E2E。
+
 ## 56. Top20 高风险 Functional Units
 
 | # | FU | Representative | 类型/条目数 | 当前代表映射 | FAQ 候选页 | 风险依据 | 依赖规则域 |

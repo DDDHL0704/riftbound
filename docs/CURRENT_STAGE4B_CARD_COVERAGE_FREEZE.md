@@ -1720,9 +1720,36 @@ Top risk remains the Stage 2 Top20 with 4B statuses overlaid:
 
 4C-54 不关闭 full `LEGEND_ACTION_DOMAIN` matrix、all Void Burrower official text、official optional trigger offering / decline / replay semantics、`RevealChoice` full design、hidden / reveal / redaction matrix、shared-oracle official mapping、BattleEngine / SpellDuel full lifecycle、`ASSIGN_COMBAT_DAMAGE` full matrix、FEPR targeting / timing full matrix、LayerEngine / continuous effects、ZoneOwnership / control-change / movement full matrix、FAQ adjudication 或 1009/811 full-official。
 
-## 63. 4B / 4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A / 4C-15B / 4C-16 / 4C-17 / 4C-18 / 4C-19 / 4C-20B / 4C-21 / 4C-22 / 4C-23 / 4C-24 / 4C-25 / 4C-26 / 4C-27 / 4C-28 / 4C-29 / 4C-30 / 4C-31 / 4C-32 / 4C-33 / 4C-34 / 4C-35 / 4C-36 / 4C-37 / 4C-38 / 4C-39 / 4C-40 / 4C-41 / 4C-42 / 4C-43 / 4C-44 / 4C-45 / 4C-46 / 4C-47 / 4C-48 / 4C-49 / 4C-50 / 4C-51 / 4C-52 / 4C-53 / 4C-54 Blocker
+## 63. Post-Freeze 4C-55 Overlay
 
-4B freeze、4C-1 overlay、4C-2 overlay、4C-3 overlay、4C-4 overlay、4C-5 overlay、4C-6 overlay、4C-7 overlay、4C-8 overlay、4C-9 overlay、4C-10 overlay、4C-11 overlay、4C-12 overlay、4C-13 overlay、4C-14 overlay、4C-15A overlay、4C-15B overlay、4C-16 overlay、4C-17 overlay、4C-18 overlay、4C-19 overlay、4C-20B overlay、4C-21 overlay、4C-22 overlay、4C-23 overlay、4C-24 overlay、4C-25 overlay、4C-26 overlay、4C-27 overlay、4C-28 overlay、4C-29 overlay、4C-30 overlay、4C-31 overlay、4C-32 overlay、4C-33 overlay、4C-34 overlay、4C-35 overlay、4C-36 overlay、4C-37 overlay、4C-38 overlay、4C-39 overlay、4C-40 overlay、4C-41 overlay、4C-42 overlay、4C-43 overlay、4C-44 overlay、4C-45 overlay、4C-46 overlay、4C-47 overlay、4C-48 overlay、4C-49 overlay、4C-50 overlay、4C-51 overlay、4C-52 overlay、4C-53 overlay 和 4C-54 overlay 本身无文档阻断。仍阻断 READY / full-official 的事项：
+4C-55 不改变 4B frozen counts、primary status counts 或 full-official 口径，只记录局部 Vex alt A spellshield / Yordle play-unit guard 证据：
+
+| 项 | 4C-55 记录 |
+|---|---|
+| verified FU | `FU-4d8ee1696b` / `UNL-150a/219` Vex alt A / 《薇古丝》 |
+| cardIds | `UNL-150a/219` / `34698` |
+| oracle/effectId | `VEX_ALT_A_SPELLSHIELD_OPPONENT_UNIT_STUN_STATIC` |
+| route | Test-only ordinary hand `PLAY_CARD` 0-target + spellshield / Yordle tag guard baseline |
+| guard | invalid input no mutation / no leak |
+| automated evidence | focused 59/59 passed；backend full 3656/3656 passed；frontend build passed；Chrome smoke passed。 |
+| FAQ boundary | `BREAK-JFAQ-260416 p5` / `BREAK-JFAQ-260416 p9` / `SOUL-JFAQ-260114 p17` remain open；4C-55 does not close actual opponent-unit stun / cannot-move static、spell duel lifecycle、movement/control-zone full matrix、cleanup/replacement/duration、PaymentEngine 或 FAQ/full behavior。 |
+| status impact | 4B `freezeStatus` / `statusFlags` unchanged；`NEEDS_FAQ_REVIEW` remains primary status；`IMPLEMENTED_UNTESTED` / `NEEDS_ENGINE_SUPPORT` / `NEEDS_FAQ_REVIEW` remain flags；`fullOfficial=false`；full-official upgrades = 0。 |
+| not tagged | `UNL-150/219` / cardId `34697` / `FU-9f7cb73dc4` remains separately covered by 4C-48 and is not tagged by 4C-55。 |
+| follow-on candidates | `FU-3461727400` / `OGN·053/298` remains a clean single-entry high-risk direct spell candidate。 |
+
+矩阵 overlay 数字：
+
+- `stage4C55` verified FUs：1
+- `stage4C55` verified snapshot entries：1
+- cumulative spellshield opponent-unit stun guard verified FUs：2
+- full-official upgrades：0
+- full-official still uncovered FUs：811
+
+4C-55 不关闭 all Vex variants、actual opponent-unit stun / cannot-move static、spell duel lifecycle、movement/control-zone full matrix、cleanup / replacement / duration、PaymentEngine、FAQ adjudication 或 1009/811 full-official。
+
+## 64. 4B / 4C-1 / 4C-2 / 4C-3 / 4C-4 / 4C-5 / 4C-6 / 4C-7 / 4C-8 / 4C-9 / 4C-10 / 4C-11 / 4C-12 / 4C-13 / 4C-14 / 4C-15A / 4C-15B / 4C-16 / 4C-17 / 4C-18 / 4C-19 / 4C-20B / 4C-21 / 4C-22 / 4C-23 / 4C-24 / 4C-25 / 4C-26 / 4C-27 / 4C-28 / 4C-29 / 4C-30 / 4C-31 / 4C-32 / 4C-33 / 4C-34 / 4C-35 / 4C-36 / 4C-37 / 4C-38 / 4C-39 / 4C-40 / 4C-41 / 4C-42 / 4C-43 / 4C-44 / 4C-45 / 4C-46 / 4C-47 / 4C-48 / 4C-49 / 4C-50 / 4C-51 / 4C-52 / 4C-53 / 4C-54 / 4C-55 Blocker
+
+4B freeze、4C-1 overlay、4C-2 overlay、4C-3 overlay、4C-4 overlay、4C-5 overlay、4C-6 overlay、4C-7 overlay、4C-8 overlay、4C-9 overlay、4C-10 overlay、4C-11 overlay、4C-12 overlay、4C-13 overlay、4C-14 overlay、4C-15A overlay、4C-15B overlay、4C-16 overlay、4C-17 overlay、4C-18 overlay、4C-19 overlay、4C-20B overlay、4C-21 overlay、4C-22 overlay、4C-23 overlay、4C-24 overlay、4C-25 overlay、4C-26 overlay、4C-27 overlay、4C-28 overlay、4C-29 overlay、4C-30 overlay、4C-31 overlay、4C-32 overlay、4C-33 overlay、4C-34 overlay、4C-35 overlay、4C-36 overlay、4C-37 overlay、4C-38 overlay、4C-39 overlay、4C-40 overlay、4C-41 overlay、4C-42 overlay、4C-43 overlay、4C-44 overlay、4C-45 overlay、4C-46 overlay、4C-47 overlay、4C-48 overlay、4C-49 overlay、4C-50 overlay、4C-51 overlay、4C-52 overlay、4C-53 overlay、4C-54 overlay 和 4C-55 overlay 本身无文档阻断。仍阻断 READY / full-official 的事项：
 
 - 0/811 functional units 获得 full-official。
 - P0/P1 engine support 仍影响 762 FUs by status flag。

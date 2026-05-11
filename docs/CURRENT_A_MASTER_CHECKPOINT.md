@@ -3622,3 +3622,41 @@ B 的代码结果已优先审查，E/C/D 文档结果已纳入工作区。
 仍保留阻断：
 
 - 复杂 prompt 的正式 payload schema、手动支付、伤害分配提交和触发排序提交仍未实现。
+
+## 15. 阶段 4C-55 Vex Alt A Spellshield / Yordle Guard Checkpoint
+
+状态：**已完成并建议 checkpoint。项目整体仍 NOT READY。**
+
+长期子代理复用：
+
+- B / Maxwell：`019e1068-5757-7bd1-8129-d401c60e0b7f`
+- C / Copernicus：`019e0bbc-df6f-7151-baf5-f79ff466c5a9`
+- D / Nash：`019e1068-6042-7dc3-a45c-655838d02b92`
+- E / Poincare：`019e1068-6975-7242-9143-1c50d7ce23fa`
+
+本批范围：
+
+- 只记录 Vex alt A / 薇古丝 `UNL-150a/219` / cardId `34698` / `FU-4d8ee1696b` / `VEX_ALT_A_SPELLSHIELD_OPPONENT_UNIT_STUN_STATIC` 的 test-only ordinary hand `PLAY_CARD` 0-target + `法盾` / `约德尔人` 标签 guard baseline。
+- 新增无效输入 no mutation / no leak 测试：显式目标、错误区域、对手源牌、面朝下待命源牌、费用不足。
+- 不实现 / 不宣称 opponent-unit stun / cannot-move runtime、Spellshield full target tax、movement/control effects、FAQ adjudication、1009/811 full-official 或 formal 18-step E2E。
+- `UNL-150/219` / `FU-9f7cb73dc4` 保持 4C-48 独立覆盖，不由 4C-55 重新标记。
+
+验证结果：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~VexAlt|FullyQualifiedName~Vex|FullyQualifiedName~Spellshield|FullyQualifiedName~PlayUnit"`：59/59 passed。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：3656/3656 passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`：passed。
+- `git diff --check`：passed。
+
+仍保留阻断：
+
+- actual opponent-unit stun / cannot-move static behavior。
+- all Vex variants full official behavior。
+- movement / control-zone full matrix。
+- cleanup / replacement / duration。
+- PaymentEngine full officialization。
+- FAQ adjudication for Vex refs。
+- 1009 snapshot-entry / 811 functional-unit full-official coverage。
+- formal 18-step E2E acceptance。

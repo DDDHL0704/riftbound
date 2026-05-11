@@ -12,6 +12,16 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-12 阶段 4C-55 Vex Alt Spellshield Guard 审计
+
+阶段 4C-55 审计入口：`docs/CURRENT_STAGE4C_BATCH55_VEX_ALT_SPELLSHIELD_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH55_VEX_ALT_SPELLSHIELD_GUARD_EVIDENCE.md`。本批只记录 Vex alt A / 薇古丝 `UNL-150a/219` / cardId `34698` / `FU-4d8ee1696b` / `VEX_ALT_A_SPELLSHIELD_OPPONENT_UNIT_STUN_STATIC` 的 test-only spellshield / Yordle play-unit guard representative evidence，且与 E-owned coverage / matrix 工作解耦。项目仍 **NOT READY**，`fullOfficial=false`。
+
+- Scope：ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 4，tags `CARD_TYPE:UNIT` + `法盾` + `约德尔人`。
+- Guard：invalid source / target / timing 均 rejected，no mutation / no leak。
+- Validation：focused 59/59 passed；backend full 3656/3656 passed；frontend build passed；Chrome smoke passed。
+- 本批只关闭 Vex alt A ordinary hand spellshield / Yordle play-unit guard representative evidence。
+- 不实现 / 不宣称 opponent-unit stun / cannot-move runtime；opponent unit-play listener、battlefield-only condition、`STUNNED` application、cannot-move-this-turn duration、movement / control effects、Spellshield full target tax、FAQ adjudication、1009/811 full-official 与 formal 18-step E2E 均保持 open。
+
 ## 2026-05-12 阶段 4C-54 Void Burrower Legend Domain Guard 审计
 
 阶段 4C-54 审计入口：`docs/CURRENT_STAGE4C_BATCH54_VOID_BURROWER_LEGEND_DOMAIN_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH54_VOID_BURROWER_LEGEND_DOMAIN_GUARD_EVIDENCE.md`。A 裁决本批不做 direct runtime implementation，只记录 Void Burrower / 虚空遁地兽 `SFD·187/221` / cardId `33285`、`SFD·243/221` / cardId `33354` / `FU-6e7d0dba2c` / `LEGEND_ACTION_DOMAIN` 的 representative automated evidence overlay。项目仍 **NOT READY**，`fullOfficial=false`。
