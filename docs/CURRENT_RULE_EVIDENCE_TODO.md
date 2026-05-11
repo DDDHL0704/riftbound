@@ -89,6 +89,8 @@
 阶段 4C-46 legend-domain / shared-oracle evidence：`docs/CURRENT_STAGE4C_BATCH46_LEGEND_DOMAIN_SHARED_ORACLE_EVIDENCE.md`
 阶段 4C-47 Draven battle body guard 审计：`docs/CURRENT_STAGE4C_BATCH47_DRAVEN_BATTLE_BODY_GUARD_AUDIT.md`
 阶段 4C-47 Draven battle body guard 证据：`docs/CURRENT_STAGE4C_BATCH47_DRAVEN_BATTLE_BODY_GUARD_EVIDENCE.md`
+阶段 4C-48 Vex spellshield stun guard 审计：`docs/CURRENT_STAGE4C_BATCH48_VEX_SPELLSHIELD_STUN_GUARD_AUDIT.md`
+阶段 4C-48 Vex spellshield stun guard 证据：`docs/CURRENT_STAGE4C_BATCH48_VEX_SPELLSHIELD_STUN_GUARD_EVIDENCE.md`
 
 ## B 修复验收
 
@@ -1188,6 +1190,7 @@ D 审计结论：
 - 4C-45 已关闭 Switcheroo / 换换乐 `SFD·145/221` / cardId `33237` / `FU-0b6332bbf0` representative battlefield power-swap target guard overlay；后端 full 3594/3594 passed，前端 build passed，Chrome smoke passed；true LayerEngine、later modifier ordering、duration cleanup / EOT expiry、same-battlefield precision beyond current representative model、damage / battle math、full FAQ `SOUL-JFAQ-260114 p14`、1009/811 与 final 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-46 已记录 Void Burrower / 虚空遁地兽 `SFD·187/221` / `FU-6e7d0dba2c` 与 Sett / 腕豪 `OGN·269/298` / `FU-6308c2db01` legend-domain / shared-oracle design gate；B/C/D/E 只读门禁一致 NO-GO for direct runtime implementation；LegendActivePredicate、LegendOptionalTrigger、RevealChoice、ReplacementPayment、shared oracle reprint mapping、hidden redaction、`PAY_COST` / cleanup queue interactions、FAQ `SOUL-JFAQ-260114 p14` / `SOUL-OFAQ-260114 p4`、1009/811 与 final 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-47 已关闭 Draven / 德莱文 `SFD·020/221` / cardId `33092` 与 `SFD·020a/221` / cardId `33093` / `FU-964b214448` ordinary hand play-unit body + guard representative slice；Core / frontend / protocol 未改；battle win dormant Gold、attack / defense optional red payment、+2 until EOT、full PaymentEngine、Layer / duration cleanup、FAQ refs、1009/811 与 final 18-step E2E 仍按 P0/P1 缺口管理。
+- 4C-48 已记录 Vex / 薇古丝 `UNL-150/219` / cardId `34697` / `FU-9f7cb73dc4` / `VEX_SPELLSHIELD_OPPONENT_UNIT_STUN_STATIC` test-only ordinary hand spellshield-tag play-unit + guard representative baseline；focused 35/35 passed，backend full 3607/3607 passed，frontend build passed，Chrome smoke passed；不实现 / 不宣称 opponent-unit stun runtime；opponent unit-play listener、battlefield-only condition、`STUNNED` application、cannot-move-this-turn duration、movement guard / cleanup、Spellshield full target tax、FAQ adjudication、1009/811 与 final 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-15 Viktor `FU-b5cb36a5c9` destroyed non-minion token trigger 已记录为 feasibility blocker；4C-15A 已补 `TOKEN_FAMILY:MINION` 最小前置模型并部分关闭 token classification blocker；4C-15B 已关闭 Viktor 代表性 baseline，但 same-source 多对象 full official matrix、Kogmaw / Karthus / Undercover Agent、完整 trigger engine 仍未关闭。
 - 3A-P0-001 / 002 / 003 / 004 已关闭；不得把这些 3A 子项误读为完整 Stage 3 或 READY。
 - 3B-CAND-001 / 002 / 003 / 004 只能作为阶段 3B 关闭候选；D/A 证据入账前不得移出 P0。

@@ -910,6 +910,19 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Hostile Takeover 代表路径外推完整待命、反应时机、开战/征服、control lifecycle、end-turn cleanup、targeting、PaymentEngine、FEPR、named deferred candidates 或 full-official。
 
+## 0.1.26 阶段 4C-48 Vex Checkpoint
+
+状态：**4C-48 docs checkpoint recorded；项目仍 NOT READY。**
+
+阶段 4C-48 名称：Vex spellshield opponent-unit stun static guard representative baseline。
+
+- 本批按 A 收窄边界只记录 test-only Vex / 薇古丝 `UNL-150/219` / cardId `34697` / `FU-9f7cb73dc4` / `VEX_SPELLSHIELD_OPPONENT_UNIT_STUN_STATIC` guard baseline。
+- 已验证范围只限 ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 4，tags `CARD_TYPE:UNIT` + `法盾` + `约德尔人`。
+- 已覆盖 invalid source / target / timing no mutation / no leak guard。
+- 验证记录：focused 35/35 passed；backend full 3607/3607 passed；frontend build passed；Chrome smoke passed。
+- 本批只关闭 Vex ordinary hand spellshield-tag play-unit + guard representative evidence。
+- 仍保持 `fullOfficial=false`；不宣称 READY / READY-CANDIDATE；不实现 / 不宣称 opponent-unit stun runtime；不关闭 opponent unit-play listener、battlefield-only condition、`STUNNED` application、cannot-move-this-turn duration、movement guard / cleanup、Spellshield full target tax、FAQ adjudication、1009/811 或 final 18-step E2E。
+
 ## 0.1.25 阶段 4C-47 Draven Checkpoint
 
 状态：**4C-47 checkpoint ready；项目仍 NOT READY。**

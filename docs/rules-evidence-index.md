@@ -92,6 +92,8 @@
 
 阶段 4C-47 补 Draven / 德莱文 SFD·020 / SFD·020a ordinary hand play-unit body + guard representative slice；battle win dormant Gold、attack / defense optional red payment、+2 until EOT、full PaymentEngine、Layer / duration cleanup、FAQ refs、1009/811 与 final 18-step E2E 仍不代表 READY。
 
+阶段 4C-48 补 Vex / 薇古丝 UNL-150 test-only spellshield guard representative baseline；opponent unit-play listener、battlefield-only condition、`STUNNED` application、cannot-move-this-turn duration、movement guard / cleanup、Spellshield full target tax、FAQ adjudication、1009/811 与 final 18-step E2E 仍不代表 READY。
+
 | 阶段 3 流程 | 证据入口 | 必须证明的审计点 |
 |---|---|---|
 | 创建 / 加入 / 重连 | `CORE-260330` rules 107-129；工程会话契约 | 双浏览器上下文不得共享授权状态；snapshot/prompt 只能按 viewer 下发；重连恢复不能泄漏隐藏信息。 |
@@ -577,6 +579,15 @@
 |---|---|---|---|
 | Play-unit body route | `CATALOG` `SFD·020/221` / cardId `33092`；`SFD·020a/221` / cardId `33093`；FU `FU-964b214448`；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 4，tag `CARD_TYPE:UNIT` | full official Draven effect |
 | Play guard | `CORE-260330` p4-p8 rules 107-129；p39-p42 rules 355-356 | invalid target、wrong zone、opponent source、face-down standby source、insufficient mana all rejected with no mutation / no leak | battle win dormant Gold、attack / defense optional red payment、+2 until EOT、full PaymentEngine、Layer / duration cleanup、FAQ refs、1009/811、final E2E |
+
+### 6.44 阶段 4C-48 Vex spellshield stun guard 证据入口
+
+阶段 4C-48 细化审计见 `docs/CURRENT_STAGE4C_BATCH48_VEX_SPELLSHIELD_STUN_GUARD_AUDIT.md`，证据见 `docs/CURRENT_STAGE4C_BATCH48_VEX_SPELLSHIELD_STUN_GUARD_EVIDENCE.md`。本节只提供 Vex / 薇古丝 `UNL-150/219` / cardId `34697` / `FU-9f7cb73dc4` / `VEX_SPELLSHIELD_OPPONENT_UNIT_STUN_STATIC` test-only spellshield guard representative baseline；focused 35/35 passed，backend full 3607/3607 passed，frontend build passed，Chrome smoke passed；不表示项目 READY，`fullOfficial=false`。
+
+| 规则域 | 证据入口 | 当前 4C-48 状态 | 仍缺 |
+|---|---|---|---|
+| Play-unit spellshield route | `CATALOG` `UNL-150/219` / cardId `34697`；FU `FU-9f7cb73dc4`；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 4，tags `CARD_TYPE:UNIT` + `法盾` + `约德尔人` | full official Vex effect |
+| Test-only guard | `CORE-260330` p4-p8 rules 107-129；p39-p42 rules 355-356 | invalid source / target / timing rejected with no mutation / no leak | opponent unit-play listener、battlefield-only condition、`STUNNED` application、cannot-move-this-turn duration、movement guard / cleanup、Spellshield full target tax、FAQ adjudication、1009/811、final E2E |
 
 | 规则域 | 证据入口 | 当前 4C-32 状态 | 仍缺 |
 |---|---|---|---|
@@ -1199,7 +1210,7 @@
 | `p2-preflight-play-khazix-alt-a-lone-enemy-static` | `RULE_AUDITED` | `CATALOG` UNL-143a/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《卡兹克》异画 A 从手牌普通打出时支付基础 4 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 4 战力、无额外标签的 `CARD_TYPE:UNIT` 单位对象；伏击/反应战场打出、进攻/防守触发、落单敌方检测、本回合战力修正和经验获得路径暂缓，带目标打出由直接测试拒绝。 |
 | `p2-preflight-play-diana-ambush-spell-power-static` | `RULE_AUDITED` | `CATALOG` UNL-149/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《黛安娜》从手牌普通打出时支付基础 4 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 3 战力、无额外标签的 `CARD_TYPE:UNIT` 单位对象；伏击/反应战场打出、法术打出监听和本回合战力修正路径暂缓，带目标打出由直接测试拒绝。 |
 | `p2-preflight-play-diana-alt-a-ambush-spell-power-static` | `RULE_AUDITED` | `CATALOG` UNL-149a/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《黛安娜》异画 A 从手牌普通打出时支付基础 4 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 3 战力、无额外标签的 `CARD_TYPE:UNIT` 单位对象；伏击/反应战场打出、法术打出监听和本回合战力修正路径暂缓，带目标打出由直接测试拒绝。 |
-| `p2-preflight-play-vex-spellshield-stun-static` | `RULE_AUDITED` | `CATALOG` UNL-150/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《薇古丝》从手牌普通打出时支付基础 4 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 4 战力、带 `法盾` 与 `约德尔人` 标签的 `CARD_TYPE:UNIT` 单位对象；法盾目标税、对手单位打出监听、战场条件、眩晕和本回合移动限制路径暂缓，带目标打出由直接测试拒绝。 |
+| `p2-preflight-play-vex-spellshield-stun-static` | `RULE_AUDITED` | `CATALOG` UNL-150/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《薇古丝》从手牌普通打出时支付基础 4 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 4 战力、带 `法盾` 与 `约德尔人` 标签的 `CARD_TYPE:UNIT` 单位对象；4C-48 仅补 test-only invalid source / target / timing no-mutation / no-leak guard。法盾目标税、对手单位打出监听、战场条件、眩晕和本回合移动限制路径暂缓，带目标打出由直接测试拒绝。 |
 | `p2-preflight-play-vex-alt-a-spellshield-stun-static` | `RULE_AUDITED` | `CATALOG` UNL-150a/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《薇古丝》异画 A 从手牌普通打出时支付基础 4 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 4 战力、带 `法盾` 与 `约德尔人` 标签的 `CARD_TYPE:UNIT` 单位对象；法盾目标税、对手单位打出监听、战场条件、眩晕和本回合移动限制路径暂缓，带目标打出由直接测试拒绝。 |
 | `p2-preflight-play-vi-ambush-attack-stun-static` | `RULE_AUDITED` | `CATALOG` UNL-176/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《蔚》从手牌普通打出时支付基础 5 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 5 战力、无额外标签的 `CARD_TYPE:UNIT` 单位对象；伏击/反应战场打出、进攻触发、同处敌方单位选择和眩晕路径暂缓，带目标打出由直接测试拒绝。 |
 | `p2-preflight-play-vi-alt-a-ambush-attack-stun-static` | `RULE_AUDITED` | `CATALOG` UNL-176a/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《蔚》异画 A 从手牌普通打出时支付基础 5 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 5 战力、无额外标签的 `CARD_TYPE:UNIT` 单位对象；伏击/反应战场打出、进攻触发、同处敌方单位选择和眩晕路径暂缓，带目标打出由直接测试拒绝。 |

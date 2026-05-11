@@ -12,6 +12,16 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-11 阶段 4C-48 Vex Spellshield Stun Guard 审计
+
+阶段 4C-48 审计入口：`docs/CURRENT_STAGE4C_BATCH48_VEX_SPELLSHIELD_STUN_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH48_VEX_SPELLSHIELD_STUN_GUARD_EVIDENCE.md`。本批只记录 Vex / 薇古丝 `UNL-150/219` / cardId `34697` / `FU-9f7cb73dc4` / `VEX_SPELLSHIELD_OPPONENT_UNIT_STUN_STATIC` 的 test-only spellshield guard representative baseline。项目仍 **NOT READY**，`fullOfficial=false`。
+
+- Scope：ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 4，tags `CARD_TYPE:UNIT` + `法盾` + `约德尔人`。
+- Guard：invalid source / target / timing 均 rejected，no mutation / no leak。
+- Validation：focused 35/35 passed；backend full 3607/3607 passed；frontend build passed；Chrome smoke passed。
+- 本批只关闭 Vex ordinary hand spellshield-tag play-unit + guard representative evidence。
+- 不实现 / 不宣称 opponent-unit stun runtime；opponent unit-play listener、battlefield-only condition、`STUNNED` application、cannot-move-this-turn duration、movement guard / cleanup、Spellshield full target tax、FAQ adjudication、1009/811 full-official 与 final 18-step E2E 均保持 open。
+
 ## 2026-05-11 阶段 4C-47 Draven Battle Body Guard 审计
 
 阶段 4C-47 审计入口：`docs/CURRENT_STAGE4C_BATCH47_DRAVEN_BATTLE_BODY_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH47_DRAVEN_BATTLE_BODY_GUARD_EVIDENCE.md`。本批已补 Draven / 德莱文 `SFD·020/221` / cardId `33092`、`SFD·020a/221` / cardId `33093` / `FU-964b214448` 的 battle body / play-unit guard representative slice。项目仍 **NOT READY**，`fullOfficial=false`。
