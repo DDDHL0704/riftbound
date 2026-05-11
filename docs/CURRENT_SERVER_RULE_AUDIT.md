@@ -12,6 +12,16 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-11 阶段 4C-46 Legend Domain / Shared Oracle Design Gate
+
+阶段 4C-46 设计门禁入口：`docs/CURRENT_STAGE4C_BATCH46_LEGEND_DOMAIN_SHARED_ORACLE_DESIGN_GATE.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH46_LEGEND_DOMAIN_SHARED_ORACLE_EVIDENCE.md`。B/C/D/E 只读门禁一致判断 Void Burrower / 虚空遁地兽 `SFD·187/221` / `FU-6e7d0dba2c` 与 Sett / 腕豪 `OGN·269/298` / `FU-6308c2db01` **NO-GO for direct 4C-46 runtime implementation**；本批只记录 legend-domain / shared-oracle design gate。项目仍 **NOT READY**，`fullOfficial=false`。
+
+- Void Burrower 当前服务端代表路径可自动处理征服触发、reveal top two / play one / recycle remainder / dormant legend，但官方 optional、hidden reveal choice、shared oracle mapping 尚未官方化。
+- Sett 当前服务端代表路径可自动替代摧毁、支付、召回、征服 ready，但官方 optional replacement、payment、boon consume、dormant recall cleanup 尚未官方化。
+- P0/P1：LegendActivePredicate、LegendOptionalTrigger、RevealChoice、ReplacementPayment、shared oracle reprint mapping、hidden redaction、`PAY_COST` / cleanup queue interactions、FAQ `SOUL-JFAQ-260114 p14` / `SOUL-OFAQ-260114 p4`、1009/811 full-official、final 18-step E2E。
+- 本批不新增 runtime implementation；A 已在 checkpoint 前跑完整验证，确认设计文档 / 矩阵 overlay 未破坏基线：后端 full `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 3594/3594 passed；前端 build `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` passed；Chrome smoke `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` passed。
+- 不宣称 READY / READY-CANDIDATE；不因现有代表路径外推完整 legend trigger/action、hidden reveal/choice/recycle、replacement/payment、boon、dormant recall cleanup 或 shared oracle official coverage。
+
 ## 2026-05-11 阶段 4C-45 Switcheroo Swap Guard 审计
 
 阶段 4C-45 审计入口：`docs/CURRENT_STAGE4C_BATCH45_SWITCHEROO_SWAP_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH45_SWITCHEROO_SWAP_GUARD_EVIDENCE.md`。本批已补 Switcheroo / 换换乐 `SFD·145/221` / cardId `33237` / `FU-0b6332bbf0` / `SWITCHEROO_SWAP_TWO_BATTLEFIELD_UNIT_POWERS` 的 ultra-narrow battlefield power-swap guard overlay。项目仍 **NOT READY**，`fullOfficial=false`。

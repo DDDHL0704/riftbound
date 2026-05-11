@@ -85,6 +85,8 @@
 阶段 4C-44 Akshan play guard 证据：`docs/CURRENT_STAGE4C_BATCH44_AKSHAN_PLAY_GUARD_EVIDENCE.md`
 阶段 4C-45 Switcheroo swap guard 审计：`docs/CURRENT_STAGE4C_BATCH45_SWITCHEROO_SWAP_GUARD_AUDIT.md`
 阶段 4C-45 Switcheroo swap guard 证据：`docs/CURRENT_STAGE4C_BATCH45_SWITCHEROO_SWAP_GUARD_EVIDENCE.md`
+阶段 4C-46 legend-domain / shared-oracle design gate：`docs/CURRENT_STAGE4C_BATCH46_LEGEND_DOMAIN_SHARED_ORACLE_DESIGN_GATE.md`
+阶段 4C-46 legend-domain / shared-oracle evidence：`docs/CURRENT_STAGE4C_BATCH46_LEGEND_DOMAIN_SHARED_ORACLE_EVIDENCE.md`
 
 ## B 修复验收
 
@@ -1182,6 +1184,7 @@ D 审计结论：
 - 4C-43 已关闭 Sfur Song / 斯弗尔尚歌 `SFD·059/221` / cardId `33139` / `FU-9a623b3185` ordinary hand play-equipment target guard representative baseline；Core unchanged；复制宿主技能文字、持续文本 / layer、完整 assemble / equipment attach lifecycle、装备控制权 / 区域移动、FAQ full behavior、1009/811 与 final 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-44 已关闭 Akshan / 阿克尚 `SFD·109/221` / cardId `33194` / `FU-7419ee7d9d` ordinary hand no-optional / no-extra play-unit guard representative baseline；后端 full 3582/3582 passed，前端 build passed，Chrome smoke passed；optional assemble、orange-orange extra play、enemy equipment move / control、weapon attach、control-until-leaves cleanup、LayerEngine / continuous effects、FAQ full behavior、1009/811 与 final 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-45 已关闭 Switcheroo / 换换乐 `SFD·145/221` / cardId `33237` / `FU-0b6332bbf0` representative battlefield power-swap target guard overlay；后端 full 3594/3594 passed，前端 build passed，Chrome smoke passed；true LayerEngine、later modifier ordering、duration cleanup / EOT expiry、same-battlefield precision beyond current representative model、damage / battle math、full FAQ `SOUL-JFAQ-260114 p14`、1009/811 与 final 18-step E2E 仍按 P0/P1 缺口管理。
+- 4C-46 已记录 Void Burrower / 虚空遁地兽 `SFD·187/221` / `FU-6e7d0dba2c` 与 Sett / 腕豪 `OGN·269/298` / `FU-6308c2db01` legend-domain / shared-oracle design gate；B/C/D/E 只读门禁一致 NO-GO for direct runtime implementation；LegendActivePredicate、LegendOptionalTrigger、RevealChoice、ReplacementPayment、shared oracle reprint mapping、hidden redaction、`PAY_COST` / cleanup queue interactions、FAQ `SOUL-JFAQ-260114 p14` / `SOUL-OFAQ-260114 p4`、1009/811 与 final 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-15 Viktor `FU-b5cb36a5c9` destroyed non-minion token trigger 已记录为 feasibility blocker；4C-15A 已补 `TOKEN_FAMILY:MINION` 最小前置模型并部分关闭 token classification blocker；4C-15B 已关闭 Viktor 代表性 baseline，但 same-source 多对象 full official matrix、Kogmaw / Karthus / Undercover Agent、完整 trigger engine 仍未关闭。
 - 3A-P0-001 / 002 / 003 / 004 已关闭；不得把这些 3A 子项误读为完整 Stage 3 或 READY。
 - 3B-CAND-001 / 002 / 003 / 004 只能作为阶段 3B 关闭候选；D/A 证据入账前不得移出 P0。

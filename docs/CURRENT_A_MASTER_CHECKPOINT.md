@@ -910,6 +910,21 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Hostile Takeover 代表路径外推完整待命、反应时机、开战/征服、control lifecycle、end-turn cleanup、targeting、PaymentEngine、FEPR、named deferred candidates 或 full-official。
 
+## 0.1.24 阶段 4C-46 Legend Domain / Shared Oracle Design Gate
+
+状态：**4C-46 design gate recorded；项目仍 NOT READY。**
+
+阶段 4C-46 名称：Legend-domain / shared-oracle design gate for Void Burrower and Sett。
+
+- B/C/D/E 只读门禁一致判断 Void Burrower / 虚空遁地兽 `SFD·187/221` / `FU-6e7d0dba2c` 与 Sett / 腕豪 `OGN·269/298` / `FU-6308c2db01` **NO-GO for direct 4C-46 runtime implementation**。
+- 本批只记录设计门禁，不新增 runtime implementation；A 已在 checkpoint 前跑完整验证，确认设计文档 / 矩阵 overlay 未破坏基线。
+- 验证记录：后端 full `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 3594/3594 passed；前端 build `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` passed；Chrome smoke `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` passed。
+- 常驻子 agent：继续复用 B-Review / Maxwell、C-Review / Copernicus、D-Review / Nash、E-Review / Poincare 当前 ID；窗口压缩或句柄待恢复时先 resume 同一 ID，不因一次失联重建。
+- Void Burrower 当前服务端代表路径可自动处理征服触发、reveals top two / plays one / recycles remainder / dormant legend；但官方 optional、hidden / reveal choice、shared oracle mapping 未官方化。
+- Sett 当前服务端代表路径可自动替代摧毁 / 支付 / 召回 / 征服 ready；但官方 optional replacement、payment、boon、dormant recall cleanup 未官方化。
+- P0/P1 保持：LegendActivePredicate、LegendOptionalTrigger、RevealChoice、ReplacementPayment、shared oracle reprint mapping、hidden redaction、`PAY_COST` / cleanup queue interactions、FAQ `SOUL-JFAQ-260114 p14` / `SOUL-OFAQ-260114 p4`、1009/811 与 final 18-step E2E。
+- 仍保持 `fullOfficial=false`；不宣称 READY / READY-CANDIDATE；不关闭完整 legend trigger/action、hidden reveal/choice/recycle、replacement/payment、boon、dormant recall cleanup 或 shared oracle official coverage。
+
 ## 0.1.23 阶段 4C-45 Switcheroo Checkpoint
 
 状态：**4C-45 checkpoint ready；项目仍 NOT READY。**

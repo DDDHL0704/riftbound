@@ -88,6 +88,8 @@
 
 阶段 4C-45 补 Switcheroo / 换换乐 representative battlefield power-swap target guard overlay；true LayerEngine、later modifier ordering、duration cleanup / EOT expiry、same-battlefield precision beyond current representative model、damage / battle math、full FAQ `SOUL-JFAQ-260114 p14`、1009/811 与 final 18-step E2E 仍不代表 READY。
 
+阶段 4C-46 记录 Void Burrower / 虚空遁地兽与 Sett / 腕豪 legend-domain / shared-oracle design gate；B/C/D/E 只读门禁一致 NO-GO for direct runtime implementation。LegendActivePredicate、LegendOptionalTrigger、RevealChoice、ReplacementPayment、shared oracle reprint mapping、hidden redaction、`PAY_COST` / cleanup queue interactions、FAQ `SOUL-JFAQ-260114 p14` / `SOUL-OFAQ-260114 p4`、1009/811 与 final 18-step E2E 仍不代表 READY。
+
 | 阶段 3 流程 | 证据入口 | 必须证明的审计点 |
 |---|---|---|
 | 创建 / 加入 / 重连 | `CORE-260330` rules 107-129；工程会话契约 | 双浏览器上下文不得共享授权状态；snapshot/prompt 只能按 viewer 下发；重连恢复不能泄漏隐藏信息。 |
@@ -554,6 +556,16 @@
 |---|---|---|---|
 | Power-swap route | `CATALOG` `SFD·145/221`；cardId `33237`；FU `FU-0b6332bbf0`；`CORE-260330` p14-p15 rules 142-143；p31-p33 rules 318-324；p39-p42 rules 355-356 | ordinary hand `PLAY_CARD` with two public battlefield unit targets -> stack / pass-pass -> this-turn power swap representative route | full official Switcheroo effect |
 | Target guard | `CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p33 rules 318-324；p39-p42 rules 355-356 | non-public battlefield unit targets, including equipment / spell / rune / face-down standby / left-play targets, cannot enter stack or cannot create power mutation at resolution | true LayerEngine、later modifier ordering、duration cleanup / EOT expiry、same-battlefield precision beyond current representative model、damage / battle math、full FAQ `SOUL-JFAQ-260114 p14`、1009/811、final E2E |
+
+### 6.42 阶段 4C-46 Legend-domain / shared-oracle design gate
+
+阶段 4C-46 设计门禁见 `docs/CURRENT_STAGE4C_BATCH46_LEGEND_DOMAIN_SHARED_ORACLE_DESIGN_GATE.md`，证据见 `docs/CURRENT_STAGE4C_BATCH46_LEGEND_DOMAIN_SHARED_ORACLE_EVIDENCE.md`。本节只记录 Void Burrower / 虚空遁地兽 `SFD·187/221` / `FU-6e7d0dba2c` 与 Sett / 腕豪 `OGN·269/298` / `FU-6308c2db01` 的 legend-domain / shared-oracle design gate；不表示项目 READY，`fullOfficial=false`。
+
+| 规则域 | 证据入口 | 当前 4C-46 状态 | 仍缺 |
+|---|---|---|---|
+| Void Burrower legend route | `CATALOG` `SFD·187/221`；FU `FU-6e7d0dba2c`；FAQ refs `SOUL-JFAQ-260114 p14` / `SOUL-OFAQ-260114 p4` | 当前服务端代表路径可自动处理征服触发、reveals top two / plays one / recycles remainder / dormant legend；本批判定 NO-GO direct runtime implementation | LegendActivePredicate、LegendOptionalTrigger、RevealChoice、shared oracle reprint mapping、hidden redaction、free-play / recycle official semantics、FAQ officialization |
+| Sett legend route | `CATALOG` `OGN·269/298`；FU `FU-6308c2db01` | 当前服务端代表路径可自动替代摧毁 / 支付 / 召回 / 征服 ready；本批判定 NO-GO direct runtime implementation | ReplacementPayment、boon consume、dormant recall cleanup、`PAY_COST` / cleanup queue interactions、optional replacement official semantics、shared oracle reprint mapping |
+| Shared blockers | `CORE-260330` legend / cleanup / payment / hidden-info domains；coverage/risk docs | 只记录设计门禁，不新增 runtime implementation，不要求 backend full / build / smoke 实现验证 | 1009/811 full-official、final 18-step E2E、READY / READY-CANDIDATE |
 
 | 规则域 | 证据入口 | 当前 4C-32 状态 | 仍缺 |
 |---|---|---|---|
