@@ -910,6 +910,19 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Hostile Takeover 代表路径外推完整待命、反应时机、开战/征服、control lifecycle、end-turn cleanup、targeting、PaymentEngine、FEPR、named deferred candidates 或 full-official。
 
+## 0.1.28 阶段 4C-50 Draven Keyword Unit Checkpoint
+
+状态：**4C-50 docs checkpoint recorded；项目仍 NOT READY。**
+
+阶段 4C-50 名称：Draven keyword-unit combat text play-unit guard representative baseline。
+
+- 本批只记录 Draven / 德莱文 `SFD·148/221` / cardId `33240`、`SFD·148a/221` / cardId `33241` / `FU-104211dbbc` ordinary hand play-unit + `法盾` tag guard baseline。
+- 已验证范围只限 ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 6，tags `CARD_TYPE:UNIT` + `法盾`，two printings covered。
+- 已覆盖 invalid target、wrong zone-source、opponent source、face-down standby source、insufficient mana no mutation / no leak guard。
+- 验证记录：focused 17/17 passed；backend full 3625/3625 passed；frontend build passed；Chrome smoke passed。
+- 本批只关闭 Draven `SFD·148` / `SFD·148a` ordinary hand play-unit + `法盾` tag guard representative evidence。
+- 仍保持 `fullOfficial=false`；不宣称 READY / READY-CANDIDATE；不实现 / 不宣称 battle / scoring runtime；不关闭 battle win scoring、destroyed-in-battle opponent scoring、Spellshield target tax、battle cleanup / score once-per-turn matrix、PaymentEngine、FAQ refs、1009/811 或 formal 18-step E2E。
+
 ## 0.1.27 阶段 4C-49 Ezreal Checkpoint
 
 状态：**4C-49 docs checkpoint recorded；项目仍 NOT READY。**

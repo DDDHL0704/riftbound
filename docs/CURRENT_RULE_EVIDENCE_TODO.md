@@ -93,6 +93,8 @@
 阶段 4C-48 Vex spellshield stun guard 证据：`docs/CURRENT_STAGE4C_BATCH48_VEX_SPELLSHIELD_STUN_GUARD_EVIDENCE.md`
 阶段 4C-49 Ezreal play-unit guard 审计：`docs/CURRENT_STAGE4C_BATCH49_EZREAL_PLAY_UNIT_GUARD_AUDIT.md`
 阶段 4C-49 Ezreal play-unit guard 证据：`docs/CURRENT_STAGE4C_BATCH49_EZREAL_PLAY_UNIT_GUARD_EVIDENCE.md`
+阶段 4C-50 Draven keyword-unit guard 审计：`docs/CURRENT_STAGE4C_BATCH50_DRAVEN_KEYWORD_UNIT_GUARD_AUDIT.md`
+阶段 4C-50 Draven keyword-unit guard 证据：`docs/CURRENT_STAGE4C_BATCH50_DRAVEN_KEYWORD_UNIT_GUARD_EVIDENCE.md`
 
 ## B 修复验收
 
@@ -1194,6 +1196,7 @@ D 审计结论：
 - 4C-47 已关闭 Draven / 德莱文 `SFD·020/221` / cardId `33092` 与 `SFD·020a/221` / cardId `33093` / `FU-964b214448` ordinary hand play-unit body + guard representative slice；Core / frontend / protocol 未改；battle win dormant Gold、attack / defense optional red payment、+2 until EOT、full PaymentEngine、Layer / duration cleanup、FAQ refs、1009/811 与 final 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-48 已记录 Vex / 薇古丝 `UNL-150/219` / cardId `34697` / `FU-9f7cb73dc4` / `VEX_SPELLSHIELD_OPPONENT_UNIT_STUN_STATIC` test-only ordinary hand spellshield-tag play-unit + guard representative baseline；focused 35/35 passed，backend full 3607/3607 passed，frontend build passed，Chrome smoke passed；不实现 / 不宣称 opponent-unit stun runtime；opponent unit-play listener、battlefield-only condition、`STUNNED` application、cannot-move-this-turn duration、movement guard / cleanup、Spellshield full target tax、FAQ adjudication、1009/811 与 final 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-49 已记录 Ezreal / 伊泽瑞尔 `SFD·082/221` / cardId `33162`、`SFD·082a/221` / cardId `33163`、`SFD·082b/221·P` / cardId `33164` / `FU-2dca1ad450` ordinary hand play-unit + guard representative baseline；focused 21/21 passed，backend full 3617/3617 passed，frontend build passed，Chrome smoke passed；不实现 / 不宣称 combat-damage / move runtime；attack / defense trigger、“此处” enemy unit target selection、damage equal to Ezreal power、cannot combat damage static、blue swift move to base、swift / reaction timing、blue payment / `PAY_COST`、movement / control-zone matrix、damage prevention / replacement / cleanup、Layer / effective power、FAQ refs、1009/811 与 final 18-step E2E 仍按 P0/P1 缺口管理。
+- 4C-50 已记录 Draven / 德莱文 `SFD·148/221` / cardId `33240` 与 `SFD·148a/221` / cardId `33241` / `FU-104211dbbc` ordinary hand play-unit + `法盾` tag guard representative baseline；focused 17/17 passed，backend full 3625/3625 passed，frontend build passed，Chrome smoke passed；不实现 / 不宣称 battle / scoring runtime；battle win scoring、destroyed-in-battle opponent scoring、Spellshield target tax、battle cleanup / score once-per-turn matrix、PaymentEngine、FAQ refs、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-15 Viktor `FU-b5cb36a5c9` destroyed non-minion token trigger 已记录为 feasibility blocker；4C-15A 已补 `TOKEN_FAMILY:MINION` 最小前置模型并部分关闭 token classification blocker；4C-15B 已关闭 Viktor 代表性 baseline，但 same-source 多对象 full official matrix、Kogmaw / Karthus / Undercover Agent、完整 trigger engine 仍未关闭。
 - 3A-P0-001 / 002 / 003 / 004 已关闭；不得把这些 3A 子项误读为完整 Stage 3 或 READY。
 - 3B-CAND-001 / 002 / 003 / 004 只能作为阶段 3B 关闭候选；D/A 证据入账前不得移出 P0。
