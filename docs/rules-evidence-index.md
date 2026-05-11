@@ -104,6 +104,8 @@
 
 阶段 4C-53 记录 Sett / 腕豪 OGN·269 representative automated evidence overlay；只关闭 `FU-6308c2db01` automated evidence gap，不做 direct runtime implementation，不关闭 full-official NO-GO。LegendActivePredicate、LegendOptionalTrigger、ReplacementPayment、boon consume official semantics、dormant recall cleanup、conquest ready lifecycle full matrix、shared oracle mapping、`PAY_COST` prompt / decline、cleanup queue interactions、FAQ adjudication、1009/811 与 formal E2E 仍不代表 READY。
 
+阶段 4C-54 记录 Void Burrower / 虚空遁地兽 SFD·187 / SFD·243 representative automated evidence overlay；只关闭 `FU-6e7d0dba2c` automated evidence gap，不做 direct runtime implementation，不关闭 full-official NO-GO。LegendActivePredicate、LegendOptionalTrigger、RevealChoice、shared oracle mapping、hidden / reveal redaction matrix、optional trigger prompt / decline、free-play official semantics、recycle remainder official semantics、unit destination / zone ownership details、`ORDER_TRIGGERS` / battle lifecycle full matrix、FAQ adjudication、1009/811 与 formal E2E 仍不代表 READY。
+
 | 阶段 3 流程 | 证据入口 | 必须证明的审计点 |
 |---|---|---|
 | 创建 / 加入 / 重连 | `CORE-260330` rules 107-129；工程会话契约 | 双浏览器上下文不得共享授权状态；snapshot/prompt 只能按 viewer 下发；重连恢复不能泄漏隐藏信息。 |
@@ -643,6 +645,15 @@
 |---|---|---|---|
 | Sett automated replacement evidence | `CATALOG` `OGN·269/298` / cardId `31512`；FU `FU-6308c2db01`；`SOUL-JFAQ-260114 p14`；`SOUL-OFAQ-260114 p4`；existing tests `P79LegendTriggerSettConsumesBoonAndRecallsDestroyedUnit` / `P79LegendTriggerSettReplacementDebitsManaAfterXerathSkillCleanup` | 代表路径记录：带增益友方单位将被摧毁时，现有自动路径可支付 1 mana、使 Sett 休眠、消耗增益并把单位以休眠状态召回基地 | direct runtime implementation、official optional replacement、`PAY_COST` prompt / decline、ReplacementPayment |
 | Sett automated conquest-ready evidence | `CATALOG` `OGN·269/298` / cardId `31512`；existing test `P79LegendTriggerSettReadiesOnConquer` | 代表路径记录：征服战场后，现有自动路径可 ready 代表性 Sett legend | LegendActivePredicate、LegendOptionalTrigger、conquest ready lifecycle full matrix、shared oracle mapping、cleanup queue interactions、FAQ adjudication、1009/811、formal E2E |
+
+### 6.50 阶段 4C-54 Void Burrower legend-domain guard 证据入口
+
+阶段 4C-54 细化审计见 `docs/CURRENT_STAGE4C_BATCH54_VOID_BURROWER_LEGEND_DOMAIN_GUARD_AUDIT.md`，证据见 `docs/CURRENT_STAGE4C_BATCH54_VOID_BURROWER_LEGEND_DOMAIN_GUARD_EVIDENCE.md`。本节只提供 Void Burrower / 虚空遁地兽 `SFD·187/221` / cardId `33285`、`SFD·243/221` / cardId `33354` / `FU-6e7d0dba2c` / `LEGEND_ACTION_DOMAIN` representative automated evidence overlay；focused 32/32 passed，backend full 3650/3650 passed，frontend build passed，Chrome smoke passed；不表示项目 READY，`fullOfficial=false`，且 full-official 继续 **NO-GO**。
+
+| 规则域 | 证据入口 | 当前 4C-54 状态 | 仍缺 |
+|---|---|---|---|
+| Void Burrower automated reveal / play / recycle evidence | `CATALOG` `SFD·187/221` / cardId `33285`；`SFD·243/221` / cardId `33354`；FU `FU-6e7d0dba2c`；`SOUL-JFAQ-260114 p14`；`SOUL-OFAQ-260114 p4`；existing tests `P79LegendTriggerReksaiRevealsTopTwoPlaysUnitAndRecyclesRestOnConquer` / `P79LegendTriggerReksaiRecyclesBothRevealedCardsWhenNoTopUnit` | 代表路径记录：active legend 征服后自动休眠，展示 top two，存在单位时打出一张并回收其余；无可打出单位时回收两张 | direct runtime implementation、official optional trigger prompt / decline、RevealChoice、free-play official semantics、recycle remainder official semantics |
+| Void Burrower automated active-legend guard | `CATALOG` `SFD·187/221` / cardId `33285`；existing test `P79LegendTriggerReksaiRequiresActiveLegend` | 代表路径记录：inactive / exhausted legend 不触发自动 reveal / play / recycle route | LegendActivePredicate、LegendOptionalTrigger、shared oracle mapping、hidden / reveal redaction matrix、unit destination / zone ownership details、`ORDER_TRIGGERS` / battle lifecycle full matrix、FAQ adjudication、1009/811、formal E2E |
 
 | 规则域 | 证据入口 | 当前 4C-32 状态 | 仍缺 |
 |---|---|---|---|

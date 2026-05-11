@@ -910,6 +910,18 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Hostile Takeover 代表路径外推完整待命、反应时机、开战/征服、control lifecycle、end-turn cleanup、targeting、PaymentEngine、FEPR、named deferred candidates 或 full-official。
 
+## 0.1.32 阶段 4C-54 Void Burrower Legend Domain Checkpoint
+
+状态：**4C-54 docs checkpoint recorded；项目仍 NOT READY。**
+
+阶段 4C-54 名称：Void Burrower legend-domain representative automated evidence overlay。
+
+- A 裁决本批不做 direct runtime implementation，只记录 Void Burrower / 虚空遁地兽 `SFD·187/221` / cardId `33285`、`SFD·243/221` / cardId `33354` / `FU-6e7d0dba2c` / `LEGEND_ACTION_DOMAIN` representative automated evidence overlay。
+- 已记录 automated evidence：active Void Burrower legend 在征服战场后可自动休眠，展示主牌堆顶部两张牌，存在单位时自动打出一张并回收其余；无可打出单位时回收两张；inactive legend guard 不触发。
+- 验证记录：focused 32/32 passed；backend full 3650/3650 passed；frontend build passed；Chrome smoke passed。
+- 本批只关闭 Void Burrower `FU-6e7d0dba2c` representative automated evidence gap。
+- 仍保持 `fullOfficial=false`；不宣称 READY / READY-CANDIDATE；不做 / 不宣称 direct runtime implementation；不关闭 full-official NO-GO；不关闭 LegendActivePredicate、LegendOptionalTrigger、RevealChoice、shared oracle mapping、hidden / reveal redaction matrix、optional trigger prompt / decline、free-play official semantics、recycle remainder official semantics、unit destination / zone ownership details、`ORDER_TRIGGERS` / battle lifecycle full matrix、FAQ adjudication、1009/811 或 formal E2E。
+
 ## 0.1.31 阶段 4C-53 Sett Legend Domain Checkpoint
 
 状态：**4C-53 docs checkpoint recorded；项目仍 NOT READY。**

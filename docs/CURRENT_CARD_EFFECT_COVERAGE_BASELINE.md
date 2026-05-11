@@ -2970,6 +2970,51 @@ Snapshot entry primary status counts：
 
 是否允许批量 full-official 覆盖：**不允许。**
 
+## 67. 阶段 4C-54 E 汇总
+
+阶段 4C-54 名称：Void Burrower legend-domain representative automated evidence overlay。E 只更新覆盖矩阵与 coverage/risk/freeze 文档，不触碰服务端/测试/审计 docs，不触碰 `riftbound-dotnet.sln`，不进入 1009 张卡 full-official 实现。
+
+身份核对：
+
+- `SFD·187/221` Void Burrower / 《虚空遁地兽》在冻结矩阵中的真实 FU 为 `FU-6e7d0dba2c`，functional unit size 为 2。
+- snapshot entries / cardIds：`SFD·187/221` / `33285`，`SFD·243/221` / `33354`。
+- 当前 oracle/effectId：`LEGEND_ACTION_DOMAIN`。
+- 4B status 保守不变：`SHARED_ORACLE_IMPLEMENTATION`；statusFlags：`IMPLEMENTED_UNTESTED`、`SHARED_ORACLE_IMPLEMENTATION`、`NEEDS_ENGINE_SUPPORT`、`NEEDS_FAQ_REVIEW`。
+- rules / FAQ refs：`SOUL-JFAQ-260114 p14`、`SOUL-OFAQ-260114 p4` remain open。
+
+本批记录：
+
+- Void Burrower `LEGEND_ACTION_DOMAIN` shared-oracle representative automated evidence overlay。
+- representative paths include conquer trigger -> reveal top two -> play one unit when available -> recycle rest -> exhaust / make legend dormant。
+- no top unit route and inactive / exhausted legend negative guard remain representative evidence only。
+- automated evidence：focused 32/32 passed；backend full 3650/3650 passed；frontend build passed；Chrome smoke passed。
+
+4C-54 矩阵 overlay 统计口径：
+
+| 项 | 数量 |
+|---|---:|
+| frozen snapshot entries | 1009 |
+| frozen functional units | 811 |
+| `stage4C54` verified FUs | 1 |
+| `stage4C54` verified snapshot entries | 2 |
+| full-official upgrades | 0 |
+| full-official still uncovered FUs | 811 |
+
+仍存在 P0/P1：
+
+- full `LEGEND_ACTION_DOMAIN` matrix 未覆盖。
+- official optional trigger offering / decline / replay semantics 未覆盖。
+- `RevealChoice` full design 未覆盖。
+- hidden / reveal / redaction matrix 未覆盖。
+- shared-oracle official mapping 未覆盖。
+- full BattleEngine / SpellDuel lifecycle 未覆盖。
+- `ASSIGN_COMBAT_DAMAGE` full matrix 未覆盖。
+- FEPR targeting / timing full matrix 未覆盖。
+- LayerEngine / continuous effects 未完整官方化。
+- ZoneOwnership / control-change / movement full matrix、FAQ adjudication for Void Burrower refs、all Void Burrower official text、1009/811 full-official、正式 18-step E2E 仍未完成。
+
+是否允许批量 full-official 覆盖：**不允许。**
+
 ## 36. 阶段 4C-23 E 汇总
 
 阶段 4C-23 名称：Lux high-cost spell temporary power representative baseline。E/A 只更新覆盖矩阵与索引证据，不触碰 `riftbound-dotnet.sln`，不进入 1009 张卡 full-official 实现。

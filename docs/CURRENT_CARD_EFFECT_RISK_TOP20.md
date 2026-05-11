@@ -1303,6 +1303,28 @@ Viktor boundary：
 
 仍缺：full `LEGEND_ACTION_DOMAIN` matrix、legend active / optional / replacement design、BattleEngine / SpellDuel lifecycle、`ASSIGN_COMBAT_DAMAGE`、CleanupQueue / replacement / duration、FEPR targeting / timing、LayerEngine、control-zone movement、hidden / reveal / redaction、1009/811 full-official 覆盖、正式 18-step E2E。
 
+## 55G. Stage 4C-54 Void Burrower Legend-Domain Representative Automated Evidence Overlay
+
+4C-54 只更新覆盖矩阵 / 风险证据，不升级 full-official。正确身份为 `FU-6e7d0dba2c` / representative `SFD·187/221` / cardId `33285` / Void Burrower / 《虚空遁地兽》，snapshot entries 为 `SFD·187/221` / `33285` 与 `SFD·243/221` / `33354`，oracle/effectId 为 `LEGEND_ACTION_DOMAIN`。
+
+4C-54 已部分降低的 blocker：
+
+- `LEGEND_ACTION_DOMAIN` shared-oracle FU now has representative automated evidence overlay: focused 32/32 passed；backend full 3650/3650 passed；frontend build passed；Chrome smoke passed。
+- representative evidence covers conquer trigger -> reveal top two -> play one unit when available -> recycle rest -> exhaust / make the legend dormant。
+- no top unit route and inactive / exhausted legend negative guard are recorded as representative evidence only。
+- 4B primary status / flags 不变：`SHARED_ORACLE_IMPLEMENTATION`，`IMPLEMENTED_UNTESTED`、`SHARED_ORACLE_IMPLEMENTATION`、`NEEDS_ENGINE_SUPPORT`、`NEEDS_FAQ_REVIEW`；`fullOfficial=false`，FAQ refs remain open，full-official upgrades = 0。
+- full legend-domain optional trigger, `RevealChoice`, hidden / reveal / redaction, shared-oracle official mapping, battle / spell duel lifecycle, `ASSIGN_COMBAT_DAMAGE`, FEPR targeting / timing, LayerEngine, control-zone movement remain holdback。
+
+矩阵数字口径：`stage4C54` verified FUs = 1，verified snapshot entries = 2，full-official upgrades = 0，full-official still uncovered FUs = 811。
+
+验证记录：focused 32/32 passed；backend full 3650/3650 passed；frontend build passed；Chrome smoke passed。
+
+本批不关闭 full `LEGEND_ACTION_DOMAIN` matrix、all Void Burrower official text、official optional trigger offering / decline / replay semantics、`RevealChoice` full design、hidden / reveal / redaction matrix、shared-oracle official mapping、BattleEngine / SpellDuel full lifecycle、`ASSIGN_COMBAT_DAMAGE` full matrix、FEPR targeting / timing full matrix、LayerEngine / continuous effects、ZoneOwnership / control-change / movement full matrix、FAQ adjudication for Void Burrower refs、1009/811 full-official 或正式 18-step E2E。
+
+后续批量顺序建议：Zhonya / `FU-fb79eea7fc` 与 Sea Monster Hook / `FU-2653af0380` full behavior remain high-pressure candidates outside prior play-equipment guard overlays。
+
+仍缺：full `LEGEND_ACTION_DOMAIN` matrix、optional trigger、`RevealChoice`、hidden / reveal / redaction、shared-oracle official mapping、BattleEngine / SpellDuel lifecycle、`ASSIGN_COMBAT_DAMAGE`、FEPR targeting / timing、LayerEngine、control-zone movement、FAQ adjudication、1009/811 full-official 覆盖、正式 18-step E2E。
+
 ## 56. Top20 高风险 Functional Units
 
 | # | FU | Representative | 类型/条目数 | 当前代表映射 | FAQ 候选页 | 风险依据 | 依赖规则域 |
