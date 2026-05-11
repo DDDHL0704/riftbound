@@ -1281,6 +1281,28 @@ Viktor boundary：
 
 仍缺：`HASTE_READY` paid branch、red resource exactness、Overwhelm / 强攻 battle modifier、`ASSIGN_COMBAT_DAMAGE` overflow、non-hand friendly unit gains haste、LayerEngine、hidden-info、FAQ adjudication、1009/811 full-official 覆盖、正式 18-step E2E。
 
+## 55F. Stage 4C-53 Sett Legend-Domain Representative Automated Evidence Overlay
+
+4C-53 只更新覆盖矩阵 / 风险证据，不升级 full-official。正确身份为 `FU-6308c2db01` / representative `OGN·269/298` / cardId `31512` / Sett / 《腕豪》，snapshot entries 为 `OGN·269/298` / `31512`、`OGN·310/298` / `31567` 与 `OGN·310*/298` / `31568`，oracle/effectId 为 `LEGEND_ACTION_DOMAIN`。
+
+4C-53 已部分降低的 blocker：
+
+- `LEGEND_ACTION_DOMAIN` shared-oracle FU now has representative automated evidence overlay: focused 54/54 passed；backend full 3647/3647 passed；frontend build passed；Chrome smoke passed。
+- representative evidence covers conquer-ready exhausted legend and Boon-unit-destroyed pay-1 recall replacement paths。
+- insufficient payment / inactive legend negative guard is recorded as representative evidence only。
+- 4B primary status / flags 不变：`SHARED_ORACLE_IMPLEMENTATION`，`IMPLEMENTED_UNTESTED`、`SHARED_ORACLE_IMPLEMENTATION`、`NEEDS_ENGINE_SUPPORT`；`fullOfficial=false`，full-official upgrades = 0。
+- full legend-domain active / optional / replacement design、battle / spell duel lifecycle、`ASSIGN_COMBAT_DAMAGE`、cleanup / replacement / duration、FEPR targeting / timing、LayerEngine、control-zone movement、hidden / reveal / redaction remain holdback。
+
+矩阵数字口径：`stage4C53` verified FUs = 1，verified snapshot entries = 3，full-official upgrades = 0，full-official still uncovered FUs = 811。
+
+验证记录：focused 54/54 passed；backend full 3647/3647 passed；frontend build passed；Chrome smoke passed。
+
+本批不关闭 full `LEGEND_ACTION_DOMAIN` matrix、all Sett official text、all legend active / optional / replacement design、BattleEngine / SpellDuel full lifecycle、`ASSIGN_COMBAT_DAMAGE` full matrix、CleanupQueue / replacement / duration full matrix、FEPR targeting / timing full matrix、LayerEngine / continuous effects、ZoneOwnership / control-change / movement full matrix、hidden / reveal / redaction、1009/811 full-official 或正式 18-step E2E。
+
+后续批量顺序建议：Void Burrower / `FU-6e7d0dba2c` remains design-gated for `LEGEND_ACTION_DOMAIN` shared-oracle work。
+
+仍缺：full `LEGEND_ACTION_DOMAIN` matrix、legend active / optional / replacement design、BattleEngine / SpellDuel lifecycle、`ASSIGN_COMBAT_DAMAGE`、CleanupQueue / replacement / duration、FEPR targeting / timing、LayerEngine、control-zone movement、hidden / reveal / redaction、1009/811 full-official 覆盖、正式 18-step E2E。
+
 ## 56. Top20 高风险 Functional Units
 
 | # | FU | Representative | 类型/条目数 | 当前代表映射 | FAQ 候选页 | 风险依据 | 依赖规则域 |

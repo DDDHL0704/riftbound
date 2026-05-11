@@ -102,6 +102,8 @@
 
 阶段 4C-52 补 Rek'Sai / 雷克塞 SFD·029 / SFD·029a ordinary hand no-optional play-unit + `强攻` / `急速` keyword tag guard representative baseline；`HASTE_READY` paid branch full matrix、red resource exactness、Overwhelm / 强攻 battle modifier、`ASSIGN_COMBAT_DAMAGE` overflow behavior、non-hand friendly unit gains haste、LayerEngine、hidden-info、FAQ refs、1009/811 与 formal 18-step E2E 仍不代表 READY。
 
+阶段 4C-53 记录 Sett / 腕豪 OGN·269 representative automated evidence overlay；只关闭 `FU-6308c2db01` automated evidence gap，不做 direct runtime implementation，不关闭 full-official NO-GO。LegendActivePredicate、LegendOptionalTrigger、ReplacementPayment、boon consume official semantics、dormant recall cleanup、conquest ready lifecycle full matrix、shared oracle mapping、`PAY_COST` prompt / decline、cleanup queue interactions、FAQ adjudication、1009/811 与 formal E2E 仍不代表 READY。
+
 | 阶段 3 流程 | 证据入口 | 必须证明的审计点 |
 |---|---|---|
 | 创建 / 加入 / 重连 | `CORE-260330` rules 107-129；工程会话契约 | 双浏览器上下文不得共享授权状态；snapshot/prompt 只能按 viewer 下发；重连恢复不能泄漏隐藏信息。 |
@@ -632,6 +634,15 @@
 |---|---|---|---|
 | No-optional play-unit keyword route | `CATALOG` `SFD·029/221` / cardId `33104`；`SFD·029a/221` / cardId `33105`；FU `FU-1945f6918c`；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | ordinary hand no-optional `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 3，tags `CARD_TYPE:UNIT` + `强攻` + `急速`，two printings covered | full official Rek'Sai haste / overwhelm effect |
 | Keyword guard | `CORE-260330` p4-p8 rules 107-129；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | invalid target、wrong zone-source、opponent source、face-down standby source、insufficient mana rejected with no mutation / no leak | `HASTE_READY` paid branch full matrix、red resource exactness、Overwhelm / 强攻 battle modifier、`ASSIGN_COMBAT_DAMAGE` overflow behavior、non-hand friendly unit gains haste、LayerEngine、hidden-info、FAQ refs、1009/811、formal 18-step E2E |
+
+### 6.49 阶段 4C-53 Sett legend-domain guard 证据入口
+
+阶段 4C-53 细化审计见 `docs/CURRENT_STAGE4C_BATCH53_SETT_LEGEND_DOMAIN_GUARD_AUDIT.md`，证据见 `docs/CURRENT_STAGE4C_BATCH53_SETT_LEGEND_DOMAIN_GUARD_EVIDENCE.md`。本节只提供 Sett / 腕豪 `OGN·269/298` / cardId `31512` / `FU-6308c2db01` / `LEGEND_ACTION_DOMAIN` representative automated evidence overlay；focused 54/54 passed，backend full 3647/3647 passed，frontend build passed，Chrome smoke passed；不表示项目 READY，`fullOfficial=false`，且 full-official 继续 **NO-GO**。
+
+| 规则域 | 证据入口 | 当前 4C-53 状态 | 仍缺 |
+|---|---|---|---|
+| Sett automated replacement evidence | `CATALOG` `OGN·269/298` / cardId `31512`；FU `FU-6308c2db01`；`SOUL-JFAQ-260114 p14`；`SOUL-OFAQ-260114 p4`；existing tests `P79LegendTriggerSettConsumesBoonAndRecallsDestroyedUnit` / `P79LegendTriggerSettReplacementDebitsManaAfterXerathSkillCleanup` | 代表路径记录：带增益友方单位将被摧毁时，现有自动路径可支付 1 mana、使 Sett 休眠、消耗增益并把单位以休眠状态召回基地 | direct runtime implementation、official optional replacement、`PAY_COST` prompt / decline、ReplacementPayment |
+| Sett automated conquest-ready evidence | `CATALOG` `OGN·269/298` / cardId `31512`；existing test `P79LegendTriggerSettReadiesOnConquer` | 代表路径记录：征服战场后，现有自动路径可 ready 代表性 Sett legend | LegendActivePredicate、LegendOptionalTrigger、conquest ready lifecycle full matrix、shared oracle mapping、cleanup queue interactions、FAQ adjudication、1009/811、formal E2E |
 
 | 规则域 | 证据入口 | 当前 4C-32 状态 | 仍缺 |
 |---|---|---|---|

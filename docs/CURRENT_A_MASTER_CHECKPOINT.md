@@ -910,6 +910,18 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Hostile Takeover 代表路径外推完整待命、反应时机、开战/征服、control lifecycle、end-turn cleanup、targeting、PaymentEngine、FEPR、named deferred candidates 或 full-official。
 
+## 0.1.31 阶段 4C-53 Sett Legend Domain Checkpoint
+
+状态：**4C-53 docs checkpoint recorded；项目仍 NOT READY。**
+
+阶段 4C-53 名称：Sett legend-domain representative automated evidence overlay。
+
+- A 裁决本批不做 direct runtime implementation，只记录 Sett / 腕豪 `OGN·269/298` / cardId `31512` / `FU-6308c2db01` / `LEGEND_ACTION_DOMAIN` representative automated evidence overlay。
+- 已记录 automated evidence：Sett 代表路径可自动替代带增益友方单位摧毁、支付 1 mana、消耗增益、以休眠状态召回到基地，并在征服战场时 ready 代表性 Sett legend。
+- 验证记录：focused 54/54 passed；backend full 3647/3647 passed；frontend build passed；Chrome smoke passed。
+- 本批只关闭 Sett `FU-6308c2db01` representative automated evidence gap。
+- 仍保持 `fullOfficial=false`；不宣称 READY / READY-CANDIDATE；不做 / 不宣称 direct runtime implementation；不关闭 full-official NO-GO；不关闭 LegendActivePredicate、LegendOptionalTrigger、ReplacementPayment、boon consume official semantics、dormant recall cleanup、conquest ready lifecycle full matrix、shared oracle mapping、`PAY_COST` prompt / decline、cleanup queue interactions、FAQ adjudication、1009/811 或 formal E2E。
+
 ## 0.1.30 阶段 4C-52 Rek'Sai Haste / Overwhelm Checkpoint
 
 状态：**4C-52 docs checkpoint recorded；项目仍 NOT READY。**

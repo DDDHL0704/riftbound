@@ -12,6 +12,15 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-12 阶段 4C-53 Sett Legend Domain Guard 审计
+
+阶段 4C-53 审计入口：`docs/CURRENT_STAGE4C_BATCH53_SETT_LEGEND_DOMAIN_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH53_SETT_LEGEND_DOMAIN_GUARD_EVIDENCE.md`。A 裁决本批不做 direct runtime implementation，只记录 Sett / 腕豪 `OGN·269/298` / cardId `31512` / `FU-6308c2db01` / `LEGEND_ACTION_DOMAIN` 的 representative automated evidence overlay。项目仍 **NOT READY**，`fullOfficial=false`。
+
+- Scope：记录既有 automated evidence：Sett 代表路径可自动替代带增益友方单位摧毁、支付 1 mana、消耗增益、以休眠状态召回到基地，并在征服战场时 ready 代表性 Sett legend。
+- Validation：focused 54/54 passed；backend full 3647/3647 passed；frontend build passed；Chrome smoke passed。
+- 本批只关闭 Sett `FU-6308c2db01` representative automated evidence gap。
+- 不做 / 不宣称 direct runtime implementation；不关闭 full-official NO-GO；LegendActivePredicate、LegendOptionalTrigger、ReplacementPayment、boon consume official semantics、dormant recall cleanup、conquest ready lifecycle full matrix、shared oracle mapping、`PAY_COST` prompt / decline、cleanup queue interactions、FAQ adjudication、1009/811 full-official 与 formal E2E 均保持 open。
+
 ## 2026-05-12 阶段 4C-52 Rek'Sai Haste / Overwhelm Guard 审计
 
 阶段 4C-52 审计入口：`docs/CURRENT_STAGE4C_BATCH52_REKSAI_HASTE_OVERWHELM_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH52_REKSAI_HASTE_OVERWHELM_GUARD_EVIDENCE.md`。本批只记录 Rek'Sai / 雷克塞 `SFD·029/221` / cardId `33104`、`SFD·029a/221` / cardId `33105` / `FU-1945f6918c` 的 no-optional haste / overwhelm keyword ordinary hand play-unit + keyword tag guard representative baseline。项目仍 **NOT READY**，`fullOfficial=false`。
