@@ -12,6 +12,16 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-11 阶段 4C-47 Draven Battle Body Guard 审计
+
+阶段 4C-47 审计入口：`docs/CURRENT_STAGE4C_BATCH47_DRAVEN_BATTLE_BODY_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH47_DRAVEN_BATTLE_BODY_GUARD_EVIDENCE.md`。本批已补 Draven / 德莱文 `SFD·020/221` / cardId `33092`、`SFD·020a/221` / cardId `33093` / `FU-964b214448` 的 battle body / play-unit guard representative slice。项目仍 **NOT READY**，`fullOfficial=false`。
+
+- Scope：ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 4，tag `CARD_TYPE:UNIT`。
+- Guard：invalid target、wrong zone、opponent source、face-down standby source、insufficient mana 均 rejected，no mutation / no leak。
+- B 新增 `tests/Riftbound.ConformanceTests/DravenVanillaGuardTests.cs`；Core / frontend / protocol 未改。A/B focused 命令 `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Draven|FullyQualifiedName~SFD020|FullyQualifiedName~VanillaPlayUnit|FullyQualifiedName~PlayUnit"` 通过 14/14；后端 full `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 3601/3601 passed；前端 build `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` passed；Chrome smoke `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` passed。
+- 本批只关闭 SFD·020 / SFD·020a ordinary hand play-unit body + guard representative evidence。
+- 不关闭 battle win dormant Gold、attack / defense optional red payment、+2 until EOT、full PaymentEngine、Layer / duration cleanup、FAQ refs、1009/811 full-official 或 final 18-step E2E。
+
 ## 2026-05-11 阶段 4C-46 Legend Domain / Shared Oracle Design Gate
 
 阶段 4C-46 设计门禁入口：`docs/CURRENT_STAGE4C_BATCH46_LEGEND_DOMAIN_SHARED_ORACLE_DESIGN_GATE.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH46_LEGEND_DOMAIN_SHARED_ORACLE_EVIDENCE.md`。B/C/D/E 只读门禁一致判断 Void Burrower / 虚空遁地兽 `SFD·187/221` / `FU-6e7d0dba2c` 与 Sett / 腕豪 `OGN·269/298` / `FU-6308c2db01` **NO-GO for direct 4C-46 runtime implementation**；本批只记录 legend-domain / shared-oracle design gate。项目仍 **NOT READY**，`fullOfficial=false`。

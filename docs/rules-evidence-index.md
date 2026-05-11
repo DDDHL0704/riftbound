@@ -90,6 +90,8 @@
 
 阶段 4C-46 记录 Void Burrower / 虚空遁地兽与 Sett / 腕豪 legend-domain / shared-oracle design gate；B/C/D/E 只读门禁一致 NO-GO for direct runtime implementation。LegendActivePredicate、LegendOptionalTrigger、RevealChoice、ReplacementPayment、shared oracle reprint mapping、hidden redaction、`PAY_COST` / cleanup queue interactions、FAQ `SOUL-JFAQ-260114 p14` / `SOUL-OFAQ-260114 p4`、1009/811 与 final 18-step E2E 仍不代表 READY。
 
+阶段 4C-47 补 Draven / 德莱文 SFD·020 / SFD·020a ordinary hand play-unit body + guard representative slice；battle win dormant Gold、attack / defense optional red payment、+2 until EOT、full PaymentEngine、Layer / duration cleanup、FAQ refs、1009/811 与 final 18-step E2E 仍不代表 READY。
+
 | 阶段 3 流程 | 证据入口 | 必须证明的审计点 |
 |---|---|---|
 | 创建 / 加入 / 重连 | `CORE-260330` rules 107-129；工程会话契约 | 双浏览器上下文不得共享授权状态；snapshot/prompt 只能按 viewer 下发；重连恢复不能泄漏隐藏信息。 |
@@ -566,6 +568,15 @@
 | Void Burrower legend route | `CATALOG` `SFD·187/221`；FU `FU-6e7d0dba2c`；FAQ refs `SOUL-JFAQ-260114 p14` / `SOUL-OFAQ-260114 p4` | 当前服务端代表路径可自动处理征服触发、reveals top two / plays one / recycles remainder / dormant legend；本批判定 NO-GO direct runtime implementation | LegendActivePredicate、LegendOptionalTrigger、RevealChoice、shared oracle reprint mapping、hidden redaction、free-play / recycle official semantics、FAQ officialization |
 | Sett legend route | `CATALOG` `OGN·269/298`；FU `FU-6308c2db01` | 当前服务端代表路径可自动替代摧毁 / 支付 / 召回 / 征服 ready；本批判定 NO-GO direct runtime implementation | ReplacementPayment、boon consume、dormant recall cleanup、`PAY_COST` / cleanup queue interactions、optional replacement official semantics、shared oracle reprint mapping |
 | Shared blockers | `CORE-260330` legend / cleanup / payment / hidden-info domains；coverage/risk docs | 只记录设计门禁，不新增 runtime implementation，不要求 backend full / build / smoke 实现验证 | 1009/811 full-official、final 18-step E2E、READY / READY-CANDIDATE |
+
+### 6.43 阶段 4C-47 Draven battle body guard 证据入口
+
+阶段 4C-47 细化审计见 `docs/CURRENT_STAGE4C_BATCH47_DRAVEN_BATTLE_BODY_GUARD_AUDIT.md`，证据见 `docs/CURRENT_STAGE4C_BATCH47_DRAVEN_BATTLE_BODY_GUARD_EVIDENCE.md`。本节提供 Draven / 德莱文 `SFD·020/221` / cardId `33092` 与 `SFD·020a/221` / cardId `33093` / `FU-964b214448` battle body / play-unit guard representative slice；A/B focused 通过 14/14，后端 full 3601/3601、前端 build、Chrome smoke 均通过；Core / frontend / protocol 未改；不表示项目 READY，`fullOfficial=false`。
+
+| 规则域 | 证据入口 | 当前 4C-47 状态 | 仍缺 |
+|---|---|---|---|
+| Play-unit body route | `CATALOG` `SFD·020/221` / cardId `33092`；`SFD·020a/221` / cardId `33093`；FU `FU-964b214448`；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 4，tag `CARD_TYPE:UNIT` | full official Draven effect |
+| Play guard | `CORE-260330` p4-p8 rules 107-129；p39-p42 rules 355-356 | invalid target、wrong zone、opponent source、face-down standby source、insufficient mana all rejected with no mutation / no leak | battle win dormant Gold、attack / defense optional red payment、+2 until EOT、full PaymentEngine、Layer / duration cleanup、FAQ refs、1009/811、final E2E |
 
 | 规则域 | 证据入口 | 当前 4C-32 状态 | 仍缺 |
 |---|---|---|---|
@@ -1087,8 +1098,8 @@
 | `p2-preflight-play-bad-poro-pirate-unit` | `RULE_AUDITED` | `CATALOG` UNL-222/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方单位《坏坏魄罗》从手牌普通打出时支付基础 2 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 2 战力、带 `魄罗` 与 `海盗` 标签的 `CARD_TYPE:UNIT` 单位对象；征服触发和金币装备指示物路径暂缓，带目标打出由直接测试拒绝。 |
 | `p2-preflight-play-sfd-bad-poro-pirate-unit` | `RULE_AUDITED` | `CATALOG` SFD·069/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方单位《坏坏魄罗》从手牌普通打出时支付基础 2 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 2 战力、带 `魄罗` 与 `海盗` 标签的 `CARD_TYPE:UNIT` 单位对象；征服触发和金币装备指示物路径暂缓，带目标打出由直接测试拒绝。 |
 | `p2-preflight-play-siege-ram-trifarian-unit` | `RULE_AUDITED` | `CATALOG` SFD·012/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方单位《攻城锤》从手牌普通打出且未应用减费时支付基础 5 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 5 战力、带 `崔法利` 标签的 `CARD_TYPE:UNIT` 单位对象；本回合打出牌数记忆和费用下限路径暂缓，带目标打出由直接测试拒绝。 |
-| `p2-preflight-play-sfd-020-draven-vanilla-unit` | `RULE_AUDITED` | `CATALOG` SFD·020/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方英雄单位《德莱文》从手牌普通打出时支付基础 4 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 4 战力 `CARD_TYPE:UNIT` 单位对象；战斗胜利金币、进攻/防守触发、红色费用支付和本回合战力修正路径暂缓，带目标打出由直接测试拒绝。 |
-| `p2-preflight-play-sfd-020a-draven-vanilla-unit` | `RULE_AUDITED` | `CATALOG` SFD·020a/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方英雄单位《德莱文》异画 A 从手牌普通打出时支付基础 4 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 4 战力 `CARD_TYPE:UNIT` 单位对象；战斗胜利金币、进攻/防守触发、红色费用支付和本回合战力修正路径暂缓，带目标打出由直接测试拒绝。 |
+| `p2-preflight-play-sfd-020-draven-vanilla-unit` | `RULE_AUDITED` | `CATALOG` SFD·020/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方英雄单位《德莱文》从手牌普通打出时支付基础 4 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 4 战力 `CARD_TYPE:UNIT` 单位对象；4C-47 补 invalid target、wrong zone、opponent source、face-down standby source、insufficient mana no-mutation / no-leak guard。战斗胜利金币、进攻/防守触发、红色费用支付和本回合战力修正路径暂缓，带目标打出由直接测试拒绝。 |
+| `p2-preflight-play-sfd-020a-draven-vanilla-unit` | `RULE_AUDITED` | `CATALOG` SFD·020a/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方英雄单位《德莱文》异画 A 从手牌普通打出时支付基础 4 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 4 战力 `CARD_TYPE:UNIT` 单位对象；4C-47 补 invalid target、wrong zone、opponent source、face-down standby source、insufficient mana no-mutation / no-leak guard。战斗胜利金币、进攻/防守触发、红色费用支付和本回合战力修正路径暂缓，带目标打出由直接测试拒绝。 |
 | `p2-preflight-play-skateboard-pro-no-equipment-static` | `RULE_AUDITED` | `CATALOG` SFD·072/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方单位《滑板高手》在控制者未控制两件装备时从手牌普通打出，支付基础 4 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 4 战力 `CARD_TYPE:UNIT` 单位对象；装备数量统计和条件活跃入场路径暂缓，带目标打出由直接测试拒绝。 |
 | `p2-preflight-play-alley-thief-no-optional-equipment-static` | `RULE_AUDITED` | `CATALOG` SFD·074/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方单位《暗巷神偷》从手牌普通打出且不选择可选装备摧毁时支付基础 3 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 3 战力 `CARD_TYPE:UNIT` 单位对象；装备目标、摧毁、费用限制和金币指示物路径暂缓，带目标打出由直接测试拒绝。 |
 | `p2-preflight-play-fervid-fan-defense-trigger-static` | `RULE_AUDITED` | `CATALOG` SFD·128/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方单位《狂热粉丝》从手牌普通打出时支付基础 2 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 2 战力 `CARD_TYPE:UNIT` 单位对象；防守触发、可选摧毁自身和移动进攻方单位路径暂缓，带目标打出由直接测试拒绝。 |

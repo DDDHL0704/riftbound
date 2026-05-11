@@ -910,6 +910,20 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Hostile Takeover 代表路径外推完整待命、反应时机、开战/征服、control lifecycle、end-turn cleanup、targeting、PaymentEngine、FEPR、named deferred candidates 或 full-official。
 
+## 0.1.25 阶段 4C-47 Draven Checkpoint
+
+状态：**4C-47 checkpoint ready；项目仍 NOT READY。**
+
+阶段 4C-47 名称：Draven battle body / play-unit guard representative slice。
+
+- B 完成 Draven / 德莱文 `SFD·020/221` / cardId `33092`、`SFD·020a/221` / cardId `33093` / `FU-964b214448` guard slice，并新增 `tests/Riftbound.ConformanceTests/DravenVanillaGuardTests.cs`。
+- Core / frontend / protocol 未改。
+- 已覆盖 ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 4，tag `CARD_TYPE:UNIT`。
+- 已覆盖 invalid target、wrong zone、opponent source、face-down standby source、insufficient mana no mutation / no leak guard。
+- 验证记录：A/B focused 命令 `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Draven|FullyQualifiedName~SFD020|FullyQualifiedName~VanillaPlayUnit|FullyQualifiedName~PlayUnit"` 通过 14/14；后端 full `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 3601/3601 passed；前端 build `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build` passed；Chrome smoke `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` passed。
+- 本批只关闭 SFD·020 / SFD·020a ordinary hand play-unit body + guard representative evidence。
+- 仍保持 `fullOfficial=false`；不宣称 READY / READY-CANDIDATE；不关闭 battle win dormant Gold、attack / defense optional red payment、+2 until EOT、full PaymentEngine、Layer / duration cleanup、FAQ refs、1009/811 或 final 18-step E2E。
+
 ## 0.1.24 阶段 4C-46 Legend Domain / Shared Oracle Design Gate
 
 状态：**4C-46 design gate recorded；项目仍 NOT READY。**
