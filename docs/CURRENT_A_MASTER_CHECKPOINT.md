@@ -910,6 +910,19 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Hostile Takeover 代表路径外推完整待命、反应时机、开战/征服、control lifecycle、end-turn cleanup、targeting、PaymentEngine、FEPR、named deferred candidates 或 full-official。
 
+## 0.1.27 阶段 4C-49 Ezreal Checkpoint
+
+状态：**4C-49 docs checkpoint recorded；项目仍 NOT READY。**
+
+阶段 4C-49 名称：Ezreal combat-damage text play-unit guard representative baseline。
+
+- 本批只记录 Ezreal / 伊泽瑞尔 `SFD·082/221` / cardId `33162`、`SFD·082a/221` / cardId `33163`、`SFD·082b/221·P` / cardId `33164` / `FU-2dca1ad450` play-unit guard baseline。
+- 已验证范围只限 ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 3，tag `CARD_TYPE:UNIT`，three printings covered。
+- 已覆盖 invalid target、wrong zone-source、opponent source、face-down standby source、insufficient mana no mutation / no leak guard。
+- 验证记录：focused 21/21 passed；backend full 3617/3617 passed；frontend build passed；Chrome smoke passed。
+- 本批只关闭 Ezreal ordinary hand play-unit + guard representative evidence。
+- 仍保持 `fullOfficial=false`；不宣称 READY / READY-CANDIDATE；不实现 / 不宣称 combat-damage / move runtime；不关闭 attack / defense trigger、“此处” enemy unit target selection、damage equal to Ezreal power、cannot combat damage static、blue swift move to base、swift / reaction timing、blue payment / `PAY_COST`、movement / control-zone matrix、damage prevention / replacement / cleanup、Layer / effective power、FAQ refs、1009/811 或 final 18-step E2E。
+
 ## 0.1.26 阶段 4C-48 Vex Checkpoint
 
 状态：**4C-48 docs checkpoint recorded；项目仍 NOT READY。**

@@ -12,6 +12,16 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-11 阶段 4C-49 Ezreal Play-Unit Guard 审计
+
+阶段 4C-49 审计入口：`docs/CURRENT_STAGE4C_BATCH49_EZREAL_PLAY_UNIT_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH49_EZREAL_PLAY_UNIT_GUARD_EVIDENCE.md`。本批只记录 Ezreal / 伊泽瑞尔 `SFD·082/221` / cardId `33162`、`SFD·082a/221` / cardId `33163`、`SFD·082b/221·P` / cardId `33164` / `FU-2dca1ad450` 的 combat-damage text play-unit guard representative baseline。项目仍 **NOT READY**，`fullOfficial=false`。
+
+- Scope：ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 3，tag `CARD_TYPE:UNIT`，three printings covered。
+- Guard：invalid target、wrong zone-source、opponent source、face-down standby source、insufficient mana 均 rejected，no mutation / no leak。
+- Validation：focused 21/21 passed；backend full 3617/3617 passed；frontend build passed；Chrome smoke passed。
+- 本批只关闭 Ezreal ordinary hand play-unit + guard representative evidence。
+- 不实现 / 不宣称 combat-damage / move runtime；attack / defense trigger、“此处” enemy unit target selection、damage equal to Ezreal power、cannot combat damage static、blue swift move to base、swift / reaction timing、blue payment / `PAY_COST`、movement / control-zone matrix、damage prevention / replacement / cleanup、Layer / effective power、FAQ refs、1009/811 full-official 与 final 18-step E2E 均保持 open。
+
 ## 2026-05-11 阶段 4C-48 Vex Spellshield Stun Guard 审计
 
 阶段 4C-48 审计入口：`docs/CURRENT_STAGE4C_BATCH48_VEX_SPELLSHIELD_STUN_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH48_VEX_SPELLSHIELD_STUN_GUARD_EVIDENCE.md`。本批只记录 Vex / 薇古丝 `UNL-150/219` / cardId `34697` / `FU-9f7cb73dc4` / `VEX_SPELLSHIELD_OPPONENT_UNIT_STUN_STATIC` 的 test-only spellshield guard representative baseline。项目仍 **NOT READY**，`fullOfficial=false`。
