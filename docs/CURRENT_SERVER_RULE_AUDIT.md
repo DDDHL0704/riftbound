@@ -12,6 +12,16 @@
 
 最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan 与官方构筑负例矩阵、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告、spectator replay redaction 和 replay 状态 hash 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、完整触发引擎、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
+## 2026-05-12 阶段 4C-52 Rek'Sai Haste / Overwhelm Guard 审计
+
+阶段 4C-52 审计入口：`docs/CURRENT_STAGE4C_BATCH52_REKSAI_HASTE_OVERWHELM_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH52_REKSAI_HASTE_OVERWHELM_GUARD_EVIDENCE.md`。本批只记录 Rek'Sai / 雷克塞 `SFD·029/221` / cardId `33104`、`SFD·029a/221` / cardId `33105` / `FU-1945f6918c` 的 no-optional haste / overwhelm keyword ordinary hand play-unit + keyword tag guard representative baseline。项目仍 **NOT READY**，`fullOfficial=false`。
+
+- Scope：ordinary hand no-optional `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 3，tags `CARD_TYPE:UNIT` + `强攻` + `急速`，two printings covered。
+- Guard：invalid target、wrong zone-source、opponent source、face-down standby source、insufficient mana 均 rejected，no mutation / no leak。
+- Validation：focused 305/305 passed；backend full 3641/3641 passed；frontend build passed；Chrome smoke passed。
+- 本批只关闭 Rek'Sai `SFD·029` / `SFD·029a` ordinary hand no-optional play-unit + keyword tag guard representative evidence。
+- 不实现 / 不宣称 full-official haste / overwhelm runtime；`HASTE_READY` paid branch full matrix、red resource exactness、Overwhelm / 强攻 battle modifier、`ASSIGN_COMBAT_DAMAGE` overflow behavior、non-hand friendly unit gains haste、LayerEngine、hidden-info、FAQ refs、1009/811 full-official 与 formal 18-step E2E 均保持 open。
+
 ## 2026-05-11 阶段 4C-51 Rek'Sai Attack Reveal Guard 审计
 
 阶段 4C-51 审计入口：`docs/CURRENT_STAGE4C_BATCH51_REKSAI_ATTACK_REVEAL_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH51_REKSAI_ATTACK_REVEAL_GUARD_EVIDENCE.md`。本批只记录 Rek'Sai / 雷克塞 `SFD·170/221` / cardId `33264`、`SFD·170a/221` / cardId `33265` / `FU-422b450261` 的 attack reveal / movement text ordinary hand play-unit guard representative baseline。项目仍 **NOT READY**，`fullOfficial=false`。

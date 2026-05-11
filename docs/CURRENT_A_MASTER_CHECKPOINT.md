@@ -910,6 +910,19 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 不宣称 READY / READY-CANDIDATE。
 - 不因 Hostile Takeover 代表路径外推完整待命、反应时机、开战/征服、control lifecycle、end-turn cleanup、targeting、PaymentEngine、FEPR、named deferred candidates 或 full-official。
 
+## 0.1.30 阶段 4C-52 Rek'Sai Haste / Overwhelm Checkpoint
+
+状态：**4C-52 docs checkpoint recorded；项目仍 NOT READY。**
+
+阶段 4C-52 名称：Rek'Sai no-optional haste / overwhelm keyword play-unit guard representative baseline。
+
+- 本批只记录 Rek'Sai / 雷克塞 `SFD·029/221` / cardId `33104`、`SFD·029a/221` / cardId `33105` / `FU-1945f6918c` ordinary hand no-optional play-unit + keyword tag guard baseline。
+- 已验证范围只限 ordinary hand no-optional `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 3，tags `CARD_TYPE:UNIT` + `强攻` + `急速`，two printings covered。
+- 已覆盖 invalid target、wrong zone-source、opponent source、face-down standby source、insufficient mana no mutation / no leak guard。
+- 验证记录：focused 305/305 passed；backend full 3641/3641 passed；frontend build passed；Chrome smoke passed。
+- 本批只关闭 Rek'Sai `SFD·029` / `SFD·029a` ordinary hand no-optional play-unit + keyword tag guard representative evidence。
+- 仍保持 `fullOfficial=false`；不宣称 READY / READY-CANDIDATE；不实现 / 不宣称 full-official haste / overwhelm runtime；不关闭 `HASTE_READY` paid branch full matrix、red resource exactness、Overwhelm / 强攻 battle modifier、`ASSIGN_COMBAT_DAMAGE` overflow behavior、non-hand friendly unit gains haste、LayerEngine、hidden-info、FAQ refs、1009/811 或 formal 18-step E2E。
+
 ## 0.1.29 阶段 4C-51 Rek'Sai Attack Reveal Checkpoint
 
 状态：**4C-51 docs checkpoint recorded；项目仍 NOT READY。**

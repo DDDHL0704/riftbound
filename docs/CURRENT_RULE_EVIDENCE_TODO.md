@@ -97,6 +97,8 @@
 阶段 4C-50 Draven keyword-unit guard 证据：`docs/CURRENT_STAGE4C_BATCH50_DRAVEN_KEYWORD_UNIT_GUARD_EVIDENCE.md`
 阶段 4C-51 Rek'Sai attack reveal guard 审计：`docs/CURRENT_STAGE4C_BATCH51_REKSAI_ATTACK_REVEAL_GUARD_AUDIT.md`
 阶段 4C-51 Rek'Sai attack reveal guard 证据：`docs/CURRENT_STAGE4C_BATCH51_REKSAI_ATTACK_REVEAL_GUARD_EVIDENCE.md`
+阶段 4C-52 Rek'Sai haste / overwhelm guard 审计：`docs/CURRENT_STAGE4C_BATCH52_REKSAI_HASTE_OVERWHELM_GUARD_AUDIT.md`
+阶段 4C-52 Rek'Sai haste / overwhelm guard 证据：`docs/CURRENT_STAGE4C_BATCH52_REKSAI_HASTE_OVERWHELM_GUARD_EVIDENCE.md`
 
 ## B 修复验收
 
@@ -1200,6 +1202,7 @@ D 审计结论：
 - 4C-49 已记录 Ezreal / 伊泽瑞尔 `SFD·082/221` / cardId `33162`、`SFD·082a/221` / cardId `33163`、`SFD·082b/221·P` / cardId `33164` / `FU-2dca1ad450` ordinary hand play-unit + guard representative baseline；focused 21/21 passed，backend full 3617/3617 passed，frontend build passed，Chrome smoke passed；不实现 / 不宣称 combat-damage / move runtime；attack / defense trigger、“此处” enemy unit target selection、damage equal to Ezreal power、cannot combat damage static、blue swift move to base、swift / reaction timing、blue payment / `PAY_COST`、movement / control-zone matrix、damage prevention / replacement / cleanup、Layer / effective power、FAQ refs、1009/811 与 final 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-50 已记录 Draven / 德莱文 `SFD·148/221` / cardId `33240` 与 `SFD·148a/221` / cardId `33241` / `FU-104211dbbc` ordinary hand play-unit + `法盾` tag guard representative baseline；focused 17/17 passed，backend full 3625/3625 passed，frontend build passed，Chrome smoke passed；不实现 / 不宣称 battle / scoring runtime；battle win scoring、destroyed-in-battle opponent scoring、Spellshield target tax、battle cleanup / score once-per-turn matrix、PaymentEngine、FAQ refs、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-51 已记录 Rek'Sai / 雷克塞 `SFD·170/221` / cardId `33264` 与 `SFD·170a/221` / cardId `33265` / `FU-422b450261` ordinary hand play-unit guard representative baseline；focused 25/25 passed，backend full 3633/3633 passed，frontend build passed，Chrome smoke passed；不实现 / 不宣称 attack reveal runtime 或 movement runtime；attack reveal runtime、top-2 reveal、free play、recycle remainder、unit destination to current battlefield / "here"、hidden-info redaction / reveal matrix、`ORDER_TRIGGERS`、battle lifecycle full matrix、movement / control-zone、FAQ refs、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
+- 4C-52 已记录 Rek'Sai / 雷克塞 `SFD·029/221` / cardId `33104` 与 `SFD·029a/221` / cardId `33105` / `FU-1945f6918c` ordinary hand no-optional play-unit + keyword tag guard representative baseline；focused 305/305 passed，backend full 3641/3641 passed，frontend build passed，Chrome smoke passed；不实现 / 不宣称 full-official haste / overwhelm runtime；`HASTE_READY` paid branch full matrix、red resource exactness、Overwhelm / 强攻 battle modifier、`ASSIGN_COMBAT_DAMAGE` overflow behavior、non-hand friendly unit gains haste、LayerEngine、hidden-info、FAQ refs、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-15 Viktor `FU-b5cb36a5c9` destroyed non-minion token trigger 已记录为 feasibility blocker；4C-15A 已补 `TOKEN_FAMILY:MINION` 最小前置模型并部分关闭 token classification blocker；4C-15B 已关闭 Viktor 代表性 baseline，但 same-source 多对象 full official matrix、Kogmaw / Karthus / Undercover Agent、完整 trigger engine 仍未关闭。
 - 3A-P0-001 / 002 / 003 / 004 已关闭；不得把这些 3A 子项误读为完整 Stage 3 或 READY。
 - 3B-CAND-001 / 002 / 003 / 004 只能作为阶段 3B 关闭候选；D/A 证据入账前不得移出 P0。
