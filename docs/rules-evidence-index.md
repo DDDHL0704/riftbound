@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`a806e69 checkpoint: complete stage 4C demacia envoy experience evidence`。
-当前已 checkpoint verified representative evidence：Stage 4C-65 `Demacia Envoy` static experience route 已入账，并通过 focused / experience regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：`pending checkpoint: complete stage 4C tibbers damage evidence`。
+当前已 checkpoint verified representative evidence：Stage 4C-66 `Tibbers` all-battlefield damage route 已入账，并通过 focused / battlefield damage regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -2181,6 +2181,14 @@
 - 测试证据：`tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-demacia-envoy-experience-static.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand play / pay 2 / zero-target stack / source-to-base unit / controller gains 1 experience。
 - 验证：focused 4/4；Demacia / Experience / GainExperience / LevelThreshold regression 37/37；backend full 3754/3754；frontend build passed；Chrome smoke passed。
 - 该证据只关闭 narrow representative evidence；不关闭 all experience cards / amounts、experience payment / optional costs、level-up LayerEngine、battlefield Hunt experience、ability experience、hidden-info / redaction matrix、FAQ、1009/811 full-official 或 formal 18-step E2E。
+
+## Stage 4C-66 Tibbers All Battlefield Damage Evidence
+
+- `FU-c168bd394c` / `OGS·018/024` / `TIBBERS_PLAY_UNIT_DAMAGE_ALL_BATTLEFIELD_UNITS_3` 已记录 Stage 4C-66 representative all-battlefield damage route evidence。
+- 代码证据：`src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `OGS·018/024` 为 direct card behavior，包含 `PlaysSourceToBaseAsUnit`、`SourceUnitPower: 7`、`DamagesAllBattlefieldUnits: true`、`DamageAmount: 3`；`src/Riftbound.Engine/CoreRuleEngine.cs` 已有 `DamagesAllBattlefieldUnits` stack-resolution path。
+- 测试证据：`tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-tibbers-damage-all-battlefield-units.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand play / pay 8 / zero-target stack / source-to-base unit / all public battlefield units take 3 / non-unit battlefield object skip / unexpected target rejection。
+- 验证：focused 3/3；Tibbers / BladeWhirlwind / DamageAllBattlefield / OverchargedEnergy / Firestorm / CrescentStrike / EnemyBattlefield regression 63/63；backend full 3754/3754；frontend build passed；Chrome smoke passed。
+- 该证据只关闭 narrow representative evidence；不关闭 all battlefield-wide damage cards / amounts、damage prevention / replacement / cleanup、lethal triggers、multi-battlefield precision、PaymentEngine、LayerEngine、hidden-info / redaction matrix、FAQ、1009/811 full-official 或 formal 18-step E2E。
 
 ## 7. 索引维护规则
 

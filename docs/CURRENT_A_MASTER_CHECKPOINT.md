@@ -4043,3 +4043,40 @@ Checkpoint 记录：
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：4C-65 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 26. 阶段 4C-66 Tibbers All Battlefield Damage Verified Representative Evidence
+
+状态：**已完成代表证据收口，checkpoint 待提交。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Tibbers / 提伯斯 `OGS·018/024` / cardId `31597` / `FU-c168bd394c` / `TIBBERS_PLAY_UNIT_DAMAGE_ALL_BATTLEFIELD_UNITS_3`。
+- 本批是 evidence-only overlay，不修改功能代码；只记录 ordinary hand `PLAY_CARD`、支付 8 mana、0 目标入栈、stack / pass-pass 后源牌进入基地成为 7 战力单位、公开战场单位各受到 3 点伤害。
+- 不实现 / 不宣称 all battlefield-wide damage cards / amounts、damage prevention / replacement / cleanup、lethal trigger interactions、formal multi-battlefield precision、PaymentEngine、LayerEngine、hidden-info / redaction matrix、FAQ adjudication、1009/811 full-official 或 formal 18-step E2E。
+
+证据事实：
+
+- A 基于 matrix fresh risk pass 选择低耦合、无 FAQ、单 FU Tibbers 路线。
+- `src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `OGS·018/024` 为 direct card behavior：`PlaysSourceToBaseAsUnit`、`SourceUnitPower: 7`、`DamagesAllBattlefieldUnits: true`、`DamageAmount: 3`。
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-tibbers-damage-all-battlefield-units.fixture.json` 已记录官方卡面、核心规则证据和完整 pass-pass 结算预期。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysTibbersDamageAllBattlefieldUnits|FullyQualifiedName~CoreRuleEngineTibbersResolutionSkipsOpponentControlledBattlefieldObject|FullyQualifiedName~CoreRuleEngineRejectsTibbersWhenTargetsAreProvided"`：passed 3/3。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Tibbers|FullyQualifiedName~BladeWhirlwind|FullyQualifiedName~DamageAllBattlefield|FullyQualifiedName~OverchargedEnergy|FullyQualifiedName~FirestormEnemyBattlefieldDamageGuardTests|FullyQualifiedName~CrescentStrike|FullyQualifiedName~EnemyBattlefield"`：passed 63/63。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3754/3754。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C66` 回填为 `TIBBERS_ALL_BATTLEFIELD_DAMAGE_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH66_TIBBERS_ALL_BATTLEFIELD_DAMAGE_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH66_TIBBERS_ALL_BATTLEFIELD_DAMAGE_EVIDENCE.md` 记录 narrow representative evidence。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 待提交：`pending checkpoint: complete stage 4C tibbers damage evidence`。
+- 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
+- 已纳入：4C-66 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
