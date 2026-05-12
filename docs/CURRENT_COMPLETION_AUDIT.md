@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint 待提交：`pending checkpoint: complete stage 4C bubblebot ready evidence`。Stage 4C-67 `Bubblebot` / `SFD·062/221` / `FU-3f5a9ef0e0` 已完成代表性 friendly Mechanical ready evidence-only overlay 与验证，正在收口 checkpoint；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint 为 `3691e1d checkpoint: complete stage 4C bubblebot ready evidence`。Stage 4C-67 `Bubblebot` / `SFD·062/221` / `FU-3f5a9ef0e0` 已完成代表性 friendly Mechanical ready evidence-only overlay、验证与 checkpoint；项目整体仍 **NOT READY**。
 
 4C-67 不修改功能代码，只把既有服务端权威 ready 证据入账：`Bubblebot` ordinary hand `PLAY_CARD` 支付 3 mana、选择另一名友方公开机械单位，stack pass-pass 后源牌进入基地成为 3 战力单位，并让该机械目标变为活跃状态。Focused 命令：
 
