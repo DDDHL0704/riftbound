@@ -2,8 +2,8 @@
 
 更新时间：2026-05-12
 
-最新 Stage 4C checkpoint：`b18be5d checkpoint: complete stage 4C reflections swap guard`。
-当前已 checkpoint verified representative guard：Stage 4C-57 `Reflections` Core / prompt swap-location + Ephemeral target validation 已收紧并通过 focused / regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C 工作批：4C-58 `Spirit Fire` target guard verified；上一 checkpoint：`b18be5d checkpoint: complete stage 4C reflections swap guard`。
+当前 verified representative guard：Stage 4C-58 `Spirit Fire` Core / prompt public battlefield unit target validation 已收紧，并通过 focused / regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -114,6 +114,8 @@
 阶段 4C-56 记录 Secret Art! Mercy / 秘奥义！慈悲度魂落 OGN·053 test-only ordinary hand Boon +1 / friendly Spellshield no-tax representative guard；Core / prompt `FriendlyUnit` target scope 已收紧，friendly equipment / spell / rune / face-down standby 拒绝，legacy custom-tag public field unit 保持可选；focused 87/87、regression 133/133、backend full 3668/3668、frontend build 与 Chrome smoke 通过。不实现 / 不宣称 global all-boons extra +1 this turn、standby / reaction、quick / spell-duel breadth 或 full Spellshield tax。FAQ、1009/811 与 formal 18-step E2E 仍不代表 READY。
 
 阶段 4C-57 记录 Reflections / 镜中幻影 UNL-083 ordinary hand swap/draw representative guard；Core `SwapsTargetLocations` command validation 已补 same-position guard，prompt `legalTargetSelections` 同步过滤 `AnyTargetRequiredTag` 与 different-position pairs；focused 54/54、regression 112/112、backend full 3679/3679、frontend build 与 Chrome smoke 通过。不实现 / 不宣称 exact multi-battlefield precision、standby / reaction、quick / spell-duel timing、full FEPR targeting / stack lifecycle、full movement / control-zone lifecycle、hidden-info / redaction matrix、PaymentEngine full officialization、Ephemeral lifecycle、draw replacement / deck exhaustion、FAQ、1009/811 与 formal 18-step E2E。
+
+阶段 4C-58 记录 Spirit Fire / 妖异狐火 OGN-256 ordinary hand destroy representative guard；Core 和 prompt target validation 已收紧为 public battlefield unit，`legalTargetSelections` 保持 total target power <= 4；focused 48/48、regression 112/112、backend full 3690/3690、frontend build 与 Chrome smoke 通过。不实现 / 不宣称 same-battlefield precision、standby / reaction、quick / spell-duel timing、full FEPR targeting / stack lifecycle、full destroy / cleanup / replacement / prevention / Last Breath interactions、full Spellshield tax matrix、PaymentEngine、LayerEngine / effective power、hidden-info / redaction matrix、FAQ、1009/811 与 formal 18-step E2E。
 
 | 阶段 3 流程 | 证据入口 | 必须证明的审计点 |
 |---|---|---|

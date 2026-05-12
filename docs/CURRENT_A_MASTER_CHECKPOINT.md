@@ -3745,3 +3745,41 @@ Checkpoint 记录：
 - 提交前验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 通过；`git diff --check` 通过；`git diff --cached --check` 通过。
 - 已纳入：`src/Riftbound.Engine/CoreRuleEngine.cs`、`src/Riftbound.Engine/MatchSession.cs`、`tests/Riftbound.ConformanceTests/ReflectionsSwapGuardTests.cs`、4C-57 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 18. 阶段 4C-58 Spirit Fire Total Power Target Guard Verified Representative
+
+状态：**已完成代表切片收口，待 checkpoint。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Spirit Fire / 妖异狐火 `OGN·256/298` / cardId `31498` / `FU-a9dc3495e1` / `SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4`。
+- 只补 ordinary hand `PLAY_CARD`、支付 3 mana、public battlefield unit targets、total target power <= 4、stack / pass-pass 后 destroy to owner graveyard 的 representative target guard。
+- 不实现 / 不宣称 same-battlefield precision、standby / reaction、quick / spell-duel timing、full FEPR targeting / stack lifecycle、full destroy / cleanup / replacement / prevention / Last Breath interactions、full Spellshield tax matrix、PaymentEngine、LayerEngine / effective power、hidden-info / redaction matrix、FAQ adjudication、1009/811 full-official 或 formal 18-step E2E。
+
+修复事实：
+
+- A 在 B / Maxwell 留下 partial Core diff 后收回 B 写锁并完成窄切片。
+- `src/Riftbound.Engine/CoreRuleEngine.cs` 新增 Spirit Fire effect-specific target guard，让默认 `BattlefieldUnit` scope 不能接受 battlefield equipment / spell / rune / hidden / dirty objects。
+- `src/Riftbound.Engine/MatchSession.cs` 同步 prompt parity：Spirit Fire `targetChoicesByIndex` 与 `legalTargetSelections` 过滤 public battlefield unit / controller-consistency 目标，server legal selections 继续执行 total-power <= 4。
+- 新增 `tests/Riftbound.ConformanceTests/SpiritFireDestroyGuardTests.cs`，覆盖成功 total-power-four destroy、total power > 4 rejection、battlefield equipment / spell / rune / face-down standby / stale / base / hand / dirty controller rejection，以及 prompt parity。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~SpiritFireDestroyGuardTests|FullyQualifiedName~SpiritFire|FullyQualifiedName~TargetGuard|FullyQualifiedName~Spellshield"`：passed 48/48。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ActionPrompt|FullyQualifiedName~Prompt|FullyQualifiedName~SpiritFire"`：passed 112/112。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3690/3690。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C58` 回填为 `SPIRIT_FIRE_DESTROY_TOTAL_POWER_GUARD_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH58_SPIRIT_FIRE_TOTAL_POWER_TARGET_GUARD_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH58_SPIRIT_FIRE_TOTAL_POWER_TARGET_GUARD_EVIDENCE.md` 记录 narrow representative guard verified 证据。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 待提交：`checkpoint: complete stage 4C spirit fire target guard`。
+- 提交前验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 待跑；`git diff --check` 待跑；`git diff --cached --check` 待跑。
+- 计划纳入：`src/Riftbound.Engine/CoreRuleEngine.cs`、`src/Riftbound.Engine/MatchSession.cs`、`tests/Riftbound.ConformanceTests/SpiritFireDestroyGuardTests.cs`、4C-58 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。

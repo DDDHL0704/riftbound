@@ -17021,6 +17021,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || !IsHostileTakeoverTargetAllowed(state, behavior, targetObjectId)
                 || !IsBerserkImpulseTargetAllowed(state, behavior, targetObjectId)
                 || !IsSwitcherooTargetAllowed(state, behavior, targetObjectId)
+                || !IsSpiritFireTargetAllowed(state, behavior, targetObjectId)
                 || !IsMainDeckLookTargetAllowed(state, intent.PlayerId, targetObjectId, targetIndex, behavior)
                 || !IsMainDeckTargetTagAllowed(state, targetObjectId, targetIndex, behavior)
                 || !IsTargetRequiredTagAllowed(state, targetObjectId, behavior)
@@ -20329,6 +20330,20 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         return targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || targetState.Tags.Count == 0;
+    }
+
+    private static bool IsSpiritFireTargetAllowed(
+        MatchState state,
+        CardBehaviorDefinition behavior,
+        string objectId)
+    {
+        if (!string.Equals(behavior.EffectKind, "SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return IsBattlefieldObject(state, objectId)
+            && IsVisibleFieldUnitObject(state.CardObjects, objectId);
     }
 
     private static bool IsTargetManaCostAllowed(

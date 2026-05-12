@@ -6721,7 +6721,8 @@ internal static class ActionPromptBuilder
         }
 
         return PromptTargetCandidateIds(state, playerId, behavior.TargetScope, targetIndex)
-            .Where(objectId => IsPromptTargetObjectInScope(state, playerId, objectId, behavior.TargetScope, targetIndex))
+            .Where(objectId => IsPromptTargetObjectInScope(state, playerId, objectId, behavior.TargetScope, targetIndex)
+                && IsPromptSpiritFireTargetAllowed(state, behavior, objectId))
             .Select(objectId => IsPromptStackSpellItem(state, objectId)
                 ? StackItemChoice(state, objectId, "legal stack spell target")
                 : ObjectChoice(state, objectId, PromptTargetReasonForScope(behavior.TargetScope, targetIndex)))
@@ -6868,7 +6869,8 @@ internal static class ActionPromptBuilder
                     playerId,
                     targetObjectIds[targetIndex],
                     behavior.TargetScope,
-                    targetIndex))
+                    targetIndex)
+                || !IsPromptSpiritFireTargetAllowed(state, behavior, targetObjectIds[targetIndex]))
             {
                 return false;
             }
@@ -7086,6 +7088,23 @@ internal static class ActionPromptBuilder
             && !cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
             && !cardObject.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
             && !cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal);
+    }
+
+    private static bool IsPromptSpiritFireTargetAllowed(
+        MatchState state,
+        CardBehaviorDefinition behavior,
+        string objectId)
+    {
+        if (!string.Equals(behavior.EffectKind, "SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return IsPromptBattlefieldObject(state, objectId)
+            && IsPromptFieldUnitObject(state, objectId)
+            && TryFindLegendActionFieldObjectLocation(state.PlayerZones, objectId, out var location)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, location.PlayerId);
     }
 
     private static bool IsPromptControlledFieldObject(MatchState state, string playerId, string objectId)
