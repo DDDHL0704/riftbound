@@ -4192,3 +4192,40 @@ Checkpoint 记录：
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：4C-69 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 30. 阶段 4C-70 Skullcrack Battlefield Stun Verified Representative Evidence
+
+状态：**已完成代表证据收口，等待 checkpoint。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Skullcrack / 强手裂颅 `OGN·220/298` / cardId `31458` / `FU-ee886701e4` / `SKULLCRACK_STUN_FRIENDLY_AND_ENEMY_BATTLEFIELD_UNITS`。
+- 本批是 evidence-only overlay，不修改功能代码；只记录 ordinary hand `PLAY_CARD`、支付 2 mana、按顺序选择一名友方战场单位和一名敌方战场单位、stack / pass-pass 后对两名目标施加 `STUNNED`。
+- 不实现 / 不宣称 same-battlefield precision、standby / reaction、quick / spell-duel timing、full FEPR target / stack lifecycle、PaymentEngine、status duration / cleanup / replacement / prevention、LayerEngine、hidden-info / redaction matrix、完整 FAQ 裁定、1009/811 full-official 或 formal 18-step E2E。
+
+证据事实：
+
+- A 基于 matrix fresh risk pass 选择已 IMPLEMENTED_TESTED、已有 FAQ 引用、单 FU 的 Skullcrack 路线，用于覆盖 both-sides battlefield stun representative evidence。
+- `src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `OGN·220/298` 为 direct card behavior：`Cost: 2`、`TargetCount: 2`、`StatusEffectId: STUNNED`、`TargetScope: FriendlyBattlefieldThenEnemyBattlefieldUnits`。
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-skullcrack-stun-friendly-and-enemy-battlefield-units.fixture.json` 已记录官方卡面、核心规则 / FAQ 证据和完整 pass-pass 结算预期；`CoreRuleEngineRejectsSkullcrackAgainstWrongOrderOrBaseUnits` 已记录 wrong-order / base-unit / same-side target no-mutation guard。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysSkullcrackStunsFriendlyAndEnemyBattlefieldUnits|FullyQualifiedName~CoreRuleEngineRejectsSkullcrackAgainstWrongOrderOrBaseUnits"`：passed 2/2。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Skullcrack|FullyQualifiedName~RunePrison|FullyQualifiedName~Kerplunk|FullyQualifiedName~HeroicCharge|FullyQualifiedName~ZenithBlade|FullyQualifiedName~Stun|FullyQualifiedName~Stunned|FullyQualifiedName~SolariLeader|FullyQualifiedName~Stunning"`：passed 64/64。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3754/3754。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C70` 回填为 `SKULLCRACK_FRIENDLY_AND_ENEMY_BATTLEFIELD_STUN_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH70_SKULLCRACK_BATTLEFIELD_STUN_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH70_SKULLCRACK_BATTLEFIELD_STUN_EVIDENCE.md` 记录 narrow representative evidence。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 待提交：`pending checkpoint: complete stage 4C skullcrack battlefield stun evidence`。
+- 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
+- 已纳入：4C-70 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
