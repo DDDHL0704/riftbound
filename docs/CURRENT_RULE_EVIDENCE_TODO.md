@@ -5,8 +5,8 @@
 
 本文记录 E 证据/审计 worker 第一轮 P0 交接项、阶段 1 D 协议审计、阶段 2 D P0 规则证据链和 A 主控验收结果，不替代 `docs/CURRENT_SERVER_RULE_AUDIT.md`。
 
-最新 Stage 4C checkpoint：`8dfc4b5 checkpoint: complete stage 4C skullcrack battlefield stun evidence`
-当前已 verified representative evidence：Stage 4C-70 `Skullcrack` friendly-then-enemy battlefield stun route 已入账，并通过 focused / stun battlefield regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：`pending checkpoint: complete stage 4C diana spell duel static evidence`
+当前已 verified representative evidence：Stage 4C-71 `Diana` spell-duel-static ordinary play-unit route 已入账，并通过 keyword-source / rejection regression、spell duel / insight regression、backend full、frontend build、Chrome smoke；项目仍 **NOT READY**。
 历史 3B checkpoint：`a74beac`
 阶段 1 基线提交：`78b6896`
 阶段 2 证据链计划：`docs/CURRENT_STAGE2_P0_CONTRACT_PLAN.md`
@@ -137,6 +137,8 @@
 阶段 4C-69 Faithful Craftsman create Minion 证据：`docs/CURRENT_STAGE4C_BATCH69_FAITHFUL_CRAFTSMAN_CREATE_MINION_EVIDENCE.md`
 阶段 4C-70 Skullcrack battlefield stun 审计：`docs/CURRENT_STAGE4C_BATCH70_SKULLCRACK_BATTLEFIELD_STUN_AUDIT.md`
 阶段 4C-70 Skullcrack battlefield stun 证据：`docs/CURRENT_STAGE4C_BATCH70_SKULLCRACK_BATTLEFIELD_STUN_EVIDENCE.md`
+阶段 4C-71 Diana spell-duel static 审计：`docs/CURRENT_STAGE4C_BATCH71_DIANA_SPELL_DUEL_STATIC_AUDIT.md`
+阶段 4C-71 Diana spell-duel static 证据：`docs/CURRENT_STAGE4C_BATCH71_DIANA_SPELL_DUEL_STATIC_EVIDENCE.md`
 
 ## B 修复验收
 
@@ -1256,6 +1258,7 @@ D 审计结论：
 - 4C-68 已记录 Treasure Golem / 宝藏魔像 `SFD·174/221` / cardId `33270` / `FU-7472703e56` / `TREASURE_GOLEM_PLAY_UNIT_CREATE_FOUR_GOLD` ordinary hand play / pay 8 / zero-target stack / source-to-base unit / four exhausted Gold equipment tokens representative evidence；本批不修改功能代码，复用既有 fixture 与 targeted tests；focused 3/3、Gold-token regression 30/30、backend full 3754/3754、frontend build、Chrome smoke 均通过；all Gold-token creation cards / counts、destination selection、Gold equipment spend / activation / extra-mana interactions、PaymentEngine、equipment cleanup / replacement、LayerEngine、hidden-info / redaction matrix、FAQ、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-69 已记录 Faithful Craftsman / 忠实的工坊主 `OGN·211/298` / cardId `31447` / `FU-2e2a00f575` / `FAITHFUL_CRAFTSMAN_PLAY_UNIT_CREATE_MINION` ordinary hand play / pay 3 / zero-target stack / source-to-base unit / one ready 1-power Minion unit token representative evidence；本批不修改功能代码，复用既有 fixture 与 targeted tests；focused 2/2、Minion-token regression 18/18、backend full 3754/3754、frontend build、Chrome smoke 均通过；all Minion-token creation cards / counts、destination selection、full token subtype/family taxonomy、PaymentEngine、token replacement/prevention/cleanup、LayerEngine、hidden-info / redaction matrix、FAQ、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-70 已记录 Skullcrack / 强手裂颅 `OGN·220/298` / cardId `31458` / `FU-ee886701e4` / `SKULLCRACK_STUN_FRIENDLY_AND_ENEMY_BATTLEFIELD_UNITS` ordinary hand play / pay 2 / friendly battlefield unit then enemy battlefield unit targets / stack pass-pass / apply `STUNNED` to both targets representative evidence；本批不修改功能代码，复用既有 fixture 与 targeted tests；focused 2/2、stun battlefield regression 64/64、backend full 3754/3754、frontend build、Chrome smoke 均通过；same-battlefield precision、standby / reaction、quick / spell-duel timing、full FEPR target / stack lifecycle、PaymentEngine、status duration / cleanup / replacement / prevention、LayerEngine、hidden-info / redaction matrix、完整 FAQ 裁定、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
+- 4C-71 已记录 Diana / 黛安娜 `UNL-079/219` / cardId `34612` / `FU-4215291160` / `DIANA_SPELL_DUEL_INSIGHT_STATIC` ordinary hand play / pay 3 / zero-target stack / source-to-base 3-power `CARD_TYPE:UNIT|巨神峰` representative evidence；本批不修改功能代码，复用既有 fixture 与 targeted tests；keyword-source / rejection regression 459/459、spell duel / insight regression 45/45、backend full 3754/3754、frontend build、Chrome smoke 均通过；actual spell-duel Insight trigger / payment / reveal / draw、`UNL-079a/219` alt A FU、standby / reaction、quick / spell-duel timing、full FEPR lifecycle、PaymentEngine、LayerEngine、hidden-info / top-card redaction matrix、FAQ、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-15 Viktor `FU-b5cb36a5c9` destroyed non-minion token trigger 已记录为 feasibility blocker；4C-15A 已补 `TOKEN_FAMILY:MINION` 最小前置模型并部分关闭 token classification blocker；4C-15B 已关闭 Viktor 代表性 baseline，但 same-source 多对象 full official matrix、Kogmaw / Karthus / Undercover Agent、完整 trigger engine 仍未关闭。
 - 3A-P0-001 / 002 / 003 / 004 已关闭；不得把这些 3A 子项误读为完整 Stage 3 或 READY。
 - 3B-CAND-001 / 002 / 003 / 004 只能作为阶段 3B 关闭候选；D/A 证据入账前不得移出 P0。

@@ -4229,3 +4229,40 @@ Checkpoint 记录：
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：4C-70 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 31. 阶段 4C-71 Diana Spell Duel Static Verified Representative Evidence
+
+状态：**代表证据已验证；等待 checkpoint 提交 `pending checkpoint: complete stage 4C diana spell duel static evidence`。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Diana / 黛安娜 `UNL-079/219` / cardId `34612` / `FU-4215291160` / `DIANA_SPELL_DUEL_INSIGHT_STATIC`。
+- 本批是 evidence-only overlay，不修改功能代码；只记录 ordinary hand `PLAY_CARD`、支付 3 mana、0 目标入栈、stack / pass-pass 后源牌进入基地成为 3 战力 `CARD_TYPE:UNIT|巨神峰`。
+- 不实现 / 不宣称 actual spell-duel Insight trigger / payment / reveal / draw、`UNL-079a/219` alt A FU、standby / reaction、quick / spell-duel timing、full FEPR lifecycle、PaymentEngine、LayerEngine、hidden-info / top-card redaction matrix、FAQ、1009/811 full-official 或 formal 18-step E2E。
+
+证据事实：
+
+- A 基于 matrix fresh risk pass 选择已 IMPLEMENTED_TESTED、无 FAQ 的 Diana spell-duel-static route，用于覆盖 keyword/static source-unit ordinary play representative evidence。
+- `src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `UNL-079/219` 为 direct card behavior：`Cost: 3`、`TargetCount: 0`、`PlaysSourceToBaseAsUnit`、`SourceUnitPower: 3`、`SourceUnitTags: 巨神峰`。
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-diana-spell-duel-static.fixture.json` 已记录官方卡面、核心规则证据和完整 pass-pass 结算预期；`CoreRuleEnginePlaysKeywordOnlySourceUnit` 与 `CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided` 已覆盖合法路线和带目标拒绝路线。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysKeywordOnlySourceUnit|FullyQualifiedName~CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided"`：passed 459/459。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Diana|FullyQualifiedName~SpellDuel|FullyQualifiedName~Insight|FullyQualifiedName~PassFocus|FullyQualifiedName~Swift"`：passed 45/45。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3754/3754。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C71` 回填为 `DIANA_SPELL_DUEL_STATIC_PLAY_UNIT_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH71_DIANA_SPELL_DUEL_STATIC_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH71_DIANA_SPELL_DUEL_STATIC_EVIDENCE.md` 记录 narrow representative evidence。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 待提交：`pending checkpoint: complete stage 4C diana spell duel static evidence`。
+- 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
+- 已纳入：4C-71 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。

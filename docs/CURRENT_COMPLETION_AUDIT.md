@@ -7,17 +7,17 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint：`8dfc4b5 checkpoint: complete stage 4C skullcrack battlefield stun evidence`。Stage 4C-70 `Skullcrack` / `OGN·220/298` / `FU-ee886701e4` 已完成代表性 friendly-then-enemy battlefield stun evidence-only overlay 与验证；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint：`pending checkpoint: complete stage 4C diana spell duel static evidence`。Stage 4C-71 `Diana` / `UNL-079/219` / `FU-4215291160` 已完成代表性 spell-duel-static ordinary play-unit evidence-only overlay 与验证；项目整体仍 **NOT READY**。
 
-4C-70 不修改功能代码，只把既有服务端权威 battlefield status 证据入账：`Skullcrack` ordinary hand `PLAY_CARD` 支付 2 mana，按顺序选择一名友方战场单位和一名敌方战场单位，stack pass-pass 后对两名目标施加 `STUNNED`。Focused 命令：
+4C-71 不修改功能代码，只把既有服务端权威 source-to-base unit 证据入账：`Diana` ordinary hand `PLAY_CARD` 支付 3 mana、0 目标入栈，stack pass-pass 后源牌进入基地成为 3 战力 `CARD_TYPE:UNIT|巨神峰` 单位。Focused / primary regression 命令：
 
 ```sh
-source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysSkullcrackStunsFriendlyAndEnemyBattlefieldUnits|FullyQualifiedName~CoreRuleEngineRejectsSkullcrackAgainstWrongOrderOrBaseUnits"
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysKeywordOnlySourceUnit|FullyQualifiedName~CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided"
 ```
 
-结果为 passed，2 passed / 0 failed / 2 total。追加回归 `FullyQualifiedName~Skullcrack|FullyQualifiedName~RunePrison|FullyQualifiedName~Kerplunk|FullyQualifiedName~HeroicCharge|FullyQualifiedName~ZenithBlade|FullyQualifiedName~Stun|FullyQualifiedName~Stunned|FullyQualifiedName~SolariLeader|FullyQualifiedName~Stunning` 通过 64/64；backend full 通过 3754/3754；frontend build 通过；Chrome smoke 通过。4C-70 只声明 narrow representative evidence recorded，不作为 READY 或 full-official 证据。
+结果为 passed，459 passed / 0 failed / 459 total。追加回归 `FullyQualifiedName~Diana|FullyQualifiedName~SpellDuel|FullyQualifiedName~Insight|FullyQualifiedName~PassFocus|FullyQualifiedName~Swift` 通过 45/45；backend full 通过 3754/3754；frontend build 通过；Chrome smoke 通过。4C-71 只声明 narrow representative evidence recorded，不作为 READY 或 full-official 证据；Diana 的实际 spell-duel Insight trigger / payment / reveal / draw 仍 deferred。
 
-当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责；4C-70 由 A 基于 matrix 风险筛选做 evidence-only 覆盖入账、复核、验证和文档收口。后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
+当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责；4C-71 由 A 基于 matrix 风险筛选做 evidence-only 覆盖入账、复核、验证和文档收口。后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
 
 ## 0.1 Active Goal 门槛到证据映射
 
@@ -27,15 +27,15 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 | 服务端保持唯一规则权威 | `docs/CURRENT_SERVER_RULE_AUDIT.md` 与本文件第 3 / 6 节记录服务端 authoritative snapshot / prompt / command guard 模型 | 方向满足，但仍有 P0/P1 规则缺口 |
 | 前端只展示并提交服务端 `ActionPrompt` / authoritative snapshot 支持的合法操作 | 本文件第 5 / 6 / 9 节记录前端候选驱动与多批 Chrome smoke；最终 18 步 E2E 仍缺 | 部分验证，未达到最终验收 |
 | P0/P1 阻断清零 | 本文件第 4 / 11 节与 `docs/CURRENT_SERVER_RULE_AUDIT.md` 仍列出 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡证据；4C-56 blocker 已修复但不清零全局 P0/P1 | 未完成 |
-| 后端 full test 当前 HEAD 全绿 | 4C-70 入账后 focused 2/2、stun / battlefield status regression 64/64、backend full 3754/3754 均通过 | 本轮满足，最终验收前仍需重跑 |
-| Chrome smoke 通过 | 4C-70 入账后 frontend build 通过，Chrome smoke 通过 | 本轮满足，最终验收前仍需正式 E2E |
+| 后端 full test 当前 HEAD 全绿 | 4C-71 入账后 keyword-source regression 459/459、spell duel / insight regression 45/45、backend full 3754/3754 均通过 | 本轮满足，最终验收前仍需重跑 |
+| Chrome smoke 通过 | 4C-71 入账后 frontend build 通过，Chrome smoke 通过 | 本轮满足，最终验收前仍需正式 E2E |
 | 正式 18 步 E2E 通过 | 本文件第 9 节明确缺一条完整覆盖 `docs/任务补充.md` 18 步最低流程的双浏览器或等效 E2E | 未完成 |
-| 卡牌覆盖矩阵完成 | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C70` 回填为 representative evidence recorded，但 1009/811 full-official coverage 仍未完成 | 未完成 |
+| 卡牌覆盖矩阵完成 | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C71` 回填为 representative evidence recorded，但 1009/811 full-official coverage 仍未完成 | 未完成 |
 | 最终 completion audit 输出 READY 后才允许标记 complete | 本文件审计结论仍为 **NOT READY**；未调用 `update_goal complete` | 未完成 |
 
 ## 1. 修改文件列表
 
-2026-05-13 Stage 4C-70 representative evidence 本轮修改：
+2026-05-13 Stage 4C-71 representative evidence 本轮修改：
 
 - `docs/CURRENT_A_MASTER_CHECKPOINT.md`
 - `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
@@ -67,12 +67,12 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 
 ## 2. 新增文件列表
 
-2026-05-13 Stage 4C-70 representative evidence 新增文档：
+2026-05-13 Stage 4C-71 representative evidence 新增文档：
 
-- `docs/CURRENT_STAGE4C_BATCH70_SKULLCRACK_BATTLEFIELD_STUN_AUDIT.md`
-- `docs/CURRENT_STAGE4C_BATCH70_SKULLCRACK_BATTLEFIELD_STUN_EVIDENCE.md`
+- `docs/CURRENT_STAGE4C_BATCH71_DIANA_SPELL_DUEL_STATIC_AUDIT.md`
+- `docs/CURRENT_STAGE4C_BATCH71_DIANA_SPELL_DUEL_STATIC_EVIDENCE.md`
 
-2026-05-13 Stage 4C-70 representative evidence 新增测试：无；本批复用既有 conformance fixture / targeted tests，并只做矩阵与文档入账。
+2026-05-13 Stage 4C-71 representative evidence 新增测试：无；本批复用既有 conformance fixture / targeted tests，并只做矩阵与文档入账。
 
 历史第二百五十九批新增：
 
