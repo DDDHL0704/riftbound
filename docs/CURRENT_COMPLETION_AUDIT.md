@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-12 最新状态补充
 
-当前最新 Stage 4C checkpoint 为 Stage 4C-59 pending checkpoint。Stage 4C-59 `Zenith Blade` / `OGN·262/298` / `FU-64a7f67581` 已完成代表性 enemy battlefield stun target guard 修复、验证与 checkpoint 准备；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint 为 `70d9ee0 checkpoint: complete stage 4C zenith blade target guard`。Stage 4C-59 `Zenith Blade` / `OGN·262/298` / `FU-64a7f67581` 已完成代表性 enemy battlefield stun target guard 修复、验证与 checkpoint；项目整体仍 **NOT READY**。
 
 4C-59 修复收紧了服务端 Core authoritative Zenith Blade target validation：Zenith Blade 的目标必须是 enemy public battlefield unit；enemy battlefield equipment / spell / rune、face-down standby、stale、base、hand、friendly、dirty controller 目标不再能支付、入栈或被眩晕。Focused 命令：
 
