@@ -5,8 +5,8 @@
 
 本文记录 E 证据/审计 worker 第一轮 P0 交接项、阶段 1 D 协议审计、阶段 2 D P0 规则证据链和 A 主控验收结果，不替代 `docs/CURRENT_SERVER_RULE_AUDIT.md`。
 
-最新已提交 Stage 4C checkpoint：`3631c00 checkpoint: complete stage 4C secret art mercy guard`
-当前本轮 verified representative guard：Stage 4C-57 `Reflections` Core / prompt swap-location + Ephemeral target validation 已收紧并通过 focused / regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：`b18be5d checkpoint: complete stage 4C reflections swap guard`
+当前已 checkpoint verified representative guard：Stage 4C-57 `Reflections` Core / prompt swap-location + Ephemeral target validation 已收紧并通过 focused / regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 历史 3B checkpoint：`a74beac`
 阶段 1 基线提交：`78b6896`
 阶段 2 证据链计划：`docs/CURRENT_STAGE2_P0_CONTRACT_PLAN.md`

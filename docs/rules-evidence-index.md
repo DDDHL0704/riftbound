@@ -2,8 +2,8 @@
 
 更新时间：2026-05-12
 
-最新已提交 Stage 4C checkpoint：`3631c00 checkpoint: complete stage 4C secret art mercy guard`。
-当前本轮 verified representative guard：Stage 4C-57 `Reflections` Core / prompt swap-location + Ephemeral target validation 已收紧并通过 focused / regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：`b18be5d checkpoint: complete stage 4C reflections swap guard`。
+当前已 checkpoint verified representative guard：Stage 4C-57 `Reflections` Core / prompt swap-location + Ephemeral target validation 已收紧并通过 focused / regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
 

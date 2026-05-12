@@ -3711,7 +3711,7 @@ Checkpoint 记录：
 
 ## 17. 阶段 4C-57 Reflections Swap Draw Guard Verified Representative
 
-状态：**已完成代表切片收口，checkpoint 待提交。项目整体仍 NOT READY。**
+状态：**已完成代表切片收口并 checkpoint 为 `b18be5d`。项目整体仍 NOT READY。**
 
 本批范围：
 
@@ -3735,12 +3735,13 @@ Checkpoint 记录：
 
 文档 / 矩阵处理：
 
-- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 将回填 `stage4C57` 为 `REFLECTIONS_SWAP_FRIENDLY_UNITS_DRAW_GUARD_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C57` 回填为 `REFLECTIONS_SWAP_FRIENDLY_UNITS_DRAW_GUARD_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
 - `docs/CURRENT_STAGE4C_BATCH57_REFLECTIONS_SWAP_DRAW_GUARD_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH57_REFLECTIONS_SWAP_DRAW_GUARD_EVIDENCE.md` 记录 narrow representative guard verified 证据。
 - `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
 
-Checkpoint 计划：
+Checkpoint 记录：
 
-- 预计提交：`checkpoint: complete stage 4C reflections swap guard`。
-- 提交前仍需验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`；`git diff --check`；`git diff --cached --check`。
-- 必须排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+- 已提交：`b18be5d checkpoint: complete stage 4C reflections swap guard`。
+- 提交前验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 通过；`git diff --check` 通过；`git diff --cached --check` 通过。
+- 已纳入：`src/Riftbound.Engine/CoreRuleEngine.cs`、`src/Riftbound.Engine/MatchSession.cs`、`tests/Riftbound.ConformanceTests/ReflectionsSwapGuardTests.cs`、4C-57 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。

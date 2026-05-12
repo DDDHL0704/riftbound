@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-12 最新状态补充
 
-当前最新已提交 Stage 4C checkpoint 为 `3631c00 checkpoint: complete stage 4C secret art mercy guard`。本轮 Stage 4C-57 `Reflections` / `UNL-083/219` / `FU-f0eb0fb704` 已完成代表性 swap/draw guard 修复与验证，正在收口 checkpoint；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint 为 `b18be5d checkpoint: complete stage 4C reflections swap guard`。Stage 4C-57 `Reflections` / `UNL-083/219` / `FU-f0eb0fb704` 已完成代表性 swap/draw guard 修复、验证与 checkpoint；项目整体仍 **NOT READY**。
 
 4C-57 修复收紧了服务端 Core authoritative `SwapsTargetLocations` validation，并同步 prompt `legalTargetSelections`：Reflections 的两个友方 public field unit 目标必须处于不同代表位置，且至少一个带 `瞬息`；same-position、no-Ephemeral、non-unit、hidden、enemy、dirty controller 目标不再能支付、入栈、换位或抽牌。Focused 命令：
 
@@ -35,7 +35,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 
 ## 1. 修改文件列表
 
-2026-05-12 Stage 4C-57 representative guard / completion audit 本轮修改：
+2026-05-12 Stage 4C-57 representative guard / completion audit 已 checkpoint 修改：
 
 - `docs/CURRENT_A_MASTER_CHECKPOINT.md`
 - `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
@@ -69,12 +69,12 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 
 ## 2. 新增文件列表
 
-2026-05-12 Stage 4C-57 representative guard 本轮新增文档：
+2026-05-12 Stage 4C-57 representative guard 已 checkpoint 新增文档：
 
 - `docs/CURRENT_STAGE4C_BATCH57_REFLECTIONS_SWAP_DRAW_GUARD_AUDIT.md`
 - `docs/CURRENT_STAGE4C_BATCH57_REFLECTIONS_SWAP_DRAW_GUARD_EVIDENCE.md`
 
-2026-05-12 Stage 4C-57 representative guard 本轮新增测试：
+2026-05-12 Stage 4C-57 representative guard 已 checkpoint 新增测试：
 
 - `tests/Riftbound.ConformanceTests/ReflectionsSwapGuardTests.cs`
 
