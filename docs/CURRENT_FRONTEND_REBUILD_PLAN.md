@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 第三百四十八批新增 Stage 4C-86 Imperial Shrine / 帝王神坛 evidence-only overlay。`FU-ec31812b00` / `SFD·207/221` 已在 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 记录 `stage4CBatch86ImperialShrineConquerPayReturnSandSoldierGuard`、`functionalUnits[].stage4C86` 与 `snapshotEntries[].stage4C86`；复用既有服务端代表路径和测试，覆盖征服该战场后支付 1、返回受控战场单位到拥有者手牌，并创建 2 战力 `SFD·T02` 黄沙士兵到战场。focused 3/3、BattlefieldConquer adjacent 45/45、backend full 3771/3771 通过。本批不修改 DevUi、引擎功能代码或前端契约；整体仍 **NOT READY**。
+
 - 第三百四十七批新增 active `START_BATTLE` guard test-only evidence。新增 `tests/Riftbound.ConformanceTests/BattlefieldContestBattleTaskGuardTests.cs`，验证争夺战场 spell-duel 完成后的 active `START_BATTLE` prompt 只向 active player 暴露当前争夺战场 `DECLARE_BATTLE`，sourceRequirements 只包含当前战场公开、正面、ready、受控 attacker/defender；wrong battlefield、其他战场、base、stale、face-down standby、equipment、spell、rune 等 command 侧拒绝且 no-mutation；合法 active task 后 `START_BATTLE` 不再留在 queue，并保留代表性 battle/control 事件。本批不修改 DevUi 或引擎功能代码；focused 17/17、adjacent 94/94、backend full 3771/3771 通过。整体仍 **NOT READY**。
 
 - 第三百四十六批补齐 formal 18-step E2E 可复跑脚本。新增 `src/Riftbound.DevUi/scripts/chrome-formal-18-e2e.mjs` 与 `npm run e2e:formal-18`，使用两个独立 headless Chrome profile 模拟 P1/P2，在同一连续正式房间中完成合法 deck submit、ready、mulligan、P1 召符文/抽牌/横置符文/打出单位、双方让过结算链、单位移动到 P2 `OGN·290/298` 战场、P1 reload/reconnect、结束回合、P2 回合开始得分、P2 reload/reconnect、P2 投降与双端结果页“胜者：P1”。本批验证：`node --check scripts/chrome-formal-18-e2e.mjs` 通过，`npm run build` 通过，`npm run e2e:formal-18 -- --start-api` 通过，房间 `formal-18-1778623926434-15`，`npm run smoke:chrome -- --start-api` 通过。该脚本满足 A 主控 formal 18-step 主流程，但不宣称 full official battle/control/PaymentEngine/LayerEngine；整体仍 **NOT READY**。

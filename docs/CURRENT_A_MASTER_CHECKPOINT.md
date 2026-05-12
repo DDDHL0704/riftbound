@@ -5,7 +5,7 @@
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
 
-最新 checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
+最新 checkpoint：`待提交 stage 4C-86 imperial shrine evidence`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
 
 ## 0. A 主控职责边界
 
@@ -4842,3 +4842,26 @@ Checkpoint 记录：
 
 - 本批只关闭 active `START_BATTLE` prompt / command guard 的代表性测试缺口。
 - 不宣称完整 battle state machine、完整 spell duel / battle lifecycle、multi-battlefield APNAP、完整 damage assignment、replacement / prevention、PaymentEngine、LayerEngine、1009/811 full-official 或 READY。
+
+## 48. Stage 4C-86 Imperial Shrine Evidence Checkpoint
+
+状态：**Stage 4C-86 Imperial Shrine representative evidence 已通过；项目整体仍 NOT READY。**
+
+本批范围：
+
+- 代表 FU：`FU-ec31812b00`。
+- 代表卡：帝王神坛 / Imperial Shrine `SFD·207/221` / cardId `33306`。
+- 只做 evidence-only overlay，不修改功能代码或前端代码。
+- 将既有服务端权威 `DECLARE_BATTLE` 征服触发路径入账：征服该战场后，有 1 法力且存在确定受控战场单位时，支付 1、返回该单位到拥有者手牌，并在战场创建 2 战力 `SFD·T02` 黄沙士兵。
+- 更新 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 的 `stage4CBatch86ImperialShrineConquerPayReturnSandSoldierGuard`、`functionalUnits[].stage4C86` 与 `snapshotEntries[].stage4C86`。
+
+通过证据：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldConquerSandSoldier"`：3/3 通过。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~BattlefieldConquer"`：45/45 通过。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：3771/3771 通过。
+
+口径：
+
+- 本批只关闭 Imperial Shrine / 帝王神坛代表性 battlefield rule-domain 证据入账缺口。
+- 不宣称完整 optional trigger prompt / decline、完整 PaymentEngine、完整 battlefield / spell-duel / battle lifecycle、multi-battlefield APNAP、FAQ p22 完整裁定、hidden-info / redaction、1009/811 full-official 或 READY。

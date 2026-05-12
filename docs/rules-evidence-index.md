@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 checkpoint：`4c06189 checkpoint: add active start battle guard tests`。上一 formal 18-step checkpoint：`3aed179 checkpoint: add formal 18 step e2e evidence`；上一 Stage 4C checkpoint：`f33e733 checkpoint: complete stage 4C rune resource domain evidence`。
-当前已 checkpoint verified representative evidence：Stage 4C-85 `炽烈符文` / `翠意符文` red / blue basic rune `RUNE_RESOURCE_DOMAIN` payment-resource route 已入账，并通过 focused / rune resource payment prompt regression / backend full / frontend build / Chrome smoke；formal 18-step E2E 已通过；active `START_BATTLE` guard test-only evidence 已通过 focused 17/17、adjacent 94/94 与 backend full 3771/3771；项目仍 **NOT READY**。
+最新 checkpoint：`待提交 stage 4C-86 imperial shrine evidence`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`；上一 formal 18-step checkpoint：`3aed179 checkpoint: add formal 18 step e2e evidence`；上一 Stage 4C checkpoint：`f33e733 checkpoint: complete stage 4C rune resource domain evidence`。
+当前已 checkpoint verified representative evidence：Stage 4C-85 `炽烈符文` / `翠意符文` red / blue basic rune `RUNE_RESOURCE_DOMAIN` payment-resource route 已入账，并通过 focused / rune resource payment prompt regression / backend full / frontend build / Chrome smoke；formal 18-step E2E 已通过；active `START_BATTLE` guard test-only evidence 已通过 focused 17/17、adjacent 94/94 与 backend full 3771/3771；Stage 4C-86 `帝王神坛` / `SFD·207/221` / `FU-ec31812b00` representative evidence 已通过 focused 3/3、adjacent 45/45 与 backend full 3771/3771；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -2341,6 +2341,14 @@
 - 测试证据：`CardCatalogBaselineTests` 覆盖全部符文卡 domain mapping；`ConformanceFixtureRunnerTests` 覆盖 red payment resource、typed partial power、red/blue metadata、wrong-trait rejection、generic mixed-trait payment、double-resource requirement 与 over-recycle no-mutation guard；`GameHubJoinTests` 覆盖四个 typed / generic payment recycle seed 的 ActionPrompt / authoritative snapshot 路径。
 - 验证：focused rune resource regression 10/10；RuneResourceDomain / RecycleRune / TypedPowerPayment / PaymentResource / SpendPower / RunePool / PayCost / Payment / ActionPrompt / GameHub regression 240/240；backend full 3754/3754；frontend build passed；Chrome smoke passed。
 - 该证据只关闭 narrow red / blue rune resource-domain payment-resource evidence；不关闭 complete rune call / tap / recycle lifecycle、complete PaymentEngine、reaction payment windows、hidden-info / redaction matrix 或 1009/811 full-official。
+
+## Stage 4C-86 Imperial Shrine Conquer Sand Soldier Evidence
+
+- `FU-ec31812b00` / `SFD·207/221` / `BATTLEFIELD_RULE_DOMAIN` 已记录 Stage 4C-86 representative conquer pay-one return-unit create-Sand-Soldier route evidence。
+- 代码证据：`src/Riftbound.Engine/CoreRuleEngine.cs` 已有 `TryResolveBattlefieldConquerPayOneReturnUnitCreateSandSoldierTrigger`；`src/Riftbound.Engine/MatchSession.cs` 已有 `battlefield-conquer-sand-soldier` development seed。
+- 测试证据：`ConformanceFixtureRunnerTests` 覆盖支付成功返回单位与创建 `SFD·T02` 黄沙士兵、无法力时不触发；`GameHubJoinTests` 覆盖 seed prompt / submit / authoritative event / snapshot 路径。
+- 验证：focused `P79BattlefieldConquerSandSoldier` 3/3；BattlefieldConquer regression 45/45；backend full 3771/3771。
+- 该证据只关闭 narrow Imperial Shrine representative battlefield-rule evidence；不关闭 complete optional trigger prompt / decline、PaymentEngine、battlefield lifecycle、FAQ p22、hidden-info / redaction matrix 或 1009/811 full-official。
 
 ## Formal 18-Step E2E Evidence
 

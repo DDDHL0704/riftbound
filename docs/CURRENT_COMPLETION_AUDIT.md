@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 checkpoint：`4c06189 checkpoint: add active start battle guard tests`。上一 formal 18-step checkpoint 为 `3aed179 checkpoint: add formal 18 step e2e evidence`；上一 Stage 4C checkpoint 为 `f33e733 checkpoint: complete stage 4C rune resource domain evidence`。Stage 4C-85 `炽烈符文` / `OGN·007/298` / `FU-0ec69ae7e6` 与 `翠意符文` / `OGN·042/298` / `FU-39041f4562` 已完成代表性 `RUNE_RESOURCE_DOMAIN` payment-resource evidence-only overlay 与验证。2026-05-13 另新增 formal 18-step E2E 脚本证据，房间 `formal-18-1778623926434-15` 已在同一连续正式对局中通过官方卡组、起手、首回合出牌、结算链、单位移动、重连、P2 战场得分、投降与结果页胜者展示；本批另新增 active `START_BATTLE` guard test-only evidence，固化争夺战场战斗任务 prompt / command no-mutation 边界；项目整体仍 **NOT READY**。
+当前最新 checkpoint：`待提交 stage 4C-86 imperial shrine evidence`。上一 active guard checkpoint 为 `4c06189 checkpoint: add active start battle guard tests`；上一 formal 18-step checkpoint 为 `3aed179 checkpoint: add formal 18 step e2e evidence`；上一 Stage 4C checkpoint 为 `f33e733 checkpoint: complete stage 4C rune resource domain evidence`。Stage 4C-85 `炽烈符文` / `OGN·007/298` / `FU-0ec69ae7e6` 与 `翠意符文` / `OGN·042/298` / `FU-39041f4562` 已完成代表性 `RUNE_RESOURCE_DOMAIN` payment-resource evidence-only overlay 与验证。2026-05-13 另新增 formal 18-step E2E 脚本证据，房间 `formal-18-1778623926434-15` 已在同一连续正式对局中通过官方卡组、起手、首回合出牌、结算链、单位移动、重连、P2 战场得分、投降与结果页胜者展示；active `START_BATTLE` guard test-only evidence 已固化争夺战场战斗任务 prompt / command no-mutation 边界；本批另新增 Stage 4C-86 帝王神坛 representative battlefield-rule evidence overlay；项目整体仍 **NOT READY**。
 
 4C-85 不修改功能代码，只把既有服务端权威符文资源域证据入账：官方符文卡映射到 non-play `RUNE_RESOURCE_DOMAIN`，不进入 direct `PLAY_CARD` registry；控制者基地符文通过服务端 `RECYCLE_RUNE` / `paymentResourcePowerByChoice` 暴露 trait/power 支付资源；typed `SPEND_POWER:red:2` 接受 red 资源并拒绝 blue 资源，generic `SPEND_POWER:2` 可接受 red / blue 任一服务端候选且防止过量回收。Focused / primary regression 命令：
 
@@ -21,7 +21,9 @@ Formal 18-step E2E 本轮新增证据见 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDEN
 
 Active `START_BATTLE` guard 本轮新增证据见 `tests/Riftbound.ConformanceTests/BattlefieldContestBattleTaskGuardTests.cs`：focused `BattlefieldContestBattleTaskGuardTests` 通过 17/17；adjacent `BattlefieldContest|StartBattle|DeclareBattle|PendingTaskQueue` 通过 94/94；backend full `dotnet test Riftbound.slnx --no-restore` 通过 3771/3771。本证据不修改服务端功能代码，只验证 active `START_BATTLE` prompt / command guard 代表路径，不能升级为完整 battle lifecycle。
 
-当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责；4C-85 由 A 基于 matrix 风险筛选做 evidence-only 覆盖入账、复核、验证和文档收口。后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
+Stage 4C-86 本轮新增证据见 `docs/CURRENT_STAGE4C_BATCH86_IMPERIAL_SHRINE_CONQUER_SAND_SOLDIER_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH86_IMPERIAL_SHRINE_CONQUER_SAND_SOLDIER_EVIDENCE.md`：`FU-ec31812b00` / `SFD·207/221` / 帝王神坛已记录代表性 conquer pay-one return-unit create-Sand-Soldier route；focused `P79BattlefieldConquerSandSoldier` 通过 3/3；adjacent `BattlefieldConquer` 通过 45/45；backend full 通过 3771/3771。本批不修改功能代码，只做矩阵与文档入账，不能升级为完整 optional trigger / PaymentEngine / battlefield lifecycle。
+
+当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责；4C-85 / 4C-86 由 A 基于 matrix 风险筛选做 evidence-only 覆盖入账、复核、验证和文档收口。后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
 
 ## 0.1 Active Goal 门槛到证据映射
 
@@ -31,13 +33,23 @@ Active `START_BATTLE` guard 本轮新增证据见 `tests/Riftbound.ConformanceTe
 | 服务端保持唯一规则权威 | `docs/CURRENT_SERVER_RULE_AUDIT.md` 与本文件第 3 / 6 节记录服务端 authoritative snapshot / prompt / command guard 模型 | 方向满足，但仍有 P0/P1 规则缺口 |
 | 前端只展示并提交服务端 `ActionPrompt` / authoritative snapshot 支持的合法操作 | 本文件第 5 / 6 / 9 节记录前端候选驱动、多批 Chrome smoke 与 formal 18-step E2E；完整 battle/control/payment/layer 仍未 full official | 部分验证，未达到最终验收 |
 | P0/P1 阻断清零 | 本文件第 4 / 11 节与 `docs/CURRENT_SERVER_RULE_AUDIT.md` 仍列出 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡证据；4C-56 blocker 已修复但不清零全局 P0/P1 | 未完成 |
-| 后端 full test 当前 HEAD 全绿 | 4C-85 入账后 focused rune resource regression 10/10、rune resource / payment / prompt adjacent regression 240/240、backend full 3754/3754 均通过 | 本轮满足，最终验收前仍需重跑 |
+| 后端 full test 当前 HEAD 全绿 | 4C-86 入账后 focused Imperial Shrine regression 3/3、BattlefieldConquer regression 45/45、backend full 3771/3771 均通过 | 本轮满足，最终验收前仍需重跑 |
 | Chrome smoke 通过 | 4C-85 入账后 frontend build 通过，Chrome smoke 通过；本轮 `npm run smoke:chrome -- --start-api` 再次通过 | 本轮满足，最终验收前仍需随 P0/P1 清零重跑 |
 | 正式 18 步 E2E 通过 | `npm run e2e:formal-18 -- --start-api` 已通过，房间 `formal-18-1778623926434-15` 覆盖双 Chrome profile、官方 deck/opening/mulligan、stack pass-pass、unit move、reconnect、P2 battlefield score、surrender result | A_MASTER 18-step 满足；整体仍 NOT READY |
-| 卡牌覆盖矩阵完成 | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C85` 回填为 representative evidence recorded，但 1009/811 full-official coverage 仍未完成 | 未完成 |
+| 卡牌覆盖矩阵完成 | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C86` 回填为 representative evidence recorded，但 1009/811 full-official coverage 仍未完成 | 未完成 |
 | 最终 completion audit 输出 READY 后才允许标记 complete | 本文件审计结论仍为 **NOT READY**；未调用 `update_goal complete` | 未完成 |
 
 ## 1. 修改文件列表
+
+2026-05-13 Stage 4C-86 representative evidence 本轮修改：
+
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `docs/CURRENT_COMPLETION_AUDIT.md`
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`
+- `docs/CURRENT_FRONTEND_REBUILD_PLAN.md`
+- `docs/rules-evidence-index.md`
 
 2026-05-13 Stage 4C-85 representative evidence 与 formal 18-step E2E 本轮修改：
 
@@ -71,6 +83,11 @@ Active `START_BATTLE` guard 本轮新增证据见 `tests/Riftbound.ConformanceTe
 本轮 active goal 的累计源码、测试和文档变更以 `git log`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md` 与 `docs/CURRENT_SERVER_RULE_AUDIT.md` 的批次记录为准。
 
 ## 2. 新增文件列表
+
+2026-05-13 Stage 4C-86 representative evidence 新增：
+
+- `docs/CURRENT_STAGE4C_BATCH86_IMPERIAL_SHRINE_CONQUER_SAND_SOLDIER_AUDIT.md`
+- `docs/CURRENT_STAGE4C_BATCH86_IMPERIAL_SHRINE_CONQUER_SAND_SOLDIER_EVIDENCE.md`
 
 2026-05-13 Stage 4C-85 representative evidence 与 formal 18-step E2E 新增：
 
