@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`fc3383f checkpoint: complete stage 4C sivir haste evidence`。
-当前已 checkpoint verified representative evidence：Stage 4C-74 `Sivir` no-optional Haste play-unit 与 `HASTE_READY` optional-cost routes 已入账，并通过 focused / haste-payment adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：`PENDING CHECKPOINT: complete stage 4C gentleman duel damage evidence`。
+当前已 checkpoint verified representative evidence：Stage 4C-75 `Gentleman Duel` power +3 then mutual current-power damage route 已入账，并通过 focused / mutual damage cleanup adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -2253,6 +2253,14 @@
 - 测试证据：`p2-preflight-play-sivir-no-optional-haste.fixture.json`、`p2-preflight-play-sivir-alt-a-no-optional-haste.fixture.json`、`p4-play-sivir-haste-ready.fixture.json`、`p4-play-sivir-alt-a-haste-ready.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand no-optional play、HASTE_READY active-entry、unexpected target rejection 与 wrong-trait power no-mutation rejection。
 - 验证：focused Sivir Haste regression 78/78；Sivir / Haste / PaymentResource / RecycleRune / PayCost / PowerByTrait regression 103/103；backend full 3754/3754；frontend build passed；Chrome smoke passed。
 - 该证据只关闭 narrow Sivir Haste representative evidence；不关闭完整 PaymentEngine、万能符能计数、+2 战力 / 游走分支、LayerEngine、cleanup queue / replacement effects、control-zone movement、full FEPR timing / targeting、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+
+## Stage 4C-75 Gentleman Duel Damage Evidence
+
+- `FU-265c03a141` / `OGS·008/024` / `GENTLEMAN_DUEL_POWER_PLUS_3_THEN_MUTUAL_POWER_DAMAGE` 已记录 Stage 4C-75 representative +3 power then mutual current-power damage route evidence。
+- 代码证据：`src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `OGS·008/024` 为 direct card behavior，包含 `Cost: 6`、`TargetCount: 2`、`TargetScope: FriendlyThenEnemyUnits`、`PowerModifierAmount: 3`、`DealsMutualTargetPowerDamage: true`。
+- 测试证据：`p2-preflight-play-gentleman-duel-power-then-mutual-damage.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand play / pay 6 / friendly then enemy unit targets / stack pass-pass / friendly +3 until end of turn / mutual damage / lethal enemy-target destruction；Duel sibling tests 覆盖共享 target-order guard。
+- 验证：focused Gentleman Duel regression 6/6；Gentleman / Duel / MutualPower / PowerModified / Damage / Cleanup / ClashOfGiants / MarchingOrders / FriendlyThenEnemy regression 203/203；backend full 3754/3754；frontend build passed；Chrome smoke passed。
+- 该证据只关闭 narrow Gentleman Duel representative evidence；不关闭 Swift / spell-duel timing、complete FEPR target matrix、LayerEngine / duration cleanup、replacement / prevention、battle damage assignment lifecycle、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
 
 ## 7. 索引维护规则
 

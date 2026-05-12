@@ -4377,3 +4377,41 @@ Checkpoint 记录：
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：4C-74 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 35. 阶段 4C-75 Gentleman Duel Damage Verified Representative Evidence
+
+状态：**已完成代表证据收口并等待 checkpoint 为 `PENDING CHECKPOINT`。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Gentleman Duel / 绅士决斗 `OGS·008/024` / cardId `31587` / `FU-265c03a141` / `GENTLEMAN_DUEL_POWER_PLUS_3_THEN_MUTUAL_POWER_DAMAGE`。
+- 本批是 evidence-only overlay，不修改功能代码；只记录 ordinary hand `PLAY_CARD`、支付 6 mana、友方单位再敌方单位目标、stack / pass-pass 后友方目标本回合战力 +3，随后两名目标按当前战力互相造成伤害，并摧毁受到致命伤害的敌方目标。
+- 不实现 / 不宣称 Swift / spell-duel timing、complete FEPR target matrix、LayerEngine / duration cleanup、replacement / prevention、battle damage assignment lifecycle、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+
+证据事实：
+
+- A 基于 matrix fresh risk pass 选择已 IMPLEMENTED_TESTED、无 FAQ、单 FU 的 Gentleman Duel route，用于覆盖 mutual current-power damage representative evidence。
+- `src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `OGS·008/024` 为 direct card behavior：`Cost: 6`、`TargetCount: 2`、`TargetScope: FriendlyThenEnemyUnits`、`PowerModifierAmount: 3`、`DealsMutualTargetPowerDamage: true`。
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-gentleman-duel-power-then-mutual-damage.fixture.json` 已记录官方卡面、核心规则证据和代表性结算预期；`ConformanceFixtureRunnerTests` 覆盖 +3 power modifier、两条 damage events、敌方目标致命伤害摧毁和 owner graveyard placement。Duel sibling tests 覆盖共享 target-order guard。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysGentlemanDuelPowerThenMutualDamage|FullyQualifiedName~CoreRuleEnginePlaysDuelMutualPowerDamage|FullyQualifiedName~CoreRuleEngineRejectsDuelWhenTargetsAreReversed|FullyQualifiedName~P4DuelTargetOrderRejectedFixture|FullyQualifiedName~CoreRuleEnginePlaysMarchingOrdersEchoMutualPowerDamage|FullyQualifiedName~CoreRuleEnginePlaysClashOfGiantsMutualPowerDamage"`：passed 6/6。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Gentleman|FullyQualifiedName~Duel|FullyQualifiedName~MutualPower|FullyQualifiedName~PowerModified|FullyQualifiedName~Damage|FullyQualifiedName~Cleanup|FullyQualifiedName~ClashOfGiants|FullyQualifiedName~MarchingOrders|FullyQualifiedName~FriendlyThenEnemy"`：passed 203/203。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3754/3754。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C75` 回填为 `GENTLEMAN_DUEL_POWER_THEN_MUTUAL_DAMAGE_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH75_GENTLEMAN_DUEL_DAMAGE_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH75_GENTLEMAN_DUEL_DAMAGE_EVIDENCE.md` 记录 narrow representative evidence。
+- 顺手修正 `stage4CBatch74SivirHasteEvidence.nextPressureCandidateFunctionalUnits` 中 Syndra / Long Sword follow-on candidate 的 cardNo 文档错误，不改变 4C-74 evidence 结论。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 已提交：`PENDING CHECKPOINT: complete stage 4C gentleman duel damage evidence`。
+- 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
+- 已纳入：4C-75 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
