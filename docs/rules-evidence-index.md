@@ -2,7 +2,7 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`PENDING CHECKPOINT: complete stage 4C gentleman duel damage evidence`。
+最新 Stage 4C checkpoint：`686d51f checkpoint: complete stage 4C gentleman duel damage evidence`。
 当前已 checkpoint verified representative evidence：Stage 4C-75 `Gentleman Duel` power +3 then mutual current-power damage route 已入账，并通过 focused / mutual damage cleanup adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的

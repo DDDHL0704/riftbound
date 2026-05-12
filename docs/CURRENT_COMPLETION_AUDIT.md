@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint：`PENDING CHECKPOINT: complete stage 4C gentleman duel damage evidence`。Stage 4C-75 `Gentleman Duel` / `OGS·008/024` / `FU-265c03a141` 已完成代表性 power +3 then mutual current-power damage evidence-only overlay 与验证；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint：`686d51f checkpoint: complete stage 4C gentleman duel damage evidence`。Stage 4C-75 `Gentleman Duel` / `OGS·008/024` / `FU-265c03a141` 已完成代表性 power +3 then mutual current-power damage evidence-only overlay 与验证；项目整体仍 **NOT READY**。
 
 4C-75 不修改功能代码，只把既有服务端权威 Gentleman Duel 证据入账：ordinary hand `PLAY_CARD` 支付 6 mana，按友方单位、敌方单位顺序选择目标，stack / pass-pass 后友方目标先获得 +3 本回合战力，再以当前 5 战力对敌方目标造成伤害；敌方目标以 3 战力回伤，随后敌方目标因致命伤害进入 owner graveyard。Focused / primary regression 命令：
 
