@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint：`pending checkpoint: complete stage 4C diana spell duel static evidence`。Stage 4C-71 `Diana` / `UNL-079/219` / `FU-4215291160` 已完成代表性 spell-duel-static ordinary play-unit evidence-only overlay 与验证；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint：`5c94f4e checkpoint: complete stage 4C diana spell duel static evidence`。Stage 4C-71 `Diana` / `UNL-079/219` / `FU-4215291160` 已完成代表性 spell-duel-static ordinary play-unit evidence-only overlay 与验证；项目整体仍 **NOT READY**。
 
 4C-71 不修改功能代码，只把既有服务端权威 source-to-base unit 证据入账：`Diana` ordinary hand `PLAY_CARD` 支付 3 mana、0 目标入栈，stack pass-pass 后源牌进入基地成为 3 战力 `CARD_TYPE:UNIT|巨神峰` 单位。Focused / primary regression 命令：
 

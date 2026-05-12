@@ -2,7 +2,7 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`pending checkpoint: complete stage 4C diana spell duel static evidence`。
+最新 Stage 4C checkpoint：`5c94f4e checkpoint: complete stage 4C diana spell duel static evidence`。
 当前已 checkpoint verified representative evidence：Stage 4C-71 `Diana` spell-duel-static ordinary play-unit route 已入账，并通过 keyword-source / rejection regression、spell duel / insight regression、backend full、frontend build、Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
