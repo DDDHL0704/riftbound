@@ -2134,6 +2134,14 @@
 - 验证：focused 15/15；ZenithBlade / Stun / ActionPrompt / Prompt regression 154/154；backend full 3701/3701；frontend build passed；Chrome smoke passed。
 - 该证据只关闭 narrow representative guard；不关闭 optional friendly movement、multi-battlefield destination precision、full status cleanup、PaymentEngine、LayerEngine、Spellshield full matrix、FAQ、1009/811 full-official 或 formal 18-step E2E。
 
+## Stage 4C-60 Firestorm Evidence
+
+- `FU-fe9dbeea3d` / `OGS·002/024` / `FIRESTORM_DAMAGE_ALL_ENEMY_BATTLEFIELD_UNITS_3` 已记录 Stage 4C-60 representative enemy battlefield damage guard。
+- 新增代码证据：`src/Riftbound.Engine/CoreRuleEngine.cs` 的 `GetEnemyBattlefieldUnitObjectIds` 让 enemy battlefield unit damage resolution 排除 non-unit / hidden / dirty battlefield objects。
+- 新增测试证据：`tests/Riftbound.ConformanceTests/FirestormEnemyBattlefieldDamageGuardTests.cs` 覆盖 valid zero-target damage、enemy battlefield equipment / spell / rune、face-down standby、dirty controller、friendly battlefield、enemy base exclusion，以及 explicit-target no-mutation。
+- 验证：focused 13/13；Firestorm / CrescentStrike / BulletTime / enemy battlefield damage regression 36/36；backend full 3711/3711；frontend build passed；Chrome smoke passed。
+- 该证据只关闭 narrow representative guard；不关闭 damage prevention / replacement / cleanup、lethal triggers、multi-battlefield precision、PaymentEngine、LayerEngine、FAQ、1009/811 full-official 或 formal 18-step E2E。
+
 ## 7. 索引维护规则
 
 - 新增规则能力前，先在本索引中找到证据；找不到就先补索引。

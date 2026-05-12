@@ -3821,3 +3821,40 @@ Checkpoint 记录：
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：`src/Riftbound.Engine/CoreRuleEngine.cs`、`tests/Riftbound.ConformanceTests/ZenithBladeStunGuardTests.cs`、4C-59 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 20. 阶段 4C-60 Firestorm Enemy Battlefield Damage Guard Verified Representative
+
+状态：**已完成代表切片收口，checkpoint commit 待生成。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Firestorm / 烈火风暴 `OGS·002/024` / cardId `31581` / `FU-fe9dbeea3d` / `FIRESTORM_DAMAGE_ALL_ENEMY_BATTLEFIELD_UNITS_3`。
+- 只补 ordinary hand `PLAY_CARD`、支付 6 mana、zero-target stack item、stack / pass-pass 后 enemy public battlefield units 受到 3 点伤害的 representative damage guard。
+- 不实现 / 不宣称 damage prevention / replacement / cleanup、lethal-damage triggers、formal multi-battlefield precision、standby / reaction、quick / spell-duel timing、full FEPR stack lifecycle、PaymentEngine、LayerEngine / effective power、hidden-info / redaction matrix、FAQ adjudication、1009/811 full-official 或 formal 18-step E2E。
+
+修复事实：
+
+- A 基于 matrix fresh risk pass 选择低耦合、无 FAQ、单 FU Firestorm 路线。
+- `src/Riftbound.Engine/CoreRuleEngine.cs` 新增 `GetEnemyBattlefieldUnitObjectIds`，并让 enemy battlefield unit damage resolution 走 unit-only / public battlefield / controller-consistency 过滤。
+- 新增 `tests/Riftbound.ConformanceTests/FirestormEnemyBattlefieldDamageGuardTests.cs`，覆盖成功 zero-target enemy battlefield unit damage、enemy battlefield equipment / spell / rune / face-down standby / dirty controller / friendly battlefield / enemy base exclusion，以及 explicit target no-mutation rejection。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~FirestormEnemyBattlefieldDamageGuardTests|FullyQualifiedName~Firestorm"`：passed 13/13。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Firestorm|FullyQualifiedName~CrescentStrike|FullyQualifiedName~BulletTime|FullyQualifiedName~DamageAllEnemyBattlefield|FullyQualifiedName~EnemyBattlefield"`：passed 36/36。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3711/3711。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C60` 回填为 `FIRESTORM_ENEMY_BATTLEFIELD_DAMAGE_GUARD_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH60_FIRESTORM_ENEMY_BATTLEFIELD_DAMAGE_GUARD_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH60_FIRESTORM_ENEMY_BATTLEFIELD_DAMAGE_GUARD_EVIDENCE.md` 记录 narrow representative guard verified 证据。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 待提交：`checkpoint: complete stage 4C firestorm damage guard`。
+- 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
+- 已纳入：`src/Riftbound.Engine/CoreRuleEngine.cs`、`tests/Riftbound.ConformanceTests/FirestormEnemyBattlefieldDamageGuardTests.cs`、4C-60 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。

@@ -5,8 +5,8 @@
 
 本文记录 E 证据/审计 worker 第一轮 P0 交接项、阶段 1 D 协议审计、阶段 2 D P0 规则证据链和 A 主控验收结果，不替代 `docs/CURRENT_SERVER_RULE_AUDIT.md`。
 
-最新 Stage 4C checkpoint：`70d9ee0 checkpoint: complete stage 4C zenith blade target guard`
-当前已 verified representative guard：Stage 4C-59 `Zenith Blade` Core enemy public battlefield unit target validation 已收紧，并通过 focused / regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：Stage 4C-60 pending checkpoint
+当前已 verified representative guard：Stage 4C-60 `Firestorm` Core enemy battlefield unit damage resolution 已收紧，并通过 focused / regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 历史 3B checkpoint：`a74beac`
 阶段 1 基线提交：`78b6896`
 阶段 2 证据链计划：`docs/CURRENT_STAGE2_P0_CONTRACT_PLAN.md`
@@ -115,6 +115,8 @@
 阶段 4C-58 Spirit Fire total-power target guard 证据：`docs/CURRENT_STAGE4C_BATCH58_SPIRIT_FIRE_TOTAL_POWER_TARGET_GUARD_EVIDENCE.md`
 阶段 4C-59 Zenith Blade enemy battlefield stun guard 审计：`docs/CURRENT_STAGE4C_BATCH59_ZENITH_BLADE_ENEMY_BATTLEFIELD_STUN_GUARD_AUDIT.md`
 阶段 4C-59 Zenith Blade enemy battlefield stun guard 证据：`docs/CURRENT_STAGE4C_BATCH59_ZENITH_BLADE_ENEMY_BATTLEFIELD_STUN_GUARD_EVIDENCE.md`
+阶段 4C-60 Firestorm enemy battlefield damage guard 审计：`docs/CURRENT_STAGE4C_BATCH60_FIRESTORM_ENEMY_BATTLEFIELD_DAMAGE_GUARD_AUDIT.md`
+阶段 4C-60 Firestorm enemy battlefield damage guard 证据：`docs/CURRENT_STAGE4C_BATCH60_FIRESTORM_ENEMY_BATTLEFIELD_DAMAGE_GUARD_EVIDENCE.md`
 
 ## B 修复验收
 
@@ -1223,6 +1225,7 @@ D 审计结论：
 - 4C-54 已记录 Void Burrower / 虚空遁地兽 `SFD·187/221` / cardId `33285` 与 `SFD·243/221` / cardId `33354` / `FU-6e7d0dba2c` / `LEGEND_ACTION_DOMAIN` representative automated evidence overlay；focused 32/32 passed，backend full 3650/3650 passed，frontend build passed，Chrome smoke passed；本批只关闭 Void Burrower representative automated evidence gap，不做 direct runtime implementation，不关闭 full-official NO-GO；LegendActivePredicate、LegendOptionalTrigger、RevealChoice、shared oracle mapping、hidden / reveal redaction matrix、optional trigger prompt / decline、free-play official semantics、recycle remainder official semantics、unit destination / zone ownership details、`ORDER_TRIGGERS` / battle lifecycle full matrix、FAQ adjudication、1009/811 与 formal E2E 仍按 P0/P1 缺口管理。
 - 4C-55 已记录 Vex alt A / 薇古丝 `UNL-150a/219` / cardId `34698` / `FU-4d8ee1696b` / `VEX_ALT_A_SPELLSHIELD_OPPONENT_UNIT_STUN_STATIC` test-only ordinary hand spellshield / Yordle play-unit guard representative evidence；focused 59/59 passed，backend full 3656/3656 passed，frontend build passed，Chrome smoke passed；本批只关闭 Vex alt A ordinary hand spellshield / Yordle play-unit guard representative evidence，不实现 / 不宣称 opponent-unit stun / cannot-move runtime；opponent unit-play listener、battlefield-only condition、`STUNNED` application、cannot-move-this-turn duration、movement / control effects、Spellshield full target tax、FAQ adjudication、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-56 已记录 Secret Art! Mercy / 秘奥义！慈悲度魂落 `OGN·053/298` / cardId `31265` / `FU-3461727400` / `SECRET_ART_MERCY_GRANT_BOON_NO_GLOBAL_BONUS` test-only ordinary hand play / pay 3 / friendly unit grant Boon +1 / friendly Spellshield no-tax representative guard；Core `FriendlyUnit` target scope 现在拒绝 friendly equipment / spell / rune / face-down standby，prompt 侧允许 legacy custom-tag public field unit 但排除非单位；focused 87/87、prompt/SandSoldiers/FriendlyUnit regression 133/133、backend full 3668/3668、frontend build、Chrome smoke 均通过；standby / reaction、quick / spell-duel breadth、global all-boons extra +1 this turn、LayerEngine / duration cleanup、full target matrix、full Spellshield tax、PaymentEngine、FAQ adjudication、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
+- 4C-60 已记录 Firestorm / 烈火风暴 `OGS·002/024` / cardId `31581` / `FU-fe9dbeea3d` / `FIRESTORM_DAMAGE_ALL_ENEMY_BATTLEFIELD_UNITS_3` ordinary hand play / pay 6 / zero-target enemy public battlefield unit damage representative guard；Core enemy battlefield unit damage resolution 现在排除 enemy battlefield equipment / spell / rune、face-down standby、dirty controller objects、friendly battlefield units 与 enemy base units；focused 13/13、enemy battlefield damage regression 36/36、backend full 3711/3711、frontend build、Chrome smoke 均通过；damage prevention / replacement / cleanup、lethal triggers、multi-battlefield precision、PaymentEngine、LayerEngine、FAQ、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-15 Viktor `FU-b5cb36a5c9` destroyed non-minion token trigger 已记录为 feasibility blocker；4C-15A 已补 `TOKEN_FAMILY:MINION` 最小前置模型并部分关闭 token classification blocker；4C-15B 已关闭 Viktor 代表性 baseline，但 same-source 多对象 full official matrix、Kogmaw / Karthus / Undercover Agent、完整 trigger engine 仍未关闭。
 - 3A-P0-001 / 002 / 003 / 004 已关闭；不得把这些 3A 子项误读为完整 Stage 3 或 READY。
 - 3B-CAND-001 / 002 / 003 / 004 只能作为阶段 3B 关闭候选；D/A 证据入账前不得移出 P0。
