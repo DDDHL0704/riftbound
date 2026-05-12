@@ -1,11 +1,13 @@
 # 当前规则证据 TODO
 
-更新时间：2026-05-10
+更新时间：2026-05-12
 结论：**NOT READY**
 
 本文记录 E 证据/审计 worker 第一轮 P0 交接项、阶段 1 D 协议审计、阶段 2 D P0 规则证据链和 A 主控验收结果，不替代 `docs/CURRENT_SERVER_RULE_AUDIT.md`。
 
-当前 HEAD / 3B checkpoint：`a74beac`
+最新已提交 checkpoint：`f1177ea checkpoint: complete stage 4C vex alt guard baseline`
+当前未 checkpoint verified representative guard：Stage 4C-56 `Secret Art! Mercy` Core / prompt `FriendlyUnit` target validation 已收紧并通过 focused / regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+历史 3B checkpoint：`a74beac`
 阶段 1 基线提交：`78b6896`
 阶段 2 证据链计划：`docs/CURRENT_STAGE2_P0_CONTRACT_PLAN.md`
 阶段 3 核心流程审计：`docs/CURRENT_STAGE3_CORE_FLOW_AUDIT.md`
@@ -105,6 +107,8 @@
 阶段 4C-54 Void Burrower legend-domain guard 证据：`docs/CURRENT_STAGE4C_BATCH54_VOID_BURROWER_LEGEND_DOMAIN_GUARD_EVIDENCE.md`
 阶段 4C-55 Vex alt spellshield guard 审计：`docs/CURRENT_STAGE4C_BATCH55_VEX_ALT_SPELLSHIELD_GUARD_AUDIT.md`
 阶段 4C-55 Vex alt spellshield guard 证据：`docs/CURRENT_STAGE4C_BATCH55_VEX_ALT_SPELLSHIELD_GUARD_EVIDENCE.md`
+阶段 4C-56 Secret Art! Mercy boon guard 审计：`docs/CURRENT_STAGE4C_BATCH56_SECRET_ART_MERCY_BOON_GUARD_AUDIT.md`
+阶段 4C-56 Secret Art! Mercy boon guard 证据：`docs/CURRENT_STAGE4C_BATCH56_SECRET_ART_MERCY_BOON_GUARD_EVIDENCE.md`
 
 ## B 修复验收
 
@@ -1212,6 +1216,7 @@ D 审计结论：
 - 4C-53 已记录 Sett / 腕豪 `OGN·269/298` / cardId `31512` / `FU-6308c2db01` / `LEGEND_ACTION_DOMAIN` representative automated evidence overlay；focused 54/54 passed，backend full 3647/3647 passed，frontend build passed，Chrome smoke passed；本批只关闭 Sett representative automated evidence gap，不做 direct runtime implementation，不关闭 full-official NO-GO；LegendActivePredicate、LegendOptionalTrigger、ReplacementPayment、boon consume official semantics、dormant recall cleanup、conquest ready lifecycle full matrix、shared oracle mapping、`PAY_COST` prompt / decline、cleanup queue interactions、FAQ adjudication、1009/811 与 formal E2E 仍按 P0/P1 缺口管理。
 - 4C-54 已记录 Void Burrower / 虚空遁地兽 `SFD·187/221` / cardId `33285` 与 `SFD·243/221` / cardId `33354` / `FU-6e7d0dba2c` / `LEGEND_ACTION_DOMAIN` representative automated evidence overlay；focused 32/32 passed，backend full 3650/3650 passed，frontend build passed，Chrome smoke passed；本批只关闭 Void Burrower representative automated evidence gap，不做 direct runtime implementation，不关闭 full-official NO-GO；LegendActivePredicate、LegendOptionalTrigger、RevealChoice、shared oracle mapping、hidden / reveal redaction matrix、optional trigger prompt / decline、free-play official semantics、recycle remainder official semantics、unit destination / zone ownership details、`ORDER_TRIGGERS` / battle lifecycle full matrix、FAQ adjudication、1009/811 与 formal E2E 仍按 P0/P1 缺口管理。
 - 4C-55 已记录 Vex alt A / 薇古丝 `UNL-150a/219` / cardId `34698` / `FU-4d8ee1696b` / `VEX_ALT_A_SPELLSHIELD_OPPONENT_UNIT_STUN_STATIC` test-only ordinary hand spellshield / Yordle play-unit guard representative evidence；focused 59/59 passed，backend full 3656/3656 passed，frontend build passed，Chrome smoke passed；本批只关闭 Vex alt A ordinary hand spellshield / Yordle play-unit guard representative evidence，不实现 / 不宣称 opponent-unit stun / cannot-move runtime；opponent unit-play listener、battlefield-only condition、`STUNNED` application、cannot-move-this-turn duration、movement / control effects、Spellshield full target tax、FAQ adjudication、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
+- 4C-56 已记录 Secret Art! Mercy / 秘奥义！慈悲度魂落 `OGN·053/298` / cardId `31265` / `FU-3461727400` / `SECRET_ART_MERCY_GRANT_BOON_NO_GLOBAL_BONUS` test-only ordinary hand play / pay 3 / friendly unit grant Boon +1 / friendly Spellshield no-tax representative guard；Core `FriendlyUnit` target scope 现在拒绝 friendly equipment / spell / rune / face-down standby，prompt 侧允许 legacy custom-tag public field unit 但排除非单位；focused 87/87、prompt/SandSoldiers/FriendlyUnit regression 133/133、backend full 3668/3668、frontend build、Chrome smoke 均通过；standby / reaction、quick / spell-duel breadth、global all-boons extra +1 this turn、LayerEngine / duration cleanup、full target matrix、full Spellshield tax、PaymentEngine、FAQ adjudication、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-15 Viktor `FU-b5cb36a5c9` destroyed non-minion token trigger 已记录为 feasibility blocker；4C-15A 已补 `TOKEN_FAMILY:MINION` 最小前置模型并部分关闭 token classification blocker；4C-15B 已关闭 Viktor 代表性 baseline，但 same-source 多对象 full official matrix、Kogmaw / Karthus / Undercover Agent、完整 trigger engine 仍未关闭。
 - 3A-P0-001 / 002 / 003 / 004 已关闭；不得把这些 3A 子项误读为完整 Stage 3 或 READY。
 - 3B-CAND-001 / 002 / 003 / 004 只能作为阶段 3B 关闭候选；D/A 证据入账前不得移出 P0。

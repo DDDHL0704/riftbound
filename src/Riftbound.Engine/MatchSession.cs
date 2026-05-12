@@ -7041,8 +7041,11 @@ internal static class ActionPromptBuilder
     {
         return (IsPromptBaseObject(state, objectId) || IsPromptBattlefieldObject(state, objectId))
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
-            && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !cardObject.IsFaceDown;
+            && !cardObject.IsFaceDown
+            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && !cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            && !cardObject.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
+            && !cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal);
     }
 
     private static bool IsPromptControlledFieldObject(MatchState state, string playerId, string objectId)

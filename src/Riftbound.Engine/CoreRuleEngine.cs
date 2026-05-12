@@ -19772,10 +19772,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || IsEquipmentObject(state, objectId),
             CardTargetScopes.AnyUnit => IsBattlefieldObject(state, objectId) || IsBaseObject(state, objectId),
             CardTargetScopes.BaseUnit => IsBaseObject(state, objectId),
-            CardTargetScopes.FriendlyUnit => IsPlayerControlledFieldObject(state, playerId, objectId),
-            CardTargetScopes.FriendlyUnitThenFriendlyUnit => IsPlayerControlledFieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyUnit => IsPlayerControlledFieldUnitObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyUnitThenFriendlyUnit => IsPlayerControlledFieldUnitObject(state, playerId, objectId),
             CardTargetScopes.FriendlyThenEnemyUnits => targetIndex == 0
-                ? IsPlayerControlledFieldObject(state, playerId, objectId)
+                ? IsPlayerControlledFieldUnitObject(state, playerId, objectId)
                 : IsEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.UnitThenItsControllersWeapon => targetIndex == 0
                 ? IsFieldUnitObject(state, objectId)
@@ -19784,7 +19784,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ? IsFriendlyEquipmentObject(state, playerId, objectId)
                 : IsEnemyEquipmentObject(state, playerId, objectId),
             CardTargetScopes.FriendlyThenEnemyBattlefieldUnits => targetIndex == 0
-                ? IsPlayerControlledFieldObject(state, playerId, objectId)
+                ? IsPlayerControlledFieldUnitObject(state, playerId, objectId)
                 : IsEnemyBattlefieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits => targetIndex == 0
                 ? IsPlayerControlledBattlefieldObject(state, playerId, objectId)
@@ -19836,6 +19836,29 @@ public sealed class CoreRuleEngine : IRuleEngine
         return IsControlledFieldObject(state, playerId, objectId)
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
             && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId);
+    }
+
+    private static bool IsPlayerControlledFieldUnitObject(MatchState state, string playerId, string objectId)
+    {
+        return IsPlayerControlledFieldObject(state, playerId, objectId)
+            && IsVisibleFieldUnitObject(state.CardObjects, objectId);
+    }
+
+    private static bool IsVisibleFieldUnitObject(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string objectId)
+    {
+        if (!cardObjects.TryGetValue(objectId, out var cardObject)
+            || cardObject.IsFaceDown
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || cardObject.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
+            || cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private static bool IsControlledBattlefieldObject(MatchState state, string playerId, string objectId)

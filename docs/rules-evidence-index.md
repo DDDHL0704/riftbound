@@ -1,6 +1,9 @@
 # 规则证据索引
 
-更新时间：2026-05-10
+更新时间：2026-05-12
+
+最新已提交 checkpoint：`f1177ea checkpoint: complete stage 4C vex alt guard baseline`。
+当前未 checkpoint verified representative guard：Stage 4C-56 `Secret Art! Mercy` Core / prompt `FriendlyUnit` target validation 已收紧并通过 focused / regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -107,6 +110,8 @@
 阶段 4C-54 记录 Void Burrower / 虚空遁地兽 SFD·187 / SFD·243 representative automated evidence overlay；只关闭 `FU-6e7d0dba2c` automated evidence gap，不做 direct runtime implementation，不关闭 full-official NO-GO。LegendActivePredicate、LegendOptionalTrigger、RevealChoice、shared oracle mapping、hidden / reveal redaction matrix、optional trigger prompt / decline、free-play official semantics、recycle remainder official semantics、unit destination / zone ownership details、`ORDER_TRIGGERS` / battle lifecycle full matrix、FAQ adjudication、1009/811 与 formal E2E 仍不代表 READY。
 
 阶段 4C-55 记录 Vex alt A / 薇古丝 UNL-150a test-only spellshield / Yordle play-unit guard representative evidence；只关闭 `FU-4d8ee1696b` ordinary hand guard evidence，不实现 / 不宣称 opponent-unit stun / cannot-move runtime。Spellshield full target tax、movement / control effects、FAQ adjudication、1009/811 与 formal 18-step E2E 仍不代表 READY。
+
+阶段 4C-56 记录 Secret Art! Mercy / 秘奥义！慈悲度魂落 OGN·053 test-only ordinary hand Boon +1 / friendly Spellshield no-tax representative guard；Core / prompt `FriendlyUnit` target scope 已收紧，friendly equipment / spell / rune / face-down standby 拒绝，legacy custom-tag public field unit 保持可选；focused 87/87、regression 133/133、backend full 3668/3668、frontend build 与 Chrome smoke 通过。不实现 / 不宣称 global all-boons extra +1 this turn、standby / reaction、quick / spell-duel breadth 或 full Spellshield tax。FAQ、1009/811 与 formal 18-step E2E 仍不代表 READY。
 
 | 阶段 3 流程 | 证据入口 | 必须证明的审计点 |
 |---|---|---|
@@ -665,6 +670,15 @@
 |---|---|---|---|
 | Play-unit spellshield / Yordle route | `CATALOG` `UNL-150a/219` / cardId `34698`；FU `FU-4d8ee1696b`；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+；fixture `p2-preflight-play-vex-alt-a-spellshield-stun-static` | ordinary hand `PLAY_CARD` 0-target -> stack / pass-pass -> base unit，power 4，tags `CARD_TYPE:UNIT` + `法盾` + `约德尔人` | opponent-unit stun / cannot-move runtime、opponent unit-play listener、battlefield-only condition |
 | Test-only guard boundary | `CATALOG` `UNL-150a/219`；FU `FU-4d8ee1696b`；4C-55 D audit / evidence files | invalid source / target / timing rejected with no mutation / no leak；focused 59/59 passed，backend full 3656/3656 passed，frontend build passed，Chrome smoke passed | `STUNNED` application、cannot-move-this-turn duration、movement / control effects、Spellshield full target tax、FAQ adjudication、1009/811、formal 18-step E2E |
+
+### 6.52 阶段 4C-56 Secret Art! Mercy boon guard 证据入口
+
+阶段 4C-56 细化审计见 `docs/CURRENT_STAGE4C_BATCH56_SECRET_ART_MERCY_BOON_GUARD_AUDIT.md`，证据见 `docs/CURRENT_STAGE4C_BATCH56_SECRET_ART_MERCY_BOON_GUARD_EVIDENCE.md`。本节只提供 Secret Art! Mercy / 秘奥义！慈悲度魂落 `OGN·053/298` / cardId `31265` / `FU-3461727400` / `SECRET_ART_MERCY_GRANT_BOON_NO_GLOBAL_BONUS` test-only ordinary hand play / pay 3 / friendly unit grant Boon +1 / friendly Spellshield no-tax representative guard 的 verified representative 证据；focused 87/87、regression 133/133、backend full 3668/3668、frontend build 与 Chrome smoke 通过；不表示项目 READY，`fullOfficial=false`。
+
+| 规则域 | 证据入口 | 当前 4C-56 状态 | 仍缺 |
+|---|---|---|---|
+| Ordinary hand Boon +1 route | `CATALOG` `OGN·053/298` / cardId `31265`；FU `FU-3461727400`；`CORE-260330` p14-p15 rules 142-143；p31-p33 rules 318-324；p39-p42 rules 355-356；fixture `p2-preflight-play-secret-art-mercy-grant-boon`；`SecretArtMercyBoonGuardTests` | VERIFIED REPRESENTATIVE：ordinary hand play / pay 3 / friendly public field unit target / Boon +1 route passes focused guard | global all-boons extra +1 this turn、LayerEngine / duration cleanup、full target matrix |
+| Friendly Spellshield no-tax route | `CATALOG` `OGN·053/298` / `OGN·013/298`；`CORE-260330` p39-p42 rules 355-356；p92-p105 keyword rules 800+；`SOUL-OFAQ-260114` p1-p4；`SOUL-JFAQ-260114` p1-p5；fixture `p4-play-secret-art-mercy-friendly-spellshield-no-tax`；`SecretArtMercyBoonGuardTests` | VERIFIED REPRESENTATIVE：friendly Spellshield target pays base 3 only; friendly equipment / spell / rune / face-down standby reject; prompt parity covers legacy custom-tag public field unit | standby / reaction、quick / spell-duel breadth、full Spellshield tax、PaymentEngine、FAQ adjudication、1009/811、formal 18-step E2E |
 
 | 规则域 | 证据入口 | 当前 4C-32 状态 | 仍缺 |
 |---|---|---|---|

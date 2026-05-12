@@ -121,6 +121,7 @@ A 默认不亲自实现功能代码。只有用户明确授权“允许 A 亲自
 9. 只在阶段收口、职责变更或上下文明显污染时关闭子 agent。
 10. 如果窗口中断，先查看 `docs/CURRENT_A_MASTER_CHECKPOINT.md` 中记录的 agent id。
 11. 若底层环境无法恢复某个 agent，则用 checkpoint、当前阶段文档和该 agent 最近总结作为最小 warm start，不再让它无目的重读全项目。
+12. 单次超时、工具等待失败或未及时回执不等于 agent 失效；A 应先 `resume_agent` / `send_input` 询问状态，并在必要时收回写入锁，而不是直接 `close_agent` 或创建替代 agent。
 
 ---
 

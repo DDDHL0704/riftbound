@@ -1,6 +1,6 @@
 # A 主控 Checkpoint
 
-更新日期：2026-05-10
+更新日期：2026-05-12
 当前结论：**NOT READY**
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
@@ -49,6 +49,8 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 超时处理顺序：先 `send_input` 状态询问；再等待；必要时由 A 收回对应写入锁并标记该 agent 暂停，不关闭线程。
 - 只有用户明确要求清理、阶段收口且确认不再复用、或 agent 上下文明显污染/不可通信时，才允许关闭或重建。
 - 如果必须重建常驻池，必须立即更新本节 agent id，并说明旧 id 失效原因。
+
+2026-05-12 复核：A 已向当前 B/C/D/E 长期代理同步“驻场复用、未授权不写入、不因单次超时清理”的规则；Maxwell、Copernicus、Nash、Poincare 均已确认继续保留上下文。用户已明确“在当前 goal 完成前不需要再申请授权”，4C-56 已复用 B / Maxwell 完成服务端 target validation 修复，A 负责复核、验证、文档和 checkpoint 收口。
 
 4C-23 agent 事件：
 
@@ -3660,3 +3662,49 @@ B 的代码结果已优先审查，E/C/D 文档结果已纳入工作区。
 - FAQ adjudication for Vex refs。
 - 1009 snapshot-entry / 811 functional-unit full-official coverage。
 - formal 18-step E2E acceptance。
+
+## 16. 阶段 4C-56 Secret Art! Mercy Boon Guard Verified Representative
+
+状态：**已完成代表切片收口，未 checkpoint。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Secret Art! Mercy / 秘奥义！慈悲度魂落 `OGN·053/298` / cardId `31265` / `FU-3461727400` / `SECRET_ART_MERCY_GRANT_BOON_NO_GLOBAL_BONUS`。
+- 只补 test-only dedicated guard：ordinary hand `PLAY_CARD`、支付 3 mana、友方 public field unit 目标获得 `增益` 与 permanent +1、友方法盾目标 no-tax、非法目标 no mutation / no leak。
+- 不实现 / 不宣称 global all-boons extra +1 this turn、LayerEngine / duration cleanup、full Spellshield tax matrix、1009/811 full-official 或 formal 18-step E2E。
+
+修复事实：
+
+- B / Maxwell 在授权后修复 `src/Riftbound.Engine/CoreRuleEngine.cs`，新增 / 使用 `IsPlayerControlledFieldUnitObject` 与 `IsVisibleFieldUnitObject`，让 `FriendlyUnit`、`FriendlyUnitThenFriendlyUnit`、`FriendlyThenEnemyUnits` 第一目标、`FriendlyThenEnemyBattlefieldUnits` 第一目标只接受控制方 visible field unit。
+- B / Maxwell 同步修复 `src/Riftbound.Engine/MatchSession.cs` 的 prompt candidate 单位判定，允许 legacy custom-tag public field unit（例如 `黄沙士兵`），同时排除 equipment / spell / rune / standby / face-down objects。
+- 新增 `tests/Riftbound.ConformanceTests/SecretArtMercyBoonGuardTests.cs`，覆盖成功路径、friendly Spellshield no-tax、invalid target/source/no mutation、insufficient mana、already-booned no duplicate，以及 prompt parity。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~SecretArtMercy|FullyQualifiedName~Boon|FullyQualifiedName~Spellshield"`：passed 87/87。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~SandSoldiersRise|FullyQualifiedName~ActionPrompt|FullyQualifiedName~Prompt|FullyQualifiedName~FriendlyUnit"`：passed 133/133。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3668/3668。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C56` 从 `BLOCKED_BACKEND_TARGET_VALIDATION_FAILURE` 回填为 `REPRESENTATIVE_GUARD_VERIFIED_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH56_SECRET_ART_MERCY_BOON_GUARD_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH56_SECRET_ART_MERCY_BOON_GUARD_EVIDENCE.md` 记录 narrow representative guard verified 证据。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+剩余边界：
+
+- standby / reaction、quick / spell-duel breadth。
+- global all-boons extra +1 this turn。
+- LayerEngine / duration cleanup。
+- full target matrix 与 full Spellshield tax。
+- PaymentEngine、FAQ adjudication、1009/811 full-official。
+- formal 18-step E2E acceptance。
+
+Checkpoint 候选：
+
+- 前置验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git status --short`。
+- 可纳入：`src/Riftbound.Engine/CoreRuleEngine.cs`、`src/Riftbound.Engine/MatchSession.cs`、`tests/Riftbound.ConformanceTests/SecretArtMercyBoonGuardTests.cs`、4C-56 相关 docs / matrix。
+- 必须排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+- 建议 commit message：`checkpoint: complete stage 4C secret art mercy guard`。
