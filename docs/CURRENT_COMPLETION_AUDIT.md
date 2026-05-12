@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint 待提交：`pending checkpoint: complete stage 4C treasure golem gold evidence`。Stage 4C-68 `Treasure Golem` / `SFD·174/221` / `FU-7472703e56` 已完成代表性 create four Gold equipment tokens evidence-only overlay 与验证，正在收口 checkpoint；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint：`b7bf537 checkpoint: complete stage 4C treasure golem gold evidence`。Stage 4C-68 `Treasure Golem` / `SFD·174/221` / `FU-7472703e56` 已完成代表性 create four Gold equipment tokens evidence-only overlay、验证与 checkpoint；项目整体仍 **NOT READY**。
 
 4C-68 不修改功能代码，只把既有服务端权威 token creation 证据入账：`Treasure Golem` ordinary hand `PLAY_CARD` 支付 8 mana、0 目标入栈，stack pass-pass 后源牌进入基地成为 9 战力单位，并打出四个休眠 Gold equipment token。Focused 命令：
 

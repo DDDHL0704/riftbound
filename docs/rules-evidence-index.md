@@ -2,7 +2,7 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`pending checkpoint: complete stage 4C treasure golem gold evidence`。
+最新 Stage 4C checkpoint：`b7bf537 checkpoint: complete stage 4C treasure golem gold evidence`。
 当前已 checkpoint verified representative evidence：Stage 4C-68 `Treasure Golem` create four Gold equipment tokens route 已入账，并通过 focused / Gold-token regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
