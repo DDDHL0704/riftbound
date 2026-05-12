@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint：`PENDING CHECKPOINT: complete stage 4C syndra spell duel echo static evidence`。Stage 4C-77 `Syndra` / `UNL-146/219` / `FU-bf350b5796` 已完成代表性 ordinary play-to-base 6-power unit / shared target rejection evidence-only overlay 与验证；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint：`db4eae7 checkpoint: complete stage 4C syndra spell duel echo static evidence`。Stage 4C-77 `Syndra` / `UNL-146/219` / `FU-bf350b5796` 已完成代表性 ordinary play-to-base 6-power unit / shared target rejection evidence-only overlay 与验证；项目整体仍 **NOT READY**。
 
 4C-77 不修改功能代码，只把既有服务端权威 Syndra 证据入账：ordinary hand `PLAY_CARD` 支付 6 mana、0 目标入栈，stack / pass-pass 后源牌进入控制者基地成为 6 战力、无额外标签的 `CARD_TYPE:UNIT` 单位对象；带目标打出由共享 source-unit target rejection guard 拒绝。Focused / primary regression 命令：
 

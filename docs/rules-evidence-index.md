@@ -2,7 +2,7 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`PENDING CHECKPOINT: complete stage 4C syndra spell duel echo static evidence`。
+最新 Stage 4C checkpoint：`db4eae7 checkpoint: complete stage 4C syndra spell duel echo static evidence`。
 当前已 checkpoint verified representative evidence：Stage 4C-77 `Syndra` ordinary play-to-base unit / shared target rejection route 已入账，并通过 focused / SpellDuel Echo Payment Stack adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
