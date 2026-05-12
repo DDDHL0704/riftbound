@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`4050533 checkpoint: complete stage 4C duel mutual power damage evidence`。
-当前已 checkpoint verified representative evidence：Stage 4C-82 `决斗` mutual current-power damage / lethal enemy cleanup / reversed target-order rejection route 已入账，并通过 focused / mutual damage target stack cleanup adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：PENDING CHECKPOINT: complete stage 4C mighty faerie source unit evidence。
+当前已 checkpoint verified representative evidence：Stage 4C-83 `大力仙灵` ordinary source-unit-to-base / explicit-target rejection route 已入账，并通过 focused / keyword-source-unit battlefield movement target stack payment adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -2317,6 +2317,14 @@
 - 测试证据：`p2-preflight-play-duel-mutual-power-damage.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand play / pay base 2 / friendly then enemy unit targets / pass-pass / mutual current-power damage / lethal enemy target cleanup / source spell to graveyard；`p4-play-duel-target-order-rejected.fixture.json` 覆盖 reversed target-order rejection with no cost, stack, damage, or zone mutation。
 - 验证：focused DuelMutualPowerDamage / RejectsDuelWhenTargetsAreReversed / DuelTargetOrderRejected regression 3/3；Duel / MutualPower / FriendlyThenEnemy / ClashOfGiants / MarchingOrders / Gentleman / PowerModified / Damage / Cleanup / Stack / Priority / Target regression 1410/1410；backend full 3754/3754；frontend build passed；Chrome smoke passed。
 - 该证据只关闭 narrow Duel representative mutual current-power damage evidence；不关闭 battle / spell-duel lifecycle、LayerEngine、FEPR、replacement / prevention、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+
+## Stage 4C-83 Mighty Faerie Source Unit Evidence
+
+- `FU-95b4531e4e` / `SFD·125/221` / `MIGHTY_FAERIE_MOVE_PAYMENT_PLAY_UNIT` 已记录 Stage 4C-83 representative ordinary source-unit-to-base route evidence。
+- 代码证据：`src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `SFD·125/221` 为 direct card behavior，包含 `Cost: 4`、`TargetCount: 0`、`PlaysSourceToBaseAsUnit: true`、`SourceUnitPower: 4`、`SourceUnitTags: 仙灵`。
+- 测试证据：`p2-preflight-play-mighty-faerie-move-payment-static.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand play / pay base 4 / zero-target stack / pass-pass / source unit to controller base as 4-power `CARD_TYPE:UNIT|仙灵` / active state / empty stack and hand；`p4-play-mighty-faerie-target-rejected.fixture.json` 覆盖 explicit-target rejection with no tick, events, cost, stack, or zone mutation。
+- 验证：focused CoreRuleEnginePlaysKeywordOnlySourceUnit / CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided / P4MightyFaerieTargetRejectedFixture regression 460/460；MightyFaerie / Faerie / KeywordOnlySourceUnit / SourceUnit / UnitToBase / MoveUnit / Battlefield / Payment / PayCost / Target / Stack / Priority regression 2117/2117；backend full 3754/3754；frontend build passed；Chrome smoke passed。
+- 该证据只关闭 narrow Mighty Faerie ordinary source-unit-to-base evidence；不关闭 move-to-battlefield trigger、optional purple power payment、same-battlefield friendly-unit movement、control-zone movement、PaymentEngine、FEPR、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
 
 ## 7. 索引维护规则
 

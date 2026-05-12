@@ -4674,3 +4674,40 @@ Checkpoint 记录：
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：4C-82 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 43. 阶段 4C-83 Mighty Faerie Source Unit Verified Representative Evidence
+
+状态：**已完成代表证据收口；checkpoint 待提交为 `complete stage 4C mighty faerie source unit evidence`。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Mighty Faerie / 大力仙灵 `SFD·125/221` / cardId `33215` / `FU-95b4531e4e` / `MIGHTY_FAERIE_MOVE_PAYMENT_PLAY_UNIT`。
+- 本批是 evidence-only overlay，不修改功能代码；只记录 ordinary hand `PLAY_CARD`、支付基础 4 mana、0 目标入栈、stack / pass-pass 后源牌进入控制者基地，成为 4 战力、带 `仙灵` 标签的 `CARD_TYPE:UNIT` 单位对象，以及当前普通手牌打出路径携带显式目标时拒绝。
+- 不实现 / 不宣称 move-to-battlefield trigger、optional purple power payment、same-battlefield friendly-unit movement、complete control-zone movement matrix、complete PaymentEngine、complete FEPR target / stack / timing windows、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+
+证据事实：
+
+- A 基于 matrix fresh risk pass 选择已 IMPLEMENTED_TESTED、无 FAQ、单 FU 的 Mighty Faerie route，用于覆盖 ordinary source-unit-to-base representative evidence。
+- `src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `SFD·125/221` 为 direct card behavior：`Cost: 4`、`TargetCount: 0`、`EffectKind: MIGHTY_FAERIE_MOVE_PAYMENT_PLAY_UNIT`、`PlaysSourceToBaseAsUnit: true`、`SourceUnitPower: 4`、`SourceUnitTags: 仙灵`。
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-mighty-faerie-move-payment-static.fixture.json` 与 `tests/Riftbound.ConformanceTests/Fixtures/p4-play-mighty-faerie-target-rejected.fixture.json` 已记录官方卡面、核心规则证据和代表性结算 / 拒绝预期；`ConformanceFixtureRunnerTests` 覆盖 keyword/source-unit play route、target rejection 和 battlefield / movement / payment adjacent routes。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysKeywordOnlySourceUnit|FullyQualifiedName~CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided|FullyQualifiedName~P4MightyFaerieTargetRejectedFixture"`：passed 460/460。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~MightyFaerie|FullyQualifiedName~Faerie|FullyQualifiedName~KeywordOnlySourceUnit|FullyQualifiedName~SourceUnit|FullyQualifiedName~UnitToBase|FullyQualifiedName~MoveUnit|FullyQualifiedName~Battlefield|FullyQualifiedName~Payment|FullyQualifiedName~PayCost|FullyQualifiedName~Target|FullyQualifiedName~Stack|FullyQualifiedName~Priority"`：passed 2117/2117。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3754/3754。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C83` 回填为 `MIGHTY_FAERIE_SOURCE_UNIT_TO_BASE_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH83_MIGHTY_FAERIE_SOURCE_UNIT_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH83_MIGHTY_FAERIE_SOURCE_UNIT_EVIDENCE.md` 记录 narrow representative evidence。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 待提交：`checkpoint: complete stage 4C mighty faerie source unit evidence`。
+- 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
+- 已纳入：4C-83 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
