@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-12 最新状态补充
 
-当前最新 Stage 4C checkpoint 为 Stage 4C-60 pending checkpoint。Stage 4C-60 `Firestorm` / `OGS·002/024` / `FU-fe9dbeea3d` 已完成代表性 enemy battlefield damage guard 修复、验证与 checkpoint 准备；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint 为 `d695fcd checkpoint: complete stage 4C firestorm damage guard`。Stage 4C-60 `Firestorm` / `OGS·002/024` / `FU-fe9dbeea3d` 已完成代表性 enemy battlefield damage guard 修复、验证与 checkpoint；项目整体仍 **NOT READY**。
 
 4C-60 修复收紧了服务端 Core authoritative enemy battlefield unit damage resolution：Firestorm 只对 enemy public battlefield units 造成 3 点伤害；enemy battlefield equipment / spell / rune、face-down standby、dirty controller objects、friendly battlefield units 与 enemy base units 不再被该 enemy battlefield unit damage path 卷入。Focused 命令：
 
