@@ -5,8 +5,9 @@
 
 本文记录 E 证据/审计 worker 第一轮 P0 交接项、阶段 1 D 协议审计、阶段 2 D P0 规则证据链和 A 主控验收结果，不替代 `docs/CURRENT_SERVER_RULE_AUDIT.md`。
 
-最新 Stage 4C checkpoint：`f33e733 checkpoint: complete stage 4C rune resource domain evidence`
+最新 checkpoint：`3aed179 checkpoint: add formal 18 step e2e evidence`；上一 Stage 4C checkpoint：`f33e733 checkpoint: complete stage 4C rune resource domain evidence`
 当前已 verified representative evidence：Stage 4C-85 `炽烈符文` / `翠意符文` red / blue basic rune `RUNE_RESOURCE_DOMAIN` payment-resource route 已入账，并通过 focused / rune resource payment prompt regression / backend full / frontend build / Chrome smoke。2026-05-13 新增 formal 18-step E2E 证据：`npm run e2e:formal-18 -- --start-api` 通过，房间 `formal-18-1778623926434-15` 覆盖双 Chrome profile、官方 deck/opening/mulligan、stack pass-pass、unit move、reconnect、P2 battlefield score、surrender result；项目仍 **NOT READY**。
+历史批次中“formal 18-step E2E 仍按 P0/P1 缺口管理”之类文字已被本轮 formal 18-step 证据 supersede；当前 NOT READY 根因仍是 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
 历史 3B checkpoint：`a74beac`
 阶段 1 基线提交：`78b6896`
 阶段 2 证据链计划：`docs/CURRENT_STAGE2_P0_CONTRACT_PLAN.md`
@@ -1308,13 +1309,11 @@ D 审计结论：
 - 3C-CAND-001 / 002 / 003 / 004 只能作为阶段 3C 关闭候选；D/A 证据入账前不得移出 P0，且不得替代最终 18 步 E2E。
 - 3C-P0-001 / 002 / 003 / 004 / 005 仍阻断 READY；3C-P1-001 仍需正式 DTO 冻结。
 - 3D 关闭 `ORDER_TRIGGERS` 最小 runtime / UI / evidence 子项和第三阶段文档收口口径；A final validation 已通过，第三阶段可判定 DONE，允许进入阶段 4 不等于 READY。
-- S3-P0-001 双浏览器连续核心链路未完成；3A 基础 Chrome route smoke 已完成。
-- S3-P0-002 创建 / 加入 / 卡组 / 准备 / 开局 / 起手 / 第一回合未以同一阶段 3 smoke 证明。
-- S3-P0-003 打牌 / 移动 / 争夺或结算链或法术对决 / 结束回合 / 投降或胜负未以同一阶段 3 smoke 证明。
-- S3-P0-004 阶段 3 隐藏信息 DOM/store/WS 断言未收口。
+- S3-P0-001 / 002 / 003 / 004 的“缺正式连续双浏览器主流程”历史口径已由 2026-05-13 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md` supersede：formal 18-step 通过，包含双 headless Chrome profile、官方 deck/opening/mulligan、第一回合、stack pass-pass、unit move、reconnect、P2 battlefield score、surrender result 与 raw hidden/debug 文本断言。
+- 该 formal 18-step 证据不关闭 strict battlefield contest / battle lifecycle full official；当前仍按 P0-002 / P0-003 / P0-004 / P0-005 与 P1 full-official 证据继续管理。
 - LayerEngine 未统一；持续/替代/预防/层系统解释仍不能支撑正式规则助手。
 - 全官方卡牌证据与执行仍未完成。
-- 正式 18 步 E2E 未最终收口，尤其需要覆盖双人窗口、隐藏信息、复杂 prompt、战斗/法术对决、断线重连。
+- 正式 18 步 E2E 已由 2026-05-13 formal evidence 收口；最终 READY 前仍需在 P0/P1 清零后重跑，并继续补 strict battlefield contest / battle lifecycle、复杂 prompt 与隐藏信息长链路。
 
 ## 推荐 D/E 子 agent 任务
 
