@@ -2,7 +2,7 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`pending checkpoint: complete stage 4C tibbers damage evidence`。
+最新 Stage 4C checkpoint：`9bc5b81 checkpoint: complete stage 4C tibbers damage evidence`。
 当前已 checkpoint verified representative evidence：Stage 4C-66 `Tibbers` all-battlefield damage route 已入账，并通过 focused / battlefield damage regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的

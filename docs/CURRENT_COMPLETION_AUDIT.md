@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint 待提交：`pending checkpoint: complete stage 4C tibbers damage evidence`。Stage 4C-66 `Tibbers` / `OGS·018/024` / `FU-c168bd394c` 已完成代表性 all-battlefield damage evidence-only overlay 与验证，正在收口 checkpoint；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint 为 `9bc5b81 checkpoint: complete stage 4C tibbers damage evidence`。Stage 4C-66 `Tibbers` / `OGS·018/024` / `FU-c168bd394c` 已完成代表性 all-battlefield damage evidence-only overlay、验证与 checkpoint；项目整体仍 **NOT READY**。
 
 4C-66 不修改功能代码，只把既有服务端权威伤害证据入账：`Tibbers` ordinary hand `PLAY_CARD` 支付 8 mana、0 目标入栈，stack pass-pass 后源牌进入基地成为 7 战力单位，并对公开战场单位造成 3 点伤害。Focused 命令：
 
