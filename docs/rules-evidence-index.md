@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`b7bf537 checkpoint: complete stage 4C treasure golem gold evidence`。
-当前已 checkpoint verified representative evidence：Stage 4C-68 `Treasure Golem` create four Gold equipment tokens route 已入账，并通过 focused / Gold-token regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：`pending checkpoint: complete stage 4C faithful craftsman minion evidence`。
+当前已 checkpoint verified representative evidence：Stage 4C-69 `Faithful Craftsman` create Minion unit token route 已入账，并通过 focused / Minion-token regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -2205,6 +2205,14 @@
 - 测试证据：`tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-treasure-golem-create-four-gold.fixture.json` 与 `tests/Riftbound.ConformanceTests/Fixtures/p4-play-treasure-golem-target-rejected.fixture.json` 覆盖 ordinary hand play / pay 8 / zero-target stack / source-to-base 9-power unit / four exhausted Gold equipment tokens / unexpected-target rejection。
 - 验证：focused 3/3；TreasureGolem / Gold / JungleAmbush / BloodMoney / PainfulPayoff / HonestBroker regression 30/30；backend full 3754/3754；frontend build passed；Chrome smoke passed。
 - 该证据只关闭 narrow representative evidence；不关闭 all Gold-token creation cards / alternate token counts、destination selection、Gold equipment spend / activation / extra-mana interactions、PaymentEngine、equipment cleanup / replacement、LayerEngine、hidden-info / redaction matrix、FAQ、1009/811 full-official 或 formal 18-step E2E。
+
+## Stage 4C-69 Faithful Craftsman Create Minion Evidence
+
+- `FU-2e2a00f575` / `OGN·211/298` / `FAITHFUL_CRAFTSMAN_PLAY_UNIT_CREATE_MINION` 已记录 Stage 4C-69 representative create-Minion unit token route evidence。
+- 代码证据：`src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `OGN·211/298` 为 direct card behavior，包含 `CreatedBaseUnitTokenCount: 1`、`CreatedBaseUnitTokenPower: 1`、`CreatedBaseUnitTokenName: 随从`、`CreatedBaseUnitTokenTags: CARD_TYPE:UNIT`、`PlaysSourceToBaseAsUnit`、`SourceUnitPower: 2`；`src/Riftbound.Engine/CoreRuleEngine.cs` 已有 created unit token stack-resolution path，并对 `随从` token 追加 `TOKEN_FAMILY:MINION`。
+- 测试证据：`tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-faithful-craftsman-create-minion.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand play / pay 3 / zero-target stack / source-to-base 2-power unit / one ready 1-power `CARD_TYPE:UNIT` + `TOKEN_FAMILY:MINION` token / unexpected-target rejection。
+- 验证：focused 2/2；FaithfulCraftsman / MinionTokenFamily / CommonCause / FutureForge / VanguardCaptain / MechanicalTrickster / Viktor regression 18/18；backend full 3754/3754；frontend build passed；Chrome smoke passed。
+- 该证据只关闭 narrow representative evidence；不关闭 all Minion-token creation cards / alternate token counts、destination selection、full token subtype/family taxonomy、PaymentEngine、token replacement / prevention / cleanup、LayerEngine、hidden-info / redaction matrix、FAQ、1009/811 full-official 或 formal 18-step E2E。
 
 ## 7. 索引维护规则
 
