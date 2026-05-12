@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint：`pending checkpoint: complete stage 4C hextech ray damage evidence`。Stage 4C-72 `Hextech Ray` / `OGN·009/298` / `FU-441cb9fb7f` 已完成代表性 damage stack / end-turn cleanup / Swift spell-duel focus evidence-only overlay 与验证；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint：`2db719e checkpoint: complete stage 4C hextech ray damage evidence`。Stage 4C-72 `Hextech Ray` / `OGN·009/298` / `FU-441cb9fb7f` 已完成代表性 damage stack / end-turn cleanup / Swift spell-duel focus evidence-only overlay 与验证；项目整体仍 **NOT READY**。
 
 4C-72 不修改功能代码，只把既有服务端权威 damage / cleanup / Swift 证据入账：`Hextech Ray` ordinary hand `PLAY_CARD` 支付 1 mana、选择一名战场单位，stack pass-pass 后造成 3 点伤害并进入废牌堆；同时记录 end-turn damage cleanup 与 Swift spell-duel focus 代表路径。Focused / primary regression 命令：
 

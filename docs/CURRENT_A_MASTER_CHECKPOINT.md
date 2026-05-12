@@ -4269,7 +4269,7 @@ Checkpoint 记录：
 
 ## 32. 阶段 4C-72 Hextech Ray Damage Verified Representative Evidence
 
-状态：**代表证据已验证；等待 checkpoint 提交 `pending checkpoint: complete stage 4C hextech ray damage evidence`。项目整体仍 NOT READY。**
+状态：**已完成代表证据收口并 checkpoint 为 `2db719e`。项目整体仍 NOT READY。**
 
 本批范围：
 
@@ -4299,7 +4299,7 @@ Checkpoint 记录：
 
 Checkpoint 记录：
 
-- 待提交：`pending checkpoint: complete stage 4C hextech ray damage evidence`。
+- 已提交：`2db719e checkpoint: complete stage 4C hextech ray damage evidence`。
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：4C-72 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
