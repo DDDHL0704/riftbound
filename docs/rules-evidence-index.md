@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 checkpoint：`f2f33c57 checkpoint: record stage 4C malzahar design gate`。上一 Stage 4C checkpoint：`6351fd12 checkpoint: record stage 4C shield wall evidence`；上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`；上一 formal 18-step checkpoint：`3aed179 checkpoint: add formal 18 step e2e evidence`。
-当前已 checkpoint verified representative evidence：Stage 4C-85 `炽烈符文` / `翠意符文` red / blue basic rune `RUNE_RESOURCE_DOMAIN` payment-resource route 已入账，并通过 focused / rune resource payment prompt regression / backend full / frontend build / Chrome smoke；formal 18-step E2E 已通过；active `START_BATTLE` guard test-only evidence 已通过 focused 17/17、adjacent 94/94 与 backend full 3771/3771；Stage 4C-86 `帝王神坛` / `SFD·207/221` / `FU-ec31812b00` representative evidence 已通过 focused 3/3、adjacent 45/45 与 backend full 3771/3771；Stage 4C-87 `禁军之墙` / `SFD·043/221` / `FU-a7fbef72ba` representative move-friendly-battlefield-units evidence 已通过 focused 2/2、adjacent 63/63 与 backend full 3771/3771；Stage 4C-88 `玛尔扎哈` / `OGN·113/298` / `FU-0f7cbe26ce` resource-skill design gate 已记录但未关闭 FU；项目仍 **NOT READY**。
+最新 checkpoint：`待提交 stage 4C-89 vanilla unit evidence`。上一 Stage 4C checkpoint：`f2f33c57 checkpoint: record stage 4C malzahar design gate`；上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`；上一 formal 18-step checkpoint：`3aed179 checkpoint: add formal 18 step e2e evidence`。
+当前已 checkpoint verified representative evidence：Stage 4C-85 `炽烈符文` / `翠意符文` red / blue basic rune `RUNE_RESOURCE_DOMAIN` payment-resource route 已入账，并通过 focused / rune resource payment prompt regression / backend full / frontend build / Chrome smoke；formal 18-step E2E 已通过；active `START_BATTLE` guard test-only evidence 已通过 focused 17/17、adjacent 94/94 与 backend full 3771/3771；Stage 4C-86 `帝王神坛` / `SFD·207/221` / `FU-ec31812b00` representative evidence 已通过 focused 3/3、adjacent 45/45 与 backend full 3771/3771；Stage 4C-87 `禁军之墙` / `SFD·043/221` / `FU-a7fbef72ba` representative move-friendly-battlefield-units evidence 已通过 focused 2/2、adjacent 63/63 与 backend full 3771/3771；Stage 4C-88 `玛尔扎哈` / `OGN·113/298` / `FU-0f7cbe26ce` resource-skill design gate 已记录但未关闭 FU；Stage 4C-89 `山脉亚龙` / `OGN·142/298` / `FU-d635fc47f4` 与 `船坞潜伏者` / `OGN·175/298` / `FU-72ce6fb8a4` vanilla source-unit evidence 已记录；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -2364,6 +2364,14 @@
 - 当前证据：普通手牌打出已有 fixture / registry 覆盖；activated resource skill 未实现。
 - 官方 skill 需要建模摧毁友方单位或装备、横置、迅捷获得 `A A` 用以支付符能费用、己方回合或法术对决窗口，以及获得费用资源技能的反应限制。
 - 该 design gate 不新增 representative evidence，不修改 matrix，不关闭 `FU-0f7cbe26ce`；后续需 B 服务端实现、D/E FAQ 裁定与 C prompt-only UI 接线。
+
+## Stage 4C-89 Vanilla Unit Evidence
+
+- `FU-d635fc47f4` / `OGN·142/298` / `MOUNTAIN_DRAKE_PLAY_UNIT` 与 `FU-72ce6fb8a4` / `OGN·175/298` / `DOCKSIDE_LURKER_PLAY_UNIT` 已记录 Stage 4C-89 representative vanilla source-unit route evidence。
+- 代码证据：`CardBehaviorRegistry` 已登记 `OGN·142/298` cost 9、0 targets、source unit to base power 10；`OGN·175/298` cost 3、0 targets、source unit to base power 3。
+- 测试证据：`p2-preflight-play-mountain-drake-vanilla-unit.fixture.json`、`p2-preflight-play-dockside-lurker-vanilla-unit.fixture.json` 与 `CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided` 覆盖 ordinary hand play / pay base cost / zero-target stack / pass-pass / source unit to controller base / explicit target rejection。
+- 验证：focused vanilla source-unit / target rejection regression 305/305；source-unit / play-card / target / stack / priority / payment regression 1879/1879；backend full 3771/3771。
+- 该证据只关闭 narrow vanilla unit representative evidence；不关闭其他 source-zone play routes、active-entry / keyword / movement / control-zone rules、完整 PaymentEngine / FEPR、hidden-info / redaction matrix 或 1009/811 full-official。
 
 ## Formal 18-Step E2E Evidence
 

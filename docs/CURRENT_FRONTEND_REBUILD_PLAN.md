@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 第三百五十一批新增 Stage 4C-89 vanilla unit evidence-only overlay。`FU-d635fc47f4` / `OGN·142/298` / 山脉亚龙 与 `FU-72ce6fb8a4` / `OGN·175/298` / 船坞潜伏者已在 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 记录 `stage4CBatch89VanillaUnitEvidence`、`functionalUnits[].stage4C89` 与 `snapshotEntries[].stage4C89`；复用既有服务端代表路径和测试，覆盖无卡面效果单位 ordinary hand `PLAY_CARD`、支付基础费用、0 目标、stack pass-pass 后进入控制者基地成为官方战力 `CARD_TYPE:UNIT`，并拒绝显式目标。focused 305/305、adjacent 1879/1879、backend full 3771/3771 通过；无 DevUi、服务端功能代码或前端契约变更；整体仍 **NOT READY**。
+
 - 第三百五十批新增 Stage 4C-88 Malzahar / 玛尔扎哈 resource-skill design gate。`FU-0f7cbe26ce` / `OGN·113/298` 已确认不能按 evidence-only 入账：当前服务端只覆盖普通手牌打出进基地，官方横置、摧毁友方单位或装备、迅捷获得 `A A` 用以支付符能费用的 activated resource skill 仍未进入 `P4ActivatedAbilityCatalog` / `CoreRuleEngine.ResolveActivateAbility`。本批只新增派单规格文档 `docs/CURRENT_STAGE4C_BATCH88_MALZAHAR_RESOURCE_SKILL_DESIGN_GATE.md`，不修改 DevUi、服务端功能代码、测试或覆盖矩阵；前端后续仍只展示并提交服务端 `ActionPrompt` 暴露的 ability source / cost choices。整体仍 **NOT READY**。
 
 - 第三百四十九批新增 Stage 4C-87 Shield Wall / 禁军之墙 evidence-only overlay。`FU-a7fbef72ba` / `SFD·043/221` 已在 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 记录 `stage4CBatch87ShieldWallMoveFriendlyBattlefieldUnitsGuard`、`functionalUnits[].stage4C87` 与 `snapshotEntries[].stage4C87`；复用既有服务端代表路径和测试，覆盖支付 2、动态选择任意数量己方战场单位、stack pass-pass 后移动到拥有者基地，并拒绝敌方/基地/重复目标。focused 2/2、MoveFriendly / MoveUnit / FriendlyBattlefieldUnit adjacent 63/63、backend full 3771/3771 通过。本批不修改 DevUi、引擎功能代码或前端契约；整体仍 **NOT READY**。
