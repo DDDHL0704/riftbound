@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint：`pending checkpoint: complete stage 4C plunder alley battlefield evidence`。Stage 4C-73 `Plunder Alley` / `OGN·285/298` / `FU-90673ef9fd` 已完成代表性 battlefield defend move-to-base evidence-only overlay 与验证；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint：`dbacc2d checkpoint: complete stage 4C plunder alley battlefield evidence`。Stage 4C-73 `Plunder Alley` / `OGN·285/298` / `FU-90673ef9fd` 已完成代表性 battlefield defend move-to-base evidence-only overlay 与验证；项目整体仍 **NOT READY**。
 
 4C-73 不修改功能代码，只把既有服务端权威 battlefield-domain 证据入账：`Plunder Alley` development seed 中防守战场后选择一名防守单位移回基地；同时记录 prompt destination / target choice、非法多目标中文拒绝、合法 `BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE` 结算与脏 controller 拒绝。Focused / primary regression 命令：
 

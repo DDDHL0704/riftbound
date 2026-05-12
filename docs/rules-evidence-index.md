@@ -2,7 +2,7 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`pending checkpoint: complete stage 4C plunder alley battlefield evidence`。
+最新 Stage 4C checkpoint：`dbacc2d checkpoint: complete stage 4C plunder alley battlefield evidence`。
 当前已 checkpoint verified representative evidence：Stage 4C-73 `Plunder Alley` battlefield defend move-to-base route 已入账，并通过 focused / battlefield adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
