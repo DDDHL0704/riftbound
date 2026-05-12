@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`5c94f4e checkpoint: complete stage 4C diana spell duel static evidence`。
-当前已 checkpoint verified representative evidence：Stage 4C-71 `Diana` spell-duel-static ordinary play-unit route 已入账，并通过 keyword-source / rejection regression、spell duel / insight regression、backend full、frontend build、Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：`pending checkpoint: complete stage 4C hextech ray damage evidence`。
+当前已 checkpoint verified representative evidence：Stage 4C-72 `Hextech Ray` damage stack / cleanup / Swift spell-duel focus route 已入账，并通过 focused / damage Swift cleanup regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -2229,6 +2229,14 @@
 - 测试证据：`tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-diana-spell-duel-static.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand play / pay 3 / zero-target stack / source-to-base 3-power `CARD_TYPE:UNIT|巨神峰` unit / unexpected-target rejection。
 - 验证：keyword-source / rejection regression 459/459；Diana / SpellDuel / Insight / PassFocus / Swift adjacent regression 45/45；backend full 3754/3754；frontend build passed；Chrome smoke passed。
 - 该证据只关闭 narrow representative evidence；不关闭 actual spell-duel Insight trigger / payment / reveal / draw、`UNL-079a/219` alt A FU、standby / reaction、quick / spell-duel timing、full FEPR lifecycle、PaymentEngine、LayerEngine、hidden-info / top-card redaction matrix、FAQ、1009/811 full-official 或 formal 18-step E2E。
+
+## Stage 4C-72 Hextech Ray Damage Evidence
+
+- `FU-441cb9fb7f` / `OGN·009/298` / `HEXTECH_RAY_DAMAGE_3` 已记录 Stage 4C-72 representative damage stack / cleanup / Swift spell-duel focus route evidence。
+- 代码证据：`src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `OGN·009/298` 为 direct card behavior，包含 `Cost: 1`、`TargetCount: 1`、`DamageAmount: 3`、`CanPlayDuringSpellDuel: true`；`CoreRuleEngine` 既有 stack resolution、damage application、end-turn cleanup 和 Swift spell-duel focus route 支撑该代表路径。
+- 测试证据：`tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hextech-ray-damage-stack.fixture.json`、`p2-preflight-hextech-ray-damage-clears-end-turn.fixture.json`、`p6-play-swift-hextech-ray-in-spell-duel-focus.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand play / pay 1 / battlefield-unit target / stack pass-pass / 3 damage / spell to graveyard / cleanup removes damage / Swift spell-duel focus / base-unit target rejection。
+- 验证：focused Hextech Ray regression 4/4；HextechRay / Swift / Damage / Cleanup / EndTurn / BattlefieldOnlySpell regression 202/202；backend full 3754/3754；frontend build passed；Chrome smoke passed。
+- 该证据只关闭 narrow representative evidence；不关闭完整 FAQ 裁定、complete FEPR target / stack lifecycle、全部 timing windows、PaymentEngine、damage prevention / replacement / lethal cleanup / trigger matrix、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
 
 ## 7. 索引维护规则
 

@@ -4266,3 +4266,40 @@ Checkpoint 记录：
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：4C-71 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 32. 阶段 4C-72 Hextech Ray Damage Verified Representative Evidence
+
+状态：**代表证据已验证；等待 checkpoint 提交 `pending checkpoint: complete stage 4C hextech ray damage evidence`。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Hextech Ray / 海克斯射线 `OGN·009/298` / cardId `31215` / `FU-441cb9fb7f` / `HEXTECH_RAY_DAMAGE_3`。
+- 本批是 evidence-only overlay，不修改功能代码；只记录 ordinary hand `PLAY_CARD`、支付 1 mana、选择一名战场单位、stack / pass-pass 后造成 3 点伤害并进入废牌堆，同时记录 end-turn damage cleanup 与 Swift spell-duel focus 代表路径。
+- 不实现 / 不宣称完整 FAQ 裁定、complete FEPR target / stack lifecycle、全部 timing windows、完整 spell-duel lifecycle、PaymentEngine beyond ordinary pay 1、damage prevention / replacement / lethal cleanup / trigger matrix、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+
+证据事实：
+
+- A 基于 matrix fresh risk pass 选择已 IMPLEMENTED_TESTED、已有 FAQ 引用、单 FU 的 Hextech Ray 路线，用于覆盖 direct damage stack、cleanup 与 Swift spell-duel focus representative evidence。
+- `src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `OGN·009/298` 为 direct card behavior：`Cost: 1`、`TargetCount: 1`、`DamageAmount: 3`、`CanPlayDuringSpellDuel: true`。
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hextech-ray-damage-stack.fixture.json`、`p2-preflight-hextech-ray-damage-clears-end-turn.fixture.json` 与 `p6-play-swift-hextech-ray-in-spell-duel-focus.fixture.json` 已记录官方卡面、核心规则 / FAQ 证据和代表性结算预期；`CoreRuleEngineRejectsBattlefieldOnlySpellWhenTargetIsBaseUnit` 已记录基地单位目标拒绝 no-mutation guard。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysHextechRayThroughStack|FullyQualifiedName~CoreRuleEngineClearsHextechRayDamageAtEndTurn|FullyQualifiedName~P6SwiftKeywordAllowsHextechRayInSpellDuelFocusWindow|FullyQualifiedName~CoreRuleEngineRejectsBattlefieldOnlySpellWhenTargetIsBaseUnit"`：passed 4/4。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~HextechRay|FullyQualifiedName~Swift|FullyQualifiedName~Damage|FullyQualifiedName~Cleanup|FullyQualifiedName~EndTurn|FullyQualifiedName~BattlefieldOnlySpell"`：passed 202/202。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3754/3754。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C72` 回填为 `HEXTECH_RAY_DAMAGE_STACK_SWIFT_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH72_HEXTECH_RAY_DAMAGE_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH72_HEXTECH_RAY_DAMAGE_EVIDENCE.md` 记录 narrow representative evidence。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 待提交：`pending checkpoint: complete stage 4C hextech ray damage evidence`。
+- 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
+- 已纳入：4C-72 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
