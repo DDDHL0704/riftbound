@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`f33e733 checkpoint: complete stage 4C rune resource domain evidence`。
-当前已 checkpoint verified representative evidence：Stage 4C-85 `炽烈符文` / `翠意符文` red / blue basic rune `RUNE_RESOURCE_DOMAIN` payment-resource route 已入账，并通过 focused / rune resource payment prompt regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 checkpoint：`待提交 active START_BATTLE guard test-only evidence`。上一 formal 18-step checkpoint：`3aed179 checkpoint: add formal 18 step e2e evidence`；上一 Stage 4C checkpoint：`f33e733 checkpoint: complete stage 4C rune resource domain evidence`。
+当前已 checkpoint verified representative evidence：Stage 4C-85 `炽烈符文` / `翠意符文` red / blue basic rune `RUNE_RESOURCE_DOMAIN` payment-resource route 已入账，并通过 focused / rune resource payment prompt regression / backend full / frontend build / Chrome smoke；formal 18-step E2E 已通过；active `START_BATTLE` guard test-only evidence 已通过 focused 17/17、adjacent 94/94 与 backend full 3771/3771；项目仍 **NOT READY**。
 
 ## 1. 目的
 

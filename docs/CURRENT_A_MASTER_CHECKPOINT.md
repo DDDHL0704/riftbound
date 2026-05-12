@@ -5,7 +5,7 @@
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
 
-最新 checkpoint：`3aed179 checkpoint: add formal 18 step e2e evidence`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
+最新 checkpoint：`待提交 active START_BATTLE guard test-only evidence`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
 
 ## 0. A 主控职责边界
 
@@ -4819,3 +4819,26 @@ Checkpoint 记录：
 - 该脚本满足 `docs/A_MASTER_AGENT_GOAL.md` 第 11 节 formal 18-step 主流程。
 - 不宣称 full official battle lifecycle、完整 battlefield contest/control task、完整 PaymentEngine、LayerEngine、1009/811 full-official 或 READY。
 - `docs/任务补充.md` 的严格战场争夺/战斗完整官方化仍由已有 seeded battle/control smoke 与后续 P0-002 / P0-004 收口承接。
+
+## 47. Active START_BATTLE Guard Checkpoint
+
+状态：**active `START_BATTLE` guard test-only evidence 已通过；项目整体仍 NOT READY。**
+
+本批范围：
+
+- 新增 `tests/Riftbound.ConformanceTests/BattlefieldContestBattleTaskGuardTests.cs`。
+- 只做 test-only overlay，不修改 `CoreRuleEngine.cs`、`MatchSession.cs` 或前端代码。
+- 固化争夺战场 spell-duel 完成后的 active `START_BATTLE` 代表路径：P1 prompt 只暴露当前争夺战场的 `DECLARE_BATTLE`；P2 prompt 保持等待；sourceRequirements 只列当前战场上的公开、正面、ready、受控 attacker / defender。
+- 覆盖 wrong battlefield、其他战场单位、base、stale、face-down standby、equipment、spell、rune 等非法 `DECLARE_BATTLE` no-mutation guard。
+- 覆盖合法 active task `DECLARE_BATTLE` 结算后 `START_BATTLE` task 不再留在 queue，并保留 `BATTLE_DECLARED` / `BATTLE_CLOSED` / `BATTLEFIELD_CONTROL_RESOLVED` 代表事件。
+
+通过证据：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~BattlefieldContestBattleTaskGuardTests"`：17/17 通过。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~BattlefieldContest|FullyQualifiedName~StartBattle|FullyQualifiedName~DeclareBattle|FullyQualifiedName~PendingTaskQueue"`：94/94 通过。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：3771/3771 通过。
+
+口径：
+
+- 本批只关闭 active `START_BATTLE` prompt / command guard 的代表性测试缺口。
+- 不宣称完整 battle state machine、完整 spell duel / battle lifecycle、multi-battlefield APNAP、完整 damage assignment、replacement / prevention、PaymentEngine、LayerEngine、1009/811 full-official 或 READY。

@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 checkpoint：`3aed179 checkpoint: add formal 18 step e2e evidence`。上一 Stage 4C checkpoint 为 `f33e733 checkpoint: complete stage 4C rune resource domain evidence`。Stage 4C-85 `炽烈符文` / `OGN·007/298` / `FU-0ec69ae7e6` 与 `翠意符文` / `OGN·042/298` / `FU-39041f4562` 已完成代表性 `RUNE_RESOURCE_DOMAIN` payment-resource evidence-only overlay 与验证。2026-05-13 另新增 formal 18-step E2E 脚本证据，房间 `formal-18-1778623926434-15` 已在同一连续正式对局中通过官方卡组、起手、首回合出牌、结算链、单位移动、重连、P2 战场得分、投降与结果页胜者展示；项目整体仍 **NOT READY**。
+当前最新 checkpoint：`待提交 active START_BATTLE guard test-only evidence`。上一 formal 18-step checkpoint 为 `3aed179 checkpoint: add formal 18 step e2e evidence`；上一 Stage 4C checkpoint 为 `f33e733 checkpoint: complete stage 4C rune resource domain evidence`。Stage 4C-85 `炽烈符文` / `OGN·007/298` / `FU-0ec69ae7e6` 与 `翠意符文` / `OGN·042/298` / `FU-39041f4562` 已完成代表性 `RUNE_RESOURCE_DOMAIN` payment-resource evidence-only overlay 与验证。2026-05-13 另新增 formal 18-step E2E 脚本证据，房间 `formal-18-1778623926434-15` 已在同一连续正式对局中通过官方卡组、起手、首回合出牌、结算链、单位移动、重连、P2 战场得分、投降与结果页胜者展示；本批另新增 active `START_BATTLE` guard test-only evidence，固化争夺战场战斗任务 prompt / command no-mutation 边界；项目整体仍 **NOT READY**。
 
 4C-85 不修改功能代码，只把既有服务端权威符文资源域证据入账：官方符文卡映射到 non-play `RUNE_RESOURCE_DOMAIN`，不进入 direct `PLAY_CARD` registry；控制者基地符文通过服务端 `RECYCLE_RUNE` / `paymentResourcePowerByChoice` 暴露 trait/power 支付资源；typed `SPEND_POWER:red:2` 接受 red 资源并拒绝 blue 资源，generic `SPEND_POWER:2` 可接受 red / blue 任一服务端候选且防止过量回收。Focused / primary regression 命令：
 
@@ -18,6 +18,8 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 结果为 passed，10 passed / 0 failed / 10 total。追加回归 `FullyQualifiedName~RuneResourceDomain|FullyQualifiedName~RecycleRune|FullyQualifiedName~TypedPowerPayment|FullyQualifiedName~PaymentResource|FullyQualifiedName~SpendPower|FullyQualifiedName~RunePool|FullyQualifiedName~PayCost|FullyQualifiedName~PayCostWindow|FullyQualifiedName~Payment|FullyQualifiedName~ActionPrompt|FullyQualifiedName~GameHub` 通过 240/240；backend full 通过 3754/3754；frontend build 通过；Chrome smoke 通过。4C-85 只声明 narrow red / blue rune resource-domain representative payment-resource evidence recorded，不作为 READY 或 full-official 证据；完整 rune lifecycle、完整 PaymentEngine、reaction payment windows、hidden-info / redaction 仍 deferred。
 
 Formal 18-step E2E 本轮新增证据见 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`：`node --check scripts/chrome-formal-18-e2e.mjs` 通过；`npm run build` 通过；`npm run e2e:formal-18 -- --start-api` 通过；`npm run smoke:chrome -- --start-api` 通过。本证据满足 A 主控 formal 18-step 的连续正式主流程，但不把代表性 battle / control / PaymentEngine / LayerEngine 升级为 full official。最终 READY 前仍需在 P0/P1 清零后重跑后端 full、前端 build、Chrome smoke、formal E2E 与隐藏信息长链路检查。
+
+Active `START_BATTLE` guard 本轮新增证据见 `tests/Riftbound.ConformanceTests/BattlefieldContestBattleTaskGuardTests.cs`：focused `BattlefieldContestBattleTaskGuardTests` 通过 17/17；adjacent `BattlefieldContest|StartBattle|DeclareBattle|PendingTaskQueue` 通过 94/94；backend full `dotnet test Riftbound.slnx --no-restore` 通过 3771/3771。本证据不修改服务端功能代码，只验证 active `START_BATTLE` prompt / command guard 代表路径，不能升级为完整 battle lifecycle。
 
 当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责；4C-85 由 A 基于 matrix 风险筛选做 evidence-only 覆盖入账、复核、验证和文档收口。后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
 
@@ -150,6 +152,8 @@ Formal 18-step E2E 本轮新增证据见 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDEN
 历史第二百五十九批是前端/API fallback 文案与构建门禁收口批。`MatchSocket` 在 Join/Reconnect 等待超时时返回中文错误，行为规格 API 单卡未命中返回中文 404 message；`npm run build` 现在会执行 `check:user-facing-text`，防止关键玩家可见英文 fallback 回流。该历史批次曾记录后端 full test 3157/3157 通过、前端 build 通过。此前第二百三十二批 Chrome 插件房间 `smoke-battlefield-held-score-1778247059745` 已覆盖战场得分 UI 代表路径。
 
 当前 2026-05-13 formal 18-step E2E 收口后，`node --check scripts/chrome-formal-18-e2e.mjs` 通过；`npm run build` 通过；`npm run e2e:formal-18 -- --start-api` 通过；`npm run smoke:chrome -- --start-api` 通过。最近 backend full 仍为 4C-85 后 3754/3754 通过；本轮未修改后端源码。
+
+当前 active `START_BATTLE` guard test-only 批次新增后，focused `FullyQualifiedName~BattlefieldContestBattleTaskGuardTests` 通过 17/17；adjacent `FullyQualifiedName~BattlefieldContest|FullyQualifiedName~StartBattle|FullyQualifiedName~DeclareBattle|FullyQualifiedName~PendingTaskQueue` 通过 94/94；backend full `dotnet test Riftbound.slnx --no-restore` 通过 3771/3771。因本批仅新增测试和文档，未修改引擎或前端功能代码。
 
 ## 9. Browser smoke / E2E 结果
 
