@@ -3665,7 +3665,7 @@ B 的代码结果已优先审查，E/C/D 文档结果已纳入工作区。
 
 ## 16. 阶段 4C-56 Secret Art! Mercy Boon Guard Verified Representative
 
-状态：**已完成代表切片收口，未 checkpoint。项目整体仍 NOT READY。**
+状态：**已完成代表切片收口并 checkpoint 为 `3631c00`。项目整体仍 NOT READY。**
 
 本批范围：
 
@@ -3702,9 +3702,9 @@ B 的代码结果已优先审查，E/C/D 文档结果已纳入工作区。
 - PaymentEngine、FAQ adjudication、1009/811 full-official。
 - formal 18-step E2E acceptance。
 
-Checkpoint 候选：
+Checkpoint 记录：
 
-- 前置验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git status --short`。
-- 可纳入：`src/Riftbound.Engine/CoreRuleEngine.cs`、`src/Riftbound.Engine/MatchSession.cs`、`tests/Riftbound.ConformanceTests/SecretArtMercyBoonGuardTests.cs`、4C-56 相关 docs / matrix。
-- 必须排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
-- 建议 commit message：`checkpoint: complete stage 4C secret art mercy guard`。
+- 已提交：`3631c00 checkpoint: complete stage 4C secret art mercy guard`。
+- 提交前验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 通过；`git diff --cached --check` 通过。
+- 已纳入：`src/Riftbound.Engine/CoreRuleEngine.cs`、`src/Riftbound.Engine/MatchSession.cs`、`tests/Riftbound.ConformanceTests/SecretArtMercyBoonGuardTests.cs`、4C-56 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。

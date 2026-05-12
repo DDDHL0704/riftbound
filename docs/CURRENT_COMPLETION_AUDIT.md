@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-12 最新状态补充
 
-当前最新已提交 checkpoint 为 `f1177ea checkpoint: complete stage 4C vex alt guard baseline`。此后 Stage 4C-56 `Secret Art! Mercy` / `OGN·053/298` / `FU-3461727400` 已完成代表性 guard 修复与验证，尚未 checkpoint，项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint 为 `3631c00 checkpoint: complete stage 4C secret art mercy guard`。Stage 4C-56 `Secret Art! Mercy` / `OGN·053/298` / `FU-3461727400` 已完成代表性 guard 修复、验证与 checkpoint，项目整体仍 **NOT READY**。
 
 4C-56 修复收紧了服务端 Core authoritative `FriendlyUnit` target validation，并同步 prompt candidate 可见单位口径：友方 equipment / spell / rune / face-down standby 不再作为友方单位目标，legacy custom-tag public field unit 仍可作为单位目标。Focused 命令：
 
@@ -35,7 +35,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 
 ## 1. 修改文件列表
 
-当前未 checkpoint 的 2026-05-12 Stage 4C-56 representative guard / completion audit 追加修改：
+2026-05-12 Stage 4C-56 representative guard / completion audit 已 checkpoint 修改：
 
 - `docs/A_MASTER_AGENT_GOAL.md`
 - `docs/CURRENT_A_MASTER_CHECKPOINT.md`
@@ -68,12 +68,12 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 
 ## 2. 新增文件列表
 
-当前未 checkpoint 的 2026-05-12 Stage 4C-56 representative guard 新增文档：
+2026-05-12 Stage 4C-56 representative guard 已 checkpoint 新增文档：
 
 - `docs/CURRENT_STAGE4C_BATCH56_SECRET_ART_MERCY_BOON_GUARD_AUDIT.md`
 - `docs/CURRENT_STAGE4C_BATCH56_SECRET_ART_MERCY_BOON_GUARD_EVIDENCE.md`
 
-当前未 checkpoint 的 2026-05-12 Stage 4C-56 representative guard 新增测试：
+2026-05-12 Stage 4C-56 representative guard 已 checkpoint 新增测试：
 
 - `tests/Riftbound.ConformanceTests/SecretArtMercyBoonGuardTests.cs`
 
