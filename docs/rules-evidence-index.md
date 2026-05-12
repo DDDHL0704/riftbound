@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 checkpoint：`da20274c checkpoint: record stage 4C active entry unit evidence`。上一 Stage 4C checkpoint：`8143dfee checkpoint: record stage 4C vanilla unit evidence`；上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`；上一 formal 18-step checkpoint：`3aed179 checkpoint: add formal 18 step e2e evidence`。
-当前已 checkpoint verified representative evidence：Stage 4C-85 `炽烈符文` / `翠意符文` red / blue basic rune `RUNE_RESOURCE_DOMAIN` payment-resource route 已入账，并通过 focused / rune resource payment prompt regression / backend full / frontend build / Chrome smoke；formal 18-step E2E 已通过；active `START_BATTLE` guard test-only evidence 已通过 focused 17/17、adjacent 94/94 与 backend full 3771/3771；Stage 4C-86 `帝王神坛` / `SFD·207/221` / `FU-ec31812b00` representative evidence 已通过 focused 3/3、adjacent 45/45 与 backend full 3771/3771；Stage 4C-87 `禁军之墙` / `SFD·043/221` / `FU-a7fbef72ba` representative move-friendly-battlefield-units evidence 已通过 focused 2/2、adjacent 63/63 与 backend full 3771/3771；Stage 4C-88 `玛尔扎哈` / `OGN·113/298` / `FU-0f7cbe26ce` resource-skill design gate 已记录但未关闭 FU；Stage 4C-89 `山脉亚龙` / `OGN·142/298` / `FU-d635fc47f4` 与 `船坞潜伏者` / `OGN·175/298` / `FU-72ce6fb8a4` vanilla source-unit evidence 已记录；Stage 4C-90 `先锋扈从` / `OGS·016/024` / `FU-c1dc472304` 与 `好斗的龙犬` / `SFD·006/221` / `FU-1207daea8f` active-entry source-unit evidence 已记录；项目仍 **NOT READY**。
+最新 checkpoint：待提交 `stage 4C-91 royal guard sand soldier evidence`。上一 Stage 4C checkpoint：`da20274c checkpoint: record stage 4C active entry unit evidence`；上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`；上一 formal 18-step checkpoint：`3aed179 checkpoint: add formal 18 step e2e evidence`。
+当前已 checkpoint verified representative evidence：Stage 4C-85 `炽烈符文` / `翠意符文` red / blue basic rune `RUNE_RESOURCE_DOMAIN` payment-resource route 已入账，并通过 focused / rune resource payment prompt regression / backend full / frontend build / Chrome smoke；formal 18-step E2E 已通过；active `START_BATTLE` guard test-only evidence 已通过 focused 17/17、adjacent 94/94 与 backend full 3771/3771；Stage 4C-86 `帝王神坛` / `SFD·207/221` / `FU-ec31812b00` representative evidence 已通过 focused 3/3、adjacent 45/45 与 backend full 3771/3771；Stage 4C-87 `禁军之墙` / `SFD·043/221` / `FU-a7fbef72ba` representative move-friendly-battlefield-units evidence 已通过 focused 2/2、adjacent 63/63 与 backend full 3771/3771；Stage 4C-88 `玛尔扎哈` / `OGN·113/298` / `FU-0f7cbe26ce` resource-skill design gate 已记录但未关闭 FU；Stage 4C-89 `山脉亚龙` / `OGN·142/298` / `FU-d635fc47f4` 与 `船坞潜伏者` / `OGN·175/298` / `FU-72ce6fb8a4` vanilla source-unit evidence 已记录；Stage 4C-90 `先锋扈从` / `OGS·016/024` / `FU-c1dc472304` 与 `好斗的龙犬` / `SFD·006/221` / `FU-1207daea8f` active-entry source-unit evidence 已记录；Stage 4C-91 `皇家守卫` / `SFD·157/221` / `FU-29d76f0175` source-unit + Sand Soldier token evidence 已记录，focused 10/10、adjacent 1880/1880、backend full 3771/3771 通过；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -2380,6 +2380,14 @@
 - 测试证据：`p2-preflight-play-vanguard-squire-active-unit.fixture.json`、`p2-preflight-play-aggressive-dragonhound-active-unit.fixture.json` 与 `CoreRuleEngineRejectsActiveEntrySourceUnitWhenTargetsAreProvided` 覆盖 ordinary hand play / pay base cost / zero-target stack / pass-pass / source unit to controller base / official tags / `IsExhausted=false` / explicit target rejection。
 - 验证：focused active-entry source-unit / target rejection regression 24/24；source-unit / play-card / target / stack / priority / payment regression 1879/1879；backend full 3771/3771。
 - 该证据只关闭 narrow active-entry source-unit representative evidence；不关闭其他 active-entry family、roam / battlefield movement、tap skills、attack triggers、完整 PaymentEngine / FEPR、hidden-info / redaction matrix 或 1009/811 full-official。
+
+## Stage 4C-91 Royal Guard Sand Soldier Evidence
+
+- `FU-29d76f0175` / `SFD·157/221` / `ROYAL_GUARD_PLAY_UNIT_CREATE_SAND_SOLDIER` 已记录 Stage 4C-91 representative source-unit + Sand Soldier token route evidence。
+- 代码证据：`CardBehaviorRegistry` 已登记 `SFD·157/221` cost 4、0 targets、source unit to base power 2、`CreatedBaseUnitTokenCount: 1`、`CreatedBaseUnitTokenPower: 2`、`CreatedBaseUnitTokenName: 黄沙士兵`、`CreatedBaseUnitTokenTags: CARD_TYPE:UNIT|黄沙士兵`。
+- 测试证据：`p2-preflight-play-royal-guard-create-sand-soldier.fixture.json` 与 `CoreRuleEngineRejectsRoyalGuardWhenTargetsAreProvided` 覆盖 ordinary hand play / pay base cost / zero-target stack / pass-pass / source unit to controller base / `UNIT_TOKEN_CREATED` / 2-power Sand Soldier token / explicit target rejection。
+- 验证：focused Royal Guard / Sand Soldier regression 10/10；source-unit / token / target / stack / priority / payment regression 1880/1880；backend full 3771/3771。
+- 该证据只关闭 narrow Royal Guard representative source-unit + token evidence；不关闭精确“此处”目的地选择、完整 token factory、control-zone / battlefield destination matrix、replacement / cleanup、完整 PaymentEngine / FEPR、hidden-info / redaction matrix 或 1009/811 full-official。
 
 ## Formal 18-Step E2E Evidence
 

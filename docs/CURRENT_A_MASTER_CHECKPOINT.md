@@ -5,7 +5,7 @@
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
 
-最新 checkpoint：`da20274c checkpoint: record stage 4C active entry unit evidence`。上一 Stage 4C checkpoint：`8143dfee checkpoint: record stage 4C vanilla unit evidence`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
+最新 checkpoint：待提交 `stage 4C-91 royal guard sand soldier evidence`。上一 Stage 4C checkpoint：`da20274c checkpoint: record stage 4C active entry unit evidence`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
 
 ## 0. A 主控职责边界
 
@@ -4959,3 +4959,26 @@ Checkpoint 记录：
 
 - 本批只关闭 Vanguard Squire / Aggressive Dragonhound 代表性 active-entry source-unit 证据入账缺口。
 - 不宣称其他 active-entry family、roam / battlefield movement、tap skills、attack triggers、完整 PaymentEngine / FEPR、hidden-info / redaction、1009/811 full-official 或 READY。
+
+## 53. Stage 4C-91 Royal Guard Sand Soldier Evidence Checkpoint
+
+状态：**Stage 4C-91 Royal Guard representative evidence 已记录；项目整体仍 NOT READY。**
+
+本批范围：
+
+- 代表 FU：`FU-29d76f0175`。
+- 代表卡：皇家守卫 / Royal Guard `SFD·157/221` / cardId `33251`。
+- 只做 evidence-only overlay，不修改功能代码、测试代码或前端代码。
+- 将既有 Royal Guard source-unit + Sand Soldier token 服务端权威路径入账：ordinary hand `PLAY_CARD`、支付基础 4 费用、0 目标、stack pass-pass 后源牌进入控制者基地成为 2 战力 `CARD_TYPE:UNIT` 单位对象，并创建一名 2 战力、带 `CARD_TYPE:UNIT|黄沙士兵` 标签的黄沙士兵单位指示物；显式目标输入被拒绝且 no mutation。
+- 更新 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 的 `stage4CBatch91RoyalGuardSandSoldierEvidence`、`functionalUnits[].stage4C91` 与 `snapshotEntries[].stage4C91`。
+
+通过证据：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~RoyalGuard|FullyQualifiedName~SandSoldier|FullyQualifiedName~CreateSandSoldier"`：10/10 通过。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CreateSandSoldier|FullyQualifiedName~TokenCreated|FullyQualifiedName~UnitToken|FullyQualifiedName~SourceUnit|FullyQualifiedName~UnitToBase|FullyQualifiedName~PlayCard|FullyQualifiedName~Target|FullyQualifiedName~Stack|FullyQualifiedName~Priority|FullyQualifiedName~Payment|FullyQualifiedName~PayCost"`：1880/1880 通过。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：3771/3771 通过。
+
+口径：
+
+- 本批只关闭 Royal Guard / 皇家守卫代表性 source-unit + Sand Soldier token 证据入账缺口。
+- 不宣称精确“此处”目的地选择、完整 token factory、control-zone / battlefield 目的地矩阵、replacement / cleanup、完整 PaymentEngine / FEPR、hidden-info / redaction、1009/811 full-official 或 READY。

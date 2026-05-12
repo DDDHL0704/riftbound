@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 第三百五十三批新增 Stage 4C-91 Royal Guard / 皇家守卫 evidence-only overlay。`FU-29d76f0175` / `SFD·157/221` / 皇家守卫已在 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 记录 `stage4CBatch91RoyalGuardSandSoldierEvidence`、`functionalUnits[].stage4C91` 与 `snapshotEntries[].stage4C91`；复用既有服务端代表路径和测试，覆盖 source-unit ordinary hand `PLAY_CARD`、支付基础 4、0 目标、stack pass-pass 后进入控制者基地成为 2 战力 `CARD_TYPE:UNIT`，并创建 2 战力 `CARD_TYPE:UNIT|黄沙士兵` token，同时拒绝显式目标。focused 10/10、adjacent 1880/1880、backend full 3771/3771 通过；无 DevUi、服务端功能代码或前端契约变更；整体仍 **NOT READY**。
+
 - 第三百五十二批新增 Stage 4C-90 active-entry unit evidence-only overlay。`FU-c1dc472304` / `OGS·016/024` / 先锋扈从 与 `FU-1207daea8f` / `SFD·006/221` / 好斗的龙犬已在 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 记录 `stage4CBatch90ActiveEntryUnitEvidence`、`functionalUnits[].stage4C90` 与 `snapshotEntries[].stage4C90`；复用既有服务端代表路径和测试，覆盖 active-entry source-unit ordinary hand `PLAY_CARD`、支付基础费用、0 目标、stack pass-pass 后进入控制者基地成为官方战力/标签且 `IsExhausted=false`，并拒绝显式目标。focused 24/24、adjacent 1879/1879、backend full 3771/3771 通过；无 DevUi、服务端功能代码或前端契约变更；整体仍 **NOT READY**。
 
 - 第三百五十一批新增 Stage 4C-89 vanilla unit evidence-only overlay。`FU-d635fc47f4` / `OGN·142/298` / 山脉亚龙 与 `FU-72ce6fb8a4` / `OGN·175/298` / 船坞潜伏者已在 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 记录 `stage4CBatch89VanillaUnitEvidence`、`functionalUnits[].stage4C89` 与 `snapshotEntries[].stage4C89`；复用既有服务端代表路径和测试，覆盖无卡面效果单位 ordinary hand `PLAY_CARD`、支付基础费用、0 目标、stack pass-pass 后进入控制者基地成为官方战力 `CARD_TYPE:UNIT`，并拒绝显式目标。focused 305/305、adjacent 1879/1879、backend full 3771/3771 通过；无 DevUi、服务端功能代码或前端契约变更；整体仍 **NOT READY**。
