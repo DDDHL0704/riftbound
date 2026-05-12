@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint 待提交：`pending checkpoint: complete stage 4C faithful craftsman minion evidence`。Stage 4C-69 `Faithful Craftsman` / `OGN·211/298` / `FU-2e2a00f575` 已完成代表性 create Minion unit token evidence-only overlay 与验证，正在收口 checkpoint；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint：`913759e checkpoint: complete stage 4C faithful craftsman minion evidence`。Stage 4C-69 `Faithful Craftsman` / `OGN·211/298` / `FU-2e2a00f575` 已完成代表性 create Minion unit token evidence-only overlay、验证与 checkpoint；项目整体仍 **NOT READY**。
 
 4C-69 不修改功能代码，只把既有服务端权威 token creation 证据入账：`Faithful Craftsman` ordinary hand `PLAY_CARD` 支付 3 mana、0 目标入栈，stack pass-pass 后源牌进入基地成为 2 战力单位，并打出一个未横置 1 战力 `TOKEN_FAMILY:MINION` unit token。Focused 命令：
 

@@ -2,7 +2,7 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`pending checkpoint: complete stage 4C faithful craftsman minion evidence`。
+最新 Stage 4C checkpoint：`913759e checkpoint: complete stage 4C faithful craftsman minion evidence`。
 当前已 checkpoint verified representative evidence：Stage 4C-69 `Faithful Craftsman` create Minion unit token route 已入账，并通过 focused / Minion-token regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
