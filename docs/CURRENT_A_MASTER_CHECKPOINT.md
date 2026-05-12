@@ -4748,3 +4748,42 @@ Checkpoint 记录：
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：4C-84 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 45. 阶段 4C-85 Rune Resource Domain Verified Representative Evidence
+
+状态：**已完成代表证据收口并 checkpoint 为 `f33e733`。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Rune Resource Domain / 符文资源域 `FU-0ec69ae7e6`、`FU-39041f4562`，代表卡为 `OGN·007/298` 炽烈符文 / cardId `31211` 与 `OGN·042/298` 翠意符文 / cardId `31252`，覆盖这两个 FU 下 OGN / SFD / UNL 的 16 个 red / blue basic rune snapshot entries。
+- 本批是 evidence-only overlay，不修改功能代码；只记录官方符文卡映射到 non-play `RUNE_RESOURCE_DOMAIN`、不进入 direct `PLAY_CARD` registry、控制者基地符文通过服务端 `RECYCLE_RUNE` / `paymentResourcePowerByChoice` 作为支付资源贡献 1 点对应 trait 符能。
+- 本批同步记录 typed `SPEND_POWER:red:2` 接受 red 支付资源并拒绝 blue 支付资源、generic `SPEND_POWER:2` 可接受 red / blue 任一服务端候选、double-resource requirement、over-recycle no-mutation guard、Hub development seeds 与 Chrome smoke。
+- 不实现 / 不宣称 complete rune call / tap / recycle lifecycle、全部颜色/trait taxonomy、complete PaymentEngine、替代/额外费用、reaction payment windows、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+
+证据事实：
+
+- A 基于 matrix fresh risk pass 选择剩余两个已 IMPLEMENTED_TESTED、shared oracle、无 stage4C overlay 的 Rune Resource Domain FU，用于覆盖 red / blue basic rune resource-domain payment-resource representative evidence。
+- `src/Riftbound.CardCatalog/BehaviorSpecCatalog.cs` 的 `OfficialRuleDomainBehaviorCatalog` 已将 `CardCategoryName == "符文"` 的官方卡映射到 `RUNE_RESOURCE_DOMAIN`，并保持符文卡不进入 direct `PLAY_CARD` registry。
+- `src/Riftbound.Engine/MatchSession.cs` 的 `RECYCLE_RUNE` prompt metadata 与 `PlayCardPaymentResourcePowerByChoiceForBehavior` 只从控制者基地中可回收且带 `COLOR:*` 的符文生成服务端支付资源候选，并公开 `trait` / `power` metadata。
+- `CardCatalogBaselineTests`、`ConformanceFixtureRunnerTests` 与 `GameHubJoinTests` 覆盖 all-rune domain mapping、red/blue trait metadata、typed/generic payment resource legality、wrong-trait rejection、multi-resource requirement、over-recycle no-mutation guard 和 Hub seed authoritative snapshot。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P6RuneResourceDomainMapsAllRuneEntriesWithoutMakingRunesPlayableCards|FullyQualifiedName~P7PlayCardRecyclesRuneAsPaymentResourceAction|FullyQualifiedName~P7PlayCardPromptOffersRecycleRuneForPartialSpendPowerAmount|FullyQualifiedName~P7PlayCardPaymentResourceContributionMetadataSeparatesTraits|FullyQualifiedName~P7PlayCardGenericPaymentResourceCanUseMixedTraitContribution|FullyQualifiedName~P7PlayCardAllowsRequiredMultipleRecycledPaymentResourceActions|FullyQualifiedName~P79TypedPowerPaymentRecycleSeedOffersPartialAmountAndPlaysThroughHub|FullyQualifiedName~P79TypedPowerPaymentDoubleRecycleSeedRequiresBothResourcesAndPlaysThroughHub|FullyQualifiedName~P79TypedPowerPaymentMixedRecycleSeedExposesTraitsAndAcceptsMatchingResourceThroughHub|FullyQualifiedName~P79TypedPowerPaymentGenericMixedRecycleSeedAcceptsAnyTraitResourceThroughHub"`：passed 10/10。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~RuneResourceDomain|FullyQualifiedName~RecycleRune|FullyQualifiedName~TypedPowerPayment|FullyQualifiedName~PaymentResource|FullyQualifiedName~SpendPower|FullyQualifiedName~RunePool|FullyQualifiedName~PayCost|FullyQualifiedName~PayCostWindow|FullyQualifiedName~Payment|FullyQualifiedName~ActionPrompt|FullyQualifiedName~GameHub"`：passed 240/240。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3754/3754。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C85` 回填为 `RUNE_RESOURCE_DOMAIN_PAYMENT_RESOURCE_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH85_RUNE_RESOURCE_DOMAIN_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH85_RUNE_RESOURCE_DOMAIN_EVIDENCE.md` 记录 narrow representative evidence。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 已提交：`f33e733 checkpoint: complete stage 4C rune resource domain evidence`。
+- 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
+- 已纳入：4C-85 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。

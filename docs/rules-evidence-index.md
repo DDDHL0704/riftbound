@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`76c2abb checkpoint: complete stage 4C heimerdinger source unit evidence`。
-当前已 checkpoint verified representative evidence：Stage 4C-84 `黑默丁格` shared ordinary source-unit-to-base / target rejection / official opening candidate route 已入账，并通过 focused / active keyword source-unit target stack payment activated-ability adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：`f33e733 checkpoint: complete stage 4C rune resource domain evidence`。
+当前已 checkpoint verified representative evidence：Stage 4C-85 `炽烈符文` / `翠意符文` red / blue basic rune `RUNE_RESOURCE_DOMAIN` payment-resource route 已入账，并通过 focused / rune resource payment prompt regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -2333,6 +2333,14 @@
 - 测试证据：`p2-preflight-play-arc-heimerdinger-yordle-static.fixture.json` 与 `p2-preflight-play-ogn-heimerdinger-yordle-static.fixture.json` 覆盖 ordinary hand play / pay base 3 / zero-target stack / pass-pass / source unit to controller base as 3-power `CARD_TYPE:UNIT|约德尔人` / active state / empty stack and hand；active-entry / keyword-source-unit target rejection 覆盖 explicit target no-mutation；official opening smoke 覆盖 ARC hand / card candidate visibility。
 - 验证：focused active/keyword source-unit / target rejection / official opening regression 484/484；Heimerdinger / Yordle / ActiveEntrySourceUnit / KeywordOnlySourceUnit / SourceUnit / UnitToBase / Tap / ActivateAbility / Payment / PayCost / Target / Stack / Priority / OfficialDeck regression 1847/1847；backend full 3754/3754；frontend build passed；Chrome smoke passed。
 - 该证据只关闭 narrow shared Heimerdinger ordinary source-unit-to-base evidence；不关闭 copied tap skills、static ability-copy model、FAQ p11/p22 review、PaymentEngine、FEPR、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+
+## Stage 4C-85 Rune Resource Domain Evidence
+
+- `FU-0ec69ae7e6` / `OGN·007/298` 与 `FU-39041f4562` / `OGN·042/298` / `RUNE_RESOURCE_DOMAIN` 已记录 Stage 4C-85 representative red / blue basic rune payment-resource route evidence。
+- 代码证据：`src/Riftbound.CardCatalog/BehaviorSpecCatalog.cs` 已将官方符文卡映射到 non-play `RUNE_RESOURCE_DOMAIN` 且保持符文卡不进入 direct `PLAY_CARD` registry；`src/Riftbound.Engine/MatchSession.cs` 的 `RECYCLE_RUNE` prompt metadata 与 `PlayCardPaymentResourcePowerByChoiceForBehavior` 只暴露控制者基地可回收符文的服务端 trait / power 支付资源候选。
+- 测试证据：`CardCatalogBaselineTests` 覆盖全部符文卡 domain mapping；`ConformanceFixtureRunnerTests` 覆盖 red payment resource、typed partial power、red/blue metadata、wrong-trait rejection、generic mixed-trait payment、double-resource requirement 与 over-recycle no-mutation guard；`GameHubJoinTests` 覆盖四个 typed / generic payment recycle seed 的 ActionPrompt / authoritative snapshot 路径。
+- 验证：focused rune resource regression 10/10；RuneResourceDomain / RecycleRune / TypedPowerPayment / PaymentResource / SpendPower / RunePool / PayCost / Payment / ActionPrompt / GameHub regression 240/240；backend full 3754/3754；frontend build passed；Chrome smoke passed。
+- 该证据只关闭 narrow red / blue rune resource-domain payment-resource evidence；不关闭 complete rune call / tap / recycle lifecycle、complete PaymentEngine、reaction payment windows、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
 
 ## 7. 索引维护规则
 
