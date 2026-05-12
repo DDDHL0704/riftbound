@@ -2150,6 +2150,14 @@
 - 验证：focused 12/12；Overcharged / Tibbers / BladeWhirlwind / battlefield damage regression 53/53；backend full 3722/3722；frontend build passed；Chrome smoke passed。
 - 该证据只关闭 narrow representative guard；不关闭 damage prevention / replacement / cleanup、lethal triggers、multi-battlefield precision、PaymentEngine、LayerEngine、FAQ、1009/811 full-official 或 formal 18-step E2E。
 
+## Stage 4C-62 Hunt Evidence
+
+- `FU-f877e60407` / `SFD·204/221` / `HUNT_READY_ALL_FRIENDLY_UNITS` 已记录 Stage 4C-62 representative ready-all-friendly-units guard。
+- 新增代码证据：`src/Riftbound.Engine/CoreRuleEngine.cs` 的 `GetControlledPublicFieldUnitObjectIds` 让 Hunt 排除 non-unit / hidden / dirty / enemy objects。
+- 新增测试证据：`tests/Riftbound.ConformanceTests/HuntReadyGuardTests.cs` 覆盖 valid zero-target ready、equipment / spell / rune、face-down standby、dirty controller、enemy unit exclusion，以及 explicit-target no-mutation。
+- 验证：focused 10/10；Hunt / ready / field-unit regression 121/121；backend full 3731/3731；frontend build passed；Chrome smoke passed。
+- 该证据只关闭 narrow representative guard；不关闭 multi-battlefield precision、PaymentEngine、LayerEngine、readiness replacement/prevention interactions、FAQ、1009/811 full-official 或 formal 18-step E2E。
+
 ## 7. 索引维护规则
 
 - 新增规则能力前，先在本索引中找到证据；找不到就先补索引。
