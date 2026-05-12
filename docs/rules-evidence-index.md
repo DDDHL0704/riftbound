@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`ca0fd20 checkpoint: complete stage 4C moon rise power minus 2 evidence`。
-当前已 checkpoint verified representative evidence：Stage 4C-78 `月之降临` enemy battlefield -2 until-end-of-turn / skipped optional movement / negative-power boundary route 已入账，并通过 focused / power cleanup stack adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：`PENDING CHECKPOINT: complete stage 4C forced conscription evidence`。
+当前已 checkpoint verified representative evidence：Stage 4C-79 `强制征召` control small enemy recall / power-above-three rejection / dirty already-controlled enemy-zone target guard route 已入账，并通过 focused / control battlefield target stack payment adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -2285,6 +2285,14 @@
 - 测试证据：`p2-preflight-play-moonrise-enemy-battlefield-power-minus-2.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand play / pay 3 / zero-target stack / pass-pass / enemy battlefield units -2 until end of turn / friendly battlefield and both base units unaffected；negative-power tests 覆盖负战力战斗输出和 cleanup 边界。
 - 验证：focused Moon Rise / negative-power / cleanup regression 5/5；MoonRise / PowerModifier / PowerMinus / NegativePower / Cleanup / CombatDamage / Stack / Priority regression 196/196；backend full 3754/3754；frontend build passed；Chrome smoke passed。
 - 该证据只关闭 narrow Moon Rise representative power-modifier evidence；不关闭 multi-battlefield selection、optional enemy movement、complete control-zone movement matrix、complete cleanup replacement / duration-effect matrix、battle / spell-duel lifecycle、complete FEPR target / stack / timing windows、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+
+## Stage 4C-79 Forced Conscription Control Small Enemy Recall Evidence
+
+- `FU-0681eefc4e` / `UNL-140/219` / `FORCED_CONSCRIPTION_CONTROL_SMALL_ENEMY_RECALL` 已记录 Stage 4C-79 representative control-small-enemy-and-recall route evidence。
+- 代码证据：`src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `UNL-140/219` 为 direct card behavior，包含 `Cost: 5`、`TargetCount: 1`、`TargetScope: EnemyBattlefieldUnit`、`MaxTargetPower: 3`、`TargetRequiredTag: CARD_TYPE:UNIT`、`GainsControlOfTargetToBase: true`、`ExhaustsControlledTarget: true`。
+- 测试证据：`p2-preflight-play-forced-conscription-control-small-enemy-recall.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand play / pay base 5 without optional experience / enemy battlefield unit power 3 or less target / pass-pass / `UNIT_CONTROL_GAINED` / exhausted target recalled to controller base；direct tests 覆盖 4-power target rejection and dirty already-controlled enemy-zone target guard。
+- 验证：focused ForcedConscription / TakenForARide / HostileTakeover regression 18/18；Control / Battlefield / MoveUnit / Target / Stack / Priority / Payment / PayCost regression 1718/1718；backend full 3754/3754；frontend build passed；Chrome smoke rerun passed。
+- 该证据只关闭 narrow Forced Conscription representative control-to-base evidence；不关闭 optional 5 experience branch、complete owner/controller separation、complete control-zone movement matrix、complete cleanup replacement / duration-effect matrix、PaymentEngine optional-cost semantics、complete FEPR target / stack / timing windows、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
 
 ## 7. 索引维护规则
 

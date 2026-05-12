@@ -5,8 +5,8 @@
 
 本文记录 E 证据/审计 worker 第一轮 P0 交接项、阶段 1 D 协议审计、阶段 2 D P0 规则证据链和 A 主控验收结果，不替代 `docs/CURRENT_SERVER_RULE_AUDIT.md`。
 
-最新 Stage 4C checkpoint：`ca0fd20 checkpoint: complete stage 4C moon rise power minus 2 evidence`
-当前已 verified representative evidence：Stage 4C-78 `月之降临` enemy battlefield -2 until-end-of-turn / skipped optional movement / negative-power boundary route 已入账，并通过 focused / power cleanup stack adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：`PENDING CHECKPOINT: complete stage 4C forced conscription evidence`
+当前已 verified representative evidence：Stage 4C-79 `强制征召` control small enemy recall / power-above-three rejection / dirty already-controlled enemy-zone target guard route 已入账，并通过 focused / control battlefield target stack payment adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 历史 3B checkpoint：`a74beac`
 阶段 1 基线提交：`78b6896`
 阶段 2 证据链计划：`docs/CURRENT_STAGE2_P0_CONTRACT_PLAN.md`
@@ -153,6 +153,8 @@
 阶段 4C-77 Syndra spell-duel echo static 证据：`docs/CURRENT_STAGE4C_BATCH77_SYNDRA_SPELL_DUEL_ECHO_STATIC_EVIDENCE.md`
 阶段 4C-78 Moon Rise power -2 审计：`docs/CURRENT_STAGE4C_BATCH78_MOON_RISE_POWER_MINUS_2_AUDIT.md`
 阶段 4C-78 Moon Rise power -2 证据：`docs/CURRENT_STAGE4C_BATCH78_MOON_RISE_POWER_MINUS_2_EVIDENCE.md`
+阶段 4C-79 Forced Conscription control small enemy recall 审计：`docs/CURRENT_STAGE4C_BATCH79_FORCED_CONSCRIPTION_CONTROL_SMALL_ENEMY_RECALL_AUDIT.md`
+阶段 4C-79 Forced Conscription control small enemy recall 证据：`docs/CURRENT_STAGE4C_BATCH79_FORCED_CONSCRIPTION_CONTROL_SMALL_ENEMY_RECALL_EVIDENCE.md`
 
 ## B 修复验收
 
@@ -1280,6 +1282,7 @@ D 审计结论：
 - 4C-76 已记录 Long Sword / 长剑 `SFD·022/221` / cardId `33095` / `FU-5accdd09f9` / `LONG_SWORD_AGILE_PLAY_EQUIPMENT` ordinary hand play / pay 2 / zero-target stack / source-to-base `CARD_TYPE:EQUIPMENT|武装|灵便` route、显式目标拒绝、最小 `ASSEMBLE_RED` 贴附与 owner/controller 身份保持代表证据；本批不修改功能代码，复用既有 fixture 与 targeted tests；focused 11/11、equipment attach move adjacent regression 336/336、backend full 3754/3754、frontend build、Chrome smoke 均通过；Agile reaction attach、complete equipment lifecycle、LayerEngine equipment modifiers、PaymentEngine beyond represented routes、complete FEPR target matrix、hidden-info / redaction matrix、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-77 已记录 Syndra / 辛德拉 `UNL-146/219` / cardId `34691` / `FU-bf350b5796` / `SYNDRA_SPELL_DUEL_ECHO_STATIC` ordinary hand play / pay 6 / zero-target stack / source-to-base 6-power `CARD_TYPE:UNIT` no-extra-tags route 与共享 source-unit target rejection 代表证据；本批不修改功能代码，复用既有 fixture 与 targeted tests；focused 361/361、SpellDuel Echo Payment Stack adjacent regression 553/553、backend full 3754/3754、frontend build、Chrome smoke 均通过；actual spell-duel detection、Echo 2 purple grant、granted Echo payment/repeat、complete spell-duel lifecycle、PaymentEngine、LayerEngine、hidden-info / redaction matrix、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-78 已记录 Moon Rise / 月之降临 `UNL-198/219` / cardId `34751` / `FU-4329e00e20` / `MOON_RISE_ENEMY_BATTLEFIELD_MINUS_2_NO_MOVE` ordinary hand play / pay 3 / zero-target stack / enemy battlefield units -2 until end of turn / skipped optional movement in current single-battlefield-area model / negative-power boundary 代表证据；本批不修改功能代码，复用既有 fixture 与 targeted tests；focused 5/5、power cleanup stack adjacent regression 196/196、backend full 3754/3754、frontend build、Chrome smoke 均通过；multi-battlefield selection、optional enemy movement、control-zone movement matrix、cleanup replacement / duration-effect matrix、battle / spell-duel lifecycle、complete FEPR target matrix、hidden-info / redaction matrix、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
+- 4C-79 已记录 Forced Conscription / 强制征召 `UNL-140/219` / cardId `34683` / `FU-0681eefc4e` / `FORCED_CONSCRIPTION_CONTROL_SMALL_ENEMY_RECALL` ordinary hand play / pay base 5 without optional experience / enemy battlefield `CARD_TYPE:UNIT` target power 3 or less / gain control / exhaust / recall to controller base / power-above-three rejection / dirty already-controlled enemy-zone target guard 代表证据；本批不修改功能代码，复用既有 fixture 与 targeted tests；focused 18/18、control battlefield target stack payment adjacent regression 1718/1718、backend full 3754/3754、frontend build、Chrome smoke 重跑后通过；optional 5 experience branch、complete owner/controller model、control-zone movement matrix、PaymentEngine optional costs、complete FEPR target matrix、hidden-info / redaction matrix、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-15 Viktor `FU-b5cb36a5c9` destroyed non-minion token trigger 已记录为 feasibility blocker；4C-15A 已补 `TOKEN_FAMILY:MINION` 最小前置模型并部分关闭 token classification blocker；4C-15B 已关闭 Viktor 代表性 baseline，但 same-source 多对象 full official matrix、Kogmaw / Karthus / Undercover Agent、完整 trigger engine 仍未关闭。
 - 3A-P0-001 / 002 / 003 / 004 已关闭；不得把这些 3A 子项误读为完整 Stage 3 或 READY。
 - 3B-CAND-001 / 002 / 003 / 004 只能作为阶段 3B 关闭候选；D/A 证据入账前不得移出 P0。

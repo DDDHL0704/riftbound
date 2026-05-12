@@ -4526,3 +4526,40 @@ Checkpoint 记录：
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：4C-78 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 39. 阶段 4C-79 Forced Conscription Control Small Enemy Recall Verified Representative Evidence
+
+状态：**已完成代表证据收口，checkpoint 待提交为 `complete stage 4C forced conscription evidence`。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Forced Conscription / 强制征召 `UNL-140/219` / cardId `34683` / `FU-0681eefc4e` / `FORCED_CONSCRIPTION_CONTROL_SMALL_ENEMY_RECALL`。
+- 本批是 evidence-only overlay，不修改功能代码；只记录 ordinary hand `PLAY_CARD`、不支付 5 experience optional cost、支付基础 5 mana、选择敌方战场 3 战力及以下 `CARD_TYPE:UNIT` 单位、stack / pass-pass 后获得控制权、休眠并召回到控制者基地，外加 4 战力目标拒绝和 dirty already-controlled enemy-zone target guard。
+- 不实现 / 不宣称 optional 5 experience any-enemy-unit branch、complete owner/controller model、complete control-zone movement matrix、complete cleanup replacement / duration-effect matrix、complete PaymentEngine optional-cost semantics、complete FEPR target / stack / timing windows、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+
+证据事实：
+
+- A 基于 matrix fresh risk pass 选择已 IMPLEMENTED_TESTED、无 FAQ、单 FU 的 Forced Conscription route，用于覆盖 control small enemy recall representative evidence。
+- `src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `UNL-140/219` 为 direct card behavior：`Cost: 5`、`TargetCount: 1`、`TargetScope: EnemyBattlefieldUnit`、`MaxTargetPower: 3`、`TargetRequiredTag: CARD_TYPE:UNIT`、`GainsControlOfTargetToBase: true`、`ExhaustsControlledTarget: true`。
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-forced-conscription-control-small-enemy-recall.fixture.json` 已记录官方卡面、核心规则证据和代表性结算预期；`ConformanceFixtureRunnerTests` 覆盖 control-to-base route、4-power rejection、dirty already-controlled enemy-zone target guard，并通过 Taken For A Ride / Hostile Takeover 相邻控制权回归。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ForcedConscription|FullyQualifiedName~TakenForARide|FullyQualifiedName~HostileTakeover"`：passed 18/18。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Control|FullyQualifiedName~Battlefield|FullyQualifiedName~MoveUnit|FullyQualifiedName~Target|FullyQualifiedName~Stack|FullyQualifiedName~Priority|FullyQualifiedName~Payment|FullyQualifiedName~PayCost"`：passed 1718/1718。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3754/3754。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：rerun passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C79` 回填为 `FORCED_CONSCRIPTION_CONTROL_SMALL_ENEMY_RECALL_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH79_FORCED_CONSCRIPTION_CONTROL_SMALL_ENEMY_RECALL_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH79_FORCED_CONSCRIPTION_CONTROL_SMALL_ENEMY_RECALL_EVIDENCE.md` 记录 narrow representative evidence。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 待提交：`checkpoint: complete stage 4C forced conscription evidence`。
+- 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
+- 已纳入：4C-79 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
