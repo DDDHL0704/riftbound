@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint：PENDING CHECKPOINT: complete stage 4C bullet time power damage evidence。Stage 4C-80 `弹幕时间` / `OGN·268/298` / `FU-b646702ec0` 已完成代表性 pay-power enemy battlefield damage / insufficient power rejection / typed and recycle payment resource guard evidence-only overlay 与验证；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint：`1193517 checkpoint: complete stage 4C bullet time power damage evidence`。Stage 4C-80 `弹幕时间` / `OGN·268/298` / `FU-b646702ec0` 已完成代表性 pay-power enemy battlefield damage / insufficient power rejection / typed and recycle payment resource guard evidence-only overlay 与验证；项目整体仍 **NOT READY**。
 
 4C-80 不修改功能代码，只把既有服务端权威 Bullet Time 证据入账：ordinary hand `PLAY_CARD` 支付基础 1 mana 与 `SPEND_POWER` 金额、0 目标入栈、stack `damageAmount` 由已支付符能决定，stack / pass-pass 后对敌方战场单位造成等量伤害；符能不足由直接测试拒绝，typed power / `RECYCLE_RUNE` 支付资源覆盖匹配 trait、错 trait、精确补足、多资源补足、generic mixed-trait contribution 与过量回收守卫。Focused / primary regression 命令：
 

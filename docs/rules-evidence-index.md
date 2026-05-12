@@ -2,7 +2,7 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：PENDING CHECKPOINT: complete stage 4C bullet time power damage evidence。
+最新 Stage 4C checkpoint：`1193517 checkpoint: complete stage 4C bullet time power damage evidence`。
 当前已 checkpoint verified representative evidence：Stage 4C-80 `弹幕时间` pay-power enemy battlefield damage / insufficient power rejection / typed and recycle payment resource guard route 已入账，并通过 focused / payment damage stack adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
