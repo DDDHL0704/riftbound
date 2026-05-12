@@ -4489,3 +4489,40 @@ Checkpoint 记录：
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：4C-77 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 38. 阶段 4C-78 Moon Rise Power Minus 2 Verified Representative Evidence
+
+状态：**已完成代表证据收口，checkpoint 待提交为 `complete stage 4C moon rise power minus 2 evidence`。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Moon Rise / 月之降临 `UNL-198/219` / cardId `34751` / `FU-4329e00e20` / `MOON_RISE_ENEMY_BATTLEFIELD_MINUS_2_NO_MOVE`。
+- 本批是 evidence-only overlay，不修改功能代码；只记录 ordinary hand `PLAY_CARD`、支付 3 mana、0 目标入栈、stack / pass-pass 后敌方战场单位本回合内战力 -2，当前单战场区域模型下跳过可选敌方单位移动，并保留负战力边界。
+- 不实现 / 不宣称 full multi-battlefield selection、optional enemy movement、complete control-zone movement matrix、complete cleanup replacement / duration-effect matrix、complete battle / spell-duel lifecycle、complete FEPR target / stack / timing windows、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+
+证据事实：
+
+- A 基于 matrix fresh risk pass 选择已 IMPLEMENTED_TESTED、无 FAQ、单 FU 的 Moon Rise route，用于覆盖 enemy battlefield power-modifier / negative-power representative evidence。
+- `src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `UNL-198/219` 为 direct card behavior：`Cost: 3`、`TargetCount: 0`、`PowerModifierAmount: -2`、`ModifiesAllEnemyBattlefieldUnits: true`。
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-moonrise-enemy-battlefield-power-minus-2.fixture.json` 已记录官方卡面、核心规则证据和代表性结算预期；`ConformanceFixtureRunnerTests` 覆盖敌方战场单位 -2、友方战场与双方基地不受影响、负战力战斗输出和 cleanup 边界。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysMoonRiseEnemyBattlefieldPowerMinus2|FullyQualifiedName~P4DeclareBattleNegativePowerAttackerDealsNoCombatDamageAndRetainsTruePower|FullyQualifiedName~P7PostStackCleanupDoesNotDestroyUndamagedNegativePowerFieldUnit|FullyQualifiedName~P7PostStackCleanupDestroysZeroOrNegativePowerUnitWithDamage"`：passed 5/5。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~MoonRise|FullyQualifiedName~PowerModifier|FullyQualifiedName~PowerMinus|FullyQualifiedName~NegativePower|FullyQualifiedName~Cleanup|FullyQualifiedName~CombatDamage|FullyQualifiedName~Stack|FullyQualifiedName~Priority"`：passed 196/196。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3754/3754。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C78` 回填为 `MOON_RISE_ENEMY_BATTLEFIELD_MINUS_2_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH78_MOON_RISE_POWER_MINUS_2_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH78_MOON_RISE_POWER_MINUS_2_EVIDENCE.md` 记录 narrow representative evidence。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 待提交：`checkpoint: complete stage 4C moon rise power minus 2 evidence`。
+- 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
+- 已纳入：4C-78 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。

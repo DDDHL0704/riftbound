@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`db4eae7 checkpoint: complete stage 4C syndra spell duel echo static evidence`。
-当前已 checkpoint verified representative evidence：Stage 4C-77 `Syndra` ordinary play-to-base unit / shared target rejection route 已入账，并通过 focused / SpellDuel Echo Payment Stack adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：`PENDING CHECKPOINT: complete stage 4C moon rise power minus 2 evidence`。
+当前已 checkpoint verified representative evidence：Stage 4C-78 `月之降临` enemy battlefield -2 until-end-of-turn / skipped optional movement / negative-power boundary route 已入账，并通过 focused / power cleanup stack adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -2277,6 +2277,14 @@
 - 测试证据：`p2-preflight-play-syndra-spell-duel-echo-static.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand play / pay 6 / zero-target stack / source-to-base 6-power `CARD_TYPE:UNIT` no-extra-tags route；共享 `CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided` 覆盖带目标拒绝。
 - 验证：focused Syndra / SpellDuel / Echo regression 361/361；SpellDuel / Echo / Payment / PayCost / PowerByTrait / Stack / Priority / VanillaSourceUnit regression 553/553；backend full 3754/3754；frontend build passed；Chrome smoke passed。
 - 该证据只关闭 narrow Syndra representative ordinary unit-entry evidence；不关闭 actual spell-duel detection、Echo 2 purple grant、granted Echo payment/repeat、complete spell-duel lifecycle、PaymentEngine、LayerEngine、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+
+## Stage 4C-78 Moon Rise Power Minus 2 Evidence
+
+- `FU-4329e00e20` / `UNL-198/219` / `MOON_RISE_ENEMY_BATTLEFIELD_MINUS_2_NO_MOVE` 已记录 Stage 4C-78 representative enemy battlefield -2 until-end-of-turn / skipped optional movement / negative-power boundary route evidence。
+- 代码证据：`src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `UNL-198/219` 为 direct card behavior，包含 `Cost: 3`、`TargetCount: 0`、`PowerModifierAmount: -2`、`ModifiesAllEnemyBattlefieldUnits: true`。
+- 测试证据：`p2-preflight-play-moonrise-enemy-battlefield-power-minus-2.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand play / pay 3 / zero-target stack / pass-pass / enemy battlefield units -2 until end of turn / friendly battlefield and both base units unaffected；negative-power tests 覆盖负战力战斗输出和 cleanup 边界。
+- 验证：focused Moon Rise / negative-power / cleanup regression 5/5；MoonRise / PowerModifier / PowerMinus / NegativePower / Cleanup / CombatDamage / Stack / Priority regression 196/196；backend full 3754/3754；frontend build passed；Chrome smoke passed。
+- 该证据只关闭 narrow Moon Rise representative power-modifier evidence；不关闭 multi-battlefield selection、optional enemy movement、complete control-zone movement matrix、complete cleanup replacement / duration-effect matrix、battle / spell-duel lifecycle、complete FEPR target / stack / timing windows、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
 
 ## 7. 索引维护规则
 
