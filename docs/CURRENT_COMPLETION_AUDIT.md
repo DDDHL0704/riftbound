@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint：`pending checkpoint: complete stage 4C skullcrack battlefield stun evidence`。Stage 4C-70 `Skullcrack` / `OGN·220/298` / `FU-ee886701e4` 已完成代表性 friendly-then-enemy battlefield stun evidence-only overlay 与验证；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint：`8dfc4b5 checkpoint: complete stage 4C skullcrack battlefield stun evidence`。Stage 4C-70 `Skullcrack` / `OGN·220/298` / `FU-ee886701e4` 已完成代表性 friendly-then-enemy battlefield stun evidence-only overlay 与验证；项目整体仍 **NOT READY**。
 
 4C-70 不修改功能代码，只把既有服务端权威 battlefield status 证据入账：`Skullcrack` ordinary hand `PLAY_CARD` 支付 2 mana，按顺序选择一名友方战场单位和一名敌方战场单位，stack pass-pass 后对两名目标施加 `STUNNED`。Focused 命令：
 
