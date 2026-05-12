@@ -19810,7 +19810,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             CardTargetScopes.AttackingUnit => IsAttackingBattlefieldObject(state, objectId),
             CardTargetScopes.EnemyAttackingUnit => IsEnemyFieldObject(state, playerId, objectId)
                 && IsAttackingBattlefieldObject(state, objectId),
-            CardTargetScopes.EnemyBattlefieldUnit => IsEnemyBattlefieldObject(state, playerId, objectId),
+            CardTargetScopes.EnemyBattlefieldUnit => IsEnemyBattlefieldUnitObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnit => IsEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnitThenEnemyUnit => IsEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.OpponentHandCard => IsOpponentHandCard(state, playerId, objectId),
@@ -20775,6 +20775,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             && !string.Equals(location.Value.PlayerId, playerId, StringComparison.Ordinal)
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
             && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, location.Value.PlayerId);
+    }
+
+    private static bool IsEnemyBattlefieldUnitObject(MatchState state, string playerId, string objectId)
+    {
+        var location = FindFieldObjectLocation(state.PlayerZones, objectId);
+        return location is not null
+            && string.Equals(location.Value.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            && !string.Equals(location.Value.PlayerId, playerId, StringComparison.Ordinal)
+            && IsBattlefieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId);
     }
 
     private static bool IsOpponentGraveyardCard(MatchState state, string playerId, string objectId)

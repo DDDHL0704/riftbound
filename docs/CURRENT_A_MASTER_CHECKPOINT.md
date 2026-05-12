@@ -3969,3 +3969,40 @@ Checkpoint 记录：
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：`src/Riftbound.Engine/CoreRuleEngine.cs`、`tests/Riftbound.ConformanceTests/AnyUnitTargetScopeGuardTests.cs`、4C-63 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 24. 阶段 4C-64 EnemyBattlefieldUnit Target Scope Guard Verified Representative
+
+状态：**已完成代表切片收口，checkpoint 待提交。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Megashark Cannon / 怒海大鲨炮 `OGN·092/298` / cardId `31310` / `FU-6d67456a80` / `MEGASHARK_CANNON_PLAY_UNIT_DAMAGE_6_ENEMY_BATTLEFIELD`。
+- 只补 ordinary hand `PLAY_CARD`、支付 6 mana、选择 enemy public battlefield unit target、stack / pass-pass 后目标受到 6 点伤害的 representative EnemyBattlefieldUnit direct target-scope guard。
+- 不实现 / 不宣称 composite target scopes、all EnemyBattlefieldUnit card texts / alternate modes、formal multi-battlefield precision、standby / reaction、quick / spell-duel timing、full FEPR stack lifecycle、PaymentEngine、LayerEngine、hidden-info / redaction matrix、FAQ adjudication、1009/811 full-official 或 formal 18-step E2E。
+
+修复事实：
+
+- A 基于 matrix fresh risk pass 选择低耦合、无 FAQ、单 FU Megashark Cannon 路线。
+- `src/Riftbound.Engine/CoreRuleEngine.cs` 让 `CardTargetScopes.EnemyBattlefieldUnit` 复用 enemy public battlefield-unit guard，只接受敌方公开战场单位；该 guard 排除 face-down、standby、equipment、spell、rune、dirty controller、friendly battlefield、base、hand 与 stale targets。
+- 新增 `tests/Riftbound.ConformanceTests/EnemyBattlefieldUnitTargetScopeGuardTests.cs`，覆盖成功 target damage、equipment / spell / rune / face-down standby / face-up standby / dirty controller / friendly battlefield / enemy base / hand / stale targets no-mutation rejection，以及无 `TargetRequiredTag` 的 EnemyBattlefieldUnit non-unit regression。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~EnemyBattlefieldUnitTargetScopeGuardTests|FullyQualifiedName~CoreRuleEnginePlaysMegasharkCannonDamageEnemyBattlefield|FullyQualifiedName~CoreRuleEngineRejectsMegasharkCannonWhenTargetIsFriendlyUnit|FullyQualifiedName~CoreRuleEnginePlaysCrescentStrikeTargetPlusSplash|FullyQualifiedName~CoreRuleEngineRejectsCrescentStrikeAgainstFriendlyOrBaseUnit|FullyQualifiedName~P4CrescentStrike"`：passed 18/18。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~EnemyBattlefieldUnitTargetScopeGuardTests|FullyQualifiedName~Megashark|FullyQualifiedName~CrescentStrike|FullyQualifiedName~ZenithBlade|FullyQualifiedName~CharmMoveToBaseGuardTests|FullyQualifiedName~EnemyBattlefieldUnit|FullyQualifiedName~HostileTakeoverGuardTests|FullyQualifiedName~IsolateMoveToBaseGuardTests|FullyQualifiedName~ReprimandReturnToHandGuardTests|FullyQualifiedName~RideTheWindMoveGuardTests"`：passed 82/82。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3754/3754。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C64` 回填为 `ENEMY_BATTLEFIELD_UNIT_TARGET_SCOPE_GUARD_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH64_ENEMY_BATTLEFIELD_UNIT_TARGET_SCOPE_GUARD_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH64_ENEMY_BATTLEFIELD_UNIT_TARGET_SCOPE_GUARD_EVIDENCE.md` 记录 narrow representative guard verified 证据。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 待提交：`checkpoint: complete stage 4C enemy battlefield target guard`。
+- 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
+- 已纳入：`src/Riftbound.Engine/CoreRuleEngine.cs`、`tests/Riftbound.ConformanceTests/EnemyBattlefieldUnitTargetScopeGuardTests.cs`、4C-64 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。

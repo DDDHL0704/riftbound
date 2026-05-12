@@ -2166,6 +2166,14 @@
 - 验证：focused 15/15；AnyUnit / FirstMate / CurtainRises / Beatdown target regression 16/16；backend full 3742/3742；frontend build passed；Chrome smoke passed。
 - 该证据只关闭 narrow representative guard；不关闭 all AnyUnit card texts / modes、multi-battlefield precision、PaymentEngine、LayerEngine、hidden-info / redaction matrix、FAQ、1009/811 full-official 或 formal 18-step E2E。
 
+## Stage 4C-64 EnemyBattlefieldUnit Target Scope Evidence
+
+- `FU-6d67456a80` / `OGN·092/298` / `MEGASHARK_CANNON_PLAY_UNIT_DAMAGE_6_ENEMY_BATTLEFIELD` 已记录 Stage 4C-64 representative EnemyBattlefieldUnit direct target-scope guard。
+- 新增代码证据：`src/Riftbound.Engine/CoreRuleEngine.cs` 的 `CardTargetScopes.EnemyBattlefieldUnit` 现在只接受 enemy public battlefield units；`IsEnemyBattlefieldUnitObject` 要求目标位于敌方 `BATTLEFIELD` 且通过 public battlefield-unit controller guard。
+- 新增测试证据：`tests/Riftbound.ConformanceTests/EnemyBattlefieldUnitTargetScopeGuardTests.cs` 覆盖 valid Megashark Cannon target damage、invalid target no-mutation、无 `TargetRequiredTag` 的 EnemyBattlefieldUnit non-unit regression。
+- 验证：focused 18/18；Megashark / CrescentStrike / ZenithBlade / enemy battlefield unit target regression 82/82；backend full 3754/3754；frontend build passed；Chrome smoke passed。
+- 该证据只关闭 narrow representative guard；不关闭 composite target scopes、all EnemyBattlefieldUnit card texts / modes、multi-battlefield precision、PaymentEngine、LayerEngine、hidden-info / redaction matrix、FAQ、1009/811 full-official 或 formal 18-step E2E。
+
 ## 7. 索引维护规则
 
 - 新增规则能力前，先在本索引中找到证据；找不到就先补索引。
