@@ -4452,3 +4452,40 @@ Checkpoint 记录：
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：4C-76 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 37. 阶段 4C-77 Syndra Spell Duel Echo Static Verified Representative Evidence
+
+状态：**已完成代表证据收口，checkpoint 待提交为 `complete stage 4C syndra spell duel echo static evidence`。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Syndra / 辛德拉 `UNL-146/219` / cardId `34691` / `FU-bf350b5796` / `SYNDRA_SPELL_DUEL_ECHO_STATIC`。
+- 本批是 evidence-only overlay，不修改功能代码；只记录 ordinary hand `PLAY_CARD`、支付 6 mana、0 目标入栈、stack / pass-pass 后源牌进入控制者基地成为 6 战力、无额外标签的 `CARD_TYPE:UNIT` 单位对象，并记录共享 source-unit 带目标拒绝证据。
+- 不实现 / 不宣称 actual spell-duel detection、Echo 2 purple grant、granted Echo payment/repeat、complete spell-duel lifecycle、PaymentEngine、LayerEngine、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+
+证据事实：
+
+- A 基于 matrix fresh risk pass 选择已 IMPLEMENTED_TESTED、无 FAQ、单 FU 的 Syndra route，用于覆盖 spell-duel / Echo static 文本的普通入场代表证据。
+- `src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `UNL-146/219` 为 direct card behavior：`Cost: 6`、`TargetCount: 0`、`PlaysSourceToBaseAsUnit: true`、`SourceUnitPower: 6`。
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-syndra-spell-duel-echo-static.fixture.json` 已记录官方卡面、核心规则证据和代表性结算预期；共享 `CoreRuleEnginePlaysVanillaSourceUnit` 与 `CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided` 覆盖普通入场和带目标拒绝。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysVanillaSourceUnit|FullyQualifiedName~CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided|FullyQualifiedName~SpellDuel|FullyQualifiedName~Echo"`：passed 361/361。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~SpellDuel|FullyQualifiedName~Echo|FullyQualifiedName~Payment|FullyQualifiedName~PayCost|FullyQualifiedName~PowerByTrait|FullyQualifiedName~Stack|FullyQualifiedName~Priority|FullyQualifiedName~VanillaSourceUnit"`：passed 553/553。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3754/3754。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C77` 回填为 `SYNDRA_SPELL_DUEL_ECHO_STATIC_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH77_SYNDRA_SPELL_DUEL_ECHO_STATIC_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH77_SYNDRA_SPELL_DUEL_ECHO_STATIC_EVIDENCE.md` 记录 narrow representative evidence。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 待提交：`checkpoint: complete stage 4C syndra spell duel echo static evidence`。
+- 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
+- 已纳入：4C-77 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。

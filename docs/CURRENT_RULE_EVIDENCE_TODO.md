@@ -5,8 +5,8 @@
 
 本文记录 E 证据/审计 worker 第一轮 P0 交接项、阶段 1 D 协议审计、阶段 2 D P0 规则证据链和 A 主控验收结果，不替代 `docs/CURRENT_SERVER_RULE_AUDIT.md`。
 
-最新 Stage 4C checkpoint：`5ef4a45 checkpoint: complete stage 4C long sword equipment evidence`
-当前已 verified representative evidence：Stage 4C-76 `Long Sword` equipment play / target rejection / minimal assemble identity route 已入账，并通过 focused / equipment attach move adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：`PENDING CHECKPOINT: complete stage 4C syndra spell duel echo static evidence`
+当前已 verified representative evidence：Stage 4C-77 `Syndra` ordinary play-to-base unit / shared target rejection route 已入账，并通过 focused / SpellDuel Echo Payment Stack adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 历史 3B checkpoint：`a74beac`
 阶段 1 基线提交：`78b6896`
 阶段 2 证据链计划：`docs/CURRENT_STAGE2_P0_CONTRACT_PLAN.md`
@@ -149,6 +149,8 @@
 阶段 4C-75 Gentleman Duel damage 证据：`docs/CURRENT_STAGE4C_BATCH75_GENTLEMAN_DUEL_DAMAGE_EVIDENCE.md`
 阶段 4C-76 Long Sword equipment 审计：`docs/CURRENT_STAGE4C_BATCH76_LONG_SWORD_EQUIPMENT_AUDIT.md`
 阶段 4C-76 Long Sword equipment 证据：`docs/CURRENT_STAGE4C_BATCH76_LONG_SWORD_EQUIPMENT_EVIDENCE.md`
+阶段 4C-77 Syndra spell-duel echo static 审计：`docs/CURRENT_STAGE4C_BATCH77_SYNDRA_SPELL_DUEL_ECHO_STATIC_AUDIT.md`
+阶段 4C-77 Syndra spell-duel echo static 证据：`docs/CURRENT_STAGE4C_BATCH77_SYNDRA_SPELL_DUEL_ECHO_STATIC_EVIDENCE.md`
 
 ## B 修复验收
 
@@ -1274,6 +1276,7 @@ D 审计结论：
 - 4C-74 已记录 Sivir / 希维尔 `SFD·143/221`、`SFD·143a/221` / cardId `33234`、`33235` / `FU-5bcc4063c2` / `SIVIR_PLAY_UNIT_NO_OPTIONAL_HASTE` 与 `SIVIR_ALT_A_PLAY_UNIT_NO_OPTIONAL_HASTE` ordinary hand no-optional Haste play-unit route 和代表 `HASTE_READY` optional-cost active-entry route；本批不修改功能代码，复用既有 fixture 与 targeted tests；focused 78/78、haste payment adjacent regression 103/103、backend full 3754/3754、frontend build、Chrome smoke 均通过；完整 PaymentEngine、万能符能计数、+2 战力 / 游走分支、LayerEngine、cleanup / replacement、control-zone movement、hidden-info / redaction matrix、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-75 已记录 Gentleman Duel / 绅士决斗 `OGS·008/024` / cardId `31587` / `FU-265c03a141` / `GENTLEMAN_DUEL_POWER_PLUS_3_THEN_MUTUAL_POWER_DAMAGE` ordinary hand play / pay 6 / friendly then enemy unit targets / +3 friendly power until end of turn / mutual current-power damage / lethal enemy-target cleanup representative evidence；本批不修改功能代码，复用既有 fixture 与 targeted tests；focused 6/6、mutual damage cleanup adjacent regression 203/203、backend full 3754/3754、frontend build、Chrome smoke 均通过；Swift / spell-duel timing、complete FEPR target matrix、LayerEngine / duration cleanup、replacement / prevention、battle damage assignment lifecycle、hidden-info / redaction matrix、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-76 已记录 Long Sword / 长剑 `SFD·022/221` / cardId `33095` / `FU-5accdd09f9` / `LONG_SWORD_AGILE_PLAY_EQUIPMENT` ordinary hand play / pay 2 / zero-target stack / source-to-base `CARD_TYPE:EQUIPMENT|武装|灵便` route、显式目标拒绝、最小 `ASSEMBLE_RED` 贴附与 owner/controller 身份保持代表证据；本批不修改功能代码，复用既有 fixture 与 targeted tests；focused 11/11、equipment attach move adjacent regression 336/336、backend full 3754/3754、frontend build、Chrome smoke 均通过；Agile reaction attach、complete equipment lifecycle、LayerEngine equipment modifiers、PaymentEngine beyond represented routes、complete FEPR target matrix、hidden-info / redaction matrix、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
+- 4C-77 已记录 Syndra / 辛德拉 `UNL-146/219` / cardId `34691` / `FU-bf350b5796` / `SYNDRA_SPELL_DUEL_ECHO_STATIC` ordinary hand play / pay 6 / zero-target stack / source-to-base 6-power `CARD_TYPE:UNIT` no-extra-tags route 与共享 source-unit target rejection 代表证据；本批不修改功能代码，复用既有 fixture 与 targeted tests；focused 361/361、SpellDuel Echo Payment Stack adjacent regression 553/553、backend full 3754/3754、frontend build、Chrome smoke 均通过；actual spell-duel detection、Echo 2 purple grant、granted Echo payment/repeat、complete spell-duel lifecycle、PaymentEngine、LayerEngine、hidden-info / redaction matrix、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-15 Viktor `FU-b5cb36a5c9` destroyed non-minion token trigger 已记录为 feasibility blocker；4C-15A 已补 `TOKEN_FAMILY:MINION` 最小前置模型并部分关闭 token classification blocker；4C-15B 已关闭 Viktor 代表性 baseline，但 same-source 多对象 full official matrix、Kogmaw / Karthus / Undercover Agent、完整 trigger engine 仍未关闭。
 - 3A-P0-001 / 002 / 003 / 004 已关闭；不得把这些 3A 子项误读为完整 Stage 3 或 READY。
 - 3B-CAND-001 / 002 / 003 / 004 只能作为阶段 3B 关闭候选；D/A 证据入账前不得移出 P0。

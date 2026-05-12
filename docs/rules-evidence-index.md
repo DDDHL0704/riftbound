@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`5ef4a45 checkpoint: complete stage 4C long sword equipment evidence`。
-当前已 checkpoint verified representative evidence：Stage 4C-76 `Long Sword` equipment play / target rejection / minimal assemble identity route 已入账，并通过 focused / equipment attach move adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：`PENDING CHECKPOINT: complete stage 4C syndra spell duel echo static evidence`。
+当前已 checkpoint verified representative evidence：Stage 4C-77 `Syndra` ordinary play-to-base unit / shared target rejection route 已入账，并通过 focused / SpellDuel Echo Payment Stack adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -2269,6 +2269,14 @@
 - 测试证据：`p2-preflight-play-long-sword-agile-equipment.fixture.json`、`p4-play-long-sword-target-rejected.fixture.json`、`p4-assemble-equipment-long-sword-attach.fixture.json`、`p5-equipment-state-assemble-long-sword-owner-controller.fixture.json` 与相邻随动 / 脱离 fixtures 覆盖 ordinary hand play / pay 2 / zero-target stack / source-to-base equipment tags / explicit-target rejection / minimal `ASSEMBLE_RED` attach / owner-controller identity。
 - 验证：focused Long Sword regression 11/11；LongSword / AssembleEquipment / Equipment / Attached / Attach / MoveUnit / NonUnitSource regression 336/336；backend full 3754/3754；frontend build passed；Chrome smoke passed。
 - 该证据只关闭 narrow Long Sword representative equipment evidence；不关闭 Agile reaction attach、complete equipment lifecycle、LayerEngine equipment modifiers、PaymentEngine beyond represented routes、replacement / prevention / cleanup interactions、complete FEPR target matrix、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+
+## Stage 4C-77 Syndra Spell Duel Echo Static Evidence
+
+- `FU-bf350b5796` / `UNL-146/219` / `SYNDRA_SPELL_DUEL_ECHO_STATIC` 已记录 Stage 4C-77 representative ordinary play-to-base unit / shared target rejection route evidence。
+- 代码证据：`src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `UNL-146/219` 为 direct card behavior，包含 `Cost: 6`、`TargetCount: 0`、`PlaysSourceToBaseAsUnit: true`、`SourceUnitPower: 6`。
+- 测试证据：`p2-preflight-play-syndra-spell-duel-echo-static.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand play / pay 6 / zero-target stack / source-to-base 6-power `CARD_TYPE:UNIT` no-extra-tags route；共享 `CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided` 覆盖带目标拒绝。
+- 验证：focused Syndra / SpellDuel / Echo regression 361/361；SpellDuel / Echo / Payment / PayCost / PowerByTrait / Stack / Priority / VanillaSourceUnit regression 553/553；backend full 3754/3754；frontend build passed；Chrome smoke passed。
+- 该证据只关闭 narrow Syndra representative ordinary unit-entry evidence；不关闭 actual spell-duel detection、Echo 2 purple grant、granted Echo payment/repeat、complete spell-duel lifecycle、PaymentEngine、LayerEngine、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
 
 ## 7. 索引维护规则
 
