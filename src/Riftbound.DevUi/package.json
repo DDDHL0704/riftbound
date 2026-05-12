@@ -9,6 +9,7 @@
     "dev": "vite --host 127.0.0.1",
     "build": "npm run check:event-labels && npm run check:user-facing-text && tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1",
+    "e2e:formal-18": "node scripts/chrome-formal-18-e2e.mjs",
     "smoke:chrome": "node scripts/chrome-smoke.mjs"
   },
   "dependencies": {

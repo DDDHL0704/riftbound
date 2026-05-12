@@ -1,11 +1,13 @@
 # 符文战场 Web 前端重建与服务端补齐计划
 
-更新日期：2026-05-09
+更新日期：2026-05-13
 当前结论：**NOT READY**
-当前完成度：约 **99%+**，预计仍需 completion audit 与正式 18 步 E2E 收口修复。
+当前完成度：约 **99%+**，formal 18-step E2E 已通过；预计仍需 P0/P1 规则清零、全官方卡牌证据与最终 completion audit。
 用途：作为本轮“产品级 Web 前端重建 + 服务端规则补齐”的短入口，后续每个批次都应回到本文更新范围、验收和剩余风险。
 
 最新批次补充：
+
+- 第三百四十六批补齐 formal 18-step E2E 可复跑脚本。新增 `src/Riftbound.DevUi/scripts/chrome-formal-18-e2e.mjs` 与 `npm run e2e:formal-18`，使用两个独立 headless Chrome profile 模拟 P1/P2，在同一连续正式房间中完成合法 deck submit、ready、mulligan、P1 召符文/抽牌/横置符文/打出单位、双方让过结算链、单位移动到 P2 `OGN·290/298` 战场、P1 reload/reconnect、结束回合、P2 回合开始得分、P2 reload/reconnect、P2 投降与双端结果页“胜者：P1”。本批验证：`node --check scripts/chrome-formal-18-e2e.mjs` 通过，`npm run build` 通过，`npm run e2e:formal-18 -- --start-api` 通过，房间 `formal-18-1778623926434-15`，`npm run smoke:chrome -- --start-api` 通过。该脚本满足 A 主控 formal 18-step 主流程，但不宣称 full official battle/control/PaymentEngine/LayerEngine；整体仍 **NOT READY**。
 
 - 第三百四十五批补齐基地单位移动到具体战场与条件减费 prompt 合法性。服务端 `MOVE_UNIT` 现在支持 `BASE -> BATTLEFIELD:<battlefieldObjectId>`，ActionPrompt 对基地单位移动公开服务端确认的具体战场 destination，Core 会写入精确对象位置并在移入敌方已占战场时触发战场争夺/法术对决；`PLAY_CARD` prompt 的条件减费与 Core 结算保持一致，未满足“本回合已打出另一张牌”等条件时不会把实际支付不起的《诺克萨斯新兵》（OGN·012/298）暴露为可打出。本批后台 headless Chrome/CDP smoke 覆盖 P2 Web UI 点击“让过优先权/让过焦点”、P1 SignalR 声明战斗、UI 显示“战斗结束 / 战场控制结算 / 待命清理”、authoritative snapshot 确认 `controllerId=P2`、`standbyObjectIds=[]`、`P1-STANDBY-CONTEST-001` 进墓地，以及 reload/reconnect 恢复最终 snapshot；build、focused 6/6、`GameHubJoinTests` 129/129、后端 full test 3299/3299 与 DevUi build 均通过。整体仍 **NOT READY**，当前完成度约 **99%+**。
 

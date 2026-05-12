@@ -2340,7 +2340,15 @@
 - 代码证据：`src/Riftbound.CardCatalog/BehaviorSpecCatalog.cs` 已将官方符文卡映射到 non-play `RUNE_RESOURCE_DOMAIN` 且保持符文卡不进入 direct `PLAY_CARD` registry；`src/Riftbound.Engine/MatchSession.cs` 的 `RECYCLE_RUNE` prompt metadata 与 `PlayCardPaymentResourcePowerByChoiceForBehavior` 只暴露控制者基地可回收符文的服务端 trait / power 支付资源候选。
 - 测试证据：`CardCatalogBaselineTests` 覆盖全部符文卡 domain mapping；`ConformanceFixtureRunnerTests` 覆盖 red payment resource、typed partial power、red/blue metadata、wrong-trait rejection、generic mixed-trait payment、double-resource requirement 与 over-recycle no-mutation guard；`GameHubJoinTests` 覆盖四个 typed / generic payment recycle seed 的 ActionPrompt / authoritative snapshot 路径。
 - 验证：focused rune resource regression 10/10；RuneResourceDomain / RecycleRune / TypedPowerPayment / PaymentResource / SpendPower / RunePool / PayCost / Payment / ActionPrompt / GameHub regression 240/240；backend full 3754/3754；frontend build passed；Chrome smoke passed。
-- 该证据只关闭 narrow red / blue rune resource-domain payment-resource evidence；不关闭 complete rune call / tap / recycle lifecycle、complete PaymentEngine、reaction payment windows、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+- 该证据只关闭 narrow red / blue rune resource-domain payment-resource evidence；不关闭 complete rune call / tap / recycle lifecycle、complete PaymentEngine、reaction payment windows、hidden-info / redaction matrix 或 1009/811 full-official。
+
+## Formal 18-Step E2E Evidence
+
+- 证据入口：`docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`。
+- 脚本证据：`src/Riftbound.DevUi/scripts/chrome-formal-18-e2e.mjs` 与 `npm run e2e:formal-18`。
+- 流程证据：房间 `formal-18-1778623926434-15` 已完成双 Chrome profile、官方 deck/opening/mulligan、首回合 rune/draw/play、stack pass-pass、unit move、reconnect、P2 `OGN·290/298` battlefield score、P2 surrender 与 result page winner。
+- 验证：`node --check scripts/chrome-formal-18-e2e.mjs` passed；`npm run build` passed；`npm run e2e:formal-18 -- --start-api` passed；`npm run smoke:chrome -- --start-api` passed。
+- 该证据满足 A 主控 formal 18-step 主流程；不关闭 full official battle/control lifecycle、PaymentEngine、LayerEngine、1009/811 full-official 或最终 READY audit。
 
 ## 7. 索引维护规则
 

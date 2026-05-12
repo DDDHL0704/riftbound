@@ -4787,3 +4787,32 @@ Checkpoint 记录：
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：4C-85 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 46. Formal 18-Step E2E Checkpoint
+
+状态：**formal 18-step 连续正式主流程已通过；项目整体仍 NOT READY。**
+
+本批范围：
+
+- 新增 `src/Riftbound.DevUi/scripts/chrome-formal-18-e2e.mjs` 与 `npm run e2e:formal-18`。
+- 脚本使用两个独立 headless Chrome profile 模拟 P1 / P2，并通过 SignalR 驱动正式房间创建、提交合法标准构筑卡组、ready、mulligan、首回合资源、出牌、结算链双方让过、单位移动、重连、P2 首回合战场得分、投降和结果页。
+- 脚本会重试房间号直到官方开局满足 P1 先手、P1 战场非 `OGN·290/298`、P2 战场为 `OGN·290/298`，保证同一连续正式对局能覆盖 P2 `BATTLEFIELD_FIRST_TURN_GAIN_SCORE`。
+- 页面正文断言不暴露 `mainDeck`、`runeDeck`、`handHidden`、`stackItemId`、`reconnectToken` 等 raw debug / hidden-info 文本。
+
+通过证据：
+
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && node --check scripts/chrome-formal-18-e2e.mjs`：通过。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：通过；仅保留既有 SignalR/Rollup PURE 注释 warning。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run e2e:formal-18 -- --start-api`：通过，房间 `formal-18-1778623926434-15`。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：通过。
+
+文档处理：
+
+- 新增 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`。
+- 更新 `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md` 与本 checkpoint。
+
+口径：
+
+- 该脚本满足 `docs/A_MASTER_AGENT_GOAL.md` 第 11 节 formal 18-step 主流程。
+- 不宣称 full official battle lifecycle、完整 battlefield contest/control task、完整 PaymentEngine、LayerEngine、1009/811 full-official 或 READY。
+- `docs/任务补充.md` 的严格战场争夺/战斗完整官方化仍由已有 seeded battle/control smoke 与后续 P0-002 / P0-004 收口承接。

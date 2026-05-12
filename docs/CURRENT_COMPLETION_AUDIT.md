@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint：`f33e733 checkpoint: complete stage 4C rune resource domain evidence`。Stage 4C-85 `炽烈符文` / `OGN·007/298` / `FU-0ec69ae7e6` 与 `翠意符文` / `OGN·042/298` / `FU-39041f4562` 已完成代表性 `RUNE_RESOURCE_DOMAIN` payment-resource evidence-only overlay 与验证；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint：`f33e733 checkpoint: complete stage 4C rune resource domain evidence`。Stage 4C-85 `炽烈符文` / `OGN·007/298` / `FU-0ec69ae7e6` 与 `翠意符文` / `OGN·042/298` / `FU-39041f4562` 已完成代表性 `RUNE_RESOURCE_DOMAIN` payment-resource evidence-only overlay 与验证。2026-05-13 另新增 formal 18-step E2E 脚本证据，房间 `formal-18-1778623926434-15` 已在同一连续正式对局中通过官方卡组、起手、首回合出牌、结算链、单位移动、重连、P2 战场得分、投降与结果页胜者展示；项目整体仍 **NOT READY**。
 
 4C-85 不修改功能代码，只把既有服务端权威符文资源域证据入账：官方符文卡映射到 non-play `RUNE_RESOURCE_DOMAIN`，不进入 direct `PLAY_CARD` registry；控制者基地符文通过服务端 `RECYCLE_RUNE` / `paymentResourcePowerByChoice` 暴露 trait/power 支付资源；typed `SPEND_POWER:red:2` 接受 red 资源并拒绝 blue 资源，generic `SPEND_POWER:2` 可接受 red / blue 任一服务端候选且防止过量回收。Focused / primary regression 命令：
 
@@ -15,7 +15,9 @@
 source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P6RuneResourceDomainMapsAllRuneEntriesWithoutMakingRunesPlayableCards|FullyQualifiedName~P7PlayCardRecyclesRuneAsPaymentResourceAction|FullyQualifiedName~P7PlayCardPromptOffersRecycleRuneForPartialSpendPowerAmount|FullyQualifiedName~P7PlayCardPaymentResourceContributionMetadataSeparatesTraits|FullyQualifiedName~P7PlayCardGenericPaymentResourceCanUseMixedTraitContribution|FullyQualifiedName~P7PlayCardAllowsRequiredMultipleRecycledPaymentResourceActions|FullyQualifiedName~P79TypedPowerPaymentRecycleSeedOffersPartialAmountAndPlaysThroughHub|FullyQualifiedName~P79TypedPowerPaymentDoubleRecycleSeedRequiresBothResourcesAndPlaysThroughHub|FullyQualifiedName~P79TypedPowerPaymentMixedRecycleSeedExposesTraitsAndAcceptsMatchingResourceThroughHub|FullyQualifiedName~P79TypedPowerPaymentGenericMixedRecycleSeedAcceptsAnyTraitResourceThroughHub"
 ```
 
-结果为 passed，10 passed / 0 failed / 10 total。追加回归 `FullyQualifiedName~RuneResourceDomain|FullyQualifiedName~RecycleRune|FullyQualifiedName~TypedPowerPayment|FullyQualifiedName~PaymentResource|FullyQualifiedName~SpendPower|FullyQualifiedName~RunePool|FullyQualifiedName~PayCost|FullyQualifiedName~PayCostWindow|FullyQualifiedName~Payment|FullyQualifiedName~ActionPrompt|FullyQualifiedName~GameHub` 通过 240/240；backend full 通过 3754/3754；frontend build 通过；Chrome smoke 通过。4C-85 只声明 narrow red / blue rune resource-domain representative payment-resource evidence recorded，不作为 READY 或 full-official 证据；完整 rune lifecycle、完整 PaymentEngine、reaction payment windows、hidden-info / redaction 与 18-step E2E 仍 deferred。
+结果为 passed，10 passed / 0 failed / 10 total。追加回归 `FullyQualifiedName~RuneResourceDomain|FullyQualifiedName~RecycleRune|FullyQualifiedName~TypedPowerPayment|FullyQualifiedName~PaymentResource|FullyQualifiedName~SpendPower|FullyQualifiedName~RunePool|FullyQualifiedName~PayCost|FullyQualifiedName~PayCostWindow|FullyQualifiedName~Payment|FullyQualifiedName~ActionPrompt|FullyQualifiedName~GameHub` 通过 240/240；backend full 通过 3754/3754；frontend build 通过；Chrome smoke 通过。4C-85 只声明 narrow red / blue rune resource-domain representative payment-resource evidence recorded，不作为 READY 或 full-official 证据；完整 rune lifecycle、完整 PaymentEngine、reaction payment windows、hidden-info / redaction 仍 deferred。
+
+Formal 18-step E2E 本轮新增证据见 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`：`node --check scripts/chrome-formal-18-e2e.mjs` 通过；`npm run build` 通过；`npm run e2e:formal-18 -- --start-api` 通过；`npm run smoke:chrome -- --start-api` 通过。本证据满足 A 主控 formal 18-step 的连续正式主流程，但不把代表性 battle / control / PaymentEngine / LayerEngine 升级为 full official。
 
 当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责；4C-85 由 A 基于 matrix 风险筛选做 evidence-only 覆盖入账、复核、验证和文档收口。后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
 
@@ -25,17 +27,17 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 |---|---|---|
 | A 作为主控架构 / 规划 / 验收 agent，不默认亲自写功能代码 | `docs/A_MASTER_AGENT_GOAL.md` 与 `docs/CURRENT_A_MASTER_CHECKPOINT.md` 明确 A 边界；4C-56 修复已按用户授权复用 B / Maxwell，A 做复核、验证和文档收口 | 满足主控边界 |
 | 服务端保持唯一规则权威 | `docs/CURRENT_SERVER_RULE_AUDIT.md` 与本文件第 3 / 6 节记录服务端 authoritative snapshot / prompt / command guard 模型 | 方向满足，但仍有 P0/P1 规则缺口 |
-| 前端只展示并提交服务端 `ActionPrompt` / authoritative snapshot 支持的合法操作 | 本文件第 5 / 6 / 9 节记录前端候选驱动与多批 Chrome smoke；最终 18 步 E2E 仍缺 | 部分验证，未达到最终验收 |
+| 前端只展示并提交服务端 `ActionPrompt` / authoritative snapshot 支持的合法操作 | 本文件第 5 / 6 / 9 节记录前端候选驱动、多批 Chrome smoke 与 formal 18-step E2E；完整 battle/control/payment/layer 仍未 full official | 部分验证，未达到最终验收 |
 | P0/P1 阻断清零 | 本文件第 4 / 11 节与 `docs/CURRENT_SERVER_RULE_AUDIT.md` 仍列出 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡证据；4C-56 blocker 已修复但不清零全局 P0/P1 | 未完成 |
 | 后端 full test 当前 HEAD 全绿 | 4C-85 入账后 focused rune resource regression 10/10、rune resource / payment / prompt adjacent regression 240/240、backend full 3754/3754 均通过 | 本轮满足，最终验收前仍需重跑 |
-| Chrome smoke 通过 | 4C-85 入账后 frontend build 通过，Chrome smoke 通过 | 本轮满足，最终验收前仍需正式 E2E |
-| 正式 18 步 E2E 通过 | 本文件第 9 节明确缺一条完整覆盖 `docs/任务补充.md` 18 步最低流程的双浏览器或等效 E2E | 未完成 |
-| 卡牌覆盖矩阵完成 | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C84` 回填为 representative evidence recorded，但 1009/811 full-official coverage 仍未完成 | 未完成 |
+| Chrome smoke 通过 | 4C-85 入账后 frontend build 通过，Chrome smoke 通过；本轮 `npm run smoke:chrome -- --start-api` 再次通过 | 本轮满足，最终验收前仍需随 P0/P1 清零重跑 |
+| 正式 18 步 E2E 通过 | `npm run e2e:formal-18 -- --start-api` 已通过，房间 `formal-18-1778623926434-15` 覆盖双 Chrome profile、官方 deck/opening/mulligan、stack pass-pass、unit move、reconnect、P2 battlefield score、surrender result | A_MASTER 18-step 满足；整体仍 NOT READY |
+| 卡牌覆盖矩阵完成 | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C85` 回填为 representative evidence recorded，但 1009/811 full-official coverage 仍未完成 | 未完成 |
 | 最终 completion audit 输出 READY 后才允许标记 complete | 本文件审计结论仍为 **NOT READY**；未调用 `update_goal complete` | 未完成 |
 
 ## 1. 修改文件列表
 
-2026-05-13 Stage 4C-85 representative evidence 本轮修改：
+2026-05-13 Stage 4C-85 representative evidence 与 formal 18-step E2E 本轮修改：
 
 - `docs/CURRENT_A_MASTER_CHECKPOINT.md`
 - `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
@@ -43,6 +45,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 - `docs/CURRENT_RULE_EVIDENCE_TODO.md`
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`
 - `docs/rules-evidence-index.md`
+- `src/Riftbound.DevUi/package.json`
 
 历史第二百五十九批修改：
 
@@ -67,12 +70,14 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 
 ## 2. 新增文件列表
 
-2026-05-13 Stage 4C-85 representative evidence 新增文档：
+2026-05-13 Stage 4C-85 representative evidence 与 formal 18-step E2E 新增：
 
 - `docs/CURRENT_STAGE4C_BATCH85_RUNE_RESOURCE_DOMAIN_AUDIT.md`
 - `docs/CURRENT_STAGE4C_BATCH85_RUNE_RESOURCE_DOMAIN_EVIDENCE.md`
+- `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`
+- `src/Riftbound.DevUi/scripts/chrome-formal-18-e2e.mjs`
 
-2026-05-13 Stage 4C-85 representative evidence 新增测试：无；本批复用既有 conformance tests，并只做矩阵与文档入账。
+2026-05-13 Stage 4C-85 representative evidence 新增 conformance tests：无；本批复用既有 conformance tests，并只做矩阵与文档入账。formal 18-step E2E 则新增可复跑的 DevUi 脚本。
 
 历史第二百五十九批新增：
 
@@ -117,9 +122,9 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 
 仍需收口：
 
-- 以双浏览器或等效 E2E 覆盖 `docs/任务补充.md` 的 18 步最低主流程。
-- 第三百四十五批已补一段 seeded battle/control/reconnect smoke，并修复正式流程中暴露的基地单位具体战场移动与条件减费 prompt 合法性缺口；完整正式 18 步 E2E 仍需最终 completion audit 单独通过。
-- 继续补响应窗口、复杂费用、目标法术、战场得分与胜负结算的产品级真实操作 smoke。
+- Formal 18-step E2E 已用双 headless Chrome profile 覆盖 A 主控连续正式主流程；后续不应再把“缺一条 formal 18-step”作为独立缺口。
+- 第三百四十五批 seeded battle/control/reconnect smoke 与本轮 formal 18-step 共同覆盖移动、战斗/控制代表路径、得分、重连和胜负结算，但严格 full official battlefield contest / battle lifecycle 仍归入 P0-002 / P0-004。
+- 继续补响应窗口、复杂费用、目标法术、battle/control 全生命周期与隐藏信息长链路 smoke。
 - 确认所有玩家可见页面不再裸显协议词、对象 ID、raw enum、fixture/debug 文本或未授权隐藏信息。
 
 ## 6. 接口契约说明
@@ -144,7 +149,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 
 历史第二百五十九批是前端/API fallback 文案与构建门禁收口批。`MatchSocket` 在 Join/Reconnect 等待超时时返回中文错误，行为规格 API 单卡未命中返回中文 404 message；`npm run build` 现在会执行 `check:user-facing-text`，防止关键玩家可见英文 fallback 回流。该历史批次曾记录后端 full test 3157/3157 通过、前端 build 通过。此前第二百三十二批 Chrome 插件房间 `smoke-battlefield-held-score-1778247059745` 已覆盖战场得分 UI 代表路径。
 
-当前 2026-05-12 Stage 4C-59 representative guard 修复后，focused ZenithBlade guard 过滤测试通过 15/15，ZenithBlade / Stun / ActionPrompt / Prompt 回归过滤测试通过 154/154，backend full 通过 3701/3701，frontend build 通过，Chrome smoke 通过。本轮只证明 4C-59 narrow representative guard 与基本 UI smoke，不替代最终 18 步 E2E。
+当前 2026-05-13 formal 18-step E2E 收口后，`node --check scripts/chrome-formal-18-e2e.mjs` 通过；`npm run build` 通过；`npm run e2e:formal-18 -- --start-api` 通过；`npm run smoke:chrome -- --start-api` 通过。最近 backend full 仍为 4C-85 后 3754/3754 通过；本轮未修改后端源码。
 
 ## 9. Browser smoke / E2E 结果
 
@@ -158,7 +163,9 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 
 第二百五十九批仅改前端/API fallback 文案和构建门禁，无业务交互流程变更；本批未启动新的 API/Vite/Chrome smoke，提交前目标端口保持无监听。
 
-最终仍缺一条完全覆盖 `docs/任务补充.md` 18 步最低流程的双浏览器或等效 E2E：同一连续正式牌局还没有覆盖战场争夺/战斗与战场得分整合；当前战场得分证据仍是 development seed 代表路径。
+2026-05-13 新增 formal 18-step E2E：房间 `formal-18-1778623926434-15` 在同一连续正式牌局中完成 P1/P2 双 Chrome profile 连接、官方合法卡组提交、ready、mulligan、P1 召符文/抽牌/横置符文/打出单位、双方让过结算链、单位移动到 P2 `OGN·290/298` 战场、P1 reload/reconnect、结束回合、P2 回合开始、`BATTLEFIELD_TRIGGER_RESOLVED` 与 `SCORE_GAINED` 让 P2 分数变为 `1/8`、P2 reload/reconnect、P2 投降、双端结果页显示“胜者：P1”。页面正文同时断言不暴露 `mainDeck`、`runeDeck`、`handHidden`、`stackItemId`、`reconnectToken` 等 raw debug / hidden-info 文本。
+
+该 E2E 满足 `docs/A_MASTER_AGENT_GOAL.md` 第 11 节 formal 18-step 主流程；`docs/任务补充.md` 中更严格的战场争夺/战斗完整官方化仍由第三百四十五批 seeded battle/control smoke 与后续 P0-002 / P0-004 收口承接，不能据此宣称 battle lifecycle full official。
 
 ## 10. 仍未完成的 P2 项
 
@@ -176,4 +183,4 @@ P2 项暂不作为 complete 阻断，但应在 P0/P1 清零后继续排期：
 
 **NOT READY**
 
-下一步优先级：继续按 `docs/CURRENT_SERVER_RULE_AUDIT.md` 收口 P0-002/P0-003/P0-004/P0-005 和 P1 LayerEngine/全卡证据，同时补一条完整双浏览器或等效 E2E 主流程。
+下一步优先级：继续按 `docs/CURRENT_SERVER_RULE_AUDIT.md` 收口 P0-002/P0-003/P0-004/P0-005 和 P1 LayerEngine/全卡证据，并把 strict battlefield contest / battle lifecycle 从代表路径推进到 full official。
