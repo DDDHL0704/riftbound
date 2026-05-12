@@ -4711,3 +4711,40 @@ Checkpoint 记录：
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：4C-83 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 44. 阶段 4C-84 Heimerdinger Source Unit Verified Representative Evidence
+
+状态：**已完成代表证据收口；checkpoint 待提交为 `complete stage 4C heimerdinger source unit evidence`。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Heimerdinger / 黑默丁格 `ARC-003/006`、`OGN·111/298` / cardIds `31571`、`31329` / `FU-02075a26e3` / `ARC_HEIMERDINGER_YORDLE_STATIC_PLAY_UNIT`、`OGN_HEIMERDINGER_YORDLE_TAP_STATIC_PLAY_UNIT`。
+- 本批是 evidence-only overlay，不修改功能代码；只记录两张共享条目 ordinary hand `PLAY_CARD`、支付基础 3 mana、0 目标入栈、stack / pass-pass 后源牌进入控制者基地，成为 3 战力、带 `约德尔人` 标签的 `CARD_TYPE:UNIT` 单位对象，以及 active-entry / keyword-source-unit 带目标打出拒绝和 ARC 官方开局候选可见性。
+- 不实现 / 不宣称 copied tap skills from other friendly legends / units / equipment、complete static ability-copy model、ability ownership / controller matrix、activated / tap ability PaymentEngine integration、`SOUL-JFAQ-260114 p11/p22` regression beyond citation tracking、shared oracle full-official behavior、complete FEPR target / stack / timing windows、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+
+证据事实：
+
+- A 基于 matrix fresh risk pass 选择已 IMPLEMENTED_TESTED、shared oracle、FAQ-referenced 的 Heimerdinger FU，用于覆盖 shared ordinary source-unit-to-base representative evidence。
+- `src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `ARC-003/006` 与 `OGN·111/298` 为 direct card behavior：`Cost: 3`、`TargetCount: 0`、`PlaysSourceToBaseAsUnit: true`、`SourceUnitPower: 3`、`SourceUnitTags: 约德尔人`。
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-arc-heimerdinger-yordle-static.fixture.json` 与 `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-heimerdinger-yordle-static.fixture.json` 已记录官方卡面、核心规则证据和代表性结算预期；`ConformanceFixtureRunnerTests` 覆盖 active-entry / keyword-source-unit play route、target rejection、official opening 和 payment / activated-ability adjacent routes。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysActiveEntrySourceUnit|FullyQualifiedName~CoreRuleEngineRejectsActiveEntrySourceUnitWhenTargetsAreProvided|FullyQualifiedName~CoreRuleEnginePlaysKeywordOnlySourceUnit|FullyQualifiedName~CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided|FullyQualifiedName~OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub"`：passed 484/484。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Heimerdinger|FullyQualifiedName~Yordle|FullyQualifiedName~ActiveEntrySourceUnit|FullyQualifiedName~KeywordOnlySourceUnit|FullyQualifiedName~SourceUnit|FullyQualifiedName~UnitToBase|FullyQualifiedName~Tap|FullyQualifiedName~ActivateAbility|FullyQualifiedName~Payment|FullyQualifiedName~PayCost|FullyQualifiedName~Target|FullyQualifiedName~Stack|FullyQualifiedName~Priority|FullyQualifiedName~OfficialDeck"`：passed 1847/1847。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3754/3754。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C84` 回填为 `HEIMERDINGER_SHARED_SOURCE_UNIT_TO_BASE_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH84_HEIMERDINGER_SOURCE_UNIT_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH84_HEIMERDINGER_SOURCE_UNIT_EVIDENCE.md` 记录 narrow representative evidence。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 待提交：`checkpoint: complete stage 4C heimerdinger source unit evidence`。
+- 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
+- 已纳入：4C-84 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
