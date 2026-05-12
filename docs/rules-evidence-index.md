@@ -2,7 +2,7 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：PENDING CHECKPOINT: complete stage 4C mighty faerie source unit evidence。
+最新 Stage 4C checkpoint：`7919c42 checkpoint: complete stage 4C mighty faerie source unit evidence`。
 当前已 checkpoint verified representative evidence：Stage 4C-83 `大力仙灵` ordinary source-unit-to-base / explicit-target rejection route 已入账，并通过 focused / keyword-source-unit battlefield movement target stack payment adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的

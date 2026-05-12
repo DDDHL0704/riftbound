@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint：PENDING CHECKPOINT: complete stage 4C mighty faerie source unit evidence。Stage 4C-83 `大力仙灵` / `SFD·125/221` / `FU-95b4531e4e` 已完成代表性 ordinary source-unit-to-base / explicit-target rejection evidence-only overlay 与验证；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint：`7919c42 checkpoint: complete stage 4C mighty faerie source unit evidence`。Stage 4C-83 `大力仙灵` / `SFD·125/221` / `FU-95b4531e4e` 已完成代表性 ordinary source-unit-to-base / explicit-target rejection evidence-only overlay 与验证；项目整体仍 **NOT READY**。
 
 4C-83 不修改功能代码，只把既有服务端权威 Mighty Faerie 证据入账：ordinary hand `PLAY_CARD` 支付基础 4 mana、0 目标入栈，stack / pass-pass 后源牌进入控制者基地，成为 4 战力、带 `仙灵` 标签的 `CARD_TYPE:UNIT` 单位对象；当前普通手牌打出路径携带显式目标时由 fixture / direct test 拒绝。Focused / primary regression 命令：
 
