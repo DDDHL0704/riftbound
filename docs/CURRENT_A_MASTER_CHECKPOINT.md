@@ -4415,3 +4415,40 @@ Checkpoint 记录：
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：4C-75 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 36. 阶段 4C-76 Long Sword Equipment Verified Representative Evidence
+
+状态：**已完成代表证据收口，checkpoint 待提交为 `complete stage 4C long sword equipment evidence`。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Long Sword / 长剑 `SFD·022/221` / cardId `33095` / `FU-5accdd09f9` / `LONG_SWORD_AGILE_PLAY_EQUIPMENT`。
+- 本批是 evidence-only overlay，不修改功能代码；只记录 ordinary hand `PLAY_CARD`、支付 2 mana、0 目标入栈、stack / pass-pass 后源牌进入控制者基地成为 `CARD_TYPE:EQUIPMENT` / `武装` / `灵便` 装备对象，显式目标拒绝、最小 `ASSEMBLE_RED` 贴附与 owner/controller 身份保持代表证据。
+- 不实现 / 不宣称 Agile reaction attach、complete equipment lifecycle、LayerEngine equipment modifiers、PaymentEngine beyond represented routes、replacement / prevention / cleanup interactions、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+
+证据事实：
+
+- A 基于 matrix fresh risk pass 选择已 IMPLEMENTED_TESTED、无 FAQ、单 FU 且范围较窄的 Long Sword route，用于覆盖 equipment play / target rejection / minimal assemble identity representative evidence。
+- `src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `SFD·022/221` 为 direct card behavior：`Cost: 2`、`TargetCount: 0`、`PlaysSourceToBaseAsEquipment: true`、`SourceEquipmentTags: 武装|灵便`。
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-long-sword-agile-equipment.fixture.json`、`p4-play-long-sword-target-rejected.fixture.json`、`p4-assemble-equipment-long-sword-attach.fixture.json` 与 `p5-equipment-state-assemble-long-sword-owner-controller.fixture.json` 已记录普通装备打出、显式目标拒绝、最小贴附和身份保持证据；随动 / 脱离 fixtures 只作为邻接回归。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~LongSword|FullyQualifiedName~P4AssembleEquipmentCommandLongSwordAttachFixture|FullyQualifiedName~P5EquipmentStateAssembleLongSwordOwnerControllerFixture|FullyQualifiedName~P5MoveUnitAttachedEquipmentFollowsHostFixture|FullyQualifiedName~P5EquipmentDetachesWhenHostDestroyedFixture"`：passed 11/11。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~LongSword|FullyQualifiedName~AssembleEquipment|FullyQualifiedName~Equipment|FullyQualifiedName~Attached|FullyQualifiedName~Attach|FullyQualifiedName~MoveUnit|FullyQualifiedName~NonUnitSource"`：passed 336/336。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3754/3754。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C76` 回填为 `LONG_SWORD_AGILE_EQUIPMENT_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH76_LONG_SWORD_EQUIPMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH76_LONG_SWORD_EQUIPMENT_EVIDENCE.md` 记录 narrow representative evidence。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 待提交：`checkpoint: complete stage 4C long sword equipment evidence`。
+- 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
+- 已纳入：4C-76 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。

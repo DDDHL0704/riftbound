@@ -7,17 +7,17 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint：`686d51f checkpoint: complete stage 4C gentleman duel damage evidence`。Stage 4C-75 `Gentleman Duel` / `OGS·008/024` / `FU-265c03a141` 已完成代表性 power +3 then mutual current-power damage evidence-only overlay 与验证；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint：`PENDING CHECKPOINT: complete stage 4C long sword equipment evidence`。Stage 4C-76 `Long Sword` / `SFD·022/221` / `FU-5accdd09f9` 已完成代表性 equipment play / explicit-target rejection / minimal assemble identity evidence-only overlay 与验证；项目整体仍 **NOT READY**。
 
-4C-75 不修改功能代码，只把既有服务端权威 Gentleman Duel 证据入账：ordinary hand `PLAY_CARD` 支付 6 mana，按友方单位、敌方单位顺序选择目标，stack / pass-pass 后友方目标先获得 +3 本回合战力，再以当前 5 战力对敌方目标造成伤害；敌方目标以 3 战力回伤，随后敌方目标因致命伤害进入 owner graveyard。Focused / primary regression 命令：
+4C-76 不修改功能代码，只把既有服务端权威 Long Sword 证据入账：ordinary hand `PLAY_CARD` 支付 2 mana、0 目标入栈，stack / pass-pass 后源牌进入控制者基地成为 `CARD_TYPE:EQUIPMENT` / `武装` / `灵便` 装备对象；显式目标打出被拒绝且无状态变化；最小 `ASSEMBLE_RED` 贴附与 owner/controller 身份保持作为邻接代表证据记录。Focused / primary regression 命令：
 
 ```sh
-source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysGentlemanDuelPowerThenMutualDamage|FullyQualifiedName~CoreRuleEnginePlaysDuelMutualPowerDamage|FullyQualifiedName~CoreRuleEngineRejectsDuelWhenTargetsAreReversed|FullyQualifiedName~P4DuelTargetOrderRejectedFixture|FullyQualifiedName~CoreRuleEnginePlaysMarchingOrdersEchoMutualPowerDamage|FullyQualifiedName~CoreRuleEnginePlaysClashOfGiantsMutualPowerDamage"
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~LongSword|FullyQualifiedName~P4AssembleEquipmentCommandLongSwordAttachFixture|FullyQualifiedName~P5EquipmentStateAssembleLongSwordOwnerControllerFixture|FullyQualifiedName~P5MoveUnitAttachedEquipmentFollowsHostFixture|FullyQualifiedName~P5EquipmentDetachesWhenHostDestroyedFixture"
 ```
 
-结果为 passed，6 passed / 0 failed / 6 total。追加回归 `FullyQualifiedName~Gentleman|FullyQualifiedName~Duel|FullyQualifiedName~MutualPower|FullyQualifiedName~PowerModified|FullyQualifiedName~Damage|FullyQualifiedName~Cleanup|FullyQualifiedName~ClashOfGiants|FullyQualifiedName~MarchingOrders|FullyQualifiedName~FriendlyThenEnemy` 通过 203/203；backend full 通过 3754/3754；frontend build 通过；Chrome smoke 通过。4C-75 只声明 narrow Gentleman Duel representative evidence recorded，不作为 READY 或 full-official 证据；Swift / spell-duel timing、LayerEngine、duration cleanup、replacement / prevention、完整 FEPR target matrix 仍 deferred。
+结果为 passed，11 passed / 0 failed / 11 total。追加回归 `FullyQualifiedName~LongSword|FullyQualifiedName~AssembleEquipment|FullyQualifiedName~Equipment|FullyQualifiedName~Attached|FullyQualifiedName~Attach|FullyQualifiedName~MoveUnit|FullyQualifiedName~NonUnitSource` 通过 336/336；backend full 通过 3754/3754；frontend build 通过；Chrome smoke 通过。4C-76 只声明 narrow Long Sword representative equipment evidence recorded，不作为 READY 或 full-official 证据；Agile reaction attach、完整装备生命周期、LayerEngine 装备修正、完整 PaymentEngine、完整 FEPR target matrix 仍 deferred。
 
-当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责；4C-75 由 A 基于 matrix 风险筛选做 evidence-only 覆盖入账、复核、验证和文档收口。后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
+当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责；4C-76 由 A 基于 matrix 风险筛选做 evidence-only 覆盖入账、复核、验证和文档收口。后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
 
 ## 0.1 Active Goal 门槛到证据映射
 
@@ -27,15 +27,15 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 | 服务端保持唯一规则权威 | `docs/CURRENT_SERVER_RULE_AUDIT.md` 与本文件第 3 / 6 节记录服务端 authoritative snapshot / prompt / command guard 模型 | 方向满足，但仍有 P0/P1 规则缺口 |
 | 前端只展示并提交服务端 `ActionPrompt` / authoritative snapshot 支持的合法操作 | 本文件第 5 / 6 / 9 节记录前端候选驱动与多批 Chrome smoke；最终 18 步 E2E 仍缺 | 部分验证，未达到最终验收 |
 | P0/P1 阻断清零 | 本文件第 4 / 11 节与 `docs/CURRENT_SERVER_RULE_AUDIT.md` 仍列出 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡证据；4C-56 blocker 已修复但不清零全局 P0/P1 | 未完成 |
-| 后端 full test 当前 HEAD 全绿 | 4C-75 入账后 focused Gentleman Duel regression 6/6、mutual damage / cleanup adjacent regression 203/203、backend full 3754/3754 均通过 | 本轮满足，最终验收前仍需重跑 |
-| Chrome smoke 通过 | 4C-75 入账后 frontend build 通过，Chrome smoke 通过 | 本轮满足，最终验收前仍需正式 E2E |
+| 后端 full test 当前 HEAD 全绿 | 4C-76 入账后 focused Long Sword regression 11/11、equipment / attach / move adjacent regression 336/336、backend full 3754/3754 均通过 | 本轮满足，最终验收前仍需重跑 |
+| Chrome smoke 通过 | 4C-76 入账后 frontend build 通过，Chrome smoke 通过 | 本轮满足，最终验收前仍需正式 E2E |
 | 正式 18 步 E2E 通过 | 本文件第 9 节明确缺一条完整覆盖 `docs/任务补充.md` 18 步最低流程的双浏览器或等效 E2E | 未完成 |
-| 卡牌覆盖矩阵完成 | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C75` 回填为 representative evidence recorded，但 1009/811 full-official coverage 仍未完成 | 未完成 |
+| 卡牌覆盖矩阵完成 | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C76` 回填为 representative evidence recorded，但 1009/811 full-official coverage 仍未完成 | 未完成 |
 | 最终 completion audit 输出 READY 后才允许标记 complete | 本文件审计结论仍为 **NOT READY**；未调用 `update_goal complete` | 未完成 |
 
 ## 1. 修改文件列表
 
-2026-05-13 Stage 4C-75 representative evidence 本轮修改：
+2026-05-13 Stage 4C-76 representative evidence 本轮修改：
 
 - `docs/CURRENT_A_MASTER_CHECKPOINT.md`
 - `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
@@ -67,12 +67,12 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 
 ## 2. 新增文件列表
 
-2026-05-13 Stage 4C-75 representative evidence 新增文档：
+2026-05-13 Stage 4C-76 representative evidence 新增文档：
 
-- `docs/CURRENT_STAGE4C_BATCH75_GENTLEMAN_DUEL_DAMAGE_AUDIT.md`
-- `docs/CURRENT_STAGE4C_BATCH75_GENTLEMAN_DUEL_DAMAGE_EVIDENCE.md`
+- `docs/CURRENT_STAGE4C_BATCH76_LONG_SWORD_EQUIPMENT_AUDIT.md`
+- `docs/CURRENT_STAGE4C_BATCH76_LONG_SWORD_EQUIPMENT_EVIDENCE.md`
 
-2026-05-13 Stage 4C-75 representative evidence 新增测试：无；本批复用既有 conformance tests，并只做矩阵与文档入账。
+2026-05-13 Stage 4C-76 representative evidence 新增测试：无；本批复用既有 conformance tests，并只做矩阵与文档入账。
 
 历史第二百五十九批新增：
 

@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`686d51f checkpoint: complete stage 4C gentleman duel damage evidence`。
-当前已 checkpoint verified representative evidence：Stage 4C-75 `Gentleman Duel` power +3 then mutual current-power damage route 已入账，并通过 focused / mutual damage cleanup adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：`PENDING CHECKPOINT: complete stage 4C long sword equipment evidence`。
+当前已 checkpoint verified representative evidence：Stage 4C-76 `Long Sword` equipment play / target rejection / minimal assemble identity route 已入账，并通过 focused / equipment attach move adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -2261,6 +2261,14 @@
 - 测试证据：`p2-preflight-play-gentleman-duel-power-then-mutual-damage.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand play / pay 6 / friendly then enemy unit targets / stack pass-pass / friendly +3 until end of turn / mutual damage / lethal enemy-target destruction；Duel sibling tests 覆盖共享 target-order guard。
 - 验证：focused Gentleman Duel regression 6/6；Gentleman / Duel / MutualPower / PowerModified / Damage / Cleanup / ClashOfGiants / MarchingOrders / FriendlyThenEnemy regression 203/203；backend full 3754/3754；frontend build passed；Chrome smoke passed。
 - 该证据只关闭 narrow Gentleman Duel representative evidence；不关闭 Swift / spell-duel timing、complete FEPR target matrix、LayerEngine / duration cleanup、replacement / prevention、battle damage assignment lifecycle、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+
+## Stage 4C-76 Long Sword Equipment Evidence
+
+- `FU-5accdd09f9` / `SFD·022/221` / `LONG_SWORD_AGILE_PLAY_EQUIPMENT` 已记录 Stage 4C-76 representative equipment play / target rejection / minimal assemble identity route evidence。
+- 代码证据：`src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `SFD·022/221` 为 direct card behavior，包含 `Cost: 2`、`TargetCount: 0`、`PlaysSourceToBaseAsEquipment: true`、`SourceEquipmentTags: 武装|灵便`。
+- 测试证据：`p2-preflight-play-long-sword-agile-equipment.fixture.json`、`p4-play-long-sword-target-rejected.fixture.json`、`p4-assemble-equipment-long-sword-attach.fixture.json`、`p5-equipment-state-assemble-long-sword-owner-controller.fixture.json` 与相邻随动 / 脱离 fixtures 覆盖 ordinary hand play / pay 2 / zero-target stack / source-to-base equipment tags / explicit-target rejection / minimal `ASSEMBLE_RED` attach / owner-controller identity。
+- 验证：focused Long Sword regression 11/11；LongSword / AssembleEquipment / Equipment / Attached / Attach / MoveUnit / NonUnitSource regression 336/336；backend full 3754/3754；frontend build passed；Chrome smoke passed。
+- 该证据只关闭 narrow Long Sword representative equipment evidence；不关闭 Agile reaction attach、complete equipment lifecycle、LayerEngine equipment modifiers、PaymentEngine beyond represented routes、replacement / prevention / cleanup interactions、complete FEPR target matrix、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
 
 ## 7. 索引维护规则
 
