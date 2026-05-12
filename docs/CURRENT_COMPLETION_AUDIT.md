@@ -7,17 +7,17 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint：`dbacc2d checkpoint: complete stage 4C plunder alley battlefield evidence`。Stage 4C-73 `Plunder Alley` / `OGN·285/298` / `FU-90673ef9fd` 已完成代表性 battlefield defend move-to-base evidence-only overlay 与验证；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint：`PENDING CHECKPOINT: complete stage 4C sivir haste evidence`。Stage 4C-74 `Sivir` / `SFD·143/221`、`SFD·143a/221` / `FU-5bcc4063c2` 已完成代表性 no-optional Haste play-unit 与 `HASTE_READY` optional-cost evidence-only overlay 与验证；项目整体仍 **NOT READY**。
 
-4C-73 不修改功能代码，只把既有服务端权威 battlefield-domain 证据入账：`Plunder Alley` development seed 中防守战场后选择一名防守单位移回基地；同时记录 prompt destination / target choice、非法多目标中文拒绝、合法 `BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE` 结算与脏 controller 拒绝。Focused / primary regression 命令：
+4C-74 不修改功能代码，只把既有服务端权威 Sivir Haste 证据入账：两张 Sivir 共享 FU 均覆盖普通手牌打出、支付基础 4 点、0 目标入栈、双方让过后作为 4 战力 `CARD_TYPE:UNIT|急速` 单位进入基地；代表 `HASTE_READY` 分支覆盖额外 1 mana + 1 purple power、`hasteReadyOptionalCostPaid=true` 与 active-entry flag；同时记录 unexpected target rejection 与错色符能拒付 no-mutation。Focused / primary regression 命令：
 
 ```sh
-source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldDefendMovesChosenSurvivingDefenderToBase|FullyQualifiedName~P79BattlefieldDefendMoveToBaseRejectsAttackerControlledBattlefield|FullyQualifiedName~P79BattlefieldDefendMoveToBaseSeedOffersBattlefieldDestinationAndChoice"
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysSourceUnitWithoutOptionalAdditionalCost|FullyQualifiedName~CoreRuleEngineRejectsSourceUnitWithoutOptionalAdditionalCostWhenTargetsAreProvided|FullyQualifiedName~P4HasteOptionalReadyBranchPaysManaAndPowerForSivir|FullyQualifiedName~P4HasteOptionalReadyBranchPaysManaAndPowerForSivirAltA|FullyQualifiedName~P4HasteOptionalReadyBranchRejectsSivirWrongTraitPower"
 ```
 
-结果为 passed，3 passed / 0 failed / 3 total。追加回归 `FullyQualifiedName~BattlefieldDefend|FullyQualifiedName~BattlefieldHeld|FullyQualifiedName~DeclareBattle|FullyQualifiedName~BattlefieldControl|FullyQualifiedName~Plunder|FullyQualifiedName~BattlefieldDestination` 通过 137/137；backend full 通过 3754/3754；frontend build 通过；Chrome smoke 通过。4C-73 只声明 narrow battlefield-domain representative evidence recorded，不作为 READY 或 full-official 证据；完整 `BATTLEFIELD_RULE_DOMAIN`、完整 FAQ 裁定、全部 battle / control / cleanup / timing matrix 仍 deferred。
+结果为 passed，78 passed / 0 failed / 78 total。追加回归 `FullyQualifiedName~Sivir|FullyQualifiedName~Haste|FullyQualifiedName~PaymentResource|FullyQualifiedName~RecycleRune|FullyQualifiedName~PayCost|FullyQualifiedName~PowerByTrait` 通过 103/103；backend full 通过 3754/3754；frontend build 通过；Chrome smoke 通过。4C-74 只声明 narrow Sivir Haste representative evidence recorded，不作为 READY 或 full-official 证据；完整 PaymentEngine、wild-rune count、+2/Roam、LayerEngine、cleanup/control/timing matrix 仍 deferred。
 
-当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责；4C-71 由 A 基于 matrix 风险筛选做 evidence-only 覆盖入账、复核、验证和文档收口。后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
+当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责；4C-74 由 A 基于 matrix 风险筛选做 evidence-only 覆盖入账、复核、验证和文档收口。后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
 
 ## 0.1 Active Goal 门槛到证据映射
 
@@ -27,15 +27,15 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 | 服务端保持唯一规则权威 | `docs/CURRENT_SERVER_RULE_AUDIT.md` 与本文件第 3 / 6 节记录服务端 authoritative snapshot / prompt / command guard 模型 | 方向满足，但仍有 P0/P1 规则缺口 |
 | 前端只展示并提交服务端 `ActionPrompt` / authoritative snapshot 支持的合法操作 | 本文件第 5 / 6 / 9 节记录前端候选驱动与多批 Chrome smoke；最终 18 步 E2E 仍缺 | 部分验证，未达到最终验收 |
 | P0/P1 阻断清零 | 本文件第 4 / 11 节与 `docs/CURRENT_SERVER_RULE_AUDIT.md` 仍列出 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡证据；4C-56 blocker 已修复但不清零全局 P0/P1 | 未完成 |
-| 后端 full test 当前 HEAD 全绿 | 4C-73 入账后 focused Plunder Alley regression 3/3、battlefield adjacent regression 137/137、backend full 3754/3754 均通过 | 本轮满足，最终验收前仍需重跑 |
-| Chrome smoke 通过 | 4C-73 入账后 frontend build 通过，Chrome smoke 通过 | 本轮满足，最终验收前仍需正式 E2E |
+| 后端 full test 当前 HEAD 全绿 | 4C-74 入账后 focused Sivir Haste regression 78/78、haste/payment adjacent regression 103/103、backend full 3754/3754 均通过 | 本轮满足，最终验收前仍需重跑 |
+| Chrome smoke 通过 | 4C-74 入账后 frontend build 通过，Chrome smoke 通过 | 本轮满足，最终验收前仍需正式 E2E |
 | 正式 18 步 E2E 通过 | 本文件第 9 节明确缺一条完整覆盖 `docs/任务补充.md` 18 步最低流程的双浏览器或等效 E2E | 未完成 |
-| 卡牌覆盖矩阵完成 | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C73` 回填为 representative evidence recorded，但 1009/811 full-official coverage 仍未完成 | 未完成 |
+| 卡牌覆盖矩阵完成 | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C74` 回填为 representative evidence recorded，但 1009/811 full-official coverage 仍未完成 | 未完成 |
 | 最终 completion audit 输出 READY 后才允许标记 complete | 本文件审计结论仍为 **NOT READY**；未调用 `update_goal complete` | 未完成 |
 
 ## 1. 修改文件列表
 
-2026-05-13 Stage 4C-73 representative evidence 本轮修改：
+2026-05-13 Stage 4C-74 representative evidence 本轮修改：
 
 - `docs/CURRENT_A_MASTER_CHECKPOINT.md`
 - `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
@@ -67,12 +67,12 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 
 ## 2. 新增文件列表
 
-2026-05-13 Stage 4C-73 representative evidence 新增文档：
+2026-05-13 Stage 4C-74 representative evidence 新增文档：
 
-- `docs/CURRENT_STAGE4C_BATCH73_PLUNDER_ALLEY_BATTLEFIELD_AUDIT.md`
-- `docs/CURRENT_STAGE4C_BATCH73_PLUNDER_ALLEY_BATTLEFIELD_EVIDENCE.md`
+- `docs/CURRENT_STAGE4C_BATCH74_SIVIR_HASTE_AUDIT.md`
+- `docs/CURRENT_STAGE4C_BATCH74_SIVIR_HASTE_EVIDENCE.md`
 
-2026-05-13 Stage 4C-73 representative evidence 新增测试：无；本批复用既有 conformance / Hub tests，并只做矩阵与文档入账。
+2026-05-13 Stage 4C-74 representative evidence 新增测试：无；本批复用既有 conformance tests，并只做矩阵与文档入账。
 
 历史第二百五十九批新增：
 

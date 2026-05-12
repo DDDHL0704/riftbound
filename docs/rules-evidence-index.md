@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`dbacc2d checkpoint: complete stage 4C plunder alley battlefield evidence`。
-当前已 checkpoint verified representative evidence：Stage 4C-73 `Plunder Alley` battlefield defend move-to-base route 已入账，并通过 focused / battlefield adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：`PENDING CHECKPOINT: complete stage 4C sivir haste evidence`。
+当前已 checkpoint verified representative evidence：Stage 4C-74 `Sivir` no-optional Haste play-unit 与 `HASTE_READY` optional-cost routes 已入账，并通过 focused / haste-payment adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -2245,6 +2245,14 @@
 - 测试证据：`ConformanceFixtureRunnerTests` 覆盖合法 declare-battle 后移动防守单位到基地、清除 defending 状态、脏 attacker-controlled battlefield source rejection；`GameHubJoinTests` 覆盖 prompt destination / target choice、非法多目标中文拒绝、合法事件和 snapshot 区域变化。
 - 验证：focused Plunder Alley regression 3/3；BattlefieldDefend / BattlefieldHeld / DeclareBattle / BattlefieldControl / Plunder / BattlefieldDestination regression 137/137；backend full 3754/3754；frontend build passed；Chrome smoke passed。
 - 该证据只关闭 narrow battlefield-domain representative evidence；不关闭完整 `BATTLEFIELD_RULE_DOMAIN`、完整 `JFAQ-251023 p5-p6` 战场生命周期 / 清理裁定、battle / spell-duel / assign-combat-damage lifecycle、control freeze/release 与 zone movement matrix、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+
+## Stage 4C-74 Sivir Haste Evidence
+
+- `FU-5bcc4063c2` / `SFD·143/221`、`SFD·143a/221` / `SIVIR_PLAY_UNIT_NO_OPTIONAL_HASTE`、`SIVIR_ALT_A_PLAY_UNIT_NO_OPTIONAL_HASTE` 已记录 Stage 4C-74 representative no-optional Haste play-unit 与 `HASTE_READY` optional-cost route evidence。
+- 代码证据：`src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记两张 Sivir 为 direct card behavior，包含 `Cost: 4`、`TargetCount: 0`、`PlaysSourceToBaseAsUnit`、`SourceUnitPower: 4`、`SourceUnitTags: 急速`、`HasteReadyManaCost: 1`、`HasteReadyPowerCost: 1`、`HasteReadyPowerTrait: RuneTrait.Purple`。
+- 测试证据：`p2-preflight-play-sivir-no-optional-haste.fixture.json`、`p2-preflight-play-sivir-alt-a-no-optional-haste.fixture.json`、`p4-play-sivir-haste-ready.fixture.json`、`p4-play-sivir-alt-a-haste-ready.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand no-optional play、HASTE_READY active-entry、unexpected target rejection 与 wrong-trait power no-mutation rejection。
+- 验证：focused Sivir Haste regression 78/78；Sivir / Haste / PaymentResource / RecycleRune / PayCost / PowerByTrait regression 103/103；backend full 3754/3754；frontend build passed；Chrome smoke passed。
+- 该证据只关闭 narrow Sivir Haste representative evidence；不关闭完整 PaymentEngine、万能符能计数、+2 战力 / 游走分支、LayerEngine、cleanup queue / replacement effects、control-zone movement、full FEPR timing / targeting、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
 
 ## 7. 索引维护规则
 

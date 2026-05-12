@@ -4340,3 +4340,40 @@ Checkpoint 记录：
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：4C-73 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 34. 阶段 4C-74 Sivir Haste Verified Representative Evidence
+
+状态：**已完成代表证据收口并等待 checkpoint 为 `PENDING CHECKPOINT`。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Sivir / 希维尔 `SFD·143/221`、`SFD·143a/221` / cardId `33234`、`33235` / `FU-5bcc4063c2` / `SIVIR_PLAY_UNIT_NO_OPTIONAL_HASTE`、`SIVIR_ALT_A_PLAY_UNIT_NO_OPTIONAL_HASTE`。
+- 本批是 evidence-only overlay，不修改功能代码；只记录 ordinary hand no-optional `PLAY_CARD`、支付基础 4 mana、0 目标入栈、stack / pass-pass 后源牌进入基地成为 4 战力 `CARD_TYPE:UNIT|急速`，以及代表 `HASTE_READY` 额外 1 mana + 1 purple power active-entry branch。
+- 不实现 / 不宣称 complete PaymentEngine、wild-rune count、+2 power / Roam branch、LayerEngine / continuous effects、cleanup queue / replacement effects、control-zone movement、full FEPR timing / targeting、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+
+证据事实：
+
+- A 基于 matrix fresh risk pass 选择已 IMPLEMENTED_TESTED、无 FAQ、共享 oracle 的 Sivir Haste route，用于覆盖 Haste optional payment representative evidence。
+- `src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `SFD·143/221` 与 `SFD·143a/221` 为 direct card behavior：`Cost: 4`、`TargetCount: 0`、`PlaysSourceToBaseAsUnit`、`SourceUnitPower: 4`、`SourceUnitTags: 急速`、`HasteReadyManaCost: 1`、`HasteReadyPowerCost: 1`、`HasteReadyPowerTrait: RuneTrait.Purple`。
+- `tests/Riftbound.ConformanceTests/Fixtures` 中四个 Sivir fixtures 覆盖 no-optional 与 HASTE_READY route；`ConformanceFixtureRunnerTests` 覆盖 unexpected target rejection 与 wrong-trait power rejection。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysSourceUnitWithoutOptionalAdditionalCost|FullyQualifiedName~CoreRuleEngineRejectsSourceUnitWithoutOptionalAdditionalCostWhenTargetsAreProvided|FullyQualifiedName~P4HasteOptionalReadyBranchPaysManaAndPowerForSivir|FullyQualifiedName~P4HasteOptionalReadyBranchPaysManaAndPowerForSivirAltA|FullyQualifiedName~P4HasteOptionalReadyBranchRejectsSivirWrongTraitPower"`：passed 78/78。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Sivir|FullyQualifiedName~Haste|FullyQualifiedName~PaymentResource|FullyQualifiedName~RecycleRune|FullyQualifiedName~PayCost|FullyQualifiedName~PowerByTrait"`：passed 103/103。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3754/3754。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C74` 回填为 `SIVIR_HASTE_READY_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH74_SIVIR_HASTE_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH74_SIVIR_HASTE_EVIDENCE.md` 记录 narrow representative evidence。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 已提交：`PENDING CHECKPOINT: complete stage 4C sivir haste evidence`。
+- 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
+- 已纳入：4C-74 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
