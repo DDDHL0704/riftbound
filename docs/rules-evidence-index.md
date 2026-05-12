@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`d2dfe96 checkpoint: complete stage 4C enemy battlefield target guard`。
-当前已 checkpoint verified representative guard：Stage 4C-64 `Megashark Cannon` Core EnemyBattlefieldUnit direct target-scope validation 已收紧，并通过 focused / regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：Stage 4C-65 pending checkpoint `complete stage 4C demacia envoy experience evidence`。
+当前已 checkpoint verified representative evidence：Stage 4C-65 `Demacia Envoy` static experience route 已入账，并通过 focused / experience regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -2173,6 +2173,14 @@
 - 新增测试证据：`tests/Riftbound.ConformanceTests/EnemyBattlefieldUnitTargetScopeGuardTests.cs` 覆盖 valid Megashark Cannon target damage、invalid target no-mutation、无 `TargetRequiredTag` 的 EnemyBattlefieldUnit non-unit regression。
 - 验证：focused 18/18；Megashark / CrescentStrike / ZenithBlade / enemy battlefield unit target regression 82/82；backend full 3754/3754；frontend build passed；Chrome smoke passed。
 - 该证据只关闭 narrow representative guard；不关闭 composite target scopes、all EnemyBattlefieldUnit card texts / modes、multi-battlefield precision、PaymentEngine、LayerEngine、hidden-info / redaction matrix、FAQ、1009/811 full-official 或 formal 18-step E2E。
+
+## Stage 4C-65 Demacia Envoy Experience Static Evidence
+
+- `FU-d68c203b01` / `UNL-092/219` / `DEMACIA_ENVOY_PLAY_UNIT_GAIN_EXPERIENCE_STATIC` 已记录 Stage 4C-65 representative static experience route evidence。
+- 代码证据：`src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `UNL-092/219` 为 direct card behavior，包含 `PlaysSourceToBaseAsUnit`、`SourceUnitPower: 2`、`GainExperienceOnPlay: 1`；`src/Riftbound.Engine/CoreRuleEngine.cs` 已有 `GainExperienceOnPlay` stack-resolution path。
+- 测试证据：`tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-demacia-envoy-experience-static.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand play / pay 2 / zero-target stack / source-to-base unit / controller gains 1 experience。
+- 验证：focused 4/4；Demacia / Experience / GainExperience / LevelThreshold regression 37/37；backend full 3754/3754；frontend build passed；Chrome smoke passed。
+- 该证据只关闭 narrow representative evidence；不关闭 all experience cards / amounts、experience payment / optional costs、level-up LayerEngine、battlefield Hunt experience、ability experience、hidden-info / redaction matrix、FAQ、1009/811 full-official 或 formal 18-step E2E。
 
 ## 7. 索引维护规则
 

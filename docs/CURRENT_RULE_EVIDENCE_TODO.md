@@ -5,8 +5,8 @@
 
 本文记录 E 证据/审计 worker 第一轮 P0 交接项、阶段 1 D 协议审计、阶段 2 D P0 规则证据链和 A 主控验收结果，不替代 `docs/CURRENT_SERVER_RULE_AUDIT.md`。
 
-最新 Stage 4C checkpoint：`d2dfe96 checkpoint: complete stage 4C enemy battlefield target guard`
-当前已 verified representative guard：Stage 4C-64 `Megashark Cannon` Core EnemyBattlefieldUnit direct target-scope validation 已收紧，并通过 focused / regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：Stage 4C-65 pending checkpoint `complete stage 4C demacia envoy experience evidence`
+当前已 verified representative evidence：Stage 4C-65 `Demacia Envoy` static experience route 已入账，并通过 focused / experience regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 历史 3B checkpoint：`a74beac`
 阶段 1 基线提交：`78b6896`
 阶段 2 证据链计划：`docs/CURRENT_STAGE2_P0_CONTRACT_PLAN.md`
@@ -125,6 +125,8 @@
 阶段 4C-63 AnyUnit target-scope guard 证据：`docs/CURRENT_STAGE4C_BATCH63_ANY_UNIT_TARGET_SCOPE_GUARD_EVIDENCE.md`
 阶段 4C-64 EnemyBattlefieldUnit target-scope guard 审计：`docs/CURRENT_STAGE4C_BATCH64_ENEMY_BATTLEFIELD_UNIT_TARGET_SCOPE_GUARD_AUDIT.md`
 阶段 4C-64 EnemyBattlefieldUnit target-scope guard 证据：`docs/CURRENT_STAGE4C_BATCH64_ENEMY_BATTLEFIELD_UNIT_TARGET_SCOPE_GUARD_EVIDENCE.md`
+阶段 4C-65 Demacia Envoy experience static 审计：`docs/CURRENT_STAGE4C_BATCH65_DEMACIA_ENVOY_EXPERIENCE_STATIC_AUDIT.md`
+阶段 4C-65 Demacia Envoy experience static 证据：`docs/CURRENT_STAGE4C_BATCH65_DEMACIA_ENVOY_EXPERIENCE_STATIC_EVIDENCE.md`
 
 ## B 修复验收
 
@@ -1238,6 +1240,7 @@ D 审计结论：
 - 4C-62 已记录 Hunt / 狩猎 `SFD·204/221` / cardId `33303` / `FU-f877e60407` / `HUNT_READY_ALL_FRIENDLY_UNITS` ordinary hand play / pay 1 / zero-target friendly public field-unit ready representative guard；Core all-friendly ready resolution 现在排除 friendly battlefield equipment / spell / rune、face-down standby、dirty controller objects 与 enemy units；focused 10/10、ready / field-unit regression 121/121、backend full 3731/3731、frontend build、Chrome smoke 均通过；multi-battlefield precision、PaymentEngine、LayerEngine、readiness replacement/prevention interactions、FAQ、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-63 已记录 First Mate / 大副 `OGN·132/298` / cardId `31356` / `FU-abf504d74e` / `FIRST_MATE_PLAY_UNIT_READY_ANOTHER_UNIT` ordinary hand play / pay 3 / public AnyUnit target-scope ready representative guard；Core `AnyUnit` target validation 现在排除 equipment / spell / rune、face-down / standby、dirty controller、hand / stale targets，同时兼容 trait-only unit objects；focused 15/15、target regression 16/16、backend full 3742/3742、frontend build、Chrome smoke 均通过；all AnyUnit card texts / modes、multi-battlefield precision、PaymentEngine、LayerEngine、hidden-info / redaction matrix、FAQ、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-64 已记录 Megashark Cannon / 怒海大鲨炮 `OGN·092/298` / cardId `31310` / `FU-6d67456a80` / `MEGASHARK_CANNON_PLAY_UNIT_DAMAGE_6_ENEMY_BATTLEFIELD` ordinary hand play / pay 6 / enemy public battlefield unit direct target-scope damage representative guard；Core `EnemyBattlefieldUnit` direct target validation 现在排除 equipment / spell / rune、face-down / standby、dirty controller、friendly battlefield、enemy base、hand / stale targets；focused 18/18、target regression 82/82、backend full 3754/3754、frontend build、Chrome smoke 均通过；composite target scopes、all EnemyBattlefieldUnit card texts / modes、multi-battlefield precision、PaymentEngine、LayerEngine、hidden-info / redaction matrix、FAQ、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
+- 4C-65 已记录 Demacia Envoy / 德玛西亚使节 `UNL-092/219` / cardId `34630` / `FU-d68c203b01` / `DEMACIA_ENVOY_PLAY_UNIT_GAIN_EXPERIENCE_STATIC` ordinary hand play / pay 2 / zero-target stack / source-to-base unit / controller gains 1 experience representative evidence；本批不修改功能代码，复用既有 fixture 与 P4 experience tests；focused 4/4、experience regression 37/37、backend full 3754/3754、frontend build、Chrome smoke 均通过；all experience cards / amounts、experience payment / optional costs、level-up LayerEngine、battlefield Hunt experience、ability experience、hidden-info / redaction matrix、FAQ、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-15 Viktor `FU-b5cb36a5c9` destroyed non-minion token trigger 已记录为 feasibility blocker；4C-15A 已补 `TOKEN_FAMILY:MINION` 最小前置模型并部分关闭 token classification blocker；4C-15B 已关闭 Viktor 代表性 baseline，但 same-source 多对象 full official matrix、Kogmaw / Karthus / Undercover Agent、完整 trigger engine 仍未关闭。
 - 3A-P0-001 / 002 / 003 / 004 已关闭；不得把这些 3A 子项误读为完整 Stage 3 或 READY。
 - 3B-CAND-001 / 002 / 003 / 004 只能作为阶段 3B 关闭候选；D/A 证据入账前不得移出 P0。

@@ -4006,3 +4006,40 @@ Checkpoint 记录：
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：`src/Riftbound.Engine/CoreRuleEngine.cs`、`tests/Riftbound.ConformanceTests/EnemyBattlefieldUnitTargetScopeGuardTests.cs`、4C-64 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 25. 阶段 4C-65 Demacia Envoy Experience Static Verified Representative Evidence
+
+状态：**已完成代表证据收口，checkpoint 待提交。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Demacia Envoy / 德玛西亚使节 `UNL-092/219` / cardId `34630` / `FU-d68c203b01` / `DEMACIA_ENVOY_PLAY_UNIT_GAIN_EXPERIENCE_STATIC`。
+- 本批是 evidence-only overlay，不修改功能代码；只记录 ordinary hand `PLAY_CARD`、支付 2 mana、0 目标入栈、stack / pass-pass 后源牌进入基地成为 2 战力单位、控制者获得 1 经验。
+- 不实现 / 不宣称 all experience cards / amounts、experience payment / optional cost replacement、level-up LayerEngine、battlefield conquest / hold Hunt experience、activate ability experience gain、hidden-info / redaction matrix、FAQ adjudication、1009/811 full-official 或 formal 18-step E2E。
+
+证据事实：
+
+- A 基于 matrix fresh risk pass 选择低耦合、无 FAQ、单 FU Demacia Envoy 路线。
+- `src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `UNL-092/219` 为 direct card behavior：`PlaysSourceToBaseAsUnit`、`SourceUnitPower: 2`、`GainExperienceOnPlay: 1`。
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-demacia-envoy-experience-static.fixture.json` 已记录官方卡面、核心规则证据和完整 pass-pass 结算预期。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysP2PreflightFixture|FullyQualifiedName~P4FixedExperienceGainOnPlayUpdatesControllerExperience|FullyQualifiedName~resource-experience|FullyQualifiedName~ResourceExperience"`：passed 4/4。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Demacia|FullyQualifiedName~Experience|FullyQualifiedName~GainExperience|FullyQualifiedName~LevelThreshold"`：passed 37/37。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3754/3754。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C65` 回填为 `EXPERIENCE_STATIC_PLAY_UNIT_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH65_DEMACIA_ENVOY_EXPERIENCE_STATIC_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH65_DEMACIA_ENVOY_EXPERIENCE_STATIC_EVIDENCE.md` 记录 narrow representative evidence。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 待提交：`checkpoint: complete stage 4C demacia envoy experience evidence`。
+- 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
+- 已纳入：4C-65 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
