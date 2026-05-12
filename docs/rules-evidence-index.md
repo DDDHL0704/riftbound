@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`1193517 checkpoint: complete stage 4C bullet time power damage evidence`。
-当前已 checkpoint verified representative evidence：Stage 4C-80 `弹幕时间` pay-power enemy battlefield damage / insufficient power rejection / typed and recycle payment resource guard route 已入账，并通过 focused / payment damage stack adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：PENDING CHECKPOINT: complete stage 4C flame chompers source unit evidence。
+当前已 checkpoint verified representative evidence：Stage 4C-81 `嚼火者手雷` ordinary source-unit-to-base / target rejection / official opening candidate route 已入账，并通过 focused / source-unit target stack payment adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -2301,6 +2301,14 @@
 - 测试证据：`p2-preflight-play-bullet-time-power-damage-enemy-battlefield.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand play / pay base 1 plus `SPEND_POWER:3` / zero-target stack `damageAmount` / pass-pass / enemy battlefield units take 3 damage / enemy base and friendly battlefield unaffected / source to graveyard / rune pool empty；direct tests 覆盖 insufficient power rejection、typed power spend、matching / missing trait guard、`RECYCLE_RUNE` payment resource exact contribution、multi-resource contribution、generic mixed-trait contribution、wrong-trait and over-recycle guard。
 - 验证：focused BulletTime / TypedPowerPayment / PaymentResource / RecycleRune regression 24/24；Payment / PayCost / PowerByTrait / SpendPower / RecycleRune / DamageAllEnemyBattlefield / EnemyBattlefield / Firestorm / CrescentStrike / Stack / Priority regression 250/250；backend full 3754/3754；frontend build passed；Chrome smoke passed。
 - 该证据只关闭 narrow Bullet Time representative power-spent enemy battlefield damage evidence；不关闭 complete `JFAQ-251023 p6`、battle / spell-duel lifecycle、PaymentEngine、FEPR、noncombat damage prevention / replacement / layer interactions、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+
+## Stage 4C-81 Flame Chompers Source Unit Evidence
+
+- `FU-af2c43c430` / `OGN·006/298` / `OGN_FLAME_CHOMPERS_DISCARD_ALT_PLAY_UNIT` 已记录 Stage 4C-81 representative ordinary source-unit-to-base route evidence。
+- 代码证据：`src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `OGN·006/298` 为 direct card behavior，包含 `Cost: 3`、`TargetCount: 0`、`PlaysSourceToBaseAsUnit: true`、`SourceUnitPower: 3`。
+- 测试证据：`p2-preflight-play-ogn-flame-chompers-discard-static.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand play / pay base 3 / zero-target stack / pass-pass / source unit to controller base as 3-power `CARD_TYPE:UNIT` / active state / empty stack and hand；direct tests 覆盖 vanilla source-unit target rejection，official opening smoke 覆盖 `OGN·006/298` hand / card candidate visibility。
+- 验证：focused CoreRuleEnginePlaysVanillaSourceUnit / CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided / OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub regression 306/306；VanillaSourceUnit / SourceUnit / UnitToBase / PlayCard / Discard / Cleanup / Target / Stack / Priority / Payment / PayCost regression 1954/1954；backend full 3754/3754；frontend build passed；Chrome smoke passed。
+- 该证据只关闭 narrow Flame Chompers ordinary source-unit-to-base evidence；不关闭 discard replacement pay-red-power play path、complete replacement / cleanup queue、PaymentEngine、FEPR、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
 
 ## 7. 索引维护规则
 
