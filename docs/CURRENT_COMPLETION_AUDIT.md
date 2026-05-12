@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint 为 Stage 4C-62 pending checkpoint。Stage 4C-62 `Hunt` / `SFD·204/221` / `FU-f877e60407` 已完成代表性 ready-all-friendly-units guard 修复、验证与 checkpoint 准备；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint 为 `d505dcf checkpoint: complete stage 4C hunt ready guard`。Stage 4C-62 `Hunt` / `SFD·204/221` / `FU-f877e60407` 已完成代表性 ready-all-friendly-units guard 修复、验证与 checkpoint；项目整体仍 **NOT READY**。
 
 4C-62 修复收紧了服务端 Core authoritative all-friendly ready resolution：Hunt 只让 friendly public field units 变为活跃；friendly battlefield equipment / spell / rune、face-down standby、dirty controller objects 与 enemy units 不再被错误 readied。Focused 命令：
 
