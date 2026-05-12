@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint：PENDING CHECKPOINT: complete stage 4C flame chompers source unit evidence。Stage 4C-81 `嚼火者手雷` / `OGN·006/298` / `FU-af2c43c430` 已完成代表性 ordinary source-unit-to-base / target rejection / official opening candidate evidence-only overlay 与验证；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint：`a2aae28 checkpoint: complete stage 4C flame chompers source unit evidence`。Stage 4C-81 `嚼火者手雷` / `OGN·006/298` / `FU-af2c43c430` 已完成代表性 ordinary source-unit-to-base / target rejection / official opening candidate evidence-only overlay 与验证；项目整体仍 **NOT READY**。
 
 4C-81 不修改功能代码，只把既有服务端权威 Flame Chompers 证据入账：ordinary hand `PLAY_CARD` 支付基础 3 mana、0 目标入栈、stack / pass-pass 后源牌进入控制者基地，成为 3 战力 `CARD_TYPE:UNIT` 单位对象；通用 source-unit 带目标打出拒绝覆盖该卡，官方开局 smoke 覆盖其在 hand / card candidate shell 中可见。Focused / primary regression 命令：
 

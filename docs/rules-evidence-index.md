@@ -2,7 +2,7 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：PENDING CHECKPOINT: complete stage 4C flame chompers source unit evidence。
+最新 Stage 4C checkpoint：`a2aae28 checkpoint: complete stage 4C flame chompers source unit evidence`。
 当前已 checkpoint verified representative evidence：Stage 4C-81 `嚼火者手雷` ordinary source-unit-to-base / target rejection / official opening candidate route 已入账，并通过 focused / source-unit target stack payment adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
