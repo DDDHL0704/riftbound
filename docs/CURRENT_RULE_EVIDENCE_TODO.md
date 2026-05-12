@@ -5,7 +5,7 @@
 
 本文记录 E 证据/审计 worker 第一轮 P0 交接项、阶段 1 D 协议审计、阶段 2 D P0 规则证据链和 A 主控验收结果，不替代 `docs/CURRENT_SERVER_RULE_AUDIT.md`。
 
-最新 Stage 4C checkpoint：Stage 4C-65 pending checkpoint `complete stage 4C demacia envoy experience evidence`
+最新 Stage 4C checkpoint：`a806e69 checkpoint: complete stage 4C demacia envoy experience evidence`
 当前已 verified representative evidence：Stage 4C-65 `Demacia Envoy` static experience route 已入账，并通过 focused / experience regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 历史 3B checkpoint：`a74beac`
 阶段 1 基线提交：`78b6896`

@@ -2,7 +2,7 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：Stage 4C-65 pending checkpoint `complete stage 4C demacia envoy experience evidence`。
+最新 Stage 4C checkpoint：`a806e69 checkpoint: complete stage 4C demacia envoy experience evidence`。
 当前已 checkpoint verified representative evidence：Stage 4C-65 `Demacia Envoy` static experience route 已入账，并通过 focused / experience regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的

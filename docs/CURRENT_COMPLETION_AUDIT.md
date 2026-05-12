@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint 待提交：Stage 4C-65 `Demacia Envoy` / `UNL-092/219` / `FU-d68c203b01` 已完成代表性 static experience evidence-only overlay 与验证；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint 为 `a806e69 checkpoint: complete stage 4C demacia envoy experience evidence`。Stage 4C-65 `Demacia Envoy` / `UNL-092/219` / `FU-d68c203b01` 已完成代表性 static experience evidence-only overlay、验证与 checkpoint；项目整体仍 **NOT READY**。
 
 4C-65 不修改功能代码，只把既有服务端权威经验证据入账：`Demacia Envoy` ordinary hand `PLAY_CARD` 支付 2 mana、0 目标入栈，stack pass-pass 后源牌进入基地成为 2 战力单位，控制者获得 1 经验，并记录 `GAINED_EXPERIENCE_THIS_TURN:P1`。Focused 命令：
 
