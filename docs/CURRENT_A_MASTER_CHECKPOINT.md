@@ -4637,3 +4637,40 @@ Checkpoint 记录：
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：4C-81 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 42. 阶段 4C-82 Duel Mutual Power Damage Verified Representative Evidence
+
+状态：**已完成代表证据收口；checkpoint 待提交为 `complete stage 4C duel mutual power damage evidence`。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Duel / 决斗 `OGN·128/298` / cardId `31352` / `FU-2779c06158` / `DUEL_MUTUAL_POWER_DAMAGE`。
+- 本批是 evidence-only overlay，不修改功能代码；只记录 ordinary hand `PLAY_CARD`、支付基础 2 mana、友方单位 then 敌方单位目标顺序、stack / pass-pass mutual current-power damage、敌方目标致命清理和反向目标顺序拒绝。
+- 不实现 / 不宣称 complete battle / spell-duel lifecycle、complete `ASSIGN_COMBAT_DAMAGE` timing interactions、complete LayerEngine / continuous effects、complete FEPR target / stack / timing windows、replacement / prevention、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+
+证据事实：
+
+- A 基于 matrix fresh risk pass 选择已 IMPLEMENTED_TESTED、无 FAQ、单 FU 的 Duel route，用于覆盖 mutual current-power damage representative evidence。
+- `src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `OGN·128/298` 为 direct card behavior：`Cost: 2`、`TargetCount: 2`、`TargetScope: FriendlyThenEnemyUnits`、`DealsMutualTargetPowerDamage: true`。
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-duel-mutual-power-damage.fixture.json` 与 `tests/Riftbound.ConformanceTests/Fixtures/p4-play-duel-target-order-rejected.fixture.json` 已记录官方卡面、核心规则证据和代表性结算 / 拒绝预期；`ConformanceFixtureRunnerTests` 覆盖 play route、reversed target order rejection 和 mutual-power adjacent routes。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~DuelMutualPowerDamage|FullyQualifiedName~RejectsDuelWhenTargetsAreReversed|FullyQualifiedName~DuelTargetOrderRejected"`：passed 3/3。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Duel|FullyQualifiedName~MutualPower|FullyQualifiedName~FriendlyThenEnemy|FullyQualifiedName~ClashOfGiants|FullyQualifiedName~MarchingOrders|FullyQualifiedName~Gentleman|FullyQualifiedName~PowerModified|FullyQualifiedName~Damage|FullyQualifiedName~Cleanup|FullyQualifiedName~Stack|FullyQualifiedName~Priority|FullyQualifiedName~Target"`：passed 1410/1410。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3754/3754。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C82` 回填为 `DUEL_MUTUAL_POWER_DAMAGE_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH82_DUEL_MUTUAL_POWER_DAMAGE_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH82_DUEL_MUTUAL_POWER_DAMAGE_EVIDENCE.md` 记录 narrow representative evidence。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 待提交：`checkpoint: complete stage 4C duel mutual power damage evidence`。
+- 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
+- 已纳入：4C-82 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。

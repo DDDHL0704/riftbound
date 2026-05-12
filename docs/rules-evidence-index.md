@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`a2aae28 checkpoint: complete stage 4C flame chompers source unit evidence`。
-当前已 checkpoint verified representative evidence：Stage 4C-81 `嚼火者手雷` ordinary source-unit-to-base / target rejection / official opening candidate route 已入账，并通过 focused / source-unit target stack payment adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：PENDING CHECKPOINT: complete stage 4C duel mutual power damage evidence。
+当前已 checkpoint verified representative evidence：Stage 4C-82 `决斗` mutual current-power damage / lethal enemy cleanup / reversed target-order rejection route 已入账，并通过 focused / mutual damage target stack cleanup adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -2309,6 +2309,14 @@
 - 测试证据：`p2-preflight-play-ogn-flame-chompers-discard-static.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand play / pay base 3 / zero-target stack / pass-pass / source unit to controller base as 3-power `CARD_TYPE:UNIT` / active state / empty stack and hand；direct tests 覆盖 vanilla source-unit target rejection，official opening smoke 覆盖 `OGN·006/298` hand / card candidate visibility。
 - 验证：focused CoreRuleEnginePlaysVanillaSourceUnit / CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided / OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub regression 306/306；VanillaSourceUnit / SourceUnit / UnitToBase / PlayCard / Discard / Cleanup / Target / Stack / Priority / Payment / PayCost regression 1954/1954；backend full 3754/3754；frontend build passed；Chrome smoke passed。
 - 该证据只关闭 narrow Flame Chompers ordinary source-unit-to-base evidence；不关闭 discard replacement pay-red-power play path、complete replacement / cleanup queue、PaymentEngine、FEPR、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+
+## Stage 4C-82 Duel Mutual Power Damage Evidence
+
+- `FU-2779c06158` / `OGN·128/298` / `DUEL_MUTUAL_POWER_DAMAGE` 已记录 Stage 4C-82 representative mutual current-power damage route evidence。
+- 代码证据：`src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `OGN·128/298` 为 direct card behavior，包含 `Cost: 2`、`TargetCount: 2`、`TargetScope: FriendlyThenEnemyUnits`、`DealsMutualTargetPowerDamage: true`。
+- 测试证据：`p2-preflight-play-duel-mutual-power-damage.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand play / pay base 2 / friendly then enemy unit targets / pass-pass / mutual current-power damage / lethal enemy target cleanup / source spell to graveyard；`p4-play-duel-target-order-rejected.fixture.json` 覆盖 reversed target-order rejection with no cost, stack, damage, or zone mutation。
+- 验证：focused DuelMutualPowerDamage / RejectsDuelWhenTargetsAreReversed / DuelTargetOrderRejected regression 3/3；Duel / MutualPower / FriendlyThenEnemy / ClashOfGiants / MarchingOrders / Gentleman / PowerModified / Damage / Cleanup / Stack / Priority / Target regression 1410/1410；backend full 3754/3754；frontend build passed；Chrome smoke passed。
+- 该证据只关闭 narrow Duel representative mutual current-power damage evidence；不关闭 battle / spell-duel lifecycle、LayerEngine、FEPR、replacement / prevention、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
 
 ## 7. 索引维护规则
 

@@ -5,8 +5,8 @@
 
 本文记录 E 证据/审计 worker 第一轮 P0 交接项、阶段 1 D 协议审计、阶段 2 D P0 规则证据链和 A 主控验收结果，不替代 `docs/CURRENT_SERVER_RULE_AUDIT.md`。
 
-最新 Stage 4C checkpoint：`a2aae28 checkpoint: complete stage 4C flame chompers source unit evidence`
-当前已 verified representative evidence：Stage 4C-81 `嚼火者手雷` ordinary source-unit-to-base / target rejection / official opening candidate route 已入账，并通过 focused / source-unit target stack payment adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：PENDING CHECKPOINT: complete stage 4C duel mutual power damage evidence
+当前已 verified representative evidence：Stage 4C-82 `决斗` mutual current-power damage / lethal enemy cleanup / reversed target-order rejection route 已入账，并通过 focused / mutual damage target stack cleanup adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 历史 3B checkpoint：`a74beac`
 阶段 1 基线提交：`78b6896`
 阶段 2 证据链计划：`docs/CURRENT_STAGE2_P0_CONTRACT_PLAN.md`
@@ -159,6 +159,8 @@
 阶段 4C-80 Bullet Time power damage 证据：`docs/CURRENT_STAGE4C_BATCH80_BULLET_TIME_POWER_DAMAGE_EVIDENCE.md`
 阶段 4C-81 Flame Chompers source unit 审计：`docs/CURRENT_STAGE4C_BATCH81_FLAME_CHOMPERS_SOURCE_UNIT_AUDIT.md`
 阶段 4C-81 Flame Chompers source unit 证据：`docs/CURRENT_STAGE4C_BATCH81_FLAME_CHOMPERS_SOURCE_UNIT_EVIDENCE.md`
+阶段 4C-82 Duel mutual power damage 审计：`docs/CURRENT_STAGE4C_BATCH82_DUEL_MUTUAL_POWER_DAMAGE_AUDIT.md`
+阶段 4C-82 Duel mutual power damage 证据：`docs/CURRENT_STAGE4C_BATCH82_DUEL_MUTUAL_POWER_DAMAGE_EVIDENCE.md`
 
 ## B 修复验收
 
@@ -1289,6 +1291,7 @@ D 审计结论：
 - 4C-79 已记录 Forced Conscription / 强制征召 `UNL-140/219` / cardId `34683` / `FU-0681eefc4e` / `FORCED_CONSCRIPTION_CONTROL_SMALL_ENEMY_RECALL` ordinary hand play / pay base 5 without optional experience / enemy battlefield `CARD_TYPE:UNIT` target power 3 or less / gain control / exhaust / recall to controller base / power-above-three rejection / dirty already-controlled enemy-zone target guard 代表证据；本批不修改功能代码，复用既有 fixture 与 targeted tests；focused 18/18、control battlefield target stack payment adjacent regression 1718/1718、backend full 3754/3754、frontend build、Chrome smoke 重跑后通过；optional 5 experience branch、complete owner/controller model、control-zone movement matrix、PaymentEngine optional costs、complete FEPR target matrix、hidden-info / redaction matrix、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-80 已记录 Bullet Time / 弹幕时间 `OGN·268/298` / cardId `31511` / `FU-b646702ec0` / `BULLET_TIME_DAMAGE_ENEMY_BATTLEFIELD_UNITS_BY_POWER_SPENT` ordinary hand play / pay base 1 plus `SPEND_POWER` amount / zero-target stack `damageAmount` / pass-pass enemy battlefield damage / insufficient power rejection / typed power and `RECYCLE_RUNE` payment resource guards 代表证据；本批不修改功能代码，复用既有 fixture 与 targeted tests；focused 24/24、payment damage stack adjacent regression 250/250、backend full 3754/3754、frontend build、Chrome smoke 均通过；complete `JFAQ-251023 p6`、battle / spell-duel lifecycle、PaymentEngine、FEPR、noncombat damage replacement / layer matrix、hidden-info / redaction matrix、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-81 已记录 Flame Chompers / 嚼火者手雷 `OGN·006/298` / cardId `31210` / `FU-af2c43c430` / `OGN_FLAME_CHOMPERS_DISCARD_ALT_PLAY_UNIT` ordinary hand play / pay base 3 / zero-target stack / pass-pass source unit to controller base as 3-power `CARD_TYPE:UNIT` / target rejection / official opening candidate visibility 代表证据；本批不修改功能代码，复用既有 fixture 与 targeted tests；focused 306/306、source-unit target stack payment adjacent regression 1954/1954、backend full 3754/3754、frontend build、Chrome smoke 均通过；discard replacement pay-red-power play path、cleanup replacement queue、PaymentEngine、FEPR、hidden-info / redaction matrix、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
+- 4C-82 已记录 Duel / 决斗 `OGN·128/298` / cardId `31352` / `FU-2779c06158` / `DUEL_MUTUAL_POWER_DAMAGE` ordinary hand play / pay base 2 / friendly then enemy unit targets / pass-pass mutual current-power damage / lethal enemy cleanup / reversed target-order rejection 代表证据；本批不修改功能代码，复用既有 fixture 与 targeted tests；focused 3/3、mutual damage target stack cleanup adjacent regression 1410/1410、backend full 3754/3754、frontend build、Chrome smoke 均通过；battle / spell-duel lifecycle、LayerEngine、FEPR、replacement / prevention、hidden-info / redaction matrix、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-15 Viktor `FU-b5cb36a5c9` destroyed non-minion token trigger 已记录为 feasibility blocker；4C-15A 已补 `TOKEN_FAMILY:MINION` 最小前置模型并部分关闭 token classification blocker；4C-15B 已关闭 Viktor 代表性 baseline，但 same-source 多对象 full official matrix、Kogmaw / Karthus / Undercover Agent、完整 trigger engine 仍未关闭。
 - 3A-P0-001 / 002 / 003 / 004 已关闭；不得把这些 3A 子项误读为完整 Stage 3 或 READY。
 - 3B-CAND-001 / 002 / 003 / 004 只能作为阶段 3B 关闭候选；D/A 证据入账前不得移出 P0。

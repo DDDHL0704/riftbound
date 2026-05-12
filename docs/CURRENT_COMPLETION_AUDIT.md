@@ -7,17 +7,17 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint：`a2aae28 checkpoint: complete stage 4C flame chompers source unit evidence`。Stage 4C-81 `嚼火者手雷` / `OGN·006/298` / `FU-af2c43c430` 已完成代表性 ordinary source-unit-to-base / target rejection / official opening candidate evidence-only overlay 与验证；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint：PENDING CHECKPOINT: complete stage 4C duel mutual power damage evidence。Stage 4C-82 `决斗` / `OGN·128/298` / `FU-2779c06158` 已完成代表性 mutual current-power damage / lethal enemy cleanup / reversed target-order rejection evidence-only overlay 与验证；项目整体仍 **NOT READY**。
 
-4C-81 不修改功能代码，只把既有服务端权威 Flame Chompers 证据入账：ordinary hand `PLAY_CARD` 支付基础 3 mana、0 目标入栈、stack / pass-pass 后源牌进入控制者基地，成为 3 战力 `CARD_TYPE:UNIT` 单位对象；通用 source-unit 带目标打出拒绝覆盖该卡，官方开局 smoke 覆盖其在 hand / card candidate shell 中可见。Focused / primary regression 命令：
+4C-82 不修改功能代码，只把既有服务端权威 Duel 证据入账：ordinary hand `PLAY_CARD` 支付基础 2 mana、按友方单位 then 敌方单位顺序选择 2 个目标，stack / pass-pass 后两名目标以自身当前战力互相造成伤害；敌方 2 战力目标受到 4 点伤害后被致命清理摧毁，反向目标顺序由直接测试和 fixture 拒绝。Focused / primary regression 命令：
 
 ```sh
-source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysVanillaSourceUnit|FullyQualifiedName~CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided|FullyQualifiedName~OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub"
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~DuelMutualPowerDamage|FullyQualifiedName~RejectsDuelWhenTargetsAreReversed|FullyQualifiedName~DuelTargetOrderRejected"
 ```
 
-结果为 passed，306 passed / 0 failed / 306 total。追加回归 `FullyQualifiedName~VanillaSourceUnit|FullyQualifiedName~SourceUnit|FullyQualifiedName~UnitToBase|FullyQualifiedName~PlayCard|FullyQualifiedName~Discard|FullyQualifiedName~Cleanup|FullyQualifiedName~Target|FullyQualifiedName~Stack|FullyQualifiedName~Priority|FullyQualifiedName~Payment|FullyQualifiedName~PayCost` 通过 1954/1954；backend full 通过 3754/3754；frontend build 通过；Chrome smoke 通过。4C-81 只声明 narrow Flame Chompers ordinary source-unit-to-base evidence recorded，不作为 READY 或 full-official 证据；弃置时支付红色符能改为打出、完整 discard replacement / cleanup queue、完整 PaymentEngine、完整 FEPR 仍 deferred。
+结果为 passed，3 passed / 0 failed / 3 total。追加回归 `FullyQualifiedName~Duel|FullyQualifiedName~MutualPower|FullyQualifiedName~FriendlyThenEnemy|FullyQualifiedName~ClashOfGiants|FullyQualifiedName~MarchingOrders|FullyQualifiedName~Gentleman|FullyQualifiedName~PowerModified|FullyQualifiedName~Damage|FullyQualifiedName~Cleanup|FullyQualifiedName~Stack|FullyQualifiedName~Priority|FullyQualifiedName~Target` 通过 1410/1410；backend full 通过 3754/3754；frontend build 通过；Chrome smoke 通过。4C-82 只声明 narrow Duel representative mutual current-power damage evidence recorded，不作为 READY 或 full-official 证据；完整 battle / spell-duel lifecycle、完整 LayerEngine、完整 FEPR、replacement / prevention 仍 deferred。
 
-当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责；4C-81 由 A 基于 matrix 风险筛选做 evidence-only 覆盖入账、复核、验证和文档收口。后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
+当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责；4C-82 由 A 基于 matrix 风险筛选做 evidence-only 覆盖入账、复核、验证和文档收口。后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
 
 ## 0.1 Active Goal 门槛到证据映射
 
@@ -27,15 +27,15 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 | 服务端保持唯一规则权威 | `docs/CURRENT_SERVER_RULE_AUDIT.md` 与本文件第 3 / 6 节记录服务端 authoritative snapshot / prompt / command guard 模型 | 方向满足，但仍有 P0/P1 规则缺口 |
 | 前端只展示并提交服务端 `ActionPrompt` / authoritative snapshot 支持的合法操作 | 本文件第 5 / 6 / 9 节记录前端候选驱动与多批 Chrome smoke；最终 18 步 E2E 仍缺 | 部分验证，未达到最终验收 |
 | P0/P1 阻断清零 | 本文件第 4 / 11 节与 `docs/CURRENT_SERVER_RULE_AUDIT.md` 仍列出 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡证据；4C-56 blocker 已修复但不清零全局 P0/P1 | 未完成 |
-| 后端 full test 当前 HEAD 全绿 | 4C-81 入账后 focused source-unit regression 306/306、source-unit / target / stack / payment / discard / cleanup adjacent regression 1954/1954、backend full 3754/3754 均通过 | 本轮满足，最终验收前仍需重跑 |
-| Chrome smoke 通过 | 4C-81 入账后 frontend build 通过，Chrome smoke 通过 | 本轮满足，最终验收前仍需正式 E2E |
+| 后端 full test 当前 HEAD 全绿 | 4C-82 入账后 focused Duel regression 3/3、mutual damage / target / stack / cleanup adjacent regression 1410/1410、backend full 3754/3754 均通过 | 本轮满足，最终验收前仍需重跑 |
+| Chrome smoke 通过 | 4C-82 入账后 frontend build 通过，Chrome smoke 通过 | 本轮满足，最终验收前仍需正式 E2E |
 | 正式 18 步 E2E 通过 | 本文件第 9 节明确缺一条完整覆盖 `docs/任务补充.md` 18 步最低流程的双浏览器或等效 E2E | 未完成 |
-| 卡牌覆盖矩阵完成 | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C81` 回填为 representative evidence recorded，但 1009/811 full-official coverage 仍未完成 | 未完成 |
+| 卡牌覆盖矩阵完成 | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C82` 回填为 representative evidence recorded，但 1009/811 full-official coverage 仍未完成 | 未完成 |
 | 最终 completion audit 输出 READY 后才允许标记 complete | 本文件审计结论仍为 **NOT READY**；未调用 `update_goal complete` | 未完成 |
 
 ## 1. 修改文件列表
 
-2026-05-13 Stage 4C-81 representative evidence 本轮修改：
+2026-05-13 Stage 4C-82 representative evidence 本轮修改：
 
 - `docs/CURRENT_A_MASTER_CHECKPOINT.md`
 - `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
@@ -67,12 +67,12 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 
 ## 2. 新增文件列表
 
-2026-05-13 Stage 4C-81 representative evidence 新增文档：
+2026-05-13 Stage 4C-82 representative evidence 新增文档：
 
-- `docs/CURRENT_STAGE4C_BATCH81_FLAME_CHOMPERS_SOURCE_UNIT_AUDIT.md`
-- `docs/CURRENT_STAGE4C_BATCH81_FLAME_CHOMPERS_SOURCE_UNIT_EVIDENCE.md`
+- `docs/CURRENT_STAGE4C_BATCH82_DUEL_MUTUAL_POWER_DAMAGE_AUDIT.md`
+- `docs/CURRENT_STAGE4C_BATCH82_DUEL_MUTUAL_POWER_DAMAGE_EVIDENCE.md`
 
-2026-05-13 Stage 4C-81 representative evidence 新增测试：无；本批复用既有 conformance tests，并只做矩阵与文档入账。
+2026-05-13 Stage 4C-82 representative evidence 新增测试：无；本批复用既有 conformance tests，并只做矩阵与文档入账。
 
 历史第二百五十九批新增：
 
