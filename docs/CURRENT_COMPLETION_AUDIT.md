@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint：`PENDING CHECKPOINT: complete stage 4C sivir haste evidence`。Stage 4C-74 `Sivir` / `SFD·143/221`、`SFD·143a/221` / `FU-5bcc4063c2` 已完成代表性 no-optional Haste play-unit 与 `HASTE_READY` optional-cost evidence-only overlay 与验证；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint：`fc3383f checkpoint: complete stage 4C sivir haste evidence`。Stage 4C-74 `Sivir` / `SFD·143/221`、`SFD·143a/221` / `FU-5bcc4063c2` 已完成代表性 no-optional Haste play-unit 与 `HASTE_READY` optional-cost evidence-only overlay 与验证；项目整体仍 **NOT READY**。
 
 4C-74 不修改功能代码，只把既有服务端权威 Sivir Haste 证据入账：两张 Sivir 共享 FU 均覆盖普通手牌打出、支付基础 4 点、0 目标入栈、双方让过后作为 4 战力 `CARD_TYPE:UNIT|急速` 单位进入基地；代表 `HASTE_READY` 分支覆盖额外 1 mana + 1 purple power、`hasteReadyOptionalCostPaid=true` 与 active-entry flag；同时记录 unexpected target rejection 与错色符能拒付 no-mutation。Focused / primary regression 命令：
 

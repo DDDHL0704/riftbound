@@ -2,7 +2,7 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`PENDING CHECKPOINT: complete stage 4C sivir haste evidence`。
+最新 Stage 4C checkpoint：`fc3383f checkpoint: complete stage 4C sivir haste evidence`。
 当前已 checkpoint verified representative evidence：Stage 4C-74 `Sivir` no-optional Haste play-unit 与 `HASTE_READY` optional-cost routes 已入账，并通过 focused / haste-payment adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的

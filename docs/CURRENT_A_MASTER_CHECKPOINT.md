@@ -4343,7 +4343,7 @@ Checkpoint 记录：
 
 ## 34. 阶段 4C-74 Sivir Haste Verified Representative Evidence
 
-状态：**已完成代表证据收口并等待 checkpoint 为 `PENDING CHECKPOINT`。项目整体仍 NOT READY。**
+状态：**已完成代表证据收口并 checkpoint 为 `fc3383f`。项目整体仍 NOT READY。**
 
 本批范围：
 
@@ -4373,7 +4373,7 @@ Checkpoint 记录：
 
 Checkpoint 记录：
 
-- 已提交：`PENDING CHECKPOINT: complete stage 4C sivir haste evidence`。
+- 已提交：`fc3383f checkpoint: complete stage 4C sivir haste evidence`。
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：4C-74 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
