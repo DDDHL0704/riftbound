@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint：PENDING CHECKPOINT: complete stage 4C duel mutual power damage evidence。Stage 4C-82 `决斗` / `OGN·128/298` / `FU-2779c06158` 已完成代表性 mutual current-power damage / lethal enemy cleanup / reversed target-order rejection evidence-only overlay 与验证；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint：`4050533 checkpoint: complete stage 4C duel mutual power damage evidence`。Stage 4C-82 `决斗` / `OGN·128/298` / `FU-2779c06158` 已完成代表性 mutual current-power damage / lethal enemy cleanup / reversed target-order rejection evidence-only overlay 与验证；项目整体仍 **NOT READY**。
 
 4C-82 不修改功能代码，只把既有服务端权威 Duel 证据入账：ordinary hand `PLAY_CARD` 支付基础 2 mana、按友方单位 then 敌方单位顺序选择 2 个目标，stack / pass-pass 后两名目标以自身当前战力互相造成伤害；敌方 2 战力目标受到 4 点伤害后被致命清理摧毁，反向目标顺序由直接测试和 fixture 拒绝。Focused / primary regression 命令：
 

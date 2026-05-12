@@ -2,7 +2,7 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：PENDING CHECKPOINT: complete stage 4C duel mutual power damage evidence。
+最新 Stage 4C checkpoint：`4050533 checkpoint: complete stage 4C duel mutual power damage evidence`。
 当前已 checkpoint verified representative evidence：Stage 4C-82 `决斗` mutual current-power damage / lethal enemy cleanup / reversed target-order rejection route 已入账，并通过 focused / mutual damage target stack cleanup adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
