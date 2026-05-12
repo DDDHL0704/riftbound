@@ -2,8 +2,8 @@
 
 更新时间：2026-05-12
 
-最新 Stage 4C 工作批：4C-58 `Spirit Fire` target guard verified；上一 checkpoint：`b18be5d checkpoint: complete stage 4C reflections swap guard`。
-当前 verified representative guard：Stage 4C-58 `Spirit Fire` Core / prompt public battlefield unit target validation 已收紧，并通过 focused / regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：`2de935b checkpoint: complete stage 4C spirit fire target guard`。
+当前已 checkpoint verified representative guard：Stage 4C-58 `Spirit Fire` Core / prompt public battlefield unit target validation 已收紧，并通过 focused / regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
 

@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-12 最新状态补充
 
-当前最新 Stage 4C 工作批为 4C-58 `Spirit Fire` / `OGN·256/298` / `FU-a9dc3495e1`，已完成代表性 total-power target guard 修复与验证；项目整体仍 **NOT READY**。上一已提交 checkpoint 为 `b18be5d checkpoint: complete stage 4C reflections swap guard`，本批待 checkpoint。
+当前最新 Stage 4C checkpoint 为 `2de935b checkpoint: complete stage 4C spirit fire target guard`。Stage 4C-58 `Spirit Fire` / `OGN·256/298` / `FU-a9dc3495e1` 已完成代表性 total-power target guard 修复、验证与 checkpoint；项目整体仍 **NOT READY**。
 
 4C-58 修复收紧了服务端 Core authoritative Spirit Fire target validation，并同步 prompt `targetChoicesByIndex` / `legalTargetSelections`：Spirit Fire 的目标必须是 public battlefield unit，且提交组合总战力不高于 4；non-unit battlefield equipment / spell / rune、face-down standby、stale、base、hand、dirty controller 目标不再能支付、入栈或被摧毁。Focused 命令：
 
