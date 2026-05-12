@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint：`PENDING CHECKPOINT: complete stage 4C moon rise power minus 2 evidence`。Stage 4C-78 `月之降临` / `UNL-198/219` / `FU-4329e00e20` 已完成代表性 enemy battlefield -2 until-end-of-turn power-modifier / skipped optional movement / negative-power boundary evidence-only overlay 与验证；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint：`ca0fd20 checkpoint: complete stage 4C moon rise power minus 2 evidence`。Stage 4C-78 `月之降临` / `UNL-198/219` / `FU-4329e00e20` 已完成代表性 enemy battlefield -2 until-end-of-turn power-modifier / skipped optional movement / negative-power boundary evidence-only overlay 与验证；项目整体仍 **NOT READY**。
 
 4C-78 不修改功能代码，只把既有服务端权威 Moon Rise 证据入账：ordinary hand `PLAY_CARD` 支付 3 mana、0 目标入栈，stack / pass-pass 后敌方战场单位本回合内战力 -2；当前单战场区域模型下跳过可选敌方单位移动，并保留 1 战力敌方战场单位变为 -1 的负战力边界。Focused / primary regression 命令：
 
