@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint 为 Stage 4C-63 pending checkpoint。Stage 4C-63 `First Mate` / `OGN·132/298` / `FU-abf504d74e` 已完成代表性 AnyUnit target-scope guard 修复、验证与 checkpoint 准备；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint 为 `fd6ef1b checkpoint: complete stage 4C any unit target guard`。Stage 4C-63 `First Mate` / `OGN·132/298` / `FU-abf504d74e` 已完成代表性 AnyUnit target-scope guard 修复、验证与 checkpoint；项目整体仍 **NOT READY**。
 
 4C-63 修复收紧了服务端 Core authoritative `AnyUnit` target validation：普通 `AnyUnit` 目标现在只接受由所在区域玩家控制的公开场上单位；equipment / spell / rune、face-down / standby、dirty controller、hand / stale targets 不再进入支付或 stack mutation。Focused 命令：
 

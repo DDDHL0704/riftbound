@@ -3935,7 +3935,7 @@ Checkpoint 记录：
 
 ## 23. 阶段 4C-63 AnyUnit Target Scope Guard Verified Representative
 
-状态：**已完成代表切片收口，checkpoint commit 待生成。项目整体仍 NOT READY。**
+状态：**已完成代表切片收口并 checkpoint 为 `fd6ef1b`。项目整体仍 NOT READY。**
 
 本批范围：
 
@@ -3965,7 +3965,7 @@ Checkpoint 记录：
 
 Checkpoint 记录：
 
-- 待提交：`checkpoint: complete stage 4C any unit target guard`。
+- 已提交：`fd6ef1b checkpoint: complete stage 4C any unit target guard`。
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：`src/Riftbound.Engine/CoreRuleEngine.cs`、`tests/Riftbound.ConformanceTests/AnyUnitTargetScopeGuardTests.cs`、4C-63 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
