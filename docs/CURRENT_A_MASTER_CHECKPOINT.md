@@ -3858,3 +3858,40 @@ Checkpoint 记录：
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：`src/Riftbound.Engine/CoreRuleEngine.cs`、`tests/Riftbound.ConformanceTests/FirestormEnemyBattlefieldDamageGuardTests.cs`、4C-60 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 21. 阶段 4C-61 Overcharged Energy Field Unit Guard Verified Representative
+
+状态：**已完成代表切片收口，checkpoint commit 待生成。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Overcharged Energy / 过载能量 `OGN·123/298` / cardId `31345` / `FU-b2e0e1d8da` / `OVERCHARGED_ENERGY_EXHAUST_ALL_FRIENDLY_DAMAGE_ALL_BATTLEFIELD_12`。
+- 只补 ordinary hand `PLAY_CARD`、支付 7 mana、zero-target stack item、stack / pass-pass 后 friendly public field units 横置、public battlefield units 受到 12 点伤害的 representative field-unit guard。
+- 不实现 / 不宣称 damage prevention / replacement / cleanup、lethal-damage triggers、formal multi-battlefield precision、standby / reaction、quick / spell-duel timing、full FEPR stack lifecycle、PaymentEngine、LayerEngine / effective power、hidden-info / redaction matrix、FAQ adjudication、1009/811 full-official 或 formal 18-step E2E。
+
+修复事实：
+
+- A 基于 matrix fresh risk pass 选择低耦合、无 FAQ、单 FU Overcharged Energy 路线。
+- `src/Riftbound.Engine/CoreRuleEngine.cs` 新增 / 复用 public unit enumerators：`GetControlledPublicFieldUnitObjectIds` 用于 friendly-unit exhaust；`GetBattlefieldUnitObjectIds` 用于 all-battlefield-unit damage。
+- 新增 `tests/Riftbound.ConformanceTests/OverchargedEnergyGuardTests.cs`，覆盖成功 zero-target friendly public field-unit exhaust、public battlefield-unit damage、equipment / spell / rune / face-down standby / dirty controller / base damage exclusion，以及 explicit target no-mutation rejection。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~OverchargedEnergyGuardTests|FullyQualifiedName~OverchargedEnergy|FullyQualifiedName~Overcharged"`：passed 12/12。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Overcharged|FullyQualifiedName~Tibbers|FullyQualifiedName~BladeWhirlwind|FullyQualifiedName~DamageAllBattlefield|FullyQualifiedName~Firestorm|FullyQualifiedName~CrescentStrike|FullyQualifiedName~EnemyBattlefield"`：passed 53/53。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3722/3722。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C61` 回填为 `OVERCHARGED_ENERGY_FIELD_UNIT_GUARD_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH61_OVERCHARGED_ENERGY_FIELD_UNIT_GUARD_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH61_OVERCHARGED_ENERGY_FIELD_UNIT_GUARD_EVIDENCE.md` 记录 narrow representative guard verified 证据。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 待提交：`checkpoint: complete stage 4C overcharged energy field unit guard`。
+- 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
+- 已纳入：`src/Riftbound.Engine/CoreRuleEngine.cs`、`tests/Riftbound.ConformanceTests/OverchargedEnergyGuardTests.cs`、4C-61 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。

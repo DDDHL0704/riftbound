@@ -2142,6 +2142,14 @@
 - 验证：focused 13/13；Firestorm / CrescentStrike / BulletTime / enemy battlefield damage regression 36/36；backend full 3711/3711；frontend build passed；Chrome smoke passed。
 - 该证据只关闭 narrow representative guard；不关闭 damage prevention / replacement / cleanup、lethal triggers、multi-battlefield precision、PaymentEngine、LayerEngine、FAQ、1009/811 full-official 或 formal 18-step E2E。
 
+## Stage 4C-61 Overcharged Energy Evidence
+
+- `FU-b2e0e1d8da` / `OGN·123/298` / `OVERCHARGED_ENERGY_EXHAUST_ALL_FRIENDLY_DAMAGE_ALL_BATTLEFIELD_12` 已记录 Stage 4C-61 representative friendly field-unit exhaust and battlefield-unit damage guard。
+- 新增代码证据：`src/Riftbound.Engine/CoreRuleEngine.cs` 的 `GetControlledPublicFieldUnitObjectIds` 与 `GetBattlefieldUnitObjectIds` 让 Overcharged Energy 排除 non-unit / hidden / dirty / out-of-scope objects。
+- 新增测试证据：`tests/Riftbound.ConformanceTests/OverchargedEnergyGuardTests.cs` 覆盖 valid zero-target exhaust / damage、equipment / spell / rune、face-down standby、dirty controller、base damage exclusion，以及 explicit-target no-mutation。
+- 验证：focused 12/12；Overcharged / Tibbers / BladeWhirlwind / battlefield damage regression 53/53；backend full 3722/3722；frontend build passed；Chrome smoke passed。
+- 该证据只关闭 narrow representative guard；不关闭 damage prevention / replacement / cleanup、lethal triggers、multi-battlefield precision、PaymentEngine、LayerEngine、FAQ、1009/811 full-official 或 formal 18-step E2E。
+
 ## 7. 索引维护规则
 
 - 新增规则能力前，先在本索引中找到证据；找不到就先补索引。

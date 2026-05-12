@@ -23511,7 +23511,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
             {
-                foreach (var targetObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, stackItem.ControllerId))
+                foreach (var targetObjectId in GetControlledPublicFieldUnitObjectIds(playerZones, cardObjects, stackItem.ControllerId))
                 {
                     var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
                         ? existingTarget
@@ -26470,6 +26470,19 @@ public sealed class CoreRuleEngine : IRuleEngine
             .ToArray();
     }
 
+    private static IReadOnlyList<string> GetBattlefieldUnitObjectIds(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects)
+    {
+        return playerZones
+            .OrderBy(entry => entry.Key, StringComparer.Ordinal)
+            .SelectMany(entry => entry.Value.Battlefields)
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Where(objectId => IsBattlefieldUnitObjectControlledByZonePlayer(playerZones, cardObjects, objectId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+
     private static IReadOnlyList<string> GetBattlefieldUnitObjectIdsAtBattlefield(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -26600,6 +26613,24 @@ public sealed class CoreRuleEngine : IRuleEngine
             .ToArray();
     }
 
+    private static IReadOnlyList<string> GetControlledPublicFieldUnitObjectIds(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId)
+    {
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return [];
+        }
+
+        return zones.Base
+            .Concat(zones.Battlefields)
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Where(objectId => IsFieldUnitObjectControlledByZonePlayer(playerZones, cardObjects, objectId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+
     private static int CountControlledFieldUnitObjects(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -26694,14 +26725,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, location.Value.PlayerId, objectId);
     }
 
-    private static bool IsBattlefieldUnitObjectControlledByZonePlayer(
+    private static bool IsFieldUnitObjectControlledByZonePlayer(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string objectId)
     {
         var location = FindFieldObjectLocation(playerZones, objectId);
         if (location is null
-            || !string.Equals(location.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
             || !cardObjects.TryGetValue(objectId, out var objectState)
             || objectState.IsFaceDown
             || objectState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
@@ -26715,6 +26745,17 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         return objectState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || objectState.Tags.Count == 0;
+    }
+
+    private static bool IsBattlefieldUnitObjectControlledByZonePlayer(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string objectId)
+    {
+        var location = FindFieldObjectLocation(playerZones, objectId);
+        return location is not null
+            && string.Equals(location.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && IsFieldUnitObjectControlledByZonePlayer(playerZones, cardObjects, objectId);
     }
 
     private static bool IsControlledFieldUnit(
@@ -26856,7 +26897,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return;
         }
 
-        foreach (var targetObjectId in GetBattlefieldObjectIds(playerZones, cardObjects))
+        foreach (var targetObjectId in GetBattlefieldUnitObjectIds(playerZones, cardObjects))
         {
             var damageApplication = ApplyDamageToCardObject(
                 cardObjects,
