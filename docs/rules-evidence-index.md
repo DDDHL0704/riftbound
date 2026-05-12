@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`9bc5b81 checkpoint: complete stage 4C tibbers damage evidence`。
-当前已 checkpoint verified representative evidence：Stage 4C-66 `Tibbers` all-battlefield damage route 已入账，并通过 focused / battlefield damage regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：`pending checkpoint: complete stage 4C bubblebot ready evidence`。
+当前已 checkpoint verified representative evidence：Stage 4C-67 `Bubblebot` friendly Mechanical ready route 已入账，并通过 focused / mechanical-ready regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -2189,6 +2189,14 @@
 - 测试证据：`tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-tibbers-damage-all-battlefield-units.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand play / pay 8 / zero-target stack / source-to-base unit / all public battlefield units take 3 / non-unit battlefield object skip / unexpected target rejection。
 - 验证：focused 3/3；Tibbers / BladeWhirlwind / DamageAllBattlefield / OverchargedEnergy / Firestorm / CrescentStrike / EnemyBattlefield regression 63/63；backend full 3754/3754；frontend build passed；Chrome smoke passed。
 - 该证据只关闭 narrow representative evidence；不关闭 all battlefield-wide damage cards / amounts、damage prevention / replacement / cleanup、lethal triggers、multi-battlefield precision、PaymentEngine、LayerEngine、hidden-info / redaction matrix、FAQ、1009/811 full-official 或 formal 18-step E2E。
+
+## Stage 4C-67 Bubblebot Ready Friendly Mechanical Evidence
+
+- `FU-3f5a9ef0e0` / `SFD·062/221` / `BUBBLEBOT_PLAY_UNIT_READY_FRIENDLY_MECHANICAL` 已记录 Stage 4C-67 representative friendly Mechanical ready route evidence。
+- 代码证据：`src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `SFD·062/221` 为 direct card behavior，包含 `TargetScope: FriendlyUnit`、`TargetRequiredTag: CARD_TYPE:UNIT|机械`、`ReadiesTarget: true`、`PlaysSourceToBaseAsUnit`、`SourceUnitPower: 3`；`src/Riftbound.Engine/CoreRuleEngine.cs` 已有 `ReadiesTarget` stack-resolution path。
+- 测试证据：`tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-bubblebot-ready-friendly-mechanical.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand play / pay 3 / friendly Mechanical target / source-to-base unit / target readied / non-Mechanical target rejection。
+- 验证：focused 2/2；Bubblebot / Mechanical / FirstMate / HuntReady / AnyUnitTargetScopeGuardTests regression 32/32；backend full 3754/3754；frontend build passed；Chrome smoke passed。
+- 该证据只关闭 narrow representative evidence；不关闭 all friendly Mechanical ready cards / modes、FriendlyUnit target-scope matrix、multi-battlefield precision、PaymentEngine、readiness replacement/prevention、LayerEngine、hidden-info / redaction matrix、FAQ、1009/811 full-official 或 formal 18-step E2E。
 
 ## 7. 索引维护规则
 

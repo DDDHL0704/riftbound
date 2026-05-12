@@ -4080,3 +4080,40 @@ Checkpoint 记录：
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：4C-66 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 27. 阶段 4C-67 Bubblebot Ready Friendly Mechanical Verified Representative Evidence
+
+状态：**已完成代表证据收口，checkpoint 待提交。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Bubblebot / 泡泡机 `SFD·062/221` / cardId `33142` / `FU-3f5a9ef0e0` / `BUBBLEBOT_PLAY_UNIT_READY_FRIENDLY_MECHANICAL`。
+- 本批是 evidence-only overlay，不修改功能代码；只记录 ordinary hand `PLAY_CARD`、支付 3 mana、选择另一名友方公开机械单位、stack / pass-pass 后源牌进入基地成为 3 战力单位、目标机械单位变为活跃。
+- 不实现 / 不宣称 all friendly Mechanical ready cards / modes、full FriendlyUnit target-scope matrix、formal multi-battlefield precision、PaymentEngine、readiness replacement / prevention、LayerEngine、hidden-info / redaction matrix、FAQ adjudication、1009/811 full-official 或 formal 18-step E2E。
+
+证据事实：
+
+- A 基于 matrix fresh risk pass 选择低耦合、无 FAQ、单 FU Bubblebot 路线。
+- `src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `SFD·062/221` 为 direct card behavior：`TargetScope: FriendlyUnit`、`TargetRequiredTag: CARD_TYPE:UNIT|机械`、`ReadiesTarget: true`、`PlaysSourceToBaseAsUnit`、`SourceUnitPower: 3`。
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-bubblebot-ready-friendly-mechanical.fixture.json` 已记录官方卡面、核心规则证据和完整 pass-pass 结算预期。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysBubblebotReadyFriendlyMechanical|FullyQualifiedName~CoreRuleEngineRejectsBubblebotWhenTargetIsNotMechanical"`：passed 2/2。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Bubblebot|FullyQualifiedName~Mechanical|FullyQualifiedName~FirstMate|FullyQualifiedName~HuntReady|FullyQualifiedName~AnyUnitTargetScopeGuardTests"`：passed 32/32。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3754/3754。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C67` 回填为 `BUBBLEBOT_READY_FRIENDLY_MECHANICAL_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH67_BUBBLEBOT_READY_FRIENDLY_MECHANICAL_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH67_BUBBLEBOT_READY_FRIENDLY_MECHANICAL_EVIDENCE.md` 记录 narrow representative evidence。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 待提交：`pending checkpoint: complete stage 4C bubblebot ready evidence`。
+- 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
+- 已纳入：4C-67 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
