@@ -5,7 +5,7 @@
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
 
-最新 checkpoint：`beb9f513 checkpoint: record stage 4C imperial shrine evidence`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
+最新 checkpoint：`待提交 stage 4C-87 shield wall evidence`。上一 Stage 4C checkpoint：`beb9f513 checkpoint: record stage 4C imperial shrine evidence`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
 
 ## 0. A 主控职责边界
 
@@ -4865,3 +4865,26 @@ Checkpoint 记录：
 
 - 本批只关闭 Imperial Shrine / 帝王神坛代表性 battlefield rule-domain 证据入账缺口。
 - 不宣称完整 optional trigger prompt / decline、完整 PaymentEngine、完整 battlefield / spell-duel / battle lifecycle、multi-battlefield APNAP、FAQ p22 完整裁定、hidden-info / redaction、1009/811 full-official 或 READY。
+
+## 49. Stage 4C-87 Shield Wall Evidence Checkpoint
+
+状态：**Stage 4C-87 Shield Wall representative evidence 已通过；项目整体仍 NOT READY。**
+
+本批范围：
+
+- 代表 FU：`FU-a7fbef72ba`。
+- 代表卡：禁军之墙 / Shield Wall `SFD·043/221` / cardId `33119`。
+- 只做 evidence-only overlay，不修改功能代码或前端代码。
+- 将既有服务端权威 `PLAY_CARD` 路径入账：支付 2、动态允许选择 0 到全部己方战场单位、stack pass-pass 后把所选友方战场单位移动到拥有者基地；敌方单位、己方基地单位、重复目标均拒绝且不产生栈/状态副作用。
+- 更新 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 的 `stage4CBatch87ShieldWallMoveFriendlyBattlefieldUnitsGuard`、`functionalUnits[].stage4C87` 与 `snapshotEntries[].stage4C87`。
+
+通过证据：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ShieldWall"`：2/2 通过。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~MoveFriendly|FullyQualifiedName~MoveUnit|FullyQualifiedName~FriendlyBattlefieldUnit"`：63/63 通过。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：3771/3771 通过。
+
+口径：
+
+- 本批只关闭 Shield Wall / 禁军之墙代表性 move-friendly-battlefield-units 证据入账缺口。
+- 不宣称完整 multi-battlefield movement、standby / quick timing windows、完整 FEPR、完整 PaymentEngine、hidden-info / redaction、1009/811 full-official 或 READY。

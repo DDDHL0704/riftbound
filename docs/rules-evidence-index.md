@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 checkpoint：`beb9f513 checkpoint: record stage 4C imperial shrine evidence`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`；上一 formal 18-step checkpoint：`3aed179 checkpoint: add formal 18 step e2e evidence`；上一 Stage 4C checkpoint：`f33e733 checkpoint: complete stage 4C rune resource domain evidence`。
-当前已 checkpoint verified representative evidence：Stage 4C-85 `炽烈符文` / `翠意符文` red / blue basic rune `RUNE_RESOURCE_DOMAIN` payment-resource route 已入账，并通过 focused / rune resource payment prompt regression / backend full / frontend build / Chrome smoke；formal 18-step E2E 已通过；active `START_BATTLE` guard test-only evidence 已通过 focused 17/17、adjacent 94/94 与 backend full 3771/3771；Stage 4C-86 `帝王神坛` / `SFD·207/221` / `FU-ec31812b00` representative evidence 已通过 focused 3/3、adjacent 45/45 与 backend full 3771/3771；项目仍 **NOT READY**。
+最新 checkpoint：`待提交 stage 4C-87 shield wall evidence`。上一 Stage 4C checkpoint：`beb9f513 checkpoint: record stage 4C imperial shrine evidence`；上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`；上一 formal 18-step checkpoint：`3aed179 checkpoint: add formal 18 step e2e evidence`。
+当前已 checkpoint verified representative evidence：Stage 4C-85 `炽烈符文` / `翠意符文` red / blue basic rune `RUNE_RESOURCE_DOMAIN` payment-resource route 已入账，并通过 focused / rune resource payment prompt regression / backend full / frontend build / Chrome smoke；formal 18-step E2E 已通过；active `START_BATTLE` guard test-only evidence 已通过 focused 17/17、adjacent 94/94 与 backend full 3771/3771；Stage 4C-86 `帝王神坛` / `SFD·207/221` / `FU-ec31812b00` representative evidence 已通过 focused 3/3、adjacent 45/45 与 backend full 3771/3771；Stage 4C-87 `禁军之墙` / `SFD·043/221` / `FU-a7fbef72ba` representative move-friendly-battlefield-units evidence 已通过 focused 2/2、adjacent 63/63 与 backend full 3771/3771；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -2349,6 +2349,14 @@
 - 测试证据：`ConformanceFixtureRunnerTests` 覆盖支付成功返回单位与创建 `SFD·T02` 黄沙士兵、无法力时不触发；`GameHubJoinTests` 覆盖 seed prompt / submit / authoritative event / snapshot 路径。
 - 验证：focused `P79BattlefieldConquerSandSoldier` 3/3；BattlefieldConquer regression 45/45；backend full 3771/3771。
 - 该证据只关闭 narrow Imperial Shrine representative battlefield-rule evidence；不关闭 complete optional trigger prompt / decline、PaymentEngine、battlefield lifecycle、FAQ p22、hidden-info / redaction matrix 或 1009/811 full-official。
+
+## Stage 4C-87 Shield Wall Move Guard Evidence
+
+- `FU-a7fbef72ba` / `SFD·043/221` / `SHIELD_WALL_MOVE_ANY_FRIENDLY_BATTLEFIELD_UNITS_TO_BASE` 已记录 Stage 4C-87 representative move-any-friendly-battlefield-units-to-base route evidence。
+- 代码证据：`src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `SFD·043/221` 为 direct card behavior，包含 `Cost: 2`、`TargetScope: FriendlyBattlefieldUnit`、`MinTargetCount: 0`、`MovesTargetToBase: true`、`UsesFriendlyBattlefieldUnitCountAsMaxTargetCount: true`。
+- 测试证据：fixture 覆盖 ordinary hand play / pay 2 / stack pass-pass / selected friendly battlefield units to owner base；direct tests 覆盖 enemy, base, and repeated target no-mutation rejection。
+- 验证：focused `ShieldWall` 2/2；MoveFriendly / MoveUnit / FriendlyBattlefieldUnit regression 63/63；backend full 3771/3771。
+- 该证据只关闭 narrow Shield Wall representative movement evidence；不关闭 complete multi-battlefield movement、standby / quick timing windows、FEPR、PaymentEngine、hidden-info / redaction matrix 或 1009/811 full-official。
 
 ## Formal 18-Step E2E Evidence
 
