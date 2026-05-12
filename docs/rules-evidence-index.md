@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`2db719e checkpoint: complete stage 4C hextech ray damage evidence`。
-当前已 checkpoint verified representative evidence：Stage 4C-72 `Hextech Ray` damage stack / cleanup / Swift spell-duel focus route 已入账，并通过 focused / damage Swift cleanup regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：`pending checkpoint: complete stage 4C plunder alley battlefield evidence`。
+当前已 checkpoint verified representative evidence：Stage 4C-73 `Plunder Alley` battlefield defend move-to-base route 已入账，并通过 focused / battlefield adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -2237,6 +2237,14 @@
 - 测试证据：`tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hextech-ray-damage-stack.fixture.json`、`p2-preflight-hextech-ray-damage-clears-end-turn.fixture.json`、`p6-play-swift-hextech-ray-in-spell-duel-focus.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand play / pay 1 / battlefield-unit target / stack pass-pass / 3 damage / spell to graveyard / cleanup removes damage / Swift spell-duel focus / base-unit target rejection。
 - 验证：focused Hextech Ray regression 4/4；HextechRay / Swift / Damage / Cleanup / EndTurn / BattlefieldOnlySpell regression 202/202；backend full 3754/3754；frontend build passed；Chrome smoke passed。
 - 该证据只关闭 narrow representative evidence；不关闭完整 FAQ 裁定、complete FEPR target / stack lifecycle、全部 timing windows、PaymentEngine、damage prevention / replacement / lethal cleanup / trigger matrix、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+
+## Stage 4C-73 Plunder Alley Battlefield Evidence
+
+- `FU-90673ef9fd` / `OGN·285/298` / `BATTLEFIELD_RULE_DOMAIN` 已记录 Stage 4C-73 representative battlefield defend move-to-base route evidence。
+- 代码证据：`src/Riftbound.CardCatalog/BehaviorSpecCatalog.cs` 已把 `OGN·285/298` 纳入 implemented battlefield rule cards；`src/Riftbound.Engine/CoreRuleEngine.cs` 已识别 `OGN·285/298` 为 `BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE` battlefield trigger source；`src/Riftbound.Engine/MatchSession.cs` development seed `battlefield-defend-move-to-base` 使用 `P2-BATTLEFIELD-PLUNDER-ALLEY`。
+- 测试证据：`ConformanceFixtureRunnerTests` 覆盖合法 declare-battle 后移动防守单位到基地、清除 defending 状态、脏 attacker-controlled battlefield source rejection；`GameHubJoinTests` 覆盖 prompt destination / target choice、非法多目标中文拒绝、合法事件和 snapshot 区域变化。
+- 验证：focused Plunder Alley regression 3/3；BattlefieldDefend / BattlefieldHeld / DeclareBattle / BattlefieldControl / Plunder / BattlefieldDestination regression 137/137；backend full 3754/3754；frontend build passed；Chrome smoke passed。
+- 该证据只关闭 narrow battlefield-domain representative evidence；不关闭完整 `BATTLEFIELD_RULE_DOMAIN`、完整 `JFAQ-251023 p5-p6` 战场生命周期 / 清理裁定、battle / spell-duel / assign-combat-damage lifecycle、control freeze/release 与 zone movement matrix、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
 
 ## 7. 索引维护规则
 

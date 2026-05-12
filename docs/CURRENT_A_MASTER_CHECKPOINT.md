@@ -4303,3 +4303,40 @@ Checkpoint 记录：
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：4C-72 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 33. 阶段 4C-73 Plunder Alley Battlefield Verified Representative Evidence
+
+状态：**代表证据已验证；等待 checkpoint 提交 `pending checkpoint: complete stage 4C plunder alley battlefield evidence`。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Plunder Alley / 劫掠船巷 `OGN·285/298` / cardId `31530` / `FU-90673ef9fd` / `BATTLEFIELD_RULE_DOMAIN`。
+- 本批是 evidence-only overlay，不修改功能代码；只记录 development seed 中防守战场后选择一名防守单位移回基地的 battlefield-domain representative route。
+- 不实现 / 不宣称完整 `BATTLEFIELD_RULE_DOMAIN`、完整 `JFAQ-251023 p5-p6` 战场生命周期 / 清理裁定、battle / spell-duel / assign-combat-damage lifecycle、control freeze/release 与 zone movement matrix、hidden-info / redaction matrix、1009/811 full-official 或 formal 18-step E2E。
+
+证据事实：
+
+- A 基于 matrix fresh risk pass 选择已 IMPLEMENTED_TESTED、已有 FAQ 引用、单 FU 的 Plunder Alley 路线，用于覆盖 battlefield-domain defend move-to-base representative evidence。
+- `src/Riftbound.CardCatalog/BehaviorSpecCatalog.cs` 已把 `OGN·285/298` 纳入 implemented battlefield rule cards；`src/Riftbound.Engine/CoreRuleEngine.cs` 已识别它为 `BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE` source。
+- `src/Riftbound.Engine/MatchSession.cs` development seed `battlefield-defend-move-to-base` 使用 `P2-BATTLEFIELD-PLUNDER-ALLEY` / `OGN·285/298`；既有 core / Hub tests 覆盖 prompt 候选、非法目标拒绝、合法触发与 dirty source guard。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldDefendMovesChosenSurvivingDefenderToBase|FullyQualifiedName~P79BattlefieldDefendMoveToBaseRejectsAttackerControlledBattlefield|FullyQualifiedName~P79BattlefieldDefendMoveToBaseSeedOffersBattlefieldDestinationAndChoice"`：passed 3/3。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~BattlefieldDefend|FullyQualifiedName~BattlefieldHeld|FullyQualifiedName~DeclareBattle|FullyQualifiedName~BattlefieldControl|FullyQualifiedName~Plunder|FullyQualifiedName~BattlefieldDestination"`：passed 137/137。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3754/3754。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C73` 回填为 `PLUNDER_ALLEY_BATTLEFIELD_DEFEND_MOVE_TO_BASE_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH73_PLUNDER_ALLEY_BATTLEFIELD_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH73_PLUNDER_ALLEY_BATTLEFIELD_EVIDENCE.md` 记录 narrow representative evidence。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 待提交：`pending checkpoint: complete stage 4C plunder alley battlefield evidence`。
+- 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
+- 已纳入：4C-73 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
