@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint：PENDING CHECKPOINT: complete stage 4C heimerdinger source unit evidence。Stage 4C-84 `黑默丁格` / `ARC-003/006`、`OGN·111/298` / `FU-02075a26e3` 已完成代表性 shared ordinary source-unit-to-base / target rejection / official opening candidate evidence-only overlay 与验证；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint：`76c2abb checkpoint: complete stage 4C heimerdinger source unit evidence`。Stage 4C-84 `黑默丁格` / `ARC-003/006`、`OGN·111/298` / `FU-02075a26e3` 已完成代表性 shared ordinary source-unit-to-base / target rejection / official opening candidate evidence-only overlay 与验证；项目整体仍 **NOT READY**。
 
 4C-84 不修改功能代码，只把既有服务端权威 Heimerdinger 证据入账：两张共享 FU ordinary hand `PLAY_CARD` 支付基础 3 mana、0 目标入栈，stack / pass-pass 后源牌进入控制者基地，成为 3 战力、带 `约德尔人` 标签的 `CARD_TYPE:UNIT` 单位对象；active-entry / keyword-source-unit 带目标打出拒绝与 `ARC-003/006` 官方开局候选可见性也作为代表证据入账。Focused / primary regression 命令：
 

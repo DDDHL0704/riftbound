@@ -2,7 +2,7 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：PENDING CHECKPOINT: complete stage 4C heimerdinger source unit evidence。
+最新 Stage 4C checkpoint：`76c2abb checkpoint: complete stage 4C heimerdinger source unit evidence`。
 当前已 checkpoint verified representative evidence：Stage 4C-84 `黑默丁格` shared ordinary source-unit-to-base / target rejection / official opening candidate route 已入账，并通过 focused / active keyword source-unit target stack payment activated-ability adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
