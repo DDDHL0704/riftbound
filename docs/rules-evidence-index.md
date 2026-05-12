@@ -2,7 +2,7 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`PENDING CHECKPOINT: complete stage 4C long sword equipment evidence`。
+最新 Stage 4C checkpoint：`5ef4a45 checkpoint: complete stage 4C long sword equipment evidence`。
 当前已 checkpoint verified representative evidence：Stage 4C-76 `Long Sword` equipment play / target rejection / minimal assemble identity route 已入账，并通过 focused / equipment attach move adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的

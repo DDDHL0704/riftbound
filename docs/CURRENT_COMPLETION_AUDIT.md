@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint：`PENDING CHECKPOINT: complete stage 4C long sword equipment evidence`。Stage 4C-76 `Long Sword` / `SFD·022/221` / `FU-5accdd09f9` 已完成代表性 equipment play / explicit-target rejection / minimal assemble identity evidence-only overlay 与验证；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint：`5ef4a45 checkpoint: complete stage 4C long sword equipment evidence`。Stage 4C-76 `Long Sword` / `SFD·022/221` / `FU-5accdd09f9` 已完成代表性 equipment play / explicit-target rejection / minimal assemble identity evidence-only overlay 与验证；项目整体仍 **NOT READY**。
 
 4C-76 不修改功能代码，只把既有服务端权威 Long Sword 证据入账：ordinary hand `PLAY_CARD` 支付 2 mana、0 目标入栈，stack / pass-pass 后源牌进入控制者基地成为 `CARD_TYPE:EQUIPMENT` / `武装` / `灵便` 装备对象；显式目标打出被拒绝且无状态变化；最小 `ASSEMBLE_RED` 贴附与 owner/controller 身份保持作为邻接代表证据记录。Focused / primary regression 命令：
 
