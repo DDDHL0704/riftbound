@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint 待提交：Stage 4C-64 `Megashark Cannon` / `OGN·092/298` / `FU-6d67456a80` 已完成代表性 EnemyBattlefieldUnit target-scope guard 修复与验证；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint 为 `d2dfe96 checkpoint: complete stage 4C enemy battlefield target guard`。Stage 4C-64 `Megashark Cannon` / `OGN·092/298` / `FU-6d67456a80` 已完成代表性 EnemyBattlefieldUnit target-scope guard 修复、验证与 checkpoint；项目整体仍 **NOT READY**。
 
 4C-64 修复收紧了服务端 Core authoritative `EnemyBattlefieldUnit` direct target validation：普通 `EnemyBattlefieldUnit` 目标现在只接受敌方公开战场单位；equipment / spell / rune、face-down / standby、dirty controller、friendly battlefield、enemy base、hand / stale targets 不再进入支付或 stack mutation。Focused 命令：
 

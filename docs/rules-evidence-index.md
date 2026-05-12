@@ -1,9 +1,9 @@
 # 规则证据索引
 
-更新时间：2026-05-12
+更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`2de935b checkpoint: complete stage 4C spirit fire target guard`。
-当前已 checkpoint verified representative guard：Stage 4C-58 `Spirit Fire` Core / prompt public battlefield unit target validation 已收紧，并通过 focused / regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：`d2dfe96 checkpoint: complete stage 4C enemy battlefield target guard`。
+当前已 checkpoint verified representative guard：Stage 4C-64 `Megashark Cannon` Core EnemyBattlefieldUnit direct target-scope validation 已收紧，并通过 focused / regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
 

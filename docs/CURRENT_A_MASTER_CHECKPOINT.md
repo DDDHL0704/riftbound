@@ -3972,7 +3972,7 @@ Checkpoint 记录：
 
 ## 24. 阶段 4C-64 EnemyBattlefieldUnit Target Scope Guard Verified Representative
 
-状态：**已完成代表切片收口，checkpoint 待提交。项目整体仍 NOT READY。**
+状态：**已完成代表切片收口并 checkpoint 为 `d2dfe96`。项目整体仍 NOT READY。**
 
 本批范围：
 
@@ -4002,7 +4002,7 @@ Checkpoint 记录：
 
 Checkpoint 记录：
 
-- 待提交：`checkpoint: complete stage 4C enemy battlefield target guard`。
+- 已提交：`d2dfe96 checkpoint: complete stage 4C enemy battlefield target guard`。
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：`src/Riftbound.Engine/CoreRuleEngine.cs`、`tests/Riftbound.ConformanceTests/EnemyBattlefieldUnitTargetScopeGuardTests.cs`、4C-64 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
