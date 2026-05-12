@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4C checkpoint：`3691e1d checkpoint: complete stage 4C bubblebot ready evidence`。
-当前已 checkpoint verified representative evidence：Stage 4C-67 `Bubblebot` friendly Mechanical ready route 已入账，并通过 focused / mechanical-ready regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：`pending checkpoint: complete stage 4C treasure golem gold evidence`。
+当前已 checkpoint verified representative evidence：Stage 4C-68 `Treasure Golem` create four Gold equipment tokens route 已入账，并通过 focused / Gold-token regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -2197,6 +2197,14 @@
 - 测试证据：`tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-bubblebot-ready-friendly-mechanical.fixture.json` 与 `ConformanceFixtureRunnerTests` 覆盖 ordinary hand play / pay 3 / friendly Mechanical target / source-to-base unit / target readied / non-Mechanical target rejection。
 - 验证：focused 2/2；Bubblebot / Mechanical / FirstMate / HuntReady / AnyUnitTargetScopeGuardTests regression 32/32；backend full 3754/3754；frontend build passed；Chrome smoke passed。
 - 该证据只关闭 narrow representative evidence；不关闭 all friendly Mechanical ready cards / modes、FriendlyUnit target-scope matrix、multi-battlefield precision、PaymentEngine、readiness replacement/prevention、LayerEngine、hidden-info / redaction matrix、FAQ、1009/811 full-official 或 formal 18-step E2E。
+
+## Stage 4C-68 Treasure Golem Create Four Gold Evidence
+
+- `FU-7472703e56` / `SFD·174/221` / `TREASURE_GOLEM_PLAY_UNIT_CREATE_FOUR_GOLD` 已记录 Stage 4C-68 representative create-four-Gold equipment token route evidence。
+- 代码证据：`src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `SFD·174/221` 为 direct card behavior，包含 `CreatedBaseEquipmentTokenCount: 4`、`CreatedBaseEquipmentTokenName: 金币`、`CreatedBaseEquipmentTokenTags: CARD_TYPE:EQUIPMENT`、`CreatedBaseEquipmentTokenIsExhausted: true`、`PlaysSourceToBaseAsUnit`、`SourceUnitPower: 9`；`src/Riftbound.Engine/CoreRuleEngine.cs` 已有 created equipment token stack-resolution path。
+- 测试证据：`tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-treasure-golem-create-four-gold.fixture.json` 与 `tests/Riftbound.ConformanceTests/Fixtures/p4-play-treasure-golem-target-rejected.fixture.json` 覆盖 ordinary hand play / pay 8 / zero-target stack / source-to-base 9-power unit / four exhausted Gold equipment tokens / unexpected-target rejection。
+- 验证：focused 3/3；TreasureGolem / Gold / JungleAmbush / BloodMoney / PainfulPayoff / HonestBroker regression 30/30；backend full 3754/3754；frontend build passed；Chrome smoke passed。
+- 该证据只关闭 narrow representative evidence；不关闭 all Gold-token creation cards / alternate token counts、destination selection、Gold equipment spend / activation / extra-mana interactions、PaymentEngine、equipment cleanup / replacement、LayerEngine、hidden-info / redaction matrix、FAQ、1009/811 full-official 或 formal 18-step E2E。
 
 ## 7. 索引维护规则
 

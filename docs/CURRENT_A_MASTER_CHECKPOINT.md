@@ -1,6 +1,6 @@
 # A 主控 Checkpoint
 
-更新日期：2026-05-12
+更新日期：2026-05-13
 当前结论：**NOT READY**
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
@@ -4116,4 +4116,41 @@ Checkpoint 记录：
 - 已提交：`3691e1d checkpoint: complete stage 4C bubblebot ready evidence`。
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：4C-67 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 28. 阶段 4C-68 Treasure Golem Create Four Gold Verified Representative Evidence
+
+状态：**已完成代表证据收口，checkpoint 待提交为 `pending checkpoint: complete stage 4C treasure golem gold evidence`。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Treasure Golem / 宝藏魔像 `SFD·174/221` / cardId `33270` / `FU-7472703e56` / `TREASURE_GOLEM_PLAY_UNIT_CREATE_FOUR_GOLD`。
+- 本批是 evidence-only overlay，不修改功能代码；只记录 ordinary hand `PLAY_CARD`、支付 8 mana、0 目标入栈、stack / pass-pass 后源牌进入基地成为 9 战力单位，并创建四个休眠的 Gold equipment token。
+- 不实现 / 不宣称 all Gold-token creation cards / alternate token counts、complete destination selection、Gold equipment spend / activation / extra-mana interactions、PaymentEngine、equipment cleanup / replacement、LayerEngine、hidden-info / redaction matrix、FAQ adjudication、1009/811 full-official 或 formal 18-step E2E。
+
+证据事实：
+
+- A 基于 matrix fresh risk pass 选择低耦合、无 FAQ、单 FU Treasure Golem 路线，用于覆盖 Gold equipment token creation representative evidence。
+- `src/Riftbound.Engine/CardBehaviorRegistry.cs` 已登记 `SFD·174/221` 为 direct card behavior：`CreatedBaseEquipmentTokenCount: 4`、`CreatedBaseEquipmentTokenName: 金币`、`CreatedBaseEquipmentTokenTags: CARD_TYPE:EQUIPMENT`、`CreatedBaseEquipmentTokenIsExhausted: true`、`PlaysSourceToBaseAsUnit`、`SourceUnitPower: 9`。
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-treasure-golem-create-four-gold.fixture.json` 已记录官方卡面、核心规则证据和完整 pass-pass 结算预期；`p4-play-treasure-golem-target-rejected.fixture.json` 已记录 unexpected-target no-mutation guard。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysTreasureGolemCreateFourGold|FullyQualifiedName~CoreRuleEngineRejectsTreasureGolemWhenTargetsAreProvided|FullyQualifiedName~P4TreasureGolemTargetRejectedFixture"`：passed 3/3。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~TreasureGolem|FullyQualifiedName~Gold|FullyQualifiedName~JungleAmbush|FullyQualifiedName~BloodMoney|FullyQualifiedName~PainfulPayoff|FullyQualifiedName~HonestBroker"`：passed 30/30。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3754/3754。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C68` 回填为 `TREASURE_GOLEM_CREATE_FOUR_GOLD_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH68_TREASURE_GOLEM_CREATE_FOUR_GOLD_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH68_TREASURE_GOLEM_CREATE_FOUR_GOLD_EVIDENCE.md` 记录 narrow representative evidence。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 待提交：`pending checkpoint: complete stage 4C treasure golem gold evidence`。
+- 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
+- 已纳入：4C-68 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。

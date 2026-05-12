@@ -7,17 +7,17 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint 为 `3691e1d checkpoint: complete stage 4C bubblebot ready evidence`。Stage 4C-67 `Bubblebot` / `SFD·062/221` / `FU-3f5a9ef0e0` 已完成代表性 friendly Mechanical ready evidence-only overlay、验证与 checkpoint；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint 待提交：`pending checkpoint: complete stage 4C treasure golem gold evidence`。Stage 4C-68 `Treasure Golem` / `SFD·174/221` / `FU-7472703e56` 已完成代表性 create four Gold equipment tokens evidence-only overlay 与验证，正在收口 checkpoint；项目整体仍 **NOT READY**。
 
-4C-67 不修改功能代码，只把既有服务端权威 ready 证据入账：`Bubblebot` ordinary hand `PLAY_CARD` 支付 3 mana、选择另一名友方公开机械单位，stack pass-pass 后源牌进入基地成为 3 战力单位，并让该机械目标变为活跃状态。Focused 命令：
+4C-68 不修改功能代码，只把既有服务端权威 token creation 证据入账：`Treasure Golem` ordinary hand `PLAY_CARD` 支付 8 mana、0 目标入栈，stack pass-pass 后源牌进入基地成为 9 战力单位，并打出四个休眠 Gold equipment token。Focused 命令：
 
 ```sh
-source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysBubblebotReadyFriendlyMechanical|FullyQualifiedName~CoreRuleEngineRejectsBubblebotWhenTargetIsNotMechanical"
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysTreasureGolemCreateFourGold|FullyQualifiedName~CoreRuleEngineRejectsTreasureGolemWhenTargetsAreProvided|FullyQualifiedName~P4TreasureGolemTargetRejectedFixture"
 ```
 
-结果为 passed，2 passed / 0 failed / 2 total。追加回归 `FullyQualifiedName~Bubblebot|FullyQualifiedName~Mechanical|FullyQualifiedName~FirstMate|FullyQualifiedName~HuntReady|FullyQualifiedName~AnyUnitTargetScopeGuardTests` 通过 32/32；backend full 通过 3754/3754；frontend build 通过；Chrome smoke 通过。4C-67 只声明 narrow representative evidence recorded，不作为 READY 或 full-official 证据。
+结果为 passed，3 passed / 0 failed / 3 total。追加回归 `FullyQualifiedName~TreasureGolem|FullyQualifiedName~Gold|FullyQualifiedName~JungleAmbush|FullyQualifiedName~BloodMoney|FullyQualifiedName~PainfulPayoff|FullyQualifiedName~HonestBroker` 通过 30/30；backend full 通过 3754/3754；frontend build 通过；Chrome smoke 通过。4C-68 只声明 narrow representative evidence recorded，不作为 READY 或 full-official 证据。
 
-当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责；4C-67 由 A 基于 matrix 风险筛选做 evidence-only 覆盖入账、复核、验证和文档收口。后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
+当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责；4C-68 由 A 基于 matrix 风险筛选做 evidence-only 覆盖入账、复核、验证和文档收口。后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
 
 ## 0.1 Active Goal 门槛到证据映射
 
@@ -27,15 +27,15 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 | 服务端保持唯一规则权威 | `docs/CURRENT_SERVER_RULE_AUDIT.md` 与本文件第 3 / 6 节记录服务端 authoritative snapshot / prompt / command guard 模型 | 方向满足，但仍有 P0/P1 规则缺口 |
 | 前端只展示并提交服务端 `ActionPrompt` / authoritative snapshot 支持的合法操作 | 本文件第 5 / 6 / 9 节记录前端候选驱动与多批 Chrome smoke；最终 18 步 E2E 仍缺 | 部分验证，未达到最终验收 |
 | P0/P1 阻断清零 | 本文件第 4 / 11 节与 `docs/CURRENT_SERVER_RULE_AUDIT.md` 仍列出 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡证据；4C-56 blocker 已修复但不清零全局 P0/P1 | 未完成 |
-| 后端 full test 当前 HEAD 全绿 | 4C-67 入账后 focused 2/2、mechanical / ready regression 32/32、backend full 3754/3754 均通过 | 本轮满足，最终验收前仍需重跑 |
-| Chrome smoke 通过 | 4C-67 入账后 frontend build 通过，Chrome smoke 通过 | 本轮满足，最终验收前仍需正式 E2E |
+| 后端 full test 当前 HEAD 全绿 | 4C-68 入账后 focused 3/3、Gold-token regression 30/30、backend full 3754/3754 均通过 | 本轮满足，最终验收前仍需重跑 |
+| Chrome smoke 通过 | 4C-68 入账后 frontend build 通过，Chrome smoke 通过 | 本轮满足，最终验收前仍需正式 E2E |
 | 正式 18 步 E2E 通过 | 本文件第 9 节明确缺一条完整覆盖 `docs/任务补充.md` 18 步最低流程的双浏览器或等效 E2E | 未完成 |
-| 卡牌覆盖矩阵完成 | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C67` 回填为 representative evidence recorded，但 1009/811 full-official coverage 仍未完成 | 未完成 |
+| 卡牌覆盖矩阵完成 | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C68` 回填为 representative evidence recorded，但 1009/811 full-official coverage 仍未完成 | 未完成 |
 | 最终 completion audit 输出 READY 后才允许标记 complete | 本文件审计结论仍为 **NOT READY**；未调用 `update_goal complete` | 未完成 |
 
 ## 1. 修改文件列表
 
-2026-05-13 Stage 4C-67 representative evidence 本轮修改：
+2026-05-13 Stage 4C-68 representative evidence 本轮修改：
 
 - `docs/CURRENT_A_MASTER_CHECKPOINT.md`
 - `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
@@ -67,12 +67,12 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 
 ## 2. 新增文件列表
 
-2026-05-13 Stage 4C-67 representative evidence 新增文档：
+2026-05-13 Stage 4C-68 representative evidence 新增文档：
 
-- `docs/CURRENT_STAGE4C_BATCH67_BUBBLEBOT_READY_FRIENDLY_MECHANICAL_AUDIT.md`
-- `docs/CURRENT_STAGE4C_BATCH67_BUBBLEBOT_READY_FRIENDLY_MECHANICAL_EVIDENCE.md`
+- `docs/CURRENT_STAGE4C_BATCH68_TREASURE_GOLEM_CREATE_FOUR_GOLD_AUDIT.md`
+- `docs/CURRENT_STAGE4C_BATCH68_TREASURE_GOLEM_CREATE_FOUR_GOLD_EVIDENCE.md`
 
-2026-05-13 Stage 4C-67 representative evidence 新增测试：无；本批复用既有 conformance fixture / targeted tests，并只做矩阵与文档入账。
+2026-05-13 Stage 4C-68 representative evidence 新增测试：无；本批复用既有 conformance fixture / targeted tests，并只做矩阵与文档入账。
 
 历史第二百五十九批新增：
 

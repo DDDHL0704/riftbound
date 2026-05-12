@@ -5,8 +5,8 @@
 
 本文记录 E 证据/审计 worker 第一轮 P0 交接项、阶段 1 D 协议审计、阶段 2 D P0 规则证据链和 A 主控验收结果，不替代 `docs/CURRENT_SERVER_RULE_AUDIT.md`。
 
-最新 Stage 4C checkpoint：`3691e1d checkpoint: complete stage 4C bubblebot ready evidence`
-当前已 verified representative evidence：Stage 4C-67 `Bubblebot` friendly Mechanical ready route 已入账，并通过 focused / mechanical-ready regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新 Stage 4C checkpoint：`pending checkpoint: complete stage 4C treasure golem gold evidence`
+当前已 verified representative evidence：Stage 4C-68 `Treasure Golem` create four Gold equipment tokens route 已入账，并通过 focused / Gold-token regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 历史 3B checkpoint：`a74beac`
 阶段 1 基线提交：`78b6896`
 阶段 2 证据链计划：`docs/CURRENT_STAGE2_P0_CONTRACT_PLAN.md`
@@ -131,6 +131,8 @@
 阶段 4C-66 Tibbers all battlefield damage 证据：`docs/CURRENT_STAGE4C_BATCH66_TIBBERS_ALL_BATTLEFIELD_DAMAGE_EVIDENCE.md`
 阶段 4C-67 Bubblebot ready friendly Mechanical 审计：`docs/CURRENT_STAGE4C_BATCH67_BUBBLEBOT_READY_FRIENDLY_MECHANICAL_AUDIT.md`
 阶段 4C-67 Bubblebot ready friendly Mechanical 证据：`docs/CURRENT_STAGE4C_BATCH67_BUBBLEBOT_READY_FRIENDLY_MECHANICAL_EVIDENCE.md`
+阶段 4C-68 Treasure Golem create four Gold 审计：`docs/CURRENT_STAGE4C_BATCH68_TREASURE_GOLEM_CREATE_FOUR_GOLD_AUDIT.md`
+阶段 4C-68 Treasure Golem create four Gold 证据：`docs/CURRENT_STAGE4C_BATCH68_TREASURE_GOLEM_CREATE_FOUR_GOLD_EVIDENCE.md`
 
 ## B 修复验收
 
@@ -1247,6 +1249,7 @@ D 审计结论：
 - 4C-65 已记录 Demacia Envoy / 德玛西亚使节 `UNL-092/219` / cardId `34630` / `FU-d68c203b01` / `DEMACIA_ENVOY_PLAY_UNIT_GAIN_EXPERIENCE_STATIC` ordinary hand play / pay 2 / zero-target stack / source-to-base unit / controller gains 1 experience representative evidence；本批不修改功能代码，复用既有 fixture 与 P4 experience tests；focused 4/4、experience regression 37/37、backend full 3754/3754、frontend build、Chrome smoke 均通过；all experience cards / amounts、experience payment / optional costs、level-up LayerEngine、battlefield Hunt experience、ability experience、hidden-info / redaction matrix、FAQ、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-66 已记录 Tibbers / 提伯斯 `OGS·018/024` / cardId `31597` / `FU-c168bd394c` / `TIBBERS_PLAY_UNIT_DAMAGE_ALL_BATTLEFIELD_UNITS_3` ordinary hand play / pay 8 / zero-target stack / source-to-base unit / all public battlefield units take 3 representative evidence；本批不修改功能代码，复用既有 fixture 与 targeted tests；focused 3/3、battlefield damage regression 63/63、backend full 3754/3754、frontend build、Chrome smoke 均通过；all battlefield-wide damage cards / amounts、damage prevention / replacement / cleanup、lethal triggers、multi-battlefield precision、PaymentEngine、LayerEngine、hidden-info / redaction matrix、FAQ、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-67 已记录 Bubblebot / 泡泡机 `SFD·062/221` / cardId `33142` / `FU-3f5a9ef0e0` / `BUBBLEBOT_PLAY_UNIT_READY_FRIENDLY_MECHANICAL` ordinary hand play / pay 3 / friendly public Mechanical target / source-to-base unit / ready target representative evidence；本批不修改功能代码，复用既有 fixture 与 targeted tests；focused 2/2、mechanical-ready regression 32/32、backend full 3754/3754、frontend build、Chrome smoke 均通过；all friendly Mechanical ready cards / modes、FriendlyUnit target-scope matrix、multi-battlefield precision、PaymentEngine、readiness replacement/prevention、LayerEngine、hidden-info / redaction matrix、FAQ、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
+- 4C-68 已记录 Treasure Golem / 宝藏魔像 `SFD·174/221` / cardId `33270` / `FU-7472703e56` / `TREASURE_GOLEM_PLAY_UNIT_CREATE_FOUR_GOLD` ordinary hand play / pay 8 / zero-target stack / source-to-base unit / four exhausted Gold equipment tokens representative evidence；本批不修改功能代码，复用既有 fixture 与 targeted tests；focused 3/3、Gold-token regression 30/30、backend full 3754/3754、frontend build、Chrome smoke 均通过；all Gold-token creation cards / counts、destination selection、Gold equipment spend / activation / extra-mana interactions、PaymentEngine、equipment cleanup / replacement、LayerEngine、hidden-info / redaction matrix、FAQ、1009/811 与 formal 18-step E2E 仍按 P0/P1 缺口管理。
 - 4C-15 Viktor `FU-b5cb36a5c9` destroyed non-minion token trigger 已记录为 feasibility blocker；4C-15A 已补 `TOKEN_FAMILY:MINION` 最小前置模型并部分关闭 token classification blocker；4C-15B 已关闭 Viktor 代表性 baseline，但 same-source 多对象 full official matrix、Kogmaw / Karthus / Undercover Agent、完整 trigger engine 仍未关闭。
 - 3A-P0-001 / 002 / 003 / 004 已关闭；不得把这些 3A 子项误读为完整 Stage 3 或 READY。
 - 3B-CAND-001 / 002 / 003 / 004 只能作为阶段 3B 关闭候选；D/A 证据入账前不得移出 P0。
