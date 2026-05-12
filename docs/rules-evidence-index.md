@@ -2,7 +2,7 @@
 
 更新时间：2026-05-13
 
-最新 checkpoint：`待提交 stage 4C-86 imperial shrine evidence`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`；上一 formal 18-step checkpoint：`3aed179 checkpoint: add formal 18 step e2e evidence`；上一 Stage 4C checkpoint：`f33e733 checkpoint: complete stage 4C rune resource domain evidence`。
+最新 checkpoint：`beb9f513 checkpoint: record stage 4C imperial shrine evidence`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`；上一 formal 18-step checkpoint：`3aed179 checkpoint: add formal 18 step e2e evidence`；上一 Stage 4C checkpoint：`f33e733 checkpoint: complete stage 4C rune resource domain evidence`。
 当前已 checkpoint verified representative evidence：Stage 4C-85 `炽烈符文` / `翠意符文` red / blue basic rune `RUNE_RESOURCE_DOMAIN` payment-resource route 已入账，并通过 focused / rune resource payment prompt regression / backend full / frontend build / Chrome smoke；formal 18-step E2E 已通过；active `START_BATTLE` guard test-only evidence 已通过 focused 17/17、adjacent 94/94 与 backend full 3771/3771；Stage 4C-86 `帝王神坛` / `SFD·207/221` / `FU-ec31812b00` representative evidence 已通过 focused 3/3、adjacent 45/45 与 backend full 3771/3771；项目仍 **NOT READY**。
 
 ## 1. 目的
