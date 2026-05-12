@@ -5,7 +5,7 @@
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
 
-最新 checkpoint：`8143dfee checkpoint: record stage 4C vanilla unit evidence`。上一 Stage 4C checkpoint：`f2f33c57 checkpoint: record stage 4C malzahar design gate`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
+最新 checkpoint：`待提交 stage 4C-90 active entry unit evidence`。上一 Stage 4C checkpoint：`8143dfee checkpoint: record stage 4C vanilla unit evidence`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
 
 ## 0. A 主控职责边界
 
@@ -4935,3 +4935,27 @@ Checkpoint 记录：
 
 - 本批只关闭 Mountain Drake / Dockside Lurker 代表性无卡面效果单位证据入账缺口。
 - 不宣称其他 source-zone play routes、静态文本单位、active-entry / keyword / movement / control-zone rules、完整 PaymentEngine / FEPR、hidden-info / redaction、1009/811 full-official 或 READY。
+
+## 52. Stage 4C-90 Active Entry Unit Evidence Checkpoint
+
+状态：**Stage 4C-90 active-entry unit representative evidence 已记录；项目整体仍 NOT READY。**
+
+本批范围：
+
+- 代表 FU：`FU-c1dc472304`、`FU-1207daea8f`。
+- 代表卡：先锋扈从 / Vanguard Squire `OGS·016/024` / cardId `31595`。
+- 代表卡：好斗的龙犬 / Aggressive Dragonhound `SFD·006/221` / cardId `33078`。
+- 只做 evidence-only overlay，不修改功能代码、测试代码或前端代码。
+- 将既有 active-entry source-unit 服务端权威路径入账：ordinary hand `PLAY_CARD`、支付基础费用、0 目标、stack pass-pass 后源牌进入控制者基地成为官方战力/标签且 `IsExhausted=false` 的 `CARD_TYPE:UNIT` 单位对象；显式目标输入被拒绝且 no mutation。
+- 更新 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 的 `stage4CBatch90ActiveEntryUnitEvidence`、`functionalUnits[].stage4C90` 与 `snapshotEntries[].stage4C90`。
+
+通过证据：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysActiveEntrySourceUnit|FullyQualifiedName~CoreRuleEngineRejectsActiveEntrySourceUnitWhenTargetsAreProvided"`：24/24 通过。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ActiveEntry|FullyQualifiedName~ActiveSourceUnit|FullyQualifiedName~SourceUnit|FullyQualifiedName~UnitToBase|FullyQualifiedName~PlayCard|FullyQualifiedName~Target|FullyQualifiedName~Stack|FullyQualifiedName~Priority|FullyQualifiedName~Payment|FullyQualifiedName~PayCost"`：1879/1879 通过。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：3771/3771 通过。
+
+口径：
+
+- 本批只关闭 Vanguard Squire / Aggressive Dragonhound 代表性 active-entry source-unit 证据入账缺口。
+- 不宣称其他 active-entry family、roam / battlefield movement、tap skills、attack triggers、完整 PaymentEngine / FEPR、hidden-info / redaction、1009/811 full-official 或 READY。

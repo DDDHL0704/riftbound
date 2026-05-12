@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 checkpoint：`8143dfee checkpoint: record stage 4C vanilla unit evidence`。上一 Stage 4C checkpoint：`f2f33c57 checkpoint: record stage 4C malzahar design gate`；上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`；上一 formal 18-step checkpoint：`3aed179 checkpoint: add formal 18 step e2e evidence`。
-当前已 checkpoint verified representative evidence：Stage 4C-85 `炽烈符文` / `翠意符文` red / blue basic rune `RUNE_RESOURCE_DOMAIN` payment-resource route 已入账，并通过 focused / rune resource payment prompt regression / backend full / frontend build / Chrome smoke；formal 18-step E2E 已通过；active `START_BATTLE` guard test-only evidence 已通过 focused 17/17、adjacent 94/94 与 backend full 3771/3771；Stage 4C-86 `帝王神坛` / `SFD·207/221` / `FU-ec31812b00` representative evidence 已通过 focused 3/3、adjacent 45/45 与 backend full 3771/3771；Stage 4C-87 `禁军之墙` / `SFD·043/221` / `FU-a7fbef72ba` representative move-friendly-battlefield-units evidence 已通过 focused 2/2、adjacent 63/63 与 backend full 3771/3771；Stage 4C-88 `玛尔扎哈` / `OGN·113/298` / `FU-0f7cbe26ce` resource-skill design gate 已记录但未关闭 FU；Stage 4C-89 `山脉亚龙` / `OGN·142/298` / `FU-d635fc47f4` 与 `船坞潜伏者` / `OGN·175/298` / `FU-72ce6fb8a4` vanilla source-unit evidence 已记录；项目仍 **NOT READY**。
+最新 checkpoint：`待提交 stage 4C-90 active entry unit evidence`。上一 Stage 4C checkpoint：`8143dfee checkpoint: record stage 4C vanilla unit evidence`；上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`；上一 formal 18-step checkpoint：`3aed179 checkpoint: add formal 18 step e2e evidence`。
+当前已 checkpoint verified representative evidence：Stage 4C-85 `炽烈符文` / `翠意符文` red / blue basic rune `RUNE_RESOURCE_DOMAIN` payment-resource route 已入账，并通过 focused / rune resource payment prompt regression / backend full / frontend build / Chrome smoke；formal 18-step E2E 已通过；active `START_BATTLE` guard test-only evidence 已通过 focused 17/17、adjacent 94/94 与 backend full 3771/3771；Stage 4C-86 `帝王神坛` / `SFD·207/221` / `FU-ec31812b00` representative evidence 已通过 focused 3/3、adjacent 45/45 与 backend full 3771/3771；Stage 4C-87 `禁军之墙` / `SFD·043/221` / `FU-a7fbef72ba` representative move-friendly-battlefield-units evidence 已通过 focused 2/2、adjacent 63/63 与 backend full 3771/3771；Stage 4C-88 `玛尔扎哈` / `OGN·113/298` / `FU-0f7cbe26ce` resource-skill design gate 已记录但未关闭 FU；Stage 4C-89 `山脉亚龙` / `OGN·142/298` / `FU-d635fc47f4` 与 `船坞潜伏者` / `OGN·175/298` / `FU-72ce6fb8a4` vanilla source-unit evidence 已记录；Stage 4C-90 `先锋扈从` / `OGS·016/024` / `FU-c1dc472304` 与 `好斗的龙犬` / `SFD·006/221` / `FU-1207daea8f` active-entry source-unit evidence 已记录；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -2372,6 +2372,14 @@
 - 测试证据：`p2-preflight-play-mountain-drake-vanilla-unit.fixture.json`、`p2-preflight-play-dockside-lurker-vanilla-unit.fixture.json` 与 `CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided` 覆盖 ordinary hand play / pay base cost / zero-target stack / pass-pass / source unit to controller base / explicit target rejection。
 - 验证：focused vanilla source-unit / target rejection regression 305/305；source-unit / play-card / target / stack / priority / payment regression 1879/1879；backend full 3771/3771。
 - 该证据只关闭 narrow vanilla unit representative evidence；不关闭其他 source-zone play routes、active-entry / keyword / movement / control-zone rules、完整 PaymentEngine / FEPR、hidden-info / redaction matrix 或 1009/811 full-official。
+
+## Stage 4C-90 Active Entry Unit Evidence
+
+- `FU-c1dc472304` / `OGS·016/024` / `VANGUARD_SQUIRE_PLAY_ACTIVE_UNIT` 与 `FU-1207daea8f` / `SFD·006/221` / `AGGRESSIVE_DRAGONHOUND_PLAY_ACTIVE_UNIT` 已记录 Stage 4C-90 representative active-entry source-unit route evidence。
+- 代码证据：`CardBehaviorRegistry` 已登记 `OGS·016/024` cost 6、0 targets、source unit to base power 5、`精锐` 标签；`SFD·006/221` cost 3、0 targets、source unit to base power 3、`犬形|龙` 标签。
+- 测试证据：`p2-preflight-play-vanguard-squire-active-unit.fixture.json`、`p2-preflight-play-aggressive-dragonhound-active-unit.fixture.json` 与 `CoreRuleEngineRejectsActiveEntrySourceUnitWhenTargetsAreProvided` 覆盖 ordinary hand play / pay base cost / zero-target stack / pass-pass / source unit to controller base / official tags / `IsExhausted=false` / explicit target rejection。
+- 验证：focused active-entry source-unit / target rejection regression 24/24；source-unit / play-card / target / stack / priority / payment regression 1879/1879；backend full 3771/3771。
+- 该证据只关闭 narrow active-entry source-unit representative evidence；不关闭其他 active-entry family、roam / battlefield movement、tap skills、attack triggers、完整 PaymentEngine / FEPR、hidden-info / redaction matrix 或 1009/811 full-official。
 
 ## Formal 18-Step E2E Evidence
 

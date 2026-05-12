@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 checkpoint：`8143dfee checkpoint: record stage 4C vanilla unit evidence`。上一 Stage 4C checkpoint 为 `f2f33c57 checkpoint: record stage 4C malzahar design gate`；上一 active guard checkpoint 为 `4c06189 checkpoint: add active start battle guard tests`；上一 formal 18-step checkpoint 为 `3aed179 checkpoint: add formal 18 step e2e evidence`。Stage 4C-85 `炽烈符文` / `OGN·007/298` / `FU-0ec69ae7e6` 与 `翠意符文` / `OGN·042/298` / `FU-39041f4562` 已完成代表性 `RUNE_RESOURCE_DOMAIN` payment-resource evidence-only overlay 与验证。2026-05-13 另新增 formal 18-step E2E 脚本证据，房间 `formal-18-1778623926434-15` 已在同一连续正式对局中通过官方卡组、起手、首回合出牌、结算链、单位移动、重连、P2 战场得分、投降与结果页胜者展示；active `START_BATTLE` guard test-only evidence 已固化争夺战场战斗任务 prompt / command no-mutation 边界；本批另新增 Stage 4C-86 帝王神坛与 Stage 4C-87 禁军之墙 representative evidence overlays；Stage 4C-88 已新增 Malzahar resource-skill design gate，但未实现功能、未关闭 FU、未改矩阵；Stage 4C-89 新增 Mountain Drake / Dockside Lurker vanilla source-unit representative evidence overlay；项目整体仍 **NOT READY**。
+当前最新 checkpoint：`待提交 stage 4C-90 active entry unit evidence`。上一 Stage 4C checkpoint 为 `8143dfee checkpoint: record stage 4C vanilla unit evidence`；上一 active guard checkpoint 为 `4c06189 checkpoint: add active start battle guard tests`；上一 formal 18-step checkpoint 为 `3aed179 checkpoint: add formal 18 step e2e evidence`。Stage 4C-85 `炽烈符文` / `OGN·007/298` / `FU-0ec69ae7e6` 与 `翠意符文` / `OGN·042/298` / `FU-39041f4562` 已完成代表性 `RUNE_RESOURCE_DOMAIN` payment-resource evidence-only overlay 与验证。2026-05-13 另新增 formal 18-step E2E 脚本证据，房间 `formal-18-1778623926434-15` 已在同一连续正式对局中通过官方卡组、起手、首回合出牌、结算链、单位移动、重连、P2 战场得分、投降与结果页胜者展示；active `START_BATTLE` guard test-only evidence 已固化争夺战场战斗任务 prompt / command no-mutation 边界；本批另新增 Stage 4C-86 帝王神坛与 Stage 4C-87 禁军之墙 representative evidence overlays；Stage 4C-88 已新增 Malzahar resource-skill design gate，但未实现功能、未关闭 FU、未改矩阵；Stage 4C-89 新增 Mountain Drake / Dockside Lurker vanilla source-unit representative evidence overlay；Stage 4C-90 新增 Vanguard Squire / Aggressive Dragonhound active-entry source-unit representative evidence overlay；项目整体仍 **NOT READY**。
 
 4C-85 不修改功能代码，只把既有服务端权威符文资源域证据入账：官方符文卡映射到 non-play `RUNE_RESOURCE_DOMAIN`，不进入 direct `PLAY_CARD` registry；控制者基地符文通过服务端 `RECYCLE_RUNE` / `paymentResourcePowerByChoice` 暴露 trait/power 支付资源；typed `SPEND_POWER:red:2` 接受 red 资源并拒绝 blue 资源，generic `SPEND_POWER:2` 可接受 red / blue 任一服务端候选且防止过量回收。Focused / primary regression 命令：
 
@@ -29,7 +29,9 @@ Stage 4C-88 本轮新增 design gate 见 `docs/CURRENT_STAGE4C_BATCH88_MALZAHAR_
 
 Stage 4C-89 本轮新增 representative evidence 见 `docs/CURRENT_STAGE4C_BATCH89_VANILLA_UNIT_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH89_VANILLA_UNIT_EVIDENCE.md`：`FU-d635fc47f4` / `OGN·142/298` / 山脉亚龙与 `FU-72ce6fb8a4` / `OGN·175/298` / 船坞潜伏者已记录无卡面效果单位 ordinary source-unit play-to-base route 与 target rejection。focused vanilla source-unit / target rejection regression 305/305 通过；adjacent source-unit / play-card / target / stack / priority / payment regression 1879/1879 通过；backend full 3771/3771 通过。本批不修改功能代码、测试代码或前端代码；只更新矩阵与文档。
 
-当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责；4C-85 / 4C-86 / 4C-87 / 4C-89 由 A 基于 matrix 风险筛选做 evidence-only 覆盖入账、复核、验证和文档收口；4C-88 则将 Malzahar 从后续候选推进为 design-gated 实现派单规格。后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
+Stage 4C-90 本轮新增 representative evidence 见 `docs/CURRENT_STAGE4C_BATCH90_ACTIVE_ENTRY_UNIT_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH90_ACTIVE_ENTRY_UNIT_EVIDENCE.md`：`FU-c1dc472304` / `OGS·016/024` / 先锋扈从与 `FU-1207daea8f` / `SFD·006/221` / 好斗的龙犬已记录 active-entry source-unit play-to-base route、官方标签、`IsExhausted=false` 与 target rejection。focused active-entry source-unit / target rejection regression 24/24 通过；adjacent source-unit / play-card / target / stack / priority / payment regression 1879/1879 通过；backend full 3771/3771 通过。本批不修改功能代码、测试代码或前端代码；只更新矩阵与文档。
+
+当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责；4C-85 / 4C-86 / 4C-87 / 4C-89 / 4C-90 由 A 基于 matrix 风险筛选做 evidence-only 覆盖入账、复核、验证和文档收口；4C-88 则将 Malzahar 从后续候选推进为 design-gated 实现派单规格。后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
 
 ## 0.1 Active Goal 门槛到证据映射
 
@@ -39,7 +41,7 @@ Stage 4C-89 本轮新增 representative evidence 见 `docs/CURRENT_STAGE4C_BATCH
 | 服务端保持唯一规则权威 | `docs/CURRENT_SERVER_RULE_AUDIT.md` 与本文件第 3 / 6 节记录服务端 authoritative snapshot / prompt / command guard 模型 | 方向满足，但仍有 P0/P1 规则缺口 |
 | 前端只展示并提交服务端 `ActionPrompt` / authoritative snapshot 支持的合法操作 | 本文件第 5 / 6 / 9 节记录前端候选驱动、多批 Chrome smoke 与 formal 18-step E2E；完整 battle/control/payment/layer 仍未 full official | 部分验证，未达到最终验收 |
 | P0/P1 阻断清零 | 本文件第 4 / 11 节与 `docs/CURRENT_SERVER_RULE_AUDIT.md` 仍列出 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡证据；4C-56 blocker 已修复但不清零全局 P0/P1 | 未完成 |
-| 后端 full test 当前 HEAD 全绿 | 4C-89 入账后 focused vanilla source-unit / target rejection regression 305/305、source-unit / play-card / target / stack / priority / payment regression 1879/1879、backend full 3771/3771 均通过 | 本轮满足，最终验收前仍需重跑 |
+| 后端 full test 当前 HEAD 全绿 | 4C-90 入账后 focused active-entry source-unit / target rejection regression 24/24、source-unit / play-card / target / stack / priority / payment regression 1879/1879、backend full 3771/3771 均通过 | 本轮满足，最终验收前仍需重跑 |
 | Chrome smoke 通过 | 4C-85 入账后 frontend build 通过，Chrome smoke 通过；本轮 `npm run smoke:chrome -- --start-api` 再次通过 | 本轮满足，最终验收前仍需随 P0/P1 清零重跑 |
 | 正式 18 步 E2E 通过 | `npm run e2e:formal-18 -- --start-api` 已通过，房间 `formal-18-1778623926434-15` 覆盖双 Chrome profile、官方 deck/opening/mulligan、stack pass-pass、unit move、reconnect、P2 battlefield score、surrender result | A_MASTER 18-step 满足；整体仍 NOT READY |
 | 卡牌覆盖矩阵完成 | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C87` 回填为 representative evidence recorded，但 1009/811 full-official coverage 仍未完成 | 未完成 |
@@ -67,6 +69,16 @@ Stage 4C-89 本轮新增 representative evidence 见 `docs/CURRENT_STAGE4C_BATCH
 - `docs/rules-evidence-index.md`
 
 2026-05-13 Stage 4C-89 representative evidence 本轮修改：
+
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `docs/CURRENT_COMPLETION_AUDIT.md`
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`
+- `docs/CURRENT_FRONTEND_REBUILD_PLAN.md`
+- `docs/rules-evidence-index.md`
+
+2026-05-13 Stage 4C-90 representative evidence 本轮修改：
 
 - `docs/CURRENT_A_MASTER_CHECKPOINT.md`
 - `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
@@ -132,6 +144,11 @@ Stage 4C-89 本轮新增 representative evidence 见 `docs/CURRENT_STAGE4C_BATCH
 
 - `docs/CURRENT_STAGE4C_BATCH89_VANILLA_UNIT_AUDIT.md`
 - `docs/CURRENT_STAGE4C_BATCH89_VANILLA_UNIT_EVIDENCE.md`
+
+2026-05-13 Stage 4C-90 representative evidence 新增：
+
+- `docs/CURRENT_STAGE4C_BATCH90_ACTIVE_ENTRY_UNIT_AUDIT.md`
+- `docs/CURRENT_STAGE4C_BATCH90_ACTIVE_ENTRY_UNIT_EVIDENCE.md`
 
 2026-05-13 Stage 4C-86 representative evidence 新增：
 
