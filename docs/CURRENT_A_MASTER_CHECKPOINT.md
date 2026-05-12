@@ -50,7 +50,7 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 只有用户明确要求清理、阶段收口且确认不再复用、或 agent 上下文明显污染/不可通信时，才允许关闭或重建。
 - 如果必须重建常驻池，必须立即更新本节 agent id，并说明旧 id 失效原因。
 
-2026-05-12 复核：A 已向当前 B/C/D/E 长期代理同步“驻场复用、未授权不写入、不因单次超时清理”的规则；Maxwell、Copernicus、Nash、Poincare 均已确认继续保留上下文。用户已明确“在当前 goal 完成前不需要再申请授权”，4C-56 已复用 B / Maxwell 完成服务端 target validation 修复，A 负责复核、验证、文档和 checkpoint 收口。
+2026-05-12 复核：A 已向当前 B/C/D/E 长期代理同步“驻场复用、未授权不写入、不因单次超时清理”的规则；Maxwell、Copernicus、Nash、Poincare 均已确认继续保留上下文。用户已明确“在当前 goal 完成前不需要再申请授权”，4C-57 已复用 B / Maxwell 完成服务端 swap-location target validation 修复，A 负责复核、验证、文档和 checkpoint 收口。
 
 4C-23 agent 事件：
 
@@ -3708,3 +3708,39 @@ Checkpoint 记录：
 - 提交前验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 通过；`git diff --cached --check` 通过。
 - 已纳入：`src/Riftbound.Engine/CoreRuleEngine.cs`、`src/Riftbound.Engine/MatchSession.cs`、`tests/Riftbound.ConformanceTests/SecretArtMercyBoonGuardTests.cs`、4C-56 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 17. 阶段 4C-57 Reflections Swap Draw Guard Verified Representative
+
+状态：**已完成代表切片收口，checkpoint 待提交。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Reflections / 镜中幻影 `UNL-083/219` / cardId `34618` / `FU-f0eb0fb704` / `REFLECTIONS_SWAP_FRIENDLY_UNITS_DRAW_1`。
+- 只补 test-only dedicated guard：ordinary hand `PLAY_CARD`、支付 2 mana、两个友方 public field unit 目标处于不同代表位置、至少一个目标带 `瞬息`、结算时 swap locations 并 draw 1、非法目标 no mutation / no leak。
+- 不实现 / 不宣称 exact multi-battlefield precision、standby / reaction、quick / spell-duel timing、full FEPR targeting / stack lifecycle、full movement / control-zone lifecycle、hidden-info / redaction matrix、PaymentEngine full officialization、Ephemeral lifecycle、draw replacement / deck exhaustion、1009/811 full-official 或 formal 18-step E2E。
+
+修复事实：
+
+- B / Maxwell 修复 `src/Riftbound.Engine/CoreRuleEngine.cs`，在 `PLAY_CARD` target validation 中加入 `HasValidSwapTargetLocations`，让 `SwapsTargetLocations` 牌在命令阶段拒绝 same-position pair。
+- B / Maxwell 同步修复 `src/Riftbound.Engine/MatchSession.cs`，把 `AnyTargetRequiredTag` 与 `SwapsTargetLocations` 纳入 server target-selection constraint，prompt `legalTargetSelections` 只保留 Ephemeral-qualified different-position pairs。
+- 新增 `tests/Riftbound.ConformanceTests/ReflectionsSwapGuardTests.cs`，覆盖成功 swap/draw、no-Ephemeral rejection、same-position rejection、friendly equipment / spell / rune / face-down standby / stale / enemy / dirty controller rejection，以及 prompt parity。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Reflections|FullyQualifiedName~Swap|FullyQualifiedName~FriendlyUnit"`：passed 54/54。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ActionPrompt|FullyQualifiedName~Prompt|FullyQualifiedName~SandSoldiersRise|FullyQualifiedName~Reflections"`：passed 112/112。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3679/3679。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 将回填 `stage4C57` 为 `REFLECTIONS_SWAP_FRIENDLY_UNITS_DRAW_GUARD_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH57_REFLECTIONS_SWAP_DRAW_GUARD_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH57_REFLECTIONS_SWAP_DRAW_GUARD_EVIDENCE.md` 记录 narrow representative guard verified 证据。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 计划：
+
+- 预计提交：`checkpoint: complete stage 4C reflections swap guard`。
+- 提交前仍需验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`；`git diff --check`；`git diff --cached --check`。
+- 必须排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。

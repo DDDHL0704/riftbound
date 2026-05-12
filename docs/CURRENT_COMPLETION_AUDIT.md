@@ -7,15 +7,15 @@
 
 ## 0. 2026-05-12 最新状态补充
 
-当前最新 Stage 4C checkpoint 为 `3631c00 checkpoint: complete stage 4C secret art mercy guard`。Stage 4C-56 `Secret Art! Mercy` / `OGN·053/298` / `FU-3461727400` 已完成代表性 guard 修复、验证与 checkpoint，项目整体仍 **NOT READY**。
+当前最新已提交 Stage 4C checkpoint 为 `3631c00 checkpoint: complete stage 4C secret art mercy guard`。本轮 Stage 4C-57 `Reflections` / `UNL-083/219` / `FU-f0eb0fb704` 已完成代表性 swap/draw guard 修复与验证，正在收口 checkpoint；项目整体仍 **NOT READY**。
 
-4C-56 修复收紧了服务端 Core authoritative `FriendlyUnit` target validation，并同步 prompt candidate 可见单位口径：友方 equipment / spell / rune / face-down standby 不再作为友方单位目标，legacy custom-tag public field unit 仍可作为单位目标。Focused 命令：
+4C-57 修复收紧了服务端 Core authoritative `SwapsTargetLocations` validation，并同步 prompt `legalTargetSelections`：Reflections 的两个友方 public field unit 目标必须处于不同代表位置，且至少一个带 `瞬息`；same-position、no-Ephemeral、non-unit、hidden、enemy、dirty controller 目标不再能支付、入栈、换位或抽牌。Focused 命令：
 
 ```sh
-source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~SecretArtMercy|FullyQualifiedName~Boon|FullyQualifiedName~Spellshield"
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Reflections|FullyQualifiedName~Swap|FullyQualifiedName~FriendlyUnit"
 ```
 
-结果为 passed，87 passed / 0 failed / 87 total。追加回归 `FullyQualifiedName~SandSoldiersRise|FullyQualifiedName~ActionPrompt|FullyQualifiedName~Prompt|FullyQualifiedName~FriendlyUnit` 通过 133/133；backend full 通过 3668/3668；frontend build 通过；Chrome smoke 通过。4C-56 只声明 narrow representative guard verified，不作为 READY 或 full-official 证据。
+结果为 passed，54 passed / 0 failed / 54 total。追加回归 `FullyQualifiedName~ActionPrompt|FullyQualifiedName~Prompt|FullyQualifiedName~SandSoldiersRise|FullyQualifiedName~Reflections` 通过 112/112；backend full 通过 3679/3679；frontend build 通过；Chrome smoke 通过。4C-57 只声明 narrow representative guard verified，不作为 READY 或 full-official 证据。
 
 当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责，复用长期 B / Maxwell 完成功能修复；后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
 
@@ -27,23 +27,24 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 | 服务端保持唯一规则权威 | `docs/CURRENT_SERVER_RULE_AUDIT.md` 与本文件第 3 / 6 节记录服务端 authoritative snapshot / prompt / command guard 模型 | 方向满足，但仍有 P0/P1 规则缺口 |
 | 前端只展示并提交服务端 `ActionPrompt` / authoritative snapshot 支持的合法操作 | 本文件第 5 / 6 / 9 节记录前端候选驱动与多批 Chrome smoke；最终 18 步 E2E 仍缺 | 部分验证，未达到最终验收 |
 | P0/P1 阻断清零 | 本文件第 4 / 11 节与 `docs/CURRENT_SERVER_RULE_AUDIT.md` 仍列出 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡证据；4C-56 blocker 已修复但不清零全局 P0/P1 | 未完成 |
-| 后端 full test 当前 HEAD 全绿 | 4C-56 修复后 focused 87/87、regression 133/133、backend full 3668/3668 均通过 | 本轮满足，最终验收前仍需重跑 |
-| Chrome smoke 通过 | 4C-56 修复后 frontend build 通过，Chrome smoke 通过 | 本轮满足，最终验收前仍需正式 E2E |
+| 后端 full test 当前 HEAD 全绿 | 4C-57 修复后 focused 54/54、regression 112/112、backend full 3679/3679 均通过 | 本轮满足，最终验收前仍需重跑 |
+| Chrome smoke 通过 | 4C-57 修复后 frontend build 通过，Chrome smoke 通过 | 本轮满足，最终验收前仍需正式 E2E |
 | 正式 18 步 E2E 通过 | 本文件第 9 节明确缺一条完整覆盖 `docs/任务补充.md` 18 步最低流程的双浏览器或等效 E2E | 未完成 |
-| 卡牌覆盖矩阵完成 | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C56` 回填为 representative guard verified，但 1009/811 full-official coverage 仍未完成 | 未完成 |
+| 卡牌覆盖矩阵完成 | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C57` 回填为 representative guard verified，但 1009/811 full-official coverage 仍未完成 | 未完成 |
 | 最终 completion audit 输出 READY 后才允许标记 complete | 本文件审计结论仍为 **NOT READY**；未调用 `update_goal complete` | 未完成 |
 
 ## 1. 修改文件列表
 
-2026-05-12 Stage 4C-56 representative guard / completion audit 已 checkpoint 修改：
+2026-05-12 Stage 4C-57 representative guard / completion audit 本轮修改：
 
-- `docs/A_MASTER_AGENT_GOAL.md`
 - `docs/CURRENT_A_MASTER_CHECKPOINT.md`
 - `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
 - `docs/CURRENT_COMPLETION_AUDIT.md`
 - `docs/CURRENT_RULE_EVIDENCE_TODO.md`
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`
 - `docs/rules-evidence-index.md`
+- `src/Riftbound.Engine/CoreRuleEngine.cs`
+- `src/Riftbound.Engine/MatchSession.cs`
 
 历史第二百五十九批修改：
 
@@ -68,14 +69,14 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 
 ## 2. 新增文件列表
 
-2026-05-12 Stage 4C-56 representative guard 已 checkpoint 新增文档：
+2026-05-12 Stage 4C-57 representative guard 本轮新增文档：
 
-- `docs/CURRENT_STAGE4C_BATCH56_SECRET_ART_MERCY_BOON_GUARD_AUDIT.md`
-- `docs/CURRENT_STAGE4C_BATCH56_SECRET_ART_MERCY_BOON_GUARD_EVIDENCE.md`
+- `docs/CURRENT_STAGE4C_BATCH57_REFLECTIONS_SWAP_DRAW_GUARD_AUDIT.md`
+- `docs/CURRENT_STAGE4C_BATCH57_REFLECTIONS_SWAP_DRAW_GUARD_EVIDENCE.md`
 
-2026-05-12 Stage 4C-56 representative guard 已 checkpoint 新增测试：
+2026-05-12 Stage 4C-57 representative guard 本轮新增测试：
 
-- `tests/Riftbound.ConformanceTests/SecretArtMercyBoonGuardTests.cs`
+- `tests/Riftbound.ConformanceTests/ReflectionsSwapGuardTests.cs`
 
 历史第二百五十九批新增：
 
@@ -147,7 +148,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 
 历史第二百五十九批是前端/API fallback 文案与构建门禁收口批。`MatchSocket` 在 Join/Reconnect 等待超时时返回中文错误，行为规格 API 单卡未命中返回中文 404 message；`npm run build` 现在会执行 `check:user-facing-text`，防止关键玩家可见英文 fallback 回流。该历史批次曾记录后端 full test 3157/3157 通过、前端 build 通过。此前第二百三十二批 Chrome 插件房间 `smoke-battlefield-held-score-1778247059745` 已覆盖战场得分 UI 代表路径。
 
-当前 2026-05-12 Stage 4C-56 representative guard 修复后，focused SecretArtMercy / Boon / Spellshield 过滤测试通过 87/87，prompt / Sand Soldiers / FriendlyUnit 回归过滤测试通过 133/133，backend full 通过 3668/3668，frontend build 通过，Chrome smoke 通过。本轮只证明 4C-56 narrow representative guard 与基本 UI smoke，不替代最终 18 步 E2E。
+当前 2026-05-12 Stage 4C-57 representative guard 修复后，focused Reflections / Swap / FriendlyUnit 过滤测试通过 54/54，ActionPrompt / Prompt / Sand Soldiers / Reflections 回归过滤测试通过 112/112，backend full 通过 3679/3679，frontend build 通过，Chrome smoke 通过。本轮只证明 4C-57 narrow representative guard 与基本 UI smoke，不替代最终 18 步 E2E。
 
 ## 9. Browser smoke / E2E 结果
 

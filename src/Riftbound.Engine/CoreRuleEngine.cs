@@ -17003,6 +17003,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !HasValidTotalTargetPower(state, behavior, targetObjectIds)
             || !AreTargetsAfterFirstPowerLessThanFirstTarget(state, behavior, targetObjectIds)
             || !HasRequiredAnyTargetTag(state, behavior, targetObjectIds)
+            || !HasValidSwapTargetLocations(state, behavior, targetObjectIds)
             || !AreAttachDetachTargetsAllowed(state, behavior, targetObjectIds)
             || !HasValidSacredJudgmentKeepTargets(state, command.SourceObjectId, behavior, targetObjectIds)
             || !HasValidEachPlayerTopFiveUnitTargets(state, behavior, targetObjectIds)
@@ -20698,6 +20699,24 @@ public sealed class CoreRuleEngine : IRuleEngine
         return string.IsNullOrWhiteSpace(behavior.AnyTargetRequiredTag)
             || targetObjectIds.Any(targetObjectId =>
                 CardObjectHasTag(state.CardObjects, targetObjectId, behavior.AnyTargetRequiredTag));
+    }
+
+    private static bool HasValidSwapTargetLocations(
+        MatchState state,
+        CardBehaviorDefinition behavior,
+        IReadOnlyList<string> targetObjectIds)
+    {
+        if (!behavior.SwapsTargetLocations
+            || targetObjectIds.Count < 2)
+        {
+            return true;
+        }
+
+        return CanSwapTargetLocations(
+            state.PlayerZones,
+            state.CardObjects,
+            targetObjectIds[0],
+            targetObjectIds[1]);
     }
 
     private static bool IsFriendlyGraveyardCard(MatchState state, string playerId, string objectId)

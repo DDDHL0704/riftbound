@@ -2,8 +2,8 @@
 
 更新时间：2026-05-12
 
-最新 Stage 4C checkpoint：`3631c00 checkpoint: complete stage 4C secret art mercy guard`。
-当前已 checkpoint verified representative guard：Stage 4C-56 `Secret Art! Mercy` Core / prompt `FriendlyUnit` target validation 已收紧并通过 focused / regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
+最新已提交 Stage 4C checkpoint：`3631c00 checkpoint: complete stage 4C secret art mercy guard`。
+当前本轮 verified representative guard：Stage 4C-57 `Reflections` Core / prompt swap-location + Ephemeral target validation 已收紧并通过 focused / regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -112,6 +112,8 @@
 阶段 4C-55 记录 Vex alt A / 薇古丝 UNL-150a test-only spellshield / Yordle play-unit guard representative evidence；只关闭 `FU-4d8ee1696b` ordinary hand guard evidence，不实现 / 不宣称 opponent-unit stun / cannot-move runtime。Spellshield full target tax、movement / control effects、FAQ adjudication、1009/811 与 formal 18-step E2E 仍不代表 READY。
 
 阶段 4C-56 记录 Secret Art! Mercy / 秘奥义！慈悲度魂落 OGN·053 test-only ordinary hand Boon +1 / friendly Spellshield no-tax representative guard；Core / prompt `FriendlyUnit` target scope 已收紧，friendly equipment / spell / rune / face-down standby 拒绝，legacy custom-tag public field unit 保持可选；focused 87/87、regression 133/133、backend full 3668/3668、frontend build 与 Chrome smoke 通过。不实现 / 不宣称 global all-boons extra +1 this turn、standby / reaction、quick / spell-duel breadth 或 full Spellshield tax。FAQ、1009/811 与 formal 18-step E2E 仍不代表 READY。
+
+阶段 4C-57 记录 Reflections / 镜中幻影 UNL-083 ordinary hand swap/draw representative guard；Core `SwapsTargetLocations` command validation 已补 same-position guard，prompt `legalTargetSelections` 同步过滤 `AnyTargetRequiredTag` 与 different-position pairs；focused 54/54、regression 112/112、backend full 3679/3679、frontend build 与 Chrome smoke 通过。不实现 / 不宣称 exact multi-battlefield precision、standby / reaction、quick / spell-duel timing、full FEPR targeting / stack lifecycle、full movement / control-zone lifecycle、hidden-info / redaction matrix、PaymentEngine full officialization、Ephemeral lifecycle、draw replacement / deck exhaustion、FAQ、1009/811 与 formal 18-step E2E。
 
 | 阶段 3 流程 | 证据入口 | 必须证明的审计点 |
 |---|---|---|

@@ -6832,6 +6832,8 @@ internal static class ActionPromptBuilder
         IReadOnlyList<IReadOnlyList<string>> choicesByIndex)
     {
         return behavior.MaxTotalTargetPower > 0
+            || !string.IsNullOrWhiteSpace(behavior.AnyTargetRequiredTag)
+            || behavior.SwapsTargetLocations
             || choicesByIndex
                 .SelectMany(choiceIds => choiceIds)
                 .Distinct(StringComparer.Ordinal)
@@ -6878,6 +6880,12 @@ internal static class ActionPromptBuilder
             return false;
         }
 
+        if (!PromptHasRequiredAnyTargetTag(state, behavior, targetObjectIds)
+            || !PromptHasValidSwapTargetLocations(state, behavior, targetObjectIds))
+        {
+            return false;
+        }
+
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
@@ -6908,6 +6916,38 @@ internal static class ActionPromptBuilder
         }
 
         return true;
+    }
+
+    private static bool PromptHasRequiredAnyTargetTag(
+        MatchState state,
+        CardBehaviorDefinition behavior,
+        IReadOnlyList<string> targetObjectIds)
+    {
+        return string.IsNullOrWhiteSpace(behavior.AnyTargetRequiredTag)
+            || targetObjectIds.Any(targetObjectId =>
+                PromptCardObjectHasTags(state.CardObjects, targetObjectId, behavior.AnyTargetRequiredTag));
+    }
+
+    private static bool PromptHasValidSwapTargetLocations(
+        MatchState state,
+        CardBehaviorDefinition behavior,
+        IReadOnlyList<string> targetObjectIds)
+    {
+        if (!behavior.SwapsTargetLocations
+            || targetObjectIds.Count < 2)
+        {
+            return true;
+        }
+
+        if (string.Equals(targetObjectIds[0], targetObjectIds[1], StringComparison.Ordinal)
+            || !TryFindLegendActionFieldObjectLocation(state.PlayerZones, targetObjectIds[0], out var firstLocation)
+            || !TryFindLegendActionFieldObjectLocation(state.PlayerZones, targetObjectIds[1], out var secondLocation))
+        {
+            return false;
+        }
+
+        return !string.Equals(firstLocation.PlayerId, secondLocation.PlayerId, StringComparison.Ordinal)
+            || !string.Equals(firstLocation.Zone, secondLocation.Zone, StringComparison.Ordinal);
     }
 
     private static IEnumerable<string> PromptTargetCandidateIds(
