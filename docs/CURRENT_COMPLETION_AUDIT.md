@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint：`PENDING CHECKPOINT: complete stage 4C forced conscription evidence`。Stage 4C-79 `强制征召` / `UNL-140/219` / `FU-0681eefc4e` 已完成代表性 control small enemy recall / power-above-three rejection / dirty already-controlled enemy-zone target guard evidence-only overlay 与验证；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint：`c6e5b2a checkpoint: complete stage 4C forced conscription evidence`。Stage 4C-79 `强制征召` / `UNL-140/219` / `FU-0681eefc4e` 已完成代表性 control small enemy recall / power-above-three rejection / dirty already-controlled enemy-zone target guard evidence-only overlay 与验证；项目整体仍 **NOT READY**。
 
 4C-79 不修改功能代码，只把既有服务端权威 Forced Conscription 证据入账：ordinary hand `PLAY_CARD` 不支付 5 经验额外费用、支付基础 5 mana、选择敌方战场上一名 3 战力及以下且带 `CARD_TYPE:UNIT` 的单位，stack / pass-pass 后获得控制权、休眠并放入控制者基地；4 战力目标由直接测试拒绝，脏恢复目标由结算 guard 跳过。Focused / primary regression 命令：
 

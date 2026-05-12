@@ -5,7 +5,7 @@
 
 本文记录 E 证据/审计 worker 第一轮 P0 交接项、阶段 1 D 协议审计、阶段 2 D P0 规则证据链和 A 主控验收结果，不替代 `docs/CURRENT_SERVER_RULE_AUDIT.md`。
 
-最新 Stage 4C checkpoint：`PENDING CHECKPOINT: complete stage 4C forced conscription evidence`
+最新 Stage 4C checkpoint：`c6e5b2a checkpoint: complete stage 4C forced conscription evidence`
 当前已 verified representative evidence：Stage 4C-79 `强制征召` control small enemy recall / power-above-three rejection / dirty already-controlled enemy-zone target guard route 已入账，并通过 focused / control battlefield target stack payment adjacent regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 历史 3B checkpoint：`a74beac`
 阶段 1 基线提交：`78b6896`
