@@ -7,17 +7,17 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4C checkpoint 为 `d505dcf checkpoint: complete stage 4C hunt ready guard`。Stage 4C-62 `Hunt` / `SFD·204/221` / `FU-f877e60407` 已完成代表性 ready-all-friendly-units guard 修复、验证与 checkpoint；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint 为 Stage 4C-63 pending checkpoint。Stage 4C-63 `First Mate` / `OGN·132/298` / `FU-abf504d74e` 已完成代表性 AnyUnit target-scope guard 修复、验证与 checkpoint 准备；项目整体仍 **NOT READY**。
 
-4C-62 修复收紧了服务端 Core authoritative all-friendly ready resolution：Hunt 只让 friendly public field units 变为活跃；friendly battlefield equipment / spell / rune、face-down standby、dirty controller objects 与 enemy units 不再被错误 readied。Focused 命令：
+4C-63 修复收紧了服务端 Core authoritative `AnyUnit` target validation：普通 `AnyUnit` 目标现在只接受由所在区域玩家控制的公开场上单位；equipment / spell / rune、face-down / standby、dirty controller、hand / stale targets 不再进入支付或 stack mutation。Focused 命令：
 
 ```sh
-source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~HuntReadyGuardTests|FullyQualifiedName~HuntAndReadies|FullyQualifiedName~HuntReady"
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~AnyUnitTargetScopeGuardTests|FullyQualifiedName~CoreRuleEnginePlaysFirstMateReadyAnotherUnit|FullyQualifiedName~CoreRuleEnginePlaysTheCurtainRises|FullyQualifiedName~CoreRuleEnginePlaysMirrorImageCreatesEphemeralCopyInBase"
 ```
 
-结果为 passed，10 passed / 0 failed / 10 total。追加回归 `FullyQualifiedName~Hunt|FullyQualifiedName~ReadyAll|FullyQualifiedName~ReadiesAll|FullyQualifiedName~UNIT_READIED|FullyQualifiedName~Overcharged|FullyQualifiedName~FieldUnit` 通过 121/121；backend full 通过 3731/3731；frontend build 通过；Chrome smoke 通过。4C-62 只声明 narrow representative guard verified，不作为 READY 或 full-official 证据。
+结果为 passed，15 passed / 0 failed / 15 total。追加回归 `FullyQualifiedName~AnyUnitTargetScopeGuardTests|FullyQualifiedName~FirstMate|FullyQualifiedName~CurtainRises|FullyQualifiedName~Beatdown|FullyQualifiedName~AnyUnit|FullyQualifiedName~TargetScope|FullyQualifiedName~TargetGuard` 通过 16/16；backend full 通过 3742/3742；frontend build 通过；Chrome smoke 通过。4C-63 只声明 narrow representative guard verified，不作为 READY 或 full-official 证据。
 
-当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责；4C-62 由 A 基于 matrix 风险筛选做窄切片实现、复核、验证和文档收口。后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
+当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责；4C-63 由 A 基于 matrix 风险筛选做窄切片实现、复核、验证和文档收口。后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
 
 ## 0.1 Active Goal 门槛到证据映射
 
@@ -27,15 +27,15 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 | 服务端保持唯一规则权威 | `docs/CURRENT_SERVER_RULE_AUDIT.md` 与本文件第 3 / 6 节记录服务端 authoritative snapshot / prompt / command guard 模型 | 方向满足，但仍有 P0/P1 规则缺口 |
 | 前端只展示并提交服务端 `ActionPrompt` / authoritative snapshot 支持的合法操作 | 本文件第 5 / 6 / 9 节记录前端候选驱动与多批 Chrome smoke；最终 18 步 E2E 仍缺 | 部分验证，未达到最终验收 |
 | P0/P1 阻断清零 | 本文件第 4 / 11 节与 `docs/CURRENT_SERVER_RULE_AUDIT.md` 仍列出 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡证据；4C-56 blocker 已修复但不清零全局 P0/P1 | 未完成 |
-| 后端 full test 当前 HEAD 全绿 | 4C-62 修复后 focused 10/10、regression 121/121、backend full 3731/3731 均通过 | 本轮满足，最终验收前仍需重跑 |
-| Chrome smoke 通过 | 4C-62 修复后 frontend build 通过，Chrome smoke 通过 | 本轮满足，最终验收前仍需正式 E2E |
+| 后端 full test 当前 HEAD 全绿 | 4C-63 修复后 focused 15/15、regression 16/16、backend full 3742/3742 均通过 | 本轮满足，最终验收前仍需重跑 |
+| Chrome smoke 通过 | 4C-63 修复后 frontend build 通过，Chrome smoke 通过 | 本轮满足，最终验收前仍需正式 E2E |
 | 正式 18 步 E2E 通过 | 本文件第 9 节明确缺一条完整覆盖 `docs/任务补充.md` 18 步最低流程的双浏览器或等效 E2E | 未完成 |
-| 卡牌覆盖矩阵完成 | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C62` 回填为 representative guard verified，但 1009/811 full-official coverage 仍未完成 | 未完成 |
+| 卡牌覆盖矩阵完成 | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C63` 回填为 representative guard verified，但 1009/811 full-official coverage 仍未完成 | 未完成 |
 | 最终 completion audit 输出 READY 后才允许标记 complete | 本文件审计结论仍为 **NOT READY**；未调用 `update_goal complete` | 未完成 |
 
 ## 1. 修改文件列表
 
-2026-05-13 Stage 4C-62 representative guard 本轮修改：
+2026-05-13 Stage 4C-63 representative guard 本轮修改：
 
 - `docs/CURRENT_A_MASTER_CHECKPOINT.md`
 - `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
@@ -44,7 +44,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`
 - `docs/rules-evidence-index.md`
 - `src/Riftbound.Engine/CoreRuleEngine.cs`
-- `tests/Riftbound.ConformanceTests/HuntReadyGuardTests.cs`
+- `tests/Riftbound.ConformanceTests/AnyUnitTargetScopeGuardTests.cs`
 
 历史第二百五十九批修改：
 
@@ -69,14 +69,14 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 
 ## 2. 新增文件列表
 
-2026-05-13 Stage 4C-62 representative guard 新增文档：
+2026-05-13 Stage 4C-63 representative guard 新增文档：
 
-- `docs/CURRENT_STAGE4C_BATCH62_HUNT_READY_FRIENDLY_UNITS_GUARD_AUDIT.md`
-- `docs/CURRENT_STAGE4C_BATCH62_HUNT_READY_FRIENDLY_UNITS_GUARD_EVIDENCE.md`
+- `docs/CURRENT_STAGE4C_BATCH63_ANY_UNIT_TARGET_SCOPE_GUARD_AUDIT.md`
+- `docs/CURRENT_STAGE4C_BATCH63_ANY_UNIT_TARGET_SCOPE_GUARD_EVIDENCE.md`
 
-2026-05-13 Stage 4C-62 representative guard 新增测试：
+2026-05-13 Stage 4C-63 representative guard 新增测试：
 
-- `tests/Riftbound.ConformanceTests/HuntReadyGuardTests.cs`
+- `tests/Riftbound.ConformanceTests/AnyUnitTargetScopeGuardTests.cs`
 
 历史第二百五十九批新增：
 

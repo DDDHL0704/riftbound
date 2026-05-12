@@ -19773,7 +19773,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             CardTargetScopes.BattlefieldUnitOrEquipment => IsBattlefieldObject(state, objectId)
                 || IsEquipmentObject(state, objectId),
-            CardTargetScopes.AnyUnit => IsBattlefieldObject(state, objectId) || IsBaseObject(state, objectId),
+            CardTargetScopes.AnyUnit => IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId),
             CardTargetScopes.BaseUnit => IsBaseObject(state, objectId),
             CardTargetScopes.FriendlyUnit => IsPlayerControlledFieldUnitObject(state, playerId, objectId),
             CardTargetScopes.FriendlyUnitThenFriendlyUnit => IsPlayerControlledFieldUnitObject(state, playerId, objectId),
@@ -19796,7 +19796,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ? IsPlayerControlledBattlefieldObject(state, playerId, objectId)
                 : IsStackSpellItem(state, objectId),
             CardTargetScopes.AnyUnitThenFriendlyMainDeckCard => targetIndex == 0
-                ? IsBattlefieldObject(state, objectId) || IsBaseObject(state, objectId)
+                ? IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
                 : IsFriendlyMainDeckCard(state, playerId, objectId),
             CardTargetScopes.FriendlyBattlefieldUnit => IsPlayerControlledBattlefieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyHandCard => IsFriendlyHandCard(state, playerId, objectId),
@@ -26743,8 +26743,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        return objectState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || objectState.Tags.Count == 0;
+        return true;
     }
 
     private static bool IsBattlefieldUnitObjectControlledByZonePlayer(

@@ -2158,6 +2158,14 @@
 - 验证：focused 10/10；Hunt / ready / field-unit regression 121/121；backend full 3731/3731；frontend build passed；Chrome smoke passed。
 - 该证据只关闭 narrow representative guard；不关闭 multi-battlefield precision、PaymentEngine、LayerEngine、readiness replacement/prevention interactions、FAQ、1009/811 full-official 或 formal 18-step E2E。
 
+## Stage 4C-63 AnyUnit Target Scope Evidence
+
+- `FU-abf504d74e` / `OGN·132/298` / `FIRST_MATE_PLAY_UNIT_READY_ANOTHER_UNIT` 已记录 Stage 4C-63 representative AnyUnit target-scope guard。
+- 新增代码证据：`src/Riftbound.Engine/CoreRuleEngine.cs` 的 `CardTargetScopes.AnyUnit` 现在只接受 public field units；`IsFieldUnitObjectControlledByZonePlayer` 排除 non-unit / hidden / standby / dirty objects，并保留 trait-only unit object 兼容。
+- 新增测试证据：`tests/Riftbound.ConformanceTests/AnyUnitTargetScopeGuardTests.cs` 覆盖 valid First Mate target ready、invalid target no-mutation、无 `TargetRequiredTag` 的 AnyUnit non-unit regression，以及 Mirror Image trait-only unit compatibility。
+- 验证：focused 15/15；AnyUnit / FirstMate / CurtainRises / Beatdown target regression 16/16；backend full 3742/3742；frontend build passed；Chrome smoke passed。
+- 该证据只关闭 narrow representative guard；不关闭 all AnyUnit card texts / modes、multi-battlefield precision、PaymentEngine、LayerEngine、hidden-info / redaction matrix、FAQ、1009/811 full-official 或 formal 18-step E2E。
+
 ## 7. 索引维护规则
 
 - 新增规则能力前，先在本索引中找到证据；找不到就先补索引。

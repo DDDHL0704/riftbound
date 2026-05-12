@@ -3932,3 +3932,40 @@ Checkpoint 记录：
 - 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
 - 已纳入：`src/Riftbound.Engine/CoreRuleEngine.cs`、`tests/Riftbound.ConformanceTests/HuntReadyGuardTests.cs`、4C-62 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 23. 阶段 4C-63 AnyUnit Target Scope Guard Verified Representative
+
+状态：**已完成代表切片收口，checkpoint commit 待生成。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 First Mate / 大副 `OGN·132/298` / cardId `31356` / `FU-abf504d74e` / `FIRST_MATE_PLAY_UNIT_READY_ANOTHER_UNIT`。
+- 只补 ordinary hand `PLAY_CARD`、支付 3 mana、选择 public field unit target、stack / pass-pass 后目标变为活跃的 representative AnyUnit target-scope guard。
+- 不实现 / 不宣称 all AnyUnit card texts / modes、formal multi-battlefield precision、standby / reaction、quick / spell-duel timing、full FEPR stack lifecycle、PaymentEngine、LayerEngine / effective power、hidden-info / redaction matrix、FAQ adjudication、1009/811 full-official 或 formal 18-step E2E。
+
+修复事实：
+
+- A 基于 matrix fresh risk pass 选择低耦合、无 FAQ、单 FU First Mate 路线。
+- `src/Riftbound.Engine/CoreRuleEngine.cs` 让 `CardTargetScopes.AnyUnit` 复用 public field-unit guard，只接受由所在区域玩家控制的公开场上单位；该 guard 排除 face-down、standby、equipment、spell、rune 与 dirty controller objects，并保留 trait-only unit object 兼容。
+- 新增 `tests/Riftbound.ConformanceTests/AnyUnitTargetScopeGuardTests.cs`，覆盖成功 target ready、equipment / spell / rune / face-down standby / face-up standby / dirty controller / hand / stale targets no-mutation rejection，以及无 `TargetRequiredTag` 的 AnyUnit non-unit regression。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~AnyUnitTargetScopeGuardTests|FullyQualifiedName~CoreRuleEnginePlaysFirstMateReadyAnotherUnit|FullyQualifiedName~CoreRuleEnginePlaysTheCurtainRises|FullyQualifiedName~CoreRuleEnginePlaysMirrorImageCreatesEphemeralCopyInBase"`：passed 15/15。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~AnyUnitTargetScopeGuardTests|FullyQualifiedName~FirstMate|FullyQualifiedName~CurtainRises|FullyQualifiedName~Beatdown|FullyQualifiedName~AnyUnit|FullyQualifiedName~TargetScope|FullyQualifiedName~TargetGuard"`：passed 16/16。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3742/3742。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C63` 回填为 `ANY_UNIT_TARGET_SCOPE_GUARD_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH63_ANY_UNIT_TARGET_SCOPE_GUARD_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH63_ANY_UNIT_TARGET_SCOPE_GUARD_EVIDENCE.md` 记录 narrow representative guard verified 证据。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 待提交：`checkpoint: complete stage 4C any unit target guard`。
+- 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
+- 已纳入：`src/Riftbound.Engine/CoreRuleEngine.cs`、`tests/Riftbound.ConformanceTests/AnyUnitTargetScopeGuardTests.cs`、4C-63 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
