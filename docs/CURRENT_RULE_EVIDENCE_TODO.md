@@ -5,7 +5,7 @@
 
 本文记录 E 证据/审计 worker 第一轮 P0 交接项、阶段 1 D 协议审计、阶段 2 D P0 规则证据链和 A 主控验收结果，不替代 `docs/CURRENT_SERVER_RULE_AUDIT.md`。
 
-最新 Stage 4C checkpoint：Stage 4C-61 pending checkpoint
+最新 Stage 4C checkpoint：`627430a checkpoint: complete stage 4C overcharged energy field unit guard`
 当前已 verified representative guard：Stage 4C-61 `Overcharged Energy` Core field-unit exhaust / battlefield-unit damage resolution 已收紧，并通过 focused / regression / backend full / frontend build / Chrome smoke；项目仍 **NOT READY**。
 历史 3B checkpoint：`a74beac`
 阶段 1 基线提交：`78b6896`

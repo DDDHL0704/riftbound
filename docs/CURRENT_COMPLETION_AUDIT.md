@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-12 最新状态补充
 
-当前最新 Stage 4C checkpoint 为 Stage 4C-61 pending checkpoint。Stage 4C-61 `Overcharged Energy` / `OGN·123/298` / `FU-b2e0e1d8da` 已完成代表性 field-unit exhaust / battlefield-unit damage guard 修复、验证与 checkpoint 准备；项目整体仍 **NOT READY**。
+当前最新 Stage 4C checkpoint 为 `627430a checkpoint: complete stage 4C overcharged energy field unit guard`。Stage 4C-61 `Overcharged Energy` / `OGN·123/298` / `FU-b2e0e1d8da` 已完成代表性 field-unit exhaust / battlefield-unit damage guard 修复、验证与 checkpoint；项目整体仍 **NOT READY**。
 
 4C-61 修复收紧了服务端 Core authoritative all-friendly / all-battlefield unit resolution：Overcharged Energy 只横置 friendly public field units，只对 public battlefield units 造成 12 点伤害；equipment / spell / rune、face-down standby、dirty controller objects 与 base units 不再被错误卷入对应 effect path。Focused 命令：
 
