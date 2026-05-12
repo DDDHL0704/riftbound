@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 checkpoint：`6351fd12 checkpoint: record stage 4C shield wall evidence`。上一 Stage 4C checkpoint 为 `beb9f513 checkpoint: record stage 4C imperial shrine evidence`；上一 active guard checkpoint 为 `4c06189 checkpoint: add active start battle guard tests`；上一 formal 18-step checkpoint 为 `3aed179 checkpoint: add formal 18 step e2e evidence`。Stage 4C-85 `炽烈符文` / `OGN·007/298` / `FU-0ec69ae7e6` 与 `翠意符文` / `OGN·042/298` / `FU-39041f4562` 已完成代表性 `RUNE_RESOURCE_DOMAIN` payment-resource evidence-only overlay 与验证。2026-05-13 另新增 formal 18-step E2E 脚本证据，房间 `formal-18-1778623926434-15` 已在同一连续正式对局中通过官方卡组、起手、首回合出牌、结算链、单位移动、重连、P2 战场得分、投降与结果页胜者展示；active `START_BATTLE` guard test-only evidence 已固化争夺战场战斗任务 prompt / command no-mutation 边界；本批另新增 Stage 4C-86 帝王神坛与 Stage 4C-87 禁军之墙 representative evidence overlays；项目整体仍 **NOT READY**。
+当前最新 checkpoint：`待提交 stage 4C-88 malzahar design gate`。上一 Stage 4C checkpoint 为 `6351fd12 checkpoint: record stage 4C shield wall evidence`；上一 active guard checkpoint 为 `4c06189 checkpoint: add active start battle guard tests`；上一 formal 18-step checkpoint 为 `3aed179 checkpoint: add formal 18 step e2e evidence`。Stage 4C-85 `炽烈符文` / `OGN·007/298` / `FU-0ec69ae7e6` 与 `翠意符文` / `OGN·042/298` / `FU-39041f4562` 已完成代表性 `RUNE_RESOURCE_DOMAIN` payment-resource evidence-only overlay 与验证。2026-05-13 另新增 formal 18-step E2E 脚本证据，房间 `formal-18-1778623926434-15` 已在同一连续正式对局中通过官方卡组、起手、首回合出牌、结算链、单位移动、重连、P2 战场得分、投降与结果页胜者展示；active `START_BATTLE` guard test-only evidence 已固化争夺战场战斗任务 prompt / command no-mutation 边界；本批另新增 Stage 4C-86 帝王神坛与 Stage 4C-87 禁军之墙 representative evidence overlays；Stage 4C-88 已新增 Malzahar resource-skill design gate，但未实现功能、未关闭 FU、未改矩阵；项目整体仍 **NOT READY**。
 
 4C-85 不修改功能代码，只把既有服务端权威符文资源域证据入账：官方符文卡映射到 non-play `RUNE_RESOURCE_DOMAIN`，不进入 direct `PLAY_CARD` registry；控制者基地符文通过服务端 `RECYCLE_RUNE` / `paymentResourcePowerByChoice` 暴露 trait/power 支付资源；typed `SPEND_POWER:red:2` 接受 red 资源并拒绝 blue 资源，generic `SPEND_POWER:2` 可接受 red / blue 任一服务端候选且防止过量回收。Focused / primary regression 命令：
 
@@ -25,7 +25,9 @@ Stage 4C-86 本轮新增证据见 `docs/CURRENT_STAGE4C_BATCH86_IMPERIAL_SHRINE_
 
 Stage 4C-87 本轮新增证据见 `docs/CURRENT_STAGE4C_BATCH87_SHIELD_WALL_MOVE_GUARD_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH87_SHIELD_WALL_MOVE_GUARD_EVIDENCE.md`：`FU-a7fbef72ba` / `SFD·043/221` / 禁军之墙已记录代表性 move-any-friendly-battlefield-units-to-base route；focused `ShieldWall` 通过 2/2；adjacent `MoveFriendly|MoveUnit|FriendlyBattlefieldUnit` 通过 63/63；backend full 通过 3771/3771。本批不修改功能代码，只做矩阵与文档入账，不能升级为完整 multi-battlefield movement / FEPR / PaymentEngine。
 
-当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责；4C-85 / 4C-86 / 4C-87 由 A 基于 matrix 风险筛选做 evidence-only 覆盖入账、复核、验证和文档收口。后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
+Stage 4C-88 本轮新增 design gate 见 `docs/CURRENT_STAGE4C_BATCH88_MALZAHAR_RESOURCE_SKILL_DESIGN_GATE.md`：`FU-0f7cbe26ce` / `OGN·113/298` / 玛尔扎哈已确认不是 evidence-only 候选；现有覆盖只包含普通手牌打出，官方 activated resource skill 仍需服务端设计/实现、FAQ 裁定与后续测试。本批不修改功能代码、不修改矩阵、不新增 representative evidence。
+
+当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责；4C-85 / 4C-86 / 4C-87 由 A 基于 matrix 风险筛选做 evidence-only 覆盖入账、复核、验证和文档收口；4C-88 则将 Malzahar 从后续候选推进为 design-gated 实现派单规格。后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
 
 ## 0.1 Active Goal 门槛到证据映射
 
@@ -47,6 +49,15 @@ Stage 4C-87 本轮新增证据见 `docs/CURRENT_STAGE4C_BATCH87_SHIELD_WALL_MOVE
 
 - `docs/CURRENT_A_MASTER_CHECKPOINT.md`
 - `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `docs/CURRENT_COMPLETION_AUDIT.md`
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`
+- `docs/CURRENT_FRONTEND_REBUILD_PLAN.md`
+- `docs/rules-evidence-index.md`
+
+2026-05-13 Stage 4C-88 Malzahar design gate 本轮修改：
+
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
 - `docs/CURRENT_COMPLETION_AUDIT.md`
 - `docs/CURRENT_RULE_EVIDENCE_TODO.md`
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`
@@ -100,6 +111,10 @@ Stage 4C-87 本轮新增证据见 `docs/CURRENT_STAGE4C_BATCH87_SHIELD_WALL_MOVE
 
 - `docs/CURRENT_STAGE4C_BATCH87_SHIELD_WALL_MOVE_GUARD_AUDIT.md`
 - `docs/CURRENT_STAGE4C_BATCH87_SHIELD_WALL_MOVE_GUARD_EVIDENCE.md`
+
+2026-05-13 Stage 4C-88 Malzahar design gate 新增：
+
+- `docs/CURRENT_STAGE4C_BATCH88_MALZAHAR_RESOURCE_SKILL_DESIGN_GATE.md`
 
 2026-05-13 Stage 4C-86 representative evidence 新增：
 

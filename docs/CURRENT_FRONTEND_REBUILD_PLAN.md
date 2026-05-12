@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 第三百五十批新增 Stage 4C-88 Malzahar / 玛尔扎哈 resource-skill design gate。`FU-0f7cbe26ce` / `OGN·113/298` 已确认不能按 evidence-only 入账：当前服务端只覆盖普通手牌打出进基地，官方横置、摧毁友方单位或装备、迅捷获得 `A A` 用以支付符能费用的 activated resource skill 仍未进入 `P4ActivatedAbilityCatalog` / `CoreRuleEngine.ResolveActivateAbility`。本批只新增派单规格文档 `docs/CURRENT_STAGE4C_BATCH88_MALZAHAR_RESOURCE_SKILL_DESIGN_GATE.md`，不修改 DevUi、服务端功能代码、测试或覆盖矩阵；前端后续仍只展示并提交服务端 `ActionPrompt` 暴露的 ability source / cost choices。整体仍 **NOT READY**。
+
 - 第三百四十九批新增 Stage 4C-87 Shield Wall / 禁军之墙 evidence-only overlay。`FU-a7fbef72ba` / `SFD·043/221` 已在 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 记录 `stage4CBatch87ShieldWallMoveFriendlyBattlefieldUnitsGuard`、`functionalUnits[].stage4C87` 与 `snapshotEntries[].stage4C87`；复用既有服务端代表路径和测试，覆盖支付 2、动态选择任意数量己方战场单位、stack pass-pass 后移动到拥有者基地，并拒绝敌方/基地/重复目标。focused 2/2、MoveFriendly / MoveUnit / FriendlyBattlefieldUnit adjacent 63/63、backend full 3771/3771 通过。本批不修改 DevUi、引擎功能代码或前端契约；整体仍 **NOT READY**。
 
 - 第三百四十八批新增 Stage 4C-86 Imperial Shrine / 帝王神坛 evidence-only overlay。`FU-ec31812b00` / `SFD·207/221` 已在 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 记录 `stage4CBatch86ImperialShrineConquerPayReturnSandSoldierGuard`、`functionalUnits[].stage4C86` 与 `snapshotEntries[].stage4C86`；复用既有服务端代表路径和测试，覆盖征服该战场后支付 1、返回受控战场单位到拥有者手牌，并创建 2 战力 `SFD·T02` 黄沙士兵到战场。focused 3/3、BattlefieldConquer adjacent 45/45、backend full 3771/3771 通过。本批不修改 DevUi、引擎功能代码或前端契约；整体仍 **NOT READY**。

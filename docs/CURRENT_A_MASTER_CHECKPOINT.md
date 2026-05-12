@@ -5,7 +5,7 @@
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
 
-最新 checkpoint：`6351fd12 checkpoint: record stage 4C shield wall evidence`。上一 Stage 4C checkpoint：`beb9f513 checkpoint: record stage 4C imperial shrine evidence`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
+最新 checkpoint：`待提交 stage 4C-88 malzahar design gate`。上一 Stage 4C checkpoint：`6351fd12 checkpoint: record stage 4C shield wall evidence`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
 
 ## 0. A 主控职责边界
 
@@ -4888,3 +4888,26 @@ Checkpoint 记录：
 
 - 本批只关闭 Shield Wall / 禁军之墙代表性 move-friendly-battlefield-units 证据入账缺口。
 - 不宣称完整 multi-battlefield movement、standby / quick timing windows、完整 FEPR、完整 PaymentEngine、hidden-info / redaction、1009/811 full-official 或 READY。
+
+## 50. Stage 4C-88 Malzahar Resource Skill Design Gate
+
+状态：**Stage 4C-88 Malzahar design gate 已记录；未实现功能，未关闭 FU；项目整体仍 NOT READY。**
+
+本批范围：
+
+- 候选 FU：`FU-0f7cbe26ce`。
+- 候选卡：玛尔扎哈 / Malzahar `OGN·113/298` / cardId `31332`。
+- 新增 design-gate 文档：`docs/CURRENT_STAGE4C_BATCH88_MALZAHAR_RESOURCE_SKILL_DESIGN_GATE.md`。
+- 不修改 `src/`、`tests/`、DevUi 或 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`。
+- 不新增 representative evidence，不设置 `stage4C88`，不升级 `fullOfficial`。
+
+当前事实：
+
+- 现有 registry / fixture 只覆盖 Malzahar 普通手牌打出：支付 4、0 目标、stack pass-pass 后作为 3 战力单位进入控制者基地。
+- 官方 activated resource skill 仍未实现：摧毁一个友方单位或装备、横置、迅捷获得 `A A` 用以支付符能费用，且可在己方回合或法术对决中使用。
+- `P4ActivatedAbilityCatalog` 当前仅有 Vi / Xerath 代表性能力，`CoreRuleEngine.ResolveActivateAbility` 没有 Malzahar 专用 resource-skill 分支。
+
+派单结论：
+
+- Malzahar 不能 evidence-only 入账；后续需要 B 做服务端功能切片，D/E 做 FAQ / 规则裁定，C 只在服务端 prompt 暴露后接 UI。
+- 本 design gate 明确成本目标、时点、资源限制、反应限制、隐藏信息与验收命令边界，供后续实现批次使用。
