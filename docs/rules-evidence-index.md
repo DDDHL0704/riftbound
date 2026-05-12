@@ -1964,7 +1964,7 @@
 | `p2-preflight-play-kerplunk-echo-stun-attacking-unit` | `RULE_AUDITED` | `CATALOG` SFD·040/221；`CORE-260330` p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方法术《扑咚！》支付基础 2 点和回响 2 点费用、目标限制为进攻方单位、加入结算链、双方让过后重复对目标施加 `STUNNED`。 |
 | `p2-preflight-play-existential-dread-echo-stun-then-return` | `RULE_AUDITED` | `CATALOG` UNL-134/219；`CORE-260330` p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方法术《存在焦虑》支付基础 1 点和回响 2 点费用、目标限制为正在进攻的敌方单位、加入结算链、双方让过后重复效果先施加 `STUNNED`，再因目标已眩晕改为返回所属者手牌；P4.121 已补友方进攻单位拒绝 fixture。 |
 | `p4-play-existential-dread-friendly-attacking-target-rejected` | `RULE_AUDITED` | `CATALOG` UNL-134/219；`CORE-260330` p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方法术《存在焦虑》选择正在进攻的友方单位、违反卡面“正在进攻的敌方单位”目标要求时拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不眩晕目标、不创建结算链。 |
-| `p2-preflight-play-zenith-blade-stun-enemy-battlefield-unit` | `RULE_AUDITED` | `CATALOG` OGN·262/298；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340；p31-p33 rules 318-324 | 已验证官方法术《天顶之刃》不选择可选移动时支付 3 点费用、目标限制为敌方战场单位、加入结算链、双方让过后施加 `STUNNED`；P4.115/P4.116 已补敌方基地单位和友方单位目标拒绝 fixtures，可选移动分支暂缓。 |
+| `p2-preflight-play-zenith-blade-stun-enemy-battlefield-unit` | `RULE_AUDITED` | `CATALOG` OGN·262/298；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340；p31-p33 rules 318-324 | 已验证官方法术《天顶之刃》不选择可选移动时支付 3 点费用、目标限制为敌方战场单位、加入结算链、双方让过后施加 `STUNNED`；P4.115/P4.116 已补敌方基地单位和友方单位目标拒绝 fixtures；Stage 4C-59 追加 enemy public battlefield unit guard，覆盖 non-unit / hidden / stale / base / hand / friendly / dirty target no-mutation 与 prompt targetChoices parity；可选移动分支暂缓。 |
 | `p4-play-zenith-blade-base-unit-target-rejected` | `RULE_AUDITED` | `CATALOG` OGN·262/298；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340；p31-p33 rules 318-324 | 已验证官方法术《天顶之刃》选择敌方基地单位、违反卡面“战场上的一名敌方单位”目标要求时拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不施加 `STUNNED`、不创建结算链。 |
 | `p4-play-zenith-blade-friendly-target-rejected` | `RULE_AUDITED` | `CATALOG` OGN·262/298；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340；p31-p33 rules 318-324 | 已验证官方法术《天顶之刃》选择友方战场单位、违反卡面“一名敌方单位”目标要求时拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不施加 `STUNNED`、不创建结算链。 |
 | `p2-preflight-play-skullcrack-stun-friendly-and-enemy-battlefield-units` | `RULE_AUDITED` | `CATALOG` OGN·220/298；`CORE-260330` p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356 | 已验证官方法术《强手裂颅》支付 2 点费用、按顺序指定一名友方战场单位和一名敌方战场单位、加入结算链、双方让过后对两名目标施加 `STUNNED`；目标顺序、友方基地单位和敌方基地单位拒绝由直接测试覆盖。 |
@@ -2125,6 +2125,14 @@
 - 单触发 Watchful Sentinel / Honest Broker 仍保留即时结算兼容，本索引不把它外推为统一单触发策略。
 - 仍需要完整 `TriggerInstance`、trigger batch、可选触发选择、其他 destroyed / last-breath / friendly-destroyed FUs、Viktor full official trigger-count matrix、Kogmaw full AoE damage / prevention / replacement matrix、Karthus 额外绝念、非 Undercover 通用 discard / hand-choice engine、其它 hand-choice FUs、Savage Jawfish full official trigger-count matrix、multiplicity matrix、完整“每回合首次”时序、完整同时死亡触发次数、effective power / LayerEngine、temporary modifier、battlefield objectLocation matrix、隐藏 / face-down 原始触发建模、完整 effect resolution、战斗初始结算链全官方特殊排序和触发费用 / 拒付 / PaymentEngine 衔接。
 - 因此 4C-15A 关闭 token family 前置 blocker 的一部分，4C-15B 关闭 Viktor 代表性 baseline，4C-16 关闭 Mechanical Trickster stack migration，4C-17 关闭 Ironclad Vanguard true stack migration；4C-18 已关闭 cleanup route representative baseline；4C-19 已关闭 Kogmaw representative baseline；4C-20B 已关闭 Undercover Agent 服务端 hand-choice 微切片；4C-22 已关闭 Muddy Dredger Warhawk representative baseline；4C-23 已关闭 Lux high-cost spell temporary power representative baseline。完整 `ORDER_TRIGGERS` / trigger engine / PaymentEngine / LayerEngine / generic hand-choice / Spellshield target tax 规则域仍为 P0，项目仍 **NOT READY**。
+
+## Stage 4C-59 Zenith Blade Evidence
+
+- `FU-64a7f67581` / `OGN·262/298` / `ZENITH_BLADE_STUN_ENEMY_BATTLEFIELD_UNIT_NO_MOVE` 已记录 Stage 4C-59 representative enemy battlefield stun target guard。
+- 新增代码证据：`src/Riftbound.Engine/CoreRuleEngine.cs` 的 `IsZenithBladeTargetAllowed` 在 `PLAY_CARD` target validation 中收紧 enemy public battlefield unit 目标。
+- 新增测试证据：`tests/Riftbound.ConformanceTests/ZenithBladeStunGuardTests.cs` 覆盖 valid stun、non-unit battlefield equipment / spell / rune、face-down standby、stale、base、hand、friendly、dirty controller targets no-mutation，以及 prompt `targetChoicesByIndex` parity。
+- 验证：focused 15/15；ZenithBlade / Stun / ActionPrompt / Prompt regression 154/154；backend full 3701/3701；frontend build passed；Chrome smoke passed。
+- 该证据只关闭 narrow representative guard；不关闭 optional friendly movement、multi-battlefield destination precision、full status cleanup、PaymentEngine、LayerEngine、Spellshield full matrix、FAQ、1009/811 full-official 或 formal 18-step E2E。
 
 ## 7. 索引维护规则
 

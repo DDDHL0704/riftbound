@@ -17021,6 +17021,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || !IsHostileTakeoverTargetAllowed(state, behavior, targetObjectId)
                 || !IsBerserkImpulseTargetAllowed(state, behavior, targetObjectId)
                 || !IsSwitcherooTargetAllowed(state, behavior, targetObjectId)
+                || !IsZenithBladeTargetAllowed(state, intent.PlayerId, behavior, targetObjectId)
                 || !IsSpiritFireTargetAllowed(state, behavior, targetObjectId)
                 || !IsMainDeckLookTargetAllowed(state, intent.PlayerId, targetObjectId, targetIndex, behavior)
                 || !IsMainDeckTargetTagAllowed(state, targetObjectId, targetIndex, behavior)
@@ -20343,6 +20344,21 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return IsBattlefieldObject(state, objectId)
+            && IsVisibleFieldUnitObject(state.CardObjects, objectId);
+    }
+
+    private static bool IsZenithBladeTargetAllowed(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        string objectId)
+    {
+        if (!string.Equals(behavior.EffectKind, "ZENITH_BLADE_STUN_ENEMY_BATTLEFIELD_UNIT_NO_MOVE", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return IsEnemyBattlefieldObject(state, playerId, objectId)
             && IsVisibleFieldUnitObject(state.CardObjects, objectId);
     }
 

@@ -50,7 +50,7 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 只有用户明确要求清理、阶段收口且确认不再复用、或 agent 上下文明显污染/不可通信时，才允许关闭或重建。
 - 如果必须重建常驻池，必须立即更新本节 agent id，并说明旧 id 失效原因。
 
-2026-05-12 复核：A 已向当前 B/C/D/E 长期代理同步“驻场复用、未授权不写入、不因单次超时清理”的规则；Maxwell、Copernicus、Nash、Poincare 均已确认继续保留上下文。用户已明确“在当前 goal 完成前不需要再申请授权”，4C-57 已复用 B / Maxwell 完成服务端 swap-location target validation 修复，A 负责复核、验证、文档和 checkpoint 收口。
+2026-05-12 复核：A 已向当前 B/C/D/E 长期代理同步“驻场复用、未授权不写入、不因单次超时清理”的规则；Maxwell、Copernicus、Nash、Poincare 均已确认继续保留上下文。用户已明确“在当前 goal 完成前不需要再申请授权”，4C-59 已完成 Zenith Blade enemy battlefield stun target guard 代表切片，A 负责复核、验证、文档和 checkpoint 收口。
 
 4C-23 agent 事件：
 
@@ -3782,4 +3782,42 @@ Checkpoint 记录：
 - 已提交：`2de935b checkpoint: complete stage 4C spirit fire target guard`。
 - 提交前验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 通过；`git diff --check` 通过；`git diff --cached --check` 通过。
 - 已纳入：`src/Riftbound.Engine/CoreRuleEngine.cs`、`src/Riftbound.Engine/MatchSession.cs`、`tests/Riftbound.ConformanceTests/SpiritFireDestroyGuardTests.cs`、4C-58 相关 docs / matrix。
+- 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
+
+## 19. 阶段 4C-59 Zenith Blade Enemy Battlefield Stun Guard Verified Representative
+
+状态：**已完成代表切片收口，checkpoint commit 待生成。项目整体仍 NOT READY。**
+
+本批范围：
+
+- 目标为 Zenith Blade / 天顶之刃 `OGN·262/298` / cardId `31504` / `FU-64a7f67581` / `ZENITH_BLADE_STUN_ENEMY_BATTLEFIELD_UNIT_NO_MOVE`。
+- 只补 ordinary hand `PLAY_CARD`、支付 3 mana、enemy public battlefield unit target、stack / pass-pass 后 apply `STUNNED` until end of turn 的 representative target guard。
+- 不实现 / 不宣称 optional friendly unit movement、precise multi-battlefield destination selection、standby / reaction、quick / spell-duel timing、full FEPR targeting / stack lifecycle、status duration cleanup / replacement / prevention interactions、full Spellshield tax matrix、PaymentEngine、LayerEngine / effective power and duration ordering、hidden-info / redaction matrix、FAQ adjudication、1009/811 full-official 或 formal 18-step E2E。
+
+修复事实：
+
+- A 基于 B / Maxwell 和 E / Poincare 的只读候选建议裁决选择 E 推荐的低耦合无 FAQ Zenith Blade 路线；B 建议的 Skullcrack 因 FAQ 引用留作后续复核。
+- `src/Riftbound.Engine/CoreRuleEngine.cs` 新增 Zenith Blade effect-specific target guard，让共享 `EnemyBattlefieldUnit` scope 不能为本效果接受 battlefield equipment / spell / rune / hidden / dirty objects。
+- `MatchSession` 无需代码改动；既有 prompt `EnemyBattlefieldUnit` path 已走 visible enemy field-unit helper，本批新增测试冻结 prompt parity。
+- 新增 `tests/Riftbound.ConformanceTests/ZenithBladeStunGuardTests.cs`，覆盖成功 enemy battlefield unit stun、battlefield equipment / spell / rune / face-down standby / stale / base / hand / friendly / dirty controller rejection，以及 prompt targetChoices parity。
+
+验证记录：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ZenithBladeStunGuardTests|FullyQualifiedName~ZenithBlade"`：passed 15/15。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ZenithBlade|FullyQualifiedName~Stun|FullyQualifiedName~ActionPrompt|FullyQualifiedName~Prompt"`：passed 154/154。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：passed 3701/3701。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`：passed。
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api`：passed。
+
+文档 / 矩阵处理：
+
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C59` 回填为 `ZENITH_BLADE_ENEMY_BATTLEFIELD_STUN_GUARD_REPRESENTATIVE_NOT_FULL_OFFICIAL`。
+- `docs/CURRENT_STAGE4C_BATCH59_ZENITH_BLADE_ENEMY_BATTLEFIELD_STUN_GUARD_AUDIT.md` 与 `docs/CURRENT_STAGE4C_BATCH59_ZENITH_BLADE_ENEMY_BATTLEFIELD_STUN_GUARD_EVIDENCE.md` 记录 narrow representative guard verified 证据。
+- `docs/CURRENT_COMPLETION_AUDIT.md`、`docs/CURRENT_RULE_EVIDENCE_TODO.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md` 与 `docs/rules-evidence-index.md` 保持全局 **NOT READY** 结论。
+
+Checkpoint 记录：
+
+- 待提交：`checkpoint: complete stage 4C zenith blade target guard`。
+- 提交前必须验证：`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`、`git diff --check`、`git diff --cached --check`。
+- 已纳入：`src/Riftbound.Engine/CoreRuleEngine.cs`、`tests/Riftbound.ConformanceTests/ZenithBladeStunGuardTests.cs`、4C-59 相关 docs / matrix。
 - 已排除：`riftbound-dotnet.sln`，因为它是未跟踪本地 sln 文件且不属于本阶段交付。
