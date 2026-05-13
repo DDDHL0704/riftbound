@@ -6252,6 +6252,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveSigilTypedResourceSkill(state, intent, command, ability);
         }
 
+        if (P4ActivatedAbilityCatalog.IsResourceConversionEquipmentAbility(ability.AbilityId))
+        {
+            return ResolveResourceConversionEquipmentSkill(state, intent, command, ability);
+        }
+
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.XerathDamageAbilityId, StringComparison.Ordinal))
         {
             return ResolveXerathDamageAbility(state, intent, command, ability);
@@ -7519,6 +7524,401 @@ public sealed class CoreRuleEngine : IRuleEngine
             && state.StackItems.Count > 0
             && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
             && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
+    }
+
+    private static ResolutionResult ResolveResourceConversionEquipmentSkill(
+        MatchState state,
+        PlayerIntent intent,
+        ActivateAbilityCommand command,
+        P4ActivatedAbilityDefinition ability)
+    {
+        const string timingContext = "STACK_PRIORITY_REACTION";
+        if (!DragonSoulSageResourceSkillTimingAllowed(state, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"{ability.DisplayName} 只能在当前玩家持有优先权的反应窗口提交。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (NormalizeTargetObjectIds(command.TargetObjectIds).Count != 0
+            || command.TargetObjectIds.Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"{ability.DisplayName} 不接受目标。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var normalizedOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (!TryReadResourceConversionAmount(ability.AbilityId, normalizedOptionalCosts, out var conversionAmount))
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"{ability.DisplayName} 包含非法或缺失的资源转换选项。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!IsControlledBaseObject(state, intent.PlayerId, command.SourceObjectId)
+            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
+            || !sourceState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || sourceState.IsFaceDown
+            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"{ability.DisplayName} 来源必须是当前玩家控制的公开基地装备。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"{ability.DisplayName} 只能选择当前玩家控制的来源。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, sourceState.CardNo))
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"该来源没有服务端支持的{ability.DisplayName}。",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        if (sourceState.IsExhausted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"{ability.DisplayName} 来源必须未横置。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var currentPool = runePools.TryGetValue(intent.PlayerId, out var existingPool)
+            ? existingPool
+            : RunePool.Empty;
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, StringComparison.Ordinal)
+            && currentPool.Mana < conversionAmount)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "远古簇碑可转换的法力不足。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId, StringComparison.Ordinal)
+            && currentPool.Power < conversionAmount)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "海克斯异常体可转换的通用符能不足。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[command.SourceObjectId] = sourceState with
+        {
+            IsExhausted = true,
+            OwnerId = string.IsNullOrWhiteSpace(sourceState.OwnerId) ? intent.PlayerId : sourceState.OwnerId,
+            ControllerId = string.IsNullOrWhiteSpace(sourceState.ControllerId) ? intent.PlayerId : sourceState.ControllerId
+        };
+        const string paymentWindow = "ACTIVATE_ABILITY";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            intent.PlayerId,
+            command.SourceObjectId,
+            command.AbilityId);
+        var playerExperience = state.PlayerExperience.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var events = new List<GameEvent>();
+        TemporaryPaymentResourceState? temporaryPaymentResource = null;
+        var generatedMana = 0;
+
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.EnergyChannelResourceAbilityId, StringComparison.Ordinal))
+        {
+            generatedMana = P4ActivatedAbilityCatalog.EnergyChannelGeneratedMana;
+            runePools[intent.PlayerId] = currentPool with
+            {
+                Mana = currentPool.Mana + generatedMana
+            };
+        }
+        else if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, StringComparison.Ordinal))
+        {
+            var paymentPlan = new PaymentCostRules.PaymentPlan(
+                paymentId,
+                paymentWindow,
+                intent.PlayerId,
+                baseManaCost: conversionAmount,
+                totalManaCost: conversionAmount,
+                reason: ability.EffectKind,
+                sourceObjectId: command.SourceObjectId,
+                abilityId: command.AbilityId,
+                auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["conversionKind"] = "mana-to-generic-power",
+                    ["conversionAmount"] = conversionAmount,
+                    ["conversionChoiceId"] = normalizedOptionalCosts[0]
+                });
+            var paymentCommit = PaymentCostRules.TryCommitPayment(
+                paymentPlan,
+                runePools,
+                playerExperience);
+            if (!paymentCommit.Accepted)
+            {
+                return RejectWithCorePrompts(
+                    state,
+                    "远古簇碑可转换的法力不足。",
+                    ErrorCodes.InsufficientCost);
+            }
+
+            runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+            playerExperience = paymentCommit.PlayerExperience.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+            temporaryPaymentResource = new TemporaryPaymentResourceState(
+                $"ANCIENT_STELE:{paymentId}",
+                intent.PlayerId,
+                command.SourceObjectId,
+                command.AbilityId,
+                paymentWindow,
+                generatedPower: conversionAmount,
+                remainingPower: conversionAmount,
+                allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind],
+                createdTick: state.Tick + 1);
+            events.Add(new GameEvent(
+                "COST_PAID",
+                $"{intent.PlayerId} 支付远古簇碑资源转换费用",
+                PaymentCostRules.BuildCostPaidPayload(
+                    paymentPlan,
+                    runePools,
+                    playerExperience,
+                    new Dictionary<string, object?>
+                    {
+                        ["resourceSkill"] = true,
+                        ["reactionSpeed"] = true,
+                        ["conversionKind"] = "mana-to-generic-power",
+                        ["conversionAmount"] = conversionAmount
+                    })));
+        }
+        else
+        {
+            var paymentPlan = new PaymentCostRules.PaymentPlan(
+                paymentId,
+                paymentWindow,
+                intent.PlayerId,
+                genericPowerCost: conversionAmount,
+                totalPowerCost: conversionAmount,
+                reason: ability.EffectKind,
+                sourceObjectId: command.SourceObjectId,
+                abilityId: command.AbilityId,
+                auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["conversionKind"] = "generic-power-to-mana",
+                    ["conversionAmount"] = conversionAmount,
+                    ["conversionChoiceId"] = normalizedOptionalCosts[0],
+                    ["ordinaryGenericPowerOnly"] = true
+                });
+            var paymentCommit = PaymentCostRules.TryCommitPayment(
+                paymentPlan,
+                runePools,
+                playerExperience);
+            if (!paymentCommit.Accepted)
+            {
+                return RejectWithCorePrompts(
+                    state,
+                    "海克斯异常体可转换的通用符能不足。",
+                    ErrorCodes.InsufficientCost);
+            }
+
+            runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+            playerExperience = paymentCommit.PlayerExperience.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+            var adjustedPool = runePools.TryGetValue(intent.PlayerId, out var paidPool)
+                ? paidPool
+                : RunePool.Empty;
+            generatedMana = conversionAmount;
+            runePools[intent.PlayerId] = adjustedPool with
+            {
+                Mana = adjustedPool.Mana + generatedMana
+            };
+            events.Add(new GameEvent(
+                "COST_PAID",
+                $"{intent.PlayerId} 支付海克斯异常体资源转换费用",
+                PaymentCostRules.BuildCostPaidPayload(
+                    paymentPlan,
+                    runePools,
+                    playerExperience,
+                    new Dictionary<string, object?>
+                    {
+                        ["resourceSkill"] = true,
+                        ["reactionSpeed"] = true,
+                        ["conversionKind"] = "generic-power-to-mana",
+                        ["conversionAmount"] = conversionAmount,
+                        ["ordinaryGenericPowerOnly"] = true
+                    })));
+        }
+
+        var nextTemporaryPaymentResources = temporaryPaymentResource is null
+            ? state.TemporaryPaymentResources
+            : state.TemporaryPaymentResources.Concat([temporaryPaymentResource]).ToArray();
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, state.PlayerZones);
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            RunePools = runePools,
+            PlayerExperience = playerExperience,
+            CardObjects = cardObjects,
+            ObjectLocations = objectLocations,
+            TemporaryPaymentResources = nextTemporaryPaymentResources,
+            PriorityPlayerId = intent.PlayerId,
+            PassedPriorityPlayerIds = []
+        };
+
+        events.Insert(0, new GameEvent(
+            "ABILITY_ACTIVATED",
+            $"{intent.PlayerId} 激活{ability.DisplayName}",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = intent.PlayerId,
+                ["sourceObjectId"] = command.SourceObjectId,
+                ["cardNo"] = sourceState.CardNo,
+                ["abilityId"] = command.AbilityId,
+                ["effectKind"] = ability.EffectKind,
+                ["paymentWindow"] = paymentWindow,
+                ["paymentId"] = paymentId,
+                ["resourceSkill"] = true,
+                ["reactionSpeed"] = true,
+                ["conversionKind"] = ResourceConversionKind(ability.AbilityId),
+                ["conversionAmount"] = conversionAmount,
+                ["timingContext"] = timingContext,
+                ["stackPolicy"] = "no-ordinary-stack-item",
+                ["resourceLifecycle"] = ResourceConversionResourceLifecycle(ability.AbilityId),
+                ["temporaryPaymentResourceId"] = temporaryPaymentResource?.ResourceId ?? string.Empty
+            }));
+        events.Insert(1, new GameEvent(
+            "UNIT_EXHAUSTED",
+            $"{ability.DisplayName}横置支付资源转换费用",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = intent.PlayerId,
+                ["sourceObjectId"] = command.SourceObjectId,
+                ["targetObjectId"] = command.SourceObjectId,
+                ["abilityId"] = command.AbilityId,
+                ["paymentWindow"] = paymentWindow,
+                ["paymentId"] = paymentId,
+                ["wasExhausted"] = sourceState.IsExhausted,
+                ["isExhausted"] = true,
+                ["resourceSkill"] = true,
+                ["reactionSpeed"] = true,
+                ["conversionKind"] = ResourceConversionKind(ability.AbilityId),
+                ["timingContext"] = timingContext
+            }));
+        if (temporaryPaymentResource is not null)
+        {
+            events.Add(new GameEvent(
+                "POWER_GAINED",
+                $"{intent.PlayerId} 通过远古簇碑资源转换获得 {conversionAmount} 点费用符能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["paymentWindow"] = paymentWindow,
+                    ["paymentId"] = paymentId,
+                    ["resourceSkill"] = true,
+                    ["reactionSpeed"] = true,
+                    ["paymentOnly"] = true,
+                    ["generatedPower"] = conversionAmount,
+                    ["power"] = conversionAmount,
+                    ["resourceRestriction"] = ability.ResourceRestriction,
+                    ["restrictionLifecycle"] = "temporary-payment-resource-ledger",
+                    ["temporaryPaymentResourceId"] = temporaryPaymentResource.ResourceId,
+                    ["remainingPower"] = temporaryPaymentResource.RemainingPower,
+                    ["allowedPaymentKinds"] = temporaryPaymentResource.AllowedPaymentKinds.ToArray(),
+                    ["conversionKind"] = "mana-to-generic-power"
+                }));
+        }
+        else if (generatedMana > 0)
+        {
+            events.Add(new GameEvent(
+                "MANA_GAINED",
+                $"{intent.PlayerId} 通过{ability.DisplayName}获得 {generatedMana} 点法力",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["mana"] = generatedMana,
+                    ["manaAfter"] = runePools.TryGetValue(intent.PlayerId, out var currentManaPool)
+                        ? currentManaPool.Mana
+                        : 0,
+                    ["resourceSkill"] = true,
+                    ["reactionSpeed"] = true,
+                    ["conversionKind"] = ResourceConversionKind(ability.AbilityId),
+                    ["resourceLifecycle"] = "rune-pool-mana-reset-at-turn-cleanup"
+                }));
+        }
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static bool TryReadResourceConversionAmount(
+        string abilityId,
+        IReadOnlyList<string> normalizedOptionalCosts,
+        out int conversionAmount)
+    {
+        conversionAmount = string.Equals(abilityId, P4ActivatedAbilityCatalog.EnergyChannelResourceAbilityId, StringComparison.Ordinal)
+            ? 1
+            : 0;
+        if (string.Equals(abilityId, P4ActivatedAbilityCatalog.EnergyChannelResourceAbilityId, StringComparison.Ordinal))
+        {
+            return normalizedOptionalCosts.Count == 0;
+        }
+
+        var prefix = string.Equals(abilityId, P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, StringComparison.Ordinal)
+            ? P4ActivatedAbilityCatalog.AncientSteleConversionOptionalCostPrefix
+            : P4ActivatedAbilityCatalog.HextechAnomalyConversionOptionalCostPrefix;
+        if (normalizedOptionalCosts.Count != 1
+            || !normalizedOptionalCosts[0].StartsWith(prefix, StringComparison.Ordinal)
+            || !int.TryParse(
+                normalizedOptionalCosts[0][prefix.Length..],
+                System.Globalization.NumberStyles.Integer,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out conversionAmount)
+            || conversionAmount <= 0)
+        {
+            conversionAmount = 0;
+            return false;
+        }
+
+        return true;
+    }
+
+    private static string ResourceConversionKind(string abilityId)
+    {
+        if (string.Equals(abilityId, P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, StringComparison.Ordinal))
+        {
+            return "mana-to-generic-power";
+        }
+
+        if (string.Equals(abilityId, P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId, StringComparison.Ordinal))
+        {
+            return "generic-power-to-mana";
+        }
+
+        return "gain-mana";
+    }
+
+    private static string ResourceConversionResourceLifecycle(string abilityId)
+    {
+        return string.Equals(abilityId, P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, StringComparison.Ordinal)
+            ? "temporary-payment-resource-ledger"
+            : "rune-pool-mana-reset-at-turn-cleanup";
     }
 
     private static ResolutionResult ResolveSigilTypedResourceSkill(

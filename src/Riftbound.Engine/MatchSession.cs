@@ -2522,8 +2522,13 @@ public sealed record ResolutionResult(
 
     private static string TemporaryPaymentResourceRestriction(TemporaryPaymentResourceState resource)
     {
-        return P4ActivatedAbilityCatalog.TryGetSigilTypedResourceProfile(resource.AbilityId, out var profile)
-            ? profile.ResourceRestriction
+        if (P4ActivatedAbilityCatalog.TryGetSigilTypedResourceProfile(resource.AbilityId, out var profile))
+        {
+            return profile.ResourceRestriction;
+        }
+
+        return string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, StringComparison.Ordinal)
+            ? P4ActivatedAbilityCatalog.AncientStelePaymentOnlyResourceRestriction
             : P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction;
     }
 
@@ -5246,6 +5251,15 @@ internal static class ActionPromptBuilder
             var paymentResourceChoices = ActivateAbilityPaymentResourceChoices(state, playerId, ability);
             var paymentResourcePowerByTrait = ActivateAbilityPaymentResourcePowerByTrait(state, playerId, ability);
             var paymentResourcePowerByChoice = ActivateAbilityPaymentResourcePowerByChoice(state, playerId, ability);
+            var conversionOptionalCostChoices = ActivateAbilityConversionOptionalCostChoices(state, playerId, ability);
+            var isResourceConversionAbility = P4ActivatedAbilityCatalog.IsResourceConversionEquipmentAbility(ability.AbilityId);
+            if (isResourceConversionAbility
+                && !string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.EnergyChannelResourceAbilityId, StringComparison.Ordinal)
+                && conversionOptionalCostChoices.Count == 0)
+            {
+                continue;
+            }
+
             var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
             var spellshieldTaxManaByTargetObjectId = ActivateAbilitySpellshieldTaxManaByTargetObjectId(state, playerId, ability, targetChoicesByIndex);
             var availablePowerByTrait = PlayCardAvailablePowerByTrait(
@@ -5269,9 +5283,11 @@ internal static class ActionPromptBuilder
                 ability.RequiredTargetCount,
                 ActivateAbilityTargetScopeLabel(ability),
                 targetChoicesByIndex,
-                paymentResourceChoices,
-                paymentResourceChoices,
-                paymentResourcePowerByChoice,
+                isResourceConversionAbility ? conversionOptionalCostChoices : paymentResourceChoices,
+                isResourceConversionAbility ? [] : paymentResourceChoices,
+                isResourceConversionAbility
+                    ? new Dictionary<string, IReadOnlyDictionary<string, object?>>(StringComparer.Ordinal)
+                    : paymentResourcePowerByChoice,
                 runePool.TotalPower,
                 availablePowerByTrait,
                 runePool.TotalPower + paymentResourcePowerByTrait.Values.Sum(),
@@ -5343,6 +5359,46 @@ internal static class ActionPromptBuilder
 
         return cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> ActivateAbilityConversionOptionalCostChoices(
+        MatchState state,
+        string playerId,
+        P4ActivatedAbilityDefinition ability)
+    {
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, StringComparison.Ordinal))
+        {
+            return ResourceConversionChoices(
+                P4ActivatedAbilityCatalog.AncientSteleConversionOptionalCostPrefix,
+                runePool.Mana,
+                "转换法力为费用符能");
+        }
+
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId, StringComparison.Ordinal))
+        {
+            return ResourceConversionChoices(
+                P4ActivatedAbilityCatalog.HextechAnomalyConversionOptionalCostPrefix,
+                runePool.Power,
+                "转换通用符能为法力");
+        }
+
+        return [];
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> ResourceConversionChoices(
+        string prefix,
+        int maxAmount,
+        string labelPrefix)
+    {
+        return Enumerable.Range(1, Math.Max(0, maxAmount))
+            .Select(amount => new ActionPromptChoiceDto(
+                $"{prefix}{amount.ToString(System.Globalization.CultureInfo.InvariantCulture)}",
+                $"{labelPrefix}：{amount.ToString(System.Globalization.CultureInfo.InvariantCulture)}",
+                "server-authorized resource conversion amount"))
+            .ToArray();
     }
 
     private static IReadOnlyDictionary<string, int> ActivateAbilitySpellshieldTaxManaByTargetObjectId(
@@ -6310,8 +6366,13 @@ internal static class ActionPromptBuilder
 
     private static string TemporaryPaymentResourceRestriction(TemporaryPaymentResourceState resource)
     {
-        return P4ActivatedAbilityCatalog.TryGetSigilTypedResourceProfile(resource.AbilityId, out var profile)
-            ? profile.ResourceRestriction
+        if (P4ActivatedAbilityCatalog.TryGetSigilTypedResourceProfile(resource.AbilityId, out var profile))
+        {
+            return profile.ResourceRestriction;
+        }
+
+        return string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, StringComparison.Ordinal)
+            ? P4ActivatedAbilityCatalog.AncientStelePaymentOnlyResourceRestriction
             : P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction;
     }
 
@@ -6729,6 +6790,15 @@ internal static class ActionPromptBuilder
                 && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
         }
 
+        if (P4ActivatedAbilityCatalog.IsResourceConversionEquipmentAbility(ability.AbilityId))
+        {
+            return string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+                && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
+                && state.StackItems.Count > 0
+                && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+                && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
+        }
+
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal))
         {
             return string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
@@ -6767,6 +6837,9 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId => "猩红玫瑰",
             P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId => "绵绵魄罗",
             P4ActivatedAbilityCatalog.ShadowStunAbilityId => "黑影",
+            P4ActivatedAbilityCatalog.EnergyChannelResourceAbilityId => "能量通道",
+            P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId => "远古簇碑",
+            P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId => "海克斯异常体",
             _ when P4ActivatedAbilityCatalog.TryGetSigilTypedResourceProfile(ability.AbilityId, out var profile)
                 => profile.DisplayName,
             _ => ability.DisplayName
@@ -6786,6 +6859,9 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId => "猩红玫瑰：消耗 3 经验并横置，让一名单位变为活跃状态",
             P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId => "绵绵魄罗：横置，打出两名拥有法盾的战鹰",
             P4ActivatedAbilityCatalog.ShadowStunAbilityId => "黑影：迅捷，支付 1 法力和 1 符能并横置，眩晕此处进攻的敌方单位",
+            P4ActivatedAbilityCatalog.EnergyChannelResourceAbilityId => "能量通道：反应，横置，获得 1 点法力",
+            P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId => "远古簇碑：反应，横置，支付法力获得等量费用符能",
+            P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId => "海克斯异常体：反应，横置，支付通用符能获得等量法力",
             _ when P4ActivatedAbilityCatalog.TryGetSigilTypedResourceProfile(ability.AbilityId, out var profile)
                 => $"{profile.DisplayName}：反应，横置，获得 1 点{profile.TraitLabel}费用符能",
             _ => ability.DisplayName
@@ -10067,6 +10143,43 @@ internal static class ActionPromptBuilder
             view["stackPolicy"] = "no-ordinary-stack-item";
             view["resourceLifecycle"] = "temporary-payment-resource-ledger";
             view["allowedPaymentKinds"] = new[] { PaymentCostRules.RuneCostPaymentKind };
+        }
+
+        if (P4ActivatedAbilityCatalog.IsResourceConversionEquipmentAbility(requirement.AbilityId))
+        {
+            view["resourceSkill"] = true;
+            view["reactionSpeed"] = true;
+            view["requiresBaseEquipmentSource"] = true;
+            view["timingPolicy"] = "stack-priority-reaction-representative";
+            view["reactionPolicy"] = "resolves-immediately-without-stack-item";
+            view["stackPolicy"] = "no-ordinary-stack-item";
+            if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.EnergyChannelResourceAbilityId, StringComparison.Ordinal))
+            {
+                view["conversionKind"] = "gain-mana";
+                view["generatedMana"] = P4ActivatedAbilityCatalog.EnergyChannelGeneratedMana;
+                view["maxConversionAmount"] = P4ActivatedAbilityCatalog.EnergyChannelGeneratedMana;
+                view["resourceLifecycle"] = "rune-pool-mana-reset-at-turn-cleanup";
+            }
+            else if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, StringComparison.Ordinal))
+            {
+                view["conversionKind"] = "mana-to-generic-power";
+                view["conversionChoicePrefix"] = P4ActivatedAbilityCatalog.AncientSteleConversionOptionalCostPrefix;
+                view["maxConversionAmount"] = requirement.OptionalCostChoices.Count;
+                view["paymentOnly"] = true;
+                view["generatedPower"] = requirement.OptionalCostChoices.Count;
+                view["resourceRestriction"] = P4ActivatedAbilityCatalog.AncientStelePaymentOnlyResourceRestriction;
+                view["resourceLifecycle"] = "temporary-payment-resource-ledger";
+                view["allowedPaymentKinds"] = new[] { PaymentCostRules.RuneCostPaymentKind };
+            }
+            else
+            {
+                view["conversionKind"] = "generic-power-to-mana";
+                view["conversionChoicePrefix"] = P4ActivatedAbilityCatalog.HextechAnomalyConversionOptionalCostPrefix;
+                view["maxConversionAmount"] = requirement.OptionalCostChoices.Count;
+                view["generatedMana"] = requirement.OptionalCostChoices.Count;
+                view["ordinaryGenericPowerOnly"] = true;
+                view["resourceLifecycle"] = "rune-pool-mana-reset-at-turn-cleanup";
+            }
         }
 
         if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId, StringComparison.Ordinal))

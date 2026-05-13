@@ -57,6 +57,8 @@
 
 2026-05-14 4D-03U handoff / baseline 补充：resource conversion equipment 下一服务端切片已建立，目标为 `OGN·098/298` 能量通道、`SFD·117/221` 远古簇碑、`SFD·083/221` 海克斯异常体三张 reaction resource conversion equipment skills。入口为 `docs/CURRENT_STAGE4D_03U_PAYMENT_ENGINE_RESOURCE_CONVERSION_EQUIPMENT_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03U_PAYMENT_ENGINE_RESOURCE_CONVERSION_EQUIPMENT_BASELINE_EVIDENCE.md`；focused baseline 209/209、adjacent baseline 464/464 通过。该补充只建立实现前回归护栏，不代表功能完成，不关闭 P0-005 full official；项目整体仍 **NOT READY**。
 
+2026-05-14 4D-03U focused slice 补充：resource conversion equipment representative 已验收，目标为 `OGN·098/298` 能量通道、`SFD·117/221` 远古簇碑、`SFD·083/221` 海克斯异常体。入口为 `docs/CURRENT_STAGE4D_03U_PAYMENT_ENGINE_RESOURCE_CONVERSION_EQUIPMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03U_PAYMENT_ENGINE_RESOURCE_CONVERSION_EQUIPMENT_EVIDENCE.md`；focused 230/230、adjacent 485/485、backend full 4089/4089、`git diff --check` 通过。该补充只证明三张 reaction resource conversion equipment skills 已接入 prompt / command / rune pool / temporary ledger / audit 口径，不关闭完整 `[A]` / `[C]` resource skill family 或 P0-005 full official；项目整体仍 **NOT READY**。
+
 4C-85 不修改功能代码，只把既有服务端权威符文资源域证据入账：官方符文卡映射到 non-play `RUNE_RESOURCE_DOMAIN`，不进入 direct `PLAY_CARD` registry；控制者基地符文通过服务端 `RECYCLE_RUNE` / `paymentResourcePowerByChoice` 暴露 trait/power 支付资源；typed `SPEND_POWER:red:2` 接受 red 资源并拒绝 blue 资源，generic `SPEND_POWER:2` 可接受 red / blue 任一服务端候选且防止过量回收。Focused / primary regression 命令：
 
 ```sh
@@ -152,14 +154,31 @@ Stage 4D-03K temporary resource inline focused slice 本轮已验收，见 `docs
 | A 作为主控架构 / 规划 / 验收 agent，不默认亲自写功能代码 | `docs/A_MASTER_AGENT_GOAL.md` 与 `docs/CURRENT_A_MASTER_CHECKPOINT.md` 明确 A 边界；4C-56 修复已按用户授权复用 B / Maxwell，A 做复核、验证和文档收口 | 满足主控边界 |
 | 服务端保持唯一规则权威 | `docs/CURRENT_SERVER_RULE_AUDIT.md` 与本文件第 3 / 6 节记录服务端 authoritative snapshot / prompt / command guard 模型 | 方向满足，但仍有 P0/P1 规则缺口 |
 | 前端只展示并提交服务端 `ActionPrompt` / authoritative snapshot 支持的合法操作 | 本文件第 5 / 6 / 9 节记录前端候选驱动、多批 Chrome smoke 与 formal 18-step E2E；完整 battle/control/payment/layer 仍未 full official | 部分验证，未达到最终验收 |
-| P0/P1 阻断清零 | 4D-01 已把 P0-002 / P0-003 的 board task queue foundation focused checklist 验收通过；4D-02 已把 P0-004 的 task-scoped focused slice 验收通过；4D-03 已把 P0-005 的 PaymentEngine focused foundation 验收通过；4D-03B 已把代表性 non-play payment windows 接入 shared plan / commit；4D-03C 已把代表性 `PLAY_CARD` optional / extra / payment-resource windows 接入 shared plan audit / authorize 口径；4D-03D 已把代表性 Vi / Xerath `ACTIVATE_ABILITY` payment resource window 接入 prompt quote / command commit / audit 口径；4D-03E 已把代表性 `HIDE_CARD` standby payment window 接入 shared plan / commit / audit；4D-03F 已把代表性 ordinary pending `PAY_COST` resource action 接入 shared plan / commit / audit；4D-03G 已把代表性 battlefield held score resource action 接入 shared plan / commit / audit；4D-03H 已把代表性 SFD Fiora trigger payment resource action 接入 shared plan / commit / audit；4D-03I 已把代表性 Malzahar open-main resource skill 接入 prompt / command / audit；4D-03J 已把 Malzahar lifecycle 接入 temporary ledger；4D-03K 已把 temporary ledger 接入 play / activate / assemble inline representatives；4D-03L 已把 Dragon Soul Sage reaction resource skill 接入 prompt / command / audit representative；4D-03M 已把 Renata colored activated draw 接入 prompt / command / audit representative；4D-03N 已把 Renata colored activated score 接入 prompt / command / stack resolution / audit representative；4D-03O 已把 Crimson Rose target-bearing equipment ready-unit skill 接入 prompt / command / stack resolution / audit representative；4D-03P 已把 Fluft Poro Warhawk token focused representative 接入 prompt / command / stack resolution / audit；本文件第 4 / 11 节与 `docs/CURRENT_SERVER_RULE_AUDIT.md` 仍列出 P0-005 full PaymentEngine breadth、P1 LayerEngine / 关键词 / 全卡证据，并保留 P0-002 / P0-003 / P0-004 full-official lifecycle 残余 | 未完成 |
-| 后端 full test 当前 HEAD 全绿 | 4D-03P focused slice 后 backend full 3962/3962 通过 | 本轮满足，最终验收前仍需重跑 |
+| P0/P1 阻断清零 | 4D-01 已把 P0-002 / P0-003 的 board task queue foundation focused checklist 验收通过；4D-02 已把 P0-004 的 task-scoped focused slice 验收通过；4D-03 已把 P0-005 的 PaymentEngine focused foundation 验收通过；4D-03B 已把代表性 non-play payment windows 接入 shared plan / commit；4D-03C 已把代表性 `PLAY_CARD` optional / extra / payment-resource windows 接入 shared plan audit / authorize 口径；4D-03D 已把代表性 Vi / Xerath `ACTIVATE_ABILITY` payment resource window 接入 prompt quote / command commit / audit 口径；4D-03E 已把代表性 `HIDE_CARD` standby payment window 接入 shared plan / commit / audit；4D-03F 已把代表性 ordinary pending `PAY_COST` resource action 接入 shared plan / commit / audit；4D-03G 已把代表性 battlefield held score resource action 接入 shared plan / commit / audit；4D-03H 已把代表性 SFD Fiora trigger payment resource action 接入 shared plan / commit / audit；4D-03I 已把代表性 Malzahar open-main resource skill 接入 prompt / command / audit；4D-03J 已把 Malzahar lifecycle 接入 temporary ledger；4D-03K 已把 temporary ledger 接入 play / activate / assemble inline representatives；4D-03L 已把 Dragon Soul Sage reaction resource skill 接入 prompt / command / audit representative；4D-03M 已把 Renata colored activated draw 接入 prompt / command / audit representative；4D-03N 已把 Renata colored activated score 接入 prompt / command / stack resolution / audit representative；4D-03O 已把 Crimson Rose target-bearing equipment ready-unit skill 接入 prompt / command / stack resolution / audit representative；4D-03P 已把 Fluft Poro Warhawk token focused representative 接入 prompt / command / stack resolution / audit；4D-03Q 已把 Shadow swift stun representative 接入 prompt / command / stack resolution / audit；4D-03R / 4D-03S / 4D-03T 已把 SFD/OGN Sigil typed resource family representative 接入 prompt / command / temporary ledger / audit；4D-03U 已把能量通道、远古簇碑、海克斯异常体 resource conversion equipment representative 接入 prompt / command / rune pool / temporary ledger / audit；本文件第 4 / 11 节与 `docs/CURRENT_SERVER_RULE_AUDIT.md` 仍列出 P0-005 full PaymentEngine breadth、P1 LayerEngine / 关键词 / 全卡证据，并保留 P0-002 / P0-003 / P0-004 full-official lifecycle 残余 | 未完成 |
+| 后端 full test 当前 HEAD 全绿 | 4D-03U focused slice 后 backend full 4089/4089 通过 | 本轮满足，最终验收前仍需重跑 |
 | Chrome smoke 通过 | 4C-85 入账后 frontend build 通过，Chrome smoke 通过；本轮 `npm run smoke:chrome -- --start-api` 再次通过 | 本轮满足，最终验收前仍需随 P0/P1 清零重跑 |
 | 正式 18 步 E2E 通过 | `npm run e2e:formal-18 -- --start-api` 已通过，房间 `formal-18-1778623926434-15` 覆盖双 Chrome profile、官方 deck/opening/mulligan、stack pass-pass、unit move、reconnect、P2 battlefield score、surrender result | A_MASTER 18-step 满足；整体仍 NOT READY |
 | 卡牌覆盖矩阵完成 | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C98` 回填为 representative evidence alignment，`IMPLEMENTED_TESTED` 为 76、`IMPLEMENTED_UNTESTED` 为 4；但 1009/811 full-official coverage 仍未完成 | 未完成 |
 | 最终 completion audit 输出 READY 后才允许标记 complete | 本文件审计结论仍为 **NOT READY**；未调用 `update_goal complete` | 未完成 |
 
 ## 1. 修改文件列表
+
+2026-05-14 Stage 4D-03U resource conversion equipment focused slice 本轮修改：
+
+- `src/Riftbound.Engine/P4ActivatedAbilityCatalog.cs`
+- `src/Riftbound.Engine/CoreRuleEngine.cs`
+- `src/Riftbound.Engine/MatchSession.cs`
+- `tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs`
+- `tests/Riftbound.ConformanceTests/ResourceConversionEquipmentSkillTests.cs`
+- `docs/CURRENT_STAGE4D_03U_PAYMENT_ENGINE_RESOURCE_CONVERSION_EQUIPMENT_AUDIT.md`
+- `docs/CURRENT_STAGE4D_03U_PAYMENT_ENGINE_RESOURCE_CONVERSION_EQUIPMENT_EVIDENCE.md`
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+- `docs/CURRENT_COMPLETION_AUDIT.md`
+- `docs/CURRENT_FRONTEND_REBUILD_PLAN.md`
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`
+- `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`
+- `docs/rules-evidence-index.md`
 
 2026-05-14 Stage 4D-03P Fluft Poro Warhawk token focused slice 本轮修改：
 

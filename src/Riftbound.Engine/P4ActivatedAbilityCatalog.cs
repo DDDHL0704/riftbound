@@ -160,6 +160,22 @@ public static class P4ActivatedAbilityCatalog
     public const string OgnUnitySigilResourceAbilityEffectKind = "OGN_UNITY_SIGIL_REACTION_TYPED_RESOURCE_GAIN_YELLOW";
     public const string OgnUnitySigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_YELLOW_TEMPORARY_LEDGER_4D_03T";
 
+    public const string EnergyChannelCardNo = "OGN·098/298";
+    public const string EnergyChannelResourceAbilityId = "ENERGY_CHANNEL_REACTION_EXHAUST_GAIN_1_MANA";
+    public const string EnergyChannelResourceAbilityEffectKind = "ENERGY_CHANNEL_REACTION_RESOURCE_SKILL_GAIN_1_MANA";
+    public const int EnergyChannelGeneratedMana = 1;
+
+    public const string AncientSteleCardNo = "SFD·117/221";
+    public const string AncientSteleResourceAbilityId = "ANCIENT_STELE_REACTION_PAY_MANA_GAIN_GENERIC_POWER";
+    public const string AncientSteleResourceAbilityEffectKind = "ANCIENT_STELE_REACTION_RESOURCE_CONVERT_MANA_TO_GENERIC_POWER";
+    public const string AncientSteleConversionOptionalCostPrefix = "CONVERT_MANA_TO_GENERIC_POWER:";
+    public const string AncientStelePaymentOnlyResourceRestriction = "PAY_RUNE_COSTS_ONLY_GENERIC_TEMPORARY_LEDGER_4D_03U";
+
+    public const string HextechAnomalyCardNo = "SFD·083/221";
+    public const string HextechAnomalyResourceAbilityId = "HEXTECH_ANOMALY_REACTION_PAY_GENERIC_POWER_GAIN_MANA";
+    public const string HextechAnomalyResourceAbilityEffectKind = "HEXTECH_ANOMALY_REACTION_RESOURCE_CONVERT_GENERIC_POWER_TO_MANA";
+    public const string HextechAnomalyConversionOptionalCostPrefix = "CONVERT_GENERIC_POWER_TO_MANA:";
+
     private static readonly P4SigilTypedResourceProfile[] SigilTypedResourceProfiles =
     [
         new(
@@ -423,6 +439,57 @@ public static class P4ActivatedAbilityCatalog
             AppliesSpellshieldTargetTax: true,
             "Stage 4D-03Q opens only Shadow's swift battle-response stun-attacker representative; the broader swift combat response and target-bearing skill family remains deferred.",
             ReactionSpeed: true),
+        new(
+            EnergyChannelResourceAbilityId,
+            EnergyChannelCardNo,
+            EnergyChannelResourceAbilityEffectKind,
+            "Energy Channel reaction mana resource skill",
+            0,
+            0,
+            0,
+            RequiresBattlefieldSource: false,
+            ExhaustsSourceAsCost: true,
+            0,
+            AppliesSpellshieldTargetTax: false,
+            "Stage 4D-03U opens only Energy Channel's base-equipment reaction-speed gain 1 mana representative; broader equipment resource conversion remains deferred.",
+            IsResourceSkill: true,
+            ReactionSpeed: true,
+            GeneratedMana: EnergyChannelGeneratedMana,
+            RequiresBaseEquipmentSource: true),
+        new(
+            AncientSteleResourceAbilityId,
+            AncientSteleCardNo,
+            AncientSteleResourceAbilityEffectKind,
+            "Ancient Stele reaction mana-to-power conversion resource skill",
+            0,
+            0,
+            0,
+            RequiresBattlefieldSource: false,
+            ExhaustsSourceAsCost: true,
+            0,
+            AppliesSpellshieldTargetTax: false,
+            "Stage 4D-03U opens only Ancient Stele's base-equipment reaction-speed mana-to-generic-temporary-power conversion representative.",
+            IsResourceSkill: true,
+            PaymentOnlyResource: true,
+            ResourceRestriction: AncientStelePaymentOnlyResourceRestriction,
+            ReactionSpeed: true,
+            RequiresBaseEquipmentSource: true),
+        new(
+            HextechAnomalyResourceAbilityId,
+            HextechAnomalyCardNo,
+            HextechAnomalyResourceAbilityEffectKind,
+            "Hextech Anomaly reaction power-to-mana conversion resource skill",
+            0,
+            0,
+            0,
+            RequiresBattlefieldSource: false,
+            ExhaustsSourceAsCost: true,
+            0,
+            AppliesSpellshieldTargetTax: false,
+            "Stage 4D-03U opens only Hextech Anomaly's base-equipment reaction-speed ordinary generic power-to-mana conversion representative.",
+            IsResourceSkill: true,
+            ReactionSpeed: true,
+            RequiresBaseEquipmentSource: true),
         .. SigilTypedResourceProfiles.Select(SigilTypedResourceDefinition)
     ];
 
@@ -493,6 +560,13 @@ public static class P4ActivatedAbilityCatalog
     public static bool IsSigilTypedResourceAbility(string? abilityId)
     {
         return SigilTypedResourceProfiles.Any(profile => string.Equals(profile.AbilityId, abilityId, StringComparison.Ordinal));
+    }
+
+    public static bool IsResourceConversionEquipmentAbility(string? abilityId)
+    {
+        return string.Equals(abilityId, EnergyChannelResourceAbilityId, StringComparison.Ordinal)
+            || string.Equals(abilityId, AncientSteleResourceAbilityId, StringComparison.Ordinal)
+            || string.Equals(abilityId, HextechAnomalyResourceAbilityId, StringComparison.Ordinal);
     }
 
     public static bool TryGetSigilTypedResourceProfile(
