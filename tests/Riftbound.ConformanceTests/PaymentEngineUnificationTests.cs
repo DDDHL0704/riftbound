@@ -245,6 +245,286 @@ public sealed class PaymentEngineUnificationTests
         Assert.Equal(["ASSEMBLE_RED"], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
     }
 
+    [Fact]
+    public async Task ActivateAbilityViQuotesAndCommitsRecycleRunePaymentResource()
+    {
+        const string runeObjectId = "P1-RUNE-RED-ACTIVATE-VI";
+        var paymentResourceAction = $"RECYCLE_RUNE:{runeObjectId}";
+        var state = ViActivateState(
+            new RunePool(2, 0),
+            baseObjectIds: ["P1-UNIT-VI", runeObjectId],
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-VI"] = ViCard(),
+                [runeObjectId] = RuneCard(runeObjectId, RuneTrait.Red),
+                ["P1-RUNE-BOTTOM-001"] = RuneCard("P1-RUNE-BOTTOM-001", RuneTrait.Blue)
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-VI"] = new("P1", "BASE"),
+                [runeObjectId] = new("P1", "BASE"),
+                ["P1-RUNE-BOTTOM-001"] = new("P1", "RUNE_DECK")
+            },
+            runeDeckObjectIds: ["P1-RUNE-BOTTOM-001"]);
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var activateCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ACTIVATE_ABILITY", StringComparison.Ordinal));
+        Assert.Contains(activateCandidate.OptionalCosts ?? [], choice => string.Equals(choice.Id, paymentResourceAction, StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(activateCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["optionalCostChoices"]);
+        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, paymentResourceAction, StringComparison.Ordinal));
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["paymentResourceChoices"]);
+        Assert.Contains(paymentResourceChoices, choice => string.Equals(choice.Id, paymentResourceAction, StringComparison.Ordinal));
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            sourceRequirement["paymentResourcePowerByChoice"]);
+        Assert.Equal(RuneTrait.Red, paymentResourcePowerByChoice[paymentResourceAction]["trait"]);
+        Assert.Equal(1, paymentResourcePowerByChoice[paymentResourceAction]["power"]);
+        Assert.Equal(1, sourceRequirement["availablePowerWithPaymentResources"]);
+        var availablePowerWithResources = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
+            sourceRequirement["availablePowerByTraitWithPaymentResources"]);
+        Assert.Equal(1, availablePowerWithResources[RuneTrait.Red]);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-activate-vi-recycle-rune-payment-resource", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-UNIT-VI",
+                P4ActivatedAbilityCatalog.ViDoublePowerAbilityId,
+                [],
+                [paymentResourceAction]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(["RUNE_RECYCLED", "POWER_GAINED", "ABILITY_ACTIVATED", "COST_PAID", "STACK_ITEM_ADDED"], result.Events.Select(evt => evt.Kind));
+        Assert.DoesNotContain(runeObjectId, result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-RUNE-BOTTOM-001", runeObjectId], result.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal("RUNE_DECK", result.State.ObjectLocations[runeObjectId].Zone);
+        Assert.False(result.State.CardObjects[runeObjectId].IsExhausted);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        var stackItem = Assert.Single(result.State.StackItems);
+        Assert.Equal(P4ActivatedAbilityCatalog.ViDoublePowerAbilityEffectKind, stackItem.EffectKind);
+        var recycledEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
+        var powerGainedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal("ACTIVATE_ABILITY", recycledEvent.Payload["paymentWindow"]);
+        Assert.Equal("ACTIVATE_ABILITY", powerGainedEvent.Payload["paymentWindow"]);
+        Assert.Equal("ACTIVATE_ABILITY", costEvent.Payload["paymentWindow"]);
+        Assert.Equal(costEvent.Payload["paymentId"], recycledEvent.Payload["paymentId"]);
+        Assert.Equal(costEvent.Payload["paymentId"], powerGainedEvent.Payload["paymentId"]);
+        Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        Assert.Equal([runeObjectId], Assert.IsType<string[]>(costEvent.Payload["recycledRuneObjectIds"]));
+        Assert.Empty(Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
+        Assert.Equal(2, costEvent.Payload["totalManaCost"]);
+        Assert.Equal(1, costEvent.Payload["genericPower"]);
+        Assert.Equal(1, costEvent.Payload["totalPowerCost"]);
+        Assert.Equal(0, costEvent.Payload["remainingMana"]);
+        Assert.Equal(0, costEvent.Payload["remainingPower"]);
+    }
+
+    [Fact]
+    public async Task ActivateAbilityRejectsUnnecessaryRecycleRunePaymentResourceWithoutMutation()
+    {
+        const string runeObjectId = "P1-RUNE-RED-ACTIVATE-UNNEEDED";
+        var paymentResourceAction = $"RECYCLE_RUNE:{runeObjectId}";
+        var state = ViActivateState(
+            new RunePool(2, 1),
+            baseObjectIds: ["P1-UNIT-VI", runeObjectId],
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-VI"] = ViCard(),
+                [runeObjectId] = RuneCard(runeObjectId, RuneTrait.Red)
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-VI"] = new("P1", "BASE"),
+                [runeObjectId] = new("P1", "BASE")
+            });
+        var initialHash = MatchStateHasher.Hash(state);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-activate-vi-unneeded-recycle-rejected", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-UNIT-VI",
+                P4ActivatedAbilityCatalog.ViDoublePowerAbilityId,
+                [],
+                [paymentResourceAction]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+        Assert.Equal(["P1-UNIT-VI", runeObjectId], result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task ActivateAbilityRejectsInvalidRecycleRunePaymentResourceWithoutMutation()
+    {
+        const string runeObjectId = "P1-RUNE-RED-ACTIVATE-FACEDOWN";
+        var paymentResourceAction = $"RECYCLE_RUNE:{runeObjectId}";
+        var state = ViActivateState(
+            new RunePool(2, 0),
+            baseObjectIds: ["P1-UNIT-VI", runeObjectId],
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-VI"] = ViCard(),
+                [runeObjectId] = RuneCard(runeObjectId, RuneTrait.Red, isFaceDown: true)
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-VI"] = new("P1", "BASE"),
+                [runeObjectId] = new("P1", "BASE")
+            });
+        var initialHash = MatchStateHasher.Hash(state);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-activate-vi-invalid-recycle-rejected", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-UNIT-VI",
+                P4ActivatedAbilityCatalog.ViDoublePowerAbilityId,
+                [],
+                [paymentResourceAction]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+        Assert.True(result.State.CardObjects[runeObjectId].IsFaceDown);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task ActivateAbilityXerathPaysSpellshieldTaxAndRecyclesRunePaymentResource()
+    {
+        const string runeObjectId = "P1-RUNE-RED-ACTIVATE-XERATH";
+        var paymentResourceAction = $"RECYCLE_RUNE:{runeObjectId}";
+        var state = XerathActivateState(
+            new RunePool(1, 0),
+            p1BaseObjectIds: [runeObjectId],
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-XERATH"] = XerathCard(),
+                [runeObjectId] = RuneCard(runeObjectId, RuneTrait.Red),
+                ["P1-RUNE-BOTTOM-001"] = RuneCard("P1-RUNE-BOTTOM-001", RuneTrait.Blue),
+                ["P2-SPELLSHIELD-UNIT-001"] = EnemyUnit() with
+                {
+                    ObjectId = "P2-SPELLSHIELD-UNIT-001",
+                    CardNo = "SFD·125/221",
+                    Tags = [CardObjectTags.UnitCard, CardObjectTags.Spellshield]
+                }
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-XERATH"] = new("P1", "BATTLEFIELD"),
+                [runeObjectId] = new("P1", "BASE"),
+                ["P1-RUNE-BOTTOM-001"] = new("P1", "RUNE_DECK"),
+                ["P2-SPELLSHIELD-UNIT-001"] = new("P2", "BATTLEFIELD")
+            },
+            runeDeckObjectIds: ["P1-RUNE-BOTTOM-001"]);
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var activateCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ACTIVATE_ABILITY", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(activateCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        Assert.Contains(targetChoicesByIndex["0"], choice => string.Equals(choice.Id, "P2-SPELLSHIELD-UNIT-001", StringComparison.Ordinal));
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["paymentResourceChoices"]);
+        Assert.Contains(paymentResourceChoices, choice => string.Equals(choice.Id, paymentResourceAction, StringComparison.Ordinal));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-activate-xerath-recycle-rune-payment-resource", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-UNIT-XERATH",
+                P4ActivatedAbilityCatalog.XerathDamageAbilityId,
+                ["P2-SPELLSHIELD-UNIT-001"],
+                [paymentResourceAction]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(["RUNE_RECYCLED", "POWER_GAINED", "ABILITY_ACTIVATED", "COST_PAID", "UNIT_EXHAUSTED", "STACK_ITEM_ADDED"], result.Events.Select(evt => evt.Kind));
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.True(result.State.CardObjects["P1-UNIT-XERATH"].IsExhausted);
+        Assert.DoesNotContain(runeObjectId, result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-RUNE-BOTTOM-001", runeObjectId], result.State.PlayerZones["P1"].RuneDeck);
+        var stackItem = Assert.Single(result.State.StackItems);
+        Assert.Equal(P4ActivatedAbilityCatalog.XerathDamageAbilityEffectKind, stackItem.EffectKind);
+        Assert.Equal(["P2-SPELLSHIELD-UNIT-001"], stackItem.TargetObjectIds);
+        var recycledEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
+        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal("ACTIVATE_ABILITY", recycledEvent.Payload["paymentWindow"]);
+        Assert.Equal(costEvent.Payload["paymentId"], recycledEvent.Payload["paymentId"]);
+        Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        Assert.Equal([runeObjectId], Assert.IsType<string[]>(costEvent.Payload["recycledRuneObjectIds"]));
+        Assert.Equal(1, costEvent.Payload["spellshieldTaxMana"]);
+        Assert.Equal(1, costEvent.Payload["totalManaCost"]);
+        Assert.Equal(1, costEvent.Payload["genericPower"]);
+        Assert.Equal(1, costEvent.Payload["totalPowerCost"]);
+        Assert.Equal(0, costEvent.Payload["remainingMana"]);
+        Assert.Equal(0, costEvent.Payload["remainingPower"]);
+    }
+
+    [Fact]
+    public async Task ActivateAbilityXerathRejectsRecycleRuneWhenSpellshieldTaxManaIsMissingWithoutMutation()
+    {
+        const string runeObjectId = "P1-RUNE-RED-ACTIVATE-XERATH-MANA-MISSING";
+        var paymentResourceAction = $"RECYCLE_RUNE:{runeObjectId}";
+        var state = XerathActivateState(
+            new RunePool(0, 0),
+            p1BaseObjectIds: [runeObjectId],
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-XERATH"] = XerathCard(),
+                [runeObjectId] = RuneCard(runeObjectId, RuneTrait.Red),
+                ["P2-SPELLSHIELD-UNIT-001"] = EnemyUnit() with
+                {
+                    ObjectId = "P2-SPELLSHIELD-UNIT-001",
+                    CardNo = "SFD·125/221",
+                    Tags = [CardObjectTags.UnitCard, CardObjectTags.Spellshield]
+                }
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-XERATH"] = new("P1", "BATTLEFIELD"),
+                [runeObjectId] = new("P1", "BASE"),
+                ["P2-SPELLSHIELD-UNIT-001"] = new("P2", "BATTLEFIELD")
+            });
+        var initialHash = MatchStateHasher.Hash(state);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-activate-xerath-tax-mana-missing-recycle-rejected", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-UNIT-XERATH",
+                P4ActivatedAbilityCatalog.XerathDamageAbilityId,
+                ["P2-SPELLSHIELD-UNIT-001"],
+                [paymentResourceAction]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+        Assert.False(result.State.CardObjects["P1-UNIT-XERATH"].IsExhausted);
+        Assert.Equal([runeObjectId], result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
     private static MatchState BulletTimeState(RunePool runePool, IReadOnlyList<string>? baseObjectIds = null)
     {
         return new MatchState(
@@ -355,6 +635,100 @@ public sealed class PaymentEngineUnificationTests
             });
     }
 
+    private static MatchState ViActivateState(
+        RunePool runePool,
+        IReadOnlyList<string> baseObjectIds,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        IReadOnlyList<string>? runeDeckObjectIds = null)
+    {
+        return new MatchState(
+            "payment-engine-activate-vi-room",
+            0,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            ["P1", "P2"],
+            "P1",
+            MatchPhases.Main,
+            TimingStates.NeutralOpen,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = runePool,
+                ["P2"] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = baseObjectIds,
+                    RuneDeck = runeDeckObjectIds ?? []
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            new Dictionary<string, CardObjectState>(cardObjects, StringComparer.Ordinal),
+            objectLocations: new Dictionary<string, ObjectLocationState>(objectLocations, StringComparer.Ordinal));
+    }
+
+    private static MatchState XerathActivateState(
+        RunePool runePool,
+        IReadOnlyList<string> p1BaseObjectIds,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        IReadOnlyList<string>? runeDeckObjectIds = null)
+    {
+        return new MatchState(
+            "payment-engine-activate-xerath-room",
+            0,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            ["P1", "P2"],
+            "P1",
+            MatchPhases.Main,
+            TimingStates.NeutralOpen,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = runePool,
+                ["P2"] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = p1BaseObjectIds,
+                    Battlefields = ["P1-UNIT-XERATH"],
+                    RuneDeck = runeDeckObjectIds ?? []
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-SPELLSHIELD-UNIT-001"]
+                }
+            },
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            new Dictionary<string, CardObjectState>(cardObjects, StringComparer.Ordinal),
+            objectLocations: new Dictionary<string, ObjectLocationState>(objectLocations, StringComparer.Ordinal));
+    }
+
     private static CardObjectState BulletTimeCard()
     {
         return new(
@@ -377,13 +751,40 @@ public sealed class PaymentEngineUnificationTests
             controllerId: "P2");
     }
 
-    private static CardObjectState RuneCard(string objectId, string trait)
+    private static CardObjectState ViCard()
+    {
+        return new(
+            "P1-UNIT-VI",
+            power: 3,
+            tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield],
+            cardNo: P4ActivatedAbilityCatalog.ViCardNo,
+            ownerId: "P1",
+            controllerId: "P1");
+    }
+
+    private static CardObjectState XerathCard()
+    {
+        return new(
+            "P1-UNIT-XERATH",
+            power: 5,
+            tags: [CardObjectTags.UnitCard],
+            cardNo: P4ActivatedAbilityCatalog.XerathCardNo,
+            ownerId: "P1",
+            controllerId: "P1");
+    }
+
+    private static CardObjectState RuneCard(
+        string objectId,
+        string trait,
+        bool isFaceDown = false,
+        string? cardNo = null)
     {
         return new(
             objectId,
             isExhausted: true,
+            isFaceDown: isFaceDown,
             tags: [CardObjectTags.RuneCard, $"COLOR:{trait}"],
-            cardNo: string.Equals(trait, RuneTrait.Blue, StringComparison.Ordinal) ? "UNL-R02" : "UNL-R01",
+            cardNo: cardNo ?? (string.Equals(trait, RuneTrait.Blue, StringComparison.Ordinal) ? "UNL-R02" : "UNL-R01"),
             ownerId: "P1",
             controllerId: "P1");
     }

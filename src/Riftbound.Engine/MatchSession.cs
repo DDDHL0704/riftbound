@@ -3929,6 +3929,12 @@ internal static class ActionPromptBuilder
         string TargetScopeLabel,
         IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> TargetChoicesByIndex,
         IReadOnlyList<ActionPromptChoiceDto> OptionalCostChoices,
+        IReadOnlyList<ActionPromptChoiceDto> PaymentResourceChoices,
+        IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> PaymentResourcePowerByChoice,
+        int AvailablePower,
+        IReadOnlyDictionary<string, int> AvailablePowerByTrait,
+        int AvailablePowerWithPaymentResources,
+        IReadOnlyDictionary<string, int> AvailablePowerByTraitWithPaymentResources,
         IReadOnlyList<string> RequiredOptionalCosts,
         bool ExhaustsSource,
         bool ResolvesImmediately,
@@ -4996,6 +5002,19 @@ internal static class ActionPromptBuilder
                 continue;
             }
 
+            var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+                ? currentPool
+                : RunePool.Empty;
+            var paymentResourceChoices = ActivateAbilityPaymentResourceChoices(state, playerId, ability);
+            var paymentResourcePowerByTrait = ActivateAbilityPaymentResourcePowerByTrait(state, playerId, ability);
+            var paymentResourcePowerByChoice = ActivateAbilityPaymentResourcePowerByChoice(state, playerId, ability);
+            var availablePowerByTrait = PlayCardAvailablePowerByTrait(
+                runePool,
+                new Dictionary<string, int>(StringComparer.Ordinal));
+            var availablePowerByTraitWithPaymentResources = PlayCardAvailablePowerByTrait(
+                runePool,
+                paymentResourcePowerByTrait);
+
             requirements.Add(new ActivateAbilityPromptRequirement(
                 sourceObjectId,
                 ability.SourceCardNo,
@@ -5008,7 +5027,13 @@ internal static class ActionPromptBuilder
                 ability.RequiredTargetCount,
                 ActivateAbilityTargetScopeLabel(ability),
                 targetChoicesByIndex,
-                [],
+                paymentResourceChoices,
+                paymentResourceChoices,
+                paymentResourcePowerByChoice,
+                runePool.TotalPower,
+                availablePowerByTrait,
+                runePool.TotalPower + paymentResourcePowerByTrait.Values.Sum(),
+                availablePowerByTraitWithPaymentResources,
                 [],
                 ability.ExhaustsSourceAsCost,
                 false,
@@ -5021,6 +5046,12 @@ internal static class ActionPromptBuilder
             && !cardObject.IsExhausted
             && BattlefieldGrantUnitExperienceObjectId(state, playerId, sourceObjectId) is not null)
         {
+            var battlefieldAbilityPool = state.RunePools.TryGetValue(playerId, out var currentPool)
+                ? currentPool
+                : RunePool.Empty;
+            var battlefieldAbilityPowerByTrait = PlayCardAvailablePowerByTrait(
+                battlefieldAbilityPool,
+                new Dictionary<string, int>(StringComparer.Ordinal));
             requirements.Add(new ActivateAbilityPromptRequirement(
                 sourceObjectId,
                 cardObject.CardNo ?? string.Empty,
@@ -5034,6 +5065,12 @@ internal static class ActionPromptBuilder
                 "无目标",
                 new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal),
                 [],
+                [],
+                new Dictionary<string, IReadOnlyDictionary<string, object?>>(StringComparer.Ordinal),
+                battlefieldAbilityPool.TotalPower,
+                battlefieldAbilityPowerByTrait,
+                battlefieldAbilityPool.TotalPower,
+                battlefieldAbilityPowerByTrait,
                 [],
                 true,
                 true,
@@ -5857,10 +5894,116 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        return CanPayManaAndAnyPower(
-            runePool,
-            SpellshieldTaxManaForTarget(state, playerId, targetObjectId),
-            ability.PowerCost);
+        return runePool.Mana >= SpellshieldTaxManaForTarget(state, playerId, targetObjectId)
+            && ActivateAbilityAvailablePowerWithPaymentResources(state, playerId, ability) >= ability.PowerCost;
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> ActivateAbilityPaymentResourceChoices(
+        MatchState state,
+        string playerId,
+        P4ActivatedAbilityDefinition ability)
+    {
+        if (ability.PowerCost <= 0)
+        {
+            return [];
+        }
+
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        if (runePool.TotalPower >= ability.PowerCost
+            || !state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return [];
+        }
+
+        return zones.Base
+            .Where(objectId => IsRecycleRuneSource(state, playerId, objectId))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .Select(objectId =>
+            {
+                var choice = ObjectChoice(state, objectId, "payment resource action: recycle rune for activate ability power");
+                return new ActionPromptChoiceDto(
+                    $"{RecycleRunePaymentOptionalCostPrefix}{objectId}",
+                    $"回收符文支付：{choice.Label}",
+                    choice.Reason);
+            })
+            .ToArray();
+    }
+
+    private static IReadOnlyDictionary<string, int> ActivateAbilityPaymentResourcePowerByTrait(
+        MatchState state,
+        string playerId,
+        P4ActivatedAbilityDefinition ability)
+    {
+        var choices = ActivateAbilityPaymentResourceChoices(state, playerId, ability);
+        if (choices.Count == 0
+            || !state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return new Dictionary<string, int>(StringComparer.Ordinal);
+        }
+
+        var choiceIds = choices
+            .Select(choice => choice.Id)
+            .ToHashSet(StringComparer.Ordinal);
+        return zones.Base
+            .Where(objectId => choiceIds.Contains($"{RecycleRunePaymentOptionalCostPrefix}{objectId}"))
+            .Select(objectId => state.CardObjects.TryGetValue(objectId, out var runeState)
+                && TryGetRuneTrait(runeState, out var runeTrait)
+                    ? runeTrait
+                    : string.Empty)
+            .Where(trait => !string.IsNullOrWhiteSpace(trait))
+            .GroupBy(trait => trait, StringComparer.Ordinal)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Count() * BasicRuneRecyclePowerGain,
+                StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> ActivateAbilityPaymentResourcePowerByChoice(
+        MatchState state,
+        string playerId,
+        P4ActivatedAbilityDefinition ability)
+    {
+        var choices = ActivateAbilityPaymentResourceChoices(state, playerId, ability);
+        if (choices.Count == 0)
+        {
+            return new Dictionary<string, IReadOnlyDictionary<string, object?>>(StringComparer.Ordinal);
+        }
+
+        return choices.ToDictionary(
+            choice => choice.Id,
+            choice =>
+            {
+                var trait = string.Empty;
+                if (choice.Id.StartsWith(RecycleRunePaymentOptionalCostPrefix, StringComparison.Ordinal))
+                {
+                    var objectId = choice.Id[RecycleRunePaymentOptionalCostPrefix.Length..];
+                    if (state.CardObjects.TryGetValue(objectId, out var runeState)
+                        && TryGetRuneTrait(runeState, out var runeTrait))
+                    {
+                        trait = runeTrait;
+                    }
+                }
+
+                return (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["trait"] = trait,
+                    ["power"] = BasicRuneRecyclePowerGain
+                };
+            },
+            StringComparer.Ordinal);
+    }
+
+    private static int ActivateAbilityAvailablePowerWithPaymentResources(
+        MatchState state,
+        string playerId,
+        P4ActivatedAbilityDefinition ability)
+    {
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        return runePool.TotalPower + ActivateAbilityPaymentResourcePowerByTrait(state, playerId, ability).Values.Sum();
     }
 
     private static bool CanPayActivateAbilityRequirement(
@@ -5871,7 +6014,8 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        return CanPayManaAndAnyPower(runePool, requirement.ManaCost, requirement.PowerCost);
+        return runePool.Mana >= requirement.ManaCost
+            && requirement.AvailablePowerWithPaymentResources >= requirement.PowerCost;
     }
 
     private static bool CanPayManaAndAnyPower(RunePool runePool, int manaCost, int powerCost)
@@ -7465,9 +7609,22 @@ internal static class ActionPromptBuilder
             "MOVE_UNIT" => MoveUnitOptionalCostChoices(state, playerId),
             "ASSEMBLE_EQUIPMENT" => AssembleEquipmentOptionalCostChoices(state, playerId),
             "DECLARE_BATTLE" => DeclareBattleOptionalCostChoices(state, playerId),
+            "ACTIVATE_ABILITY" => ActivateAbilityOptionalCostChoices(state, playerId),
             "LEGEND_ACT" => LegendActionOptionalCostChoices(state, playerId),
             _ => null
         };
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto>? ActivateAbilityOptionalCostChoices(
+        MatchState state,
+        string playerId)
+    {
+        var choices = ActivateAbilitySourceRequirements(state, playerId)
+            .SelectMany(requirement => requirement.OptionalCostChoices)
+            .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+            .Select(group => group.First())
+            .ToArray();
+        return choices.Length == 0 ? null : choices;
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto>? HideCardOptionalCostChoices(
@@ -8823,6 +8980,12 @@ internal static class ActionPromptBuilder
             ["targetScopeLabel"] = requirement.TargetScopeLabel,
             ["targetChoicesByIndex"] = requirement.TargetChoicesByIndex,
             ["optionalCostChoices"] = requirement.OptionalCostChoices,
+            ["paymentResourceChoices"] = requirement.PaymentResourceChoices,
+            ["paymentResourcePowerByChoice"] = requirement.PaymentResourcePowerByChoice,
+            ["availablePower"] = requirement.AvailablePower,
+            ["availablePowerByTrait"] = requirement.AvailablePowerByTrait,
+            ["availablePowerWithPaymentResources"] = requirement.AvailablePowerWithPaymentResources,
+            ["availablePowerByTraitWithPaymentResources"] = requirement.AvailablePowerByTraitWithPaymentResources,
             ["requiredOptionalCosts"] = requirement.RequiredOptionalCosts,
             ["exhaustsSource"] = requirement.ExhaustsSource,
             ["resolvesImmediately"] = requirement.ResolvesImmediately,

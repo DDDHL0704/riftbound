@@ -5466,8 +5466,23 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.PhaseNotAllowed);
         }
 
-        if (command.TargetObjectIds.Count != 0
-            || NormalizeOptionalCosts(command.OptionalCosts).Count != 0)
+        var normalizedOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (command.TargetObjectIds.Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "蔚的技能不接受目标或额外费用。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!TryExtractRecycleRunePaymentResourceActions(
+                state,
+                intent.PlayerId,
+                normalizedOptionalCosts,
+                out var behaviorOptionalCosts,
+                out var paymentResourceActions,
+                out var recycledRuneObjectIds)
+            || behaviorOptionalCosts.Count != 0)
         {
             return RejectWithCorePrompts(
                 state,
@@ -5501,6 +5516,22 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
+        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
+            ? existingPool
+            : RunePool.Empty;
+        if (!AreRecycleRunePaymentResourceActionsRequired(
+                currentPool,
+                state.CardObjects,
+                recycledRuneObjectIds,
+                ability.PowerCost,
+                new Dictionary<string, int>(StringComparer.Ordinal)))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "蔚的技能不需要回收符文支付资源动作。",
+                ErrorCodes.InvalidTarget);
+        }
+
         const string paymentWindow = "ACTIVATE_ABILITY";
         var paymentId = PaymentCostRules.BuildPaymentId(
             state.Tick + 1,
@@ -5516,12 +5547,49 @@ public sealed class CoreRuleEngine : IRuleEngine
             totalManaCost: ability.ManaCost,
             genericPowerCost: ability.PowerCost,
             totalPowerCost: ability.PowerCost,
+            paymentResourceActionIds: paymentResourceActions,
             reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId,
-            abilityId: command.AbilityId);
+            abilityId: command.AbilityId,
+            auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray()
+            });
+        var paymentEvents = new List<GameEvent>();
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var runePools = ApplyRecycleRunePaymentResourceActions(
+            state.RunePools,
+            playerZones,
+            cardObjects,
+            objectLocations,
+            intent.PlayerId,
+            recycledRuneObjectIds,
+            paymentEvents,
+            paymentWindow,
+            paymentId);
+        var adjustedPool = runePools.TryGetValue(intent.PlayerId, out var paymentAdjustedPool)
+            ? paymentAdjustedPool
+            : RunePool.Empty;
+        var currentExperience = state.PlayerExperience.TryGetValue(intent.PlayerId, out var availableExperience)
+            ? availableExperience
+            : 0;
+        var paymentAuthorization = PaymentCostRules.AuthorizePayment(
+            paymentPlan,
+            adjustedPool,
+            currentExperience);
+        if (!paymentAuthorization.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "资源不足，无法启动蔚的技能。",
+                ErrorCodes.InsufficientCost);
+        }
+
         var paymentCommit = PaymentCostRules.TryCommitPayment(
             paymentPlan,
-            state.RunePools,
+            runePools,
             state.PlayerExperience);
         if (!paymentCommit.Accepted)
         {
@@ -5531,7 +5599,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
-        var runePools = paymentCommit.RunePools;
+        runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var playerExperience = paymentCommit.PlayerExperience;
         var stackItem = new StackItemState(
             $"STACK-{state.Tick + 1}-{command.SourceObjectId}-ABILITY",
             intent.PlayerId,
@@ -5548,12 +5617,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             ActivePlayerId = intent.PlayerId,
             TimingState = TimingStates.NeutralClosed,
             RunePools = runePools,
-            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, state.PlayerZones),
+            PlayerExperience = playerExperience,
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = ReconcileObjectLocations(objectLocations, playerZones),
             PriorityPlayerId = intent.PlayerId,
             PassedPriorityPlayerIds = [],
             StackItems = state.StackItems.Concat([stackItem]).ToArray()
         };
-        var events = new List<GameEvent>
+        var events = new List<GameEvent>(paymentEvents)
         {
             new(
                 "ABILITY_ACTIVATED",
@@ -5571,7 +5643,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 PaymentCostRules.BuildCostPaidPayload(
                     paymentPlan,
                     runePools,
-                    state.PlayerExperience,
+                    playerExperience,
                     new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
@@ -7470,7 +7542,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.PhaseNotAllowed);
         }
 
-        if (NormalizeOptionalCosts(command.OptionalCosts).Count != 0)
+        var normalizedOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (!TryExtractRecycleRunePaymentResourceActions(
+                state,
+                intent.PlayerId,
+                normalizedOptionalCosts,
+                out var behaviorOptionalCosts,
+                out var paymentResourceActions,
+                out var recycledRuneObjectIds)
+            || behaviorOptionalCosts.Count != 0)
         {
             return RejectWithCorePrompts(
                 state,
@@ -7542,6 +7622,22 @@ public sealed class CoreRuleEngine : IRuleEngine
                 command.TargetObjectIds,
                 out spellshieldTaxTargetObjectIds);
         }
+        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
+            ? existingPool
+            : RunePool.Empty;
+        if (!AreRecycleRunePaymentResourceActionsRequired(
+                currentPool,
+                state.CardObjects,
+                recycledRuneObjectIds,
+                ability.PowerCost,
+                new Dictionary<string, int>(StringComparer.Ordinal)))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "泽拉斯的技能不需要回收符文支付资源动作。",
+                ErrorCodes.InvalidTarget);
+        }
+
         const string paymentWindow = "ACTIVATE_ABILITY";
         var paymentId = PaymentCostRules.BuildPaymentId(
             state.Tick + 1,
@@ -7557,17 +7653,51 @@ public sealed class CoreRuleEngine : IRuleEngine
             totalManaCost: spellshieldTaxMana,
             genericPowerCost: ability.PowerCost,
             totalPowerCost: ability.PowerCost,
+            paymentResourceActionIds: paymentResourceActions,
             reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["spellshieldTaxMana"] = spellshieldTaxMana,
-                ["spellshieldTaxTargetObjectIds"] = spellshieldTaxTargetObjectIds.ToArray()
+                ["spellshieldTaxTargetObjectIds"] = spellshieldTaxTargetObjectIds.ToArray(),
+                ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray()
             });
+        var paymentEvents = new List<GameEvent>();
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var runePools = ApplyRecycleRunePaymentResourceActions(
+            state.RunePools,
+            playerZones,
+            cardObjects,
+            objectLocations,
+            intent.PlayerId,
+            recycledRuneObjectIds,
+            paymentEvents,
+            paymentWindow,
+            paymentId);
+        var adjustedPool = runePools.TryGetValue(intent.PlayerId, out var paymentAdjustedPool)
+            ? paymentAdjustedPool
+            : RunePool.Empty;
+        var currentExperience = state.PlayerExperience.TryGetValue(intent.PlayerId, out var availableExperience)
+            ? availableExperience
+            : 0;
+        var paymentAuthorization = PaymentCostRules.AuthorizePayment(
+            paymentPlan,
+            adjustedPool,
+            currentExperience);
+        if (!paymentAuthorization.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "资源不足，无法启动泽拉斯的技能。",
+                ErrorCodes.InsufficientCost);
+        }
+
         var paymentCommit = PaymentCostRules.TryCommitPayment(
             paymentPlan,
-            state.RunePools,
+            runePools,
             state.PlayerExperience);
         if (!paymentCommit.Accepted)
         {
@@ -7577,8 +7707,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
-        var runePools = paymentCommit.RunePools;
-        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var playerExperience = paymentCommit.PlayerExperience;
         cardObjects[command.SourceObjectId] = sourceState with
         {
             IsExhausted = true
@@ -7604,14 +7734,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             ActivePlayerId = intent.PlayerId,
             TimingState = TimingStates.NeutralClosed,
             RunePools = runePools,
+            PlayerExperience = playerExperience,
+            PlayerZones = playerZones,
             CardObjects = cardObjects,
-            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, state.PlayerZones),
+            ObjectLocations = ReconcileObjectLocations(objectLocations, playerZones),
             UntilEndOfTurnEffects = untilEndOfTurnEffects,
             PriorityPlayerId = intent.PlayerId,
             PassedPriorityPlayerIds = [],
             StackItems = state.StackItems.Concat([stackItem]).ToArray()
         };
-        var events = new List<GameEvent>
+        var events = new List<GameEvent>(paymentEvents)
         {
             new(
                 "ABILITY_ACTIVATED",
@@ -7630,7 +7762,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 PaymentCostRules.BuildCostPaidPayload(
                     paymentPlan,
                     runePools,
-                    state.PlayerExperience,
+                    playerExperience,
                     new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
