@@ -5,7 +5,7 @@
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
 
-最新 checkpoint：`6be6102d checkpoint: record stage 4C legacy guard evidence alignment`。上一 Stage 4C checkpoint：`bc4f6813 checkpoint: record stage 4C static effect design gate`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
+最新 checkpoint：待提交 `stage 4C-97 arena minion annie evidence alignment`。上一 Stage 4C checkpoint：`6be6102d checkpoint: record stage 4C legacy guard evidence alignment`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
 
 ## 0. A 主控职责边界
 
@@ -5090,3 +5090,26 @@ Checkpoint 记录：
 
 - 本批不修改功能代码、测试代码或前端代码，只做 matrix / docs evidence alignment。
 - 不声明完整 same-battlefield、standby / reaction、quick / spell-duel、FEPR、PaymentEngine、replacement / prevention、cleanup、LayerEngine、hidden-info / redaction、FAQ full adjudication、1009/811 full-official 或 READY。
+
+## 59. Stage 4C-97 Arena / Minion / Annie Evidence Alignment
+
+状态：**Stage 4C-97 representative evidence alignment 已记录；项目整体仍 NOT READY。**
+
+本批范围：
+
+- 审计入口：`docs/CURRENT_STAGE4C_BATCH97_ARENA_MINION_ANNIE_EVIDENCE_ALIGNMENT_AUDIT.md`。
+- 证据入口：`docs/CURRENT_STAGE4C_BATCH97_ARENA_MINION_ANNIE_EVIDENCE_ALIGNMENT_EVIDENCE.md`。
+- 对竞技场勤务小队、三张官方随从 token factory、黑暗之女共 5 个已有代表性自动化证据的 FU 做矩阵状态对齐。
+- 更新 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 的 `stage4CBatch97ArenaServiceCrewMinionAnnieEvidenceAlignment`、`functionalUnits[].stage4C97` 与 `snapshotEntries[].stage4C97`。
+- `IMPLEMENTED_TESTED` 计数升至 73，`IMPLEMENTED_UNTESTED` 降至 7；`fullOfficial=false` 保持不变。
+
+通过证据：
+
+- focused regression：6/6 通过。
+- adjacent regression：87/87 通过。
+- backend full：3771/3771 通过。
+
+口径：
+
+- 本批不修改功能代码、测试代码或前端代码，只做 matrix / docs evidence alignment。
+- 不声明完整 equipment-trigger ordering、完整 token factory domain、完整 legend action domain、FEPR、PaymentEngine、trigger engine、LayerEngine、hidden-info / redaction、FAQ full adjudication、1009/811 full-official 或 READY。

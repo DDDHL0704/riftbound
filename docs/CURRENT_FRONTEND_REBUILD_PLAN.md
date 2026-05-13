@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 第三百五十九批新增 Stage 4C-97 arena / minion / Annie evidence alignment。`docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已新增 `stage4CBatch97ArenaServiceCrewMinionAnnieEvidenceAlignment`、`functionalUnits[].stage4C97` 与 `snapshotEntries[].stage4C97`，把竞技场勤务小队、随从（德玛西亚）、随从（诺克萨斯）、随从（祖安）、黑暗之女共 5 个已验证 FU 从 `IMPLEMENTED_UNTESTED` 对齐为 representative `IMPLEMENTED_TESTED`。focused 6/6、adjacent 87/87、backend full 3771/3771 通过；本批不修改 DevUi、服务端功能代码、测试代码或前端契约；`fullOfficial=false`，整体仍 **NOT READY**。
+
 - 第三百五十八批新增 Stage 4C-96 legacy guard evidence alignment。`docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已新增 `stage4CBatch96LegacyGuardEvidenceAlignment`、`functionalUnits[].stage4C96` 与 `snapshotEntries[].stage4C96`，把 Stage 4C-60 至 4C-69 已验证的 10 个 direct-card FU（烈火风暴、过载能量、狩猎、大副、怒海大鲨炮、德玛西亚使节、提伯斯、泡泡机、宝藏魔像、忠实的工坊主）从 `IMPLEMENTED_UNTESTED` 对齐为 representative `IMPLEMENTED_TESTED`。focused 67/67、adjacent 193/193、backend full 3771/3771 通过；本批不修改 DevUi、服务端功能代码、测试代码或前端契约；`fullOfficial=false`，整体仍 **NOT READY**。
 
 - 第三百五十七批新增 Stage 4C-95 static effect design gate。熔浆巨龙 `FU-0973164d07`、娑娜 `FU-c9bce10c0e`、安妮 `FU-430074702b`、温驯的宝石龙 `FU-af793555bb` 已确认不能 evidence-only 入账：当前 fixture 只覆盖普通 source-unit 入场，官方核心静态/触发/伤害修正文本仍 deferred。本批只新增 `docs/CURRENT_STAGE4C_BATCH95_STATIC_EFFECT_DESIGN_GATE.md` 并更新审计入口；不修改 DevUi、服务端功能代码、测试或 coverage matrix；四个 FU 仍等待后续服务端实现和新证据。整体仍 **NOT READY**。
