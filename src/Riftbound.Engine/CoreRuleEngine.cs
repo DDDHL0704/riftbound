@@ -10477,6 +10477,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                         battleWinnerPlayerId,
                         battlefieldId,
                         attackerObjectId,
+                        combatStackItem.OptionalCosts,
                         EffectiveWinningScore(playerZones, cardObjects),
                         battlefieldScoreEvents,
                         out var battlefieldScoreRunePools,
@@ -11547,8 +11548,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (optionalCosts.Count != 1
-            || !string.Equals(optionalCosts[0], DeclareBattleOptionalCost, StringComparison.Ordinal))
+        var paymentResourceActions = optionalCosts
+            .Where(IsRecycleRunePaymentResourceActionId)
+            .ToArray();
+        if (optionalCosts.Count != 1 + paymentResourceActions.Length
+            || optionalCosts.Count(cost => string.Equals(cost, DeclareBattleOptionalCost, StringComparison.Ordinal)) != 1
+            || !ValidateDeclareBattleBattlefieldHeldScorePaymentResources(state, command, paymentResourceActions))
         {
             return false;
         }
@@ -11604,6 +11609,98 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return defenderObjectIds.Count == 1 || hasAssignmentOrderingKeyword;
+    }
+
+    private static bool ValidateDeclareBattleBattlefieldHeldScorePaymentResources(
+        MatchState state,
+        DeclareBattleCommand command,
+        IReadOnlyList<string> paymentResourceActions)
+    {
+        if (paymentResourceActions.Count == 0)
+        {
+            return true;
+        }
+
+        var battlefieldId = command.BattlefieldId?.Trim() ?? string.Empty;
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldHeldPayPowerScoreCardNo(battlefieldState.CardNo))
+        {
+            return false;
+        }
+
+        var paymentPlayerId = ResolveBattlefieldPaymentControllerId(playerZones, battlefieldObjectId, battlefieldState);
+        if (string.IsNullOrWhiteSpace(paymentPlayerId)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, paymentPlayerId)
+            || BattlefieldScoredThisTurn(state.UntilEndOfTurnEffects, battlefieldObjectId)
+            || (TryBuildBattlefieldScorePreventedEvent(
+                    state,
+                    paymentPlayerId,
+                    "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE",
+                    [battlefieldObjectId],
+                    out var scorePreventedEvent)
+                && scorePreventedEvent is not null))
+        {
+            return false;
+        }
+
+        if (!TryExtractRecycleRunePaymentResourceActions(
+                state,
+                paymentPlayerId,
+                paymentResourceActions,
+                out var behaviorOptionalCosts,
+                out _,
+                out var recycledRuneObjectIds)
+            || behaviorOptionalCosts.Count > 0
+            || recycledRuneObjectIds.Any(runeObjectId =>
+                !state.CardObjects.TryGetValue(runeObjectId, out var runeState)
+                || string.IsNullOrWhiteSpace(runeState.CardNo)))
+        {
+            return false;
+        }
+
+        var currentPool = state.RunePools.TryGetValue(paymentPlayerId, out var runePool)
+            ? runePool
+            : RunePool.Empty;
+        if (!AreRecycleRunePaymentResourceActionsRequired(
+                currentPool,
+                state.CardObjects,
+                recycledRuneObjectIds,
+                BattlefieldHeldScorePowerCost,
+                new Dictionary<string, int>(StringComparer.Ordinal)))
+        {
+            return false;
+        }
+
+        var adjustedPool = ApplyRecycleRunePaymentToPool(
+            currentPool,
+            state.CardObjects,
+            recycledRuneObjectIds);
+        return CanPayPowerCost(
+            adjustedPool,
+            BattlefieldHeldScorePowerCost,
+            new Dictionary<string, int>(StringComparer.Ordinal));
+    }
+
+    private static string ResolveBattlefieldPaymentControllerId(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string battlefieldObjectId,
+        CardObjectState battlefieldState)
+    {
+        if (!string.IsNullOrWhiteSpace(battlefieldState.ControllerId))
+        {
+            return battlefieldState.ControllerId;
+        }
+
+        if (!string.IsNullOrWhiteSpace(battlefieldState.OwnerId))
+        {
+            return battlefieldState.OwnerId;
+        }
+
+        return playerZones
+            .FirstOrDefault(entry => entry.Value.Battlefields.Contains(battlefieldObjectId, StringComparer.Ordinal))
+            .Key ?? string.Empty;
     }
 
     private static bool IsSupportedDeclareBattlefieldId(MatchState state, string playerId, string? battlefieldId)
@@ -13932,13 +14029,14 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool TryResolveBattlefieldHeldPayPowerScoreTrigger(
         MatchState state,
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, RunePool> runePools,
         IReadOnlyDictionary<string, int> playerScores,
         string playerId,
         string battlefieldId,
         string sourceObjectId,
+        IReadOnlyList<string> optionalCosts,
         int winningScore,
         List<GameEvent> events,
         out IReadOnlyDictionary<string, RunePool> nextRunePools,
@@ -13986,15 +14084,56 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerId,
             battlefieldObjectId,
             reason: "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE");
+        var paymentOptionalCosts = optionalCosts
+            .Where(IsRecycleRunePaymentResourceActionId)
+            .ToArray();
+        if (!TryExtractRecycleRunePaymentResourceActions(
+                state,
+                playerId,
+                paymentOptionalCosts,
+                out var behaviorOptionalCosts,
+                out var paymentResourceActions,
+                out var recycledRuneObjectIds)
+            || behaviorOptionalCosts.Count > 0)
+        {
+            return false;
+        }
+
+        var currentPool = runePools.TryGetValue(playerId, out var existingPool)
+            ? existingPool
+            : RunePool.Empty;
+        if (!AreRecycleRunePaymentResourceActionsRequired(
+                currentPool,
+                state.CardObjects,
+                recycledRuneObjectIds,
+                BattlefieldHeldScorePowerCost,
+                new Dictionary<string, int>(StringComparer.Ordinal)))
+        {
+            return false;
+        }
+
         var paymentPlan = new PaymentCostRules.PaymentPlan(
             paymentId,
             paymentWindow,
             playerId,
             genericPowerCost: BattlefieldHeldScorePowerCost,
             totalPowerCost: BattlefieldHeldScorePowerCost,
+            paymentResourceActionIds: paymentResourceActions,
             reason: "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE",
             sourceObjectId: battlefieldObjectId);
-        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, runePools);
+        var paymentEvents = new List<GameEvent>();
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var runePoolsWithResources = ApplyRecycleRunePaymentResourceActions(
+            runePools,
+            playerZones,
+            cardObjects,
+            objectLocations,
+            playerId,
+            recycledRuneObjectIds,
+            paymentEvents,
+            paymentWindow,
+            paymentId);
+        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, runePoolsWithResources);
         if (!paymentCommit.Accepted)
         {
             return false;
@@ -14027,6 +14166,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["amount"] = 1,
                 ["score"] = mutablePlayerScores[playerId]
             }));
+        events.AddRange(paymentEvents);
         events.Add(new GameEvent(
             "COST_PAID",
             $"{playerId} 支付能量枢纽据守触发费用",
@@ -14039,7 +14179,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["playerId"] = playerId,
                 ["mana"] = 0,
                 ["power"] = BattlefieldHeldScorePowerCost,
-                ["reason"] = "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE"
+                ["reason"] = "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE",
+                ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray()
             })));
         events.Add(new GameEvent(
             "SCORE_GAINED",

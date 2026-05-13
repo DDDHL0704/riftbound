@@ -39933,6 +39933,177 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHeldPaysPowerToGainScoreWithRecycleRunePaymentResource()
+    {
+        const string runeObjectId = "P2-RUNE-RED-HELD-SCORE";
+        var paymentResourceAction = $"RECYCLE_RUNE:{runeObjectId}";
+        var baseState = BattlefieldHeldScoreState();
+        var state = baseState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(0, 3)
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(baseState.PlayerZones, StringComparer.Ordinal)
+            {
+                ["P2"] = baseState.PlayerZones["P2"] with
+                {
+                    Base = [runeObjectId],
+                    RuneDeck = ["P2-RUNE-BOTTOM-HELD-SCORE"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(baseState.CardObjects, StringComparer.Ordinal)
+            {
+                [runeObjectId] = new(
+                    runeObjectId,
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    cardNo: "UNL-R01",
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-RUNE-BOTTOM-HELD-SCORE"] = new(
+                    "P2-RUNE-BOTTOM-HELD-SCORE",
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:blue"],
+                    cardNo: "UNL-R02",
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(baseState.ObjectLocations, StringComparer.Ordinal)
+            {
+                [runeObjectId] = new("P2", "BASE"),
+                ["P2-RUNE-BOTTOM-HELD-SCORE"] = new("P2", "RUNE_DECK")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-score-recycle", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-ENERGY-HUB",
+                ["P1-BATTLEFIELD-ENERGY-ATTACKER"],
+                ["P2-BATTLEFIELD-ENERGY-DEFENDER"],
+                ["COMBAT_ASSIGNMENT", paymentResourceAction]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(1, result.State.PlayerScores["P2"]);
+        Assert.Equal(0, result.State.RunePools["P2"].Power);
+        Assert.DoesNotContain(runeObjectId, result.State.PlayerZones["P2"].Base);
+        Assert.Equal(["P2-RUNE-BOTTOM-HELD-SCORE", runeObjectId], result.State.PlayerZones["P2"].RuneDeck);
+        Assert.Equal("RUNE_DECK", result.State.ObjectLocations[runeObjectId].Zone);
+        Assert.False(result.State.CardObjects[runeObjectId].IsExhausted);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
+        var recycleEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
+        var powerGainedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+        var costPaidEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal("BATTLEFIELD_HELD", recycleEvent.Payload["paymentWindow"]);
+        Assert.Equal("BATTLEFIELD_HELD", powerGainedEvent.Payload["paymentWindow"]);
+        Assert.Equal(costPaidEvent.Payload["paymentId"], recycleEvent.Payload["paymentId"]);
+        Assert.Equal(costPaidEvent.Payload["paymentId"], powerGainedEvent.Payload["paymentId"]);
+        Assert.Equal("BATTLEFIELD_HELD", costPaidEvent.Payload["paymentWindow"]);
+        Assert.Equal("BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", costPaidEvent.Payload["reason"]);
+        Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costPaidEvent.Payload["paymentResourceActions"]));
+        Assert.Equal([runeObjectId], Assert.IsType<string[]>(costPaidEvent.Payload["recycledRuneObjectIds"]));
+        Assert.Equal(4, costPaidEvent.Payload["genericPower"]);
+        Assert.Equal(4, costPaidEvent.Payload["totalPowerCost"]);
+        Assert.Equal(0, costPaidEvent.Payload["remainingPower"]);
+    }
+
+    [Theory]
+    [InlineData("unnecessary")]
+    [InlineData("wrong-player")]
+    [InlineData("missing-card-no")]
+    [InlineData("duplicate")]
+    public async Task P79BattlefieldHeldRejectsInvalidRecycleRunePaymentResourceWithoutMutation(string caseName)
+    {
+        const string validRuneObjectId = "P2-RUNE-RED-HELD-SCORE-INVALID";
+        const string wrongPlayerRuneObjectId = "P1-RUNE-RED-HELD-SCORE-INVALID";
+        var runeObjectId = string.Equals(caseName, "wrong-player", StringComparison.Ordinal)
+            ? wrongPlayerRuneObjectId
+            : validRuneObjectId;
+        var paymentResourceAction = $"RECYCLE_RUNE:{runeObjectId}";
+        var baseState = BattlefieldHeldScoreState();
+        var p2Pool = string.Equals(caseName, "unnecessary", StringComparison.Ordinal)
+            ? new RunePool(0, 4)
+            : new RunePool(0, 3);
+        var optionalCosts = string.Equals(caseName, "duplicate", StringComparison.Ordinal)
+            ? new[] { "COMBAT_ASSIGNMENT", paymentResourceAction, paymentResourceAction }
+            : ["COMBAT_ASSIGNMENT", paymentResourceAction];
+        var state = baseState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = p2Pool
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(baseState.PlayerZones, StringComparer.Ordinal)
+            {
+                ["P1"] = baseState.PlayerZones["P1"] with
+                {
+                    Base = [wrongPlayerRuneObjectId]
+                },
+                ["P2"] = baseState.PlayerZones["P2"] with
+                {
+                    Base = [validRuneObjectId],
+                    RuneDeck = ["P2-RUNE-BOTTOM-HELD-SCORE-INVALID"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(baseState.CardObjects, StringComparer.Ordinal)
+            {
+                [validRuneObjectId] = new(
+                    validRuneObjectId,
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    cardNo: string.Equals(caseName, "missing-card-no", StringComparison.Ordinal) ? null : "UNL-R01",
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                [wrongPlayerRuneObjectId] = new(
+                    wrongPlayerRuneObjectId,
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    cardNo: "UNL-R01",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-RUNE-BOTTOM-HELD-SCORE-INVALID"] = new(
+                    "P2-RUNE-BOTTOM-HELD-SCORE-INVALID",
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:blue"],
+                    cardNo: "UNL-R02",
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(baseState.ObjectLocations, StringComparer.Ordinal)
+            {
+                [validRuneObjectId] = new("P2", "BASE"),
+                [wrongPlayerRuneObjectId] = new("P1", "BASE"),
+                ["P2-RUNE-BOTTOM-HELD-SCORE-INVALID"] = new("P2", "RUNE_DECK")
+            }
+        };
+        var initialHash = MatchStateHasher.Hash(state);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent($"intent-p7-9-battlefield-held-score-invalid-recycle-{caseName}", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-ENERGY-HUB",
+                ["P1-BATTLEFIELD-ENERGY-ATTACKER"],
+                ["P2-BATTLEFIELD-ENERGY-DEFENDER"],
+                optionalCosts),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Empty(result.Events);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldScoreCanOnlyScoreSameBattlefieldOncePerTurn()
     {
         var state = BattlefieldHeldScoreState() with
