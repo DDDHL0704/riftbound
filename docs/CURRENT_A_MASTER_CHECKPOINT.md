@@ -5,7 +5,7 @@
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
 
-最新 checkpoint：`bc4f6813 checkpoint: record stage 4C static effect design gate`。上一 Stage 4C checkpoint：`4c66e7aa checkpoint: record stage 4C babbling poro predict evidence`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
+最新 checkpoint：待提交 `stage 4C-96 legacy guard evidence alignment`。上一 Stage 4C checkpoint：`bc4f6813 checkpoint: record stage 4C static effect design gate`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
 
 ## 0. A 主控职责边界
 
@@ -5067,3 +5067,26 @@ Checkpoint 记录：
 - 现有 fixture 只证明普通 hand `PLAY_CARD` 进入基地成为单位对象。
 - fixture 描述与 `rules-evidence-index.md` 均明确写着核心官方文本 deferred：其他友方单位活跃进场、回合结束活跃符文、法术/技能伤害 +1、龙单位打出后活跃符文。
 - 这些 FU 仍保持 `IMPLEMENTED_UNTESTED` / `NEEDS_AUTOMATED_TEST_EVIDENCE`，需要后续功能设计、实现和新证据入账。
+
+## 58. Stage 4C-96 Legacy Guard Evidence Alignment
+
+状态：**Stage 4C-96 representative evidence alignment 已记录；项目整体仍 NOT READY。**
+
+本批范围：
+
+- 审计入口：`docs/CURRENT_STAGE4C_BATCH96_LEGACY_GUARD_EVIDENCE_ALIGNMENT_AUDIT.md`。
+- 证据入口：`docs/CURRENT_STAGE4C_BATCH96_LEGACY_GUARD_EVIDENCE_ALIGNMENT_EVIDENCE.md`。
+- 对 Stage 4C-60 至 Stage 4C-69 已有代表性自动化证据的 10 个 direct-card FU 做矩阵状态对齐：烈火风暴、过载能量、狩猎、大副、怒海大鲨炮、德玛西亚使节、提伯斯、泡泡机、宝藏魔像、忠实的工坊主。
+- 更新 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 的 `stage4CBatch96LegacyGuardEvidenceAlignment`、`functionalUnits[].stage4C96` 与 `snapshotEntries[].stage4C96`。
+- 将上述 10 个 FU 的 `stage4B.freezeStatus` 从 `IMPLEMENTED_UNTESTED` 升级为 `IMPLEMENTED_TESTED`，并将自动化状态改为 `REPRESENTATIVE_AUTOMATED_EVIDENCE_PRESENT`；`fullOfficial=false` 保持不变。
+
+通过证据：
+
+- focused legacy guard regression：67/67 通过。
+- adjacent legacy guard regression：193/193 通过。
+- backend full：3771/3771 通过。
+
+口径：
+
+- 本批不修改功能代码、测试代码或前端代码，只做 matrix / docs evidence alignment。
+- 不声明完整 same-battlefield、standby / reaction、quick / spell-duel、FEPR、PaymentEngine、replacement / prevention、cleanup、LayerEngine、hidden-info / redaction、FAQ full adjudication、1009/811 full-official 或 READY。
