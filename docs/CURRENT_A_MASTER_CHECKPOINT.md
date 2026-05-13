@@ -19,6 +19,8 @@
 
 2026-05-14 4D-03T focused slice 已验收：OGN 六张 Sigil typed payment-only resource skills 已接入服务端 prompt / command / temporary payment ledger / payment / audit representative。审计与证据见 `docs/CURRENT_STAGE4D_03T_PAYMENT_ENGINE_OGN_SIGIL_TYPED_RESOURCE_FAMILY_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03T_PAYMENT_ENGINE_OGN_SIGIL_TYPED_RESOURCE_FAMILY_EVIDENCE.md`；focused 238/238、adjacent 486/486、backend full 4068/4068、`git diff --check` 通过。该切片只收口 SFD + OGN Sigil family representative，不关闭完整 `[A]` / `[C]` resource skill family、P0-005 或 READY；项目仍 **NOT READY**。
 
+2026-05-14 4D-03U handoff / baseline 已建立：下一 PaymentEngine breadth 切片锁定 `OGN·098/298` 能量通道、`SFD·117/221` 远古簇碑、`SFD·083/221` 海克斯异常体三张 resource conversion equipment skills。交接规格见 `docs/CURRENT_STAGE4D_03U_PAYMENT_ENGINE_RESOURCE_CONVERSION_EQUIPMENT_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_03U_PAYMENT_ENGINE_RESOURCE_CONVERSION_EQUIPMENT_BASELINE_EVIDENCE.md`；focused baseline 209/209、adjacent baseline 464/464 通过。该切片只处理三张 conversion equipment，不关闭完整 `[A]` / `[C]` resource skill family、P0-005 或 READY；项目仍 **NOT READY**。
+
 2026-05-13 4D-03G 已验收：battlefield held score `RECYCLE_RUNE:*` payment resource action focused slice 通过 A 侧复核，focused 22/22、adjacent 224/224、backend full 3809/3809、`git diff --check` 通过。本切片不关闭 P0-005。
 
 2026-05-13 4D-03H handoff / baseline retained：窄切片锁定 `SFD·180/221` / `SFD·180a/221` 菲奥娜“友方单位变为强力后可支付黄色使其活跃”的 trigger payment resource action。A 已确认现有 `ResolveTriggerPayCost` 仍为 mana-only 特化，普通 pending `PAY_COST` 已有 resource-action foundation；实现前 focused baseline 55/55、adjacent baseline 233/233 通过。该基线已被下方 4D-03H focused slice 验收 supersede，仍保留为回归护栏。

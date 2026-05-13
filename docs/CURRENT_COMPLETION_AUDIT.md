@@ -55,6 +55,8 @@
 
 2026-05-14 4D-03T focused slice 补充：OGN Sigil typed resource family representative 已验收，入口为 `docs/CURRENT_STAGE4D_03T_PAYMENT_ENGINE_OGN_SIGIL_TYPED_RESOURCE_FAMILY_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03T_PAYMENT_ENGINE_OGN_SIGIL_TYPED_RESOURCE_FAMILY_EVIDENCE.md`；focused 238/238、adjacent 486/486、backend full 4068/4068、`git diff --check` 通过。该补充只验收 OGN 六张 Sigil typed payment-only resource skills，并把 SFD + OGN Sigil family representative 收口，不关闭完整 `[A]` / `[C]` resource skill family 或 P0-005 full official；项目整体仍 **NOT READY**。
 
+2026-05-14 4D-03U handoff / baseline 补充：resource conversion equipment 下一服务端切片已建立，目标为 `OGN·098/298` 能量通道、`SFD·117/221` 远古簇碑、`SFD·083/221` 海克斯异常体三张 reaction resource conversion equipment skills。入口为 `docs/CURRENT_STAGE4D_03U_PAYMENT_ENGINE_RESOURCE_CONVERSION_EQUIPMENT_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03U_PAYMENT_ENGINE_RESOURCE_CONVERSION_EQUIPMENT_BASELINE_EVIDENCE.md`；focused baseline 209/209、adjacent baseline 464/464 通过。该补充只建立实现前回归护栏，不代表功能完成，不关闭 P0-005 full official；项目整体仍 **NOT READY**。
+
 4C-85 不修改功能代码，只把既有服务端权威符文资源域证据入账：官方符文卡映射到 non-play `RUNE_RESOURCE_DOMAIN`，不进入 direct `PLAY_CARD` registry；控制者基地符文通过服务端 `RECYCLE_RUNE` / `paymentResourcePowerByChoice` 暴露 trait/power 支付资源；typed `SPEND_POWER:red:2` 接受 red 资源并拒绝 blue 资源，generic `SPEND_POWER:2` 可接受 red / blue 任一服务端候选且防止过量回收。Focused / primary regression 命令：
 
 ```sh
