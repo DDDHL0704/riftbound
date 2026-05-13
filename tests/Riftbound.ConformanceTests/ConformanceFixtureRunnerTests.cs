@@ -51175,7 +51175,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("ASSEMBLE_EQUIPMENT", recycleEvent.Payload["paymentWindow"]);
         var costPaidEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Equal(
-            ["ASSEMBLE_RED", "RECYCLE_RUNE:P1-RUNE-RED-ASSEMBLE-PAYMENT"],
+            ["ASSEMBLE_RED"],
             Assert.IsType<string[]>(costPaidEvent.Payload["optionalCosts"]));
         Assert.Equal(
             ["RECYCLE_RUNE:P1-RUNE-RED-ASSEMBLE-PAYMENT"],

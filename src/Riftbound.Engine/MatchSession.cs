@@ -6105,7 +6105,7 @@ internal static class ActionPromptBuilder
             return [];
         }
 
-        return zones.Base
+        var recycleChoices = zones.Base
             .Where(objectId => IsRecycleRuneSource(state, playerId, objectId))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .Select(objectId =>
@@ -6117,6 +6117,138 @@ internal static class ActionPromptBuilder
                     choice.Reason);
             })
             .ToArray();
+        var temporaryChoices = TemporaryPaymentResourceChoicesForGenericPower(
+            state,
+            playerId,
+            ability.PowerCost,
+            new Dictionary<string, int>(StringComparer.Ordinal),
+            "payment resource action: temporary resource for activate ability power");
+        return recycleChoices.Concat(temporaryChoices).ToArray();
+    }
+
+    private static int GenericPowerShortfallForTemporaryPaymentResources(
+        RunePool runePool,
+        int genericPowerCost,
+        IReadOnlyDictionary<string, int> powerCostByTrait)
+    {
+        if (genericPowerCost <= 0
+            || PaymentCostRules.CanPayPowerCost(runePool, genericPowerCost, powerCostByTrait))
+        {
+            return 0;
+        }
+
+        var remainingPowerByTrait = runePool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        foreach (var cost in PaymentCostRules.NormalizePowerCostByTrait(powerCostByTrait))
+        {
+            if (!remainingPowerByTrait.TryGetValue(cost.Key, out var available)
+                || available < cost.Value)
+            {
+                return 0;
+            }
+
+            remainingPowerByTrait[cost.Key] = available - cost.Value;
+        }
+
+        return Math.Max(0, genericPowerCost - (runePool.Power + remainingPowerByTrait.Values.Sum()));
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> TemporaryPaymentResourceChoicesForGenericPower(
+        MatchState state,
+        string playerId,
+        int genericPowerCost,
+        IReadOnlyDictionary<string, int> powerCostByTrait,
+        string reason)
+    {
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        var shortfall = GenericPowerShortfallForTemporaryPaymentResources(
+            runePool,
+            genericPowerCost,
+            powerCostByTrait);
+        if (shortfall <= 0)
+        {
+            return [];
+        }
+
+        var eligibleResources = state.TemporaryPaymentResources
+            .Where(resource => string.Equals(resource.OwnerPlayerId, playerId, StringComparison.Ordinal)
+                && resource.RemainingPower > 0
+                && resource.AllowedPaymentKinds.Contains(PaymentCostRules.RuneCostPaymentKind, StringComparer.Ordinal))
+            .OrderBy(resource => resource.ResourceId, StringComparer.Ordinal)
+            .ToArray();
+        return eligibleResources.Sum(resource => resource.RemainingPower) >= shortfall
+            ? eligibleResources
+                .Select(resource => new ActionPromptChoiceDto(
+                    PaymentCostRules.TemporaryPaymentResourceActionId(resource.ResourceId),
+                    $"临时费用符能支付：{resource.RemainingPower}",
+                    reason))
+                .ToArray()
+            : [];
+    }
+
+    private static int TemporaryPaymentResourcePowerForGenericPower(
+        MatchState state,
+        string playerId,
+        int genericPowerCost,
+        IReadOnlyDictionary<string, int> powerCostByTrait)
+    {
+        var choices = TemporaryPaymentResourceChoicesForGenericPower(
+            state,
+            playerId,
+            genericPowerCost,
+            powerCostByTrait,
+            "temporary payment resource");
+        if (choices.Count == 0)
+        {
+            return 0;
+        }
+
+        var resourceIds = choices
+            .Select(choice => choice.Id[PaymentCostRules.TemporaryPaymentResourceActionPrefix.Length..])
+            .ToHashSet(StringComparer.Ordinal);
+        return state.TemporaryPaymentResources
+            .Where(resource => resourceIds.Contains(resource.ResourceId))
+            .Sum(resource => resource.RemainingPower);
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> TemporaryPaymentResourcePowerByChoice(
+        MatchState state,
+        IEnumerable<ActionPromptChoiceDto> choices)
+    {
+        var resourceIdsByChoiceId = choices
+            .Where(choice => PaymentCostRules.TryParseTemporaryPaymentResourceActionId(choice.Id, out _))
+            .Select(choice =>
+            {
+                PaymentCostRules.TryParseTemporaryPaymentResourceActionId(choice.Id, out var resourceId);
+                return (choice.Id, ResourceId: resourceId);
+            })
+            .ToDictionary(entry => entry.Id, entry => entry.ResourceId, StringComparer.Ordinal);
+        if (resourceIdsByChoiceId.Count == 0)
+        {
+            return new Dictionary<string, IReadOnlyDictionary<string, object?>>(StringComparer.Ordinal);
+        }
+
+        var resourcesById = state.TemporaryPaymentResources
+            .ToDictionary(resource => resource.ResourceId, resource => resource, StringComparer.Ordinal);
+        return resourceIdsByChoiceId
+            .Where(entry => resourcesById.ContainsKey(entry.Value))
+            .ToDictionary(
+                entry => entry.Key,
+                entry =>
+                {
+                    var resource = resourcesById[entry.Value];
+                    return (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>(StringComparer.Ordinal)
+                    {
+                        ["trait"] = string.Empty,
+                        ["power"] = resource.RemainingPower,
+                        ["paymentOnly"] = true,
+                        ["temporaryPaymentResourceId"] = resource.ResourceId,
+                        ["resourceRestriction"] = P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction,
+                        ["allowedPaymentKinds"] = resource.AllowedPaymentKinds.ToArray()
+                    };
+                },
+                StringComparer.Ordinal);
     }
 
     private static IReadOnlyDictionary<string, int> ActivateAbilityPaymentResourcePowerByTrait(
@@ -6134,7 +6266,7 @@ internal static class ActionPromptBuilder
         var choiceIds = choices
             .Select(choice => choice.Id)
             .ToHashSet(StringComparer.Ordinal);
-        return zones.Base
+        var powerByTrait = zones.Base
             .Where(objectId => choiceIds.Contains($"{RecycleRunePaymentOptionalCostPrefix}{objectId}"))
             .Select(objectId => state.CardObjects.TryGetValue(objectId, out var runeState)
                 && TryGetRuneTrait(runeState, out var runeTrait)
@@ -6146,6 +6278,17 @@ internal static class ActionPromptBuilder
                 group => group.Key,
                 group => group.Count() * BasicRuneRecyclePowerGain,
                 StringComparer.Ordinal);
+        var temporaryPower = TemporaryPaymentResourcePowerForGenericPower(
+            state,
+            playerId,
+            ability.PowerCost,
+            new Dictionary<string, int>(StringComparer.Ordinal));
+        if (temporaryPower > 0)
+        {
+            powerByTrait[string.Empty] = temporaryPower;
+        }
+
+        return powerByTrait;
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> ActivateAbilityPaymentResourcePowerByChoice(
@@ -6159,7 +6302,7 @@ internal static class ActionPromptBuilder
             return new Dictionary<string, IReadOnlyDictionary<string, object?>>(StringComparer.Ordinal);
         }
 
-        return choices.ToDictionary(
+        var metadata = choices.ToDictionary(
             choice => choice.Id,
             choice =>
             {
@@ -6181,6 +6324,12 @@ internal static class ActionPromptBuilder
                 };
             },
             StringComparer.Ordinal);
+        foreach (var entry in TemporaryPaymentResourcePowerByChoice(state, choices))
+        {
+            metadata[entry.Key] = entry.Value;
+        }
+
+        return metadata;
     }
 
     private static int ActivateAbilityAvailablePowerWithPaymentResources(
@@ -6585,7 +6734,10 @@ internal static class ActionPromptBuilder
             paymentResourcePowerByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
         if (AssembleEquipmentUsesAnyPower(assembleProfile))
         {
-            return runePool.Power + availablePowerByTrait.Values.Sum() >= assembleProfile.PowerCost;
+            var genericPaymentResourcePower = (paymentResourcePowerByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal))
+                .Where(entry => string.IsNullOrWhiteSpace(RuneTrait.Normalize(entry.Key)))
+                .Sum(entry => Math.Max(0, entry.Value));
+            return runePool.Power + availablePowerByTrait.Values.Sum() + genericPaymentResourcePower >= assembleProfile.PowerCost;
         }
 
         return availablePowerByTrait.TryGetValue(assembleProfile.PowerTrait, out var power)
@@ -6636,7 +6788,7 @@ internal static class ActionPromptBuilder
             return [];
         }
 
-        return zones.Base
+        var recycleChoices = zones.Base
             .Where(objectId => IsRecycleRuneSource(state, playerId, objectId))
             .Where(objectId => state.CardObjects.TryGetValue(objectId, out var runeState)
                 && TryGetRuneTrait(runeState, out var runeTrait)
@@ -6652,6 +6804,15 @@ internal static class ActionPromptBuilder
                     choice.Reason);
             })
             .ToArray();
+        var temporaryChoices = AssembleEquipmentUsesAnyPower(assembleProfile)
+            ? TemporaryPaymentResourceChoicesForGenericPower(
+                state,
+                playerId,
+                assembleProfile.PowerCost,
+                new Dictionary<string, int>(StringComparer.Ordinal),
+                assembleProfile.PaymentResourceReason)
+            : [];
+        return recycleChoices.Concat(temporaryChoices).ToArray();
     }
 
     private static IReadOnlyDictionary<string, int> AssembleEquipmentPaymentResourcePowerByTrait(
@@ -6670,7 +6831,7 @@ internal static class ActionPromptBuilder
             var choiceIds = choices
                 .Select(choice => choice.Id)
                 .ToHashSet(StringComparer.Ordinal);
-            return state.PlayerZones.TryGetValue(playerId, out var zones)
+            var powerByTrait = state.PlayerZones.TryGetValue(playerId, out var zones)
                 ? zones.Base
                     .Where(objectId => choiceIds.Contains($"{RecycleRunePaymentOptionalCostPrefix}{objectId}"))
                     .Select(objectId => state.CardObjects.TryGetValue(objectId, out var runeState)
@@ -6684,6 +6845,17 @@ internal static class ActionPromptBuilder
                         group => group.Count() * BasicRuneRecyclePowerGain,
                         StringComparer.Ordinal)
                 : new Dictionary<string, int>(StringComparer.Ordinal);
+            var temporaryPower = TemporaryPaymentResourcePowerForGenericPower(
+                state,
+                playerId,
+                assembleProfile.PowerCost,
+                new Dictionary<string, int>(StringComparer.Ordinal));
+            if (temporaryPower > 0)
+            {
+                powerByTrait[string.Empty] = temporaryPower;
+            }
+
+            return powerByTrait;
         }
 
         return new Dictionary<string, int>(StringComparer.Ordinal)
@@ -6703,7 +6875,7 @@ internal static class ActionPromptBuilder
             return new Dictionary<string, IReadOnlyDictionary<string, object?>>(StringComparer.Ordinal);
         }
 
-        return choices.ToDictionary(
+        var metadata = choices.ToDictionary(
             choice => choice.Id,
             choice =>
             {
@@ -6726,6 +6898,12 @@ internal static class ActionPromptBuilder
                 };
             },
             StringComparer.Ordinal);
+        foreach (var entry in TemporaryPaymentResourcePowerByChoice(state, choices))
+        {
+            metadata[entry.Key] = entry.Value;
+        }
+
+        return metadata;
     }
 
     private static bool AssembleEquipmentUsesAnyPower(AssembleEquipmentProfile assembleProfile)
@@ -8409,7 +8587,7 @@ internal static class ActionPromptBuilder
             return [];
         }
 
-        return zones.Base
+        var recycleChoices = zones.Base
             .Where(objectId => IsRecycleRuneSource(state, playerId, objectId))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .Select(objectId =>
@@ -8421,6 +8599,36 @@ internal static class ActionPromptBuilder
                     choice.Reason);
             })
             .ToArray();
+        var temporaryChoices = TemporaryPaymentResourceChoicesForGenericPower(
+            state,
+            playerId,
+            PlayCardTemporaryPaymentGenericPowerCost(state, playerId, behavior),
+            new Dictionary<string, int>(StringComparer.Ordinal),
+            "payment resource action: temporary resource for generic power");
+        return recycleChoices.Concat(temporaryChoices).ToArray();
+    }
+
+    private static int PlayCardTemporaryPaymentGenericPowerCost(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        var genericPowerCosts = new List<int>();
+        if (behavior.DamageAmountFromOptionalPowerCost)
+        {
+            var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+                ? currentPool
+                : RunePool.Empty;
+            genericPowerCosts.Add(runePool.TotalPower + 1);
+        }
+
+        if (behavior.HasteReadyPowerCost > 0
+            && string.IsNullOrWhiteSpace(HasteReadyPowerTrait(behavior)))
+        {
+            genericPowerCosts.Add(behavior.HasteReadyPowerCost);
+        }
+
+        return genericPowerCosts.Count == 0 ? 0 : genericPowerCosts.Max();
     }
 
     private static IReadOnlyDictionary<string, int> PlayCardPaymentResourcePowerByTraitForBehavior(
@@ -8448,7 +8656,7 @@ internal static class ActionPromptBuilder
             return new Dictionary<string, int>(StringComparer.Ordinal);
         }
 
-        return zones.Base
+        var powerByTrait = zones.Base
             .Where(objectId => IsRecycleRuneSource(state, playerId, objectId))
             .Select(objectId => state.CardObjects[objectId])
             .Select(runeState => TryGetRuneTrait(runeState, out var runeTrait) ? runeTrait : string.Empty)
@@ -8458,6 +8666,17 @@ internal static class ActionPromptBuilder
                 group => group.Key,
                 group => group.Count() * BasicRuneRecyclePowerGain,
                 StringComparer.Ordinal);
+        var temporaryPower = TemporaryPaymentResourcePowerForGenericPower(
+            state,
+            playerId,
+            PlayCardTemporaryPaymentGenericPowerCost(state, playerId, behavior),
+            new Dictionary<string, int>(StringComparer.Ordinal));
+        if (temporaryPower > 0)
+        {
+            powerByTrait[string.Empty] = temporaryPower;
+        }
+
+        return powerByTrait;
     }
 
     private static IReadOnlyDictionary<string, int> PlayCardAvailablePowerByTrait(
@@ -9642,7 +9861,7 @@ internal static class ActionPromptBuilder
             return new Dictionary<string, IReadOnlyDictionary<string, object?>>(StringComparer.Ordinal);
         }
 
-        return zones.Base
+        var metadata = zones.Base
             .Where(objectId => IsRecycleRuneSource(state, playerId, objectId))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .Select(objectId => state.CardObjects[objectId])
@@ -9659,6 +9878,14 @@ internal static class ActionPromptBuilder
                     };
                 },
                 StringComparer.Ordinal);
+        foreach (var entry in TemporaryPaymentResourcePowerByChoice(
+                     state,
+                     PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior)))
+        {
+            metadata[entry.Key] = entry.Value;
+        }
+
+        return metadata;
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto>? PlayCardDestinationChoicesForBehavior(

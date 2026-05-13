@@ -2222,9 +2222,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         var resourcesById = state.TemporaryPaymentResources
             .ToDictionary(resource => resource.ResourceId, resource => resource, StringComparer.Ordinal);
         var selectedResources = new List<TemporaryPaymentResourceState>();
+        var seenResourceIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var actionId in submittedTemporaryPaymentResourceActions)
         {
             if (!PaymentCostRules.TryParseTemporaryPaymentResourceActionId(actionId, out var resourceId)
+                || !seenResourceIds.Add(resourceId)
                 || !resourcesById.TryGetValue(resourceId, out var resource)
                 || !string.Equals(resource.OwnerPlayerId, pendingPayment.PlayerId, StringComparison.Ordinal)
                 || resource.RemainingPower <= 0
@@ -3238,6 +3240,25 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static PendingPaymentState BuildInlineTemporaryPaymentWindow(
+        string paymentId,
+        string paymentWindow,
+        string playerId,
+        int genericPowerCost,
+        IReadOnlyDictionary<string, int> powerCostByTrait,
+        string reason,
+        IReadOnlyList<string> paymentResourceActionIds)
+    {
+        return new PendingPaymentState(
+            paymentId,
+            paymentWindow,
+            playerId,
+            powerCost: genericPowerCost,
+            powerCostByTrait: powerCostByTrait,
+            reason: reason,
+            paymentResourceActionIds: paymentResourceActionIds);
+    }
+
     private static IReadOnlyList<TriggerControllerBlock> BuildLegalResolutionTriggerControllerBlocks(MatchState state)
     {
         return BuildApnapTriggerControllerBlocks(state)
@@ -3789,6 +3810,31 @@ public sealed class CoreRuleEngine : IRuleEngine
             paymentEvents,
             paymentWindow,
             paymentId);
+        var inlineTemporaryPayment = BuildInlineTemporaryPaymentWindow(
+            paymentPlan.PaymentId,
+            paymentPlan.PaymentWindow,
+            intent.PlayerId,
+            plan.AnyPowerCost,
+            plan.PowerCostByTrait,
+            behavior.EffectKind,
+            plan.PaymentResourceActions);
+        if (!TryApplyTemporaryPaymentResourcesToPendingPayment(
+                state,
+                inlineTemporaryPayment,
+                plan.TemporaryPaymentResourceActions,
+                runePools,
+                out var temporaryAdjustedRunePools,
+                out var nextTemporaryPaymentResources,
+                out var consumedTemporaryPaymentResources,
+                out var temporaryResourceRejection))
+        {
+            return RejectWithCorePrompts(
+                state,
+                temporaryResourceRejection,
+                ErrorCodes.InsufficientCost);
+        }
+
+        runePools = temporaryAdjustedRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var paymentCommit = PaymentCostRules.TryCommitPayment(
             paymentPlan,
             runePools,
@@ -3892,6 +3938,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             PlayerZones = playerZones,
             ObjectLocations = objectLocations,
             CardObjects = cardObjects,
+            TemporaryPaymentResources = nextTemporaryPaymentResources,
             PriorityPlayerId = intent.PlayerId,
             PassedPriorityPlayerIds = [],
             FocusPlayerId = string.Equals(state.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
@@ -3918,6 +3965,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 })
         };
         events.AddRange(paymentEvents);
+        events.AddRange(BuildTemporaryPaymentResourcePaymentEvents(
+            inlineTemporaryPayment,
+            intent.PlayerId,
+            consumedTemporaryPaymentResources));
         events.Add(
             new GameEvent(
                 "COST_PAID",
@@ -3945,7 +3996,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["spellshieldTaxTargetObjectIds"] = plan.SpellshieldTaxTargetObjectIds.ToArray(),
                     ["optionalCosts"] = plan.OptionalCosts.ToArray(),
                     ["paymentResourceActions"] = plan.PaymentResourceActions.ToArray(),
-                    ["recycledRuneObjectIds"] = plan.RecycledPaymentRuneObjectIds.ToArray()
+                    ["recycledRuneObjectIds"] = plan.RecycledPaymentRuneObjectIds.ToArray(),
+                    ["temporaryPaymentResourceIds"] = consumedTemporaryPaymentResources
+                        .Select(resource => resource.ResourceId)
+                        .ToArray(),
+                    ["temporaryPaymentResourcePower"] = consumedTemporaryPaymentResources
+                        .Sum(resource => resource.ConsumedPower)
                 })));
         if (battlefieldNextSpellEchoConsumed)
         {
@@ -4435,13 +4491,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
-        if (!TryExtractRecycleRunePaymentResourceActions(
+        if (!TryExtractInlinePaymentResourceActions(
                 state,
                 intent.PlayerId,
                 optionalCosts,
-                out _,
+                out var behaviorOptionalCosts,
                 out var paymentResourceActions,
-                out var recycledRuneObjectIds))
+                out var recycledRuneObjectIds,
+                out var temporaryPaymentResourceActions))
         {
             return RejectWithCorePrompts(
                 state,
@@ -4482,7 +4539,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             totalPowerCost: assembleAnyPowerCost + assemblePowerCostByTrait.Values.Sum(),
             powerCostByTrait: assemblePowerCostByTrait,
             experienceCost: assembleProfile.ExperienceCost,
-            optionalCostIds: optionalCosts,
+            optionalCostIds: behaviorOptionalCosts,
             paymentResourceActionIds: paymentResourceActions,
             reason: "ASSEMBLE_EQUIPMENT",
             sourceObjectId: command.SourceObjectId);
@@ -4500,6 +4557,31 @@ public sealed class CoreRuleEngine : IRuleEngine
             paymentEvents,
             paymentWindow,
             paymentId);
+        var inlineTemporaryPayment = BuildInlineTemporaryPaymentWindow(
+            paymentPlan.PaymentId,
+            paymentPlan.PaymentWindow,
+            intent.PlayerId,
+            assembleAnyPowerCost,
+            assemblePowerCostByTrait,
+            "ASSEMBLE_EQUIPMENT",
+            paymentResourceActions);
+        if (!TryApplyTemporaryPaymentResourcesToPendingPayment(
+                state,
+                inlineTemporaryPayment,
+                temporaryPaymentResourceActions,
+                runePools,
+                out var temporaryAdjustedRunePools,
+                out var nextTemporaryPaymentResources,
+                out var consumedTemporaryPaymentResources,
+                out var temporaryResourceRejection))
+        {
+            return RejectWithCorePrompts(
+                state,
+                temporaryResourceRejection,
+                ErrorCodes.InsufficientCost);
+        }
+
+        runePools = temporaryAdjustedRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var paymentAdjustedPool = runePools.TryGetValue(intent.PlayerId, out var adjustedPool)
             ? adjustedPool
             : RunePool.Empty;
@@ -4600,6 +4682,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             PlayerZones = playerZones,
             CardObjects = cardObjects,
             ObjectLocations = objectLocations,
+            TemporaryPaymentResources = nextTemporaryPaymentResources,
             RngCursor = rngCursor,
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(
                 state.DestroyedUnitOwnerIdsThisTurn,
@@ -4607,6 +4690,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             PassedPriorityPlayerIds = []
         };
         var events = new List<GameEvent>(paymentEvents);
+        events.AddRange(BuildTemporaryPaymentResourcePaymentEvents(
+            inlineTemporaryPayment,
+            intent.PlayerId,
+            consumedTemporaryPaymentResources));
         events.Add(
             new(
                 "COST_PAID",
@@ -4625,8 +4712,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["experience"] = assembleProfile.ExperienceCost,
                     ["sourceObjectId"] = command.SourceObjectId,
                     ["targetObjectId"] = command.TargetObjectId,
-                    ["optionalCosts"] = optionalCosts.ToArray(),
+                    ["optionalCosts"] = behaviorOptionalCosts.ToArray(),
                     ["paymentResourceActions"] = paymentResourceActions.ToArray(),
+                    ["temporaryPaymentResourceIds"] = consumedTemporaryPaymentResources
+                        .Select(resource => resource.ResourceId)
+                        .ToArray(),
+                    ["temporaryPaymentResourcePower"] = consumedTemporaryPaymentResources
+                        .Sum(resource => resource.ConsumedPower),
                     ["destroyedAdditionalCostTargetObjectIds"] = destroyedAdditionalCostTargetObjectIds.ToArray(),
                     ["recycledAdditionalCostTargetObjectIds"] = recycledAdditionalCostTargetObjectIds.ToArray()
                 })));
@@ -4703,11 +4795,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
-        if (!TryExtractRecycleRunePaymentResourceActions(
+        if (!TryExtractInlinePaymentResourceActions(
                 state,
                 intent.PlayerId,
                 optionalCosts,
                 out var behaviorOptionalCosts,
+                out _,
                 out _,
                 out _)
             || string.IsNullOrWhiteSpace(command.SourceObjectId)
@@ -6013,13 +6106,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        if (!TryExtractRecycleRunePaymentResourceActions(
+        if (!TryExtractInlinePaymentResourceActions(
                 state,
                 intent.PlayerId,
                 normalizedOptionalCosts,
                 out var behaviorOptionalCosts,
                 out var paymentResourceActions,
-                out var recycledRuneObjectIds)
+                out var recycledRuneObjectIds,
+                out var temporaryPaymentResourceActions)
             || behaviorOptionalCosts.Count != 0)
         {
             return RejectWithCorePrompts(
@@ -6107,6 +6201,31 @@ public sealed class CoreRuleEngine : IRuleEngine
             paymentEvents,
             paymentWindow,
             paymentId);
+        var inlineTemporaryPayment = BuildInlineTemporaryPaymentWindow(
+            paymentPlan.PaymentId,
+            paymentPlan.PaymentWindow,
+            intent.PlayerId,
+            ability.PowerCost,
+            new Dictionary<string, int>(StringComparer.Ordinal),
+            ability.EffectKind,
+            paymentResourceActions);
+        if (!TryApplyTemporaryPaymentResourcesToPendingPayment(
+                state,
+                inlineTemporaryPayment,
+                temporaryPaymentResourceActions,
+                runePools,
+                out var temporaryAdjustedRunePools,
+                out var nextTemporaryPaymentResources,
+                out var consumedTemporaryPaymentResources,
+                out var temporaryResourceRejection))
+        {
+            return RejectWithCorePrompts(
+                state,
+                temporaryResourceRejection,
+                ErrorCodes.InsufficientCost);
+        }
+
+        runePools = temporaryAdjustedRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var adjustedPool = runePools.TryGetValue(intent.PlayerId, out var paymentAdjustedPool)
             ? paymentAdjustedPool
             : RunePool.Empty;
@@ -6159,12 +6278,17 @@ public sealed class CoreRuleEngine : IRuleEngine
             PlayerZones = playerZones,
             CardObjects = cardObjects,
             ObjectLocations = ReconcileObjectLocations(objectLocations, playerZones),
+            TemporaryPaymentResources = nextTemporaryPaymentResources,
             PriorityPlayerId = intent.PlayerId,
             PassedPriorityPlayerIds = [],
             StackItems = state.StackItems.Concat([stackItem]).ToArray()
         };
-        var events = new List<GameEvent>(paymentEvents)
-        {
+        var events = new List<GameEvent>(paymentEvents);
+        events.AddRange(BuildTemporaryPaymentResourcePaymentEvents(
+            inlineTemporaryPayment,
+            intent.PlayerId,
+            consumedTemporaryPaymentResources));
+        events.AddRange([
             new(
                 "ABILITY_ACTIVATED",
                 $"{intent.PlayerId} 激活蔚的技能",
@@ -6187,7 +6311,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["playerId"] = intent.PlayerId,
                     ["mana"] = ability.ManaCost,
                     ["power"] = ability.PowerCost,
-                    ["abilityId"] = command.AbilityId
+                    ["abilityId"] = command.AbilityId,
+                    ["temporaryPaymentResourceIds"] = consumedTemporaryPaymentResources
+                        .Select(resource => resource.ResourceId)
+                        .ToArray(),
+                    ["temporaryPaymentResourcePower"] = consumedTemporaryPaymentResources
+                        .Sum(resource => resource.ConsumedPower)
                 })),
             new(
                 "STACK_ITEM_ADDED",
@@ -6202,7 +6331,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["effectKind"] = stackItem.EffectKind,
                     ["abilityId"] = command.AbilityId
                 })
-        };
+        ]);
 
         return new ResolutionResult(
             true,
@@ -8442,13 +8571,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var normalizedOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
-        if (!TryExtractRecycleRunePaymentResourceActions(
+        if (!TryExtractInlinePaymentResourceActions(
                 state,
                 intent.PlayerId,
                 normalizedOptionalCosts,
                 out var behaviorOptionalCosts,
                 out var paymentResourceActions,
-                out var recycledRuneObjectIds)
+                out var recycledRuneObjectIds,
+                out var temporaryPaymentResourceActions)
             || behaviorOptionalCosts.Count != 0)
         {
             return RejectWithCorePrompts(
@@ -8576,6 +8706,31 @@ public sealed class CoreRuleEngine : IRuleEngine
             paymentEvents,
             paymentWindow,
             paymentId);
+        var inlineTemporaryPayment = BuildInlineTemporaryPaymentWindow(
+            paymentPlan.PaymentId,
+            paymentPlan.PaymentWindow,
+            intent.PlayerId,
+            ability.PowerCost,
+            new Dictionary<string, int>(StringComparer.Ordinal),
+            ability.EffectKind,
+            paymentResourceActions);
+        if (!TryApplyTemporaryPaymentResourcesToPendingPayment(
+                state,
+                inlineTemporaryPayment,
+                temporaryPaymentResourceActions,
+                runePools,
+                out var temporaryAdjustedRunePools,
+                out var nextTemporaryPaymentResources,
+                out var consumedTemporaryPaymentResources,
+                out var temporaryResourceRejection))
+        {
+            return RejectWithCorePrompts(
+                state,
+                temporaryResourceRejection,
+                ErrorCodes.InsufficientCost);
+        }
+
+        runePools = temporaryAdjustedRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var adjustedPool = runePools.TryGetValue(intent.PlayerId, out var paymentAdjustedPool)
             ? paymentAdjustedPool
             : RunePool.Empty;
@@ -8637,13 +8792,18 @@ public sealed class CoreRuleEngine : IRuleEngine
             PlayerZones = playerZones,
             CardObjects = cardObjects,
             ObjectLocations = ReconcileObjectLocations(objectLocations, playerZones),
+            TemporaryPaymentResources = nextTemporaryPaymentResources,
             UntilEndOfTurnEffects = untilEndOfTurnEffects,
             PriorityPlayerId = intent.PlayerId,
             PassedPriorityPlayerIds = [],
             StackItems = state.StackItems.Concat([stackItem]).ToArray()
         };
-        var events = new List<GameEvent>(paymentEvents)
-        {
+        var events = new List<GameEvent>(paymentEvents);
+        events.AddRange(BuildTemporaryPaymentResourcePaymentEvents(
+            inlineTemporaryPayment,
+            intent.PlayerId,
+            consumedTemporaryPaymentResources));
+        events.AddRange([
             new(
                 "ABILITY_ACTIVATED",
                 $"{intent.PlayerId} 激活泽拉斯的技能",
@@ -8669,7 +8829,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["power"] = ability.PowerCost,
                     ["abilityId"] = command.AbilityId,
                     ["spellshieldTaxMana"] = spellshieldTaxMana,
-                    ["spellshieldTaxTargetObjectIds"] = spellshieldTaxTargetObjectIds.ToArray()
+                    ["spellshieldTaxTargetObjectIds"] = spellshieldTaxTargetObjectIds.ToArray(),
+                    ["temporaryPaymentResourceIds"] = consumedTemporaryPaymentResources
+                        .Select(resource => resource.ResourceId)
+                        .ToArray(),
+                    ["temporaryPaymentResourcePower"] = consumedTemporaryPaymentResources
+                        .Sum(resource => resource.ConsumedPower)
                 })),
             new(
                 "UNIT_EXHAUSTED",
@@ -8695,7 +8860,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["abilityId"] = command.AbilityId,
                     ["damageAmount"] = stackItem.DamageAmount
                 })
-        };
+        ]);
 
         return new ResolutionResult(
             true,
@@ -9471,6 +9636,91 @@ public sealed class CoreRuleEngine : IRuleEngine
         behaviorOptionalCosts = behaviorCosts;
         paymentResourceActions = paymentActions;
         recycledRuneObjectIds = runeObjectIds;
+        return true;
+    }
+
+    private static bool TryExtractInlinePaymentResourceActions(
+        MatchState state,
+        string playerId,
+        IReadOnlyList<string> normalizedOptionalCosts,
+        out IReadOnlyList<string> behaviorOptionalCosts,
+        out IReadOnlyList<string> paymentResourceActions,
+        out IReadOnlyList<string> recycledRuneObjectIds,
+        out IReadOnlyList<string> temporaryPaymentResourceActions)
+    {
+        var behaviorCosts = new List<string>();
+        var paymentActions = new List<string>();
+        var runeObjectIds = new List<string>();
+        var temporaryActions = new List<string>();
+        var seenRuneObjectIds = new HashSet<string>(StringComparer.Ordinal);
+        var seenTemporaryResourceIds = new HashSet<string>(StringComparer.Ordinal);
+        var temporaryResourcesById = state.TemporaryPaymentResources
+            .ToDictionary(resource => resource.ResourceId, resource => resource, StringComparer.Ordinal);
+
+        foreach (var optionalCost in normalizedOptionalCosts)
+        {
+            if (TryParseRecycleRunePaymentOptionalCost(optionalCost, out var runeObjectId))
+            {
+                if (!seenRuneObjectIds.Add(runeObjectId)
+                    || !CanRecycleRuneForPayment(state, playerId, runeObjectId))
+                {
+                    behaviorOptionalCosts = [];
+                    paymentResourceActions = [];
+                    recycledRuneObjectIds = [];
+                    temporaryPaymentResourceActions = [];
+                    return false;
+                }
+
+                paymentActions.Add(optionalCost);
+                runeObjectIds.Add(runeObjectId);
+                continue;
+            }
+
+            if (optionalCost.StartsWith(RecycleRunePaymentOptionalCostPrefix, StringComparison.Ordinal))
+            {
+                behaviorOptionalCosts = [];
+                paymentResourceActions = [];
+                recycledRuneObjectIds = [];
+                temporaryPaymentResourceActions = [];
+                return false;
+            }
+
+            if (PaymentCostRules.TryParseTemporaryPaymentResourceActionId(optionalCost, out var resourceId))
+            {
+                if (!seenTemporaryResourceIds.Add(resourceId)
+                    || !temporaryResourcesById.TryGetValue(resourceId, out var resource)
+                    || !string.Equals(resource.OwnerPlayerId, playerId, StringComparison.Ordinal)
+                    || resource.RemainingPower <= 0
+                    || !resource.AllowedPaymentKinds.Contains(PaymentCostRules.RuneCostPaymentKind, StringComparer.Ordinal))
+                {
+                    behaviorOptionalCosts = [];
+                    paymentResourceActions = [];
+                    recycledRuneObjectIds = [];
+                    temporaryPaymentResourceActions = [];
+                    return false;
+                }
+
+                paymentActions.Add(optionalCost);
+                temporaryActions.Add(optionalCost);
+                continue;
+            }
+
+            if (optionalCost.StartsWith(PaymentCostRules.TemporaryPaymentResourceActionPrefix, StringComparison.Ordinal))
+            {
+                behaviorOptionalCosts = [];
+                paymentResourceActions = [];
+                recycledRuneObjectIds = [];
+                temporaryPaymentResourceActions = [];
+                return false;
+            }
+
+            behaviorCosts.Add(optionalCost);
+        }
+
+        behaviorOptionalCosts = behaviorCosts;
+        paymentResourceActions = paymentActions;
+        recycledRuneObjectIds = runeObjectIds;
+        temporaryPaymentResourceActions = temporaryActions;
         return true;
     }
 
@@ -18708,13 +18958,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var normalizedCommandOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
-        if (!TryExtractRecycleRunePaymentResourceActions(
+        if (!TryExtractInlinePaymentResourceActions(
                 state,
                 intent.PlayerId,
                 normalizedCommandOptionalCosts,
                 out var behaviorOptionalCosts,
                 out var paymentResourceActions,
-                out var recycledPaymentRuneObjectIds))
+                out var recycledPaymentRuneObjectIds,
+                out var temporaryPaymentResourceActions))
         {
             rejection = RejectWithCorePrompts(
                 state,
@@ -18966,6 +19217,36 @@ public sealed class CoreRuleEngine : IRuleEngine
                 spellshieldTaxMana,
                 spellshieldTaxTargetObjectIds,
                 recycledPaymentRuneObjectIds));
+        var authorizationRunePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        authorizationRunePools[intent.PlayerId] = paymentAdjustedPool;
+        var inlineTemporaryPayment = BuildInlineTemporaryPaymentWindow(
+            paymentPlan.PaymentId,
+            paymentPlan.PaymentWindow,
+            intent.PlayerId,
+            extraPowerCost,
+            extraPowerCostByTrait,
+            behavior.EffectKind,
+            paymentResourceActions);
+        if (!TryApplyTemporaryPaymentResourcesToPendingPayment(
+                state,
+                inlineTemporaryPayment,
+                temporaryPaymentResourceActions,
+                authorizationRunePools,
+                out var temporaryAdjustedRunePools,
+                out _,
+                out _,
+                out var temporaryResourceRejection))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                temporaryResourceRejection,
+                ErrorCodes.InsufficientCost);
+            return false;
+        }
+
+        paymentAdjustedPool = temporaryAdjustedRunePools.TryGetValue(intent.PlayerId, out var temporaryAdjustedPool)
+            ? temporaryAdjustedPool
+            : RunePool.Empty;
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
             paymentAdjustedPool,
@@ -19012,6 +19293,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             discardedOptionalCostTargetObjectIds,
             paymentResourceActions,
             recycledPaymentRuneObjectIds,
+            temporaryPaymentResourceActions,
             rengarUnitPlayedTargetObjectId,
             leonaStunBoonTargetObjectId);
         return true;
@@ -33741,6 +34023,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> DiscardedOptionalCostTargetObjectIds,
         IReadOnlyList<string> PaymentResourceActions,
         IReadOnlyList<string> RecycledPaymentRuneObjectIds,
+        IReadOnlyList<string> TemporaryPaymentResourceActions,
         string RengarUnitPlayedTargetObjectId,
         string LeonaStunBoonTargetObjectId);
 
