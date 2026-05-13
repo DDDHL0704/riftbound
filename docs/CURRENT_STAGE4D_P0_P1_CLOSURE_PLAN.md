@@ -56,6 +56,8 @@
 
 阻断：P0-004。依赖：4D-01。
 
+当前状态：**handoff ready / baseline green / project NOT READY**。实现交接规格见 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_HANDOFF.md`；实现前基线见 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_BASELINE_EVIDENCE.md`。Focused baseline 29/29、adjacent baseline 121/121 通过。该基线只说明既有代表路径绿色，不关闭 P0-004。
+
 目标：把法术对决和战斗从 direct/minimal representative resolver 推进到由 task queue 创建、推进和关闭的官方状态机。
 
 建议 owner：B 服务端规则 / 协议 / 测试实现。
@@ -161,6 +163,6 @@
 
 1. 维持 NOT READY 结论。
 2. 不再为 Stage 4C representative evidence alignment 追加新批次，除非出现遗漏的已验证自动化证据。
-3. 下一次实现性推进应从 4D-02 开始，把 spell duel / battle 从 representative resolver 推进到由 task queue 驱动的官方状态机。
+3. 当前已进入 4D-02 handoff 阶段；下一步复用 B / Maxwell 实现 spell duel / battle task-driven lifecycle。
 4. 每个 4D 实现切片必须先给出写入范围、测试过滤器、不可并行文件和 no-go 声明，再进入代码修改。
-5. A 在没有用户明确要求使用子 agent 的当前回合中只维护计划和验收文档，不启动新的 agent。
+5. A 不亲自写 4D-02 功能代码；只维护计划、派单、验收文档、测试验证和 completion audit。

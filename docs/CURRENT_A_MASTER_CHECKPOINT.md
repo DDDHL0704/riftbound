@@ -5,7 +5,7 @@
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
 
-最新 Stage 4D 实现证据：`6a3ee038 test: add stage 4D board task queue foundation coverage`；上一 checkpoint：`aeeadb8f checkpoint: record stage 4D board task baseline evidence`；上一 Stage 4D handoff checkpoint：`d97ebb59 checkpoint: record stage 4D board task queue handoff`；上一 Stage 4C checkpoint：`7a2b1fa3 checkpoint: record stage 4C battlefield residual evidence alignment`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。4D-01 board task queue foundation 已通过 focused 31/31、adjacent 149/149、backend full 3780/3780，证据见 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_AUDIT.md` 与 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_EVIDENCE.md`。当前仍 **NOT READY**，阻断集中在 P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit；P0-002 / P0-003 已被 4D-01 进一步收窄但未 full-official 关闭。Stage 4D 收口执行顺序见 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`，4D-01 实现交接见 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_01_BASELINE_EVIDENCE.md`。
+最新 Stage 4D 实现证据：`6a3ee038 test: add stage 4D board task queue foundation coverage`；上一 checkpoint：`aeeadb8f checkpoint: record stage 4D board task baseline evidence`；上一 Stage 4D handoff checkpoint：`d97ebb59 checkpoint: record stage 4D board task queue handoff`；上一 Stage 4C checkpoint：`7a2b1fa3 checkpoint: record stage 4C battlefield residual evidence alignment`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。4D-01 board task queue foundation 已通过 focused 31/31、adjacent 149/149、backend full 3780/3780，证据见 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_AUDIT.md` 与 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_EVIDENCE.md`。4D-02 spell duel / battle 实现前基线已通过 focused 29/29、adjacent 121/121，handoff 见 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_HANDOFF.md`，baseline 见 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_BASELINE_EVIDENCE.md`。当前仍 **NOT READY**，阻断集中在 P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit；P0-002 / P0-003 已被 4D-01 进一步收窄但未 full-official 关闭。Stage 4D 收口执行顺序见 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`，4D-01 实现交接见 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_01_BASELINE_EVIDENCE.md`。
 
 ## 0. A 主控职责边界
 
@@ -94,6 +94,30 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - A 复用 B/D/E 长期代理做 Lux / Aphelios 候选审查。
 - B 超时未落盘时，A 已按长期子 agent 规则先询问状态、等待、再收回本批服务端写入锁；未关闭 B。
 - D/E 输出只读草案；A 执行小范围测试修正与 docs/matrix 收口。
+
+## 0.1.0.1 阶段 4D-02 Spell Duel / Battle Handoff Checkpoint
+
+状态：**handoff ready；项目仍 NOT READY。**
+
+本批事实：
+
+- Handoff 入口：`docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_HANDOFF.md`
+- Baseline 入口：`docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_BASELINE_EVIDENCE.md`
+- Focused baseline：29/29 通过。
+- Adjacent baseline：121/121 通过。
+- 4D-01 backend full：3780/3780 仍作为进入 4D-02 的上一完整绿线。
+
+当前代码面：
+
+- 已有 `SpellDuelState`、`BattleState`、`BattlefieldTaskState`、`PendingTaskQueue`、`START_SPELL_DUEL` / `START_BATTLE` 代表路径。
+- 已有 active `START_BATTLE` prompt / command guard、代表性 `DECLARE_BATTLE` 和 `ASSIGN_COMBAT_DAMAGE` runtime。
+- P0-004 仍未关闭：多争夺战场串联、wrong-focus no-mutation、swift/reaction task binding、reconnect redaction、完整 battle id / participant lifecycle 和 official no-result battle cleanup 仍待实现。
+
+下一步：
+
+- 复用 B / Maxwell 执行 4D-02 服务端切片。
+- 写入锁：`src/Riftbound.Engine/MatchSession.cs`、`src/Riftbound.Engine/CoreRuleEngine.cs`、`tests/Riftbound.ConformanceTests/BattlefieldContestBattleTaskGuardTests.cs`、`tests/Riftbound.ConformanceTests/ConformanceFixtureShapeTests.cs`、`tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs`，可新增 `tests/Riftbound.ConformanceTests/SpellDuelBattleStateMachineTests.cs`。
+- A 不亲自实现功能代码，只做任务派发、复核、验证和文档验收。
 
 ## 0.1.1 阶段 4C-23 Lux Checkpoint
 

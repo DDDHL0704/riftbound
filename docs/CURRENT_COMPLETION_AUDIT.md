@@ -7,7 +7,7 @@
 
 ## 0. 2026-05-13 最新状态补充
 
-当前最新 Stage 4D 实现证据：`6a3ee038 test: add stage 4D board task queue foundation coverage`；上一 checkpoint 为 `aeeadb8f checkpoint: record stage 4D board task baseline evidence`；上一 Stage 4D handoff checkpoint 为 `d97ebb59 checkpoint: record stage 4D board task queue handoff`。上一 Stage 4C checkpoint 为 `7a2b1fa3 checkpoint: record stage 4C battlefield residual evidence alignment`；上一 active guard checkpoint 为 `4c06189 checkpoint: add active start battle guard tests`；上一 formal 18-step checkpoint 为 `3aed179 checkpoint: add formal 18 step e2e evidence`。Stage 4C-85 `炽烈符文` / `OGN·007/298` / `FU-0ec69ae7e6` 与 `翠意符文` / `OGN·042/298` / `FU-39041f4562` 已完成代表性 `RUNE_RESOURCE_DOMAIN` payment-resource evidence-only overlay 与验证。2026-05-13 另新增 formal 18-step E2E 脚本证据，房间 `formal-18-1778623926434-15` 已在同一连续正式对局中通过官方卡组、起手、首回合出牌、结算链、单位移动、重连、P2 战场得分、投降与结果页胜者展示；active `START_BATTLE` guard test-only evidence 已固化争夺战场战斗任务 prompt / command no-mutation 边界；Stage 4C-95 新增 static effect design gate，确认熔浆巨龙、娑娜、安妮与温驯的宝石龙不能 evidence-only 入账；Stage 4C-96 新增 legacy guard evidence alignment；Stage 4C-97 新增 arena / minion / Annie evidence alignment；Stage 4C-98 新增 battlefield residual evidence alignment，将 3 个战场 FU 对齐为 representative `IMPLEMENTED_TESTED`；Stage 4D P0/P1 closure plan、4D-01 handoff、baseline evidence 与 4D-01 board task queue foundation evidence 已建立并验收。4D-01 focused 31/31、adjacent 149/149、backend full 3780/3780 通过，项目整体仍 **NOT READY**。
+当前最新 Stage 4D 实现证据：`6a3ee038 test: add stage 4D board task queue foundation coverage`；上一 checkpoint 为 `aeeadb8f checkpoint: record stage 4D board task baseline evidence`；上一 Stage 4D handoff checkpoint 为 `d97ebb59 checkpoint: record stage 4D board task queue handoff`。上一 Stage 4C checkpoint 为 `7a2b1fa3 checkpoint: record stage 4C battlefield residual evidence alignment`；上一 active guard checkpoint 为 `4c06189 checkpoint: add active start battle guard tests`；上一 formal 18-step checkpoint 为 `3aed179 checkpoint: add formal 18 step e2e evidence`。Stage 4C-85 `炽烈符文` / `OGN·007/298` / `FU-0ec69ae7e6` 与 `翠意符文` / `OGN·042/298` / `FU-39041f4562` 已完成代表性 `RUNE_RESOURCE_DOMAIN` payment-resource evidence-only overlay 与验证。2026-05-13 另新增 formal 18-step E2E 脚本证据，房间 `formal-18-1778623926434-15` 已在同一连续正式对局中通过官方卡组、起手、首回合出牌、结算链、单位移动、重连、P2 战场得分、投降与结果页胜者展示；active `START_BATTLE` guard test-only evidence 已固化争夺战场战斗任务 prompt / command no-mutation 边界；Stage 4C-95 新增 static effect design gate，确认熔浆巨龙、娑娜、安妮与温驯的宝石龙不能 evidence-only 入账；Stage 4C-96 新增 legacy guard evidence alignment；Stage 4C-97 新增 arena / minion / Annie evidence alignment；Stage 4C-98 新增 battlefield residual evidence alignment，将 3 个战场 FU 对齐为 representative `IMPLEMENTED_TESTED`；Stage 4D P0/P1 closure plan、4D-01 handoff、baseline evidence 与 4D-01 board task queue foundation evidence 已建立并验收。4D-01 focused 31/31、adjacent 149/149、backend full 3780/3780 通过。Stage 4D-02 spell duel / battle handoff 与 baseline evidence 已建立；focused baseline 29/29、adjacent baseline 121/121 通过，但只作为实现前绿线，不关闭 P0-004。项目整体仍 **NOT READY**。
 
 4C-85 不修改功能代码，只把既有服务端权威符文资源域证据入账：官方符文卡映射到 non-play `RUNE_RESOURCE_DOMAIN`，不进入 direct `PLAY_CARD` registry；控制者基地符文通过服务端 `RECYCLE_RUNE` / `paymentResourcePowerByChoice` 暴露 trait/power 支付资源；typed `SPEND_POWER:red:2` 接受 red 资源并拒绝 blue 资源，generic `SPEND_POWER:2` 可接受 red / blue 任一服务端候选且防止过量回收。Focused / primary regression 命令：
 
@@ -55,6 +55,8 @@ Stage 4D-01 baseline evidence 本轮新增实现前测试基线见 `docs/CURRENT
 
 Stage 4D-01 board task queue foundation evidence 本轮新增测试证据见 `tests/Riftbound.ConformanceTests/BoardTaskQueueFoundationTests.cs`、`docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_AUDIT.md` 与 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_EVIDENCE.md`：focused 31/31、adjacent 149/149、backend full 3780/3780 通过。覆盖 base-to-battlefield、battlefield-to-base、precise roam mixed-case destination、cleanup-first blocking、illegal standby / unattached equipment redaction、cleanup repeat、`PASS_FOCUS` task promotion 与 reconnect pending task redaction。4D-01 foundation accepted，但 P0-002 / P0-003 仍不宣称 full-official resolved；P0-004、P0-005、P1 与 READY 均未关闭。
 
+Stage 4D-02 spell duel / battle handoff 本轮新增实现交接规格与基线证据，见 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_BASELINE_EVIDENCE.md`。Focused baseline 29/29、adjacent baseline 121/121 通过；当前已有 `SpellDuelState` / `BattleState` / `BattlefieldTaskState`、`START_SPELL_DUEL` / `START_BATTLE` 代表路径、active start-battle guard 与 `ASSIGN_COMBAT_DAMAGE` 代表窗口。仍缺多争夺战场串联、wrong-focus no-mutation、swift/reaction task binding、reconnect during `SPELL_DUEL_TASKS` / `BATTLE_TASKS`、完整 battle id / participant lifecycle 与 official no-result cleanup，因此 P0-004 仍未关闭。
+
 当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责；4C-85 / 4C-86 / 4C-87 / 4C-89 / 4C-90 / 4C-91 / 4C-92 / 4C-93 / 4C-94 / 4C-96 由 A 基于 matrix 风险筛选做 evidence-only 覆盖入账、复核、验证和文档收口；4C-88 / 4C-95 则将不能 evidence-only 的候选推进为 design-gated 实现派单规格。后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
 
 ## 0.1 Active Goal 门槛到证据映射
@@ -82,6 +84,17 @@ Stage 4D-01 board task queue foundation evidence 本轮新增测试证据见 `te
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`
 - `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_AUDIT.md`
 - `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_EVIDENCE.md`
+- `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`
+- `docs/rules-evidence-index.md`
+
+2026-05-13 Stage 4D-02 spell duel / battle handoff 本轮修改：
+
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+- `docs/CURRENT_COMPLETION_AUDIT.md`
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`
+- `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_HANDOFF.md`
+- `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_BASELINE_EVIDENCE.md`
 - `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`
 - `docs/rules-evidence-index.md`
 
@@ -314,7 +327,7 @@ Stage 4D-01 board task queue foundation evidence 本轮新增测试证据见 `te
 
 - P0-002：4D-01 board task queue foundation 已覆盖对象位置、battlefield state、destination-scoped contest tasks 与 reconnect redaction；完整 battlefield standby/control/held/conquer task lifecycle 仍未官方化。
 - P0-003：4D-01 已覆盖 cleanup-first blocking、cleanup repeat、illegal standby / unattached equipment redaction 与 no-mutation guard；central cleanup task queue 仍未覆盖所有状态变化、替代效果和进出战场路径。
-- P0-004：spell duel / battle 仍是大量代表路径，缺完整官方 pending/focus/initial-stack/伤害分配/清理状态机。
+- P0-004：4D-02 baseline 已证明既有代表路径绿色，但 spell duel / battle 仍缺完整官方 pending/focus/initial-stack/伤害分配/清理状态机；多争夺战场串联、wrong-focus no-mutation、reconnect redaction 和完整 battle task lifecycle 仍待实现。
 - P0-005：完整 PaymentEngine 与 reaction payment window 仍未统一，ACTIVATE_ABILITY、LEGEND_ACT、MOVE_UNIT、ASSEMBLE_EQUIPMENT 等仍有代表路径边界。
 - P1：LayerEngine、完整关键词、全官方卡牌逐条证据、长期 replay/hash 审计仍未达到最终 READY。
 
@@ -387,4 +400,4 @@ P2 项暂不作为 complete 阻断，但应在 P0/P1 清零后继续排期：
 
 **NOT READY**
 
-下一步优先级：按 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md` 进入 4D-02，继续把 strict spell duel / battle lifecycle 从代表路径推进到 task-queue-driven official state machine；随后收口 P0-005 PaymentEngine 与 P1 LayerEngine/全卡证据。
+下一步优先级：按 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_HANDOFF.md` 派 B / Maxwell 实施 4D-02，继续把 strict spell duel / battle lifecycle 从代表路径推进到 task-queue-driven official state machine；随后收口 P0-005 PaymentEngine 与 P1 LayerEngine/全卡证据。
