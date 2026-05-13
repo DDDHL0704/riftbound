@@ -5772,6 +5772,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCommand);
         }
 
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, StringComparison.Ordinal))
+        {
+            return ResolveMalzaharResourceSkill(state, intent, command, ability);
+        }
+
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.XerathDamageAbilityId, StringComparison.Ordinal))
         {
             return ResolveXerathDamageAbility(state, intent, command, ability);
@@ -5995,6 +6000,322 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolveMalzaharResourceSkill(
+        MatchState state,
+        PlayerIntent intent,
+        ActivateAbilityCommand command,
+        P4ActivatedAbilityDefinition ability)
+    {
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || state.StackItems.Count > 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "玛尔扎哈的资源技能当前只开放主动玩家开放主阶段代表路径。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (NormalizeOptionalCosts(command.OptionalCosts).Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "玛尔扎哈的资源技能不接受额外费用。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var normalizedTargets = NormalizeTargetObjectIds(command.TargetObjectIds);
+        if (command.TargetObjectIds.Count != 1 || normalizedTargets.Count != 1)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "玛尔扎哈的资源技能需要且只能选择 1 个友方单位或装备作为成本。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!IsControlledFieldObject(state, intent.PlayerId, command.SourceObjectId)
+            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || sourceState.IsFaceDown
+            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "玛尔扎哈的资源技能来源必须是当前玩家控制的公开场上或基地单位。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "玛尔扎哈的资源技能只能选择当前玩家控制的来源。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!string.Equals(sourceState.CardNo, ability.SourceCardNo, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "该来源没有服务端支持的玛尔扎哈资源技能。",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        if (sourceState.IsExhausted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "玛尔扎哈的资源技能来源必须未横置。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var destroyedCostObjectId = normalizedTargets[0];
+        if (string.Equals(destroyedCostObjectId, command.SourceObjectId, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "玛尔扎哈的资源技能不能摧毁自身作为成本。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!IsMalzaharDestroyCostTarget(state, intent.PlayerId, command.SourceObjectId, destroyedCostObjectId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "玛尔扎哈的资源技能成本必须是公开的友方单位或装备。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var ownerPlayerId = MalzaharDestroyCostOwnerPlayerId(state, destroyedCostObjectId, intent.PlayerId);
+        if (string.IsNullOrWhiteSpace(ownerPlayerId)
+            || !playerZones.ContainsKey(ownerPlayerId)
+            || !TryDestroyMalzaharCostTarget(
+                playerZones,
+                cardObjects,
+                destroyedCostObjectId,
+                ownerPlayerId,
+                out var removalResult))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "玛尔扎哈的资源技能成本对象无法进入拥有者废牌堆。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        cardObjects[command.SourceObjectId] = sourceState with
+        {
+            IsExhausted = true,
+            OwnerId = string.IsNullOrWhiteSpace(sourceState.OwnerId) ? intent.PlayerId : sourceState.OwnerId,
+            ControllerId = string.IsNullOrWhiteSpace(sourceState.ControllerId) ? intent.PlayerId : sourceState.ControllerId
+        };
+        var currentPool = runePools.TryGetValue(intent.PlayerId, out var existingPool)
+            ? existingPool
+            : RunePool.Empty;
+        var nextPool = currentPool with
+        {
+            Power = currentPool.Power + ability.GeneratedPower
+        };
+        runePools[intent.PlayerId] = nextPool;
+        objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
+
+        const string paymentWindow = "ACTIVATE_ABILITY";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            intent.PlayerId,
+            command.SourceObjectId,
+            command.AbilityId);
+        var auditStackItem = new StackItemState(
+            $"ABILITY-{state.Tick + 1}-{command.SourceObjectId}-MALZAHAR-COST",
+            intent.PlayerId,
+            command.SourceObjectId,
+            ability.EffectKind,
+            ability.SourceCardNo,
+            [destroyedCostObjectId]);
+        var removalEvent = BuildFieldRemovalEvent(
+            "玛尔扎哈资源技能",
+            auditStackItem,
+            destroyedCostObjectId,
+            removalResult,
+            "RESOURCE_SKILL_COST");
+        var removalPayload = removalEvent.Payload.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        removalPayload["paymentWindow"] = paymentWindow;
+        removalPayload["paymentId"] = paymentId;
+        removalPayload["abilityId"] = command.AbilityId;
+        removalPayload["resourceSkill"] = true;
+        removalPayload["paymentOnly"] = true;
+        removalPayload["generatedPower"] = ability.GeneratedPower;
+        removalPayload["resourceRestriction"] = ability.ResourceRestriction;
+        removalEvent = removalEvent with
+        {
+            Payload = removalPayload
+        };
+
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            ActivePlayerId = intent.PlayerId,
+            RunePools = runePools,
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = objectLocations,
+            PriorityPlayerId = null,
+            PassedPriorityPlayerIds = []
+        };
+        var events = new List<GameEvent>
+        {
+            new(
+                "ABILITY_ACTIVATED",
+                $"{intent.PlayerId} 激活玛尔扎哈的资源技能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["effectKind"] = ability.EffectKind,
+                    ["paymentWindow"] = paymentWindow,
+                    ["paymentId"] = paymentId,
+                    ["destroyedCostObjectId"] = destroyedCostObjectId,
+                    ["resourceSkill"] = true,
+                    ["paymentOnly"] = true,
+                    ["generatedPower"] = ability.GeneratedPower,
+                    ["resourceRestriction"] = ability.ResourceRestriction
+                }),
+            new(
+                "UNIT_EXHAUSTED",
+                "玛尔扎哈横置支付资源技能费用",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["targetObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["paymentWindow"] = paymentWindow,
+                    ["paymentId"] = paymentId,
+                    ["wasExhausted"] = sourceState.IsExhausted,
+                    ["isExhausted"] = true,
+                    ["resourceSkill"] = true
+                }),
+            removalEvent,
+            new(
+                "POWER_GAINED",
+                $"{intent.PlayerId} 通过玛尔扎哈资源技能获得 {ability.GeneratedPower} 点费用符能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["paymentWindow"] = paymentWindow,
+                    ["paymentId"] = paymentId,
+                    ["destroyedCostObjectId"] = destroyedCostObjectId,
+                    ["resourceSkill"] = true,
+                    ["paymentOnly"] = true,
+                    ["generatedPower"] = ability.GeneratedPower,
+                    ["power"] = ability.GeneratedPower,
+                    ["powerAfter"] = nextPool.Power,
+                    ["resourceRestriction"] = ability.ResourceRestriction,
+                    ["restrictionLifecycle"] = "representative-resource-generated-into-rune-pool"
+                })
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static bool IsMalzaharDestroyCostTarget(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        string targetObjectId)
+    {
+        return !string.Equals(targetObjectId, sourceObjectId, StringComparison.Ordinal)
+            && IsControlledFieldObject(state, playerId, targetObjectId)
+            && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            && SourceObjectControlledByPlayerOrLegacyOwned(targetState, playerId)
+            && !targetState.IsFaceDown
+            && !string.IsNullOrWhiteSpace(targetState.CardNo)
+            && !targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && (targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                || targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal));
+    }
+
+    private static string MalzaharDestroyCostOwnerPlayerId(
+        MatchState state,
+        string targetObjectId,
+        string fallbackPlayerId)
+    {
+        if (state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            && !string.IsNullOrWhiteSpace(targetState.OwnerId))
+        {
+            return targetState.OwnerId;
+        }
+
+        if (state.ObjectLocations.TryGetValue(targetObjectId, out var objectLocation)
+            && !string.IsNullOrWhiteSpace(objectLocation.PlayerId))
+        {
+            return objectLocation.PlayerId;
+        }
+
+        var location = FindFieldObjectLocation(state.PlayerZones, targetObjectId);
+        return location?.PlayerId ?? fallbackPlayerId;
+    }
+
+    private static bool TryDestroyMalzaharCostTarget(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string targetObjectId,
+        string ownerPlayerId,
+        out FieldRemovalResult removalResult)
+    {
+        removalResult = FieldRemovalResult.Empty;
+        if (!playerZones.TryGetValue(ownerPlayerId, out var ownerZones)
+            || !cardObjects.TryGetValue(targetObjectId, out var targetState))
+        {
+            return false;
+        }
+
+        foreach (var playerId in playerZones.Keys.ToArray())
+        {
+            var zones = playerZones[playerId];
+            playerZones[playerId] = zones with
+            {
+                Base = RemoveFromZone(zones.Base, targetObjectId),
+                Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId)
+            };
+        }
+
+        playerZones[ownerPlayerId] = playerZones[ownerPlayerId] with
+        {
+            Graveyard = ownerZones.Graveyard.Contains(targetObjectId, StringComparer.Ordinal)
+                ? ownerZones.Graveyard
+                : ownerZones.Graveyard.Concat([targetObjectId]).ToArray()
+        };
+
+        var detachedEquipmentObjectIds = DetachEquipmentFromRemovedHost(cardObjects, targetObjectId);
+        var wasEquipment = targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal);
+        var wasUnit = targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
+        cardObjects.Remove(targetObjectId);
+        removalResult = new FieldRemovalResult(
+            ownerPlayerId,
+            "GRAVEYARD",
+            false,
+            false,
+            wasEquipment,
+            wasUnit,
+            detachedEquipmentObjectIds);
+        return true;
     }
 
     private static ResolutionResult ResolveBattlefieldUnitGainExperienceAbility(

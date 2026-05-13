@@ -12,7 +12,12 @@ public sealed record P4ActivatedAbilityDefinition(
     bool ExhaustsSourceAsCost,
     int DamageAmount,
     bool AppliesSpellshieldTargetTax,
-    string Reason);
+    string Reason,
+    bool IsResourceSkill = false,
+    bool PaymentOnlyResource = false,
+    int GeneratedPower = 0,
+    bool UsesTargetAsCost = false,
+    string ResourceRestriction = "");
 
 public sealed record P4DeferredActivatedAbilitySurface(
     string AbilityId,
@@ -37,6 +42,12 @@ public static class P4ActivatedAbilityCatalog
     public const string XerathDamageAbilityEffectKind = "XERATH_PAY_RED_EXHAUST_DAMAGE_3";
     public const int XerathDamageAbilityPowerCost = 1;
     public const int XerathDamageAbilityDamageAmount = 3;
+
+    public const string MalzaharCardNo = "OGN·113/298";
+    public const string MalzaharResourceAbilityId = "MALZAHAR_DESTROY_FRIENDLY_EXHAUST_GAIN_2_PAYMENT_POWER";
+    public const string MalzaharResourceAbilityEffectKind = "MALZAHAR_RESOURCE_SKILL_GAIN_2_PAYMENT_ONLY_POWER";
+    public const int MalzaharResourceGeneratedPower = 2;
+    public const string MalzaharPaymentOnlyResourceRestriction = "PAY_RUNE_COSTS_ONLY_REPRESENTATIVE_4D_03I";
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
@@ -65,7 +76,25 @@ public static class P4ActivatedAbilityCatalog
             ExhaustsSourceAsCost: true,
             XerathDamageAbilityDamageAmount,
             AppliesSpellshieldTargetTax: true,
-            "P4.389 keeps Xerath's verified one-target damage skill and spellshield target tax behind a registry entry.")
+            "P4.389 keeps Xerath's verified one-target damage skill and spellshield target tax behind a registry entry."),
+        new(
+            MalzaharResourceAbilityId,
+            MalzaharCardNo,
+            MalzaharResourceAbilityEffectKind,
+            "Malzahar payment resource skill",
+            0,
+            0,
+            1,
+            RequiresBattlefieldSource: false,
+            ExhaustsSourceAsCost: true,
+            0,
+            AppliesSpellshieldTargetTax: false,
+            "Stage 4D-03I opens only the open-main representative resource skill path; swift, spell-duel, reaction prohibition, and full payment-only lifecycle remain deferred.",
+            IsResourceSkill: true,
+            PaymentOnlyResource: true,
+            GeneratedPower: MalzaharResourceGeneratedPower,
+            UsesTargetAsCost: true,
+            ResourceRestriction: MalzaharPaymentOnlyResourceRestriction)
     ];
 
     private static readonly P4DeferredActivatedAbilitySurface[] DeferredSurfaces =

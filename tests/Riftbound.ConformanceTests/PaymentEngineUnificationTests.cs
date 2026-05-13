@@ -660,6 +660,202 @@ public sealed class PaymentEngineUnificationTests
     }
 
     [Fact]
+    public void ActivateAbilityMalzaharPromptExposesDestroyCostTargetsAndPaymentOnlyMetadata()
+    {
+        var state = MalzaharResourceSkillState(
+            new RunePool(0, 0),
+            p1BaseObjectIds:
+            [
+                "P1-UNIT-MALZAHAR",
+                "P1-UNIT-MALZAHAR-COST",
+                "P1-EQUIPMENT-MALZAHAR-COST",
+                "P1-FACEDOWN-MALZAHAR-COST"
+            ],
+            p2BattlefieldObjectIds: ["P2-UNIT-MALZAHAR-COST"],
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-MALZAHAR"] = MalzaharCard(),
+                ["P1-UNIT-MALZAHAR-COST"] = FriendlyCostUnit("P1-UNIT-MALZAHAR-COST"),
+                ["P1-EQUIPMENT-MALZAHAR-COST"] = FriendlyCostEquipment("P1-EQUIPMENT-MALZAHAR-COST"),
+                ["P1-FACEDOWN-MALZAHAR-COST"] = FriendlyCostUnit("P1-FACEDOWN-MALZAHAR-COST", isFaceDown: true),
+                ["P2-UNIT-MALZAHAR-COST"] = EnemyUnit() with
+                {
+                    ObjectId = "P2-UNIT-MALZAHAR-COST"
+                }
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-MALZAHAR"] = new("P1", "BASE"),
+                ["P1-UNIT-MALZAHAR-COST"] = new("P1", "BASE"),
+                ["P1-EQUIPMENT-MALZAHAR-COST"] = new("P1", "BASE"),
+                ["P1-FACEDOWN-MALZAHAR-COST"] = new("P1", "BASE"),
+                ["P2-UNIT-MALZAHAR-COST"] = new("P2", "BATTLEFIELD")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var activateCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ACTIVATE_ABILITY", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(activateCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]);
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => string.Equals(
+                requirement["abilityId"] as string,
+                P4ActivatedAbilityCatalog.MalzaharResourceAbilityId,
+                StringComparison.Ordinal));
+
+        Assert.Equal("P1-UNIT-MALZAHAR", sourceRequirement["sourceObjectId"]);
+        Assert.True(Assert.IsType<bool>(sourceRequirement["resourceSkill"]));
+        Assert.True(Assert.IsType<bool>(sourceRequirement["paymentOnly"]));
+        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower, sourceRequirement["generatedPower"]);
+        Assert.True(Assert.IsType<bool>(sourceRequirement["usesTargetAsCost"]));
+        Assert.True(Assert.IsType<bool>(sourceRequirement["resolvesImmediately"]));
+        Assert.Equal(
+            P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction,
+            sourceRequirement["resourceRestriction"]);
+
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        Assert.Contains(targetChoicesByIndex["0"], choice => string.Equals(choice.Id, "P1-UNIT-MALZAHAR-COST", StringComparison.Ordinal));
+        Assert.Contains(targetChoicesByIndex["0"], choice => string.Equals(choice.Id, "P1-EQUIPMENT-MALZAHAR-COST", StringComparison.Ordinal));
+        Assert.DoesNotContain(targetChoicesByIndex["0"], choice => string.Equals(choice.Id, "P1-UNIT-MALZAHAR", StringComparison.Ordinal));
+        Assert.DoesNotContain(targetChoicesByIndex["0"], choice => string.Equals(choice.Id, "P1-FACEDOWN-MALZAHAR-COST", StringComparison.Ordinal));
+        Assert.DoesNotContain(targetChoicesByIndex["0"], choice => string.Equals(choice.Id, "P2-UNIT-MALZAHAR-COST", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task ActivateAbilityMalzaharDestroysFriendlyCostObjectExhaustsSourceAndGainsPaymentOnlyPower()
+    {
+        var state = MalzaharResourceSkillState(
+            new RunePool(0, 0),
+            p1BaseObjectIds: ["P1-UNIT-MALZAHAR", "P1-UNIT-MALZAHAR-COST"],
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-MALZAHAR"] = MalzaharCard(),
+                ["P1-UNIT-MALZAHAR-COST"] = FriendlyCostUnit("P1-UNIT-MALZAHAR-COST")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-MALZAHAR"] = new("P1", "BASE"),
+                ["P1-UNIT-MALZAHAR-COST"] = new("P1", "BASE")
+            });
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-activate-malzahar-resource-skill", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-UNIT-MALZAHAR",
+                P4ActivatedAbilityCatalog.MalzaharResourceAbilityId,
+                ["P1-UNIT-MALZAHAR-COST"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(["ABILITY_ACTIVATED", "UNIT_EXHAUSTED", "UNIT_DESTROYED", "POWER_GAINED"], result.Events.Select(evt => evt.Kind));
+        Assert.True(result.State.CardObjects["P1-UNIT-MALZAHAR"].IsExhausted);
+        Assert.False(result.State.CardObjects.ContainsKey("P1-UNIT-MALZAHAR-COST"));
+        Assert.Equal(["P1-UNIT-MALZAHAR"], result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-UNIT-MALZAHAR-COST"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal("GRAVEYARD", result.State.ObjectLocations["P1-UNIT-MALZAHAR-COST"].Zone);
+        Assert.Equal(2, result.State.RunePools["P1"].Power);
+        Assert.Empty(result.State.StackItems);
+
+        var destroyEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
+        Assert.Equal("RESOURCE_SKILL_COST", destroyEvent.Payload["reason"]);
+        Assert.Equal("P1-UNIT-MALZAHAR-COST", destroyEvent.Payload["targetObjectId"]);
+        Assert.Equal(true, destroyEvent.Payload["resourceSkill"]);
+        Assert.Equal(true, destroyEvent.Payload["paymentOnly"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower, destroyEvent.Payload["generatedPower"]);
+
+        var powerEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+        Assert.Equal("ACTIVATE_ABILITY", powerEvent.Payload["paymentWindow"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, powerEvent.Payload["abilityId"]);
+        Assert.Equal("P1-UNIT-MALZAHAR-COST", powerEvent.Payload["destroyedCostObjectId"]);
+        Assert.Equal(true, powerEvent.Payload["resourceSkill"]);
+        Assert.Equal(true, powerEvent.Payload["paymentOnly"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower, powerEvent.Payload["generatedPower"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction, powerEvent.Payload["resourceRestriction"]);
+    }
+
+    [Fact]
+    public async Task ActivateAbilityMalzaharRejectsEnemyCostTargetWithoutMutation()
+    {
+        var state = MalzaharResourceSkillState(
+            new RunePool(0, 0),
+            p1BaseObjectIds: ["P1-UNIT-MALZAHAR"],
+            p2BattlefieldObjectIds: ["P2-UNIT-MALZAHAR-COST"],
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-MALZAHAR"] = MalzaharCard(),
+                ["P2-UNIT-MALZAHAR-COST"] = EnemyUnit() with
+                {
+                    ObjectId = "P2-UNIT-MALZAHAR-COST"
+                }
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-MALZAHAR"] = new("P1", "BASE"),
+                ["P2-UNIT-MALZAHAR-COST"] = new("P2", "BATTLEFIELD")
+            });
+        var initialHash = MatchStateHasher.Hash(state);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-activate-malzahar-enemy-cost-rejected", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-UNIT-MALZAHAR",
+                P4ActivatedAbilityCatalog.MalzaharResourceAbilityId,
+                ["P2-UNIT-MALZAHAR-COST"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+        Assert.False(result.State.CardObjects["P1-UNIT-MALZAHAR"].IsExhausted);
+        Assert.Equal(0, result.State.RunePools["P1"].Power);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task ActivateAbilityMalzaharRejectsClosedTimingWithoutOpeningStackOrMutating()
+    {
+        var state = MalzaharResourceSkillState(
+            new RunePool(0, 0),
+            p1BaseObjectIds: ["P1-UNIT-MALZAHAR", "P1-UNIT-MALZAHAR-COST"],
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-MALZAHAR"] = MalzaharCard(),
+                ["P1-UNIT-MALZAHAR-COST"] = FriendlyCostUnit("P1-UNIT-MALZAHAR-COST")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-MALZAHAR"] = new("P1", "BASE"),
+                ["P1-UNIT-MALZAHAR-COST"] = new("P1", "BASE")
+            },
+            timingState: TimingStates.NeutralClosed);
+        var initialHash = MatchStateHasher.Hash(state);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-activate-malzahar-closed-timing-rejected", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-UNIT-MALZAHAR",
+                P4ActivatedAbilityCatalog.MalzaharResourceAbilityId,
+                ["P1-UNIT-MALZAHAR-COST"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+        Assert.False(result.State.CardObjects["P1-UNIT-MALZAHAR"].IsExhausted);
+        Assert.Equal(0, result.State.RunePools["P1"].Power);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task HideCardStandardStandbyUsesPaymentPlanAuditMetadata()
     {
         var state = HideCardState(new RunePool(1, 0));
@@ -988,6 +1184,54 @@ public sealed class PaymentEngineUnificationTests
             objectLocations: new Dictionary<string, ObjectLocationState>(objectLocations, StringComparer.Ordinal));
     }
 
+    private static MatchState MalzaharResourceSkillState(
+        RunePool runePool,
+        IReadOnlyList<string> p1BaseObjectIds,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        IReadOnlyList<string>? p2BattlefieldObjectIds = null,
+        string timingState = TimingStates.NeutralOpen)
+    {
+        return new MatchState(
+            "payment-engine-activate-malzahar-room",
+            0,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            ["P1", "P2"],
+            "P1",
+            MatchPhases.Main,
+            timingState,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = runePool,
+                ["P2"] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = p1BaseObjectIds
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = p2BattlefieldObjectIds ?? []
+                }
+            },
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            new Dictionary<string, CardObjectState>(cardObjects, StringComparer.Ordinal),
+            objectLocations: new Dictionary<string, ObjectLocationState>(objectLocations, StringComparer.Ordinal));
+    }
+
     private static MatchState PendingPayCostResourceState(
         RunePool runePool,
         string runeObjectId,
@@ -1158,6 +1402,40 @@ public sealed class PaymentEngineUnificationTests
             power: 5,
             tags: [CardObjectTags.UnitCard],
             cardNo: P4ActivatedAbilityCatalog.XerathCardNo,
+            ownerId: "P1",
+            controllerId: "P1");
+    }
+
+    private static CardObjectState MalzaharCard(bool isExhausted = false)
+    {
+        return new(
+            "P1-UNIT-MALZAHAR",
+            power: 3,
+            isExhausted: isExhausted,
+            tags: [CardObjectTags.UnitCard],
+            cardNo: P4ActivatedAbilityCatalog.MalzaharCardNo,
+            ownerId: "P1",
+            controllerId: "P1");
+    }
+
+    private static CardObjectState FriendlyCostUnit(string objectId, bool isFaceDown = false)
+    {
+        return new(
+            objectId,
+            power: 2,
+            isFaceDown: isFaceDown,
+            tags: [CardObjectTags.UnitCard],
+            cardNo: "SFD·125/221",
+            ownerId: "P1",
+            controllerId: "P1");
+    }
+
+    private static CardObjectState FriendlyCostEquipment(string objectId)
+    {
+        return new(
+            objectId,
+            tags: [CardObjectTags.EquipmentCard],
+            cardNo: "SFD·022/221",
             ownerId: "P1",
             controllerId: "P1");
     }

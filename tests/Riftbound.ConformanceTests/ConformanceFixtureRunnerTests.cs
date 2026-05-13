@@ -30642,6 +30642,24 @@ public sealed class ConformanceFixtureRunnerTests
             "XERATH_PAY_RED_EXHAUST_DAMAGE_3",
             out var effectDefinition));
         Assert.Equal(xerathDefinition, effectDefinition);
+
+        Assert.True(P4ActivatedAbilityCatalog.TryGetByAbilityId(
+            P4ActivatedAbilityCatalog.MalzaharResourceAbilityId,
+            out var malzaharDefinition));
+        Assert.Equal("OGN·113/298", malzaharDefinition.SourceCardNo);
+        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharResourceAbilityEffectKind, malzaharDefinition.EffectKind);
+        Assert.Equal(0, malzaharDefinition.ManaCost);
+        Assert.Equal(0, malzaharDefinition.PowerCost);
+        Assert.Equal(1, malzaharDefinition.RequiredTargetCount);
+        Assert.False(malzaharDefinition.RequiresBattlefieldSource);
+        Assert.True(malzaharDefinition.ExhaustsSourceAsCost);
+        Assert.Equal(0, malzaharDefinition.DamageAmount);
+        Assert.False(malzaharDefinition.AppliesSpellshieldTargetTax);
+        Assert.True(malzaharDefinition.IsResourceSkill);
+        Assert.True(malzaharDefinition.PaymentOnlyResource);
+        Assert.Equal(2, malzaharDefinition.GeneratedPower);
+        Assert.True(malzaharDefinition.UsesTargetAsCost);
+        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction, malzaharDefinition.ResourceRestriction);
     }
 
     [Fact]
@@ -30649,6 +30667,7 @@ public sealed class ConformanceFixtureRunnerTests
     {
         Assert.Equal(
             [
+                "MALZAHAR_DESTROY_FRIENDLY_EXHAUST_GAIN_2_PAYMENT_POWER",
                 "PAY_2_RED_DOUBLE_POWER",
                 "PAY_RED_EXHAUST_DAMAGE_3"
             ],

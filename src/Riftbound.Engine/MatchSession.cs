@@ -5005,7 +5005,7 @@ internal static class ActionPromptBuilder
                 continue;
             }
 
-            var targetChoicesByIndex = ActivateAbilityTargetChoicesByIndex(state, playerId, ability);
+            var targetChoicesByIndex = ActivateAbilityTargetChoicesByIndex(state, playerId, sourceObjectId, ability);
             if (ability.RequiredTargetCount > 0
                 && Enumerable.Range(0, ability.RequiredTargetCount)
                     .Any(index => !targetChoicesByIndex.TryGetValue(index.ToString(System.Globalization.CultureInfo.InvariantCulture), out var choices)
@@ -5048,7 +5048,7 @@ internal static class ActionPromptBuilder
                 availablePowerByTraitWithPaymentResources,
                 [],
                 ability.ExhaustsSourceAsCost,
-                false,
+                ability.IsResourceSkill,
                 true,
                 null));
         }
@@ -5867,6 +5867,7 @@ internal static class ActionPromptBuilder
     private static IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> ActivateAbilityTargetChoicesByIndex(
         MatchState state,
         string playerId,
+        string sourceObjectId,
         P4ActivatedAbilityDefinition ability)
     {
         if (ability.RequiredTargetCount == 0)
@@ -5894,7 +5895,39 @@ internal static class ActionPromptBuilder
             };
         }
 
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, StringComparison.Ordinal))
+        {
+            var choices = state.PlayerZones.TryGetValue(playerId, out var zones)
+                ? zones.Base
+                    .Concat(zones.Battlefields)
+                    .Distinct(StringComparer.Ordinal)
+                    .Where(objectId => IsPromptMalzaharDestroyCostTarget(state, playerId, sourceObjectId, objectId))
+                    .Select(objectId => ObjectChoice(state, objectId, "resource skill cost: destroy friendly unit or equipment"))
+                    .ToArray()
+                : [];
+            return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal)
+            {
+                ["0"] = choices
+            };
+        }
+
         return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
+    }
+
+    private static bool IsPromptMalzaharDestroyCostTarget(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        string objectId)
+    {
+        return !string.Equals(objectId, sourceObjectId, StringComparison.Ordinal)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+            && !cardObject.IsFaceDown
+            && !string.IsNullOrWhiteSpace(cardObject.CardNo)
+            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && (cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                || cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal));
     }
 
     private static bool CanPayXerathTargetCost(
@@ -6044,6 +6077,7 @@ internal static class ActionPromptBuilder
         {
             P4ActivatedAbilityCatalog.ViDoublePowerAbilityId => "蔚",
             P4ActivatedAbilityCatalog.XerathDamageAbilityId => "泽拉斯",
+            P4ActivatedAbilityCatalog.MalzaharResourceAbilityId => "玛尔扎哈",
             _ => ability.DisplayName
         };
     }
@@ -6054,6 +6088,7 @@ internal static class ActionPromptBuilder
         {
             P4ActivatedAbilityCatalog.ViDoublePowerAbilityId => "蔚：支付 2 法力和 1 符能，战力翻倍",
             P4ActivatedAbilityCatalog.XerathDamageAbilityId => "泽拉斯：横置并支付符能，造成 3 点伤害",
+            P4ActivatedAbilityCatalog.MalzaharResourceAbilityId => "玛尔扎哈：摧毁友方单位或装备并横置，获得 2 点费用符能",
             _ => ability.DisplayName
         };
     }
@@ -6064,7 +6099,9 @@ internal static class ActionPromptBuilder
             ? "无目标"
             : string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.XerathDamageAbilityId, StringComparison.Ordinal)
                 ? "任意场上单位"
-                : "服务端目标";
+                : string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, StringComparison.Ordinal)
+                    ? "友方单位或装备（成本）"
+                    : "服务端目标";
     }
 
     private static int SpellshieldTaxManaForTarget(MatchState state, string playerId, string targetObjectId)
@@ -9067,7 +9104,7 @@ internal static class ActionPromptBuilder
     private static IReadOnlyDictionary<string, object?> LegendActionSourceRequirementView(
         LegendActionPromptRequirement requirement)
     {
-        return new Dictionary<string, object?>
+        var view = new Dictionary<string, object?>
         {
             ["sourceObjectId"] = requirement.SourceObjectId,
             ["cardNo"] = requirement.CardNo,
@@ -9091,12 +9128,14 @@ internal static class ActionPromptBuilder
             ["composable"] = requirement.Composable,
             ["unsupportedReason"] = requirement.UnsupportedReason
         };
+
+        return view;
     }
 
     private static IReadOnlyDictionary<string, object?> ActivateAbilitySourceRequirementView(
         ActivateAbilityPromptRequirement requirement)
     {
-        return new Dictionary<string, object?>
+        var view = new Dictionary<string, object?>
         {
             ["sourceObjectId"] = requirement.SourceObjectId,
             ["cardNo"] = requirement.CardNo,
@@ -9125,6 +9164,19 @@ internal static class ActionPromptBuilder
             ["composable"] = requirement.Composable,
             ["unsupportedReason"] = requirement.UnsupportedReason
         };
+
+        if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, StringComparison.Ordinal))
+        {
+            view["resourceSkill"] = true;
+            view["paymentOnly"] = true;
+            view["generatedPower"] = P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower;
+            view["usesTargetAsCost"] = true;
+            view["resourceRestriction"] = P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction;
+            view["timingPolicy"] = "open-main-only-representative";
+            view["reactionPolicy"] = "resolves-immediately-without-stack-item";
+        }
+
+        return view;
     }
 
     private static IReadOnlyDictionary<string, object?> MoveUnitMetadataFor(MatchState state, string playerId)
