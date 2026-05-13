@@ -3,6 +3,8 @@
 日期：2026-05-13
 结论：**NOT READY**
 
+实施状态补充：4D-01 focused acceptance 已在 `6a3ee038 test: add stage 4D board task queue foundation coverage` 通过，审计与证据见 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_AUDIT.md` 和 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_EVIDENCE.md`。本文保留为 handoff 规格和后续回归基线；项目整体仍 **NOT READY**。
+
 本文是 Stage 4D-01 的服务端实现交接规格。它只定义 P0-002 / P0-003 的第一片可交付范围，不授权前端补洞、不升级卡牌矩阵、不宣称 battle / spell-duel full official。
 
 ## 1. 目标

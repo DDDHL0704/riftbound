@@ -2,8 +2,8 @@
 
 自查日期：2026-05-13
 历史自查基准提交：`45bb446`。
-最新 checkpoint：`7a2b1fa3 checkpoint: record stage 4C battlefield residual evidence alignment`。上一 Stage 4C checkpoint：`dc14e795 checkpoint: record stage 4C arena minion annie evidence alignment`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。上一 formal 18-step checkpoint：`3aed179 checkpoint: add formal 18 step e2e evidence`。
-当前已 verified representative evidence：Stage 4C-85 `炽烈符文` / `翠意符文` red / blue basic rune `RUNE_RESOURCE_DOMAIN` payment-resource route 已入账，并通过 focused / rune resource payment prompt regression / backend full / frontend build / Chrome smoke。2026-05-13 formal 18-step E2E 已通过，房间 `formal-18-1778623926434-15` 覆盖官方 deck/opening/mulligan、stack pass-pass、unit move、reconnect、P2 battlefield score 与 surrender result。Active `START_BATTLE` guard test-only evidence 已新增，覆盖争夺战场 battle task prompt / command no-mutation 边界。Stage 4C-86 已新增 `FU-ec31812b00` / `SFD·207/221` / 帝王神坛 representative conquer pay-one return-unit create-Sand-Soldier evidence。Stage 4C-87 已新增 `FU-a7fbef72ba` / `SFD·043/221` / 禁军之墙 representative move-friendly-battlefield-units evidence。Stage 4C-88 已新增 `FU-0f7cbe26ce` / `OGN·113/298` / 玛尔扎哈 resource-skill design gate。Stage 4C-89 已新增 `FU-d635fc47f4` / `OGN·142/298` / 山脉亚龙 与 `FU-72ce6fb8a4` / `OGN·175/298` / 船坞潜伏者 vanilla source-unit evidence。Stage 4C-90 已新增 `FU-c1dc472304` / `OGS·016/024` / 先锋扈从 与 `FU-1207daea8f` / `SFD·006/221` / 好斗的龙犬 active-entry source-unit evidence。Stage 4C-91 已新增 `FU-29d76f0175` / `SFD·157/221` / 皇家守卫 source-unit + Sand Soldier token evidence。Stage 4C-92 已新增 `FU-5f03740098` / `UNL-157/219` / 严厉军士 source-unit + dynamic experience evidence。Stage 4C-93 已新增 `FU-92e31978af` / `SFD·039/221` / 皇家随从 source-unit + legend mode evidence。Stage 4C-94 已新增 `FU-677c27eea7` / `UNL-224/219` / 叨叨魄罗 source-unit + predict recycle evidence。Stage 4C-95 已新增 static effect design gate，确认熔浆巨龙、娑娜、安妮、温驯的宝石龙不能 evidence-only 入账。Stage 4C-96 已新增 legacy guard evidence alignment，将 Stage 4C-60 至 4C-69 已验证的 10 个 direct-card FU 对齐为 representative `IMPLEMENTED_TESTED`。Stage 4C-97 已新增 arena / minion / Annie evidence alignment，将竞技场勤务小队、三张官方随从 token factory、黑暗之女共 5 个 FU 对齐为 representative `IMPLEMENTED_TESTED`。Stage 4C-98 已新增 battlefield residual evidence alignment，将力量方尖碑、荣耀竞技场、冰霜要塞共 3 个 FU 对齐为 representative `IMPLEMENTED_TESTED`；项目仍 **NOT READY**。
+最新 Stage 4D 实现证据：`6a3ee038 test: add stage 4D board task queue foundation coverage`。上一 checkpoint：`aeeadb8f checkpoint: record stage 4D board task baseline evidence`。上一 Stage 4C checkpoint：`7a2b1fa3 checkpoint: record stage 4C battlefield residual evidence alignment`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。上一 formal 18-step checkpoint：`3aed179 checkpoint: add formal 18 step e2e evidence`。
+当前已 verified representative evidence：Stage 4C-85 `炽烈符文` / `翠意符文` red / blue basic rune `RUNE_RESOURCE_DOMAIN` payment-resource route 已入账，并通过 focused / rune resource payment prompt regression / backend full / frontend build / Chrome smoke。2026-05-13 formal 18-step E2E 已通过，房间 `formal-18-1778623926434-15` 覆盖官方 deck/opening/mulligan、stack pass-pass、unit move、reconnect、P2 battlefield score 与 surrender result。Active `START_BATTLE` guard test-only evidence 已新增，覆盖争夺战场 battle task prompt / command no-mutation 边界。Stage 4C-86 至 Stage 4C-98 已完成多批 representative evidence / design gate alignment。Stage 4D-01 board task queue foundation 已新增 focused acceptance tests，覆盖 base-to-battlefield、battlefield-to-base、precise roam destination-scoped contest tasks、cleanup-first blocking、illegal standby / unattached equipment redaction、cleanup repeat、`PASS_FOCUS` task promotion 与 reconnect pending task redaction；focused 31/31、adjacent 149/149、backend full 3780/3780 通过。项目仍 **NOT READY**。
 历史复审范围：battlefield standby cleanup/control lifecycle / illegal standby task visibility / battlefield resolution snapshot / battle resolution snapshot / basic rune recycle / recovery action-log audit / multi-defender declare battle prompt / multi-attacker declare battle representative path / multi-participant declare battle representative path / same-priority battle damage assignment order / battle no-result visibility / haste payment resource evidence / haste payment resource hub-browser evidence / haste colored payment resource evidence / all haste colored payment profile evidence / payment failure state hash matrix / typed spend power prompt / typed spend power amount prompt / typed spend power payment resource combo / over-recycle payment guard / payment resource contribution metadata / required double payment resources / mixed trait payment resources / generic mixed trait payment resources / legacy prompt fixture gate cleanup / spellshield multi-target hub-ui evidence / echo reduction prompt-ui evidence / granted echo prompt-ui evidence / equipment cost reduction prompt-ui evidence / held unit cost increase prompt-ui evidence / prevent unit play destination prompt evidence / standby hide prompt-ui evidence / standby reveal prompt-ui evidence / priority reaction prompt-ui evidence / spellshield insufficient target prompt-ui evidence / unknown cardNo prompt-ui evidence / unknown assemble prompt-ui evidence / assemble payment resource prompt-ui evidence / unknown legend action prompt-ui evidence / unknown activate ability prompt-ui evidence / unknown move unit prompt-ui evidence / unknown move unit battlefield prompt-ui evidence / unknown rune prompt-ui evidence / unknown declare battle prompt-ui evidence / unknown declare battle battlefield prompt-ui evidence / unknown standby hide-reveal prompt-ui evidence / unknown play target prompt-ui evidence / unknown assemble target prompt-ui evidence / unknown legend action target prompt-ui evidence / unknown activate ability target prompt-ui evidence / play card command cardNo guard / end turn command window guard / turn-end state cleanup loop / turn-start command guard / finished match command guard / finished mulligan guard / finished submit error guard / finished submit deck error guard / xerath cleanup rune pool guard / turn-start cleanup object location guard / play additional cost object location guard / legend action object location guard / standby reaction object location guard / Jinx turn-start draw object location guard / tap rune object location guard / recycle rune object location guard / battlefield experience ability object location guard / activated ability stack object location guard / recovery spectator frame validator guard / service-driven mulligan selection guard / card detail evidence display guard / standby source control guard / move unit source control guard / activate ability source control guard / declare battle participant control guard / play card source control guard / assemble equipment control guard / legend action control guard / play card target control guard / play card private-zone target control guard / play card enemy target control guard / play card opponent private target control guard / play card any hand target control guard / play card any main deck top-five target control guard / play card sacred judgment keep target control guard / mulligan hand selection control guard / mulligan replacement draw control guard / play card main deck look-window control guard / rune deck call control guard / main deck draw control guard / burnout graveyard recycle control guard / main deck reveal trigger control guard / recycle target control guard / battlefield recycle rune control guard / LeBlanc trigger control guard / graveyard unit banish control guard / battlefield discard draw hand control guard / discard all hands control guard / any hand discard resolution guard / friendly hand discard resolution guard / graveyard return hand resolution guard / graveyard play base resolution guard / hand play base resolution guard / opponent top main deck play base resolution guard / target owner main deck resolution guard / target return hand resolution guard / banish play field resolution guard / gain control resolution guard / move target owner base resolution guard / move target battlefield resolution guard / move target unit location resolution guard / swap target location resolution guard / destroy target resolution guard / field target mutation resolution guard / special target interaction resolution guard / field area selection resolution guard / battlefield static source control guard / battlefield movement static source guard / battlefield scoring start source guard / battlefield prompt source guard / standby destination prompt source guard / standby destination command source guard / battlefield granted ability source guard / battlefield required legend source guard / battlefield return-call-rune source guard / battlefield held conquest unit source guard / legend trigger source guard / battlefield conquer target source guard / rune source prompt payment guard / activate ability prompt source guard / move unit prompt source guard / battlefield snapshot controller guard / battlefield standby controller fallback guard / zero power cleanup identity guard / battlefield control occupant source guard / battlefield control standby source guard / battlefield defender move source guard / battlefield unit experience source guard / unattached equipment cleanup / legacy unattached equipment cleanup / spell duel close cleanup / spell duel cleanup battle invalidation / official deck session error localization / room reconnect error localization / frontend fallback text gate / petal pixie static power / scarlet pigeon multi-attacker power / soul shepherd token static power / scouting warhawk last breath rune / mechanical trickster last breath minions / ironclad vanguard last breath robots / honest broker last breath gold / unsung hero last breath draw / ghostly centaur destroyed-unit power / eclipse vanguard stun trigger / last rites graveyard recycle assemble / hextech gauntlet dynamic assemble / any unit target scope guard / enemy battlefield unit target scope guard / demacia envoy experience evidence / tibbers all-battlefield damage evidence / bubblebot friendly Mechanical ready evidence 补丁。
 历史复审范围补充：treasure golem Gold token evidence。
 历史复审范围补充：faithful craftsman Minion token evidence。
@@ -37,7 +37,16 @@
 历史复审范围补充：imperial shrine conquer pay-one return-unit Sand Soldier evidence。
 历史复审范围补充：shield wall move-friendly-battlefield-units evidence。
 历史复审范围补充：malzahar resource-skill design gate。
+历史复审范围补充：Stage 4D-01 board task queue foundation evidence。
 自查依据：`docs/符文战场_服务端核心规则自查文档.md`、仓库内五个官方规则 PDF 对应的核心规则/FAQ/勘误要求，以及当前 `src/Riftbound.Engine`、`src/Riftbound.Api`、`tests/Riftbound.ConformanceTests` 实现。
+
+## 2026-05-13 Stage 4D-01 Board Task Queue Foundation Evidence
+
+证据入口：`docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_AUDIT.md` 与 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_EVIDENCE.md`。本批新增 `tests/Riftbound.ConformanceTests/BoardTaskQueueFoundationTests.cs`，未修改引擎、API、前端或卡牌矩阵。
+
+证据点：base-to-battlefield empty / occupied contest、battlefield-to-base contest removal、cleanup-first blocking、cleanup repeat until stable、illegal standby / unattached equipment redaction、`PASS_FOCUS` spell duel close -> `START_BATTLE` promotion、precise roam mixed-case `BATTLEFIELD:<objectId>` preservation and destination-only contest queue、reconnect pending task phase / active task / hidden-info redaction。
+
+验证：focused 31/31、adjacent 149/149、backend full 3780/3780，diff whitespace checks 无输出。本证据把 P0-002 / P0-003 的 board task queue foundation 收窄并固化为自动化回归；仍不宣称完整 held/conquer/control lifecycle、replacement/prevention、完整 battle cleanup、P0-004 spell-duel/battle state machine、P0-005 PaymentEngine、P1 LayerEngine 或 READY。
 
 ## 2026-05-13 Formal 18-Step E2E Evidence
 
@@ -3394,7 +3403,7 @@
 
 ### P0-002 战场、待命区、控制权和单位位置模型不足
 
-当前状态：**PARTIALLY RESOLVED / 对象位置索引、权威派生战场状态、权威 battlefield task 视图与具体战场移动已落地；objectId 大小写保留风险已修复，完整战场任务状态机仍待建模**
+当前状态：**PARTIALLY RESOLVED / 对象位置索引、权威派生战场状态、权威 battlefield task 视图、具体战场移动、4D-01 destination-scoped contest task 与 reconnect redaction foundation 已落地；完整 held/conquer/control lifecycle 仍待建模**
 
 规则依据：自查文档 4、10；核心规则关于基地、战场、待命区、战场控制权、占领/争夺、单位移动与区域归属的要求。
 
@@ -3404,9 +3413,10 @@
 - `src/Riftbound.Engine/MatchSession.cs` 新增 `BattlefieldTaskState` 与 `MatchState.BattlefieldTasks`，争夺战场会公开 `START_SPELL_DUEL`、`START_BATTLE` 的任务状态、参与者和关联 stack/focus 信息。
 - `src/Riftbound.Engine/CoreRuleEngine.cs` 的打出、结算、移动、调度、召符文路径开始同步 `ObjectLocations`。
 - `dda6385` 基线中，`src/Riftbound.Engine/CoreRuleEngine.cs` 的移动 origin/destination 规范化曾使用全串 `ToUpperInvariant()`；这会把 `BATTLEFIELD:<objectId>` 冒号后的 objectId 一并改写。2026-05-09 第一轮 B 修复后，当前移动 location 解析只规范化冒号前 zone，保留 objectId 原始大小写，并已补小写 `a` 官方战场测试。
-- 仍缺：每个战场的 held/conquered/占领结果、待命容量和 control/contest 变更由统一 task queue 推进。
+- 4D-01 已新增 `BoardTaskQueueFoundationTests`，覆盖 precise roam mixed-case destination、destination-only contest queue、base-to-battlefield / battlefield-to-base 代表路径和 reconnect redaction。
+- 仍缺：每个战场的 held/conquered/占领结果、待命容量、control freeze/release 和完整 control/contest 变更由统一 task queue 推进。
 
-现象：系统现在可以在权威状态中表达对象所在粗粒度区域和精确战场 object id，并拒绝来源位置与权威状态不一致的精确游走；`MatchState.BattlefieldStates` 能从服务端状态统一暴露已知战场的占据/争夺/待命视图；`MatchState.BattlefieldTasks` 能把争夺战场后续 spell duel/battle 任务公开给 UI 和日志。`dda6385` 具体战场移动提交曾存在大小写风险；第一轮已确认官方 card catalog 中小写 `a` 战场 `OGN·276a/298` 能在 `BATTLEFIELD:<objectId>` 目的地中逐字保留，并写回 `ObjectLocations.BattlefieldObjectId`。战场本身仍没有完整控制权变更、占据、征服、战斗/法术对决任务推进生命周期，因此 P0-002 仍只能降级为部分解决。
+现象：系统现在可以在权威状态中表达对象所在粗粒度区域和精确战场 object id，并拒绝来源位置与权威状态不一致的精确游走；`MatchState.BattlefieldStates` 能从服务端状态统一暴露已知战场的占据/争夺/待命视图；`MatchState.BattlefieldTasks` 能把争夺战场后续 spell duel/battle 任务公开给 UI 和日志。`dda6385` 具体战场移动提交曾存在大小写风险；第一轮已确认官方 card catalog 中小写 `a` 战场 `OGN·276a/298` 能在 `BATTLEFIELD:<objectId>` 目的地中逐字保留，并写回 `ObjectLocations.BattlefieldObjectId`。4D-01 进一步固化：战场间 precise roam 会保留 mixed-case 目的地 object id，且只为目的地战场排 `START_SPELL_DUEL` / `START_BATTLE`。战场本身仍没有完整控制权变更、占据、征服、战斗/法术对决任务推进生命周期，因此 P0-002 仍只能降级为部分解决。
 
 最小复现场景：在两个友方战场之间提交精确 `MOVE_UNIT` 游走。当前结果会写回 `ObjectLocations[source].BattlefieldObjectId`；如果客户端提交的 origin 与权威位置不一致，服务端会拒绝。第一轮回归场景已覆盖：目的地为 `BATTLEFIELD:<小写 a 战场 objectId>` 时，规范化只影响 zone，不会把 objectId 改成大写 `A`。
 
@@ -3418,12 +3428,13 @@
 建议测试：
 - 单位从基地到战场、战场到基地、战场间游走。
 - 以 `OGN·276a/298`、`OGN·278a/298`、`OGN·293a/298` 对应战场对象覆盖 prompt destination、submit destination、`ObjectLocations.BattlefieldObjectId`、`BattlefieldStates` snapshot 和 reconnect/recovery 后的大小写保持。
-- 移入空战场、敌方控制战场、双方争夺战场后的控制权、占领、战斗/法术对决 pending 状态。
+- 已补 4D-01：移入空战场、移入敌方占据战场、战场间 roam 到敌方占据目的地、栈结算移回基地、reconnect 后 pending task redaction。
+- 待补：held/conquer scoring、control freeze/release、完整战斗/法术对决 pending 状态机和所有战场控制变化路径。
 - 待命区容量、面朝下信息、revealed 后转移。
 
 ### P0-003 通用清理检查与任务队列缺失
 
-当前状态：**PARTIALLY RESOLVED / 状态性 cleanup task、battlefield task 视图、致命伤害 cleanup loop、非法待命栈后自动清理与 blocking guard 已接入；0/负战力自动清理语义已按 FAQ 收窄，完整统一任务队列仍缺失**
+当前状态：**PARTIALLY RESOLVED / 状态性 cleanup task、battlefield task 视图、致命伤害 cleanup loop、非法待命 / 未贴附装备清理、cleanup repeat、blocking guard 与 4D-01 reconnect redaction foundation 已接入；完整统一任务队列仍缺失**
 
 规则依据：自查文档 5；核心规则关于“任意状态变化后进行清理检查、重复直到稳定、触发待处理任务、清理期间不能响应”的要求。`SOUL-OFAQ-260114` p19-p20 进一步澄清：0/负战力单位不会自动被摧毁，必须受到至少 1 点有效伤害后才会死亡；负战力战斗伤害输出按 0，但实际战力值保留。
 
@@ -3433,10 +3444,11 @@
 - `src/Riftbound.Engine/CoreRuleEngine.cs:10641` 的 `ResolveEndTurn` 只在回合结束路径调用 `ApplyTurnEndCleanup`，然后直接 `ResolveTurnStart`。
 - `dda6385` 基线中，`src/Riftbound.Engine/MatchSession.cs` 的 `PendingCleanupTasks` 可显式暴露致命伤害、`DESTROY_ZERO_POWER_UNIT` 和战场争夺检查任务；其中 `DESTROY_ZERO_POWER_UNIT` 是 P0 冲突点，不能按官方 FAQ 视为已完成。2026-05-09 第一轮 B 修复后，当前引擎不再生成仅因 `Power <= 0` 的 cleanup task。
 - `src/Riftbound.Engine/MatchSession.cs` 新增 `PendingTaskQueue`，按状态性清理、战场争夺、法术对决启动、战斗启动的顺序公开当前 active task 和 blocking phase。
-- `src/Riftbound.Engine/CoreRuleEngine.cs` 新增 `RunStateBasedCleanupLoop`，移动和结算链结算后会重复执行致命伤害/0 战力/非法待命清理直到稳定；`ResolveAsync` 会在 blocking pending task queue 期间拒绝普通玩家命令。
+- `src/Riftbound.Engine/CoreRuleEngine.cs` 新增 `RunStateBasedCleanupLoop`，移动和结算链结算后会重复执行致命伤害/0 战力/非法待命/未贴附装备清理直到稳定；`ResolveAsync` 会在 blocking pending task queue 期间拒绝普通玩家命令。
+- 4D-01 已新增 focused tests，覆盖 cleanup-first ordering、普通命令 no-mutation、cleanup repeat until stable、非法待命 / 未贴附装备 prompt redaction、reconnect 后 pending task phase / active task / hidden-info redaction。
 - `dda6385` 基线中，`MatchSession` / `CoreRuleEngine` 的 `IsZeroPowerCleanupCandidate` 以 `Power <= 0` 作为 zero power cleanup candidate 的核心条件，未要求 `Damage >= 1`。2026-05-09 第一轮 B 修复已改为 0/负战力且有非零伤害才进入致命伤害清理。
 
-现象：当前清理仍没有完全升级为官方意义上的“所有状态变化后统一检查并重复”的持久任务队列。移动、栈项目结算、战斗伤害、Xerath 技能伤害和回合开始战场群体伤害会运行状态性致命伤害 cleanup loop 并同步位置；栈结算后若发现非法待命，也会通过同一 cleanup loop 移入墓地、翻面、同步位置并清空该 pending task；`PendingCleanupTasks` 已能列出待处理的致命伤害、非法待命、战场争夺、`START_SPELL_DUEL` 与 `START_BATTLE` 任务；`PendingTaskQueue` 能按清理优先级公开 active task 和 blocking phase；`BattlefieldTasks` 能给这些战场任务附带状态和参与者。服务端 prompt/command guard 已阻止普通行动在 blocking queue 期间继续执行。2026-05-09 第一轮已修正 0/负战力自动死亡冲突：`Power <= 0 && Damage == 0` 不清理，`Power <= 0 && Damage > 0` 走致命伤害清理。由战场控制权变化、替代效果、所有进出战场路径等触发的 pending duel/battle/控制权变化仍无法通过一个中央状态机保证。
+现象：当前清理仍没有完全升级为官方意义上的“所有状态变化后统一检查并重复”的持久任务队列。移动、栈项目结算、战斗伤害、Xerath 技能伤害和回合开始战场群体伤害会运行状态性致命伤害 cleanup loop 并同步位置；栈结算后若发现非法待命，也会通过同一 cleanup loop 移入墓地、翻面、同步位置并清空该 pending task；未贴附装备可通过同一 cleanup loop 召回基地；`PendingCleanupTasks` 已能列出待处理的致命伤害、非法待命、未贴附装备、战场争夺、`START_SPELL_DUEL` 与 `START_BATTLE` 任务；`PendingTaskQueue` 能按清理优先级公开 active task 和 blocking phase；`BattlefieldTasks` 能给这些战场任务附带状态和参与者。服务端 prompt/command guard 已阻止普通行动在 blocking queue 期间继续执行，reconnect 后仍保留 pending phase / active task 并维持对手视角隐藏信息。2026-05-09 第一轮已修正 0/负战力自动死亡冲突：`Power <= 0 && Damage == 0` 不清理，`Power <= 0 && Damage > 0` 走致命伤害清理。由战场控制权变化、替代效果、所有进出战场路径等触发的 pending duel/battle/控制权变化仍无法通过一个中央状态机保证。
 
 最小复现场景：尝试移动一个已经带致命伤害的单位，当前会因 `DESTROY_LETHAL_UNIT` blocking task 被拒绝；结算一个无行为栈项目时，如果场上已有致命伤害单位或非法待命，会在栈结算后被状态性清理兜底处理。第一轮新增验收覆盖：正面场上单位被修正到 0 或负数但没有伤害时继续留场；同一类单位受到至少 1 点伤害后会在清理中被摧毁；负战力战斗输出为 0 但对象实际战力保留。如果移动导致战场控制权/争夺状态变化，仍没有统一 cleanup loop 能保证后续待处理任务被稳定排入并按官方顺序解决。
 
@@ -3448,8 +3460,8 @@
 建议测试：
 - 已新增：移动、栈结算、战斗伤害、Xerath 技能伤害、回合开始战场伤害进入 cleanup loop；非法待命会暴露 `REMOVE_ILLEGAL_STANDBY` blocking task，且代表性栈结算后会自动翻面入墓并清空该 pending task；争夺战场暴露 START_SPELL_DUEL/START_BATTLE 任务及 `BattlefieldTasks` 权威任务视图；待清理 blocking queue 会关闭普通 prompt 并拒绝普通命令。
 - 已补：`Power <= 0 && Damage == 0` 不暴露 blocking cleanup task、不自动入墓；`Power <= 0 && Damage > 0` 在清理中入墓；负战力单位战斗输出按 0，但对象实际战力值保留。
-- 待补：替代效果、所有进出战场路径都触发同一持久 cleanup task queue。
-- cleanup loop 重复直到稳定。
+- 已补 4D-01：cleanup loop 重复直到稳定、普通命令 no-mutation、非法待命/未贴附装备 redaction、reconnect 后 pending task redaction。
+- 待补：替代效果、所有进出战场路径、完整控制权变化和完整 battle cleanup 都触发同一持久 cleanup task queue。
 - 已新增：cleanup/task queue 阻塞期间 prompt 只给 `WAIT`，普通命令被 `PhaseNotAllowed` 拒绝。
 
 ### P0-004 法术对决与战斗不是完整官方状态机
@@ -3657,11 +3669,11 @@
 | 双人房间/重连/snapshot/prompt | PASS | `GameHub` 具备 join/reconnect/request snapshot/submit flow。 |
 | 隐藏手牌/面朝下对象 | PASS | 手牌、face-down、随机 seed/rngCursor 与 spectator replay frame 均已裁剪。 |
 | 官方 deck/opening/mulligan | RISKY | 已有 `SUBMIT_DECK -> READY -> MULLIGAN` 正式路径、deck validator、负例矩阵、起手调度边界和 Hub smoke；剩余风险主要是产品前端仍需强制正式入口。 |
-| 区域/对象/控制权/战场位置 | RISKY | 已有 `ObjectLocations`、`BattlefieldStates` 与 `BattlefieldTasks` 权威派生视图；仍缺完整 battlefield/standby/control task 状态机。 |
+| 区域/对象/控制权/战场位置 | RISKY | 已有 `ObjectLocations`、`BattlefieldStates`、`BattlefieldTasks` 与 4D-01 destination-scoped contest task foundation；仍缺完整 battlefield/standby/control/held/conquer task 状态机。 |
 | FEPR/优先权/焦点 | RISKY | 有 `TurnWindowState`、`SpellDuelState`、`BattlefieldTasks`、focus/prompt；仍缺完整 pending task/state machine。 |
 | 栈/出牌/费用/目标 | RISKY | 大量代表路径实现；PLAY_CARD 与代表性非出牌路径已 typed-power aware，但通用支付来源/目标语法仍不足。 |
-| 通用清理检查 | RISKY | 已有 `PendingCleanupTasks`、`PendingTaskQueue` 与移动/栈结算后的致命伤害/0 战力 cleanup loop；仍缺覆盖全部状态变化的统一任务队列。 |
-| 移动/战场控制 | RISKY | 精确移动可写回 object location，战场状态可表达争夺；完整控制权改变/征服/据守仍待状态机化。 |
+| 通用清理检查 | RISKY | 已有 `PendingCleanupTasks`、`PendingTaskQueue`、cleanup-first blocking、cleanup repeat 与 reconnect redaction foundation；仍缺覆盖全部状态变化/替代效果/战斗清理的统一任务队列。 |
+| 移动/战场控制 | RISKY | 精确移动可写回 object location，战场间 roam 保留 mixed-case destination 并只为目的地排 contest tasks；完整控制权改变/征服/据守仍待状态机化。 |
 | 法术对决 | RISKY | 已有显式 `SpellDuelState`、`BattlefieldTasks` 与焦点恢复；仍缺完整 spell duel lifecycle。 |
 | 战斗 | RISKY | 已有显式 `BattleState` 参与者视图、`START_BATTLE` 任务视图和 `DECLARE_BATTLE.sourceRequirements`；当前仍是 direct/minimal declare battle，不是官方 battle task。 |
 | 计分/胜负 | RISKY | 有部分得分/胜负实现；依赖战场控制与 cleanup 的完整性不足。 |
@@ -3675,13 +3687,13 @@
 1. 已完成：冻结并重命名当前 `CONFORMANCE_PASS` 口径，避免把 fixture/domain pass 当成 full official rules pass。
 2. 已完成第一批：官方 deck/opening/mulligan、Hub smoke、legacy ready 生产边界。
 3. 已完成第一批：board object location、battlefield state、battlefield task、pending cleanup/turn window/spell duel/battle/continuous effect/keyword coverage/spectator replay 的服务端显式视图。
-4. 下一步：把 battlefield task view 接入真正的 board task model：standby、control/contest/conquer/hold 与 battlefield pending task 生命周期。
-5. 下一步：建立通用 cleanup task queue，把移动、进场、离场、伤害、战力变化、战场控制变化统一纳入。
+4. 已完成 4D-01 foundation：board task queue focused checklist、cleanup-first blocking、destination-scoped contest tasks、reconnect redaction。
+5. 下一步：补 complete standby/control/conquer/hold full-official lifecycle 与所有状态变化统一 cleanup queue 的残余边界。
 6. 下一步：在 task queue 上重做 spell duel 和 battle state machine。
 7. 下一步：扩展 typed payment engine 到 rune/legend/battlefield/keyword 全路径，支持替代费用、减费/加费、额外/可选费用。
 8. 下一步：引入完整 continuous effect LayerEngine，并逐关键词、逐卡牌把 `Representative/FixturePass` 提升到 `FullOfficialRulePass`。
 
-Stage 4D 主控计划已将以上顺序拆为可执行写锁与验收门槛，见 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`。后续实现应先完成 4D-01 board task queue foundation，再推进 4D-02 battle/spell-duel state machine；PaymentEngine 可以先做只读设计，但进入 `CoreRuleEngine.cs` 集成前必须避开同一写锁。
+Stage 4D 主控计划已将以上顺序拆为可执行写锁与验收门槛，见 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`。4D-01 board task queue foundation 已验收；后续实现应进入 4D-02 battle/spell-duel state machine。PaymentEngine 可以先做只读设计，但进入 `CoreRuleEngine.cs` 集成前必须避开同一写锁。
 
 ## 最终验收口径
 

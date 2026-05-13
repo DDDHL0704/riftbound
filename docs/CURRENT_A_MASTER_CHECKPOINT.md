@@ -5,7 +5,7 @@
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
 
-最新 checkpoint：`aeeadb8f checkpoint: record stage 4D board task baseline evidence`；上一 Stage 4D checkpoint：`d97ebb59 checkpoint: record stage 4D board task queue handoff`；上一 Stage 4C checkpoint：`7a2b1fa3 checkpoint: record stage 4C battlefield residual evidence alignment`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。Stage 4D 收口执行顺序见 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`，4D-01 实现交接见 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_01_BASELINE_EVIDENCE.md`。
+最新 Stage 4D 实现证据：`6a3ee038 test: add stage 4D board task queue foundation coverage`；上一 checkpoint：`aeeadb8f checkpoint: record stage 4D board task baseline evidence`；上一 Stage 4D handoff checkpoint：`d97ebb59 checkpoint: record stage 4D board task queue handoff`；上一 Stage 4C checkpoint：`7a2b1fa3 checkpoint: record stage 4C battlefield residual evidence alignment`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。4D-01 board task queue foundation 已通过 focused 31/31、adjacent 149/149、backend full 3780/3780，证据见 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_AUDIT.md` 与 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_EVIDENCE.md`。当前仍 **NOT READY**，阻断集中在 P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit；P0-002 / P0-003 已被 4D-01 进一步收窄但未 full-official 关闭。Stage 4D 收口执行顺序见 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`，4D-01 实现交接见 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_01_BASELINE_EVIDENCE.md`。
 
 ## 0. A 主控职责边界
 
@@ -53,6 +53,41 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 如果必须重建常驻池，必须立即更新本节 agent id，并说明旧 id 失效原因。
 
 2026-05-12 复核：A 已向当前 B/C/D/E 长期代理同步“驻场复用、未授权不写入、不因单次超时清理”的规则；Maxwell、Copernicus、Nash、Poincare 均已确认继续保留上下文。用户已明确“在当前 goal 完成前不需要再申请授权”，4C-59 已完成 Zenith Blade enemy battlefield stun target guard 代表切片，A 负责复核、验证、文档和 checkpoint 收口。
+
+## 0.1.0 阶段 4D-01 Board Task Queue Foundation Checkpoint
+
+状态：**foundation accepted；项目仍 NOT READY。**
+
+本批事实：
+
+- 实现证据提交：`6a3ee038 test: add stage 4D board task queue foundation coverage`
+- 新增测试文件：`tests/Riftbound.ConformanceTests/BoardTaskQueueFoundationTests.cs`
+- 审计入口：`docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_AUDIT.md`
+- 证据入口：`docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_EVIDENCE.md`
+
+覆盖点：
+
+- base-to-battlefield empty / occupied contest queue。
+- battlefield-to-base contest removal。
+- cleanup-first blocking、ordinary command no-mutation、cleanup repeat until stable。
+- illegal standby / unattached equipment redaction。
+- `PASS_FOCUS` spell duel close -> matching `START_BATTLE` promotion。
+- precise battlefield roam mixed-case object id preservation and destination-only contest tasks。
+- reconnect snapshot / prompt pending task phase, active task and opponent hidden-info redaction。
+
+已跑验证：
+
+- Focused：`FullyQualifiedName~BoardTaskQueueFoundation|FullyQualifiedName~BattlefieldContestBattleTaskGuardTests|FullyQualifiedName~PendingTaskQueue|FullyQualifiedName~ReconnectWithPendingTaskQueue` 通过 31/31。
+- Adjacent：`FullyQualifiedName~BattlefieldContest|FullyQualifiedName~PendingTaskQueue|FullyQualifiedName~BattlefieldTasks|FullyQualifiedName~MoveUnit|FullyQualifiedName~StateBasedCleanup|FullyQualifiedName~SpellDuel|FullyQualifiedName~StartBattle|FullyQualifiedName~Reconnect` 通过 149/149。
+- Backend full：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 3780/3780。
+- `git diff --check` 与新增文件 whitespace check 均无输出。
+
+口径：
+
+- 4D-01 handoff checklist 已满足，下一步可进入 4D-02 spell duel and battle state machine。
+- 本批不修改引擎源码、不修改前端、不修改卡牌矩阵。
+- P0-002 / P0-003 已收窄为后续 full-official lifecycle 残余，不因本批宣称 READY。
+- P0-004、P0-005、P1 LayerEngine / keywords / full-card evidence 仍未关闭。
 
 4C-23 agent 事件：
 
@@ -5193,3 +5228,29 @@ Checkpoint 记录：
 - 本批不修改功能代码、测试代码、前端代码或 coverage matrix。
 - baseline 只证明现有代表性 queue / battlefield / move / cleanup / spell-duel / start-battle 周边测试在实现前为绿色。
 - baseline 不关闭 P0-002 / P0-003 / P0-004 / P0-005，不声明 READY。
+
+## 64. Stage 4D-01 Board Task Queue Foundation Evidence
+
+状态：**4D-01 foundation accepted；项目整体仍 NOT READY。**
+
+本批范围：
+
+- 实现证据提交：`6a3ee038 test: add stage 4D board task queue foundation coverage`。
+- 新增测试：`tests/Riftbound.ConformanceTests/BoardTaskQueueFoundationTests.cs`。
+- 新增审计入口：`docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_AUDIT.md`。
+- 新增证据入口：`docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_EVIDENCE.md`。
+- 不修改引擎、API、前端或 coverage matrix。
+
+通过证据：
+
+- focused：`FullyQualifiedName~BoardTaskQueueFoundation|FullyQualifiedName~BattlefieldContestBattleTaskGuardTests|FullyQualifiedName~PendingTaskQueue|FullyQualifiedName~ReconnectWithPendingTaskQueue`，31/31 通过。
+- adjacent：`FullyQualifiedName~BattlefieldContest|FullyQualifiedName~PendingTaskQueue|FullyQualifiedName~BattlefieldTasks|FullyQualifiedName~MoveUnit|FullyQualifiedName~StateBasedCleanup|FullyQualifiedName~SpellDuel|FullyQualifiedName~StartBattle|FullyQualifiedName~Reconnect`，149/149 通过。
+- backend full：3780/3780 通过。
+- `git diff --check` 与新增文件 whitespace check 均无输出。
+
+口径：
+
+- 4D-01 handoff checklist 已被自动化测试覆盖。
+- P0-002 / P0-003 被进一步收窄，但完整 held/conquer/control lifecycle、replacement/prevention、所有状态变化 unified cleanup queue 仍未 full-official resolved。
+- 下一实现切片进入 4D-02 spell duel / battle state machine。
+- P0-004、P0-005、P1 与 READY 均未关闭；不得调用 active goal complete。

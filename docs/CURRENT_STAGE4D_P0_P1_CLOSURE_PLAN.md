@@ -27,6 +27,8 @@
 
 阻断：P0-002、P0-003。
 
+当前状态：**foundation accepted at `6a3ee038` / project NOT READY**。证据见 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_AUDIT.md` 与 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_EVIDENCE.md`；focused 31/31、adjacent 149/149、backend full 3780/3780 通过。该状态只接受 4D-01 focused checklist，不把 P0-002/P0-003 升级为 full-official resolved。
+
 目标：把现有 `BattlefieldState`、`BattlefieldTaskState`、`PendingCleanupTasks` 与 `PendingTaskQueue` 接入真正的 board task lifecycle，覆盖 standby、control/contest/conquer/hold、战场控制变化和状态性清理重复直到稳定。
 
 详细实现交接规格：`docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_HANDOFF.md`。
@@ -159,6 +161,6 @@
 
 1. 维持 NOT READY 结论。
 2. 不再为 Stage 4C representative evidence alignment 追加新批次，除非出现遗漏的已验证自动化证据。
-3. 下一次实现性推进应从 4D-01 开始，先锁定服务端 board task / cleanup queue 的最小可验收切片。
+3. 下一次实现性推进应从 4D-02 开始，把 spell duel / battle 从 representative resolver 推进到由 task queue 驱动的官方状态机。
 4. 每个 4D 实现切片必须先给出写入范围、测试过滤器、不可并行文件和 no-go 声明，再进入代码修改。
 5. A 在没有用户明确要求使用子 agent 的当前回合中只维护计划和验收文档，不启动新的 agent。
