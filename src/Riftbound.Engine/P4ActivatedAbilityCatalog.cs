@@ -35,6 +35,16 @@ public sealed record P4DeferredActivatedAbilitySurface(
     bool EnemySpellshieldTaxRisk,
     string Reason);
 
+public sealed record P4SigilTypedResourceProfile(
+    string AbilityId,
+    string SourceCardNo,
+    string EffectKind,
+    string DisplayName,
+    string Trait,
+    string TraitLabel,
+    string ResourceRestriction,
+    string ResourceIdPrefix);
+
 public static class P4ActivatedAbilityCatalog
 {
     public const string ViCardNo = "UNL-030/219";
@@ -93,6 +103,89 @@ public static class P4ActivatedAbilityCatalog
     public const string RageSigilResourceAbilityEffectKind = "RAGE_SIGIL_REACTION_TYPED_RESOURCE_GAIN_RED";
     public const string RageSigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_RED_TEMPORARY_LEDGER_4D_03R";
     public const int RageSigilGeneratedRedPower = 1;
+
+    public const string FocusSigilCardNo = "SFD·226/221";
+    public const string FocusSigilResourceAbilityId = "FOCUS_SIGIL_REACTION_EXHAUST_GAIN_1_GREEN_POWER";
+    public const string FocusSigilResourceAbilityEffectKind = "FOCUS_SIGIL_REACTION_TYPED_RESOURCE_GAIN_GREEN";
+    public const string FocusSigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_GREEN_TEMPORARY_LEDGER_4D_03S";
+
+    public const string InsightSigilCardNo = "SFD·229/221";
+    public const string InsightSigilResourceAbilityId = "INSIGHT_SIGIL_REACTION_EXHAUST_GAIN_1_BLUE_POWER";
+    public const string InsightSigilResourceAbilityEffectKind = "INSIGHT_SIGIL_REACTION_TYPED_RESOURCE_GAIN_BLUE";
+    public const string InsightSigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_BLUE_TEMPORARY_LEDGER_4D_03S";
+
+    public const string PowerSigilCardNo = "SFD·231/221";
+    public const string PowerSigilResourceAbilityId = "POWER_SIGIL_REACTION_EXHAUST_GAIN_1_ORANGE_POWER";
+    public const string PowerSigilResourceAbilityEffectKind = "POWER_SIGIL_REACTION_TYPED_RESOURCE_GAIN_ORANGE";
+    public const string PowerSigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_ORANGE_TEMPORARY_LEDGER_4D_03S";
+
+    public const string DiscordSigilCardNo = "SFD·234/221";
+    public const string DiscordSigilResourceAbilityId = "DISCORD_SIGIL_REACTION_EXHAUST_GAIN_1_PURPLE_POWER";
+    public const string DiscordSigilResourceAbilityEffectKind = "DISCORD_SIGIL_REACTION_TYPED_RESOURCE_GAIN_PURPLE";
+    public const string DiscordSigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_PURPLE_TEMPORARY_LEDGER_4D_03S";
+
+    public const string UnitySigilCardNo = "SFD·238/221";
+    public const string UnitySigilResourceAbilityId = "UNITY_SIGIL_REACTION_EXHAUST_GAIN_1_YELLOW_POWER";
+    public const string UnitySigilResourceAbilityEffectKind = "UNITY_SIGIL_REACTION_TYPED_RESOURCE_GAIN_YELLOW";
+    public const string UnitySigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_YELLOW_TEMPORARY_LEDGER_4D_03S";
+
+    private static readonly P4SigilTypedResourceProfile[] SigilTypedResourceProfiles =
+    [
+        new(
+            RageSigilResourceAbilityId,
+            RageSigilCardNo,
+            RageSigilResourceAbilityEffectKind,
+            "暴怒之印",
+            RuneTrait.Red,
+            "红色",
+            RageSigilTypedResourceRestriction,
+            "RAGE_SIGIL"),
+        new(
+            FocusSigilResourceAbilityId,
+            FocusSigilCardNo,
+            FocusSigilResourceAbilityEffectKind,
+            "专注之印",
+            RuneTrait.Green,
+            "绿色",
+            FocusSigilTypedResourceRestriction,
+            "FOCUS_SIGIL"),
+        new(
+            InsightSigilResourceAbilityId,
+            InsightSigilCardNo,
+            InsightSigilResourceAbilityEffectKind,
+            "洞察之印",
+            RuneTrait.Blue,
+            "蓝色",
+            InsightSigilTypedResourceRestriction,
+            "INSIGHT_SIGIL"),
+        new(
+            PowerSigilResourceAbilityId,
+            PowerSigilCardNo,
+            PowerSigilResourceAbilityEffectKind,
+            "力量之印",
+            RuneTrait.Orange,
+            "橙色",
+            PowerSigilTypedResourceRestriction,
+            "POWER_SIGIL"),
+        new(
+            DiscordSigilResourceAbilityId,
+            DiscordSigilCardNo,
+            DiscordSigilResourceAbilityEffectKind,
+            "不和之印",
+            RuneTrait.Purple,
+            "紫色",
+            DiscordSigilTypedResourceRestriction,
+            "DISCORD_SIGIL"),
+        new(
+            UnitySigilResourceAbilityId,
+            UnitySigilCardNo,
+            UnitySigilResourceAbilityEffectKind,
+            "团结之印",
+            RuneTrait.Yellow,
+            "黄色",
+            UnitySigilTypedResourceRestriction,
+            "UNITY_SIGIL")
+    ];
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
@@ -233,28 +326,7 @@ public static class P4ActivatedAbilityCatalog
             AppliesSpellshieldTargetTax: true,
             "Stage 4D-03Q opens only Shadow's swift battle-response stun-attacker representative; the broader swift combat response and target-bearing skill family remains deferred.",
             ReactionSpeed: true),
-        new(
-            RageSigilResourceAbilityId,
-            RageSigilCardNo,
-            RageSigilResourceAbilityEffectKind,
-            "Rage Sigil reaction typed resource skill",
-            0,
-            0,
-            0,
-            RequiresBattlefieldSource: false,
-            ExhaustsSourceAsCost: true,
-            0,
-            AppliesSpellshieldTargetTax: false,
-            "Stage 4D-03R opens only Rage Sigil's reaction-speed typed red payment-only resource representative; the broader Sigil family remains deferred.",
-            IsResourceSkill: true,
-            PaymentOnlyResource: true,
-            ResourceRestriction: RageSigilTypedResourceRestriction,
-            ReactionSpeed: true,
-            RequiresBaseEquipmentSource: true,
-            GeneratedPowerByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
-            {
-                [RuneTrait.Red] = RageSigilGeneratedRedPower
-            })
+        .. SigilTypedResourceProfiles.Select(SigilTypedResourceDefinition)
     ];
 
     private static readonly P4DeferredActivatedAbilitySurface[] DeferredSurfaces =
@@ -319,5 +391,50 @@ public static class P4ActivatedAbilityCatalog
     {
         return PaymentCostRules.NormalizePowerCostByTrait(
             definition.GeneratedPowerByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
+    }
+
+    public static bool IsSfdSigilTypedResourceAbility(string? abilityId)
+    {
+        return SigilTypedResourceProfiles.Any(profile => string.Equals(profile.AbilityId, abilityId, StringComparison.Ordinal));
+    }
+
+    public static bool TryGetSfdSigilTypedResourceProfile(
+        string? abilityId,
+        out P4SigilTypedResourceProfile profile)
+    {
+        profile = SigilTypedResourceProfiles.FirstOrDefault(candidate =>
+            string.Equals(candidate.AbilityId, abilityId, StringComparison.Ordinal))!;
+        return profile is not null;
+    }
+
+    public static IReadOnlyList<P4SigilTypedResourceProfile> GetSfdSigilTypedResourceProfiles()
+    {
+        return SigilTypedResourceProfiles;
+    }
+
+    private static P4ActivatedAbilityDefinition SigilTypedResourceDefinition(P4SigilTypedResourceProfile profile)
+    {
+        return new P4ActivatedAbilityDefinition(
+            profile.AbilityId,
+            profile.SourceCardNo,
+            profile.EffectKind,
+            $"{profile.DisplayName} reaction typed resource skill",
+            0,
+            0,
+            0,
+            RequiresBattlefieldSource: false,
+            ExhaustsSourceAsCost: true,
+            0,
+            AppliesSpellshieldTargetTax: false,
+            "Stage 4D typed SFD Sigil slice opens only the SFD base-equipment reaction-speed typed payment-only resource representative; OGN Sigils and the broader Sigil family remain deferred.",
+            IsResourceSkill: true,
+            PaymentOnlyResource: true,
+            ResourceRestriction: profile.ResourceRestriction,
+            ReactionSpeed: true,
+            RequiresBaseEquipmentSource: true,
+            GeneratedPowerByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [profile.Trait] = 1
+            });
     }
 }

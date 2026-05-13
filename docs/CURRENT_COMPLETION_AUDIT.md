@@ -49,6 +49,8 @@
 
 2026-05-14 4D-03S handoff / baseline 补充：SFD Sigil typed resource family 下一服务端切片已建立，目标为 `SFD·226/221` 专注之印、`SFD·229/221` 洞察之印、`SFD·231/221` 力量之印、`SFD·234/221` 不和之印、`SFD·238/221` 团结之印五张 SFD 颜色印记的 typed payment-only resource skills。入口为 `docs/CURRENT_STAGE4D_03S_PAYMENT_ENGINE_SFD_SIGIL_TYPED_RESOURCE_FAMILY_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03S_PAYMENT_ENGINE_SFD_SIGIL_TYPED_RESOURCE_FAMILY_BASELINE_EVIDENCE.md`；focused baseline 191/191、adjacent baseline 439/439 通过。该补充只建立实现前回归护栏，不代表功能完成，不处理 OGN Sigil resource skills，不关闭 P0-005 full official；项目整体仍 **NOT READY**。
 
+2026-05-14 4D-03S focused slice 补充：SFD Sigil typed resource family representative 已验收，入口为 `docs/CURRENT_STAGE4D_03S_PAYMENT_ENGINE_SFD_SIGIL_TYPED_RESOURCE_FAMILY_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03S_PAYMENT_ENGINE_SFD_SIGIL_TYPED_RESOURCE_FAMILY_EVIDENCE.md`；focused 213/213、adjacent 461/461、backend full 4043/4043、`git diff --check` 通过。该补充只验收剩余五张 SFD Sigil typed payment-only resource skills，不处理 OGN Sigil resource skills，不关闭 P0-005 full official；项目整体仍 **NOT READY**。
+
 4C-85 不修改功能代码，只把既有服务端权威符文资源域证据入账：官方符文卡映射到 non-play `RUNE_RESOURCE_DOMAIN`，不进入 direct `PLAY_CARD` registry；控制者基地符文通过服务端 `RECYCLE_RUNE` / `paymentResourcePowerByChoice` 暴露 trait/power 支付资源；typed `SPEND_POWER:red:2` 接受 red 资源并拒绝 blue 资源，generic `SPEND_POWER:2` 可接受 red / blue 任一服务端候选且防止过量回收。Focused / primary regression 命令：
 
 ```sh

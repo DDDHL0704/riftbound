@@ -2522,8 +2522,8 @@ public sealed record ResolutionResult(
 
     private static string TemporaryPaymentResourceRestriction(TemporaryPaymentResourceState resource)
     {
-        return string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.RageSigilResourceAbilityId, StringComparison.Ordinal)
-            ? P4ActivatedAbilityCatalog.RageSigilTypedResourceRestriction
+        return P4ActivatedAbilityCatalog.TryGetSfdSigilTypedResourceProfile(resource.AbilityId, out var profile)
+            ? profile.ResourceRestriction
             : P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction;
     }
 
@@ -6310,8 +6310,8 @@ internal static class ActionPromptBuilder
 
     private static string TemporaryPaymentResourceRestriction(TemporaryPaymentResourceState resource)
     {
-        return string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.RageSigilResourceAbilityId, StringComparison.Ordinal)
-            ? P4ActivatedAbilityCatalog.RageSigilTypedResourceRestriction
+        return P4ActivatedAbilityCatalog.TryGetSfdSigilTypedResourceProfile(resource.AbilityId, out var profile)
+            ? profile.ResourceRestriction
             : P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction;
     }
 
@@ -6720,7 +6720,7 @@ internal static class ActionPromptBuilder
                 && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
         }
 
-        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.RageSigilResourceAbilityId, StringComparison.Ordinal))
+        if (P4ActivatedAbilityCatalog.IsSfdSigilTypedResourceAbility(ability.AbilityId))
         {
             return string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
                 && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
@@ -6767,6 +6767,8 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId => "猩红玫瑰",
             P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId => "绵绵魄罗",
             P4ActivatedAbilityCatalog.ShadowStunAbilityId => "黑影",
+            _ when P4ActivatedAbilityCatalog.TryGetSfdSigilTypedResourceProfile(ability.AbilityId, out var profile)
+                => profile.DisplayName,
             _ => ability.DisplayName
         };
     }
@@ -6784,7 +6786,8 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId => "猩红玫瑰：消耗 3 经验并横置，让一名单位变为活跃状态",
             P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId => "绵绵魄罗：横置，打出两名拥有法盾的战鹰",
             P4ActivatedAbilityCatalog.ShadowStunAbilityId => "黑影：迅捷，支付 1 法力和 1 符能并横置，眩晕此处进攻的敌方单位",
-            P4ActivatedAbilityCatalog.RageSigilResourceAbilityId => "暴怒之印：反应，横置，获得 1 点红色费用符能",
+            _ when P4ActivatedAbilityCatalog.TryGetSfdSigilTypedResourceProfile(ability.AbilityId, out var profile)
+                => $"{profile.DisplayName}：反应，横置，获得 1 点{profile.TraitLabel}费用符能",
             _ => ability.DisplayName
         };
     }
@@ -10047,7 +10050,7 @@ internal static class ActionPromptBuilder
             view["resourceLifecycle"] = "rune-pool-mana-reset-at-turn-cleanup";
         }
 
-        if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.RageSigilResourceAbilityId, StringComparison.Ordinal))
+        if (P4ActivatedAbilityCatalog.TryGetSfdSigilTypedResourceProfile(requirement.AbilityId, out var sigilProfile))
         {
             view["resourceSkill"] = true;
             view["reactionSpeed"] = true;
@@ -10055,12 +10058,13 @@ internal static class ActionPromptBuilder
             view["typedPaymentOnlyResource"] = true;
             view["generatedPowerByTrait"] = new Dictionary<string, int>(StringComparer.Ordinal)
             {
-                [RuneTrait.Red] = P4ActivatedAbilityCatalog.RageSigilGeneratedRedPower
+                [sigilProfile.Trait] = 1
             };
             view["requiresBaseEquipmentSource"] = true;
-            view["resourceRestriction"] = P4ActivatedAbilityCatalog.RageSigilTypedResourceRestriction;
+            view["resourceRestriction"] = sigilProfile.ResourceRestriction;
             view["timingPolicy"] = "stack-priority-reaction-representative";
             view["reactionPolicy"] = "resolves-immediately-without-stack-item";
+            view["stackPolicy"] = "no-ordinary-stack-item";
             view["resourceLifecycle"] = "temporary-payment-resource-ledger";
             view["allowedPaymentKinds"] = new[] { PaymentCostRules.RuneCostPaymentKind };
         }

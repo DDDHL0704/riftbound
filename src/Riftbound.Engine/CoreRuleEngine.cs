@@ -6247,9 +6247,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveDragonSoulSageResourceSkill(state, intent, command, ability);
         }
 
-        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.RageSigilResourceAbilityId, StringComparison.Ordinal))
+        if (P4ActivatedAbilityCatalog.IsSfdSigilTypedResourceAbility(ability.AbilityId))
         {
-            return ResolveRageSigilResourceSkill(state, intent, command, ability);
+            return ResolveSfdSigilTypedResourceSkill(state, intent, command, ability);
         }
 
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.XerathDamageAbilityId, StringComparison.Ordinal))
@@ -7521,18 +7521,26 @@ public sealed class CoreRuleEngine : IRuleEngine
             && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
     }
 
-    private static ResolutionResult ResolveRageSigilResourceSkill(
+    private static ResolutionResult ResolveSfdSigilTypedResourceSkill(
         MatchState state,
         PlayerIntent intent,
         ActivateAbilityCommand command,
         P4ActivatedAbilityDefinition ability)
     {
+        if (!P4ActivatedAbilityCatalog.TryGetSfdSigilTypedResourceProfile(command.AbilityId, out var profile))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "当前印记资源技能尚未由服务端开放。",
+                ErrorCodes.UnsupportedCommand);
+        }
+
         const string timingContext = "STACK_PRIORITY_REACTION";
         if (!DragonSoulSageResourceSkillTimingAllowed(state, intent.PlayerId))
         {
             return RejectWithCorePrompts(
                 state,
-                "暴怒之印的资源技能只能在当前玩家持有优先权的反应窗口提交。",
+                $"{profile.DisplayName}的资源技能只能在当前玩家持有优先权的反应窗口提交。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -7540,7 +7548,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "暴怒之印的资源技能不接受额外费用或支付资源动作。",
+                $"{profile.DisplayName}的资源技能不接受额外费用或支付资源动作。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -7549,7 +7557,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "暴怒之印的资源技能不接受目标。",
+                $"{profile.DisplayName}的资源技能不接受目标。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -7561,7 +7569,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "暴怒之印的资源技能来源必须是当前玩家控制的公开基地装备。",
+                $"{profile.DisplayName}的资源技能来源必须是当前玩家控制的公开基地装备。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -7569,15 +7577,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "暴怒之印的资源技能只能选择当前玩家控制的来源。",
+                $"{profile.DisplayName}的资源技能只能选择当前玩家控制的来源。",
                 ErrorCodes.InvalidTarget);
         }
 
-        if (!string.Equals(sourceState.CardNo, ability.SourceCardNo, StringComparison.Ordinal))
+        if (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, sourceState.CardNo))
         {
             return RejectWithCorePrompts(
                 state,
-                "该来源没有服务端支持的暴怒之印资源技能。",
+                $"该来源没有服务端支持的{profile.DisplayName}资源技能。",
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
@@ -7585,7 +7593,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "暴怒之印的资源技能来源必须未横置。",
+                $"{profile.DisplayName}的资源技能来源必须未横置。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -7605,7 +7613,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             command.SourceObjectId,
             command.AbilityId);
         var temporaryPaymentResource = new TemporaryPaymentResourceState(
-            $"RAGE_SIGIL:{paymentId}",
+            $"{profile.ResourceIdPrefix}:{paymentId}",
             intent.PlayerId,
             command.SourceObjectId,
             command.AbilityId,
@@ -7632,7 +7640,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             new(
                 "ABILITY_ACTIVATED",
-                $"{intent.PlayerId} 激活暴怒之印的反应资源技能",
+                $"{intent.PlayerId} 激活{profile.DisplayName}的反应资源技能",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
@@ -7655,7 +7663,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }),
             new(
                 "UNIT_EXHAUSTED",
-                "暴怒之印横置支付资源技能费用",
+                $"{profile.DisplayName}横置支付资源技能费用",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
@@ -7674,7 +7682,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }),
             new(
                 "POWER_GAINED",
-                $"{intent.PlayerId} 通过暴怒之印资源技能获得 1 点红色费用符能",
+                $"{intent.PlayerId} 通过{profile.DisplayName}资源技能获得 1 点{profile.TraitLabel}费用符能",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,

@@ -30764,15 +30764,20 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(
             [
                 "CRIMSON_ROSE_EXPERIENCE3_EXHAUST_READY_UNIT",
+                "DISCORD_SIGIL_REACTION_EXHAUST_GAIN_1_PURPLE_POWER",
                 "DRAGON_SOUL_SAGE_REACTION_EXHAUST_GAIN_1_MANA",
                 "FLUFT_PORO_EXHAUST_CREATE_TWO_SPELLSHIELD_WARHAWKS",
+                "FOCUS_SIGIL_REACTION_EXHAUST_GAIN_1_GREEN_POWER",
+                "INSIGHT_SIGIL_REACTION_EXHAUST_GAIN_1_BLUE_POWER",
                 "MALZAHAR_DESTROY_FRIENDLY_EXHAUST_GAIN_2_PAYMENT_POWER",
                 "PAY_2_RED_DOUBLE_POWER",
                 "PAY_RED_EXHAUST_DAMAGE_3",
+                "POWER_SIGIL_REACTION_EXHAUST_GAIN_1_ORANGE_POWER",
                 "RAGE_SIGIL_REACTION_EXHAUST_GAIN_1_RED_POWER",
                 "RENATA_GLASC_PAY_1_BLUE_DRAW_1",
                 "RENATA_GLASC_PAY_4_BLUE4_EXHAUST_SCORE_1",
-                "SHADOW_SWIFT_PAY_1_A_EXHAUST_STUN_ATTACKER"
+                "SHADOW_SWIFT_PAY_1_A_EXHAUST_STUN_ATTACKER",
+                "UNITY_SIGIL_REACTION_EXHAUST_GAIN_1_YELLOW_POWER"
             ],
             P4ActivatedAbilityCatalog.GetAll()
                 .Select(definition => definition.AbilityId)
