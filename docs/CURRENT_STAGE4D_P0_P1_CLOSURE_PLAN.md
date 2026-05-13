@@ -82,7 +82,7 @@
 
 阻断：P0-005。可做只读设计并行；功能集成不得与 4D-01/4D-02 同时改 `CoreRuleEngine.cs` 的支付/状态机交叉区域。
 
-当前状态：**focused foundation accepted; 4D-03B handoff / baseline prepared / project NOT READY**。Handoff / baseline 见 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_BASELINE_EVIDENCE.md`；审计与证据见 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_EVIDENCE.md`。实现前 focused payment baseline 51/51、adjacent payment / ActionPrompt / GameHub regression 240/240 通过；focused foundation 56/56、adjacent 245/245、backend full 3791/3791 通过。4D-03B non-play payment handoff / baseline 见 `docs/CURRENT_STAGE4D_03B_PAYMENT_ENGINE_NON_PLAY_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03B_PAYMENT_ENGINE_NON_PLAY_BASELINE_EVIDENCE.md`，focused baseline 18/18、adjacent baseline 318/318 通过。该阶段建立 shared `PaymentPlan` / authorize / commit foundation 并准备扩展到非出牌窗口，但不关闭 P0-005 full official。
+当前状态：**focused foundation accepted; 4D-03B focused slice accepted / project NOT READY**。Handoff / baseline 见 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_BASELINE_EVIDENCE.md`；4D-03 foundation 审计与证据见 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_EVIDENCE.md`。4D-03B handoff / baseline 见 `docs/CURRENT_STAGE4D_03B_PAYMENT_ENGINE_NON_PLAY_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03B_PAYMENT_ENGINE_NON_PLAY_BASELINE_EVIDENCE.md`；4D-03B 审计与证据见 `docs/CURRENT_STAGE4D_03B_PAYMENT_ENGINE_NON_PLAY_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03B_PAYMENT_ENGINE_NON_PLAY_EVIDENCE.md`。实现前 focused payment baseline 51/51、adjacent payment / ActionPrompt / GameHub regression 240/240 通过；focused foundation 56/56、adjacent 245/245、backend full 3791/3791 通过；4D-03B focused 18/18、adjacent 318/318、backend full 3791/3791 通过。该阶段建立 shared `PaymentPlan` / authorize / commit foundation 并扩展到代表性非出牌窗口，但不关闭 P0-005 full official。
 
 目标：把 PLAY_CARD、MOVE_UNIT、ASSEMBLE_EQUIPMENT、ACTIVATE_ABILITY、LEGEND_ACT、battlefield trigger、keyword optional/extra cost 与 rune resource actions 统一到可回滚、可审计、服务端候选驱动的 PaymentEngine。
 
@@ -165,6 +165,6 @@
 
 1. 维持 NOT READY 结论。
 2. 不再为 Stage 4C representative evidence alignment 追加新批次，除非出现遗漏的已验证自动化证据。
-3. 当前 4D-03 focused foundation 已验收；下一步继续扩展 P0-005 full PaymentEngine breadth，或按风险进入 4D-04 LayerEngine / keywords 前置设计。
+3. 当前 4D-03 focused foundation 与 4D-03B non-play focused slice 已验收；下一步继续扩展 P0-005 full PaymentEngine breadth，或按风险进入 4D-04 LayerEngine / keywords 前置设计。
 4. 每个 4D 实现切片必须先给出写入范围、测试过滤器、不可并行文件和 no-go 声明，再进入代码修改。
 5. A 不亲自写功能代码；只维护计划、派单、验收文档、测试验证和 completion audit。

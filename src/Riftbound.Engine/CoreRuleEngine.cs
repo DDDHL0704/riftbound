@@ -5500,20 +5500,6 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
-        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
-        if (!CanPayRuneCosts(currentPool, ability.ManaCost, ability.PowerCost))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "资源不足，无法启动蔚的技能。",
-                ErrorCodes.InsufficientCost);
-        }
-
-        var runePools = PayRuneCosts(
-            state,
-            intent.PlayerId,
-            ability.ManaCost,
-            ability.PowerCost);
         const string paymentWindow = "ACTIVATE_ABILITY";
         var paymentId = PaymentCostRules.BuildPaymentId(
             state.Tick + 1,
@@ -5521,6 +5507,30 @@ public sealed class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             command.SourceObjectId,
             command.AbilityId);
+        var paymentPlan = new PaymentCostRules.PaymentPlan(
+            paymentId,
+            paymentWindow,
+            intent.PlayerId,
+            baseManaCost: ability.ManaCost,
+            totalManaCost: ability.ManaCost,
+            genericPowerCost: ability.PowerCost,
+            totalPowerCost: ability.PowerCost,
+            reason: ability.EffectKind,
+            sourceObjectId: command.SourceObjectId,
+            abilityId: command.AbilityId);
+        var paymentCommit = PaymentCostRules.TryCommitPayment(
+            paymentPlan,
+            state.RunePools,
+            state.PlayerExperience);
+        if (!paymentCommit.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "资源不足，无法启动蔚的技能。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var runePools = paymentCommit.RunePools;
         var stackItem = new StackItemState(
             $"STACK-{state.Tick + 1}-{command.SourceObjectId}-ABILITY",
             intent.PlayerId,
@@ -5558,9 +5568,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "COST_PAID",
                 $"{intent.PlayerId} 支付蔚技能费用",
                 PaymentCostRules.BuildCostPaidPayload(
-                    paymentId,
-                    paymentWindow,
-                    intent.PlayerId,
+                    paymentPlan,
                     runePools,
                     state.PlayerExperience,
                     new Dictionary<string, object?>
@@ -5914,7 +5922,32 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
-        if (currentPool.Mana < manaCost)
+        var currentExperience = NormalizeExperienceForSeats(state);
+        const string paymentWindow = "LEGEND_ACT";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            intent.PlayerId,
+            command.SourceObjectId,
+            command.AbilityId);
+        var paymentPlan = new PaymentCostRules.PaymentPlan(
+            paymentId,
+            paymentWindow,
+            intent.PlayerId,
+            baseManaCost: manaCost,
+            totalManaCost: manaCost,
+            experienceCost: ability.ExperienceCost,
+            optionalCostIds: optionalCosts,
+            reason: ability.EffectKind,
+            sourceObjectId: command.SourceObjectId,
+            abilityId: command.AbilityId);
+        var paymentAuthorization = PaymentCostRules.AuthorizePayment(
+            paymentPlan,
+            currentPool,
+            currentExperience.TryGetValue(intent.PlayerId, out var availableExperience)
+                ? availableExperience
+                : 0);
+        if (!paymentAuthorization.Accepted && currentPool.Mana < manaCost)
         {
             return RejectWithCorePrompts(
                 state,
@@ -5922,8 +5955,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
-        var currentExperience = NormalizeExperienceForSeats(state);
-        if (ability.ExperienceCost > 0
+        if (!paymentAuthorization.Accepted
+            && ability.ExperienceCost > 0
             && (!currentExperience.TryGetValue(intent.PlayerId, out var experience)
                 || experience < ability.ExperienceCost))
         {
@@ -5933,17 +5966,30 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
+        if (!paymentAuthorization.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                paymentAuthorization.Reason ?? $"Not enough resources to activate {ability.DisplayName}.",
+                ErrorCodes.InsufficientCost);
+        }
+
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var runePools = PayRuneCosts(state, intent.PlayerId, manaCost, 0);
-        var playerExperience = PayExperienceCosts(state, intent.PlayerId, ability.ExperienceCost);
-        const string paymentWindow = "LEGEND_ACT";
-        var paymentId = PaymentCostRules.BuildPaymentId(
-            state.Tick + 1,
-            paymentWindow,
-            intent.PlayerId,
-            command.SourceObjectId,
-            command.AbilityId);
+        var paymentCommit = PaymentCostRules.TryCommitPayment(
+            paymentPlan,
+            state.RunePools,
+            currentExperience);
+        if (!paymentCommit.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                paymentCommit.ErrorMessage ?? $"Not enough resources to activate {ability.DisplayName}.",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var runePools = paymentCommit.RunePools;
+        var playerExperience = paymentCommit.PlayerExperience;
         IReadOnlyDictionary<string, int> playerScores = NormalizeScoresForSeats(state);
         var winnerPlayerId = state.WinnerPlayerId;
         var rngCursor = state.RngCursor;
@@ -5960,15 +6006,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["abilityId"] = command.AbilityId
                 })
         };
-        if (manaCost > 0)
+        if (manaCost > 0 || ability.ExperienceCost > 0)
         {
             events.Add(new GameEvent(
                 "COST_PAID",
                 $"{intent.PlayerId} 支付{ability.DisplayName}费用",
                 PaymentCostRules.BuildCostPaidPayload(
-                    paymentId,
-                    paymentWindow,
-                    intent.PlayerId,
+                    paymentPlan,
                     runePools,
                     playerExperience,
                     new Dictionary<string, object?>
@@ -5976,6 +6020,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["playerId"] = intent.PlayerId,
                     ["mana"] = manaCost,
                     ["power"] = 0,
+                    ["experience"] = ability.ExperienceCost,
                     ["abilityId"] = command.AbilityId
                 })));
         }
@@ -7496,20 +7541,6 @@ public sealed class CoreRuleEngine : IRuleEngine
                 command.TargetObjectIds,
                 out spellshieldTaxTargetObjectIds);
         }
-        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
-        if (!CanPayRuneCosts(currentPool, spellshieldTaxMana, ability.PowerCost))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "资源不足，无法启动泽拉斯的技能。",
-                ErrorCodes.InsufficientCost);
-        }
-
-        var runePools = PayRuneCosts(
-            state,
-            intent.PlayerId,
-            spellshieldTaxMana,
-            ability.PowerCost);
         const string paymentWindow = "ACTIVATE_ABILITY";
         var paymentId = PaymentCostRules.BuildPaymentId(
             state.Tick + 1,
@@ -7517,6 +7548,35 @@ public sealed class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             command.SourceObjectId,
             command.AbilityId);
+        var paymentPlan = new PaymentCostRules.PaymentPlan(
+            paymentId,
+            paymentWindow,
+            intent.PlayerId,
+            baseManaCost: spellshieldTaxMana,
+            totalManaCost: spellshieldTaxMana,
+            genericPowerCost: ability.PowerCost,
+            totalPowerCost: ability.PowerCost,
+            reason: ability.EffectKind,
+            sourceObjectId: command.SourceObjectId,
+            abilityId: command.AbilityId,
+            auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["spellshieldTaxMana"] = spellshieldTaxMana,
+                ["spellshieldTaxTargetObjectIds"] = spellshieldTaxTargetObjectIds.ToArray()
+            });
+        var paymentCommit = PaymentCostRules.TryCommitPayment(
+            paymentPlan,
+            state.RunePools,
+            state.PlayerExperience);
+        if (!paymentCommit.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "资源不足，无法启动泽拉斯的技能。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var runePools = paymentCommit.RunePools;
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         cardObjects[command.SourceObjectId] = sourceState with
         {
@@ -7567,9 +7627,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "COST_PAID",
                 $"{intent.PlayerId} 支付泽拉斯技能费用",
                 PaymentCostRules.BuildCostPaidPayload(
-                    paymentId,
-                    paymentWindow,
-                    intent.PlayerId,
+                    paymentPlan,
                     runePools,
                     state.PlayerExperience,
                     new Dictionary<string, object?>
@@ -13676,13 +13734,28 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
-        if (!CanPayRuneCosts(currentPool, 0, BattlefieldHeldScorePowerCost))
+        var paymentWindow = "BATTLEFIELD_HELD";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            playerId,
+            battlefieldObjectId,
+            reason: "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE");
+        var paymentPlan = new PaymentCostRules.PaymentPlan(
+            paymentId,
+            paymentWindow,
+            playerId,
+            genericPowerCost: BattlefieldHeldScorePowerCost,
+            totalPowerCost: BattlefieldHeldScorePowerCost,
+            reason: "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE",
+            sourceObjectId: battlefieldObjectId);
+        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, runePools);
+        if (!paymentCommit.Accepted)
         {
             return false;
         }
 
-        var mutableRunePools = PayRuneCosts(runePools, playerId, 0, BattlefieldHeldScorePowerCost);
+        var mutableRunePools = paymentCommit.RunePools;
         var mutablePlayerScores = playerZones.Keys.ToDictionary(
             scorePlayerId => scorePlayerId,
             scorePlayerId => playerScores.TryGetValue(scorePlayerId, out var currentScore) ? currentScore : 0,
@@ -13712,13 +13785,17 @@ public sealed class CoreRuleEngine : IRuleEngine
         events.Add(new GameEvent(
             "COST_PAID",
             $"{playerId} 支付能量枢纽据守触发费用",
-            new Dictionary<string, object?>
+            PaymentCostRules.BuildCostPaidPayload(
+                paymentPlan,
+                mutableRunePools,
+                null,
+                new Dictionary<string, object?>
             {
                 ["playerId"] = playerId,
                 ["mana"] = 0,
                 ["power"] = BattlefieldHeldScorePowerCost,
                 ["reason"] = "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE"
-            }));
+            })));
         events.Add(new GameEvent(
             "SCORE_GAINED",
             $"{playerId} 获得 1 分",
