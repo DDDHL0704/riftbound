@@ -43,7 +43,8 @@ public sealed record P4SigilTypedResourceProfile(
     string Trait,
     string TraitLabel,
     string ResourceRestriction,
-    string ResourceIdPrefix);
+    string ResourceIdPrefix,
+    bool IsOgnReprint);
 
 public static class P4ActivatedAbilityCatalog
 {
@@ -129,6 +130,36 @@ public static class P4ActivatedAbilityCatalog
     public const string UnitySigilResourceAbilityEffectKind = "UNITY_SIGIL_REACTION_TYPED_RESOURCE_GAIN_YELLOW";
     public const string UnitySigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_YELLOW_TEMPORARY_LEDGER_4D_03S";
 
+    public const string OgnRageSigilCardNo = "OGN·040/298";
+    public const string OgnRageSigilResourceAbilityId = "OGN_RAGE_SIGIL_REACTION_EXHAUST_GAIN_1_RED_POWER";
+    public const string OgnRageSigilResourceAbilityEffectKind = "OGN_RAGE_SIGIL_REACTION_TYPED_RESOURCE_GAIN_RED";
+    public const string OgnRageSigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_RED_TEMPORARY_LEDGER_4D_03T";
+
+    public const string OgnFocusSigilCardNo = "OGN·081/298";
+    public const string OgnFocusSigilResourceAbilityId = "OGN_FOCUS_SIGIL_REACTION_EXHAUST_GAIN_1_GREEN_POWER";
+    public const string OgnFocusSigilResourceAbilityEffectKind = "OGN_FOCUS_SIGIL_REACTION_TYPED_RESOURCE_GAIN_GREEN";
+    public const string OgnFocusSigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_GREEN_TEMPORARY_LEDGER_4D_03T";
+
+    public const string OgnInsightSigilCardNo = "OGN·120/298";
+    public const string OgnInsightSigilResourceAbilityId = "OGN_INSIGHT_SIGIL_REACTION_EXHAUST_GAIN_1_BLUE_POWER";
+    public const string OgnInsightSigilResourceAbilityEffectKind = "OGN_INSIGHT_SIGIL_REACTION_TYPED_RESOURCE_GAIN_BLUE";
+    public const string OgnInsightSigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_BLUE_TEMPORARY_LEDGER_4D_03T";
+
+    public const string OgnPowerSigilCardNo = "OGN·163/298";
+    public const string OgnPowerSigilResourceAbilityId = "OGN_POWER_SIGIL_REACTION_EXHAUST_GAIN_1_ORANGE_POWER";
+    public const string OgnPowerSigilResourceAbilityEffectKind = "OGN_POWER_SIGIL_REACTION_TYPED_RESOURCE_GAIN_ORANGE";
+    public const string OgnPowerSigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_ORANGE_TEMPORARY_LEDGER_4D_03T";
+
+    public const string OgnDiscordSigilCardNo = "OGN·204/298";
+    public const string OgnDiscordSigilResourceAbilityId = "OGN_DISCORD_SIGIL_REACTION_EXHAUST_GAIN_1_PURPLE_POWER";
+    public const string OgnDiscordSigilResourceAbilityEffectKind = "OGN_DISCORD_SIGIL_REACTION_TYPED_RESOURCE_GAIN_PURPLE";
+    public const string OgnDiscordSigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_PURPLE_TEMPORARY_LEDGER_4D_03T";
+
+    public const string OgnUnitySigilCardNo = "OGN·245/298";
+    public const string OgnUnitySigilResourceAbilityId = "OGN_UNITY_SIGIL_REACTION_EXHAUST_GAIN_1_YELLOW_POWER";
+    public const string OgnUnitySigilResourceAbilityEffectKind = "OGN_UNITY_SIGIL_REACTION_TYPED_RESOURCE_GAIN_YELLOW";
+    public const string OgnUnitySigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_YELLOW_TEMPORARY_LEDGER_4D_03T";
+
     private static readonly P4SigilTypedResourceProfile[] SigilTypedResourceProfiles =
     [
         new(
@@ -139,7 +170,8 @@ public static class P4ActivatedAbilityCatalog
             RuneTrait.Red,
             "红色",
             RageSigilTypedResourceRestriction,
-            "RAGE_SIGIL"),
+            "RAGE_SIGIL",
+            IsOgnReprint: false),
         new(
             FocusSigilResourceAbilityId,
             FocusSigilCardNo,
@@ -148,7 +180,8 @@ public static class P4ActivatedAbilityCatalog
             RuneTrait.Green,
             "绿色",
             FocusSigilTypedResourceRestriction,
-            "FOCUS_SIGIL"),
+            "FOCUS_SIGIL",
+            IsOgnReprint: false),
         new(
             InsightSigilResourceAbilityId,
             InsightSigilCardNo,
@@ -157,7 +190,8 @@ public static class P4ActivatedAbilityCatalog
             RuneTrait.Blue,
             "蓝色",
             InsightSigilTypedResourceRestriction,
-            "INSIGHT_SIGIL"),
+            "INSIGHT_SIGIL",
+            IsOgnReprint: false),
         new(
             PowerSigilResourceAbilityId,
             PowerSigilCardNo,
@@ -166,7 +200,8 @@ public static class P4ActivatedAbilityCatalog
             RuneTrait.Orange,
             "橙色",
             PowerSigilTypedResourceRestriction,
-            "POWER_SIGIL"),
+            "POWER_SIGIL",
+            IsOgnReprint: false),
         new(
             DiscordSigilResourceAbilityId,
             DiscordSigilCardNo,
@@ -175,7 +210,8 @@ public static class P4ActivatedAbilityCatalog
             RuneTrait.Purple,
             "紫色",
             DiscordSigilTypedResourceRestriction,
-            "DISCORD_SIGIL"),
+            "DISCORD_SIGIL",
+            IsOgnReprint: false),
         new(
             UnitySigilResourceAbilityId,
             UnitySigilCardNo,
@@ -184,7 +220,68 @@ public static class P4ActivatedAbilityCatalog
             RuneTrait.Yellow,
             "黄色",
             UnitySigilTypedResourceRestriction,
-            "UNITY_SIGIL")
+            "UNITY_SIGIL",
+            IsOgnReprint: false),
+        new(
+            OgnRageSigilResourceAbilityId,
+            OgnRageSigilCardNo,
+            OgnRageSigilResourceAbilityEffectKind,
+            "暴怒之印",
+            RuneTrait.Red,
+            "红色",
+            OgnRageSigilTypedResourceRestriction,
+            "OGN_RAGE_SIGIL",
+            IsOgnReprint: true),
+        new(
+            OgnFocusSigilResourceAbilityId,
+            OgnFocusSigilCardNo,
+            OgnFocusSigilResourceAbilityEffectKind,
+            "专注之印",
+            RuneTrait.Green,
+            "绿色",
+            OgnFocusSigilTypedResourceRestriction,
+            "OGN_FOCUS_SIGIL",
+            IsOgnReprint: true),
+        new(
+            OgnInsightSigilResourceAbilityId,
+            OgnInsightSigilCardNo,
+            OgnInsightSigilResourceAbilityEffectKind,
+            "洞察之印",
+            RuneTrait.Blue,
+            "蓝色",
+            OgnInsightSigilTypedResourceRestriction,
+            "OGN_INSIGHT_SIGIL",
+            IsOgnReprint: true),
+        new(
+            OgnPowerSigilResourceAbilityId,
+            OgnPowerSigilCardNo,
+            OgnPowerSigilResourceAbilityEffectKind,
+            "力量之印",
+            RuneTrait.Orange,
+            "橙色",
+            OgnPowerSigilTypedResourceRestriction,
+            "OGN_POWER_SIGIL",
+            IsOgnReprint: true),
+        new(
+            OgnDiscordSigilResourceAbilityId,
+            OgnDiscordSigilCardNo,
+            OgnDiscordSigilResourceAbilityEffectKind,
+            "不和之印",
+            RuneTrait.Purple,
+            "紫色",
+            OgnDiscordSigilTypedResourceRestriction,
+            "OGN_DISCORD_SIGIL",
+            IsOgnReprint: true),
+        new(
+            OgnUnitySigilResourceAbilityId,
+            OgnUnitySigilCardNo,
+            OgnUnitySigilResourceAbilityEffectKind,
+            "团结之印",
+            RuneTrait.Yellow,
+            "黄色",
+            OgnUnitySigilTypedResourceRestriction,
+            "OGN_UNITY_SIGIL",
+            IsOgnReprint: true)
     ];
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
@@ -393,12 +490,12 @@ public static class P4ActivatedAbilityCatalog
             definition.GeneratedPowerByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
     }
 
-    public static bool IsSfdSigilTypedResourceAbility(string? abilityId)
+    public static bool IsSigilTypedResourceAbility(string? abilityId)
     {
         return SigilTypedResourceProfiles.Any(profile => string.Equals(profile.AbilityId, abilityId, StringComparison.Ordinal));
     }
 
-    public static bool TryGetSfdSigilTypedResourceProfile(
+    public static bool TryGetSigilTypedResourceProfile(
         string? abilityId,
         out P4SigilTypedResourceProfile profile)
     {
@@ -407,9 +504,40 @@ public static class P4ActivatedAbilityCatalog
         return profile is not null;
     }
 
-    public static IReadOnlyList<P4SigilTypedResourceProfile> GetSfdSigilTypedResourceProfiles()
+    public static bool IsSfdSigilTypedResourceAbility(string? abilityId)
+    {
+        return SigilTypedResourceProfiles.Any(profile =>
+            !profile.IsOgnReprint
+            && string.Equals(profile.AbilityId, abilityId, StringComparison.Ordinal));
+    }
+
+    public static bool TryGetSfdSigilTypedResourceProfile(
+        string? abilityId,
+        out P4SigilTypedResourceProfile profile)
+    {
+        profile = SigilTypedResourceProfiles.FirstOrDefault(candidate =>
+            !candidate.IsOgnReprint
+            && string.Equals(candidate.AbilityId, abilityId, StringComparison.Ordinal))!;
+        return profile is not null;
+    }
+
+    public static IReadOnlyList<P4SigilTypedResourceProfile> GetSigilTypedResourceProfiles()
     {
         return SigilTypedResourceProfiles;
+    }
+
+    public static IReadOnlyList<P4SigilTypedResourceProfile> GetSfdSigilTypedResourceProfiles()
+    {
+        return SigilTypedResourceProfiles
+            .Where(profile => !profile.IsOgnReprint)
+            .ToArray();
+    }
+
+    public static IReadOnlyList<P4SigilTypedResourceProfile> GetOgnSigilTypedResourceProfiles()
+    {
+        return SigilTypedResourceProfiles
+            .Where(profile => profile.IsOgnReprint)
+            .ToArray();
     }
 
     private static P4ActivatedAbilityDefinition SigilTypedResourceDefinition(P4SigilTypedResourceProfile profile)
@@ -426,7 +554,7 @@ public static class P4ActivatedAbilityCatalog
             ExhaustsSourceAsCost: true,
             0,
             AppliesSpellshieldTargetTax: false,
-            "Stage 4D typed SFD Sigil slice opens only the SFD base-equipment reaction-speed typed payment-only resource representative; OGN Sigils and the broader Sigil family remain deferred.",
+            "Stage 4D typed Sigil slices open the SFD/OGN base-equipment reaction-speed typed payment-only resource representatives; the broader Sigil family remains deferred.",
             IsResourceSkill: true,
             PaymentOnlyResource: true,
             ResourceRestriction: profile.ResourceRestriction,

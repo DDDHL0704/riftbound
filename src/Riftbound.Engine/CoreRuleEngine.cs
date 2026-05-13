@@ -6247,9 +6247,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveDragonSoulSageResourceSkill(state, intent, command, ability);
         }
 
-        if (P4ActivatedAbilityCatalog.IsSfdSigilTypedResourceAbility(ability.AbilityId))
+        if (P4ActivatedAbilityCatalog.IsSigilTypedResourceAbility(ability.AbilityId))
         {
-            return ResolveSfdSigilTypedResourceSkill(state, intent, command, ability);
+            return ResolveSigilTypedResourceSkill(state, intent, command, ability);
         }
 
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.XerathDamageAbilityId, StringComparison.Ordinal))
@@ -7521,13 +7521,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
     }
 
-    private static ResolutionResult ResolveSfdSigilTypedResourceSkill(
+    private static ResolutionResult ResolveSigilTypedResourceSkill(
         MatchState state,
         PlayerIntent intent,
         ActivateAbilityCommand command,
         P4ActivatedAbilityDefinition ability)
     {
-        if (!P4ActivatedAbilityCatalog.TryGetSfdSigilTypedResourceProfile(command.AbilityId, out var profile))
+        if (!P4ActivatedAbilityCatalog.TryGetSigilTypedResourceProfile(command.AbilityId, out var profile))
         {
             return RejectWithCorePrompts(
                 state,

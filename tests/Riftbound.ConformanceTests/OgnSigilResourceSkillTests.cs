@@ -4,24 +4,24 @@ using Xunit;
 
 namespace Riftbound.ConformanceTests;
 
-public sealed class SfdSigilResourceSkillTests
+public sealed class OgnSigilResourceSkillTests
 {
     private const string PendingSpellObjectId = "P2-PENDING-SPELL";
     private const string PendingStackItemId = "STACK-P2-PENDING-SPELL";
 
-    public static IEnumerable<object[]> RemainingSfdSigilProfiles()
+    public static IEnumerable<object[]> OgnSigilProfiles()
     {
-        return P4ActivatedAbilityCatalog.GetSfdSigilTypedResourceProfiles()
-            .Where(profile => !string.Equals(profile.AbilityId, P4ActivatedAbilityCatalog.RageSigilResourceAbilityId, StringComparison.Ordinal))
+        return P4ActivatedAbilityCatalog.GetOgnSigilTypedResourceProfiles()
             .Select(profile => new object[] { profile });
     }
 
     [Theory]
-    [MemberData(nameof(RemainingSfdSigilProfiles))]
-    public void CatalogExposesRemainingSfdSigilTypedReactionResourceSkills(P4SigilTypedResourceProfile profile)
+    [MemberData(nameof(OgnSigilProfiles))]
+    public void CatalogExposesOgnSigilTypedReactionResourceSkills(P4SigilTypedResourceProfile profile)
     {
         Assert.True(P4ActivatedAbilityCatalog.TryGetByAbilityId(profile.AbilityId, out var ability));
 
+        Assert.True(profile.IsOgnReprint);
         Assert.Equal(profile.SourceCardNo, ability.SourceCardNo);
         Assert.Equal(profile.EffectKind, ability.EffectKind);
         Assert.True(ability.IsResourceSkill);
@@ -37,9 +37,9 @@ public sealed class SfdSigilResourceSkillTests
     }
 
     [Fact]
-    public void SfdSigilReactionPromptExposesBaseEquipmentTypedPaymentOnlyResourceSkills()
+    public void OgnSigilReactionPromptExposesBaseEquipmentTypedPaymentOnlyResourceSkills()
     {
-        var state = BuildSigilPriorityState(P4ActivatedAbilityCatalog.GetSfdSigilTypedResourceProfiles());
+        var state = BuildSigilPriorityState(P4ActivatedAbilityCatalog.GetOgnSigilTypedResourceProfiles());
         var prompts = ResolutionResult.BuildPrompts(state);
         var activateCandidate = Assert.Single(
             prompts["P1"].Candidates ?? [],
@@ -48,7 +48,7 @@ public sealed class SfdSigilResourceSkillTests
         var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
             metadata["sourceRequirements"]).ToArray();
 
-        foreach (var profile in P4ActivatedAbilityCatalog.GetSfdSigilTypedResourceProfiles())
+        foreach (var profile in P4ActivatedAbilityCatalog.GetOgnSigilTypedResourceProfiles())
         {
             var sourceObjectId = SourceObjectId(profile);
             Assert.Contains(activateCandidate.Sources ?? [], choice => string.Equals(choice.Id, sourceObjectId, StringComparison.Ordinal));
@@ -69,6 +69,7 @@ public sealed class SfdSigilResourceSkillTests
             Assert.Equal("stack-priority-reaction-representative", requirement["timingPolicy"]);
             Assert.Equal("resolves-immediately-without-stack-item", requirement["reactionPolicy"]);
             Assert.Equal("no-ordinary-stack-item", requirement["stackPolicy"]);
+            Assert.Equal("temporary-payment-resource-ledger", requirement["resourceLifecycle"]);
             var generatedPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(requirement["generatedPowerByTrait"]);
             Assert.Equal(1, generatedPowerByTrait[profile.Trait]);
             Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(requirement["optionalCostChoices"]));
@@ -77,8 +78,8 @@ public sealed class SfdSigilResourceSkillTests
     }
 
     [Theory]
-    [MemberData(nameof(RemainingSfdSigilProfiles))]
-    public async Task SfdSigilReactionCommandExhaustsSourceCreatesTypedTemporaryLedgerWithoutStackItem(P4SigilTypedResourceProfile profile)
+    [MemberData(nameof(OgnSigilProfiles))]
+    public async Task OgnSigilReactionCommandExhaustsSourceCreatesTypedTemporaryLedgerWithoutStackItem(P4SigilTypedResourceProfile profile)
     {
         var state = BuildSigilPriorityState([profile]);
 
@@ -107,8 +108,8 @@ public sealed class SfdSigilResourceSkillTests
     }
 
     [Theory]
-    [MemberData(nameof(RemainingSfdSigilProfiles))]
-    public async Task SfdSigilTemporaryTypedResourcePaysSameColorAndGenericRuneCosts(P4SigilTypedResourceProfile profile)
+    [MemberData(nameof(OgnSigilProfiles))]
+    public async Task OgnSigilTemporaryTypedResourcePaysSameColorAndGenericRuneCosts(P4SigilTypedResourceProfile profile)
     {
         foreach (var caseName in new[] { "typed", "generic" })
         {
@@ -141,7 +142,7 @@ public sealed class SfdSigilResourceSkillTests
 
             var result = await new CoreRuleEngine().ResolveAsync(
                 state,
-                new PlayerIntent($"intent-sfd-sigil-pay-{profile.Trait}-{caseName}", "P1", CommandTypes.PayCost),
+                new PlayerIntent($"intent-ogn-sigil-pay-{profile.Trait}-{caseName}", "P1", CommandTypes.PayCost),
                 new PayCostCommand(pendingPayment.PaymentId, pendingPayment.PaymentWindow, [resourceAction, spendChoice]),
                 CancellationToken.None);
 
@@ -155,8 +156,8 @@ public sealed class SfdSigilResourceSkillTests
     }
 
     [Theory]
-    [MemberData(nameof(RemainingSfdSigilProfiles))]
-    public async Task SfdSigilTemporaryTypedResourceRejectsWrongColorAndManaOnlyWithoutMutation(P4SigilTypedResourceProfile profile)
+    [MemberData(nameof(OgnSigilProfiles))]
+    public async Task OgnSigilTemporaryTypedResourceRejectsWrongColorAndManaOnlyWithoutMutation(P4SigilTypedResourceProfile profile)
     {
         foreach (var caseName in new[] { "wrong-color", "mana-only" })
         {
@@ -193,7 +194,7 @@ public sealed class SfdSigilResourceSkillTests
 
             var result = await new CoreRuleEngine().ResolveAsync(
                 state,
-                new PlayerIntent($"intent-sfd-sigil-reject-pay-{profile.Trait}-{caseName}", "P1", CommandTypes.PayCost),
+                new PlayerIntent($"intent-ogn-sigil-reject-pay-{profile.Trait}-{caseName}", "P1", CommandTypes.PayCost),
                 new PayCostCommand(pendingPayment.PaymentId, pendingPayment.PaymentWindow, [resourceAction, spendChoice]),
                 CancellationToken.None);
 
@@ -203,13 +204,50 @@ public sealed class SfdSigilResourceSkillTests
         }
     }
 
+    [Fact]
+    public async Task OgnAndSfdSigilAbilityIdsCannotActivateTheOtherPrintings()
+    {
+        var ognProfile = P4ActivatedAbilityCatalog.GetOgnSigilTypedResourceProfiles()
+            .Single(profile => string.Equals(profile.Trait, RuneTrait.Red, StringComparison.Ordinal));
+        var sfdProfile = P4ActivatedAbilityCatalog.GetSfdSigilTypedResourceProfiles()
+            .Single(profile => string.Equals(profile.Trait, RuneTrait.Red, StringComparison.Ordinal));
+
+        await AssertRejectedNoMutationAsync(
+            BuildSigilPriorityState([ognProfile]),
+            ognProfile,
+            sfdProfile.AbilityId);
+        await AssertRejectedNoMutationAsync(
+            BuildSigilPriorityState([sfdProfile]),
+            sfdProfile,
+            ognProfile.AbilityId);
+    }
+
+    private static async Task AssertRejectedNoMutationAsync(
+        MatchState state,
+        P4SigilTypedResourceProfile sourceProfile,
+        string abilityId)
+    {
+        var initialHash = MatchStateHasher.Hash(state);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent($"intent-sigil-cross-print-{abilityId}", "P1", CommandTypes.ActivateAbility),
+            new ActivateAbilityCommand(SourceObjectId(sourceProfile), abilityId, []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+        Assert.Empty(result.Events);
+    }
+
     private static async Task<ResolutionResult> ResolveSigilAsync(
         MatchState state,
         P4SigilTypedResourceProfile profile)
     {
         return await new CoreRuleEngine().ResolveAsync(
             state,
-            new PlayerIntent($"intent-sfd-sigil-resource-skill-{profile.Trait}", "P1", CommandTypes.ActivateAbility),
+            new PlayerIntent($"intent-ogn-sigil-resource-skill-{profile.Trait}", "P1", CommandTypes.ActivateAbility),
             new ActivateAbilityCommand(SourceObjectId(profile), profile.AbilityId, []),
             CancellationToken.None);
     }
@@ -238,7 +276,7 @@ public sealed class SfdSigilResourceSkillTests
         objectLocations[PendingSpellObjectId] = new ObjectLocationState("P2", "STACK");
 
         return new MatchState(
-            "room-sfd-sigil-resource",
+            "room-ogn-sigil-resource",
             0,
             1,
             "P1",
@@ -295,5 +333,4 @@ public sealed class SfdSigilResourceSkillTests
             ownerId: playerId,
             controllerId: playerId);
     }
-
 }
