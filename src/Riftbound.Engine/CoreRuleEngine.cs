@@ -2178,25 +2178,68 @@ public sealed class CoreRuleEngine : IRuleEngine
         string SourceObjectId,
         string AbilityId,
         int GeneratedPower,
+        IReadOnlyDictionary<string, int> GeneratedPowerByTrait,
         int ConsumedPower,
+        IReadOnlyDictionary<string, int> ConsumedPowerByTrait,
         int RemainingPowerBeforeCleanup,
+        IReadOnlyDictionary<string, int> RemainingPowerByTraitBeforeCleanup,
         IReadOnlyList<string> AllowedPaymentKinds);
 
     private static IReadOnlyList<string> TemporaryPaymentResourceActionIdsForPendingPayment(
         MatchState state,
         PendingPaymentState pendingPayment)
     {
-        if (pendingPayment.PowerCost <= 0)
+        if (pendingPayment.PowerCost <= 0 && pendingPayment.PowerCostByTrait.Count == 0)
+        {
+            return [];
+        }
+
+        var runePool = state.RunePools.TryGetValue(pendingPayment.PlayerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        if (PaymentCostRules.CanPayPowerCost(runePool, pendingPayment.PowerCost, pendingPayment.PowerCostByTrait))
         {
             return [];
         }
 
         return state.TemporaryPaymentResources
             .Where(resource => string.Equals(resource.OwnerPlayerId, pendingPayment.PlayerId, StringComparison.Ordinal)
-                && resource.RemainingPower > 0
-                && resource.AllowedPaymentKinds.Contains(PaymentCostRules.RuneCostPaymentKind, StringComparer.Ordinal))
+                && TemporaryPaymentResourceTotalRemainingPower(resource) > 0
+                && resource.AllowedPaymentKinds.Contains(PaymentCostRules.RuneCostPaymentKind, StringComparer.Ordinal)
+                && TemporaryPaymentResourceCanHelpPowerCost(runePool, resource, pendingPayment.PowerCost, pendingPayment.PowerCostByTrait))
             .Select(resource => PaymentCostRules.TemporaryPaymentResourceActionId(resource.ResourceId))
             .ToArray();
+    }
+
+    private static int TemporaryPaymentResourceTotalRemainingPower(TemporaryPaymentResourceState resource)
+    {
+        return resource.RemainingPower + resource.RemainingPowerByTrait.Values.Sum();
+    }
+
+    private static bool TemporaryPaymentResourceCanHelpPowerCost(
+        RunePool runePool,
+        TemporaryPaymentResourceState resource,
+        int genericPowerCost,
+        IReadOnlyDictionary<string, int> powerCostByTrait)
+    {
+        if (PaymentCostRules.CanPayPowerCost(runePool, genericPowerCost, powerCostByTrait)
+            || TemporaryPaymentResourceTotalRemainingPower(resource) <= 0)
+        {
+            return false;
+        }
+
+        var powerByTrait = runePool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        foreach (var entry in resource.RemainingPowerByTrait)
+        {
+            powerByTrait[entry.Key] = powerByTrait.TryGetValue(entry.Key, out var existing)
+                ? existing + entry.Value
+                : entry.Value;
+        }
+
+        return PaymentCostRules.CanPayPowerCost(
+            new RunePool(runePool.Mana, runePool.Power + resource.RemainingPower, powerByTrait),
+            genericPowerCost,
+            powerCostByTrait);
     }
 
     private static bool TryApplyTemporaryPaymentResourcesToPendingPayment(
@@ -2229,9 +2272,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || !seenResourceIds.Add(resourceId)
                 || !resourcesById.TryGetValue(resourceId, out var resource)
                 || !string.Equals(resource.OwnerPlayerId, pendingPayment.PlayerId, StringComparison.Ordinal)
-                || resource.RemainingPower <= 0
+                || TemporaryPaymentResourceTotalRemainingPower(resource) <= 0
                 || !resource.AllowedPaymentKinds.Contains(PaymentCostRules.RuneCostPaymentKind, StringComparer.Ordinal)
-                || pendingPayment.PowerCost <= 0)
+                || (pendingPayment.PowerCost <= 0 && pendingPayment.PowerCostByTrait.Count == 0))
             {
                 rejection = "PAY_COST 包含非法临时费用资源。";
                 return false;
@@ -2249,49 +2292,164 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        var remainingPowerByTrait = pool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        foreach (var cost in pendingPayment.PowerCostByTrait)
+        var combinedPowerByTrait = pool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        foreach (var resource in selectedResources)
         {
-            if (!remainingPowerByTrait.TryGetValue(cost.Key, out var available)
-                || available < cost.Value)
+            foreach (var entry in resource.RemainingPowerByTrait)
             {
-                rejection = "临时费用资源只能支付通用符能费用。";
-                return false;
+                combinedPowerByTrait[entry.Key] = combinedPowerByTrait.TryGetValue(entry.Key, out var existing)
+                    ? existing + entry.Value
+                    : entry.Value;
             }
-
-            remainingPowerByTrait[cost.Key] = available - cost.Value;
         }
 
-        var genericPowerAvailableAfterTraitCosts = pool.Power + remainingPowerByTrait.Values.Sum();
-        var temporaryPowerNeeded = Math.Max(0, pendingPayment.PowerCost - genericPowerAvailableAfterTraitCosts);
-        var selectedPower = selectedResources.Sum(resource => resource.RemainingPower);
-        if (temporaryPowerNeeded <= 0
-            || selectedPower < temporaryPowerNeeded)
+        var combinedPool = new RunePool(
+            pool.Mana,
+            pool.Power + selectedResources.Sum(resource => resource.RemainingPower),
+            combinedPowerByTrait);
+        if (!PaymentCostRules.CanPayPowerCost(combinedPool, pendingPayment.PowerCost, pendingPayment.PowerCostByTrait))
+        {
+            rejection = "临时费用资源不足或并非当前支付窗口所需。";
+            return false;
+        }
+
+        var consumedGenericById = selectedResources.ToDictionary(resource => resource.ResourceId, _ => 0, StringComparer.Ordinal);
+        var consumedTraitById = selectedResources.ToDictionary(
+            resource => resource.ResourceId,
+            _ => new Dictionary<string, int>(StringComparer.Ordinal),
+            StringComparer.Ordinal);
+        var remainingGenericById = selectedResources.ToDictionary(resource => resource.ResourceId, resource => resource.RemainingPower, StringComparer.Ordinal);
+        var remainingTraitById = selectedResources.ToDictionary(
+            resource => resource.ResourceId,
+            resource => resource.RemainingPowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
+            StringComparer.Ordinal);
+        var poolPowerByTraitAfterTypedCosts = pool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+
+        foreach (var cost in PaymentCostRules.NormalizePowerCostByTrait(pendingPayment.PowerCostByTrait))
+        {
+            poolPowerByTraitAfterTypedCosts.TryGetValue(cost.Key, out var poolTraitPower);
+            poolPowerByTraitAfterTypedCosts[cost.Key] = Math.Max(0, poolTraitPower - cost.Value);
+            var unmetTraitCost = Math.Max(0, cost.Value - poolTraitPower);
+            foreach (var resource in selectedResources)
+            {
+                if (unmetTraitCost <= 0)
+                {
+                    break;
+                }
+
+                var remainingTraitByResource = remainingTraitById[resource.ResourceId];
+                remainingTraitByResource.TryGetValue(cost.Key, out var availableTemporaryTraitPower);
+                var consumedTraitPower = Math.Min(availableTemporaryTraitPower, unmetTraitCost);
+                if (consumedTraitPower <= 0)
+                {
+                    continue;
+                }
+
+                remainingTraitByResource[cost.Key] = availableTemporaryTraitPower - consumedTraitPower;
+                consumedTraitById[resource.ResourceId][cost.Key] = consumedTraitById[resource.ResourceId].TryGetValue(cost.Key, out var existing)
+                    ? existing + consumedTraitPower
+                    : consumedTraitPower;
+                unmetTraitCost -= consumedTraitPower;
+            }
+
+            if (unmetTraitCost > 0)
+            {
+                rejection = "临时费用资源不足或并非当前支付窗口所需。";
+                return false;
+            }
+        }
+
+        var genericPowerNeeded = Math.Max(0, pendingPayment.PowerCost - (pool.Power + poolPowerByTraitAfterTypedCosts.Values.Sum()));
+        foreach (var resource in selectedResources)
+        {
+            if (genericPowerNeeded <= 0)
+            {
+                break;
+            }
+
+            var consumedGenericPower = Math.Min(remainingGenericById[resource.ResourceId], genericPowerNeeded);
+            remainingGenericById[resource.ResourceId] -= consumedGenericPower;
+            consumedGenericById[resource.ResourceId] += consumedGenericPower;
+            genericPowerNeeded -= consumedGenericPower;
+        }
+
+        foreach (var resource in selectedResources)
+        {
+            if (genericPowerNeeded <= 0)
+            {
+                break;
+            }
+
+            foreach (var trait in remainingTraitById[resource.ResourceId].Keys.OrderBy(key => key, StringComparer.Ordinal).ToArray())
+            {
+                if (genericPowerNeeded <= 0)
+                {
+                    break;
+                }
+
+                var consumedTraitPower = Math.Min(remainingTraitById[resource.ResourceId][trait], genericPowerNeeded);
+                remainingTraitById[resource.ResourceId][trait] -= consumedTraitPower;
+                consumedTraitById[resource.ResourceId][trait] = consumedTraitById[resource.ResourceId].TryGetValue(trait, out var existing)
+                    ? existing + consumedTraitPower
+                    : consumedTraitPower;
+                genericPowerNeeded -= consumedTraitPower;
+            }
+        }
+
+        if (genericPowerNeeded > 0)
+        {
+            rejection = "临时费用资源不足或并非当前支付窗口所需。";
+            return false;
+        }
+
+        var consumedGenericPowerTotal = consumedGenericById.Values.Sum();
+        var consumedPowerByTraitTotal = consumedTraitById.Values
+            .SelectMany(entry => entry)
+            .GroupBy(entry => entry.Key, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.Sum(entry => entry.Value), StringComparer.Ordinal);
+        if (consumedGenericPowerTotal <= 0 && consumedPowerByTraitTotal.Values.Sum() <= 0)
         {
             rejection = "临时费用资源不足或并非当前支付窗口所需。";
             return false;
         }
 
         var runePools = currentRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var adjustedPowerByTrait = pool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        foreach (var entry in consumedPowerByTraitTotal)
+        {
+            adjustedPowerByTrait[entry.Key] = adjustedPowerByTrait.TryGetValue(entry.Key, out var existing)
+                ? existing + entry.Value
+                : entry.Value;
+        }
+
         runePools[pendingPayment.PlayerId] = pool with
         {
-            Power = pool.Power + temporaryPowerNeeded
+            Power = pool.Power + consumedGenericPowerTotal,
+            PowerByTrait = adjustedPowerByTrait
         };
         adjustedRunePools = runePools;
 
-        var remainingToConsume = temporaryPowerNeeded;
         var consumed = new List<ConsumedTemporaryPaymentResource>();
         foreach (var resource in selectedResources)
         {
-            var consumedPower = Math.Min(resource.RemainingPower, remainingToConsume);
-            remainingToConsume = Math.Max(0, remainingToConsume - consumedPower);
+            var consumedPower = consumedGenericById[resource.ResourceId];
+            var consumedPowerByTrait = consumedTraitById[resource.ResourceId]
+                .Where(entry => entry.Value > 0)
+                .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+            var remainingPowerByTraitBeforeCleanup = resource.RemainingPowerByTrait
+                .ToDictionary(entry => entry.Key, entry => Math.Max(0, entry.Value - (consumedPowerByTrait.TryGetValue(entry.Key, out var consumedTraitPower) ? consumedTraitPower : 0)), StringComparer.Ordinal)
+                .Where(entry => entry.Value > 0)
+                .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
             consumed.Add(new ConsumedTemporaryPaymentResource(
                 resource.ResourceId,
                 resource.SourceObjectId,
                 resource.AbilityId,
                 resource.GeneratedPower,
+                resource.GeneratedPowerByTrait,
                 consumedPower,
+                consumedPowerByTrait,
                 resource.RemainingPower - consumedPower,
+                remainingPowerByTraitBeforeCleanup,
                 resource.AllowedPaymentKinds));
         }
 
@@ -2313,7 +2471,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var events = new List<GameEvent>();
         foreach (var resource in consumedResources)
         {
-            if (resource.ConsumedPower > 0)
+            if (resource.ConsumedPower > 0 || resource.ConsumedPowerByTrait.Values.Sum() > 0)
             {
                 events.Add(new GameEvent(
                     "TEMPORARY_PAYMENT_RESOURCE_SPENT",
@@ -2327,7 +2485,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["sourceObjectId"] = resource.SourceObjectId,
                         ["abilityId"] = resource.AbilityId,
                         ["consumedPower"] = resource.ConsumedPower,
+                        ["consumedPowerByTrait"] = resource.ConsumedPowerByTrait,
                         ["remainingPower"] = resource.RemainingPowerBeforeCleanup,
+                        ["remainingPowerByTrait"] = resource.RemainingPowerByTraitBeforeCleanup,
                         ["allowedPaymentKinds"] = resource.AllowedPaymentKinds.ToArray(),
                         ["paymentOnly"] = true
                     }));
@@ -2343,6 +2503,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["playerId"] = playerId,
                     ["temporaryPaymentResourceId"] = resource.ResourceId,
                     ["remainingPowerBeforeCleanup"] = resource.RemainingPowerBeforeCleanup,
+                    ["remainingPowerByTraitBeforeCleanup"] = resource.RemainingPowerByTraitBeforeCleanup,
                     ["paymentOnly"] = true
                 }));
         }
@@ -6086,6 +6247,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveDragonSoulSageResourceSkill(state, intent, command, ability);
         }
 
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.RageSigilResourceAbilityId, StringComparison.Ordinal))
+        {
+            return ResolveRageSigilResourceSkill(state, intent, command, ability);
+        }
+
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.XerathDamageAbilityId, StringComparison.Ordinal))
         {
             return ResolveXerathDamageAbility(state, intent, command, ability);
@@ -7353,6 +7519,191 @@ public sealed class CoreRuleEngine : IRuleEngine
             && state.StackItems.Count > 0
             && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
             && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
+    }
+
+    private static ResolutionResult ResolveRageSigilResourceSkill(
+        MatchState state,
+        PlayerIntent intent,
+        ActivateAbilityCommand command,
+        P4ActivatedAbilityDefinition ability)
+    {
+        const string timingContext = "STACK_PRIORITY_REACTION";
+        if (!DragonSoulSageResourceSkillTimingAllowed(state, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "暴怒之印的资源技能只能在当前玩家持有优先权的反应窗口提交。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (NormalizeOptionalCosts(command.OptionalCosts).Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "暴怒之印的资源技能不接受额外费用或支付资源动作。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (NormalizeTargetObjectIds(command.TargetObjectIds).Count != 0
+            || command.TargetObjectIds.Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "暴怒之印的资源技能不接受目标。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!IsControlledBaseObject(state, intent.PlayerId, command.SourceObjectId)
+            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
+            || !sourceState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || sourceState.IsFaceDown
+            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "暴怒之印的资源技能来源必须是当前玩家控制的公开基地装备。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "暴怒之印的资源技能只能选择当前玩家控制的来源。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!string.Equals(sourceState.CardNo, ability.SourceCardNo, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "该来源没有服务端支持的暴怒之印资源技能。",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        if (sourceState.IsExhausted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "暴怒之印的资源技能来源必须未横置。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var generatedPowerByTrait = P4ActivatedAbilityCatalog.GeneratedPowerByTraitForAbility(ability);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[command.SourceObjectId] = sourceState with
+        {
+            IsExhausted = true,
+            OwnerId = string.IsNullOrWhiteSpace(sourceState.OwnerId) ? intent.PlayerId : sourceState.OwnerId,
+            ControllerId = string.IsNullOrWhiteSpace(sourceState.ControllerId) ? intent.PlayerId : sourceState.ControllerId
+        };
+        const string paymentWindow = "ACTIVATE_ABILITY";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            intent.PlayerId,
+            command.SourceObjectId,
+            command.AbilityId);
+        var temporaryPaymentResource = new TemporaryPaymentResourceState(
+            $"RAGE_SIGIL:{paymentId}",
+            intent.PlayerId,
+            command.SourceObjectId,
+            command.AbilityId,
+            paymentWindow,
+            generatedPower: 0,
+            remainingPower: 0,
+            generatedPowerByTrait: generatedPowerByTrait,
+            remainingPowerByTrait: generatedPowerByTrait,
+            allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind],
+            createdTick: state.Tick + 1);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, state.PlayerZones);
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            CardObjects = cardObjects,
+            ObjectLocations = objectLocations,
+            TemporaryPaymentResources = state.TemporaryPaymentResources
+                .Concat([temporaryPaymentResource])
+                .ToArray(),
+            PriorityPlayerId = intent.PlayerId,
+            PassedPriorityPlayerIds = []
+        };
+        var events = new List<GameEvent>
+        {
+            new(
+                "ABILITY_ACTIVATED",
+                $"{intent.PlayerId} 激活暴怒之印的反应资源技能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["cardNo"] = sourceState.CardNo,
+                    ["abilityId"] = command.AbilityId,
+                    ["effectKind"] = ability.EffectKind,
+                    ["paymentWindow"] = paymentWindow,
+                    ["paymentId"] = paymentId,
+                    ["resourceSkill"] = true,
+                    ["reactionSpeed"] = true,
+                    ["paymentOnly"] = true,
+                    ["typedPaymentOnlyResource"] = true,
+                    ["generatedPowerByTrait"] = generatedPowerByTrait,
+                    ["resourceRestriction"] = ability.ResourceRestriction,
+                    ["timingContext"] = timingContext,
+                    ["temporaryPaymentResourceId"] = temporaryPaymentResource.ResourceId,
+                    ["allowedPaymentKinds"] = temporaryPaymentResource.AllowedPaymentKinds.ToArray(),
+                    ["resourceLifecycle"] = "temporary-payment-resource-ledger"
+                }),
+            new(
+                "UNIT_EXHAUSTED",
+                "暴怒之印横置支付资源技能费用",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["targetObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["paymentWindow"] = paymentWindow,
+                    ["paymentId"] = paymentId,
+                    ["wasExhausted"] = sourceState.IsExhausted,
+                    ["isExhausted"] = true,
+                    ["resourceSkill"] = true,
+                    ["reactionSpeed"] = true,
+                    ["paymentOnly"] = true,
+                    ["typedPaymentOnlyResource"] = true,
+                    ["timingContext"] = timingContext
+                }),
+            new(
+                "POWER_GAINED",
+                $"{intent.PlayerId} 通过暴怒之印资源技能获得 1 点红色费用符能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["paymentWindow"] = paymentWindow,
+                    ["paymentId"] = paymentId,
+                    ["resourceSkill"] = true,
+                    ["reactionSpeed"] = true,
+                    ["paymentOnly"] = true,
+                    ["typedPaymentOnlyResource"] = true,
+                    ["generatedPowerByTrait"] = generatedPowerByTrait,
+                    ["powerByTrait"] = generatedPowerByTrait,
+                    ["resourceRestriction"] = ability.ResourceRestriction,
+                    ["restrictionLifecycle"] = "temporary-payment-resource-ledger",
+                    ["timingContext"] = timingContext,
+                    ["temporaryPaymentResourceId"] = temporaryPaymentResource.ResourceId,
+                    ["remainingPowerByTrait"] = temporaryPaymentResource.RemainingPowerByTrait,
+                    ["allowedPaymentKinds"] = temporaryPaymentResource.AllowedPaymentKinds.ToArray()
+                })
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
     }
 
     private static bool IsMalzaharDestroyCostTarget(
@@ -11320,7 +11671,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 if (!seenTemporaryResourceIds.Add(resourceId)
                     || !temporaryResourcesById.TryGetValue(resourceId, out var resource)
                     || !string.Equals(resource.OwnerPlayerId, playerId, StringComparison.Ordinal)
-                    || resource.RemainingPower <= 0
+                    || TemporaryPaymentResourceTotalRemainingPower(resource) <= 0
                     || !resource.AllowedPaymentKinds.Contains(PaymentCostRules.RuneCostPaymentKind, StringComparer.Ordinal))
                 {
                     behaviorOptionalCosts = [];

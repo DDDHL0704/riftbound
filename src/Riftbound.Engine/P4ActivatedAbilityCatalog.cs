@@ -22,7 +22,8 @@ public sealed record P4ActivatedAbilityDefinition(
     int GeneratedMana = 0,
     IReadOnlyDictionary<string, int>? PowerCostByTrait = null,
     int ExperienceCost = 0,
-    bool RequiresBaseEquipmentSource = false);
+    bool RequiresBaseEquipmentSource = false,
+    IReadOnlyDictionary<string, int>? GeneratedPowerByTrait = null);
 
 public sealed record P4DeferredActivatedAbilitySurface(
     string AbilityId,
@@ -86,6 +87,12 @@ public static class P4ActivatedAbilityCatalog
     public const string ShadowStunAbilityEffectKind = "SHADOW_ACTIVATED_STUN_ATTACKER";
     public const int ShadowStunManaCost = 1;
     public const int ShadowStunPowerCost = 1;
+
+    public const string RageSigilCardNo = "SFD·222/221";
+    public const string RageSigilResourceAbilityId = "RAGE_SIGIL_REACTION_EXHAUST_GAIN_1_RED_POWER";
+    public const string RageSigilResourceAbilityEffectKind = "RAGE_SIGIL_REACTION_TYPED_RESOURCE_GAIN_RED";
+    public const string RageSigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_RED_TEMPORARY_LEDGER_4D_03R";
+    public const int RageSigilGeneratedRedPower = 1;
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
@@ -225,7 +232,29 @@ public static class P4ActivatedAbilityCatalog
             0,
             AppliesSpellshieldTargetTax: true,
             "Stage 4D-03Q opens only Shadow's swift battle-response stun-attacker representative; the broader swift combat response and target-bearing skill family remains deferred.",
-            ReactionSpeed: true)
+            ReactionSpeed: true),
+        new(
+            RageSigilResourceAbilityId,
+            RageSigilCardNo,
+            RageSigilResourceAbilityEffectKind,
+            "Rage Sigil reaction typed resource skill",
+            0,
+            0,
+            0,
+            RequiresBattlefieldSource: false,
+            ExhaustsSourceAsCost: true,
+            0,
+            AppliesSpellshieldTargetTax: false,
+            "Stage 4D-03R opens only Rage Sigil's reaction-speed typed red payment-only resource representative; the broader Sigil family remains deferred.",
+            IsResourceSkill: true,
+            PaymentOnlyResource: true,
+            ResourceRestriction: RageSigilTypedResourceRestriction,
+            ReactionSpeed: true,
+            RequiresBaseEquipmentSource: true,
+            GeneratedPowerByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [RuneTrait.Red] = RageSigilGeneratedRedPower
+            })
     ];
 
     private static readonly P4DeferredActivatedAbilitySurface[] DeferredSurfaces =
@@ -284,5 +313,11 @@ public static class P4ActivatedAbilityCatalog
     {
         return PaymentCostRules.NormalizePowerCostByTrait(
             definition.PowerCostByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
+    }
+
+    public static IReadOnlyDictionary<string, int> GeneratedPowerByTraitForAbility(P4ActivatedAbilityDefinition definition)
+    {
+        return PaymentCostRules.NormalizePowerCostByTrait(
+            definition.GeneratedPowerByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
     }
 }

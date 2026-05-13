@@ -598,7 +598,9 @@ public sealed record TemporaryPaymentResourceState
         int generatedPower = 0,
         int remainingPower = 0,
         IReadOnlyList<string>? allowedPaymentKinds = null,
-        long createdTick = 0)
+        long createdTick = 0,
+        IReadOnlyDictionary<string, int>? generatedPowerByTrait = null,
+        IReadOnlyDictionary<string, int>? remainingPowerByTrait = null)
     {
         ResourceId = Normalize(resourceId);
         OwnerPlayerId = Normalize(ownerPlayerId);
@@ -607,6 +609,10 @@ public sealed record TemporaryPaymentResourceState
         PaymentWindow = Normalize(paymentWindow);
         GeneratedPower = Math.Max(0, generatedPower);
         RemainingPower = Math.Max(0, remainingPower);
+        GeneratedPowerByTrait = PaymentCostRules.NormalizePowerCostByTrait(
+            generatedPowerByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
+        RemainingPowerByTrait = PaymentCostRules.NormalizePowerCostByTrait(
+            remainingPowerByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
         AllowedPaymentKinds = NormalizeList(allowedPaymentKinds);
         CreatedTick = Math.Max(0, createdTick);
     }
@@ -624,6 +630,10 @@ public sealed record TemporaryPaymentResourceState
     public int GeneratedPower { get; init; }
 
     public int RemainingPower { get; init; }
+
+    public IReadOnlyDictionary<string, int> GeneratedPowerByTrait { get; init; }
+
+    public IReadOnlyDictionary<string, int> RemainingPowerByTrait { get; init; }
 
     public IReadOnlyList<string> AllowedPaymentKinds { get; init; }
 
@@ -1800,7 +1810,7 @@ public sealed record MatchState
         return (temporaryPaymentResources ?? [])
             .Where(resource => !string.IsNullOrWhiteSpace(resource.ResourceId)
                 && !string.IsNullOrWhiteSpace(resource.OwnerPlayerId)
-                && resource.RemainingPower > 0)
+                && TemporaryPaymentResourceTotalRemainingPower(resource) > 0)
             .Select(resource => new TemporaryPaymentResourceState(
                 resource.ResourceId,
                 resource.OwnerPlayerId,
@@ -1810,8 +1820,15 @@ public sealed record MatchState
                 resource.GeneratedPower,
                 resource.RemainingPower,
                 resource.AllowedPaymentKinds,
-                resource.CreatedTick))
+                resource.CreatedTick,
+                resource.GeneratedPowerByTrait,
+                resource.RemainingPowerByTrait))
             .ToArray();
+    }
+
+    private static int TemporaryPaymentResourceTotalRemainingPower(TemporaryPaymentResourceState resource)
+    {
+        return resource.RemainingPower + resource.RemainingPowerByTrait.Values.Sum();
     }
 
     private static PendingHandChoiceState? NormalizePendingHandChoice(PendingHandChoiceState? pendingHandChoice)
@@ -2494,11 +2511,51 @@ public sealed record ResolutionResult(
             ["paymentWindow"] = resource.PaymentWindow,
             ["generatedPower"] = resource.GeneratedPower,
             ["remainingPower"] = resource.RemainingPower,
+            ["generatedPowerByTrait"] = resource.GeneratedPowerByTrait,
+            ["remainingPowerByTrait"] = resource.RemainingPowerByTrait,
             ["allowedPaymentKinds"] = resource.AllowedPaymentKinds,
             ["paymentOnly"] = true,
-            ["resourceRestriction"] = P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction,
+            ["resourceRestriction"] = TemporaryPaymentResourceRestriction(resource),
             ["createdTick"] = resource.CreatedTick
         };
+    }
+
+    private static string TemporaryPaymentResourceRestriction(TemporaryPaymentResourceState resource)
+    {
+        return string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.RageSigilResourceAbilityId, StringComparison.Ordinal)
+            ? P4ActivatedAbilityCatalog.RageSigilTypedResourceRestriction
+            : P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction;
+    }
+
+    private static int TemporaryPaymentResourceTotalRemainingPower(TemporaryPaymentResourceState resource)
+    {
+        return resource.RemainingPower + resource.RemainingPowerByTrait.Values.Sum();
+    }
+
+    private static bool TemporaryPaymentResourceCanHelpPowerCost(
+        RunePool runePool,
+        TemporaryPaymentResourceState resource,
+        int genericPowerCost,
+        IReadOnlyDictionary<string, int> powerCostByTrait)
+    {
+        if (PaymentCostRules.CanPayPowerCost(runePool, genericPowerCost, powerCostByTrait)
+            || TemporaryPaymentResourceTotalRemainingPower(resource) <= 0)
+        {
+            return false;
+        }
+
+        var powerByTrait = runePool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        foreach (var entry in resource.RemainingPowerByTrait)
+        {
+            powerByTrait[entry.Key] = powerByTrait.TryGetValue(entry.Key, out var existing)
+                ? existing + entry.Value
+                : entry.Value;
+        }
+
+        return PaymentCostRules.CanPayPowerCost(
+            new RunePool(runePool.Mana, runePool.Power + resource.RemainingPower, powerByTrait),
+            genericPowerCost,
+            powerCostByTrait);
     }
 
     private static IReadOnlyList<string> PendingPaymentResourceActionIds(
@@ -2517,15 +2574,24 @@ public sealed record ResolutionResult(
         MatchState state,
         PendingPaymentState payment)
     {
-        if (payment.PowerCost <= 0)
+        if (payment.PowerCost <= 0 && payment.PowerCostByTrait.Count == 0)
+        {
+            return [];
+        }
+
+        var runePool = state.RunePools.TryGetValue(payment.PlayerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        if (PaymentCostRules.CanPayPowerCost(runePool, payment.PowerCost, payment.PowerCostByTrait))
         {
             return [];
         }
 
         return state.TemporaryPaymentResources
             .Where(resource => string.Equals(resource.OwnerPlayerId, payment.PlayerId, StringComparison.Ordinal)
-                && resource.RemainingPower > 0
-                && resource.AllowedPaymentKinds.Contains(PaymentCostRules.RuneCostPaymentKind, StringComparer.Ordinal))
+                && TemporaryPaymentResourceTotalRemainingPower(resource) > 0
+                && resource.AllowedPaymentKinds.Contains(PaymentCostRules.RuneCostPaymentKind, StringComparer.Ordinal)
+                && TemporaryPaymentResourceCanHelpPowerCost(runePool, resource, payment.PowerCost, payment.PowerCostByTrait))
             .Select(resource => PaymentCostRules.TemporaryPaymentResourceActionId(resource.ResourceId))
             .ToArray();
     }
@@ -6237,6 +6303,44 @@ internal static class ActionPromptBuilder
             && ActivateAbilityAvailablePowerWithPaymentResources(state, playerId, ability) >= ability.PowerCost;
     }
 
+    private static int TemporaryPaymentResourceTotalRemainingPower(TemporaryPaymentResourceState resource)
+    {
+        return resource.RemainingPower + resource.RemainingPowerByTrait.Values.Sum();
+    }
+
+    private static string TemporaryPaymentResourceRestriction(TemporaryPaymentResourceState resource)
+    {
+        return string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.RageSigilResourceAbilityId, StringComparison.Ordinal)
+            ? P4ActivatedAbilityCatalog.RageSigilTypedResourceRestriction
+            : P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction;
+    }
+
+    private static bool TemporaryPaymentResourceCanHelpPowerCost(
+        RunePool runePool,
+        TemporaryPaymentResourceState resource,
+        int genericPowerCost,
+        IReadOnlyDictionary<string, int> powerCostByTrait)
+    {
+        if (PaymentCostRules.CanPayPowerCost(runePool, genericPowerCost, powerCostByTrait)
+            || TemporaryPaymentResourceTotalRemainingPower(resource) <= 0)
+        {
+            return false;
+        }
+
+        var powerByTrait = runePool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        foreach (var entry in resource.RemainingPowerByTrait)
+        {
+            powerByTrait[entry.Key] = powerByTrait.TryGetValue(entry.Key, out var existing)
+                ? existing + entry.Value
+                : entry.Value;
+        }
+
+        return PaymentCostRules.CanPayPowerCost(
+            new RunePool(runePool.Mana, runePool.Power + resource.RemainingPower, powerByTrait),
+            genericPowerCost,
+            powerCostByTrait);
+    }
+
     private static IReadOnlyList<ActionPromptChoiceDto> ActivateAbilityPaymentResourceChoices(
         MatchState state,
         string playerId,
@@ -6343,29 +6447,24 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        var shortfall = GenericPowerShortfallForTemporaryPaymentResources(
-            runePool,
-            genericPowerCost,
-            powerCostByTrait);
-        if (shortfall <= 0)
+        if (PaymentCostRules.CanPayPowerCost(runePool, genericPowerCost, powerCostByTrait))
         {
             return [];
         }
 
         var eligibleResources = state.TemporaryPaymentResources
             .Where(resource => string.Equals(resource.OwnerPlayerId, playerId, StringComparison.Ordinal)
-                && resource.RemainingPower > 0
-                && resource.AllowedPaymentKinds.Contains(PaymentCostRules.RuneCostPaymentKind, StringComparer.Ordinal))
+                && TemporaryPaymentResourceTotalRemainingPower(resource) > 0
+                && resource.AllowedPaymentKinds.Contains(PaymentCostRules.RuneCostPaymentKind, StringComparer.Ordinal)
+                && TemporaryPaymentResourceCanHelpPowerCost(runePool, resource, genericPowerCost, powerCostByTrait))
             .OrderBy(resource => resource.ResourceId, StringComparer.Ordinal)
             .ToArray();
-        return eligibleResources.Sum(resource => resource.RemainingPower) >= shortfall
-            ? eligibleResources
-                .Select(resource => new ActionPromptChoiceDto(
-                    PaymentCostRules.TemporaryPaymentResourceActionId(resource.ResourceId),
-                    $"临时费用符能支付：{resource.RemainingPower}",
-                    reason))
-                .ToArray()
-            : [];
+        return eligibleResources
+            .Select(resource => new ActionPromptChoiceDto(
+                PaymentCostRules.TemporaryPaymentResourceActionId(resource.ResourceId),
+                $"临时费用符能支付：{TemporaryPaymentResourceTotalRemainingPower(resource)}",
+                reason))
+            .ToArray();
     }
 
     private static int TemporaryPaymentResourcePowerForGenericPower(
@@ -6390,7 +6489,40 @@ internal static class ActionPromptBuilder
             .ToHashSet(StringComparer.Ordinal);
         return state.TemporaryPaymentResources
             .Where(resource => resourceIds.Contains(resource.ResourceId))
-            .Sum(resource => resource.RemainingPower);
+            .Sum(TemporaryPaymentResourceTotalRemainingPower);
+    }
+
+    private static IReadOnlyDictionary<string, int> TemporaryPaymentResourcePowerByTraitForChoices(
+        MatchState state,
+        IEnumerable<ActionPromptChoiceDto> choices)
+    {
+        var resourceIds = choices
+            .Where(choice => PaymentCostRules.TryParseTemporaryPaymentResourceActionId(choice.Id, out _))
+            .Select(choice =>
+            {
+                PaymentCostRules.TryParseTemporaryPaymentResourceActionId(choice.Id, out var resourceId);
+                return resourceId;
+            })
+            .ToHashSet(StringComparer.Ordinal);
+        var powerByTrait = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (var resource in state.TemporaryPaymentResources.Where(resource => resourceIds.Contains(resource.ResourceId)))
+        {
+            if (resource.RemainingPower > 0)
+            {
+                powerByTrait[string.Empty] = powerByTrait.TryGetValue(string.Empty, out var existing)
+                    ? existing + resource.RemainingPower
+                    : resource.RemainingPower;
+            }
+
+            foreach (var entry in resource.RemainingPowerByTrait)
+            {
+                powerByTrait[entry.Key] = powerByTrait.TryGetValue(entry.Key, out var existing)
+                    ? existing + entry.Value
+                    : entry.Value;
+            }
+        }
+
+        return powerByTrait;
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> TemporaryPaymentResourcePowerByChoice(
@@ -6421,11 +6553,14 @@ internal static class ActionPromptBuilder
                     var resource = resourcesById[entry.Value];
                     return (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>(StringComparer.Ordinal)
                     {
-                        ["trait"] = string.Empty,
+                        ["trait"] = resource.RemainingPowerByTrait.Count == 1 && resource.RemainingPower == 0
+                            ? resource.RemainingPowerByTrait.Keys.Single()
+                            : string.Empty,
                         ["power"] = resource.RemainingPower,
+                        ["powerByTrait"] = resource.RemainingPowerByTrait,
                         ["paymentOnly"] = true,
                         ["temporaryPaymentResourceId"] = resource.ResourceId,
-                        ["resourceRestriction"] = P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction,
+                        ["resourceRestriction"] = TemporaryPaymentResourceRestriction(resource),
                         ["allowedPaymentKinds"] = resource.AllowedPaymentKinds.ToArray()
                     };
                 },
@@ -6459,14 +6594,13 @@ internal static class ActionPromptBuilder
                 group => group.Key,
                 group => group.Count() * BasicRuneRecyclePowerGain,
                 StringComparer.Ordinal);
-        var temporaryPower = TemporaryPaymentResourcePowerForGenericPower(
-            state,
-            playerId,
-            ability.PowerCost,
-            P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability));
-        if (temporaryPower > 0)
+        foreach (var entry in TemporaryPaymentResourcePowerByTraitForChoices(
+                     state,
+                     choices))
         {
-            powerByTrait[string.Empty] = temporaryPower;
+            powerByTrait[entry.Key] = powerByTrait.TryGetValue(entry.Key, out var existing)
+                ? existing + entry.Value
+                : entry.Value;
         }
 
         return powerByTrait;
@@ -6586,6 +6720,15 @@ internal static class ActionPromptBuilder
                 && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
         }
 
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.RageSigilResourceAbilityId, StringComparison.Ordinal))
+        {
+            return string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+                && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
+                && state.StackItems.Count > 0
+                && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+                && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
+        }
+
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal))
         {
             return string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
@@ -6641,6 +6784,7 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId => "猩红玫瑰：消耗 3 经验并横置，让一名单位变为活跃状态",
             P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId => "绵绵魄罗：横置，打出两名拥有法盾的战鹰",
             P4ActivatedAbilityCatalog.ShadowStunAbilityId => "黑影：迅捷，支付 1 法力和 1 符能并横置，眩晕此处进攻的敌方单位",
+            P4ActivatedAbilityCatalog.RageSigilResourceAbilityId => "暴怒之印：反应，横置，获得 1 点红色费用符能",
             _ => ability.DisplayName
         };
     }
@@ -7081,14 +7225,11 @@ internal static class ActionPromptBuilder
                         group => group.Count() * BasicRuneRecyclePowerGain,
                         StringComparer.Ordinal)
                 : new Dictionary<string, int>(StringComparer.Ordinal);
-            var temporaryPower = TemporaryPaymentResourcePowerForGenericPower(
-                state,
-                playerId,
-                assembleProfile.PowerCost,
-                new Dictionary<string, int>(StringComparer.Ordinal));
-            if (temporaryPower > 0)
+            foreach (var entry in TemporaryPaymentResourcePowerByTraitForChoices(state, choices))
             {
-                powerByTrait[string.Empty] = temporaryPower;
+                powerByTrait[entry.Key] = powerByTrait.TryGetValue(entry.Key, out var existing)
+                    ? existing + entry.Value
+                    : entry.Value;
             }
 
             return powerByTrait;
@@ -8902,14 +9043,13 @@ internal static class ActionPromptBuilder
                 group => group.Key,
                 group => group.Count() * BasicRuneRecyclePowerGain,
                 StringComparer.Ordinal);
-        var temporaryPower = TemporaryPaymentResourcePowerForGenericPower(
-            state,
-            playerId,
-            PlayCardTemporaryPaymentGenericPowerCost(state, playerId, behavior),
-            new Dictionary<string, int>(StringComparer.Ordinal));
-        if (temporaryPower > 0)
+        foreach (var entry in TemporaryPaymentResourcePowerByTraitForChoices(
+                     state,
+                     PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior)))
         {
-            powerByTrait[string.Empty] = temporaryPower;
+            powerByTrait[entry.Key] = powerByTrait.TryGetValue(entry.Key, out var existing)
+                ? existing + entry.Value
+                : entry.Value;
         }
 
         return powerByTrait;
@@ -9474,7 +9614,7 @@ internal static class ActionPromptBuilder
                     && state.TemporaryPaymentResources.FirstOrDefault(resource =>
                         string.Equals(resource.ResourceId, resourceId, StringComparison.Ordinal)) is { } resource)
                 {
-                    label = $"玛尔扎哈费用符能：{resource.RemainingPower}";
+                    label = $"临时费用符能：{TemporaryPaymentResourceTotalRemainingPower(resource)}";
                 }
 
                 return new ActionPromptChoiceDto(choiceId, label, "服务端支付资源候选");
@@ -9493,15 +9633,24 @@ internal static class ActionPromptBuilder
         MatchState state,
         PendingPaymentState payment)
     {
-        if (payment.PowerCost <= 0)
+        if (payment.PowerCost <= 0 && payment.PowerCostByTrait.Count == 0)
+        {
+            return [];
+        }
+
+        var runePool = state.RunePools.TryGetValue(payment.PlayerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        if (PaymentCostRules.CanPayPowerCost(runePool, payment.PowerCost, payment.PowerCostByTrait))
         {
             return [];
         }
 
         return state.TemporaryPaymentResources
             .Where(resource => string.Equals(resource.OwnerPlayerId, payment.PlayerId, StringComparison.Ordinal)
-                && resource.RemainingPower > 0
-                && resource.AllowedPaymentKinds.Contains(PaymentCostRules.RuneCostPaymentKind, StringComparer.Ordinal))
+                && TemporaryPaymentResourceTotalRemainingPower(resource) > 0
+                && resource.AllowedPaymentKinds.Contains(PaymentCostRules.RuneCostPaymentKind, StringComparer.Ordinal)
+                && TemporaryPaymentResourceCanHelpPowerCost(runePool, resource, payment.PowerCost, payment.PowerCostByTrait))
             .Select(resource => PaymentCostRules.TemporaryPaymentResourceActionId(resource.ResourceId))
             .ToArray();
     }
@@ -9510,10 +9659,10 @@ internal static class ActionPromptBuilder
     {
         return state.TemporaryPaymentResources
             .Where(resource => string.Equals(resource.OwnerPlayerId, payment.PlayerId, StringComparison.Ordinal)
-                && resource.RemainingPower > 0
+                && TemporaryPaymentResourceTotalRemainingPower(resource) > 0
                 && resource.AllowedPaymentKinds.Contains(PaymentCostRules.RuneCostPaymentKind, StringComparer.Ordinal)
-                && payment.PowerCost > 0)
-            .Sum(resource => resource.RemainingPower);
+                && (payment.PowerCost > 0 || payment.PowerCostByTrait.Count > 0))
+            .Sum(TemporaryPaymentResourceTotalRemainingPower);
     }
 
     private static IReadOnlyList<IReadOnlyDictionary<string, object?>> TemporaryPaymentResourceViewsForPayment(
@@ -9531,9 +9680,11 @@ internal static class ActionPromptBuilder
                 ["paymentWindow"] = resource.PaymentWindow,
                 ["generatedPower"] = resource.GeneratedPower,
                 ["remainingPower"] = resource.RemainingPower,
+                ["generatedPowerByTrait"] = resource.GeneratedPowerByTrait,
+                ["remainingPowerByTrait"] = resource.RemainingPowerByTrait,
                 ["allowedPaymentKinds"] = resource.AllowedPaymentKinds,
                 ["paymentOnly"] = true,
-                ["resourceRestriction"] = P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction
+                ["resourceRestriction"] = TemporaryPaymentResourceRestriction(resource)
             })
             .ToArray();
     }
@@ -9894,6 +10045,24 @@ internal static class ActionPromptBuilder
             view["timingPolicy"] = "stack-priority-reaction-representative";
             view["reactionPolicy"] = "resolves-immediately-without-stack-item";
             view["resourceLifecycle"] = "rune-pool-mana-reset-at-turn-cleanup";
+        }
+
+        if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.RageSigilResourceAbilityId, StringComparison.Ordinal))
+        {
+            view["resourceSkill"] = true;
+            view["reactionSpeed"] = true;
+            view["paymentOnly"] = true;
+            view["typedPaymentOnlyResource"] = true;
+            view["generatedPowerByTrait"] = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [RuneTrait.Red] = P4ActivatedAbilityCatalog.RageSigilGeneratedRedPower
+            };
+            view["requiresBaseEquipmentSource"] = true;
+            view["resourceRestriction"] = P4ActivatedAbilityCatalog.RageSigilTypedResourceRestriction;
+            view["timingPolicy"] = "stack-priority-reaction-representative";
+            view["reactionPolicy"] = "resolves-immediately-without-stack-item";
+            view["resourceLifecycle"] = "temporary-payment-resource-ledger";
+            view["allowedPaymentKinds"] = new[] { PaymentCostRules.RuneCostPaymentKind };
         }
 
         if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId, StringComparison.Ordinal))

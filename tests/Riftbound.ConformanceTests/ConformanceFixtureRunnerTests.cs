@@ -30769,6 +30769,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "MALZAHAR_DESTROY_FRIENDLY_EXHAUST_GAIN_2_PAYMENT_POWER",
                 "PAY_2_RED_DOUBLE_POWER",
                 "PAY_RED_EXHAUST_DAMAGE_3",
+                "RAGE_SIGIL_REACTION_EXHAUST_GAIN_1_RED_POWER",
                 "RENATA_GLASC_PAY_1_BLUE_DRAW_1",
                 "RENATA_GLASC_PAY_4_BLUE4_EXHAUST_SCORE_1",
                 "SHADOW_SWIFT_PAY_1_A_EXHAUST_STUN_ATTACKER"
