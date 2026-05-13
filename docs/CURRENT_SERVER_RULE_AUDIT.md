@@ -3618,7 +3618,7 @@
 
 ### P0-005 彩色符能、普通费用、符能费用与资源技能模型不足
 
-当前状态：**PARTIALLY RESOLVED / typed pool 已覆盖 PLAY_CARD、代表性非出牌支付、一个 battlefield trigger 支付路径、基础符文横置得法力、代表性回收得同特性符能、PLAY_CARD 支付步骤回收符文资源动作、Vi / Xerath ACTIVATE_ABILITY 支付资源动作、HIDE_CARD 待命暗置 shared payment plan、ordinary pending PAY_COST 支付资源动作、battlefield held score 支付资源动作和 SFD Fiora trigger payment resource action，MOVE_UNIT、ASSEMBLE_EQUIPMENT、ACTIVATE_ABILITY 与 LEGEND_ACT 已有每来源服务端候选，急速额外费用已有资源动作回归证据；4D-03 PaymentEngine handoff / baseline 与 focused foundation 已验收，4D-03B / 4D-03C / 4D-03D / 4D-03E / 4D-03F / 4D-03G / 4D-03H focused slices 已验收，4D-03I Malzahar resource skill focused slice 已验收，完整 PaymentEngine 与 reaction payment window 仍待统一**
+当前状态：**PARTIALLY RESOLVED / typed pool 已覆盖 PLAY_CARD、代表性非出牌支付、一个 battlefield trigger 支付路径、基础符文横置得法力、代表性回收得同特性符能、PLAY_CARD 支付步骤回收符文资源动作、Vi / Xerath ACTIVATE_ABILITY 支付资源动作、HIDE_CARD 待命暗置 shared payment plan、ordinary pending PAY_COST 支付资源动作、battlefield held score 支付资源动作和 SFD Fiora trigger payment resource action，MOVE_UNIT、ASSEMBLE_EQUIPMENT、ACTIVATE_ABILITY 与 LEGEND_ACT 已有每来源服务端候选，急速额外费用已有资源动作回归证据；4D-03 PaymentEngine handoff / baseline 与 focused foundation 已验收，4D-03B / 4D-03C / 4D-03D / 4D-03E / 4D-03F / 4D-03G / 4D-03H focused slices 已验收，4D-03I Malzahar resource skill、4D-03J Malzahar lifecycle 与 4D-03K temporary inline focused slices 已验收，4D-03L Dragon Soul Sage reaction resource skill handoff / baseline 已建立，完整 PaymentEngine 与 reaction payment window 仍待统一**
 
 规则依据：自查文档 8、15；核心规则关于 `A/C`、阵营符能、费用支付、符文技能、可选费用、Spellshield/Encourage/Echo/Haste 等费用分支。
 
@@ -3639,6 +3639,10 @@
 - `docs/CURRENT_STAGE4D_03G_PAYMENT_ENGINE_BATTLEFIELD_HELD_RESOURCE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03G_PAYMENT_ENGINE_BATTLEFIELD_HELD_RESOURCE_EVIDENCE.md` 已记录 battlefield held score payment resource focused slice 验收证据。
 - `docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_BASELINE_EVIDENCE.md` 已建立 SFD Fiora trigger payment resource action 迁移交接与实现前绿线。
 - `docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_EVIDENCE.md` 已记录 SFD Fiora trigger payment resource focused slice 验收证据。
+- `docs/CURRENT_STAGE4D_03I_PAYMENT_ENGINE_RESOURCE_SKILL_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03I_PAYMENT_ENGINE_RESOURCE_SKILL_EVIDENCE.md` 已记录 Malzahar open-main resource skill focused slice 验收证据。
+- `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_EVIDENCE.md` 已记录 Malzahar lifecycle focused slice 验收证据。
+- `docs/CURRENT_STAGE4D_03K_PAYMENT_ENGINE_TEMPORARY_RESOURCE_INLINE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03K_PAYMENT_ENGINE_TEMPORARY_RESOURCE_INLINE_EVIDENCE.md` 已记录 temporary payment-only resource inline focused slice 验收证据。
+- `docs/CURRENT_STAGE4D_03L_PAYMENT_ENGINE_REACTION_RESOURCE_SKILL_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03L_PAYMENT_ENGINE_REACTION_RESOURCE_SKILL_BASELINE_EVIDENCE.md` 已建立 Dragon Soul Sage reaction resource skill 迁移交接与实现前绿线。
 - `CoreRuleEngine` 中 Vi / Xerath `ACTIVATE_ABILITY`、`LEGEND_ACT` 与 battlefield held score 代表窗口已接入 shared `PaymentPlan` / `TryCommitPayment`。
 - `ASSEMBLE_EQUIPMENT`、Vi 双倍战力技能、Xerath 伤害技能、能量枢纽据守支付 4 符能得分等代表性非出牌/战场触发支付路径已改为 typed-power aware；泛化符能费用会从普通 `Power` 优先扣除，再按特性名稳定扣除 `PowerByTrait`。
 - `TAP_RUNE` 现在实现基础符文横置获得 1 法力，并在 prompt 中只暴露可执行符文来源。
@@ -3656,7 +3660,7 @@
 - `PLAY_CARD.sourceRequirements.optionalCostChoices` 已能把代表性战场 Echo 减免与战场授予下一个法术 Echo 计入 prompt 可用性与展示，避免 Core 可执行的 Echo 费用路径被前端隐藏。
 - `PLAY_CARD.sourceRequirements.minimumManaCost` 已能把代表性战场装备减费计入来源过滤与展示；P1 只有 1 法力但控制《奥恩的锻炉》时，手牌《长剑》不会被 prompt 隐藏，并通过 `battlefieldEquipmentCostReductionMana` 告知前端展示减费。
 - `PLAY_CARD.sourceRequirements.minimumManaCost` 已能把代表性战场据守非衍生物单位加费计入来源过滤与展示；P1 只有 4 法力且受到据守加费时，基础费用 3 的《忠实的工坊主》会显示为费用 4，并通过 `battlefieldHeldUnitCostIncreaseMana` 告知前端展示加费。
-- 仍缺：把所有资源动作、费用来源、替代/额外费用和支付失败回滚纳入统一 PaymentEngine；完整 `[A]` / `[C]` resource skill family、Malzahar spell-duel / swift timing 与 reaction prohibition、`LEGEND_ACT` resource action、战场技能、Haste/Echo/Spellshield 等所有支付窗口和依赖型费用目标选择仍待进入同一个官方费用模型。
+- 仍缺：把所有资源动作、费用来源、替代/额外费用和支付失败回滚纳入统一 PaymentEngine；完整 `[A]` / `[C]` resource skill family、Dragon Soul Sage reaction resource skill、`LEGEND_ACT` resource action、战场技能、Haste/Echo/Spellshield 等所有支付窗口和依赖型费用目标选择仍待进入同一个官方费用模型。
 
 现象：服务端现在可以在 `PLAY_CARD` 的可选符能支付中表达并校验指定特性，例如 `SPEND_POWER:red:2` 会要求红色符能并只扣红色；旧 fixtures 的泛化 `power` 仍按任意符能兼容。装备装配、两个代表性主动技能和一个战场据守支付触发也可以用 `PowerByTrait` 支付泛化符能费用。普通开环 prompt 不再把无服务端来源、基础费用不足的出牌、非正面/战斗中移动源、无可支付装配源、装配来源或目标缺少权威 `cardNo`、无可支付/可选目标激活能力源、无可支付/时点不合法传奇行动源、传奇行动目标缺少权威 `cardNo`、不可横置符文、不可回收符文或被战场静态效果禁止的伏击进场来源展示为 enabled。基础符文横置会横置来源并向 runePool 增加 1 法力；基础符文回收会把来源回收到符文牌堆底部，并向 runePool 增加 1 点同特性符能；出牌支付步骤可用服务端候选 `RECYCLE_RUNE:<objectId>` 先获得同特性符能，再由同一 `PLAY_CARD` 命令用 `SPEND_POWER:*`、typed `SPEND_POWER:<trait>:<amount>` 或代表性 `HASTE_READY` 急速额外费用支付。Vi / Xerath 代表性 `ACTIVATE_ABILITY` 支付窗口也可用服务端候选 `RECYCLE_RUNE:<objectId>` 补足 power，并在同一个 `ACTIVATE_ABILITY` `paymentId` 下审计 `RUNE_RECYCLED` / `POWER_GAINED` / `COST_PAID`；Xerath 的 Spellshield tax mana 仍必须由当前 mana 支付。能量枢纽据守支付 4 符能得分也可在当前 power 不足时通过必要 `RECYCLE_RUNE:<objectId>` 补足 power，并在同一 `BATTLEFIELD_HELD` payment window 下审计回收和扣费。`PLAY_CARD` 也能在代表性多目标 Spellshield 场景中公开服务端合法目标组合，前端不会允许选择超过总目标战力或当前法力无法支付加税的组合；代表性战场 Echo 减免、战场授予 Echo、战场装备减费和战场单位加费都会反映在服务端来源候选中。`MOVE_UNIT` 已能按具体来源暴露基地到战场、战场回基地和可定位游走候选，`ASSEMBLE_EQUIPMENT` 已能按具体来源暴露红色装配目标且不会暴露未知身份装配来源/目标，`ACTIVATE_ABILITY` 已能按具体来源暴露代表性能力、目标槽与支付资源选择，`LEGEND_ACT` 已能按具体传奇来源暴露代表性传奇行动与经验/目标要求且不会暴露未知身份传奇目标，前端只按这些候选提交命令。但同阵营符能、多符能组合、所有非出牌支付窗口中的 `[C]` 资源技能，以及由 legend/battlefield/skill 产生的复杂支付来源选择仍未统一。
 
@@ -3685,7 +3689,10 @@
 - 已补 4D-03H focused slice 验收：focused 69/69、adjacent 242/242、backend full 3818/3818 通过；该切片只证明代表性 SFD Fiora trigger payment resource action 已接入 `TRIGGER_PAYMENT` / `PAY_COST` / audit 口径，不关闭 P0-005。
 - 已补 4D-03I 实现前基线：focused Malzahar / ActivateAbility / PaymentEngine / ResourceSkill baseline 83/83、adjacent ActivateAbility / PaymentEngine / ActionPrompt / GameHub / PaymentResource / SpendPower / RunePool / SpellDuel / Priority regression 312/312 通过；该基线只证明当前 Malzahar ordinary play 与相邻路径绿色，不关闭 P0-005。
 - 已补 4D-03I focused slice 验收：focused 105/105、adjacent 317/317、backend full 3840/3840 通过；该切片只证明代表性 Malzahar open-main `[A A]` resource skill 已接入 prompt / command / audit 口径，不关闭 P0-005。
-- 待补：完整 `[A]` / `[C]` 资源技能、Malzahar spell-duel / swift timing、reaction prohibition、单阵营/多阵营费用、Haste 的特殊/替代/加减费分支、Spellshield 加税的全支付窗口推广、Echo 费用、完整 trigger payment resource family。
+- 已补 4D-03J focused slice 验收：focused 116/116、adjacent 340/340、backend full 3847/3847 通过；该切片只证明代表性 Malzahar spell-duel focus、immediate no-stack resource skill 与 temporary payment-only ledger 已接入服务端口径，不关闭 P0-005。
+- 已补 4D-03K focused slice 验收：focused 344/344、adjacent 539/539、backend full 3860/3860 通过；该切片只证明 temporary payment-only resource 已接入 `PLAY_CARD` / `ACTIVATE_ABILITY` / `ASSEMBLE_EQUIPMENT` inline representatives，不关闭 P0-005。
+- 已补 4D-03L 实现前基线：focused Dragon Soul Sage / Malzahar / ActivateAbility / PaymentEngine baseline 126/126、adjacent DragonSoulSage / ActivateAbility / Reaction / SpellDuel / PaymentResource / ActionPrompt / GameHub baseline 374/374 通过；该基线只锁定 Dragon Soul Sage reaction resource skill 下一实现切片，不关闭 P0-005。
+- 待补：完整 `[A]` / `[C]` 资源技能、Dragon Soul Sage reaction resource skill、单阵营/多阵营费用、Haste 的特殊/替代/加减费分支、Spellshield 加税的全支付窗口推广、Echo 费用、完整 trigger payment resource family。
 
 ## P1 问题
 
@@ -3854,10 +3861,13 @@
 12. 已完成 4D-03G focused slice：battlefield held score payment resource action 接入 shared plan / command commit / audit 口径。
 13. 已完成 4D-03H focused slice：SFD Fiora trigger payment resource action 接入 shared plan / command commit / audit 口径。
 14. 已验收 4D-03I focused slice：`OGN·113/298` Malzahar open-main `[A A]` resource skill focused 105/105、adjacent 317/317、backend full 3840/3840 通过。
-15. 下一步：扩展 typed payment engine 到 rune/legend/battlefield/keyword 全路径，支持 `[A]` / `[C]` resource skills、替代费用、减费/加费、额外/可选费用。
-16. 下一步：引入完整 continuous effect LayerEngine，并逐关键词、逐卡牌把 `Representative/FixturePass` 提升到 `FullOfficialRulePass`。
+15. 已验收 4D-03J focused slice：Malzahar spell-duel focus lifecycle 与 temporary payment-only ledger focused 116/116、adjacent 340/340、backend full 3847/3847 通过。
+16. 已验收 4D-03K focused slice：temporary payment-only resource inline representatives focused 344/344、adjacent 539/539、backend full 3860/3860 通过。
+17. 已建立 4D-03L handoff / baseline：Dragon Soul Sage reaction resource skill focused baseline 126/126、adjacent baseline 374/374 通过。
+18. 下一步：扩展 typed payment engine 到 rune/legend/battlefield/keyword 全路径，支持 `[A]` / `[C]` resource skills、替代费用、减费/加费、额外/可选费用。
+19. 下一步：引入完整 continuous effect LayerEngine，并逐关键词、逐卡牌把 `Representative/FixturePass` 提升到 `FullOfficialRulePass`。
 
-Stage 4D 主控计划已将以上顺序拆为可执行写锁与验收门槛，见 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`。4D-01 board task queue foundation 已验收；4D-02 battle/spell-duel focused slice 已验收但不关闭 full official P0-004；4D-03 PaymentEngine focused foundation、4D-03B non-play focused slice、4D-03C play optional / extra focused slice、4D-03D activate ability payment resource focused slice、4D-03E hide-card payment focused slice、4D-03F pending PAY_COST resource focused slice、4D-03G battlefield held score resource focused slice、4D-03H trigger payment resource focused slice 与 4D-03I Malzahar resource skill focused slice 已验收但不关闭 full official P0-005。下一实现应继续扩展 full PaymentEngine breadth，优先处理完整 `[A]` / `[C]` resource skill family、spell-duel / swift timing、reaction prohibition 与更多 payment window quote parity。
+Stage 4D 主控计划已将以上顺序拆为可执行写锁与验收门槛，见 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`。4D-01 board task queue foundation 已验收；4D-02 battle/spell-duel focused slice 已验收但不关闭 full official P0-004；4D-03 PaymentEngine focused foundation、4D-03B non-play focused slice、4D-03C play optional / extra focused slice、4D-03D activate ability payment resource focused slice、4D-03E hide-card payment focused slice、4D-03F pending PAY_COST resource focused slice、4D-03G battlefield held score resource focused slice、4D-03H trigger payment resource focused slice、4D-03I Malzahar resource skill focused slice、4D-03J Malzahar lifecycle focused slice 与 4D-03K temporary inline focused slice 已验收但不关闭 full official P0-005；4D-03L reaction resource skill handoff / baseline 已建立。下一实现应继续扩展 full PaymentEngine breadth，优先处理 Dragon Soul Sage reaction resource skill、完整 `[A]` / `[C]` resource skill family 与更多 payment window quote parity。
 
 ## 最终验收口径
 
