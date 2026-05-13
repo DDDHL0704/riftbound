@@ -51,7 +51,16 @@ public sealed class TriggerPaymentTests
         Assert.True(paid.Accepted, paid.ErrorMessage);
         Assert.Null(paid.State.PendingPayment);
         Assert.Equal(0, paid.State.RunePools["P1"].Mana);
-        Assert.Contains(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        var costEvent = Assert.Single(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(payment.PaymentId, costEvent.Payload["paymentId"]);
+        Assert.Equal(TriggerPaymentWindow, costEvent.Payload["paymentWindow"]);
+        Assert.Equal("P1", costEvent.Payload["playerId"]);
+        Assert.Equal(1, costEvent.Payload["totalManaCost"]);
+        Assert.Equal(0, costEvent.Payload["genericPower"]);
+        Assert.Equal(0, costEvent.Payload["totalPowerCost"]);
+        Assert.Equal(GoldTrigger, costEvent.Payload["reason"]);
+        Assert.Equal([PayOneMana], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        Assert.Equal([PayOneMana, Decline], Assert.IsType<string[]>(costEvent.Payload["legalPaymentChoiceIds"]));
         Assert.Contains(paid.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, GoldTrigger, StringComparison.Ordinal));

@@ -1035,31 +1035,29 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool)
-            ? runePool
-            : RunePool.Empty;
-        if (!CanPayRuneCosts(
-                currentPool,
-                pendingPayment.ManaCost,
-                pendingPayment.PowerCost,
-                pendingPayment.PowerCostByTrait))
+        var paymentPlan = new PaymentCostRules.PaymentPlan(
+            pendingPayment.PaymentId,
+            pendingPayment.PaymentWindow,
+            intent.PlayerId,
+            totalManaCost: pendingPayment.ManaCost,
+            genericPowerCost: pendingPayment.PowerCost,
+            totalPowerCost: pendingPayment.PowerCost + pendingPayment.PowerCostByTrait.Values.Sum(),
+            powerCostByTrait: pendingPayment.PowerCostByTrait,
+            legalPaymentChoiceIds: pendingPayment.LegalPaymentChoiceIds,
+            reason: pendingPayment.Reason);
+        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools);
+        if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
                 state,
-                "支付窗口资源不足。",
+                paymentCommit.ErrorMessage ?? "支付窗口资源不足。",
                 ErrorCodes.InsufficientCost);
         }
 
-        var runePools = PayRuneCosts(
-            state,
-            intent.PlayerId,
-            pendingPayment.ManaCost,
-            pendingPayment.PowerCost,
-            pendingPayment.PowerCostByTrait);
         var nextState = state with
         {
             Tick = state.Tick + 1,
-            RunePools = runePools,
+            RunePools = paymentCommit.RunePools,
             PendingPayment = null
         };
         var events = new[]
@@ -1068,10 +1066,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "COST_PAID",
                 $"{intent.PlayerId} 完成服务端支付窗口",
                 PaymentCostRules.BuildCostPaidPayload(
-                    pendingPayment.PaymentId,
-                    pendingPayment.PaymentWindow,
-                    intent.PlayerId,
-                    runePools,
+                    paymentPlan,
+                    paymentCommit.RunePools,
                     null,
                     new Dictionary<string, object?>
                     {
@@ -1136,15 +1132,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool)
             ? runePool
             : RunePool.Empty;
-        if (!CanPayRuneCosts(
-                currentPool,
-                pendingPayment.ManaCost,
-                pendingPayment.PowerCost,
-                pendingPayment.PowerCostByTrait))
+        var paymentAuthorization = PaymentCostRules.AuthorizePayment(
+            BuildPendingPaymentPlan(pendingPayment, intent.PlayerId),
+            currentPool);
+        if (!paymentAuthorization.Accepted)
         {
             return RejectWithCorePrompts(
                 state,
-                "支付窗口资源不足。",
+                paymentAuthorization.Reason ?? "支付窗口资源不足。",
                 ErrorCodes.InsufficientCost);
         }
 
@@ -1253,21 +1248,28 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        var runePools = PayRuneCosts(
-            state,
+        var paymentPlan = BuildPendingPaymentPlan(
+            pendingPayment,
             intent.PlayerId,
-            pendingPayment.ManaCost,
-            pendingPayment.PowerCost,
-            pendingPayment.PowerCostByTrait);
+            BattlefieldConquerPayOneCreateGoldEffectKind,
+            sourceObjectId);
+        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools);
+        if (!paymentCommit.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                paymentCommit.ErrorMessage ?? "支付窗口资源不足。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var runePools = paymentCommit.RunePools;
         var events = new List<GameEvent>
         {
             new(
                 "COST_PAID",
                 $"{intent.PlayerId} 支付珍宝堆征服触发费用",
                 PaymentCostRules.BuildCostPaidPayload(
-                    pendingPayment.PaymentId,
-                    pendingPayment.PaymentWindow,
-                    intent.PlayerId,
+                    paymentPlan,
                     runePools,
                     null,
                     new Dictionary<string, object?>
@@ -1347,21 +1349,28 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        var runePools = PayRuneCosts(
-            state,
+        var paymentPlan = BuildPendingPaymentPlan(
+            pendingPayment,
             intent.PlayerId,
-            pendingPayment.ManaCost,
-            pendingPayment.PowerCost,
-            pendingPayment.PowerCostByTrait);
+            BattlefieldConquerPowerfulPayOneDrawEffectKind,
+            sourceObjectId);
+        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools);
+        if (!paymentCommit.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                paymentCommit.ErrorMessage ?? "支付窗口资源不足。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var runePools = paymentCommit.RunePools;
         var events = new List<GameEvent>
         {
             new(
                 "COST_PAID",
                 $"{intent.PlayerId} 支付沉没神庙征服触发费用",
                 PaymentCostRules.BuildCostPaidPayload(
-                    pendingPayment.PaymentId,
-                    pendingPayment.PaymentWindow,
-                    intent.PlayerId,
+                    paymentPlan,
                     runePools,
                     null,
                     new Dictionary<string, object?>
@@ -1445,21 +1454,28 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        var runePools = PayRuneCosts(
-            state,
+        var paymentPlan = BuildPendingPaymentPlan(
+            pendingPayment,
             intent.PlayerId,
-            pendingPayment.ManaCost,
-            pendingPayment.PowerCost,
-            pendingPayment.PowerCostByTrait);
+            OgnVayneConquerPayOneRecallEffectKind,
+            sourceObjectId);
+        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools);
+        if (!paymentCommit.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                paymentCommit.ErrorMessage ?? "支付窗口资源不足。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var runePools = paymentCommit.RunePools;
         var events = new List<GameEvent>
         {
             new(
                 "COST_PAID",
                 $"{intent.PlayerId} 支付薇恩征服触发费用",
                 PaymentCostRules.BuildCostPaidPayload(
-                    pendingPayment.PaymentId,
-                    pendingPayment.PaymentWindow,
-                    intent.PlayerId,
+                    paymentPlan,
                     runePools,
                     null,
                     new Dictionary<string, object?>
@@ -1543,12 +1559,21 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        var runePools = PayRuneCosts(
-            state,
+        var paymentPlan = BuildPendingPaymentPlan(
+            pendingPayment,
             intent.PlayerId,
-            pendingPayment.ManaCost,
-            pendingPayment.PowerCost,
-            pendingPayment.PowerCostByTrait);
+            IcevaleArcherAttackPayOnePowerMinusOneEffectKind,
+            sourceObjectId);
+        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools);
+        if (!paymentCommit.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                paymentCommit.ErrorMessage ?? "支付窗口资源不足。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var runePools = paymentCommit.RunePools;
         var previousPower = targetState.Power;
         var rawResultingPower = previousPower - 1;
         var resultingPower = Math.Max(0, rawResultingPower);
@@ -1565,9 +1590,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "COST_PAID",
                 $"{intent.PlayerId} 支付冰谷弓箭手进攻触发费用",
                 PaymentCostRules.BuildCostPaidPayload(
-                    pendingPayment.PaymentId,
-                    pendingPayment.PaymentWindow,
-                    intent.PlayerId,
+                    paymentPlan,
                     runePools,
                     null,
                     new Dictionary<string, object?>
@@ -1646,21 +1669,28 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        var runePools = PayRuneCosts(
-            state,
+        var paymentPlan = BuildPendingPaymentPlan(
+            pendingPayment,
             intent.PlayerId,
-            pendingPayment.ManaCost,
-            pendingPayment.PowerCost,
-            pendingPayment.PowerCostByTrait);
+            JaxWeaponAttachPayOneDrawEffectKind,
+            sourceObjectId);
+        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools);
+        if (!paymentCommit.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                paymentCommit.ErrorMessage ?? "支付窗口资源不足。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var runePools = paymentCommit.RunePools;
         var events = new List<GameEvent>
         {
             new(
                 "COST_PAID",
                 $"{intent.PlayerId} 支付贾克斯贴附武装触发费用",
                 PaymentCostRules.BuildCostPaidPayload(
-                    pendingPayment.PaymentId,
-                    pendingPayment.PaymentWindow,
-                    intent.PlayerId,
+                    paymentPlan,
                     runePools,
                     null,
                     new Dictionary<string, object?>
@@ -1824,6 +1854,25 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return payload;
+    }
+
+    private static PaymentCostRules.PaymentPlan BuildPendingPaymentPlan(
+        PendingPaymentState pendingPayment,
+        string playerId,
+        string? reason = null,
+        string? sourceObjectId = null)
+    {
+        return new PaymentCostRules.PaymentPlan(
+            pendingPayment.PaymentId,
+            pendingPayment.PaymentWindow,
+            playerId,
+            totalManaCost: pendingPayment.ManaCost,
+            genericPowerCost: pendingPayment.PowerCost,
+            totalPowerCost: pendingPayment.PowerCost + pendingPayment.PowerCostByTrait.Values.Sum(),
+            powerCostByTrait: pendingPayment.PowerCostByTrait,
+            legalPaymentChoiceIds: pendingPayment.LegalPaymentChoiceIds,
+            reason: string.IsNullOrWhiteSpace(reason) ? pendingPayment.Reason : reason,
+            sourceObjectId: sourceObjectId);
     }
 
     private static string BuildBattlefieldConquerGoldPaymentReason(
@@ -3178,6 +3227,20 @@ public sealed class CoreRuleEngine : IRuleEngine
             paymentWindow,
             intent.PlayerId,
             command.SourceObjectId);
+        var paymentPlan = new PaymentCostRules.PaymentPlan(
+            paymentId,
+            paymentWindow,
+            intent.PlayerId,
+            baseManaCost: behavior.ManaCost,
+            totalManaCost: plan.TotalManaCost,
+            genericPowerCost: plan.AnyPowerCost,
+            totalPowerCost: plan.TotalPowerCost,
+            powerCostByTrait: plan.PowerCostByTrait,
+            experienceCost: plan.TotalExperienceCost,
+            optionalCostIds: plan.OptionalCosts,
+            paymentResourceActionIds: plan.PaymentResourceActions,
+            reason: behavior.EffectKind,
+            sourceObjectId: command.SourceObjectId);
         var paymentEvents = new List<GameEvent>();
         var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, plan.SourceZones, command.SourceObjectId);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -3192,13 +3255,20 @@ public sealed class CoreRuleEngine : IRuleEngine
             paymentEvents,
             paymentWindow,
             paymentId);
-        runePools = PayRuneCosts(
+        var paymentCommit = PaymentCostRules.TryCommitPayment(
+            paymentPlan,
             runePools,
-            intent.PlayerId,
-            plan.TotalManaCost,
-            plan.AnyPowerCost,
-            plan.PowerCostByTrait);
-        var playerExperience = PayExperienceCosts(state, intent.PlayerId, plan.TotalExperienceCost);
+            state.PlayerExperience);
+        if (!paymentCommit.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                paymentCommit.ErrorMessage ?? $"Not enough resources to play {behavior.DisplayName}.",
+                ErrorCodes.InsufficientCost);
+        }
+
+        runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var playerExperience = paymentCommit.PlayerExperience;
         objectLocations[command.SourceObjectId] = new ObjectLocationState(intent.PlayerId, "STACK");
 
         var stackItem = new StackItemState(
@@ -3319,9 +3389,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "COST_PAID",
                 $"{intent.PlayerId} 支付 {plan.TotalManaCost} 点费用",
                 PaymentCostRules.BuildCostPaidPayload(
-                    paymentId,
-                    paymentWindow,
-                    intent.PlayerId,
+                    paymentPlan,
                     runePools,
                     playerExperience,
                     new Dictionary<string, object?>
@@ -3870,6 +3938,20 @@ public sealed class CoreRuleEngine : IRuleEngine
             paymentWindow,
             intent.PlayerId,
             command.SourceObjectId);
+        var paymentPlan = new PaymentCostRules.PaymentPlan(
+            paymentId,
+            paymentWindow,
+            intent.PlayerId,
+            baseManaCost: assembleProfile.ManaCost,
+            totalManaCost: assembleManaCost,
+            genericPowerCost: assembleAnyPowerCost,
+            totalPowerCost: assembleAnyPowerCost + assemblePowerCostByTrait.Values.Sum(),
+            powerCostByTrait: assemblePowerCostByTrait,
+            experienceCost: assembleProfile.ExperienceCost,
+            optionalCostIds: optionalCosts,
+            paymentResourceActionIds: paymentResourceActions,
+            reason: "ASSEMBLE_EQUIPMENT",
+            sourceObjectId: command.SourceObjectId);
         var paymentEvents = new List<GameEvent>();
         var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -3887,27 +3969,35 @@ public sealed class CoreRuleEngine : IRuleEngine
         var paymentAdjustedPool = runePools.TryGetValue(intent.PlayerId, out var adjustedPool)
             ? adjustedPool
             : RunePool.Empty;
-        if (!CanPayRuneCosts(paymentAdjustedPool, assembleManaCost, assembleAnyPowerCost, assemblePowerCostByTrait))
-        {
-            return RejectWithCorePrompts(
-                state,
-                $"Not enough resources to assemble {assembleProfile.DisplayName}.",
-                ErrorCodes.InsufficientCost);
-        }
-
         var currentExperience = state.PlayerExperience.TryGetValue(intent.PlayerId, out var availableExperience)
             ? availableExperience
             : 0;
-        if (currentExperience < assembleProfile.ExperienceCost)
+        var paymentAuthorization = PaymentCostRules.AuthorizePayment(
+            paymentPlan,
+            paymentAdjustedPool,
+            currentExperience);
+        if (!paymentAuthorization.Accepted)
         {
             return RejectWithCorePrompts(
                 state,
-                $"Not enough experience to assemble {assembleProfile.DisplayName}.",
+                paymentAuthorization.Reason ?? $"Not enough resources to assemble {assembleProfile.DisplayName}.",
                 ErrorCodes.InsufficientCost);
         }
 
-        runePools = PayRuneCosts(runePools, intent.PlayerId, assembleManaCost, assembleAnyPowerCost, assemblePowerCostByTrait);
-        var playerExperience = PayExperienceCosts(state, intent.PlayerId, assembleProfile.ExperienceCost);
+        var paymentCommit = PaymentCostRules.TryCommitPayment(
+            paymentPlan,
+            runePools,
+            state.PlayerExperience);
+        if (!paymentCommit.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                paymentCommit.ErrorMessage ?? $"Not enough resources to assemble {assembleProfile.DisplayName}.",
+                ErrorCodes.InsufficientCost);
+        }
+
+        runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var playerExperience = paymentCommit.PlayerExperience;
         var destroyedAdditionalCostOwnerIds = new List<string>();
         var assembleRemovalEvents = new List<GameEvent>();
         if (destroyedAdditionalCostTargetObjectIds.Count > 0)
@@ -3988,9 +4078,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "COST_PAID",
                 $"{intent.PlayerId} 支付{assembleProfile.DisplayName}装配费用",
                 PaymentCostRules.BuildCostPaidPayload(
-                    paymentId,
-                    paymentWindow,
-                    intent.PlayerId,
+                    paymentPlan,
                     runePools,
                     playerExperience,
                     new Dictionary<string, object?>
