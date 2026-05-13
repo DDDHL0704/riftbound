@@ -193,14 +193,24 @@ public sealed class PaymentEngineUnificationTests
 
         Assert.True(result.Accepted, result.ErrorMessage);
         var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.StartsWith("PLAY_CARD:", Assert.IsType<string>(costEvent.Payload["paymentId"]), StringComparison.Ordinal);
         Assert.Equal("PLAY_CARD", costEvent.Payload["paymentWindow"]);
+        Assert.Equal("P1", costEvent.Payload["playerId"]);
         Assert.Equal("P1-SPELL-BULLET-TIME", costEvent.Payload["sourceObjectId"]);
+        Assert.Equal("BULLET_TIME_DAMAGE_ENEMY_BATTLEFIELD_UNITS_BY_POWER_SPENT", costEvent.Payload["reason"]);
         Assert.Equal(1, costEvent.Payload["baseManaCost"]);
         Assert.Equal(1, costEvent.Payload["totalManaCost"]);
         Assert.Equal(0, costEvent.Payload["genericPower"]);
         Assert.Equal(2, costEvent.Payload["totalPowerCost"]);
         Assert.Equal(0, costEvent.Payload["experienceCost"]);
         Assert.Equal(["SPEND_POWER:red:2"], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
+        Assert.Empty(Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]);
+        Assert.Equal(2, powerByTrait[RuneTrait.Red]);
+        Assert.Equal(0, costEvent.Payload["remainingMana"]);
+        Assert.Equal(0, costEvent.Payload["remainingPower"]);
+        var remainingPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["remainingPowerByTrait"]);
+        Assert.Equal(1, remainingPowerByTrait[RuneTrait.Blue]);
     }
 
     [Fact]

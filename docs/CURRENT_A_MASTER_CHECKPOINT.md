@@ -5,7 +5,7 @@
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
 
-最新 Stage 4D 状态：4D-03 PaymentEngine focused foundation 已通过；4D-03B non-play payment focused slice 已通过；4D-03C play optional / extra payment handoff / baseline 已准备；项目仍 **NOT READY**。本批 4D-03C handoff checkpoint 提交信息：`docs: prepare stage 4D play optional payment handoff`；上一 4D-03B 实现提交：`642bfed5 feat: extend stage 4D non-play payment plans`；上一 4D-03 foundation 提交：`8a063940 feat: add stage 4D payment engine foundation`；上一 4D-03B handoff checkpoint：`243c72db docs: prepare stage 4D non-play payment handoff`；上一 4D-02 实现证据为 `30210e38 feat: tighten stage 4D spell duel battle tasks`；上一 Stage 4D foundation checkpoint：`6a3ee038 test: add stage 4D board task queue foundation coverage`；上一 Stage 4C checkpoint：`7a2b1fa3 checkpoint: record stage 4C battlefield residual evidence alignment`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。4D-01 board task queue foundation 已通过 focused 31/31、adjacent 149/149、backend full 3780/3780，证据见 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_AUDIT.md` 与 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_EVIDENCE.md`。4D-02 spell duel / battle focused slice 已通过 focused new 6/6、focused handoff 35/35、adjacent 127/127、backend full 3786/3786，审计与证据见 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_EVIDENCE.md`。4D-03 PaymentEngine focused foundation 已通过 focused 56/56、adjacent 245/245、backend full 3791/3791，审计与证据见 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_EVIDENCE.md`；4D-03B non-play payment focused slice 已通过 focused 18/18、adjacent 318/318、backend full 3791/3791，审计与证据见 `docs/CURRENT_STAGE4D_03B_PAYMENT_ENGINE_NON_PLAY_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03B_PAYMENT_ENGINE_NON_PLAY_EVIDENCE.md`；4D-03C handoff / baseline 见 `docs/CURRENT_STAGE4D_03C_PAYMENT_ENGINE_PLAY_OPTIONAL_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03C_PAYMENT_ENGINE_PLAY_OPTIONAL_BASELINE_EVIDENCE.md`，focused baseline 31/31、adjacent baseline 363/363 通过。当前仍 **NOT READY**，阻断集中在 P0-005 full PaymentEngine breadth、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit；P0-002 / P0-003 / P0-004 已进一步收窄但未 full-official 关闭。Stage 4D 收口执行顺序见 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`。
+最新 Stage 4D 状态：4D-03 PaymentEngine focused foundation 已通过；4D-03B non-play payment focused slice 已通过；4D-03C play optional / extra payment focused slice 已通过；项目仍 **NOT READY**。本批 4D-03C 实现证据提交信息：`feat: extend stage 4D play optional payment plans`；上一 4D-03C handoff checkpoint：`abc93230 docs: prepare stage 4D play optional payment handoff`；上一 4D-03B 实现提交：`642bfed5 feat: extend stage 4D non-play payment plans`；上一 4D-03 foundation 提交：`8a063940 feat: add stage 4D payment engine foundation`；上一 4D-03B handoff checkpoint：`243c72db docs: prepare stage 4D non-play payment handoff`；上一 4D-02 实现证据为 `30210e38 feat: tighten stage 4D spell duel battle tasks`；上一 Stage 4D foundation checkpoint：`6a3ee038 test: add stage 4D board task queue foundation coverage`；上一 Stage 4C checkpoint：`7a2b1fa3 checkpoint: record stage 4C battlefield residual evidence alignment`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。4D-01 board task queue foundation 已通过 focused 31/31、adjacent 149/149、backend full 3780/3780，证据见 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_AUDIT.md` 与 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_EVIDENCE.md`。4D-02 spell duel / battle focused slice 已通过 focused new 6/6、focused handoff 35/35、adjacent 127/127、backend full 3786/3786，审计与证据见 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_EVIDENCE.md`。4D-03 PaymentEngine focused foundation 已通过 focused 56/56、adjacent 245/245、backend full 3791/3791，审计与证据见 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_EVIDENCE.md`；4D-03B non-play payment focused slice 已通过 focused 18/18、adjacent 318/318、backend full 3791/3791，审计与证据见 `docs/CURRENT_STAGE4D_03B_PAYMENT_ENGINE_NON_PLAY_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03B_PAYMENT_ENGINE_NON_PLAY_EVIDENCE.md`；4D-03C play optional / extra payment focused slice 已通过 focused 31/31、adjacent 363/363、backend full 3791/3791，审计与证据见 `docs/CURRENT_STAGE4D_03C_PAYMENT_ENGINE_PLAY_OPTIONAL_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03C_PAYMENT_ENGINE_PLAY_OPTIONAL_EVIDENCE.md`。当前仍 **NOT READY**，阻断集中在 P0-005 full PaymentEngine breadth、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit；P0-002 / P0-003 / P0-004 已进一步收窄但未 full-official 关闭。Stage 4D 收口执行顺序见 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`。
 
 ## 0. A 主控职责边界
 
@@ -125,7 +125,7 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 
 ## 0.1.0.2 阶段 4D-03 PaymentEngine Checkpoint
 
-状态：**focused foundation accepted；4D-03B focused slice accepted；4D-03C handoff / baseline ready；项目仍 NOT READY。**
+状态：**focused foundation accepted；4D-03B focused slice accepted；4D-03C focused slice accepted；项目仍 NOT READY。**
 
 本批事实：
 
@@ -165,18 +165,30 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 本批不修改前端、卡牌矩阵、`MatchSession.cs`、`PaymentCostRules.cs` 或未跟踪的 `riftbound-dotnet.sln`。
 - 4D-03B 仍不关闭 P0-005 full official；完整 `[A]` / `[C]`、Haste / Echo / Spellshield 全窗口、替代 / 额外 / 可选费用、费用目标选择与全路径 prompt quote parity 仍待后续切片。
 
-4D-03C handoff / baseline facts：
+4D-03C facts：
 
 - Handoff 入口：`docs/CURRENT_STAGE4D_03C_PAYMENT_ENGINE_PLAY_OPTIONAL_HANDOFF.md`
 - Baseline 入口：`docs/CURRENT_STAGE4D_03C_PAYMENT_ENGINE_PLAY_OPTIONAL_BASELINE_EVIDENCE.md`
-- Focused baseline：31/31 通过。
-- Adjacent baseline：363/363 通过。
-- 目标：将 `PLAY_CARD` Haste / Echo / Spellshield / experience / payment resource 代表路径的 quote / authorize / commit / `COST_PAID` metadata 进一步对齐到 shared `PaymentPlan` 口径。
-- 本 checkpoint 只准备交接和绿线，不修改服务端功能代码、不关闭 P0-005。
+- 审计入口：`docs/CURRENT_STAGE4D_03C_PAYMENT_ENGINE_PLAY_OPTIONAL_AUDIT.md`
+- 证据入口：`docs/CURRENT_STAGE4D_03C_PAYMENT_ENGINE_PLAY_OPTIONAL_EVIDENCE.md`
+- 修改实现：`src/Riftbound.Engine/CoreRuleEngine.cs`
+- 更新测试：`tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs`、`tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs`
+- Focused regression：31/31 通过。
+- Adjacent regression：363/363 通过。
+- Backend full：3791/3791 通过。
+- `git diff --check` 无输出。
+
+4D-03C 当前代码面：
+
+- `TryBuildPlayCardPlan` 的 representative affordability preflight 通过 `PaymentPlan` / `AuthorizePayment` 统一检查 mana / generic power / typed power / experience。
+- `ResolvePlayCard` 的 final commit 仍在 `RECYCLE_RUNE:*` payment resource action 落入临时资源池后调用 `TryCommitPayment`，保留既有 rollback 语义。
+- `COST_PAID` payload 保留兼容键，同时新增/强化 base/total mana、generic/typed/total power、experience、optional costs、payment resource actions、Spellshield tax、cost reductions 和 remaining pool / experience metadata。
+- 本批不修改前端、卡牌矩阵、`PaymentCostRules.cs`、`MatchSession.cs` 或未跟踪的 `riftbound-dotnet.sln`。
+- 4D-03C 仍不关闭 P0-005 full official；完整 `[A]` / `[C]`、全 Haste / Echo / Spellshield 窗口、替代 / 额外 / 可选费用全矩阵与全路径 prompt quote parity 仍待后续切片。
 
 下一步：
 
-- 派 Maxwell / B 服务端按 4D-03C handoff 处理 `PLAY_CARD` optional / extra / payment-resource 代表路径。
+- 继续扩展 P0-005 full PaymentEngine breadth，优先处理 `[A]` / `[C]` resource skills、更多替代 / 额外 / 可选费用和 prompt quote parity。
 - A 继续只做验收、测试复跑、审计和文档收口；不默认亲自改功能代码。
 
 ## 0.1.1 阶段 4C-23 Lux Checkpoint

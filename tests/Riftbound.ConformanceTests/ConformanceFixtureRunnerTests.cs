@@ -4249,11 +4249,25 @@ public sealed class ConformanceFixtureRunnerTests
         var recycledEvent = Assert.Single(playResult.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
         Assert.Equal("PLAY_CARD", recycledEvent.Payload["paymentWindow"]);
         var costEvent = Assert.Single(playResult.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.StartsWith("PLAY_CARD:", Assert.IsType<string>(costEvent.Payload["paymentId"]), StringComparison.Ordinal);
+        Assert.Equal("PLAY_CARD", costEvent.Payload["paymentWindow"]);
+        Assert.Equal("P1-UNIT-SIVIR", costEvent.Payload["sourceObjectId"]);
+        Assert.Equal("SIVIR_PLAY_UNIT_NO_OPTIONAL_HASTE", costEvent.Payload["reason"]);
         Assert.Equal(5, costEvent.Payload["mana"]);
         Assert.Equal(1, costEvent.Payload["power"]);
+        Assert.Equal(4, costEvent.Payload["baseManaCost"]);
+        Assert.Equal(5, costEvent.Payload["totalManaCost"]);
+        Assert.Equal(0, costEvent.Payload["genericPower"]);
+        Assert.Equal(1, costEvent.Payload["totalPowerCost"]);
         Assert.Equal([HasteOptionalCostNames.HasteReady], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
         Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
         Assert.Equal([runeObjectId], Assert.IsType<string[]>(costEvent.Payload["recycledRuneObjectIds"]));
+        Assert.Equal(0, costEvent.Payload["remainingMana"]);
+        Assert.Equal(0, costEvent.Payload["remainingPower"]);
+        var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]);
+        Assert.Equal(1, powerByTrait[RuneTrait.Purple]);
+        var remainingPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["remainingPowerByTrait"]);
+        Assert.DoesNotContain(RuneTrait.Purple, remainingPowerByTrait.Keys);
 
         var p1Pass = await engine.ResolveAsync(
             playResult.State,
@@ -15687,6 +15701,18 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, result.FinalState.PlayerExperience["P1"]);
         Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
         Assert.Equal(["P1-UNIT-UNL-178-POPPY"], result.FinalState.PlayerZones["P1"].Base);
+        var costPaidEvent = Assert.Single(result.Events, gameEvent => gameEvent.Kind == "COST_PAID");
+        Assert.StartsWith("PLAY_CARD:", Assert.IsType<string>(costPaidEvent.Payload["paymentId"]), StringComparison.Ordinal);
+        Assert.Equal("PLAY_CARD", costPaidEvent.Payload["paymentWindow"]);
+        Assert.Equal("P1-UNIT-UNL-178-POPPY", costPaidEvent.Payload["sourceObjectId"]);
+        Assert.Equal("POPPY_AMBUSH_BARRIER_NO_EXPERIENCE_STATIC", costPaidEvent.Payload["reason"]);
+        Assert.Equal(6, costPaidEvent.Payload["baseManaCost"]);
+        Assert.Equal(3, costPaidEvent.Payload["totalManaCost"]);
+        Assert.Equal(3, costPaidEvent.Payload["experienceCost"]);
+        Assert.Equal(3, costPaidEvent.Payload["optionalCostManaReduction"]);
+        Assert.Equal(0, costPaidEvent.Payload["remainingMana"]);
+        Assert.Equal(0, costPaidEvent.Payload["remainingExperience"]);
+        Assert.Equal(["SPEND_EXPERIENCE:3"], Assert.IsType<string[]>(costPaidEvent.Payload["optionalCosts"]));
     }
 
     [Fact]
@@ -21563,6 +21589,17 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var costPaidEvent = Assert.Single(result.Events, gameEvent => gameEvent.Kind == "COST_PAID");
+        Assert.StartsWith("PLAY_CARD:", Assert.IsType<string>(costPaidEvent.Payload["paymentId"]), StringComparison.Ordinal);
+        Assert.Equal("PLAY_CARD", costPaidEvent.Payload["paymentWindow"]);
+        Assert.Equal("P1-SPELL-CENTER-STAGE", costPaidEvent.Payload["sourceObjectId"]);
+        Assert.Equal("CENTER_STAGE_DRAW_1", costPaidEvent.Payload["reason"]);
+        Assert.Equal(2, costPaidEvent.Payload["baseManaCost"]);
+        Assert.Equal(4, costPaidEvent.Payload["totalManaCost"]);
+        Assert.Equal(0, costPaidEvent.Payload["genericPower"]);
+        Assert.Equal(0, costPaidEvent.Payload["totalPowerCost"]);
+        Assert.Equal(0, costPaidEvent.Payload["remainingMana"]);
+        Assert.Equal(["ECHO"], Assert.IsType<string[]>(costPaidEvent.Payload["optionalCosts"]));
     }
 
     [Fact]
@@ -29827,6 +29864,20 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var costPaidEvent = Assert.Single(result.Events, gameEvent => gameEvent.Kind == "COST_PAID");
+        Assert.StartsWith("PLAY_CARD:", Assert.IsType<string>(costPaidEvent.Payload["paymentId"]), StringComparison.Ordinal);
+        Assert.Equal("PLAY_CARD", costPaidEvent.Payload["paymentWindow"]);
+        Assert.Equal("P1-UNIT-BLAZING-DRAKE", costPaidEvent.Payload["sourceObjectId"]);
+        Assert.Equal("BLAZING_DRAKE_PLAY_UNIT_NO_OPTIONAL_HASTE", costPaidEvent.Payload["reason"]);
+        Assert.Equal(5, costPaidEvent.Payload["baseManaCost"]);
+        Assert.Equal(6, costPaidEvent.Payload["totalManaCost"]);
+        Assert.Equal(0, costPaidEvent.Payload["genericPower"]);
+        Assert.Equal(1, costPaidEvent.Payload["totalPowerCost"]);
+        Assert.Equal(0, costPaidEvent.Payload["remainingMana"]);
+        Assert.Equal(0, costPaidEvent.Payload["remainingPower"]);
+        var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costPaidEvent.Payload["powerByTrait"]);
+        Assert.Equal(1, powerByTrait[RuneTrait.Red]);
+        Assert.Equal([HasteOptionalCostNames.HasteReady], Assert.IsType<string[]>(costPaidEvent.Payload["optionalCosts"]));
     }
 
     [Fact]
@@ -30489,7 +30540,14 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
         Assert.Single(result.State.StackItems);
         var costPaidEvent = Assert.Single(result.Events, gameEvent => gameEvent.Kind == "COST_PAID");
+        Assert.StartsWith("PLAY_CARD:", Assert.IsType<string>(costPaidEvent.Payload["paymentId"]), StringComparison.Ordinal);
+        Assert.Equal("PLAY_CARD", costPaidEvent.Payload["paymentWindow"]);
+        Assert.Equal("P1-SPELL-INCINERATE", costPaidEvent.Payload["sourceObjectId"]);
         Assert.Equal(3, costPaidEvent.Payload["mana"]);
+        Assert.Equal(2, costPaidEvent.Payload["baseManaCost"]);
+        Assert.Equal(3, costPaidEvent.Payload["totalManaCost"]);
+        Assert.Equal(0, costPaidEvent.Payload["genericPower"]);
+        Assert.Equal(0, costPaidEvent.Payload["totalPowerCost"]);
         Assert.Equal(1, costPaidEvent.Payload["spellshieldTaxMana"]);
         Assert.Equal(
             ["P2-SPELLSHIELD-UNIT-001"],
@@ -30516,6 +30574,8 @@ public sealed class ConformanceFixtureRunnerTests
         var costPaidEvent = Assert.Single(result.Events, gameEvent => gameEvent.Kind == "COST_PAID");
         Assert.Equal(6, costPaidEvent.Payload["mana"]);
         Assert.Equal(3, costPaidEvent.Payload["baseMana"]);
+        Assert.Equal(3, costPaidEvent.Payload["baseManaCost"]);
+        Assert.Equal(6, costPaidEvent.Payload["totalManaCost"]);
         Assert.Equal(3, costPaidEvent.Payload["spellshieldTaxMana"]);
         Assert.Equal(
             ["P2-SPIRIT-FIRE-SPELLSHIELD-001", "P2-SPIRIT-FIRE-SPELLSHIELD2-001"],
@@ -38038,8 +38098,13 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(2, stackItem.EffectRepeatCount);
         Assert.Equal(["ECHO"], stackItem.OptionalCosts);
         var costPaid = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.StartsWith("PLAY_CARD:", Assert.IsType<string>(costPaid.Payload["paymentId"]), StringComparison.Ordinal);
+        Assert.Equal("PLAY_CARD", costPaid.Payload["paymentWindow"]);
+        Assert.Equal("P1-SPELL-CENTER-STAGE", costPaid.Payload["sourceObjectId"]);
         Assert.Equal(3, costPaid.Payload["mana"]);
         Assert.Equal(2, costPaid.Payload["baseMana"]);
+        Assert.Equal(2, costPaid.Payload["baseManaCost"]);
+        Assert.Equal(3, costPaid.Payload["totalManaCost"]);
         Assert.Equal(1, costPaid.Payload["battlefieldEchoCostReductionMana"]);
         Assert.Equal(["ECHO"], Assert.IsAssignableFrom<IReadOnlyList<string>>(costPaid.Payload["optionalCosts"]));
     }

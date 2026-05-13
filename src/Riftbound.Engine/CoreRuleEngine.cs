@@ -3240,7 +3240,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             optionalCostIds: plan.OptionalCosts,
             paymentResourceActionIds: plan.PaymentResourceActions,
             reason: behavior.EffectKind,
-            sourceObjectId: command.SourceObjectId);
+            sourceObjectId: command.SourceObjectId,
+            auditMetadata: BuildPlayCardPaymentAuditMetadata(plan));
         var paymentEvents = new List<GameEvent>();
         var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, plan.SourceZones, command.SourceObjectId);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -17472,32 +17473,50 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (currentPool.Mana < totalManaCost)
-        {
-            rejection = RejectWithCorePrompts(
-                state,
-                $"Not enough mana to play {behavior.DisplayName}.",
-                ErrorCodes.InsufficientCost);
-            return false;
-        }
-
-        if (!CanPayPowerCost(paymentAdjustedPool, extraPowerCost, extraPowerCostByTrait))
-        {
-            rejection = RejectWithCorePrompts(
-                state,
-                $"Not enough power to play {behavior.DisplayName}.",
-                ErrorCodes.InsufficientCost);
-            return false;
-        }
-
         var currentExperience = state.PlayerExperience.TryGetValue(intent.PlayerId, out var availableExperience)
             ? availableExperience
             : 0;
-        if (currentExperience < totalExperienceCost)
+        var paymentPlan = new PaymentCostRules.PaymentPlan(
+            PaymentCostRules.BuildPaymentId(state.Tick + 1, "PLAY_CARD", intent.PlayerId, command.SourceObjectId),
+            "PLAY_CARD",
+            intent.PlayerId,
+            baseManaCost: behavior.ManaCost,
+            totalManaCost: totalManaCost,
+            genericPowerCost: extraPowerCost,
+            totalPowerCost: totalPowerCost,
+            powerCostByTrait: extraPowerCostByTrait,
+            experienceCost: totalExperienceCost,
+            optionalCostIds: optionalCosts,
+            paymentResourceActionIds: paymentResourceActions,
+            reason: behavior.EffectKind,
+            sourceObjectId: command.SourceObjectId,
+            auditMetadata: BuildPlayCardPaymentAuditMetadata(
+                costReductionMana,
+                optionalCostManaReduction,
+                battlefieldEchoCostReductionMana,
+                battlefieldEquipmentCostReductionMana,
+                nextSpellCostReductionMana,
+                battlefieldSpellCostReductionMana,
+                battlefieldHeldUnitCostIncreaseMana,
+                spellshieldTaxMana,
+                spellshieldTaxTargetObjectIds,
+                recycledPaymentRuneObjectIds));
+        var paymentAuthorization = PaymentCostRules.AuthorizePayment(
+            paymentPlan,
+            paymentAdjustedPool,
+            currentExperience);
+        if (!paymentAuthorization.Accepted)
         {
+            var errorMessage = currentPool.Mana < totalManaCost
+                ? $"Not enough mana to play {behavior.DisplayName}."
+                : !CanPayPowerCost(paymentAdjustedPool, extraPowerCost, extraPowerCostByTrait)
+                    ? $"Not enough power to play {behavior.DisplayName}."
+                    : currentExperience < totalExperienceCost
+                        ? $"Not enough experience to play {behavior.DisplayName}."
+                        : paymentAuthorization.Reason ?? $"Not enough resources to play {behavior.DisplayName}.";
             rejection = RejectWithCorePrompts(
                 state,
-                $"Not enough experience to play {behavior.DisplayName}.",
+                errorMessage,
                 ErrorCodes.InsufficientCost);
             return false;
         }
@@ -17531,6 +17550,48 @@ public sealed class CoreRuleEngine : IRuleEngine
             rengarUnitPlayedTargetObjectId,
             leonaStunBoonTargetObjectId);
         return true;
+    }
+
+    private static IReadOnlyDictionary<string, object?> BuildPlayCardPaymentAuditMetadata(PlayCardPlan plan)
+    {
+        return BuildPlayCardPaymentAuditMetadata(
+            plan.CostReductionMana,
+            plan.OptionalCostManaReduction,
+            plan.BattlefieldEchoCostReductionMana,
+            plan.BattlefieldEquipmentCostReductionMana,
+            plan.NextSpellCostReductionMana,
+            plan.BattlefieldSpellCostReductionMana,
+            plan.BattlefieldHeldUnitCostIncreaseMana,
+            plan.SpellshieldTaxMana,
+            plan.SpellshieldTaxTargetObjectIds,
+            plan.RecycledPaymentRuneObjectIds);
+    }
+
+    private static IReadOnlyDictionary<string, object?> BuildPlayCardPaymentAuditMetadata(
+        int costReductionMana,
+        int optionalCostManaReduction,
+        int battlefieldEchoCostReductionMana,
+        int battlefieldEquipmentCostReductionMana,
+        int nextSpellCostReductionMana,
+        int battlefieldSpellCostReductionMana,
+        int battlefieldHeldUnitCostIncreaseMana,
+        int spellshieldTaxMana,
+        IReadOnlyList<string> spellshieldTaxTargetObjectIds,
+        IReadOnlyList<string> recycledRuneObjectIds)
+    {
+        return new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["costReductionMana"] = costReductionMana,
+            ["optionalCostManaReduction"] = optionalCostManaReduction,
+            ["battlefieldEchoCostReductionMana"] = battlefieldEchoCostReductionMana,
+            ["battlefieldEquipmentCostReductionMana"] = battlefieldEquipmentCostReductionMana,
+            ["nextSpellCostReductionMana"] = nextSpellCostReductionMana,
+            ["battlefieldSpellCostReductionMana"] = battlefieldSpellCostReductionMana,
+            ["battlefieldHeldUnitCostIncreaseMana"] = battlefieldHeldUnitCostIncreaseMana,
+            ["spellshieldTaxMana"] = spellshieldTaxMana,
+            ["spellshieldTaxTargetObjectIds"] = spellshieldTaxTargetObjectIds.ToArray(),
+            ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray()
+        };
     }
 
     private static bool CanPassPriority(MatchState state, string playerId)
