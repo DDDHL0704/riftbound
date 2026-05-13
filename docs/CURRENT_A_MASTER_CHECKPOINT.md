@@ -5160,3 +5160,19 @@ Checkpoint 记录：
 - 四个剩余 `IMPLEMENTED_UNTESTED` 已由 4C-95 设计门禁确认，不能仅凭普通 source-unit fixture 入账。
 - Formal 18-step E2E 已满足 A_MASTER 主流程门槛，但不能替代 strict battlefield contest / battle lifecycle / PaymentEngine / LayerEngine full official 收口。
 - 只有 P0/P1 清零、backend full、frontend build、Chrome smoke、formal E2E、hidden-info long-chain、card matrix 和 final completion audit 全部通过后，才允许 READY / goal complete。
+
+## 62. Stage 4D-01 Board Task Queue Foundation Handoff
+
+状态：**4D-01 board task queue foundation handoff 已记录；项目整体仍 NOT READY。**
+
+本批范围：
+
+- 新增服务端实现交接规格：`docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_HANDOFF.md`。
+- 只读审计现有 `PendingTaskQueue`、`RunStateBasedCleanupLoop`、`AdvancePendingBattlefieldTasksAfterStateChange`、`BattlefieldContestBattleTaskGuardTests` 与 pending queue shape tests。
+- 明确 4D-01 的 exclusive write lock、允许新增测试文件、blocked parallel writes、required implementation shape、focused / adjacent / backend full 验收命令和 no-go criteria。
+
+口径：
+
+- 本批不修改功能代码、测试代码、前端代码或 coverage matrix。
+- 4D-01 只承接 P0-002 / P0-003 的 board task queue foundation；P0-004 battle/spell-duel lifecycle 仍属于 4D-02，P0-005 PaymentEngine 仍属于 4D-03。
+- 不把任何 P0/P1 标记 resolved，不声明 READY，不调用 active goal complete。

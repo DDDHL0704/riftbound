@@ -29,6 +29,8 @@
 
 目标：把现有 `BattlefieldState`、`BattlefieldTaskState`、`PendingCleanupTasks` 与 `PendingTaskQueue` 接入真正的 board task lifecycle，覆盖 standby、control/contest/conquer/hold、战场控制变化和状态性清理重复直到稳定。
 
+详细实现交接规格：`docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_HANDOFF.md`。
+
 建议 owner：B 服务端规则 / 协议 / 测试实现。
 
 写入范围：

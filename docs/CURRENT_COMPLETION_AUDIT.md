@@ -49,6 +49,8 @@ Stage 4C-98 本轮新增 evidence alignment 见 `docs/CURRENT_STAGE4C_BATCH98_BA
 
 Stage 4D P0/P1 closure plan 本轮新增主控计划见 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`：4D-01 board task queue foundation 收口 P0-002 / P0-003；4D-02 spell duel and battle state machine 收口 P0-004；4D-03 PaymentEngine unification 收口 P0-005；4D-04 LayerEngine / keywords / full-pass track 收口 P1；4D-05 frontend authority / Chrome gate；4D-06 final evidence / completion audit。本批不修改功能代码、测试代码、前端代码或 coverage matrix；只建立后续写锁、任务顺序和验收门槛。
 
+Stage 4D-01 board task queue foundation handoff 本轮新增实现交接规格见 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_HANDOFF.md`：基于现有 `PendingTaskQueue`、`RunStateBasedCleanupLoop`、`AdvancePendingBattlefieldTasksAfterStateChange` 与 battle task guard tests，明确下一服务端切片的写锁、必补测试、focused / adjacent / backend full 验收命令与 no-go criteria。本批不修改功能代码、测试代码、前端代码或 coverage matrix；P0-002 / P0-003 仍未关闭。
+
 当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责；4C-85 / 4C-86 / 4C-87 / 4C-89 / 4C-90 / 4C-91 / 4C-92 / 4C-93 / 4C-94 / 4C-96 由 A 基于 matrix 风险筛选做 evidence-only 覆盖入账、复核、验证和文档收口；4C-88 / 4C-95 则将不能 evidence-only 的候选推进为 design-gated 实现派单规格。后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
 
 ## 0.1 Active Goal 门槛到证据映射
@@ -73,6 +75,7 @@ Stage 4D P0/P1 closure plan 本轮新增主控计划见 `docs/CURRENT_STAGE4D_P0
 - `docs/CURRENT_COMPLETION_AUDIT.md`
 - `docs/CURRENT_RULE_EVIDENCE_TODO.md`
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`
+- `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_HANDOFF.md`
 - `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`
 
 2026-05-13 Stage 4C-98 battlefield residual evidence alignment 本轮修改：
