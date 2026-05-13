@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 2026-05-14 Stage 4D-03S handoff / baseline 已建立：下一服务端切片锁定剩余五张 SFD Sigil typed payment-only resource skills（专注之印 green、洞察之印 blue、力量之印 orange、不和之印 purple、团结之印 yellow），交接入口为 `docs/CURRENT_STAGE4D_03S_PAYMENT_ENGINE_SFD_SIGIL_TYPED_RESOURCE_FAMILY_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_03S_PAYMENT_ENGINE_SFD_SIGIL_TYPED_RESOURCE_FAMILY_BASELINE_EVIDENCE.md`；focused baseline 191/191、adjacent baseline 439/439 通过。本批不修改前端运行时代码；前端后续仍只能展示并提交服务端 `ActionPrompt` 暴露的 Sigil source、reaction timing、typed temporary resource choices 与 snapshot resource ledger，不本地推断颜色资源、支付窗口或资源生命周期。项目仍 **NOT READY**。
+
 - 2026-05-14 Stage 4D-03R focused slice 已验收：`SFD·222/221` 暴怒之印 typed red payment-only resource skill 已由服务端 `ACTIVATE_ABILITY` prompt / command / temporary payment ledger 暴露；成功路径横置 base equipment source、创建 1 点 red typed temporary payment-only rune resource、不创建普通 stack item，并可支付 red typed / generic rune costs。审计入口为 `docs/CURRENT_STAGE4D_03R_PAYMENT_ENGINE_RAGE_SIGIL_TYPED_RESOURCE_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_03R_PAYMENT_ENGINE_RAGE_SIGIL_TYPED_RESOURCE_EVIDENCE.md`；focused 191/191、adjacent 439/439、backend full 4021/4021、`git diff --check` 通过。本批不修改前端运行时代码；前端后续仍只能展示并提交服务端 `ActionPrompt` 暴露的 Rage Sigil source、reaction timing、typed temporary resource choices 与 snapshot resource ledger，不本地推断红色资源、支付窗口或资源生命周期。项目仍 **NOT READY**。
 
 - 2026-05-14 Stage 4D-03R handoff / baseline 已建立并被 focused slice 验收 supersede：交接入口为 `docs/CURRENT_STAGE4D_03R_PAYMENT_ENGINE_RAGE_SIGIL_TYPED_RESOURCE_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_03R_PAYMENT_ENGINE_RAGE_SIGIL_TYPED_RESOURCE_BASELINE_EVIDENCE.md`；focused baseline 173/173、adjacent baseline 421/421 通过，保留为回归护栏。

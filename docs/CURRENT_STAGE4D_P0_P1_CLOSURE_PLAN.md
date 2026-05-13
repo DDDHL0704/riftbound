@@ -124,6 +124,8 @@
 
 4D-03R focused slice 补充：Rage Sigil typed resource representative 已验收，审计与证据见 `docs/CURRENT_STAGE4D_03R_PAYMENT_ENGINE_RAGE_SIGIL_TYPED_RESOURCE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03R_PAYMENT_ENGINE_RAGE_SIGIL_TYPED_RESOURCE_EVIDENCE.md`；focused 191/191、adjacent 439/439、backend full 4021/4021、`git diff --check` 通过。该切片只证明 typed red payment-only resource representative 已接入 prompt / command / temporary ledger / audit 口径，不关闭完整 Sigil family、完整 `[A]` / `[C]` resource skill family 或 P0-005 full official。
 
+4D-03S handoff / baseline 补充：下一实现切片锁定剩余五张 SFD Sigil typed payment-only resource skills（green / blue / orange / purple / yellow），交接规格见 `docs/CURRENT_STAGE4D_03S_PAYMENT_ENGINE_SFD_SIGIL_TYPED_RESOURCE_FAMILY_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_03S_PAYMENT_ENGINE_SFD_SIGIL_TYPED_RESOURCE_FAMILY_BASELINE_EVIDENCE.md`；focused baseline 191/191、adjacent baseline 439/439 通过。该切片明确不实现 OGN Sigil resource skills，不关闭 P0-005。
+
 目标：把 PLAY_CARD、MOVE_UNIT、ASSEMBLE_EQUIPMENT、ACTIVATE_ABILITY、LEGEND_ACT、battlefield trigger、keyword optional/extra cost 与 rune resource actions 统一到可回滚、可审计、服务端候选驱动的 PaymentEngine。
 
 建议 owner：B 服务端实现，E 卡牌证据矩阵协助确认官方费用口径。
@@ -205,6 +207,6 @@
 
 1. 维持 NOT READY 结论。
 2. 不再为 Stage 4C representative evidence alignment 追加新批次，除非出现遗漏的已验证自动化证据。
-3. 当前 4D-03 focused foundation、4D-03B non-play focused slice、4D-03C play optional / extra focused slice、4D-03D `ACTIVATE_ABILITY` payment resource focused slice、4D-03E `HIDE_CARD` payment focused slice、4D-03F pending `PAY_COST` resource focused slice、4D-03G battlefield held score resource action focused slice、4D-03H trigger payment resource action focused slice、4D-03I Malzahar resource skill focused slice、4D-03J Malzahar lifecycle focused slice、4D-03K temporary resource inline focused slice、4D-03L Dragon Soul Sage reaction resource skill focused slice、4D-03M Renata colored activated draw focused slice、4D-03N Renata colored activated score focused slice 与 4D-03O Crimson Rose ready-unit focused slice 均已验收；4D-03P Fluft Poro Warhawk token focused slice、4D-03Q Shadow swift stun focused slice 与 4D-03R Rage Sigil typed resource focused slice 已验收；下一步继续完整 `[A]` / `[C]` resource skill family、remaining payment windows 或 typed resource quote parity。
+3. 当前 4D-03 focused foundation、4D-03B non-play focused slice、4D-03C play optional / extra focused slice、4D-03D `ACTIVATE_ABILITY` payment resource focused slice、4D-03E `HIDE_CARD` payment focused slice、4D-03F pending `PAY_COST` resource focused slice、4D-03G battlefield held score resource action focused slice、4D-03H trigger payment resource action focused slice、4D-03I Malzahar resource skill focused slice、4D-03J Malzahar lifecycle focused slice、4D-03K temporary resource inline focused slice、4D-03L Dragon Soul Sage reaction resource skill focused slice、4D-03M Renata colored activated draw focused slice、4D-03N Renata colored activated score focused slice 与 4D-03O Crimson Rose ready-unit focused slice 均已验收；4D-03P Fluft Poro Warhawk token focused slice、4D-03Q Shadow swift stun focused slice 与 4D-03R Rage Sigil typed resource focused slice 已验收；4D-03S SFD Sigil typed resource family handoff / baseline 已建立，下一步交给 B 实现并由 A 复核，之后继续完整 `[A]` / `[C]` resource skill family、remaining payment windows 或 typed resource quote parity。
 4. 每个 4D 实现切片必须先给出写入范围、测试过滤器、不可并行文件和 no-go 声明，再进入代码修改。
 5. A 不亲自写功能代码；只维护计划、派单、验收文档、测试验证和 completion audit。
