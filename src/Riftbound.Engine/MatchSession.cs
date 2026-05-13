@@ -5263,7 +5263,8 @@ internal static class ActionPromptBuilder
                 && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal);
         }
 
-        return cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
+        return cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal);
     }
 
     private static IReadOnlyList<LegendActionPromptRequirement> LegendActionSourceRequirements(
@@ -6525,6 +6526,7 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId => "烈娜塔·戈拉斯克",
             P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId => "烈娜塔·戈拉斯克",
             P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId => "猩红玫瑰",
+            P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId => "绵绵魄罗",
             _ => ability.DisplayName
         };
     }
@@ -6540,6 +6542,7 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId => "烈娜塔·戈拉斯克：支付 1 法力和 1 蓝色符能，抽 1 张牌",
             P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId => "烈娜塔·戈拉斯克：支付 4 法力和 4 蓝色符能并横置，获得 1 分",
             P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId => "猩红玫瑰：消耗 3 经验并横置，让一名单位变为活跃状态",
+            P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId => "绵绵魄罗：横置，打出两名拥有法盾的战鹰",
             _ => ability.DisplayName
         };
     }
@@ -9819,6 +9822,23 @@ internal static class ActionPromptBuilder
             view["timingPolicy"] = "open-main-representative";
             view["stackPolicy"] = "ordinary-stack-item-before-ready";
             view["paymentPolicy"] = "payment-plan-experience-and-spellshield-tax";
+        }
+
+        if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId, StringComparison.Ordinal))
+        {
+            view["requiresBattlefieldSource"] = true;
+            view["tokenCardNo"] = P4ActivatedAbilityCatalog.WarhawkTokenCardNo;
+            view["tokenCount"] = P4ActivatedAbilityCatalog.FluftPoroWarhawkTokenCount;
+            if (P6TokenFactoryCatalog.TryGetByCardNo(P4ActivatedAbilityCatalog.WarhawkTokenCardNo, out var tokenDefinition))
+            {
+                view["tokenName"] = tokenDefinition.TokenFamilyName;
+                view["tokenPower"] = tokenDefinition.DefaultPower;
+                view["tokenTags"] = tokenDefinition.Tags.ToArray();
+            }
+
+            view["timingPolicy"] = "open-main-representative";
+            view["stackPolicy"] = "ordinary-stack-item-before-token-create";
+            view["paymentPolicy"] = "payment-plan-zero-cost-exhaust-as-cost";
         }
 
         return view;

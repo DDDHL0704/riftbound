@@ -6096,6 +6096,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveCrimsonRoseReadyAbility(state, intent, command, ability);
         }
 
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId, StringComparison.Ordinal))
+        {
+            return ResolveFluftPoroWarhawkAbility(state, intent, command, ability);
+        }
+
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId, StringComparison.Ordinal))
         {
             return ResolveRenataGlascDrawAbility(state, intent, command, ability);
@@ -9849,6 +9854,253 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["effectKind"] = stackItem.EffectKind,
                     ["abilityId"] = command.AbilityId,
                     ["exhaustsSource"] = true
+                })
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolveFluftPoroWarhawkAbility(
+        MatchState state,
+        PlayerIntent intent,
+        ActivateAbilityCommand command,
+        P4ActivatedAbilityDefinition ability)
+    {
+        if (state.PendingPayment is not null
+            || state.PendingHandChoice is not null
+            || state.PendingTaskQueue.IsBlocking
+            || !string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || state.StackItems.Count > 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "绵绵魄罗的技能只能在当前玩家的开放主阶段提交。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (NormalizeTargetObjectIds(command.TargetObjectIds).Count != 0
+            || command.TargetObjectIds.Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "绵绵魄罗的技能不接受目标。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (NormalizeOptionalCosts(command.OptionalCosts).Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "绵绵魄罗的技能不接受额外费用或支付资源动作。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!IsControlledBattlefieldObject(state, intent.PlayerId, command.SourceObjectId)
+            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || sourceState.IsFaceDown
+            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "绵绵魄罗的技能来源必须是当前玩家控制的公开战场单位。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "绵绵魄罗的技能只能选择当前玩家控制的来源。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!string.Equals(sourceState.CardNo, ability.SourceCardNo, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "该来源没有服务端支持的绵绵魄罗技能。",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        if (sourceState.IsExhausted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "绵绵魄罗的技能来源必须未横置。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        const string paymentWindow = "ACTIVATE_ABILITY";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            intent.PlayerId,
+            command.SourceObjectId,
+            command.AbilityId);
+        var paymentPlan = new PaymentCostRules.PaymentPlan(
+            paymentId,
+            paymentWindow,
+            intent.PlayerId,
+            baseManaCost: 0,
+            totalManaCost: 0,
+            genericPowerCost: 0,
+            totalPowerCost: 0,
+            experienceCost: 0,
+            reason: ability.EffectKind,
+            sourceObjectId: command.SourceObjectId,
+            abilityId: command.AbilityId,
+            auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["exhaustsSource"] = true,
+                ["targetObjectIds"] = Array.Empty<string>(),
+                ["tokenCardNo"] = P4ActivatedAbilityCatalog.WarhawkTokenCardNo,
+                ["tokenCount"] = P4ActivatedAbilityCatalog.FluftPoroWarhawkTokenCount
+            });
+        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
+            ? existingPool
+            : RunePool.Empty;
+        var currentExperience = state.PlayerExperience.TryGetValue(intent.PlayerId, out var availableExperience)
+            ? availableExperience
+            : 0;
+        var paymentAuthorization = PaymentCostRules.AuthorizePayment(
+            paymentPlan,
+            currentPool,
+            currentExperience);
+        if (!paymentAuthorization.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "资源不足，无法启动绵绵魄罗的技能。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var paymentCommit = PaymentCostRules.TryCommitPayment(
+            paymentPlan,
+            state.RunePools,
+            state.PlayerExperience);
+        if (!paymentCommit.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "资源不足，无法启动绵绵魄罗的技能。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var playerExperience = paymentCommit.PlayerExperience;
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[command.SourceObjectId] = sourceState with
+        {
+            IsExhausted = true,
+            OwnerId = string.IsNullOrWhiteSpace(sourceState.OwnerId) ? intent.PlayerId : sourceState.OwnerId,
+            ControllerId = string.IsNullOrWhiteSpace(sourceState.ControllerId) ? intent.PlayerId : sourceState.ControllerId
+        };
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var stackItem = new StackItemState(
+            $"STACK-{state.Tick + 1}-{command.SourceObjectId}-FLUFT-WARHAWK",
+            intent.PlayerId,
+            command.SourceObjectId,
+            ability.EffectKind,
+            sourceState.CardNo,
+            [],
+            0,
+            1,
+            []);
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            ActivePlayerId = intent.PlayerId,
+            TimingState = TimingStates.NeutralClosed,
+            RunePools = runePools,
+            PlayerExperience = playerExperience,
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = ReconcileObjectLocations(objectLocations, playerZones),
+            PriorityPlayerId = intent.PlayerId,
+            PassedPriorityPlayerIds = [],
+            StackItems = state.StackItems.Concat([stackItem]).ToArray()
+        };
+        var tokenTags = P6TokenFactoryCatalog.TryGetByCardNo(
+            P4ActivatedAbilityCatalog.WarhawkTokenCardNo,
+            out var tokenDefinition)
+                ? tokenDefinition.Tags.ToArray()
+                : Array.Empty<string>();
+        var events = new List<GameEvent>
+        {
+            new(
+                "ABILITY_ACTIVATED",
+                $"{intent.PlayerId} 激活绵绵魄罗的技能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["cardNo"] = sourceState.CardNo,
+                    ["abilityId"] = command.AbilityId,
+                    ["effectKind"] = ability.EffectKind,
+                    ["targetObjectIds"] = Array.Empty<string>(),
+                    ["exhaustsSource"] = true,
+                    ["tokenCardNo"] = P4ActivatedAbilityCatalog.WarhawkTokenCardNo,
+                    ["tokenCount"] = P4ActivatedAbilityCatalog.FluftPoroWarhawkTokenCount,
+                    ["tokenTags"] = tokenTags
+                }),
+            new(
+                "UNIT_EXHAUSTED",
+                "绵绵魄罗横置支付技能费用",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["targetObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["wasExhausted"] = sourceState.IsExhausted,
+                    ["isExhausted"] = true,
+                    ["exhaustsSource"] = true
+                }),
+            new(
+                "COST_PAID",
+                $"{intent.PlayerId} 支付绵绵魄罗技能费用",
+                PaymentCostRules.BuildCostPaidPayload(
+                    paymentPlan,
+                    runePools,
+                    playerExperience,
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = intent.PlayerId,
+                        ["mana"] = 0,
+                        ["power"] = 0,
+                        ["experience"] = 0,
+                        ["abilityId"] = command.AbilityId,
+                        ["sourceObjectId"] = command.SourceObjectId,
+                        ["targetObjectIds"] = Array.Empty<string>(),
+                        ["exhaustsSource"] = true,
+                        ["tokenCardNo"] = P4ActivatedAbilityCatalog.WarhawkTokenCardNo,
+                        ["tokenCount"] = P4ActivatedAbilityCatalog.FluftPoroWarhawkTokenCount,
+                        ["tokenTags"] = tokenTags
+                    })),
+            new(
+                "STACK_ITEM_ADDED",
+                "绵绵魄罗的技能加入结算链",
+                new Dictionary<string, object?>
+                {
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["controllerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["cardNo"] = stackItem.CardNo,
+                    ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["abilityId"] = command.AbilityId,
+                    ["tokenCardNo"] = P4ActivatedAbilityCatalog.WarhawkTokenCardNo,
+                    ["tokenCount"] = P4ActivatedAbilityCatalog.FluftPoroWarhawkTokenCount
                 })
         };
 
@@ -25758,6 +26010,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveCrimsonRoseReadyAbilityStackItem(state, stackItem);
         }
 
+        if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityEffectKind, StringComparison.Ordinal))
+        {
+            return ResolveFluftPoroWarhawkAbilityStackItem(state, stackItem);
+        }
+
         if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.RenataGlascDrawAbilityEffectKind, StringComparison.Ordinal))
         {
             return ResolveRenataGlascDrawAbilityStackItem(state, stackItem);
@@ -29355,6 +29612,59 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["abilityId"] = P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId,
                     ["stackItemId"] = stackItem.StackItemId
                 }));
+        }
+
+        return new StackResolutionResult(
+            playerZones,
+            cardObjects,
+            state.PlayerScores,
+            NormalizeExperienceForSeats(state),
+            state.RunePools,
+            state.UntilEndOfTurnEffects,
+            null,
+            events,
+            [],
+            null,
+            [],
+            null,
+            [],
+            state.RngCursor);
+    }
+
+    private static StackResolutionResult ResolveFluftPoroWarhawkAbilityStackItem(
+        MatchState state,
+        StackItemState stackItem)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var events = new List<GameEvent>
+        {
+            new(
+                "ABILITY_RESOLVED",
+                "绵绵魄罗的技能结算",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = stackItem.ControllerId,
+                    ["controllerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["cardNo"] = stackItem.CardNo,
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["abilityId"] = P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId,
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["tokenCardNo"] = P4ActivatedAbilityCatalog.WarhawkTokenCardNo,
+                    ["tokenCount"] = P4ActivatedAbilityCatalog.FluftPoroWarhawkTokenCount
+                })
+        };
+
+        for (var index = 0; index < P4ActivatedAbilityCatalog.FluftPoroWarhawkTokenCount; index++)
+        {
+            CreateWarhawkTokenInControllerBase(
+                playerZones,
+                cardObjects,
+                stackItem.ControllerId,
+                stackItem.SourceObjectId,
+                P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId,
+                events);
         }
 
         return new StackResolutionResult(

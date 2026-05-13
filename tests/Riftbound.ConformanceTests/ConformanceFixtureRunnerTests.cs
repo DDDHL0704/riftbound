@@ -30726,6 +30726,21 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(crimsonRoseDefinition.ExhaustsSourceAsCost);
         Assert.Equal(0, crimsonRoseDefinition.DamageAmount);
         Assert.True(crimsonRoseDefinition.AppliesSpellshieldTargetTax);
+
+        Assert.True(P4ActivatedAbilityCatalog.TryGetByAbilityId(
+            P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId,
+            out var fluftPoroDefinition));
+        Assert.Equal(P4ActivatedAbilityCatalog.FluftPoroCardNo, fluftPoroDefinition.SourceCardNo);
+        Assert.Equal(P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityEffectKind, fluftPoroDefinition.EffectKind);
+        Assert.Equal(0, fluftPoroDefinition.ManaCost);
+        Assert.Equal(0, fluftPoroDefinition.PowerCost);
+        Assert.Equal(0, fluftPoroDefinition.ExperienceCost);
+        Assert.Equal(0, fluftPoroDefinition.RequiredTargetCount);
+        Assert.True(fluftPoroDefinition.RequiresBattlefieldSource);
+        Assert.False(fluftPoroDefinition.RequiresBaseEquipmentSource);
+        Assert.True(fluftPoroDefinition.ExhaustsSourceAsCost);
+        Assert.Equal(0, fluftPoroDefinition.DamageAmount);
+        Assert.False(fluftPoroDefinition.AppliesSpellshieldTargetTax);
     }
 
     [Fact]
@@ -30735,6 +30750,7 @@ public sealed class ConformanceFixtureRunnerTests
             [
                 "CRIMSON_ROSE_EXPERIENCE3_EXHAUST_READY_UNIT",
                 "DRAGON_SOUL_SAGE_REACTION_EXHAUST_GAIN_1_MANA",
+                "FLUFT_PORO_EXHAUST_CREATE_TWO_SPELLSHIELD_WARHAWKS",
                 "MALZAHAR_DESTROY_FRIENDLY_EXHAUST_GAIN_2_PAYMENT_POWER",
                 "PAY_2_RED_DOUBLE_POWER",
                 "PAY_RED_EXHAUST_DAMAGE_3",
@@ -30746,7 +30762,7 @@ public sealed class ConformanceFixtureRunnerTests
                 .OrderBy(abilityId => abilityId, StringComparer.Ordinal));
 
         var deferredSurfaces = P4ActivatedAbilityCatalog.GetDeferredSurfaces();
-        Assert.True(deferredSurfaces.Count >= 2);
+        Assert.True(deferredSurfaces.Count >= 1);
         Assert.DoesNotContain(
             deferredSurfaces,
             surface => string.Equals(surface.SourceCardNo, P4ActivatedAbilityCatalog.DragonSoulSageCardNo, StringComparison.Ordinal));
@@ -30759,8 +30775,10 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.DoesNotContain(
             deferredSurfaces,
             surface => string.Equals(surface.AbilityId, "DEFERRED_EXPERIENCE_EXHAUST_READY_UNIT", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            deferredSurfaces,
+            surface => string.Equals(surface.AbilityId, "DEFERRED_TAP_CREATE_TWO_SPELLSHIELD_WARHAWKS", StringComparison.Ordinal));
         Assert.Contains(deferredSurfaces, surface => surface.IsTargetBearing && surface.EnemySpellshieldTaxRisk);
-        Assert.Contains(deferredSurfaces, surface => !surface.IsTargetBearing && !surface.EnemySpellshieldTaxRisk);
 
         var officialCatalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         foreach (var surface in deferredSurfaces)

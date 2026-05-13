@@ -75,6 +75,12 @@ public static class P4ActivatedAbilityCatalog
     public const string CrimsonRoseReadyAbilityEffectKind = "CRIMSON_ROSE_ACTIVATED_READY_UNIT";
     public const int CrimsonRoseReadyExperienceCost = 3;
 
+    public const string FluftPoroCardNo = "UNL-160/219";
+    public const string FluftPoroWarhawkAbilityId = "FLUFT_PORO_EXHAUST_CREATE_TWO_SPELLSHIELD_WARHAWKS";
+    public const string FluftPoroWarhawkAbilityEffectKind = "FLUFT_PORO_ACTIVATED_CREATE_TWO_WARHAWKS";
+    public const string WarhawkTokenCardNo = "UNL·T02";
+    public const int FluftPoroWarhawkTokenCount = 2;
+
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
         new(
@@ -185,20 +191,25 @@ public static class P4ActivatedAbilityCatalog
             AppliesSpellshieldTargetTax: true,
             "Stage 4D-03O opens only Crimson Rose's spend 3 experience, exhaust, ready a unit representative; the unit-play experience trigger and broader target-bearing family remain deferred.",
             ExperienceCost: CrimsonRoseReadyExperienceCost,
-            RequiresBaseEquipmentSource: true)
+            RequiresBaseEquipmentSource: true),
+        new(
+            FluftPoroWarhawkAbilityId,
+            FluftPoroCardNo,
+            FluftPoroWarhawkAbilityEffectKind,
+            "Fluft Poro Warhawk skill",
+            0,
+            0,
+            0,
+            RequiresBattlefieldSource: true,
+            ExhaustsSourceAsCost: true,
+            0,
+            AppliesSpellshieldTargetTax: false,
+            "Stage 4D-03P opens only Fluft Poro's battlefield-only no-target Warhawk token representative; broader token-play semantics remain deferred.",
+            ExperienceCost: 0)
     ];
 
     private static readonly P4DeferredActivatedAbilitySurface[] DeferredSurfaces =
     [
-        new(
-            "DEFERRED_TAP_CREATE_TWO_SPELLSHIELD_WARHAWKS",
-            "UNL-160/219",
-            "Fluft Poro Warhawk skill",
-            "fluft-poro-warhawk-token",
-            RequiresBattlefieldSource: true,
-            IsTargetBearing: false,
-            EnemySpellshieldTaxRisk: false,
-            "P4.391 keeps token creation with Spellshield deferred until token and battlefield-only skill execution are complete."),
         new(
             "DEFERRED_SWIFT_PAY_1_A_EXHAUST_STUN_ATTACKER",
             "UNL-194/219",
