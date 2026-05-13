@@ -525,6 +525,131 @@ public sealed class PaymentEngineUnificationTests
         Assert.Empty(result.State.StackItems);
     }
 
+    [Fact]
+    public async Task HideCardStandardStandbyUsesPaymentPlanAuditMetadata()
+    {
+        var state = HideCardState(new RunePool(1, 0));
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var hideCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "HIDE_CARD", StringComparison.Ordinal));
+        Assert.Contains(hideCandidate.OptionalCosts ?? [], choice => string.Equals(choice.Id, "STANDBY_A", StringComparison.Ordinal));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-hide-card-payment-plan-standard", "P1", "HIDE_CARD"),
+            new HideCardCommand(
+                "P1-HAND-OGN-TEEMO",
+                "OGN·121/298",
+                "STANDBY",
+                ["STANDBY_A"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(["COST_PAID", "CARD_HIDDEN"], result.Events.Select(evt => evt.Kind));
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-HAND-OGN-TEEMO"], result.State.PlayerZones["P1"].Base);
+        Assert.True(result.State.CardObjects["P1-HAND-OGN-TEEMO"].IsFaceDown);
+        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.StartsWith("HIDE_CARD:", Assert.IsType<string>(costEvent.Payload["paymentId"]), StringComparison.Ordinal);
+        Assert.Equal("HIDE_CARD", costEvent.Payload["paymentWindow"]);
+        Assert.Equal("P1", costEvent.Payload["playerId"]);
+        Assert.Equal("P1-HAND-OGN-TEEMO", costEvent.Payload["sourceObjectId"]);
+        Assert.Equal("STANDBY_HIDE", costEvent.Payload["reason"]);
+        Assert.Equal(1, costEvent.Payload["mana"]);
+        Assert.Equal(0, costEvent.Payload["power"]);
+        Assert.Equal(1, costEvent.Payload["baseManaCost"]);
+        Assert.Equal(1, costEvent.Payload["totalManaCost"]);
+        Assert.Equal(0, costEvent.Payload["genericPower"]);
+        Assert.Equal(0, costEvent.Payload["totalPowerCost"]);
+        Assert.Equal(["STANDBY_A"], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
+        Assert.Empty(Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        Assert.Equal(0, costEvent.Payload["remainingMana"]);
+        Assert.Equal(0, costEvent.Payload["remainingPower"]);
+    }
+
+    [Fact]
+    public async Task HideCardFreeStandbyUsesZeroCostPaymentPlanAuditMetadata()
+    {
+        var state = HideCardState(
+            new RunePool(0, 0),
+            untilEndOfTurnEffects: ["FREE_STANDBY_HIDE:P1"]);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-hide-card-payment-plan-free", "P1", "HIDE_CARD"),
+            new HideCardCommand(
+                "P1-HAND-OGN-TEEMO",
+                "OGN·121/298",
+                "STANDBY",
+                ["STANDBY_FREE"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.True(result.State.CardObjects["P1-HAND-OGN-TEEMO"].IsFaceDown);
+        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal("HIDE_CARD", costEvent.Payload["paymentWindow"]);
+        Assert.Equal(0, costEvent.Payload["mana"]);
+        Assert.Equal(0, costEvent.Payload["baseManaCost"]);
+        Assert.Equal(0, costEvent.Payload["totalManaCost"]);
+        Assert.Equal(["STANDBY_FREE"], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
+        Assert.Equal(true, costEvent.Payload["standbyHideCostWaived"]);
+        Assert.Equal(0, costEvent.Payload["remainingMana"]);
+    }
+
+    [Fact]
+    public async Task HideCardTeemoReplacementUsesPaymentPlanAuditMetadata()
+    {
+        var state = HideCardState(new RunePool(1, 0), hasTeemoLegend: true);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-hide-card-payment-plan-teemo", "P1", "HIDE_CARD"),
+            new HideCardCommand(
+                "P1-HAND-OGN-TEEMO",
+                "OGN·121/298",
+                "STANDBY",
+                ["STANDBY_TEEMO_MANA"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.True(result.State.CardObjects["P1-HAND-OGN-TEEMO"].IsFaceDown);
+        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal("HIDE_CARD", costEvent.Payload["paymentWindow"]);
+        Assert.Equal(1, costEvent.Payload["mana"]);
+        Assert.Equal(1, costEvent.Payload["baseManaCost"]);
+        Assert.Equal(1, costEvent.Payload["totalManaCost"]);
+        Assert.Equal(["STANDBY_TEEMO_MANA"], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
+        Assert.Equal(true, costEvent.Payload["teemoStandbyHideReplacement"]);
+        Assert.Equal(0, costEvent.Payload["remainingMana"]);
+    }
+
+    [Fact]
+    public async Task HideCardInsufficientStandbyManaRejectsWithoutMutation()
+    {
+        var state = HideCardState(new RunePool(0, 0));
+        var initialHash = MatchStateHasher.Hash(state);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-hide-card-payment-plan-insufficient", "P1", "HIDE_CARD"),
+            new HideCardCommand(
+                "P1-HAND-OGN-TEEMO",
+                "OGN·121/298",
+                "STANDBY",
+                ["STANDBY_A"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+    }
+
     private static MatchState BulletTimeState(RunePool runePool, IReadOnlyList<string>? baseObjectIds = null)
     {
         return new MatchState(
@@ -727,6 +852,74 @@ public sealed class PaymentEngineUnificationTests
             },
             new Dictionary<string, CardObjectState>(cardObjects, StringComparer.Ordinal),
             objectLocations: new Dictionary<string, ObjectLocationState>(objectLocations, StringComparer.Ordinal));
+    }
+
+    private static MatchState HideCardState(
+        RunePool runePool,
+        IReadOnlyList<string>? untilEndOfTurnEffects = null,
+        bool hasTeemoLegend = false)
+    {
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            ["P1-HAND-OGN-TEEMO"] = new(
+                "P1-HAND-OGN-TEEMO",
+                cardNo: "OGN·121/298",
+                power: 2,
+                tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
+                ownerId: "P1",
+                controllerId: "P1")
+        };
+        var objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+        {
+            ["P1-HAND-OGN-TEEMO"] = new("P1", "HAND")
+        };
+        if (hasTeemoLegend)
+        {
+            cardObjects["P1-LEGEND-TEEMO"] = new(
+                "P1-LEGEND-TEEMO",
+                cardNo: "OGN·263/298",
+                ownerId: "P1",
+                controllerId: "P1");
+            objectLocations["P1-LEGEND-TEEMO"] = new("P1", "LEGEND_ZONE");
+        }
+
+        return new MatchState(
+            "payment-engine-hide-card-room",
+            0,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            ["P1", "P2"],
+            "P1",
+            MatchPhases.Main,
+            TimingStates.NeutralOpen,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = runePool,
+                ["P2"] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HAND-OGN-TEEMO"],
+                    LegendZone = hasTeemoLegend ? ["P1-LEGEND-TEEMO"] : []
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects,
+            untilEndOfTurnEffects: untilEndOfTurnEffects ?? [],
+            objectLocations: objectLocations);
     }
 
     private static CardObjectState BulletTimeCard()

@@ -7930,7 +7930,42 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
         var standbyHideManaCost = usesFreeStandbyHideCost ? 0 : StandbyHideManaCost;
-        if (currentPool.Mana < standbyHideManaCost)
+        const string paymentWindow = "HIDE_CARD";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            intent.PlayerId,
+            command.SourceObjectId);
+        var paymentAuditMetadata = new Dictionary<string, object?>(StringComparer.Ordinal);
+        if (usesFreeStandbyHideCost)
+        {
+            paymentAuditMetadata["standbyHideCostWaived"] = true;
+        }
+        if (usesTeemoStandbyHideCost)
+        {
+            paymentAuditMetadata["teemoStandbyHideReplacement"] = true;
+        }
+
+        var paymentPlan = new PaymentCostRules.PaymentPlan(
+            paymentId,
+            paymentWindow,
+            intent.PlayerId,
+            baseManaCost: standbyHideManaCost,
+            totalManaCost: standbyHideManaCost,
+            genericPowerCost: 0,
+            totalPowerCost: 0,
+            optionalCostIds: optionalCosts,
+            reason: "STANDBY_HIDE",
+            sourceObjectId: command.SourceObjectId,
+            auditMetadata: paymentAuditMetadata);
+        var currentExperience = state.PlayerExperience.TryGetValue(intent.PlayerId, out var availableExperience)
+            ? availableExperience
+            : 0;
+        var paymentAuthorization = PaymentCostRules.AuthorizePayment(
+            paymentPlan,
+            currentPool,
+            currentExperience);
+        if (!paymentAuthorization.Accepted)
         {
             return RejectWithCorePrompts(
                 state,
@@ -7938,7 +7973,20 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
-        var runePools = PayRuneCosts(state, intent.PlayerId, standbyHideManaCost, 0);
+        var paymentCommit = PaymentCostRules.TryCommitPayment(
+            paymentPlan,
+            state.RunePools,
+            state.PlayerExperience);
+        if (!paymentCommit.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"法力不足，无法让 {behavior.DisplayName} 待命埋伏。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var runePools = paymentCommit.RunePools;
+        var playerExperience = paymentCommit.PlayerExperience;
         var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, zones, command.SourceObjectId);
         var nextZones = playerZones[intent.PlayerId];
         if (usesBattlefieldExtraStandby)
@@ -7974,12 +8022,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         cardObjects[command.SourceObjectId] = hiddenState;
 
-        const string paymentWindow = "HIDE_CARD";
-        var paymentId = PaymentCostRules.BuildPaymentId(
-            state.Tick + 1,
-            paymentWindow,
-            intent.PlayerId,
-            command.SourceObjectId);
         var costPaidPayload = new Dictionary<string, object?>
         {
             ["playerId"] = intent.PlayerId,
@@ -7987,14 +8029,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             ["power"] = 0,
             ["optionalCosts"] = optionalCosts.ToArray()
         };
-        if (usesFreeStandbyHideCost)
-        {
-            costPaidPayload["standbyHideCostWaived"] = true;
-        }
-        if (usesTeemoStandbyHideCost)
-        {
-            costPaidPayload["teemoStandbyHideReplacement"] = true;
-        }
 
         var events = new List<GameEvent>
         {
@@ -8002,11 +8036,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "COST_PAID",
                 $"{intent.PlayerId} 支付 {standbyHideManaCost} 点费用",
                 PaymentCostRules.BuildCostPaidPayload(
-                    paymentId,
-                    paymentWindow,
-                    intent.PlayerId,
+                    paymentPlan,
                     runePools,
-                    state.PlayerExperience,
+                    playerExperience,
                     costPaidPayload))
         };
         if (usesBattlefieldExtraStandby)
@@ -8056,6 +8088,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             Tick = state.Tick + 1,
             RunePools = runePools,
+            PlayerExperience = playerExperience,
             PlayerZones = playerZones,
             CardObjects = cardObjects,
             PriorityPlayerId = null,
