@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 第三百五十六批新增 Stage 4C-94 Babbling Poro / 叨叨魄罗 evidence-only overlay。`FU-677c27eea7` / `UNL-224/219` / 叨叨魄罗已在 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 记录 `stage4CBatch94BabblingPoroPredictEvidence`、`functionalUnits[].stage4C94` 与 `snapshotEntries[].stage4C94`；复用既有服务端代表路径和测试，覆盖 source-unit ordinary hand `PLAY_CARD`、支付基础 2、选择己方主牌堆顶部牌、stack pass-pass 后进入控制者基地成为 2 战力 `CARD_TYPE:UNIT|魄罗|预知`，并将所选顶部牌回收到主牌堆底部，同时拒绝非顶部牌目标。focused 12/12、adjacent 1830/1830、backend full 3771/3771 通过；无 DevUi、服务端功能代码或前端契约变更；整体仍 **NOT READY**。
+
 - 第三百五十五批新增 Stage 4C-93 Royal Attendant / 皇家随从 evidence-only overlay。`FU-92e31978af` / `SFD·039/221` / 皇家随从已在 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 记录 `stage4CBatch93RoyalAttendantLegendModeEvidence`、`functionalUnits[].stage4C93` 与 `snapshotEntries[].stage4C93`；复用既有服务端代表路径和测试，覆盖 source-unit ordinary hand `PLAY_CARD`、支付基础 3、`LEGEND` 目标、`READY_LEGEND` / `EXHAUST_LEGEND` mode、stack pass-pass 后进入控制者基地成为 4 战力 `CARD_TYPE:UNIT`，并按 mode 让目标传奇变为活跃或休眠，同时拒绝无效显式目标。focused 5/5、adjacent 1894/1894、backend full 3771/3771 通过；无 DevUi、服务端功能代码或前端契约变更；整体仍 **NOT READY**。
 
 - 第三百五十四批新增 Stage 4C-92 Stern Sergeant / 严厉军士 evidence-only overlay。`FU-5f03740098` / `UNL-157/219` / 严厉军士已在 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 记录 `stage4CBatch92SternSergeantExperienceEvidence`、`functionalUnits[].stage4C92` 与 `snapshotEntries[].stage4C92`；复用既有服务端代表路径和测试，覆盖 source-unit ordinary hand `PLAY_CARD`、支付基础 6、0 目标、stack pass-pass 后进入控制者基地成为 6 战力 `CARD_TYPE:UNIT|精锐`，并按结算后友方场上单位数量获得经验，同时拒绝显式目标。focused 460/460、adjacent 1913/1913、backend full 3771/3771 通过；无 DevUi、服务端功能代码或前端契约变更；整体仍 **NOT READY**。

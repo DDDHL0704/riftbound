@@ -5,7 +5,7 @@
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
 
-最新 checkpoint：`6fab79d2 checkpoint: record stage 4C royal attendant legend evidence`。上一 Stage 4C checkpoint：`d960b4c1 checkpoint: record stage 4C stern sergeant experience evidence`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
+最新 checkpoint：待提交 `stage 4C-94 babbling poro predict evidence`。上一 Stage 4C checkpoint：`6fab79d2 checkpoint: record stage 4C royal attendant legend evidence`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
 
 ## 0. A 主控职责边界
 
@@ -5028,3 +5028,26 @@ Checkpoint 记录：
 
 - 本批只关闭 Royal Attendant / 皇家随从代表性 source-unit + legend mode 证据入账缺口。
 - 不宣称完整 legend interaction domain、非手牌或替代来源打出、完整 PaymentEngine / FEPR、LayerEngine、hidden-info / redaction、1009/811 full-official 或 READY。
+
+## 56. Stage 4C-94 Babbling Poro Predict Evidence Checkpoint
+
+状态：**Stage 4C-94 Babbling Poro representative evidence 已记录；项目整体仍 NOT READY。**
+
+本批范围：
+
+- 代表 FU：`FU-677c27eea7`。
+- 代表卡：叨叨魄罗 / Babbling Poro `UNL-224/219` / cardId `34777`。
+- 只做 evidence-only overlay，不修改功能代码、测试代码或前端代码。
+- 将既有 UNL Babbling Poro source-unit + predict recycle 服务端权威路径入账：ordinary hand `PLAY_CARD`、支付基础 2 费用、选择己方主牌堆顶部牌、stack pass-pass 后源牌进入控制者基地成为 2 战力、带 `CARD_TYPE:UNIT|魄罗|预知` 标签的单位对象，并将所选顶部牌回收到主牌堆底部；选择非顶部牌被拒绝且 no mutation。
+- 更新 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 的 `stage4CBatch94BabblingPoroPredictEvidence`、`functionalUnits[].stage4C94` 与 `snapshotEntries[].stage4C94`。
+
+通过证据：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysPredictSourceUnitRecycleTopCard|FullyQualifiedName~CoreRuleEngineRejectsPredictSourceUnitWhenTargetIsOutsideTopCard"`：12/12 通过。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Predict|FullyQualifiedName~FriendlyMainDeck|FullyQualifiedName~MainDeck|FullyQualifiedName~Recycle|FullyQualifiedName~SourceUnit|FullyQualifiedName~Target|FullyQualifiedName~Stack|FullyQualifiedName~Priority|FullyQualifiedName~Payment|FullyQualifiedName~PayCost|FullyQualifiedName~Poro"`：1830/1830 通过。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：3771/3771 通过。
+
+口径：
+
+- 本批只关闭 UNL Babbling Poro / 叨叨魄罗代表性 source-unit + predict recycle 证据入账缺口。
+- 不宣称 predict 不回收 / decline 分支、完整主牌堆查看窗口隐私矩阵、非手牌或替代来源打出、完整 PaymentEngine / FEPR、hidden-info / redaction、1009/811 full-official 或 READY。
