@@ -758,7 +758,14 @@ public sealed class PaymentEngineUnificationTests
         Assert.Equal(["P1-UNIT-MALZAHAR"], result.State.PlayerZones["P1"].Base);
         Assert.Equal(["P1-UNIT-MALZAHAR-COST"], result.State.PlayerZones["P1"].Graveyard);
         Assert.Equal("GRAVEYARD", result.State.ObjectLocations["P1-UNIT-MALZAHAR-COST"].Zone);
-        Assert.Equal(2, result.State.RunePools["P1"].Power);
+        Assert.Equal(0, result.State.RunePools["P1"].Power);
+        var temporaryResource = Assert.Single(result.State.TemporaryPaymentResources);
+        Assert.Equal("P1", temporaryResource.OwnerPlayerId);
+        Assert.Equal("P1-UNIT-MALZAHAR", temporaryResource.SourceObjectId);
+        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, temporaryResource.AbilityId);
+        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower, temporaryResource.GeneratedPower);
+        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower, temporaryResource.RemainingPower);
+        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], temporaryResource.AllowedPaymentKinds);
         Assert.Empty(result.State.StackItems);
 
         var destroyEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
@@ -776,6 +783,8 @@ public sealed class PaymentEngineUnificationTests
         Assert.Equal(true, powerEvent.Payload["paymentOnly"]);
         Assert.Equal(P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower, powerEvent.Payload["generatedPower"]);
         Assert.Equal(P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction, powerEvent.Payload["resourceRestriction"]);
+        Assert.Equal("temporary-payment-resource-ledger", powerEvent.Payload["restrictionLifecycle"]);
+        Assert.Equal(temporaryResource.ResourceId, powerEvent.Payload["temporaryPaymentResourceId"]);
     }
 
     [Fact]

@@ -586,6 +586,64 @@ public sealed record PendingPaymentState
     }
 }
 
+public sealed record TemporaryPaymentResourceState
+{
+    [JsonConstructor]
+    public TemporaryPaymentResourceState(
+        string? resourceId = null,
+        string? ownerPlayerId = null,
+        string? sourceObjectId = null,
+        string? abilityId = null,
+        string? paymentWindow = null,
+        int generatedPower = 0,
+        int remainingPower = 0,
+        IReadOnlyList<string>? allowedPaymentKinds = null,
+        long createdTick = 0)
+    {
+        ResourceId = Normalize(resourceId);
+        OwnerPlayerId = Normalize(ownerPlayerId);
+        SourceObjectId = Normalize(sourceObjectId);
+        AbilityId = Normalize(abilityId);
+        PaymentWindow = Normalize(paymentWindow);
+        GeneratedPower = Math.Max(0, generatedPower);
+        RemainingPower = Math.Max(0, remainingPower);
+        AllowedPaymentKinds = NormalizeList(allowedPaymentKinds);
+        CreatedTick = Math.Max(0, createdTick);
+    }
+
+    public string ResourceId { get; init; }
+
+    public string OwnerPlayerId { get; init; }
+
+    public string SourceObjectId { get; init; }
+
+    public string AbilityId { get; init; }
+
+    public string PaymentWindow { get; init; }
+
+    public int GeneratedPower { get; init; }
+
+    public int RemainingPower { get; init; }
+
+    public IReadOnlyList<string> AllowedPaymentKinds { get; init; }
+
+    public long CreatedTick { get; init; }
+
+    private static string Normalize(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
+    }
+
+    private static IReadOnlyList<string> NormalizeList(IReadOnlyList<string>? values)
+    {
+        return (values ?? [])
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Select(value => value.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+}
+
 public sealed record PendingHandChoiceState
 {
     [JsonConstructor]
@@ -693,7 +751,8 @@ public sealed record MatchState
         IReadOnlyList<BattlefieldResolutionState>? battlefieldResolutions = null,
         IReadOnlyList<BattleResolutionState>? battleResolutions = null,
         PendingPaymentState? pendingPayment = null,
-        PendingHandChoiceState? pendingHandChoice = null)
+        PendingHandChoiceState? pendingHandChoice = null,
+        IReadOnlyList<TemporaryPaymentResourceState>? temporaryPaymentResources = null)
     {
         RoomId = roomId;
         Tick = tick;
@@ -729,6 +788,7 @@ public sealed record MatchState
         BattleResolutions = NormalizeBattleResolutions(battleResolutions);
         PendingPayment = NormalizePendingPayment(pendingPayment);
         PendingHandChoice = NormalizePendingHandChoice(pendingHandChoice);
+        TemporaryPaymentResources = NormalizeTemporaryPaymentResources(temporaryPaymentResources);
         PriorityPlayerId = NormalizeOptionalText(priorityPlayerId);
         PassedPriorityPlayerIds = NormalizeTextList(passedPriorityPlayerIds);
         StackItems = NormalizeStackItems(stackItems);
@@ -792,6 +852,8 @@ public sealed record MatchState
     public PendingPaymentState? PendingPayment { get; init; }
 
     public PendingHandChoiceState? PendingHandChoice { get; init; }
+
+    public IReadOnlyList<TemporaryPaymentResourceState> TemporaryPaymentResources { get; init; }
 
     public IReadOnlyDictionary<string, int> PlayerScores { get; init; }
 
@@ -1732,6 +1794,26 @@ public sealed record MatchState
             pendingPayment.PaymentResourceActionIds);
     }
 
+    private static IReadOnlyList<TemporaryPaymentResourceState> NormalizeTemporaryPaymentResources(
+        IReadOnlyList<TemporaryPaymentResourceState>? temporaryPaymentResources)
+    {
+        return (temporaryPaymentResources ?? [])
+            .Where(resource => !string.IsNullOrWhiteSpace(resource.ResourceId)
+                && !string.IsNullOrWhiteSpace(resource.OwnerPlayerId)
+                && resource.RemainingPower > 0)
+            .Select(resource => new TemporaryPaymentResourceState(
+                resource.ResourceId,
+                resource.OwnerPlayerId,
+                resource.SourceObjectId,
+                resource.AbilityId,
+                resource.PaymentWindow,
+                resource.GeneratedPower,
+                resource.RemainingPower,
+                resource.AllowedPaymentKinds,
+                resource.CreatedTick))
+            .ToArray();
+    }
+
     private static PendingHandChoiceState? NormalizePendingHandChoice(PendingHandChoiceState? pendingHandChoice)
     {
         if (pendingHandChoice is null
@@ -2303,8 +2385,13 @@ public sealed record ResolutionResult(
                 ["battlefieldTasks"] = state.BattlefieldTasks.Select(BuildBattlefieldTaskSnapshotView).ToArray(),
                 ["battlefieldResolutions"] = state.BattlefieldResolutions.Select(BuildBattlefieldResolutionSnapshotView).ToArray(),
                 ["pendingTaskQueue"] = BuildPendingTaskQueueSnapshotView(state, state.PendingTaskQueue, viewerPlayerId),
-                ["pendingPayment"] = BuildPendingPaymentSnapshotView(state.PendingPayment),
+                ["pendingPayment"] = BuildPendingPaymentSnapshotView(state, state.PendingPayment),
                 ["pendingHandChoice"] = BuildPendingHandChoiceSnapshotView(state.PendingHandChoice, viewerPlayerId),
+                ["temporaryPaymentResources"] = state.TemporaryPaymentResources
+                    .Where(resource => string.Equals(resource.OwnerPlayerId, viewerPlayerId, StringComparison.Ordinal)
+                        || string.Equals(viewerPlayerId, "__spectator__", StringComparison.Ordinal))
+                    .Select(BuildTemporaryPaymentResourceSnapshotView)
+                    .ToArray(),
                 ["continuousEffects"] = state.ContinuousEffects.Select(BuildContinuousEffectSnapshotView).ToArray(),
                 ["triggerQueue"] = state.TriggerQueue
                     .Select(trigger => BuildTriggerQueueItemSnapshotView(state, trigger, viewerPlayerId))
@@ -2375,7 +2462,9 @@ public sealed record ResolutionResult(
         };
     }
 
-    private static Dictionary<string, object?>? BuildPendingPaymentSnapshotView(PendingPaymentState? payment)
+    private static Dictionary<string, object?>? BuildPendingPaymentSnapshotView(
+        MatchState state,
+        PendingPaymentState? payment)
     {
         if (payment is null)
         {
@@ -2389,12 +2478,56 @@ public sealed record ResolutionResult(
             ["playerId"] = payment.PlayerId,
             ["cost"] = BuildPaymentCostView(payment),
             ["paymentChoices"] = payment.LegalPaymentChoiceIds,
-            ["paymentResourceActions"] = payment.PaymentResourceActionIds
+            ["paymentResourceActions"] = PendingPaymentResourceActionIds(state, payment)
+        };
+    }
+
+    private static Dictionary<string, object?> BuildTemporaryPaymentResourceSnapshotView(
+        TemporaryPaymentResourceState resource)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["resourceId"] = resource.ResourceId,
+            ["ownerPlayerId"] = resource.OwnerPlayerId,
+            ["sourceObjectId"] = resource.SourceObjectId,
+            ["abilityId"] = resource.AbilityId,
+            ["paymentWindow"] = resource.PaymentWindow,
+            ["generatedPower"] = resource.GeneratedPower,
+            ["remainingPower"] = resource.RemainingPower,
+            ["allowedPaymentKinds"] = resource.AllowedPaymentKinds,
+            ["paymentOnly"] = true,
+            ["resourceRestriction"] = P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction,
+            ["createdTick"] = resource.CreatedTick
+        };
+    }
+
+    private static IReadOnlyList<string> PendingPaymentResourceActionIds(
+        MatchState state,
+        PendingPaymentState payment)
+    {
+        return payment.PaymentResourceActionIds
                 .Concat(payment.LegalPaymentChoiceIds.Where(choiceId =>
                     choiceId.StartsWith("RECYCLE_RUNE:", StringComparison.Ordinal)))
+                .Concat(TemporaryPaymentResourceActionIds(state, payment))
                 .Distinct(StringComparer.Ordinal)
-                .ToArray()
-        };
+                .ToArray();
+    }
+
+    private static IReadOnlyList<string> TemporaryPaymentResourceActionIds(
+        MatchState state,
+        PendingPaymentState payment)
+    {
+        if (payment.PowerCost <= 0)
+        {
+            return [];
+        }
+
+        return state.TemporaryPaymentResources
+            .Where(resource => string.Equals(resource.OwnerPlayerId, payment.PlayerId, StringComparison.Ordinal)
+                && resource.RemainingPower > 0
+                && resource.AllowedPaymentKinds.Contains(PaymentCostRules.RuneCostPaymentKind, StringComparer.Ordinal))
+            .Select(resource => PaymentCostRules.TemporaryPaymentResourceActionId(resource.ResourceId))
+            .ToArray();
     }
 
     private static Dictionary<string, object?>? BuildPendingHandChoiceSnapshotView(
@@ -4119,6 +4252,11 @@ internal static class ActionPromptBuilder
             actions.Add("PLAY_CARD");
         }
 
+        if (SourcesFor(state, playerId, "ACTIVATE_ABILITY")?.Count > 0)
+        {
+            actions.Add("ACTIVATE_ABILITY");
+        }
+
         var legendSources = SourcesFor(state, playerId, "LEGEND_ACT");
         if (legendSources?.Count > 0)
         {
@@ -5001,6 +5139,11 @@ internal static class ActionPromptBuilder
             if (!string.Equals(cardObject.CardNo, ability.SourceCardNo, StringComparison.Ordinal)
                 || (ability.RequiresBattlefieldSource && !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
                 || (ability.ExhaustsSourceAsCost && cardObject.IsExhausted))
+            {
+                continue;
+            }
+
+            if (!CanPromptActivateAbilityInCurrentWindow(state, playerId, ability))
             {
                 continue;
             }
@@ -6061,6 +6204,34 @@ internal static class ActionPromptBuilder
             : RunePool.Empty;
         return runePool.Mana >= requirement.ManaCost
             && requirement.AvailablePowerWithPaymentResources >= requirement.PowerCost;
+    }
+
+    private static bool CanPromptActivateAbilityInCurrentWindow(
+        MatchState state,
+        string playerId,
+        P4ActivatedAbilityDefinition ability)
+    {
+        if (state.PendingPayment is not null
+            || state.PendingHandChoice is not null
+            || state.PendingTaskQueue.IsBlocking)
+        {
+            return false;
+        }
+
+        var isOpenMain = string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            && string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            && string.Equals(state.ActivePlayerId, playerId, StringComparison.Ordinal)
+            && state.StackItems.Count == 0;
+        if (isOpenMain)
+        {
+            return true;
+        }
+
+        return string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, StringComparison.Ordinal)
+            && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            && string.Equals(state.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+            && string.Equals(state.FocusPlayerId, playerId, StringComparison.Ordinal)
+            && string.IsNullOrWhiteSpace(state.PriorityPlayerId);
     }
 
     private static bool CanPayManaAndAnyPower(RunePool runePool, int manaCost, int powerCost)
@@ -8706,15 +8877,18 @@ internal static class ActionPromptBuilder
             ["paymentChoices"] = PendingPaymentChoiceDtos(payment),
             ["paymentResourceChoices"] = PendingPaymentResourceChoiceDtos(state, payment),
             ["paymentResourcePowerByChoice"] = PendingPaymentResourcePowerByChoice(state, payment),
-            ["paymentResourceActionIds"] = PendingPaymentResourceActionIds(payment),
+            ["paymentResourceActionIds"] = PendingPaymentResourceActionIds(state, payment),
             ["serverPaymentState"] = "PENDING",
             ["resourceLedgerBeforePayment"] = new Dictionary<string, object?>
             {
                 ["mana"] = runePool.Mana,
                 ["power"] = runePool.Power,
-                ["powerByTrait"] = runePool.PowerByTrait
+                ["powerByTrait"] = runePool.PowerByTrait,
+                ["temporaryPaymentResources"] = TemporaryPaymentResourceViewsForPayment(state, payment)
             },
-            ["availablePowerWithPaymentResources"] = runePool.TotalPower + PendingPaymentResourcePowerByTrait(state, payment).Values.Sum(),
+            ["availablePowerWithPaymentResources"] = runePool.TotalPower
+                + PendingPaymentResourcePowerByTrait(state, payment).Values.Sum()
+                + TemporaryPaymentResourcePower(state, payment),
             ["availablePowerByTraitWithPaymentResources"] = MergePowerByTrait(
                 runePool.PowerByTrait,
                 PendingPaymentResourcePowerByTrait(state, payment))
@@ -8831,7 +9005,7 @@ internal static class ActionPromptBuilder
         MatchState state,
         PendingPaymentState payment)
     {
-        return PendingPaymentResourceActionIds(payment)
+        return PendingPaymentResourceActionIds(state, payment)
             .Select(choiceId =>
             {
                 var label = PaymentChoiceLabel(choiceId);
@@ -8840,6 +9014,12 @@ internal static class ActionPromptBuilder
                 {
                     var objectChoice = ObjectChoice(state, objectId, "pending payment resource action: recycle rune");
                     label = $"回收符文支付：{objectChoice.Label}";
+                }
+                else if (PaymentCostRules.TryParseTemporaryPaymentResourceActionId(choiceId, out var resourceId)
+                    && state.TemporaryPaymentResources.FirstOrDefault(resource =>
+                        string.Equals(resource.ResourceId, resourceId, StringComparison.Ordinal)) is { } resource)
+                {
+                    label = $"玛尔扎哈费用符能：{resource.RemainingPower}";
                 }
 
                 return new ActionPromptChoiceDto(choiceId, label, "服务端支付资源候选");
@@ -8854,11 +9034,70 @@ internal static class ActionPromptBuilder
             .ToArray();
     }
 
+    private static IReadOnlyList<string> TemporaryPaymentResourceActionIds(
+        MatchState state,
+        PendingPaymentState payment)
+    {
+        if (payment.PowerCost <= 0)
+        {
+            return [];
+        }
+
+        return state.TemporaryPaymentResources
+            .Where(resource => string.Equals(resource.OwnerPlayerId, payment.PlayerId, StringComparison.Ordinal)
+                && resource.RemainingPower > 0
+                && resource.AllowedPaymentKinds.Contains(PaymentCostRules.RuneCostPaymentKind, StringComparer.Ordinal))
+            .Select(resource => PaymentCostRules.TemporaryPaymentResourceActionId(resource.ResourceId))
+            .ToArray();
+    }
+
+    private static int TemporaryPaymentResourcePower(MatchState state, PendingPaymentState payment)
+    {
+        return state.TemporaryPaymentResources
+            .Where(resource => string.Equals(resource.OwnerPlayerId, payment.PlayerId, StringComparison.Ordinal)
+                && resource.RemainingPower > 0
+                && resource.AllowedPaymentKinds.Contains(PaymentCostRules.RuneCostPaymentKind, StringComparer.Ordinal)
+                && payment.PowerCost > 0)
+            .Sum(resource => resource.RemainingPower);
+    }
+
+    private static IReadOnlyList<IReadOnlyDictionary<string, object?>> TemporaryPaymentResourceViewsForPayment(
+        MatchState state,
+        PendingPaymentState payment)
+    {
+        return state.TemporaryPaymentResources
+            .Where(resource => string.Equals(resource.OwnerPlayerId, payment.PlayerId, StringComparison.Ordinal))
+            .Select(resource => (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>
+            {
+                ["resourceId"] = resource.ResourceId,
+                ["ownerPlayerId"] = resource.OwnerPlayerId,
+                ["sourceObjectId"] = resource.SourceObjectId,
+                ["abilityId"] = resource.AbilityId,
+                ["paymentWindow"] = resource.PaymentWindow,
+                ["generatedPower"] = resource.GeneratedPower,
+                ["remainingPower"] = resource.RemainingPower,
+                ["allowedPaymentKinds"] = resource.AllowedPaymentKinds,
+                ["paymentOnly"] = true,
+                ["resourceRestriction"] = P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction
+            })
+            .ToArray();
+    }
+
     private static IReadOnlyList<string> PendingPaymentResourceActionIds(PendingPaymentState payment)
     {
         return payment.PaymentResourceActionIds
             .Concat(payment.LegalPaymentChoiceIds.Where(IsRecycleRunePaymentActionId))
             .Where(choiceId => !string.IsNullOrWhiteSpace(choiceId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> PendingPaymentResourceActionIds(
+        MatchState state,
+        PendingPaymentState payment)
+    {
+        return PendingPaymentResourceActionIds(payment)
+            .Concat(TemporaryPaymentResourceActionIds(state, payment))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
     }
@@ -8885,23 +9124,30 @@ internal static class ActionPromptBuilder
         MatchState state,
         PendingPaymentState payment)
     {
-        return PendingPaymentResourceActionIds(payment)
+        return PendingPaymentResourceActionIds(state, payment)
             .ToDictionary(
                 choiceId => choiceId,
                 choiceId =>
                 {
                     var trait = string.Empty;
+                    var power = BasicRuneRecyclePowerGain;
                     if (TryParseRecycleRunePaymentActionId(choiceId, out var objectId)
                         && state.CardObjects.TryGetValue(objectId, out var runeState)
                         && TryGetRuneTrait(runeState, out var runeTrait))
                     {
                         trait = runeTrait;
                     }
+                    else if (PaymentCostRules.TryParseTemporaryPaymentResourceActionId(choiceId, out var resourceId)
+                        && state.TemporaryPaymentResources.FirstOrDefault(resource =>
+                            string.Equals(resource.ResourceId, resourceId, StringComparison.Ordinal)) is { } resource)
+                    {
+                        power = resource.RemainingPower;
+                    }
 
                     return (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>(StringComparer.Ordinal)
                     {
                         ["trait"] = trait,
-                        ["power"] = BasicRuneRecyclePowerGain
+                        ["power"] = power
                     };
                 },
                 StringComparer.Ordinal);
@@ -8954,6 +9200,11 @@ internal static class ActionPromptBuilder
         if (IsRecycleRunePaymentActionId(choiceId))
         {
             return "回收符文支付资源";
+        }
+
+        if (PaymentCostRules.TryParseTemporaryPaymentResourceActionId(choiceId, out _))
+        {
+            return "临时费用符能";
         }
 
         return choiceId;
@@ -9172,8 +9423,10 @@ internal static class ActionPromptBuilder
             view["generatedPower"] = P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower;
             view["usesTargetAsCost"] = true;
             view["resourceRestriction"] = P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction;
-            view["timingPolicy"] = "open-main-only-representative";
+            view["timingPolicy"] = "open-main-and-spell-duel-focus-representative";
             view["reactionPolicy"] = "resolves-immediately-without-stack-item";
+            view["resourceLifecycle"] = "temporary-payment-resource-ledger";
+            view["allowedPaymentKinds"] = new[] { PaymentCostRules.RuneCostPaymentKind };
         }
 
         return view;

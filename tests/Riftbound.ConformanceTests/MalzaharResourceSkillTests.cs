@@ -45,8 +45,10 @@ public sealed class MalzaharResourceSkillTests
         Assert.Equal(
             P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction,
             requirement["resourceRestriction"]);
-        Assert.Equal("open-main-only-representative", requirement["timingPolicy"]);
+        Assert.Equal("open-main-and-spell-duel-focus-representative", requirement["timingPolicy"]);
         Assert.Equal("resolves-immediately-without-stack-item", requirement["reactionPolicy"]);
+        Assert.Equal("temporary-payment-resource-ledger", requirement["resourceLifecycle"]);
+        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], Assert.IsType<string[]>(requirement["allowedPaymentKinds"]));
 
         var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
             requirement["targetChoicesByIndex"]);
@@ -65,7 +67,7 @@ public sealed class MalzaharResourceSkillTests
     }
 
     [Fact]
-    public void MalzaharPromptDoesNotOpenSpellDuelRepresentativeWindow()
+    public void MalzaharSpellDuelFocusPromptExposesSourceAndCostTargets()
     {
         var state = BuildMalzaharState() with
         {
@@ -74,6 +76,39 @@ public sealed class MalzaharResourceSkillTests
         };
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+
+        var activateCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ACTIVATE_ABILITY", StringComparison.Ordinal));
+        Assert.True(activateCandidate.Enabled);
+        Assert.Equal([MalzaharObjectId], (activateCandidate.Sources ?? []).Select(choice => choice.Id).ToArray());
+
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(activateCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]);
+        var requirement = Assert.Single(sourceRequirements, entry =>
+            string.Equals(
+                entry["abilityId"] as string,
+                P4ActivatedAbilityCatalog.MalzaharResourceAbilityId,
+                StringComparison.Ordinal));
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            requirement["targetChoicesByIndex"]);
+        var targetIds = targetChoicesByIndex["0"].Select(choice => choice.Id).ToArray();
+        Assert.Contains(FriendlyUnitObjectId, targetIds);
+        Assert.Contains(FriendlyEquipmentObjectId, targetIds);
+        Assert.DoesNotContain(EnemyUnitObjectId, targetIds);
+    }
+
+    [Fact]
+    public void MalzaharSpellDuelNonFocusPromptDoesNotExposeResourceSkill()
+    {
+        var state = BuildMalzaharState() with
+        {
+            TimingState = TimingStates.SpellDuelOpen,
+            FocusPlayerId = "P1"
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P2"];
 
         Assert.DoesNotContain(
             prompt.Candidates ?? [],
@@ -106,8 +141,15 @@ public sealed class MalzaharResourceSkillTests
         Assert.Contains(costObjectId, result.State.PlayerZones["P1"].Graveyard);
         Assert.Equal("P1", result.State.ObjectLocations[costObjectId].PlayerId);
         Assert.Equal("GRAVEYARD", result.State.ObjectLocations[costObjectId].Zone);
-        Assert.Equal(2, result.State.RunePools["P1"].Power);
-        Assert.Equal(2, result.State.RunePools["P1"].TotalPower);
+        Assert.Equal(0, result.State.RunePools["P1"].Power);
+        Assert.Equal(0, result.State.RunePools["P1"].TotalPower);
+        var temporaryResource = Assert.Single(result.State.TemporaryPaymentResources);
+        Assert.Equal("P1", temporaryResource.OwnerPlayerId);
+        Assert.Equal(MalzaharObjectId, temporaryResource.SourceObjectId);
+        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, temporaryResource.AbilityId);
+        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower, temporaryResource.GeneratedPower);
+        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower, temporaryResource.RemainingPower);
+        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], temporaryResource.AllowedPaymentKinds);
         Assert.Empty(result.State.StackItems);
         Assert.Equal(TimingStates.NeutralOpen, result.State.TimingState);
         Assert.Null(result.State.PriorityPlayerId);
@@ -130,11 +172,56 @@ public sealed class MalzaharResourceSkillTests
         Assert.True(Assert.IsType<bool>(powerEvent.Payload["paymentOnly"]));
         Assert.Equal(2, powerEvent.Payload["generatedPower"]);
         Assert.Equal(2, powerEvent.Payload["power"]);
-        Assert.Equal(2, powerEvent.Payload["powerAfter"]);
+        Assert.Equal(0, powerEvent.Payload["powerAfter"]);
         Assert.Equal(
             P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction,
             powerEvent.Payload["resourceRestriction"]);
-        Assert.Equal("representative-resource-generated-into-rune-pool", powerEvent.Payload["restrictionLifecycle"]);
+        Assert.Equal("temporary-payment-resource-ledger", powerEvent.Payload["restrictionLifecycle"]);
+        Assert.Equal(temporaryResource.ResourceId, powerEvent.Payload["temporaryPaymentResourceId"]);
+    }
+
+    [Fact]
+    public async Task MalzaharSpellDuelFocusResolvesImmediatelyAndKeepsSpellDuelOpenWithoutReactionWindow()
+    {
+        var state = BuildMalzaharState() with
+        {
+            TimingState = TimingStates.SpellDuelOpen,
+            FocusPlayerId = "P1"
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-malzahar-spell-duel-resource-skill", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                MalzaharObjectId,
+                P4ActivatedAbilityCatalog.MalzaharResourceAbilityId,
+                [FriendlyUnitObjectId]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(TimingStates.SpellDuelOpen, result.State.TimingState);
+        Assert.Equal("P1", result.State.FocusPlayerId);
+        Assert.True(result.State.CardObjects[MalzaharObjectId].IsExhausted);
+        Assert.DoesNotContain(FriendlyUnitObjectId, result.State.PlayerZones["P1"].Base);
+        Assert.Contains(FriendlyUnitObjectId, result.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(result.State.StackItems);
+        Assert.Null(result.State.PriorityPlayerId);
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        Assert.Single(result.State.TemporaryPaymentResources);
+
+        var activatedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.Equal(TimingStates.SpellDuelOpen, activatedEvent.Payload["timingContext"]);
+        Assert.True(Assert.IsType<bool>(activatedEvent.Payload["resourceSkill"]));
+        Assert.True(Assert.IsType<bool>(activatedEvent.Payload["paymentOnly"]));
+
+        var p2Prompt = result.Prompts["P2"];
+        Assert.DoesNotContain(
+            p2Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ACTIVATE_ABILITY", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            p2Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal)
+                && (candidate.Targets ?? []).Any(choice => choice.Id.Contains("MALZAHAR", StringComparison.Ordinal)));
     }
 
     [Theory]
@@ -143,7 +230,6 @@ public sealed class MalzaharResourceSkillTests
     [InlineData("opponent-source")]
     [InlineData("face-down-source")]
     [InlineData("hand-source")]
-    [InlineData("spell-duel")]
     public async Task MalzaharResourceSkillRejectsInvalidSourcesWithoutMutation(string caseName)
     {
         var state = BuildInvalidSourceState(caseName);
@@ -165,6 +251,99 @@ public sealed class MalzaharResourceSkillTests
         Assert.Empty(result.Events);
         Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
         Assert.Empty(result.State.StackItems);
+    }
+
+    [Theory]
+    [InlineData("wrong-focus")]
+    [InlineData("closed")]
+    [InlineData("stack-priority")]
+    [InlineData("cleanup-blocking")]
+    public async Task MalzaharResourceSkillRejectsInvalidTimingWithoutMutation(string caseName)
+    {
+        var state = BuildInvalidTimingState(caseName);
+        var initialHash = MatchStateHasher.Hash(state);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent($"intent-malzahar-invalid-timing-{caseName}", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                MalzaharObjectId,
+                P4ActivatedAbilityCatalog.MalzaharResourceAbilityId,
+                [FriendlyUnitObjectId]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+        Assert.Empty(result.State.TemporaryPaymentResources);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+    }
+
+    [Fact]
+    public async Task MalzaharTemporaryPaymentResourceCannotPayManaOnlyWindow()
+    {
+        var state = BuildStateWithTemporaryResource() with
+        {
+            PendingPayment = new PendingPaymentState(
+                "PAY-MANA-ONLY",
+                "TEST_PENDING_PAY_COST",
+                "P1",
+                manaCost: 1,
+                legalPaymentChoiceIds: ["SPEND_MANA:1"])
+        };
+        var resourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(
+            Assert.Single(state.TemporaryPaymentResources).ResourceId);
+        var initialHash = MatchStateHasher.Hash(state);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-malzahar-temp-resource-mana-rejected", "P1", CommandTypes.PayCost),
+            new PayCostCommand("PAY-MANA-ONLY", "TEST_PENDING_PAY_COST", [resourceAction, "SPEND_MANA:1"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+    }
+
+    [Fact]
+    public async Task MalzaharTemporaryPaymentResourcePaysRuneCostAndCleansUpAtPaymentClose()
+    {
+        var state = BuildStateWithTemporaryResource() with
+        {
+            PendingPayment = new PendingPaymentState(
+                "PAY-POWER-1",
+                "TEST_PENDING_PAY_COST",
+                "P1",
+                powerCost: 1,
+                legalPaymentChoiceIds: ["SPEND_POWER:any:1"])
+        };
+        var temporaryResource = Assert.Single(state.TemporaryPaymentResources);
+        var resourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-malzahar-temp-resource-pay-cost", "P1", CommandTypes.PayCost),
+            new PayCostCommand("PAY-POWER-1", "TEST_PENDING_PAY_COST", [resourceAction, "SPEND_POWER:any:1"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Null(result.State.PendingPayment);
+        Assert.Empty(result.State.TemporaryPaymentResources);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_CLEARED", StringComparison.Ordinal));
+
+        var spentEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
+        Assert.Equal(temporaryResource.ResourceId, spentEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal(1, spentEvent.Payload["consumedPower"]);
+        Assert.Equal(1, spentEvent.Payload["remainingPower"]);
+
+        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal([temporaryResource.ResourceId], Assert.IsType<string[]>(costEvent.Payload["temporaryPaymentResourceIds"]));
+        Assert.Equal(1, costEvent.Payload["temporaryPaymentResourcePower"]);
     }
 
     [Theory]
@@ -247,6 +426,72 @@ public sealed class MalzaharResourceSkillTests
                 FocusPlayerId = "P1"
             },
             _ => state
+        };
+    }
+
+    private static MatchState BuildInvalidTimingState(string caseName)
+    {
+        var state = BuildMalzaharState();
+        return caseName switch
+        {
+            "wrong-focus" => state with
+            {
+                TimingState = TimingStates.SpellDuelOpen,
+                FocusPlayerId = "P2"
+            },
+            "closed" => state with
+            {
+                TimingState = TimingStates.SpellDuelClosed,
+                FocusPlayerId = "P1"
+            },
+            "stack-priority" => state with
+            {
+                TimingState = TimingStates.NeutralClosed,
+                PriorityPlayerId = "P2",
+                StackItems =
+                [
+                    new StackItemState(
+                        "STACK-P2-COUNTERABLE-SPELL",
+                        "P2",
+                        EnemyUnitObjectId,
+                        "TEST_SPELL",
+                        "TEST-001",
+                        [])
+                ]
+            },
+            "cleanup-blocking" => state with
+            {
+                CardObjects = ReplaceCardObject(
+                    state.CardObjects,
+                    FriendlyUnitObjectId,
+                    state.CardObjects[FriendlyUnitObjectId] with
+                    {
+                        Damage = 1,
+                        Power = 1
+                    })
+            },
+            _ => state
+        };
+    }
+
+    private static MatchState BuildStateWithTemporaryResource()
+    {
+        var resourceId = "MALZAHAR:TEMP-PAYMENT-RESOURCE";
+        return BuildMalzaharState() with
+        {
+            TemporaryPaymentResources =
+            [
+                new TemporaryPaymentResourceState(
+                    resourceId,
+                    "P1",
+                    MalzaharObjectId,
+                    P4ActivatedAbilityCatalog.MalzaharResourceAbilityId,
+                    "ACTIVATE_ABILITY",
+                    P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower,
+                    P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower,
+                    [PaymentCostRules.RuneCostPaymentKind],
+                    1)
+            ]
         };
     }
 

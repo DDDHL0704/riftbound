@@ -1028,8 +1028,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 legalChoices);
         }
 
+        var legalTemporaryPaymentResourceActions = TemporaryPaymentResourceActionIdsForPendingPayment(state, pendingPayment)
+            .ToHashSet(StringComparer.Ordinal);
         var legalPaymentResourceActions = pendingPayment.PaymentResourceActionIds
             .Concat(pendingPayment.LegalPaymentChoiceIds.Where(IsRecycleRunePaymentResourceActionId))
+            .Concat(legalTemporaryPaymentResourceActions)
             .ToHashSet(StringComparer.Ordinal);
         var legalSpendChoiceIds = pendingPayment.LegalPaymentChoiceIds
             .Where(choiceId => !IsRecycleRunePaymentResourceActionId(choiceId))
@@ -1038,6 +1041,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             .ToHashSet(StringComparer.Ordinal);
         var submittedPaymentResourceActions = submittedChoices
             .Where(choiceId => legalPaymentResourceActions.Contains(choiceId))
+            .ToArray();
+        var submittedTemporaryPaymentResourceActions = submittedPaymentResourceActions
+            .Where(choiceId => PaymentCostRules.TryParseTemporaryPaymentResourceActionId(choiceId, out _))
+            .ToArray();
+        var submittedRecyclePaymentResourceActions = submittedPaymentResourceActions
+            .Where(choiceId => !PaymentCostRules.TryParseTemporaryPaymentResourceActionId(choiceId, out _))
             .ToArray();
         var submittedSpendChoices = submittedChoices
             .Where(choiceId => !legalPaymentResourceActions.Contains(choiceId))
@@ -1058,7 +1067,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!TryExtractRecycleRunePaymentResourceActions(
                 state,
                 intent.PlayerId,
-                submittedPaymentResourceActions,
+                submittedRecyclePaymentResourceActions,
                 out var behaviorOptionalCosts,
                 out var paymentResourceActions,
                 out var recycledRuneObjectIds)
@@ -1115,7 +1124,23 @@ public sealed class CoreRuleEngine : IRuleEngine
             paymentEvents,
             pendingPayment.PaymentWindow,
             pendingPayment.PaymentId);
-        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, runePools);
+        if (!TryApplyTemporaryPaymentResourcesToPendingPayment(
+                state,
+                pendingPayment,
+                submittedTemporaryPaymentResourceActions,
+                runePools,
+                out var temporaryAdjustedRunePools,
+                out var nextTemporaryPaymentResources,
+                out var consumedTemporaryPaymentResources,
+                out var temporaryResourceRejection))
+        {
+            return RejectWithCorePrompts(
+                state,
+                temporaryResourceRejection,
+                ErrorCodes.InvalidTarget);
+        }
+
+        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, temporaryAdjustedRunePools);
         if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
@@ -1131,9 +1156,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             PlayerZones = playerZones,
             CardObjects = cardObjects,
             ObjectLocations = objectLocations,
-            PendingPayment = null
+            PendingPayment = null,
+            TemporaryPaymentResources = nextTemporaryPaymentResources
         };
+        var temporaryPaymentResourceEvents = BuildTemporaryPaymentResourcePaymentEvents(
+            pendingPayment,
+            intent.PlayerId,
+            consumedTemporaryPaymentResources);
         var events = paymentEvents
+            .Concat(temporaryPaymentResourceEvents)
             .Concat([
                 new GameEvent(
                 "COST_PAID",
@@ -1148,6 +1179,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["power"] = pendingPayment.PowerCost,
                         ["powerByTrait"] = pendingPayment.PowerCostByTrait,
                         ["paymentChoiceIds"] = submittedChoices,
+                        ["temporaryPaymentResourceIds"] = consumedTemporaryPaymentResources
+                            .Select(resource => resource.ResourceId)
+                            .ToArray(),
+                        ["temporaryPaymentResourcePower"] = consumedTemporaryPaymentResources
+                            .Sum(resource => resource.ConsumedPower),
                         ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray()
                     })),
                 new GameEvent(
@@ -2135,6 +2171,181 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return payload;
+    }
+
+    private sealed record ConsumedTemporaryPaymentResource(
+        string ResourceId,
+        string SourceObjectId,
+        string AbilityId,
+        int GeneratedPower,
+        int ConsumedPower,
+        int RemainingPowerBeforeCleanup,
+        IReadOnlyList<string> AllowedPaymentKinds);
+
+    private static IReadOnlyList<string> TemporaryPaymentResourceActionIdsForPendingPayment(
+        MatchState state,
+        PendingPaymentState pendingPayment)
+    {
+        if (pendingPayment.PowerCost <= 0)
+        {
+            return [];
+        }
+
+        return state.TemporaryPaymentResources
+            .Where(resource => string.Equals(resource.OwnerPlayerId, pendingPayment.PlayerId, StringComparison.Ordinal)
+                && resource.RemainingPower > 0
+                && resource.AllowedPaymentKinds.Contains(PaymentCostRules.RuneCostPaymentKind, StringComparer.Ordinal))
+            .Select(resource => PaymentCostRules.TemporaryPaymentResourceActionId(resource.ResourceId))
+            .ToArray();
+    }
+
+    private static bool TryApplyTemporaryPaymentResourcesToPendingPayment(
+        MatchState state,
+        PendingPaymentState pendingPayment,
+        IReadOnlyList<string> submittedTemporaryPaymentResourceActions,
+        IReadOnlyDictionary<string, RunePool> currentRunePools,
+        out IReadOnlyDictionary<string, RunePool> adjustedRunePools,
+        out IReadOnlyList<TemporaryPaymentResourceState> nextTemporaryPaymentResources,
+        out IReadOnlyList<ConsumedTemporaryPaymentResource> consumedResources,
+        out string rejection)
+    {
+        adjustedRunePools = currentRunePools;
+        nextTemporaryPaymentResources = state.TemporaryPaymentResources;
+        consumedResources = [];
+        rejection = string.Empty;
+
+        if (submittedTemporaryPaymentResourceActions.Count == 0)
+        {
+            return true;
+        }
+
+        var resourcesById = state.TemporaryPaymentResources
+            .ToDictionary(resource => resource.ResourceId, resource => resource, StringComparer.Ordinal);
+        var selectedResources = new List<TemporaryPaymentResourceState>();
+        foreach (var actionId in submittedTemporaryPaymentResourceActions)
+        {
+            if (!PaymentCostRules.TryParseTemporaryPaymentResourceActionId(actionId, out var resourceId)
+                || !resourcesById.TryGetValue(resourceId, out var resource)
+                || !string.Equals(resource.OwnerPlayerId, pendingPayment.PlayerId, StringComparison.Ordinal)
+                || resource.RemainingPower <= 0
+                || !resource.AllowedPaymentKinds.Contains(PaymentCostRules.RuneCostPaymentKind, StringComparer.Ordinal)
+                || pendingPayment.PowerCost <= 0)
+            {
+                rejection = "PAY_COST 包含非法临时费用资源。";
+                return false;
+            }
+
+            selectedResources.Add(resource);
+        }
+
+        var pool = currentRunePools.TryGetValue(pendingPayment.PlayerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        if (PaymentCostRules.CanPayPowerCost(pool, pendingPayment.PowerCost, pendingPayment.PowerCostByTrait))
+        {
+            rejection = "PAY_COST 包含不必要的临时费用资源。";
+            return false;
+        }
+
+        var remainingPowerByTrait = pool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        foreach (var cost in pendingPayment.PowerCostByTrait)
+        {
+            if (!remainingPowerByTrait.TryGetValue(cost.Key, out var available)
+                || available < cost.Value)
+            {
+                rejection = "临时费用资源只能支付通用符能费用。";
+                return false;
+            }
+
+            remainingPowerByTrait[cost.Key] = available - cost.Value;
+        }
+
+        var genericPowerAvailableAfterTraitCosts = pool.Power + remainingPowerByTrait.Values.Sum();
+        var temporaryPowerNeeded = Math.Max(0, pendingPayment.PowerCost - genericPowerAvailableAfterTraitCosts);
+        var selectedPower = selectedResources.Sum(resource => resource.RemainingPower);
+        if (temporaryPowerNeeded <= 0
+            || selectedPower < temporaryPowerNeeded)
+        {
+            rejection = "临时费用资源不足或并非当前支付窗口所需。";
+            return false;
+        }
+
+        var runePools = currentRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        runePools[pendingPayment.PlayerId] = pool with
+        {
+            Power = pool.Power + temporaryPowerNeeded
+        };
+        adjustedRunePools = runePools;
+
+        var remainingToConsume = temporaryPowerNeeded;
+        var consumed = new List<ConsumedTemporaryPaymentResource>();
+        foreach (var resource in selectedResources)
+        {
+            var consumedPower = Math.Min(resource.RemainingPower, remainingToConsume);
+            remainingToConsume = Math.Max(0, remainingToConsume - consumedPower);
+            consumed.Add(new ConsumedTemporaryPaymentResource(
+                resource.ResourceId,
+                resource.SourceObjectId,
+                resource.AbilityId,
+                resource.GeneratedPower,
+                consumedPower,
+                resource.RemainingPower - consumedPower,
+                resource.AllowedPaymentKinds));
+        }
+
+        var consumedIds = selectedResources
+            .Select(resource => resource.ResourceId)
+            .ToHashSet(StringComparer.Ordinal);
+        nextTemporaryPaymentResources = state.TemporaryPaymentResources
+            .Where(resource => !consumedIds.Contains(resource.ResourceId))
+            .ToArray();
+        consumedResources = consumed;
+        return true;
+    }
+
+    private static IReadOnlyList<GameEvent> BuildTemporaryPaymentResourcePaymentEvents(
+        PendingPaymentState pendingPayment,
+        string playerId,
+        IReadOnlyList<ConsumedTemporaryPaymentResource> consumedResources)
+    {
+        var events = new List<GameEvent>();
+        foreach (var resource in consumedResources)
+        {
+            if (resource.ConsumedPower > 0)
+            {
+                events.Add(new GameEvent(
+                    "TEMPORARY_PAYMENT_RESOURCE_SPENT",
+                    $"{playerId} 消费临时费用符能支付符能费用",
+                    new Dictionary<string, object?>
+                    {
+                        ["paymentId"] = pendingPayment.PaymentId,
+                        ["paymentWindow"] = pendingPayment.PaymentWindow,
+                        ["playerId"] = playerId,
+                        ["temporaryPaymentResourceId"] = resource.ResourceId,
+                        ["sourceObjectId"] = resource.SourceObjectId,
+                        ["abilityId"] = resource.AbilityId,
+                        ["consumedPower"] = resource.ConsumedPower,
+                        ["remainingPower"] = resource.RemainingPowerBeforeCleanup,
+                        ["allowedPaymentKinds"] = resource.AllowedPaymentKinds.ToArray(),
+                        ["paymentOnly"] = true
+                    }));
+            }
+
+            events.Add(new GameEvent(
+                "TEMPORARY_PAYMENT_RESOURCE_CLEARED",
+                $"{playerId} 的临时费用符能支付窗口结束并清理",
+                new Dictionary<string, object?>
+                {
+                    ["paymentId"] = pendingPayment.PaymentId,
+                    ["paymentWindow"] = pendingPayment.PaymentWindow,
+                    ["playerId"] = playerId,
+                    ["temporaryPaymentResourceId"] = resource.ResourceId,
+                    ["remainingPowerBeforeCleanup"] = resource.RemainingPowerBeforeCleanup,
+                    ["paymentOnly"] = true
+                }));
+        }
+
+        return events;
     }
 
     private static PaymentCostRules.PaymentPlan BuildPendingPaymentPlan(
@@ -6008,14 +6219,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         ActivateAbilityCommand command,
         P4ActivatedAbilityDefinition ability)
     {
-        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
-            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
-            || state.StackItems.Count > 0)
+        var timingContext = MalzaharResourceSkillTimingContext(state, intent.PlayerId);
+        if (timingContext is null)
         {
             return RejectWithCorePrompts(
                 state,
-                "玛尔扎哈的资源技能当前只开放主动玩家开放主阶段代表路径。",
+                "玛尔扎哈的资源技能只能在主动玩家开放主阶段或法术对决焦点窗口提交。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -6115,14 +6324,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             OwnerId = string.IsNullOrWhiteSpace(sourceState.OwnerId) ? intent.PlayerId : sourceState.OwnerId,
             ControllerId = string.IsNullOrWhiteSpace(sourceState.ControllerId) ? intent.PlayerId : sourceState.ControllerId
         };
-        var currentPool = runePools.TryGetValue(intent.PlayerId, out var existingPool)
-            ? existingPool
-            : RunePool.Empty;
-        var nextPool = currentPool with
-        {
-            Power = currentPool.Power + ability.GeneratedPower
-        };
-        runePools[intent.PlayerId] = nextPool;
         objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
 
         const string paymentWindow = "ACTIVATE_ABILITY";
@@ -6132,6 +6333,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             command.SourceObjectId,
             command.AbilityId);
+        var temporaryPaymentResource = new TemporaryPaymentResourceState(
+            $"MALZAHAR:{paymentId}",
+            intent.PlayerId,
+            command.SourceObjectId,
+            command.AbilityId,
+            paymentWindow,
+            ability.GeneratedPower,
+            ability.GeneratedPower,
+            [PaymentCostRules.RuneCostPaymentKind],
+            state.Tick + 1);
         var auditStackItem = new StackItemState(
             $"ABILITY-{state.Tick + 1}-{command.SourceObjectId}-MALZAHAR-COST",
             intent.PlayerId,
@@ -6153,6 +6364,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         removalPayload["paymentOnly"] = true;
         removalPayload["generatedPower"] = ability.GeneratedPower;
         removalPayload["resourceRestriction"] = ability.ResourceRestriction;
+        removalPayload["timingContext"] = timingContext;
+        removalPayload["temporaryPaymentResourceId"] = temporaryPaymentResource.ResourceId;
         removalEvent = removalEvent with
         {
             Payload = removalPayload
@@ -6161,13 +6374,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         var nextState = state with
         {
             Tick = state.Tick + 1,
-            ActivePlayerId = intent.PlayerId,
+            ActivePlayerId = string.Equals(timingContext, TimingStates.NeutralOpen, StringComparison.Ordinal)
+                ? intent.PlayerId
+                : state.ActivePlayerId,
             RunePools = runePools,
             PlayerZones = playerZones,
             CardObjects = cardObjects,
             ObjectLocations = objectLocations,
             PriorityPlayerId = null,
-            PassedPriorityPlayerIds = []
+            PassedPriorityPlayerIds = [],
+            TemporaryPaymentResources = state.TemporaryPaymentResources
+                .Concat([temporaryPaymentResource])
+                .ToArray()
         };
         var events = new List<GameEvent>
         {
@@ -6186,7 +6404,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["resourceSkill"] = true,
                     ["paymentOnly"] = true,
                     ["generatedPower"] = ability.GeneratedPower,
-                    ["resourceRestriction"] = ability.ResourceRestriction
+                    ["resourceRestriction"] = ability.ResourceRestriction,
+                    ["timingContext"] = timingContext,
+                    ["temporaryPaymentResourceId"] = temporaryPaymentResource.ResourceId,
+                    ["allowedPaymentKinds"] = temporaryPaymentResource.AllowedPaymentKinds.ToArray()
                 }),
             new(
                 "UNIT_EXHAUSTED",
@@ -6201,7 +6422,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["paymentId"] = paymentId,
                     ["wasExhausted"] = sourceState.IsExhausted,
                     ["isExhausted"] = true,
-                    ["resourceSkill"] = true
+                    ["resourceSkill"] = true,
+                    ["timingContext"] = timingContext
                 }),
             removalEvent,
             new(
@@ -6219,9 +6441,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["paymentOnly"] = true,
                     ["generatedPower"] = ability.GeneratedPower,
                     ["power"] = ability.GeneratedPower,
-                    ["powerAfter"] = nextPool.Power,
+                    ["powerAfter"] = runePools.TryGetValue(intent.PlayerId, out var currentPool)
+                        ? currentPool.Power
+                        : 0,
                     ["resourceRestriction"] = ability.ResourceRestriction,
-                    ["restrictionLifecycle"] = "representative-resource-generated-into-rune-pool"
+                    ["restrictionLifecycle"] = "temporary-payment-resource-ledger",
+                    ["timingContext"] = timingContext,
+                    ["temporaryPaymentResourceId"] = temporaryPaymentResource.ResourceId,
+                    ["remainingPower"] = temporaryPaymentResource.RemainingPower,
+                    ["allowedPaymentKinds"] = temporaryPaymentResource.AllowedPaymentKinds.ToArray()
                 })
         };
 
@@ -6232,6 +6460,34 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static string? MalzaharResourceSkillTimingContext(MatchState state, string playerId)
+    {
+        if (state.PendingPayment is not null
+            || state.PendingHandChoice is not null
+            || state.PendingTaskQueue.IsBlocking)
+        {
+            return null;
+        }
+
+        if (string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            && string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            && string.Equals(state.ActivePlayerId, playerId, StringComparison.Ordinal)
+            && state.StackItems.Count == 0)
+        {
+            return TimingStates.NeutralOpen;
+        }
+
+        if (string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            && string.Equals(state.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+            && string.Equals(state.FocusPlayerId, playerId, StringComparison.Ordinal)
+            && string.IsNullOrWhiteSpace(state.PriorityPlayerId))
+        {
+            return TimingStates.SpellDuelOpen;
+        }
+
+        return null;
     }
 
     private static bool IsMalzaharDestroyCostTarget(
@@ -19290,7 +19546,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             UntilEndOfTurnEffects = cleanupResult.UntilEndOfTurnEffects,
             DestroyedUnitOwnerIdsThisTurn = [],
             PlayerCardsPlayedThisTurn = new Dictionary<string, int>(StringComparer.Ordinal),
-            ExtraTurnPlayerId = null
+            ExtraTurnPlayerId = null,
+            TemporaryPaymentResources = []
         };
         var turnStartResult = ResolveTurnStart(nextTurnState);
         var turnEndEvents = BuildTurnEndEvents(
@@ -19628,6 +19885,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             Phase = winnerPlayerId is null ? MatchPhases.Main : state.Phase,
             TimingState = winnerPlayerId is null ? TimingStates.NeutralOpen : state.TimingState,
             RunePools = winnerPlayerId is null ? ClearRunePools(state) : state.RunePools,
+            TemporaryPaymentResources = winnerPlayerId is null ? [] : state.TemporaryPaymentResources,
             PlayerZones = playerZones,
             PlayerScores = playerScores,
             ObjectLocations = objectLocations,

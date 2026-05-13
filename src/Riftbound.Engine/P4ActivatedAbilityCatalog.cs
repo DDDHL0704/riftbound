@@ -47,7 +47,7 @@ public static class P4ActivatedAbilityCatalog
     public const string MalzaharResourceAbilityId = "MALZAHAR_DESTROY_FRIENDLY_EXHAUST_GAIN_2_PAYMENT_POWER";
     public const string MalzaharResourceAbilityEffectKind = "MALZAHAR_RESOURCE_SKILL_GAIN_2_PAYMENT_ONLY_POWER";
     public const int MalzaharResourceGeneratedPower = 2;
-    public const string MalzaharPaymentOnlyResourceRestriction = "PAY_RUNE_COSTS_ONLY_REPRESENTATIVE_4D_03I";
+    public const string MalzaharPaymentOnlyResourceRestriction = "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J";
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
@@ -89,7 +89,7 @@ public static class P4ActivatedAbilityCatalog
             ExhaustsSourceAsCost: true,
             0,
             AppliesSpellshieldTargetTax: false,
-            "Stage 4D-03I opens only the open-main representative resource skill path; swift, spell-duel, reaction prohibition, and full payment-only lifecycle remain deferred.",
+            "Stage 4D-03J opens the open-main and spell-duel focus representative resource skill path with an auditable temporary payment-only ledger; the broader resource skill family remains deferred.",
             IsResourceSkill: true,
             PaymentOnlyResource: true,
             GeneratedPower: MalzaharResourceGeneratedPower,

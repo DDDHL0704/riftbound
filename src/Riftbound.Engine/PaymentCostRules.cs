@@ -2,6 +2,27 @@ namespace Riftbound.Engine;
 
 public static class PaymentCostRules
 {
+    public const string TemporaryPaymentResourceActionPrefix = "TEMP_PAYMENT_RESOURCE:";
+    public const string RuneCostPaymentKind = "RUNE_COST";
+
+    public static string TemporaryPaymentResourceActionId(string resourceId)
+    {
+        return $"{TemporaryPaymentResourceActionPrefix}{resourceId}";
+    }
+
+    public static bool TryParseTemporaryPaymentResourceActionId(string choiceId, out string resourceId)
+    {
+        resourceId = string.Empty;
+        if (string.IsNullOrWhiteSpace(choiceId)
+            || !choiceId.StartsWith(TemporaryPaymentResourceActionPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        resourceId = choiceId[TemporaryPaymentResourceActionPrefix.Length..].Trim();
+        return !string.IsNullOrWhiteSpace(resourceId);
+    }
+
     public sealed record PaymentPlan
     {
         public PaymentPlan(

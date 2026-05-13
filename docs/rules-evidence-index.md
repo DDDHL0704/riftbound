@@ -13,7 +13,9 @@
 
 2026-05-14 4D-03I focused slice 补充：Malzahar resource skill 已接入 open-main representative path，审计入口为 `docs/CURRENT_STAGE4D_03I_PAYMENT_ENGINE_RESOURCE_SKILL_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_03I_PAYMENT_ENGINE_RESOURCE_SKILL_EVIDENCE.md`；focused 105/105、adjacent 317/317、backend full 3840/3840 与 `git diff --check` 通过。该补充 supersede 上方 4D-03I handoff-only 口径，但仍不关闭 P0-005 full official；项目仍 **NOT READY**。
 
-2026-05-14 4D-03J handoff / baseline 补充：Malzahar resource skill lifecycle 下一服务端切片已建立，交接入口为 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_BASELINE_EVIDENCE.md`；focused baseline 109/109、adjacent baseline 336/336 通过。该补充只建立实现前回归护栏，不关闭 P0-005 full official；项目仍 **NOT READY**。
+2026-05-14 4D-03J handoff / baseline 补充：Malzahar resource skill lifecycle 下一服务端切片已建立，交接入口为 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_BASELINE_EVIDENCE.md`；focused baseline 109/109、adjacent baseline 336/336 通过。该补充已被下方 4D-03J focused slice 验收 supersede，仍保留为实现前回归护栏；项目仍 **NOT READY**。
+
+2026-05-14 4D-03J focused slice 补充：Malzahar resource skill lifecycle representative 已接入 spell-duel focus prompt / command、immediate no-stack resolution 与 temporary payment-only ledger，审计入口为 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_EVIDENCE.md`；focused 116/116、adjacent 340/340、backend full 3847/3847 与 `git diff --check` 通过。该补充 supersede 上方 4D-03J handoff-only 口径，但仍不关闭 P0-005 full official；项目仍 **NOT READY**。
 
 ## 1. 目的
 

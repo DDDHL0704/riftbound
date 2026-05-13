@@ -7,7 +7,7 @@
 
 最新批次补充：
 
-- 2026-05-14 Stage 4D-03J handoff / baseline 已建立：Malzahar resource skill 已在 4D-03I open-main representative 中接入服务端 prompt / command / audit；下一服务端切片聚焦 spell-duel / swift timing、reaction prohibition 与 payment-only lifecycle，交接入口为 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_BASELINE_EVIDENCE.md`。前端仍只展示并提交服务端 `ActionPrompt` 暴露的 ability source / cost choices，不本地推断 resource skill timing 或 payment-only lifecycle；项目仍 **NOT READY**。
+- 2026-05-14 Stage 4D-03J handoff / baseline 已建立：Malzahar resource skill 已在 4D-03I open-main representative 中接入服务端 prompt / command / audit；下一服务端切片聚焦 spell-duel / swift timing、reaction prohibition 与 payment-only lifecycle，交接入口为 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_BASELINE_EVIDENCE.md`。4D-03J focused slice 随后已验收：Malzahar spell-duel focus prompt / command 与 temporary payment-only ledger 均由服务端 authoritative prompt / snapshot 暴露；本切片未修改前端运行时代码。前端仍只展示并提交服务端 `ActionPrompt` 暴露的 ability source / cost choices，不本地推断 resource skill timing 或 payment-only lifecycle；项目仍 **NOT READY**。
 
 - 第三百六十批新增 Stage 4C-98 battlefield residual evidence alignment。`docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已新增 `stage4CBatch98BattlefieldResidualEvidenceAlignment`、`functionalUnits[].stage4C98` 与 `snapshotEntries[].stage4C98`，把力量方尖碑、荣耀竞技场、冰霜要塞共 3 个已验证 battlefield rule-domain FU 从 `IMPLEMENTED_UNTESTED` 对齐为 representative `IMPLEMENTED_TESTED`。focused 8/8、adjacent 87/87、backend full 3771/3771 通过；本批不修改 DevUi、服务端功能代码、测试代码或前端契约；`fullOfficial=false`，整体仍 **NOT READY**。
 
