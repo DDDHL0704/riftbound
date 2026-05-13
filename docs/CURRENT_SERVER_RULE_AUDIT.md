@@ -3605,7 +3605,7 @@
 
 ### P0-005 彩色符能、普通费用、符能费用与资源技能模型不足
 
-当前状态：**PARTIALLY RESOLVED / typed pool 已覆盖 PLAY_CARD、代表性非出牌支付、一个 battlefield trigger 支付路径、基础符文横置得法力、代表性回收得同特性符能、PLAY_CARD 支付步骤回收符文资源动作、Vi / Xerath ACTIVATE_ABILITY 支付资源动作、HIDE_CARD 待命暗置 shared payment plan 和 ordinary pending PAY_COST 支付资源动作，MOVE_UNIT、ASSEMBLE_EQUIPMENT、ACTIVATE_ABILITY 与 LEGEND_ACT 已有每来源服务端候选，急速额外费用已有资源动作回归证据；4D-03 PaymentEngine handoff / baseline 与 focused foundation 已验收，4D-03B / 4D-03C / 4D-03D / 4D-03E / 4D-03F focused slices 已验收，完整 PaymentEngine 与 reaction payment window 仍待统一**
+当前状态：**PARTIALLY RESOLVED / typed pool 已覆盖 PLAY_CARD、代表性非出牌支付、一个 battlefield trigger 支付路径、基础符文横置得法力、代表性回收得同特性符能、PLAY_CARD 支付步骤回收符文资源动作、Vi / Xerath ACTIVATE_ABILITY 支付资源动作、HIDE_CARD 待命暗置 shared payment plan 和 ordinary pending PAY_COST 支付资源动作，MOVE_UNIT、ASSEMBLE_EQUIPMENT、ACTIVATE_ABILITY 与 LEGEND_ACT 已有每来源服务端候选，急速额外费用已有资源动作回归证据；4D-03 PaymentEngine handoff / baseline 与 focused foundation 已验收，4D-03B / 4D-03C / 4D-03D / 4D-03E / 4D-03F focused slices 已验收，4D-03G battlefield held score resource handoff / baseline 已建立，完整 PaymentEngine 与 reaction payment window 仍待统一**
 
 规则依据：自查文档 8、15；核心规则关于 `A/C`、阵营符能、费用支付、符文技能、可选费用、Spellshield/Encourage/Echo/Haste 等费用分支。
 
@@ -3622,6 +3622,7 @@
 - `docs/CURRENT_STAGE4D_03E_PAYMENT_ENGINE_HIDE_CARD_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03E_PAYMENT_ENGINE_HIDE_CARD_EVIDENCE.md` 已记录 `HIDE_CARD` standby payment focused slice 验收证据。
 - `docs/CURRENT_STAGE4D_03F_PAYMENT_ENGINE_PAY_COST_RESOURCE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03F_PAYMENT_ENGINE_PAY_COST_RESOURCE_BASELINE_EVIDENCE.md` 已建立普通 pending `PAY_COST` resource action 迁移交接与实现前绿线。
 - `docs/CURRENT_STAGE4D_03F_PAYMENT_ENGINE_PAY_COST_RESOURCE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03F_PAYMENT_ENGINE_PAY_COST_RESOURCE_EVIDENCE.md` 已记录普通 pending `PAY_COST` payment resource focused slice 验收证据。
+- `docs/CURRENT_STAGE4D_03G_PAYMENT_ENGINE_BATTLEFIELD_HELD_RESOURCE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03G_PAYMENT_ENGINE_BATTLEFIELD_HELD_RESOURCE_BASELINE_EVIDENCE.md` 已建立 battlefield held score resource action 迁移交接与实现前绿线。
 - `CoreRuleEngine` 中 Vi / Xerath `ACTIVATE_ABILITY`、`LEGEND_ACT` 与 battlefield held score 代表窗口已接入 shared `PaymentPlan` / `TryCommitPayment`。
 - `ASSEMBLE_EQUIPMENT`、Vi 双倍战力技能、Xerath 伤害技能、能量枢纽据守支付 4 符能得分等代表性非出牌/战场触发支付路径已改为 typed-power aware；泛化符能费用会从普通 `Power` 优先扣除，再按特性名稳定扣除 `PowerByTrait`。
 - `TAP_RUNE` 现在实现基础符文横置获得 1 法力，并在 prompt 中只暴露可执行符文来源。
@@ -3661,6 +3662,7 @@
 - 已补 4D-03E focused slice 验收：focused 88/88、adjacent 290/290、backend full 3800/3800 通过；该切片只证明代表性 `HIDE_CARD` standby payment window 已接入 shared plan / commit / audit 口径，不关闭 P0-005。
 - 已补 4D-03F 实现前基线：focused pending PAY_COST resource baseline 51/51、adjacent PaymentEngine / TriggerPayment / PAY_COST / ActionPrompt / GameHub regression 229/229 通过；该基线只证明既有 ordinary pending `PAY_COST` 与相邻 prompt / Hub 路径绿色，不关闭 P0-005。
 - 已补 4D-03F focused slice 验收：focused 55/55、adjacent 233/233、backend full 3804/3804 通过；该切片只证明代表性 ordinary pending `PAY_COST` payment resource window 已接入 prompt quote / command commit / audit 口径，不关闭 P0-005。
+- 已补 4D-03G 实现前基线：focused battlefield held resource baseline 21/21、adjacent BattlefieldHeld / PaymentEngine / ActionPrompt / GameHub regression 219/219 通过；该基线只证明当前据守得分支付与相邻路径绿色，不关闭 P0-005。
 - 待补：`[A]`、所有支付步骤中的 `[C]` 资源技能、单阵营/多阵营费用、Haste 的特殊/替代/加减费分支、Spellshield 加税的全支付窗口推广、Echo 费用、trigger payment resource action。
 
 ## P1 问题
@@ -3827,10 +3829,11 @@
 9. 已完成 4D-03D focused slice：Vi / Xerath `ACTIVATE_ABILITY` payment resource action 接入 prompt quote / command commit / audit 口径。
 10. 已完成 4D-03E focused slice：`HIDE_CARD` standby payment window 接入 shared `PaymentPlan` / authorize / commit / audit 口径。
 11. 已完成 4D-03F focused slice：ordinary pending `PAY_COST` payment resource action 接入 shared plan / prompt quote / command commit / audit 口径。
-11. 下一步：扩展 typed payment engine 到 rune/legend/battlefield/keyword 全路径，支持 `[A]` / `[C]` resource skills、替代费用、减费/加费、额外/可选费用。
-12. 下一步：引入完整 continuous effect LayerEngine，并逐关键词、逐卡牌把 `Representative/FixturePass` 提升到 `FullOfficialRulePass`。
+12. 已建立 4D-03G handoff / baseline：battlefield held score resource action focused slice，focused baseline 21/21、adjacent baseline 219/219 通过。
+13. 下一步：扩展 typed payment engine 到 rune/legend/battlefield/keyword 全路径，支持 `[A]` / `[C]` resource skills、替代费用、减费/加费、额外/可选费用。
+14. 下一步：引入完整 continuous effect LayerEngine，并逐关键词、逐卡牌把 `Representative/FixturePass` 提升到 `FullOfficialRulePass`。
 
-Stage 4D 主控计划已将以上顺序拆为可执行写锁与验收门槛，见 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`。4D-01 board task queue foundation 已验收；4D-02 battle/spell-duel focused slice 已验收但不关闭 full official P0-004；4D-03 PaymentEngine focused foundation、4D-03B non-play focused slice、4D-03C play optional / extra focused slice、4D-03D activate ability payment resource focused slice、4D-03E hide-card payment focused slice 与 4D-03F pending PAY_COST resource focused slice 已验收但不关闭 full official P0-005。下一实现应继续扩展 full PaymentEngine breadth，进入 `CoreRuleEngine.cs` 集成前必须避开已完成切片的写锁冲突。
+Stage 4D 主控计划已将以上顺序拆为可执行写锁与验收门槛，见 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`。4D-01 board task queue foundation 已验收；4D-02 battle/spell-duel focused slice 已验收但不关闭 full official P0-004；4D-03 PaymentEngine focused foundation、4D-03B non-play focused slice、4D-03C play optional / extra focused slice、4D-03D activate ability payment resource focused slice、4D-03E hide-card payment focused slice 与 4D-03F pending PAY_COST resource focused slice 已验收但不关闭 full official P0-005；4D-03G battlefield held score resource action 已进入 handoff / baseline，尚未实现。下一实现应继续扩展 full PaymentEngine breadth，进入 `CoreRuleEngine.cs` 集成前必须避开已完成切片的写锁冲突。
 
 ## 最终验收口径
 

@@ -7,6 +7,8 @@
 
 最新 Stage 4D 状态：4D-03 PaymentEngine focused foundation 已通过；4D-03B non-play payment focused slice 已通过；4D-03C play optional / extra payment focused slice 已通过；4D-03D `ACTIVATE_ABILITY` payment resource focused slice 已通过；4D-03E `HIDE_CARD` payment focused slice 已通过；4D-03F pending `PAY_COST` resource focused slice 已通过；项目仍 **NOT READY**。本批 4D-03F 实现提交信息：`feat: extend stage 4D pay cost resource actions`；4D-03F handoff 入口：`docs/CURRENT_STAGE4D_03F_PAYMENT_ENGINE_PAY_COST_RESOURCE_HANDOFF.md`；4D-03F baseline 入口：`docs/CURRENT_STAGE4D_03F_PAYMENT_ENGINE_PAY_COST_RESOURCE_BASELINE_EVIDENCE.md`；4D-03F 审计与证据见 `docs/CURRENT_STAGE4D_03F_PAYMENT_ENGINE_PAY_COST_RESOURCE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03F_PAYMENT_ENGINE_PAY_COST_RESOURCE_EVIDENCE.md`；上一 4D-03E 实现提交信息：`feat: extend stage 4D hide card payment plans`；上一 4D-03E handoff checkpoint：`759834a1 docs: prepare stage 4D hide card payment handoff`；上一 4D-03D 实现提交信息：`feat: extend stage 4D activate resource payment plans`；上一 4D-03D handoff checkpoint 提交信息：`docs: prepare stage 4D activate resource payment handoff`；上一 4D-03C 实现提交：`be256be6 feat: extend stage 4D play optional payment plans`；上一 4D-03C handoff checkpoint：`abc93230 docs: prepare stage 4D play optional payment handoff`；上一 4D-03B 实现提交：`642bfed5 feat: extend stage 4D non-play payment plans`；上一 4D-03 foundation 提交：`8a063940 feat: add stage 4D payment engine foundation`；上一 4D-03B handoff checkpoint：`243c72db docs: prepare stage 4D non-play payment handoff`；上一 4D-02 实现证据为 `30210e38 feat: tighten stage 4D spell duel battle tasks`；上一 Stage 4D foundation checkpoint：`6a3ee038 test: add stage 4D board task queue foundation coverage`；上一 Stage 4C checkpoint：`7a2b1fa3 checkpoint: record stage 4C battlefield residual evidence alignment`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。4D-01 board task queue foundation 已通过 focused 31/31、adjacent 149/149、backend full 3780/3780，证据见 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_AUDIT.md` 与 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_EVIDENCE.md`。4D-02 spell duel / battle focused slice 已通过 focused new 6/6、focused handoff 35/35、adjacent 127/127、backend full 3786/3786，审计与证据见 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_EVIDENCE.md`。4D-03 PaymentEngine focused foundation 已通过 focused 56/56、adjacent 245/245、backend full 3791/3791，审计与证据见 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_EVIDENCE.md`；4D-03B non-play payment focused slice 已通过 focused 18/18、adjacent 318/318、backend full 3791/3791，审计与证据见 `docs/CURRENT_STAGE4D_03B_PAYMENT_ENGINE_NON_PLAY_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03B_PAYMENT_ENGINE_NON_PLAY_EVIDENCE.md`；4D-03C play optional / extra payment focused slice 已通过 focused 31/31、adjacent 363/363、backend full 3791/3791，审计与证据见 `docs/CURRENT_STAGE4D_03C_PAYMENT_ENGINE_PLAY_OPTIONAL_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03C_PAYMENT_ENGINE_PLAY_OPTIONAL_EVIDENCE.md`；4D-03D handoff / baseline 已通过 focused 79/79、adjacent 252/252，见 `docs/CURRENT_STAGE4D_03D_PAYMENT_ENGINE_ACTIVATE_RESOURCE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03D_PAYMENT_ENGINE_ACTIVATE_RESOURCE_BASELINE_EVIDENCE.md`；4D-03D focused slice 已通过 focused 84/84、adjacent 257/257、backend full 3796/3796，审计与证据见 `docs/CURRENT_STAGE4D_03D_PAYMENT_ENGINE_ACTIVATE_RESOURCE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03D_PAYMENT_ENGINE_ACTIVATE_RESOURCE_EVIDENCE.md`；4D-03E handoff / baseline 已通过 focused baseline 84/84、adjacent baseline 286/286，见 `docs/CURRENT_STAGE4D_03E_PAYMENT_ENGINE_HIDE_CARD_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03E_PAYMENT_ENGINE_HIDE_CARD_BASELINE_EVIDENCE.md`；4D-03E focused slice 已通过 focused 88/88、adjacent 290/290、backend full 3800/3800，审计与证据见 `docs/CURRENT_STAGE4D_03E_PAYMENT_ENGINE_HIDE_CARD_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03E_PAYMENT_ENGINE_HIDE_CARD_EVIDENCE.md`；4D-03F focused slice 已通过 focused 55/55、adjacent 233/233、backend full 3804/3804。当前仍 **NOT READY**，阻断集中在 P0-005 full PaymentEngine breadth、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit；P0-002 / P0-003 / P0-004 已进一步收窄但未 full-official 关闭。Stage 4D 收口执行顺序见 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`。
 
+2026-05-13 4D-03G handoff 已建立：下一切片为 battlefield held score `RECYCLE_RUNE:*` payment resource action，入口 `docs/CURRENT_STAGE4D_03G_PAYMENT_ENGINE_BATTLEFIELD_HELD_RESOURCE_HANDOFF.md`，实现前基线 `docs/CURRENT_STAGE4D_03G_PAYMENT_ENGINE_BATTLEFIELD_HELD_RESOURCE_BASELINE_EVIDENCE.md`；baseline focused 21/21、adjacent 219/219 通过。本切片尚未实现，不关闭 P0-005。
+
 ## 0. A 主控职责边界
 
 A 是主控规划 / 架构 / 验收 agent，不是默认功能实现 agent。A 的职责是：
@@ -125,7 +127,7 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 
 ## 0.1.0.2 阶段 4D-03 PaymentEngine Checkpoint
 
-状态：**focused foundation accepted；4D-03B focused slice accepted；4D-03C focused slice accepted；4D-03D focused slice accepted；4D-03E focused slice accepted；4D-03F focused slice accepted；项目仍 NOT READY。**
+状态：**focused foundation accepted；4D-03B focused slice accepted；4D-03C focused slice accepted；4D-03D focused slice accepted；4D-03E focused slice accepted；4D-03F focused slice accepted；4D-03G handoff ready / baseline green；项目仍 NOT READY。**
 
 本批事实：
 
@@ -248,9 +250,19 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 - 现有 mana-only `TRIGGER_PAYMENT` 代表路径保持兼容；本批不把 battlefield conquer / Vayne / Icevale / Jax trigger payment 改造成 power-cost trigger。
 - 本批不修改前端、卡牌矩阵、`PaymentCostRules.cs` 或未跟踪的 `riftbound-dotnet.sln`，不关闭 P0-005 full official。
 
+4D-03G handoff facts：
+
+- Handoff 入口：`docs/CURRENT_STAGE4D_03G_PAYMENT_ENGINE_BATTLEFIELD_HELD_RESOURCE_HANDOFF.md`
+- Baseline 入口：`docs/CURRENT_STAGE4D_03G_PAYMENT_ENGINE_BATTLEFIELD_HELD_RESOURCE_BASELINE_EVIDENCE.md`
+- Focused baseline：21/21 通过。
+- Adjacent baseline：219/219 通过。
+- 目标：让 `BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE` 据守得分支付窗口使用 `RECYCLE_RUNE:*` payment resource action 补足 4 点 power，并保持 once-per-turn、delay/prevent、typed-power 和 no-mutation guard 兼容。
+- 本批只是实现交接与实现前绿线，不修改功能代码，不关闭 P0-005 full official。
+
 下一步：
 
-- 继续扩展 full PaymentEngine breadth，优先处理 concrete trigger payment resource action、完整 `[A]` / `[C]` resource skills、`LEGEND_ACT` / battlefield held score resource action 与更多 payment window quote parity。
+- 派 B / Maxwell 执行 4D-03G battlefield held score resource action focused slice；A 复跑 focused / adjacent / backend full，审计 diff 和文档收口。
+- 后续继续扩展 full PaymentEngine breadth，处理 concrete trigger payment resource action、完整 `[A]` / `[C]` resource skills、`LEGEND_ACT` resource action 与更多 payment window quote parity。
 - A 继续只做验收、测试复跑、审计和文档收口；不默认亲自改功能代码。
 
 ## 0.1.1 阶段 4C-23 Lux Checkpoint
