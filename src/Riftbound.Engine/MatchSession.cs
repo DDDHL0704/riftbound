@@ -6460,6 +6460,7 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.MalzaharResourceAbilityId => "玛尔扎哈",
             P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId => "龙魂贤者",
             P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId => "烈娜塔·戈拉斯克",
+            P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId => "烈娜塔·戈拉斯克",
             _ => ability.DisplayName
         };
     }
@@ -6473,6 +6474,7 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.MalzaharResourceAbilityId => "玛尔扎哈：摧毁友方单位或装备并横置，获得 2 点费用符能",
             P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId => "龙魂贤者：反应，横置，获得 1 点法力",
             P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId => "烈娜塔·戈拉斯克：支付 1 法力和 1 蓝色符能，抽 1 张牌",
+            P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId => "烈娜塔·戈拉斯克：支付 4 法力和 4 蓝色符能并横置，获得 1 分",
             _ => ability.DisplayName
         };
     }
@@ -9730,6 +9732,15 @@ internal static class ActionPromptBuilder
             view["timingPolicy"] = "open-main-representative";
             view["stackPolicy"] = "ordinary-stack-item-before-draw";
             view["paymentPolicy"] = "payment-plan-typed-blue";
+        }
+
+        if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId, StringComparison.Ordinal))
+        {
+            view["requiresBattlefieldSource"] = true;
+            view["scoreAmount"] = 1;
+            view["timingPolicy"] = "open-main-representative";
+            view["stackPolicy"] = "ordinary-stack-item-before-score";
+            view["paymentPolicy"] = "payment-plan-typed-blue-exhaust-as-cost";
         }
 
         return view;

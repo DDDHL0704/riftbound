@@ -74,6 +74,98 @@ public sealed class RenataActivatedAbilityTests
         Assert.Equal(1, availablePowerByTraitWithResources[RuneTrait.Blue]);
     }
 
+    [Fact]
+    public void RenataOpenMainPromptExposesTypedBlueScoreRequirement()
+    {
+        var temporaryResource = TemporaryResource("MALZAHAR:TEMP-RENATA-SCORE-PROMPT");
+        var state = BuildRenataState(
+            P4ActivatedAbilityCatalog.RenataGlascCardNo,
+            new RunePool(4, 0),
+            p1BaseObjectIds: ["P1-RUNE-BLUE-1", "P1-RUNE-BLUE-2", "P1-RUNE-BLUE-3", "P1-RUNE-BLUE-4"],
+            extraCardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-RUNE-BLUE-1"] = RuneCard("P1-RUNE-BLUE-1", RuneTrait.Blue),
+                ["P1-RUNE-BLUE-2"] = RuneCard("P1-RUNE-BLUE-2", RuneTrait.Blue),
+                ["P1-RUNE-BLUE-3"] = RuneCard("P1-RUNE-BLUE-3", RuneTrait.Blue),
+                ["P1-RUNE-BLUE-4"] = RuneCard("P1-RUNE-BLUE-4", RuneTrait.Blue)
+            }) with
+        {
+            TemporaryPaymentResources = [temporaryResource]
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+
+        var activateCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        Assert.True(activateCandidate.Enabled);
+        Assert.Equal([RenataObjectId], (activateCandidate.Sources ?? []).Select(choice => choice.Id).ToArray());
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(activateCandidate.Metadata);
+        var requirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]).ToArray();
+        Assert.Contains(requirements, entry => string.Equals(
+            entry["abilityId"] as string,
+            P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId,
+            StringComparison.Ordinal));
+        var requirement = Assert.Single(
+            requirements,
+            entry => string.Equals(
+                entry["abilityId"] as string,
+                P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId,
+                StringComparison.Ordinal));
+
+        Assert.Equal(RenataObjectId, requirement["sourceObjectId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.RenataGlascCardNo, requirement["cardNo"]);
+        Assert.Equal(4, requirement["manaCost"]);
+        Assert.Equal(0, requirement["powerCost"]);
+        var powerCostByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(requirement["powerCostByTrait"]);
+        Assert.Equal(4, powerCostByTrait[RuneTrait.Blue]);
+        Assert.Equal(0, requirement["minTargetCount"]);
+        Assert.Equal(0, requirement["maxTargetCount"]);
+        Assert.True(Assert.IsType<bool>(requirement["exhaustsSource"]));
+        Assert.False(Assert.IsType<bool>(requirement["resolvesImmediately"]));
+        Assert.Equal("ordinary-stack-item-before-score", requirement["stackPolicy"]);
+        Assert.Equal("payment-plan-typed-blue-exhaust-as-cost", requirement["paymentPolicy"]);
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            requirement["targetChoicesByIndex"]);
+        Assert.Empty(targetChoicesByIndex);
+
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            requirement["paymentResourceChoices"]).ToArray();
+        Assert.Equal(
+            ["RECYCLE_RUNE:P1-RUNE-BLUE-1", "RECYCLE_RUNE:P1-RUNE-BLUE-2", "RECYCLE_RUNE:P1-RUNE-BLUE-3", "RECYCLE_RUNE:P1-RUNE-BLUE-4"],
+            paymentResourceChoices.Select(choice => choice.Id).ToArray());
+        Assert.DoesNotContain(
+            paymentResourceChoices,
+            choice => choice.Id.StartsWith(PaymentCostRules.TemporaryPaymentResourceActionPrefix, StringComparison.Ordinal));
+        var availablePowerByTraitWithResources = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
+            requirement["availablePowerByTraitWithPaymentResources"]);
+        Assert.Equal(4, availablePowerByTraitWithResources[RuneTrait.Blue]);
+    }
+
+    [Fact]
+    public void RenataExhaustedSourcePromptHidesScoreButKeepsDraw()
+    {
+        var state = BuildRenataState(
+            P4ActivatedAbilityCatalog.RenataGlascCardNo,
+            new RunePool(4, 0, new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [RuneTrait.Blue] = 4
+            }),
+            renataExhausted: true);
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+
+        var activateCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(activateCandidate.Metadata);
+        var abilityIds = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"])
+            .Select(entry => entry["abilityId"] as string)
+            .ToArray();
+        Assert.Contains(P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId, abilityIds);
+        Assert.DoesNotContain(P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId, abilityIds);
+    }
+
     [Theory]
     [InlineData(P4ActivatedAbilityCatalog.RenataGlascCardNo)]
     [InlineData(P4ActivatedAbilityCatalog.RenataGlascAltCardNo)]
@@ -186,6 +278,134 @@ public sealed class RenataActivatedAbilityTests
     }
 
     [Theory]
+    [InlineData(P4ActivatedAbilityCatalog.RenataGlascCardNo)]
+    [InlineData(P4ActivatedAbilityCatalog.RenataGlascAltCardNo)]
+    public async Task RenataScoreCommandPaysTypedBlueExhaustsAndCreatesStackWithoutImmediateScore(string cardNo)
+    {
+        var state = BuildRenataState(cardNo, new RunePool(4, 0, new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            [RuneTrait.Blue] = 4
+        }));
+
+        var result = await ActivateRenataScoreAsync(state);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(["ABILITY_ACTIVATED", "UNIT_EXHAUSTED", "COST_PAID", "STACK_ITEM_ADDED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.True(result.State.CardObjects[RenataObjectId].IsExhausted);
+        Assert.Equal([RenataObjectId], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(0, result.State.PlayerScores["P1"]);
+        Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
+        Assert.Equal("P1", result.State.PriorityPlayerId);
+        var stackItem = Assert.Single(result.State.StackItems);
+        Assert.Equal(P4ActivatedAbilityCatalog.RenataGlascScoreAbilityEffectKind, stackItem.EffectKind);
+        Assert.Equal(cardNo, stackItem.CardNo);
+        Assert.Empty(stackItem.TargetObjectIds);
+
+        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId, costEvent.Payload["abilityId"]);
+        Assert.Equal("ACTIVATE_ABILITY", costEvent.Payload["paymentWindow"]);
+        Assert.Equal(4, costEvent.Payload["baseManaCost"]);
+        Assert.Equal(4, costEvent.Payload["totalManaCost"]);
+        Assert.Equal(0, costEvent.Payload["genericPower"]);
+        Assert.Equal(4, costEvent.Payload["totalPowerCost"]);
+        Assert.True(Assert.IsType<bool>(costEvent.Payload["exhaustsSource"]));
+        Assert.Empty(Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        var costPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]);
+        Assert.Equal(4, costPowerByTrait[RuneTrait.Blue]);
+    }
+
+    [Fact]
+    public async Task RenataScoreCanRecycleBlueRunesForTypedBlueShortfall()
+    {
+        var paymentResourceActions = new[]
+        {
+            "RECYCLE_RUNE:P1-RUNE-BLUE-1",
+            "RECYCLE_RUNE:P1-RUNE-BLUE-2"
+        };
+        var state = BuildRenataState(
+            P4ActivatedAbilityCatalog.RenataGlascCardNo,
+            new RunePool(4, 0, new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [RuneTrait.Blue] = 2
+            }),
+            p1BaseObjectIds: ["P1-RUNE-BLUE-1", "P1-RUNE-BLUE-2"],
+            runeDeckObjectIds: ["P1-RUNE-BOTTOM"],
+            extraCardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-RUNE-BLUE-1"] = RuneCard("P1-RUNE-BLUE-1", RuneTrait.Blue),
+                ["P1-RUNE-BLUE-2"] = RuneCard("P1-RUNE-BLUE-2", RuneTrait.Blue),
+                ["P1-RUNE-BOTTOM"] = RuneCard("P1-RUNE-BOTTOM", RuneTrait.Red)
+            });
+
+        var result = await ActivateRenataScoreAsync(state, optionalCosts: paymentResourceActions);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-RUNE-BOTTOM", "P1-RUNE-BLUE-1", "P1-RUNE-BLUE-2"], result.State.PlayerZones["P1"].RuneDeck);
+        Assert.True(result.State.CardObjects[RenataObjectId].IsExhausted);
+        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(paymentResourceActions, Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        Assert.Equal(["P1-RUNE-BLUE-1", "P1-RUNE-BLUE-2"], Assert.IsType<string[]>(costEvent.Payload["recycledRuneObjectIds"]));
+        var costPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]);
+        Assert.Equal(4, costPowerByTrait[RuneTrait.Blue]);
+    }
+
+    [Fact]
+    public async Task RenataScoreStackPassPassGainsScoreAndCanWin()
+    {
+        var engine = new CoreRuleEngine();
+        var activated = await ActivateRenataScoreAsync(
+            BuildRenataState(
+                P4ActivatedAbilityCatalog.RenataGlascCardNo,
+                new RunePool(4, 0, new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [RuneTrait.Blue] = 4
+                }),
+                p1Score: 7,
+                mainDeckObjectIds: []),
+            engine: engine);
+        Assert.True(activated.Accepted, activated.ErrorMessage);
+
+        var p1Pass = await engine.ResolveAsync(
+            activated.State,
+            new PlayerIntent("intent-renata-score-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-renata-score-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Empty(p2Pass.State.StackItems);
+        Assert.Empty(p2Pass.State.PlayerZones["P1"].Hand);
+        Assert.Empty(p2Pass.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal([RenataObjectId], p2Pass.State.PlayerZones["P1"].Battlefields);
+        Assert.True(p2Pass.State.CardObjects[RenataObjectId].IsExhausted);
+        Assert.Equal(8, p2Pass.State.PlayerScores["P1"]);
+        Assert.Equal(MatchStatuses.Finished, p2Pass.State.Status);
+        Assert.Equal("P1", p2Pass.State.WinnerPlayerId);
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "ABILITY_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["abilityId"] as string, P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId, StringComparison.Ordinal));
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["amount"], 1)
+            && Equals(gameEvent.Payload["score"], 8));
+        var winEvent = Assert.Single(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
+        Assert.Equal("P1", winEvent.Payload["winnerPlayerId"]);
+    }
+
+    [Theory]
     [InlineData("wrong-timing")]
     [InlineData("target")]
     [InlineData("temporary-resource")]
@@ -219,6 +439,41 @@ public sealed class RenataActivatedAbilityTests
         await AssertRejectedNoMutationAsync(state, command);
     }
 
+    [Theory]
+    [InlineData("wrong-timing")]
+    [InlineData("target")]
+    [InlineData("temporary-resource")]
+    [InlineData("wrong-trait-recycle")]
+    [InlineData("unnecessary-recycle")]
+    [InlineData("duplicate-recycle")]
+    [InlineData("invalid-recycle")]
+    [InlineData("unsupported-optional-cost")]
+    [InlineData("insufficient-mana")]
+    [InlineData("insufficient-blue")]
+    [InlineData("base-source")]
+    [InlineData("face-down")]
+    [InlineData("exhausted-source")]
+    [InlineData("wrong-controller")]
+    [InlineData("wrong-card")]
+    [InlineData("non-active-player")]
+    public async Task RenataScoreRejectsInvalidCommandsWithoutMutation(string scenario)
+    {
+        var state = BuildInvalidScoreScenarioState(scenario);
+        var command = scenario switch
+        {
+            "target" => RenataScoreCommand(targetObjectIds: ["P2-TARGET"]),
+            "temporary-resource" => RenataScoreCommand(optionalCosts: [PaymentCostRules.TemporaryPaymentResourceActionId("MALZAHAR:TEMP-RENATA")]),
+            "wrong-trait-recycle" => RenataScoreCommand(optionalCosts: [$"RECYCLE_RUNE:{RedRuneObjectId}"]),
+            "unnecessary-recycle" => RenataScoreCommand(optionalCosts: [$"RECYCLE_RUNE:{BlueRuneObjectId}"]),
+            "duplicate-recycle" => RenataScoreCommand(optionalCosts: [$"RECYCLE_RUNE:{BlueRuneObjectId}", $"RECYCLE_RUNE:{BlueRuneObjectId}"]),
+            "invalid-recycle" => RenataScoreCommand(optionalCosts: ["RECYCLE_RUNE:P1-RUNE-MISSING"]),
+            "unsupported-optional-cost" => RenataScoreCommand(optionalCosts: ["UNSUPPORTED_OPTIONAL_COST"]),
+            _ => RenataScoreCommand()
+        };
+
+        await AssertRejectedNoMutationAsync(state, command);
+    }
+
     private static async Task<ResolutionResult> ActivateRenataAsync(
         MatchState state,
         IReadOnlyList<string>? optionalCosts = null,
@@ -231,6 +486,18 @@ public sealed class RenataActivatedAbilityTests
             CancellationToken.None);
     }
 
+    private static async Task<ResolutionResult> ActivateRenataScoreAsync(
+        MatchState state,
+        IReadOnlyList<string>? optionalCosts = null,
+        CoreRuleEngine? engine = null)
+    {
+        return await (engine ?? new CoreRuleEngine()).ResolveAsync(
+            state,
+            new PlayerIntent("intent-renata-score", "P1", CommandTypes.ActivateAbility),
+            RenataScoreCommand(optionalCosts: optionalCosts),
+            CancellationToken.None);
+    }
+
     private static ActivateAbilityCommand RenataCommand(
         IReadOnlyList<string>? targetObjectIds = null,
         IReadOnlyList<string>? optionalCosts = null)
@@ -238,6 +505,17 @@ public sealed class RenataActivatedAbilityTests
         return new ActivateAbilityCommand(
             RenataObjectId,
             P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId,
+            targetObjectIds ?? [],
+            optionalCosts);
+    }
+
+    private static ActivateAbilityCommand RenataScoreCommand(
+        IReadOnlyList<string>? targetObjectIds = null,
+        IReadOnlyList<string>? optionalCosts = null)
+    {
+        return new ActivateAbilityCommand(
+            RenataObjectId,
+            P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId,
             targetObjectIds ?? [],
             optionalCosts);
     }
@@ -369,16 +647,148 @@ public sealed class RenataActivatedAbilityTests
         };
     }
 
+    private static MatchState BuildInvalidScoreScenarioState(string scenario)
+    {
+        var state = scenario switch
+        {
+            "insufficient-mana" => BuildRenataState(
+                P4ActivatedAbilityCatalog.RenataGlascCardNo,
+                new RunePool(3, 0, new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [RuneTrait.Blue] = 4
+                })),
+            "insufficient-blue" => BuildRenataState(
+                P4ActivatedAbilityCatalog.RenataGlascCardNo,
+                new RunePool(4, 0, new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [RuneTrait.Blue] = 3
+                })),
+            "wrong-trait-recycle" => BuildRenataState(
+                P4ActivatedAbilityCatalog.RenataGlascCardNo,
+                new RunePool(4, 0, new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [RuneTrait.Blue] = 3
+                }),
+                p1BaseObjectIds: [RedRuneObjectId],
+                extraCardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+                {
+                    [RedRuneObjectId] = RuneCard(RedRuneObjectId, RuneTrait.Red)
+                }),
+            "unnecessary-recycle" => BuildRenataState(
+                P4ActivatedAbilityCatalog.RenataGlascCardNo,
+                new RunePool(4, 0, new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [RuneTrait.Blue] = 4
+                }),
+                p1BaseObjectIds: [BlueRuneObjectId],
+                extraCardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+                {
+                    [BlueRuneObjectId] = RuneCard(BlueRuneObjectId, RuneTrait.Blue)
+                }),
+            "duplicate-recycle" => BuildRenataState(
+                P4ActivatedAbilityCatalog.RenataGlascCardNo,
+                new RunePool(4, 0, new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [RuneTrait.Blue] = 3
+                }),
+                p1BaseObjectIds: [BlueRuneObjectId],
+                extraCardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+                {
+                    [BlueRuneObjectId] = RuneCard(BlueRuneObjectId, RuneTrait.Blue)
+                }),
+            _ => BuildRenataState(
+                P4ActivatedAbilityCatalog.RenataGlascCardNo,
+                new RunePool(4, 0, new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [RuneTrait.Blue] = 4
+                }))
+        };
+
+        return scenario switch
+        {
+            "wrong-timing" => state with
+            {
+                TimingState = TimingStates.NeutralClosed,
+                PriorityPlayerId = "P1",
+                StackItems =
+                [
+                    new StackItemState(
+                        "STACK-PENDING",
+                        "P2",
+                        "P2-PENDING-SPELL",
+                        "TEST_PENDING",
+                        "UNL-001/219")
+                ]
+            },
+            "temporary-resource" => state with
+            {
+                TemporaryPaymentResources = [TemporaryResource("MALZAHAR:TEMP-RENATA")]
+            },
+            "base-source" => state with
+            {
+                PlayerZones = ReplacePlayerZones(
+                    state.PlayerZones,
+                    "P1",
+                    state.PlayerZones["P1"] with
+                    {
+                        Base = [RenataObjectId],
+                        Battlefields = []
+                    }),
+                ObjectLocations = ReplaceObjectLocation(
+                    state.ObjectLocations,
+                    RenataObjectId,
+                    new ObjectLocationState("P1", "BASE"))
+            },
+            "face-down" => state with
+            {
+                CardObjects = ReplaceCardObject(
+                    state.CardObjects,
+                    RenataObjectId,
+                    state.CardObjects[RenataObjectId] with { IsFaceDown = true })
+            },
+            "exhausted-source" => state with
+            {
+                CardObjects = ReplaceCardObject(
+                    state.CardObjects,
+                    RenataObjectId,
+                    state.CardObjects[RenataObjectId] with { IsExhausted = true })
+            },
+            "wrong-controller" => state with
+            {
+                CardObjects = ReplaceCardObject(
+                    state.CardObjects,
+                    RenataObjectId,
+                    state.CardObjects[RenataObjectId] with { ControllerId = "P2" })
+            },
+            "wrong-card" => state with
+            {
+                CardObjects = ReplaceCardObject(
+                    state.CardObjects,
+                    RenataObjectId,
+                    state.CardObjects[RenataObjectId] with { CardNo = "SFD·089/221" })
+            },
+            "non-active-player" => state with
+            {
+                ActivePlayerId = "P2",
+                TurnPlayerId = "P2"
+            },
+            _ => state
+        };
+    }
+
     private static MatchState BuildRenataState(
         string cardNo,
         RunePool runePool,
         IReadOnlyList<string>? p1BaseObjectIds = null,
         IReadOnlyList<string>? runeDeckObjectIds = null,
-        IReadOnlyDictionary<string, CardObjectState>? extraCardObjects = null)
+        IReadOnlyDictionary<string, CardObjectState>? extraCardObjects = null,
+        bool renataExhausted = false,
+        int p1Score = 0,
+        IReadOnlyList<string>? mainDeckObjectIds = null)
     {
         var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
         {
-            [RenataObjectId] = Unit(RenataObjectId, cardNo, "P1", power: 4),
+            [RenataObjectId] = Unit(RenataObjectId, cardNo, "P1", power: 4, isExhausted: renataExhausted),
             [DrawCardObjectId] = Unit(DrawCardObjectId, "UNL-101/219", "P1", power: 2)
         };
         foreach (var entry in extraCardObjects ?? new Dictionary<string, CardObjectState>(StringComparer.Ordinal))
@@ -427,13 +837,13 @@ public sealed class RenataActivatedAbilityTests
                     Battlefields = [RenataObjectId],
                     Base = p1BaseObjectIds ?? [],
                     RuneDeck = runeDeckObjectIds ?? [],
-                    MainDeck = [DrawCardObjectId]
+                    MainDeck = mainDeckObjectIds ?? [DrawCardObjectId]
                 },
                 ["P2"] = PlayerZones.Empty
             },
             playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
             {
-                ["P1"] = 0,
+                ["P1"] = p1Score,
                 ["P2"] = 0
             },
             cardObjects: cardObjects,
@@ -444,11 +854,13 @@ public sealed class RenataActivatedAbilityTests
         string objectId,
         string cardNo,
         string playerId,
-        int power)
+        int power,
+        bool isExhausted = false)
     {
         return new CardObjectState(
             objectId,
             power: power,
+            isExhausted: isExhausted,
             tags: [CardObjectTags.UnitCard],
             cardNo: cardNo,
             ownerId: playerId,

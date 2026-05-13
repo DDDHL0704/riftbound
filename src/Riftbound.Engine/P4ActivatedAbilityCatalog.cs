@@ -63,6 +63,10 @@ public static class P4ActivatedAbilityCatalog
     public const string RenataGlascDrawAbilityEffectKind = "RENATA_GLASC_ACTIVATED_DRAW_1";
     public const int RenataGlascDrawManaCost = 1;
     public const int RenataGlascDrawBluePowerCost = 1;
+    public const string RenataGlascScoreAbilityId = "RENATA_GLASC_PAY_4_BLUE4_EXHAUST_SCORE_1";
+    public const string RenataGlascScoreAbilityEffectKind = "RENATA_GLASC_ACTIVATED_SCORE_1";
+    public const int RenataGlascScoreManaCost = 4;
+    public const int RenataGlascScoreBluePowerCost = 4;
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
@@ -142,6 +146,23 @@ public static class P4ActivatedAbilityCatalog
             PowerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
             {
                 [RuneTrait.Blue] = RenataGlascDrawBluePowerCost
+            }),
+        new(
+            RenataGlascScoreAbilityId,
+            RenataGlascCardNo,
+            RenataGlascScoreAbilityEffectKind,
+            "Renata Glasc score skill",
+            RenataGlascScoreManaCost,
+            0,
+            0,
+            RequiresBattlefieldSource: true,
+            ExhaustsSourceAsCost: true,
+            0,
+            AppliesSpellshieldTargetTax: false,
+            "Stage 4D-03N opens only Renata Glasc's pay 4 and four blue score representative; the broader colored activated family remains deferred.",
+            PowerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [RuneTrait.Blue] = RenataGlascScoreBluePowerCost
             })
     ];
 
@@ -156,15 +177,6 @@ public static class P4ActivatedAbilityCatalog
             IsTargetBearing: false,
             EnemySpellshieldTaxRisk: false,
             "P4.391 keeps token creation with Spellshield deferred until token and battlefield-only skill execution are complete."),
-        new(
-            "DEFERRED_PAY_4_BLUE4_EXHAUST_SCORE_1",
-            "SFD·088/221",
-            "Renata Glasc score skill",
-            "renata-glasc-score",
-            RequiresBattlefieldSource: true,
-            IsTargetBearing: false,
-            EnemySpellshieldTaxRisk: false,
-            "P4.391 keeps activated scoring abilities deferred until scoring and color-specific costs are modeled."),
         new(
             "DEFERRED_EXPERIENCE_EXHAUST_READY_UNIT",
             "UNL-109/219",
@@ -228,6 +240,7 @@ public static class P4ActivatedAbilityCatalog
     public static IReadOnlyList<string> SourceCardNosForAbility(P4ActivatedAbilityDefinition definition)
     {
         return string.Equals(definition.AbilityId, RenataGlascDrawAbilityId, StringComparison.Ordinal)
+            || string.Equals(definition.AbilityId, RenataGlascScoreAbilityId, StringComparison.Ordinal)
             ? [RenataGlascCardNo, RenataGlascAltCardNo]
             : [definition.SourceCardNo];
     }

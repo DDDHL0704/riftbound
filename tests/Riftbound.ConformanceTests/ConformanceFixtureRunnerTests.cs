@@ -30694,6 +30694,23 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(P4ActivatedAbilityCatalog.RenataGlascDrawBluePowerCost, renataPowerCostByTrait[RuneTrait.Blue]);
         Assert.True(P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(renataDefinition, P4ActivatedAbilityCatalog.RenataGlascCardNo));
         Assert.True(P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(renataDefinition, P4ActivatedAbilityCatalog.RenataGlascAltCardNo));
+
+        Assert.True(P4ActivatedAbilityCatalog.TryGetByAbilityId(
+            P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId,
+            out var renataScoreDefinition));
+        Assert.Equal(P4ActivatedAbilityCatalog.RenataGlascCardNo, renataScoreDefinition.SourceCardNo);
+        Assert.Equal(P4ActivatedAbilityCatalog.RenataGlascScoreAbilityEffectKind, renataScoreDefinition.EffectKind);
+        Assert.Equal(P4ActivatedAbilityCatalog.RenataGlascScoreManaCost, renataScoreDefinition.ManaCost);
+        Assert.Equal(0, renataScoreDefinition.PowerCost);
+        Assert.Equal(0, renataScoreDefinition.RequiredTargetCount);
+        Assert.True(renataScoreDefinition.RequiresBattlefieldSource);
+        Assert.True(renataScoreDefinition.ExhaustsSourceAsCost);
+        Assert.Equal(0, renataScoreDefinition.DamageAmount);
+        Assert.False(renataScoreDefinition.AppliesSpellshieldTargetTax);
+        var renataScorePowerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(renataScoreDefinition);
+        Assert.Equal(P4ActivatedAbilityCatalog.RenataGlascScoreBluePowerCost, renataScorePowerCostByTrait[RuneTrait.Blue]);
+        Assert.True(P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(renataScoreDefinition, P4ActivatedAbilityCatalog.RenataGlascCardNo));
+        Assert.True(P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(renataScoreDefinition, P4ActivatedAbilityCatalog.RenataGlascAltCardNo));
     }
 
     [Fact]
@@ -30705,21 +30722,22 @@ public sealed class ConformanceFixtureRunnerTests
                 "MALZAHAR_DESTROY_FRIENDLY_EXHAUST_GAIN_2_PAYMENT_POWER",
                 "PAY_2_RED_DOUBLE_POWER",
                 "PAY_RED_EXHAUST_DAMAGE_3",
-                "RENATA_GLASC_PAY_1_BLUE_DRAW_1"
+                "RENATA_GLASC_PAY_1_BLUE_DRAW_1",
+                "RENATA_GLASC_PAY_4_BLUE4_EXHAUST_SCORE_1"
             ],
             P4ActivatedAbilityCatalog.GetAll()
                 .Select(definition => definition.AbilityId)
                 .OrderBy(abilityId => abilityId, StringComparer.Ordinal));
 
         var deferredSurfaces = P4ActivatedAbilityCatalog.GetDeferredSurfaces();
-        Assert.True(deferredSurfaces.Count >= 4);
+        Assert.True(deferredSurfaces.Count >= 3);
         Assert.DoesNotContain(
             deferredSurfaces,
             surface => string.Equals(surface.SourceCardNo, P4ActivatedAbilityCatalog.DragonSoulSageCardNo, StringComparison.Ordinal));
         Assert.DoesNotContain(
             deferredSurfaces,
             surface => string.Equals(surface.AbilityId, "DEFERRED_PAY_1_BLUE_DRAW_1", StringComparison.Ordinal));
-        Assert.Contains(
+        Assert.DoesNotContain(
             deferredSurfaces,
             surface => string.Equals(surface.AbilityId, "DEFERRED_PAY_4_BLUE4_EXHAUST_SCORE_1", StringComparison.Ordinal));
         Assert.Contains(deferredSurfaces, surface => surface.IsTargetBearing && surface.EnemySpellshieldTaxRisk);
