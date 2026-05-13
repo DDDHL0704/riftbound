@@ -33,6 +33,8 @@
 
 2026-05-14 4D-03N focused slice 补充：Renata Glasc colored activated score representative 已验收，入口为 `docs/CURRENT_STAGE4D_03N_PAYMENT_ENGINE_COLORED_ACTIVATED_SCORE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03N_PAYMENT_ENGINE_COLORED_ACTIVATED_SCORE_EVIDENCE.md`；focused 185/185、adjacent 369/369、backend full 3914/3914、`git diff --check` 通过。该补充只验收 `SFD·088/221` / `SFD·088a/221` open-main typed-blue exhaust ordinary activated score，不关闭 target-bearing abilities、完整 resource skill family 或 P0-005 full official；项目整体仍 **NOT READY**。
 
+2026-05-14 4D-03O 补充：Crimson Rose ready-unit handoff / baseline 已建立，目标为 `UNL-109/219` 猩红玫瑰 `消耗3经验，{{横置}}：让一名单位变为活跃状态` target-bearing equipment activated representative。入口为 `docs/CURRENT_STAGE4D_03O_PAYMENT_ENGINE_CRIMSON_ROSE_READY_UNIT_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03O_PAYMENT_ENGINE_CRIMSON_ROSE_READY_UNIT_BASELINE_EVIDENCE.md`；focused baseline 143/143、adjacent baseline 370/370 通过。该补充只建立实现前回归护栏，不代表功能完成，不关闭 P0-005 full official；项目整体仍 **NOT READY**。
+
 4C-85 不修改功能代码，只把既有服务端权威符文资源域证据入账：官方符文卡映射到 non-play `RUNE_RESOURCE_DOMAIN`，不进入 direct `PLAY_CARD` registry；控制者基地符文通过服务端 `RECYCLE_RUNE` / `paymentResourcePowerByChoice` 暴露 trait/power 支付资源；typed `SPEND_POWER:red:2` 接受 red 资源并拒绝 blue 资源，generic `SPEND_POWER:2` 可接受 red / blue 任一服务端候选且防止过量回收。Focused / primary regression 命令：
 
 ```sh
@@ -136,6 +138,18 @@ Stage 4D-03K temporary resource inline focused slice 本轮已验收，见 `docs
 | 最终 completion audit 输出 READY 后才允许标记 complete | 本文件审计结论仍为 **NOT READY**；未调用 `update_goal complete` | 未完成 |
 
 ## 1. 修改文件列表
+
+2026-05-14 Stage 4D-03O Crimson Rose ready-unit handoff / baseline 本轮修改：
+
+- `docs/CURRENT_STAGE4D_03O_PAYMENT_ENGINE_CRIMSON_ROSE_READY_UNIT_HANDOFF.md`
+- `docs/CURRENT_STAGE4D_03O_PAYMENT_ENGINE_CRIMSON_ROSE_READY_UNIT_BASELINE_EVIDENCE.md`
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+- `docs/CURRENT_COMPLETION_AUDIT.md`
+- `docs/CURRENT_FRONTEND_REBUILD_PLAN.md`
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`
+- `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`
+- `docs/rules-evidence-index.md`
 
 2026-05-14 Stage 4D-03N colored activated score focused slice 本轮修改：
 
