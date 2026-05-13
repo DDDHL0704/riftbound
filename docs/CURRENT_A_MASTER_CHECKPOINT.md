@@ -1,6 +1,6 @@
 # A 主控 Checkpoint
 
-更新日期：2026-05-13
+更新日期：2026-05-14
 当前结论：**NOT READY**
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
@@ -12,6 +12,8 @@
 2026-05-13 4D-03H handoff / baseline retained：窄切片锁定 `SFD·180/221` / `SFD·180a/221` 菲奥娜“友方单位变为强力后可支付黄色使其活跃”的 trigger payment resource action。A 已确认现有 `ResolveTriggerPayCost` 仍为 mana-only 特化，普通 pending `PAY_COST` 已有 resource-action foundation；实现前 focused baseline 55/55、adjacent baseline 233/233 通过。该基线已被下方 4D-03H focused slice 验收 supersede，仍保留为回归护栏。
 
 2026-05-13 4D-03H focused slice 已验收：SFD Fiora trigger payment resource action 已接入 `TRIGGER_PAYMENT` / `PAY_COST`，支持真实 power transition 开窗、黄色支付、必要 `RECYCLE_RUNE:*` payment resource action、decline 与 stale no-mutation。A 已验证 focused 69/69、adjacent 242/242、backend full 3818/3818、`git diff --check` 通过；审计与证据见 `docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_EVIDENCE.md`。本切片仍只收窄 P0-005，不关闭 full official PaymentEngine，项目仍 **NOT READY**。
+
+2026-05-14 4D-03I handoff / baseline 已建立：下一 PaymentEngine breadth 切片锁定 `OGN·113/298` 玛尔扎哈 `[A A]` resource skill，承接 Stage 4C-88 design gate 与 P0-005 剩余的 `[A]` / `[C]` resource skill 缺口。交接规格见 `docs/CURRENT_STAGE4D_03I_PAYMENT_ENGINE_RESOURCE_SKILL_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_03I_PAYMENT_ENGINE_RESOURCE_SKILL_BASELINE_EVIDENCE.md`；focused baseline 83/83、adjacent baseline 312/312 通过。该基线只证明实现前 Malzahar ordinary play / ActivateAbility / PaymentEngine / prompt 相邻路径绿色，不代表功能完成，不关闭 P0-005。
 
 ## 0. A 主控职责边界
 
@@ -279,7 +281,7 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 
 下一步：
 
-- 后续继续扩展 full PaymentEngine breadth，处理 concrete trigger payment resource action、完整 `[A]` / `[C]` resource skills、`LEGEND_ACT` resource action 与更多 payment window quote parity。
+- 后续进入 4D-03I 服务端实现切片，处理 `OGN·113/298` 玛尔扎哈 `[A A]` resource skill 的 open-main representative；完整 `[A]` / `[C]` family、`LEGEND_ACT` resource action、reaction / spell-duel timing 与更多 payment window quote parity 仍作为后续残余。
 - A 继续只做验收、测试复跑、审计和文档收口；不默认亲自改功能代码。
 
 ## 0.1.1 阶段 4C-23 Lux Checkpoint

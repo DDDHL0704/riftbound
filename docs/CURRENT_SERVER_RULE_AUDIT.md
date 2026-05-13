@@ -3611,7 +3611,7 @@
 
 ### P0-005 彩色符能、普通费用、符能费用与资源技能模型不足
 
-当前状态：**PARTIALLY RESOLVED / typed pool 已覆盖 PLAY_CARD、代表性非出牌支付、一个 battlefield trigger 支付路径、基础符文横置得法力、代表性回收得同特性符能、PLAY_CARD 支付步骤回收符文资源动作、Vi / Xerath ACTIVATE_ABILITY 支付资源动作、HIDE_CARD 待命暗置 shared payment plan、ordinary pending PAY_COST 支付资源动作、battlefield held score 支付资源动作和 SFD Fiora trigger payment resource action，MOVE_UNIT、ASSEMBLE_EQUIPMENT、ACTIVATE_ABILITY 与 LEGEND_ACT 已有每来源服务端候选，急速额外费用已有资源动作回归证据；4D-03 PaymentEngine handoff / baseline 与 focused foundation 已验收，4D-03B / 4D-03C / 4D-03D / 4D-03E / 4D-03F / 4D-03G / 4D-03H focused slices 已验收，完整 PaymentEngine 与 reaction payment window 仍待统一**
+当前状态：**PARTIALLY RESOLVED / typed pool 已覆盖 PLAY_CARD、代表性非出牌支付、一个 battlefield trigger 支付路径、基础符文横置得法力、代表性回收得同特性符能、PLAY_CARD 支付步骤回收符文资源动作、Vi / Xerath ACTIVATE_ABILITY 支付资源动作、HIDE_CARD 待命暗置 shared payment plan、ordinary pending PAY_COST 支付资源动作、battlefield held score 支付资源动作和 SFD Fiora trigger payment resource action，MOVE_UNIT、ASSEMBLE_EQUIPMENT、ACTIVATE_ABILITY 与 LEGEND_ACT 已有每来源服务端候选，急速额外费用已有资源动作回归证据；4D-03 PaymentEngine handoff / baseline 与 focused foundation 已验收，4D-03B / 4D-03C / 4D-03D / 4D-03E / 4D-03F / 4D-03G / 4D-03H focused slices 已验收，4D-03I Malzahar resource skill handoff / baseline 已建立，完整 PaymentEngine 与 reaction payment window 仍待统一**
 
 规则依据：自查文档 8、15；核心规则关于 `A/C`、阵营符能、费用支付、符文技能、可选费用、Spellshield/Encourage/Echo/Haste 等费用分支。
 
@@ -3649,7 +3649,7 @@
 - `PLAY_CARD.sourceRequirements.optionalCostChoices` 已能把代表性战场 Echo 减免与战场授予下一个法术 Echo 计入 prompt 可用性与展示，避免 Core 可执行的 Echo 费用路径被前端隐藏。
 - `PLAY_CARD.sourceRequirements.minimumManaCost` 已能把代表性战场装备减费计入来源过滤与展示；P1 只有 1 法力但控制《奥恩的锻炉》时，手牌《长剑》不会被 prompt 隐藏，并通过 `battlefieldEquipmentCostReductionMana` 告知前端展示减费。
 - `PLAY_CARD.sourceRequirements.minimumManaCost` 已能把代表性战场据守非衍生物单位加费计入来源过滤与展示；P1 只有 4 法力且受到据守加费时，基础费用 3 的《忠实的工坊主》会显示为费用 4，并通过 `battlefieldHeldUnitCostIncreaseMana` 告知前端展示加费。
-- 仍缺：把所有资源动作、费用来源、替代/额外费用和支付失败回滚纳入统一 PaymentEngine；trigger payment resource action、`LEGEND_ACT` resource action、战场技能、Haste/Echo/Spellshield 等所有支付窗口和依赖型费用目标选择也仍待进入同一个官方费用模型。
+- 仍缺：把所有资源动作、费用来源、替代/额外费用和支付失败回滚纳入统一 PaymentEngine；Malzahar `[A A]` resource skill、`LEGEND_ACT` resource action、战场技能、Haste/Echo/Spellshield 等所有支付窗口和依赖型费用目标选择也仍待进入同一个官方费用模型。
 
 现象：服务端现在可以在 `PLAY_CARD` 的可选符能支付中表达并校验指定特性，例如 `SPEND_POWER:red:2` 会要求红色符能并只扣红色；旧 fixtures 的泛化 `power` 仍按任意符能兼容。装备装配、两个代表性主动技能和一个战场据守支付触发也可以用 `PowerByTrait` 支付泛化符能费用。普通开环 prompt 不再把无服务端来源、基础费用不足的出牌、非正面/战斗中移动源、无可支付装配源、装配来源或目标缺少权威 `cardNo`、无可支付/可选目标激活能力源、无可支付/时点不合法传奇行动源、传奇行动目标缺少权威 `cardNo`、不可横置符文、不可回收符文或被战场静态效果禁止的伏击进场来源展示为 enabled。基础符文横置会横置来源并向 runePool 增加 1 法力；基础符文回收会把来源回收到符文牌堆底部，并向 runePool 增加 1 点同特性符能；出牌支付步骤可用服务端候选 `RECYCLE_RUNE:<objectId>` 先获得同特性符能，再由同一 `PLAY_CARD` 命令用 `SPEND_POWER:*`、typed `SPEND_POWER:<trait>:<amount>` 或代表性 `HASTE_READY` 急速额外费用支付。Vi / Xerath 代表性 `ACTIVATE_ABILITY` 支付窗口也可用服务端候选 `RECYCLE_RUNE:<objectId>` 补足 power，并在同一个 `ACTIVATE_ABILITY` `paymentId` 下审计 `RUNE_RECYCLED` / `POWER_GAINED` / `COST_PAID`；Xerath 的 Spellshield tax mana 仍必须由当前 mana 支付。能量枢纽据守支付 4 符能得分也可在当前 power 不足时通过必要 `RECYCLE_RUNE:<objectId>` 补足 power，并在同一 `BATTLEFIELD_HELD` payment window 下审计回收和扣费。`PLAY_CARD` 也能在代表性多目标 Spellshield 场景中公开服务端合法目标组合，前端不会允许选择超过总目标战力或当前法力无法支付加税的组合；代表性战场 Echo 减免、战场授予 Echo、战场装备减费和战场单位加费都会反映在服务端来源候选中。`MOVE_UNIT` 已能按具体来源暴露基地到战场、战场回基地和可定位游走候选，`ASSEMBLE_EQUIPMENT` 已能按具体来源暴露红色装配目标且不会暴露未知身份装配来源/目标，`ACTIVATE_ABILITY` 已能按具体来源暴露代表性能力、目标槽与支付资源选择，`LEGEND_ACT` 已能按具体传奇来源暴露代表性传奇行动与经验/目标要求且不会暴露未知身份传奇目标，前端只按这些候选提交命令。但同阵营符能、多符能组合、所有非出牌支付窗口中的 `[C]` 资源技能，以及由 legend/battlefield/skill 产生的复杂支付来源选择仍未统一。
 
@@ -3676,7 +3676,8 @@
 - 已补 4D-03G focused slice 验收：focused 22/22、adjacent 224/224、backend full 3809/3809 通过；该切片只证明代表性 battlefield held score payment resource window 已接入 command commit / audit 口径，不关闭 P0-005。
 - 已补 4D-03H 实现前基线：focused trigger resource baseline 55/55、adjacent TriggerPayment / PAY_COST / PaymentEngine / ActionPrompt / GameHub regression 233/233 通过；该基线只证明当前 trigger / PAY_COST 相邻路径绿色，不关闭 P0-005。
 - 已补 4D-03H focused slice 验收：focused 69/69、adjacent 242/242、backend full 3818/3818 通过；该切片只证明代表性 SFD Fiora trigger payment resource action 已接入 `TRIGGER_PAYMENT` / `PAY_COST` / audit 口径，不关闭 P0-005。
-- 待补：`[A]`、所有支付步骤中的 `[C]` 资源技能、单阵营/多阵营费用、Haste 的特殊/替代/加减费分支、Spellshield 加税的全支付窗口推广、Echo 费用、完整 trigger payment resource family。
+- 已补 4D-03I 实现前基线：focused Malzahar / ActivateAbility / PaymentEngine / ResourceSkill baseline 83/83、adjacent ActivateAbility / PaymentEngine / ActionPrompt / GameHub / PaymentResource / SpendPower / RunePool / SpellDuel / Priority regression 312/312 通过；该基线只证明当前 Malzahar ordinary play 与相邻路径绿色，不关闭 P0-005。
+- 待补：Malzahar `[A A]` resource skill、`[C]` 资源技能、单阵营/多阵营费用、Haste 的特殊/替代/加减费分支、Spellshield 加税的全支付窗口推广、Echo 费用、完整 trigger payment resource family。
 
 ## P1 问题
 
@@ -3844,10 +3845,11 @@
 11. 已完成 4D-03F focused slice：ordinary pending `PAY_COST` payment resource action 接入 shared plan / prompt quote / command commit / audit 口径。
 12. 已完成 4D-03G focused slice：battlefield held score payment resource action 接入 shared plan / command commit / audit 口径。
 13. 已完成 4D-03H focused slice：SFD Fiora trigger payment resource action 接入 shared plan / command commit / audit 口径。
-14. 下一步：扩展 typed payment engine 到 rune/legend/battlefield/keyword 全路径，支持 `[A]` / `[C]` resource skills、替代费用、减费/加费、额外/可选费用。
-15. 下一步：引入完整 continuous effect LayerEngine，并逐关键词、逐卡牌把 `Representative/FixturePass` 提升到 `FullOfficialRulePass`。
+14. 已建立 4D-03I handoff / baseline：`OGN·113/298` Malzahar `[A A]` resource skill focused baseline 83/83、adjacent baseline 312/312 通过，等待服务端实现。
+15. 下一步：扩展 typed payment engine 到 rune/legend/battlefield/keyword 全路径，支持 `[A]` / `[C]` resource skills、替代费用、减费/加费、额外/可选费用。
+16. 下一步：引入完整 continuous effect LayerEngine，并逐关键词、逐卡牌把 `Representative/FixturePass` 提升到 `FullOfficialRulePass`。
 
-Stage 4D 主控计划已将以上顺序拆为可执行写锁与验收门槛，见 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`。4D-01 board task queue foundation 已验收；4D-02 battle/spell-duel focused slice 已验收但不关闭 full official P0-004；4D-03 PaymentEngine focused foundation、4D-03B non-play focused slice、4D-03C play optional / extra focused slice、4D-03D activate ability payment resource focused slice、4D-03E hide-card payment focused slice、4D-03F pending PAY_COST resource focused slice、4D-03G battlefield held score resource focused slice 与 4D-03H trigger payment resource focused slice 已验收但不关闭 full official P0-005。下一实现应继续扩展 full PaymentEngine breadth，进入 `CoreRuleEngine.cs` 集成前必须避开已完成切片的写锁冲突。
+Stage 4D 主控计划已将以上顺序拆为可执行写锁与验收门槛，见 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`。4D-01 board task queue foundation 已验收；4D-02 battle/spell-duel focused slice 已验收但不关闭 full official P0-004；4D-03 PaymentEngine focused foundation、4D-03B non-play focused slice、4D-03C play optional / extra focused slice、4D-03D activate ability payment resource focused slice、4D-03E hide-card payment focused slice、4D-03F pending PAY_COST resource focused slice、4D-03G battlefield held score resource focused slice 与 4D-03H trigger payment resource focused slice 已验收但不关闭 full official P0-005；4D-03I Malzahar resource skill handoff / baseline 已建立但未实现。下一实现应进入 4D-03I，扩展 full PaymentEngine breadth，进入 `CoreRuleEngine.cs` 集成前必须避开已完成切片的写锁冲突。
 
 ## 最终验收口径
 

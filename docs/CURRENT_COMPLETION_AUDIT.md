@@ -1,6 +1,6 @@
 # 符文战场当前 Completion Audit
 
-审计日期：2026-05-13
+审计日期：2026-05-14
 审计结论：**NOT READY**
 
 本文件是 active goal 的当前收口审计清单，不代表最终完成验收。只有当本文所有 P0/P1 阻断清零、后端 full test、前端 build、Browser smoke / E2E 与隐藏信息检查全部通过后，才允许把 goal 标记为 complete。
@@ -12,6 +12,8 @@
 2026-05-13 4D-03G 补充：上段 “当前最新” 中 4D-03F 口径已被本轮 4D-03G focused slice supersede。battlefield held score 的必要 `RECYCLE_RUNE:*` payment resource action 已接入 shared `PaymentPlan` / `TryCommitPayment` / audit 口径；focused 22/22、adjacent 224/224、backend full 3809/3809 与 `git diff --check` 通过。该补充仍只收窄 P0-005，不关闭 full official PaymentEngine；项目整体仍 **NOT READY**。
 
 2026-05-13 4D-03H 补充：SFD Fiora trigger payment resource focused slice 已验收，目标为 `SFD·180/221` / `SFD·180a/221` 菲奥娜“友方单位变为强力后可支付黄色使其活跃”的 concrete trigger payment resource action。入口为 `docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_EVIDENCE.md`；focused 69/69、adjacent 242/242、backend full 3818/3818、`git diff --check` 通过。该补充只收窄 P0-005，不关闭 full official PaymentEngine；项目整体仍 **NOT READY**。
+
+2026-05-14 4D-03I 补充：Malzahar resource skill handoff / baseline 已建立，目标为 `OGN·113/298` 玛尔扎哈 `[A A]` resource skill，承接 Stage 4C-88 design gate 与 P0-005 剩余 resource skill 缺口。入口为 `docs/CURRENT_STAGE4D_03I_PAYMENT_ENGINE_RESOURCE_SKILL_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03I_PAYMENT_ENGINE_RESOURCE_SKILL_BASELINE_EVIDENCE.md`；focused baseline 83/83、adjacent baseline 312/312 通过。该补充只建立 B 侧实现交接，不代表功能完成，不关闭 full official PaymentEngine；项目整体仍 **NOT READY**。
 
 4C-85 不修改功能代码，只把既有服务端权威符文资源域证据入账：官方符文卡映射到 non-play `RUNE_RESOURCE_DOMAIN`，不进入 direct `PLAY_CARD` registry；控制者基地符文通过服务端 `RECYCLE_RUNE` / `paymentResourcePowerByChoice` 暴露 trait/power 支付资源；typed `SPEND_POWER:red:2` 接受 red 资源并拒绝 blue 资源，generic `SPEND_POWER:2` 可接受 red / blue 任一服务端候选且防止过量回收。Focused / primary regression 命令：
 
@@ -91,6 +93,8 @@ Stage 4D-03G battlefield held score resource focused slice 本轮新增审计与
 
 Stage 4D-03H trigger payment resource focused slice 本轮已验收，见 `docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_EVIDENCE.md`。候选锁定 `SFD·180/221` / `SFD·180a/221` 菲奥娜“友方单位变为强力后可支付黄色使其活跃”；focused 覆盖 `TriggerPaymentTests`、`PaymentEngineUnificationTests` 与 `PAY_COST` 代表路径，69/69 通过；adjacent `TriggerPayment|PAY_COST|PaymentEngineUnificationTests|ActionPrompt|GameHub` regression 242/242 通过；backend full 3818/3818 通过。P0-005 仍未关闭，因为完整 `[A]` / `[C]`、全部触发费用窗口与 prompt quote parity 仍未 full-official。
 
+Stage 4D-03I Malzahar resource skill handoff / baseline 本轮新增实现交接规格与实现前测试基线，见 `docs/CURRENT_STAGE4D_03I_PAYMENT_ENGINE_RESOURCE_SKILL_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03I_PAYMENT_ENGINE_RESOURCE_SKILL_BASELINE_EVIDENCE.md`。Focused baseline 覆盖 Malzahar ordinary play、ActivateAbility、PaymentEngineUnificationTests 与 ResourceSkill 代表路径，83/83 通过；adjacent `ActivateAbility|PaymentEngineUnificationTests|ActionPrompt|GameHub|PaymentResource|SpendPower|RunePool|SpellDuel|Priority` regression 312/312 通过。P0-005 仍未关闭，因为 `OGN·113/298` `[A A]` resource skill 尚未实现，完整 `[A]` / `[C]`、reaction prohibition、spell-duel timing 与 payment-only resource restriction lifecycle 仍未 full-official。
+
 当前授权边界：用户已明确“在当前 goal 完成前不需要再申请授权”。本轮 A 继续保持主控 / 验收职责；4C-85 / 4C-86 / 4C-87 / 4C-89 / 4C-90 / 4C-91 / 4C-92 / 4C-93 / 4C-94 / 4C-96 由 A 基于 matrix 风险筛选做 evidence-only 覆盖入账、复核、验证和文档收口；4C-88 / 4C-95 则将不能 evidence-only 的候选推进为 design-gated 实现派单规格。后续在 current goal 内可继续按既定写锁、验证门槛和 checkpoint 规则推进。
 
 ## 0.1 Active Goal 门槛到证据映射
@@ -100,8 +104,8 @@ Stage 4D-03H trigger payment resource focused slice 本轮已验收，见 `docs/
 | A 作为主控架构 / 规划 / 验收 agent，不默认亲自写功能代码 | `docs/A_MASTER_AGENT_GOAL.md` 与 `docs/CURRENT_A_MASTER_CHECKPOINT.md` 明确 A 边界；4C-56 修复已按用户授权复用 B / Maxwell，A 做复核、验证和文档收口 | 满足主控边界 |
 | 服务端保持唯一规则权威 | `docs/CURRENT_SERVER_RULE_AUDIT.md` 与本文件第 3 / 6 节记录服务端 authoritative snapshot / prompt / command guard 模型 | 方向满足，但仍有 P0/P1 规则缺口 |
 | 前端只展示并提交服务端 `ActionPrompt` / authoritative snapshot 支持的合法操作 | 本文件第 5 / 6 / 9 节记录前端候选驱动、多批 Chrome smoke 与 formal 18-step E2E；完整 battle/control/payment/layer 仍未 full official | 部分验证，未达到最终验收 |
-| P0/P1 阻断清零 | 4D-01 已把 P0-002 / P0-003 的 board task queue foundation focused checklist 验收通过；4D-02 已把 P0-004 的 task-scoped focused slice 验收通过；4D-03 已把 P0-005 的 PaymentEngine focused foundation 验收通过；4D-03B 已把代表性 non-play payment windows 接入 shared plan / commit；4D-03C 已把代表性 `PLAY_CARD` optional / extra / payment-resource windows 接入 shared plan audit / authorize 口径；4D-03D 已把代表性 Vi / Xerath `ACTIVATE_ABILITY` payment resource window 接入 prompt quote / command commit / audit 口径；4D-03E 已把代表性 `HIDE_CARD` standby payment window 接入 shared plan / commit / audit；4D-03F 已把代表性 ordinary pending `PAY_COST` resource action 接入 shared plan / commit / audit；4D-03G 已把代表性 battlefield held score resource action 接入 shared plan / commit / audit；4D-03H 已建立 concrete trigger payment resource action handoff / baseline；本文件第 4 / 11 节与 `docs/CURRENT_SERVER_RULE_AUDIT.md` 仍列出 P0-005 full PaymentEngine breadth、P1 LayerEngine / 关键词 / 全卡证据，并保留 P0-002 / P0-003 / P0-004 full-official lifecycle 残余 | 未完成 |
-| 后端 full test 当前 HEAD 全绿 | 4D-03G battlefield held score resource focused slice 后 backend full 3809/3809 通过 | 本轮满足，最终验收前仍需重跑 |
+| P0/P1 阻断清零 | 4D-01 已把 P0-002 / P0-003 的 board task queue foundation focused checklist 验收通过；4D-02 已把 P0-004 的 task-scoped focused slice 验收通过；4D-03 已把 P0-005 的 PaymentEngine focused foundation 验收通过；4D-03B 已把代表性 non-play payment windows 接入 shared plan / commit；4D-03C 已把代表性 `PLAY_CARD` optional / extra / payment-resource windows 接入 shared plan audit / authorize 口径；4D-03D 已把代表性 Vi / Xerath `ACTIVATE_ABILITY` payment resource window 接入 prompt quote / command commit / audit 口径；4D-03E 已把代表性 `HIDE_CARD` standby payment window 接入 shared plan / commit / audit；4D-03F 已把代表性 ordinary pending `PAY_COST` resource action 接入 shared plan / commit / audit；4D-03G 已把代表性 battlefield held score resource action 接入 shared plan / commit / audit；4D-03H 已把代表性 SFD Fiora trigger payment resource action 接入 shared plan / commit / audit；4D-03I 已建立 Malzahar resource skill handoff / baseline；本文件第 4 / 11 节与 `docs/CURRENT_SERVER_RULE_AUDIT.md` 仍列出 P0-005 full PaymentEngine breadth、P1 LayerEngine / 关键词 / 全卡证据，并保留 P0-002 / P0-003 / P0-004 full-official lifecycle 残余 | 未完成 |
+| 后端 full test 当前 HEAD 全绿 | 4D-03H trigger payment resource focused slice 后 backend full 3818/3818 通过；4D-03I 当前只建立 handoff / baseline，未重跑 backend full | 本轮满足，最终验收前仍需重跑 |
 | Chrome smoke 通过 | 4C-85 入账后 frontend build 通过，Chrome smoke 通过；本轮 `npm run smoke:chrome -- --start-api` 再次通过 | 本轮满足，最终验收前仍需随 P0/P1 清零重跑 |
 | 正式 18 步 E2E 通过 | `npm run e2e:formal-18 -- --start-api` 已通过，房间 `formal-18-1778623926434-15` 覆盖双 Chrome profile、官方 deck/opening/mulligan、stack pass-pass、unit move、reconnect、P2 battlefield score、surrender result | A_MASTER 18-step 满足；整体仍 NOT READY |
 | 卡牌覆盖矩阵完成 | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已将 `stage4C98` 回填为 representative evidence alignment，`IMPLEMENTED_TESTED` 为 76、`IMPLEMENTED_UNTESTED` 为 4；但 1009/811 full-official coverage 仍未完成 | 未完成 |
@@ -310,6 +314,17 @@ Stage 4D-03H trigger payment resource focused slice 本轮已验收，见 `docs/
 - `docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_BASELINE_EVIDENCE.md`
 - `docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_AUDIT.md`
 - `docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_EVIDENCE.md`
+- `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`
+- `docs/rules-evidence-index.md`
+
+2026-05-14 Stage 4D-03I Malzahar resource skill handoff / baseline 本轮修改：
+
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+- `docs/CURRENT_COMPLETION_AUDIT.md`
+- `docs/CURRENT_RULE_EVIDENCE_TODO.md`
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`
+- `docs/CURRENT_STAGE4D_03I_PAYMENT_ENGINE_RESOURCE_SKILL_HANDOFF.md`
+- `docs/CURRENT_STAGE4D_03I_PAYMENT_ENGINE_RESOURCE_SKILL_BASELINE_EVIDENCE.md`
 - `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`
 - `docs/rules-evidence-index.md`
 
@@ -543,7 +558,7 @@ Stage 4D-03H trigger payment resource focused slice 本轮已验收，见 `docs/
 - P0-002：4D-01 board task queue foundation 已覆盖对象位置、battlefield state、destination-scoped contest tasks 与 reconnect redaction；完整 battlefield standby/control/held/conquer task lifecycle 仍未官方化。
 - P0-003：4D-01 已覆盖 cleanup-first blocking、cleanup repeat、illegal standby / unattached equipment redaction 与 no-mutation guard；central cleanup task queue 仍未覆盖所有状态变化、替代效果和进出战场路径。
 - P0-004：4D-02 focused slice 已证明多争夺战场 one-active ordering、wrong-focus no-mutation、spell-duel stack task binding、cleanup 后推进下一 task 和 reconnect redaction；完整官方 pending/focus/initial-stack/伤害分配/清理状态机仍未 full-official 收口。
-- P0-005：完整 PaymentEngine 与 reaction payment window 仍未统一；4D-03D 已覆盖 Vi / Xerath `ACTIVATE_ABILITY` payment resource 代表窗口，4D-03E 已覆盖 `HIDE_CARD` standby payment 代表窗口，4D-03F 已覆盖 ordinary pending `PAY_COST` payment resource 代表窗口，4D-03G 已覆盖 battlefield held score payment resource 代表窗口，4D-03H 已覆盖 SFD Fiora concrete trigger payment resource action 代表窗口；`[A]` / `[C]` resource skills、完整 trigger payment resource family、LEGEND_ACT、MOVE_UNIT、ASSEMBLE_EQUIPMENT 等仍有代表路径边界。
+- P0-005：完整 PaymentEngine 与 reaction payment window 仍未统一；4D-03D 已覆盖 Vi / Xerath `ACTIVATE_ABILITY` payment resource 代表窗口，4D-03E 已覆盖 `HIDE_CARD` standby payment 代表窗口，4D-03F 已覆盖 ordinary pending `PAY_COST` payment resource 代表窗口，4D-03G 已覆盖 battlefield held score payment resource 代表窗口，4D-03H 已覆盖 SFD Fiora concrete trigger payment resource action 代表窗口；4D-03I 已建立 Malzahar `[A A]` resource skill handoff / baseline 但尚未实现；`[A]` / `[C]` resource skill family、完整 trigger payment resource family、LEGEND_ACT、MOVE_UNIT、ASSEMBLE_EQUIPMENT 等仍有代表路径边界。
 - P1：LayerEngine、完整关键词、全官方卡牌逐条证据、长期 replay/hash 审计仍未达到最终 READY。
 
 ## 5. 前端页面完成项
