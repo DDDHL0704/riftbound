@@ -3320,7 +3320,7 @@ public sealed record ResolutionResult(
                     : WithSurrender("WAIT")));
         }
 
-        if (HasOpenStackPriority(state))
+        if (HasOpenStackPriority(state) || HasOpenBattleResponsePriority(state))
         {
             return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
                 state,
@@ -3451,6 +3451,15 @@ public sealed record ResolutionResult(
     private static bool HasOpenStackPriority(MatchState state)
     {
         return state.StackItems.Count > 0 && !string.IsNullOrWhiteSpace(state.PriorityPlayerId);
+    }
+
+    private static bool HasOpenBattleResponsePriority(MatchState state)
+    {
+        return state.StackItems.Count == 0
+            && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+            && state.BattleState.IsActive
+            && !string.IsNullOrWhiteSpace(state.BattleState.BattlefieldObjectId);
     }
 
     private static bool HasOpenSpellDuelFocus(MatchState state)
@@ -4084,7 +4093,8 @@ internal static class ActionPromptBuilder
         bool ExhaustsSource,
         bool ResolvesImmediately,
         bool Composable,
-        string? UnsupportedReason);
+        string? UnsupportedReason,
+        IReadOnlyDictionary<string, int>? SpellshieldTaxManaByTargetObjectId = null);
 
     private sealed record LegendActionPromptRequirement(
         string SourceObjectId,
@@ -5171,6 +5181,7 @@ internal static class ActionPromptBuilder
             var paymentResourcePowerByTrait = ActivateAbilityPaymentResourcePowerByTrait(state, playerId, ability);
             var paymentResourcePowerByChoice = ActivateAbilityPaymentResourcePowerByChoice(state, playerId, ability);
             var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
+            var spellshieldTaxManaByTargetObjectId = ActivateAbilitySpellshieldTaxManaByTargetObjectId(state, playerId, ability, targetChoicesByIndex);
             var availablePowerByTrait = PlayCardAvailablePowerByTrait(
                 runePool,
                 new Dictionary<string, int>(StringComparer.Ordinal));
@@ -5203,7 +5214,8 @@ internal static class ActionPromptBuilder
                 ability.ExhaustsSourceAsCost,
                 ability.IsResourceSkill,
                 true,
-                null));
+                null,
+                spellshieldTaxManaByTargetObjectId));
         }
 
         if (zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal)
@@ -5265,6 +5277,27 @@ internal static class ActionPromptBuilder
 
         return cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<string, int> ActivateAbilitySpellshieldTaxManaByTargetObjectId(
+        MatchState state,
+        string playerId,
+        P4ActivatedAbilityDefinition ability,
+        IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> targetChoicesByIndex)
+    {
+        if (!ability.AppliesSpellshieldTargetTax || targetChoicesByIndex.Count == 0)
+        {
+            return new Dictionary<string, int>(StringComparer.Ordinal);
+        }
+
+        return targetChoicesByIndex.Values
+            .SelectMany(choices => choices)
+            .Select(choice => choice.Id)
+            .Distinct(StringComparer.Ordinal)
+            .ToDictionary(
+                objectId => objectId,
+                objectId => SpellshieldTaxManaForTarget(state, playerId, objectId),
+                StringComparer.Ordinal);
     }
 
     private static IReadOnlyList<LegendActionPromptRequirement> LegendActionSourceRequirements(
@@ -6087,6 +6120,24 @@ internal static class ActionPromptBuilder
             };
         }
 
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal))
+        {
+            var choices = PublicBoardObjects(state)
+                .Where(objectId => IsPromptShadowStunTarget(state, playerId, sourceObjectId, objectId))
+                .Where(objectId => CanPayShadowTargetCost(state, playerId, ability, objectId))
+                .Select(objectId => ObjectChoice(
+                    state,
+                    objectId,
+                    SpellshieldTaxManaForTarget(state, playerId, objectId) > 0
+                        ? "enemy attacking unit at this battlefield with spellshield tax"
+                        : "enemy attacking unit at this battlefield"))
+                .ToArray();
+            return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal)
+            {
+                ["0"] = choices
+            };
+        }
+
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, StringComparison.Ordinal))
         {
             var choices = state.PlayerZones.TryGetValue(playerId, out var zones)
@@ -6120,6 +6171,41 @@ internal static class ActionPromptBuilder
             : 0;
         return experience >= ability.ExperienceCost
             && runePool.Mana >= SpellshieldTaxManaForTarget(state, playerId, targetObjectId);
+    }
+
+    private static bool CanPayShadowTargetCost(
+        MatchState state,
+        string playerId,
+        P4ActivatedAbilityDefinition ability,
+        string targetObjectId)
+    {
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        return runePool.Mana >= ability.ManaCost + SpellshieldTaxManaForTarget(state, playerId, targetObjectId)
+            && ActivateAbilityAvailablePowerWithPaymentResources(state, playerId, ability) >= ability.PowerCost;
+    }
+
+    private static bool IsPromptShadowStunTarget(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        string targetObjectId)
+    {
+        return IsPromptEnemyFieldObject(state, playerId, targetObjectId)
+            && IsPromptFieldUnitObject(state, targetObjectId)
+            && IsPromptAttackingBattlefieldObject(state, targetObjectId)
+            && SamePromptBattlefield(state, sourceObjectId, targetObjectId);
+    }
+
+    private static bool SamePromptBattlefield(MatchState state, string firstObjectId, string secondObjectId)
+    {
+        return state.ObjectLocations.TryGetValue(firstObjectId, out var firstLocation)
+            && state.ObjectLocations.TryGetValue(secondObjectId, out var secondLocation)
+            && string.Equals(firstLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            && string.Equals(secondLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(firstLocation.BattlefieldObjectId)
+            && string.Equals(firstLocation.BattlefieldObjectId, secondLocation.BattlefieldObjectId, StringComparison.Ordinal);
     }
 
     private static bool IsPromptMalzaharDestroyCostTarget(
@@ -6500,6 +6586,16 @@ internal static class ActionPromptBuilder
                 && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
         }
 
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal))
+        {
+            return string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+                && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
+                && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+                && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal)
+                && state.BattleState.IsActive
+                && !string.IsNullOrWhiteSpace(state.BattleState.BattlefieldObjectId);
+        }
+
         return string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, StringComparison.Ordinal)
             && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
             && string.Equals(state.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
@@ -6527,6 +6623,7 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId => "烈娜塔·戈拉斯克",
             P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId => "猩红玫瑰",
             P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId => "绵绵魄罗",
+            P4ActivatedAbilityCatalog.ShadowStunAbilityId => "黑影",
             _ => ability.DisplayName
         };
     }
@@ -6543,6 +6640,7 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId => "烈娜塔·戈拉斯克：支付 4 法力和 4 蓝色符能并横置，获得 1 分",
             P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId => "猩红玫瑰：消耗 3 经验并横置，让一名单位变为活跃状态",
             P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId => "绵绵魄罗：横置，打出两名拥有法盾的战鹰",
+            P4ActivatedAbilityCatalog.ShadowStunAbilityId => "黑影：迅捷，支付 1 法力和 1 符能并横置，眩晕此处进攻的敌方单位",
             _ => ability.DisplayName
         };
     }
@@ -6555,6 +6653,8 @@ internal static class ActionPromptBuilder
                 ? "任意场上单位"
                 : string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId, StringComparison.Ordinal)
                     ? "任意单位"
+                    : string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal)
+                        ? "此战场进攻中的敌方单位"
                     : string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, StringComparison.Ordinal)
                         ? "友方单位或装备（成本）"
                         : "服务端目标";
@@ -9839,6 +9939,20 @@ internal static class ActionPromptBuilder
             view["timingPolicy"] = "open-main-representative";
             view["stackPolicy"] = "ordinary-stack-item-before-token-create";
             view["paymentPolicy"] = "payment-plan-zero-cost-exhaust-as-cost";
+        }
+
+        if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal))
+        {
+            view["requiresBattlefieldSource"] = true;
+            view["swift"] = true;
+            view["appliesSpellshieldTargetTax"] = true;
+            view["targetScope"] = "enemy-attacking-unit-at-this-battlefield";
+            view["statusEffectId"] = "STUNNED";
+            view["timingPolicy"] = "battle-response-priority-representative";
+            view["stackPolicy"] = "ordinary-stack-item-before-stun";
+            view["paymentPolicy"] = "payment-plan-mana-generic-power-spellshield-tax-exhaust-as-cost";
+            view["spellshieldTaxManaByTargetObjectId"] = requirement.SpellshieldTaxManaByTargetObjectId
+                ?? new Dictionary<string, int>(StringComparer.Ordinal);
         }
 
         return view;

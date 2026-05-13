@@ -30741,6 +30741,21 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(fluftPoroDefinition.ExhaustsSourceAsCost);
         Assert.Equal(0, fluftPoroDefinition.DamageAmount);
         Assert.False(fluftPoroDefinition.AppliesSpellshieldTargetTax);
+
+        Assert.True(P4ActivatedAbilityCatalog.TryGetByAbilityId(
+            P4ActivatedAbilityCatalog.ShadowStunAbilityId,
+            out var shadowDefinition));
+        Assert.Equal(P4ActivatedAbilityCatalog.ShadowCardNo, shadowDefinition.SourceCardNo);
+        Assert.Equal(P4ActivatedAbilityCatalog.ShadowStunAbilityEffectKind, shadowDefinition.EffectKind);
+        Assert.Equal(P4ActivatedAbilityCatalog.ShadowStunManaCost, shadowDefinition.ManaCost);
+        Assert.Equal(P4ActivatedAbilityCatalog.ShadowStunPowerCost, shadowDefinition.PowerCost);
+        Assert.Equal(0, shadowDefinition.ExperienceCost);
+        Assert.Equal(1, shadowDefinition.RequiredTargetCount);
+        Assert.True(shadowDefinition.RequiresBattlefieldSource);
+        Assert.True(shadowDefinition.ExhaustsSourceAsCost);
+        Assert.Equal(0, shadowDefinition.DamageAmount);
+        Assert.True(shadowDefinition.AppliesSpellshieldTargetTax);
+        Assert.True(shadowDefinition.ReactionSpeed);
     }
 
     [Fact]
@@ -30755,14 +30770,15 @@ public sealed class ConformanceFixtureRunnerTests
                 "PAY_2_RED_DOUBLE_POWER",
                 "PAY_RED_EXHAUST_DAMAGE_3",
                 "RENATA_GLASC_PAY_1_BLUE_DRAW_1",
-                "RENATA_GLASC_PAY_4_BLUE4_EXHAUST_SCORE_1"
+                "RENATA_GLASC_PAY_4_BLUE4_EXHAUST_SCORE_1",
+                "SHADOW_SWIFT_PAY_1_A_EXHAUST_STUN_ATTACKER"
             ],
             P4ActivatedAbilityCatalog.GetAll()
                 .Select(definition => definition.AbilityId)
                 .OrderBy(abilityId => abilityId, StringComparer.Ordinal));
 
         var deferredSurfaces = P4ActivatedAbilityCatalog.GetDeferredSurfaces();
-        Assert.True(deferredSurfaces.Count >= 1);
+        Assert.Empty(deferredSurfaces);
         Assert.DoesNotContain(
             deferredSurfaces,
             surface => string.Equals(surface.SourceCardNo, P4ActivatedAbilityCatalog.DragonSoulSageCardNo, StringComparison.Ordinal));
@@ -30778,7 +30794,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.DoesNotContain(
             deferredSurfaces,
             surface => string.Equals(surface.AbilityId, "DEFERRED_TAP_CREATE_TWO_SPELLSHIELD_WARHAWKS", StringComparison.Ordinal));
-        Assert.Contains(deferredSurfaces, surface => surface.IsTargetBearing && surface.EnemySpellshieldTaxRisk);
+        Assert.DoesNotContain(
+            deferredSurfaces,
+            surface => string.Equals(surface.AbilityId, "DEFERRED_SWIFT_PAY_1_A_EXHAUST_STUN_ATTACKER", StringComparison.Ordinal));
 
         var officialCatalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         foreach (var surface in deferredSurfaces)
@@ -30815,70 +30833,71 @@ public sealed class ConformanceFixtureRunnerTests
             .Select(surface => new object[] { surface });
     }
 
-    [Theory]
-    [MemberData(nameof(P4DeferredActivatedAbilitySurfaceData))]
-    public async Task P4ActivateAbilityCommandRejectsDeferredSurfacesOutsideRegistry(
-        P4DeferredActivatedAbilitySurface surface)
+    [Fact]
+    public async Task P4ActivateAbilityCommandRejectsDeferredSurfacesOutsideRegistry()
     {
-        var targetObjectIds = surface.IsTargetBearing
-            ? new[] { "P2-SPELLSHIELD-UNIT-001" }
-            : Array.Empty<string>();
-        var sourceTags = string.Equals(surface.SourceCardNo, "UNL-109/219", StringComparison.Ordinal)
-            ? new[] { CardObjectTags.EquipmentCard }
-            : [CardObjectTags.UnitCard];
-        var state = PunishmentState(mana: 10) with
+        foreach (var surface in P4ActivatedAbilityCatalog.GetDeferredSurfaces())
         {
-            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            var targetObjectIds = surface.IsTargetBearing
+                ? new[] { "P2-SPELLSHIELD-UNIT-001" }
+                : Array.Empty<string>();
+            var sourceTags = string.Equals(surface.SourceCardNo, "UNL-109/219", StringComparison.Ordinal)
+                ? new[] { CardObjectTags.EquipmentCard }
+                : [CardObjectTags.UnitCard];
+            var state = PunishmentState(mana: 10) with
             {
-                ["P1"] = PlayerZones.Empty with
+                PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
                 {
-                    Battlefields = ["P1-DEFERRED-ABILITY-SOURCE"]
+                    ["P1"] = PlayerZones.Empty with
+                    {
+                        Battlefields = ["P1-DEFERRED-ABILITY-SOURCE"]
+                    },
+                    ["P2"] = PlayerZones.Empty with
+                    {
+                        Battlefields = ["P2-SPELLSHIELD-UNIT-001"]
+                    }
                 },
-                ["P2"] = PlayerZones.Empty with
+                RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
                 {
-                    Battlefields = ["P2-SPELLSHIELD-UNIT-001"]
+                    ["P1"] = new(10, 10),
+                    ["P2"] = RunePool.Empty
+                },
+                CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+                {
+                    ["P1-DEFERRED-ABILITY-SOURCE"] = new(
+                        "P1-DEFERRED-ABILITY-SOURCE",
+                        power: 4,
+                        tags: sourceTags,
+                        cardNo: surface.SourceCardNo),
+                    ["P2-SPELLSHIELD-UNIT-001"] = new(
+                        "P2-SPELLSHIELD-UNIT-001",
+                        power: 2,
+                        tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield])
                 }
-            },
-            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
-            {
-                ["P1"] = new(10, 10),
-                ["P2"] = RunePool.Empty
-            },
-            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
-            {
-                ["P1-DEFERRED-ABILITY-SOURCE"] = new(
+            };
+
+            var result = await new CoreRuleEngine().ResolveAsync(
+                state,
+                new PlayerIntent($"intent-p4-deferred-{surface.AbilityId}", "P1", "ACTIVATE_ABILITY"),
+                new ActivateAbilityCommand(
                     "P1-DEFERRED-ABILITY-SOURCE",
-                    power: 4,
-                    tags: sourceTags,
-                    cardNo: surface.SourceCardNo),
-                ["P2-SPELLSHIELD-UNIT-001"] = new(
-                    "P2-SPELLSHIELD-UNIT-001",
-                    power: 2,
-                    tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield])
-            }
-        };
+                    surface.AbilityId,
+                    targetObjectIds),
+                CancellationToken.None);
 
-        var result = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent($"intent-p4-deferred-{surface.AbilityId}", "P1", "ACTIVATE_ABILITY"),
-            new ActivateAbilityCommand(
-                "P1-DEFERRED-ABILITY-SOURCE",
-                surface.AbilityId,
-                targetObjectIds),
-            CancellationToken.None);
-
-        Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("当前启动技能路径尚未由服务端开放。", result.ErrorMessage);
-        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
-        Assert.Empty(result.Events);
-        Assert.Equal(0, result.State.Tick);
-        Assert.Equal(new RunePool(10, 10), result.State.RunePools["P1"]);
-        Assert.Equal(["P1-DEFERRED-ABILITY-SOURCE"], result.State.PlayerZones["P1"].Battlefields);
-        Assert.Equal(["P2-SPELLSHIELD-UNIT-001"], result.State.PlayerZones["P2"].Battlefields);
-        Assert.False(result.State.CardObjects["P1-DEFERRED-ABILITY-SOURCE"].IsExhausted);
-        Assert.Equal(0, result.State.CardObjects["P2-SPELLSHIELD-UNIT-001"].Damage);
-        Assert.Empty(result.State.StackItems);
+            Assert.False(result.Accepted);
+            Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+            Assert.Equal("当前启动技能路径尚未由服务端开放。", result.ErrorMessage);
+            Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
+            Assert.Empty(result.Events);
+            Assert.Equal(0, result.State.Tick);
+            Assert.Equal(new RunePool(10, 10), result.State.RunePools["P1"]);
+            Assert.Equal(["P1-DEFERRED-ABILITY-SOURCE"], result.State.PlayerZones["P1"].Battlefields);
+            Assert.Equal(["P2-SPELLSHIELD-UNIT-001"], result.State.PlayerZones["P2"].Battlefields);
+            Assert.False(result.State.CardObjects["P1-DEFERRED-ABILITY-SOURCE"].IsExhausted);
+            Assert.Equal(0, result.State.CardObjects["P2-SPELLSHIELD-UNIT-001"].Damage);
+            Assert.Empty(result.State.StackItems);
+        }
     }
 
     [Fact]

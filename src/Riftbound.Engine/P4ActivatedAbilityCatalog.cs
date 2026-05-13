@@ -81,6 +81,12 @@ public static class P4ActivatedAbilityCatalog
     public const string WarhawkTokenCardNo = "UNL·T02";
     public const int FluftPoroWarhawkTokenCount = 2;
 
+    public const string ShadowCardNo = "UNL-194/219";
+    public const string ShadowStunAbilityId = "SHADOW_SWIFT_PAY_1_A_EXHAUST_STUN_ATTACKER";
+    public const string ShadowStunAbilityEffectKind = "SHADOW_ACTIVATED_STUN_ATTACKER";
+    public const int ShadowStunManaCost = 1;
+    public const int ShadowStunPowerCost = 1;
+
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
         new(
@@ -205,20 +211,25 @@ public static class P4ActivatedAbilityCatalog
             0,
             AppliesSpellshieldTargetTax: false,
             "Stage 4D-03P opens only Fluft Poro's battlefield-only no-target Warhawk token representative; broader token-play semantics remain deferred.",
-            ExperienceCost: 0)
+            ExperienceCost: 0),
+        new(
+            ShadowStunAbilityId,
+            ShadowCardNo,
+            ShadowStunAbilityEffectKind,
+            "Shadow swift stun skill",
+            ShadowStunManaCost,
+            ShadowStunPowerCost,
+            1,
+            RequiresBattlefieldSource: true,
+            ExhaustsSourceAsCost: true,
+            0,
+            AppliesSpellshieldTargetTax: true,
+            "Stage 4D-03Q opens only Shadow's swift battle-response stun-attacker representative; the broader swift combat response and target-bearing skill family remains deferred.",
+            ReactionSpeed: true)
     ];
 
     private static readonly P4DeferredActivatedAbilitySurface[] DeferredSurfaces =
     [
-        new(
-            "DEFERRED_SWIFT_PAY_1_A_EXHAUST_STUN_ATTACKER",
-            "UNL-194/219",
-            "Shadow swift stun skill",
-            "shadow-swift-stun-attacker",
-            RequiresBattlefieldSource: true,
-            IsTargetBearing: true,
-            EnemySpellshieldTaxRisk: true,
-            "P4.391 keeps combat-window target skills deferred until swift timing, battlefield locality, stun, and skill target taxes are generalized.")
     ];
 
     public static IReadOnlyList<P4ActivatedAbilityDefinition> GetAll()

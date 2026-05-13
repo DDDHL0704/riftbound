@@ -6101,6 +6101,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveFluftPoroWarhawkAbility(state, intent, command, ability);
         }
 
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal))
+        {
+            return ResolveShadowStunAbility(state, intent, command, ability);
+        }
+
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId, StringComparison.Ordinal))
         {
             return ResolveRenataGlascDrawAbility(state, intent, command, ability);
@@ -10111,6 +10116,389 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolveShadowStunAbility(
+        MatchState state,
+        PlayerIntent intent,
+        ActivateAbilityCommand command,
+        P4ActivatedAbilityDefinition ability)
+    {
+        if (!IsShadowBattleResponseWindow(state, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "黑影的技能只能在当前战斗响应优先权窗口提交。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        var normalizedOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (!TryExtractInlinePaymentResourceActions(
+                state,
+                intent.PlayerId,
+                normalizedOptionalCosts,
+                out var behaviorOptionalCosts,
+                out var paymentResourceActions,
+                out var recycledRuneObjectIds,
+                out var temporaryPaymentResourceActions)
+            || behaviorOptionalCosts.Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "黑影的技能不接受额外费用。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var normalizedTargets = NormalizeTargetObjectIds(command.TargetObjectIds);
+        if (normalizedTargets.Count != ability.RequiredTargetCount
+            || command.TargetObjectIds.Count != ability.RequiredTargetCount)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "黑影的技能需要且只能选择 1 个此处进攻的敌方单位目标。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!IsControlledBattlefieldObject(state, intent.PlayerId, command.SourceObjectId)
+            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || sourceState.IsFaceDown
+            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "黑影的技能来源必须是当前玩家控制的公开战场单位。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "黑影的技能只能选择当前玩家控制的来源。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!string.Equals(sourceState.CardNo, ability.SourceCardNo, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "该来源没有服务端支持的黑影技能。",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        if (sourceState.IsExhausted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "黑影的技能来源必须未横置。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var targetObjectId = normalizedTargets[0];
+        if (!IsLegalShadowStunTarget(state, intent.PlayerId, command.SourceObjectId, targetObjectId, out var battlefieldObjectId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "黑影的技能目标必须是同一战场进攻中的公开敌方单位。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        IReadOnlyList<string> spellshieldTaxTargetObjectIds = [];
+        var spellshieldTaxMana = 0;
+        if (ability.AppliesSpellshieldTargetTax)
+        {
+            spellshieldTaxMana = ResolveSpellshieldTargetTaxMana(
+                state,
+                intent.PlayerId,
+                normalizedTargets,
+                out spellshieldTaxTargetObjectIds);
+        }
+
+        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
+            ? existingPool
+            : RunePool.Empty;
+        if (!AreRecycleRunePaymentResourceActionsRequired(
+                currentPool,
+                state.CardObjects,
+                recycledRuneObjectIds,
+                ability.PowerCost,
+                new Dictionary<string, int>(StringComparer.Ordinal)))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "黑影的技能不需要回收符文支付资源动作。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        const string paymentWindow = "ACTIVATE_ABILITY";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            intent.PlayerId,
+            command.SourceObjectId,
+            command.AbilityId);
+        var totalManaCost = ability.ManaCost + spellshieldTaxMana;
+        var paymentPlan = new PaymentCostRules.PaymentPlan(
+            paymentId,
+            paymentWindow,
+            intent.PlayerId,
+            baseManaCost: totalManaCost,
+            totalManaCost: totalManaCost,
+            genericPowerCost: ability.PowerCost,
+            totalPowerCost: ability.PowerCost,
+            paymentResourceActionIds: paymentResourceActions,
+            reason: ability.EffectKind,
+            sourceObjectId: command.SourceObjectId,
+            abilityId: command.AbilityId,
+            auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["printedManaCost"] = ability.ManaCost,
+                ["spellshieldTaxMana"] = spellshieldTaxMana,
+                ["spellshieldTaxTargetObjectIds"] = spellshieldTaxTargetObjectIds.ToArray(),
+                ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
+                ["exhaustsSource"] = true,
+                ["targetObjectIds"] = normalizedTargets.ToArray(),
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["statusEffectId"] = "STUNNED"
+            });
+        var paymentEvents = new List<GameEvent>();
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var runePools = ApplyRecycleRunePaymentResourceActions(
+            state.RunePools,
+            playerZones,
+            cardObjects,
+            objectLocations,
+            intent.PlayerId,
+            recycledRuneObjectIds,
+            paymentEvents,
+            paymentWindow,
+            paymentId);
+        var inlineTemporaryPayment = BuildInlineTemporaryPaymentWindow(
+            paymentPlan.PaymentId,
+            paymentPlan.PaymentWindow,
+            intent.PlayerId,
+            ability.PowerCost,
+            new Dictionary<string, int>(StringComparer.Ordinal),
+            ability.EffectKind,
+            paymentResourceActions);
+        if (!TryApplyTemporaryPaymentResourcesToPendingPayment(
+                state,
+                inlineTemporaryPayment,
+                temporaryPaymentResourceActions,
+                runePools,
+                out var temporaryAdjustedRunePools,
+                out var nextTemporaryPaymentResources,
+                out var consumedTemporaryPaymentResources,
+                out var temporaryResourceRejection))
+        {
+            return RejectWithCorePrompts(
+                state,
+                temporaryResourceRejection,
+                ErrorCodes.InsufficientCost);
+        }
+
+        runePools = temporaryAdjustedRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var adjustedPool = runePools.TryGetValue(intent.PlayerId, out var paymentAdjustedPool)
+            ? paymentAdjustedPool
+            : RunePool.Empty;
+        var currentExperience = state.PlayerExperience.TryGetValue(intent.PlayerId, out var availableExperience)
+            ? availableExperience
+            : 0;
+        var paymentAuthorization = PaymentCostRules.AuthorizePayment(
+            paymentPlan,
+            adjustedPool,
+            currentExperience);
+        if (!paymentAuthorization.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "资源不足，无法启动黑影的技能。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var paymentCommit = PaymentCostRules.TryCommitPayment(
+            paymentPlan,
+            runePools,
+            state.PlayerExperience);
+        if (!paymentCommit.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "资源不足，无法启动黑影的技能。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var playerExperience = paymentCommit.PlayerExperience;
+        cardObjects[command.SourceObjectId] = sourceState with
+        {
+            IsExhausted = true,
+            OwnerId = string.IsNullOrWhiteSpace(sourceState.OwnerId) ? intent.PlayerId : sourceState.OwnerId,
+            ControllerId = string.IsNullOrWhiteSpace(sourceState.ControllerId) ? intent.PlayerId : sourceState.ControllerId
+        };
+        var stackItem = new StackItemState(
+            $"STACK-{state.Tick + 1}-{command.SourceObjectId}-SHADOW-STUN",
+            intent.PlayerId,
+            command.SourceObjectId,
+            ability.EffectKind,
+            sourceState.CardNo,
+            normalizedTargets,
+            0,
+            1,
+            []);
+        var untilEndOfTurnEffects = MarkEzrealEnemyTargetsThisTurnForUnitAbility(
+            state,
+            state.UntilEndOfTurnEffects,
+            intent.PlayerId,
+            normalizedTargets);
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            ActivePlayerId = intent.PlayerId,
+            TimingState = TimingStates.NeutralClosed,
+            RunePools = runePools,
+            PlayerExperience = playerExperience,
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = ReconcileObjectLocations(objectLocations, playerZones),
+            TemporaryPaymentResources = nextTemporaryPaymentResources,
+            UntilEndOfTurnEffects = untilEndOfTurnEffects,
+            PriorityPlayerId = intent.PlayerId,
+            PassedPriorityPlayerIds = [],
+            StackItems = state.StackItems.Concat([stackItem]).ToArray()
+        };
+        var events = new List<GameEvent>(paymentEvents);
+        events.AddRange(BuildTemporaryPaymentResourcePaymentEvents(
+            inlineTemporaryPayment,
+            intent.PlayerId,
+            consumedTemporaryPaymentResources));
+        events.AddRange([
+            new(
+                "ABILITY_ACTIVATED",
+                $"{intent.PlayerId} 激活黑影的技能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["cardNo"] = sourceState.CardNo,
+                    ["abilityId"] = command.AbilityId,
+                    ["effectKind"] = ability.EffectKind,
+                    ["targetObjectId"] = targetObjectId,
+                    ["targetObjectIds"] = normalizedTargets.ToArray(),
+                    ["battlefieldObjectId"] = battlefieldObjectId,
+                    ["spellshieldTaxMana"] = spellshieldTaxMana,
+                    ["exhaustsSource"] = true
+                }),
+            new(
+                "UNIT_EXHAUSTED",
+                "黑影横置支付技能费用",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["targetObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["wasExhausted"] = sourceState.IsExhausted,
+                    ["isExhausted"] = true,
+                    ["exhaustsSource"] = true
+                }),
+            new(
+                "COST_PAID",
+                $"{intent.PlayerId} 支付黑影技能费用",
+                PaymentCostRules.BuildCostPaidPayload(
+                    paymentPlan,
+                    runePools,
+                    playerExperience,
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = intent.PlayerId,
+                        ["mana"] = totalManaCost,
+                        ["printedManaCost"] = ability.ManaCost,
+                        ["power"] = ability.PowerCost,
+                        ["abilityId"] = command.AbilityId,
+                        ["sourceObjectId"] = command.SourceObjectId,
+                        ["targetObjectId"] = targetObjectId,
+                        ["targetObjectIds"] = normalizedTargets.ToArray(),
+                        ["battlefieldObjectId"] = battlefieldObjectId,
+                        ["spellshieldTaxMana"] = spellshieldTaxMana,
+                        ["spellshieldTaxTargetObjectIds"] = spellshieldTaxTargetObjectIds.ToArray(),
+                        ["exhaustsSource"] = true,
+                        ["temporaryPaymentResourceIds"] = consumedTemporaryPaymentResources
+                            .Select(resource => resource.ResourceId)
+                            .ToArray(),
+                        ["temporaryPaymentResourcePower"] = consumedTemporaryPaymentResources
+                            .Sum(resource => resource.ConsumedPower)
+                    })),
+            new(
+                "STACK_ITEM_ADDED",
+                "黑影的技能加入结算链",
+                new Dictionary<string, object?>
+                {
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["controllerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["cardNo"] = stackItem.CardNo,
+                    ["targetObjectId"] = targetObjectId,
+                    ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
+                    ["battlefieldObjectId"] = battlefieldObjectId,
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["abilityId"] = command.AbilityId
+                })
+        ]);
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static bool IsShadowBattleResponseWindow(MatchState state, string playerId)
+    {
+        return state.PendingPayment is null
+            && state.PendingHandChoice is null
+            && !state.PendingTaskQueue.IsBlocking
+            && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+            && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal)
+            && state.BattleState.IsActive
+            && !string.IsNullOrWhiteSpace(state.BattleState.BattlefieldObjectId);
+    }
+
+    private static bool IsLegalShadowStunTarget(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        string targetObjectId,
+        out string battlefieldObjectId)
+    {
+        battlefieldObjectId = string.Empty;
+        if (!IsControlledBattlefieldObject(state, playerId, sourceObjectId)
+            || !state.ObjectLocations.TryGetValue(sourceObjectId, out var sourceLocation)
+            || !string.Equals(sourceLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(sourceLocation.BattlefieldObjectId)
+            || !state.ObjectLocations.TryGetValue(targetObjectId, out var targetLocation)
+            || !string.Equals(targetLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            || !string.Equals(sourceLocation.BattlefieldObjectId, targetLocation.BattlefieldObjectId, StringComparison.Ordinal)
+            || !IsEnemyFieldObject(state, playerId, targetObjectId)
+            || !IsAttackingBattlefieldObject(state, targetObjectId)
+            || !state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            || string.IsNullOrWhiteSpace(targetState.CardNo)
+            || targetState.IsFaceDown
+            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        battlefieldObjectId = sourceLocation.BattlefieldObjectId;
+        return true;
     }
 
     private static ResolutionResult ResolveHideCard(
@@ -26015,6 +26403,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveFluftPoroWarhawkAbilityStackItem(state, stackItem);
         }
 
+        if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.ShadowStunAbilityEffectKind, StringComparison.Ordinal))
+        {
+            return ResolveShadowStunAbilityStackItem(state, stackItem);
+        }
+
         if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.RenataGlascDrawAbilityEffectKind, StringComparison.Ordinal))
         {
             return ResolveRenataGlascDrawAbilityStackItem(state, stackItem);
@@ -29665,6 +30058,95 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem.SourceObjectId,
                 P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId,
                 events);
+        }
+
+        return new StackResolutionResult(
+            playerZones,
+            cardObjects,
+            state.PlayerScores,
+            NormalizeExperienceForSeats(state),
+            state.RunePools,
+            state.UntilEndOfTurnEffects,
+            null,
+            events,
+            [],
+            null,
+            [],
+            null,
+            [],
+            state.RngCursor);
+    }
+
+    private static StackResolutionResult ResolveShadowStunAbilityStackItem(
+        MatchState state,
+        StackItemState stackItem)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var events = new List<GameEvent>
+        {
+            new(
+                "ABILITY_RESOLVED",
+                "黑影的技能结算",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = stackItem.ControllerId,
+                    ["controllerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["cardNo"] = stackItem.CardNo,
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["abilityId"] = P4ActivatedAbilityCatalog.ShadowStunAbilityId,
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
+                    ["statusEffectId"] = "STUNNED"
+                })
+        };
+
+        var targetObjectId = stackItem.TargetObjectIds.FirstOrDefault() ?? string.Empty;
+        if (!IsLegalShadowStunTarget(state, stackItem.ControllerId, stackItem.SourceObjectId, targetObjectId, out var battlefieldObjectId)
+            || !cardObjects.TryGetValue(targetObjectId, out var targetState))
+        {
+            events.Add(new GameEvent(
+                "ABILITY_NO_EFFECT",
+                "黑影的技能目标不再合法",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["targetObjectId"] = targetObjectId,
+                    ["abilityId"] = P4ActivatedAbilityCatalog.ShadowStunAbilityId,
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["reason"] = "TARGET_NO_LONGER_LEGAL"
+                }));
+        }
+        else
+        {
+            var nextEffects = targetState.UntilEndOfTurnEffects
+                .Concat(["STUNNED"])
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(effectId => effectId, StringComparer.Ordinal)
+                .ToArray();
+            cardObjects[targetObjectId] = targetState with
+            {
+                UntilEndOfTurnEffects = nextEffects
+            };
+            events.Add(new GameEvent(
+                "STATUS_EFFECT_APPLIED",
+                "黑影眩晕进攻单位",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["targetObjectId"] = targetObjectId,
+                    ["abilityId"] = P4ActivatedAbilityCatalog.ShadowStunAbilityId,
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["battlefieldObjectId"] = battlefieldObjectId,
+                    ["effectId"] = "STUNNED",
+                    ["statusEffectId"] = "STUNNED",
+                    ["duration"] = "UNTIL_END_OF_TURN"
+                }));
         }
 
         return new StackResolutionResult(
