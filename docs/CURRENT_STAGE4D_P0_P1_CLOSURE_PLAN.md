@@ -86,6 +86,8 @@
 
 4D-03H handoff / baseline 补充：下一实现切片已锁定 `SFD·180/221` / `SFD·180a/221` 菲奥娜“友方单位变为强力后可支付黄色使其活跃”的 concrete trigger payment resource action。交接规格见 `docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_BASELINE_EVIDENCE.md`；focused baseline 55/55、adjacent baseline 233/233 通过。该补充只建立 B 侧实现交接，不代表功能完成，不关闭 P0-005。
 
+4D-03H focused slice 补充：SFD Fiora trigger payment resource action 已验收，审计与证据见 `docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_EVIDENCE.md`；focused 69/69、adjacent 242/242、backend full 3818/3818、`git diff --check` 通过。该切片只证明 concrete trigger payment resource representative 已接入 shared payment / resource-action 口径，不关闭 P0-005 full official。
+
 目标：把 PLAY_CARD、MOVE_UNIT、ASSEMBLE_EQUIPMENT、ACTIVATE_ABILITY、LEGEND_ACT、battlefield trigger、keyword optional/extra cost 与 rune resource actions 统一到可回滚、可审计、服务端候选驱动的 PaymentEngine。
 
 建议 owner：B 服务端实现，E 卡牌证据矩阵协助确认官方费用口径。
@@ -167,6 +169,6 @@
 
 1. 维持 NOT READY 结论。
 2. 不再为 Stage 4C representative evidence alignment 追加新批次，除非出现遗漏的已验证自动化证据。
-3. 当前 4D-03 focused foundation、4D-03B non-play focused slice、4D-03C play optional / extra focused slice、4D-03D `ACTIVATE_ABILITY` payment resource focused slice、4D-03E `HIDE_CARD` payment focused slice、4D-03F pending `PAY_COST` resource focused slice 与 4D-03G battlefield held score resource action focused slice 已验收；4D-03H trigger payment resource action handoff / baseline 已建立；下一步派给 B / Maxwell 实现或按 no-go criteria 返回 design gate。
+3. 当前 4D-03 focused foundation、4D-03B non-play focused slice、4D-03C play optional / extra focused slice、4D-03D `ACTIVATE_ABILITY` payment resource focused slice、4D-03E `HIDE_CARD` payment focused slice、4D-03F pending `PAY_COST` resource focused slice、4D-03G battlefield held score resource action focused slice 与 4D-03H trigger payment resource action focused slice 已验收；下一步继续扩展 full PaymentEngine breadth。
 4. 每个 4D 实现切片必须先给出写入范围、测试过滤器、不可并行文件和 no-go 声明，再进入代码修改。
 5. A 不亲自写功能代码；只维护计划、派单、验收文档、测试验证和 completion audit。

@@ -556,6 +556,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string ArenaServiceCrewCardNo = "OGN·091/298";
     private const string WiseElderCardNo = "OGN·065/298";
     private const string WaterbenderCardNo = "OGN·055/298";
+    private const string SfdFioraPowerfulReadyCardNo = "SFD·180/221";
+    private const string SfdFioraPowerfulReadyAltCardNo = "SFD·180a/221";
+    private const string SfdFioraPowerfulReadyEffectKind = "SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY";
+    private const string SpendOneYellowPowerPaymentChoiceId = "SPEND_POWER:yellow:1";
     private const string EclipseVanguardStunTriggerEffectKind = "ECLIPSE_VANGUARD_STUN_TRIGGER_READY_POWER_1";
     private const string RavenbloomStudentSpellPowerEffectKind = "RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1";
     private const string OgsLuxHighCostSpellPowerEffectKind = "OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3";
@@ -1177,8 +1181,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         if (submittedChoices.Count != rawChoiceCount
             || submittedChoices.Distinct(StringComparer.Ordinal).Count() != submittedChoices.Count
-            || submittedChoices.Count != 1
-            || submittedChoices.Any(choiceId => !legalChoices.Contains(choiceId)))
+            || submittedChoices.Count == 0)
         {
             return RejectWithCorePrompts(
                 state,
@@ -1186,13 +1189,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        var choiceId = submittedChoices[0];
-        if (string.Equals(choiceId, DeclinePaymentChoiceId, StringComparison.Ordinal))
+        if (submittedChoices.Count == 1
+            && string.Equals(submittedChoices[0], DeclinePaymentChoiceId, StringComparison.Ordinal)
+            && legalChoices.Contains(DeclinePaymentChoiceId))
         {
             return ResolveTriggerPaymentDecline(state, intent, pendingPayment);
         }
 
-        if (!string.Equals(choiceId, SpendOneManaPaymentChoiceId, StringComparison.Ordinal))
+        if (submittedChoices.Contains(DeclinePaymentChoiceId, StringComparer.Ordinal))
         {
             return RejectWithCorePrompts(
                 state,
@@ -1200,18 +1204,48 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool)
-            ? runePool
-            : RunePool.Empty;
-        var paymentAuthorization = PaymentCostRules.AuthorizePayment(
-            BuildPendingPaymentPlan(pendingPayment, intent.PlayerId),
-            currentPool);
-        if (!paymentAuthorization.Accepted)
+        var legalPaymentResourceActions = pendingPayment.PaymentResourceActionIds
+            .Concat(pendingPayment.LegalPaymentChoiceIds.Where(IsRecycleRunePaymentResourceActionId))
+            .ToHashSet(StringComparer.Ordinal);
+        var legalSpendChoiceIds = pendingPayment.LegalPaymentChoiceIds
+            .Where(choiceId => !IsRecycleRunePaymentResourceActionId(choiceId)
+                && !string.Equals(choiceId, DeclinePaymentChoiceId, StringComparison.Ordinal))
+            .ToArray();
+        var legalSpendChoices = legalSpendChoiceIds.ToHashSet(StringComparer.Ordinal);
+        var submittedSpendChoices = submittedChoices
+            .Where(choiceId => !legalPaymentResourceActions.Contains(choiceId))
+            .ToArray();
+
+        if (submittedSpendChoices.Length != 1
+            || submittedSpendChoices.Any(choiceId => !legalSpendChoices.Contains(choiceId))
+            || submittedChoices.Any(choiceId => !legalSpendChoices.Contains(choiceId) && !legalPaymentResourceActions.Contains(choiceId)))
         {
             return RejectWithCorePrompts(
                 state,
-                paymentAuthorization.Reason ?? "支付窗口资源不足。",
-                ErrorCodes.InsufficientCost);
+                "PAY_COST 包含非法触发支付选项。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (TryReadSfdFioraPowerfulReadyPaymentContext(
+                pendingPayment,
+                out var fioraSourceObjectId,
+                out var fioraTargetObjectId))
+        {
+            return ResolveSfdFioraPowerfulReadyTriggerPayment(
+                state,
+                intent,
+                pendingPayment,
+                submittedChoices,
+                fioraSourceObjectId,
+                fioraTargetObjectId);
+        }
+
+        if (!string.Equals(submittedSpendChoices[0], SpendOneManaPaymentChoiceId, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "PAY_COST 包含非法触发支付选项。",
+                ErrorCodes.InvalidTarget);
         }
 
         if (TryReadBattlefieldConquerGoldPaymentContext(
@@ -1819,6 +1853,173 @@ public sealed class CoreRuleEngine : IRuleEngine
             BuildCorePrompts(nextState));
     }
 
+    private static ResolutionResult ResolveSfdFioraPowerfulReadyTriggerPayment(
+        MatchState state,
+        PlayerIntent intent,
+        PendingPaymentState pendingPayment,
+        IReadOnlyList<string> submittedChoices,
+        string sourceObjectId,
+        string targetObjectId)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        if (!TryGetSfdFioraPowerfulReadySource(cardObjects, playerZones, intent.PlayerId, sourceObjectId, out _)
+            || !TryGetControlledVisibleFieldUnit(
+                playerZones,
+                cardObjects,
+                targetObjectId,
+                intent.PlayerId,
+                out var targetState)
+            || targetState.Power < PowerfulUnitPowerThreshold)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "当前触发支付窗口的菲奥娜或强力单位已不可用。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var submittedPaymentResourceActions = submittedChoices
+            .Where(IsRecycleRunePaymentResourceActionId)
+            .ToArray();
+        if (!TryExtractRecycleRunePaymentResourceActions(
+                state,
+                intent.PlayerId,
+                submittedPaymentResourceActions,
+                out var behaviorOptionalCosts,
+                out var paymentResourceActions,
+                out var recycledRuneObjectIds)
+            || behaviorOptionalCosts.Count > 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "PAY_COST 包含非法支付资源动作。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (recycledRuneObjectIds.Any(runeObjectId =>
+                !state.CardObjects.TryGetValue(runeObjectId, out var runeState)
+                || string.IsNullOrWhiteSpace(runeState.CardNo)))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "PAY_COST 包含非法支付资源动作。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
+            ? existingPool
+            : RunePool.Empty;
+        if (!AreRecycleRunePaymentResourceActionsRequired(
+                currentPool,
+                state.CardObjects,
+                recycledRuneObjectIds,
+                pendingPayment.PowerCost,
+                pendingPayment.PowerCostByTrait))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "PAY_COST 包含不必要的支付资源动作。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var paymentPlan = BuildPendingPaymentPlan(
+            pendingPayment,
+            intent.PlayerId,
+            SfdFioraPowerfulReadyEffectKind,
+            sourceObjectId,
+            paymentResourceActions: paymentResourceActions);
+        var paymentEvents = new List<GameEvent>();
+        var runePools = ApplyRecycleRunePaymentResourceActions(
+            state.RunePools,
+            playerZones,
+            cardObjects,
+            objectLocations,
+            intent.PlayerId,
+            recycledRuneObjectIds,
+            paymentEvents,
+            pendingPayment.PaymentWindow,
+            pendingPayment.PaymentId);
+        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, runePools);
+        if (!paymentCommit.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                paymentCommit.ErrorMessage ?? "支付窗口资源不足。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var wasExhausted = targetState.IsExhausted;
+        cardObjects[targetObjectId] = targetState with
+        {
+            IsExhausted = false
+        };
+
+        var events = new List<GameEvent>(paymentEvents)
+        {
+            new(
+                "COST_PAID",
+                $"{intent.PlayerId} 支付菲奥娜强力触发费用",
+                PaymentCostRules.BuildCostPaidPayload(
+                    paymentPlan,
+                    runePools,
+                    null,
+                    new Dictionary<string, object?>
+                    {
+                        ["mana"] = pendingPayment.ManaCost,
+                        ["power"] = pendingPayment.PowerCost,
+                        ["powerByTrait"] = pendingPayment.PowerCostByTrait,
+                        ["paymentChoiceIds"] = submittedChoices.ToArray(),
+                        ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
+                        ["reason"] = SfdFioraPowerfulReadyEffectKind,
+                        ["targetObjectId"] = targetObjectId
+                    })),
+            new(
+                "TRIGGER_RESOLVED",
+                $"{intent.PlayerId} 的菲奥娜使强力单位活跃",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["trigger"] = SfdFioraPowerfulReadyEffectKind,
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["targetObjectId"] = targetObjectId,
+                    ["paymentId"] = pendingPayment.PaymentId,
+                    ["paymentWindow"] = pendingPayment.PaymentWindow
+                }),
+            new(
+                "UNIT_READIED",
+                $"{targetObjectId} 变为活跃状态",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["targetObjectId"] = targetObjectId,
+                    ["wasExhausted"] = wasExhausted,
+                    ["isExhausted"] = false,
+                    ["reason"] = SfdFioraPowerfulReadyEffectKind
+                })
+        };
+        events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
+
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            RunePools = runePools,
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = ReconcileObjectLocations(objectLocations, playerZones),
+            PendingPayment = null
+        };
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
     private static ResolutionResult ResolveTriggerPaymentDecline(
         MatchState state,
         PlayerIntent intent,
@@ -1922,6 +2123,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             payload["trigger"] = JaxWeaponAttachPayOneDrawEffectKind;
             payload["sourceObjectId"] = sourceObjectId;
             payload["equipmentObjectId"] = equipmentObjectId;
+        }
+        else if (TryReadSfdFioraPowerfulReadyPaymentContext(
+                     pendingPayment,
+                     out sourceObjectId,
+                     out var fioraTargetObjectId))
+        {
+            payload["trigger"] = SfdFioraPowerfulReadyEffectKind;
+            payload["sourceObjectId"] = sourceObjectId;
+            payload["targetObjectId"] = fioraTargetObjectId;
         }
 
         return payload;
@@ -2160,6 +2370,44 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         sourceObjectId = parts[1];
         equipmentObjectId = parts[2];
+        return true;
+    }
+
+    private static string BuildSfdFioraPowerfulReadyPaymentReason(
+        string sourceObjectId,
+        string targetObjectId)
+    {
+        return string.Join(
+            '|',
+            SfdFioraPowerfulReadyEffectKind,
+            sourceObjectId,
+            targetObjectId);
+    }
+
+    private static bool TryReadSfdFioraPowerfulReadyPaymentContext(
+        PendingPaymentState pendingPayment,
+        out string sourceObjectId,
+        out string targetObjectId)
+    {
+        sourceObjectId = string.Empty;
+        targetObjectId = string.Empty;
+        if (!string.Equals(pendingPayment.PaymentWindow, TriggerPaymentWindow, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(pendingPayment.Reason))
+        {
+            return false;
+        }
+
+        var parts = pendingPayment.Reason.Split('|', StringSplitOptions.None);
+        if (parts.Length != 3
+            || !string.Equals(parts[0], SfdFioraPowerfulReadyEffectKind, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(parts[1])
+            || string.IsNullOrWhiteSpace(parts[2]))
+        {
+            return false;
+        }
+
+        sourceObjectId = parts[1];
+        targetObjectId = parts[2];
         return true;
     }
 
@@ -15933,6 +16181,261 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryOpenSfdFioraPowerfulReadyPaymentWindowFromEvents(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, RunePool> runePools,
+        List<GameEvent> events,
+        long paymentTick,
+        out PendingPaymentState? pendingPayment)
+    {
+        pendingPayment = null;
+        foreach (var gameEvent in events)
+        {
+            if (!TryReadPowerTransitionEvent(gameEvent, out var targetObjectId, out var previousPower, out var resultingPower)
+                || previousPower >= PowerfulUnitPowerThreshold
+                || resultingPower < PowerfulUnitPowerThreshold
+                || !TryGetVisibleFieldUnitControllerId(
+                    playerZones,
+                    cardObjects,
+                    targetObjectId,
+                    out var controllerId))
+            {
+                continue;
+            }
+
+            return TryOpenSfdFioraPowerfulReadyPaymentWindow(
+                playerZones,
+                cardObjects,
+                runePools,
+                controllerId,
+                targetObjectId,
+                previousPower,
+                resultingPower,
+                paymentTick,
+                events,
+                out pendingPayment);
+        }
+
+        return false;
+    }
+
+    private static bool TryOpenSfdFioraPowerfulReadyPaymentWindow(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, RunePool> runePools,
+        string playerId,
+        string targetObjectId,
+        int previousPower,
+        int resultingPower,
+        long paymentTick,
+        List<GameEvent> events,
+        out PendingPaymentState? pendingPayment)
+    {
+        pendingPayment = null;
+        if (previousPower >= PowerfulUnitPowerThreshold
+            || resultingPower < PowerfulUnitPowerThreshold
+            || !TryGetControlledVisibleFieldUnit(playerZones, cardObjects, targetObjectId, playerId, out _))
+        {
+            return false;
+        }
+
+        var sourceObjectId = playerZones.TryGetValue(playerId, out var zones)
+            ? zones.Base
+                .Concat(zones.Battlefields)
+                .Where(objectId => TryGetSfdFioraPowerfulReadySource(cardObjects, playerZones, playerId, objectId, out _))
+                .OrderBy(objectId => objectId, StringComparer.Ordinal)
+                .FirstOrDefault()
+            : null;
+        if (string.IsNullOrWhiteSpace(sourceObjectId))
+        {
+            return false;
+        }
+
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            paymentTick,
+            TriggerPaymentWindow,
+            playerId,
+            sourceObjectId: sourceObjectId,
+            reason: SfdFioraPowerfulReadyEffectKind);
+        var powerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            [RuneTrait.Yellow] = 1
+        };
+        var paymentResourceActionIds = SfdFioraPowerfulReadyPaymentResourceActionIds(
+            playerZones,
+            cardObjects,
+            runePools,
+            playerId,
+            powerCostByTrait);
+        pendingPayment = new PendingPaymentState(
+            paymentId,
+            TriggerPaymentWindow,
+            playerId,
+            powerCostByTrait: powerCostByTrait,
+            legalPaymentChoiceIds: [SpendOneYellowPowerPaymentChoiceId, DeclinePaymentChoiceId],
+            reason: BuildSfdFioraPowerfulReadyPaymentReason(sourceObjectId, targetObjectId),
+            paymentResourceActionIds: paymentResourceActionIds);
+        events.Add(new GameEvent(
+            "PAYMENT_WINDOW_OPENED",
+            $"{playerId} 的菲奥娜等待支付黄色符能使强力单位活跃",
+            new Dictionary<string, object?>
+            {
+                ["paymentId"] = paymentId,
+                ["paymentWindow"] = TriggerPaymentWindow,
+                ["playerId"] = playerId,
+                ["trigger"] = SfdFioraPowerfulReadyEffectKind,
+                ["sourceObjectId"] = sourceObjectId,
+                ["targetObjectId"] = targetObjectId,
+                ["previousPower"] = previousPower,
+                ["resultingPower"] = resultingPower,
+                ["mana"] = 0,
+                ["power"] = 0,
+                ["powerByTrait"] = powerCostByTrait,
+                ["cost"] = new Dictionary<string, object?>
+                {
+                    ["mana"] = 0,
+                    ["power"] = 0,
+                    ["powerByTrait"] = powerCostByTrait
+                },
+                ["paymentChoices"] = new[] { SpendOneYellowPowerPaymentChoiceId, DeclinePaymentChoiceId },
+                ["paymentResourceActions"] = paymentResourceActionIds.ToArray(),
+                ["reason"] = SfdFioraPowerfulReadyEffectKind
+            }));
+        return true;
+    }
+
+    private static IReadOnlyList<string> SfdFioraPowerfulReadyPaymentResourceActionIds(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, RunePool> runePools,
+        string playerId,
+        IReadOnlyDictionary<string, int> powerCostByTrait)
+    {
+        var currentPool = runePools.TryGetValue(playerId, out var runePool)
+            ? runePool
+            : RunePool.Empty;
+        if (CanPayPowerCost(currentPool, 0, powerCostByTrait)
+            || !playerZones.TryGetValue(playerId, out var zones))
+        {
+            return [];
+        }
+
+        return zones.Base
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var runeState)
+                && !string.IsNullOrWhiteSpace(runeState.CardNo)
+                && runeState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
+                && SourceObjectControlledByPlayerOrLegacyOwned(runeState, playerId)
+                && !runeState.IsFaceDown
+                && TryGetRuneTrait(runeState, out var runeTrait)
+                && string.Equals(runeTrait, RuneTrait.Yellow, StringComparison.Ordinal))
+            .Select(objectId => $"{RecycleRunePaymentOptionalCostPrefix}{objectId}")
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(choiceId => choiceId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static bool TryReadPowerTransitionEvent(
+        GameEvent gameEvent,
+        out string targetObjectId,
+        out int previousPower,
+        out int resultingPower)
+    {
+        targetObjectId = string.Empty;
+        previousPower = 0;
+        resultingPower = 0;
+        if (!TryGetPayloadString(gameEvent, "targetObjectId", out targetObjectId)
+            || !TryGetPayloadInt(gameEvent, "resultingPower", out resultingPower))
+        {
+            return false;
+        }
+
+        if (string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal)
+            && TryGetPayloadInt(gameEvent, "powerDelta", out var boonPowerDelta))
+        {
+            previousPower = resultingPower - boonPowerDelta;
+            return true;
+        }
+
+        if (string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            && TryGetPayloadInt(gameEvent, "appliedPowerDelta", out var appliedPowerDelta))
+        {
+            previousPower = resultingPower - appliedPowerDelta;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryGetSfdFioraPowerfulReadySource(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string playerId,
+        string sourceObjectId,
+        out CardObjectState sourceState)
+    {
+        sourceState = default!;
+        if (!cardObjects.TryGetValue(sourceObjectId, out var candidate))
+        {
+            return false;
+        }
+
+        sourceState = candidate;
+        return IsSfdFioraPowerfulReadyCardNo(sourceState.CardNo)
+            && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !sourceState.IsFaceDown
+            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
+            && IsObjectOnField(playerZones, sourceObjectId);
+    }
+
+    private static bool TryGetControlledVisibleFieldUnit(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string objectId,
+        string playerId,
+        out CardObjectState objectState)
+    {
+        objectState = default!;
+        if (!cardObjects.TryGetValue(objectId, out var candidate))
+        {
+            return false;
+        }
+
+        objectState = candidate;
+        return candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !candidate.IsFaceDown
+            && !candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
+            && IsObjectOnField(playerZones, objectId);
+    }
+
+    private static bool TryGetVisibleFieldUnitControllerId(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string objectId,
+        out string controllerId)
+    {
+        controllerId = string.Empty;
+        if (!cardObjects.TryGetValue(objectId, out var candidate)
+            || !candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || candidate.IsFaceDown
+            || candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !IsObjectOnField(playerZones, objectId))
+        {
+            return false;
+        }
+
+        controllerId = EffectiveFieldControllerId(playerZones, objectId, candidate);
+        return !string.IsNullOrWhiteSpace(controllerId);
+    }
+
+    private static bool IsSfdFioraPowerfulReadyCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, SfdFioraPowerfulReadyCardNo, StringComparison.Ordinal)
+            || string.Equals(cardNo, SfdFioraPowerfulReadyAltCardNo, StringComparison.Ordinal);
+    }
+
     private static bool TryGetJaxWeaponAttachSource(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -18024,6 +18527,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             pendingBattlefieldTaskCausePlayerId = resolvedItem.ControllerId;
             var remainingStack = state.StackItems.Take(state.StackItems.Count - 1).ToArray();
             var stackResolution = ResolveStackItemEffect(state, resolvedItem);
+            var stackResolutionEvents = stackResolution.Events.ToList();
             var resolvedStack = stackResolution.StackItems ?? remainingStack;
             var nextStack = RemoveCounteredStackItems(resolvedStack, stackResolution.CounteredStackItemIds);
             var queuedTriggers = stackResolution.TriggerQueue
@@ -18084,20 +18588,36 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
 
             var pendingHandChoice = stackResolution.PendingHandChoice;
+            PendingPaymentState? pendingPayment = null;
+            if (pendingHandChoice is null
+                && stackResolution.WinnerPlayerId is null
+                && nextStack.Length == 0
+                && queuedTriggers.Length == 0)
+            {
+                TryOpenSfdFioraPowerfulReadyPaymentWindowFromEvents(
+                    resolvedPlayerZones,
+                    resolvedCardObjects,
+                    resolvedRunePools,
+                    stackResolutionEvents,
+                    state.Tick + 1,
+                    out pendingPayment);
+            }
+
             var returnsToSpellDuel = pendingHandChoice is null
+                && pendingPayment is null
                 && nextStack.Length == 0
                 && queuedTriggers.Length == 0
                 && string.Equals(resolvedItem.TimingContext, TimingStates.SpellDuelOpen, StringComparison.Ordinal);
             var nextFocusPlayerId = returnsToSpellDuel
                 ? NextPlayerIdAfter(state, resolvedItem.ControllerId)
                 : null;
-            var nextPriorityPlayerId = pendingHandChoice is not null || nextStack.Length == 0 || queuedTriggers.Length > 1
+            var nextPriorityPlayerId = pendingHandChoice is not null || pendingPayment is not null || nextStack.Length == 0 || queuedTriggers.Length > 1
                 ? null
                 : nextStack[^1].ControllerId;
             nextState = state with
             {
                 Tick = state.Tick + 1,
-                ActivePlayerId = pendingHandChoice?.PlayerId ?? nextFocusPlayerId ?? nextPriorityPlayerId ?? state.TurnPlayerId,
+                ActivePlayerId = pendingHandChoice?.PlayerId ?? pendingPayment?.PlayerId ?? nextFocusPlayerId ?? nextPriorityPlayerId ?? state.TurnPlayerId,
                 TimingState = nextStack.Length == 0
                     ? returnsToSpellDuel
                         ? TimingStates.SpellDuelOpen
@@ -18107,6 +18627,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 PassedPriorityPlayerIds = [],
                 StackItems = nextStack,
                 TriggerQueue = queuedTriggers,
+                PendingPayment = pendingPayment,
                 PendingHandChoice = pendingHandChoice,
                 PlayerZones = resolvedPlayerZones,
                 ObjectLocations = objectLocations,
@@ -18135,7 +18656,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = resolvedItem.SourceObjectId,
                     ["effectKind"] = resolvedItem.EffectKind
                 }));
-            events.AddRange(stackResolution.Events);
+            events.AddRange(stackResolutionEvents);
             events.AddRange(postStackCleanupEvents);
             events.AddRange(triggerHandoffEvents);
         }
@@ -19326,6 +19847,27 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         value = stringValue;
         return !string.IsNullOrWhiteSpace(value);
+    }
+
+    private static bool TryGetPayloadInt(GameEvent gameEvent, string key, out int value)
+    {
+        value = 0;
+        if (!gameEvent.Payload.TryGetValue(key, out var rawValue))
+        {
+            return false;
+        }
+
+        switch (rawValue)
+        {
+            case int intValue:
+                value = intValue;
+                return true;
+            case long longValue when longValue >= int.MinValue && longValue <= int.MaxValue:
+                value = (int)longValue;
+                return true;
+            default:
+                return false;
+        }
     }
 
     private static IReadOnlyList<GameEvent> ResolveSivirRuneRecycledGoldTrigger(
