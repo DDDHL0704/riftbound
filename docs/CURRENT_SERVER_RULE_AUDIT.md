@@ -3681,6 +3681,8 @@
 7. 下一步：扩展 typed payment engine 到 rune/legend/battlefield/keyword 全路径，支持替代费用、减费/加费、额外/可选费用。
 8. 下一步：引入完整 continuous effect LayerEngine，并逐关键词、逐卡牌把 `Representative/FixturePass` 提升到 `FullOfficialRulePass`。
 
+Stage 4D 主控计划已将以上顺序拆为可执行写锁与验收门槛，见 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`。后续实现应先完成 4D-01 board task queue foundation，再推进 4D-02 battle/spell-duel state machine；PaymentEngine 可以先做只读设计，但进入 `CoreRuleEngine.cs` 集成前必须避开同一写锁。
+
 ## 最终验收口径
 
 在完成上述 P0/P1 之前，不建议把服务端声明为“完整符合五个官方规则文件”。推荐当前对外口径为：

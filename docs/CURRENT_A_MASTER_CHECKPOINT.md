@@ -5,7 +5,7 @@
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
 
-最新 checkpoint：`7a2b1fa3 checkpoint: record stage 4C battlefield residual evidence alignment`。上一 Stage 4C checkpoint：`dc14e795 checkpoint: record stage 4C arena minion annie evidence alignment`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
+最新 checkpoint：Stage 4D P0/P1 closure plan 待提交；上一已提交 checkpoint：`7a2b1fa3 checkpoint: record stage 4C battlefield residual evidence alignment`。上一 Stage 4C checkpoint：`dc14e795 checkpoint: record stage 4C arena minion annie evidence alignment`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。Stage 4D 收口执行顺序见 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`。
 
 ## 0. A 主控职责边界
 
@@ -5136,3 +5136,27 @@ Checkpoint 记录：
 
 - 本批不修改功能代码、测试代码或前端代码，只做 matrix / docs evidence alignment。
 - 不声明完整 battlefield rule-domain matrix、battle / spell-duel / assign-combat-damage lifecycle、FEPR、PaymentEngine、trigger engine、LayerEngine、hidden-info / redaction、FAQ full adjudication、1009/811 full-official 或 READY。
+
+## 61. Stage 4D P0/P1 Closure Plan
+
+状态：**Stage 4D P0/P1 closure plan 已记录；项目整体仍 NOT READY。**
+
+本批范围：
+
+- 新增主控计划入口：`docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`。
+- 将 Stage 4C representative evidence alignment 后的剩余工作切换为 P0/P1 架构收口，不再默认追加 evidence-only overlay。
+- 明确 4D-01 至 4D-06 的执行顺序、写锁、建议 owner、验收门槛和 no-go 边界：
+  - 4D-01：Board task queue foundation，收口 P0-002 / P0-003。
+  - 4D-02：Spell duel and battle state machine，收口 P0-004。
+  - 4D-03：PaymentEngine unification，收口 P0-005。
+  - 4D-04：LayerEngine and keyword full-pass track，收口 P1-001 / P1-002 / P1-003。
+  - 4D-05：Frontend authority and Chrome gate。
+  - 4D-06：Final evidence and completion audit。
+- 本批不修改功能代码、测试代码、前端代码或 coverage matrix。
+
+口径：
+
+- 4C-98 后矩阵仍为 `IMPLEMENTED_TESTED=76`、`IMPLEMENTED_UNTESTED=4`、`NEEDS_ENGINE_SUPPORT=501`、`NEEDS_FAQ_REVIEW=128`、`SHARED_ORACLE_IMPLEMENTATION=102`。
+- 四个剩余 `IMPLEMENTED_UNTESTED` 已由 4C-95 设计门禁确认，不能仅凭普通 source-unit fixture 入账。
+- Formal 18-step E2E 已满足 A_MASTER 主流程门槛，但不能替代 strict battlefield contest / battle lifecycle / PaymentEngine / LayerEngine full official 收口。
+- 只有 P0/P1 清零、backend full、frontend build、Chrome smoke、formal E2E、hidden-info long-chain、card matrix 和 final completion audit 全部通过后，才允许 READY / goal complete。
