@@ -15,6 +15,8 @@
 
 2026-05-14 4D-03I focused slice 已验收：`OGN·113/298` 玛尔扎哈 `[A A]` resource skill 已接入 open-main representative path。服务端 `ACTIVATE_ABILITY` prompt 暴露 Malzahar source 与合法友方单位/装备成本对象；命令侧横置来源、摧毁成本对象到 owner graveyard、获得 2 点带 payment-only / restriction metadata 的通用符能，并保持立即结算、无普通 stack item。审计与证据见 `docs/CURRENT_STAGE4D_03I_PAYMENT_ENGINE_RESOURCE_SKILL_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03I_PAYMENT_ENGINE_RESOURCE_SKILL_EVIDENCE.md`；focused 105/105、adjacent 317/317、backend full 3840/3840、`git diff --check` 通过。该切片只收窄 P0-005 的 resource skill representative breadth，不关闭完整 `[A]` / `[C]`、spell-duel / swift timing、reaction prohibition 或 full PaymentEngine，项目仍 **NOT READY**。
 
+2026-05-14 4D-03J handoff / baseline 已建立：下一 PaymentEngine breadth 切片锁定 Malzahar resource skill lifecycle，目标是把 4D-03I 留下的 spell-duel / swift timing、reaction prohibition 与 payment-only lifecycle 残余转给 B 服务端实现。交接规格见 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_BASELINE_EVIDENCE.md`；focused baseline 109/109、adjacent baseline 336/336 通过。该基线只证明当前相邻路径绿色，不代表功能完成，不关闭 P0-005。
+
 ## 0. A 主控职责边界
 
 A 是主控规划 / 架构 / 验收 agent，不是默认功能实现 agent。A 的职责是：
@@ -281,7 +283,7 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 
 下一步：
 
-- 4D-03I 已验收；后续继续扩展 P0-005 full PaymentEngine breadth，优先处理完整 `[A]` / `[C]` family、`LEGEND_ACT` resource action、spell-duel / swift timing、reaction prohibition、payment-only lifecycle 与更多 payment window quote parity。
+- 4D-03J handoff / baseline 已建立；后续进入 B 侧服务端实现，处理 Malzahar resource skill 的 spell-duel / swift timing、reaction prohibition 与 payment-only lifecycle。完整 `[A]` / `[C]` family、`LEGEND_ACT` resource action 与更多 payment window quote parity 仍作为后续残余。
 - A 继续只做验收、测试复跑、审计和文档收口；不默认亲自改功能代码。
 
 ## 0.1.1 阶段 4C-23 Lux Checkpoint

@@ -90,6 +90,8 @@
 
 4D-03I focused slice 补充：`OGN·113/298` 玛尔扎哈 `[A A]` resource skill open-main representative 已验收。审计与证据见 `docs/CURRENT_STAGE4D_03I_PAYMENT_ENGINE_RESOURCE_SKILL_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03I_PAYMENT_ENGINE_RESOURCE_SKILL_EVIDENCE.md`；focused 105/105、adjacent 317/317、backend full 3840/3840、`git diff --check` 通过。该补充只证明 resource skill representative 已接入服务端 prompt / command / audit 口径，不关闭 P0-005 full official。
 
+4D-03J handoff / baseline 补充：下一实现切片锁定 Malzahar resource skill lifecycle，处理 4D-03I 残余的 spell-duel / swift timing、reaction prohibition 与 payment-only lifecycle。交接规格见 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_BASELINE_EVIDENCE.md`；focused baseline 109/109、adjacent baseline 336/336 通过。该补充只建立 B 侧实现交接，不代表功能完成，不关闭 P0-005。
+
 目标：把 PLAY_CARD、MOVE_UNIT、ASSEMBLE_EQUIPMENT、ACTIVATE_ABILITY、LEGEND_ACT、battlefield trigger、keyword optional/extra cost 与 rune resource actions 统一到可回滚、可审计、服务端候选驱动的 PaymentEngine。
 
 建议 owner：B 服务端实现，E 卡牌证据矩阵协助确认官方费用口径。
@@ -171,6 +173,6 @@
 
 1. 维持 NOT READY 结论。
 2. 不再为 Stage 4C representative evidence alignment 追加新批次，除非出现遗漏的已验证自动化证据。
-3. 当前 4D-03 focused foundation、4D-03B non-play focused slice、4D-03C play optional / extra focused slice、4D-03D `ACTIVATE_ABILITY` payment resource focused slice、4D-03E `HIDE_CARD` payment focused slice、4D-03F pending `PAY_COST` resource focused slice、4D-03G battlefield held score resource action focused slice、4D-03H trigger payment resource action focused slice 与 4D-03I Malzahar resource skill focused slice 均已验收；下一步继续扩展 full PaymentEngine breadth。
+3. 当前 4D-03 focused foundation、4D-03B non-play focused slice、4D-03C play optional / extra focused slice、4D-03D `ACTIVATE_ABILITY` payment resource focused slice、4D-03E `HIDE_CARD` payment focused slice、4D-03F pending `PAY_COST` resource focused slice、4D-03G battlefield held score resource action focused slice、4D-03H trigger payment resource action focused slice 与 4D-03I Malzahar resource skill focused slice 均已验收；4D-03J Malzahar lifecycle handoff / baseline 已建立，下一步进入 B 侧服务端实现。
 4. 每个 4D 实现切片必须先给出写入范围、测试过滤器、不可并行文件和 no-go 声明，再进入代码修改。
 5. A 不亲自写功能代码；只维护计划、派单、验收文档、测试验证和 completion audit。

@@ -1,11 +1,13 @@
 # 符文战场 Web 前端重建与服务端补齐计划
 
-更新日期：2026-05-13
+更新日期：2026-05-14
 当前结论：**NOT READY**
 当前完成度：约 **99%+**，formal 18-step E2E 已通过；预计仍需 P0/P1 规则清零、全官方卡牌证据与最终 completion audit。
 用途：作为本轮“产品级 Web 前端重建 + 服务端规则补齐”的短入口，后续每个批次都应回到本文更新范围、验收和剩余风险。
 
 最新批次补充：
+
+- 2026-05-14 Stage 4D-03J handoff / baseline 已建立：Malzahar resource skill 已在 4D-03I open-main representative 中接入服务端 prompt / command / audit；下一服务端切片聚焦 spell-duel / swift timing、reaction prohibition 与 payment-only lifecycle，交接入口为 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_BASELINE_EVIDENCE.md`。前端仍只展示并提交服务端 `ActionPrompt` 暴露的 ability source / cost choices，不本地推断 resource skill timing 或 payment-only lifecycle；项目仍 **NOT READY**。
 
 - 第三百六十批新增 Stage 4C-98 battlefield residual evidence alignment。`docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 已新增 `stage4CBatch98BattlefieldResidualEvidenceAlignment`、`functionalUnits[].stage4C98` 与 `snapshotEntries[].stage4C98`，把力量方尖碑、荣耀竞技场、冰霜要塞共 3 个已验证 battlefield rule-domain FU 从 `IMPLEMENTED_UNTESTED` 对齐为 representative `IMPLEMENTED_TESTED`。focused 8/8、adjacent 87/87、backend full 3771/3771 通过；本批不修改 DevUi、服务端功能代码、测试代码或前端契约；`fullOfficial=false`，整体仍 **NOT READY**。
 
@@ -27,7 +29,7 @@
 
 - 第三百五十一批新增 Stage 4C-89 vanilla unit evidence-only overlay。`FU-d635fc47f4` / `OGN·142/298` / 山脉亚龙 与 `FU-72ce6fb8a4` / `OGN·175/298` / 船坞潜伏者已在 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 记录 `stage4CBatch89VanillaUnitEvidence`、`functionalUnits[].stage4C89` 与 `snapshotEntries[].stage4C89`；复用既有服务端代表路径和测试，覆盖无卡面效果单位 ordinary hand `PLAY_CARD`、支付基础费用、0 目标、stack pass-pass 后进入控制者基地成为官方战力 `CARD_TYPE:UNIT`，并拒绝显式目标。focused 305/305、adjacent 1879/1879、backend full 3771/3771 通过；无 DevUi、服务端功能代码或前端契约变更；整体仍 **NOT READY**。
 
-- 第三百五十批新增 Stage 4C-88 Malzahar / 玛尔扎哈 resource-skill design gate。`FU-0f7cbe26ce` / `OGN·113/298` 已确认不能按 evidence-only 入账：当前服务端只覆盖普通手牌打出进基地，官方横置、摧毁友方单位或装备、迅捷获得 `A A` 用以支付符能费用的 activated resource skill 仍未进入 `P4ActivatedAbilityCatalog` / `CoreRuleEngine.ResolveActivateAbility`。本批只新增派单规格文档 `docs/CURRENT_STAGE4C_BATCH88_MALZAHAR_RESOURCE_SKILL_DESIGN_GATE.md`，不修改 DevUi、服务端功能代码、测试或覆盖矩阵；前端后续仍只展示并提交服务端 `ActionPrompt` 暴露的 ability source / cost choices。整体仍 **NOT READY**。
+- 第三百五十批新增 Stage 4C-88 Malzahar / 玛尔扎哈 resource-skill design gate。`FU-0f7cbe26ce` / `OGN·113/298` 已确认不能按 evidence-only 入账：当时服务端只覆盖普通手牌打出进基地，官方横置、摧毁友方单位或装备、迅捷获得 `A A` 用以支付符能费用的 activated resource skill 尚未进入 `P4ActivatedAbilityCatalog` / `CoreRuleEngine.ResolveActivateAbility`。该历史状态已被 4D-03I open-main representative 部分 supersede；spell-duel / swift timing、reaction prohibition 与 payment-only lifecycle 已转入 4D-03J 服务端交接。本批只新增派单规格文档 `docs/CURRENT_STAGE4C_BATCH88_MALZAHAR_RESOURCE_SKILL_DESIGN_GATE.md`，不修改 DevUi、服务端功能代码、测试或覆盖矩阵；前端后续仍只展示并提交服务端 `ActionPrompt` 暴露的 ability source / cost choices。整体仍 **NOT READY**。
 
 - 第三百四十九批新增 Stage 4C-87 Shield Wall / 禁军之墙 evidence-only overlay。`FU-a7fbef72ba` / `SFD·043/221` 已在 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 记录 `stage4CBatch87ShieldWallMoveFriendlyBattlefieldUnitsGuard`、`functionalUnits[].stage4C87` 与 `snapshotEntries[].stage4C87`；复用既有服务端代表路径和测试，覆盖支付 2、动态选择任意数量己方战场单位、stack pass-pass 后移动到拥有者基地，并拒绝敌方/基地/重复目标。focused 2/2、MoveFriendly / MoveUnit / FriendlyBattlefieldUnit adjacent 63/63、backend full 3771/3771 通过。本批不修改 DevUi、引擎功能代码或前端契约；整体仍 **NOT READY**。
 

@@ -13,6 +13,8 @@
 
 2026-05-14 4D-03I focused slice 补充：Malzahar resource skill 已接入 open-main representative path，审计入口为 `docs/CURRENT_STAGE4D_03I_PAYMENT_ENGINE_RESOURCE_SKILL_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_03I_PAYMENT_ENGINE_RESOURCE_SKILL_EVIDENCE.md`；focused 105/105、adjacent 317/317、backend full 3840/3840 与 `git diff --check` 通过。该补充 supersede 上方 4D-03I handoff-only 口径，但仍不关闭 P0-005 full official；项目仍 **NOT READY**。
 
+2026-05-14 4D-03J handoff / baseline 补充：Malzahar resource skill lifecycle 下一服务端切片已建立，交接入口为 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_BASELINE_EVIDENCE.md`；focused baseline 109/109、adjacent baseline 336/336 通过。该补充只建立实现前回归护栏，不关闭 P0-005 full official；项目仍 **NOT READY**。
+
 ## 1. 目的
 
 本索引用来把五份官方 PDF/FAQ 映射到新项目的规则域、fixture 和实现状态。它不是规则全文摘录，而是开发时定位证据的目录。
@@ -2126,6 +2128,7 @@
 - 阶段 4D-03H 已建立 trigger payment resource handoff / baseline：`docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_BASELINE_EVIDENCE.md`。候选锁定 SFD 菲奥娜 yellow trigger payment resource action；实现前 focused baseline 55/55、adjacent TriggerPayment / PAY_COST / PaymentEngine / ActionPrompt / GameHub regression 233/233 通过；该基线只作为回归护栏，不关闭 P0-005。
 - 阶段 4D-03H focused slice 已验收：`docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_EVIDENCE.md`。SFD Fiora trigger payment resource action 已接入 `TRIGGER_PAYMENT` / `PAY_COST`，支持黄色支付、必要 `RECYCLE_RUNE:*` resource action、decline 与 stale no-mutation；focused 69/69、adjacent 242/242、backend full 3818/3818 通过；该切片仍不关闭 P0-005 full official。
 - 阶段 4D-03I focused slice 已验收：`docs/CURRENT_STAGE4D_03I_PAYMENT_ENGINE_RESOURCE_SKILL_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03I_PAYMENT_ENGINE_RESOURCE_SKILL_EVIDENCE.md`。Malzahar open-main `[A A]` resource skill 已接入 prompt / command / audit 口径，支持横置来源、摧毁友方单位或装备成本对象、获得 2 点 payment-only metadata power 且不创建普通 stack item；focused 105/105、adjacent 317/317、backend full 3840/3840 通过；该切片仍不关闭 P0-005 full official。
+- 阶段 4D-03J 已建立 Malzahar resource skill lifecycle handoff / baseline：`docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_BASELINE_EVIDENCE.md`。下一实现切片聚焦 spell-duel / swift timing、reaction prohibition 与 payment-only lifecycle；focused baseline 109/109、adjacent baseline 336/336 通过；该基线不证明功能完成，不关闭 P0-005 full official。
 - 需要 `PaymentPlan/paymentPlanId/paymentWindow`、Quote/Authorize/Commit、`PAY_COST` / `DECLINE_PAY_COST` command 和 typed error details。
 - prompt 与 Core 不能继续各自重复计算费用。
 
