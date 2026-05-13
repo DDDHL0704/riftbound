@@ -6091,6 +6091,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveXerathDamageAbility(state, intent, command, ability);
         }
 
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId, StringComparison.Ordinal))
+        {
+            return ResolveCrimsonRoseReadyAbility(state, intent, command, ability);
+        }
+
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId, StringComparison.Ordinal))
         {
             return ResolveRenataGlascDrawAbility(state, intent, command, ability);
@@ -9582,6 +9587,270 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["damageAmount"] = stackItem.DamageAmount
                 })
         ]);
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolveCrimsonRoseReadyAbility(
+        MatchState state,
+        PlayerIntent intent,
+        ActivateAbilityCommand command,
+        P4ActivatedAbilityDefinition ability)
+    {
+        if (state.PendingPayment is not null
+            || state.PendingHandChoice is not null
+            || state.PendingTaskQueue.IsBlocking
+            || !string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || state.StackItems.Count > 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "猩红玫瑰的技能只能在当前玩家的开放主阶段提交。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (NormalizeOptionalCosts(command.OptionalCosts).Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "猩红玫瑰的技能不接受额外费用或支付资源动作。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var normalizedTargets = NormalizeTargetObjectIds(command.TargetObjectIds);
+        if (normalizedTargets.Count != ability.RequiredTargetCount
+            || command.TargetObjectIds.Count != ability.RequiredTargetCount)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "猩红玫瑰的技能需要且只能选择 1 个单位目标。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!IsControlledBaseObject(state, intent.PlayerId, command.SourceObjectId)
+            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
+            || !sourceState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || sourceState.IsFaceDown
+            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "猩红玫瑰的技能来源必须是当前玩家控制的公开基地装备。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "猩红玫瑰的技能只能选择当前玩家控制的来源。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!string.Equals(sourceState.CardNo, ability.SourceCardNo, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "该来源没有服务端支持的猩红玫瑰技能。",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        if (sourceState.IsExhausted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "猩红玫瑰的技能来源必须未横置。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var targetObjectId = normalizedTargets[0];
+        if (!IsFieldObject(state.PlayerZones, targetObjectId)
+            || !state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            || string.IsNullOrWhiteSpace(targetState.CardNo)
+            || targetState.IsFaceDown
+            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "猩红玫瑰的技能目标必须是公开单位。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var spellshieldTaxMana = 0;
+        IReadOnlyList<string> spellshieldTaxTargetObjectIds = [];
+        if (ability.AppliesSpellshieldTargetTax)
+        {
+            spellshieldTaxMana = ResolveSpellshieldTargetTaxMana(
+                state,
+                intent.PlayerId,
+                normalizedTargets,
+                out spellshieldTaxTargetObjectIds);
+        }
+
+        const string paymentWindow = "ACTIVATE_ABILITY";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            intent.PlayerId,
+            command.SourceObjectId,
+            command.AbilityId);
+        var paymentPlan = new PaymentCostRules.PaymentPlan(
+            paymentId,
+            paymentWindow,
+            intent.PlayerId,
+            baseManaCost: spellshieldTaxMana,
+            totalManaCost: spellshieldTaxMana,
+            genericPowerCost: 0,
+            totalPowerCost: 0,
+            experienceCost: ability.ExperienceCost,
+            reason: ability.EffectKind,
+            sourceObjectId: command.SourceObjectId,
+            abilityId: command.AbilityId,
+            auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["spellshieldTaxMana"] = spellshieldTaxMana,
+                ["spellshieldTaxTargetObjectIds"] = spellshieldTaxTargetObjectIds.ToArray(),
+                ["exhaustsSource"] = true,
+                ["targetObjectIds"] = normalizedTargets.ToArray(),
+                ["readyTargetObjectId"] = targetObjectId
+            });
+        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
+            ? existingPool
+            : RunePool.Empty;
+        var currentExperience = state.PlayerExperience.TryGetValue(intent.PlayerId, out var availableExperience)
+            ? availableExperience
+            : 0;
+        var paymentAuthorization = PaymentCostRules.AuthorizePayment(
+            paymentPlan,
+            currentPool,
+            currentExperience);
+        if (!paymentAuthorization.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "资源不足，无法启动猩红玫瑰的技能。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var paymentCommit = PaymentCostRules.TryCommitPayment(
+            paymentPlan,
+            state.RunePools,
+            state.PlayerExperience);
+        if (!paymentCommit.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "资源不足，无法启动猩红玫瑰的技能。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var playerExperience = paymentCommit.PlayerExperience;
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[command.SourceObjectId] = sourceState with
+        {
+            IsExhausted = true,
+            OwnerId = string.IsNullOrWhiteSpace(sourceState.OwnerId) ? intent.PlayerId : sourceState.OwnerId,
+            ControllerId = string.IsNullOrWhiteSpace(sourceState.ControllerId) ? intent.PlayerId : sourceState.ControllerId
+        };
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var stackItem = new StackItemState(
+            $"STACK-{state.Tick + 1}-{command.SourceObjectId}-CRIMSON-READY",
+            intent.PlayerId,
+            command.SourceObjectId,
+            ability.EffectKind,
+            sourceState.CardNo,
+            normalizedTargets,
+            0,
+            1,
+            []);
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            ActivePlayerId = intent.PlayerId,
+            TimingState = TimingStates.NeutralClosed,
+            RunePools = runePools,
+            PlayerExperience = playerExperience,
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = ReconcileObjectLocations(objectLocations, playerZones),
+            PriorityPlayerId = intent.PlayerId,
+            PassedPriorityPlayerIds = [],
+            StackItems = state.StackItems.Concat([stackItem]).ToArray()
+        };
+        var events = new List<GameEvent>
+        {
+            new(
+                "ABILITY_ACTIVATED",
+                $"{intent.PlayerId} 激活猩红玫瑰的技能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["cardNo"] = sourceState.CardNo,
+                    ["abilityId"] = command.AbilityId,
+                    ["effectKind"] = ability.EffectKind,
+                    ["targetObjectIds"] = normalizedTargets.ToArray(),
+                    ["exhaustsSource"] = true
+                }),
+            new(
+                "EQUIPMENT_EXHAUSTED",
+                "猩红玫瑰横置支付技能费用",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["targetObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["wasExhausted"] = sourceState.IsExhausted,
+                    ["isExhausted"] = true,
+                    ["exhaustsSource"] = true
+                }),
+            new(
+                "COST_PAID",
+                $"{intent.PlayerId} 支付猩红玫瑰技能费用",
+                PaymentCostRules.BuildCostPaidPayload(
+                    paymentPlan,
+                    runePools,
+                    playerExperience,
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = intent.PlayerId,
+                        ["mana"] = spellshieldTaxMana,
+                        ["power"] = 0,
+                        ["experience"] = ability.ExperienceCost,
+                        ["abilityId"] = command.AbilityId,
+                        ["sourceObjectId"] = command.SourceObjectId,
+                        ["targetObjectIds"] = normalizedTargets.ToArray(),
+                        ["spellshieldTaxMana"] = spellshieldTaxMana,
+                        ["spellshieldTaxTargetObjectIds"] = spellshieldTaxTargetObjectIds.ToArray(),
+                        ["exhaustsSource"] = true
+                    })),
+            new(
+                "STACK_ITEM_ADDED",
+                "猩红玫瑰的技能加入结算链",
+                new Dictionary<string, object?>
+                {
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["controllerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["cardNo"] = stackItem.CardNo,
+                    ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["abilityId"] = command.AbilityId,
+                    ["exhaustsSource"] = true
+                })
+        };
 
         return new ResolutionResult(
             true,
@@ -25484,6 +25753,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveXerathDamageAbilityStackItem(state, stackItem);
         }
 
+        if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityEffectKind, StringComparison.Ordinal))
+        {
+            return ResolveCrimsonRoseReadyAbilityStackItem(state, stackItem);
+        }
+
         if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.RenataGlascDrawAbilityEffectKind, StringComparison.Ordinal))
         {
             return ResolveRenataGlascDrawAbilityStackItem(state, stackItem);
@@ -29020,6 +29294,71 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         return new StackResolutionResult(
             NormalizeZonesForSeats(state),
+            cardObjects,
+            state.PlayerScores,
+            NormalizeExperienceForSeats(state),
+            state.RunePools,
+            state.UntilEndOfTurnEffects,
+            null,
+            events,
+            [],
+            null,
+            [],
+            null,
+            [],
+            state.RngCursor);
+    }
+
+    private static StackResolutionResult ResolveCrimsonRoseReadyAbilityStackItem(
+        MatchState state,
+        StackItemState stackItem)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var events = new List<GameEvent>
+        {
+            new(
+                "ABILITY_RESOLVED",
+                "猩红玫瑰的技能结算",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = stackItem.ControllerId,
+                    ["controllerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["cardNo"] = stackItem.CardNo,
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["abilityId"] = P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId,
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray()
+                })
+        };
+
+        var targetObjectId = stackItem.TargetObjectIds.FirstOrDefault() ?? string.Empty;
+        if (!string.IsNullOrWhiteSpace(targetObjectId)
+            && IsFieldObject(playerZones, targetObjectId)
+            && cardObjects.TryGetValue(targetObjectId, out var targetState)
+            && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !targetState.IsFaceDown
+            && !targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            cardObjects[targetObjectId] = targetState with { IsExhausted = false };
+            events.Add(new GameEvent(
+                "UNIT_READIED",
+                "猩红玫瑰让单位变为活跃状态",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["targetObjectId"] = targetObjectId,
+                    ["wasExhausted"] = targetState.IsExhausted,
+                    ["isExhausted"] = false,
+                    ["abilityId"] = P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId,
+                    ["stackItemId"] = stackItem.StackItemId
+                }));
+        }
+
+        return new StackResolutionResult(
+            playerZones,
             cardObjects,
             state.PlayerScores,
             NormalizeExperienceForSeats(state),

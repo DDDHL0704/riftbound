@@ -20,7 +20,9 @@ public sealed record P4ActivatedAbilityDefinition(
     string ResourceRestriction = "",
     bool ReactionSpeed = false,
     int GeneratedMana = 0,
-    IReadOnlyDictionary<string, int>? PowerCostByTrait = null);
+    IReadOnlyDictionary<string, int>? PowerCostByTrait = null,
+    int ExperienceCost = 0,
+    bool RequiresBaseEquipmentSource = false);
 
 public sealed record P4DeferredActivatedAbilitySurface(
     string AbilityId,
@@ -67,6 +69,11 @@ public static class P4ActivatedAbilityCatalog
     public const string RenataGlascScoreAbilityEffectKind = "RENATA_GLASC_ACTIVATED_SCORE_1";
     public const int RenataGlascScoreManaCost = 4;
     public const int RenataGlascScoreBluePowerCost = 4;
+
+    public const string CrimsonRoseCardNo = "UNL-109/219";
+    public const string CrimsonRoseReadyAbilityId = "CRIMSON_ROSE_EXPERIENCE3_EXHAUST_READY_UNIT";
+    public const string CrimsonRoseReadyAbilityEffectKind = "CRIMSON_ROSE_ACTIVATED_READY_UNIT";
+    public const int CrimsonRoseReadyExperienceCost = 3;
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
@@ -163,7 +170,22 @@ public static class P4ActivatedAbilityCatalog
             PowerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
             {
                 [RuneTrait.Blue] = RenataGlascScoreBluePowerCost
-            })
+            }),
+        new(
+            CrimsonRoseReadyAbilityId,
+            CrimsonRoseCardNo,
+            CrimsonRoseReadyAbilityEffectKind,
+            "Crimson Rose ready-unit skill",
+            0,
+            0,
+            1,
+            RequiresBattlefieldSource: false,
+            ExhaustsSourceAsCost: true,
+            0,
+            AppliesSpellshieldTargetTax: true,
+            "Stage 4D-03O opens only Crimson Rose's spend 3 experience, exhaust, ready a unit representative; the unit-play experience trigger and broader target-bearing family remain deferred.",
+            ExperienceCost: CrimsonRoseReadyExperienceCost,
+            RequiresBaseEquipmentSource: true)
     ];
 
     private static readonly P4DeferredActivatedAbilitySurface[] DeferredSurfaces =
@@ -177,15 +199,6 @@ public static class P4ActivatedAbilityCatalog
             IsTargetBearing: false,
             EnemySpellshieldTaxRisk: false,
             "P4.391 keeps token creation with Spellshield deferred until token and battlefield-only skill execution are complete."),
-        new(
-            "DEFERRED_EXPERIENCE_EXHAUST_READY_UNIT",
-            "UNL-109/219",
-            "Crimson Rose ready-unit skill",
-            "crimson-rose-ready-unit",
-            RequiresBattlefieldSource: true,
-            IsTargetBearing: true,
-            EnemySpellshieldTaxRisk: true,
-            "P4.391 keeps target-bearing activated skills deferred until experience costs and skill target taxes are generalized."),
         new(
             "DEFERRED_SWIFT_PAY_1_A_EXHAUST_STUN_ATTACKER",
             "UNL-194/219",

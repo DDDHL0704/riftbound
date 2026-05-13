@@ -4067,6 +4067,7 @@ internal static class ActionPromptBuilder
         string AbilityLabel,
         int ManaCost,
         int PowerCost,
+        int ExperienceCost,
         IReadOnlyDictionary<string, int> PowerCostByTrait,
         int MinTargetCount,
         int MaxTargetCount,
@@ -5133,7 +5134,6 @@ internal static class ActionPromptBuilder
         if (!state.PlayerZones.TryGetValue(playerId, out var zones)
             || !state.CardObjects.TryGetValue(sourceObjectId, out var cardObject)
             || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
-            || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || cardObject.IsFaceDown)
         {
             return [];
@@ -5143,6 +5143,7 @@ internal static class ActionPromptBuilder
         foreach (var ability in P4ActivatedAbilityCatalog.GetAll())
         {
             if (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, cardObject.CardNo)
+                || !ActivateAbilitySourceMatches(ability, zones, sourceObjectId, cardObject)
                 || (ability.RequiresBattlefieldSource && !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
                 || (ability.ExhaustsSourceAsCost && cardObject.IsExhausted))
             {
@@ -5185,6 +5186,7 @@ internal static class ActionPromptBuilder
                 ActivateAbilityLabel(ability),
                 ability.ManaCost,
                 ability.PowerCost,
+                ability.ExperienceCost,
                 powerCostByTrait,
                 ability.RequiredTargetCount,
                 ability.RequiredTargetCount,
@@ -5223,6 +5225,7 @@ internal static class ActionPromptBuilder
                 "横置：获得 1 经验",
                 0,
                 0,
+                0,
                 new Dictionary<string, int>(StringComparer.Ordinal),
                 0,
                 0,
@@ -5245,6 +5248,22 @@ internal static class ActionPromptBuilder
         return requirements
             .Where(requirement => CanPayActivateAbilityRequirement(state, playerId, requirement))
             .ToArray();
+    }
+
+    private static bool ActivateAbilitySourceMatches(
+        P4ActivatedAbilityDefinition ability,
+        PlayerZones zones,
+        string sourceObjectId,
+        CardObjectState cardObject)
+    {
+        if (ability.RequiresBaseEquipmentSource)
+        {
+            return zones.Base.Contains(sourceObjectId, StringComparer.Ordinal)
+                && cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+                && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal);
+        }
+
+        return cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
     }
 
     private static IReadOnlyList<LegendActionPromptRequirement> LegendActionSourceRequirements(
@@ -6047,6 +6066,26 @@ internal static class ActionPromptBuilder
             };
         }
 
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId, StringComparison.Ordinal))
+        {
+            var choices = PublicBoardObjects(state)
+                .Where(objectId => IsPromptFieldUnitObject(state, objectId))
+                .Where(objectId => CanPayCrimsonRoseTargetCost(state, playerId, ability, objectId))
+                .Select(objectId => ObjectChoice(
+                    state,
+                    objectId,
+                    IsPromptEnemyFieldObject(state, playerId, objectId)
+                        && state.CardObjects.TryGetValue(objectId, out var targetState)
+                        && CardResourceKeywordRules.SpellshieldTaxFromTags(targetState.Tags) > 0
+                            ? "unit target with spellshield tax"
+                            : "unit target"))
+                .ToArray();
+            return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal)
+            {
+                ["0"] = choices
+            };
+        }
+
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, StringComparison.Ordinal))
         {
             var choices = state.PlayerZones.TryGetValue(playerId, out var zones)
@@ -6064,6 +6103,22 @@ internal static class ActionPromptBuilder
         }
 
         return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
+    }
+
+    private static bool CanPayCrimsonRoseTargetCost(
+        MatchState state,
+        string playerId,
+        P4ActivatedAbilityDefinition ability,
+        string targetObjectId)
+    {
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        var experience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
+            ? currentExperience
+            : 0;
+        return experience >= ability.ExperienceCost
+            && runePool.Mana >= SpellshieldTaxManaForTarget(state, playerId, targetObjectId);
     }
 
     private static bool IsPromptMalzaharDestroyCostTarget(
@@ -6395,6 +6450,14 @@ internal static class ActionPromptBuilder
             return false;
         }
 
+        var experience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
+            ? currentExperience
+            : 0;
+        if (experience < requirement.ExperienceCost)
+        {
+            return false;
+        }
+
         if (requirement.PowerCostByTrait.Count == 0)
         {
             return requirement.AvailablePowerWithPaymentResources >= requirement.PowerCost;
@@ -6461,6 +6524,7 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId => "龙魂贤者",
             P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId => "烈娜塔·戈拉斯克",
             P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId => "烈娜塔·戈拉斯克",
+            P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId => "猩红玫瑰",
             _ => ability.DisplayName
         };
     }
@@ -6475,6 +6539,7 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId => "龙魂贤者：反应，横置，获得 1 点法力",
             P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId => "烈娜塔·戈拉斯克：支付 1 法力和 1 蓝色符能，抽 1 张牌",
             P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId => "烈娜塔·戈拉斯克：支付 4 法力和 4 蓝色符能并横置，获得 1 分",
+            P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId => "猩红玫瑰：消耗 3 经验并横置，让一名单位变为活跃状态",
             _ => ability.DisplayName
         };
     }
@@ -6485,9 +6550,11 @@ internal static class ActionPromptBuilder
             ? "无目标"
             : string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.XerathDamageAbilityId, StringComparison.Ordinal)
                 ? "任意场上单位"
-                : string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, StringComparison.Ordinal)
-                    ? "友方单位或装备（成本）"
-                    : "服务端目标";
+                : string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId, StringComparison.Ordinal)
+                    ? "任意单位"
+                    : string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, StringComparison.Ordinal)
+                        ? "友方单位或装备（成本）"
+                        : "服务端目标";
     }
 
     private static int SpellshieldTaxManaForTarget(MatchState state, string playerId, string targetObjectId)
@@ -9680,6 +9747,7 @@ internal static class ActionPromptBuilder
             ["abilityLabel"] = requirement.AbilityLabel,
             ["manaCost"] = requirement.ManaCost,
             ["powerCost"] = requirement.PowerCost,
+            ["experienceCost"] = requirement.ExperienceCost,
             ["powerCostByTrait"] = requirement.PowerCostByTrait,
             ["minTargetCount"] = requirement.MinTargetCount,
             ["maxTargetCount"] = requirement.MaxTargetCount,
@@ -9741,6 +9809,16 @@ internal static class ActionPromptBuilder
             view["timingPolicy"] = "open-main-representative";
             view["stackPolicy"] = "ordinary-stack-item-before-score";
             view["paymentPolicy"] = "payment-plan-typed-blue-exhaust-as-cost";
+        }
+
+        if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId, StringComparison.Ordinal))
+        {
+            view["requiresBaseEquipmentSource"] = true;
+            view["readyTargetCount"] = 1;
+            view["appliesSpellshieldTargetTax"] = true;
+            view["timingPolicy"] = "open-main-representative";
+            view["stackPolicy"] = "ordinary-stack-item-before-ready";
+            view["paymentPolicy"] = "payment-plan-experience-and-spellshield-tax";
         }
 
         return view;

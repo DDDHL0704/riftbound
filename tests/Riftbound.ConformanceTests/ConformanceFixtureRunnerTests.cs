@@ -30711,6 +30711,21 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(P4ActivatedAbilityCatalog.RenataGlascScoreBluePowerCost, renataScorePowerCostByTrait[RuneTrait.Blue]);
         Assert.True(P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(renataScoreDefinition, P4ActivatedAbilityCatalog.RenataGlascCardNo));
         Assert.True(P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(renataScoreDefinition, P4ActivatedAbilityCatalog.RenataGlascAltCardNo));
+
+        Assert.True(P4ActivatedAbilityCatalog.TryGetByAbilityId(
+            P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId,
+            out var crimsonRoseDefinition));
+        Assert.Equal(P4ActivatedAbilityCatalog.CrimsonRoseCardNo, crimsonRoseDefinition.SourceCardNo);
+        Assert.Equal(P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityEffectKind, crimsonRoseDefinition.EffectKind);
+        Assert.Equal(0, crimsonRoseDefinition.ManaCost);
+        Assert.Equal(0, crimsonRoseDefinition.PowerCost);
+        Assert.Equal(P4ActivatedAbilityCatalog.CrimsonRoseReadyExperienceCost, crimsonRoseDefinition.ExperienceCost);
+        Assert.Equal(1, crimsonRoseDefinition.RequiredTargetCount);
+        Assert.False(crimsonRoseDefinition.RequiresBattlefieldSource);
+        Assert.True(crimsonRoseDefinition.RequiresBaseEquipmentSource);
+        Assert.True(crimsonRoseDefinition.ExhaustsSourceAsCost);
+        Assert.Equal(0, crimsonRoseDefinition.DamageAmount);
+        Assert.True(crimsonRoseDefinition.AppliesSpellshieldTargetTax);
     }
 
     [Fact]
@@ -30718,6 +30733,7 @@ public sealed class ConformanceFixtureRunnerTests
     {
         Assert.Equal(
             [
+                "CRIMSON_ROSE_EXPERIENCE3_EXHAUST_READY_UNIT",
                 "DRAGON_SOUL_SAGE_REACTION_EXHAUST_GAIN_1_MANA",
                 "MALZAHAR_DESTROY_FRIENDLY_EXHAUST_GAIN_2_PAYMENT_POWER",
                 "PAY_2_RED_DOUBLE_POWER",
@@ -30730,7 +30746,7 @@ public sealed class ConformanceFixtureRunnerTests
                 .OrderBy(abilityId => abilityId, StringComparer.Ordinal));
 
         var deferredSurfaces = P4ActivatedAbilityCatalog.GetDeferredSurfaces();
-        Assert.True(deferredSurfaces.Count >= 3);
+        Assert.True(deferredSurfaces.Count >= 2);
         Assert.DoesNotContain(
             deferredSurfaces,
             surface => string.Equals(surface.SourceCardNo, P4ActivatedAbilityCatalog.DragonSoulSageCardNo, StringComparison.Ordinal));
@@ -30740,6 +30756,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.DoesNotContain(
             deferredSurfaces,
             surface => string.Equals(surface.AbilityId, "DEFERRED_PAY_4_BLUE4_EXHAUST_SCORE_1", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            deferredSurfaces,
+            surface => string.Equals(surface.AbilityId, "DEFERRED_EXPERIENCE_EXHAUST_READY_UNIT", StringComparison.Ordinal));
         Assert.Contains(deferredSurfaces, surface => surface.IsTargetBearing && surface.EnemySpellshieldTaxRisk);
         Assert.Contains(deferredSurfaces, surface => !surface.IsTargetBearing && !surface.EnemySpellshieldTaxRisk);
 
