@@ -17,6 +17,8 @@
 
 2026-05-14 4D-03J focused slice 补充：Malzahar resource skill lifecycle representative 已接入 spell-duel focus prompt / command、immediate no-stack resolution 与 temporary payment-only ledger，审计入口为 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_EVIDENCE.md`；focused 116/116、adjacent 340/340、backend full 3847/3847 与 `git diff --check` 通过。该补充 supersede 上方 4D-03J handoff-only 口径，但仍不关闭 P0-005 full official；项目仍 **NOT READY**。
 
+2026-05-14 4D-03K handoff / baseline 补充：temporary payment-only resource inline consumption 下一服务端切片已建立，交接入口为 `docs/CURRENT_STAGE4D_03K_PAYMENT_ENGINE_TEMPORARY_RESOURCE_INLINE_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_03K_PAYMENT_ENGINE_TEMPORARY_RESOURCE_INLINE_BASELINE_EVIDENCE.md`；focused baseline 331/331、adjacent baseline 526/526 通过。该补充只建立实现前回归护栏，不代表 `PLAY_CARD` / `ACTIVATE_ABILITY` / `ASSEMBLE_EQUIPMENT` inline temporary resource consumption 已实现，不关闭 P0-005 full official；项目仍 **NOT READY**。
+
 ## 1. 目的
 
 本索引用来把五份官方 PDF/FAQ 映射到新项目的规则域、fixture 和实现状态。它不是规则全文摘录，而是开发时定位证据的目录。

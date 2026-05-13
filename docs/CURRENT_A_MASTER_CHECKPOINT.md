@@ -19,6 +19,8 @@
 
 2026-05-14 4D-03J focused slice 已验收：Malzahar resource skill lifecycle representative 已实现。服务端 spell-duel focus prompt 在 `SPELL_DUEL_OPEN` 且 `FocusPlayerId` 为当前玩家时公开 Malzahar `ACTIVATE_ABILITY`；命令侧接受 open-main 与 spell-duel focus 两类 timing，成功时横置来源、摧毁友方单位/装备成本对象、创建 temporary payment-only resource ledger、保持立即结算且不创建普通 stack item。pending `PAY_COST` 可用 `TEMP_PAYMENT_RESOURCE:*` 消费该 ledger 支付通用符能费用，mana-only / typed shortfall / unnecessary use rejected，支付关闭或回合资源清理时清除 ledger。审计与证据见 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_EVIDENCE.md`；focused 116/116、adjacent 340/340、backend full 3847/3847、`git diff --check` 通过。该切片只收窄 P0-005 resource skill lifecycle representative，不关闭完整 `[A]` / `[C]`、inline payment-window temporary resource consumption、reaction/counter full target-filter model 或 full PaymentEngine，项目仍 **NOT READY**。
 
+2026-05-14 4D-03K handoff / baseline 已建立：下一 PaymentEngine breadth 切片锁定 Malzahar temporary payment-only resource 的 inline payment consumption。当前 4D-03J ledger 已可在 pending `PAY_COST` 中通过 `TEMP_PAYMENT_RESOURCE:*` 支付通用符能，但 `PLAY_CARD`、`ACTIVATE_ABILITY`、`ASSEMBLE_EQUIPMENT` inline prompt / command 仍只识别 `RECYCLE_RUNE:*` payment resource action。交接规格见 `docs/CURRENT_STAGE4D_03K_PAYMENT_ENGINE_TEMPORARY_RESOURCE_INLINE_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_03K_PAYMENT_ENGINE_TEMPORARY_RESOURCE_INLINE_BASELINE_EVIDENCE.md`；focused baseline 331/331、adjacent baseline 526/526 通过。该基线只建立 B 侧实现交接和回归护栏，不代表 inline temporary resource consumption 已完成，不关闭 P0-005，项目仍 **NOT READY**。
+
 ## 0. A 主控职责边界
 
 A 是主控规划 / 架构 / 验收 agent，不是默认功能实现 agent。A 的职责是：
