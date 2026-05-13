@@ -5,7 +5,7 @@
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
 
-最新 checkpoint：`d960b4c1 checkpoint: record stage 4C stern sergeant experience evidence`。上一 Stage 4C checkpoint：`25121830 checkpoint: record stage 4C royal guard sand soldier evidence`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
+最新 checkpoint：待提交 `stage 4C-93 royal attendant legend mode evidence`。上一 Stage 4C checkpoint：`d960b4c1 checkpoint: record stage 4C stern sergeant experience evidence`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
 
 ## 0. A 主控职责边界
 
@@ -5005,3 +5005,26 @@ Checkpoint 记录：
 
 - 本批只关闭 Stern Sergeant / 严厉军士代表性 source-unit + dynamic experience 证据入账缺口。
 - 不宣称战斗/移动触发经验、经验消耗技能、完整 experience economy、完整 PaymentEngine / FEPR、LayerEngine、hidden-info / redaction、1009/811 full-official 或 READY。
+
+## 55. Stage 4C-93 Royal Attendant Legend Mode Evidence Checkpoint
+
+状态：**Stage 4C-93 Royal Attendant representative evidence 已记录；项目整体仍 NOT READY。**
+
+本批范围：
+
+- 代表 FU：`FU-92e31978af`。
+- 代表卡：皇家随从 / Royal Attendant `SFD·039/221` / cardId `33115`。
+- 只做 evidence-only overlay，不修改功能代码、测试代码或前端代码。
+- 将既有 Royal Attendant source-unit + legend mode 服务端权威路径入账：ordinary hand `PLAY_CARD`、支付基础 3 费用、选择 `LEGEND` 目标与 `READY_LEGEND` / `EXHAUST_LEGEND` mode、stack pass-pass 后源牌进入控制者基地成为 4 战力 `CARD_TYPE:UNIT`，并按 mode 让目标传奇变为活跃或休眠；无效显式目标输入被拒绝且 no mutation。
+- 更新 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 的 `stage4CBatch93RoyalAttendantLegendModeEvidence`、`functionalUnits[].stage4C93` 与 `snapshotEntries[].stage4C93`。
+
+通过证据：
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~RoyalAttendant|FullyQualifiedName~royal-attendant|FullyQualifiedName~READY_LEGEND|FullyQualifiedName~EXHAUST_LEGEND"`：5/5 通过。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~RoyalAttendant|FullyQualifiedName~Legend|FullyQualifiedName~PlayCardPrompt|FullyQualifiedName~SourceUnit|FullyQualifiedName~UnitToBase|FullyQualifiedName~Target|FullyQualifiedName~Stack|FullyQualifiedName~Priority|FullyQualifiedName~Payment|FullyQualifiedName~PayCost"`：1894/1894 通过。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：3771/3771 通过。
+
+口径：
+
+- 本批只关闭 Royal Attendant / 皇家随从代表性 source-unit + legend mode 证据入账缺口。
+- 不宣称完整 legend interaction domain、非手牌或替代来源打出、完整 PaymentEngine / FEPR、LayerEngine、hidden-info / redaction、1009/811 full-official 或 READY。
