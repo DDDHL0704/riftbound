@@ -19,7 +19,8 @@ public sealed record P4ActivatedAbilityDefinition(
     bool UsesTargetAsCost = false,
     string ResourceRestriction = "",
     bool ReactionSpeed = false,
-    int GeneratedMana = 0);
+    int GeneratedMana = 0,
+    IReadOnlyDictionary<string, int>? PowerCostByTrait = null);
 
 public sealed record P4DeferredActivatedAbilitySurface(
     string AbilityId,
@@ -55,6 +56,13 @@ public static class P4ActivatedAbilityCatalog
     public const string DragonSoulSageResourceAbilityId = "DRAGON_SOUL_SAGE_REACTION_EXHAUST_GAIN_1_MANA";
     public const string DragonSoulSageResourceAbilityEffectKind = "DRAGON_SOUL_SAGE_REACTION_RESOURCE_SKILL_GAIN_1_MANA";
     public const int DragonSoulSageGeneratedMana = 1;
+
+    public const string RenataGlascCardNo = "SFD·088/221";
+    public const string RenataGlascAltCardNo = "SFD·088a/221";
+    public const string RenataGlascDrawAbilityId = "RENATA_GLASC_PAY_1_BLUE_DRAW_1";
+    public const string RenataGlascDrawAbilityEffectKind = "RENATA_GLASC_ACTIVATED_DRAW_1";
+    public const int RenataGlascDrawManaCost = 1;
+    public const int RenataGlascDrawBluePowerCost = 1;
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
@@ -117,7 +125,24 @@ public static class P4ActivatedAbilityCatalog
             "Stage 4D-03L opens only Dragon Soul Sage's reaction-speed no-target resource skill representative; the broader reaction resource skill family remains deferred.",
             IsResourceSkill: true,
             ReactionSpeed: true,
-            GeneratedMana: DragonSoulSageGeneratedMana)
+            GeneratedMana: DragonSoulSageGeneratedMana),
+        new(
+            RenataGlascDrawAbilityId,
+            RenataGlascCardNo,
+            RenataGlascDrawAbilityEffectKind,
+            "Renata Glasc draw skill",
+            RenataGlascDrawManaCost,
+            0,
+            0,
+            RequiresBattlefieldSource: true,
+            ExhaustsSourceAsCost: false,
+            0,
+            AppliesSpellshieldTargetTax: false,
+            "Stage 4D-03M opens only Renata Glasc's pay 1 and blue draw representative; the score skill and broader colored activated family remain deferred.",
+            PowerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [RuneTrait.Blue] = RenataGlascDrawBluePowerCost
+            })
     ];
 
     private static readonly P4DeferredActivatedAbilitySurface[] DeferredSurfaces =
@@ -131,15 +156,6 @@ public static class P4ActivatedAbilityCatalog
             IsTargetBearing: false,
             EnemySpellshieldTaxRisk: false,
             "P4.391 keeps token creation with Spellshield deferred until token and battlefield-only skill execution are complete."),
-        new(
-            "DEFERRED_PAY_1_BLUE_DRAW_1",
-            "SFD·088/221",
-            "Renata Glasc draw skill",
-            "renata-glasc-draw",
-            RequiresBattlefieldSource: true,
-            IsTargetBearing: false,
-            EnemySpellshieldTaxRisk: false,
-            "P4.391 keeps color-specific activated draw abilities deferred until colored resource costs are modeled."),
         new(
             "DEFERRED_PAY_4_BLUE4_EXHAUST_SCORE_1",
             "SFD·088/221",
@@ -199,5 +215,26 @@ public static class P4ActivatedAbilityCatalog
             effectKind,
             StringComparison.Ordinal))!;
         return definition is not null;
+    }
+
+    public static bool IsSourceCardNoForAbility(
+        P4ActivatedAbilityDefinition definition,
+        string? cardNo)
+    {
+        return SourceCardNosForAbility(definition)
+            .Contains(cardNo ?? string.Empty, StringComparer.Ordinal);
+    }
+
+    public static IReadOnlyList<string> SourceCardNosForAbility(P4ActivatedAbilityDefinition definition)
+    {
+        return string.Equals(definition.AbilityId, RenataGlascDrawAbilityId, StringComparison.Ordinal)
+            ? [RenataGlascCardNo, RenataGlascAltCardNo]
+            : [definition.SourceCardNo];
+    }
+
+    public static IReadOnlyDictionary<string, int> PowerCostByTraitForAbility(P4ActivatedAbilityDefinition definition)
+    {
+        return PaymentCostRules.NormalizePowerCostByTrait(
+            definition.PowerCostByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
     }
 }

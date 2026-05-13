@@ -4067,6 +4067,7 @@ internal static class ActionPromptBuilder
         string AbilityLabel,
         int ManaCost,
         int PowerCost,
+        IReadOnlyDictionary<string, int> PowerCostByTrait,
         int MinTargetCount,
         int MaxTargetCount,
         string TargetScopeLabel,
@@ -5141,7 +5142,7 @@ internal static class ActionPromptBuilder
         var requirements = new List<ActivateAbilityPromptRequirement>();
         foreach (var ability in P4ActivatedAbilityCatalog.GetAll())
         {
-            if (!string.Equals(cardObject.CardNo, ability.SourceCardNo, StringComparison.Ordinal)
+            if (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, cardObject.CardNo)
                 || (ability.RequiresBattlefieldSource && !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
                 || (ability.ExhaustsSourceAsCost && cardObject.IsExhausted))
             {
@@ -5168,6 +5169,7 @@ internal static class ActionPromptBuilder
             var paymentResourceChoices = ActivateAbilityPaymentResourceChoices(state, playerId, ability);
             var paymentResourcePowerByTrait = ActivateAbilityPaymentResourcePowerByTrait(state, playerId, ability);
             var paymentResourcePowerByChoice = ActivateAbilityPaymentResourcePowerByChoice(state, playerId, ability);
+            var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
             var availablePowerByTrait = PlayCardAvailablePowerByTrait(
                 runePool,
                 new Dictionary<string, int>(StringComparer.Ordinal));
@@ -5177,12 +5179,13 @@ internal static class ActionPromptBuilder
 
             requirements.Add(new ActivateAbilityPromptRequirement(
                 sourceObjectId,
-                ability.SourceCardNo,
+                cardObject.CardNo ?? ability.SourceCardNo,
                 ability.AbilityId,
                 ActivateAbilityDisplayName(ability),
                 ActivateAbilityLabel(ability),
                 ability.ManaCost,
                 ability.PowerCost,
+                powerCostByTrait,
                 ability.RequiredTargetCount,
                 ability.RequiredTargetCount,
                 ActivateAbilityTargetScopeLabel(ability),
@@ -5220,6 +5223,7 @@ internal static class ActionPromptBuilder
                 "横置：获得 1 经验",
                 0,
                 0,
+                new Dictionary<string, int>(StringComparer.Ordinal),
                 0,
                 0,
                 "无目标",
@@ -6096,7 +6100,8 @@ internal static class ActionPromptBuilder
         string playerId,
         P4ActivatedAbilityDefinition ability)
     {
-        if (ability.PowerCost <= 0)
+        var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
+        if (ability.PowerCost <= 0 && powerCostByTrait.Count == 0)
         {
             return [];
         }
@@ -6104,7 +6109,7 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        if (runePool.TotalPower >= ability.PowerCost
+        if (PaymentCostRules.CanPayPowerCost(runePool, ability.PowerCost, powerCostByTrait)
             || !state.PlayerZones.TryGetValue(playerId, out var zones))
         {
             return [];
@@ -6112,6 +6117,12 @@ internal static class ActionPromptBuilder
 
         var recycleChoices = zones.Base
             .Where(objectId => IsRecycleRuneSource(state, playerId, objectId))
+            .Where(objectId => RecycleRuneCanHelpActivateAbilityPowerCost(
+                state,
+                objectId,
+                runePool,
+                ability.PowerCost,
+                powerCostByTrait))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .Select(objectId =>
             {
@@ -6126,9 +6137,32 @@ internal static class ActionPromptBuilder
             state,
             playerId,
             ability.PowerCost,
-            new Dictionary<string, int>(StringComparer.Ordinal),
+            powerCostByTrait,
             "payment resource action: temporary resource for activate ability power");
         return recycleChoices.Concat(temporaryChoices).ToArray();
+    }
+
+    private static bool RecycleRuneCanHelpActivateAbilityPowerCost(
+        MatchState state,
+        string runeObjectId,
+        RunePool runePool,
+        int genericPowerCost,
+        IReadOnlyDictionary<string, int> powerCostByTrait)
+    {
+        if (!state.CardObjects.TryGetValue(runeObjectId, out var runeState)
+            || !TryGetRuneTrait(runeState, out var runeTrait))
+        {
+            return false;
+        }
+
+        if (powerCostByTrait.TryGetValue(runeTrait, out var requiredTraitPower)
+            && (!runePool.PowerByTrait.TryGetValue(runeTrait, out var availableTraitPower)
+                || availableTraitPower < requiredTraitPower))
+        {
+            return true;
+        }
+
+        return genericPowerCost > 0;
     }
 
     private static int GenericPowerShortfallForTemporaryPaymentResources(
@@ -6287,7 +6321,7 @@ internal static class ActionPromptBuilder
             state,
             playerId,
             ability.PowerCost,
-            new Dictionary<string, int>(StringComparer.Ordinal));
+            P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability));
         if (temporaryPower > 0)
         {
             powerByTrait[string.Empty] = temporaryPower;
@@ -6356,8 +6390,20 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        return runePool.Mana >= requirement.ManaCost
-            && requirement.AvailablePowerWithPaymentResources >= requirement.PowerCost;
+        if (runePool.Mana < requirement.ManaCost)
+        {
+            return false;
+        }
+
+        if (requirement.PowerCostByTrait.Count == 0)
+        {
+            return requirement.AvailablePowerWithPaymentResources >= requirement.PowerCost;
+        }
+
+        return PaymentCostRules.CanPayPowerCost(
+            new RunePool(runePool.Mana, runePool.Power, requirement.AvailablePowerByTraitWithPaymentResources),
+            requirement.PowerCost,
+            requirement.PowerCostByTrait);
     }
 
     private static bool CanPromptActivateAbilityInCurrentWindow(
@@ -6413,6 +6459,7 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.XerathDamageAbilityId => "泽拉斯",
             P4ActivatedAbilityCatalog.MalzaharResourceAbilityId => "玛尔扎哈",
             P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId => "龙魂贤者",
+            P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId => "烈娜塔·戈拉斯克",
             _ => ability.DisplayName
         };
     }
@@ -6425,6 +6472,7 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.XerathDamageAbilityId => "泽拉斯：横置并支付符能，造成 3 点伤害",
             P4ActivatedAbilityCatalog.MalzaharResourceAbilityId => "玛尔扎哈：摧毁友方单位或装备并横置，获得 2 点费用符能",
             P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId => "龙魂贤者：反应，横置，获得 1 点法力",
+            P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId => "烈娜塔·戈拉斯克：支付 1 法力和 1 蓝色符能，抽 1 张牌",
             _ => ability.DisplayName
         };
     }
@@ -9630,6 +9678,7 @@ internal static class ActionPromptBuilder
             ["abilityLabel"] = requirement.AbilityLabel,
             ["manaCost"] = requirement.ManaCost,
             ["powerCost"] = requirement.PowerCost,
+            ["powerCostByTrait"] = requirement.PowerCostByTrait,
             ["minTargetCount"] = requirement.MinTargetCount,
             ["maxTargetCount"] = requirement.MaxTargetCount,
             ["targetCountLabel"] = requirement.MinTargetCount == requirement.MaxTargetCount
@@ -9672,6 +9721,15 @@ internal static class ActionPromptBuilder
             view["timingPolicy"] = "stack-priority-reaction-representative";
             view["reactionPolicy"] = "resolves-immediately-without-stack-item";
             view["resourceLifecycle"] = "rune-pool-mana-reset-at-turn-cleanup";
+        }
+
+        if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId, StringComparison.Ordinal))
+        {
+            view["requiresBattlefieldSource"] = true;
+            view["drawCount"] = 1;
+            view["timingPolicy"] = "open-main-representative";
+            view["stackPolicy"] = "ordinary-stack-item-before-draw";
+            view["paymentPolicy"] = "payment-plan-typed-blue";
         }
 
         return view;

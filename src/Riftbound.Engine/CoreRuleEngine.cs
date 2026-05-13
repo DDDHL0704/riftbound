@@ -6091,6 +6091,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveXerathDamageAbility(state, intent, command, ability);
         }
 
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId, StringComparison.Ordinal))
+        {
+            return ResolveRenataGlascDrawAbility(state, intent, command, ability);
+        }
+
         if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
             || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
             || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
@@ -6337,6 +6342,261 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["abilityId"] = command.AbilityId
                 })
         ]);
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolveRenataGlascDrawAbility(
+        MatchState state,
+        PlayerIntent intent,
+        ActivateAbilityCommand command,
+        P4ActivatedAbilityDefinition ability)
+    {
+        if (state.PendingPayment is not null
+            || state.PendingHandChoice is not null
+            || state.PendingTaskQueue.IsBlocking
+            || !string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || state.StackItems.Count > 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "烈娜塔·戈拉斯克的抽牌技能只能在当前玩家的开放主阶段提交。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (NormalizeTargetObjectIds(command.TargetObjectIds).Count != 0
+            || command.TargetObjectIds.Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "烈娜塔·戈拉斯克的抽牌技能不接受目标。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var normalizedOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (!TryExtractInlinePaymentResourceActions(
+                state,
+                intent.PlayerId,
+                normalizedOptionalCosts,
+                out var behaviorOptionalCosts,
+                out var paymentResourceActions,
+                out var recycledRuneObjectIds,
+                out var temporaryPaymentResourceActions)
+            || behaviorOptionalCosts.Count != 0
+            || temporaryPaymentResourceActions.Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "烈娜塔·戈拉斯克的抽牌技能只接受合法的回收符文支付资源动作。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!IsControlledBattlefieldObject(state, intent.PlayerId, command.SourceObjectId)
+            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || sourceState.IsFaceDown
+            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "烈娜塔·戈拉斯克的抽牌技能来源必须是当前玩家控制的公开战场单位。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "烈娜塔·戈拉斯克的抽牌技能只能选择当前玩家控制的来源。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, sourceState.CardNo))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "该来源没有服务端支持的烈娜塔·戈拉斯克抽牌技能。",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
+        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
+            ? existingPool
+            : RunePool.Empty;
+        if (!AreRecycleRunePaymentResourceActionsRequired(
+                currentPool,
+                state.CardObjects,
+                recycledRuneObjectIds,
+                ability.PowerCost,
+                powerCostByTrait))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "烈娜塔·戈拉斯克的抽牌技能不需要回收符文支付资源动作。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var adjustedPowerPool = ApplyRecycleRunePaymentToPool(
+            currentPool,
+            state.CardObjects,
+            recycledRuneObjectIds);
+        if (recycledRuneObjectIds.Count != 0
+            && !CanPayPowerCost(adjustedPowerPool, ability.PowerCost, powerCostByTrait))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "回收的符文不能补足烈娜塔·戈拉斯克的蓝色符能费用。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        const string paymentWindow = "ACTIVATE_ABILITY";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            intent.PlayerId,
+            command.SourceObjectId,
+            command.AbilityId);
+        var paymentPlan = new PaymentCostRules.PaymentPlan(
+            paymentId,
+            paymentWindow,
+            intent.PlayerId,
+            baseManaCost: ability.ManaCost,
+            totalManaCost: ability.ManaCost,
+            genericPowerCost: ability.PowerCost,
+            totalPowerCost: ability.PowerCost + powerCostByTrait.Values.Sum(),
+            powerCostByTrait: powerCostByTrait,
+            paymentResourceActionIds: paymentResourceActions,
+            reason: ability.EffectKind,
+            sourceObjectId: command.SourceObjectId,
+            abilityId: command.AbilityId,
+            auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
+                ["drawCount"] = 1,
+                ["sourceCardNo"] = sourceState.CardNo
+            });
+        var paymentEvents = new List<GameEvent>();
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var runePools = ApplyRecycleRunePaymentResourceActions(
+            state.RunePools,
+            playerZones,
+            cardObjects,
+            objectLocations,
+            intent.PlayerId,
+            recycledRuneObjectIds,
+            paymentEvents,
+            paymentWindow,
+            paymentId);
+        var adjustedPool = runePools.TryGetValue(intent.PlayerId, out var paymentAdjustedPool)
+            ? paymentAdjustedPool
+            : RunePool.Empty;
+        var currentExperience = state.PlayerExperience.TryGetValue(intent.PlayerId, out var availableExperience)
+            ? availableExperience
+            : 0;
+        var paymentAuthorization = PaymentCostRules.AuthorizePayment(
+            paymentPlan,
+            adjustedPool,
+            currentExperience);
+        if (!paymentAuthorization.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "资源不足，无法启动烈娜塔·戈拉斯克的抽牌技能。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var paymentCommit = PaymentCostRules.TryCommitPayment(
+            paymentPlan,
+            runePools,
+            state.PlayerExperience);
+        if (!paymentCommit.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "资源不足，无法启动烈娜塔·戈拉斯克的抽牌技能。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var playerExperience = paymentCommit.PlayerExperience;
+        var stackItem = new StackItemState(
+            $"STACK-{state.Tick + 1}-{command.SourceObjectId}-RENATA-DRAW",
+            intent.PlayerId,
+            command.SourceObjectId,
+            ability.EffectKind,
+            sourceState.CardNo,
+            [],
+            0,
+            1,
+            []);
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            ActivePlayerId = intent.PlayerId,
+            TimingState = TimingStates.NeutralClosed,
+            RunePools = runePools,
+            PlayerExperience = playerExperience,
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = ReconcileObjectLocations(objectLocations, playerZones),
+            PriorityPlayerId = intent.PlayerId,
+            PassedPriorityPlayerIds = [],
+            StackItems = state.StackItems.Concat([stackItem]).ToArray()
+        };
+        var events = new List<GameEvent>(paymentEvents)
+        {
+            new(
+                "ABILITY_ACTIVATED",
+                $"{intent.PlayerId} 激活烈娜塔·戈拉斯克的抽牌技能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["cardNo"] = sourceState.CardNo,
+                    ["abilityId"] = command.AbilityId,
+                    ["effectKind"] = ability.EffectKind,
+                    ["drawCount"] = 1
+                }),
+            new(
+                "COST_PAID",
+                $"{intent.PlayerId} 支付烈娜塔·戈拉斯克抽牌技能费用",
+                PaymentCostRules.BuildCostPaidPayload(
+                    paymentPlan,
+                    runePools,
+                    playerExperience,
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = intent.PlayerId,
+                        ["mana"] = ability.ManaCost,
+                        ["power"] = ability.PowerCost,
+                        ["powerByTrait"] = powerCostByTrait,
+                        ["abilityId"] = command.AbilityId,
+                        ["sourceObjectId"] = command.SourceObjectId
+                    })),
+            new(
+                "STACK_ITEM_ADDED",
+                "烈娜塔·戈拉斯克的抽牌技能加入结算链",
+                new Dictionary<string, object?>
+                {
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["controllerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["cardNo"] = stackItem.CardNo,
+                    ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["abilityId"] = command.AbilityId
+                })
+        };
 
         return new ResolutionResult(
             true,
@@ -24933,6 +25193,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveXerathDamageAbilityStackItem(state, stackItem);
         }
 
+        if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.RenataGlascDrawAbilityEffectKind, StringComparison.Ordinal))
+        {
+            return ResolveRenataGlascDrawAbilityStackItem(state, stackItem);
+        }
+
         if (!CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
             || !HasValidResolvedTargetCount(behavior, stackItem)
             || !HasValidTargetEffectAdditionalCostTargets(behavior, stackItem.TargetObjectIds, stackItem.OptionalCosts))
@@ -27615,6 +27880,54 @@ public sealed class CoreRuleEngine : IRuleEngine
         StackItemState stackItem)
     {
         return ResolveLastBreathDrawStackItem(state, stackItem, drawCount: 1);
+    }
+
+    private static StackResolutionResult ResolveRenataGlascDrawAbilityStackItem(
+        MatchState state,
+        StackItemState stackItem)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var events = new List<GameEvent>
+        {
+            new(
+                "ABILITY_RESOLVED",
+                "烈娜塔·戈拉斯克的抽牌技能结算",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = stackItem.ControllerId,
+                    ["controllerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["cardNo"] = stackItem.CardNo,
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["abilityId"] = P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId,
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["drawCount"] = 1
+                })
+        };
+        var drawApplication = ApplyDrawToPlayer(
+            state,
+            playerZones,
+            state.PlayerScores,
+            stackItem.ControllerId,
+            1,
+            state.RngCursor,
+            events);
+
+        return new StackResolutionResult(
+            playerZones,
+            state.CardObjects,
+            drawApplication.PlayerScores,
+            NormalizeExperienceForSeats(state),
+            state.RunePools,
+            state.UntilEndOfTurnEffects,
+            drawApplication.WinnerPlayerId,
+            events,
+            [],
+            null,
+            [],
+            null,
+            [],
+            drawApplication.RngCursor);
     }
 
     private static StackResolutionResult ResolveUnsungHeroLastBreathStackItem(
