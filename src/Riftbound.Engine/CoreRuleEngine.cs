@@ -17615,6 +17615,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             var cleanupResult = RunStateBasedCleanupAfterSpellDuelClosed(nextState);
             nextState = cleanupResult.State;
             events.AddRange(cleanupResult.Events);
+            var shouldAdvanceNextBattlefieldTask = completedBattlefieldObjectIds.Any(battlefieldObjectId =>
+                !nextState.PendingTaskQueue.Tasks.Any(task =>
+                    string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
+                    && string.Equals(task.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)));
+            if (shouldAdvanceNextBattlefieldTask)
+            {
+                var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId);
+                nextState = taskAdvance.State;
+                events.AddRange(taskAdvance.Events);
+            }
         }
         else
         {

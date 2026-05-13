@@ -56,7 +56,7 @@
 
 阻断：P0-004。依赖：4D-01。
 
-当前状态：**handoff ready / baseline green / project NOT READY**。实现交接规格见 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_HANDOFF.md`；实现前基线见 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_BASELINE_EVIDENCE.md`。Focused baseline 29/29、adjacent baseline 121/121 通过。该基线只说明既有代表路径绿色，不关闭 P0-004。
+当前状态：**focused slice accepted / project NOT READY**。实现交接规格见 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_HANDOFF.md`；实现前基线见 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_BASELINE_EVIDENCE.md`；审计与证据见 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_EVIDENCE.md`。Focused new tests 6/6、focused handoff regression 35/35、adjacent regression 127/127、backend full 3786/3786 通过。该切片收窄 P0-004，但不宣称 full-official resolved。
 
 目标：把法术对决和战斗从 direct/minimal representative resolver 推进到由 task queue 创建、推进和关闭的官方状态机。
 
@@ -163,6 +163,6 @@
 
 1. 维持 NOT READY 结论。
 2. 不再为 Stage 4C representative evidence alignment 追加新批次，除非出现遗漏的已验证自动化证据。
-3. 当前已进入 4D-02 handoff 阶段；下一步复用 B / Maxwell 实现 spell duel / battle task-driven lifecycle。
+3. 当前 4D-02 focused slice 已验收；下一步进入 4D-03 Payment Engine Unification。
 4. 每个 4D 实现切片必须先给出写入范围、测试过滤器、不可并行文件和 no-go 声明，再进入代码修改。
-5. A 不亲自写 4D-02 功能代码；只维护计划、派单、验收文档、测试验证和 completion audit。
+5. A 不亲自写功能代码；只维护计划、派单、验收文档、测试验证和 completion audit。

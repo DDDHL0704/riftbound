@@ -1014,6 +1014,12 @@ public sealed record MatchState
 
     private static string? SpellDuelBattlefieldObjectId(MatchState state)
     {
+        var activeSpellDuelBattlefieldObjectId = ActiveSpellDuelBattlefieldObjectId(state);
+        if (!string.IsNullOrWhiteSpace(activeSpellDuelBattlefieldObjectId))
+        {
+            return activeSpellDuelBattlefieldObjectId;
+        }
+
         var contestedBattlefieldObjectIds = state.BattlefieldStates.Values
             .Where(battlefield => battlefield.Contested)
             .Select(battlefield => battlefield.BattlefieldObjectId)
@@ -1022,6 +1028,26 @@ public sealed record MatchState
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray();
         return contestedBattlefieldObjectIds.Length == 1 ? contestedBattlefieldObjectIds[0] : null;
+    }
+
+    private static string? ActiveSpellDuelBattlefieldObjectId(MatchState state)
+    {
+        var isActive = IsSpellDuelTimingState(state.TimingState)
+            || !string.IsNullOrWhiteSpace(state.FocusPlayerId)
+            || state.StackItems.Any(item => string.Equals(item.TimingContext, TimingStates.SpellDuelOpen, StringComparison.Ordinal));
+        if (!isActive)
+        {
+            return null;
+        }
+
+        return state.BattlefieldStates.Values
+            .Where(battlefield => battlefield.Contested
+                && !HasBattlefieldSpellDuelCompleted(state, battlefield.BattlefieldObjectId))
+            .Select(battlefield => battlefield.BattlefieldObjectId)
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .FirstOrDefault();
     }
 
     private static string? SpellDuelIdForBattlefieldOrState(
@@ -1228,6 +1254,7 @@ public sealed record MatchState
     private static IReadOnlyList<BattlefieldTaskState> BuildBattlefieldTaskStates(MatchState state)
     {
         var tasks = new List<BattlefieldTaskState>();
+        var activeSpellDuelBattlefieldObjectId = ActiveSpellDuelBattlefieldObjectId(state);
         foreach (var battlefield in state.BattlefieldStates.Values
             .Where(battlefield => battlefield.Contested)
             .OrderBy(battlefield => battlefield.BattlefieldObjectId, StringComparer.Ordinal))
@@ -1251,7 +1278,7 @@ public sealed record MatchState
                 .Select(item => item.StackItemId)
                 .ToArray();
             var spellDuelCompleted = HasBattlefieldSpellDuelCompleted(state, battlefield.BattlefieldObjectId);
-            var spellDuelStatus = state.SpellDuelState.IsActive
+            var spellDuelStatus = string.Equals(activeSpellDuelBattlefieldObjectId, battlefield.BattlefieldObjectId, StringComparison.Ordinal)
                 ? "ACTIVE"
                 : spellDuelCompleted ? "COMPLETED" : "PENDING";
             var battleStatus = state.BattleState.IsActive
@@ -1267,8 +1294,12 @@ public sealed record MatchState
                 battlefield.BattlefieldObjectId,
                 participantControllerIds,
                 participantObjectIds,
-                state.SpellDuelState.FocusPlayerId,
-                stackItemIds));
+                string.Equals(activeSpellDuelBattlefieldObjectId, battlefield.BattlefieldObjectId, StringComparison.Ordinal)
+                    ? state.SpellDuelState.FocusPlayerId
+                    : null,
+                string.Equals(activeSpellDuelBattlefieldObjectId, battlefield.BattlefieldObjectId, StringComparison.Ordinal)
+                    ? stackItemIds
+                    : []));
             tasks.Add(new BattlefieldTaskState(
                 $"task:start-battle:{battlefield.BattlefieldObjectId}",
                 "START_BATTLE",

@@ -3,6 +3,8 @@
 日期：2026-05-13
 结论：**NOT READY**
 
+实施状态补充：4D-02 focused slice 已验收，见 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_EVIDENCE.md`。本文保留为 handoff 规格和后续回归基线；项目整体仍 **NOT READY**。
+
 本文是 Stage 4D-02 的服务端实现交接规格。它只定义 P0-004 的下一片可交付范围，不授权前端补洞、不升级卡牌矩阵、不宣称 P0-002/P0-003/P0-005 或 P1 已关闭。
 
 前置状态：4D-01 board task queue foundation 已验收，见 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_AUDIT.md`。4D-02 的实现前基线见 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_BASELINE_EVIDENCE.md`。
