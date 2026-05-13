@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 第三百五十七批新增 Stage 4C-95 static effect design gate。熔浆巨龙 `FU-0973164d07`、娑娜 `FU-c9bce10c0e`、安妮 `FU-430074702b`、温驯的宝石龙 `FU-af793555bb` 已确认不能 evidence-only 入账：当前 fixture 只覆盖普通 source-unit 入场，官方核心静态/触发/伤害修正文本仍 deferred。本批只新增 `docs/CURRENT_STAGE4C_BATCH95_STATIC_EFFECT_DESIGN_GATE.md` 并更新审计入口；不修改 DevUi、服务端功能代码、测试或 coverage matrix；四个 FU 仍等待后续服务端实现和新证据。整体仍 **NOT READY**。
+
 - 第三百五十六批新增 Stage 4C-94 Babbling Poro / 叨叨魄罗 evidence-only overlay。`FU-677c27eea7` / `UNL-224/219` / 叨叨魄罗已在 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 记录 `stage4CBatch94BabblingPoroPredictEvidence`、`functionalUnits[].stage4C94` 与 `snapshotEntries[].stage4C94`；复用既有服务端代表路径和测试，覆盖 source-unit ordinary hand `PLAY_CARD`、支付基础 2、选择己方主牌堆顶部牌、stack pass-pass 后进入控制者基地成为 2 战力 `CARD_TYPE:UNIT|魄罗|预知`，并将所选顶部牌回收到主牌堆底部，同时拒绝非顶部牌目标。focused 12/12、adjacent 1830/1830、backend full 3771/3771 通过；无 DevUi、服务端功能代码或前端契约变更；整体仍 **NOT READY**。
 
 - 第三百五十五批新增 Stage 4C-93 Royal Attendant / 皇家随从 evidence-only overlay。`FU-92e31978af` / `SFD·039/221` / 皇家随从已在 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 记录 `stage4CBatch93RoyalAttendantLegendModeEvidence`、`functionalUnits[].stage4C93` 与 `snapshotEntries[].stage4C93`；复用既有服务端代表路径和测试，覆盖 source-unit ordinary hand `PLAY_CARD`、支付基础 3、`LEGEND` 目标、`READY_LEGEND` / `EXHAUST_LEGEND` mode、stack pass-pass 后进入控制者基地成为 4 战力 `CARD_TYPE:UNIT`，并按 mode 让目标传奇变为活跃或休眠，同时拒绝无效显式目标。focused 5/5、adjacent 1894/1894、backend full 3771/3771 通过；无 DevUi、服务端功能代码或前端契约变更；整体仍 **NOT READY**。

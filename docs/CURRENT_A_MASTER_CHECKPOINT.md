@@ -5,7 +5,7 @@
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
 
-最新 checkpoint：`4c66e7aa checkpoint: record stage 4C babbling poro predict evidence`。上一 Stage 4C checkpoint：`6fab79d2 checkpoint: record stage 4C royal attendant legend evidence`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
+最新 checkpoint：待提交 `stage 4C-95 static effect design gate`。上一 Stage 4C checkpoint：`4c66e7aa checkpoint: record stage 4C babbling poro predict evidence`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。
 
 ## 0. A 主控职责边界
 
@@ -5051,3 +5051,19 @@ Checkpoint 记录：
 
 - 本批只关闭 UNL Babbling Poro / 叨叨魄罗代表性 source-unit + predict recycle 证据入账缺口。
 - 不宣称 predict 不回收 / decline 分支、完整主牌堆查看窗口隐私矩阵、非手牌或替代来源打出、完整 PaymentEngine / FEPR、hidden-info / redaction、1009/811 full-official 或 READY。
+
+## 57. Stage 4C-95 Static Effect Design Gate
+
+状态：**Stage 4C-95 design gate 已记录；项目整体仍 NOT READY。**
+
+本批范围：
+
+- 设计门禁文档：`docs/CURRENT_STAGE4C_BATCH95_STATIC_EFFECT_DESIGN_GATE.md`。
+- 覆盖剩余 direct-card `IMPLEMENTED_UNTESTED` 候选中不能 evidence-only 入账的四个 FU：熔浆巨龙、娑娜、安妮、温驯的宝石龙。
+- 本批不修改功能代码、测试代码、前端代码或 coverage matrix。
+
+判定：
+
+- 现有 fixture 只证明普通 hand `PLAY_CARD` 进入基地成为单位对象。
+- fixture 描述与 `rules-evidence-index.md` 均明确写着核心官方文本 deferred：其他友方单位活跃进场、回合结束活跃符文、法术/技能伤害 +1、龙单位打出后活跃符文。
+- 这些 FU 仍保持 `IMPLEMENTED_UNTESTED` / `NEEDS_AUTOMATED_TEST_EVIDENCE`，需要后续功能设计、实现和新证据入账。
