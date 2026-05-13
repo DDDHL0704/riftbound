@@ -5,7 +5,7 @@
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
 
-最新 checkpoint：`d97ebb59 checkpoint: record stage 4D board task queue handoff`；上一 Stage 4D checkpoint：`86e28ce3 checkpoint: record stage 4D p0 p1 closure plan`；上一 Stage 4C checkpoint：`7a2b1fa3 checkpoint: record stage 4C battlefield residual evidence alignment`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。Stage 4D 收口执行顺序见 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`，4D-01 实现交接见 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_HANDOFF.md`。
+最新 checkpoint：Stage 4D-01 baseline evidence 待提交；上一 Stage 4D checkpoint：`d97ebb59 checkpoint: record stage 4D board task queue handoff`；上一 Stage 4C checkpoint：`7a2b1fa3 checkpoint: record stage 4C battlefield residual evidence alignment`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。当前仍 **NOT READY**，阻断集中在 P0-002 / P0-003 / P0-004 / P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit。Stage 4D 收口执行顺序见 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`，4D-01 实现交接见 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_HANDOFF.md`。
 
 ## 0. A 主控职责边界
 
@@ -5176,3 +5176,20 @@ Checkpoint 记录：
 - 本批不修改功能代码、测试代码、前端代码或 coverage matrix。
 - 4D-01 只承接 P0-002 / P0-003 的 board task queue foundation；P0-004 battle/spell-duel lifecycle 仍属于 4D-02，P0-005 PaymentEngine 仍属于 4D-03。
 - 不把任何 P0/P1 标记 resolved，不声明 READY，不调用 active goal complete。
+
+## 63. Stage 4D-01 Board Task Queue Baseline Evidence
+
+状态：**4D-01 baseline evidence 已记录；项目整体仍 NOT READY。**
+
+本批范围：
+
+- 新增 baseline evidence：`docs/CURRENT_STAGE4D_01_BASELINE_EVIDENCE.md`。
+- 在 4D-01 实现前记录当前 HEAD 的 focused / adjacent 测试基线。
+- focused baseline：`FullyQualifiedName~BoardTaskQueueFoundation|FullyQualifiedName~BattlefieldContestBattleTaskGuardTests|FullyQualifiedName~PendingTaskQueue`，22/22 通过。
+- adjacent baseline：`FullyQualifiedName~BattlefieldContest|FullyQualifiedName~PendingTaskQueue|FullyQualifiedName~BattlefieldTasks|FullyQualifiedName~MoveUnit|FullyQualifiedName~StateBasedCleanup|FullyQualifiedName~SpellDuel|FullyQualifiedName~StartBattle`，139/139 通过。
+
+口径：
+
+- 本批不修改功能代码、测试代码、前端代码或 coverage matrix。
+- baseline 只证明现有代表性 queue / battlefield / move / cleanup / spell-duel / start-battle 周边测试在实现前为绿色。
+- baseline 不关闭 P0-002 / P0-003 / P0-004 / P0-005，不声明 READY。
