@@ -538,7 +538,8 @@ public sealed record PendingPaymentState
         int powerCost = 0,
         IReadOnlyDictionary<string, int>? powerCostByTrait = null,
         IReadOnlyList<string>? legalPaymentChoiceIds = null,
-        string? reason = null)
+        string? reason = null,
+        IReadOnlyList<string>? paymentResourceActionIds = null)
     {
         PaymentId = Normalize(paymentId);
         PaymentWindow = Normalize(paymentWindow);
@@ -549,6 +550,7 @@ public sealed record PendingPaymentState
             powerCostByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
         LegalPaymentChoiceIds = NormalizeList(legalPaymentChoiceIds);
         Reason = Normalize(reason);
+        PaymentResourceActionIds = NormalizeList(paymentResourceActionIds);
     }
 
     public string PaymentId { get; init; }
@@ -566,6 +568,8 @@ public sealed record PendingPaymentState
     public IReadOnlyList<string> LegalPaymentChoiceIds { get; init; }
 
     public string Reason { get; init; }
+
+    public IReadOnlyList<string> PaymentResourceActionIds { get; init; }
 
     private static string Normalize(string? value)
     {
@@ -1724,7 +1728,8 @@ public sealed record MatchState
             pendingPayment.PowerCost,
             pendingPayment.PowerCostByTrait,
             pendingPayment.LegalPaymentChoiceIds,
-            pendingPayment.Reason);
+            pendingPayment.Reason,
+            pendingPayment.PaymentResourceActionIds);
     }
 
     private static PendingHandChoiceState? NormalizePendingHandChoice(PendingHandChoiceState? pendingHandChoice)
@@ -2383,7 +2388,12 @@ public sealed record ResolutionResult(
             ["paymentWindow"] = payment.PaymentWindow,
             ["playerId"] = payment.PlayerId,
             ["cost"] = BuildPaymentCostView(payment),
-            ["paymentChoices"] = payment.LegalPaymentChoiceIds
+            ["paymentChoices"] = payment.LegalPaymentChoiceIds,
+            ["paymentResourceActions"] = payment.PaymentResourceActionIds
+                .Concat(payment.LegalPaymentChoiceIds.Where(choiceId =>
+                    choiceId.StartsWith("RECYCLE_RUNE:", StringComparison.Ordinal)))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
         };
     }
 
@@ -4298,7 +4308,9 @@ internal static class ActionPromptBuilder
                 ["paymentId"] = payment.PaymentId,
                 ["paymentWindow"] = payment.PaymentWindow,
                 ["cost"] = PendingPaymentCostView(payment),
-                ["paymentChoices"] = PendingPaymentChoiceDtos(payment)
+                ["paymentChoices"] = PendingPaymentChoiceDtos(payment),
+                ["paymentResourceChoices"] = PendingPaymentResourceChoiceDtos(state, payment),
+                ["paymentResourcePowerByChoice"] = PendingPaymentResourcePowerByChoice(state, payment)
             };
         }
 
@@ -8655,14 +8667,20 @@ internal static class ActionPromptBuilder
             ["paymentWindow"] = payment.PaymentWindow,
             ["cost"] = PendingPaymentCostView(payment),
             ["paymentChoices"] = PendingPaymentChoiceDtos(payment),
-            ["paymentResourceChoices"] = PendingPaymentChoiceDtos(payment),
+            ["paymentResourceChoices"] = PendingPaymentResourceChoiceDtos(state, payment),
+            ["paymentResourcePowerByChoice"] = PendingPaymentResourcePowerByChoice(state, payment),
+            ["paymentResourceActionIds"] = PendingPaymentResourceActionIds(payment),
             ["serverPaymentState"] = "PENDING",
             ["resourceLedgerBeforePayment"] = new Dictionary<string, object?>
             {
                 ["mana"] = runePool.Mana,
                 ["power"] = runePool.Power,
                 ["powerByTrait"] = runePool.PowerByTrait
-            }
+            },
+            ["availablePowerWithPaymentResources"] = runePool.TotalPower + PendingPaymentResourcePowerByTrait(state, payment).Values.Sum(),
+            ["availablePowerByTraitWithPaymentResources"] = MergePowerByTrait(
+                runePool.PowerByTrait,
+                PendingPaymentResourcePowerByTrait(state, payment))
         };
     }
 
@@ -8767,9 +8785,119 @@ internal static class ActionPromptBuilder
 
     private static IReadOnlyList<ActionPromptChoiceDto> PendingPaymentChoiceDtos(PendingPaymentState payment)
     {
-        return payment.LegalPaymentChoiceIds
+        return PendingPaymentSpendChoiceIds(payment)
             .Select(choiceId => new ActionPromptChoiceDto(choiceId, PaymentChoiceLabel(choiceId), "服务端支付候选"))
             .ToArray();
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> PendingPaymentResourceChoiceDtos(
+        MatchState state,
+        PendingPaymentState payment)
+    {
+        return PendingPaymentResourceActionIds(payment)
+            .Select(choiceId =>
+            {
+                var label = PaymentChoiceLabel(choiceId);
+                if (TryParseRecycleRunePaymentActionId(choiceId, out var objectId)
+                    && state.CardObjects.TryGetValue(objectId, out var runeState))
+                {
+                    var objectChoice = ObjectChoice(state, objectId, "pending payment resource action: recycle rune");
+                    label = $"回收符文支付：{objectChoice.Label}";
+                }
+
+                return new ActionPromptChoiceDto(choiceId, label, "服务端支付资源候选");
+            })
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> PendingPaymentSpendChoiceIds(PendingPaymentState payment)
+    {
+        return payment.LegalPaymentChoiceIds
+            .Where(choiceId => !IsRecycleRunePaymentActionId(choiceId))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> PendingPaymentResourceActionIds(PendingPaymentState payment)
+    {
+        return payment.PaymentResourceActionIds
+            .Concat(payment.LegalPaymentChoiceIds.Where(IsRecycleRunePaymentActionId))
+            .Where(choiceId => !string.IsNullOrWhiteSpace(choiceId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyDictionary<string, int> PendingPaymentResourcePowerByTrait(
+        MatchState state,
+        PendingPaymentState payment)
+    {
+        return PendingPaymentResourceActionIds(payment)
+            .Select(choiceId => TryParseRecycleRunePaymentActionId(choiceId, out var objectId)
+                && state.CardObjects.TryGetValue(objectId, out var runeState)
+                && TryGetRuneTrait(runeState, out var runeTrait)
+                    ? runeTrait
+                    : string.Empty)
+            .Where(trait => !string.IsNullOrWhiteSpace(trait))
+            .GroupBy(trait => trait, StringComparer.Ordinal)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Count() * BasicRuneRecyclePowerGain,
+                StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> PendingPaymentResourcePowerByChoice(
+        MatchState state,
+        PendingPaymentState payment)
+    {
+        return PendingPaymentResourceActionIds(payment)
+            .ToDictionary(
+                choiceId => choiceId,
+                choiceId =>
+                {
+                    var trait = string.Empty;
+                    if (TryParseRecycleRunePaymentActionId(choiceId, out var objectId)
+                        && state.CardObjects.TryGetValue(objectId, out var runeState)
+                        && TryGetRuneTrait(runeState, out var runeTrait))
+                    {
+                        trait = runeTrait;
+                    }
+
+                    return (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>(StringComparer.Ordinal)
+                    {
+                        ["trait"] = trait,
+                        ["power"] = BasicRuneRecyclePowerGain
+                    };
+                },
+                StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<string, int> MergePowerByTrait(
+        IReadOnlyDictionary<string, int> current,
+        IReadOnlyDictionary<string, int> additional)
+    {
+        return current
+            .Concat(additional)
+            .GroupBy(entry => entry.Key, StringComparer.Ordinal)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Sum(entry => Math.Max(0, entry.Value)),
+                StringComparer.Ordinal);
+    }
+
+    private static bool IsRecycleRunePaymentActionId(string choiceId)
+    {
+        return choiceId.StartsWith(RecycleRunePaymentOptionalCostPrefix, StringComparison.Ordinal);
+    }
+
+    private static bool TryParseRecycleRunePaymentActionId(string choiceId, out string objectId)
+    {
+        objectId = string.Empty;
+        if (!IsRecycleRunePaymentActionId(choiceId))
+        {
+            return false;
+        }
+
+        objectId = choiceId[RecycleRunePaymentOptionalCostPrefix.Length..].Trim();
+        return !string.IsNullOrWhiteSpace(objectId);
     }
 
     private static string PaymentChoiceLabel(string choiceId)
@@ -8784,6 +8912,11 @@ internal static class ActionPromptBuilder
         if (choiceId.StartsWith(spendPowerPrefix, StringComparison.Ordinal))
         {
             return $"支付 {choiceId[spendPowerPrefix.Length..]} 能量";
+        }
+
+        if (IsRecycleRunePaymentActionId(choiceId))
+        {
+            return "回收符文支付资源";
         }
 
         return choiceId;

@@ -1024,10 +1024,26 @@ public sealed class CoreRuleEngine : IRuleEngine
                 legalChoices);
         }
 
+        var legalPaymentResourceActions = pendingPayment.PaymentResourceActionIds
+            .Concat(pendingPayment.LegalPaymentChoiceIds.Where(IsRecycleRunePaymentResourceActionId))
+            .ToHashSet(StringComparer.Ordinal);
+        var legalSpendChoiceIds = pendingPayment.LegalPaymentChoiceIds
+            .Where(choiceId => !IsRecycleRunePaymentResourceActionId(choiceId))
+            .ToArray();
+        var legalSpendChoices = legalSpendChoiceIds
+            .ToHashSet(StringComparer.Ordinal);
+        var submittedPaymentResourceActions = submittedChoices
+            .Where(choiceId => legalPaymentResourceActions.Contains(choiceId))
+            .ToArray();
+        var submittedSpendChoices = submittedChoices
+            .Where(choiceId => !legalPaymentResourceActions.Contains(choiceId))
+            .ToArray();
+
         if (submittedChoices.Length != paymentChoiceIds.Count
             || submittedChoices.Distinct(StringComparer.Ordinal).Count() != submittedChoices.Length
-            || submittedChoices.Length != legalChoices.Count
-            || submittedChoices.Any(choiceId => !legalChoices.Contains(choiceId)))
+            || submittedSpendChoices.Length != legalSpendChoices.Count
+            || submittedSpendChoices.Any(choiceId => !legalSpendChoices.Contains(choiceId))
+            || submittedChoices.Any(choiceId => !legalSpendChoices.Contains(choiceId) && !legalPaymentResourceActions.Contains(choiceId)))
         {
             return RejectWithCorePrompts(
                 state,
@@ -1035,17 +1051,67 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        var paymentPlan = new PaymentCostRules.PaymentPlan(
-            pendingPayment.PaymentId,
-            pendingPayment.PaymentWindow,
+        if (!TryExtractRecycleRunePaymentResourceActions(
+                state,
+                intent.PlayerId,
+                submittedPaymentResourceActions,
+                out var behaviorOptionalCosts,
+                out var paymentResourceActions,
+                out var recycledRuneObjectIds)
+            || behaviorOptionalCosts.Count > 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "PAY_COST 包含非法支付资源动作。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (recycledRuneObjectIds.Any(runeObjectId =>
+                !state.CardObjects.TryGetValue(runeObjectId, out var runeState)
+                || string.IsNullOrWhiteSpace(runeState.CardNo)))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "PAY_COST 包含非法支付资源动作。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
+            ? existingPool
+            : RunePool.Empty;
+        if (!AreRecycleRunePaymentResourceActionsRequired(
+                currentPool,
+                state.CardObjects,
+                recycledRuneObjectIds,
+                pendingPayment.PowerCost,
+                pendingPayment.PowerCostByTrait))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "PAY_COST 包含不必要的支付资源动作。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var paymentPlan = BuildPendingPaymentPlan(
+            pendingPayment,
             intent.PlayerId,
-            totalManaCost: pendingPayment.ManaCost,
-            genericPowerCost: pendingPayment.PowerCost,
-            totalPowerCost: pendingPayment.PowerCost + pendingPayment.PowerCostByTrait.Values.Sum(),
-            powerCostByTrait: pendingPayment.PowerCostByTrait,
-            legalPaymentChoiceIds: pendingPayment.LegalPaymentChoiceIds,
-            reason: pendingPayment.Reason);
-        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools);
+            paymentResourceActions: paymentResourceActions,
+            legalPaymentChoiceIds: legalSpendChoiceIds);
+        var paymentEvents = new List<GameEvent>();
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var runePools = ApplyRecycleRunePaymentResourceActions(
+            state.RunePools,
+            playerZones,
+            cardObjects,
+            objectLocations,
+            intent.PlayerId,
+            recycledRuneObjectIds,
+            paymentEvents,
+            pendingPayment.PaymentWindow,
+            pendingPayment.PaymentId);
+        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, runePools);
         if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
@@ -1058,11 +1124,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             Tick = state.Tick + 1,
             RunePools = paymentCommit.RunePools,
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = objectLocations,
             PendingPayment = null
         };
-        var events = new[]
-        {
-            new GameEvent(
+        var events = paymentEvents
+            .Concat([
+                new GameEvent(
                 "COST_PAID",
                 $"{intent.PlayerId} 完成服务端支付窗口",
                 PaymentCostRules.BuildCostPaidPayload(
@@ -1074,9 +1143,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["mana"] = pendingPayment.ManaCost,
                         ["power"] = pendingPayment.PowerCost,
                         ["powerByTrait"] = pendingPayment.PowerCostByTrait,
-                        ["paymentChoiceIds"] = submittedChoices
+                        ["paymentChoiceIds"] = submittedChoices,
+                        ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray()
                     })),
-            new GameEvent(
+                new GameEvent(
                 "PAYMENT_WINDOW_CLOSED",
                 "服务端支付窗口已关闭",
                 new Dictionary<string, object?>
@@ -1085,7 +1155,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["paymentWindow"] = pendingPayment.PaymentWindow,
                     ["playerId"] = intent.PlayerId
                 })
-        };
+            ])
+            .ToArray();
 
         return new ResolutionResult(
             true,
@@ -1860,7 +1931,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         PendingPaymentState pendingPayment,
         string playerId,
         string? reason = null,
-        string? sourceObjectId = null)
+        string? sourceObjectId = null,
+        IReadOnlyList<string>? paymentResourceActions = null,
+        IReadOnlyList<string>? legalPaymentChoiceIds = null)
     {
         return new PaymentCostRules.PaymentPlan(
             pendingPayment.PaymentId,
@@ -1870,7 +1943,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             genericPowerCost: pendingPayment.PowerCost,
             totalPowerCost: pendingPayment.PowerCost + pendingPayment.PowerCostByTrait.Values.Sum(),
             powerCostByTrait: pendingPayment.PowerCostByTrait,
-            legalPaymentChoiceIds: pendingPayment.LegalPaymentChoiceIds,
+            paymentResourceActionIds: paymentResourceActions,
+            legalPaymentChoiceIds: legalPaymentChoiceIds ?? pendingPayment.LegalPaymentChoiceIds,
             reason: string.IsNullOrWhiteSpace(reason) ? pendingPayment.Reason : reason,
             sourceObjectId: sourceObjectId);
     }
@@ -8588,6 +8662,11 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         runeObjectId = optionalCost[RecycleRunePaymentOptionalCostPrefix.Length..].Trim();
         return !string.IsNullOrWhiteSpace(runeObjectId);
+    }
+
+    private static bool IsRecycleRunePaymentResourceActionId(string choiceId)
+    {
+        return choiceId.StartsWith(RecycleRunePaymentOptionalCostPrefix, StringComparison.Ordinal);
     }
 
     private static bool CanRecycleRuneForPayment(

@@ -404,6 +404,140 @@ public sealed class PaymentEngineUnificationTests
     }
 
     [Fact]
+    public async Task PendingPayCostRecyclesRuneThenPaysTypedPowerThroughPaymentPlan()
+    {
+        const string runeObjectId = "P1-RUNE-RED-PENDING-PAY-COST";
+        var paymentResourceAction = $"RECYCLE_RUNE:{runeObjectId}";
+        var state = PendingPayCostResourceState(
+            new RunePool(0, 0),
+            runeObjectId,
+            RuneCard(runeObjectId, RuneTrait.Red));
+
+        Assert.Equal([paymentResourceAction], state.PendingPayment?.PaymentResourceActionIds);
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        var paymentChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentChoices"]);
+        Assert.Equal(["SPEND_POWER:red:1"], paymentChoices.Select(choice => choice.Id).ToArray());
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentResourceChoices"]);
+        Assert.Equal([paymentResourceAction], paymentResourceChoices.Select(choice => choice.Id).ToArray());
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            metadata["paymentResourcePowerByChoice"]);
+        Assert.Equal(RuneTrait.Red, paymentResourcePowerByChoice[paymentResourceAction]["trait"]);
+        Assert.Equal(1, paymentResourcePowerByChoice[paymentResourceAction]["power"]);
+        Assert.Equal(1, metadata["availablePowerWithPaymentResources"]);
+        var snapshotPendingPayment = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            ResolutionResult.BuildSnapshots(state)["P1"].Timing["pendingPayment"]);
+        Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(snapshotPendingPayment["paymentResourceActions"]));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-pending-pay-cost-recycle-rune", "P1", CommandTypes.PayCost),
+            new PayCostCommand(
+                "PENDING-PAY-COST-RED-1",
+                "TEST_PENDING_PAY_COST",
+                [paymentResourceAction, "SPEND_POWER:red:1"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(["RUNE_RECYCLED", "POWER_GAINED", "COST_PAID", "PAYMENT_WINDOW_CLOSED"], result.Events.Select(evt => evt.Kind));
+        Assert.Null(result.State.PendingPayment);
+        Assert.DoesNotContain(runeObjectId, result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-RUNE-BOTTOM-001", runeObjectId], result.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal("RUNE_DECK", result.State.ObjectLocations[runeObjectId].Zone);
+        Assert.False(result.State.CardObjects[runeObjectId].IsExhausted);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        var recycledEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
+        var powerGainedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal("TEST_PENDING_PAY_COST", recycledEvent.Payload["paymentWindow"]);
+        Assert.Equal("TEST_PENDING_PAY_COST", powerGainedEvent.Payload["paymentWindow"]);
+        Assert.Equal("TEST_PENDING_PAY_COST", costEvent.Payload["paymentWindow"]);
+        Assert.Equal(costEvent.Payload["paymentId"], recycledEvent.Payload["paymentId"]);
+        Assert.Equal(costEvent.Payload["paymentId"], powerGainedEvent.Payload["paymentId"]);
+        Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        Assert.Equal(["SPEND_POWER:red:1"], Assert.IsType<string[]>(costEvent.Payload["legalPaymentChoiceIds"]));
+        Assert.Equal([paymentResourceAction, "SPEND_POWER:red:1"], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        Assert.Equal([runeObjectId], Assert.IsType<string[]>(costEvent.Payload["recycledRuneObjectIds"]));
+        Assert.Equal(0, costEvent.Payload["mana"]);
+        Assert.Equal(0, costEvent.Payload["power"]);
+        var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]);
+        Assert.Equal(1, powerByTrait[RuneTrait.Red]);
+        Assert.Equal(0, costEvent.Payload["remainingMana"]);
+        Assert.Equal(0, costEvent.Payload["remainingPower"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["remainingPowerByTrait"]));
+    }
+
+    [Fact]
+    public async Task PendingPayCostRejectsUnnecessaryRecycleRuneWithoutMutation()
+    {
+        const string runeObjectId = "P1-RUNE-RED-PENDING-UNNEEDED";
+        var paymentResourceAction = $"RECYCLE_RUNE:{runeObjectId}";
+        var state = PendingPayCostResourceState(
+            new RunePool(
+                0,
+                0,
+                new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [RuneTrait.Red] = 1
+                }),
+            runeObjectId,
+            RuneCard(runeObjectId, RuneTrait.Red));
+        var initialHash = MatchStateHasher.Hash(state);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-pending-pay-cost-unneeded-rune", "P1", CommandTypes.PayCost),
+            new PayCostCommand(
+                "PENDING-PAY-COST-RED-1",
+                "TEST_PENDING_PAY_COST",
+                [paymentResourceAction, "SPEND_POWER:red:1"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+        Assert.Equal([runeObjectId], result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-RUNE-BOTTOM-001"], result.State.PlayerZones["P1"].RuneDeck);
+        Assert.NotNull(result.State.PendingPayment);
+    }
+
+    [Theory]
+    [InlineData(true, "UNL-R01")]
+    [InlineData(false, "")]
+    public async Task PendingPayCostRejectsInvalidRecycleRuneWithoutMutation(bool faceDown, string? cardNo)
+    {
+        const string runeObjectId = "P1-RUNE-RED-PENDING-INVALID";
+        var paymentResourceAction = $"RECYCLE_RUNE:{runeObjectId}";
+        var state = PendingPayCostResourceState(
+            new RunePool(0, 0),
+            runeObjectId,
+            RuneCard(runeObjectId, RuneTrait.Red, faceDown, cardNo));
+        var initialHash = MatchStateHasher.Hash(state);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent($"intent-pending-pay-cost-invalid-rune-{faceDown}", "P1", CommandTypes.PayCost),
+            new PayCostCommand(
+                "PENDING-PAY-COST-RED-1",
+                "TEST_PENDING_PAY_COST",
+                [paymentResourceAction, "SPEND_POWER:red:1"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+        Assert.Equal([runeObjectId], result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-RUNE-BOTTOM-001"], result.State.PlayerZones["P1"].RuneDeck);
+        Assert.NotNull(result.State.PendingPayment);
+    }
+
+    [Fact]
     public async Task ActivateAbilityXerathPaysSpellshieldTaxAndRecyclesRunePaymentResource()
     {
         const string runeObjectId = "P1-RUNE-RED-ACTIVATE-XERATH";
@@ -852,6 +986,68 @@ public sealed class PaymentEngineUnificationTests
             },
             new Dictionary<string, CardObjectState>(cardObjects, StringComparer.Ordinal),
             objectLocations: new Dictionary<string, ObjectLocationState>(objectLocations, StringComparer.Ordinal));
+    }
+
+    private static MatchState PendingPayCostResourceState(
+        RunePool runePool,
+        string runeObjectId,
+        CardObjectState runeCard)
+    {
+        return new MatchState(
+            "payment-engine-pending-pay-cost-room",
+            0,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            ["P1", "P2"],
+            "P1",
+            MatchPhases.Main,
+            TimingStates.NeutralOpen,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = runePool,
+                ["P2"] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = [runeObjectId],
+                    RuneDeck = ["P1-RUNE-BOTTOM-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [runeObjectId] = runeCard,
+                ["P1-RUNE-BOTTOM-001"] = RuneCard("P1-RUNE-BOTTOM-001", RuneTrait.Blue)
+            },
+            pendingPayment: new PendingPaymentState(
+                "PENDING-PAY-COST-RED-1",
+                "TEST_PENDING_PAY_COST",
+                "P1",
+                powerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [RuneTrait.Red] = 1
+                },
+                legalPaymentChoiceIds: ["SPEND_POWER:red:1"],
+                reason: "PENDING_PAY_COST_RESOURCE_TEST",
+                paymentResourceActionIds: [$"RECYCLE_RUNE:{runeObjectId}"]),
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [runeObjectId] = new("P1", "BASE"),
+                ["P1-RUNE-BOTTOM-001"] = new("P1", "RUNE_DECK")
+            });
     }
 
     private static MatchState HideCardState(
