@@ -82,7 +82,7 @@
 
 阻断：P0-005。可做只读设计并行；功能集成不得与 4D-01/4D-02 同时改 `CoreRuleEngine.cs` 的支付/状态机交叉区域。
 
-当前状态：**focused foundation accepted / project NOT READY**。Handoff / baseline 见 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_BASELINE_EVIDENCE.md`；审计与证据见 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_EVIDENCE.md`。实现前 focused payment baseline 51/51、adjacent payment / ActionPrompt / GameHub regression 240/240 通过；focused foundation 56/56、adjacent 245/245、backend full 3791/3791 通过。该切片建立 shared `PaymentPlan` / authorize / commit foundation，但不关闭 P0-005 full official。
+当前状态：**focused foundation accepted; 4D-03B handoff / baseline prepared / project NOT READY**。Handoff / baseline 见 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_BASELINE_EVIDENCE.md`；审计与证据见 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_EVIDENCE.md`。实现前 focused payment baseline 51/51、adjacent payment / ActionPrompt / GameHub regression 240/240 通过；focused foundation 56/56、adjacent 245/245、backend full 3791/3791 通过。4D-03B non-play payment handoff / baseline 见 `docs/CURRENT_STAGE4D_03B_PAYMENT_ENGINE_NON_PLAY_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03B_PAYMENT_ENGINE_NON_PLAY_BASELINE_EVIDENCE.md`，focused baseline 18/18、adjacent baseline 318/318 通过。该阶段建立 shared `PaymentPlan` / authorize / commit foundation 并准备扩展到非出牌窗口，但不关闭 P0-005 full official。
 
 目标：把 PLAY_CARD、MOVE_UNIT、ASSEMBLE_EQUIPMENT、ACTIVATE_ABILITY、LEGEND_ACT、battlefield trigger、keyword optional/extra cost 与 rune resource actions 统一到可回滚、可审计、服务端候选驱动的 PaymentEngine。
 
