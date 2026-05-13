@@ -4240,6 +4240,11 @@ internal static class ActionPromptBuilder
             actions.Add("LEGEND_ACT");
         }
 
+        if (SourcesFor(state, playerId, "ACTIVATE_ABILITY")?.Count > 0)
+        {
+            actions.Add("ACTIVATE_ABILITY");
+        }
+
         actions.Add("PASS_PRIORITY");
         return actions;
     }
@@ -6373,7 +6378,16 @@ internal static class ActionPromptBuilder
             && state.StackItems.Count == 0;
         if (isOpenMain)
         {
-            return true;
+            return !ability.ReactionSpeed;
+        }
+
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId, StringComparison.Ordinal))
+        {
+            return string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+                && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
+                && state.StackItems.Count > 0
+                && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+                && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
         }
 
         return string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, StringComparison.Ordinal)
@@ -6398,6 +6412,7 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.ViDoublePowerAbilityId => "蔚",
             P4ActivatedAbilityCatalog.XerathDamageAbilityId => "泽拉斯",
             P4ActivatedAbilityCatalog.MalzaharResourceAbilityId => "玛尔扎哈",
+            P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId => "龙魂贤者",
             _ => ability.DisplayName
         };
     }
@@ -6409,6 +6424,7 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.ViDoublePowerAbilityId => "蔚：支付 2 法力和 1 符能，战力翻倍",
             P4ActivatedAbilityCatalog.XerathDamageAbilityId => "泽拉斯：横置并支付符能，造成 3 点伤害",
             P4ActivatedAbilityCatalog.MalzaharResourceAbilityId => "玛尔扎哈：摧毁友方单位或装备并横置，获得 2 点费用符能",
+            P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId => "龙魂贤者：反应，横置，获得 1 点法力",
             _ => ability.DisplayName
         };
     }
@@ -9646,6 +9662,16 @@ internal static class ActionPromptBuilder
             view["reactionPolicy"] = "resolves-immediately-without-stack-item";
             view["resourceLifecycle"] = "temporary-payment-resource-ledger";
             view["allowedPaymentKinds"] = new[] { PaymentCostRules.RuneCostPaymentKind };
+        }
+
+        if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId, StringComparison.Ordinal))
+        {
+            view["resourceSkill"] = true;
+            view["reactionSpeed"] = true;
+            view["generatedMana"] = P4ActivatedAbilityCatalog.DragonSoulSageGeneratedMana;
+            view["timingPolicy"] = "stack-priority-reaction-representative";
+            view["reactionPolicy"] = "resolves-immediately-without-stack-item";
+            view["resourceLifecycle"] = "rune-pool-mana-reset-at-turn-cleanup";
         }
 
         return view;

@@ -6081,6 +6081,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveMalzaharResourceSkill(state, intent, command, ability);
         }
 
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId, StringComparison.Ordinal))
+        {
+            return ResolveDragonSoulSageResourceSkill(state, intent, command, ability);
+        }
+
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.XerathDamageAbilityId, StringComparison.Ordinal))
         {
             return ResolveXerathDamageAbility(state, intent, command, ability);
@@ -6617,6 +6622,171 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return null;
+    }
+
+    private static ResolutionResult ResolveDragonSoulSageResourceSkill(
+        MatchState state,
+        PlayerIntent intent,
+        ActivateAbilityCommand command,
+        P4ActivatedAbilityDefinition ability)
+    {
+        const string timingContext = "STACK_PRIORITY_REACTION";
+        if (!DragonSoulSageResourceSkillTimingAllowed(state, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "龙魂贤者的资源技能只能在当前玩家持有优先权的反应窗口提交。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (NormalizeOptionalCosts(command.OptionalCosts).Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "龙魂贤者的资源技能不接受额外费用或支付资源动作。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (NormalizeTargetObjectIds(command.TargetObjectIds).Count != 0
+            || command.TargetObjectIds.Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "龙魂贤者的资源技能不接受目标。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!IsControlledBattlefieldObject(state, intent.PlayerId, command.SourceObjectId)
+            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || sourceState.IsFaceDown
+            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "龙魂贤者的资源技能来源必须是当前玩家控制的公开战场单位。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "龙魂贤者的资源技能只能选择当前玩家控制的来源。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!string.Equals(sourceState.CardNo, ability.SourceCardNo, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "该来源没有服务端支持的龙魂贤者资源技能。",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        if (sourceState.IsExhausted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "龙魂贤者的资源技能来源必须未横置。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[command.SourceObjectId] = sourceState with
+        {
+            IsExhausted = true,
+            OwnerId = string.IsNullOrWhiteSpace(sourceState.OwnerId) ? intent.PlayerId : sourceState.OwnerId,
+            ControllerId = string.IsNullOrWhiteSpace(sourceState.ControllerId) ? intent.PlayerId : sourceState.ControllerId
+        };
+        var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var currentPool = runePools.TryGetValue(intent.PlayerId, out var pool) ? pool : RunePool.Empty;
+        var nextPool = currentPool with
+        {
+            Mana = currentPool.Mana + ability.GeneratedMana
+        };
+        runePools[intent.PlayerId] = nextPool;
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, state.PlayerZones);
+
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            RunePools = runePools,
+            CardObjects = cardObjects,
+            ObjectLocations = objectLocations,
+            PriorityPlayerId = intent.PlayerId,
+            PassedPriorityPlayerIds = []
+        };
+        var events = new List<GameEvent>
+        {
+            new(
+                "ABILITY_ACTIVATED",
+                $"{intent.PlayerId} 激活龙魂贤者的反应资源技能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["effectKind"] = ability.EffectKind,
+                    ["resourceSkill"] = true,
+                    ["reactionSpeed"] = true,
+                    ["exhaustsSource"] = true,
+                    ["generatedMana"] = ability.GeneratedMana,
+                    ["timingContext"] = timingContext,
+                    ["resourceLifecycle"] = "rune-pool-mana-reset-at-turn-cleanup"
+                }),
+            new(
+                "UNIT_EXHAUSTED",
+                "龙魂贤者横置支付资源技能费用",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["targetObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["wasExhausted"] = sourceState.IsExhausted,
+                    ["isExhausted"] = true,
+                    ["resourceSkill"] = true,
+                    ["reactionSpeed"] = true,
+                    ["timingContext"] = timingContext
+                }),
+            new(
+                "MANA_GAINED",
+                $"{intent.PlayerId} 通过龙魂贤者资源技能获得 {ability.GeneratedMana} 点法力",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["mana"] = ability.GeneratedMana,
+                    ["manaAfter"] = nextPool.Mana,
+                    ["resourceSkill"] = true,
+                    ["reactionSpeed"] = true,
+                    ["generatedMana"] = ability.GeneratedMana,
+                    ["timingContext"] = timingContext,
+                    ["resourceLifecycle"] = "rune-pool-mana-reset-at-turn-cleanup"
+                })
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static bool DragonSoulSageResourceSkillTimingAllowed(MatchState state, string playerId)
+    {
+        return state.PendingPayment is null
+            && state.PendingHandChoice is null
+            && !state.PendingTaskQueue.IsBlocking
+            && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
+            && state.StackItems.Count > 0
+            && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+            && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
     }
 
     private static bool IsMalzaharDestroyCostTarget(

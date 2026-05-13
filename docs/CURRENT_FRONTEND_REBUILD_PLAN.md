@@ -7,7 +7,9 @@
 
 最新批次补充：
 
-- 2026-05-14 Stage 4D-03L handoff / baseline 已建立：下一服务端切片聚焦 `UNL-093/219` 龙魂贤者 `{{反应>}} {{横置}}：{{获得}}{{1}}` reaction-speed resource skill representative。交接入口为 `docs/CURRENT_STAGE4D_03L_PAYMENT_ENGINE_REACTION_RESOURCE_SKILL_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_03L_PAYMENT_ENGINE_REACTION_RESOURCE_SKILL_BASELINE_EVIDENCE.md`；focused baseline 126/126、adjacent baseline 374/374 通过。本批不修改前端运行时代码；前端仍只展示并提交服务端 `ActionPrompt` 暴露的 reaction ability source，不本地推断 resource skill timing。项目仍 **NOT READY**。
+- 2026-05-14 Stage 4D-03L focused slice 已验收：`UNL-093/219` 龙魂贤者 reaction-speed resource skill 已接入服务端 `ACTIVATE_ABILITY` prompt / command / audit representative，审计入口为 `docs/CURRENT_STAGE4D_03L_PAYMENT_ENGINE_REACTION_RESOURCE_SKILL_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_03L_PAYMENT_ENGINE_REACTION_RESOURCE_SKILL_EVIDENCE.md`；focused 140/140、adjacent 388/388、backend full 3874/3874 通过。本批不修改前端运行时代码；前端仍只展示并提交服务端 `ActionPrompt` 暴露的 reaction ability source，不本地推断 resource skill timing。项目仍 **NOT READY**。
+
+- 2026-05-14 Stage 4D-03L handoff / baseline 已建立：下一服务端切片聚焦 `UNL-093/219` 龙魂贤者 `{{反应>}} {{横置}}：{{获得}}{{1}}` reaction-speed resource skill representative。交接入口为 `docs/CURRENT_STAGE4D_03L_PAYMENT_ENGINE_REACTION_RESOURCE_SKILL_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_03L_PAYMENT_ENGINE_REACTION_RESOURCE_SKILL_BASELINE_EVIDENCE.md`；focused baseline 126/126、adjacent baseline 374/374 通过。该 handoff 已被上方 4D-03L focused slice 验收 supersede，仍保留为实现前回归护栏；项目仍 **NOT READY**。
 
 - 2026-05-14 Stage 4D-03K focused slice 已验收：Malzahar temporary payment-only resource 已接入 `PLAY_CARD` / `ACTIVATE_ABILITY` / `ASSEMBLE_EQUIPMENT` representative inline payment windows 的服务端 quote / command / consume / cleanup。审计入口为 `docs/CURRENT_STAGE4D_03K_PAYMENT_ENGINE_TEMPORARY_RESOURCE_INLINE_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_03K_PAYMENT_ENGINE_TEMPORARY_RESOURCE_INLINE_EVIDENCE.md`；focused 344/344、adjacent 539/539、backend full 3860/3860 通过。本批不修改前端运行时代码；前端仍只能展示并提交服务端 `ActionPrompt` 明确暴露的 `TEMP_PAYMENT_RESOURCE:*` / `RECYCLE_RUNE:*` payment choices，不读取 `temporaryPaymentResources` 自行推断 inline 可用性。项目仍 **NOT READY**。
 

@@ -30660,6 +30660,23 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(2, malzaharDefinition.GeneratedPower);
         Assert.True(malzaharDefinition.UsesTargetAsCost);
         Assert.Equal(P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction, malzaharDefinition.ResourceRestriction);
+
+        Assert.True(P4ActivatedAbilityCatalog.TryGetByAbilityId(
+            P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId,
+            out var dragonSoulSageDefinition));
+        Assert.Equal(P4ActivatedAbilityCatalog.DragonSoulSageCardNo, dragonSoulSageDefinition.SourceCardNo);
+        Assert.Equal(P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityEffectKind, dragonSoulSageDefinition.EffectKind);
+        Assert.Equal(0, dragonSoulSageDefinition.ManaCost);
+        Assert.Equal(0, dragonSoulSageDefinition.PowerCost);
+        Assert.Equal(0, dragonSoulSageDefinition.RequiredTargetCount);
+        Assert.True(dragonSoulSageDefinition.RequiresBattlefieldSource);
+        Assert.True(dragonSoulSageDefinition.ExhaustsSourceAsCost);
+        Assert.Equal(0, dragonSoulSageDefinition.DamageAmount);
+        Assert.False(dragonSoulSageDefinition.AppliesSpellshieldTargetTax);
+        Assert.True(dragonSoulSageDefinition.IsResourceSkill);
+        Assert.False(dragonSoulSageDefinition.PaymentOnlyResource);
+        Assert.True(dragonSoulSageDefinition.ReactionSpeed);
+        Assert.Equal(P4ActivatedAbilityCatalog.DragonSoulSageGeneratedMana, dragonSoulSageDefinition.GeneratedMana);
     }
 
     [Fact]
@@ -30667,6 +30684,7 @@ public sealed class ConformanceFixtureRunnerTests
     {
         Assert.Equal(
             [
+                "DRAGON_SOUL_SAGE_REACTION_EXHAUST_GAIN_1_MANA",
                 "MALZAHAR_DESTROY_FRIENDLY_EXHAUST_GAIN_2_PAYMENT_POWER",
                 "PAY_2_RED_DOUBLE_POWER",
                 "PAY_RED_EXHAUST_DAMAGE_3"
@@ -30676,7 +30694,10 @@ public sealed class ConformanceFixtureRunnerTests
                 .OrderBy(abilityId => abilityId, StringComparer.Ordinal));
 
         var deferredSurfaces = P4ActivatedAbilityCatalog.GetDeferredSurfaces();
-        Assert.True(deferredSurfaces.Count >= 6);
+        Assert.True(deferredSurfaces.Count >= 5);
+        Assert.DoesNotContain(
+            deferredSurfaces,
+            surface => string.Equals(surface.SourceCardNo, P4ActivatedAbilityCatalog.DragonSoulSageCardNo, StringComparison.Ordinal));
         Assert.Contains(deferredSurfaces, surface => surface.IsTargetBearing && surface.EnemySpellshieldTaxRisk);
         Assert.Contains(deferredSurfaces, surface => !surface.IsTargetBearing && !surface.EnemySpellshieldTaxRisk);
 

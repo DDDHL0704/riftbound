@@ -17,7 +17,9 @@ public sealed record P4ActivatedAbilityDefinition(
     bool PaymentOnlyResource = false,
     int GeneratedPower = 0,
     bool UsesTargetAsCost = false,
-    string ResourceRestriction = "");
+    string ResourceRestriction = "",
+    bool ReactionSpeed = false,
+    int GeneratedMana = 0);
 
 public sealed record P4DeferredActivatedAbilitySurface(
     string AbilityId,
@@ -48,6 +50,11 @@ public static class P4ActivatedAbilityCatalog
     public const string MalzaharResourceAbilityEffectKind = "MALZAHAR_RESOURCE_SKILL_GAIN_2_PAYMENT_ONLY_POWER";
     public const int MalzaharResourceGeneratedPower = 2;
     public const string MalzaharPaymentOnlyResourceRestriction = "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J";
+
+    public const string DragonSoulSageCardNo = "UNL-093/219";
+    public const string DragonSoulSageResourceAbilityId = "DRAGON_SOUL_SAGE_REACTION_EXHAUST_GAIN_1_MANA";
+    public const string DragonSoulSageResourceAbilityEffectKind = "DRAGON_SOUL_SAGE_REACTION_RESOURCE_SKILL_GAIN_1_MANA";
+    public const int DragonSoulSageGeneratedMana = 1;
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
@@ -94,20 +101,27 @@ public static class P4ActivatedAbilityCatalog
             PaymentOnlyResource: true,
             GeneratedPower: MalzaharResourceGeneratedPower,
             UsesTargetAsCost: true,
-            ResourceRestriction: MalzaharPaymentOnlyResourceRestriction)
+            ResourceRestriction: MalzaharPaymentOnlyResourceRestriction),
+        new(
+            DragonSoulSageResourceAbilityId,
+            DragonSoulSageCardNo,
+            DragonSoulSageResourceAbilityEffectKind,
+            "Dragon Soul Sage reaction resource skill",
+            0,
+            0,
+            0,
+            RequiresBattlefieldSource: true,
+            ExhaustsSourceAsCost: true,
+            0,
+            AppliesSpellshieldTargetTax: false,
+            "Stage 4D-03L opens only Dragon Soul Sage's reaction-speed no-target resource skill representative; the broader reaction resource skill family remains deferred.",
+            IsResourceSkill: true,
+            ReactionSpeed: true,
+            GeneratedMana: DragonSoulSageGeneratedMana)
     ];
 
     private static readonly P4DeferredActivatedAbilitySurface[] DeferredSurfaces =
     [
-        new(
-            "DEFERRED_TAP_REACTION_GAIN_1_MANA",
-            "UNL-093/219",
-            "Dragon Soul Sage reaction resource skill",
-            "dragon-soul-sage-reaction-resource",
-            RequiresBattlefieldSource: true,
-            IsTargetBearing: false,
-            EnemySpellshieldTaxRisk: false,
-            "P4.391 keeps reaction-speed resource abilities deferred until the priority/resource reaction model is complete."),
         new(
             "DEFERRED_TAP_CREATE_TWO_SPELLSHIELD_WARHAWKS",
             "UNL-160/219",
