@@ -2,8 +2,8 @@
 
 更新时间：2026-05-13
 
-最新 Stage 4D 实现证据：`6a3ee038 test: add stage 4D board task queue foundation coverage`。上一 checkpoint：`aeeadb8f checkpoint: record stage 4D board task baseline evidence`；上一 Stage 4C checkpoint：`7a2b1fa3 checkpoint: record stage 4C battlefield residual evidence alignment`；上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`；上一 formal 18-step checkpoint：`3aed179 checkpoint: add formal 18 step e2e evidence`。
-当前已 checkpoint verified representative evidence：Stage 4C-85 至 Stage 4C-98 已完成多批 representative evidence / design gate alignment；formal 18-step E2E 已通过；active `START_BATTLE` guard test-only evidence 已通过 focused 17/17、adjacent 94/94 与 backend full 3771/3771；Stage 4D-01 board task queue foundation 已记录，覆盖 base-to-battlefield、battlefield-to-base、precise roam destination-scoped contest tasks、cleanup-first blocking、illegal standby / unattached equipment redaction、cleanup repeat、`PASS_FOCUS` task promotion 与 reconnect pending task redaction，focused 31/31、adjacent 149/149、backend full 3780/3780 通过；Stage 4D-02 spell duel / battle focused slice 已记录，覆盖多争夺战场 one-active ordering、wrong-focus no-mutation、spell-duel stack task binding、cleanup 后推进下一 task、`SPELL_DUEL_TASKS` / `BATTLE_TASKS` reconnect metadata + redaction，focused new 6/6、focused handoff 35/35、adjacent 127/127、backend full 3786/3786 通过但不关闭 P0-004 full official；项目仍 **NOT READY**。
+最新 Stage 4D 状态：4D-02 focused slice 已验收，4D-03 PaymentEngine handoff / baseline 已准备。上一实现证据：`30210e38 feat: tighten stage 4D spell duel battle tasks`；上一 checkpoint：`77ed8e66 docs: prepare stage 4D spell duel battle handoff`；上一 Stage 4C checkpoint：`7a2b1fa3 checkpoint: record stage 4C battlefield residual evidence alignment`；上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`；上一 formal 18-step checkpoint：`3aed179 checkpoint: add formal 18 step e2e evidence`。
+当前已 checkpoint verified representative evidence：Stage 4C-85 至 Stage 4C-98 已完成多批 representative evidence / design gate alignment；formal 18-step E2E 已通过；active `START_BATTLE` guard test-only evidence 已通过 focused 17/17、adjacent 94/94 与 backend full 3771/3771；Stage 4D-01 board task queue foundation 已记录，覆盖 base-to-battlefield、battlefield-to-base、precise roam destination-scoped contest tasks、cleanup-first blocking、illegal standby / unattached equipment redaction、cleanup repeat、`PASS_FOCUS` task promotion 与 reconnect pending task redaction，focused 31/31、adjacent 149/149、backend full 3780/3780 通过；Stage 4D-02 spell duel / battle focused slice 已记录，覆盖多争夺战场 one-active ordering、wrong-focus no-mutation、spell-duel stack task binding、cleanup 后推进下一 task、`SPELL_DUEL_TASKS` / `BATTLE_TASKS` reconnect metadata + redaction，focused new 6/6、focused handoff 35/35、adjacent 127/127、backend full 3786/3786 通过但不关闭 P0-004 full official；Stage 4D-03 PaymentEngine 实现前 baseline 已记录，focused 51/51、adjacent payment / ActionPrompt / GameHub 240/240 通过但不关闭 P0-005；项目仍 **NOT READY**。
 
 ## 1. 目的
 
@@ -2103,6 +2103,7 @@
 开发影响：
 - `COST_PAID` 事件包络和 `PaymentCostRules` 只是审计/兼容层，不等于独立 `PAY_COST` window。
 - 阶段 4C-4 已补 `SFD·220/221`《珍宝堆》`TRIGGER_PAYMENT` 代表路径：支付、拒付、支付失败 no-mutation 和 Hub stale prompt 均有证据；该证据不外推为完整 PaymentEngine。
+- 阶段 4D-03 已建立 PaymentEngine handoff / baseline：`docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_BASELINE_EVIDENCE.md`。实现前 focused payment baseline 51/51、adjacent payment / ActionPrompt / GameHub regression 240/240 通过；该基线只作为回归护栏，不关闭 P0-005。
 - 需要 `PaymentPlan/paymentPlanId/paymentWindow`、Quote/Authorize/Commit、`PAY_COST` / `DECLINE_PAY_COST` command 和 typed error details。
 - prompt 与 Core 不能继续各自重复计算费用。
 

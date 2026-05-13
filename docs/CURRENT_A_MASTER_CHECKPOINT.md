@@ -5,7 +5,7 @@
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
 
-最新 Stage 4D 实现证据：4D-02 focused slice 已通过；上一已提交实现证据为 `6a3ee038 test: add stage 4D board task queue foundation coverage`。上一 checkpoint：`77ed8e66 docs: prepare stage 4D spell duel battle handoff`；上一 Stage 4D handoff checkpoint：`d97ebb59 checkpoint: record stage 4D board task queue handoff`；上一 Stage 4C checkpoint：`7a2b1fa3 checkpoint: record stage 4C battlefield residual evidence alignment`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。4D-01 board task queue foundation 已通过 focused 31/31、adjacent 149/149、backend full 3780/3780，证据见 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_AUDIT.md` 与 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_EVIDENCE.md`。4D-02 spell duel / battle focused slice 已通过 focused new 6/6、focused handoff 35/35、adjacent 127/127、backend full 3786/3786，审计与证据见 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_EVIDENCE.md`。当前仍 **NOT READY**，阻断集中在 P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit；P0-002 / P0-003 / P0-004 已进一步收窄但未 full-official 关闭。Stage 4D 收口执行顺序见 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`。
+最新 Stage 4D 状态：4D-02 focused slice 已通过；4D-03 PaymentEngine handoff / baseline 已准备，等待 B 服务端实现。上一已提交实现证据为 `30210e38 feat: tighten stage 4D spell duel battle tasks`；上一 handoff checkpoint：`77ed8e66 docs: prepare stage 4D spell duel battle handoff`；上一 Stage 4D foundation checkpoint：`6a3ee038 test: add stage 4D board task queue foundation coverage`；上一 Stage 4C checkpoint：`7a2b1fa3 checkpoint: record stage 4C battlefield residual evidence alignment`。上一 active guard checkpoint：`4c06189 checkpoint: add active start battle guard tests`。formal 18-step 已通过，见第 46 节和 `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`；本文历史章节中“最终 / formal 18 步 E2E 未关闭”之类旧句均被该证据 supersede。4D-01 board task queue foundation 已通过 focused 31/31、adjacent 149/149、backend full 3780/3780，证据见 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_AUDIT.md` 与 `docs/CURRENT_STAGE4D_01_BOARD_TASK_QUEUE_FOUNDATION_EVIDENCE.md`。4D-02 spell duel / battle focused slice 已通过 focused new 6/6、focused handoff 35/35、adjacent 127/127、backend full 3786/3786，审计与证据见 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02_SPELL_DUEL_BATTLE_EVIDENCE.md`。4D-03 PaymentEngine 实现前 baseline 通过 focused 51/51、adjacent 240/240，见 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_BASELINE_EVIDENCE.md`。当前仍 **NOT READY**，阻断集中在 P0-005、P1 LayerEngine / 关键词 / 全卡 full-official 证据与最终 audit；P0-002 / P0-003 / P0-004 已进一步收窄但未 full-official 关闭。Stage 4D 收口执行顺序见 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`。
 
 ## 0. A 主控职责边界
 
@@ -122,6 +122,29 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 
 - 下一实现切片进入 4D-03 Payment Engine Unification。
 - A 不亲自实现功能代码，只做任务派发、复核、验证和文档验收。
+
+## 0.1.0.2 阶段 4D-03 PaymentEngine Checkpoint
+
+状态：**handoff / baseline prepared；实现未开始；项目仍 NOT READY。**
+
+本批事实：
+
+- Handoff 入口：`docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_HANDOFF.md`
+- Baseline 入口：`docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_BASELINE_EVIDENCE.md`
+- Focused baseline：51/51 通过。
+- Adjacent baseline：240/240 通过。
+- Backend full baseline 继承 4D-02 acceptance：3786/3786 通过。
+
+当前代码面：
+
+- `PaymentCostRules` 已提供 payment id、`COST_PAID` payload、rune / typed power / experience helper，但还不是完整 PaymentEngine。
+- `PLAY_CARD`、`TRIGGER_PAYMENT`、`ASSEMBLE_EQUIPMENT`、`ACTIVATE_ABILITY`、`LEGEND_ACT`、battlefield held score 与 prompt metadata 已有代表路径，但 quote / authorize / commit 仍分散在多个 resolver。
+- 4D-03 handoff 要求下一服务端切片先建立中心化 payment plan / commit helper，并以 transactional payment resource rollback、prompt/command payability 一致性和 no-mutation 测试验收。
+
+下一步：
+
+- 派 Maxwell / B 服务端按 `CURRENT_STAGE4D_03_PAYMENT_ENGINE_HANDOFF.md` 实现窄切片。
+- A 只做验收、测试复跑、审计和文档收口；不亲自改功能代码。
 
 ## 0.1.1 阶段 4C-23 Lux Checkpoint
 

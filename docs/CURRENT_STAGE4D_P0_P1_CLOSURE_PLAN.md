@@ -82,6 +82,8 @@
 
 阻断：P0-005。可做只读设计并行；功能集成不得与 4D-01/4D-02 同时改 `CoreRuleEngine.cs` 的支付/状态机交叉区域。
 
+2026-05-13 A 基线：handoff / baseline 已建立，见 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03_PAYMENT_ENGINE_BASELINE_EVIDENCE.md`。实现前 focused payment baseline 51/51、adjacent payment / ActionPrompt / GameHub regression 240/240 通过；该基线不关闭 P0-005。
+
 目标：把 PLAY_CARD、MOVE_UNIT、ASSEMBLE_EQUIPMENT、ACTIVATE_ABILITY、LEGEND_ACT、battlefield trigger、keyword optional/extra cost 与 rune resource actions 统一到可回滚、可审计、服务端候选驱动的 PaymentEngine。
 
 建议 owner：B 服务端实现，E 卡牌证据矩阵协助确认官方费用口径。
