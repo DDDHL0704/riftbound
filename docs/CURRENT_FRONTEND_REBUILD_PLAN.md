@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 2026-05-14 Stage 4D-03R handoff / baseline 已建立：下一服务端切片聚焦 `SFD·222/221` 暴怒之印 typed red payment-only resource skill。交接入口为 `docs/CURRENT_STAGE4D_03R_PAYMENT_ENGINE_RAGE_SIGIL_TYPED_RESOURCE_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_03R_PAYMENT_ENGINE_RAGE_SIGIL_TYPED_RESOURCE_BASELINE_EVIDENCE.md`；focused baseline 173/173、adjacent baseline 421/421 通过。本批不修改前端运行时代码；前端后续仍只能展示并提交服务端 `ActionPrompt` 暴露的 Rage Sigil source、reaction timing、typed temporary resource choices 与 snapshot resource ledger，不本地推断红色资源、支付窗口或资源生命周期。项目仍 **NOT READY**。
+
 - 2026-05-14 Stage 4D-03Q focused slice 已验收：`UNL-194/219` 黑影 swift combat-response stun representative 已由服务端 `ACTIVATE_ABILITY` prompt / command / stack resolution 暴露；成功路径支付 1 mana + 1 generic power、横置 battlefield source、选择同一战场正在进攻的敌方单位、创建普通 stack item，pass-pass 后应用 `STUNNED`。审计入口为 `docs/CURRENT_STAGE4D_03Q_PAYMENT_ENGINE_SHADOW_SWIFT_STUN_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_03Q_PAYMENT_ENGINE_SHADOW_SWIFT_STUN_EVIDENCE.md`；focused 239/239、adjacent 779/779、backend full 4003/4003、`git diff --check` 通过。本批不修改前端运行时代码；前端后续仍只能展示并提交服务端 `ActionPrompt` 暴露的 Shadow source、swift/battle-response timing、attacking target choices、Spellshield target tax 与 stack action，不本地推断目标、费用、时点或 stun 结算。项目仍 **NOT READY**。
 
 - 2026-05-14 Stage 4D-03Q handoff / baseline 已建立并被 focused slice 验收 supersede：交接入口为 `docs/CURRENT_STAGE4D_03Q_PAYMENT_ENGINE_SHADOW_SWIFT_STUN_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_03Q_PAYMENT_ENGINE_SHADOW_SWIFT_STUN_BASELINE_EVIDENCE.md`；focused baseline 198/198、adjacent baseline 738/738 通过，保留为回归护栏。

@@ -43,6 +43,8 @@
 
 2026-05-14 4D-03Q focused slice 补充：Shadow swift stun representative 已验收，入口为 `docs/CURRENT_STAGE4D_03Q_PAYMENT_ENGINE_SHADOW_SWIFT_STUN_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03Q_PAYMENT_ENGINE_SHADOW_SWIFT_STUN_EVIDENCE.md`；focused 239/239、adjacent 779/779、backend full 4003/4003、`git diff --check` 通过。该补充只验收 `UNL-194/219` battle-response priority representative、同战场 attacking enemy target、1 mana + 1 generic power + target tax、source exhaust、ordinary stack-before-stun 与 stale no-effect，不关闭 P0-004/P0-005 full official；项目整体仍 **NOT READY**。
 
+2026-05-14 4D-03R handoff / baseline 补充：Rage Sigil typed resource 下一服务端切片已建立，目标为 `SFD·222/221` 暴怒之印 `{{横置}}：{{反应}}—{{获得}}{{红色}}，用以支付符能费用` representative。入口为 `docs/CURRENT_STAGE4D_03R_PAYMENT_ENGINE_RAGE_SIGIL_TYPED_RESOURCE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03R_PAYMENT_ENGINE_RAGE_SIGIL_TYPED_RESOURCE_BASELINE_EVIDENCE.md`；focused baseline 173/173、adjacent baseline 421/421 通过。该补充只建立实现前回归护栏，不代表功能完成，不关闭 P0-005 full official；项目整体仍 **NOT READY**。
+
 4C-85 不修改功能代码，只把既有服务端权威符文资源域证据入账：官方符文卡映射到 non-play `RUNE_RESOURCE_DOMAIN`，不进入 direct `PLAY_CARD` registry；控制者基地符文通过服务端 `RECYCLE_RUNE` / `paymentResourcePowerByChoice` 暴露 trait/power 支付资源；typed `SPEND_POWER:red:2` 接受 red 资源并拒绝 blue 资源，generic `SPEND_POWER:2` 可接受 red / blue 任一服务端候选且防止过量回收。Focused / primary regression 命令：
 
 ```sh
