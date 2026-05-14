@@ -35,6 +35,8 @@
 
 2026-05-15 follow-up：下一切片 4D-02AC 转向 activation-returned assignment held result ordering cross-product。目标是证明 actual Shadow activation / stack resolution / returned response 后进入 assignment，防守方 Hunt held result 的 `BATTLEFIELD_HELD` / `EXPERIENCE_GAINED` 仍先于 cleanup、`BATTLE_CLOSED`、`BATTLEFIELD_CONTROL_RESOLVED` 和 `BF-NEXT` 推进。
 
+2026-05-15 follow-up：4D-02AC 已验收上述 activation-returned assignment Hunt held result ordering representative，且为 test-only guard。P0-004 仍 open；该切片只证明 actual Shadow activation / stack resolution / returned response -> assignment -> Hunt held representative，不代表 cleanup-blocker matrix、held-score payment、replacement / prevention / LayerEngine result matrix 或 full official combat breadth。
+
 ## Evidence Inspected
 
 - `docs/A_MASTER_AGENT_GOAL.md`
@@ -65,6 +67,7 @@
 - Battle-result ordering now has one response-pass assignment Hunt conquer representative: `BATTLEFIELD_CONQUERED` / `EXPERIENCE_GAINED` happen before damage cleanup, battle close, battlefield control resolution, and next contested battlefield advancement.
 - Battle-result ordering now also has one response-pass assignment Hunt held representative: `BATTLEFIELD_HELD` / `EXPERIENCE_GAINED` happen before damage cleanup, battle close, battlefield control resolution, and next contested battlefield advancement.
 - Battle-result ordering now has one activation-returned assignment Hunt conquer representative after actual Shadow activation / stack resolution / returned response priority: `BATTLEFIELD_CONQUERED` / `EXPERIENCE_GAINED` still happen before damage cleanup, battle close, battlefield control resolution, and next contested battlefield advancement.
+- Battle-result ordering now also has one activation-returned assignment Hunt held representative after actual Shadow activation / stack resolution / returned response priority: `BATTLEFIELD_HELD` / `EXPERIENCE_GAINED` still happen before damage cleanup, battle close, battlefield control resolution, and next contested battlefield advancement.
 - `ASSIGN_COMBAT_DAMAGE` runtime has representative guards for stale prompt, illegal command no-mutation, simultaneous damage, cleanup, battle close, battlefield control, no-result, persisted `BattleResolutionState`, and current battle task cleanup.
 - Next contested battlefield advancement is guarded for:
   - ordinary assignment battle close;
@@ -107,7 +110,7 @@ Suggested next goal after 4D-02Y: choose a new narrow representative from the re
 
 4D-02AB selected representative: natural battle response actual Shadow activation -> returned response -> assignment -> Hunt conquer result ordering. This composes existing activation-returned assignment advancement with 4D-02Z result ordering. 4D-02AB is now accepted.
 
-4D-02AC selected representative: natural battle response actual Shadow activation -> returned response -> assignment -> Hunt held result ordering. This composes existing activation-returned assignment advancement with 4D-02AA result ordering.
+4D-02AC selected representative: natural battle response actual Shadow activation -> returned response -> assignment -> Hunt held result ordering. This composes existing activation-returned assignment advancement with 4D-02AA result ordering. 4D-02AC is now accepted.
 
 Recommended representative:
 
@@ -134,4 +137,4 @@ Expected guard:
 
 ## Verdict
 
-4D-02B through 4D-02AB materially narrowed P0-004, especially activation-returned assignment / immediate / payment / no-result task advancement, cleanup-blocker ordering, precise object-location preservation for nonparticipant response sources, same-turn completed battlefield skip policy, one nested battle-response stack representative, one multiple-legal-source response representative, one stale-target no-effect response representative, response-pass assignment Hunt conquer / held result-ordering representatives, and one activation-returned assignment Hunt conquer result-ordering representative. Project remains **NOT READY**.
+4D-02B through 4D-02AC materially narrowed P0-004, especially activation-returned assignment / immediate / payment / no-result task advancement, cleanup-blocker ordering, precise object-location preservation for nonparticipant response sources, same-turn completed battlefield skip policy, one nested battle-response stack representative, one multiple-legal-source response representative, one stale-target no-effect response representative, response-pass assignment Hunt conquer / held result-ordering representatives, and activation-returned assignment Hunt conquer / held result-ordering representatives. Project remains **NOT READY**.
