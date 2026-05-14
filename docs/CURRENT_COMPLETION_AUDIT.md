@@ -7,6 +7,8 @@
 
 ## 0. 2026-05-13 最新状态补充
 
+2026-05-15 4D-02Y focused slice 补充：Battle response stale target no-effect 已验收，入口为 `docs/CURRENT_STAGE4D_02Y_BATTLE_RESPONSE_STALE_TARGET_NO_EFFECT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02Y_BATTLE_RESPONSE_STALE_TARGET_NO_EFFECT_EVIDENCE.md`；targeted 1/1、focused 280/280、adjacent 810/810、backend full 4222/4222、`git diff --check` 通过。该 focused slice 只证明 active battle response 中 Shadow stale target no-effect 会回到 response priority，且 response close 可使用保存 declaration context 继续 current battle resolution；不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
+
 2026-05-15 4D-02Y handoff / baseline 补充：Battle response stale target no-effect 下一 P0-004 切片已建立，入口为 `docs/CURRENT_STAGE4D_02Y_BATTLE_RESPONSE_STALE_TARGET_NO_EFFECT_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_02Y_BATTLE_RESPONSE_STALE_TARGET_NO_EFFECT_BASELINE_EVIDENCE.md`；targeted existing 4D-02X guard 1/1、focused baseline 279/279、adjacent baseline 809/809、backend full 4221/4221、`git diff --check` 通过。目标是验证 active battle response stack 中 Shadow 目标解析前失效时的 `ABILITY_NO_EFFECT` / return-to-response / no early `BF-NEXT` advancement；该补充只建立实现前护栏，不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
 
 2026-05-15 4D-02X focused slice 补充：Battle response multiple legal sources 已验收，入口为 `docs/CURRENT_STAGE4D_02X_BATTLE_RESPONSE_MULTIPLE_LEGAL_SOURCES_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02X_BATTLE_RESPONSE_MULTIPLE_LEGAL_SOURCES_EVIDENCE.md`；targeted 1/1、focused 279/279、adjacent 809/809、backend full 4221/4221、`git diff --check` 通过。该 focused slice 只证明同一 battle response window 内两个 ready Shadow sources 会同时公开、逐个入栈并返回 response priority，且不提前推进 `BF-NEXT`；不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。

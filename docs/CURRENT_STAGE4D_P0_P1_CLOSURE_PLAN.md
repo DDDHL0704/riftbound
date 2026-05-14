@@ -13,6 +13,8 @@
 - 当前 completion audit 仍列出 P0-002、P0-003、P0-004、P0-005 与 P1 LayerEngine / keywords / full-card evidence / replay-hash coverage。
 - Formal 18-step E2E 已有连续正式主流程证据；它满足 A_MASTER 的主流程门槛，但不能替代 strict battlefield contest / battle lifecycle / PaymentEngine / LayerEngine 的 full official 收口。
 
+4D-02Y focused slice 补充：Battle response stale target no-effect 已验收，审计与证据见 `docs/CURRENT_STAGE4D_02Y_BATTLE_RESPONSE_STALE_TARGET_NO_EFFECT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02Y_BATTLE_RESPONSE_STALE_TARGET_NO_EFFECT_EVIDENCE.md`；targeted 1/1、focused 280/280、adjacent 810/810、backend full 4222/4222、`git diff --check` 通过。该切片修复 response close 优先使用保存 declaration context 的 stale-target 边界，并证明 Shadow no-effect 后回到 response priority 且不提前推进 `BF-NEXT`；不关闭 P0-004、P0-005、P1 或 READY。
+
 4D-02Y handoff / baseline 补充：下一 P0-004 窄切片锁定 battle response stale target no-effect。交接规格见 `docs/CURRENT_STAGE4D_02Y_BATTLE_RESPONSE_STALE_TARGET_NO_EFFECT_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_02Y_BATTLE_RESPONSE_STALE_TARGET_NO_EFFECT_BASELINE_EVIDENCE.md`；targeted existing 1/1、focused baseline 279/279、adjacent baseline 809/809、backend full 4221/4221、`git diff --check` 通过。目标是证明 active battle response 中 Shadow 目标解析前失效时会 no-effect 并回到 response priority，而不是提前推进 `BF-NEXT`；该 handoff 不改 runtime、不关闭 P0-004、P0-005、P1 或 READY。
 
 4D-02X focused slice 补充：Battle response multiple legal sources 已验收，审计与证据见 `docs/CURRENT_STAGE4D_02X_BATTLE_RESPONSE_MULTIPLE_LEGAL_SOURCES_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02X_BATTLE_RESPONSE_MULTIPLE_LEGAL_SOURCES_EVIDENCE.md`；targeted 1/1、focused 279/279、adjacent 809/809、backend full 4221/4221、`git diff --check` 通过。该 test-only guard 证明同一 battle response window 内两个 ready Shadow sources 会同时公开并可先后各自入栈，期间不提前推进 `BF-NEXT`；不关闭 P0-004、P0-005、P1 或 READY。

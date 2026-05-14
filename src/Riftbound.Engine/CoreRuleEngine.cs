@@ -22997,11 +22997,31 @@ public sealed class CoreRuleEngine : IRuleEngine
         List<GameEvent> priorityEvents)
     {
         var battle = state.BattleState;
-        var attackingPlayerId = BattleAttackingPlayerId(state, battle);
+        var hasDeclarationContext = TryReadBattleResponseDeclarationContext(
+            state,
+            battle.BattlefieldObjectId ?? string.Empty,
+            out var declarationContext);
+        var battleCommand = hasDeclarationContext
+            ? new DeclareBattleCommand(
+                declarationContext.BattlefieldId ?? string.Empty,
+                declarationContext.AttackerObjectIds,
+                declarationContext.DefenderObjectIds,
+                declarationContext.OptionalCosts,
+                declarationContext.BattlefieldTargetObjectIds)
+            : new DeclareBattleCommand(
+                battle.BattlefieldObjectId ?? string.Empty,
+                battle.AttackerObjectIds,
+                battle.DefenderObjectIds,
+                [DeclareBattleOptionalCost]);
+        var battleAttackerObjectIds = NormalizeTargetObjectIds(battleCommand.AttackerObjectIds ?? []);
+        var battleDefenderObjectIds = NormalizeTargetObjectIds(battleCommand.DefenderObjectIds ?? []);
+        var battleFieldObjectId = battleCommand.BattlefieldId?.Trim() ?? battle.BattlefieldObjectId ?? string.Empty;
+        var attackingPlayerId = BattleAttackingPlayerId(state, battle)
+            ?? BattleAttackingPlayerIdForObjectIds(state, battleAttackerObjectIds);
         if (string.IsNullOrWhiteSpace(attackingPlayerId)
-            || string.IsNullOrWhiteSpace(battle.BattlefieldObjectId)
-            || battle.AttackerObjectIds.Count == 0
-            || battle.DefenderObjectIds.Count == 0)
+            || string.IsNullOrWhiteSpace(battleFieldObjectId)
+            || battleAttackerObjectIds.Count == 0
+            || battleDefenderObjectIds.Count == 0)
         {
             return RejectWithCorePrompts(
                 state,
@@ -23009,23 +23029,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.PhaseNotAllowed);
         }
 
-        var battleCommand = TryReadBattleResponseDeclarationContext(
-                state,
-                battle.BattlefieldObjectId,
-                out var declarationContext)
-            ? new DeclareBattleCommand(
-                declarationContext.BattlefieldId,
-                declarationContext.AttackerObjectIds,
-                declarationContext.DefenderObjectIds,
-                declarationContext.OptionalCosts,
-                declarationContext.BattlefieldTargetObjectIds)
-            : new DeclareBattleCommand(
-                battle.BattlefieldObjectId,
-                battle.AttackerObjectIds,
-                battle.DefenderObjectIds,
-                [DeclareBattleOptionalCost]);
         var battleCardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        foreach (var attackerObjectId in battle.AttackerObjectIds)
+        foreach (var attackerObjectId in battleAttackerObjectIds)
         {
             if (battleCardObjects.TryGetValue(attackerObjectId, out var attackerState))
             {
@@ -23033,7 +23038,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
         }
 
-        foreach (var defenderObjectId in battle.DefenderObjectIds)
+        foreach (var defenderObjectId in battleDefenderObjectIds)
         {
             if (battleCardObjects.TryGetValue(defenderObjectId, out var defenderState))
             {
@@ -23411,6 +23416,20 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         turnEndEvents.InsertRange(turnPlayerAdvancedIndex, stateBasedCleanupEvents);
+    }
+
+    private static string? BattleAttackingPlayerIdForObjectIds(
+        MatchState state,
+        IReadOnlyList<string> attackerObjectIds)
+    {
+        var attackerControllerIds = attackerObjectIds
+            .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                ? EffectiveFieldControllerId(state.PlayerZones, objectId, cardObject)
+                : string.Empty)
+            .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        return attackerControllerIds.Length == 1 ? attackerControllerIds[0] : null;
     }
 
     private static ResolutionResult ResolveMulligan(

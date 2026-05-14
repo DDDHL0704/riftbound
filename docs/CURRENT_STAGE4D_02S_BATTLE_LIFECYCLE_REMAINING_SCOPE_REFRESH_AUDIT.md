@@ -19,6 +19,8 @@
 
 2026-05-15 follow-up：下一切片 4D-02Y 转向 battle response stale target no-effect。目标是把已有 standalone Shadow stale-target no-effect guard 组合进 active battle response stack-return / no early next-battlefield advancement path。
 
+2026-05-15 follow-up：4D-02Y 已验收上述 stale target no-effect representative，并修复 response close 优先使用保存 declaration context 的边界。P0-004 仍 open；该切片只覆盖 Shadow stale-target no-effect，不代表完整 stale/no-effect target matrix。
+
 ## Evidence Inspected
 
 - `docs/A_MASTER_AGENT_GOAL.md`
@@ -45,6 +47,7 @@
 - Actual Shadow battle response activation now has guards for stack-open, stack pass-pass resolution, returned response priority, assignment continuation, immediate battle close, trigger-payment blocker, and no-result assignment continuation.
 - Battle response stack breadth now has one nested standby reaction representative: a P1 standby reaction can be added above a Shadow response stack item, resolve first by LIFO, and return to Shadow / battle response before next battlefield advancement.
 - Multiple legal response source breadth now has one representative: two ready Shadow sources can be exposed together and consumed sequentially in the same battle response window before next battlefield advancement.
+- Stale/no-effect response target breadth now has one representative: Shadow no-effects when its target stops attacking inside battle response stack resolution, then returns to response priority before next battlefield advancement.
 - `ASSIGN_COMBAT_DAMAGE` runtime has representative guards for stale prompt, illegal command no-mutation, simultaneous damage, cleanup, battle close, battlefield control, no-result, persisted `BattleResolutionState`, and current battle task cleanup.
 - Next contested battlefield advancement is guarded for:
   - ordinary assignment battle close;
@@ -68,7 +71,7 @@ The 4D-02C audit said next contested battlefield advancement after battle close 
 ## Remaining P0-004 Gaps
 
 - Full official battle lifecycle remains open. The current model is still a representative state machine, not a complete official combat system.
-- Battle response breadth is still narrow: Shadow swift stun plus one nested standby reaction stack and two-Shadow source sequencing are representative, and the suite does not yet prove a full matrix of swift / reaction chains, cross-card independent legal response sources, deeper multiple stack items, no-effect / stale targets, and response windows across every battle-result branch.
+- Battle response breadth is still narrow: Shadow swift stun plus one nested standby reaction stack, two-Shadow source sequencing, and one Shadow stale-target no-effect branch are representative, and the suite does not yet prove a full matrix of swift / reaction chains, cross-card independent legal response sources, deeper multiple stack items, no-effect / stale targets, and response windows across every battle-result branch.
 - Cleanup / blocker ordering is not matrix-complete. The non-activation assignment path has a battle-control standby cleanup guard, but the activation-returned assignment path does not yet prove battle-control-driven cleanup blocks next contested battlefield advancement.
 - Battle result ordering is representative, not exhaustive: held / conquer / control / no-result / trigger payment / cleanup combinations are not fully enumerated across immediate, assignment, response-pass and activation-returned branches.
 - Damage assignment breadth is still limited by current supported representative policy: up to two attackers / defenders and known assignment-ordering keyword cases. Arbitrary official multi-combat assignment and all same-priority permutations remain outside this stage.
@@ -106,4 +109,4 @@ Expected guard:
 
 ## Verdict
 
-4D-02B through 4D-02X materially narrowed P0-004, especially activation-returned assignment / immediate / payment / no-result task advancement, cleanup-blocker ordering, precise object-location preservation for nonparticipant response sources, same-turn completed battlefield skip policy, one nested battle-response stack representative, and one multiple-legal-source response representative. Project remains **NOT READY**.
+4D-02B through 4D-02Y materially narrowed P0-004, especially activation-returned assignment / immediate / payment / no-result task advancement, cleanup-blocker ordering, precise object-location preservation for nonparticipant response sources, same-turn completed battlefield skip policy, one nested battle-response stack representative, one multiple-legal-source response representative, and one stale-target no-effect response representative. Project remains **NOT READY**.
