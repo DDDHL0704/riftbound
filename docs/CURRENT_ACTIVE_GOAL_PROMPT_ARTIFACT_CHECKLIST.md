@@ -52,7 +52,7 @@ fullOfficialFalse=811
 |---|---|---|---|---|
 | 按 `docs/A_MASTER_AGENT_GOAL.md` 管理 | A-master 目标文档必须存在并作为最高级本地交付口径 | `docs/A_MASTER_AGENT_GOAL.md` 已读取；goal 文本与该文件一致 | OK / ONGOING | 后续任何 READY 判断都必须回到本 checklist 与 final audit |
 | A 维护 checkpoint | `docs/CURRENT_A_MASTER_CHECKPOINT.md` 最新、可恢复、含当前结论 | 文件顶部记录 4D-03AO Ezreal handoff / baseline、4D-03AN focused slice、backend full 4293/4293、项目 NOT READY；本 checklist 已挂回 checkpoint | PARTIAL | 后续每批继续保持 checkpoint 同步 |
-| A 维护任务拆分 / 子 agent 分工 | A-master agent pool、写锁、下一步计划 | `A_MASTER_AGENT_GOAL.md` §7/§8；checkpoint 记录 A/B/C/D/E 职责；`CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已刷新到 4D-03AO 队列 | ONGOING | 4D-03AO-B 尚未派发；后续 runtime / docs / frontend / matrix 仍需逐批写锁 |
+| A 维护任务拆分 / 子 agent 分工 | A-master agent pool、写锁、下一步计划 | `A_MASTER_AGENT_GOAL.md` §7/§8；checkpoint 记录 A/B/C/D/E 职责；`CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已刷新到 4D-03AO 队列并记录 B dispatch | ONGOING | 4D-03AO-B 已派发待验收；后续 runtime / docs / frontend / matrix 仍需逐批写锁 |
 | A 维护阻断清单 | P0/P1 closure plan 与 completion audit | `CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md` 仍列 P0-002/P0-003/P0-004/P0-005 与 P1 residuals | NOT MET | P0/P1 未清零 |
 | A 控制写入范围 | 不并行改核心模块；本批只改 docs | 本批新增 dispatch / writelock doc 并更新 checkpoint / completion audit / closure plan | OK FOR THIS SLICE | 后续 runtime / frontend / matrix 改动必须按 dispatch 文档独占 owner |
 | 默认不写功能代码 | 本批不修改 `src/**`、测试代码或矩阵 JSON | `git diff --check` 通过；本批只做 doc audit | OK FOR THIS SLICE | 不代表后续功能缺口已解决 |
