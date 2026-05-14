@@ -6,6 +6,10 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class HostileTakeoverGuardTests
 {
+    private const string ControlBattlefieldObjectId = "BF-CONTROL";
+    private const string ControlTargetObjectId = "P2-CONTROL-TARGET";
+    private const string ControlRemainingOccupantObjectId = "P2-CONTROL-REMAINING";
+
     [Fact]
     public async Task HostileTakeoverGainsControlReadiesEnemyBattlefieldUnitAndSchedulesReturn()
     {
@@ -98,6 +102,96 @@ public sealed class HostileTakeoverGuardTests
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_CONTROL_GAINED", StringComparison.Ordinal)
             || string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task HostileTakeoverPreservesPreciseBattlefieldAndStartsContestTasksWhenOpponentOccupantRemains()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildHostileTakeoverPreciseBattlefieldState(includeRemainingOpponentOccupant: true);
+
+        var played = await PlayHostileTakeoverAsync(engine, state, ControlTargetObjectId);
+        Assert.True(played.Accepted, played.ErrorMessage);
+
+        var p1Pass = await engine.ResolveAsync(
+            played.State,
+            new PlayerIntent("intent-hostile-takeover-precise-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-hostile-takeover-precise-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Equal("P2", p2Pass.State.CardObjects[ControlTargetObjectId].OwnerId);
+        Assert.Equal("P1", p2Pass.State.CardObjects[ControlTargetObjectId].ControllerId);
+        Assert.Contains(ControlTargetObjectId, p2Pass.State.PlayerZones["P1"].Battlefields);
+        Assert.DoesNotContain(ControlTargetObjectId, p2Pass.State.PlayerZones["P2"].Battlefields);
+
+        var targetLocation = p2Pass.State.ObjectLocations[ControlTargetObjectId];
+        Assert.Equal("P1", targetLocation.PlayerId);
+        Assert.Equal("BATTLEFIELD", targetLocation.Zone);
+        Assert.Equal(ControlBattlefieldObjectId, targetLocation.BattlefieldObjectId);
+
+        var battlefield = p2Pass.State.BattlefieldStates[ControlBattlefieldObjectId];
+        Assert.True(battlefield.Contested);
+        Assert.Equal(["P1", "P2"], battlefield.OccupantControllerIds);
+        Assert.Contains(ControlTargetObjectId, battlefield.OccupantObjectIds);
+        Assert.Contains(ControlRemainingOccupantObjectId, battlefield.OccupantObjectIds);
+        Assert.Equal(TimingStates.SpellDuelOpen, p2Pass.State.TimingState);
+        Assert.Equal("P1", p2Pass.State.FocusPlayerId);
+        Assert.Equal("SPELL_DUEL_TASKS", p2Pass.State.PendingTaskQueue.Phase);
+        Assert.Equal($"task:start-spell-duel:{ControlBattlefieldObjectId}", p2Pass.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(
+            ["BATTLEFIELD_CONTESTED", "START_SPELL_DUEL", "START_BATTLE"],
+            p2Pass.State.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, ControlBattlefieldObjectId, StringComparison.Ordinal));
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, ControlBattlefieldObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["taskId"] as string, $"task:start-spell-duel:{ControlBattlefieldObjectId}", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task HostileTakeoverPreservesPreciseBattlefieldWithoutStartingContestWhenNoOpponentOccupantRemains()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildHostileTakeoverPreciseBattlefieldState(includeRemainingOpponentOccupant: false);
+
+        var played = await PlayHostileTakeoverAsync(engine, state, ControlTargetObjectId);
+        Assert.True(played.Accepted, played.ErrorMessage);
+
+        var p1Pass = await engine.ResolveAsync(
+            played.State,
+            new PlayerIntent("intent-hostile-takeover-no-contest-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-hostile-takeover-no-contest-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        var targetLocation = p2Pass.State.ObjectLocations[ControlTargetObjectId];
+        Assert.Equal("P1", targetLocation.PlayerId);
+        Assert.Equal("BATTLEFIELD", targetLocation.Zone);
+        Assert.Equal(ControlBattlefieldObjectId, targetLocation.BattlefieldObjectId);
+
+        var battlefield = p2Pass.State.BattlefieldStates[ControlBattlefieldObjectId];
+        Assert.False(battlefield.Contested);
+        Assert.Equal(["P1"], battlefield.OccupantControllerIds);
+        Assert.Equal("IDLE", p2Pass.State.PendingTaskQueue.Phase);
+        Assert.Empty(p2Pass.State.PendingTaskQueue.Tasks);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal)
+            || string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal));
     }
 
     private static async Task<ResolutionResult> PlayHostileTakeoverAsync(
@@ -234,5 +328,93 @@ public sealed class HostileTakeoverGuardTests
                     ownerId: "P2",
                     controllerId: "P2")
             });
+    }
+
+    private static MatchState BuildHostileTakeoverPreciseBattlefieldState(bool includeRemainingOpponentOccupant)
+    {
+        var p2Battlefields = includeRemainingOpponentOccupant
+            ? new[] { ControlBattlefieldObjectId, ControlTargetObjectId, ControlRemainingOccupantObjectId }
+            : [ControlBattlefieldObjectId, ControlTargetObjectId];
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            ["P1-SPELL-HOSTILE-TAKEOVER"] = new(
+                "P1-SPELL-HOSTILE-TAKEOVER",
+                cardNo: "SFD·202/221",
+                manaCost: 5,
+                tags: [CardObjectTags.SpellCard],
+                ownerId: "P1",
+                controllerId: "P1"),
+            [ControlBattlefieldObjectId] = new(
+                ControlBattlefieldObjectId,
+                cardNo: "SFD·214/221",
+                tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                ownerId: "P2",
+                controllerId: "P2"),
+            [ControlTargetObjectId] = new(
+                ControlTargetObjectId,
+                cardNo: "SFD·125/221",
+                damage: 2,
+                power: 5,
+                isExhausted: true,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P2",
+                controllerId: "P2")
+        };
+        if (includeRemainingOpponentOccupant)
+        {
+            cardObjects[ControlRemainingOccupantObjectId] = new(
+                ControlRemainingOccupantObjectId,
+                cardNo: "SFD·126/221",
+                power: 3,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P2",
+                controllerId: "P2");
+        }
+
+        var objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+        {
+            ["P1-SPELL-HOSTILE-TAKEOVER"] = new("P1", "HAND"),
+            [ControlBattlefieldObjectId] = new("P2", "BATTLEFIELD"),
+            [ControlTargetObjectId] = new("P2", "BATTLEFIELD", ControlBattlefieldObjectId)
+        };
+        if (includeRemainingOpponentOccupant)
+        {
+            objectLocations[ControlRemainingOccupantObjectId] =
+                new ObjectLocationState("P2", "BATTLEFIELD", ControlBattlefieldObjectId);
+        }
+
+        return new MatchState(
+            roomId: "hostile-takeover-precise-battlefield-test",
+            tick: 0,
+            turnNumber: 1,
+            activePlayerId: "P1",
+            seats: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "connection-1",
+                ["P2"] = "connection-2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(5, 0),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-HOSTILE-TAKEOVER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = p2Battlefields
+                }
+            },
+            cardObjects: cardObjects,
+            objectLocations: objectLocations);
     }
 }

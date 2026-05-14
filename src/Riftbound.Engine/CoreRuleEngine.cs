@@ -24871,7 +24871,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             var preciseBattlefieldObjectId = string.Empty;
             if (string.Equals(zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
                 && currentLocations.TryGetValue(objectId, out var currentLocation)
-                && string.Equals(currentLocation.PlayerId, playerId, StringComparison.Ordinal)
                 && string.Equals(currentLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal))
             {
                 preciseBattlefieldObjectId = currentLocation.BattlefieldObjectId ?? string.Empty;
