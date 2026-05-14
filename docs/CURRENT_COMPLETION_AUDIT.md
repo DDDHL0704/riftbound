@@ -7,6 +7,8 @@
 
 ## 0. 2026-05-13 最新状态补充
 
+2026-05-15 4D-02N focused slice 补充：Battle response assignment advancement 已验收，入口为 `docs/CURRENT_STAGE4D_02N_BATTLE_RESPONSE_ASSIGNMENT_ADVANCEMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02N_BATTLE_RESPONSE_ASSIGNMENT_ADVANCEMENT_EVIDENCE.md`；focused 179/179、adjacent 706/706、backend full 4210/4210、`git diff --check` 通过。该 test-only guard 只证明 natural battle response priority / assignment window 与 next contested battlefield advancement 的组合链路；不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
+
 2026-05-15 4D-02N handoff / baseline 补充：Battle response assignment advancement 下一 P0-004 切片已建立，入口为 `docs/CURRENT_STAGE4D_02N_BATTLE_RESPONSE_ASSIGNMENT_ADVANCEMENT_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_02N_BATTLE_RESPONSE_ASSIGNMENT_ADVANCEMENT_BASELINE_EVIDENCE.md`；focused baseline 178/178、adjacent baseline 705/705、backend full 4209/4209、`git diff --check` 通过。目标是验证 natural battle 先经历 battle-response priority、再打开 `ASSIGN_COMBAT_DAMAGE`、最后提交合法 assignment 后仍能推进 next contested battlefield；该补充只建立实现前护栏，不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
 
 2026-05-14 4D-02M focused slice 补充：Post-payment battle task advancement 已验收，入口为 `docs/CURRENT_STAGE4D_02M_POST_PAYMENT_BATTLE_TASK_ADVANCEMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02M_POST_PAYMENT_BATTLE_TASK_ADVANCEMENT_EVIDENCE.md`；focused 178/178、adjacent 705/705、backend full 4209/4209、`git diff --check` 通过。该补充只证明 post-battle trigger payment 打开期间阻止 next contested battlefield advancement，并在接受或拒绝支付关闭窗口后恢复 advancement；不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
