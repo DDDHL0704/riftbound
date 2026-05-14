@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 2026-05-14 Stage 4D-03AB focused slice 已验收：`UNL·T03` 草丛 battlefield replacement representative 已接入服务端 `DECLARE_BATTLE` optional choice / held-score path / catalog audit；成功路径通过 `BRUSH_USE_REPLACED_BATTLEFIELD:<original>` 使用 original battlefield identity 并写 `BATTLEFIELD_REPLACEMENT_APPLIED`。审计入口为 `docs/CURRENT_STAGE4D_03AB_TOKEN_FACTORY_BRUSH_REPLACEMENT_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_03AB_TOKEN_FACTORY_BRUSH_REPLACEMENT_EVIDENCE.md`；focused 141/141、adjacent 511/511、Brush focused 8/8、backend full 4144/4144、`git diff --check` 通过。本批不修改前端运行时代码；前端仍只能展示并提交服务端 prompt choice，不本地推断 Brush memory。项目仍 **NOT READY**。
+
 - 2026-05-14 Stage 4D-03AA focused slice 已验收：`UNL·T06` 映像 copy-token representative 已接入服务端 token creation / catalog audit；Mirror Image / LeBlanc Image 现在在 authoritative state 与事件 payload 中保留 copied `CardNo` / `Power` / tags 和 copied-card audit metadata。审计入口为 `docs/CURRENT_STAGE4D_03AA_TOKEN_FACTORY_IMAGE_COPY_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_03AA_TOKEN_FACTORY_IMAGE_COPY_EVIDENCE.md`；focused 16/16、adjacent 253/253、backend full 4136/4136、`git diff --check` 通过。本批不修改前端运行时代码；前端仍只能展示服务端 authoritative snapshot / event payload，不本地推断 copy 或 play-effect suppression。项目仍 **NOT READY**。
 
 - 2026-05-14 Stage 4D-03AB handoff / baseline 已建立：下一服务端 token battlefield replacement 切片锁定 `UNL·T03` 草丛 score-time optional replacement representative。交接入口为 `docs/CURRENT_STAGE4D_03AB_TOKEN_FACTORY_BRUSH_REPLACEMENT_HANDOFF.md`，实现前基线为 `docs/CURRENT_STAGE4D_03AB_TOKEN_FACTORY_BRUSH_REPLACEMENT_BASELINE_EVIDENCE.md`；focused baseline 141/141、`git diff --check` 通过。本切片预计仍由服务端 prompt / authoritative event payload 暴露 replacement choice，不允许前端本地推断 original battlefield memory；项目仍 **NOT READY**。

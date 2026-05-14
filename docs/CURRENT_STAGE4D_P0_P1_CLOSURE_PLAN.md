@@ -15,6 +15,8 @@
 
 4D-03AA focused slice 补充：Image copy-token representative 已验收，审计与证据见 `docs/CURRENT_STAGE4D_03AA_TOKEN_FACTORY_IMAGE_COPY_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AA_TOKEN_FACTORY_IMAGE_COPY_EVIDENCE.md`；focused 16/16、adjacent 253/253、backend full 4136/4136、`git diff --check` 通过。该补充只收口 `UNL·T06` 映像当前对象模型 copy representative，保留 Brush battlefield replacement deferred，不关闭 P0/P1 或 READY。
 
+4D-03AB focused slice 补充：Brush battlefield replacement representative 已验收，审计与证据见 `docs/CURRENT_STAGE4D_03AB_TOKEN_FACTORY_BRUSH_REPLACEMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AB_TOKEN_FACTORY_BRUSH_REPLACEMENT_EVIDENCE.md`；focused 141/141、adjacent 511/511、Brush focused 8/8、backend full 4144/4144、`git diff --check` 通过。该补充清空 token deferred catalog，但只收口 `UNL·T03` 草丛当前对象模型 score-time replacement representative，不关闭 P0/P1 或 READY。
+
 4D-03AB handoff / baseline 补充：下一服务端 token battlefield replacement 切片锁定 `UNL·T03` 草丛 `当你在此处得分时，你可以选择使用被此牌替代的战场来替代此牌`。交接规格见 `docs/CURRENT_STAGE4D_03AB_TOKEN_FACTORY_BRUSH_REPLACEMENT_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_03AB_TOKEN_FACTORY_BRUSH_REPLACEMENT_BASELINE_EVIDENCE.md`；focused baseline 141/141、`git diff --check` 通过。该补充只建立 Brush score-time replacement representative 的实现前护栏，不关闭 P0/P1 或 READY。
 
 4D-03AA handoff / baseline 补充：下一服务端 token copy 切片锁定 `UNL·T06` 映像 `当我被打出时，变为某张卡牌的复制体`。交接规格见 `docs/CURRENT_STAGE4D_03AA_TOKEN_FACTORY_IMAGE_COPY_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_03AA_TOKEN_FACTORY_IMAGE_COPY_BASELINE_EVIDENCE.md`；focused baseline 11/11、`git diff --check` 通过。该补充只建立 Image copy-token representative 的实现前护栏，保留 Brush battlefield replacement deferred，不关闭 P0/P1 或 READY。

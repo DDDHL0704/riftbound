@@ -4034,6 +4034,7 @@ internal static class ActionPromptBuilder
     private const string BattlefieldHoldGrantBoonCardNo = "OGN·283/298";
     private const string BattlefieldHeldReturnHeroCardNo = "OGN·281/298";
     private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
+    private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
     private const string BattlefieldDestroyedInBattleRecallCardNo = "UNL-206/219";
     private const string BattlefieldGrantLegendAttachArmamentCardNo = "SFD·208/221";
     private const string BattlefieldExtraStandbyCardNo = "OGN·278/298";
@@ -8612,8 +8613,69 @@ internal static class ActionPromptBuilder
         string playerId)
     {
         return DeclareBattleSourceRequirements(state, playerId).Count > 0
-            ? [new ActionPromptChoiceDto("COMBAT_ASSIGNMENT", "战斗分配", "服务端当前代表路径必需")]
+            ? DeclareBattleRequiredOptionalCostChoices()
+                .Concat(DeclareBattleBrushReplacementChoices(state))
+                .ToArray()
             : null;
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> DeclareBattleRequiredOptionalCostChoices()
+    {
+        return [new ActionPromptChoiceDto("COMBAT_ASSIGNMENT", "战斗分配", "服务端当前代表路径必需")];
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> DeclareBattleBrushReplacementChoices(MatchState state)
+    {
+        var activeBattlefieldObjectId = ResolutionResult.ActiveStartBattleTask(state)?.BattlefieldObjectId ?? string.Empty;
+        return PublicBattlefieldCardObjects(state)
+            .Where(objectId => string.IsNullOrWhiteSpace(activeBattlefieldObjectId)
+                || string.Equals(objectId, activeBattlefieldObjectId, StringComparison.Ordinal))
+            .Select(objectId => TryBuildBrushReplacementChoice(state, objectId, out var choice) ? choice : null)
+            .Where(choice => choice is not null)
+            .Select(choice => choice!)
+            .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+            .Select(group => group.First())
+            .ToArray();
+    }
+
+    private static bool TryBuildBrushReplacementChoice(
+        MatchState state,
+        string brushBattlefieldObjectId,
+        out ActionPromptChoiceDto choice)
+    {
+        choice = new ActionPromptChoiceDto(string.Empty, string.Empty);
+        if (!state.CardObjects.TryGetValue(brushBattlefieldObjectId, out var brushState)
+            || !string.Equals(brushState.CardNo, P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var replacementTags = brushState.Tags
+            .Where(tag => tag.StartsWith("REPLACES_BATTLEFIELD:", StringComparison.Ordinal))
+            .Select(tag => tag["REPLACES_BATTLEFIELD:".Length..].Trim())
+            .Where(tag => !string.IsNullOrWhiteSpace(tag))
+            .ToArray();
+        if (replacementTags.Length != 1)
+        {
+            return false;
+        }
+
+        var originalBattlefieldObjectId = replacementTags[0];
+        if (string.Equals(originalBattlefieldObjectId, brushBattlefieldObjectId, StringComparison.Ordinal)
+            || !state.CardObjects.TryGetValue(originalBattlefieldObjectId, out var originalState)
+            || !IsPromptBattlefieldCardObject(originalState)
+            || string.Equals(originalState.CardNo, P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo, StringComparison.Ordinal)
+            || !string.Equals(originalState.CardNo, BattlefieldHeldPayPowerScoreCardNo, StringComparison.Ordinal)
+            || !PublicBattlefieldCardObjects(state).Contains(originalBattlefieldObjectId, StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        choice = new ActionPromptChoiceDto(
+            $"{BrushReplacementChoicePrefix}{originalBattlefieldObjectId}",
+            "使用草丛替代的战场",
+            "score-time Brush battlefield replacement");
+        return true;
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto>? LegendActionOptionalCostChoices(
@@ -8741,7 +8803,9 @@ internal static class ActionPromptBuilder
                     maxDefenderCount > 1 ? "1 个，或含壁垒/后排的 2 个" : "1 个防守单位",
                     targetChoicesByIndex,
                     battlefieldChoices,
-                    [new ActionPromptChoiceDto("COMBAT_ASSIGNMENT", "战斗分配", "服务端当前代表路径必需")],
+                    DeclareBattleRequiredOptionalCostChoices()
+                        .Concat(DeclareBattleBrushReplacementChoices(state))
+                        .ToArray(),
                     ["COMBAT_ASSIGNMENT"],
                     true,
                     null);
@@ -10046,7 +10110,7 @@ internal static class ActionPromptBuilder
             ["sourcePolicy"] = "implemented-declare-battle-attacker-only",
             ["targetPolicy"] = "source-specific-server-filtered-defenders",
             ["battlefieldPolicy"] = "source-specific-server-filtered-battlefields",
-            ["optionalCostPolicy"] = "source-specific-required-combat-assignment",
+            ["optionalCostPolicy"] = "source-specific-required-combat-assignment-plus-server-filtered-brush-score-replacement",
             ["attackerCount"] = 1,
             ["attackerCountMin"] = 1,
             ["attackerCountMax"] = 2,

@@ -69,9 +69,9 @@ public sealed class GoldTokenResourceSkillTests
             surface.SurfaceId,
             P6TokenFactoryCatalog.ImageCopySurfaceId,
             StringComparison.Ordinal));
-        Assert.Contains(surfaces, surface => string.Equals(
+        Assert.DoesNotContain(surfaces, surface => string.Equals(
             surface.SurfaceId,
-            "TOKEN_DEFERRED_BRUSH_BATTLEFIELD_REPLACEMENT",
+            P6TokenFactoryCatalog.BrushReplacementSurfaceId,
             StringComparison.Ordinal));
         Assert.DoesNotContain(surfaces, surface => string.Equals(
             surface.SurfaceId,
@@ -84,6 +84,10 @@ public sealed class GoldTokenResourceSkillTests
         Assert.Contains(P6TokenFactoryCatalog.GetImplementedRuleSurfaces(), surface => string.Equals(
             surface.SurfaceId,
             P6TokenFactoryCatalog.ImageCopySurfaceId,
+            StringComparison.Ordinal));
+        Assert.Contains(P6TokenFactoryCatalog.GetImplementedRuleSurfaces(), surface => string.Equals(
+            surface.SurfaceId,
+            P6TokenFactoryCatalog.BrushReplacementSurfaceId,
             StringComparison.Ordinal));
     }
 

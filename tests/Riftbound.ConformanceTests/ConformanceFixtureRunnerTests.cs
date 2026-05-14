@@ -40204,6 +40204,154 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task BrushReplacementChoiceUsesOriginalBattlefieldForHeldScore()
+    {
+        var state = BrushHeldScoreState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-brush-replacement-held-score", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-BRUSH",
+                ["P1-BATTLEFIELD-ENERGY-ATTACKER"],
+                ["P2-BATTLEFIELD-ENERGY-DEFENDER"],
+                ["COMBAT_ASSIGNMENT", "BRUSH_USE_REPLACED_BATTLEFIELD:P2-BATTLEFIELD-ENERGY-HUB"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var replacementEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_REPLACEMENT_APPLIED", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-BRUSH", replacementEvent.Payload["brushBattlefieldObjectId"]);
+        Assert.Equal("P2-BATTLEFIELD-ENERGY-HUB", replacementEvent.Payload["replacementBattlefieldObjectId"]);
+        Assert.Equal("SFD·214/221", replacementEvent.Payload["replacementBattlefieldCardNo"]);
+        Assert.Equal("BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", replacementEvent.Payload["replacementReason"]);
+
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-ENERGY-HUB", triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal("SFD·214/221", triggerEvent.Payload["battlefieldCardNo"]);
+        Assert.Equal(1, result.State.PlayerScores["P2"]);
+        Assert.Equal(0, result.State.RunePools["P2"].Power);
+        Assert.Contains("P2-BATTLEFIELD-BRUSH", result.State.PlayerZones["P2"].Battlefields);
+        Assert.Contains("P2-BATTLEFIELD-ENERGY-HUB", result.State.PlayerZones["P2"].Battlefields);
+    }
+
+    [Fact]
+    public async Task BrushReplacementDoesNotAutoApplyWithoutChoice()
+    {
+        var state = BrushHeldScoreState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-brush-replacement-held-score-no-choice", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-BRUSH",
+                ["P1-BATTLEFIELD-ENERGY-ATTACKER"],
+                ["P2-BATTLEFIELD-ENERGY-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_REPLACEMENT_APPLIED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
+        Assert.Equal(0, result.State.PlayerScores.TryGetValue("P2", out var score) ? score : 0);
+        Assert.Equal(4, result.State.RunePools["P2"].Power);
+    }
+
+    [Theory]
+    [InlineData("unknown-original")]
+    [InlineData("missing-tag")]
+    [InlineData("non-battlefield-original")]
+    [InlineData("self-reference")]
+    [InlineData("non-brush-battlefield")]
+    public async Task BrushReplacementRejectsInvalidChoiceWithoutMutation(string caseName)
+    {
+        var baseState = BrushHeldScoreState();
+        var state = caseName switch
+        {
+            "missing-tag" => baseState with
+            {
+                CardObjects = new Dictionary<string, CardObjectState>(baseState.CardObjects, StringComparer.Ordinal)
+                {
+                    ["P2-BATTLEFIELD-BRUSH"] = baseState.CardObjects["P2-BATTLEFIELD-BRUSH"] with
+                    {
+                        Tags = [P6TokenFactoryCatalog.BattlefieldCardTag, "草丛"]
+                    }
+                }
+            },
+            "non-battlefield-original" => baseState with
+            {
+                CardObjects = new Dictionary<string, CardObjectState>(baseState.CardObjects, StringComparer.Ordinal)
+                {
+                    ["P2-BATTLEFIELD-ENERGY-HUB"] = baseState.CardObjects["P2-BATTLEFIELD-ENERGY-HUB"] with
+                    {
+                        CardNo = "SFD·125/221",
+                        Tags = [CardObjectTags.UnitCard]
+                    }
+                }
+            },
+            "self-reference" => baseState with
+            {
+                CardObjects = new Dictionary<string, CardObjectState>(baseState.CardObjects, StringComparer.Ordinal)
+                {
+                    ["P2-BATTLEFIELD-BRUSH"] = baseState.CardObjects["P2-BATTLEFIELD-BRUSH"] with
+                    {
+                        Tags =
+                        [
+                            P6TokenFactoryCatalog.BattlefieldCardTag,
+                            "草丛",
+                            "REPLACES_BATTLEFIELD:P2-BATTLEFIELD-BRUSH"
+                        ]
+                    }
+                }
+            },
+            _ => baseState
+        };
+        var battlefieldId = string.Equals(caseName, "non-brush-battlefield", StringComparison.Ordinal)
+            ? "P2-BATTLEFIELD-ENERGY-HUB"
+            : "P2-BATTLEFIELD-BRUSH";
+        var originalId = string.Equals(caseName, "unknown-original", StringComparison.Ordinal)
+            ? "P2-BATTLEFIELD-UNKNOWN"
+            : "P2-BATTLEFIELD-ENERGY-HUB";
+        var initialHash = MatchStateHasher.Hash(state);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent($"intent-p7-9-brush-replacement-invalid-{caseName}", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                battlefieldId,
+                ["P1-BATTLEFIELD-ENERGY-ATTACKER"],
+                ["P2-BATTLEFIELD-ENERGY-DEFENDER"],
+                ["COMBAT_ASSIGNMENT", $"BRUSH_USE_REPLACED_BATTLEFIELD:{originalId}"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Empty(result.Events);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+    }
+
+    [Fact]
+    public void BrushReplacementPromptExposesServerChoiceForScoreBattlefield()
+    {
+        var prompt = ResolutionResult.BuildPrompts(BrushHeldScoreState())["P1"];
+        var declareBattleCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(declareBattleCandidate.Metadata);
+        var sourceRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+        var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["optionalCostChoices"])
+            .ToArray();
+
+        Assert.Contains(optionalCostChoices, choice =>
+            string.Equals(choice.Id, "BRUSH_USE_REPLACED_BATTLEFIELD:P2-BATTLEFIELD-ENERGY-HUB", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldPaysTypedPowerToGainScore()
     {
         var state = BattlefieldHeldScoreState() with
@@ -41515,8 +41663,7 @@ public sealed class ConformanceFixtureRunnerTests
     {
         var surfaces = P6TokenFactoryCatalog.GetDeferredRuleSurfaces();
 
-        var brushSurface = Assert.Single(surfaces);
-        Assert.Equal("TOKEN_DEFERRED_BRUSH_BATTLEFIELD_REPLACEMENT", brushSurface.SurfaceId);
+        Assert.Empty(surfaces);
         Assert.DoesNotContain(surfaces, surface => string.Equals(
             surface.SurfaceId,
             "TOKEN_DEFERRED_GOLD_REACTION_DESTROY_EXHAUST_GAIN_A_UNL",
@@ -41529,9 +41676,9 @@ public sealed class ConformanceFixtureRunnerTests
             surface.SurfaceId,
             P6TokenFactoryCatalog.ImageCopySurfaceId,
             StringComparison.Ordinal));
-        Assert.Contains(surfaces, surface => string.Equals(
-            surface.SurfaceKind,
-            P6TokenFactoryCatalog.BattlefieldReplacementSurfaceKind,
+        Assert.DoesNotContain(surfaces, surface => string.Equals(
+            surface.SurfaceId,
+            P6TokenFactoryCatalog.BrushReplacementSurfaceId,
             StringComparison.Ordinal));
         Assert.DoesNotContain(surfaces, surface => string.Equals(
             surface.SurfaceId,
@@ -41544,37 +41691,7 @@ public sealed class ConformanceFixtureRunnerTests
             Assert.True(P6TokenFactoryCatalog.TryGetByCardNo(surface.SourceCardNo, out _));
         });
 
-        var officialCatalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
-        foreach (var surface in surfaces)
-        {
-            var officialCard = officialCatalog.Cards.Single(card =>
-                string.Equals(card.CardNo, surface.SourceCardNo, StringComparison.Ordinal));
-            var parsed = RuleTextParser.Parse(officialCard);
-
-            Assert.StartsWith("指示物", officialCard.CardCategoryName, StringComparison.Ordinal);
-            Assert.Contains(surface.OfficialTextAnchor, officialCard.CardEffect, StringComparison.Ordinal);
-            Assert.False(CardBehaviorRegistry.TryGetByCardNo(surface.SourceCardNo, out _));
-
-            switch (surface.SurfaceKind)
-            {
-                case P6TokenFactoryCatalog.ActivatedResourceSurfaceKind:
-                    Assert.NotEmpty(parsed.ActivatedAbilities);
-                    break;
-                case P6TokenFactoryCatalog.CopyTokenSurfaceKind:
-                    Assert.True(P6TokenFactoryCatalog.TryGetByCardNo(surface.SourceCardNo, out var imageDefinition));
-                    Assert.True(imageDefinition.RequiresCopySource);
-                    break;
-                case P6TokenFactoryCatalog.BattlefieldReplacementSurfaceKind:
-                    Assert.NotEmpty(parsed.Replacements);
-                    break;
-                case P6TokenFactoryCatalog.BattlefieldStaticSurfaceKind:
-                    Assert.NotEmpty(parsed.StaticAbilities);
-                    break;
-                default:
-                    Assert.Fail($"Unexpected token surface kind '{surface.SurfaceKind}'.");
-                    break;
-            }
-        }
+        await Task.CompletedTask;
     }
 
     [Fact]
@@ -41582,7 +41699,7 @@ public sealed class ConformanceFixtureRunnerTests
     {
         var surfaces = P6TokenFactoryCatalog.GetImplementedRuleSurfaces();
 
-        Assert.Equal(2, surfaces.Count);
+        Assert.Equal(3, surfaces.Count);
         Assert.Contains(surfaces, surface => string.Equals(
             surface.SurfaceId,
             P6TokenFactoryCatalog.ImageCopySurfaceId,
@@ -41590,6 +41707,10 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Contains(surfaces, surface => string.Equals(
             surface.SurfaceId,
             P6TokenFactoryCatalog.BaronNestMoveStaticSurfaceId,
+            StringComparison.Ordinal));
+        Assert.Contains(surfaces, surface => string.Equals(
+            surface.SurfaceId,
+            P6TokenFactoryCatalog.BrushReplacementSurfaceId,
             StringComparison.Ordinal));
 
         var officialCatalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -41619,6 +41740,13 @@ public sealed class ConformanceFixtureRunnerTests
                     Assert.Equal("指示物战场", definition.CategoryName);
                     Assert.False(definition.RequiresCopySource);
                     Assert.NotEmpty(parsed.StaticAbilities);
+                    break;
+                case P6TokenFactoryCatalog.BattlefieldReplacementSurfaceKind:
+                    Assert.Equal(P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo, surface.SourceCardNo);
+                    Assert.Equal(0, surface.TargetCount);
+                    Assert.Equal("指示物战场", definition.CategoryName);
+                    Assert.False(definition.RequiresCopySource);
+                    Assert.NotEmpty(parsed.Replacements);
                     break;
                 default:
                     Assert.Fail($"Unexpected implemented token surface kind '{surface.SurfaceKind}'.");
@@ -60376,6 +60504,40 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BrushHeldScoreState()
+    {
+        var baseState = BattlefieldHeldScoreState();
+        return baseState with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(baseState.PlayerZones, StringComparer.Ordinal)
+            {
+                ["P2"] = baseState.PlayerZones["P2"] with
+                {
+                    Battlefields =
+                    [
+                        "P2-BATTLEFIELD-BRUSH",
+                        "P2-BATTLEFIELD-ENERGY-HUB",
+                        "P2-BATTLEFIELD-ENERGY-DEFENDER"
+                    ]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(baseState.CardObjects, StringComparer.Ordinal)
+            {
+                ["P2-BATTLEFIELD-BRUSH"] = new(
+                    "P2-BATTLEFIELD-BRUSH",
+                    cardNo: P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo,
+                    tags:
+                    [
+                        P6TokenFactoryCatalog.BattlefieldCardTag,
+                        "草丛",
+                        "REPLACES_BATTLEFIELD:P2-BATTLEFIELD-ENERGY-HUB"
+                    ],
                     ownerId: "P2",
                     controllerId: "P2")
             }

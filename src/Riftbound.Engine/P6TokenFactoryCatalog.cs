@@ -53,6 +53,8 @@ public static class P6TokenFactoryCatalog
     public const string BaronNestMoveStaticSurfaceId = "TOKEN_DEFERRED_BARON_NEST_MOVE_STATIC";
     public const string ImageTokenCardNo = "UNL·T06";
     public const string ImageCopySurfaceId = "TOKEN_DEFERRED_IMAGE_COPY_SOURCE_REQUIRED";
+    public const string BrushBattlefieldTokenCardNo = "UNL·T03";
+    public const string BrushReplacementSurfaceId = "TOKEN_DEFERRED_BRUSH_BATTLEFIELD_REPLACEMENT";
     public const string BattlefieldCardTag = "CARD_TYPE:BATTLEFIELD";
     public const string CopySourceRequiredTag = "COPY_SOURCE_REQUIRED";
     public const string ActivatedResourceSurfaceKind = "activated-resource";
@@ -64,7 +66,7 @@ public static class P6TokenFactoryCatalog
     [
         Battlefield(BaronNestTokenCardNo, "男爵巢穴", "男爵巢穴"),
         Unit("UNL·T02", "战鹰", "战鹰", 1, CardObjectTags.Spellshield, "鸟类"),
-        Battlefield("UNL·T03", "草丛", "草丛"),
+        Battlefield(BrushBattlefieldTokenCardNo, "草丛", "草丛"),
         Equipment("UNL·T05", "金币", "金币", "反应"),
         Unit(ImageTokenCardNo, "映像", "映像", 0, true, CopySourceRequiredTag),
         Unit("UNL·T07", "精灵", "精灵", 3, CardObjectTags.Ephemeral, "仙灵"),
@@ -77,18 +79,7 @@ public static class P6TokenFactoryCatalog
         Unit("OGN·274/298", "精灵", "精灵", 3, CardObjectTags.Ephemeral)
     ];
 
-    private static readonly P6DeferredTokenRuleSurface[] DeferredRuleSurfaces =
-    [
-        new(
-            "TOKEN_DEFERRED_BRUSH_BATTLEFIELD_REPLACEMENT",
-            "UNL·T03",
-            "Brush battlefield replacement token",
-            "当你在此处得分时，你可以选择使用被此牌替代的战场来替代此牌",
-            BattlefieldReplacementSurfaceKind,
-            IsActivatedCommandSurface: false,
-            TargetCount: 0,
-            "P6.11 keeps token battlefield replacement deferred until battlefield replacement ordering and original-location memory are modeled."),
-    ];
+    private static readonly P6DeferredTokenRuleSurface[] DeferredRuleSurfaces = [];
 
     private static readonly P6ImplementedTokenRuleSurface[] ImplementedRuleSurfaces =
     [
@@ -109,7 +100,16 @@ public static class P6TokenFactoryCatalog
             BattlefieldStaticSurfaceKind,
             IsActivatedCommandSurface: false,
             TargetCount: 0,
-            "P6.11 retired this deferred representative after the battlefield movement domain implemented Baron Nest destination-specific movement.")
+            "P6.11 retired this deferred representative after the battlefield movement domain implemented Baron Nest destination-specific movement."),
+        new(
+            BrushReplacementSurfaceId,
+            BrushBattlefieldTokenCardNo,
+            "Brush battlefield replacement token",
+            "当你在此处得分时，你可以选择使用被此牌替代的战场来替代此牌",
+            BattlefieldReplacementSurfaceKind,
+            IsActivatedCommandSurface: false,
+            TargetCount: 0,
+            "P6.11 retired this deferred representative after the battlefield score domain implemented Brush score-time effective battlefield replacement.")
     ];
 
     public static IReadOnlyList<P6TokenFactoryDefinition> GetAll()

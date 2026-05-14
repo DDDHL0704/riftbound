@@ -649,7 +649,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string LeblancEphemeralStaticUnitCardNo = "UNL-090/219";
     private const string ReksaiLegendCardNo = "SFD·187/221";
     private const string IvernLegendCardNo = "UNL-195/219";
-    private const string BrushBattlefieldTokenCardNo = "UNL·T03";
+    private const string BrushBattlefieldTokenCardNo = P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo;
+    private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
     private const string DemaciaMinionTokenCardNo = "OGN·271/298";
     private const string ZaunMinionTokenCardNo = "OGN·273/298";
     private const string WarhawkTokenCardNo = "UNL·T02";
@@ -14442,6 +14443,24 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }
 
                 var battlefieldScoreEvents = new List<GameEvent>();
+                var battlefieldScoreBattlefieldId = battlefieldId;
+                var brushReplacementChoices = combatStackItem.OptionalCosts
+                    .Where(IsBrushReplacementChoiceId)
+                    .ToArray();
+                if (TryResolveBrushReplacementChoice(
+                        playerZones,
+                        cardObjects,
+                        battlefieldId,
+                        brushReplacementChoices,
+                        out var brushReplacement))
+                {
+                    battlefieldScoreBattlefieldId = brushReplacement.OriginalBattlefieldObjectId;
+                    battlefieldScoreEvents.Add(BuildBrushReplacementAppliedEvent(
+                        battleWinnerPlayerId,
+                        brushReplacement,
+                        "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE"));
+                }
+
                 if (TryResolveBattlefieldHeldPayPowerScoreTrigger(
                         state,
                         playerZones,
@@ -14449,7 +14468,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                         runePools,
                         playerScores,
                         battleWinnerPlayerId,
-                        battlefieldId,
+                        battlefieldScoreBattlefieldId,
                         attackerObjectId,
                         combatStackItem.OptionalCosts,
                         EffectiveWinningScore(playerZones, cardObjects),
@@ -15525,9 +15544,22 @@ public sealed class CoreRuleEngine : IRuleEngine
         var paymentResourceActions = optionalCosts
             .Where(IsRecycleRunePaymentResourceActionId)
             .ToArray();
-        if (optionalCosts.Count != 1 + paymentResourceActions.Length
+        var brushReplacementChoices = optionalCosts
+            .Where(IsBrushReplacementChoiceId)
+            .ToArray();
+        var brushReplacementValid = ValidateBrushReplacementChoice(
+            state,
+            command,
+            brushReplacementChoices,
+            out var brushReplacement);
+        var paymentBattlefieldId = brushReplacementValid && brushReplacementChoices.Length > 0
+            ? brushReplacement.OriginalBattlefieldObjectId
+            : command.BattlefieldId?.Trim() ?? string.Empty;
+        if (optionalCosts.Count != 1 + paymentResourceActions.Length + brushReplacementChoices.Length
             || optionalCosts.Count(cost => string.Equals(cost, DeclareBattleOptionalCost, StringComparison.Ordinal)) != 1
-            || !ValidateDeclareBattleBattlefieldHeldScorePaymentResources(state, command, paymentResourceActions))
+            || brushReplacementChoices.Length > 1
+            || !brushReplacementValid
+            || !ValidateDeclareBattleBattlefieldHeldScorePaymentResources(state, command, paymentResourceActions, paymentBattlefieldId))
         {
             return false;
         }
@@ -15585,17 +15617,127 @@ public sealed class CoreRuleEngine : IRuleEngine
         return defenderObjectIds.Count == 1 || hasAssignmentOrderingKeyword;
     }
 
+    private static bool ValidateBrushReplacementChoice(
+        MatchState state,
+        DeclareBattleCommand command,
+        IReadOnlyList<string> brushReplacementChoices,
+        out BrushReplacementChoice replacement)
+    {
+        replacement = new BrushReplacementChoice(string.Empty, string.Empty, new CardObjectState(), string.Empty, new CardObjectState());
+        if (brushReplacementChoices.Count == 0)
+        {
+            return true;
+        }
+
+        return TryResolveBrushReplacementChoice(
+            state.PlayerZones,
+            state.CardObjects,
+            command.BattlefieldId?.Trim() ?? string.Empty,
+            brushReplacementChoices,
+            out replacement)
+            && IsBattlefieldHeldPayPowerScoreCardNo(replacement.OriginalBattlefieldState.CardNo);
+    }
+
+    private sealed record BrushReplacementChoice(
+        string ChoiceId,
+        string BrushBattlefieldObjectId,
+        CardObjectState BrushBattlefieldState,
+        string OriginalBattlefieldObjectId,
+        CardObjectState OriginalBattlefieldState);
+
+    private static bool IsBrushReplacementChoiceId(string choiceId)
+    {
+        return !string.IsNullOrWhiteSpace(choiceId)
+            && choiceId.StartsWith(BrushReplacementChoicePrefix, StringComparison.Ordinal);
+    }
+
+    private static bool TryResolveBrushReplacementChoice(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string battlefieldId,
+        IReadOnlyList<string> brushReplacementChoices,
+        out BrushReplacementChoice replacement)
+    {
+        replacement = new BrushReplacementChoice(string.Empty, string.Empty, new CardObjectState(), string.Empty, new CardObjectState());
+        if (brushReplacementChoices.Count != 1
+            || !TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var brushBattlefieldObjectId, out var brushBattlefieldState)
+            || !string.Equals(brushBattlefieldState.CardNo, BrushBattlefieldTokenCardNo, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var choiceId = brushReplacementChoices[0];
+        if (!IsBrushReplacementChoiceId(choiceId))
+        {
+            return false;
+        }
+
+        var submittedOriginalBattlefieldObjectId = choiceId[BrushReplacementChoicePrefix.Length..].Trim();
+        if (string.IsNullOrWhiteSpace(submittedOriginalBattlefieldObjectId)
+            || string.Equals(submittedOriginalBattlefieldObjectId, brushBattlefieldObjectId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var replacementTags = brushBattlefieldState.Tags
+            .Where(tag => tag.StartsWith("REPLACES_BATTLEFIELD:", StringComparison.Ordinal))
+            .Select(tag => tag["REPLACES_BATTLEFIELD:".Length..].Trim())
+            .Where(tag => !string.IsNullOrWhiteSpace(tag))
+            .ToArray();
+        if (replacementTags.Length != 1
+            || !string.Equals(replacementTags[0], submittedOriginalBattlefieldObjectId, StringComparison.Ordinal)
+            || !TryGetBattlefieldCardObject(playerZones, cardObjects, submittedOriginalBattlefieldObjectId, out var originalBattlefieldObjectId, out var originalBattlefieldState)
+            || string.Equals(originalBattlefieldState.CardNo, BrushBattlefieldTokenCardNo, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(originalBattlefieldState.CardNo))
+        {
+            return false;
+        }
+
+        replacement = new BrushReplacementChoice(
+            choiceId,
+            brushBattlefieldObjectId,
+            brushBattlefieldState,
+            originalBattlefieldObjectId,
+            originalBattlefieldState);
+        return true;
+    }
+
+    private static GameEvent BuildBrushReplacementAppliedEvent(
+        string playerId,
+        BrushReplacementChoice replacement,
+        string replacementReason)
+    {
+        return new GameEvent(
+            "BATTLEFIELD_REPLACEMENT_APPLIED",
+            $"{playerId} 选择使用草丛替代的战场身份",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["replacementChoice"] = replacement.ChoiceId,
+                ["brushBattlefieldObjectId"] = replacement.BrushBattlefieldObjectId,
+                ["brushBattlefieldCardNo"] = replacement.BrushBattlefieldState.CardNo,
+                ["replacementBattlefieldObjectId"] = replacement.OriginalBattlefieldObjectId,
+                ["replacementBattlefieldCardNo"] = replacement.OriginalBattlefieldState.CardNo,
+                ["replacementReason"] = replacementReason,
+                ["effectiveBattlefieldObjectId"] = replacement.OriginalBattlefieldObjectId,
+                ["surfaceId"] = P6TokenFactoryCatalog.BrushReplacementSurfaceId
+            });
+    }
+
     private static bool ValidateDeclareBattleBattlefieldHeldScorePaymentResources(
         MatchState state,
         DeclareBattleCommand command,
-        IReadOnlyList<string> paymentResourceActions)
+        IReadOnlyList<string> paymentResourceActions,
+        string? effectiveBattlefieldId = null)
     {
         if (paymentResourceActions.Count == 0)
         {
             return true;
         }
 
-        var battlefieldId = command.BattlefieldId?.Trim() ?? string.Empty;
+        var battlefieldId = string.IsNullOrWhiteSpace(effectiveBattlefieldId)
+            ? command.BattlefieldId?.Trim() ?? string.Empty
+            : effectiveBattlefieldId.Trim();
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
