@@ -448,6 +448,8 @@
 
 ### 6.23 阶段 4C-27 Treasure Hunter move Gold 证据入口
 
+2026-05-14 Stage 4D-03W 补充：Renata Gold bonus handoff / baseline 已建立，见 `docs/CURRENT_STAGE4D_03W_PAYMENT_ENGINE_RENATA_GOLD_BONUS_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03W_PAYMENT_ENGINE_RENATA_GOLD_BONUS_BASELINE_EVIDENCE.md`；focused baseline 313/313、adjacent baseline 958/958 通过。目标是将 `RENATA_GOLD_EXTRA_1_MANA` marker 从已验证 token identity 推进到 Gold resource activation +1 mana bonus。
+
 2026-05-14 Stage 4D-03V 补充：Gold token resource skill focused slice 已验收，见 `docs/CURRENT_STAGE4D_03V_PAYMENT_ENGINE_GOLD_TOKEN_RESOURCE_SKILL_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03V_PAYMENT_ENGINE_GOLD_TOKEN_RESOURCE_SKILL_EVIDENCE.md`；focused 288/288、adjacent 782/782、backend full 4113/4113、`git diff --check` 通过。`UNL·T05` / `SFD·T03` Gold token resource / reaction ability representative 已接入服务端 prompt / command / destroy-cost / temporary ledger；Renata Gold extra mana bonus 仍 deferred。
 
 阶段 4C-27 细化审计见 `docs/CURRENT_STAGE4C_BATCH27_TREASURE_HUNTER_MOVE_GOLD_AUDIT.md`，证据见 `docs/CURRENT_STAGE4C_BATCH27_TREASURE_HUNTER_MOVE_GOLD_EVIDENCE.md`。本节提供 Treasure Hunter / 寻宝猎人 `SFD·130/221` / `FU-6144ab0271` successful move -> dormant Gold equipment token representative baseline；A 记录 focused backend 82/82，small regression 121/121；不表示项目 READY，`fullOfficial=false`。Karthus / `FU-ee1dfb3ed3` extra Last Breath 仍 design-gated。

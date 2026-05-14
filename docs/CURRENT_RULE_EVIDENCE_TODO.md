@@ -5,6 +5,8 @@
 
 本文记录 E 证据/审计 worker 第一轮 P0 交接项、阶段 1 D 协议审计、阶段 2 D P0 规则证据链和 A 主控验收结果，不替代 `docs/CURRENT_SERVER_RULE_AUDIT.md`。
 
+2026-05-14 4D-03W handoff / baseline 补充：Renata Gold bonus 下一服务端切片已建立，入口为 `docs/CURRENT_STAGE4D_03W_PAYMENT_ENGINE_RENATA_GOLD_BONUS_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03W_PAYMENT_ENGINE_RENATA_GOLD_BONUS_BASELINE_EVIDENCE.md`；focused baseline 313/313、adjacent baseline 958/958 通过。目标是带 `RENATA_GOLD_EXTRA_1_MANA` marker 的 Gold token 在激活 4D-03V resource skill 时额外获得 1 mana；当前仅为 B 侧交接和实现前回归护栏，不关闭 P0-005。
+
 2026-05-14 4D-03V focused slice 补充：Gold token resource skill representative 已实现并验收，入口为 `docs/CURRENT_STAGE4D_03V_PAYMENT_ENGINE_GOLD_TOKEN_RESOURCE_SKILL_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03V_PAYMENT_ENGINE_GOLD_TOKEN_RESOURCE_SKILL_EVIDENCE.md`；focused 288/288、adjacent 782/782、backend full 4113/4113、`git diff --check` 通过。该补充只证明 `UNL·T05` / `SFD·T03` Gold token destroy + exhaust + gain generic temporary payment-only rune resource ability，不实现 Renata Gold extra mana bonus，不关闭 equipment-token full rules、完整 `[A]` / `[C]` resource skill family 或 P0-005 full official。
 
 2026-05-14 4D-03V handoff / baseline 补充：Gold token resource skill 下一服务端切片已建立，入口为 `docs/CURRENT_STAGE4D_03V_PAYMENT_ENGINE_GOLD_TOKEN_RESOURCE_SKILL_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03V_PAYMENT_ENGINE_GOLD_TOKEN_RESOURCE_SKILL_BASELINE_EVIDENCE.md`；focused baseline 264/264、adjacent baseline 758/758 通过。目标是 `UNL·T05` 与 `SFD·T03` 金币 equipment token 的 reaction-speed destroy + exhaust + gain generic temporary payment-only rune resource ability；当前仅为 B 侧交接和实现前回归护栏，不实现 Renata Gold extra mana bonus，不关闭 P0-005。
