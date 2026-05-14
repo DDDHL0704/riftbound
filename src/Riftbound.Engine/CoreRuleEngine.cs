@@ -3145,6 +3145,54 @@ public sealed class CoreRuleEngine : IRuleEngine
                 huntSource.ObjectId,
                 huntSource.CardObject.CardNo);
         }
+        if (!string.IsNullOrWhiteSpace(defendingPlayerId)
+            && string.Equals(resolvedBattleWinnerPlayerId, defendingPlayerId, StringComparison.Ordinal))
+        {
+            var battlefieldHeldEventEmitted = false;
+            var huntHeldSources = battle.DefenderObjectIds
+                .Where(defenderObjectId => cardObjects.TryGetValue(defenderObjectId, out var survivingDefenderState)
+                    && survivingDefenderState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                    && IsObjectOnField(playerZones, defenderObjectId))
+                .Select(objectId => new
+                {
+                    ObjectId = objectId,
+                    CardObject = cardObjects[objectId],
+                    HuntAmount = CardResourceKeywordRules.HuntAmountFromTags(cardObjects[objectId].Tags)
+                })
+                .Where(source => source.HuntAmount > 0)
+                .ToArray();
+            var heldHuntAmount = huntHeldSources.Sum(source => source.HuntAmount);
+            if (heldHuntAmount > 0)
+            {
+                var huntSource = huntHeldSources[0];
+                AddBattlefieldHeldEventIfNeeded(
+                    combatEvents,
+                    ref battlefieldHeldEventEmitted,
+                    defendingPlayerId,
+                    battlefieldId,
+                    battle.AttackerObjectIds.FirstOrDefault() ?? intent.PlayerId,
+                    battle.DefenderObjectIds,
+                    new Dictionary<string, object?>
+                    {
+                        ["huntAmount"] = heldHuntAmount,
+                        ["huntSourceObjectIds"] = huntHeldSources
+                            .Select(source => source.ObjectId)
+                            .ToArray(),
+                        ["huntAmountsBySource"] = huntHeldSources.ToDictionary(
+                            source => source.ObjectId,
+                            source => source.HuntAmount,
+                            StringComparer.Ordinal)
+                    });
+                playerExperience = GainExperience(
+                    playerExperience.Count == 0 ? NormalizeExperienceForSeats(state) : playerExperience,
+                    defendingPlayerId,
+                    heldHuntAmount,
+                    combatStackItem,
+                    combatEvents,
+                    huntSource.ObjectId,
+                    huntSource.CardObject.CardNo);
+            }
+        }
 
         ApplyBattleCleanup(
             playerZones,
