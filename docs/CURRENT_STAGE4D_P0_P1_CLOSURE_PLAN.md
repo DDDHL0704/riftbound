@@ -13,6 +13,8 @@
 - 当前 completion audit 仍列出 P0-002、P0-003、P0-004、P0-005 与 P1 LayerEngine / keywords / full-card evidence / replay-hash coverage。
 - Formal 18-step E2E 已有连续正式主流程证据；它满足 A_MASTER 的主流程门槛，但不能替代 strict battlefield contest / battle lifecycle / PaymentEngine / LayerEngine 的 full official 收口。
 
+4D-03AG handoff / baseline 补充：下一 PaymentEngine breadth 切片锁定 `PLAY_CARD` typed optional power costs 的 inline payment-resource prompt parity。交接规格见 `docs/CURRENT_STAGE4D_03AG_PAYMENT_ENGINE_PLAY_CARD_TYPED_RESOURCE_PROMPT_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_03AG_PAYMENT_ENGINE_PLAY_CARD_TYPED_RESOURCE_PROMPT_BASELINE_EVIDENCE.md`。Raman 只读审计将 4D-03AF 的一般 verifier 建议收窄为更具体的 authoritative prompt / command typed payability gap；本切片仍不关闭 P0-005、P1 或 READY。
+
 4D-03AF A 侧 audit 补充：PaymentEngine remaining-scope audit / baseline 已建立，审计与基线见 `docs/CURRENT_STAGE4D_03AF_PAYMENT_ENGINE_REMAINING_SCOPE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AF_PAYMENT_ENGINE_REMAINING_SCOPE_BASELINE_EVIDENCE.md`；focused baseline 587/587 通过。该补充确认 4D-03AE 后仍不能关闭 P0-005；下一步推荐补 `PLAY_CARD` / `PAY_COST` / `ASSEMBLE_EQUIPMENT` / `ACTIVATE_ABILITY` / `LEGEND_ACT` / battlefield held / trigger payment / `HIDE_CARD` / `MOVE_UNIT` 的 action-window coverage verifier。
 
 4D-03AE focused slice 补充：pending `PAY_COST` / `TRIGGER_PAYMENT` temporary resource aggregate prompt parity representative 已验收，审计与证据见 `docs/CURRENT_STAGE4D_03AE_PAYMENT_ENGINE_PENDING_TEMP_RESOURCE_PROMPT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AE_PAYMENT_ENGINE_PENDING_TEMP_RESOURCE_PROMPT_EVIDENCE.md`；focused 170/170、backend full 4173/4173、`git diff --check` 通过。该补充只收口 pending prompt aggregate legal-choice 口径，不关闭 P0-005、P1 或 READY。

@@ -7,6 +7,8 @@
 
 ## 0. 2026-05-13 最新状态补充
 
+2026-05-14 4D-03AG handoff / baseline 补充：下一 PaymentEngine breadth 切片锁定 `PLAY_CARD` typed optional power costs 的 inline payment-resource prompt parity，交接入口为 `docs/CURRENT_STAGE4D_03AG_PAYMENT_ENGINE_PLAY_CARD_TYPED_RESOURCE_PROMPT_HANDOFF.md`，实现前基线为 `docs/CURRENT_STAGE4D_03AG_PAYMENT_ENGINE_PLAY_CARD_TYPED_RESOURCE_PROMPT_BASELINE_EVIDENCE.md`。项目仍 **NOT READY**；该补充不关闭 P0-005、P1、前端最终验收或 full-card audit。
+
 2026-05-14 4D-03AF A 侧 audit 补充：PaymentEngine remaining-scope audit / baseline 已建立，入口为 `docs/CURRENT_STAGE4D_03AF_PAYMENT_ENGINE_REMAINING_SCOPE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AF_PAYMENT_ENGINE_REMAINING_SCOPE_BASELINE_EVIDENCE.md`；focused baseline 587/587 通过。项目仍 **NOT READY**；该补充不关闭 P0-005，只确认下一步应补 action-window coverage verifier / checklist。
 
 2026-05-14 4D-03AE focused slice 补充：pending temporary resource prompt aggregate parity representative 已验收，入口为 `docs/CURRENT_STAGE4D_03AE_PAYMENT_ENGINE_PENDING_TEMP_RESOURCE_PROMPT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AE_PAYMENT_ENGINE_PENDING_TEMP_RESOURCE_PROMPT_EVIDENCE.md`；focused 170/170、backend full 4173/4173、`git diff --check` 通过。项目仍 **NOT READY**；该补充不修改 completion verdict，不关闭 P0-005、P1、前端最终验收或 full-card audit。
