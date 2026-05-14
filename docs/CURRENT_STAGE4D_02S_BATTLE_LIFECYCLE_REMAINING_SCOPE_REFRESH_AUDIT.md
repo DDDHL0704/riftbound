@@ -57,6 +57,8 @@
 
 2026-05-15 follow-up：4D-02AH 已验收上述 activation-returned Brush replacement-aware held-score next-contested advancement，且为 test-only guard。P0-004 仍 open；该切片只覆盖 BF-A Brush replacement-aware held-score payment / score / battle close 后推进 BF-B spell duel，不代表完整 replacement / prevention / LayerEngine 或 full official combat breadth。
 
+2026-05-15 follow-up：下一切片 4D-02AI 转向 prevention cross-product，锁定 BF-A/B 双争夺场景中 actual Shadow activation / stack resolution / returned response -> held-score `BATTLEFIELD_SCORE_PREVENTED` / current battle close 后推进 BF-B `START_SPELL_DUEL`，且 prevention 分支不得支付 held-score cost 或获得分数。
+
 ## Evidence Inspected
 
 - `docs/A_MASTER_AGENT_GOAL.md`
@@ -146,6 +148,8 @@ Suggested next goal after 4D-02Y: choose a new narrow representative from the re
 4D-02AG selected representative: natural battle response actual Shadow activation -> returned response -> held-score recycle payment / score / current battle close -> next contested battlefield spell duel advancement. This mirrors 4D-02AF with the 4D-02AD `RECYCLE_RUNE:*` held-score context. 4D-02AG is now accepted.
 
 4D-02AH selected representative: natural battle response actual Shadow activation -> returned response -> Brush replacement-aware held-score payment / score / current battle close -> next contested battlefield spell duel advancement. This composes 4D-02K Brush replacement context with the next-contested advancement axis. 4D-02AH is now accepted.
+
+4D-02AI selected representative: natural battle response actual Shadow activation -> returned response -> held-score score-prevention / current battle close -> next contested battlefield spell duel advancement. This composes existing battlefield score-delay prevention with the next-contested advancement axis. Handoff / baseline are now established.
 
 Recommended representative:
 
