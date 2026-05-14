@@ -3274,7 +3274,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
                     ? IsStunnedForBattle(cardObject)
                         ? 0
-                        : Math.Max(0, cardObject.Power + cardObject.UntilEndOfTurnPowerModifier)
+                        : Math.Max(0, cardObject.Power)
                     : 0,
                 StringComparer.Ordinal);
     }
@@ -3304,7 +3304,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
                     ? IsStunnedForBattle(cardObject)
                         ? 0
-                        : Math.Max(0, cardObject.Power + cardObject.UntilEndOfTurnPowerModifier - cardObject.Damage)
+                        : Math.Max(0, cardObject.Power - cardObject.Damage)
                     : 0,
                 StringComparer.Ordinal);
     }

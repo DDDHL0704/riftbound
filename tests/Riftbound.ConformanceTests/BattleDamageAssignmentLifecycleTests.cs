@@ -851,6 +851,192 @@ public sealed class BattleDamageAssignmentLifecycleTests
     }
 
     [Fact]
+    public async Task NaturalBattleResponseActivationPowerModifierUsesEffectiveAssignmentDamagePool()
+    {
+        var state = BuildNaturalStartBattleState(
+            includeShadowResponse: true,
+            includeNextContest: true,
+            defenderObjectIds: [BulwarkDefenderObjectId, ShadowObjectId]);
+        var cardObjects = new Dictionary<string, CardObjectState>(state.CardObjects, StringComparer.Ordinal)
+        {
+            [BulwarkDefenderObjectId] = state.CardObjects[BulwarkDefenderObjectId] with
+            {
+                Power = 1,
+                UntilEndOfTurnPowerModifier = -1
+            }
+        };
+        state = state with { CardObjects = cardObjects };
+        var engine = new CoreRuleEngine();
+
+        var openedResponse = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-natural-response-power-modifier-assignment-declare-battle", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                BattlefieldObjectId,
+                [AttackerObjectId],
+                [BulwarkDefenderObjectId, ShadowObjectId],
+                OptionalCosts: ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
+        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        AssertNextContestedBattlefieldNotAdvanced(openedResponse);
+
+        var activated = await engine.ResolveAsync(
+            openedResponse.State,
+            new PlayerIntent("intent-natural-response-power-modifier-assignment-shadow", "P2", CommandTypes.ActivateAbility),
+            new ActivateAbilityCommand(
+                ShadowObjectId,
+                P4ActivatedAbilityCatalog.ShadowStunAbilityId,
+                [AttackerObjectId]),
+            CancellationToken.None);
+
+        Assert.True(activated.Accepted, activated.ErrorMessage);
+        Assert.Equal(
+            ["ABILITY_ACTIVATED", "UNIT_EXHAUSTED", "COST_PAID", "STACK_ITEM_ADDED"],
+            activated.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.True(activated.State.CardObjects[ShadowObjectId].IsExhausted);
+        Assert.Single(activated.State.StackItems);
+        AssertNextContestedBattlefieldNotAdvanced(activated);
+
+        var stackP2Pass = await engine.ResolveAsync(
+            activated.State,
+            new PlayerIntent("intent-natural-response-power-modifier-assignment-stack-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(stackP2Pass.Accepted, stackP2Pass.ErrorMessage);
+        AssertNextContestedBattlefieldNotAdvanced(stackP2Pass);
+
+        var stackP1Pass = await engine.ResolveAsync(
+            stackP2Pass.State,
+            new PlayerIntent("intent-natural-response-power-modifier-assignment-stack-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(stackP1Pass.Accepted, stackP1Pass.ErrorMessage);
+        Assert.Empty(stackP1Pass.State.StackItems);
+        Assert.True(stackP1Pass.State.BattleState.IsActive);
+        Assert.Equal(TimingStates.NeutralClosed, stackP1Pass.State.TimingState);
+        Assert.Equal("P2", stackP1Pass.State.PriorityPlayerId);
+        Assert.Contains("STUNNED", stackP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
+        Assert.DoesNotContain("STUNNED", stackP1Pass.State.CardObjects[BulwarkDefenderObjectId].UntilEndOfTurnEffects);
+        Assert.Equal(1, stackP1Pass.State.CardObjects[BulwarkDefenderObjectId].Power);
+        Assert.Equal(-1, stackP1Pass.State.CardObjects[BulwarkDefenderObjectId].UntilEndOfTurnPowerModifier);
+        AssertNextContestedBattlefieldNotAdvanced(stackP1Pass);
+
+        var responseP2Pass = await engine.ResolveAsync(
+            stackP1Pass.State,
+            new PlayerIntent("intent-natural-response-power-modifier-assignment-response-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
+        AssertNextContestedBattlefieldNotAdvanced(responseP2Pass);
+
+        var responseP1Pass = await engine.ResolveAsync(
+            responseP2Pass.State,
+            new PlayerIntent("intent-natural-response-power-modifier-assignment-response-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(responseP1Pass.Accepted, responseP1Pass.ErrorMessage);
+        Assert.True(responseP1Pass.State.BattleState.IsActive);
+        Assert.Equal("BATTLE_TASKS", responseP1Pass.State.PendingTaskQueue.Phase);
+        Assert.Equal($"task:start-battle:{BattlefieldObjectId}", responseP1Pass.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(PromptTypes.AssignCombatDamage, responseP1Pass.Prompts["P1"].View?.Type);
+        AssertNextContestedBattlefieldNotAdvanced(responseP1Pass);
+
+        var assignCandidate = Assert.Single(
+            responseP1Pass.Prompts["P1"].Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.AssignCombatDamage, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(assignCandidate.Metadata);
+        var damagePool = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(metadata["damagePool"]);
+        Assert.Equal(0, damagePool[AttackerObjectId]);
+        Assert.Equal(1, damagePool[BulwarkDefenderObjectId]);
+        Assert.Equal(1, damagePool[ShadowObjectId]);
+        var lethalThreshold = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(metadata["lethalDamageThreshold"]);
+        Assert.Equal(1, lethalThreshold[BulwarkDefenderObjectId]);
+        var battleParticipants = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["battleParticipants"]);
+        var bulwarkParticipant = Assert.Single(
+            battleParticipants,
+            participant => string.Equals(participant["objectId"] as string, BulwarkDefenderObjectId, StringComparison.Ordinal));
+        Assert.Equal(1, Assert.IsType<int>(bulwarkParticipant["power"]));
+        var requiredAssignments = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["requiredAssignments"]).ToArray();
+        Assert.Contains(requiredAssignments, assignment =>
+            string.Equals(assignment["sourceObjectId"] as string, BulwarkDefenderObjectId, StringComparison.Ordinal)
+            && Equals(assignment["damage"], 1));
+        Assert.Contains(requiredAssignments, assignment =>
+            string.Equals(assignment["sourceObjectId"] as string, ShadowObjectId, StringComparison.Ordinal)
+            && Equals(assignment["damage"], 1));
+        var assignmentChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["assignmentChoices"]).ToArray();
+        Assert.Contains(assignmentChoices, choice => string.Equals(choice.Id, $"{BulwarkDefenderObjectId}->{AttackerObjectId}", StringComparison.Ordinal));
+
+        var staleAssignment = await engine.ResolveAsync(
+            responseP1Pass.State,
+            new PlayerIntent("intent-natural-response-power-modifier-assignment-stale-damage", "P1", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand(
+                $"battle:{BattlefieldObjectId}",
+                BattlefieldObjectId,
+                [new CombatDamageAssignmentDto(ShadowObjectId, AttackerObjectId, 1)]),
+            CancellationToken.None);
+
+        AssertRejectedNoMutation(responseP1Pass.State, staleAssignment, ErrorCodes.InvalidPayload);
+        Assert.Equal(PromptTypes.AssignCombatDamage, staleAssignment.Prompts["P1"].View?.Type);
+        AssertNextContestedBattlefieldNotAdvanced(staleAssignment);
+
+        var legalEffectiveAssignments = new[]
+        {
+            new CombatDamageAssignmentDto(BulwarkDefenderObjectId, AttackerObjectId, 1),
+            new CombatDamageAssignmentDto(ShadowObjectId, AttackerObjectId, 1)
+        };
+        var assigned = await engine.ResolveAsync(
+            responseP1Pass.State,
+            new PlayerIntent("intent-natural-response-power-modifier-assignment-effective-damage", "P1", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, legalEffectiveAssignments),
+            CancellationToken.None);
+
+        Assert.True(assigned.Accepted, assigned.ErrorMessage);
+        var combatDamageAssigned = Assert.Single(
+            assigned.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "COMBAT_DAMAGE_ASSIGNED", StringComparison.Ordinal));
+        var assignedDamagePool = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(combatDamageAssigned.Payload["damagePool"]);
+        Assert.Equal(0, assignedDamagePool[AttackerObjectId]);
+        Assert.Equal(1, assignedDamagePool[BulwarkDefenderObjectId]);
+        Assert.Equal(1, assignedDamagePool[ShadowObjectId]);
+        Assert.DoesNotContain(assigned.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, AttackerObjectId, StringComparison.Ordinal));
+        var bulwarkDamage = Assert.Single(assigned.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, BulwarkDefenderObjectId, StringComparison.Ordinal));
+        Assert.Equal(1, bulwarkDamage.Payload["sourceDamagePool"]);
+        var shadowDamage = Assert.Single(assigned.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, ShadowObjectId, StringComparison.Ordinal));
+        Assert.Equal(1, shadowDamage.Payload["sourceDamagePool"]);
+        var battleClosedIndex = EventIndex(assigned.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldId"] as string, BattlefieldObjectId, StringComparison.Ordinal));
+        var nextContestIndex = EventIndex(assigned.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
+        var nextSpellDuelIndex = EventIndex(assigned.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
+        Assert.True(battleClosedIndex < nextContestIndex);
+        Assert.True(nextContestIndex < nextSpellDuelIndex);
+        Assert.Equal(TimingStates.SpellDuelOpen, assigned.State.TimingState);
+        Assert.Equal("P1", assigned.State.FocusPlayerId);
+        Assert.Equal("SPELL_DUEL_TASKS", assigned.State.PendingTaskQueue.Phase);
+        Assert.Equal($"task:start-spell-duel:{NextBattlefieldObjectId}", assigned.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(PromptTypes.SpellDuelFocus, assigned.Prompts["P1"].View?.Type);
+        Assert.Equal(NextBattlefieldObjectId, assigned.Prompts["P1"].View?.RelatedBattlefieldId);
+        Assert.NotEqual(PromptTypes.AssignCombatDamage, assigned.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.BattleDeclaration, assigned.Prompts["P1"].View?.Type);
+    }
+
+    [Fact]
     public async Task NaturalBattleResponseActivationAssignmentConquerResultOrdersBeforeNextAdvancement()
     {
         var state = BuildNaturalStartBattleState(

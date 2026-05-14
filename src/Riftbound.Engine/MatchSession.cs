@@ -2300,7 +2300,7 @@ public sealed record ResolutionResult(
 
         return IsStunnedForBattle(cardObject)
             ? 0
-            : cardObject.Power + cardObject.UntilEndOfTurnPowerModifier;
+            : cardObject.Power;
     }
 
     private static bool IsStunnedForBattle(CardObjectState cardObject)
