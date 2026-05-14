@@ -47,6 +47,8 @@
 
 2026-05-15 follow-up：下一切片 4D-02AF 转向 activation-returned held-score branch 的 next-contested advancement。目标是在 BF-A / BF-B 双争夺场景中证明 actual Shadow activation / stack resolution / returned response 后，BF-A held-score temporary payment / score / current battle close 完成后才推进 BF-B `START_SPELL_DUEL`，且 response / stack / returned response 阶段不得提前推进 BF-B。
 
+2026-05-15 follow-up：4D-02AF 已验收上述 activation-returned held-score next-contested advancement representative，且为 test-only guard。P0-004 仍 open；该切片只覆盖 BF-A held-score temporary payment / score / battle close 后推进 BF-B spell duel，不代表 recycle mirror、完整 battle-result matrix、replacement / prevention / LayerEngine 或 full official combat breadth。
+
 ## Evidence Inspected
 
 - `docs/A_MASTER_AGENT_GOAL.md`
@@ -91,6 +93,7 @@
 - Declaration-context carriers for Icevale trigger payment, Brush replacement, `RECYCLE_RUNE:*`, `TEMP_PAYMENT_RESOURCE:*`, and activation-returned Brush replacement are covered as internal, non-public context that does not leak into player / spectator snapshots or prompts.
 - Declaration-context carriers now include one activation-returned held-score `RECYCLE_RUNE:*` representative: the action can become necessary after Shadow response resource spend, remains redacted while carried, and is either consumed strictly at final held-score payment or dropped if no response made it necessary.
 - Declaration-context carriers now also include one activation-returned held-score `TEMP_PAYMENT_RESOURCE:*` representative: the action can become necessary after Shadow response resource spend, remains redacted while carried, and is either consumed strictly at final held-score payment or dropped if no response made it necessary.
+- Next contested battlefield advancement now has one activation-returned held-score representative: BF-A temporary held-score payment / score / battle close completes before BF-B `BATTLEFIELD_CONTESTED` / `SPELL_DUEL_STARTED`, and BF-B is not advanced during response or stack resolution.
 
 ## Superseded 4D-02C Gaps
 
@@ -128,7 +131,7 @@ Suggested next goal after 4D-02Y: choose a new narrow representative from the re
 
 4D-02AE selected representative: natural battle response actual Shadow activation -> returned response -> held-score temporary payment-resource branch. This composes 4D-02J `TEMP_PAYMENT_RESOURCE:*` held-score context with 4D-02K actual activation / stack resolution context preservation and 4D-02AD no-response normalization. 4D-02AE is now accepted.
 
-4D-02AF selected representative: natural battle response actual Shadow activation -> returned response -> held-score temporary payment / score / current battle close -> next contested battlefield spell duel advancement. This composes 4D-02AE held-score temporary payment-resource context with the existing next-contested advancement axis.
+4D-02AF selected representative: natural battle response actual Shadow activation -> returned response -> held-score temporary payment / score / current battle close -> next contested battlefield spell duel advancement. This composes 4D-02AE held-score temporary payment-resource context with the existing next-contested advancement axis. 4D-02AF is now accepted.
 
 Recommended representative:
 
@@ -155,4 +158,4 @@ Expected guard:
 
 ## Verdict
 
-4D-02B through 4D-02AE materially narrowed P0-004, especially activation-returned assignment / immediate / payment / no-result task advancement, cleanup-blocker ordering, precise object-location preservation for nonparticipant response sources, same-turn completed battlefield skip policy, one nested battle-response stack representative, one multiple-legal-source response representative, one stale-target no-effect response representative, response-pass assignment Hunt conquer / held result-ordering representatives, activation-returned assignment Hunt conquer / held result-ordering representatives, and activation-returned held-score `RECYCLE_RUNE:*` plus `TEMP_PAYMENT_RESOURCE:*` payment-resource context representatives. Project remains **NOT READY**.
+4D-02B through 4D-02AF materially narrowed P0-004, especially activation-returned assignment / immediate / payment / no-result task advancement, cleanup-blocker ordering, precise object-location preservation for nonparticipant response sources, same-turn completed battlefield skip policy, one nested battle-response stack representative, one multiple-legal-source response representative, one stale-target no-effect response representative, response-pass assignment Hunt conquer / held result-ordering representatives, activation-returned assignment Hunt conquer / held result-ordering representatives, activation-returned held-score `RECYCLE_RUNE:*` plus `TEMP_PAYMENT_RESOURCE:*` payment-resource context representatives, and one activation-returned held-score next-contested advancement representative. Project remains **NOT READY**.
