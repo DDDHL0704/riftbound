@@ -16180,6 +16180,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             currentPool,
             state.CardObjects,
             recycledRuneObjectIds);
+        if (allowDeferredBattleResponsePaymentResourceNeed
+            && temporaryPaymentResourceActions.Count > 0
+            && CanPayPowerCost(
+                adjustedPool,
+                BattlefieldHeldScorePowerCost,
+                new Dictionary<string, int>(StringComparer.Ordinal)))
+        {
+            return true;
+        }
+
         var adjustedRunePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         adjustedRunePools[paymentPlayerId] = adjustedPool;
         var paymentWindow = "BATTLEFIELD_HELD";
@@ -23214,10 +23224,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         DeclareBattleCommand command)
     {
         var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
-        var recycledRuneActions = optionalCosts
-            .Where(IsRecycleRunePaymentResourceActionId)
+        var paymentResourceActions = optionalCosts
+            .Where(IsDeclareBattleHeldScorePaymentResourceActionId)
             .ToArray();
-        if (recycledRuneActions.Length == 0)
+        if (paymentResourceActions.Length == 0)
         {
             return command;
         }
@@ -23259,7 +23269,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var filteredOptionalCosts = optionalCosts
-            .Where(optionalCost => !IsRecycleRunePaymentResourceActionId(optionalCost))
+            .Where(optionalCost => !IsDeclareBattleHeldScorePaymentResourceActionId(optionalCost))
             .ToArray();
         return new DeclareBattleCommand(
             command.BattlefieldId ?? string.Empty,
