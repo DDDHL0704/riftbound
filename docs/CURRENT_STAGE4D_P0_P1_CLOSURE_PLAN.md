@@ -13,6 +13,8 @@
 - 当前 completion audit 仍列出 P0-002、P0-003、P0-004、P0-005 与 P1 LayerEngine / keywords / full-card evidence / replay-hash coverage。
 - Formal 18-step E2E 已有连续正式主流程证据；它满足 A_MASTER 的主流程门槛，但不能替代 strict battlefield contest / battle lifecycle / PaymentEngine / LayerEngine 的 full official 收口。
 
+4D-03AD handoff / baseline 补充：下一 PaymentEngine breadth 切片锁定 SFD Fiora `TRIGGER_PAYMENT` 对 `TEMP_PAYMENT_RESOURCE:*` 的 typed-yellow prompt / command / audit parity。交接规格见 `docs/CURRENT_STAGE4D_03AD_PAYMENT_ENGINE_TRIGGER_TEMP_RESOURCE_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_03AD_PAYMENT_ENGINE_TRIGGER_TEMP_RESOURCE_BASELINE_EVIDENCE.md`；focused baseline 137/137、`git diff --check` 通过。该补充只建立 trigger-payment temporary resource parity 的实现前护栏，不关闭 P0-005、P1 或 READY。
+
 4D-03AC focused slice 补充：battlefield held temporary payment resource parity representative 已验收，审计与证据见 `docs/CURRENT_STAGE4D_03AC_PAYMENT_ENGINE_BATTLEFIELD_HELD_TEMP_RESOURCE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AC_PAYMENT_ENGINE_BATTLEFIELD_HELD_TEMP_RESOURCE_EVIDENCE.md`；focused 221/221、backend full 4158/4158、`git diff --check` 通过。该补充只收口 `BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE` 的 temporary payment-only resource parity，不关闭 P0-005、P1 或 READY。
 
 4D-03AC handoff / baseline 补充：下一 PaymentEngine breadth 切片锁定 `BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE` 对 `TEMP_PAYMENT_RESOURCE:*` 的 prompt quote / command commit / audit parity。交接规格见 `docs/CURRENT_STAGE4D_03AC_PAYMENT_ENGINE_BATTLEFIELD_HELD_TEMP_RESOURCE_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_03AC_PAYMENT_ENGINE_BATTLEFIELD_HELD_TEMP_RESOURCE_BASELINE_EVIDENCE.md`；exploratory baseline 73/73、focused baseline 208/208、`git diff --check` 通过。该补充只建立 held-score temporary resource parity 的实现前护栏，不关闭 P0-005、P1 或 READY。

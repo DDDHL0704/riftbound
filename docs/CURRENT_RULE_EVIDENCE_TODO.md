@@ -5,6 +5,8 @@
 
 本文记录 E 证据/审计 worker 第一轮 P0 交接项、阶段 1 D 协议审计、阶段 2 D P0 规则证据链和 A 主控验收结果，不替代 `docs/CURRENT_SERVER_RULE_AUDIT.md`。
 
+2026-05-14 4D-03AD handoff / baseline 补充：下一 PaymentEngine breadth 切片锁定 SFD Fiora `TRIGGER_PAYMENT` temporary payment resource parity，入口为 `docs/CURRENT_STAGE4D_03AD_PAYMENT_ENGINE_TRIGGER_TEMP_RESOURCE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03AD_PAYMENT_ENGINE_TRIGGER_TEMP_RESOURCE_BASELINE_EVIDENCE.md`；focused baseline 137/137、`git diff --check` 通过。该基线只建立实现前回归护栏，不代表 temporary resource 已能支付 Fiora trigger payment，不关闭 P0-005、P1 或 READY。
+
 2026-05-14 4D-03AC focused slice 补充：battlefield held temporary payment resource parity representative 已验收，入口为 `docs/CURRENT_STAGE4D_03AC_PAYMENT_ENGINE_BATTLEFIELD_HELD_TEMP_RESOURCE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AC_PAYMENT_ENGINE_BATTLEFIELD_HELD_TEMP_RESOURCE_EVIDENCE.md`；focused 221/221、backend full 4158/4158、`git diff --check` 通过。该补充只证明 `BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE` 的 temporary resource parity representative，不关闭 P0-005 full official、P1 或 READY。
 
 2026-05-14 4D-03AC handoff / baseline 补充：下一 PaymentEngine breadth 切片锁定 `BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE` 的 temporary payment-only resource parity，入口为 `docs/CURRENT_STAGE4D_03AC_PAYMENT_ENGINE_BATTLEFIELD_HELD_TEMP_RESOURCE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03AC_PAYMENT_ENGINE_BATTLEFIELD_HELD_TEMP_RESOURCE_BASELINE_EVIDENCE.md`；exploratory baseline 73/73、focused baseline 208/208、`git diff --check` 通过。该基线只建立实现前回归护栏，不代表 temporary resource 已能支付 held-score cost，不关闭 P0-005、P1 或 READY。
