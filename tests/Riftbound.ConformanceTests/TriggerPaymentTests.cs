@@ -77,6 +77,30 @@ public sealed class TriggerPaymentTests
     }
 
     [Fact]
+    public async Task BattlefieldConquerGoldTriggerPaymentBlocksNextContestedBattlefieldUntilAccepted()
+    {
+        var engine = new CoreRuleEngine();
+        var opened = await DeclareBattleAsync(BuildBattlefieldConquerGoldState(includeNextContest: true), engine);
+        var payment = AssertTriggerPaymentOpen(opened);
+
+        AssertNextContestedBattlefieldNotAdvanced(opened);
+
+        var paid = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-trigger-payment-pay-advances-next-contest", "P1", CommandTypes.PayCost),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [PayOneMana]),
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Null(paid.State.PendingPayment);
+        AssertNextContestedBattlefieldAdvancedAfterPaymentClosed(paid, declined: false);
+        Assert.Contains(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Contains(paid.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, GoldTrigger, StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task BattlefieldConquerGoldTriggerPaymentDeclineClosesWindowWithoutCostOrToken()
     {
         var engine = new CoreRuleEngine();
@@ -99,6 +123,30 @@ public sealed class TriggerPaymentTests
         Assert.DoesNotContain(declined.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.DoesNotContain(declined.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal));
         Assert.DoesNotContain(declined.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_TOKEN_CREATED", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task BattlefieldConquerGoldTriggerPaymentDeclineAdvancesNextContestedBattlefield()
+    {
+        var engine = new CoreRuleEngine();
+        var opened = await DeclareBattleAsync(BuildBattlefieldConquerGoldState(includeNextContest: true), engine);
+        var payment = AssertTriggerPaymentOpen(opened);
+
+        AssertNextContestedBattlefieldNotAdvanced(opened);
+
+        var declined = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-trigger-payment-decline-advances-next-contest", "P1", CommandTypes.PayCost),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [Decline]),
+            CancellationToken.None);
+
+        Assert.True(declined.Accepted, declined.ErrorMessage);
+        Assert.Null(declined.State.PendingPayment);
+        Assert.Empty(GoldTokenIds(declined.State));
+        AssertNextContestedBattlefieldAdvancedAfterPaymentClosed(declined, declined: true);
+        Assert.Contains(declined.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_PAYMENT_DECLINED", StringComparison.Ordinal));
+        Assert.DoesNotContain(declined.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.DoesNotContain(declined.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -140,6 +188,24 @@ public sealed class TriggerPaymentTests
         AssertRejectedNoMutation(duplicateChoice, opened.State, ErrorCodes.InvalidTarget);
         AssertRejectedNoMutation(payAndDecline, opened.State, ErrorCodes.InvalidTarget);
         AssertRejectedNoMutation(malformed, opened.State, ErrorCodes.InvalidPayload);
+    }
+
+    [Fact]
+    public async Task BattlefieldConquerGoldTriggerPaymentRejectsInvalidChoiceWithoutAdvancingNextContestedBattlefield()
+    {
+        var engine = new CoreRuleEngine();
+        var opened = await DeclareBattleAsync(BuildBattlefieldConquerGoldState(includeNextContest: true), engine);
+        var payment = AssertTriggerPaymentOpen(opened);
+
+        var rejected = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-trigger-payment-reject-keeps-next-contest-blocked", "P1", CommandTypes.PayCost),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:2"]),
+            CancellationToken.None);
+
+        AssertRejectedNoMutation(rejected, opened.State, ErrorCodes.InvalidTarget);
+        AssertNextContestedBattlefieldNotAdvanced(rejected);
+        Assert.NotNull(rejected.State.PendingPayment);
     }
 
     [Fact]
@@ -1449,6 +1515,63 @@ public sealed class TriggerPaymentTests
         Assert.Equal(GoldTokenIds(original), GoldTokenIds(result.State));
     }
 
+    private static void AssertNextContestedBattlefieldNotAdvanced(ResolutionResult result)
+    {
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "P1-BATTLEFIELD-NEXT-FIELD", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "P1-BATTLEFIELD-NEXT-FIELD", StringComparison.Ordinal));
+        Assert.NotEqual(TimingStates.SpellDuelOpen, result.State.TimingState);
+        Assert.NotEqual(PromptTypes.SpellDuelFocus, result.Prompts["P1"].View?.Type);
+    }
+
+    private static void AssertNextContestedBattlefieldAdvancedAfterPaymentClosed(
+        ResolutionResult result,
+        bool declined)
+    {
+        Assert.Equal(TimingStates.SpellDuelOpen, result.State.TimingState);
+        Assert.Equal("P1", result.State.FocusPlayerId);
+        Assert.Equal("SPELL_DUEL_TASKS", result.State.PendingTaskQueue.Phase);
+        Assert.Equal("task:start-spell-duel:P1-BATTLEFIELD-NEXT-FIELD", result.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(PromptTypes.SpellDuelFocus, result.Prompts["P1"].View?.Type);
+        Assert.Equal("P1-BATTLEFIELD-NEXT-FIELD", result.Prompts["P1"].View?.RelatedBattlefieldId);
+        Assert.DoesNotContain(
+            result.State.PendingTaskQueue.Tasks,
+            task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
+                && string.Equals(task.BattlefieldObjectId, "P1-BATTLEFIELD-TREASURE-PILE", StringComparison.Ordinal));
+
+        var paymentClosedIndex = EventIndex(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["declined"], declined));
+        var nextContestIndex = EventIndex(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "P1-BATTLEFIELD-NEXT-FIELD", StringComparison.Ordinal));
+        var nextSpellDuelIndex = EventIndex(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "P1-BATTLEFIELD-NEXT-FIELD", StringComparison.Ordinal));
+
+        Assert.True(paymentClosedIndex < nextContestIndex);
+        Assert.True(nextContestIndex < nextSpellDuelIndex);
+    }
+
+    private static int EventIndex(
+        IReadOnlyList<GameEvent> events,
+        Func<GameEvent, bool> predicate)
+    {
+        for (var index = 0; index < events.Count; index++)
+        {
+            if (predicate(events[index]))
+            {
+                return index;
+            }
+        }
+
+        Assert.Fail("Expected event was not emitted.");
+        return -1;
+    }
+
     private static void AssertVayneStillOnBattlefield(MatchState state)
     {
         Assert.Contains("P1-BATTLEFIELD-VAYNE", state.PlayerZones["P1"].Battlefields);
@@ -1625,8 +1748,80 @@ public sealed class TriggerPaymentTests
             remainingPowerByTrait: typedPower);
     }
 
-    private static MatchState BuildBattlefieldConquerGoldState(int mana = 1)
+    private static MatchState BuildBattlefieldConquerGoldState(
+        int mana = 1,
+        bool includeNextContest = false)
     {
+        string[] p1Battlefields = includeNextContest
+            ? [
+                "P1-BATTLEFIELD-TREASURE-PILE",
+                "P1-BATTLEFIELD-GOLD-ATTACKER",
+                "P1-BATTLEFIELD-NEXT-FIELD",
+                "P1-BATTLEFIELD-NEXT-UNIT"
+            ]
+            : ["P1-BATTLEFIELD-TREASURE-PILE", "P1-BATTLEFIELD-GOLD-ATTACKER"];
+        string[] p2Battlefields = includeNextContest
+            ? ["P2-BATTLEFIELD-GOLD-DEFENDER", "P2-BATTLEFIELD-NEXT-UNIT"]
+            : ["P2-BATTLEFIELD-GOLD-DEFENDER"];
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            ["P1-BATTLEFIELD-TREASURE-PILE"] = new(
+                "P1-BATTLEFIELD-TREASURE-PILE",
+                cardNo: "SFD·220/221",
+                tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                ownerId: "P1",
+                controllerId: "P1"),
+            ["P1-BATTLEFIELD-GOLD-ATTACKER"] = new(
+                "P1-BATTLEFIELD-GOLD-ATTACKER",
+                cardNo: "SFD·125/221",
+                power: 3,
+                tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                ownerId: "P1",
+                controllerId: "P1"),
+            ["P2-BATTLEFIELD-GOLD-DEFENDER"] = new(
+                "P2-BATTLEFIELD-GOLD-DEFENDER",
+                cardNo: "SFD·125/221",
+                power: 1,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P2",
+                controllerId: "P2")
+        };
+        var objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+        {
+            ["P1-BATTLEFIELD-TREASURE-PILE"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-TREASURE-PILE"),
+            ["P1-BATTLEFIELD-GOLD-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-TREASURE-PILE"),
+            ["P2-BATTLEFIELD-GOLD-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-TREASURE-PILE")
+        };
+        string[] untilEndOfTurnEffects = includeNextContest
+            ? [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-TREASURE-PILE")]
+            : [];
+        if (includeNextContest)
+        {
+            cardObjects["P1-BATTLEFIELD-NEXT-FIELD"] = new(
+                "P1-BATTLEFIELD-NEXT-FIELD",
+                cardNo: "OGN·275/298",
+                tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                ownerId: "P1",
+                controllerId: "P1");
+            cardObjects["P1-BATTLEFIELD-NEXT-UNIT"] = new(
+                "P1-BATTLEFIELD-NEXT-UNIT",
+                cardNo: "SFD·125/221",
+                power: 2,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P1",
+                controllerId: "P1");
+            cardObjects["P2-BATTLEFIELD-NEXT-UNIT"] = new(
+                "P2-BATTLEFIELD-NEXT-UNIT",
+                cardNo: "SFD·125/221",
+                power: 2,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P2",
+                controllerId: "P2");
+            objectLocations["P1-BATTLEFIELD-NEXT-FIELD"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-NEXT-FIELD");
+            objectLocations["P1-BATTLEFIELD-NEXT-UNIT"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-NEXT-FIELD");
+            objectLocations["P2-BATTLEFIELD-NEXT-UNIT"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-NEXT-FIELD");
+        }
+
         return new MatchState(
             roomId: "trigger-payment-test",
             tick: 23,
@@ -1651,11 +1846,11 @@ public sealed class TriggerPaymentTests
             {
                 ["P1"] = PlayerZones.Empty with
                 {
-                    Battlefields = ["P1-BATTLEFIELD-TREASURE-PILE", "P1-BATTLEFIELD-GOLD-ATTACKER"]
+                    Battlefields = p1Battlefields
                 },
                 ["P2"] = PlayerZones.Empty with
                 {
-                    Battlefields = ["P2-BATTLEFIELD-GOLD-DEFENDER"]
+                    Battlefields = p2Battlefields
                 }
             },
             playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
@@ -1663,34 +1858,14 @@ public sealed class TriggerPaymentTests
                 ["P1"] = 0,
                 ["P2"] = 0
             },
-            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
-            {
-                ["P1-BATTLEFIELD-TREASURE-PILE"] = new(
-                    "P1-BATTLEFIELD-TREASURE-PILE",
-                    cardNo: "SFD·220/221",
-                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                ["P1-BATTLEFIELD-GOLD-ATTACKER"] = new(
-                    "P1-BATTLEFIELD-GOLD-ATTACKER",
-                    cardNo: "SFD·125/221",
-                    power: 3,
-                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                ["P2-BATTLEFIELD-GOLD-DEFENDER"] = new(
-                    "P2-BATTLEFIELD-GOLD-DEFENDER",
-                    cardNo: "SFD·125/221",
-                    power: 1,
-                    tags: [CardObjectTags.UnitCard],
-                    ownerId: "P2",
-                    controllerId: "P2")
-            },
+            cardObjects: cardObjects,
             playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
             {
                 ["P1"] = 0,
                 ["P2"] = 0
-            });
+            },
+            untilEndOfTurnEffects: includeNextContest ? untilEndOfTurnEffects : null,
+            objectLocations: includeNextContest ? objectLocations : null);
     }
 
     private static MatchState BuildOgnVayneConquerRecallState(

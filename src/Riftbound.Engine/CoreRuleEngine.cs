@@ -1467,13 +1467,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             CardObjects = cardObjects,
             PendingPayment = null
         };
-        return new ResolutionResult(
-            true,
-            null,
-            nextState,
-            events,
-            ResolutionResult.BuildSnapshots(nextState),
-            BuildCorePrompts(nextState));
+        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, events, intent.PlayerId);
     }
 
     private static ResolutionResult ResolveBattlefieldConquerPowerfulDrawTriggerPayment(
@@ -1572,13 +1566,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             Status = drawApplication.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
             WinnerPlayerId = drawApplication.WinnerPlayerId ?? state.WinnerPlayerId
         };
-        return new ResolutionResult(
-            true,
-            null,
-            nextState,
-            events,
-            ResolutionResult.BuildSnapshots(nextState),
-            BuildCorePrompts(nextState));
+        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, events, intent.PlayerId);
     }
 
     private static ResolutionResult ResolveOgnVayneConquerRecallTriggerPayment(
@@ -1673,13 +1661,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             CardObjects = cardObjects,
             PendingPayment = null
         };
-        return new ResolutionResult(
-            true,
-            null,
-            nextState,
-            events,
-            ResolutionResult.BuildSnapshots(nextState),
-            BuildCorePrompts(nextState));
+        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, events, intent.PlayerId);
     }
 
     private static ResolutionResult ResolveIcevaleArcherAttackTriggerPayment(
@@ -1790,13 +1772,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             CardObjects = cardObjects,
             PendingPayment = null
         };
-        return new ResolutionResult(
-            true,
-            null,
-            nextState,
-            events,
-            ResolutionResult.BuildSnapshots(nextState),
-            BuildCorePrompts(nextState));
+        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, events, intent.PlayerId);
     }
 
     private static ResolutionResult ResolveJaxWeaponAttachTriggerPayment(
@@ -1888,13 +1864,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             Status = drawApplication.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
             WinnerPlayerId = drawApplication.WinnerPlayerId ?? state.WinnerPlayerId
         };
-        return new ResolutionResult(
-            true,
-            null,
-            nextState,
-            events,
-            ResolutionResult.BuildSnapshots(nextState),
-            BuildCorePrompts(nextState));
+        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, events, intent.PlayerId);
     }
 
     private static ResolutionResult ResolveSfdFioraPowerfulReadyTriggerPayment(
@@ -2086,13 +2056,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             PendingPayment = null,
             TemporaryPaymentResources = nextTemporaryPaymentResources
         };
-        return new ResolutionResult(
-            true,
-            null,
-            nextState,
-            events,
-            ResolutionResult.BuildSnapshots(nextState),
-            BuildCorePrompts(nextState));
+        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, events, intent.PlayerId);
     }
 
     private static ResolutionResult ResolveTriggerPaymentDecline(
@@ -2113,11 +2077,22 @@ public sealed class CoreRuleEngine : IRuleEngine
             Tick = state.Tick + 1,
             PendingPayment = null
         };
+        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, events, intent.PlayerId);
+    }
+
+    private static ResolutionResult BuildAcceptedResolutionAfterPaymentWindowClosed(
+        MatchState state,
+        IReadOnlyList<GameEvent> events,
+        string playerId)
+    {
+        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(state, playerId);
+        var nextState = taskAdvance.State;
+        var finalEvents = events.Concat(taskAdvance.Events).ToArray();
         return new ResolutionResult(
             true,
             null,
             nextState,
-            events,
+            finalEvents,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
     }

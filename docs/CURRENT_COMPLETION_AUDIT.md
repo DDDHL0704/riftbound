@@ -7,6 +7,8 @@
 
 ## 0. 2026-05-13 最新状态补充
 
+2026-05-14 4D-02M focused slice 补充：Post-payment battle task advancement 已验收，入口为 `docs/CURRENT_STAGE4D_02M_POST_PAYMENT_BATTLE_TASK_ADVANCEMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02M_POST_PAYMENT_BATTLE_TASK_ADVANCEMENT_EVIDENCE.md`；focused 178/178、adjacent 705/705、backend full 4209/4209、`git diff --check` 通过。该补充只证明 post-battle trigger payment 打开期间阻止 next contested battlefield advancement，并在接受或拒绝支付关闭窗口后恢复 advancement；不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
+
 2026-05-14 4D-02M handoff / baseline 补充：Post-payment battle task advancement 下一 P0-004 切片已建立，入口为 `docs/CURRENT_STAGE4D_02M_POST_PAYMENT_BATTLE_TASK_ADVANCEMENT_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_02M_POST_PAYMENT_BATTLE_TASK_ADVANCEMENT_BASELINE_EVIDENCE.md`；focused baseline 175/175、adjacent baseline 702/702、backend full 4206/4206、`git diff --check` 通过。目标是验证 post-battle trigger payment 打开期间阻止 next contested battlefield advancement，并在接受或拒绝支付关闭窗口后恢复 advancement；该补充只建立实现前护栏，不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
 
 2026-05-14 4D-02L focused slice 补充：Immediate battle task advancement 已验收，入口为 `docs/CURRENT_STAGE4D_02L_IMMEDIATE_BATTLE_TASK_ADVANCEMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02L_IMMEDIATE_BATTLE_TASK_ADVANCEMENT_EVIDENCE.md`；focused 115/115、adjacent 610/610、backend full 4206/4206、`git diff --check` 通过。该补充只证明 immediate `DECLARE_BATTLE` direct-resolution branch 与 assignment branch 的 next contested battlefield advancement parity，并保留 cleanup / pending payment blockers；不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
