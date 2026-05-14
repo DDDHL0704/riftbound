@@ -5,6 +5,8 @@
 
 本文记录 E 证据/审计 worker 第一轮 P0 交接项、阶段 1 D 协议审计、阶段 2 D P0 规则证据链和 A 主控验收结果，不替代 `docs/CURRENT_SERVER_RULE_AUDIT.md`。
 
+2026-05-14 4D-03AH handoff / baseline 补充：下一 PaymentEngine breadth 切片锁定 action-window coverage verifier，入口为 `docs/CURRENT_STAGE4D_03AH_PAYMENT_ENGINE_ACTION_WINDOW_COVERAGE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03AH_PAYMENT_ENGINE_ACTION_WINDOW_COVERAGE_BASELINE_EVIDENCE.md`。该基线只建立实现前回归护栏，不代表 verifier 已存在，不关闭 P0-005、P1 或 READY。
+
 2026-05-14 4D-03AG focused slice 补充：`PLAY_CARD` typed resource prompt parity representative 已验收，入口为 `docs/CURRENT_STAGE4D_03AG_PAYMENT_ENGINE_PLAY_CARD_TYPED_RESOURCE_PROMPT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AG_PAYMENT_ENGINE_PLAY_CARD_TYPED_RESOURCE_PROMPT_EVIDENCE.md`；focused 454/454、backend full 4177/4177、`git diff --check` 通过。该补充只证明 `PLAY_CARD` typed optional power prompt quote / metadata 与 command typed payability 的 representative parity，不关闭 P0-005 full official、P1 或 READY。
 
 2026-05-14 4D-03AG handoff / baseline 补充：下一 PaymentEngine breadth 切片锁定 `PLAY_CARD` typed optional power costs 的 inline payment-resource prompt parity，入口为 `docs/CURRENT_STAGE4D_03AG_PAYMENT_ENGINE_PLAY_CARD_TYPED_RESOURCE_PROMPT_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03AG_PAYMENT_ENGINE_PLAY_CARD_TYPED_RESOURCE_PROMPT_BASELINE_EVIDENCE.md`。该基线只建立实现前回归护栏，不代表 prompt parity 已修复，不关闭 P0-005、P1 或 READY。
