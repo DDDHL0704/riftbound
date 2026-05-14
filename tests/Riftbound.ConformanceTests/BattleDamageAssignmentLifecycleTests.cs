@@ -21,6 +21,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
     private const string NextAttackerObjectId = "P1-NEXT-CONTEST";
     private const string NextDefenderObjectId = "P2-NEXT-CONTEST";
     private const string OriginalHeldScoreBattlefieldObjectId = "BF-BRUSH-ORIGINAL-HELD-SCORE";
+    private const string ScoreDelayBattlefieldObjectId = "P2-BATTLEFIELD-FORGOTTEN-MONUMENT";
     private const string HeldScoreRecycleRuneObjectId = "P2-RUNE-HELD-SCORE-RESPONSE";
     private const string HeldScoreRecycleRuneDeckObjectId = "P2-RUNE-BOTTOM-HELD-SCORE-RESPONSE";
     private const string HeldScoreTemporaryResourceId = "MALZAHAR:TEMP-HELD-SCORE-RESPONSE";
@@ -3982,6 +3983,169 @@ public sealed class BattleDamageAssignmentLifecycleTests
     }
 
     [Fact]
+    public async Task NaturalBattleResponseActivationHeldScorePreventionAdvancesNextContestedBattlefieldTask()
+    {
+        var optionalCosts = new[] { "COMBAT_ASSIGNMENT" };
+        var state = BuildHeldScorePreventionNextContestNaturalStartBattleState();
+        var engine = new CoreRuleEngine();
+
+        var openedResponse = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-natural-held-score-prevention-next-contest-declare-battle", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                BattlefieldObjectId,
+                [AttackerObjectId],
+                [BulwarkDefenderObjectId],
+                OptionalCosts: optionalCosts),
+            CancellationToken.None);
+
+        Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
+        var openedDeclaration = Assert.Single(
+            openedResponse.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+        Assert.Equal(optionalCosts, StringList(openedDeclaration.Payload["optionalCosts"]));
+        var openedPriority = Assert.Single(
+            openedResponse.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Equal(optionalCosts, StringList(openedPriority.Payload["optionalCosts"]));
+        var responseCandidate = Assert.Single(
+            openedResponse.Prompts["P2"].Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        Assert.Contains(responseCandidate.Sources ?? [], source => string.Equals(source.Id, ShadowObjectId, StringComparison.Ordinal));
+        Assert.Contains(
+            openedResponse.State.UntilEndOfTurnEffects,
+            effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
+        AssertBattleResponseContextNotLeaked(openedResponse.State, "P2");
+        AssertNextContestedBattlefieldNotAdvanced(openedResponse);
+
+        var activated = await engine.ResolveAsync(
+            openedResponse.State,
+            new PlayerIntent("intent-natural-held-score-prevention-next-contest-shadow", "P2", CommandTypes.ActivateAbility),
+            new ActivateAbilityCommand(
+                ShadowObjectId,
+                P4ActivatedAbilityCatalog.ShadowStunAbilityId,
+                [AttackerObjectId]),
+            CancellationToken.None);
+
+        Assert.True(activated.Accepted, activated.ErrorMessage);
+        Assert.Equal(
+            ["ABILITY_ACTIVATED", "UNIT_EXHAUSTED", "COST_PAID", "STACK_ITEM_ADDED"],
+            activated.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.True(activated.State.CardObjects[ShadowObjectId].IsExhausted);
+        Assert.Single(activated.State.StackItems);
+        Assert.Equal(new RunePool(0, 4), activated.State.RunePools["P2"]);
+        AssertBattleResponseContextNotLeaked(activated.State, "P2");
+        AssertNextContestedBattlefieldNotAdvanced(activated);
+
+        var stackP2Pass = await engine.ResolveAsync(
+            activated.State,
+            new PlayerIntent("intent-natural-held-score-prevention-next-contest-stack-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        Assert.True(stackP2Pass.Accepted, stackP2Pass.ErrorMessage);
+        AssertNextContestedBattlefieldNotAdvanced(stackP2Pass);
+
+        var stackP1Pass = await engine.ResolveAsync(
+            stackP2Pass.State,
+            new PlayerIntent("intent-natural-held-score-prevention-next-contest-stack-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(stackP1Pass.Accepted, stackP1Pass.ErrorMessage);
+        Assert.Empty(stackP1Pass.State.StackItems);
+        Assert.True(stackP1Pass.State.BattleState.IsActive);
+        Assert.Equal(TimingStates.NeutralClosed, stackP1Pass.State.TimingState);
+        Assert.Equal("P2", stackP1Pass.State.PriorityPlayerId);
+        Assert.Contains("STUNNED", stackP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
+        Assert.Contains(stackP1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "ABILITY_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["abilityId"] as string, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal));
+        AssertBattleResponseContextNotLeaked(stackP1Pass.State, "P2");
+        AssertNextContestedBattlefieldNotAdvanced(stackP1Pass);
+
+        var responseP2Pass = await engine.ResolveAsync(
+            stackP1Pass.State,
+            new PlayerIntent("intent-natural-held-score-prevention-next-contest-response-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
+        AssertNextContestedBattlefieldNotAdvanced(responseP2Pass);
+
+        var responseP1Pass = await engine.ResolveAsync(
+            responseP2Pass.State,
+            new PlayerIntent("intent-natural-held-score-prevention-next-contest-response-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(responseP1Pass.Accepted, responseP1Pass.ErrorMessage);
+        var closedPriority = Assert.Single(
+            responseP1Pass.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+        Assert.Equal(optionalCosts, StringList(closedPriority.Payload["optionalCosts"]));
+        var resumedDeclaration = responseP1Pass.Events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal))
+            .Last();
+        Assert.Equal(optionalCosts, StringList(resumedDeclaration.Payload["optionalCosts"]));
+
+        var heldIndex = EventIndex(responseP1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldId"] as string, BattlefieldObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal));
+        var preventedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_SCORE_PREVENTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_SCORE_DELAY_UNTIL_THIRD_TURN", StringComparison.Ordinal));
+        var prevented = responseP1Pass.Events[preventedIndex];
+        Assert.Equal("P2", prevented.Payload["playerId"]);
+        Assert.Equal("BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", prevented.Payload["preventedReason"]);
+        Assert.Contains(ScoreDelayBattlefieldObjectId, StringList(prevented.Payload["sourceObjectIds"]));
+        Assert.Contains(BattlefieldObjectId, StringList(prevented.Payload["scoreSourceObjectIds"]));
+        Assert.DoesNotContain(responseP1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
+        Assert.DoesNotContain(responseP1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
+        Assert.DoesNotContain(responseP1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
+        var battleClosedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldId"] as string, BattlefieldObjectId, StringComparison.Ordinal));
+        var nextContestIndex = EventIndex(responseP1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
+        var nextSpellDuelIndex = EventIndex(responseP1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
+
+        Assert.True(heldIndex < preventedIndex);
+        Assert.True(preventedIndex < battleClosedIndex);
+        Assert.True(battleClosedIndex < nextContestIndex);
+        Assert.True(nextContestIndex < nextSpellDuelIndex);
+
+        Assert.Equal(0, responseP1Pass.State.PlayerScores["P2"]);
+        Assert.Equal(0, responseP1Pass.State.RunePools["P2"].Mana);
+        Assert.Equal(4, responseP1Pass.State.RunePools["P2"].Power);
+        Assert.DoesNotContain(
+            responseP1Pass.State.UntilEndOfTurnEffects,
+            effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
+        Assert.False(responseP1Pass.State.BattleState.IsActive);
+        Assert.DoesNotContain(
+            responseP1Pass.State.PendingTaskQueue.Tasks,
+            task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
+                && string.Equals(task.BattlefieldObjectId, BattlefieldObjectId, StringComparison.Ordinal));
+        Assert.Equal(TimingStates.SpellDuelOpen, responseP1Pass.State.TimingState);
+        Assert.Equal("P1", responseP1Pass.State.FocusPlayerId);
+        Assert.Equal("SPELL_DUEL_TASKS", responseP1Pass.State.PendingTaskQueue.Phase);
+        Assert.Equal($"task:start-spell-duel:{NextBattlefieldObjectId}", responseP1Pass.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(PromptTypes.SpellDuelFocus, responseP1Pass.Prompts["P1"].View?.Type);
+        Assert.Equal(NextBattlefieldObjectId, responseP1Pass.Prompts["P1"].View?.RelatedBattlefieldId);
+        Assert.Equal($"spell-duel:{NextBattlefieldObjectId}", responseP1Pass.Prompts["P1"].View?.RelatedSpellDuelId);
+        Assert.NotEqual(PromptTypes.AssignCombatDamage, responseP1Pass.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.BattleDeclaration, responseP1Pass.Prompts["P1"].View?.Type);
+    }
+
+    [Fact]
     public async Task NaturalAssignCombatDamageRejectsWrongOrStaleCommandsWithoutMutation()
     {
         var opened = await DeclareAssignmentBattleAsync(BuildNaturalStartBattleState());
@@ -5065,6 +5229,73 @@ public sealed class BattleDamageAssignmentLifecycleTests
         };
         return state with
         {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = objectLocations
+        };
+    }
+
+    private static MatchState BuildHeldScorePreventionNextContestNaturalStartBattleState()
+    {
+        var state = BuildNaturalStartBattleState(
+            includeShadowResponse: true,
+            includeNextContest: true,
+            defenderObjectIds: [BulwarkDefenderObjectId]);
+        var playerZones = new Dictionary<string, PlayerZones>(state.PlayerZones, StringComparer.Ordinal)
+        {
+            ["P1"] = state.PlayerZones["P1"] with
+            {
+                Battlefields =
+                [
+                    AttackerObjectId,
+                    NextBattlefieldObjectId,
+                    NextAttackerObjectId
+                ]
+            },
+            ["P2"] = state.PlayerZones["P2"] with
+            {
+                Battlefields =
+                [
+                    BattlefieldObjectId,
+                    ScoreDelayBattlefieldObjectId,
+                    BulwarkDefenderObjectId,
+                    ShadowObjectId,
+                    NextDefenderObjectId
+                ]
+            }
+        };
+        var cardObjects = new Dictionary<string, CardObjectState>(state.CardObjects, StringComparer.Ordinal)
+        {
+            [BattlefieldObjectId] = new(
+                BattlefieldObjectId,
+                cardNo: "SFD·214/221",
+                tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                ownerId: "P2",
+                controllerId: "P2"),
+            [ScoreDelayBattlefieldObjectId] = new(
+                ScoreDelayBattlefieldObjectId,
+                cardNo: "SFD·209/221",
+                tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                ownerId: "P2",
+                controllerId: "P2"),
+            [AttackerObjectId] = state.CardObjects[AttackerObjectId] with { Power = 1 }
+        };
+        var objectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations, StringComparer.Ordinal)
+        {
+            [BattlefieldObjectId] = new("P2", "BATTLEFIELD", BattlefieldObjectId),
+            [ScoreDelayBattlefieldObjectId] = new("P2", "BATTLEFIELD", ScoreDelayBattlefieldObjectId),
+            [AttackerObjectId] = new("P1", "BATTLEFIELD", BattlefieldObjectId),
+            [BulwarkDefenderObjectId] = new("P2", "BATTLEFIELD", BattlefieldObjectId),
+            [ShadowObjectId] = new("P2", "BATTLEFIELD", BattlefieldObjectId)
+        };
+        return state with
+        {
+            TurnNumber = 1,
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(1, 5)
+            },
             PlayerZones = playerZones,
             CardObjects = cardObjects,
             ObjectLocations = objectLocations
