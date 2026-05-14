@@ -4,6 +4,8 @@
 
 2026-05-14 最新补充：4D-03AA Image copy-token focused slice 已验收。审计入口为 `docs/CURRENT_STAGE4D_03AA_TOKEN_FACTORY_IMAGE_COPY_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_03AA_TOKEN_FACTORY_IMAGE_COPY_EVIDENCE.md`；focused 16/16、adjacent 253/253、backend full 4136/4136、`git diff --check` 通过。该补充只证明 `UNL·T06` 映像当前对象模型 copy representative，不退役 Brush deferred surface，不关闭 P0/P1 或 READY。
 
+2026-05-14 最新补充：4D-03AB Brush battlefield replacement handoff / baseline 已建立。交接入口为 `docs/CURRENT_STAGE4D_03AB_TOKEN_FACTORY_BRUSH_REPLACEMENT_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_03AB_TOKEN_FACTORY_BRUSH_REPLACEMENT_BASELINE_EVIDENCE.md`；focused baseline 141/141、`git diff --check` 通过。该补充只锁定 `UNL·T03` 草丛 score-time optional replacement representative，不关闭 P0/P1 或 READY。
+
 2026-05-14 最新补充：4D-03AA Image copy-token handoff / baseline 已建立。交接入口为 `docs/CURRENT_STAGE4D_03AA_TOKEN_FACTORY_IMAGE_COPY_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_03AA_TOKEN_FACTORY_IMAGE_COPY_BASELINE_EVIDENCE.md`；focused baseline 11/11、`git diff --check` 通过。该补充只锁定 `UNL·T06` 映像 copy representative，不退役 Brush deferred surface，不关闭 P0/P1 或 READY。
 
 2026-05-14 最新补充：4D-03Z Baron Nest token battlefield static focused slice 已验收。审计入口为 `docs/CURRENT_STAGE4D_03Z_TOKEN_FACTORY_BARON_NEST_STATIC_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_03Z_TOKEN_FACTORY_BARON_NEST_STATIC_EVIDENCE.md`；focused 77/77、adjacent 345/345、backend full 4131/4131、`git diff --check` 通过。该补充只证明 `UNL·T01` 男爵巢穴 no-ROAM destination-specific movement representative，不退役 Image / Brush deferred surfaces，不关闭 P0/P1 或 READY。

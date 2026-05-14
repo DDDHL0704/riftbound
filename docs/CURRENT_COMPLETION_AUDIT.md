@@ -9,6 +9,8 @@
 
 2026-05-14 4D-03AA focused slice 补充：Image copy-token representative 已验收，入口为 `docs/CURRENT_STAGE4D_03AA_TOKEN_FACTORY_IMAGE_COPY_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AA_TOKEN_FACTORY_IMAGE_COPY_EVIDENCE.md`；focused 16/16、adjacent 253/253、backend full 4136/4136、`git diff --check` 通过。项目仍 **NOT READY**；该补充不修改 completion verdict，不关闭 P0/P1、前端最终验收或 full-card audit。
 
+2026-05-14 4D-03AB handoff / baseline 补充：下一服务端 token battlefield replacement 切片锁定 `UNL·T03` 草丛 score-time optional replacement representative，交接入口为 `docs/CURRENT_STAGE4D_03AB_TOKEN_FACTORY_BRUSH_REPLACEMENT_HANDOFF.md`，实现前基线为 `docs/CURRENT_STAGE4D_03AB_TOKEN_FACTORY_BRUSH_REPLACEMENT_BASELINE_EVIDENCE.md`；focused baseline 141/141、`git diff --check` 通过。项目仍 **NOT READY**；该补充不修改 completion verdict，不关闭 P0/P1、前端最终验收或 full-card audit。
+
 2026-05-14 4D-03AA handoff / baseline 补充：下一服务端 token copy 切片锁定 `UNL·T06` 映像 `当我被打出时，变为某张卡牌的复制体`，交接入口为 `docs/CURRENT_STAGE4D_03AA_TOKEN_FACTORY_IMAGE_COPY_HANDOFF.md`，实现前基线为 `docs/CURRENT_STAGE4D_03AA_TOKEN_FACTORY_IMAGE_COPY_BASELINE_EVIDENCE.md`；focused baseline 11/11、`git diff --check` 通过。项目仍 **NOT READY**；该补充不修改 completion verdict，不关闭 P0/P1、前端最终验收或 full-card audit。
 
 2026-05-14 4D-03Z focused slice 补充：Baron Nest token battlefield static representative 已验收，入口为 `docs/CURRENT_STAGE4D_03Z_TOKEN_FACTORY_BARON_NEST_STATIC_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03Z_TOKEN_FACTORY_BARON_NEST_STATIC_EVIDENCE.md`；focused 77/77、adjacent 345/345、backend full 4131/4131、`git diff --check` 通过。项目仍 **NOT READY**；该补充不修改 completion verdict，不关闭 P0/P1、前端最终验收或 full-card audit。
