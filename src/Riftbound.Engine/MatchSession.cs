@@ -10207,7 +10207,7 @@ internal static class ActionPromptBuilder
         MatchState state,
         PendingPaymentState payment)
     {
-        return PendingPaymentResourceActionIds(payment)
+        var powerByTrait = PendingPaymentResourceActionIds(payment)
             .Select(choiceId => TryParseRecycleRunePaymentActionId(choiceId, out var objectId)
                 && state.CardObjects.TryGetValue(objectId, out var runeState)
                 && TryGetRuneTrait(runeState, out var runeTrait)
@@ -10219,6 +10219,24 @@ internal static class ActionPromptBuilder
                 group => group.Key,
                 group => group.Count() * BasicRuneRecyclePowerGain,
                 StringComparer.Ordinal);
+        foreach (var choiceId in TemporaryPaymentResourceActionIds(state, payment))
+        {
+            if (!PaymentCostRules.TryParseTemporaryPaymentResourceActionId(choiceId, out var resourceId)
+                || state.TemporaryPaymentResources.FirstOrDefault(resource =>
+                    string.Equals(resource.ResourceId, resourceId, StringComparison.Ordinal)) is not { } resource)
+            {
+                continue;
+            }
+
+            foreach (var entry in resource.RemainingPowerByTrait)
+            {
+                powerByTrait[entry.Key] = powerByTrait.TryGetValue(entry.Key, out var existing)
+                    ? existing + entry.Value
+                    : entry.Value;
+            }
+        }
+
+        return powerByTrait;
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> PendingPaymentResourcePowerByChoice(
@@ -10243,12 +10261,21 @@ internal static class ActionPromptBuilder
                             string.Equals(resource.ResourceId, resourceId, StringComparison.Ordinal)) is { } resource)
                     {
                         power = resource.RemainingPower;
+                        trait = resource.RemainingPowerByTrait.Count == 1 && resource.RemainingPower == 0
+                            ? resource.RemainingPowerByTrait.Keys.Single()
+                            : string.Empty;
                     }
 
                     return (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>(StringComparer.Ordinal)
                     {
                         ["trait"] = trait,
-                        ["power"] = power
+                        ["power"] = power,
+                        ["powerByTrait"] = PaymentCostRules.TryParseTemporaryPaymentResourceActionId(choiceId, out var temporaryResourceId)
+                            && state.TemporaryPaymentResources.FirstOrDefault(resource =>
+                                string.Equals(resource.ResourceId, temporaryResourceId, StringComparison.Ordinal)) is { } temporaryResource
+                                ? temporaryResource.RemainingPowerByTrait
+                                : new Dictionary<string, int>(StringComparer.Ordinal),
+                        ["paymentOnly"] = PaymentCostRules.TryParseTemporaryPaymentResourceActionId(choiceId, out _)
                     };
                 },
                 StringComparer.Ordinal);

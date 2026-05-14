@@ -1242,11 +1242,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        var legalTemporaryPaymentResourceActions = TemporaryPaymentResourceActionIdsForPendingPayment(state, pendingPayment)
+            .ToHashSet(StringComparer.Ordinal);
         var legalPaymentResourceActions = pendingPayment.PaymentResourceActionIds
             .Concat(pendingPayment.LegalPaymentChoiceIds.Where(IsRecycleRunePaymentResourceActionId))
+            .Concat(legalTemporaryPaymentResourceActions)
             .ToHashSet(StringComparer.Ordinal);
         var legalSpendChoiceIds = pendingPayment.LegalPaymentChoiceIds
             .Where(choiceId => !IsRecycleRunePaymentResourceActionId(choiceId)
+                && !PaymentCostRules.TryParseTemporaryPaymentResourceActionId(choiceId, out _)
                 && !string.Equals(choiceId, DeclinePaymentChoiceId, StringComparison.Ordinal))
             .ToArray();
         var legalSpendChoices = legalSpendChoiceIds.ToHashSet(StringComparer.Ordinal);
@@ -1918,15 +1922,16 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var submittedPaymentResourceActions = submittedChoices
-            .Where(IsRecycleRunePaymentResourceActionId)
+            .Where(IsPaymentResourceActionId)
             .ToArray();
-        if (!TryExtractRecycleRunePaymentResourceActions(
+        if (!TryExtractInlinePaymentResourceActions(
                 state,
                 intent.PlayerId,
                 submittedPaymentResourceActions,
                 out var behaviorOptionalCosts,
                 out var paymentResourceActions,
-                out var recycledRuneObjectIds)
+                out var recycledRuneObjectIds,
+                out var temporaryPaymentResourceActions)
             || behaviorOptionalCosts.Count > 0)
         {
             return RejectWithCorePrompts(
@@ -1978,7 +1983,23 @@ public sealed class CoreRuleEngine : IRuleEngine
             paymentEvents,
             pendingPayment.PaymentWindow,
             pendingPayment.PaymentId);
-        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, runePools);
+        if (!TryApplyTemporaryPaymentResourcesToPendingPayment(
+                state,
+                pendingPayment,
+                temporaryPaymentResourceActions,
+                runePools,
+                out var temporaryAdjustedRunePools,
+                out var nextTemporaryPaymentResources,
+                out var consumedTemporaryPaymentResources,
+                out var temporaryResourceRejection))
+        {
+            return RejectWithCorePrompts(
+                state,
+                temporaryResourceRejection,
+                ErrorCodes.InvalidTarget);
+        }
+
+        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, temporaryAdjustedRunePools);
         if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
@@ -1994,8 +2015,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             IsExhausted = false
         };
 
-        var events = new List<GameEvent>(paymentEvents)
-        {
+        var events = new List<GameEvent>(paymentEvents);
+        events.AddRange(BuildTemporaryPaymentResourcePaymentEvents(
+            pendingPayment,
+            intent.PlayerId,
+            consumedTemporaryPaymentResources));
+        events.AddRange([
             new(
                 "COST_PAID",
                 $"{intent.PlayerId} 支付菲奥娜强力触发费用",
@@ -2010,6 +2035,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["powerByTrait"] = pendingPayment.PowerCostByTrait,
                         ["paymentChoiceIds"] = submittedChoices.ToArray(),
                         ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
+                        ["temporaryPaymentResourceIds"] = consumedTemporaryPaymentResources
+                            .Select(resource => resource.ResourceId)
+                            .ToArray(),
+                        ["temporaryPaymentResourcePower"] = consumedTemporaryPaymentResources
+                            .Sum(resource => resource.ConsumedPower),
+                        ["temporaryPaymentResourcePowerByTrait"] = consumedTemporaryPaymentResources
+                            .SelectMany(resource => resource.ConsumedPowerByTrait)
+                            .GroupBy(entry => entry.Key, StringComparer.Ordinal)
+                            .ToDictionary(group => group.Key, group => group.Sum(entry => entry.Value), StringComparer.Ordinal),
                         ["reason"] = SfdFioraPowerfulReadyEffectKind,
                         ["targetObjectId"] = targetObjectId
                     })),
@@ -2037,7 +2071,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["isExhausted"] = false,
                     ["reason"] = SfdFioraPowerfulReadyEffectKind
                 })
-        };
+        ]);
         events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
 
         var nextState = state with
@@ -2047,7 +2081,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             PlayerZones = playerZones,
             CardObjects = cardObjects,
             ObjectLocations = ReconcileObjectLocations(objectLocations, playerZones),
-            PendingPayment = null
+            PendingPayment = null,
+            TemporaryPaymentResources = nextTemporaryPaymentResources
         };
         return new ResolutionResult(
             true,
@@ -12426,6 +12461,12 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsRecycleRunePaymentResourceActionId(string choiceId)
     {
         return choiceId.StartsWith(RecycleRunePaymentOptionalCostPrefix, StringComparison.Ordinal);
+    }
+
+    private static bool IsPaymentResourceActionId(string choiceId)
+    {
+        return IsRecycleRunePaymentResourceActionId(choiceId)
+            || PaymentCostRules.TryParseTemporaryPaymentResourceActionId(choiceId, out _);
     }
 
     private static bool CanRecycleRuneForPayment(

@@ -802,6 +802,182 @@ public sealed class TriggerPaymentTests
         Assert.Equal([paymentResourceAction, PayOneYellowPower], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
     }
 
+    [Fact]
+    public async Task SfdFioraTriggerPaymentPromptQuotesTypedYellowTemporaryPaymentResource()
+    {
+        var temporaryResource = FioraTemporaryPaymentResource("UNITY_SIGIL:TEMP-FIORA-PROMPT");
+        var state = BuildFioraPowerfulReadyState(yellowPower: 0) with
+        {
+            TemporaryPaymentResources = [temporaryResource]
+        };
+
+        var opened = await ResolveFioraPowerfulReadyTriggerAsync(state);
+        var payment = opened.State.PendingPayment;
+        Assert.NotNull(payment);
+        Assert.Equal(TriggerPaymentWindow, payment.PaymentWindow);
+        Assert.Empty(payment.PaymentResourceActionIds);
+
+        var prompt = opened.Prompts["P1"];
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        var resourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var resourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentResourceChoices"])
+            .Select(choice => choice.Id)
+            .ToArray();
+        Assert.Equal([resourceAction], resourceChoices);
+        var powerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            metadata["paymentResourcePowerByChoice"]);
+        Assert.Equal(RuneTrait.Yellow, powerByChoice[resourceAction]["trait"]);
+        Assert.Equal(0, powerByChoice[resourceAction]["power"]);
+        var choicePowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(powerByChoice[resourceAction]["powerByTrait"]);
+        Assert.Equal(1, choicePowerByTrait[RuneTrait.Yellow]);
+        var availablePowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
+            metadata["availablePowerByTraitWithPaymentResources"]);
+        Assert.Equal(1, availablePowerByTrait[RuneTrait.Yellow]);
+    }
+
+    [Fact]
+    public async Task SfdFioraPaymentConsumesTypedYellowTemporaryPaymentResource()
+    {
+        var engine = new CoreRuleEngine();
+        var temporaryResource = FioraTemporaryPaymentResource("UNITY_SIGIL:TEMP-FIORA-PAY");
+        var opened = await ResolveFioraPowerfulReadyTriggerAsync(
+            BuildFioraPowerfulReadyState(yellowPower: 0) with
+            {
+                TemporaryPaymentResources = [temporaryResource]
+            },
+            engine);
+        var payment = opened.State.PendingPayment;
+        Assert.NotNull(payment);
+        var resourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+
+        var paid = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-fiora-pay-temporary-yellow", "P1", CommandTypes.PayCost),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [resourceAction, PayOneYellowPower]),
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Empty(paid.State.TemporaryPaymentResources);
+        Assert.False(paid.State.CardObjects["P1-FIORA-TARGET"].IsExhausted);
+        Assert.Empty(paid.State.RunePools["P1"].PowerByTrait);
+        var spentEvent = Assert.Single(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
+        var clearedEvent = Assert.Single(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_CLEARED", StringComparison.Ordinal));
+        var costEvent = Assert.Single(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(payment.PaymentId, spentEvent.Payload["paymentId"]);
+        Assert.Equal(payment.PaymentId, clearedEvent.Payload["paymentId"]);
+        Assert.Equal(payment.PaymentId, costEvent.Payload["paymentId"]);
+        Assert.Equal(TriggerPaymentWindow, spentEvent.Payload["paymentWindow"]);
+        Assert.Equal(TriggerPaymentWindow, clearedEvent.Payload["paymentWindow"]);
+        Assert.Equal(TriggerPaymentWindow, costEvent.Payload["paymentWindow"]);
+        Assert.Equal(temporaryResource.ResourceId, spentEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal(0, spentEvent.Payload["consumedPower"]);
+        var spentPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(spentEvent.Payload["consumedPowerByTrait"]);
+        Assert.Equal(1, spentPowerByTrait[RuneTrait.Yellow]);
+        Assert.Equal([resourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        Assert.Equal([resourceAction, PayOneYellowPower], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        Assert.Equal([temporaryResource.ResourceId], Assert.IsType<string[]>(costEvent.Payload["temporaryPaymentResourceIds"]));
+        Assert.Equal(0, costEvent.Payload["temporaryPaymentResourcePower"]);
+        var costPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["temporaryPaymentResourcePowerByTrait"]);
+        Assert.Equal(1, costPowerByTrait[RuneTrait.Yellow]);
+        Assert.Contains(paid.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-FIORA-TARGET", StringComparison.Ordinal));
+        Assert.Contains(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData("wrong-owner")]
+    [InlineData("zero")]
+    [InlineData("wrong-kind")]
+    [InlineData("wrong-trait")]
+    [InlineData("duplicate")]
+    [InlineData("invalid-id")]
+    [InlineData("unnecessary")]
+    [InlineData("insufficient")]
+    [InlineData("stale-source")]
+    [InlineData("stale-target")]
+    public async Task SfdFioraPaymentRejectsInvalidTemporaryResourcesWithoutMutation(string caseName)
+    {
+        var engine = new CoreRuleEngine();
+        var temporaryResource = caseName switch
+        {
+            "wrong-owner" => FioraTemporaryPaymentResource("UNITY_SIGIL:TEMP-FIORA-INVALID", ownerPlayerId: "P2"),
+            "zero" => FioraTemporaryPaymentResource("UNITY_SIGIL:TEMP-FIORA-INVALID", remainingPowerByTrait: new Dictionary<string, int>(StringComparer.Ordinal)),
+            "wrong-kind" => FioraTemporaryPaymentResource("UNITY_SIGIL:TEMP-FIORA-INVALID", allowedPaymentKinds: ["MANA_COST"]),
+            "wrong-trait" or "insufficient" => FioraTemporaryPaymentResource(
+                "UNITY_SIGIL:TEMP-FIORA-INVALID",
+                remainingPowerByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [RuneTrait.Red] = 1
+                }),
+            _ => FioraTemporaryPaymentResource("UNITY_SIGIL:TEMP-FIORA-INVALID")
+        };
+        var opened = await ResolveFioraPowerfulReadyTriggerAsync(
+            BuildFioraPowerfulReadyState(yellowPower: string.Equals(caseName, "unnecessary", StringComparison.Ordinal) ? 1 : 0) with
+            {
+                TemporaryPaymentResources = [temporaryResource]
+            },
+            engine);
+        var payment = opened.State.PendingPayment;
+        Assert.NotNull(payment);
+        var resourceAction = string.Equals(caseName, "invalid-id", StringComparison.Ordinal)
+            ? PaymentCostRules.TemporaryPaymentResourceActionId("UNITY_SIGIL:TEMP-FIORA-MISSING")
+            : PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var paymentChoices = string.Equals(caseName, "duplicate", StringComparison.Ordinal)
+            ? new[] { resourceAction, resourceAction, PayOneYellowPower }
+            : [resourceAction, PayOneYellowPower];
+        var paymentState = caseName switch
+        {
+            "stale-target" => opened.State with
+            {
+                CardObjects = new Dictionary<string, CardObjectState>(opened.State.CardObjects, StringComparer.Ordinal)
+                {
+                    ["P1-FIORA-TARGET"] = opened.State.CardObjects["P1-FIORA-TARGET"] with
+                    {
+                        Power = 4
+                    }
+                }
+            },
+            "stale-source" => opened.State with
+            {
+                PlayerZones = new Dictionary<string, PlayerZones>(opened.State.PlayerZones, StringComparer.Ordinal)
+                {
+                    ["P1"] = opened.State.PlayerZones["P1"] with
+                    {
+                        Base = opened.State.PlayerZones["P1"].Base
+                            .Where(objectId => !string.Equals(objectId, "P1-SFD-FIORA", StringComparison.Ordinal))
+                            .ToArray(),
+                        Graveyard = opened.State.PlayerZones["P1"].Graveyard
+                            .Concat(["P1-SFD-FIORA"])
+                            .ToArray()
+                    }
+                }
+            },
+            _ => opened.State
+        };
+        var initialHash = MatchStateHasher.Hash(paymentState);
+
+        var result = await engine.ResolveAsync(
+            paymentState,
+            new PlayerIntent($"intent-fiora-invalid-temporary-{caseName}", "P1", CommandTypes.PayCost),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, paymentChoices),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.True(
+            string.Equals(result.ErrorCode, ErrorCodes.InvalidTarget, StringComparison.Ordinal)
+            || string.Equals(result.ErrorCode, ErrorCodes.InsufficientCost, StringComparison.Ordinal),
+            $"Unexpected error code {result.ErrorCode}");
+        Assert.Empty(result.Events);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+    }
+
     [Theory]
     [InlineData("duplicate-resource")]
     [InlineData("unnecessary-resource")]
@@ -1355,6 +1531,31 @@ public sealed class TriggerPaymentTests
                 ["P2"] = 0
             },
             cardObjects: cardObjects);
+    }
+
+    private static TemporaryPaymentResourceState FioraTemporaryPaymentResource(
+        string resourceId,
+        string ownerPlayerId = "P1",
+        IReadOnlyDictionary<string, int>? remainingPowerByTrait = null,
+        IReadOnlyList<string>? allowedPaymentKinds = null)
+    {
+        var typedPower = PaymentCostRules.NormalizePowerCostByTrait(
+            remainingPowerByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [RuneTrait.Yellow] = 1
+            });
+        return new TemporaryPaymentResourceState(
+            resourceId,
+            ownerPlayerId,
+            "P1-UNITY-SIGIL",
+            P4ActivatedAbilityCatalog.UnitySigilResourceAbilityId,
+            "ACTIVATE_ABILITY",
+            generatedPower: 0,
+            remainingPower: 0,
+            allowedPaymentKinds: allowedPaymentKinds ?? [PaymentCostRules.RuneCostPaymentKind],
+            createdTick: 1,
+            generatedPowerByTrait: typedPower,
+            remainingPowerByTrait: typedPower);
     }
 
     private static MatchState BuildBattlefieldConquerGoldState(int mana = 1)
