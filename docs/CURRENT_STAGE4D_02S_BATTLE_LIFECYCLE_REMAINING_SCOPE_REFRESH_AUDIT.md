@@ -25,6 +25,8 @@
 
 2026-05-15 follow-up：4D-02Z 已验收上述 response-pass assignment Hunt conquer result ordering representative，并修复 assignment prompt 分支缺少 Hunt conquer result / experience 的 runtime gap。P0-004 仍 open；该切片只覆盖 Hunt conquer representative，不代表完整 held / conquer trigger / replacement / prevention result matrix。
 
+2026-05-15 follow-up：下一切片 4D-02AA 转向对称的 battle-response held result ordering representative。目标是证明 natural battle response pass -> assignment 后，防守方 Hunt held result 的 `BATTLEFIELD_HELD` / `EXPERIENCE_GAINED` 先于 cleanup、`BATTLE_CLOSED`、`BATTLEFIELD_CONTROL_RESOLVED` 和 `BF-NEXT` 推进。
+
 ## Evidence Inspected
 
 - `docs/A_MASTER_AGENT_GOAL.md`
@@ -89,7 +91,9 @@ The 4D-02C audit said next contested battlefield advancement after battle close 
 
 Suggested next goal after 4D-02Y: choose a new narrow representative from the remaining matrix, such as a battle-result ordering branch not yet covered by the current assignment / immediate / payment / no-result paths.
 
-4D-02Z selected representative: natural battle response pass -> assignment -> Hunt conquer result ordering. This intentionally targets result ordering rather than additional Shadow activation/source breadth. 4D-02Z is now accepted; no further next slice is selected in this document.
+4D-02Z selected representative: natural battle response pass -> assignment -> Hunt conquer result ordering. This intentionally targets result ordering rather than additional Shadow activation/source breadth. 4D-02Z is now accepted.
+
+4D-02AA selected representative: natural battle response pass -> assignment -> Hunt held result ordering. This intentionally mirrors 4D-02Z without expanding held-score payment, replacement, or full battlefield trigger breadth.
 
 Recommended representative:
 
