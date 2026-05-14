@@ -7,6 +7,8 @@
 
 2026-05-14 4D-02E focused slice 补充：Battle task advancement 已实现并验收，入口为 `docs/CURRENT_STAGE4D_02E_BATTLE_TASK_ADVANCEMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02E_BATTLE_TASK_ADVANCEMENT_EVIDENCE.md`；focused 427/427、adjacent 608/608、backend full 4195/4195、`git diff --check` 通过。该补充只证明 post-assignment contested battlefield task advancement，不代表 full official combat lifecycle、P0-004、P0-005、P1 或 READY 关闭。
 
+2026-05-14 4D-02F handoff / baseline 补充：Battle assignment no-result 下一实现切片已建立，入口为 `docs/CURRENT_STAGE4D_02F_BATTLE_ASSIGNMENT_NO_RESULT_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_02F_BATTLE_ASSIGNMENT_NO_RESULT_BASELINE_EVIDENCE.md`；focused baseline 427/427、adjacent baseline 608/608、backend full 4195/4195、`git diff --check` 通过。该基线只建立 natural `ASSIGN_COMBAT_DAMAGE` no-result lifecycle 的实现前护栏，不代表功能完成，不关闭 P0-004、P0-005、P1 或 READY。
+
 2026-05-14 4D-02D focused guard 补充：Battle response -> assignment integration guard 已验收，入口为 `docs/CURRENT_STAGE4D_02D_BATTLE_RESPONSE_ASSIGNMENT_INTEGRATION_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02D_BATTLE_RESPONSE_ASSIGNMENT_INTEGRATION_EVIDENCE.md`；focused 426/426、adjacent 607/607、backend full 4194/4194 通过。该补充只补 4D-02B / 4D-02C 组合链证据，不代表 full official combat lifecycle、P0-004、P0-005、P1 或 READY 关闭。
 
 2026-05-14 4D-02E handoff / baseline 补充：Battle task advancement 下一实现切片已建立，入口为 `docs/CURRENT_STAGE4D_02E_BATTLE_TASK_ADVANCEMENT_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_02E_BATTLE_TASK_ADVANCEMENT_BASELINE_EVIDENCE.md`；focused baseline 426/426、adjacent baseline 607/607、backend full 4194/4194 通过。该基线只建立 `ASSIGN_COMBAT_DAMAGE` 关闭当前战斗后推进下一个 contested battlefield task 的实现前护栏，不代表功能完成，不关闭 P0-004、P0-005、P1 或 READY。
