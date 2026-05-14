@@ -5,6 +5,8 @@
 
 本文记录 E 证据/审计 worker 第一轮 P0 交接项、阶段 1 D 协议审计、阶段 2 D P0 规则证据链和 A 主控验收结果，不替代 `docs/CURRENT_SERVER_RULE_AUDIT.md`。
 
+2026-05-14 4D-03Y handoff / baseline 补充：下一服务端 catalog hygiene 切片锁定 `P6BattlefieldEffectCatalog` 四个旧 deferred battlefield representatives 的退役；这些代表已经由 battlefield rule domain / `BATTLEFIELD_RULE_DOMAIN` 实现，旧 catalog 语义需要改为 retired / implemented representative，同时保留 activated-grant surface 的 `ACTIVATE_ABILITY` rejected no-mutation。入口为 `docs/CURRENT_STAGE4D_03Y_BATTLEFIELD_DEFERRED_CATALOG_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03Y_BATTLEFIELD_DEFERRED_CATALOG_BASELINE_EVIDENCE.md`；focused baseline 15/15、adjacent baseline 641/641、`git diff --check` 通过。该基线只建立实现前回归护栏，不关闭 P0/P1 或 READY。
+
 2026-05-14 4D-03X focused slice 补充：legend action deferred catalog representative 已验收，入口为 `docs/CURRENT_STAGE4D_03X_LEGEND_ACTION_DEFERRED_CATALOG_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03X_LEGEND_ACTION_DEFERRED_CATALOG_EVIDENCE.md`；focused 59/59、adjacent 285/285、backend full 4120/4120、`git diff --check` 通过。该补充只证明五个旧 P6 legend deferred representative 已退役为 implemented `LEGEND_ACT` catalog evidence，不关闭 P0-005、P1 或 READY。
 
 2026-05-14 4D-03X handoff / baseline 补充：下一服务端 catalog hygiene 切片锁定 `P6LegendAbilityCatalog` 五个旧 deferred legend representatives 的退役；这些代表已经由 `LEGEND_ACT` / `LEGEND_ACTION_DOMAIN` 实现，旧 catalog 语义需要改为 retired / implemented representative，同时保留 `ACTIVATE_ABILITY` rejected no-mutation。入口为 `docs/CURRENT_STAGE4D_03X_LEGEND_ACTION_DEFERRED_CATALOG_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03X_LEGEND_ACTION_DEFERRED_CATALOG_BASELINE_EVIDENCE.md`；focused baseline 54/54、adjacent baseline 279/279 通过。该基线只建立实现前回归护栏，不关闭 P0-005 或 READY。
