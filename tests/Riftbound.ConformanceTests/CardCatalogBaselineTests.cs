@@ -1035,7 +1035,8 @@ public sealed class CardCatalogBaselineTests
                 $"{spec.CardNo} has implemented effect {spec.ImplementedEffectKind} without registry or non-PLAY_CARD domain coverage.");
         });
 
-        Assert.Equal(5, P6LegendAbilityCatalog.GetDeferredSurfaces().Count);
+        Assert.Empty(P6LegendAbilityCatalog.GetDeferredSurfaces());
+        Assert.Equal(5, P6LegendAbilityCatalog.GetImplementedLegendActionSurfaces().Count);
         Assert.Equal(4, P6BattlefieldEffectCatalog.GetDeferredSurfaces().Count);
         Assert.Equal(3, P6TokenFactoryCatalog.GetDeferredRuleSurfaces().Count);
     }

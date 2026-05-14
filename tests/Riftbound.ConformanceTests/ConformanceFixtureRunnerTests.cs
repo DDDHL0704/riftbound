@@ -30918,20 +30918,37 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P6LegendAbilityCatalogAuditsDeferredSurfacesAgainstOfficialText()
+    public async Task P6LegendAbilityCatalogAuditsImplementedLegendActionRepresentativesAgainstOfficialText()
     {
-        var surfaces = P6LegendAbilityCatalog.GetDeferredSurfaces();
+        var surfaces = P6LegendAbilityCatalog.GetImplementedLegendActionSurfaces();
 
         Assert.Equal(5, surfaces.Count);
+        Assert.Empty(P6LegendAbilityCatalog.GetDeferredSurfaces());
         Assert.Contains(surfaces, surface => surface.RequiresTarget);
         Assert.Contains(surfaces, surface => !surface.RequiresTarget);
         Assert.All(surfaces, surface =>
         {
             Assert.False(P4ActivatedAbilityCatalog.TryGetByAbilityId(surface.AbilityId, out _));
+            Assert.StartsWith("LEGEND_DEFERRED_", surface.RetiredDeferredSurfaceId, StringComparison.Ordinal);
             Assert.False(string.IsNullOrWhiteSpace(surface.Reason));
+            Assert.Contains("LEGEND_ACTION_DOMAIN", surface.Reason, StringComparison.Ordinal);
         });
 
         var officialCatalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var functionalUnits = FunctionalUnitBuilder.Build(officialCatalog.Cards);
+        var implementedBehaviors = OfficialRuleDomainBehaviorCatalog.MergeWithNonPlayCardDomains(
+            officialCatalog.Cards,
+            CardBehaviorRegistry.GetAll()
+                .Select(definition => new ImplementedCardBehavior(
+                    definition.CardNo,
+                    definition.EffectKind,
+                    definition.DisplayName))
+                .ToArray());
+        var behaviorSpecs = BehaviorSpecCatalogBuilder.Build(
+            officialCatalog.Cards,
+            functionalUnits,
+            implementedBehaviors);
+
         foreach (var surface in surfaces)
         {
             var officialCard = officialCatalog.Cards.Single(card =>
@@ -30940,19 +30957,23 @@ public sealed class ConformanceFixtureRunnerTests
             Assert.Contains(surface.OfficialTextAnchor, officialCard.CardEffect, StringComparison.Ordinal);
             Assert.NotEmpty(RuleTextParser.Parse(officialCard).ActivatedAbilities);
             Assert.False(CardBehaviorRegistry.TryGetByCardNo(surface.SourceCardNo, out _));
+            Assert.Contains(behaviorSpecs, spec =>
+                string.Equals(spec.CardNo, surface.SourceCardNo, StringComparison.Ordinal)
+                && string.Equals(spec.Status, BehaviorImplementationStatuses.Implemented, StringComparison.Ordinal)
+                && string.Equals(spec.ImplementedEffectKind, OfficialRuleDomainBehaviorCatalog.LegendActionDomainEffectKind, StringComparison.Ordinal));
         }
     }
 
-    public static IEnumerable<object[]> P6DeferredLegendAbilitySurfaceData()
+    public static IEnumerable<object[]> P6ImplementedLegendActionSurfaceData()
     {
-        return P6LegendAbilityCatalog.GetDeferredSurfaces()
+        return P6LegendAbilityCatalog.GetImplementedLegendActionSurfaces()
             .Select(surface => new object[] { surface });
     }
 
     [Theory]
-    [MemberData(nameof(P6DeferredLegendAbilitySurfaceData))]
-    public async Task P6ActivateAbilityCommandRejectsLegendDeferredSurfacesOutsideRegistry(
-        P6DeferredLegendAbilitySurface surface)
+    [MemberData(nameof(P6ImplementedLegendActionSurfaceData))]
+    public async Task P6ActivateAbilityCommandRejectsImplementedLegendActionRepresentativesOutsideActivateAbilityRegistry(
+        P6ImplementedLegendActionSurface surface)
     {
         var targetObjectIds = surface.RequiresTarget
             ? new[] { "P1-LEGEND-TARGET-UNIT" }
@@ -30968,7 +30989,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1"] = PlayerZones.Empty with
                 {
-                    LegendZone = ["P1-LEGEND-DEFERRED-SOURCE"],
+                    LegendZone = ["P1-LEGEND-ACTION-SOURCE"],
                     Base = ["P1-LEGEND-TARGET-UNIT"]
                 },
                 ["P2"] = PlayerZones.Empty
@@ -30980,8 +31001,8 @@ public sealed class ConformanceFixtureRunnerTests
             },
             CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
-                ["P1-LEGEND-DEFERRED-SOURCE"] = new(
-                    "P1-LEGEND-DEFERRED-SOURCE",
+                ["P1-LEGEND-ACTION-SOURCE"] = new(
+                    "P1-LEGEND-ACTION-SOURCE",
                     power: 0,
                     cardNo: surface.SourceCardNo,
                     ownerId: "P1",
@@ -30995,9 +31016,9 @@ public sealed class ConformanceFixtureRunnerTests
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
-            new PlayerIntent($"intent-p6-legend-deferred-{surface.AbilityId}", "P1", "ACTIVATE_ABILITY"),
+            new PlayerIntent($"intent-p6-legend-action-activate-ability-reject-{surface.AbilityId}", "P1", "ACTIVATE_ABILITY"),
             new ActivateAbilityCommand(
-                "P1-LEGEND-DEFERRED-SOURCE",
+                "P1-LEGEND-ACTION-SOURCE",
                 surface.AbilityId,
                 targetObjectIds),
             CancellationToken.None);
@@ -31010,9 +31031,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(10, 10), result.State.RunePools["P1"]);
         Assert.Equal(10, result.State.PlayerExperience["P1"]);
-        Assert.Equal(["P1-LEGEND-DEFERRED-SOURCE"], result.State.PlayerZones["P1"].LegendZone);
+        Assert.Equal(["P1-LEGEND-ACTION-SOURCE"], result.State.PlayerZones["P1"].LegendZone);
         Assert.Equal(["P1-LEGEND-TARGET-UNIT"], result.State.PlayerZones["P1"].Base);
-        Assert.False(result.State.CardObjects["P1-LEGEND-DEFERRED-SOURCE"].IsExhausted);
+        Assert.False(result.State.CardObjects["P1-LEGEND-ACTION-SOURCE"].IsExhausted);
         Assert.Equal(0, result.State.CardObjects["P1-LEGEND-TARGET-UNIT"].Damage);
         Assert.Empty(result.State.StackItems);
     }

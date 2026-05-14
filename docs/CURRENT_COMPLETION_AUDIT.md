@@ -7,6 +7,8 @@
 
 ## 0. 2026-05-13 最新状态补充
 
+2026-05-14 4D-03X focused slice 补充：legend action deferred catalog representative 已验收，入口为 `docs/CURRENT_STAGE4D_03X_LEGEND_ACTION_DEFERRED_CATALOG_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03X_LEGEND_ACTION_DEFERRED_CATALOG_EVIDENCE.md`；focused 59/59、adjacent 285/285、backend full 4120/4120、`git diff --check` 通过。该补充只证明 P6 legend deferred catalog 不再误报五个已实现 `LEGEND_ACT` representative，不关闭 P0/P1 或 READY；项目整体仍 **NOT READY**。
+
 2026-05-14 4D-03X handoff / baseline 补充：下一服务端 catalog hygiene 切片锁定 `P6LegendAbilityCatalog` 旧 deferred legend representatives 退役，目标是让 Yasuo / Lee Sin / Diana / Poppy / Viktor 五个已实现 `LEGEND_ACT` representative 不再被 P6 deferred catalog 误报。入口为 `docs/CURRENT_STAGE4D_03X_LEGEND_ACTION_DEFERRED_CATALOG_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03X_LEGEND_ACTION_DEFERRED_CATALOG_BASELINE_EVIDENCE.md`；focused baseline 54/54、adjacent baseline 279/279 通过。该补充只建立实现前回归护栏，不关闭 P0/P1 或 READY；项目整体仍 **NOT READY**。
 
 2026-05-14 4D-03W focused slice 补充：Renata Gold bonus representative 已验收，目标为带 `RENATA_GOLD_EXTRA_1_MANA` marker 的 Gold token 在激活 resource skill 时额外获得 1 mana。入口为 `docs/CURRENT_STAGE4D_03W_PAYMENT_ENGINE_RENATA_GOLD_BONUS_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03W_PAYMENT_ENGINE_RENATA_GOLD_BONUS_EVIDENCE.md`；focused 320/320、adjacent 965/965、backend full 4120/4120、`git diff --check` 通过。该补充只证明 Renata Gold bonus representative，不关闭 equipment-token full rules、P0-005 full official 或 READY；项目整体仍 **NOT READY**。
