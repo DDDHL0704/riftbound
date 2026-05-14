@@ -30892,6 +30892,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(
             [
                 "ANCIENT_STELE_REACTION_PAY_MANA_GAIN_GENERIC_POWER",
+                "AZIR_SWIFT_PAY_GREEN_SWAP_WITH_CONTROLLED_UNIT",
                 "CRIMSON_ROSE_EXPERIENCE3_EXHAUST_READY_UNIT",
                 "DISCORD_SIGIL_REACTION_EXHAUST_GAIN_1_PURPLE_POWER",
                 "DRAGON_SOUL_SAGE_REACTION_EXHAUST_GAIN_1_MANA",

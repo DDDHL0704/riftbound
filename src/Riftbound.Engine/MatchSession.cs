@@ -5329,7 +5329,11 @@ internal static class ActionPromptBuilder
             if (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, cardObject.CardNo)
                 || !ActivateAbilitySourceMatches(ability, zones, sourceObjectId, cardObject)
                 || (ability.RequiresBattlefieldSource && !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
-                || (ability.ExhaustsSourceAsCost && cardObject.IsExhausted))
+                || (ability.ExhaustsSourceAsCost && cardObject.IsExhausted)
+                || (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId, StringComparison.Ordinal)
+                    && state.UntilEndOfTurnEffects.Contains(
+                        P4ActivatedAbilityCatalog.AzirSwiftSwapUsedThisTurnEffectId(playerId, sourceObjectId),
+                        StringComparer.Ordinal)))
             {
                 continue;
             }
@@ -6374,6 +6378,22 @@ internal static class ActionPromptBuilder
             };
         }
 
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId, StringComparison.Ordinal))
+        {
+            var choices = state.PlayerZones.TryGetValue(playerId, out var zones)
+                ? zones.Base
+                    .Concat(zones.Battlefields)
+                    .Distinct(StringComparer.Ordinal)
+                    .Where(objectId => IsPromptAzirSwiftSwapTarget(state, playerId, sourceObjectId, objectId))
+                    .Select(objectId => ObjectChoice(state, objectId, "controlled face-up unit swap target"))
+                    .ToArray()
+                : [];
+            return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal)
+            {
+                ["0"] = choices
+            };
+        }
+
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, StringComparison.Ordinal))
         {
             var choices = state.PlayerZones.TryGetValue(playerId, out var zones)
@@ -6432,6 +6452,26 @@ internal static class ActionPromptBuilder
             && IsPromptFieldUnitObject(state, targetObjectId)
             && IsPromptAttackingBattlefieldObject(state, targetObjectId)
             && SamePromptBattlefield(state, sourceObjectId, targetObjectId);
+    }
+
+    private static bool IsPromptAzirSwiftSwapTarget(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        string targetObjectId)
+    {
+        return !string.Equals(sourceObjectId, targetObjectId, StringComparison.Ordinal)
+            && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            && string.Equals(targetState.ControllerId, playerId, StringComparison.Ordinal)
+            && !targetState.IsFaceDown
+            && !string.IsNullOrWhiteSpace(targetState.CardNo)
+            && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && !targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            && !targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
+            && state.PlayerZones.TryGetValue(playerId, out var zones)
+            && (zones.Base.Contains(targetObjectId, StringComparer.Ordinal)
+                || zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal));
     }
 
     private static bool SamePromptBattlefield(MatchState state, string firstObjectId, string secondObjectId)
@@ -6976,6 +7016,7 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId => "龙魂贤者",
             P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId => "烈娜塔·戈拉斯克",
             P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId => "烈娜塔·戈拉斯克",
+            P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId => "阿兹尔",
             P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId => "猩红玫瑰",
             P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId => "绵绵魄罗",
             P4ActivatedAbilityCatalog.ShadowStunAbilityId => "黑影",
@@ -7000,6 +7041,7 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId => "龙魂贤者：反应，横置，获得 1 点法力",
             P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId => "烈娜塔·戈拉斯克：支付 1 法力和 1 蓝色符能，抽 1 张牌",
             P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId => "烈娜塔·戈拉斯克：支付 4 法力和 4 蓝色符能并横置，获得 1 分",
+            P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId => "阿兹尔：迅捷，支付 1 绿色符能，与受控单位交换位置",
             P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId => "猩红玫瑰：消耗 3 经验并横置，让一名单位变为活跃状态",
             P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId => "绵绵魄罗：横置，打出两名拥有法盾的战鹰",
             P4ActivatedAbilityCatalog.ShadowStunAbilityId => "黑影：迅捷，支付 1 法力和 1 符能并横置，眩晕此处进攻的敌方单位",
@@ -7024,6 +7066,8 @@ internal static class ActionPromptBuilder
                     ? "任意单位"
                     : string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal)
                         ? "此战场进攻中的敌方单位"
+                    : string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId, StringComparison.Ordinal)
+                        ? "受你控制的公开单位"
                     : string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, StringComparison.Ordinal)
                         ? "友方单位或装备（成本）"
                         : "服务端目标";
@@ -10765,6 +10809,18 @@ internal static class ActionPromptBuilder
             view["timingPolicy"] = "open-main-representative";
             view["stackPolicy"] = "ordinary-stack-item-before-score";
             view["paymentPolicy"] = "payment-plan-typed-blue-exhaust-as-cost";
+        }
+
+        if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId, StringComparison.Ordinal))
+        {
+            view["swift"] = true;
+            view["oncePerTurn"] = true;
+            view["targetScope"] = "controlled-face-up-unit";
+            view["swapPolicy"] = "swap-source-and-target-precise-field-locations";
+            view["timingPolicy"] = "open-main-representative";
+            view["stackPolicy"] = "ordinary-stack-item-before-swap";
+            view["paymentPolicy"] = "payment-plan-typed-green";
+            view["armamentReattachPolicy"] = "deferred";
         }
 
         if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId, StringComparison.Ordinal))

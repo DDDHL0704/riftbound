@@ -6436,6 +6436,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveRenataGlascScoreAbility(state, intent, command, ability);
         }
 
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId, StringComparison.Ordinal))
+        {
+            return ResolveAzirSwiftSwapAbility(state, intent, command, ability);
+        }
+
         if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
             || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
             || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
@@ -7297,6 +7302,326 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["effectKind"] = stackItem.EffectKind,
                     ["abilityId"] = command.AbilityId,
                     ["exhaustsSource"] = true
+                })
+        ]);
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolveAzirSwiftSwapAbility(
+        MatchState state,
+        PlayerIntent intent,
+        ActivateAbilityCommand command,
+        P4ActivatedAbilityDefinition ability)
+    {
+        if (state.PendingPayment is not null
+            || state.PendingHandChoice is not null
+            || state.PendingTaskQueue.IsBlocking
+            || !string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || state.StackItems.Count > 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "阿兹尔的迅捷交换技能只能在当前玩家的开放主阶段提交。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        var normalizedTargets = NormalizeTargetObjectIds(command.TargetObjectIds);
+        if (command.TargetObjectIds.Count != 1 || normalizedTargets.Count != 1)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "阿兹尔的迅捷交换技能需要且只能选择 1 个受控单位目标。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var targetObjectId = normalizedTargets[0];
+        var normalizedOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (!TryExtractInlinePaymentResourceActions(
+                state,
+                intent.PlayerId,
+                normalizedOptionalCosts,
+                out var behaviorOptionalCosts,
+                out var paymentResourceActions,
+                out var recycledRuneObjectIds,
+                out var temporaryPaymentResourceActions)
+            || behaviorOptionalCosts.Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "阿兹尔的迅捷交换技能只接受合法的符能支付资源动作。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!IsControlledFieldObject(state, intent.PlayerId, command.SourceObjectId)
+            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || sourceState.IsFaceDown
+            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "阿兹尔的迅捷交换技能来源必须是当前玩家控制的公开场上或基地单位。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "阿兹尔的迅捷交换技能只能选择当前玩家控制的来源。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, sourceState.CardNo))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "该来源没有服务端支持的阿兹尔迅捷交换技能。",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        var oncePerTurnEffectId = P4ActivatedAbilityCatalog.AzirSwiftSwapUsedThisTurnEffectId(
+            intent.PlayerId,
+            command.SourceObjectId);
+        if (state.UntilEndOfTurnEffects.Contains(oncePerTurnEffectId, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "阿兹尔的迅捷交换技能每回合只能使用一次。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!IsLegalAzirSwiftSwapTarget(state, intent.PlayerId, command.SourceObjectId, targetObjectId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "阿兹尔的迅捷交换技能目标必须是受你控制的公开场上或基地单位，且不能是阿兹尔自身。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
+        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
+            ? existingPool
+            : RunePool.Empty;
+        if (!AreRecycleRunePaymentResourceActionsRequired(
+                currentPool,
+                state.CardObjects,
+                recycledRuneObjectIds,
+                ability.PowerCost,
+                powerCostByTrait))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "阿兹尔的迅捷交换技能不需要回收符文支付资源动作。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var adjustedPowerPool = ApplyRecycleRunePaymentToPool(
+            currentPool,
+            state.CardObjects,
+            recycledRuneObjectIds);
+        if (recycledRuneObjectIds.Count != 0
+            && !CanPayPowerCost(adjustedPowerPool, ability.PowerCost, powerCostByTrait))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "回收的符文不能补足阿兹尔的绿色符能费用。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        const string paymentWindow = "ACTIVATE_ABILITY";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            intent.PlayerId,
+            command.SourceObjectId,
+            command.AbilityId);
+        var paymentPlan = new PaymentCostRules.PaymentPlan(
+            paymentId,
+            paymentWindow,
+            intent.PlayerId,
+            baseManaCost: ability.ManaCost,
+            totalManaCost: ability.ManaCost,
+            genericPowerCost: ability.PowerCost,
+            totalPowerCost: ability.PowerCost + powerCostByTrait.Values.Sum(),
+            powerCostByTrait: powerCostByTrait,
+            paymentResourceActionIds: paymentResourceActions,
+            reason: ability.EffectKind,
+            sourceObjectId: command.SourceObjectId,
+            abilityId: command.AbilityId,
+            auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
+                ["targetObjectId"] = targetObjectId,
+                ["sourceCardNo"] = sourceState.CardNo,
+                ["swift"] = true,
+                ["oncePerTurn"] = true
+            });
+        var paymentEvents = new List<GameEvent>();
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var runePools = ApplyRecycleRunePaymentResourceActions(
+            state.RunePools,
+            playerZones,
+            cardObjects,
+            objectLocations,
+            intent.PlayerId,
+            recycledRuneObjectIds,
+            paymentEvents,
+            paymentWindow,
+            paymentId);
+        var inlineTemporaryPayment = BuildInlineTemporaryPaymentWindow(
+            paymentPlan.PaymentId,
+            paymentPlan.PaymentWindow,
+            intent.PlayerId,
+            ability.PowerCost,
+            powerCostByTrait,
+            ability.EffectKind,
+            paymentResourceActions);
+        if (!TryApplyTemporaryPaymentResourcesToPendingPayment(
+                state,
+                inlineTemporaryPayment,
+                temporaryPaymentResourceActions,
+                runePools,
+                out var temporaryAdjustedRunePools,
+                out var nextTemporaryPaymentResources,
+                out var consumedTemporaryPaymentResources,
+                out var temporaryResourceRejection))
+        {
+            return RejectWithCorePrompts(
+                state,
+                temporaryResourceRejection,
+                ErrorCodes.InsufficientCost);
+        }
+
+        runePools = temporaryAdjustedRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var adjustedPool = runePools.TryGetValue(intent.PlayerId, out var paymentAdjustedPool)
+            ? paymentAdjustedPool
+            : RunePool.Empty;
+        var currentExperience = state.PlayerExperience.TryGetValue(intent.PlayerId, out var availableExperience)
+            ? availableExperience
+            : 0;
+        var paymentAuthorization = PaymentCostRules.AuthorizePayment(
+            paymentPlan,
+            adjustedPool,
+            currentExperience);
+        if (!paymentAuthorization.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "资源不足，无法启动阿兹尔的迅捷交换技能。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var paymentCommit = PaymentCostRules.TryCommitPayment(
+            paymentPlan,
+            runePools,
+            state.PlayerExperience);
+        if (!paymentCommit.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "资源不足，无法启动阿兹尔的迅捷交换技能。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var playerExperience = paymentCommit.PlayerExperience;
+        var stackItem = new StackItemState(
+            $"STACK-{state.Tick + 1}-{command.SourceObjectId}-AZIR-SWAP",
+            intent.PlayerId,
+            command.SourceObjectId,
+            ability.EffectKind,
+            sourceState.CardNo,
+            [targetObjectId],
+            0,
+            1,
+            []);
+        var untilEndOfTurnEffects = AddUntilEndOfTurnEffect(state.UntilEndOfTurnEffects, oncePerTurnEffectId);
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            ActivePlayerId = intent.PlayerId,
+            TimingState = TimingStates.NeutralClosed,
+            RunePools = runePools,
+            PlayerExperience = playerExperience,
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = ReconcileObjectLocations(objectLocations, playerZones),
+            TemporaryPaymentResources = nextTemporaryPaymentResources,
+            UntilEndOfTurnEffects = untilEndOfTurnEffects,
+            PriorityPlayerId = intent.PlayerId,
+            PassedPriorityPlayerIds = [],
+            StackItems = state.StackItems.Concat([stackItem]).ToArray()
+        };
+        var events = new List<GameEvent>(paymentEvents);
+        events.AddRange(BuildTemporaryPaymentResourcePaymentEvents(
+            inlineTemporaryPayment,
+            intent.PlayerId,
+            consumedTemporaryPaymentResources));
+        events.AddRange([
+            new(
+                "ABILITY_ACTIVATED",
+                $"{intent.PlayerId} 激活阿兹尔的迅捷交换技能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["cardNo"] = sourceState.CardNo,
+                    ["abilityId"] = command.AbilityId,
+                    ["effectKind"] = ability.EffectKind,
+                    ["targetObjectIds"] = new[] { targetObjectId },
+                    ["swift"] = true,
+                    ["oncePerTurn"] = true
+                }),
+            new(
+                "COST_PAID",
+                $"{intent.PlayerId} 支付阿兹尔迅捷交换技能费用",
+                PaymentCostRules.BuildCostPaidPayload(
+                    paymentPlan,
+                    runePools,
+                    playerExperience,
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = intent.PlayerId,
+                        ["mana"] = ability.ManaCost,
+                        ["power"] = ability.PowerCost,
+                        ["powerByTrait"] = powerCostByTrait,
+                        ["abilityId"] = command.AbilityId,
+                        ["sourceObjectId"] = command.SourceObjectId,
+                        ["targetObjectId"] = targetObjectId,
+                        ["temporaryPaymentResourceIds"] = consumedTemporaryPaymentResources
+                            .Select(resource => resource.ResourceId)
+                            .ToArray(),
+                        ["temporaryPaymentResourcePower"] = consumedTemporaryPaymentResources
+                            .Sum(resource => resource.ConsumedPower),
+                        ["temporaryPaymentResourcePowerByTrait"] = consumedTemporaryPaymentResources
+                            .SelectMany(resource => resource.ConsumedPowerByTrait)
+                            .GroupBy(entry => entry.Key, StringComparer.Ordinal)
+                            .ToDictionary(group => group.Key, group => group.Sum(entry => entry.Value), StringComparer.Ordinal)
+                    })),
+            new(
+                "STACK_ITEM_ADDED",
+                "阿兹尔的迅捷交换技能加入结算链",
+                new Dictionary<string, object?>
+                {
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["controllerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["cardNo"] = stackItem.CardNo,
+                    ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["abilityId"] = command.AbilityId
                 })
         ]);
 
@@ -23027,7 +23352,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             var resolvedPlayerZones = stackResolution.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
             var resolvedCardObjects = stackResolution.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
             var resolvedRunePools = stackResolution.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-            var objectLocations = ReconcileObjectLocations(state.ObjectLocations, resolvedPlayerZones);
+            var objectLocations = stackResolution.ObjectLocations is not null
+                ? stackResolution.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal)
+                : ReconcileObjectLocations(state.ObjectLocations, resolvedPlayerZones);
             var postStackCleanupEvents = Array.Empty<GameEvent>();
             var resolvedDestroyedUnitOwnerIds = stackResolution.DestroyedUnitOwnerIds;
             if (stackResolution.WinnerPlayerId is null)
@@ -25695,6 +26022,19 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return IsPlayerControlledFieldObject(state, playerId, objectId)
             && IsVisibleFieldUnitObject(state.CardObjects, objectId);
+    }
+
+    private static bool IsLegalAzirSwiftSwapTarget(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        string targetObjectId)
+    {
+        return !string.Equals(sourceObjectId, targetObjectId, StringComparison.Ordinal)
+            && IsPlayerControlledFieldUnitObject(state, playerId, targetObjectId)
+            && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            && string.Equals(targetState.ControllerId, playerId, StringComparison.Ordinal)
+            && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
     }
 
     private static bool IsVisibleFieldUnitObject(
@@ -28637,6 +28977,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveRenataGlascScoreAbilityStackItem(state, stackItem);
         }
 
+        if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityEffectKind, StringComparison.Ordinal))
+        {
+            return ResolveAzirSwiftSwapAbilityStackItem(state, stackItem);
+        }
+
         if (!CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
             || !HasValidResolvedTargetCount(behavior, stackItem)
             || !HasValidTargetEffectAdditionalCostTargets(behavior, stackItem.TargetObjectIds, stackItem.OptionalCosts))
@@ -31436,6 +31781,101 @@ public sealed class CoreRuleEngine : IRuleEngine
             null,
             [],
             state.RngCursor);
+    }
+
+    private static StackResolutionResult ResolveAzirSwiftSwapAbilityStackItem(
+        MatchState state,
+        StackItemState stackItem)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var targetObjectId = stackItem.TargetObjectIds.FirstOrDefault() ?? string.Empty;
+        var events = new List<GameEvent>
+        {
+            new(
+                "ABILITY_RESOLVED",
+                "阿兹尔的迅捷交换技能结算",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = stackItem.ControllerId,
+                    ["controllerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["cardNo"] = stackItem.CardNo,
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["abilityId"] = P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId,
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray()
+                })
+        };
+
+        if (!IsLegalAzirSwiftSwapTarget(state, stackItem.ControllerId, stackItem.SourceObjectId, targetObjectId)
+            || !TrySwapAzirSwiftSwapLocations(
+                playerZones,
+                cardObjects,
+                objectLocations,
+                stackItem.ControllerId,
+                stackItem.SourceObjectId,
+                targetObjectId,
+                out var sourceOriginLocation,
+                out var targetOriginLocation,
+                out var sourceDestinationLocation,
+                out var targetDestinationLocation))
+        {
+            events.Add(new GameEvent(
+                "ABILITY_NO_EFFECT",
+                "阿兹尔的迅捷交换技能目标不再合法",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["targetObjectId"] = targetObjectId,
+                    ["abilityId"] = P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId,
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["reason"] = "TARGET_NO_LONGER_LEGAL"
+                }));
+        }
+        else
+        {
+            events.Add(new GameEvent(
+                "UNIT_LOCATIONS_SWAPPED",
+                "阿兹尔与受控单位交换位置",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["targetObjectId"] = targetObjectId,
+                    ["firstTargetObjectId"] = stackItem.SourceObjectId,
+                    ["secondTargetObjectId"] = targetObjectId,
+                    ["abilityId"] = P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId,
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["sourceOriginLocation"] = BuildLocationPayload(sourceOriginLocation),
+                    ["sourceDestinationLocation"] = BuildLocationPayload(sourceDestinationLocation),
+                    ["targetOriginLocation"] = BuildLocationPayload(targetOriginLocation),
+                    ["targetDestinationLocation"] = BuildLocationPayload(targetDestinationLocation),
+                    ["armamentReattachApplied"] = false,
+                    ["armamentReattachPolicy"] = "deferred"
+                }));
+        }
+
+        return new StackResolutionResult(
+            playerZones,
+            cardObjects,
+            state.PlayerScores,
+            NormalizeExperienceForSeats(state),
+            state.RunePools,
+            state.UntilEndOfTurnEffects,
+            null,
+            events,
+            [],
+            null,
+            [],
+            null,
+            [],
+            state.RngCursor,
+            ObjectLocations: objectLocations);
     }
 
     private static StackResolutionResult ResolveUnsungHeroLastBreathStackItem(
@@ -35858,6 +36298,90 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TrySwapAzirSwiftSwapLocations(
+        Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, ObjectLocationState> objectLocations,
+        string controllerId,
+        string sourceObjectId,
+        string targetObjectId,
+        out ObjectLocationState sourceOriginLocation,
+        out ObjectLocationState targetOriginLocation,
+        out ObjectLocationState sourceDestinationLocation,
+        out ObjectLocationState targetDestinationLocation)
+    {
+        sourceOriginLocation = new ObjectLocationState(string.Empty, string.Empty);
+        targetOriginLocation = new ObjectLocationState(string.Empty, string.Empty);
+        sourceDestinationLocation = new ObjectLocationState(string.Empty, string.Empty);
+        targetDestinationLocation = new ObjectLocationState(string.Empty, string.Empty);
+
+        if (string.Equals(sourceObjectId, targetObjectId, StringComparison.Ordinal)
+            || !TryGetPreciseFieldLocation(playerZones, objectLocations, sourceObjectId, out sourceOriginLocation)
+            || !TryGetPreciseFieldLocation(playerZones, objectLocations, targetObjectId, out targetOriginLocation)
+            || !cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+            || !cardObjects.TryGetValue(targetObjectId, out var targetState)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, controllerId)
+            || !string.Equals(targetState.ControllerId, controllerId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var samePosition = string.Equals(sourceOriginLocation.PlayerId, targetOriginLocation.PlayerId, StringComparison.Ordinal)
+            && string.Equals(sourceOriginLocation.Zone, targetOriginLocation.Zone, StringComparison.Ordinal)
+            && string.Equals(sourceOriginLocation.BattlefieldObjectId ?? string.Empty, targetOriginLocation.BattlefieldObjectId ?? string.Empty, StringComparison.Ordinal);
+        if (samePosition)
+        {
+            return false;
+        }
+
+        RemoveFieldObjectFromLocation(playerZones, sourceOriginLocation.PlayerId, sourceOriginLocation.Zone, sourceObjectId);
+        RemoveFieldObjectFromLocation(playerZones, targetOriginLocation.PlayerId, targetOriginLocation.Zone, targetObjectId);
+        AddFieldObjectToLocation(playerZones, targetOriginLocation.PlayerId, targetOriginLocation.Zone, sourceObjectId);
+        AddFieldObjectToLocation(playerZones, sourceOriginLocation.PlayerId, sourceOriginLocation.Zone, targetObjectId);
+
+        sourceDestinationLocation = targetOriginLocation;
+        targetDestinationLocation = sourceOriginLocation;
+        objectLocations[sourceObjectId] = sourceDestinationLocation;
+        objectLocations[targetObjectId] = targetDestinationLocation;
+        return true;
+    }
+
+    private static bool TryGetPreciseFieldLocation(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        string objectId,
+        out ObjectLocationState location)
+    {
+        location = new ObjectLocationState(string.Empty, string.Empty);
+        var fieldLocation = FindFieldObjectLocation(playerZones, objectId);
+        if (fieldLocation is null)
+        {
+            return false;
+        }
+
+        var battlefieldObjectId = objectLocations.TryGetValue(objectId, out var objectLocation)
+            && string.Equals(objectLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            ? objectLocation.BattlefieldObjectId
+            : null;
+        location = new ObjectLocationState(
+            fieldLocation.Value.PlayerId,
+            fieldLocation.Value.Zone,
+            string.Equals(fieldLocation.Value.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+                ? battlefieldObjectId
+                : null);
+        return true;
+    }
+
+    private static IReadOnlyDictionary<string, object?> BuildLocationPayload(ObjectLocationState location)
+    {
+        return new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["playerId"] = location.PlayerId,
+            ["zone"] = location.Zone,
+            ["battlefieldObjectId"] = location.BattlefieldObjectId ?? string.Empty
+        };
+    }
+
     private static bool CanSwapTargetLocations(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -38261,7 +38785,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         string? ExtraTurnPlayerId,
         IReadOnlyList<TriggerQueueItemState> TriggerQueue,
         long RngCursor,
-        PendingHandChoiceState? PendingHandChoice = null);
+        PendingHandChoiceState? PendingHandChoice = null,
+        IReadOnlyDictionary<string, ObjectLocationState>? ObjectLocations = null);
 
     private sealed record RecycleResult(
         IReadOnlyList<GameEvent> Events,

@@ -7,6 +7,7 @@
 
 ## 1. 输入事实
 
+- 2026-05-15 4D-03AM focused slice 已验收：`docs/CURRENT_STAGE4D_03AM_PAYMENT_ENGINE_AZIR_SWIFT_SWAP_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AM_PAYMENT_ENGINE_AZIR_SWIFT_SWAP_EVIDENCE.md` 记录 Azir green swift position-swap representative 已接入服务端 prompt / typed-green payment / target guards / stack resolution / `ObjectLocations` swap / once-per-turn guard；focused 23/23、handoff focused 191/191、adjacent 384/384、backend full 4268/4268、`git diff --check` 通过。Optional armament reattach 仍 deferred，不关闭 P0-005 或 READY。
 - 2026-05-15 frontend final validation preflight 已建立：`docs/CURRENT_STAGE4D_FRONTEND_FINAL_VALIDATION_PREFLIGHT.md` 确认最终 READY 前仍需在最终代码状态 fresh-run frontend build、Chrome smoke 与 formal 18-step E2E；历史通过记录不能代理最终验收。本审计不启动浏览器或修改前端。
 - 2026-05-15 4D-03AM card matrix readiness audit 已建立：`docs/CURRENT_STAGE4D_03AM_CARD_MATRIX_READINESS_AUDIT.md` 确认 Azir 两个 collector id 共享 `FU-105abedc17`，当前矩阵仍为 `fullOfficial=false` 且需要 engine support / FAQ review / automated test evidence。本审计不修改 matrix JSON，不允许在 B runtime 验收前升级 full-official。
 - 2026-05-15 Stage 4D next dispatch / writelock 记录已建立：`docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 明确下一批 A/B/C/D/E 队列、4D-03AM-B Azir runtime 写锁、D 审计顺序、C frontend final-smoke read-only preflight、E card matrix readiness read-only audit，以及禁止并行触碰的 core files / frontend stores / card matrix JSON / `riftbound-dotnet.sln`。该记录只做调度，不关闭 P0/P1 或 READY。

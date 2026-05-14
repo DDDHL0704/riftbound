@@ -7,6 +7,8 @@
 
 ## 0. 2026-05-13 最新状态补充
 
+2026-05-15 4D-03AM focused slice 补充：PaymentEngine Azir swift swap representative 已验收，入口为 `docs/CURRENT_STAGE4D_03AM_PAYMENT_ENGINE_AZIR_SWIFT_SWAP_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AM_PAYMENT_ENGINE_AZIR_SWIFT_SWAP_EVIDENCE.md`。该切片为 `SFD·050/221` / `SFD·050a/221` 阿兹尔建立服务端 prompt / green typed payment / target validation / stack resolution / precise location swap / once-per-turn representative；focused 23/23、handoff focused 191/191、adjacent 384/384、backend full 4268/4268、`git diff --check` 通过。目标已配武装时可选贴附到 Azir 分支仍 deferred；该切片不关闭 full official Azir、完整 swift timing、P0-005、P1、frontend final validation、full-card audit 或 READY。项目仍 **NOT READY**。
+
 2026-05-15 frontend final validation preflight 补充：`docs/CURRENT_STAGE4D_FRONTEND_FINAL_VALIDATION_PREFLIGHT.md` 已建立，只读整理最终 frontend gates。最终 READY 前仍需在最终代码状态 fresh-run `npm run build`、`npm run smoke:chrome -- --start-api` 与 `npm run e2e:formal-18 -- --start-api`；historical formal 18-step room、历史 build / smoke 通过、backend full、representative prompt tests 与 matrix skeleton 不能单独代理 final frontend validation。本批未改前端、未启动 API / Vite / Chrome；项目仍 **NOT READY**。
 
 2026-05-15 4D-03AM card matrix readiness 补充：`docs/CURRENT_STAGE4D_03AM_CARD_MATRIX_READINESS_AUDIT.md` 已建立，只读确认 Azir `SFD·050/221` / `SFD·050a/221` 共享 `FU-105abedc17`，矩阵当前仍为 `fullOfficial=false`，且 blockers 包括 engine support、FAQ review 与 automated test evidence。现有 `rules-evidence-index.md` 仅证明 ordinary play static behavior，并明确绿色迅捷位置交换、原位置记忆、武装贴附路径暂缓。因此本批不修改 card matrix JSON，不关闭 full-card audit 或 READY；项目仍 **NOT READY**。

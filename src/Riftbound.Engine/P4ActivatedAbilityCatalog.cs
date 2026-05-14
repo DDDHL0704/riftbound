@@ -82,6 +82,13 @@ public static class P4ActivatedAbilityCatalog
     public const int RenataGlascScoreManaCost = 4;
     public const int RenataGlascScoreBluePowerCost = 4;
 
+    public const string AzirCardNo = "SFD·050/221";
+    public const string AzirAltCardNo = "SFD·050a/221";
+    public const string AzirSwiftSwapAbilityId = "AZIR_SWIFT_PAY_GREEN_SWAP_WITH_CONTROLLED_UNIT";
+    public const string AzirSwiftSwapAbilityEffectKind = "AZIR_ACTIVATED_SWIFT_SWAP_WITH_CONTROLLED_UNIT";
+    public const int AzirSwiftSwapGreenPowerCost = 1;
+    public const string AzirSwiftSwapUsedThisTurnEffectPrefix = "AZIR_SWIFT_SWAP_USED_THIS_TURN:";
+
     public const string CrimsonRoseCardNo = "UNL-109/219";
     public const string CrimsonRoseReadyAbilityId = "CRIMSON_ROSE_EXPERIENCE3_EXHAUST_READY_UNIT";
     public const string CrimsonRoseReadyAbilityEffectKind = "CRIMSON_ROSE_ACTIVATED_READY_UNIT";
@@ -408,6 +415,23 @@ public static class P4ActivatedAbilityCatalog
                 [RuneTrait.Blue] = RenataGlascScoreBluePowerCost
             }),
         new(
+            AzirSwiftSwapAbilityId,
+            AzirCardNo,
+            AzirSwiftSwapAbilityEffectKind,
+            "Azir swift swap skill",
+            0,
+            0,
+            1,
+            RequiresBattlefieldSource: false,
+            ExhaustsSourceAsCost: false,
+            0,
+            AppliesSpellshieldTargetTax: false,
+            "Stage 4D-03AM opens only Azir's pay green swift controlled-unit position-swap representative; optional armament reattach and the broader swift target-bearing family remain deferred.",
+            PowerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [RuneTrait.Green] = AzirSwiftSwapGreenPowerCost
+            }),
+        new(
             CrimsonRoseReadyAbilityId,
             CrimsonRoseCardNo,
             CrimsonRoseReadyAbilityEffectKind,
@@ -590,8 +614,15 @@ public static class P4ActivatedAbilityCatalog
     {
         return string.Equals(definition.AbilityId, RenataGlascDrawAbilityId, StringComparison.Ordinal)
             || string.Equals(definition.AbilityId, RenataGlascScoreAbilityId, StringComparison.Ordinal)
-            ? [RenataGlascCardNo, RenataGlascAltCardNo]
-            : [definition.SourceCardNo];
+                ? [RenataGlascCardNo, RenataGlascAltCardNo]
+            : string.Equals(definition.AbilityId, AzirSwiftSwapAbilityId, StringComparison.Ordinal)
+                ? [AzirCardNo, AzirAltCardNo]
+                : [definition.SourceCardNo];
+    }
+
+    public static string AzirSwiftSwapUsedThisTurnEffectId(string playerId, string sourceObjectId)
+    {
+        return $"{AzirSwiftSwapUsedThisTurnEffectPrefix}{playerId}:{sourceObjectId}";
     }
 
     public static IReadOnlyDictionary<string, int> PowerCostByTraitForAbility(P4ActivatedAbilityDefinition definition)
