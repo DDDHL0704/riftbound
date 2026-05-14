@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using Riftbound.Contracts;
 
@@ -651,6 +652,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string IvernLegendCardNo = "UNL-195/219";
     private const string BrushBattlefieldTokenCardNo = P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo;
     private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
+    private const string BattleResponseDeclarationContextPrefix = "BATTLE_RESPONSE_DECLARATION_CONTEXT:";
     private const string DemaciaMinionTokenCardNo = "OGN·271/298";
     private const string ZaunMinionTokenCardNo = "OGN·273/298";
     private const string WarhawkTokenCardNo = "UNL·T02";
@@ -13752,17 +13754,65 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var defendingPlayerId = ResolveSingleDefendingPlayerId(playerZones, defenderObjectIds);
-        var canOpenBattleResponsePriority = optionalCosts.Count == 1
-            && optionalCosts.Contains(DeclareBattleOptionalCost, StringComparer.Ordinal)
-            && NormalizeTargetObjectIds(command.BattlefieldTargetObjectIds ?? []).Count == 0;
+        var icevaleArcherAttackTargetObjectId = string.Empty;
+        if (!TryResolveIcevaleArcherAttackPaymentChoice(
+                state,
+                playerZones,
+                intent.PlayerId,
+                battlefieldId,
+                attackerObjectId,
+                command.BattlefieldTargetObjectIds,
+                out icevaleArcherAttackTargetObjectId,
+                out var icevaleArcherRejection))
+        {
+            return icevaleArcherRejection;
+        }
+        var defenderBattlefieldTargetObjectIds = string.IsNullOrWhiteSpace(icevaleArcherAttackTargetObjectId)
+            ? command.BattlefieldTargetObjectIds
+            : [];
+        if (!TryResolveBattlefieldDefenderSteadfastChoice(
+                state,
+                playerZones,
+                defendingPlayerId ?? string.Empty,
+                battlefieldId,
+                defenderBattlefieldTargetObjectIds,
+                defenderObjectIds,
+                out var battlefieldSteadfastObjectId,
+                out var battlefieldSteadfastObjectSourceId,
+                out var battlefieldSteadfastCardNo,
+                out var battlefieldSteadfastRejection))
+        {
+            return battlefieldSteadfastRejection;
+        }
+        if (!TryResolveBattlefieldDefenderMoveToBaseChoice(
+                state,
+                playerZones,
+                defendingPlayerId ?? string.Empty,
+                battlefieldId,
+                defenderBattlefieldTargetObjectIds,
+                defenderObjectIds,
+                out var battlefieldDefenderMoveObjectId,
+                out var battlefieldDefenderMoveObjectSourceId,
+                out var battlefieldDefenderMoveCardNo,
+                out var battlefieldDefenderMoveRejection))
+        {
+            return battlefieldDefenderMoveRejection;
+        }
+
+        var canOpenBattleResponsePriority = ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 };
         if (openBattleResponsePriority
-            && canOpenBattleResponsePriority
-            && ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 })
+            && canOpenBattleResponsePriority)
         {
             var responseObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
             var priorityPlayerId = !string.IsNullOrWhiteSpace(defendingPlayerId)
                 ? defendingPlayerId
                 : intent.PlayerId;
+            var declarationContextMarker = BuildBattleResponseDeclarationContextMarker(
+                battlefieldId,
+                attackerObjectIds,
+                defenderObjectIds,
+                optionalCosts,
+                command.BattlefieldTargetObjectIds);
             var responseState = state with
             {
                 Tick = state.Tick + 1,
@@ -13771,6 +13821,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 PlayerZones = playerZones,
                 CardObjects = cardObjects,
                 ObjectLocations = responseObjectLocations,
+                UntilEndOfTurnEffects = SetBattleResponseDeclarationContextMarker(
+                    state.UntilEndOfTurnEffects,
+                    declarationContextMarker),
                 PriorityPlayerId = priorityPlayerId,
                 PassedPriorityPlayerIds = []
             };
@@ -13789,7 +13842,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                             ["attackerObjectIds"] = attackerObjectIds.ToArray(),
                             ["defenderObjectIds"] = defenderObjectIds.ToArray(),
                             ["optionalCosts"] = optionalCosts.ToArray(),
-                            ["battlefieldTargetObjectIds"] = Array.Empty<string>()
+                            ["battlefieldTargetObjectIds"] = NormalizeTargetObjectIds(command.BattlefieldTargetObjectIds ?? []).ToArray(),
+                            ["declarationContextPreserved"] = true
                         }),
                     new(
                         "BATTLE_RESPONSE_PRIORITY_OPENED",
@@ -13802,7 +13856,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                             ["defendingPlayerId"] = defendingPlayerId ?? string.Empty,
                             ["priorityPlayerId"] = priorityPlayerId,
                             ["attackerObjectIds"] = attackerObjectIds.ToArray(),
-                            ["defenderObjectIds"] = defenderObjectIds.ToArray()
+                            ["defenderObjectIds"] = defenderObjectIds.ToArray(),
+                            ["optionalCosts"] = optionalCosts.ToArray(),
+                            ["battlefieldTargetObjectIds"] = NormalizeTargetObjectIds(command.BattlefieldTargetObjectIds ?? []).ToArray(),
+                            ["declarationContextPreserved"] = true
                         })
                 };
 
@@ -13873,51 +13930,6 @@ public sealed class CoreRuleEngine : IRuleEngine
                 assignmentEvents,
                 ResolutionResult.BuildSnapshots(assignmentState),
                 BuildCorePrompts(assignmentState));
-        }
-
-        var icevaleArcherAttackTargetObjectId = string.Empty;
-        if (!TryResolveIcevaleArcherAttackPaymentChoice(
-                state,
-                playerZones,
-                intent.PlayerId,
-                battlefieldId,
-                attackerObjectId,
-                command.BattlefieldTargetObjectIds,
-                out icevaleArcherAttackTargetObjectId,
-                out var icevaleArcherRejection))
-        {
-            return icevaleArcherRejection;
-        }
-        var defenderBattlefieldTargetObjectIds = string.IsNullOrWhiteSpace(icevaleArcherAttackTargetObjectId)
-            ? command.BattlefieldTargetObjectIds
-            : [];
-        if (!TryResolveBattlefieldDefenderSteadfastChoice(
-                state,
-                playerZones,
-                defendingPlayerId ?? string.Empty,
-                battlefieldId,
-                defenderBattlefieldTargetObjectIds,
-                defenderObjectIds,
-                out var battlefieldSteadfastObjectId,
-                out var battlefieldSteadfastObjectSourceId,
-                out var battlefieldSteadfastCardNo,
-                out var battlefieldSteadfastRejection))
-        {
-            return battlefieldSteadfastRejection;
-        }
-        if (!TryResolveBattlefieldDefenderMoveToBaseChoice(
-                state,
-                playerZones,
-                defendingPlayerId ?? string.Empty,
-                battlefieldId,
-                defenderBattlefieldTargetObjectIds,
-                defenderObjectIds,
-                out var battlefieldDefenderMoveObjectId,
-                out var battlefieldDefenderMoveObjectSourceId,
-                out var battlefieldDefenderMoveCardNo,
-                out var battlefieldDefenderMoveRejection))
-        {
-            return battlefieldDefenderMoveRejection;
         }
 
         var combatEvents = new List<GameEvent>();
@@ -15715,6 +15727,87 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return value is string text && !string.IsNullOrWhiteSpace(text) ? [text] : [];
+    }
+
+    private sealed record BattleResponseDeclarationContext(
+        string BattlefieldId,
+        string[] AttackerObjectIds,
+        string[] DefenderObjectIds,
+        string[] OptionalCosts,
+        string[] BattlefieldTargetObjectIds);
+
+    private static string BuildBattleResponseDeclarationContextMarker(
+        string battlefieldId,
+        IReadOnlyList<string> attackerObjectIds,
+        IReadOnlyList<string> defenderObjectIds,
+        IReadOnlyList<string> optionalCosts,
+        IReadOnlyList<string>? battlefieldTargetObjectIds)
+    {
+        var context = new BattleResponseDeclarationContext(
+            battlefieldId,
+            attackerObjectIds.ToArray(),
+            defenderObjectIds.ToArray(),
+            optionalCosts.ToArray(),
+            NormalizeTargetObjectIds(battlefieldTargetObjectIds ?? []).ToArray());
+        var encoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(context)));
+        return $"{BattleResponseDeclarationContextPrefix}{encoded}";
+    }
+
+    private static IReadOnlyList<string> SetBattleResponseDeclarationContextMarker(
+        IReadOnlyList<string> untilEndOfTurnEffects,
+        string marker)
+    {
+        return untilEndOfTurnEffects
+            .Where(effectId => !effectId.StartsWith(BattleResponseDeclarationContextPrefix, StringComparison.Ordinal))
+            .Concat([marker])
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(effectId => effectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> ClearBattleResponseDeclarationContextMarkers(
+        IReadOnlyList<string> untilEndOfTurnEffects)
+    {
+        return untilEndOfTurnEffects
+            .Where(effectId => !effectId.StartsWith(BattleResponseDeclarationContextPrefix, StringComparison.Ordinal))
+            .ToArray();
+    }
+
+    private static bool TryReadBattleResponseDeclarationContext(
+        MatchState state,
+        string battlefieldId,
+        out BattleResponseDeclarationContext context)
+    {
+        context = new BattleResponseDeclarationContext(string.Empty, [], [], [], []);
+        var marker = state.UntilEndOfTurnEffects.FirstOrDefault(effectId =>
+            effectId.StartsWith(BattleResponseDeclarationContextPrefix, StringComparison.Ordinal));
+        if (string.IsNullOrWhiteSpace(marker))
+        {
+            return false;
+        }
+
+        try
+        {
+            var encoded = marker[BattleResponseDeclarationContextPrefix.Length..];
+            var json = Encoding.UTF8.GetString(Convert.FromBase64String(encoded));
+            var parsed = JsonSerializer.Deserialize<BattleResponseDeclarationContext>(json);
+            if (parsed is null
+                || !string.Equals(parsed.BattlefieldId, battlefieldId, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            context = parsed;
+            return true;
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
     }
 
     private static bool TryBuildMinimalDeclareBattle(
@@ -22933,11 +23026,21 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.PhaseNotAllowed);
         }
 
-        var battleCommand = new DeclareBattleCommand(
-            battle.BattlefieldObjectId,
-            battle.AttackerObjectIds,
-            battle.DefenderObjectIds,
-            [DeclareBattleOptionalCost]);
+        var battleCommand = TryReadBattleResponseDeclarationContext(
+                state,
+                battle.BattlefieldObjectId,
+                out var declarationContext)
+            ? new DeclareBattleCommand(
+                declarationContext.BattlefieldId,
+                declarationContext.AttackerObjectIds,
+                declarationContext.DefenderObjectIds,
+                declarationContext.OptionalCosts,
+                declarationContext.BattlefieldTargetObjectIds)
+            : new DeclareBattleCommand(
+                battle.BattlefieldObjectId,
+                battle.AttackerObjectIds,
+                battle.DefenderObjectIds,
+                [DeclareBattleOptionalCost]);
         var battleCardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         foreach (var attackerObjectId in battle.AttackerObjectIds)
         {
@@ -22961,6 +23064,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ActivePlayerId = attackingPlayerId,
                 TimingState = TimingStates.NeutralOpen,
                 CardObjects = battleCardObjects,
+                UntilEndOfTurnEffects = ClearBattleResponseDeclarationContextMarkers(state.UntilEndOfTurnEffects),
                 PriorityPlayerId = null,
                 PassedPriorityPlayerIds = []
             },
@@ -22985,6 +23089,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["battlefieldObjectId"] = battle.BattlefieldObjectId,
                     ["battleId"] = battle.BattleId,
                     ["attackingPlayerId"] = attackingPlayerId,
+                    ["optionalCosts"] = (battleCommand.OptionalCosts ?? []).ToArray(),
+                    ["battlefieldTargetObjectIds"] = NormalizeTargetObjectIds(battleCommand.BattlefieldTargetObjectIds ?? []).ToArray(),
+                    ["declarationContextPreserved"] = true,
                     ["passedPriorityPlayerIds"] = state.Seats.Keys
                         .OrderBy(playerId => playerId, StringComparer.Ordinal)
                         .ToArray()

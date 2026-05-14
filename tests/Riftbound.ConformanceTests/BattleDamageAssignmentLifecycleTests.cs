@@ -170,6 +170,97 @@ public sealed class BattleDamageAssignmentLifecycleTests
     }
 
     [Fact]
+    public async Task NaturalBattleResponsePreservesDeclarationContextAfterPass()
+    {
+        var state = BuildNaturalStartBattleState(
+            includeShadowResponse: true,
+            defenderObjectIds: [BulwarkDefenderObjectId, ShadowObjectId]);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[AttackerObjectId] = cardObjects[AttackerObjectId] with { CardNo = "UNL-065/219", Power = 5 };
+        state = state with { CardObjects = cardObjects };
+        var engine = new CoreRuleEngine();
+
+        var openedResponse = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-natural-context-shadow-declare-battle", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                BattlefieldObjectId,
+                [AttackerObjectId],
+                [BulwarkDefenderObjectId, ShadowObjectId],
+                OptionalCosts: ["COMBAT_ASSIGNMENT"],
+                BattlefieldTargetObjectIds: [AttackerObjectId]),
+            CancellationToken.None);
+
+        Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
+        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
+        Assert.True(openedResponse.State.BattleState.IsActive);
+        var openedDeclaration = Assert.Single(
+            openedResponse.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+        Assert.Equal([AttackerObjectId], StringList(openedDeclaration.Payload["battlefieldTargetObjectIds"]));
+        Assert.True(Assert.IsType<bool>(openedDeclaration.Payload["declarationContextPreserved"]));
+        var openedPriority = Assert.Single(
+            openedResponse.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Equal([AttackerObjectId], StringList(openedPriority.Payload["battlefieldTargetObjectIds"]));
+        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal));
+        Assert.Contains(
+            openedResponse.State.UntilEndOfTurnEffects,
+            effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
+        var responseSession = new MatchSession(openedResponse.State, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var p1Snapshot = responseSession.SnapshotFor("P1");
+        var p2Snapshot = responseSession.SnapshotFor("P2");
+        var spectatorSnapshot = ResolutionResult.BuildSpectatorSnapshot(openedResponse.State);
+        var p2Prompt = responseSession.PromptFor("P2");
+        Assert.DoesNotContain("BATTLE_RESPONSE_DECLARATION_CONTEXT", JsonSerializer.Serialize(p1Snapshot));
+        Assert.DoesNotContain("BATTLE_RESPONSE_DECLARATION_CONTEXT", JsonSerializer.Serialize(p2Snapshot));
+        Assert.DoesNotContain("BATTLE_RESPONSE_DECLARATION_CONTEXT", JsonSerializer.Serialize(spectatorSnapshot));
+        Assert.DoesNotContain("BATTLE_RESPONSE_DECLARATION_CONTEXT", JsonSerializer.Serialize(p2Prompt));
+        Assert.Equal(PromptTypes.StackPriority, p2Prompt.View?.Type);
+        Assert.Equal($"battle:{BattlefieldObjectId}", p2Prompt.View?.RelatedBattleId);
+        Assert.Equal(BattlefieldObjectId, p2Prompt.View?.RelatedBattlefieldId);
+
+        var p2Pass = await engine.ResolveAsync(
+            openedResponse.State,
+            new PlayerIntent("intent-natural-context-response-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+
+        var p1Pass = await engine.ResolveAsync(
+            p2Pass.State,
+            new PlayerIntent("intent-natural-context-response-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        var closedPriority = Assert.Single(
+            p1Pass.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+        Assert.Equal([AttackerObjectId], StringList(closedPriority.Payload["battlefieldTargetObjectIds"]));
+        var resumedDeclaration = p1Pass.Events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal))
+            .Last();
+        Assert.Equal([AttackerObjectId], StringList(resumedDeclaration.Payload["battlefieldTargetObjectIds"]));
+        var paymentOpened = Assert.Single(
+            p1Pass.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal));
+        Assert.Equal("ICEVALE_ARCHER_ATTACK_PAY_1_POWER_MINUS_1", paymentOpened.Payload["trigger"]);
+        Assert.Equal(AttackerObjectId, paymentOpened.Payload["sourceObjectId"]);
+        Assert.Equal(AttackerObjectId, paymentOpened.Payload["targetObjectId"]);
+        Assert.NotNull(p1Pass.State.PendingPayment);
+        Assert.Equal("TRIGGER_PAYMENT", p1Pass.State.PendingPayment?.PaymentWindow);
+        Assert.Equal("P1", p1Pass.State.PendingPayment?.PlayerId);
+        Assert.DoesNotContain(
+            p1Pass.State.UntilEndOfTurnEffects,
+            effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
+        Assert.False(p1Pass.State.BattleState.IsActive);
+        Assert.NotEqual(PromptTypes.AssignCombatDamage, p1Pass.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.BattleDeclaration, p1Pass.Prompts["P1"].View?.Type);
+    }
+
+    [Fact]
     public async Task NaturalAssignCombatDamageRejectsWrongOrStaleCommandsWithoutMutation()
     {
         var opened = await DeclareAssignmentBattleAsync(BuildNaturalStartBattleState());

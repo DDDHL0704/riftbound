@@ -714,6 +714,8 @@ public sealed record PendingHandChoiceState
 
 public sealed record MatchState
 {
+    private const string BattleResponseDeclarationContextPrefix = "BATTLE_RESPONSE_DECLARATION_CONTEXT:";
+
     public MatchState(
         string roomId,
         long tick,
@@ -1584,7 +1586,9 @@ public sealed record MatchState
     private static IReadOnlyList<ContinuousEffectState> BuildContinuousEffectStates(MatchState state)
     {
         var effects = new List<ContinuousEffectState>();
-        foreach (var effectId in state.UntilEndOfTurnEffects.OrderBy(effectId => effectId, StringComparer.Ordinal))
+        foreach (var effectId in state.UntilEndOfTurnEffects
+            .Where(effectId => !effectId.StartsWith(BattleResponseDeclarationContextPrefix, StringComparison.Ordinal))
+            .OrderBy(effectId => effectId, StringComparer.Ordinal))
         {
             effects.Add(new ContinuousEffectState(
                 $"GLOBAL:{effectId}",

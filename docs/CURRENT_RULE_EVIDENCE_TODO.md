@@ -5,6 +5,8 @@
 
 本文记录 E 证据/审计 worker 第一轮 P0 交接项、阶段 1 D 协议审计、阶段 2 D P0 规则证据链和 A 主控验收结果，不替代 `docs/CURRENT_SERVER_RULE_AUDIT.md`。
 
+2026-05-14 4D-02G focused slice 补充：Battle response declaration-context 已实现并验收，入口为 `docs/CURRENT_STAGE4D_02G_BATTLE_RESPONSE_DECLARATION_CONTEXT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02G_BATTLE_RESPONSE_DECLARATION_CONTEXT_EVIDENCE.md`；focused 429/429、adjacent 608/608、backend full 4197/4197、`git diff --check` 通过。该补充只证明带 Icevale Archer battlefield target declaration context 的 natural battle-response preservation representative，不代表 full official combat lifecycle、P0-004、P0-005、P1 或 READY 关闭。
+
 2026-05-14 4D-02G handoff / baseline 补充：Battle response declaration-context 下一实现切片已建立，入口为 `docs/CURRENT_STAGE4D_02G_BATTLE_RESPONSE_DECLARATION_CONTEXT_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_02G_BATTLE_RESPONSE_DECLARATION_CONTEXT_BASELINE_EVIDENCE.md`；focused baseline 428/428、adjacent baseline 608/608、backend full 4196/4196、`git diff --check` 通过。该基线只建立带 declaration context 的 natural battle-response lifecycle 实现前护栏，不代表功能完成，不关闭 P0-004、P0-005、P1 或 READY。
 
 2026-05-14 4D-02E focused slice 补充：Battle task advancement 已实现并验收，入口为 `docs/CURRENT_STAGE4D_02E_BATTLE_TASK_ADVANCEMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02E_BATTLE_TASK_ADVANCEMENT_EVIDENCE.md`；focused 427/427、adjacent 608/608、backend full 4195/4195、`git diff --check` 通过。该补充只证明 post-assignment contested battlefield task advancement，不代表 full official combat lifecycle、P0-004、P0-005、P1 或 READY 关闭。

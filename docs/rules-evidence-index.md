@@ -2,6 +2,8 @@
 
 更新时间：2026-05-14
 
+2026-05-14 最新补充：4D-02G Battle response declaration-context focused slice 已验收。审计入口为 `docs/CURRENT_STAGE4D_02G_BATTLE_RESPONSE_DECLARATION_CONTEXT_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_02G_BATTLE_RESPONSE_DECLARATION_CONTEXT_EVIDENCE.md`；focused 429/429、adjacent 608/608、backend full 4197/4197、`git diff --check` 通过。该补充只证明 natural battle response 可保留 Icevale Archer battlefield target declaration context，并隐藏 internal carrier，不关闭 full official P0-004、P0-005、P1 或 READY。
+
 2026-05-14 最新补充：4D-02G Battle response declaration-context handoff / baseline 已建立。交接入口为 `docs/CURRENT_STAGE4D_02G_BATTLE_RESPONSE_DECLARATION_CONTEXT_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_02G_BATTLE_RESPONSE_DECLARATION_CONTEXT_BASELINE_EVIDENCE.md`；focused baseline 428/428、adjacent baseline 608/608、backend full 4196/4196、`git diff --check` 通过。该补充只锁定 natural `DECLARE_BATTLE` 携带服务端 declaration context 时的 battle-response preservation gap，不关闭 full official P0-004、P0-005、P1 或 READY。
 
 2026-05-14 最新补充：4D-02E Battle task advancement focused slice 已验收。审计入口为 `docs/CURRENT_STAGE4D_02E_BATTLE_TASK_ADVANCEMENT_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_02E_BATTLE_TASK_ADVANCEMENT_EVIDENCE.md`；focused 427/427、adjacent 608/608、backend full 4195/4195、`git diff --check` 通过。该补充只证明 natural `ASSIGN_COMBAT_DAMAGE` 关闭当前 battle 后可推进下一个 contested battlefield `START_SPELL_DUEL`，不关闭 full official P0-004、P0-005、P1 或 READY。
