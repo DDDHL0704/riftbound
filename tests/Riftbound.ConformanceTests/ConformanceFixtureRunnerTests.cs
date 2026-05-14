@@ -30770,6 +30770,8 @@ public sealed class ConformanceFixtureRunnerTests
                 "ENERGY_CHANNEL_REACTION_EXHAUST_GAIN_1_MANA",
                 "FLUFT_PORO_EXHAUST_CREATE_TWO_SPELLSHIELD_WARHAWKS",
                 "FOCUS_SIGIL_REACTION_EXHAUST_GAIN_1_GREEN_POWER",
+                "GOLD_TOKEN_SFD_REACTION_DESTROY_EXHAUST_GAIN_GENERIC_POWER",
+                "GOLD_TOKEN_UNL_REACTION_DESTROY_EXHAUST_GAIN_GENERIC_POWER",
                 "HEXTECH_ANOMALY_REACTION_PAY_GENERIC_POWER_GAIN_MANA",
                 "INSIGHT_SIGIL_REACTION_EXHAUST_GAIN_1_BLUE_POWER",
                 "MALZAHAR_DESTROY_FRIENDLY_EXHAUST_GAIN_2_PAYMENT_POWER",
@@ -41340,8 +41342,15 @@ public sealed class ConformanceFixtureRunnerTests
     {
         var surfaces = P6TokenFactoryCatalog.GetDeferredRuleSurfaces();
 
-        Assert.Equal(5, surfaces.Count);
-        Assert.Contains(surfaces, surface => surface.IsActivatedCommandSurface);
+        Assert.Equal(3, surfaces.Count);
+        Assert.DoesNotContain(surfaces, surface => string.Equals(
+            surface.SurfaceId,
+            "TOKEN_DEFERRED_GOLD_REACTION_DESTROY_EXHAUST_GAIN_A_UNL",
+            StringComparison.Ordinal));
+        Assert.DoesNotContain(surfaces, surface => string.Equals(
+            surface.SurfaceId,
+            "TOKEN_DEFERRED_GOLD_REACTION_DESTROY_EXHAUST_GAIN_A_SFD",
+            StringComparison.Ordinal));
         Assert.Contains(surfaces, surface => string.Equals(
             surface.SurfaceKind,
             P6TokenFactoryCatalog.CopyTokenSurfaceKind,
@@ -41394,64 +41403,12 @@ public sealed class ConformanceFixtureRunnerTests
         }
     }
 
-    public static IEnumerable<object[]> P6DeferredTokenActivatedSurfaceData()
+    [Fact]
+    public void P6TokenFactoryCatalogHasNoDeferredActivatedTokenCommandSurfaces()
     {
-        return P6TokenFactoryCatalog.GetDeferredRuleSurfaces()
-            .Where(surface => surface.IsActivatedCommandSurface)
-            .Select(surface => new object[] { surface });
-    }
-
-    [Theory]
-    [MemberData(nameof(P6DeferredTokenActivatedSurfaceData))]
-    public async Task P6ActivateAbilityCommandRejectsTokenDeferredCommandSurfacesOutsideRegistry(
-        P6DeferredTokenRuleSurface surface)
-    {
-        Assert.True(P6TokenFactoryCatalog.TryGetByCardNo(surface.SourceCardNo, out var definition));
-        var tokenObject = definition.CreateObject(
-            "P1-TOKEN-DEFERRED-SOURCE",
-            ownerId: "P1",
-            controllerId: "P1");
-        var state = PunishmentState(mana: 10) with
-        {
-            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
-            {
-                ["P1"] = PlayerZones.Empty with
-                {
-                    Base = ["P1-TOKEN-DEFERRED-SOURCE"]
-                },
-                ["P2"] = PlayerZones.Empty
-            },
-            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
-            {
-                ["P1"] = new(10, 10),
-                ["P2"] = RunePool.Empty
-            },
-            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
-            {
-                ["P1-TOKEN-DEFERRED-SOURCE"] = tokenObject
-            }
-        };
-
-        var result = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent($"intent-p6-token-deferred-{surface.SurfaceId}", "P1", "ACTIVATE_ABILITY"),
-            new ActivateAbilityCommand(
-                "P1-TOKEN-DEFERRED-SOURCE",
-                surface.SurfaceId,
-                []),
-            CancellationToken.None);
-
-        Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("当前启动技能路径尚未由服务端开放。", result.ErrorMessage);
-        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
-        Assert.Empty(result.Events);
-        Assert.Equal(0, result.State.Tick);
-        Assert.Equal(new RunePool(10, 10), result.State.RunePools["P1"]);
-        Assert.Equal(["P1-TOKEN-DEFERRED-SOURCE"], result.State.PlayerZones["P1"].Base);
-        Assert.False(result.State.CardObjects["P1-TOKEN-DEFERRED-SOURCE"].IsExhausted);
-        Assert.Equal(surface.SourceCardNo, result.State.CardObjects["P1-TOKEN-DEFERRED-SOURCE"].CardNo);
-        Assert.Empty(result.State.StackItems);
+        Assert.DoesNotContain(
+            P6TokenFactoryCatalog.GetDeferredRuleSurfaces(),
+            surface => surface.IsActivatedCommandSurface);
     }
 
     [Fact]

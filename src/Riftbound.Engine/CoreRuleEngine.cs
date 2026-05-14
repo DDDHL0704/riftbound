@@ -6257,6 +6257,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveResourceConversionEquipmentSkill(state, intent, command, ability);
         }
 
+        if (P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(ability.AbilityId))
+        {
+            return ResolveGoldTokenResourceSkill(state, intent, command, ability);
+        }
+
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.XerathDamageAbilityId, StringComparison.Ordinal))
         {
             return ResolveXerathDamageAbility(state, intent, command, ability);
@@ -7919,6 +7924,256 @@ public sealed class CoreRuleEngine : IRuleEngine
         return string.Equals(abilityId, P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, StringComparison.Ordinal)
             ? "temporary-payment-resource-ledger"
             : "rune-pool-mana-reset-at-turn-cleanup";
+    }
+
+    private static ResolutionResult ResolveGoldTokenResourceSkill(
+        MatchState state,
+        PlayerIntent intent,
+        ActivateAbilityCommand command,
+        P4ActivatedAbilityDefinition ability)
+    {
+        const string timingContext = "STACK_PRIORITY_REACTION";
+        if (!DragonSoulSageResourceSkillTimingAllowed(state, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "金币资源技能只能在当前玩家持有优先权的反应窗口提交。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (NormalizeOptionalCosts(command.OptionalCosts).Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "金币资源技能不接受额外费用或支付资源动作。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (NormalizeTargetObjectIds(command.TargetObjectIds).Count != 0
+            || command.TargetObjectIds.Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "金币资源技能不接受目标。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!IsControlledBaseObject(state, intent.PlayerId, command.SourceObjectId)
+            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
+            || !sourceState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || sourceState.IsFaceDown
+            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "金币资源技能来源必须是当前玩家控制的公开基地装备。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "金币资源技能只能选择当前玩家控制的来源。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, sourceState.CardNo))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "该来源没有服务端支持的金币资源技能。",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        if (!IsGoldTokenResourceSource(sourceState))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "金币资源技能来源必须是金币反应装备 token。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (sourceState.IsExhausted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "金币资源技能来源必须未横置。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        cardObjects[command.SourceObjectId] = sourceState with
+        {
+            IsExhausted = true,
+            OwnerId = string.IsNullOrWhiteSpace(sourceState.OwnerId) ? intent.PlayerId : sourceState.OwnerId,
+            ControllerId = string.IsNullOrWhiteSpace(sourceState.ControllerId) ? intent.PlayerId : sourceState.ControllerId
+        };
+
+        var ownerPlayerId = MalzaharDestroyCostOwnerPlayerId(state, command.SourceObjectId, intent.PlayerId);
+        if (string.IsNullOrWhiteSpace(ownerPlayerId)
+            || !playerZones.ContainsKey(ownerPlayerId)
+            || !TryDestroyMalzaharCostTarget(
+                playerZones,
+                cardObjects,
+                command.SourceObjectId,
+                ownerPlayerId,
+                out var removalResult))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "金币资源技能来源无法进入拥有者废牌堆。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
+        const string paymentWindow = "ACTIVATE_ABILITY";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            intent.PlayerId,
+            command.SourceObjectId,
+            command.AbilityId);
+        var temporaryPaymentResource = new TemporaryPaymentResourceState(
+            $"GOLD:{paymentId}",
+            intent.PlayerId,
+            command.SourceObjectId,
+            command.AbilityId,
+            paymentWindow,
+            generatedPower: P4ActivatedAbilityCatalog.GoldTokenGeneratedPower,
+            remainingPower: P4ActivatedAbilityCatalog.GoldTokenGeneratedPower,
+            allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind],
+            createdTick: state.Tick + 1);
+        var auditStackItem = new StackItemState(
+            $"ABILITY-{state.Tick + 1}-{command.SourceObjectId}-GOLD-COST",
+            intent.PlayerId,
+            command.SourceObjectId,
+            ability.EffectKind,
+            ability.SourceCardNo,
+            [command.SourceObjectId]);
+        var removalEvent = BuildFieldRemovalEvent(
+            "金币资源技能",
+            auditStackItem,
+            command.SourceObjectId,
+            removalResult,
+            "RESOURCE_SKILL_COST");
+        var removalPayload = removalEvent.Payload.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        removalPayload["paymentWindow"] = paymentWindow;
+        removalPayload["paymentId"] = paymentId;
+        removalPayload["abilityId"] = command.AbilityId;
+        removalPayload["resourceSkill"] = true;
+        removalPayload["reactionSpeed"] = true;
+        removalPayload["paymentOnly"] = true;
+        removalPayload["generatedPower"] = P4ActivatedAbilityCatalog.GoldTokenGeneratedPower;
+        removalPayload["resourceRestriction"] = ability.ResourceRestriction;
+        removalPayload["temporaryPaymentResourceId"] = temporaryPaymentResource.ResourceId;
+        removalPayload["destroyedCostObjectId"] = command.SourceObjectId;
+        removalEvent = removalEvent with
+        {
+            Payload = removalPayload
+        };
+
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = objectLocations,
+            TemporaryPaymentResources = state.TemporaryPaymentResources
+                .Concat([temporaryPaymentResource])
+                .ToArray(),
+            PriorityPlayerId = state.PriorityPlayerId,
+            PassedPriorityPlayerIds = []
+        };
+        var events = new List<GameEvent>
+        {
+            new(
+                "ABILITY_ACTIVATED",
+                $"{intent.PlayerId} 激活金币资源技能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["cardNo"] = sourceState.CardNo,
+                    ["abilityId"] = command.AbilityId,
+                    ["effectKind"] = ability.EffectKind,
+                    ["paymentWindow"] = paymentWindow,
+                    ["paymentId"] = paymentId,
+                    ["destroyedCostObjectId"] = command.SourceObjectId,
+                    ["resourceSkill"] = true,
+                    ["reactionSpeed"] = true,
+                    ["paymentOnly"] = true,
+                    ["usesSourceAsDestroyCost"] = true,
+                    ["generatedPower"] = P4ActivatedAbilityCatalog.GoldTokenGeneratedPower,
+                    ["generatedGenericPower"] = P4ActivatedAbilityCatalog.GoldTokenGeneratedPower,
+                    ["resourceRestriction"] = ability.ResourceRestriction,
+                    ["timingContext"] = timingContext,
+                    ["temporaryPaymentResourceId"] = temporaryPaymentResource.ResourceId,
+                    ["resourceLifecycle"] = "temporary-payment-resource-ledger",
+                    ["stackPolicy"] = "no-ordinary-stack-item",
+                    ["renataGoldExtraManaDeferred"] = sourceState.Tags.Contains(RenataGoldBonusTag, StringComparer.Ordinal)
+                }),
+            new(
+                "UNIT_EXHAUSTED",
+                "金币横置支付资源技能费用",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["targetObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["paymentWindow"] = paymentWindow,
+                    ["paymentId"] = paymentId,
+                    ["wasExhausted"] = sourceState.IsExhausted,
+                    ["isExhausted"] = true,
+                    ["resourceSkill"] = true,
+                    ["reactionSpeed"] = true,
+                    ["paymentOnly"] = true,
+                    ["usesSourceAsDestroyCost"] = true,
+                    ["timingContext"] = timingContext
+                }),
+            removalEvent,
+            new(
+                "POWER_GAINED",
+                $"{intent.PlayerId} 通过金币资源技能获得 {P4ActivatedAbilityCatalog.GoldTokenGeneratedPower} 点费用符能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["paymentWindow"] = paymentWindow,
+                    ["paymentId"] = paymentId,
+                    ["resourceSkill"] = true,
+                    ["reactionSpeed"] = true,
+                    ["paymentOnly"] = true,
+                    ["generatedPower"] = P4ActivatedAbilityCatalog.GoldTokenGeneratedPower,
+                    ["generatedGenericPower"] = P4ActivatedAbilityCatalog.GoldTokenGeneratedPower,
+                    ["power"] = P4ActivatedAbilityCatalog.GoldTokenGeneratedPower,
+                    ["resourceRestriction"] = ability.ResourceRestriction,
+                    ["restrictionLifecycle"] = "temporary-payment-resource-ledger",
+                    ["temporaryPaymentResourceId"] = temporaryPaymentResource.ResourceId,
+                    ["remainingPower"] = temporaryPaymentResource.RemainingPower,
+                    ["allowedPaymentKinds"] = temporaryPaymentResource.AllowedPaymentKinds.ToArray(),
+                    ["renataGoldExtraManaDeferred"] = sourceState.Tags.Contains(RenataGoldBonusTag, StringComparer.Ordinal)
+                })
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static bool IsGoldTokenResourceSource(CardObjectState sourceState)
+    {
+        return sourceState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            && sourceState.Tags.Contains("金币", StringComparer.Ordinal)
+            && sourceState.Tags.Contains("反应", StringComparer.Ordinal);
     }
 
     private static ResolutionResult ResolveSigilTypedResourceSkill(

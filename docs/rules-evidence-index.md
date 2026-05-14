@@ -448,7 +448,7 @@
 
 ### 6.23 阶段 4C-27 Treasure Hunter move Gold 证据入口
 
-2026-05-14 Stage 4D-03V 补充：Gold token resource skill handoff / baseline 已建立，见 `docs/CURRENT_STAGE4D_03V_PAYMENT_ENGINE_GOLD_TOKEN_RESOURCE_SKILL_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03V_PAYMENT_ENGINE_GOLD_TOKEN_RESOURCE_SKILL_BASELINE_EVIDENCE.md`；focused baseline 264/264、adjacent baseline 758/758 通过。当前仍只代表实现前护栏，不表示 Gold token resource / reaction ability 已完成，不实现 Renata Gold extra mana bonus。
+2026-05-14 Stage 4D-03V 补充：Gold token resource skill focused slice 已验收，见 `docs/CURRENT_STAGE4D_03V_PAYMENT_ENGINE_GOLD_TOKEN_RESOURCE_SKILL_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03V_PAYMENT_ENGINE_GOLD_TOKEN_RESOURCE_SKILL_EVIDENCE.md`；focused 288/288、adjacent 782/782、backend full 4113/4113、`git diff --check` 通过。`UNL·T05` / `SFD·T03` Gold token resource / reaction ability representative 已接入服务端 prompt / command / destroy-cost / temporary ledger；Renata Gold extra mana bonus 仍 deferred。
 
 阶段 4C-27 细化审计见 `docs/CURRENT_STAGE4C_BATCH27_TREASURE_HUNTER_MOVE_GOLD_AUDIT.md`，证据见 `docs/CURRENT_STAGE4C_BATCH27_TREASURE_HUNTER_MOVE_GOLD_EVIDENCE.md`。本节提供 Treasure Hunter / 寻宝猎人 `SFD·130/221` / `FU-6144ab0271` successful move -> dormant Gold equipment token representative baseline；A 记录 focused backend 82/82，small regression 121/121；不表示项目 READY，`fullOfficial=false`。Karthus / `FU-ee1dfb3ed3` extra Last Breath 仍 design-gated。
 
@@ -456,7 +456,7 @@
 |---|---|---|---|
 | Treasure Hunter move Gold | `CATALOG` `SFD·130/221`；FU `FU-6144ab0271` | 已验证：visible face-up Treasure Hunter 成功移动后触发 `TREASURE_HUNTER_MOVE_CREATE_GOLD`，并创建一个休眠 Gold equipment token 到 controller base | full movement / control-zone / roam lifecycle、move-trigger family、full Treasure Hunter official |
 | Movement provenance | `CORE-260330` p4-p8 rules 107-129；p39-p42 rules 355-356；`SOUL-JFAQ-260114` p21 | 已验证：base -> battlefield move 与 precise ROAM battlefield A -> battlefield B 两条移动来源 | 全部移动来源、移动替代 / 取消 / 同步触发矩阵、control-zone full matrix |
-| Gold equipment token identity | `CATALOG` Gold token identity；`CORE-260330` p89 rules 718-719 | 已验证：Gold token 作为 exhausted / dormant equipment token 创建，带 `CARD_TYPE:EQUIPMENT`、`金币`、`反应` 等可追踪 identity；4D-03V handoff / baseline 已建立但尚未实现 full ability | Gold token full resource / reaction ability、Renata Gold extra mana bonus、equipment token 全规则、token ownership / controller / zone matrix |
+| Gold equipment token identity | `CATALOG` Gold token identity；`CORE-260330` p89 rules 718-719 | 已验证：Gold token 作为 exhausted / dormant equipment token 创建，带 `CARD_TYPE:EQUIPMENT`、`金币`、`反应` 等可追踪 identity；4D-03V 已验证 controlled face-up ready base Gold token 的 reaction destroy + exhaust + gain generic temporary payment-only rune resource representative | Renata Gold extra mana bonus、equipment token 全规则、token ownership / controller / zone matrix |
 | Hidden / invalid source guard | `CORE-260330` p4-p8 rules 107-129；p31-p35 rules 318-340 | 已验证：non-Treasure Hunter、hidden / face-down / standby / opponent-controlled source、failed move、no-op move no trigger / no leak / no token | hidden / face-down 原始触发建模、viewer metadata、replay redaction、FAQ regression |
 
 ### 6.24 阶段 4C-28 Battle or Flight move to base 证据入口

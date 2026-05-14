@@ -2529,6 +2529,8 @@ public sealed record ResolutionResult(
 
         return string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, StringComparison.Ordinal)
             ? P4ActivatedAbilityCatalog.AncientStelePaymentOnlyResourceRestriction
+            : P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(resource.AbilityId)
+                ? P4ActivatedAbilityCatalog.GoldTokenPaymentOnlyResourceRestriction
             : P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction;
     }
 
@@ -5350,6 +5352,13 @@ internal static class ActionPromptBuilder
         string sourceObjectId,
         CardObjectState cardObject)
     {
+        if (P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(ability.AbilityId)
+            && (!cardObject.Tags.Contains("金币", StringComparer.Ordinal)
+                || !cardObject.Tags.Contains("反应", StringComparer.Ordinal)))
+        {
+            return false;
+        }
+
         if (ability.RequiresBaseEquipmentSource)
         {
             return zones.Base.Contains(sourceObjectId, StringComparer.Ordinal)
@@ -6373,6 +6382,8 @@ internal static class ActionPromptBuilder
 
         return string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, StringComparison.Ordinal)
             ? P4ActivatedAbilityCatalog.AncientStelePaymentOnlyResourceRestriction
+            : P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(resource.AbilityId)
+                ? P4ActivatedAbilityCatalog.GoldTokenPaymentOnlyResourceRestriction
             : P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction;
     }
 
@@ -6799,6 +6810,15 @@ internal static class ActionPromptBuilder
                 && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
         }
 
+        if (P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(ability.AbilityId))
+        {
+            return string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+                && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
+                && state.StackItems.Count > 0
+                && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+                && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
+        }
+
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal))
         {
             return string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
@@ -6840,6 +6860,8 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.EnergyChannelResourceAbilityId => "能量通道",
             P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId => "远古簇碑",
             P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId => "海克斯异常体",
+            P4ActivatedAbilityCatalog.GoldTokenUnlResourceAbilityId => "金币",
+            P4ActivatedAbilityCatalog.GoldTokenSfdResourceAbilityId => "金币",
             _ when P4ActivatedAbilityCatalog.TryGetSigilTypedResourceProfile(ability.AbilityId, out var profile)
                 => profile.DisplayName,
             _ => ability.DisplayName
@@ -6862,6 +6884,8 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.EnergyChannelResourceAbilityId => "能量通道：反应，横置，获得 1 点法力",
             P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId => "远古簇碑：反应，横置，支付法力获得等量费用符能",
             P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId => "海克斯异常体：反应，横置，支付通用符能获得等量法力",
+            P4ActivatedAbilityCatalog.GoldTokenUnlResourceAbilityId => "金币：反应，摧毁自身并横置，获得 1 点费用符能",
+            P4ActivatedAbilityCatalog.GoldTokenSfdResourceAbilityId => "金币：反应，摧毁自身并横置，获得 1 点费用符能",
             _ when P4ActivatedAbilityCatalog.TryGetSigilTypedResourceProfile(ability.AbilityId, out var profile)
                 => $"{profile.DisplayName}：反应，横置，获得 1 点{profile.TraitLabel}费用符能",
             _ => ability.DisplayName
@@ -10180,6 +10204,23 @@ internal static class ActionPromptBuilder
                 view["ordinaryGenericPowerOnly"] = true;
                 view["resourceLifecycle"] = "rune-pool-mana-reset-at-turn-cleanup";
             }
+        }
+
+        if (P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(requirement.AbilityId))
+        {
+            view["resourceSkill"] = true;
+            view["reactionSpeed"] = true;
+            view["paymentOnly"] = true;
+            view["generatedPower"] = P4ActivatedAbilityCatalog.GoldTokenGeneratedPower;
+            view["generatedGenericPower"] = P4ActivatedAbilityCatalog.GoldTokenGeneratedPower;
+            view["requiresBaseEquipmentSource"] = true;
+            view["usesSourceAsDestroyCost"] = true;
+            view["resourceRestriction"] = P4ActivatedAbilityCatalog.GoldTokenPaymentOnlyResourceRestriction;
+            view["timingPolicy"] = "stack-priority-reaction-representative";
+            view["reactionPolicy"] = "resolves-immediately-without-stack-item";
+            view["stackPolicy"] = "no-ordinary-stack-item";
+            view["resourceLifecycle"] = "temporary-payment-resource-ledger";
+            view["allowedPaymentKinds"] = new[] { PaymentCostRules.RuneCostPaymentKind };
         }
 
         if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId, StringComparison.Ordinal))

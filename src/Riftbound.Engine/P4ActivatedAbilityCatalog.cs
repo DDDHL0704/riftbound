@@ -176,6 +176,15 @@ public static class P4ActivatedAbilityCatalog
     public const string HextechAnomalyResourceAbilityEffectKind = "HEXTECH_ANOMALY_REACTION_RESOURCE_CONVERT_GENERIC_POWER_TO_MANA";
     public const string HextechAnomalyConversionOptionalCostPrefix = "CONVERT_GENERIC_POWER_TO_MANA:";
 
+    public const string GoldTokenUnlCardNo = "UNL·T05";
+    public const string GoldTokenSfdCardNo = "SFD·T03";
+    public const string GoldTokenUnlResourceAbilityId = "GOLD_TOKEN_UNL_REACTION_DESTROY_EXHAUST_GAIN_GENERIC_POWER";
+    public const string GoldTokenSfdResourceAbilityId = "GOLD_TOKEN_SFD_REACTION_DESTROY_EXHAUST_GAIN_GENERIC_POWER";
+    public const string GoldTokenUnlResourceAbilityEffectKind = "GOLD_TOKEN_UNL_REACTION_RESOURCE_DESTROY_GAIN_GENERIC_POWER";
+    public const string GoldTokenSfdResourceAbilityEffectKind = "GOLD_TOKEN_SFD_REACTION_RESOURCE_DESTROY_GAIN_GENERIC_POWER";
+    public const int GoldTokenGeneratedPower = 1;
+    public const string GoldTokenPaymentOnlyResourceRestriction = "PAY_RUNE_COSTS_ONLY_GOLD_TEMPORARY_LEDGER_4D_03V";
+
     private static readonly P4SigilTypedResourceProfile[] SigilTypedResourceProfiles =
     [
         new(
@@ -490,6 +499,44 @@ public static class P4ActivatedAbilityCatalog
             IsResourceSkill: true,
             ReactionSpeed: true,
             RequiresBaseEquipmentSource: true),
+        new(
+            GoldTokenUnlResourceAbilityId,
+            GoldTokenUnlCardNo,
+            GoldTokenUnlResourceAbilityEffectKind,
+            "UNL Gold token reaction resource skill",
+            0,
+            0,
+            0,
+            RequiresBattlefieldSource: false,
+            ExhaustsSourceAsCost: true,
+            0,
+            AppliesSpellshieldTargetTax: false,
+            "Stage 4D-03V opens only the UNL Gold token's base-equipment reaction-speed destroy self resource representative; Renata Gold extra mana and non-Gold token surfaces remain deferred.",
+            IsResourceSkill: true,
+            PaymentOnlyResource: true,
+            GeneratedPower: GoldTokenGeneratedPower,
+            ResourceRestriction: GoldTokenPaymentOnlyResourceRestriction,
+            ReactionSpeed: true,
+            RequiresBaseEquipmentSource: true),
+        new(
+            GoldTokenSfdResourceAbilityId,
+            GoldTokenSfdCardNo,
+            GoldTokenSfdResourceAbilityEffectKind,
+            "SFD Gold token reaction resource skill",
+            0,
+            0,
+            0,
+            RequiresBattlefieldSource: false,
+            ExhaustsSourceAsCost: true,
+            0,
+            AppliesSpellshieldTargetTax: false,
+            "Stage 4D-03V opens only the SFD Gold token's base-equipment reaction-speed destroy self resource representative; Renata Gold extra mana and non-Gold token surfaces remain deferred.",
+            IsResourceSkill: true,
+            PaymentOnlyResource: true,
+            GeneratedPower: GoldTokenGeneratedPower,
+            ResourceRestriction: GoldTokenPaymentOnlyResourceRestriction,
+            ReactionSpeed: true,
+            RequiresBaseEquipmentSource: true),
         .. SigilTypedResourceProfiles.Select(SigilTypedResourceDefinition)
     ];
 
@@ -567,6 +614,12 @@ public static class P4ActivatedAbilityCatalog
         return string.Equals(abilityId, EnergyChannelResourceAbilityId, StringComparison.Ordinal)
             || string.Equals(abilityId, AncientSteleResourceAbilityId, StringComparison.Ordinal)
             || string.Equals(abilityId, HextechAnomalyResourceAbilityId, StringComparison.Ordinal);
+    }
+
+    public static bool IsGoldTokenResourceAbility(string? abilityId)
+    {
+        return string.Equals(abilityId, GoldTokenUnlResourceAbilityId, StringComparison.Ordinal)
+            || string.Equals(abilityId, GoldTokenSfdResourceAbilityId, StringComparison.Ordinal);
     }
 
     public static bool TryGetSigilTypedResourceProfile(

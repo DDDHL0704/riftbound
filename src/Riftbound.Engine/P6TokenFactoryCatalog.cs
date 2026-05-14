@@ -66,24 +66,6 @@ public static class P6TokenFactoryCatalog
     private static readonly P6DeferredTokenRuleSurface[] DeferredRuleSurfaces =
     [
         new(
-            "TOKEN_DEFERRED_GOLD_REACTION_DESTROY_EXHAUST_GAIN_A_UNL",
-            "UNL·T05",
-            "UNL Gold reaction resource ability",
-            "{{反应}} — 摧毁此牌，{{横置}}：{{获得}}{{A}}",
-            ActivatedResourceSurfaceKind,
-            IsActivatedCommandSurface: true,
-            TargetCount: 0,
-            "P6.11 keeps token activated resource abilities deferred until token-source destruction, exhaustion, reaction timing, and color resource gain are modeled outside PLAY_CARD."),
-        new(
-            "TOKEN_DEFERRED_GOLD_REACTION_DESTROY_EXHAUST_GAIN_A_SFD",
-            "SFD·T03",
-            "SFD Gold reaction resource ability",
-            "摧毁此牌，{{横置}}：{{反应}}—{{获得}}{{A}}",
-            ActivatedResourceSurfaceKind,
-            IsActivatedCommandSurface: true,
-            TargetCount: 0,
-            "P6.11 keeps the alternate Gold wording deferred behind the same zero-side-effect activated-resource boundary."),
-        new(
             "TOKEN_DEFERRED_IMAGE_COPY_SOURCE_REQUIRED",
             "UNL·T06",
             "Image copy-token entry replacement",
