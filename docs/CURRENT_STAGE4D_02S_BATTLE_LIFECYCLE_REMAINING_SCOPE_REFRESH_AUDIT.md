@@ -13,6 +13,8 @@
 
 2026-05-15 follow-up：4D-02W 已验收 battle response nested standby reaction stack representative。该 test-only guard 证明 Shadow battle-response stack item 上方可加入 P1 standby reaction stack item，并按 LIFO 回到 Shadow stack item、battle response priority 与最终 next contested battlefield advancement。P0-004 仍 open；该切片只收窄 multiple-stack-items breadth 的一个 representative。
 
+2026-05-15 follow-up：下一切片 4D-02X 转向 battle response multiple legal sources。目标是证明同一 battle response window 内两个 ready Shadow response sources 先同时公开，第一个 source 解析回 response 后第二个仍可合法入栈，并继续阻止 `BF-NEXT` 提前推进。
+
 ## Evidence Inspected
 
 - `docs/A_MASTER_AGENT_GOAL.md`
@@ -72,7 +74,7 @@ The 4D-02C audit said next contested battlefield advancement after battle close 
 
 4D-02T through 4D-02W 已完成. Next should continue through the broader remaining P0-004 matrix rather than extending the same Shadow / standby nested-stack branch indefinitely.
 
-Suggested next goal: choose a new narrow representative from the remaining matrix, such as multiple independent legal response sources, stale/no-effect response target handling, or a battle-result ordering branch not yet covered by the current assignment / immediate / payment / no-result paths.
+Suggested next goal after 4D-02X: choose a new narrow representative from the remaining matrix, such as stale/no-effect response target handling or a battle-result ordering branch not yet covered by the current assignment / immediate / payment / no-result paths.
 
 Recommended representative:
 
