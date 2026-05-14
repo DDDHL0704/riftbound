@@ -833,9 +833,76 @@ public sealed class TriggerPaymentTests
         Assert.Equal(0, powerByChoice[resourceAction]["power"]);
         var choicePowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(powerByChoice[resourceAction]["powerByTrait"]);
         Assert.Equal(1, choicePowerByTrait[RuneTrait.Yellow]);
+        Assert.Equal(1, Assert.IsType<int>(metadata["availablePowerWithPaymentResources"]));
         var availablePowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
             metadata["availablePowerByTraitWithPaymentResources"]);
         Assert.Equal(1, availablePowerByTrait[RuneTrait.Yellow]);
+    }
+
+    [Fact]
+    public async Task SfdFioraTriggerPaymentPromptDoesNotQuoteWrongTraitTemporaryPaymentResource()
+    {
+        var temporaryResource = FioraTemporaryPaymentResource(
+            "RAGE_SIGIL:TEMP-FIORA-WRONG-TRAIT",
+            remainingPowerByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [RuneTrait.Red] = 1
+            });
+        var state = BuildFioraPowerfulReadyState(yellowPower: 0) with
+        {
+            TemporaryPaymentResources = [temporaryResource]
+        };
+
+        var opened = await ResolveFioraPowerfulReadyTriggerAsync(state);
+        var prompt = opened.Prompts["P1"];
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        var resourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var resourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentResourceChoices"])
+            .Select(choice => choice.Id)
+            .ToArray();
+        Assert.DoesNotContain(resourceAction, resourceChoices);
+        Assert.Empty(resourceChoices);
+        Assert.Equal(0, Assert.IsType<int>(metadata["availablePowerWithPaymentResources"]));
+        var availablePowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
+            metadata["availablePowerByTraitWithPaymentResources"]);
+        Assert.Empty(availablePowerByTrait);
+    }
+
+    [Fact]
+    public async Task SfdFioraTriggerPaymentPromptCountsMixedRecycleAndTemporaryResourcesOnce()
+    {
+        var temporaryResource = FioraTemporaryPaymentResource("UNITY_SIGIL:TEMP-FIORA-MIXED-PROMPT");
+        var state = BuildFioraPowerfulReadyState(yellowPower: 0, includeYellowRune: true) with
+        {
+            TemporaryPaymentResources = [temporaryResource]
+        };
+
+        var opened = await ResolveFioraPowerfulReadyTriggerAsync(state);
+        var prompt = opened.Prompts["P1"];
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        var recycleAction = "RECYCLE_RUNE:P1-FIORA-YELLOW-RUNE";
+        var temporaryAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var resourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentResourceChoices"])
+            .Select(choice => choice.Id)
+            .ToArray();
+        Assert.Equal([recycleAction, temporaryAction], resourceChoices);
+        Assert.Equal(2, Assert.IsType<int>(metadata["availablePowerWithPaymentResources"]));
+        var availablePowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
+            metadata["availablePowerByTraitWithPaymentResources"]);
+        Assert.Equal(2, availablePowerByTrait[RuneTrait.Yellow]);
+        var powerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            metadata["paymentResourcePowerByChoice"]);
+        Assert.Equal(1, powerByChoice[recycleAction]["power"]);
+        Assert.Equal(0, powerByChoice[temporaryAction]["power"]);
+        var temporaryPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
+            powerByChoice[temporaryAction]["powerByTrait"]);
+        Assert.Equal(1, temporaryPowerByTrait[RuneTrait.Yellow]);
     }
 
     [Fact]

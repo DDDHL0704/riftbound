@@ -13,6 +13,8 @@
 - 当前 completion audit 仍列出 P0-002、P0-003、P0-004、P0-005 与 P1 LayerEngine / keywords / full-card evidence / replay-hash coverage。
 - Formal 18-step E2E 已有连续正式主流程证据；它满足 A_MASTER 的主流程门槛，但不能替代 strict battlefield contest / battle lifecycle / PaymentEngine / LayerEngine 的 full official 收口。
 
+4D-03AE focused slice 补充：pending `PAY_COST` / `TRIGGER_PAYMENT` temporary resource aggregate prompt parity representative 已验收，审计与证据见 `docs/CURRENT_STAGE4D_03AE_PAYMENT_ENGINE_PENDING_TEMP_RESOURCE_PROMPT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AE_PAYMENT_ENGINE_PENDING_TEMP_RESOURCE_PROMPT_EVIDENCE.md`；focused 170/170、backend full 4173/4173、`git diff --check` 通过。该补充只收口 pending prompt aggregate legal-choice 口径，不关闭 P0-005、P1 或 READY。
+
 4D-03AE handoff / baseline 补充：下一 PaymentEngine breadth 切片锁定 pending `PAY_COST` / `TRIGGER_PAYMENT` 对 `TEMP_PAYMENT_RESOURCE:*` aggregate prompt metadata 的 parity 修正。交接规格见 `docs/CURRENT_STAGE4D_03AE_PAYMENT_ENGINE_PENDING_TEMP_RESOURCE_PROMPT_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_03AE_PAYMENT_ENGINE_PENDING_TEMP_RESOURCE_PROMPT_BASELINE_EVIDENCE.md`；focused baseline 167/167、`git diff --check` 通过。该补充只建立 pending payment temporary prompt metadata 修正护栏，不关闭 P0-005、P1 或 READY。
 
 4D-03AD focused slice 补充：SFD Fiora trigger temporary payment resource parity representative 已验收，审计与证据见 `docs/CURRENT_STAGE4D_03AD_PAYMENT_ENGINE_TRIGGER_TEMP_RESOURCE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AD_PAYMENT_ENGINE_TRIGGER_TEMP_RESOURCE_EVIDENCE.md`；focused 149/149、backend full 4170/4170、`git diff --check` 通过。该补充只收口 SFD Fiora `TRIGGER_PAYMENT` 的 typed-yellow temporary payment-only resource parity，不关闭 P0-005、P1 或 READY。

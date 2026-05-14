@@ -804,6 +804,30 @@ public sealed class PaymentEngineUnificationTests
     }
 
     [Fact]
+    public void PendingPayCostPromptQuotesGenericTemporaryPaymentResourceOnce()
+    {
+        var temporaryResource = TemporaryResource("MALZAHAR:TEMP-PENDING-PAY-COST-PROMPT");
+        var paymentResourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var state = PendingGenericPayCostTemporaryResourceState(temporaryResource);
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentResourceChoices"]);
+        Assert.Equal([paymentResourceAction], paymentResourceChoices.Select(choice => choice.Id).ToArray());
+        Assert.Equal(1, Assert.IsType<int>(metadata["availablePowerWithPaymentResources"]));
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            metadata["paymentResourcePowerByChoice"]);
+        Assert.Equal(1, paymentResourcePowerByChoice[paymentResourceAction]["power"]);
+        var availablePowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
+            metadata["availablePowerByTraitWithPaymentResources"]);
+        Assert.Empty(availablePowerByTrait);
+    }
+
+    [Fact]
     public async Task PendingPayCostRejectsUnnecessaryRecycleRuneWithoutMutation()
     {
         const string runeObjectId = "P1-RUNE-RED-PENDING-UNNEEDED";
@@ -1716,6 +1740,49 @@ public sealed class PaymentEngineUnificationTests
                 [runeObjectId] = new("P1", "BASE"),
                 ["P1-RUNE-BOTTOM-001"] = new("P1", "RUNE_DECK")
             });
+    }
+
+    private static MatchState PendingGenericPayCostTemporaryResourceState(TemporaryPaymentResourceState temporaryResource)
+    {
+        return new MatchState(
+            "payment-engine-pending-pay-cost-temporary-room",
+            0,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            ["P1", "P2"],
+            "P1",
+            MatchPhases.Main,
+            TimingStates.NeutralOpen,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty
+            },
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal),
+            pendingPayment: new PendingPaymentState(
+                "PENDING-PAY-COST-GENERIC-1",
+                "TEST_PENDING_PAY_COST",
+                "P1",
+                powerCost: 1,
+                legalPaymentChoiceIds: ["SPEND_POWER:1"],
+                reason: "PENDING_PAY_COST_TEMPORARY_RESOURCE_TEST"),
+            temporaryPaymentResources: [temporaryResource]);
     }
 
     private static MatchState HideCardState(

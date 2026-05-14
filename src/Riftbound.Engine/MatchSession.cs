@@ -9977,8 +9977,7 @@ internal static class ActionPromptBuilder
                 ["temporaryPaymentResources"] = TemporaryPaymentResourceViewsForPayment(state, payment)
             },
             ["availablePowerWithPaymentResources"] = runePool.TotalPower
-                + PendingPaymentResourcePowerByTrait(state, payment).Values.Sum()
-                + TemporaryPaymentResourcePower(state, payment),
+                + PendingPaymentResourceTotalPower(state, payment),
             ["availablePowerByTraitWithPaymentResources"] = MergePowerByTrait(
                 runePool.PowerByTrait,
                 PendingPaymentResourcePowerByTrait(state, payment))
@@ -10150,16 +10149,6 @@ internal static class ActionPromptBuilder
             .ToArray();
     }
 
-    private static int TemporaryPaymentResourcePower(MatchState state, PendingPaymentState payment)
-    {
-        return state.TemporaryPaymentResources
-            .Where(resource => string.Equals(resource.OwnerPlayerId, payment.PlayerId, StringComparison.Ordinal)
-                && TemporaryPaymentResourceTotalRemainingPower(resource) > 0
-                && resource.AllowedPaymentKinds.Contains(PaymentCostRules.RuneCostPaymentKind, StringComparer.Ordinal)
-                && (payment.PowerCost > 0 || payment.PowerCostByTrait.Count > 0))
-            .Sum(TemporaryPaymentResourceTotalRemainingPower);
-    }
-
     private static IReadOnlyList<IReadOnlyDictionary<string, object?>> TemporaryPaymentResourceViewsForPayment(
         MatchState state,
         PendingPaymentState payment)
@@ -10237,6 +10226,28 @@ internal static class ActionPromptBuilder
         }
 
         return powerByTrait;
+    }
+
+    private static int PendingPaymentResourceTotalPower(MatchState state, PendingPaymentState payment)
+    {
+        var total = 0;
+        foreach (var choiceId in PendingPaymentResourceActionIds(state, payment))
+        {
+            if (TryParseRecycleRunePaymentActionId(choiceId, out _))
+            {
+                total += BasicRuneRecyclePowerGain;
+                continue;
+            }
+
+            if (PaymentCostRules.TryParseTemporaryPaymentResourceActionId(choiceId, out var resourceId)
+                && state.TemporaryPaymentResources.FirstOrDefault(resource =>
+                    string.Equals(resource.ResourceId, resourceId, StringComparison.Ordinal)) is { } resource)
+            {
+                total += TemporaryPaymentResourceTotalRemainingPower(resource);
+            }
+        }
+
+        return total;
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> PendingPaymentResourcePowerByChoice(
