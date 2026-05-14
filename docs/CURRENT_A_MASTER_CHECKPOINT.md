@@ -291,7 +291,7 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 当前常驻审查池：
 
 - B-Review / Maxwell：`019e1068-5757-7bd1-8129-d401c60e0b7f`
-- B-Implementation / Raman：`019e2257-8d40-7630-9201-28df44dd689a`（2026-05-14 新建用于 4D-03J 后续 focused slices；4D-02AJ 服务端写入锁已由 A 收回并暂停写入，保留线程待后续任务；不得触碰 `riftbound-dotnet.sln`）
+- B-Implementation / Raman：`019e2257-8d40-7630-9201-28df44dd689a`（2026-05-14 新建用于 4D-03J 后续 focused slices；2026-05-15 已派 4D-02AK 服务端写入锁，范围仅 `tests/Riftbound.ConformanceTests/BattleDamageAssignmentLifecycleTests.cs`，必要时可最小修改 `src/Riftbound.Engine/CoreRuleEngine.cs` / `src/Riftbound.Engine/MatchSession.cs`；不得触碰 `riftbound-dotnet.sln`）
 - C-Review / Copernicus：`019e0bbc-df6f-7151-baf5-f79ff466c5a9`
 - D-Review / Nash：`019e1068-6042-7dc3-a45c-655838d02b92`
 - E-Review / Poincare：`019e1068-6975-7242-9143-1c50d7ce23fa`
