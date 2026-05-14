@@ -13,6 +13,8 @@
 - 当前 completion audit 仍列出 P0-002、P0-003、P0-004、P0-005 与 P1 LayerEngine / keywords / full-card evidence / replay-hash coverage。
 - Formal 18-step E2E 已有连续正式主流程证据；它满足 A_MASTER 的主流程门槛，但不能替代 strict battlefield contest / battle lifecycle / PaymentEngine / LayerEngine 的 full official 收口。
 
+4D-03AC handoff / baseline 补充：下一 PaymentEngine breadth 切片锁定 `BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE` 对 `TEMP_PAYMENT_RESOURCE:*` 的 prompt quote / command commit / audit parity。交接规格见 `docs/CURRENT_STAGE4D_03AC_PAYMENT_ENGINE_BATTLEFIELD_HELD_TEMP_RESOURCE_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_03AC_PAYMENT_ENGINE_BATTLEFIELD_HELD_TEMP_RESOURCE_BASELINE_EVIDENCE.md`；exploratory baseline 73/73、focused baseline 208/208、`git diff --check` 通过。该补充只建立 held-score temporary resource parity 的实现前护栏，不关闭 P0-005、P1 或 READY。
+
 4D-03AA focused slice 补充：Image copy-token representative 已验收，审计与证据见 `docs/CURRENT_STAGE4D_03AA_TOKEN_FACTORY_IMAGE_COPY_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AA_TOKEN_FACTORY_IMAGE_COPY_EVIDENCE.md`；focused 16/16、adjacent 253/253、backend full 4136/4136、`git diff --check` 通过。该补充只收口 `UNL·T06` 映像当前对象模型 copy representative，保留 Brush battlefield replacement deferred，不关闭 P0/P1 或 READY。
 
 4D-03AB focused slice 补充：Brush battlefield replacement representative 已验收，审计与证据见 `docs/CURRENT_STAGE4D_03AB_TOKEN_FACTORY_BRUSH_REPLACEMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AB_TOKEN_FACTORY_BRUSH_REPLACEMENT_EVIDENCE.md`；focused 141/141、adjacent 511/511、Brush focused 8/8、backend full 4144/4144、`git diff --check` 通过。该补充清空 token deferred catalog，但只收口 `UNL·T03` 草丛当前对象模型 score-time replacement representative，不关闭 P0/P1 或 READY。
