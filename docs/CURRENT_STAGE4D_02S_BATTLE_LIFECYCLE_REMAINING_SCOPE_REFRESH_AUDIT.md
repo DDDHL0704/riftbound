@@ -33,6 +33,8 @@
 
 2026-05-15 follow-up：4D-02AB 已验收上述 activation-returned assignment Hunt conquer result ordering representative，且为 test-only guard。P0-004 仍 open；该切片只证明 actual Shadow activation / stack resolution / returned response -> assignment -> Hunt conquer representative，不代表 activation-returned held branch、cleanup-blocker matrix、replacement / prevention / LayerEngine result matrix 或 full official combat breadth。
 
+2026-05-15 follow-up：下一切片 4D-02AC 转向 activation-returned assignment held result ordering cross-product。目标是证明 actual Shadow activation / stack resolution / returned response 后进入 assignment，防守方 Hunt held result 的 `BATTLEFIELD_HELD` / `EXPERIENCE_GAINED` 仍先于 cleanup、`BATTLE_CLOSED`、`BATTLEFIELD_CONTROL_RESOLVED` 和 `BF-NEXT` 推进。
+
 ## Evidence Inspected
 
 - `docs/A_MASTER_AGENT_GOAL.md`
@@ -104,6 +106,8 @@ Suggested next goal after 4D-02Y: choose a new narrow representative from the re
 4D-02AA selected representative: natural battle response pass -> assignment -> Hunt held result ordering. This intentionally mirrors 4D-02Z without expanding held-score payment, replacement, or full battlefield trigger breadth.
 
 4D-02AB selected representative: natural battle response actual Shadow activation -> returned response -> assignment -> Hunt conquer result ordering. This composes existing activation-returned assignment advancement with 4D-02Z result ordering. 4D-02AB is now accepted.
+
+4D-02AC selected representative: natural battle response actual Shadow activation -> returned response -> assignment -> Hunt held result ordering. This composes existing activation-returned assignment advancement with 4D-02AA result ordering.
 
 Recommended representative:
 
