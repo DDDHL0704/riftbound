@@ -13664,7 +13664,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         MatchState state,
         PlayerIntent intent,
         DeclareBattleCommand command,
-        bool openBattleResponsePriority = true)
+        bool openBattleResponsePriority = true,
+        bool resumingBattleResponseDeclaration = false)
     {
         if (!TryBuildMinimalDeclareBattle(
                 state,
@@ -13672,7 +13673,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 command,
                 out var attackerObjectIds,
                 out var defenderObjectIds,
-                out var optionalCosts))
+                out var optionalCosts,
+                resumingBattleResponseDeclaration))
         {
             return RejectWithCorePrompts(
                 state,
@@ -15794,7 +15796,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         DeclareBattleCommand command,
         out IReadOnlyList<string> attackerObjectIds,
         out IReadOnlyList<string> defenderObjectIds,
-        out IReadOnlyList<string> optionalCosts)
+        out IReadOnlyList<string> optionalCosts,
+        bool allowExhaustedBattleResponseParticipants = false)
     {
         attackerObjectIds = [];
         defenderObjectIds = [];
@@ -15863,7 +15866,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
             if (!state.CardObjects.TryGetValue(attackingObjectId, out var attackerState)
                 || !SourceObjectControlledByPlayerOrLegacyOwned(attackerState, intent.PlayerId)
-                || !IsReadyFaceUpUnitForMinimalBattle(attackerState))
+                || !IsReadyFaceUpUnitForMinimalBattle(attackerState, allowExhaustedBattleResponseParticipants))
             {
                 return false;
             }
@@ -15878,7 +15881,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || !string.Equals(defenderLocation.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
                 || !state.CardObjects.TryGetValue(defenderObjectId, out var defenderState)
                 || !SourceObjectControlledByPlayerOrLegacyOwned(defenderState, defenderLocation.Value.PlayerId)
-                || !IsReadyFaceUpUnitForMinimalBattle(defenderState))
+                || !IsReadyFaceUpUnitForMinimalBattle(defenderState, allowExhaustedBattleResponseParticipants))
             {
                 return false;
             }
@@ -21936,11 +21939,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         return objectIds.Any(objectId => !seenObjectIds.Add(objectId));
     }
 
-    private static bool IsReadyFaceUpUnitForMinimalBattle(CardObjectState cardObject)
+    private static bool IsReadyFaceUpUnitForMinimalBattle(
+        CardObjectState cardObject,
+        bool allowExhaustedBattleResponseParticipant = false)
     {
         return !string.IsNullOrWhiteSpace(cardObject.CardNo)
             && !cardObject.IsFaceDown
-            && !cardObject.IsExhausted
+            && (allowExhaustedBattleResponseParticipant || !cardObject.IsExhausted)
             && !cardObject.IsAttacking
             && !cardObject.IsDefending
             && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
@@ -22850,7 +22855,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
 
             objectLocations = ReconcileObjectLocations(objectLocations, resolvedPlayerZones);
-            ApplyResolvedStackSourceLocation(objectLocations, resolvedPlayerZones, resolvedItem);
+            ApplyResolvedStackSourceLocation(state, objectLocations, resolvedPlayerZones, resolvedItem);
             if (queuedTriggers.Length == 1)
             {
                 var singleTriggerStackItem = BuildStackItemForOrderedTrigger(
@@ -23051,7 +23056,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 attackingPlayerId,
                 CommandTypes.DeclareBattle),
             battleCommand,
-            openBattleResponsePriority: false);
+            openBattleResponsePriority: false,
+            resumingBattleResponseDeclaration: true);
         if (!battleResult.Accepted)
         {
             return battleResult;
@@ -24863,6 +24869,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     }
 
     private static void ApplyResolvedStackSourceLocation(
+        MatchState state,
         Dictionary<string, ObjectLocationState> objectLocations,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         StackItemState resolvedItem)
@@ -24881,9 +24888,16 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         if (zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
         {
+            var sourceIsActiveBattleParticipant = state.BattleState.IsActive
+                && (state.BattleState.AttackerObjectIds.Contains(sourceObjectId, StringComparer.Ordinal)
+                    || state.BattleState.DefenderObjectIds.Contains(sourceObjectId, StringComparer.Ordinal));
             var preciseDestination = IsStackItemBattlefieldDestination(resolvedItem)
                 ? PreciseBattlefieldLocationObjectId(NormalizeMoveUnitLocation(resolvedItem.Destination))
-                : null;
+                : sourceIsActiveBattleParticipant
+                    && objectLocations.TryGetValue(sourceObjectId, out var currentLocation)
+                    && string.Equals(currentLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                    ? currentLocation.BattlefieldObjectId
+                    : null;
             objectLocations[sourceObjectId] = new ObjectLocationState(
                 controllerId,
                 MoveUnitBattlefieldZone,

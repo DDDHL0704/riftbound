@@ -7,6 +7,8 @@
 
 ## 0. 2026-05-13 最新状态补充
 
+2026-05-15 4D-02T focused slice 补充：Battle response activation standby cleanup advancement 已验收，入口为 `docs/CURRENT_STAGE4D_02T_BATTLE_RESPONSE_ACTIVATION_STANDBY_CLEANUP_ADVANCEMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02T_BATTLE_RESPONSE_ACTIVATION_STANDBY_CLEANUP_ADVANCEMENT_EVIDENCE.md`；targeted 1/1、focused 232/232、adjacent 754/754、backend full 4217/4217、`git diff --check` 通过。该 focused slice 只证明真实 Shadow activation / stack-return / assignment close / control cleanup / next contested battlefield advancement 的组合链路；不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
+
 2026-05-15 4D-02T handoff / baseline 补充：Battle response activation standby cleanup advancement 下一 P0-004 切片已建立，入口为 `docs/CURRENT_STAGE4D_02T_BATTLE_RESPONSE_ACTIVATION_STANDBY_CLEANUP_ADVANCEMENT_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_02T_BATTLE_RESPONSE_ACTIVATION_STANDBY_CLEANUP_ADVANCEMENT_BASELINE_EVIDENCE.md`；focused baseline 231/231、adjacent baseline 754/754、backend full 4216/4216、`git diff --check` 通过。目标是验证 actual Shadow activation / stack resolution / return-to-response 后的 assignment battle close 若触发 illegal standby cleanup，cleanup 必须先于 next contested battlefield advancement；该补充只建立实现前护栏，不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
 
 2026-05-15 4D-02S audit 补充：Battle lifecycle remaining-scope refresh audit 已建立，入口为 `docs/CURRENT_STAGE4D_02S_BATTLE_LIFECYCLE_REMAINING_SCOPE_REFRESH_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02S_BATTLE_LIFECYCLE_REMAINING_SCOPE_REFRESH_BASELINE_EVIDENCE.md`；focused 231/231、adjacent 754/754、backend full 4216/4216、`git diff --check` 通过。该补充只刷新 P0-004 剩余范围和下一切片建议，不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
