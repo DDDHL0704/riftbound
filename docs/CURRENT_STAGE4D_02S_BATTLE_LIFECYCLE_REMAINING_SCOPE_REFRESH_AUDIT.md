@@ -7,6 +7,8 @@
 
 2026-05-15 follow-up：4D-02T 已验收 activation-returned assignment branch 的 cleanup-first blocker ordering；下一切片转为 4D-02U，锁定 actual Shadow activation 作为非参战 response source 时 stack resolution 后的 precise `ObjectLocation.BattlefieldObjectId` preservation。4D-02S 原始建议保留为历史审计背景，不代表当前最新 handoff。
 
+2026-05-15 follow-up：4D-02U 已验收非参战 response source stack-resolution precise location preservation；下一切片转为 4D-02V，锁定该 precise location 修正后 final immediate battle close 的 same-turn completed battlefield skip policy。也就是：当前 battlefield 已完成 spell duel 后，即使非参战 Shadow 仍保留在当前 concrete battlefield，当前推进链仍不重新开启该 battlefield 的 spell duel，而是推进下一处未完成 contested battlefield。
+
 ## Evidence Inspected
 
 - `docs/A_MASTER_AGENT_GOAL.md`
@@ -63,9 +65,9 @@ The 4D-02C audit said next contested battlefield advancement after battle close 
 
 ## Next Recommended Slice
 
-4D-02T 已完成。Proceed with `4D-02U Battle Response Nonparticipant Source Location Preservation`.
+4D-02T 与 4D-02U 已完成。Proceed with `4D-02V Battle Response Nonparticipant Completed Battlefield Advancement`.
 
-Goal: prove actual Shadow activation used as a nonparticipant battle response source keeps its concrete battlefield object location after stack resolution, instead of degrading to an unknown battlefield location.
+Goal: prove actual Shadow activation used as a nonparticipant battle response source keeps its concrete battlefield object location through immediate battle close, while same-turn `SpellDuelCompleted` prevents the just-completed current battlefield from immediately reopening and allows the next unfinished contested battlefield to advance.
 
 Recommended representative:
 
@@ -73,12 +75,15 @@ Recommended representative:
 - P1 declares a supported battle on `BF-A` against `P2-BULWARK` only.
 - `P2-SHADOW` is on the same battlefield and is a legal battle response source, but it is not a declared attacker / defender.
 - P2 activates Shadow in battle response; stack resolves and returns to battle response.
-- `ObjectLocations[P2-SHADOW].BattlefieldObjectId` remains `BF-A`.
+- Final response pass closes the battle immediately.
+- `ObjectLocations[P2-SHADOW].BattlefieldObjectId` remains `BF-A` while on field.
+- no second `BATTLEFIELD_CONTESTED` / `SPELL_DUEL_STARTED` is emitted for completed `BF-A`; `BF-B` advances.
 
 Expected guard:
 
 - no `BF-B` advancement during response or stack-open / stack-resolution return;
-- nonparticipant response source remains in P2 battlefield zone with precise `ObjectLocation` after stack resolution;
+- nonparticipant response source remains in P2 battlefield zone with precise `ObjectLocation`;
+- final battle close skips completed `BF-A` and advances `BF-B`;
 - no frontend, PaymentEngine, LayerEngine, card coverage matrix, or broad combat rewrite.
 
 ## No-Go
@@ -92,4 +97,4 @@ Expected guard:
 
 ## Verdict
 
-4D-02B through 4D-02T materially narrowed P0-004, especially activation-returned assignment / immediate / payment / no-result task advancement and cleanup-blocker ordering. The next useful narrow slice is precise object-location preservation for nonparticipant battle response sources. Project remains **NOT READY**.
+4D-02B through 4D-02U materially narrowed P0-004, especially activation-returned assignment / immediate / payment / no-result task advancement, cleanup-blocker ordering, and precise object-location preservation for nonparticipant response sources. The next useful narrow slice is same-turn completed battlefield advancement policy after such a nonparticipant source survives. Project remains **NOT READY**.
