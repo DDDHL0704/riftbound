@@ -7,6 +7,7 @@
 
 ## 1. 输入事实
 
+- 2026-05-15 A-side prompt-to-artifact checklist 已建立：`docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md` 把 active goal / A_MASTER 明确门槛映射到 checkpoint、completion audit、server audit、formal 18-step evidence、DevUi package scripts 与 card matrix skeleton。该 checklist 明确 4D verifier、backend full、historical Chrome smoke、formal 18-step 与 matrix skeleton 都不能代理 P0/P1 清零；当前仍不得标记 READY。
 - 最新已提交证据基线：Stage 4C-98 battlefield residual evidence alignment。
 - 当前矩阵计数：`IMPLEMENTED_TESTED=76`、`IMPLEMENTED_UNTESTED=4`、`NEEDS_ENGINE_SUPPORT=501`、`NEEDS_FAQ_REVIEW=128`、`SHARED_ORACLE_IMPLEMENTATION=102`。
 - 剩余 `IMPLEMENTED_UNTESTED` 四项均已在 Stage 4C-95 判定为 design-gated static/trigger items：熔浆巨龙、娑娜、安妮、温驯的宝石龙。
