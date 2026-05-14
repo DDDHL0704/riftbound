@@ -41,6 +41,8 @@
 
 2026-05-15 follow-up：4D-02AD 已验收上述 activation-returned held-score `RECYCLE_RUNE:*` payment-resource context，并修复 declare-time 必要性判断与 final resume 当前资源之间的 runtime gap。P0-004 仍 open；该切片只覆盖 `RECYCLE_RUNE:*` representative，不代表 activation-returned temporary payment resource、完整 held-score payment matrix、replacement / prevention / LayerEngine 或 full official combat breadth。
 
+2026-05-15 follow-up：下一切片 4D-02AE 转向 activation-returned held-score `TEMP_PAYMENT_RESOURCE:*` context。目标是证明 actual Shadow activation / stack resolution / returned response 后，temporary payment resource optional cost 仍能被最终 held-score branch 消费，并保留 spend / clear / cost / score audit；no-response 分支不应无谓消耗 temporary resource 或卡住 battle response resume。
+
 ## Evidence Inspected
 
 - `docs/A_MASTER_AGENT_GOAL.md`
@@ -118,6 +120,8 @@ Suggested next goal after 4D-02Y: choose a new narrow representative from the re
 4D-02AC selected representative: natural battle response actual Shadow activation -> returned response -> assignment -> Hunt held result ordering. This composes existing activation-returned assignment advancement with 4D-02AA result ordering. 4D-02AC is now accepted.
 
 4D-02AD selected representative: natural battle response actual Shadow activation -> returned response -> held-score payment-resource branch. This composes 4D-02I `RECYCLE_RUNE:*` held-score context with 4D-02K actual activation / stack resolution context preservation. 4D-02AD is now accepted.
+
+4D-02AE selected representative: natural battle response actual Shadow activation -> returned response -> held-score temporary payment-resource branch. This composes 4D-02J `TEMP_PAYMENT_RESOURCE:*` held-score context with 4D-02K actual activation / stack resolution context preservation and 4D-02AD no-response normalization.
 
 Recommended representative:
 
