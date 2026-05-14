@@ -14,6 +14,9 @@ public sealed class BattleDamageAssignmentLifecycleTests
     private const string BackRowDefenderObjectId = "P2-Z-BACKROW";
     private const string ShadowObjectId = "P2-SHADOW";
     private const string HiddenStandbyObjectId = "P2-HIDDEN-STANDBY";
+    private const string NextBattlefieldObjectId = "BF-NEXT";
+    private const string NextAttackerObjectId = "P1-NEXT-CONTEST";
+    private const string NextDefenderObjectId = "P2-NEXT-CONTEST";
 
     [Fact]
     public async Task NaturalStartBattleWithAssignmentOrderingDefenderOpensAssignCombatDamagePrompt()
@@ -275,6 +278,50 @@ public sealed class BattleDamageAssignmentLifecycleTests
     }
 
     [Fact]
+    public async Task NaturalAssignCombatDamageAdvancesNextContestedBattlefieldTask()
+    {
+        var opened = await DeclareAssignmentBattleAsync(BuildNaturalStartBattleState(includeNextContest: true));
+        Assert.True(opened.Accepted, opened.ErrorMessage);
+        Assert.True(opened.State.BattleState.IsActive);
+        Assert.Equal(PromptTypes.AssignCombatDamage, opened.Prompts["P1"].View?.Type);
+        Assert.Equal($"task:start-battle:{BattlefieldObjectId}", opened.State.PendingTaskQueue.ActiveTaskId);
+
+        var assigned = await new CoreRuleEngine().ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-natural-assign-advances-next-battlefield", "P1", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, LegalAssignments()),
+            CancellationToken.None);
+
+        Assert.True(assigned.Accepted, assigned.ErrorMessage);
+        Assert.False(assigned.State.BattleState.IsActive);
+        Assert.DoesNotContain(
+            assigned.State.PendingTaskQueue.Tasks,
+            task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
+                && string.Equals(task.BattlefieldObjectId, BattlefieldObjectId, StringComparison.Ordinal));
+        Assert.Contains(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        Assert.Contains(assigned.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTROL_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, BattlefieldObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["controllerId"] as string, "P1", StringComparison.Ordinal));
+        Assert.Contains(assigned.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
+        Assert.Contains(assigned.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
+        Assert.Equal(TimingStates.SpellDuelOpen, assigned.State.TimingState);
+        Assert.Equal("P1", assigned.State.FocusPlayerId);
+        Assert.Equal("P1", assigned.State.ActivePlayerId);
+        Assert.Equal("SPELL_DUEL_TASKS", assigned.State.PendingTaskQueue.Phase);
+        Assert.Equal($"task:start-spell-duel:{NextBattlefieldObjectId}", assigned.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(PromptTypes.SpellDuelFocus, assigned.Prompts["P1"].View?.Type);
+        Assert.Equal(NextBattlefieldObjectId, assigned.Prompts["P1"].View?.RelatedBattlefieldId);
+        Assert.Equal($"spell-duel:{NextBattlefieldObjectId}", assigned.Prompts["P1"].View?.RelatedSpellDuelId);
+        Assert.NotEqual(PromptTypes.AssignCombatDamage, assigned.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.BattleDeclaration, assigned.Prompts["P1"].View?.Type);
+    }
+
+    [Fact]
     public async Task NaturalStartBattleOneOnOneImmediateBattleRemainsStable()
     {
         var state = BuildNaturalStartBattleState(defenderObjectIds: [BulwarkDefenderObjectId]);
@@ -337,6 +384,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
     private static MatchState BuildNaturalStartBattleState(
         bool includeHiddenStandby = false,
         bool includeShadowResponse = false,
+        bool includeNextContest = false,
         IReadOnlyList<string>? defenderObjectIds = null)
     {
         var defenders = defenderObjectIds ?? [BulwarkDefenderObjectId, BackRowDefenderObjectId];
@@ -365,30 +413,44 @@ public sealed class BattleDamageAssignmentLifecycleTests
                 ["P1"] = RunePool.Empty,
                 ["P2"] = includeShadowResponse ? new RunePool(1, 1) : RunePool.Empty
             },
-            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
-            {
-                ["P1"] = PlayerZones.Empty with
-                {
-                    Battlefields = [BattlefieldObjectId, AttackerObjectId]
-                },
-                ["P2"] = PlayerZones.Empty with
-                {
-                    Battlefields = p2Battlefields
-                }
-            },
+            playerZones: BuildPlayerZones(p2Battlefields, includeNextContest),
             playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
             {
                 ["P1"] = 0,
                 ["P2"] = 0
             },
-            cardObjects: BuildCardObjects(includeHiddenStandby, includeShadowResponse),
+            cardObjects: BuildCardObjects(includeHiddenStandby, includeShadowResponse, includeNextContest),
             untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted(BattlefieldObjectId)],
-            objectLocations: BuildObjectLocations(includeHiddenStandby, includeShadowResponse));
+            objectLocations: BuildObjectLocations(includeHiddenStandby, includeShadowResponse, includeNextContest));
+    }
+
+    private static Dictionary<string, PlayerZones> BuildPlayerZones(
+        IReadOnlyList<string> p2Battlefields,
+        bool includeNextContest)
+    {
+        var p1Battlefields = includeNextContest
+            ? new[] { BattlefieldObjectId, AttackerObjectId, NextBattlefieldObjectId, NextAttackerObjectId }
+            : [BattlefieldObjectId, AttackerObjectId];
+        var p2BattlefieldObjects = includeNextContest
+            ? p2Battlefields.Concat([NextDefenderObjectId]).ToArray()
+            : p2Battlefields;
+        return new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+        {
+            ["P1"] = PlayerZones.Empty with
+            {
+                Battlefields = p1Battlefields
+            },
+            ["P2"] = PlayerZones.Empty with
+            {
+                Battlefields = p2BattlefieldObjects
+            }
+        };
     }
 
     private static Dictionary<string, CardObjectState> BuildCardObjects(
         bool includeHiddenStandby,
-        bool includeShadowResponse)
+        bool includeShadowResponse,
+        bool includeNextContest)
     {
         var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
         {
@@ -415,6 +477,13 @@ public sealed class BattleDamageAssignmentLifecycleTests
                 cardNo: P4ActivatedAbilityCatalog.ShadowCardNo);
         }
 
+        if (includeNextContest)
+        {
+            cardObjects[NextBattlefieldObjectId] = Battlefield(NextBattlefieldObjectId, "P1");
+            cardObjects[NextAttackerObjectId] = Unit(NextAttackerObjectId, "P1", power: 2);
+            cardObjects[NextDefenderObjectId] = Unit(NextDefenderObjectId, "P2", power: 2);
+        }
+
         if (includeHiddenStandby)
         {
             cardObjects[HiddenBattlefieldObjectId] = Battlefield(HiddenBattlefieldObjectId, "P2");
@@ -433,7 +502,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
 
     private static Dictionary<string, ObjectLocationState> BuildObjectLocations(
         bool includeHiddenStandby,
-        bool includeShadowResponse)
+        bool includeShadowResponse,
+        bool includeNextContest)
     {
         var objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
         {
@@ -446,6 +516,13 @@ public sealed class BattleDamageAssignmentLifecycleTests
         if (includeShadowResponse)
         {
             objectLocations[ShadowObjectId] = new("P2", "BATTLEFIELD", BattlefieldObjectId);
+        }
+
+        if (includeNextContest)
+        {
+            objectLocations[NextBattlefieldObjectId] = new("P1", "BATTLEFIELD", NextBattlefieldObjectId);
+            objectLocations[NextAttackerObjectId] = new("P1", "BATTLEFIELD", NextBattlefieldObjectId);
+            objectLocations[NextDefenderObjectId] = new("P2", "BATTLEFIELD", NextBattlefieldObjectId);
         }
 
         if (includeHiddenStandby)

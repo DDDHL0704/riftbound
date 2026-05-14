@@ -3175,6 +3175,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 state.DestroyedUnitOwnerIdsThisTurn,
                 lethalCleanup.DestroyedUnitOwnerIds)
         };
+        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId);
+        nextState = taskAdvance.State;
+        combatEvents.AddRange(taskAdvance.Events);
 
         return new ResolutionResult(
             true,

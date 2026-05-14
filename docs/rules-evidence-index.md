@@ -2,6 +2,8 @@
 
 更新时间：2026-05-14
 
+2026-05-14 最新补充：4D-02E Battle task advancement focused slice 已验收。审计入口为 `docs/CURRENT_STAGE4D_02E_BATTLE_TASK_ADVANCEMENT_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_02E_BATTLE_TASK_ADVANCEMENT_EVIDENCE.md`；focused 427/427、adjacent 608/608、backend full 4195/4195、`git diff --check` 通过。该补充只证明 natural `ASSIGN_COMBAT_DAMAGE` 关闭当前 battle 后可推进下一个 contested battlefield `START_SPELL_DUEL`，不关闭 full official P0-004、P0-005、P1 或 READY。
+
 2026-05-14 最新补充：4D-03AB Brush battlefield replacement focused slice 已验收。审计入口为 `docs/CURRENT_STAGE4D_03AB_TOKEN_FACTORY_BRUSH_REPLACEMENT_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_03AB_TOKEN_FACTORY_BRUSH_REPLACEMENT_EVIDENCE.md`；focused 141/141、adjacent 511/511、Brush focused 8/8、backend full 4144/4144、`git diff --check` 通过。该补充清空 token deferred catalog，但只证明当前对象模型的 Brush score-time representative，不关闭 P0/P1 或 READY。
 
 2026-05-14 最新补充：4D-03AA Image copy-token focused slice 已验收。审计入口为 `docs/CURRENT_STAGE4D_03AA_TOKEN_FACTORY_IMAGE_COPY_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_03AA_TOKEN_FACTORY_IMAGE_COPY_EVIDENCE.md`；focused 16/16、adjacent 253/253、backend full 4136/4136、`git diff --check` 通过。该补充只证明 `UNL·T06` 映像当前对象模型 copy representative，不退役 Brush deferred surface，不关闭 P0/P1 或 READY。

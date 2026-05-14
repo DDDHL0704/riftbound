@@ -7,6 +7,8 @@
 
 ## 0. 2026-05-13 最新状态补充
 
+2026-05-14 4D-02E focused slice 补充：Battle task advancement 已实现并验证，入口为 `docs/CURRENT_STAGE4D_02E_BATTLE_TASK_ADVANCEMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02E_BATTLE_TASK_ADVANCEMENT_EVIDENCE.md`；focused 427/427、adjacent 608/608、backend full 4195/4195、`git diff --check` 通过。该补充只证明 `ASSIGN_COMBAT_DAMAGE` 关闭当前 natural battle 后可推进下一个 contested battlefield task，不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
+
 2026-05-14 4D-02D focused guard 补充：Battle response -> assignment integration guard 已验收，入口为 `docs/CURRENT_STAGE4D_02D_BATTLE_RESPONSE_ASSIGNMENT_INTEGRATION_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02D_BATTLE_RESPONSE_ASSIGNMENT_INTEGRATION_EVIDENCE.md`；focused 426/426、adjacent 607/607、backend full 4194/4194 通过。该补充只证明 4D-02B response priority 与 4D-02C damage assignment 的组合链，不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
 
 2026-05-14 4D-02E handoff / baseline 补充：Battle task advancement 下一 P0-004 切片已建立，入口为 `docs/CURRENT_STAGE4D_02E_BATTLE_TASK_ADVANCEMENT_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_02E_BATTLE_TASK_ADVANCEMENT_BASELINE_EVIDENCE.md`；focused baseline 426/426、adjacent baseline 607/607、backend full 4194/4194 通过。目标是验证 `ASSIGN_COMBAT_DAMAGE` 关闭当前 natural battle 后会推进下一个 contested battlefield task；该补充只建立实现前护栏，不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。

@@ -13,6 +13,8 @@
 - 当前 completion audit 仍列出 P0-002、P0-003、P0-004、P0-005 与 P1 LayerEngine / keywords / full-card evidence / replay-hash coverage。
 - Formal 18-step E2E 已有连续正式主流程证据；它满足 A_MASTER 的主流程门槛，但不能替代 strict battlefield contest / battle lifecycle / PaymentEngine / LayerEngine 的 full official 收口。
 
+4D-02E focused slice 补充：Battle task advancement 已实现并验证，审计与证据见 `docs/CURRENT_STAGE4D_02E_BATTLE_TASK_ADVANCEMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02E_BATTLE_TASK_ADVANCEMENT_EVIDENCE.md`；focused 427/427、adjacent 608/608、backend full 4195/4195、`git diff --check` 通过。该切片证明 `ASSIGN_COMBAT_DAMAGE` 关闭当前 natural battle 后可推进下一个 contested battlefield `START_SPELL_DUEL`，避免多争夺战场停在 `BATTLEFIELD_TASKS` / `WAIT`；不关闭 P0-004、P0-005、P1 或 READY。
+
 4D-02D focused guard 补充：Battle response -> assignment integration guard 已验收，审计与证据见 `docs/CURRENT_STAGE4D_02D_BATTLE_RESPONSE_ASSIGNMENT_INTEGRATION_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02D_BATTLE_RESPONSE_ASSIGNMENT_INTEGRATION_EVIDENCE.md`；focused 426/426、adjacent 607/607、backend full 4194/4194 通过。该 test-only 切片证明 4D-02B battle-response priority 与 4D-02C natural assignment window 可在同一 natural battle lifecycle 中顺序衔接；不关闭 P0-004、P0-005、P1 或 READY。
 
 4D-02E handoff / baseline 补充：下一 P0-004 窄切片锁定 battle task advancement。交接规格见 `docs/CURRENT_STAGE4D_02E_BATTLE_TASK_ADVANCEMENT_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_02E_BATTLE_TASK_ADVANCEMENT_BASELINE_EVIDENCE.md`；focused baseline 426/426、adjacent baseline 607/607、backend full 4194/4194 通过。目标是证明 `ASSIGN_COMBAT_DAMAGE` 关闭当前 natural battle 后会自动推进下一个 contested battlefield `START_SPELL_DUEL`，不让多争夺战场停在 `BATTLEFIELD_TASKS` / `WAIT`；该 handoff 不改 runtime、不关闭 P0-004、P0-005、P1 或 READY。
