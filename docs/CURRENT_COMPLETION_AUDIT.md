@@ -7,6 +7,8 @@
 
 ## 0. 2026-05-13 最新状态补充
 
+2026-05-14 4D-01B handoff / baseline 补充：Control change precise battlefield 下一 P0-002 / P0-003 切片已建立，入口为 `docs/CURRENT_STAGE4D_01B_CONTROL_CHANGE_PRECISE_BATTLEFIELD_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_01B_CONTROL_CHANGE_PRECISE_BATTLEFIELD_BASELINE_EVIDENCE.md`；focused baseline 32/32、adjacent baseline 173/173、backend full 4201/4201 通过。目标是验证 Hostile Takeover / gain-control-to-battlefield target 变更 controller 后仍保留 precise `BattlefieldObjectId`，并在同一 concrete battlefield 有双方 occupant 时自然触发 contested / spell-duel / battle pending tasks；该补充只建立实现前护栏，不关闭 P0-002、P0-003、P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
+
 2026-05-14 4D-02I test-only slice 补充：Battle response held-score payment-resource context 已验收，入口为 `docs/CURRENT_STAGE4D_02I_BATTLE_RESPONSE_PAYMENT_RESOURCE_CONTEXT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02I_BATTLE_RESPONSE_PAYMENT_RESOURCE_CONTEXT_EVIDENCE.md`；focused 431/431、adjacent 608/608、backend full 4199/4199、`git diff --check` 通过。该补充只证明 `RECYCLE_RUNE:*` optional cost 可经过 natural battle-response pass 保留并进入 held-score payment / audit path，不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
 
 2026-05-14 4D-02J test-only slice 补充：Battle response held-score temporary payment-resource context 已验收，入口为 `docs/CURRENT_STAGE4D_02J_BATTLE_RESPONSE_TEMP_PAYMENT_RESOURCE_CONTEXT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02J_BATTLE_RESPONSE_TEMP_PAYMENT_RESOURCE_CONTEXT_EVIDENCE.md`；focused 432/432、adjacent 608/608、backend full 4200/4200、`git diff --check` 通过。该补充只证明 `TEMP_PAYMENT_RESOURCE:*` optional cost 可经过 natural battle-response pass 保留并进入 held-score payment / audit path，不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
