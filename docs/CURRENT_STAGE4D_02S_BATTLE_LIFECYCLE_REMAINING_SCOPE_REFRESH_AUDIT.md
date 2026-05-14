@@ -53,6 +53,8 @@
 
 2026-05-15 follow-up：4D-02AG 已验收上述 activation-returned held-score `RECYCLE_RUNE:*` next-contested advancement mirror，且为 test-only guard。P0-004 仍 open；该切片只覆盖 BF-A held-score recycle payment / score / battle close 后推进 BF-B spell duel，不代表完整 battle-result matrix、replacement / prevention / LayerEngine 或 full official combat breadth。
 
+2026-05-15 follow-up：下一切片 4D-02AH 转向 replacement cross-product，锁定 BF-A/B 双争夺场景中 actual Shadow activation / stack resolution / returned response -> Brush replacement-aware held-score payment / score / current battle close 后推进 BF-B `START_SPELL_DUEL`，且 response / stack / returned response 阶段不得提前推进 BF-B。
+
 ## Evidence Inspected
 
 - `docs/A_MASTER_AGENT_GOAL.md`
@@ -93,7 +95,8 @@
   - actual battle response activation -> immediate battle close;
   - post-battle trigger payment blockers;
   - actual activation -> immediate battle close -> trigger payment blocker;
-  - battle-control-driven illegal standby cleanup in the non-activation assignment path.
+  - battle-control-driven illegal standby cleanup in the non-activation assignment path;
+  - battle-control-driven illegal standby cleanup after actual activation-returned assignment.
 - Declaration-context carriers for Icevale trigger payment, Brush replacement, `RECYCLE_RUNE:*`, `TEMP_PAYMENT_RESOURCE:*`, and activation-returned Brush replacement are covered as internal, non-public context that does not leak into player / spectator snapshots or prompts.
 - Declaration-context carriers now include one activation-returned held-score `RECYCLE_RUNE:*` representative: the action can become necessary after Shadow response resource spend, remains redacted while carried, and is either consumed strictly at final held-score payment or dropped if no response made it necessary.
 - Declaration-context carriers now also include one activation-returned held-score `TEMP_PAYMENT_RESOURCE:*` representative: the action can become necessary after Shadow response resource spend, remains redacted while carried, and is either consumed strictly at final held-score payment or dropped if no response made it necessary.
@@ -111,7 +114,7 @@ The 4D-02C audit said next contested battlefield advancement after battle close 
 
 - Full official battle lifecycle remains open. The current model is still a representative state machine, not a complete official combat system.
 - Battle response breadth is still narrow: Shadow swift stun plus one nested standby reaction stack, two-Shadow source sequencing, and one Shadow stale-target no-effect branch are representative, and the suite does not yet prove a full matrix of swift / reaction chains, cross-card independent legal response sources, deeper multiple stack items, no-effect / stale targets, and response windows across every battle-result branch.
-- Cleanup / blocker ordering is not matrix-complete. The non-activation assignment path has a battle-control standby cleanup guard, but the activation-returned assignment path does not yet prove battle-control-driven cleanup blocks next contested battlefield advancement.
+- Cleanup / blocker ordering is not matrix-complete. The non-activation assignment path and one activation-returned Shadow assignment path both have battle-control standby cleanup guards, but broader cleanup / blocker combinations remain representative rather than matrix-complete.
 - Battle result ordering is representative, not exhaustive: held / conquer / control / no-result / trigger payment / cleanup combinations are not fully enumerated across immediate, assignment, response-pass and activation-returned branches.
 - Damage assignment breadth is still limited by current supported representative policy: up to two attackers / defenders and known assignment-ordering keyword cases. Arbitrary official multi-combat assignment and all same-priority permutations remain outside this stage.
 - Replacement / prevention / damage modification / continuous-effect LayerEngine interactions remain deferred; P0-004 should not be closed while those interactions can alter combat outcome or cleanup ordering.
@@ -138,6 +141,8 @@ Suggested next goal after 4D-02Y: choose a new narrow representative from the re
 4D-02AF selected representative: natural battle response actual Shadow activation -> returned response -> held-score temporary payment / score / current battle close -> next contested battlefield spell duel advancement. This composes 4D-02AE held-score temporary payment-resource context with the existing next-contested advancement axis. 4D-02AF is now accepted.
 
 4D-02AG selected representative: natural battle response actual Shadow activation -> returned response -> held-score recycle payment / score / current battle close -> next contested battlefield spell duel advancement. This mirrors 4D-02AF with the 4D-02AD `RECYCLE_RUNE:*` held-score context. 4D-02AG is now accepted.
+
+4D-02AH selected representative: natural battle response actual Shadow activation -> returned response -> Brush replacement-aware held-score payment / score / current battle close -> next contested battlefield spell duel advancement. This composes 4D-02K Brush replacement context with the next-contested advancement axis. Handoff / baseline are now established.
 
 Recommended representative:
 
