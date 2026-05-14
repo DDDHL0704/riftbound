@@ -37,6 +37,8 @@
 
 2026-05-15 follow-up：4D-02AC 已验收上述 activation-returned assignment Hunt held result ordering representative，且为 test-only guard。P0-004 仍 open；该切片只证明 actual Shadow activation / stack resolution / returned response -> assignment -> Hunt held representative，不代表 cleanup-blocker matrix、held-score payment、replacement / prevention / LayerEngine result matrix 或 full official combat breadth。
 
+2026-05-15 follow-up：下一切片 4D-02AD 转向 activation-returned held-score payment-resource context。目标是证明 actual Shadow activation / stack resolution / returned response 后，held-score `RECYCLE_RUNE:*` optional cost 仍能被最终 held-score branch 消费，并保留 `RUNE_RECYCLED` / `POWER_GAINED` / `COST_PAID` / `SCORE_GAINED` audit 与 internal carrier redaction。
+
 ## Evidence Inspected
 
 - `docs/A_MASTER_AGENT_GOAL.md`
@@ -111,6 +113,8 @@ Suggested next goal after 4D-02Y: choose a new narrow representative from the re
 4D-02AB selected representative: natural battle response actual Shadow activation -> returned response -> assignment -> Hunt conquer result ordering. This composes existing activation-returned assignment advancement with 4D-02Z result ordering. 4D-02AB is now accepted.
 
 4D-02AC selected representative: natural battle response actual Shadow activation -> returned response -> assignment -> Hunt held result ordering. This composes existing activation-returned assignment advancement with 4D-02AA result ordering. 4D-02AC is now accepted.
+
+4D-02AD selected representative: natural battle response actual Shadow activation -> returned response -> held-score payment-resource branch. This composes 4D-02I `RECYCLE_RUNE:*` held-score context with 4D-02K actual activation / stack resolution context preservation.
 
 Recommended representative:
 
