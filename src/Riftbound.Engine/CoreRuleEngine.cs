@@ -643,7 +643,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string VexLegendCardNo = "UNL-193/219";
     private const string RenataLegendCardNo = "SFD·201/221";
     private const int RenataGoldBonusWinningScoreDistance = 3;
-    private const string RenataGoldBonusTag = "RENATA_GOLD_EXTRA_1_MANA";
+    private const string RenataGoldBonusTag = P4ActivatedAbilityCatalog.GoldTokenRenataBonusTag;
     private const string LeblancLegendCardNo = "UNL-199/219";
     private const string LeblancEphemeralStaticUnitCardNo = "UNL-090/219";
     private const string ReksaiLegendCardNo = "SFD·187/221";
@@ -8002,9 +8002,22 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        var renataGoldExtraManaApplied = sourceState.Tags.Contains(RenataGoldBonusTag, StringComparer.Ordinal);
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        if (renataGoldExtraManaApplied)
+        {
+            var currentPool = runePools.TryGetValue(intent.PlayerId, out var existingPool)
+                ? existingPool
+                : RunePool.Empty;
+            runePools[intent.PlayerId] = new RunePool(
+                currentPool.Mana + P4ActivatedAbilityCatalog.GoldTokenRenataBonusMana,
+                currentPool.Power,
+                currentPool.PowerByTrait);
+        }
+
         cardObjects[command.SourceObjectId] = sourceState with
         {
             IsExhausted = true,
@@ -8081,6 +8094,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             PlayerZones = playerZones,
             CardObjects = cardObjects,
             ObjectLocations = objectLocations,
+            RunePools = runePools,
             TemporaryPaymentResources = state.TemporaryPaymentResources
                 .Concat([temporaryPaymentResource])
                 .ToArray(),
@@ -8113,7 +8127,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["temporaryPaymentResourceId"] = temporaryPaymentResource.ResourceId,
                     ["resourceLifecycle"] = "temporary-payment-resource-ledger",
                     ["stackPolicy"] = "no-ordinary-stack-item",
-                    ["renataGoldExtraManaDeferred"] = sourceState.Tags.Contains(RenataGoldBonusTag, StringComparer.Ordinal)
+                    ["renataGoldExtraManaApplied"] = renataGoldExtraManaApplied,
+                    ["generatedMana"] = renataGoldExtraManaApplied ? P4ActivatedAbilityCatalog.GoldTokenRenataBonusMana : 0,
+                    ["bonusTag"] = renataGoldExtraManaApplied ? RenataGoldBonusTag : string.Empty
                 }),
             new(
                 "UNIT_EXHAUSTED",
@@ -8156,9 +8172,31 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["temporaryPaymentResourceId"] = temporaryPaymentResource.ResourceId,
                     ["remainingPower"] = temporaryPaymentResource.RemainingPower,
                     ["allowedPaymentKinds"] = temporaryPaymentResource.AllowedPaymentKinds.ToArray(),
-                    ["renataGoldExtraManaDeferred"] = sourceState.Tags.Contains(RenataGoldBonusTag, StringComparer.Ordinal)
+                    ["renataGoldExtraManaApplied"] = renataGoldExtraManaApplied,
+                    ["generatedMana"] = renataGoldExtraManaApplied ? P4ActivatedAbilityCatalog.GoldTokenRenataBonusMana : 0,
+                    ["bonusTag"] = renataGoldExtraManaApplied ? RenataGoldBonusTag : string.Empty
                 })
         };
+        if (renataGoldExtraManaApplied)
+        {
+            events.Add(new GameEvent(
+                "MANA_GAINED",
+                $"{intent.PlayerId} 通过强化金币额外获得 {P4ActivatedAbilityCatalog.GoldTokenRenataBonusMana} 点法力",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["paymentWindow"] = paymentWindow,
+                    ["paymentId"] = paymentId,
+                    ["resourceSkill"] = true,
+                    ["reactionSpeed"] = true,
+                    ["renataGoldExtraManaApplied"] = true,
+                    ["generatedMana"] = P4ActivatedAbilityCatalog.GoldTokenRenataBonusMana,
+                    ["bonusTag"] = RenataGoldBonusTag,
+                    ["manaAfter"] = runePools[intent.PlayerId].Mana
+                }));
+        }
 
         return new ResolutionResult(
             true,

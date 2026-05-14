@@ -4167,7 +4167,9 @@ internal static class ActionPromptBuilder
         bool ResolvesImmediately,
         bool Composable,
         string? UnsupportedReason,
-        IReadOnlyDictionary<string, int>? SpellshieldTaxManaByTargetObjectId = null);
+        IReadOnlyDictionary<string, int>? SpellshieldTaxManaByTargetObjectId = null,
+        bool RenataGoldExtraManaAvailable = false,
+        int BonusMana = 0);
 
     private sealed record LegendActionPromptRequirement(
         string SourceObjectId,
@@ -5264,6 +5266,8 @@ internal static class ActionPromptBuilder
 
             var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
             var spellshieldTaxManaByTargetObjectId = ActivateAbilitySpellshieldTaxManaByTargetObjectId(state, playerId, ability, targetChoicesByIndex);
+            var renataGoldExtraManaAvailable = P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(ability.AbilityId)
+                && cardObject.Tags.Contains(P4ActivatedAbilityCatalog.GoldTokenRenataBonusTag, StringComparer.Ordinal);
             var availablePowerByTrait = PlayCardAvailablePowerByTrait(
                 runePool,
                 new Dictionary<string, int>(StringComparer.Ordinal));
@@ -5299,7 +5303,9 @@ internal static class ActionPromptBuilder
                 ability.IsResourceSkill,
                 true,
                 null,
-                spellshieldTaxManaByTargetObjectId));
+                spellshieldTaxManaByTargetObjectId,
+                renataGoldExtraManaAvailable,
+                renataGoldExtraManaAvailable ? P4ActivatedAbilityCatalog.GoldTokenRenataBonusMana : 0));
         }
 
         if (zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal)
@@ -10221,6 +10227,11 @@ internal static class ActionPromptBuilder
             view["stackPolicy"] = "no-ordinary-stack-item";
             view["resourceLifecycle"] = "temporary-payment-resource-ledger";
             view["allowedPaymentKinds"] = new[] { PaymentCostRules.RuneCostPaymentKind };
+            view["renataGoldExtraManaAvailable"] = requirement.RenataGoldExtraManaAvailable;
+            view["bonusMana"] = requirement.BonusMana;
+            view["bonusTag"] = requirement.RenataGoldExtraManaAvailable
+                ? P4ActivatedAbilityCatalog.GoldTokenRenataBonusTag
+                : string.Empty;
         }
 
         if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId, StringComparison.Ordinal))

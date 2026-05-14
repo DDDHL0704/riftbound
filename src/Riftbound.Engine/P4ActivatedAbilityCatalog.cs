@@ -183,6 +183,8 @@ public static class P4ActivatedAbilityCatalog
     public const string GoldTokenUnlResourceAbilityEffectKind = "GOLD_TOKEN_UNL_REACTION_RESOURCE_DESTROY_GAIN_GENERIC_POWER";
     public const string GoldTokenSfdResourceAbilityEffectKind = "GOLD_TOKEN_SFD_REACTION_RESOURCE_DESTROY_GAIN_GENERIC_POWER";
     public const int GoldTokenGeneratedPower = 1;
+    public const string GoldTokenRenataBonusTag = "RENATA_GOLD_EXTRA_1_MANA";
+    public const int GoldTokenRenataBonusMana = 1;
     public const string GoldTokenPaymentOnlyResourceRestriction = "PAY_RUNE_COSTS_ONLY_GOLD_TEMPORARY_LEDGER_4D_03V";
 
     private static readonly P4SigilTypedResourceProfile[] SigilTypedResourceProfiles =
@@ -511,7 +513,7 @@ public static class P4ActivatedAbilityCatalog
             ExhaustsSourceAsCost: true,
             0,
             AppliesSpellshieldTargetTax: false,
-            "Stage 4D-03V opens only the UNL Gold token's base-equipment reaction-speed destroy self resource representative; Renata Gold extra mana and non-Gold token surfaces remain deferred.",
+            "Stage 4D-03V opens the UNL Gold token's base-equipment reaction-speed destroy self resource representative; Stage 4D-03W applies the Renata marker bonus while non-Gold token surfaces remain deferred.",
             IsResourceSkill: true,
             PaymentOnlyResource: true,
             GeneratedPower: GoldTokenGeneratedPower,
@@ -530,7 +532,7 @@ public static class P4ActivatedAbilityCatalog
             ExhaustsSourceAsCost: true,
             0,
             AppliesSpellshieldTargetTax: false,
-            "Stage 4D-03V opens only the SFD Gold token's base-equipment reaction-speed destroy self resource representative; Renata Gold extra mana and non-Gold token surfaces remain deferred.",
+            "Stage 4D-03V opens the SFD Gold token's base-equipment reaction-speed destroy self resource representative; Stage 4D-03W applies the Renata marker bonus while non-Gold token surfaces remain deferred.",
             IsResourceSkill: true,
             PaymentOnlyResource: true,
             GeneratedPower: GoldTokenGeneratedPower,
