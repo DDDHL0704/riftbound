@@ -3272,7 +3272,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             .ToDictionary(
                 objectId => objectId,
                 objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    ? Math.Max(0, cardObject.Power + cardObject.UntilEndOfTurnPowerModifier)
+                    ? IsStunnedForBattle(cardObject)
+                        ? 0
+                        : Math.Max(0, cardObject.Power + cardObject.UntilEndOfTurnPowerModifier)
                     : 0,
                 StringComparer.Ordinal);
     }
@@ -3300,7 +3302,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             .ToDictionary(
                 objectId => objectId,
                 objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    ? Math.Max(0, cardObject.Power + cardObject.UntilEndOfTurnPowerModifier - cardObject.Damage)
+                    ? IsStunnedForBattle(cardObject)
+                        ? 0
+                        : Math.Max(0, cardObject.Power + cardObject.UntilEndOfTurnPowerModifier - cardObject.Damage)
                     : 0,
                 StringComparer.Ordinal);
     }

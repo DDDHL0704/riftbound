@@ -2293,9 +2293,20 @@ public sealed record ResolutionResult(
 
     internal static int BattleEffectivePowerFor(MatchState state, string objectId)
     {
-        return state.CardObjects.TryGetValue(objectId, out var cardObject)
-            ? cardObject.Power + cardObject.UntilEndOfTurnPowerModifier
-            : 0;
+        if (!state.CardObjects.TryGetValue(objectId, out var cardObject))
+        {
+            return 0;
+        }
+
+        return IsStunnedForBattle(cardObject)
+            ? 0
+            : cardObject.Power + cardObject.UntilEndOfTurnPowerModifier;
+    }
+
+    private static bool IsStunnedForBattle(CardObjectState cardObject)
+    {
+        return cardObject.UntilEndOfTurnEffects.Contains("STUNNED", StringComparer.Ordinal)
+            || cardObject.Tags.Contains("眩晕", StringComparer.Ordinal);
     }
 
     internal static IReadOnlyList<string> BattleParticipantObjectIds(BattleState battle)
