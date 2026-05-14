@@ -7,6 +7,8 @@
 
 ## 0. 2026-05-13 最新状态补充
 
+2026-05-15 frontend final validation preflight 补充：`docs/CURRENT_STAGE4D_FRONTEND_FINAL_VALIDATION_PREFLIGHT.md` 已建立，只读整理最终 frontend gates。最终 READY 前仍需在最终代码状态 fresh-run `npm run build`、`npm run smoke:chrome -- --start-api` 与 `npm run e2e:formal-18 -- --start-api`；historical formal 18-step room、历史 build / smoke 通过、backend full、representative prompt tests 与 matrix skeleton 不能单独代理 final frontend validation。本批未改前端、未启动 API / Vite / Chrome；项目仍 **NOT READY**。
+
 2026-05-15 4D-03AM card matrix readiness 补充：`docs/CURRENT_STAGE4D_03AM_CARD_MATRIX_READINESS_AUDIT.md` 已建立，只读确认 Azir `SFD·050/221` / `SFD·050a/221` 共享 `FU-105abedc17`，矩阵当前仍为 `fullOfficial=false`，且 blockers 包括 engine support、FAQ review 与 automated test evidence。现有 `rules-evidence-index.md` 仅证明 ordinary play static behavior，并明确绿色迅捷位置交换、原位置记忆、武装贴附路径暂缓。因此本批不修改 card matrix JSON，不关闭 full-card audit 或 READY；项目仍 **NOT READY**。
 
 2026-05-15 Stage 4D next dispatch / writelock 补充：`docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已建立，用于把下一批 B/C/D/E 工作落到明确队列、写入范围、禁止并行文件和验收命令。本批只做 A-side planning / handoff / acceptance 归档，不实现 runtime、不改前端、不改测试、不改 card matrix，也没有向 implementation agent 发出新写入任务。下一 runtime 队列是 4D-03AM-B Azir green swift position-swap representative；D 审计、C frontend final-smoke preflight、E card matrix readiness audit 均受该文件写锁约束。该记录不关闭 P0/P1、frontend final validation、full-card audit 或 READY；项目仍 **NOT READY**。

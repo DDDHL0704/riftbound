@@ -7,6 +7,7 @@
 
 ## 1. 输入事实
 
+- 2026-05-15 frontend final validation preflight 已建立：`docs/CURRENT_STAGE4D_FRONTEND_FINAL_VALIDATION_PREFLIGHT.md` 确认最终 READY 前仍需在最终代码状态 fresh-run frontend build、Chrome smoke 与 formal 18-step E2E；历史通过记录不能代理最终验收。本审计不启动浏览器或修改前端。
 - 2026-05-15 4D-03AM card matrix readiness audit 已建立：`docs/CURRENT_STAGE4D_03AM_CARD_MATRIX_READINESS_AUDIT.md` 确认 Azir 两个 collector id 共享 `FU-105abedc17`，当前矩阵仍为 `fullOfficial=false` 且需要 engine support / FAQ review / automated test evidence。本审计不修改 matrix JSON，不允许在 B runtime 验收前升级 full-official。
 - 2026-05-15 Stage 4D next dispatch / writelock 记录已建立：`docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 明确下一批 A/B/C/D/E 队列、4D-03AM-B Azir runtime 写锁、D 审计顺序、C frontend final-smoke read-only preflight、E card matrix readiness read-only audit，以及禁止并行触碰的 core files / frontend stores / card matrix JSON / `riftbound-dotnet.sln`。该记录只做调度，不关闭 P0/P1 或 READY。
 - 2026-05-15 A-side prompt-to-artifact checklist 已建立：`docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md` 把 active goal / A_MASTER 明确门槛映射到 checkpoint、completion audit、server audit、formal 18-step evidence、DevUi package scripts 与 card matrix skeleton。该 checklist 明确 4D verifier、backend full、historical Chrome smoke、formal 18-step 与 matrix skeleton 都不能代理 P0/P1 清零；当前仍不得标记 READY。
