@@ -61,6 +61,8 @@
 
 2026-05-15 follow-up：4D-02AI 已验收上述 activation-returned held-score score-prevention next-contested advancement，且为 test-only guard。P0-004 仍 open；该切片只覆盖 `SFD·209/221` score-delay prevention representative，不代表完整 prevention / damage modification / LayerEngine 或 full official combat breadth。
 
+2026-05-15 follow-up：下一切片 4D-02AJ 转向 activation-returned assignment damage pool semantics。目标是证明 actual Shadow activation / stack resolution / returned response 后，stunned attacker 在 returned assignment prompt 与 runtime validation 的 damage pool 均为 0，旧 attacker-nonzero assignment 被拒绝，合法 zero-attacker assignment 仍能关闭当前 battle 并在 BF-A close 后推进 BF-B。
+
 ## Evidence Inspected
 
 - `docs/A_MASTER_AGENT_GOAL.md`
@@ -153,6 +155,8 @@ Suggested next goal after 4D-02Y: choose a new narrow representative from the re
 4D-02AH selected representative: natural battle response actual Shadow activation -> returned response -> Brush replacement-aware held-score payment / score / current battle close -> next contested battlefield spell duel advancement. This composes 4D-02K Brush replacement context with the next-contested advancement axis. 4D-02AH is now accepted.
 
 4D-02AI selected representative: natural battle response actual Shadow activation -> returned response -> held-score score-prevention / current battle close -> next contested battlefield spell duel advancement. This composes existing battlefield score-delay prevention with the next-contested advancement axis. 4D-02AI is now accepted.
+
+4D-02AJ selected representative: natural battle response actual Shadow activation -> returned response -> assignment prompt / runtime damage pool for a stunned attacker. This intentionally targets prompt-validation contract parity and damage assignment semantics rather than another held-score / replacement branch.
 
 Recommended representative:
 
