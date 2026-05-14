@@ -323,6 +323,147 @@ public sealed class PaymentEngineUnificationTests
     }
 
     [Fact]
+    public void PlayCardTypedOptionalPowerPromptQuotesMatchingTemporaryPaymentResource()
+    {
+        var temporaryResource = TypedTemporaryResource("FOCUS_SIGIL:TEMP-PLAY-GREEN", RuneTrait.Green);
+        var resourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var state = TinyGuardianState(new RunePool(2, 0)) with
+        {
+            TemporaryPaymentResources = [temporaryResource]
+        };
+
+        var sourceRequirement = AssertSinglePlayCardSourceRequirement(state);
+        var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["optionalCostChoices"])
+            .Select(choice => choice.Id)
+            .ToArray();
+        Assert.Contains("SPEND_POWER:green:1", optionalCostChoices);
+        Assert.Contains(resourceAction, optionalCostChoices);
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["paymentResourceChoices"])
+            .Select(choice => choice.Id)
+            .ToArray();
+        Assert.Equal([resourceAction], paymentResourceChoices);
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["availablePower"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["availablePowerWithPaymentResources"]));
+        var availablePowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
+            sourceRequirement["availablePowerByTraitWithPaymentResources"]);
+        Assert.Equal(1, availablePowerByTrait[RuneTrait.Green]);
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            sourceRequirement["paymentResourcePowerByChoice"]);
+        Assert.Equal(RuneTrait.Green, paymentResourcePowerByChoice[resourceAction]["trait"]);
+        Assert.Equal(0, paymentResourcePowerByChoice[resourceAction]["power"]);
+        var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
+            paymentResourcePowerByChoice[resourceAction]["powerByTrait"]);
+        Assert.Equal(1, powerByTrait[RuneTrait.Green]);
+    }
+
+    [Fact]
+    public void PlayCardTypedOptionalPowerPromptDoesNotQuoteWrongTraitResources()
+    {
+        const string redRuneObjectId = "P1-RUNE-RED-WRONG-TINY-GUARDIAN";
+        var redRecycleAction = $"RECYCLE_RUNE:{redRuneObjectId}";
+        var redTemporaryResource = TypedTemporaryResource("RAGE_SIGIL:TEMP-PLAY-RED-WRONG", RuneTrait.Red);
+        var redTemporaryAction = PaymentCostRules.TemporaryPaymentResourceActionId(redTemporaryResource.ResourceId);
+        var state = TinyGuardianState(new RunePool(2, 0), baseObjectIds: [redRuneObjectId]) with
+        {
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-TINY-GUARDIAN"] = TinyGuardianCard(),
+                [redRuneObjectId] = RuneCard(redRuneObjectId, RuneTrait.Red)
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-TINY-GUARDIAN"] = new("P1", "HAND"),
+                [redRuneObjectId] = new("P1", "BASE")
+            },
+            TemporaryPaymentResources = [redTemporaryResource]
+        };
+
+        var sourceRequirement = AssertSinglePlayCardSourceRequirement(state);
+        var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["optionalCostChoices"])
+            .Select(choice => choice.Id)
+            .ToArray();
+        Assert.DoesNotContain("SPEND_POWER:green:1", optionalCostChoices);
+        Assert.DoesNotContain(redRecycleAction, optionalCostChoices);
+        Assert.DoesNotContain(redTemporaryAction, optionalCostChoices);
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["paymentResourceChoices"])
+            .Select(choice => choice.Id)
+            .ToArray();
+        Assert.Empty(paymentResourceChoices);
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["availablePower"]));
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["availablePowerWithPaymentResources"]));
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
+            sourceRequirement["availablePowerByTraitWithPaymentResources"]));
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            sourceRequirement["paymentResourcePowerByChoice"]));
+    }
+
+    [Fact]
+    public async Task PlayCardTypedOptionalPowerCommitsMatchingTemporaryPaymentResource()
+    {
+        var temporaryResource = TypedTemporaryResource("FOCUS_SIGIL:TEMP-PLAY-GREEN-COMMIT", RuneTrait.Green);
+        var resourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var state = TinyGuardianState(new RunePool(2, 0)) with
+        {
+            TemporaryPaymentResources = [temporaryResource]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-play-card-typed-temporary-payment-resource", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-TINY-GUARDIAN",
+                "OGN·044/298",
+                [],
+                OptionalCosts: [resourceAction, "SPEND_POWER:green:1"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Empty(result.State.TemporaryPaymentResources);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        var spentEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
+        var spentPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(spentEvent.Payload["consumedPowerByTrait"]);
+        Assert.Equal(1, spentPowerByTrait[RuneTrait.Green]);
+        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal([resourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        Assert.Equal([temporaryResource.ResourceId], Assert.IsType<string[]>(costEvent.Payload["temporaryPaymentResourceIds"]));
+        Assert.Equal(0, costEvent.Payload["temporaryPaymentResourcePower"]);
+        var costPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]);
+        Assert.Equal(1, costPowerByTrait[RuneTrait.Green]);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task PlayCardTypedOptionalPowerRejectsWrongTraitTemporaryPaymentResourceWithoutMutation()
+    {
+        var temporaryResource = TypedTemporaryResource("RAGE_SIGIL:TEMP-PLAY-RED-REJECT", RuneTrait.Red);
+        var resourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var state = TinyGuardianState(new RunePool(2, 0)) with
+        {
+            TemporaryPaymentResources = [temporaryResource]
+        };
+        var initialHash = MatchStateHasher.Hash(state);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-play-card-wrong-trait-temporary-resource", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-TINY-GUARDIAN",
+                "OGN·044/298",
+                [],
+                OptionalCosts: [resourceAction, "SPEND_POWER:green:1"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+    }
+
+    [Fact]
     public async Task AssembleEquipmentCostPaidUsesPaymentPlanAuditMetadata()
     {
         var state = AssembleState(new RunePool(
@@ -1444,6 +1585,63 @@ public sealed class PaymentEngineUnificationTests
             });
     }
 
+    private static MatchState TinyGuardianState(RunePool runePool, IReadOnlyList<string>? baseObjectIds = null)
+    {
+        return new MatchState(
+            "payment-engine-tiny-guardian-room",
+            0,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            ["P1", "P2"],
+            "P1",
+            MatchPhases.Main,
+            TimingStates.NeutralOpen,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = runePool,
+                ["P2"] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-TINY-GUARDIAN"],
+                    Base = baseObjectIds ?? []
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-TINY-GUARDIAN"] = TinyGuardianCard()
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-TINY-GUARDIAN"] = new("P1", "HAND")
+            });
+    }
+
+    private static IReadOnlyDictionary<string, object?> AssertSinglePlayCardSourceRequirement(MatchState state)
+    {
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        return Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+    }
+
     private static MatchState AssembleState(RunePool runePool)
     {
         return new MatchState(
@@ -1864,6 +2062,17 @@ public sealed class PaymentEngineUnificationTests
             controllerId: "P1");
     }
 
+    private static CardObjectState TinyGuardianCard()
+    {
+        return new(
+            "P1-UNIT-TINY-GUARDIAN",
+            cardNo: "OGN·044/298",
+            tags: [CardObjectTags.UnitCard],
+            manaCost: 2,
+            ownerId: "P1",
+            controllerId: "P1");
+    }
+
     private static CardObjectState EnemyUnit()
     {
         return new(
@@ -1963,5 +2172,28 @@ public sealed class PaymentEngineUnificationTests
             remainingPower: remainingPower,
             allowedPaymentKinds: allowedPaymentKinds ?? [PaymentCostRules.RuneCostPaymentKind],
             createdTick: 1);
+    }
+
+    private static TemporaryPaymentResourceState TypedTemporaryResource(string resourceId, string trait)
+    {
+        var powerByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            [trait] = 1
+        };
+        var abilityId = string.Equals(trait, RuneTrait.Green, StringComparison.Ordinal)
+            ? P4ActivatedAbilityCatalog.FocusSigilResourceAbilityId
+            : P4ActivatedAbilityCatalog.RageSigilResourceAbilityId;
+        return new TemporaryPaymentResourceState(
+            resourceId,
+            "P1",
+            "P1-SIGIL",
+            abilityId,
+            "ACTIVATE_ABILITY",
+            generatedPower: 0,
+            remainingPower: 0,
+            allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind],
+            createdTick: 1,
+            generatedPowerByTrait: powerByTrait,
+            remainingPowerByTrait: powerByTrait);
     }
 }
