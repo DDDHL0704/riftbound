@@ -7,6 +7,8 @@
 
 ## 0. 2026-05-13 最新状态补充
 
+2026-05-14 4D-03Y focused slice 补充：battlefield deferred catalog representative 已验收，入口为 `docs/CURRENT_STAGE4D_03Y_BATTLEFIELD_DEFERRED_CATALOG_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03Y_BATTLEFIELD_DEFERRED_CATALOG_EVIDENCE.md`；focused 15/15、adjacent 641/641、backend full 4120/4120、`git diff --check` 通过。该补充只证明 P6 battlefield deferred catalog 不再误报四个已实现 `BATTLEFIELD_RULE_DOMAIN` representative，不关闭 P0/P1 或 READY；项目整体仍 **NOT READY**。
+
 2026-05-14 4D-03Y handoff / baseline 补充：下一服务端 catalog hygiene 切片锁定 `P6BattlefieldEffectCatalog` 旧 deferred battlefield representatives 退役，目标是让 Poro Forge / Dream Tree / Blood Altar / Blackflame Altar 四个已实现 `BATTLEFIELD_RULE_DOMAIN` representative 不再被 P6 deferred catalog 误报。入口为 `docs/CURRENT_STAGE4D_03Y_BATTLEFIELD_DEFERRED_CATALOG_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03Y_BATTLEFIELD_DEFERRED_CATALOG_BASELINE_EVIDENCE.md`；focused baseline 15/15、adjacent baseline 641/641、`git diff --check` 通过。该补充只建立实现前回归护栏，不关闭 P0/P1 或 READY；项目整体仍 **NOT READY**。
 
 2026-05-14 4D-03X focused slice 补充：legend action deferred catalog representative 已验收，入口为 `docs/CURRENT_STAGE4D_03X_LEGEND_ACTION_DEFERRED_CATALOG_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03X_LEGEND_ACTION_DEFERRED_CATALOG_EVIDENCE.md`；focused 59/59、adjacent 285/285、backend full 4120/4120、`git diff --check` 通过。该补充只证明 P6 legend deferred catalog 不再误报五个已实现 `LEGEND_ACT` representative，不关闭 P0/P1 或 READY；项目整体仍 **NOT READY**。

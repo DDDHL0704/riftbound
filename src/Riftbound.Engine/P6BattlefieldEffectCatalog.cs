@@ -10,6 +10,16 @@ public sealed record P6DeferredBattlefieldEffectSurface(
     int TargetCount,
     string Reason);
 
+public sealed record P6ImplementedBattlefieldRuleSurface(
+    string SurfaceId,
+    string SourceCardNo,
+    string DisplayName,
+    string OfficialTextAnchor,
+    string SurfaceKind,
+    bool IsActivatedCommandSurface,
+    int TargetCount,
+    string Reason);
+
 public static class P6BattlefieldEffectCatalog
 {
     public const string ActivatedGrantSurfaceKind = "activated-grant";
@@ -17,7 +27,9 @@ public static class P6BattlefieldEffectCatalog
     public const string ReplacementSurfaceKind = "replacement";
     public const string StaticKeywordSurfaceKind = "static-keyword";
 
-    private static readonly P6DeferredBattlefieldEffectSurface[] DeferredSurfaces =
+    private static readonly P6DeferredBattlefieldEffectSurface[] DeferredSurfaces = [];
+
+    private static readonly P6ImplementedBattlefieldRuleSurface[] ImplementedBattlefieldRuleSurfaces =
     [
         new(
             "BATTLEFIELD_DEFERRED_GRANT_LEGEND_EXHAUST_ATTACH_WEAPON",
@@ -27,7 +39,7 @@ public static class P6BattlefieldEffectCatalog
             ActivatedGrantSurfaceKind,
             IsActivatedCommandSurface: true,
             TargetCount: 2,
-            "P6.10 keeps battlefield-granted legend attachment abilities deferred until battlefield control, legend source exhaustion, attachment legality, and equipment target rules are generalized."),
+            "P6.10 retired this deferred representative after BATTLEFIELD_RULE_DOMAIN implemented battlefield control, legend source exhaustion, attachment legality, and equipment target rules."),
         new(
             "BATTLEFIELD_DEFERRED_FIRST_FRIENDLY_SPELL_DRAW",
             "OGN·292/298",
@@ -36,7 +48,7 @@ public static class P6BattlefieldEffectCatalog
             TriggerSurfaceKind,
             IsActivatedCommandSurface: false,
             TargetCount: 0,
-            "P6.10 keeps first-per-turn battlefield spell triggers deferred until battlefield locality and per-location trigger memory are modeled."),
+            "P6.10 retired this deferred representative after BATTLEFIELD_RULE_DOMAIN implemented battlefield locality and per-location trigger memory."),
         new(
             "BATTLEFIELD_DEFERRED_DESTROYED_IN_BATTLE_REPLACEMENT_RECALL",
             "UNL-206/219",
@@ -45,7 +57,7 @@ public static class P6BattlefieldEffectCatalog
             ReplacementSurfaceKind,
             IsActivatedCommandSurface: false,
             TargetCount: 0,
-            "P6.10 keeps battlefield destruction replacement effects deferred until replacement ordering, optional colored payments, sleep state, damage removal, and recall timing are modeled."),
+            "P6.10 retired this deferred representative after BATTLEFIELD_RULE_DOMAIN implemented replacement ordering, optional payment, sleep state, damage removal, and recall timing."),
         new(
             "BATTLEFIELD_DEFERRED_STATIC_KEYWORD_GRANT_EPHEMERAL_DEFENDER_BONUS",
             "UNL-208/219",
@@ -54,11 +66,16 @@ public static class P6BattlefieldEffectCatalog
             StaticKeywordSurfaceKind,
             IsActivatedCommandSurface: false,
             TargetCount: 0,
-            "P6.10 keeps battlefield static keyword grants deferred until location-scoped continuous effects and combat-time defender modifiers are modeled.")
+            "P6.10 retired this deferred representative after BATTLEFIELD_RULE_DOMAIN implemented location-scoped continuous effects and combat-time defender modifiers.")
     ];
 
     public static IReadOnlyList<P6DeferredBattlefieldEffectSurface> GetDeferredSurfaces()
     {
         return DeferredSurfaces;
+    }
+
+    public static IReadOnlyList<P6ImplementedBattlefieldRuleSurface> GetImplementedBattlefieldRuleSurfaces()
+    {
+        return ImplementedBattlefieldRuleSurfaces;
     }
 }

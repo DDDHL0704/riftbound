@@ -41213,11 +41213,12 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P6BattlefieldEffectCatalogAuditsDeferredSurfacesAgainstOfficialText()
+    public async Task P6BattlefieldEffectCatalogAuditsImplementedBattlefieldRuleRepresentativesAgainstOfficialText()
     {
-        var surfaces = P6BattlefieldEffectCatalog.GetDeferredSurfaces();
+        var surfaces = P6BattlefieldEffectCatalog.GetImplementedBattlefieldRuleSurfaces();
 
         Assert.Equal(4, surfaces.Count);
+        Assert.Empty(P6BattlefieldEffectCatalog.GetDeferredSurfaces());
         Assert.Contains(surfaces, surface => surface.IsActivatedCommandSurface);
         Assert.Contains(surfaces, surface => !surface.IsActivatedCommandSurface);
         Assert.Contains(surfaces, surface => string.Equals(
@@ -41236,9 +41237,24 @@ public sealed class ConformanceFixtureRunnerTests
         {
             Assert.False(P4ActivatedAbilityCatalog.TryGetByAbilityId(surface.SurfaceId, out _));
             Assert.False(string.IsNullOrWhiteSpace(surface.Reason));
+            Assert.Contains("BATTLEFIELD_RULE_DOMAIN", surface.Reason, StringComparison.Ordinal);
         });
 
         var officialCatalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var functionalUnits = FunctionalUnitBuilder.Build(officialCatalog.Cards);
+        var implementedBehaviors = OfficialRuleDomainBehaviorCatalog.MergeWithNonPlayCardDomains(
+            officialCatalog.Cards,
+            CardBehaviorRegistry.GetAll()
+                .Select(definition => new ImplementedCardBehavior(
+                    definition.CardNo,
+                    definition.EffectKind,
+                    definition.DisplayName))
+                .ToArray());
+        var behaviorSpecs = BehaviorSpecCatalogBuilder.Build(
+            officialCatalog.Cards,
+            functionalUnits,
+            implementedBehaviors);
+
         foreach (var surface in surfaces)
         {
             var officialCard = officialCatalog.Cards.Single(card =>
@@ -41248,6 +41264,10 @@ public sealed class ConformanceFixtureRunnerTests
             Assert.Equal("战场", officialCard.CardCategoryName);
             Assert.Contains(surface.OfficialTextAnchor, officialCard.CardEffect, StringComparison.Ordinal);
             Assert.False(CardBehaviorRegistry.TryGetByCardNo(surface.SourceCardNo, out _));
+            Assert.Contains(behaviorSpecs, spec =>
+                string.Equals(spec.CardNo, surface.SourceCardNo, StringComparison.Ordinal)
+                && string.Equals(spec.Status, BehaviorImplementationStatuses.Implemented, StringComparison.Ordinal)
+                && string.Equals(spec.ImplementedEffectKind, OfficialRuleDomainBehaviorCatalog.BattlefieldRuleDomainEffectKind, StringComparison.Ordinal));
 
             switch (surface.SurfaceKind)
             {
@@ -41271,22 +41291,22 @@ public sealed class ConformanceFixtureRunnerTests
         }
     }
 
-    public static IEnumerable<object[]> P6DeferredBattlefieldActivatedSurfaceData()
+    public static IEnumerable<object[]> P6ImplementedBattlefieldRuleActivatedSurfaceData()
     {
-        return P6BattlefieldEffectCatalog.GetDeferredSurfaces()
+        return P6BattlefieldEffectCatalog.GetImplementedBattlefieldRuleSurfaces()
             .Where(surface => surface.IsActivatedCommandSurface)
             .Select(surface => new object[] { surface });
     }
 
     [Theory]
-    [MemberData(nameof(P6DeferredBattlefieldActivatedSurfaceData))]
-    public async Task P6ActivateAbilityCommandRejectsBattlefieldDeferredCommandSurfacesOutsideRegistry(
-        P6DeferredBattlefieldEffectSurface surface)
+    [MemberData(nameof(P6ImplementedBattlefieldRuleActivatedSurfaceData))]
+    public async Task P6ActivateAbilityCommandRejectsImplementedBattlefieldRuleCommandRepresentativesOutsideRegistry(
+        P6ImplementedBattlefieldRuleSurface surface)
     {
         var targetObjectIds = Enumerable.Range(1, surface.TargetCount)
             .Select(index => $"P1-BATTLEFIELD-TARGET-{index:000}")
             .ToArray();
-        var battlefieldObjectIds = new[] { "P1-BATTLEFIELD-DEFERRED-SOURCE" }
+        var battlefieldObjectIds = new[] { "P1-BATTLEFIELD-RULE-SOURCE" }
             .Concat(targetObjectIds)
             .ToArray();
         var cardObjects = targetObjectIds
@@ -41299,9 +41319,9 @@ public sealed class ConformanceFixtureRunnerTests
             .Concat(
             [
                 new KeyValuePair<string, CardObjectState>(
-                    "P1-BATTLEFIELD-DEFERRED-SOURCE",
+                    "P1-BATTLEFIELD-RULE-SOURCE",
                     new CardObjectState(
-                        "P1-BATTLEFIELD-DEFERRED-SOURCE",
+                        "P1-BATTLEFIELD-RULE-SOURCE",
                         power: 0,
                         cardNo: surface.SourceCardNo,
                         ownerId: "P1",
@@ -41333,9 +41353,9 @@ public sealed class ConformanceFixtureRunnerTests
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
-            new PlayerIntent($"intent-p6-battlefield-deferred-{surface.SurfaceId}", "P1", "ACTIVATE_ABILITY"),
+            new PlayerIntent($"intent-p6-battlefield-rule-activate-ability-reject-{surface.SurfaceId}", "P1", "ACTIVATE_ABILITY"),
             new ActivateAbilityCommand(
-                "P1-BATTLEFIELD-DEFERRED-SOURCE",
+                "P1-BATTLEFIELD-RULE-SOURCE",
                 surface.SurfaceId,
                 targetObjectIds),
             CancellationToken.None);
@@ -41349,7 +41369,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new RunePool(10, 10), result.State.RunePools["P1"]);
         Assert.Equal(3, result.State.PlayerExperience["P1"]);
         Assert.Equal(battlefieldObjectIds, result.State.PlayerZones["P1"].Battlefields);
-        Assert.False(result.State.CardObjects["P1-BATTLEFIELD-DEFERRED-SOURCE"].IsExhausted);
+        Assert.False(result.State.CardObjects["P1-BATTLEFIELD-RULE-SOURCE"].IsExhausted);
         foreach (var targetObjectId in targetObjectIds)
         {
             Assert.Equal(0, result.State.CardObjects[targetObjectId].Damage);
