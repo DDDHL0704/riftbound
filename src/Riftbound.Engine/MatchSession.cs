@@ -2980,11 +2980,13 @@ public sealed record ResolutionResult(
     {
         var battlefieldObjectIds = state.PlayerZones
             .OrderBy(entry => state.Seats.TryGetValue(entry.Key, out var seat) ? seat : entry.Key, StringComparer.Ordinal)
-            .SelectMany(entry => entry.Value.Battlefields.Select(objectId => new Dictionary<string, object?>
-            {
-                ["playerId"] = entry.Key,
-                ["objectId"] = objectId
-            }))
+            .SelectMany(entry => entry.Value.Battlefields
+                .Where(objectId => !IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId))
+                .Select(objectId => new Dictionary<string, object?>
+                {
+                    ["playerId"] = entry.Key,
+                    ["objectId"] = objectId
+                }))
             .ToArray();
 
         return new Dictionary<string, object?>

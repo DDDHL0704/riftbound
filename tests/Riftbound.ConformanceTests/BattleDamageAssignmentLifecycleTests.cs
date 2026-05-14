@@ -904,6 +904,80 @@ public sealed class BattleDamageAssignmentLifecycleTests
     }
 
     [Fact]
+    public async Task NaturalBattlefieldControlCleanupRemovesIllegalStandbyBeforeAdvancingNextContestedTask()
+    {
+        var state = BuildControlChangeStandbyCleanupNaturalStartBattleState();
+        AssertOpponentHiddenStandbyRedacted(ResolutionResult.BuildSnapshots(state)["P1"], HiddenStandbyObjectId);
+        AssertHiddenStandbyIdentityRedactedFromUnauthorizedProjection(state, HiddenStandbyObjectId);
+
+        var opened = await DeclareAssignmentBattleAsync(state);
+        Assert.True(opened.Accepted, opened.ErrorMessage);
+        Assert.True(opened.State.BattleState.IsActive);
+        Assert.Equal(PromptTypes.AssignCombatDamage, opened.Prompts["P1"].View?.Type);
+        Assert.Equal($"task:start-battle:{BattlefieldObjectId}", opened.State.PendingTaskQueue.ActiveTaskId);
+        AssertHiddenStandbyIdentityRedactedFromUnauthorizedProjection(opened.State, HiddenStandbyObjectId);
+
+        var assigned = await new CoreRuleEngine().ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-natural-control-cleanup-assign-damage", "P1", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, LegalAssignments()),
+            CancellationToken.None);
+
+        Assert.True(assigned.Accepted, assigned.ErrorMessage);
+        var controlEventIndex = EventIndex(assigned.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTROL_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, BattlefieldObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["previousControllerId"] as string, "P2", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["controllerId"] as string, "P1", StringComparison.Ordinal)
+            && gameEvent.Payload["changed"] is true);
+        var standbyRemovedEventIndex = EventIndex(assigned.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_STANDBY_REMOVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, BattlefieldObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_CONTROL_CLEANUP", StringComparison.Ordinal));
+        var nextContestEventIndex = EventIndex(assigned.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
+        var nextSpellDuelStartedEventIndex = EventIndex(assigned.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
+        Assert.True(controlEventIndex < standbyRemovedEventIndex);
+        Assert.True(standbyRemovedEventIndex < nextContestEventIndex);
+        Assert.True(nextContestEventIndex < nextSpellDuelStartedEventIndex);
+
+        var standbyRemovedEvent = assigned.Events[standbyRemovedEventIndex];
+        Assert.Equal(
+            [HiddenStandbyObjectId],
+            Assert.IsAssignableFrom<IEnumerable<object?>>(standbyRemovedEvent.Payload["removedObjectIds"])
+                .Cast<string>()
+                .ToArray());
+        Assert.Contains(HiddenStandbyObjectId, assigned.State.PlayerZones["P2"].Graveyard);
+        Assert.DoesNotContain(HiddenStandbyObjectId, assigned.State.PlayerZones["P2"].Battlefields);
+        Assert.False(assigned.State.CardObjects[HiddenStandbyObjectId].IsFaceDown);
+        Assert.Equal("P2", assigned.State.CardObjects[HiddenStandbyObjectId].ControllerId);
+        var standbyLocation = assigned.State.ObjectLocations[HiddenStandbyObjectId];
+        Assert.Equal("P2", standbyLocation.PlayerId);
+        Assert.Equal("GRAVEYARD", standbyLocation.Zone);
+        Assert.Null(standbyLocation.BattlefieldObjectId);
+
+        Assert.False(assigned.State.BattleState.IsActive);
+        Assert.DoesNotContain(
+            assigned.State.PendingTaskQueue.Tasks,
+            task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
+                && string.Equals(task.BattlefieldObjectId, BattlefieldObjectId, StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            assigned.State.PendingTaskQueue.Tasks,
+            task => string.Equals(task.Kind, "REMOVE_ILLEGAL_STANDBY", StringComparison.Ordinal)
+                || string.Equals(task.ObjectId, HiddenStandbyObjectId, StringComparison.Ordinal));
+        Assert.Equal(TimingStates.SpellDuelOpen, assigned.State.TimingState);
+        Assert.Equal("SPELL_DUEL_TASKS", assigned.State.PendingTaskQueue.Phase);
+        Assert.Equal($"task:start-spell-duel:{NextBattlefieldObjectId}", assigned.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(PromptTypes.SpellDuelFocus, assigned.Prompts["P1"].View?.Type);
+        Assert.Equal(NextBattlefieldObjectId, assigned.Prompts["P1"].View?.RelatedBattlefieldId);
+        Assert.NotEqual(PromptTypes.AssignCombatDamage, assigned.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.BattleDeclaration, assigned.Prompts["P1"].View?.Type);
+    }
+
+    [Fact]
     public async Task NaturalAssignCombatDamageEmitsNoResultWhenAllParticipantsDestroyed()
     {
         var state = BuildNoResultNaturalStartBattleState();
@@ -1066,6 +1140,46 @@ public sealed class BattleDamageAssignmentLifecycleTests
         cardObjects[SecondAttackerObjectId] = cardObjects[SecondAttackerObjectId] with { Power = 5, Damage = 4 };
         cardObjects[BackRowDefenderObjectId] = cardObjects[BackRowDefenderObjectId] with { Power = 4 };
         return state with { CardObjects = cardObjects };
+    }
+
+    private static MatchState BuildControlChangeStandbyCleanupNaturalStartBattleState()
+    {
+        var state = BuildNaturalStartBattleState(includeNextContest: true);
+        var playerZones = new Dictionary<string, PlayerZones>(state.PlayerZones, StringComparer.Ordinal)
+        {
+            ["P2"] = state.PlayerZones["P2"] with
+            {
+                Battlefields = state.PlayerZones["P2"].Battlefields
+                    .Concat([HiddenStandbyObjectId])
+                    .ToArray()
+            }
+        };
+        var cardObjects = new Dictionary<string, CardObjectState>(state.CardObjects, StringComparer.Ordinal)
+        {
+            [BattlefieldObjectId] = state.CardObjects[BattlefieldObjectId] with
+            {
+                OwnerId = "P2",
+                ControllerId = "P2"
+            },
+            [HiddenStandbyObjectId] = new CardObjectState(
+                HiddenStandbyObjectId,
+                cardNo: null,
+                isFaceDown: true,
+                power: 1,
+                tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                ownerId: "P2",
+                controllerId: "P2")
+        };
+        var objectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations, StringComparer.Ordinal)
+        {
+            [HiddenStandbyObjectId] = new("P2", "BATTLEFIELD", BattlefieldObjectId)
+        };
+        return state with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = objectLocations
+        };
     }
 
     private static MatchState BuildBrushReplacementNaturalStartBattleState()
@@ -1539,6 +1653,16 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.DoesNotContain("BATTLE_RESPONSE_DECLARATION_CONTEXT", JsonSerializer.Serialize(session.PromptFor(promptPlayerId)));
     }
 
+    private static void AssertHiddenStandbyIdentityRedactedFromUnauthorizedProjection(
+        MatchState state,
+        string hiddenObjectId)
+    {
+        var session = new MatchSession(state, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        Assert.DoesNotContain(hiddenObjectId, JsonSerializer.Serialize(session.SnapshotFor("P1")), StringComparison.Ordinal);
+        Assert.DoesNotContain(hiddenObjectId, JsonSerializer.Serialize(ResolutionResult.BuildSpectatorSnapshot(state)), StringComparison.Ordinal);
+        Assert.DoesNotContain(hiddenObjectId, JsonSerializer.Serialize(session.PromptFor("P1")), StringComparison.Ordinal);
+    }
+
     private static void AssertOpponentHiddenStandbyRedacted(SnapshotDto snapshot, string hiddenObjectId)
     {
         var opponentZones = ZoneView(PlayerView(snapshot, "P2"));
@@ -1572,5 +1696,19 @@ public sealed class BattleDamageAssignmentLifecycleTests
     private static IReadOnlyList<string> StringList(object? value)
     {
         return Assert.IsAssignableFrom<IReadOnlyList<string>>(value);
+    }
+
+    private static int EventIndex(IReadOnlyList<GameEvent> events, Predicate<GameEvent> predicate)
+    {
+        for (var eventIndex = 0; eventIndex < events.Count; eventIndex++)
+        {
+            if (predicate(events[eventIndex]))
+            {
+                return eventIndex;
+            }
+        }
+
+        Assert.Fail("Expected event was not emitted.");
+        return -1;
     }
 }
