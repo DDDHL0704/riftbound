@@ -27,6 +27,8 @@
 
 2026-05-15 follow-up：下一切片 4D-02AA 转向对称的 battle-response held result ordering representative。目标是证明 natural battle response pass -> assignment 后，防守方 Hunt held result 的 `BATTLEFIELD_HELD` / `EXPERIENCE_GAINED` 先于 cleanup、`BATTLE_CLOSED`、`BATTLEFIELD_CONTROL_RESOLVED` 和 `BF-NEXT` 推进。
 
+2026-05-15 follow-up：4D-02AA 已验收上述 response-pass assignment Hunt held result ordering representative，并修复 assignment prompt 分支缺少 defender-held Hunt result / experience 的 runtime gap。P0-004 仍 open；该切片只覆盖 Hunt held representative，不代表完整 held-trigger / held-score payment / replacement / prevention result matrix。
+
 ## Evidence Inspected
 
 - `docs/A_MASTER_AGENT_GOAL.md`
@@ -55,6 +57,7 @@
 - Multiple legal response source breadth now has one representative: two ready Shadow sources can be exposed together and consumed sequentially in the same battle response window before next battlefield advancement.
 - Stale/no-effect response target breadth now has one representative: Shadow no-effects when its target stops attacking inside battle response stack resolution, then returns to response priority before next battlefield advancement.
 - Battle-result ordering now has one response-pass assignment Hunt conquer representative: `BATTLEFIELD_CONQUERED` / `EXPERIENCE_GAINED` happen before damage cleanup, battle close, battlefield control resolution, and next contested battlefield advancement.
+- Battle-result ordering now also has one response-pass assignment Hunt held representative: `BATTLEFIELD_HELD` / `EXPERIENCE_GAINED` happen before damage cleanup, battle close, battlefield control resolution, and next contested battlefield advancement.
 - `ASSIGN_COMBAT_DAMAGE` runtime has representative guards for stale prompt, illegal command no-mutation, simultaneous damage, cleanup, battle close, battlefield control, no-result, persisted `BattleResolutionState`, and current battle task cleanup.
 - Next contested battlefield advancement is guarded for:
   - ordinary assignment battle close;
@@ -120,4 +123,4 @@ Expected guard:
 
 ## Verdict
 
-4D-02B through 4D-02Z materially narrowed P0-004, especially activation-returned assignment / immediate / payment / no-result task advancement, cleanup-blocker ordering, precise object-location preservation for nonparticipant response sources, same-turn completed battlefield skip policy, one nested battle-response stack representative, one multiple-legal-source response representative, one stale-target no-effect response representative, and one response-pass assignment Hunt conquer result-ordering representative. Project remains **NOT READY**.
+4D-02B through 4D-02AA materially narrowed P0-004, especially activation-returned assignment / immediate / payment / no-result task advancement, cleanup-blocker ordering, precise object-location preservation for nonparticipant response sources, same-turn completed battlefield skip policy, one nested battle-response stack representative, one multiple-legal-source response representative, one stale-target no-effect response representative, and response-pass assignment Hunt conquer / held result-ordering representatives. Project remains **NOT READY**.
