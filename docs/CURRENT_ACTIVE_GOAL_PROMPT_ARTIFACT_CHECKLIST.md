@@ -25,7 +25,7 @@
 ## 2. 本次检查过的证据
 
 - `git status --short --branch`：当前 `main`，仅 `riftbound-dotnet.sln` 未跟踪。
-- `git log --oneline -6`：最新提交为 `ae6aaed2 test: add resource skill payment coverage audit`。
+- `git log --oneline -6`：本 checklist 建立后又新增 4D-03AM handoff / baseline；截至 dispatch 文档更新前一提交为 `438e722c docs: prepare azir payment engine handoff`。
 - `git diff --check`：通过。
 - `docs/A_MASTER_AGENT_GOAL.md`：目标、阶段门槛、18 步 E2E、checkpoint 与 final audit 要求。
 - `docs/CURRENT_A_MASTER_CHECKPOINT.md`：最新 A-master 恢复入口与 4D-03AL 验收摘要。
@@ -52,9 +52,9 @@ fullOfficialFalse=811
 |---|---|---|---|---|
 | 按 `docs/A_MASTER_AGENT_GOAL.md` 管理 | A-master 目标文档必须存在并作为最高级本地交付口径 | `docs/A_MASTER_AGENT_GOAL.md` 已读取；goal 文本与该文件一致 | OK / ONGOING | 后续任何 READY 判断都必须回到本 checklist 与 final audit |
 | A 维护 checkpoint | `docs/CURRENT_A_MASTER_CHECKPOINT.md` 最新、可恢复、含当前结论 | 文件顶部记录 4D-03AL、backend full 4245/4245、项目 NOT READY；本 checklist 已挂回 checkpoint | PARTIAL | 后续每批继续保持 checkpoint 同步 |
-| A 维护任务拆分 / 子 agent 分工 | A-master agent pool、写锁、下一步计划 | `A_MASTER_AGENT_GOAL.md` §7/§8；checkpoint 记录 A/B/C/D/E 职责 | PARTIAL | 当前未新增子 agent；后续功能实现仍需按写入范围派发 |
+| A 维护任务拆分 / 子 agent 分工 | A-master agent pool、写锁、下一步计划 | `A_MASTER_AGENT_GOAL.md` §7/§8；checkpoint 记录 A/B/C/D/E 职责；`CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已建立下一批队列 | QUEUED / ONGOING | 当前未新增子 agent、未发新实现写入任务；后续 4D-03AM-B 仍需明确 dispatch |
 | A 维护阻断清单 | P0/P1 closure plan 与 completion audit | `CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md` 仍列 P0-002/P0-003/P0-004/P0-005 与 P1 residuals | NOT MET | P0/P1 未清零 |
-| A 控制写入范围 | 不并行改核心模块；本批只改 docs | 本批计划只新增 audit doc 并更新 checkpoint / completion audit | OK FOR THIS SLICE | 后续 runtime / frontend / matrix 改动仍需明确 owner |
+| A 控制写入范围 | 不并行改核心模块；本批只改 docs | 本批新增 dispatch / writelock doc 并更新 checkpoint / completion audit / closure plan | OK FOR THIS SLICE | 后续 runtime / frontend / matrix 改动必须按 dispatch 文档独占 owner |
 | 默认不写功能代码 | 本批不修改 `src/**`、测试代码或矩阵 JSON | `git diff --check` 通过；本批只做 doc audit | OK FOR THIS SLICE | 不代表后续功能缺口已解决 |
 | 服务端唯一规则权威 | 服务端输出 authoritative snapshot、prompt、事件、规则裁决 | `CURRENT_SERVER_RULE_AUDIT.md` 与 Stage 4D docs 证明大量 representative server-authority paths | PARTIAL | full official battle / PaymentEngine / LayerEngine / card effects 仍未闭合 |
 | 前端只展示 authoritative snapshot | 前端不得持有隐藏信息或本地裁决规则 | `CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md` 断言页面不暴露 raw hidden-info 文本；frontend plan 多处记录不本地推断 | PARTIAL | 最终前端 contract audit 与 fresh Chrome smoke 仍需在 READY 前复跑 |
@@ -89,12 +89,12 @@ fullOfficialFalse=811
 | §5 服务端权威 | 前端不得推断目标、费用、胜负等 | server audit / frontend plan 均要求如此 | PARTIAL，需最终 contract audit |
 | §6 A 边界 | A 读文档、规划、审计；默认不写功能代码 | 本批是 A-side doc audit | OK FOR THIS SLICE |
 | §7 常驻子 agent | 优先复用 B/C/D/E，避免无目的重建 | 本批未新增 agent | OK FOR THIS SLICE |
-| §8 写入边界 | B/C/D/E 各自写入范围，不并行改核心模块 | 本批无功能写锁冲突 | OK FOR THIS SLICE |
+| §8 写入边界 | B/C/D/E 各自写入范围，不并行改核心模块 | `CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已明确 4D-03AM-B、D、C、E 顺序与禁改文件 | OK FOR THIS SLICE / ONGOING |
 | §9 P0 / P1 定义 | 根据 P0/P1 标准判断 READY | closure plan / server audit 仍有 open risks | NOT MET |
 | §10 阶段 0-4 | checkpoint、协议、前端、对战桌面、卡牌覆盖 | Stage 0-3 有大量证据；Stage 4 full-card 未完成 | PARTIAL |
 | §10 阶段 5 | full test、build、smoke、18-step、hidden info、P0/P1、matrix、READY | full test / historical build / smoke / 18-step 有证据，P0/P1 与 matrix 未满足 | NOT MET |
 | §11 18 步 1-18 | 双浏览器、房间、卡组、开局、出牌、移动、窗口、让过、得分、胜负 | formal evidence table 已逐步映射 1-18 | PASS FOR MAIN FLOW |
-| §12 checkpoint 1-14 | 时间、阶段、分支、agent id、任务、已完成/未完成、P0/P1/P2、测试、合并、下一步、禁改文件 | `CURRENT_A_MASTER_CHECKPOINT.md` 是恢复入口；本 checklist 已挂回该文件顶部 | PARTIAL |
+| §12 checkpoint 1-14 | 时间、阶段、分支、agent id、任务、已完成/未完成、P0/P1/P2、测试、合并、下一步、禁改文件 | `CURRENT_A_MASTER_CHECKPOINT.md` 是恢复入口；本 checklist 与 dispatch / writelock doc 已挂回该文件顶部 | PARTIAL / ONGOING |
 | §13 final audit 1-14 | 修改 / 新增文件、规则、前端、契约、矩阵、隐藏信息、测试、build、smoke、E2E、P0/P1、P2、READY | `CURRENT_COMPLETION_AUDIT.md` 仍是 NOT READY current audit | NOT MET |
 | §14 防止项 | 防止多 agent 冲突、前端裁决、泄漏、live data、无证据宣称、未测合并、未审计 READY | 本 checklist 专门阻止 proxy evidence 越权 | OK / ONGOING |
 
@@ -130,4 +130,4 @@ fullOfficialFalse=811
 
 Active goal **未完成**。不得调用 `update_goal complete`。
 
-下一批应继续沿 `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md` 收口 P0-004 / P0-005 与 P1 LayerEngine / keyword / hidden-info replay residuals，或先把前端 contract / final smoke fresh-run 需要的命令与写锁准备成 handoff。卡牌覆盖矩阵必须等 P0/P1 规则域进一步收敛后，才能从 representative evidence 提升为 full-official coverage。
+下一批调度和写锁已落到 `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`：优先 4D-03AM-B Azir green swift position-swap runtime slice，D 在 B diff / tests 后审计，C 只做 frontend contract / final smoke fresh-run preflight，E 只做 card matrix readiness read-only audit。卡牌覆盖矩阵必须等 P0/P1 规则域进一步收敛后，才能从 representative evidence 提升为 full-official coverage。
