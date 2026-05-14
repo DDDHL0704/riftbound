@@ -4084,6 +4084,7 @@ internal static class ActionPromptBuilder
     private const string MoveUnitBaseZone = "BASE";
     private const string MoveUnitRoamOptionalCost = "ROAM";
     private const string MoveUnitRoamKeyword = "游走";
+    private const string BaronNestMoveStaticPermission = "BARON_NEST_MOVE_STATIC";
 
     private sealed record MoveUnitPromptRequirement(
         string SourceObjectId,
@@ -5016,6 +5017,29 @@ internal static class ActionPromptBuilder
                     null));
             }
 
+            if (TryMoveUnitPreciseBattlefieldOrigin(state, playerId, objectId, zones, out var baronOrigin, out var baronOriginLabel))
+            {
+                var baronNestDestinations = MoveUnitBaronNestDestinationChoices(
+                    state,
+                    playerId,
+                    baronOrigin)
+                    .ToArray();
+                if (baronNestDestinations.Length > 0)
+                {
+                    requirements.Add(new MoveUnitPromptRequirement(
+                        objectId,
+                        baronOrigin,
+                        baronOriginLabel,
+                        BaronNestMoveStaticPermission,
+                        "男爵巢穴",
+                        baronNestDestinations,
+                        [],
+                        [],
+                        true,
+                        null));
+                }
+            }
+
             if (!HasMoveUnitPromptRoamPermission(state, playerId, objectId, zones)
                 || !TryMoveUnitPreciseBattlefieldOrigin(state, playerId, objectId, zones, out var preciseOrigin, out var preciseOriginLabel))
             {
@@ -5077,6 +5101,30 @@ internal static class ActionPromptBuilder
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
                 && string.Equals(cardObject.CardNo, BattlefieldStaticRoamCardNo, StringComparison.Ordinal)
                 && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
+    }
+
+    private static IEnumerable<ActionPromptChoiceDto> MoveUnitBaronNestDestinationChoices(
+        MatchState state,
+        string playerId,
+        string origin)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return [];
+        }
+
+        return zones.Battlefields
+            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, P6TokenFactoryCatalog.BaronNestTokenCardNo, StringComparison.Ordinal)
+                && IsPromptBattlefieldCardObject(cardObject)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
+            .Select(objectId => new ActionPromptChoiceDto(
+                $"{MoveUnitBattlefieldZone}:{objectId}",
+                BattlefieldLocationLabel(state, objectId),
+                "implemented Baron Nest destination-specific movement"))
+            .Where(choice => !string.Equals(choice.Id, origin, StringComparison.Ordinal))
+            .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+            .Select(group => group.First());
     }
 
     private static bool HasBilgewaterBullyBoonPromptRoamPermission(CardObjectState sourceState)
@@ -10355,7 +10403,7 @@ internal static class ActionPromptBuilder
     private static IReadOnlyDictionary<string, object?> MoveUnitSourceRequirementView(
         MoveUnitPromptRequirement requirement)
     {
-        return new Dictionary<string, object?>
+        var view = new Dictionary<string, object?>
         {
             ["sourceObjectId"] = requirement.SourceObjectId,
             ["origin"] = requirement.Origin,
@@ -10368,6 +10416,13 @@ internal static class ActionPromptBuilder
             ["composable"] = requirement.Composable,
             ["unsupportedReason"] = requirement.UnsupportedReason
         };
+        if (string.Equals(requirement.Mode, BaronNestMoveStaticPermission, StringComparison.Ordinal))
+        {
+            view["movementPermission"] = BaronNestMoveStaticPermission;
+            view["requiresRoamOptionalCost"] = false;
+        }
+
+        return view;
     }
 
     private static IReadOnlyDictionary<string, object?> PlayCardMetadataFor(MatchState state, string playerId)

@@ -73,9 +73,13 @@ public sealed class GoldTokenResourceSkillTests
             surface.SurfaceId,
             "TOKEN_DEFERRED_BRUSH_BATTLEFIELD_REPLACEMENT",
             StringComparison.Ordinal));
-        Assert.Contains(surfaces, surface => string.Equals(
+        Assert.DoesNotContain(surfaces, surface => string.Equals(
             surface.SurfaceId,
-            "TOKEN_DEFERRED_BARON_NEST_MOVE_STATIC",
+            P6TokenFactoryCatalog.BaronNestMoveStaticSurfaceId,
+            StringComparison.Ordinal));
+        Assert.Contains(P6TokenFactoryCatalog.GetImplementedRuleSurfaces(), surface => string.Equals(
+            surface.SurfaceId,
+            P6TokenFactoryCatalog.BaronNestMoveStaticSurfaceId,
             StringComparison.Ordinal));
     }
 

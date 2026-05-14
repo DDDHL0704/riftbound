@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 2026-05-14 Stage 4D-03Z focused slice 已验收：`UNL·T01` 男爵巢穴 token battlefield static 已接入服务端 `MOVE_UNIT` / prompt / catalog audit，支持 no-ROAM destination-specific movement to controlled Baron Nest；审计入口为 `docs/CURRENT_STAGE4D_03Z_TOKEN_FACTORY_BARON_NEST_STATIC_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_03Z_TOKEN_FACTORY_BARON_NEST_STATIC_EVIDENCE.md`；focused 77/77、adjacent 345/345、backend full 4131/4131、`git diff --check` 通过。本批不修改前端运行时代码；前端仍只展示并提交服务端 prompt 中的合法 movement requirement。项目仍 **NOT READY**。
+
 - 2026-05-14 Stage 4D-03Z handoff / baseline 已建立：下一服务端 token battlefield static 切片锁定 `UNL·T01` 男爵巢穴 no-ROAM destination-specific movement。交接入口为 `docs/CURRENT_STAGE4D_03Z_TOKEN_FACTORY_BARON_NEST_STATIC_HANDOFF.md`，实现前基线为 `docs/CURRENT_STAGE4D_03Z_TOKEN_FACTORY_BARON_NEST_STATIC_BASELINE_EVIDENCE.md`；focused baseline 66/66、`git diff --check` 通过。本切片预计只改服务端 prompt / movement / catalog 测试，前端仍必须只消费服务端 ActionPrompt / authoritative snapshot，不做本地移动推断；项目仍 **NOT READY**。
 
 - 2026-05-14 Stage 4D-03Y focused slice 已验收：`P6BattlefieldEffectCatalog` 不再把 Poro Forge / Dream Tree / Blood Altar / Blackflame Altar 四个已实现 battlefield representatives 暴露为 deferred surfaces；新增 implemented representative audit list 继续证明它们属于 battlefield rule domain / `BATTLEFIELD_RULE_DOMAIN`，并且 activated-grant hand-written `ACTIVATE_ABILITY` 仍被服务端中文拒绝。审计入口为 `docs/CURRENT_STAGE4D_03Y_BATTLEFIELD_DEFERRED_CATALOG_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_03Y_BATTLEFIELD_DEFERRED_CATALOG_EVIDENCE.md`；focused 15/15、adjacent 641/641、backend full 4120/4120、`git diff --check` 通过。本批不修改前端运行时代码；前端仍只能展示并提交服务端 `ActionPrompt` / battlefield snapshot 暴露的合法战场动作。项目仍 **NOT READY**。

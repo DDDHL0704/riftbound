@@ -28,6 +28,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string MoveUnitBattlefieldZone = "BATTLEFIELD";
     private const string MoveUnitRoamOptionalCost = "ROAM";
     private const string MoveUnitRoamKeyword = "游走";
+    private const string BaronNestMoveStaticPermission = "BARON_NEST_MOVE_STATIC";
     private const string AssembleEquipmentUnsupportedMessage = "当前装备装配路径尚未由服务端开放。";
     private const string LongSwordCardNo = "SFD·022/221";
     private const string LongSwordAssembleOptionalCost = "ASSEMBLE_RED";
@@ -12718,6 +12719,22 @@ public sealed class CoreRuleEngine : IRuleEngine
                 optionalCosts);
         }
 
+        if (originUsesPreciseLocation
+            && destinationUsesPreciseLocation
+            && string.Equals(originZone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && string.Equals(destinationZone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && optionalCosts.Count == 0
+            && TryGetBaronNestMoveDestination(state, command.Destination, out _))
+        {
+            return ResolveBaronNestMoveUnit(
+                state,
+                intent,
+                command,
+                originZone,
+                destinationZone,
+                optionalCosts);
+        }
+
         if (originUsesPreciseLocation || destinationUsesPreciseLocation)
         {
             return ResolvePreciseRoamMoveUnit(
@@ -13187,6 +13204,206 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolveBaronNestMoveUnit(
+        MatchState state,
+        PlayerIntent intent,
+        MoveUnitCommand command,
+        string originZone,
+        string destinationZone,
+        IReadOnlyList<string> optionalCosts)
+    {
+        var originLocation = NormalizeMoveUnitLocation(command.Origin);
+        var destinationLocation = NormalizeMoveUnitLocation(command.Destination);
+        var originBattlefieldObjectId = PreciseBattlefieldLocationObjectId(originLocation);
+        var destinationBattlefieldObjectId = PreciseBattlefieldLocationObjectId(destinationLocation);
+        if (string.IsNullOrWhiteSpace(originBattlefieldObjectId)
+            || string.IsNullOrWhiteSpace(destinationBattlefieldObjectId)
+            || string.Equals(originBattlefieldObjectId, destinationBattlefieldObjectId, StringComparison.Ordinal)
+            || !state.CardObjects.TryGetValue(destinationBattlefieldObjectId, out var destinationBattlefield)
+            || !string.Equals(destinationBattlefield.CardNo, P6TokenFactoryCatalog.BaronNestTokenCardNo, StringComparison.Ordinal)
+            || !IsBattlefieldCardObject(destinationBattlefield)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(destinationBattlefield, intent.PlayerId)
+            || !state.PlayerZones.TryGetValue(intent.PlayerId, out var zones)
+            || !zones.Battlefields.Contains(destinationBattlefieldObjectId, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "男爵巢穴移动需要选择当前玩家控制的男爵巢穴作为目的地。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var sourceLocation = FindFieldObjectLocation(state.PlayerZones, command.SourceObjectId);
+        if (sourceLocation is null
+            || !string.Equals(sourceLocation.Value.PlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || !string.Equals(sourceLocation.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "移动单位来源不在提交的起点，或不由该玩家控制。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (state.ObjectLocations.TryGetValue(command.SourceObjectId, out var sourceObjectLocation)
+            && (!string.Equals(sourceObjectLocation.PlayerId, intent.PlayerId, StringComparison.Ordinal)
+                || !string.Equals(sourceObjectLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                || !string.Equals(
+                    sourceObjectLocation.BattlefieldObjectId,
+                    originBattlefieldObjectId,
+                    StringComparison.Ordinal)))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "移动单位的精确战场起点与服务端权威位置不一致。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
+            || sourceState.IsFaceDown
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "移动单位需要选择正面单位。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "移动单位只能选择当前玩家控制的单位。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (string.IsNullOrWhiteSpace(sourceState.CardNo))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "移动单位需要服务端已确认的单位牌信息。",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        if (sourceState.IsAttacking || sourceState.IsDefending)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "战斗中的单位不能移动。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (state.CardObjects.Values.Any(cardObject => string.Equals(
+            cardObject.AttachedToObjectId,
+            command.SourceObjectId,
+            StringComparison.Ordinal)))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "带有贴附装备的单位移动暂未开放。",
+                ErrorCodes.UnsupportedCommand);
+        }
+
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = state.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[command.SourceObjectId] = new ObjectLocationState(
+            intent.PlayerId,
+            MoveUnitBattlefieldZone,
+            destinationBattlefieldObjectId);
+        var movementTriggerEvents = ApplyBattlefieldMovedUnitPowerPlusOne(
+            state,
+            cardObjects,
+            intent.PlayerId,
+            command.SourceObjectId,
+            originZone,
+            destinationZone);
+        movementTriggerEvents = movementTriggerEvents.Concat(ResolveTreasureHunterMoveGoldTrigger(
+            playerZones,
+            cardObjects,
+            intent.PlayerId,
+            command.SourceObjectId,
+            originLocation,
+            destinationLocation)).ToArray();
+        var cleanupStackItem = new StackItemState(
+            $"move-unit-{state.Tick + 1}",
+            intent.PlayerId,
+            command.SourceObjectId,
+            BaronNestMoveStaticPermission,
+            sourceState.CardNo,
+            [command.SourceObjectId],
+            optionalCosts: optionalCosts);
+        var lethalCleanup = RunStateBasedCleanupLoop(
+            playerZones,
+            cardObjects,
+            cleanupStackItem,
+            state.RunePools,
+            objectLocations: objectLocations,
+            destroyedUnitOwnerIdsAlreadyThisTurn: state.DestroyedUnitOwnerIdsThisTurn);
+        var runePools = lethalCleanup.RunePools;
+        objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            RunePools = runePools,
+            CardObjects = cardObjects,
+            PassedPriorityPlayerIds = []
+        };
+
+        var events = new List<GameEvent>
+        {
+            new(
+                "UNIT_MOVED_TO_BATTLEFIELD",
+                $"{intent.PlayerId} 通过男爵巢穴移动单位",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["targetObjectId"] = command.SourceObjectId,
+                    ["originZone"] = MoveUnitBattlefieldZone,
+                    ["destinationZone"] = MoveUnitBattlefieldZone,
+                    ["origin"] = originLocation,
+                    ["destination"] = destinationLocation,
+                    ["battlefieldObjectId"] = destinationBattlefieldObjectId,
+                    ["movementPermission"] = BaronNestMoveStaticPermission,
+                    ["optionalCosts"] = optionalCosts.ToArray()
+                })
+        };
+        events.AddRange(movementTriggerEvents);
+        events.AddRange(lethalCleanup.Events);
+
+        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId);
+        nextState = taskAdvance.State;
+        events.AddRange(taskAdvance.Events);
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static bool TryGetBaronNestMoveDestination(
+        MatchState state,
+        string destination,
+        out string destinationBattlefieldObjectId)
+    {
+        destinationBattlefieldObjectId = string.Empty;
+        if (!TryNormalizeMoveUnitZone(destination, out var destinationZone, out var destinationUsesPreciseLocation)
+            || !destinationUsesPreciseLocation
+            || !string.Equals(destinationZone, MoveUnitBattlefieldZone, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        destinationBattlefieldObjectId = PreciseBattlefieldLocationObjectId(NormalizeMoveUnitLocation(destination));
+        return !string.IsNullOrWhiteSpace(destinationBattlefieldObjectId)
+            && state.CardObjects.TryGetValue(destinationBattlefieldObjectId, out var destinationState)
+            && string.Equals(destinationState.CardNo, P6TokenFactoryCatalog.BaronNestTokenCardNo, StringComparison.Ordinal);
     }
 
     private static ResolutionResult ResolvePreciseRoamMoveUnit(

@@ -41383,7 +41383,7 @@ public sealed class ConformanceFixtureRunnerTests
     {
         var surfaces = P6TokenFactoryCatalog.GetDeferredRuleSurfaces();
 
-        Assert.Equal(3, surfaces.Count);
+        Assert.Equal(2, surfaces.Count);
         Assert.DoesNotContain(surfaces, surface => string.Equals(
             surface.SurfaceId,
             "TOKEN_DEFERRED_GOLD_REACTION_DESTROY_EXHAUST_GAIN_A_UNL",
@@ -41400,9 +41400,9 @@ public sealed class ConformanceFixtureRunnerTests
             surface.SurfaceKind,
             P6TokenFactoryCatalog.BattlefieldReplacementSurfaceKind,
             StringComparison.Ordinal));
-        Assert.Contains(surfaces, surface => string.Equals(
-            surface.SurfaceKind,
-            P6TokenFactoryCatalog.BattlefieldStaticSurfaceKind,
+        Assert.DoesNotContain(surfaces, surface => string.Equals(
+            surface.SurfaceId,
+            P6TokenFactoryCatalog.BaronNestMoveStaticSurfaceId,
             StringComparison.Ordinal));
         Assert.All(surfaces, surface =>
         {
@@ -41442,6 +41442,35 @@ public sealed class ConformanceFixtureRunnerTests
                     break;
             }
         }
+    }
+
+    [Fact]
+    public async Task P6TokenFactoryCatalogAuditsImplementedRuleSurfacesAgainstOfficialText()
+    {
+        var surfaces = P6TokenFactoryCatalog.GetImplementedRuleSurfaces();
+
+        var surface = Assert.Single(surfaces);
+        Assert.Equal(P6TokenFactoryCatalog.BaronNestMoveStaticSurfaceId, surface.SurfaceId);
+        Assert.Equal(P6TokenFactoryCatalog.BaronNestTokenCardNo, surface.SourceCardNo);
+        Assert.Equal(P6TokenFactoryCatalog.BattlefieldStaticSurfaceKind, surface.SurfaceKind);
+        Assert.False(surface.IsActivatedCommandSurface);
+        Assert.Equal(0, surface.TargetCount);
+        Assert.Contains("Baron Nest", surface.DisplayName, StringComparison.Ordinal);
+        Assert.Contains("Baron Nest", surface.Reason, StringComparison.Ordinal);
+        Assert.False(P4ActivatedAbilityCatalog.TryGetByAbilityId(surface.SurfaceId, out _));
+        Assert.True(P6TokenFactoryCatalog.TryGetByCardNo(surface.SourceCardNo, out var definition));
+        Assert.Equal("指示物战场", definition.CategoryName);
+        Assert.False(definition.RequiresCopySource);
+
+        var officialCatalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var officialCard = officialCatalog.Cards.Single(card =>
+            string.Equals(card.CardNo, surface.SourceCardNo, StringComparison.Ordinal));
+        var parsed = RuleTextParser.Parse(officialCard);
+
+        Assert.Equal("指示物战场", officialCard.CardCategoryName);
+        Assert.Contains(surface.OfficialTextAnchor, officialCard.CardEffect, StringComparison.Ordinal);
+        Assert.NotEmpty(parsed.StaticAbilities);
+        Assert.False(CardBehaviorRegistry.TryGetByCardNo(surface.SourceCardNo, out _));
     }
 
     [Fact]
@@ -48224,6 +48253,169 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(4, result.State.CardObjects["P1-BATTLEFIELD-SFD-YASUO"].Power);
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-SFD-YASUO"].IsExhausted);
         Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task BaronNestStaticMovesUnitBetweenPreciseBattlefieldsWithoutRoamCost()
+    {
+        var state = BaronNestMoveState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-baron-nest-move", "P1", CommandTypes.MoveUnit),
+            new MoveUnitCommand(
+                "P1-BARON-MOVER",
+                "BATTLEFIELD:P1-BATTLEFIELD-ORIGIN",
+                "BATTLEFIELD:P1-BARON-NEST",
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal("P1-BARON-NEST", result.State.ObjectLocations["P1-BARON-MOVER"].BattlefieldObjectId);
+        var moveEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BATTLEFIELD", StringComparison.Ordinal));
+        Assert.Equal("BATTLEFIELD:P1-BATTLEFIELD-ORIGIN", moveEvent.Payload["origin"]);
+        Assert.Equal("BATTLEFIELD:P1-BARON-NEST", moveEvent.Payload["destination"]);
+        Assert.Equal("P1-BARON-NEST", moveEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal("BARON_NEST_MOVE_STATIC", moveEvent.Payload["movementPermission"]);
+        Assert.False(moveEvent.Payload.ContainsKey("movementKeyword"));
+        Assert.Empty(Assert.IsType<string[]>(moveEvent.Payload["optionalCosts"]));
+    }
+
+    [Theory]
+    [InlineData("non-baron-destination")]
+    [InlineData("opponent-controlled-baron")]
+    [InlineData("origin-mismatch")]
+    [InlineData("source-without-card-no")]
+    [InlineData("face-down-source")]
+    [InlineData("combatant-source")]
+    [InlineData("opponent-controlled-source")]
+    public async Task BaronNestStaticMoveRejectsInvalidCommandWithoutMutation(string caseName)
+    {
+        var state = caseName switch
+        {
+            "non-baron-destination" => BaronNestMoveState() with
+            {
+                CardObjects = ReplaceCardObject(
+                    BaronNestMoveState().CardObjects,
+                    "P1-BARON-NEST",
+                    BaronNestMoveState().CardObjects["P1-BARON-NEST"] with { CardNo = "OGN·275/298" })
+            },
+            "opponent-controlled-baron" => BaronNestMoveState() with
+            {
+                CardObjects = ReplaceCardObject(
+                    BaronNestMoveState().CardObjects,
+                    "P1-BARON-NEST",
+                    BaronNestMoveState().CardObjects["P1-BARON-NEST"] with
+                    {
+                        OwnerId = "P2",
+                        ControllerId = "P2"
+                    })
+            },
+            "origin-mismatch" => BaronNestMoveState() with
+            {
+                ObjectLocations = ReplaceObjectLocation(
+                    BaronNestMoveState().ObjectLocations,
+                    "P1-BARON-MOVER",
+                    new ObjectLocationState("P1", "BATTLEFIELD", "P1-BARON-NEST"))
+            },
+            "source-without-card-no" => BaronNestMoveState() with
+            {
+                CardObjects = ReplaceCardObject(
+                    BaronNestMoveState().CardObjects,
+                    "P1-BARON-MOVER",
+                    BaronNestMoveState().CardObjects["P1-BARON-MOVER"] with { CardNo = null })
+            },
+            "face-down-source" => BaronNestMoveState() with
+            {
+                CardObjects = ReplaceCardObject(
+                    BaronNestMoveState().CardObjects,
+                    "P1-BARON-MOVER",
+                    BaronNestMoveState().CardObjects["P1-BARON-MOVER"] with { IsFaceDown = true })
+            },
+            "combatant-source" => BaronNestMoveState() with
+            {
+                CardObjects = ReplaceCardObject(
+                    BaronNestMoveState().CardObjects,
+                    "P1-BARON-MOVER",
+                    BaronNestMoveState().CardObjects["P1-BARON-MOVER"] with { IsAttacking = true })
+            },
+            "opponent-controlled-source" => BaronNestMoveState() with
+            {
+                CardObjects = ReplaceCardObject(
+                    BaronNestMoveState().CardObjects,
+                    "P1-BARON-MOVER",
+                    BaronNestMoveState().CardObjects["P1-BARON-MOVER"] with
+                    {
+                        OwnerId = "P2",
+                        ControllerId = "P2"
+                    })
+            },
+            _ => BaronNestMoveState()
+        };
+        var initialHash = MatchStateHasher.Hash(state);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent($"intent-baron-nest-move-reject-{caseName}", "P1", CommandTypes.MoveUnit),
+            new MoveUnitCommand(
+                "P1-BARON-MOVER",
+                "BATTLEFIELD:P1-BATTLEFIELD-ORIGIN",
+                "BATTLEFIELD:P1-BARON-NEST",
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+        Assert.Empty(result.Events);
+    }
+
+    [Fact]
+    public void BaronNestStaticMovePromptExposesDestinationWithoutRoamCost()
+    {
+        var prompt = ResolutionResult.BuildPrompts(BaronNestMoveState())["P1"];
+        var moveCandidate = Assert.Single(prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, CommandTypes.MoveUnit, StringComparison.Ordinal));
+        Assert.Contains(moveCandidate.Sources ?? [], choice => string.Equals(choice.Id, "P1-BARON-MOVER", StringComparison.Ordinal));
+        Assert.Contains(moveCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "BATTLEFIELD:P1-BARON-NEST", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(moveCandidate.Metadata);
+        var requirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]).ToArray();
+        var baronRequirement = Assert.Single(requirements, requirement =>
+            string.Equals(requirement["sourceObjectId"] as string, "P1-BARON-MOVER", StringComparison.Ordinal)
+            && string.Equals(requirement["mode"] as string, "BARON_NEST_MOVE_STATIC", StringComparison.Ordinal));
+
+        var destinationChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(baronRequirement["destinationChoices"]);
+        Assert.Equal(["BATTLEFIELD:P1-BARON-NEST"], destinationChoices.Select(choice => choice.Id).ToArray());
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(baronRequirement["optionalCostChoices"]));
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(baronRequirement["requiredOptionalCosts"]));
+        Assert.Equal("BARON_NEST_MOVE_STATIC", baronRequirement["movementPermission"]);
+        Assert.False(Assert.IsType<bool>(baronRequirement["requiresRoamOptionalCost"]));
+    }
+
+    [Fact]
+    public void BaronNestStaticMovePromptHidesOpponentControlledDestination()
+    {
+        var baseState = BaronNestMoveState();
+        var state = baseState with
+        {
+            CardObjects = ReplaceCardObject(
+                baseState.CardObjects,
+                "P1-BARON-NEST",
+                baseState.CardObjects["P1-BARON-NEST"] with
+                {
+                    OwnerId = "P2",
+                    ControllerId = "P2"
+                })
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var moveCandidate = Assert.Single(prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, CommandTypes.MoveUnit, StringComparison.Ordinal));
+        Assert.DoesNotContain(moveCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "BATTLEFIELD:P1-BARON-NEST", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(moveCandidate.Metadata);
+        var requirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]).ToArray();
+        Assert.DoesNotContain(requirements, requirement =>
+            string.Equals(requirement["mode"] as string, "BARON_NEST_MOVE_STATIC", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -56683,6 +56875,74 @@ public sealed class ConformanceFixtureRunnerTests
                     ownerId: "P2",
                     controllerId: "P2")
             });
+    }
+
+    private static MatchState BaronNestMoveState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields =
+                    [
+                        "P1-BATTLEFIELD-ORIGIN",
+                        "P1-BARON-NEST",
+                        "P1-BARON-MOVER"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-ORIGIN"] = new(
+                    "P1-BATTLEFIELD-ORIGIN",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BARON-NEST"] = new(
+                    "P1-BARON-NEST",
+                    cardNo: P6TokenFactoryCatalog.BaronNestTokenCardNo,
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BARON-MOVER"] = new(
+                    "P1-BARON-MOVER",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-ORIGIN"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-ORIGIN"),
+                ["P1-BARON-NEST"] = new("P1", "BATTLEFIELD", "P1-BARON-NEST"),
+                ["P1-BARON-MOVER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-ORIGIN")
+            }
+        };
+    }
+
+    private static IReadOnlyDictionary<string, CardObjectState> ReplaceCardObject(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string objectId,
+        CardObjectState replacement)
+    {
+        var next = cardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        next[objectId] = replacement;
+        return next;
+    }
+
+    private static IReadOnlyDictionary<string, ObjectLocationState> ReplaceObjectLocation(
+        IReadOnlyDictionary<string, ObjectLocationState> locations,
+        string objectId,
+        ObjectLocationState replacement)
+    {
+        var next = locations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        next[objectId] = replacement;
+        return next;
     }
 
     private static MatchState PostStackCleanupPowerState(

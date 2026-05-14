@@ -37,8 +37,20 @@ public sealed record P6DeferredTokenRuleSurface(
     int TargetCount,
     string Reason);
 
+public sealed record P6ImplementedTokenRuleSurface(
+    string SurfaceId,
+    string SourceCardNo,
+    string DisplayName,
+    string OfficialTextAnchor,
+    string SurfaceKind,
+    bool IsActivatedCommandSurface,
+    int TargetCount,
+    string Reason);
+
 public static class P6TokenFactoryCatalog
 {
+    public const string BaronNestTokenCardNo = "UNL·T01";
+    public const string BaronNestMoveStaticSurfaceId = "TOKEN_DEFERRED_BARON_NEST_MOVE_STATIC";
     public const string BattlefieldCardTag = "CARD_TYPE:BATTLEFIELD";
     public const string CopySourceRequiredTag = "COPY_SOURCE_REQUIRED";
     public const string ActivatedResourceSurfaceKind = "activated-resource";
@@ -48,7 +60,7 @@ public static class P6TokenFactoryCatalog
 
     private static readonly P6TokenFactoryDefinition[] Definitions =
     [
-        Battlefield("UNL·T01", "男爵巢穴", "男爵巢穴"),
+        Battlefield(BaronNestTokenCardNo, "男爵巢穴", "男爵巢穴"),
         Unit("UNL·T02", "战鹰", "战鹰", 1, CardObjectTags.Spellshield, "鸟类"),
         Battlefield("UNL·T03", "草丛", "草丛"),
         Equipment("UNL·T05", "金币", "金币", "反应"),
@@ -83,15 +95,19 @@ public static class P6TokenFactoryCatalog
             IsActivatedCommandSurface: false,
             TargetCount: 0,
             "P6.11 keeps token battlefield replacement deferred until battlefield replacement ordering and original-location memory are modeled."),
+    ];
+
+    private static readonly P6ImplementedTokenRuleSurface[] ImplementedRuleSurfaces =
+    [
         new(
-            "TOKEN_DEFERRED_BARON_NEST_MOVE_STATIC",
-            "UNL·T01",
+            BaronNestMoveStaticSurfaceId,
+            BaronNestTokenCardNo,
             "Baron Nest movement static token",
             "单位可从任意位置移动到此处",
             BattlefieldStaticSurfaceKind,
             IsActivatedCommandSurface: false,
             TargetCount: 0,
-            "P6.11 keeps token battlefield movement static text deferred to the battlefield location domain.")
+            "P6.11 retired this deferred representative after the battlefield movement domain implemented Baron Nest destination-specific movement.")
     ];
 
     public static IReadOnlyList<P6TokenFactoryDefinition> GetAll()
@@ -102,6 +118,11 @@ public static class P6TokenFactoryCatalog
     public static IReadOnlyList<P6DeferredTokenRuleSurface> GetDeferredRuleSurfaces()
     {
         return DeferredRuleSurfaces;
+    }
+
+    public static IReadOnlyList<P6ImplementedTokenRuleSurface> GetImplementedRuleSurfaces()
+    {
+        return ImplementedRuleSurfaces;
     }
 
     public static bool TryGetByCardNo(
