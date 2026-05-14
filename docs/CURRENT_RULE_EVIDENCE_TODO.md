@@ -5,6 +5,8 @@
 
 本文记录 E 证据/审计 worker 第一轮 P0 交接项、阶段 1 D 协议审计、阶段 2 D P0 规则证据链和 A 主控验收结果，不替代 `docs/CURRENT_SERVER_RULE_AUDIT.md`。
 
+2026-05-14 4D-03X handoff / baseline 补充：下一服务端 catalog hygiene 切片锁定 `P6LegendAbilityCatalog` 五个旧 deferred legend representatives 的退役；这些代表已经由 `LEGEND_ACT` / `LEGEND_ACTION_DOMAIN` 实现，旧 catalog 语义需要改为 retired / implemented representative，同时保留 `ACTIVATE_ABILITY` rejected no-mutation。入口为 `docs/CURRENT_STAGE4D_03X_LEGEND_ACTION_DEFERRED_CATALOG_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03X_LEGEND_ACTION_DEFERRED_CATALOG_BASELINE_EVIDENCE.md`；focused baseline 54/54、adjacent baseline 279/279 通过。该基线只建立实现前回归护栏，不关闭 P0-005 或 READY。
+
 2026-05-14 4D-03W focused slice 补充：Renata Gold bonus representative 已实现并验收，入口为 `docs/CURRENT_STAGE4D_03W_PAYMENT_ENGINE_RENATA_GOLD_BONUS_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03W_PAYMENT_ENGINE_RENATA_GOLD_BONUS_EVIDENCE.md`；focused 320/320、adjacent 965/965、backend full 4120/4120、`git diff --check` 通过。该补充只证明带 `RENATA_GOLD_EXTRA_1_MANA` marker 的 Gold token 在激活 resource skill 时额外获得 1 mana，不关闭 equipment-token full rules、完整 `[A]` / `[C]` resource skill family 或 P0-005 full official。
 
 2026-05-14 4D-03W handoff / baseline 补充：Renata Gold bonus 下一服务端切片已建立，入口为 `docs/CURRENT_STAGE4D_03W_PAYMENT_ENGINE_RENATA_GOLD_BONUS_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03W_PAYMENT_ENGINE_RENATA_GOLD_BONUS_BASELINE_EVIDENCE.md`；focused baseline 313/313、adjacent baseline 958/958 通过。该基线已被 focused slice 验收 supersede，仍保留为回归护栏。

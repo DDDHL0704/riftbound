@@ -13,6 +13,8 @@
 - 当前 completion audit 仍列出 P0-002、P0-003、P0-004、P0-005 与 P1 LayerEngine / keywords / full-card evidence / replay-hash coverage。
 - Formal 18-step E2E 已有连续正式主流程证据；它满足 A_MASTER 的主流程门槛，但不能替代 strict battlefield contest / battle lifecycle / PaymentEngine / LayerEngine 的 full official 收口。
 
+4D-03X handoff / baseline 补充：下一服务端 catalog hygiene 切片锁定 `P6LegendAbilityCatalog` 里五个已由 `LEGEND_ACT` 实现的旧 deferred legend representatives。交接规格见 `docs/CURRENT_STAGE4D_03X_LEGEND_ACTION_DEFERRED_CATALOG_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_03X_LEGEND_ACTION_DEFERRED_CATALOG_BASELINE_EVIDENCE.md`；focused baseline 54/54、adjacent baseline 279/279 通过。该补充只消除过期 deferred catalog 误报并保留 `ACTIVATE_ABILITY` blocked / `LEGEND_ACT` positive 回归，不关闭 P0-005、P1 或 READY。
+
 ## 2. 非目标
 
 - 本计划不把任何代表性 evidence 升级为 full official。
