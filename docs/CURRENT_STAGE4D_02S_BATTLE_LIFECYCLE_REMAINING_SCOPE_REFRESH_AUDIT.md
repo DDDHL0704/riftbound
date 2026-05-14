@@ -49,6 +49,8 @@
 
 2026-05-15 follow-up：4D-02AF 已验收上述 activation-returned held-score next-contested advancement representative，且为 test-only guard。P0-004 仍 open；该切片只覆盖 BF-A held-score temporary payment / score / battle close 后推进 BF-B spell duel，不代表 recycle mirror、完整 battle-result matrix、replacement / prevention / LayerEngine 或 full official combat breadth。
 
+2026-05-15 follow-up：下一切片 4D-02AG 转向 activation-returned held-score `RECYCLE_RUNE:*` branch 的 next-contested advancement mirror。目标是在 BF-A / BF-B 双争夺场景中证明 actual Shadow activation / stack resolution / returned response 后，BF-A held-score recycle payment / score / current battle close 完成后才推进 BF-B `START_SPELL_DUEL`，且 response / stack / returned response 阶段不得提前推进 BF-B。
+
 ## Evidence Inspected
 
 - `docs/A_MASTER_AGENT_GOAL.md`
@@ -132,6 +134,8 @@ Suggested next goal after 4D-02Y: choose a new narrow representative from the re
 4D-02AE selected representative: natural battle response actual Shadow activation -> returned response -> held-score temporary payment-resource branch. This composes 4D-02J `TEMP_PAYMENT_RESOURCE:*` held-score context with 4D-02K actual activation / stack resolution context preservation and 4D-02AD no-response normalization. 4D-02AE is now accepted.
 
 4D-02AF selected representative: natural battle response actual Shadow activation -> returned response -> held-score temporary payment / score / current battle close -> next contested battlefield spell duel advancement. This composes 4D-02AE held-score temporary payment-resource context with the existing next-contested advancement axis. 4D-02AF is now accepted.
+
+4D-02AG selected representative: natural battle response actual Shadow activation -> returned response -> held-score recycle payment / score / current battle close -> next contested battlefield spell duel advancement. This mirrors 4D-02AF with the 4D-02AD `RECYCLE_RUNE:*` held-score context.
 
 Recommended representative:
 
