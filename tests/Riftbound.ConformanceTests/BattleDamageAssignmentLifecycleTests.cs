@@ -279,7 +279,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var state = BuildNaturalStartBattleState(
             includeShadowResponse: true,
             includeNextContest: true,
-            defenderObjectIds: [BulwarkDefenderObjectId, BackRowDefenderObjectId]);
+            defenderObjectIds: [BulwarkDefenderObjectId, ShadowObjectId]);
         var engine = new CoreRuleEngine();
 
         var openedResponse = await engine.ResolveAsync(
@@ -288,7 +288,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
             new DeclareBattleCommand(
                 BattlefieldObjectId,
                 [AttackerObjectId],
-                [BulwarkDefenderObjectId, BackRowDefenderObjectId],
+                [BulwarkDefenderObjectId, ShadowObjectId],
                 OptionalCosts: ["COMBAT_ASSIGNMENT"]),
             CancellationToken.None);
 
@@ -374,7 +374,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var assigned = await engine.ResolveAsync(
             responseP1Pass.State,
             new PlayerIntent("intent-natural-response-activation-assignment-advancement-assign-damage", "P1", CommandTypes.AssignCombatDamage),
-            new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, LegalAssignments()),
+            new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, ShadowResponseLegalAssignments()),
             CancellationToken.None);
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
@@ -862,6 +862,99 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal(NextBattlefieldObjectId, responseP1Pass.Prompts["P1"].View?.RelatedBattlefieldId);
         Assert.NotEqual(PromptTypes.AssignCombatDamage, responseP1Pass.Prompts["P1"].View?.Type);
         Assert.NotEqual(PromptTypes.BattleDeclaration, responseP1Pass.Prompts["P1"].View?.Type);
+    }
+
+    [Fact]
+    public async Task NaturalBattleResponseActivationPreservesNonParticipantSourceBattlefieldLocationAfterStackResolution()
+    {
+        var state = BuildNaturalStartBattleState(
+            includeShadowResponse: true,
+            includeNextContest: true,
+            defenderObjectIds: [BulwarkDefenderObjectId]);
+        var initialShadowLocation = state.ObjectLocations[ShadowObjectId];
+        Assert.Equal("P2", initialShadowLocation.PlayerId);
+        Assert.Equal("BATTLEFIELD", initialShadowLocation.Zone);
+        Assert.Equal(BattlefieldObjectId, initialShadowLocation.BattlefieldObjectId);
+        var engine = new CoreRuleEngine();
+
+        var openedResponse = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-natural-response-nonparticipant-location-declare-battle", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                BattlefieldObjectId,
+                [AttackerObjectId],
+                [BulwarkDefenderObjectId],
+                OptionalCosts: ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
+        Assert.True(openedResponse.State.BattleState.IsActive);
+        Assert.Equal([BulwarkDefenderObjectId], openedResponse.State.BattleState.DefenderObjectIds);
+        Assert.DoesNotContain(ShadowObjectId, openedResponse.State.BattleState.AttackerObjectIds);
+        Assert.DoesNotContain(ShadowObjectId, openedResponse.State.BattleState.DefenderObjectIds);
+        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
+        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        AssertNextContestedBattlefieldNotAdvanced(openedResponse);
+
+        var activated = await engine.ResolveAsync(
+            openedResponse.State,
+            new PlayerIntent("intent-natural-response-nonparticipant-location-shadow", "P2", CommandTypes.ActivateAbility),
+            new ActivateAbilityCommand(
+                ShadowObjectId,
+                P4ActivatedAbilityCatalog.ShadowStunAbilityId,
+                [AttackerObjectId]),
+            CancellationToken.None);
+
+        Assert.True(activated.Accepted, activated.ErrorMessage);
+        Assert.Equal(
+            ["ABILITY_ACTIVATED", "UNIT_EXHAUSTED", "COST_PAID", "STACK_ITEM_ADDED"],
+            activated.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.True(activated.State.CardObjects[ShadowObjectId].IsExhausted);
+        Assert.Contains(ShadowObjectId, activated.State.PlayerZones["P2"].Battlefields);
+        var activatedShadowLocation = activated.State.ObjectLocations[ShadowObjectId];
+        Assert.Equal("P2", activatedShadowLocation.PlayerId);
+        Assert.Equal("BATTLEFIELD", activatedShadowLocation.Zone);
+        Assert.Equal(BattlefieldObjectId, activatedShadowLocation.BattlefieldObjectId);
+        Assert.Single(activated.State.StackItems);
+        AssertNextContestedBattlefieldNotAdvanced(activated);
+
+        var stackP2Pass = await engine.ResolveAsync(
+            activated.State,
+            new PlayerIntent("intent-natural-response-nonparticipant-location-stack-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(stackP2Pass.Accepted, stackP2Pass.ErrorMessage);
+        AssertNextContestedBattlefieldNotAdvanced(stackP2Pass);
+
+        var stackP1Pass = await engine.ResolveAsync(
+            stackP2Pass.State,
+            new PlayerIntent("intent-natural-response-nonparticipant-location-stack-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(stackP1Pass.Accepted, stackP1Pass.ErrorMessage);
+        Assert.Empty(stackP1Pass.State.StackItems);
+        Assert.True(stackP1Pass.State.BattleState.IsActive);
+        Assert.Equal([BulwarkDefenderObjectId], stackP1Pass.State.BattleState.DefenderObjectIds);
+        Assert.DoesNotContain(ShadowObjectId, stackP1Pass.State.BattleState.AttackerObjectIds);
+        Assert.DoesNotContain(ShadowObjectId, stackP1Pass.State.BattleState.DefenderObjectIds);
+        Assert.Equal(TimingStates.NeutralClosed, stackP1Pass.State.TimingState);
+        Assert.Equal("P2", stackP1Pass.State.PriorityPlayerId);
+        Assert.True(stackP1Pass.State.CardObjects[ShadowObjectId].IsExhausted);
+        Assert.Contains(ShadowObjectId, stackP1Pass.State.PlayerZones["P2"].Battlefields);
+        var resolvedShadowLocation = stackP1Pass.State.ObjectLocations[ShadowObjectId];
+        Assert.Equal("P2", resolvedShadowLocation.PlayerId);
+        Assert.Equal("BATTLEFIELD", resolvedShadowLocation.Zone);
+        Assert.Equal(BattlefieldObjectId, resolvedShadowLocation.BattlefieldObjectId);
+        Assert.Contains("STUNNED", stackP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
+        Assert.Contains(stackP1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
+        Assert.Contains(stackP1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "ABILITY_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["abilityId"] as string, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal));
+        AssertNextContestedBattlefieldNotAdvanced(stackP1Pass);
     }
 
     [Fact]

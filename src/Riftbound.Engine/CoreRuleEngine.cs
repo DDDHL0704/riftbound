@@ -24888,13 +24888,9 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         if (zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
         {
-            var sourceIsActiveBattleParticipant = state.BattleState.IsActive
-                && (state.BattleState.AttackerObjectIds.Contains(sourceObjectId, StringComparer.Ordinal)
-                    || state.BattleState.DefenderObjectIds.Contains(sourceObjectId, StringComparer.Ordinal));
             var preciseDestination = IsStackItemBattlefieldDestination(resolvedItem)
                 ? PreciseBattlefieldLocationObjectId(NormalizeMoveUnitLocation(resolvedItem.Destination))
-                : sourceIsActiveBattleParticipant
-                    && objectLocations.TryGetValue(sourceObjectId, out var currentLocation)
+                : objectLocations.TryGetValue(sourceObjectId, out var currentLocation)
                     && string.Equals(currentLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
                     ? currentLocation.BattlefieldObjectId
                     : null;
