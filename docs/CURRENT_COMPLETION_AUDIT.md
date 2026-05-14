@@ -1,11 +1,13 @@
 # 符文战场当前 Completion Audit
 
-审计日期：2026-05-14
+审计日期：2026-05-15
 审计结论：**NOT READY**
 
 本文件是 active goal 的当前收口审计清单，不代表最终完成验收。只有当本文所有 P0/P1 阻断清零、后端 full test、前端 build、Browser smoke / E2E 与隐藏信息检查全部通过后，才允许把 goal 标记为 complete。
 
 ## 0. 2026-05-13 最新状态补充
+
+2026-05-15 4D-02N handoff / baseline 补充：Battle response assignment advancement 下一 P0-004 切片已建立，入口为 `docs/CURRENT_STAGE4D_02N_BATTLE_RESPONSE_ASSIGNMENT_ADVANCEMENT_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_02N_BATTLE_RESPONSE_ASSIGNMENT_ADVANCEMENT_BASELINE_EVIDENCE.md`；focused baseline 178/178、adjacent baseline 705/705、backend full 4209/4209、`git diff --check` 通过。目标是验证 natural battle 先经历 battle-response priority、再打开 `ASSIGN_COMBAT_DAMAGE`、最后提交合法 assignment 后仍能推进 next contested battlefield；该补充只建立实现前护栏，不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
 
 2026-05-14 4D-02M focused slice 补充：Post-payment battle task advancement 已验收，入口为 `docs/CURRENT_STAGE4D_02M_POST_PAYMENT_BATTLE_TASK_ADVANCEMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02M_POST_PAYMENT_BATTLE_TASK_ADVANCEMENT_EVIDENCE.md`；focused 178/178、adjacent 705/705、backend full 4209/4209、`git diff --check` 通过。该补充只证明 post-battle trigger payment 打开期间阻止 next contested battlefield advancement，并在接受或拒绝支付关闭窗口后恢复 advancement；不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
 

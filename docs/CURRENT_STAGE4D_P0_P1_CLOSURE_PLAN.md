@@ -1,6 +1,6 @@
 # Stage 4D P0/P1 Closure Plan
 
-日期：2026-05-14
+日期：2026-05-15
 结论：**NOT READY**
 
 本文是 Stage 4C representative evidence alignment 之后的 A 主控收口计划。4C-98 已把可用既有自动化证据对齐的 direct-card / battlefield residual `IMPLEMENTED_UNTESTED` 基本收完；剩余工作不应继续用 evidence-only overlay 推进，而应回到 P0/P1 规则模型、状态机和最终验收。
@@ -12,6 +12,8 @@
 - 剩余 `IMPLEMENTED_UNTESTED` 四项均已在 Stage 4C-95 判定为 design-gated static/trigger items：熔浆巨龙、娑娜、安妮、温驯的宝石龙。
 - 当前 completion audit 仍列出 P0-002、P0-003、P0-004、P0-005 与 P1 LayerEngine / keywords / full-card evidence / replay-hash coverage。
 - Formal 18-step E2E 已有连续正式主流程证据；它满足 A_MASTER 的主流程门槛，但不能替代 strict battlefield contest / battle lifecycle / PaymentEngine / LayerEngine 的 full official 收口。
+
+4D-02N handoff / baseline 补充：下一 P0-004 窄切片锁定 natural battle response priority -> `ASSIGN_COMBAT_DAMAGE` -> next contested battlefield task advancement 的组合链路。交接规格见 `docs/CURRENT_STAGE4D_02N_BATTLE_RESPONSE_ASSIGNMENT_ADVANCEMENT_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_02N_BATTLE_RESPONSE_ASSIGNMENT_ADVANCEMENT_BASELINE_EVIDENCE.md`；focused baseline 178/178、adjacent baseline 705/705、backend full 4209/4209、`git diff --check` 通过。目标是证明 battle response window 和 assignment window 均不会提前推进 next contested battlefield，但 legal assignment 关闭当前 battle 后会在无 blocker 时推进到下一处 `SPELL_DUEL_TASKS`；该 handoff 不改 runtime、不关闭 P0-004、P0-005、P1 或 READY。
 
 4D-02M focused slice 补充：Post-payment battle task advancement 已验收，审计与证据见 `docs/CURRENT_STAGE4D_02M_POST_PAYMENT_BATTLE_TASK_ADVANCEMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02M_POST_PAYMENT_BATTLE_TASK_ADVANCEMENT_EVIDENCE.md`；focused 178/178、adjacent 705/705、backend full 4209/4209、`git diff --check` 通过。该切片证明 post-battle trigger payment 打开期间会阻止 next contested battlefield advancement，并在接受或拒绝关闭窗口后推进下一处 `SPELL_DUEL_TASKS`；不关闭 P0-004、P0-005、P1 或 READY。
 
