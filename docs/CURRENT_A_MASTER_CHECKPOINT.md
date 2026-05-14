@@ -5,6 +5,8 @@
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
 
+2026-05-15 最新补充：4D-02AK Battle response activation power-modifier assignment damage pool focused slice 已验收，审计与证据见 `docs/CURRENT_STAGE4D_02AK_BATTLE_RESPONSE_ACTIVATION_POWER_MODIFIER_ASSIGNMENT_DAMAGE_POOL_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02AK_BATTLE_RESPONSE_ACTIVATION_POWER_MODIFIER_ASSIGNMENT_DAMAGE_POOL_EVIDENCE.md`；targeted 1/1、focused 294/294、adjacent 824/824、backend full 4236/4236、`git diff --check` 通过。该切片修复非眩晕 modified participant 在 returned assignment prompt / runtime validation / committed damage pool 中 double-count `UntilEndOfTurnPowerModifier` 的 gap：current effective `Power` 现在只使用一次，同时保留 stunned participant 为 0。本切片不启动 PaymentEngine / LayerEngine、不改前端、不关闭 P0-004 / P0-005 / P1 / READY；项目仍 **NOT READY**。
+
 2026-05-15 最新补充：4D-02AK Battle response activation power-modifier assignment damage pool handoff / baseline 已建立。交接规格见 `docs/CURRENT_STAGE4D_02AK_BATTLE_RESPONSE_ACTIVATION_POWER_MODIFIER_ASSIGNMENT_DAMAGE_POOL_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_02AK_BATTLE_RESPONSE_ACTIVATION_POWER_MODIFIER_ASSIGNMENT_DAMAGE_POOL_BASELINE_EVIDENCE.md`；targeted existing prerequisites 3/3、focused baseline 293/293、adjacent baseline 823/823、backend full 4235/4235、`git diff --check` 通过。下一 P0-004 窄切片锁定 actual Shadow activation / stack resolution / returned response 后，非眩晕 modified participant 的 returned assignment prompt、runtime validation 与 committed damage pool 必须使用当前 effective `Power` 一次，防止 `Power + UntilEndOfTurnPowerModifier` double-count。本 handoff 不改 runtime、不启动 PaymentEngine / LayerEngine、不改前端、不关闭 P0/P1 / READY；项目仍 **NOT READY**。
 
 2026-05-15 最新补充：4D-02AJ Battle response activation stunned assignment damage pool focused slice 已验收，审计与证据见 `docs/CURRENT_STAGE4D_02AJ_BATTLE_RESPONSE_ACTIVATION_STUNNED_ASSIGNMENT_DAMAGE_POOL_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02AJ_BATTLE_RESPONSE_ACTIVATION_STUNNED_ASSIGNMENT_DAMAGE_POOL_EVIDENCE.md`；targeted 1/1、focused 293/293、adjacent 823/823、backend full 4235/4235、`git diff --check` 通过。该切片修复 Shadow stun 后 returned assignment prompt / runtime validation 仍按原始 attacker power 要求 attacker 分配伤害的 gap：stunned attacker 的 prompt damage pool、lethal threshold 与 participant power 均为 0，旧 attacker-nonzero assignment 被拒绝，合法 zero-attacker assignment 关闭 BF-A 后才推进 BF-B。本切片不启动 PaymentEngine / LayerEngine、不改前端、不关闭 P0-004 / P0-005 / P1 / READY；项目仍 **NOT READY**。
@@ -291,7 +293,7 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 当前常驻审查池：
 
 - B-Review / Maxwell：`019e1068-5757-7bd1-8129-d401c60e0b7f`
-- B-Implementation / Raman：`019e2257-8d40-7630-9201-28df44dd689a`（2026-05-14 新建用于 4D-03J 后续 focused slices；2026-05-15 已派 4D-02AK 服务端写入锁，范围仅 `tests/Riftbound.ConformanceTests/BattleDamageAssignmentLifecycleTests.cs`，必要时可最小修改 `src/Riftbound.Engine/CoreRuleEngine.cs` / `src/Riftbound.Engine/MatchSession.cs`；不得触碰 `riftbound-dotnet.sln`）
+- B-Implementation / Raman：`019e2257-8d40-7630-9201-28df44dd689a`（2026-05-14 新建用于 4D-03J 后续 focused slices；2026-05-15 4D-02AK 服务端写入已由 A 验收并提交，当前无新写锁；不得触碰 `riftbound-dotnet.sln`）
 - C-Review / Copernicus：`019e0bbc-df6f-7151-baf5-f79ff466c5a9`
 - D-Review / Nash：`019e1068-6042-7dc3-a45c-655838d02b92`
 - E-Review / Poincare：`019e1068-6975-7242-9143-1c50d7ce23fa`

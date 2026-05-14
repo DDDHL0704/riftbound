@@ -67,6 +67,8 @@
 
 2026-05-15 follow-up：下一切片 4D-02AK 转向 activation-returned assignment damage pool 的 non-stunned power-modifier parity。目标是证明 actual Shadow activation / stack resolution / returned response 后，非眩晕 modified participant 的 assignment prompt、runtime validation 与 committed damage pool 使用 public effective `Power` 一次，而不是把 `UntilEndOfTurnPowerModifier` double-count。
 
+2026-05-15 follow-up：4D-02AK 已验收上述 activation-returned non-stunned power-modifier assignment damage pool representative，且包含最小 runtime parity 修复。P0-004 仍 open；该切片只覆盖 one modified Bulwark defender representative，不代表完整 continuous-effect / LayerEngine / prevention / replacement / damage-modification matrix 或 full official combat breadth。
+
 ## Evidence Inspected
 
 - `docs/A_MASTER_AGENT_GOAL.md`
@@ -116,6 +118,7 @@
 - Next contested battlefield advancement now also has one activation-returned Brush replacement-aware held-score representative: BF-A replacement / held-score payment / score / battle close completes before BF-B `BATTLEFIELD_CONTESTED` / `SPELL_DUEL_STARTED`, and BF-B is not advanced during response or stack resolution.
 - Next contested battlefield advancement now also has one activation-returned held-score score-prevention representative: BF-A `BATTLEFIELD_SCORE_PREVENTED` / battle close completes before BF-B `BATTLEFIELD_CONTESTED` / `SPELL_DUEL_STARTED`, no held-score cost is paid, and no score is gained.
 - Assignment damage pool parity now has one activation-returned stunned representative: Shadow-stunned attacker is exposed and validated as 0 assignment damage pool, and stale attacker-nonzero assignments are rejected without advancing the next battlefield.
+- Assignment damage pool parity now also has one activation-returned non-stunned power-modifier representative: a modified Bulwark defender with `Power = 1` / `UntilEndOfTurnPowerModifier = -1` is exposed, validated, and committed as damage pool 1 rather than double-counted to 0.
 
 ## Superseded 4D-02C Gaps
 
@@ -165,6 +168,8 @@ Suggested next goal after 4D-02Y: choose a new narrow representative from the re
 
 4D-02AK selected representative: natural battle response actual Shadow activation -> returned response -> assignment prompt / runtime damage pool for a non-stunned participant with an until-end-of-turn power modifier. This intentionally targets the remaining prompt-validation double-count risk around `Power` / `UntilEndOfTurnPowerModifier` before returning to broader LayerEngine breadth.
 
+4D-02AK is now accepted.
+
 Recommended representative:
 
 - `BF-A` and `BF-B` are both contested.
@@ -190,4 +195,4 @@ Expected guard:
 
 ## Verdict
 
-4D-02B through 4D-02AJ materially narrowed P0-004, especially activation-returned assignment / immediate / payment / no-result task advancement, cleanup-blocker ordering, precise object-location preservation for nonparticipant response sources, same-turn completed battlefield skip policy, one nested battle-response stack representative, one multiple-legal-source response representative, one stale-target no-effect response representative, response-pass assignment Hunt conquer / held result-ordering representatives, activation-returned assignment Hunt conquer / held result-ordering representatives, activation-returned held-score `RECYCLE_RUNE:*` plus `TEMP_PAYMENT_RESOURCE:*` payment-resource context representatives, activation-returned held-score next-contested advancement representatives for both temporary and recycle payment resources, one activation-returned Brush replacement-aware held-score next-contested advancement representative, one activation-returned held-score score-prevention next-contested advancement representative, and one activation-returned stunned assignment damage pool parity representative. 4D-02AK is now selected as the next handoff to cover non-stunned power-modifier assignment damage pool parity. Project remains **NOT READY**.
+4D-02B through 4D-02AK materially narrowed P0-004, especially activation-returned assignment / immediate / payment / no-result task advancement, cleanup-blocker ordering, precise object-location preservation for nonparticipant response sources, same-turn completed battlefield skip policy, one nested battle-response stack representative, one multiple-legal-source response representative, one stale-target no-effect response representative, response-pass assignment Hunt conquer / held result-ordering representatives, activation-returned assignment Hunt conquer / held result-ordering representatives, activation-returned held-score `RECYCLE_RUNE:*` plus `TEMP_PAYMENT_RESOURCE:*` payment-resource context representatives, activation-returned held-score next-contested advancement representatives for both temporary and recycle payment resources, one activation-returned Brush replacement-aware held-score next-contested advancement representative, one activation-returned held-score score-prevention next-contested advancement representative, one activation-returned stunned assignment damage pool parity representative, and one activation-returned non-stunned power-modifier assignment damage pool parity representative. Project remains **NOT READY**.
