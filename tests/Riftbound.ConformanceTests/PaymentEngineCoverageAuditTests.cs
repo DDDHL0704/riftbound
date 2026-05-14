@@ -177,6 +177,104 @@ public sealed class PaymentEngineCoverageAuditTests
             ])
     ];
 
+    private static readonly ResourceSkillCoverageFamilyEntry[] ResourceSkillCoverageManifest =
+    [
+        new(
+            "Malzahar target-as-cost payment-only resource skill",
+            [
+                P4ActivatedAbilityCatalog.MalzaharResourceAbilityId
+            ],
+            "MalzaharResourceSkillTests: prompt exposes target-as-cost, generated power, payment-only resource restriction, and spell-duel focus timing",
+            "MalzaharResourceSkillTests: command destroys friendly target, exhausts source, creates temporary payment resource, and rejects invalid target / timing / duplicate shapes",
+            "MalzaharResourceSkillTests: ABILITY_ACTIVATED, UNIT_DESTROYED, POWER_GAINED, and payment-only ledger metadata assertions",
+            "MalzaharResourceSkillTests: stale target, exhausted source, invalid target, and temporary-resource misuse no-mutation guards",
+            "Representative coverage only; project remains NOT READY and P0-005 remains open for full-official resource skill breadth.",
+            [
+                "docs/CURRENT_STAGE4D_03I_PAYMENT_ENGINE_RESOURCE_SKILL_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_AUDIT.md"
+            ]),
+        new(
+            "Dragon Soul Sage reaction mana resource skill",
+            [
+                P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId
+            ],
+            "ReactionResourceSkillTests: prompt exposes reaction-speed Dragon Soul Sage source, generated mana, and no-target shape",
+            "ReactionResourceSkillTests: command exhausts source, gains mana, and rejects wrong phase / target / exhausted shapes",
+            "ReactionResourceSkillTests: ABILITY_ACTIVATED and MANA_GAINED generated-mana audit assertions",
+            "ReactionResourceSkillTests: invalid target, exhausted source, and unsupported timing no-mutation guards",
+            "Representative coverage only; project remains NOT READY and P0-005 remains open for full-official resource skill breadth.",
+            [
+                "docs/CURRENT_STAGE4D_03L_PAYMENT_ENGINE_REACTION_RESOURCE_SKILL_AUDIT.md"
+            ]),
+        new(
+            "SFD Sigil typed payment-only resource skill family",
+            [
+                P4ActivatedAbilityCatalog.RageSigilResourceAbilityId,
+                P4ActivatedAbilityCatalog.FocusSigilResourceAbilityId,
+                P4ActivatedAbilityCatalog.InsightSigilResourceAbilityId,
+                P4ActivatedAbilityCatalog.PowerSigilResourceAbilityId,
+                P4ActivatedAbilityCatalog.DiscordSigilResourceAbilityId,
+                P4ActivatedAbilityCatalog.UnitySigilResourceAbilityId
+            ],
+            "RageSigilResourceSkillTests / SfdSigilResourceSkillTests: prompts expose SFD typed temporary payment-only resource skills with per-trait generated power",
+            "RageSigilResourceSkillTests / SfdSigilResourceSkillTests: commands exhaust source, create typed temporary payment resources, and keep SFD family parity",
+            "RageSigilResourceSkillTests / SfdSigilResourceSkillTests: ABILITY_ACTIVATED and POWER_GAINED typed resource audit metadata assertions",
+            "RageSigilResourceSkillTests / SfdSigilResourceSkillTests: wrong source, exhausted source, duplicate, wrong trait, and payment misuse no-mutation guards",
+            "Representative coverage only; project remains NOT READY and P0-005 remains open for full-official resource skill breadth.",
+            [
+                "docs/CURRENT_STAGE4D_03R_PAYMENT_ENGINE_RAGE_SIGIL_TYPED_RESOURCE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03S_PAYMENT_ENGINE_SFD_SIGIL_TYPED_RESOURCE_FAMILY_AUDIT.md"
+            ]),
+        new(
+            "OGN Sigil typed payment-only resource skill family",
+            [
+                P4ActivatedAbilityCatalog.OgnRageSigilResourceAbilityId,
+                P4ActivatedAbilityCatalog.OgnFocusSigilResourceAbilityId,
+                P4ActivatedAbilityCatalog.OgnInsightSigilResourceAbilityId,
+                P4ActivatedAbilityCatalog.OgnPowerSigilResourceAbilityId,
+                P4ActivatedAbilityCatalog.OgnDiscordSigilResourceAbilityId,
+                P4ActivatedAbilityCatalog.OgnUnitySigilResourceAbilityId
+            ],
+            "OgnSigilResourceSkillTests: prompts expose OGN typed temporary payment-only resource skills with per-trait generated power",
+            "OgnSigilResourceSkillTests: commands exhaust source, create typed temporary payment resources, and keep OGN reprint parity",
+            "OgnSigilResourceSkillTests: ABILITY_ACTIVATED and POWER_GAINED typed resource audit metadata assertions",
+            "OgnSigilResourceSkillTests: wrong source, exhausted source, duplicate, wrong trait, and payment misuse no-mutation guards",
+            "Representative coverage only; project remains NOT READY and P0-005 remains open for full-official resource skill breadth.",
+            [
+                "docs/CURRENT_STAGE4D_03T_PAYMENT_ENGINE_OGN_SIGIL_TYPED_RESOURCE_FAMILY_AUDIT.md"
+            ]),
+        new(
+            "Resource conversion equipment skill family",
+            [
+                P4ActivatedAbilityCatalog.EnergyChannelResourceAbilityId,
+                P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId,
+                P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId
+            ],
+            "ResourceConversionEquipmentSkillTests: prompts expose Energy Channel, Ancient Stele, and Hextech Anomaly conversion choices",
+            "ResourceConversionEquipmentSkillTests: commands gain mana, convert mana to temporary generic power, and convert generic power to mana",
+            "ResourceConversionEquipmentSkillTests: ABILITY_ACTIVATED, MANA_GAINED, POWER_GAINED, resource restriction, and conversion audit assertions",
+            "ResourceConversionEquipmentSkillTests: missing / invalid conversion, wrong card, exhausted source, target, and temporary-resource misuse no-mutation guards",
+            "Representative coverage only; project remains NOT READY and P0-005 remains open for full-official resource skill breadth.",
+            [
+                "docs/CURRENT_STAGE4D_03U_PAYMENT_ENGINE_RESOURCE_CONVERSION_EQUIPMENT_AUDIT.md"
+            ]),
+        new(
+            "Gold token payment-only resource skill family",
+            [
+                P4ActivatedAbilityCatalog.GoldTokenUnlResourceAbilityId,
+                P4ActivatedAbilityCatalog.GoldTokenSfdResourceAbilityId
+            ],
+            "GoldTokenResourceSkillTests: prompts expose UNL / SFD Gold token resource skills and Renata bonus metadata",
+            "GoldTokenResourceSkillTests: commands destroy Gold token, create generic payment-only temporary resource, and apply Renata bonus mana when marked",
+            "GoldTokenResourceSkillTests: ABILITY_ACTIVATED, POWER_GAINED, MANA_GAINED, token destruction, and bonus audit assertions",
+            "GoldTokenResourceSkillTests: wrong owner, wrong zone, exhausted / invalid source, and mana-only payment misuse no-mutation guards",
+            "Representative coverage only; project remains NOT READY and P0-005 remains open for full-official resource skill breadth.",
+            [
+                "docs/CURRENT_STAGE4D_03V_PAYMENT_ENGINE_GOLD_TOKEN_RESOURCE_SKILL_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03W_PAYMENT_ENGINE_RENATA_GOLD_BONUS_AUDIT.md"
+            ])
+    ];
+
     [Fact]
     public void PaymentEngineActionWindowCoverageManifestListsRequiredWindowsExactlyOnce()
     {
@@ -311,6 +409,71 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineResourceSkillCoverageManifestMatchesActivatedAbilityCatalog()
+    {
+        var catalogResourceSkillAbilityIds = P4ActivatedAbilityCatalog.GetAll()
+            .Where(definition => definition.IsResourceSkill)
+            .Select(definition => definition.AbilityId)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var manifestAbilityIds = ResourceSkillCoverageManifest
+            .SelectMany(entry => entry.AbilityIds)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(catalogResourceSkillAbilityIds, manifestAbilityIds);
+        Assert.Equal(19, manifestAbilityIds.Length);
+        Assert.Empty(ResourceSkillCoverageManifest
+            .SelectMany(entry => entry.AbilityIds)
+            .GroupBy(abilityId => abilityId, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key));
+    }
+
+    [Fact]
+    public void PaymentEngineResourceSkillCoverageManifestRequiresPromptCommandAuditAndRollbackAnchors()
+    {
+        Assert.All(ResourceSkillCoverageManifest, entry =>
+        {
+            Assert.False(string.IsNullOrWhiteSpace(entry.Family));
+            Assert.NotEmpty(entry.AbilityIds);
+            Assert.Contains("Prompt", entry.PromptAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("command", entry.CommandAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("ABILITY_ACTIVATED", entry.AuditAnchor, StringComparison.Ordinal);
+            Assert.Contains("no-mutation", entry.RollbackAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("NOT READY", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.NotEmpty(entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineResourceSkillCoverageManifestDoesNotClaimP0005Closure()
+    {
+        var combinedText = string.Join(
+            " ",
+            ResourceSkillCoverageManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.Family,
+                    entry.PromptAnchor,
+                    entry.CommandAnchor,
+                    entry.AuditAnchor,
+                    entry.RollbackAnchor,
+                    entry.ClosureStatus
+                }.Concat(entry.DocAnchors)));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("READY", combinedText.Replace("NOT READY", string.Empty, StringComparison.Ordinal), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PaymentEngineActionWindowCoverageManifestDoesNotClaimReadyOrP0005Closure()
     {
         Assert.All(CoverageManifest, entry =>
@@ -339,5 +502,15 @@ public sealed class PaymentEngineCoverageAuditTests
         string CommandAnchor,
         string AuditAnchor,
         string RollbackAnchor,
+        IReadOnlyList<string> DocAnchors);
+
+    private sealed record ResourceSkillCoverageFamilyEntry(
+        string Family,
+        IReadOnlyList<string> AbilityIds,
+        string PromptAnchor,
+        string CommandAnchor,
+        string AuditAnchor,
+        string RollbackAnchor,
+        string ClosureStatus,
         IReadOnlyList<string> DocAnchors);
 }

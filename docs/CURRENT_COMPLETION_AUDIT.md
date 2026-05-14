@@ -7,6 +7,8 @@
 
 ## 0. 2026-05-13 最新状态补充
 
+2026-05-15 4D-03AL focused audit 补充：PaymentEngine resource skill coverage verifier 已验收，入口为 `docs/CURRENT_STAGE4D_03AL_PAYMENT_ENGINE_RESOURCE_SKILL_COVERAGE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AL_PAYMENT_ENGINE_RESOURCE_SKILL_COVERAGE_EVIDENCE.md`；implementation-before adjacent baseline 449/449、focused 11/11、adjacent 452/452、backend full 4245/4245 通过。该切片只证明当前 activated ability catalog 中 `IsResourceSkill=true` 的 19 个 representative resource skill ability ids 都有 family-level prompt、command、`ABILITY_ACTIVATED` audit 和 rollback anchors；不关闭完整 `[A]` / `[C]` resource skill family、P0-005、P1、前端最终验收、full-card audit 或 READY。项目仍 **NOT READY**。
+
 2026-05-15 4D-03AK focused audit 补充：PaymentEngine Spellshield tax coverage verifier 已验收，入口为 `docs/CURRENT_STAGE4D_03AK_PAYMENT_ENGINE_SPELLSHIELD_TAX_COVERAGE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AK_PAYMENT_ENGINE_SPELLSHIELD_TAX_COVERAGE_EVIDENCE.md`；focused 8/8、adjacent 382/382、backend full 4242/4242 通过。该切片只证明当前 activated ability catalog 中 `AppliesSpellshieldTargetTax=true` 的 Xerath / Crimson Rose / Shadow representatives 都有 prompt、command、`COST_PAID` tax audit 和 rollback anchors；不关闭 P0-005、P1、前端最终验收、full-card audit 或 READY。项目仍 **NOT READY**。
 
 2026-05-15 4D-03AJ focused slice 补充：PaymentEngine Renata typed temporary resource 已验收，入口为 `docs/CURRENT_STAGE4D_03AJ_PAYMENT_ENGINE_RENATA_TYPED_TEMP_RESOURCE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AJ_PAYMENT_ENGINE_RENATA_TYPED_TEMP_RESOURCE_EVIDENCE.md`；focused 85/85、adjacent 687/687、backend full 4239/4239 通过。该切片只证明 Renata draw / score typed-blue `ACTIVATE_ABILITY` branches 的 matching blue temporary resource quote / command commit / audit metadata；不关闭 P0-005、P1、前端最终验收、full-card audit 或 READY。项目仍 **NOT READY**。
