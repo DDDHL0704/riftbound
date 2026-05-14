@@ -5,6 +5,8 @@
 
 本文刷新 4D-02C 后已经过时的 P0-004 battle lifecycle 剩余范围审计。4D-02B 至 4D-02R 已连续补齐 natural battle response、damage assignment、next contested battlefield advancement、post-payment blocker、actual Shadow activation / stack-return 与 no-result cross-products，但这些仍是 focused representative，不等于 full official spell duel / battle state machine 关闭。
 
+2026-05-15 follow-up：4D-02T 已验收 activation-returned assignment branch 的 cleanup-first blocker ordering；下一切片转为 4D-02U，锁定 actual Shadow activation 作为非参战 response source 时 stack resolution 后的 precise `ObjectLocation.BattlefieldObjectId` preservation。4D-02S 原始建议保留为历史审计背景，不代表当前最新 handoff。
+
 ## Evidence Inspected
 
 - `docs/A_MASTER_AGENT_GOAL.md`
@@ -61,22 +63,22 @@ The 4D-02C audit said next contested battlefield advancement after battle close 
 
 ## Next Recommended Slice
 
-Proceed with `4D-02T Battle Response Activation Assignment Standby Cleanup Advancement`.
+4D-02T 已完成。Proceed with `4D-02U Battle Response Nonparticipant Source Location Preservation`.
 
-Goal: prove the actual Shadow activation -> stack resolution -> return-to-response -> assignment branch also preserves the cleanup-first blocker ordering already proven by 4D-01C for the non-activation branch.
+Goal: prove actual Shadow activation used as a nonparticipant battle response source keeps its concrete battlefield object location after stack resolution, instead of degrading to an unknown battlefield location.
 
 Recommended representative:
 
 - `BF-A` and `BF-B` are both contested.
-- `BF-A` has a hidden / illegal standby object that becomes invalid after battle control resolves.
-- P1 declares a supported assignment battle on `BF-A`.
-- P2 activates Shadow in battle response; stack resolves; response pass-pass opens assignment.
-- Legal assignment closes `BF-A`, resolves battle control, enqueues/removes illegal standby, and only then advances `BF-B` to `SPELL_DUEL_TASKS`.
+- P1 declares a supported battle on `BF-A` against `P2-BULWARK` only.
+- `P2-SHADOW` is on the same battlefield and is a legal battle response source, but it is not a declared attacker / defender.
+- P2 activates Shadow in battle response; stack resolves and returns to battle response.
+- `ObjectLocations[P2-SHADOW].BattlefieldObjectId` remains `BF-A`.
 
 Expected guard:
 
-- no `BF-B` advancement during response, stack-open, returned response, or assignment prompt;
-- event order should prove `BATTLE_CLOSED` / `BATTLEFIELD_CONTROL_RESOLVED` precede `BATTLEFIELD_STANDBY_REMOVED`, and standby cleanup precedes `BF-B` `BATTLEFIELD_CONTESTED` / `SPELL_DUEL_STARTED`;
+- no `BF-B` advancement during response or stack-open / stack-resolution return;
+- nonparticipant response source remains in P2 battlefield zone with precise `ObjectLocation` after stack resolution;
 - no frontend, PaymentEngine, LayerEngine, card coverage matrix, or broad combat rewrite.
 
 ## No-Go
@@ -90,4 +92,4 @@ Expected guard:
 
 ## Verdict
 
-4D-02B through 4D-02R materially narrowed P0-004, especially activation-returned assignment / immediate / payment / no-result task advancement. The next useful narrow slice is cleanup-blocker ordering for the activation-returned assignment branch. Project remains **NOT READY**.
+4D-02B through 4D-02T materially narrowed P0-004, especially activation-returned assignment / immediate / payment / no-result task advancement and cleanup-blocker ordering. The next useful narrow slice is precise object-location preservation for nonparticipant battle response sources. Project remains **NOT READY**.
