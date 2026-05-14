@@ -2,6 +2,8 @@
 
 更新时间：2026-05-14
 
+2026-05-14 最新补充：4D-03Z Baron Nest token battlefield static handoff / baseline 已建立。交接入口为 `docs/CURRENT_STAGE4D_03Z_TOKEN_FACTORY_BARON_NEST_STATIC_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_03Z_TOKEN_FACTORY_BARON_NEST_STATIC_BASELINE_EVIDENCE.md`；focused baseline 66/66、`git diff --check` 通过。该补充只锁定 `UNL·T01` 男爵巢穴 `单位可从任意位置移动到此处` 的 no-ROAM destination-specific movement representative，不退役 Image / Brush deferred surfaces，不关闭 P0/P1 或 READY。
+
 2026-05-14 最新补充：4D-03Y Battlefield deferred catalog focused slice 已验收。审计入口为 `docs/CURRENT_STAGE4D_03Y_BATTLEFIELD_DEFERRED_CATALOG_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_03Y_BATTLEFIELD_DEFERRED_CATALOG_EVIDENCE.md`；focused 15/15、adjacent 641/641、backend full 4120/4120、`git diff --check` 通过。该补充只证明四个旧 P6 deferred representatives 退役为 implemented `BATTLEFIELD_RULE_DOMAIN` catalog evidence，不关闭 P0/P1 或 READY。
 
 2026-05-14 最新补充：4D-03Y Battlefield deferred catalog handoff / baseline 已建立。交接入口为 `docs/CURRENT_STAGE4D_03Y_BATTLEFIELD_DEFERRED_CATALOG_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_03Y_BATTLEFIELD_DEFERRED_CATALOG_BASELINE_EVIDENCE.md`；focused baseline 15/15、adjacent baseline 641/641、`git diff --check` 通过。该补充只锁定 `P6BattlefieldEffectCatalog` 旧 deferred surfaces 的 catalog/test 语义退役；Poro Forge / Dream Tree / Blood Altar / Blackflame Altar 四个 representative 继续以 battlefield rule domain / `BATTLEFIELD_RULE_DOMAIN` 为服务端权威，不进入 `ACTIVATE_ABILITY`，不关闭 P0/P1 或 READY。

@@ -5,6 +5,8 @@
 
 本文记录 E 证据/审计 worker 第一轮 P0 交接项、阶段 1 D 协议审计、阶段 2 D P0 规则证据链和 A 主控验收结果，不替代 `docs/CURRENT_SERVER_RULE_AUDIT.md`。
 
+2026-05-14 4D-03Z handoff / baseline 补充：下一服务端 token battlefield static 切片锁定 `UNL·T01` 男爵巢穴 `单位可从任意位置移动到此处`，入口为 `docs/CURRENT_STAGE4D_03Z_TOKEN_FACTORY_BARON_NEST_STATIC_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03Z_TOKEN_FACTORY_BARON_NEST_STATIC_BASELINE_EVIDENCE.md`；focused baseline 66/66、`git diff --check` 通过。该基线只建立实现前回归护栏，不代表 Baron Nest static 已实现，不关闭 P0/P1 或 READY。
+
 2026-05-14 4D-03Y focused slice 补充：battlefield deferred catalog representative 已验收，入口为 `docs/CURRENT_STAGE4D_03Y_BATTLEFIELD_DEFERRED_CATALOG_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03Y_BATTLEFIELD_DEFERRED_CATALOG_EVIDENCE.md`；focused 15/15、adjacent 641/641、backend full 4120/4120、`git diff --check` 通过。该补充只证明四个旧 P6 battlefield deferred representative 已退役为 implemented `BATTLEFIELD_RULE_DOMAIN` catalog evidence，不关闭 P0/P1 或 READY。
 
 2026-05-14 4D-03Y handoff / baseline 补充：下一服务端 catalog hygiene 切片锁定 `P6BattlefieldEffectCatalog` 四个旧 deferred battlefield representatives 的退役；这些代表已经由 battlefield rule domain / `BATTLEFIELD_RULE_DOMAIN` 实现，旧 catalog 语义需要改为 retired / implemented representative，同时保留 activated-grant surface 的 `ACTIVATE_ABILITY` rejected no-mutation。入口为 `docs/CURRENT_STAGE4D_03Y_BATTLEFIELD_DEFERRED_CATALOG_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03Y_BATTLEFIELD_DEFERRED_CATALOG_BASELINE_EVIDENCE.md`；focused baseline 15/15、adjacent baseline 641/641、`git diff --check` 通过。该基线只建立实现前回归护栏，不关闭 P0/P1 或 READY。
