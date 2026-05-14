@@ -140,6 +140,82 @@ public sealed class BattlefieldContestBattleTaskGuardTests
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-DEFENDER-VALID", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public async Task ImmediateDeclareBattleAdvancesNextContestedBattlefieldTaskAfterCurrentBattleCloses()
+    {
+        var state = BuildImmediateBattleNextContestState(includeCleanupBlocker: false);
+        Assert.Equal("BATTLE_TASKS", state.PendingTaskQueue.Phase);
+        Assert.Equal("task:start-battle:BF-1", state.PendingTaskQueue.ActiveTaskId);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-immediate-battle-advances-next-contest", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                "BF-1",
+                ["P1-ATTACKER-VALID"],
+                ["P2-DEFENDER-VALID"],
+                OptionalCosts: ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.False(result.State.BattleState.IsActive);
+        Assert.DoesNotContain(
+            result.State.PendingTaskQueue.Tasks,
+            task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
+                && string.Equals(task.BattlefieldObjectId, "BF-1", StringComparison.Ordinal));
+        Assert.Equal(TimingStates.SpellDuelOpen, result.State.TimingState);
+        Assert.Equal("P1", result.State.FocusPlayerId);
+        Assert.Equal("SPELL_DUEL_TASKS", result.State.PendingTaskQueue.Phase);
+        Assert.Equal("task:start-spell-duel:BF-2", result.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(PromptTypes.SpellDuelFocus, result.Prompts["P1"].View?.Type);
+        Assert.Equal("BF-2", result.Prompts["P1"].View?.RelatedBattlefieldId);
+        Assert.NotEqual(PromptTypes.BattleDeclaration, result.Prompts["P1"].View?.Type);
+
+        var battleClosedIndex = EventIndex(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldId"] as string, "BF-1", StringComparison.Ordinal));
+        var controlIndex = EventIndex(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTROL_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "BF-1", StringComparison.Ordinal));
+        var nextContestIndex = EventIndex(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "BF-2", StringComparison.Ordinal));
+        var nextSpellDuelIndex = EventIndex(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "BF-2", StringComparison.Ordinal));
+
+        Assert.True(battleClosedIndex < controlIndex);
+        Assert.True(controlIndex < nextContestIndex);
+        Assert.True(nextContestIndex < nextSpellDuelIndex);
+    }
+
+    [Fact]
+    public async Task ImmediateDeclareBattleDoesNotAdvanceNextContestedBattlefieldWhenCleanupBlocks()
+    {
+        var state = BuildImmediateBattleNextContestState(includeCleanupBlocker: true);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-immediate-battle-cleanup-blocks-next-contest", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                "BF-1",
+                ["P1-ATTACKER-VALID"],
+                ["P2-DEFENDER-VALID"],
+                OptionalCosts: ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(TimingStates.NeutralOpen, result.State.TimingState);
+        Assert.Equal("STATE_BASED_CLEANUP", result.State.PendingTaskQueue.Phase);
+        Assert.Contains(
+            result.State.PendingTaskQueue.Tasks,
+            task => string.Equals(task.Kind, "RECALL_UNATTACHED_EQUIPMENT", StringComparison.Ordinal)
+                && string.Equals(task.ObjectId, "P2-BATTLEFIELD-EQUIPMENT", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "BF-2", StringComparison.Ordinal));
+    }
+
     private static void AssertRejectedWithoutMutation(MatchState state, ResolutionResult result)
     {
         Assert.False(result.Accepted);
@@ -222,6 +298,35 @@ public sealed class BattlefieldContestBattleTaskGuardTests
             cardObjects: BuildCardObjects(),
             untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted("BF-1")],
             objectLocations: BuildObjectLocations());
+    }
+
+    private static MatchState BuildImmediateBattleNextContestState(bool includeCleanupBlocker)
+    {
+        var state = BuildActiveStartBattleGuardState();
+        var playerZones = new Dictionary<string, PlayerZones>(state.PlayerZones, StringComparer.Ordinal);
+        var cardObjects = new Dictionary<string, CardObjectState>(state.CardObjects, StringComparer.Ordinal);
+        var objectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations, StringComparer.Ordinal)
+        {
+            ["P2-OTHER-BATTLEFIELD-UNIT"] = new("P2", "BATTLEFIELD", "BF-2")
+        };
+        if (!includeCleanupBlocker)
+        {
+            playerZones["P2"] = state.PlayerZones["P2"] with
+            {
+                Battlefields = state.PlayerZones["P2"].Battlefields
+                    .Where(objectId => !string.Equals(objectId, "P2-BATTLEFIELD-EQUIPMENT", StringComparison.Ordinal))
+                    .ToArray()
+            };
+            cardObjects.Remove("P2-BATTLEFIELD-EQUIPMENT");
+            objectLocations.Remove("P2-BATTLEFIELD-EQUIPMENT");
+        }
+
+        return state with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = objectLocations
+        };
     }
 
     private static Dictionary<string, CardObjectState> BuildCardObjects()
@@ -332,5 +437,19 @@ public sealed class BattlefieldContestBattleTaskGuardTests
             ownerId: playerId,
             controllerId: playerId,
             attachedToObjectId: attachedToObjectId);
+    }
+
+    private static int EventIndex(IReadOnlyList<GameEvent> events, Predicate<GameEvent> predicate)
+    {
+        for (var eventIndex = 0; eventIndex < events.Count; eventIndex++)
+        {
+            if (predicate(events[eventIndex]))
+            {
+                return eventIndex;
+            }
+        }
+
+        Assert.Fail("Expected event was not emitted.");
+        return -1;
     }
 }

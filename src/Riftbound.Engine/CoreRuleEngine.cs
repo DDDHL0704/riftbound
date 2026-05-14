@@ -15097,6 +15097,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             Status = winnerPlayerId is null ? state.Status : MatchStatuses.Finished,
             WinnerPlayerId = winnerPlayerId ?? state.WinnerPlayerId
         };
+        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId);
+        nextState = taskAdvance.State;
+        combatEvents.AddRange(taskAdvance.Events);
         var events = new List<GameEvent>
         {
             new(
@@ -23245,6 +23248,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || state.StackItems.Count > 0
             || state.SpellDuelState.IsActive
             || state.BattleState.IsActive
+            || state.PendingPayment is not null
             || state.PendingCleanupTasks.Any(task => IsPendingStateBasedCleanupTask(task.Kind)))
         {
             return (state, []);
