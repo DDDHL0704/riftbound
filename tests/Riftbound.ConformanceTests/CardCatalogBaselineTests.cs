@@ -1039,8 +1039,8 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(5, P6LegendAbilityCatalog.GetImplementedLegendActionSurfaces().Count);
         Assert.Empty(P6BattlefieldEffectCatalog.GetDeferredSurfaces());
         Assert.Equal(4, P6BattlefieldEffectCatalog.GetImplementedBattlefieldRuleSurfaces().Count);
-        Assert.Equal(2, P6TokenFactoryCatalog.GetDeferredRuleSurfaces().Count);
-        Assert.Single(P6TokenFactoryCatalog.GetImplementedRuleSurfaces());
+        Assert.Single(P6TokenFactoryCatalog.GetDeferredRuleSurfaces());
+        Assert.Equal(2, P6TokenFactoryCatalog.GetImplementedRuleSurfaces().Count);
     }
 
     [Fact]

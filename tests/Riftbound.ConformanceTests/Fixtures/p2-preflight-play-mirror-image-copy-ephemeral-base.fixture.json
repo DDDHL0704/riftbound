@@ -12,7 +12,7 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "UNL-200/219 镜花水月; UNL·T06 映像",
-      "note": "官方卡面：费用 3；选择一名单位，将一名活跃状态的“映像”打出到你的基地；该映像变为所选单位的复制体并获得瞬息。当前 fixture 在最小对象模型中复制目标当前战力与标签，并追加瞬息；完整复制牌面和不触发打出效果的深层语义暂缓。"
+      "note": "官方卡面：费用 3；选择一名单位，将一名活跃状态的“映像”打出到你的基地；该映像变为所选单位的复制体并获得瞬息。当前 fixture 在最小对象模型中复制目标当前 CardNo、战力与标签，并追加映像 / 瞬息；完整 LayerEngine 语义暂缓。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -63,8 +63,9 @@
     },
     "cardObjects": {
       "P2-MIRROR-TARGET-001": {
+        "cardNo": "SFD·068/221",
         "power": 4,
-        "tags": ["机械"]
+        "tags": ["CARD_TYPE:UNIT", "机械"]
       }
     }
   },
@@ -135,10 +136,13 @@
           "sourceObjectId": "P1-SPELL-MIRROR-IMAGE",
           "tokenObjectId": "P1-SPELL-MIRROR-IMAGE-TOKEN-001",
           "tokenName": "映像",
+          "tokenCardNo": "SFD·068/221",
+          "tokenFactoryCardNo": "UNL·T06",
           "power": 4,
           "destinationZone": "BASE",
           "copiedTargetObjectId": "P2-MIRROR-TARGET-001",
-          "tokenTags": ["机械", "瞬息"]
+          "copiedCardNo": "SFD·068/221",
+          "tokenTags": ["CARD_TYPE:UNIT", "映像", "机械", "瞬息"]
         }
       }
     ],
@@ -171,11 +175,12 @@
         }
       },
       "cardObjects": {
-        "P2-MIRROR-TARGET-001": { "power": 4, "tags": ["机械"] },
+        "P2-MIRROR-TARGET-001": { "cardNo": "SFD·068/221", "power": 4, "tags": ["CARD_TYPE:UNIT", "机械"] },
         "P1-SPELL-MIRROR-IMAGE-TOKEN-001": {
+          "cardNo": "SFD·068/221",
           "power": 4,
           "isExhausted": false,
-          "tags": ["机械", "瞬息"]
+          "tags": ["CARD_TYPE:UNIT", "映像", "机械", "瞬息"]
         }
       },
       "stackItems": []

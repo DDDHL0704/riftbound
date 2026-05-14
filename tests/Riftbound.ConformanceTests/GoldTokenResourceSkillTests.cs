@@ -65,9 +65,9 @@ public sealed class GoldTokenResourceSkillTests
             surface.SurfaceId,
             "TOKEN_DEFERRED_GOLD_REACTION_DESTROY_EXHAUST_GAIN_A_SFD",
             StringComparison.Ordinal));
-        Assert.Contains(surfaces, surface => string.Equals(
+        Assert.DoesNotContain(surfaces, surface => string.Equals(
             surface.SurfaceId,
-            "TOKEN_DEFERRED_IMAGE_COPY_SOURCE_REQUIRED",
+            P6TokenFactoryCatalog.ImageCopySurfaceId,
             StringComparison.Ordinal));
         Assert.Contains(surfaces, surface => string.Equals(
             surface.SurfaceId,
@@ -80,6 +80,10 @@ public sealed class GoldTokenResourceSkillTests
         Assert.Contains(P6TokenFactoryCatalog.GetImplementedRuleSurfaces(), surface => string.Equals(
             surface.SurfaceId,
             P6TokenFactoryCatalog.BaronNestMoveStaticSurfaceId,
+            StringComparison.Ordinal));
+        Assert.Contains(P6TokenFactoryCatalog.GetImplementedRuleSurfaces(), surface => string.Equals(
+            surface.SurfaceId,
+            P6TokenFactoryCatalog.ImageCopySurfaceId,
             StringComparison.Ordinal));
     }
 

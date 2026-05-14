@@ -13,6 +13,8 @@
 - 当前 completion audit 仍列出 P0-002、P0-003、P0-004、P0-005 与 P1 LayerEngine / keywords / full-card evidence / replay-hash coverage。
 - Formal 18-step E2E 已有连续正式主流程证据；它满足 A_MASTER 的主流程门槛，但不能替代 strict battlefield contest / battle lifecycle / PaymentEngine / LayerEngine 的 full official 收口。
 
+4D-03AA focused slice 补充：Image copy-token representative 已验收，审计与证据见 `docs/CURRENT_STAGE4D_03AA_TOKEN_FACTORY_IMAGE_COPY_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AA_TOKEN_FACTORY_IMAGE_COPY_EVIDENCE.md`；focused 16/16、adjacent 253/253、backend full 4136/4136、`git diff --check` 通过。该补充只收口 `UNL·T06` 映像当前对象模型 copy representative，保留 Brush battlefield replacement deferred，不关闭 P0/P1 或 READY。
+
 4D-03AA handoff / baseline 补充：下一服务端 token copy 切片锁定 `UNL·T06` 映像 `当我被打出时，变为某张卡牌的复制体`。交接规格见 `docs/CURRENT_STAGE4D_03AA_TOKEN_FACTORY_IMAGE_COPY_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_03AA_TOKEN_FACTORY_IMAGE_COPY_BASELINE_EVIDENCE.md`；focused baseline 11/11、`git diff --check` 通过。该补充只建立 Image copy-token representative 的实现前护栏，保留 Brush battlefield replacement deferred，不关闭 P0/P1 或 READY。
 
 4D-03Z focused slice 补充：Baron Nest token battlefield static representative 已验收，审计与证据见 `docs/CURRENT_STAGE4D_03Z_TOKEN_FACTORY_BARON_NEST_STATIC_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03Z_TOKEN_FACTORY_BARON_NEST_STATIC_EVIDENCE.md`；focused 77/77、adjacent 345/345、backend full 4131/4131、`git diff --check` 通过。该补充只收口 `UNL·T01` 男爵巢穴 no-ROAM destination-specific movement representative，保留 Image / Brush token surfaces deferred，不关闭 P0/P1 或 READY。

@@ -17422,6 +17422,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["battlefieldId"] = battlefieldId,
                     ["copiedTargetObjectId"] = copySourceObjectId,
                     ["copiedCardNo"] = copySourceState.CardNo,
+                    ["tokenFactoryCardNo"] = P6TokenFactoryCatalog.ImageTokenCardNo,
                     ["isExhausted"] = false,
                     ["tokenTags"] = tokenTags,
                     ["trigger"] = trigger
@@ -21780,6 +21781,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             out targetObjectIds);
         if (!HasValidTargetCount(state, intent.PlayerId, behavior, targetObjectIds)
             || !PlayCardTargetsExposeKnownCardNumbers(state, targetObjectIds)
+            || !CreatedBaseUnitCopyTargetAllowed(state, behavior, targetObjectIds)
             || !HasValidTotalTargetPower(state, behavior, targetObjectIds)
             || !AreTargetsAfterFirstPowerLessThanFirstTarget(state, behavior, targetObjectIds)
             || !HasRequiredAnyTargetTag(state, behavior, targetObjectIds)
@@ -25643,6 +25645,29 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return !string.IsNullOrWhiteSpace(targetState.OwnerId)
             || !string.IsNullOrWhiteSpace(targetState.ControllerId);
+    }
+
+    private static bool CreatedBaseUnitCopyTargetAllowed(
+        MatchState state,
+        CardBehaviorDefinition behavior,
+        IReadOnlyList<string> targetObjectIds)
+    {
+        if (!behavior.CreatedBaseUnitTokenCopiesFirstTarget)
+        {
+            return true;
+        }
+
+        var targetObjectId = targetObjectIds.FirstOrDefault() ?? string.Empty;
+        return !string.IsNullOrWhiteSpace(targetObjectId)
+            && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            && !string.IsNullOrWhiteSpace(targetState.CardNo)
+            && !targetState.IsFaceDown
+            && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && !targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            && !targetState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
+            && !targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
+            && FindFieldObjectLocation(state.PlayerZones, targetObjectId) is not null;
     }
 
     private static bool HasRequiredAnyTargetTag(
@@ -32455,11 +32480,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         var copiesTarget = !string.IsNullOrWhiteSpace(copiedTargetObjectId)
             && cardObjects.TryGetValue(copiedTargetObjectId, out copiedTargetState);
         if (behavior.CreatedBaseUnitTokenCopiesFirstTarget
-            && !copiesTarget)
+            && (!copiesTarget
+                || copiedTargetState is null
+                || string.IsNullOrWhiteSpace(copiedTargetState.CardNo)))
         {
             return;
         }
 
+        var isImageCopyToken = behavior.CreatedBaseUnitTokenCopiesFirstTarget
+            && string.Equals(behavior.CreatedBaseUnitTokenName, "映像", StringComparison.Ordinal);
         var tokenPower = copiedTargetState is not null
             ? copiedTargetState.Power
             : behavior.CreatedBaseUnitTokenPower;
@@ -32473,6 +32502,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var tokenTags = copiedTargetState is not null
             ? copiedTargetState.Tags
                 .Concat(ParseDelimitedValues(behavior.CreatedBaseUnitTokenTags))
+                .Concat(isImageCopyToken ? ["映像"] : Array.Empty<string>())
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(tag => tag, StringComparer.Ordinal)
                 .ToArray()
@@ -32495,7 +32525,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObjects[tokenObjectId] = new CardObjectState(
                 tokenObjectId,
                 power: tokenPower,
-                tags: tokenTags);
+                tags: tokenTags,
+                cardNo: isImageCopyToken ? copiedTargetState!.CardNo : null,
+                ownerId: stackItem.ControllerId,
+                controllerId: stackItem.ControllerId);
             var payload = new Dictionary<string, object?>
             {
                 ["playerId"] = stackItem.ControllerId,
@@ -32508,6 +32541,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             if (copiesTarget)
             {
                 payload["copiedTargetObjectId"] = copiedTargetObjectId;
+                payload["copiedCardNo"] = copiedTargetState!.CardNo;
+            }
+
+            if (isImageCopyToken)
+            {
+                payload["tokenFactoryCardNo"] = P6TokenFactoryCatalog.ImageTokenCardNo;
+                payload["tokenCardNo"] = copiedTargetState!.CardNo;
             }
 
             if (tokenTags.Count > 0)

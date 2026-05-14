@@ -23314,8 +23314,14 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal(["P1-SPELL-MIRROR-IMAGE-TOKEN-001"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Equal(4, result.FinalState.CardObjects["P1-SPELL-MIRROR-IMAGE-TOKEN-001"].Power);
+        Assert.Equal("SFD·068/221", result.FinalState.CardObjects["P1-SPELL-MIRROR-IMAGE-TOKEN-001"].CardNo);
         Assert.False(result.FinalState.CardObjects["P1-SPELL-MIRROR-IMAGE-TOKEN-001"].IsExhausted);
-        Assert.Equal(["机械", CardObjectTags.Ephemeral], result.FinalState.CardObjects["P1-SPELL-MIRROR-IMAGE-TOKEN-001"].Tags);
+        Assert.Equal([CardObjectTags.UnitCard, "映像", "机械", CardObjectTags.Ephemeral], result.FinalState.CardObjects["P1-SPELL-MIRROR-IMAGE-TOKEN-001"].Tags);
+        var tokenEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
+        Assert.Equal("P2-MIRROR-TARGET-001", tokenEvent.Payload["copiedTargetObjectId"]);
+        Assert.Equal("SFD·068/221", tokenEvent.Payload["copiedCardNo"]);
+        Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, tokenEvent.Payload["tokenFactoryCardNo"]);
+        Assert.Equal("SFD·068/221", tokenEvent.Payload["tokenCardNo"]);
     }
 
     [Fact]
@@ -23350,6 +23356,128 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
         Assert.Empty(result.Events);
         Assert.Empty(result.State.StackItems);
+    }
+
+    [Theory]
+    [InlineData("missing-card-no")]
+    [InlineData("non-unit")]
+    [InlineData("dirty-control")]
+    [InlineData("face-down")]
+    public async Task CoreRuleEngineRejectsMirrorImageInvalidCopySourceWithoutMutation(string caseName)
+    {
+        var baseTarget = new CardObjectState(
+            "P2-MIRROR-TARGET-001",
+            cardNo: "SFD·068/221",
+            power: 4,
+            tags: [CardObjectTags.UnitCard, "机械"],
+            ownerId: "P2",
+            controllerId: "P2");
+        var target = caseName switch
+        {
+            "missing-card-no" => baseTarget with { CardNo = null },
+            "non-unit" => baseTarget with { Tags = [CardObjectTags.EquipmentCard, "武装"] },
+            "dirty-control" => baseTarget with { OwnerId = "P1", ControllerId = string.Empty },
+            "face-down" => baseTarget with { IsFaceDown = true },
+            _ => baseTarget
+        };
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-MIRROR-IMAGE"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-MIRROR-TARGET-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-MIRROR-IMAGE"] = new(
+                    "P1-SPELL-MIRROR-IMAGE",
+                    cardNo: "UNL-200/219",
+                    tags: [CardObjectTags.SpellCard],
+                    manaCost: 3,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-MIRROR-TARGET-001"] = target
+            }
+        };
+        var initialHash = MatchStateHasher.Hash(state);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent($"intent-mirror-image-invalid-copy-{caseName}", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-MIRROR-IMAGE", "UNL-200/219", ["P2-MIRROR-TARGET-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+        Assert.Empty(result.Events);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineMirrorImageDoesNotTriggerCopiedCardPlayEffects()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-MIRROR-IMAGE"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-MIRROR-VANGUARD"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-MIRROR-IMAGE"] = new(
+                    "P1-SPELL-MIRROR-IMAGE",
+                    cardNo: "UNL-200/219",
+                    tags: [CardObjectTags.SpellCard],
+                    manaCost: 3,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-MIRROR-VANGUARD"] = new(
+                    "P2-MIRROR-VANGUARD",
+                    cardNo: "OGN·218/298",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+        var engine = new CoreRuleEngine();
+        var playResult = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-mirror-image-copy-on-play-source", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-MIRROR-IMAGE", "UNL-200/219", ["P2-MIRROR-VANGUARD"]),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            playResult.State,
+            new PlayerIntent("intent-mirror-image-copy-on-play-source-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-mirror-image-copy-on-play-source-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(playResult.Accepted, playResult.ErrorMessage);
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Single(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
+        Assert.Single(p2Pass.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            || string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -33604,6 +33732,8 @@ public sealed class ConformanceFixtureRunnerTests
             && string.Equals(gameEvent.Payload["tokenName"] as string, "映像", StringComparison.Ordinal));
         Assert.Equal("BATTLEFIELD", tokenEvent.Payload["destinationZone"]);
         Assert.Equal("P1-LEBLANC-ATTACKER", tokenEvent.Payload["copiedTargetObjectId"]);
+        Assert.Equal("UNL-021/219", tokenEvent.Payload["copiedCardNo"]);
+        Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, tokenEvent.Payload["tokenFactoryCardNo"]);
     }
 
     [Fact]
@@ -33643,7 +33773,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P2-LEBLANC-DEFENDER", triggerEvent.Payload["copiedTargetObjectId"]);
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["copiedTargetObjectId"] as string, "P2-LEBLANC-DEFENDER", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["copiedTargetObjectId"] as string, "P2-LEBLANC-DEFENDER", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["copiedCardNo"] as string, "SFD·101/221", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["tokenFactoryCardNo"] as string, P6TokenFactoryCatalog.ImageTokenCardNo, StringComparison.Ordinal));
     }
 
     [Fact]
@@ -41383,7 +41515,8 @@ public sealed class ConformanceFixtureRunnerTests
     {
         var surfaces = P6TokenFactoryCatalog.GetDeferredRuleSurfaces();
 
-        Assert.Equal(2, surfaces.Count);
+        var brushSurface = Assert.Single(surfaces);
+        Assert.Equal("TOKEN_DEFERRED_BRUSH_BATTLEFIELD_REPLACEMENT", brushSurface.SurfaceId);
         Assert.DoesNotContain(surfaces, surface => string.Equals(
             surface.SurfaceId,
             "TOKEN_DEFERRED_GOLD_REACTION_DESTROY_EXHAUST_GAIN_A_UNL",
@@ -41392,9 +41525,9 @@ public sealed class ConformanceFixtureRunnerTests
             surface.SurfaceId,
             "TOKEN_DEFERRED_GOLD_REACTION_DESTROY_EXHAUST_GAIN_A_SFD",
             StringComparison.Ordinal));
-        Assert.Contains(surfaces, surface => string.Equals(
-            surface.SurfaceKind,
-            P6TokenFactoryCatalog.CopyTokenSurfaceKind,
+        Assert.DoesNotContain(surfaces, surface => string.Equals(
+            surface.SurfaceId,
+            P6TokenFactoryCatalog.ImageCopySurfaceId,
             StringComparison.Ordinal));
         Assert.Contains(surfaces, surface => string.Equals(
             surface.SurfaceKind,
@@ -41449,28 +41582,49 @@ public sealed class ConformanceFixtureRunnerTests
     {
         var surfaces = P6TokenFactoryCatalog.GetImplementedRuleSurfaces();
 
-        var surface = Assert.Single(surfaces);
-        Assert.Equal(P6TokenFactoryCatalog.BaronNestMoveStaticSurfaceId, surface.SurfaceId);
-        Assert.Equal(P6TokenFactoryCatalog.BaronNestTokenCardNo, surface.SourceCardNo);
-        Assert.Equal(P6TokenFactoryCatalog.BattlefieldStaticSurfaceKind, surface.SurfaceKind);
-        Assert.False(surface.IsActivatedCommandSurface);
-        Assert.Equal(0, surface.TargetCount);
-        Assert.Contains("Baron Nest", surface.DisplayName, StringComparison.Ordinal);
-        Assert.Contains("Baron Nest", surface.Reason, StringComparison.Ordinal);
-        Assert.False(P4ActivatedAbilityCatalog.TryGetByAbilityId(surface.SurfaceId, out _));
-        Assert.True(P6TokenFactoryCatalog.TryGetByCardNo(surface.SourceCardNo, out var definition));
-        Assert.Equal("指示物战场", definition.CategoryName);
-        Assert.False(definition.RequiresCopySource);
+        Assert.Equal(2, surfaces.Count);
+        Assert.Contains(surfaces, surface => string.Equals(
+            surface.SurfaceId,
+            P6TokenFactoryCatalog.ImageCopySurfaceId,
+            StringComparison.Ordinal));
+        Assert.Contains(surfaces, surface => string.Equals(
+            surface.SurfaceId,
+            P6TokenFactoryCatalog.BaronNestMoveStaticSurfaceId,
+            StringComparison.Ordinal));
 
         var officialCatalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
-        var officialCard = officialCatalog.Cards.Single(card =>
-            string.Equals(card.CardNo, surface.SourceCardNo, StringComparison.Ordinal));
-        var parsed = RuleTextParser.Parse(officialCard);
+        foreach (var surface in surfaces)
+        {
+            Assert.False(surface.IsActivatedCommandSurface);
+            Assert.False(P4ActivatedAbilityCatalog.TryGetByAbilityId(surface.SurfaceId, out _));
+            Assert.True(P6TokenFactoryCatalog.TryGetByCardNo(surface.SourceCardNo, out var definition));
+            var officialCard = officialCatalog.Cards.Single(card =>
+                string.Equals(card.CardNo, surface.SourceCardNo, StringComparison.Ordinal));
+            var parsed = RuleTextParser.Parse(officialCard);
 
-        Assert.Equal("指示物战场", officialCard.CardCategoryName);
-        Assert.Contains(surface.OfficialTextAnchor, officialCard.CardEffect, StringComparison.Ordinal);
-        Assert.NotEmpty(parsed.StaticAbilities);
-        Assert.False(CardBehaviorRegistry.TryGetByCardNo(surface.SourceCardNo, out _));
+            Assert.StartsWith("指示物", officialCard.CardCategoryName, StringComparison.Ordinal);
+            Assert.Contains(surface.OfficialTextAnchor, officialCard.CardEffect, StringComparison.Ordinal);
+            Assert.False(CardBehaviorRegistry.TryGetByCardNo(surface.SourceCardNo, out _));
+            switch (surface.SurfaceKind)
+            {
+                case P6TokenFactoryCatalog.CopyTokenSurfaceKind:
+                    Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, surface.SourceCardNo);
+                    Assert.Equal(1, surface.TargetCount);
+                    Assert.True(definition.RequiresCopySource);
+                    Assert.Contains(P6TokenFactoryCatalog.CopySourceRequiredTag, definition.Tags);
+                    break;
+                case P6TokenFactoryCatalog.BattlefieldStaticSurfaceKind:
+                    Assert.Equal(P6TokenFactoryCatalog.BaronNestTokenCardNo, surface.SourceCardNo);
+                    Assert.Equal(0, surface.TargetCount);
+                    Assert.Equal("指示物战场", definition.CategoryName);
+                    Assert.False(definition.RequiresCopySource);
+                    Assert.NotEmpty(parsed.StaticAbilities);
+                    break;
+                default:
+                    Assert.Fail($"Unexpected implemented token surface kind '{surface.SurfaceKind}'.");
+                    break;
+            }
+        }
     }
 
     [Fact]

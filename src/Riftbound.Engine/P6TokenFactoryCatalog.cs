@@ -51,6 +51,8 @@ public static class P6TokenFactoryCatalog
 {
     public const string BaronNestTokenCardNo = "UNL·T01";
     public const string BaronNestMoveStaticSurfaceId = "TOKEN_DEFERRED_BARON_NEST_MOVE_STATIC";
+    public const string ImageTokenCardNo = "UNL·T06";
+    public const string ImageCopySurfaceId = "TOKEN_DEFERRED_IMAGE_COPY_SOURCE_REQUIRED";
     public const string BattlefieldCardTag = "CARD_TYPE:BATTLEFIELD";
     public const string CopySourceRequiredTag = "COPY_SOURCE_REQUIRED";
     public const string ActivatedResourceSurfaceKind = "activated-resource";
@@ -64,7 +66,7 @@ public static class P6TokenFactoryCatalog
         Unit("UNL·T02", "战鹰", "战鹰", 1, CardObjectTags.Spellshield, "鸟类"),
         Battlefield("UNL·T03", "草丛", "草丛"),
         Equipment("UNL·T05", "金币", "金币", "反应"),
-        Unit("UNL·T06", "映像", "映像", 0, true, CopySourceRequiredTag),
+        Unit(ImageTokenCardNo, "映像", "映像", 0, true, CopySourceRequiredTag),
         Unit("UNL·T07", "精灵", "精灵", 3, CardObjectTags.Ephemeral, "仙灵"),
         Unit("SFD·T01", "机器人", "机器人", 3, "机械"),
         Unit("SFD·T02", "黄沙士兵", "黄沙士兵", 2, CardObjectTags.SandSoldier),
@@ -78,15 +80,6 @@ public static class P6TokenFactoryCatalog
     private static readonly P6DeferredTokenRuleSurface[] DeferredRuleSurfaces =
     [
         new(
-            "TOKEN_DEFERRED_IMAGE_COPY_SOURCE_REQUIRED",
-            "UNL·T06",
-            "Image copy-token entry replacement",
-            "当我被打出时，变为某张卡牌的复制体",
-            CopyTokenSurfaceKind,
-            IsActivatedCommandSurface: false,
-            TargetCount: 1,
-            "P6.11 binds Image as a copy-source-required token identity, but copy timing and play-effect suppression remain deferred."),
-        new(
             "TOKEN_DEFERRED_BRUSH_BATTLEFIELD_REPLACEMENT",
             "UNL·T03",
             "Brush battlefield replacement token",
@@ -99,6 +92,15 @@ public static class P6TokenFactoryCatalog
 
     private static readonly P6ImplementedTokenRuleSurface[] ImplementedRuleSurfaces =
     [
+        new(
+            ImageCopySurfaceId,
+            ImageTokenCardNo,
+            "Image copy-token entry replacement",
+            "当我被打出时，变为某张卡牌的复制体",
+            CopyTokenSurfaceKind,
+            IsActivatedCommandSurface: false,
+            TargetCount: 1,
+            "P6.11 retired this deferred representative after the token factory domain implemented Image copy-token CardNo, power, tags, and copy audit metadata."),
         new(
             BaronNestMoveStaticSurfaceId,
             BaronNestTokenCardNo,
