@@ -17,6 +17,8 @@
 
 2026-05-15 follow-up：4D-02X 已验收上述 multiple legal sources representative。P0-004 仍 open；该切片只证明两个 Shadow sources 的同窗口顺序消耗，不代表完整 swift / reaction source family 或 stale/no-effect target matrix。
 
+2026-05-15 follow-up：下一切片 4D-02Y 转向 battle response stale target no-effect。目标是把已有 standalone Shadow stale-target no-effect guard 组合进 active battle response stack-return / no early next-battlefield advancement path。
+
 ## Evidence Inspected
 
 - `docs/A_MASTER_AGENT_GOAL.md`
@@ -77,7 +79,7 @@ The 4D-02C audit said next contested battlefield advancement after battle close 
 
 4D-02T through 4D-02W 已完成. Next should continue through the broader remaining P0-004 matrix rather than extending the same Shadow / standby nested-stack branch indefinitely.
 
-Suggested next goal after 4D-02X: choose a new narrow representative from the remaining matrix, such as stale/no-effect response target handling or a battle-result ordering branch not yet covered by the current assignment / immediate / payment / no-result paths.
+Suggested next goal after 4D-02Y: choose a new narrow representative from the remaining matrix, such as a battle-result ordering branch not yet covered by the current assignment / immediate / payment / no-result paths.
 
 Recommended representative:
 
