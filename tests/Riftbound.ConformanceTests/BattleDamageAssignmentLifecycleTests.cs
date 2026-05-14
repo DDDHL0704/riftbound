@@ -15,6 +15,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
     private const string BackRowDefenderObjectId = "P2-Z-BACKROW";
     private const string ShadowObjectId = "P2-SHADOW";
     private const string HiddenStandbyObjectId = "P2-HIDDEN-STANDBY";
+    private const string StandbyReactionObjectId = "P1-FACEDOWN-STANDBY-REACTION";
     private const string NextBattlefieldObjectId = "BF-NEXT";
     private const string NextAttackerObjectId = "P1-NEXT-CONTEST";
     private const string NextDefenderObjectId = "P2-NEXT-CONTEST";
@@ -835,6 +836,208 @@ public sealed class BattleDamageAssignmentLifecycleTests
             responseP1Pass.State.PendingTaskQueue.Tasks,
             task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
                 && string.Equals(task.BattlefieldObjectId, BattlefieldObjectId, StringComparison.Ordinal));
+        var responseClosedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+        var battleClosedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldId"] as string, BattlefieldObjectId, StringComparison.Ordinal));
+        var controlResolvedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTROL_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, BattlefieldObjectId, StringComparison.Ordinal));
+        var nextContestIndex = EventIndex(responseP1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
+        var nextSpellDuelIndex = EventIndex(responseP1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
+
+        Assert.True(responseClosedIndex < battleClosedIndex);
+        Assert.True(battleClosedIndex < controlResolvedIndex);
+        Assert.True(controlResolvedIndex < nextContestIndex);
+        Assert.True(nextContestIndex < nextSpellDuelIndex);
+        Assert.Equal(TimingStates.SpellDuelOpen, responseP1Pass.State.TimingState);
+        Assert.Equal("P1", responseP1Pass.State.FocusPlayerId);
+        Assert.Equal("SPELL_DUEL_TASKS", responseP1Pass.State.PendingTaskQueue.Phase);
+        Assert.Equal($"task:start-spell-duel:{NextBattlefieldObjectId}", responseP1Pass.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(PromptTypes.SpellDuelFocus, responseP1Pass.Prompts["P1"].View?.Type);
+        Assert.Equal(NextBattlefieldObjectId, responseP1Pass.Prompts["P1"].View?.RelatedBattlefieldId);
+        Assert.NotEqual(PromptTypes.AssignCombatDamage, responseP1Pass.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.BattleDeclaration, responseP1Pass.Prompts["P1"].View?.Type);
+    }
+
+    [Fact]
+    public async Task NaturalBattleResponseActivationAllowsNestedStandbyReactionStackBeforeReturningToResponse()
+    {
+        var state = BuildNestedStandbyReactionBattleResponseState();
+        var engine = new CoreRuleEngine();
+
+        var openedResponse = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-natural-response-nested-standby-declare-battle", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                BattlefieldObjectId,
+                [AttackerObjectId],
+                [BulwarkDefenderObjectId],
+                OptionalCosts: ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
+        Assert.True(openedResponse.State.BattleState.IsActive);
+        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
+        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
+        AssertNextContestedBattlefieldNotAdvanced(openedResponse);
+
+        var activated = await engine.ResolveAsync(
+            openedResponse.State,
+            new PlayerIntent("intent-natural-response-nested-standby-shadow", "P2", CommandTypes.ActivateAbility),
+            new ActivateAbilityCommand(
+                ShadowObjectId,
+                P4ActivatedAbilityCatalog.ShadowStunAbilityId,
+                [AttackerObjectId]),
+            CancellationToken.None);
+
+        Assert.True(activated.Accepted, activated.ErrorMessage);
+        Assert.Equal(
+            ["ABILITY_ACTIVATED", "UNIT_EXHAUSTED", "COST_PAID", "STACK_ITEM_ADDED"],
+            activated.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.True(activated.State.CardObjects[ShadowObjectId].IsExhausted);
+        var shadowStackItem = Assert.Single(activated.State.StackItems);
+        Assert.Equal(ShadowObjectId, shadowStackItem.SourceObjectId);
+        Assert.Equal(P4ActivatedAbilityCatalog.ShadowStunAbilityEffectKind, shadowStackItem.EffectKind);
+        Assert.Equal("P2", activated.State.PriorityPlayerId);
+        AssertNextContestedBattlefieldNotAdvanced(activated);
+
+        var stackP2Pass = await engine.ResolveAsync(
+            activated.State,
+            new PlayerIntent("intent-natural-response-nested-standby-stack-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(stackP2Pass.Accepted, stackP2Pass.ErrorMessage);
+        Assert.Equal("P1", stackP2Pass.State.PriorityPlayerId);
+        Assert.Equal([shadowStackItem.StackItemId], stackP2Pass.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.Equal(PromptTypes.StackPriority, stackP2Pass.Prompts["P1"].View?.Type);
+        Assert.Contains(CommandTypes.RevealCard, stackP2Pass.Prompts["P1"].Actions);
+        var revealCandidate = Assert.Single(
+            stackP2Pass.Prompts["P1"].Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.RevealCard, StringComparison.Ordinal));
+        Assert.True(revealCandidate.Enabled);
+        Assert.Equal([StandbyReactionObjectId], (revealCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["STANDBY_REACTION"], (revealCandidate.Modes ?? []).Select(mode => mode.Id).ToArray());
+        Assert.Equal(["STACK"], (revealCandidate.Destinations ?? []).Select(destination => destination.Id).ToArray());
+        AssertNextContestedBattlefieldNotAdvanced(stackP2Pass);
+
+        var revealed = await engine.ResolveAsync(
+            stackP2Pass.State,
+            new PlayerIntent("intent-natural-response-nested-standby-reveal", "P1", CommandTypes.RevealCard),
+            new RevealCardCommand(
+                StandbyReactionObjectId,
+                "OGN·121/298",
+                [],
+                Mode: "STANDBY_REACTION",
+                OptionalCosts: ["STANDBY_REVEAL_0"],
+                Destination: "STACK"),
+            CancellationToken.None);
+
+        Assert.True(revealed.Accepted, revealed.ErrorMessage);
+        Assert.Equal(
+            ["CARD_REVEALED", "CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"],
+            revealed.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(2, revealed.State.StackItems.Count);
+        Assert.Equal(shadowStackItem.StackItemId, revealed.State.StackItems[0].StackItemId);
+        var standbyStackItem = revealed.State.StackItems[1];
+        Assert.Equal(StandbyReactionObjectId, standbyStackItem.SourceObjectId);
+        Assert.Equal("P1", standbyStackItem.ControllerId);
+        Assert.Equal("OGN_TEEMO_STANDBY_DEFEND_REVEAL_PLAY_UNIT", standbyStackItem.EffectKind);
+        Assert.Equal("OGN·121/298", standbyStackItem.CardNo);
+        Assert.Equal(["STANDBY_REVEAL_0"], standbyStackItem.OptionalCosts);
+        Assert.Equal("STACK", revealed.State.ObjectLocations[StandbyReactionObjectId].Zone);
+        Assert.False(revealed.State.CardObjects[StandbyReactionObjectId].IsFaceDown);
+        Assert.Equal("P1", revealed.State.PriorityPlayerId);
+        Assert.DoesNotContain(revealed.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+        Assert.DoesNotContain(revealed.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
+        AssertNextContestedBattlefieldNotAdvanced(revealed);
+
+        var standbyP1Pass = await engine.ResolveAsync(
+            revealed.State,
+            new PlayerIntent("intent-natural-response-nested-standby-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(standbyP1Pass.Accepted, standbyP1Pass.ErrorMessage);
+        Assert.Equal("P2", standbyP1Pass.State.PriorityPlayerId);
+        Assert.Equal([shadowStackItem.StackItemId, standbyStackItem.StackItemId], standbyP1Pass.State.StackItems.Select(item => item.StackItemId).ToArray());
+        AssertNextContestedBattlefieldNotAdvanced(standbyP1Pass);
+
+        var standbyP2Pass = await engine.ResolveAsync(
+            standbyP1Pass.State,
+            new PlayerIntent("intent-natural-response-nested-standby-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(standbyP2Pass.Accepted, standbyP2Pass.ErrorMessage);
+        Assert.Equal(["PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "UNIT_PLAYED_TO_BASE"], standbyP2Pass.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal([shadowStackItem.StackItemId], standbyP2Pass.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.Equal("P2", standbyP2Pass.State.PriorityPlayerId);
+        Assert.Contains(StandbyReactionObjectId, standbyP2Pass.State.PlayerZones["P1"].Base);
+        Assert.False(standbyP2Pass.State.CardObjects[StandbyReactionObjectId].IsFaceDown);
+        Assert.Equal("BASE", standbyP2Pass.State.ObjectLocations[StandbyReactionObjectId].Zone);
+        Assert.DoesNotContain("STUNNED", standbyP2Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
+        AssertNextContestedBattlefieldNotAdvanced(standbyP2Pass);
+
+        var shadowP2Pass = await engine.ResolveAsync(
+            standbyP2Pass.State,
+            new PlayerIntent("intent-natural-response-nested-shadow-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(shadowP2Pass.Accepted, shadowP2Pass.ErrorMessage);
+        Assert.Equal("P1", shadowP2Pass.State.PriorityPlayerId);
+        Assert.Equal([shadowStackItem.StackItemId], shadowP2Pass.State.StackItems.Select(item => item.StackItemId).ToArray());
+        AssertNextContestedBattlefieldNotAdvanced(shadowP2Pass);
+
+        var shadowP1Pass = await engine.ResolveAsync(
+            shadowP2Pass.State,
+            new PlayerIntent("intent-natural-response-nested-shadow-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(shadowP1Pass.Accepted, shadowP1Pass.ErrorMessage);
+        Assert.Empty(shadowP1Pass.State.StackItems);
+        Assert.True(shadowP1Pass.State.BattleState.IsActive);
+        Assert.Equal(TimingStates.NeutralClosed, shadowP1Pass.State.TimingState);
+        Assert.Equal("P2", shadowP1Pass.State.PriorityPlayerId);
+        Assert.Contains("STUNNED", shadowP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
+        var shadowResolvedIndex = EventIndex(shadowP1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
+        var abilityResolvedIndex = EventIndex(shadowP1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "ABILITY_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["abilityId"] as string, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal));
+        Assert.True(shadowResolvedIndex < abilityResolvedIndex);
+        AssertNextContestedBattlefieldNotAdvanced(shadowP1Pass);
+
+        var responseP2Pass = await engine.ResolveAsync(
+            shadowP1Pass.State,
+            new PlayerIntent("intent-natural-response-nested-response-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
+        AssertNextContestedBattlefieldNotAdvanced(responseP2Pass);
+
+        var responseP1Pass = await engine.ResolveAsync(
+            responseP2Pass.State,
+            new PlayerIntent("intent-natural-response-nested-response-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(responseP1Pass.Accepted, responseP1Pass.ErrorMessage);
+        Assert.False(responseP1Pass.State.BattleState.IsActive);
+        Assert.Empty(responseP1Pass.State.StackItems);
+        Assert.DoesNotContain(responseP1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         var responseClosedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
         var battleClosedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
@@ -2394,6 +2597,45 @@ public sealed class BattleDamageAssignmentLifecycleTests
                 ["P2"] = new(1, 1)
             },
             CardObjects = cardObjects
+        };
+    }
+
+    private static MatchState BuildNestedStandbyReactionBattleResponseState()
+    {
+        var state = BuildNaturalStartBattleState(
+            includeShadowResponse: true,
+            includeNextContest: true,
+            defenderObjectIds: [BulwarkDefenderObjectId]);
+        var playerZones = new Dictionary<string, PlayerZones>(state.PlayerZones, StringComparer.Ordinal)
+        {
+            ["P1"] = state.PlayerZones["P1"] with
+            {
+                Base = state.PlayerZones["P1"].Base
+                    .Concat([StandbyReactionObjectId])
+                    .ToArray()
+            }
+        };
+        var cardObjects = new Dictionary<string, CardObjectState>(state.CardObjects, StringComparer.Ordinal)
+        {
+            [StandbyReactionObjectId] = new CardObjectState(
+                StandbyReactionObjectId,
+                cardNo: "OGN·121/298",
+                isFaceDown: true,
+                power: 2,
+                tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
+                manaCost: 2,
+                ownerId: "P1",
+                controllerId: "P1")
+        };
+        var objectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations, StringComparer.Ordinal)
+        {
+            [StandbyReactionObjectId] = new("P1", "BASE")
+        };
+        return state with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = objectLocations
         };
     }
 
