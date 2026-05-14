@@ -7,6 +7,8 @@
 
 ## 0. 2026-05-13 最新状态补充
 
+2026-05-15 4D-02P focused slice 补充：Battle response activation immediate advancement 已验收，入口为 `docs/CURRENT_STAGE4D_02P_BATTLE_RESPONSE_ACTIVATION_IMMEDIATE_ADVANCEMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02P_BATTLE_RESPONSE_ACTIVATION_IMMEDIATE_ADVANCEMENT_EVIDENCE.md`；focused 227/227、adjacent 750/750、backend full 4212/4212、`git diff --check` 通过。该 test-only guard 只证明真实 Shadow activation / stack-return / immediate battle close 与 next contested battlefield advancement 的组合链路；不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
+
 2026-05-15 4D-02P handoff / baseline 补充：Battle response activation immediate advancement 下一 P0-004 切片已建立，入口为 `docs/CURRENT_STAGE4D_02P_BATTLE_RESPONSE_ACTIVATION_IMMEDIATE_ADVANCEMENT_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_02P_BATTLE_RESPONSE_ACTIVATION_IMMEDIATE_ADVANCEMENT_BASELINE_EVIDENCE.md`；focused baseline 226/226、adjacent baseline 749/749、backend full 4211/4211、`git diff --check` 通过。目标是验证 actual Shadow activation / stack resolution / return-to-response 后走 immediate battle close 时仍能推进 next contested battlefield；该补充只建立实现前护栏，不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
 
 2026-05-15 4D-02O focused slice 补充：Battle response activation assignment advancement 已验收，入口为 `docs/CURRENT_STAGE4D_02O_BATTLE_RESPONSE_ACTIVATION_ASSIGNMENT_ADVANCEMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02O_BATTLE_RESPONSE_ACTIVATION_ASSIGNMENT_ADVANCEMENT_EVIDENCE.md`；focused 226/226、adjacent 749/749、backend full 4211/4211、`git diff --check` 通过。该 test-only guard 只证明真实 Shadow activation / stack-return / assignment window 与 next contested battlefield advancement 的组合链路；不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
