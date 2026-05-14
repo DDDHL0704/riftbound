@@ -7,6 +7,8 @@
 
 ## 0. 2026-05-13 最新状态补充
 
+2026-05-14 4D-02D focused guard 补充：Battle response -> assignment integration guard 已验收，入口为 `docs/CURRENT_STAGE4D_02D_BATTLE_RESPONSE_ASSIGNMENT_INTEGRATION_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02D_BATTLE_RESPONSE_ASSIGNMENT_INTEGRATION_EVIDENCE.md`；focused 426/426、adjacent 607/607、backend full 4194/4194 通过。该补充只证明 4D-02B response priority 与 4D-02C damage assignment 的组合链，不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
+
 2026-05-14 4D-02C focused slice 补充：Natural battle damage assignment lifecycle 已实现并验证，入口为 `docs/CURRENT_STAGE4D_02C_NATURAL_BATTLE_DAMAGE_ASSIGNMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02C_NATURAL_BATTLE_DAMAGE_ASSIGNMENT_EVIDENCE.md`；focused 425/425、adjacent 607/607、backend full 4193/4193 通过。该补充只证明一条自然 active `START_BATTLE` / assignment-ordering branch 可进入 `ASSIGN_COMBAT_DAMAGE` prompt/runtime 并完成 cleanup/control；不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
 
 2026-05-14 4D-02C handoff / baseline 补充：Battle lifecycle remaining-scope audit 已建立，入口为 `docs/CURRENT_STAGE4D_02C_BATTLE_LIFECYCLE_REMAINING_SCOPE_AUDIT.md`；下一 P0-004 交接为 `docs/CURRENT_STAGE4D_02C_NATURAL_BATTLE_DAMAGE_ASSIGNMENT_HANDOFF.md`，实现前基线为 `docs/CURRENT_STAGE4D_02C_NATURAL_BATTLE_DAMAGE_ASSIGNMENT_BASELINE_EVIDENCE.md`；focused baseline 319/319、adjacent baseline 598/598、backend full 4188/4188 通过。该补充只建立下一实现护栏，目标是把自然 active `START_BATTLE` lifecycle 接到已有 `ASSIGN_COMBAT_DAMAGE` prompt/runtime；不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。

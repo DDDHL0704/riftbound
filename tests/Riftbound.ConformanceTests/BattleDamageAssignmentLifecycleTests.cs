@@ -12,6 +12,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
     private const string AttackerObjectId = "P1-ATTACKER";
     private const string BulwarkDefenderObjectId = "P2-A-BULWARK";
     private const string BackRowDefenderObjectId = "P2-Z-BACKROW";
+    private const string ShadowObjectId = "P2-SHADOW";
     private const string HiddenStandbyObjectId = "P2-HIDDEN-STANDBY";
 
     [Fact]
@@ -87,6 +88,81 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(Assert.IsType<bool>(battle["isActive"]));
         Assert.Equal(BattlefieldObjectId, Assert.IsType<string>(battle["battlefieldObjectId"]));
         AssertOpponentHiddenStandbyRedacted(snapshot, HiddenStandbyObjectId);
+    }
+
+    [Fact]
+    public async Task NaturalBattleResponsePassThenOpensAssignCombatDamageForAssignmentOrderingBattle()
+    {
+        var state = BuildNaturalStartBattleState(
+            includeShadowResponse: true,
+            defenderObjectIds: [BulwarkDefenderObjectId, ShadowObjectId]);
+        var engine = new CoreRuleEngine();
+
+        var openedResponse = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-natural-shadow-assignment-declare-battle", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                BattlefieldObjectId,
+                [AttackerObjectId],
+                [BulwarkDefenderObjectId, ShadowObjectId],
+                OptionalCosts: ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
+        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
+        Assert.True(openedResponse.State.BattleState.IsActive);
+        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
+        Assert.Equal(PromptTypes.StackPriority, openedResponse.Prompts["P2"].View?.Type);
+        var responseCandidate = Assert.Single(
+            openedResponse.Prompts["P2"].Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        Assert.Contains(responseCandidate.Sources ?? [], source => string.Equals(source.Id, ShadowObjectId, StringComparison.Ordinal));
+
+        var p2Pass = await engine.ResolveAsync(
+            openedResponse.State,
+            new PlayerIntent("intent-natural-response-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Equal(PromptTypes.StackPriority, p2Pass.Prompts["P1"].View?.Type);
+
+        var p1Pass = await engine.ResolveAsync(
+            p2Pass.State,
+            new PlayerIntent("intent-natural-response-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.Contains(p1Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+        Assert.Contains(p1Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
+        Assert.DoesNotContain(p1Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        Assert.True(p1Pass.State.BattleState.IsActive);
+        Assert.Equal("BATTLE_TASKS", p1Pass.State.PendingTaskQueue.Phase);
+        Assert.Equal($"task:start-battle:{BattlefieldObjectId}", p1Pass.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(PromptTypes.AssignCombatDamage, p1Pass.Prompts["P1"].View?.Type);
+        Assert.Equal($"battle:{BattlefieldObjectId}", p1Pass.Prompts["P1"].View?.RelatedBattleId);
+        Assert.Equal(BattlefieldObjectId, p1Pass.Prompts["P1"].View?.RelatedBattlefieldId);
+
+        var assigned = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-natural-response-assign-damage", "P1", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, ShadowResponseLegalAssignments()),
+            CancellationToken.None);
+
+        Assert.True(assigned.Accepted, assigned.ErrorMessage);
+        Assert.False(assigned.State.BattleState.IsActive);
+        Assert.DoesNotContain(
+            assigned.State.PendingTaskQueue.Tasks,
+            task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal));
+        Assert.NotEqual(PromptTypes.AssignCombatDamage, assigned.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.BattleDeclaration, assigned.Prompts["P1"].View?.Type);
+        Assert.Contains(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_STEP_STARTED", StringComparison.Ordinal));
+        Assert.Contains(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        Assert.Contains(assigned.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTROL_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["controllerId"] as string, "P1", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -221,9 +297,11 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Contains(BulwarkDefenderObjectId, result.State.PlayerZones["P2"].Graveyard);
     }
 
-    private static async Task<ResolutionResult> DeclareAssignmentBattleAsync(MatchState state)
+    private static async Task<ResolutionResult> DeclareAssignmentBattleAsync(
+        MatchState state,
+        CoreRuleEngine? engine = null)
     {
-        return await new CoreRuleEngine().ResolveAsync(
+        return await (engine ?? new CoreRuleEngine()).ResolveAsync(
             state,
             new PlayerIntent("intent-natural-assignment-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -245,13 +323,27 @@ public sealed class BattleDamageAssignmentLifecycleTests
         ];
     }
 
+    private static IReadOnlyList<CombatDamageAssignmentDto> ShadowResponseLegalAssignments()
+    {
+        return
+        [
+            new CombatDamageAssignmentDto(AttackerObjectId, BulwarkDefenderObjectId, 2),
+            new CombatDamageAssignmentDto(AttackerObjectId, ShadowObjectId, 3),
+            new CombatDamageAssignmentDto(BulwarkDefenderObjectId, AttackerObjectId, 2),
+            new CombatDamageAssignmentDto(ShadowObjectId, AttackerObjectId, 1)
+        ];
+    }
+
     private static MatchState BuildNaturalStartBattleState(
         bool includeHiddenStandby = false,
+        bool includeShadowResponse = false,
         IReadOnlyList<string>? defenderObjectIds = null)
     {
         var defenders = defenderObjectIds ?? [BulwarkDefenderObjectId, BackRowDefenderObjectId];
         var p2Battlefields = defenders
+            .Concat(includeShadowResponse ? [ShadowObjectId] : [])
             .Concat(includeHiddenStandby ? [HiddenBattlefieldObjectId, HiddenStandbyObjectId] : [])
+            .Distinct(StringComparer.Ordinal)
             .ToArray();
         return new MatchState(
             roomId: "battle-damage-assignment-lifecycle-room",
@@ -271,7 +363,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
                 ["P1"] = RunePool.Empty,
-                ["P2"] = RunePool.Empty
+                ["P2"] = includeShadowResponse ? new RunePool(1, 1) : RunePool.Empty
             },
             playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
@@ -289,12 +381,14 @@ public sealed class BattleDamageAssignmentLifecycleTests
                 ["P1"] = 0,
                 ["P2"] = 0
             },
-            cardObjects: BuildCardObjects(includeHiddenStandby),
+            cardObjects: BuildCardObjects(includeHiddenStandby, includeShadowResponse),
             untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted(BattlefieldObjectId)],
-            objectLocations: BuildObjectLocations(includeHiddenStandby));
+            objectLocations: BuildObjectLocations(includeHiddenStandby, includeShadowResponse));
     }
 
-    private static Dictionary<string, CardObjectState> BuildCardObjects(bool includeHiddenStandby)
+    private static Dictionary<string, CardObjectState> BuildCardObjects(
+        bool includeHiddenStandby,
+        bool includeShadowResponse)
     {
         var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
         {
@@ -312,6 +406,15 @@ public sealed class BattleDamageAssignmentLifecycleTests
                 tags: [CardObjectTags.UnitCard, CardCombatKeywordNames.BackRow])
         };
 
+        if (includeShadowResponse)
+        {
+            cardObjects[ShadowObjectId] = Unit(
+                ShadowObjectId,
+                "P2",
+                power: 1,
+                cardNo: P4ActivatedAbilityCatalog.ShadowCardNo);
+        }
+
         if (includeHiddenStandby)
         {
             cardObjects[HiddenBattlefieldObjectId] = Battlefield(HiddenBattlefieldObjectId, "P2");
@@ -328,7 +431,9 @@ public sealed class BattleDamageAssignmentLifecycleTests
         return cardObjects;
     }
 
-    private static Dictionary<string, ObjectLocationState> BuildObjectLocations(bool includeHiddenStandby)
+    private static Dictionary<string, ObjectLocationState> BuildObjectLocations(
+        bool includeHiddenStandby,
+        bool includeShadowResponse)
     {
         var objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
         {
@@ -337,6 +442,11 @@ public sealed class BattleDamageAssignmentLifecycleTests
             [BulwarkDefenderObjectId] = new("P2", "BATTLEFIELD", BattlefieldObjectId),
             [BackRowDefenderObjectId] = new("P2", "BATTLEFIELD", BattlefieldObjectId)
         };
+
+        if (includeShadowResponse)
+        {
+            objectLocations[ShadowObjectId] = new("P2", "BATTLEFIELD", BattlefieldObjectId);
+        }
 
         if (includeHiddenStandby)
         {
@@ -361,11 +471,12 @@ public sealed class BattleDamageAssignmentLifecycleTests
         string objectId,
         string playerId,
         int power,
-        IReadOnlyList<string>? tags = null)
+        IReadOnlyList<string>? tags = null,
+        string cardNo = "SFD·125/221")
     {
         return new CardObjectState(
             objectId,
-            cardNo: "SFD·125/221",
+            cardNo: cardNo,
             power: power,
             tags: tags ?? [CardObjectTags.UnitCard],
             ownerId: playerId,
