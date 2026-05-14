@@ -13772,12 +13772,69 @@ public sealed class CoreRuleEngine : IRuleEngine
                 PassedPriorityPlayerIds = []
             };
             var responseActions = ActionPromptBuilder.StackPriorityActions(responseState, priorityPlayerId);
-            if (!responseActions.Contains(CommandTypes.ActivateAbility, StringComparer.Ordinal))
+            if (responseActions.Contains(CommandTypes.ActivateAbility, StringComparer.Ordinal))
             {
-                goto ResolveBattleImmediately;
-            }
+                var responseEvents = new List<GameEvent>
+                {
+                    new(
+                        "BATTLE_DECLARED",
+                        $"{intent.PlayerId} 声明战斗",
+                        new Dictionary<string, object?>
+                        {
+                            ["playerId"] = intent.PlayerId,
+                            ["battlefieldId"] = battlefieldId,
+                            ["attackerObjectIds"] = attackerObjectIds.ToArray(),
+                            ["defenderObjectIds"] = defenderObjectIds.ToArray(),
+                            ["optionalCosts"] = optionalCosts.ToArray(),
+                            ["battlefieldTargetObjectIds"] = Array.Empty<string>()
+                        }),
+                    new(
+                        "BATTLE_RESPONSE_PRIORITY_OPENED",
+                        "战斗响应优先权窗口开启",
+                        new Dictionary<string, object?>
+                        {
+                            ["battlefieldObjectId"] = battlefieldId,
+                            ["battleId"] = BattleLifecycleIds.BattleIdForBattlefield(battlefieldId),
+                            ["attackingPlayerId"] = intent.PlayerId,
+                            ["defendingPlayerId"] = defendingPlayerId ?? string.Empty,
+                            ["priorityPlayerId"] = priorityPlayerId,
+                            ["attackerObjectIds"] = attackerObjectIds.ToArray(),
+                            ["defenderObjectIds"] = defenderObjectIds.ToArray()
+                        })
+                };
 
-            var responseEvents = new List<GameEvent>
+                return new ResolutionResult(
+                    true,
+                    null,
+                    responseState,
+                    responseEvents,
+                    ResolutionResult.BuildSnapshots(responseState),
+                    BuildCorePrompts(responseState));
+            }
+        }
+
+        if (ShouldOpenNaturalBattleDamageAssignmentWindow(
+                state,
+                command,
+                optionalCosts,
+                defenderObjectIds,
+                defenderStates))
+        {
+            var assignmentObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+            var assignmentState = state with
+            {
+                Tick = state.Tick + 1,
+                ActivePlayerId = intent.PlayerId,
+                TimingState = TimingStates.NeutralOpen,
+                PlayerZones = playerZones,
+                CardObjects = cardObjects,
+                ObjectLocations = assignmentObjectLocations,
+                PriorityPlayerId = null,
+                PassedPriorityPlayerIds = [],
+                FocusPlayerId = null,
+                PassedFocusPlayerIds = []
+            };
+            var assignmentEvents = new List<GameEvent>
             {
                 new(
                     "BATTLE_DECLARED",
@@ -13792,15 +13849,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["battlefieldTargetObjectIds"] = Array.Empty<string>()
                     }),
                 new(
-                    "BATTLE_RESPONSE_PRIORITY_OPENED",
-                    "战斗响应优先权窗口开启",
+                    "BATTLE_DAMAGE_ASSIGNMENT_OPENED",
+                    "战斗伤害分配窗口开启",
                     new Dictionary<string, object?>
                     {
                         ["battlefieldObjectId"] = battlefieldId,
                         ["battleId"] = BattleLifecycleIds.BattleIdForBattlefield(battlefieldId),
                         ["attackingPlayerId"] = intent.PlayerId,
                         ["defendingPlayerId"] = defendingPlayerId ?? string.Empty,
-                        ["priorityPlayerId"] = priorityPlayerId,
+                        ["assigningPlayerId"] = intent.PlayerId,
                         ["attackerObjectIds"] = attackerObjectIds.ToArray(),
                         ["defenderObjectIds"] = defenderObjectIds.ToArray()
                     })
@@ -13809,13 +13866,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             return new ResolutionResult(
                 true,
                 null,
-                responseState,
-                responseEvents,
-                ResolutionResult.BuildSnapshots(responseState),
-                BuildCorePrompts(responseState));
+                assignmentState,
+                assignmentEvents,
+                ResolutionResult.BuildSnapshots(assignmentState),
+                BuildCorePrompts(assignmentState));
         }
 
-ResolveBattleImmediately:
         var icevaleArcherAttackTargetObjectId = string.Empty;
         if (!TryResolveIcevaleArcherAttackPaymentChoice(
                 state,
@@ -16020,6 +16076,23 @@ ResolveBattleImmediately:
         return string.Equals(commandBattlefieldId, battlefieldObjectId, StringComparison.Ordinal)
             && attackerObjectIds.All(attackerObjectId => IsObjectLocatedAtBattlefield(state, attackerObjectId, battlefieldObjectId))
             && defenderObjectIds.All(defenderObjectId => IsObjectLocatedAtBattlefield(state, defenderObjectId, battlefieldObjectId));
+    }
+
+    private static bool ShouldOpenNaturalBattleDamageAssignmentWindow(
+        MatchState state,
+        DeclareBattleCommand command,
+        IReadOnlyList<string> optionalCosts,
+        IReadOnlyList<string> defenderObjectIds,
+        IReadOnlyDictionary<string, CardObjectState> defenderStates)
+    {
+        return ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 }
+            && optionalCosts.Count == 1
+            && optionalCosts.Contains(DeclareBattleOptionalCost, StringComparer.Ordinal)
+            && NormalizeTargetObjectIds(command.BattlefieldTargetObjectIds ?? []).Count == 0
+            && defenderObjectIds.Count > 1
+            && defenderObjectIds.Any(defenderObjectId =>
+                defenderStates.TryGetValue(defenderObjectId, out var defenderState)
+                && HasBattleDamageAssignmentKeyword(defenderState.Tags));
     }
 
     private static bool IsObjectLocatedAtBattlefield(
@@ -37375,6 +37448,11 @@ ResolveBattleImmediately:
         }
 
         if (ResolutionResult.HasOpenOrderTriggersWindow(state))
+        {
+            return ResolutionResult.BuildPrompts(state);
+        }
+
+        if (ResolutionResult.HasOpenBattleDamageAssignmentWindow(state))
         {
             return ResolutionResult.BuildPrompts(state);
         }

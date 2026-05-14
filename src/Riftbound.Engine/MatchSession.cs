@@ -1969,6 +1969,7 @@ public sealed record ResolutionResult(
             || state.PendingHandChoice is not null
             || HasOpenStackPriority(state)
             || HasOpenBattleResponsePriority(state)
+            || HasOpenBattleDamageAssignmentWindow(state)
             || HasOpenSpellDuelFocus(state))
         {
             return false;
