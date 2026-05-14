@@ -18,6 +18,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
     private const string NextBattlefieldObjectId = "BF-NEXT";
     private const string NextAttackerObjectId = "P1-NEXT-CONTEST";
     private const string NextDefenderObjectId = "P2-NEXT-CONTEST";
+    private const string OriginalHeldScoreBattlefieldObjectId = "BF-BRUSH-ORIGINAL-HELD-SCORE";
 
     [Fact]
     public async Task NaturalStartBattleWithAssignmentOrderingDefenderOpensAssignCombatDamagePrompt()
@@ -252,6 +253,116 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.NotNull(p1Pass.State.PendingPayment);
         Assert.Equal("TRIGGER_PAYMENT", p1Pass.State.PendingPayment?.PaymentWindow);
         Assert.Equal("P1", p1Pass.State.PendingPayment?.PlayerId);
+        Assert.DoesNotContain(
+            p1Pass.State.UntilEndOfTurnEffects,
+            effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
+        Assert.False(p1Pass.State.BattleState.IsActive);
+        Assert.NotEqual(PromptTypes.AssignCombatDamage, p1Pass.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.BattleDeclaration, p1Pass.Prompts["P1"].View?.Type);
+    }
+
+    [Fact]
+    public async Task NaturalBattleResponsePreservesBrushReplacementContextAfterPass()
+    {
+        var brushChoice = $"BRUSH_USE_REPLACED_BATTLEFIELD:{OriginalHeldScoreBattlefieldObjectId}";
+        var optionalCosts = new[] { "COMBAT_ASSIGNMENT", brushChoice };
+        var state = BuildBrushReplacementNaturalStartBattleState();
+        var engine = new CoreRuleEngine();
+
+        var openedResponse = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-natural-brush-context-declare-battle", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                BattlefieldObjectId,
+                [AttackerObjectId],
+                [BulwarkDefenderObjectId, ShadowObjectId],
+                OptionalCosts: optionalCosts),
+            CancellationToken.None);
+
+        Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
+        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
+        Assert.True(openedResponse.State.BattleState.IsActive);
+        var openedDeclaration = Assert.Single(
+            openedResponse.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+        Assert.Equal(optionalCosts, StringList(openedDeclaration.Payload["optionalCosts"]));
+        var openedPriority = Assert.Single(
+            openedResponse.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Equal(optionalCosts, StringList(openedPriority.Payload["optionalCosts"]));
+        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_REPLACEMENT_APPLIED", StringComparison.Ordinal));
+        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
+        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        Assert.Contains(
+            openedResponse.State.UntilEndOfTurnEffects,
+            effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
+
+        var responseSession = new MatchSession(openedResponse.State, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var p1Snapshot = responseSession.SnapshotFor("P1");
+        var p2Snapshot = responseSession.SnapshotFor("P2");
+        var spectatorSnapshot = ResolutionResult.BuildSpectatorSnapshot(openedResponse.State);
+        var p2Prompt = responseSession.PromptFor("P2");
+        Assert.DoesNotContain("BATTLE_RESPONSE_DECLARATION_CONTEXT", JsonSerializer.Serialize(p1Snapshot));
+        Assert.DoesNotContain("BATTLE_RESPONSE_DECLARATION_CONTEXT", JsonSerializer.Serialize(p2Snapshot));
+        Assert.DoesNotContain("BATTLE_RESPONSE_DECLARATION_CONTEXT", JsonSerializer.Serialize(spectatorSnapshot));
+        Assert.DoesNotContain("BATTLE_RESPONSE_DECLARATION_CONTEXT", JsonSerializer.Serialize(p2Prompt));
+        Assert.Equal(PromptTypes.StackPriority, p2Prompt.View?.Type);
+        Assert.Equal($"battle:{BattlefieldObjectId}", p2Prompt.View?.RelatedBattleId);
+        Assert.Equal(BattlefieldObjectId, p2Prompt.View?.RelatedBattlefieldId);
+
+        var p2Pass = await engine.ResolveAsync(
+            openedResponse.State,
+            new PlayerIntent("intent-natural-brush-context-response-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+
+        var p1Pass = await engine.ResolveAsync(
+            p2Pass.State,
+            new PlayerIntent("intent-natural-brush-context-response-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        var closedPriority = Assert.Single(
+            p1Pass.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+        Assert.Equal(optionalCosts, StringList(closedPriority.Payload["optionalCosts"]));
+        var resumedDeclaration = p1Pass.Events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal))
+            .Last();
+        Assert.Equal(optionalCosts, StringList(resumedDeclaration.Payload["optionalCosts"]));
+
+        var replacement = Assert.Single(
+            p1Pass.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_REPLACEMENT_APPLIED", StringComparison.Ordinal));
+        Assert.Equal(brushChoice, replacement.Payload["replacementChoice"]);
+        Assert.Equal(BattlefieldObjectId, replacement.Payload["brushBattlefieldObjectId"]);
+        Assert.Equal(OriginalHeldScoreBattlefieldObjectId, replacement.Payload["replacementBattlefieldObjectId"]);
+        Assert.Equal(OriginalHeldScoreBattlefieldObjectId, replacement.Payload["effectiveBattlefieldObjectId"]);
+        Assert.Equal("BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", replacement.Payload["replacementReason"]);
+
+        var heldScore = Assert.Single(
+            p1Pass.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
+        Assert.Equal(OriginalHeldScoreBattlefieldObjectId, heldScore.Payload["battlefieldId"]);
+        Assert.Equal(OriginalHeldScoreBattlefieldObjectId, heldScore.Payload["battlefieldObjectId"]);
+        var costPaid = Assert.Single(
+            p1Pass.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
+        Assert.Equal(OriginalHeldScoreBattlefieldObjectId, costPaid.Payload["sourceObjectId"]);
+        var scoreGained = Assert.Single(
+            p1Pass.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
+        Assert.Equal("P2", scoreGained.Payload["playerId"]);
+        Assert.Equal(1, scoreGained.Payload["score"]);
+        Assert.Equal(1, p1Pass.State.PlayerScores["P2"]);
+        Assert.Equal(0, p1Pass.State.RunePools["P2"].Power);
         Assert.DoesNotContain(
             p1Pass.State.UntilEndOfTurnEffects,
             effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
@@ -576,6 +687,70 @@ public sealed class BattleDamageAssignmentLifecycleTests
         cardObjects[SecondAttackerObjectId] = cardObjects[SecondAttackerObjectId] with { Power = 5, Damage = 4 };
         cardObjects[BackRowDefenderObjectId] = cardObjects[BackRowDefenderObjectId] with { Power = 4 };
         return state with { CardObjects = cardObjects };
+    }
+
+    private static MatchState BuildBrushReplacementNaturalStartBattleState()
+    {
+        var state = BuildNaturalStartBattleState(
+            includeShadowResponse: true,
+            defenderObjectIds: [BulwarkDefenderObjectId, ShadowObjectId]);
+        var playerZones = new Dictionary<string, PlayerZones>(state.PlayerZones, StringComparer.Ordinal)
+        {
+            ["P1"] = state.PlayerZones["P1"] with
+            {
+                Battlefields = [AttackerObjectId]
+            },
+            ["P2"] = state.PlayerZones["P2"] with
+            {
+                Battlefields =
+                [
+                    BattlefieldObjectId,
+                    OriginalHeldScoreBattlefieldObjectId,
+                    BulwarkDefenderObjectId,
+                    ShadowObjectId
+                ]
+            }
+        };
+        var cardObjects = new Dictionary<string, CardObjectState>(state.CardObjects, StringComparer.Ordinal)
+        {
+            [BattlefieldObjectId] = new(
+                BattlefieldObjectId,
+                cardNo: P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo,
+                tags:
+                [
+                    P6TokenFactoryCatalog.BattlefieldCardTag,
+                    "草丛",
+                    $"REPLACES_BATTLEFIELD:{OriginalHeldScoreBattlefieldObjectId}"
+                ],
+                ownerId: "P2",
+                controllerId: "P2"),
+            [OriginalHeldScoreBattlefieldObjectId] = new(
+                OriginalHeldScoreBattlefieldObjectId,
+                cardNo: "SFD·214/221",
+                tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                ownerId: "P2",
+                controllerId: "P2"),
+            [AttackerObjectId] = state.CardObjects[AttackerObjectId] with { Power = 1 }
+        };
+        var objectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations, StringComparer.Ordinal)
+        {
+            [BattlefieldObjectId] = new("P2", "BATTLEFIELD", BattlefieldObjectId),
+            [OriginalHeldScoreBattlefieldObjectId] = new("P2", "BATTLEFIELD", OriginalHeldScoreBattlefieldObjectId),
+            [AttackerObjectId] = new("P1", "BATTLEFIELD", BattlefieldObjectId),
+            [BulwarkDefenderObjectId] = new("P2", "BATTLEFIELD", BattlefieldObjectId),
+            [ShadowObjectId] = new("P2", "BATTLEFIELD", BattlefieldObjectId)
+        };
+        return state with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(1, 4)
+            },
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = objectLocations
+        };
     }
 
     private static MatchState BuildNaturalStartBattleState(

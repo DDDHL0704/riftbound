@@ -7,6 +7,8 @@
 
 ## 0. 2026-05-13 最新状态补充
 
+2026-05-14 4D-02H test-only slice 补充：Battle response Brush replacement context 已验收，入口为 `docs/CURRENT_STAGE4D_02H_BATTLE_RESPONSE_BRUSH_REPLACEMENT_CONTEXT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02H_BATTLE_RESPONSE_BRUSH_REPLACEMENT_CONTEXT_EVIDENCE.md`；focused 430/430、adjacent 608/608、backend full 4198/4198、`git diff --check` 通过。该补充只证明 Brush replacement optional cost 可经过 natural battle-response pass 保留并进入 replacement-aware held-score branch，不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
+
 2026-05-14 4D-02H handoff / baseline 补充：Battle response Brush replacement context 下一 P0-004 切片已建立，入口为 `docs/CURRENT_STAGE4D_02H_BATTLE_RESPONSE_BRUSH_REPLACEMENT_CONTEXT_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_02H_BATTLE_RESPONSE_BRUSH_REPLACEMENT_CONTEXT_BASELINE_EVIDENCE.md`；focused baseline 429/429、adjacent baseline 608/608、backend full 4197/4197、`git diff --check` 通过。目标是验证 natural battle response pass 后保留 `BRUSH_USE_REPLACED_BATTLEFIELD:*` optional cost 并进入 Brush replacement / held-score branch；该补充只建立实现前护栏，不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
 
 2026-05-14 4D-02G focused slice 补充：Battle response declaration-context 已实现并验证，入口为 `docs/CURRENT_STAGE4D_02G_BATTLE_RESPONSE_DECLARATION_CONTEXT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02G_BATTLE_RESPONSE_DECLARATION_CONTEXT_EVIDENCE.md`；focused 429/429、adjacent 608/608、backend full 4197/4197、`git diff --check` 通过。该补充只证明 natural battle response 可以保留已验证的 Icevale Archer battlefield target declaration context，并阻止 internal carrier 进入玩家 / 观战 snapshot 或 prompt；不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
