@@ -23,6 +23,8 @@
 
 2026-05-15 follow-up：下一切片 4D-02Z 转向 battle-result ordering matrix，锁定 natural battle response pass -> assignment -> conquer result representative。目标是证明 `BATTLEFIELD_CONQUERED` / `EXPERIENCE_GAINED` 先于 `BATTLE_CLOSED`、`BATTLEFIELD_CONTROL_RESOLVED` 和 `BF-NEXT` 推进。
 
+2026-05-15 follow-up：4D-02Z 已验收上述 response-pass assignment Hunt conquer result ordering representative，并修复 assignment prompt 分支缺少 Hunt conquer result / experience 的 runtime gap。P0-004 仍 open；该切片只覆盖 Hunt conquer representative，不代表完整 held / conquer trigger / replacement / prevention result matrix。
+
 ## Evidence Inspected
 
 - `docs/A_MASTER_AGENT_GOAL.md`
@@ -50,6 +52,7 @@
 - Battle response stack breadth now has one nested standby reaction representative: a P1 standby reaction can be added above a Shadow response stack item, resolve first by LIFO, and return to Shadow / battle response before next battlefield advancement.
 - Multiple legal response source breadth now has one representative: two ready Shadow sources can be exposed together and consumed sequentially in the same battle response window before next battlefield advancement.
 - Stale/no-effect response target breadth now has one representative: Shadow no-effects when its target stops attacking inside battle response stack resolution, then returns to response priority before next battlefield advancement.
+- Battle-result ordering now has one response-pass assignment Hunt conquer representative: `BATTLEFIELD_CONQUERED` / `EXPERIENCE_GAINED` happen before damage cleanup, battle close, battlefield control resolution, and next contested battlefield advancement.
 - `ASSIGN_COMBAT_DAMAGE` runtime has representative guards for stale prompt, illegal command no-mutation, simultaneous damage, cleanup, battle close, battlefield control, no-result, persisted `BattleResolutionState`, and current battle task cleanup.
 - Next contested battlefield advancement is guarded for:
   - ordinary assignment battle close;
@@ -86,7 +89,7 @@ The 4D-02C audit said next contested battlefield advancement after battle close 
 
 Suggested next goal after 4D-02Y: choose a new narrow representative from the remaining matrix, such as a battle-result ordering branch not yet covered by the current assignment / immediate / payment / no-result paths.
 
-4D-02Z selected representative: natural battle response pass -> assignment -> Hunt conquer result ordering. This intentionally targets result ordering rather than additional Shadow activation/source breadth.
+4D-02Z selected representative: natural battle response pass -> assignment -> Hunt conquer result ordering. This intentionally targets result ordering rather than additional Shadow activation/source breadth. 4D-02Z is now accepted; no further next slice is selected in this document.
 
 Recommended representative:
 
@@ -113,4 +116,4 @@ Expected guard:
 
 ## Verdict
 
-4D-02B through 4D-02Y materially narrowed P0-004, especially activation-returned assignment / immediate / payment / no-result task advancement, cleanup-blocker ordering, precise object-location preservation for nonparticipant response sources, same-turn completed battlefield skip policy, one nested battle-response stack representative, one multiple-legal-source response representative, and one stale-target no-effect response representative. Project remains **NOT READY**.
+4D-02B through 4D-02Z materially narrowed P0-004, especially activation-returned assignment / immediate / payment / no-result task advancement, cleanup-blocker ordering, precise object-location preservation for nonparticipant response sources, same-turn completed battlefield skip policy, one nested battle-response stack representative, one multiple-legal-source response representative, one stale-target no-effect response representative, and one response-pass assignment Hunt conquer result-ordering representative. Project remains **NOT READY**.
