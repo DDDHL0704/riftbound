@@ -22,6 +22,10 @@ public sealed class BattleDamageAssignmentLifecycleTests
     private const string HeldScoreRecycleRuneObjectId = "P2-RUNE-HELD-SCORE-RESPONSE";
     private const string HeldScoreRecycleRuneDeckObjectId = "P2-RUNE-BOTTOM-HELD-SCORE-RESPONSE";
     private const string HeldScoreTemporaryResourceId = "MALZAHAR:TEMP-HELD-SCORE-RESPONSE";
+    private const string IcevaleTrigger = "ICEVALE_ARCHER_ATTACK_PAY_1_POWER_MINUS_1";
+    private const string TriggerPaymentWindow = "TRIGGER_PAYMENT";
+    private const string PayOneMana = "SPEND_MANA:1";
+    private const string Decline = "DECLINE";
 
     [Fact]
     public async Task NaturalStartBattleWithAssignmentOrderingDefenderOpensAssignCombatDamagePrompt()
@@ -530,6 +534,82 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal(NextBattlefieldObjectId, responseP1Pass.Prompts["P1"].View?.RelatedBattlefieldId);
         Assert.NotEqual(PromptTypes.AssignCombatDamage, responseP1Pass.Prompts["P1"].View?.Type);
         Assert.NotEqual(PromptTypes.BattleDeclaration, responseP1Pass.Prompts["P1"].View?.Type);
+    }
+
+    [Fact]
+    public async Task NaturalBattleResponseActivationPostPaymentBlocksNextContestedBattlefieldUntilAccepted()
+    {
+        var (engine, openedPayment, payment) = await OpenIcevaleShadowActivationPostPaymentAsync();
+
+        var paid = await engine.ResolveAsync(
+            openedPayment.State,
+            new PlayerIntent("intent-natural-response-activation-post-payment-pay", "P1", CommandTypes.PayCost),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [PayOneMana]),
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Equal(0, paid.State.RunePools["P1"].Mana);
+        Assert.Contains(paid.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, IcevaleTrigger, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["paymentWindow"] as string, TriggerPaymentWindow, StringComparison.Ordinal));
+        Assert.Contains(paid.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, IcevaleTrigger, StringComparison.Ordinal));
+        Assert.Contains(paid.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, BulwarkDefenderObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, IcevaleTrigger, StringComparison.Ordinal));
+        Assert.Equal(1, paid.State.CardObjects[BulwarkDefenderObjectId].Power);
+        Assert.Equal(-1, paid.State.CardObjects[BulwarkDefenderObjectId].UntilEndOfTurnPowerModifier);
+        AssertNextContestedBattlefieldAdvancedAfterPaymentClosed(paid, declined: false);
+    }
+
+    [Fact]
+    public async Task NaturalBattleResponseActivationPostPaymentDeclineAdvancesNextContestedBattlefield()
+    {
+        var (engine, openedPayment, payment) = await OpenIcevaleShadowActivationPostPaymentAsync();
+
+        var declined = await engine.ResolveAsync(
+            openedPayment.State,
+            new PlayerIntent("intent-natural-response-activation-post-payment-decline", "P1", CommandTypes.PayCost),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [Decline]),
+            CancellationToken.None);
+
+        Assert.True(declined.Accepted, declined.ErrorMessage);
+        Assert.Null(declined.State.PendingPayment);
+        Assert.Equal(1, declined.State.RunePools["P1"].Mana);
+        Assert.Contains(declined.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_PAYMENT_DECLINED", StringComparison.Ordinal));
+        Assert.DoesNotContain(declined.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.DoesNotContain(declined.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, IcevaleTrigger, StringComparison.Ordinal));
+        Assert.DoesNotContain(declined.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, IcevaleTrigger, StringComparison.Ordinal));
+        Assert.Equal(2, declined.State.CardObjects[BulwarkDefenderObjectId].Power);
+        Assert.Equal(0, declined.State.CardObjects[BulwarkDefenderObjectId].UntilEndOfTurnPowerModifier);
+        AssertNextContestedBattlefieldAdvancedAfterPaymentClosed(declined, declined: true);
+    }
+
+    [Fact]
+    public async Task NaturalBattleResponseActivationPostPaymentRejectKeepsNextContestedBattlefieldBlocked()
+    {
+        var (engine, openedPayment, payment) = await OpenIcevaleShadowActivationPostPaymentAsync();
+
+        var rejected = await engine.ResolveAsync(
+            openedPayment.State,
+            new PlayerIntent("intent-natural-response-activation-post-payment-reject", "P1", CommandTypes.PayCost),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:2"]),
+            CancellationToken.None);
+
+        Assert.False(rejected.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, rejected.ErrorCode);
+        Assert.Empty(rejected.Events);
+        Assert.Equal(MatchStateHasher.Hash(openedPayment.State), MatchStateHasher.Hash(rejected.State));
+        Assert.NotNull(rejected.State.PendingPayment);
+        AssertNextContestedBattlefieldNotAdvanced(rejected);
     }
 
     [Fact]
@@ -1455,6 +1535,123 @@ public sealed class BattleDamageAssignmentLifecycleTests
             CancellationToken.None);
     }
 
+    private static async Task<(CoreRuleEngine Engine, ResolutionResult OpenedPayment, PendingPaymentState Payment)> OpenIcevaleShadowActivationPostPaymentAsync()
+    {
+        var state = BuildIcevaleShadowActivationPostPaymentState();
+        var engine = new CoreRuleEngine();
+
+        var openedResponse = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-natural-response-activation-post-payment-declare-battle", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                BattlefieldObjectId,
+                [AttackerObjectId],
+                [BulwarkDefenderObjectId],
+                OptionalCosts: ["COMBAT_ASSIGNMENT"],
+                BattlefieldTargetObjectIds: [BulwarkDefenderObjectId]),
+            CancellationToken.None);
+
+        Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
+        Assert.True(openedResponse.State.BattleState.IsActive);
+        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
+        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
+        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal));
+        AssertNextContestedBattlefieldNotAdvanced(openedResponse);
+
+        var activated = await engine.ResolveAsync(
+            openedResponse.State,
+            new PlayerIntent("intent-natural-response-activation-post-payment-shadow", "P2", CommandTypes.ActivateAbility),
+            new ActivateAbilityCommand(
+                ShadowObjectId,
+                P4ActivatedAbilityCatalog.ShadowStunAbilityId,
+                [AttackerObjectId]),
+            CancellationToken.None);
+
+        Assert.True(activated.Accepted, activated.ErrorMessage);
+        Assert.Equal(
+            ["ABILITY_ACTIVATED", "UNIT_EXHAUSTED", "COST_PAID", "STACK_ITEM_ADDED"],
+            activated.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.True(activated.State.CardObjects[ShadowObjectId].IsExhausted);
+        Assert.Single(activated.State.StackItems);
+        AssertNextContestedBattlefieldNotAdvanced(activated);
+
+        var stackP2Pass = await engine.ResolveAsync(
+            activated.State,
+            new PlayerIntent("intent-natural-response-activation-post-payment-stack-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(stackP2Pass.Accepted, stackP2Pass.ErrorMessage);
+        AssertNextContestedBattlefieldNotAdvanced(stackP2Pass);
+
+        var stackP1Pass = await engine.ResolveAsync(
+            stackP2Pass.State,
+            new PlayerIntent("intent-natural-response-activation-post-payment-stack-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(stackP1Pass.Accepted, stackP1Pass.ErrorMessage);
+        Assert.Empty(stackP1Pass.State.StackItems);
+        Assert.True(stackP1Pass.State.BattleState.IsActive);
+        Assert.Equal(TimingStates.NeutralClosed, stackP1Pass.State.TimingState);
+        Assert.Equal("P2", stackP1Pass.State.PriorityPlayerId);
+        Assert.Contains("STUNNED", stackP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
+        Assert.Contains(stackP1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "ABILITY_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["abilityId"] as string, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal));
+        AssertNextContestedBattlefieldNotAdvanced(stackP1Pass);
+
+        var responseP2Pass = await engine.ResolveAsync(
+            stackP1Pass.State,
+            new PlayerIntent("intent-natural-response-activation-post-payment-response-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
+        AssertNextContestedBattlefieldNotAdvanced(responseP2Pass);
+
+        var openedPayment = await engine.ResolveAsync(
+            responseP2Pass.State,
+            new PlayerIntent("intent-natural-response-activation-post-payment-response-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(openedPayment.Accepted, openedPayment.ErrorMessage);
+        Assert.False(openedPayment.State.BattleState.IsActive);
+        Assert.Empty(openedPayment.State.StackItems);
+        Assert.NotNull(openedPayment.State.PendingPayment);
+        Assert.Equal(TriggerPaymentWindow, openedPayment.State.PendingPayment?.PaymentWindow);
+        Assert.Equal("P1", openedPayment.State.PendingPayment?.PlayerId);
+        Assert.DoesNotContain(openedPayment.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
+        AssertNextContestedBattlefieldNotAdvanced(openedPayment);
+
+        var responseClosedIndex = EventIndex(openedPayment.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+        var battleClosedIndex = EventIndex(openedPayment.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldId"] as string, BattlefieldObjectId, StringComparison.Ordinal));
+        var controlResolvedIndex = EventIndex(openedPayment.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTROL_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, BattlefieldObjectId, StringComparison.Ordinal));
+        var paymentOpenedIndex = EventIndex(openedPayment.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, IcevaleTrigger, StringComparison.Ordinal));
+
+        Assert.True(responseClosedIndex < battleClosedIndex);
+        Assert.True(battleClosedIndex < controlResolvedIndex);
+        Assert.True(controlResolvedIndex < paymentOpenedIndex);
+        Assert.DoesNotContain(
+            openedPayment.State.PendingTaskQueue.Tasks,
+            task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
+                && string.Equals(task.BattlefieldObjectId, BattlefieldObjectId, StringComparison.Ordinal));
+
+        var payment = openedPayment.State.PendingPayment;
+        Assert.NotNull(payment);
+        return (engine, openedPayment, payment);
+    }
+
     private static IReadOnlyList<CombatDamageAssignmentDto> LegalAssignments()
     {
         return
@@ -1538,6 +1735,31 @@ public sealed class BattleDamageAssignmentLifecycleTests
             PlayerZones = playerZones,
             CardObjects = cardObjects,
             ObjectLocations = objectLocations
+        };
+    }
+
+    private static MatchState BuildIcevaleShadowActivationPostPaymentState()
+    {
+        var state = BuildNaturalStartBattleState(
+            includeShadowResponse: true,
+            includeNextContest: true,
+            defenderObjectIds: [BulwarkDefenderObjectId]);
+        var cardObjects = new Dictionary<string, CardObjectState>(state.CardObjects, StringComparer.Ordinal)
+        {
+            [AttackerObjectId] = state.CardObjects[AttackerObjectId] with
+            {
+                CardNo = "UNL-065/219",
+                Power = 5
+            }
+        };
+        return state with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(1, 0),
+                ["P2"] = new(1, 1)
+            },
+            CardObjects = cardObjects
         };
     }
 
@@ -2024,6 +2246,33 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.NotEqual("SPELL_DUEL_TASKS", result.State.PendingTaskQueue.Phase);
         Assert.NotEqual($"task:start-spell-duel:{NextBattlefieldObjectId}", result.State.PendingTaskQueue.ActiveTaskId);
         Assert.NotEqual(PromptTypes.SpellDuelFocus, result.Prompts["P1"].View?.Type);
+    }
+
+    private static void AssertNextContestedBattlefieldAdvancedAfterPaymentClosed(
+        ResolutionResult result,
+        bool declined)
+    {
+        Assert.Equal(TimingStates.SpellDuelOpen, result.State.TimingState);
+        Assert.Equal("P1", result.State.FocusPlayerId);
+        Assert.Equal("SPELL_DUEL_TASKS", result.State.PendingTaskQueue.Phase);
+        Assert.Equal($"task:start-spell-duel:{NextBattlefieldObjectId}", result.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(PromptTypes.SpellDuelFocus, result.Prompts["P1"].View?.Type);
+        Assert.Equal(NextBattlefieldObjectId, result.Prompts["P1"].View?.RelatedBattlefieldId);
+        Assert.NotEqual(PromptTypes.AssignCombatDamage, result.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.BattleDeclaration, result.Prompts["P1"].View?.Type);
+
+        var paymentClosedIndex = EventIndex(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["declined"], declined));
+        var nextContestIndex = EventIndex(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
+        var nextSpellDuelIndex = EventIndex(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
+
+        Assert.True(paymentClosedIndex < nextContestIndex);
+        Assert.True(nextContestIndex < nextSpellDuelIndex);
     }
 
     private static void AssertHiddenStandbyIdentityRedactedFromUnauthorizedProjection(

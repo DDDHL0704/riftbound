@@ -14441,23 +14441,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             pendingPayment = ognVaynePendingPayment;
         }
-        if (pendingPayment is null
-            && !string.IsNullOrWhiteSpace(icevaleArcherAttackTargetObjectId)
-            && TryOpenIcevaleArcherAttackPaymentWindow(
-                playerZones,
-                cardObjects,
-                state.ObjectLocations,
-                intent.PlayerId,
-                battlefieldId,
-                attackerObjectId,
-                icevaleArcherAttackTargetObjectId,
-                state.Tick + 1,
-                combatEvents,
-                out var icevaleArcherPendingPayment))
-        {
-            pendingPayment = icevaleArcherPendingPayment;
-        }
-
         if (TryResolveBattleWinnerPlayerId(
                 playerZones,
                 cardObjects,
@@ -15033,6 +15016,23 @@ public sealed class CoreRuleEngine : IRuleEngine
             battlefieldId,
             resolvedBattleWinnerPlayerId));
         objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
+        if (pendingPayment is null
+            && !string.IsNullOrWhiteSpace(icevaleArcherAttackTargetObjectId)
+            && TryOpenIcevaleArcherAttackPaymentWindow(
+                playerZones,
+                cardObjects,
+                objectLocations,
+                intent.PlayerId,
+                battlefieldId,
+                attackerObjectId,
+                icevaleArcherAttackTargetObjectId,
+                state.Tick + 1,
+                combatEvents,
+                out var icevaleArcherPendingPayment))
+        {
+            pendingPayment = icevaleArcherPendingPayment;
+        }
+
         var battlefieldResolutions = AppendBattlefieldResolutionEvents(
             state.BattlefieldResolutions,
             combatEvents,
