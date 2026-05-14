@@ -13773,7 +13773,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 out var attackerObjectIds,
                 out var defenderObjectIds,
                 out var optionalCosts,
-                resumingBattleResponseDeclaration))
+                resumingBattleResponseDeclaration,
+                allowDeferredBattleResponsePaymentResourceNeed: openBattleResponsePriority
+                    && !resumingBattleResponseDeclaration
+                    && ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 }))
         {
             return RejectWithCorePrompts(
                 state,
@@ -15896,7 +15899,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         out IReadOnlyList<string> attackerObjectIds,
         out IReadOnlyList<string> defenderObjectIds,
         out IReadOnlyList<string> optionalCosts,
-        bool allowExhaustedBattleResponseParticipants = false)
+        bool allowExhaustedBattleResponseParticipants = false,
+        bool allowDeferredBattleResponsePaymentResourceNeed = false)
     {
         attackerObjectIds = [];
         defenderObjectIds = [];
@@ -15933,7 +15937,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             || optionalCosts.Count(cost => string.Equals(cost, DeclareBattleOptionalCost, StringComparison.Ordinal)) != 1
             || brushReplacementChoices.Length > 1
             || !brushReplacementValid
-            || !ValidateDeclareBattleBattlefieldHeldScorePaymentResources(state, command, paymentResourceActions, paymentBattlefieldId))
+            || !ValidateDeclareBattleBattlefieldHeldScorePaymentResources(
+                state,
+                command,
+                paymentResourceActions,
+                paymentBattlefieldId,
+                allowDeferredBattleResponsePaymentResourceNeed))
         {
             return false;
         }
@@ -16102,7 +16111,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         MatchState state,
         DeclareBattleCommand command,
         IReadOnlyList<string> paymentResourceActions,
-        string? effectiveBattlefieldId = null)
+        string? effectiveBattlefieldId = null,
+        bool allowDeferredBattleResponsePaymentResourceNeed = false)
     {
         if (paymentResourceActions.Count == 0)
         {
@@ -16154,12 +16164,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         var currentPool = state.RunePools.TryGetValue(paymentPlayerId, out var runePool)
             ? runePool
             : RunePool.Empty;
-        if (!AreRecycleRunePaymentResourceActionsRequired(
+        var recycleRunePaymentResourceActionsRequired = AreRecycleRunePaymentResourceActionsRequired(
                 currentPool,
                 state.CardObjects,
                 recycledRuneObjectIds,
                 BattlefieldHeldScorePowerCost,
-                new Dictionary<string, int>(StringComparer.Ordinal)))
+                new Dictionary<string, int>(StringComparer.Ordinal));
+        if (!recycleRunePaymentResourceActionsRequired
+            && !allowDeferredBattleResponsePaymentResourceNeed)
         {
             return false;
         }
