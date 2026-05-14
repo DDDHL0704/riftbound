@@ -21,6 +21,8 @@
 
 2026-05-15 follow-up：4D-02Y 已验收上述 stale target no-effect representative，并修复 response close 优先使用保存 declaration context 的边界。P0-004 仍 open；该切片只覆盖 Shadow stale-target no-effect，不代表完整 stale/no-effect target matrix。
 
+2026-05-15 follow-up：下一切片 4D-02Z 转向 battle-result ordering matrix，锁定 natural battle response pass -> assignment -> conquer result representative。目标是证明 `BATTLEFIELD_CONQUERED` / `EXPERIENCE_GAINED` 先于 `BATTLE_CLOSED`、`BATTLEFIELD_CONTROL_RESOLVED` 和 `BF-NEXT` 推进。
+
 ## Evidence Inspected
 
 - `docs/A_MASTER_AGENT_GOAL.md`
@@ -83,6 +85,8 @@ The 4D-02C audit said next contested battlefield advancement after battle close 
 4D-02T through 4D-02W 已完成. Next should continue through the broader remaining P0-004 matrix rather than extending the same Shadow / standby nested-stack branch indefinitely.
 
 Suggested next goal after 4D-02Y: choose a new narrow representative from the remaining matrix, such as a battle-result ordering branch not yet covered by the current assignment / immediate / payment / no-result paths.
+
+4D-02Z selected representative: natural battle response pass -> assignment -> Hunt conquer result ordering. This intentionally targets result ordering rather than additional Shadow activation/source breadth.
 
 Recommended representative:
 
