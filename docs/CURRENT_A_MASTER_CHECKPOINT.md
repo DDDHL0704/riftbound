@@ -5,6 +5,8 @@
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
 
+2026-05-15 最新补充：4D-02AJ Battle response activation stunned assignment damage pool focused slice 已验收，审计与证据见 `docs/CURRENT_STAGE4D_02AJ_BATTLE_RESPONSE_ACTIVATION_STUNNED_ASSIGNMENT_DAMAGE_POOL_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02AJ_BATTLE_RESPONSE_ACTIVATION_STUNNED_ASSIGNMENT_DAMAGE_POOL_EVIDENCE.md`；targeted 1/1、focused 293/293、adjacent 823/823、backend full 4235/4235、`git diff --check` 通过。该切片修复 Shadow stun 后 returned assignment prompt / runtime validation 仍按原始 attacker power 要求 attacker 分配伤害的 gap：stunned attacker 的 prompt damage pool、lethal threshold 与 participant power 均为 0，旧 attacker-nonzero assignment 被拒绝，合法 zero-attacker assignment 关闭 BF-A 后才推进 BF-B。本切片不启动 PaymentEngine / LayerEngine、不改前端、不关闭 P0-004 / P0-005 / P1 / READY；项目仍 **NOT READY**。
+
 2026-05-15 最新补充：4D-02AJ Battle response activation stunned assignment damage pool handoff / baseline 已建立。交接规格见 `docs/CURRENT_STAGE4D_02AJ_BATTLE_RESPONSE_ACTIVATION_STUNNED_ASSIGNMENT_DAMAGE_POOL_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_02AJ_BATTLE_RESPONSE_ACTIVATION_STUNNED_ASSIGNMENT_DAMAGE_POOL_BASELINE_EVIDENCE.md`；targeted existing prerequisites 3/3、focused baseline 292/292、adjacent baseline 822/822、backend full 4234/4234、`git diff --check` 通过。下一 P0-004 窄切片锁定 actual Shadow activation / stack resolution / returned response 后，stunned attacker 在 assignment prompt 与 runtime validation 的 damage pool 均为 0，并拒绝旧 attacker-nonzero assignment，随后合法 zero-attacker assignment 才能关闭 BF-A 并推进 BF-B。本 handoff 不改 runtime、不启动 PaymentEngine / LayerEngine、不改前端、不关闭 P0/P1 / READY；项目仍 **NOT READY**。
 
 2026-05-15 最新补充：4D-02AI Battle response activation held-score prevention next-contest advancement focused slice 已验收，审计与证据见 `docs/CURRENT_STAGE4D_02AI_BATTLE_RESPONSE_ACTIVATION_HELD_SCORE_PREVENTION_NEXT_CONTEST_ADVANCEMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02AI_BATTLE_RESPONSE_ACTIVATION_HELD_SCORE_PREVENTION_NEXT_CONTEST_ADVANCEMENT_EVIDENCE.md`；targeted 1/1、focused 292/292、adjacent 822/822、backend full 4234/4234、`git diff --check` 通过。该 test-only guard 证明 BF-A/B 双争夺场景中 actual Shadow activation / stack resolution / returned response -> BF-A held-score `BATTLEFIELD_SCORE_PREVENTED` / current battle close 后才推进 BF-B `START_SPELL_DUEL`，且 prevention 分支不支付 held-score cost、不获得分数、response / stack / returned response 阶段不提前推进。本切片不启动 PaymentEngine / LayerEngine、不改前端、不关闭 P0-002 / P0-003 / P0-004 / P0-005 / P1 / READY；项目仍 **NOT READY**。
@@ -287,7 +289,7 @@ A 不应为每个小问题反复创建全新子 agent。当前阶段采用“常
 当前常驻审查池：
 
 - B-Review / Maxwell：`019e1068-5757-7bd1-8129-d401c60e0b7f`
-- B-Implementation / Raman：`019e2257-8d40-7630-9201-28df44dd689a`（2026-05-14 新建用于 4D-03J 后续 focused slices；当前持有 4D-02AJ 服务端写入锁：`tests/Riftbound.ConformanceTests/BattleDamageAssignmentLifecycleTests.cs`，仅在 guard 暴露 mismatch 时可最小修改 `src/Riftbound.Engine/CoreRuleEngine.cs` / `src/Riftbound.Engine/MatchSession.cs`；不得触碰 `riftbound-dotnet.sln`）
+- B-Implementation / Raman：`019e2257-8d40-7630-9201-28df44dd689a`（2026-05-14 新建用于 4D-03J 后续 focused slices；4D-02AJ 服务端写入锁已由 A 收回并暂停写入，保留线程待后续任务；不得触碰 `riftbound-dotnet.sln`）
 - C-Review / Copernicus：`019e0bbc-df6f-7151-baf5-f79ff466c5a9`
 - D-Review / Nash：`019e1068-6042-7dc3-a45c-655838d02b92`
 - E-Review / Poincare：`019e1068-6975-7242-9143-1c50d7ce23fa`
