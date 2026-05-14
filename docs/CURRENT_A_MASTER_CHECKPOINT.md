@@ -5,6 +5,8 @@
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
 
+2026-05-15 最新补充：4D-03AK PaymentEngine Spellshield tax coverage verifier 已验收，审计与证据见 `docs/CURRENT_STAGE4D_03AK_PAYMENT_ENGINE_SPELLSHIELD_TAX_COVERAGE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AK_PAYMENT_ENGINE_SPELLSHIELD_TAX_COVERAGE_EVIDENCE.md`；focused 8/8、adjacent 382/382、backend full 4242/4242 通过。`PaymentEngineCoverageAuditTests` 现在用 catalog-bound manifest 锁定所有 `AppliesSpellshieldTargetTax=true` 的 activated abilities：Xerath damage、Crimson Rose ready-unit、Shadow swift stun，并要求 prompt / command / `COST_PAID` tax audit / no-mutation rollback anchors。本切片不改 runtime、不改前端或 card matrix、不关闭 P0-005 / P1 / READY；项目仍 **NOT READY**。
+
 2026-05-15 最新补充：4D-03AJ PaymentEngine Renata typed temporary resource focused slice 已验收，审计与证据见 `docs/CURRENT_STAGE4D_03AJ_PAYMENT_ENGINE_RENATA_TYPED_TEMP_RESOURCE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AJ_PAYMENT_ENGINE_RENATA_TYPED_TEMP_RESOURCE_EVIDENCE.md`；focused 85/85、adjacent 687/687、backend full 4239/4239 通过。Renata draw / score typed-blue `ACTIVATE_ABILITY` branches 现在可 quote / command commit matching blue `TEMP_PAYMENT_RESOURCE:*`，并在 audit payload 中记录 `temporaryPaymentResourcePowerByTrait`；generic temporary resource 仍不能支付 typed-blue cost。本切片不扩完整 `[A]` / `[C]` resource family、不新增 target-bearing ability breadth、不改前端或 card matrix、不关闭 P0-005 / P1 / READY；项目仍 **NOT READY**。
 
 2026-05-15 P0-005 状态刷新：PaymentEngine 总览已对齐到 4D-03AH，审计见 `docs/CURRENT_STAGE4D_03AI_PAYMENT_ENGINE_STATUS_REFRESH_AUDIT.md`。4D-03 foundation through 4D-03W、4D-03AC / 03AD / 03AE / 03AG focused representatives 与 4D-03AF / 03AH audit / verifier 均已被现有证据记录；旧 “through 4D-03Q / 4D-03T / 4D-03V” 总览只作为历史 superseded 口径。P0-005 仍未 full-official 关闭，remaining work 仍包括完整 `[A]` / `[C]` resource skill family、remaining payment windows、target-bearing colored-cost activated abilities、keyword payment branches、replacement / optional / alternative / tax quote-command-audit parity；项目仍 **NOT READY**。
@@ -5716,3 +5718,26 @@ Checkpoint 记录：
 
 - 本切片只证明 Renata typed-blue activated branches 的 typed temporary resource prompt / command / audit parity。
 - 不关闭完整 `[A]` / `[C]` resource skill family、target-bearing activated ability breadth、keyword payment branches、replacement / optional / alternative / tax parity、P0-005、P1 或 READY。
+
+## 66. Stage 4D-03AK PaymentEngine Spellshield Tax Coverage Evidence
+
+状态：**4D-03AK focused audit accepted；项目整体仍 NOT READY。**
+
+本批范围：
+
+- 审计入口：`docs/CURRENT_STAGE4D_03AK_PAYMENT_ENGINE_SPELLSHIELD_TAX_COVERAGE_AUDIT.md`。
+- 证据入口：`docs/CURRENT_STAGE4D_03AK_PAYMENT_ENGINE_SPELLSHIELD_TAX_COVERAGE_EVIDENCE.md`。
+- 修改 `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`，新增 Spellshield tax activated ability catalog-bound manifest。
+- 不修改 runtime、API、前端或 coverage matrix。
+
+通过证据：
+
+- focused：8/8 通过。
+- adjacent：382/382 通过。
+- backend full：4242/4242 通过。
+
+口径：
+
+- 当前 `AppliesSpellshieldTargetTax=true` catalog set 必须精确等于 Xerath damage、Crimson Rose ready-unit、Shadow swift stun 三个 ability ids。
+- 每个 manifest entry 必须有 prompt、command、`COST_PAID` spellshield-tax audit 和 no-mutation rollback anchors。
+- 本切片只强化 PaymentEngine Spellshield tax audit discipline，不关闭完整 PaymentEngine、P0-005、P1 或 READY。

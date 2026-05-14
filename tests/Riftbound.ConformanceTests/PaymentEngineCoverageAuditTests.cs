@@ -1,3 +1,4 @@
+using Riftbound.Engine;
 using Xunit;
 
 namespace Riftbound.ConformanceTests;
@@ -79,7 +80,8 @@ public sealed class PaymentEngineCoverageAuditTests
                 "docs/CURRENT_STAGE4D_03M_PAYMENT_ENGINE_COLORED_ACTIVATED_DRAW_AUDIT.md",
                 "docs/CURRENT_STAGE4D_03N_PAYMENT_ENGINE_COLORED_ACTIVATED_SCORE_AUDIT.md",
                 "docs/CURRENT_STAGE4D_03O_PAYMENT_ENGINE_CRIMSON_ROSE_READY_UNIT_AUDIT.md",
-                "docs/CURRENT_STAGE4D_03Q_PAYMENT_ENGINE_SHADOW_SWIFT_STUN_AUDIT.md"
+                "docs/CURRENT_STAGE4D_03Q_PAYMENT_ENGINE_SHADOW_SWIFT_STUN_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AJ_PAYMENT_ENGINE_RENATA_TYPED_TEMP_RESOURCE_AUDIT.md"
             ]),
         new(
             "LEGEND_ACT",
@@ -131,6 +133,47 @@ public sealed class PaymentEngineCoverageAuditTests
             [
                 "docs/CURRENT_STAGE4D_03Z_TOKEN_FACTORY_BARON_NEST_STATIC_AUDIT.md",
                 "docs/CURRENT_STAGE4D_03AF_PAYMENT_ENGINE_REMAINING_SCOPE_AUDIT.md"
+            ])
+    ];
+
+    private static readonly SpellshieldTaxActivatedAbilityCoverageEntry[] SpellshieldTaxCoverageManifest =
+    [
+        new(
+            P4ActivatedAbilityCatalog.XerathDamageAbilityId,
+            "ACTIVATE_ABILITY",
+            "Xerath target damage representative",
+            "enemy unit target",
+            "PaymentEngineUnificationTests: ActivateAbilityXerathPaysSpellshieldTaxAndRecyclesRunePaymentResource prompt target choices",
+            "PaymentEngineUnificationTests: ActivateAbilityXerathPaysSpellshieldTaxAndRecyclesRunePaymentResource command commit",
+            "PaymentEngineUnificationTests: COST_PAID spellshieldTaxMana / spellshieldTaxTargetObjectIds / shared paymentId assertions",
+            "PaymentEngineUnificationTests: Xerath recycle / temporary resource insufficient tax mana no-mutation guards",
+            [
+                "docs/CURRENT_STAGE4D_03B_PAYMENT_ENGINE_NON_PLAY_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03D_PAYMENT_ENGINE_ACTIVATE_RESOURCE_AUDIT.md"
+            ]),
+        new(
+            P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId,
+            "ACTIVATE_ABILITY",
+            "Crimson Rose ready-unit representative",
+            "unit target",
+            "CrimsonRoseActivatedAbilityTests: CrimsonRoseOpenMainPromptExposesExperienceReadyUnitRequirement target choices",
+            "CrimsonRoseActivatedAbilityTests: CrimsonRoseEnemySpellshieldTargetPaysManaTax command commit",
+            "CrimsonRoseActivatedAbilityTests: COST_PAID spellshieldTaxMana / spellshieldTaxTargetObjectIds assertions",
+            "CrimsonRoseActivatedAbilityTests: insufficient-tax-mana no-mutation guard",
+            [
+                "docs/CURRENT_STAGE4D_03O_PAYMENT_ENGINE_CRIMSON_ROSE_READY_UNIT_AUDIT.md"
+            ]),
+        new(
+            P4ActivatedAbilityCatalog.ShadowStunAbilityId,
+            "ACTIVATE_ABILITY",
+            "Shadow swift stun representative",
+            "enemy attacking unit at this battlefield",
+            "ShadowActivatedAbilityTests: ShadowBattleResponsePromptExposesSwiftStunRequirement target tax metadata",
+            "ShadowActivatedAbilityTests: ShadowEnemySpellshieldTargetPaysManaTax command commit",
+            "ShadowActivatedAbilityTests: COST_PAID spellshieldTaxMana / spellshieldTaxTargetObjectIds assertions",
+            "ShadowActivatedAbilityTests: insufficient-tax-mana no-mutation guard",
+            [
+                "docs/CURRENT_STAGE4D_03Q_PAYMENT_ENGINE_SHADOW_SWIFT_STUN_AUDIT.md"
             ])
     ];
 
@@ -205,6 +248,69 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineSpellshieldTaxCoverageManifestMatchesActivatedAbilityCatalog()
+    {
+        var catalogTaxAbilityIds = P4ActivatedAbilityCatalog.GetAll()
+            .Where(definition => definition.AppliesSpellshieldTargetTax)
+            .Select(definition => definition.AbilityId)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var manifestAbilityIds = SpellshieldTaxCoverageManifest
+            .Select(entry => entry.AbilityId)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(catalogTaxAbilityIds, manifestAbilityIds);
+        Assert.Equal(
+            [
+                P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId,
+                P4ActivatedAbilityCatalog.XerathDamageAbilityId,
+                P4ActivatedAbilityCatalog.ShadowStunAbilityId
+            ],
+            manifestAbilityIds);
+    }
+
+    [Fact]
+    public void PaymentEngineSpellshieldTaxCoverageManifestRequiresPromptCommandAuditAndRollbackAnchors()
+    {
+        Assert.All(SpellshieldTaxCoverageManifest, entry =>
+        {
+            Assert.Equal("ACTIVATE_ABILITY", entry.PaymentWindow);
+            Assert.False(string.IsNullOrWhiteSpace(entry.RepresentativeSurface));
+            Assert.False(string.IsNullOrWhiteSpace(entry.TargetScope));
+            Assert.Contains("Prompt", entry.PromptAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("command", entry.CommandAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("COST_PAID", entry.AuditAnchor, StringComparison.Ordinal);
+            Assert.Contains("no-mutation", entry.RollbackAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.NotEmpty(entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineSpellshieldTaxCoverageManifestDoesNotClaimP0005Closure()
+    {
+        var combinedText = string.Join(
+            " ",
+            SpellshieldTaxCoverageManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.RepresentativeSurface,
+                    entry.PromptAnchor,
+                    entry.CommandAnchor,
+                    entry.AuditAnchor,
+                    entry.RollbackAnchor
+                }.Concat(entry.DocAnchors)));
+
+        Assert.DoesNotContain("full official", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PaymentEngineActionWindowCoverageManifestDoesNotClaimReadyOrP0005Closure()
     {
         Assert.All(CoverageManifest, entry =>
@@ -222,5 +328,16 @@ public sealed class PaymentEngineCoverageAuditTests
         string EvidenceSummary,
         string ClosureStatus,
         IReadOnlyList<string> TestAnchors,
+        IReadOnlyList<string> DocAnchors);
+
+    private sealed record SpellshieldTaxActivatedAbilityCoverageEntry(
+        string AbilityId,
+        string PaymentWindow,
+        string RepresentativeSurface,
+        string TargetScope,
+        string PromptAnchor,
+        string CommandAnchor,
+        string AuditAnchor,
+        string RollbackAnchor,
         IReadOnlyList<string> DocAnchors);
 }
