@@ -13,6 +13,8 @@
 - 当前 completion audit 仍列出 P0-002、P0-003、P0-004、P0-005 与 P1 LayerEngine / keywords / full-card evidence / replay-hash coverage。
 - Formal 18-step E2E 已有连续正式主流程证据；它满足 A_MASTER 的主流程门槛，但不能替代 strict battlefield contest / battle lifecycle / PaymentEngine / LayerEngine 的 full official 收口。
 
+4D-02B handoff / baseline 补充：下一 P0 收口切片锁定 battle-response priority lifecycle binding。交接规格见 `docs/CURRENT_STAGE4D_02B_BATTLE_RESPONSE_PRIORITY_LIFECYCLE_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_02B_BATTLE_RESPONSE_PRIORITY_LIFECYCLE_BASELINE_EVIDENCE.md`。该切片回到 P0-004，目标是证明 Shadow swift / reaction prompt 可从真实 battle task lifecycle 自然产生；不继续扩 PaymentEngine、不启动 LayerEngine、不关闭 P0-004、P0-005、P1 或 READY。
+
 4D-03AH focused audit 补充：PaymentEngine action-window coverage verifier 已验收，审计与证据见 `docs/CURRENT_STAGE4D_03AH_PAYMENT_ENGINE_ACTION_WINDOW_COVERAGE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AH_PAYMENT_ENGINE_ACTION_WINDOW_COVERAGE_EVIDENCE.md`；focused 717/717、backend full 4182/4182、`git diff --check` 通过。该切片只新增 server-side conformance audit manifest，把 `PLAY_CARD` / `PAY_COST` / `TRIGGER_PAYMENT` / `ASSEMBLE_EQUIPMENT` / `ACTIVATE_ABILITY` / `LEGEND_ACT` / battlefield held score payment / `HIDE_CARD` 标记为 representative-covered，并把 `MOVE_UNIT` 明确标记为 policy-non-resource；不改 runtime、不更新 card matrix、不关闭 P0-005、P1 或 READY。
 
 4D-03AH handoff / baseline 补充：下一 PaymentEngine breadth 切片锁定 action-window coverage verifier。交接规格见 `docs/CURRENT_STAGE4D_03AH_PAYMENT_ENGINE_ACTION_WINDOW_COVERAGE_HANDOFF.md`，实现前基线见 `docs/CURRENT_STAGE4D_03AH_PAYMENT_ENGINE_ACTION_WINDOW_COVERAGE_BASELINE_EVIDENCE.md`。该切片把 4D-03AF 的 verifier 建议重新排入执行，不改 runtime、不更新 card matrix、不关闭 P0-005、P1 或 READY。

@@ -7,6 +7,8 @@
 
 ## 0. 2026-05-13 最新状态补充
 
+2026-05-14 4D-02B handoff / baseline 补充：下一 P0 收口切片锁定 battle-response priority lifecycle binding，交接入口为 `docs/CURRENT_STAGE4D_02B_BATTLE_RESPONSE_PRIORITY_LIFECYCLE_HANDOFF.md`，实现前基线为 `docs/CURRENT_STAGE4D_02B_BATTLE_RESPONSE_PRIORITY_LIFECYCLE_BASELINE_EVIDENCE.md`。项目仍 **NOT READY**；该补充不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。
+
 2026-05-14 4D-03AH focused audit 补充：PaymentEngine action-window coverage verifier 已验收，入口为 `docs/CURRENT_STAGE4D_03AH_PAYMENT_ENGINE_ACTION_WINDOW_COVERAGE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AH_PAYMENT_ENGINE_ACTION_WINDOW_COVERAGE_EVIDENCE.md`；focused 717/717、backend full 4182/4182、`git diff --check` 通过。该补充只新增 server-side conformance audit manifest，将当前 PaymentEngine windows 分类为 representative-covered / policy-non-resource，不修改 runtime，不关闭 P0-005、P1、前端最终验收或 full-card audit；项目仍 **NOT READY**。
 
 2026-05-14 4D-03AH handoff / baseline 补充：下一 PaymentEngine breadth 切片锁定 action-window coverage verifier，交接入口为 `docs/CURRENT_STAGE4D_03AH_PAYMENT_ENGINE_ACTION_WINDOW_COVERAGE_HANDOFF.md`，实现前基线为 `docs/CURRENT_STAGE4D_03AH_PAYMENT_ENGINE_ACTION_WINDOW_COVERAGE_BASELINE_EVIDENCE.md`。项目仍 **NOT READY**；该补充不关闭 P0-005、P1、前端最终验收或 full-card audit。
