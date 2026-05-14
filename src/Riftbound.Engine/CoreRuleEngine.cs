@@ -23124,6 +23124,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 battle.AttackerObjectIds,
                 battle.DefenderObjectIds,
                 [DeclareBattleOptionalCost]);
+        battleCommand = NormalizeBattleResponseResumeDeclareBattleCommand(state, battleCommand);
         var battleAttackerObjectIds = NormalizeTargetObjectIds(battleCommand.AttackerObjectIds ?? []);
         var battleDefenderObjectIds = NormalizeTargetObjectIds(battleCommand.DefenderObjectIds ?? []);
         var battleFieldObjectId = battleCommand.BattlefieldId?.Trim() ?? battle.BattlefieldObjectId ?? string.Empty;
@@ -23206,6 +23207,66 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(battleResult.State),
             BuildCorePrompts(battleResult.State));
+    }
+
+    private static DeclareBattleCommand NormalizeBattleResponseResumeDeclareBattleCommand(
+        MatchState state,
+        DeclareBattleCommand command)
+    {
+        var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        var recycledRuneActions = optionalCosts
+            .Where(IsRecycleRunePaymentResourceActionId)
+            .ToArray();
+        if (recycledRuneActions.Length == 0)
+        {
+            return command;
+        }
+
+        var brushReplacementChoices = optionalCosts
+            .Where(IsBrushReplacementChoiceId)
+            .ToArray();
+        var brushReplacementValid = ValidateBrushReplacementChoice(
+            state,
+            command,
+            brushReplacementChoices,
+            out var brushReplacement);
+        var paymentBattlefieldId = brushReplacementValid && brushReplacementChoices.Length > 0
+            ? brushReplacement.OriginalBattlefieldObjectId
+            : command.BattlefieldId?.Trim() ?? string.Empty;
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, paymentBattlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldHeldPayPowerScoreCardNo(battlefieldState.CardNo))
+        {
+            return command;
+        }
+
+        var paymentPlayerId = ResolveBattlefieldPaymentControllerId(playerZones, battlefieldObjectId, battlefieldState);
+        if (string.IsNullOrWhiteSpace(paymentPlayerId))
+        {
+            return command;
+        }
+
+        var currentPool = state.RunePools.TryGetValue(paymentPlayerId, out var runePool)
+            ? runePool
+            : RunePool.Empty;
+        if (!CanPayPowerCost(
+                currentPool,
+                BattlefieldHeldScorePowerCost,
+                new Dictionary<string, int>(StringComparer.Ordinal)))
+        {
+            return command;
+        }
+
+        var filteredOptionalCosts = optionalCosts
+            .Where(optionalCost => !IsRecycleRunePaymentResourceActionId(optionalCost))
+            .ToArray();
+        return new DeclareBattleCommand(
+            command.BattlefieldId ?? string.Empty,
+            command.AttackerObjectIds,
+            command.DefenderObjectIds,
+            filteredOptionalCosts,
+            command.BattlefieldTargetObjectIds);
     }
 
     private static ResolutionResult ResolvePassFocus(MatchState state, PlayerIntent intent)
