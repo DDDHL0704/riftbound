@@ -7,6 +7,8 @@
 
 ## 0. 2026-05-13 最新状态补充
 
+2026-05-14 4D-02L handoff / baseline 补充：Immediate battle task advancement 下一 P0-004 切片已建立，入口为 `docs/CURRENT_STAGE4D_02L_IMMEDIATE_BATTLE_TASK_ADVANCEMENT_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_02L_IMMEDIATE_BATTLE_TASK_ADVANCEMENT_BASELINE_EVIDENCE.md`；focused baseline 113/113、adjacent baseline 608/608、backend full 4204/4204、`git diff --check` 通过。目标是验证 immediate `DECLARE_BATTLE` 直接结算分支在 battle close / control / held / conquer 后也能推进 next contested battlefield；该补充只建立实现前护栏，不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
+
 2026-05-14 4D-01C focused slice 补充：Battlefield control standby cleanup 已验收，入口为 `docs/CURRENT_STAGE4D_01C_BATTLEFIELD_CONTROL_STANDBY_CLEANUP_AUDIT.md` 与 `docs/CURRENT_STAGE4D_01C_BATTLEFIELD_CONTROL_STANDBY_CLEANUP_EVIDENCE.md`；focused 124/124、adjacent 608/608、backend full 4204/4204、`git diff --check` 通过。该补充只证明 natural battle close / battlefield control resolve 后由控制权变化导致的 illegal standby cleanup ordering 与非授权 hidden standby lane snapshot redaction；不关闭 P0-002、P0-003、P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
 
 2026-05-14 4D-01C handoff / baseline 补充：Battlefield control standby cleanup 下一 P0-002 / P0-003 切片已建立，入口为 `docs/CURRENT_STAGE4D_01C_BATTLEFIELD_CONTROL_STANDBY_CLEANUP_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_01C_BATTLEFIELD_CONTROL_STANDBY_CLEANUP_BASELINE_EVIDENCE.md`；focused baseline 123/123、adjacent baseline 607/607、backend full 4203/4203 通过。目标是验证 natural battle close / battlefield control resolve 后由控制权变化导致的 illegal standby cleanup，并证明 cleanup / redaction / next contested battlefield task ordering 一致；该补充只建立实现前护栏，不关闭 P0-002、P0-003、P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
