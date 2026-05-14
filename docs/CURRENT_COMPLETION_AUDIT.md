@@ -7,6 +7,8 @@
 
 ## 0. 2026-05-13 最新状态补充
 
+2026-05-14 4D-02G handoff / baseline 补充：Battle response declaration-context 下一 P0-004 切片已建立，入口为 `docs/CURRENT_STAGE4D_02G_BATTLE_RESPONSE_DECLARATION_CONTEXT_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_02G_BATTLE_RESPONSE_DECLARATION_CONTEXT_BASELINE_EVIDENCE.md`；focused baseline 428/428、adjacent baseline 608/608、backend full 4196/4196、`git diff --check` 通过。目标是验证 natural `DECLARE_BATTLE` 携带 battlefield target / brush replacement / payment-resource context 时，若存在合法 battle response 仍先开启 response window，并在 pass 后保留原 declaration context；该补充只建立实现前护栏，不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
+
 2026-05-14 4D-02E focused slice 补充：Battle task advancement 已实现并验证，入口为 `docs/CURRENT_STAGE4D_02E_BATTLE_TASK_ADVANCEMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02E_BATTLE_TASK_ADVANCEMENT_EVIDENCE.md`；focused 427/427、adjacent 608/608、backend full 4195/4195、`git diff --check` 通过。该补充只证明 `ASSIGN_COMBAT_DAMAGE` 关闭当前 natural battle 后可推进下一个 contested battlefield task，不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
 
 2026-05-14 4D-02F focused slice 补充：Battle assignment no-result 已实现并验证，入口为 `docs/CURRENT_STAGE4D_02F_BATTLE_ASSIGNMENT_NO_RESULT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02F_BATTLE_ASSIGNMENT_NO_RESULT_EVIDENCE.md`；focused 428/428、adjacent 608/608、backend full 4196/4196、`git diff --check` 通过。该补充只证明 natural `ASSIGN_COMBAT_DAMAGE` 中双方全部被摧毁时的 `BATTLE_NO_RESULT` / battle resolution / task cleanup guard，不关闭 P0-004、P0-005、P1、前端最终验收或 full-card audit。项目仍 **NOT READY**。
