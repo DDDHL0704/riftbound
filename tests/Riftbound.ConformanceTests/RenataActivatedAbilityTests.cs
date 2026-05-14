@@ -75,6 +75,42 @@ public sealed class RenataActivatedAbilityTests
     }
 
     [Fact]
+    public void RenataOpenMainPromptQuotesTypedBlueTemporaryResourceForDrawShortfall()
+    {
+        var temporaryResource = TypedTemporaryResource("INSIGHT_SIGIL:TEMP-RENATA-DRAW-PROMPT");
+        var paymentResourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var state = BuildRenataState(P4ActivatedAbilityCatalog.RenataGlascCardNo, new RunePool(1, 0)) with
+        {
+            TemporaryPaymentResources = [temporaryResource]
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+
+        var activateCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(activateCandidate.Metadata);
+        var requirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]),
+            entry => string.Equals(
+                entry["abilityId"] as string,
+                P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId,
+                StringComparison.Ordinal));
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            requirement["paymentResourceChoices"]).ToArray();
+        Assert.Equal([paymentResourceAction], paymentResourceChoices.Select(choice => choice.Id).ToArray());
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            requirement["paymentResourcePowerByChoice"]);
+        Assert.Equal(RuneTrait.Blue, paymentResourcePowerByChoice[paymentResourceAction]["trait"]);
+        var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
+            paymentResourcePowerByChoice[paymentResourceAction]["powerByTrait"]);
+        Assert.Equal(1, powerByTrait[RuneTrait.Blue]);
+        var availablePowerByTraitWithResources = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
+            requirement["availablePowerByTraitWithPaymentResources"]);
+        Assert.Equal(1, availablePowerByTraitWithResources[RuneTrait.Blue]);
+    }
+
+    [Fact]
     public void RenataOpenMainPromptExposesTypedBlueScoreRequirement()
     {
         var temporaryResource = TemporaryResource("MALZAHAR:TEMP-RENATA-SCORE-PROMPT");
@@ -235,6 +271,35 @@ public sealed class RenataActivatedAbilityTests
     }
 
     [Fact]
+    public async Task RenataDrawCanSpendTypedBlueTemporaryResourceForTypedBlueShortfall()
+    {
+        var temporaryResource = TypedTemporaryResource("INSIGHT_SIGIL:TEMP-RENATA-DRAW-COMMIT");
+        var paymentResourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var state = BuildRenataState(P4ActivatedAbilityCatalog.RenataGlascCardNo, new RunePool(1, 0)) with
+        {
+            TemporaryPaymentResources = [temporaryResource]
+        };
+
+        var result = await ActivateRenataAsync(state, optionalCosts: [paymentResourceAction]);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(
+            ["TEMPORARY_PAYMENT_RESOURCE_SPENT", "TEMPORARY_PAYMENT_RESOURCE_CLEARED", "ABILITY_ACTIVATED", "COST_PAID", "STACK_ITEM_ADDED"],
+            result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Empty(result.State.TemporaryPaymentResources);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        var spentEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
+        var spentPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(spentEvent.Payload["consumedPowerByTrait"]);
+        Assert.Equal(1, spentPowerByTrait[RuneTrait.Blue]);
+        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        Assert.Equal([temporaryResource.ResourceId], Assert.IsType<string[]>(costEvent.Payload["temporaryPaymentResourceIds"]));
+        Assert.Equal(0, costEvent.Payload["temporaryPaymentResourcePower"]);
+        var temporaryPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["temporaryPaymentResourcePowerByTrait"]);
+        Assert.Equal(1, temporaryPowerByTrait[RuneTrait.Blue]);
+    }
+
+    [Fact]
     public async Task RenataDrawStackPassPassDrawsOneWithoutMovingOrExhaustingSource()
     {
         var engine = new CoreRuleEngine();
@@ -353,6 +418,41 @@ public sealed class RenataActivatedAbilityTests
         Assert.Equal(["P1-RUNE-BLUE-1", "P1-RUNE-BLUE-2"], Assert.IsType<string[]>(costEvent.Payload["recycledRuneObjectIds"]));
         var costPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]);
         Assert.Equal(4, costPowerByTrait[RuneTrait.Blue]);
+    }
+
+    [Fact]
+    public async Task RenataScoreCanSpendTypedBlueTemporaryResourceForTypedBlueShortfall()
+    {
+        var temporaryResource = TypedTemporaryResource("INSIGHT_SIGIL:TEMP-RENATA-SCORE-COMMIT");
+        var paymentResourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var state = BuildRenataState(
+            P4ActivatedAbilityCatalog.RenataGlascCardNo,
+            new RunePool(4, 0, new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [RuneTrait.Blue] = 3
+            })) with
+        {
+            TemporaryPaymentResources = [temporaryResource]
+        };
+
+        var result = await ActivateRenataScoreAsync(state, optionalCosts: [paymentResourceAction]);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(
+            ["TEMPORARY_PAYMENT_RESOURCE_SPENT", "TEMPORARY_PAYMENT_RESOURCE_CLEARED", "ABILITY_ACTIVATED", "UNIT_EXHAUSTED", "COST_PAID", "STACK_ITEM_ADDED"],
+            result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Empty(result.State.TemporaryPaymentResources);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.True(result.State.CardObjects[RenataObjectId].IsExhausted);
+        var spentEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
+        var spentPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(spentEvent.Payload["consumedPowerByTrait"]);
+        Assert.Equal(1, spentPowerByTrait[RuneTrait.Blue]);
+        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        Assert.Equal([temporaryResource.ResourceId], Assert.IsType<string[]>(costEvent.Payload["temporaryPaymentResourceIds"]));
+        Assert.Equal(0, costEvent.Payload["temporaryPaymentResourcePower"]);
+        var temporaryPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["temporaryPaymentResourcePowerByTrait"]);
+        Assert.Equal(1, temporaryPowerByTrait[RuneTrait.Blue]);
     }
 
     [Fact]
@@ -889,6 +989,26 @@ public sealed class RenataActivatedAbilityTests
             2,
             [PaymentCostRules.RuneCostPaymentKind],
             1);
+    }
+
+    private static TemporaryPaymentResourceState TypedTemporaryResource(string resourceId)
+    {
+        var powerByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            [RuneTrait.Blue] = 1
+        };
+        return new TemporaryPaymentResourceState(
+            resourceId,
+            "P1",
+            "P1-INSIGHT-SIGIL",
+            P4ActivatedAbilityCatalog.InsightSigilResourceAbilityId,
+            "ACTIVATE_ABILITY",
+            0,
+            0,
+            [PaymentCostRules.RuneCostPaymentKind],
+            1,
+            generatedPowerByTrait: powerByTrait,
+            remainingPowerByTrait: powerByTrait);
     }
 
     private static IReadOnlyDictionary<string, CardObjectState> ReplaceCardObject(

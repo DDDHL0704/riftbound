@@ -5,6 +5,8 @@
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
 
+2026-05-15 最新补充：4D-03AJ PaymentEngine Renata typed temporary resource focused slice 已验收，审计与证据见 `docs/CURRENT_STAGE4D_03AJ_PAYMENT_ENGINE_RENATA_TYPED_TEMP_RESOURCE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AJ_PAYMENT_ENGINE_RENATA_TYPED_TEMP_RESOURCE_EVIDENCE.md`；focused 85/85、adjacent 687/687、backend full 4239/4239 通过。Renata draw / score typed-blue `ACTIVATE_ABILITY` branches 现在可 quote / command commit matching blue `TEMP_PAYMENT_RESOURCE:*`，并在 audit payload 中记录 `temporaryPaymentResourcePowerByTrait`；generic temporary resource 仍不能支付 typed-blue cost。本切片不扩完整 `[A]` / `[C]` resource family、不新增 target-bearing ability breadth、不改前端或 card matrix、不关闭 P0-005 / P1 / READY；项目仍 **NOT READY**。
+
 2026-05-15 P0-005 状态刷新：PaymentEngine 总览已对齐到 4D-03AH，审计见 `docs/CURRENT_STAGE4D_03AI_PAYMENT_ENGINE_STATUS_REFRESH_AUDIT.md`。4D-03 foundation through 4D-03W、4D-03AC / 03AD / 03AE / 03AG focused representatives 与 4D-03AF / 03AH audit / verifier 均已被现有证据记录；旧 “through 4D-03Q / 4D-03T / 4D-03V” 总览只作为历史 superseded 口径。P0-005 仍未 full-official 关闭，remaining work 仍包括完整 `[A]` / `[C]` resource skill family、remaining payment windows、target-bearing colored-cost activated abilities、keyword payment branches、replacement / optional / alternative / tax quote-command-audit parity；项目仍 **NOT READY**。
 
 2026-05-15 最新补充：4D-02AK Battle response activation power-modifier assignment damage pool focused slice 已验收，审计与证据见 `docs/CURRENT_STAGE4D_02AK_BATTLE_RESPONSE_ACTIVATION_POWER_MODIFIER_ASSIGNMENT_DAMAGE_POOL_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02AK_BATTLE_RESPONSE_ACTIVATION_POWER_MODIFIER_ASSIGNMENT_DAMAGE_POOL_EVIDENCE.md`；targeted 1/1、focused 294/294、adjacent 824/824、backend full 4236/4236、`git diff --check` 通过。该切片修复非眩晕 modified participant 在 returned assignment prompt / runtime validation / committed damage pool 中 double-count `UntilEndOfTurnPowerModifier` 的 gap：current effective `Power` 现在只使用一次，同时保留 stunned participant 为 0。本切片不启动 PaymentEngine / LayerEngine、不改前端、不关闭 P0-004 / P0-005 / P1 / READY；项目仍 **NOT READY**。
@@ -5692,3 +5694,25 @@ Checkpoint 记录：
 - P0-002 / P0-003 被进一步收窄，但完整 held/conquer/control lifecycle、replacement/prevention、所有状态变化 unified cleanup queue 仍未 full-official resolved。
 - 下一实现切片进入 4D-02 spell duel / battle state machine。
 - P0-004、P0-005、P1 与 READY 均未关闭；不得调用 active goal complete。
+
+## 65. Stage 4D-03AJ PaymentEngine Renata Typed Temporary Resource Evidence
+
+状态：**4D-03AJ focused slice accepted；项目整体仍 NOT READY。**
+
+本批范围：
+
+- 审计入口：`docs/CURRENT_STAGE4D_03AJ_PAYMENT_ENGINE_RENATA_TYPED_TEMP_RESOURCE_AUDIT.md`。
+- 证据入口：`docs/CURRENT_STAGE4D_03AJ_PAYMENT_ENGINE_RENATA_TYPED_TEMP_RESOURCE_EVIDENCE.md`。
+- 修改 `src/Riftbound.Engine/CoreRuleEngine.cs`，让 Renata draw / score typed-blue `ACTIVATE_ABILITY` branches 复用 inline temporary payment window，支持 matching blue `TEMP_PAYMENT_RESOURCE:*`。
+- 修改 `tests/Riftbound.ConformanceTests/RenataActivatedAbilityTests.cs`，覆盖 prompt quote、draw command commit、score command commit 与 typed audit metadata。
+
+通过证据：
+
+- focused：85/85 通过。
+- adjacent：687/687 通过。
+- backend full：4239/4239 通过。
+
+口径：
+
+- 本切片只证明 Renata typed-blue activated branches 的 typed temporary resource prompt / command / audit parity。
+- 不关闭完整 `[A]` / `[C]` resource skill family、target-bearing activated ability breadth、keyword payment branches、replacement / optional / alternative / tax parity、P0-005、P1 或 READY。

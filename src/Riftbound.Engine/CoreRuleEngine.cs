@@ -6730,12 +6730,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 out var paymentResourceActions,
                 out var recycledRuneObjectIds,
                 out var temporaryPaymentResourceActions)
-            || behaviorOptionalCosts.Count != 0
-            || temporaryPaymentResourceActions.Count != 0)
+            || behaviorOptionalCosts.Count != 0)
         {
             return RejectWithCorePrompts(
                 state,
-                "烈娜塔·戈拉斯克的抽牌技能只接受合法的回收符文支付资源动作。",
+                "烈娜塔·戈拉斯克的抽牌技能只接受合法的符能支付资源动作。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -6837,6 +6836,31 @@ public sealed class CoreRuleEngine : IRuleEngine
             paymentEvents,
             paymentWindow,
             paymentId);
+        var inlineTemporaryPayment = BuildInlineTemporaryPaymentWindow(
+            paymentPlan.PaymentId,
+            paymentPlan.PaymentWindow,
+            intent.PlayerId,
+            ability.PowerCost,
+            powerCostByTrait,
+            ability.EffectKind,
+            paymentResourceActions);
+        if (!TryApplyTemporaryPaymentResourcesToPendingPayment(
+                state,
+                inlineTemporaryPayment,
+                temporaryPaymentResourceActions,
+                runePools,
+                out var temporaryAdjustedRunePools,
+                out var nextTemporaryPaymentResources,
+                out var consumedTemporaryPaymentResources,
+                out var temporaryResourceRejection))
+        {
+            return RejectWithCorePrompts(
+                state,
+                temporaryResourceRejection,
+                ErrorCodes.InsufficientCost);
+        }
+
+        runePools = temporaryAdjustedRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var adjustedPool = runePools.TryGetValue(intent.PlayerId, out var paymentAdjustedPool)
             ? paymentAdjustedPool
             : RunePool.Empty;
@@ -6889,12 +6913,17 @@ public sealed class CoreRuleEngine : IRuleEngine
             PlayerZones = playerZones,
             CardObjects = cardObjects,
             ObjectLocations = ReconcileObjectLocations(objectLocations, playerZones),
+            TemporaryPaymentResources = nextTemporaryPaymentResources,
             PriorityPlayerId = intent.PlayerId,
             PassedPriorityPlayerIds = [],
             StackItems = state.StackItems.Concat([stackItem]).ToArray()
         };
-        var events = new List<GameEvent>(paymentEvents)
-        {
+        var events = new List<GameEvent>(paymentEvents);
+        events.AddRange(BuildTemporaryPaymentResourcePaymentEvents(
+            inlineTemporaryPayment,
+            intent.PlayerId,
+            consumedTemporaryPaymentResources));
+        events.AddRange([
             new(
                 "ABILITY_ACTIVATED",
                 $"{intent.PlayerId} 激活烈娜塔·戈拉斯克的抽牌技能",
@@ -6921,7 +6950,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["power"] = ability.PowerCost,
                         ["powerByTrait"] = powerCostByTrait,
                         ["abilityId"] = command.AbilityId,
-                        ["sourceObjectId"] = command.SourceObjectId
+                        ["sourceObjectId"] = command.SourceObjectId,
+                        ["temporaryPaymentResourceIds"] = consumedTemporaryPaymentResources
+                            .Select(resource => resource.ResourceId)
+                            .ToArray(),
+                        ["temporaryPaymentResourcePower"] = consumedTemporaryPaymentResources
+                            .Sum(resource => resource.ConsumedPower),
+                        ["temporaryPaymentResourcePowerByTrait"] = consumedTemporaryPaymentResources
+                            .SelectMany(resource => resource.ConsumedPowerByTrait)
+                            .GroupBy(entry => entry.Key, StringComparer.Ordinal)
+                            .ToDictionary(group => group.Key, group => group.Sum(entry => entry.Value), StringComparer.Ordinal)
                     })),
             new(
                 "STACK_ITEM_ADDED",
@@ -6936,7 +6974,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["effectKind"] = stackItem.EffectKind,
                     ["abilityId"] = command.AbilityId
                 })
-        };
+        ]);
 
         return new ResolutionResult(
             true,
@@ -6985,12 +7023,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 out var paymentResourceActions,
                 out var recycledRuneObjectIds,
                 out var temporaryPaymentResourceActions)
-            || behaviorOptionalCosts.Count != 0
-            || temporaryPaymentResourceActions.Count != 0)
+            || behaviorOptionalCosts.Count != 0)
         {
             return RejectWithCorePrompts(
                 state,
-                "烈娜塔·戈拉斯克的得分技能只接受合法的回收符文支付资源动作。",
+                "烈娜塔·戈拉斯克的得分技能只接受合法的符能支付资源动作。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -7101,6 +7138,31 @@ public sealed class CoreRuleEngine : IRuleEngine
             paymentEvents,
             paymentWindow,
             paymentId);
+        var inlineTemporaryPayment = BuildInlineTemporaryPaymentWindow(
+            paymentPlan.PaymentId,
+            paymentPlan.PaymentWindow,
+            intent.PlayerId,
+            ability.PowerCost,
+            powerCostByTrait,
+            ability.EffectKind,
+            paymentResourceActions);
+        if (!TryApplyTemporaryPaymentResourcesToPendingPayment(
+                state,
+                inlineTemporaryPayment,
+                temporaryPaymentResourceActions,
+                runePools,
+                out var temporaryAdjustedRunePools,
+                out var nextTemporaryPaymentResources,
+                out var consumedTemporaryPaymentResources,
+                out var temporaryResourceRejection))
+        {
+            return RejectWithCorePrompts(
+                state,
+                temporaryResourceRejection,
+                ErrorCodes.InsufficientCost);
+        }
+
+        runePools = temporaryAdjustedRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var adjustedPool = runePools.TryGetValue(intent.PlayerId, out var paymentAdjustedPool)
             ? paymentAdjustedPool
             : RunePool.Empty;
@@ -7159,12 +7221,17 @@ public sealed class CoreRuleEngine : IRuleEngine
             PlayerZones = playerZones,
             CardObjects = cardObjects,
             ObjectLocations = ReconcileObjectLocations(objectLocations, playerZones),
+            TemporaryPaymentResources = nextTemporaryPaymentResources,
             PriorityPlayerId = intent.PlayerId,
             PassedPriorityPlayerIds = [],
             StackItems = state.StackItems.Concat([stackItem]).ToArray()
         };
-        var events = new List<GameEvent>(paymentEvents)
-        {
+        var events = new List<GameEvent>(paymentEvents);
+        events.AddRange(BuildTemporaryPaymentResourcePaymentEvents(
+            inlineTemporaryPayment,
+            intent.PlayerId,
+            consumedTemporaryPaymentResources));
+        events.AddRange([
             new(
                 "ABILITY_ACTIVATED",
                 $"{intent.PlayerId} 激活烈娜塔·戈拉斯克的得分技能",
@@ -7206,7 +7273,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["powerByTrait"] = powerCostByTrait,
                         ["abilityId"] = command.AbilityId,
                         ["sourceObjectId"] = command.SourceObjectId,
-                        ["exhaustsSource"] = true
+                        ["exhaustsSource"] = true,
+                        ["temporaryPaymentResourceIds"] = consumedTemporaryPaymentResources
+                            .Select(resource => resource.ResourceId)
+                            .ToArray(),
+                        ["temporaryPaymentResourcePower"] = consumedTemporaryPaymentResources
+                            .Sum(resource => resource.ConsumedPower),
+                        ["temporaryPaymentResourcePowerByTrait"] = consumedTemporaryPaymentResources
+                            .SelectMany(resource => resource.ConsumedPowerByTrait)
+                            .GroupBy(entry => entry.Key, StringComparer.Ordinal)
+                            .ToDictionary(group => group.Key, group => group.Sum(entry => entry.Value), StringComparer.Ordinal)
                     })),
             new(
                 "STACK_ITEM_ADDED",
@@ -7222,7 +7298,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["abilityId"] = command.AbilityId,
                     ["exhaustsSource"] = true
                 })
-        };
+        ]);
 
         return new ResolutionResult(
             true,
