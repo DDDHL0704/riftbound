@@ -3096,6 +3096,56 @@ public sealed class CoreRuleEngine : IRuleEngine
                 defendingPlayerId));
         }
 
+        var playerExperience = state.PlayerExperience;
+        var survivingConquerAttackerObjectIds = battle.AttackerObjectIds
+            .Where(attackingObjectId => cardObjects.TryGetValue(attackingObjectId, out var survivingAttackerState)
+                && survivingAttackerState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && IsObjectOnField(playerZones, attackingObjectId))
+            .ToArray();
+        var attackerConqueredBattlefield = battle.DefenderObjectIds.All(defenderObjectId =>
+                lethalCleanup.DestroyedObjectIds.Contains(defenderObjectId, StringComparer.Ordinal))
+            && survivingConquerAttackerObjectIds.Length > 0;
+        var huntConquerSources = survivingConquerAttackerObjectIds
+            .Select(objectId => new
+            {
+                ObjectId = objectId,
+                CardObject = cardObjects[objectId],
+                HuntAmount = CardResourceKeywordRules.HuntAmountFromTags(cardObjects[objectId].Tags)
+            })
+            .Where(source => source.HuntAmount > 0)
+            .ToArray();
+        var huntAmount = huntConquerSources.Sum(source => source.HuntAmount);
+        if (huntAmount > 0 && attackerConqueredBattlefield)
+        {
+            var huntSource = huntConquerSources[0];
+            combatEvents.Add(new GameEvent(
+                "BATTLEFIELD_CONQUERED",
+                $"{intent.PlayerId} 征服战场",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["battlefieldId"] = battlefieldId,
+                    ["sourceObjectId"] = huntSource.ObjectId,
+                    ["defeatedObjectIds"] = battle.DefenderObjectIds.ToArray(),
+                    ["huntAmount"] = huntAmount,
+                    ["huntSourceObjectIds"] = huntConquerSources
+                        .Select(source => source.ObjectId)
+                        .ToArray(),
+                    ["huntAmountsBySource"] = huntConquerSources.ToDictionary(
+                        source => source.ObjectId,
+                        source => source.HuntAmount,
+                        StringComparer.Ordinal)
+                }));
+            playerExperience = GainExperience(
+                NormalizeExperienceForSeats(state),
+                intent.PlayerId,
+                huntAmount,
+                combatStackItem,
+                combatEvents,
+                huntSource.ObjectId,
+                huntSource.CardObject.CardNo);
+        }
+
         ApplyBattleCleanup(
             playerZones,
             cardObjects,
@@ -3146,6 +3196,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             ObjectLocations = objectLocations,
             CardObjects = cardObjects,
             RunePools = runePools,
+            PlayerExperience = playerExperience,
             BattlefieldResolutions = battlefieldResolutions,
             BattleResolutions = battleResolutions,
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(
