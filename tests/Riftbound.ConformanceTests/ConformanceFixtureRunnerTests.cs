@@ -40470,6 +40470,330 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, costPaidEvent.Payload["remainingPower"]);
     }
 
+    [Fact]
+    public void P79BattlefieldHeldScorePromptQuotesTemporaryPaymentResource()
+    {
+        var temporaryResource = BattlefieldHeldTemporaryResource("MALZAHAR:TEMP-HELD-PROMPT", ownerPlayerId: "P2");
+        var state = BattlefieldHeldScoreState() with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(0, 3)
+            },
+            TemporaryPaymentResources = [temporaryResource]
+        };
+        var initialHash = MatchStateHasher.Hash(state);
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var declareBattleCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(declareBattleCandidate.Metadata);
+        var sourceRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+        var resourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["paymentResourceChoices"])
+            .ToArray();
+
+        Assert.Contains(paymentResourceChoices, choice => string.Equals(choice.Id, resourceAction, StringComparison.Ordinal));
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            sourceRequirement["paymentResourcePowerByChoice"]);
+        Assert.Equal(1, paymentResourcePowerByChoice[resourceAction]["power"]);
+        Assert.True(Assert.IsType<bool>(paymentResourcePowerByChoice[resourceAction]["paymentOnly"]));
+        Assert.Equal(3, sourceRequirement["availablePower"]);
+        Assert.Equal(4, sourceRequirement["availablePowerWithPaymentResources"]);
+    }
+
+    [Fact]
+    public void P79BattlefieldHeldScorePromptQuotesRecycleAndTemporaryPaymentResourcesTogether()
+    {
+        const string runeObjectId = "P2-RUNE-RED-HELD-SCORE-PROMPT-MIXED";
+        var temporaryResource = BattlefieldHeldTemporaryResource("MALZAHAR:TEMP-HELD-PROMPT-MIXED", ownerPlayerId: "P2");
+        var baseState = BattlefieldHeldScoreState();
+        var state = baseState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(0, 2)
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(baseState.PlayerZones, StringComparer.Ordinal)
+            {
+                ["P2"] = baseState.PlayerZones["P2"] with
+                {
+                    Base = [runeObjectId],
+                    RuneDeck = ["P2-RUNE-BOTTOM-HELD-SCORE-PROMPT-MIXED"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(baseState.CardObjects, StringComparer.Ordinal)
+            {
+                [runeObjectId] = new(
+                    runeObjectId,
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    cardNo: "UNL-R01",
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-RUNE-BOTTOM-HELD-SCORE-PROMPT-MIXED"] = new(
+                    "P2-RUNE-BOTTOM-HELD-SCORE-PROMPT-MIXED",
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:blue"],
+                    cardNo: "UNL-R02",
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(baseState.ObjectLocations, StringComparer.Ordinal)
+            {
+                [runeObjectId] = new("P2", "BASE"),
+                ["P2-RUNE-BOTTOM-HELD-SCORE-PROMPT-MIXED"] = new("P2", "RUNE_DECK")
+            },
+            TemporaryPaymentResources = [temporaryResource]
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var declareBattleCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(declareBattleCandidate.Metadata);
+        var sourceRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+        var recycleAction = $"RECYCLE_RUNE:{runeObjectId}";
+        var temporaryAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["paymentResourceChoices"])
+            .ToArray();
+
+        Assert.Contains(paymentResourceChoices, choice => string.Equals(choice.Id, recycleAction, StringComparison.Ordinal));
+        Assert.Contains(paymentResourceChoices, choice => string.Equals(choice.Id, temporaryAction, StringComparison.Ordinal));
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            sourceRequirement["paymentResourcePowerByChoice"]);
+        Assert.Equal(1, paymentResourcePowerByChoice[recycleAction]["power"]);
+        Assert.Equal(1, paymentResourcePowerByChoice[temporaryAction]["power"]);
+        Assert.Equal(2, sourceRequirement["availablePower"]);
+        Assert.Equal(4, sourceRequirement["availablePowerWithPaymentResources"]);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldHeldPaysPowerToGainScoreWithTemporaryPaymentResource()
+    {
+        var temporaryResource = BattlefieldHeldTemporaryResource("MALZAHAR:TEMP-HELD-SCORE", ownerPlayerId: "P2");
+        var resourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var state = BattlefieldHeldScoreState() with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(0, 3)
+            },
+            TemporaryPaymentResources = [temporaryResource]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-score-temporary-resource", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-ENERGY-HUB",
+                ["P1-BATTLEFIELD-ENERGY-ATTACKER"],
+                ["P2-BATTLEFIELD-ENERGY-DEFENDER"],
+                ["COMBAT_ASSIGNMENT", resourceAction]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(1, result.State.PlayerScores["P2"]);
+        Assert.Equal(0, result.State.RunePools["P2"].Power);
+        Assert.Empty(result.State.TemporaryPaymentResources);
+        var spentEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
+        var clearedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_CLEARED", StringComparison.Ordinal));
+        var costPaidEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal("BATTLEFIELD_HELD", spentEvent.Payload["paymentWindow"]);
+        Assert.Equal("BATTLEFIELD_HELD", clearedEvent.Payload["paymentWindow"]);
+        Assert.Equal(costPaidEvent.Payload["paymentId"], spentEvent.Payload["paymentId"]);
+        Assert.Equal(costPaidEvent.Payload["paymentId"], clearedEvent.Payload["paymentId"]);
+        Assert.Equal(resourceAction, Assert.Single(Assert.IsType<string[]>(costPaidEvent.Payload["paymentResourceActions"])));
+        Assert.Equal(temporaryResource.ResourceId, Assert.Single(Assert.IsType<string[]>(costPaidEvent.Payload["temporaryPaymentResourceIds"])));
+        Assert.Equal(1, costPaidEvent.Payload["temporaryPaymentResourcePower"]);
+        Assert.Equal(4, costPaidEvent.Payload["genericPower"]);
+        Assert.Equal(0, costPaidEvent.Payload["remainingPower"]);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldHeldPaysGenericScoreCostWithTypedTemporaryPaymentResource()
+    {
+        var temporaryResource = BattlefieldHeldTemporaryResource(
+            "RAGE_SIGIL:TEMP-HELD-RED",
+            ownerPlayerId: "P2",
+            remainingPower: 0,
+            abilityId: P4ActivatedAbilityCatalog.RageSigilResourceAbilityId,
+            remainingPowerByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [RuneTrait.Red] = 1
+            });
+        var resourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var state = BattlefieldHeldScoreState() with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(0, 3)
+            },
+            TemporaryPaymentResources = [temporaryResource]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-score-typed-temporary-resource", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-ENERGY-HUB",
+                ["P1-BATTLEFIELD-ENERGY-ATTACKER"],
+                ["P2-BATTLEFIELD-ENERGY-DEFENDER"],
+                ["COMBAT_ASSIGNMENT", resourceAction]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(1, result.State.PlayerScores["P2"]);
+        Assert.Empty(result.State.TemporaryPaymentResources);
+        var spentEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
+        var costPaidEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(0, spentEvent.Payload["consumedPower"]);
+        var spentPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(spentEvent.Payload["consumedPowerByTrait"]);
+        Assert.Equal(1, spentPowerByTrait[RuneTrait.Red]);
+        Assert.Equal(0, costPaidEvent.Payload["temporaryPaymentResourcePower"]);
+        var costPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costPaidEvent.Payload["temporaryPaymentResourcePowerByTrait"]);
+        Assert.Equal(1, costPowerByTrait[RuneTrait.Red]);
+        Assert.Equal(0, costPaidEvent.Payload["remainingPower"]);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldHeldPaysPowerToGainScoreWithRecycleAndTemporaryPaymentResources()
+    {
+        const string runeObjectId = "P2-RUNE-RED-HELD-SCORE-MIXED";
+        var temporaryResource = BattlefieldHeldTemporaryResource("MALZAHAR:TEMP-HELD-MIXED", ownerPlayerId: "P2");
+        var recycleAction = $"RECYCLE_RUNE:{runeObjectId}";
+        var temporaryAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var baseState = BattlefieldHeldScoreState();
+        var state = baseState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(0, 2)
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(baseState.PlayerZones, StringComparer.Ordinal)
+            {
+                ["P2"] = baseState.PlayerZones["P2"] with
+                {
+                    Base = [runeObjectId],
+                    RuneDeck = ["P2-RUNE-BOTTOM-HELD-SCORE-MIXED"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(baseState.CardObjects, StringComparer.Ordinal)
+            {
+                [runeObjectId] = new(
+                    runeObjectId,
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    cardNo: "UNL-R01",
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-RUNE-BOTTOM-HELD-SCORE-MIXED"] = new(
+                    "P2-RUNE-BOTTOM-HELD-SCORE-MIXED",
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:blue"],
+                    cardNo: "UNL-R02",
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(baseState.ObjectLocations, StringComparer.Ordinal)
+            {
+                [runeObjectId] = new("P2", "BASE"),
+                ["P2-RUNE-BOTTOM-HELD-SCORE-MIXED"] = new("P2", "RUNE_DECK")
+            },
+            TemporaryPaymentResources = [temporaryResource]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-score-mixed-payment-resource", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-ENERGY-HUB",
+                ["P1-BATTLEFIELD-ENERGY-ATTACKER"],
+                ["P2-BATTLEFIELD-ENERGY-DEFENDER"],
+                ["COMBAT_ASSIGNMENT", recycleAction, temporaryAction]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(1, result.State.PlayerScores["P2"]);
+        Assert.Empty(result.State.TemporaryPaymentResources);
+        Assert.DoesNotContain(runeObjectId, result.State.PlayerZones["P2"].Base);
+        var costPaidEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal([recycleAction, temporaryAction], Assert.IsType<string[]>(costPaidEvent.Payload["paymentResourceActions"]));
+        Assert.Equal([runeObjectId], Assert.IsType<string[]>(costPaidEvent.Payload["recycledRuneObjectIds"]));
+        Assert.Equal([temporaryResource.ResourceId], Assert.IsType<string[]>(costPaidEvent.Payload["temporaryPaymentResourceIds"]));
+        Assert.Equal(1, costPaidEvent.Payload["temporaryPaymentResourcePower"]);
+        Assert.Equal(0, costPaidEvent.Payload["remainingPower"]);
+    }
+
+    [Theory]
+    [InlineData("wrong-owner")]
+    [InlineData("zero")]
+    [InlineData("wrong-kind")]
+    [InlineData("duplicate")]
+    [InlineData("invalid-id")]
+    [InlineData("unnecessary")]
+    [InlineData("insufficient")]
+    public async Task P79BattlefieldHeldRejectsInvalidTemporaryPaymentResourceWithoutMutation(string caseName)
+    {
+        var temporaryResource = caseName switch
+        {
+            "wrong-owner" => BattlefieldHeldTemporaryResource("MALZAHAR:TEMP-HELD-INVALID", ownerPlayerId: "P1"),
+            "zero" => BattlefieldHeldTemporaryResource("MALZAHAR:TEMP-HELD-INVALID", ownerPlayerId: "P2", remainingPower: 0),
+            "wrong-kind" => BattlefieldHeldTemporaryResource(
+                "MALZAHAR:TEMP-HELD-INVALID",
+                ownerPlayerId: "P2",
+                allowedPaymentKinds: ["MANA_COST"]),
+            _ => BattlefieldHeldTemporaryResource("MALZAHAR:TEMP-HELD-INVALID", ownerPlayerId: "P2")
+        };
+        var action = string.Equals(caseName, "invalid-id", StringComparison.Ordinal)
+            ? PaymentCostRules.TemporaryPaymentResourceActionId("MALZAHAR:TEMP-HELD-MISSING")
+            : PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var optionalCosts = string.Equals(caseName, "duplicate", StringComparison.Ordinal)
+            ? new[] { "COMBAT_ASSIGNMENT", action, action }
+            : ["COMBAT_ASSIGNMENT", action];
+        var baseState = BattlefieldHeldScoreState();
+        var state = baseState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = string.Equals(caseName, "unnecessary", StringComparison.Ordinal)
+                    ? new(0, 4)
+                    : string.Equals(caseName, "insufficient", StringComparison.Ordinal)
+                        ? new(0, 2)
+                        : new(0, 3)
+            },
+            TemporaryPaymentResources = [temporaryResource]
+        };
+        var initialHash = MatchStateHasher.Hash(state);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent($"intent-p7-9-battlefield-held-score-invalid-temp-{caseName}", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-ENERGY-HUB",
+                ["P1-BATTLEFIELD-ENERGY-ATTACKER"],
+                ["P2-BATTLEFIELD-ENERGY-DEFENDER"],
+                optionalCosts),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Empty(result.Events);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+    }
+
     [Theory]
     [InlineData("unnecessary")]
     [InlineData("wrong-player")]
@@ -40605,6 +40929,44 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHeldAlreadyScoredDoesNotConsumeTemporaryPaymentResource()
+    {
+        var temporaryResource = BattlefieldHeldTemporaryResource("MALZAHAR:TEMP-HELD-ALREADY-SCORED", ownerPlayerId: "P2");
+        var state = BattlefieldHeldScoreState() with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(0, 3)
+            },
+            UntilEndOfTurnEffects =
+            [
+                BattlefieldTaskMarkers.ScoreGainedThisTurn("P2-BATTLEFIELD-ENERGY-HUB", "P2")
+            ],
+            TemporaryPaymentResources = [temporaryResource]
+        };
+        var initialHash = MatchStateHasher.Hash(state);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-score-once-temp", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-ENERGY-HUB",
+                ["P1-BATTLEFIELD-ENERGY-ATTACKER"],
+                ["P2-BATTLEFIELD-ENERGY-DEFENDER"],
+                ["COMBAT_ASSIGNMENT", PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId)]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+        Assert.Empty(result.Events);
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldScoreDelayPreventsHeldScorePaymentBeforeThirdTurn()
     {
         var baseState = BattlefieldHeldScoreState();
@@ -40657,6 +41019,64 @@ public sealed class ConformanceFixtureRunnerTests
             && gameEvent.Payload.TryGetValue("reason", out var reason)
             && string.Equals(reason as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
         Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79BattlefieldScorePreventedDoesNotConsumeTemporaryPaymentResource()
+    {
+        var temporaryResource = BattlefieldHeldTemporaryResource("MALZAHAR:TEMP-HELD-SCORE-PREVENTED", ownerPlayerId: "P2");
+        var baseState = BattlefieldHeldScoreState();
+        var state = baseState with
+        {
+            TurnNumber = 1,
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(0, 3)
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(baseState.PlayerZones, StringComparer.Ordinal)
+            {
+                ["P2"] = baseState.PlayerZones["P2"] with
+                {
+                    Battlefields =
+                    [
+                        "P2-BATTLEFIELD-ENERGY-HUB",
+                        "P2-BATTLEFIELD-ENERGY-DEFENDER",
+                        "P2-BATTLEFIELD-FORGOTTEN-MONUMENT"
+                    ]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(baseState.CardObjects, StringComparer.Ordinal)
+            {
+                ["P2-BATTLEFIELD-FORGOTTEN-MONUMENT"] = new(
+                    "P2-BATTLEFIELD-FORGOTTEN-MONUMENT",
+                    cardNo: "SFD·209/221",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            TemporaryPaymentResources = [temporaryResource]
+        };
+        var initialHash = MatchStateHasher.Hash(state);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-score-delay-held-temp", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-ENERGY-HUB",
+                ["P1-BATTLEFIELD-ENERGY-ATTACKER"],
+                ["P2-BATTLEFIELD-ENERGY-DEFENDER"],
+                ["COMBAT_ASSIGNMENT", PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId)]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+        Assert.Empty(result.Events);
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("reason", out var reason)
+            && string.Equals(reason as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -60508,6 +60928,30 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2")
             }
         };
+    }
+
+    private static TemporaryPaymentResourceState BattlefieldHeldTemporaryResource(
+        string resourceId,
+        string ownerPlayerId,
+        int remainingPower = 1,
+        IReadOnlyList<string>? allowedPaymentKinds = null,
+        string? abilityId = null,
+        IReadOnlyDictionary<string, int>? remainingPowerByTrait = null)
+    {
+        var generatedPowerByTrait = PaymentCostRules.NormalizePowerCostByTrait(
+            remainingPowerByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
+        return new TemporaryPaymentResourceState(
+            resourceId,
+            ownerPlayerId,
+            $"{ownerPlayerId}-UNIT-MALZAHAR",
+            abilityId ?? P4ActivatedAbilityCatalog.MalzaharResourceAbilityId,
+            "ACTIVATE_ABILITY",
+            generatedPower: Math.Max(remainingPower, generatedPowerByTrait.Count == 0 ? 1 : 0),
+            remainingPower: remainingPower,
+            allowedPaymentKinds: allowedPaymentKinds ?? [PaymentCostRules.RuneCostPaymentKind],
+            createdTick: 1,
+            generatedPowerByTrait: generatedPowerByTrait,
+            remainingPowerByTrait: remainingPowerByTrait);
     }
 
     private static MatchState BrushHeldScoreState()

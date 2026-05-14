@@ -4207,6 +4207,10 @@ internal static class ActionPromptBuilder
         IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> TargetChoicesByIndex,
         IReadOnlyList<ActionPromptChoiceDto> BattlefieldChoices,
         IReadOnlyList<ActionPromptChoiceDto> OptionalCostChoices,
+        IReadOnlyList<ActionPromptChoiceDto> PaymentResourceChoices,
+        IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> PaymentResourcePowerByChoice,
+        int AvailablePower,
+        int AvailablePowerWithPaymentResources,
         IReadOnlyList<string> RequiredOptionalCosts,
         bool Composable,
         string? UnsupportedReason);
@@ -4245,6 +4249,7 @@ internal static class ActionPromptBuilder
     private const string BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo = "UNL-215/219";
     private const string BattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
     private const string BattlefieldHeldUnitCostIncreaseCardNo = "UNL-219/219";
+    private const int BattlefieldHeldScorePowerCost = 4;
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string RagingDrakeNextSpellCostReductionEffectPrefix = "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
@@ -6574,6 +6579,23 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
+        return TemporaryPaymentResourceChoicesForGenericPower(
+            state,
+            playerId,
+            runePool,
+            genericPowerCost,
+            powerCostByTrait,
+            reason);
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> TemporaryPaymentResourceChoicesForGenericPower(
+        MatchState state,
+        string playerId,
+        RunePool runePool,
+        int genericPowerCost,
+        IReadOnlyDictionary<string, int> powerCostByTrait,
+        string reason)
+    {
         if (PaymentCostRules.CanPayPowerCost(runePool, genericPowerCost, powerCostByTrait))
         {
             return [];
@@ -8790,6 +8812,11 @@ internal static class ActionPromptBuilder
                     targetChoicesByIndex["1"] = secondDefenderChoices;
                 }
 
+                var paymentResourceChoices = DeclareBattleHeldScorePaymentResourceChoices(state, battlefieldChoices);
+                var paymentResourcePowerByChoice = DeclareBattleHeldScorePaymentResourcePowerByChoice(
+                    state,
+                    paymentResourceChoices);
+
                 return new DeclareBattlePromptRequirement(
                     attacker.ObjectId,
                     attacker.CardObject.CardNo ?? string.Empty,
@@ -8806,11 +8833,258 @@ internal static class ActionPromptBuilder
                     DeclareBattleRequiredOptionalCostChoices()
                         .Concat(DeclareBattleBrushReplacementChoices(state))
                         .ToArray(),
+                    paymentResourceChoices,
+                    paymentResourcePowerByChoice,
+                    DeclareBattleHeldScoreAvailablePower(state, battlefieldChoices),
+                    DeclareBattleHeldScoreAvailablePowerWithPaymentResources(
+                        state,
+                        battlefieldChoices,
+                        paymentResourceChoices),
                     ["COMBAT_ASSIGNMENT"],
                     true,
                     null);
             })
             .ToArray();
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> DeclareBattleHeldScorePaymentResourceChoices(
+        MatchState state,
+        IReadOnlyList<ActionPromptChoiceDto> battlefieldChoices)
+    {
+        var choices = new Dictionary<string, ActionPromptChoiceDto>(StringComparer.Ordinal);
+        foreach (var battlefieldChoice in DeclareBattleHeldScoreBattlefieldChoices(state, battlefieldChoices))
+        {
+            var battlefieldObjectId = battlefieldChoice.Id;
+            if (!state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
+                || !string.Equals(battlefieldState.CardNo, BattlefieldHeldPayPowerScoreCardNo, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var paymentPlayerId = ResolveBattlefieldPaymentControllerId(state, battlefieldObjectId, battlefieldState);
+            if (string.IsNullOrWhiteSpace(paymentPlayerId)
+                || state.UntilEndOfTurnEffects.Contains(
+                    BattlefieldTaskMarkers.ScoreGainedThisTurn(battlefieldObjectId, paymentPlayerId),
+                    StringComparer.Ordinal))
+            {
+                continue;
+            }
+
+            var runePool = state.RunePools.TryGetValue(paymentPlayerId, out var currentPool)
+                ? currentPool
+                : RunePool.Empty;
+            if (PaymentCostRules.CanPayPowerCost(
+                    runePool,
+                    BattlefieldHeldScorePowerCost,
+                    new Dictionary<string, int>(StringComparer.Ordinal)))
+            {
+                continue;
+            }
+
+            var recycleChoices = DeclareBattleHeldScoreRecycleRuneChoices(state, paymentPlayerId, runePool);
+            foreach (var choice in recycleChoices)
+            {
+                choices.TryAdd(choice.Id, choice);
+            }
+
+            var runePoolWithRecycleChoices = ApplyPromptRecycleRuneChoicesToPool(
+                state,
+                runePool,
+                recycleChoices);
+            foreach (var choice in TemporaryPaymentResourceChoicesForGenericPower(
+                         state,
+                         paymentPlayerId,
+                         runePoolWithRecycleChoices,
+                         BattlefieldHeldScorePowerCost,
+                         new Dictionary<string, int>(StringComparer.Ordinal),
+                         "payment resource action: temporary resource for battlefield held score power"))
+            {
+                choices.TryAdd(choice.Id, choice);
+            }
+        }
+
+        return choices.Values.OrderBy(choice => choice.Id, StringComparer.Ordinal).ToArray();
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> DeclareBattleHeldScoreBattlefieldChoices(
+        MatchState state,
+        IReadOnlyList<ActionPromptChoiceDto> battlefieldChoices)
+    {
+        var directChoices = battlefieldChoices
+            .Where(choice => state.CardObjects.ContainsKey(choice.Id));
+        var brushReplacementChoices = DeclareBattleBrushReplacementChoices(state)
+            .Select(choice => choice.Id[BrushReplacementChoicePrefix.Length..])
+            .Where(objectId => state.CardObjects.ContainsKey(objectId))
+            .Select(objectId => BattlefieldDestinationChoice(
+                state,
+                objectId,
+                "brush replacement held-score battlefield payment"));
+        return directChoices
+            .Concat(brushReplacementChoices)
+            .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+            .Select(group => group.First())
+            .ToArray();
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> DeclareBattleHeldScoreRecycleRuneChoices(
+        MatchState state,
+        string paymentPlayerId,
+        RunePool runePool)
+    {
+        if (!state.PlayerZones.TryGetValue(paymentPlayerId, out var zones))
+        {
+            return [];
+        }
+
+        return zones.Base
+            .Where(objectId => IsRecycleRuneSource(state, paymentPlayerId, objectId))
+            .Where(objectId => RecycleRuneCanHelpGenericPowerCost(
+                state,
+                objectId,
+                runePool,
+                BattlefieldHeldScorePowerCost))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .Select(objectId =>
+            {
+                var choice = ObjectChoice(state, objectId, "payment resource action: recycle rune for battlefield held score power");
+                return new ActionPromptChoiceDto(
+                    $"{RecycleRunePaymentOptionalCostPrefix}{objectId}",
+                    $"回收符文支付：{choice.Label}",
+                    choice.Reason);
+            })
+            .ToArray();
+    }
+
+    private static RunePool ApplyPromptRecycleRuneChoicesToPool(
+        MatchState state,
+        RunePool runePool,
+        IReadOnlyList<ActionPromptChoiceDto> recycleChoices)
+    {
+        var powerByTrait = runePool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        foreach (var choice in recycleChoices)
+        {
+            if (!choice.Id.StartsWith(RecycleRunePaymentOptionalCostPrefix, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var objectId = choice.Id[RecycleRunePaymentOptionalCostPrefix.Length..];
+            if (!state.CardObjects.TryGetValue(objectId, out var runeState)
+                || !TryGetRuneTrait(runeState, out var runeTrait))
+            {
+                continue;
+            }
+
+            powerByTrait[runeTrait] = powerByTrait.TryGetValue(runeTrait, out var current)
+                ? current + BasicRuneRecyclePowerGain
+                : BasicRuneRecyclePowerGain;
+        }
+
+        return runePool with
+        {
+            PowerByTrait = powerByTrait
+        };
+    }
+
+    private static bool RecycleRuneCanHelpGenericPowerCost(
+        MatchState state,
+        string runeObjectId,
+        RunePool runePool,
+        int genericPowerCost)
+    {
+        return !PaymentCostRules.CanPayPowerCost(
+                runePool,
+                genericPowerCost,
+                new Dictionary<string, int>(StringComparer.Ordinal))
+            && state.CardObjects.TryGetValue(runeObjectId, out var runeState)
+            && TryGetRuneTrait(runeState, out _);
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> DeclareBattleHeldScorePaymentResourcePowerByChoice(
+        MatchState state,
+        IReadOnlyList<ActionPromptChoiceDto> choices)
+    {
+        var metadata = choices.ToDictionary(
+            choice => choice.Id,
+            choice =>
+            {
+                var trait = string.Empty;
+                if (choice.Id.StartsWith(RecycleRunePaymentOptionalCostPrefix, StringComparison.Ordinal))
+                {
+                    var objectId = choice.Id[RecycleRunePaymentOptionalCostPrefix.Length..];
+                    if (state.CardObjects.TryGetValue(objectId, out var runeState)
+                        && TryGetRuneTrait(runeState, out var runeTrait))
+                    {
+                        trait = runeTrait;
+                    }
+                }
+
+                return (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["trait"] = trait,
+                    ["power"] = BasicRuneRecyclePowerGain
+                };
+            },
+            StringComparer.Ordinal);
+        foreach (var entry in TemporaryPaymentResourcePowerByChoice(state, choices))
+        {
+            metadata[entry.Key] = entry.Value;
+        }
+
+        return metadata;
+    }
+
+    private static int DeclareBattleHeldScoreAvailablePower(
+        MatchState state,
+        IReadOnlyList<ActionPromptChoiceDto> battlefieldChoices)
+    {
+        return DeclareBattleHeldScoreBattlefieldChoices(state, battlefieldChoices)
+            .Select(choice => state.CardObjects.TryGetValue(choice.Id, out var battlefieldState)
+                ? ResolveBattlefieldPaymentControllerId(state, choice.Id, battlefieldState)
+                : string.Empty)
+            .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
+            .Select(playerId => state.RunePools.TryGetValue(playerId, out var runePool) ? runePool.TotalPower : 0)
+            .DefaultIfEmpty(0)
+            .Max();
+    }
+
+    private static int DeclareBattleHeldScoreAvailablePowerWithPaymentResources(
+        MatchState state,
+        IReadOnlyList<ActionPromptChoiceDto> battlefieldChoices,
+        IReadOnlyList<ActionPromptChoiceDto> paymentResourceChoices)
+    {
+        return DeclareBattleHeldScoreAvailablePower(state, battlefieldChoices)
+            + DeclareBattleHeldScorePaymentResourcePowerByChoice(state, paymentResourceChoices)
+                .Values
+                .Sum(metadata =>
+                {
+                    var genericPower = metadata.TryGetValue("power", out var power) && power is int amount ? amount : 0;
+                    var typedPower = metadata.TryGetValue("powerByTrait", out var powerByTrait)
+                        && powerByTrait is IReadOnlyDictionary<string, int> typedPowerByTrait
+                            ? typedPowerByTrait.Values.Sum()
+                            : 0;
+                    return genericPower + typedPower;
+                });
+    }
+
+    private static string ResolveBattlefieldPaymentControllerId(
+        MatchState state,
+        string battlefieldObjectId,
+        CardObjectState battlefieldState)
+    {
+        if (!string.IsNullOrWhiteSpace(battlefieldState.ControllerId))
+        {
+            return battlefieldState.ControllerId;
+        }
+
+        if (!string.IsNullOrWhiteSpace(battlefieldState.OwnerId))
+        {
+            return battlefieldState.OwnerId;
+        }
+
+        return state.PlayerZones
+            .FirstOrDefault(entry => entry.Value.Battlefields.Contains(battlefieldObjectId, StringComparer.Ordinal))
+            .Key ?? string.Empty;
     }
 
     private static bool IsObjectLocatedAtBattlefield(
@@ -10173,6 +10447,10 @@ internal static class ActionPromptBuilder
             ["targetChoicesByIndex"] = requirement.TargetChoicesByIndex,
             ["battlefieldChoices"] = requirement.BattlefieldChoices,
             ["optionalCostChoices"] = requirement.OptionalCostChoices,
+            ["paymentResourceChoices"] = requirement.PaymentResourceChoices,
+            ["paymentResourcePowerByChoice"] = requirement.PaymentResourcePowerByChoice,
+            ["availablePower"] = requirement.AvailablePower,
+            ["availablePowerWithPaymentResources"] = requirement.AvailablePowerWithPaymentResources,
             ["requiredOptionalCosts"] = requirement.RequiredOptionalCosts,
             ["composable"] = requirement.Composable,
             ["unsupportedReason"] = requirement.UnsupportedReason
