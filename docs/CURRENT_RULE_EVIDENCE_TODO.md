@@ -5,6 +5,8 @@
 
 本文记录 E 证据/审计 worker 第一轮 P0 交接项、阶段 1 D 协议审计、阶段 2 D P0 规则证据链和 A 主控验收结果，不替代 `docs/CURRENT_SERVER_RULE_AUDIT.md`。
 
+2026-05-14 4D-02C handoff / baseline 补充：Battle lifecycle remaining-scope audit 已建立，入口为 `docs/CURRENT_STAGE4D_02C_BATTLE_LIFECYCLE_REMAINING_SCOPE_AUDIT.md`；下一 P0-004 实现交接为 `docs/CURRENT_STAGE4D_02C_NATURAL_BATTLE_DAMAGE_ASSIGNMENT_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_02C_NATURAL_BATTLE_DAMAGE_ASSIGNMENT_BASELINE_EVIDENCE.md`；focused baseline 319/319、adjacent baseline 598/598、backend full 4188/4188 通过。该补充只建立 natural battle damage assignment lifecycle 的实现前护栏，不代表 P0-004、P0-005、P1 或 READY 关闭。
+
 2026-05-14 4D-02B focused slice 补充：Battle-response priority lifecycle binding 已验收，入口为 `docs/CURRENT_STAGE4D_02B_BATTLE_RESPONSE_PRIORITY_LIFECYCLE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_02B_BATTLE_RESPONSE_PRIORITY_LIFECYCLE_EVIDENCE.md`；focused 420/420、adjacent 607/607、backend full 4188/4188 通过。该补充只证明现有 Shadow swift representative 可从自然 battle task lifecycle 的最小 `COMBAT_ASSIGNMENT` 命令形态产生并完成 stack / battle close，不代表 extra battle option preservation、full official combat lifecycle、P0-004、P0-005、P1 或 READY 关闭。
 
 2026-05-14 4D-02B handoff / baseline 补充：下一 P0 收口切片锁定 battle-response priority lifecycle binding，入口为 `docs/CURRENT_STAGE4D_02B_BATTLE_RESPONSE_PRIORITY_LIFECYCLE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_02B_BATTLE_RESPONSE_PRIORITY_LIFECYCLE_BASELINE_EVIDENCE.md`。该基线只建立实现前回归护栏，不代表 natural battle-response priority lifecycle 已实现，不关闭 P0-004、P0-005、P1 或 READY。
