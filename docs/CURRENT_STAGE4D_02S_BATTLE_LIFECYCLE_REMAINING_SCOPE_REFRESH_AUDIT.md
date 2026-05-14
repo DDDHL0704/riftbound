@@ -39,6 +39,8 @@
 
 2026-05-15 follow-up：下一切片 4D-02AD 转向 activation-returned held-score payment-resource context。目标是证明 actual Shadow activation / stack resolution / returned response 后，held-score `RECYCLE_RUNE:*` optional cost 仍能被最终 held-score branch 消费，并保留 `RUNE_RECYCLED` / `POWER_GAINED` / `COST_PAID` / `SCORE_GAINED` audit 与 internal carrier redaction。
 
+2026-05-15 follow-up：4D-02AD 已验收上述 activation-returned held-score `RECYCLE_RUNE:*` payment-resource context，并修复 declare-time 必要性判断与 final resume 当前资源之间的 runtime gap。P0-004 仍 open；该切片只覆盖 `RECYCLE_RUNE:*` representative，不代表 activation-returned temporary payment resource、完整 held-score payment matrix、replacement / prevention / LayerEngine 或 full official combat breadth。
+
 ## Evidence Inspected
 
 - `docs/A_MASTER_AGENT_GOAL.md`
@@ -81,6 +83,7 @@
   - actual activation -> immediate battle close -> trigger payment blocker;
   - battle-control-driven illegal standby cleanup in the non-activation assignment path.
 - Declaration-context carriers for Icevale trigger payment, Brush replacement, `RECYCLE_RUNE:*`, `TEMP_PAYMENT_RESOURCE:*`, and activation-returned Brush replacement are covered as internal, non-public context that does not leak into player / spectator snapshots or prompts.
+- Declaration-context carriers now include one activation-returned held-score `RECYCLE_RUNE:*` representative: the action can become necessary after Shadow response resource spend, remains redacted while carried, and is either consumed strictly at final held-score payment or dropped if no response made it necessary.
 
 ## Superseded 4D-02C Gaps
 
@@ -114,7 +117,7 @@ Suggested next goal after 4D-02Y: choose a new narrow representative from the re
 
 4D-02AC selected representative: natural battle response actual Shadow activation -> returned response -> assignment -> Hunt held result ordering. This composes existing activation-returned assignment advancement with 4D-02AA result ordering. 4D-02AC is now accepted.
 
-4D-02AD selected representative: natural battle response actual Shadow activation -> returned response -> held-score payment-resource branch. This composes 4D-02I `RECYCLE_RUNE:*` held-score context with 4D-02K actual activation / stack resolution context preservation.
+4D-02AD selected representative: natural battle response actual Shadow activation -> returned response -> held-score payment-resource branch. This composes 4D-02I `RECYCLE_RUNE:*` held-score context with 4D-02K actual activation / stack resolution context preservation. 4D-02AD is now accepted.
 
 Recommended representative:
 
@@ -141,4 +144,4 @@ Expected guard:
 
 ## Verdict
 
-4D-02B through 4D-02AC materially narrowed P0-004, especially activation-returned assignment / immediate / payment / no-result task advancement, cleanup-blocker ordering, precise object-location preservation for nonparticipant response sources, same-turn completed battlefield skip policy, one nested battle-response stack representative, one multiple-legal-source response representative, one stale-target no-effect response representative, response-pass assignment Hunt conquer / held result-ordering representatives, and activation-returned assignment Hunt conquer / held result-ordering representatives. Project remains **NOT READY**.
+4D-02B through 4D-02AD materially narrowed P0-004, especially activation-returned assignment / immediate / payment / no-result task advancement, cleanup-blocker ordering, precise object-location preservation for nonparticipant response sources, same-turn completed battlefield skip policy, one nested battle-response stack representative, one multiple-legal-source response representative, one stale-target no-effect response representative, response-pass assignment Hunt conquer / held result-ordering representatives, activation-returned assignment Hunt conquer / held result-ordering representatives, and one activation-returned held-score `RECYCLE_RUNE:*` payment-resource context representative. Project remains **NOT READY**.
