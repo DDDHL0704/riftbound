@@ -15234,6 +15234,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
+        var removedObjectIds = participantObjectIds
+            .Where(objectId => !cardObjects.ContainsKey(objectId))
+            .ToArray();
         var clearedObjectIds = new List<string>();
         foreach (var objectId in participantObjectIds)
         {
@@ -15251,7 +15254,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             clearedObjectIds.Add(objectId);
         }
 
-        if (clearedObjectIds.Count == 0)
+        if (clearedObjectIds.Count == 0 && removedObjectIds.Length == 0)
         {
             return;
         }
@@ -15263,7 +15266,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 ["battlefieldId"] = battlefieldId,
                 ["participantObjectIds"] = participantObjectIds,
-                ["clearedObjectIds"] = clearedObjectIds.ToArray()
+                ["clearedObjectIds"] = clearedObjectIds.ToArray(),
+                ["removedObjectIds"] = removedObjectIds
             }));
     }
 

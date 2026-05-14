@@ -10,6 +10,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
     private const string BattlefieldObjectId = "BF-DAMAGE";
     private const string HiddenBattlefieldObjectId = "BF-HIDDEN";
     private const string AttackerObjectId = "P1-ATTACKER";
+    private const string SecondAttackerObjectId = "P1-SECOND-ATTACKER";
     private const string BulwarkDefenderObjectId = "P2-A-BULWARK";
     private const string BackRowDefenderObjectId = "P2-Z-BACKROW";
     private const string ShadowObjectId = "P2-SHADOW";
@@ -322,6 +323,87 @@ public sealed class BattleDamageAssignmentLifecycleTests
     }
 
     [Fact]
+    public async Task NaturalAssignCombatDamageEmitsNoResultWhenAllParticipantsDestroyed()
+    {
+        var state = BuildNoResultNaturalStartBattleState();
+        var engine = new CoreRuleEngine();
+
+        var opened = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-natural-no-result-declare-battle", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                BattlefieldObjectId,
+                [AttackerObjectId, SecondAttackerObjectId],
+                [BulwarkDefenderObjectId, BackRowDefenderObjectId],
+                OptionalCosts: ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(opened.Accepted, opened.ErrorMessage);
+        Assert.True(opened.State.BattleState.IsActive);
+        Assert.Equal(PromptTypes.AssignCombatDamage, opened.Prompts["P1"].View?.Type);
+
+        var assigned = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-natural-no-result-assign-damage", "P1", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, NoResultAssignments()),
+            CancellationToken.None);
+
+        Assert.True(assigned.Accepted, assigned.ErrorMessage);
+        var noResultEvent = Assert.Single(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_NO_RESULT", StringComparison.Ordinal));
+        Assert.Equal(BattlefieldObjectId, noResultEvent.Payload["battlefieldId"]);
+        Assert.Equal("P1", noResultEvent.Payload["attackingPlayerId"]);
+        Assert.Equal("P2", noResultEvent.Payload["defendingPlayerId"]);
+        Assert.Equal("ALL_PARTICIPANTS_DESTROYED", noResultEvent.Payload["reason"]);
+        Assert.Equal(
+            [AttackerObjectId, SecondAttackerObjectId],
+            Assert.IsType<string[]>(noResultEvent.Payload["attackerObjectIds"]));
+        Assert.Equal(
+            [BulwarkDefenderObjectId, BackRowDefenderObjectId],
+            Assert.IsType<string[]>(noResultEvent.Payload["defenderObjectIds"]));
+        Assert.Empty(Assert.IsType<string[]>(noResultEvent.Payload["survivingAttackerObjectIds"]));
+        Assert.Empty(Assert.IsType<string[]>(noResultEvent.Payload["survivingDefenderObjectIds"]));
+        Assert.Contains(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        Assert.DoesNotContain(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+        Assert.DoesNotContain(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
+        Assert.False(assigned.State.BattleState.IsActive);
+        Assert.DoesNotContain(
+            assigned.State.PendingTaskQueue.Tasks,
+            task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
+                && string.Equals(task.BattlefieldObjectId, BattlefieldObjectId, StringComparison.Ordinal));
+        Assert.NotEqual(PromptTypes.AssignCombatDamage, assigned.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.BattleDeclaration, assigned.Prompts["P1"].View?.Type);
+        Assert.Equal(
+            [AttackerObjectId, SecondAttackerObjectId],
+            assigned.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(
+            [BulwarkDefenderObjectId, BackRowDefenderObjectId],
+            assigned.State.PlayerZones["P2"].Graveyard);
+        Assert.DoesNotContain(AttackerObjectId, assigned.State.PlayerZones["P1"].Battlefields);
+        Assert.DoesNotContain(SecondAttackerObjectId, assigned.State.PlayerZones["P1"].Battlefields);
+        Assert.DoesNotContain(BulwarkDefenderObjectId, assigned.State.PlayerZones["P2"].Battlefields);
+        Assert.DoesNotContain(BackRowDefenderObjectId, assigned.State.PlayerZones["P2"].Battlefields);
+        Assert.False(assigned.State.CardObjects.ContainsKey(AttackerObjectId));
+        Assert.False(assigned.State.CardObjects.ContainsKey(SecondAttackerObjectId));
+        Assert.False(assigned.State.CardObjects.ContainsKey(BulwarkDefenderObjectId));
+        Assert.False(assigned.State.CardObjects.ContainsKey(BackRowDefenderObjectId));
+
+        var battleResolution = Assert.Single(assigned.State.BattleResolutions);
+        Assert.Equal("NO_RESULT", battleResolution.Kind);
+        Assert.Equal("ALL_PARTICIPANTS_DESTROYED", battleResolution.Reason);
+        Assert.Equal(BattlefieldObjectId, battleResolution.BattlefieldId);
+        Assert.Equal("P1", battleResolution.AttackingPlayerId);
+        Assert.Equal("P2", battleResolution.DefendingPlayerId);
+        Assert.Null(battleResolution.WinnerPlayerId);
+        Assert.Equal([AttackerObjectId, SecondAttackerObjectId], battleResolution.AttackerObjectIds);
+        Assert.Equal([BulwarkDefenderObjectId, BackRowDefenderObjectId], battleResolution.DefenderObjectIds);
+        Assert.Empty(battleResolution.SurvivingAttackerObjectIds);
+        Assert.Empty(battleResolution.SurvivingDefenderObjectIds);
+        Assert.Equal(
+            [AttackerObjectId, SecondAttackerObjectId, BulwarkDefenderObjectId, BackRowDefenderObjectId],
+            battleResolution.DestroyedObjectIds);
+    }
+
+    [Fact]
     public async Task NaturalStartBattleOneOnOneImmediateBattleRemainsStable()
     {
         var state = BuildNaturalStartBattleState(defenderObjectIds: [BulwarkDefenderObjectId]);
@@ -381,10 +463,35 @@ public sealed class BattleDamageAssignmentLifecycleTests
         ];
     }
 
+    private static IReadOnlyList<CombatDamageAssignmentDto> NoResultAssignments()
+    {
+        return
+        [
+            new CombatDamageAssignmentDto(AttackerObjectId, BulwarkDefenderObjectId, 2),
+            new CombatDamageAssignmentDto(AttackerObjectId, BackRowDefenderObjectId, 1),
+            new CombatDamageAssignmentDto(SecondAttackerObjectId, BulwarkDefenderObjectId, 2),
+            new CombatDamageAssignmentDto(SecondAttackerObjectId, BackRowDefenderObjectId, 3),
+            new CombatDamageAssignmentDto(BulwarkDefenderObjectId, AttackerObjectId, 2),
+            new CombatDamageAssignmentDto(BackRowDefenderObjectId, AttackerObjectId, 3),
+            new CombatDamageAssignmentDto(BackRowDefenderObjectId, SecondAttackerObjectId, 1)
+        ];
+    }
+
+    private static MatchState BuildNoResultNaturalStartBattleState()
+    {
+        var state = BuildNaturalStartBattleState(includeSecondAttacker: true);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[AttackerObjectId] = cardObjects[AttackerObjectId] with { Power = 3 };
+        cardObjects[SecondAttackerObjectId] = cardObjects[SecondAttackerObjectId] with { Power = 5, Damage = 4 };
+        cardObjects[BackRowDefenderObjectId] = cardObjects[BackRowDefenderObjectId] with { Power = 4 };
+        return state with { CardObjects = cardObjects };
+    }
+
     private static MatchState BuildNaturalStartBattleState(
         bool includeHiddenStandby = false,
         bool includeShadowResponse = false,
         bool includeNextContest = false,
+        bool includeSecondAttacker = false,
         IReadOnlyList<string>? defenderObjectIds = null)
     {
         var defenders = defenderObjectIds ?? [BulwarkDefenderObjectId, BackRowDefenderObjectId];
@@ -413,24 +520,26 @@ public sealed class BattleDamageAssignmentLifecycleTests
                 ["P1"] = RunePool.Empty,
                 ["P2"] = includeShadowResponse ? new RunePool(1, 1) : RunePool.Empty
             },
-            playerZones: BuildPlayerZones(p2Battlefields, includeNextContest),
+            playerZones: BuildPlayerZones(p2Battlefields, includeNextContest, includeSecondAttacker),
             playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
             {
                 ["P1"] = 0,
                 ["P2"] = 0
             },
-            cardObjects: BuildCardObjects(includeHiddenStandby, includeShadowResponse, includeNextContest),
+            cardObjects: BuildCardObjects(includeHiddenStandby, includeShadowResponse, includeNextContest, includeSecondAttacker),
             untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted(BattlefieldObjectId)],
-            objectLocations: BuildObjectLocations(includeHiddenStandby, includeShadowResponse, includeNextContest));
+            objectLocations: BuildObjectLocations(includeHiddenStandby, includeShadowResponse, includeNextContest, includeSecondAttacker));
     }
 
     private static Dictionary<string, PlayerZones> BuildPlayerZones(
         IReadOnlyList<string> p2Battlefields,
-        bool includeNextContest)
+        bool includeNextContest,
+        bool includeSecondAttacker)
     {
-        var p1Battlefields = includeNextContest
-            ? new[] { BattlefieldObjectId, AttackerObjectId, NextBattlefieldObjectId, NextAttackerObjectId }
-            : [BattlefieldObjectId, AttackerObjectId];
+        var p1Battlefields = new[] { BattlefieldObjectId, AttackerObjectId }
+            .Concat(includeSecondAttacker ? [SecondAttackerObjectId] : [])
+            .Concat(includeNextContest ? [NextBattlefieldObjectId, NextAttackerObjectId] : [])
+            .ToArray();
         var p2BattlefieldObjects = includeNextContest
             ? p2Battlefields.Concat([NextDefenderObjectId]).ToArray()
             : p2Battlefields;
@@ -450,7 +559,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
     private static Dictionary<string, CardObjectState> BuildCardObjects(
         bool includeHiddenStandby,
         bool includeShadowResponse,
-        bool includeNextContest)
+        bool includeNextContest,
+        bool includeSecondAttacker)
     {
         var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
         {
@@ -467,6 +577,11 @@ public sealed class BattleDamageAssignmentLifecycleTests
                 power: 1,
                 tags: [CardObjectTags.UnitCard, CardCombatKeywordNames.BackRow])
         };
+
+        if (includeSecondAttacker)
+        {
+            cardObjects[SecondAttackerObjectId] = Unit(SecondAttackerObjectId, "P1", power: 4);
+        }
 
         if (includeShadowResponse)
         {
@@ -503,7 +618,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
     private static Dictionary<string, ObjectLocationState> BuildObjectLocations(
         bool includeHiddenStandby,
         bool includeShadowResponse,
-        bool includeNextContest)
+        bool includeNextContest,
+        bool includeSecondAttacker)
     {
         var objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
         {
@@ -512,6 +628,11 @@ public sealed class BattleDamageAssignmentLifecycleTests
             [BulwarkDefenderObjectId] = new("P2", "BATTLEFIELD", BattlefieldObjectId),
             [BackRowDefenderObjectId] = new("P2", "BATTLEFIELD", BattlefieldObjectId)
         };
+
+        if (includeSecondAttacker)
+        {
+            objectLocations[SecondAttackerObjectId] = new("P1", "BATTLEFIELD", BattlefieldObjectId);
+        }
 
         if (includeShadowResponse)
         {
