@@ -1968,6 +1968,7 @@ public sealed record ResolutionResult(
             || string.Equals(state.Phase, MatchPhases.TurnStart, StringComparison.Ordinal)
             || state.PendingHandChoice is not null
             || HasOpenStackPriority(state)
+            || HasOpenBattleResponsePriority(state)
             || HasOpenSpellDuelFocus(state))
         {
             return false;
@@ -3528,7 +3529,11 @@ public sealed record ResolutionResult(
 
     private static bool HasOpenBattleResponsePriority(MatchState state)
     {
-        return state.StackItems.Count == 0
+        return string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal)
+            && state.StackItems.Count == 0
+            && state.PendingPayment is null
+            && state.PendingHandChoice is null
+            && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
             && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
             && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
             && state.BattleState.IsActive
@@ -4343,6 +4348,15 @@ internal static class ActionPromptBuilder
         return actions;
     }
 
+    private static bool HasOpenBattleResponsePriority(MatchState state)
+    {
+        return state.StackItems.Count == 0
+            && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+            && state.BattleState.IsActive
+            && !string.IsNullOrWhiteSpace(state.BattleState.BattlefieldObjectId);
+    }
+
     public static IReadOnlyList<string> SpellDuelFocusActions(MatchState state, string playerId)
     {
         var actions = new List<string>();
@@ -4453,7 +4467,8 @@ internal static class ActionPromptBuilder
             return PromptTypes.HandChoice;
         }
 
-        if (state.StackItems.Count > 0 && !string.IsNullOrWhiteSpace(state.PriorityPlayerId))
+        if ((state.StackItems.Count > 0 && !string.IsNullOrWhiteSpace(state.PriorityPlayerId))
+            || HasOpenBattleResponsePriority(state))
         {
             return PromptTypes.StackPriority;
         }
@@ -4578,6 +4593,12 @@ internal static class ActionPromptBuilder
                 state.BattleState.BattlefieldObjectId);
         }
 
+        if (string.Equals(type, PromptTypes.StackPriority, StringComparison.Ordinal)
+            && HasOpenBattleResponsePriority(state))
+        {
+            return FirstNonEmpty(state.BattleState.BattlefieldObjectId);
+        }
+
         if (string.Equals(type, PromptTypes.AssignCombatDamage, StringComparison.Ordinal))
         {
             return FirstNonEmpty(state.BattleState.BattlefieldObjectId);
@@ -4608,6 +4629,12 @@ internal static class ActionPromptBuilder
             return FirstNonEmpty(
                 BattleLifecycleIds.BattleIdForBattlefield(ResolutionResult.ActiveStartBattleTask(state)?.BattlefieldObjectId),
                 state.BattleState.BattleId);
+        }
+
+        if (string.Equals(type, PromptTypes.StackPriority, StringComparison.Ordinal)
+            && HasOpenBattleResponsePriority(state))
+        {
+            return FirstNonEmpty(state.BattleState.BattleId);
         }
 
         if (string.Equals(type, PromptTypes.AssignCombatDamage, StringComparison.Ordinal))
@@ -6846,7 +6873,7 @@ internal static class ActionPromptBuilder
     {
         if (state.PendingPayment is not null
             || state.PendingHandChoice is not null
-            || state.PendingTaskQueue.IsBlocking)
+            || (state.PendingTaskQueue.IsBlocking && !HasOpenBattleResponsePriority(state)))
         {
             return false;
         }

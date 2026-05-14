@@ -69,6 +69,221 @@ public sealed class ShadowActivatedAbilityTests
         Assert.Equal(1, spellshieldTaxByTarget[EnemySpellshieldAttackerObjectId]);
     }
 
+    [Fact]
+    public async Task NaturalStartBattleOpensBattleResponsePriorityAndExposesShadowPrompt()
+    {
+        var opened = await OpenNaturalShadowBattleResponseAsync(mana: 1, power: 1);
+
+        Assert.True(opened.Accepted, opened.ErrorMessage);
+        Assert.Equal(TimingStates.NeutralClosed, opened.State.TimingState);
+        Assert.Equal("P1", opened.State.PriorityPlayerId);
+        Assert.True(opened.State.BattleState.IsActive);
+        Assert.Equal(BattlefieldObjectId, opened.State.BattleState.BattlefieldObjectId);
+        Assert.Equal([EnemyAttackerObjectId], opened.State.BattleState.AttackerObjectIds);
+        Assert.Equal([FriendlyAttackerObjectId], opened.State.BattleState.DefenderObjectIds);
+        Assert.True(opened.State.CardObjects[EnemyAttackerObjectId].IsAttacking);
+        Assert.True(opened.State.CardObjects[FriendlyAttackerObjectId].IsDefending);
+        Assert.False(opened.State.CardObjects[ShadowObjectId].IsDefending);
+        Assert.Contains(opened.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+        Assert.Contains(opened.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.DoesNotContain(opened.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+
+        var p1Prompt = opened.Prompts["P1"];
+        Assert.Equal(PromptTypes.StackPriority, p1Prompt.View?.Type);
+        Assert.Equal(BattlefieldObjectId, p1Prompt.View?.RelatedBattlefieldId);
+        Assert.Equal($"battle:{BattlefieldObjectId}", p1Prompt.View?.RelatedBattleId);
+        Assert.Contains(CommandTypes.ActivateAbility, p1Prompt.Actions);
+
+        var activateCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(activateCandidate.Metadata);
+        var requirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]),
+            entry => string.Equals(entry["abilityId"] as string, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal));
+        Assert.Equal(ShadowObjectId, requirement["sourceObjectId"]);
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            requirement["targetChoicesByIndex"]);
+        Assert.Equal(
+            [EnemyAttackerObjectId],
+            Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(targetChoicesByIndex["0"])
+                .Select(choice => choice.Id)
+                .ToArray());
+
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, opened.Prompts["P2"].Actions);
+    }
+
+    [Fact]
+    public async Task ShadowActivatesAndResolvesFromNaturalBattleResponseWindow()
+    {
+        var engine = new CoreRuleEngine();
+        var opened = await OpenNaturalShadowBattleResponseAsync(mana: 1, power: 1, engine: engine);
+        Assert.True(opened.Accepted, opened.ErrorMessage);
+
+        var activated = await ActivateShadowAsync(opened.State, engine: engine);
+
+        Assert.True(activated.Accepted, activated.ErrorMessage);
+        Assert.Equal(["ABILITY_ACTIVATED", "UNIT_EXHAUSTED", "COST_PAID", "STACK_ITEM_ADDED"], activated.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.True(activated.State.CardObjects[ShadowObjectId].IsExhausted);
+        Assert.Single(activated.State.StackItems);
+        Assert.DoesNotContain("STUNNED", activated.State.CardObjects[EnemyAttackerObjectId].UntilEndOfTurnEffects);
+
+        var p1Pass = await engine.ResolveAsync(
+            activated.State,
+            new PlayerIntent("intent-natural-shadow-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-natural-shadow-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Empty(p2Pass.State.StackItems);
+        Assert.True(p2Pass.State.BattleState.IsActive);
+        Assert.Equal(TimingStates.NeutralClosed, p2Pass.State.TimingState);
+        Assert.Equal("P1", p2Pass.State.PriorityPlayerId);
+        Assert.True(p2Pass.State.CardObjects[ShadowObjectId].IsExhausted);
+        Assert.Contains("STUNNED", p2Pass.State.CardObjects[EnemyAttackerObjectId].UntilEndOfTurnEffects);
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "ABILITY_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["abilityId"] as string, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal));
+
+        var responseP1Pass = await engine.ResolveAsync(
+            p2Pass.State,
+            new PlayerIntent("intent-natural-shadow-response-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        Assert.True(responseP1Pass.Accepted, responseP1Pass.ErrorMessage);
+
+        var responseP2Pass = await engine.ResolveAsync(
+            responseP1Pass.State,
+            new PlayerIntent("intent-natural-shadow-response-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
+        Assert.False(responseP2Pass.State.BattleState.IsActive);
+        Assert.Empty(responseP2Pass.State.StackItems);
+        Assert.Contains(responseP2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData("wrong-player")]
+    [InlineData("wrong-battlefield-target")]
+    [InlineData("stale-target")]
+    public async Task ShadowNaturalBattleResponseRejectsWrongPlayerBattlefieldOrStaleTargetWithoutMutation(string scenario)
+    {
+        var opened = await OpenNaturalShadowBattleResponseAsync(mana: 1, power: 1);
+        Assert.True(opened.Accepted, opened.ErrorMessage);
+        var state = opened.State;
+        var playerId = "P1";
+        var command = ShadowCommand();
+
+        if (string.Equals(scenario, "wrong-player", StringComparison.Ordinal))
+        {
+            playerId = "P2";
+        }
+        else if (string.Equals(scenario, "wrong-battlefield-target", StringComparison.Ordinal))
+        {
+            state = state with
+            {
+                CardObjects = ReplaceCardObject(
+                    state.CardObjects,
+                    EnemyWrongBattlefieldAttackerObjectId,
+                    state.CardObjects[EnemyWrongBattlefieldAttackerObjectId] with { IsAttacking = true })
+            };
+            command = ShadowCommand(targetObjectIds: [EnemyWrongBattlefieldAttackerObjectId]);
+        }
+        else if (string.Equals(scenario, "stale-target", StringComparison.Ordinal))
+        {
+            state = state with
+            {
+                CardObjects = ReplaceCardObject(
+                    state.CardObjects,
+                    EnemyAttackerObjectId,
+                    state.CardObjects[EnemyAttackerObjectId] with { IsAttacking = false })
+            };
+        }
+
+        await AssertRejectedNoMutationAsync(state, command, playerId);
+    }
+
+    [Fact]
+    public async Task NaturalBattleResponseReconnectSnapshotExposesBattleContextWithoutHiddenLeakage()
+    {
+        var opened = await OpenNaturalShadowBattleResponseAsync(mana: 1, power: 1);
+        Assert.True(opened.Accepted, opened.ErrorMessage);
+        var hiddenObjectId = "P2-HIDDEN-STANDBY";
+        var hiddenState = opened.State with
+        {
+            CardObjects = ReplaceCardObject(
+                ReplaceCardObject(
+                    opened.State.CardObjects,
+                    OtherBattlefieldObjectId,
+                    opened.State.CardObjects[OtherBattlefieldObjectId] with
+                    {
+                        OwnerId = "P2",
+                        ControllerId = "P2"
+                    }),
+                hiddenObjectId,
+                new CardObjectState(
+                    hiddenObjectId,
+                    isFaceDown: true,
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    ownerId: "P2",
+                    controllerId: "P2")),
+            PlayerZones = ReplacePlayerZones(
+                opened.State.PlayerZones,
+                "P2",
+                opened.State.PlayerZones["P2"] with
+                {
+                    Battlefields = opened.State.PlayerZones["P2"].Battlefields
+                        .Concat([OtherBattlefieldObjectId, hiddenObjectId])
+                        .Distinct(StringComparer.Ordinal)
+                        .ToArray()
+                }),
+            ObjectLocations = ReplaceObjectLocation(
+                opened.State.ObjectLocations,
+                hiddenObjectId,
+                new ObjectLocationState("P2", "BATTLEFIELD", OtherBattlefieldObjectId))
+        };
+        var session = new MatchSession(hiddenState, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var p1 = session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var reconnect = session.ReconnectPlayer("P1", p1.ReconnectToken);
+        var snapshot = session.SnapshotFor("P1");
+        var prompt = session.PromptFor("P1");
+        var queue = Assert.IsType<Dictionary<string, object?>>(snapshot.Timing["pendingTaskQueue"]);
+
+        Assert.Equal("P1", reconnect.PlayerId);
+        Assert.Equal("BATTLE_TASKS", Assert.IsType<string>(queue["phase"]));
+        Assert.Equal($"task:start-battle:{BattlefieldObjectId}", Assert.IsType<string>(queue["activeTaskId"]));
+        Assert.Equal(PromptTypes.StackPriority, prompt.View?.Type);
+        Assert.Equal(BattlefieldObjectId, prompt.View?.RelatedBattlefieldId);
+        Assert.Equal($"battle:{BattlefieldObjectId}", prompt.View?.RelatedBattleId);
+        Assert.Contains(CommandTypes.ActivateAbility, prompt.Actions);
+
+        var battlefieldTasks = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(snapshot.Timing["battlefieldTasks"]);
+        var activeTask = Assert.Single(battlefieldTasks, task =>
+            string.Equals(task["kind"] as string, "START_BATTLE", StringComparison.Ordinal)
+            && string.Equals(task["status"] as string, "ACTIVE", StringComparison.Ordinal)
+            && string.Equals(task["battlefieldObjectId"] as string, BattlefieldObjectId, StringComparison.Ordinal));
+        Assert.Equal($"battle:{BattlefieldObjectId}", Assert.IsType<string>(activeTask["battleId"]));
+        Assert.Equal(["P1", "P2"], Assert.IsAssignableFrom<IReadOnlyList<string>>(activeTask["participantControllerIds"]));
+        Assert.Contains(ShadowObjectId, Assert.IsAssignableFrom<IReadOnlyList<string>>(activeTask["participantObjectIds"]));
+        Assert.Contains(EnemyAttackerObjectId, Assert.IsAssignableFrom<IReadOnlyList<string>>(activeTask["participantObjectIds"]));
+
+        var p2Snapshot = session.SnapshotFor("P2");
+        Assert.Contains(hiddenObjectId, System.Text.Json.JsonSerializer.Serialize(p2Snapshot));
+        Assert.DoesNotContain(hiddenObjectId, Assert.IsAssignableFrom<IReadOnlyList<string>>(activeTask["participantObjectIds"]));
+    }
+
     [Theory]
     [InlineData("open-main")]
     [InlineData("source-base")]
@@ -324,18 +539,70 @@ public sealed class ShadowActivatedAbilityTests
 
     private static async Task AssertRejectedNoMutationAsync(
         MatchState state,
-        ActivateAbilityCommand command)
+        ActivateAbilityCommand command,
+        string playerId = "P1")
     {
         var initialHash = MatchStateHasher.Hash(state);
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
-            new PlayerIntent("intent-shadow-invalid", "P1", CommandTypes.ActivateAbility),
+            new PlayerIntent($"intent-shadow-invalid-{playerId}", playerId, CommandTypes.ActivateAbility),
             command,
             CancellationToken.None);
 
         Assert.False(result.Accepted);
         Assert.Empty(result.Events);
         Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+    }
+
+    private static async Task<ResolutionResult> OpenNaturalShadowBattleResponseAsync(
+        int mana,
+        int power,
+        CoreRuleEngine? engine = null)
+    {
+        var state = BuildNaturalShadowStartBattleState(mana, power);
+        return await (engine ?? new CoreRuleEngine()).ResolveAsync(
+            state,
+            new PlayerIntent("intent-natural-shadow-declare-battle", "P2", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                BattlefieldObjectId,
+                [EnemyAttackerObjectId],
+                [FriendlyAttackerObjectId],
+                OptionalCosts: ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+    }
+
+    private static MatchState BuildNaturalShadowStartBattleState(int mana, int power)
+    {
+        var state = BuildShadowState(mana, power);
+        return state with
+        {
+            Tick = 7,
+            ActivePlayerId = "P2",
+            TurnPlayerId = "P2",
+            TimingState = TimingStates.NeutralOpen,
+            PriorityPlayerId = null,
+            PassedPriorityPlayerIds = [],
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted(BattlefieldObjectId)],
+            PlayerZones = ReplacePlayerZones(
+                state.PlayerZones,
+                "P1",
+                state.PlayerZones["P1"] with
+                {
+                    Battlefields = state.PlayerZones["P1"].Battlefields
+                        .Prepend(BattlefieldObjectId)
+                        .Distinct(StringComparer.Ordinal)
+                        .ToArray()
+                }),
+            CardObjects = ReplaceCardObjects(
+                state.CardObjects,
+                new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+                {
+                    [FriendlyAttackerObjectId] = state.CardObjects[FriendlyAttackerObjectId] with { IsAttacking = false },
+                    [EnemyAttackerObjectId] = state.CardObjects[EnemyAttackerObjectId] with { IsAttacking = false },
+                    [EnemySpellshieldAttackerObjectId] = state.CardObjects[EnemySpellshieldAttackerObjectId] with { IsAttacking = false },
+                    [EnemyDefenderObjectId] = state.CardObjects[EnemyDefenderObjectId] with { IsDefending = false }
+                })
+        };
     }
 
     private static MatchState BuildInvalidScenarioState(string scenario)

@@ -3238,6 +3238,30 @@ public sealed class CoreRuleEngine : IRuleEngine
         return defenderControllerIds.Length == 1 ? defenderControllerIds[0] : null;
     }
 
+    private static string? BattleAttackingPlayerId(MatchState state, BattleState battle)
+    {
+        var attackerControllerIds = battle.AttackerObjectIds
+            .Select(objectId => battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
+                ? controllerId
+                : state.CardObjects.TryGetValue(objectId, out var cardObject)
+                    ? EffectiveFieldControllerId(state.PlayerZones, objectId, cardObject)
+                    : string.Empty)
+            .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        return attackerControllerIds.Length == 1 ? attackerControllerIds[0] : null;
+    }
+
+    private static string BattleResponsePriorityPlayerId(MatchState state, string fallbackPlayerId)
+    {
+        var defendingPlayerId = BattleDefendingPlayerId(state.BattleState);
+        return !string.IsNullOrWhiteSpace(defendingPlayerId)
+            ? defendingPlayerId
+            : !string.IsNullOrWhiteSpace(fallbackPlayerId)
+                ? fallbackPlayerId
+                : state.TurnPlayerId;
+    }
+
     private sealed record CombatDamageAssignmentValidationResult(
         bool Accepted,
         string ErrorCode,
@@ -11437,7 +11461,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             normalizedTargets,
             0,
             1,
-            []);
+            [],
+            timingContext: StackTimingContextForNewStackItem(state));
         var untilEndOfTurnEffects = MarkEzrealEnemyTargetsThisTurnForUnitAbility(
             state,
             state.UntilEndOfTurnEffects,
@@ -11551,7 +11576,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return state.PendingPayment is null
             && state.PendingHandChoice is null
-            && !state.PendingTaskQueue.IsBlocking
+            && !ResolutionResult.HasBlockingPendingTaskQueue(state)
             && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
             && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
             && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
@@ -13658,7 +13683,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static ResolutionResult ResolveDeclareBattle(
         MatchState state,
         PlayerIntent intent,
-        DeclareBattleCommand command)
+        DeclareBattleCommand command,
+        bool openBattleResponsePriority = true)
     {
         if (!TryBuildMinimalDeclareBattle(
                 state,
@@ -13723,6 +13749,73 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var defendingPlayerId = ResolveSingleDefendingPlayerId(playerZones, defenderObjectIds);
+        var canOpenBattleResponsePriority = optionalCosts.Count == 1
+            && optionalCosts.Contains(DeclareBattleOptionalCost, StringComparer.Ordinal)
+            && NormalizeTargetObjectIds(command.BattlefieldTargetObjectIds ?? []).Count == 0;
+        if (openBattleResponsePriority
+            && canOpenBattleResponsePriority
+            && ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 })
+        {
+            var responseObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+            var priorityPlayerId = !string.IsNullOrWhiteSpace(defendingPlayerId)
+                ? defendingPlayerId
+                : intent.PlayerId;
+            var responseState = state with
+            {
+                Tick = state.Tick + 1,
+                ActivePlayerId = priorityPlayerId,
+                TimingState = TimingStates.NeutralClosed,
+                PlayerZones = playerZones,
+                CardObjects = cardObjects,
+                ObjectLocations = responseObjectLocations,
+                PriorityPlayerId = priorityPlayerId,
+                PassedPriorityPlayerIds = []
+            };
+            var responseActions = ActionPromptBuilder.StackPriorityActions(responseState, priorityPlayerId);
+            if (!responseActions.Contains(CommandTypes.ActivateAbility, StringComparer.Ordinal))
+            {
+                goto ResolveBattleImmediately;
+            }
+
+            var responseEvents = new List<GameEvent>
+            {
+                new(
+                    "BATTLE_DECLARED",
+                    $"{intent.PlayerId} 声明战斗",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = intent.PlayerId,
+                        ["battlefieldId"] = battlefieldId,
+                        ["attackerObjectIds"] = attackerObjectIds.ToArray(),
+                        ["defenderObjectIds"] = defenderObjectIds.ToArray(),
+                        ["optionalCosts"] = optionalCosts.ToArray(),
+                        ["battlefieldTargetObjectIds"] = Array.Empty<string>()
+                    }),
+                new(
+                    "BATTLE_RESPONSE_PRIORITY_OPENED",
+                    "战斗响应优先权窗口开启",
+                    new Dictionary<string, object?>
+                    {
+                        ["battlefieldObjectId"] = battlefieldId,
+                        ["battleId"] = BattleLifecycleIds.BattleIdForBattlefield(battlefieldId),
+                        ["attackingPlayerId"] = intent.PlayerId,
+                        ["defendingPlayerId"] = defendingPlayerId ?? string.Empty,
+                        ["priorityPlayerId"] = priorityPlayerId,
+                        ["attackerObjectIds"] = attackerObjectIds.ToArray(),
+                        ["defenderObjectIds"] = defenderObjectIds.ToArray()
+                    })
+            };
+
+            return new ResolutionResult(
+                true,
+                null,
+                responseState,
+                responseEvents,
+                ResolutionResult.BuildSnapshots(responseState),
+                BuildCorePrompts(responseState));
+        }
+
+ResolveBattleImmediately:
         var icevaleArcherAttackTargetObjectId = string.Empty;
         if (!TryResolveIcevaleArcherAttackPaymentChoice(
                 state,
@@ -22508,9 +22601,21 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool CanPassPriority(MatchState state, string playerId)
     {
         return string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal)
-            && state.StackItems.Count > 0
+            && (state.StackItems.Count > 0 || IsOpenBattleResponsePriorityWindow(state))
             && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
             && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
+    }
+
+    private static bool IsOpenBattleResponsePriorityWindow(MatchState state)
+    {
+        return state.StackItems.Count == 0
+            && state.PendingPayment is null
+            && state.PendingHandChoice is null
+            && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+            && state.BattleState.IsActive
+            && !string.IsNullOrWhiteSpace(state.BattleState.BattlefieldObjectId);
     }
 
     private static bool CanPassFocus(MatchState state, string playerId)
@@ -22546,6 +22651,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         string? pendingBattlefieldTaskCausePlayerId = null;
         if (seatPlayerIds.All(passedPlayerIds.Contains))
         {
+            if (state.StackItems.Count == 0 && IsOpenBattleResponsePriorityWindow(state))
+            {
+                return ResolveBattleResponsePriorityPassed(state, intent, events);
+            }
+
             var resolvedItem = state.StackItems[^1];
             pendingBattlefieldTaskCausePlayerId = resolvedItem.ControllerId;
             var remainingStack = state.StackItems.Take(state.StackItems.Count - 1).ToArray();
@@ -22631,10 +22741,18 @@ public sealed class CoreRuleEngine : IRuleEngine
                 && nextStack.Length == 0
                 && queuedTriggers.Length == 0
                 && string.Equals(resolvedItem.TimingContext, TimingStates.SpellDuelOpen, StringComparison.Ordinal);
+            var returnsToBattleResponse = pendingHandChoice is null
+                && pendingPayment is null
+                && nextStack.Length == 0
+                && queuedTriggers.Length == 0
+                && state.BattleState.IsActive
+                && string.Equals(resolvedItem.TimingContext, TimingStates.NeutralClosed, StringComparison.Ordinal);
             var nextFocusPlayerId = returnsToSpellDuel
                 ? NextPlayerIdAfter(state, resolvedItem.ControllerId)
                 : null;
-            var nextPriorityPlayerId = pendingHandChoice is not null || pendingPayment is not null || nextStack.Length == 0 || queuedTriggers.Length > 1
+            var nextPriorityPlayerId = returnsToBattleResponse
+                ? BattleResponsePriorityPlayerId(state, resolvedItem.ControllerId)
+                : pendingHandChoice is not null || pendingPayment is not null || nextStack.Length == 0 || queuedTriggers.Length > 1
                 ? null
                 : nextStack[^1].ControllerId;
             nextState = state with
@@ -22644,7 +22762,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 TimingState = nextStack.Length == 0
                     ? returnsToSpellDuel
                         ? TimingStates.SpellDuelOpen
-                        : TimingStates.NeutralOpen
+                        : returnsToBattleResponse
+                            ? TimingStates.NeutralClosed
+                            : TimingStates.NeutralOpen
                     : state.TimingState,
                 PriorityPlayerId = nextPriorityPlayerId,
                 PassedPriorityPlayerIds = [],
@@ -22713,6 +22833,92 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolveBattleResponsePriorityPassed(
+        MatchState state,
+        PlayerIntent intent,
+        List<GameEvent> priorityEvents)
+    {
+        var battle = state.BattleState;
+        var attackingPlayerId = BattleAttackingPlayerId(state, battle);
+        if (string.IsNullOrWhiteSpace(attackingPlayerId)
+            || string.IsNullOrWhiteSpace(battle.BattlefieldObjectId)
+            || battle.AttackerObjectIds.Count == 0
+            || battle.DefenderObjectIds.Count == 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "当前战斗响应窗口缺少可结算的战斗信息。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        var battleCommand = new DeclareBattleCommand(
+            battle.BattlefieldObjectId,
+            battle.AttackerObjectIds,
+            battle.DefenderObjectIds,
+            [DeclareBattleOptionalCost]);
+        var battleCardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        foreach (var attackerObjectId in battle.AttackerObjectIds)
+        {
+            if (battleCardObjects.TryGetValue(attackerObjectId, out var attackerState))
+            {
+                battleCardObjects[attackerObjectId] = attackerState with { IsAttacking = false };
+            }
+        }
+
+        foreach (var defenderObjectId in battle.DefenderObjectIds)
+        {
+            if (battleCardObjects.TryGetValue(defenderObjectId, out var defenderState))
+            {
+                battleCardObjects[defenderObjectId] = defenderState with { IsDefending = false };
+            }
+        }
+
+        var battleResult = ResolveDeclareBattle(
+            state with
+            {
+                ActivePlayerId = attackingPlayerId,
+                TimingState = TimingStates.NeutralOpen,
+                CardObjects = battleCardObjects,
+                PriorityPlayerId = null,
+                PassedPriorityPlayerIds = []
+            },
+            new PlayerIntent(
+                $"{intent.IntentId}:resolve-battle-response",
+                attackingPlayerId,
+                CommandTypes.DeclareBattle),
+            battleCommand,
+            openBattleResponsePriority: false);
+        if (!battleResult.Accepted)
+        {
+            return battleResult;
+        }
+
+        var events = new List<GameEvent>(priorityEvents)
+        {
+            new(
+                "BATTLE_RESPONSE_PRIORITY_CLOSED",
+                "双方让过战斗响应优先权，开始结算战斗",
+                new Dictionary<string, object?>
+                {
+                    ["battlefieldObjectId"] = battle.BattlefieldObjectId,
+                    ["battleId"] = battle.BattleId,
+                    ["attackingPlayerId"] = attackingPlayerId,
+                    ["passedPriorityPlayerIds"] = state.Seats.Keys
+                        .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                        .ToArray()
+                })
+        };
+        events.AddRange(battleResult.Events);
+
+        return new ResolutionResult(
+            true,
+            null,
+            battleResult.State,
+            events,
+            ResolutionResult.BuildSnapshots(battleResult.State),
+            BuildCorePrompts(battleResult.State));
     }
 
     private static ResolutionResult ResolvePassFocus(MatchState state, PlayerIntent intent)
@@ -37138,7 +37344,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     : WithSurrender("WAIT")));
         }
 
-        if (state.StackItems.Count > 0 && !string.IsNullOrWhiteSpace(state.PriorityPlayerId))
+        if ((state.StackItems.Count > 0 && !string.IsNullOrWhiteSpace(state.PriorityPlayerId))
+            || IsOpenBattleResponsePriorityWindow(state))
         {
             return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
                 state,
