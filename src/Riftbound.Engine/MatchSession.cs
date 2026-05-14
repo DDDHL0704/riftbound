@@ -6394,6 +6394,21 @@ internal static class ActionPromptBuilder
             };
         }
 
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId, StringComparison.Ordinal))
+        {
+            var choices = state.PlayerZones
+                .SelectMany(entry => entry.Value.Battlefields)
+                .Distinct(StringComparer.Ordinal)
+                .Where(objectId => IsPromptGatekeeperMaduliMoveTarget(state, playerId, sourceObjectId, objectId))
+                .OrderBy(objectId => objectId, StringComparer.Ordinal)
+                .Select(objectId => ObjectChoice(state, objectId, "enemy-controlled battlefield with lower enemy unit power"))
+                .ToArray();
+            return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal)
+            {
+                ["0"] = choices
+            };
+        }
+
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, StringComparison.Ordinal))
         {
             var choices = state.PlayerZones.TryGetValue(playerId, out var zones)
@@ -6472,6 +6487,96 @@ internal static class ActionPromptBuilder
             && state.PlayerZones.TryGetValue(playerId, out var zones)
             && (zones.Base.Contains(targetObjectId, StringComparer.Ordinal)
                 || zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal));
+    }
+
+    private static bool IsPromptGatekeeperMaduliMoveTarget(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        string targetBattlefieldObjectId)
+    {
+        if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || sourceState.IsFaceDown
+            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !string.Equals(sourceState.CardNo, P4ActivatedAbilityCatalog.GatekeeperMaduliCardNo, StringComparison.Ordinal)
+            || !string.Equals(sourceState.ControllerId, playerId, StringComparison.Ordinal)
+            || !state.PlayerZones.TryGetValue(playerId, out var sourceZones)
+            || (!sourceZones.Base.Contains(sourceObjectId, StringComparer.Ordinal)
+                && !sourceZones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
+            || IsPromptAlreadyAtBattlefield(state, sourceObjectId, targetBattlefieldObjectId)
+            || !TryGetPromptEnemyControlledBattlefield(
+                state,
+                playerId,
+                targetBattlefieldObjectId,
+                out var targetControllerId))
+        {
+            return false;
+        }
+
+        return Math.Max(0, sourceState.Power) > PromptEnemyUnitPowerSumAtBattlefield(
+            state,
+            targetBattlefieldObjectId,
+            targetControllerId);
+    }
+
+    private static bool TryGetPromptEnemyControlledBattlefield(
+        MatchState state,
+        string playerId,
+        string targetBattlefieldObjectId,
+        out string targetControllerId)
+    {
+        targetControllerId = string.Empty;
+        if (!state.CardObjects.TryGetValue(targetBattlefieldObjectId, out var targetState)
+            || targetState.IsFaceDown
+            || string.IsNullOrWhiteSpace(targetState.CardNo)
+            || !targetState.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
+            || string.IsNullOrWhiteSpace(targetState.ControllerId)
+            || string.Equals(targetState.ControllerId, playerId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var targetLocation = state.PlayerZones
+            .Where(entry => entry.Value.Battlefields.Contains(targetBattlefieldObjectId, StringComparer.Ordinal))
+            .Select(entry => (PlayerId: entry.Key, Zone: "BATTLEFIELD"))
+            .FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(targetLocation.PlayerId)
+            || !string.Equals(targetLocation.PlayerId, targetState.ControllerId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        targetControllerId = targetState.ControllerId;
+        return true;
+    }
+
+    private static bool IsPromptAlreadyAtBattlefield(
+        MatchState state,
+        string sourceObjectId,
+        string battlefieldObjectId)
+    {
+        return state.ObjectLocations.TryGetValue(sourceObjectId, out var location)
+            && string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && string.Equals(location.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal);
+    }
+
+    private static int PromptEnemyUnitPowerSumAtBattlefield(
+        MatchState state,
+        string battlefieldObjectId,
+        string targetControllerId)
+    {
+        return state.ObjectLocations
+            .Where(entry => string.Equals(entry.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal))
+            .Select(entry => entry.Key)
+            .Where(objectId => !string.Equals(objectId, battlefieldObjectId, StringComparison.Ordinal)
+                && state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !cardObject.IsFaceDown
+                && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                && string.Equals(cardObject.ControllerId, targetControllerId, StringComparison.Ordinal))
+            .Sum(objectId => Math.Max(0, state.CardObjects[objectId].Power));
     }
 
     private static bool SamePromptBattlefield(MatchState state, string firstObjectId, string secondObjectId)
@@ -7017,6 +7122,7 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId => "烈娜塔·戈拉斯克",
             P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId => "烈娜塔·戈拉斯克",
             P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId => "阿兹尔",
+            P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId => "守门者马杜里",
             P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId => "猩红玫瑰",
             P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId => "绵绵魄罗",
             P4ActivatedAbilityCatalog.ShadowStunAbilityId => "黑影",
@@ -7042,6 +7148,7 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId => "烈娜塔·戈拉斯克：支付 1 法力和 1 蓝色符能，抽 1 张牌",
             P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId => "烈娜塔·戈拉斯克：支付 4 法力和 4 蓝色符能并横置，获得 1 分",
             P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId => "阿兹尔：迅捷，支付 1 绿色符能，与受控单位交换位置",
+            P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId => "守门者马杜里：支付 1 紫色符能，移动到较弱敌方战场",
             P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId => "猩红玫瑰：消耗 3 经验并横置，让一名单位变为活跃状态",
             P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId => "绵绵魄罗：横置，打出两名拥有法盾的战鹰",
             P4ActivatedAbilityCatalog.ShadowStunAbilityId => "黑影：迅捷，支付 1 法力和 1 符能并横置，眩晕此处进攻的敌方单位",
@@ -7068,6 +7175,8 @@ internal static class ActionPromptBuilder
                         ? "此战场进攻中的敌方单位"
                     : string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId, StringComparison.Ordinal)
                         ? "受你控制的公开单位"
+                    : string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId, StringComparison.Ordinal)
+                        ? "敌方控制且敌方单位战力较低的战场"
                     : string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, StringComparison.Ordinal)
                         ? "友方单位或装备（成本）"
                         : "服务端目标";
@@ -10821,6 +10930,16 @@ internal static class ActionPromptBuilder
             view["stackPolicy"] = "ordinary-stack-item-before-swap";
             view["paymentPolicy"] = "payment-plan-typed-green";
             view["armamentReattachPolicy"] = "deferred";
+        }
+
+        if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId, StringComparison.Ordinal))
+        {
+            view["targetScope"] = "enemy-controlled-battlefield-with-lower-enemy-unit-power";
+            view["movePolicy"] = "move-source-to-target-battlefield";
+            view["timingPolicy"] = "open-main-representative";
+            view["stackPolicy"] = "ordinary-stack-item-before-move";
+            view["paymentPolicy"] = "payment-plan-typed-purple";
+            view["staticCannotBecomeActivePolicy"] = "deferred";
         }
 
         if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId, StringComparison.Ordinal))

@@ -5,6 +5,8 @@
 
 本文件是 A/E 侧对 4D-03AN Gatekeeper Maduli purple move 切片的 card matrix readiness 审计。它只读取官方快照、规则证据索引和现有矩阵骨架，不修改 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`，不把任何状态升级为 full-official。
 
+2026-05-15 post-runtime addendum：4D-03AN runtime representative 已由 `docs/CURRENT_STAGE4D_03AN_PAYMENT_ENGINE_GATEKEEPER_MADULI_PURPLE_MOVE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AN_PAYMENT_ENGINE_GATEKEEPER_MADULI_PURPLE_MOVE_EVIDENCE.md` 验收，focused 25/25、handoff focused 188/188、adjacent 381/381、backend full 4293/4293、`git diff --check` 通过。该证据可作为未来 matrix write window 的 movement representative 输入，但由于 “我无法变为活跃状态” static 仍 deferred，本文件仍不更新 matrix JSON，不声明 full-official，项目仍 **NOT READY**。
+
 ## 1. 官方快照事实
 
 `data/official/card-catalog.zh-CN.json` 固定快照中存在：
@@ -41,9 +43,9 @@ Current dependency domains:
 
 Therefore the current matrix cannot use static play evidence to claim the official activated movement ability is implemented.
 
-## 4. Matrix Update Gate After B
+## 4. Matrix Update Gate After Runtime
 
-After 4D-03AN-B runtime implementation exists, E/A may consider a matrix update only if all of the following are true:
+After 4D-03AN-B runtime implementation and A-side evidence, E/A may consider a future matrix write window only if all of the following are true:
 
 1. A accepts B diff and tests for prompt, command, purple payment, target validation, enemy battlefield power-sum guard, no-mutation rollback, server-authoritative movement, event / snapshot update and stale no-effect behavior.
 2. Concrete automated test evidence is recorded for `UNL-144/219`.

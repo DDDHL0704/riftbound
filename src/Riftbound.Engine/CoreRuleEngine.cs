@@ -6441,6 +6441,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveAzirSwiftSwapAbility(state, intent, command, ability);
         }
 
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId, StringComparison.Ordinal))
+        {
+            return ResolveGatekeeperMaduliMoveAbility(state, intent, command, ability);
+        }
+
         if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
             || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
             || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
@@ -7620,6 +7625,274 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = stackItem.SourceObjectId,
                     ["cardNo"] = stackItem.CardNo,
                     ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["abilityId"] = command.AbilityId
+                })
+        ]);
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolveGatekeeperMaduliMoveAbility(
+        MatchState state,
+        PlayerIntent intent,
+        ActivateAbilityCommand command,
+        P4ActivatedAbilityDefinition ability)
+    {
+        if (state.PendingPayment is not null
+            || state.PendingHandChoice is not null
+            || state.PendingTaskQueue.IsBlocking
+            || !string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || state.StackItems.Count > 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "守门者马杜里的移动技能只能在当前玩家的开放主阶段提交。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        var normalizedTargets = NormalizeTargetObjectIds(command.TargetObjectIds);
+        if (command.TargetObjectIds.Count != 1 || normalizedTargets.Count != 1)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "守门者马杜里的移动技能需要且只能选择 1 个敌方控制的战场目标。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var targetObjectId = normalizedTargets[0];
+        var normalizedOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (!TryExtractInlinePaymentResourceActions(
+                state,
+                intent.PlayerId,
+                normalizedOptionalCosts,
+                out var behaviorOptionalCosts,
+                out var paymentResourceActions,
+                out var recycledRuneObjectIds,
+                out var temporaryPaymentResourceActions)
+            || behaviorOptionalCosts.Count != 0
+            || temporaryPaymentResourceActions.Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "守门者马杜里的移动技能只接受合法的回收符文支付资源动作。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!IsControlledFieldObject(state, intent.PlayerId, command.SourceObjectId)
+            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || sourceState.IsFaceDown
+            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "守门者马杜里的移动技能来源必须是当前玩家控制的公开场上或基地单位。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "守门者马杜里的移动技能只能选择当前玩家控制的来源。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, sourceState.CardNo))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "该来源没有服务端支持的守门者马杜里移动技能。",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        if (!IsLegalGatekeeperMaduliMoveTarget(state, intent.PlayerId, command.SourceObjectId, targetObjectId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "守门者马杜里的移动技能目标必须是敌方控制且敌方单位战力总和低于马杜里战力的战场。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
+        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
+            ? existingPool
+            : RunePool.Empty;
+        if (!AreRecycleRunePaymentResourceActionsRequired(
+                currentPool,
+                state.CardObjects,
+                recycledRuneObjectIds,
+                ability.PowerCost,
+                powerCostByTrait))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "守门者马杜里的移动技能不需要回收符文支付资源动作。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var adjustedPowerPool = ApplyRecycleRunePaymentToPool(
+            currentPool,
+            state.CardObjects,
+            recycledRuneObjectIds);
+        if (recycledRuneObjectIds.Count != 0
+            && !CanPayPowerCost(adjustedPowerPool, ability.PowerCost, powerCostByTrait))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "回收的符文不能补足守门者马杜里的紫色符能费用。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        const string paymentWindow = "ACTIVATE_ABILITY";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            intent.PlayerId,
+            command.SourceObjectId,
+            command.AbilityId);
+        var paymentPlan = new PaymentCostRules.PaymentPlan(
+            paymentId,
+            paymentWindow,
+            intent.PlayerId,
+            baseManaCost: ability.ManaCost,
+            totalManaCost: ability.ManaCost,
+            genericPowerCost: ability.PowerCost,
+            totalPowerCost: ability.PowerCost + powerCostByTrait.Values.Sum(),
+            powerCostByTrait: powerCostByTrait,
+            paymentResourceActionIds: paymentResourceActions,
+            reason: ability.EffectKind,
+            sourceObjectId: command.SourceObjectId,
+            abilityId: command.AbilityId,
+            auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
+                ["targetBattlefieldObjectId"] = targetObjectId,
+                ["sourceCardNo"] = sourceState.CardNo
+            });
+        var paymentEvents = new List<GameEvent>();
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var runePools = ApplyRecycleRunePaymentResourceActions(
+            state.RunePools,
+            playerZones,
+            cardObjects,
+            objectLocations,
+            intent.PlayerId,
+            recycledRuneObjectIds,
+            paymentEvents,
+            paymentWindow,
+            paymentId);
+
+        var adjustedPool = runePools.TryGetValue(intent.PlayerId, out var paymentAdjustedPool)
+            ? paymentAdjustedPool
+            : RunePool.Empty;
+        var currentExperience = state.PlayerExperience.TryGetValue(intent.PlayerId, out var availableExperience)
+            ? availableExperience
+            : 0;
+        var paymentAuthorization = PaymentCostRules.AuthorizePayment(
+            paymentPlan,
+            adjustedPool,
+            currentExperience);
+        if (!paymentAuthorization.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "资源不足，无法启动守门者马杜里的移动技能。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var paymentCommit = PaymentCostRules.TryCommitPayment(
+            paymentPlan,
+            runePools,
+            state.PlayerExperience);
+        if (!paymentCommit.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "资源不足，无法启动守门者马杜里的移动技能。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var playerExperience = paymentCommit.PlayerExperience;
+        var stackItem = new StackItemState(
+            $"STACK-{state.Tick + 1}-{command.SourceObjectId}-MADULI-MOVE",
+            intent.PlayerId,
+            command.SourceObjectId,
+            ability.EffectKind,
+            sourceState.CardNo,
+            [targetObjectId],
+            0,
+            1,
+            []);
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            ActivePlayerId = intent.PlayerId,
+            TimingState = TimingStates.NeutralClosed,
+            RunePools = runePools,
+            PlayerExperience = playerExperience,
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = ReconcileObjectLocations(objectLocations, playerZones),
+            PriorityPlayerId = intent.PlayerId,
+            PassedPriorityPlayerIds = [],
+            StackItems = state.StackItems.Concat([stackItem]).ToArray()
+        };
+        var events = new List<GameEvent>(paymentEvents);
+        events.AddRange([
+            new(
+                "ABILITY_ACTIVATED",
+                $"{intent.PlayerId} 激活守门者马杜里的移动技能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["cardNo"] = sourceState.CardNo,
+                    ["abilityId"] = command.AbilityId,
+                    ["effectKind"] = ability.EffectKind,
+                    ["targetObjectIds"] = new[] { targetObjectId },
+                    ["targetBattlefieldObjectId"] = targetObjectId
+                }),
+            new(
+                "COST_PAID",
+                $"{intent.PlayerId} 支付守门者马杜里移动技能费用",
+                PaymentCostRules.BuildCostPaidPayload(
+                    paymentPlan,
+                    runePools,
+                    playerExperience,
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = intent.PlayerId,
+                        ["mana"] = ability.ManaCost,
+                        ["power"] = ability.PowerCost,
+                        ["powerByTrait"] = powerCostByTrait,
+                        ["abilityId"] = command.AbilityId,
+                        ["sourceObjectId"] = command.SourceObjectId,
+                        ["targetBattlefieldObjectId"] = targetObjectId
+                    })),
+            new(
+                "STACK_ITEM_ADDED",
+                "守门者马杜里的移动技能加入结算链",
+                new Dictionary<string, object?>
+                {
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["controllerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["cardNo"] = stackItem.CardNo,
+                    ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
+                    ["targetBattlefieldObjectId"] = targetObjectId,
                     ["effectKind"] = stackItem.EffectKind,
                     ["abilityId"] = command.AbilityId
                 })
@@ -26037,6 +26310,101 @@ public sealed class CoreRuleEngine : IRuleEngine
             && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
     }
 
+    private static bool IsLegalGatekeeperMaduliMoveTarget(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        string targetBattlefieldObjectId)
+    {
+        if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || sourceState.IsFaceDown
+            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !string.Equals(sourceState.CardNo, P4ActivatedAbilityCatalog.GatekeeperMaduliCardNo, StringComparison.Ordinal)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
+            || !IsControlledFieldObject(state, playerId, sourceObjectId)
+            || !TryGetEnemyControlledBattlefieldTarget(
+                state,
+                playerId,
+                targetBattlefieldObjectId,
+                out var targetControllerId)
+            || IsAlreadyAtBattlefield(state, sourceObjectId, targetBattlefieldObjectId))
+        {
+            return false;
+        }
+
+        var sourcePower = Math.Max(0, sourceState.Power);
+        var enemyPowerSum = EnemyUnitPowerSumAtBattlefield(
+            state,
+            targetBattlefieldObjectId,
+            targetControllerId);
+        return sourcePower > enemyPowerSum;
+    }
+
+    private static bool TryGetEnemyControlledBattlefieldTarget(
+        MatchState state,
+        string playerId,
+        string targetBattlefieldObjectId,
+        out string targetControllerId)
+    {
+        targetControllerId = string.Empty;
+        if (string.IsNullOrWhiteSpace(targetBattlefieldObjectId)
+            || !state.CardObjects.TryGetValue(targetBattlefieldObjectId, out var targetState)
+            || targetState.IsFaceDown
+            || string.IsNullOrWhiteSpace(targetState.CardNo)
+            || !IsBattlefieldCardObject(targetState)
+            || !state.PlayerZones.Any(entry => entry.Value.Battlefields.Contains(targetBattlefieldObjectId, StringComparer.Ordinal)))
+        {
+            return false;
+        }
+
+        var location = FindFieldObjectLocation(state.PlayerZones, targetBattlefieldObjectId);
+        if (location is null
+            || !string.Equals(location.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(targetState.ControllerId)
+            || string.Equals(targetState.ControllerId, playerId, StringComparison.Ordinal)
+            || !string.Equals(location.Value.PlayerId, targetState.ControllerId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        targetControllerId = targetState.ControllerId;
+        return true;
+    }
+
+    private static bool IsAlreadyAtBattlefield(
+        MatchState state,
+        string sourceObjectId,
+        string battlefieldObjectId)
+    {
+        return state.ObjectLocations.TryGetValue(sourceObjectId, out var location)
+            && string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && string.Equals(location.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal);
+    }
+
+    private static int EnemyUnitPowerSumAtBattlefield(
+        MatchState state,
+        string battlefieldObjectId,
+        string targetControllerId)
+    {
+        return state.ObjectLocations
+            .Where(entry => string.Equals(entry.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal))
+            .Select(entry => entry.Key)
+            .Distinct(StringComparer.Ordinal)
+            .Where(objectId => !string.Equals(objectId, battlefieldObjectId, StringComparison.Ordinal)
+                && state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !cardObject.IsFaceDown
+                && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                && string.Equals(
+                    EffectiveFieldControllerId(state.PlayerZones, objectId, cardObject),
+                    targetControllerId,
+                    StringComparison.Ordinal)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, targetControllerId))
+            .Sum(objectId => Math.Max(0, state.CardObjects[objectId].Power));
+    }
+
     private static bool IsVisibleFieldUnitObject(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string objectId)
@@ -28982,6 +29350,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveAzirSwiftSwapAbilityStackItem(state, stackItem);
         }
 
+        if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityEffectKind, StringComparison.Ordinal))
+        {
+            return ResolveGatekeeperMaduliMoveAbilityStackItem(state, stackItem);
+        }
+
         if (!CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
             || !HasValidResolvedTargetCount(behavior, stackItem)
             || !HasValidTargetEffectAdditionalCostTargets(behavior, stackItem.TargetObjectIds, stackItem.OptionalCosts))
@@ -31857,6 +32230,101 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["targetDestinationLocation"] = BuildLocationPayload(targetDestinationLocation),
                     ["armamentReattachApplied"] = false,
                     ["armamentReattachPolicy"] = "deferred"
+                }));
+        }
+
+        return new StackResolutionResult(
+            playerZones,
+            cardObjects,
+            state.PlayerScores,
+            NormalizeExperienceForSeats(state),
+            state.RunePools,
+            state.UntilEndOfTurnEffects,
+            null,
+            events,
+            [],
+            null,
+            [],
+            null,
+            [],
+            state.RngCursor,
+            ObjectLocations: objectLocations);
+    }
+
+    private static StackResolutionResult ResolveGatekeeperMaduliMoveAbilityStackItem(
+        MatchState state,
+        StackItemState stackItem)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var targetBattlefieldObjectId = stackItem.TargetObjectIds.FirstOrDefault() ?? string.Empty;
+        var events = new List<GameEvent>
+        {
+            new(
+                "ABILITY_RESOLVED",
+                "守门者马杜里的移动技能结算",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = stackItem.ControllerId,
+                    ["controllerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["cardNo"] = stackItem.CardNo,
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["abilityId"] = P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId,
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
+                    ["targetBattlefieldObjectId"] = targetBattlefieldObjectId
+                })
+        };
+
+        if (!IsLegalGatekeeperMaduliMoveTarget(state, stackItem.ControllerId, stackItem.SourceObjectId, targetBattlefieldObjectId)
+            || !TryMoveGatekeeperMaduliToBattlefield(
+                playerZones,
+                cardObjects,
+                objectLocations,
+                stackItem.ControllerId,
+                stackItem.SourceObjectId,
+                targetBattlefieldObjectId,
+                out var originLocation,
+                out var destinationLocation,
+                out var enemyUnitPowerSum,
+                out var sourcePower))
+        {
+            events.Add(new GameEvent(
+                "ABILITY_NO_EFFECT",
+                "守门者马杜里的移动技能目标不再合法",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["targetBattlefieldObjectId"] = targetBattlefieldObjectId,
+                    ["abilityId"] = P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId,
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["reason"] = "TARGET_NO_LONGER_LEGAL"
+                }));
+        }
+        else
+        {
+            events.Add(new GameEvent(
+                "UNIT_MOVED_TO_BATTLEFIELD",
+                "守门者马杜里移动到敌方战场",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["targetObjectId"] = stackItem.SourceObjectId,
+                    ["targetBattlefieldObjectId"] = targetBattlefieldObjectId,
+                    ["battlefieldObjectId"] = targetBattlefieldObjectId,
+                    ["abilityId"] = P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId,
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["originLocation"] = BuildLocationPayload(originLocation),
+                    ["destinationLocation"] = BuildLocationPayload(destinationLocation),
+                    ["sourcePower"] = sourcePower,
+                    ["enemyUnitPowerSum"] = enemyUnitPowerSum,
+                    ["movementPermission"] = "GATEKEEPER_MADULI_PURPLE_MOVE"
                 }));
         }
 
@@ -36343,6 +36811,68 @@ public sealed class CoreRuleEngine : IRuleEngine
         targetDestinationLocation = sourceOriginLocation;
         objectLocations[sourceObjectId] = sourceDestinationLocation;
         objectLocations[targetObjectId] = targetDestinationLocation;
+        return true;
+    }
+
+    private static bool TryMoveGatekeeperMaduliToBattlefield(
+        Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, ObjectLocationState> objectLocations,
+        string controllerId,
+        string sourceObjectId,
+        string targetBattlefieldObjectId,
+        out ObjectLocationState originLocation,
+        out ObjectLocationState destinationLocation,
+        out int enemyUnitPowerSum,
+        out int sourcePower)
+    {
+        originLocation = new ObjectLocationState(string.Empty, string.Empty);
+        destinationLocation = new ObjectLocationState(string.Empty, string.Empty);
+        enemyUnitPowerSum = 0;
+        sourcePower = 0;
+
+        var state = new MatchState(
+            "maduli-resolution-location-check",
+            0,
+            1,
+            controllerId,
+            new Dictionary<string, string>(StringComparer.Ordinal),
+            playerZones: playerZones,
+            cardObjects: cardObjects,
+            objectLocations: objectLocations);
+        if (!cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+            || !TryGetPreciseFieldLocation(playerZones, objectLocations, sourceObjectId, out originLocation)
+            || !TryGetEnemyControlledBattlefieldTarget(
+                state,
+                controllerId,
+                targetBattlefieldObjectId,
+                out var targetControllerId)
+            || string.Equals(
+                originLocation.BattlefieldObjectId ?? string.Empty,
+                targetBattlefieldObjectId,
+                StringComparison.Ordinal)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, controllerId))
+        {
+            return false;
+        }
+
+        sourcePower = Math.Max(0, sourceState.Power);
+        enemyUnitPowerSum = EnemyUnitPowerSumAtBattlefield(
+            state,
+            targetBattlefieldObjectId,
+            targetControllerId);
+        if (sourcePower <= enemyUnitPowerSum)
+        {
+            return false;
+        }
+
+        RemoveFieldObjectFromLocation(playerZones, originLocation.PlayerId, originLocation.Zone, sourceObjectId);
+        AddFieldObjectToLocation(playerZones, controllerId, MoveUnitBattlefieldZone, sourceObjectId);
+        destinationLocation = new ObjectLocationState(
+            controllerId,
+            MoveUnitBattlefieldZone,
+            targetBattlefieldObjectId);
+        objectLocations[sourceObjectId] = destinationLocation;
         return true;
     }
 

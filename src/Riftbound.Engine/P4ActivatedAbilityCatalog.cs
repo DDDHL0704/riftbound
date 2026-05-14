@@ -89,6 +89,11 @@ public static class P4ActivatedAbilityCatalog
     public const int AzirSwiftSwapGreenPowerCost = 1;
     public const string AzirSwiftSwapUsedThisTurnEffectPrefix = "AZIR_SWIFT_SWAP_USED_THIS_TURN:";
 
+    public const string GatekeeperMaduliCardNo = "UNL-144/219";
+    public const string GatekeeperMaduliMoveAbilityId = "GATEKEEPER_MADULI_PAY_PURPLE_MOVE_TO_WEAKER_ENEMY_BATTLEFIELD";
+    public const string GatekeeperMaduliMoveAbilityEffectKind = "GATEKEEPER_MADULI_ACTIVATED_MOVE_TO_WEAKER_ENEMY_BATTLEFIELD";
+    public const int GatekeeperMaduliMovePurplePowerCost = 1;
+
     public const string CrimsonRoseCardNo = "UNL-109/219";
     public const string CrimsonRoseReadyAbilityId = "CRIMSON_ROSE_EXPERIENCE3_EXHAUST_READY_UNIT";
     public const string CrimsonRoseReadyAbilityEffectKind = "CRIMSON_ROSE_ACTIVATED_READY_UNIT";
@@ -430,6 +435,23 @@ public static class P4ActivatedAbilityCatalog
             PowerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
             {
                 [RuneTrait.Green] = AzirSwiftSwapGreenPowerCost
+            }),
+        new(
+            GatekeeperMaduliMoveAbilityId,
+            GatekeeperMaduliCardNo,
+            GatekeeperMaduliMoveAbilityEffectKind,
+            "Gatekeeper Maduli purple battlefield move skill",
+            0,
+            0,
+            1,
+            RequiresBattlefieldSource: false,
+            ExhaustsSourceAsCost: false,
+            0,
+            AppliesSpellshieldTargetTax: false,
+            "Stage 4D-03AN opens only Gatekeeper Maduli's pay purple move-to-weaker-enemy-battlefield representative; the cannot-become-active static text and broader movement family remain deferred.",
+            PowerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [RuneTrait.Purple] = GatekeeperMaduliMovePurplePowerCost
             }),
         new(
             CrimsonRoseReadyAbilityId,
