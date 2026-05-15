@@ -2141,6 +2141,10 @@ public sealed class CardCatalogBaselineTests
         Assert.True(sentinelAdept.HasTempered);
         Assert.False(sentinelAdept.HasImplementedRepresentativeAssembleBoundary);
         Assert.False(sentinelAdept.HasImplementedRepresentativeAgileDirectPlayAttachBoundary);
+        Assert.True(sentinelAdept.HasImplementedRepresentativeTemperedOptionalAttachBoundary);
+        Assert.Equal(EquipmentKeywordProfileStatuses.RecognizedDeferred, sentinelAdept.Status);
+        Assert.Contains("Tempered optional attach", sentinelAdept.Reason, StringComparison.Ordinal);
+        Assert.Contains("full tempered official breadth", sentinelAdept.Reason, StringComparison.Ordinal);
         Assert.Contains("deferred", sentinelAdept.Reason, StringComparison.OrdinalIgnoreCase);
 
         var ornn = BuildEquipmentProfile(specs, "SFD·085/221", CardEquipmentKeywordNames.Tempered);
@@ -2386,7 +2390,7 @@ public sealed class CardCatalogBaselineTests
             CardEquipmentKeywordNames.Assemble);
         Cover("equipment:灵便", agile.HasAgile && agile.HasImplementedRepresentativeAgileDirectPlayAttachBoundary);
         var tempered = BuildEquipmentProfile(specs, "SFD·008/221", CardEquipmentKeywordNames.Tempered);
-        Cover("equipment:百炼", tempered.HasTempered);
+        Cover("equipment:百炼", tempered.HasTempered && tempered.HasImplementedRepresentativeTemperedOptionalAttachBoundary);
 
         var draw = BuildBasicActionProfile(specs, "SFD·087/221");
         Cover("basic:抽牌", draw.PrimitiveActions.Contains(CardBasicActionNames.Draw, StringComparer.Ordinal));

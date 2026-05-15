@@ -3710,6 +3710,8 @@ internal static class ActionPromptBuilder
     private const int BladeOfTheRuinedKingAssemblePowerCost = 1;
     private const string BladeOfTheRuinedKingAssembleOptionalCost = "ASSEMBLE_YELLOW";
     private const string SpinningAxeCardNo = "SFD·186/221";
+    private const string SentinelAdeptCardNo = "SFD·008/221";
+    private const string TemperedOptionalAttachPrefix = "TEMPERED_ATTACH:";
     private const int SpinningAxeAssemblePowerCost = 1;
     private const string SpinningAxeAssembleOptionalCost = "ASSEMBLE_ANY_POWER";
     private const string HearthfireCloakCardNo = "SFD·190/221";
@@ -7826,6 +7828,13 @@ internal static class ActionPromptBuilder
             && CardEquipmentKeywordRules.IsAgileDirectPlayAttachRepresentativeCardNo(behavior.CardNo);
     }
 
+    private static bool IsTemperedOptionalAttachRepresentative(CardBehaviorDefinition behavior)
+    {
+        return behavior.PlaysSourceToBaseAsUnit
+            && string.Equals(behavior.CardNo, SentinelAdeptCardNo, StringComparison.Ordinal)
+            && CardEquipmentKeywordRules.IsTemperedOptionalAttachRepresentativeCardNo(behavior.CardNo);
+    }
+
     private static int PromptMinimumManaCost(
         MatchState state,
         string playerId,
@@ -9452,6 +9461,11 @@ internal static class ActionPromptBuilder
             : 0;
         var choices = new List<ActionPromptChoiceDto>();
 
+        if (IsTemperedOptionalAttachRepresentative(behavior))
+        {
+            choices.AddRange(TemperedOptionalAttachChoices(state, playerId));
+        }
+
         if (TryPromptEchoOptionalCost(state, playerId, behavior, out var effectiveEchoManaCost, out var echoReason)
             && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId) + effectiveEchoManaCost)
         {
@@ -9562,6 +9576,38 @@ internal static class ActionPromptBuilder
 
         choices.AddRange(paymentResourceChoices);
         return choices;
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> TemperedOptionalAttachChoices(
+        MatchState state,
+        string playerId)
+    {
+        return ControlledBoardObjects(state, playerId)
+            .Where(objectId => IsPromptTemperedOptionalAttachChoice(state, playerId, objectId))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .Select(objectId =>
+            {
+                var choice = ObjectChoice(state, objectId, "implemented Sentinel Adept tempered optional attach");
+                return new ActionPromptChoiceDto(
+                    $"{TemperedOptionalAttachPrefix}{objectId}",
+                    $"百炼装配：{choice.Label}",
+                    choice.Reason);
+            })
+            .ToArray();
+    }
+
+    private static bool IsPromptTemperedOptionalAttachChoice(
+        MatchState state,
+        string playerId,
+        string objectId)
+    {
+        return TryFindLegendActionFieldObjectLocation(state.PlayerZones, objectId, out var location)
+            && string.Equals(location.PlayerId, playerId, StringComparison.Ordinal)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && string.Equals(cardObject.CardNo, SpinningAxeCardNo, StringComparison.Ordinal)
+            && cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            && !cardObject.IsFaceDown
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId);
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto> PlayCardDiscardHandManaReductionOptionalCostChoices(

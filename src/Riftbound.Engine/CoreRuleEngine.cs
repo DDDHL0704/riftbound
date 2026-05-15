@@ -126,6 +126,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BladeOfTheRuinedKingAssembleOptionalCost = "ASSEMBLE_YELLOW";
     private const int BladeOfTheRuinedKingAssemblePowerCost = 1;
     private const string SpinningAxeCardNo = "SFD·186/221";
+    private const string SentinelAdeptCardNo = "SFD·008/221";
+    private const string TemperedOptionalAttachPrefix = "TEMPERED_ATTACH:";
     private const string SpinningAxeAssembleOptionalCost = "ASSEMBLE_ANY_POWER";
     private const int SpinningAxeAssemblePowerCost = 1;
     private const string HearthfireCloakCardNo = "SFD·190/221";
@@ -27926,6 +27928,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
+        if (TryBuildTemperedOptionalAttachCost(
+                state,
+                playerId,
+                normalizedOptionalCosts,
+                behavior))
+        {
+            return true;
+        }
+
         if (TryBuildBattlefieldHeldNextSpellEchoOptionalCost(
                 state,
                 playerId,
@@ -28139,6 +28150,20 @@ public sealed class CoreRuleEngine : IRuleEngine
         return false;
     }
 
+    private static bool TryBuildTemperedOptionalAttachCost(
+        MatchState state,
+        string playerId,
+        IReadOnlyList<string> normalizedOptionalCosts,
+        CardBehaviorDefinition behavior)
+    {
+        return IsTemperedOptionalAttachRepresentative(behavior)
+            && normalizedOptionalCosts.Count == 1
+            && TryParseTemperedOptionalAttachCost(
+                normalizedOptionalCosts[0],
+                out var equipmentObjectId)
+            && IsLegalTemperedOptionalAttachChoice(state, playerId, equipmentObjectId);
+    }
+
     private static bool TryBuildTargetEffectAdditionalCost(
         IReadOnlyList<string> normalizedOptionalCosts,
         CardBehaviorDefinition behavior,
@@ -28190,6 +28215,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return true;
+    }
+
+    private static bool TryParseTemperedOptionalAttachCost(string optionalCost, out string equipmentObjectId)
+    {
+        equipmentObjectId = string.Empty;
+        if (!optionalCost.StartsWith(TemperedOptionalAttachPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        equipmentObjectId = optionalCost[TemperedOptionalAttachPrefix.Length..].Trim();
+        return !string.IsNullOrWhiteSpace(equipmentObjectId);
     }
 
     private static bool TryParseSpendManaOptionalCost(string optionalCost, out int manaCost)
@@ -29437,6 +29474,41 @@ public sealed class CoreRuleEngine : IRuleEngine
             && CardEquipmentKeywordRules.IsAgileDirectPlayAttachRepresentativeCardNo(behavior.CardNo);
     }
 
+    private static bool IsTemperedOptionalAttachRepresentative(CardBehaviorDefinition behavior)
+    {
+        return behavior.PlaysSourceToBaseAsUnit
+            && string.Equals(behavior.CardNo, SentinelAdeptCardNo, StringComparison.Ordinal)
+            && CardEquipmentKeywordRules.IsTemperedOptionalAttachRepresentativeCardNo(behavior.CardNo);
+    }
+
+    private static bool IsLegalTemperedOptionalAttachChoice(
+        MatchState state,
+        string playerId,
+        string equipmentObjectId)
+    {
+        return IsLegalTemperedOptionalAttachChoice(
+            state.PlayerZones,
+            state.CardObjects,
+            playerId,
+            equipmentObjectId);
+    }
+
+    private static bool IsLegalTemperedOptionalAttachChoice(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string equipmentObjectId)
+    {
+        var location = FindFieldObjectLocation(playerZones, equipmentObjectId);
+        return location is not null
+            && string.Equals(location.Value.PlayerId, playerId, StringComparison.Ordinal)
+            && cardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
+            && string.Equals(equipmentState.CardNo, SpinningAxeCardNo, StringComparison.Ordinal)
+            && equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            && !equipmentState.IsFaceDown
+            && SourceObjectControlledByPlayerOrLegacyOwned(equipmentState, playerId);
+    }
+
     private static string PlayCardTargetScopeForBehavior(CardBehaviorDefinition behavior)
     {
         return IsAgileDirectPlayAttachRepresentative(behavior)
@@ -29830,6 +29902,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                     state.PlayerExperience,
                     untilEndOfTurnEffects,
                     events);
+            }
+
+            if (TryAttachTemperedOptionalEquipmentToSource(
+                    playerZones,
+                    cardObjects,
+                    behavior,
+                    stackItem,
+                    out var temperedAttachmentEvent))
+            {
+                events.Add(temperedAttachmentEvent);
             }
 
             if (TryResolveBattlefieldPlayUnitPayOneBoonTrigger(
@@ -35147,6 +35229,69 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["reason"] = "AGILE_DIRECT_PLAY_ATTACH"
             });
         return true;
+    }
+
+    private static bool TryAttachTemperedOptionalEquipmentToSource(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        out GameEvent attachmentEvent)
+    {
+        attachmentEvent = default!;
+        var equipmentObjectId = TemperedOptionalAttachEquipmentObjectId(stackItem.OptionalCosts);
+        if (!IsTemperedOptionalAttachRepresentative(behavior)
+            || string.IsNullOrWhiteSpace(equipmentObjectId)
+            || !playerZones.TryGetValue(stackItem.ControllerId, out var zones)
+            || !zones.Base.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)
+            || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var unitState)
+            || unitState.IsFaceDown
+            || !string.Equals(unitState.CardNo, behavior.CardNo, StringComparison.Ordinal)
+            || !unitState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(unitState, stackItem.ControllerId)
+            || !IsLegalTemperedOptionalAttachChoice(
+                playerZones,
+                cardObjects,
+                stackItem.ControllerId,
+                equipmentObjectId)
+            || !cardObjects.TryGetValue(equipmentObjectId, out var equipmentState))
+        {
+            return false;
+        }
+
+        cardObjects[equipmentObjectId] = equipmentState with
+        {
+            AttachedToObjectId = stackItem.SourceObjectId
+        };
+        attachmentEvent = new GameEvent(
+            "EQUIPMENT_ATTACHED",
+            $"{behavior.DisplayName}以百炼装配武装",
+            new Dictionary<string, object?>
+            {
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["unitObjectId"] = stackItem.SourceObjectId,
+                ["equipmentObjectId"] = equipmentObjectId,
+                ["equipmentCardNo"] = equipmentState.CardNo,
+                ["unitCardNo"] = unitState.CardNo,
+                ["controllerId"] = stackItem.ControllerId,
+                ["ownerId"] = string.IsNullOrWhiteSpace(equipmentState.OwnerId) ? stackItem.ControllerId : equipmentState.OwnerId,
+                ["attachedToObjectId"] = stackItem.SourceObjectId,
+                ["reason"] = "TEMPERED_OPTIONAL_ATTACH",
+                ["optionalCosts"] = stackItem.OptionalCosts.ToArray()
+            });
+        return true;
+    }
+
+    private static string TemperedOptionalAttachEquipmentObjectId(IReadOnlyList<string> optionalCosts)
+    {
+        var equipmentObjectIds = optionalCosts
+            .Select(optionalCost => TryParseTemperedOptionalAttachCost(optionalCost, out var equipmentObjectId)
+                ? equipmentObjectId
+                : string.Empty)
+            .Where(equipmentObjectId => !string.IsNullOrWhiteSpace(equipmentObjectId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        return equipmentObjectIds.Length == 1 ? equipmentObjectIds[0] : string.Empty;
     }
 
     private static IReadOnlyList<string> ResolveConditionalSourceUnitTags(
