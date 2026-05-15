@@ -1,12 +1,13 @@
 # Stage 4D P0/P1 Closure Plan
 
-日期：2026-05-15
+日期：2026-05-16
 结论：**NOT READY**
 
 本文是 Stage 4C representative evidence alignment 之后的 A 主控收口计划。4C-98 已把可用既有自动化证据对齐的 direct-card / battlefield residual `IMPLEMENTED_UNTESTED` 基本收完；剩余工作不应继续用 evidence-only overlay 推进，而应回到 P0/P1 规则模型、状态机和最终验收。
 
 ## 1. 输入事实
 
+- 2026-05-16 4D-04N LayerEngine direct power ledger handoff / baseline 已建立：`docs/CURRENT_STAGE4D_04N_LAYERENGINE_DIRECT_POWER_LEDGER_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_04N_LAYERENGINE_DIRECT_POWER_LEDGER_BASELINE_EVIDENCE.md` 记录 A 主控已把下一建议 B 切片收窄到 direct until-end power mutation representatives 的 source/effect/direct-path ledger metadata foundation。Baseline focused direct-power guard 6/6、adjacent power/layer/trigger regression 185/185、backend full 4447/4447、`git diff --check` 通过。该 handoff 本身不实现 runtime，不派发 B，不打开写锁，不关闭 P1-001、P1-002、full LayerEngine、full-card matrix 或 READY。
 - 2026-05-15 4D-04M-B LayerEngine minimum-power ledger 已验收：`docs/CURRENT_STAGE4D_04M_LAYERENGINE_MINIMUM_POWER_LEDGER_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04M_LAYERENGINE_MINIMUM_POWER_LEDGER_EVIDENCE.md` 记录 B-Implementation / Meitner `019e2c13-5b3b-7750-9971-08cf68b074f2` 完成 minimum-power requested/applied/minimum/resulting metadata foundation，A 侧验证 focused minimum-power foundation guard 9/9、adjacent power/layer/minimum regression 16/16、backend full 4447/4447、`git diff --check` 通过。本批只改善 current minimum-power power modifier representative 的 audit metadata，不关闭完整 P1-001、timestamp/dependency/source ordering、keyword gain/loss、multiple equipment/static aura、complete minimum-power ordering、P1-002、full-card matrix 或 READY。
 - 2026-05-15 4D-04M LayerEngine minimum-power ledger handoff / baseline 已建立：`docs/CURRENT_STAGE4D_04M_LAYERENGINE_MINIMUM_POWER_LEDGER_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_04M_LAYERENGINE_MINIMUM_POWER_LEDGER_BASELINE_EVIDENCE.md` 记录 A 主控已把下一建议 B 切片收窄到 `MinimumPowerAfterModifier > 0` path 的 requested/applied/minimum/resulting metadata exactness。Baseline focused minimum-power foundation guard 9/9、adjacent power/layer/minimum regression 16/16、`git diff --check` 通过。该 handoff 本身不关闭 P1-001、P1-002、full LayerEngine、full-card matrix 或 READY。
 - 2026-05-15 4D-04L-B LayerEngine foundation 已验收：`docs/CURRENT_STAGE4D_04L_LAYERENGINE_FOUNDATION_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04L_LAYERENGINE_FOUNDATION_EVIDENCE.md` 记录 B-Implementation / Meitner `019e2c13-5b3b-7750-9971-08cf68b074f2` 完成 source-aware / effect-aware power modifier ledger foundation，A 侧验证 focused LayerEngine foundation guard 11/11、adjacent power/layer/equipment regression 141/141、backend full 4447/4447、`git diff --check` 通过。本批只改善 current until-end power modifier representative 的 audit metadata，不关闭完整 P1-001、timestamp/dependency/source ordering、keyword gain/loss、multiple equipment/static aura、minimum-power layering、P1-002、full-card matrix 或 READY。

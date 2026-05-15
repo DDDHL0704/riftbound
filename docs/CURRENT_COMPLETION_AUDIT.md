@@ -1,11 +1,13 @@
 # 符文战场当前 Completion Audit
 
-审计日期：2026-05-15
+审计日期：2026-05-16
 审计结论：**NOT READY**
 
 本文件是 active goal 的当前收口审计清单，不代表最终完成验收。只有当本文所有 P0/P1 阻断清零、后端 full test、前端 build、Browser smoke / E2E 与隐藏信息检查全部通过后，才允许把 goal 标记为 complete。
 
 ## 0. 2026-05-13 最新状态补充
+
+2026-05-16 4D-04N LayerEngine direct power ledger handoff / baseline 补充：A 主控已建立下一枚 P1-001 handoff，入口为 `docs/CURRENT_STAGE4D_04N_LAYERENGINE_DIRECT_POWER_LEDGER_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_04N_LAYERENGINE_DIRECT_POWER_LEDGER_BASELINE_EVIDENCE.md`。目标只是在 foundation 层为 direct until-end power mutation representatives 追加或暴露 source/effect/direct-path ledger metadata，保持现有 arithmetic、turn-end cleanup 与 snapshot compatibility；本批不实现 runtime，不派发 B，不打开写锁。A 侧 baseline focused direct-power guard 6/6、adjacent power/layer/trigger regression 185/185、backend full 4447/4447、`git diff --check` 通过。该 handoff 本身不关闭 P1-001、timestamp/dependency/source ordering、keyword gain/loss、multiple equipment/static aura、complete minimum-power ordering、P1-002、full-card matrix、frontend final validation 或 READY。项目仍 **NOT READY**。
 
 2026-05-15 4D-04M-B LayerEngine minimum-power ledger 补充：B-Implementation / Meitner `019e2c13-5b3b-7750-9971-08cf68b074f2` 已完成 minimum-power ledger metadata foundation，A 侧验收入口为 `docs/CURRENT_STAGE4D_04M_LAYERENGINE_MINIMUM_POWER_LEDGER_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04M_LAYERENGINE_MINIMUM_POWER_LEDGER_EVIDENCE.md`。本批只让 `MinimumPowerAfterModifier > 0` current power modifier representatives 在 ledger-backed state / snapshot 中明确 requested delta、applied delta、minimum floor 与 resulting power metadata；`PowerDelta` 继续是 applied delta，Extortion applied-zero floor 不生成 misleading zero ledger。A 侧验证 focused minimum-power foundation guard 9/9、adjacent power/layer/minimum regression 16/16、backend full 4447/4447、`git diff --check` 通过。本批不关闭 timestamp/dependency/source ordering、keyword gain/loss、multiple equipment/static aura、complete minimum-power ordering、P1-001、P1-002、full-card matrix、frontend final validation 或 READY。项目仍 **NOT READY**。
 

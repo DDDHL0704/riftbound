@@ -1,11 +1,13 @@
 # 符文战场 Web 前端重建与服务端补齐计划
 
-更新日期：2026-05-15
+更新日期：2026-05-16
 当前结论：**NOT READY**
 当前完成度：约 **99%+**，formal 18-step E2E 已通过；预计仍需 P0/P1 规则清零、全官方卡牌证据与最终 completion audit。
 用途：作为本轮“产品级 Web 前端重建 + 服务端规则补齐”的短入口，后续每个批次都应回到本文更新范围、验收和剩余风险。
 
 最新批次补充：
+
+- 2026-05-16 Stage 4D-04N handoff / baseline 已建立：A 主控把 P1-001 LayerEngine direct power residual 拆成下一枚 B handoff。交接入口为 `docs/CURRENT_STAGE4D_04N_LAYERENGINE_DIRECT_POWER_LEDGER_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_04N_LAYERENGINE_DIRECT_POWER_LEDGER_BASELINE_EVIDENCE.md`；focused direct-power guard 6/6、adjacent power/layer/trigger regression 185/185、backend full 4447/4447、`git diff --check` 通过。本批不修改前端运行时代码；前端继续只消费服务端 authoritative snapshot 中的 `power`、`basePower`、`effectivePower`、`timing.continuousEffects` 及其中的 source/effect/requested/applied/minimum/resulting metadata，不本地实现 LayerEngine、direct power ledger、minimum floor ordering 或重算战力。项目仍 **NOT READY**。
 
 - 2026-05-15 Stage 4D-04M-B 已验收：LayerEngine minimum-power ledger exactness 已由 B-Implementation / Meitner `019e2c13-5b3b-7750-9971-08cf68b074f2` 完成，审计入口为 `docs/CURRENT_STAGE4D_04M_LAYERENGINE_MINIMUM_POWER_LEDGER_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_04M_LAYERENGINE_MINIMUM_POWER_LEDGER_EVIDENCE.md`；focused minimum-power foundation guard 9/9、adjacent power/layer/minimum regression 16/16、backend full 4447/4447、`git diff --check` 通过。本批不修改前端运行时代码；前端继续只消费服务端 authoritative snapshot 中的 `power`、`basePower`、`effectivePower`、`timing.continuousEffects` 及其中的 requested/applied/minimum/resulting metadata，不本地实现 LayerEngine、minimum floor ordering 或重算战力。项目仍 **NOT READY**。
 

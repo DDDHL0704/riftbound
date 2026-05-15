@@ -1,9 +1,11 @@
 # A 主控 Checkpoint
 
-更新日期：2026-05-15
+更新日期：2026-05-16
 当前结论：**NOT READY**
 
 本文是 A 主控架构 agent 的恢复入口。任何窗口中断或 Codex 关闭后，先读本文，再读 `README.md`、`docs/START_HERE.md`、`docs/符文战场_前端Web开发需求文档_给Codex.md`、`docs/符文战场_服务端核心规则自查文档.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_COMPLETION_AUDIT.md`，然后用 `git status --short --branch` 和 `git log --oneline -8` 对齐仓库事实。
+
+2026-05-16 最新补充：4D-04N LayerEngine direct power ledger handoff / baseline 已建立，交接规格见 `docs/CURRENT_STAGE4D_04N_LAYERENGINE_DIRECT_POWER_LEDGER_HANDOFF.md`，基线见 `docs/CURRENT_STAGE4D_04N_LAYERENGINE_DIRECT_POWER_LEDGER_BASELINE_EVIDENCE.md`。下一建议 B 切片只做 P1-001 foundation：为 direct until-end power mutation representatives 补足 ledger-backed source/effect/direct-path metadata，保持现有 `Power` / `UntilEndOfTurnPowerModifier` arithmetic 与 cleanup 行为，不一次性重写完整 LayerEngine。A 侧 baseline focused direct-power guard 6/6、adjacent power/layer/trigger regression 185/185、backend full 4447/4447、`git diff --check` 通过；本批不改 runtime / tests / frontend / matrix，不派发 B，不打开写锁，不触碰 `riftbound-dotnet.sln`。项目仍 **NOT READY**。
 
 2026-05-15 最新补充：4D-04M-B LayerEngine minimum-power ledger exactness 已由 B-Implementation / Meitner `019e2c13-5b3b-7750-9971-08cf68b074f2` 完成并由 A 验收，审计见 `docs/CURRENT_STAGE4D_04M_LAYERENGINE_MINIMUM_POWER_LEDGER_AUDIT.md`，证据见 `docs/CURRENT_STAGE4D_04M_LAYERENGINE_MINIMUM_POWER_LEDGER_EVIDENCE.md`。`MatchSession.cs` 现在让 ledger-backed `ContinuousEffectState` / snapshot view 暴露 requested/applied/minimum/resulting metadata，`CoreRuleEngine.ApplyPowerModifier` 在保持现有 arithmetic 的同时为非零 applied delta 追加 minimum-power ledger metadata，并避免 Extortion applied-zero floor 产生 misleading zero ledger。A 侧 focused minimum-power foundation guard 9/9、adjacent power/layer/minimum regression 16/16、backend full 4447/4447、`git diff --check` 均通过；frontend、card matrix、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰。项目仍 **NOT READY**。
 
