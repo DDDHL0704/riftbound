@@ -872,7 +872,8 @@ public sealed class PaymentEngineCoverageAuditTests
             "Missing official row only; project remains NOT READY and P0-005 remains open.",
             [
                 "docs/CURRENT_STAGE4D_03BA_PAYMENT_ENGINE_OFFICIAL_MATRIX_RESIDUAL_MANIFEST_AUDIT.md",
-                "docs/CURRENT_STAGE4D_03AV_PAYMENT_ENGINE_RESIDUAL_BLOCKER_MANIFEST_AUDIT.md"
+                "docs/CURRENT_STAGE4D_03AV_PAYMENT_ENGINE_RESIDUAL_BLOCKER_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BH_PAYMENT_ENGINE_MISSING_ROW_DOWNSTREAM_COVERAGE_AUDIT.md"
             ]),
         new(
             "ROW_CROSS_WINDOW_GENERATION_CONSUMPTION_MISSING",
@@ -889,7 +890,8 @@ public sealed class PaymentEngineCoverageAuditTests
             "Missing official row only; project remains NOT READY and P0-005 remains open.",
             [
                 "docs/CURRENT_STAGE4D_03BA_PAYMENT_ENGINE_OFFICIAL_MATRIX_RESIDUAL_MANIFEST_AUDIT.md",
-                "docs/CURRENT_STAGE4D_03AZ_PAYMENT_ENGINE_RESOURCE_SKILL_RESIDUAL_MANIFEST_AUDIT.md"
+                "docs/CURRENT_STAGE4D_03AZ_PAYMENT_ENGINE_RESOURCE_SKILL_RESIDUAL_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BH_PAYMENT_ENGINE_MISSING_ROW_DOWNSTREAM_COVERAGE_AUDIT.md"
             ]),
         new(
             "ROW_CARD_MATRIX_ALIGNMENT_MISSING",
@@ -906,7 +908,8 @@ public sealed class PaymentEngineCoverageAuditTests
             "Missing official row only; project remains NOT READY and P0-005 remains open.",
             [
                 "docs/CURRENT_A_MASTER_CHECKPOINT.md",
-                "docs/CURRENT_COMPLETION_AUDIT.md"
+                "docs/CURRENT_COMPLETION_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BH_PAYMENT_ENGINE_MISSING_ROW_DOWNSTREAM_COVERAGE_AUDIT.md"
             ]),
         new(
             "ROW_MOVE_UNIT_POLICY_DEFERRED",
@@ -1966,6 +1969,146 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
         Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixMissingRowsAllHaveDownstreamRepresentativeManifests()
+    {
+        var missingRowIds = OfficialPaymentEngineMatrixSeedRowManifest
+            .Where(entry => string.Equals(entry.RowStatus, MissingOfficialRow, StringComparison.Ordinal))
+            .Select(entry => entry.RowId)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var downstreamRowIds = RollbackFailureRowManifest.Select(entry => entry.OfficialMatrixRowId)
+            .Concat(CrossWindowGenerationConsumptionRowManifest.Select(entry => entry.OfficialMatrixRowId))
+            .Concat(CardMatrixAlignmentRowManifest.Select(entry => entry.OfficialMatrixRowId))
+            .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(
+            new[]
+            {
+                "ROW_CARD_MATRIX_ALIGNMENT_MISSING",
+                "ROW_CROSS_WINDOW_GENERATION_CONSUMPTION_MISSING",
+                "ROW_ROLLBACK_FAILURES_OFFICIAL_MATRIX_MISSING"
+            },
+            missingRowIds);
+        Assert.Equal(missingRowIds, downstreamRowIds);
+        Assert.DoesNotContain(
+            OfficialPaymentEngineMatrixSeedRowManifest.Where(entry => string.Equals(entry.RowStatus, PolicyDeferredRow, StringComparison.Ordinal)),
+            entry => downstreamRowIds.Contains(entry.RowId, StringComparer.Ordinal));
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixMissingRowCoverageKeepsDownstreamFamiliesAndDocsVisible()
+    {
+        var aggregateAuditDoc = "docs/CURRENT_STAGE4D_03BH_PAYMENT_ENGINE_MISSING_ROW_DOWNSTREAM_COVERAGE_AUDIT.md";
+        var missingRows = OfficialPaymentEngineMatrixSeedRowManifest
+            .Where(entry => string.Equals(entry.RowStatus, MissingOfficialRow, StringComparison.Ordinal))
+            .ToDictionary(entry => entry.RowId, StringComparer.Ordinal);
+        var downstreamCoverage = new[]
+        {
+            new
+            {
+                RowId = "ROW_ROLLBACK_FAILURES_OFFICIAL_MATRIX_MISSING",
+                Axis = "ROLLBACK_FAILURE_BRANCHES",
+                FamilyCount = RollbackFailureRowManifest.Length,
+                ExpectedAuditDoc = "docs/CURRENT_STAGE4D_03BE_PAYMENT_ENGINE_ROLLBACK_FAILURE_ROW_MANIFEST_AUDIT.md",
+                Families = RollbackFailureRowManifest.Select(entry => entry.FailureFamily),
+                Docs = RollbackFailureRowManifest.SelectMany(entry => entry.DocAnchors)
+            },
+            new
+            {
+                RowId = "ROW_CROSS_WINDOW_GENERATION_CONSUMPTION_MISSING",
+                Axis = "CROSS_WINDOW_GENERATION_CONSUMPTION",
+                FamilyCount = CrossWindowGenerationConsumptionRowManifest.Length,
+                ExpectedAuditDoc = "docs/CURRENT_STAGE4D_03BF_PAYMENT_ENGINE_CROSS_WINDOW_GENERATION_CONSUMPTION_ROW_MANIFEST_AUDIT.md",
+                Families = CrossWindowGenerationConsumptionRowManifest.Select(entry => entry.Family),
+                Docs = CrossWindowGenerationConsumptionRowManifest.SelectMany(entry => entry.DocAnchors)
+            },
+            new
+            {
+                RowId = "ROW_CARD_MATRIX_ALIGNMENT_MISSING",
+                Axis = "CARD_MATRIX_ALIGNMENT",
+                FamilyCount = CardMatrixAlignmentRowManifest.Length,
+                ExpectedAuditDoc = "docs/CURRENT_STAGE4D_03BG_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_ROW_MANIFEST_AUDIT.md",
+                Families = CardMatrixAlignmentRowManifest.Select(entry => entry.Family),
+                Docs = CardMatrixAlignmentRowManifest.SelectMany(entry => entry.DocAnchors)
+            }
+        };
+
+        Assert.Equal(3, missingRows.Count);
+        Assert.All(downstreamCoverage, coverage =>
+        {
+            var row = missingRows[coverage.RowId];
+            Assert.Equal(coverage.Axis, row.Axis);
+            Assert.True(coverage.FamilyCount > 0, $"{coverage.RowId} must keep downstream representative families.");
+            Assert.Equal(coverage.FamilyCount, coverage.Families.Distinct(StringComparer.Ordinal).Count());
+            Assert.Contains(aggregateAuditDoc, row.DocAnchors);
+            Assert.Contains(coverage.ExpectedAuditDoc, coverage.Docs);
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixMissingRowCoverageDoesNotClaimP0005Closure()
+    {
+        var combinedText = string.Join(
+            " ",
+            OfficialPaymentEngineMatrixSeedRowManifest
+                .Where(entry => string.Equals(entry.RowStatus, MissingOfficialRow, StringComparison.Ordinal)
+                    || string.Equals(entry.RowStatus, PolicyDeferredRow, StringComparison.Ordinal))
+                .SelectMany(entry =>
+                    new[]
+                    {
+                        entry.RowId,
+                        entry.Axis,
+                        entry.RowStatus,
+                        entry.ActionWindow,
+                        entry.RepresentativeScope,
+                        entry.PromptAnchor,
+                        entry.CommandAnchor,
+                        entry.AuditAnchor,
+                        entry.RollbackExpectation,
+                        entry.RemainingOfficialBreadth,
+                        entry.ClosureStatus
+                    }.Concat(entry.DocAnchors))
+                .Concat(RollbackFailureRowManifest.SelectMany(entry =>
+                    new[]
+                    {
+                        entry.OfficialMatrixRowId,
+                        entry.Classification,
+                        entry.RemainingOfficialBreadth,
+                        entry.ClosureStatus
+                    }.Concat(entry.DocAnchors)))
+                .Concat(CrossWindowGenerationConsumptionRowManifest.SelectMany(entry =>
+                    new[]
+                    {
+                        entry.OfficialMatrixRowId,
+                        entry.Classification,
+                        entry.RemainingOfficialBreadth,
+                        entry.ClosureStatus
+                    }.Concat(entry.DocAnchors)))
+                .Concat(CardMatrixAlignmentRowManifest.SelectMany(entry =>
+                    new[]
+                    {
+                        entry.OfficialMatrixRowId,
+                        entry.Classification,
+                        entry.RemainingOfficialBreadth,
+                        entry.ClosureStatus
+                    }.Concat(entry.DocAnchors))));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("ROW_MOVE_UNIT_POLICY_DEFERRED", combinedText, StringComparison.Ordinal);
         Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
         Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain(
