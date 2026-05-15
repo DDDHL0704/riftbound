@@ -5,6 +5,8 @@
 
 本文件是 A/E 侧对 4D-03AO Ezreal blue swift move-to-base 切片的 card matrix readiness 审计。它只读取官方快照、规则证据索引和现有矩阵骨架，不修改 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`，不把任何状态升级为 full-official。
 
+2026-05-15 post-runtime addendum：4D-03AO runtime representative 已由 `docs/CURRENT_STAGE4D_03AO_PAYMENT_ENGINE_EZREAL_BLUE_SWIFT_MOVE_TO_BASE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AO_PAYMENT_ENGINE_EZREAL_BLUE_SWIFT_MOVE_TO_BASE_EVIDENCE.md` 验收，focused 28/28、handoff focused 207/207、adjacent 400/400、backend full 4321/4321、`git diff --check` 通过。该证据可作为未来 matrix write window 的 blue-pay self move-to-base representative 输入，但由于 attack / defense trigger、cannot-combat-damage static、full swift timing 与 FAQ breadth 仍 residual，本文件仍不更新 matrix JSON，不声明 full-official，项目仍 **NOT READY**。
+
 ## 1. 官方快照事实
 
 `data/official/card-catalog.zh-CN.json` 固定快照中存在：

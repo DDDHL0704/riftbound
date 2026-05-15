@@ -5333,7 +5333,9 @@ internal static class ActionPromptBuilder
                 || (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId, StringComparison.Ordinal)
                     && state.UntilEndOfTurnEffects.Contains(
                         P4ActivatedAbilityCatalog.AzirSwiftSwapUsedThisTurnEffectId(playerId, sourceObjectId),
-                        StringComparer.Ordinal)))
+                        StringComparer.Ordinal))
+                || (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId, StringComparison.Ordinal)
+                    && !IsPromptEzrealBlueSwiftMoveSource(state, playerId, sourceObjectId, cardObject)))
             {
                 continue;
             }
@@ -6579,6 +6581,28 @@ internal static class ActionPromptBuilder
             .Sum(objectId => Math.Max(0, state.CardObjects[objectId].Power));
     }
 
+    private static bool IsPromptEzrealBlueSwiftMoveSource(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        CardObjectState sourceState)
+    {
+        return P4ActivatedAbilityCatalog.TryGetByAbilityId(
+                P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId,
+                out var ability)
+            && P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, sourceState.CardNo)
+            && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !sourceState.IsFaceDown
+            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && string.Equals(sourceState.ControllerId, playerId, StringComparison.Ordinal)
+            && state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal)
+            && state.ObjectLocations.TryGetValue(sourceObjectId, out var location)
+            && string.Equals(location.PlayerId, playerId, StringComparison.Ordinal)
+            && string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(location.BattlefieldObjectId);
+    }
+
     private static bool SamePromptBattlefield(MatchState state, string firstObjectId, string secondObjectId)
     {
         return state.ObjectLocations.TryGetValue(firstObjectId, out var firstLocation)
@@ -7123,6 +7147,7 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId => "烈娜塔·戈拉斯克",
             P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId => "阿兹尔",
             P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId => "守门者马杜里",
+            P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId => "伊泽瑞尔",
             P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId => "猩红玫瑰",
             P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId => "绵绵魄罗",
             P4ActivatedAbilityCatalog.ShadowStunAbilityId => "黑影",
@@ -7149,6 +7174,7 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId => "烈娜塔·戈拉斯克：支付 4 法力和 4 蓝色符能并横置，获得 1 分",
             P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId => "阿兹尔：迅捷，支付 1 绿色符能，与受控单位交换位置",
             P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId => "守门者马杜里：支付 1 紫色符能，移动到较弱敌方战场",
+            P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId => "伊泽瑞尔：迅捷，支付 1 蓝色符能，移动到你的基地",
             P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId => "猩红玫瑰：消耗 3 经验并横置，让一名单位变为活跃状态",
             P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId => "绵绵魄罗：横置，打出两名拥有法盾的战鹰",
             P4ActivatedAbilityCatalog.ShadowStunAbilityId => "黑影：迅捷，支付 1 法力和 1 符能并横置，眩晕此处进攻的敌方单位",
@@ -10940,6 +10966,20 @@ internal static class ActionPromptBuilder
             view["stackPolicy"] = "ordinary-stack-item-before-move";
             view["paymentPolicy"] = "payment-plan-typed-purple";
             view["staticCannotBecomeActivePolicy"] = "deferred";
+        }
+
+        if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId, StringComparison.Ordinal))
+        {
+            view["swift"] = true;
+            view["targetScope"] = "self";
+            view["destinationZone"] = MoveUnitBaseZone;
+            view["movePolicy"] = "move-source-to-controller-base";
+            view["timingPolicy"] = "open-main-representative";
+            view["swiftTimingPolicy"] = "full-swift-reaction-timing-deferred";
+            view["stackPolicy"] = "ordinary-stack-item-before-move-to-base";
+            view["paymentPolicy"] = "payment-plan-typed-blue";
+            view["combatDamageStaticPolicy"] = "deferred";
+            view["attackDefenseDamageTriggerPolicy"] = "deferred";
         }
 
         if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId, StringComparison.Ordinal))

@@ -94,6 +94,13 @@ public static class P4ActivatedAbilityCatalog
     public const string GatekeeperMaduliMoveAbilityEffectKind = "GATEKEEPER_MADULI_ACTIVATED_MOVE_TO_WEAKER_ENEMY_BATTLEFIELD";
     public const int GatekeeperMaduliMovePurplePowerCost = 1;
 
+    public const string EzrealBlueSwiftCardNo = "SFD·082/221";
+    public const string EzrealBlueSwiftAltCardNo = "SFD·082a/221";
+    public const string EzrealBlueSwiftPromoCardNo = "SFD·082b/221·P";
+    public const string EzrealBlueSwiftMoveAbilityId = "EZREAL_PAY_BLUE_SWIFT_MOVE_TO_BASE";
+    public const string EzrealBlueSwiftMoveAbilityEffectKind = "EZREAL_ACTIVATED_SWIFT_MOVE_SELF_TO_BASE";
+    public const int EzrealBlueSwiftMoveBluePowerCost = 1;
+
     public const string CrimsonRoseCardNo = "UNL-109/219";
     public const string CrimsonRoseReadyAbilityId = "CRIMSON_ROSE_EXPERIENCE3_EXHAUST_READY_UNIT";
     public const string CrimsonRoseReadyAbilityEffectKind = "CRIMSON_ROSE_ACTIVATED_READY_UNIT";
@@ -454,6 +461,23 @@ public static class P4ActivatedAbilityCatalog
                 [RuneTrait.Purple] = GatekeeperMaduliMovePurplePowerCost
             }),
         new(
+            EzrealBlueSwiftMoveAbilityId,
+            EzrealBlueSwiftCardNo,
+            EzrealBlueSwiftMoveAbilityEffectKind,
+            "Ezreal blue swift move-to-base skill",
+            0,
+            0,
+            0,
+            RequiresBattlefieldSource: true,
+            ExhaustsSourceAsCost: false,
+            0,
+            AppliesSpellshieldTargetTax: false,
+            "Stage 4D-03AO opens only Ezreal's pay blue swift self move-to-base representative; attack/defense damage trigger, cannot-combat-damage static, and full swift timing remain deferred.",
+            PowerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [RuneTrait.Blue] = EzrealBlueSwiftMoveBluePowerCost
+            }),
+        new(
             CrimsonRoseReadyAbilityId,
             CrimsonRoseCardNo,
             CrimsonRoseReadyAbilityEffectKind,
@@ -639,6 +663,8 @@ public static class P4ActivatedAbilityCatalog
                 ? [RenataGlascCardNo, RenataGlascAltCardNo]
             : string.Equals(definition.AbilityId, AzirSwiftSwapAbilityId, StringComparison.Ordinal)
                 ? [AzirCardNo, AzirAltCardNo]
+            : string.Equals(definition.AbilityId, EzrealBlueSwiftMoveAbilityId, StringComparison.Ordinal)
+                ? [EzrealBlueSwiftCardNo, EzrealBlueSwiftAltCardNo, EzrealBlueSwiftPromoCardNo]
                 : [definition.SourceCardNo];
     }
 

@@ -1,7 +1,7 @@
 # Stage 4D Next Dispatch and Writelocks
 
 日期：2026-05-15
-结论：**4D-03AO-B DISPATCHED / PROJECT NOT READY**
+结论：**4D-03AO-B ACCEPTED / PROJECT NOT READY**
 
 本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance 归档，不实现 runtime，不修改前端，不修改测试代码，不修改 card matrix。当前 active goal 仍未完成，不得调用 `update_goal complete`。
 
@@ -14,14 +14,14 @@
 - `docs/CURRENT_STAGE4D_03AN_PAYMENT_ENGINE_GATEKEEPER_MADULI_PURPLE_MOVE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AN_PAYMENT_ENGINE_GATEKEEPER_MADULI_PURPLE_MOVE_EVIDENCE.md` 已记录 4D-03AN-B implemented / A-validated：focused 25/25、handoff focused 188/188、adjacent 381/381、backend full 4293/4293、`git diff --check` 通过。
 - `docs/CURRENT_STAGE4D_03AM_PAYMENT_ENGINE_AZIR_SWIFT_SWAP_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AM_PAYMENT_ENGINE_AZIR_SWIFT_SWAP_EVIDENCE.md` 已记录 4D-03AM-B implemented / A-validated：focused 23/23、handoff focused 191/191、adjacent 384/384、backend full 4268/4268、`git diff --check` 通过。
 - `docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md` 已确认 active goal 的 READY 门槛仍未满足：P0/P1 未清零，1009 / 811 card matrix 仍无 full-official coverage，frontend build / Chrome smoke / formal 18-step 仍需在最终代码状态 fresh run。
-- A 已向 B-Implementation / Raman `019e2257-8d40-7630-9201-28df44dd689a` 发出 4D-03AO-B runtime implementation dispatch；B 当前拥有下表 runtime/test 写锁。A 不亲自修改该 runtime slice。
+- `docs/CURRENT_STAGE4D_03AO_PAYMENT_ENGINE_EZREAL_BLUE_SWIFT_MOVE_TO_BASE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AO_PAYMENT_ENGINE_EZREAL_BLUE_SWIFT_MOVE_TO_BASE_EVIDENCE.md` 已记录 4D-03AO-B implemented / A-validated：focused 28/28、handoff focused 207/207、adjacent 400/400、backend full 4321/4321、`git diff --check` 通过。
 
 ## 2. Dispatch Queue
 
 | Queue | Owner | Status | Purpose | Write scope | Must not touch |
 |---|---|---|---|---|---|
-| 4D-NEXT-A | A 主控 | Dispatch record active | 记录 4D-03AO 任务、写锁、验收与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs | `src/**`、`tests/**`、frontend runtime、card matrix |
-| 4D-03AO-B | B-Implementation / Raman `019e2257-8d40-7630-9201-28df44dd689a` | Dispatched / in progress | 实现 Ezreal blue swift no-target self move-to-base representative | `src/Riftbound.Engine/P4ActivatedAbilityCatalog.cs`、`src/Riftbound.Engine/CoreRuleEngine.cs`、`src/Riftbound.Engine/MatchSession.cs`、minimal `ActionPrompt` contract only if needed、focused Ezreal tests | frontend runtime、card matrix JSON、LayerEngine broad rewrite、attack / defense trigger runtime、unrelated battle lifecycle / cleanup queue files、unrelated activated abilities、`riftbound-dotnet.sln` |
+| 4D-NEXT-A | A 主控 | Accepted after audit docs are committed | 记录 4D-03AO 任务、写锁、验收与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs | `src/**`、`tests/**`、frontend runtime、card matrix |
+| 4D-03AO-B | B-Implementation / Raman `019e2257-8d40-7630-9201-28df44dd689a` | Implemented and A-validated | 实现 Ezreal blue swift no-target self move-to-base representative | completed runtime / focused tests | frontend runtime、card matrix JSON、LayerEngine broad rewrite、attack / defense trigger runtime、unrelated battle lifecycle / cleanup queue files、unrelated activated abilities、`riftbound-dotnet.sln` |
 | 4D-03AO-E | E-Review / Poincare | Read-only readiness audit recorded in `docs/CURRENT_STAGE4D_03AO_CARD_MATRIX_READINESS_AUDIT.md` | 检查 Ezreal `FU-2dca1ad450` matrix readiness and full-official blockers | card coverage docs in read-only mode | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` unless A opens a future matrix write window |
 | 4D-03AM-B | B-Implementation / Raman `019e2257-8d40-7630-9201-28df44dd689a` | Implemented and A-validated | 实现 Azir green swift position-swap representative | completed runtime / focused tests | frontend runtime、card matrix JSON、unrelated files |
 | 4D-03AN-B | B-Implementation / Raman `019e2257-8d40-7630-9201-28df44dd689a` | Implemented and A-validated | 实现 Gatekeeper Maduli purple enemy-battlefield move representative | completed runtime / focused tests | frontend runtime、card matrix JSON、unrelated files |
@@ -31,8 +31,8 @@
 ## 3. Exclusive Writelocks
 
 - At this stop point, no runtime, frontend or matrix write lock remains open.
-- 4D-03AO-B is dispatched to B-Implementation / Raman. Only B may modify `P4ActivatedAbilityCatalog.cs`, `CoreRuleEngine.cs`, `MatchSession.cs`, minimal contracts if necessary and focused Ezreal tests inside the explicit slice scope.
-- D may not start final audit docs for 4D-03AO until A has inspected B diff and at least the focused / adjacent verification commands have run.
+- 4D-03AO-B runtime / focused-test write lock is closed after A validation and commit.
+- D/A audit docs for 4D-03AO are recorded; no further 4D-03AO runtime edits should occur without a fresh dispatch.
 - C remains read-only while B might alter server prompt shape. Any frontend write window must wait until server `ActionPrompt` payload and event shape are stable.
 - E remains read-only until A accepts runtime evidence. The matrix must not be upgraded to `fullOfficial=true` for Ezreal while damage trigger, cannot-combat-damage static, swift timing or FAQ branches remain residual.
 - No parallel task may edit card matrix JSON, frontend stores, `ActionPrompt` contracts, battle state machine, stack, cleanup, hidden-info redaction, or E2E fixtures without an explicit owner and a fresh write-lock note.
@@ -82,4 +82,4 @@ E may identify matrix rows and official text blockers for Ezreal, but must not u
 
 ## 6. Current Batch Stop Point
 
-This record stops after dispatching 4D-03AO-B to B-Implementation / Raman. The project remains **NOT READY**. A will not modify runtime files while B owns this slice; no frontend or matrix write window is open, and `riftbound-dotnet.sln` remains untouched.
+This record stops after accepting 4D-03AO-B and committing runtime / audit evidence. The project remains **NOT READY**. No frontend or matrix write window is open, no runtime write lock remains open, and `riftbound-dotnet.sln` remains untouched.

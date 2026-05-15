@@ -6446,6 +6446,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveGatekeeperMaduliMoveAbility(state, intent, command, ability);
         }
 
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId, StringComparison.Ordinal))
+        {
+            return ResolveEzrealBlueSwiftMoveAbility(state, intent, command, ability);
+        }
+
         if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
             || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
             || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
@@ -7629,6 +7634,247 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["abilityId"] = command.AbilityId
                 })
         ]);
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolveEzrealBlueSwiftMoveAbility(
+        MatchState state,
+        PlayerIntent intent,
+        ActivateAbilityCommand command,
+        P4ActivatedAbilityDefinition ability)
+    {
+        if (state.PendingPayment is not null
+            || state.PendingHandChoice is not null
+            || state.PendingTaskQueue.IsBlocking
+            || !string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || state.StackItems.Count > 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "伊泽瑞尔的迅捷移动技能只能在当前玩家的开放主阶段提交。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (NormalizeTargetObjectIds(command.TargetObjectIds).Count != 0
+            || command.TargetObjectIds.Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "伊泽瑞尔的迅捷移动技能不接受目标或目的地。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var normalizedOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (!TryExtractInlinePaymentResourceActions(
+                state,
+                intent.PlayerId,
+                normalizedOptionalCosts,
+                out var behaviorOptionalCosts,
+                out var paymentResourceActions,
+                out var recycledRuneObjectIds,
+                out var temporaryPaymentResourceActions)
+            || behaviorOptionalCosts.Count != 0
+            || temporaryPaymentResourceActions.Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "伊泽瑞尔的迅捷移动技能只接受合法的回收符文支付资源动作。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!IsLegalEzrealBlueSwiftMoveSource(state, intent.PlayerId, command.SourceObjectId, ability, out var sourceState))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "伊泽瑞尔的迅捷移动技能来源必须是当前玩家控制的公开精确战场单位。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
+        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
+            ? existingPool
+            : RunePool.Empty;
+        if (!AreRecycleRunePaymentResourceActionsRequired(
+                currentPool,
+                state.CardObjects,
+                recycledRuneObjectIds,
+                ability.PowerCost,
+                powerCostByTrait))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "伊泽瑞尔的迅捷移动技能不需要回收符文支付资源动作。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var adjustedPowerPool = ApplyRecycleRunePaymentToPool(
+            currentPool,
+            state.CardObjects,
+            recycledRuneObjectIds);
+        if (recycledRuneObjectIds.Count != 0
+            && !CanPayPowerCost(adjustedPowerPool, ability.PowerCost, powerCostByTrait))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "回收的符文不能补足伊泽瑞尔的蓝色符能费用。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        const string paymentWindow = "ACTIVATE_ABILITY";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            intent.PlayerId,
+            command.SourceObjectId,
+            command.AbilityId);
+        var paymentPlan = new PaymentCostRules.PaymentPlan(
+            paymentId,
+            paymentWindow,
+            intent.PlayerId,
+            baseManaCost: ability.ManaCost,
+            totalManaCost: ability.ManaCost,
+            genericPowerCost: ability.PowerCost,
+            totalPowerCost: ability.PowerCost + powerCostByTrait.Values.Sum(),
+            powerCostByTrait: powerCostByTrait,
+            paymentResourceActionIds: paymentResourceActions,
+            reason: ability.EffectKind,
+            sourceObjectId: command.SourceObjectId,
+            abilityId: command.AbilityId,
+            auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
+                ["sourceCardNo"] = sourceState.CardNo,
+                ["swift"] = true,
+                ["destinationZone"] = MoveUnitBaseZone
+            });
+        var paymentEvents = new List<GameEvent>();
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var runePools = ApplyRecycleRunePaymentResourceActions(
+            state.RunePools,
+            playerZones,
+            cardObjects,
+            objectLocations,
+            intent.PlayerId,
+            recycledRuneObjectIds,
+            paymentEvents,
+            paymentWindow,
+            paymentId);
+
+        var adjustedPool = runePools.TryGetValue(intent.PlayerId, out var paymentAdjustedPool)
+            ? paymentAdjustedPool
+            : RunePool.Empty;
+        var currentExperience = state.PlayerExperience.TryGetValue(intent.PlayerId, out var availableExperience)
+            ? availableExperience
+            : 0;
+        var paymentAuthorization = PaymentCostRules.AuthorizePayment(
+            paymentPlan,
+            adjustedPool,
+            currentExperience);
+        if (!paymentAuthorization.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "资源不足，无法启动伊泽瑞尔的迅捷移动技能。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var paymentCommit = PaymentCostRules.TryCommitPayment(
+            paymentPlan,
+            runePools,
+            state.PlayerExperience);
+        if (!paymentCommit.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "资源不足，无法启动伊泽瑞尔的迅捷移动技能。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var playerExperience = paymentCommit.PlayerExperience;
+        var stackItem = new StackItemState(
+            $"STACK-{state.Tick + 1}-{command.SourceObjectId}-EZREAL-MOVE-BASE",
+            intent.PlayerId,
+            command.SourceObjectId,
+            ability.EffectKind,
+            sourceState.CardNo,
+            [],
+            0,
+            1,
+            []);
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            ActivePlayerId = intent.PlayerId,
+            TimingState = TimingStates.NeutralClosed,
+            RunePools = runePools,
+            PlayerExperience = playerExperience,
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = ReconcileObjectLocations(objectLocations, playerZones),
+            PriorityPlayerId = intent.PlayerId,
+            PassedPriorityPlayerIds = [],
+            StackItems = state.StackItems.Concat([stackItem]).ToArray()
+        };
+        var events = new List<GameEvent>(paymentEvents)
+        {
+            new(
+                "ABILITY_ACTIVATED",
+                $"{intent.PlayerId} 激活伊泽瑞尔的迅捷移动技能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["cardNo"] = sourceState.CardNo,
+                    ["abilityId"] = command.AbilityId,
+                    ["effectKind"] = ability.EffectKind,
+                    ["targetObjectIds"] = Array.Empty<string>(),
+                    ["swift"] = true,
+                    ["destinationZone"] = MoveUnitBaseZone
+                }),
+            new(
+                "COST_PAID",
+                $"{intent.PlayerId} 支付伊泽瑞尔迅捷移动技能费用",
+                PaymentCostRules.BuildCostPaidPayload(
+                    paymentPlan,
+                    runePools,
+                    playerExperience,
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = intent.PlayerId,
+                        ["mana"] = ability.ManaCost,
+                        ["power"] = ability.PowerCost,
+                        ["powerByTrait"] = powerCostByTrait,
+                        ["abilityId"] = command.AbilityId,
+                        ["sourceObjectId"] = command.SourceObjectId,
+                        ["destinationZone"] = MoveUnitBaseZone
+                    })),
+            new(
+                "STACK_ITEM_ADDED",
+                "伊泽瑞尔的迅捷移动技能加入结算链",
+                new Dictionary<string, object?>
+                {
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["controllerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["cardNo"] = stackItem.CardNo,
+                    ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["abilityId"] = command.AbilityId,
+                    ["destinationZone"] = MoveUnitBaseZone
+                })
+        };
 
         return new ResolutionResult(
             true,
@@ -26341,6 +26587,33 @@ public sealed class CoreRuleEngine : IRuleEngine
         return sourcePower > enemyPowerSum;
     }
 
+    private static bool IsLegalEzrealBlueSwiftMoveSource(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        P4ActivatedAbilityDefinition ability,
+        out CardObjectState sourceState)
+    {
+        sourceState = new CardObjectState();
+        if (!state.CardObjects.TryGetValue(sourceObjectId, out var candidate)
+            || !candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || candidate.IsFaceDown
+            || candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, candidate.CardNo)
+            || !IsControlledBattlefieldObject(state, playerId, sourceObjectId)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
+            || !state.ObjectLocations.TryGetValue(sourceObjectId, out var location)
+            || !string.Equals(location.PlayerId, playerId, StringComparison.Ordinal)
+            || !string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(location.BattlefieldObjectId))
+        {
+            return false;
+        }
+
+        sourceState = candidate;
+        return true;
+    }
+
     private static bool TryGetEnemyControlledBattlefieldTarget(
         MatchState state,
         string playerId,
@@ -29355,6 +29628,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveGatekeeperMaduliMoveAbilityStackItem(state, stackItem);
         }
 
+        if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityEffectKind, StringComparison.Ordinal))
+        {
+            return ResolveEzrealBlueSwiftMoveAbilityStackItem(state, stackItem);
+        }
+
         if (!CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
             || !HasValidResolvedTargetCount(behavior, stackItem)
             || !HasValidTargetEffectAdditionalCostTargets(behavior, stackItem.TargetObjectIds, stackItem.OptionalCosts))
@@ -32325,6 +32603,95 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["sourcePower"] = sourcePower,
                     ["enemyUnitPowerSum"] = enemyUnitPowerSum,
                     ["movementPermission"] = "GATEKEEPER_MADULI_PURPLE_MOVE"
+                }));
+        }
+
+        return new StackResolutionResult(
+            playerZones,
+            cardObjects,
+            state.PlayerScores,
+            NormalizeExperienceForSeats(state),
+            state.RunePools,
+            state.UntilEndOfTurnEffects,
+            null,
+            events,
+            [],
+            null,
+            [],
+            null,
+            [],
+            state.RngCursor,
+            ObjectLocations: objectLocations);
+    }
+
+    private static StackResolutionResult ResolveEzrealBlueSwiftMoveAbilityStackItem(
+        MatchState state,
+        StackItemState stackItem)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var events = new List<GameEvent>
+        {
+            new(
+                "ABILITY_RESOLVED",
+                "伊泽瑞尔的迅捷移动技能结算",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = stackItem.ControllerId,
+                    ["controllerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["cardNo"] = stackItem.CardNo,
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["abilityId"] = P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId,
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
+                    ["destinationZone"] = MoveUnitBaseZone
+                })
+        };
+
+        if (!TryMoveEzrealBlueSwiftSourceToBase(
+                playerZones,
+                cardObjects,
+                objectLocations,
+                stackItem.ControllerId,
+                stackItem.SourceObjectId,
+                stackItem.CardNo,
+                out var originLocation,
+                out var destinationLocation))
+        {
+            events.Add(new GameEvent(
+                "ABILITY_NO_EFFECT",
+                "伊泽瑞尔的迅捷移动技能来源不再合法",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["abilityId"] = P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId,
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["reason"] = "SOURCE_NO_LONGER_LEGAL"
+                }));
+        }
+        else
+        {
+            events.Add(new GameEvent(
+                "UNIT_MOVED_TO_BASE",
+                "伊泽瑞尔移动到基地",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["targetObjectId"] = stackItem.SourceObjectId,
+                    ["abilityId"] = P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId,
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["originZone"] = MoveUnitBattlefieldZone,
+                    ["destinationZone"] = MoveUnitBaseZone,
+                    ["originLocation"] = BuildLocationPayload(originLocation),
+                    ["destinationLocation"] = BuildLocationPayload(destinationLocation),
+                    ["movementPermission"] = "EZREAL_BLUE_SWIFT_MOVE_TO_BASE",
+                    ["swift"] = true
                 }));
         }
 
@@ -36874,6 +37241,47 @@ public sealed class CoreRuleEngine : IRuleEngine
             targetBattlefieldObjectId);
         objectLocations[sourceObjectId] = destinationLocation;
         return true;
+    }
+
+    private static bool TryMoveEzrealBlueSwiftSourceToBase(
+        Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, ObjectLocationState> objectLocations,
+        string controllerId,
+        string sourceObjectId,
+        string? stackCardNo,
+        out ObjectLocationState originLocation,
+        out ObjectLocationState destinationLocation)
+    {
+        originLocation = new ObjectLocationState(string.Empty, string.Empty);
+        destinationLocation = new ObjectLocationState(string.Empty, string.Empty);
+        if (!cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+            || sourceState.IsFaceDown
+            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, controllerId)
+            || !string.Equals(sourceState.CardNo, stackCardNo, StringComparison.Ordinal)
+            || !IsEzrealBlueSwiftCardNo(sourceState.CardNo)
+            || !TryGetPreciseFieldLocation(playerZones, objectLocations, sourceObjectId, out originLocation)
+            || !string.Equals(originLocation.PlayerId, controllerId, StringComparison.Ordinal)
+            || !string.Equals(originLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(originLocation.BattlefieldObjectId))
+        {
+            return false;
+        }
+
+        RemoveFieldObjectFromLocation(playerZones, originLocation.PlayerId, originLocation.Zone, sourceObjectId);
+        AddFieldObjectToLocation(playerZones, controllerId, MoveUnitBaseZone, sourceObjectId);
+        destinationLocation = new ObjectLocationState(controllerId, MoveUnitBaseZone);
+        objectLocations[sourceObjectId] = destinationLocation;
+        return true;
+    }
+
+    private static bool IsEzrealBlueSwiftCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, P4ActivatedAbilityCatalog.EzrealBlueSwiftCardNo, StringComparison.Ordinal)
+            || string.Equals(cardNo, P4ActivatedAbilityCatalog.EzrealBlueSwiftAltCardNo, StringComparison.Ordinal)
+            || string.Equals(cardNo, P4ActivatedAbilityCatalog.EzrealBlueSwiftPromoCardNo, StringComparison.Ordinal);
     }
 
     private static bool TryGetPreciseFieldLocation(
