@@ -1,13 +1,14 @@
 # Stage 4D Next Dispatch and Writelocks
 
 日期：2026-05-15
-结论：**4D-04K-B IMPLEMENTED AND A-VALIDATED / PROFILE-VERIFIER WRITELOCK CLOSED / PROJECT NOT READY**
+结论：**4D-04L LAYERENGINE FOUNDATION HANDOFF READY / PAUSED / PROJECT NOT READY**
 
 本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance / baseline 归档，不实现 runtime，不修改前端，不修改测试代码，不升级 full-official。当前 active goal 仍未完成，不得调用 `update_goal complete`。
 
 ## 1. 输入事实
 
 - 当前分支为 `main`，仓库当前只保留未跟踪 `riftbound-dotnet.sln`；该文件不得被本批任务触碰或纳入提交。
+- 4D-04L LayerEngine foundation handoff / baseline 已建立，入口为 `docs/CURRENT_STAGE4D_04L_LAYERENGINE_FOUNDATION_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_04L_LAYERENGINE_FOUNDATION_BASELINE_EVIDENCE.md`。下一建议 B 切片只做 P1-001 foundation：为 current until-end power modifier representatives 建立 source-aware / effect-aware ledger 或 verifier foundation，保持现有 arithmetic 行为，同时明确 `ContinuousEffectState` 只是 snapshot/report view，不是完整 LayerEngine。A 侧 baseline focused LayerEngine guard 11/11、adjacent power/layer/equipment regression 141/141 通过。本批不派发 B、不打开 runtime/test/frontend/matrix 写锁，不关闭 P1-001、P1-002、full official 或 READY。
 - 4D-04K-B Equipment state profile alignment / verifier 已由 B-Implementation / Meitner `019e2c13-5b3b-7750-9971-08cf68b074f2` 实现并由 A 验收，入口为 `docs/CURRENT_STAGE4D_04K_EQUIPMENT_STATE_PROFILE_ALIGNMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04K_EQUIPMENT_STATE_PROFILE_ALIGNMENT_EVIDENCE.md`。`CardEquipmentKeywordRules.cs` 现在显式记录 Long Sword P5 equipment state representative manifest，绑定 owner/controller/attachment invariant、controller mismatch no-mutation、controlled opponent-owned target attach、attached equipment follows host base <-> battlefield、host destroyed detach/recall 等现有 verifier anchors；`CardCatalogBaselineTests.cs` 用反射确认这些 anchor 仍存在。A 侧验收 focused state/profile guard 12/12、adjacent equipment regression 195/195、`git diff --check` 通过。本批不改 runtime、frontend、card matrix、full official、P1-001、P1-002 或 READY；profile-verifier 写锁已关闭。
 - 4D-04J Equipment remaining breadth refresh / handoff 已建立，入口为 `docs/CURRENT_STAGE4D_04J_EQUIPMENT_REMAINING_BREADTH_REFRESH_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_04J_EQUIPMENT_REMAINING_BREADTH_REFRESH_BASELINE_EVIDENCE.md`。本批确认 4D-04I-B 后 equipment residual 不应继续写成一整块：现有 P5 representatives 已覆盖 Long Sword owner/controller attach invariant、controller mismatch rejection、controlled opponent-owned target attach、显式 attached equipment follows host、host destroyed detach / recall；A 侧 baseline focused state / keyword guard 11/11 通过。下一建议 4D-04K 是 profile / verifier alignment，不派发 B、不打开 runtime/test/frontend/matrix 写锁，不关闭 P1-001、P1-002、full official 或 READY。
 - 4D-04I-B Ornn dynamic friendly-equipment static recompute 已由 B-Implementation / Meitner `019e2c13-5b3b-7750-9971-08cf68b074f2` 实现并由 A 验收，入口为 `docs/CURRENT_STAGE4D_04I_ORNN_DYNAMIC_EQUIPMENT_STATIC_RECOMPUTE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04I_ORNN_DYNAMIC_EQUIPMENT_STATIC_RECOMPUTE_EVIDENCE.md`。服务端现在会在 accepted core command 后，对已在公开 field 且 registry 标记 `AddsFriendlyFieldEquipmentCountToSourceUnitPower` 的 Ornn，从 registered source unit power + 当前 controller 友方公开 field equipment count + until-end power modifier 做窄重算，并重建 authoritative snapshots / prompts。A 侧验证 focused / keyword / LayerEngine-view guard 9/9、adjacent equipment / payment regression 117/117、backend full 4446/4446、`git diff --check` 通过。本批不改 frontend / card matrix / full-official，不关闭完整 LayerEngine、full `百炼`、其他装备静态修正、P1-001、P1-002 或 READY；4D-04I-B runtime / focused-test 写锁已关闭。
@@ -53,7 +54,8 @@
 
 | Queue | Owner | Status | Purpose | Write scope | Must not touch |
 |---|---|---|---|---|---|
-| 4D-NEXT-A | A 主控 | 4D-04K-B accepted / paused | 记录 4D-04K B implementation、A 验收、写锁关闭与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs、4D-04K audit / evidence docs | runtime、frontend runtime、card matrix JSON、full-official upgrade |
+| 4D-NEXT-A | A 主控 | 4D-04L handoff ready / paused | 记录 4D-04L LayerEngine foundation handoff、baseline 与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs、新增 4D-04L handoff / baseline | runtime、tests、frontend runtime、card matrix JSON、full-official upgrade |
+| 4D-04L-B | B-Implementation | suggested / not dispatched | LayerEngine foundation / source-aware power modifier ledger or verifier | no write lock yet; expected future scope would be `MatchSession.cs`, `CoreRuleEngine.cs`, focused tests | frontend runtime、card matrix JSON、broad PaymentEngine、battle lifecycle、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-04K-B | B-Implementation / Meitner `019e2c13-5b3b-7750-9971-08cf68b074f2` | Implemented and A-validated | Equipment state representative profile alignment / verifier | completed profile / focused-test diff in `CardEquipmentKeywordRules.cs` and `CardCatalogBaselineTests.cs` | runtime semantics、frontend runtime、card matrix JSON、broad LayerEngine、PaymentEngine、battle lifecycle、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-04I-B | B-Implementation / Meitner `019e2c13-5b3b-7750-9971-08cf68b074f2` | Implemented and A-validated | Ornn dynamic friendly-equipment static recompute representative | completed narrow runtime / focused tests | frontend runtime、card matrix JSON、broad LayerEngine、unrelated equipment statics、PaymentEngine、battle lifecycle、`riftbound-dotnet.sln` |
 | 4D-04H-A | A 主控 | Implemented and A-validated | Ornn friendly-equipment static power entry-time representative | completed narrow runtime / focused tests / profile guard | frontend runtime、card matrix JSON、full `百炼`、dynamic LayerEngine/static recompute、owner/controller breadth、attach lifecycle breadth、`riftbound-dotnet.sln` |
@@ -79,6 +81,7 @@
 
 ## 3. Exclusive Writelocks
 
+- 4D-04L is A-side handoff / baseline only. No B worker is dispatched; no runtime, test, frontend or matrix write lock is open.
 - 4D-04K-B profile-verifier write lock is closed after A validation and commit-ready evidence. Runtime semantics, frontend, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
 - 4D-04J is A-side handoff / baseline only. No B worker is dispatched; no runtime, test, frontend or matrix write lock is open.
 - 4D-04I-B Ornn dynamic static recompute runtime / focused-test write lock is closed after A validation and commit-ready evidence.
@@ -101,7 +104,30 @@
 - E returns to read-only after 4D-03AT. The matrix must not be upgraded to `fullOfficial=true` for Azir, Maduli, Ezreal or other latest representatives merely because focused runtime evidence passed.
 - No parallel task may edit card matrix JSON, frontend stores, `ActionPrompt` contracts, battle state machine, stack, cleanup, hidden-info redaction, or E2E fixtures without an explicit owner and a fresh write-lock note.
 
-## 3.1 4D-04K-B Acceptance Gate Accepted
+## 3.1 4D-04L-A Handoff Gate Accepted
+
+A-side handoff is accepted because A verified all of the following:
+
+1. Current repo state remains on `main` with only expected untracked `riftbound-dotnet.sln`.
+2. 4D-04K-B is already accepted and its profile-verifier write lock is closed.
+3. P1-001 remains open because `ContinuousEffectState` is currently a snapshot/report view, while `ApplyPowerModifier` still mutates `Power` and accumulates `UntilEndOfTurnPowerModifier`.
+4. The next suggested B slice is narrowed to source-aware / effect-aware power modifier ledger or verifier foundation, not a broad LayerEngine rewrite.
+5. Current focused LayerEngine representatives and adjacent power/layer/equipment regressions are green before any B diff.
+6. Timestamp, dependency, source ordering, keyword gain/loss, multiple equipment/static aura interactions, minimum-power layering, full official coverage and READY remain open.
+
+A-side baseline commands:
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~MatchStateExposesContinuousEffectPowerLayerViews|FullyQualifiedName~PendingTaskQueueDoesNotExposeUndamagedZeroPowerFromPowerModifierAsStateBasedTask|FullyQualifiedName~TurnEndCleanupRestoresNegativeBasePowerAfterPositiveModifierExpires|FullyQualifiedName~SwitcherooSwapsTwoPublicBattlefieldUnitPowersUntilEndOfTurn|FullyQualifiedName~NaturalBattleResponseActivationPowerModifierUsesEffectiveAssignmentDamagePool|FullyQualifiedName~OrnnFriendlyEquipmentStaticPowerTests"
+```
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ContinuousEffect|FullyQualifiedName~PowerModifier|FullyQualifiedName~UntilEndOfTurnPowerModifier|FullyQualifiedName~Switcheroo|FullyQualifiedName~Ornn|FullyQualifiedName~TriggerPayment|FullyQualifiedName~BattleDamageAssignmentLifecycleTests"
+```
+
+Result: **focused LayerEngine guard 11/11 passed; adjacent power / layer / equipment regression 141/141 passed**.
+
+## 3.2 4D-04K-B Acceptance Gate Accepted
 
 B implementation is accepted because A verified all of the following:
 
@@ -129,7 +155,7 @@ git diff --check
 
 Result: **focused state / profile guard 12/12 passed; adjacent equipment regression 195/195 passed; git diff --check passed**.
 
-## 3.2 4D-04K-A Handoff Gate Accepted
+## 3.3 4D-04K-A Handoff Gate Accepted
 
 A-side handoff is accepted because A verified all of the following:
 
@@ -152,7 +178,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 
 Result: **focused state / profile guard 11/11 passed; adjacent equipment regression 195/195 passed**.
 
-## 3.3 4D-04J-A Handoff Gate Accepted
+## 3.4 4D-04J-A Handoff Gate Accepted
 
 A-side handoff is accepted because A verified all of the following:
 
@@ -171,7 +197,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 
 Result: **focused state / keyword guard 11/11 passed**.
 
-## 3.4 4D-04I-B Acceptance Gate Accepted
+## 3.5 4D-04I-B Acceptance Gate Accepted
 
 B implementation is accepted because A verified all of the following:
 
@@ -203,7 +229,7 @@ git diff --check
 
 Result: **focused / keyword / LayerEngine-view guard 9/9 passed; adjacent equipment / payment regression 117/117 passed; backend full 4446/4446 passed; git diff --check passed**.
 
-## 3.5 4D-04H-A Acceptance Gate Accepted
+## 3.6 4D-04H-A Acceptance Gate Accepted
 
 A-side implementation is accepted because A verified all of the following:
 
