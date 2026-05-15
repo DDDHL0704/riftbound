@@ -534,6 +534,53 @@ public sealed class PaymentEngineCoverageAuditTests
             ])
     ];
 
+    private static readonly PaymentEngineLegendBattlefieldTriggerResourceActionCoverageEntry[] LegendBattlefieldTriggerResourceActionManifest =
+    [
+        new(
+            "LEGEND_ACT",
+            CoveredRepresentative,
+            "Legend active and reaction representatives that use LEGEND_ACT rather than deferred ACTIVATE_ABILITY surfaces.",
+            "ConformanceFixtureShapeTests: LEGEND_ACT source / target prompt metadata and CardCatalogBaselineTests: implemented legend action surface audit",
+            "ConformanceFixtureRunnerTests: P79LegendActLilliaCreatesFaerieWithEphemeralCostReduction and P79LegendActIreliaReadiesPendingTargetedFriendlyUnit command commits",
+            "ConformanceFixtureRunnerTests: COST_PAID / LEGEND_ABILITY_ACTIVATED / CARD_DRAWN / UNIT_READIED assertions across representative LEGEND_ACT paths",
+            "ConformanceFixtureRunnerTests: P79LegendActEzrealRequiresTwoEnemyTargetsThisTurn and P79LegendActIreliaRequiresPendingFriendlyUnitTarget no-mutation guards",
+            "Complete LEGEND_ACT resource-action breadth, recycle / temporary resource quote parity, every timing window, and all target dependency branches remain open.",
+            "Representative coverage only; project remains NOT READY and P0-005 remains open for full-official legend resource-action breadth.",
+            [
+                "docs/CURRENT_STAGE4D_03B_PAYMENT_ENGINE_NON_PLAY_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03X_LEGEND_ACTION_DEFERRED_CATALOG_AUDIT.md"
+            ]),
+        new(
+            "BATTLEFIELD_HELD_SCORE_PAYMENT",
+            CoveredRepresentative,
+            "Battlefield held pay-4-power score representatives with generic, typed, recycle, temporary, mixed, and score-prevention coverage.",
+            "ConformanceFixtureRunnerTests: BATTLEFIELD_HELD_SCORE_PAYMENT prompt quote coverage via P79BattlefieldHeldScorePromptQuotesTemporaryPaymentResource and recycle plus temporary prompt cases",
+            "ConformanceFixtureRunnerTests: P79BattlefieldHeldPaysPowerToGainScoreWithRecycleAndTemporaryPaymentResources command commit",
+            "ConformanceFixtureRunnerTests: COST_PAID / RESOURCE_RECYCLED / TEMPORARY_PAYMENT_RESOURCE_SPENT / BATTLEFIELD_HELD audit assertions",
+            "ConformanceFixtureRunnerTests: invalid temporary / recycle resource and already-scored no-mutation guards",
+            "Complete battlefield skill breadth, replacement ordering, score-prevention variants, and cross-window resource generation remain open.",
+            "Representative coverage only; project remains NOT READY and P0-005 remains open for full-official battlefield held payment breadth.",
+            [
+                "docs/CURRENT_STAGE4D_03G_PAYMENT_ENGINE_BATTLEFIELD_HELD_RESOURCE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AC_PAYMENT_ENGINE_BATTLEFIELD_HELD_TEMP_RESOURCE_AUDIT.md"
+            ]),
+        new(
+            "TRIGGER_PAYMENT",
+            CoveredRepresentative,
+            "Trigger payment representatives covering pending prompts, pay / decline resolution, typed-yellow SFD Fiora, recycle, temporary, mixed resources, and stale guards.",
+            "TriggerPaymentTests: TRIGGER_PAYMENT prompt metadata coverage via BattlefieldConquerGoldOpensTriggerPaymentPrompt and SFD Fiora typed-yellow prompt cases",
+            "TriggerPaymentTests: accepted PayCost command commits for Gold, Sunken Temple, Vayne, Icevale, Jax, and SFD Fiora representatives",
+            "TriggerPaymentTests: COST_PAID / TRIGGER_PAYMENT_DECLINED / BATTLEFIELD_TRIGGER_RESOLVED / PAYMENT_WINDOW_CLOSED audit assertions",
+            "TriggerPaymentTests: invalid choice, insufficient cost, stale source / target, and no-mutation guards",
+            "Complete trigger payment resource family, multi-trigger ordering, replacement ordering, and cross-window resource generation remain open.",
+            "Representative coverage only; project remains NOT READY and P0-005 remains open for full-official trigger payment breadth.",
+            [
+                "docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AD_PAYMENT_ENGINE_TRIGGER_TEMP_RESOURCE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AE_PAYMENT_ENGINE_PENDING_TEMP_RESOURCE_PROMPT_AUDIT.md"
+            ])
+    ];
+
     [Fact]
     public void PaymentEngineActionWindowCoverageManifestListsRequiredWindowsExactlyOnce()
     {
@@ -696,6 +743,120 @@ public sealed class PaymentEngineCoverageAuditTests
                 .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
                 .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
             StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineLegendBattlefieldTriggerResourceActionManifestListsRequiredWindowsExactlyOnce()
+    {
+        var requiredWindows = new[]
+        {
+            "LEGEND_ACT",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT",
+            "TRIGGER_PAYMENT"
+        };
+
+        Assert.Equal(
+            requiredWindows.Order(StringComparer.Ordinal),
+            LegendBattlefieldTriggerResourceActionManifest.Select(entry => entry.ActionWindow).Order(StringComparer.Ordinal));
+        Assert.Empty(LegendBattlefieldTriggerResourceActionManifest
+            .GroupBy(entry => entry.ActionWindow, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key));
+
+        var actionWindowManifest = CoverageManifest.ToDictionary(entry => entry.ActionWindow, StringComparer.Ordinal);
+        Assert.All(LegendBattlefieldTriggerResourceActionManifest, entry =>
+        {
+            Assert.True(actionWindowManifest.TryGetValue(entry.ActionWindow, out var actionWindowEntry), entry.ActionWindow);
+            Assert.Equal(RepresentativeCovered, actionWindowEntry.Classification);
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineLegendBattlefieldTriggerResourceActionManifestRequiresPromptCommandAuditAndRollbackAnchors()
+    {
+        Assert.All(LegendBattlefieldTriggerResourceActionManifest, entry =>
+        {
+            Assert.Equal(CoveredRepresentative, entry.Classification);
+            Assert.False(string.IsNullOrWhiteSpace(entry.RepresentativeSurface));
+            Assert.Contains(entry.ActionWindow, entry.PromptAnchor, StringComparison.Ordinal);
+            Assert.False(string.IsNullOrWhiteSpace(entry.CommandAnchor));
+            Assert.False(string.IsNullOrWhiteSpace(entry.AuditAnchor));
+            Assert.Contains("no-mutation", entry.RollbackAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.False(string.IsNullOrWhiteSpace(entry.RemainingOfficialBreadth));
+            Assert.Contains("NOT READY", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.NotEmpty(entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineLegendBattlefieldTriggerResourceActionManifestKeepsResidualBlockerLinked()
+    {
+        var residualBlocker = Assert.Single(
+            ResidualBlockerManifest,
+            entry => string.Equals(entry.Family, "LEGEND_BATTLEFIELD_TRIGGER_RESOURCE_ACTIONS", StringComparison.Ordinal));
+
+        Assert.Equal(CoveredRepresentative, residualBlocker.Classification);
+        Assert.Contains("LEGEND_ACT", residualBlocker.CurrentEvidence, StringComparison.Ordinal);
+        Assert.Contains("battlefield held", residualBlocker.CurrentEvidence, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("trigger payment", residualBlocker.CurrentEvidence, StringComparison.OrdinalIgnoreCase);
+
+        var coveredWindows = LegendBattlefieldTriggerResourceActionManifest
+            .Select(entry => entry.ActionWindow)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(
+            [
+                "BATTLEFIELD_HELD_SCORE_PAYMENT",
+                "LEGEND_ACT",
+                "TRIGGER_PAYMENT"
+            ],
+            coveredWindows);
+    }
+
+    [Fact]
+    public void PaymentEngineLegendBattlefieldTriggerResourceActionManifestKeepsOfficialBreadthExplicit()
+    {
+        var combinedRemainingBreadth = string.Join(
+            " ",
+            LegendBattlefieldTriggerResourceActionManifest.Select(entry => entry.RemainingOfficialBreadth));
+
+        Assert.Contains("resource-action", combinedRemainingBreadth, StringComparison.Ordinal);
+        Assert.Contains("battlefield", combinedRemainingBreadth, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("trigger", combinedRemainingBreadth, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("replacement ordering", combinedRemainingBreadth, StringComparison.Ordinal);
+        Assert.Contains("cross-window resource generation", combinedRemainingBreadth, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineLegendBattlefieldTriggerResourceActionManifestDoesNotClaimP0005Closure()
+    {
+        var combinedText = string.Join(
+            " ",
+            LegendBattlefieldTriggerResourceActionManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.ActionWindow,
+                    entry.Classification,
+                    entry.RepresentativeSurface,
+                    entry.PromptAnchor,
+                    entry.CommandAnchor,
+                    entry.AuditAnchor,
+                    entry.RollbackAnchor,
+                    entry.RemainingOfficialBreadth,
+                    entry.ClosureStatus
+                }.Concat(entry.DocAnchors)));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("READY", combinedText.Replace("NOT READY", string.Empty, StringComparison.Ordinal), StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -1116,6 +1277,18 @@ public sealed class PaymentEngineCoverageAuditTests
         string ExistingRepresentativeEvidence,
         string MissingOfficialBreadth,
         string RollbackExpectation,
+        string ClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
+    private sealed record PaymentEngineLegendBattlefieldTriggerResourceActionCoverageEntry(
+        string ActionWindow,
+        string Classification,
+        string RepresentativeSurface,
+        string PromptAnchor,
+        string CommandAnchor,
+        string AuditAnchor,
+        string RollbackAnchor,
+        string RemainingOfficialBreadth,
         string ClosureStatus,
         IReadOnlyList<string> DocAnchors);
 
