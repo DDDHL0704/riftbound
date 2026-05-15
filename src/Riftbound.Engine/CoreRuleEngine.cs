@@ -778,9 +778,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         GameCommand command,
         CancellationToken cancellationToken)
     {
+        static ValueTask<ResolutionResult> Complete(ResolutionResult result)
+        {
+            return ValueTask.FromResult(ApplyFriendlyEquipmentStaticPowerRecompute(result));
+        }
+
         if (!string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal))
         {
-            return ValueTask.FromResult(RejectWithCorePrompts(
+            return Complete(RejectWithCorePrompts(
                 state,
                 "对局已经结束，不能继续提交行动。",
                 ErrorCodes.PhaseNotAllowed));
@@ -788,22 +793,22 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         if (command is MulliganCommand mulliganCommand)
         {
-            return ValueTask.FromResult(ResolveMulligan(state, intent, mulliganCommand));
+            return Complete(ResolveMulligan(state, intent, mulliganCommand));
         }
 
         if (command is SurrenderCommand)
         {
-            return ValueTask.FromResult(ResolveSurrender(state, intent));
+            return Complete(ResolveSurrender(state, intent));
         }
 
         if (TryResolveP0ContractCommand(state, intent, command, out var p0ContractResult))
         {
-            return ValueTask.FromResult(p0ContractResult);
+            return Complete(p0ContractResult);
         }
 
         if (state.PendingPayment is not null)
         {
-            return ValueTask.FromResult(RejectWithCorePrompts(
+            return Complete(RejectWithCorePrompts(
                 state,
                 "当前需要先完成服务端支付窗口。",
                 ErrorCodes.PhaseNotAllowed));
@@ -811,7 +816,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         if (state.PendingHandChoice is not null)
         {
-            return ValueTask.FromResult(RejectWithCorePrompts(
+            return Complete(RejectWithCorePrompts(
                 state,
                 "当前需要先完成服务端手牌选择窗口。",
                 ErrorCodes.PhaseNotAllowed));
@@ -821,12 +826,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             && ResolutionResult.ActiveStartBattleTask(state) is not null
             && string.Equals(intent.PlayerId, state.ActivePlayerId, StringComparison.Ordinal))
         {
-            return ValueTask.FromResult(ResolveDeclareBattle(state, intent, activeTaskDeclareBattleCommand));
+            return Complete(ResolveDeclareBattle(state, intent, activeTaskDeclareBattleCommand));
         }
 
         if (ResolutionResult.HasBlockingPendingTaskQueue(state))
         {
-            return ValueTask.FromResult(RejectWithCorePrompts(
+            return Complete(RejectWithCorePrompts(
                 state,
                 ResolutionResult.BlockingPendingTaskQueueReason(state),
                 ErrorCodes.PhaseNotAllowed));
@@ -834,87 +839,87 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         if (command is EndTurnCommand)
         {
-            return ValueTask.FromResult(ResolveEndTurn(state, intent));
+            return Complete(ResolveEndTurn(state, intent));
         }
 
         if (string.Equals(state.Phase, MatchPhases.TurnStart, StringComparison.Ordinal))
         {
             if (!string.Equals(state.TurnPlayerId, intent.PlayerId, StringComparison.Ordinal))
             {
-                return ValueTask.FromResult(RejectWithCorePrompts(
+                return Complete(RejectWithCorePrompts(
                     state,
                     "回合开始只能由当前回合玩家推进。",
                     ErrorCodes.PhaseNotAllowed));
             }
 
-            return ValueTask.FromResult(ResolveTurnStart(state));
+            return Complete(ResolveTurnStart(state));
         }
 
         if (command is PlayCardCommand playCardCommand)
         {
-            return ValueTask.FromResult(ResolvePlayCard(state, intent, playCardCommand));
+            return Complete(ResolvePlayCard(state, intent, playCardCommand));
         }
 
         if (command is ActivateAbilityCommand activateAbilityCommand)
         {
-            return ValueTask.FromResult(ResolveActivateAbility(state, intent, activateAbilityCommand));
+            return Complete(ResolveActivateAbility(state, intent, activateAbilityCommand));
         }
 
         if (command is LegendActCommand legendActCommand)
         {
-            return ValueTask.FromResult(ResolveLegendAct(state, intent, legendActCommand));
+            return Complete(ResolveLegendAct(state, intent, legendActCommand));
         }
 
         if (command is HideCardCommand hideCardCommand)
         {
-            return ValueTask.FromResult(ResolveHideCard(state, intent, hideCardCommand));
+            return Complete(ResolveHideCard(state, intent, hideCardCommand));
         }
 
         if (command is TapRuneCommand tapRuneCommand)
         {
-            return ValueTask.FromResult(ResolveTapRune(state, intent, tapRuneCommand));
+            return Complete(ResolveTapRune(state, intent, tapRuneCommand));
         }
 
         if (command is RecycleRuneCommand recycleRuneCommand)
         {
-            return ValueTask.FromResult(ResolveRecycleRune(state, intent, recycleRuneCommand));
+            return Complete(ResolveRecycleRune(state, intent, recycleRuneCommand));
         }
 
         if (command is RevealCardCommand revealCardCommand)
         {
-            return ValueTask.FromResult(ResolveRevealCard(state, intent, revealCardCommand));
+            return Complete(ResolveRevealCard(state, intent, revealCardCommand));
         }
 
         if (command is MoveUnitCommand moveUnitCommand)
         {
-            return ValueTask.FromResult(ResolveMoveUnit(state, intent, moveUnitCommand));
+            return Complete(ResolveMoveUnit(state, intent, moveUnitCommand));
         }
 
         if (command is AssembleEquipmentCommand assembleEquipmentCommand)
         {
-            return ValueTask.FromResult(ResolveAssembleEquipment(state, intent, assembleEquipmentCommand));
+            return Complete(ResolveAssembleEquipment(state, intent, assembleEquipmentCommand));
         }
 
         if (command is DeclareBattleCommand declareBattleCommand)
         {
-            return ValueTask.FromResult(ResolveDeclareBattle(state, intent, declareBattleCommand));
+            return Complete(ResolveDeclareBattle(state, intent, declareBattleCommand));
         }
 
         if (command is PassPriorityCommand && CanPassPriority(state, intent.PlayerId))
         {
-            return ValueTask.FromResult(ResolvePassPriority(state, intent));
+            return Complete(ResolvePassPriority(state, intent));
         }
 
         if (command is PassFocusCommand && CanPassFocus(state, intent.PlayerId))
         {
-            return ValueTask.FromResult(ResolvePassFocus(state, intent));
+            return Complete(ResolvePassFocus(state, intent));
         }
 
         if (command is PassPriorityCommand
             && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
             && string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal))
         {
-            return ValueTask.FromResult(RejectWithCorePrompts(
+            return Complete(RejectWithCorePrompts(
                 state,
                 "让过优先权只能在优先行动窗口中提交。",
                 ErrorCodes.PhaseNotAllowed));
@@ -922,13 +927,106 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         if (command is PassFocusCommand)
         {
-            return ValueTask.FromResult(RejectWithCorePrompts(
+            return Complete(RejectWithCorePrompts(
                 state,
                 "让过焦点只能在法术对决焦点窗口中提交。",
                 ErrorCodes.PhaseNotAllowed));
         }
 
         return fallback.ResolveAsync(state, intent, command, cancellationToken);
+    }
+
+    private static ResolutionResult ApplyFriendlyEquipmentStaticPowerRecompute(ResolutionResult result)
+    {
+        if (!result.Accepted)
+        {
+            return result;
+        }
+
+        var nextState = ApplyFriendlyEquipmentStaticPowerRecompute(result.State);
+        if (ReferenceEquals(nextState, result.State))
+        {
+            return result;
+        }
+
+        return result with
+        {
+            State = nextState,
+            Snapshots = ResolutionResult.BuildSnapshots(nextState),
+            Prompts = BuildCorePrompts(nextState)
+        };
+    }
+
+    private static MatchState ApplyFriendlyEquipmentStaticPowerRecompute(MatchState state)
+    {
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var changed = false;
+
+        foreach (var entry in state.CardObjects.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            var objectId = entry.Key;
+            var cardObject = entry.Value;
+            if (string.IsNullOrWhiteSpace(cardObject.CardNo)
+                || cardObject.IsFaceDown
+                || !CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var behavior)
+                || !behavior.AddsFriendlyFieldEquipmentCountToSourceUnitPower
+                || !TryGetPublicFieldControllerId(state.PlayerZones, cardObjects, objectId, cardObject, out var controllerId))
+            {
+                continue;
+            }
+
+            var basePower = behavior.SourceUnitPower > 0 ? behavior.SourceUnitPower : cardObject.Power - cardObject.UntilEndOfTurnPowerModifier;
+            var equipmentCount = CountControlledPublicFieldEquipmentObjects(state.PlayerZones, cardObjects, controllerId);
+            var recomputedPower = basePower + equipmentCount + cardObject.UntilEndOfTurnPowerModifier;
+            if (cardObject.Power == recomputedPower)
+            {
+                continue;
+            }
+
+            cardObjects[objectId] = cardObject with
+            {
+                Power = recomputedPower
+            };
+            changed = true;
+        }
+
+        return changed
+            ? state with { CardObjects = cardObjects }
+            : state;
+    }
+
+    private static bool TryGetPublicFieldControllerId(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string objectId,
+        CardObjectState cardObject,
+        out string controllerId)
+    {
+        controllerId = string.Empty;
+        foreach (var entry in playerZones.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            if (!entry.Value.Base.Contains(objectId, StringComparer.Ordinal)
+                && !entry.Value.Battlefields.Contains(objectId, StringComparer.Ordinal))
+            {
+                continue;
+            }
+
+            if (!cardObjects.TryGetValue(objectId, out var currentState)
+                || !currentState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                || currentState.IsFaceDown)
+            {
+                return false;
+            }
+
+            controllerId = !string.IsNullOrWhiteSpace(cardObject.ControllerId)
+                ? cardObject.ControllerId
+                : !string.IsNullOrWhiteSpace(cardObject.OwnerId)
+                    ? cardObject.OwnerId
+                    : entry.Key;
+            return !string.IsNullOrWhiteSpace(controllerId);
+        }
+
+        return false;
     }
 
     private static bool TryResolveP0ContractCommand(

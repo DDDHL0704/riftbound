@@ -11,11 +11,14 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
     private const string OrnnAltCardNo = "SFD·085a/221";
     private const string FriendlyBaseEquipmentObjectId = "P1-EQUIPMENT-BASE";
     private const string SecondFriendlyBaseEquipmentObjectId = "P1-EQUIPMENT-BASE-2";
+    private const string FriendlyPlayedEquipmentObjectId = "P1-EQUIPMENT-PLAYED";
     private const string HandEquipmentObjectId = "P1-EQUIPMENT-HAND";
     private const string FaceDownEquipmentObjectId = "P1-EQUIPMENT-FACE-DOWN";
     private const string DirtyControllerEquipmentObjectId = "P1-EQUIPMENT-DIRTY-CONTROLLER";
     private const string EnemyEquipmentObjectId = "P2-EQUIPMENT-ENEMY";
     private const string FriendlyUnitObjectId = "P1-UNIT-FRIENDLY";
+    private const string FirstRuneObjectId = "P1-RUNE-1";
+    private const string SecondRuneObjectId = "P1-RUNE-2";
 
     [Theory]
     [InlineData(OrnnCardNo)]
@@ -60,6 +63,131 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         var unitPlayed = Assert.Single(resolved.Events, IsOrnnUnitPlayedEvent);
         Assert.Equal(4, Assert.IsType<int>(unitPlayed.Payload["power"]));
         Assert.False(unitPlayed.Payload.ContainsKey("friendlyEquipmentPowerBonus"));
+    }
+
+    [Fact]
+    public async Task OrnnRecomputesUpWhenFriendlyPublicEquipmentResolvesAfterOrnnIsInField()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildOrnnFieldState(
+            ornnPower: 4,
+            p1Hand: [FriendlyPlayedEquipmentObjectId],
+            p1Base: [OrnnObjectId],
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [OrnnObjectId] = Unit(OrnnObjectId, OrnnCardNo, "P1", "P1", power: 4),
+                [FriendlyPlayedEquipmentObjectId] = Equipment(
+                    FriendlyPlayedEquipmentObjectId,
+                    "P1",
+                    "P1",
+                    cardNo: "SFD·046/221")
+            });
+
+        var played = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-ornn-dynamic-play-equipment", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand(FriendlyPlayedEquipmentObjectId, "SFD·046/221", []),
+            CancellationToken.None);
+        var resolved = await ResolveTopStackAsync(engine, played.State);
+
+        Assert.True(played.Accepted, played.ErrorMessage);
+        Assert.True(resolved.Accepted, resolved.ErrorMessage);
+        Assert.Contains(FriendlyPlayedEquipmentObjectId, resolved.State.PlayerZones["P1"].Base);
+        Assert.Equal(5, resolved.State.CardObjects[OrnnObjectId].Power);
+        AssertSnapshotPower(resolved.Snapshots["P1"], OrnnObjectId, basePower: 5, effectivePower: 5);
+    }
+
+    [Fact]
+    public async Task OrnnRecomputesDownFromStableBaseAndDoesNotDriftAcrossRepeatedAcceptedCommands()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildOrnnFieldState(
+            ornnPower: 6,
+            p1Base: [OrnnObjectId, FriendlyBaseEquipmentObjectId, SecondFriendlyBaseEquipmentObjectId, FirstRuneObjectId, SecondRuneObjectId],
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [OrnnObjectId] = Unit(OrnnObjectId, OrnnCardNo, "P1", "P1", power: 6),
+                [FriendlyBaseEquipmentObjectId] = Equipment(FriendlyBaseEquipmentObjectId, "P1", "P1"),
+                [SecondFriendlyBaseEquipmentObjectId] = Equipment(SecondFriendlyBaseEquipmentObjectId, "P1", "P1"),
+                [FirstRuneObjectId] = Rune(FirstRuneObjectId),
+                [SecondRuneObjectId] = Rune(SecondRuneObjectId)
+            });
+        state = state with
+        {
+            PlayerZones = state.PlayerZones.ToDictionary(
+                entry => entry.Key,
+                entry => string.Equals(entry.Key, "P1", StringComparison.Ordinal)
+                    ? entry.Value with
+                    {
+                        Base = [OrnnObjectId, FriendlyBaseEquipmentObjectId, FirstRuneObjectId, SecondRuneObjectId],
+                        Graveyard = [SecondFriendlyBaseEquipmentObjectId]
+                    }
+                    : entry.Value,
+                StringComparer.Ordinal),
+            ObjectLocations = state.ObjectLocations
+                .Where(entry => !string.Equals(entry.Key, SecondFriendlyBaseEquipmentObjectId, StringComparison.Ordinal))
+                .Append(new KeyValuePair<string, ObjectLocationState>(
+                    SecondFriendlyBaseEquipmentObjectId,
+                    new ObjectLocationState("P1", "GRAVEYARD")))
+                .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal)
+        };
+
+        var firstTap = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-ornn-dynamic-tap-rune-1", "P1", CommandTypes.TapRune),
+            new TapRuneCommand(FirstRuneObjectId),
+            CancellationToken.None);
+        var secondTap = await engine.ResolveAsync(
+            firstTap.State,
+            new PlayerIntent("intent-ornn-dynamic-tap-rune-2", "P1", CommandTypes.TapRune),
+            new TapRuneCommand(SecondRuneObjectId),
+            CancellationToken.None);
+
+        Assert.True(firstTap.Accepted, firstTap.ErrorMessage);
+        Assert.True(secondTap.Accepted, secondTap.ErrorMessage);
+        Assert.Equal(5, firstTap.State.CardObjects[OrnnObjectId].Power);
+        Assert.Equal(5, secondTap.State.CardObjects[OrnnObjectId].Power);
+        AssertSnapshotPower(secondTap.Snapshots["P1"], OrnnObjectId, basePower: 5, effectivePower: 5);
+    }
+
+    [Fact]
+    public async Task OrnnRecomputeExcludesEnemyHandFaceDownDirtyControllerAndNonEquipmentObjects()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildOrnnFieldState(
+            ornnPower: 7,
+            p1Hand: [HandEquipmentObjectId],
+            p1Base:
+            [
+                OrnnObjectId,
+                FriendlyBaseEquipmentObjectId,
+                FaceDownEquipmentObjectId,
+                DirtyControllerEquipmentObjectId,
+                FriendlyUnitObjectId,
+                FirstRuneObjectId
+            ],
+            p2Base: [EnemyEquipmentObjectId],
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [OrnnObjectId] = Unit(OrnnObjectId, OrnnCardNo, "P1", "P1", power: 7),
+                [HandEquipmentObjectId] = Equipment(HandEquipmentObjectId, "P1", "P1"),
+                [FriendlyBaseEquipmentObjectId] = Unit(FriendlyBaseEquipmentObjectId, "SFD·022/221", "P1", "P1"),
+                [FaceDownEquipmentObjectId] = Equipment(FaceDownEquipmentObjectId, "P1", "P1", isFaceDown: true),
+                [DirtyControllerEquipmentObjectId] = Equipment(DirtyControllerEquipmentObjectId, "P1", "P2"),
+                [FriendlyUnitObjectId] = Unit(FriendlyUnitObjectId, "SFD·125/221", "P1", "P1", power: 3),
+                [EnemyEquipmentObjectId] = Equipment(EnemyEquipmentObjectId, "P2", "P2"),
+                [FirstRuneObjectId] = Rune(FirstRuneObjectId)
+            });
+
+        var tapped = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-ornn-dynamic-exclusions", "P1", CommandTypes.TapRune),
+            new TapRuneCommand(FirstRuneObjectId),
+            CancellationToken.None);
+
+        Assert.True(tapped.Accepted, tapped.ErrorMessage);
+        Assert.Equal(4, tapped.State.CardObjects[OrnnObjectId].Power);
+        AssertSnapshotPower(tapped.Snapshots["P1"], OrnnObjectId, basePower: 4, effectivePower: 4);
     }
 
     private static async Task<ResolutionResult> PlayOrnnAsync(
@@ -167,15 +295,82 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         };
     }
 
+    private static MatchState BuildOrnnFieldState(
+        int ornnPower,
+        IReadOnlyList<string>? p1Hand = null,
+        IReadOnlyList<string>? p1Base = null,
+        IReadOnlyList<string>? p1Graveyard = null,
+        IReadOnlyList<string>? p2Base = null,
+        Dictionary<string, CardObjectState>? cardObjects = null)
+    {
+        var playerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+        {
+            ["P1"] = PlayerZones.Empty with
+            {
+                Hand = p1Hand ?? [],
+                Base = p1Base ?? [OrnnObjectId],
+                Graveyard = p1Graveyard ?? []
+            },
+            ["P2"] = PlayerZones.Empty with
+            {
+                Base = p2Base ?? []
+            }
+        };
+        var objectLocations = playerZones
+            .SelectMany(player => new[]
+                {
+                    ("HAND", player.Value.Hand),
+                    ("BASE", player.Value.Base),
+                    ("GRAVEYARD", player.Value.Graveyard)
+                }
+                .SelectMany(zone => zone.Item2.Select(objectId =>
+                    new KeyValuePair<string, ObjectLocationState>(
+                        objectId,
+                        new ObjectLocationState(player.Key, zone.Item1)))))
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+
+        return new MatchState(
+            "ornn-friendly-equipment-dynamic-static-power",
+            0,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "connection-1",
+                ["P2"] = "connection-2"
+            }) with
+        {
+            Status = MatchStatuses.InProgress,
+            ReadyPlayerIds = ["P1", "P2"],
+            TurnPlayerId = "P1",
+            ActivePlayerId = "P1",
+            Phase = MatchPhases.Main,
+            TimingState = TimingStates.NeutralOpen,
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(6, 0),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = playerZones,
+            CardObjects = cardObjects ?? new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [OrnnObjectId] = Unit(OrnnObjectId, OrnnCardNo, "P1", "P1", power: ornnPower)
+            },
+            ObjectLocations = objectLocations
+        };
+    }
+
     private static CardObjectState Unit(
         string objectId,
         string cardNo,
         string ownerId,
-        string controllerId)
+        string controllerId,
+        int power = 0)
     {
         return new CardObjectState(
             objectId,
             cardNo: cardNo,
+            power: power,
             tags: [CardObjectTags.UnitCard],
             ownerId: ownerId,
             controllerId: controllerId);
@@ -185,20 +380,46 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         string objectId,
         string ownerId,
         string controllerId,
-        bool isFaceDown = false)
+        bool isFaceDown = false,
+        string cardNo = "SFD·022/221")
     {
         return new CardObjectState(
             objectId,
-            cardNo: "SFD·022/221",
+            cardNo: cardNo,
             isFaceDown: isFaceDown,
             tags: [CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Weapon],
             ownerId: ownerId,
             controllerId: controllerId);
     }
 
+    private static CardObjectState Rune(string objectId)
+    {
+        return new CardObjectState(
+            objectId,
+            cardNo: "UNL-R01",
+            tags: [CardObjectTags.RuneCard, "COLOR:red"],
+            ownerId: "P1",
+            controllerId: "P1");
+    }
+
     private static bool IsOrnnUnitPlayedEvent(GameEvent gameEvent)
     {
         return string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, OrnnObjectId, StringComparison.Ordinal);
+    }
+
+    private static void AssertSnapshotPower(
+        SnapshotDto snapshot,
+        string objectId,
+        int basePower,
+        int effectivePower)
+    {
+        var p1View = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
+        var objects = Assert.IsType<Dictionary<string, object?>>(p1View["objects"]);
+        var objectView = Assert.IsType<Dictionary<string, object?>>(objects[objectId]);
+
+        Assert.Equal(basePower, Assert.IsType<int>(objectView["basePower"]));
+        Assert.Equal(effectivePower, Assert.IsType<int>(objectView["effectivePower"]));
+        Assert.Equal(effectivePower, Assert.IsType<int>(objectView["power"]));
     }
 }

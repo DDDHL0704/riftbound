@@ -1,14 +1,15 @@
 # Stage 4D Next Dispatch and Writelocks
 
 日期：2026-05-15
-结论：**4D-04I ORNN DYNAMIC EQUIPMENT STATIC RECOMPUTE HANDOFF READY / PROJECT NOT READY**
+结论：**4D-04I-B ORNN DYNAMIC EQUIPMENT STATIC RECOMPUTE ACCEPTED / WRITELOCK CLOSED / PROJECT NOT READY**
 
 本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance / baseline 归档，不实现 runtime，不修改前端，不修改测试代码，不升级 full-official。当前 active goal 仍未完成，不得调用 `update_goal complete`。
 
 ## 1. 输入事实
 
 - 当前分支为 `main`，仓库当前只保留未跟踪 `riftbound-dotnet.sln`；该文件不得被本批任务触碰或纳入提交。
-- 4D-04I Ornn dynamic equipment static recompute handoff / baseline 已建立，入口为 `docs/CURRENT_STAGE4D_04I_ORNN_DYNAMIC_EQUIPMENT_STATIC_RECOMPUTE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_04I_ORNN_DYNAMIC_EQUIPMENT_STATIC_RECOMPUTE_BASELINE_EVIDENCE.md`。下一建议 B 切片锁定 `SFD·085/221` / `SFD·085a/221`《奥恩》已在公开 field 后，友方公开场上装备数量变化时的 dynamic static recompute representative；baseline 验证 focused / keyword / LayerEngine-view guard 6/6、adjacent equipment / payment regression 114/114、`git diff --check` 通过。本批不派发 B，不打开 runtime 写锁，不改 frontend / card matrix / full-official，不关闭 P1-001、P1-002、LayerEngine 或 READY。
+- 4D-04I-B Ornn dynamic friendly-equipment static recompute 已由 B-Implementation / Meitner `019e2c13-5b3b-7750-9971-08cf68b074f2` 实现并由 A 验收，入口为 `docs/CURRENT_STAGE4D_04I_ORNN_DYNAMIC_EQUIPMENT_STATIC_RECOMPUTE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04I_ORNN_DYNAMIC_EQUIPMENT_STATIC_RECOMPUTE_EVIDENCE.md`。服务端现在会在 accepted core command 后，对已在公开 field 且 registry 标记 `AddsFriendlyFieldEquipmentCountToSourceUnitPower` 的 Ornn，从 registered source unit power + 当前 controller 友方公开 field equipment count + until-end power modifier 做窄重算，并重建 authoritative snapshots / prompts。A 侧验证 focused / keyword / LayerEngine-view guard 9/9、adjacent equipment / payment regression 117/117、backend full 4446/4446、`git diff --check` 通过。本批不改 frontend / card matrix / full-official，不关闭完整 LayerEngine、full `百炼`、其他装备静态修正、P1-001、P1-002 或 READY；4D-04I-B runtime / focused-test 写锁已关闭。
+- 4D-04I Ornn dynamic equipment static recompute handoff / baseline 已建立，入口为 `docs/CURRENT_STAGE4D_04I_ORNN_DYNAMIC_EQUIPMENT_STATIC_RECOMPUTE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_04I_ORNN_DYNAMIC_EQUIPMENT_STATIC_RECOMPUTE_BASELINE_EVIDENCE.md`。该 B 切片锁定 `SFD·085/221` / `SFD·085a/221`《奥恩》已在公开 field 后，友方公开场上装备数量变化时的 dynamic static recompute representative；baseline 验证 focused / keyword / LayerEngine-view guard 6/6、adjacent equipment / payment regression 114/114、`git diff --check` 通过。
 - 4D-04H Ornn friendly equipment static power 已由 A 侧直接实现并验收，入口为 `docs/CURRENT_STAGE4D_04H_ORNN_FRIENDLY_EQUIPMENT_STATIC_POWER_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04H_ORNN_FRIENDLY_EQUIPMENT_STATIC_POWER_EVIDENCE.md`。服务端现在让 `SFD·085/221` / `SFD·085a/221`《奥恩》从手牌 `PLAY_CARD` 入场时，按 controller 友方公开 field equipment 数量增加入场战力，并在非零加成时写 `friendlyEquipmentPowerBonus` event payload；手牌、face-down、敌方、脏 controller 与非装备对象不计入。A 侧验证 focused / keyword guard 5/5、adjacent equipment / payment regression 114/114、backend full 4443/4443、`git diff --check` 通过。本批不关闭 full `百炼`、其他装备静态修正、dynamic static recompute / LayerEngine、owner/controller breadth、attach lifecycle breadth、frontend、card matrix JSON、P1-001、P1-002 或 READY。
 - 4D-04G Armed Assaulter HASTE_READY + Tempered optional attach combination 已由 B-Implementation / Bacon `019e2ba3-4b9a-7710-a702-1e8e28ecd8ea` 实现并由 A 验收，入口为 `docs/CURRENT_STAGE4D_04G_ARMED_ASSAULTER_HASTE_TEMPERED_HANDOFF.md`、`docs/CURRENT_STAGE4D_04G_ARMED_ASSAULTER_HASTE_TEMPERED_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04G_ARMED_ASSAULTER_HASTE_TEMPERED_EVIDENCE.md`。服务端现在允许 `SFD·002/221`《武装强袭者》同一 `PLAY_CARD` 可同时提交 `HASTE_READY` 与合法 `TEMPERED_ATTACH:<equipmentObjectId>`，合并支付 base 6 + haste 1 mana / 1 red power，并在结算后 active 入基地且贴附己方合法 `SFD·186/221`《旋转飞斧》。A 侧验证 focused / keyword guard 26/26、adjacent equipment / payment regression 235/235、backend full 4440/4440、`git diff --check` 通过。本批不关闭 full `百炼`、full Haste、Ornn static modifiers、owner/controller breadth、attach lifecycle breadth、LayerEngine、frontend、card matrix JSON、P1-002 或 READY。
 - 4D-04F Akshan orange extra equipment steal 已由 B-Implementation / Bacon `019e2ba3-4b9a-7710-a702-1e8e28ecd8ea` 实现并由 A 验收，入口为 `docs/CURRENT_STAGE4D_04F_AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL_HANDOFF.md`、`docs/CURRENT_STAGE4D_04F_AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04F_AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL_EVIDENCE.md`。服务端现在允许 `SFD·109/221`《阿克尚》从手牌 `PLAY_CARD` 时选择合法敌方在场装备作为 `AKSHAN_STEAL_EQUIPMENT:<equipmentObjectId>` optional cost，额外支付 2 橙色符能；结算时 Akshan 入基地，合法装备移动到 P1 基地、`ControllerId=P1`、`OwnerId` 保留，若为 `武装` 则贴附到 Akshan，且 Akshan 离场时归还 owner base。A 侧验证 focused / keyword guard 28/28、adjacent equipment / payment regression 209/209、backend full 4417/4417、`git diff --check` 通过。本批不关闭 full `百炼`、Ornn / Armed Assaulter、owner/controller breadth、attach lifecycle breadth、LayerEngine、frontend、card matrix JSON、P1-002 或 READY。
@@ -50,8 +51,8 @@
 
 | Queue | Owner | Status | Purpose | Write scope | Must not touch |
 |---|---|---|---|---|---|
-| 4D-NEXT-A | A 主控 | 4D-04I handoff / baseline paused | 记录 4D-04I handoff、baseline、future B 写锁边界与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs | frontend runtime、card matrix JSON、full-official upgrade |
-| 4D-04I-B | B-Implementation | Ready to dispatch / write lock not open | Ornn dynamic friendly-equipment static recompute representative | proposed narrow runtime / focused tests / profile guard | frontend runtime、card matrix JSON、broad LayerEngine、unrelated equipment statics、PaymentEngine、battle lifecycle、`riftbound-dotnet.sln` |
+| 4D-NEXT-A | A 主控 | 4D-04I-B accepted / paused | 记录 4D-04I-B implementation、A validation、writelock closure 与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs | frontend runtime、card matrix JSON、full-official upgrade |
+| 4D-04I-B | B-Implementation / Meitner `019e2c13-5b3b-7750-9971-08cf68b074f2` | Implemented and A-validated | Ornn dynamic friendly-equipment static recompute representative | completed narrow runtime / focused tests | frontend runtime、card matrix JSON、broad LayerEngine、unrelated equipment statics、PaymentEngine、battle lifecycle、`riftbound-dotnet.sln` |
 | 4D-04H-A | A 主控 | Implemented and A-validated | Ornn friendly-equipment static power entry-time representative | completed narrow runtime / focused tests / profile guard | frontend runtime、card matrix JSON、full `百炼`、dynamic LayerEngine/static recompute、owner/controller breadth、attach lifecycle breadth、`riftbound-dotnet.sln` |
 | 4D-04G-B | B-Implementation / Bacon `019e2ba3-4b9a-7710-a702-1e8e28ecd8ea` | Implemented and A-validated | Armed Assaulter same-command HASTE_READY + Tempered attach combination representative | completed narrow runtime / focused tests / profile guard | frontend runtime、card matrix JSON、full `百炼`、full Haste、Ornn static modifiers、Akshan/Jax branches、LayerEngine、PaymentEngine broad refactor、battle lifecycle、`riftbound-dotnet.sln` |
 | 4D-04F-B | B-Implementation / Bacon `019e2ba3-4b9a-7710-a702-1e8e28ecd8ea` | Implemented and A-validated | Akshan orange-orange optional enemy equipment control / weapon attach / leave-play return representative | completed narrow runtime / focused tests | frontend runtime、card matrix JSON、full `百炼`、Ornn / Armed Assaulter branches、LayerEngine、PaymentEngine broad refactor、battle lifecycle、`riftbound-dotnet.sln` |
@@ -75,7 +76,7 @@
 
 ## 3. Exclusive Writelocks
 
-- 4D-04I-B is not dispatched yet; proposed Ornn dynamic static recompute write lock remains closed until A explicitly opens it.
+- 4D-04I-B Ornn dynamic static recompute runtime / focused-test write lock is closed after A validation and commit-ready evidence.
 - 4D-04H-A Ornn friendly-equipment static power runtime / focused-test write lock is closed after A validation and commit-ready evidence.
 - 4D-04G-B Armed Assaulter HASTE_READY + Tempered combination runtime / focused-test write lock is closed after A validation and commit-ready evidence.
 - 4D-04F-B Akshan orange extra equipment steal runtime / focused-test write lock is closed after A validation and commit-ready evidence.
@@ -95,7 +96,39 @@
 - E returns to read-only after 4D-03AT. The matrix must not be upgraded to `fullOfficial=true` for Azir, Maduli, Ezreal or other latest representatives merely because focused runtime evidence passed.
 - No parallel task may edit card matrix JSON, frontend stores, `ActionPrompt` contracts, battle state machine, stack, cleanup, hidden-info redaction, or E2E fixtures without an explicit owner and a fresh write-lock note.
 
-## 3.1 4D-04H-A Acceptance Gate Accepted
+## 3.1 4D-04I-B Acceptance Gate Accepted
+
+B implementation is accepted because A verified all of the following:
+
+1. Accepted core commands apply a narrow Ornn friendly-equipment static recompute before returning authoritative snapshots and prompts.
+2. Recompute targets only public field units whose registry behavior has `AddsFriendlyFieldEquipmentCountToSourceUnitPower`.
+3. Ornn's recomputed power is registered base power + current controller friendly public field equipment count + until-end power modifier, so 4D-04H entry-time bonus does not double-count.
+4. Friendly public equipment entering field after Ornn is already in field raises Ornn power from 4 to 5.
+5. A counted equipment leaving field lowers Ornn power from 6 to 5.
+6. Repeated accepted commands do not make Ornn drift above base + current count.
+7. Hand, enemy, face-down, dirty-controller and non-equipment objects remain excluded during dynamic recompute.
+8. Snapshot `power`, `basePower` and `effectivePower` remain consistent under the current snapshot model.
+9. Existing Ornn entry-time tests, equipment keyword profile guards, Tempered, Jax, Akshan, Armed Assaulter and continuous-effect snapshot representatives remain green.
+10. The slice does not update frontend runtime, card matrix JSON, P1-001 / P1-002 status, full-official status or READY.
+
+A-side accepted commands:
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~OrnnFriendlyEquipmentStaticPowerTests|FullyQualifiedName~MatchStateExposesContinuousEffectPowerLayerViews|FullyQualifiedName~P4EquipmentKeywordProfilesMapOfficialTextToRegistryTags|FullyQualifiedName~KeywordCoverageReportExposesDeferredKeywordFamilies"
+```
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Ornn|FullyQualifiedName~TemperedEquipmentOptionalAttachTests|FullyQualifiedName~JaxTemperedOptionalAttach|FullyQualifiedName~Akshan|FullyQualifiedName~ArmedAssaulterHasteTemperedTests|FullyQualifiedName~P4EquipmentKeywordProfilesMapOfficialTextToRegistryTags|FullyQualifiedName~P4EquipmentKeywordProfilesKeepExistingNoAttachFixturesGreen|FullyQualifiedName~P4EquipmentAttachmentProfileMapsTakeUpToRepresentativeAttachDetach|FullyQualifiedName~MatchStateExposesContinuousEffectPowerLayerViews"
+```
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
+git diff --check
+```
+
+Result: **focused / keyword / LayerEngine-view guard 9/9 passed; adjacent equipment / payment regression 117/117 passed; backend full 4446/4446 passed; git diff --check passed**.
+
+## 3.2 4D-04H-A Acceptance Gate Accepted
 
 A-side implementation is accepted because A verified all of the following:
 
@@ -439,4 +472,4 @@ E may identify matrix rows and official text blockers for Azir / Ezreal, but mus
 
 ## 15. Current Batch Stop Point
 
-This record stops after creating the 4D-04I Ornn dynamic equipment static recompute handoff / baseline. The project remains **NOT READY**. No frontend, matrix, runtime or test write window is open, and `riftbound-dotnet.sln` remains untouched.
+This record stops after accepting 4D-04I-B Ornn dynamic equipment static recompute representative and closing the B runtime / focused-test write lock. The project remains **NOT READY**. No frontend, matrix, runtime or test write window remains open, and `riftbound-dotnet.sln` remains untouched.
