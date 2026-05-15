@@ -1,7 +1,7 @@
 # Stage 4D Next Dispatch and Writelocks
 
 日期：2026-05-15
-结论：**4D-03AR HANDOFF READY / PAUSE POINT / PROJECT NOT READY**
+结论：**4D-03AR-B DISPATCHED / PROJECT NOT READY**
 
 本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance 归档，不实现 runtime，不修改前端，不修改测试代码，不修改 card matrix。当前 active goal 仍未完成，不得调用 `update_goal complete`。
 
@@ -10,7 +10,7 @@
 - 当前分支为 `main`，仓库当前只保留未跟踪 `riftbound-dotnet.sln`；该文件不得被本批任务触碰或纳入提交。
 - `docs/CURRENT_STAGE4D_03AR_GATEKEEPER_MADULI_CANNOT_READY_STATIC_HANDOFF.md` 已把下一枚 Gatekeeper Maduli static slice 锁定为 `UNL-144/219` 守门者马杜里 `我无法变为活跃状态。` cannot-ready representative。
 - `docs/CURRENT_STAGE4D_03AR_GATEKEEPER_MADULI_CANNOT_READY_STATIC_BASELINE_EVIDENCE.md` 已记录 implementation-before baseline：Maduli / Gatekeeper / CrimsonRose / HuntReadyGuardTests 61/61 通过；Maduli / Gatekeeper / CrimsonRose / HuntReadyGuardTests / ActivateAbility / PaymentEngine / ActionPrompt / GameHub / Priority 371/371 通过；`git diff --check` 通过。
-- 4D-03AR-B 尚未派发；当前批次只建立 A-side handoff / baseline / checkpoint，不打开 runtime 写锁。
+- 4D-03AR-B 已派发给 B-Implementation / Schrodinger `019e291f-dd42-75c3-8f12-05220a1629df`。B 当前独占 Maduli cannot-ready static runtime/test 写锁：`CoreRuleEngine.cs`、`MatchSession.cs`、focused Maduli / Crimson Rose / Hunt tests；frontend、card matrix、broad LayerEngine、unrelated ready effects、HASTE_READY / swift timing、battle lifecycle 与 `riftbound-dotnet.sln` 仍禁止触碰。
 - `docs/CURRENT_STAGE4D_03AQ_PAYMENT_ENGINE_HASTE_READY_COVERAGE_VERIFIER_HANDOFF.md` 已把下一枚 P0-005 test-only guard 锁定为 implemented HASTE_READY registry/profile set 与 existing P4 fixture evidence 的 catalog-bound verifier。
 - `docs/CURRENT_STAGE4D_03AQ_PAYMENT_ENGINE_HASTE_READY_COVERAGE_VERIFIER_BASELINE_EVIDENCE.md` 已记录 implementation-before baseline：PaymentEngineCoverageAuditTests / HasteOptional / HasteReady 102/102 通过；PaymentEngineCoverageAuditTests / HasteOptional / HasteReady / PlayCard / ActionPrompt / GameHub / Priority 442/442 通过；`git diff --check` 通过。
 - 4D-03AQ-B 已派发并验收，B-Implementation / Halley `019e290f-73b2-7d62-a19e-2a252ad6ef2e` 的 `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` test-only 写锁已关闭；runtime、frontend、card matrix、broad Haste rewrite、battle lifecycle 与 `riftbound-dotnet.sln` 均未触碰。
@@ -32,8 +32,8 @@
 
 | Queue | Owner | Status | Purpose | Write scope | Must not touch |
 |---|---|---|---|---|---|
-| 4D-NEXT-A | A 主控 | 4D-03AR handoff ready / pause point | 记录 4D-03AR handoff、baseline、写锁与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs | `src/**`、`tests/**`、frontend runtime、card matrix |
-| 4D-03AR-B | B-Implementation | Pending dispatch | 实现 Gatekeeper Maduli cannot-ready static representative | suggested: `CoreRuleEngine.cs` / `MatchSession.cs` / focused Maduli, Crimson Rose, Hunt tests | frontend runtime、card matrix JSON、broad LayerEngine rewrite、unrelated ready effects、HASTE_READY / swift timing、battle lifecycle、`riftbound-dotnet.sln` |
+| 4D-NEXT-A | A 主控 | 4D-03AR-B dispatched | 记录 4D-03AR handoff、baseline、派发、写锁与验收门槛 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs | `src/**`、`tests/**`、frontend runtime、card matrix |
+| 4D-03AR-B | B-Implementation / Schrodinger `019e291f-dd42-75c3-8f12-05220a1629df` | Dispatched / runtime-test write lock open | 实现 Gatekeeper Maduli cannot-ready static representative | `src/Riftbound.Engine/CoreRuleEngine.cs`、`src/Riftbound.Engine/MatchSession.cs`、focused Maduli / Crimson Rose / Hunt tests; optional smallest P4 catalog / registry helper only if needed | frontend runtime、card matrix JSON、broad LayerEngine rewrite、unrelated ready effects、HASTE_READY / swift timing、battle lifecycle、`riftbound-dotnet.sln` |
 | 4D-03AQ-B | B-Implementation / Halley `019e290f-73b2-7d62-a19e-2a252ad6ef2e` | Implemented and A-validated | 新增 HASTE_READY catalog-bound coverage verifier | completed focused verifier; no runtime changes | `src/**`、frontend runtime、card matrix JSON、broad Haste rewrite、strong/overflow、non-hand haste granting、LayerEngine、battle lifecycle、`riftbound-dotnet.sln` |
 | 4D-03AP-B | B-Implementation / Archimedes `019e2900-bcc5-7763-8f3a-db41a0aaa0a1` | Implemented and A-validated | 补强 Rek'Sai HASTE_READY red typed payment exactness focused tests / evidence | completed focused tests; no runtime changes | frontend runtime、card matrix JSON、broad Haste rewrite、strong/overflow、non-hand haste granting、LayerEngine、battle lifecycle、`riftbound-dotnet.sln` |
 | 4D-03AP-E | E-Review | Read-only readiness audit recorded in `docs/CURRENT_STAGE4D_03AP_CARD_MATRIX_READINESS_AUDIT.md` | 检查 Rek'Sai `FU-1945f6918c` matrix readiness and full-official blockers | card coverage docs in read-only mode | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` unless A opens a future matrix write window |
@@ -46,8 +46,8 @@
 
 ## 3. Exclusive Writelocks
 
-- At this stop point, no runtime, frontend or matrix write lock remains open.
-- 4D-03AR-B is not dispatched yet; no runtime write lock is currently open for Maduli cannot-ready static.
+- 4D-03AR-B runtime / focused-test write lock is open for Schrodinger `019e291f-dd42-75c3-8f12-05220a1629df`.
+- No frontend or matrix write lock is open.
 - 4D-03AQ-B test-only write lock is closed after A validation and commit-ready evidence.
 - 4D-03AP-B focused-test write lock is closed after A validation and commit-ready evidence.
 - 4D-03AO-B runtime / focused-test write lock is closed after A validation and commit.
@@ -179,4 +179,4 @@ E may identify matrix rows and official text blockers for Ezreal, but must not u
 
 ## 9. Current Batch Stop Point
 
-This record stops after preparing 4D-03AR handoff / baseline and is a pause point for the current batch. The project remains **NOT READY**. No frontend, matrix, runtime or test write window remains open, 4D-03AR-B is not dispatched yet, and `riftbound-dotnet.sln` remains untouched.
+This record stops after dispatching 4D-03AR-B. The project remains **NOT READY**. Frontend and matrix write windows remain closed, A must still validate B diff and tests before acceptance, and `riftbound-dotnet.sln` remains untouched.
