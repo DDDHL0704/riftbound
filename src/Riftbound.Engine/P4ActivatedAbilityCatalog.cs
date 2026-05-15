@@ -94,6 +94,11 @@ public static class P4ActivatedAbilityCatalog
     public const string GatekeeperMaduliMoveAbilityEffectKind = "GATEKEEPER_MADULI_ACTIVATED_MOVE_TO_WEAKER_ENEMY_BATTLEFIELD";
     public const int GatekeeperMaduliMovePurplePowerCost = 1;
 
+    public static bool CardCannotBecomeActive(string? cardNo)
+    {
+        return string.Equals(cardNo, GatekeeperMaduliCardNo, StringComparison.Ordinal);
+    }
+
     public const string EzrealBlueSwiftCardNo = "SFD·082/221";
     public const string EzrealBlueSwiftAltCardNo = "SFD·082a/221";
     public const string EzrealBlueSwiftPromoCardNo = "SFD·082b/221·P";
@@ -455,7 +460,7 @@ public static class P4ActivatedAbilityCatalog
             ExhaustsSourceAsCost: false,
             0,
             AppliesSpellshieldTargetTax: false,
-            "Stage 4D-03AN opens only Gatekeeper Maduli's pay purple move-to-weaker-enemy-battlefield representative; the cannot-become-active static text and broader movement family remain deferred.",
+            "Stage 4D-03AR keeps Gatekeeper Maduli's pay purple move representative and implements its cannot-become-active static representative; the broader movement family remains deferred.",
             PowerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
             {
                 [RuneTrait.Purple] = GatekeeperMaduliMovePurplePowerCost

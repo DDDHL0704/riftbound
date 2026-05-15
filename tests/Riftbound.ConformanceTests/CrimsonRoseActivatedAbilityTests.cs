@@ -11,6 +11,7 @@ public sealed class CrimsonRoseActivatedAbilityTests
     private const string FriendlyBattlefieldUnitObjectId = "P1-BATTLEFIELD-UNIT";
     private const string EnemyBaseUnitObjectId = "P2-BASE-UNIT";
     private const string EnemySpellshieldUnitObjectId = "P2-SPELLSHIELD-UNIT";
+    private const string FriendlyMaduliObjectId = "P1-MADULI";
 
     [Fact]
     public void CrimsonRoseOpenMainPromptExposesExperienceReadyUnitRequirement()
@@ -56,6 +57,31 @@ public sealed class CrimsonRoseActivatedAbilityTests
         Assert.Equal(
             [FriendlyBaseUnitObjectId, FriendlyBattlefieldUnitObjectId, EnemyBaseUnitObjectId, EnemySpellshieldUnitObjectId],
             targetIds);
+    }
+
+    [Fact]
+    public void CrimsonRoseReadyUnitPromptHidesGatekeeperMaduliCannotBecomeActiveTarget()
+    {
+        var state = AddFriendlyMaduli(BuildCrimsonRoseState(mana: 1, experience: 3));
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+
+        var activateCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(activateCandidate.Metadata);
+        var requirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]),
+            entry => string.Equals(
+                entry["abilityId"] as string,
+                P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId,
+                StringComparison.Ordinal));
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            requirement["targetChoicesByIndex"]);
+
+        Assert.DoesNotContain(
+            FriendlyMaduliObjectId,
+            targetChoicesByIndex["0"].Select(choice => choice.Id));
     }
 
     [Theory]
@@ -173,6 +199,65 @@ public sealed class CrimsonRoseActivatedAbilityTests
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, FriendlyBaseUnitObjectId, StringComparison.Ordinal)
             && Equals(gameEvent.Payload["wasExhausted"], true)
             && Equals(gameEvent.Payload["isExhausted"], false));
+    }
+
+    [Fact]
+    public async Task CrimsonRoseRejectsHandWrittenGatekeeperMaduliReadyTargetWithoutMutation()
+    {
+        var state = AddFriendlyMaduli(BuildCrimsonRoseState(mana: 1, experience: 3));
+
+        await AssertRejectedNoMutationAsync(state, CrimsonRoseCommand([FriendlyMaduliObjectId]));
+    }
+
+    [Fact]
+    public async Task CrimsonRoseStaleStackItemSkipsGatekeeperMaduliCannotBecomeActiveTarget()
+    {
+        var engine = new CoreRuleEngine();
+        var baseState = AddFriendlyMaduli(BuildCrimsonRoseState(mana: 1, experience: 3));
+        var state = baseState with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P1",
+            CardObjects = ReplaceCardObject(
+                baseState.CardObjects,
+                CrimsonRoseObjectId,
+                baseState.CardObjects[CrimsonRoseObjectId] with
+                {
+                    IsExhausted = true
+                }),
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-STALE-CRIMSON-MADULI",
+                    "P1",
+                    CrimsonRoseObjectId,
+                    P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityEffectKind,
+                    P4ActivatedAbilityCatalog.CrimsonRoseCardNo,
+                    [FriendlyMaduliObjectId],
+                    0,
+                    1,
+                    [])
+            ]
+        };
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-crimson-maduli-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-crimson-maduli-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Empty(p2Pass.State.StackItems);
+        Assert.True(p2Pass.State.CardObjects[FriendlyMaduliObjectId].IsExhausted);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, FriendlyMaduliObjectId, StringComparison.Ordinal));
     }
 
     [Theory]
@@ -430,6 +515,28 @@ public sealed class CrimsonRoseActivatedAbilityTests
                 [EnemyBaseUnitObjectId] = new("P2", "BASE"),
                 [EnemySpellshieldUnitObjectId] = new("P2", "BATTLEFIELD", "P2-MAIN")
             });
+    }
+
+    private static MatchState AddFriendlyMaduli(MatchState state)
+    {
+        return state with
+        {
+            PlayerZones = ReplacePlayerZones(
+                state.PlayerZones,
+                "P1",
+                state.PlayerZones["P1"] with
+                {
+                    Base = state.PlayerZones["P1"].Base.Concat([FriendlyMaduliObjectId]).ToArray()
+                }),
+            CardObjects = ReplaceCardObject(
+                state.CardObjects,
+                FriendlyMaduliObjectId,
+                Unit(FriendlyMaduliObjectId, P4ActivatedAbilityCatalog.GatekeeperMaduliCardNo, "P1", isExhausted: true)),
+            ObjectLocations = ReplaceObjectLocation(
+                state.ObjectLocations,
+                FriendlyMaduliObjectId,
+                new ObjectLocationState("P1", "BASE"))
+        };
     }
 
     private static CardObjectState Equipment(string objectId, string cardNo, string playerId)

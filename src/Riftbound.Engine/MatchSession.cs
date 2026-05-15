@@ -6346,6 +6346,7 @@ internal static class ActionPromptBuilder
         {
             var choices = PublicBoardObjects(state)
                 .Where(objectId => IsPromptFieldUnitObject(state, objectId))
+                .Where(objectId => IsPromptReadyTargetObject(state, objectId))
                 .Where(objectId => CanPayCrimsonRoseTargetCost(state, playerId, ability, objectId))
                 .Select(objectId => ObjectChoice(
                     state,
@@ -6444,6 +6445,12 @@ internal static class ActionPromptBuilder
             : 0;
         return experience >= ability.ExperienceCost
             && runePool.Mana >= SpellshieldTaxManaForTarget(state, playerId, targetObjectId);
+    }
+
+    private static bool IsPromptReadyTargetObject(MatchState state, string objectId)
+    {
+        return state.CardObjects.TryGetValue(objectId, out var targetState)
+            && !P4ActivatedAbilityCatalog.CardCannotBecomeActive(targetState.CardNo);
     }
 
     private static bool CanPayShadowTargetCost(
@@ -10965,7 +10972,7 @@ internal static class ActionPromptBuilder
             view["timingPolicy"] = "open-main-representative";
             view["stackPolicy"] = "ordinary-stack-item-before-move";
             view["paymentPolicy"] = "payment-plan-typed-purple";
-            view["staticCannotBecomeActivePolicy"] = "deferred";
+            view["staticCannotBecomeActivePolicy"] = "implemented";
         }
 
         if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId, StringComparison.Ordinal))

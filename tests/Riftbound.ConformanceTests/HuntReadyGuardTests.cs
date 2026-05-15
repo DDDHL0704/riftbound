@@ -6,6 +6,8 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class HuntReadyGuardTests
 {
+    private const string MaduliObjectId = "P1-GATEKEEPER-MADULI";
+
     [Fact]
     public async Task HuntReadiesOnlyFriendlyPublicFieldUnits()
     {
@@ -39,6 +41,7 @@ public sealed class HuntReadyGuardTests
 
         Assert.False(p2Pass.State.CardObjects["P1-BASE-UNIT"].IsExhausted);
         Assert.False(p2Pass.State.CardObjects["P1-BATTLEFIELD-UNIT"].IsExhausted);
+        Assert.True(p2Pass.State.CardObjects[MaduliObjectId].IsExhausted);
         Assert.True(p2Pass.State.CardObjects["P1-BATTLEFIELD-EQUIPMENT"].IsExhausted);
         Assert.True(p2Pass.State.CardObjects["P1-BATTLEFIELD-SPELL"].IsExhausted);
         Assert.True(p2Pass.State.CardObjects["P1-BATTLEFIELD-RUNE"].IsExhausted);
@@ -53,6 +56,7 @@ public sealed class HuntReadyGuardTests
         Assert.Equal(2, readiedTargetIds.Length);
         Assert.Contains("P1-BASE-UNIT", readiedTargetIds);
         Assert.Contains("P1-BATTLEFIELD-UNIT", readiedTargetIds);
+        Assert.DoesNotContain(MaduliObjectId, readiedTargetIds);
         Assert.DoesNotContain("P1-BATTLEFIELD-EQUIPMENT", readiedTargetIds);
         Assert.DoesNotContain("P1-BATTLEFIELD-SPELL", readiedTargetIds);
         Assert.DoesNotContain("P1-BATTLEFIELD-RUNE", readiedTargetIds);
@@ -63,6 +67,7 @@ public sealed class HuntReadyGuardTests
 
     [Theory]
     [InlineData("P1-BASE-UNIT")]
+    [InlineData(MaduliObjectId)]
     [InlineData("P1-BATTLEFIELD-UNIT")]
     [InlineData("P2-BATTLEFIELD-UNIT")]
     [InlineData("P1-BATTLEFIELD-EQUIPMENT")]
@@ -140,7 +145,7 @@ public sealed class HuntReadyGuardTests
                 ["P1"] = PlayerZones.Empty with
                 {
                     Hand = ["P1-SPELL-HUNT"],
-                    Base = ["P1-BASE-UNIT"],
+                    Base = ["P1-BASE-UNIT", MaduliObjectId],
                     Battlefields =
                     [
                         "P1-BATTLEFIELD-UNIT",
@@ -160,6 +165,7 @@ public sealed class HuntReadyGuardTests
             {
                 ["P1-SPELL-HUNT"] = Hunt(),
                 ["P1-BASE-UNIT"] = Unit("P1-BASE-UNIT"),
+                [MaduliObjectId] = Unit(MaduliObjectId, cardNo: P4ActivatedAbilityCatalog.GatekeeperMaduliCardNo),
                 ["P1-BATTLEFIELD-UNIT"] = Unit("P1-BATTLEFIELD-UNIT"),
                 ["P1-BATTLEFIELD-EQUIPMENT"] = NonUnit("P1-BATTLEFIELD-EQUIPMENT", "SFD·139/221", CardObjectTags.EquipmentCard, "P1"),
                 ["P1-BATTLEFIELD-SPELL"] = NonUnit("P1-BATTLEFIELD-SPELL", "OGN·169/298", CardObjectTags.SpellCard, "P1"),

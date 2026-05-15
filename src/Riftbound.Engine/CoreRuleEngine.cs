@@ -11803,7 +11803,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || string.IsNullOrWhiteSpace(targetState.CardNo)
             || targetState.IsFaceDown
             || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+            || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || P4ActivatedAbilityCatalog.CardCannotBecomeActive(targetState.CardNo))
         {
             return RejectWithCorePrompts(
                 state,
@@ -13048,7 +13049,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 sourceObjectId,
                 out var readyEvent);
             cardObjects[sourceObjectId] = readiedSourceState;
-            events.Add(readyEvent);
+            if (readyEvent is not null)
+            {
+                events.Add(readyEvent);
+            }
 
             var poweredSourceState = ApplyPowerModifier(
                 readiedSourceState,
@@ -25261,7 +25265,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                     triggerStackItem,
                     sourceObjectId,
                     out var readyEvent);
-                events.Add(readyEvent);
+                if (readyEvent is not null)
+                {
+                    events.Add(readyEvent);
+                }
                 cardObjects[sourceObjectId] = ApplyPowerModifier(
                     readiedState,
                     EclipseVanguardStunTriggerBehavior,
@@ -30585,7 +30592,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                         targetObjectId,
                         out var readyEvent);
                     cardObjects[targetObjectId] = targetState;
-                    events.Add(readyEvent);
+                    if (readyEvent is not null)
+                    {
+                        events.Add(readyEvent);
+                    }
                 }
             }
         }
@@ -31000,7 +31010,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                     readyTargetObjectId,
                     out var readyEvent);
                 cardObjects[readyTargetObjectId] = readiedTargetState;
-                events.Add(readyEvent);
+                if (readyEvent is not null)
+                {
+                    events.Add(readyEvent);
+                }
 
                 var damageAmount = Math.Max(0, readiedTargetState.Power);
                 if (damageAmount > 0
@@ -31487,7 +31500,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                             stackItem,
                             targetObjectId,
                             out var readyEvent);
-                        events.Add(readyEvent);
+                        if (readyEvent is not null)
+                        {
+                            events.Add(readyEvent);
+                        }
                     }
 
                     if (behavior.ExhaustsTarget)
@@ -33483,7 +33499,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             && cardObjects.TryGetValue(targetObjectId, out var targetState)
             && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !targetState.IsFaceDown
-            && !targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            && !targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && !P4ActivatedAbilityCatalog.CardCannotBecomeActive(targetState.CardNo))
         {
             cardObjects[targetObjectId] = targetState with { IsExhausted = false };
             events.Add(new GameEvent(
@@ -35455,8 +35472,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
         string targetObjectId,
-        out GameEvent readyEvent)
+        out GameEvent? readyEvent)
     {
+        if (P4ActivatedAbilityCatalog.CardCannotBecomeActive(targetState.CardNo))
+        {
+            readyEvent = null;
+            return targetState;
+        }
+
         var wasExhausted = targetState.IsExhausted;
         var nextTargetState = targetState with
         {

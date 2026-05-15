@@ -72,7 +72,7 @@ public sealed class GatekeeperMaduliActivatedAbilityTests
         Assert.Equal("move-source-to-target-battlefield", requirement["movePolicy"]);
         Assert.Equal("ordinary-stack-item-before-move", requirement["stackPolicy"]);
         Assert.Equal("payment-plan-typed-purple", requirement["paymentPolicy"]);
-        Assert.Equal("deferred", requirement["staticCannotBecomeActivePolicy"]);
+        Assert.Equal("implemented", requirement["staticCannotBecomeActivePolicy"]);
 
         var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
             requirement["targetChoicesByIndex"]);
