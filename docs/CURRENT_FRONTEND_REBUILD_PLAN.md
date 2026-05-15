@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 2026-05-16 Stage 4D-04P-B 已验收：LayerEngine minimum-power ordering representative 已由 B-Implementation / Carson `019e2c9e-1e05-7130-94de-83a9ef0c982e` 完成，审计入口为 `docs/CURRENT_STAGE4D_04P_LAYERENGINE_MINIMUM_POWER_ORDERING_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_04P_LAYERENGINE_MINIMUM_POWER_ORDERING_EVIDENCE.md`；focused minimum-power ordering guard 8/8、adjacent minimum / ordering / continuous-effect regression 16/16、backend full 4450/4450、`git diff --check` 通过。本批不修改前端运行时代码；前端继续只消费服务端 authoritative snapshot 中的 `power`、`basePower`、`effectivePower`、`timing.continuousEffects` 及其中 metadata，不本地实现 LayerEngine、minimum floor ordering 或重算战力。项目仍 **NOT READY**。
+
 - 2026-05-16 Stage 4D-04P-B 已派发：A 主控已把 LayerEngine minimum-power ordering 交给 B-Implementation / Carson `019e2c9e-1e05-7130-94de-83a9ef0c982e`，并在 `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 打开窄服务端 runtime / focused-test 写锁。本 dispatch 不修改前端运行时代码；前端仍只消费服务端 authoritative snapshot 中的 `power`、`basePower`、`effectivePower`、`timing.continuousEffects` 及其中 metadata，不本地推断 minimum floor ordering、LayerEngine 或重算战力。项目仍 **NOT READY**。
 
 - 2026-05-16 Stage 4D-04P handoff / baseline 已建立：A 主控把 P1-001 LayerEngine minimum-power ordering residual 拆成下一枚建议 B handoff。交接入口为 `docs/CURRENT_STAGE4D_04P_LAYERENGINE_MINIMUM_POWER_ORDERING_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_04P_LAYERENGINE_MINIMUM_POWER_ORDERING_BASELINE_EVIDENCE.md`；focused minimum-power ordering guard 7/7、adjacent minimum / ordering / continuous-effect regression 15/15、backend full 4449/4449 通过。本批不修改前端运行时代码；前端继续只消费服务端 authoritative snapshot 中的 `power`、`basePower`、`effectivePower`、`timing.continuousEffects` 及其中的 requested/applied/minimum/resulting/appliedOrder metadata，不本地实现 LayerEngine、minimum floor ordering 或重算战力。项目仍 **NOT READY**。

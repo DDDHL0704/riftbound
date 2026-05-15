@@ -24273,6 +24273,88 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task PowerModifierMinimumPowerAppliedOrderSkipsZeroFloorSequence()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-minimum-power-ordering-sequence.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+
+        var zeroAppliedEvent = Assert.Single(
+            result.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-SPELL-EXTORTION", StringComparison.Ordinal));
+        Assert.Equal(0, Assert.IsType<int>(zeroAppliedEvent.Payload["appliedPowerDelta"]));
+        Assert.Equal(1, Assert.IsType<int>(zeroAppliedEvent.Payload["minimumPower"]));
+        Assert.Equal(1, Assert.IsType<int>(zeroAppliedEvent.Payload["resultingPower"]));
+
+        var targetState = result.FinalState.CardObjects["P1-TARGET-UNIT"];
+        Assert.Equal(2, targetState.Power);
+        Assert.Equal(-1, targetState.UntilEndOfTurnPowerModifier);
+        Assert.Equal(2, targetState.UntilEndOfTurnPowerModifiers.Count);
+        Assert.Equal(
+            ["SMOKE_BOMB_POWER_MINUS_4_MIN_1", "POWER_BIND_TWO_FRIENDLY_POWER_PLUS_1"],
+            targetState.UntilEndOfTurnPowerModifiers.Select(modifier => modifier.EffectKind).ToArray());
+        Assert.Equal([-2, 1], targetState.UntilEndOfTurnPowerModifiers.Select(modifier => modifier.PowerDelta).ToArray());
+        Assert.Equal([-4, 1], targetState.UntilEndOfTurnPowerModifiers.Select(modifier => modifier.RequestedPowerDelta).ToArray());
+        Assert.Equal([1, 0], targetState.UntilEndOfTurnPowerModifiers.Select(modifier => modifier.MinimumPower).ToArray());
+        Assert.Equal([1, 2], targetState.UntilEndOfTurnPowerModifiers.Select(modifier => modifier.ResultingPower).ToArray());
+        Assert.Equal([3, 3], targetState.UntilEndOfTurnPowerModifiers.Select(modifier => modifier.BasePower).ToArray());
+        Assert.Equal([1, 2], targetState.UntilEndOfTurnPowerModifiers.Select(modifier => modifier.EffectivePower).ToArray());
+        Assert.Equal(
+            [1, 2],
+            targetState.UntilEndOfTurnPowerModifiers
+                .Select(modifier => modifier.AppliedOrder.GetValueOrDefault())
+                .ToArray());
+        Assert.DoesNotContain(
+            targetState.UntilEndOfTurnPowerModifiers,
+            modifier => string.Equals(modifier.EffectKind, "EXTORTION_POWER_MINUS_1_MIN_1_DRAW_1", StringComparison.Ordinal));
+
+        var targetEffects = result.FinalState.ContinuousEffects
+            .Where(effect => string.Equals(effect.Layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P1-TARGET-UNIT", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(2, targetEffects.Length);
+        Assert.Equal(
+            ["SMOKE_BOMB_POWER_MINUS_4_MIN_1", "POWER_BIND_TWO_FRIENDLY_POWER_PLUS_1"],
+            targetEffects.Select(effect => effect.EffectKind).ToArray());
+        Assert.Equal([-2, 1], targetEffects.Select(effect => effect.PowerDelta).ToArray());
+        Assert.Equal([-4, 1], targetEffects.Select(effect => effect.RequestedPowerDelta.GetValueOrDefault()).ToArray());
+        Assert.Equal([-2, 1], targetEffects.Select(effect => effect.AppliedPowerDelta.GetValueOrDefault()).ToArray());
+        Assert.Equal([1, 0], targetEffects.Select(effect => effect.MinimumPower.GetValueOrDefault()).ToArray());
+        Assert.Equal([1, 2], targetEffects.Select(effect => effect.ResultingPower.GetValueOrDefault()).ToArray());
+        Assert.Equal([3, 3], targetEffects.Select(effect => effect.BasePower).ToArray());
+        Assert.Equal([1, 2], targetEffects.Select(effect => effect.EffectivePower).ToArray());
+        Assert.Equal([1, 2], targetEffects.Select(effect => effect.AppliedOrder.GetValueOrDefault()).ToArray());
+
+        var snapshot = ResolutionResult.BuildSnapshots(result.FinalState)["P1"];
+        var continuousEffects = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
+            snapshot.Timing["continuousEffects"]);
+        var targetEffectViews = continuousEffects
+            .Where(effect => string.Equals(effect["layer"] as string, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+                && string.Equals(effect["targetObjectId"] as string, "P1-TARGET-UNIT", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(2, targetEffectViews.Length);
+        Assert.Equal(
+            ["SMOKE_BOMB_POWER_MINUS_4_MIN_1", "POWER_BIND_TWO_FRIENDLY_POWER_PLUS_1"],
+            targetEffectViews.Select(effect => Assert.IsType<string>(effect["effectKind"])).ToArray());
+        Assert.Equal([-2, 1], targetEffectViews.Select(effect => Assert.IsType<int>(effect["powerDelta"])).ToArray());
+        Assert.Equal([-4, 1], targetEffectViews.Select(effect => Assert.IsType<int>(effect["requestedPowerDelta"])).ToArray());
+        Assert.Equal([-2, 1], targetEffectViews.Select(effect => Assert.IsType<int>(effect["appliedPowerDelta"])).ToArray());
+        Assert.Equal([1, 0], targetEffectViews.Select(effect => Assert.IsType<int>(effect["minimumPower"])).ToArray());
+        Assert.Equal([1, 2], targetEffectViews.Select(effect => Assert.IsType<int>(effect["resultingPower"])).ToArray());
+        Assert.Equal([3, 3], targetEffectViews.Select(effect => Assert.IsType<int>(effect["basePower"])).ToArray());
+        Assert.Equal([1, 2], targetEffectViews.Select(effect => Assert.IsType<int>(effect["effectivePower"])).ToArray());
+        Assert.Equal([1, 2], targetEffectViews.Select(effect => Assert.IsType<int>(effect["appliedOrder"])).ToArray());
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysSmokeBombPowerFloorThroughStack()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -24304,6 +24386,18 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal(3, result.FinalState.CardObjects["P2-UNIT-001"].Power);
         Assert.Equal(0, result.FinalState.CardObjects["P2-UNIT-001"].UntilEndOfTurnPowerModifier);
+        Assert.Empty(result.FinalState.CardObjects["P2-UNIT-001"].UntilEndOfTurnPowerModifiers);
+        Assert.DoesNotContain(
+            result.FinalState.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P2-UNIT-001", StringComparison.Ordinal));
+        var snapshot = ResolutionResult.BuildSnapshots(result.FinalState)["P1"];
+        var continuousEffects = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
+            snapshot.Timing["continuousEffects"]);
+        Assert.DoesNotContain(
+            continuousEffects,
+            effect => string.Equals(effect["layer"] as string, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+                && string.Equals(effect["targetObjectId"] as string, "P2-UNIT-001", StringComparison.Ordinal));
         Assert.Contains("POWER_MODIFIER_EXPIRED", result.EventKinds);
     }
 

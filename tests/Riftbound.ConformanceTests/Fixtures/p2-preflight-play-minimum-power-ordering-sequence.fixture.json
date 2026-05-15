@@ -1,0 +1,299 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-minimum-power-ordering-sequence",
+  "description": "Smoke Bomb floors a friendly unit to 1, Extortion then applies zero delta at the floor, and Power Bind later applies a visible +1 to the same target.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302168,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "OGN·093/298 烟幕弹; OGN·095/298 “敲”诈; SFD·151/221 力量之缚",
+      "note": "烟幕弹与“敲”诈均有不得低于 1 的战力下限；力量之缚让两名友方单位本回合内战力 +1。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p31-p33 rules 318-324; p39-p42 rules 355-356; p57 rule 413.4",
+      "note": "本回合内持续修正按结算顺序应用；指示尽可能执行，floor 后为 0 的战力变化不应产生可审计的非零持续修正。"
+    }
+  ],
+  "roomId": "p2-preflight-minimum-power-ordering-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302168,
+    "turnNumber": 82,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 5, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-DRAW-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-SMOKE-BOMB", "P1-SPELL-EXTORTION", "P1-SPELL-POWER-BIND"],
+        "base": ["P1-TARGET-UNIT", "P1-BUDDY-UNIT"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": [],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-TARGET-UNIT": {
+        "damage": 0,
+        "power": 3,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P1-BUDDY-UNIT": {
+        "damage": 0,
+        "power": 2,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-minimum-power-ordering-smoke-bomb-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-SMOKE-BOMB",
+        "cardNo": "OGN·093/298",
+        "targetObjectIds": ["P1-TARGET-UNIT"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-minimum-power-ordering-smoke-bomb-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-minimum-power-ordering-smoke-bomb-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-minimum-power-ordering-extortion-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-EXTORTION",
+        "cardNo": "OGN·095/298",
+        "targetObjectIds": ["P1-TARGET-UNIT"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-minimum-power-ordering-extortion-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-minimum-power-ordering-extortion-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-minimum-power-ordering-power-bind-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-POWER-BIND",
+        "cardNo": "SFD·151/221",
+        "targetObjectIds": ["P1-TARGET-UNIT", "P1-BUDDY-UNIT"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-minimum-power-ordering-power-bind-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-minimum-power-ordering-power-bind-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 9,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "POWER_MODIFIED_UNTIL_END_OF_TURN",
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "POWER_MODIFIED_UNTIL_END_OF_TURN",
+      "CARD_DRAWN",
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "POWER_MODIFIED_UNTIL_END_OF_TURN",
+      "POWER_MODIFIED_UNTIL_END_OF_TURN"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      { "kind": "COST_PAID" },
+      { "kind": "STACK_ITEM_ADDED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-SMOKE-BOMB",
+          "targetObjectId": "P1-TARGET-UNIT",
+          "powerDelta": -4,
+          "appliedPowerDelta": -2,
+          "minimumPower": 1,
+          "resultingPower": 1
+        }
+      },
+      { "kind": "CARD_PLAYED" },
+      { "kind": "COST_PAID" },
+      { "kind": "STACK_ITEM_ADDED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-EXTORTION",
+          "targetObjectId": "P1-TARGET-UNIT",
+          "powerDelta": -1,
+          "appliedPowerDelta": 0,
+          "minimumPower": 1,
+          "resultingPower": 1
+        }
+      },
+      {
+        "kind": "CARD_DRAWN",
+        "payload": {
+          "playerId": "P1",
+          "count": 1
+        }
+      },
+      { "kind": "CARD_PLAYED" },
+      { "kind": "COST_PAID" },
+      { "kind": "STACK_ITEM_ADDED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-POWER-BIND",
+          "targetObjectId": "P1-TARGET-UNIT",
+          "powerDelta": 1,
+          "appliedPowerDelta": 1,
+          "resultingPower": 2
+        }
+      },
+      {
+        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-POWER-BIND",
+          "targetObjectId": "P1-BUDDY-UNIT",
+          "powerDelta": 1,
+          "appliedPowerDelta": 1,
+          "resultingPower": 3
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 82,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "mainDeck": [],
+          "hand": ["P1-DRAW-001"],
+          "base": ["P1-TARGET-UNIT", "P1-BUDDY-UNIT"],
+          "graveyard": ["P1-SPELL-SMOKE-BOMB", "P1-SPELL-EXTORTION", "P1-SPELL-POWER-BIND"]
+        },
+        "P2": {
+          "graveyard": []
+        }
+      },
+      "cardObjects": {
+        "P1-TARGET-UNIT": {
+          "damage": 0,
+          "power": 2,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": -1
+        },
+        "P1-BUDDY-UNIT": {
+          "damage": 0,
+          "power": 3,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 1
+        }
+      },
+      "stackItems": []
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}
