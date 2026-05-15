@@ -28,6 +28,8 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string ResourceSkillAllWindowMatrix = "resource-skill-all-window-matrix";
     private const string TargetTaxActivatedAbilityMatrix = "target-tax-activated-ability-matrix";
     private const string RemainingOfficialClosureGate = "remaining-official-closure-gate";
+    private const string ImplementedResourceSkillOfficialCandidate = "implemented-resource-skill-official-candidate";
+    private const string DeferredResourceSkillOfficialCandidate = "deferred-resource-skill-official-candidate";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
     [
@@ -2197,6 +2199,84 @@ public sealed class PaymentEngineCoverageAuditTests
                         .. family.DocAnchors
                     ])))
             .ToArray();
+    }
+
+    private static readonly string[] ResourceSkillOfficialBreadthDocAnchors =
+    [
+        "docs/CURRENT_STAGE4D_03BU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03BU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03BU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_HANDOFF.md",
+        "docs/CURRENT_STAGE4D_03BU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_BASELINE_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03AZ_PAYMENT_ENGINE_RESOURCE_SKILL_RESIDUAL_MANIFEST_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03AL_PAYMENT_ENGINE_RESOURCE_SKILL_COVERAGE_AUDIT.md"
+    ];
+
+    private static readonly PaymentEngineResourceSkillOfficialBreadthEntry[] ResourceSkillOfficialBreadthManifest =
+    [
+        ImplementedResourceSkillOfficialBreadthEntry("UNL·T05", "Gold token generic payment-only resource skill"),
+        DeferredResourceSkillOfficialBreadthEntry("UNL-022/219", "Jhin movement-triggered mana plus power generated resource skill"),
+        DeferredResourceSkillOfficialBreadthEntry("UNL-049/219", "Honeyfruit reaction resource skill plus level-six upgraded mana plus power branch"),
+        DeferredResourceSkillOfficialBreadthEntry("UNL-087/219", "Blue Sentinel held-battlefield delayed next-main generated power branch"),
+        ImplementedResourceSkillOfficialBreadthEntry("UNL-093/219", "Dragon Soul Sage reaction generated mana resource skill"),
+        DeferredResourceSkillOfficialBreadthEntry("UNL-197/219", "Diana spell-duel-only generated mana restriction branch"),
+        ImplementedResourceSkillOfficialBreadthEntry("SFD·083/221", "Hextech Anomaly generic power to mana conversion resource skill"),
+        ImplementedResourceSkillOfficialBreadthEntry("SFD·117/221", "Ancient Stele mana to generic power conversion resource skill"),
+        DeferredResourceSkillOfficialBreadthEntry("SFD·189/221", "Ornn Forge equipment-only generated power restriction branch"),
+        ImplementedResourceSkillOfficialBreadthEntry("SFD·222/221", "SFD Rage Sigil typed red payment-only resource skill"),
+        ImplementedResourceSkillOfficialBreadthEntry("SFD·226/221", "SFD Focus Sigil typed green payment-only resource skill"),
+        ImplementedResourceSkillOfficialBreadthEntry("SFD·229/221", "SFD Insight Sigil typed blue payment-only resource skill"),
+        ImplementedResourceSkillOfficialBreadthEntry("SFD·231/221", "SFD Power Sigil typed orange payment-only resource skill"),
+        ImplementedResourceSkillOfficialBreadthEntry("SFD·234/221", "SFD Discord Sigil typed purple payment-only resource skill"),
+        ImplementedResourceSkillOfficialBreadthEntry("SFD·238/221", "SFD Unity Sigil typed yellow payment-only resource skill"),
+        DeferredResourceSkillOfficialBreadthEntry("SFD·244/221", "Ornn Forge reprint equipment-only generated power restriction branch"),
+        ImplementedResourceSkillOfficialBreadthEntry("SFD·T03", "SFD Gold token generic payment-only resource skill"),
+        DeferredResourceSkillOfficialBreadthEntry("OGS·014/024", "Lux spell-only generated mana restriction branch"),
+        ImplementedResourceSkillOfficialBreadthEntry("OGN·040/298", "OGN Rage Sigil typed red payment-only resource skill"),
+        ImplementedResourceSkillOfficialBreadthEntry("OGN·081/298", "OGN Focus Sigil typed green payment-only resource skill"),
+        ImplementedResourceSkillOfficialBreadthEntry("OGN·098/298", "Energy Channel generated mana payment resource skill"),
+        ImplementedResourceSkillOfficialBreadthEntry("OGN·113/298", "Malzahar target-as-cost generated double power resource skill"),
+        ImplementedResourceSkillOfficialBreadthEntry("OGN·120/298", "OGN Insight Sigil typed blue payment-only resource skill"),
+        ImplementedResourceSkillOfficialBreadthEntry("OGN·163/298", "OGN Power Sigil typed orange payment-only resource skill"),
+        ImplementedResourceSkillOfficialBreadthEntry("OGN·204/298", "OGN Discord Sigil typed purple payment-only resource skill"),
+        ImplementedResourceSkillOfficialBreadthEntry("OGN·245/298", "OGN Unity Sigil typed yellow payment-only resource skill"),
+        DeferredResourceSkillOfficialBreadthEntry("OGN·247/298", "KaiSa spell-only generated power restriction branch"),
+        DeferredResourceSkillOfficialBreadthEntry("OGN·253/298", "Darius Inspire-gated generated mana resource skill"),
+        DeferredResourceSkillOfficialBreadthEntry("OGN·299/298", "KaiSa premium spell-only generated power restriction branch"),
+        DeferredResourceSkillOfficialBreadthEntry("OGN·299*/298", "KaiSa premium alternate spell-only generated power restriction branch"),
+        DeferredResourceSkillOfficialBreadthEntry("OGN·302/298", "Darius premium Inspire-gated generated mana resource skill"),
+        DeferredResourceSkillOfficialBreadthEntry("OGN·302*/298", "Darius premium alternate Inspire-gated generated mana resource skill")
+    ];
+
+    private static PaymentEngineResourceSkillOfficialBreadthEntry ImplementedResourceSkillOfficialBreadthEntry(
+        string cardNo,
+        string officialResourceProfile)
+    {
+        return new(
+            cardNo,
+            ImplementedResourceSkillOfficialCandidate,
+            "RESOURCE_SKILL_A_C_FAMILY",
+            "RESOURCE_SKILLS",
+            officialResourceProfile,
+            "Current P4ActivatedAbilityCatalog marks this fixed official catalog source as IsResourceSkill=true and keeps prompt / command / ABILITY_ACTIVATED / generated-resource / rollback representative evidence.",
+            "Future official closure must keep this source in the complete resource-skill breadth verifier and prove it across every official payment-only and generated-resource branch.",
+            "Implemented representative only; project remains NOT READY and P0-005 remains open for full official [A] / [C] resource skill breadth.",
+            ResourceSkillOfficialBreadthDocAnchors);
+    }
+
+    private static PaymentEngineResourceSkillOfficialBreadthEntry DeferredResourceSkillOfficialBreadthEntry(
+        string cardNo,
+        string officialResourceProfile)
+    {
+        return new(
+            cardNo,
+            DeferredResourceSkillOfficialCandidate,
+            "RESOURCE_SKILL_A_C_FAMILY",
+            "RESOURCE_SKILLS",
+            officialResourceProfile,
+            "Fixed official catalog resource-skill candidate is not currently represented by P4ActivatedAbilityCatalog IsResourceSkill=true.",
+            "Future B-side verifier / implementation must prove prompt, command, audit, generated-resource lifetime, restriction text and no-mutation rollback behavior before this source can leave deferred status.",
+            "Deferred official resource skill only; project remains NOT READY and P0-005 remains open for full official [A] / [C] resource skill breadth.",
+            ResourceSkillOfficialBreadthDocAnchors);
     }
 
     private static readonly TargetTaxActivatedAbilityMatrixDimensionProfile[] TargetTaxActivatedAbilityMatrixDimensionProfiles =
@@ -5365,6 +5445,129 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineResourceSkillOfficialBreadthManifestMatchesFixedOfficialCatalogScan()
+    {
+        var officialCatalogCandidateCardNos = GetFixedOfficialResourceSkillCandidateCardNos();
+        var manifestCardNos = ResourceSkillOfficialBreadthManifest
+            .Select(entry => entry.CardNo)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(officialCatalogCandidateCardNos, manifestCardNos);
+        Assert.Equal(32, manifestCardNos.Length);
+        Assert.Empty(ResourceSkillOfficialBreadthManifest
+            .GroupBy(entry => entry.CardNo, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key));
+    }
+
+    [Fact]
+    public void PaymentEngineResourceSkillOfficialBreadthManifestSplitsImplementedAndDeferredCandidates()
+    {
+        var implementedCatalogSourceCardNos = P4ActivatedAbilityCatalog.GetAll()
+            .Where(definition => definition.IsResourceSkill)
+            .Select(definition => definition.SourceCardNo)
+            .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var implementedManifestCardNos = ResourceSkillOfficialBreadthManifest
+            .Where(entry => string.Equals(entry.Classification, ImplementedResourceSkillOfficialCandidate, StringComparison.Ordinal))
+            .Select(entry => entry.CardNo)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var deferredManifestCardNos = ResourceSkillOfficialBreadthManifest
+            .Where(entry => string.Equals(entry.Classification, DeferredResourceSkillOfficialCandidate, StringComparison.Ordinal))
+            .Select(entry => entry.CardNo)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(implementedCatalogSourceCardNos, implementedManifestCardNos);
+        Assert.Equal(19, implementedManifestCardNos.Length);
+        Assert.Equal(13, deferredManifestCardNos.Length);
+        Assert.Empty(implementedManifestCardNos.Intersect(deferredManifestCardNos, StringComparer.Ordinal));
+    }
+
+    [Fact]
+    public void PaymentEngineResourceSkillOfficialBreadthManifestRequiresEvidenceAndDocAnchors()
+    {
+        Assert.All(ResourceSkillOfficialBreadthManifest, entry =>
+        {
+            Assert.Equal("RESOURCE_SKILL_A_C_FAMILY", entry.ResidualBlockerFamily);
+            Assert.Equal("RESOURCE_SKILLS", entry.OfficialResidualAxis);
+            Assert.False(string.IsNullOrWhiteSpace(entry.OfficialResourceProfile));
+            Assert.False(string.IsNullOrWhiteSpace(entry.CurrentEvidenceStatus));
+            Assert.Contains("Future", entry.RequiredFutureEvidence, StringComparison.Ordinal);
+            Assert.Contains("NOT READY", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("[A]", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("[C]", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.NotEmpty(entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_AUDIT.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_EVIDENCE.md", entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineResourceSkillOfficialBreadthManifestKeepsDeferredOfficialBreadthExplicit()
+    {
+        var combinedText = string.Join(
+            " ",
+            ResourceSkillOfficialBreadthManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.CardNo,
+                    entry.Classification,
+                    entry.OfficialResourceProfile,
+                    entry.CurrentEvidenceStatus,
+                    entry.RequiredFutureEvidence,
+                    entry.ClosureStatus
+                }));
+
+        Assert.Contains("Jhin movement-triggered", combinedText, StringComparison.Ordinal);
+        Assert.Contains("Honeyfruit", combinedText, StringComparison.Ordinal);
+        Assert.Contains("Blue Sentinel", combinedText, StringComparison.Ordinal);
+        Assert.Contains("Diana spell-duel-only", combinedText, StringComparison.Ordinal);
+        Assert.Contains("Ornn Forge equipment-only", combinedText, StringComparison.Ordinal);
+        Assert.Contains("Lux spell-only", combinedText, StringComparison.Ordinal);
+        Assert.Contains("KaiSa spell-only", combinedText, StringComparison.Ordinal);
+        Assert.Contains("Darius Inspire-gated", combinedText, StringComparison.Ordinal);
+        Assert.Contains(DeferredResourceSkillOfficialCandidate, combinedText, StringComparison.Ordinal);
+        Assert.Contains("generated-resource lifetime", combinedText, StringComparison.Ordinal);
+        Assert.Contains("no-mutation rollback", combinedText, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineResourceSkillOfficialBreadthManifestDoesNotClaimP0005Closure()
+    {
+        var combinedText = string.Join(
+            " ",
+            ResourceSkillOfficialBreadthManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.CardNo,
+                    entry.Classification,
+                    entry.OfficialResourceProfile,
+                    entry.CurrentEvidenceStatus,
+                    entry.RequiredFutureEvidence,
+                    entry.ClosureStatus
+                }.Concat(entry.DocAnchors)));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText.Replace("NOT READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PaymentEngineTargetTaxActivatedAbilityMatrixCoversEveryTargetAbilityAndDimension()
     {
         var requiredAbilityIds = TargetColoredActivatedAbilityCoverageManifest
@@ -5785,6 +5988,17 @@ public sealed class PaymentEngineCoverageAuditTests
         string ClosureStatus,
         IReadOnlyList<string> DocAnchors);
 
+    private sealed record PaymentEngineResourceSkillOfficialBreadthEntry(
+        string CardNo,
+        string Classification,
+        string ResidualBlockerFamily,
+        string OfficialResidualAxis,
+        string OfficialResourceProfile,
+        string CurrentEvidenceStatus,
+        string RequiredFutureEvidence,
+        string ClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
     private sealed record HasteReadyCoverageEntry(
         string CardNo,
         string ExpectedPowerTrait,
@@ -5810,8 +6024,26 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(KeywordPaymentBranchManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(KeywordPaymentBranchAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(ResourceSkillAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(ResourceSkillOfficialBreadthManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TargetTaxActivatedAbilityMatrixManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(RemainingOfficialClosureGateManifest.SelectMany(entry => entry.DocAnchors));
+    }
+
+    private static string[] GetFixedOfficialResourceSkillCandidateCardNos()
+    {
+        var catalogPath = Path.Combine(ResolveRepositoryRoot(), "data", "official", "card-catalog.zh-CN.json");
+        using var document = JsonDocument.Parse(File.ReadAllText(catalogPath));
+
+        return document.RootElement.GetProperty("cards").EnumerateArray()
+            .Where(card =>
+            {
+                var effectText = card.GetProperty("cardEffect").GetString() ?? string.Empty;
+                return effectText.Contains("{{获得}}", StringComparison.Ordinal)
+                    && effectText.Contains("获得费用资源的技能无法成为其他法术的反应目标", StringComparison.Ordinal);
+            })
+            .Select(card => card.GetProperty("cardNo").GetString()!)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
     }
 
     private static string ResolveRepositoryRoot()
