@@ -1,13 +1,15 @@
 # Stage 4D Next Dispatch and Writelocks
 
 日期：2026-05-15
-结论：**4D-03AP-B ACCEPTED / PROJECT NOT READY**
+结论：**4D-03AQ HANDOFF READY / PROJECT NOT READY**
 
 本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance 归档，不实现 runtime，不修改前端，不修改测试代码，不修改 card matrix。当前 active goal 仍未完成，不得调用 `update_goal complete`。
 
 ## 1. 输入事实
 
 - 当前分支为 `main`，仓库当前只保留未跟踪 `riftbound-dotnet.sln`；该文件不得被本批任务触碰或纳入提交。
+- `docs/CURRENT_STAGE4D_03AQ_PAYMENT_ENGINE_HASTE_READY_COVERAGE_VERIFIER_HANDOFF.md` 已把下一枚 P0-005 test-only guard 锁定为 implemented HASTE_READY registry/profile set 与 existing P4 fixture evidence 的 catalog-bound verifier。
+- `docs/CURRENT_STAGE4D_03AQ_PAYMENT_ENGINE_HASTE_READY_COVERAGE_VERIFIER_BASELINE_EVIDENCE.md` 已记录 implementation-before baseline：PaymentEngineCoverageAuditTests / HasteOptional / HasteReady 102/102 通过；PaymentEngineCoverageAuditTests / HasteOptional / HasteReady / PlayCard / ActionPrompt / GameHub / Priority 442/442 通过；`git diff --check` 通过。
 - `docs/CURRENT_STAGE4D_03AP_PAYMENT_ENGINE_REKSAI_HASTE_READY_RED_EXACTNESS_HANDOFF.md` 已把下一枚 P0-005 focused guard 锁定为 `SFD·029/221` / `SFD·029a/221` 雷克塞 HASTE_READY extra 1 mana + 1 red typed power exactness representative。
 - `docs/CURRENT_STAGE4D_03AP_PAYMENT_ENGINE_REKSAI_HASTE_READY_RED_EXACTNESS_BASELINE_EVIDENCE.md` 已记录 implementation-before baseline：Rek'Sai / HasteOptional / PaymentEngine 109/109 通过；Rek'Sai / HasteOptional / PaymentEngine / PlayCard / ActionPrompt / GameHub / Priority 425/425 通过；`git diff --check` 通过。
 - `docs/CURRENT_STAGE4D_03AP_CARD_MATRIX_READINESS_AUDIT.md` 已确认 Rek'Sai `FU-1945f6918c` 当前仍为 `fullOfficial=false`；4C-52 ordinary no-optional evidence 与 old P4 HASTE_READY fixtures 不代理 red exactness、strong/overflow、non-hand haste granting、LayerEngine 或 FAQ breadth。
@@ -25,7 +27,8 @@
 
 | Queue | Owner | Status | Purpose | Write scope | Must not touch |
 |---|---|---|---|---|---|
-| 4D-NEXT-A | A 主控 | 4D-03AP handoff / baseline recorded | 记录 4D-03AP 任务、写锁、验收与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs | `src/**`、`tests/**`、frontend runtime、card matrix |
+| 4D-NEXT-A | A 主控 | 4D-03AQ handoff / baseline recorded | 记录 4D-03AQ 任务、写锁、验收与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs | `src/**`、`tests/**`、frontend runtime、card matrix |
+| 4D-03AQ-B | B-Implementation | Pending dispatch | 新增 HASTE_READY catalog-bound coverage verifier | `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` | `src/**`、frontend runtime、card matrix JSON、broad Haste rewrite、strong/overflow、non-hand haste granting、LayerEngine、battle lifecycle、`riftbound-dotnet.sln` |
 | 4D-03AP-B | B-Implementation / Archimedes `019e2900-bcc5-7763-8f3a-db41a0aaa0a1` | Implemented and A-validated | 补强 Rek'Sai HASTE_READY red typed payment exactness focused tests / evidence | completed focused tests; no runtime changes | frontend runtime、card matrix JSON、broad Haste rewrite、strong/overflow、non-hand haste granting、LayerEngine、battle lifecycle、`riftbound-dotnet.sln` |
 | 4D-03AP-E | E-Review | Read-only readiness audit recorded in `docs/CURRENT_STAGE4D_03AP_CARD_MATRIX_READINESS_AUDIT.md` | 检查 Rek'Sai `FU-1945f6918c` matrix readiness and full-official blockers | card coverage docs in read-only mode | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` unless A opens a future matrix write window |
 | 4D-03AO-B | B-Implementation / Raman `019e2257-8d40-7630-9201-28df44dd689a` | Implemented and A-validated | 实现 Ezreal blue swift no-target self move-to-base representative | completed runtime / focused tests | frontend runtime、card matrix JSON、LayerEngine broad rewrite、attack / defense trigger runtime、unrelated battle lifecycle / cleanup queue files、unrelated activated abilities、`riftbound-dotnet.sln` |
@@ -38,6 +41,7 @@
 ## 3. Exclusive Writelocks
 
 - At this stop point, no runtime, frontend or matrix write lock remains open.
+- 4D-03AQ-B is prepared but not yet implemented. If dispatched, its write lock is `PaymentEngineCoverageAuditTests.cs` only.
 - 4D-03AP-B focused-test write lock is closed after A validation and commit-ready evidence.
 - 4D-03AO-B runtime / focused-test write lock is closed after A validation and commit.
 - D/A audit docs for 4D-03AO are recorded; no further 4D-03AO runtime edits should occur without a fresh dispatch.
@@ -45,7 +49,31 @@
 - E remains read-only until A accepts runtime evidence. The matrix must not be upgraded to `fullOfficial=true` for Ezreal while damage trigger, cannot-combat-damage static, swift timing or FAQ branches remain residual.
 - No parallel task may edit card matrix JSON, frontend stores, `ActionPrompt` contracts, battle state machine, stack, cleanup, hidden-info redaction, or E2E fixtures without an explicit owner and a fresh write-lock note.
 
-## 4. 4D-03AP-B Acceptance Gate
+## 4. 4D-03AQ-B Acceptance Gate
+
+B test-only verifier is acceptable only if A can verify all of the following:
+
+1. `PaymentEngineCoverageAuditTests` binds implemented HASTE_READY registry/profile entries to typed trait metadata and existing P4 fixture anchors.
+2. The verifier fails on missing trait, missing fixture, duplicate manifest entry or closure text that claims READY / full official.
+3. Closure status explicitly says `NOT READY` and `P0-005 remains open`.
+4. No runtime, frontend, card matrix or `riftbound-dotnet.sln` edits occur.
+
+Suggested post-implementation commands:
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngineCoverageAuditTests|FullyQualifiedName~HasteOptional|FullyQualifiedName~HasteReady"
+```
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngineCoverageAuditTests|FullyQualifiedName~HasteOptional|FullyQualifiedName~HasteReady|FullyQualifiedName~PlayCard|FullyQualifiedName~ActionPrompt|FullyQualifiedName~GameHub|FullyQualifiedName~Priority"
+```
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
+git diff --check
+```
+
+## 5. 4D-03AP-B Historical Acceptance Gate
 
 B implementation / test guard is acceptable only if A can verify all of the following:
 
@@ -72,7 +100,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
 git diff --check
 ```
 
-## 5. 4D-03AO-B Historical Acceptance Gate
+## 6. 4D-03AO-B Historical Acceptance Gate
 
 B implementation is acceptable only if A can verify all of the following:
 
@@ -102,7 +130,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
 git diff --check
 ```
 
-## 6. C / E Preflight Boundaries
+## 7. C / E Preflight Boundaries
 
 C may prepare a final validation checklist, but must not turn historical frontend evidence into final READY evidence. Final frontend validation still requires fresh runs in the final code state:
 
@@ -115,6 +143,6 @@ source ../../scripts/dev-env.sh && npm run e2e:formal-18 -- --start-api
 
 E may identify matrix rows and official text blockers for Ezreal, but must not update `fullOfficial` status until A accepts runtime, rules evidence, tests, residual handling and FAQ review.
 
-## 7. Current Batch Stop Point
+## 8. Current Batch Stop Point
 
-This record stops after accepting 4D-03AP-B test-only evidence. The project remains **NOT READY**. No frontend or matrix write window is open, no runtime write lock remains open, and `riftbound-dotnet.sln` remains untouched.
+This record stops after preparing 4D-03AQ handoff / baseline. The project remains **NOT READY**. No frontend or matrix write window is open, no runtime write lock is open, and `riftbound-dotnet.sln` remains untouched.
