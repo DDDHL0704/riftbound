@@ -1,13 +1,14 @@
 # Stage 4D Next Dispatch and Writelocks
 
 日期：2026-05-16
-结论：**4D-03BP-B PAYMENT ENGINE KEYWORD BRANCH ALL-WINDOW MATRIX VERIFIED / PROJECT NOT READY**
+结论：**4D-03BQ PAYMENT ENGINE RESOURCE SKILL ALL-WINDOW MATRIX HANDOFF RECORDED / PROJECT NOT READY**
 
 本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance / baseline 归档；除本文明确记录的 focused verifier 外，不实现 runtime，不修改前端，不升级 full-official。当前 active goal 仍未完成，不得调用 `update_goal complete`。
 
 ## 1. 输入事实
 
 - 当前分支为 `main`，仓库当前只保留未跟踪 `riftbound-dotnet.sln`；该文件不得被本批任务触碰或纳入提交。
+- 4D-03BQ PaymentEngine resource skill all-window matrix handoff / baseline 已建立，入口为 `docs/CURRENT_STAGE4D_03BQ_PAYMENT_ENGINE_RESOURCE_SKILL_ALL_WINDOW_MATRIX_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03BQ_PAYMENT_ENGINE_RESOURCE_SKILL_ALL_WINDOW_MATRIX_BASELINE_EVIDENCE.md`。本批只做 A-side docs，未派发 B 实现，未打开 test/runtime 写锁；future 4D-03BQ-B 应把 4D-03AZ / `ResourceSkillCoverageManifest` 的 6 个 resource skill family entries、19 个 current catalog `IsResourceSkill=true` ability ids 与 6 个 current PaymentEngine payment surfaces 扩成 36 行 family-window prompt-command-audit-generated-resource-rollback matrix，并继续回连 `RESOURCE_SKILL_A_C_FAMILY` residual 与 `RESOURCE_SKILLS` official residual axis。A 侧 baseline 验证 focused 97/97、adjacent PaymentEngine / resource skill / prompt / hub regression 655/655、backend full 4534/4534、`git diff --check` 通过；runtime、tests、frontend、browser smoke scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；项目仍 **NOT READY**。
 - 4D-03BP-B PaymentEngine keyword branch all-window matrix verifier 已由 A 完成并验收，入口为 `docs/CURRENT_STAGE4D_03BP_PAYMENT_ENGINE_KEYWORD_BRANCH_MATRIX_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03BP_PAYMENT_ENGINE_KEYWORD_BRANCH_MATRIX_EVIDENCE.md`。本批只修改 `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` 与 4D-03BP-B audit / evidence docs，把 4D-03AY 的 8 个 keyword payment branch entries 与 6 个 current PaymentEngine payment surfaces 扩成 48 行 all-window quote-command-audit-rollback matrix，并要求每行回连 `KEYWORD_PAYMENT_BRANCHES` residual 与 `KEYWORD_BRANCHES` / `COST_MODIFIERS` / `OPTIONAL_EXTRA_ALTERNATIVE_COSTS` / `REPLACEMENT_PREVENTION` official residual axes。A 侧验证 focused 97/97、adjacent 655/655、backend full 4534/4534、`git diff --check` 通过；runtime、frontend、browser smoke scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；项目仍 **NOT READY**。
 - 4D-03BP PaymentEngine keyword branch all-window matrix handoff / baseline 已建立，入口为 `docs/CURRENT_STAGE4D_03BP_PAYMENT_ENGINE_KEYWORD_BRANCH_MATRIX_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03BP_PAYMENT_ENGINE_KEYWORD_BRANCH_MATRIX_BASELINE_EVIDENCE.md`。本批只做 A-side docs，未派发 B 实现，未打开 test/runtime 写锁；future 4D-03BP-B 应把 4D-03AY 的 8 个 keyword payment branch entries 与 6 个 current PaymentEngine payment surfaces 扩成 48 行 all-window quote-command-audit-rollback matrix，并继续回连 `KEYWORD_PAYMENT_BRANCHES` residual 与 `KEYWORD_BRANCHES` / `COST_MODIFIERS` / `OPTIONAL_EXTRA_ALTERNATIVE_COSTS` / `REPLACEMENT_PREVENTION` official residual axes。A 侧 baseline 验证 focused 92/92、adjacent 650/650、backend full 4529/4529、`git diff --check` 通过；runtime、tests、frontend、browser smoke scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；项目仍 **NOT READY**。
 - 4D-03BO-B PaymentEngine official matrix downstream aggregate verifier 已由 B-Implementation / Ramanujan `019e2d82-4c8d-7390-aa92-7636f8a15179` 完成并由 A 验收，入口为 `docs/CURRENT_STAGE4D_03BO_PAYMENT_ENGINE_OFFICIAL_MATRIX_DOWNSTREAM_AGGREGATE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03BO_PAYMENT_ENGINE_OFFICIAL_MATRIX_DOWNSTREAM_AGGREGATE_EVIDENCE.md`。本批只修改 `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` 与 4D-03BO-B audit / evidence docs，把 4D-03BC official row schema 的 9 representative seeds、3 missing official rows、1 MOVE_UNIT policy-deferred row 与 4D-03BL-B rollback 7/42、4D-03BM cross-window 7/42、4D-03BN card matrix 8/48 聚合成 executable audit contract，并要求每个 all-window row 回连 matching official missing row id。A 侧验证 focused 92/92、adjacent 650/650、backend full 4529/4529、`git diff --check` 通过；runtime、frontend、browser smoke scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；项目仍 **NOT READY**。
@@ -92,6 +93,7 @@
 
 | Queue | Owner | Status | Purpose | Write scope | Must not touch |
 |---|---|---|---|---|---|
+| 4D-03BQ | A 主控 | Handoff / baseline recorded; future B not dispatched | Reserve PaymentEngine resource skill all-window matrix verifier boundary | completed handoff / baseline docs and checkpoint / completion / server audit / closure docs | runtime、tests、frontend runtime、browser smoke scripts、card matrix JSON、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-03BP-B | A 主控 | Implemented and A-validated | Expand 4D-03AY keyword branch manifest across current payment surfaces | completed test/docs diff in `PaymentEngineCoverageAuditTests.cs` and 4D-03BP-B audit / evidence docs | runtime、frontend runtime、browser smoke scripts、card matrix JSON、broad PaymentEngine rewrite、battle lifecycle、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-03BP | A 主控 | Handoff / baseline recorded; superseded by 4D-03BP-B verifier | Reserve PaymentEngine keyword branch all-window matrix verifier boundary | completed handoff / baseline docs and checkpoint / completion / server audit / closure docs | runtime、tests、frontend runtime、browser smoke scripts、card matrix JSON、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-03BO-B | B-Implementation / Ramanujan `019e2d82-4c8d-7390-aa92-7636f8a15179` | Implemented and A-validated | Aggregate official row schema with 03BL-B / 03BM / 03BN downstream all-window matrices | completed test/docs diff in `PaymentEngineCoverageAuditTests.cs` and 4D-03BO-B audit / evidence docs | runtime、frontend runtime、browser smoke scripts、card matrix JSON、broad PaymentEngine rewrite、battle lifecycle、fullOfficial / READY、`riftbound-dotnet.sln` |
@@ -99,7 +101,7 @@
 | 4D-03BN | B-Implementation / Laplace `019e2d66-d12a-7233-81de-bbd0abb0dcfd` | Implemented and A-validated | PaymentEngine card matrix alignment all-window verifier | completed test/docs diff in `PaymentEngineCoverageAuditTests.cs` and 4D-03BN audit / evidence docs | runtime、frontend runtime、browser smoke scripts、card matrix JSON、broad PaymentEngine rewrite、battle lifecycle、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-03BM | B-Implementation / Feynman `019e2d5a-e982-7833-b309-03f89a55ee45` | Implemented and A-validated | PaymentEngine cross-window generation / consumption all-window verifier | completed test/docs diff in `PaymentEngineCoverageAuditTests.cs` and 4D-03BM audit / evidence docs | runtime、frontend runtime、browser smoke scripts、card matrix JSON、broad PaymentEngine rewrite、battle lifecycle、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-03BL-B | B-Implementation / Beauvoir `019e2d4a-1164-7771-bf0a-bb68e5f62b84` | Implemented and A-validated | PaymentEngine rollback failure all-window verifier | completed test/docs diff in `PaymentEngineCoverageAuditTests.cs` and 4D-03BL audit / evidence docs | runtime、frontend runtime、browser smoke scripts、card matrix JSON、broad PaymentEngine rewrite、battle lifecycle、fullOfficial / READY、`riftbound-dotnet.sln` |
-| 4D-NEXT-A | A 主控 | 4D-03BP-B accepted / next PaymentEngine candidate requires fresh dispatch | 记录 active-goal prompt-to-artifact checklist refresh、evidence 与当前暂停点 | `docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md`、`docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / completion / server audit / closure docs | runtime、tests、frontend runtime、card matrix JSON、full-official upgrade、READY、`riftbound-dotnet.sln` |
+| 4D-NEXT-A | A 主控 | 4D-03BQ handoff recorded / next verifier requires fresh dispatch | 记录 active-goal prompt-to-artifact checklist refresh、evidence 与当前暂停点 | `docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md`、`docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / completion / server audit / closure docs | runtime、tests、frontend runtime、card matrix JSON、full-official upgrade、READY、`riftbound-dotnet.sln` |
 | 4D-04Q-B | B-Implementation / Euclid `019e2caf-92c5-7502-8db3-b091e443ad3c` | Implemented and A-validated | LayerEngine static aura source lifecycle foundation | completed narrow runtime / focused-test diff in `MatchSession.cs`, `OrnnFriendlyEquipmentStaticPowerTests.cs`, `ConformanceFixtureRunnerTests.cs` | frontend runtime、card matrix JSON、broad PaymentEngine、battle lifecycle、wide equipment runtime/full `百炼`、full LayerEngine/timestamp dependency graph、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-04P-B | B-Implementation / Carson `019e2c9e-1e05-7130-94de-83a9ef0c982e` | Implemented and A-validated | LayerEngine minimum-power + applied-order sequence representative | completed focused-test diff in `ConformanceFixtureRunnerTests.cs` and fixture JSON | frontend runtime、card matrix JSON、broad PaymentEngine、battle lifecycle、wide equipment runtime、full LayerEngine rewrite、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-04O-B | B-Implementation / Leibniz `019e2c86-8abd-74c3-8c3d-3e8ccd5453ab` | Implemented and A-validated | LayerEngine power modifier explicit ordering metadata | completed narrow runtime / focused-test diff in `MatchSession.cs`, `CoreRuleEngine.cs`, focused tests | frontend runtime、card matrix JSON、broad PaymentEngine、battle lifecycle、wide equipment runtime、full LayerEngine rewrite、fullOfficial / READY、`riftbound-dotnet.sln` |
@@ -131,6 +133,7 @@
 
 ## 3. Exclusive Writelocks
 
+- 4D-03BQ A-side handoff / baseline is docs-only. No B worker is dispatched, no runtime/test/frontend/matrix write lock is open, and `riftbound-dotnet.sln` remains locked.
 - 4D-03BP-B focused-test write lock is closed after A validation and commit-ready evidence. Runtime, frontend runtime, browser smoke scripts, card matrix JSON, broad PaymentEngine rewrite, battle lifecycle / cleanup queues, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
 - 4D-03BP A-side handoff / baseline is historical and closed. It has now been followed by the 4D-03BP-B accepted verifier above; `riftbound-dotnet.sln` remains locked.
 - 4D-03BO-B focused-test write lock is closed after A validation and commit-ready evidence. Runtime, frontend runtime, browser smoke scripts, card matrix JSON, broad PaymentEngine rewrite, battle lifecycle / cleanup queues, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
@@ -326,6 +329,20 @@ A accepts the 4D-03BP-B verifier because all of the following are true:
 8. P0-005, P1, frontend final validation, full-card matrix and READY remain open.
 
 Pause point: 4D-03BP-B is accepted and its focused-test write lock is closed. The project remains **NOT READY**.
+
+## 3.0J 4D-03BQ Handoff Gate Accepted
+
+A accepts the 4D-03BQ handoff / baseline because all of the following are true:
+
+1. Current repo state remains on `main` with only expected untracked `riftbound-dotnet.sln` outside this docs-only batch.
+2. 4D-03AZ established 6 resource skill family entries and 19 current catalog `IsResourceSkill=true` ability ids, while the current PaymentEngine payment surfaces remain the same 6 surfaced by recent all-window matrices.
+3. The next narrow B-side target is a matrix verifier, not a runtime implementation: it should bind 6 resource skill families x 6 payment surfaces into 36 prompt-command-audit-generated-resource-rollback rows.
+4. Future B write scope is limited to `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` plus 4D-03BQ resource skill all-window matrix audit / evidence docs.
+5. This handoff itself did not modify runtime, tests, frontend, browser smoke scripts, card matrix JSON, fullOfficial / READY or `riftbound-dotnet.sln`.
+6. Baseline validation passed: focused 97/97, adjacent PaymentEngine / resource skill / prompt / hub regression 655/655, backend full 4534/4534 and `git diff --check`.
+7. P0-005, P1, frontend final validation, full-card matrix and READY remain open.
+
+Pause point: 4D-03BQ establishes the future B-side resource skill all-window matrix verifier boundary only. No B worker is dispatched in this batch, no write lock is open, and the project remains **NOT READY**.
 
 ## 3.1 4D-04Q-A Handoff Gate Accepted
 
