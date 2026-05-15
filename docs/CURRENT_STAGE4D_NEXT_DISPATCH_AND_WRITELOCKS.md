@@ -1,14 +1,15 @@
 # Stage 4D Next Dispatch and Writelocks
 
 日期：2026-05-16
-结论：**4D-03BL PAYMENT ENGINE ROLLBACK FAILURE MATRIX HANDOFF BASELINE ACCEPTED / NO WRITELOCK OPEN / PROJECT NOT READY**
+结论：**4D-03BL-B PAYMENT ENGINE ROLLBACK FAILURE MATRIX DISPATCH BOUNDARY ACCEPTED / WRITELOCK RESERVED / PROJECT NOT READY**
 
 本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance / baseline 归档；除本文明确记录的 focused verifier 外，不实现 runtime，不修改前端，不升级 full-official。当前 active goal 仍未完成，不得调用 `update_goal complete`。
 
 ## 1. 输入事实
 
 - 当前分支为 `main`，仓库当前只保留未跟踪 `riftbound-dotnet.sln`；该文件不得被本批任务触碰或纳入提交。
-- 4D-03BL PaymentEngine rollback failure official matrix handoff / baseline 已建立，入口为 `docs/CURRENT_STAGE4D_03BL_PAYMENT_ENGINE_ROLLBACK_FAILURE_MATRIX_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03BL_PAYMENT_ENGINE_ROLLBACK_FAILURE_MATRIX_BASELINE_EVIDENCE.md`。本批只修改 A-side handoff / baseline docs，把 4D-03BE 的 7 个 rollback failure representative families 收敛为 future 4D-03BL-B all-window executable rollback matrix，要求后续覆盖 `PLAY_CARD`、`PAY_COST`、`ACTIVATE_ABILITY`、`ASSEMBLE_EQUIPMENT`、`TRIGGER_PAYMENT`、`BATTLEFIELD_HELD_SCORE_PAYMENT` 等当前 PaymentEngine payment surfaces 的 prompt quote / command rejection / no-mutation / audit parity。A 侧 baseline focused 70/70、adjacent PaymentEngine / resource skill / prompt / hub regression 628/628、backend full 4507/4507 通过；runtime、tests、frontend、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰。4D-03BL is handoff-only; no B worker dispatched, no write lock open；项目仍 **NOT READY**。
+- 4D-03BL-B PaymentEngine rollback failure official matrix dispatch boundary 已建立。本批只做 A-side dispatch / writelock planning，不实际修改 runtime、tests、frontend 或 card matrix，也不启动 Chrome / frontend validation。B-Implementation future owner 必须先领取该窄范围后才能动手；当前 reserved 写入范围只允许 rollback failure matrix verifier / focused rollback no-mutation tests、必要的最小 PaymentEngine rollback fix，以及对应 audit / evidence docs。A 不接受任何 broad PaymentEngine rewrite、battle lifecycle rewrite、frontend contract change、card matrix fullOfficial upgrade、READY 变更或 `riftbound-dotnet.sln` 变更。该 dispatch boundary 继承 4D-03BL baseline focused 70/70、adjacent 628/628、backend full 4507/4507；项目仍 **NOT READY**。
+- 4D-03BL PaymentEngine rollback failure official matrix handoff / baseline 已建立，入口为 `docs/CURRENT_STAGE4D_03BL_PAYMENT_ENGINE_ROLLBACK_FAILURE_MATRIX_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03BL_PAYMENT_ENGINE_ROLLBACK_FAILURE_MATRIX_BASELINE_EVIDENCE.md`。该 handoff 只修改 A-side handoff / baseline docs，把 4D-03BE 的 7 个 rollback failure representative families 收敛为 future 4D-03BL-B all-window executable rollback matrix，要求后续覆盖 `PLAY_CARD`、`PAY_COST`、`ACTIVATE_ABILITY`、`ASSEMBLE_EQUIPMENT`、`TRIGGER_PAYMENT`、`BATTLEFIELD_HELD_SCORE_PAYMENT` 等当前 PaymentEngine payment surfaces 的 prompt quote / command rejection / no-mutation / audit parity。A 侧 baseline focused 70/70、adjacent PaymentEngine / resource skill / prompt / hub regression 628/628、backend full 4507/4507 通过；runtime、tests、frontend、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰。4D-03BL 本身是 handoff-only；当前最新边界是上方 4D-03BL-B reserved boundary；项目仍 **NOT READY**。
 - 4D-03BK PaymentEngine policy-deferred MOVE_UNIT boundary verifier 已完成并由 A 验收，入口为 `docs/CURRENT_STAGE4D_03BK_PAYMENT_ENGINE_POLICY_DEFERRED_MOVE_UNIT_BOUNDARY_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03BK_PAYMENT_ENGINE_POLICY_DEFERRED_MOVE_UNIT_BOUNDARY_EVIDENCE.md`。本批只修改 `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` 与 docs，要求 4D-03BC 的唯一 `policy-deferred-row` 精确等于 `ROW_MOVE_UNIT_POLICY_DEFERRED`，且该 row 不进入 representative seed、missing official row 或 downstream PaymentEngine payment manifests。A 侧验证 focused 70/70、adjacent PaymentEngine / resource skill / prompt / hub regression 628/628、backend full 4507/4507 通过；runtime、frontend、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰。4D-03BK focused-test write lock closed；项目仍 **NOT READY**。
 - 4D-03BJ PaymentEngine representative seed upstream coverage verifier 已完成并由 A 验收，入口为 `docs/CURRENT_STAGE4D_03BJ_PAYMENT_ENGINE_REPRESENTATIVE_SEED_UPSTREAM_COVERAGE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03BJ_PAYMENT_ENGINE_REPRESENTATIVE_SEED_UPSTREAM_COVERAGE_EVIDENCE.md`。本批只修改 `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` 与 docs，要求 4D-03BC 的 9 个 `representative-seed` rows 精确回连上游 audit manifest，且 seed rows 不混入 4D-03BH missing-row downstream aggregate doc 或 `Missing official row` 口径。A 侧验证 focused 67/67、adjacent PaymentEngine / resource skill / prompt / hub regression 625/625、backend full 4504/4504 通过；runtime、frontend、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰。4D-03BJ focused-test write lock closed；项目仍 **NOT READY**。
 - 4D-03BI Active goal prompt-to-artifact checklist refresh 已完成并由 A 验收，入口为 `docs/CURRENT_STAGE4D_03BI_ACTIVE_GOAL_CHECKLIST_REFRESH_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03BI_ACTIVE_GOAL_CHECKLIST_REFRESH_EVIDENCE.md`。本批只修改 docs，把 `docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md` 从旧 4D-04G 状态对齐到当前 4D-03BH 事实，记录 latest HEAD `a07197c6`、backend full 4501/4501、matrix 1009/811 且 0 full-official，并保留 frontend build / Chrome smoke / formal 18-step historical-pass-only 口径。runtime、tests、frontend、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰。4D-03BI docs write lock closed；项目仍 **NOT READY**。
@@ -116,7 +117,8 @@
 
 ## 3. Exclusive Writelocks
 
-- 4D-03BL is A-side handoff / baseline only. No B worker is dispatched, no runtime/test/frontend/matrix write lock is open, and future 4D-03BL-B rollback failure matrix implementation requires a fresh explicit dispatch. `riftbound-dotnet.sln` remains locked.
+- 4D-03BL-B rollback failure matrix write lock is reserved for a future B-Implementation worker. Allowed scope: `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, focused rollback / failure / no-mutation conformance tests, minimal `src/Riftbound.Engine/CoreRuleEngine.cs` or `src/Riftbound.Engine/MatchSession.cs` changes only if a verifier exposes a real rollback mismatch, and `docs/CURRENT_STAGE4D_03BL_PAYMENT_ENGINE_ROLLBACK_FAILURE_MATRIX_AUDIT.md` / `docs/CURRENT_STAGE4D_03BL_PAYMENT_ENGINE_ROLLBACK_FAILURE_MATRIX_EVIDENCE.md`. Forbidden: frontend runtime, browser smoke scripts, card matrix JSON, broad PaymentEngine rewrite, battle lifecycle / cleanup queues, fullOfficial / READY and `riftbound-dotnet.sln`.
+- 4D-03BL handoff / baseline is historical and closed. It has now been followed by the 4D-03BL-B reserved dispatch boundary above; no implementation diff has been accepted yet. `riftbound-dotnet.sln` remains locked.
 - 4D-03BK focused-test write lock is closed after A validation and commit-ready evidence. Runtime, frontend, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
 - 4D-03BJ focused-test write lock is closed after A validation and commit-ready evidence. Runtime, frontend, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
 - 4D-03BI docs write lock is closed after A validation and commit-ready evidence. Runtime, tests, frontend, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
@@ -177,6 +179,22 @@ A accepts the 4D-03BL handoff / baseline because all of the following are true:
 9. P0-005, P1, frontend final validation, full-card matrix and READY remain open.
 
 Pause point: 4D-03BL establishes the next B-side rollback failure matrix handoff and current baseline only. No B worker is dispatched, no write lock is open, and the project remains **NOT READY**.
+
+## 3.0B 4D-03BL-B Dispatch Boundary Accepted
+
+A accepts the 4D-03BL-B dispatch boundary because all of the following are true:
+
+1. Current repo state remains on `main` with only expected untracked `riftbound-dotnet.sln`.
+2. 4D-03BL established the rollback failure matrix handoff and baseline; no implementation has yet modified runtime, tests, frontend or matrix after that handoff.
+3. `ROW_ROLLBACK_FAILURES_OFFICIAL_MATRIX_MISSING` remains the next concrete P0-005 PaymentEngine row because it is still `missing-official-row` and the downstream representative failure families are already visible.
+4. Future B implementation must expand the 7 rollback families into an executable all-window matrix covering current PaymentEngine surfaces: `PLAY_CARD`, `PAY_COST`, `ACTIVATE_ABILITY`, `ASSEMBLE_EQUIPMENT`, `TRIGGER_PAYMENT` and `BATTLEFIELD_HELD_SCORE_PAYMENT`.
+5. Each future row must bind action window, failure dimension, payment source kind, prompt quote, command rejection, no-mutation state assertion, audit expectation and doc anchor.
+6. Future B may touch runtime only if the new verifier exposes an actual rollback mismatch; otherwise the slice should remain verifier / focused-test / docs.
+7. Frontend, browser smoke scripts, card matrix JSON, broad PaymentEngine rewrite, battle lifecycle / cleanup queues, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
+8. The dispatch boundary inherits 4D-03BL baseline evidence: focused 70/70, adjacent 628/628 and backend full 4507/4507.
+9. P0-005, P1, frontend final validation, full-card matrix and READY remain open.
+
+Pause point: 4D-03BL-B is now the reserved next B-side implementation boundary. No implementation diff has been accepted yet, and the project remains **NOT READY**.
 
 ## 3.1 4D-04Q-A Handoff Gate Accepted
 

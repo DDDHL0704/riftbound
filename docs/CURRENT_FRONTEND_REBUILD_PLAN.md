@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 2026-05-16 Stage 4D-03BL-B dispatch boundary 已建立：A 主控只在 `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 固定下一枚 PaymentEngine rollback failure all-window matrix 的 B-side 写锁边界。本批不修改前端运行时代码，不启动 frontend build / Chrome smoke / formal 18-step，不改变 DevUi 契约；future B 也不得修改 frontend runtime、browser smoke scripts、local rule inference 或 card matrix JSON。前端仍只能展示服务端 `ActionPrompt` / authoritative snapshot 公开的 payment choices、rejection/audit events 与 legal actions，不得本地推断 rollback failure legality。项目仍 **NOT READY**。
+
 - 2026-05-16 Stage 4D-04Q-B 已验收：LayerEngine static aura source lifecycle foundation 已由 B-Implementation / Euclid `019e2caf-92c5-7502-8db3-b091e443ad3c` 完成，审计入口为 `docs/CURRENT_STAGE4D_04Q_LAYERENGINE_STATIC_AURA_SOURCE_LIFECYCLE_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_04Q_LAYERENGINE_STATIC_AURA_SOURCE_LIFECYCLE_EVIDENCE.md`；focused static-aura / LayerEngine-view guard 11/11、adjacent static / continuous-effect / equipment regression 49/49、backend full 4451/4451、`git diff --check` 通过。本批不修改前端运行时代码；前端继续只消费服务端 authoritative snapshot / event payload 中的 `power`、`basePower`、`effectivePower`、`timing.continuousEffects` 及其中 static aura source/lifecycle metadata，不本地统计装备、推断 static aura lifecycle、实现 LayerEngine 或重算战力。项目仍 **NOT READY**。
 
 - 2026-05-16 Stage 4D-04Q-B 已派发：A 主控已把 LayerEngine static aura source lifecycle foundation 交给 B-Implementation / Euclid `019e2caf-92c5-7502-8db3-b091e443ad3c`，并在 `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 打开窄服务端 runtime / focused-test 写锁。本 dispatch 不修改前端运行时代码；前端仍只消费服务端 authoritative snapshot / event payload，不本地统计装备、推断 static aura lifecycle、实现 LayerEngine 或重算战力。项目仍 **NOT READY**。
