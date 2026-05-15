@@ -4047,6 +4047,13 @@ internal static class ActionPromptBuilder
                 "experience assemble cost",
                 ShepherdsHeirloomAssembleExperienceCost)
         };
+
+    internal static bool HasImplementedRepresentativeAssembleEquipmentProfile(string? cardNo)
+    {
+        return !string.IsNullOrWhiteSpace(cardNo)
+            && ImplementedAssembleEquipmentProfiles.ContainsKey(cardNo);
+    }
+
     private const string CrescentGuardCardNo = "UNL-122/219";
     private const int CrescentGuardReadyPowerCost = 1;
     private const string BattlefieldEphemeralUnitsSteadfastCardNo = "UNL-208/219";

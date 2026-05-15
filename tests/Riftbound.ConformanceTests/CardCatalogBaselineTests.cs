@@ -129,12 +129,20 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(6, report.Families.Count);
         Assert.True(report.CardsWithKeywordProfiles > 0);
         Assert.True(report.StatusCounts[EquipmentKeywordProfileStatuses.RecognizedDeferred] > 0);
+        Assert.True(report.StatusCounts[EquipmentKeywordProfileStatuses.ImplementedRepresentative] > 0);
 
         var equipment = Assert.Single(report.Families, family => string.Equals(family.Family, "equipment", StringComparison.Ordinal));
+        Assert.True(equipment.StatusCounts[EquipmentKeywordProfileStatuses.ImplementedRepresentative] > 0);
+        Assert.True(equipment.StatusCounts[EquipmentKeywordProfileStatuses.RecognizedDeferred] > 0);
         Assert.NotEmpty(equipment.DeferredCards);
         Assert.All(
             equipment.DeferredCards,
             row => Assert.Equal(EquipmentKeywordProfileStatuses.RecognizedDeferred, row.Status));
+        Assert.Contains(
+            equipment.DeferredCards,
+            row => row.Keywords.Contains(CardEquipmentKeywordNames.Agile, StringComparer.Ordinal)
+                || row.Keywords.Contains(CardEquipmentKeywordNames.Tempered, StringComparer.Ordinal)
+                || row.Keywords.Contains(CardEquipmentKeywordNames.Weapon, StringComparer.Ordinal));
 
         var interaction = Assert.Single(report.Families, family => string.Equals(family.Family, "interaction", StringComparison.Ordinal));
         Assert.Contains(
@@ -468,7 +476,8 @@ public sealed class CardCatalogBaselineTests
             [
                 CardEquipmentKeywordNames.Assemble,
                 CardEquipmentKeywordNames.Agile,
-                CardEquipmentKeywordNames.Tempered
+                CardEquipmentKeywordNames.Tempered,
+                CardEquipmentKeywordNames.Weapon
             ]);
 
         AssertEquipmentKeywordCoverage(
@@ -478,8 +487,10 @@ public sealed class CardCatalogBaselineTests
             specImplementedEntries: 32,
             functionalUnits: 31,
             specImplementedFunctionalUnits: 31,
-            profileDeferredEntries: 32,
-            profileDeferredFunctionalUnits: 31);
+            profileImplementedEntries: 32,
+            profileDeferredEntries: 0,
+            profileImplementedFunctionalUnits: 31,
+            profileDeferredFunctionalUnits: 0);
         AssertEquipmentKeywordCoverage(
             rows,
             CardEquipmentKeywordNames.Agile,
@@ -487,7 +498,9 @@ public sealed class CardCatalogBaselineTests
             specImplementedEntries: 4,
             functionalUnits: 4,
             specImplementedFunctionalUnits: 4,
+            profileImplementedEntries: 0,
             profileDeferredEntries: 4,
+            profileImplementedFunctionalUnits: 0,
             profileDeferredFunctionalUnits: 4);
         AssertEquipmentKeywordCoverage(
             rows,
@@ -496,8 +509,17 @@ public sealed class CardCatalogBaselineTests
             specImplementedEntries: 16,
             functionalUnits: 11,
             specImplementedFunctionalUnits: 11,
+            profileImplementedEntries: 0,
             profileDeferredEntries: 16,
+            profileImplementedFunctionalUnits: 0,
             profileDeferredFunctionalUnits: 11);
+
+        var weaponRow = Assert.Single(rows, row => string.Equals(row.Keyword, CardEquipmentKeywordNames.Weapon, StringComparison.Ordinal));
+        Assert.True(weaponRow.Entries > 0);
+        Assert.Equal(0, weaponRow.ProfileImplementedEntries);
+        Assert.Equal(weaponRow.Entries, weaponRow.ProfileDeferredEntries);
+        Assert.Equal(0, weaponRow.ProfileImplementedFunctionalUnits);
+        Assert.Equal(weaponRow.FunctionalUnits, weaponRow.ProfileDeferredFunctionalUnits);
 
         Assert.True(CardBehaviorRegistry.TryGetByCardNo("SFD·011/221", out var takeUpDefinition));
         var attachmentProfile = CardEquipmentKeywordRules.BuildAttachmentProfile(takeUpDefinition);
@@ -507,8 +529,8 @@ public sealed class CardCatalogBaselineTests
 
         Assert.All(rows, row =>
         {
-            Assert.Equal(row.Entries, row.ProfileDeferredEntries);
-            Assert.Equal(row.FunctionalUnits, row.ProfileDeferredFunctionalUnits);
+            Assert.Equal(row.Entries, row.ProfileImplementedEntries + row.ProfileDeferredEntries);
+            Assert.Equal(row.FunctionalUnits, row.ProfileImplementedFunctionalUnits + row.ProfileDeferredFunctionalUnits);
         });
     }
 
@@ -2092,7 +2114,9 @@ public sealed class CardCatalogBaselineTests
         Assert.True(doransShield.HasAssemble);
         Assert.False(doransShield.HasAgile);
         Assert.False(doransShield.HasTempered);
-        Assert.Equal(EquipmentKeywordProfileStatuses.RecognizedDeferred, doransShield.Status);
+        Assert.True(doransShield.HasImplementedRepresentativeAssembleBoundary);
+        Assert.Equal(EquipmentKeywordProfileStatuses.ImplementedRepresentative, doransShield.Status);
+        Assert.Contains("ASSEMBLE_EQUIPMENT", doransShield.Reason, StringComparison.Ordinal);
 
         var longSword = BuildEquipmentProfile(
             specs,
@@ -2103,11 +2127,15 @@ public sealed class CardCatalogBaselineTests
         Assert.True(longSword.HasAgile);
         Assert.True(longSword.HasWeapon);
         Assert.False(longSword.HasTempered);
+        Assert.True(longSword.HasImplementedRepresentativeAssembleBoundary);
+        Assert.Equal(EquipmentKeywordProfileStatuses.RecognizedDeferred, longSword.Status);
+        Assert.Contains("deferred", longSword.Reason, StringComparison.OrdinalIgnoreCase);
 
         var sentinelAdept = BuildEquipmentProfile(specs, "SFD·008/221", CardEquipmentKeywordNames.Tempered);
         Assert.False(sentinelAdept.HasAssemble);
         Assert.False(sentinelAdept.HasAgile);
         Assert.True(sentinelAdept.HasTempered);
+        Assert.False(sentinelAdept.HasImplementedRepresentativeAssembleBoundary);
         Assert.Contains("deferred", sentinelAdept.Reason, StringComparison.OrdinalIgnoreCase);
 
         var ornn = BuildEquipmentProfile(specs, "SFD·085/221", CardEquipmentKeywordNames.Tempered);
@@ -2638,11 +2666,19 @@ public sealed class CardCatalogBaselineTests
                         BehaviorImplementationStatuses.Implemented,
                         StringComparison.Ordinal))),
                     keywordRows.Count(row => string.Equals(
-                        row.Profile.Status,
+                        EquipmentKeywordStatus(row.Profile, keyword),
+                        EquipmentKeywordProfileStatuses.ImplementedRepresentative,
+                        StringComparison.Ordinal)),
+                    keywordRows.Count(row => string.Equals(
+                        EquipmentKeywordStatus(row.Profile, keyword),
                         EquipmentKeywordProfileStatuses.RecognizedDeferred,
                         StringComparison.Ordinal)),
+                    unitGroups.Count(group => group.Any(row => string.Equals(
+                        EquipmentKeywordStatus(row.Profile, keyword),
+                        EquipmentKeywordProfileStatuses.ImplementedRepresentative,
+                        StringComparison.Ordinal))),
                     unitGroups.Count(group => group.All(row => string.Equals(
-                        row.Profile.Status,
+                        EquipmentKeywordStatus(row.Profile, keyword),
                         EquipmentKeywordProfileStatuses.RecognizedDeferred,
                         StringComparison.Ordinal))));
             })
@@ -2656,8 +2692,17 @@ public sealed class CardCatalogBaselineTests
             CardEquipmentKeywordNames.Assemble => profile.HasAssemble,
             CardEquipmentKeywordNames.Agile => profile.HasAgile,
             CardEquipmentKeywordNames.Tempered => profile.HasTempered,
+            CardEquipmentKeywordNames.Weapon => profile.HasWeapon,
             _ => false
         };
+    }
+
+    private static string EquipmentKeywordStatus(CardEquipmentKeywordProfile profile, string keyword)
+    {
+        return string.Equals(keyword, CardEquipmentKeywordNames.Assemble, StringComparison.Ordinal)
+            && profile.HasImplementedRepresentativeAssembleBoundary
+                ? EquipmentKeywordProfileStatuses.ImplementedRepresentative
+                : EquipmentKeywordProfileStatuses.RecognizedDeferred;
     }
 
     private static void AssertEquipmentKeywordCoverage(
@@ -2667,7 +2712,9 @@ public sealed class CardCatalogBaselineTests
         int specImplementedEntries,
         int functionalUnits,
         int specImplementedFunctionalUnits,
+        int profileImplementedEntries,
         int profileDeferredEntries,
+        int profileImplementedFunctionalUnits,
         int profileDeferredFunctionalUnits)
     {
         var row = Assert.Single(rows, candidate => string.Equals(candidate.Keyword, keyword, StringComparison.Ordinal));
@@ -2675,7 +2722,9 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(specImplementedEntries, row.SpecImplementedEntries);
         Assert.Equal(functionalUnits, row.FunctionalUnits);
         Assert.Equal(specImplementedFunctionalUnits, row.SpecImplementedFunctionalUnits);
+        Assert.Equal(profileImplementedEntries, row.ProfileImplementedEntries);
         Assert.Equal(profileDeferredEntries, row.ProfileDeferredEntries);
+        Assert.Equal(profileImplementedFunctionalUnits, row.ProfileImplementedFunctionalUnits);
         Assert.Equal(profileDeferredFunctionalUnits, row.ProfileDeferredFunctionalUnits);
     }
 
@@ -2685,7 +2734,9 @@ public sealed class CardCatalogBaselineTests
         int SpecImplementedEntries,
         int FunctionalUnits,
         int SpecImplementedFunctionalUnits,
+        int ProfileImplementedEntries,
         int ProfileDeferredEntries,
+        int ProfileImplementedFunctionalUnits,
         int ProfileDeferredFunctionalUnits);
 
     private static IReadOnlyList<ResourceKeywordCoverageRow> BuildResourceKeywordCoverageRows(

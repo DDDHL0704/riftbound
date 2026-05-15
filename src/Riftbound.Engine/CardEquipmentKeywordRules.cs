@@ -12,6 +12,7 @@ public static class CardEquipmentKeywordNames
 
 public static class EquipmentKeywordProfileStatuses
 {
+    public const string ImplementedRepresentative = "implemented-representative";
     public const string RecognizedDeferred = "recognized-deferred";
     public const string NotApplicable = "not-applicable";
 }
@@ -27,6 +28,7 @@ public sealed record CardEquipmentKeywordProfile(
     bool HasAgile,
     bool HasTempered,
     bool HasWeapon,
+    bool HasImplementedRepresentativeAssembleBoundary,
     string Status,
     string Reason);
 
@@ -59,17 +61,26 @@ public static class CardEquipmentKeywordRules
             || hasAgile
             || hasTempered
             || hasWeapon;
+        var hasImplementedRepresentativeAssembleBoundary = hasAssemble
+            && ActionPromptBuilder.HasImplementedRepresentativeAssembleEquipmentProfile(spec.CardNo);
+        var hasDeferredOfficialBreadth = hasAgile
+            || hasTempered
+            || hasWeapon
+            || (hasAssemble && !hasImplementedRepresentativeAssembleBoundary);
 
         return new CardEquipmentKeywordProfile(
             hasAssemble,
             hasAgile,
             hasTempered,
             hasWeapon,
+            hasImplementedRepresentativeAssembleBoundary,
             hasAnyEquipmentKeyword
-                ? EquipmentKeywordProfileStatuses.RecognizedDeferred
+                ? hasDeferredOfficialBreadth
+                    ? EquipmentKeywordProfileStatuses.RecognizedDeferred
+                    : EquipmentKeywordProfileStatuses.ImplementedRepresentative
                 : EquipmentKeywordProfileStatuses.NotApplicable,
             hasAnyEquipmentKeyword
-                ? "P4.8 recognizes equipment keyword surfaces from P3 BehaviorSpec and P2 source-object tags; attach/detach, assemble costs, agile reaction attachment, tempered optional attachment, and owner/controller execution remain deferred."
+                ? EquipmentKeywordReason(hasImplementedRepresentativeAssembleBoundary, hasDeferredOfficialBreadth)
                 : "Card does not expose equipment keyword surfaces through P3 BehaviorSpec or the P2 source-object tag path.");
     }
 
@@ -123,5 +134,22 @@ public static class CardEquipmentKeywordRules
             .Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Where(part => !string.IsNullOrWhiteSpace(part))
             .ToArray();
+    }
+
+    private static string EquipmentKeywordReason(
+        bool hasImplementedRepresentativeAssembleBoundary,
+        bool hasDeferredOfficialBreadth)
+    {
+        if (hasImplementedRepresentativeAssembleBoundary && !hasDeferredOfficialBreadth)
+        {
+            return "P4 ASSEMBLE_EQUIPMENT is covered by the existing server-authoritative representative boundary for registered assemble profiles; agile reaction attachment, tempered optional attachment, static equipment modifiers, copy-text effects, owner/controller changes, attach lifecycle breadth, and full equipment official coverage remain deferred.";
+        }
+
+        if (hasImplementedRepresentativeAssembleBoundary)
+        {
+            return "P4 ASSEMBLE_EQUIPMENT is covered by the existing server-authoritative representative boundary for registered assemble profiles, but this card still exposes deferred equipment breadth such as agile reaction attachment, tempered optional attachment, weapon/static modifiers, copy-text effects, owner/controller changes, or attach lifecycle breadth.";
+        }
+
+        return "P4.8 recognizes equipment keyword surfaces from P3 BehaviorSpec and P2 source-object tags; assemble costs without a registered representative profile, agile reaction attachment, tempered optional attachment, static equipment modifiers, copy-text effects, owner/controller changes, attach lifecycle breadth, and full equipment official coverage remain deferred.";
     }
 }
