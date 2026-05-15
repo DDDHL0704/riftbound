@@ -1,4 +1,5 @@
 using System.IO;
+using System.Text.Json;
 using Riftbound.Engine;
 using Xunit;
 
@@ -26,6 +27,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string KeywordBranchAllWindowMatrix = "keyword-branch-all-window-matrix";
     private const string ResourceSkillAllWindowMatrix = "resource-skill-all-window-matrix";
     private const string TargetTaxActivatedAbilityMatrix = "target-tax-activated-ability-matrix";
+    private const string RemainingOfficialClosureGate = "remaining-official-closure-gate";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
     [
@@ -2275,6 +2277,58 @@ public sealed class PaymentEngineCoverageAuditTests
 
     private static readonly PaymentEngineTargetTaxActivatedAbilityMatrixEntry[] TargetTaxActivatedAbilityMatrixManifest =
         BuildTargetTaxActivatedAbilityMatrix();
+
+    private static readonly PaymentEngineRemainingOfficialClosureGateEntry[] RemainingOfficialClosureGateManifest =
+    [
+        new(
+            "B_PAYMENT_ENGINE_OFFICIAL_BREADTH",
+            "B-side PaymentEngine official breadth verifier / implementation slice",
+            RemainingOfficialClosureGate,
+            "Fresh A dispatch and explicit runtime / test write lock required before any B work begins.",
+            "Expand one remaining official PaymentEngine family into executable prompt / command / audit / rollback tests, or minimally fix a concrete mismatch found by those tests.",
+            "4D-03BR-B target/tax matrix, focused 107/107, adjacent 665/665, backend full 4544/4544, Chrome smoke and formal 18 are representative proxy evidence only.",
+            "Runtime, tests, frontend, browser scripts, card matrix JSON, fullOfficial status, final readiness status and riftbound-dotnet.sln remain locked until a fresh A dispatch.",
+            "Project remains NOT READY and P0-005 remains open; fullOfficial upgrade is not allowed.",
+            [
+                "docs/CURRENT_STAGE4D_03BT_PAYMENT_ENGINE_REMAINING_OFFICIAL_CLOSURE_GATE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BT_PAYMENT_ENGINE_REMAINING_OFFICIAL_CLOSURE_GATE_EVIDENCE.md",
+                "docs/CURRENT_STAGE4D_03BS_PAYMENT_ENGINE_REMAINING_OFFICIAL_SCOPE_HANDOFF.md",
+                "docs/CURRENT_STAGE4D_03BS_PAYMENT_ENGINE_REMAINING_OFFICIAL_SCOPE_BASELINE_EVIDENCE.md",
+                "docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md"
+            ]),
+        new(
+            "E_CARD_MATRIX_READINESS",
+            "E-side card matrix readiness slice",
+            RemainingOfficialClosureGate,
+            "Fresh A dispatch and explicit matrix write window required before any E matrix write begins.",
+            "Map accepted PaymentEngine representatives back to affected functional units and blockers while preserving fullOfficial=false until full official proof exists.",
+            "Current 1009 snapshot entries / 811 functional units matrix and all-window representative matrices are not full-card official coverage.",
+            "docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json remains locked; no fullOfficial or final-readiness upgrade may be inferred from representative rows.",
+            "Project remains NOT READY and full-card matrix completion remains open; P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BT_PAYMENT_ENGINE_REMAINING_OFFICIAL_CLOSURE_GATE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BT_PAYMENT_ENGINE_REMAINING_OFFICIAL_CLOSURE_GATE_EVIDENCE.md",
+                "docs/CURRENT_STAGE4D_03BS_PAYMENT_ENGINE_REMAINING_OFFICIAL_SCOPE_HANDOFF.md",
+                "docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md",
+                "docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md"
+            ]),
+        new(
+            "D_COMPLETION_P0_AUDIT",
+            "D-side completion / P0 audit slice",
+            RemainingOfficialClosureGate,
+            "Fresh A dispatch required before D can claim any P0/P1 closure status change.",
+            "Prove which residual P0-005 items remain after the current all-window matrices and identify which require runtime work rather than more representative evidence.",
+            "Backend full, Chrome smoke, formal 18 and representative PaymentEngine manifests are acceptance evidence, not completion audit proof.",
+            "Completion audit, server rule audit and closure plan must keep NOT READY until P0/P1, full-card matrix and final audit gates are all proven.",
+            "Project remains NOT READY; update_goal complete is forbidden until final completion audit outputs a final readiness verdict.",
+            [
+                "docs/CURRENT_STAGE4D_03BT_PAYMENT_ENGINE_REMAINING_OFFICIAL_CLOSURE_GATE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BT_PAYMENT_ENGINE_REMAINING_OFFICIAL_CLOSURE_GATE_EVIDENCE.md",
+                "docs/CURRENT_COMPLETION_AUDIT.md",
+                "docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md",
+                "docs/CURRENT_SERVER_RULE_AUDIT.md"
+            ])
+    ];
 
     private static PaymentEngineTargetTaxActivatedAbilityMatrixEntry[] BuildTargetTaxActivatedAbilityMatrix()
     {
@@ -5499,6 +5553,99 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineRemainingOfficialClosureGateManifestListsFreshDispatchGatesExactlyOnce()
+    {
+        var requiredGateIds = new[]
+        {
+            "B_PAYMENT_ENGINE_OFFICIAL_BREADTH",
+            "E_CARD_MATRIX_READINESS",
+            "D_COMPLETION_P0_AUDIT"
+        };
+
+        Assert.Equal(
+            requiredGateIds.Order(StringComparer.Ordinal),
+            RemainingOfficialClosureGateManifest.Select(entry => entry.GateId).Order(StringComparer.Ordinal));
+        Assert.Empty(RemainingOfficialClosureGateManifest
+            .GroupBy(entry => entry.GateId, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key));
+
+        Assert.All(RemainingOfficialClosureGateManifest, entry =>
+        {
+            Assert.Equal(RemainingOfficialClosureGate, entry.Classification);
+            Assert.Contains("Fresh A dispatch", entry.WriteLockRequirement, StringComparison.Ordinal);
+            Assert.False(string.IsNullOrWhiteSpace(entry.RequiredFutureEvidence));
+            Assert.Contains("NOT READY", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.NotEmpty(entry.DocAnchors);
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineRemainingOfficialClosureGateRejectsRepresentativeProxyCompletion()
+    {
+        var combinedText = string.Join(
+            " ",
+            RemainingOfficialClosureGateManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.GateId,
+                    entry.Owner,
+                    entry.Classification,
+                    entry.WriteLockRequirement,
+                    entry.RequiredFutureEvidence,
+                    entry.RepresentativeProxyEvidence,
+                    entry.LockedScope,
+                    entry.ClosureStatus
+                }.Concat(entry.DocAnchors)));
+
+        Assert.Contains("4D-03BR-B", combinedText, StringComparison.Ordinal);
+        Assert.Contains("backend full", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Chrome smoke", combinedText, StringComparison.Ordinal);
+        Assert.Contains("formal 18", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("representative proxy evidence only", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("full-card matrix", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineRemainingOfficialClosureGateReadsMatrixAsNotFullOfficial()
+    {
+        var matrixPath = Path.Combine(ResolveRepositoryRoot(), "docs", "CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json");
+        using var document = JsonDocument.Parse(File.ReadAllText(matrixPath));
+
+        var root = document.RootElement;
+        var sourceCatalog = root.GetProperty("sourceCatalog");
+        Assert.Equal("data/official/card-catalog.zh-CN.json", sourceCatalog.GetProperty("path").GetString());
+        Assert.Equal("2026-04-27", sourceCatalog.GetProperty("fetchedAt").GetString());
+        Assert.Equal(1009, sourceCatalog.GetProperty("snapshotEntries").GetInt32());
+        Assert.Equal(811, sourceCatalog.GetProperty("functionalUnits").GetInt32());
+
+        var snapshotEntries = root.GetProperty("snapshotEntries").EnumerateArray().ToArray();
+        var functionalUnits = root.GetProperty("functionalUnits").EnumerateArray().ToArray();
+        Assert.Equal(1009, snapshotEntries.Length);
+        Assert.Equal(811, functionalUnits.Length);
+
+        var fullOfficialFunctionalUnits = functionalUnits
+            .Count(unit => unit.GetProperty("stage4B").GetProperty("fullOfficial").GetBoolean());
+        Assert.Equal(0, fullOfficialFunctionalUnits);
+
+        var freeze = root.GetProperty("stage4BCardCoverageFreeze");
+        Assert.False(freeze.GetProperty("ready").GetBoolean());
+        var uncoveredSummary = freeze.GetProperty("uncoveredSummary");
+        Assert.Equal(0, uncoveredSummary.GetProperty("fullOfficialFunctionalUnits").GetInt32());
+        Assert.Equal(0, uncoveredSummary.GetProperty("fullOfficialSnapshotEntries").GetInt32());
+        Assert.Equal(811, uncoveredSummary.GetProperty("fullOfficialUncoveredFunctionalUnitIds").GetArrayLength());
+    }
+
+    [Fact]
     public void PaymentEngineHasteReadyCoverageManifestMatchesImplementedRegistryProfiles()
     {
         var registryCardNos = CardBehaviorRegistry.GetAll()
@@ -5663,7 +5810,8 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(KeywordPaymentBranchManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(KeywordPaymentBranchAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(ResourceSkillAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors))
-            .Concat(TargetTaxActivatedAbilityMatrixManifest.SelectMany(entry => entry.DocAnchors));
+            .Concat(TargetTaxActivatedAbilityMatrixManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(RemainingOfficialClosureGateManifest.SelectMany(entry => entry.DocAnchors));
     }
 
     private static string ResolveRepositoryRoot()
@@ -5995,6 +6143,17 @@ public sealed class PaymentEngineCoverageAuditTests
         string RollbackExpectation,
         string OfficialClosureTrace,
         string RemainingOfficialBreadth,
+        string ClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
+    private sealed record PaymentEngineRemainingOfficialClosureGateEntry(
+        string GateId,
+        string Owner,
+        string Classification,
+        string WriteLockRequirement,
+        string RequiredFutureEvidence,
+        string RepresentativeProxyEvidence,
+        string LockedScope,
         string ClosureStatus,
         IReadOnlyList<string> DocAnchors);
 
