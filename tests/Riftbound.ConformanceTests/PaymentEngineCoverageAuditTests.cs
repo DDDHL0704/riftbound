@@ -181,6 +181,138 @@ public sealed class PaymentEngineCoverageAuditTests
             ])
     ];
 
+    private static readonly TargetColoredActivatedAbilityCoverageEntry[] TargetColoredActivatedAbilityCoverageManifest =
+    [
+        new(
+            P4ActivatedAbilityCatalog.XerathDamageAbilityId,
+            "ACTIVATE_ABILITY",
+            "Xerath target damage representative",
+            "1 generic power plus Spellshield target tax when the target has Spellshield",
+            "one enemy unit target; RequiredTargetCount=1",
+            "PaymentEngineUnificationTests: ActivateAbilityXerathPaysSpellshieldTaxAndRecyclesRunePaymentResource prompt target choices and payment resource metadata",
+            "PaymentEngineUnificationTests: ActivateAbilityXerathPaysSpellshieldTaxAndRecyclesRunePaymentResource command commit",
+            "PaymentEngineUnificationTests: COST_PAID / ABILITY_ACTIVATED shared paymentId and spellshieldTaxMana assertions",
+            "PaymentEngineUnificationTests: insufficient cost / tax and stale target no-mutation guards",
+            "Complete official damage-skill target breadth, dependency target choice, modifier/tax interactions, and all illegal target failures remain open.",
+            "Representative coverage only; project remains NOT READY and P0-005 remains open for full-official target-bearing activated ability breadth.",
+            [
+                "docs/CURRENT_STAGE4D_03B_PAYMENT_ENGINE_NON_PLAY_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03D_PAYMENT_ENGINE_ACTIVATE_RESOURCE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AK_PAYMENT_ENGINE_SPELLSHIELD_TAX_COVERAGE_AUDIT.md"
+            ]),
+        new(
+            P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId,
+            "ACTIVATE_ABILITY",
+            "Renata Glasc typed-blue draw representative",
+            "1 mana plus 1 blue typed power with matching blue recycle and typed temporary payment resource parity",
+            "no target; RequiredTargetCount=0",
+            "RenataActivatedAbilityTests: RenataOpenMainPromptExposesTypedBlueDrawRequirement and typed temporary resource prompt coverage",
+            "RenataActivatedAbilityTests: RenataDrawCommandPaysTypedBlueAndCreatesStackWithoutImmediateDraw command commit",
+            "RenataActivatedAbilityTests: COST_PAID / ABILITY_ACTIVATED typed-blue payment audit assertions",
+            "RenataActivatedAbilityTests: wrong trait, invalid resource, target bypass, and temporary-resource no-mutation guards",
+            "Complete official colored activated draw breadth, cross-window typed resource interactions, and all illegal payment failures remain open.",
+            "Representative coverage only; project remains NOT READY and P0-005 remains open for full-official colored activated ability breadth.",
+            [
+                "docs/CURRENT_STAGE4D_03M_PAYMENT_ENGINE_COLORED_ACTIVATED_DRAW_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AJ_PAYMENT_ENGINE_RENATA_TYPED_TEMP_RESOURCE_AUDIT.md"
+            ]),
+        new(
+            P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId,
+            "ACTIVATE_ABILITY",
+            "Renata Glasc typed-blue score representative",
+            "4 mana plus 4 blue typed power with matching blue recycle and typed temporary payment resource parity",
+            "no target; RequiredTargetCount=0",
+            "RenataActivatedAbilityTests: RenataOpenMainPromptExposesTypedBlueScoreRequirement and exhausted-source prompt coverage",
+            "RenataActivatedAbilityTests: RenataScoreCommandPaysTypedBlueExhaustsAndCreatesStackWithoutImmediateScore command commit",
+            "RenataActivatedAbilityTests: COST_PAID / ABILITY_ACTIVATED typed-blue payment audit assertions",
+            "RenataActivatedAbilityTests: wrong trait, invalid resource, target bypass, exhausted source, and temporary-resource no-mutation guards",
+            "Complete official colored activated score breadth, cross-window typed resource interactions, and all illegal payment failures remain open.",
+            "Representative coverage only; project remains NOT READY and P0-005 remains open for full-official colored activated ability breadth.",
+            [
+                "docs/CURRENT_STAGE4D_03N_PAYMENT_ENGINE_COLORED_ACTIVATED_SCORE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AJ_PAYMENT_ENGINE_RENATA_TYPED_TEMP_RESOURCE_AUDIT.md"
+            ]),
+        new(
+            P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId,
+            "ACTIVATE_ABILITY",
+            "Azir green swift swap representative",
+            "1 green typed power with optional target-scoped armament reattach branch",
+            "one controlled unit target; RequiredTargetCount=1",
+            "AzirSwiftSwapActivatedAbilityTests: PromptExposesAzirSwiftSwapRequirementWithGreenCostTargetsAndOnceMetadata plus reattach prompt coverage",
+            "AzirSwiftSwapActivatedAbilityTests: AzirCommandPaysGreenCreatesStackAndResolutionSwapsPreciseLocations command commit",
+            "AzirSwiftSwapActivatedAbilityTests: COST_PAID / ABILITY_ACTIVATED / EQUIPMENT_REATTACHED audit assertions",
+            "AzirSwiftSwapActivatedAbilityTests: stale target, once-per-turn, invalid target, and invalid reattach no-mutation guards",
+            "Complete official swift timing, position-memory dependency, optional armament breadth, and all stale target interactions remain open.",
+            "Representative coverage only; project remains NOT READY and P0-005 remains open for full-official target-bearing colored ability breadth.",
+            [
+                "docs/CURRENT_STAGE4D_03AM_PAYMENT_ENGINE_AZIR_SWIFT_SWAP_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AS_AZIR_OPTIONAL_ARMAMENT_REATTACH_AUDIT.md"
+            ]),
+        new(
+            P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId,
+            "ACTIVATE_ABILITY",
+            "Gatekeeper Maduli purple battlefield move representative",
+            "1 purple typed power",
+            "one weaker enemy-controlled battlefield target; RequiredTargetCount=1",
+            "GatekeeperMaduliActivatedAbilityTests: PromptExposesMaduliRequirementWithPurpleCostLegalBattlefieldTargetAndRecycleChoice prompt coverage",
+            "GatekeeperMaduliActivatedAbilityTests: MaduliCommandPaysPurpleCreatesStackAndResolutionMovesToTargetBattlefield command commit",
+            "GatekeeperMaduliActivatedAbilityTests: COST_PAID / ABILITY_ACTIVATED / UNIT_MOVED audit assertions",
+            "GatekeeperMaduliActivatedAbilityTests: stale power condition, invalid target, wrong source, and wrong trait no-mutation guards",
+            "Complete official movement target breadth, static interaction ordering, battlefield-control dependency, and all stale movement failures remain open.",
+            "Representative coverage only; project remains NOT READY and P0-005 remains open for full-official target-bearing colored ability breadth.",
+            [
+                "docs/CURRENT_STAGE4D_03AN_PAYMENT_ENGINE_GATEKEEPER_MADULI_PURPLE_MOVE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AR_GATEKEEPER_MADULI_CANNOT_READY_STATIC_AUDIT.md"
+            ]),
+        new(
+            P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId,
+            "ACTIVATE_ABILITY",
+            "Ezreal blue swift move-to-base representative",
+            "1 blue typed power",
+            "no target; RequiredTargetCount=0",
+            "EzrealBlueSwiftMoveToBaseActivatedAbilityTests: PromptExposesEzrealSwiftMoveRequirementWithBlueCostNoTargetsAndRecycleChoice prompt coverage",
+            "EzrealBlueSwiftMoveToBaseActivatedAbilityTests: EzrealCommandPaysBlueCreatesStackAndResolutionMovesSourceToBase command commit",
+            "EzrealBlueSwiftMoveToBaseActivatedAbilityTests: COST_PAID / ABILITY_ACTIVATED / UNIT_MOVED_TO_BASE audit assertions",
+            "EzrealBlueSwiftMoveToBaseActivatedAbilityTests: stale source, invalid target, wrong source, and wrong trait no-mutation guards",
+            "Complete official swift timing, attack/defense damage trigger, cannot-combat-damage static, and combat dependency breadth remain open.",
+            "Representative coverage only; project remains NOT READY and P0-005 remains open for full-official colored swift ability breadth.",
+            [
+                "docs/CURRENT_STAGE4D_03AO_PAYMENT_ENGINE_EZREAL_BLUE_SWIFT_MOVE_TO_BASE_AUDIT.md"
+            ]),
+        new(
+            P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId,
+            "ACTIVATE_ABILITY",
+            "Crimson Rose experience ready-unit representative",
+            "3 experience plus Spellshield target tax when the target has Spellshield",
+            "one unit target; RequiredTargetCount=1",
+            "CrimsonRoseActivatedAbilityTests: CrimsonRoseOpenMainPromptExposesExperienceReadyUnitRequirement target and experience prompt coverage",
+            "CrimsonRoseActivatedAbilityTests: CrimsonRoseFriendlySpellshieldTargetPaysExperienceNoTaxAndCreatesStack / enemy tax command commits",
+            "CrimsonRoseActivatedAbilityTests: COST_PAID / ABILITY_ACTIVATED spellshieldTaxMana audit assertions",
+            "CrimsonRoseActivatedAbilityTests: invalid target, insufficient experience, cannot-ready Maduli, and stale stack no-mutation guards",
+            "Complete official experience-payment family, ready-prevention interactions, unit-play experience trigger, and all target failures remain open.",
+            "Representative coverage only; project remains NOT READY and P0-005 remains open for full-official target-bearing experience ability breadth.",
+            [
+                "docs/CURRENT_STAGE4D_03O_PAYMENT_ENGINE_CRIMSON_ROSE_READY_UNIT_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AK_PAYMENT_ENGINE_SPELLSHIELD_TAX_COVERAGE_AUDIT.md"
+            ]),
+        new(
+            P4ActivatedAbilityCatalog.ShadowStunAbilityId,
+            "ACTIVATE_ABILITY",
+            "Shadow swift stun representative",
+            "1 mana plus 1 generic power plus Spellshield target tax when the target has Spellshield",
+            "one enemy attacking unit at this battlefield target; RequiredTargetCount=1",
+            "ShadowActivatedAbilityTests: ShadowBattleResponsePromptExposesSwiftStunRequirement prompt tax metadata",
+            "ShadowActivatedAbilityTests: ShadowActivationPaysManaPowerExhaustsAndCreatesStackWithoutImmediateStun command commit",
+            "ShadowActivatedAbilityTests: COST_PAID / ABILITY_ACTIVATED / UNIT_STUNNED spellshield tax audit assertions",
+            "ShadowActivatedAbilityTests: invalid target, wrong timing, stale target, and insufficient tax no-mutation guards",
+            "Complete official swift battle-response family, combat target dependency, nested stack timing, and all target failure breadth remain open.",
+            "Representative coverage only; project remains NOT READY and P0-005 remains open for full-official target-bearing swift ability breadth.",
+            [
+                "docs/CURRENT_STAGE4D_03Q_PAYMENT_ENGINE_SHADOW_SWIFT_STUN_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AK_PAYMENT_ENGINE_SPELLSHIELD_TAX_COVERAGE_AUDIT.md"
+            ])
+    ];
+
     private static readonly ResourceSkillCoverageFamilyEntry[] ResourceSkillCoverageManifest =
     [
         new(
@@ -640,6 +772,146 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineTargetColoredActivatedAbilityManifestMatchesCatalogResidualPredicate()
+    {
+        var catalogAbilityIds = P4ActivatedAbilityCatalog.GetAll()
+            .Where(IsTargetColoredOrExperienceActivatedAbility)
+            .Select(definition => definition.AbilityId)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var manifestAbilityIds = TargetColoredActivatedAbilityCoverageManifest
+            .Select(entry => entry.AbilityId)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(catalogAbilityIds, manifestAbilityIds);
+        Assert.Equal(
+            new[]
+            {
+                P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId,
+                P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId,
+                P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId,
+                P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId,
+                P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId,
+                P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId,
+                P4ActivatedAbilityCatalog.ShadowStunAbilityId,
+                P4ActivatedAbilityCatalog.XerathDamageAbilityId
+            }.Order(StringComparer.Ordinal),
+            manifestAbilityIds);
+        Assert.Equal(8, manifestAbilityIds.Length);
+        Assert.DoesNotContain(P4ActivatedAbilityCatalog.ViDoublePowerAbilityId, manifestAbilityIds);
+        Assert.DoesNotContain(P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId, manifestAbilityIds);
+        Assert.DoesNotContain(P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, manifestAbilityIds);
+        Assert.Empty(TargetColoredActivatedAbilityCoverageManifest
+            .GroupBy(entry => entry.AbilityId, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key));
+    }
+
+    [Fact]
+    public void PaymentEngineTargetColoredActivatedAbilityManifestRequiresPromptCommandAuditAndRollbackAnchors()
+    {
+        Assert.All(TargetColoredActivatedAbilityCoverageManifest, entry =>
+        {
+            Assert.True(P4ActivatedAbilityCatalog.TryGetByAbilityId(entry.AbilityId, out var definition));
+
+            Assert.Equal("ACTIVATE_ABILITY", entry.PaymentWindow);
+            Assert.False(definition.IsResourceSkill);
+            Assert.True(IsTargetColoredOrExperienceActivatedAbility(definition));
+            Assert.False(string.IsNullOrWhiteSpace(entry.RepresentativeSurface));
+            Assert.Contains("Prompt", entry.PromptAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("command", entry.CommandAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.True(
+                entry.AuditAnchor.Contains("COST_PAID", StringComparison.Ordinal)
+                || entry.AuditAnchor.Contains("ABILITY_ACTIVATED", StringComparison.Ordinal));
+            Assert.Contains("no-mutation", entry.RollbackAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("NOT READY", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.ClosureStatus, StringComparison.Ordinal);
+
+            if (definition.RequiredTargetCount > 0)
+            {
+                Assert.Contains("target", entry.TargetProfile, StringComparison.OrdinalIgnoreCase);
+                Assert.Contains($"RequiredTargetCount={definition.RequiredTargetCount}", entry.TargetProfile, StringComparison.Ordinal);
+            }
+            else
+            {
+                Assert.Contains("no target", entry.TargetProfile, StringComparison.OrdinalIgnoreCase);
+            }
+
+            foreach (var typedPowerCost in P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(definition))
+            {
+                Assert.Contains("typed", entry.PaymentProfile, StringComparison.OrdinalIgnoreCase);
+                Assert.Contains(typedPowerCost.Key, entry.PaymentProfile, StringComparison.OrdinalIgnoreCase);
+                Assert.Contains(typedPowerCost.Value.ToString(), entry.PaymentProfile, StringComparison.Ordinal);
+            }
+
+            if (definition.ExperienceCost > 0)
+            {
+                Assert.Contains("experience", entry.PaymentProfile, StringComparison.OrdinalIgnoreCase);
+                Assert.Contains(definition.ExperienceCost.ToString(), entry.PaymentProfile, StringComparison.Ordinal);
+            }
+
+            if (definition.AppliesSpellshieldTargetTax)
+            {
+                Assert.Contains("Spellshield", entry.PaymentProfile, StringComparison.Ordinal);
+            }
+
+            Assert.NotEmpty(entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineTargetColoredActivatedAbilityManifestKeepsOfficialBreadthExplicit()
+    {
+        var combinedRemainingBreadth = string.Join(" ", TargetColoredActivatedAbilityCoverageManifest.Select(entry => entry.RemainingOfficialBreadth));
+
+        Assert.Contains("target", combinedRemainingBreadth, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("typed", combinedRemainingBreadth, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("experience", combinedRemainingBreadth, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("swift", combinedRemainingBreadth, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Spellshield", string.Join(" ", TargetColoredActivatedAbilityCoverageManifest.Select(entry => entry.PaymentProfile)), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineTargetColoredActivatedAbilityManifestDoesNotClaimP0005Closure()
+    {
+        var combinedText = string.Join(
+            " ",
+            TargetColoredActivatedAbilityCoverageManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.AbilityId,
+                    entry.RepresentativeSurface,
+                    entry.PaymentProfile,
+                    entry.TargetProfile,
+                    entry.PromptAnchor,
+                    entry.CommandAnchor,
+                    entry.AuditAnchor,
+                    entry.RollbackAnchor,
+                    entry.RemainingOfficialBreadth,
+                    entry.ClosureStatus
+                }.Concat(entry.DocAnchors)));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("CANNOT_READY", string.Empty, StringComparison.Ordinal)
+                .Replace("READY_UNIT", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PaymentEngineResourceSkillCoverageManifestMatchesActivatedAbilityCatalog()
     {
         var catalogResourceSkillAbilityIds = P4ActivatedAbilityCatalog.GetAll()
@@ -807,6 +1079,20 @@ public sealed class PaymentEngineCoverageAuditTests
         string RollbackAnchor,
         IReadOnlyList<string> DocAnchors);
 
+    private sealed record TargetColoredActivatedAbilityCoverageEntry(
+        string AbilityId,
+        string PaymentWindow,
+        string RepresentativeSurface,
+        string PaymentProfile,
+        string TargetProfile,
+        string PromptAnchor,
+        string CommandAnchor,
+        string AuditAnchor,
+        string RollbackAnchor,
+        string RemainingOfficialBreadth,
+        string ClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
     private sealed record ResourceSkillCoverageFamilyEntry(
         string Family,
         IReadOnlyList<string> AbilityIds,
@@ -832,4 +1118,13 @@ public sealed class PaymentEngineCoverageAuditTests
         string RollbackExpectation,
         string ClosureStatus,
         IReadOnlyList<string> DocAnchors);
+
+    private static bool IsTargetColoredOrExperienceActivatedAbility(P4ActivatedAbilityDefinition definition)
+    {
+        return !definition.IsResourceSkill
+            && (definition.RequiredTargetCount > 0
+                || P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(definition).Count > 0
+                || definition.ExperienceCost > 0
+                || definition.AppliesSpellshieldTargetTax);
+    }
 }
