@@ -581,6 +581,132 @@ public sealed class PaymentEngineCoverageAuditTests
             ])
     ];
 
+    private static readonly PaymentEngineKeywordPaymentBranchCoverageEntry[] KeywordPaymentBranchManifest =
+    [
+        new(
+            "HASTE_READY",
+            CoveredRepresentative,
+            "Haste optional ready representatives cover current registry/profile bound HASTE_READY play fixtures plus Rek'Sai red exactness.",
+            "HASTE_READY prompt quote coverage via fixture runner play prompts and RekSaiHasteReadyRedPaymentTests",
+            "HASTE_READY command-side payment revalidation via p4 play Haste fixtures and RekSai command commits",
+            "COST_PAID audit payload assertions for Haste mana plus typed power representatives",
+            "Haste wrong trait, insufficient cost, exhausted source, and stale play no-mutation rollback guards",
+            "Complete Haste official breadth, non-hand granting, strong/overflow interactions, and all-window keyword parity remain open.",
+            "Representative keyword branch coverage only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AQ_PAYMENT_ENGINE_HASTE_READY_COVERAGE_VERIFIER_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AP_PAYMENT_ENGINE_REKSAI_HASTE_READY_RED_EXACTNESS_AUDIT.md",
+                "docs/CURRENT_STAGE4D_04G_TEMPERED_HASTE_EQUIPMENT_AUDIT.md"
+            ]),
+        new(
+            "ECHO_OPTIONAL_PAYMENT",
+            CoveredRepresentative,
+            "Echo and optional payment representatives cover selected spell / play branches with prompt, commit, and audit parity.",
+            "Echo optional payment prompt quote coverage via 4D-03C play optional branch representatives",
+            "Echo optional payment command-side commit coverage via current optional-cost fixture representatives",
+            "COST_PAID audit payload assertions for optional Echo payment representatives",
+            "Echo declined payment, insufficient optional cost, wrong resource, and stale source no-mutation rollback guards",
+            "Complete Echo timing, repeated spell windows, replacement ordering, and all-window optional payment parity remain open.",
+            "Representative keyword branch coverage only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03C_PAYMENT_ENGINE_PLAY_OPTIONAL_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AU_PAYMENT_ENGINE_RESIDUAL_SCOPE_HANDOFF.md"
+            ]),
+        new(
+            "SPELLSHIELD_TARGET_TAX",
+            CoveredRepresentative,
+            "Spellshield target tax representatives cover Xerath, Crimson Rose, and Shadow target tax payment branches.",
+            "Spellshield target tax prompt metadata coverage via activated ability target choices and tax quotes",
+            "Spellshield target tax command-side revalidation via Xerath, Crimson Rose, and Shadow command commits",
+            "COST_PAID audit payload assertions for spellshieldTaxMana and spellshieldTaxTargetObjectIds",
+            "Spellshield insufficient tax, invalid target, stale target, and wrong resource no-mutation rollback guards",
+            "Complete Spellshield official tax breadth, cross-window target taxes, dependency targets, and all-window audit parity remain open.",
+            "Representative keyword branch coverage only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AK_PAYMENT_ENGINE_SPELLSHIELD_TAX_COVERAGE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03O_PAYMENT_ENGINE_CRIMSON_ROSE_READY_UNIT_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03Q_PAYMENT_ENGINE_SHADOW_SWIFT_STUN_AUDIT.md"
+            ]),
+        new(
+            "EXPERIENCE_PAYMENT",
+            CoveredRepresentative,
+            "Experience payment representatives cover Crimson Rose ready-unit activation and adjacent target tax interactions.",
+            "Experience payment prompt quote coverage via CrimsonRoseOpenMainPromptExposesExperienceReadyUnitRequirement",
+            "Experience payment command-side revalidation via Crimson Rose friendly and enemy target command commits",
+            "COST_PAID audit payload assertions for experience spend plus adjacent Spellshield tax metadata",
+            "Experience insufficient cost, cannot-ready target, invalid target, and stale stack no-mutation rollback guards",
+            "Complete experience-payment official family, unit-play experience generation, prevention ordering, and all-window parity remain open.",
+            "Representative keyword branch coverage only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03O_PAYMENT_ENGINE_CRIMSON_ROSE_READY_UNIT_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AK_PAYMENT_ENGINE_SPELLSHIELD_TAX_COVERAGE_AUDIT.md"
+            ]),
+        new(
+            "BATTLEFIELD_REPLACEMENT_COSTS",
+            CoveredRepresentative,
+            "Battlefield replacement representatives cover selected held-score payment, Brush context, and score-prevention payment branches.",
+            "Battlefield replacement prompt quote coverage via held-score payment and Brush-context payment representatives",
+            "Battlefield replacement command-side revalidation via held-score payment commit and score-prevention command paths",
+            "COST_PAID audit payload assertions across battlefield held payment and replacement-adjacent representatives",
+            "Battlefield replacement stale battlefield, already scored, invalid payment resource, and prevented score no-mutation rollback guards",
+            "Complete battlefield replacement ordering, prevention variants, response timing, and cross-window resource generation remain open.",
+            "Representative keyword branch coverage only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03G_PAYMENT_ENGINE_BATTLEFIELD_HELD_RESOURCE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AC_PAYMENT_ENGINE_BATTLEFIELD_HELD_TEMP_RESOURCE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AI_PAYMENT_ENGINE_BATTLEFIELD_BRUSH_CONTEXT_AUDIT.md"
+            ]),
+        new(
+            "COST_MODIFIER_PAYMENTS",
+            CoveredRepresentative,
+            "Cost modifier representatives cover selected reduction, increase, minimum-cost, and battlefield/equipment payment modifier branches.",
+            "Cost modifier prompt quote coverage via play/equipment optional branch prompts and modifier metadata",
+            "Cost modifier command-side revalidation via current reduction, increase, and minimum-cost representative commits",
+            "COST_PAID audit payload assertions for modified quoted cost and paid resource totals",
+            "Cost modifier stale modifier, insufficient modified cost, wrong resource, and minimum-cost no-mutation rollback guards",
+            "Complete cost reduction, cost increase, minimum replacement ordering, and all official modifier stacking branches remain open.",
+            "Representative keyword branch coverage only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03C_PAYMENT_ENGINE_PLAY_OPTIONAL_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AU_PAYMENT_ENGINE_RESIDUAL_SCOPE_HANDOFF.md",
+                "docs/CURRENT_STAGE4D_04P_STATIC_AURA_COST_MODIFIER_LAYERING_AUDIT.md"
+            ]),
+        new(
+            "OPTIONAL_EXTRA_ALTERNATIVE_COSTS",
+            CoveredRepresentative,
+            "Optional, extra, and alternative payment representatives cover selected play, standby, equipment, and Azir reattach branches.",
+            "Optional / extra / alternative prompt quote coverage via play optional, hide-card alternative, equipment optional, and Azir reattach prompts",
+            "Optional / extra / alternative command-side revalidation via selected play, hide-card, equipment, and Azir command commits",
+            "COST_PAID audit payload assertions for accepted optional, extra, and alternative payment branches",
+            "Optional decline, invalid reattach, insufficient alternative cost, wrong resource, and stale option no-mutation rollback guards",
+            "Complete official optional, extra, alternative, target-scoped branch, and all-window payment parity remain open.",
+            "Representative keyword branch coverage only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03C_PAYMENT_ENGINE_PLAY_OPTIONAL_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03E_PAYMENT_ENGINE_HIDE_CARD_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AS_AZIR_OPTIONAL_ARMAMENT_REATTACH_AUDIT.md",
+                "docs/CURRENT_STAGE4D_04D_EQUIPMENT_OPTIONAL_TARGET_BRANCH_AUDIT.md",
+                "docs/CURRENT_STAGE4D_04E_EQUIPMENT_EXTRA_PAY_BRANCH_AUDIT.md"
+            ]),
+        new(
+            "TEMPORARY_RESOURCE_PARITY",
+            CoveredRepresentative,
+            "Temporary-resource parity representatives cover play, activated ability, battlefield held, trigger payment, and pending PAY_COST windows.",
+            "Temporary-resource parity prompt quote coverage via inline play, Renata typed temporary, battlefield held, trigger, and pending prompts",
+            "Temporary-resource parity command-side revalidation via temporary payment resource commit paths across representative windows",
+            "COST_PAID audit payload assertions plus temporary payment resource spent / cleared ledger assertions",
+            "Temporary-resource wrong window, wrong trait, expired resource, invalid resource id, and stale pending no-mutation rollback guards",
+            "Complete temporary-resource official matrix, cross-window generation/consumption ordering, and all invalid resource failures remain open.",
+            "Representative keyword branch coverage only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03K_PAYMENT_ENGINE_TEMPORARY_RESOURCE_INLINE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AJ_PAYMENT_ENGINE_RENATA_TYPED_TEMP_RESOURCE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AC_PAYMENT_ENGINE_BATTLEFIELD_HELD_TEMP_RESOURCE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AD_PAYMENT_ENGINE_TRIGGER_TEMP_RESOURCE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AE_PAYMENT_ENGINE_PENDING_TEMP_RESOURCE_PROMPT_AUDIT.md"
+            ])
+    ];
+
     [Fact]
     public void PaymentEngineActionWindowCoverageManifestListsRequiredWindowsExactlyOnce()
     {
@@ -856,6 +982,119 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
         Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
         Assert.DoesNotContain("READY", combinedText.Replace("NOT READY", string.Empty, StringComparison.Ordinal), StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void PaymentEngineKeywordPaymentBranchManifestListsRequiredBranchesExactlyOnce()
+    {
+        var requiredBranches = new[]
+        {
+            "HASTE_READY",
+            "ECHO_OPTIONAL_PAYMENT",
+            "SPELLSHIELD_TARGET_TAX",
+            "EXPERIENCE_PAYMENT",
+            "BATTLEFIELD_REPLACEMENT_COSTS",
+            "COST_MODIFIER_PAYMENTS",
+            "OPTIONAL_EXTRA_ALTERNATIVE_COSTS",
+            "TEMPORARY_RESOURCE_PARITY"
+        };
+
+        Assert.Equal(
+            requiredBranches.Order(StringComparer.Ordinal),
+            KeywordPaymentBranchManifest.Select(entry => entry.Branch).Order(StringComparer.Ordinal));
+        Assert.Empty(KeywordPaymentBranchManifest
+            .GroupBy(entry => entry.Branch, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key));
+    }
+
+    [Fact]
+    public void PaymentEngineKeywordPaymentBranchManifestRequiresPromptCommandAuditAndRollbackAnchors()
+    {
+        Assert.All(KeywordPaymentBranchManifest, entry =>
+        {
+            Assert.Equal(CoveredRepresentative, entry.Classification);
+            Assert.False(string.IsNullOrWhiteSpace(entry.RepresentativeSurface));
+            Assert.Contains("prompt", entry.PromptAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("command", entry.CommandAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("COST_PAID", entry.AuditAnchor, StringComparison.Ordinal);
+            Assert.Contains("no-mutation", entry.RollbackAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.False(string.IsNullOrWhiteSpace(entry.RemainingOfficialBreadth));
+            Assert.Contains("NOT READY", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.NotEmpty(entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineKeywordPaymentBranchManifestKeepsResidualBlockerAsRemainingOfficialGap()
+    {
+        var residualBlocker = Assert.Single(
+            ResidualBlockerManifest,
+            entry => string.Equals(entry.Family, "KEYWORD_PAYMENT_BRANCHES", StringComparison.Ordinal));
+
+        Assert.Equal(RemainingOfficialGap, residualBlocker.Classification);
+        Assert.Contains("HASTE_READY", residualBlocker.CurrentEvidence, StringComparison.Ordinal);
+        Assert.Contains("Echo", residualBlocker.CurrentEvidence, StringComparison.Ordinal);
+        Assert.Contains("Spellshield", residualBlocker.CurrentEvidence, StringComparison.Ordinal);
+        Assert.Contains("experience", residualBlocker.CurrentEvidence, StringComparison.Ordinal);
+        Assert.Contains("temporary-resource", residualBlocker.CurrentEvidence, StringComparison.Ordinal);
+        Assert.Contains("no-mutation", residualBlocker.RollbackExpectation, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void PaymentEngineKeywordPaymentBranchManifestKeepsOfficialBreadthExplicit()
+    {
+        var combinedRemainingBreadth = string.Join(
+            " ",
+            KeywordPaymentBranchManifest.Select(entry => entry.RemainingOfficialBreadth));
+
+        Assert.Contains("Haste", combinedRemainingBreadth, StringComparison.Ordinal);
+        Assert.Contains("Echo", combinedRemainingBreadth, StringComparison.Ordinal);
+        Assert.Contains("Spellshield", combinedRemainingBreadth, StringComparison.Ordinal);
+        Assert.Contains("experience", combinedRemainingBreadth, StringComparison.Ordinal);
+        Assert.Contains("replacement", combinedRemainingBreadth, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("optional", combinedRemainingBreadth, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("extra", combinedRemainingBreadth, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("temporary-resource", combinedRemainingBreadth, StringComparison.Ordinal);
+        Assert.Contains("all-window", combinedRemainingBreadth, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineKeywordPaymentBranchManifestDoesNotClaimP0005Closure()
+    {
+        var combinedText = string.Join(
+            " ",
+            KeywordPaymentBranchManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.Branch,
+                    entry.Classification,
+                    entry.RepresentativeSurface,
+                    entry.PromptAnchor,
+                    entry.CommandAnchor,
+                    entry.AuditAnchor,
+                    entry.RollbackAnchor,
+                    entry.RemainingOfficialBreadth,
+                    entry.ClosureStatus
+                }.Concat(entry.DocAnchors)));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal)
+                .Replace("READY_UNIT", string.Empty, StringComparison.Ordinal)
+                .Replace("CRIMSON_ROSE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
         Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
     }
 
@@ -1282,6 +1521,18 @@ public sealed class PaymentEngineCoverageAuditTests
 
     private sealed record PaymentEngineLegendBattlefieldTriggerResourceActionCoverageEntry(
         string ActionWindow,
+        string Classification,
+        string RepresentativeSurface,
+        string PromptAnchor,
+        string CommandAnchor,
+        string AuditAnchor,
+        string RollbackAnchor,
+        string RemainingOfficialBreadth,
+        string ClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
+    private sealed record PaymentEngineKeywordPaymentBranchCoverageEntry(
+        string Branch,
         string Classification,
         string RepresentativeSurface,
         string PromptAnchor,
