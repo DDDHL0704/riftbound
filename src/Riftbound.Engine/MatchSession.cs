@@ -343,7 +343,9 @@ public sealed record ContinuousEffectState(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     int? MinimumPower = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    int? ResultingPower = null);
+    int? ResultingPower = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    int? AppliedOrder = null);
 
 public sealed record PowerModifierLedgerEntry
 {
@@ -361,7 +363,8 @@ public sealed record PowerModifierLedgerEntry
         string? sourcePath = null,
         int requestedPowerDelta = int.MinValue,
         int minimumPower = 0,
-        int resultingPower = int.MinValue)
+        int resultingPower = int.MinValue,
+        int? appliedOrder = null)
     {
         EffectId = NormalizeText(effectId);
         EffectKind = NormalizeText(effectKind);
@@ -376,6 +379,7 @@ public sealed record PowerModifierLedgerEntry
         RequestedPowerDelta = requestedPowerDelta == int.MinValue ? powerDelta : requestedPowerDelta;
         MinimumPower = Math.Max(0, minimumPower);
         ResultingPower = resultingPower == int.MinValue ? effectivePower : resultingPower;
+        AppliedOrder = appliedOrder is > 0 ? appliedOrder.Value : null;
     }
 
     public string EffectId { get; init; }
@@ -403,6 +407,9 @@ public sealed record PowerModifierLedgerEntry
     public int MinimumPower { get; init; }
 
     public int ResultingPower { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? AppliedOrder { get; init; }
 
     private static string NormalizeText(string? value)
     {
@@ -509,9 +516,22 @@ public sealed record CardObjectState
     private static IReadOnlyList<PowerModifierLedgerEntry> NormalizePowerModifierLedger(
         IReadOnlyList<PowerModifierLedgerEntry>? entries)
     {
-        return (entries ?? [])
+        var normalized = (entries ?? [])
             .Where(entry => !string.IsNullOrWhiteSpace(entry.EffectId)
                 && entry.PowerDelta != 0)
+            .ToArray();
+
+        if (normalized.Any(entry => entry.AppliedOrder.HasValue))
+        {
+            return normalized
+                .Select((entry, index) => new { Entry = entry, Index = index })
+                .OrderBy(item => item.Entry.AppliedOrder ?? item.Index + 1)
+                .ThenBy(item => item.Index)
+                .Select(item => item.Entry)
+                .ToArray();
+        }
+
+        return normalized
             .OrderBy(entry => entry.EffectId, StringComparer.Ordinal)
             .ToArray();
     }
@@ -1721,7 +1741,8 @@ public sealed record MatchState
                             modifier.RequestedPowerDelta,
                             modifier.PowerDelta,
                             modifier.MinimumPower,
-                            modifier.ResultingPower)));
+                            modifier.ResultingPower,
+                            modifier.AppliedOrder)));
                     var trackedPowerDelta = cardObject.UntilEndOfTurnPowerModifiers.Sum(modifier => modifier.PowerDelta);
                     var untrackedPowerDelta = cardObject.UntilEndOfTurnPowerModifier - trackedPowerDelta;
                     if (untrackedPowerDelta != 0)
@@ -1777,6 +1798,7 @@ public sealed record MatchState
             .OrderBy(effect => effect.Scope, StringComparer.Ordinal)
             .ThenBy(effect => effect.TargetObjectId, StringComparer.Ordinal)
             .ThenBy(effect => effect.Layer, StringComparer.Ordinal)
+            .ThenBy(effect => effect.AppliedOrder ?? int.MaxValue)
             .ThenBy(effect => effect.EffectId, StringComparer.Ordinal)
             .ToArray();
     }
@@ -1907,7 +1929,8 @@ public sealed record MatchState
             state.AttachedToObjectId,
             state.CardNo,
             state.OwnerId,
-            state.ControllerId);
+            state.ControllerId,
+            state.UntilEndOfTurnPowerModifiers);
     }
 
     private static IReadOnlyList<StackItemState> NormalizeStackItems(IReadOnlyList<StackItemState>? stackItems)
@@ -2869,6 +2892,11 @@ public sealed record ResolutionResult(
         if (effect.ResultingPower.HasValue)
         {
             view["resultingPower"] = effect.ResultingPower.Value;
+        }
+
+        if (effect.AppliedOrder.HasValue)
+        {
+            view["appliedOrder"] = effect.AppliedOrder.Value;
         }
 
         if (effect.DeferredLayerEngineResiduals is { Count: > 0 })

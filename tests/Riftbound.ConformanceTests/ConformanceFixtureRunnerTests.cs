@@ -12829,6 +12829,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, modifier.ResultingPower);
         Assert.Equal(2, modifier.BasePower);
         Assert.Equal(1, modifier.EffectivePower);
+        Assert.Equal(1, modifier.AppliedOrder);
 
         var powerEffect = Assert.Single(
             result.FinalState.ContinuousEffects,
@@ -12841,6 +12842,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, powerEffect.ResultingPower);
         Assert.Equal(2, powerEffect.BasePower);
         Assert.Equal(1, powerEffect.EffectivePower);
+        Assert.Equal(1, powerEffect.AppliedOrder);
 
         var snapshot = ResolutionResult.BuildSnapshots(result.FinalState)["P1"];
         var continuousEffects = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
@@ -12854,6 +12856,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(-1, Assert.IsType<int>(powerEffectView["appliedPowerDelta"]));
         Assert.Equal(1, Assert.IsType<int>(powerEffectView["minimumPower"]));
         Assert.Equal(1, Assert.IsType<int>(powerEffectView["resultingPower"]));
+        Assert.Equal(1, Assert.IsType<int>(powerEffectView["appliedOrder"]));
         Assert.Equal("FOUNDATION_ONLY", Assert.IsType<string>(powerEffectView["layerEngineStatus"]));
     }
 
@@ -24223,6 +24226,53 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task PowerModifierAppliedOrderFollowsPowerBindEchoAppendSequence()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-power-bind-echo-two-friendly-power-plus-1.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var baseUnit = result.FinalState.CardObjects["P1-BASE-UNIT-001"];
+        Assert.Equal(2, baseUnit.UntilEndOfTurnPowerModifiers.Count);
+        Assert.Equal(
+            [1, 2],
+            baseUnit.UntilEndOfTurnPowerModifiers
+                .Select(modifier => modifier.AppliedOrder.GetValueOrDefault())
+                .ToArray());
+
+        var baseUnitEffects = result.FinalState.ContinuousEffects
+            .Where(effect => string.Equals(effect.Layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P1-BASE-UNIT-001", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(2, baseUnitEffects.Length);
+        Assert.Equal(
+            [1, 2],
+            baseUnitEffects
+                .Select(effect => effect.AppliedOrder.GetValueOrDefault())
+                .ToArray());
+
+        var snapshot = ResolutionResult.BuildSnapshots(result.FinalState)["P1"];
+        var continuousEffects = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
+            snapshot.Timing["continuousEffects"]);
+        var baseUnitEffectViews = continuousEffects
+            .Where(effect => string.Equals(effect["layer"] as string, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+                && string.Equals(effect["targetObjectId"] as string, "P1-BASE-UNIT-001", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(2, baseUnitEffectViews.Length);
+        Assert.Equal(
+            [1, 2],
+            baseUnitEffectViews
+                .Select(effect => Assert.IsType<int>(effect["appliedOrder"]))
+                .ToArray());
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysSmokeBombPowerFloorThroughStack()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -32327,6 +32377,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(3, modifier.ResultingPower);
         Assert.Equal(2, modifier.BasePower);
         Assert.Equal(3, modifier.EffectivePower);
+        Assert.Equal(1, modifier.AppliedOrder);
         Assert.Equal("P1-LEGEND-RENGAR", modifier.SourceObjectId);
         Assert.Equal("UNL-183/219", modifier.SourceCardNo);
         Assert.Equal("UNIT_PLAYED_POWER_PLUS_1", modifier.EffectKind);
@@ -32343,6 +32394,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, powerEffect.AppliedPowerDelta);
         Assert.Equal(0, powerEffect.MinimumPower);
         Assert.Equal(3, powerEffect.ResultingPower);
+        Assert.Equal(1, powerEffect.AppliedOrder);
         var continuousEffects = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
             p2Pass.Snapshots["P1"].Timing["continuousEffects"]);
         var powerEffectView = Assert.Single(
@@ -32357,6 +32409,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, Assert.IsType<int>(powerEffectView["appliedPowerDelta"]));
         Assert.Equal(0, Assert.IsType<int>(powerEffectView["minimumPower"]));
         Assert.Equal(3, Assert.IsType<int>(powerEffectView["resultingPower"]));
+        Assert.Equal(1, Assert.IsType<int>(powerEffectView["appliedOrder"]));
         var ended = await new CoreRuleEngine().ResolveAsync(
             p2Pass.State,
             new PlayerIntent("intent-p7-9-rengar-end-turn-after-power-ledger", "P1", CommandTypes.EndTurn),

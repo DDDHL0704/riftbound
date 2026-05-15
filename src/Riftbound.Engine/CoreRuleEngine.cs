@@ -36310,11 +36310,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             ? Math.Max(behavior.MinimumPowerAfterModifier, rawResultingPower)
             : rawResultingPower;
         var appliedPowerDelta = resultingPower - previousPower;
+        var appliedOrder = appliedPowerDelta == 0 ? 0 : NextPowerModifierAppliedOrder(targetState);
         var powerModifierLedger = appliedPowerDelta == 0
             ? targetState.UntilEndOfTurnPowerModifiers
             : targetState.UntilEndOfTurnPowerModifiers
                 .Append(new PowerModifierLedgerEntry(
-                    BuildPowerModifierLedgerEffectId(stackItem, targetObjectId, behavior, appliedPowerDelta, targetState),
+                    BuildPowerModifierLedgerEffectId(stackItem, targetObjectId, behavior, appliedPowerDelta, appliedOrder),
                     behavior.EffectKind,
                     "UNTIL_END_OF_TURN",
                     targetObjectId,
@@ -36326,7 +36327,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     "CoreRuleEngine.ApplyPowerModifier",
                     powerModifierAmount,
                     behavior.MinimumPowerAfterModifier,
-                    resultingPower))
+                    resultingPower,
+                    appliedOrder))
                 .ToArray();
         var nextTargetState = targetState with
         {
@@ -36364,6 +36366,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         int minimumPower = 0)
     {
         var appliedPowerDelta = resultingPower - targetState.Power;
+        var appliedOrder = appliedPowerDelta == 0 ? 0 : NextPowerModifierAppliedOrder(targetState);
         var powerModifierLedger = appliedPowerDelta == 0
             ? targetState.UntilEndOfTurnPowerModifiers
             : targetState.UntilEndOfTurnPowerModifiers
@@ -36374,7 +36377,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                         effectKind,
                         sourcePath,
                         appliedPowerDelta,
-                        targetState),
+                        appliedOrder),
                     effectKind,
                     "UNTIL_END_OF_TURN",
                     targetObjectId,
@@ -36386,7 +36389,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     sourcePath,
                     requestedPowerDelta,
                     minimumPower,
-                    resultingPower))
+                    resultingPower,
+                    appliedOrder))
                 .ToArray();
 
         return targetState with
@@ -36402,7 +36406,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string targetObjectId,
         CardBehaviorDefinition behavior,
         int appliedPowerDelta,
-        CardObjectState targetState)
+        int appliedOrder)
     {
         return string.Join(
             ":",
@@ -36412,7 +36416,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 string.IsNullOrWhiteSpace(stackItem.StackItemId) ? "STACK" : stackItem.StackItemId,
                 string.IsNullOrWhiteSpace(behavior.EffectKind) ? "UNKNOWN_EFFECT" : behavior.EffectKind,
                 appliedPowerDelta.ToString(CultureInfo.InvariantCulture),
-                (targetState.UntilEndOfTurnPowerModifiers.Count + 1).ToString(CultureInfo.InvariantCulture)
+                appliedOrder.ToString(CultureInfo.InvariantCulture)
             ]);
     }
 
@@ -36422,7 +36426,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string effectKind,
         string sourcePath,
         int appliedPowerDelta,
-        CardObjectState targetState)
+        int appliedOrder)
     {
         return string.Join(
             ":",
@@ -36433,8 +36437,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                 string.IsNullOrWhiteSpace(effectKind) ? "UNKNOWN_EFFECT" : effectKind,
                 string.IsNullOrWhiteSpace(sourcePath) ? "CoreRuleEngine.DirectPowerModifier" : sourcePath,
                 appliedPowerDelta.ToString(CultureInfo.InvariantCulture),
-                (targetState.UntilEndOfTurnPowerModifiers.Count + 1).ToString(CultureInfo.InvariantCulture)
+                appliedOrder.ToString(CultureInfo.InvariantCulture)
             ]);
+    }
+
+    private static int NextPowerModifierAppliedOrder(CardObjectState targetState)
+    {
+        var maxAppliedOrder = targetState.UntilEndOfTurnPowerModifiers
+            .Select(modifier => modifier.AppliedOrder.GetValueOrDefault())
+            .DefaultIfEmpty(0)
+            .Max();
+        return Math.Max(maxAppliedOrder, targetState.UntilEndOfTurnPowerModifiers.Count) + 1;
     }
 
     private static CardObjectState ApplyBoon(

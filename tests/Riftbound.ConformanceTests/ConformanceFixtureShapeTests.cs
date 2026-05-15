@@ -7934,6 +7934,7 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal(2, powerEffect.PowerDelta);
         Assert.Equal(3, powerEffect.BasePower);
         Assert.Equal(5, powerEffect.EffectivePower);
+        Assert.Null(powerEffect.AppliedOrder);
         Assert.Contains(
             state.ContinuousEffects,
             effect => string.Equals(effect.EffectId, "GLOBAL:GLOBAL_DAMAGE_PREVENTION", StringComparison.Ordinal));
@@ -7941,18 +7942,126 @@ public sealed class ConformanceFixtureShapeTests
         var snapshot = ResolutionResult.BuildSnapshots(state)["alice"];
         var continuousEffects = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
             snapshot.Timing["continuousEffects"]);
-        Assert.Contains(
+        var snapshotPowerEffect = Assert.Single(
             continuousEffects,
             effect => string.Equals(Assert.IsType<string>(effect["layer"]), ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
                 && string.Equals(Assert.IsType<string>(effect["targetObjectId"]), "A-UNIT-1", StringComparison.Ordinal)
                 && Assert.IsType<int>(effect["basePower"]) == 3
                 && Assert.IsType<int>(effect["effectivePower"]) == 5);
+        Assert.False(snapshotPowerEffect.ContainsKey("appliedOrder"));
 
         var objects = ObjectView(PlayerView(snapshot, "alice"));
         var unitView = Assert.IsType<Dictionary<string, object?>>(objects["A-UNIT-1"]);
         Assert.Equal(3, Assert.IsType<int>(unitView["basePower"]));
         Assert.Equal(5, Assert.IsType<int>(unitView["effectivePower"]));
         Assert.Equal(5, Assert.IsType<int>(unitView["power"]));
+    }
+
+    [Fact]
+    public void ContinuousEffectPowerModifierAppliedOrderSurvivesEffectIdNormalization()
+    {
+        var state = new MatchState(
+            "continuous-effect-power-order-room",
+            14,
+            3,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Base = ["A-UNIT-ORDER"]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["A-UNIT-ORDER"] = new(
+                    "A-UNIT-ORDER",
+                    power: 8,
+                    untilEndOfTurnPowerModifier: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    untilEndOfTurnPowerModifiers:
+                    [
+                        new PowerModifierLedgerEntry(
+                            "POWER:A-UNIT-ORDER:Z_SECOND",
+                            "SECOND_APPEND",
+                            "UNTIL_END_OF_TURN",
+                            "A-UNIT-ORDER",
+                            "A-SOURCE-SECOND",
+                            "TEST-SECOND",
+                            2,
+                            6,
+                            8,
+                            "Test.Second",
+                            2,
+                            0,
+                            8,
+                            2),
+                        new PowerModifierLedgerEntry(
+                            "POWER:A-UNIT-ORDER:A_FIRST",
+                            "FIRST_APPEND",
+                            "UNTIL_END_OF_TURN",
+                            "A-UNIT-ORDER",
+                            "A-SOURCE-FIRST",
+                            "TEST-FIRST",
+                            1,
+                            5,
+                            6,
+                            "Test.First",
+                            1,
+                            0,
+                            6,
+                            1)
+                    ])
+            });
+
+        var unit = state.CardObjects["A-UNIT-ORDER"];
+        Assert.Equal(
+            ["FIRST_APPEND", "SECOND_APPEND"],
+            unit.UntilEndOfTurnPowerModifiers.Select(modifier => modifier.EffectKind).ToArray());
+        Assert.Equal(
+            [1, 2],
+            unit.UntilEndOfTurnPowerModifiers
+                .Select(modifier => modifier.AppliedOrder.GetValueOrDefault())
+                .ToArray());
+
+        var powerEffects = state.ContinuousEffects
+            .Where(effect => string.Equals(effect.Layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "A-UNIT-ORDER", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(["FIRST_APPEND", "SECOND_APPEND"], powerEffects.Select(effect => effect.EffectKind).ToArray());
+        Assert.Equal(
+            [1, 2],
+            powerEffects
+                .Select(effect => effect.AppliedOrder.GetValueOrDefault())
+                .ToArray());
+
+        var snapshot = ResolutionResult.BuildSnapshots(state)["alice"];
+        var continuousEffects = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
+            snapshot.Timing["continuousEffects"]);
+        var powerEffectViews = continuousEffects
+            .Where(effect => string.Equals(effect["layer"] as string, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+                && string.Equals(effect["targetObjectId"] as string, "A-UNIT-ORDER", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(
+            ["FIRST_APPEND", "SECOND_APPEND"],
+            powerEffectViews
+                .Select(effect => Assert.IsType<string>(effect["effectKind"]))
+                .ToArray());
+        Assert.Equal(
+            [1, 2],
+            powerEffectViews
+                .Select(effect => Assert.IsType<int>(effect["appliedOrder"]))
+                .ToArray());
     }
 
     [Fact]

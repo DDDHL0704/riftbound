@@ -541,6 +541,7 @@ public sealed class TriggerPaymentTests
         Assert.Equal(2, modifier.ResultingPower);
         Assert.Equal(3, modifier.BasePower);
         Assert.Equal(2, modifier.EffectivePower);
+        Assert.Equal(1, modifier.AppliedOrder);
         Assert.Equal("P1-BATTLEFIELD-ICEVALE", modifier.SourceObjectId);
         Assert.Equal("UNL-065/219", modifier.SourceCardNo);
         Assert.Equal(IcevaleTrigger, modifier.EffectKind);
@@ -557,6 +558,7 @@ public sealed class TriggerPaymentTests
         Assert.Equal(-1, powerEffect.AppliedPowerDelta);
         Assert.Equal(0, powerEffect.MinimumPower);
         Assert.Equal(2, powerEffect.ResultingPower);
+        Assert.Equal(1, powerEffect.AppliedOrder);
         var continuousEffects = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
             paid.Snapshots["P1"].Timing["continuousEffects"]);
         var powerEffectView = Assert.Single(
@@ -571,6 +573,7 @@ public sealed class TriggerPaymentTests
         Assert.Equal(-1, Assert.IsType<int>(powerEffectView["appliedPowerDelta"]));
         Assert.Equal(0, Assert.IsType<int>(powerEffectView["minimumPower"]));
         Assert.Equal(2, Assert.IsType<int>(powerEffectView["resultingPower"]));
+        Assert.Equal(1, Assert.IsType<int>(powerEffectView["appliedOrder"]));
         Assert.Contains(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Contains(paid.Events, IsIcevaleTriggerResolved);
         Assert.Contains(paid.Events, IsIcevalePowerModified);

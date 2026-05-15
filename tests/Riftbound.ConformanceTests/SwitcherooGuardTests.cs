@@ -54,9 +54,13 @@ public sealed class SwitcherooGuardTests
         Assert.Equal(5, firstTarget.Power);
         Assert.Equal(3, firstTarget.UntilEndOfTurnPowerModifier);
         Assert.Equal(2, firstTarget.Power - firstTarget.UntilEndOfTurnPowerModifier);
+        var firstModifier = Assert.Single(firstTarget.UntilEndOfTurnPowerModifiers);
+        Assert.Equal(1, firstModifier.AppliedOrder);
         Assert.Equal(2, secondTarget.Power);
         Assert.Equal(-3, secondTarget.UntilEndOfTurnPowerModifier);
         Assert.Equal(5, secondTarget.Power - secondTarget.UntilEndOfTurnPowerModifier);
+        var secondModifier = Assert.Single(secondTarget.UntilEndOfTurnPowerModifiers);
+        Assert.Equal(1, secondModifier.AppliedOrder);
         Assert.Equal(2, p2Pass.Events.Count(gameEvent =>
             string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)));
         var powerEffects = p2Pass.State.ContinuousEffects
@@ -72,6 +76,7 @@ public sealed class SwitcherooGuardTests
                 && string.Equals(effect.SourcePath, "CoreRuleEngine.ApplyPowerModifier", StringComparison.Ordinal)
                 && effect.IsLayerEngineFoundationOnly
                 && effect.PowerDelta == 3
+                && effect.AppliedOrder == 1
                 && effect.BasePower == 2
                 && effect.EffectivePower == 5);
         Assert.All(
@@ -87,6 +92,7 @@ public sealed class SwitcherooGuardTests
         Assert.Equal("P1-SPELL-SWITCHEROO", firstTargetEffectView["sourceObjectId"]);
         Assert.Equal("SWITCHEROO_SWAP_TWO_BATTLEFIELD_UNIT_POWERS", firstTargetEffectView["effectKind"]);
         Assert.Equal("CoreRuleEngine.ApplyPowerModifier", firstTargetEffectView["sourcePath"]);
+        Assert.Equal(1, Assert.IsType<int>(firstTargetEffectView["appliedOrder"]));
         Assert.Equal("FOUNDATION_ONLY", firstTargetEffectView["layerEngineStatus"]);
         Assert.Contains(
             "timestamp ordering",
