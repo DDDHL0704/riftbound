@@ -1,7 +1,7 @@
 # Stage 4D-03AS Azir Optional Armament Reattach Card Matrix Readiness Audit
 
 日期：2026-05-15
-结论：**READINESS AUDIT ONLY / MATRIX NOT UPDATED / PROJECT NOT READY**
+结论：**READINESS IMPROVED / MATRIX NOT UPDATED / PROJECT NOT READY**
 
 本文件是 A/E 侧对 4D-03AS Azir optional armament reattach follow-up 的 card matrix readiness 审计。它只读取官方快照、4D-03AM evidence 与现有矩阵骨架，不修改 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`，不把任何状态升级为 full-official。
 
@@ -45,18 +45,33 @@ Current dependency domains:
 
 Therefore current evidence may support a narrower unarmed / no-reattach representative, but it cannot support full official Azir while the official optional armament sentence remains unimplemented.
 
-## 4. Matrix Update Gate After 4D-03AS
+## 4. 4D-03AS Runtime Evidence
 
-After a future 4D-03AS implementation exists, E/A may consider a matrix update only if all of the following are true:
+`docs/CURRENT_STAGE4D_03AS_AZIR_OPTIONAL_ARMAMENT_REATTACH_AUDIT.md` and `docs/CURRENT_STAGE4D_03AS_AZIR_OPTIONAL_ARMAMENT_REATTACH_EVIDENCE.md` now record accepted runtime / focused-test evidence for the optional armament reattach branch:
 
-1. A accepts implementation diff and tests for prompt, command, server-side optional selection, stack-time revalidation, equipment state update and event audit.
+- prompt metadata now reports `armamentReattachPolicy=implemented`
+- target-scoped armament choices are exposed server-side
+- command accepts no choice or one legal target-attached armament choice
+- invalid hand-written choices reject no-mutation
+- stack resolution rechecks selected armament and emits `EQUIPMENT_REATTACHED` only when still legal
+- stale selected armament skips reattach without blocking the legal location swap
+
+A-side verification passed focused 204/204, adjacent 397/397, backend full 4355/4355 and `git diff --check`.
+
+This improves readiness for `FU-105abedc17`, but the matrix JSON remains unchanged in this batch.
+
+## 5. Matrix Update Gate After 4D-03AS
+
+After this 4D-03AS implementation, E/A may consider a matrix update only if all of the following are true:
+
+1. A opens a separate matrix write window after accepting implementation diff and tests for prompt, command, server-side optional selection, stack-time revalidation, equipment state update and event audit.
 2. Automated evidence covers both exact collector ids or a shared-oracle mapping that explicitly names both `SFD·050/221` and `SFD·050a/221`.
 3. The optional reattach branch covers no-choice, one-choice, multiple attached armaments, stale chosen armament and invalid hand-written choice cases.
 4. FAQ references currently recorded for this FU are reviewed for equipment / attachment / timing interactions.
-5. A opens a separate matrix write window; implementation work must not edit the matrix.
+5. Broader swift timing / reaction-speed policy is either accepted as the current representative boundary or separately implemented and tested.
 
-If optional armament reattach remains unimplemented or only partially tested, this FU must remain `fullOfficial=false`.
+If future matrix review finds the optional armament branch incomplete or only partially tested, this FU must remain `fullOfficial=false`.
 
-## 5. Current Verdict
+## 6. Current Verdict
 
-4D-03AS identifies the next Azir matrix blocker after 4D-03AM. It is ready for a future narrow runtime slice, but no runtime write lock is open in this paused batch. No matrix JSON update is allowed, and the project remains **NOT READY**.
+4D-03AS removes the optional armament reattach blocker for the accepted Azir representative and improves readiness for a future matrix write window. No matrix JSON update is allowed in this batch, `FU-105abedc17` remains `fullOfficial=false`, and the project remains **NOT READY**.

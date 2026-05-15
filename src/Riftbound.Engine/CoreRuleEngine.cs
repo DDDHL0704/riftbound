@@ -7363,11 +7363,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                 out var paymentResourceActions,
                 out var recycledRuneObjectIds,
                 out var temporaryPaymentResourceActions)
-            || behaviorOptionalCosts.Count != 0)
+            || !TrySelectAzirArmamentReattachChoice(
+                state,
+                intent.PlayerId,
+                targetObjectId,
+                behaviorOptionalCosts,
+                out var selectedArmamentObjectId))
         {
             return RejectWithCorePrompts(
                 state,
-                "阿兹尔的迅捷交换技能只接受合法的符能支付资源动作。",
+                "阿兹尔的迅捷交换技能只接受合法的符能支付资源动作或目标武装重贴附选择。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -7473,6 +7478,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
                 ["targetObjectId"] = targetObjectId,
                 ["sourceCardNo"] = sourceState.CardNo,
+                ["selectedArmamentObjectId"] = string.IsNullOrWhiteSpace(selectedArmamentObjectId) ? null : selectedArmamentObjectId,
+                ["armamentReattachPolicy"] = P4ActivatedAbilityCatalog.AzirArmamentReattachPolicy,
                 ["swift"] = true,
                 ["oncePerTurn"] = true
             });
@@ -7556,7 +7563,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             [targetObjectId],
             0,
             1,
-            []);
+            behaviorOptionalCosts);
         var untilEndOfTurnEffects = AddUntilEndOfTurnEffect(state.UntilEndOfTurnEffects, oncePerTurnEffectId);
         var nextState = state with
         {
@@ -7591,6 +7598,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["abilityId"] = command.AbilityId,
                     ["effectKind"] = ability.EffectKind,
                     ["targetObjectIds"] = new[] { targetObjectId },
+                    ["selectedArmamentObjectId"] = string.IsNullOrWhiteSpace(selectedArmamentObjectId) ? null : selectedArmamentObjectId,
+                    ["armamentReattachPolicy"] = P4ActivatedAbilityCatalog.AzirArmamentReattachPolicy,
                     ["swift"] = true,
                     ["oncePerTurn"] = true
                 }),
@@ -7630,6 +7639,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = stackItem.SourceObjectId,
                     ["cardNo"] = stackItem.CardNo,
                     ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
+                    ["optionalCosts"] = stackItem.OptionalCosts.ToArray(),
+                    ["selectedArmamentObjectId"] = string.IsNullOrWhiteSpace(selectedArmamentObjectId) ? null : selectedArmamentObjectId,
+                    ["armamentReattachPolicy"] = P4ActivatedAbilityCatalog.AzirArmamentReattachPolicy,
                     ["effectKind"] = stackItem.EffectKind,
                     ["abilityId"] = command.AbilityId
                 })
@@ -26563,6 +26575,55 @@ public sealed class CoreRuleEngine : IRuleEngine
             && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
     }
 
+    private static bool TrySelectAzirArmamentReattachChoice(
+        MatchState state,
+        string playerId,
+        string targetObjectId,
+        IReadOnlyList<string> behaviorOptionalCosts,
+        out string selectedArmamentObjectId)
+    {
+        selectedArmamentObjectId = string.Empty;
+        if (behaviorOptionalCosts.Count == 0)
+        {
+            return true;
+        }
+
+        if (behaviorOptionalCosts.Count != 1
+            || !P4ActivatedAbilityCatalog.TryParseAzirArmamentReattachOptionalCost(
+                behaviorOptionalCosts[0],
+                out selectedArmamentObjectId))
+        {
+            selectedArmamentObjectId = string.Empty;
+            return false;
+        }
+
+        if (!IsLegalAzirArmamentReattachChoice(
+            state.CardObjects,
+            playerId,
+            targetObjectId,
+            selectedArmamentObjectId))
+        {
+            selectedArmamentObjectId = string.Empty;
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool IsLegalAzirArmamentReattachChoice(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string targetObjectId,
+        string equipmentObjectId)
+    {
+        return !string.IsNullOrWhiteSpace(equipmentObjectId)
+            && cardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
+            && equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            && !equipmentState.IsFaceDown
+            && SourceObjectControlledByPlayerOrLegacyOwned(equipmentState, playerId)
+            && string.Equals(equipmentState.AttachedToObjectId, targetObjectId, StringComparison.Ordinal);
+    }
+
     private static bool IsLegalGatekeeperMaduliMoveTarget(
         MatchState state,
         string playerId,
@@ -32458,6 +32519,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
         var targetObjectId = stackItem.TargetObjectIds.FirstOrDefault() ?? string.Empty;
+        var selectedArmamentObjectId = AzirSelectedArmamentObjectId(stackItem.OptionalCosts);
         var events = new List<GameEvent>
         {
             new(
@@ -32472,7 +32534,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["stackItemId"] = stackItem.StackItemId,
                     ["abilityId"] = P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId,
                     ["effectKind"] = stackItem.EffectKind,
-                    ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray()
+                    ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
+                    ["optionalCosts"] = stackItem.OptionalCosts.ToArray(),
+                    ["selectedArmamentObjectId"] = string.IsNullOrWhiteSpace(selectedArmamentObjectId) ? null : selectedArmamentObjectId,
+                    ["armamentReattachPolicy"] = P4ActivatedAbilityCatalog.AzirArmamentReattachPolicy
                 })
         };
 
@@ -32500,11 +32565,23 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["abilityId"] = P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId,
                     ["effectKind"] = stackItem.EffectKind,
                     ["stackItemId"] = stackItem.StackItemId,
+                    ["selectedArmamentObjectId"] = string.IsNullOrWhiteSpace(selectedArmamentObjectId) ? null : selectedArmamentObjectId,
+                    ["armamentReattachApplied"] = false,
+                    ["armamentReattachPolicy"] = P4ActivatedAbilityCatalog.AzirArmamentReattachPolicy,
                     ["reason"] = "TARGET_NO_LONGER_LEGAL"
                 }));
         }
         else
         {
+            var armamentReattachEvents = new List<GameEvent>();
+            var armamentReattachApplied = TryReattachAzirSelectedArmament(
+                cardObjects,
+                stackItem.ControllerId,
+                stackItem.SourceObjectId,
+                targetObjectId,
+                selectedArmamentObjectId,
+                stackItem.StackItemId,
+                armamentReattachEvents);
             events.Add(new GameEvent(
                 "UNIT_LOCATIONS_SWAPPED",
                 "阿兹尔与受控单位交换位置",
@@ -32522,9 +32599,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["sourceDestinationLocation"] = BuildLocationPayload(sourceDestinationLocation),
                     ["targetOriginLocation"] = BuildLocationPayload(targetOriginLocation),
                     ["targetDestinationLocation"] = BuildLocationPayload(targetDestinationLocation),
-                    ["armamentReattachApplied"] = false,
-                    ["armamentReattachPolicy"] = "deferred"
+                    ["selectedArmamentObjectId"] = string.IsNullOrWhiteSpace(selectedArmamentObjectId) ? null : selectedArmamentObjectId,
+                    ["armamentReattachApplied"] = armamentReattachApplied,
+                    ["armamentReattachPolicy"] = P4ActivatedAbilityCatalog.AzirArmamentReattachPolicy
                 }));
+            events.AddRange(armamentReattachEvents);
         }
 
         return new StackResolutionResult(
@@ -32638,6 +32717,66 @@ public sealed class CoreRuleEngine : IRuleEngine
             [],
             state.RngCursor,
             ObjectLocations: objectLocations);
+    }
+
+    private static string AzirSelectedArmamentObjectId(IReadOnlyList<string> optionalCosts)
+    {
+        var selectedArmamentObjectIds = optionalCosts
+            .Select(optionalCost => P4ActivatedAbilityCatalog.TryParseAzirArmamentReattachOptionalCost(
+                optionalCost,
+                out var equipmentObjectId)
+                    ? equipmentObjectId
+                    : string.Empty)
+            .Where(equipmentObjectId => !string.IsNullOrWhiteSpace(equipmentObjectId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        return selectedArmamentObjectIds.Length == 1 ? selectedArmamentObjectIds[0] : string.Empty;
+    }
+
+    private static bool TryReattachAzirSelectedArmament(
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string sourceObjectId,
+        string targetObjectId,
+        string selectedArmamentObjectId,
+        string stackItemId,
+        List<GameEvent> events)
+    {
+        if (string.IsNullOrWhiteSpace(selectedArmamentObjectId)
+            || !IsLegalAzirArmamentReattachChoice(
+                cardObjects,
+                playerId,
+                targetObjectId,
+                selectedArmamentObjectId)
+            || !cardObjects.TryGetValue(selectedArmamentObjectId, out var equipmentState))
+        {
+            return false;
+        }
+
+        var previousAttachedToObjectId = equipmentState.AttachedToObjectId;
+        cardObjects[selectedArmamentObjectId] = equipmentState with
+        {
+            AttachedToObjectId = sourceObjectId
+        };
+        events.Add(new GameEvent(
+            "EQUIPMENT_REATTACHED",
+            "阿兹尔重贴附目标单位的一件武装",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["controllerId"] = playerId,
+                ["sourceObjectId"] = sourceObjectId,
+                ["targetObjectId"] = targetObjectId,
+                ["abilityId"] = P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId,
+                ["effectKind"] = P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityEffectKind,
+                ["stackItemId"] = stackItemId,
+                ["unitObjectId"] = sourceObjectId,
+                ["equipmentObjectId"] = selectedArmamentObjectId,
+                ["ownerId"] = string.IsNullOrWhiteSpace(equipmentState.OwnerId) ? playerId : equipmentState.OwnerId,
+                ["attachedToObjectId"] = sourceObjectId,
+                ["previousAttachedToObjectId"] = previousAttachedToObjectId
+            }));
+        return true;
     }
 
     private static StackResolutionResult ResolveEzrealBlueSwiftMoveAbilityStackItem(

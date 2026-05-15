@@ -88,6 +88,8 @@ public static class P4ActivatedAbilityCatalog
     public const string AzirSwiftSwapAbilityEffectKind = "AZIR_ACTIVATED_SWIFT_SWAP_WITH_CONTROLLED_UNIT";
     public const int AzirSwiftSwapGreenPowerCost = 1;
     public const string AzirSwiftSwapUsedThisTurnEffectPrefix = "AZIR_SWIFT_SWAP_USED_THIS_TURN:";
+    public const string AzirArmamentReattachOptionalCostPrefix = "AZIR_REATTACH_ARMAMENT:";
+    public const string AzirArmamentReattachPolicy = "implemented";
 
     public const string GatekeeperMaduliCardNo = "UNL-144/219";
     public const string GatekeeperMaduliMoveAbilityId = "GATEKEEPER_MADULI_PAY_PURPLE_MOVE_TO_WEAKER_ENEMY_BATTLEFIELD";
@@ -443,7 +445,7 @@ public static class P4ActivatedAbilityCatalog
             ExhaustsSourceAsCost: false,
             0,
             AppliesSpellshieldTargetTax: false,
-            "Stage 4D-03AM opens only Azir's pay green swift controlled-unit position-swap representative; optional armament reattach and the broader swift target-bearing family remain deferred.",
+            "Stage 4D-03AS opens Azir's pay green swift controlled-unit position-swap representative plus optional target armament reattach; the broader swift target-bearing family remains deferred.",
             PowerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
             {
                 [RuneTrait.Green] = AzirSwiftSwapGreenPowerCost
@@ -676,6 +678,24 @@ public static class P4ActivatedAbilityCatalog
     public static string AzirSwiftSwapUsedThisTurnEffectId(string playerId, string sourceObjectId)
     {
         return $"{AzirSwiftSwapUsedThisTurnEffectPrefix}{playerId}:{sourceObjectId}";
+    }
+
+    public static string AzirArmamentReattachOptionalCostId(string equipmentObjectId)
+    {
+        return $"{AzirArmamentReattachOptionalCostPrefix}{equipmentObjectId}";
+    }
+
+    public static bool TryParseAzirArmamentReattachOptionalCost(string optionalCost, out string equipmentObjectId)
+    {
+        equipmentObjectId = string.Empty;
+        if (string.IsNullOrWhiteSpace(optionalCost)
+            || !optionalCost.StartsWith(AzirArmamentReattachOptionalCostPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        equipmentObjectId = optionalCost[AzirArmamentReattachOptionalCostPrefix.Length..].Trim();
+        return !string.IsNullOrWhiteSpace(equipmentObjectId);
     }
 
     public static IReadOnlyDictionary<string, int> PowerCostByTraitForAbility(P4ActivatedAbilityDefinition definition)

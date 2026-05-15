@@ -1,7 +1,7 @@
 # Stage 4D Next Dispatch and Writelocks
 
 日期：2026-05-15
-结论：**4D-03AS-B DISPATCHED / PROJECT NOT READY**
+结论：**4D-03AS-B ACCEPTED / PROJECT NOT READY**
 
 本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance 归档，不实现 runtime，不修改前端，不修改测试代码，不修改 card matrix。当前 active goal 仍未完成，不得调用 `update_goal complete`。
 
@@ -11,7 +11,9 @@
 - `docs/CURRENT_STAGE4D_03AS_AZIR_OPTIONAL_ARMAMENT_REATTACH_HANDOFF.md` 已把下一枚 Azir full-text follow-up 锁定为 `SFD·050/221` / `SFD·050a/221` 阿兹尔 optional armament reattach branch：目标单位已配武装时，可以选择 0 或 1 件武装贴附到 Azir。
 - `docs/CURRENT_STAGE4D_03AS_AZIR_OPTIONAL_ARMAMENT_REATTACH_BASELINE_EVIDENCE.md` 已记录 implementation-before baseline：Azir / ActivateAbility / MoveUnit / PaymentEngine 194/194 通过；Azir / ActivateAbility / MoveUnit / PaymentEngine / ActionPrompt / GameHub / Priority 387/387 通过；`git diff --check` 通过。
 - `docs/CURRENT_STAGE4D_03AS_CARD_MATRIX_READINESS_AUDIT.md` 已确认 Azir `FU-105abedc17` 当前仍为 `fullOfficial=false`；4D-03AM unarmed / no-reattach position-swap evidence 不能代理 optional armament reattach full official branch，matrix JSON 未更新。
-- 用户恢复 active goal 后，4D-03AS-B 已派发给 B-Implementation / Raman `019e2b49-28c3-7ad2-b3f8-ef1347b56996`。B 当前独占 Azir optional armament reattach runtime/test 写锁：`CoreRuleEngine.cs`、`MatchSession.cs`、`P4ActivatedAbilityCatalog.cs`、`tests/Riftbound.ConformanceTests/AzirSwiftSwapActivatedAbilityTests.cs`；可选且仅最小必要时触碰 `src/Riftbound.Contracts/Protocol.cs` / `GameCommandJsonMapper.cs` / focused contract serialization tests。frontend、card matrix JSON、broad equipment rewrite、unrelated abilities、swift timing breadth、battle lifecycle、LayerEngine、HASTE_READY 与 `riftbound-dotnet.sln` 仍禁止触碰。
+- 用户恢复 active goal 后，4D-03AS-B 已派发给 B-Implementation / Raman `019e2b49-28c3-7ad2-b3f8-ef1347b56996`。B 派发期间独占 Azir optional armament reattach runtime/test 写锁：`CoreRuleEngine.cs`、`MatchSession.cs`、`P4ActivatedAbilityCatalog.cs`、`tests/Riftbound.ConformanceTests/AzirSwiftSwapActivatedAbilityTests.cs`；可选且仅最小必要时触碰 `src/Riftbound.Contracts/Protocol.cs` / `GameCommandJsonMapper.cs` / focused contract serialization tests。该写锁已在 A 验收后关闭；frontend、card matrix JSON、broad equipment rewrite、unrelated abilities、swift timing breadth、battle lifecycle、LayerEngine、HASTE_READY 与 `riftbound-dotnet.sln` 均未触碰。
+- `docs/CURRENT_STAGE4D_03AS_AZIR_OPTIONAL_ARMAMENT_REATTACH_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AS_AZIR_OPTIONAL_ARMAMENT_REATTACH_EVIDENCE.md` 已记录 4D-03AS-B implemented / A-validated：focused 204/204、adjacent 397/397、backend full 4355/4355、`git diff --check` 通过。
+- `docs/CURRENT_STAGE4D_03AS_CARD_MATRIX_READINESS_AUDIT.md` 已刷新为 readiness improved：Azir `FU-105abedc17` optional armament reattach blocker 已有 accepted runtime evidence, but matrix JSON remains unchanged and `fullOfficial=false` until a future explicit matrix write window.
 - `docs/CURRENT_STAGE4D_03AR_GATEKEEPER_MADULI_CANNOT_READY_STATIC_HANDOFF.md` 已把下一枚 Gatekeeper Maduli static slice 锁定为 `UNL-144/219` 守门者马杜里 `我无法变为活跃状态。` cannot-ready representative。
 - `docs/CURRENT_STAGE4D_03AR_GATEKEEPER_MADULI_CANNOT_READY_STATIC_BASELINE_EVIDENCE.md` 已记录 implementation-before baseline：Maduli / Gatekeeper / CrimsonRose / HuntReadyGuardTests 61/61 通过；Maduli / Gatekeeper / CrimsonRose / HuntReadyGuardTests / ActivateAbility / PaymentEngine / ActionPrompt / GameHub / Priority 371/371 通过；`git diff --check` 通过。
 - 4D-03AR-B 已派发给 B-Implementation / Schrodinger `019e291f-dd42-75c3-8f12-05220a1629df`。B 当前独占 Maduli cannot-ready static runtime/test 写锁：`CoreRuleEngine.cs`、`MatchSession.cs`、focused Maduli / Crimson Rose / Hunt tests；frontend、card matrix、broad LayerEngine、unrelated ready effects、HASTE_READY / swift timing、battle lifecycle 与 `riftbound-dotnet.sln` 仍禁止触碰。
@@ -38,8 +40,8 @@
 
 | Queue | Owner | Status | Purpose | Write scope | Must not touch |
 |---|---|---|---|---|---|
-| 4D-NEXT-A | A 主控 | 4D-03AS-B dispatched | 记录 4D-03AS handoff、baseline、matrix readiness、B 派发与验收计划 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs | `src/**`、`tests/**`、frontend runtime、card matrix |
-| 4D-03AS-B | B-Implementation / Raman `019e2b49-28c3-7ad2-b3f8-ef1347b56996` | Dispatched / implementation in progress | 实现 Azir optional armament reattach branch | `CoreRuleEngine.cs`、`MatchSession.cs`、`P4ActivatedAbilityCatalog.cs`、focused Azir tests; minimal contracts only if necessary | frontend runtime、card matrix JSON、broad equipment rewrite、unrelated abilities、swift timing breadth、battle lifecycle、LayerEngine、HASTE_READY、`riftbound-dotnet.sln` |
+| 4D-NEXT-A | A 主控 | 4D-03AS-B accepted | 记录 4D-03AS handoff、baseline、B 派发、验收、matrix readiness 与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs | `src/**`、`tests/**`、frontend runtime、card matrix |
+| 4D-03AS-B | B-Implementation / Raman `019e2b49-28c3-7ad2-b3f8-ef1347b56996` | Implemented and A-validated | 实现 Azir optional armament reattach branch | completed runtime / focused tests | frontend runtime、card matrix JSON、broad equipment rewrite、unrelated abilities、swift timing breadth、battle lifecycle、LayerEngine、HASTE_READY、`riftbound-dotnet.sln` |
 | 4D-03AS-E | E-Review | Read-only readiness audit recorded in `docs/CURRENT_STAGE4D_03AS_CARD_MATRIX_READINESS_AUDIT.md` | 检查 Azir `FU-105abedc17` optional armament blocker and full-official gate | card coverage docs in read-only mode | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` unless A opens a future matrix write window |
 | 4D-03AR-B | B-Implementation / Schrodinger `019e291f-dd42-75c3-8f12-05220a1629df` | Implemented and A-validated | 实现 Gatekeeper Maduli cannot-ready static representative | completed runtime / focused tests | frontend runtime、card matrix JSON、broad LayerEngine rewrite、unrelated ready effects、HASTE_READY / swift timing、battle lifecycle、`riftbound-dotnet.sln` |
 | 4D-03AQ-B | B-Implementation / Halley `019e290f-73b2-7d62-a19e-2a252ad6ef2e` | Implemented and A-validated | 新增 HASTE_READY catalog-bound coverage verifier | completed focused verifier; no runtime changes | `src/**`、frontend runtime、card matrix JSON、broad Haste rewrite、strong/overflow、non-hand haste granting、LayerEngine、battle lifecycle、`riftbound-dotnet.sln` |
@@ -54,9 +56,9 @@
 
 ## 3. Exclusive Writelocks
 
-- 4D-03AS-B currently owns the only open runtime/test write lock.
+- At this stop point, no runtime, test, frontend or matrix write lock remains open.
+- 4D-03AS-B runtime / focused-test write lock is closed after A validation and commit-ready evidence.
 - No frontend or matrix write lock is open.
-- A must not personally edit runtime/tests while 4D-03AS-B is active; A remains limited to dispatch docs, review, validation and audit.
 - 4D-03AR-B runtime / focused-test write lock is closed after A validation and commit-ready evidence.
 - 4D-03AQ-B test-only write lock is closed after A validation and commit-ready evidence.
 - 4D-03AP-B focused-test write lock is closed after A validation and commit-ready evidence.
@@ -66,9 +68,9 @@
 - E remains read-only until A opens an explicit matrix write window. The matrix must not be upgraded to `fullOfficial=true` for Maduli, Ezreal or other latest representatives merely because focused runtime evidence passed.
 - No parallel task may edit card matrix JSON, frontend stores, `ActionPrompt` contracts, battle state machine, stack, cleanup, hidden-info redaction, or E2E fixtures without an explicit owner and a fresh write-lock note.
 
-## 4. 4D-03AS-B Acceptance Gate (Dispatched)
+## 4. 4D-03AS-B Acceptance Gate Accepted
 
-B implementation is acceptable only if A can verify all of the following:
+B implementation is accepted because A verified all of the following:
 
 1. Server prompt metadata no longer claims Azir `armamentReattachPolicy="deferred"` after implementation; metadata exposes target-scoped armament reattach choices or an equivalent server-owned shape.
 2. The command path allows no reattach even when the selected target has attached armament.
@@ -215,6 +217,6 @@ source ../../scripts/dev-env.sh && npm run e2e:formal-18 -- --start-api
 
 E may identify matrix rows and official text blockers for Azir / Ezreal, but must not update `fullOfficial` status until A accepts runtime, rules evidence, tests, residual handling and FAQ review.
 
-## 10. Current Batch State
+## 10. Current Batch Stop Point
 
-This record now continues past the earlier pause and dispatches 4D-03AS-B to B-Implementation / Raman `019e2b49-28c3-7ad2-b3f8-ef1347b56996`. The project remains **NOT READY**. No frontend or matrix write window is open, A will wait for B diff before acceptance, and `riftbound-dotnet.sln` remains untouched.
+This record stops after accepting 4D-03AS-B and refreshing matrix readiness. The project remains **NOT READY**. No frontend, matrix, runtime or test write window remains open, and `riftbound-dotnet.sln` remains untouched.

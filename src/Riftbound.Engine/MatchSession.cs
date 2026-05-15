@@ -4194,7 +4194,8 @@ internal static class ActionPromptBuilder
         string? UnsupportedReason,
         IReadOnlyDictionary<string, int>? SpellshieldTaxManaByTargetObjectId = null,
         bool RenataGoldExtraManaAvailable = false,
-        int BonusMana = 0);
+        int BonusMana = 0,
+        IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>? AzirArmamentReattachChoicesByTargetObjectId = null);
 
     private sealed record LegendActionPromptRequirement(
         string SourceObjectId,
@@ -5373,6 +5374,17 @@ internal static class ActionPromptBuilder
             var spellshieldTaxManaByTargetObjectId = ActivateAbilitySpellshieldTaxManaByTargetObjectId(state, playerId, ability, targetChoicesByIndex);
             var renataGoldExtraManaAvailable = P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(ability.AbilityId)
                 && cardObject.Tags.Contains(P4ActivatedAbilityCatalog.GoldTokenRenataBonusTag, StringComparer.Ordinal);
+            var azirArmamentReattachChoicesByTargetObjectId = string.Equals(
+                    ability.AbilityId,
+                    P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId,
+                    StringComparison.Ordinal)
+                ? AzirArmamentReattachChoicesByTargetObjectId(state, playerId, targetChoicesByIndex)
+                : new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
+            var armamentReattachChoices = azirArmamentReattachChoicesByTargetObjectId.Values
+                .SelectMany(choices => choices)
+                .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+                .Select(group => group.First())
+                .ToArray();
             var availablePowerByTrait = PlayCardAvailablePowerByTrait(
                 runePool,
                 new Dictionary<string, int>(StringComparer.Ordinal));
@@ -5394,7 +5406,7 @@ internal static class ActionPromptBuilder
                 ability.RequiredTargetCount,
                 ActivateAbilityTargetScopeLabel(ability),
                 targetChoicesByIndex,
-                isResourceConversionAbility ? conversionOptionalCostChoices : paymentResourceChoices,
+                isResourceConversionAbility ? conversionOptionalCostChoices : paymentResourceChoices.Concat(armamentReattachChoices).ToArray(),
                 isResourceConversionAbility ? [] : paymentResourceChoices,
                 isResourceConversionAbility
                     ? new Dictionary<string, IReadOnlyDictionary<string, object?>>(StringComparer.Ordinal)
@@ -5410,7 +5422,8 @@ internal static class ActionPromptBuilder
                 null,
                 spellshieldTaxManaByTargetObjectId,
                 renataGoldExtraManaAvailable,
-                renataGoldExtraManaAvailable ? P4ActivatedAbilityCatalog.GoldTokenRenataBonusMana : 0));
+                renataGoldExtraManaAvailable ? P4ActivatedAbilityCatalog.GoldTokenRenataBonusMana : 0,
+                azirArmamentReattachChoicesByTargetObjectId));
         }
 
         if (zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal)
@@ -6496,6 +6509,54 @@ internal static class ActionPromptBuilder
             && state.PlayerZones.TryGetValue(playerId, out var zones)
             && (zones.Base.Contains(targetObjectId, StringComparer.Ordinal)
                 || zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal));
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> AzirArmamentReattachChoicesByTargetObjectId(
+        MatchState state,
+        string playerId,
+        IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> targetChoicesByIndex)
+    {
+        if (!targetChoicesByIndex.TryGetValue("0", out var targetChoices))
+        {
+            return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
+        }
+
+        return targetChoices.ToDictionary(
+            targetChoice => targetChoice.Id,
+            targetChoice => AzirArmamentReattachChoicesForTarget(state, playerId, targetChoice.Id),
+            StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> AzirArmamentReattachChoicesForTarget(
+        MatchState state,
+        string playerId,
+        string targetObjectId)
+    {
+        return state.CardObjects
+            .Where(entry => IsPromptAzirArmamentReattachChoice(state, playerId, targetObjectId, entry.Key))
+            .OrderBy(entry => entry.Key, StringComparer.Ordinal)
+            .Select(entry =>
+            {
+                var choice = ObjectChoice(state, entry.Key, "optional Azir armament reattach candidate");
+                return new ActionPromptChoiceDto(
+                    P4ActivatedAbilityCatalog.AzirArmamentReattachOptionalCostId(entry.Key),
+                    choice.Label,
+                    choice.Reason);
+            })
+            .ToArray();
+    }
+
+    private static bool IsPromptAzirArmamentReattachChoice(
+        MatchState state,
+        string playerId,
+        string targetObjectId,
+        string equipmentObjectId)
+    {
+        return state.CardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
+            && equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            && !equipmentState.IsFaceDown
+            && SourceObjectControlledByPlayerOrLegacyOwned(equipmentState, playerId)
+            && string.Equals(equipmentState.AttachedToObjectId, targetObjectId, StringComparison.Ordinal);
     }
 
     private static bool IsPromptGatekeeperMaduliMoveTarget(
@@ -10962,7 +11023,11 @@ internal static class ActionPromptBuilder
             view["timingPolicy"] = "open-main-representative";
             view["stackPolicy"] = "ordinary-stack-item-before-swap";
             view["paymentPolicy"] = "payment-plan-typed-green";
-            view["armamentReattachPolicy"] = "deferred";
+            view["armamentReattachPolicy"] = P4ActivatedAbilityCatalog.AzirArmamentReattachPolicy;
+            view["armamentReattachChoicePrefix"] = P4ActivatedAbilityCatalog.AzirArmamentReattachOptionalCostPrefix;
+            view["armamentReattachChoicesByTargetObjectId"] =
+                requirement.AzirArmamentReattachChoicesByTargetObjectId
+                ?? new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
         }
 
         if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId, StringComparison.Ordinal))
