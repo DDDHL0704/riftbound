@@ -1,13 +1,14 @@
 # Stage 4D Next Dispatch and Writelocks
 
 日期：2026-05-16
-结论：**4D-04O-B POWER MODIFIER ORDERING IMPLEMENTED / WRITELOCK CLOSED / PROJECT NOT READY**
+结论：**4D-04P MINIMUM POWER ORDERING HANDOFF READY / PAUSED / PROJECT NOT READY**
 
 本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance / baseline 归档，不实现 runtime，不修改前端，不修改测试代码，不升级 full-official。当前 active goal 仍未完成，不得调用 `update_goal complete`。
 
 ## 1. 输入事实
 
 - 当前分支为 `main`，仓库当前只保留未跟踪 `riftbound-dotnet.sln`；该文件不得被本批任务触碰或纳入提交。
+- 4D-04P LayerEngine minimum-power ordering handoff / baseline 已建立，入口为 `docs/CURRENT_STAGE4D_04P_LAYERENGINE_MINIMUM_POWER_ORDERING_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_04P_LAYERENGINE_MINIMUM_POWER_ORDERING_BASELINE_EVIDENCE.md`。A 主控确认 4D-04M minimum-power requested/applied/minimum/resulting metadata 与 4D-04O explicit applied order metadata 已分别成立；下一建议 B 切片只补同目标 minimum floor 与 applied order 的组合 representative，不实现完整 LayerEngine。A 侧 baseline focused minimum-power ordering guard 7/7、adjacent minimum / ordering / continuous-effect regression 15/15、backend full 4449/4449 通过。frontend、card matrix JSON、runtime、tests、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；handoff 本身不派发 B、不打开写锁、不关闭 P1-001、P1-002、full official 或 READY。
 - 4D-04O-B LayerEngine power modifier ordering metadata 已由 B-Implementation / Leibniz `019e2c86-8abd-74c3-8c3d-3e8ccd5453ab` 实现并由 A 验收，入口为 `docs/CURRENT_STAGE4D_04O_LAYERENGINE_POWER_MODIFIER_ORDERING_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04O_LAYERENGINE_POWER_MODIFIER_ORDERING_EVIDENCE.md`。本批只做 P1-001 foundation：为 ledger-backed until-end power modifiers 增加 nullable `AppliedOrder` / snapshot `appliedOrder`，让 state ledger、`ContinuousEffectState` 与 `timing.continuousEffects[]` 能表达同目标同层 append order；legacy untracked remainder 不伪造 order。A 侧验收 focused ordering guard 6/6、adjacent LayerEngine / power metadata regression 39/39、backend full 4449/4449、`git diff --check` 通过。frontend、card matrix JSON、broad PaymentEngine、battle lifecycle/task queue、wide equipment runtime、完整 LayerEngine rewrite、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；4D-04O-B 写锁已关闭。本批不关闭完整 LayerEngine、timestamp/dependency/source ordering、keyword gain/loss、multiple equipment/static aura、complete minimum-power ordering、P1-002、full official 或 READY。
 - 4D-04O-B LayerEngine power modifier ordering metadata 已派发给 B-Implementation。本批写锁只允许实现 ledger-backed until-end power modifier 的显式 application order metadata，并保持现有 `Power` / `UntilEndOfTurnPowerModifier` arithmetic、minimum floor metadata、direct-path metadata、legacy untracked remainder fallback 与 `END_TURN` cleanup 行为。默认写入范围仅 `src/Riftbound.Engine/MatchSession.cs`、`src/Riftbound.Engine/CoreRuleEngine.cs`、focused conformance tests，以及必要时的最小 helper/model；frontend、card matrix JSON、broad PaymentEngine、battle lifecycle/task queue、wide equipment runtime、完整 LayerEngine rewrite、fullOfficial / READY 与 `riftbound-dotnet.sln` 仍锁定。A 等待 B diff 后必须验收 focused ordering guard、adjacent LayerEngine / power metadata regression、backend full、`git diff --check`，并新增 4D-04O audit/evidence。项目仍 **NOT READY**。
 - 4D-04O LayerEngine power modifier ordering handoff / baseline 已建立，入口为 `docs/CURRENT_STAGE4D_04O_LAYERENGINE_POWER_MODIFIER_ORDERING_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_04O_LAYERENGINE_POWER_MODIFIER_ORDERING_BASELINE_EVIDENCE.md`。A 主控确认 4D-04L / 4D-04M / 4D-04N 已补 source / effect / direct-path / requested / applied / minimum / resulting metadata，但 `PowerModifierLedgerEntry` 仍无显式 application order / timestamp 字段，且 `CardObjectState.NormalizePowerModifierLedger` 与 continuous effect projection 仍按 `EffectId` 排序。下一建议 B 切片只补 ledger-backed power modifier ordering metadata，保持现有 arithmetic、minimum floor、direct path metadata 与 cleanup 行为；不实现完整 LayerEngine。A 侧 baseline focused ordering guard 6/6、adjacent LayerEngine / power metadata regression 37/37、backend full 4447/4447 通过。frontend、card matrix JSON、runtime、tests、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；handoff 本身不派发 B、不打开写锁、不关闭 P1-001、P1-002、full official 或 READY。
@@ -60,7 +61,8 @@
 
 | Queue | Owner | Status | Purpose | Write scope | Must not touch |
 |---|---|---|---|---|---|
-| 4D-NEXT-A | A 主控 | 4D-04O-B accepted / paused after batch | 记录 4D-04O-B ordering metadata B 验收、写锁关闭与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs、新增 4D-04O audit / evidence | runtime、tests、frontend runtime、card matrix JSON、full-official upgrade |
+| 4D-NEXT-A | A 主控 | 4D-04P handoff ready / paused after batch | 建立 4D-04P minimum-power ordering handoff / baseline 与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs、新增 4D-04P handoff / evidence | runtime、tests、frontend runtime、card matrix JSON、full-official upgrade |
+| 4D-04P-B | B-Implementation | Suggested / not dispatched | LayerEngine minimum-power + applied-order sequence representative | future narrow runtime / focused-test diff in `CoreRuleEngine.cs`, `MatchSession.cs`, focused tests | frontend runtime、card matrix JSON、broad PaymentEngine、battle lifecycle、wide equipment runtime、full LayerEngine rewrite、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-04O-B | B-Implementation / Leibniz `019e2c86-8abd-74c3-8c3d-3e8ccd5453ab` | Implemented and A-validated | LayerEngine power modifier explicit ordering metadata | completed narrow runtime / focused-test diff in `MatchSession.cs`, `CoreRuleEngine.cs`, focused tests | frontend runtime、card matrix JSON、broad PaymentEngine、battle lifecycle、wide equipment runtime、full LayerEngine rewrite、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-04N-B | B-Implementation / Godel `019e2c69-aa6d-7701-9525-6a79a50fa210` | Implemented and A-validated | LayerEngine direct until-end power mutation ledger exactness | completed narrow runtime / focused-test diff in `CoreRuleEngine.cs`, `TriggerPaymentTests.cs`, `ConformanceFixtureRunnerTests.cs` | frontend runtime、card matrix JSON、broad PaymentEngine、battle lifecycle、wide equipment runtime、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-04M-B | B-Implementation / Meitner `019e2c13-5b3b-7750-9971-08cf68b074f2` | Implemented and A-validated | LayerEngine minimum-power power-modifier ledger exactness | completed narrow runtime / focused-test diff in `MatchSession.cs`, `CoreRuleEngine.cs`, `ConformanceFixtureRunnerTests.cs` | frontend runtime、card matrix JSON、broad PaymentEngine、battle lifecycle、wide equipment runtime、fullOfficial / READY、`riftbound-dotnet.sln` |
@@ -90,6 +92,7 @@
 
 ## 3. Exclusive Writelocks
 
+- 4D-04P is A-side handoff / baseline only. No B worker is dispatched; no runtime, test, frontend or matrix write lock is open. A future 4D-04P-B dispatch may only touch `src/Riftbound.Engine/CoreRuleEngine.cs`, `src/Riftbound.Engine/MatchSession.cs`, focused minimum-power / ordering tests and necessary minimal helpers after a fresh write-lock note.
 - 4D-04O-B LayerEngine power modifier ordering runtime / focused-test write lock is closed after A validation and commit-ready evidence. Frontend runtime, card matrix JSON, broad PaymentEngine, battle lifecycle/task queue semantics, wide equipment runtime, full LayerEngine rewrite, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
 - 4D-04N-B LayerEngine direct until-end power mutation ledger runtime / focused-test write lock is closed after A validation and commit-ready evidence. Frontend runtime, card matrix JSON, broad PaymentEngine, battle lifecycle/task queue semantic rewrites, wide equipment runtime, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
 - 4D-04M-B LayerEngine minimum-power ledger exactness runtime / focused-test write lock is closed after A validation and commit-ready evidence. Frontend runtime, card matrix JSON, broad PaymentEngine, battle lifecycle/task queue semantic rewrites, wide equipment runtime, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
@@ -116,7 +119,43 @@
 - E returns to read-only after 4D-03AT. The matrix must not be upgraded to `fullOfficial=true` for Azir, Maduli, Ezreal or other latest representatives merely because focused runtime evidence passed.
 - No parallel task may edit card matrix JSON, frontend stores, `ActionPrompt` contracts, battle state machine, stack, cleanup, hidden-info redaction, or E2E fixtures without an explicit owner and a fresh write-lock note.
 
-## 3.1 4D-04O-B Acceptance Gate Accepted
+## 3.1 4D-04P-A Handoff Gate Accepted
+
+A accepts the 4D-04P handoff / baseline because all of the following are true:
+
+1. Current repo state remains on `main` with only expected untracked `riftbound-dotnet.sln`.
+2. 4D-04M-B and 4D-04O-B are already accepted and their runtime / focused-test write locks are closed.
+3. Current code has minimum-power requested/applied/minimum/resulting metadata and explicit applied order metadata, but no same-target sequence representative that combines minimum floor behavior with applied order.
+4. Existing Blastcone coverage proves single minimum-floor metadata; existing Power Bind Echo coverage proves same-target `[1, 2]` ordering; existing Extortion coverage proves zero-applied floor does not create misleading ledger.
+5. The next suggested implementation is narrow: prove or minimally support a minimum floor + ordering representative while preserving current arithmetic, direct-path metadata, legacy fallback and `END_TURN` cleanup.
+6. Forbidden surfaces remain locked: frontend runtime, card matrix JSON, broad PaymentEngine, battle lifecycle/task queue semantics, wide equipment runtime, full LayerEngine rewrite, fullOfficial / READY and `riftbound-dotnet.sln`.
+7. Timestamp dependency graph, source-ordering breadth, keyword gain/loss ordering, multiple equipment/static aura interactions, complete minimum-power ordering, full official coverage and READY remain open.
+
+A-side baseline commands:
+
+```sh
+set -e
+source scripts/dev-env.sh
+dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysBlastconeSproutPowerMinusTwoFloor|FullyQualifiedName~PowerModifierAppliedOrderFollowsPowerBindEchoAppendSequence|FullyQualifiedName~CoreRuleEnginePlaysExtortionPowerFloorDrawThroughStack|FullyQualifiedName~CoreRuleEnginePlaysSmokeBombPowerFloorThroughStack|FullyQualifiedName~CoreRuleEngineExpiresSmokeBombPowerFloorAtEndTurn|FullyQualifiedName~MatchStateExposesContinuousEffectPowerLayerViews|FullyQualifiedName~ContinuousEffectPowerModifierAppliedOrderSurvivesEffectIdNormalization"
+```
+
+```sh
+set -e
+source scripts/dev-env.sh
+dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PowerModifier|FullyQualifiedName~MinimumPower|FullyQualifiedName~Blastcone|FullyQualifiedName~Extortion|FullyQualifiedName~SmokeBomb|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~UntilEndOfTurnPowerModifier|FullyQualifiedName~LayerEngine"
+```
+
+```sh
+set -e
+source scripts/dev-env.sh
+dotnet test Riftbound.slnx --no-restore
+```
+
+Result: **focused minimum-power ordering guard 7/7 passed; adjacent minimum / ordering / continuous-effect regression 15/15 passed; backend full 4449/4449 passed**.
+
+This record establishes the 4D-04P handoff / baseline and stops before dispatching B. The project remains **NOT READY**.
+
+## 3.2 4D-04O-B Acceptance Gate Accepted
 
 A accepts the 4D-04O-B diff because all of the following are true:
 
@@ -158,7 +197,7 @@ Result: **focused ordering guard 6/6 passed; adjacent LayerEngine / power metada
 
 This record accepts the 4D-04O-B implementation and closes the B runtime / focused-test write lock. The project remains **NOT READY**.
 
-## 3.2 4D-04O-B Dispatch Gate Accepted
+## 3.3 4D-04O-B Dispatch Gate Accepted
 
 A dispatches 4D-04O-B because all of the following are true:
 
@@ -196,7 +235,7 @@ git diff --check
 
 This dispatch opens the 4D-04O-B B-side runtime / focused-test write lock. The project remains **NOT READY**.
 
-## 3.3 4D-04O-A Handoff Gate Accepted
+## 3.4 4D-04O-A Handoff Gate Accepted
 
 A accepts the 4D-04O handoff / baseline because all of the following are true:
 
@@ -232,7 +271,7 @@ Result: **focused ordering guard 6/6 passed; adjacent LayerEngine / power metada
 
 This record establishes the 4D-04O handoff / baseline and stops before dispatching B. The project remains **NOT READY**.
 
-## 3.4 4D-04N-B Acceptance Gate Accepted
+## 3.5 4D-04N-B Acceptance Gate Accepted
 
 A accepts the 4D-04N-B diff because all of the following are true:
 
@@ -268,7 +307,7 @@ Result: **focused direct-power guard 6/6 passed; adjacent power / layer / trigge
 
 This record accepts the 4D-04N-B implementation and closes the B runtime / focused-test write lock. The project remains **NOT READY**.
 
-## 3.5 4D-04M-B Acceptance Gate Accepted
+## 3.6 4D-04M-B Acceptance Gate Accepted
 
 A accepts the 4D-04M-B diff because all of the following are true:
 
@@ -304,7 +343,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
 
 Result: **backend full 4447/4447 passed**.
 
-## 3.6 4D-04L-B Acceptance Gate Accepted
+## 3.7 4D-04L-B Acceptance Gate Accepted
 
 A accepts the 4D-04L-B diff because all of the following are true:
 
@@ -336,7 +375,7 @@ git diff --check
 
 Result: **focused LayerEngine foundation guard 11/11 passed; adjacent power / layer / equipment regression 141/141 passed; backend full 4447/4447 passed; git diff --check passed**.
 
-## 3.7 4D-04L-A Handoff Gate Accepted
+## 3.8 4D-04L-A Handoff Gate Accepted
 
 A-side handoff is accepted because A verified all of the following:
 
@@ -359,7 +398,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 
 Result: **focused LayerEngine guard 11/11 passed; adjacent power / layer / equipment regression 141/141 passed**.
 
-## 3.8 4D-04K-B Acceptance Gate Accepted
+## 3.9 4D-04K-B Acceptance Gate Accepted
 
 B implementation is accepted because A verified all of the following:
 
@@ -387,7 +426,7 @@ git diff --check
 
 Result: **focused state / profile guard 12/12 passed; adjacent equipment regression 195/195 passed; git diff --check passed**.
 
-## 3.9 4D-04K-A Handoff Gate Accepted
+## 3.10 4D-04K-A Handoff Gate Accepted
 
 A-side handoff is accepted because A verified all of the following:
 
@@ -410,7 +449,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 
 Result: **focused state / profile guard 11/11 passed; adjacent equipment regression 195/195 passed**.
 
-## 3.10 4D-04J-A Handoff Gate Accepted
+## 3.11 4D-04J-A Handoff Gate Accepted
 
 A-side handoff is accepted because A verified all of the following:
 
@@ -429,7 +468,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 
 Result: **focused state / keyword guard 11/11 passed**.
 
-## 3.11 4D-04I-B Acceptance Gate Accepted
+## 3.12 4D-04I-B Acceptance Gate Accepted
 
 B implementation is accepted because A verified all of the following:
 
@@ -461,7 +500,7 @@ git diff --check
 
 Result: **focused / keyword / LayerEngine-view guard 9/9 passed; adjacent equipment / payment regression 117/117 passed; backend full 4446/4446 passed; git diff --check passed**.
 
-## 3.12 4D-04H-A Acceptance Gate Accepted
+## 3.13 4D-04H-A Acceptance Gate Accepted
 
 A-side implementation is accepted because A verified all of the following:
 
@@ -805,4 +844,4 @@ E may identify matrix rows and official text blockers for Azir / Ezreal, but mus
 
 ## 15. Current Batch Stop Point
 
-This record stops after accepting 4D-04O-B LayerEngine power modifier ordering metadata and closing the B runtime / focused-test write lock. The project remains **NOT READY**. No frontend, matrix, runtime or test write window remains open, and `riftbound-dotnet.sln` remains untouched.
+This record stops after establishing the 4D-04P LayerEngine minimum-power ordering handoff / baseline. The project remains **NOT READY**. No B worker is dispatched, no frontend, matrix, runtime or test write window is open, and `riftbound-dotnet.sln` remains untouched.
