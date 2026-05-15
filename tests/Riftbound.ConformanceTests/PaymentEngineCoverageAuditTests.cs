@@ -25,6 +25,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string OfficialMatrixDownstreamAggregate = "official-matrix-downstream-aggregate";
     private const string KeywordBranchAllWindowMatrix = "keyword-branch-all-window-matrix";
     private const string ResourceSkillAllWindowMatrix = "resource-skill-all-window-matrix";
+    private const string TargetTaxActivatedAbilityMatrix = "target-tax-activated-ability-matrix";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
     [
@@ -2194,6 +2195,139 @@ public sealed class PaymentEngineCoverageAuditTests
                         .. family.DocAnchors
                     ])))
             .ToArray();
+    }
+
+    private static readonly TargetTaxActivatedAbilityMatrixDimensionProfile[] TargetTaxActivatedAbilityMatrixDimensionProfiles =
+    [
+        new(
+            "SOURCE_TIMING",
+            "source timing and priority permission",
+            "target profile remains tied to the source timing prompt",
+            "payment profile must be quoted at the same source timing",
+            "target-tax / optional branch choices remain tied to the legal source window",
+            "prompt quote binds legal activated source timing, swift/open-main permission and current target choices.",
+            "command-side revalidation binds the submitted ability id to the same legal source timing before stack creation.",
+            "COST_PAID or ABILITY_ACTIVATED audit expectation ties payment id and activated source to the resolved timing window.",
+            "rollback expectation covers wrong timing, stale source, exhausted source and no-mutation command rejection.",
+            "official closure trace keeps source timing representative-only and card matrix status non-full-official.",
+            "docs/CURRENT_STAGE4D_03D_PAYMENT_ENGINE_ACTIVATE_RESOURCE_AUDIT.md"),
+        new(
+            "TARGET_PROFILE",
+            "source timing must keep target legality fresh",
+            "target profile, controller relation, target count and stale-target branch",
+            "payment profile must not bypass target legality",
+            "target-tax / optional branch choices must follow the accepted target profile",
+            "prompt quote binds legal targets, target count, controller relation and target-tax metadata where present.",
+            "command-side revalidation binds source, ability and target ids before any payment or stack mutation.",
+            "COST_PAID or ABILITY_ACTIVATED audit expectation keeps target ids and payment id correlated.",
+            "rollback expectation covers invalid target, stale target, target-count mismatch and no-mutation command rejection.",
+            "official closure trace keeps dependency target choice and target-count breadth open.",
+            "docs/CURRENT_STAGE4D_03AW_PAYMENT_ENGINE_TARGET_COLORED_ACTIVATED_ABILITY_MANIFEST_AUDIT.md"),
+        new(
+            "PAYMENT_PROFILE",
+            "source timing must expose the same payment quote used by command validation",
+            "target profile must not change the legal payment source set after quote",
+            "payment profile, typed power, generic power, mana, experience and recycle / temporary parity",
+            "target-tax / optional branch payment deltas remain part of the same quote",
+            "prompt quote binds payment profile, typed/resource candidates, experience, tax and payment-only resource metadata.",
+            "command-side revalidation binds submitted payment resources to the quoted ability payment profile.",
+            "COST_PAID audit expectation records paid mana, power trait, experience, tax amount and shared payment id.",
+            "rollback expectation covers wrong trait, insufficient payment, invalid resource, duplicate spend and no-mutation rejection.",
+            "official closure trace keeps full payment-source breadth open for every target-bearing ability family.",
+            "docs/CURRENT_STAGE4D_03AU_PAYMENT_ENGINE_RESIDUAL_SCOPE_HANDOFF.md"),
+        new(
+            "TARGET_TAX_OR_OPTIONAL_BRANCH",
+            "source timing must keep target-tax / optional branch choices available only in legal windows",
+            "target profile determines whether tax or target-scoped option is legal",
+            "payment profile includes target tax, typed cost, experience or optional branch deltas",
+            "target-tax, SpellshieldTaxCoverageManifest or target-scoped optional branch profile",
+            "prompt quote binds Spellshield target tax, optional target-scoped choices and branch metadata without local inference.",
+            "command-side revalidation binds tax / optional branch choices to the same target and ability before commit.",
+            "COST_PAID or ABILITY_ACTIVATED audit expectation records target-tax or optional-branch metadata and payment id.",
+            "rollback expectation covers insufficient target tax, stale optional branch, invalid reattach and no-mutation rejection.",
+            "official closure trace keeps TARGET_TAXES plus optional / extra / alternative branch breadth open.",
+            "docs/CURRENT_STAGE4D_03AK_PAYMENT_ENGINE_SPELLSHIELD_TAX_COVERAGE_AUDIT.md"),
+        new(
+            "COMMAND_ROLLBACK",
+            "source timing rollback must leave authoritative state unchanged",
+            "target rollback must leave targets, attachments, zones and status unchanged on rejected commands",
+            "payment rollback must leave mana, power, experience and generated resources unchanged on rejection",
+            "target-tax / optional branch rollback must not mutate tax target or optional equipment state",
+            "prompt quote supplies enough payment and target metadata for rejected commands to be audited.",
+            "command-side revalidation rejects stale source, stale target, wrong branch, wrong resource and duplicate submissions.",
+            "COST_PAID or ABILITY_ACTIVATED audit expectation must be absent on rejected commands and present on accepted commands.",
+            "no-mutation rollback expectation covers every command rejection branch in the target/tax matrix row.",
+            "official closure trace keeps all stale / illegal target failure branches open until full official matrix closure.",
+            "docs/CURRENT_STAGE4D_03BE_PAYMENT_ENGINE_ROLLBACK_FAILURE_ROW_MANIFEST_AUDIT.md"),
+        new(
+            "OFFICIAL_CLOSURE_TRACE",
+            "source timing evidence remains representative, not full official",
+            "target profile evidence remains representative, not full official",
+            "payment profile evidence remains representative, not full official",
+            "target-tax / optional branch evidence remains representative, not full official",
+            "prompt quote trace must point to current audit docs and service-authoritative ActionPrompt evidence.",
+            "command-side revalidation trace must point to focused command tests and reject local frontend inference.",
+            "COST_PAID or ABILITY_ACTIVATED audit trace must connect to current manifest evidence without upgrading fullOfficial.",
+            "rollback trace must preserve P0-005 open and NOT READY closure.",
+            "official closure / card-matrix trace keeps fullOfficial=false and completion audit NOT READY.",
+            "docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md")
+    ];
+
+    private static readonly PaymentEngineTargetTaxActivatedAbilityMatrixEntry[] TargetTaxActivatedAbilityMatrixManifest =
+        BuildTargetTaxActivatedAbilityMatrix();
+
+    private static PaymentEngineTargetTaxActivatedAbilityMatrixEntry[] BuildTargetTaxActivatedAbilityMatrix()
+    {
+        return TargetColoredActivatedAbilityCoverageManifest
+            .SelectMany(ability => TargetTaxActivatedAbilityMatrixDimensionProfiles.Select(dimension =>
+                new PaymentEngineTargetTaxActivatedAbilityMatrixEntry(
+                    $"ROW_TARGET_TAX_ACTIVATED_ABILITY_MATRIX_{ability.AbilityId}_{dimension.Dimension}",
+                    ability.AbilityId,
+                    TargetTaxActivatedAbilityMatrix,
+                    "TARGET_BEARING_COLORED_ACTIVATED_ABILITIES",
+                    "TARGET_TAXES / PAYMENT_SOURCES / OPTIONAL_EXTRA_ALTERNATIVE_COSTS / CARD_MATRIX_ALIGNMENT",
+                    "ACTIVATE_ABILITY",
+                    dimension.Dimension,
+                    $"{dimension.SourceTimingScope}; {ability.RepresentativeSurface}",
+                    $"{dimension.TargetProfileScope}; {ability.TargetProfile}",
+                    $"{dimension.PaymentProfileScope}; {ability.PaymentProfile}",
+                    $"{dimension.TargetTaxOrOptionalBranchProfile}; {BuildTargetTaxOrOptionalBranchTrace(ability)}",
+                    $"{dimension.PromptQuote} {ability.PromptAnchor}",
+                    $"{dimension.CommandRevalidation} {ability.CommandAnchor}",
+                    $"{dimension.AuditExpectation} {ability.AuditAnchor}",
+                    $"{dimension.RollbackExpectation} {ability.RollbackAnchor}",
+                    $"{dimension.OfficialClosureTrace} Card matrix trace remains representative and fullOfficial=false for {ability.AbilityId}.",
+                    ability.RemainingOfficialBreadth,
+                    "Target/tax activated ability matrix representative only; project remains NOT READY and P0-005 remains open.",
+                    [
+                        "docs/CURRENT_STAGE4D_03BR_PAYMENT_ENGINE_TARGET_TAX_ACTIVATED_ABILITY_MATRIX_AUDIT.md",
+                        "docs/CURRENT_STAGE4D_03BR_PAYMENT_ENGINE_TARGET_TAX_ACTIVATED_ABILITY_MATRIX_EVIDENCE.md",
+                        "docs/CURRENT_STAGE4D_03BR_PAYMENT_ENGINE_TARGET_TAX_ACTIVATED_ABILITY_MATRIX_HANDOFF.md",
+                        "docs/CURRENT_STAGE4D_03AW_PAYMENT_ENGINE_TARGET_COLORED_ACTIVATED_ABILITY_MANIFEST_AUDIT.md",
+                        dimension.DocAnchor,
+                        .. ability.DocAnchors
+                    ])))
+            .ToArray();
+    }
+
+    private static string BuildTargetTaxOrOptionalBranchTrace(TargetColoredActivatedAbilityCoverageEntry ability)
+    {
+        if (ability.PaymentProfile.Contains("Spellshield", StringComparison.Ordinal))
+        {
+            return "SpellshieldTaxCoverageManifest / TARGET_TAXES target-tax prompt-command-audit anchor remains required.";
+        }
+
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId, StringComparison.Ordinal))
+        {
+            return "Azir target-scoped optional armament reattach branch remains linked to optional / extra / alternative branch breadth.";
+        }
+
+        if (ability.TargetProfile.Contains("no target", StringComparison.OrdinalIgnoreCase))
+        {
+            return "No current target-tax branch for this no-target representative; TARGET_TAXES remains visible as an open official residual axis.";
+        }
+
+        return "Target-scoped activated branch has no current Spellshield tax but must preserve target legality, stale-target rollback and future tax breadth.";
     }
 
     [Fact]
@@ -5177,6 +5311,194 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineTargetTaxActivatedAbilityMatrixCoversEveryTargetAbilityAndDimension()
+    {
+        var requiredAbilityIds = TargetColoredActivatedAbilityCoverageManifest
+            .Select(entry => entry.AbilityId)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var requiredDimensions = TargetTaxActivatedAbilityMatrixDimensionProfiles
+            .Select(entry => entry.Dimension)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(
+            requiredAbilityIds,
+            TargetTaxActivatedAbilityMatrixManifest.Select(entry => entry.AbilityId).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal));
+        Assert.Equal(
+            requiredDimensions,
+            TargetTaxActivatedAbilityMatrixManifest.Select(entry => entry.Dimension).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal));
+        Assert.Equal(requiredAbilityIds.Length * requiredDimensions.Length, TargetTaxActivatedAbilityMatrixManifest.Length);
+        Assert.Equal(48, TargetTaxActivatedAbilityMatrixManifest.Length);
+        Assert.Empty(TargetTaxActivatedAbilityMatrixManifest
+            .GroupBy(entry => (entry.AbilityId, entry.Dimension))
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key));
+
+        Assert.All(TargetTaxActivatedAbilityMatrixManifest, entry => Assert.Equal("ACTIVATE_ABILITY", entry.ActionWindow));
+        Assert.DoesNotContain(TargetTaxActivatedAbilityMatrixManifest, entry => string.Equals(entry.ActionWindow, "MOVE_UNIT", StringComparison.Ordinal));
+        Assert.DoesNotContain(TargetTaxActivatedAbilityMatrixManifest, entry => string.Equals(entry.ActionWindow, "PLAY_CARD", StringComparison.Ordinal));
+        Assert.DoesNotContain(TargetTaxActivatedAbilityMatrixManifest, entry => string.Equals(entry.ActionWindow, "PAY_COST", StringComparison.Ordinal));
+        Assert.DoesNotContain(TargetTaxActivatedAbilityMatrixManifest, entry => string.Equals(entry.ActionWindow, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.DoesNotContain(TargetTaxActivatedAbilityMatrixManifest, entry => string.Equals(entry.ActionWindow, "TRIGGER_PAYMENT", StringComparison.Ordinal));
+        Assert.DoesNotContain(TargetTaxActivatedAbilityMatrixManifest, entry => string.Equals(entry.ActionWindow, "BATTLEFIELD_HELD_SCORE_PAYMENT", StringComparison.Ordinal));
+        Assert.DoesNotContain(TargetTaxActivatedAbilityMatrixManifest, entry => string.Equals(entry.ActionWindow, "HIDE_CARD", StringComparison.Ordinal));
+        Assert.DoesNotContain(TargetTaxActivatedAbilityMatrixManifest, entry => string.Equals(entry.ActionWindow, "LEGEND_ACT", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void PaymentEngineTargetTaxActivatedAbilityMatrixRequiresBoundTargetPaymentAuditRollbackAndDocFields()
+    {
+        Assert.All(TargetTaxActivatedAbilityMatrixManifest, entry =>
+        {
+            Assert.True(P4ActivatedAbilityCatalog.TryGetByAbilityId(entry.AbilityId, out var definition));
+
+            Assert.Equal(TargetTaxActivatedAbilityMatrix, entry.Classification);
+            Assert.Equal("TARGET_BEARING_COLORED_ACTIVATED_ABILITIES", entry.ResidualBlockerFamily);
+            Assert.Contains("TARGET_TAXES", entry.OfficialResidualAxes, StringComparison.Ordinal);
+            Assert.Contains(entry.AbilityId, entry.MatrixRowId, StringComparison.Ordinal);
+            Assert.Contains(entry.Dimension, entry.MatrixRowId, StringComparison.Ordinal);
+            Assert.False(definition.IsResourceSkill);
+            Assert.False(string.IsNullOrWhiteSpace(entry.SourceTimingScope));
+            Assert.False(string.IsNullOrWhiteSpace(entry.TargetProfile));
+            Assert.False(string.IsNullOrWhiteSpace(entry.PaymentProfile));
+            Assert.False(string.IsNullOrWhiteSpace(entry.TargetTaxOrOptionalBranchProfile));
+            Assert.Contains("prompt", entry.PromptQuote, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("command", entry.CommandRevalidation, StringComparison.OrdinalIgnoreCase);
+            Assert.True(
+                entry.AuditExpectation.Contains("COST_PAID", StringComparison.Ordinal)
+                || entry.AuditExpectation.Contains("ABILITY_ACTIVATED", StringComparison.Ordinal));
+            Assert.Contains("no-mutation", entry.RollbackExpectation, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("card matrix", entry.OfficialClosureTrace, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("NOT READY", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.ClosureStatus, StringComparison.Ordinal);
+
+            if (definition.RequiredTargetCount > 0)
+            {
+                Assert.Contains("target", entry.TargetProfile, StringComparison.OrdinalIgnoreCase);
+                Assert.Contains($"RequiredTargetCount={definition.RequiredTargetCount}", entry.TargetProfile, StringComparison.Ordinal);
+            }
+            else
+            {
+                Assert.Contains("no target", entry.TargetProfile, StringComparison.OrdinalIgnoreCase);
+            }
+
+            Assert.NotEmpty(entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineTargetTaxActivatedAbilityMatrixLinksBackToTargetManifestSpellshieldAnd03BRDocs()
+    {
+        var abilityIds = TargetColoredActivatedAbilityCoverageManifest.Select(entry => entry.AbilityId).ToHashSet(StringComparer.Ordinal);
+        var abilityDocsById = TargetColoredActivatedAbilityCoverageManifest.ToDictionary(entry => entry.AbilityId, entry => entry.DocAnchors, StringComparer.Ordinal);
+        var spellshieldTaxAbilityIds = SpellshieldTaxCoverageManifest.Select(entry => entry.AbilityId).ToHashSet(StringComparer.Ordinal);
+
+        Assert.All(TargetTaxActivatedAbilityMatrixManifest, entry =>
+        {
+            Assert.Contains(entry.AbilityId, abilityIds);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BR_PAYMENT_ENGINE_TARGET_TAX_ACTIVATED_ABILITY_MATRIX_AUDIT.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BR_PAYMENT_ENGINE_TARGET_TAX_ACTIVATED_ABILITY_MATRIX_EVIDENCE.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BR_PAYMENT_ENGINE_TARGET_TAX_ACTIVATED_ABILITY_MATRIX_HANDOFF.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03AW_PAYMENT_ENGINE_TARGET_COLORED_ACTIVATED_ABILITY_MANIFEST_AUDIT.md", entry.DocAnchors);
+            Assert.All(abilityDocsById[entry.AbilityId], docAnchor => Assert.Contains(docAnchor, entry.DocAnchors));
+
+            if (spellshieldTaxAbilityIds.Contains(entry.AbilityId))
+            {
+                Assert.Contains("SpellshieldTaxCoverageManifest", entry.TargetTaxOrOptionalBranchProfile, StringComparison.Ordinal);
+                Assert.Contains("docs/CURRENT_STAGE4D_03AK_PAYMENT_ENGINE_SPELLSHIELD_TAX_COVERAGE_AUDIT.md", entry.DocAnchors);
+            }
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineTargetTaxActivatedAbilityMatrixKeepsResidualAxesAndBreadthExecutable()
+    {
+        var combinedText = string.Join(
+            " ",
+            TargetTaxActivatedAbilityMatrixManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.MatrixRowId,
+                    entry.Classification,
+                    entry.ResidualBlockerFamily,
+                    entry.OfficialResidualAxes,
+                    entry.ActionWindow,
+                    entry.Dimension,
+                    entry.SourceTimingScope,
+                    entry.TargetProfile,
+                    entry.PaymentProfile,
+                    entry.TargetTaxOrOptionalBranchProfile,
+                    entry.PromptQuote,
+                    entry.CommandRevalidation,
+                    entry.AuditExpectation,
+                    entry.RollbackExpectation,
+                    entry.OfficialClosureTrace,
+                    entry.RemainingOfficialBreadth
+                }));
+
+        Assert.Contains("TARGET_BEARING_COLORED_ACTIVATED_ABILITIES", combinedText, StringComparison.Ordinal);
+        Assert.Contains("TARGET_TAXES", combinedText, StringComparison.Ordinal);
+        Assert.Contains("PAYMENT_SOURCES", combinedText, StringComparison.Ordinal);
+        Assert.Contains("OPTIONAL_EXTRA_ALTERNATIVE_COSTS", combinedText, StringComparison.Ordinal);
+        Assert.Contains("prompt", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("command", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("COST_PAID", combinedText, StringComparison.Ordinal);
+        Assert.Contains("ABILITY_ACTIVATED", combinedText, StringComparison.Ordinal);
+        Assert.Contains("rollback", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("SpellshieldTaxCoverageManifest", combinedText, StringComparison.Ordinal);
+        Assert.Contains("target-scoped optional", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("card matrix", combinedText, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void PaymentEngineTargetTaxActivatedAbilityMatrixDoesNotClaimP0005Closure()
+    {
+        var combinedText = string.Join(
+            " ",
+            TargetTaxActivatedAbilityMatrixManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.MatrixRowId,
+                    entry.AbilityId,
+                    entry.Classification,
+                    entry.ResidualBlockerFamily,
+                    entry.OfficialResidualAxes,
+                    entry.ActionWindow,
+                    entry.Dimension,
+                    entry.SourceTimingScope,
+                    entry.TargetProfile,
+                    entry.PaymentProfile,
+                    entry.TargetTaxOrOptionalBranchProfile,
+                    entry.PromptQuote,
+                    entry.CommandRevalidation,
+                    entry.AuditExpectation,
+                    entry.RollbackExpectation,
+                    entry.OfficialClosureTrace,
+                    entry.RemainingOfficialBreadth,
+                    entry.ClosureStatus
+                }.Concat(entry.DocAnchors)));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("CANNOT_READY", string.Empty, StringComparison.Ordinal)
+                .Replace("READY_UNIT", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PaymentEngineHasteReadyCoverageManifestMatchesImplementedRegistryProfiles()
     {
         var registryCardNos = CardBehaviorRegistry.GetAll()
@@ -5340,7 +5662,8 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(LegendBattlefieldTriggerResourceActionManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(KeywordPaymentBranchManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(KeywordPaymentBranchAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors))
-            .Concat(ResourceSkillAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors));
+            .Concat(ResourceSkillAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(TargetTaxActivatedAbilityMatrixManifest.SelectMany(entry => entry.DocAnchors));
     }
 
     private static string ResolveRepositoryRoot()
@@ -5637,6 +5960,40 @@ public sealed class PaymentEngineCoverageAuditTests
         string AuditExpectation,
         string GeneratedResourceRestriction,
         string RollbackExpectation,
+        string RemainingOfficialBreadth,
+        string ClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
+    private sealed record TargetTaxActivatedAbilityMatrixDimensionProfile(
+        string Dimension,
+        string SourceTimingScope,
+        string TargetProfileScope,
+        string PaymentProfileScope,
+        string TargetTaxOrOptionalBranchProfile,
+        string PromptQuote,
+        string CommandRevalidation,
+        string AuditExpectation,
+        string RollbackExpectation,
+        string OfficialClosureTrace,
+        string DocAnchor);
+
+    private sealed record PaymentEngineTargetTaxActivatedAbilityMatrixEntry(
+        string MatrixRowId,
+        string AbilityId,
+        string Classification,
+        string ResidualBlockerFamily,
+        string OfficialResidualAxes,
+        string ActionWindow,
+        string Dimension,
+        string SourceTimingScope,
+        string TargetProfile,
+        string PaymentProfile,
+        string TargetTaxOrOptionalBranchProfile,
+        string PromptQuote,
+        string CommandRevalidation,
+        string AuditExpectation,
+        string RollbackExpectation,
+        string OfficialClosureTrace,
         string RemainingOfficialBreadth,
         string ClosureStatus,
         IReadOnlyList<string> DocAnchors);
