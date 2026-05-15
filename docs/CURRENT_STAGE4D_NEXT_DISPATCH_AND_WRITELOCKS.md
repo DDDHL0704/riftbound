@@ -1,13 +1,14 @@
 # Stage 4D Next Dispatch and Writelocks
 
 日期：2026-05-15
-结论：**4D-03AT MATRIX EVIDENCE RECORDED / PROJECT NOT READY**
+结论：**4D-04A KEYWORD HANDOFF RECORDED / PROJECT NOT READY**
 
-本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance / matrix evidence alignment 归档，不实现 runtime，不修改前端，不修改测试代码，不升级 full-official。当前 active goal 仍未完成，不得调用 `update_goal complete`。
+本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance / baseline 归档，不实现 runtime，不修改前端，不修改测试代码，不升级 full-official。当前 active goal 仍未完成，不得调用 `update_goal complete`。
 
 ## 1. 输入事实
 
 - 当前分支为 `main`，仓库当前只保留未跟踪 `riftbound-dotnet.sln`；该文件不得被本批任务触碰或纳入提交。
+- 4D-04A Keyword deferred surface handoff / baseline 已完成，入口为 `docs/CURRENT_STAGE4D_04A_KEYWORD_DEFERRED_SURFACE_AUDIT.md`、`docs/CURRENT_STAGE4D_04A_KEYWORD_DEFERRED_SURFACE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_04A_KEYWORD_DEFERRED_SURFACE_BASELINE_EVIDENCE.md`。本批从 4D-03AT matrix evidence overlay 转回 P1-002 keyword execution-boundary 规则模型，建议后续 4D-04B 先处理 equipment keyword execution-boundary status split。A 侧已验证 keyword catalog/profile 8/8 passed 与 representative keyword fixtures 144/144 passed；不派发 B，不开 runtime / test / frontend / matrix 写锁，不关闭 P1-002、LayerEngine、full-card matrix、frontend final validation 或 READY。
 - 4D-03AT Azir matrix evidence alignment 已完成，入口为 `docs/CURRENT_STAGE4D_03AT_AZIR_MATRIX_EVIDENCE_ALIGNMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AT_AZIR_MATRIX_EVIDENCE_ALIGNMENT_EVIDENCE.md`。本批只为 `SFD·050/221` / `SFD·050a/221` / `FU-105abedc17` 记录 `stage4D03AT` representative evidence overlay，降低 representative automated-test-evidence blocker；`stage4B.freezeStatus`、`stage4B.statusFlags`、`fullOfficial=false`、P0/P1、frontend final validation 与 READY 均不变。
 - `docs/CURRENT_STAGE4D_03AS_AZIR_OPTIONAL_ARMAMENT_REATTACH_HANDOFF.md` 已把下一枚 Azir full-text follow-up 锁定为 `SFD·050/221` / `SFD·050a/221` 阿兹尔 optional armament reattach branch：目标单位已配武装时，可以选择 0 或 1 件武装贴附到 Azir。
 - `docs/CURRENT_STAGE4D_03AS_AZIR_OPTIONAL_ARMAMENT_REATTACH_BASELINE_EVIDENCE.md` 已记录 implementation-before baseline：Azir / ActivateAbility / MoveUnit / PaymentEngine 194/194 通过；Azir / ActivateAbility / MoveUnit / PaymentEngine / ActionPrompt / GameHub / Priority 387/387 通过；`git diff --check` 通过。
@@ -41,7 +42,8 @@
 
 | Queue | Owner | Status | Purpose | Write scope | Must not touch |
 |---|---|---|---|---|---|
-| 4D-NEXT-A | A 主控 | 4D-03AT matrix evidence recorded | 记录 4D-03AS handoff、baseline、B 派发、验收、4D-03AT matrix evidence alignment 与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs | `src/**`、`tests/**`、frontend runtime、full-official upgrade |
+| 4D-NEXT-A | A 主控 | 4D-04A keyword handoff recorded | 记录 4D-04A P1-002 keyword deferred surface handoff、baseline、dispatch boundary 与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs | `src/**`、`tests/**`、frontend runtime、card matrix JSON、full-official upgrade |
+| 4D-04B-B | B-Implementation | Not dispatched | 建议下一批处理 equipment keyword execution-boundary status split | future scoped lock: `CardEquipmentKeywordRules.cs`、possible `KeywordCoverageReporter.cs`、focused catalog baseline tests | frontend runtime、card matrix JSON、broad equipment runtime rewrite、LayerEngine、`riftbound-dotnet.sln` |
 | 4D-03AS-B | B-Implementation / Raman `019e2b49-28c3-7ad2-b3f8-ef1347b56996` | Implemented and A-validated | 实现 Azir optional armament reattach branch | completed runtime / focused tests | frontend runtime、card matrix JSON、broad equipment rewrite、unrelated abilities、swift timing breadth、battle lifecycle、LayerEngine、HASTE_READY、`riftbound-dotnet.sln` |
 | 4D-03AS-E | E-Review | 4D-03AT evidence overlay recorded | 检查 Azir `FU-105abedc17` optional armament blocker and full-official gate | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` Azir evidence overlay and card coverage docs | full-official upgrade、Stage 4B status count changes、unrelated matrix rows |
 | 4D-03AT-E | E-Review | Completed and closed | 将 accepted Azir representative automated evidence 写入 matrix overlay | `FU-105abedc17` / `SFD·050/221` / `SFD·050a/221` matrix evidence only | runtime、tests、frontend、unrelated matrix rows、READY |
@@ -59,6 +61,7 @@
 ## 3. Exclusive Writelocks
 
 - At this stop point, no runtime, test, frontend or matrix write lock remains open.
+- 4D-04A is closed as A-side handoff / baseline only. No B worker has been dispatched for 4D-04B in this batch.
 - 4D-03AS-B runtime / focused-test write lock is closed after A validation and commit-ready evidence.
 - 4D-03AT Azir matrix evidence write window is closed after recording `stage4D03AT`; no frontend or matrix write lock is open now.
 - 4D-03AR-B runtime / focused-test write lock is closed after A validation and commit-ready evidence.
