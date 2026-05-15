@@ -19,6 +19,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string RollbackFailureRepresentative = "rollback-failure-representative";
     private const string RollbackFailureAllWindowMatrix = "rollback-failure-all-window-matrix";
     private const string CrossWindowRepresentative = "cross-window-representative";
+    private const string CrossWindowAllWindowMatrix = "cross-window-all-window-matrix";
     private const string CardMatrixRepresentative = "card-matrix-representative";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
@@ -1332,6 +1333,175 @@ public sealed class PaymentEngineCoverageAuditTests
                 "docs/CURRENT_STAGE4D_03BA_PAYMENT_ENGINE_OFFICIAL_MATRIX_RESIDUAL_MANIFEST_AUDIT.md"
             ])
     ];
+
+    private static readonly CrossWindowGenerationConsumptionMatrixActionWindowProfile[] CrossWindowGenerationConsumptionAllWindowActionWindowProfiles =
+    [
+        new(
+            "PLAY_CARD",
+            "resource skill or temporary payment resource generation before a legal play-card quote",
+            "PLAY_CARD inline payment consumption window",
+            "mana, generic power, typed power, recycle resource and temporary payment-only lifetime",
+            "PLAY_CARD prompt quote: legal hand-card payment sources expose generated-resource candidates and payment-only restrictions.",
+            "PLAY_CARD command commit/rejection anchor: command-side play payment either spends the generated resource once or rejects stale, wrong-window or duplicate ids before the card leaves hand.",
+            "PLAY_CARD audit expectation: COST_PAID, RESOURCE_RECYCLED, TEMPORARY_PAYMENT_RESOURCE_SPENT and cleanup audit entries stay correlated by payment id.",
+            "PLAY_CARD lifetime / no-mutation / restriction assertion: rejected generated-resource misuse preserves hand, board, ledgers, stack and audit tail.",
+            "docs/CURRENT_STAGE4D_03AG_PAYMENT_ENGINE_PLAY_CARD_TYPED_RESOURCE_PROMPT_AUDIT.md"),
+        new(
+            "PAY_COST",
+            "pending payment generation before PAY_COST quote reuse",
+            "PAY_COST pending payment consumption, decline or close window",
+            "pending payment id, temporary payment-only resource, cleanup id and stale lifetime",
+            "PAY_COST prompt quote: pending payment metadata exposes generated or temporary resource candidates with lifetime and restriction data.",
+            "PAY_COST command commit/rejection anchor: accepted PayCost spends or clears the generated resource, while stale pending payment and duplicate spend reject before close.",
+            "PAY_COST audit expectation: COST_PAID, PAYMENT_WINDOW_CLOSED, TEMPORARY_PAYMENT_RESOURCE_SPENT and TEMPORARY_PAYMENT_RESOURCE_CLEARED entries remain correlated.",
+            "PAY_COST lifetime / no-mutation / restriction assertion: rejected stale or wrong-window resources preserve pending queues, ledgers, hand, board, stack and audit tail.",
+            "docs/CURRENT_STAGE4D_03F_PAYMENT_ENGINE_PAY_COST_RESOURCE_AUDIT.md"),
+        new(
+            "ACTIVATE_ABILITY",
+            "resource skill or temporary-resource generation before an activated ability quote",
+            "ACTIVATE_ABILITY payment consumption and stack-creation window",
+            "mana, typed power, experience, target tax and generated payment-only lifetime",
+            "ACTIVATE_ABILITY prompt quote: legal source, target, tax and generated-resource candidates stay visible before command submit.",
+            "ACTIVATE_ABILITY command commit/rejection anchor: command-side ability payment spends legal generated resources once or rejects stale source, target or resource ids before stack creation.",
+            "ACTIVATE_ABILITY audit expectation: COST_PAID, ABILITY_ACTIVATED, POWER_GAINED and temporary-resource audit entries stay bound to the payment or source id.",
+            "ACTIVATE_ABILITY lifetime / no-mutation / restriction assertion: rejected generated-resource misuse preserves source readiness, targets, attachments, ledgers, stack and audit tail.",
+            "docs/CURRENT_STAGE4D_03D_PAYMENT_ENGINE_ACTIVATE_RESOURCE_AUDIT.md"),
+        new(
+            "ASSEMBLE_EQUIPMENT",
+            "generated or temporary equipment-payment resource before assembly quote",
+            "ASSEMBLE_EQUIPMENT inline equipment payment and attach window",
+            "typed equipment cost, conversion resource, temporary payment-only resource and attachment lifetime",
+            "ASSEMBLE_EQUIPMENT prompt quote: equipment payment choices expose generated-resource candidates, attach target and payment-only restrictions.",
+            "ASSEMBLE_EQUIPMENT command commit/rejection anchor: assembly payment spends legal generated resources or rejects stale, wrong-trait and duplicate generated ids before equipment moves.",
+            "ASSEMBLE_EQUIPMENT audit expectation: COST_PAID, EQUIPMENT_ATTACHED, RESOURCE_RECYCLED and temporary-resource audit entries stay correlated.",
+            "ASSEMBLE_EQUIPMENT lifetime / no-mutation / restriction assertion: rejected generated-resource misuse preserves hand, board, attachments, ledgers, stack and audit tail.",
+            "docs/CURRENT_STAGE4D_03B_PAYMENT_ENGINE_NON_PLAY_AUDIT.md"),
+        new(
+            "TRIGGER_PAYMENT",
+            "generated or temporary trigger-payment resource before trigger prompt",
+            "TRIGGER_PAYMENT pending payment, pay, decline and close windows",
+            "trigger pending id, typed power, temporary payment-only resource, cleanup id and declined lifetime",
+            "TRIGGER_PAYMENT prompt quote: trigger payment prompt exposes pay, decline and generated-resource candidates with lifetime metadata.",
+            "TRIGGER_PAYMENT command commit/rejection anchor: accepted trigger payment spends or clears the generated resource, while stale source, target, decline or duplicate ids reject before resolution.",
+            "TRIGGER_PAYMENT audit expectation: COST_PAID, TRIGGER_PAYMENT_DECLINED, BATTLEFIELD_TRIGGER_RESOLVED, PAYMENT_WINDOW_CLOSED and cleanup audit entries stay correlated.",
+            "TRIGGER_PAYMENT lifetime / no-mutation / restriction assertion: rejected generated-resource misuse preserves trigger queues, pending payment, ledgers, stack, score and audit tail.",
+            "docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_AUDIT.md"),
+        new(
+            "BATTLEFIELD_HELD_SCORE_PAYMENT",
+            "generated or temporary score-payment resource before battlefield-held prompt",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT score payment and no-effect window",
+            "score payment power, typed power, temporary payment-only resource, prevention state and cleanup lifetime",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT prompt quote: battlefield-held prompt exposes score cost, generated-resource candidates and payment-only restrictions.",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT command commit/rejection anchor: held-score payment spends legal generated resources or rejects stale, prevented, already-scored or duplicate ids before score mutation.",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT audit expectation: COST_PAID, BATTLEFIELD_HELD, SCORE_GAINED, temporary-resource spend and cleanup audit entries stay correlated.",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT lifetime / no-mutation / restriction assertion: rejected generated-resource misuse preserves score, battlefield state, ledgers, pending queues and audit tail.",
+            "docs/CURRENT_STAGE4D_03G_PAYMENT_ENGINE_BATTLEFIELD_HELD_RESOURCE_AUDIT.md")
+    ];
+
+    private static readonly CrossWindowGenerationConsumptionMatrixFamilyProfile[] CrossWindowGenerationConsumptionAllWindowFamilyProfiles =
+    [
+        new(
+            "RESOURCE_SKILL_GENERATION_WINDOWS",
+            "generation windows that create payment-only resources before later consumption",
+            "later legal payment windows that consume generated resources created by resource skills",
+            "resource skill creation id, source timing, payment-only flag and generated ledger",
+            "generation prompt quote: the verifier keeps source, timing, generated amount and payment-only metadata visible before creation.",
+            "generation command commit/rejection anchor: resource-skill commands create a generated resource or reject illegal timing and stale source before ledger mutation.",
+            "generation audit expectation: ABILITY_ACTIVATED, POWER_GAINED and TEMPORARY_PAYMENT_RESOURCE_CREATED audit entries identify the creation id.",
+            "generation lifetime / no-mutation / restriction assertion: illegal generation preserves source state, targets, generated ledgers and audit tail.",
+            "docs/CURRENT_STAGE4D_03AZ_PAYMENT_ENGINE_RESOURCE_SKILL_RESIDUAL_MANIFEST_AUDIT.md"),
+        new(
+            "INLINE_PAYMENT_CONSUMPTION_WINDOWS",
+            "inline consumption windows that spend generated resources during immediate payment",
+            "PLAY_CARD, ACTIVATE_ABILITY and ASSEMBLE_EQUIPMENT inline consumption windows",
+            "single-use spend id, inline payment id, temporary ledger and same-transaction lifetime",
+            "inline consumption prompt quote: legal generated-resource candidates stay attached to the quoted inline payment.",
+            "inline consumption command commit/rejection anchor: command-side inline payment spends the generated resource once or rejects stale and duplicate ids before commit.",
+            "inline consumption audit expectation: COST_PAID, TEMPORARY_PAYMENT_RESOURCE_SPENT and cleanup audit entries identify the payment id and spend id.",
+            "inline consumption lifetime / no-mutation / restriction assertion: rejected inline misuse preserves ordinary pools, generated ledgers, hand, board and audit tail.",
+            "docs/CURRENT_STAGE4D_03K_PAYMENT_ENGINE_TEMPORARY_RESOURCE_INLINE_AUDIT.md"),
+        new(
+            "PENDING_PAYMENT_REUSE_AND_CLOSE",
+            "pending payment reuse, decline, close and stale command windows",
+            "PAY_COST and TRIGGER_PAYMENT pending consumption, decline and close windows",
+            "pending payment id, payment-window token, decline state, cleanup id and stale lifetime",
+            "pending prompt quote: generated-resource candidates remain tied to pending payment metadata before pay or decline.",
+            "pending command commit/rejection anchor: PayCost or trigger commands spend, clear, decline or reject stale generated resources before payment-window close.",
+            "pending audit expectation: COST_PAID, PAYMENT_WINDOW_CLOSED, TRIGGER_PAYMENT_DECLINED and temporary-resource cleanup audit entries stay correlated.",
+            "pending lifetime / no-mutation / restriction assertion: duplicate, stale or closed-window submissions preserve ledgers, queues, hand, board and audit tail.",
+            "docs/CURRENT_STAGE4D_03AE_PAYMENT_ENGINE_PENDING_TEMP_RESOURCE_PROMPT_AUDIT.md"),
+        new(
+            "TYPED_GENERIC_CONVERSION_AND_MATCHING",
+            "typed, generic and conversion matching across generated-resource windows",
+            "typed, generic and conversion payment consumption windows",
+            "trait, generic amount, conversion direction, source mix and generated-resource id",
+            "typed/generic prompt quote: legal trait, generic and conversion candidates stay visible for matching.",
+            "typed/generic command commit/rejection anchor: command-side payment spends only matching generated resources and rejects wrong trait, wrong conversion or unnecessary generated source.",
+            "typed/generic audit expectation: POWER_GAINED, TEMPORARY_PAYMENT_RESOURCE_CREATED, COST_PAID and RESOURCE_RECYCLED audit entries preserve resource identity.",
+            "typed/generic lifetime / no-mutation / restriction assertion: rejected matching failures preserve ordinary pools, generated ledgers and paid-resource history.",
+            "docs/CURRENT_STAGE4D_03T_PAYMENT_ENGINE_OGN_SIGIL_TYPED_RESOURCE_FAMILY_AUDIT.md"),
+        new(
+            "EXPIRY_CLEANUP_AND_TURN_BOUNDARY",
+            "expiry, cleanup and turn-boundary windows after generated-resource creation or spend",
+            "post-cleanup and turn-boundary rejection windows for expired generated resources",
+            "cleanup id, turn boundary, stack-resolution boundary, payment close and expired generated-resource id",
+            "expiry prompt quote: prompts before and after cleanup distinguish spendable generated resources from expired candidates.",
+            "expiry command commit/rejection anchor: command-side cleanup clears spent resources and rejects expired or stale generated ids before reuse.",
+            "expiry audit expectation: TEMPORARY_PAYMENT_RESOURCE_CLEARED, PAYMENT_WINDOW_CLOSED and absence of COST_PAID for expired ids remain provable.",
+            "expiry lifetime / no-mutation / restriction assertion: stale turn-boundary reuse cannot leak spendable state and rejected reuse preserves all mutable zones.",
+            "docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_AUDIT.md"),
+        new(
+            "PAYMENT_ONLY_RESTRICTIONS_AND_WRONG_WINDOW",
+            "payment-only restriction, ordinary-pool misuse and wrong consumption windows",
+            "ordinary-resource, wrong-window and unsupported-command consumption attempts",
+            "payment-only flag, ordinary pool boundary, wrong-window command and unsupported generated source",
+            "restriction prompt quote: generated payment-only restrictions remain explicit beside ordinary resource candidates.",
+            "restriction command commit/rejection anchor: command-side payment rejects ordinary-pool misuse, wrong-window consumption and unsupported generated sources before commit.",
+            "restriction audit expectation: rejected restriction bypass emits no committed COST_PAID or domain success audit.",
+            "restriction lifetime / no-mutation / restriction assertion: payment-only misuse preserves generated ledgers, ordinary pools, hand, board and audit tail.",
+            "docs/CURRENT_STAGE4D_03BA_PAYMENT_ENGINE_OFFICIAL_MATRIX_RESIDUAL_MANIFEST_AUDIT.md"),
+        new(
+            "DUPLICATE_SPEND_AND_AUDIT_CORRELATION",
+            "duplicate spend and creation/spend/cleanup audit-correlation windows",
+            "duplicate-spend, stale-id and mismatched audit-correlation consumption attempts",
+            "creation id, spend id, cleanup id, payment id and stale generated-resource id",
+            "audit-correlation prompt quote: generated-resource id candidates remain visible before the command submits.",
+            "audit-correlation command commit/rejection anchor: command-side payment rejects duplicate spends, stale ids and mismatched correlation before ledger mutation.",
+            "audit-correlation audit expectation: TEMPORARY_PAYMENT_RESOURCE_CREATED, TEMPORARY_PAYMENT_RESOURCE_SPENT, TEMPORARY_PAYMENT_RESOURCE_CLEARED and COST_PAID entries correlate by id.",
+            "audit-correlation lifetime / no-mutation / restriction assertion: rejected duplicate spend preserves ledgers, pending queues, hand, board and audit tail without orphaned entries.",
+            "docs/CURRENT_STAGE4D_03BE_PAYMENT_ENGINE_ROLLBACK_FAILURE_ROW_MANIFEST_AUDIT.md")
+    ];
+
+    private static readonly PaymentEngineCrossWindowGenerationConsumptionAllWindowMatrixEntry[] CrossWindowGenerationConsumptionAllWindowMatrixManifest =
+        BuildCrossWindowGenerationConsumptionAllWindowMatrix();
+
+    private static PaymentEngineCrossWindowGenerationConsumptionAllWindowMatrixEntry[] BuildCrossWindowGenerationConsumptionAllWindowMatrix()
+    {
+        return CrossWindowGenerationConsumptionAllWindowActionWindowProfiles
+            .SelectMany(window => CrossWindowGenerationConsumptionAllWindowFamilyProfiles.Select(family =>
+                new PaymentEngineCrossWindowGenerationConsumptionAllWindowMatrixEntry(
+                    $"ROW_CROSS_WINDOW_GENERATION_CONSUMPTION_MATRIX_{window.ActionWindow}_{family.Family}",
+                    family.Family,
+                    CrossWindowAllWindowMatrix,
+                    "ROW_CROSS_WINDOW_GENERATION_CONSUMPTION_MISSING",
+                    window.ActionWindow,
+                    $"{window.GenerationScope}; {family.GenerationScope}",
+                    $"{window.ConsumptionScope}; {family.ConsumptionScope}",
+                    $"{window.ResourceLifetimeDimension}; {family.ResourceLifetimeDimension}",
+                    $"{window.PromptQuote} {family.PromptQuote}",
+                    $"{window.CommandCommitOrRejectionAnchor} {family.CommandCommitOrRejectionAnchor}",
+                    $"{window.AuditExpectation} {family.AuditExpectation}",
+                    $"{window.LifetimeNoMutationRestrictionAssertion} {family.LifetimeNoMutationRestrictionAssertion}",
+                    $"Full official cross-window generation / consumption matrix combinations for {window.ActionWindow} / {family.Family} remain open across every official card row, generated-resource source, lifetime, restriction, cleanup order and invalid reuse branch.",
+                    "All-window cross-window generation / consumption matrix representative only; project remains NOT READY and P0-005 remains open.",
+                    [
+                        "docs/CURRENT_STAGE4D_03BM_PAYMENT_ENGINE_CROSS_WINDOW_GENERATION_CONSUMPTION_MATRIX_AUDIT.md",
+                        "docs/CURRENT_STAGE4D_03BF_PAYMENT_ENGINE_CROSS_WINDOW_GENERATION_CONSUMPTION_ROW_MANIFEST_AUDIT.md",
+                        family.DocAnchor,
+                        window.DocAnchor
+                    ])))
+            .ToArray();
+    }
 
     private static readonly PaymentEngineCardMatrixAlignmentRowCoverageEntry[] CardMatrixAlignmentRowManifest =
     [
@@ -3009,6 +3179,185 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineCrossWindowGenerationConsumptionAllWindowMatrixCoversEveryRequiredSurfaceAndFamily()
+    {
+        var requiredActionWindows = new[]
+        {
+            "PLAY_CARD",
+            "PAY_COST",
+            "ACTIVATE_ABILITY",
+            "ASSEMBLE_EQUIPMENT",
+            "TRIGGER_PAYMENT",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT"
+        };
+        var requiredFamilies = CrossWindowGenerationConsumptionRowManifest
+            .Select(entry => entry.Family)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(
+            requiredActionWindows.Order(StringComparer.Ordinal),
+            CrossWindowGenerationConsumptionAllWindowMatrixManifest.Select(entry => entry.ActionWindow).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal));
+        Assert.Equal(
+            requiredFamilies,
+            CrossWindowGenerationConsumptionAllWindowMatrixManifest.Select(entry => entry.Family).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal));
+        Assert.Equal(requiredActionWindows.Length * requiredFamilies.Length, CrossWindowGenerationConsumptionAllWindowMatrixManifest.Length);
+
+        foreach (var actionWindow in requiredActionWindows)
+        {
+            Assert.Equal(
+                requiredFamilies,
+                CrossWindowGenerationConsumptionAllWindowMatrixManifest
+                    .Where(entry => string.Equals(entry.ActionWindow, actionWindow, StringComparison.Ordinal))
+                    .Select(entry => entry.Family)
+                    .Order(StringComparer.Ordinal));
+        }
+
+        foreach (var family in requiredFamilies)
+        {
+            Assert.Equal(
+                requiredActionWindows.Order(StringComparer.Ordinal),
+                CrossWindowGenerationConsumptionAllWindowMatrixManifest
+                    .Where(entry => string.Equals(entry.Family, family, StringComparison.Ordinal))
+                    .Select(entry => entry.ActionWindow)
+                    .Order(StringComparer.Ordinal));
+        }
+
+        Assert.DoesNotContain(CrossWindowGenerationConsumptionAllWindowMatrixManifest, entry => string.Equals(entry.ActionWindow, "MOVE_UNIT", StringComparison.Ordinal));
+        Assert.DoesNotContain(CrossWindowGenerationConsumptionAllWindowMatrixManifest, entry => string.Equals(entry.ActionWindow, "HIDE_CARD", StringComparison.Ordinal));
+        Assert.DoesNotContain(CrossWindowGenerationConsumptionAllWindowMatrixManifest, entry => string.Equals(entry.ActionWindow, "LEGEND_ACT", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void PaymentEngineCrossWindowGenerationConsumptionAllWindowMatrixRequiresBoundLifecycleAndAuditFields()
+    {
+        Assert.All(CrossWindowGenerationConsumptionAllWindowMatrixManifest, entry =>
+        {
+            Assert.StartsWith("ROW_CROSS_WINDOW_GENERATION_CONSUMPTION_MATRIX_", entry.MatrixRowId, StringComparison.Ordinal);
+            Assert.Contains(entry.ActionWindow, entry.MatrixRowId, StringComparison.Ordinal);
+            Assert.Contains(entry.Family, entry.MatrixRowId, StringComparison.Ordinal);
+            Assert.Equal(CrossWindowAllWindowMatrix, entry.Classification);
+            Assert.Equal("ROW_CROSS_WINDOW_GENERATION_CONSUMPTION_MISSING", entry.OfficialMatrixRowId);
+            Assert.False(string.IsNullOrWhiteSpace(entry.GenerationScope));
+            Assert.False(string.IsNullOrWhiteSpace(entry.ConsumptionScope));
+            Assert.False(string.IsNullOrWhiteSpace(entry.ResourceLifetimeDimension));
+            Assert.Contains("prompt quote", entry.PromptQuote, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("command", entry.CommandCommitOrRejectionAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("audit expectation", entry.AuditExpectation, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("lifetime", entry.LifetimeNoMutationRestrictionAssertion, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("no-mutation", entry.LifetimeNoMutationRestrictionAssertion, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("restriction", entry.LifetimeNoMutationRestrictionAssertion, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("remain open", entry.RemainingOfficialBreadth, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("NOT READY", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.NotEmpty(entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineCrossWindowGenerationConsumptionAllWindowMatrixLinksBackTo03BFFamiliesAnd03BMDocs()
+    {
+        var familySet = CrossWindowGenerationConsumptionRowManifest.Select(entry => entry.Family).ToHashSet(StringComparer.Ordinal);
+        var actionWindowDocs = CrossWindowGenerationConsumptionAllWindowActionWindowProfiles.ToDictionary(entry => entry.ActionWindow, entry => entry.DocAnchor, StringComparer.Ordinal);
+
+        Assert.All(CrossWindowGenerationConsumptionAllWindowMatrixManifest, entry =>
+        {
+            Assert.Contains(entry.Family, familySet);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BM_PAYMENT_ENGINE_CROSS_WINDOW_GENERATION_CONSUMPTION_MATRIX_AUDIT.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BF_PAYMENT_ENGINE_CROSS_WINDOW_GENERATION_CONSUMPTION_ROW_MANIFEST_AUDIT.md", entry.DocAnchors);
+            Assert.Contains(actionWindowDocs[entry.ActionWindow], entry.DocAnchors);
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineCrossWindowGenerationConsumptionAllWindowMatrixKeepsLifecycleDimensionsExecutable()
+    {
+        var combinedText = string.Join(
+            " ",
+            CrossWindowGenerationConsumptionAllWindowMatrixManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.MatrixRowId,
+                    entry.Family,
+                    entry.ActionWindow,
+                    entry.GenerationScope,
+                    entry.ConsumptionScope,
+                    entry.ResourceLifetimeDimension,
+                    entry.PromptQuote,
+                    entry.CommandCommitOrRejectionAnchor,
+                    entry.AuditExpectation,
+                    entry.LifetimeNoMutationRestrictionAssertion,
+                    entry.RemainingOfficialBreadth
+                }.Concat(entry.DocAnchors)));
+
+        foreach (var requiredPhrase in new[]
+        {
+            "generation",
+            "creation",
+            "consumption",
+            "payment-only",
+            "restriction",
+            "expiry",
+            "cleanup",
+            "typed",
+            "generic",
+            "pending",
+            "duplicate",
+            "cross-window",
+            "ledger",
+            "lifetime",
+            "prompt quote",
+            "command",
+            "audit expectation",
+            "no-mutation"
+        })
+        {
+            Assert.Contains(requiredPhrase, combinedText, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    [Fact]
+    public void PaymentEngineCrossWindowGenerationConsumptionAllWindowMatrixDoesNotClaimP0005Closure()
+    {
+        var combinedText = string.Join(
+            " ",
+            CrossWindowGenerationConsumptionAllWindowMatrixManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.MatrixRowId,
+                    entry.Family,
+                    entry.Classification,
+                    entry.OfficialMatrixRowId,
+                    entry.ActionWindow,
+                    entry.GenerationScope,
+                    entry.ConsumptionScope,
+                    entry.ResourceLifetimeDimension,
+                    entry.PromptQuote,
+                    entry.CommandCommitOrRejectionAnchor,
+                    entry.AuditExpectation,
+                    entry.LifetimeNoMutationRestrictionAssertion,
+                    entry.RemainingOfficialBreadth,
+                    entry.ClosureStatus
+                }.Concat(entry.DocAnchors)));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PaymentEngineCardMatrixAlignmentManifestListsRequiredFamiliesExactlyOnce()
     {
         var requiredFamilies = new[]
@@ -3997,6 +4346,45 @@ public sealed class PaymentEngineCoverageAuditTests
         string CommandAnchor,
         string AuditAnchor,
         string LifetimeAndRestrictionAnchor,
+        string RemainingOfficialBreadth,
+        string ClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
+    private sealed record CrossWindowGenerationConsumptionMatrixActionWindowProfile(
+        string ActionWindow,
+        string GenerationScope,
+        string ConsumptionScope,
+        string ResourceLifetimeDimension,
+        string PromptQuote,
+        string CommandCommitOrRejectionAnchor,
+        string AuditExpectation,
+        string LifetimeNoMutationRestrictionAssertion,
+        string DocAnchor);
+
+    private sealed record CrossWindowGenerationConsumptionMatrixFamilyProfile(
+        string Family,
+        string GenerationScope,
+        string ConsumptionScope,
+        string ResourceLifetimeDimension,
+        string PromptQuote,
+        string CommandCommitOrRejectionAnchor,
+        string AuditExpectation,
+        string LifetimeNoMutationRestrictionAssertion,
+        string DocAnchor);
+
+    private sealed record PaymentEngineCrossWindowGenerationConsumptionAllWindowMatrixEntry(
+        string MatrixRowId,
+        string Family,
+        string Classification,
+        string OfficialMatrixRowId,
+        string ActionWindow,
+        string GenerationScope,
+        string ConsumptionScope,
+        string ResourceLifetimeDimension,
+        string PromptQuote,
+        string CommandCommitOrRejectionAnchor,
+        string AuditExpectation,
+        string LifetimeNoMutationRestrictionAssertion,
         string RemainingOfficialBreadth,
         string ClosureStatus,
         IReadOnlyList<string> DocAnchors);
