@@ -21,6 +21,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string CrossWindowRepresentative = "cross-window-representative";
     private const string CrossWindowAllWindowMatrix = "cross-window-all-window-matrix";
     private const string CardMatrixRepresentative = "card-matrix-representative";
+    private const string CardMatrixAllWindowMatrix = "card-matrix-all-window-matrix";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
     [
@@ -1642,6 +1643,102 @@ public sealed class PaymentEngineCoverageAuditTests
                 "docs/CURRENT_STAGE4D_03AR_CARD_MATRIX_READINESS_AUDIT.md"
             ])
     ];
+
+    private static readonly CardMatrixAlignmentMatrixActionWindowProfile[] CardMatrixAlignmentAllWindowActionWindowProfiles =
+    [
+        new(
+            "PLAY_CARD",
+            "PLAY_CARD official card/effect row alignment across hand-card payment rows",
+            "play-card prompt and command surface",
+            "PLAY_CARD prompt evidence anchor: ActionPrompt payment quote exposes cardId, collectorId, oracleId, effectId, cost, resources and generated-resource candidates.",
+            "PLAY_CARD command evidence anchor: command-side play payment binds the submitted card/effect row to accepted or rejected payment paths before the card leaves hand.",
+            "PLAY_CARD audit evidence anchor: COST_PAID, RESOURCE_RECYCLED, TEMPORARY_PAYMENT_RESOURCE_SPENT and play-card success/rejection audit entries stay traceable to the card matrix row.",
+            "PLAY_CARD matrix sync/status anchor: JSON row status, representative evidence status, blockers and fullOfficial=false remain synchronized with 03BG/03BN docs.",
+            "PLAY_CARD frontend/snapshot trace: ActionPrompt and authoritative snapshot expose server-owned hand, cost, resource and card identity fields so frontend does not infer legal payments locally.",
+            "docs/CURRENT_STAGE4D_03AG_PAYMENT_ENGINE_PLAY_CARD_TYPED_RESOURCE_PROMPT_AUDIT.md"),
+        new(
+            "PAY_COST",
+            "PAY_COST official pending-payment row alignment across pending card/effect payment rows",
+            "pending payment prompt and PayCost command surface",
+            "PAY_COST prompt evidence anchor: pending ActionPrompt metadata exposes paymentId, source card/effect row, payment choices, cleanup lifetime and candidate resources.",
+            "PAY_COST command evidence anchor: PayCost command revalidates the same payment row, accepts legal resources and rejects stale or duplicate submissions before queue mutation.",
+            "PAY_COST audit evidence anchor: COST_PAID, PAYMENT_WINDOW_CLOSED and temporary-resource cleanup audit entries remain traceable to the originating card/effect row.",
+            "PAY_COST matrix sync/status anchor: pending-payment matrix row evidence, blocker status and fullOfficial=false remain synchronized with 03BG/03BN docs.",
+            "PAY_COST frontend/snapshot trace: authoritative snapshot and prompt metadata expose pending payment ownership, source identity and resource choices without frontend inference.",
+            "docs/CURRENT_STAGE4D_03F_PAYMENT_ENGINE_PAY_COST_RESOURCE_AUDIT.md"),
+        new(
+            "ACTIVATE_ABILITY",
+            "ACTIVATE_ABILITY official card/effect row alignment across activated ability payment rows",
+            "activated ability prompt, target and command surface",
+            "ACTIVATE_ABILITY prompt evidence anchor: ActionPrompt exposes source card/effect id, ability id, target/tax metadata, typed resource candidates and optional branches.",
+            "ACTIVATE_ABILITY command evidence anchor: command-side ability payment binds source, ability, target and resource choices to the same matrix row before stack creation.",
+            "ACTIVATE_ABILITY audit evidence anchor: COST_PAID, ABILITY_ACTIVATED, target-tax and optional branch audit entries stay traceable to the source card/effect row.",
+            "ACTIVATE_ABILITY matrix sync/status anchor: ability row blockers, FAQ review state, representative status and fullOfficial=false remain synchronized with 03BG/03BN docs.",
+            "ACTIVATE_ABILITY frontend/snapshot trace: ActionPrompt and authoritative snapshot expose legal targets, costs and source state so frontend does not synthesize ability legality.",
+            "docs/CURRENT_STAGE4D_03D_PAYMENT_ENGINE_ACTIVATE_RESOURCE_AUDIT.md"),
+        new(
+            "ASSEMBLE_EQUIPMENT",
+            "ASSEMBLE_EQUIPMENT official equipment card/effect row alignment across assemble payment rows",
+            "equipment assemble prompt and command surface",
+            "ASSEMBLE_EQUIPMENT prompt evidence anchor: ActionPrompt exposes equipment card identity, attach target, typed cost, resource candidates and generated-resource restrictions.",
+            "ASSEMBLE_EQUIPMENT command evidence anchor: assemble command revalidates equipment row, target and payment resources before equipment attach or rejection.",
+            "ASSEMBLE_EQUIPMENT audit evidence anchor: COST_PAID, EQUIPMENT_ATTACHED, RESOURCE_RECYCLED and rejection audit expectations remain traceable to the equipment matrix row.",
+            "ASSEMBLE_EQUIPMENT matrix sync/status anchor: equipment row status, blocker fields, representative evidence and fullOfficial=false remain synchronized with 03BG/03BN docs.",
+            "ASSEMBLE_EQUIPMENT frontend/snapshot trace: authoritative snapshot exposes attachment state and server-owned assemble options so frontend does not infer legal attach/payment rows.",
+            "docs/CURRENT_STAGE4D_03B_PAYMENT_ENGINE_NON_PLAY_AUDIT.md"),
+        new(
+            "TRIGGER_PAYMENT",
+            "TRIGGER_PAYMENT official trigger card/effect row alignment across pending trigger payment rows",
+            "trigger payment prompt, pay/decline and close surface",
+            "TRIGGER_PAYMENT prompt evidence anchor: trigger ActionPrompt exposes source/target card row, pay/decline branch, payment id and typed/generated resource candidates.",
+            "TRIGGER_PAYMENT command evidence anchor: trigger payment commands revalidate the same card/effect row for pay, decline, stale source, stale target and close paths.",
+            "TRIGGER_PAYMENT audit evidence anchor: COST_PAID, TRIGGER_PAYMENT_DECLINED, BATTLEFIELD_TRIGGER_RESOLVED and PAYMENT_WINDOW_CLOSED audit entries stay row-traceable.",
+            "TRIGGER_PAYMENT matrix sync/status anchor: trigger row evidence, blocker fields, representative status and fullOfficial=false remain synchronized with 03BG/03BN docs.",
+            "TRIGGER_PAYMENT frontend/snapshot trace: prompt metadata and authoritative snapshot expose trigger source, target, payment window and score state without frontend inference.",
+            "docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_AUDIT.md"),
+        new(
+            "BATTLEFIELD_HELD_SCORE_PAYMENT",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT official card/effect row alignment across held-score payment rows",
+            "battlefield-held score payment prompt and command surface",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT prompt evidence anchor: held-score ActionPrompt exposes battlefield source, score cost, typed resources, prevention state and generated-resource candidates.",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT command evidence anchor: held-score command revalidates the same card/effect row before score mutation, prevention, duplicate spend or no-effect rejection.",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT audit evidence anchor: COST_PAID, BATTLEFIELD_HELD, SCORE_GAINED and prevented/no-effect audit expectations remain traceable to the card matrix row.",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT matrix sync/status anchor: held-score row status, blocker counts, representative evidence and fullOfficial=false remain synchronized with 03BG/03BN docs.",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT frontend/snapshot trace: authoritative snapshot exposes battlefield state, score-payment options and server-owned prevention results for frontend display.",
+            "docs/CURRENT_STAGE4D_03G_PAYMENT_ENGINE_BATTLEFIELD_HELD_RESOURCE_AUDIT.md")
+    ];
+
+    private static readonly PaymentEngineCardMatrixAlignmentAllWindowMatrixEntry[] CardMatrixAlignmentAllWindowMatrixManifest =
+        BuildCardMatrixAlignmentAllWindowMatrix();
+
+    private static PaymentEngineCardMatrixAlignmentAllWindowMatrixEntry[] BuildCardMatrixAlignmentAllWindowMatrix()
+    {
+        return CardMatrixAlignmentAllWindowActionWindowProfiles
+            .SelectMany(window => CardMatrixAlignmentRowManifest.Select(family =>
+                new PaymentEngineCardMatrixAlignmentAllWindowMatrixEntry(
+                    $"ROW_CARD_MATRIX_ALIGNMENT_MATRIX_{window.ActionWindow}_{family.Family}",
+                    family.Family,
+                    CardMatrixAllWindowMatrix,
+                    "ROW_CARD_MATRIX_ALIGNMENT_MISSING",
+                    window.ActionWindow,
+                    $"{window.MatrixScope}; {family.MatrixScope}",
+                    $"{window.RepresentativeSurface}; {family.RepresentativeSurface}",
+                    $"{window.PromptEvidenceAnchor} {family.PromptAnchor}",
+                    $"{window.CommandEvidenceAnchor} {family.CommandAnchor}",
+                    $"{window.AuditEvidenceAnchor} {family.AuditAnchor}",
+                    $"{window.MatrixSyncStatusAnchor} {family.MatrixAnchor}",
+                    $"{window.FrontendSnapshotOrRuleSourceTrace} {family.MatrixAnchor}",
+                    $"Full official card matrix alignment combinations for {window.ActionWindow} / {family.Family} remain open across every official card row, collector/oracle variant, effect row, branch, FAQ/rule-source blocker and JSON status sync path.",
+                    "All-window card matrix alignment representative only; project remains NOT READY and P0-005 remains open.",
+                    [
+                        "docs/CURRENT_STAGE4D_03BN_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_MATRIX_AUDIT.md",
+                        "docs/CURRENT_STAGE4D_03BN_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_MATRIX_EVIDENCE.md",
+                        "docs/CURRENT_STAGE4D_03BG_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_ROW_MANIFEST_AUDIT.md",
+                        window.DocAnchor,
+                        .. family.DocAnchors
+                    ])))
+            .ToArray();
+    }
 
     private static readonly PaymentEngineLegendBattlefieldTriggerResourceActionCoverageEntry[] LegendBattlefieldTriggerResourceActionManifest =
     [
@@ -3498,6 +3595,183 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineCardMatrixAlignmentAllWindowMatrixCoversEveryRequiredSurfaceAndFamily()
+    {
+        var requiredActionWindows = new[]
+        {
+            "PLAY_CARD",
+            "PAY_COST",
+            "ACTIVATE_ABILITY",
+            "ASSEMBLE_EQUIPMENT",
+            "TRIGGER_PAYMENT",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT"
+        };
+        var requiredFamilies = CardMatrixAlignmentRowManifest
+            .Select(entry => entry.Family)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(
+            requiredActionWindows.Order(StringComparer.Ordinal),
+            CardMatrixAlignmentAllWindowMatrixManifest.Select(entry => entry.ActionWindow).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal));
+        Assert.Equal(
+            requiredFamilies,
+            CardMatrixAlignmentAllWindowMatrixManifest.Select(entry => entry.Family).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal));
+        Assert.Equal(requiredActionWindows.Length * requiredFamilies.Length, CardMatrixAlignmentAllWindowMatrixManifest.Length);
+
+        foreach (var actionWindow in requiredActionWindows)
+        {
+            Assert.Equal(
+                requiredFamilies,
+                CardMatrixAlignmentAllWindowMatrixManifest
+                    .Where(entry => string.Equals(entry.ActionWindow, actionWindow, StringComparison.Ordinal))
+                    .Select(entry => entry.Family)
+                    .Order(StringComparer.Ordinal));
+        }
+
+        foreach (var family in requiredFamilies)
+        {
+            Assert.Equal(
+                requiredActionWindows.Order(StringComparer.Ordinal),
+                CardMatrixAlignmentAllWindowMatrixManifest
+                    .Where(entry => string.Equals(entry.Family, family, StringComparison.Ordinal))
+                    .Select(entry => entry.ActionWindow)
+                    .Order(StringComparer.Ordinal));
+        }
+
+        Assert.DoesNotContain(CardMatrixAlignmentAllWindowMatrixManifest, entry => string.Equals(entry.ActionWindow, "MOVE_UNIT", StringComparison.Ordinal));
+        Assert.DoesNotContain(CardMatrixAlignmentAllWindowMatrixManifest, entry => string.Equals(entry.ActionWindow, "HIDE_CARD", StringComparison.Ordinal));
+        Assert.DoesNotContain(CardMatrixAlignmentAllWindowMatrixManifest, entry => string.Equals(entry.ActionWindow, "LEGEND_ACT", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void PaymentEngineCardMatrixAlignmentAllWindowMatrixRequiresBoundEvidenceAndTraceFields()
+    {
+        Assert.All(CardMatrixAlignmentAllWindowMatrixManifest, entry =>
+        {
+            Assert.StartsWith("ROW_CARD_MATRIX_ALIGNMENT_MATRIX_", entry.MatrixRowId, StringComparison.Ordinal);
+            Assert.Contains(entry.ActionWindow, entry.MatrixRowId, StringComparison.Ordinal);
+            Assert.Contains(entry.Family, entry.MatrixRowId, StringComparison.Ordinal);
+            Assert.Equal(CardMatrixAllWindowMatrix, entry.Classification);
+            Assert.Equal("ROW_CARD_MATRIX_ALIGNMENT_MISSING", entry.OfficialMatrixRowId);
+            Assert.False(string.IsNullOrWhiteSpace(entry.MatrixScope));
+            Assert.False(string.IsNullOrWhiteSpace(entry.RepresentativeSurface));
+            Assert.Contains("prompt evidence anchor", entry.PromptEvidenceAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("command evidence anchor", entry.CommandEvidenceAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("audit evidence anchor", entry.AuditEvidenceAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("matrix sync/status anchor", entry.MatrixSyncStatusAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("trace", entry.FrontendSnapshotOrRuleSourceTrace, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("remain open", entry.RemainingOfficialBreadth, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("NOT READY", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.NotEmpty(entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineCardMatrixAlignmentAllWindowMatrixLinksBackTo03BGFamiliesAnd03BNDocs()
+    {
+        var familySet = CardMatrixAlignmentRowManifest.Select(entry => entry.Family).ToHashSet(StringComparer.Ordinal);
+        var actionWindowDocs = CardMatrixAlignmentAllWindowActionWindowProfiles.ToDictionary(entry => entry.ActionWindow, entry => entry.DocAnchor, StringComparer.Ordinal);
+
+        Assert.All(CardMatrixAlignmentAllWindowMatrixManifest, entry =>
+        {
+            Assert.Contains(entry.Family, familySet);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BN_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_MATRIX_AUDIT.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BN_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_MATRIX_EVIDENCE.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BG_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_ROW_MANIFEST_AUDIT.md", entry.DocAnchors);
+            Assert.Contains(actionWindowDocs[entry.ActionWindow], entry.DocAnchors);
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineCardMatrixAlignmentAllWindowMatrixKeepsMatrixDimensionsExecutable()
+    {
+        var combinedText = string.Join(
+            " ",
+            CardMatrixAlignmentAllWindowMatrixManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.MatrixRowId,
+                    entry.Family,
+                    entry.ActionWindow,
+                    entry.MatrixScope,
+                    entry.RepresentativeSurface,
+                    entry.PromptEvidenceAnchor,
+                    entry.CommandEvidenceAnchor,
+                    entry.AuditEvidenceAnchor,
+                    entry.MatrixSyncStatusAnchor,
+                    entry.FrontendSnapshotOrRuleSourceTrace,
+                    entry.RemainingOfficialBreadth
+                }.Concat(entry.DocAnchors)));
+
+        foreach (var requiredPhrase in new[]
+        {
+            "cardId",
+            "collectorId",
+            "oracleId",
+            "effectId",
+            "fullOfficial=false",
+            "prompt",
+            "command",
+            "audit",
+            "matrix",
+            "FAQ",
+            "ActionPrompt",
+            "authoritative snapshot",
+            "frontend",
+            "blocker",
+            "JSON",
+            "official",
+            "representative"
+        })
+        {
+            Assert.Contains(requiredPhrase, combinedText, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    [Fact]
+    public void PaymentEngineCardMatrixAlignmentAllWindowMatrixDoesNotClaimFullOfficialOrP0005Closure()
+    {
+        var combinedText = string.Join(
+            " ",
+            CardMatrixAlignmentAllWindowMatrixManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.MatrixRowId,
+                    entry.Family,
+                    entry.Classification,
+                    entry.OfficialMatrixRowId,
+                    entry.ActionWindow,
+                    entry.MatrixScope,
+                    entry.RepresentativeSurface,
+                    entry.PromptEvidenceAnchor,
+                    entry.CommandEvidenceAnchor,
+                    entry.AuditEvidenceAnchor,
+                    entry.MatrixSyncStatusAnchor,
+                    entry.FrontendSnapshotOrRuleSourceTrace,
+                    entry.RemainingOfficialBreadth,
+                    entry.ClosureStatus
+                }.Concat(entry.DocAnchors)));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PaymentEngineLegendBattlefieldTriggerResourceActionManifestListsRequiredWindowsExactlyOnce()
     {
         var requiredWindows = new[]
@@ -4230,6 +4504,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(RollbackFailureAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(CrossWindowGenerationConsumptionRowManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(CardMatrixAlignmentRowManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(CardMatrixAlignmentAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(LegendBattlefieldTriggerResourceActionManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(KeywordPaymentBranchManifest.SelectMany(entry => entry.DocAnchors));
     }
@@ -4399,6 +4674,34 @@ public sealed class PaymentEngineCoverageAuditTests
         string CommandAnchor,
         string AuditAnchor,
         string MatrixAnchor,
+        string RemainingOfficialBreadth,
+        string ClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
+    private sealed record CardMatrixAlignmentMatrixActionWindowProfile(
+        string ActionWindow,
+        string MatrixScope,
+        string RepresentativeSurface,
+        string PromptEvidenceAnchor,
+        string CommandEvidenceAnchor,
+        string AuditEvidenceAnchor,
+        string MatrixSyncStatusAnchor,
+        string FrontendSnapshotOrRuleSourceTrace,
+        string DocAnchor);
+
+    private sealed record PaymentEngineCardMatrixAlignmentAllWindowMatrixEntry(
+        string MatrixRowId,
+        string Family,
+        string Classification,
+        string OfficialMatrixRowId,
+        string ActionWindow,
+        string MatrixScope,
+        string RepresentativeSurface,
+        string PromptEvidenceAnchor,
+        string CommandEvidenceAnchor,
+        string AuditEvidenceAnchor,
+        string MatrixSyncStatusAnchor,
+        string FrontendSnapshotOrRuleSourceTrace,
         string RemainingOfficialBreadth,
         string ClosureStatus,
         IReadOnlyList<string> DocAnchors);
