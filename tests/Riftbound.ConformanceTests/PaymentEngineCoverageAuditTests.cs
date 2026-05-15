@@ -2300,6 +2300,118 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineOfficialMatrixPolicyDeferredRowsStaySingleMoveUnitBoundary()
+    {
+        var policyRow = Assert.Single(
+            OfficialPaymentEngineMatrixSeedRowManifest,
+            entry => string.Equals(entry.RowStatus, PolicyDeferredRow, StringComparison.Ordinal));
+
+        Assert.Equal("ROW_MOVE_UNIT_POLICY_DEFERRED", policyRow.RowId);
+        Assert.Equal("ACTION_WINDOWS", policyRow.Axis);
+        Assert.Equal("MOVE_UNIT", policyRow.ActionWindow);
+        Assert.Equal("movement permission with optional-cost policy boundary", policyRow.PaymentOrPolicyProfile);
+        Assert.Contains("not a rune, mana, experience or temporary-resource payment row", policyRow.RepresentativeScope, StringComparison.Ordinal);
+        Assert.Contains("not a PaymentEngine payment prompt", policyRow.PromptAnchor, StringComparison.Ordinal);
+        Assert.Contains("no payment command row is opened", policyRow.CommandAnchor, StringComparison.Ordinal);
+        Assert.Contains("not COST_PAID audit", policyRow.AuditAnchor, StringComparison.Ordinal);
+        Assert.Contains("future resource reclassification", policyRow.RollbackExpectation, StringComparison.Ordinal);
+        Assert.Contains("Full official movement payment row remains deferred", policyRow.RemainingOfficialBreadth, StringComparison.Ordinal);
+        Assert.Contains("Policy deferred row only", policyRow.ClosureStatus, StringComparison.Ordinal);
+        Assert.Equal(
+            new[]
+            {
+                "docs/CURRENT_STAGE4D_03AH_PAYMENT_ENGINE_ACTION_WINDOW_COVERAGE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03Z_TOKEN_FACTORY_BARON_NEST_STATIC_AUDIT.md"
+            },
+            policyRow.DocAnchors);
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixPolicyDeferredMoveUnitStaysOutOfPaymentManifests()
+    {
+        const string policyRowId = "ROW_MOVE_UNIT_POLICY_DEFERRED";
+        var representativeSeedRowIds = OfficialPaymentEngineMatrixSeedRowManifest
+            .Where(entry => string.Equals(entry.RowStatus, RepresentativeSeed, StringComparison.Ordinal))
+            .Select(entry => entry.RowId);
+        var missingOfficialRowIds = OfficialPaymentEngineMatrixSeedRowManifest
+            .Where(entry => string.Equals(entry.RowStatus, MissingOfficialRow, StringComparison.Ordinal))
+            .Select(entry => entry.RowId);
+        var downstreamRowIds = RollbackFailureRowManifest.Select(entry => entry.OfficialMatrixRowId)
+            .Concat(CrossWindowGenerationConsumptionRowManifest.Select(entry => entry.OfficialMatrixRowId))
+            .Concat(CardMatrixAlignmentRowManifest.Select(entry => entry.OfficialMatrixRowId));
+        var moveUnitWindow = Assert.Single(
+            CoverageManifest,
+            entry => string.Equals(entry.ActionWindow, "MOVE_UNIT", StringComparison.Ordinal));
+        var moveUnitResidual = Assert.Single(
+            ResidualBlockerManifest,
+            entry => string.Equals(entry.Family, "MOVE_UNIT_MOVEMENT_PERMISSION_POLICY", StringComparison.Ordinal));
+
+        Assert.DoesNotContain(policyRowId, representativeSeedRowIds, StringComparer.Ordinal);
+        Assert.DoesNotContain(policyRowId, missingOfficialRowIds, StringComparer.Ordinal);
+        Assert.DoesNotContain(policyRowId, downstreamRowIds, StringComparer.Ordinal);
+        Assert.Equal(PolicyNonResource, moveUnitWindow.Classification);
+        Assert.Equal(PolicyDeferred, moveUnitResidual.Classification);
+        Assert.Contains("not a rune, mana, experience, or temporary-resource payment window", moveUnitResidual.CurrentEvidence, StringComparison.Ordinal);
+        Assert.Contains("must be reclassified", moveUnitResidual.MissingOfficialBreadth, StringComparison.Ordinal);
+        Assert.Contains("PaymentEngine quote / command / audit parity", moveUnitResidual.MissingOfficialBreadth, StringComparison.Ordinal);
+        Assert.Contains("Policy deferred only", moveUnitResidual.ClosureStatus, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixPolicyDeferredMoveUnitDoesNotClaimPaymentCoverageOrClosure()
+    {
+        var policyRow = Assert.Single(
+            OfficialPaymentEngineMatrixSeedRowManifest,
+            entry => string.Equals(entry.RowStatus, PolicyDeferredRow, StringComparison.Ordinal));
+        var moveUnitWindow = Assert.Single(
+            CoverageManifest,
+            entry => string.Equals(entry.ActionWindow, "MOVE_UNIT", StringComparison.Ordinal));
+        var moveUnitResidual = Assert.Single(
+            ResidualBlockerManifest,
+            entry => string.Equals(entry.Family, "MOVE_UNIT_MOVEMENT_PERMISSION_POLICY", StringComparison.Ordinal));
+        var combinedText = string.Join(
+            " ",
+            new[]
+            {
+                policyRow.RowId,
+                policyRow.Axis,
+                policyRow.RowStatus,
+                policyRow.ActionWindow,
+                policyRow.PaymentOrPolicyProfile,
+                policyRow.RepresentativeScope,
+                policyRow.PromptAnchor,
+                policyRow.CommandAnchor,
+                policyRow.AuditAnchor,
+                policyRow.RollbackExpectation,
+                policyRow.RemainingOfficialBreadth,
+                policyRow.ClosureStatus,
+                moveUnitWindow.Classification,
+                moveUnitWindow.EvidenceSummary,
+                moveUnitWindow.ClosureStatus,
+                moveUnitResidual.Classification,
+                moveUnitResidual.CurrentEvidence,
+                moveUnitResidual.MissingOfficialBreadth,
+                moveUnitResidual.RollbackExpectation,
+                moveUnitResidual.ClosureStatus
+            }.Concat(policyRow.DocAnchors)
+                .Concat(moveUnitWindow.DocAnchors)
+                .Concat(moveUnitResidual.DocAnchors));
+
+        Assert.Contains("policy-deferred-row", combinedText, StringComparison.Ordinal);
+        Assert.Contains("policy-non-resource", combinedText, StringComparison.Ordinal);
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("representative-seed", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("missing-official-row", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText.Replace("NOT READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PaymentEngineRollbackFailureRowManifestListsRequiredFamiliesExactlyOnce()
     {
         var requiredFamilies = new[]
