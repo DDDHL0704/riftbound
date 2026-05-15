@@ -1,11 +1,13 @@
 # Stage 4D Frontend Final Validation Preflight
 
-日期：2026-05-15
-结论：**BUILD FRESH-RUN PASSED / SMOKE AND FORMAL 18 NOT STARTED / PROJECT NOT READY**
+日期：2026-05-16
+结论：**BUILD AND CHROME SMOKE FRESH-RUN PASSED / FORMAL 18 NOT STARTED / PROJECT NOT READY**
 
 本文件是 A/C 侧对最终 frontend build、Chrome smoke 与 formal 18-step E2E 的 fresh-run 门槛整理。它不把历史通过记录升级为最终 READY evidence。
 
-2026-05-16 更新：A 主控已对当前代码状态执行 frontend build fresh-run。首次 `npm run build` 在 `check:event-labels` 发现 12 个后端事件 kind 缺少中文标题；本批只补 `src/Riftbound.DevUi/src/components/match/EventLog.tsx` 的 `eventKindLabels`，复跑 build 已通过。Chrome smoke 与 formal 18-step 仍未 fresh-run，不能升级为 READY evidence。
+2026-05-16 更新：A 主控已对当前代码状态执行 frontend build fresh-run。首次 `npm run build` 在 `check:event-labels` 发现 12 个后端事件 kind 缺少中文标题；本批只补 `src/Riftbound.DevUi/src/components/match/EventLog.tsx` 的 `eventKindLabels`，复跑 build 已通过。
+
+2026-05-16 更新：A 主控已对当前代码状态执行 Chrome smoke fresh-run，`npm run smoke:chrome -- --start-api` 通过并覆盖 core routes。Formal 18-step 仍未在本批 fresh-run，build + smoke 不能升级为 READY evidence。
 
 ## 1. Sources Checked
 
@@ -15,8 +17,9 @@
   - `npm run smoke:chrome`: `node scripts/chrome-smoke.mjs`
   - `npm run e2e:formal-18`: `node scripts/chrome-formal-18-e2e.mjs`
 - `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md` 记录 2026-05-13 historical pass：build、Chrome smoke、formal 18-step all passed, but explicitly not a substitute for P0/P1 closure, full-card matrix, full PaymentEngine / LayerEngine or final READY.
-- `docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md` now marks frontend build as current-code fresh pass for this batch, while Chrome smoke and formal 18-step remain historical / main-flow evidence that must be fresh-run in final code state.
+- `docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md` now marks frontend build and Chrome smoke as current-code fresh passes for this batch, while formal 18-step remains main-flow evidence that must be fresh-run in final code state.
 - `docs/CURRENT_STAGE4D_FE_EVENT_LABEL_BUILD_AUDIT.md` and `docs/CURRENT_STAGE4D_FE_EVENT_LABEL_BUILD_EVIDENCE.md` record the build-gate failure, label-only fix and final build pass.
+- `docs/CURRENT_STAGE4D_FE_CHROME_SMOKE_AUDIT.md` and `docs/CURRENT_STAGE4D_FE_CHROME_SMOKE_EVIDENCE.md` record the current-code Chrome smoke pass.
 
 ## 2. Fresh-Run Commands
 
@@ -66,10 +69,10 @@ The following evidence is useful historical context but cannot become final READ
 
 ## 5. Write-Lock Notes
 
-- C remains read-only while 4D-03AM-B may alter server `ActionPrompt` or event payload shape.
+- C remains read-only unless A opens a fresh frontend write window with exact files and validation commands. Future server `ActionPrompt` or event payload changes still require renewed C preflight before READY.
 - If final fresh-run finds frontend issues, A must open a separate C write window with exact files, commands and no-go boundaries.
 - Frontend must not locally infer Azir targets, green payment, once-per-turn state, position swap or optional armament movement. Those must come from server prompt / authoritative snapshot / event payload.
 
 ## 6. Current Verdict
 
-Frontend build fresh-run has passed for the current code state. Chrome smoke and formal 18-step have not been fresh-run in this batch, and P0/P1 plus full-card matrix remain open. Project remains **NOT READY**.
+Frontend build and Chrome smoke fresh-run have passed for the current code state. Formal 18-step has not been fresh-run in this batch, and P0/P1 plus full-card matrix remain open. Project remains **NOT READY**.

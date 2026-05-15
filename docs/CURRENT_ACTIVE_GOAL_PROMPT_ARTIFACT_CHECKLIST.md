@@ -24,14 +24,15 @@
 
 ## 2. 本次检查过的证据
 
-- `git status --short --branch`：当前 `main`，除本批待提交文件外仍保留预期的 `riftbound-dotnet.sln` 未跟踪。
-- `git log --oneline -8`：本批开始前最新提交为 `f5d5273e test: verify payment target tax matrix`，其后接 `e7f1c797`、`e610fa36`、`69f94781`、`332b621c`、`bc974545`、`bc13b0f0`、`5b76ad96`。
+- `git status --short --branch`：当前 `main`，本批开始前只保留预期的 `riftbound-dotnet.sln` 未跟踪。
+- `git log --oneline -8`：本批开始前最新提交为 `38263a6c fix: cover frontend event labels`，其后接 `f5d5273e`、`e7f1c797`、`e610fa36`、`69f94781`、`332b621c`、`bc974545`、`bc13b0f0`。
 - `docs/A_MASTER_AGENT_GOAL.md`：目标、阶段门槛、18 步 E2E、checkpoint 与 final audit 要求。
-- `docs/CURRENT_A_MASTER_CHECKPOINT.md`：最新 A-master 恢复入口，顶部已记录 4D-FE event-label build gate 与 4D-03BR-B / 4D-03BR / 4D-03BQ-B / 4D-03BQ / 4D-03BP-B / 03BP / 03BO-B / 03BO / 03BN / 03BM / 03BL-B / 03BK / 03BJ / 03BI / 03BH / 03BG / 03BF / 03BE / 03BD / 03BC。
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`：最新 A-master 恢复入口，顶部已记录 4D-FE Chrome smoke fresh-run、4D-FE event-label build gate 与 4D-03BR-B / 4D-03BR / 4D-03BQ-B / 4D-03BQ / 4D-03BP-B / 03BP / 03BO-B / 03BO / 03BN / 03BM / 03BL-B / 03BK / 03BJ / 03BI / 03BH / 03BG / 03BF / 03BE / 03BD / 03BC。
 - `docs/CURRENT_COMPLETION_AUDIT.md`：当前 completion audit 结论仍为 NOT READY。
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`：当前服务端 full official rule residual risks。
 - `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`：P0/P1 closure plan 与剩余规则域。
-- `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`：当前 4D-FE event-label build gate accepted；frontend label write scope closed；无打开的 PaymentEngine / frontend / matrix / READY write lock；server runtime、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` locked。
+- `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`：当前 4D-FE Chrome smoke fresh-run accepted、event-label build gate accepted；frontend label write scope closed；无打开的 PaymentEngine / frontend / matrix / READY write lock；server runtime、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` locked。
+- `docs/CURRENT_STAGE4D_FE_CHROME_SMOKE_AUDIT.md` 与 evidence：确认当前代码状态 `npm run smoke:chrome -- --start-api` 通过，覆盖 core routes。
 - `docs/CURRENT_STAGE4D_FE_EVENT_LABEL_BUILD_AUDIT.md` 与 evidence：确认当前代码状态 frontend build fresh-run 首次发现 12 个缺失事件中文标题，本批只补 `EventLog.tsx` 标签映射，复跑 build 通过。
 - `docs/CURRENT_STAGE4D_03BH_PAYMENT_ENGINE_MISSING_ROW_DOWNSTREAM_COVERAGE_AUDIT.md` 与 evidence：确认 4D-03BC 三个 `missing-official-row` 均有 downstream representative manifest，MOVE_UNIT 仍 policy-deferred。
 - `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`：formal 18-step、frontend build、Chrome smoke 历史通过证据；该文件明确不替代 P0/P1、full-card matrix、完整 PaymentEngine 或 LayerEngine。
@@ -77,7 +78,7 @@ backend full=4544/4544
 git diff --check=passed
 ```
 
-当前 4D-FE event-label build gate 验证：
+当前 4D-FE frontend validation 验证：
 
 ```txt
 frontend build=passed
@@ -85,7 +86,8 @@ check:event-labels=132 backend event kinds covered
 check:user-facing-text=passed
 tsc -b=passed
 vite build=passed
-Chrome smoke=not run in this batch
+Chrome smoke=passed
+Chrome smoke routes=/, /lobby, /decks, /cards, /rooms/stage3-smoke, /matches/stage3-smoke, /matches/stage3-smoke/result
 formal 18-step=not run in this batch
 ```
 
@@ -94,18 +96,18 @@ formal 18-step=not run in this batch
 | 要求 | 必需 artifact / gate | 已检查证据 | 当前状态 | 缺口 / 下一步 |
 |---|---|---|---|---|
 | 按 `docs/A_MASTER_AGENT_GOAL.md` 管理 | A-master 目标文档必须存在并作为最高级本地交付口径 | `docs/A_MASTER_AGENT_GOAL.md` 已读取；goal 文本与该文件一致 | OK / ONGOING | 后续任何 READY 判断都必须回到本 checklist 与 final audit |
-| A 维护 checkpoint | `docs/CURRENT_A_MASTER_CHECKPOINT.md` 最新、可恢复、含当前结论 | 文件顶部记录 4D-FE current-code frontend build pass 与 4D-03BR-B accepted、focused 107/107、adjacent 665/665、backend full 4544/4544、项目 NOT READY | OK / ONGOING | 后续每批继续保持 checkpoint 同步 |
-| A 维护任务拆分 / 子 agent 分工 | A-master agent pool、写锁、下一步计划 | `A_MASTER_AGENT_GOAL.md` §7/§8；`CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已记录 4D-FE label write scope closed、4D-03BR-B focused-test write lock closed，当前无 B worker / PaymentEngine write lock | ONGOING | 后续 frontend smoke / matrix / remaining P0/P1 仍需单独写锁 |
+| A 维护 checkpoint | `docs/CURRENT_A_MASTER_CHECKPOINT.md` 最新、可恢复、含当前结论 | 文件顶部记录 4D-FE Chrome smoke pass、current-code frontend build pass 与 4D-03BR-B accepted、focused 107/107、adjacent 665/665、backend full 4544/4544、项目 NOT READY | OK / ONGOING | 后续每批继续保持 checkpoint 同步 |
+| A 维护任务拆分 / 子 agent 分工 | A-master agent pool、写锁、下一步计划 | `A_MASTER_AGENT_GOAL.md` §7/§8；`CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已记录 4D-FE smoke fresh-run accepted、label write scope closed、4D-03BR-B focused-test write lock closed，当前无 B worker / PaymentEngine write lock | ONGOING | 后续 formal 18 / matrix / remaining P0/P1 仍需单独写锁 |
 | A 维护阻断清单 | P0/P1 closure plan 与 completion audit | `CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md` 与 `CURRENT_COMPLETION_AUDIT.md` 仍为 NOT READY | NOT MET | P0/P1 未清零 |
 | A 控制写入范围 | 不并行改核心模块；当前批次只做 frontend build-gate label map + docs | 4D-FE 只改 `EventLog.tsx` 的事件标题映射与 audit / evidence / A-master docs；server runtime、protocol、prompt submission、matrix、READY 仍锁定 | OK FOR THIS SLICE | 后续 runtime / frontend behavior / matrix 改动必须按 dispatch 文档独占 owner |
 | 默认不写功能代码 | A 不主动承接功能实现 | A 本批只做当前 build gate 暴露的最小玩家可见标签映射修复；未改规则、协议、动作提交或前端本地裁决 | OK FOR THIS SLICE | 不代表后续功能缺口已解决 |
 | 服务端唯一规则权威 | 服务端输出 authoritative snapshot、prompt、事件、规则裁决 | `CURRENT_SERVER_RULE_AUDIT.md` 与 Stage 4D docs 证明大量 representative server-authority paths | PARTIAL | full official battle / PaymentEngine / LayerEngine / card effects 仍未闭合 |
-| 前端只展示 authoritative snapshot | 前端不得持有隐藏信息或本地裁决规则 | `CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md` 断言页面不暴露 raw hidden-info 文本；frontend plan 多处记录不本地推断 | PARTIAL | 最终前端 contract audit 与 fresh Chrome smoke 仍需在 READY 前复跑 |
+| 前端只展示 authoritative snapshot | 前端不得持有隐藏信息或本地裁决规则 | `CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md` 断言页面不暴露 raw hidden-info 文本；frontend plan 多处记录不本地推断；4D-FE smoke fresh-run 已过 | PARTIAL | 最终前端 contract audit、formal 18 与后续最终状态 smoke rerun 仍需在 READY 前处理 |
 | 前端只提交 `ActionPrompt` / `LegalAction` | UI 操作必须来自服务端 prompt | Stage 4D docs 多处记录 ActionPrompt / GameHub representative coverage | PARTIAL | 仍需最终全流程 frontend contract audit，不可用 representative coverage 代理 |
 | P0/P1 清零 | completion audit 中所有 P0/P1 为 resolved | closure plan / server audit 明确仍 open / partially resolved | NOT MET | 继续 P0-004、P0-005、LayerEngine、关键词、replay/property、full-card evidence |
 | 后端 full test | `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` | 4D-03BR-B 记录 backend full 4544/4544 通过 | PASS AS LATEST CODE EVIDENCE | 只证明当前代码测试绿；不证明 P0/P1 全部满足 |
 | 前端 build / typecheck / lint | `source ../../scripts/dev-env.sh && npm run build` | 4D-FE event-label build gate 当前代码状态 fresh-run 通过；package script 包含 checks、`tsc -b`、Vite build | PASS AS LATEST FRONTEND BUILD EVIDENCE | READY 前若后续代码继续变动仍需在最终代码状态 fresh run |
-| Chrome smoke | `source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` | formal 18 evidence 记录 smoke 通过 | HISTORICAL PASS | READY 前需要结合最终前端状态 fresh run |
+| Chrome smoke | `source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` | 4D-FE Chrome smoke fresh-run 当前代码状态通过，覆盖 core routes | PASS AS LATEST CHROME SMOKE EVIDENCE | READY 前若后续代码继续变动仍需在最终代码状态 fresh run |
 | 正式 18 步 E2E | `npm run e2e:formal-18 -- --start-api`，覆盖 A_MASTER §11 1-18 | `CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md` 记录房间 `formal-18-1778623926434-15` 通过 | PASS FOR MAIN FLOW | 该文件明确不替代 P0/P1、full-card matrix、完整 PaymentEngine / LayerEngine |
 | 卡牌覆盖矩阵完成 | 1009 card entries / 811 FUs 都有 official text、effect/oracle、FAQ、tests、full-official status | matrix skeleton 有 1009 / 811；实测 `fullOfficialTrue=0` | NOT MET | 仍不得声明 full-card official coverage |
 | final completion audit READY | `docs/CURRENT_COMPLETION_AUDIT.md` 最终输出 READY | 当前文件结论 NOT READY | NOT MET | 禁止 `update_goal complete` |
@@ -115,12 +117,12 @@ formal 18-step=not run in this batch
 | A_MASTER 项 | 要求 | 当前证据 | 状态 |
 |---|---|---|---|
 | §2.1 服务端规则权威 | 服务端统一裁决规则 | 代表性 server-authority 证据大量存在 | PARTIAL，full official 未闭合 |
-| §2.2 前端产品级稳定精美 | 前端页面稳定可用 | formal 18 / smoke 历史通过 | PARTIAL，最终 fresh smoke 未做 |
+| §2.2 前端产品级稳定精美 | 前端页面稳定可用 | current-code smoke 通过，formal 18 历史通过 | PARTIAL，最终 formal 18 fresh-run 未做 |
 | §2.3 本地 / 联机 1v1 | 房间、双玩家、开局、对局 | formal 18 通过双浏览器等效流程 | PASS FOR MAIN FLOW |
 | §2.4 可长期维护 | 文档、测试、矩阵、写锁 | checkpoint / closure plan / audit docs 持续维护 | PARTIAL |
 | §2.5 P0/P1 清零 | 无阻断 | closure plan 仍列 P0/P1 | NOT MET |
 | §2.6 后端 full test | full test 绿 | 4D-03BR-B 4544/4544 | PASS BUT NOT SUFFICIENT |
-| §2.7 Chrome smoke | smoke 绿 | formal evidence 记录通过 | HISTORICAL PASS |
+| §2.7 Chrome smoke | smoke 绿 | 4D-FE current-code smoke pass | PASS AS LATEST CHROME SMOKE EVIDENCE |
 | §2.8 18 步 E2E | 正式 18 steps 通过 | formal evidence 记录通过 | PASS FOR MAIN FLOW |
 | §2.9 卡牌覆盖矩阵 | 矩阵完成 | 811/811 `fullOfficial=false` | NOT MET |
 | §2.10 completion audit READY | READY 后才能 complete | current audit NOT READY | NOT MET |
@@ -135,7 +137,7 @@ formal 18-step=not run in this batch
 | §8 写入边界 | B/C/D/E 各自写入范围，不并行改核心模块 | dispatch 文档已明确 4D-FE label write scope closed、无打开 PaymentEngine / frontend / matrix / READY write lock | OK FOR THIS SLICE / ONGOING |
 | §9 P0 / P1 定义 | 根据 P0/P1 标准判断 READY | closure plan / server audit 仍有 open risks | NOT MET |
 | §10 阶段 0-4 | checkpoint、协议、前端、对战桌面、卡牌覆盖 | Stage 0-3 有大量证据；Stage 4 full-card 未完成 | PARTIAL |
-| §10 阶段 5 | full test、build、smoke、18-step、hidden info、P0/P1、matrix、READY | full test 与 current-code frontend build 有证据；smoke / 18-step 仍是 historical evidence；P0/P1 与 matrix 未满足 | NOT MET |
+| §10 阶段 5 | full test、build、smoke、18-step、hidden info、P0/P1、matrix、READY | full test、current-code frontend build 与 current-code smoke 有证据；18-step 仍是 historical evidence；P0/P1 与 matrix 未满足 | NOT MET |
 | §11 18 步 1-18 | 双浏览器、房间、卡组、开局、出牌、移动、窗口、让过、得分、胜负 | formal evidence table 已逐步映射 1-18 | PASS FOR MAIN FLOW |
 | §12 checkpoint 1-14 | 时间、阶段、分支、agent id、任务、已完成/未完成、P0/P1/P2、测试、合并、下一步、禁改文件 | `CURRENT_A_MASTER_CHECKPOINT.md` 是恢复入口；本 checklist 与 dispatch / writelock doc 已挂回该文件顶部 | PARTIAL / ONGOING |
 | §13 final audit 1-14 | 修改 / 新增文件、规则、前端、契约、矩阵、隐藏信息、测试、build、smoke、E2E、P0/P1、P2、READY | `CURRENT_COMPLETION_AUDIT.md` 仍是 NOT READY current audit | NOT MET |
@@ -148,13 +150,13 @@ formal 18-step=not run in this batch
 | 1. 修改文件列表 | 最新批次修改 `EventLog.tsx`、A-master / frontend / completion / dispatch / checklist docs | DONE FOR THIS SLICE / NOT FINAL |
 | 2. 新增文件列表 | 新增 `docs/CURRENT_STAGE4D_FE_EVENT_LABEL_BUILD_AUDIT.md` 与 `docs/CURRENT_STAGE4D_FE_EVENT_LABEL_BUILD_EVIDENCE.md` | DONE FOR THIS SLICE / NOT FINAL |
 | 3. 服务端规则补齐项 | Stage 4D docs 记录大量 focused slices | PARTIAL |
-| 4. 前端页面完成项 | frontend rebuild plan 与 formal smoke 有历史证据 | PARTIAL |
+| 4. 前端页面完成项 | frontend rebuild plan 与 current-code Chrome smoke 有证据；formal 18 仍需 fresh-run | PARTIAL |
 | 5. 接口契约说明 | ActionPrompt / LegalAction / snapshot 证据分散在 server audit 与 frontend plan | PARTIAL |
 | 6. 卡牌覆盖矩阵摘要 | 1009 entries / 811 FUs，0 full-official | NOT MET |
 | 7. 隐藏信息保护检查结果 | formal 18 页面文本断言、server audit P1-004 代表性 redaction/property evidence | PARTIAL |
 | 8. 后端 full test 命令和结果 | 4D-03BR-B `dotnet test` 4544/4544 | PASS AS LATEST CODE EVIDENCE |
 | 9. 前端 build / typecheck / lint | 4D-FE current-code `npm run build` pass | PASS AS LATEST FRONTEND BUILD EVIDENCE |
-| 10. Chrome smoke | historical `npm run smoke:chrome -- --start-api` pass | HISTORICAL PASS |
+| 10. Chrome smoke | 4D-FE current-code `npm run smoke:chrome -- --start-api` pass | PASS AS LATEST CHROME SMOKE EVIDENCE |
 | 11. 18 步 E2E | historical formal 18 pass | PASS FOR MAIN FLOW |
 | 12. P0/P1 清零证明 | closure plan / server audit show open P0/P1 | NOT MET |
 | 13. 剩余 P2 项 | 不能只剩 P2，因为仍有 P0/P1 | NOT MET |
@@ -164,6 +166,7 @@ formal 18-step=not run in this batch
 
 - `dotnet test` 4544/4544 通过不能替代 P0/P1 清零。
 - 4D-FE `npm run build` 通过不能替代 Chrome smoke、formal 18-step、P0/P1 清零、full-card matrix 或 READY；它只证明当前 DevUi event labels / user-facing text / TypeScript / Vite build gate 通过。
+- 4D-FE `npm run smoke:chrome -- --start-api` 通过不能替代 formal 18-step、P0/P1 清零、full-card matrix 或 READY；它只证明当前 DevUi core routes 的 smoke gate 通过。
 - 4D-03BR-B 48-row target / tax activated ability matrix verifier 不能替代完整 target-bearing activated ability family、完整 target-tax / Spellshield / typed / experience breadth、full official PaymentEngine 或 full-card matrix closure；它只证明当前 8 个 activated ability entries x 6 target/payment dimensions 的 audit contract 可执行。
 - 4D-03BR target / tax activated ability matrix handoff / baseline 不能替代完整 target-bearing activated ability family、完整 target-tax / Spellshield / typed / experience breadth、full official PaymentEngine 或 full-card matrix closure；它只证明下一步 48-row source-target-payment-audit-rollback verifier boundary 与当前 baseline 已固定，并已被 4D-03BR-B verifier supersede。
 - 4D-03BQ-B 36-row resource skill all-window verifier 不能替代完整 `[A]` / `[C]` resource skill family、generated-resource cross-window official closure、full official PaymentEngine 或 full-card matrix closure；它只证明当前 6 个 PaymentEngine payment surfaces x 6 resource skill families 的 audit contract 可执行。
@@ -194,4 +197,4 @@ formal 18-step=not run in this batch
 
 Active goal **未完成**。不得调用 `update_goal complete`。
 
-当前最新 A-side 状态是 4D-03BR-B PaymentEngine target / tax activated ability matrix verifier accepted。P0/P1 清零、full official PaymentEngine matrix、完整 target-bearing activated ability official family、完整 resource skill official family、完整 keyword payment branch parity、完整 card matrix alignment official closure、完整 cross-window generated-resource official closure、完整 rollback failure official closure、完整 LayerEngine、P1 keyword breadth、frontend final fresh-run、Chrome smoke fresh-run、formal 18 fresh-run、full-card matrix 与 final completion audit READY 仍未闭合。
+当前最新 A-side 状态是 4D-FE Chrome smoke fresh-run accepted。P0/P1 清零、full official PaymentEngine matrix、完整 target-bearing activated ability official family、完整 resource skill official family、完整 keyword payment branch parity、完整 card matrix alignment official closure、完整 cross-window generated-resource official closure、完整 rollback failure official closure、完整 LayerEngine、P1 keyword breadth、formal 18 fresh-run、full-card matrix 与 final completion audit READY 仍未闭合。
