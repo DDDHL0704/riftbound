@@ -17,6 +17,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string MissingOfficialRow = "missing-official-row";
     private const string PolicyDeferredRow = "policy-deferred-row";
     private const string RollbackFailureRepresentative = "rollback-failure-representative";
+    private const string CrossWindowRepresentative = "cross-window-representative";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
     [
@@ -1048,6 +1049,136 @@ public sealed class PaymentEngineCoverageAuditTests
             ])
     ];
 
+    private static readonly PaymentEngineCrossWindowGenerationConsumptionRowCoverageEntry[] CrossWindowGenerationConsumptionRowManifest =
+    [
+        new(
+            "RESOURCE_SKILL_GENERATION_WINDOWS",
+            CrossWindowRepresentative,
+            "ROW_CROSS_WINDOW_GENERATION_CONSUMPTION_MISSING",
+            "ACTIVATE_ABILITY resource skill generation in open-main, reaction, spell-duel focus and equipment-token representatives",
+            "PAY_COST / PLAY_CARD / ACTIVATE_ABILITY / ASSEMBLE_EQUIPMENT representative consumption windows",
+            "Malzahar, Sigil, conversion equipment and Gold token resource skills currently create selected payment-only generated resources.",
+            "ResourceSkillCoverageManifest prompt coverage for legal source, timing, generated resource amount and payment-only metadata",
+            "MalzaharResourceSkillTests, resource conversion tests and Gold token command coverage for generated resource creation",
+            "ABILITY_ACTIVATED / POWER_GAINED / TEMPORARY_PAYMENT_RESOURCE_CREATED audit assertions for generated resource creation",
+            "Generated resources must carry payment-only lifetime metadata, and rejected misuse must preserve state with no-mutation semantics.",
+            "Full official generation windows, every [A] / [C] resource skill family and all generated resource variants remain open.",
+            "Cross-window representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BF_PAYMENT_ENGINE_CROSS_WINDOW_GENERATION_CONSUMPTION_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AZ_PAYMENT_ENGINE_RESOURCE_SKILL_RESIDUAL_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_AUDIT.md"
+            ]),
+        new(
+            "INLINE_PAYMENT_CONSUMPTION_WINDOWS",
+            CrossWindowRepresentative,
+            "ROW_CROSS_WINDOW_GENERATION_CONSUMPTION_MISSING",
+            "generated payment-only resources from resource skills and temporary ledgers",
+            "PLAY_CARD / ACTIVATE_ABILITY / ASSEMBLE_EQUIPMENT inline payment windows",
+            "4D-03K representatives consume generated or temporary payment resources in selected inline windows.",
+            "PaymentEngineUnificationTests prompt coverage for inline temporary resource choices across play, activate and assemble windows",
+            "PaymentEngineUnificationTests command coverage for inline generated resource spend and cleanup",
+            "COST_PAID / TEMPORARY_PAYMENT_RESOURCE_SPENT / TEMPORARY_PAYMENT_RESOURCE_CLEARED audit assertions for inline consumption",
+            "Inline generated resource spend must be single-use, payment-only, same-transaction safe and rejected misuse must remain no-mutation.",
+            "Full official inline consumption across every legal payment window, source mix and modifier branch remain open.",
+            "Cross-window representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BF_PAYMENT_ENGINE_CROSS_WINDOW_GENERATION_CONSUMPTION_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03K_PAYMENT_ENGINE_TEMPORARY_RESOURCE_INLINE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BA_PAYMENT_ENGINE_OFFICIAL_MATRIX_RESIDUAL_MANIFEST_AUDIT.md"
+            ]),
+        new(
+            "PENDING_PAYMENT_REUSE_AND_CLOSE",
+            CrossWindowRepresentative,
+            "ROW_CROSS_WINDOW_GENERATION_CONSUMPTION_MISSING",
+            "pending PAY_COST and TRIGGER_PAYMENT windows that quote generated or temporary payment resources",
+            "PAY_COST / TRIGGER_PAYMENT pending payment consumption or decline windows",
+            "Pending PAY_COST and trigger payment representatives quote, spend, clear or decline selected generated payment resources.",
+            "PaymentEngineUnificationTests and TriggerPaymentTests prompt coverage for pending payment resource metadata",
+            "PaymentEngineUnificationTests and TriggerPaymentTests command coverage for accepted PayCost, declined trigger payment and stale pending rejection",
+            "COST_PAID / TRIGGER_PAYMENT_DECLINED / PAYMENT_WINDOW_CLOSED / TEMPORARY_PAYMENT_RESOURCE_CLEARED audit assertions",
+            "Pending payment close, decline, stale prompt and duplicate command paths must clear or preserve ledgers with no-mutation semantics.",
+            "Full official pending-payment reuse, multi-trigger ordering, close timing and generated resource carryover combinations remain open.",
+            "Cross-window representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BF_PAYMENT_ENGINE_CROSS_WINDOW_GENERATION_CONSUMPTION_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AE_PAYMENT_ENGINE_PENDING_TEMP_RESOURCE_PROMPT_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_AUDIT.md"
+            ]),
+        new(
+            "TYPED_GENERIC_CONVERSION_AND_MATCHING",
+            CrossWindowRepresentative,
+            "ROW_CROSS_WINDOW_GENERATION_CONSUMPTION_MISSING",
+            "typed Sigil, conversion equipment and Gold token generated resources",
+            "typed, generic and conversion payment consumption windows",
+            "SFD / OGN Sigils, resource conversion equipment and Gold token representatives prove selected typed and generic generated resource paths.",
+            "Sigil and conversion equipment prompt coverage for typed, generic and conversion generated resource choices",
+            "Sigil, conversion equipment and Gold token command coverage for generated resource creation and matching legal spend",
+            "POWER_GAINED / TEMPORARY_PAYMENT_RESOURCE_CREATED / COST_PAID audit assertions for typed and generic generated resources",
+            "Wrong trait, wrong conversion direction, unnecessary generated source or duplicate spend must be rejected with no-mutation semantics.",
+            "Full official typed/generic matching, conversion chaining, source mixing and trait interaction combinations remain open.",
+            "Cross-window representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BF_PAYMENT_ENGINE_CROSS_WINDOW_GENERATION_CONSUMPTION_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03T_PAYMENT_ENGINE_OGN_SIGIL_TYPED_RESOURCE_FAMILY_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03U_PAYMENT_ENGINE_RESOURCE_CONVERSION_EQUIPMENT_AUDIT.md"
+            ]),
+        new(
+            "EXPIRY_CLEANUP_AND_TURN_BOUNDARY",
+            CrossWindowRepresentative,
+            "ROW_CROSS_WINDOW_GENERATION_CONSUMPTION_MISSING",
+            "generated and temporary payment resource ledgers across payment close, stack resolution and turn cleanup",
+            "post-payment cleanup, end-turn cleanup and rejected stale consumption windows",
+            "Current representatives clear temporary ledgers after spend, payment window close or turn/resource cleanup.",
+            "PaymentEngineUnificationTests prompt coverage before cleanup and after generated resource candidates expire",
+            "PaymentEngineUnificationTests command coverage for spend cleanup, payment close cleanup and expired resource rejection",
+            "TEMPORARY_PAYMENT_RESOURCE_CLEARED / PAYMENT_WINDOW_CLOSED / COST_PAID absence audit assertions for expired resource paths",
+            "Expiry, cleanup, stale resource id and turn-boundary reuse must not leak spendable state and must reject stale consumption with no-mutation semantics.",
+            "Full official cleanup ordering, end-turn expiry, stack-resolution expiry and cross-window cleanup combinations remain open.",
+            "Cross-window representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BF_PAYMENT_ENGINE_CROSS_WINDOW_GENERATION_CONSUMPTION_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03J_PAYMENT_ENGINE_RESOURCE_SKILL_LIFECYCLE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AE_PAYMENT_ENGINE_PENDING_TEMP_RESOURCE_PROMPT_AUDIT.md"
+            ]),
+        new(
+            "PAYMENT_ONLY_RESTRICTIONS_AND_WRONG_WINDOW",
+            CrossWindowRepresentative,
+            "ROW_CROSS_WINDOW_GENERATION_CONSUMPTION_MISSING",
+            "payment-only generated resources and ordinary rune pool boundaries",
+            "ordinary mana/power use, wrong payment window and unsupported command paths",
+            "Representative tests distinguish payment-only generated resources from ordinary rune pool resources.",
+            "ResourceSkillCoverageManifest and action-window manifests prompt coverage for generated payment-only restrictions",
+            "PaymentEngineUnificationTests command coverage for payment-only misuse, wrong window and unsupported generated resource rejection",
+            "COST_PAID absence and no domain success audit assertions for rejected payment-only restriction bypass attempts",
+            "Payment-only restriction, wrong-window consumption, ordinary-pool misuse and unsupported generated source rejection must be no-mutation.",
+            "Full official restriction matrix across every generated source, payment window and ordinary resource interaction rows remain open.",
+            "Cross-window representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BF_PAYMENT_ENGINE_CROSS_WINDOW_GENERATION_CONSUMPTION_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AZ_PAYMENT_ENGINE_RESOURCE_SKILL_RESIDUAL_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BA_PAYMENT_ENGINE_OFFICIAL_MATRIX_RESIDUAL_MANIFEST_AUDIT.md"
+            ]),
+        new(
+            "DUPLICATE_SPEND_AND_AUDIT_CORRELATION",
+            CrossWindowRepresentative,
+            "ROW_CROSS_WINDOW_GENERATION_CONSUMPTION_MISSING",
+            "generated resource creation ids, spend ids and cleanup ids across windows",
+            "duplicate spend, stale spend and audit-correlation verification windows",
+            "Current representative evidence asserts selected creation, spend and cleanup events, but no full official id-correlation matrix exists.",
+            "PaymentEngine coverage manifests prompt coverage for generated resource id candidates before command submit",
+            "PaymentEngineUnificationTests command coverage for duplicate spend, stale generated resource id and invalid id rejection",
+            "TEMPORARY_PAYMENT_RESOURCE_CREATED / SPENT / CLEARED and COST_PAID audit correlation assertions for representative rows",
+            "Duplicate spend, stale id and mismatched audit correlation must reject with no-mutation semantics and without orphaned ledger entries.",
+            "Full official id correlation, audit ordering, duplicate spend and stale id combinations remain open.",
+            "Cross-window representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BF_PAYMENT_ENGINE_CROSS_WINDOW_GENERATION_CONSUMPTION_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BE_PAYMENT_ENGINE_ROLLBACK_FAILURE_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BA_PAYMENT_ENGINE_OFFICIAL_MATRIX_RESIDUAL_MANIFEST_AUDIT.md"
+            ])
+    ];
+
     private static readonly PaymentEngineLegendBattlefieldTriggerResourceActionCoverageEntry[] LegendBattlefieldTriggerResourceActionManifest =
     [
         new(
@@ -1841,6 +1972,146 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineCrossWindowGenerationConsumptionManifestListsRequiredFamiliesExactlyOnce()
+    {
+        var requiredFamilies = new[]
+        {
+            "RESOURCE_SKILL_GENERATION_WINDOWS",
+            "INLINE_PAYMENT_CONSUMPTION_WINDOWS",
+            "PENDING_PAYMENT_REUSE_AND_CLOSE",
+            "TYPED_GENERIC_CONVERSION_AND_MATCHING",
+            "EXPIRY_CLEANUP_AND_TURN_BOUNDARY",
+            "PAYMENT_ONLY_RESTRICTIONS_AND_WRONG_WINDOW",
+            "DUPLICATE_SPEND_AND_AUDIT_CORRELATION"
+        };
+
+        Assert.Equal(
+            requiredFamilies.Order(StringComparer.Ordinal),
+            CrossWindowGenerationConsumptionRowManifest.Select(entry => entry.Family).Order(StringComparer.Ordinal));
+        Assert.Empty(CrossWindowGenerationConsumptionRowManifest
+            .GroupBy(entry => entry.Family, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key));
+    }
+
+    [Fact]
+    public void PaymentEngineCrossWindowGenerationConsumptionManifestRequiresPromptCommandAuditLifetimeAndDocAnchors()
+    {
+        Assert.All(CrossWindowGenerationConsumptionRowManifest, entry =>
+        {
+            Assert.Equal(CrossWindowRepresentative, entry.Classification);
+            Assert.Equal("ROW_CROSS_WINDOW_GENERATION_CONSUMPTION_MISSING", entry.OfficialMatrixRowId);
+            Assert.False(string.IsNullOrWhiteSpace(entry.GenerationScope));
+            Assert.False(string.IsNullOrWhiteSpace(entry.ConsumptionScope));
+            Assert.False(string.IsNullOrWhiteSpace(entry.RepresentativeSurface));
+            Assert.Contains("prompt", entry.PromptAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("command", entry.CommandAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("audit", entry.AuditAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("no-mutation", entry.LifetimeAndRestrictionAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("remain open", entry.RemainingOfficialBreadth, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("NOT READY", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.NotEmpty(entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineCrossWindowGenerationConsumptionRowsStayLinkedToOfficialMatrixMissingRow()
+    {
+        var missingRow = Assert.Single(
+            OfficialPaymentEngineMatrixSeedRowManifest,
+            entry => string.Equals(entry.RowId, "ROW_CROSS_WINDOW_GENERATION_CONSUMPTION_MISSING", StringComparison.Ordinal));
+        var residualAxis = Assert.Single(
+            OfficialPaymentEngineMatrixResidualManifest,
+            entry => string.Equals(entry.Axis, "CROSS_WINDOW_GENERATION_CONSUMPTION", StringComparison.Ordinal));
+
+        Assert.Equal(MissingOfficialRow, missingRow.RowStatus);
+        Assert.Equal(RemainingOfficialGap, residualAxis.Classification);
+        Assert.Equal(missingRow.RowId, CrossWindowGenerationConsumptionRowManifest.Select(entry => entry.OfficialMatrixRowId).Distinct(StringComparer.Ordinal).Single());
+        Assert.All(CrossWindowGenerationConsumptionRowManifest, entry => Assert.Contains("Cross-window representative only", entry.ClosureStatus, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void PaymentEngineCrossWindowGenerationConsumptionRowsKeepLifecycleDimensionsExplicit()
+    {
+        var combinedText = string.Join(
+            " ",
+            CrossWindowGenerationConsumptionRowManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.Family,
+                    entry.GenerationScope,
+                    entry.ConsumptionScope,
+                    entry.RepresentativeSurface,
+                    entry.PromptAnchor,
+                    entry.CommandAnchor,
+                    entry.AuditAnchor,
+                    entry.LifetimeAndRestrictionAnchor,
+                    entry.RemainingOfficialBreadth
+                }.Concat(entry.DocAnchors)));
+
+        foreach (var requiredPhrase in new[]
+        {
+            "generation",
+            "creation",
+            "consumption",
+            "payment-only",
+            "restriction",
+            "expiry",
+            "cleanup",
+            "typed",
+            "generic",
+            "pending",
+            "duplicate",
+            "cross-window",
+            "ledger",
+            "no-mutation"
+        })
+        {
+            Assert.Contains(requiredPhrase, combinedText, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    [Fact]
+    public void PaymentEngineCrossWindowGenerationConsumptionRowsDoNotClaimP0005Closure()
+    {
+        var combinedText = string.Join(
+            " ",
+            CrossWindowGenerationConsumptionRowManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.Family,
+                    entry.Classification,
+                    entry.OfficialMatrixRowId,
+                    entry.GenerationScope,
+                    entry.ConsumptionScope,
+                    entry.RepresentativeSurface,
+                    entry.PromptAnchor,
+                    entry.CommandAnchor,
+                    entry.AuditAnchor,
+                    entry.LifetimeAndRestrictionAnchor,
+                    entry.RemainingOfficialBreadth,
+                    entry.ClosureStatus
+                }.Concat(entry.DocAnchors)));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PaymentEngineLegendBattlefieldTriggerResourceActionManifestListsRequiredWindowsExactlyOnce()
     {
         var requiredWindows = new[]
@@ -2570,6 +2841,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(OfficialPaymentEngineMatrixResidualManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(OfficialPaymentEngineMatrixSeedRowManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(RollbackFailureRowManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(CrossWindowGenerationConsumptionRowManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(LegendBattlefieldTriggerResourceActionManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(KeywordPaymentBranchManifest.SelectMany(entry => entry.DocAnchors));
     }
@@ -2636,6 +2908,21 @@ public sealed class PaymentEngineCoverageAuditTests
         string CommandAnchor,
         string AuditAnchor,
         string NoMutationAnchor,
+        string RemainingOfficialBreadth,
+        string ClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
+    private sealed record PaymentEngineCrossWindowGenerationConsumptionRowCoverageEntry(
+        string Family,
+        string Classification,
+        string OfficialMatrixRowId,
+        string GenerationScope,
+        string ConsumptionScope,
+        string RepresentativeSurface,
+        string PromptAnchor,
+        string CommandAnchor,
+        string AuditAnchor,
+        string LifetimeAndRestrictionAnchor,
         string RemainingOfficialBreadth,
         string ClosureStatus,
         IReadOnlyList<string> DocAnchors);
