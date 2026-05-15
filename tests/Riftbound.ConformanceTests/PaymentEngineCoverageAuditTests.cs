@@ -2120,6 +2120,186 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineOfficialMatrixRepresentativeSeedRowsAllHaveUpstreamManifestAnchors()
+    {
+        var representativeRows = OfficialPaymentEngineMatrixSeedRowManifest
+            .Where(entry => string.Equals(entry.RowStatus, RepresentativeSeed, StringComparison.Ordinal))
+            .ToDictionary(entry => entry.RowId, StringComparer.Ordinal);
+        var upstreamCoverage = new[]
+        {
+            new
+            {
+                RowId = "ROW_ACTION_WINDOWS_PLAY_CARD_TYPED_RESOURCE_SEED",
+                Axis = "ACTION_WINDOWS",
+                ExpectedAuditDocs = new[]
+                {
+                    "docs/CURRENT_STAGE4D_03AH_PAYMENT_ENGINE_ACTION_WINDOW_COVERAGE_AUDIT.md",
+                    "docs/CURRENT_STAGE4D_03AG_PAYMENT_ENGINE_PLAY_CARD_TYPED_RESOURCE_PROMPT_AUDIT.md"
+                }
+            },
+            new
+            {
+                RowId = "ROW_PAYMENT_SOURCES_PAY_COST_TEMPORARY_SEED",
+                Axis = "PAYMENT_SOURCES",
+                ExpectedAuditDocs = new[]
+                {
+                    "docs/CURRENT_STAGE4D_03F_PAYMENT_ENGINE_PAY_COST_RESOURCE_AUDIT.md",
+                    "docs/CURRENT_STAGE4D_03AE_PAYMENT_ENGINE_PENDING_TEMP_RESOURCE_PROMPT_AUDIT.md"
+                }
+            },
+            new
+            {
+                RowId = "ROW_RESOURCE_SKILLS_MALZAHAR_TARGET_AS_COST_SEED",
+                Axis = "RESOURCE_SKILLS",
+                ExpectedAuditDocs = new[]
+                {
+                    "docs/CURRENT_STAGE4D_03AZ_PAYMENT_ENGINE_RESOURCE_SKILL_RESIDUAL_MANIFEST_AUDIT.md",
+                    "docs/CURRENT_STAGE4D_03I_PAYMENT_ENGINE_RESOURCE_SKILL_AUDIT.md"
+                }
+            },
+            new
+            {
+                RowId = "ROW_TARGET_TAXES_XERATH_SPELLSHIELD_SEED",
+                Axis = "TARGET_TAXES",
+                ExpectedAuditDocs = new[]
+                {
+                    "docs/CURRENT_STAGE4D_03AW_PAYMENT_ENGINE_TARGET_COLORED_ACTIVATED_ABILITY_MANIFEST_AUDIT.md",
+                    "docs/CURRENT_STAGE4D_03AK_PAYMENT_ENGINE_SPELLSHIELD_TAX_COVERAGE_AUDIT.md"
+                }
+            },
+            new
+            {
+                RowId = "ROW_KEYWORD_BRANCHES_HASTE_READY_SEED",
+                Axis = "KEYWORD_BRANCHES",
+                ExpectedAuditDocs = new[]
+                {
+                    "docs/CURRENT_STAGE4D_03AY_PAYMENT_ENGINE_KEYWORD_PAYMENT_BRANCH_MANIFEST_AUDIT.md",
+                    "docs/CURRENT_STAGE4D_03AQ_PAYMENT_ENGINE_HASTE_READY_COVERAGE_VERIFIER_AUDIT.md"
+                }
+            },
+            new
+            {
+                RowId = "ROW_COST_MODIFIERS_BATTLEFIELD_EQUIPMENT_SEED",
+                Axis = "COST_MODIFIERS",
+                ExpectedAuditDocs = new[]
+                {
+                    "docs/CURRENT_STAGE4D_03AY_PAYMENT_ENGINE_KEYWORD_PAYMENT_BRANCH_MANIFEST_AUDIT.md",
+                    "docs/CURRENT_STAGE4D_03C_PAYMENT_ENGINE_PLAY_OPTIONAL_AUDIT.md"
+                }
+            },
+            new
+            {
+                RowId = "ROW_OPTIONAL_EXTRA_ALTERNATIVE_AZIR_REATTACH_SEED",
+                Axis = "OPTIONAL_EXTRA_ALTERNATIVE_COSTS",
+                ExpectedAuditDocs = new[]
+                {
+                    "docs/CURRENT_STAGE4D_03AS_AZIR_OPTIONAL_ARMAMENT_REATTACH_AUDIT.md",
+                    "docs/CURRENT_STAGE4D_03AY_PAYMENT_ENGINE_KEYWORD_PAYMENT_BRANCH_MANIFEST_AUDIT.md"
+                }
+            },
+            new
+            {
+                RowId = "ROW_REPLACEMENT_PREVENTION_BATTLEFIELD_HELD_SEED",
+                Axis = "REPLACEMENT_PREVENTION",
+                ExpectedAuditDocs = new[]
+                {
+                    "docs/CURRENT_STAGE4D_03AX_PAYMENT_ENGINE_LEGEND_BATTLEFIELD_TRIGGER_RESOURCE_ACTION_MANIFEST_AUDIT.md",
+                    "docs/CURRENT_STAGE4D_03G_PAYMENT_ENGINE_BATTLEFIELD_HELD_RESOURCE_AUDIT.md"
+                }
+            },
+            new
+            {
+                RowId = "ROW_RESOURCE_ACTIONS_TRIGGER_PAYMENT_SEED",
+                Axis = "RESOURCE_ACTIONS",
+                ExpectedAuditDocs = new[]
+                {
+                    "docs/CURRENT_STAGE4D_03AX_PAYMENT_ENGINE_LEGEND_BATTLEFIELD_TRIGGER_RESOURCE_ACTION_MANIFEST_AUDIT.md",
+                    "docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_AUDIT.md"
+                }
+            }
+        };
+
+        Assert.Equal(upstreamCoverage.Length, representativeRows.Count);
+        Assert.Equal(
+            upstreamCoverage.Select(coverage => coverage.RowId).Order(StringComparer.Ordinal),
+            representativeRows.Keys.Order(StringComparer.Ordinal));
+        Assert.All(upstreamCoverage, coverage =>
+        {
+            var row = representativeRows[coverage.RowId];
+
+            Assert.Equal(coverage.Axis, row.Axis);
+            Assert.All(coverage.ExpectedAuditDocs, expectedDoc => Assert.Contains(expectedDoc, row.DocAnchors));
+            Assert.DoesNotContain(
+                row.DocAnchors,
+                anchor => string.Equals(
+                    anchor,
+                    "docs/CURRENT_STAGE4D_03BH_PAYMENT_ENGINE_MISSING_ROW_DOWNSTREAM_COVERAGE_AUDIT.md",
+                    StringComparison.Ordinal));
+            Assert.DoesNotContain("Missing official row", row.PromptAnchor, StringComparison.Ordinal);
+            Assert.DoesNotContain("Missing official row", row.CommandAnchor, StringComparison.Ordinal);
+            Assert.DoesNotContain("Missing official row", row.AuditAnchor, StringComparison.Ordinal);
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixRepresentativeSeedRowsKeepPromptCommandAuditAndRollbackEvidenceDistinct()
+    {
+        var representativeRows = OfficialPaymentEngineMatrixSeedRowManifest
+            .Where(entry => string.Equals(entry.RowStatus, RepresentativeSeed, StringComparison.Ordinal));
+
+        Assert.All(representativeRows, row =>
+        {
+            Assert.Contains("prompt", row.PromptAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("command", row.CommandAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("audit", row.AuditAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("no-mutation", row.RollbackExpectation, StringComparison.OrdinalIgnoreCase);
+            Assert.NotEqual(row.PromptAnchor, row.CommandAnchor);
+            Assert.NotEqual(row.CommandAnchor, row.AuditAnchor);
+            Assert.NotEqual(row.AuditAnchor, row.RollbackExpectation);
+            Assert.Contains("Full official", row.RemainingOfficialBreadth, StringComparison.Ordinal);
+            Assert.Contains("Representative seed only", row.ClosureStatus, StringComparison.Ordinal);
+            Assert.Equal(2, row.DocAnchors.Distinct(StringComparer.Ordinal).Count());
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixRepresentativeSeedCoverageDoesNotClaimP0005Closure()
+    {
+        var combinedText = string.Join(
+            " ",
+            OfficialPaymentEngineMatrixSeedRowManifest
+                .Where(entry => string.Equals(entry.RowStatus, RepresentativeSeed, StringComparison.Ordinal))
+                .SelectMany(entry =>
+                    new[]
+                    {
+                        entry.RowId,
+                        entry.Axis,
+                        entry.RowStatus,
+                        entry.ActionWindow,
+                        entry.PaymentOrPolicyProfile,
+                        entry.RepresentativeScope,
+                        entry.PromptAnchor,
+                        entry.CommandAnchor,
+                        entry.AuditAnchor,
+                        entry.RollbackExpectation,
+                        entry.RemainingOfficialBreadth,
+                        entry.ClosureStatus
+                    }.Concat(entry.DocAnchors)));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("missing-official-row", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PaymentEngineRollbackFailureRowManifestListsRequiredFamiliesExactlyOnce()
     {
         var requiredFamilies = new[]

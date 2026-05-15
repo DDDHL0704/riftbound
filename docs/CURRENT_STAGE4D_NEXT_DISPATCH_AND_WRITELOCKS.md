@@ -1,13 +1,14 @@
 # Stage 4D Next Dispatch and Writelocks
 
 日期：2026-05-16
-结论：**4D-03BI ACTIVE GOAL CHECKLIST REFRESH ACCEPTED / WRITELOCK CLOSED / PROJECT NOT READY**
+结论：**4D-03BJ PAYMENT ENGINE REPRESENTATIVE SEED UPSTREAM COVERAGE ACCEPTED / WRITELOCK CLOSED / PROJECT NOT READY**
 
 本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance / baseline 归档；除本文明确记录的 focused verifier 外，不实现 runtime，不修改前端，不升级 full-official。当前 active goal 仍未完成，不得调用 `update_goal complete`。
 
 ## 1. 输入事实
 
 - 当前分支为 `main`，仓库当前只保留未跟踪 `riftbound-dotnet.sln`；该文件不得被本批任务触碰或纳入提交。
+- 4D-03BJ PaymentEngine representative seed upstream coverage verifier 已完成并由 A 验收，入口为 `docs/CURRENT_STAGE4D_03BJ_PAYMENT_ENGINE_REPRESENTATIVE_SEED_UPSTREAM_COVERAGE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03BJ_PAYMENT_ENGINE_REPRESENTATIVE_SEED_UPSTREAM_COVERAGE_EVIDENCE.md`。本批只修改 `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` 与 docs，要求 4D-03BC 的 9 个 `representative-seed` rows 精确回连上游 audit manifest，且 seed rows 不混入 4D-03BH missing-row downstream aggregate doc 或 `Missing official row` 口径。A 侧验证 focused 67/67、adjacent PaymentEngine / resource skill / prompt / hub regression 625/625、backend full 4504/4504 通过；runtime、frontend、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰。4D-03BJ focused-test write lock closed；项目仍 **NOT READY**。
 - 4D-03BI Active goal prompt-to-artifact checklist refresh 已完成并由 A 验收，入口为 `docs/CURRENT_STAGE4D_03BI_ACTIVE_GOAL_CHECKLIST_REFRESH_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03BI_ACTIVE_GOAL_CHECKLIST_REFRESH_EVIDENCE.md`。本批只修改 docs，把 `docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md` 从旧 4D-04G 状态对齐到当前 4D-03BH 事实，记录 latest HEAD `a07197c6`、backend full 4501/4501、matrix 1009/811 且 0 full-official，并保留 frontend build / Chrome smoke / formal 18-step historical-pass-only 口径。runtime、tests、frontend、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰。4D-03BI docs write lock closed；项目仍 **NOT READY**。
 - 4D-03BH PaymentEngine missing row downstream coverage verifier 已完成并由 A 验收，入口为 `docs/CURRENT_STAGE4D_03BH_PAYMENT_ENGINE_MISSING_ROW_DOWNSTREAM_COVERAGE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03BH_PAYMENT_ENGINE_MISSING_ROW_DOWNSTREAM_COVERAGE_EVIDENCE.md`。本批只修改 `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` 与 docs，要求 4D-03BC 的全部 `missing-official-row` 均有 downstream representative manifest 覆盖，并确认 `ROW_MOVE_UNIT_POLICY_DEFERRED` 不进入 PaymentEngine payment row。A 侧验证 focused 64/64、adjacent PaymentEngine / resource skill / prompt / hub regression 622/622、backend full 4501/4501 通过；runtime、frontend、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰。4D-03BH focused-test write lock closed；项目仍 **NOT READY**。
 - 4D-03BG PaymentEngine card matrix alignment row manifest verifier 已完成并由 A 验收，入口为 `docs/CURRENT_STAGE4D_03BG_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_ROW_MANIFEST_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03BG_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_ROW_MANIFEST_EVIDENCE.md`。本批只修改 `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` 与 docs，把 `ROW_CARD_MATRIX_ALIGNMENT_MISSING` 拆成 8 个 representative card matrix families，并保留 prompt / command / audit / matrix / doc anchors / NOT READY closure。A 侧验证 focused 61/61、adjacent PaymentEngine / resource skill / prompt / hub regression 619/619、backend full 4498/4498 通过；runtime、frontend、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰。4D-03BG focused-test write lock closed；项目仍 **NOT READY**。
@@ -113,6 +114,7 @@
 
 ## 3. Exclusive Writelocks
 
+- 4D-03BJ focused-test write lock is closed after A validation and commit-ready evidence. Runtime, frontend, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
 - 4D-03BI docs write lock is closed after A validation and commit-ready evidence. Runtime, tests, frontend, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
 - 4D-03BH focused-test write lock is closed after A validation and commit-ready evidence. Runtime, frontend, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
 - 4D-03BG focused-test write lock is closed after A validation and commit-ready evidence. Runtime, frontend, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
