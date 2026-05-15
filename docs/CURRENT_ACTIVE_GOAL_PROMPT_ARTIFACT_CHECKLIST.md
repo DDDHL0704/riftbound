@@ -25,13 +25,13 @@
 ## 2. 本次检查过的证据
 
 - `git status --short --branch`：当前 `main`，仅 `riftbound-dotnet.sln` 未跟踪。
-- `git log --oneline -8`：本批开始前最新提交为 `9f6fb425 test: verify payment cross-window matrix`，其后接 `ec1eba93`、`026afecb`、`6357d309`、`b825bc2c`、`46eedde0`、`000233c8`、`a07197c6`。
+- `git log --oneline -8`：本批开始前最新提交为 `90db8563 test: verify payment card matrix alignment`，其后接 `9f6fb425`、`ec1eba93`、`026afecb`、`6357d309`、`b825bc2c`、`46eedde0`、`000233c8`。
 - `docs/A_MASTER_AGENT_GOAL.md`：目标、阶段门槛、18 步 E2E、checkpoint 与 final audit 要求。
-- `docs/CURRENT_A_MASTER_CHECKPOINT.md`：最新 A-master 恢复入口，顶部已记录 4D-03BN / 03BM / 03BL-B / 03BK / 03BJ / 03BI / 03BH / 03BG / 03BF / 03BE / 03BD / 03BC。
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`：最新 A-master 恢复入口，顶部已记录 4D-03BO / 03BN / 03BM / 03BL-B / 03BK / 03BJ / 03BI / 03BH / 03BG / 03BF / 03BE / 03BD / 03BC。
 - `docs/CURRENT_COMPLETION_AUDIT.md`：当前 completion audit 结论仍为 NOT READY。
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`：当前服务端 full official rule residual risks。
 - `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`：P0/P1 closure plan 与剩余规则域。
-- `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`：当前 4D-03BN verifier accepted；focused-test write lock closed；frontend、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` locked。
+- `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`：当前 4D-03BO handoff / baseline recorded；future 4D-03BO-B not dispatched；无打开的 test/runtime/frontend/matrix write lock；frontend、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` locked。
 - `docs/CURRENT_STAGE4D_03BH_PAYMENT_ENGINE_MISSING_ROW_DOWNSTREAM_COVERAGE_AUDIT.md` 与 evidence：确认 4D-03BC 三个 `missing-official-row` 均有 downstream representative manifest，MOVE_UNIT 仍 policy-deferred。
 - `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`：formal 18-step、frontend build、Chrome smoke 历史通过证据；该文件明确不替代 P0/P1、full-card matrix、完整 PaymentEngine 或 LayerEngine。
 - `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md` 与 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`：卡牌矩阵口径、Azir 4D-03AT representative evidence overlay 与当前 full-official 缺口。
@@ -41,8 +41,9 @@
 - `docs/CURRENT_STAGE4D_03BL_PAYMENT_ENGINE_ROLLBACK_FAILURE_MATRIX_HANDOFF.md` 与 baseline evidence：确认下一建议 4D-03BL-B 应把 4D-03BE 七个 rollback failure families 转成 all-window executable rollback matrix；03BL handoff 阶段未派发 B、不打开写锁。
 - `docs/CURRENT_STAGE4D_03BL_PAYMENT_ENGINE_ROLLBACK_FAILURE_MATRIX_AUDIT.md` 与 evidence：确认 4D-03BL-B 已把 4D-03BE 七个 rollback failure families 扩展成 6 个 payment surfaces x 7 families 的 42 行 all-window verifier，且 A 已验收。
 - `docs/CURRENT_STAGE4D_03BM_PAYMENT_ENGINE_CROSS_WINDOW_GENERATION_CONSUMPTION_MATRIX_AUDIT.md` 与 evidence：确认 4D-03BM 已把 4D-03BF 七个 cross-window generation / consumption families 扩展成 6 个 payment surfaces x 7 families 的 42 行 all-window verifier，且 A 已验收。
+- `docs/CURRENT_STAGE4D_03BO_PAYMENT_ENGINE_OFFICIAL_MATRIX_DOWNSTREAM_AGGREGATE_HANDOFF.md` 与 baseline evidence：确认 4D-03BO 只建立 future official matrix downstream aggregate verifier boundary；future 4D-03BO-B 未派发、无写锁打开。
 - `docs/CURRENT_STAGE4D_03BN_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_MATRIX_AUDIT.md` 与 evidence：确认 4D-03BN 已把 4D-03BG 八个 card matrix alignment families 扩展成 6 个 payment surfaces x 8 families 的 48 行 all-window verifier，且 A 已验收。
-- `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 4D-03BN gate：确认 B-side card matrix alignment matrix verifier 已 accepted，focused-test write lock closed；runtime、frontend、matrix、READY 仍锁定。
+- `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 4D-03BO gate：确认 A-side aggregate handoff 已 recorded；runtime、tests、frontend、matrix、READY 仍锁定。
 
 矩阵实测统计：
 
@@ -54,7 +55,7 @@ fullOfficialTrue=0
 fullOfficialFalse=811
 ```
 
-当前 4D-03BN A 验收验证：
+当前 4D-03BO baseline 验证：
 
 ```txt
 focused PaymentEngine coverage guard=85/85
@@ -68,16 +69,16 @@ git diff --check=passed
 | 要求 | 必需 artifact / gate | 已检查证据 | 当前状态 | 缺口 / 下一步 |
 |---|---|---|---|---|
 | 按 `docs/A_MASTER_AGENT_GOAL.md` 管理 | A-master 目标文档必须存在并作为最高级本地交付口径 | `docs/A_MASTER_AGENT_GOAL.md` 已读取；goal 文本与该文件一致 | OK / ONGOING | 后续任何 READY 判断都必须回到本 checklist 与 final audit |
-| A 维护 checkpoint | `docs/CURRENT_A_MASTER_CHECKPOINT.md` 最新、可恢复、含当前结论 | 文件顶部记录 4D-03BN verifier accepted、focused 85/85、adjacent 643/643、backend full 4522/4522、项目 NOT READY | OK / ONGOING | 后续每批继续保持 checkpoint 同步 |
-| A 维护任务拆分 / 子 agent 分工 | A-master agent pool、写锁、下一步计划 | `A_MASTER_AGENT_GOAL.md` §7/§8；`CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已记录 B-Implementation / Laplace `019e2d66-d12a-7233-81de-bbd0abb0dcfd` 的 4D-03BN diff accepted and write lock closed | ONGOING | 后续 frontend / matrix / remaining P0/P1 仍需单独写锁 |
+| A 维护 checkpoint | `docs/CURRENT_A_MASTER_CHECKPOINT.md` 最新、可恢复、含当前结论 | 文件顶部记录 4D-03BO handoff / baseline、focused 85/85、adjacent 643/643、backend full 4522/4522、项目 NOT READY | OK / ONGOING | 后续每批继续保持 checkpoint 同步 |
+| A 维护任务拆分 / 子 agent 分工 | A-master agent pool、写锁、下一步计划 | `A_MASTER_AGENT_GOAL.md` §7/§8；`CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已记录 future 4D-03BO-B aggregate verifier boundary，但本批未派发 B、无写锁打开 | ONGOING | 后续 frontend / matrix / remaining P0/P1 仍需单独写锁 |
 | A 维护阻断清单 | P0/P1 closure plan 与 completion audit | `CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md` 与 `CURRENT_COMPLETION_AUDIT.md` 仍为 NOT READY | NOT MET | P0/P1 未清零 |
-| A 控制写入范围 | 不并行改核心模块；当前批次只做 B-side focused verifier + A-side docs | 4D-03BN 只改 `PaymentEngineCoverageAuditTests.cs` 与 4D-03BN / A-master docs；frontend、matrix、READY 仍锁定 | OK FOR THIS SLICE | 后续 implementation / frontend / matrix 改动必须按 dispatch 文档独占 owner |
-| 默认不写功能代码 | A 不主动承接功能实现 | A 只派发并验收 B worker diff；B diff 未改 runtime，只新增 test-only verifier / docs | OK FOR THIS SLICE | 不代表后续功能缺口已解决 |
+| A 控制写入范围 | 不并行改核心模块；当前批次只做 A-side docs-only handoff / baseline | 4D-03BO 只改 handoff / baseline / checkpoint / audit docs；runtime、tests、frontend、matrix、READY 仍锁定 | OK FOR THIS SLICE | 后续 implementation / frontend / matrix 改动必须按 dispatch 文档独占 owner |
+| 默认不写功能代码 | A 不主动承接功能实现 | A 只建立 4D-03BO docs-only handoff / baseline；未派发 B、未改 runtime 或测试代码 | OK FOR THIS SLICE | 不代表后续功能缺口已解决 |
 | 服务端唯一规则权威 | 服务端输出 authoritative snapshot、prompt、事件、规则裁决 | `CURRENT_SERVER_RULE_AUDIT.md` 与 Stage 4D docs 证明大量 representative server-authority paths | PARTIAL | full official battle / PaymentEngine / LayerEngine / card effects 仍未闭合 |
 | 前端只展示 authoritative snapshot | 前端不得持有隐藏信息或本地裁决规则 | `CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md` 断言页面不暴露 raw hidden-info 文本；frontend plan 多处记录不本地推断 | PARTIAL | 最终前端 contract audit 与 fresh Chrome smoke 仍需在 READY 前复跑 |
 | 前端只提交 `ActionPrompt` / `LegalAction` | UI 操作必须来自服务端 prompt | Stage 4D docs 多处记录 ActionPrompt / GameHub representative coverage | PARTIAL | 仍需最终全流程 frontend contract audit，不可用 representative coverage 代理 |
 | P0/P1 清零 | completion audit 中所有 P0/P1 为 resolved | closure plan / server audit 明确仍 open / partially resolved | NOT MET | 继续 P0-004、P0-005、LayerEngine、关键词、replay/property、full-card evidence |
-| 后端 full test | `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` | 4D-03BN A 验收记录 backend full 4522/4522 通过 | PASS AS LATEST CODE EVIDENCE | 只证明当前代码测试绿；不证明 P0/P1 全部满足 |
+| 后端 full test | `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` | 4D-03BO baseline 记录 backend full 4522/4522 通过 | PASS AS LATEST CODE EVIDENCE | 只证明当前代码测试绿；不证明 P0/P1 全部满足 |
 | 前端 build / typecheck / lint | `source ../../scripts/dev-env.sh && npm run build` | formal 18 evidence 记录 build 通过；package script 包含 checks、`tsc -b`、Vite build | HISTORICAL PASS | READY 前需要在最终代码状态 fresh run |
 | Chrome smoke | `source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` | formal 18 evidence 记录 smoke 通过 | HISTORICAL PASS | READY 前需要结合最终前端状态 fresh run |
 | 正式 18 步 E2E | `npm run e2e:formal-18 -- --start-api`，覆盖 A_MASTER §11 1-18 | `CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md` 记录房间 `formal-18-1778623926434-15` 通过 | PASS FOR MAIN FLOW | 该文件明确不替代 P0/P1、full-card matrix、完整 PaymentEngine / LayerEngine |
@@ -93,7 +94,7 @@ git diff --check=passed
 | §2.3 本地 / 联机 1v1 | 房间、双玩家、开局、对局 | formal 18 通过双浏览器等效流程 | PASS FOR MAIN FLOW |
 | §2.4 可长期维护 | 文档、测试、矩阵、写锁 | checkpoint / closure plan / audit docs 持续维护 | PARTIAL |
 | §2.5 P0/P1 清零 | 无阻断 | closure plan 仍列 P0/P1 | NOT MET |
-| §2.6 后端 full test | full test 绿 | 4D-03BN A 验收 4522/4522 | PASS BUT NOT SUFFICIENT |
+| §2.6 后端 full test | full test 绿 | 4D-03BO baseline 4522/4522 | PASS BUT NOT SUFFICIENT |
 | §2.7 Chrome smoke | smoke 绿 | formal evidence 记录通过 | HISTORICAL PASS |
 | §2.8 18 步 E2E | 正式 18 steps 通过 | formal evidence 记录通过 | PASS FOR MAIN FLOW |
 | §2.9 卡牌覆盖矩阵 | 矩阵完成 | 811/811 `fullOfficial=false` | NOT MET |
@@ -104,9 +105,9 @@ git diff --check=passed
 | §4.4 覆盖字段 | `cardId`、`collectorId`、`oracleId` / `effectId`、FAQ、tests | matrix skeleton 只有骨架与 representative evidence | NOT MET |
 | §4.5 cardId 映射完整 | 复用 effect 但 cardId 完整 | 1009 entries 可统计，full-official 映射未完成 | PARTIAL |
 | §5 服务端权威 | 前端不得推断目标、费用、胜负等 | server audit / frontend plan 均要求如此 | PARTIAL，需最终 contract audit |
-| §6 A 边界 | A 读文档、规划、审计；默认不写功能代码 | A 派发并验收 4D-03BN B-side verifier；A 自身只做审计 / checkpoint / docs / 测试运行 | OK FOR THIS SLICE |
-| §7 常驻子 agent | 优先复用 B/C/D/E，避免无目的重建 | 本批派发 B-Implementation / Laplace `019e2d66-d12a-7233-81de-bbd0abb0dcfd`，完成后关闭本写锁 | OK FOR THIS SLICE |
-| §8 写入边界 | B/C/D/E 各自写入范围，不并行改核心模块 | dispatch 文档已明确 4D-03BN accepted write scope、focused-test write lock closed、frontend/matrix/READY locked | OK FOR THIS SLICE / ONGOING |
+| §6 A 边界 | A 读文档、规划、审计；默认不写功能代码 | A 建立 4D-03BO docs-only handoff / baseline；A 自身只做审计 / checkpoint / docs / 测试运行 | OK FOR THIS SLICE |
+| §7 常驻子 agent | 优先复用 B/C/D/E，避免无目的重建 | 本批未派发 B；future 4D-03BO-B 需 fresh dispatch 后才能打开写锁 | OK FOR THIS SLICE |
+| §8 写入边界 | B/C/D/E 各自写入范围，不并行改核心模块 | dispatch 文档已明确 4D-03BO docs-only handoff、no B active、no test/runtime/frontend/matrix write lock、frontend/matrix/READY locked | OK FOR THIS SLICE / ONGOING |
 | §9 P0 / P1 定义 | 根据 P0/P1 标准判断 READY | closure plan / server audit 仍有 open risks | NOT MET |
 | §10 阶段 0-4 | checkpoint、协议、前端、对战桌面、卡牌覆盖 | Stage 0-3 有大量证据；Stage 4 full-card 未完成 | PARTIAL |
 | §10 阶段 5 | full test、build、smoke、18-step、hidden info、P0/P1、matrix、READY | full test / historical build / smoke / 18-step 有证据，P0/P1 与 matrix 未满足 | NOT MET |
@@ -119,14 +120,14 @@ git diff --check=passed
 
 | §13 item | 当前 evidence | 状态 |
 |---|---|---|
-| 1. 修改文件列表 | 最新批次修改 `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` 与 A-master / 03BN docs | DONE FOR THIS SLICE / NOT FINAL |
-| 2. 新增文件列表 | 新增 `docs/CURRENT_STAGE4D_03BN_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_MATRIX_AUDIT.md` 与 evidence | DONE FOR THIS SLICE / NOT FINAL |
+| 1. 修改文件列表 | 最新批次只修改 A-master / completion / server / frontend / closure / dispatch / checklist docs | DONE FOR THIS SLICE / NOT FINAL |
+| 2. 新增文件列表 | 新增 `docs/CURRENT_STAGE4D_03BO_PAYMENT_ENGINE_OFFICIAL_MATRIX_DOWNSTREAM_AGGREGATE_HANDOFF.md` 与 baseline evidence | DONE FOR THIS SLICE / NOT FINAL |
 | 3. 服务端规则补齐项 | Stage 4D docs 记录大量 focused slices | PARTIAL |
 | 4. 前端页面完成项 | frontend rebuild plan 与 formal smoke 有历史证据 | PARTIAL |
 | 5. 接口契约说明 | ActionPrompt / LegalAction / snapshot 证据分散在 server audit 与 frontend plan | PARTIAL |
 | 6. 卡牌覆盖矩阵摘要 | 1009 entries / 811 FUs，0 full-official | NOT MET |
 | 7. 隐藏信息保护检查结果 | formal 18 页面文本断言、server audit P1-004 代表性 redaction/property evidence | PARTIAL |
-| 8. 后端 full test 命令和结果 | 4D-03BN A 验收 `dotnet test` 4522/4522 | PASS AS LATEST CODE EVIDENCE |
+| 8. 后端 full test 命令和结果 | 4D-03BO baseline `dotnet test` 4522/4522 | PASS AS LATEST CODE EVIDENCE |
 | 9. 前端 build / typecheck / lint | historical `npm run build` pass | HISTORICAL PASS |
 | 10. Chrome smoke | historical `npm run smoke:chrome -- --start-api` pass | HISTORICAL PASS |
 | 11. 18 步 E2E | historical formal 18 pass | PASS FOR MAIN FLOW |
@@ -137,6 +138,7 @@ git diff --check=passed
 ## 6. 不能作为 completion 代理的信号
 
 - `dotnet test` 4522/4522 通过不能替代 P0/P1 清零。
+- 4D-03BO official matrix downstream aggregate handoff / baseline 不能替代 future 4D-03BO-B executable aggregate verifier、完整 PaymentEngine official matrix 或 full-card matrix closure；它只证明下一步 B-side aggregate verifier boundary 与当前 baseline 已固定。
 - 4D-03BN 48-row card matrix alignment all-window verifier 不能替代 full official card matrix alignment 或 full-card matrix closure；它只证明当前 6 个 PaymentEngine payment surfaces x 8 card matrix alignment families 的 audit contract 可执行。
 - 4D-03BM 42-row cross-window generation / consumption all-window verifier 不能替代 full official generated-resource lifetime / cleanup / duplicate-spend matrix；它只证明当前 6 个 PaymentEngine payment surfaces x 7 cross-window families 的 audit contract 可执行。
 - 4D-03BL rollback failure matrix handoff / baseline 不能替代 rollback failure official matrix；它只证明下一步 B-side scope 和当前 baseline 已固定。
@@ -159,4 +161,4 @@ git diff --check=passed
 
 Active goal **未完成**。不得调用 `update_goal complete`。
 
-当前最新 A-side 状态是 4D-03BN PaymentEngine card matrix alignment matrix verifier accepted。P0/P1 清零、full official PaymentEngine matrix、完整 card matrix alignment official closure、完整 cross-window generated-resource official closure、完整 rollback failure official closure、完整 LayerEngine、P1 keyword breadth、frontend final fresh-run、Chrome smoke fresh-run、formal 18 fresh-run、full-card matrix 与 final completion audit READY 仍未闭合。
+当前最新 A-side 状态是 4D-03BO PaymentEngine official matrix downstream aggregate handoff / baseline recorded。P0/P1 清零、future 4D-03BO-B executable aggregate verifier、full official PaymentEngine matrix、完整 card matrix alignment official closure、完整 cross-window generated-resource official closure、完整 rollback failure official closure、完整 LayerEngine、P1 keyword breadth、frontend final fresh-run、Chrome smoke fresh-run、formal 18 fresh-run、full-card matrix 与 final completion audit READY 仍未闭合。
