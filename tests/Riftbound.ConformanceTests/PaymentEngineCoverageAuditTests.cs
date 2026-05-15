@@ -8,6 +8,10 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string RepresentativeCovered = "representative-covered";
     private const string PolicyNonResource = "policy-non-resource";
     private const string RemainingGap = "remaining-gap";
+    private const string CatalogBoundRepresentative = "catalog-bound-representative";
+    private const string CoveredRepresentative = "covered-representative";
+    private const string RemainingOfficialGap = "remaining-official-gap";
+    private const string PolicyDeferred = "policy-deferred";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
     [
@@ -316,6 +320,88 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string HasteReadyCoverageClosureStatus =
         "Representative HASTE_READY play coverage only; project remains NOT READY and P0-005 remains open for remaining official Haste and PaymentEngine breadth.";
 
+    private static readonly PaymentEngineResidualBlockerCoverageEntry[] ResidualBlockerManifest =
+    [
+        new(
+            "OFFICIAL_PAYMENT_ENGINE_MATRIX",
+            RemainingOfficialGap,
+            "No generated official matrix enumerates every action window, payment source, cost modifier, optional / extra / alternative cost, target tax, replacement interaction, payment resource action, and no-mutation failure branch.",
+            "Current action-window, resource-skill, Spellshield tax, HASTE_READY, and selected target-bearing representatives are green.",
+            "Full cross-window official matrix is missing; representative tests cannot prove every payment source, target, modifier, rollback, and failure branch.",
+            "Future verifier must keep prompt / command / audit parity plus no-mutation rollback requirements visible for every listed family.",
+            "Remaining official gap only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AF_PAYMENT_ENGINE_REMAINING_SCOPE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AU_PAYMENT_ENGINE_RESIDUAL_SCOPE_HANDOFF.md"
+            ]),
+        new(
+            "RESOURCE_SKILL_A_C_FAMILY",
+            CatalogBoundRepresentative,
+            "4D-03AL binds the current 19 catalog `IsResourceSkill=true` representatives to prompt, command, ABILITY_ACTIVATED audit, and rollback anchors.",
+            "Malzahar, Dragon Soul Sage, SFD / OGN Sigils, resource conversion equipment, and Gold token resource skills are catalog-bound representatives.",
+            "Complete official `[A]` / `[C]` resource skill breadth and cross-window resource-skill use are not proven beyond the current executable catalog.",
+            "Future official closure must keep invalid timing, invalid target, wrong trait, duplicate source, payment-only misuse, and no-mutation rollback branches explicit.",
+            "Catalog-bound representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AL_PAYMENT_ENGINE_RESOURCE_SKILL_COVERAGE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AU_PAYMENT_ENGINE_RESIDUAL_SCOPE_HANDOFF.md"
+            ]),
+        new(
+            "TARGET_BEARING_COLORED_ACTIVATED_ABILITIES",
+            CoveredRepresentative,
+            "Selected Azir, Maduli, Ezreal, Renata, Crimson Rose, Xerath, and Shadow representatives prove prompt / command / stack / audit parity for implemented colored or target-bearing abilities.",
+            "4D-03AM / 03AN / 03AO / 03AS and adjacent focused slices cover narrow target-bearing activated ability representatives.",
+            "Official family breadth, dependency target choice, target-count interactions, alternative / extra costs, and all stale / illegal target failures remain open.",
+            "Future verifier must keep legal target selection, command-side revalidation, stale no-effect, insufficient cost, and no-mutation rollback branches explicit.",
+            "Covered representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AM_PAYMENT_ENGINE_AZIR_SWIFT_SWAP_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AN_PAYMENT_ENGINE_GATEKEEPER_MADULI_PURPLE_MOVE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AO_PAYMENT_ENGINE_EZREAL_BLUE_SWIFT_MOVE_TO_BASE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AS_AZIR_OPTIONAL_ARMAMENT_REATTACH_AUDIT.md"
+            ]),
+        new(
+            "LEGEND_BATTLEFIELD_TRIGGER_RESOURCE_ACTIONS",
+            CoveredRepresentative,
+            "LEGEND_ACT, battlefield held score payment, and trigger payment representatives have action-window evidence and current prompt / command anchors.",
+            "4D-03B, 03G, 03H, 03AC, 03AD, 03AE, and 03X cover current representative legend, battlefield held, and trigger payment paths.",
+            "LEGEND_ACT resource-action breadth, battlefield skills, full trigger payment resource family, replacement ordering, and cross-window resource generation remain open.",
+            "Future verifier must keep resource quote, command commit, decline, stale source / target, replacement, and no-mutation rollback branches explicit.",
+            "Covered representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03B_PAYMENT_ENGINE_NON_PLAY_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03G_PAYMENT_ENGINE_BATTLEFIELD_HELD_RESOURCE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03X_LEGEND_ACTION_DEFERRED_CATALOG_AUDIT.md"
+            ]),
+        new(
+            "KEYWORD_PAYMENT_BRANCHES",
+            RemainingOfficialGap,
+            "HASTE_READY, Echo, Spellshield, experience, battlefield replacement, cost reduction, cost increase, extra cost, optional cost, and temporary-resource parity have multiple focused representatives.",
+            "4D-03C / 03K / 03AK / 03AQ / 03AP and battlefield cost modifier fixtures cover selected keyword payment branches.",
+            "Haste, Echo, Spellshield, alternative / extra / optional, cost modifier, replacement, and all-window tax quote-command-audit parity are not full official.",
+            "Future verifier must keep keyword prompt quote, command-side revalidation, COST_PAID audit payload, insufficient payment, wrong resource, and no-mutation rollback explicit.",
+            "Remaining official gap only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03C_PAYMENT_ENGINE_PLAY_OPTIONAL_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AK_PAYMENT_ENGINE_SPELLSHIELD_TAX_COVERAGE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AQ_PAYMENT_ENGINE_HASTE_READY_COVERAGE_VERIFIER_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AP_PAYMENT_ENGINE_REKSAI_HASTE_READY_RED_EXACTNESS_AUDIT.md"
+            ]),
+        new(
+            "MOVE_UNIT_MOVEMENT_PERMISSION_POLICY",
+            PolicyDeferred,
+            "MOVE_UNIT remains a server-authoritative movement-permission / optional-cost policy window today, not a rune, mana, experience, or temporary-resource payment window.",
+            "4D-03AH classifies MOVE_UNIT as policy-non-resource while movement representatives cover ROAM and Baron Nest permissions.",
+            "If future official rules add a resource payment to movement, MOVE_UNIT must be reclassified and joined to PaymentEngine quote / command / audit parity.",
+            "Future policy change must keep destination legality, optional movement costs, rejected source / destination shapes, and no-mutation rollback explicit.",
+            "Policy deferred only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AH_PAYMENT_ENGINE_ACTION_WINDOW_COVERAGE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03Z_TOKEN_FACTORY_BARON_NEST_STATIC_AUDIT.md"
+            ])
+    ];
+
     [Fact]
     public void PaymentEngineActionWindowCoverageManifestListsRequiredWindowsExactlyOnce()
     {
@@ -374,6 +460,110 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Contains("movement-permission", moveUnit.EvidenceSummary, StringComparison.Ordinal);
         Assert.Contains("not rune, mana, experience, or temporary-resource payment windows", moveUnit.EvidenceSummary, StringComparison.Ordinal);
         Assert.DoesNotContain("representative-covered", moveUnit.EvidenceSummary, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineResidualBlockerManifestListsRequiredFamiliesExactlyOnce()
+    {
+        var requiredFamilies = new[]
+        {
+            "OFFICIAL_PAYMENT_ENGINE_MATRIX",
+            "RESOURCE_SKILL_A_C_FAMILY",
+            "TARGET_BEARING_COLORED_ACTIVATED_ABILITIES",
+            "LEGEND_BATTLEFIELD_TRIGGER_RESOURCE_ACTIONS",
+            "KEYWORD_PAYMENT_BRANCHES",
+            "MOVE_UNIT_MOVEMENT_PERMISSION_POLICY"
+        };
+
+        Assert.Equal(requiredFamilies.Order(StringComparer.Ordinal), ResidualBlockerManifest.Select(entry => entry.Family).Order(StringComparer.Ordinal));
+        Assert.Empty(ResidualBlockerManifest
+            .GroupBy(entry => entry.Family, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key));
+    }
+
+    [Fact]
+    public void PaymentEngineResidualBlockerManifestClassifiesEveryEntryWithEvidenceAndRollbackExpectations()
+    {
+        var allowedClassifications = new HashSet<string>(StringComparer.Ordinal)
+        {
+            CatalogBoundRepresentative,
+            CoveredRepresentative,
+            RemainingOfficialGap,
+            PolicyDeferred
+        };
+
+        Assert.All(ResidualBlockerManifest, entry =>
+        {
+            Assert.Contains(entry.Classification, allowedClassifications);
+            Assert.False(string.IsNullOrWhiteSpace(entry.CurrentEvidence));
+            Assert.False(string.IsNullOrWhiteSpace(entry.ExistingRepresentativeEvidence));
+            Assert.False(string.IsNullOrWhiteSpace(entry.MissingOfficialBreadth));
+            Assert.Contains("no-mutation", entry.RollbackExpectation, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("NOT READY", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.NotEmpty(entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineResidualBlockerManifestKeepsOfficialGapsExplicit()
+    {
+        var remainingGapFamilies = ResidualBlockerManifest
+            .Where(entry => string.Equals(entry.Classification, RemainingOfficialGap, StringComparison.Ordinal))
+            .Select(entry => entry.Family)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(
+            [
+                "KEYWORD_PAYMENT_BRANCHES",
+                "OFFICIAL_PAYMENT_ENGINE_MATRIX"
+            ],
+            remainingGapFamilies);
+
+        var combinedMissingBreadth = string.Join(" ", ResidualBlockerManifest.Select(entry => entry.MissingOfficialBreadth));
+        Assert.Contains("[A]", combinedMissingBreadth, StringComparison.Ordinal);
+        Assert.Contains("[C]", combinedMissingBreadth, StringComparison.Ordinal);
+        Assert.Contains("target", combinedMissingBreadth, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Haste", combinedMissingBreadth, StringComparison.Ordinal);
+        Assert.Contains("Echo", combinedMissingBreadth, StringComparison.Ordinal);
+        Assert.Contains("Spellshield", combinedMissingBreadth, StringComparison.Ordinal);
+        Assert.Contains("LEGEND_ACT", combinedMissingBreadth, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineResidualBlockerManifestDoesNotClaimReadyOrFullOfficialClosure()
+    {
+        var combinedText = string.Join(
+            " ",
+            ResidualBlockerManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.Family,
+                    entry.Classification,
+                    entry.CurrentEvidence,
+                    entry.ExistingRepresentativeEvidence,
+                    entry.MissingOfficialBreadth,
+                    entry.RollbackExpectation,
+                    entry.ClosureStatus
+                }.Concat(entry.DocAnchors)));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
     }
 
     [Fact]
@@ -632,4 +822,14 @@ public sealed class PaymentEngineCoverageAuditTests
         string ExpectedPowerTrait,
         string FixtureFileName,
         string RepresentativeAnchor);
+
+    private sealed record PaymentEngineResidualBlockerCoverageEntry(
+        string Family,
+        string Classification,
+        string CurrentEvidence,
+        string ExistingRepresentativeEvidence,
+        string MissingOfficialBreadth,
+        string RollbackExpectation,
+        string ClosureStatus,
+        IReadOnlyList<string> DocAnchors);
 }
