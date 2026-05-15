@@ -2147,6 +2147,18 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("full tempered official breadth", sentinelAdept.Reason, StringComparison.Ordinal);
         Assert.Contains("deferred", sentinelAdept.Reason, StringComparison.OrdinalIgnoreCase);
 
+        var armedAssaulter = BuildEquipmentProfile(specs, "SFD·002/221", CardEquipmentKeywordNames.Tempered);
+        Assert.False(armedAssaulter.HasAssemble);
+        Assert.False(armedAssaulter.HasAgile);
+        Assert.True(armedAssaulter.HasTempered);
+        Assert.False(armedAssaulter.HasImplementedRepresentativeAssembleBoundary);
+        Assert.False(armedAssaulter.HasImplementedRepresentativeAgileDirectPlayAttachBoundary);
+        Assert.True(armedAssaulter.HasImplementedRepresentativeTemperedOptionalAttachBoundary);
+        Assert.Equal(EquipmentKeywordProfileStatuses.RecognizedDeferred, armedAssaulter.Status);
+        Assert.Contains("Tempered optional attach", armedAssaulter.Reason, StringComparison.Ordinal);
+        Assert.Contains("full tempered official breadth", armedAssaulter.Reason, StringComparison.Ordinal);
+        Assert.Contains("deferred", armedAssaulter.Reason, StringComparison.OrdinalIgnoreCase);
+
         foreach (var jaxCardNo in new[] { "SFD·119/221", "SFD·119a/221" })
         {
             var jax = BuildEquipmentProfile(specs, jaxCardNo, CardEquipmentKeywordNames.Tempered);

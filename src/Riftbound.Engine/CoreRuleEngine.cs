@@ -126,6 +126,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BladeOfTheRuinedKingAssembleOptionalCost = "ASSEMBLE_YELLOW";
     private const int BladeOfTheRuinedKingAssemblePowerCost = 1;
     private const string SpinningAxeCardNo = "SFD·186/221";
+    private const string ArmedAssaulterCardNo = "SFD·002/221";
     private const string SentinelAdeptCardNo = "SFD·008/221";
     private const string TemperedOptionalAttachPrefix = "TEMPERED_ATTACH:";
     private const string AkshanCardNo = "SFD·109/221";
@@ -27942,6 +27943,21 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
+        if (TryBuildArmedAssaulterHasteTemperedOptionalAttachCost(
+                state,
+                playerId,
+                normalizedOptionalCosts,
+                behavior,
+                out var armedAssaulterHasteExtraManaCost,
+                out var armedAssaulterHasteExtraPowerCost,
+                out var armedAssaulterHasteExtraPowerCostByTrait))
+        {
+            extraManaCost = armedAssaulterHasteExtraManaCost;
+            extraPowerCost = armedAssaulterHasteExtraPowerCost;
+            extraPowerCostByTrait = armedAssaulterHasteExtraPowerCostByTrait;
+            return true;
+        }
+
         if (TryBuildTemperedOptionalAttachCost(
                 state,
                 playerId,
@@ -28173,6 +28189,64 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
+    }
+
+    private static bool TryBuildArmedAssaulterHasteTemperedOptionalAttachCost(
+        MatchState state,
+        string playerId,
+        IReadOnlyList<string> normalizedOptionalCosts,
+        CardBehaviorDefinition behavior,
+        out int extraManaCost,
+        out int extraPowerCost,
+        out IReadOnlyDictionary<string, int> extraPowerCostByTrait)
+    {
+        extraManaCost = 0;
+        extraPowerCost = 0;
+        extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal);
+        if (!IsArmedAssaulterHasteTemperedOptionalAttachRepresentative(behavior)
+            || normalizedOptionalCosts.Count != 2
+            || normalizedOptionalCosts.Count(optionalCost =>
+                string.Equals(optionalCost, HasteOptionalCostNames.HasteReady, StringComparison.Ordinal)) != 1
+            || normalizedOptionalCosts.Any(optionalCost =>
+                !string.Equals(optionalCost, HasteOptionalCostNames.HasteReady, StringComparison.Ordinal)
+                && !TryParseTemperedOptionalAttachCost(optionalCost, out _)))
+        {
+            return false;
+        }
+
+        var equipmentObjectIds = normalizedOptionalCosts
+            .Select(optionalCost => TryParseTemperedOptionalAttachCost(optionalCost, out var equipmentObjectId)
+                ? equipmentObjectId
+                : string.Empty)
+            .Where(equipmentObjectId => !string.IsNullOrWhiteSpace(equipmentObjectId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        if (equipmentObjectIds.Length != 1
+            || !IsLegalTemperedOptionalAttachChoice(state, playerId, equipmentObjectIds[0])
+            || !CardPermissionKeywordRules.TryBuildHasteReadyOptionalCost(
+                [HasteOptionalCostNames.HasteReady],
+                behavior,
+                out var hasteExtraManaCost,
+                out var hasteExtraPowerCost,
+                out var hasteExtraPowerTrait))
+        {
+            return false;
+        }
+
+        extraManaCost = hasteExtraManaCost;
+        if (string.IsNullOrWhiteSpace(hasteExtraPowerTrait))
+        {
+            extraPowerCost = hasteExtraPowerCost;
+        }
+        else
+        {
+            extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [hasteExtraPowerTrait] = hasteExtraPowerCost
+            };
+        }
+
+        return true;
     }
 
     private static bool TryBuildTemperedOptionalAttachCost(
@@ -29540,6 +29614,12 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return behavior.PlaysSourceToBaseAsUnit
             && CardEquipmentKeywordRules.IsTemperedOptionalAttachRepresentativeCardNo(behavior.CardNo);
+    }
+
+    private static bool IsArmedAssaulterHasteTemperedOptionalAttachRepresentative(CardBehaviorDefinition behavior)
+    {
+        return behavior.PlaysSourceToBaseAsUnit
+            && string.Equals(behavior.CardNo, ArmedAssaulterCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsAkshanOrangeExtraEquipmentStealRepresentative(CardBehaviorDefinition behavior)
@@ -35722,7 +35802,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
         unitPower += ResolveConditionalSourceUnitPowerBonus(behavior, stackItem.ControllerId, untilEndOfTurnEffects);
 
-        var hasteReadyOptionalCostPaid = CardPermissionKeywordRules.IsHasteReadyOptionalCostPaid(
+        var hasteReadyOptionalCostPaid = IsHasteReadyOptionalCostPaidForPlayUnit(
             behavior,
             stackItem.OptionalCosts);
         var crescentGuardReadyOptionalCostPaid = IsCrescentGuardReadyOptionalCostPaid(
@@ -35763,6 +35843,20 @@ public sealed class CoreRuleEngine : IRuleEngine
                 unitState,
                 hasteReadyOptionalCostPaid,
                 crescentGuardReadyOptionalCostPaid)));
+    }
+
+    private static bool IsHasteReadyOptionalCostPaidForPlayUnit(
+        CardBehaviorDefinition behavior,
+        IReadOnlyList<string> optionalCosts)
+    {
+        return CardPermissionKeywordRules.IsHasteReadyOptionalCostPaid(behavior, optionalCosts)
+            || (IsArmedAssaulterHasteTemperedOptionalAttachRepresentative(behavior)
+                && optionalCosts.Count == 2
+                && optionalCosts.Count(optionalCost =>
+                    string.Equals(optionalCost, HasteOptionalCostNames.HasteReady, StringComparison.Ordinal)) == 1
+                && optionalCosts.Count(optionalCost =>
+                    TryParseTemperedOptionalAttachCost(optionalCost, out var equipmentObjectId)
+                    && !string.IsNullOrWhiteSpace(equipmentObjectId)) == 1);
     }
 
     private static void PlaySourceUnitToBattlefield(
