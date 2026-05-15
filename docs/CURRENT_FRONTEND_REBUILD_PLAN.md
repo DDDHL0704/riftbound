@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 2026-05-15 Stage 4D-04K-B 已验收：equipment state representative profile alignment / verifier 已由 B-Implementation / Meitner `019e2c13-5b3b-7750-9971-08cf68b074f2` 完成，审计入口为 `docs/CURRENT_STAGE4D_04K_EQUIPMENT_STATE_PROFILE_ALIGNMENT_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_04K_EQUIPMENT_STATE_PROFILE_ALIGNMENT_EVIDENCE.md`；focused state/profile guard 12/12、adjacent equipment regression 195/195、`git diff --check` 通过。本批不修改前端运行时代码；前端继续只消费服务端 authoritative snapshot / ActionPrompt / events，不本地推断 owner/controller、attached-equipment follow-host、detach / recall 或 full attach lifecycle。项目仍 **NOT READY**。
+
 - 2026-05-15 Stage 4D-04K handoff / baseline 已建立：A 主控把 equipment state representative profile alignment / verifier 切片准备为下一枚 B handoff。交接入口为 `docs/CURRENT_STAGE4D_04K_EQUIPMENT_STATE_PROFILE_ALIGNMENT_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_04K_EQUIPMENT_STATE_PROFILE_ALIGNMENT_BASELINE_EVIDENCE.md`；focused state / profile guard 11/11、adjacent equipment regression 195/195 通过。本批不修改前端运行时代码；前端继续只消费服务端 authoritative snapshot / ActionPrompt / events，不本地推断 owner/controller、attached-equipment follow-host、detach / recall 或 full attach lifecycle。项目仍 **NOT READY**。
 
 - 2026-05-15 Stage 4D-04J handoff / baseline 已建立：A 主控刷新 equipment remaining breadth，并把下一建议切片路由到 4D-04K Equipment state representative profile alignment / verifier。交接入口为 `docs/CURRENT_STAGE4D_04J_EQUIPMENT_REMAINING_BREADTH_REFRESH_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_04J_EQUIPMENT_REMAINING_BREADTH_REFRESH_BASELINE_EVIDENCE.md`；focused state / keyword guard 11/11 通过。本批不修改前端运行时代码；前端继续只消费服务端 authoritative snapshot / ActionPrompt / events，不本地推断 owner/controller、attached-equipment follow-host、detach / recall 或 full attach lifecycle。项目仍 **NOT READY**。

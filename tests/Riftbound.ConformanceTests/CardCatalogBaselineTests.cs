@@ -1,3 +1,4 @@
+using System.Reflection;
 using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 using Riftbound.Engine;
@@ -2129,10 +2130,18 @@ public sealed class CardCatalogBaselineTests
         Assert.False(longSword.HasTempered);
         Assert.True(longSword.HasImplementedRepresentativeAssembleBoundary);
         Assert.True(longSword.HasImplementedRepresentativeAgileDirectPlayAttachBoundary);
+        Assert.True(longSword.HasImplementedRepresentativeEquipmentStateBoundary);
+        Assert.Contains(
+            "P5EquipmentStateAssembleLongSwordPreservesOwnerControllerAndAttachment",
+            longSword.EquipmentStateRepresentativeVerifierTests);
         Assert.Equal(EquipmentKeywordProfileStatuses.RecognizedDeferred, longSword.Status);
         Assert.Contains("Agile direct-play attach", longSword.Reason, StringComparison.Ordinal);
-        Assert.Contains("Jax-granted agile", longSword.Reason, StringComparison.Ordinal);
+        Assert.Contains("P5 equipment state representatives", longSword.Reason, StringComparison.Ordinal);
+        Assert.Contains("Jax-granted Agile", longSword.Reason, StringComparison.Ordinal);
         Assert.Contains("ephemeral/static equipment breadth", longSword.Reason, StringComparison.Ordinal);
+        Assert.Contains("full owner/controller breadth", longSword.Reason, StringComparison.Ordinal);
+        Assert.Contains("full attach lifecycle breadth", longSword.Reason, StringComparison.Ordinal);
+        Assert.Contains("LayerEngine", longSword.Reason, StringComparison.Ordinal);
         Assert.Contains("deferred", longSword.Reason, StringComparison.OrdinalIgnoreCase);
 
         var sentinelAdept = BuildEquipmentProfile(specs, "SFD·008/221", CardEquipmentKeywordNames.Tempered);
@@ -2144,7 +2153,7 @@ public sealed class CardCatalogBaselineTests
         Assert.True(sentinelAdept.HasImplementedRepresentativeTemperedOptionalAttachBoundary);
         Assert.Equal(EquipmentKeywordProfileStatuses.RecognizedDeferred, sentinelAdept.Status);
         Assert.Contains("Tempered optional attach", sentinelAdept.Reason, StringComparison.Ordinal);
-        Assert.Contains("full tempered official breadth", sentinelAdept.Reason, StringComparison.Ordinal);
+        Assert.Contains("full Tempered official breadth", sentinelAdept.Reason, StringComparison.Ordinal);
         Assert.Contains("deferred", sentinelAdept.Reason, StringComparison.OrdinalIgnoreCase);
 
         var armedAssaulter = BuildEquipmentProfile(specs, "SFD·002/221", CardEquipmentKeywordNames.Tempered);
@@ -2156,7 +2165,7 @@ public sealed class CardCatalogBaselineTests
         Assert.True(armedAssaulter.HasImplementedRepresentativeTemperedOptionalAttachBoundary);
         Assert.Equal(EquipmentKeywordProfileStatuses.RecognizedDeferred, armedAssaulter.Status);
         Assert.Contains("Tempered optional attach", armedAssaulter.Reason, StringComparison.Ordinal);
-        Assert.Contains("full tempered official breadth", armedAssaulter.Reason, StringComparison.Ordinal);
+        Assert.Contains("full Tempered official breadth", armedAssaulter.Reason, StringComparison.Ordinal);
         Assert.Contains("deferred", armedAssaulter.Reason, StringComparison.OrdinalIgnoreCase);
 
         foreach (var jaxCardNo in new[] { "SFD·119/221", "SFD·119a/221" })
@@ -2166,7 +2175,7 @@ public sealed class CardCatalogBaselineTests
             Assert.True(jax.HasImplementedRepresentativeTemperedOptionalAttachBoundary);
             Assert.Equal(EquipmentKeywordProfileStatuses.RecognizedDeferred, jax.Status);
             Assert.Contains("Tempered optional attach", jax.Reason, StringComparison.Ordinal);
-            Assert.Contains("full tempered official breadth", jax.Reason, StringComparison.Ordinal);
+            Assert.Contains("full Tempered official breadth", jax.Reason, StringComparison.Ordinal);
         }
 
         var ornn = BuildEquipmentProfile(specs, "SFD·085/221", CardEquipmentKeywordNames.Tempered);
@@ -2175,7 +2184,49 @@ public sealed class CardCatalogBaselineTests
         Assert.True(ornn.HasImplementedRepresentativeFriendlyEquipmentStaticPowerBoundary);
         Assert.Equal(EquipmentKeywordProfileStatuses.RecognizedDeferred, ornn.Status);
         Assert.Contains("Ornn friendly-equipment static power", ornn.Reason, StringComparison.Ordinal);
-        Assert.Contains("full tempered official breadth", ornn.Reason, StringComparison.Ordinal);
+        Assert.Contains("full Tempered official breadth", ornn.Reason, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task P5EquipmentStateAssembleLongSwordOwnerControllerFixtureProfileBindsExistingVerifierAnchors()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var longSword = BuildEquipmentProfile(
+            specs,
+            "SFD·022/221",
+            CardEquipmentKeywordNames.Agile,
+            CardEquipmentKeywordNames.Assemble);
+        var stateRepresentative = Assert.Single(
+            CardEquipmentKeywordRules.EquipmentStateRepresentatives,
+            representative => string.Equals(representative.CardNo, "SFD·022/221", StringComparison.Ordinal));
+        var verifierNames = typeof(ConformanceFixtureRunnerTests)
+            .GetMethods(BindingFlags.Instance | BindingFlags.Public)
+            .Where(method => method.GetCustomAttribute<FactAttribute>() is not null)
+            .Select(method => method.Name)
+            .ToHashSet(StringComparer.Ordinal);
+
+        Assert.True(CardEquipmentKeywordRules.IsEquipmentStateRepresentativeCardNo("SFD·022/221"));
+        Assert.False(CardEquipmentKeywordRules.IsEquipmentStateRepresentativeCardNo("SFD·033/221"));
+        Assert.True(longSword.HasImplementedRepresentativeEquipmentStateBoundary);
+        Assert.Equal(stateRepresentative.VerifierTestNames, longSword.EquipmentStateRepresentativeVerifierTests);
+        Assert.Equal("Long Sword", stateRepresentative.CardName);
+        Assert.Contains("Long Sword owner/controller/attachment invariant", stateRepresentative.CoveredBoundaries);
+        Assert.Contains("controller mismatch no-mutation rejection", stateRepresentative.CoveredBoundaries);
+        Assert.Contains("controlled opponent-owned target attach", stateRepresentative.CoveredBoundaries);
+        Assert.Contains("attached equipment follows host base-to-battlefield movement", stateRepresentative.CoveredBoundaries);
+        Assert.Contains("attached equipment follows host battlefield-to-base movement", stateRepresentative.CoveredBoundaries);
+        Assert.Contains("host destroyed detach/recall to owner base", stateRepresentative.CoveredBoundaries);
+        Assert.All(stateRepresentative.VerifierTestNames, testName => Assert.Contains(testName, verifierNames));
+        Assert.Contains(
+            "CoreRuleEngineDetachesEquipmentWhenHostUnitIsDestroyed",
+            stateRepresentative.VerifierTestNames);
+        Assert.Equal(EquipmentKeywordProfileStatuses.RecognizedDeferred, longSword.Status);
+        Assert.Contains("full owner/controller breadth", longSword.Reason, StringComparison.Ordinal);
+        Assert.Contains("full attach lifecycle breadth", longSword.Reason, StringComparison.Ordinal);
+        Assert.Contains("full equipment official coverage", longSword.Reason, StringComparison.Ordinal);
     }
 
     [Fact]

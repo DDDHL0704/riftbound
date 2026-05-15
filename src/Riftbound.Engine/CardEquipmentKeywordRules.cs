@@ -32,8 +32,16 @@ public sealed record CardEquipmentKeywordProfile(
     bool HasImplementedRepresentativeAgileDirectPlayAttachBoundary,
     bool HasImplementedRepresentativeTemperedOptionalAttachBoundary,
     bool HasImplementedRepresentativeFriendlyEquipmentStaticPowerBoundary,
+    bool HasImplementedRepresentativeEquipmentStateBoundary,
+    IReadOnlyList<string> EquipmentStateRepresentativeVerifierTests,
     string Status,
     string Reason);
+
+public sealed record CardEquipmentStateRepresentative(
+    string CardNo,
+    string CardName,
+    IReadOnlyList<string> CoveredBoundaries,
+    IReadOnlyList<string> VerifierTestNames);
 
 public sealed record CardEquipmentAttachmentProfile(
     bool CanAttachOrDetachWeapon,
@@ -65,6 +73,31 @@ public static class CardEquipmentKeywordRules
         "SFD·085a/221"
     ];
 
+    public static readonly IReadOnlyList<CardEquipmentStateRepresentative> EquipmentStateRepresentatives =
+    [
+        new(
+            "SFD·022/221",
+            "Long Sword",
+            [
+                "Long Sword owner/controller/attachment invariant",
+                "controller mismatch no-mutation rejection",
+                "controlled opponent-owned target attach",
+                "attached equipment follows host base-to-battlefield movement",
+                "attached equipment follows host battlefield-to-base movement",
+                "host destroyed detach/recall to owner base"
+            ],
+            [
+                "P5EquipmentStateAssembleLongSwordPreservesOwnerControllerAndAttachment",
+                "P5EquipmentStateAssembleLongSwordRejectsControllerMismatchWithoutSideEffects",
+                "P5EquipmentStateAssembleLongSwordAllowsControlledOpponentOwnedTarget",
+                "P5MoveUnitCommandMovesExplicitAttachedEquipmentWithHostToBattlefield",
+                "P5MoveUnitCommandMovesExplicitAttachedEquipmentWithHostToBase",
+                "CoreRuleEngineDetachesEquipmentWhenHostUnitIsDestroyed",
+                "P5EquipmentStateAssembleLongSwordOwnerControllerFixture",
+                "P5MoveUnitCommandAttachedEquipmentFollowsHostFixture"
+            ])
+    ];
+
     public static bool IsAgileDirectPlayAttachRepresentativeCardNo(string? cardNo)
     {
         return !string.IsNullOrWhiteSpace(cardNo)
@@ -81,6 +114,13 @@ public static class CardEquipmentKeywordRules
     {
         return !string.IsNullOrWhiteSpace(cardNo)
             && FriendlyEquipmentStaticPowerRepresentativeCardNos.Contains(cardNo);
+    }
+
+    public static bool IsEquipmentStateRepresentativeCardNo(string? cardNo)
+    {
+        return !string.IsNullOrWhiteSpace(cardNo)
+            && EquipmentStateRepresentatives.Any(representative =>
+                string.Equals(representative.CardNo, cardNo, StringComparison.Ordinal));
     }
 
     public static CardEquipmentKeywordProfile BuildProfile(
@@ -113,6 +153,9 @@ public static class CardEquipmentKeywordRules
         var hasImplementedRepresentativeFriendlyEquipmentStaticPowerBoundary =
             IsFriendlyEquipmentStaticPowerRepresentativeCardNo(spec.CardNo)
             && behavior?.AddsFriendlyFieldEquipmentCountToSourceUnitPower == true;
+        var equipmentStateRepresentative = EquipmentStateRepresentatives.FirstOrDefault(representative =>
+            string.Equals(representative.CardNo, spec.CardNo, StringComparison.Ordinal));
+        var hasImplementedRepresentativeEquipmentStateBoundary = equipmentStateRepresentative is not null;
         var hasDeferredOfficialBreadth = hasAgile
             || hasTempered
             || hasWeapon
@@ -127,6 +170,8 @@ public static class CardEquipmentKeywordRules
             hasImplementedRepresentativeAgileDirectPlayAttachBoundary,
             hasImplementedRepresentativeTemperedOptionalAttachBoundary,
             hasImplementedRepresentativeFriendlyEquipmentStaticPowerBoundary,
+            hasImplementedRepresentativeEquipmentStateBoundary,
+            equipmentStateRepresentative?.VerifierTestNames ?? [],
             hasAnyEquipmentKeyword
                 ? hasDeferredOfficialBreadth
                     ? EquipmentKeywordProfileStatuses.RecognizedDeferred
@@ -138,6 +183,7 @@ public static class CardEquipmentKeywordRules
                     hasImplementedRepresentativeAgileDirectPlayAttachBoundary,
                     hasImplementedRepresentativeTemperedOptionalAttachBoundary,
                     hasImplementedRepresentativeFriendlyEquipmentStaticPowerBoundary,
+                    hasImplementedRepresentativeEquipmentStateBoundary,
                     hasDeferredOfficialBreadth)
                 : "Card does not expose equipment keyword surfaces through P3 BehaviorSpec or the P2 source-object tag path.");
     }
@@ -159,7 +205,7 @@ public static class CardEquipmentKeywordRules
             true,
             behavior.DrawCount,
             EquipmentAttachmentProfileStatuses.ImplementedRepresentative,
-            "P4.58 verifies the existing Take Up attach/detach representative through P2 fixtures; assemble costs, Agile auto-attach, Tempered optional attachment, other static equipment modifiers, and owner/controller changes remain deferred.");
+            "P4.58 verifies the existing Take Up attach/detach representative through P2 fixtures; assemble costs, Agile auto-attach, Tempered optional attachment, other static equipment modifiers, full owner/controller breadth, and full attach lifecycle breadth remain deferred.");
     }
 
     private static bool HasKeyword(
@@ -199,6 +245,7 @@ public static class CardEquipmentKeywordRules
         bool hasImplementedRepresentativeAgileDirectPlayAttachBoundary,
         bool hasImplementedRepresentativeTemperedOptionalAttachBoundary,
         bool hasImplementedRepresentativeFriendlyEquipmentStaticPowerBoundary,
+        bool hasImplementedRepresentativeEquipmentStateBoundary,
         bool hasDeferredOfficialBreadth)
     {
         var implementedBoundaries = new List<string>();
@@ -222,16 +269,21 @@ public static class CardEquipmentKeywordRules
             implementedBoundaries.Add("Ornn friendly-equipment static power");
         }
 
+        if (hasImplementedRepresentativeEquipmentStateBoundary)
+        {
+            implementedBoundaries.Add("P5 equipment state representatives");
+        }
+
         if (implementedBoundaries.Count > 0 && !hasDeferredOfficialBreadth)
         {
-            return $"{string.Join(" and ", implementedBoundaries)} are covered by existing server-authoritative representative boundaries; reaction-timing breadth, Jax-granted agile, remaining ephemeral/static equipment breadth, full tempered official breadth, copy-text effects, owner/controller changes, attach lifecycle breadth, and full equipment official coverage remain deferred.";
+            return $"{string.Join(" and ", implementedBoundaries)} are covered by existing server-authoritative representative boundaries; Agile reaction timing, Jax-granted Agile, remaining ephemeral/static equipment breadth, full Tempered official breadth, copy-text effects, full owner/controller breadth, full attach lifecycle breadth, LayerEngine, and full equipment official coverage remain deferred.";
         }
 
         if (implementedBoundaries.Count > 0)
         {
-            return $"{string.Join(" and ", implementedBoundaries)} are covered by existing server-authoritative representative boundaries, but this card still exposes deferred equipment breadth such as reaction timing, Jax-granted agile, remaining ephemeral/static equipment breadth, full tempered official breadth, other weapon/static modifiers, copy-text effects, owner/controller changes, or attach lifecycle breadth.";
+            return $"{string.Join(" and ", implementedBoundaries)} are covered by existing server-authoritative representative boundaries, but this card still exposes deferred equipment breadth such as Agile reaction timing, Jax-granted Agile, remaining ephemeral/static equipment breadth, full Tempered official breadth, other weapon/static modifiers, copy-text effects, full owner/controller breadth, full attach lifecycle breadth, LayerEngine, and full equipment official coverage.";
         }
 
-        return "P4.8 recognizes equipment keyword surfaces from P3 BehaviorSpec and P2 source-object tags; assemble costs without a registered representative profile, agile reaction attachment, Jax-granted agile, full tempered official breadth, static equipment modifiers outside registered representatives, copy-text effects, owner/controller changes, attach lifecycle breadth, and full equipment official coverage remain deferred.";
+        return "P4.8 recognizes equipment keyword surfaces from P3 BehaviorSpec and P2 source-object tags; assemble costs without a registered representative profile, Agile reaction attachment, Jax-granted Agile, full Tempered official breadth, static equipment modifiers outside registered representatives, copy-text effects, full owner/controller breadth, full attach lifecycle breadth, LayerEngine, and full equipment official coverage remain deferred.";
     }
 }
