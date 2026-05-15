@@ -1356,6 +1356,74 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineResourceSkillCoverageManifestKeepsResidualBlockerCatalogBound()
+    {
+        var residualBlocker = Assert.Single(
+            ResidualBlockerManifest,
+            entry => string.Equals(entry.Family, "RESOURCE_SKILL_A_C_FAMILY", StringComparison.Ordinal));
+
+        Assert.Equal(CatalogBoundRepresentative, residualBlocker.Classification);
+        Assert.Contains("19", residualBlocker.CurrentEvidence, StringComparison.Ordinal);
+        Assert.Contains("IsResourceSkill=true", residualBlocker.CurrentEvidence, StringComparison.Ordinal);
+        Assert.Contains("[A]", residualBlocker.MissingOfficialBreadth, StringComparison.Ordinal);
+        Assert.Contains("[C]", residualBlocker.MissingOfficialBreadth, StringComparison.Ordinal);
+        Assert.Contains("cross-window", residualBlocker.MissingOfficialBreadth, StringComparison.Ordinal);
+        Assert.Contains("no-mutation", residualBlocker.RollbackExpectation, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("NOT READY", residualBlocker.ClosureStatus, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", residualBlocker.ClosureStatus, StringComparison.Ordinal);
+        Assert.Contains(
+            residualBlocker.DocAnchors,
+            anchor => anchor.Contains("03AL_PAYMENT_ENGINE_RESOURCE_SKILL_COVERAGE_AUDIT", StringComparison.Ordinal));
+
+        Assert.Equal(
+            19,
+            ResourceSkillCoverageManifest.SelectMany(entry => entry.AbilityIds).Distinct(StringComparer.Ordinal).Count());
+    }
+
+    [Fact]
+    public void PaymentEngineResourceSkillCoverageManifestKeepsOfficialBreadthExplicit()
+    {
+        var residualBlocker = Assert.Single(
+            ResidualBlockerManifest,
+            entry => string.Equals(entry.Family, "RESOURCE_SKILL_A_C_FAMILY", StringComparison.Ordinal));
+        var combinedText = string.Join(
+            " ",
+            ResourceSkillCoverageManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.Family,
+                    entry.PromptAnchor,
+                    entry.CommandAnchor,
+                    entry.AuditAnchor,
+                    entry.RollbackAnchor,
+                    entry.ClosureStatus
+                }.Concat(entry.DocAnchors)).Concat(
+                    [
+                        residualBlocker.CurrentEvidence,
+                        residualBlocker.ExistingRepresentativeEvidence,
+                        residualBlocker.MissingOfficialBreadth,
+                        residualBlocker.RollbackExpectation
+                    ]));
+
+        Assert.Contains("Malzahar", combinedText, StringComparison.Ordinal);
+        Assert.Contains("target-as-cost", combinedText, StringComparison.Ordinal);
+        Assert.Contains("Dragon Soul Sage", combinedText, StringComparison.Ordinal);
+        Assert.Contains("reaction", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Sigil", combinedText, StringComparison.Ordinal);
+        Assert.Contains("typed", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("temporary", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("conversion", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Gold token", combinedText, StringComparison.Ordinal);
+        Assert.Contains("payment-only", combinedText, StringComparison.Ordinal);
+        Assert.Contains("generated", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("[A]", combinedText, StringComparison.Ordinal);
+        Assert.Contains("[C]", combinedText, StringComparison.Ordinal);
+        Assert.Contains("cross-window", combinedText, StringComparison.Ordinal);
+        Assert.All(ResourceSkillCoverageManifest, entry =>
+            Assert.Contains("full-official resource skill breadth", entry.ClosureStatus, StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void PaymentEngineResourceSkillCoverageManifestDoesNotClaimP0005Closure()
     {
         var combinedText = string.Join(
@@ -1372,6 +1440,7 @@ public sealed class PaymentEngineCoverageAuditTests
                 }.Concat(entry.DocAnchors)));
 
         Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
         Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
         Assert.DoesNotContain("READY", combinedText.Replace("NOT READY", string.Empty, StringComparison.Ordinal), StringComparison.Ordinal);
     }
