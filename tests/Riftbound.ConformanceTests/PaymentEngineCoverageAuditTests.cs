@@ -1,3 +1,4 @@
+using System.IO;
 using Riftbound.Engine;
 using Xunit;
 
@@ -985,7 +986,7 @@ public sealed class PaymentEngineCoverageAuditTests
             [
                 "docs/CURRENT_STAGE4D_03AQ_PAYMENT_ENGINE_HASTE_READY_COVERAGE_VERIFIER_AUDIT.md",
                 "docs/CURRENT_STAGE4D_03AP_PAYMENT_ENGINE_REKSAI_HASTE_READY_RED_EXACTNESS_AUDIT.md",
-                "docs/CURRENT_STAGE4D_04G_TEMPERED_HASTE_EQUIPMENT_AUDIT.md"
+                "docs/CURRENT_STAGE4D_04G_ARMED_ASSAULTER_HASTE_TEMPERED_AUDIT.md"
             ]),
         new(
             "ECHO_OPTIONAL_PAYMENT",
@@ -1043,7 +1044,7 @@ public sealed class PaymentEngineCoverageAuditTests
             [
                 "docs/CURRENT_STAGE4D_03G_PAYMENT_ENGINE_BATTLEFIELD_HELD_RESOURCE_AUDIT.md",
                 "docs/CURRENT_STAGE4D_03AC_PAYMENT_ENGINE_BATTLEFIELD_HELD_TEMP_RESOURCE_AUDIT.md",
-                "docs/CURRENT_STAGE4D_03AI_PAYMENT_ENGINE_BATTLEFIELD_BRUSH_CONTEXT_AUDIT.md"
+                "docs/CURRENT_STAGE4D_02H_BATTLE_RESPONSE_BRUSH_REPLACEMENT_CONTEXT_AUDIT.md"
             ]),
         new(
             "COST_MODIFIER_PAYMENTS",
@@ -1058,7 +1059,7 @@ public sealed class PaymentEngineCoverageAuditTests
             [
                 "docs/CURRENT_STAGE4D_03C_PAYMENT_ENGINE_PLAY_OPTIONAL_AUDIT.md",
                 "docs/CURRENT_STAGE4D_03AU_PAYMENT_ENGINE_RESIDUAL_SCOPE_HANDOFF.md",
-                "docs/CURRENT_STAGE4D_04P_STATIC_AURA_COST_MODIFIER_LAYERING_AUDIT.md"
+                "docs/CURRENT_STAGE4D_04P_LAYERENGINE_MINIMUM_POWER_ORDERING_AUDIT.md"
             ]),
         new(
             "OPTIONAL_EXTRA_ALTERNATIVE_COSTS",
@@ -1074,8 +1075,9 @@ public sealed class PaymentEngineCoverageAuditTests
                 "docs/CURRENT_STAGE4D_03C_PAYMENT_ENGINE_PLAY_OPTIONAL_AUDIT.md",
                 "docs/CURRENT_STAGE4D_03E_PAYMENT_ENGINE_HIDE_CARD_AUDIT.md",
                 "docs/CURRENT_STAGE4D_03AS_AZIR_OPTIONAL_ARMAMENT_REATTACH_AUDIT.md",
-                "docs/CURRENT_STAGE4D_04D_EQUIPMENT_OPTIONAL_TARGET_BRANCH_AUDIT.md",
-                "docs/CURRENT_STAGE4D_04E_EQUIPMENT_EXTRA_PAY_BRANCH_AUDIT.md"
+                "docs/CURRENT_STAGE4D_04D_TEMPERED_OPTIONAL_ATTACH_AUDIT.md",
+                "docs/CURRENT_STAGE4D_04E_JAX_TEMPERED_OPTIONAL_ATTACH_TRIGGER_AUDIT.md",
+                "docs/CURRENT_STAGE4D_04F_AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL_AUDIT.md"
             ]),
         new(
             "TEMPORARY_RESOURCE_PARITY",
@@ -2236,6 +2238,19 @@ public sealed class PaymentEngineCoverageAuditTests
         });
     }
 
+    [Fact]
+    public void PaymentEngineCoverageManifestDocAnchorsResolveToCurrentAuditDocs()
+    {
+        var repositoryRoot = ResolveRepositoryRoot();
+        var missingAnchors = GetPaymentEngineCoverageDocAnchors()
+            .Distinct(StringComparer.Ordinal)
+            .Where(anchor => !File.Exists(Path.Combine(repositoryRoot, anchor)))
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Empty(missingAnchors);
+    }
+
     private sealed record PaymentEngineActionWindowCoverageEntry(
         string ActionWindow,
         string Classification,
@@ -2284,6 +2299,35 @@ public sealed class PaymentEngineCoverageAuditTests
         string ExpectedPowerTrait,
         string FixtureFileName,
         string RepresentativeAnchor);
+
+    private static IEnumerable<string> GetPaymentEngineCoverageDocAnchors()
+    {
+        return CoverageManifest.SelectMany(entry => entry.DocAnchors)
+            .Concat(SpellshieldTaxCoverageManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(TargetColoredActivatedAbilityCoverageManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(ResourceSkillCoverageManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(ResidualBlockerManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(OfficialPaymentEngineMatrixResidualManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(OfficialPaymentEngineMatrixSeedRowManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(LegendBattlefieldTriggerResourceActionManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(KeywordPaymentBranchManifest.SelectMany(entry => entry.DocAnchors));
+    }
+
+    private static string ResolveRepositoryRoot()
+    {
+        var current = new DirectoryInfo(Directory.GetCurrentDirectory());
+        while (current is not null)
+        {
+            if (File.Exists(Path.Combine(current.FullName, "Riftbound.slnx")))
+            {
+                return current.FullName;
+            }
+
+            current = current.Parent;
+        }
+
+        throw new InvalidOperationException("Could not locate repository root containing Riftbound.slnx.");
+    }
 
     private sealed record PaymentEngineResidualBlockerCoverageEntry(
         string Family,
