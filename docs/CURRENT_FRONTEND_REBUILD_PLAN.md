@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 2026-05-16 Stage 4D-04O-B 已派发：A 主控已把 LayerEngine power modifier ordering metadata 交给 B-Implementation，并在 `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 打开窄服务端 runtime / focused-test 写锁。本 dispatch 不修改前端运行时代码；前端仍只消费服务端 authoritative snapshot 中的 `power`、`basePower`、`effectivePower`、`timing.continuousEffects` 及其中 metadata，不本地推断 power modifier ordering、LayerEngine、minimum floor ordering 或重算战力。项目仍 **NOT READY**。
+
 - 2026-05-16 Stage 4D-04O handoff / baseline 已建立：A 主控把 P1-001 LayerEngine power modifier ordering residual 拆成下一枚建议 B handoff。交接入口为 `docs/CURRENT_STAGE4D_04O_LAYERENGINE_POWER_MODIFIER_ORDERING_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_04O_LAYERENGINE_POWER_MODIFIER_ORDERING_BASELINE_EVIDENCE.md`；focused ordering guard 6/6、adjacent LayerEngine / power metadata regression 37/37、backend full 4447/4447 通过。本批不修改前端运行时代码；前端继续只消费服务端 authoritative snapshot 中的 `power`、`basePower`、`effectivePower`、`timing.continuousEffects` 及其中的 metadata，不本地实现 LayerEngine、power modifier ordering、minimum floor ordering 或重算战力。项目仍 **NOT READY**。
 
 - 2026-05-16 Stage 4D-04N-B 已验收：LayerEngine direct power ledger exactness 已由 B-Implementation / Godel `019e2c69-aa6d-7701-9525-6a79a50fa210` 完成，审计入口为 `docs/CURRENT_STAGE4D_04N_LAYERENGINE_DIRECT_POWER_LEDGER_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_04N_LAYERENGINE_DIRECT_POWER_LEDGER_EVIDENCE.md`；focused direct-power guard 6/6、adjacent power/layer/trigger regression 185/185、backend full 4447/4447、`git diff --check` 通过。本批不修改前端运行时代码；前端继续只消费服务端 authoritative snapshot 中的 `power`、`basePower`、`effectivePower`、`timing.continuousEffects` 及其中的 source/effect/requested/applied/minimum/resulting metadata，不本地实现 LayerEngine、direct power ledger、minimum floor ordering 或重算战力。项目仍 **NOT READY**。
