@@ -12,6 +12,9 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string CoveredRepresentative = "covered-representative";
     private const string RemainingOfficialGap = "remaining-official-gap";
     private const string PolicyDeferred = "policy-deferred";
+    private const string RepresentativeSeed = "representative-seed";
+    private const string MissingOfficialRow = "missing-official-row";
+    private const string PolicyDeferredRow = "policy-deferred-row";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
     [
@@ -695,6 +698,231 @@ public sealed class PaymentEngineCoverageAuditTests
             ])
     ];
 
+    private static readonly PaymentEngineOfficialMatrixSeedRowCoverageEntry[] OfficialPaymentEngineMatrixSeedRowManifest =
+    [
+        new(
+            "ROW_ACTION_WINDOWS_PLAY_CARD_TYPED_RESOURCE_SEED",
+            "ACTION_WINDOWS",
+            RepresentativeSeed,
+            "PLAY_CARD",
+            "typed power plus recycle and temporary payment resource",
+            "PLAY_CARD typed-resource representative from the action-window coverage manifest.",
+            "PaymentEngineUnificationTests prompt coverage for PLAY_CARD typed resource quote and recycle choices",
+            "PaymentEngineUnificationTests command coverage for PLAY_CARD typed resource commit and revalidation",
+            "COST_PAID / RESOURCE_RECYCLED / TEMPORARY_PAYMENT_RESOURCE_SPENT audit assertions for representative PLAY_CARD rows",
+            "Wrong trait, stale prompt, invalid resource and insufficient payment must roll back with no-mutation semantics.",
+            "Full official PLAY_CARD row combinations across every source, modifier, optional branch and failure branch remain open.",
+            "Representative seed only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AH_PAYMENT_ENGINE_ACTION_WINDOW_COVERAGE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AG_PAYMENT_ENGINE_PLAY_CARD_TYPED_RESOURCE_PROMPT_AUDIT.md"
+            ]),
+        new(
+            "ROW_PAYMENT_SOURCES_PAY_COST_TEMPORARY_SEED",
+            "PAYMENT_SOURCES",
+            RepresentativeSeed,
+            "PAY_COST",
+            "mana, generic power, recycle resource and temporary payment resource",
+            "Pending PAY_COST representative covering temporary payment-only resource quote and commit.",
+            "PaymentEngineUnificationTests prompt coverage for pending PAY_COST temporary resource metadata",
+            "PaymentEngineUnificationTests command coverage for pending PAY_COST commit, spend and cleanup",
+            "COST_PAID / TEMPORARY_PAYMENT_RESOURCE_SPENT / TEMPORARY_PAYMENT_RESOURCE_CLEARED audit assertions",
+            "Wrong resource id, expired temporary resource, stale pending payment and insufficient source totals must roll back with no-mutation semantics.",
+            "Full official payment-source mixing, generated-source lifetime and source-specific failure rows remain open.",
+            "Representative seed only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03F_PAYMENT_ENGINE_PAY_COST_RESOURCE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AE_PAYMENT_ENGINE_PENDING_TEMP_RESOURCE_PROMPT_AUDIT.md"
+            ]),
+        new(
+            "ROW_RESOURCE_SKILLS_MALZAHAR_TARGET_AS_COST_SEED",
+            "RESOURCE_SKILLS",
+            RepresentativeSeed,
+            "ACTIVATE_ABILITY",
+            "target-as-cost generated payment-only resource skill",
+            "Malzahar resource skill representative from the catalog-bound resource skill manifest.",
+            "MalzaharResourceSkillTests prompt coverage for target-as-cost payment-only resource generation",
+            "MalzaharResourceSkillTests command coverage for source exhaust, friendly target destruction and generated resource creation",
+            "ABILITY_ACTIVATED / UNIT_DESTROYED / POWER_GAINED audit assertions for resource skill rows",
+            "Invalid timing, stale target, exhausted source, duplicate source and payment-only misuse must roll back with no-mutation semantics.",
+            "Full official [A] / [C] resource skill family, generated resource type and cross-window consumption rows remain open.",
+            "Representative seed only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AZ_PAYMENT_ENGINE_RESOURCE_SKILL_RESIDUAL_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03I_PAYMENT_ENGINE_RESOURCE_SKILL_AUDIT.md"
+            ]),
+        new(
+            "ROW_TARGET_TAXES_XERATH_SPELLSHIELD_SEED",
+            "TARGET_TAXES",
+            RepresentativeSeed,
+            "ACTIVATE_ABILITY",
+            "target tax for Spellshield enemy unit target",
+            "Xerath target damage representative covering Spellshield target tax quote and command commit.",
+            "PaymentEngineUnificationTests prompt coverage for Xerath Spellshield target tax metadata",
+            "PaymentEngineUnificationTests command coverage for Xerath target tax payment and revalidation",
+            "COST_PAID spellshieldTaxMana / spellshieldTaxTargetObjectIds audit assertions",
+            "Invalid target, stale target, insufficient target tax, wrong controller and target-count mismatch must roll back with no-mutation semantics.",
+            "Full official target tax, dependency target, target-count and stale legality rows remain open.",
+            "Representative seed only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AW_PAYMENT_ENGINE_TARGET_COLORED_ACTIVATED_ABILITY_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AK_PAYMENT_ENGINE_SPELLSHIELD_TAX_COVERAGE_AUDIT.md"
+            ]),
+        new(
+            "ROW_KEYWORD_BRANCHES_HASTE_READY_SEED",
+            "KEYWORD_BRANCHES",
+            RepresentativeSeed,
+            "PLAY_CARD",
+            "HASTE_READY optional payment branch",
+            "Rek'Sai and current registry-bound HASTE_READY representatives covering one mana plus typed power branch.",
+            "HASTE_READY prompt coverage via fixture runner play prompts and RekSaiHasteReadyRedPaymentTests",
+            "HASTE_READY command-side payment revalidation via p4 play Haste fixtures and RekSai command commits",
+            "COST_PAID audit payload assertions for HASTE_READY mana plus typed power rows",
+            "Wrong trait, insufficient cost, exhausted source and stale play must roll back with no-mutation semantics.",
+            "Full official Haste, Echo, Spellshield, experience and all-window keyword parity rows remain open.",
+            "Representative seed only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AY_PAYMENT_ENGINE_KEYWORD_PAYMENT_BRANCH_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AQ_PAYMENT_ENGINE_HASTE_READY_COVERAGE_VERIFIER_AUDIT.md"
+            ]),
+        new(
+            "ROW_COST_MODIFIERS_BATTLEFIELD_EQUIPMENT_SEED",
+            "COST_MODIFIERS",
+            RepresentativeSeed,
+            "PLAY_CARD",
+            "cost reduction, cost increase and minimum-cost modifier representative",
+            "Selected battlefield and equipment payment modifier representatives from keyword payment branch coverage.",
+            "Cost modifier prompt coverage via play and equipment optional branch prompts and modifier metadata",
+            "Cost modifier command-side revalidation via current reduction, increase and minimum-cost representative commits",
+            "COST_PAID audit payload assertions for modified quoted cost and paid resource totals",
+            "Stale modifier, insufficient modified cost, illegal zeroing, wrong resource and stacking-order mismatch must roll back with no-mutation semantics.",
+            "Full official cost reduction, cost increase, minimum rule and modifier stacking rows remain open.",
+            "Representative seed only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AY_PAYMENT_ENGINE_KEYWORD_PAYMENT_BRANCH_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03C_PAYMENT_ENGINE_PLAY_OPTIONAL_AUDIT.md"
+            ]),
+        new(
+            "ROW_OPTIONAL_EXTRA_ALTERNATIVE_AZIR_REATTACH_SEED",
+            "OPTIONAL_EXTRA_ALTERNATIVE_COSTS",
+            RepresentativeSeed,
+            "ACTIVATE_ABILITY",
+            "target-scoped optional armament reattach branch",
+            "Azir optional armament reattach representative with accepted and invalid target-scoped option coverage.",
+            "AzirSwiftSwapActivatedAbilityTests prompt coverage for optional armament reattach token and target choices",
+            "AzirSwiftSwapActivatedAbilityTests command coverage for accepted reattach payment branch and stack revalidation",
+            "COST_PAID / ABILITY_ACTIVATED / EQUIPMENT_REATTACHED audit assertions for optional branch rows",
+            "Invalid option, stale option target, insufficient alternative cost, wrong branch resource and declined payment side effects must roll back with no-mutation semantics.",
+            "Full official optional, extra, alternative, target-scoped and mixed-branch rows remain open.",
+            "Representative seed only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AS_AZIR_OPTIONAL_ARMAMENT_REATTACH_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AY_PAYMENT_ENGINE_KEYWORD_PAYMENT_BRANCH_MANIFEST_AUDIT.md"
+            ]),
+        new(
+            "ROW_REPLACEMENT_PREVENTION_BATTLEFIELD_HELD_SEED",
+            "REPLACEMENT_PREVENTION",
+            RepresentativeSeed,
+            "BATTLEFIELD_HELD_SCORE_PAYMENT",
+            "score prevention and battlefield replacement-adjacent payment",
+            "Battlefield held score payment representative with prevention and no-effect guard coverage.",
+            "ConformanceFixtureRunnerTests prompt coverage for battlefield held score payment quote",
+            "ConformanceFixtureRunnerTests command coverage for battlefield held payment commit and prevention handling",
+            "COST_PAID / BATTLEFIELD_HELD / SCORE_GAINED or prevented-effect audit assertions",
+            "Prevented score, stale replacement source, already-scored battlefield and invalid payment resource must roll back with no-mutation semantics.",
+            "Full official replacement, prevention, ordering and payment-adjacent no-effect rows remain open.",
+            "Representative seed only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AX_PAYMENT_ENGINE_LEGEND_BATTLEFIELD_TRIGGER_RESOURCE_ACTION_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03G_PAYMENT_ENGINE_BATTLEFIELD_HELD_RESOURCE_AUDIT.md"
+            ]),
+        new(
+            "ROW_RESOURCE_ACTIONS_TRIGGER_PAYMENT_SEED",
+            "RESOURCE_ACTIONS",
+            RepresentativeSeed,
+            "TRIGGER_PAYMENT",
+            "trigger resource-action pending payment",
+            "SFD Fiora and adjacent trigger payment representatives covering pay, decline and stale guards.",
+            "TriggerPaymentTests prompt coverage for TRIGGER_PAYMENT pending metadata and typed-yellow resource quote",
+            "TriggerPaymentTests command coverage for accepted PayCost and declined trigger payment branches",
+            "COST_PAID / TRIGGER_PAYMENT_DECLINED / BATTLEFIELD_TRIGGER_RESOLVED / PAYMENT_WINDOW_CLOSED audit assertions",
+            "Stale source, stale target, invalid pending payment, declined branch, wrong resource and replacement-denied action must roll back with no-mutation semantics.",
+            "Full official legend, battlefield, trigger and future resource-action rows remain open.",
+            "Representative seed only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AX_PAYMENT_ENGINE_LEGEND_BATTLEFIELD_TRIGGER_RESOURCE_ACTION_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_AUDIT.md"
+            ]),
+        new(
+            "ROW_ROLLBACK_FAILURES_OFFICIAL_MATRIX_MISSING",
+            "ROLLBACK_FAILURE_BRANCHES",
+            MissingOfficialRow,
+            "ALL_PAYMENT_WINDOWS",
+            "every illegal payment command and stale prompt / command shape",
+            "No generated official row currently enumerates every illegal payment command, stale prompt, stale command, invalid resource and no-effect branch.",
+            "Missing official row: future prompt schema must identify each stale or illegal payment quote before closure.",
+            "Missing official row: future command schema must revalidate and reject each stale or illegal payment command before closure.",
+            "Missing official row: future audit schema must prove rejected rows emit no committed COST_PAID or domain success audit.",
+            "Every rejected branch must preserve hand, board, resource ledgers, pending queues, stack, score and audit state with no-mutation semantics.",
+            "Full official rollback breadth, mutation boundary proof and failure branch combinations remain open.",
+            "Missing official row only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BA_PAYMENT_ENGINE_OFFICIAL_MATRIX_RESIDUAL_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AV_PAYMENT_ENGINE_RESIDUAL_BLOCKER_MANIFEST_AUDIT.md"
+            ]),
+        new(
+            "ROW_CROSS_WINDOW_GENERATION_CONSUMPTION_MISSING",
+            "CROSS_WINDOW_GENERATION_CONSUMPTION",
+            MissingOfficialRow,
+            "ALL_GENERATION_AND_CONSUMPTION_WINDOWS",
+            "generated payment-only resource creation, restriction, spend, expiry and cleanup",
+            "Current representatives cover selected generated and temporary resources, but no official row matrix enumerates every generation and consumption pairing.",
+            "Missing official row: future prompt schema must bind generated-resource creation, payment-only restriction and consumption candidates.",
+            "Missing official row: future command schema must revalidate generated resource lifetime, restriction and spend window.",
+            "Missing official row: future audit schema must bind creation event, spend event, cleanup event and rejected reuse shape.",
+            "Expired generated resource, wrong consumption window, duplicate spend, stale pending payment and resource restriction bypass must roll back with no-mutation semantics.",
+            "Full official cross-window generation and consumption, lifetime ordering and invalid reuse rows remain open.",
+            "Missing official row only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BA_PAYMENT_ENGINE_OFFICIAL_MATRIX_RESIDUAL_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AZ_PAYMENT_ENGINE_RESOURCE_SKILL_RESIDUAL_MANIFEST_AUDIT.md"
+            ]),
+        new(
+            "ROW_CARD_MATRIX_ALIGNMENT_MISSING",
+            "CARD_MATRIX_ALIGNMENT",
+            MissingOfficialRow,
+            "ALL_CARD_PAYMENT_ROWS",
+            "every official card payment branch mapped to row evidence",
+            "Current representative manifests do not prove every official card payment branch or card-matrix row.",
+            "Missing official row: future prompt schema must remain traceable from each card-matrix row to an executable prompt shape.",
+            "Missing official row: future command schema must remain traceable from each card-matrix row to an executable command path.",
+            "Missing official row: future audit schema must remain traceable from each card-matrix row to audit events and rollback guards.",
+            "Unmapped card row, untested branch, stale card behavior metadata, missing rollback and mismatched audit expectation must remain no-mutation blockers.",
+            "Full official card matrix alignment, all card payment branches and final P0-005 closure evidence remain open.",
+            "Missing official row only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_A_MASTER_CHECKPOINT.md",
+                "docs/CURRENT_COMPLETION_AUDIT.md"
+            ]),
+        new(
+            "ROW_MOVE_UNIT_POLICY_DEFERRED",
+            "ACTION_WINDOWS",
+            PolicyDeferredRow,
+            "MOVE_UNIT",
+            "movement permission with optional-cost policy boundary",
+            "MOVE_UNIT remains movement-permission / optional-cost policy today, not a rune, mana, experience or temporary-resource payment row.",
+            "MOVE_UNIT prompt is policy movement permission metadata, not a PaymentEngine payment prompt.",
+            "MOVE_UNIT command revalidates movement permission; no payment command row is opened unless future official rules add a resource cost.",
+            "MOVE_UNIT audit is movement / permission audit today, not COST_PAID audit.",
+            "Destination legality, optional movement costs, rejected source / destination shapes and future resource reclassification must preserve no-mutation semantics.",
+            "Full official movement payment row remains deferred unless official rules add a payment source to MOVE_UNIT.",
+            "Policy deferred row only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AH_PAYMENT_ENGINE_ACTION_WINDOW_COVERAGE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03Z_TOKEN_FACTORY_BARON_NEST_STATIC_AUDIT.md"
+            ])
+    ];
+
     private static readonly PaymentEngineLegendBattlefieldTriggerResourceActionCoverageEntry[] LegendBattlefieldTriggerResourceActionManifest =
     [
         new(
@@ -1164,6 +1392,190 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
         Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("READY", combinedText.Replace("NOT READY", string.Empty, StringComparison.Ordinal), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixSeedRowManifestListsRequiredRowsExactlyOnce()
+    {
+        var requiredRowIds = new[]
+        {
+            "ROW_ACTION_WINDOWS_PLAY_CARD_TYPED_RESOURCE_SEED",
+            "ROW_PAYMENT_SOURCES_PAY_COST_TEMPORARY_SEED",
+            "ROW_RESOURCE_SKILLS_MALZAHAR_TARGET_AS_COST_SEED",
+            "ROW_TARGET_TAXES_XERATH_SPELLSHIELD_SEED",
+            "ROW_KEYWORD_BRANCHES_HASTE_READY_SEED",
+            "ROW_COST_MODIFIERS_BATTLEFIELD_EQUIPMENT_SEED",
+            "ROW_OPTIONAL_EXTRA_ALTERNATIVE_AZIR_REATTACH_SEED",
+            "ROW_REPLACEMENT_PREVENTION_BATTLEFIELD_HELD_SEED",
+            "ROW_RESOURCE_ACTIONS_TRIGGER_PAYMENT_SEED",
+            "ROW_ROLLBACK_FAILURES_OFFICIAL_MATRIX_MISSING",
+            "ROW_CROSS_WINDOW_GENERATION_CONSUMPTION_MISSING",
+            "ROW_CARD_MATRIX_ALIGNMENT_MISSING",
+            "ROW_MOVE_UNIT_POLICY_DEFERRED"
+        };
+
+        Assert.Equal(
+            requiredRowIds.Order(StringComparer.Ordinal),
+            OfficialPaymentEngineMatrixSeedRowManifest.Select(entry => entry.RowId).Order(StringComparer.Ordinal));
+        Assert.Empty(OfficialPaymentEngineMatrixSeedRowManifest
+            .GroupBy(entry => entry.RowId, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key));
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixSeedRowManifestRequiresSchemaFieldsAndClosureAnchors()
+    {
+        var allowedStatuses = new HashSet<string>(StringComparer.Ordinal)
+        {
+            RepresentativeSeed,
+            MissingOfficialRow,
+            PolicyDeferredRow
+        };
+        var residualAxes = OfficialPaymentEngineMatrixResidualManifest
+            .Select(entry => entry.Axis)
+            .ToHashSet(StringComparer.Ordinal);
+
+        Assert.All(OfficialPaymentEngineMatrixSeedRowManifest, entry =>
+        {
+            Assert.Contains(entry.RowStatus, allowedStatuses);
+            Assert.Contains(entry.Axis, residualAxes);
+            Assert.False(string.IsNullOrWhiteSpace(entry.ActionWindow));
+            Assert.False(string.IsNullOrWhiteSpace(entry.PaymentOrPolicyProfile));
+            Assert.False(string.IsNullOrWhiteSpace(entry.RepresentativeScope));
+            Assert.Contains("prompt", entry.PromptAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("command", entry.CommandAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("audit", entry.AuditAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("no-mutation", entry.RollbackExpectation, StringComparison.OrdinalIgnoreCase);
+            Assert.False(string.IsNullOrWhiteSpace(entry.RemainingOfficialBreadth));
+            Assert.Contains("NOT READY", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.NotEmpty(entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixSeedRowsCoverEveryResidualAxis()
+    {
+        var residualAxes = OfficialPaymentEngineMatrixResidualManifest
+            .Select(entry => entry.Axis)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var rowAxes = OfficialPaymentEngineMatrixSeedRowManifest
+            .Select(entry => entry.Axis)
+            .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(residualAxes, rowAxes);
+        Assert.Contains(
+            OfficialPaymentEngineMatrixSeedRowManifest,
+            entry => string.Equals(entry.RowStatus, PolicyDeferredRow, StringComparison.Ordinal)
+                && string.Equals(entry.ActionWindow, "MOVE_UNIT", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixSeedRowsKeepSeedPolicyAndMissingRowsSeparate()
+    {
+        Assert.Contains(OfficialPaymentEngineMatrixSeedRowManifest, entry => string.Equals(entry.RowStatus, RepresentativeSeed, StringComparison.Ordinal));
+        Assert.Contains(OfficialPaymentEngineMatrixSeedRowManifest, entry => string.Equals(entry.RowStatus, MissingOfficialRow, StringComparison.Ordinal));
+        Assert.Contains(OfficialPaymentEngineMatrixSeedRowManifest, entry => string.Equals(entry.RowStatus, PolicyDeferredRow, StringComparison.Ordinal));
+
+        Assert.All(
+            OfficialPaymentEngineMatrixSeedRowManifest.Where(entry => string.Equals(entry.RowStatus, MissingOfficialRow, StringComparison.Ordinal)),
+            entry =>
+            {
+                Assert.Contains("Missing official row", entry.PromptAnchor, StringComparison.Ordinal);
+                Assert.Contains("Missing official row", entry.CommandAnchor, StringComparison.Ordinal);
+                Assert.Contains("Missing official row", entry.AuditAnchor, StringComparison.Ordinal);
+                Assert.Contains("remain open", entry.RemainingOfficialBreadth, StringComparison.OrdinalIgnoreCase);
+            });
+        Assert.All(
+            OfficialPaymentEngineMatrixSeedRowManifest.Where(entry => string.Equals(entry.RowStatus, RepresentativeSeed, StringComparison.Ordinal)),
+            entry => Assert.Contains("Representative seed only", entry.ClosureStatus, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixSeedRowsKeepConcreteRowBreadthVisible()
+    {
+        var combinedText = string.Join(
+            " ",
+            OfficialPaymentEngineMatrixSeedRowManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.RowId,
+                    entry.Axis,
+                    entry.ActionWindow,
+                    entry.PaymentOrPolicyProfile,
+                    entry.RepresentativeScope,
+                    entry.PromptAnchor,
+                    entry.CommandAnchor,
+                    entry.AuditAnchor,
+                    entry.RollbackExpectation,
+                    entry.RemainingOfficialBreadth
+                }.Concat(entry.DocAnchors)));
+
+        foreach (var requiredPhrase in new[]
+        {
+            "PLAY_CARD",
+            "PAY_COST",
+            "ACTIVATE_ABILITY",
+            "TRIGGER_PAYMENT",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT",
+            "MOVE_UNIT",
+            "payment source",
+            "resource skill",
+            "target tax",
+            "cost modifier",
+            "optional",
+            "replacement",
+            "resource-action",
+            "rollback",
+            "cross-window",
+            "card matrix"
+        })
+        {
+            Assert.Contains(requiredPhrase, combinedText, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixSeedRowsDoNotClaimP0005Closure()
+    {
+        var combinedText = string.Join(
+            " ",
+            OfficialPaymentEngineMatrixSeedRowManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.RowId,
+                    entry.Axis,
+                    entry.RowStatus,
+                    entry.ActionWindow,
+                    entry.PaymentOrPolicyProfile,
+                    entry.RepresentativeScope,
+                    entry.PromptAnchor,
+                    entry.CommandAnchor,
+                    entry.AuditAnchor,
+                    entry.RollbackExpectation,
+                    entry.RemainingOfficialBreadth,
+                    entry.ClosureStatus
+                }.Concat(entry.DocAnchors)));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
     }
 
     [Fact]
@@ -1889,6 +2301,21 @@ public sealed class PaymentEngineCoverageAuditTests
         string RepresentativeEvidence,
         string RequiredFutureVerifier,
         string PromptCommandAuditExpectation,
+        string RollbackExpectation,
+        string RemainingOfficialBreadth,
+        string ClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
+    private sealed record PaymentEngineOfficialMatrixSeedRowCoverageEntry(
+        string RowId,
+        string Axis,
+        string RowStatus,
+        string ActionWindow,
+        string PaymentOrPolicyProfile,
+        string RepresentativeScope,
+        string PromptAnchor,
+        string CommandAnchor,
+        string AuditAnchor,
         string RollbackExpectation,
         string RemainingOfficialBreadth,
         string ClosureStatus,
