@@ -59,6 +59,38 @@ public sealed class SwitcherooGuardTests
         Assert.Equal(5, secondTarget.Power - secondTarget.UntilEndOfTurnPowerModifier);
         Assert.Equal(2, p2Pass.Events.Count(gameEvent =>
             string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)));
+        var powerEffects = p2Pass.State.ContinuousEffects
+            .Where(effect => string.Equals(effect.Layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(2, powerEffects.Length);
+        Assert.Contains(
+            powerEffects,
+            effect => string.Equals(effect.TargetObjectId, "P1-BATTLEFIELD-UNIT", StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-SPELL-SWITCHEROO", StringComparison.Ordinal)
+                && string.Equals(effect.SourceCardNo, "SFD·145/221", StringComparison.Ordinal)
+                && string.Equals(effect.EffectKind, "SWITCHEROO_SWAP_TWO_BATTLEFIELD_UNIT_POWERS", StringComparison.Ordinal)
+                && string.Equals(effect.SourcePath, "CoreRuleEngine.ApplyPowerModifier", StringComparison.Ordinal)
+                && effect.IsLayerEngineFoundationOnly
+                && effect.PowerDelta == 3
+                && effect.BasePower == 2
+                && effect.EffectivePower == 5);
+        Assert.All(
+            powerEffects,
+            effect => Assert.Contains("full official LayerEngine coverage", effect.DeferredLayerEngineResiduals ?? []));
+        var snapshotPowerEffects = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
+                p2Pass.Snapshots["P1"].Timing["continuousEffects"])
+            .Where(effect => string.Equals(effect["layer"] as string, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal))
+            .ToArray();
+        var firstTargetEffectView = Assert.Single(
+            snapshotPowerEffects,
+            effect => string.Equals(effect["targetObjectId"] as string, "P1-BATTLEFIELD-UNIT", StringComparison.Ordinal));
+        Assert.Equal("P1-SPELL-SWITCHEROO", firstTargetEffectView["sourceObjectId"]);
+        Assert.Equal("SWITCHEROO_SWAP_TWO_BATTLEFIELD_UNIT_POWERS", firstTargetEffectView["effectKind"]);
+        Assert.Equal("CoreRuleEngine.ApplyPowerModifier", firstTargetEffectView["sourcePath"]);
+        Assert.Equal("FOUNDATION_ONLY", firstTargetEffectView["layerEngineStatus"]);
+        Assert.Contains(
+            "timestamp ordering",
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(firstTargetEffectView["deferredLayerEngineResiduals"]));
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-SPELL-SWITCHEROO", StringComparison.Ordinal)

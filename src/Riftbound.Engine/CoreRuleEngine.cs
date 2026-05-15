@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using Riftbound.Contracts;
@@ -18691,6 +18692,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 Damage = 0,
                 UntilEndOfTurnEffects = [],
                 UntilEndOfTurnPowerModifier = 0,
+                UntilEndOfTurnPowerModifiers = [],
                 IsExhausted = false,
                 OwnerId = string.IsNullOrWhiteSpace(playedState.OwnerId) ? playerId : playedState.OwnerId,
                 ControllerId = playerId
@@ -36274,7 +36276,20 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             Power = resultingPower,
             UntilEndOfTurnPowerModifier = targetState.UntilEndOfTurnPowerModifier
-                + appliedPowerDelta
+                + appliedPowerDelta,
+            UntilEndOfTurnPowerModifiers = targetState.UntilEndOfTurnPowerModifiers
+                .Append(new PowerModifierLedgerEntry(
+                    BuildPowerModifierLedgerEffectId(stackItem, targetObjectId, behavior, appliedPowerDelta, targetState),
+                    behavior.EffectKind,
+                    "UNTIL_END_OF_TURN",
+                    targetObjectId,
+                    stackItem.SourceObjectId,
+                    stackItem.CardNo,
+                    appliedPowerDelta,
+                    resultingPower - (targetState.UntilEndOfTurnPowerModifier + appliedPowerDelta),
+                    resultingPower,
+                    "CoreRuleEngine.ApplyPowerModifier"))
+                .ToArray()
         };
         nextTargetState = ApplyOgnFioraPowerfulKeywordTags(nextTargetState);
         powerEvent = new GameEvent(
@@ -36291,6 +36306,25 @@ public sealed class CoreRuleEngine : IRuleEngine
             });
 
         return nextTargetState;
+    }
+
+    private static string BuildPowerModifierLedgerEffectId(
+        StackItemState stackItem,
+        string targetObjectId,
+        CardBehaviorDefinition behavior,
+        int appliedPowerDelta,
+        CardObjectState targetState)
+    {
+        return string.Join(
+            ":",
+            [
+                "POWER",
+                targetObjectId,
+                string.IsNullOrWhiteSpace(stackItem.StackItemId) ? "STACK" : stackItem.StackItemId,
+                string.IsNullOrWhiteSpace(behavior.EffectKind) ? "UNKNOWN_EFFECT" : behavior.EffectKind,
+                appliedPowerDelta.ToString(CultureInfo.InvariantCulture),
+                (targetState.UntilEndOfTurnPowerModifiers.Count + 1).ToString(CultureInfo.InvariantCulture)
+            ]);
     }
 
     private static CardObjectState ApplyBoon(
@@ -36878,6 +36912,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             Power = targetState.Power - targetState.UntilEndOfTurnPowerModifier,
             UntilEndOfTurnEffects = [],
             UntilEndOfTurnPowerModifier = 0,
+            UntilEndOfTurnPowerModifiers = [],
             IsExhausted = false
         };
         cardObjects[targetObjectId] = targetState;
@@ -37503,6 +37538,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 Power = targetState.Power - targetState.UntilEndOfTurnPowerModifier,
                 UntilEndOfTurnEffects = [],
                 UntilEndOfTurnPowerModifier = 0,
+                UntilEndOfTurnPowerModifiers = [],
                 IsExhausted = false
             };
             ownerPlayerId = playerId;
@@ -37725,6 +37761,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             Power = targetState.Power - targetState.UntilEndOfTurnPowerModifier,
             UntilEndOfTurnEffects = [],
             UntilEndOfTurnPowerModifier = 0,
+            UntilEndOfTurnPowerModifiers = [],
             IsExhausted = false
         };
         return true;
@@ -37771,6 +37808,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                         .OrderBy(effectId => effectId, StringComparer.Ordinal)
                         .ToArray(),
                 UntilEndOfTurnPowerModifier = 0,
+                UntilEndOfTurnPowerModifiers = [],
                 IsExhausted = false
             };
             cardObjects[targetObjectId] = targetState;
@@ -37828,6 +37866,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 Power = targetState.Power - targetState.UntilEndOfTurnPowerModifier,
                 UntilEndOfTurnEffects = [],
                 UntilEndOfTurnPowerModifier = 0,
+                UntilEndOfTurnPowerModifiers = [],
                 IsExhausted = false
             };
             cardObjects[targetObjectId] = targetState;
@@ -39600,7 +39639,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     Damage = 0,
                     UntilEndOfTurnEffects = [],
                     Power = objectState.Power - objectState.UntilEndOfTurnPowerModifier,
-                    UntilEndOfTurnPowerModifier = 0
+                    UntilEndOfTurnPowerModifier = 0,
+                    UntilEndOfTurnPowerModifiers = []
                 };
             },
             StringComparer.Ordinal);

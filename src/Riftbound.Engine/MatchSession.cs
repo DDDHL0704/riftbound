@@ -330,7 +330,70 @@ public sealed record ContinuousEffectState(
     string? SourceObjectId = null,
     int PowerDelta = 0,
     int BasePower = 0,
-    int EffectivePower = 0);
+    int EffectivePower = 0,
+    string EffectKind = "",
+    string? SourceCardNo = null,
+    string SourcePath = "",
+    bool IsLayerEngineFoundationOnly = false,
+    IReadOnlyList<string>? DeferredLayerEngineResiduals = null);
+
+public sealed record PowerModifierLedgerEntry
+{
+    [JsonConstructor]
+    public PowerModifierLedgerEntry(
+        string? effectId = null,
+        string? effectKind = null,
+        string? duration = null,
+        string? targetObjectId = null,
+        string? sourceObjectId = null,
+        string? sourceCardNo = null,
+        int powerDelta = 0,
+        int basePower = 0,
+        int effectivePower = 0,
+        string? sourcePath = null)
+    {
+        EffectId = NormalizeText(effectId);
+        EffectKind = NormalizeText(effectKind);
+        Duration = string.IsNullOrWhiteSpace(duration) ? "UNTIL_END_OF_TURN" : duration.Trim();
+        TargetObjectId = NormalizeOptionalText(targetObjectId);
+        SourceObjectId = NormalizeOptionalText(sourceObjectId);
+        SourceCardNo = NormalizeOptionalText(sourceCardNo);
+        PowerDelta = powerDelta;
+        BasePower = basePower;
+        EffectivePower = effectivePower;
+        SourcePath = string.IsNullOrWhiteSpace(sourcePath) ? "CoreRuleEngine.ApplyPowerModifier" : sourcePath.Trim();
+    }
+
+    public string EffectId { get; init; }
+
+    public string EffectKind { get; init; }
+
+    public string Duration { get; init; }
+
+    public string? TargetObjectId { get; init; }
+
+    public string? SourceObjectId { get; init; }
+
+    public string? SourceCardNo { get; init; }
+
+    public int PowerDelta { get; init; }
+
+    public int BasePower { get; init; }
+
+    public int EffectivePower { get; init; }
+
+    public string SourcePath { get; init; }
+
+    private static string NormalizeText(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
+    }
+
+    private static string? NormalizeOptionalText(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+    }
+}
 
 public sealed record CardObjectState
 {
@@ -350,7 +413,8 @@ public sealed record CardObjectState
         string? attachedToObjectId = null,
         string? cardNo = null,
         string? ownerId = null,
-        string? controllerId = null)
+        string? controllerId = null,
+        IReadOnlyList<PowerModifierLedgerEntry>? untilEndOfTurnPowerModifiers = null)
     {
         ObjectId = string.IsNullOrWhiteSpace(objectId) ? string.Empty : objectId.Trim();
         Damage = Math.Max(0, damage);
@@ -367,6 +431,7 @@ public sealed record CardObjectState
         CardNo = NormalizeOptionalText(cardNo);
         OwnerId = NormalizeOptionalText(ownerId);
         ControllerId = NormalizeOptionalText(controllerId);
+        UntilEndOfTurnPowerModifiers = NormalizePowerModifierLedger(untilEndOfTurnPowerModifiers);
     }
 
     public string ObjectId { get; init; }
@@ -399,6 +464,8 @@ public sealed record CardObjectState
 
     public string? ControllerId { get; init; }
 
+    public IReadOnlyList<PowerModifierLedgerEntry> UntilEndOfTurnPowerModifiers { get; init; }
+
     private static IReadOnlyList<string> NormalizeEffects(IReadOnlyList<string>? effectIds)
     {
         return (effectIds ?? [])
@@ -416,6 +483,16 @@ public sealed record CardObjectState
             .Select(tag => tag.Trim())
             .Distinct(StringComparer.Ordinal)
             .OrderBy(tag => tag, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<PowerModifierLedgerEntry> NormalizePowerModifierLedger(
+        IReadOnlyList<PowerModifierLedgerEntry>? entries)
+    {
+        return (entries ?? [])
+            .Where(entry => !string.IsNullOrWhiteSpace(entry.EffectId)
+                && entry.PowerDelta != 0)
+            .OrderBy(entry => entry.EffectId, StringComparer.Ordinal)
             .ToArray();
     }
 
@@ -1603,16 +1680,58 @@ public sealed record MatchState
             var cardObject = entry.Value;
             if (cardObject.UntilEndOfTurnPowerModifier != 0)
             {
-                effects.Add(new ContinuousEffectState(
-                    $"POWER:{objectId}:{cardObject.UntilEndOfTurnPowerModifier}",
-                    "OBJECT",
-                    ContinuousEffectLayers.PowerModifier,
-                    "UNTIL_END_OF_TURN",
-                    objectId,
-                    null,
-                    cardObject.UntilEndOfTurnPowerModifier,
-                    ResolveBasePower(cardObject),
-                    cardObject.Power));
+                if (cardObject.UntilEndOfTurnPowerModifiers.Count > 0)
+                {
+                    effects.AddRange(cardObject.UntilEndOfTurnPowerModifiers.Select(modifier =>
+                        new ContinuousEffectState(
+                            modifier.EffectId,
+                            "OBJECT",
+                            ContinuousEffectLayers.PowerModifier,
+                            modifier.Duration,
+                            objectId,
+                            modifier.SourceObjectId,
+                            modifier.PowerDelta,
+                            modifier.BasePower,
+                            modifier.EffectivePower,
+                            modifier.EffectKind,
+                            modifier.SourceCardNo,
+                            modifier.SourcePath,
+                            true,
+                            LayerEngineFoundationResiduals())));
+                    var trackedPowerDelta = cardObject.UntilEndOfTurnPowerModifiers.Sum(modifier => modifier.PowerDelta);
+                    var untrackedPowerDelta = cardObject.UntilEndOfTurnPowerModifier - trackedPowerDelta;
+                    if (untrackedPowerDelta != 0)
+                    {
+                        effects.Add(new ContinuousEffectState(
+                            $"POWER:{objectId}:UNTRACKED:{untrackedPowerDelta}",
+                            "OBJECT",
+                            ContinuousEffectLayers.PowerModifier,
+                            "UNTIL_END_OF_TURN",
+                            objectId,
+                            null,
+                            untrackedPowerDelta,
+                            ResolveBasePower(cardObject),
+                            cardObject.Power,
+                            "LEGACY_UNTRACKED_POWER_MODIFIER",
+                            null,
+                            "MatchState.ContinuousEffects.LegacyRemainder",
+                            true,
+                            LayerEngineFoundationResiduals()));
+                    }
+                }
+                else
+                {
+                    effects.Add(new ContinuousEffectState(
+                        $"POWER:{objectId}:{cardObject.UntilEndOfTurnPowerModifier}",
+                        "OBJECT",
+                        ContinuousEffectLayers.PowerModifier,
+                        "UNTIL_END_OF_TURN",
+                        objectId,
+                        null,
+                        cardObject.UntilEndOfTurnPowerModifier,
+                        ResolveBasePower(cardObject),
+                        cardObject.Power));
+                }
             }
 
             foreach (var effectId in cardObject.UntilEndOfTurnEffects.OrderBy(effectId => effectId, StringComparer.Ordinal))
@@ -1641,6 +1760,20 @@ public sealed record MatchState
     private static int ResolveBasePower(CardObjectState cardObject)
     {
         return cardObject.Power - cardObject.UntilEndOfTurnPowerModifier;
+    }
+
+    private static IReadOnlyList<string> LayerEngineFoundationResiduals()
+    {
+        return
+        [
+            "timestamp ordering",
+            "dependency ordering",
+            "source ordering",
+            "keyword gain/loss layering",
+            "multiple equipment/static aura interactions",
+            "minimum-power layering",
+            "full official LayerEngine coverage"
+        ];
     }
 
     private static bool IsBattlefieldCardStateObject(
@@ -2662,7 +2795,7 @@ public sealed record ResolutionResult(
 
     private static Dictionary<string, object?> BuildContinuousEffectSnapshotView(ContinuousEffectState effect)
     {
-        return new Dictionary<string, object?>
+        var view = new Dictionary<string, object?>
         {
             ["effectId"] = effect.EffectId,
             ["scope"] = effect.Scope,
@@ -2674,6 +2807,32 @@ public sealed record ResolutionResult(
             ["basePower"] = effect.BasePower,
             ["effectivePower"] = effect.EffectivePower
         };
+        if (!string.IsNullOrWhiteSpace(effect.EffectKind))
+        {
+            view["effectKind"] = effect.EffectKind;
+        }
+
+        if (!string.IsNullOrWhiteSpace(effect.SourceCardNo))
+        {
+            view["sourceCardNo"] = effect.SourceCardNo;
+        }
+
+        if (!string.IsNullOrWhiteSpace(effect.SourcePath))
+        {
+            view["sourcePath"] = effect.SourcePath;
+        }
+
+        if (effect.IsLayerEngineFoundationOnly)
+        {
+            view["layerEngineStatus"] = "FOUNDATION_ONLY";
+        }
+
+        if (effect.DeferredLayerEngineResiduals is { Count: > 0 })
+        {
+            view["deferredLayerEngineResiduals"] = effect.DeferredLayerEngineResiduals;
+        }
+
+        return view;
     }
 
     private static Dictionary<string, object?> BuildTurnWindowSnapshotView(TurnWindowState window)
