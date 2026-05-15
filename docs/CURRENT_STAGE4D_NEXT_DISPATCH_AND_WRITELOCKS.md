@@ -1,13 +1,16 @@
 # Stage 4D Next Dispatch and Writelocks
 
 日期：2026-05-15
-结论：**4D-03AO-B ACCEPTED / PROJECT NOT READY**
+结论：**4D-03AP HANDOFF READY / PROJECT NOT READY**
 
 本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance 归档，不实现 runtime，不修改前端，不修改测试代码，不修改 card matrix。当前 active goal 仍未完成，不得调用 `update_goal complete`。
 
 ## 1. 输入事实
 
 - 当前分支为 `main`，仓库当前只保留未跟踪 `riftbound-dotnet.sln`；该文件不得被本批任务触碰或纳入提交。
+- `docs/CURRENT_STAGE4D_03AP_PAYMENT_ENGINE_REKSAI_HASTE_READY_RED_EXACTNESS_HANDOFF.md` 已把下一枚 P0-005 focused guard 锁定为 `SFD·029/221` / `SFD·029a/221` 雷克塞 HASTE_READY extra 1 mana + 1 red typed power exactness representative。
+- `docs/CURRENT_STAGE4D_03AP_PAYMENT_ENGINE_REKSAI_HASTE_READY_RED_EXACTNESS_BASELINE_EVIDENCE.md` 已记录 implementation-before baseline：Rek'Sai / HasteOptional / PaymentEngine 109/109 通过；Rek'Sai / HasteOptional / PaymentEngine / PlayCard / ActionPrompt / GameHub / Priority 425/425 通过；`git diff --check` 通过。
+- `docs/CURRENT_STAGE4D_03AP_CARD_MATRIX_READINESS_AUDIT.md` 已确认 Rek'Sai `FU-1945f6918c` 当前仍为 `fullOfficial=false`；4C-52 ordinary no-optional evidence 与 old P4 HASTE_READY fixtures 不代理 red exactness、strong/overflow、non-hand haste granting、LayerEngine 或 FAQ breadth。
 - `docs/CURRENT_STAGE4D_03AO_PAYMENT_ENGINE_EZREAL_BLUE_SWIFT_MOVE_TO_BASE_HANDOFF.md` 已把下一枚 P0-005 implementation slice 锁定为 `SFD·082/221` / `SFD·082a/221` / `SFD·082b/221·P` 伊泽瑞尔 blue swift no-target self move-to-base activated ability representative。
 - `docs/CURRENT_STAGE4D_03AO_PAYMENT_ENGINE_EZREAL_BLUE_SWIFT_MOVE_TO_BASE_BASELINE_EVIDENCE.md` 已记录 implementation-before baseline：Ezreal / ActivateAbility / MoveUnit / PaymentEngine 179/179 通过；Ezreal / ActivateAbility / MoveUnit / PaymentEngine / ActionPrompt / GameHub / Priority 372/372 通过；`git diff --check` 通过。
 - `docs/CURRENT_STAGE4D_03AO_CARD_MATRIX_READINESS_AUDIT.md` 已确认 Ezreal `FU-2dca1ad450` 当前仍为 `fullOfficial=false`；4C-49 ordinary play-unit evidence 不代理 blue swift move-to-base、attack / defense trigger、cannot-combat-damage static、full swift timing 或 FAQ breadth。
@@ -20,7 +23,9 @@
 
 | Queue | Owner | Status | Purpose | Write scope | Must not touch |
 |---|---|---|---|---|---|
-| 4D-NEXT-A | A 主控 | Accepted after audit docs are committed | 记录 4D-03AO 任务、写锁、验收与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs | `src/**`、`tests/**`、frontend runtime、card matrix |
+| 4D-NEXT-A | A 主控 | 4D-03AP handoff / baseline recorded | 记录 4D-03AP 任务、写锁、验收与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs | `src/**`、`tests/**`、frontend runtime、card matrix |
+| 4D-03AP-B | B-Implementation | Pending dispatch | 补强 Rek'Sai HASTE_READY red typed payment exactness focused tests / evidence | focused tests; runtime only if tests reveal actual typed-payment gap | frontend runtime、card matrix JSON、broad Haste rewrite、strong/overflow、non-hand haste granting、LayerEngine、battle lifecycle、`riftbound-dotnet.sln` |
+| 4D-03AP-E | E-Review | Read-only readiness audit recorded in `docs/CURRENT_STAGE4D_03AP_CARD_MATRIX_READINESS_AUDIT.md` | 检查 Rek'Sai `FU-1945f6918c` matrix readiness and full-official blockers | card coverage docs in read-only mode | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` unless A opens a future matrix write window |
 | 4D-03AO-B | B-Implementation / Raman `019e2257-8d40-7630-9201-28df44dd689a` | Implemented and A-validated | 实现 Ezreal blue swift no-target self move-to-base representative | completed runtime / focused tests | frontend runtime、card matrix JSON、LayerEngine broad rewrite、attack / defense trigger runtime、unrelated battle lifecycle / cleanup queue files、unrelated activated abilities、`riftbound-dotnet.sln` |
 | 4D-03AO-E | E-Review / Poincare | Read-only readiness audit recorded in `docs/CURRENT_STAGE4D_03AO_CARD_MATRIX_READINESS_AUDIT.md` | 检查 Ezreal `FU-2dca1ad450` matrix readiness and full-official blockers | card coverage docs in read-only mode | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` unless A opens a future matrix write window |
 | 4D-03AM-B | B-Implementation / Raman `019e2257-8d40-7630-9201-28df44dd689a` | Implemented and A-validated | 实现 Azir green swift position-swap representative | completed runtime / focused tests | frontend runtime、card matrix JSON、unrelated files |
@@ -31,13 +36,41 @@
 ## 3. Exclusive Writelocks
 
 - At this stop point, no runtime, frontend or matrix write lock remains open.
+- 4D-03AP-B is prepared but not yet implemented. If dispatched, its default write lock should be focused tests only; runtime edits are allowed only if the focused tests reveal an actual typed-red payment gap.
 - 4D-03AO-B runtime / focused-test write lock is closed after A validation and commit.
 - D/A audit docs for 4D-03AO are recorded; no further 4D-03AO runtime edits should occur without a fresh dispatch.
 - C remains read-only while B might alter server prompt shape. Any frontend write window must wait until server `ActionPrompt` payload and event shape are stable.
 - E remains read-only until A accepts runtime evidence. The matrix must not be upgraded to `fullOfficial=true` for Ezreal while damage trigger, cannot-combat-damage static, swift timing or FAQ branches remain residual.
 - No parallel task may edit card matrix JSON, frontend stores, `ActionPrompt` contracts, battle state machine, stack, cleanup, hidden-info redaction, or E2E fixtures without an explicit owner and a fresh write-lock note.
 
-## 4. 4D-03AO-B Acceptance Gate
+## 4. 4D-03AP-B Acceptance Gate
+
+B implementation / test guard is acceptable only if A can verify all of the following:
+
+1. Both `SFD·029/221` and `SFD·029a/221` profiles expose `HASTE_READY` as extra 1 mana + 1 red typed power.
+2. Server prompt exposes `PLAY_CARD`, `HASTE_READY`, base / total cost metadata and red payment-resource choices only when legal.
+3. Command with existing red power succeeds and emits `COST_PAID` with `baseManaCost=3`, `totalManaCost=4`, `genericPower=0`, `totalPowerCost=1`, `powerByTrait.red=1`.
+4. Command with necessary `RECYCLE_RUNE:<redRuneObjectId>` succeeds, recycles the rune and records payment-resource audit payload.
+5. Wrong trait, generic temporary resource, insufficient red, duplicate / invalid / unnecessary recycle and unsupported optional cost reject no-mutation.
+6. Command cannot bypass no-target route by submitting target object ids.
+7. Strong / Overwhelm battle modifier, damage overflow, non-hand haste granting, LayerEngine, FAQ, card matrix full-official and READY remain residual unless separately dispatched.
+
+Suggested post-implementation commands:
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ReksaiHasteReady|FullyQualifiedName~Reksai|FullyQualifiedName~HasteOptional|FullyQualifiedName~PaymentEngine"
+```
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Reksai|FullyQualifiedName~HasteOptional|FullyQualifiedName~PaymentEngine|FullyQualifiedName~PlayCard|FullyQualifiedName~ActionPrompt|FullyQualifiedName~GameHub|FullyQualifiedName~Priority"
+```
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
+git diff --check
+```
+
+## 5. 4D-03AO-B Historical Acceptance Gate
 
 B implementation is acceptable only if A can verify all of the following:
 
@@ -67,7 +100,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
 git diff --check
 ```
 
-## 5. C / E Preflight Boundaries
+## 6. C / E Preflight Boundaries
 
 C may prepare a final validation checklist, but must not turn historical frontend evidence into final READY evidence. Final frontend validation still requires fresh runs in the final code state:
 
@@ -80,6 +113,6 @@ source ../../scripts/dev-env.sh && npm run e2e:formal-18 -- --start-api
 
 E may identify matrix rows and official text blockers for Ezreal, but must not update `fullOfficial` status until A accepts runtime, rules evidence, tests, residual handling and FAQ review.
 
-## 6. Current Batch Stop Point
+## 7. Current Batch Stop Point
 
-This record stops after accepting 4D-03AO-B and committing runtime / audit evidence. The project remains **NOT READY**. No frontend or matrix write window is open, no runtime write lock remains open, and `riftbound-dotnet.sln` remains untouched.
+This record stops after preparing 4D-03AP handoff / baseline / readiness. The project remains **NOT READY**. No frontend or matrix write window is open, no runtime write lock is open until 4D-03AP-B is explicitly dispatched, and `riftbound-dotnet.sln` remains untouched.
