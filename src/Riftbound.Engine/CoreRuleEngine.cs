@@ -34631,6 +34631,26 @@ public sealed class CoreRuleEngine : IRuleEngine
                 && CardObjectHasTag(cardObjects, objectId, CardObjectTags.UnitCard));
     }
 
+    private static int CountControlledPublicFieldEquipmentObjects(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId)
+    {
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return 0;
+        }
+
+        return zones.Base
+            .Concat(zones.Battlefields)
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Distinct(StringComparer.Ordinal)
+            .Count(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
+                && !cardObject.IsFaceDown
+                && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId)
+                && cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal));
+    }
+
     private static int SumOtherControlledUnitPower(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -35786,6 +35806,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         var unitPower = behavior.AddsControllerGraveyardCountToSourceUnitPower
             ? baseUnitPower + zones.Graveyard.Count
             : baseUnitPower;
+        var friendlyEquipmentPowerBonus = behavior.AddsFriendlyFieldEquipmentCountToSourceUnitPower
+            ? CountControlledPublicFieldEquipmentObjects(playerZones, cardObjects, stackItem.ControllerId)
+            : 0;
         var levelApplies = ControllerMeetsLevelExperienceThreshold(
             behavior,
             stackItem.ControllerId,
@@ -35801,6 +35824,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             unitPower += behavior.LevelSourceUnitPowerBonus;
         }
         unitPower += ResolveConditionalSourceUnitPowerBonus(behavior, stackItem.ControllerId, untilEndOfTurnEffects);
+        unitPower += friendlyEquipmentPowerBonus;
 
         var hasteReadyOptionalCostPaid = IsHasteReadyOptionalCostPaidForPlayUnit(
             behavior,
@@ -35842,7 +35866,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 behavior,
                 unitState,
                 hasteReadyOptionalCostPaid,
-                crescentGuardReadyOptionalCostPaid)));
+                crescentGuardReadyOptionalCostPaid,
+                friendlyEquipmentPowerBonus)));
     }
 
     private static bool IsHasteReadyOptionalCostPaidForPlayUnit(
@@ -35882,6 +35907,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         var unitPower = behavior.AddsControllerGraveyardCountToSourceUnitPower
             ? baseUnitPower + zones.Graveyard.Count
             : baseUnitPower;
+        var friendlyEquipmentPowerBonus = behavior.AddsFriendlyFieldEquipmentCountToSourceUnitPower
+            ? CountControlledPublicFieldEquipmentObjects(playerZones, cardObjects, stackItem.ControllerId)
+            : 0;
         var levelApplies = ControllerMeetsLevelExperienceThreshold(
             behavior,
             stackItem.ControllerId,
@@ -35897,6 +35925,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             unitPower += behavior.LevelSourceUnitPowerBonus;
         }
         unitPower += ResolveConditionalSourceUnitPowerBonus(behavior, stackItem.ControllerId, untilEndOfTurnEffects);
+        unitPower += friendlyEquipmentPowerBonus;
 
         var unitState = existingState with
         {
@@ -35929,7 +35958,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             CreateUnitPlayedToBattlefieldPayload(
                 stackItem,
                 behavior,
-                unitState)));
+                unitState,
+                friendlyEquipmentPowerBonus)));
     }
 
     private static bool ControllerMeetsLevelExperienceThreshold(
@@ -35947,7 +35977,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         CardBehaviorDefinition behavior,
         CardObjectState unitState,
         bool hasteReadyOptionalCostPaid,
-        bool crescentGuardReadyOptionalCostPaid)
+        bool crescentGuardReadyOptionalCostPaid,
+        int friendlyEquipmentPowerBonus)
     {
         var payload = new Dictionary<string, object?>
         {
@@ -35976,13 +36007,19 @@ public sealed class CoreRuleEngine : IRuleEngine
             payload["crescentGuardReadyOptionalCostPaid"] = true;
         }
 
+        if (friendlyEquipmentPowerBonus > 0)
+        {
+            payload["friendlyEquipmentPowerBonus"] = friendlyEquipmentPowerBonus;
+        }
+
         return payload;
     }
 
     private static Dictionary<string, object?> CreateUnitPlayedToBattlefieldPayload(
         StackItemState stackItem,
         CardBehaviorDefinition behavior,
-        CardObjectState unitState)
+        CardObjectState unitState,
+        int friendlyEquipmentPowerBonus)
     {
         var payload = new Dictionary<string, object?>
         {
@@ -35998,6 +36035,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (unitState.IsExhausted)
         {
             payload["isExhausted"] = true;
+        }
+
+        if (friendlyEquipmentPowerBonus > 0)
+        {
+            payload["friendlyEquipmentPowerBonus"] = friendlyEquipmentPowerBonus;
         }
 
         return payload;

@@ -1,13 +1,14 @@
 # Stage 4D Next Dispatch and Writelocks
 
 日期：2026-05-15
-结论：**4D-04G ARMED ASSAULTER HASTE + TEMPERED ACCEPTED / WRITELOCK CLOSED / PROJECT NOT READY**
+结论：**4D-04H ORNN FRIENDLY EQUIPMENT STATIC POWER ACCEPTED / WRITELOCK CLOSED / PROJECT NOT READY**
 
 本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance / baseline 归档，不实现 runtime，不修改前端，不修改测试代码，不升级 full-official。当前 active goal 仍未完成，不得调用 `update_goal complete`。
 
 ## 1. 输入事实
 
 - 当前分支为 `main`，仓库当前只保留未跟踪 `riftbound-dotnet.sln`；该文件不得被本批任务触碰或纳入提交。
+- 4D-04H Ornn friendly equipment static power 已由 A 侧直接实现并验收，入口为 `docs/CURRENT_STAGE4D_04H_ORNN_FRIENDLY_EQUIPMENT_STATIC_POWER_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04H_ORNN_FRIENDLY_EQUIPMENT_STATIC_POWER_EVIDENCE.md`。服务端现在让 `SFD·085/221` / `SFD·085a/221`《奥恩》从手牌 `PLAY_CARD` 入场时，按 controller 友方公开 field equipment 数量增加入场战力，并在非零加成时写 `friendlyEquipmentPowerBonus` event payload；手牌、face-down、敌方、脏 controller 与非装备对象不计入。A 侧验证 focused / keyword guard 5/5、adjacent equipment / payment regression 114/114、backend full 4443/4443、`git diff --check` 通过。本批不关闭 full `百炼`、其他装备静态修正、dynamic static recompute / LayerEngine、owner/controller breadth、attach lifecycle breadth、frontend、card matrix JSON、P1-001、P1-002 或 READY。
 - 4D-04G Armed Assaulter HASTE_READY + Tempered optional attach combination 已由 B-Implementation / Bacon `019e2ba3-4b9a-7710-a702-1e8e28ecd8ea` 实现并由 A 验收，入口为 `docs/CURRENT_STAGE4D_04G_ARMED_ASSAULTER_HASTE_TEMPERED_HANDOFF.md`、`docs/CURRENT_STAGE4D_04G_ARMED_ASSAULTER_HASTE_TEMPERED_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04G_ARMED_ASSAULTER_HASTE_TEMPERED_EVIDENCE.md`。服务端现在允许 `SFD·002/221`《武装强袭者》同一 `PLAY_CARD` 可同时提交 `HASTE_READY` 与合法 `TEMPERED_ATTACH:<equipmentObjectId>`，合并支付 base 6 + haste 1 mana / 1 red power，并在结算后 active 入基地且贴附己方合法 `SFD·186/221`《旋转飞斧》。A 侧验证 focused / keyword guard 26/26、adjacent equipment / payment regression 235/235、backend full 4440/4440、`git diff --check` 通过。本批不关闭 full `百炼`、full Haste、Ornn static modifiers、owner/controller breadth、attach lifecycle breadth、LayerEngine、frontend、card matrix JSON、P1-002 或 READY。
 - 4D-04F Akshan orange extra equipment steal 已由 B-Implementation / Bacon `019e2ba3-4b9a-7710-a702-1e8e28ecd8ea` 实现并由 A 验收，入口为 `docs/CURRENT_STAGE4D_04F_AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL_HANDOFF.md`、`docs/CURRENT_STAGE4D_04F_AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04F_AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL_EVIDENCE.md`。服务端现在允许 `SFD·109/221`《阿克尚》从手牌 `PLAY_CARD` 时选择合法敌方在场装备作为 `AKSHAN_STEAL_EQUIPMENT:<equipmentObjectId>` optional cost，额外支付 2 橙色符能；结算时 Akshan 入基地，合法装备移动到 P1 基地、`ControllerId=P1`、`OwnerId` 保留，若为 `武装` 则贴附到 Akshan，且 Akshan 离场时归还 owner base。A 侧验证 focused / keyword guard 28/28、adjacent equipment / payment regression 209/209、backend full 4417/4417、`git diff --check` 通过。本批不关闭 full `百炼`、Ornn / Armed Assaulter、owner/controller breadth、attach lifecycle breadth、LayerEngine、frontend、card matrix JSON、P1-002 或 READY。
 - 4D-04E Jax Tempered optional attach trigger 已由 B-Implementation / Bacon `019e2ba3-4b9a-7710-a702-1e8e28ecd8ea` 实现并由 A 验收，入口为 `docs/CURRENT_STAGE4D_04E_JAX_TEMPERED_OPTIONAL_ATTACH_TRIGGER_HANDOFF.md`、`docs/CURRENT_STAGE4D_04E_JAX_TEMPERED_OPTIONAL_ATTACH_TRIGGER_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04E_JAX_TEMPERED_OPTIONAL_ATTACH_TRIGGER_EVIDENCE.md`。服务端现在允许 `SFD·119/221` / `SFD·119a/221` Jax 从手牌 `PLAY_CARD` 时选择己方已在场 `SFD·186/221`《旋转飞斧》作为零额外费用 `TEMPERED_ATTACH:<equipmentObjectId>` 代表路径；结算时重验合法后设置《旋转飞斧》`AttachedToObjectId` 为 Jax，并复用既有 `JAX_WEAPON_ATTACH_PAY_1_DRAW_1` 打开 `TRIGGER_PAYMENT`。A 侧验证 focused / keyword guard 41/41、adjacent equipment / payment regression 243/243、backend full 4397/4397、`git diff --check` 通过。本批不关闭 full `百炼`、Ornn / Akshan / Armed Assaulter、owner/controller changes、attach lifecycle breadth、LayerEngine、frontend、card matrix JSON、P1-002 或 READY。
@@ -48,7 +49,8 @@
 
 | Queue | Owner | Status | Purpose | Write scope | Must not touch |
 |---|---|---|---|---|---|
-| 4D-NEXT-A | A 主控 | 4D-04G accepted / paused | 记录 4D-04G handoff、baseline、B 写锁、A validation 与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs | frontend runtime、card matrix JSON、full-official upgrade |
+| 4D-NEXT-A | A 主控 | 4D-04H accepted / paused | 记录 4D-04H implementation、A validation、writelock closure 与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs | frontend runtime、card matrix JSON、full-official upgrade |
+| 4D-04H-A | A 主控 | Implemented and A-validated | Ornn friendly-equipment static power entry-time representative | completed narrow runtime / focused tests / profile guard | frontend runtime、card matrix JSON、full `百炼`、dynamic LayerEngine/static recompute、owner/controller breadth、attach lifecycle breadth、`riftbound-dotnet.sln` |
 | 4D-04G-B | B-Implementation / Bacon `019e2ba3-4b9a-7710-a702-1e8e28ecd8ea` | Implemented and A-validated | Armed Assaulter same-command HASTE_READY + Tempered attach combination representative | completed narrow runtime / focused tests / profile guard | frontend runtime、card matrix JSON、full `百炼`、full Haste、Ornn static modifiers、Akshan/Jax branches、LayerEngine、PaymentEngine broad refactor、battle lifecycle、`riftbound-dotnet.sln` |
 | 4D-04F-B | B-Implementation / Bacon `019e2ba3-4b9a-7710-a702-1e8e28ecd8ea` | Implemented and A-validated | Akshan orange-orange optional enemy equipment control / weapon attach / leave-play return representative | completed narrow runtime / focused tests | frontend runtime、card matrix JSON、full `百炼`、Ornn / Armed Assaulter branches、LayerEngine、PaymentEngine broad refactor、battle lifecycle、`riftbound-dotnet.sln` |
 | 4D-04E-B | B-Implementation / Bacon `019e2ba3-4b9a-7710-a702-1e8e28ecd8ea` | Implemented and A-validated | Jax `百炼` optional attach to Spinning Axe opens existing weapon-attach trigger payment | completed narrow runtime / focused tests / profile guard | frontend runtime、card matrix JSON、full `百炼`、Ornn / Akshan / Armed Assaulter branches、LayerEngine、PaymentEngine broad refactor、battle lifecycle、`riftbound-dotnet.sln` |
@@ -71,6 +73,7 @@
 
 ## 3. Exclusive Writelocks
 
+- 4D-04H-A Ornn friendly-equipment static power runtime / focused-test write lock is closed after A validation and commit-ready evidence.
 - 4D-04G-B Armed Assaulter HASTE_READY + Tempered combination runtime / focused-test write lock is closed after A validation and commit-ready evidence.
 - 4D-04F-B Akshan orange extra equipment steal runtime / focused-test write lock is closed after A validation and commit-ready evidence.
 - 4D-04E-B runtime / focused-test write lock is closed after A validation and commit-ready evidence.
@@ -88,6 +91,36 @@
 - C remains read-only while B might alter server prompt shape. Any frontend write window must wait until server `ActionPrompt` payload and event shape are stable.
 - E returns to read-only after 4D-03AT. The matrix must not be upgraded to `fullOfficial=true` for Azir, Maduli, Ezreal or other latest representatives merely because focused runtime evidence passed.
 - No parallel task may edit card matrix JSON, frontend stores, `ActionPrompt` contracts, battle state machine, stack, cleanup, hidden-info redaction, or E2E fixtures without an explicit owner and a fresh write-lock note.
+
+## 3.1 4D-04H-A Acceptance Gate Accepted
+
+A-side implementation is accepted because A verified all of the following:
+
+1. `SFD·085/221` and `SFD·085a/221` register the Ornn friendly-equipment static power representative boundary.
+2. Hand-play entry resolution counts only controller friendly public field equipment in base / battlefield zones.
+3. Hand, face-down, enemy, dirty-controller and non-equipment objects do not contribute to the bonus.
+4. Ornn enters with base power 4 plus the friendly equipment count; with two legal friendly public field equipment objects he enters at power 6.
+5. `UNIT_PLAYED` payload includes `friendlyEquipmentPowerBonus` only when the bonus is positive.
+6. The keyword profile marks the representative boundary while keeping full `百炼`, full static recompute, LayerEngine, owner/controller breadth, attach lifecycle breadth and READY residuals open.
+7. Existing Tempered, Jax, Akshan, Armed Assaulter, attachment profile and continuous-effect snapshot representatives remain green.
+8. The slice does not update frontend runtime, card matrix JSON, full-official status or READY.
+
+A-side accepted commands:
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~OrnnFriendlyEquipmentStaticPowerTests|FullyQualifiedName~P4EquipmentKeywordProfilesMapOfficialTextToRegistryTags|FullyQualifiedName~KeywordCoverageReportExposesDeferredKeywordFamilies"
+```
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Ornn|FullyQualifiedName~TemperedEquipmentOptionalAttachTests|FullyQualifiedName~JaxTemperedOptionalAttach|FullyQualifiedName~Akshan|FullyQualifiedName~ArmedAssaulterHasteTemperedTests|FullyQualifiedName~P4EquipmentKeywordProfilesMapOfficialTextToRegistryTags|FullyQualifiedName~P4EquipmentKeywordProfilesKeepExistingNoAttachFixturesGreen|FullyQualifiedName~P4EquipmentAttachmentProfileMapsTakeUpToRepresentativeAttachDetach|FullyQualifiedName~MatchStateExposesContinuousEffectPowerLayerViews"
+```
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
+git diff --check
+```
+
+Result: **focused / keyword guard 5/5 passed; adjacent equipment / payment regression 114/114 passed; backend full 4443/4443 passed; git diff --check passed**.
 
 ## 4. 4D-04G-B Acceptance Gate Accepted
 
@@ -403,4 +436,4 @@ E may identify matrix rows and official text blockers for Azir / Ezreal, but mus
 
 ## 15. Current Batch Stop Point
 
-This record stops after accepting 4D-04G Armed Assaulter HASTE_READY + Tempered combination integration and closing the B runtime / focused-test write lock. The project remains **NOT READY**. No frontend, matrix, runtime or test write window remains open, and `riftbound-dotnet.sln` remains untouched.
+This record stops after accepting 4D-04H Ornn friendly-equipment static power entry-time representative and closing the A runtime / focused-test write lock. The project remains **NOT READY**. No frontend, matrix, runtime or test write window remains open, and `riftbound-dotnet.sln` remains untouched.

@@ -2172,6 +2172,10 @@ public sealed class CardCatalogBaselineTests
         var ornn = BuildEquipmentProfile(specs, "SFD·085/221", CardEquipmentKeywordNames.Tempered);
         Assert.True(ornn.HasTempered);
         Assert.False(ornn.HasWeapon);
+        Assert.True(ornn.HasImplementedRepresentativeFriendlyEquipmentStaticPowerBoundary);
+        Assert.Equal(EquipmentKeywordProfileStatuses.RecognizedDeferred, ornn.Status);
+        Assert.Contains("Ornn friendly-equipment static power", ornn.Reason, StringComparison.Ordinal);
+        Assert.Contains("full tempered official breadth", ornn.Reason, StringComparison.Ordinal);
     }
 
     [Fact]

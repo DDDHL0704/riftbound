@@ -2,6 +2,7 @@
 
 自查日期：2026-05-15
 历史自查基准提交：`45bb446`。
+2026-05-15 4D-04H Ornn friendly equipment static power 补充：A 侧已完成 P1-001 / P1-002 窄 representative，审计与证据见 `docs/CURRENT_STAGE4D_04H_ORNN_FRIENDLY_EQUIPMENT_STATIC_POWER_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04H_ORNN_FRIENDLY_EQUIPMENT_STATIC_POWER_EVIDENCE.md`。`CardBehaviorRegistry` / `CoreRuleEngine` / `CardEquipmentKeywordRules` 现在让 `SFD·085/221` / `SFD·085a/221`《奥恩》从手牌 `PLAY_CARD` 入场时，按 controller 友方公开 field equipment 数量增加入场战力，并在非零加成时写 `friendlyEquipmentPowerBonus` event payload；手牌、face-down、敌方、脏 controller 与非装备对象不计入。验证：focused / keyword guard 5/5、adjacent equipment / payment regression 114/114、backend full 4443/4443、`git diff --check` 通过。本批不关闭 full `百炼` breadth、其他装备静态修正、dynamic static recompute、LayerEngine、owner/controller breadth、attach lifecycle breadth、P1-001、P1-002 或 READY。
 2026-05-15 4D-04G Armed Assaulter HASTE_READY + Tempered optional attach 补充：B-Implementation / Bacon `019e2ba3-4b9a-7710-a702-1e8e28ecd8ea` 已完成 P1-002 Armed Assaulter same-command optional-cost combination representative，审计与证据见 `docs/CURRENT_STAGE4D_04G_ARMED_ASSAULTER_HASTE_TEMPERED_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04G_ARMED_ASSAULTER_HASTE_TEMPERED_EVIDENCE.md`。`CoreRuleEngine` / `CardEquipmentKeywordRules` 现在让 `SFD·002/221`《武装强袭者》从手牌 `PLAY_CARD` 时可同时公开并校验 `HASTE_READY` 与己方已在场 `SFD·186/221`《旋转飞斧》的 `TEMPERED_ATTACH:<equipmentObjectId>` optional cost choice；命令支付 base 6 mana + 1 haste mana + 1 red power，结算后 Armed Assaulter active 入 P1 base 并在装备仍合法时贴附。验证：focused / keyword guard 26/26、adjacent equipment / payment regression 235/235、backend full 4440/4440、`git diff --check` 通过。本批不关闭 full `百炼` breadth、full Haste breadth、Ornn static modifiers、owner/controller breadth、attach lifecycle breadth、P1-002、LayerEngine 或 READY。
 2026-05-15 4D-04F Akshan orange extra equipment steal 补充：B-Implementation / Bacon `019e2ba3-4b9a-7710-a702-1e8e28ecd8ea` 已完成 P1-002 Akshan orange extra equipment steal representative，审计与证据见 `docs/CURRENT_STAGE4D_04F_AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04F_AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL_EVIDENCE.md`。`CoreRuleEngine` / `MatchSession` 现在让 `SFD·109/221`《阿克尚》从手牌 `PLAY_CARD` 时公开并校验合法敌方在场装备的 `AKSHAN_STEAL_EQUIPMENT:<equipmentObjectId>` optional cost choice；命令支付 2 orange power，支持必要 orange `RECYCLE_RUNE:*` payment-resource；结算后 Akshan 入基地，装备移动/控制到 P1，武装贴附，Akshan 离场时归还 owner base。验证：focused / keyword guard 28/28、adjacent equipment / payment regression 209/209、backend full 4417/4417、`git diff --check` 通过。本批不关闭 full `百炼` breadth、Ornn / Armed Assaulter special branches、owner/controller breadth、attach lifecycle breadth、P1-002、LayerEngine 或 READY。
 2026-05-15 4D-04E Jax Tempered optional attach trigger integration 补充：B-Implementation / Bacon `019e2ba3-4b9a-7710-a702-1e8e28ecd8ea` 已完成 P1-002 Jax `百炼` optional attach trigger representative，审计与证据见 `docs/CURRENT_STAGE4D_04E_JAX_TEMPERED_OPTIONAL_ATTACH_TRIGGER_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04E_JAX_TEMPERED_OPTIONAL_ATTACH_TRIGGER_EVIDENCE.md`。`CoreRuleEngine` / `MatchSession` 现在让 `SFD·119/221` / `SFD·119a/221` Jax 从手牌 `PLAY_CARD` 时公开并校验己方已在场 `SFD·186/221`《旋转飞斧》的 `TEMPERED_ATTACH:<equipmentObjectId>` optional cost choice；结算后设置 `AttachedToObjectId` 并发出 `EQUIPMENT_ATTACHED` / `TEMPERED_OPTIONAL_ATTACH`，再通过 `StackResolutionResult.PendingPayment` 窄承载复用既有 `JAX_WEAPON_ATTACH_PAY_1_DRAW_1` trigger payment window。验证：focused / keyword guard 41/41、adjacent equipment / payment regression 243/243、backend full 4397/4397、`git diff --check` 通过。本批不关闭 full `百炼` breadth、Ornn / Akshan / Armed Assaulter special branches、owner/controller changes、attach lifecycle breadth、P1-002、LayerEngine 或 READY。
@@ -3941,7 +3942,7 @@
 - `src/Riftbound.Engine/CoreRuleEngine.cs:19395` 在回合结束时从 `Power` 中扣回聚合值。
 - `src/Riftbound.Engine/MatchSession.cs` 新增 `ContinuousEffectState` / `ContinuousEffectLayers` / `MatchState.ContinuousEffects`，snapshot 会暴露 `timing.continuousEffects`，公开对象会暴露 `basePower` 和 `effectivePower`。
 
-现象：临时战力修正仍通过修改对象当前数值实现，但服务端现在能派生出对象级 `POWER_MODIFIER` 层、全局/对象级 `RULE_TEXT` 层以及 `basePower` / `effectivePower` 视图，供 UI、日志和后续 LayerEngine 使用。完整的“基础值 + 连续效果层 + 时间戳 + 来源 + 依赖”重算模型仍未替换所有战力/关键词/装备静态效果路径；多个装备、静态光环、控制权变化、失去/获得关键词时仍可能与官方层规则不一致。
+现象：临时战力修正仍通过修改对象当前数值实现，但服务端现在能派生出对象级 `POWER_MODIFIER` 层、全局/对象级 `RULE_TEXT` 层以及 `basePower` / `effectivePower` 视图，供 UI、日志和后续 LayerEngine 使用。4D-04H 已补 Ornn 入场时按己方公开场上装备数量增加战力的 representative，但它仍是 entry-time calculation，不是完整层系统重算。完整的“基础值 + 连续效果层 + 时间戳 + 来源 + 依赖”重算模型仍未替换所有战力/关键词/装备静态效果路径；装备后续进出场、多个装备、静态光环、控制权变化、失去/获得关键词时仍可能与官方层规则不一致。
 
 建议修复：引入 `ContinuousEffect`、`LayerEngine`、`Timestamp`、`SourceObjectId`，计算视图时重算派生属性，避免永久修改基础属性。
 
@@ -3954,14 +3955,14 @@
 规则依据：自查文档 15；关键词必须不仅被识别，还要能按官方时点、费用、目标、区域和替代/触发规则执行。
 
 代码位置：
-- `src/Riftbound.Engine/CardEquipmentKeywordRules.cs:63` 到 `src/Riftbound.Engine/CardEquipmentKeywordRules.cs:73` 明确装备关键词是 `RecognizedDeferred`。
-- `src/Riftbound.Engine/CardEquipmentKeywordRules.cs:89` 到 `src/Riftbound.Engine/CardEquipmentKeywordRules.cs:93` 说明只有代表性 Take Up，assemble/agile/tempered/static modifier 等仍 deferred。
+- `src/Riftbound.Engine/CardEquipmentKeywordRules.cs` 明确装备关键词可同时存在 representative boundary 与 `RecognizedDeferred` closure。
+- `src/Riftbound.Engine/CardEquipmentKeywordRules.cs` 现在登记 assemble / Take Up / printed Agile direct-play / Tempered optional attach / Jax trigger integration / Akshan steal / Armed Assaulter combination / Ornn friendly-equipment static power 等 representative boundaries，但 full official breadth 仍 deferred。
 - `src/Riftbound.Engine/CardInteractionKeywordRules.cs:72` 到 `src/Riftbound.Engine/CardInteractionKeywordRules.cs:75` 说明 Standby/Ambush/Echo 仍有宽泛 deferred 分支。
 - `src/Riftbound.Engine/CardCombatKeywordRules.cs:55` 到 `src/Riftbound.Engine/CardCombatKeywordRules.cs:60` 说明 combat damage、assignment order、roam movement execution remain deferred。
 - `src/Riftbound.Engine/CardResourceKeywordRules.cs:76` 到 `src/Riftbound.Engine/CardResourceKeywordRules.cs:80` 说明狩猎征服/据守战斗经验已有代表路径，但 broader experience/level/encourage/spellshield branches 仍 remain deferred。
 - `src/Riftbound.Engine/KeywordCoverageReporter.cs` 会把各关键词族 profile 汇总成 `KeywordCoverageReport`，API `/catalog/keyword-coverage`、`/catalog/summary`、`/catalog/p3-status` 会公开这些 deferred 状态。
 
-现象：这些 profile 与“所有卡牌功能完整实现”存在冲突。即便某些代表性路径已有实现，关键词族整体不能判定完整。现在 deferred 状态不再只是测试/内部 profile 里的事实，而是正式服务端报告和 API 输出；前端、图鉴和本地测试入口可以按 family/status 禁用或明确提示。
+现象：这些 profile 与“所有卡牌功能完整实现”存在冲突。即便某些代表性路径已有实现，关键词族整体不能判定完整。4D-04H 仅把 Ornn friendly-equipment static power 的入场代表路径从泛化 static modifier residual 中剥离出来；full `百炼` breadth、其他装备静态修正、dynamic static recompute、owner/controller breadth 与 attach lifecycle 仍不能判定完整。现在 deferred 状态不再只是测试/内部 profile 里的事实，而是正式服务端报告和 API 输出；前端、图鉴和本地测试入口可以按 family/status 禁用或明确提示。
 
 建议修复：继续把关键词 profile 状态与真实规则执行路径重新对齐；没有完整执行的卡牌/功能单元不能暴露为完全 `CONFORMANCE_PASS`。下一步要按 family 优先级补真实执行路径，而不是只扩展报告。
 

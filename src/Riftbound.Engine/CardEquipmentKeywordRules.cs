@@ -31,6 +31,7 @@ public sealed record CardEquipmentKeywordProfile(
     bool HasImplementedRepresentativeAssembleBoundary,
     bool HasImplementedRepresentativeAgileDirectPlayAttachBoundary,
     bool HasImplementedRepresentativeTemperedOptionalAttachBoundary,
+    bool HasImplementedRepresentativeFriendlyEquipmentStaticPowerBoundary,
     string Status,
     string Reason);
 
@@ -58,6 +59,12 @@ public static class CardEquipmentKeywordRules
         "SFD·119a/221"
     ];
 
+    private static readonly HashSet<string> FriendlyEquipmentStaticPowerRepresentativeCardNos =
+    [
+        "SFD·085/221",
+        "SFD·085a/221"
+    ];
+
     public static bool IsAgileDirectPlayAttachRepresentativeCardNo(string? cardNo)
     {
         return !string.IsNullOrWhiteSpace(cardNo)
@@ -68,6 +75,12 @@ public static class CardEquipmentKeywordRules
     {
         return !string.IsNullOrWhiteSpace(cardNo)
             && TemperedOptionalAttachRepresentativeCardNos.Contains(cardNo);
+    }
+
+    public static bool IsFriendlyEquipmentStaticPowerRepresentativeCardNo(string? cardNo)
+    {
+        return !string.IsNullOrWhiteSpace(cardNo)
+            && FriendlyEquipmentStaticPowerRepresentativeCardNos.Contains(cardNo);
     }
 
     public static CardEquipmentKeywordProfile BuildProfile(
@@ -97,6 +110,9 @@ public static class CardEquipmentKeywordRules
             && IsAgileDirectPlayAttachRepresentativeCardNo(spec.CardNo);
         var hasImplementedRepresentativeTemperedOptionalAttachBoundary = hasTempered
             && IsTemperedOptionalAttachRepresentativeCardNo(spec.CardNo);
+        var hasImplementedRepresentativeFriendlyEquipmentStaticPowerBoundary =
+            IsFriendlyEquipmentStaticPowerRepresentativeCardNo(spec.CardNo)
+            && behavior?.AddsFriendlyFieldEquipmentCountToSourceUnitPower == true;
         var hasDeferredOfficialBreadth = hasAgile
             || hasTempered
             || hasWeapon
@@ -110,6 +126,7 @@ public static class CardEquipmentKeywordRules
             hasImplementedRepresentativeAssembleBoundary,
             hasImplementedRepresentativeAgileDirectPlayAttachBoundary,
             hasImplementedRepresentativeTemperedOptionalAttachBoundary,
+            hasImplementedRepresentativeFriendlyEquipmentStaticPowerBoundary,
             hasAnyEquipmentKeyword
                 ? hasDeferredOfficialBreadth
                     ? EquipmentKeywordProfileStatuses.RecognizedDeferred
@@ -120,6 +137,7 @@ public static class CardEquipmentKeywordRules
                     hasImplementedRepresentativeAssembleBoundary,
                     hasImplementedRepresentativeAgileDirectPlayAttachBoundary,
                     hasImplementedRepresentativeTemperedOptionalAttachBoundary,
+                    hasImplementedRepresentativeFriendlyEquipmentStaticPowerBoundary,
                     hasDeferredOfficialBreadth)
                 : "Card does not expose equipment keyword surfaces through P3 BehaviorSpec or the P2 source-object tag path.");
     }
@@ -141,7 +159,7 @@ public static class CardEquipmentKeywordRules
             true,
             behavior.DrawCount,
             EquipmentAttachmentProfileStatuses.ImplementedRepresentative,
-            "P4.58 verifies the existing Take Up attach/detach representative through P2 fixtures; assemble costs, Agile auto-attach, Tempered optional attachment, static equipment modifiers, and owner/controller changes remain deferred.");
+            "P4.58 verifies the existing Take Up attach/detach representative through P2 fixtures; assemble costs, Agile auto-attach, Tempered optional attachment, other static equipment modifiers, and owner/controller changes remain deferred.");
     }
 
     private static bool HasKeyword(
@@ -180,6 +198,7 @@ public static class CardEquipmentKeywordRules
         bool hasImplementedRepresentativeAssembleBoundary,
         bool hasImplementedRepresentativeAgileDirectPlayAttachBoundary,
         bool hasImplementedRepresentativeTemperedOptionalAttachBoundary,
+        bool hasImplementedRepresentativeFriendlyEquipmentStaticPowerBoundary,
         bool hasDeferredOfficialBreadth)
     {
         var implementedBoundaries = new List<string>();
@@ -198,16 +217,21 @@ public static class CardEquipmentKeywordRules
             implementedBoundaries.Add("Tempered optional attach");
         }
 
+        if (hasImplementedRepresentativeFriendlyEquipmentStaticPowerBoundary)
+        {
+            implementedBoundaries.Add("Ornn friendly-equipment static power");
+        }
+
         if (implementedBoundaries.Count > 0 && !hasDeferredOfficialBreadth)
         {
-            return $"{string.Join(" and ", implementedBoundaries)} are covered by existing server-authoritative representative boundaries; reaction-timing breadth, Jax-granted agile, ephemeral/static equipment breadth, full tempered official breadth, copy-text effects, owner/controller changes, attach lifecycle breadth, and full equipment official coverage remain deferred.";
+            return $"{string.Join(" and ", implementedBoundaries)} are covered by existing server-authoritative representative boundaries; reaction-timing breadth, Jax-granted agile, remaining ephemeral/static equipment breadth, full tempered official breadth, copy-text effects, owner/controller changes, attach lifecycle breadth, and full equipment official coverage remain deferred.";
         }
 
         if (implementedBoundaries.Count > 0)
         {
-            return $"{string.Join(" and ", implementedBoundaries)} are covered by existing server-authoritative representative boundaries, but this card still exposes deferred equipment breadth such as reaction timing, Jax-granted agile, ephemeral/static equipment breadth, full tempered official breadth, weapon/static modifiers, copy-text effects, owner/controller changes, or attach lifecycle breadth.";
+            return $"{string.Join(" and ", implementedBoundaries)} are covered by existing server-authoritative representative boundaries, but this card still exposes deferred equipment breadth such as reaction timing, Jax-granted agile, remaining ephemeral/static equipment breadth, full tempered official breadth, other weapon/static modifiers, copy-text effects, owner/controller changes, or attach lifecycle breadth.";
         }
 
-        return "P4.8 recognizes equipment keyword surfaces from P3 BehaviorSpec and P2 source-object tags; assemble costs without a registered representative profile, agile reaction attachment, Jax-granted agile, full tempered official breadth, static equipment modifiers, copy-text effects, owner/controller changes, attach lifecycle breadth, and full equipment official coverage remain deferred.";
+        return "P4.8 recognizes equipment keyword surfaces from P3 BehaviorSpec and P2 source-object tags; assemble costs without a registered representative profile, agile reaction attachment, Jax-granted agile, full tempered official breadth, static equipment modifiers outside registered representatives, copy-text effects, owner/controller changes, attach lifecycle breadth, and full equipment official coverage remain deferred.";
     }
 }
