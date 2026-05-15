@@ -18,6 +18,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string PolicyDeferredRow = "policy-deferred-row";
     private const string RollbackFailureRepresentative = "rollback-failure-representative";
     private const string CrossWindowRepresentative = "cross-window-representative";
+    private const string CardMatrixRepresentative = "card-matrix-representative";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
     [
@@ -1179,6 +1180,146 @@ public sealed class PaymentEngineCoverageAuditTests
             ])
     ];
 
+    private static readonly PaymentEngineCardMatrixAlignmentRowCoverageEntry[] CardMatrixAlignmentRowManifest =
+    [
+        new(
+            "MATRIX_ID_AND_STATUS_FIELDS",
+            CardMatrixRepresentative,
+            "ROW_CARD_MATRIX_ALIGNMENT_MISSING",
+            "cardId / collectorId / oracleId / effectId / status fields",
+            "Matrix row identity and status fields must stay traceable to PaymentEngine evidence before full official closure.",
+            "Future prompt evidence must reference the card or effect row identity that produced each legal ActionPrompt payment branch.",
+            "Future command evidence must reference the card or effect row identity that accepted or rejected each payment command.",
+            "Future audit evidence must reference the card or effect row identity for COST_PAID and domain success / rejection events.",
+            "Matrix alignment must preserve cardId, collectorId, oracleId, effectId, automated test status, fullOfficial flag and blocker fields.",
+            "Full official identity mapping, duplicate collector variants, shared oracle rows and status-field consistency remain open.",
+            "Card matrix representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BG_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md",
+                "docs/CURRENT_COMPLETION_AUDIT.md"
+            ]),
+        new(
+            "PAYMENT_ROW_TO_CARD_MATRIX_MAPPING",
+            CardMatrixRepresentative,
+            "ROW_CARD_MATRIX_ALIGNMENT_MISSING",
+            "PaymentEngine row schema to official card matrix rows",
+            "Each PaymentEngine row family must be mappable from action window and payment profile to official card/effect rows.",
+            "Future prompt evidence must map ActionPrompt action window, source and payment quote to a matrix card/effect row.",
+            "Future command evidence must map accepted/rejected command paths to the same matrix card/effect row.",
+            "Future audit evidence must map COST_PAID or no-success audit expectations to the same matrix card/effect row.",
+            "Matrix alignment must connect action windows, payment sources, keyword branches, rollback branches and cross-window rows to card/effect blockers.",
+            "Full official row-to-card mapping across every official card payment branch and payment source combination remain open.",
+            "Card matrix representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BG_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BC_PAYMENT_ENGINE_OFFICIAL_MATRIX_ROW_SCHEMA_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BA_PAYMENT_ENGINE_OFFICIAL_MATRIX_RESIDUAL_MANIFEST_AUDIT.md"
+            ]),
+        new(
+            "REPRESENTATIVE_TEST_EVIDENCE_LINKS",
+            CardMatrixRepresentative,
+            "ROW_CARD_MATRIX_ALIGNMENT_MISSING",
+            "accepted representative tests, audit docs and evidence docs",
+            "Representative tests and audit docs are useful only when matrix rows identify them without upgrading full official status.",
+            "Future prompt evidence links must name the focused test or fixture that proves the ActionPrompt shape for a matrix row.",
+            "Future command evidence links must name the focused test or fixture that proves command commit or rejection for a matrix row.",
+            "Future audit evidence links must name the focused assertion that proves audit payload or no-success behavior for a matrix row.",
+            "Matrix alignment must keep representative automated evidence separate from full official automated evidence and blocker removal.",
+            "Full official automated evidence coverage for every card/effect row, branch and failure case remain open.",
+            "Card matrix representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BG_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AT_AZIR_MATRIX_EVIDENCE_ALIGNMENT_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AS_CARD_MATRIX_READINESS_AUDIT.md"
+            ]),
+        new(
+            "FULL_OFFICIAL_GATE_AND_COMPLETION_BLOCK",
+            CardMatrixRepresentative,
+            "ROW_CARD_MATRIX_ALIGNMENT_MISSING",
+            "fullOfficial flag, blocker fields and completion audit gates",
+            "Matrix rows must not promote representative PaymentEngine evidence to full official status before all official branches and blockers clear.",
+            "Future prompt evidence must prove every official prompt branch before a matrix row can remove prompt-related blockers.",
+            "Future command evidence must prove every official command path and no-mutation rejection before blockers are removed.",
+            "Future audit evidence must prove every success, no-effect and rejection audit path before full official status changes.",
+            "Matrix alignment must keep fullOfficial=false or equivalent blocker status until P0-005, full-card matrix and completion audit gates are proven.",
+            "Full official gate evidence, frontend final validation, card matrix closure and completion audit remain open.",
+            "Card matrix representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BG_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_COMPLETION_AUDIT.md",
+                "docs/CURRENT_A_MASTER_CHECKPOINT.md"
+            ]),
+        new(
+            "FAQ_RULE_SOURCE_TRACE",
+            CardMatrixRepresentative,
+            "ROW_CARD_MATRIX_ALIGNMENT_MISSING",
+            "official rules, FAQ, errata and matrix row rationale",
+            "PaymentEngine matrix rows must preserve rule-source and FAQ rationale for card/effect behavior rather than relying on local inference.",
+            "Future prompt evidence must cite the rule or FAQ source that justifies each legal payment prompt shape.",
+            "Future command evidence must cite the rule or FAQ source that justifies each accepted or rejected payment command.",
+            "Future audit evidence must cite the rule or FAQ source that justifies success, no-effect or rollback audit behavior.",
+            "Matrix alignment must keep FAQ review blockers visible when official text or FAQ support is incomplete.",
+            "Full official FAQ traceability, conflict resolution and errata-linked matrix evidence remain open.",
+            "Card matrix representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BG_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AP_CARD_MATRIX_READINESS_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AO_CARD_MATRIX_READINESS_AUDIT.md"
+            ]),
+        new(
+            "FRONTEND_CONTRACT_AND_SNAPSHOT_TRACE",
+            CardMatrixRepresentative,
+            "ROW_CARD_MATRIX_ALIGNMENT_MISSING",
+            "ActionPrompt, authoritative snapshot and frontend display contract",
+            "Matrix alignment must prove frontend-visible card payment behavior is backed by server ActionPrompt and authoritative snapshot fields.",
+            "Future prompt evidence must show the server ActionPrompt exposes legal payment choices for the matrix row.",
+            "Future command evidence must show the frontend only submits server-supported command shapes for the matrix row.",
+            "Future audit evidence must show authoritative snapshot or event payloads expose enough server-owned state for display.",
+            "Matrix alignment must keep frontend from inferring legal targets, costs, payment sources, generated resources or card effects locally.",
+            "Full official frontend contract coverage, final Chrome smoke and final E2E validation remain open.",
+            "Card matrix representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BG_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_FRONTEND_FINAL_VALIDATION_PREFLIGHT.md",
+                "docs/CURRENT_FRONTEND_REBUILD_PLAN.md"
+            ]),
+        new(
+            "MATRIX_JSON_SYNC_AND_DRIFT_GUARD",
+            CardMatrixRepresentative,
+            "ROW_CARD_MATRIX_ALIGNMENT_MISSING",
+            "matrix JSON, checkpoint docs and completion audit consistency",
+            "Matrix alignment must keep JSON status, checkpoint summaries and completion audit blocker language synchronized.",
+            "Future prompt evidence must be recorded in matrix JSON or referenced docs with a stable prompt anchor.",
+            "Future command evidence must be recorded in matrix JSON or referenced docs with a stable command anchor.",
+            "Future audit evidence must be recorded in matrix JSON or referenced docs with a stable audit anchor.",
+            "Matrix alignment must prevent JSON status drift, stale evidence anchors and mismatched blocker counts.",
+            "Full official JSON sync, blocker-count reconciliation and stale-evidence repair remain open.",
+            "Card matrix representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BG_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AT_AZIR_MATRIX_EVIDENCE_ALIGNMENT_EVIDENCE.md",
+                "docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md"
+            ]),
+        new(
+            "DEFERRED_BLOCKER_AND_STATUS_COUNTS",
+            CardMatrixRepresentative,
+            "ROW_CARD_MATRIX_ALIGNMENT_MISSING",
+            "NEEDS_ENGINE_SUPPORT, NEEDS_FAQ_REVIEW, shared oracle and implemented status counts",
+            "Matrix alignment must keep deferred blockers and status counts visible until every row has sufficient official evidence.",
+            "Future prompt evidence must explain which blockers are reduced by prompt coverage and which remain.",
+            "Future command evidence must explain which blockers are reduced by command coverage and which remain.",
+            "Future audit evidence must explain which blockers are reduced by audit coverage and which remain.",
+            "Matrix alignment must keep blocker counts, shared oracle implementation rows and unresolved official-card gaps auditable.",
+            "Full official blocker-count closure, all shared-oracle mappings and unresolved official-card evidence remain open.",
+            "Card matrix representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BG_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AN_CARD_MATRIX_READINESS_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AR_CARD_MATRIX_READINESS_AUDIT.md"
+            ])
+    ];
+
     private static readonly PaymentEngineLegendBattlefieldTriggerResourceActionCoverageEntry[] LegendBattlefieldTriggerResourceActionManifest =
     [
         new(
@@ -2112,6 +2253,146 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineCardMatrixAlignmentManifestListsRequiredFamiliesExactlyOnce()
+    {
+        var requiredFamilies = new[]
+        {
+            "MATRIX_ID_AND_STATUS_FIELDS",
+            "PAYMENT_ROW_TO_CARD_MATRIX_MAPPING",
+            "REPRESENTATIVE_TEST_EVIDENCE_LINKS",
+            "FULL_OFFICIAL_GATE_AND_COMPLETION_BLOCK",
+            "FAQ_RULE_SOURCE_TRACE",
+            "FRONTEND_CONTRACT_AND_SNAPSHOT_TRACE",
+            "MATRIX_JSON_SYNC_AND_DRIFT_GUARD",
+            "DEFERRED_BLOCKER_AND_STATUS_COUNTS"
+        };
+
+        Assert.Equal(
+            requiredFamilies.Order(StringComparer.Ordinal),
+            CardMatrixAlignmentRowManifest.Select(entry => entry.Family).Order(StringComparer.Ordinal));
+        Assert.Empty(CardMatrixAlignmentRowManifest
+            .GroupBy(entry => entry.Family, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key));
+    }
+
+    [Fact]
+    public void PaymentEngineCardMatrixAlignmentManifestRequiresPromptCommandAuditMatrixAndDocAnchors()
+    {
+        Assert.All(CardMatrixAlignmentRowManifest, entry =>
+        {
+            Assert.Equal(CardMatrixRepresentative, entry.Classification);
+            Assert.Equal("ROW_CARD_MATRIX_ALIGNMENT_MISSING", entry.OfficialMatrixRowId);
+            Assert.False(string.IsNullOrWhiteSpace(entry.MatrixScope));
+            Assert.False(string.IsNullOrWhiteSpace(entry.RepresentativeSurface));
+            Assert.Contains("prompt", entry.PromptAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("command", entry.CommandAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("audit", entry.AuditAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("matrix", entry.MatrixAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("remain open", entry.RemainingOfficialBreadth, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("NOT READY", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.NotEmpty(entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineCardMatrixAlignmentRowsStayLinkedToOfficialMatrixMissingRow()
+    {
+        var missingRow = Assert.Single(
+            OfficialPaymentEngineMatrixSeedRowManifest,
+            entry => string.Equals(entry.RowId, "ROW_CARD_MATRIX_ALIGNMENT_MISSING", StringComparison.Ordinal));
+        var residualAxis = Assert.Single(
+            OfficialPaymentEngineMatrixResidualManifest,
+            entry => string.Equals(entry.Axis, "CARD_MATRIX_ALIGNMENT", StringComparison.Ordinal));
+
+        Assert.Equal(MissingOfficialRow, missingRow.RowStatus);
+        Assert.Equal(RemainingOfficialGap, residualAxis.Classification);
+        Assert.Equal(missingRow.RowId, CardMatrixAlignmentRowManifest.Select(entry => entry.OfficialMatrixRowId).Distinct(StringComparer.Ordinal).Single());
+        Assert.All(CardMatrixAlignmentRowManifest, entry => Assert.Contains("Card matrix representative only", entry.ClosureStatus, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void PaymentEngineCardMatrixAlignmentRowsKeepMatrixDimensionsExplicit()
+    {
+        var combinedText = string.Join(
+            " ",
+            CardMatrixAlignmentRowManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.Family,
+                    entry.MatrixScope,
+                    entry.RepresentativeSurface,
+                    entry.PromptAnchor,
+                    entry.CommandAnchor,
+                    entry.AuditAnchor,
+                    entry.MatrixAnchor,
+                    entry.RemainingOfficialBreadth
+                }.Concat(entry.DocAnchors)));
+
+        foreach (var requiredPhrase in new[]
+        {
+            "cardId",
+            "collectorId",
+            "oracleId",
+            "effectId",
+            "fullOfficial",
+            "prompt",
+            "command",
+            "audit",
+            "matrix",
+            "FAQ",
+            "ActionPrompt",
+            "snapshot",
+            "frontend",
+            "blocker",
+            "JSON",
+            "official"
+        })
+        {
+            Assert.Contains(requiredPhrase, combinedText, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    [Fact]
+    public void PaymentEngineCardMatrixAlignmentRowsDoNotClaimP0005Closure()
+    {
+        var combinedText = string.Join(
+            " ",
+            CardMatrixAlignmentRowManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.Family,
+                    entry.Classification,
+                    entry.OfficialMatrixRowId,
+                    entry.MatrixScope,
+                    entry.RepresentativeSurface,
+                    entry.PromptAnchor,
+                    entry.CommandAnchor,
+                    entry.AuditAnchor,
+                    entry.MatrixAnchor,
+                    entry.RemainingOfficialBreadth,
+                    entry.ClosureStatus
+                }.Concat(entry.DocAnchors)));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PaymentEngineLegendBattlefieldTriggerResourceActionManifestListsRequiredWindowsExactlyOnce()
     {
         var requiredWindows = new[]
@@ -2842,6 +3123,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(OfficialPaymentEngineMatrixSeedRowManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(RollbackFailureRowManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(CrossWindowGenerationConsumptionRowManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(CardMatrixAlignmentRowManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(LegendBattlefieldTriggerResourceActionManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(KeywordPaymentBranchManifest.SelectMany(entry => entry.DocAnchors));
     }
@@ -2923,6 +3205,20 @@ public sealed class PaymentEngineCoverageAuditTests
         string CommandAnchor,
         string AuditAnchor,
         string LifetimeAndRestrictionAnchor,
+        string RemainingOfficialBreadth,
+        string ClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
+    private sealed record PaymentEngineCardMatrixAlignmentRowCoverageEntry(
+        string Family,
+        string Classification,
+        string OfficialMatrixRowId,
+        string MatrixScope,
+        string RepresentativeSurface,
+        string PromptAnchor,
+        string CommandAnchor,
+        string AuditAnchor,
+        string MatrixAnchor,
         string RemainingOfficialBreadth,
         string ClosureStatus,
         IReadOnlyList<string> DocAnchors);
