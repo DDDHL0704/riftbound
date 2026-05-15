@@ -5467,7 +5467,7 @@ public sealed class GameHubJoinTests
               "cmdType": "PLAY_CARD",
               "sourceObjectId": "P1-EQUIPMENT-LONG-SWORD",
               "cardNo": "SFD·022/221",
-              "targetObjectIds": []
+              "targetObjectIds": ["P1-UNIT-EQUIPMENT-COST-TARGET"]
             }
             """).RootElement.Clone();
         await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
@@ -7401,7 +7401,7 @@ public sealed class GameHubJoinTests
               "cmdType": "PLAY_CARD",
               "sourceObjectId": "P1-EQUIPMENT-LONG-SWORD",
               "cardNo": "SFD·022/221",
-              "targetObjectIds": []
+              "targetObjectIds": ["P1-UNIT-ASSEMBLE-TARGET"]
             }
             """).RootElement.Clone();
         await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
@@ -7426,30 +7426,17 @@ public sealed class GameHubJoinTests
         var resolveEvents = EventsFor(passP2Clients);
         Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
         Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_PLAYED_TO_BASE", StringComparison.Ordinal));
+        Assert.Contains(resolveEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "EQUIPMENT_ATTACHED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["equipmentObjectId"] as string, "P1-EQUIPMENT-LONG-SWORD", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["unitObjectId"] as string, "P1-UNIT-ASSEMBLE-TARGET", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["attachedToObjectId"] as string, "P1-UNIT-ASSEMBLE-TARGET", StringComparison.Ordinal));
         var playSnapshot = SnapshotFor(passP2Clients, "P1");
         var playP1 = Assert.IsType<Dictionary<string, object?>>(playSnapshot.Players["P1"]);
         var playP1Zones = Assert.IsType<Dictionary<string, object?>>(playP1["zones"]);
         Assert.Contains("P1-EQUIPMENT-LONG-SWORD", Assert.IsAssignableFrom<IReadOnlyList<string>>(playP1Zones["base"]));
-
-        var assembleClients = new RecordingHubClients();
-        var assemble = JsonDocument.Parse("""
-            {
-              "cmdType": "ASSEMBLE_EQUIPMENT",
-              "sourceObjectId": "P1-EQUIPMENT-LONG-SWORD",
-              "targetObjectId": "P1-UNIT-ASSEMBLE-TARGET",
-              "optionalCosts": ["ASSEMBLE_RED"]
-            }
-            """).RootElement.Clone();
-        await CreateHub(assembleClients, new RecordingGroupManager(), "connection-1", registry)
-            .SubmitIntent(roomId, "P1", "intent-p6-assemble-long-sword", assemble);
-        Assert.Empty(assembleClients.CallerClient.Errors);
-        var assembleEvents = EventsFor(assembleClients);
-        Assert.Contains(assembleEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Contains(assembleEvents, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_ATTACHED", StringComparison.Ordinal));
-        var assembleSnapshot = SnapshotFor(assembleClients, "P1");
-        var assembleP1 = Assert.IsType<Dictionary<string, object?>>(assembleSnapshot.Players["P1"]);
-        var assembleObjects = Assert.IsType<Dictionary<string, object?>>(assembleP1["objects"]);
-        var equipment = Assert.IsType<Dictionary<string, object?>>(assembleObjects["P1-EQUIPMENT-LONG-SWORD"]);
+        var playObjects = Assert.IsType<Dictionary<string, object?>>(playP1["objects"]);
+        var equipment = Assert.IsType<Dictionary<string, object?>>(playObjects["P1-EQUIPMENT-LONG-SWORD"]);
         Assert.Equal("P1-UNIT-ASSEMBLE-TARGET", equipment["attachedToObjectId"]);
         Assert.Equal("P1", equipment["ownerId"]);
         Assert.Equal("P1", equipment["controllerId"]);

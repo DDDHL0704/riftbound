@@ -2128,7 +2128,11 @@ public sealed class CardCatalogBaselineTests
         Assert.True(longSword.HasWeapon);
         Assert.False(longSword.HasTempered);
         Assert.True(longSword.HasImplementedRepresentativeAssembleBoundary);
+        Assert.True(longSword.HasImplementedRepresentativeAgileDirectPlayAttachBoundary);
         Assert.Equal(EquipmentKeywordProfileStatuses.RecognizedDeferred, longSword.Status);
+        Assert.Contains("Agile direct-play attach", longSword.Reason, StringComparison.Ordinal);
+        Assert.Contains("Jax-granted agile", longSword.Reason, StringComparison.Ordinal);
+        Assert.Contains("ephemeral/static equipment breadth", longSword.Reason, StringComparison.Ordinal);
         Assert.Contains("deferred", longSword.Reason, StringComparison.OrdinalIgnoreCase);
 
         var sentinelAdept = BuildEquipmentProfile(specs, "SFD·008/221", CardEquipmentKeywordNames.Tempered);
@@ -2136,6 +2140,7 @@ public sealed class CardCatalogBaselineTests
         Assert.False(sentinelAdept.HasAgile);
         Assert.True(sentinelAdept.HasTempered);
         Assert.False(sentinelAdept.HasImplementedRepresentativeAssembleBoundary);
+        Assert.False(sentinelAdept.HasImplementedRepresentativeAgileDirectPlayAttachBoundary);
         Assert.Contains("deferred", sentinelAdept.Reason, StringComparison.OrdinalIgnoreCase);
 
         var ornn = BuildEquipmentProfile(specs, "SFD·085/221", CardEquipmentKeywordNames.Tempered);
@@ -2379,7 +2384,7 @@ public sealed class CardCatalogBaselineTests
             "SFD·022/221",
             CardEquipmentKeywordNames.Agile,
             CardEquipmentKeywordNames.Assemble);
-        Cover("equipment:灵便", agile.HasAgile);
+        Cover("equipment:灵便", agile.HasAgile && agile.HasImplementedRepresentativeAgileDirectPlayAttachBoundary);
         var tempered = BuildEquipmentProfile(specs, "SFD·008/221", CardEquipmentKeywordNames.Tempered);
         Cover("equipment:百炼", tempered.HasTempered);
 

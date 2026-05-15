@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-steraks-gage-agile-equipment",
-  "description": "Sterak's Gage enters the controller's base as an agile weapon equipment object.",
+  "description": "Sterak's Gage enters the controller's base and attaches to a controlled unit through the agile direct-play representative path.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,12 +12,12 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "SFD·056/221 斯特拉克的挑战护手",
-      "note": "官方卡面：费用 3；装备；武装；灵便；装配绿色。当前 fixture 覆盖从手牌打出成为带武装/灵便标签的装备对象路径，灵便反应贴附和装配贴附分支暂缓。"
+      "note": "官方卡面：费用 3；装备；武装；灵便；装配绿色。当前 fixture 覆盖从手牌打出时要求己方单位目标并在结算后贴附该单位的灵便 direct-play representative；装配贴附分支暂缓。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
-      "note": "装备是游戏对象，可位于公开区域；打出卡牌需要费用足够并作为结算链项目在双方让过后结算；灵便、装配和瞬息关键词的后续贴附或到期流程暂缓。"
+      "note": "装备是游戏对象，可位于公开区域；打出卡牌需要目标合法、费用足够并作为结算链项目在双方让过后结算；当前窄实现覆盖印刷灵便装备从手牌直接打出时贴附己方单位，装配贴附分支暂缓。"
     }
   ],
   "roomId": "p2-preflight-steraks-gage-room",
@@ -58,7 +58,9 @@
         "hand": [
           "P1-EQUIPMENT-STERAKS-GAGE"
         ],
-        "base": [],
+        "base": [
+          "P1-STERAKS-GAGE-ATTACH-TARGET"
+        ],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
@@ -90,7 +92,17 @@
         ]
       }
     },
-    "cardObjects": {}
+    "cardObjects": {
+      "P1-STERAKS-GAGE-ATTACH-TARGET": {
+        "damage": 0,
+        "power": 3,
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      }
+    }
   },
   "commands": [
     {
@@ -100,7 +112,9 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-EQUIPMENT-STERAKS-GAGE",
         "cardNo": "SFD·056/221",
-        "targetObjectIds": []
+        "targetObjectIds": [
+          "P1-STERAKS-GAGE-ATTACH-TARGET"
+        ]
       }
     },
     {
@@ -127,7 +141,8 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "EQUIPMENT_PLAYED_TO_BASE"
+      "EQUIPMENT_PLAYED_TO_BASE",
+      "EQUIPMENT_ATTACHED"
     ],
     "events": [
       {
@@ -147,7 +162,9 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-EQUIPMENT-STERAKS-GAGE",
           "cardNo": "SFD·056/221",
-          "targetObjectIds": [],
+          "targetObjectIds": [
+            "P1-STERAKS-GAGE-ATTACH-TARGET"
+          ],
           "effectKind": "STERAKS_GAGE_AGILE_PLAY_EQUIPMENT"
         }
       },
@@ -173,6 +190,16 @@
             "武装",
             "灵便"
           ]
+        }
+      },
+      {
+        "kind": "EQUIPMENT_ATTACHED",
+        "payload": {
+          "sourceObjectId": "P1-EQUIPMENT-STERAKS-GAGE",
+          "equipmentObjectId": "P1-EQUIPMENT-STERAKS-GAGE",
+          "unitObjectId": "P1-STERAKS-GAGE-ATTACH-TARGET",
+          "attachedToObjectId": "P1-STERAKS-GAGE-ATTACH-TARGET",
+          "reason": "AGILE_DIRECT_PLAY_ATTACH"
         }
       }
     ],
@@ -208,12 +235,22 @@
         "P1": {
           "hand": [],
           "base": [
+            "P1-STERAKS-GAGE-ATTACH-TARGET",
             "P1-EQUIPMENT-STERAKS-GAGE"
           ],
           "graveyard": []
         }
       },
       "cardObjects": {
+        "P1-STERAKS-GAGE-ATTACH-TARGET": {
+          "damage": 0,
+          "power": 3,
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        },
         "P1-EQUIPMENT-STERAKS-GAGE": {
           "damage": 0,
           "power": 0,
@@ -224,7 +261,8 @@
           ],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
-          "isExhausted": false
+          "isExhausted": false,
+          "attachedToObjectId": "P1-STERAKS-GAGE-ATTACH-TARGET"
         }
       },
       "stackItems": []

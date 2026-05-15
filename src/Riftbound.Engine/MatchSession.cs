@@ -7820,6 +7820,12 @@ internal static class ActionPromptBuilder
             PromptHasRequiredTargetChoices(state, playerId, behavior));
     }
 
+    private static bool IsAgileDirectPlayAttachRepresentative(CardBehaviorDefinition behavior)
+    {
+        return behavior.PlaysSourceToBaseAsEquipment
+            && CardEquipmentKeywordRules.IsAgileDirectPlayAttachRepresentativeCardNo(behavior.CardNo);
+    }
+
     private static int PromptMinimumManaCost(
         MatchState state,
         string playerId,
@@ -8106,6 +8112,11 @@ internal static class ActionPromptBuilder
             return 0;
         }
 
+        if (IsAgileDirectPlayAttachRepresentative(behavior))
+        {
+            return 1;
+        }
+
         return behavior.MinTargetCount < 0 ? behavior.RequiredTargetCount : behavior.MinTargetCount;
     }
 
@@ -8126,6 +8137,11 @@ internal static class ActionPromptBuilder
             return 0;
         }
 
+        if (IsAgileDirectPlayAttachRepresentative(behavior))
+        {
+            return 1;
+        }
+
         if (!behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount)
         {
             return behavior.RequiredTargetCount;
@@ -8142,19 +8158,20 @@ internal static class ActionPromptBuilder
         CardBehaviorDefinition behavior,
         int targetIndex)
     {
+        var targetScope = PromptTargetScopeForBehavior(behavior);
         if (behavior.MainDeckLookCount > 0
             && targetIndex >= behavior.MainDeckLookTargetStartIndex
-            && string.Equals(behavior.TargetScope, CardTargetScopes.FriendlyMainDeckCard, StringComparison.Ordinal))
+            && string.Equals(targetScope, CardTargetScopes.FriendlyMainDeckCard, StringComparison.Ordinal))
         {
             return PromptFriendlyMainDeckLookTargetChoices(state, playerId, behavior);
         }
 
-        return PromptTargetCandidateIds(state, playerId, behavior.TargetScope, targetIndex)
-            .Where(objectId => IsPromptTargetObjectInScope(state, playerId, objectId, behavior.TargetScope, targetIndex)
+        return PromptTargetCandidateIds(state, playerId, targetScope, targetIndex)
+            .Where(objectId => IsPromptTargetObjectInScope(state, playerId, objectId, targetScope, targetIndex)
                 && IsPromptSpiritFireTargetAllowed(state, behavior, objectId))
             .Select(objectId => IsPromptStackSpellItem(state, objectId)
                 ? StackItemChoice(state, objectId, "legal stack spell target")
-                : ObjectChoice(state, objectId, PromptTargetReasonForScope(behavior.TargetScope, targetIndex)))
+                : ObjectChoice(state, objectId, PromptTargetReasonForScope(targetScope, targetIndex)))
             .ToArray();
     }
 
@@ -8293,11 +8310,12 @@ internal static class ActionPromptBuilder
 
         for (var targetIndex = 0; targetIndex < targetObjectIds.Count; targetIndex++)
         {
+            var targetScope = PromptTargetScopeForBehavior(behavior);
             if (!IsPromptTargetObjectInScope(
                     state,
                     playerId,
                     targetObjectIds[targetIndex],
-                    behavior.TargetScope,
+                    targetScope,
                     targetIndex)
                 || !IsPromptSpiritFireTargetAllowed(state, behavior, targetObjectIds[targetIndex]))
             {
@@ -11225,6 +11243,7 @@ internal static class ActionPromptBuilder
         var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior);
         var minTargetCount = PromptMinTargetCount(behavior, targetCountConditionApplies);
         var maxTargetCount = PromptMaxTargetCount(state, playerId, behavior, targetCountConditionApplies);
+        var targetScope = PromptTargetScopeForBehavior(behavior);
         var targetChoicesByIndex = Enumerable.Range(0, maxTargetCount)
             .ToDictionary(
                 targetIndex => targetIndex.ToString(System.Globalization.CultureInfo.InvariantCulture),
@@ -11277,8 +11296,8 @@ internal static class ActionPromptBuilder
             ["targetCountLabel"] = minTargetCount == maxTargetCount
                 ? maxTargetCount.ToString(System.Globalization.CultureInfo.InvariantCulture)
                 : $"{minTargetCount}-{maxTargetCount}",
-            ["targetScope"] = behavior.TargetScope,
-            ["targetScopeLabel"] = PromptTargetScopeLabel(behavior.TargetScope),
+            ["targetScope"] = targetScope,
+            ["targetScopeLabel"] = PromptTargetScopeLabel(targetScope),
             ["allowsRepeatedTargets"] = behavior.AllowsRepeatedTargets,
             ["targetChoicesByIndex"] = targetChoicesByIndex,
             ["legalTargetSelections"] = PlayCardLegalTargetSelections(state, playerId, behavior),
@@ -11632,6 +11651,13 @@ internal static class ActionPromptBuilder
     private static string PromptTargetReasonForScope(string targetScope, int targetIndex)
     {
         return $"{PromptTargetScopeLabel(targetScope)} / 第 {targetIndex + 1} 个目标";
+    }
+
+    private static string PromptTargetScopeForBehavior(CardBehaviorDefinition behavior)
+    {
+        return IsAgileDirectPlayAttachRepresentative(behavior)
+            ? CardTargetScopes.FriendlyUnit
+            : behavior.TargetScope;
     }
 
     private static string PromptTargetScopeLabel(string targetScope)
@@ -18086,6 +18112,7 @@ public sealed class MatchSession : IMatchSession
                     mainDeck: ["P1-MAIN-001"],
                     runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
                     hand: ["P1-EQUIPMENT-LONG-SWORD"],
+                    baseZone: ["P1-UNIT-EQUIPMENT-COST-TARGET"],
                     battlefields: ["P1-BATTLEFIELD-ORNN-FORGE"],
                     legendZone: ["P1-LEGEND-001"],
                     championZone: ["P1-CHAMPION-001"]),
@@ -18100,6 +18127,13 @@ public sealed class MatchSession : IMatchSession
                 ["P1-EQUIPMENT-LONG-SWORD"] = new(
                     "P1-EQUIPMENT-LONG-SWORD",
                     cardNo: "SFD·022/221",
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-UNIT-EQUIPMENT-COST-TARGET"] = new(
+                    "P1-UNIT-EQUIPMENT-COST-TARGET",
+                    power: 3,
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-ORNN-FORGE"] = new(

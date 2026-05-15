@@ -1,13 +1,14 @@
 # Stage 4D Next Dispatch and Writelocks
 
 日期：2026-05-15
-结论：**4D-04B EQUIPMENT KEYWORD STATUS SPLIT ACCEPTED / PROJECT NOT READY**
+结论：**4D-04C AGILE EQUIPMENT DIRECT ATTACH ACCEPTED / WRITELOCK CLOSED / PROJECT NOT READY**
 
 本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance / baseline 归档，不实现 runtime，不修改前端，不修改测试代码，不升级 full-official。当前 active goal 仍未完成，不得调用 `update_goal complete`。
 
 ## 1. 输入事实
 
 - 当前分支为 `main`，仓库当前只保留未跟踪 `riftbound-dotnet.sln`；该文件不得被本批任务触碰或纳入提交。
+- 4D-04C Agile equipment direct attach 已由 B-Implementation / Singer `019e2b7e-8eed-7803-b03a-ab9bf538171c` 实现并由 A 验收，入口为 `docs/CURRENT_STAGE4D_04C_AGILE_EQUIPMENT_DIRECT_ATTACH_HANDOFF.md`、`docs/CURRENT_STAGE4D_04C_AGILE_EQUIPMENT_DIRECT_ATTACH_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04C_AGILE_EQUIPMENT_DIRECT_ATTACH_EVIDENCE.md`。服务端现在让 `SFD·022/221`、`SFD·056/221`、`SFD·064/221`、`SFD·186/221` 从手牌 `PLAY_CARD` 时公开/校验己方单位目标，并在结算时贴附到目标单位。A 侧验证 focused 57/57、rejected/shape 113/113、adjacent 207/207、keyword guard 17/17、historical recheck 6/6、backend full 4368/4368、`git diff --check` 通过。frontend、card matrix JSON、broad equipment rewrite、LayerEngine、battle lifecycle、PaymentEngine broad refactor、Azir/Maduli/Ezreal historical slices 与 `riftbound-dotnet.sln` 未触碰。P1-002、full-card matrix、frontend final validation 与 READY 均未关闭。
 - 4D-04B Equipment keyword status split 已由 B-Implementation / Confucius `019e2b70-60f0-7a50-9a95-dd497c62ff96` 实现并由 A 验收，入口为 `docs/CURRENT_STAGE4D_04B_EQUIPMENT_KEYWORD_STATUS_SPLIT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04B_EQUIPMENT_KEYWORD_STATUS_SPLIT_EVIDENCE.md`。写锁仅覆盖 `CardEquipmentKeywordRules.cs`、`MatchSession.cs`、`CardCatalogBaselineTests.cs`；frontend、card matrix JSON、broad equipment rewrite、LayerEngine 与 `riftbound-dotnet.sln` 未触碰。A 侧验证 focused 4/4、adjacent 98/98、broader keyword 8/8、backend full 4355/4355、`git diff --check` 通过。P1-002、LayerEngine、full-card matrix、frontend final validation 与 READY 均未关闭。
 - 4D-04A Keyword deferred surface handoff / baseline 已完成，入口为 `docs/CURRENT_STAGE4D_04A_KEYWORD_DEFERRED_SURFACE_AUDIT.md`、`docs/CURRENT_STAGE4D_04A_KEYWORD_DEFERRED_SURFACE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_04A_KEYWORD_DEFERRED_SURFACE_BASELINE_EVIDENCE.md`。本批从 4D-03AT matrix evidence overlay 转回 P1-002 keyword execution-boundary 规则模型，建议后续 4D-04B 先处理 equipment keyword execution-boundary status split。A 侧已验证 keyword catalog/profile 8/8 passed 与 representative keyword fixtures 144/144 passed；不派发 B，不开 runtime / test / frontend / matrix 写锁，不关闭 P1-002、LayerEngine、full-card matrix、frontend final validation 或 READY。
 - 4D-03AT Azir matrix evidence alignment 已完成，入口为 `docs/CURRENT_STAGE4D_03AT_AZIR_MATRIX_EVIDENCE_ALIGNMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AT_AZIR_MATRIX_EVIDENCE_ALIGNMENT_EVIDENCE.md`。本批只为 `SFD·050/221` / `SFD·050a/221` / `FU-105abedc17` 记录 `stage4D03AT` representative evidence overlay，降低 representative automated-test-evidence blocker；`stage4B.freezeStatus`、`stage4B.statusFlags`、`fullOfficial=false`、P0/P1、frontend final validation 与 READY 均不变。
@@ -19,7 +20,7 @@
 - `docs/CURRENT_STAGE4D_03AS_CARD_MATRIX_READINESS_AUDIT.md` 已刷新为 readiness improved / matrix evidence overlay recorded：Azir `FU-105abedc17` optional armament reattach blocker 已有 accepted runtime evidence and 4D-03AT matrix evidence overlay, but `fullOfficial=false` remains unchanged.
 - `docs/CURRENT_STAGE4D_03AR_GATEKEEPER_MADULI_CANNOT_READY_STATIC_HANDOFF.md` 已把下一枚 Gatekeeper Maduli static slice 锁定为 `UNL-144/219` 守门者马杜里 `我无法变为活跃状态。` cannot-ready representative。
 - `docs/CURRENT_STAGE4D_03AR_GATEKEEPER_MADULI_CANNOT_READY_STATIC_BASELINE_EVIDENCE.md` 已记录 implementation-before baseline：Maduli / Gatekeeper / CrimsonRose / HuntReadyGuardTests 61/61 通过；Maduli / Gatekeeper / CrimsonRose / HuntReadyGuardTests / ActivateAbility / PaymentEngine / ActionPrompt / GameHub / Priority 371/371 通过；`git diff --check` 通过。
-- 4D-03AR-B 已派发给 B-Implementation / Schrodinger `019e291f-dd42-75c3-8f12-05220a1629df`。B 当前独占 Maduli cannot-ready static runtime/test 写锁：`CoreRuleEngine.cs`、`MatchSession.cs`、focused Maduli / Crimson Rose / Hunt tests；frontend、card matrix、broad LayerEngine、unrelated ready effects、HASTE_READY / swift timing、battle lifecycle 与 `riftbound-dotnet.sln` 仍禁止触碰。
+- 4D-03AR-B 已派发并验收，B-Implementation / Schrodinger `019e291f-dd42-75c3-8f12-05220a1629df` 的 Maduli cannot-ready static runtime/test 写锁已关闭；frontend、card matrix、broad LayerEngine、unrelated ready effects、HASTE_READY / swift timing、battle lifecycle 与 `riftbound-dotnet.sln` 均未触碰。
 - `docs/CURRENT_STAGE4D_03AR_GATEKEEPER_MADULI_CANNOT_READY_STATIC_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03AR_GATEKEEPER_MADULI_CANNOT_READY_STATIC_EVIDENCE.md` 已记录 4D-03AR-B implemented / A-validated：focused 65/65、adjacent 375/375、backend full 4345/4345、`git diff --check` 通过。
 - `docs/CURRENT_STAGE4D_03AR_CARD_MATRIX_READINESS_AUDIT.md` 已确认 Maduli `FU-d5d5707b0e` matrix readiness improved by 4D-03AN movement + 4D-03AR cannot-ready static evidence, but matrix JSON remains unchanged and `fullOfficial=false` until a future explicit matrix write window.
 - `docs/CURRENT_STAGE4D_03AQ_PAYMENT_ENGINE_HASTE_READY_COVERAGE_VERIFIER_HANDOFF.md` 已把下一枚 P0-005 test-only guard 锁定为 implemented HASTE_READY registry/profile set 与 existing P4 fixture evidence 的 catalog-bound verifier。
@@ -43,7 +44,8 @@
 
 | Queue | Owner | Status | Purpose | Write scope | Must not touch |
 |---|---|---|---|---|---|
-| 4D-NEXT-A | A 主控 | 4D-04B accepted | 记录 4D-04B implementation、A validation、evidence、closure docs 与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs | frontend runtime、card matrix JSON、full-official upgrade |
+| 4D-NEXT-A | A 主控 | 4D-04C accepted / paused | 记录 4D-04C handoff、B 写锁、A validation 与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs | frontend runtime、card matrix JSON、full-official upgrade |
+| 4D-04C-B | B-Implementation / Singer `019e2b7e-8eed-7803-b03a-ab9bf538171c` | Implemented and A-validated | printed Agile equipment direct-play attach representative | completed narrow runtime / focused tests / fixture migration | frontend runtime、card matrix JSON、broad equipment rewrite、LayerEngine、battle lifecycle、PaymentEngine broad refactor、Azir/Maduli/Ezreal historical slices、`riftbound-dotnet.sln` |
 | 4D-04B-B | B-Implementation / Confucius `019e2b70-60f0-7a50-9a95-dd497c62ff96` | Implemented and A-validated | equipment keyword execution-boundary status split | completed narrow code/test diff | frontend runtime、card matrix JSON、broad equipment runtime rewrite、LayerEngine、`riftbound-dotnet.sln` |
 | 4D-03AS-B | B-Implementation / Raman `019e2b49-28c3-7ad2-b3f8-ef1347b56996` | Implemented and A-validated | 实现 Azir optional armament reattach branch | completed runtime / focused tests | frontend runtime、card matrix JSON、broad equipment rewrite、unrelated abilities、swift timing breadth、battle lifecycle、LayerEngine、HASTE_READY、`riftbound-dotnet.sln` |
 | 4D-03AS-E | E-Review | 4D-03AT evidence overlay recorded | 检查 Azir `FU-105abedc17` optional armament blocker and full-official gate | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` Azir evidence overlay and card coverage docs | full-official upgrade、Stage 4B status count changes、unrelated matrix rows |
@@ -61,7 +63,7 @@
 
 ## 3. Exclusive Writelocks
 
-- At this stop point, no runtime, test, frontend or matrix write lock remains open.
+- 4D-04C-B runtime / focused-test write lock is closed after A validation and commit-ready evidence.
 - 4D-04B-B code / focused-test write lock is closed after A validation and commit-ready evidence.
 - 4D-04A remains closed as A-side handoff / baseline only; 4D-04B has now been implemented and accepted as the follow-up narrow slice.
 - 4D-03AS-B runtime / focused-test write lock is closed after A validation and commit-ready evidence.
@@ -75,7 +77,42 @@
 - E returns to read-only after 4D-03AT. The matrix must not be upgraded to `fullOfficial=true` for Azir, Maduli, Ezreal or other latest representatives merely because focused runtime evidence passed.
 - No parallel task may edit card matrix JSON, frontend stores, `ActionPrompt` contracts, battle state machine, stack, cleanup, hidden-info redaction, or E2E fixtures without an explicit owner and a fresh write-lock note.
 
-## 4. 4D-03AS-B Acceptance Gate Accepted
+## 4. 4D-04C-B Acceptance Gate Accepted
+
+B implementation is accepted because A verified all of the following:
+
+1. Server prompt metadata exposes legal `PLAY_CARD` friendly-unit targets for printed Agile equipment from hand.
+2. Missing target, enemy unit, non-unit, stale object and wrong-controller target are rejected no-mutation.
+3. Legal command preserves existing payment / stack behavior and resolves by setting `AttachedToObjectId` on the equipment object to the selected unit.
+4. Resolution emits `EQUIPMENT_ATTACHED` with auditable Agile direct-play attach payload.
+5. Existing assemble, Take Up, Azir reattach, Maduli, Ezreal, equipment cleanup, P79 and Arena Service Crew representative tests remain green after fixture migration.
+6. Keyword profile/report language says Agile has a direct-play representative while reaction timing, Jax-granted Agile, ephemeral/static breadth, Tempered optional attachment, weapon/static modifiers, copy-text effects, owner/controller changes, full attach lifecycle and full official breadth remain deferred.
+7. The slice does not update frontend runtime, card matrix JSON, P1-002 status or READY.
+
+A-side accepted commands:
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~AgileEquipmentDirectPlayAttachTests|FullyQualifiedName~LongSword|FullyQualifiedName~Steraks|FullyQualifiedName~ClothArmor|FullyQualifiedName~SpinningAxe|FullyQualifiedName~P4EquipmentKeywordProfilesKeepExistingNoAttachFixturesGreen"
+```
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4RejectedFixtures|FullyQualifiedName~ConformanceFixtureShapeTests"
+```
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~AssembleEquipment|FullyQualifiedName~TakeUp|FullyQualifiedName~AzirSwiftSwap|FullyQualifiedName~Maduli|FullyQualifiedName~Ezreal|FullyQualifiedName~SeaMonsterHook|FullyQualifiedName~SfurSong|FullyQualifiedName~P6EquipmentSeedBroadcastsPlayAndAssembleInDevelopment"
+```
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~KeywordCoverageReportExposesDeferredKeywordFamilies|FullyQualifiedName~P6EquipmentKeywordFamiliesReportSpecAndExecutionBoundaryCoverage|FullyQualifiedName~P4EquipmentKeywordProfilesMapOfficialTextToRegistryTags|FullyQualifiedName~P4EquipmentAttachmentProfileMapsTakeUpToRepresentativeAttachDetach|FullyQualifiedName~AgileEquipmentDirectPlayAttachTests"
+```
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
+git diff --check
+```
+
+## 5. 4D-03AS-B Historical Acceptance Gate Accepted
 
 B implementation is accepted because A verified all of the following:
 
@@ -103,7 +140,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
 git diff --check
 ```
 
-## 5. 4D-03AR-B Historical Acceptance Gate Accepted
+## 6. 4D-03AR-B Historical Acceptance Gate Accepted
 
 B implementation is accepted because A verified all of the following:
 
@@ -130,7 +167,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
 git diff --check
 ```
 
-## 6. 4D-03AQ-B Historical Acceptance Gate
+## 7. 4D-03AQ-B Historical Acceptance Gate
 
 B test-only verifier is acceptable only if A can verify all of the following:
 
@@ -154,7 +191,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
 git diff --check
 ```
 
-## 7. 4D-03AP-B Historical Acceptance Gate
+## 8. 4D-03AP-B Historical Acceptance Gate
 
 B implementation / test guard is acceptable only if A can verify all of the following:
 
@@ -181,7 +218,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
 git diff --check
 ```
 
-## 8. 4D-03AO-B Historical Acceptance Gate
+## 9. 4D-03AO-B Historical Acceptance Gate
 
 B implementation is acceptable only if A can verify all of the following:
 
@@ -211,7 +248,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
 git diff --check
 ```
 
-## 9. C / E Preflight Boundaries
+## 10. C / E Preflight Boundaries
 
 C may prepare a final validation checklist, but must not turn historical frontend evidence into final READY evidence. Final frontend validation still requires fresh runs in the final code state:
 
@@ -224,6 +261,6 @@ source ../../scripts/dev-env.sh && npm run e2e:formal-18 -- --start-api
 
 E may identify matrix rows and official text blockers for Azir / Ezreal, but must not update `fullOfficial` status until A accepts runtime, rules evidence, tests, residual handling and FAQ review.
 
-## 10. Current Batch Stop Point
+## 11. Current Batch Stop Point
 
-This record stops after recording the 4D-03AT Azir matrix evidence overlay. The project remains **NOT READY**. No frontend, matrix, runtime or test write window remains open, and `riftbound-dotnet.sln` remains untouched.
+This record stops after accepting 4D-04C Agile equipment direct attach and closing the B write lock. The project remains **NOT READY**. No frontend, matrix, runtime or test write window remains open, and `riftbound-dotnet.sln` remains untouched.

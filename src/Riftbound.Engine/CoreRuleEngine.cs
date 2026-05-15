@@ -23352,6 +23352,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             behavior,
             targetObjectIds,
             out targetObjectIds);
+        var targetScope = PlayCardTargetScopeForBehavior(behavior);
         if (!HasValidTargetCount(state, intent.PlayerId, behavior, targetObjectIds)
             || !PlayCardTargetsExposeKnownCardNumbers(state, targetObjectIds)
             || !CreatedBaseUnitCopyTargetAllowed(state, behavior, targetObjectIds)
@@ -23364,7 +23365,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !HasValidEachPlayerTopFiveUnitTargets(state, behavior, targetObjectIds)
             || !IsMainDeckLookWindowControlledByPlayer(state, intent.PlayerId, behavior)
             || targetObjectIds.Where((targetObjectId, targetIndex) =>
-                !IsTargetObjectInScope(state, intent.PlayerId, targetObjectId, behavior.TargetScope, targetIndex)
+                !IsTargetObjectInScope(state, intent.PlayerId, targetObjectId, targetScope, targetIndex)
                 || !IsBattleOrFlightTargetAllowed(state, behavior, targetObjectId)
                 || !IsGustTargetAllowed(state, behavior, targetObjectId)
                 || !IsHuntTheWeakTargetAllowed(state, behavior, targetObjectId)
@@ -23388,7 +23389,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             rejection = RejectWithCorePrompts(
                 state,
-                $"{behavior.DisplayName} requires {DescribeTargetCount(state, intent.PlayerId, behavior)} {DescribeTargetScope(behavior.TargetScope)} target(s).",
+                $"{behavior.DisplayName} requires {DescribeTargetCount(state, intent.PlayerId, behavior)} {DescribeTargetScope(targetScope)} target(s).",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -27864,15 +27865,31 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         var targetCountConditionApplies = TargetCountConditionApplies(behavior, stackItem);
         var minTargetCount = MinTargetCount(behavior, targetCountConditionApplies);
-        var maxTargetCount = !targetCountConditionApplies
-            ? 0
-            : behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount
-                ? stackItem.TargetObjectIds.Count
-                : behavior.RequiredTargetCount;
+        var maxTargetCount = MaxResolvedTargetCount(behavior, stackItem, targetCountConditionApplies);
         return stackItem.TargetObjectIds.Count >= minTargetCount
             && stackItem.TargetObjectIds.Count <= maxTargetCount
             && (behavior.AllowsRepeatedTargets
                 || stackItem.TargetObjectIds.Distinct(StringComparer.Ordinal).Count() == stackItem.TargetObjectIds.Count);
+    }
+
+    private static int MaxResolvedTargetCount(
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        bool targetCountConditionApplies)
+    {
+        if (!targetCountConditionApplies)
+        {
+            return 0;
+        }
+
+        if (IsAgileDirectPlayAttachRepresentative(behavior))
+        {
+            return 1;
+        }
+
+        return behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount
+            ? stackItem.TargetObjectIds.Count
+            : behavior.RequiredTargetCount;
     }
 
     private static bool TryBuildOptionalCostPlan(
@@ -29370,6 +29387,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return 0;
         }
 
+        if (IsAgileDirectPlayAttachRepresentative(behavior))
+        {
+            return 1;
+        }
+
         return behavior.MinTargetCount < 0 ? behavior.RequiredTargetCount : behavior.MinTargetCount;
     }
 
@@ -29382,6 +29404,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!targetCountConditionApplies)
         {
             return 0;
+        }
+
+        if (IsAgileDirectPlayAttachRepresentative(behavior))
+        {
+            return 1;
         }
 
         if (!behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount)
@@ -29402,6 +29429,19 @@ public sealed class CoreRuleEngine : IRuleEngine
         return minTargetCount == maxTargetCount
             ? maxTargetCount.ToString()
             : $"{minTargetCount}-{maxTargetCount}";
+    }
+
+    private static bool IsAgileDirectPlayAttachRepresentative(CardBehaviorDefinition behavior)
+    {
+        return behavior.PlaysSourceToBaseAsEquipment
+            && CardEquipmentKeywordRules.IsAgileDirectPlayAttachRepresentativeCardNo(behavior.CardNo);
+    }
+
+    private static string PlayCardTargetScopeForBehavior(CardBehaviorDefinition behavior)
+    {
+        return IsAgileDirectPlayAttachRepresentative(behavior)
+            ? CardTargetScopes.FriendlyUnit
+            : behavior.TargetScope;
     }
 
     private static string ExtractRengarUnitPlayedTriggerTarget(
@@ -29755,6 +29795,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                 behavior,
                 stackItem,
                 events);
+            if (IsAgileDirectPlayAttachRepresentative(behavior)
+                && TryAttachAgileDirectPlayEquipmentToTarget(
+                    playerZones,
+                    cardObjects,
+                    behavior,
+                    stackItem,
+                    out var agileAttachmentEvent))
+            {
+                events.Add(agileAttachmentEvent);
+            }
         }
 
         if (behavior.PlaysSourceToBaseAsUnit)
@@ -35044,6 +35094,59 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return payload;
+    }
+
+    private static bool TryAttachAgileDirectPlayEquipmentToTarget(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        out GameEvent attachmentEvent)
+    {
+        attachmentEvent = default!;
+        if (stackItem.TargetObjectIds.Count != 1)
+        {
+            return false;
+        }
+
+        var targetObjectId = stackItem.TargetObjectIds[0];
+        if (!TryGetFieldControllerId(playerZones, targetObjectId, out var targetControllerId)
+            || !string.Equals(targetControllerId, stackItem.ControllerId, StringComparison.Ordinal)
+            || !cardObjects.TryGetValue(targetObjectId, out var targetState)
+            || targetState.IsFaceDown
+            || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || targetState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
+            || targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(targetState, stackItem.ControllerId)
+            || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var equipmentState)
+            || equipmentState.IsFaceDown
+            || !equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || !string.IsNullOrWhiteSpace(equipmentState.AttachedToObjectId))
+        {
+            return false;
+        }
+
+        cardObjects[stackItem.SourceObjectId] = equipmentState with
+        {
+            AttachedToObjectId = targetObjectId
+        };
+        attachmentEvent = new GameEvent(
+            "EQUIPMENT_ATTACHED",
+            $"{behavior.DisplayName}以灵便贴附",
+            new Dictionary<string, object?>
+            {
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["unitObjectId"] = targetObjectId,
+                ["equipmentObjectId"] = stackItem.SourceObjectId,
+                ["equipmentCardNo"] = behavior.CardNo,
+                ["controllerId"] = stackItem.ControllerId,
+                ["ownerId"] = string.IsNullOrWhiteSpace(equipmentState.OwnerId) ? stackItem.ControllerId : equipmentState.OwnerId,
+                ["attachedToObjectId"] = targetObjectId,
+                ["reason"] = "AGILE_DIRECT_PLAY_ATTACH"
+            });
+        return true;
     }
 
     private static IReadOnlyList<string> ResolveConditionalSourceUnitTags(

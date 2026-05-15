@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p4-play-spinning-axe-target-rejected",
-  "description": "P4 rejects Spinning Axe when an explicit target is provided for its zero-target play path.",
+  "description": "P4 rejects Spinning Axe when the required agile direct-play attach target is missing.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,12 +12,12 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "SFD·186/221 旋转飞斧",
-      "note": "官方卡面：费用 2；专属装备；武装；灵便；装配 A；瞬息。当前 fixture 覆盖从手牌打出时当前 0 目标装备入场路径不应携带目标，灵便反应贴附、装配贴附和未贴附瞬息开始阶段摧毁分支仍暂缓。"
+      "note": "官方卡面：费用 2；专属装备；武装；灵便；装配 A；瞬息。当前 fixture 覆盖从手牌打出时缺少必需己方单位目标会 no-mutation reject；瞬息保留为 residual 标记，装配贴附和瞬息到期流程仍暂缓。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
-      "note": "装备与单位是游戏对象，可位于公开区域；打出卡牌需要目标合法、费用足够，并作为结算链项目在双方让过后结算；灵便、装配和瞬息后续流程暂缓。《旋转飞斧》的当前手牌打出路径为 0 目标，提供显式目标时应在支付费用、入栈和成为装备对象前拒绝。"
+      "note": "装备与单位是游戏对象，可位于公开区域；打出卡牌需要目标合法、费用足够，并作为结算链项目在双方让过后结算；当前窄实现要求《旋转飞斧》从手牌直接打出时提供己方单位目标，缺目标应在支付费用、入栈和成为装备对象前拒绝；瞬息到期流程仍暂缓。"
     }
   ],
   "roomId": "p4-spinning-axe-target-rejected-room",
@@ -79,7 +79,7 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-EQUIPMENT-SPINNING-AXE",
         "cardNo": "SFD·186/221",
-        "targetObjectIds": ["P1-SPINNING-AXE-BASE-UNIT-001"]
+        "targetObjectIds": []
       }
     }
   ],

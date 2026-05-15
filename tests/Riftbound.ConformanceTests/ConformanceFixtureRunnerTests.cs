@@ -9231,11 +9231,12 @@ public sealed class ConformanceFixtureRunnerTests
         AssertSimpleEquipmentFixtureAsync(
             "p2-preflight-play-long-sword-agile-equipment.fixture.json",
             "P1-EQUIPMENT-LONG-SWORD",
-            expectedTags: [CardObjectTags.EquipmentCard, "武装", "灵便"]);
+            expectedTags: [CardObjectTags.EquipmentCard, "武装", "灵便"],
+            expectedAttachedToObjectId: "P1-LONG-SWORD-ATTACH-TARGET");
 
     [Fact]
-    public Task CoreRuleEngineRejectsLongSwordWhenTargetsAreProvided() =>
-        AssertEquipmentWithTargetRejectedAsync(
+    public Task CoreRuleEngineRejectsLongSwordWhenRequiredAgileTargetIsMissing() =>
+        AssertAgileEquipmentMissingTargetRejectedAsync(
             2,
             "P1-EQUIPMENT-LONG-SWORD",
             "SFD·022/221",
@@ -9271,11 +9272,12 @@ public sealed class ConformanceFixtureRunnerTests
         AssertSimpleEquipmentFixtureAsync(
             "p2-preflight-play-steraks-gage-agile-equipment.fixture.json",
             "P1-EQUIPMENT-STERAKS-GAGE",
-            expectedTags: [CardObjectTags.EquipmentCard, "武装", "灵便"]);
+            expectedTags: [CardObjectTags.EquipmentCard, "武装", "灵便"],
+            expectedAttachedToObjectId: "P1-STERAKS-GAGE-ATTACH-TARGET");
 
     [Fact]
-    public Task CoreRuleEngineRejectsSteraksGageWhenTargetsAreProvided() =>
-        AssertEquipmentWithTargetRejectedAsync(
+    public Task CoreRuleEngineRejectsSteraksGageWhenRequiredAgileTargetIsMissing() =>
+        AssertAgileEquipmentMissingTargetRejectedAsync(
             3,
             "P1-EQUIPMENT-STERAKS-GAGE",
             "SFD·056/221",
@@ -9311,11 +9313,12 @@ public sealed class ConformanceFixtureRunnerTests
         AssertSimpleEquipmentFixtureAsync(
             "p2-preflight-play-cloth-armor-agile-equipment.fixture.json",
             "P1-EQUIPMENT-CLOTH-ARMOR",
-            expectedTags: [CardObjectTags.EquipmentCard, "武装", "灵便"]);
+            expectedTags: [CardObjectTags.EquipmentCard, "武装", "灵便"],
+            expectedAttachedToObjectId: "P1-CLOTH-ARMOR-ATTACH-TARGET");
 
     [Fact]
-    public Task CoreRuleEngineRejectsClothArmorWhenTargetsAreProvided() =>
-        AssertEquipmentWithTargetRejectedAsync(
+    public Task CoreRuleEngineRejectsClothArmorWhenRequiredAgileTargetIsMissing() =>
+        AssertAgileEquipmentMissingTargetRejectedAsync(
             1,
             "P1-EQUIPMENT-CLOTH-ARMOR",
             "SFD·064/221",
@@ -9351,11 +9354,12 @@ public sealed class ConformanceFixtureRunnerTests
         AssertSimpleEquipmentFixtureAsync(
             "p2-preflight-play-spinning-axe-agile-ephemeral-equipment.fixture.json",
             "P1-EQUIPMENT-SPINNING-AXE",
-            expectedTags: [CardObjectTags.EquipmentCard, "武装", "灵便", CardObjectTags.Ephemeral]);
+            expectedTags: [CardObjectTags.EquipmentCard, "武装", "灵便", CardObjectTags.Ephemeral],
+            expectedAttachedToObjectId: "P1-SPINNING-AXE-ATTACH-TARGET");
 
     [Fact]
-    public Task CoreRuleEngineRejectsSpinningAxeWhenTargetsAreProvided() =>
-        AssertEquipmentWithTargetRejectedAsync(
+    public Task CoreRuleEngineRejectsSpinningAxeWhenRequiredAgileTargetIsMissing() =>
+        AssertAgileEquipmentMissingTargetRejectedAsync(
             2,
             "P1-EQUIPMENT-SPINNING-AXE",
             "SFD·186/221",
@@ -38483,7 +38487,7 @@ public sealed class ConformanceFixtureRunnerTests
             new PlayCardCommand(
                 "P1-EQUIPMENT-LONG-SWORD",
                 "SFD·022/221",
-                []),
+                ["P1-UNIT-EQUIPMENT-COST-TARGET"]),
             CancellationToken.None);
 
         Assert.True(result.Accepted);
@@ -38559,7 +38563,7 @@ public sealed class ConformanceFixtureRunnerTests
             new PlayCardCommand(
                 "P1-EQUIPMENT-LONG-SWORD",
                 "SFD·022/221",
-                []),
+                ["P1-UNIT-ARENA-SERVICE-CREW"]),
             CancellationToken.None);
 
         Assert.True(result.Accepted);
@@ -38583,7 +38587,7 @@ public sealed class ConformanceFixtureRunnerTests
             new PlayCardCommand(
                 "P2-EQUIPMENT-LONG-SWORD",
                 "SFD·022/221",
-                []),
+                ["P2-UNIT-EQUIPMENT-TARGET"]),
             CancellationToken.None);
 
         Assert.True(result.Accepted);
@@ -38630,7 +38634,7 @@ public sealed class ConformanceFixtureRunnerTests
             new PlayCardCommand(
                 "P1-EQUIPMENT-LONG-SWORD",
                 "SFD·022/221",
-                []),
+                ["P1-UNIT-EQUIPMENT-COST-TARGET"]),
             CancellationToken.None);
 
         Assert.False(result.Accepted);
@@ -60183,6 +60187,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1"] = PlayerZones.Empty with
                 {
                     Hand = ["P1-EQUIPMENT-LONG-SWORD"],
+                    Base = ["P1-UNIT-EQUIPMENT-COST-TARGET"],
                     Battlefields = ["P1-BATTLEFIELD-ORNN-FORGE"]
                 },
                 ["P2"] = PlayerZones.Empty
@@ -60192,6 +60197,13 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1-EQUIPMENT-LONG-SWORD"] = new(
                     "P1-EQUIPMENT-LONG-SWORD",
                     cardNo: "SFD·022/221",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-EQUIPMENT-COST-TARGET"] = new(
+                    "P1-UNIT-EQUIPMENT-COST-TARGET",
+                    power: 3,
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P1-BATTLEFIELD-ORNN-FORGE"] = new(
@@ -60270,7 +60282,10 @@ public sealed class ConformanceFixtureRunnerTests
                 },
                 ["P2"] = PlayerZones.Empty with
                 {
-                    Hand = p2Hand
+                    Hand = p2Hand,
+                    Base = string.Equals(playerId, "P2", StringComparison.Ordinal)
+                        ? ["P2-UNIT-EQUIPMENT-TARGET"]
+                        : []
                 }
             },
             CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
@@ -60282,7 +60297,14 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.UnitCard],
                     isExhausted: true,
                     ownerId: "P1",
-                    controllerId: "P1")
+                    controllerId: "P1"),
+                ["P2-UNIT-EQUIPMENT-TARGET"] = new(
+                    "P2-UNIT-EQUIPMENT-TARGET",
+                    power: 3,
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
             }
         };
     }
@@ -62318,7 +62340,8 @@ public sealed class ConformanceFixtureRunnerTests
         string fixtureFileName,
         string equipmentObjectId,
         bool expectedIsExhausted = false,
-        string[]? expectedTags = null)
+        string[]? expectedTags = null,
+        string? expectedAttachedToObjectId = null)
     {
         var fixture = await ConformanceFixture.LoadAsync(
             Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
@@ -62330,18 +62353,53 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.Equal([equipmentObjectId], result.FinalState.PlayerZones["P1"].Base);
+        if (expectedAttachedToObjectId is null)
+        {
+            Assert.Equal([equipmentObjectId], result.FinalState.PlayerZones["P1"].Base);
+        }
+        else
+        {
+            Assert.Contains(expectedAttachedToObjectId, result.FinalState.PlayerZones["P1"].Base);
+            Assert.Contains(equipmentObjectId, result.FinalState.PlayerZones["P1"].Base);
+        }
+
         Assert.Empty(result.FinalState.PlayerZones["P1"].Graveyard);
         var expectedEquipmentTags = expectedTags ?? [CardObjectTags.EquipmentCard];
         Assert.Equal(expectedEquipmentTags, result.FinalState.CardObjects[equipmentObjectId].Tags);
         Assert.Equal(expectedIsExhausted, result.FinalState.CardObjects[equipmentObjectId].IsExhausted);
+        Assert.Equal(expectedAttachedToObjectId, result.FinalState.CardObjects[equipmentObjectId].AttachedToObjectId);
     }
+
+    private static Task AssertAgileEquipmentMissingTargetRejectedAsync(
+        int mana,
+        string sourceObjectId,
+        string cardNo,
+        string targetObjectId) =>
+        AssertEquipmentPlayRejectedAsync(
+            mana,
+            sourceObjectId,
+            cardNo,
+            targetObjectId,
+            targetObjectIds: []);
 
     private static async Task AssertEquipmentWithTargetRejectedAsync(
         int mana,
         string sourceObjectId,
         string cardNo,
-        string targetObjectId)
+        string targetObjectId) =>
+        await AssertEquipmentPlayRejectedAsync(
+            mana,
+            sourceObjectId,
+            cardNo,
+            targetObjectId,
+            [targetObjectId]);
+
+    private static async Task AssertEquipmentPlayRejectedAsync(
+        int mana,
+        string sourceObjectId,
+        string cardNo,
+        string targetObjectId,
+        IReadOnlyList<string> targetObjectIds)
     {
         var state = PunishmentState(mana) with
         {
@@ -62367,7 +62425,7 @@ public sealed class ConformanceFixtureRunnerTests
             new PlayCardCommand(
                 sourceObjectId,
                 cardNo,
-                [targetObjectId]),
+                targetObjectIds),
             CancellationToken.None);
 
         Assert.False(result.Accepted);
