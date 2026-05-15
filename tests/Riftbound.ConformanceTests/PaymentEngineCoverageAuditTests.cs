@@ -23,6 +23,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string CardMatrixRepresentative = "card-matrix-representative";
     private const string CardMatrixAllWindowMatrix = "card-matrix-all-window-matrix";
     private const string OfficialMatrixDownstreamAggregate = "official-matrix-downstream-aggregate";
+    private const string KeywordBranchAllWindowMatrix = "keyword-branch-all-window-matrix";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
     [
@@ -1996,6 +1997,97 @@ public sealed class PaymentEngineCoverageAuditTests
                 "docs/CURRENT_STAGE4D_03AE_PAYMENT_ENGINE_PENDING_TEMP_RESOURCE_PROMPT_AUDIT.md"
             ])
     ];
+
+    private static readonly KeywordPaymentBranchMatrixActionWindowProfile[] KeywordPaymentBranchAllWindowActionWindowProfiles =
+    [
+        new(
+            "PLAY_CARD",
+            "PLAY_CARD keyword payment branch surface across hand-card optional and additional costs",
+            "play-card keyword branch prompt and command surface",
+            "PLAY_CARD prompt quote binds branch id, base cost, optional / extra keyword choices and available rune / mana / temporary resources.",
+            "PLAY_CARD command-side revalidation binds submitted branch choices to the same hand-card source before card movement or stack creation.",
+            "COST_PAID audit expectation covers accepted play-card keyword branch resources, declined branches and no duplicate branch spend.",
+            "PLAY_CARD rollback expectation covers stale hand source, invalid branch id, insufficient modified cost and no-mutation command rejection.",
+            "docs/CURRENT_STAGE4D_03C_PAYMENT_ENGINE_PLAY_OPTIONAL_AUDIT.md"),
+        new(
+            "PAY_COST",
+            "PAY_COST keyword payment branch surface across pending payment windows",
+            "pending keyword payment prompt and PayCost command surface",
+            "PAY_COST prompt quote binds payment id, branch id, pending source and current legal resource candidates.",
+            "PAY_COST command-side revalidation binds branch choices to the pending payment id before queue close or resource mutation.",
+            "COST_PAID audit expectation covers accepted pending keyword payment resources and PAYMENT_WINDOW_CLOSED branch cleanup.",
+            "PAY_COST rollback expectation covers stale pending id, duplicate branch spend, wrong resource and no-mutation command rejection.",
+            "docs/CURRENT_STAGE4D_03F_PAYMENT_ENGINE_PAY_COST_RESOURCE_AUDIT.md"),
+        new(
+            "ACTIVATE_ABILITY",
+            "ACTIVATE_ABILITY keyword payment branch surface across target, tax and colored ability costs",
+            "activated ability keyword branch prompt, target and command surface",
+            "ACTIVATE_ABILITY prompt quote binds ability id, branch id, target/tax metadata and legal typed resource candidates.",
+            "ACTIVATE_ABILITY command-side revalidation binds source, ability, targets and branch resources before stack creation.",
+            "COST_PAID audit expectation covers accepted activated ability keyword branches, target tax and experience payment metadata.",
+            "ACTIVATE_ABILITY rollback expectation covers stale source, stale target, invalid branch choice, insufficient tax and no-mutation command rejection.",
+            "docs/CURRENT_STAGE4D_03D_PAYMENT_ENGINE_ACTIVATE_RESOURCE_AUDIT.md"),
+        new(
+            "ASSEMBLE_EQUIPMENT",
+            "ASSEMBLE_EQUIPMENT keyword payment branch surface across equipment optional, extra and modifier costs",
+            "equipment assemble keyword branch prompt and command surface",
+            "ASSEMBLE_EQUIPMENT prompt quote binds equipment source, attach target, branch id, typed cost and modifier choices.",
+            "ASSEMBLE_EQUIPMENT command-side revalidation binds equipment source, target and branch payment resources before attach or rejection.",
+            "COST_PAID audit expectation covers accepted equipment keyword branch resources and equipment attach payment traceability.",
+            "ASSEMBLE_EQUIPMENT rollback expectation covers stale equipment, invalid target, stale modifier, wrong resource and no-mutation command rejection.",
+            "docs/CURRENT_STAGE4D_03B_PAYMENT_ENGINE_NON_PLAY_AUDIT.md"),
+        new(
+            "TRIGGER_PAYMENT",
+            "TRIGGER_PAYMENT keyword payment branch surface across optional trigger pay / decline windows",
+            "trigger keyword payment prompt, pay/decline and close surface",
+            "TRIGGER_PAYMENT prompt quote binds trigger source, branch id, pay/decline choice and current resource candidates.",
+            "TRIGGER_PAYMENT command-side revalidation binds trigger source, target and branch payment resources before trigger resolution or decline.",
+            "COST_PAID audit expectation covers accepted trigger keyword resources plus declined and closed trigger payment branches.",
+            "TRIGGER_PAYMENT rollback expectation covers stale trigger source, stale target, wrong branch id, invalid resource and no-mutation command rejection.",
+            "docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_AUDIT.md"),
+        new(
+            "BATTLEFIELD_HELD_SCORE_PAYMENT",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT keyword payment branch surface across held-score replacement and prevention costs",
+            "battlefield-held keyword branch score payment prompt and command surface",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT prompt quote binds battlefield source, branch id, replacement / prevention state and score-payment resources.",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT command-side revalidation binds battlefield state and branch payment resources before score mutation or prevention.",
+            "COST_PAID audit expectation covers accepted held-score keyword resources, prevention metadata and score-payment traceability.",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT rollback expectation covers stale battlefield state, duplicate score, invalid replacement branch and no-mutation command rejection.",
+            "docs/CURRENT_STAGE4D_03G_PAYMENT_ENGINE_BATTLEFIELD_HELD_RESOURCE_AUDIT.md")
+    ];
+
+    private static readonly PaymentEngineKeywordPaymentBranchAllWindowMatrixEntry[] KeywordPaymentBranchAllWindowMatrixManifest =
+        BuildKeywordPaymentBranchAllWindowMatrix();
+
+    private static PaymentEngineKeywordPaymentBranchAllWindowMatrixEntry[] BuildKeywordPaymentBranchAllWindowMatrix()
+    {
+        return KeywordPaymentBranchAllWindowActionWindowProfiles
+            .SelectMany(window => KeywordPaymentBranchManifest.Select(branch =>
+                new PaymentEngineKeywordPaymentBranchAllWindowMatrixEntry(
+                    $"ROW_KEYWORD_BRANCH_MATRIX_{window.ActionWindow}_{branch.Branch}",
+                    branch.Branch,
+                    KeywordBranchAllWindowMatrix,
+                    "KEYWORD_PAYMENT_BRANCHES",
+                    "KEYWORD_BRANCHES / COST_MODIFIERS / OPTIONAL_EXTRA_ALTERNATIVE_COSTS / REPLACEMENT_PREVENTION",
+                    window.ActionWindow,
+                    window.PaymentSurfaceScope,
+                    $"{window.RepresentativeSurface}; {branch.RepresentativeSurface}",
+                    $"{window.PromptQuote} {branch.PromptAnchor}",
+                    $"{window.CommandRevalidation} {branch.CommandAnchor}",
+                    $"{window.AuditExpectation} {branch.AuditAnchor}",
+                    $"{window.RollbackExpectation} {branch.RollbackAnchor}",
+                    $"Full official keyword branch parity for {window.ActionWindow} / {branch.Branch} remains open across every official card row, target/tax branch, replacement/prevention ordering, cost modifier stack, optional/extra/alternative branch and temporary resource lifetime.",
+                    "All-window keyword branch representative only; project remains NOT READY and P0-005 remains open.",
+                    [
+                        "docs/CURRENT_STAGE4D_03BP_PAYMENT_ENGINE_KEYWORD_BRANCH_MATRIX_AUDIT.md",
+                        "docs/CURRENT_STAGE4D_03BP_PAYMENT_ENGINE_KEYWORD_BRANCH_MATRIX_EVIDENCE.md",
+                        "docs/CURRENT_STAGE4D_03BP_PAYMENT_ENGINE_KEYWORD_BRANCH_MATRIX_HANDOFF.md",
+                        "docs/CURRENT_STAGE4D_03AY_PAYMENT_ENGINE_KEYWORD_PAYMENT_BRANCH_MANIFEST_AUDIT.md",
+                        window.DocAnchor,
+                        .. branch.DocAnchors
+                    ])))
+            .ToArray();
+    }
 
     [Fact]
     public void PaymentEngineActionWindowCoverageManifestListsRequiredWindowsExactlyOnce()
@@ -4325,6 +4417,156 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineKeywordPaymentBranchAllWindowMatrixCoversEveryRequiredSurfaceAndBranch()
+    {
+        var requiredActionWindows = KeywordPaymentBranchAllWindowActionWindowProfiles
+            .Select(entry => entry.ActionWindow)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var requiredBranches = KeywordPaymentBranchManifest
+            .Select(entry => entry.Branch)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(
+            requiredActionWindows,
+            KeywordPaymentBranchAllWindowMatrixManifest.Select(entry => entry.ActionWindow).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal));
+        Assert.Equal(
+            requiredBranches,
+            KeywordPaymentBranchAllWindowMatrixManifest.Select(entry => entry.Branch).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal));
+        Assert.Equal(requiredActionWindows.Length * requiredBranches.Length, KeywordPaymentBranchAllWindowMatrixManifest.Length);
+        Assert.Equal(48, KeywordPaymentBranchAllWindowMatrixManifest.Length);
+        Assert.Empty(KeywordPaymentBranchAllWindowMatrixManifest
+            .GroupBy(entry => (entry.ActionWindow, entry.Branch))
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key));
+
+        Assert.DoesNotContain(KeywordPaymentBranchAllWindowMatrixManifest, entry => string.Equals(entry.ActionWindow, "MOVE_UNIT", StringComparison.Ordinal));
+        Assert.DoesNotContain(KeywordPaymentBranchAllWindowMatrixManifest, entry => string.Equals(entry.ActionWindow, "HIDE_CARD", StringComparison.Ordinal));
+        Assert.DoesNotContain(KeywordPaymentBranchAllWindowMatrixManifest, entry => string.Equals(entry.ActionWindow, "LEGEND_ACT", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void PaymentEngineKeywordPaymentBranchAllWindowMatrixRequiresBoundQuoteCommandAuditRollbackAndDocFields()
+    {
+        Assert.All(KeywordPaymentBranchAllWindowMatrixManifest, entry =>
+        {
+            Assert.Equal(KeywordBranchAllWindowMatrix, entry.Classification);
+            Assert.Equal("KEYWORD_PAYMENT_BRANCHES", entry.ResidualBlockerFamily);
+            Assert.Contains("KEYWORD_BRANCHES", entry.OfficialResidualAxes, StringComparison.Ordinal);
+            Assert.Contains("COST_MODIFIERS", entry.OfficialResidualAxes, StringComparison.Ordinal);
+            Assert.Contains("OPTIONAL_EXTRA_ALTERNATIVE_COSTS", entry.OfficialResidualAxes, StringComparison.Ordinal);
+            Assert.Contains("REPLACEMENT_PREVENTION", entry.OfficialResidualAxes, StringComparison.Ordinal);
+            Assert.Contains(entry.Branch, entry.MatrixRowId, StringComparison.Ordinal);
+            Assert.Contains(entry.ActionWindow, entry.MatrixRowId, StringComparison.Ordinal);
+            Assert.False(string.IsNullOrWhiteSpace(entry.PaymentSurfaceScope));
+            Assert.False(string.IsNullOrWhiteSpace(entry.RepresentativeSurface));
+            Assert.Contains("prompt", entry.PromptQuote, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("command", entry.CommandRevalidation, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("COST_PAID", entry.AuditExpectation, StringComparison.Ordinal);
+            Assert.Contains("no-mutation", entry.RollbackExpectation, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("NOT READY", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.NotEmpty(entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineKeywordPaymentBranchAllWindowMatrixLinksBackTo03AYBranchesAnd03BPDocs()
+    {
+        var branchSet = KeywordPaymentBranchManifest.Select(entry => entry.Branch).ToHashSet(StringComparer.Ordinal);
+        var actionWindowDocs = KeywordPaymentBranchAllWindowActionWindowProfiles.ToDictionary(entry => entry.ActionWindow, entry => entry.DocAnchor, StringComparer.Ordinal);
+
+        Assert.All(KeywordPaymentBranchAllWindowMatrixManifest, entry =>
+        {
+            Assert.Contains(entry.Branch, branchSet);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BP_PAYMENT_ENGINE_KEYWORD_BRANCH_MATRIX_AUDIT.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BP_PAYMENT_ENGINE_KEYWORD_BRANCH_MATRIX_EVIDENCE.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BP_PAYMENT_ENGINE_KEYWORD_BRANCH_MATRIX_HANDOFF.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03AY_PAYMENT_ENGINE_KEYWORD_PAYMENT_BRANCH_MANIFEST_AUDIT.md", entry.DocAnchors);
+            Assert.Contains(actionWindowDocs[entry.ActionWindow], entry.DocAnchors);
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineKeywordPaymentBranchAllWindowMatrixKeepsResidualAxesAndBreadthExecutable()
+    {
+        var combinedText = string.Join(
+            " ",
+            KeywordPaymentBranchAllWindowMatrixManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.MatrixRowId,
+                    entry.Branch,
+                    entry.ResidualBlockerFamily,
+                    entry.OfficialResidualAxes,
+                    entry.ActionWindow,
+                    entry.PaymentSurfaceScope,
+                    entry.RepresentativeSurface,
+                    entry.PromptQuote,
+                    entry.CommandRevalidation,
+                    entry.AuditExpectation,
+                    entry.RollbackExpectation,
+                    entry.RemainingOfficialBreadth
+                }));
+
+        Assert.Contains("KEYWORD_PAYMENT_BRANCHES", combinedText, StringComparison.Ordinal);
+        Assert.Contains("KEYWORD_BRANCHES", combinedText, StringComparison.Ordinal);
+        Assert.Contains("COST_MODIFIERS", combinedText, StringComparison.Ordinal);
+        Assert.Contains("OPTIONAL_EXTRA_ALTERNATIVE_COSTS", combinedText, StringComparison.Ordinal);
+        Assert.Contains("REPLACEMENT_PREVENTION", combinedText, StringComparison.Ordinal);
+        Assert.Contains("prompt", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("command", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("COST_PAID", combinedText, StringComparison.Ordinal);
+        Assert.Contains("rollback", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("temporary resource lifetime", combinedText, StringComparison.Ordinal);
+        Assert.Contains("replacement/prevention ordering", combinedText, StringComparison.Ordinal);
+        Assert.Contains("optional/extra/alternative branch", combinedText, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineKeywordPaymentBranchAllWindowMatrixDoesNotClaimP0005Closure()
+    {
+        var combinedText = string.Join(
+            " ",
+            KeywordPaymentBranchAllWindowMatrixManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.MatrixRowId,
+                    entry.Branch,
+                    entry.Classification,
+                    entry.ResidualBlockerFamily,
+                    entry.OfficialResidualAxes,
+                    entry.ActionWindow,
+                    entry.PaymentSurfaceScope,
+                    entry.RepresentativeSurface,
+                    entry.PromptQuote,
+                    entry.CommandRevalidation,
+                    entry.AuditExpectation,
+                    entry.RollbackExpectation,
+                    entry.RemainingOfficialBreadth,
+                    entry.ClosureStatus
+                }.Concat(entry.DocAnchors)));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal)
+                .Replace("READY_UNIT", string.Empty, StringComparison.Ordinal)
+                .Replace("CRIMSON_ROSE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void PaymentEngineActionWindowCoverageManifestIncludesPlayCardTypedPromptParityEvidence()
     {
         var playCard = Assert.Single(CoverageManifest, entry => string.Equals(entry.ActionWindow, "PLAY_CARD", StringComparison.Ordinal));
@@ -4833,7 +5075,8 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(CardMatrixAlignmentAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(PaymentEngineOfficialMatrixDownstreamAggregateManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(LegendBattlefieldTriggerResourceActionManifest.SelectMany(entry => entry.DocAnchors))
-            .Concat(KeywordPaymentBranchManifest.SelectMany(entry => entry.DocAnchors));
+            .Concat(KeywordPaymentBranchManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(KeywordPaymentBranchAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors));
     }
 
     private static string ResolveRepositoryRoot()
@@ -5071,6 +5314,33 @@ public sealed class PaymentEngineCoverageAuditTests
         string CommandAnchor,
         string AuditAnchor,
         string RollbackAnchor,
+        string RemainingOfficialBreadth,
+        string ClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
+    private sealed record KeywordPaymentBranchMatrixActionWindowProfile(
+        string ActionWindow,
+        string PaymentSurfaceScope,
+        string RepresentativeSurface,
+        string PromptQuote,
+        string CommandRevalidation,
+        string AuditExpectation,
+        string RollbackExpectation,
+        string DocAnchor);
+
+    private sealed record PaymentEngineKeywordPaymentBranchAllWindowMatrixEntry(
+        string MatrixRowId,
+        string Branch,
+        string Classification,
+        string ResidualBlockerFamily,
+        string OfficialResidualAxes,
+        string ActionWindow,
+        string PaymentSurfaceScope,
+        string RepresentativeSurface,
+        string PromptQuote,
+        string CommandRevalidation,
+        string AuditExpectation,
+        string RollbackExpectation,
         string RemainingOfficialBreadth,
         string ClosureStatus,
         IReadOnlyList<string> DocAnchors);
