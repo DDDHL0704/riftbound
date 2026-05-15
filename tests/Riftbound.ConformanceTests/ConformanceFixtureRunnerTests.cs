@@ -35871,6 +35871,34 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79BattlefieldStaticPowerAddsOneToBattleParticipants()
     {
         var state = BattlefieldStaticPowerState();
+        var staticAuraEffects = state.ContinuousEffects
+            .Where(effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-BATTLEFIELD-POWER-PLUS", StringComparison.Ordinal))
+            .OrderBy(effect => effect.TargetObjectId, StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(2, staticAuraEffects.Length);
+        Assert.All(
+            staticAuraEffects,
+            effect =>
+            {
+                Assert.Equal("BATTLEFIELD", effect.Scope);
+                Assert.Equal(1, effect.PowerDelta);
+                Assert.Equal("BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE", effect.EffectKind);
+                Assert.Equal("OGN·294/298", effect.SourceCardNo);
+                Assert.Equal("SOURCE_BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE_AND_PARTICIPANT_UNIT_AT_BATTLEFIELD", effect.Condition);
+                Assert.Equal("DERIVED_FROM_CURRENT_BATTLEFIELD_OBJECT_LOCATIONS", effect.Lifecycle);
+                Assert.Equal(
+                    ["P1-BATTLEFIELD-STATIC-ATTACKER", "P2-BATTLEFIELD-STATIC-DEFENDER"],
+                    effect.ParticipantObjectIds);
+            });
+        Assert.Equal(
+            ["P1-BATTLEFIELD-STATIC-ATTACKER", "P2-BATTLEFIELD-STATIC-DEFENDER"],
+            staticAuraEffects.Select(effect => Assert.IsType<string>(effect.TargetObjectId)).ToArray());
+        AssertBattlefieldStaticAuraSnapshot(
+            ResolutionResult.BuildSnapshots(state)["P1"],
+            "P1-BATTLEFIELD-POWER-PLUS",
+            "P1-BATTLEFIELD-STATIC-ATTACKER",
+            "P2-BATTLEFIELD-STATIC-DEFENDER");
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -35905,6 +35933,10 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Contains("P1-BATTLEFIELD-POWER-PLUS", result.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(["P1-BATTLEFIELD-STATIC-ATTACKER"], result.State.PlayerZones["P1"].Graveyard);
         Assert.Equal(["P2-BATTLEFIELD-STATIC-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
+        Assert.DoesNotContain(
+            result.State.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-BATTLEFIELD-POWER-PLUS", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -59626,6 +59658,36 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2")
             }
         };
+    }
+
+    private static void AssertBattlefieldStaticAuraSnapshot(
+        SnapshotDto snapshot,
+        string sourceObjectId,
+        params string[] participantObjectIds)
+    {
+        var continuousEffects = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
+            snapshot.Timing["continuousEffects"]);
+        var staticAuraEffects = continuousEffects
+            .Where(effect => string.Equals(effect["layer"] as string, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal))
+            .OrderBy(effect => effect["targetObjectId"] as string, StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(participantObjectIds.Length, staticAuraEffects.Length);
+        Assert.Equal(participantObjectIds, staticAuraEffects.Select(effect => effect["targetObjectId"] as string).ToArray());
+        Assert.All(
+            staticAuraEffects,
+            effect =>
+            {
+                Assert.Equal("BATTLEFIELD", Assert.IsType<string>(effect["scope"]));
+                Assert.Equal(1, Assert.IsType<int>(effect["powerDelta"]));
+                Assert.Equal("BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE", Assert.IsType<string>(effect["effectKind"]));
+                Assert.Equal("SOURCE_BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE_AND_PARTICIPANT_UNIT_AT_BATTLEFIELD", Assert.IsType<string>(effect["condition"]));
+                Assert.Equal("DERIVED_FROM_CURRENT_BATTLEFIELD_OBJECT_LOCATIONS", Assert.IsType<string>(effect["lifecycle"]));
+                Assert.Equal(
+                    participantObjectIds,
+                    Assert.IsAssignableFrom<IReadOnlyList<string>>(effect["participantObjectIds"]));
+            });
     }
 
     private static MatchState BattlefieldStaticPowerState()

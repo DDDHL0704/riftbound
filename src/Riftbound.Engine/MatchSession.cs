@@ -319,6 +319,12 @@ public static class ContinuousEffectLayers
 {
     public const string PowerModifier = "POWER_MODIFIER";
     public const string RuleText = "RULE_TEXT";
+    public const string StaticAura = "STATIC_AURA";
+}
+
+internal static class ContinuousEffectStaticAuraCards
+{
+    public const string BattlefieldAllUnitsPowerPlusOneCardNo = "OGN·294/298";
 }
 
 public sealed record ContinuousEffectState(
@@ -345,7 +351,13 @@ public sealed record ContinuousEffectState(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     int? ResultingPower = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    int? AppliedOrder = null);
+    int? AppliedOrder = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    string? Condition = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    string? Lifecycle = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    IReadOnlyList<string>? ParticipantObjectIds = null);
 
 public sealed record PowerModifierLedgerEntry
 {
@@ -1718,6 +1730,11 @@ public sealed record MatchState
         {
             var objectId = entry.Key;
             var cardObject = entry.Value;
+            if (TryBuildFriendlyEquipmentStaticAuraEffect(state, objectId, cardObject, out var friendlyEquipmentEffect))
+            {
+                effects.Add(friendlyEquipmentEffect);
+            }
+
             if (cardObject.UntilEndOfTurnPowerModifier != 0)
             {
                 if (cardObject.UntilEndOfTurnPowerModifiers.Count > 0)
@@ -1794,12 +1811,150 @@ public sealed record MatchState
             }
         }
 
+        effects.AddRange(BuildBattlefieldAllUnitsStaticAuraEffects(state));
+
         return effects
             .OrderBy(effect => effect.Scope, StringComparer.Ordinal)
             .ThenBy(effect => effect.TargetObjectId, StringComparer.Ordinal)
             .ThenBy(effect => effect.Layer, StringComparer.Ordinal)
             .ThenBy(effect => effect.AppliedOrder ?? int.MaxValue)
             .ThenBy(effect => effect.EffectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static bool TryBuildFriendlyEquipmentStaticAuraEffect(
+        MatchState state,
+        string objectId,
+        CardObjectState cardObject,
+        out ContinuousEffectState effect)
+    {
+        effect = default!;
+        if (string.IsNullOrWhiteSpace(cardObject.CardNo)
+            || cardObject.IsFaceDown
+            || !CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var behavior)
+            || !behavior.AddsFriendlyFieldEquipmentCountToSourceUnitPower
+            || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !TryFindFieldObjectLocation(state.PlayerZones, objectId, out _))
+        {
+            return false;
+        }
+
+        var controllerId = EffectiveFieldControllerId(state, objectId, cardObject);
+        if (string.IsNullOrWhiteSpace(controllerId))
+        {
+            return false;
+        }
+
+        var equipmentObjectIds = ControlledPublicFieldEquipmentObjectIds(state, controllerId);
+        var basePower = behavior.SourceUnitPower > 0
+            ? behavior.SourceUnitPower
+            : cardObject.Power - cardObject.UntilEndOfTurnPowerModifier - equipmentObjectIds.Count;
+        effect = new ContinuousEffectState(
+            $"STATIC_AURA:FRIENDLY_EQUIPMENT_POWER:{objectId}",
+            "OBJECT",
+            ContinuousEffectLayers.StaticAura,
+            "WHILE_SOURCE_ON_PUBLIC_FIELD",
+            objectId,
+            objectId,
+            equipmentObjectIds.Count,
+            basePower,
+            cardObject.Power,
+            "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER",
+            cardObject.CardNo,
+            "CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute",
+            true,
+            LayerEngineFoundationResiduals(),
+            Condition: "SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_PUBLIC_FIELD_EQUIPMENT_COUNT",
+            Lifecycle: "RECOMPUTED_FROM_CURRENT_AUTHORITATIVE_FIELD_STATE",
+            ParticipantObjectIds: equipmentObjectIds);
+        return true;
+    }
+
+    private static IReadOnlyList<ContinuousEffectState> BuildBattlefieldAllUnitsStaticAuraEffects(MatchState state)
+    {
+        var effects = new List<ContinuousEffectState>();
+        foreach (var battlefieldObjectId in state.PlayerZones
+            .SelectMany(entry => entry.Value.Battlefields)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal))
+        {
+            if (!state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefield)
+                || !string.Equals(
+                    battlefield.CardNo,
+                    ContinuousEffectStaticAuraCards.BattlefieldAllUnitsPowerPlusOneCardNo,
+                    StringComparison.Ordinal)
+                || !battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal))
+            {
+                continue;
+            }
+
+            var participantObjectIds = BattlefieldStaticAuraParticipantObjectIds(state, battlefieldObjectId);
+
+            foreach (var participantObjectId in participantObjectIds)
+            {
+                var participant = state.CardObjects[participantObjectId];
+                effects.Add(new ContinuousEffectState(
+                    $"STATIC_AURA:BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE:{battlefieldObjectId}:{participantObjectId}",
+                    "BATTLEFIELD",
+                    ContinuousEffectLayers.StaticAura,
+                    "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD",
+                    participantObjectId,
+                    battlefieldObjectId,
+                    1,
+                    participant.Power,
+                    participant.Power + 1,
+                    "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE",
+                    battlefield.CardNo,
+                    "CoreRuleEngine.ResolveBattlefieldAllUnitsPowerBonus",
+                    true,
+                    LayerEngineFoundationResiduals(),
+                    Condition: "SOURCE_BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE_AND_PARTICIPANT_UNIT_AT_BATTLEFIELD",
+                    Lifecycle: "DERIVED_FROM_CURRENT_BATTLEFIELD_OBJECT_LOCATIONS",
+                    ParticipantObjectIds: participantObjectIds));
+            }
+        }
+
+        return effects;
+    }
+
+    private static IReadOnlyList<string> BattlefieldStaticAuraParticipantObjectIds(
+        MatchState state,
+        string battlefieldObjectId)
+    {
+        var locatedParticipantObjectIds = state.ObjectLocations
+            .Where(entry => string.Equals(entry.Value.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+                && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+                && state.CardObjects.TryGetValue(entry.Key, out var participant)
+                && participant.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && TryFindFieldObjectLocation(state.PlayerZones, entry.Key, out _))
+            .Select(entry => entry.Key)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+        if (locatedParticipantObjectIds.Length > 0)
+        {
+            return locatedParticipantObjectIds;
+        }
+
+        return state.PlayerZones
+            .SelectMany(entry => entry.Value.Battlefields)
+            .Where(objectId => !string.Equals(objectId, battlefieldObjectId, StringComparison.Ordinal)
+                && state.CardObjects.TryGetValue(objectId, out var participant)
+                && participant.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> ControlledPublicFieldEquipmentObjectIds(MatchState state, string controllerId)
+    {
+        return state.PlayerZones
+            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
+            .Distinct(StringComparer.Ordinal)
+            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var candidate)
+                && candidate.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+                && !candidate.IsFaceDown
+                && string.Equals(EffectiveFieldControllerId(state, objectId, candidate), controllerId, StringComparison.Ordinal))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray();
     }
 
@@ -2897,6 +3052,21 @@ public sealed record ResolutionResult(
         if (effect.AppliedOrder.HasValue)
         {
             view["appliedOrder"] = effect.AppliedOrder.Value;
+        }
+
+        if (!string.IsNullOrWhiteSpace(effect.Condition))
+        {
+            view["condition"] = effect.Condition;
+        }
+
+        if (!string.IsNullOrWhiteSpace(effect.Lifecycle))
+        {
+            view["lifecycle"] = effect.Lifecycle;
+        }
+
+        if (effect.ParticipantObjectIds is { Count: > 0 })
+        {
+            view["participantObjectIds"] = effect.ParticipantObjectIds;
         }
 
         if (effect.DeferredLayerEngineResiduals is { Count: > 0 })

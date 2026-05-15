@@ -42,6 +42,19 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         var ornn = resolved.State.CardObjects[OrnnObjectId];
         Assert.Equal(6, ornn.Power);
         Assert.Equal([CardObjectTags.UnitCard, "法盾2", CardEquipmentKeywordNames.Tempered], ornn.Tags);
+        var staticAura = Assert.Single(
+            resolved.State.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, OrnnObjectId, StringComparison.Ordinal));
+        Assert.Equal(OrnnObjectId, staticAura.TargetObjectId);
+        Assert.Equal(2, staticAura.PowerDelta);
+        Assert.Equal(4, staticAura.BasePower);
+        Assert.Equal(6, staticAura.EffectivePower);
+        Assert.Equal(
+            [FriendlyBaseEquipmentObjectId, SecondFriendlyBaseEquipmentObjectId],
+            staticAura.ParticipantObjectIds);
+        Assert.Equal("SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_PUBLIC_FIELD_EQUIPMENT_COUNT", staticAura.Condition);
+        Assert.Equal("RECOMPUTED_FROM_CURRENT_AUTHORITATIVE_FIELD_STATE", staticAura.Lifecycle);
 
         var unitPlayed = Assert.Single(resolved.Events, IsOrnnUnitPlayedEvent);
         Assert.Equal(6, Assert.IsType<int>(unitPlayed.Payload["power"]));
@@ -60,6 +73,12 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         Assert.True(played.Accepted, played.ErrorMessage);
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
         Assert.Equal(4, resolved.State.CardObjects[OrnnObjectId].Power);
+        var staticAura = Assert.Single(
+            resolved.State.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, OrnnObjectId, StringComparison.Ordinal));
+        Assert.Empty(staticAura.ParticipantObjectIds ?? []);
+        Assert.Equal(0, staticAura.PowerDelta);
         var unitPlayed = Assert.Single(resolved.Events, IsOrnnUnitPlayedEvent);
         Assert.Equal(4, Assert.IsType<int>(unitPlayed.Payload["power"]));
         Assert.False(unitPlayed.Payload.ContainsKey("friendlyEquipmentPowerBonus"));
@@ -95,6 +114,14 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         Assert.Contains(FriendlyPlayedEquipmentObjectId, resolved.State.PlayerZones["P1"].Base);
         Assert.Equal(5, resolved.State.CardObjects[OrnnObjectId].Power);
         AssertSnapshotPower(resolved.Snapshots["P1"], OrnnObjectId, basePower: 5, effectivePower: 5);
+        AssertSnapshotStaticAura(
+            resolved.Snapshots["P1"],
+            OrnnObjectId,
+            OrnnObjectId,
+            [FriendlyPlayedEquipmentObjectId],
+            powerDelta: 1,
+            basePower: 4,
+            effectivePower: 5);
     }
 
     [Fact]
@@ -148,6 +175,14 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         Assert.Equal(5, firstTap.State.CardObjects[OrnnObjectId].Power);
         Assert.Equal(5, secondTap.State.CardObjects[OrnnObjectId].Power);
         AssertSnapshotPower(secondTap.Snapshots["P1"], OrnnObjectId, basePower: 5, effectivePower: 5);
+        AssertSnapshotStaticAura(
+            secondTap.Snapshots["P1"],
+            OrnnObjectId,
+            OrnnObjectId,
+            [FriendlyBaseEquipmentObjectId],
+            powerDelta: 1,
+            basePower: 4,
+            effectivePower: 5);
     }
 
     [Fact]
@@ -188,6 +223,33 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         Assert.True(tapped.Accepted, tapped.ErrorMessage);
         Assert.Equal(4, tapped.State.CardObjects[OrnnObjectId].Power);
         AssertSnapshotPower(tapped.Snapshots["P1"], OrnnObjectId, basePower: 4, effectivePower: 4);
+        AssertSnapshotStaticAura(
+            tapped.Snapshots["P1"],
+            OrnnObjectId,
+            OrnnObjectId,
+            [],
+            powerDelta: 0,
+            basePower: 4,
+            effectivePower: 4);
+    }
+
+    [Fact]
+    public void OrnnStaticAuraMetadataDisappearsWhenSourceLeavesField()
+    {
+        var state = BuildOrnnFieldState(
+            ornnPower: 5,
+            p1Base: [FriendlyBaseEquipmentObjectId],
+            p1Graveyard: [OrnnObjectId],
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [OrnnObjectId] = Unit(OrnnObjectId, OrnnCardNo, "P1", "P1", power: 5),
+                [FriendlyBaseEquipmentObjectId] = Equipment(FriendlyBaseEquipmentObjectId, "P1", "P1")
+            });
+
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, OrnnObjectId, StringComparison.Ordinal));
     }
 
     private static async Task<ResolutionResult> PlayOrnnAsync(
@@ -421,5 +483,45 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         Assert.Equal(basePower, Assert.IsType<int>(objectView["basePower"]));
         Assert.Equal(effectivePower, Assert.IsType<int>(objectView["effectivePower"]));
         Assert.Equal(effectivePower, Assert.IsType<int>(objectView["power"]));
+    }
+
+    private static void AssertSnapshotStaticAura(
+        SnapshotDto snapshot,
+        string sourceObjectId,
+        string targetObjectId,
+        IReadOnlyList<string> participantObjectIds,
+        int powerDelta,
+        int basePower,
+        int effectivePower)
+    {
+        var continuousEffects = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
+            snapshot.Timing["continuousEffects"]);
+        var effect = Assert.Single(
+            continuousEffects,
+            effect => string.Equals(Assert.IsType<string>(effect["layer"]), ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal)
+                && string.Equals(effect["targetObjectId"] as string, targetObjectId, StringComparison.Ordinal));
+
+        Assert.Equal(powerDelta, Assert.IsType<int>(effect["powerDelta"]));
+        Assert.Equal(basePower, Assert.IsType<int>(effect["basePower"]));
+        Assert.Equal(effectivePower, Assert.IsType<int>(effect["effectivePower"]));
+        Assert.Equal(
+            "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER",
+            Assert.IsType<string>(effect["effectKind"]));
+        Assert.Equal(
+            "SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_PUBLIC_FIELD_EQUIPMENT_COUNT",
+            Assert.IsType<string>(effect["condition"]));
+        Assert.Equal(
+            "RECOMPUTED_FROM_CURRENT_AUTHORITATIVE_FIELD_STATE",
+            Assert.IsType<string>(effect["lifecycle"]));
+        if (participantObjectIds.Count == 0)
+        {
+            Assert.False(effect.ContainsKey("participantObjectIds"));
+            return;
+        }
+
+        Assert.Equal(
+            participantObjectIds,
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(effect["participantObjectIds"]));
     }
 }
