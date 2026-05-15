@@ -24,6 +24,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string CardMatrixAllWindowMatrix = "card-matrix-all-window-matrix";
     private const string OfficialMatrixDownstreamAggregate = "official-matrix-downstream-aggregate";
     private const string KeywordBranchAllWindowMatrix = "keyword-branch-all-window-matrix";
+    private const string ResourceSkillAllWindowMatrix = "resource-skill-all-window-matrix";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
     [
@@ -2085,6 +2086,112 @@ public sealed class PaymentEngineCoverageAuditTests
                         "docs/CURRENT_STAGE4D_03AY_PAYMENT_ENGINE_KEYWORD_PAYMENT_BRANCH_MANIFEST_AUDIT.md",
                         window.DocAnchor,
                         .. branch.DocAnchors
+                    ])))
+            .ToArray();
+    }
+
+    private static readonly ResourceSkillMatrixActionWindowProfile[] ResourceSkillAllWindowActionWindowProfiles =
+    [
+        new(
+            "PLAY_CARD",
+            "PLAY_CARD resource-skill generated payment surface across hand-card payment windows",
+            "hand-card play prompt and command surface",
+            "generated payment-only resource lifetime for play-card costs",
+            "PLAY_CARD prompt quote binds generated resource candidates, payment-only restrictions, trait amount and source ability metadata.",
+            "PLAY_CARD command-side revalidation binds the hand-card source, selected generated resource id and payment-only lifetime before card movement or stack creation.",
+            "COST_PAID plus generated-resource audit expectation covers accepted play-card spend of resource-skill outputs and source paymentId correlation.",
+            "payment-only generated resources must remain restricted to payment consumption and must not become durable mana or power state.",
+            "PLAY_CARD rollback expectation covers stale hand source, expired generated resource, wrong trait, duplicate spend and no-mutation command rejection.",
+            "docs/CURRENT_STAGE4D_03C_PAYMENT_ENGINE_PLAY_OPTIONAL_AUDIT.md"),
+        new(
+            "PAY_COST",
+            "PAY_COST resource-skill generated payment surface across pending payment windows",
+            "pending PayCost prompt and command surface",
+            "pending generated resource lifetime through payment-window close",
+            "PAY_COST prompt quote binds pending payment id, generated resource candidates, payment-only restrictions and source ability metadata.",
+            "PAY_COST command-side revalidation binds the pending payment id, selected generated resource id and current lifetime before window close.",
+            "COST_PAID / PAYMENT_WINDOW_CLOSED audit expectation covers accepted pending spend of resource-skill outputs and generated-resource cleanup.",
+            "payment-only generated resources must be consumed only by the matching pending payment window or rejected without state mutation.",
+            "PAY_COST rollback expectation covers stale pending id, expired generated resource, wrong window, duplicate spend and no-mutation command rejection.",
+            "docs/CURRENT_STAGE4D_03F_PAYMENT_ENGINE_PAY_COST_RESOURCE_AUDIT.md"),
+        new(
+            "ACTIVATE_ABILITY",
+            "ACTIVATE_ABILITY resource-skill generation and payment surface",
+            "activated ability source prompt, resource-skill command and generated payment surface",
+            "resource skill generation lifetime from activation through legal payment consumption",
+            "ACTIVATE_ABILITY prompt quote binds resource-skill source, generated resource kind, legal timing, targets and payment-only metadata.",
+            "ACTIVATE_ABILITY command-side revalidation binds source, ability id, target/cost shape and generated resource amount before ability activation.",
+            "ABILITY_ACTIVATED plus POWER_GAINED / MANA_GAINED audit expectation covers generated resource creation and payment-only ledger metadata.",
+            "generated resource lifetime must remain visible enough for later payment windows while staying payment-only and non-bankable.",
+            "ACTIVATE_ABILITY rollback expectation covers stale source, invalid timing, invalid target, duplicate source, wrong trait and no-mutation command rejection.",
+            "docs/CURRENT_STAGE4D_03D_PAYMENT_ENGINE_ACTIVATE_RESOURCE_AUDIT.md"),
+        new(
+            "ASSEMBLE_EQUIPMENT",
+            "ASSEMBLE_EQUIPMENT resource-skill generated payment surface across equipment payment windows",
+            "equipment assemble prompt and command surface",
+            "generated payment-only resource lifetime for equipment costs",
+            "ASSEMBLE_EQUIPMENT prompt quote binds equipment source, attach target, generated resource candidates and typed payment restrictions.",
+            "ASSEMBLE_EQUIPMENT command-side revalidation binds equipment source, target and generated resource id before attach or rejection.",
+            "COST_PAID audit expectation covers accepted equipment spend of resource-skill outputs and equipment payment traceability.",
+            "generated resource-skill payment-only outputs must satisfy equipment costs only when trait, amount, lifetime and restrictions match.",
+            "ASSEMBLE_EQUIPMENT rollback expectation covers stale equipment, invalid target, expired generated resource, wrong trait and no-mutation command rejection.",
+            "docs/CURRENT_STAGE4D_03B_PAYMENT_ENGINE_NON_PLAY_AUDIT.md"),
+        new(
+            "TRIGGER_PAYMENT",
+            "TRIGGER_PAYMENT resource-skill generated payment surface across pay / decline windows",
+            "trigger payment prompt, pay/decline and close surface",
+            "generated payment-only resource lifetime through trigger pay / decline resolution",
+            "TRIGGER_PAYMENT prompt quote binds trigger source, target, pay/decline choice and generated resource candidates.",
+            "TRIGGER_PAYMENT command-side revalidation binds trigger source, pending payment id, target and generated resource id before trigger resolution or decline.",
+            "COST_PAID / TRIGGER_PAYMENT_DECLINED audit expectation covers accepted trigger spend, declined branch and generated-resource cleanup.",
+            "generated resource-skill payment-only outputs must not leak across unrelated trigger windows or survive after the payment window closes.",
+            "TRIGGER_PAYMENT rollback expectation covers stale trigger source, stale target, wrong generated resource, expired resource and no-mutation command rejection.",
+            "docs/CURRENT_STAGE4D_03H_PAYMENT_ENGINE_TRIGGER_RESOURCE_AUDIT.md"),
+        new(
+            "BATTLEFIELD_HELD_SCORE_PAYMENT",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT resource-skill generated payment surface across held-score windows",
+            "battlefield-held score payment prompt and command surface",
+            "generated payment-only resource lifetime for battlefield held score payments",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT prompt quote binds battlefield source, score payment, generated resource candidates and replacement/prevention state.",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT command-side revalidation binds battlefield state, generated resource id and score payment amount before score mutation.",
+            "COST_PAID / BATTLEFIELD_HELD audit expectation covers accepted held-score spend, generated-resource cleanup and score traceability.",
+            "generated resource-skill payment-only outputs must satisfy held-score costs only inside their legal lifetime and must reject stale or duplicate spend.",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT rollback expectation covers stale battlefield state, duplicate score, expired generated resource and no-mutation command rejection.",
+            "docs/CURRENT_STAGE4D_03G_PAYMENT_ENGINE_BATTLEFIELD_HELD_RESOURCE_AUDIT.md")
+    ];
+
+    private static readonly PaymentEngineResourceSkillAllWindowMatrixEntry[] ResourceSkillAllWindowMatrixManifest =
+        BuildResourceSkillAllWindowMatrix();
+
+    private static PaymentEngineResourceSkillAllWindowMatrixEntry[] BuildResourceSkillAllWindowMatrix()
+    {
+        return ResourceSkillAllWindowActionWindowProfiles
+            .SelectMany(window => ResourceSkillCoverageManifest.Select(family =>
+                new PaymentEngineResourceSkillAllWindowMatrixEntry(
+                    $"ROW_RESOURCE_SKILL_MATRIX_{window.ActionWindow}_{family.Family}",
+                    family.Family,
+                    family.AbilityIds,
+                    ResourceSkillAllWindowMatrix,
+                    "RESOURCE_SKILL_A_C_FAMILY",
+                    "RESOURCE_SKILLS",
+                    window.ActionWindow,
+                    window.PaymentSurfaceScope,
+                    window.ResourceLifecycleScope,
+                    $"{window.RepresentativeSurface}; {family.Family}",
+                    $"{window.PromptQuote} {family.PromptAnchor}",
+                    $"{window.CommandRevalidation} {family.CommandAnchor}",
+                    $"{window.AuditExpectation} {family.AuditAnchor}",
+                    $"{window.GeneratedResourceRestriction} {family.AuditAnchor}",
+                    $"{window.RollbackExpectation} {family.RollbackAnchor}",
+                    $"Full official [A] / [C] resource skill breadth for {family.Family} in {window.ActionWindow} remains open across generated-resource timing, payment-only restrictions, cross-window consumption, temporary resource lifetime, conversion ordering, Gold token bonus interactions and every no-mutation failure branch.",
+                    "All-window resource skill representative only; project remains NOT READY and P0-005 remains open.",
+                    [
+                        "docs/CURRENT_STAGE4D_03BQ_PAYMENT_ENGINE_RESOURCE_SKILL_ALL_WINDOW_MATRIX_AUDIT.md",
+                        "docs/CURRENT_STAGE4D_03BQ_PAYMENT_ENGINE_RESOURCE_SKILL_ALL_WINDOW_MATRIX_EVIDENCE.md",
+                        "docs/CURRENT_STAGE4D_03BQ_PAYMENT_ENGINE_RESOURCE_SKILL_ALL_WINDOW_MATRIX_HANDOFF.md",
+                        "docs/CURRENT_STAGE4D_03AZ_PAYMENT_ENGINE_RESOURCE_SKILL_RESIDUAL_MANIFEST_AUDIT.md",
+                        window.DocAnchor,
+                        .. family.DocAnchors
                     ])))
             .ToArray();
     }
@@ -4914,6 +5021,162 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineResourceSkillAllWindowMatrixCoversEveryRequiredSurfaceAndFamily()
+    {
+        var requiredActionWindows = ResourceSkillAllWindowActionWindowProfiles
+            .Select(entry => entry.ActionWindow)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var requiredFamilies = ResourceSkillCoverageManifest
+            .Select(entry => entry.Family)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(
+            requiredActionWindows,
+            ResourceSkillAllWindowMatrixManifest.Select(entry => entry.ActionWindow).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal));
+        Assert.Equal(
+            requiredFamilies,
+            ResourceSkillAllWindowMatrixManifest.Select(entry => entry.Family).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal));
+        Assert.Equal(requiredActionWindows.Length * requiredFamilies.Length, ResourceSkillAllWindowMatrixManifest.Length);
+        Assert.Equal(36, ResourceSkillAllWindowMatrixManifest.Length);
+        Assert.Empty(ResourceSkillAllWindowMatrixManifest
+            .GroupBy(entry => (entry.ActionWindow, entry.Family))
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key));
+
+        Assert.DoesNotContain(ResourceSkillAllWindowMatrixManifest, entry => string.Equals(entry.ActionWindow, "MOVE_UNIT", StringComparison.Ordinal));
+        Assert.DoesNotContain(ResourceSkillAllWindowMatrixManifest, entry => string.Equals(entry.ActionWindow, "HIDE_CARD", StringComparison.Ordinal));
+        Assert.DoesNotContain(ResourceSkillAllWindowMatrixManifest, entry => string.Equals(entry.ActionWindow, "LEGEND_ACT", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void PaymentEngineResourceSkillAllWindowMatrixRequiresBoundGenerationAuditRollbackAndDocFields()
+    {
+        Assert.All(ResourceSkillAllWindowMatrixManifest, entry =>
+        {
+            Assert.Equal(ResourceSkillAllWindowMatrix, entry.Classification);
+            Assert.Equal("RESOURCE_SKILL_A_C_FAMILY", entry.ResidualBlockerFamily);
+            Assert.Equal("RESOURCE_SKILLS", entry.OfficialResidualAxis);
+            Assert.Contains(entry.Family, entry.MatrixRowId, StringComparison.Ordinal);
+            Assert.Contains(entry.ActionWindow, entry.MatrixRowId, StringComparison.Ordinal);
+            Assert.NotEmpty(entry.AbilityIds);
+            Assert.False(string.IsNullOrWhiteSpace(entry.PaymentSurfaceScope));
+            Assert.False(string.IsNullOrWhiteSpace(entry.ResourceLifecycleScope));
+            Assert.False(string.IsNullOrWhiteSpace(entry.RepresentativeSurface));
+            Assert.Contains("prompt", entry.PromptQuote, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("command", entry.CommandRevalidation, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("ABILITY_ACTIVATED", entry.AuditExpectation, StringComparison.Ordinal);
+            Assert.Contains("generated", entry.GeneratedResourceRestriction, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("payment-only", entry.GeneratedResourceRestriction, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("no-mutation", entry.RollbackExpectation, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("NOT READY", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.NotEmpty(entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineResourceSkillAllWindowMatrixLinksBackTo03AZFamiliesAnd03BQDocs()
+    {
+        var familySet = ResourceSkillCoverageManifest.Select(entry => entry.Family).ToHashSet(StringComparer.Ordinal);
+        var abilityIdsByFamily = ResourceSkillCoverageManifest.ToDictionary(entry => entry.Family, entry => entry.AbilityIds, StringComparer.Ordinal);
+        var actionWindowDocs = ResourceSkillAllWindowActionWindowProfiles.ToDictionary(entry => entry.ActionWindow, entry => entry.DocAnchor, StringComparer.Ordinal);
+
+        Assert.All(ResourceSkillAllWindowMatrixManifest, entry =>
+        {
+            Assert.Contains(entry.Family, familySet);
+            Assert.Equal(abilityIdsByFamily[entry.Family], entry.AbilityIds);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BQ_PAYMENT_ENGINE_RESOURCE_SKILL_ALL_WINDOW_MATRIX_AUDIT.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BQ_PAYMENT_ENGINE_RESOURCE_SKILL_ALL_WINDOW_MATRIX_EVIDENCE.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BQ_PAYMENT_ENGINE_RESOURCE_SKILL_ALL_WINDOW_MATRIX_HANDOFF.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03AZ_PAYMENT_ENGINE_RESOURCE_SKILL_RESIDUAL_MANIFEST_AUDIT.md", entry.DocAnchors);
+            Assert.Contains(actionWindowDocs[entry.ActionWindow], entry.DocAnchors);
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineResourceSkillAllWindowMatrixKeepsResourceSkillAxesAndBreadthExecutable()
+    {
+        var combinedText = string.Join(
+            " ",
+            ResourceSkillAllWindowMatrixManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.MatrixRowId,
+                    entry.Family,
+                    entry.Classification,
+                    entry.ResidualBlockerFamily,
+                    entry.OfficialResidualAxis,
+                    entry.ActionWindow,
+                    entry.PaymentSurfaceScope,
+                    entry.ResourceLifecycleScope,
+                    entry.RepresentativeSurface,
+                    entry.PromptQuote,
+                    entry.CommandRevalidation,
+                    entry.AuditExpectation,
+                    entry.GeneratedResourceRestriction,
+                    entry.RollbackExpectation,
+                    entry.RemainingOfficialBreadth
+                }));
+
+        Assert.Contains("RESOURCE_SKILL_A_C_FAMILY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("RESOURCE_SKILLS", combinedText, StringComparison.Ordinal);
+        Assert.Contains("prompt", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("command", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("ABILITY_ACTIVATED", combinedText, StringComparison.Ordinal);
+        Assert.Contains("generated", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("payment-only", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("cross-window", combinedText, StringComparison.Ordinal);
+        Assert.Contains("temporary resource lifetime", combinedText, StringComparison.Ordinal);
+        Assert.Contains("conversion ordering", combinedText, StringComparison.Ordinal);
+        Assert.Contains("Gold token", combinedText, StringComparison.Ordinal);
+        Assert.Contains("[A]", combinedText, StringComparison.Ordinal);
+        Assert.Contains("[C]", combinedText, StringComparison.Ordinal);
+        Assert.Contains("rollback", combinedText, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void PaymentEngineResourceSkillAllWindowMatrixDoesNotClaimP0005Closure()
+    {
+        var combinedText = string.Join(
+            " ",
+            ResourceSkillAllWindowMatrixManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.MatrixRowId,
+                    entry.Family,
+                    entry.Classification,
+                    entry.ResidualBlockerFamily,
+                    entry.OfficialResidualAxis,
+                    entry.ActionWindow,
+                    entry.PaymentSurfaceScope,
+                    entry.ResourceLifecycleScope,
+                    entry.RepresentativeSurface,
+                    entry.PromptQuote,
+                    entry.CommandRevalidation,
+                    entry.AuditExpectation,
+                    entry.GeneratedResourceRestriction,
+                    entry.RollbackExpectation,
+                    entry.RemainingOfficialBreadth,
+                    entry.ClosureStatus
+                }.Concat(entry.DocAnchors)));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText.Replace("NOT READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void PaymentEngineHasteReadyCoverageManifestMatchesImplementedRegistryProfiles()
     {
         var registryCardNos = CardBehaviorRegistry.GetAll()
@@ -5076,7 +5339,8 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(PaymentEngineOfficialMatrixDownstreamAggregateManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(LegendBattlefieldTriggerResourceActionManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(KeywordPaymentBranchManifest.SelectMany(entry => entry.DocAnchors))
-            .Concat(KeywordPaymentBranchAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors));
+            .Concat(KeywordPaymentBranchAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(ResourceSkillAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors));
     }
 
     private static string ResolveRepositoryRoot()
@@ -5340,6 +5604,38 @@ public sealed class PaymentEngineCoverageAuditTests
         string PromptQuote,
         string CommandRevalidation,
         string AuditExpectation,
+        string RollbackExpectation,
+        string RemainingOfficialBreadth,
+        string ClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
+    private sealed record ResourceSkillMatrixActionWindowProfile(
+        string ActionWindow,
+        string PaymentSurfaceScope,
+        string RepresentativeSurface,
+        string ResourceLifecycleScope,
+        string PromptQuote,
+        string CommandRevalidation,
+        string AuditExpectation,
+        string GeneratedResourceRestriction,
+        string RollbackExpectation,
+        string DocAnchor);
+
+    private sealed record PaymentEngineResourceSkillAllWindowMatrixEntry(
+        string MatrixRowId,
+        string Family,
+        IReadOnlyList<string> AbilityIds,
+        string Classification,
+        string ResidualBlockerFamily,
+        string OfficialResidualAxis,
+        string ActionWindow,
+        string PaymentSurfaceScope,
+        string ResourceLifecycleScope,
+        string RepresentativeSurface,
+        string PromptQuote,
+        string CommandRevalidation,
+        string AuditExpectation,
+        string GeneratedResourceRestriction,
         string RollbackExpectation,
         string RemainingOfficialBreadth,
         string ClosureStatus,
