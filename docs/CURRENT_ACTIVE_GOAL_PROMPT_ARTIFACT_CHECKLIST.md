@@ -25,10 +25,10 @@
 ## 2. 本次检查过的证据
 
 - `git status --short --branch`：当前 `main`，仅 `riftbound-dotnet.sln` 未跟踪。
-- `git log --oneline -6`：本 checklist 建立后又新增 4D-03AM / 4D-03AN handoff、dispatch、matrix readiness、frontend preflight，并验收 Azir、Maduli、4D-03AO Ezreal、4D-03AP Rek'Sai、4D-03AQ HASTE_READY coverage verifier 与 4D-03AR Maduli cannot-ready static focused slices；当前最新补充为 4D-03AS Azir optional armament reattach handoff / baseline / readiness pause point；后续 checkpoint 以 `CURRENT_A_MASTER_CHECKPOINT.md` 顶部为准。
+- `git log --oneline -6`：本 checklist 建立后又新增 4D-03AM / 4D-03AN handoff、dispatch、matrix readiness、frontend preflight，并验收 Azir、Maduli、4D-03AO Ezreal、4D-03AP Rek'Sai、4D-03AQ HASTE_READY coverage verifier 与 4D-03AR Maduli cannot-ready static focused slices；当前最新补充为 4D-03AS-B dispatch to B-Implementation / Raman `019e2b49-28c3-7ad2-b3f8-ef1347b56996`；后续 checkpoint 以 `CURRENT_A_MASTER_CHECKPOINT.md` 顶部为准。
 - `git diff --check`：通过。
 - `docs/A_MASTER_AGENT_GOAL.md`：目标、阶段门槛、18 步 E2E、checkpoint 与 final audit 要求。
-- `docs/CURRENT_A_MASTER_CHECKPOINT.md`：最新 A-master 恢复入口与 4D-03AS handoff / baseline / pause point 摘要。
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`：最新 A-master 恢复入口与 4D-03AS-B dispatch / write-lock 摘要。
 - `docs/CURRENT_COMPLETION_AUDIT.md`：当前 completion audit 结论仍为 NOT READY。
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`：当前 P1 与 full official rule residual risks。
 - `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`：P0/P1 closure plan 与剩余规则域。
@@ -52,7 +52,7 @@ fullOfficialFalse=811
 |---|---|---|---|---|
 | 按 `docs/A_MASTER_AGENT_GOAL.md` 管理 | A-master 目标文档必须存在并作为最高级本地交付口径 | `docs/A_MASTER_AGENT_GOAL.md` 已读取；goal 文本与该文件一致 | OK / ONGOING | 后续任何 READY 判断都必须回到本 checklist 与 final audit |
 | A 维护 checkpoint | `docs/CURRENT_A_MASTER_CHECKPOINT.md` 最新、可恢复、含当前结论 | 文件顶部记录 4D-03AR Maduli cannot-ready static accepted、focused 65/65、adjacent 375/375、backend full 4345/4345、项目 NOT READY；本 checklist 已挂回 checkpoint | PARTIAL | 后续每批继续保持 checkpoint 同步 |
-| A 维护任务拆分 / 子 agent 分工 | A-master agent pool、写锁、下一步计划 | `A_MASTER_AGENT_GOAL.md` §7/§8；checkpoint 记录 A/B/C/D/E 职责；`CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已记录 4D-03AS handoff ready / paused，4D-03AS-B not dispatched | ONGOING | 当前批次按用户要求暂停；后续 runtime / docs / frontend / matrix 仍需逐批写锁 |
+| A 维护任务拆分 / 子 agent 分工 | A-master agent pool、写锁、下一步计划 | `A_MASTER_AGENT_GOAL.md` §7/§8；checkpoint 记录 A/B/C/D/E 职责；`CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已记录 4D-03AS-B dispatched to Raman and scoped write lock | ONGOING | 等待 B diff 后做验收；后续 frontend / matrix 仍需单独写锁 |
 | A 维护阻断清单 | P0/P1 closure plan 与 completion audit | `CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md` 仍列 P0-002/P0-003/P0-004/P0-005 与 P1 residuals | NOT MET | P0/P1 未清零 |
 | A 控制写入范围 | 不并行改核心模块；本批通过 B worker 独占 runtime/test 写锁并由 A 验收 | 4D-03AR-B Schrodinger 完成 scoped runtime/tests；A 更新 checkpoint / completion audit / server audit / closure plan / dispatch docs | OK FOR THIS SLICE | 后续 runtime / frontend / matrix 改动必须按 dispatch 文档独占 owner |
 | 默认不写功能代码 | A 不亲自修改 runtime；功能代码由 B worker scoped 实现 | A 只做派发、验收、测试、audit docs；runtime diff 来源为 4D-03AR-B worker | OK FOR THIS SLICE | 不代表后续功能缺口已解决 |
@@ -102,7 +102,7 @@ fullOfficialFalse=811
 
 | §13 item | 当前 evidence | 状态 |
 |---|---|---|
-| 1. 修改文件列表 | 本批只修改 4D-03AS handoff / baseline / readiness docs 与 checkpoint / completion audit / server audit / closure plan / dispatch / active checklist docs | DONE FOR THIS SLICE / NOT FINAL |
+| 1. 修改文件列表 | 本批 dispatch 阶段只修改 checkpoint / completion audit / server audit / closure plan / dispatch / active checklist docs；runtime/tests 由 4D-03AS-B worker 独占 | DONE FOR DISPATCH / NOT FINAL |
 | 2. 新增文件列表 | 新增 4D-03AS Azir optional armament reattach handoff / baseline / matrix readiness docs | DONE FOR THIS SLICE / NOT FINAL |
 | 3. 服务端规则补齐项 | Stage 4D docs 记录大量 focused slices | PARTIAL |
 | 4. 前端页面完成项 | frontend rebuild plan 与 formal smoke 有历史证据 | PARTIAL |
