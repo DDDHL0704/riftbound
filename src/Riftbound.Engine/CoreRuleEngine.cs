@@ -1782,7 +1782,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        if (!TryGetIcevaleArcherAttackSource(cardObjects, playerZones, intent.PlayerId, sourceObjectId, out _)
+        if (!TryGetIcevaleArcherAttackSource(cardObjects, playerZones, intent.PlayerId, sourceObjectId, out var sourceState)
             || !TryGetIcevaleArcherAttackTarget(
                 cardObjects,
                 playerZones,
@@ -1816,11 +1816,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         var rawResultingPower = previousPower - 1;
         var resultingPower = Math.Max(0, rawResultingPower);
         var appliedPowerDelta = resultingPower - previousPower;
-        cardObjects[targetObjectId] = targetState with
-        {
-            Power = resultingPower,
-            UntilEndOfTurnPowerModifier = targetState.UntilEndOfTurnPowerModifier + appliedPowerDelta
-        };
+        cardObjects[targetObjectId] = ApplyDirectUntilEndPowerModifier(
+            targetState,
+            targetObjectId,
+            sourceObjectId,
+            sourceState.CardNo,
+            IcevaleArcherAttackPayOnePowerMinusOneEffectKind,
+            "CoreRuleEngine.ResolveIcevaleArcherAttackTriggerPayment",
+            -1,
+            resultingPower);
 
         var events = new List<GameEvent>
         {
@@ -13074,11 +13078,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var sourceObjectId in triggerSourceObjectIds)
         {
             var sourceState = cardObjects[sourceObjectId];
-            var nextSourceState = sourceState with
-            {
-                Power = sourceState.Power + powerDelta,
-                UntilEndOfTurnPowerModifier = sourceState.UntilEndOfTurnPowerModifier + powerDelta
-            };
+            var nextSourceState = ApplyDirectUntilEndPowerModifier(
+                sourceState,
+                sourceObjectId,
+                sourceObjectId,
+                sourceState.CardNo,
+                EmberMonkStandbyHiddenPowerEffectKind,
+                "CoreRuleEngine.ResolveEmberMonkStandbyHiddenPowerTrigger",
+                powerDelta,
+                sourceState.Power + powerDelta);
             cardObjects[sourceObjectId] = nextSourceState;
             events.Add(new GameEvent(
                 "TRIGGER_RESOLVED",
@@ -20250,11 +20258,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                     battlefieldObjectId,
                     trigger,
                     powerTargetObjectId);
-                cardObjects[powerTargetObjectId] = powerTargetState with
-                {
-                    Power = powerTargetState.Power + powerDelta,
-                    UntilEndOfTurnPowerModifier = powerTargetState.UntilEndOfTurnPowerModifier + powerDelta
-                };
+                cardObjects[powerTargetObjectId] = ApplyDirectUntilEndPowerModifier(
+                    powerTargetState,
+                    powerTargetObjectId,
+                    unitObjectId,
+                    unitState.CardNo,
+                    "UNIT_CONQUEST_FRIENDLY_PLUS_8_THIS_TURN",
+                    "CoreRuleEngine.ResolveUnitConquestTriggers",
+                    powerDelta,
+                    powerTargetState.Power + powerDelta);
                 events.Add(new GameEvent(
                     "POWER_MODIFIED_UNTIL_END_OF_TURN",
                     $"{unitObjectId} 的征服效果临时修正战力",
@@ -25292,11 +25304,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             return [];
         }
 
-        var nextTargetState = targetState with
-        {
-            Power = targetState.Power + 1,
-            UntilEndOfTurnPowerModifier = targetState.UntilEndOfTurnPowerModifier + 1
-        };
+        var nextTargetState = ApplyDirectUntilEndPowerModifier(
+            targetState,
+            targetObjectId,
+            legendObjectId,
+            legendCardNo,
+            "UNIT_PLAYED_POWER_PLUS_1",
+            "CoreRuleEngine.ResolveRengarUnitPlayedPowerTrigger",
+            1,
+            targetState.Power + 1);
         cardObjects[targetObjectId] = nextTargetState;
         return
         [
@@ -26390,10 +26406,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             || string.Equals(originZone, destinationZone, StringComparison.Ordinal)
             || !state.PlayerZones.TryGetValue(playerId, out var zones)
             || !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal)
-            || !zones.Battlefields.Any(objectId =>
-                state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldMovedUnitPowerPlusOneCardNo(cardObject.CardNo)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
             || !cardObjects.TryGetValue(sourceObjectId, out var sourceState)
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || sourceState.IsFaceDown)
@@ -26401,11 +26413,27 @@ public sealed class CoreRuleEngine : IRuleEngine
             return [];
         }
 
-        var nextSourceState = sourceState with
+        var triggerSourceObjectId = zones.Battlefields
+            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldMovedUnitPowerPlusOneCardNo(cardObject.CardNo)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .FirstOrDefault();
+        if (triggerSourceObjectId is null
+            || !state.CardObjects.TryGetValue(triggerSourceObjectId, out var triggerSourceState))
         {
-            Power = sourceState.Power + 1,
-            UntilEndOfTurnPowerModifier = sourceState.UntilEndOfTurnPowerModifier + 1
-        };
+            return [];
+        }
+
+        var nextSourceState = ApplyDirectUntilEndPowerModifier(
+            sourceState,
+            sourceObjectId,
+            triggerSourceObjectId,
+            triggerSourceState.CardNo,
+            "BATTLEFIELD_UNIT_MOVED_POWER_PLUS_1",
+            "CoreRuleEngine.ApplyBattlefieldMovedUnitPowerPlusOne",
+            1,
+            sourceState.Power + 1);
         cardObjects[sourceObjectId] = nextSourceState;
         return
         [
@@ -29463,12 +29491,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var wasExhausted = sourceState.IsExhausted;
-        var nextSourceState = sourceState with
-        {
-            IsExhausted = false,
-            Power = sourceState.Power + behavior.SourceReadyPowerModifierAmount,
-            UntilEndOfTurnPowerModifier = sourceState.UntilEndOfTurnPowerModifier + behavior.SourceReadyPowerModifierAmount
-        };
+        var nextSourceState = ApplyDirectUntilEndPowerModifier(
+            sourceState,
+            stackItem.SourceObjectId,
+            stackItem.SourceObjectId,
+            string.IsNullOrWhiteSpace(stackItem.CardNo) ? sourceState.CardNo : stackItem.CardNo,
+            "SOURCE_OPTIONAL_POWER_READY",
+            "CoreRuleEngine.TryResolveSourceUnitOptionalReadyPower",
+            behavior.SourceReadyPowerModifierAmount,
+            sourceState.Power + behavior.SourceReadyPowerModifierAmount) with
+            {
+                IsExhausted = false
+            };
         cardObjects[stackItem.SourceObjectId] = nextSourceState;
 
         events.Add(new GameEvent(
@@ -33991,11 +34025,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState))
         {
             var appliedPowerDelta = sourceState.Power;
-            var nextSourceState = sourceState with
-            {
-                Power = sourceState.Power + appliedPowerDelta,
-                UntilEndOfTurnPowerModifier = sourceState.UntilEndOfTurnPowerModifier + appliedPowerDelta
-            };
+            var nextSourceState = ApplyDirectUntilEndPowerModifier(
+                sourceState,
+                stackItem.SourceObjectId,
+                stackItem.SourceObjectId,
+                string.IsNullOrWhiteSpace(stackItem.CardNo) ? sourceState.CardNo : stackItem.CardNo,
+                stackItem.EffectKind,
+                "CoreRuleEngine.ResolveViDoublePowerAbilityStackItem",
+                appliedPowerDelta,
+                sourceState.Power + appliedPowerDelta);
             cardObjects[stackItem.SourceObjectId] = nextSourceState;
             events.Add(new GameEvent(
                 "POWER_MODIFIED_UNTIL_END_OF_TURN",
@@ -36314,6 +36352,51 @@ public sealed class CoreRuleEngine : IRuleEngine
         return nextTargetState;
     }
 
+    private static CardObjectState ApplyDirectUntilEndPowerModifier(
+        CardObjectState targetState,
+        string targetObjectId,
+        string sourceObjectId,
+        string? sourceCardNo,
+        string effectKind,
+        string sourcePath,
+        int requestedPowerDelta,
+        int resultingPower,
+        int minimumPower = 0)
+    {
+        var appliedPowerDelta = resultingPower - targetState.Power;
+        var powerModifierLedger = appliedPowerDelta == 0
+            ? targetState.UntilEndOfTurnPowerModifiers
+            : targetState.UntilEndOfTurnPowerModifiers
+                .Append(new PowerModifierLedgerEntry(
+                    BuildDirectPowerModifierLedgerEffectId(
+                        targetObjectId,
+                        sourceObjectId,
+                        effectKind,
+                        sourcePath,
+                        appliedPowerDelta,
+                        targetState),
+                    effectKind,
+                    "UNTIL_END_OF_TURN",
+                    targetObjectId,
+                    sourceObjectId,
+                    sourceCardNo,
+                    appliedPowerDelta,
+                    resultingPower - (targetState.UntilEndOfTurnPowerModifier + appliedPowerDelta),
+                    resultingPower,
+                    sourcePath,
+                    requestedPowerDelta,
+                    minimumPower,
+                    resultingPower))
+                .ToArray();
+
+        return targetState with
+        {
+            Power = resultingPower,
+            UntilEndOfTurnPowerModifier = targetState.UntilEndOfTurnPowerModifier + appliedPowerDelta,
+            UntilEndOfTurnPowerModifiers = powerModifierLedger
+        };
+    }
+
     private static string BuildPowerModifierLedgerEffectId(
         StackItemState stackItem,
         string targetObjectId,
@@ -36328,6 +36411,27 @@ public sealed class CoreRuleEngine : IRuleEngine
                 targetObjectId,
                 string.IsNullOrWhiteSpace(stackItem.StackItemId) ? "STACK" : stackItem.StackItemId,
                 string.IsNullOrWhiteSpace(behavior.EffectKind) ? "UNKNOWN_EFFECT" : behavior.EffectKind,
+                appliedPowerDelta.ToString(CultureInfo.InvariantCulture),
+                (targetState.UntilEndOfTurnPowerModifiers.Count + 1).ToString(CultureInfo.InvariantCulture)
+            ]);
+    }
+
+    private static string BuildDirectPowerModifierLedgerEffectId(
+        string targetObjectId,
+        string sourceObjectId,
+        string effectKind,
+        string sourcePath,
+        int appliedPowerDelta,
+        CardObjectState targetState)
+    {
+        return string.Join(
+            ":",
+            [
+                "POWER",
+                targetObjectId,
+                string.IsNullOrWhiteSpace(sourceObjectId) ? "DIRECT_SOURCE" : sourceObjectId,
+                string.IsNullOrWhiteSpace(effectKind) ? "UNKNOWN_EFFECT" : effectKind,
+                string.IsNullOrWhiteSpace(sourcePath) ? "CoreRuleEngine.DirectPowerModifier" : sourcePath,
                 appliedPowerDelta.ToString(CultureInfo.InvariantCulture),
                 (targetState.UntilEndOfTurnPowerModifiers.Count + 1).ToString(CultureInfo.InvariantCulture)
             ]);

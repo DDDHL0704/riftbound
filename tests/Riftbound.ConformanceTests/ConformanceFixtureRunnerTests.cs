@@ -32320,6 +32320,64 @@ public sealed class ConformanceFixtureRunnerTests
         var target = p2Pass.State.CardObjects["P1-LEGEND-BASE-UNIT"];
         Assert.Equal(3, target.Power);
         Assert.Equal(1, target.UntilEndOfTurnPowerModifier);
+        var modifier = Assert.Single(target.UntilEndOfTurnPowerModifiers);
+        Assert.Equal(1, modifier.PowerDelta);
+        Assert.Equal(1, modifier.RequestedPowerDelta);
+        Assert.Equal(0, modifier.MinimumPower);
+        Assert.Equal(3, modifier.ResultingPower);
+        Assert.Equal(2, modifier.BasePower);
+        Assert.Equal(3, modifier.EffectivePower);
+        Assert.Equal("P1-LEGEND-RENGAR", modifier.SourceObjectId);
+        Assert.Equal("UNL-183/219", modifier.SourceCardNo);
+        Assert.Equal("UNIT_PLAYED_POWER_PLUS_1", modifier.EffectKind);
+        Assert.Equal("CoreRuleEngine.ResolveRengarUnitPlayedPowerTrigger", modifier.SourcePath);
+        var powerEffect = Assert.Single(
+            p2Pass.State.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P1-LEGEND-BASE-UNIT", StringComparison.Ordinal));
+        Assert.Equal("P1-LEGEND-RENGAR", powerEffect.SourceObjectId);
+        Assert.Equal("UNL-183/219", powerEffect.SourceCardNo);
+        Assert.Equal("UNIT_PLAYED_POWER_PLUS_1", powerEffect.EffectKind);
+        Assert.Equal("CoreRuleEngine.ResolveRengarUnitPlayedPowerTrigger", powerEffect.SourcePath);
+        Assert.Equal(1, powerEffect.RequestedPowerDelta);
+        Assert.Equal(1, powerEffect.AppliedPowerDelta);
+        Assert.Equal(0, powerEffect.MinimumPower);
+        Assert.Equal(3, powerEffect.ResultingPower);
+        var continuousEffects = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
+            p2Pass.Snapshots["P1"].Timing["continuousEffects"]);
+        var powerEffectView = Assert.Single(
+            continuousEffects,
+            effect => string.Equals(effect["layer"] as string, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+                && string.Equals(effect["targetObjectId"] as string, "P1-LEGEND-BASE-UNIT", StringComparison.Ordinal));
+        Assert.Equal("P1-LEGEND-RENGAR", powerEffectView["sourceObjectId"]);
+        Assert.Equal("UNL-183/219", powerEffectView["sourceCardNo"]);
+        Assert.Equal("UNIT_PLAYED_POWER_PLUS_1", powerEffectView["effectKind"]);
+        Assert.Equal("CoreRuleEngine.ResolveRengarUnitPlayedPowerTrigger", powerEffectView["sourcePath"]);
+        Assert.Equal(1, Assert.IsType<int>(powerEffectView["requestedPowerDelta"]));
+        Assert.Equal(1, Assert.IsType<int>(powerEffectView["appliedPowerDelta"]));
+        Assert.Equal(0, Assert.IsType<int>(powerEffectView["minimumPower"]));
+        Assert.Equal(3, Assert.IsType<int>(powerEffectView["resultingPower"]));
+        var ended = await new CoreRuleEngine().ResolveAsync(
+            p2Pass.State,
+            new PlayerIntent("intent-p7-9-rengar-end-turn-after-power-ledger", "P1", CommandTypes.EndTurn),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(ended.Accepted, ended.ErrorMessage);
+        var cleanedTarget = ended.State.CardObjects["P1-LEGEND-BASE-UNIT"];
+        Assert.Equal(2, cleanedTarget.Power);
+        Assert.Equal(0, cleanedTarget.UntilEndOfTurnPowerModifier);
+        Assert.Empty(cleanedTarget.UntilEndOfTurnPowerModifiers);
+        Assert.DoesNotContain(
+            ended.State.ContinuousEffects,
+            effect => string.Equals(effect.TargetObjectId, "P1-LEGEND-BASE-UNIT", StringComparison.Ordinal)
+                && string.Equals(effect.Layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal));
+        var cleanedContinuousEffects = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
+            ended.Snapshots["P1"].Timing["continuousEffects"]);
+        Assert.DoesNotContain(
+            cleanedContinuousEffects,
+            effect => string.Equals(effect["targetObjectId"] as string, "P1-LEGEND-BASE-UNIT", StringComparison.Ordinal)
+                && string.Equals(effect["layer"] as string, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal));
         var triggerEvent = Assert.Single(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "UNIT_PLAYED_POWER_PLUS_1", StringComparison.Ordinal));

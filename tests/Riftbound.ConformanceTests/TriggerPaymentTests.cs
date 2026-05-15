@@ -531,8 +531,46 @@ public sealed class TriggerPaymentTests
         Assert.True(paid.Accepted, paid.ErrorMessage);
         Assert.Null(paid.State.PendingPayment);
         Assert.Equal(0, paid.State.RunePools["P1"].Mana);
-        Assert.Equal(2, paid.State.CardObjects["P2-BATTLEFIELD-ICEVALE-TARGET"].Power);
-        Assert.Equal(-1, paid.State.CardObjects["P2-BATTLEFIELD-ICEVALE-TARGET"].UntilEndOfTurnPowerModifier);
+        var target = paid.State.CardObjects["P2-BATTLEFIELD-ICEVALE-TARGET"];
+        Assert.Equal(2, target.Power);
+        Assert.Equal(-1, target.UntilEndOfTurnPowerModifier);
+        var modifier = Assert.Single(target.UntilEndOfTurnPowerModifiers);
+        Assert.Equal(-1, modifier.PowerDelta);
+        Assert.Equal(-1, modifier.RequestedPowerDelta);
+        Assert.Equal(0, modifier.MinimumPower);
+        Assert.Equal(2, modifier.ResultingPower);
+        Assert.Equal(3, modifier.BasePower);
+        Assert.Equal(2, modifier.EffectivePower);
+        Assert.Equal("P1-BATTLEFIELD-ICEVALE", modifier.SourceObjectId);
+        Assert.Equal("UNL-065/219", modifier.SourceCardNo);
+        Assert.Equal(IcevaleTrigger, modifier.EffectKind);
+        Assert.Equal("CoreRuleEngine.ResolveIcevaleArcherAttackTriggerPayment", modifier.SourcePath);
+        var powerEffect = Assert.Single(
+            paid.State.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P2-BATTLEFIELD-ICEVALE-TARGET", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-ICEVALE", powerEffect.SourceObjectId);
+        Assert.Equal("UNL-065/219", powerEffect.SourceCardNo);
+        Assert.Equal(IcevaleTrigger, powerEffect.EffectKind);
+        Assert.Equal("CoreRuleEngine.ResolveIcevaleArcherAttackTriggerPayment", powerEffect.SourcePath);
+        Assert.Equal(-1, powerEffect.RequestedPowerDelta);
+        Assert.Equal(-1, powerEffect.AppliedPowerDelta);
+        Assert.Equal(0, powerEffect.MinimumPower);
+        Assert.Equal(2, powerEffect.ResultingPower);
+        var continuousEffects = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
+            paid.Snapshots["P1"].Timing["continuousEffects"]);
+        var powerEffectView = Assert.Single(
+            continuousEffects,
+            effect => string.Equals(effect["layer"] as string, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+                && string.Equals(effect["targetObjectId"] as string, "P2-BATTLEFIELD-ICEVALE-TARGET", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-ICEVALE", powerEffectView["sourceObjectId"]);
+        Assert.Equal("UNL-065/219", powerEffectView["sourceCardNo"]);
+        Assert.Equal(IcevaleTrigger, powerEffectView["effectKind"]);
+        Assert.Equal("CoreRuleEngine.ResolveIcevaleArcherAttackTriggerPayment", powerEffectView["sourcePath"]);
+        Assert.Equal(-1, Assert.IsType<int>(powerEffectView["requestedPowerDelta"]));
+        Assert.Equal(-1, Assert.IsType<int>(powerEffectView["appliedPowerDelta"]));
+        Assert.Equal(0, Assert.IsType<int>(powerEffectView["minimumPower"]));
+        Assert.Equal(2, Assert.IsType<int>(powerEffectView["resultingPower"]));
         Assert.Contains(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Contains(paid.Events, IsIcevaleTriggerResolved);
         Assert.Contains(paid.Events, IsIcevalePowerModified);
