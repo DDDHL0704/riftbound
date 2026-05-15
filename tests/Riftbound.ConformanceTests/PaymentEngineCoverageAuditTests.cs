@@ -22,6 +22,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string CrossWindowAllWindowMatrix = "cross-window-all-window-matrix";
     private const string CardMatrixRepresentative = "card-matrix-representative";
     private const string CardMatrixAllWindowMatrix = "card-matrix-all-window-matrix";
+    private const string OfficialMatrixDownstreamAggregate = "official-matrix-downstream-aggregate";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
     [
@@ -1740,6 +1741,88 @@ public sealed class PaymentEngineCoverageAuditTests
             .ToArray();
     }
 
+    private static readonly PaymentEngineOfficialMatrixDownstreamAggregateEntry[] PaymentEngineOfficialMatrixDownstreamAggregateManifest =
+    [
+        new(
+            "AGGREGATE_ROW_ROLLBACK_FAILURES_OFFICIAL_MATRIX_MISSING",
+            "ROW_ROLLBACK_FAILURES_OFFICIAL_MATRIX_MISSING",
+            "ROLLBACK_FAILURE_BRANCHES",
+            OfficialMatrixDownstreamAggregate,
+            "RollbackFailureRowManifest",
+            "RollbackFailureAllWindowMatrixManifest",
+            RollbackFailureRepresentative,
+            RollbackFailureAllWindowMatrix,
+            7,
+            42,
+            "4D-03BC missing official rollback row bound to the 4D-03BE family manifest and 4D-03BL all-window rollback matrix.",
+            "PLAY_CARD / PAY_COST / ACTIVATE_ABILITY / ASSEMBLE_EQUIPMENT / TRIGGER_PAYMENT / BATTLEFIELD_HELD_SCORE_PAYMENT",
+            "MOVE_UNIT, HIDE_CARD, and LEGEND_ACT stay outside the current PaymentEngine payment surfaces aggregate.",
+            "Full official rollback failure matrix breadth remains open across every card row, source mix, stale command and illegal payment combination.",
+            "Downstream aggregate representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BO_PAYMENT_ENGINE_OFFICIAL_MATRIX_DOWNSTREAM_AGGREGATE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BO_PAYMENT_ENGINE_OFFICIAL_MATRIX_DOWNSTREAM_AGGREGATE_EVIDENCE.md",
+                "docs/CURRENT_STAGE4D_03BC_PAYMENT_ENGINE_OFFICIAL_MATRIX_ROW_SCHEMA_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BC_PAYMENT_ENGINE_OFFICIAL_MATRIX_ROW_SCHEMA_EVIDENCE.md",
+                "docs/CURRENT_STAGE4D_03BE_PAYMENT_ENGINE_ROLLBACK_FAILURE_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BE_PAYMENT_ENGINE_ROLLBACK_FAILURE_ROW_MANIFEST_EVIDENCE.md",
+                "docs/CURRENT_STAGE4D_03BL_PAYMENT_ENGINE_ROLLBACK_FAILURE_MATRIX_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BL_PAYMENT_ENGINE_ROLLBACK_FAILURE_MATRIX_EVIDENCE.md"
+            ]),
+        new(
+            "AGGREGATE_ROW_CROSS_WINDOW_GENERATION_CONSUMPTION_MISSING",
+            "ROW_CROSS_WINDOW_GENERATION_CONSUMPTION_MISSING",
+            "CROSS_WINDOW_GENERATION_CONSUMPTION",
+            OfficialMatrixDownstreamAggregate,
+            "CrossWindowGenerationConsumptionRowManifest",
+            "CrossWindowGenerationConsumptionAllWindowMatrixManifest",
+            CrossWindowRepresentative,
+            CrossWindowAllWindowMatrix,
+            7,
+            42,
+            "4D-03BC missing official cross-window row bound to the 4D-03BF family manifest and 4D-03BM all-window generation / consumption matrix.",
+            "PLAY_CARD / PAY_COST / ACTIVATE_ABILITY / ASSEMBLE_EQUIPMENT / TRIGGER_PAYMENT / BATTLEFIELD_HELD_SCORE_PAYMENT",
+            "MOVE_UNIT, HIDE_CARD, and LEGEND_ACT stay outside the current PaymentEngine payment surfaces aggregate.",
+            "Full official cross-window generation / consumption breadth remains open across every generated-resource source, lifetime, restriction and invalid reuse branch.",
+            "Downstream aggregate representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BO_PAYMENT_ENGINE_OFFICIAL_MATRIX_DOWNSTREAM_AGGREGATE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BO_PAYMENT_ENGINE_OFFICIAL_MATRIX_DOWNSTREAM_AGGREGATE_EVIDENCE.md",
+                "docs/CURRENT_STAGE4D_03BC_PAYMENT_ENGINE_OFFICIAL_MATRIX_ROW_SCHEMA_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BC_PAYMENT_ENGINE_OFFICIAL_MATRIX_ROW_SCHEMA_EVIDENCE.md",
+                "docs/CURRENT_STAGE4D_03BF_PAYMENT_ENGINE_CROSS_WINDOW_GENERATION_CONSUMPTION_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BF_PAYMENT_ENGINE_CROSS_WINDOW_GENERATION_CONSUMPTION_ROW_MANIFEST_EVIDENCE.md",
+                "docs/CURRENT_STAGE4D_03BM_PAYMENT_ENGINE_CROSS_WINDOW_GENERATION_CONSUMPTION_MATRIX_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BM_PAYMENT_ENGINE_CROSS_WINDOW_GENERATION_CONSUMPTION_MATRIX_EVIDENCE.md"
+            ]),
+        new(
+            "AGGREGATE_ROW_CARD_MATRIX_ALIGNMENT_MISSING",
+            "ROW_CARD_MATRIX_ALIGNMENT_MISSING",
+            "CARD_MATRIX_ALIGNMENT",
+            OfficialMatrixDownstreamAggregate,
+            "CardMatrixAlignmentRowManifest",
+            "CardMatrixAlignmentAllWindowMatrixManifest",
+            CardMatrixRepresentative,
+            CardMatrixAllWindowMatrix,
+            8,
+            48,
+            "4D-03BC missing official card matrix row bound to the 4D-03BG family manifest and 4D-03BN all-window card matrix alignment matrix.",
+            "PLAY_CARD / PAY_COST / ACTIVATE_ABILITY / ASSEMBLE_EQUIPMENT / TRIGGER_PAYMENT / BATTLEFIELD_HELD_SCORE_PAYMENT",
+            "MOVE_UNIT, HIDE_CARD, and LEGEND_ACT stay outside the current PaymentEngine payment surfaces aggregate.",
+            "Full official card matrix alignment breadth remains open across every official card row, collector/oracle variant, effect row, branch, FAQ blocker and JSON status sync path.",
+            "Downstream aggregate representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BO_PAYMENT_ENGINE_OFFICIAL_MATRIX_DOWNSTREAM_AGGREGATE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BO_PAYMENT_ENGINE_OFFICIAL_MATRIX_DOWNSTREAM_AGGREGATE_EVIDENCE.md",
+                "docs/CURRENT_STAGE4D_03BC_PAYMENT_ENGINE_OFFICIAL_MATRIX_ROW_SCHEMA_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BC_PAYMENT_ENGINE_OFFICIAL_MATRIX_ROW_SCHEMA_EVIDENCE.md",
+                "docs/CURRENT_STAGE4D_03BG_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BG_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_ROW_MANIFEST_EVIDENCE.md",
+                "docs/CURRENT_STAGE4D_03BN_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_MATRIX_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BN_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_MATRIX_EVIDENCE.md"
+            ])
+    ];
+
     private static readonly PaymentEngineLegendBattlefieldTriggerResourceActionCoverageEntry[] LegendBattlefieldTriggerResourceActionManifest =
     [
         new(
@@ -2533,6 +2616,249 @@ public sealed class PaymentEngineCoverageAuditTests
             combinedText
                 .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
                 .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixDownstreamAggregatePreservesOfficialRowSchemaCounts()
+    {
+        Assert.Equal(9, OfficialPaymentEngineMatrixSeedRowManifest.Count(entry => string.Equals(entry.RowStatus, RepresentativeSeed, StringComparison.Ordinal)));
+        Assert.Equal(3, OfficialPaymentEngineMatrixSeedRowManifest.Count(entry => string.Equals(entry.RowStatus, MissingOfficialRow, StringComparison.Ordinal)));
+        Assert.Equal(1, OfficialPaymentEngineMatrixSeedRowManifest.Count(entry => string.Equals(entry.RowStatus, PolicyDeferredRow, StringComparison.Ordinal)));
+
+        var missingRows = OfficialPaymentEngineMatrixSeedRowManifest
+            .Where(entry => string.Equals(entry.RowStatus, MissingOfficialRow, StringComparison.Ordinal))
+            .ToDictionary(entry => entry.RowId, StringComparer.Ordinal);
+
+        Assert.Equal(missingRows.Count, PaymentEngineOfficialMatrixDownstreamAggregateManifest.Length);
+        Assert.All(PaymentEngineOfficialMatrixDownstreamAggregateManifest, entry =>
+        {
+            var officialRow = missingRows[entry.OfficialMatrixRowId];
+
+            Assert.StartsWith("AGGREGATE_ROW_", entry.AggregateRowId, StringComparison.Ordinal);
+            Assert.Contains(entry.OfficialMatrixRowId.Replace("ROW_", string.Empty, StringComparison.Ordinal), entry.AggregateRowId, StringComparison.Ordinal);
+            Assert.Equal(officialRow.Axis, entry.Axis);
+            Assert.Equal(OfficialMatrixDownstreamAggregate, entry.Classification);
+            Assert.Contains("4D-03BC", entry.AggregateScope, StringComparison.Ordinal);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BC_PAYMENT_ENGINE_OFFICIAL_MATRIX_ROW_SCHEMA_AUDIT.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BC_PAYMENT_ENGINE_OFFICIAL_MATRIX_ROW_SCHEMA_EVIDENCE.md", entry.DocAnchors);
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixDownstreamAggregateRequiresExactlyOneEntryPerMissingRow()
+    {
+        var missingRowIds = OfficialPaymentEngineMatrixSeedRowManifest
+            .Where(entry => string.Equals(entry.RowStatus, MissingOfficialRow, StringComparison.Ordinal))
+            .Select(entry => entry.RowId)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var aggregateRowIds = PaymentEngineOfficialMatrixDownstreamAggregateManifest
+            .Select(entry => entry.OfficialMatrixRowId)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(missingRowIds, aggregateRowIds);
+        Assert.Empty(PaymentEngineOfficialMatrixDownstreamAggregateManifest
+            .GroupBy(entry => entry.OfficialMatrixRowId, StringComparer.Ordinal)
+            .Where(group => group.Count() != 1)
+            .Select(group => group.Key));
+        Assert.DoesNotContain(
+            PaymentEngineOfficialMatrixDownstreamAggregateManifest,
+            entry => string.Equals(entry.OfficialMatrixRowId, "ROW_MOVE_UNIT_POLICY_DEFERRED", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixDownstreamAggregateCountsMatchCurrentDownstreamMatrices()
+    {
+        var expectedCounts = new[]
+        {
+            new
+            {
+                RowId = "ROW_ROLLBACK_FAILURES_OFFICIAL_MATRIX_MISSING",
+                FamilyManifestName = "RollbackFailureRowManifest",
+                AllWindowManifestName = "RollbackFailureAllWindowMatrixManifest",
+                FamilyClassification = RollbackFailureRepresentative,
+                AllWindowClassification = RollbackFailureAllWindowMatrix,
+                FamilyCount = 7,
+                AllWindowMatrixCount = 42,
+                ActualFamilyCount = RollbackFailureRowManifest.Length,
+                ActualAllWindowMatrixCount = RollbackFailureAllWindowMatrixManifest.Length
+            },
+            new
+            {
+                RowId = "ROW_CROSS_WINDOW_GENERATION_CONSUMPTION_MISSING",
+                FamilyManifestName = "CrossWindowGenerationConsumptionRowManifest",
+                AllWindowManifestName = "CrossWindowGenerationConsumptionAllWindowMatrixManifest",
+                FamilyClassification = CrossWindowRepresentative,
+                AllWindowClassification = CrossWindowAllWindowMatrix,
+                FamilyCount = 7,
+                AllWindowMatrixCount = 42,
+                ActualFamilyCount = CrossWindowGenerationConsumptionRowManifest.Length,
+                ActualAllWindowMatrixCount = CrossWindowGenerationConsumptionAllWindowMatrixManifest.Length
+            },
+            new
+            {
+                RowId = "ROW_CARD_MATRIX_ALIGNMENT_MISSING",
+                FamilyManifestName = "CardMatrixAlignmentRowManifest",
+                AllWindowManifestName = "CardMatrixAlignmentAllWindowMatrixManifest",
+                FamilyClassification = CardMatrixRepresentative,
+                AllWindowClassification = CardMatrixAllWindowMatrix,
+                FamilyCount = 8,
+                AllWindowMatrixCount = 48,
+                ActualFamilyCount = CardMatrixAlignmentRowManifest.Length,
+                ActualAllWindowMatrixCount = CardMatrixAlignmentAllWindowMatrixManifest.Length
+            }
+        };
+
+        Assert.All(expectedCounts, expected =>
+        {
+            var aggregate = Assert.Single(
+                PaymentEngineOfficialMatrixDownstreamAggregateManifest,
+                entry => string.Equals(entry.OfficialMatrixRowId, expected.RowId, StringComparison.Ordinal));
+
+            Assert.Equal(expected.FamilyManifestName, aggregate.FamilyManifestName);
+            Assert.Equal(expected.AllWindowManifestName, aggregate.AllWindowManifestName);
+            Assert.Equal(expected.FamilyClassification, aggregate.FamilyClassification);
+            Assert.Equal(expected.AllWindowClassification, aggregate.AllWindowClassification);
+            Assert.Equal(expected.FamilyCount, aggregate.FamilyCount);
+            Assert.Equal(expected.AllWindowMatrixCount, aggregate.AllWindowMatrixCount);
+            Assert.Equal(expected.ActualFamilyCount, aggregate.FamilyCount);
+            Assert.Equal(expected.ActualAllWindowMatrixCount, aggregate.AllWindowMatrixCount);
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixDownstreamAggregateLinksEveryAllWindowRowBackToOfficialRow()
+    {
+        var aggregateRowIds = PaymentEngineOfficialMatrixDownstreamAggregateManifest
+            .Select(entry => entry.OfficialMatrixRowId)
+            .ToHashSet(StringComparer.Ordinal);
+
+        Assert.All(RollbackFailureAllWindowMatrixManifest, entry =>
+        {
+            Assert.Equal("ROW_ROLLBACK_FAILURES_OFFICIAL_MATRIX_MISSING", entry.OfficialMatrixRowId);
+            Assert.Contains(entry.OfficialMatrixRowId, aggregateRowIds);
+        });
+        Assert.All(CrossWindowGenerationConsumptionAllWindowMatrixManifest, entry =>
+        {
+            Assert.Equal("ROW_CROSS_WINDOW_GENERATION_CONSUMPTION_MISSING", entry.OfficialMatrixRowId);
+            Assert.Contains(entry.OfficialMatrixRowId, aggregateRowIds);
+        });
+        Assert.All(CardMatrixAlignmentAllWindowMatrixManifest, entry =>
+        {
+            Assert.Equal("ROW_CARD_MATRIX_ALIGNMENT_MISSING", entry.OfficialMatrixRowId);
+            Assert.Contains(entry.OfficialMatrixRowId, aggregateRowIds);
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixDownstreamAggregateDocAnchorsIncludeSourceAndAggregateDocs()
+    {
+        var expectedDocsByRow = new[]
+        {
+            new
+            {
+                RowId = "ROW_ROLLBACK_FAILURES_OFFICIAL_MATRIX_MISSING",
+                SourceDocs = new[]
+                {
+                    "docs/CURRENT_STAGE4D_03BE_PAYMENT_ENGINE_ROLLBACK_FAILURE_ROW_MANIFEST_AUDIT.md",
+                    "docs/CURRENT_STAGE4D_03BE_PAYMENT_ENGINE_ROLLBACK_FAILURE_ROW_MANIFEST_EVIDENCE.md",
+                    "docs/CURRENT_STAGE4D_03BL_PAYMENT_ENGINE_ROLLBACK_FAILURE_MATRIX_AUDIT.md",
+                    "docs/CURRENT_STAGE4D_03BL_PAYMENT_ENGINE_ROLLBACK_FAILURE_MATRIX_EVIDENCE.md"
+                }
+            },
+            new
+            {
+                RowId = "ROW_CROSS_WINDOW_GENERATION_CONSUMPTION_MISSING",
+                SourceDocs = new[]
+                {
+                    "docs/CURRENT_STAGE4D_03BF_PAYMENT_ENGINE_CROSS_WINDOW_GENERATION_CONSUMPTION_ROW_MANIFEST_AUDIT.md",
+                    "docs/CURRENT_STAGE4D_03BF_PAYMENT_ENGINE_CROSS_WINDOW_GENERATION_CONSUMPTION_ROW_MANIFEST_EVIDENCE.md",
+                    "docs/CURRENT_STAGE4D_03BM_PAYMENT_ENGINE_CROSS_WINDOW_GENERATION_CONSUMPTION_MATRIX_AUDIT.md",
+                    "docs/CURRENT_STAGE4D_03BM_PAYMENT_ENGINE_CROSS_WINDOW_GENERATION_CONSUMPTION_MATRIX_EVIDENCE.md"
+                }
+            },
+            new
+            {
+                RowId = "ROW_CARD_MATRIX_ALIGNMENT_MISSING",
+                SourceDocs = new[]
+                {
+                    "docs/CURRENT_STAGE4D_03BG_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_ROW_MANIFEST_AUDIT.md",
+                    "docs/CURRENT_STAGE4D_03BG_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_ROW_MANIFEST_EVIDENCE.md",
+                    "docs/CURRENT_STAGE4D_03BN_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_MATRIX_AUDIT.md",
+                    "docs/CURRENT_STAGE4D_03BN_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_MATRIX_EVIDENCE.md"
+                }
+            }
+        };
+
+        Assert.All(PaymentEngineOfficialMatrixDownstreamAggregateManifest, entry =>
+        {
+            var expected = Assert.Single(expectedDocsByRow, row => string.Equals(row.RowId, entry.OfficialMatrixRowId, StringComparison.Ordinal));
+
+            Assert.Contains("docs/CURRENT_STAGE4D_03BO_PAYMENT_ENGINE_OFFICIAL_MATRIX_DOWNSTREAM_AGGREGATE_AUDIT.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BO_PAYMENT_ENGINE_OFFICIAL_MATRIX_DOWNSTREAM_AGGREGATE_EVIDENCE.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BC_PAYMENT_ENGINE_OFFICIAL_MATRIX_ROW_SCHEMA_AUDIT.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BC_PAYMENT_ENGINE_OFFICIAL_MATRIX_ROW_SCHEMA_EVIDENCE.md", entry.DocAnchors);
+            Assert.All(expected.SourceDocs, expectedDoc => Assert.Contains(expectedDoc, entry.DocAnchors));
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixDownstreamAggregateKeepsNonPaymentSurfacesOut()
+    {
+        var excludedActionWindows = new[] { "MOVE_UNIT", "HIDE_CARD", "LEGEND_ACT" };
+        var aggregateActionWindows = RollbackFailureAllWindowMatrixManifest.Select(entry => entry.ActionWindow)
+            .Concat(CrossWindowGenerationConsumptionAllWindowMatrixManifest.Select(entry => entry.ActionWindow))
+            .Concat(CardMatrixAlignmentAllWindowMatrixManifest.Select(entry => entry.ActionWindow))
+            .ToArray();
+
+        Assert.All(excludedActionWindows, excluded =>
+        {
+            Assert.DoesNotContain(excluded, aggregateActionWindows, StringComparer.Ordinal);
+            Assert.All(PaymentEngineOfficialMatrixDownstreamAggregateManifest, entry =>
+            {
+                Assert.DoesNotContain(excluded, entry.PaymentSurfaceScope.Split(" / "), StringComparer.Ordinal);
+                Assert.Contains(excluded, entry.ExcludedPaymentSurfaces, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixDownstreamAggregateDoesNotClaimP0005Closure()
+    {
+        var combinedText = string.Join(
+            " ",
+            PaymentEngineOfficialMatrixDownstreamAggregateManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.AggregateRowId,
+                    entry.OfficialMatrixRowId,
+                    entry.Axis,
+                    entry.Classification,
+                    entry.FamilyManifestName,
+                    entry.AllWindowManifestName,
+                    entry.FamilyClassification,
+                    entry.AllWindowClassification,
+                    entry.AggregateScope,
+                    entry.PaymentSurfaceScope,
+                    entry.ExcludedPaymentSurfaces,
+                    entry.RemainingOfficialBreadth,
+                    entry.ClosureStatus
+                }.Concat(entry.DocAnchors)));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText.Replace("NOT READY", string.Empty, StringComparison.Ordinal),
             StringComparison.Ordinal);
     }
 
@@ -4505,6 +4831,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(CrossWindowGenerationConsumptionRowManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(CardMatrixAlignmentRowManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(CardMatrixAlignmentAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(PaymentEngineOfficialMatrixDownstreamAggregateManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(LegendBattlefieldTriggerResourceActionManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(KeywordPaymentBranchManifest.SelectMany(entry => entry.DocAnchors));
     }
@@ -4702,6 +5029,24 @@ public sealed class PaymentEngineCoverageAuditTests
         string AuditEvidenceAnchor,
         string MatrixSyncStatusAnchor,
         string FrontendSnapshotOrRuleSourceTrace,
+        string RemainingOfficialBreadth,
+        string ClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
+    private sealed record PaymentEngineOfficialMatrixDownstreamAggregateEntry(
+        string AggregateRowId,
+        string OfficialMatrixRowId,
+        string Axis,
+        string Classification,
+        string FamilyManifestName,
+        string AllWindowManifestName,
+        string FamilyClassification,
+        string AllWindowClassification,
+        int FamilyCount,
+        int AllWindowMatrixCount,
+        string AggregateScope,
+        string PaymentSurfaceScope,
+        string ExcludedPaymentSurfaces,
         string RemainingOfficialBreadth,
         string ClosureStatus,
         IReadOnlyList<string> DocAnchors);
