@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 2026-05-15 Stage 4D-04M handoff / baseline 已建立：A 主控把 P1-001 LayerEngine minimum-power ledger exactness 拆成下一枚 B handoff。交接入口为 `docs/CURRENT_STAGE4D_04M_LAYERENGINE_MINIMUM_POWER_LEDGER_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_04M_LAYERENGINE_MINIMUM_POWER_LEDGER_BASELINE_EVIDENCE.md`；focused minimum-power foundation guard 9/9、adjacent power/layer/minimum regression 16/16、`git diff --check` 通过。本批不修改前端运行时代码；前端继续只消费服务端 authoritative snapshot 中的 `power`、`basePower`、`effectivePower`、`timing.continuousEffects` 及其中的 source/effect/minimum metadata，不本地实现 LayerEngine、minimum floor ordering 或重算战力。项目仍 **NOT READY**。
+
 - 2026-05-15 Stage 4D-04L-B 已验收：LayerEngine foundation / source-aware power modifier ledger 已由 B-Implementation / Meitner `019e2c13-5b3b-7750-9971-08cf68b074f2` 完成，审计入口为 `docs/CURRENT_STAGE4D_04L_LAYERENGINE_FOUNDATION_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_04L_LAYERENGINE_FOUNDATION_EVIDENCE.md`；focused LayerEngine foundation guard 11/11、adjacent power/layer/equipment regression 141/141、backend full 4447/4447、`git diff --check` 通过。本批不修改前端运行时代码；前端继续只消费服务端 authoritative snapshot 中的 `power`、`basePower`、`effectivePower`、`timing.continuousEffects` 及其中的 source/effect metadata，不本地实现 LayerEngine、排序连续效果或重算战力。项目仍 **NOT READY**。
 
 - 2026-05-15 Stage 4D-04L handoff / baseline 已建立：A 主控把 P1-001 LayerEngine foundation 拆成下一枚 B handoff。交接入口为 `docs/CURRENT_STAGE4D_04L_LAYERENGINE_FOUNDATION_HANDOFF.md`，基线入口为 `docs/CURRENT_STAGE4D_04L_LAYERENGINE_FOUNDATION_BASELINE_EVIDENCE.md`；focused LayerEngine guard 11/11、adjacent power/layer/equipment regression 141/141 通过。本批不修改前端运行时代码；前端继续只消费服务端 authoritative snapshot 中的 `power`、`basePower`、`effectivePower`、`timing.continuousEffects`，不得本地实现 LayerEngine 或重算战力。项目仍 **NOT READY**。
