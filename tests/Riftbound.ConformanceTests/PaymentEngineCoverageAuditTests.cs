@@ -534,6 +534,167 @@ public sealed class PaymentEngineCoverageAuditTests
             ])
     ];
 
+    private static readonly PaymentEngineOfficialMatrixResidualCoverageEntry[] OfficialPaymentEngineMatrixResidualManifest =
+    [
+        new(
+            "ACTION_WINDOWS",
+            RemainingOfficialGap,
+            "CoverageManifest has representative PLAY_CARD, PAY_COST, TRIGGER_PAYMENT, ASSEMBLE_EQUIPMENT, ACTIVATE_ABILITY, LEGEND_ACT, BATTLEFIELD_HELD_SCORE_PAYMENT, HIDE_CARD, and policy MOVE_UNIT evidence.",
+            "Generated official matrix must enumerate every playable payment action window plus future official window additions before P0-005 closure.",
+            "Prompt quote, command-side revalidation, and COST_PAID or domain audit parity are required for every action window.",
+            "Unsupported window, stale pending payment, wrong action source, and insufficient payment must roll back with no-mutation semantics.",
+            "Full official action-window breadth, window-specific payment source reuse, and all window-specific failure branches remain open.",
+            "Remaining official gap only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AH_PAYMENT_ENGINE_ACTION_WINDOW_COVERAGE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AV_PAYMENT_ENGINE_RESIDUAL_BLOCKER_MANIFEST_AUDIT.md"
+            ]),
+        new(
+            "PAYMENT_SOURCES",
+            RemainingOfficialGap,
+            "Current representatives cover mana, generic power, typed power, experience, recycle resources, generated payment-only resources, and temporary payment resources in selected windows.",
+            "Generated official matrix must enumerate every legal payment source against every legal window and resource lifetime.",
+            "Prompt quote, command-side revalidation, and COST_PAID audit parity must identify the source type, resource id, trait, amount, and payment id.",
+            "Wrong trait, wrong resource id, exhausted generated resource, expired temporary resource, and insufficient source totals must roll back with no-mutation semantics.",
+            "Full official payment source breadth, source mixing, generated-source lifetime, and source-specific failure branches remain open.",
+            "Remaining official gap only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AF_PAYMENT_ENGINE_REMAINING_SCOPE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AU_PAYMENT_ENGINE_RESIDUAL_SCOPE_HANDOFF.md"
+            ]),
+        new(
+            "RESOURCE_SKILLS",
+            RemainingOfficialGap,
+            "4D-03AZ keeps current resource skill representatives catalog-bound, including target-as-cost, reaction mana, typed Sigils, conversion equipment, and Gold token branches.",
+            "Generated official matrix must prove every official [A] and [C] resource skill family, generated resource type, timing permission, and payment-only consumption branch.",
+            "Prompt quote, command-side revalidation, and ABILITY_ACTIVATED plus generated-resource audit parity must remain visible for each resource skill family.",
+            "Invalid timing, invalid target, duplicate source, wrong trait, and payment-only misuse must roll back with no-mutation semantics.",
+            "Full official resource skill breadth, cross-window generated resource consumption, and all invalid generated-resource branches remain open.",
+            "Remaining official gap only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AZ_PAYMENT_ENGINE_RESOURCE_SKILL_RESIDUAL_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AL_PAYMENT_ENGINE_RESOURCE_SKILL_COVERAGE_AUDIT.md"
+            ]),
+        new(
+            "TARGET_TAXES",
+            RemainingOfficialGap,
+            "Spellshield and selected target-bearing activated ability representatives cover current target tax prompts, command commits, audit payloads, and stale target guards.",
+            "Generated official matrix must enumerate every target tax, dependency target, target count, target controller, and stale legality branch.",
+            "Prompt quote, command-side revalidation, and COST_PAID audit parity must bind target ids, tax amount, and target-tax metadata.",
+            "Invalid target, stale target, insufficient target tax, wrong controller, and target-count mismatch must roll back with no-mutation semantics.",
+            "Full official target tax breadth, target dependency interactions, and all stale target failure branches remain open.",
+            "Remaining official gap only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AW_PAYMENT_ENGINE_TARGET_COLORED_ACTIVATED_ABILITY_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AK_PAYMENT_ENGINE_SPELLSHIELD_TAX_COVERAGE_AUDIT.md"
+            ]),
+        new(
+            "KEYWORD_BRANCHES",
+            RemainingOfficialGap,
+            "4D-03AY keeps Haste, Echo, Spellshield, experience, battlefield replacement, cost modifier, optional / extra / alternative, and temporary-resource branches explicit as representatives.",
+            "Generated official matrix must enumerate every keyword payment branch across every legal window, including declined optional choices and replacement ordering.",
+            "Prompt quote, command-side revalidation, and COST_PAID audit parity must bind keyword source, chosen branch, paid resource totals, and payment id.",
+            "Declined branch, stale keyword source, insufficient branch cost, wrong resource, and replacement-denied payment must roll back with no-mutation semantics.",
+            "Full official keyword branch breadth, all-window keyword parity, and branch-specific failure coverage remain open.",
+            "Remaining official gap only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AY_PAYMENT_ENGINE_KEYWORD_PAYMENT_BRANCH_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AV_PAYMENT_ENGINE_RESIDUAL_BLOCKER_MANIFEST_AUDIT.md"
+            ]),
+        new(
+            "COST_MODIFIERS",
+            RemainingOfficialGap,
+            "Current representatives include selected reductions, increases, minimum-cost behavior, battlefield/equipment modifiers, and modified COST_PAID assertions.",
+            "Generated official matrix must enumerate every official cost reduction, cost increase, minimum rule, modifier stacking order, and modified quote branch.",
+            "Prompt quote, command-side revalidation, and COST_PAID audit parity must expose unmodified cost, modified cost, paid amount, and modifier source.",
+            "Stale modifier, insufficient modified cost, illegal zeroing, wrong resource, and stacking-order mismatch must roll back with no-mutation semantics.",
+            "Full official cost modifier breadth, modifier layering, minimum interactions, and all modified-cost failure branches remain open.",
+            "Remaining official gap only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AY_PAYMENT_ENGINE_KEYWORD_PAYMENT_BRANCH_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AU_PAYMENT_ENGINE_RESIDUAL_SCOPE_HANDOFF.md"
+            ]),
+        new(
+            "OPTIONAL_EXTRA_ALTERNATIVE_COSTS",
+            RemainingOfficialGap,
+            "Current representatives cover selected play optional costs, hide-card alternative payment, equipment branches, and Azir target-scoped optional reattach payment.",
+            "Generated official matrix must enumerate every optional, extra, alternative, target-scoped, accept, decline, and mixed-branch payment path.",
+            "Prompt quote, command-side revalidation, and COST_PAID audit parity must bind the chosen option, accepted or declined state, branch target, and paid resource totals.",
+            "Invalid option, stale option target, insufficient alternative cost, wrong branch resource, and declined payment side effects must roll back with no-mutation semantics.",
+            "Full official optional, extra, alternative, target-scoped branch, and all-window payment parity remain open.",
+            "Remaining official gap only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AY_PAYMENT_ENGINE_KEYWORD_PAYMENT_BRANCH_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AS_AZIR_OPTIONAL_ARMAMENT_REATTACH_AUDIT.md"
+            ]),
+        new(
+            "REPLACEMENT_PREVENTION",
+            RemainingOfficialGap,
+            "Current representatives include battlefield held score prevention, battlefield replacement-adjacent branches, and selected no-effect command paths.",
+            "Generated official matrix must enumerate every payment-adjacent replacement, prevention, declined replacement, and replacement ordering branch.",
+            "Prompt quote, command-side revalidation, and audit parity must bind replacement source, prevented effect, paid cost, and resulting no-effect state.",
+            "Prevented score, stale replacement source, illegal replacement order, declined replacement, and insufficient replacement cost must roll back with no-mutation semantics.",
+            "Full official replacement and prevention breadth, ordering interactions, and all payment-adjacent no-effect branches remain open.",
+            "Remaining official gap only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AX_PAYMENT_ENGINE_LEGEND_BATTLEFIELD_TRIGGER_RESOURCE_ACTION_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AY_PAYMENT_ENGINE_KEYWORD_PAYMENT_BRANCH_MANIFEST_AUDIT.md"
+            ]),
+        new(
+            "RESOURCE_ACTIONS",
+            RemainingOfficialGap,
+            "4D-03AX keeps LEGEND_ACT, battlefield held score payment, and TRIGGER_PAYMENT resource-action representatives tied to prompt, command, audit, and rollback anchors.",
+            "Generated official matrix must enumerate every official legend, battlefield, trigger, and resource-action payment branch plus future resource-action windows.",
+            "Prompt quote, command-side revalidation, and COST_PAID or domain audit parity must identify source, target, pending payment, branch, and payment id.",
+            "Stale source, stale target, invalid pending payment, declined branch, wrong resource, and replacement-denied action must roll back with no-mutation semantics.",
+            "Full official resource action breadth, battlefield and trigger resource families, and cross-window resource generation remain open.",
+            "Remaining official gap only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AX_PAYMENT_ENGINE_LEGEND_BATTLEFIELD_TRIGGER_RESOURCE_ACTION_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AV_PAYMENT_ENGINE_RESIDUAL_BLOCKER_MANIFEST_AUDIT.md"
+            ]),
+        new(
+            "ROLLBACK_FAILURE_BRANCHES",
+            RemainingOfficialGap,
+            "Current representative tests include many insufficient-cost, wrong-resource, stale-source, stale-target, unsupported-timing, and invalid-pending no-mutation guards.",
+            "Generated official matrix must enumerate every illegal payment command, stale prompt, stale command, invalid resource, and no-effect failure branch.",
+            "Prompt quote, command-side revalidation, and audit parity must prove rejected branches emit no committed COST_PAID or domain success audit.",
+            "Every rejected branch must preserve hand, board, resource ledgers, pending queues, stack, score, and audit state with no-mutation semantics.",
+            "Full official rollback breadth, mutation boundary proof, and all failure branch combinations remain open.",
+            "Remaining official gap only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AV_PAYMENT_ENGINE_RESIDUAL_BLOCKER_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AU_PAYMENT_ENGINE_RESIDUAL_SCOPE_HANDOFF.md"
+            ]),
+        new(
+            "CROSS_WINDOW_GENERATION_CONSUMPTION",
+            RemainingOfficialGap,
+            "Current representatives cover selected generated payment-only resources, temporary resource spending, resource skill generation, pending payment reuse, and ledger clearing.",
+            "Generated official matrix must enumerate every legal generation window, consumption window, expiry point, cross-window reuse, and generated-resource restriction.",
+            "Prompt quote, command-side revalidation, and generated-resource audit parity must bind creation event, payment-only restriction, spend event, and cleanup event.",
+            "Expired generated resource, wrong consumption window, duplicate spend, stale pending payment, and resource restriction bypass must roll back with no-mutation semantics.",
+            "Full official cross-window generation and consumption breadth, resource lifetime ordering, and all invalid reuse branches remain open.",
+            "Remaining official gap only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03AZ_PAYMENT_ENGINE_RESOURCE_SKILL_RESIDUAL_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AX_PAYMENT_ENGINE_LEGEND_BATTLEFIELD_TRIGGER_RESOURCE_ACTION_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AY_PAYMENT_ENGINE_KEYWORD_PAYMENT_BRANCH_MANIFEST_AUDIT.md"
+            ]),
+        new(
+            "CARD_MATRIX_ALIGNMENT",
+            RemainingOfficialGap,
+            "Current representative manifests are useful audit evidence, but they do not prove every official card payment branch or card-matrix row.",
+            "Generated official matrix must align every official card row, implemented card behavior, payment branch, prompt shape, command path, audit event, and rollback guard.",
+            "Prompt quote, command-side revalidation, and audit parity must remain traceable from each card-matrix row to executable tests and docs.",
+            "Unmapped card row, untested branch, stale card behavior metadata, missing rollback, and mismatched audit expectation must remain no-mutation blockers.",
+            "Full official card matrix alignment, all card payment branches, and final P0-005 closure evidence remain open.",
+            "Remaining official gap only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_A_MASTER_CHECKPOINT.md",
+                "docs/CURRENT_COMPLETION_AUDIT.md"
+            ])
+    ];
+
     private static readonly PaymentEngineLegendBattlefieldTriggerResourceActionCoverageEntry[] LegendBattlefieldTriggerResourceActionManifest =
     [
         new(
@@ -869,6 +1030,140 @@ public sealed class PaymentEngineCoverageAuditTests
                 .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
                 .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
             StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixResidualManifestListsRequiredAxesExactlyOnce()
+    {
+        var requiredAxes = new[]
+        {
+            "ACTION_WINDOWS",
+            "PAYMENT_SOURCES",
+            "RESOURCE_SKILLS",
+            "TARGET_TAXES",
+            "KEYWORD_BRANCHES",
+            "COST_MODIFIERS",
+            "OPTIONAL_EXTRA_ALTERNATIVE_COSTS",
+            "REPLACEMENT_PREVENTION",
+            "RESOURCE_ACTIONS",
+            "ROLLBACK_FAILURE_BRANCHES",
+            "CROSS_WINDOW_GENERATION_CONSUMPTION",
+            "CARD_MATRIX_ALIGNMENT"
+        };
+
+        Assert.Equal(
+            requiredAxes.Order(StringComparer.Ordinal),
+            OfficialPaymentEngineMatrixResidualManifest.Select(entry => entry.Axis).Order(StringComparer.Ordinal));
+        Assert.Empty(OfficialPaymentEngineMatrixResidualManifest
+            .GroupBy(entry => entry.Axis, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key));
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixResidualManifestRequiresPromptCommandAuditRollbackAndDocAnchors()
+    {
+        Assert.All(OfficialPaymentEngineMatrixResidualManifest, entry =>
+        {
+            Assert.Equal(RemainingOfficialGap, entry.Classification);
+            Assert.False(string.IsNullOrWhiteSpace(entry.RepresentativeEvidence));
+            Assert.False(string.IsNullOrWhiteSpace(entry.RequiredFutureVerifier));
+            Assert.Contains("prompt", entry.PromptCommandAuditExpectation, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("command", entry.PromptCommandAuditExpectation, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("audit", entry.PromptCommandAuditExpectation, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("no-mutation", entry.RollbackExpectation, StringComparison.OrdinalIgnoreCase);
+            Assert.False(string.IsNullOrWhiteSpace(entry.RemainingOfficialBreadth));
+            Assert.Contains("NOT READY", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.NotEmpty(entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixResidualManifestKeepsResidualBlockerAsRemainingOfficialGap()
+    {
+        var residualBlocker = Assert.Single(
+            ResidualBlockerManifest,
+            entry => string.Equals(entry.Family, "OFFICIAL_PAYMENT_ENGINE_MATRIX", StringComparison.Ordinal));
+
+        Assert.Equal(RemainingOfficialGap, residualBlocker.Classification);
+        Assert.Contains("No generated official matrix", residualBlocker.CurrentEvidence, StringComparison.Ordinal);
+        Assert.Contains("Full cross-window official matrix is missing", residualBlocker.MissingOfficialBreadth, StringComparison.Ordinal);
+        Assert.Contains("prompt / command / audit parity", residualBlocker.RollbackExpectation, StringComparison.Ordinal);
+        Assert.Contains("no-mutation", residualBlocker.RollbackExpectation, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(
+            residualBlocker.DocAnchors,
+            anchor => anchor.Contains("03AU_PAYMENT_ENGINE_RESIDUAL_SCOPE_HANDOFF", StringComparison.Ordinal));
+
+        Assert.All(OfficialPaymentEngineMatrixResidualManifest, entry => Assert.Equal(RemainingOfficialGap, entry.Classification));
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixResidualManifestKeepsOfficialBreadthExplicit()
+    {
+        var combinedText = string.Join(
+            " ",
+            OfficialPaymentEngineMatrixResidualManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.Axis,
+                    entry.RepresentativeEvidence,
+                    entry.RequiredFutureVerifier,
+                    entry.PromptCommandAuditExpectation,
+                    entry.RollbackExpectation,
+                    entry.RemainingOfficialBreadth
+                }.Concat(entry.DocAnchors)));
+
+        foreach (var requiredPhrase in new[]
+        {
+            "action-window",
+            "payment source",
+            "resource skill",
+            "target tax",
+            "keyword",
+            "cost modifier",
+            "optional",
+            "extra",
+            "alternative",
+            "replacement",
+            "resource action",
+            "no-mutation",
+            "cross-window",
+            "card matrix"
+        })
+        {
+            Assert.Contains(requiredPhrase, combinedText, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialMatrixResidualManifestDoesNotClaimP0005Closure()
+    {
+        var combinedText = string.Join(
+            " ",
+            OfficialPaymentEngineMatrixResidualManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.Axis,
+                    entry.Classification,
+                    entry.RepresentativeEvidence,
+                    entry.RequiredFutureVerifier,
+                    entry.PromptCommandAuditExpectation,
+                    entry.RollbackExpectation,
+                    entry.RemainingOfficialBreadth,
+                    entry.ClosureStatus
+                }.Concat(entry.DocAnchors)));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("READY", combinedText.Replace("NOT READY", string.Empty, StringComparison.Ordinal), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -1585,6 +1880,17 @@ public sealed class PaymentEngineCoverageAuditTests
         string ExistingRepresentativeEvidence,
         string MissingOfficialBreadth,
         string RollbackExpectation,
+        string ClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
+    private sealed record PaymentEngineOfficialMatrixResidualCoverageEntry(
+        string Axis,
+        string Classification,
+        string RepresentativeEvidence,
+        string RequiredFutureVerifier,
+        string PromptCommandAuditExpectation,
+        string RollbackExpectation,
+        string RemainingOfficialBreadth,
         string ClosureStatus,
         IReadOnlyList<string> DocAnchors);
 
