@@ -1,9 +1,11 @@
 # Formal 18-Step E2E Evidence
 
-日期：2026-05-13
-结论：**PASSED / 但项目整体仍 NOT READY**
+日期：2026-05-16
+结论：**CURRENT-CODE FRESH-RUN PASSED / 但项目整体仍 NOT READY**
 
 本文件记录当前 formal 18-step E2E 的可复跑证据。该证据证明双浏览器等效流程可在同一连续正式房间中完成官方卡组提交、准备、起手、首回合资源与出牌、结算链双方让过、单位移动到战场、重连恢复、下一回合战场得分、投降与结果页胜者展示。它不替代完整 P0/P1 规则清零、1009/811 full-official card matrix、完整 PaymentEngine、LayerEngine 或全战斗/争夺生命周期。
+
+2026-05-16 fresh-run 更新：当前代码状态已执行 `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run e2e:formal-18 -- --start-api` 并通过。最新房间为 `formal-18-1778886172096-1`，active player `P1`，P1 battlefield `OGN·276/298`，P2 battlefield `OGN·290/298`。脚本 1/18 到 18/18 全部 `OK`，最终输出 `Formal 18-step E2E passed: formal-18-1778886172096-1`。详见 `docs/CURRENT_STAGE4D_FE_FORMAL_18_FRESH_RUN_AUDIT.md` 与 `docs/CURRENT_STAGE4D_FE_FORMAL_18_FRESH_RUN_EVIDENCE.md`。
 
 ## 脚本
 
@@ -49,7 +51,7 @@ source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api
 
 - `node --check scripts/chrome-formal-18-e2e.mjs`：通过。
 - `npm run build`：通过；仅保留既有 SignalR/Rollup PURE 注释 warning。
-- `npm run e2e:formal-18 -- --start-api`：通过，房间 `formal-18-1778623926434-15`。
+- `npm run e2e:formal-18 -- --start-api`：当前代码 fresh-run 通过，房间 `formal-18-1778886172096-1`；历史通过房间 `formal-18-1778623926434-15`。
 - `npm run smoke:chrome -- --start-api`：通过，覆盖 `/`、`/lobby`、`/decks`、`/cards`、`/rooms/stage3-smoke`、`/matches/stage3-smoke`、`/matches/stage3-smoke/result`。
 
 ## 剩余风险

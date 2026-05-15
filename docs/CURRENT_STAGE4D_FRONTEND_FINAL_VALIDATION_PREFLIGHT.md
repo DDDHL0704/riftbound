@@ -1,13 +1,15 @@
 # Stage 4D Frontend Final Validation Preflight
 
 日期：2026-05-16
-结论：**BUILD AND CHROME SMOKE FRESH-RUN PASSED / FORMAL 18 NOT STARTED / PROJECT NOT READY**
+结论：**BUILD / CHROME SMOKE / FORMAL 18 FRESH-RUN PASSED / PROJECT NOT READY**
 
 本文件是 A/C 侧对最终 frontend build、Chrome smoke 与 formal 18-step E2E 的 fresh-run 门槛整理。它不把历史通过记录升级为最终 READY evidence。
 
 2026-05-16 更新：A 主控已对当前代码状态执行 frontend build fresh-run。首次 `npm run build` 在 `check:event-labels` 发现 12 个后端事件 kind 缺少中文标题；本批只补 `src/Riftbound.DevUi/src/components/match/EventLog.tsx` 的 `eventKindLabels`，复跑 build 已通过。
 
-2026-05-16 更新：A 主控已对当前代码状态执行 Chrome smoke fresh-run，`npm run smoke:chrome -- --start-api` 通过并覆盖 core routes。Formal 18-step 仍未在本批 fresh-run，build + smoke 不能升级为 READY evidence。
+2026-05-16 更新：A 主控已对当前代码状态执行 Chrome smoke fresh-run，`npm run smoke:chrome -- --start-api` 通过并覆盖 core routes。
+
+2026-05-16 更新：A 主控已对当前代码状态执行 formal 18-step fresh-run，`npm run e2e:formal-18 -- --start-api` 通过，房间 `formal-18-1778886172096-1`，18/18 steps all OK。Build + smoke + formal 18 仍不能升级为 READY evidence，因为 P0/P1 与 full-card matrix 未关闭。
 
 ## 1. Sources Checked
 
@@ -16,10 +18,11 @@
   - `npm run build`: `check:event-labels` + `check:user-facing-text` + `tsc -b` + `vite build`
   - `npm run smoke:chrome`: `node scripts/chrome-smoke.mjs`
   - `npm run e2e:formal-18`: `node scripts/chrome-formal-18-e2e.mjs`
-- `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md` 记录 2026-05-13 historical pass：build、Chrome smoke、formal 18-step all passed, but explicitly not a substitute for P0/P1 closure, full-card matrix, full PaymentEngine / LayerEngine or final READY.
-- `docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md` now marks frontend build and Chrome smoke as current-code fresh passes for this batch, while formal 18-step remains main-flow evidence that must be fresh-run in final code state.
+- `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md` records the 2026-05-16 current-code formal 18-step fresh-run pass and keeps the warning that it is not a substitute for P0/P1 closure, full-card matrix, full PaymentEngine / LayerEngine or final READY.
+- `docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md` now marks frontend build, Chrome smoke and formal 18-step as current-code fresh passes for this batch.
 - `docs/CURRENT_STAGE4D_FE_EVENT_LABEL_BUILD_AUDIT.md` and `docs/CURRENT_STAGE4D_FE_EVENT_LABEL_BUILD_EVIDENCE.md` record the build-gate failure, label-only fix and final build pass.
 - `docs/CURRENT_STAGE4D_FE_CHROME_SMOKE_AUDIT.md` and `docs/CURRENT_STAGE4D_FE_CHROME_SMOKE_EVIDENCE.md` record the current-code Chrome smoke pass.
+- `docs/CURRENT_STAGE4D_FE_FORMAL_18_FRESH_RUN_AUDIT.md` and `docs/CURRENT_STAGE4D_FE_FORMAL_18_FRESH_RUN_EVIDENCE.md` record the current-code formal 18-step pass.
 
 ## 2. Fresh-Run Commands
 
@@ -75,4 +78,4 @@ The following evidence is useful historical context but cannot become final READ
 
 ## 6. Current Verdict
 
-Frontend build and Chrome smoke fresh-run have passed for the current code state. Formal 18-step has not been fresh-run in this batch, and P0/P1 plus full-card matrix remain open. Project remains **NOT READY**.
+Frontend build, Chrome smoke and formal 18-step fresh-run have passed for the current code state. P0/P1 plus full-card matrix remain open. Project remains **NOT READY**.
