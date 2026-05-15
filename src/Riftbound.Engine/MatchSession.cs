@@ -3712,6 +3712,9 @@ internal static class ActionPromptBuilder
     private const string SpinningAxeCardNo = "SFD·186/221";
     private const string SentinelAdeptCardNo = "SFD·008/221";
     private const string TemperedOptionalAttachPrefix = "TEMPERED_ATTACH:";
+    private const string AkshanCardNo = "SFD·109/221";
+    private const string AkshanStealEquipmentOptionalCostPrefix = "AKSHAN_STEAL_EQUIPMENT:";
+    private const int AkshanStealEquipmentOrangePowerCost = 2;
     private const int SpinningAxeAssemblePowerCost = 1;
     private const string SpinningAxeAssembleOptionalCost = "ASSEMBLE_ANY_POWER";
     private const string HearthfireCloakCardNo = "SFD·190/221";
@@ -9465,6 +9468,17 @@ internal static class ActionPromptBuilder
             choices.AddRange(TemperedOptionalAttachChoices(state, playerId));
         }
 
+        if (CanPromptAkshanStealEquipmentOptionalCost(
+                state,
+                playerId,
+                behavior,
+                runePool,
+                paymentResourcePowerByTrait,
+                sourceObjectId))
+        {
+            choices.AddRange(AkshanStealEquipmentChoices(state, playerId));
+        }
+
         if (TryPromptEchoOptionalCost(state, playerId, behavior, out var effectiveEchoManaCost, out var echoReason)
             && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId) + effectiveEchoManaCost)
         {
@@ -9607,6 +9621,65 @@ internal static class ActionPromptBuilder
             && cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
             && !cardObject.IsFaceDown
             && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId);
+    }
+
+    private static bool CanPromptAkshanStealEquipmentOptionalCost(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        RunePool runePool,
+        IReadOnlyDictionary<string, int> paymentResourcePowerByTrait,
+        string? sourceObjectId)
+    {
+        if (!IsAkshanOrangeExtraEquipmentStealRepresentative(behavior)
+            || runePool.Mana < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId)
+            || !AkshanStealEquipmentChoices(state, playerId).Any())
+        {
+            return false;
+        }
+
+        var availablePowerByTrait = PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait);
+        return availablePowerByTrait.TryGetValue(RuneTrait.Orange, out var orangePower)
+            && orangePower >= AkshanStealEquipmentOrangePowerCost;
+    }
+
+    private static bool IsAkshanOrangeExtraEquipmentStealRepresentative(CardBehaviorDefinition behavior)
+    {
+        return behavior.PlaysSourceToBaseAsUnit
+            && string.Equals(behavior.CardNo, AkshanCardNo, StringComparison.Ordinal);
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> AkshanStealEquipmentChoices(
+        MatchState state,
+        string playerId)
+    {
+        return EnemyBoardObjects(state, playerId)
+            .Where(objectId => IsPromptAkshanStealEquipmentChoice(state, playerId, objectId))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .Select(objectId =>
+            {
+                var choice = ObjectChoice(state, objectId, "implemented Akshan orange extra equipment steal");
+                return new ActionPromptChoiceDto(
+                    $"{AkshanStealEquipmentOptionalCostPrefix}{objectId}",
+                    $"阿克尚夺取装备：{choice.Label}",
+                    choice.Reason);
+            })
+            .ToArray();
+    }
+
+    private static bool IsPromptAkshanStealEquipmentChoice(
+        MatchState state,
+        string playerId,
+        string objectId)
+    {
+        return TryFindLegendActionFieldObjectLocation(state.PlayerZones, objectId, out var location)
+            && !string.Equals(location.PlayerId, playerId, StringComparison.Ordinal)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            && !cardObject.IsFaceDown
+            && !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, location.PlayerId)
+            && !string.Equals(cardObject.OwnerId, playerId, StringComparison.Ordinal);
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto> PlayCardDiscardHandManaReductionOptionalCostChoices(
@@ -9934,6 +10007,17 @@ internal static class ActionPromptBuilder
             }
         }
 
+        if (IsAkshanOrangeExtraEquipmentStealRepresentative(behavior)
+            && AkshanStealEquipmentChoices(state, playerId).Any())
+        {
+            AddRequirement(
+                0,
+                new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [RuneTrait.Orange] = AkshanStealEquipmentOrangePowerCost
+                });
+        }
+
         if (CanPromptCrescentGuardReadyOptionalCost(state, playerId, behavior))
         {
             AddRequirement(
@@ -10205,7 +10289,8 @@ internal static class ActionPromptBuilder
             || behavior.SourceReadyPowerModifierAdditionalPowerCost > 0
             || behavior.TargetEffectAdditionalPowerCost > 0
             || behavior.HasteReadyPowerCost > 0
-            || CanPromptCrescentGuardReadyOptionalCost(state, playerId, behavior);
+            || CanPromptCrescentGuardReadyOptionalCost(state, playerId, behavior)
+            || IsAkshanOrangeExtraEquipmentStealRepresentative(behavior);
     }
 
     private static string HasteReadyPowerTrait(CardBehaviorDefinition behavior)
@@ -11563,6 +11648,13 @@ internal static class ActionPromptBuilder
         return state.PlayerZones.TryGetValue(playerId, out var zones)
             ? zones.Base.Concat(zones.Battlefields)
             : [];
+    }
+
+    private static IEnumerable<string> EnemyBoardObjects(MatchState state, string playerId)
+    {
+        return state.PlayerZones
+            .Where(entry => !string.Equals(entry.Key, playerId, StringComparison.Ordinal))
+            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields));
     }
 
     private static IEnumerable<string> ControlledLegendActionObjects(MatchState state, string playerId)

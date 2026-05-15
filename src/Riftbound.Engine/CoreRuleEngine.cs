@@ -128,6 +128,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SpinningAxeCardNo = "SFD·186/221";
     private const string SentinelAdeptCardNo = "SFD·008/221";
     private const string TemperedOptionalAttachPrefix = "TEMPERED_ATTACH:";
+    private const string AkshanCardNo = "SFD·109/221";
+    private const string AkshanStealEquipmentOptionalCostPrefix = "AKSHAN_STEAL_EQUIPMENT:";
+    private const string AkshanStolenEquipmentMarkerPrefix = "AKSHAN_STOLEN_BY:";
+    private const string AkshanOrangeExtraEquipmentStealReason = "AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL";
+    private const int AkshanStealEquipmentOrangePowerCost = 2;
     private const string SpinningAxeAssembleOptionalCost = "ASSEMBLE_ANY_POWER";
     private const int SpinningAxeAssemblePowerCost = 1;
     private const string HearthfireCloakCardNo = "SFD·190/221";
@@ -4538,6 +4543,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["playedAfterAnotherCardThisTurn"] = stackItem.PlayedAfterAnotherCardThisTurn
                 }));
 
+        ReturnAkshanStolenEquipmentForMissingSources(playerZones, cardObjects, events);
         objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
         nextState = nextState with
         {
@@ -23893,7 +23899,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             var objectLocations = stackResolution.ObjectLocations is not null
                 ? stackResolution.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal)
                 : ReconcileObjectLocations(state.ObjectLocations, resolvedPlayerZones);
-            var postStackCleanupEvents = Array.Empty<GameEvent>();
+            var postStackCleanupEvents = new List<GameEvent>();
             var resolvedDestroyedUnitOwnerIds = stackResolution.DestroyedUnitOwnerIds;
             if (stackResolution.WinnerPlayerId is null)
             {
@@ -23907,7 +23913,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                         .Concat(stackResolution.DestroyedUnitOwnerIds)
                         .ToHashSet(StringComparer.Ordinal));
                 resolvedRunePools = postStackCleanup.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-                postStackCleanupEvents = postStackCleanup.Events.ToArray();
+                postStackCleanupEvents.AddRange(postStackCleanup.Events);
                 queuedTriggers = queuedTriggers
                     .Concat(postStackCleanup.TriggerQueue)
                     .Where(trigger => !string.IsNullOrWhiteSpace(trigger.TriggerId))
@@ -23920,6 +23926,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                     .ToArray();
             }
 
+            ReturnAkshanStolenEquipmentForMissingSources(
+                resolvedPlayerZones,
+                resolvedCardObjects,
+                postStackCleanupEvents);
             objectLocations = ReconcileObjectLocations(objectLocations, resolvedPlayerZones);
             ApplyResolvedStackSourceLocation(state, objectLocations, resolvedPlayerZones, resolvedItem);
             if (queuedTriggers.Length == 1)
@@ -27941,6 +27951,17 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
+        if (TryBuildAkshanStealEquipmentOptionalCost(
+                state,
+                playerId,
+                normalizedOptionalCosts,
+                behavior,
+                out var akshanExtraPowerCostByTrait))
+        {
+            extraPowerCostByTrait = akshanExtraPowerCostByTrait;
+            return true;
+        }
+
         if (TryBuildBattlefieldHeldNextSpellEchoOptionalCost(
                 state,
                 playerId,
@@ -28168,6 +28189,31 @@ public sealed class CoreRuleEngine : IRuleEngine
             && IsLegalTemperedOptionalAttachChoice(state, playerId, equipmentObjectId);
     }
 
+    private static bool TryBuildAkshanStealEquipmentOptionalCost(
+        MatchState state,
+        string playerId,
+        IReadOnlyList<string> normalizedOptionalCosts,
+        CardBehaviorDefinition behavior,
+        out IReadOnlyDictionary<string, int> extraPowerCostByTrait)
+    {
+        extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal);
+        if (!IsAkshanOrangeExtraEquipmentStealRepresentative(behavior)
+            || normalizedOptionalCosts.Count != 1
+            || !TryParseAkshanStealEquipmentOptionalCost(
+                normalizedOptionalCosts[0],
+                out var equipmentObjectId)
+            || !IsLegalAkshanStealEquipmentChoice(state, playerId, equipmentObjectId))
+        {
+            return false;
+        }
+
+        extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            [RuneTrait.Orange] = AkshanStealEquipmentOrangePowerCost
+        };
+        return true;
+    }
+
     private static bool TryBuildTargetEffectAdditionalCost(
         IReadOnlyList<string> normalizedOptionalCosts,
         CardBehaviorDefinition behavior,
@@ -28230,6 +28276,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         equipmentObjectId = optionalCost[TemperedOptionalAttachPrefix.Length..].Trim();
+        return !string.IsNullOrWhiteSpace(equipmentObjectId);
+    }
+
+    private static bool TryParseAkshanStealEquipmentOptionalCost(string optionalCost, out string equipmentObjectId)
+    {
+        equipmentObjectId = string.Empty;
+        if (!optionalCost.StartsWith(AkshanStealEquipmentOptionalCostPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        equipmentObjectId = optionalCost[AkshanStealEquipmentOptionalCostPrefix.Length..].Trim();
         return !string.IsNullOrWhiteSpace(equipmentObjectId);
     }
 
@@ -29484,6 +29542,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             && CardEquipmentKeywordRules.IsTemperedOptionalAttachRepresentativeCardNo(behavior.CardNo);
     }
 
+    private static bool IsAkshanOrangeExtraEquipmentStealRepresentative(CardBehaviorDefinition behavior)
+    {
+        return behavior.PlaysSourceToBaseAsUnit
+            && string.Equals(behavior.CardNo, AkshanCardNo, StringComparison.Ordinal);
+    }
+
     private static bool IsLegalTemperedOptionalAttachChoice(
         MatchState state,
         string playerId,
@@ -29510,6 +29574,35 @@ public sealed class CoreRuleEngine : IRuleEngine
             && equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
             && !equipmentState.IsFaceDown
             && SourceObjectControlledByPlayerOrLegacyOwned(equipmentState, playerId);
+    }
+
+    private static bool IsLegalAkshanStealEquipmentChoice(
+        MatchState state,
+        string playerId,
+        string equipmentObjectId)
+    {
+        return IsLegalAkshanStealEquipmentChoice(
+            state.PlayerZones,
+            state.CardObjects,
+            playerId,
+            equipmentObjectId);
+    }
+
+    private static bool IsLegalAkshanStealEquipmentChoice(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string equipmentObjectId)
+    {
+        var location = FindFieldObjectLocation(playerZones, equipmentObjectId);
+        return location is not null
+            && !string.Equals(location.Value.PlayerId, playerId, StringComparison.Ordinal)
+            && cardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
+            && equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            && !equipmentState.IsFaceDown
+            && !SourceObjectControlledByPlayerOrLegacyOwned(equipmentState, playerId)
+            && SourceObjectControlledByPlayerOrLegacyOwned(equipmentState, location.Value.PlayerId)
+            && !string.Equals(equipmentState.OwnerId, playerId, StringComparison.Ordinal);
     }
 
     private static string PlayCardTargetScopeForBehavior(CardBehaviorDefinition behavior)
@@ -29919,6 +30012,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 pendingPayment = temperedPendingPayment;
             }
+
+            TryResolveAkshanOrangeExtraEquipmentSteal(
+                playerZones,
+                cardObjects,
+                behavior,
+                stackItem,
+                events);
 
             if (TryResolveBattlefieldPlayUnitPayOneBoonTrigger(
                     playerZones,
@@ -32502,6 +32602,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         untilEndOfTurnEffects = MarkPlayersWhoGainedExperienceThisTurn(untilEndOfTurnEffects, events).ToList();
+        ReturnAkshanStolenEquipmentForMissingSources(playerZones, cardObjects, events);
         return new StackResolutionResult(
             playerZones,
             cardObjects,
@@ -35298,6 +35399,228 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             out pendingPayment);
         return true;
+    }
+
+    private static bool TryResolveAkshanOrangeExtraEquipmentSteal(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        List<GameEvent> events)
+    {
+        if (!IsAkshanOrangeExtraEquipmentStealRepresentative(behavior)
+            || !TryGetAkshanStealEquipmentObjectId(stackItem.OptionalCosts, out var equipmentObjectId)
+            || !playerZones.TryGetValue(stackItem.ControllerId, out var zones)
+            || !zones.Base.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)
+            || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var akshanState)
+            || akshanState.IsFaceDown
+            || !string.Equals(akshanState.CardNo, AkshanCardNo, StringComparison.Ordinal)
+            || !akshanState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(akshanState, stackItem.ControllerId)
+            || !IsLegalAkshanStealEquipmentChoice(
+                playerZones,
+                cardObjects,
+                stackItem.ControllerId,
+                equipmentObjectId)
+            || !cardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
+            || FindFieldObjectLocation(playerZones, equipmentObjectId) is not { } equipmentLocation)
+        {
+            return false;
+        }
+
+        RemoveFieldObjectFromLocation(
+            playerZones,
+            equipmentLocation.PlayerId,
+            equipmentLocation.Zone,
+            equipmentObjectId);
+        AddFieldObjectToLocation(
+            playerZones,
+            stackItem.ControllerId,
+            MoveUnitBaseZone,
+            equipmentObjectId);
+
+        var ownerId = string.IsNullOrWhiteSpace(equipmentState.OwnerId)
+            ? equipmentLocation.PlayerId
+            : equipmentState.OwnerId;
+        var isWeapon = equipmentState.Tags.Contains(CardEquipmentKeywordNames.Weapon, StringComparer.Ordinal);
+        var nextEquipmentState = equipmentState with
+        {
+            OwnerId = ownerId,
+            ControllerId = stackItem.ControllerId,
+            AttachedToObjectId = isWeapon ? stackItem.SourceObjectId : null,
+            Tags = AddAkshanStolenEquipmentMarker(equipmentState.Tags, stackItem.SourceObjectId)
+        };
+        cardObjects[equipmentObjectId] = nextEquipmentState;
+
+        events.Add(new GameEvent(
+            "EQUIPMENT_CONTROL_CHANGED",
+            $"{stackItem.ControllerId} 的阿克尚夺取敌方装备",
+            new Dictionary<string, object?>
+            {
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["equipmentObjectId"] = equipmentObjectId,
+                ["previousControllerId"] = equipmentLocation.PlayerId,
+                ["controllerId"] = stackItem.ControllerId,
+                ["ownerId"] = ownerId,
+                ["equipmentCardNo"] = equipmentState.CardNo,
+                ["originZone"] = equipmentLocation.Zone,
+                ["destinationZone"] = MoveUnitBaseZone,
+                ["attachedToObjectId"] = nextEquipmentState.AttachedToObjectId,
+                ["reason"] = AkshanOrangeExtraEquipmentStealReason,
+                ["optionalCosts"] = stackItem.OptionalCosts.ToArray()
+            }));
+
+        if (isWeapon)
+        {
+            events.Add(new GameEvent(
+                "EQUIPMENT_ATTACHED",
+                $"{stackItem.ControllerId} 的阿克尚贴附夺取的武装",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["unitObjectId"] = stackItem.SourceObjectId,
+                    ["equipmentObjectId"] = equipmentObjectId,
+                    ["equipmentCardNo"] = equipmentState.CardNo,
+                    ["unitCardNo"] = akshanState.CardNo,
+                    ["controllerId"] = stackItem.ControllerId,
+                    ["ownerId"] = ownerId,
+                    ["attachedToObjectId"] = stackItem.SourceObjectId,
+                    ["reason"] = AkshanOrangeExtraEquipmentStealReason,
+                    ["optionalCosts"] = stackItem.OptionalCosts.ToArray()
+                }));
+        }
+
+        return true;
+    }
+
+    private static bool TryGetAkshanStealEquipmentObjectId(
+        IReadOnlyList<string> optionalCosts,
+        out string equipmentObjectId)
+    {
+        var equipmentObjectIds = optionalCosts
+            .Select(optionalCost => TryParseAkshanStealEquipmentOptionalCost(optionalCost, out var parsedEquipmentObjectId)
+                ? parsedEquipmentObjectId
+                : string.Empty)
+            .Where(parsedEquipmentObjectId => !string.IsNullOrWhiteSpace(parsedEquipmentObjectId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        equipmentObjectId = equipmentObjectIds.Length == 1 ? equipmentObjectIds[0] : string.Empty;
+        return !string.IsNullOrWhiteSpace(equipmentObjectId);
+    }
+
+    private static IReadOnlyList<string> AddAkshanStolenEquipmentMarker(
+        IReadOnlyList<string> tags,
+        string sourceObjectId)
+    {
+        var marker = $"{AkshanStolenEquipmentMarkerPrefix}{sourceObjectId}";
+        return tags
+            .Where(tag => !tag.StartsWith(AkshanStolenEquipmentMarkerPrefix, StringComparison.Ordinal))
+            .Concat([marker])
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(tag => tag, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> RemoveAkshanStolenEquipmentMarkers(IReadOnlyList<string> tags)
+    {
+        return tags
+            .Where(tag => !tag.StartsWith(AkshanStolenEquipmentMarkerPrefix, StringComparison.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(tag => tag, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static bool TryReadAkshanStolenEquipmentSourceObjectId(
+        CardObjectState equipmentState,
+        out string sourceObjectId)
+    {
+        var marker = equipmentState.Tags
+            .FirstOrDefault(tag => tag.StartsWith(AkshanStolenEquipmentMarkerPrefix, StringComparison.Ordinal));
+        sourceObjectId = string.IsNullOrWhiteSpace(marker)
+            ? string.Empty
+            : marker[AkshanStolenEquipmentMarkerPrefix.Length..].Trim();
+        return !string.IsNullOrWhiteSpace(sourceObjectId);
+    }
+
+    private static void ReturnAkshanStolenEquipmentForMissingSources(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        List<GameEvent> events)
+    {
+        foreach (var equipmentObjectId in cardObjects
+            .Where(entry => TryReadAkshanStolenEquipmentSourceObjectId(entry.Value, out _))
+            .Select(entry => entry.Key)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray())
+        {
+            if (!cardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
+                || !TryReadAkshanStolenEquipmentSourceObjectId(equipmentState, out var sourceObjectId))
+            {
+                continue;
+            }
+
+            if (IsObjectOnField(playerZones, sourceObjectId))
+            {
+                continue;
+            }
+
+            var ownerId = equipmentState.OwnerId;
+            if (string.IsNullOrWhiteSpace(ownerId)
+                || !playerZones.ContainsKey(ownerId))
+            {
+                cardObjects[equipmentObjectId] = equipmentState with
+                {
+                    AttachedToObjectId = null,
+                    Tags = RemoveAkshanStolenEquipmentMarkers(equipmentState.Tags)
+                };
+                continue;
+            }
+
+            var location = FindFieldObjectLocation(playerZones, equipmentObjectId);
+            if (location is null)
+            {
+                cardObjects[equipmentObjectId] = equipmentState with
+                {
+                    AttachedToObjectId = null,
+                    Tags = RemoveAkshanStolenEquipmentMarkers(equipmentState.Tags)
+                };
+                continue;
+            }
+
+            RemoveFieldObjectFromLocation(
+                playerZones,
+                location.Value.PlayerId,
+                location.Value.Zone,
+                equipmentObjectId);
+            AddFieldObjectToLocation(
+                playerZones,
+                ownerId,
+                MoveUnitBaseZone,
+                equipmentObjectId);
+
+            cardObjects[equipmentObjectId] = equipmentState with
+            {
+                ControllerId = ownerId,
+                AttachedToObjectId = null,
+                Tags = RemoveAkshanStolenEquipmentMarkers(equipmentState.Tags)
+            };
+            events.Add(new GameEvent(
+                "EQUIPMENT_CONTROL_RETURNED",
+                $"{ownerId} 取回被阿克尚夺取的装备",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["equipmentObjectId"] = equipmentObjectId,
+                    ["previousControllerId"] = location.Value.PlayerId,
+                    ["controllerId"] = ownerId,
+                    ["ownerId"] = ownerId,
+                    ["equipmentCardNo"] = equipmentState.CardNo,
+                    ["originZone"] = location.Value.Zone,
+                    ["destinationZone"] = MoveUnitBaseZone,
+                    ["attachedToObjectId"] = null,
+                    ["reason"] = AkshanOrangeExtraEquipmentStealReason
+                }));
+        }
     }
 
     private static string TemperedOptionalAttachEquipmentObjectId(IReadOnlyList<string> optionalCosts)
