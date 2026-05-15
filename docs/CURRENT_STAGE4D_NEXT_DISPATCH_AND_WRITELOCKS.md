@@ -1,13 +1,14 @@
 # Stage 4D Next Dispatch and Writelocks
 
 日期：2026-05-15
-结论：**4D-04J EQUIPMENT REMAINING BREADTH HANDOFF READY / PAUSED / PROJECT NOT READY**
+结论：**4D-04K EQUIPMENT STATE PROFILE ALIGNMENT HANDOFF READY / PAUSED / PROJECT NOT READY**
 
 本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance / baseline 归档，不实现 runtime，不修改前端，不修改测试代码，不升级 full-official。当前 active goal 仍未完成，不得调用 `update_goal complete`。
 
 ## 1. 输入事实
 
 - 当前分支为 `main`，仓库当前只保留未跟踪 `riftbound-dotnet.sln`；该文件不得被本批任务触碰或纳入提交。
+- 4D-04K Equipment state profile alignment handoff / baseline 已建立，入口为 `docs/CURRENT_STAGE4D_04K_EQUIPMENT_STATE_PROFILE_ALIGNMENT_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_04K_EQUIPMENT_STATE_PROFILE_ALIGNMENT_BASELINE_EVIDENCE.md`。下一建议 B 切片只做 profile / verifier alignment，绑定已有 P5 owner/controller / attached-equipment follows host / host destroyed detach-recall representatives，同时保留 full owner/controller breadth、full attach lifecycle、Agile reaction timing、Jax-granted Agile、full Tempered、copy-text、其他 static modifiers、LayerEngine 和 full official deferred。A 侧 baseline focused state / profile guard 11/11、adjacent equipment regression 195/195 通过。本批不派发 B、不打开 runtime/test/frontend/matrix 写锁，不关闭 P1-001、P1-002、full official 或 READY。
 - 4D-04J Equipment remaining breadth refresh / handoff 已建立，入口为 `docs/CURRENT_STAGE4D_04J_EQUIPMENT_REMAINING_BREADTH_REFRESH_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_04J_EQUIPMENT_REMAINING_BREADTH_REFRESH_BASELINE_EVIDENCE.md`。本批确认 4D-04I-B 后 equipment residual 不应继续写成一整块：现有 P5 representatives 已覆盖 Long Sword owner/controller attach invariant、controller mismatch rejection、controlled opponent-owned target attach、显式 attached equipment follows host、host destroyed detach / recall；A 侧 baseline focused state / keyword guard 11/11 通过。下一建议 4D-04K 是 profile / verifier alignment，不派发 B、不打开 runtime/test/frontend/matrix 写锁，不关闭 P1-001、P1-002、full official 或 READY。
 - 4D-04I-B Ornn dynamic friendly-equipment static recompute 已由 B-Implementation / Meitner `019e2c13-5b3b-7750-9971-08cf68b074f2` 实现并由 A 验收，入口为 `docs/CURRENT_STAGE4D_04I_ORNN_DYNAMIC_EQUIPMENT_STATIC_RECOMPUTE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04I_ORNN_DYNAMIC_EQUIPMENT_STATIC_RECOMPUTE_EVIDENCE.md`。服务端现在会在 accepted core command 后，对已在公开 field 且 registry 标记 `AddsFriendlyFieldEquipmentCountToSourceUnitPower` 的 Ornn，从 registered source unit power + 当前 controller 友方公开 field equipment count + until-end power modifier 做窄重算，并重建 authoritative snapshots / prompts。A 侧验证 focused / keyword / LayerEngine-view guard 9/9、adjacent equipment / payment regression 117/117、backend full 4446/4446、`git diff --check` 通过。本批不改 frontend / card matrix / full-official，不关闭完整 LayerEngine、full `百炼`、其他装备静态修正、P1-001、P1-002 或 READY；4D-04I-B runtime / focused-test 写锁已关闭。
 - 4D-04I Ornn dynamic equipment static recompute handoff / baseline 已建立，入口为 `docs/CURRENT_STAGE4D_04I_ORNN_DYNAMIC_EQUIPMENT_STATIC_RECOMPUTE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_04I_ORNN_DYNAMIC_EQUIPMENT_STATIC_RECOMPUTE_BASELINE_EVIDENCE.md`。该 B 切片锁定 `SFD·085/221` / `SFD·085a/221`《奥恩》已在公开 field 后，友方公开场上装备数量变化时的 dynamic static recompute representative；baseline 验证 focused / keyword / LayerEngine-view guard 6/6、adjacent equipment / payment regression 114/114、`git diff --check` 通过。
@@ -52,8 +53,8 @@
 
 | Queue | Owner | Status | Purpose | Write scope | Must not touch |
 |---|---|---|---|---|---|
-| 4D-NEXT-A | A 主控 | 4D-04J handoff ready / paused | 记录 4D-04J equipment remaining breadth refresh、baseline、下一建议 4D-04K 与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs、新增 4D-04J handoff / baseline | runtime、tests、frontend runtime、card matrix JSON、full-official upgrade |
-| 4D-04K-B | B-Implementation | suggested / not dispatched | Equipment state representative profile alignment / verifier | no write lock yet; expected future scope would be `CardEquipmentKeywordRules.cs` and `CardCatalogBaselineTests.cs` | runtime unless A opens a fresh lock、frontend runtime、card matrix JSON、broad LayerEngine、PaymentEngine、battle lifecycle、`riftbound-dotnet.sln` |
+| 4D-NEXT-A | A 主控 | 4D-04K handoff ready / paused | 记录 4D-04K equipment state profile alignment handoff、baseline 与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs、新增 4D-04K handoff / baseline | runtime、tests、frontend runtime、card matrix JSON、full-official upgrade |
+| 4D-04K-B | B-Implementation | handoff ready / not dispatched | Equipment state representative profile alignment / verifier | no write lock yet; expected future scope would be `CardEquipmentKeywordRules.cs` and `CardCatalogBaselineTests.cs` | runtime unless A opens a fresh lock、frontend runtime、card matrix JSON、broad LayerEngine、PaymentEngine、battle lifecycle、`riftbound-dotnet.sln` |
 | 4D-04I-B | B-Implementation / Meitner `019e2c13-5b3b-7750-9971-08cf68b074f2` | Implemented and A-validated | Ornn dynamic friendly-equipment static recompute representative | completed narrow runtime / focused tests | frontend runtime、card matrix JSON、broad LayerEngine、unrelated equipment statics、PaymentEngine、battle lifecycle、`riftbound-dotnet.sln` |
 | 4D-04H-A | A 主控 | Implemented and A-validated | Ornn friendly-equipment static power entry-time representative | completed narrow runtime / focused tests / profile guard | frontend runtime、card matrix JSON、full `百炼`、dynamic LayerEngine/static recompute、owner/controller breadth、attach lifecycle breadth、`riftbound-dotnet.sln` |
 | 4D-04G-B | B-Implementation / Bacon `019e2ba3-4b9a-7710-a702-1e8e28ecd8ea` | Implemented and A-validated | Armed Assaulter same-command HASTE_READY + Tempered attach combination representative | completed narrow runtime / focused tests / profile guard | frontend runtime、card matrix JSON、full `百炼`、full Haste、Ornn static modifiers、Akshan/Jax branches、LayerEngine、PaymentEngine broad refactor、battle lifecycle、`riftbound-dotnet.sln` |
@@ -78,6 +79,7 @@
 
 ## 3. Exclusive Writelocks
 
+- 4D-04K is A-side handoff / baseline only. No B worker is dispatched; no runtime, test, frontend or matrix write lock is open.
 - 4D-04J is A-side handoff / baseline only. No B worker is dispatched; no runtime, test, frontend or matrix write lock is open.
 - 4D-04I-B Ornn dynamic static recompute runtime / focused-test write lock is closed after A validation and commit-ready evidence.
 - 4D-04H-A Ornn friendly-equipment static power runtime / focused-test write lock is closed after A validation and commit-ready evidence.
@@ -99,7 +101,30 @@
 - E returns to read-only after 4D-03AT. The matrix must not be upgraded to `fullOfficial=true` for Azir, Maduli, Ezreal or other latest representatives merely because focused runtime evidence passed.
 - No parallel task may edit card matrix JSON, frontend stores, `ActionPrompt` contracts, battle state machine, stack, cleanup, hidden-info redaction, or E2E fixtures without an explicit owner and a fresh write-lock note.
 
-## 3.1 4D-04J-A Handoff Gate Accepted
+## 3.1 4D-04K-A Handoff Gate Accepted
+
+A-side handoff is accepted because A verified all of the following:
+
+1. Current repo state remains on `main` with only expected untracked `riftbound-dotnet.sln`.
+2. 4D-04J is already accepted as an A-side remaining-breadth refresh.
+3. Existing P5 equipment state anchors are green and can be used by a future profile / verifier slice.
+4. Adjacent equipment representatives remain green before any B diff.
+5. The next suggested B slice is narrowed to `CardEquipmentKeywordRules.cs` / `CardCatalogBaselineTests.cs` profile-verifier alignment, not runtime implementation.
+6. Full owner/controller breadth, full attach lifecycle, Agile reaction timing, Jax-granted Agile, full Tempered breadth, other static modifiers, copy-text effects, LayerEngine, card matrix full-official and READY remain open.
+
+A-side baseline commands:
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P5EquipmentStateAssembleLongSwordPreservesOwnerControllerAndAttachment|FullyQualifiedName~P5EquipmentStateAssembleLongSwordRejectsControllerMismatchWithoutSideEffects|FullyQualifiedName~P5EquipmentStateAssembleLongSwordAllowsControlledOpponentOwnedTarget|FullyQualifiedName~P5MoveUnitCommandMovesExplicitAttachedEquipmentWithHostToBattlefield|FullyQualifiedName~P5MoveUnitCommandMovesExplicitAttachedEquipmentWithHostToBase|FullyQualifiedName~CoreRuleEngineDetachesEquipmentWhenHostUnitIsDestroyed|FullyQualifiedName~P5EquipmentStateAssembleLongSwordOwnerControllerFixture|FullyQualifiedName~P5MoveUnitCommandAttachedEquipmentFollowsHostFixture|FullyQualifiedName~P4EquipmentKeywordProfilesMapOfficialTextToRegistryTags|FullyQualifiedName~P6EquipmentKeywordFamiliesReportSpecAndExecutionBoundaryCoverage|FullyQualifiedName~KeywordCoverageReportExposesDeferredKeywordFamilies"
+```
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4EquipmentKeywordProfilesKeepExistingNoAttachFixturesGreen|FullyQualifiedName~P4EquipmentAttachmentRepresentativeKeepsTakeUpAttachDetachFixturesGreen|FullyQualifiedName~AssembleEquipment|FullyQualifiedName~AgileEquipmentDirectPlayAttachTests|FullyQualifiedName~TemperedEquipmentOptionalAttachTests|FullyQualifiedName~JaxTemperedOptionalAttach|FullyQualifiedName~Akshan|FullyQualifiedName~ArmedAssaulterHasteTemperedTests|FullyQualifiedName~OrnnFriendlyEquipmentStaticPowerTests"
+```
+
+Result: **focused state / profile guard 11/11 passed; adjacent equipment regression 195/195 passed**.
+
+## 3.2 4D-04J-A Handoff Gate Accepted
 
 A-side handoff is accepted because A verified all of the following:
 
@@ -118,7 +143,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "F
 
 Result: **focused state / keyword guard 11/11 passed**.
 
-## 3.2 4D-04I-B Acceptance Gate Accepted
+## 3.3 4D-04I-B Acceptance Gate Accepted
 
 B implementation is accepted because A verified all of the following:
 
@@ -150,7 +175,7 @@ git diff --check
 
 Result: **focused / keyword / LayerEngine-view guard 9/9 passed; adjacent equipment / payment regression 117/117 passed; backend full 4446/4446 passed; git diff --check passed**.
 
-## 3.3 4D-04H-A Acceptance Gate Accepted
+## 3.4 4D-04H-A Acceptance Gate Accepted
 
 A-side implementation is accepted because A verified all of the following:
 
