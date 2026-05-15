@@ -16,6 +16,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string RepresentativeSeed = "representative-seed";
     private const string MissingOfficialRow = "missing-official-row";
     private const string PolicyDeferredRow = "policy-deferred-row";
+    private const string RollbackFailureRepresentative = "rollback-failure-representative";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
     [
@@ -924,6 +925,129 @@ public sealed class PaymentEngineCoverageAuditTests
             ])
     ];
 
+    private static readonly PaymentEngineRollbackFailureRowCoverageEntry[] RollbackFailureRowManifest =
+    [
+        new(
+            "STALE_PROMPT_PENDING_PAYMENT",
+            RollbackFailureRepresentative,
+            "ROW_ROLLBACK_FAILURES_OFFICIAL_MATRIX_MISSING",
+            "PAY_COST / TRIGGER_PAYMENT / generated pending payment windows",
+            "Representative stale prompt and stale pending payment guards from pending payment and trigger payment rows.",
+            "PaymentEngineUnificationTests prompt coverage for pending PAY_COST metadata before stale command rejection",
+            "PaymentEngineUnificationTests and TriggerPaymentTests command coverage for stale pending payment rejection",
+            "Rejected stale rows must not emit committed COST_PAID, RESOURCE_RECYCLED, TRIGGER_PAYMENT_DECLINED, or domain success audit entries.",
+            "Stale prompt or stale pending payment rejection must preserve hand, board, ledgers, pending queues, stack, score and audit state with no-mutation semantics.",
+            "Full official stale prompt, stale pending payment, duplicate command and payment-window close combinations remain open.",
+            "Rollback representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BE_PAYMENT_ENGINE_ROLLBACK_FAILURE_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03F_PAYMENT_ENGINE_PAY_COST_RESOURCE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AE_PAYMENT_ENGINE_PENDING_TEMP_RESOURCE_PROMPT_AUDIT.md"
+            ]),
+        new(
+            "INVALID_PAYMENT_SOURCE_OR_TRAIT",
+            RollbackFailureRepresentative,
+            "ROW_ROLLBACK_FAILURES_OFFICIAL_MATRIX_MISSING",
+            "PLAY_CARD / ACTIVATE_ABILITY / ASSEMBLE_EQUIPMENT / PAY_COST",
+            "Representative invalid resource id, wrong trait, unnecessary resource and payment-only misuse guards.",
+            "PaymentEngineUnificationTests prompt coverage for legal resource candidates and trait-specific payment quotes",
+            "PaymentEngineUnificationTests command coverage for invalid resource id, wrong trait and unnecessary resource rejection",
+            "Rejected invalid source rows must not emit committed COST_PAID, POWER_SPENT, RESOURCE_RECYCLED, or TEMPORARY_PAYMENT_RESOURCE_SPENT audit entries.",
+            "Invalid resource id, wrong trait, duplicate resource or payment-only misuse rejection must preserve all mutable game state with no-mutation semantics.",
+            "Full official source mixing, generated-source restriction, trait matrix and duplicate resource combinations remain open.",
+            "Rollback representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BE_PAYMENT_ENGINE_ROLLBACK_FAILURE_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AG_PAYMENT_ENGINE_PLAY_CARD_TYPED_RESOURCE_PROMPT_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AZ_PAYMENT_ENGINE_RESOURCE_SKILL_RESIDUAL_MANIFEST_AUDIT.md"
+            ]),
+        new(
+            "INSUFFICIENT_COST_OR_TARGET_TAX",
+            RollbackFailureRepresentative,
+            "ROW_ROLLBACK_FAILURES_OFFICIAL_MATRIX_MISSING",
+            "PLAY_CARD / ACTIVATE_ABILITY / target-tax payment windows",
+            "Representative insufficient mana, power, experience and Spellshield target tax guards.",
+            "SpellshieldTaxCoverageManifest and PaymentEngineUnificationTests prompt coverage for target tax and cost quote metadata",
+            "PaymentEngineUnificationTests command coverage for insufficient base cost and target-tax rejection",
+            "Rejected insufficient cost rows must not emit committed COST_PAID, ABILITY_ACTIVATED, PLAY_CARD_COMMITTED, or target-tax success audit entries.",
+            "Insufficient mana, typed power, experience or target-tax rejection must preserve source readiness, targets, stack, score and ledgers with no-mutation semantics.",
+            "Full official insufficient-cost, tax stacking, target-count and modifier interaction combinations remain open.",
+            "Rollback representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BE_PAYMENT_ENGINE_ROLLBACK_FAILURE_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AK_PAYMENT_ENGINE_SPELLSHIELD_TAX_COVERAGE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BA_PAYMENT_ENGINE_OFFICIAL_MATRIX_RESIDUAL_MANIFEST_AUDIT.md"
+            ]),
+        new(
+            "STALE_SOURCE_TARGET_OR_OPTION",
+            RollbackFailureRepresentative,
+            "ROW_ROLLBACK_FAILURES_OFFICIAL_MATRIX_MISSING",
+            "ACTIVATE_ABILITY / TRIGGER_PAYMENT / target-bearing payment windows",
+            "Representative stale source, stale target and stale target-scoped option guards.",
+            "TargetColoredActivatedAbilityCoverageManifest prompt coverage for legal source, target and target-scoped option metadata",
+            "AzirSwiftSwapActivatedAbilityTests, TriggerPaymentTests and target-bearing command coverage for stale source or target rejection",
+            "Rejected stale source or target rows must not emit committed COST_PAID, ABILITY_ACTIVATED, EQUIPMENT_REATTACHED, or target effect success audit entries.",
+            "Stale source, stale target or stale option rejection must preserve source state, target state, attachments, ledgers, stack and audit state with no-mutation semantics.",
+            "Full official target dependency, target-count, stale option and all target-bearing payment failure combinations remain open.",
+            "Rollback representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BE_PAYMENT_ENGINE_ROLLBACK_FAILURE_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AS_AZIR_OPTIONAL_ARMAMENT_REATTACH_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BA_PAYMENT_ENGINE_OFFICIAL_MATRIX_RESIDUAL_MANIFEST_AUDIT.md"
+            ]),
+        new(
+            "OPTIONAL_EXTRA_ALTERNATIVE_BRANCH",
+            RollbackFailureRepresentative,
+            "ROW_ROLLBACK_FAILURES_OFFICIAL_MATRIX_MISSING",
+            "PLAY_CARD / HIDE_CARD / ASSEMBLE_EQUIPMENT / ACTIVATE_ABILITY",
+            "Representative invalid optional, extra, alternative and declined payment branch guards.",
+            "KeywordPaymentBranchManifest prompt coverage for optional, extra and alternative payment branch quotes",
+            "PaymentEngineUnificationTests command coverage for invalid optional branch, declined branch and malformed option rejection",
+            "Rejected optional or alternative branch rows must not emit committed COST_PAID, branch success, equipment attach, hide-card, or play-card audit entries.",
+            "Invalid option, duplicate option, declined branch or malformed alternative rejection must preserve hand, board, attachments, resources and stack with no-mutation semantics.",
+            "Full official optional, extra, alternative, target-scoped and mixed-branch failure combinations remain open.",
+            "Rollback representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BE_PAYMENT_ENGINE_ROLLBACK_FAILURE_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AY_PAYMENT_ENGINE_KEYWORD_PAYMENT_BRANCH_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03C_PAYMENT_ENGINE_PLAY_OPTIONAL_AUDIT.md"
+            ]),
+        new(
+            "REPLACEMENT_PREVENTION_NO_EFFECT",
+            RollbackFailureRepresentative,
+            "ROW_ROLLBACK_FAILURES_OFFICIAL_MATRIX_MISSING",
+            "BATTLEFIELD_HELD_SCORE_PAYMENT / replacement-adjacent resource action windows",
+            "Representative replacement, prevention and no-effect payment-adjacent guards.",
+            "LegendBattlefieldTriggerResourceActionManifest prompt coverage for battlefield held and trigger resource-action payment rows",
+            "ConformanceFixtureRunnerTests and TriggerPaymentTests command coverage for prevention, no-effect and stale resource-action rejection",
+            "Rejected or prevented rows must not emit committed SCORE_GAINED, BATTLEFIELD_HELD, COST_PAID, or domain success audit entries unless the representative explicitly proves the prevented result.",
+            "Replacement-prevented, no-effect, already-scored or stale replacement rejection must preserve score, battlefield state, ledgers, stack and audit state with no-mutation semantics.",
+            "Full official replacement ordering, prevention, declined replacement and no-effect failure combinations remain open.",
+            "Rollback representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BE_PAYMENT_ENGINE_ROLLBACK_FAILURE_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AX_PAYMENT_ENGINE_LEGEND_BATTLEFIELD_TRIGGER_RESOURCE_ACTION_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BA_PAYMENT_ENGINE_OFFICIAL_MATRIX_RESIDUAL_MANIFEST_AUDIT.md"
+            ]),
+        new(
+            "GENERATED_RESOURCE_LIFETIME_REUSE",
+            RollbackFailureRepresentative,
+            "ROW_ROLLBACK_FAILURES_OFFICIAL_MATRIX_MISSING",
+            "RESOURCE_SKILL / generated payment-only resource consumption windows",
+            "Representative generated payment-only resource lifetime, cleanup, wrong-window and duplicate-spend guards.",
+            "ResourceSkillCoverageManifest and OfficialPaymentEngineMatrixResidualManifest prompt coverage for generated resource creation and consumption candidates",
+            "MalzaharResourceSkillTests and PaymentEngineUnificationTests command coverage for generated resource spend, expiry, wrong-window and duplicate-spend rejection",
+            "Rejected generated-resource reuse rows must not emit committed TEMPORARY_PAYMENT_RESOURCE_SPENT, POWER_GAINED reuse success, COST_PAID, or cleanup success audit entries.",
+            "Expired generated resource, wrong consumption window, duplicate spend or restriction bypass rejection must preserve ledgers, pending queues, hand, board and audit state with no-mutation semantics.",
+            "Full official generated-resource lifetime, cross-window generation / consumption and invalid reuse combinations remain open.",
+            "Rollback representative only; project remains NOT READY and P0-005 remains open.",
+            [
+                "docs/CURRENT_STAGE4D_03BE_PAYMENT_ENGINE_ROLLBACK_FAILURE_ROW_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03AZ_PAYMENT_ENGINE_RESOURCE_SKILL_RESIDUAL_MANIFEST_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03BA_PAYMENT_ENGINE_OFFICIAL_MATRIX_RESIDUAL_MANIFEST_AUDIT.md"
+            ])
+    ];
+
     private static readonly PaymentEngineLegendBattlefieldTriggerResourceActionCoverageEntry[] LegendBattlefieldTriggerResourceActionManifest =
     [
         new(
@@ -1564,6 +1688,142 @@ public sealed class PaymentEngineCoverageAuditTests
                     entry.CommandAnchor,
                     entry.AuditAnchor,
                     entry.RollbackExpectation,
+                    entry.RemainingOfficialBreadth,
+                    entry.ClosureStatus
+                }.Concat(entry.DocAnchors)));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineRollbackFailureRowManifestListsRequiredFamiliesExactlyOnce()
+    {
+        var requiredFamilies = new[]
+        {
+            "STALE_PROMPT_PENDING_PAYMENT",
+            "INVALID_PAYMENT_SOURCE_OR_TRAIT",
+            "INSUFFICIENT_COST_OR_TARGET_TAX",
+            "STALE_SOURCE_TARGET_OR_OPTION",
+            "OPTIONAL_EXTRA_ALTERNATIVE_BRANCH",
+            "REPLACEMENT_PREVENTION_NO_EFFECT",
+            "GENERATED_RESOURCE_LIFETIME_REUSE"
+        };
+
+        Assert.Equal(
+            requiredFamilies.Order(StringComparer.Ordinal),
+            RollbackFailureRowManifest.Select(entry => entry.FailureFamily).Order(StringComparer.Ordinal));
+        Assert.Empty(RollbackFailureRowManifest
+            .GroupBy(entry => entry.FailureFamily, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key));
+    }
+
+    [Fact]
+    public void PaymentEngineRollbackFailureRowManifestRequiresPromptCommandAuditRollbackAndDocAnchors()
+    {
+        Assert.All(RollbackFailureRowManifest, entry =>
+        {
+            Assert.Equal(RollbackFailureRepresentative, entry.Classification);
+            Assert.Equal("ROW_ROLLBACK_FAILURES_OFFICIAL_MATRIX_MISSING", entry.OfficialMatrixRowId);
+            Assert.False(string.IsNullOrWhiteSpace(entry.PaymentWindowScope));
+            Assert.False(string.IsNullOrWhiteSpace(entry.RepresentativeSurface));
+            Assert.Contains("prompt", entry.PromptAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("command", entry.CommandAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("audit", entry.AuditAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("no-mutation", entry.NoMutationAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("remain open", entry.RemainingOfficialBreadth, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("NOT READY", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.NotEmpty(entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineRollbackFailureRowsStayLinkedToOfficialMatrixMissingRow()
+    {
+        var missingRow = Assert.Single(
+            OfficialPaymentEngineMatrixSeedRowManifest,
+            entry => string.Equals(entry.RowId, "ROW_ROLLBACK_FAILURES_OFFICIAL_MATRIX_MISSING", StringComparison.Ordinal));
+        var residualAxis = Assert.Single(
+            OfficialPaymentEngineMatrixResidualManifest,
+            entry => string.Equals(entry.Axis, "ROLLBACK_FAILURE_BRANCHES", StringComparison.Ordinal));
+
+        Assert.Equal(MissingOfficialRow, missingRow.RowStatus);
+        Assert.Equal(RemainingOfficialGap, residualAxis.Classification);
+        Assert.Equal(missingRow.RowId, RollbackFailureRowManifest.Select(entry => entry.OfficialMatrixRowId).Distinct(StringComparer.Ordinal).Single());
+        Assert.All(RollbackFailureRowManifest, entry => Assert.Contains("Rollback representative only", entry.ClosureStatus, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void PaymentEngineRollbackFailureRowsKeepFailureDimensionsExplicit()
+    {
+        var combinedText = string.Join(
+            " ",
+            RollbackFailureRowManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.FailureFamily,
+                    entry.PaymentWindowScope,
+                    entry.RepresentativeSurface,
+                    entry.PromptAnchor,
+                    entry.CommandAnchor,
+                    entry.AuditAnchor,
+                    entry.NoMutationAnchor,
+                    entry.RemainingOfficialBreadth
+                }.Concat(entry.DocAnchors)));
+
+        foreach (var requiredPhrase in new[]
+        {
+            "stale",
+            "invalid",
+            "insufficient",
+            "wrong trait",
+            "target",
+            "optional",
+            "extra",
+            "alternative",
+            "replacement",
+            "generated",
+            "duplicate",
+            "cross-window",
+            "no-mutation"
+        })
+        {
+            Assert.Contains(requiredPhrase, combinedText, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    [Fact]
+    public void PaymentEngineRollbackFailureRowsDoNotClaimP0005Closure()
+    {
+        var combinedText = string.Join(
+            " ",
+            RollbackFailureRowManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.FailureFamily,
+                    entry.Classification,
+                    entry.OfficialMatrixRowId,
+                    entry.PaymentWindowScope,
+                    entry.RepresentativeSurface,
+                    entry.PromptAnchor,
+                    entry.CommandAnchor,
+                    entry.AuditAnchor,
+                    entry.NoMutationAnchor,
                     entry.RemainingOfficialBreadth,
                     entry.ClosureStatus
                 }.Concat(entry.DocAnchors)));
@@ -2309,6 +2569,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(ResidualBlockerManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(OfficialPaymentEngineMatrixResidualManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(OfficialPaymentEngineMatrixSeedRowManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(RollbackFailureRowManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(LegendBattlefieldTriggerResourceActionManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(KeywordPaymentBranchManifest.SelectMany(entry => entry.DocAnchors));
     }
@@ -2361,6 +2622,20 @@ public sealed class PaymentEngineCoverageAuditTests
         string CommandAnchor,
         string AuditAnchor,
         string RollbackExpectation,
+        string RemainingOfficialBreadth,
+        string ClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
+    private sealed record PaymentEngineRollbackFailureRowCoverageEntry(
+        string FailureFamily,
+        string Classification,
+        string OfficialMatrixRowId,
+        string PaymentWindowScope,
+        string RepresentativeSurface,
+        string PromptAnchor,
+        string CommandAnchor,
+        string AuditAnchor,
+        string NoMutationAnchor,
         string RemainingOfficialBreadth,
         string ClosureStatus,
         IReadOnlyList<string> DocAnchors);
