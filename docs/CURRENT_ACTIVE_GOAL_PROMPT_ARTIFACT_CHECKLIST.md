@@ -25,15 +25,15 @@
 ## 2. 本次检查过的证据
 
 - `git status --short --branch`：当前 `main`，仅 `riftbound-dotnet.sln` 未跟踪。
-- `git log --oneline -6`：本 checklist 建立后又新增 4D-03AM / 4D-03AN handoff、dispatch、matrix readiness、frontend preflight，并验收 Azir、Maduli、4D-03AO Ezreal、4D-03AP Rek'Sai、4D-03AQ HASTE_READY coverage verifier 与 4D-03AR Maduli cannot-ready static focused slices；当前最新补充为 4D-03AS Azir optional armament reattach focused slice accepted；后续 checkpoint 以 `CURRENT_A_MASTER_CHECKPOINT.md` 顶部为准。
+- `git log --oneline -6`：本 checklist 建立后又新增 4D-03AM / 4D-03AN handoff、dispatch、matrix readiness、frontend preflight，并验收 Azir、Maduli、4D-03AO Ezreal、4D-03AP Rek'Sai、4D-03AQ HASTE_READY coverage verifier 与 4D-03AR Maduli cannot-ready static focused slices；当前最新补充为 4D-03AT Azir matrix evidence overlay recorded；后续 checkpoint 以 `CURRENT_A_MASTER_CHECKPOINT.md` 顶部为准。
 - `git diff --check`：通过。
 - `docs/A_MASTER_AGENT_GOAL.md`：目标、阶段门槛、18 步 E2E、checkpoint 与 final audit 要求。
-- `docs/CURRENT_A_MASTER_CHECKPOINT.md`：最新 A-master 恢复入口与 4D-03AS focused slice 验收摘要。
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`：最新 A-master 恢复入口、4D-03AS focused slice 验收摘要与 4D-03AT matrix evidence overlay 记录。
 - `docs/CURRENT_COMPLETION_AUDIT.md`：当前 completion audit 结论仍为 NOT READY。
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`：当前 P1 与 full official rule residual risks。
 - `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`：P0/P1 closure plan 与剩余规则域。
 - `docs/CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md`：formal 18-step、frontend build、Chrome smoke 历史通过证据。
-- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md` 与 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`：卡牌矩阵口径与当前 full-official 缺口。
+- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md` 与 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`：卡牌矩阵口径、Azir 4D-03AT representative evidence overlay 与当前 full-official 缺口。
 - `src/Riftbound.DevUi/package.json`：`npm run build` 包含 event-label check、user-facing-text check、`tsc -b` 与 Vite build；脚本还定义 `smoke:chrome` 与 `e2e:formal-18`。
 
 矩阵实测统计：
@@ -52,7 +52,7 @@ fullOfficialFalse=811
 |---|---|---|---|---|
 | 按 `docs/A_MASTER_AGENT_GOAL.md` 管理 | A-master 目标文档必须存在并作为最高级本地交付口径 | `docs/A_MASTER_AGENT_GOAL.md` 已读取；goal 文本与该文件一致 | OK / ONGOING | 后续任何 READY 判断都必须回到本 checklist 与 final audit |
 | A 维护 checkpoint | `docs/CURRENT_A_MASTER_CHECKPOINT.md` 最新、可恢复、含当前结论 | 文件顶部记录 4D-03AR Maduli cannot-ready static accepted、focused 65/65、adjacent 375/375、backend full 4345/4345、项目 NOT READY；本 checklist 已挂回 checkpoint | PARTIAL | 后续每批继续保持 checkpoint 同步 |
-| A 维护任务拆分 / 子 agent 分工 | A-master agent pool、写锁、下一步计划 | `A_MASTER_AGENT_GOAL.md` §7/§8；checkpoint 记录 A/B/C/D/E 职责；`CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已记录 4D-03AS-B accepted and write lock closed | ONGOING | 后续 frontend / matrix 仍需单独写锁 |
+| A 维护任务拆分 / 子 agent 分工 | A-master agent pool、写锁、下一步计划 | `A_MASTER_AGENT_GOAL.md` §7/§8；checkpoint 记录 A/B/C/D/E 职责；`CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已记录 4D-03AS-B accepted、4D-03AT evidence overlay recorded and write locks closed | ONGOING | 后续 frontend / matrix 仍需单独写锁 |
 | A 维护阻断清单 | P0/P1 closure plan 与 completion audit | `CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md` 仍列 P0-002/P0-003/P0-004/P0-005 与 P1 residuals | NOT MET | P0/P1 未清零 |
 | A 控制写入范围 | 不并行改核心模块；本批通过 B worker 独占 runtime/test 写锁并由 A 验收 | 4D-03AR-B Schrodinger 完成 scoped runtime/tests；A 更新 checkpoint / completion audit / server audit / closure plan / dispatch docs | OK FOR THIS SLICE | 后续 runtime / frontend / matrix 改动必须按 dispatch 文档独占 owner |
 | 默认不写功能代码 | A 不亲自修改 runtime；功能代码由 B worker scoped 实现 | A 只做派发、验收、测试、audit docs；runtime diff 来源为 4D-03AR-B worker | OK FOR THIS SLICE | 不代表后续功能缺口已解决 |
@@ -102,8 +102,8 @@ fullOfficialFalse=811
 
 | §13 item | 当前 evidence | 状态 |
 |---|---|---|
-| 1. 修改文件列表 | 本批修改 `P4ActivatedAbilityCatalog.cs`、`MatchSession.cs`、`CoreRuleEngine.cs`、focused Azir tests 与 checkpoint / completion audit / server audit / closure plan / dispatch / active checklist docs | DONE FOR THIS SLICE / NOT FINAL |
-| 2. 新增文件列表 | 新增 4D-03AS Azir optional armament reattach audit / evidence docs | DONE FOR THIS SLICE / NOT FINAL |
+| 1. 修改文件列表 | 最近批次修改 `P4ActivatedAbilityCatalog.cs`、`MatchSession.cs`、`CoreRuleEngine.cs`、focused Azir tests、Azir matrix evidence overlay 与 checkpoint / completion audit / closure plan / dispatch / active checklist docs | DONE FOR THIS SLICE / NOT FINAL |
+| 2. 新增文件列表 | 新增 4D-03AS Azir optional armament reattach audit / evidence docs 与 4D-03AT Azir matrix evidence alignment audit / evidence docs | DONE FOR THIS SLICE / NOT FINAL |
 | 3. 服务端规则补齐项 | Stage 4D docs 记录大量 focused slices | PARTIAL |
 | 4. 前端页面完成项 | frontend rebuild plan 与 formal smoke 有历史证据 | PARTIAL |
 | 5. 接口契约说明 | ActionPrompt / LegalAction / snapshot 证据分散在 server audit 与 frontend plan | PARTIAL |
@@ -120,7 +120,7 @@ fullOfficialFalse=811
 ## 6. 不能作为 completion 代理的信号
 
 - `dotnet test` 4345/4345 通过不能替代 P0/P1 清零。
-- 4D-03AS Azir optional armament reattach focused 204/204、adjacent 397/397 与 backend full 4355/4355 通过不能替代 matrix JSON update、FAQ review、full swift timing breadth 或 full-official Azir。
+- 4D-03AS Azir optional armament reattach focused 204/204、adjacent 397/397、backend full 4355/4355 与 4D-03AT matrix evidence overlay 不能替代 FAQ review、full swift timing breadth、P0/P1 closure 或 full-official Azir。
 - 4D-03AR Maduli cannot-ready focused 65/65、adjacent 375/375 与 matrix readiness audit 不能替代 matrix JSON update 或 full-official Maduli。
 - `PaymentEngineCoverageAuditTests` / HASTE_READY focused 105/105 通过不能替代完整 official PaymentEngine。
 - 4D-03AL resource skill manifest 覆盖 19 个 current representative ability ids，不能替代完整 `[A]` / `[C]` resource skill family。
@@ -132,4 +132,4 @@ fullOfficialFalse=811
 
 Active goal **未完成**。不得调用 `update_goal complete`。
 
-4D-03AS Azir optional armament reattach focused slice 已验收；4D-03AR Maduli cannot-ready static focused slice 已验收；4D-03AQ HASTE_READY coverage verifier 已验收。但 full official Haste、Azir matrix / FAQ / full swift timing breadth、Maduli matrix full-official update、full movement official breadth、P0-005 full official、frontend final fresh-run 与 full-card matrix 仍未闭合。卡牌覆盖矩阵必须等 P0/P1 规则域进一步收敛后，才能从 representative evidence 提升为 full-official coverage。
+4D-03AT Azir matrix evidence overlay 已记录；4D-03AS Azir optional armament reattach focused slice 已验收；4D-03AR Maduli cannot-ready static focused slice 已验收；4D-03AQ HASTE_READY coverage verifier 已验收。但 full official Haste、Azir FAQ / full swift timing breadth、Maduli matrix full-official update、full movement official breadth、P0-005 full official、frontend final fresh-run 与 full-card matrix 仍未闭合。卡牌覆盖矩阵必须等 P0/P1 规则域进一步收敛后，才能从 representative evidence 提升为 full-official coverage。
