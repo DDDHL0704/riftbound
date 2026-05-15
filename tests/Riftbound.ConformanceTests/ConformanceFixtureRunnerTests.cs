@@ -12819,8 +12819,42 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-UNIT-BLASTCONE-SPROUT"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Graveyard);
         Assert.Equal(2, result.FinalState.CardObjects["P1-UNIT-BLASTCONE-SPROUT"].Power);
-        Assert.Equal(1, result.FinalState.CardObjects["P2-BLASTCONE-TARGET-001"].Power);
-        Assert.Equal(-1, result.FinalState.CardObjects["P2-BLASTCONE-TARGET-001"].UntilEndOfTurnPowerModifier);
+        var targetState = result.FinalState.CardObjects["P2-BLASTCONE-TARGET-001"];
+        Assert.Equal(1, targetState.Power);
+        Assert.Equal(-1, targetState.UntilEndOfTurnPowerModifier);
+        var modifier = Assert.Single(targetState.UntilEndOfTurnPowerModifiers);
+        Assert.Equal(-1, modifier.PowerDelta);
+        Assert.Equal(-2, modifier.RequestedPowerDelta);
+        Assert.Equal(1, modifier.MinimumPower);
+        Assert.Equal(1, modifier.ResultingPower);
+        Assert.Equal(2, modifier.BasePower);
+        Assert.Equal(1, modifier.EffectivePower);
+
+        var powerEffect = Assert.Single(
+            result.FinalState.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P2-BLASTCONE-TARGET-001", StringComparison.Ordinal));
+        Assert.Equal(-1, powerEffect.PowerDelta);
+        Assert.Equal(-2, powerEffect.RequestedPowerDelta);
+        Assert.Equal(-1, powerEffect.AppliedPowerDelta);
+        Assert.Equal(1, powerEffect.MinimumPower);
+        Assert.Equal(1, powerEffect.ResultingPower);
+        Assert.Equal(2, powerEffect.BasePower);
+        Assert.Equal(1, powerEffect.EffectivePower);
+
+        var snapshot = ResolutionResult.BuildSnapshots(result.FinalState)["P1"];
+        var continuousEffects = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
+            snapshot.Timing["continuousEffects"]);
+        var powerEffectView = Assert.Single(
+            continuousEffects,
+            effect => string.Equals(effect["layer"] as string, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+                && string.Equals(effect["targetObjectId"] as string, "P2-BLASTCONE-TARGET-001", StringComparison.Ordinal));
+        Assert.Equal(-1, Assert.IsType<int>(powerEffectView["powerDelta"]));
+        Assert.Equal(-2, Assert.IsType<int>(powerEffectView["requestedPowerDelta"]));
+        Assert.Equal(-1, Assert.IsType<int>(powerEffectView["appliedPowerDelta"]));
+        Assert.Equal(1, Assert.IsType<int>(powerEffectView["minimumPower"]));
+        Assert.Equal(1, Assert.IsType<int>(powerEffectView["resultingPower"]));
+        Assert.Equal("FOUNDATION_ONLY", Assert.IsType<string>(powerEffectView["layerEngineStatus"]));
     }
 
     [Fact]
@@ -24238,6 +24272,11 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal(1, result.FinalState.CardObjects["P2-UNIT-001"].Power);
         Assert.Equal(0, result.FinalState.CardObjects["P2-UNIT-001"].UntilEndOfTurnPowerModifier);
+        Assert.Empty(result.FinalState.CardObjects["P2-UNIT-001"].UntilEndOfTurnPowerModifiers);
+        Assert.DoesNotContain(
+            result.FinalState.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P2-UNIT-001", StringComparison.Ordinal));
         Assert.Equal(["P1-DRAW-001"], result.FinalState.PlayerZones["P1"].Hand);
     }
 

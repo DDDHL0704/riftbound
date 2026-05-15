@@ -335,7 +335,15 @@ public sealed record ContinuousEffectState(
     string? SourceCardNo = null,
     string SourcePath = "",
     bool IsLayerEngineFoundationOnly = false,
-    IReadOnlyList<string>? DeferredLayerEngineResiduals = null);
+    IReadOnlyList<string>? DeferredLayerEngineResiduals = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    int? RequestedPowerDelta = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    int? AppliedPowerDelta = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    int? MinimumPower = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    int? ResultingPower = null);
 
 public sealed record PowerModifierLedgerEntry
 {
@@ -350,7 +358,10 @@ public sealed record PowerModifierLedgerEntry
         int powerDelta = 0,
         int basePower = 0,
         int effectivePower = 0,
-        string? sourcePath = null)
+        string? sourcePath = null,
+        int requestedPowerDelta = int.MinValue,
+        int minimumPower = 0,
+        int resultingPower = int.MinValue)
     {
         EffectId = NormalizeText(effectId);
         EffectKind = NormalizeText(effectKind);
@@ -362,6 +373,9 @@ public sealed record PowerModifierLedgerEntry
         BasePower = basePower;
         EffectivePower = effectivePower;
         SourcePath = string.IsNullOrWhiteSpace(sourcePath) ? "CoreRuleEngine.ApplyPowerModifier" : sourcePath.Trim();
+        RequestedPowerDelta = requestedPowerDelta == int.MinValue ? powerDelta : requestedPowerDelta;
+        MinimumPower = Math.Max(0, minimumPower);
+        ResultingPower = resultingPower == int.MinValue ? effectivePower : resultingPower;
     }
 
     public string EffectId { get; init; }
@@ -383,6 +397,12 @@ public sealed record PowerModifierLedgerEntry
     public int EffectivePower { get; init; }
 
     public string SourcePath { get; init; }
+
+    public int RequestedPowerDelta { get; init; }
+
+    public int MinimumPower { get; init; }
+
+    public int ResultingPower { get; init; }
 
     private static string NormalizeText(string? value)
     {
@@ -1697,7 +1717,11 @@ public sealed record MatchState
                             modifier.SourceCardNo,
                             modifier.SourcePath,
                             true,
-                            LayerEngineFoundationResiduals())));
+                            LayerEngineFoundationResiduals(),
+                            modifier.RequestedPowerDelta,
+                            modifier.PowerDelta,
+                            modifier.MinimumPower,
+                            modifier.ResultingPower)));
                     var trackedPowerDelta = cardObject.UntilEndOfTurnPowerModifiers.Sum(modifier => modifier.PowerDelta);
                     var untrackedPowerDelta = cardObject.UntilEndOfTurnPowerModifier - trackedPowerDelta;
                     if (untrackedPowerDelta != 0)
@@ -2825,6 +2849,26 @@ public sealed record ResolutionResult(
         if (effect.IsLayerEngineFoundationOnly)
         {
             view["layerEngineStatus"] = "FOUNDATION_ONLY";
+        }
+
+        if (effect.RequestedPowerDelta.HasValue)
+        {
+            view["requestedPowerDelta"] = effect.RequestedPowerDelta.Value;
+        }
+
+        if (effect.AppliedPowerDelta.HasValue)
+        {
+            view["appliedPowerDelta"] = effect.AppliedPowerDelta.Value;
+        }
+
+        if (effect.MinimumPower.HasValue)
+        {
+            view["minimumPower"] = effect.MinimumPower.Value;
+        }
+
+        if (effect.ResultingPower.HasValue)
+        {
+            view["resultingPower"] = effect.ResultingPower.Value;
         }
 
         if (effect.DeferredLayerEngineResiduals is { Count: > 0 })

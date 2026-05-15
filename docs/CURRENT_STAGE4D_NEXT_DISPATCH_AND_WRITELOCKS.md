@@ -1,14 +1,14 @@
 # Stage 4D Next Dispatch and Writelocks
 
 日期：2026-05-15
-结论：**4D-04M MINIMUM-POWER LEDGER HANDOFF READY / PAUSED / PROJECT NOT READY**
+结论：**4D-04M-B MINIMUM-POWER LEDGER IMPLEMENTED / WRITELOCK CLOSED / PROJECT NOT READY**
 
 本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance / baseline 归档，不实现 runtime，不修改前端，不修改测试代码，不升级 full-official。当前 active goal 仍未完成，不得调用 `update_goal complete`。
 
 ## 1. 输入事实
 
 - 当前分支为 `main`，仓库当前只保留未跟踪 `riftbound-dotnet.sln`；该文件不得被本批任务触碰或纳入提交。
-- 4D-04M LayerEngine minimum-power ledger handoff / baseline 已建立，入口为 `docs/CURRENT_STAGE4D_04M_LAYERENGINE_MINIMUM_POWER_LEDGER_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_04M_LAYERENGINE_MINIMUM_POWER_LEDGER_BASELINE_EVIDENCE.md`。下一建议 B 切片只做 P1-001 foundation：为 `MinimumPowerAfterModifier > 0` 的 current power modifier representatives 显式保留 requested delta、applied delta、minimum floor 与 resulting power metadata，保持现有 arithmetic 行为，同时继续明确 `FOUNDATION_ONLY`。A 侧 baseline focused minimum-power foundation guard 9/9、adjacent power/layer/minimum regression 16/16、`git diff --check` 通过。本批不派发 B、不打开 runtime/test/frontend/matrix 写锁，不关闭 P1-001、P1-002、full official 或 READY。
+- 4D-04M-B LayerEngine minimum-power ledger exactness 已由 B-Implementation / Meitner `019e2c13-5b3b-7750-9971-08cf68b074f2` 实现并由 A 验收，入口为 `docs/CURRENT_STAGE4D_04M_LAYERENGINE_MINIMUM_POWER_LEDGER_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04M_LAYERENGINE_MINIMUM_POWER_LEDGER_EVIDENCE.md`。本批只做 P1-001 foundation：为 `MinimumPowerAfterModifier > 0` 的 current power modifier representatives 显式保留 requested delta、applied delta、minimum floor 与 resulting power metadata，保持现有 arithmetic 行为，同时继续明确 `FOUNDATION_ONLY`。A 侧验收 focused minimum-power foundation guard 9/9、adjacent power/layer/minimum regression 16/16、backend full 4447/4447、`git diff --check` 通过。frontend、card matrix JSON、broad PaymentEngine、battle lifecycle/task queue 语义重写、wide equipment runtime、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；4D-04M-B 写锁已关闭。本批不关闭 P1-001、P1-002、full official 或 READY。
 - 4D-04L-B LayerEngine foundation / source-aware power modifier ledger 已由 B-Implementation / Meitner `019e2c13-5b3b-7750-9971-08cf68b074f2` 实现并由 A 验收，入口为 `docs/CURRENT_STAGE4D_04L_LAYERENGINE_FOUNDATION_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04L_LAYERENGINE_FOUNDATION_EVIDENCE.md`。本批只做 P1-001 foundation：为 current until-end power modifier representatives 建立 source-aware / effect-aware metadata ledger，保持现有 arithmetic 行为，同时明确 `ContinuousEffectState` 只是 snapshot/report view，不是完整 LayerEngine。A 侧验收 focused LayerEngine foundation guard 11/11、adjacent power/layer/equipment regression 141/141、backend full 4447/4447、`git diff --check` 通过。frontend、card matrix JSON、broad PaymentEngine、battle lifecycle/task queue 语义重写、equipment runtime 广泛改造、full official / READY 与 `riftbound-dotnet.sln` 未触碰；4D-04L-B 写锁已关闭。本批不关闭 P1-001、P1-002、full official 或 READY。
 - 4D-04K-B Equipment state profile alignment / verifier 已由 B-Implementation / Meitner `019e2c13-5b3b-7750-9971-08cf68b074f2` 实现并由 A 验收，入口为 `docs/CURRENT_STAGE4D_04K_EQUIPMENT_STATE_PROFILE_ALIGNMENT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04K_EQUIPMENT_STATE_PROFILE_ALIGNMENT_EVIDENCE.md`。`CardEquipmentKeywordRules.cs` 现在显式记录 Long Sword P5 equipment state representative manifest，绑定 owner/controller/attachment invariant、controller mismatch no-mutation、controlled opponent-owned target attach、attached equipment follows host base <-> battlefield、host destroyed detach/recall 等现有 verifier anchors；`CardCatalogBaselineTests.cs` 用反射确认这些 anchor 仍存在。A 侧验收 focused state/profile guard 12/12、adjacent equipment regression 195/195、`git diff --check` 通过。本批不改 runtime、frontend、card matrix、full official、P1-001、P1-002 或 READY；profile-verifier 写锁已关闭。
 - 4D-04J Equipment remaining breadth refresh / handoff 已建立，入口为 `docs/CURRENT_STAGE4D_04J_EQUIPMENT_REMAINING_BREADTH_REFRESH_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_04J_EQUIPMENT_REMAINING_BREADTH_REFRESH_BASELINE_EVIDENCE.md`。本批确认 4D-04I-B 后 equipment residual 不应继续写成一整块：现有 P5 representatives 已覆盖 Long Sword owner/controller attach invariant、controller mismatch rejection、controlled opponent-owned target attach、显式 attached equipment follows host、host destroyed detach / recall；A 侧 baseline focused state / keyword guard 11/11 通过。下一建议 4D-04K 是 profile / verifier alignment，不派发 B、不打开 runtime/test/frontend/matrix 写锁，不关闭 P1-001、P1-002、full official 或 READY。
@@ -55,8 +55,8 @@
 
 | Queue | Owner | Status | Purpose | Write scope | Must not touch |
 |---|---|---|---|---|---|
-| 4D-NEXT-A | A 主控 | 4D-04M handoff ready / paused | 记录 4D-04M LayerEngine minimum-power ledger handoff、baseline 与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs、新增 4D-04M handoff / baseline | runtime、tests、frontend runtime、card matrix JSON、full-official upgrade |
-| 4D-04M-B | B-Implementation | suggested / not dispatched | LayerEngine minimum-power power-modifier ledger exactness | no write lock yet; expected future scope would be `MatchSession.cs`, `CoreRuleEngine.cs`, focused tests | frontend runtime、card matrix JSON、broad PaymentEngine、battle lifecycle、wide equipment runtime、fullOfficial / READY、`riftbound-dotnet.sln` |
+| 4D-NEXT-A | A 主控 | 4D-04M-B accepted / paused after batch | 记录 4D-04M LayerEngine minimum-power ledger B 验收、写锁关闭与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs、新增 4D-04M audit / evidence | runtime、tests、frontend runtime、card matrix JSON、full-official upgrade |
+| 4D-04M-B | B-Implementation / Meitner `019e2c13-5b3b-7750-9971-08cf68b074f2` | Implemented and A-validated | LayerEngine minimum-power power-modifier ledger exactness | completed narrow runtime / focused-test diff in `MatchSession.cs`, `CoreRuleEngine.cs`, `ConformanceFixtureRunnerTests.cs` | frontend runtime、card matrix JSON、broad PaymentEngine、battle lifecycle、wide equipment runtime、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-04L-B | B-Implementation / Meitner `019e2c13-5b3b-7750-9971-08cf68b074f2` | Implemented and A-validated | LayerEngine foundation / source-aware power modifier ledger | completed narrow runtime / focused-test diff in `MatchSession.cs`, `CoreRuleEngine.cs`, `SwitcherooGuardTests.cs` | frontend runtime、card matrix JSON、broad PaymentEngine、battle lifecycle/task queue rewrite、wide equipment runtime、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-04K-B | B-Implementation / Meitner `019e2c13-5b3b-7750-9971-08cf68b074f2` | Implemented and A-validated | Equipment state representative profile alignment / verifier | completed profile / focused-test diff in `CardEquipmentKeywordRules.cs` and `CardCatalogBaselineTests.cs` | runtime semantics、frontend runtime、card matrix JSON、broad LayerEngine、PaymentEngine、battle lifecycle、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-04I-B | B-Implementation / Meitner `019e2c13-5b3b-7750-9971-08cf68b074f2` | Implemented and A-validated | Ornn dynamic friendly-equipment static recompute representative | completed narrow runtime / focused tests | frontend runtime、card matrix JSON、broad LayerEngine、unrelated equipment statics、PaymentEngine、battle lifecycle、`riftbound-dotnet.sln` |
@@ -83,7 +83,7 @@
 
 ## 3. Exclusive Writelocks
 
-- 4D-04M is A-side handoff / baseline only. No B worker is dispatched; no runtime, test, frontend or matrix write lock is open.
+- 4D-04M-B LayerEngine minimum-power ledger exactness runtime / focused-test write lock is closed after A validation and commit-ready evidence. Frontend runtime, card matrix JSON, broad PaymentEngine, battle lifecycle/task queue semantic rewrites, wide equipment runtime, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
 - 4D-04L-B LayerEngine foundation runtime / focused-test write lock is closed after A validation and commit-ready evidence. Frontend runtime, card matrix JSON, broad PaymentEngine, battle lifecycle/task queue semantic rewrites, wide equipment runtime, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
 - 4D-04K-B profile-verifier write lock is closed after A validation and commit-ready evidence. Runtime semantics, frontend, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
 - 4D-04J is A-side handoff / baseline only. No B worker is dispatched; no runtime, test, frontend or matrix write lock is open.
@@ -107,18 +107,21 @@
 - E returns to read-only after 4D-03AT. The matrix must not be upgraded to `fullOfficial=true` for Azir, Maduli, Ezreal or other latest representatives merely because focused runtime evidence passed.
 - No parallel task may edit card matrix JSON, frontend stores, `ActionPrompt` contracts, battle state machine, stack, cleanup, hidden-info redaction, or E2E fixtures without an explicit owner and a fresh write-lock note.
 
-## 3.1 4D-04M-A Handoff Gate Accepted
+## 3.1 4D-04M-B Acceptance Gate Accepted
 
-A-side handoff is accepted because A verified all of the following:
+A accepts the 4D-04M-B diff because all of the following are true:
 
 1. Current repo state remains on `main` with only expected untracked `riftbound-dotnet.sln`.
 2. 4D-04L-B is already accepted and its runtime / focused-test write lock is closed.
-3. P1-001 remains open because ledger-backed `ContinuousEffectState` now tracks source/effect metadata, but minimum-power floor details are still only clearly visible in event payloads, not in ledger-backed snapshot metadata.
-4. The next suggested B slice is narrowed to requested/applied/minimum/resulting metadata exactness for `MinimumPowerAfterModifier > 0` representatives, not a broad LayerEngine rewrite.
-5. Current minimum-power representatives and 4D-04L ledger guards are green before any B diff.
-6. Timestamp, dependency, source ordering, keyword gain/loss, multiple equipment/static aura interactions, complete minimum-power ordering, full official coverage and READY remain open.
+3. `PowerModifierLedgerEntry.PowerDelta` remains applied delta, while `RequestedPowerDelta`, `MinimumPower` and `ResultingPower` preserve the minimum-power floor audit metadata.
+4. `CoreRuleEngine.ApplyPowerModifier` keeps existing `Power` / `UntilEndOfTurnPowerModifier` arithmetic and only appends ledger entries when applied delta is nonzero.
+5. Blastcone Sprout now verifies requested `-2`, applied `-1`, minimum `1` and resulting `1` in state, continuous effect and snapshot metadata.
+6. Extortion applied-zero floor path keeps no-mutation compatibility and does not create a misleading zero-delta continuous effect view.
+7. Existing Switcheroo source/effect metadata, minimum-power representatives and adjacent power/layer regressions remain green.
+8. Forbidden surfaces remain locked: frontend runtime, card matrix JSON, broad PaymentEngine, battle lifecycle/task queue semantics, wide equipment runtime, fullOfficial / READY and `riftbound-dotnet.sln`.
+9. Timestamp, dependency, source ordering, keyword gain/loss, multiple equipment/static aura interactions, complete minimum-power ordering, full official coverage and READY remain open.
 
-A-side baseline commands:
+A-side accepted commands:
 
 ```sh
 source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysBlastconeSproutPowerMinusTwoFloor|FullyQualifiedName~CoreRuleEnginePlaysSiphonEnergyBattlefieldPowerSplit|FullyQualifiedName~CoreRuleEnginePlaysThousandTailedWatcherAllEnemyUnitsMinus3|FullyQualifiedName~CoreRuleEnginePlaysSmokeBombPowerFloorThroughStack|FullyQualifiedName~CoreRuleEngineExpiresSmokeBombPowerFloorAtEndTurn|FullyQualifiedName~CoreRuleEnginePlaysExtortionPowerFloorDrawThroughStack|FullyQualifiedName~P4HasteOptionalReadyBranchPaysManaAndPowerForThousandTailedWatcher|FullyQualifiedName~MatchStateExposesContinuousEffectPowerLayerViews|FullyQualifiedName~SwitcherooSwapsTwoPublicBattlefieldUnitPowersUntilEndOfTurn"
@@ -133,6 +136,12 @@ git diff --check
 ```
 
 Result: **focused minimum-power foundation guard 9/9 passed; adjacent power / layer / minimum regression 16/16 passed; git diff --check passed**.
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
+```
+
+Result: **backend full 4447/4447 passed**.
 
 ## 3.2 4D-04L-B Acceptance Gate Accepted
 

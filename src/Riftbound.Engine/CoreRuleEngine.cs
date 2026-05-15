@@ -36272,12 +36272,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             ? Math.Max(behavior.MinimumPowerAfterModifier, rawResultingPower)
             : rawResultingPower;
         var appliedPowerDelta = resultingPower - previousPower;
-        var nextTargetState = targetState with
-        {
-            Power = resultingPower,
-            UntilEndOfTurnPowerModifier = targetState.UntilEndOfTurnPowerModifier
-                + appliedPowerDelta,
-            UntilEndOfTurnPowerModifiers = targetState.UntilEndOfTurnPowerModifiers
+        var powerModifierLedger = appliedPowerDelta == 0
+            ? targetState.UntilEndOfTurnPowerModifiers
+            : targetState.UntilEndOfTurnPowerModifiers
                 .Append(new PowerModifierLedgerEntry(
                     BuildPowerModifierLedgerEffectId(stackItem, targetObjectId, behavior, appliedPowerDelta, targetState),
                     behavior.EffectKind,
@@ -36288,8 +36285,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                     appliedPowerDelta,
                     resultingPower - (targetState.UntilEndOfTurnPowerModifier + appliedPowerDelta),
                     resultingPower,
-                    "CoreRuleEngine.ApplyPowerModifier"))
-                .ToArray()
+                    "CoreRuleEngine.ApplyPowerModifier",
+                    powerModifierAmount,
+                    behavior.MinimumPowerAfterModifier,
+                    resultingPower))
+                .ToArray();
+        var nextTargetState = targetState with
+        {
+            Power = resultingPower,
+            UntilEndOfTurnPowerModifier = targetState.UntilEndOfTurnPowerModifier
+                + appliedPowerDelta,
+            UntilEndOfTurnPowerModifiers = powerModifierLedger
         };
         nextTargetState = ApplyOgnFioraPowerfulKeywordTags(nextTargetState);
         powerEvent = new GameEvent(
