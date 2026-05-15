@@ -1,13 +1,14 @@
 # Stage 4D Next Dispatch and Writelocks
 
 日期：2026-05-15
-结论：**4D-04D TEMPERED OPTIONAL ATTACH ACCEPTED / WRITELOCK CLOSED / PROJECT NOT READY**
+结论：**4D-04E JAX TEMPERED OPTIONAL ATTACH TRIGGER ACCEPTED / WRITELOCK CLOSED / PROJECT NOT READY**
 
 本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance / baseline 归档，不实现 runtime，不修改前端，不修改测试代码，不升级 full-official。当前 active goal 仍未完成，不得调用 `update_goal complete`。
 
 ## 1. 输入事实
 
 - 当前分支为 `main`，仓库当前只保留未跟踪 `riftbound-dotnet.sln`；该文件不得被本批任务触碰或纳入提交。
+- 4D-04E Jax Tempered optional attach trigger 已由 B-Implementation / Bacon `019e2ba3-4b9a-7710-a702-1e8e28ecd8ea` 实现并由 A 验收，入口为 `docs/CURRENT_STAGE4D_04E_JAX_TEMPERED_OPTIONAL_ATTACH_TRIGGER_HANDOFF.md`、`docs/CURRENT_STAGE4D_04E_JAX_TEMPERED_OPTIONAL_ATTACH_TRIGGER_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04E_JAX_TEMPERED_OPTIONAL_ATTACH_TRIGGER_EVIDENCE.md`。服务端现在允许 `SFD·119/221` / `SFD·119a/221` Jax 从手牌 `PLAY_CARD` 时选择己方已在场 `SFD·186/221`《旋转飞斧》作为零额外费用 `TEMPERED_ATTACH:<equipmentObjectId>` 代表路径；结算时重验合法后设置《旋转飞斧》`AttachedToObjectId` 为 Jax，并复用既有 `JAX_WEAPON_ATTACH_PAY_1_DRAW_1` 打开 `TRIGGER_PAYMENT`。A 侧验证 focused / keyword guard 41/41、adjacent equipment / payment regression 243/243、backend full 4397/4397、`git diff --check` 通过。本批不关闭 full `百炼`、Ornn / Akshan / Armed Assaulter、owner/controller changes、attach lifecycle breadth、LayerEngine、frontend、card matrix JSON、P1-002 或 READY。
 - 4D-04D Tempered optional attach 已由 B-Implementation / Bacon `019e2ba3-4b9a-7710-a702-1e8e28ecd8ea` 实现并由 A 验收，入口为 `docs/CURRENT_STAGE4D_04D_TEMPERED_OPTIONAL_ATTACH_HANDOFF.md`、`docs/CURRENT_STAGE4D_04D_TEMPERED_OPTIONAL_ATTACH_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04D_TEMPERED_OPTIONAL_ATTACH_EVIDENCE.md`。服务端现在允许 `SFD·008/221`《哨兵好手》从手牌 `PLAY_CARD` 时选择己方已在场 `SFD·186/221`《旋转飞斧》作为零额外费用 `TEMPERED_ATTACH:<equipmentObjectId>` 代表路径；结算时重验合法后设置 `AttachedToObjectId` 并发出 `EQUIPMENT_ATTACHED` / `TEMPERED_OPTIONAL_ATTACH`。A 侧验证 focused / keyword guard 14/14、adjacent equipment regression 139/139、backend full 4380/4380、`git diff --check` 通过。frontend、card matrix JSON、full `百炼`、Jax / Ornn / Akshan / Armed Assaulter special branches、LayerEngine、PaymentEngine broad refactor、battle lifecycle 与 `riftbound-dotnet.sln` 未触碰。P1-002、full-card matrix、frontend final validation 与 READY 均未关闭。
 - 4D-04C Agile equipment direct attach 已由 B-Implementation / Singer `019e2b7e-8eed-7803-b03a-ab9bf538171c` 实现并由 A 验收，入口为 `docs/CURRENT_STAGE4D_04C_AGILE_EQUIPMENT_DIRECT_ATTACH_HANDOFF.md`、`docs/CURRENT_STAGE4D_04C_AGILE_EQUIPMENT_DIRECT_ATTACH_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04C_AGILE_EQUIPMENT_DIRECT_ATTACH_EVIDENCE.md`。服务端现在让 `SFD·022/221`、`SFD·056/221`、`SFD·064/221`、`SFD·186/221` 从手牌 `PLAY_CARD` 时公开/校验己方单位目标，并在结算时贴附到目标单位。A 侧验证 focused 57/57、rejected/shape 113/113、adjacent 207/207、keyword guard 17/17、historical recheck 6/6、backend full 4368/4368、`git diff --check` 通过。frontend、card matrix JSON、broad equipment rewrite、LayerEngine、battle lifecycle、PaymentEngine broad refactor、Azir/Maduli/Ezreal historical slices 与 `riftbound-dotnet.sln` 未触碰。P1-002、full-card matrix、frontend final validation 与 READY 均未关闭。
 - 4D-04B Equipment keyword status split 已由 B-Implementation / Confucius `019e2b70-60f0-7a50-9a95-dd497c62ff96` 实现并由 A 验收，入口为 `docs/CURRENT_STAGE4D_04B_EQUIPMENT_KEYWORD_STATUS_SPLIT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_04B_EQUIPMENT_KEYWORD_STATUS_SPLIT_EVIDENCE.md`。写锁仅覆盖 `CardEquipmentKeywordRules.cs`、`MatchSession.cs`、`CardCatalogBaselineTests.cs`；frontend、card matrix JSON、broad equipment rewrite、LayerEngine 与 `riftbound-dotnet.sln` 未触碰。A 侧验证 focused 4/4、adjacent 98/98、broader keyword 8/8、backend full 4355/4355、`git diff --check` 通过。P1-002、LayerEngine、full-card matrix、frontend final validation 与 READY 均未关闭。
@@ -45,7 +46,8 @@
 
 | Queue | Owner | Status | Purpose | Write scope | Must not touch |
 |---|---|---|---|---|---|
-| 4D-NEXT-A | A 主控 | 4D-04D accepted / paused | 记录 4D-04D handoff、B 写锁、A validation 与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs | frontend runtime、card matrix JSON、full-official upgrade |
+| 4D-NEXT-A | A 主控 | 4D-04E accepted / paused | 记录 4D-04E handoff、B 写锁、A validation 与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs | frontend runtime、card matrix JSON、full-official upgrade |
+| 4D-04E-B | B-Implementation / Bacon `019e2ba3-4b9a-7710-a702-1e8e28ecd8ea` | Implemented and A-validated | Jax `百炼` optional attach to Spinning Axe opens existing weapon-attach trigger payment | completed narrow runtime / focused tests / profile guard | frontend runtime、card matrix JSON、full `百炼`、Ornn / Akshan / Armed Assaulter branches、LayerEngine、PaymentEngine broad refactor、battle lifecycle、`riftbound-dotnet.sln` |
 | 4D-04D-B | B-Implementation / Bacon `019e2ba3-4b9a-7710-a702-1e8e28ecd8ea` | Implemented and A-validated | `SFD·008/221` `百炼` optional attach to `SFD·186/221` representative | completed narrow runtime / focused tests / profile guard | frontend runtime、card matrix JSON、full `百炼`、Jax / Ornn / Akshan / Armed Assaulter special branches、LayerEngine、PaymentEngine broad refactor、battle lifecycle、`riftbound-dotnet.sln` |
 | 4D-04C-B | B-Implementation / Singer `019e2b7e-8eed-7803-b03a-ab9bf538171c` | Implemented and A-validated | printed Agile equipment direct-play attach representative | completed narrow runtime / focused tests / fixture migration | frontend runtime、card matrix JSON、broad equipment rewrite、LayerEngine、battle lifecycle、PaymentEngine broad refactor、Azir/Maduli/Ezreal historical slices、`riftbound-dotnet.sln` |
 | 4D-04B-B | B-Implementation / Confucius `019e2b70-60f0-7a50-9a95-dd497c62ff96` | Implemented and A-validated | equipment keyword execution-boundary status split | completed narrow code/test diff | frontend runtime、card matrix JSON、broad equipment runtime rewrite、LayerEngine、`riftbound-dotnet.sln` |
@@ -65,6 +67,7 @@
 
 ## 3. Exclusive Writelocks
 
+- 4D-04E-B runtime / focused-test write lock is closed after A validation and commit-ready evidence.
 - 4D-04D-B runtime / focused-test write lock is closed after A validation and commit-ready evidence.
 - 4D-04C-B runtime / focused-test write lock is closed after A validation and commit-ready evidence.
 - 4D-04B-B code / focused-test write lock is closed after A validation and commit-ready evidence.
@@ -80,7 +83,38 @@
 - E returns to read-only after 4D-03AT. The matrix must not be upgraded to `fullOfficial=true` for Azir, Maduli, Ezreal or other latest representatives merely because focused runtime evidence passed.
 - No parallel task may edit card matrix JSON, frontend stores, `ActionPrompt` contracts, battle state machine, stack, cleanup, hidden-info redaction, or E2E fixtures without an explicit owner and a fresh write-lock note.
 
-## 4. 4D-04D-B Acceptance Gate Accepted
+## 4. 4D-04E-B Acceptance Gate Accepted
+
+B implementation is accepted because A verified all of the following:
+
+1. Server prompt metadata exposes `TEMPERED_ATTACH:<equipmentObjectId>` for Jax `SFD·119/221` and `SFD·119a/221` only when legal controlled `SFD·186/221` exists.
+2. Missing object, enemy object, non-equipment object, wrong-card object, hand / deck / graveyard object, face-down object, stale object or wrong-controller object is rejected no-mutation.
+3. Legal command preserves existing `PLAY_CARD` no-target payment / stack behavior and records the optional cost on the stack item.
+4. Stack resolution rechecks the selected armament; if still legal, the Jax unit enters base and the selected `SFD·186/221` gets `AttachedToObjectId=sourceObjectId`.
+5. Resolution emits `EQUIPMENT_ATTACHED` with auditable `TEMPERED_OPTIONAL_ATTACH` payload and opens exactly one `TRIGGER_PAYMENT` pending payment for `JAX_WEAPON_ATTACH_PAY_1_DRAW_1`.
+6. Pay 1 draws 1 and closes the window; decline closes with no draw; insufficient payment rejects and keeps the window without drawing.
+7. If the selected equipment becomes stale before resolution, Jax still enters base but attach and payment window are skipped.
+8. Existing `TemperedEquipmentOptionalAttachTests`, `TriggerPaymentTests` Jax assemble path, Agile direct attach, AssembleEquipment, Take Up and Azir reattach representative tests remain green.
+9. The slice does not update frontend runtime, card matrix JSON, P1-002 status or READY.
+
+A-side accepted commands:
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~JaxTemperedOptionalAttach|FullyQualifiedName~TemperedEquipmentOptionalAttachTests|FullyQualifiedName~JaxWeaponAttach|FullyQualifiedName~P4EquipmentKeywordProfilesMapOfficialTextToRegistryTags|FullyQualifiedName~KeywordCoverageReportExposesDeferredKeywordFamilies"
+```
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~AssembleEquipment|FullyQualifiedName~TakeUp|FullyQualifiedName~AgileEquipmentDirectPlayAttachTests|FullyQualifiedName~AzirSwiftSwap|FullyQualifiedName~TriggerPaymentTests|FullyQualifiedName~PaymentEngine"
+```
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
+git diff --check
+```
+
+Result: **focused / keyword guard 41/41 passed; adjacent equipment / payment regression 243/243 passed; backend full 4397/4397 passed; git diff --check passed**.
+
+## 5. 4D-04D-B Acceptance Gate Accepted
 
 B implementation is accepted because A verified all of the following:
 
@@ -91,7 +125,7 @@ B implementation is accepted because A verified all of the following:
 5. Resolution emits `EQUIPMENT_ATTACHED` with auditable Tempered optional attach payload and reason `TEMPERED_OPTIONAL_ATTACH`.
 6. The no-optional `SFD·008/221` path remains green and does not attach equipment.
 7. Existing assemble, Take Up, Agile direct attach, Azir reattach, Jax weapon attach and equipment cleanup representative tests remain green.
-8. Keyword profile/report language says `百炼` has one optional attach representative while full printed tempered breadth, Jax trigger integration, dynamic colored costs, owner/controller changes, static modifiers, attach lifecycle, LayerEngine and full official breadth remain deferred.
+8. Keyword profile/report language says `百炼` has one optional attach representative while full printed tempered breadth, dynamic colored costs, owner/controller changes, static modifiers, attach lifecycle, LayerEngine and full official breadth remain deferred. As of 4D-04D, Jax trigger integration was still deferred; 4D-04E later closed only the narrow Jax + Spinning Axe trigger-payment representative.
 9. The slice does not update frontend runtime, card matrix JSON, P1-002 status or READY.
 
 A-side accepted commands:
@@ -115,7 +149,7 @@ git diff --check
 
 Result: **backend full 4380/4380 passed; git diff --check passed**.
 
-## 5. 4D-04C-B Acceptance Gate Accepted
+## 6. 4D-04C-B Acceptance Gate Accepted
 
 B implementation is accepted because A verified all of the following:
 
@@ -150,7 +184,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
 git diff --check
 ```
 
-## 6. 4D-03AS-B Historical Acceptance Gate Accepted
+## 7. 4D-03AS-B Historical Acceptance Gate Accepted
 
 B implementation is accepted because A verified all of the following:
 
@@ -178,7 +212,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
 git diff --check
 ```
 
-## 7. 4D-03AR-B Historical Acceptance Gate Accepted
+## 8. 4D-03AR-B Historical Acceptance Gate Accepted
 
 B implementation is accepted because A verified all of the following:
 
@@ -205,7 +239,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
 git diff --check
 ```
 
-## 8. 4D-03AQ-B Historical Acceptance Gate
+## 9. 4D-03AQ-B Historical Acceptance Gate
 
 B test-only verifier is acceptable only if A can verify all of the following:
 
@@ -229,7 +263,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
 git diff --check
 ```
 
-## 9. 4D-03AP-B Historical Acceptance Gate
+## 10. 4D-03AP-B Historical Acceptance Gate
 
 B implementation / test guard is acceptable only if A can verify all of the following:
 
@@ -256,7 +290,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
 git diff --check
 ```
 
-## 10. 4D-03AO-B Historical Acceptance Gate
+## 11. 4D-03AO-B Historical Acceptance Gate
 
 B implementation is acceptable only if A can verify all of the following:
 
@@ -286,7 +320,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
 git diff --check
 ```
 
-## 11. C / E Preflight Boundaries
+## 12. C / E Preflight Boundaries
 
 C may prepare a final validation checklist, but must not turn historical frontend evidence into final READY evidence. Final frontend validation still requires fresh runs in the final code state:
 
@@ -299,6 +333,6 @@ source ../../scripts/dev-env.sh && npm run e2e:formal-18 -- --start-api
 
 E may identify matrix rows and official text blockers for Azir / Ezreal, but must not update `fullOfficial` status until A accepts runtime, rules evidence, tests, residual handling and FAQ review.
 
-## 12. Current Batch Stop Point
+## 13. Current Batch Stop Point
 
-This record stops after accepting 4D-04D Tempered optional attach and closing the B write lock. The project remains **NOT READY**. No frontend, matrix, runtime or test write window remains open, and `riftbound-dotnet.sln` remains untouched.
+This record stops after accepting 4D-04E Jax Tempered optional attach trigger integration and closing the B runtime / focused-test write lock. The project remains **NOT READY**. No frontend, matrix, runtime or test write window remains open, and `riftbound-dotnet.sln` remains untouched.

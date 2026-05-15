@@ -23949,13 +23949,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                 && nextStack.Length == 0
                 && queuedTriggers.Length == 0)
             {
-                TryOpenSfdFioraPowerfulReadyPaymentWindowFromEvents(
-                    resolvedPlayerZones,
-                    resolvedCardObjects,
-                    resolvedRunePools,
-                    stackResolutionEvents,
-                    state.Tick + 1,
-                    out pendingPayment);
+                pendingPayment = stackResolution.PendingPayment;
+                if (pendingPayment is null)
+                {
+                    TryOpenSfdFioraPowerfulReadyPaymentWindowFromEvents(
+                        resolvedPlayerZones,
+                        resolvedCardObjects,
+                        resolvedRunePools,
+                        stackResolutionEvents,
+                        state.Tick + 1,
+                        out pendingPayment);
+                }
             }
 
             var returnsToSpellDuel = pendingHandChoice is null
@@ -29477,7 +29481,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsTemperedOptionalAttachRepresentative(CardBehaviorDefinition behavior)
     {
         return behavior.PlaysSourceToBaseAsUnit
-            && string.Equals(behavior.CardNo, SentinelAdeptCardNo, StringComparison.Ordinal)
             && CardEquipmentKeywordRules.IsTemperedOptionalAttachRepresentativeCardNo(behavior.CardNo);
     }
 
@@ -29858,6 +29861,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         int? drawCountOverride = null;
         var preventDamageFromThisStackItem = ShouldPreventSpellOrSkillDamage(state, behavior);
         StackItemState[]? updatedStackItems = null;
+        PendingPaymentState? pendingPayment = null;
 
         if (behavior.PlaysSourceToBaseAsEquipment)
         {
@@ -29909,9 +29913,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                     cardObjects,
                     behavior,
                     stackItem,
-                    out var temperedAttachmentEvent))
+                    state.Tick + 1,
+                    events,
+                    out var temperedPendingPayment))
             {
-                events.Add(temperedAttachmentEvent);
+                pendingPayment = temperedPendingPayment;
             }
 
             if (TryResolveBattlefieldPlayUnitPayOneBoonTrigger(
@@ -32516,7 +32522,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .ToArray(),
             extraTurnPlayerId,
             triggerQueue,
-            rngCursor);
+            rngCursor,
+            PendingPayment: pendingPayment);
     }
 
     private static StackResolutionResult ResolveWatchfulSentinelLastBreathStackItem(
@@ -35236,9 +35243,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         Dictionary<string, CardObjectState> cardObjects,
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
-        out GameEvent attachmentEvent)
+        long paymentTick,
+        List<GameEvent> events,
+        out PendingPaymentState? pendingPayment)
     {
-        attachmentEvent = default!;
+        pendingPayment = null;
         var equipmentObjectId = TemperedOptionalAttachEquipmentObjectId(stackItem.OptionalCosts);
         if (!IsTemperedOptionalAttachRepresentative(behavior)
             || string.IsNullOrWhiteSpace(equipmentObjectId)
@@ -35263,7 +35272,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             AttachedToObjectId = stackItem.SourceObjectId
         };
-        attachmentEvent = new GameEvent(
+        events.Add(new GameEvent(
             "EQUIPMENT_ATTACHED",
             $"{behavior.DisplayName}以百炼装配武装",
             new Dictionary<string, object?>
@@ -35278,7 +35287,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["attachedToObjectId"] = stackItem.SourceObjectId,
                 ["reason"] = "TEMPERED_OPTIONAL_ATTACH",
                 ["optionalCosts"] = stackItem.OptionalCosts.ToArray()
-            });
+            }));
+        TryOpenJaxWeaponAttachPaymentWindow(
+            playerZones,
+            cardObjects,
+            stackItem.ControllerId,
+            stackItem.SourceObjectId,
+            equipmentObjectId,
+            paymentTick,
+            events,
+            out pendingPayment);
         return true;
     }
 
@@ -40134,7 +40152,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<TriggerQueueItemState> TriggerQueue,
         long RngCursor,
         PendingHandChoiceState? PendingHandChoice = null,
-        IReadOnlyDictionary<string, ObjectLocationState>? ObjectLocations = null);
+        IReadOnlyDictionary<string, ObjectLocationState>? ObjectLocations = null,
+        PendingPaymentState? PendingPayment = null);
 
     private sealed record RecycleResult(
         IReadOnlyList<GameEvent> Events,

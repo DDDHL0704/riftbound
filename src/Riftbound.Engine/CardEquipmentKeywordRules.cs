@@ -52,7 +52,9 @@ public static class CardEquipmentKeywordRules
 
     private static readonly HashSet<string> TemperedOptionalAttachRepresentativeCardNos =
     [
-        "SFD·008/221"
+        "SFD·008/221",
+        "SFD·119/221",
+        "SFD·119a/221"
     ];
 
     public static bool IsAgileDirectPlayAttachRepresentativeCardNo(string? cardNo)

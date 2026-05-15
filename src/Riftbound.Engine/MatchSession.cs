@@ -7831,7 +7831,6 @@ internal static class ActionPromptBuilder
     private static bool IsTemperedOptionalAttachRepresentative(CardBehaviorDefinition behavior)
     {
         return behavior.PlaysSourceToBaseAsUnit
-            && string.Equals(behavior.CardNo, SentinelAdeptCardNo, StringComparison.Ordinal)
             && CardEquipmentKeywordRules.IsTemperedOptionalAttachRepresentativeCardNo(behavior.CardNo);
     }
 
@@ -9587,7 +9586,7 @@ internal static class ActionPromptBuilder
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .Select(objectId =>
             {
-                var choice = ObjectChoice(state, objectId, "implemented Sentinel Adept tempered optional attach");
+                var choice = ObjectChoice(state, objectId, "implemented tempered optional attach");
                 return new ActionPromptChoiceDto(
                     $"{TemperedOptionalAttachPrefix}{objectId}",
                     $"百炼装配：{choice.Label}",

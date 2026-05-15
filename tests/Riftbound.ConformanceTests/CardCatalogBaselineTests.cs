@@ -2147,6 +2147,16 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("full tempered official breadth", sentinelAdept.Reason, StringComparison.Ordinal);
         Assert.Contains("deferred", sentinelAdept.Reason, StringComparison.OrdinalIgnoreCase);
 
+        foreach (var jaxCardNo in new[] { "SFD·119/221", "SFD·119a/221" })
+        {
+            var jax = BuildEquipmentProfile(specs, jaxCardNo, CardEquipmentKeywordNames.Tempered);
+            Assert.True(jax.HasTempered);
+            Assert.True(jax.HasImplementedRepresentativeTemperedOptionalAttachBoundary);
+            Assert.Equal(EquipmentKeywordProfileStatuses.RecognizedDeferred, jax.Status);
+            Assert.Contains("Tempered optional attach", jax.Reason, StringComparison.Ordinal);
+            Assert.Contains("full tempered official breadth", jax.Reason, StringComparison.Ordinal);
+        }
+
         var ornn = BuildEquipmentProfile(specs, "SFD·085/221", CardEquipmentKeywordNames.Tempered);
         Assert.True(ornn.HasTempered);
         Assert.False(ornn.HasWeapon);
