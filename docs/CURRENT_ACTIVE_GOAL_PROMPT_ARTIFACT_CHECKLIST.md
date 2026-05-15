@@ -25,10 +25,10 @@
 ## 2. 本次检查过的证据
 
 - `git status --short --branch`：当前 `main`，仅 `riftbound-dotnet.sln` 未跟踪。
-- `git log --oneline -6`：本 checklist 建立后又新增 4D-03AM / 4D-03AN handoff、dispatch、matrix readiness、frontend preflight，并验收 Azir、Maduli、4D-03AO Ezreal、4D-03AP Rek'Sai 与 4D-03AQ HASTE_READY coverage verifier focused slices；后续 checkpoint 以 `CURRENT_A_MASTER_CHECKPOINT.md` 顶部为准。
+- `git log --oneline -6`：本 checklist 建立后又新增 4D-03AM / 4D-03AN handoff、dispatch、matrix readiness、frontend preflight，并验收 Azir、Maduli、4D-03AO Ezreal、4D-03AP Rek'Sai 与 4D-03AQ HASTE_READY coverage verifier focused slices；当前又建立 4D-03AR Maduli cannot-ready static handoff / baseline；后续 checkpoint 以 `CURRENT_A_MASTER_CHECKPOINT.md` 顶部为准。
 - `git diff --check`：通过。
 - `docs/A_MASTER_AGENT_GOAL.md`：目标、阶段门槛、18 步 E2E、checkpoint 与 final audit 要求。
-- `docs/CURRENT_A_MASTER_CHECKPOINT.md`：最新 A-master 恢复入口与 4D-03AL 验收摘要。
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`：最新 A-master 恢复入口与 4D-03AR handoff / baseline 摘要。
 - `docs/CURRENT_COMPLETION_AUDIT.md`：当前 completion audit 结论仍为 NOT READY。
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`：当前 P1 与 full official rule residual risks。
 - `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`：P0/P1 closure plan 与剩余规则域。
@@ -51,11 +51,11 @@ fullOfficialFalse=811
 | 要求 | 必需 artifact / gate | 已检查证据 | 当前状态 | 缺口 / 下一步 |
 |---|---|---|---|---|
 | 按 `docs/A_MASTER_AGENT_GOAL.md` 管理 | A-master 目标文档必须存在并作为最高级本地交付口径 | `docs/A_MASTER_AGENT_GOAL.md` 已读取；goal 文本与该文件一致 | OK / ONGOING | 后续任何 READY 判断都必须回到本 checklist 与 final audit |
-| A 维护 checkpoint | `docs/CURRENT_A_MASTER_CHECKPOINT.md` 最新、可恢复、含当前结论 | 文件顶部记录 4D-03AQ HASTE_READY coverage verifier accepted、backend full 4341/4341、项目 NOT READY；本 checklist 已挂回 checkpoint | PARTIAL | 后续每批继续保持 checkpoint 同步 |
-| A 维护任务拆分 / 子 agent 分工 | A-master agent pool、写锁、下一步计划 | `A_MASTER_AGENT_GOAL.md` §7/§8；checkpoint 记录 A/B/C/D/E 职责；`CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已记录 4D-03AQ-B accepted / pause point | ONGOING | 当前批次可暂停；后续 runtime / docs / frontend / matrix 仍需逐批写锁 |
+| A 维护 checkpoint | `docs/CURRENT_A_MASTER_CHECKPOINT.md` 最新、可恢复、含当前结论 | 文件顶部记录 4D-03AR Maduli cannot-ready static handoff / baseline、61/61 与 371/371、项目 NOT READY；本 checklist 已挂回 checkpoint | PARTIAL | 后续每批继续保持 checkpoint 同步 |
+| A 维护任务拆分 / 子 agent 分工 | A-master agent pool、写锁、下一步计划 | `A_MASTER_AGENT_GOAL.md` §7/§8；checkpoint 记录 A/B/C/D/E 职责；`CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已记录 4D-03AR handoff ready / pause point | ONGOING | 当前批次可暂停；后续 runtime / docs / frontend / matrix 仍需逐批写锁 |
 | A 维护阻断清单 | P0/P1 closure plan 与 completion audit | `CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md` 仍列 P0-002/P0-003/P0-004/P0-005 与 P1 residuals | NOT MET | P0/P1 未清零 |
-| A 控制写入范围 | 不并行改核心模块；本批只改 test-only verifier 与 docs | 本批新增 `PaymentEngineCoverageAuditTests` HASTE_READY verifier，并更新 checkpoint / completion audit / closure plan / dispatch docs | OK FOR THIS SLICE | 后续 runtime / frontend / matrix 改动必须按 dispatch 文档独占 owner |
-| 默认不写功能代码 | 本批不修改 `src/**`、前端 runtime 或矩阵 JSON | `git diff --check` 通过；本批仅 test-only coverage verifier + doc audit | OK FOR THIS SLICE | 不代表后续功能缺口已解决 |
+| A 控制写入范围 | 不并行改核心模块；本批只改 docs | 本批新增 4D-03AR handoff / baseline，并更新 checkpoint / completion audit / server audit / closure plan / dispatch docs | OK FOR THIS SLICE | 后续 runtime / frontend / matrix 改动必须按 dispatch 文档独占 owner |
+| 默认不写功能代码 | 本批不修改 `src/**`、前端 runtime 或矩阵 JSON | `git diff --check` 通过；本批仅 A-side handoff / baseline / audit docs | OK FOR THIS SLICE | 不代表后续功能缺口已解决 |
 | 服务端唯一规则权威 | 服务端输出 authoritative snapshot、prompt、事件、规则裁决 | `CURRENT_SERVER_RULE_AUDIT.md` 与 Stage 4D docs 证明大量 representative server-authority paths | PARTIAL | full official battle / PaymentEngine / LayerEngine / card effects 仍未闭合 |
 | 前端只展示 authoritative snapshot | 前端不得持有隐藏信息或本地裁决规则 | `CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md` 断言页面不暴露 raw hidden-info 文本；frontend plan 多处记录不本地推断 | PARTIAL | 最终前端 contract audit 与 fresh Chrome smoke 仍需在 READY 前复跑 |
 | 前端只提交 `ActionPrompt` / `LegalAction` | UI 操作必须来自服务端 prompt | Stage 4D docs 多处记录 ActionPrompt / GameHub representative coverage | PARTIAL | 仍需最终全流程 frontend contract audit，不可用 representative coverage 代理 |
@@ -102,8 +102,8 @@ fullOfficialFalse=811
 
 | §13 item | 当前 evidence | 状态 |
 |---|---|---|
-| 1. 修改文件列表 | 本批修改 `PaymentEngineCoverageAuditTests.cs` 与 checkpoint / completion audit / closure plan / dispatch docs | DONE FOR THIS SLICE / NOT FINAL |
-| 2. 新增文件列表 | 新增 4D-03AQ audit / evidence docs | DONE FOR THIS SLICE / NOT FINAL |
+| 1. 修改文件列表 | 本批修改 checkpoint / completion audit / server audit / closure plan / dispatch / active checklist docs | DONE FOR THIS SLICE / NOT FINAL |
+| 2. 新增文件列表 | 新增 4D-03AR handoff / baseline docs | DONE FOR THIS SLICE / NOT FINAL |
 | 3. 服务端规则补齐项 | Stage 4D docs 记录大量 focused slices | PARTIAL |
 | 4. 前端页面完成项 | frontend rebuild plan 与 formal smoke 有历史证据 | PARTIAL |
 | 5. 接口契约说明 | ActionPrompt / LegalAction / snapshot 证据分散在 server audit 与 frontend plan | PARTIAL |
@@ -120,6 +120,7 @@ fullOfficialFalse=811
 ## 6. 不能作为 completion 代理的信号
 
 - `dotnet test` 4341/4341 通过不能替代 P0/P1 清零。
+- 4D-03AR Maduli cannot-ready handoff / baseline 61/61 与 371/371 通过不能替代 runtime implementation 或 full-official Maduli。
 - `PaymentEngineCoverageAuditTests` / HASTE_READY focused 105/105 通过不能替代完整 official PaymentEngine。
 - 4D-03AL resource skill manifest 覆盖 19 个 current representative ability ids，不能替代完整 `[A]` / `[C]` resource skill family。
 - formal 18-step pass 不能替代 strict battlefield contest / battle lifecycle / PaymentEngine / LayerEngine / full-card matrix。
@@ -130,4 +131,4 @@ fullOfficialFalse=811
 
 Active goal **未完成**。不得调用 `update_goal complete`。
 
-4D-03AQ HASTE_READY coverage verifier 已验收，但 full official Haste、Azir optional armament reattach、Maduli cannot-ready static、full swift / movement official breadth、P0-005 full official、frontend final fresh-run 与 full-card matrix 仍未闭合。卡牌覆盖矩阵必须等 P0/P1 规则域进一步收敛后，才能从 representative evidence 提升为 full-official coverage。
+4D-03AR Maduli cannot-ready static handoff / baseline 已建立，但 runtime 尚未实现；4D-03AQ HASTE_READY coverage verifier 已验收，但 full official Haste、Azir optional armament reattach、Maduli full-official status、full swift / movement official breadth、P0-005 full official、frontend final fresh-run 与 full-card matrix 仍未闭合。卡牌覆盖矩阵必须等 P0/P1 规则域进一步收敛后，才能从 representative evidence 提升为 full-official coverage。

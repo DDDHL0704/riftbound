@@ -1,13 +1,16 @@
 # Stage 4D Next Dispatch and Writelocks
 
 日期：2026-05-15
-结论：**4D-03AQ-B ACCEPTED / PAUSE POINT / PROJECT NOT READY**
+结论：**4D-03AR HANDOFF READY / PAUSE POINT / PROJECT NOT READY**
 
 本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance 归档，不实现 runtime，不修改前端，不修改测试代码，不修改 card matrix。当前 active goal 仍未完成，不得调用 `update_goal complete`。
 
 ## 1. 输入事实
 
 - 当前分支为 `main`，仓库当前只保留未跟踪 `riftbound-dotnet.sln`；该文件不得被本批任务触碰或纳入提交。
+- `docs/CURRENT_STAGE4D_03AR_GATEKEEPER_MADULI_CANNOT_READY_STATIC_HANDOFF.md` 已把下一枚 Gatekeeper Maduli static slice 锁定为 `UNL-144/219` 守门者马杜里 `我无法变为活跃状态。` cannot-ready representative。
+- `docs/CURRENT_STAGE4D_03AR_GATEKEEPER_MADULI_CANNOT_READY_STATIC_BASELINE_EVIDENCE.md` 已记录 implementation-before baseline：Maduli / Gatekeeper / CrimsonRose / HuntReadyGuardTests 61/61 通过；Maduli / Gatekeeper / CrimsonRose / HuntReadyGuardTests / ActivateAbility / PaymentEngine / ActionPrompt / GameHub / Priority 371/371 通过；`git diff --check` 通过。
+- 4D-03AR-B 尚未派发；当前批次只建立 A-side handoff / baseline / checkpoint，不打开 runtime 写锁。
 - `docs/CURRENT_STAGE4D_03AQ_PAYMENT_ENGINE_HASTE_READY_COVERAGE_VERIFIER_HANDOFF.md` 已把下一枚 P0-005 test-only guard 锁定为 implemented HASTE_READY registry/profile set 与 existing P4 fixture evidence 的 catalog-bound verifier。
 - `docs/CURRENT_STAGE4D_03AQ_PAYMENT_ENGINE_HASTE_READY_COVERAGE_VERIFIER_BASELINE_EVIDENCE.md` 已记录 implementation-before baseline：PaymentEngineCoverageAuditTests / HasteOptional / HasteReady 102/102 通过；PaymentEngineCoverageAuditTests / HasteOptional / HasteReady / PlayCard / ActionPrompt / GameHub / Priority 442/442 通过；`git diff --check` 通过。
 - 4D-03AQ-B 已派发并验收，B-Implementation / Halley `019e290f-73b2-7d62-a19e-2a252ad6ef2e` 的 `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` test-only 写锁已关闭；runtime、frontend、card matrix、broad Haste rewrite、battle lifecycle 与 `riftbound-dotnet.sln` 均未触碰。
@@ -29,7 +32,8 @@
 
 | Queue | Owner | Status | Purpose | Write scope | Must not touch |
 |---|---|---|---|---|---|
-| 4D-NEXT-A | A 主控 | 4D-03AQ accepted / pause point | 记录 4D-03AQ 任务、写锁、验收与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs | `src/**`、`tests/**`、frontend runtime、card matrix |
+| 4D-NEXT-A | A 主控 | 4D-03AR handoff ready / pause point | 记录 4D-03AR handoff、baseline、写锁与暂停点 | `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`、checkpoint / audit / closure docs | `src/**`、`tests/**`、frontend runtime、card matrix |
+| 4D-03AR-B | B-Implementation | Pending dispatch | 实现 Gatekeeper Maduli cannot-ready static representative | suggested: `CoreRuleEngine.cs` / `MatchSession.cs` / focused Maduli, Crimson Rose, Hunt tests | frontend runtime、card matrix JSON、broad LayerEngine rewrite、unrelated ready effects、HASTE_READY / swift timing、battle lifecycle、`riftbound-dotnet.sln` |
 | 4D-03AQ-B | B-Implementation / Halley `019e290f-73b2-7d62-a19e-2a252ad6ef2e` | Implemented and A-validated | 新增 HASTE_READY catalog-bound coverage verifier | completed focused verifier; no runtime changes | `src/**`、frontend runtime、card matrix JSON、broad Haste rewrite、strong/overflow、non-hand haste granting、LayerEngine、battle lifecycle、`riftbound-dotnet.sln` |
 | 4D-03AP-B | B-Implementation / Archimedes `019e2900-bcc5-7763-8f3a-db41a0aaa0a1` | Implemented and A-validated | 补强 Rek'Sai HASTE_READY red typed payment exactness focused tests / evidence | completed focused tests; no runtime changes | frontend runtime、card matrix JSON、broad Haste rewrite、strong/overflow、non-hand haste granting、LayerEngine、battle lifecycle、`riftbound-dotnet.sln` |
 | 4D-03AP-E | E-Review | Read-only readiness audit recorded in `docs/CURRENT_STAGE4D_03AP_CARD_MATRIX_READINESS_AUDIT.md` | 检查 Rek'Sai `FU-1945f6918c` matrix readiness and full-official blockers | card coverage docs in read-only mode | `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` unless A opens a future matrix write window |
@@ -43,6 +47,7 @@
 ## 3. Exclusive Writelocks
 
 - At this stop point, no runtime, frontend or matrix write lock remains open.
+- 4D-03AR-B is not dispatched yet; no runtime write lock is currently open for Maduli cannot-ready static.
 - 4D-03AQ-B test-only write lock is closed after A validation and commit-ready evidence.
 - 4D-03AP-B focused-test write lock is closed after A validation and commit-ready evidence.
 - 4D-03AO-B runtime / focused-test write lock is closed after A validation and commit.
@@ -51,7 +56,34 @@
 - E remains read-only until A accepts runtime evidence. The matrix must not be upgraded to `fullOfficial=true` for Ezreal while damage trigger, cannot-combat-damage static, swift timing or FAQ branches remain residual.
 - No parallel task may edit card matrix JSON, frontend stores, `ActionPrompt` contracts, battle state machine, stack, cleanup, hidden-info redaction, or E2E fixtures without an explicit owner and a fresh write-lock note.
 
-## 4. 4D-03AQ-B Acceptance Gate
+## 4. 4D-03AR-B Acceptance Gate
+
+B implementation is acceptable only if A can verify all of the following:
+
+1. Server runtime has an explicit `UNL-144/219` cannot-ready policy or helper, preferably reused by every ready path touched in this representative slice.
+2. Crimson Rose ready-unit prompt does not offer exhausted Maduli as a legal ready target.
+3. A hand-written or stale Crimson Rose ready-unit target cannot make Maduli active; resolution must leave `IsExhausted=true` and emit no Maduli `UNIT_READIED`.
+4. Hunt mass friendly ready, or an equivalent mass ready representative, readies other legal friendly units while skipping exhausted Maduli.
+5. 4D-03AN Maduli purple move prompt / command / typed payment / movement / stale no-effect tests remain green.
+6. Prompt metadata no longer claims Maduli cannot-ready static is `deferred` after implementation.
+7. The slice does not update frontend runtime, card matrix JSON, Maduli full-official status, P0/P1 status or READY.
+
+Suggested post-implementation commands:
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Maduli|FullyQualifiedName~Gatekeeper|FullyQualifiedName~CrimsonRose|FullyQualifiedName~HuntReadyGuardTests"
+```
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Maduli|FullyQualifiedName~Gatekeeper|FullyQualifiedName~CrimsonRose|FullyQualifiedName~HuntReadyGuardTests|FullyQualifiedName~ActivateAbility|FullyQualifiedName~PaymentEngine|FullyQualifiedName~ActionPrompt|FullyQualifiedName~GameHub|FullyQualifiedName~Priority"
+```
+
+```sh
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
+git diff --check
+```
+
+## 5. 4D-03AQ-B Historical Acceptance Gate
 
 B test-only verifier is acceptable only if A can verify all of the following:
 
@@ -75,7 +107,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
 git diff --check
 ```
 
-## 5. 4D-03AP-B Historical Acceptance Gate
+## 6. 4D-03AP-B Historical Acceptance Gate
 
 B implementation / test guard is acceptable only if A can verify all of the following:
 
@@ -102,7 +134,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
 git diff --check
 ```
 
-## 6. 4D-03AO-B Historical Acceptance Gate
+## 7. 4D-03AO-B Historical Acceptance Gate
 
 B implementation is acceptable only if A can verify all of the following:
 
@@ -132,7 +164,7 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
 git diff --check
 ```
 
-## 7. C / E Preflight Boundaries
+## 8. C / E Preflight Boundaries
 
 C may prepare a final validation checklist, but must not turn historical frontend evidence into final READY evidence. Final frontend validation still requires fresh runs in the final code state:
 
@@ -145,6 +177,6 @@ source ../../scripts/dev-env.sh && npm run e2e:formal-18 -- --start-api
 
 E may identify matrix rows and official text blockers for Ezreal, but must not update `fullOfficial` status until A accepts runtime, rules evidence, tests, residual handling and FAQ review.
 
-## 8. Current Batch Stop Point
+## 9. Current Batch Stop Point
 
-This record stops after accepting 4D-03AQ-B and is a pause point for the current batch. The project remains **NOT READY**. No frontend, matrix, runtime or test write window remains open, and `riftbound-dotnet.sln` remains untouched.
+This record stops after preparing 4D-03AR handoff / baseline and is a pause point for the current batch. The project remains **NOT READY**. No frontend, matrix, runtime or test write window remains open, 4D-03AR-B is not dispatched yet, and `riftbound-dotnet.sln` remains untouched.
