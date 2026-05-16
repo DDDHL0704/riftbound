@@ -24,8 +24,11 @@
 
 ## 2. 本次检查过的证据
 
+- `docs/CURRENT_STAGE4D_03DA_PAYMENT_ENGINE_TARGET_TYPED_ACTIVATED_ABILITY_OFFICIAL_RUNTIME_CARD_ROW_AUDIT.md` 与 evidence：确认 4D-03DA 已把 8 个 target-bearing / typed / experience / Spellshield-tax activated ability representatives 绑定到 focused verifier methods、`P4ActivatedAbilityCatalog.SourceCardNosForAbility` exact source-card groups、prompt / command / audit / outcome / rollback evidence 与 card matrix exact rows `fullOfficial=false`。
+- `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`：确认新增 `TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifest`，覆盖 Xerath、Renata draw / score、Azir、Gatekeeper Maduli、Ezreal、Crimson Rose、Shadow 与 11 张 exact source-card rows；focused 406/406、adjacent 666/666、backend full 4727/4727、`git diff --check` 通过。
+
 - `git status --short --branch`：当前 `main`，本批开始前只保留预期的 `riftbound-dotnet.sln` 未跟踪。
-- `git log --oneline -8`：4D-03CZ 本批开始前最新提交为 `2ad33e5b test: 固定 resource skill runtime card-row evidence`；本批打开 typed Sigil audit metadata 最小 runtime 写入，仍保留 `riftbound-dotnet.sln` 未跟踪。
+- `git log --oneline -8`：4D-03DA 本批开始前最新提交为 `d584df1d test: 固定 typed sigil runtime card-row audit`；本批保持 test/docs-only 写入，仍保留 `riftbound-dotnet.sln` 未跟踪。
 - `docs/CURRENT_STAGE4D_03CZ_PAYMENT_ENGINE_TYPED_SIGIL_RESOURCE_SKILL_RUNTIME_CARD_ROW_AUDIT.md` 与 evidence：确认 4D-03CZ 已把 12 张 `SFD` / `OGN` typed Sigil official resource-skill rows 绑定到 exact runtime profile、prompt sourceRequirements、command revalidation、`ABILITY_ACTIVATED` / `POWER_GAINED` source-card audit metadata、generated typed temporary resource lifetime、wrong-color / mana-only / wrong-print rollback 与 exact card matrix row `fullOfficial=false`；focused 219/219、adjacent 581/581、backend full 4723/4723 通过；frontend、Chrome / browser scripts、formal 18-step scripts、card matrix JSON、`fullOfficial` / READY 与 `riftbound-dotnet.sln` 未触碰。
 - `docs/CURRENT_STAGE4D_03CY_PAYMENT_ENGINE_RESOURCE_SKILL_RUNTIME_CARD_ROW_EVIDENCE_AUDIT.md` 与 evidence：确认 4D-03CY 已把 32 个 official resource-skill candidates 绑定到 03CX source-card parity、真实 focused verifier 类型/方法、03CV 六类 interaction dimensions 与 card matrix skeleton exact `cardNo` / `collectorId` row；focused 151/151、adjacent 710/710、backend full 4720/4720、`git diff --check` 通过；runtime、frontend、Chrome / browser scripts、formal 18-step scripts、card matrix JSON、`fullOfficial` / READY 与 `riftbound-dotnet.sln` 未触碰。
 - `docs/A_MASTER_AGENT_GOAL.md`：目标、阶段门槛、18 步 E2E、checkpoint 与 final audit 要求。
@@ -632,4 +635,4 @@ formal 18-step steps=18/18 OK
 
 Active goal **未完成**。不得调用 `update_goal complete`。
 
-当前最新 A-side 状态是 4D-03CX PaymentEngine resource skill official source-card runtime parity accepted。P0/P1 清零、full official PaymentEngine matrix、完整 target-bearing activated ability official family、完整 `[A]` / `[C]` resource-skill runtime/card-row interactions、完整 keyword payment branch parity、完整 card matrix alignment official closure、完整 cross-window generated-resource official closure、完整 rollback failure official closure、完整 LayerEngine、P1 keyword breadth、full-card matrix、final frontend rerun 与 final completion audit READY 仍未闭合。
+当前最新 A-side 状态是 4D-03DA PaymentEngine target / typed activated ability official runtime/card-row evidence accepted。P0/P1 清零、full official PaymentEngine matrix、完整 target-bearing activated ability official family、完整 `[A]` / `[C]` resource-skill runtime/card-row interactions、完整 keyword payment branch parity、完整 card matrix alignment official closure、完整 cross-window generated-resource official closure、完整 rollback failure official closure、完整 LayerEngine、P1 keyword breadth、full-card matrix、final frontend rerun 与 final completion audit READY 仍未闭合。

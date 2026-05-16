@@ -42,6 +42,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string ResourceSkillOfficialSourceCardRuntimeParity = "resource-skill-official-source-card-runtime-parity";
     private const string ResourceSkillOfficialRuntimeCardRowEvidence = "resource-skill-official-runtime-card-row-evidence";
     private const string TypedSigilOfficialRuntimeCardRowAudit = "typed-sigil-official-runtime-card-row-audit";
+    private const string TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidence = "target-typed-activated-ability-official-runtime-card-row-evidence";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
     [
@@ -3155,6 +3156,162 @@ public sealed class PaymentEngineCoverageAuditTests
             $"{runtimeRow.CardRowEvidence} 4D-03CZ keeps the exact typed Sigil row fullOfficial=false while adding executable source-card audit metadata.",
             "4D-03CZ typed Sigil runtime/card-row audit only; project remains NOT READY, P0-005 remains open, fullOfficial remains false, card matrix JSON remains unchanged and final readiness upgrade is forbidden.",
             [.. TypedSigilOfficialRuntimeCardRowAuditDocAnchors, .. runtimeRow.DocAnchors]);
+    }
+
+    private static readonly string[] TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceDocAnchors =
+    [
+        "docs/CURRENT_STAGE4D_03DA_PAYMENT_ENGINE_TARGET_TYPED_ACTIVATED_ABILITY_OFFICIAL_RUNTIME_CARD_ROW_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03DA_PAYMENT_ENGINE_TARGET_TYPED_ACTIVATED_ABILITY_OFFICIAL_RUNTIME_CARD_ROW_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03BR_PAYMENT_ENGINE_TARGET_TAX_ACTIVATED_ABILITY_MATRIX_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03BR_PAYMENT_ENGINE_TARGET_TAX_ACTIVATED_ABILITY_MATRIX_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03AW_PAYMENT_ENGINE_TARGET_COLORED_ACTIVATED_ABILITY_MANIFEST_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03AW_PAYMENT_ENGINE_TARGET_COLORED_ACTIVATED_ABILITY_MANIFEST_EVIDENCE.md",
+        "docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md",
+        "docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md"
+    ];
+
+    private static readonly PaymentEngineTargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceEntry[] TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifest =
+        TargetColoredActivatedAbilityCoverageManifest
+            .Select(TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceEntry)
+            .ToArray();
+
+    private static PaymentEngineTargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceEntry TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceEntry(
+        TargetColoredActivatedAbilityCoverageEntry representative)
+    {
+        if (!P4ActivatedAbilityCatalog.TryGetByAbilityId(representative.AbilityId, out var definition))
+        {
+            throw new InvalidOperationException($"Missing P4 activated ability definition for {representative.AbilityId}.");
+        }
+
+        var sourceCardGroup = P4ActivatedAbilityCatalog.SourceCardNosForAbility(definition).ToArray();
+        var sourceCardGroupText = string.Join(", ", sourceCardGroup);
+        var focused = TargetTypedActivatedAbilityRuntimeCardRowFocusedProfileFor(definition.AbilityId);
+
+        return new(
+            definition.AbilityId,
+            definition.EffectKind,
+            representative.RepresentativeSurface,
+            representative.PaymentProfile,
+            representative.TargetProfile,
+            sourceCardGroup,
+            $"{focused.FocusedTestType.Name}: runtime catalog binds AbilityId={definition.AbilityId}, EffectKind={definition.EffectKind}, IsResourceSkill=false and exact source-card group [{sourceCardGroupText}].",
+            focused.FocusedTestType,
+            focused.RequiredFocusedTestMethods,
+            $"{focused.FocusedTestType.Name}: {representative.PromptAnchor}; required target count is {definition.RequiredTargetCount}, source-card group is [{sourceCardGroupText}], and prompt evidence remains server-filtered.",
+            $"{focused.FocusedTestType.Name}: {representative.CommandAnchor}; ACTIVATE_ABILITY command revalidates abilityId={definition.AbilityId}, source card group [{sourceCardGroupText}], target payload and payment resources before mutation.",
+            $"{focused.FocusedTestType.Name}: {representative.AuditAnchor}; focused evidence covers COST_PAID / ABILITY_ACTIVATED parity for abilityId={definition.AbilityId} and effectKind={definition.EffectKind}.",
+            focused.RuntimeOutcomeEvidence,
+            $"{focused.FocusedTestType.Name}: {representative.RollbackAnchor}; stale source, stale target, illegal payment, wrong source-card or optional-branch commands reject without mutation for source-card group [{sourceCardGroupText}].",
+            $"4D-03DA reads docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json by exact source-card group [{sourceCardGroupText}] and requires each cardNo / collectorId row to remain fullOfficial=false; card matrix JSON remains unchanged.",
+            "4D-03DA target / typed activated ability runtime/card-row evidence only; project remains NOT READY, P0-005 remains open, fullOfficial remains false, card matrix JSON remains unchanged and final readiness upgrade is forbidden.",
+            [.. TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceDocAnchors, .. representative.DocAnchors]);
+    }
+
+    private static TargetTypedActivatedAbilityRuntimeCardRowFocusedProfile TargetTypedActivatedAbilityRuntimeCardRowFocusedProfileFor(string abilityId)
+    {
+        return abilityId switch
+        {
+            P4ActivatedAbilityCatalog.XerathDamageAbilityId => new(
+                typeof(PaymentEngineUnificationTests),
+                [
+                    nameof(PaymentEngineUnificationTests.ActivateAbilityXerathPaysSpellshieldTaxAndRecyclesRunePaymentResource),
+                    nameof(PaymentEngineUnificationTests.ActivateAbilityXerathRejectsTemporaryPaymentResourceWhenSpellshieldTaxManaIsMissingWithoutMutation),
+                    nameof(PaymentEngineUnificationTests.ActivateAbilityXerathRejectsRecycleRuneWhenSpellshieldTaxManaIsMissingWithoutMutation)
+                ],
+                "Xerath runtime evidence covers prompt target choices, Spellshield target tax payment, recycle resource commit, stack item creation and tax-missing rollback."),
+            P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId => new(
+                typeof(RenataActivatedAbilityTests),
+                [
+                    nameof(RenataActivatedAbilityTests.RenataOpenMainPromptExposesTypedBlueDrawRequirement),
+                    nameof(RenataActivatedAbilityTests.RenataOpenMainPromptQuotesTypedBlueTemporaryResourceForDrawShortfall),
+                    nameof(RenataActivatedAbilityTests.RenataDrawCommandPaysTypedBlueAndCreatesStackWithoutImmediateDraw),
+                    nameof(RenataActivatedAbilityTests.RenataDrawCanRecycleBlueRuneForTypedBlueShortfall),
+                    nameof(RenataActivatedAbilityTests.RenataDrawCanSpendTypedBlueTemporaryResourceForTypedBlueShortfall),
+                    nameof(RenataActivatedAbilityTests.RenataDrawStackPassPassDrawsOneWithoutMovingOrExhaustingSource),
+                    nameof(RenataActivatedAbilityTests.RenataDrawRejectsInvalidCommandsWithoutMutation)
+                ],
+                "Renata draw runtime evidence covers typed-blue prompt, recycle and typed temporary payment resources, stack resolution and invalid command rollback for both official printings."),
+            P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId => new(
+                typeof(RenataActivatedAbilityTests),
+                [
+                    nameof(RenataActivatedAbilityTests.RenataOpenMainPromptExposesTypedBlueScoreRequirement),
+                    nameof(RenataActivatedAbilityTests.RenataExhaustedSourcePromptHidesScoreButKeepsDraw),
+                    nameof(RenataActivatedAbilityTests.RenataScoreCommandPaysTypedBlueExhaustsAndCreatesStackWithoutImmediateScore),
+                    nameof(RenataActivatedAbilityTests.RenataScoreCanRecycleBlueRunesForTypedBlueShortfall),
+                    nameof(RenataActivatedAbilityTests.RenataScoreCanSpendTypedBlueTemporaryResourceForTypedBlueShortfall),
+                    nameof(RenataActivatedAbilityTests.RenataScoreStackPassPassGainsScoreAndCanWin),
+                    nameof(RenataActivatedAbilityTests.RenataScoreRejectsInvalidCommandsWithoutMutation)
+                ],
+                "Renata score runtime evidence covers typed-blue prompt, source exhaustion, recycle and typed temporary resources, score resolution and invalid command rollback for both official printings."),
+            P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId => new(
+                typeof(AzirSwiftSwapActivatedAbilityTests),
+                [
+                    nameof(AzirSwiftSwapActivatedAbilityTests.CatalogExposesAzirSwiftSwapForBothCollectorNumbers),
+                    nameof(AzirSwiftSwapActivatedAbilityTests.PromptExposesAzirSwiftSwapRequirementWithGreenCostTargetsAndOnceMetadata),
+                    nameof(AzirSwiftSwapActivatedAbilityTests.PromptExposesImplementedAzirArmamentReattachChoicesByTarget),
+                    nameof(AzirSwiftSwapActivatedAbilityTests.AzirCommandPaysGreenCreatesStackAndResolutionSwapsPreciseLocations),
+                    nameof(AzirSwiftSwapActivatedAbilityTests.AzirSelectedLegalArmamentReattachesToAzirOnResolution),
+                    nameof(AzirSwiftSwapActivatedAbilityTests.AzirCanRecycleGreenRuneForTypedGreenShortfall),
+                    nameof(AzirSwiftSwapActivatedAbilityTests.AzirOncePerTurnRejectsSecondActivationAndClearsAtTurnEnd),
+                    nameof(AzirSwiftSwapActivatedAbilityTests.AzirRejectsInvalidCommandsWithoutMutation),
+                    nameof(AzirSwiftSwapActivatedAbilityTests.AzirRejectsInvalidArmamentReattachChoicesWithoutMutation),
+                    nameof(AzirSwiftSwapActivatedAbilityTests.AzirStaleSelectedArmamentSkipsReattachWithoutFalseEventAndStillSwaps)
+                ],
+                "Azir runtime evidence covers both collector numbers, typed-green prompt, target-scoped optional armament reattach, swap resolution, once-per-turn and stale optional-branch rollback."),
+            P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId => new(
+                typeof(GatekeeperMaduliActivatedAbilityTests),
+                [
+                    nameof(GatekeeperMaduliActivatedAbilityTests.CatalogExposesGatekeeperMaduliPurpleMoveAbility),
+                    nameof(GatekeeperMaduliActivatedAbilityTests.PromptExposesMaduliRequirementWithPurpleCostLegalBattlefieldTargetAndRecycleChoice),
+                    nameof(GatekeeperMaduliActivatedAbilityTests.MaduliCommandPaysPurpleCreatesStackAndResolutionMovesToTargetBattlefield),
+                    nameof(GatekeeperMaduliActivatedAbilityTests.MaduliCanRecyclePurpleRuneForTypedPurpleShortfall),
+                    nameof(GatekeeperMaduliActivatedAbilityTests.MaduliStackResolutionNoEffectsWhenTargetPowerConditionBecomesStale),
+                    nameof(GatekeeperMaduliActivatedAbilityTests.MaduliRejectsInvalidCommandsWithoutMutation)
+                ],
+                "Gatekeeper Maduli runtime evidence covers typed-purple prompt, battlefield target legality, recycle payment, move resolution, stale target no-effect and rollback."),
+            P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId => new(
+                typeof(EzrealBlueSwiftMoveToBaseActivatedAbilityTests),
+                [
+                    nameof(EzrealBlueSwiftMoveToBaseActivatedAbilityTests.CatalogExposesEzrealBlueSwiftMoveForAllCollectorNumbers),
+                    nameof(EzrealBlueSwiftMoveToBaseActivatedAbilityTests.PromptExposesEzrealSwiftMoveRequirementWithBlueCostNoTargetsAndRecycleChoice),
+                    nameof(EzrealBlueSwiftMoveToBaseActivatedAbilityTests.EzrealCommandPaysBlueCreatesStackAndResolutionMovesSourceToBase),
+                    nameof(EzrealBlueSwiftMoveToBaseActivatedAbilityTests.EzrealCanRecycleBlueRuneForTypedBlueShortfall),
+                    nameof(EzrealBlueSwiftMoveToBaseActivatedAbilityTests.EzrealStackResolutionNoEffectsWhenSourceLeavesBattlefieldBeforeResolution),
+                    nameof(EzrealBlueSwiftMoveToBaseActivatedAbilityTests.EzrealStackResolutionNoEffectsWhenSourceStopsBeingControlledOrPublicBeforeResolution),
+                    nameof(EzrealBlueSwiftMoveToBaseActivatedAbilityTests.EzrealRejectsInvalidCommandsWithoutMutation)
+                ],
+                "Ezreal runtime evidence covers all collector numbers, typed-blue prompt, recycle payment, source move-to-base resolution and stale-source rollback."),
+            P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId => new(
+                typeof(CrimsonRoseActivatedAbilityTests),
+                [
+                    nameof(CrimsonRoseActivatedAbilityTests.CrimsonRoseOpenMainPromptExposesExperienceReadyUnitRequirement),
+                    nameof(CrimsonRoseActivatedAbilityTests.CrimsonRoseReadyUnitPromptHidesGatekeeperMaduliCannotBecomeActiveTarget),
+                    nameof(CrimsonRoseActivatedAbilityTests.CrimsonRosePromptHidesIllegalSourceOrInsufficientExperience),
+                    nameof(CrimsonRoseActivatedAbilityTests.CrimsonRoseFriendlySpellshieldTargetPaysExperienceNoTaxAndCreatesStack),
+                    nameof(CrimsonRoseActivatedAbilityTests.CrimsonRoseEnemySpellshieldTargetPaysManaTax),
+                    nameof(CrimsonRoseActivatedAbilityTests.CrimsonRoseStackPassPassReadiesTargetAndKeepsSourceInBaseExhausted),
+                    nameof(CrimsonRoseActivatedAbilityTests.CrimsonRoseRejectsHandWrittenGatekeeperMaduliReadyTargetWithoutMutation),
+                    nameof(CrimsonRoseActivatedAbilityTests.CrimsonRoseStaleStackItemSkipsGatekeeperMaduliCannotBecomeActiveTarget),
+                    nameof(CrimsonRoseActivatedAbilityTests.CrimsonRoseRejectsInvalidCommandsWithoutMutation)
+                ],
+                "Crimson Rose runtime evidence covers experience payment, friendly and enemy Spellshield targets, ready-unit resolution, cannot-ready filtering and stale stack rollback."),
+            P4ActivatedAbilityCatalog.ShadowStunAbilityId => new(
+                typeof(ShadowActivatedAbilityTests),
+                [
+                    nameof(ShadowActivatedAbilityTests.ShadowBattleResponsePromptExposesSwiftStunRequirement),
+                    nameof(ShadowActivatedAbilityTests.NaturalStartBattleOpensBattleResponsePriorityAndExposesShadowPrompt),
+                    nameof(ShadowActivatedAbilityTests.ShadowActivatesAndResolvesFromNaturalBattleResponseWindow),
+                    nameof(ShadowActivatedAbilityTests.ShadowNaturalBattleResponseRejectsWrongPlayerBattlefieldOrStaleTargetWithoutMutation),
+                    nameof(ShadowActivatedAbilityTests.ShadowActivationPaysManaPowerExhaustsAndCreatesStackWithoutImmediateStun),
+                    nameof(ShadowActivatedAbilityTests.ShadowCanRecycleRuneForGenericPowerShortfall),
+                    nameof(ShadowActivatedAbilityTests.ShadowEnemySpellshieldTargetPaysManaTax),
+                    nameof(ShadowActivatedAbilityTests.ShadowStackPassPassStunsTargetAndKeepsSourceBattlefieldExhausted),
+                    nameof(ShadowActivatedAbilityTests.ShadowResolutionNoEffectsWhenTargetStopsAttacking),
+                    nameof(ShadowActivatedAbilityTests.ShadowRejectsInvalidCommandsWithoutMutation)
+                ],
+                "Shadow runtime evidence covers battle-response prompt timing, mana/generic power payment, recycle resource, Spellshield tax, stun resolution and stale target rollback."),
+            _ => throw new InvalidOperationException($"Missing target typed activated ability focused profile for {abilityId}.")
+        };
     }
 
     private static readonly string[] DeferredNonLegendResourceSkillRuntimeLaneDocAnchors =
@@ -7658,6 +7815,183 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineTargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifestCoversCatalogSourceCardGroups()
+    {
+        var expectedAbilityIds = TargetColoredActivatedAbilityCoverageManifest
+            .Select(entry => entry.AbilityId)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var manifestAbilityIds = TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifest
+            .Select(entry => entry.AbilityId)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var expectedSourceCardNos = new[]
+        {
+            "UNL-026/219",
+            "SFD·088/221",
+            "SFD·088a/221",
+            "SFD·050/221",
+            "SFD·050a/221",
+            "UNL-144/219",
+            "SFD·082/221",
+            "SFD·082a/221",
+            "SFD·082b/221·P",
+            "UNL-109/219",
+            "UNL-194/219"
+        };
+
+        Assert.Equal(8, TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifest.Length);
+        Assert.Equal(expectedAbilityIds, manifestAbilityIds);
+        Assert.Equal(
+            expectedSourceCardNos.Order(StringComparer.Ordinal),
+            TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifest.SelectMany(entry => entry.SourceCardGroup).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal));
+        Assert.Empty(TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifest
+            .GroupBy(entry => entry.AbilityId, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key));
+
+        Assert.All(TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifest, entry =>
+        {
+            Assert.True(P4ActivatedAbilityCatalog.TryGetByAbilityId(entry.AbilityId, out var definition));
+            Assert.Equal(TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidence, entry.Classification);
+            Assert.Equal(definition.EffectKind, entry.EffectKind);
+            Assert.False(definition.IsResourceSkill);
+            Assert.True(IsTargetColoredOrExperienceActivatedAbility(definition));
+            Assert.Equal(
+                P4ActivatedAbilityCatalog.SourceCardNosForAbility(definition).Order(StringComparer.Ordinal),
+                entry.SourceCardGroup.Order(StringComparer.Ordinal));
+            Assert.Contains(definition.SourceCardNo, entry.SourceCardGroup);
+            Assert.Contains(definition.AbilityId, entry.SourceCardGroupEvidence, StringComparison.Ordinal);
+            Assert.Contains(definition.EffectKind, entry.SourceCardGroupEvidence, StringComparison.Ordinal);
+            Assert.Contains("IsResourceSkill=false", entry.SourceCardGroupEvidence, StringComparison.Ordinal);
+
+            foreach (var cardNo in entry.SourceCardGroup)
+            {
+                Assert.Contains(cardNo, entry.SourceCardGroupEvidence, StringComparison.Ordinal);
+            }
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineTargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifestBindsFocusedVerifierMethods()
+    {
+        Assert.All(TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifest, entry =>
+        {
+            Assert.NotEmpty(entry.RequiredFocusedTestMethods);
+            Assert.Empty(entry.RequiredFocusedTestMethods
+                .GroupBy(methodName => methodName, StringComparer.Ordinal)
+                .Where(group => group.Count() > 1)
+                .Select(group => group.Key));
+
+            foreach (var methodName in entry.RequiredFocusedTestMethods)
+            {
+                var method = entry.FocusedTestType.GetMethod(methodName);
+
+                Assert.NotNull(method);
+                Assert.Contains(method.GetCustomAttributes(inherit: false), attribute => attribute is FactAttribute || attribute is TheoryAttribute);
+            }
+
+            Assert.Contains(entry.FocusedTestType.Name, entry.PromptEvidence, StringComparison.Ordinal);
+            Assert.Contains(entry.FocusedTestType.Name, entry.CommandEvidence, StringComparison.Ordinal);
+            Assert.Contains(entry.FocusedTestType.Name, entry.AuditEvidence, StringComparison.Ordinal);
+            Assert.Contains(entry.FocusedTestType.Name, entry.RollbackEvidence, StringComparison.Ordinal);
+            Assert.Contains(entry.AbilityId, entry.CommandEvidence, StringComparison.Ordinal);
+            Assert.Contains(entry.EffectKind, entry.AuditEvidence, StringComparison.Ordinal);
+            Assert.Contains("COST_PAID", entry.AuditEvidence, StringComparison.Ordinal);
+            Assert.Contains("ABILITY_ACTIVATED", entry.AuditEvidence, StringComparison.Ordinal);
+            Assert.Contains("without mutation", entry.RollbackEvidence, StringComparison.OrdinalIgnoreCase);
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineTargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifestBindsExactSnapshotCardRows()
+    {
+        var repositoryRoot = ResolveRepositoryRoot();
+        var matrixPath = Path.Combine(repositoryRoot, "docs", "CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json");
+        using var document = JsonDocument.Parse(File.ReadAllText(matrixPath));
+        var snapshotEntries = document.RootElement.GetProperty("snapshotEntries").EnumerateArray().ToArray();
+
+        Assert.All(TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifest, entry =>
+        {
+            foreach (var cardNo in entry.SourceCardGroup)
+            {
+                var snapshotEntry = Assert.Single(
+                    snapshotEntries,
+                    element => string.Equals(element.GetProperty("cardNo").GetString(), cardNo, StringComparison.Ordinal));
+                var stage4B = snapshotEntry.GetProperty("stage4B");
+
+                Assert.Equal(cardNo, stage4B.GetProperty("collectorId").GetString());
+                Assert.False(stage4B.GetProperty("fullOfficial").GetBoolean());
+                Assert.Contains(cardNo, entry.CardRowEvidence, StringComparison.Ordinal);
+            }
+
+            Assert.Contains("fullOfficial=false", entry.CardRowEvidence, StringComparison.Ordinal);
+            Assert.Contains("card matrix JSON remains unchanged", entry.CardRowEvidence, StringComparison.Ordinal);
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineTargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifestRequiresDocsAndNoReadyClaim()
+    {
+        var repositoryRoot = ResolveRepositoryRoot();
+        var combinedText = string.Join(
+            " ",
+            TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.AbilityId,
+                    entry.EffectKind,
+                    entry.Classification,
+                    entry.RepresentativeSurface,
+                    entry.PaymentProfile,
+                    entry.TargetProfile,
+                    entry.SourceCardGroupEvidence,
+                    entry.FocusedTestType.FullName ?? entry.FocusedTestType.Name,
+                    entry.PromptEvidence,
+                    entry.CommandEvidence,
+                    entry.AuditEvidence,
+                    entry.RuntimeOutcomeEvidence,
+                    entry.RollbackEvidence,
+                    entry.CardRowEvidence,
+                    entry.NonClosureStatus
+                }.Concat(entry.SourceCardGroup)
+                    .Concat(entry.RequiredFocusedTestMethods)
+                    .Concat(entry.DocAnchors)));
+
+        Assert.All(TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifest, entry =>
+        {
+            Assert.Contains("NOT READY", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("fullOfficial remains false", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("card matrix JSON remains unchanged", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("docs/CURRENT_STAGE4D_03DA_PAYMENT_ENGINE_TARGET_TYPED_ACTIVATED_ABILITY_OFFICIAL_RUNTIME_CARD_ROW_AUDIT.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03DA_PAYMENT_ENGINE_TARGET_TYPED_ACTIVATED_ABILITY_OFFICIAL_RUNTIME_CARD_ROW_EVIDENCE.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BR_PAYMENT_ENGINE_TARGET_TAX_ACTIVATED_ABILITY_MATRIX_AUDIT.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03AW_PAYMENT_ENGINE_TARGET_COLORED_ACTIVATED_ABILITY_MANIFEST_AUDIT.md", entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+                Assert.True(File.Exists(Path.Combine(repositoryRoot, anchor)), anchor);
+            });
+        });
+
+        Assert.Contains("source-card group", combinedText, StringComparison.Ordinal);
+        Assert.Contains("fullOfficial=false", combinedText, StringComparison.Ordinal);
+        Assert.Contains("card matrix JSON remains unchanged", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("CANNOT_READY", string.Empty, StringComparison.Ordinal)
+                .Replace("READY_UNIT", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PaymentEngineDeferredNonLegendResourceSkillRuntimeLaneManifestMatchesNonLegendGateSet()
     {
         var nonLegendDeferredCardNos = DeferredResourceSkillFamilyManifest
@@ -8316,6 +8650,33 @@ public sealed class PaymentEngineCoverageAuditTests
         public string Classification { get; } = TypedSigilOfficialRuntimeCardRowAudit;
     }
 
+    private sealed record TargetTypedActivatedAbilityRuntimeCardRowFocusedProfile(
+        Type FocusedTestType,
+        IReadOnlyList<string> RequiredFocusedTestMethods,
+        string RuntimeOutcomeEvidence);
+
+    private sealed record PaymentEngineTargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceEntry(
+        string AbilityId,
+        string EffectKind,
+        string RepresentativeSurface,
+        string PaymentProfile,
+        string TargetProfile,
+        IReadOnlyList<string> SourceCardGroup,
+        string SourceCardGroupEvidence,
+        Type FocusedTestType,
+        IReadOnlyList<string> RequiredFocusedTestMethods,
+        string PromptEvidence,
+        string CommandEvidence,
+        string AuditEvidence,
+        string RuntimeOutcomeEvidence,
+        string RollbackEvidence,
+        string CardRowEvidence,
+        string NonClosureStatus,
+        IReadOnlyList<string> DocAnchors)
+    {
+        public string Classification { get; } = TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidence;
+    }
+
     private sealed record PaymentEngineDeferredResourceSkillFamilyEntry(
         string CardNo,
         string Classification,
@@ -8359,6 +8720,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(ResourceSkillOfficialSourceCardRuntimeParityManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(ResourceSkillOfficialRuntimeCardRowEvidenceManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TypedSigilOfficialRuntimeCardRowAuditManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(DeferredResourceSkillFamilyManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(LegendResourceBridgeAggregateManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(LegendResourceBridgeImplementationAcceptanceManifest.SelectMany(entry => entry.DocAnchors))
