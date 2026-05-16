@@ -33,6 +33,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string DeferredLegendResourceActionBridge = "deferred-legend-resource-action-bridge";
     private const string DeferredNonLegendResourceSkillRuntimeVerifier = "deferred-non-legend-resource-skill-runtime-verifier";
     private const string DeferredResourceSkillNextDispatchGate = "deferred-resource-skill-next-dispatch-gate";
+    private const string DeferredNonLegendResourceSkillRuntimeLane = "deferred-non-legend-resource-skill-runtime-lane";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
     [
@@ -2472,6 +2473,74 @@ public sealed class PaymentEngineCoverageAuditTests
             "Existing Diana / Ornn / KaiSa / Darius LEGEND_ACT representative tests, 4D-03BY handoff, backend full, Chrome smoke and formal 18 are bridge inputs only, not proxy closure.",
             "Project remains NOT READY and P0-005 remains open until legend bridge semantics are explicit and RESOURCE_SKILLS closure is separately accepted.",
             DeferredResourceSkillNextDispatchGateDocAnchors)
+    ];
+
+    private static readonly string[] DeferredNonLegendResourceSkillRuntimeLaneDocAnchors =
+    [
+        "docs/CURRENT_STAGE4D_03CA_PAYMENT_ENGINE_NON_LEGEND_RESOURCE_SKILL_RUNTIME_LANES_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03CA_PAYMENT_ENGINE_NON_LEGEND_RESOURCE_SKILL_RUNTIME_LANES_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03BZ_PAYMENT_ENGINE_DEFERRED_RESOURCE_SKILL_NEXT_DISPATCH_GATE_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03BZ_PAYMENT_ENGINE_DEFERRED_RESOURCE_SKILL_NEXT_DISPATCH_GATE_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03BX_PAYMENT_ENGINE_NON_LEGEND_RESOURCE_SKILL_RUNTIME_HANDOFF.md",
+        "docs/CURRENT_STAGE4D_03BX_PAYMENT_ENGINE_NON_LEGEND_RESOURCE_SKILL_RUNTIME_BASELINE_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03BW_PAYMENT_ENGINE_DEFERRED_RESOURCE_SKILL_FAMILY_VERIFIER_AUDIT.md",
+        "docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md"
+    ];
+
+    private static readonly PaymentEngineDeferredNonLegendResourceSkillRuntimeLaneEntry[] DeferredNonLegendResourceSkillRuntimeLaneManifest =
+    [
+        new(
+            "LANE_JHIN_MOVE_TRIGGERED_RESOURCE_SKILL",
+            "UNL-022/219",
+            "Jhin movement-triggered mana plus power generated resource skill",
+            "Current evidence is play / preflight / Roam only; no P4 resource-skill prompt / command / audit path exists for the official movement-triggered generated-resource text.",
+            "Prompt must be server-filtered by source state, movement trigger capture and a pending payment context that can legally consume generated mana plus power.",
+            "Command must revalidate source, movement trigger context, generated mana / power request and payment-only use before mutating state.",
+            "Audit must connect ABILITY_ACTIVATED, COST_PAID or generated-resource spend / clear events to the Jhin source and preserve payment-only lifetime.",
+            "Wrong window, missing trigger, stale source, wrong resource use and handwritten command branches must be no-mutation.",
+            "New focused Jhin non-legend resource-skill tests or equivalent resource-skill runtime verifier.",
+            "LEGEND_ACT bridge rows, frontend runtime, browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and riftbound-dotnet.sln remain locked.",
+            "Project remains NOT READY and P0-005 remains open until this lane is implemented, accepted and reconciled with RESOURCE_SKILLS closure.",
+            DeferredNonLegendResourceSkillRuntimeLaneDocAnchors),
+        new(
+            "LANE_HONEYFRUIT_EQUIPMENT_REACTION_RESOURCE_SKILL",
+            "UNL-049/219",
+            "Honeyfruit equipment reaction resource skill plus level-six upgraded mana / power branch",
+            "Current evidence is play / rejection fixture only; no P4 resource-skill prompt / command / audit path exists for the official tap reaction and level-six upgraded resource text.",
+            "Prompt must be server-filtered by tap reaction timing, source readiness and level-six upgraded branch availability.",
+            "Command must revalidate tap source, equipment-reaction timing, generated mana / power amount and payment-only use before mutating state.",
+            "Audit must connect ABILITY_ACTIVATED, generated mana / power availability, spend and cleanup to Honeyfruit and the upgraded branch decision.",
+            "Wrong timing, exhausted source, stale source, illegal upgraded branch and handwritten command branches must be no-mutation.",
+            "New focused Honeyfruit non-legend resource-skill tests or equivalent resource-skill runtime verifier.",
+            "LEGEND_ACT bridge rows, frontend runtime, browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and riftbound-dotnet.sln remain locked.",
+            "Project remains NOT READY and P0-005 remains open until this lane is implemented, accepted and reconciled with RESOURCE_SKILLS closure.",
+            DeferredNonLegendResourceSkillRuntimeLaneDocAnchors),
+        new(
+            "LANE_BLUE_SENTINEL_DELAYED_NEXT_MAIN_RESOURCE_SKILL",
+            "UNL-087/219",
+            "Blue Sentinel held-battlefield delayed next-main generated power branch",
+            "Current evidence is play / preflight only; no P4 resource-skill prompt / command / audit path exists for the official delayed next-main generated-resource text.",
+            "Prompt must be server-filtered by held-battlefield capture, delayed next-main timing and pending payment context.",
+            "Command must revalidate delayed trigger identity, source / battlefield state, generated power request and payment-only use before mutating state.",
+            "Audit must connect trigger capture, generated power availability, spend and cleanup to Blue Sentinel without leaking stale delayed state.",
+            "Wrong main phase, missing held trigger, stale source, stale battlefield and handwritten command branches must be no-mutation.",
+            "New focused Blue Sentinel non-legend resource-skill tests or equivalent delayed-resource verifier.",
+            "LEGEND_ACT bridge rows, frontend runtime, browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and riftbound-dotnet.sln remain locked.",
+            "Project remains NOT READY and P0-005 remains open until this lane is implemented, accepted and reconciled with RESOURCE_SKILLS closure.",
+            DeferredNonLegendResourceSkillRuntimeLaneDocAnchors),
+        new(
+            "LANE_LUX_SPELL_ONLY_TAP_REACTION_RESOURCE_SKILL",
+            "OGS·014/024",
+            "Lux spell-only tap reaction resource skill",
+            "Current evidence is play / preflight only; no P4 resource-skill prompt / command / audit path exists for the official spell-only tap reaction resource text.",
+            "Prompt must be server-filtered by tap reaction timing, ready source state and a pending spell payment that can legally consume generated mana.",
+            "Command must revalidate tap source, pending spell identity, generated mana request and spell-only payment restriction before mutating state.",
+            "Audit must connect ABILITY_ACTIVATED, generated mana availability, spend and cleanup to Lux and the spell-only restriction.",
+            "Non-spell payment, wrong timing, exhausted source, stale source and handwritten command branches must be no-mutation.",
+            "New focused Lux non-legend resource-skill tests or equivalent spell-only generated-resource verifier.",
+            "LEGEND_ACT bridge rows, frontend runtime, browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and riftbound-dotnet.sln remain locked.",
+            "Project remains NOT READY and P0-005 remains open until this lane is implemented, accepted and reconciled with RESOURCE_SKILLS closure.",
+            DeferredNonLegendResourceSkillRuntimeLaneDocAnchors)
     ];
 
     private static readonly TargetTaxActivatedAbilityMatrixDimensionProfile[] TargetTaxActivatedAbilityMatrixDimensionProfiles =
@@ -5976,6 +6045,133 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineDeferredNonLegendResourceSkillRuntimeLaneManifestMatchesNonLegendGateSet()
+    {
+        var nonLegendDeferredCardNos = DeferredResourceSkillFamilyManifest
+            .Where(entry => string.Equals(entry.Classification, DeferredNonLegendResourceSkillRuntimeVerifier, StringComparison.Ordinal))
+            .Select(entry => entry.CardNo)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var laneCardNos = DeferredNonLegendResourceSkillRuntimeLaneManifest
+            .Select(entry => entry.CardNo)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(["OGS·014/024", "UNL-022/219", "UNL-049/219", "UNL-087/219"], laneCardNos);
+        Assert.Equal(nonLegendDeferredCardNos, laneCardNos);
+        Assert.Equal(4, laneCardNos.Length);
+        Assert.Empty(DeferredNonLegendResourceSkillRuntimeLaneManifest
+            .GroupBy(entry => entry.CardNo, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key));
+        Assert.Empty(DeferredNonLegendResourceSkillRuntimeLaneManifest
+            .Where(entry => entry.RequiredFutureTestAnchor.Contains("LEGEND_ACT", StringComparison.Ordinal))
+            .Select(entry => entry.LaneId));
+    }
+
+    [Fact]
+    public void PaymentEngineDeferredNonLegendResourceSkillRuntimeLaneManifestRequiresPromptCommandAuditLifetimeAndRollback()
+    {
+        Assert.All(DeferredNonLegendResourceSkillRuntimeLaneManifest, entry =>
+        {
+            Assert.Equal(DeferredNonLegendResourceSkillRuntimeLane, entry.Classification);
+            Assert.Contains(entry.CardNo, DeferredResourceSkillFamilyManifest.Select(candidate => candidate.CardNo));
+            Assert.Contains("prompt", entry.RequiredPromptCondition, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("server-filtered", entry.RequiredPromptCondition, StringComparison.Ordinal);
+            Assert.Contains("Command", entry.RequiredCommandGuard, StringComparison.Ordinal);
+            Assert.Contains("revalidate", entry.RequiredCommandGuard, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("Audit", entry.RequiredAuditAndLifetime, StringComparison.Ordinal);
+            Assert.True(
+                entry.RequiredAuditAndLifetime.Contains("spend", StringComparison.OrdinalIgnoreCase)
+                || entry.RequiredAuditAndLifetime.Contains("cleanup", StringComparison.OrdinalIgnoreCase));
+            Assert.Contains("no-mutation", entry.RequiredRollback, StringComparison.Ordinal);
+            Assert.Contains("focused", entry.RequiredFutureTestAnchor, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("LEGEND_ACT bridge rows", entry.ForbiddenScope, StringComparison.Ordinal);
+            Assert.Contains("card matrix JSON", entry.ForbiddenScope, StringComparison.Ordinal);
+            Assert.Contains("riftbound-dotnet.sln", entry.ForbiddenScope, StringComparison.Ordinal);
+            Assert.Contains("NOT READY", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("RESOURCE_SKILLS closure", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.NotEmpty(entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineDeferredNonLegendResourceSkillRuntimeLaneManifestKeepsFourAcceptanceLanesDistinct()
+    {
+        var laneIds = DeferredNonLegendResourceSkillRuntimeLaneManifest
+            .Select(entry => entry.LaneId)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(
+            [
+                "LANE_BLUE_SENTINEL_DELAYED_NEXT_MAIN_RESOURCE_SKILL",
+                "LANE_HONEYFRUIT_EQUIPMENT_REACTION_RESOURCE_SKILL",
+                "LANE_JHIN_MOVE_TRIGGERED_RESOURCE_SKILL",
+                "LANE_LUX_SPELL_ONLY_TAP_REACTION_RESOURCE_SKILL"
+            ],
+            laneIds);
+
+        Assert.Contains(DeferredNonLegendResourceSkillRuntimeLaneManifest, entry =>
+            entry.CardNo == "UNL-022/219"
+            && entry.RequiredPromptCondition.Contains("movement trigger", StringComparison.OrdinalIgnoreCase)
+            && entry.RequiredRollback.Contains("missing trigger", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(DeferredNonLegendResourceSkillRuntimeLaneManifest, entry =>
+            entry.CardNo == "UNL-049/219"
+            && entry.RequiredPromptCondition.Contains("level-six", StringComparison.OrdinalIgnoreCase)
+            && entry.RequiredRollback.Contains("upgraded branch", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(DeferredNonLegendResourceSkillRuntimeLaneManifest, entry =>
+            entry.CardNo == "UNL-087/219"
+            && entry.RequiredPromptCondition.Contains("delayed next-main", StringComparison.OrdinalIgnoreCase)
+            && entry.RequiredRollback.Contains("stale battlefield", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(DeferredNonLegendResourceSkillRuntimeLaneManifest, entry =>
+            entry.CardNo == "OGS·014/024"
+            && entry.RequiredPromptCondition.Contains("pending spell", StringComparison.OrdinalIgnoreCase)
+            && entry.RequiredRollback.Contains("Non-spell payment", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void PaymentEngineDeferredNonLegendResourceSkillRuntimeLaneManifestDoesNotClaimReadyOrFullOfficial()
+    {
+        var combinedText = string.Join(
+            " ",
+            DeferredNonLegendResourceSkillRuntimeLaneManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.LaneId,
+                    entry.CardNo,
+                    entry.Classification,
+                    entry.CandidateFamily,
+                    entry.CurrentEvidenceStatus,
+                    entry.RequiredPromptCondition,
+                    entry.RequiredCommandGuard,
+                    entry.RequiredAuditAndLifetime,
+                    entry.RequiredRollback,
+                    entry.RequiredFutureTestAnchor,
+                    entry.ForbiddenScope,
+                    entry.ClosureStatus
+                }.Concat(entry.DocAnchors)));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("fullOfficial / READY", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("fullOfficial / READY", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PaymentEngineTargetTaxActivatedAbilityMatrixCoversEveryTargetAbilityAndDimension()
     {
         var requiredAbilityIds = TargetColoredActivatedAbilityCoverageManifest
@@ -6824,6 +7020,23 @@ public sealed class PaymentEngineCoverageAuditTests
         string RepresentativeProxyEvidence,
         string ClosureStatus,
         IReadOnlyList<string> DocAnchors);
+
+    private sealed record PaymentEngineDeferredNonLegendResourceSkillRuntimeLaneEntry(
+        string LaneId,
+        string CardNo,
+        string CandidateFamily,
+        string CurrentEvidenceStatus,
+        string RequiredPromptCondition,
+        string RequiredCommandGuard,
+        string RequiredAuditAndLifetime,
+        string RequiredRollback,
+        string RequiredFutureTestAnchor,
+        string ForbiddenScope,
+        string ClosureStatus,
+        IReadOnlyList<string> DocAnchors)
+    {
+        public string Classification => DeferredNonLegendResourceSkillRuntimeLane;
+    }
 
     private static bool IsTargetColoredOrExperienceActivatedAbility(P4ActivatedAbilityDefinition definition)
     {
