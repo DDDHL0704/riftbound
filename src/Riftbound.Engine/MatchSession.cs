@@ -2881,6 +2881,8 @@ public sealed record ResolutionResult(
 
         return string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, StringComparison.Ordinal)
             ? P4ActivatedAbilityCatalog.AncientStelePaymentOnlyResourceRestriction
+            : string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, StringComparison.Ordinal)
+                ? P4ActivatedAbilityCatalog.JhinMoveResourceRestriction
             : P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(resource.AbilityId)
                 ? P4ActivatedAbilityCatalog.GoldTokenPaymentOnlyResourceRestriction
             : P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction;
@@ -5744,6 +5746,8 @@ internal static class ActionPromptBuilder
                 || !ActivateAbilitySourceMatches(ability, zones, sourceObjectId, cardObject)
                 || (ability.RequiresBattlefieldSource && !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
                 || (ability.ExhaustsSourceAsCost && cardObject.IsExhausted)
+                || (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, StringComparison.Ordinal)
+                    && !TryGetJhinMovementResourceTrigger(state, playerId, sourceObjectId, out _))
                 || (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId, StringComparison.Ordinal)
                     && state.UntilEndOfTurnEffects.Contains(
                         P4ActivatedAbilityCatalog.AzirSwiftSwapUsedThisTurnEffectId(playerId, sourceObjectId),
@@ -5776,6 +5780,7 @@ internal static class ActionPromptBuilder
             var paymentResourcePowerByChoice = ActivateAbilityPaymentResourcePowerByChoice(state, playerId, ability);
             var conversionOptionalCostChoices = ActivateAbilityConversionOptionalCostChoices(state, playerId, ability);
             var isResourceConversionAbility = P4ActivatedAbilityCatalog.IsResourceConversionEquipmentAbility(ability.AbilityId);
+            var jhinMoveTriggerChoices = ActivateAbilityJhinMoveTriggerChoices(state, playerId, sourceObjectId, ability);
             if (isResourceConversionAbility
                 && !string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.EnergyChannelResourceAbilityId, StringComparison.Ordinal)
                 && conversionOptionalCostChoices.Count == 0)
@@ -5819,7 +5824,11 @@ internal static class ActionPromptBuilder
                 ability.RequiredTargetCount,
                 ActivateAbilityTargetScopeLabel(ability),
                 targetChoicesByIndex,
-                isResourceConversionAbility ? conversionOptionalCostChoices : paymentResourceChoices.Concat(armamentReattachChoices).ToArray(),
+                isResourceConversionAbility
+                    ? conversionOptionalCostChoices
+                    : jhinMoveTriggerChoices.Count > 0
+                        ? jhinMoveTriggerChoices
+                        : paymentResourceChoices.Concat(armamentReattachChoices).ToArray(),
                 isResourceConversionAbility ? [] : paymentResourceChoices,
                 isResourceConversionAbility
                     ? new Dictionary<string, IReadOnlyDictionary<string, object?>>(StringComparer.Ordinal)
@@ -5828,7 +5837,7 @@ internal static class ActionPromptBuilder
                 availablePowerByTrait,
                 runePool.TotalPower + paymentResourcePowerByTrait.Values.Sum(),
                 availablePowerByTraitWithPaymentResources,
-                [],
+                jhinMoveTriggerChoices.Select(choice => choice.Id).ToArray(),
                 ability.ExhaustsSourceAsCost,
                 ability.IsResourceSkill,
                 true,
@@ -5881,6 +5890,125 @@ internal static class ActionPromptBuilder
         return requirements
             .Where(requirement => CanPayActivateAbilityRequirement(state, playerId, requirement))
             .ToArray();
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> ActivateAbilityJhinMoveTriggerChoices(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        P4ActivatedAbilityDefinition ability)
+    {
+        if (!string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, StringComparison.Ordinal)
+            || !TryGetJhinMovementResourceTrigger(state, playerId, sourceObjectId, out var trigger))
+        {
+            return [];
+        }
+
+        return
+        [
+            new ActionPromptChoiceDto(
+                $"{P4ActivatedAbilityCatalog.JhinMoveTriggerOptionalCostPrefix}{trigger.TriggerId}",
+                "移动触发",
+                "server-owned Jhin movement trigger context")
+        ];
+    }
+
+    private static bool TryGetJhinMovementResourceTrigger(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        out TriggerQueueItemState trigger)
+    {
+        trigger = state.TriggerQueue
+            .Select(candidate => new
+            {
+                Trigger = candidate,
+                Parsed = TryReadJhinMovementTriggerContext(
+                    candidate.TriggerId,
+                    out var tick,
+                    out var parsedSourceObjectId,
+                    out _,
+                    out var destination),
+                Tick = tick,
+                SourceObjectId = parsedSourceObjectId,
+                Destination = destination
+            })
+            .Where(candidate =>
+                candidate.Parsed
+                && string.Equals(candidate.Trigger.ControllerId, playerId, StringComparison.Ordinal)
+                && string.Equals(candidate.Trigger.SourceObjectId, sourceObjectId, StringComparison.Ordinal)
+                && string.Equals(candidate.SourceObjectId, sourceObjectId, StringComparison.Ordinal)
+                && string.Equals(candidate.Trigger.EffectKind, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind, StringComparison.Ordinal)
+                && (string.Equals(candidate.Trigger.TriggeredByEventKind, "UNIT_MOVED_TO_BATTLEFIELD", StringComparison.Ordinal)
+                    || string.Equals(candidate.Trigger.TriggeredByEventKind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal))
+                && JhinMovementTriggerDestinationStillMatches(state, sourceObjectId, candidate.Destination))
+            .OrderByDescending(candidate => candidate.Tick)
+            .Select(candidate => candidate.Trigger)
+            .FirstOrDefault()!;
+        return trigger is not null;
+    }
+
+    private static bool TryReadJhinMovementTriggerContext(
+        string triggerId,
+        out long tick,
+        out string sourceObjectId,
+        out string origin,
+        out string destination)
+    {
+        tick = 0;
+        sourceObjectId = string.Empty;
+        origin = string.Empty;
+        destination = string.Empty;
+        var parts = triggerId.Split("::", StringSplitOptions.None);
+        if (parts.Length != 5
+            || !string.Equals(parts[0], "JHIN_MOVE_RESOURCE", StringComparison.Ordinal)
+            || !long.TryParse(
+                parts[1],
+                System.Globalization.NumberStyles.Integer,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out tick)
+            || string.IsNullOrWhiteSpace(parts[2])
+            || string.IsNullOrWhiteSpace(parts[3])
+            || string.IsNullOrWhiteSpace(parts[4]))
+        {
+            return false;
+        }
+
+        sourceObjectId = parts[2];
+        origin = parts[3];
+        destination = parts[4];
+        return true;
+    }
+
+    private static bool JhinMovementTriggerDestinationStillMatches(
+        MatchState state,
+        string sourceObjectId,
+        string destination)
+    {
+        if (!state.ObjectLocations.TryGetValue(sourceObjectId, out var location))
+        {
+            return false;
+        }
+
+        if (string.Equals(destination, MoveUnitBaseZone, StringComparison.Ordinal))
+        {
+            return string.Equals(location.Zone, MoveUnitBaseZone, StringComparison.Ordinal);
+        }
+
+        if (string.Equals(destination, MoveUnitBattlefieldZone, StringComparison.Ordinal))
+        {
+            return string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal);
+        }
+
+        var preciseBattlefieldPrefix = $"{MoveUnitBattlefieldZone}:";
+        if (!destination.StartsWith(preciseBattlefieldPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var battlefieldObjectId = destination[preciseBattlefieldPrefix.Length..];
+        return string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && string.Equals(location.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal);
     }
 
     private static bool ActivateAbilitySourceMatches(
@@ -7137,6 +7265,8 @@ internal static class ActionPromptBuilder
 
         return string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, StringComparison.Ordinal)
             ? P4ActivatedAbilityCatalog.AncientStelePaymentOnlyResourceRestriction
+            : string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, StringComparison.Ordinal)
+                ? P4ActivatedAbilityCatalog.JhinMoveResourceRestriction
             : P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(resource.AbilityId)
                 ? P4ActivatedAbilityCatalog.GoldTokenPaymentOnlyResourceRestriction
             : P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction;
@@ -11472,6 +11602,24 @@ internal static class ActionPromptBuilder
             view["timingPolicy"] = "stack-priority-reaction-representative";
             view["reactionPolicy"] = "resolves-immediately-without-stack-item";
             view["resourceLifecycle"] = "rune-pool-mana-reset-at-turn-cleanup";
+        }
+
+        if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, StringComparison.Ordinal))
+        {
+            view["resourceSkill"] = true;
+            view["paymentOnly"] = true;
+            view["movementTriggered"] = true;
+            view["generatedMana"] = P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedMana;
+            view["generatedPower"] = P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedPower;
+            view["generatedGenericPower"] = P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedPower;
+            view["resourceRestriction"] = P4ActivatedAbilityCatalog.JhinMoveResourceRestriction;
+            view["timingPolicy"] = "server-captured-movement-trigger-open-main";
+            view["reactionPolicy"] = "resolves-immediately-without-stack-item";
+            view["stackPolicy"] = "no-ordinary-stack-item";
+            view["resourceLifecycle"] = "mana-rune-pool-plus-temporary-payment-resource-ledger";
+            view["allowedPaymentKinds"] = new[] { PaymentCostRules.RuneCostPaymentKind };
+            view["movementTriggerChoice"] = requirement.RequiredOptionalCosts.FirstOrDefault() ?? string.Empty;
+            view["generatedResourceCannotBeTargetedAsResponse"] = true;
         }
 
         if (P4ActivatedAbilityCatalog.TryGetSigilTypedResourceProfile(requirement.AbilityId, out var sigilProfile))

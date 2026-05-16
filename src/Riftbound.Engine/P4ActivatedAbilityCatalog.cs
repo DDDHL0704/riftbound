@@ -71,6 +71,14 @@ public static class P4ActivatedAbilityCatalog
     public const string DragonSoulSageResourceAbilityEffectKind = "DRAGON_SOUL_SAGE_REACTION_RESOURCE_SKILL_GAIN_1_MANA";
     public const int DragonSoulSageGeneratedMana = 1;
 
+    public const string JhinCardNo = "UNL-022/219";
+    public const string JhinMoveResourceAbilityId = "JHIN_MOVE_TRIGGER_GAIN_1_MANA_1_POWER";
+    public const string JhinMoveResourceAbilityEffectKind = "JHIN_MOVEMENT_RESOURCE_SKILL_GAIN_1_MANA_1_POWER";
+    public const int JhinMoveResourceGeneratedMana = 1;
+    public const int JhinMoveResourceGeneratedPower = 1;
+    public const string JhinMoveResourceRestriction = "PAY_RUNE_COSTS_ONLY_JHIN_MOVE_TEMPORARY_LEDGER_4D_03CO";
+    public const string JhinMoveTriggerOptionalCostPrefix = "JHIN_MOVE_TRIGGER:";
+
     public const string RenataGlascCardNo = "SFD·088/221";
     public const string RenataGlascAltCardNo = "SFD·088a/221";
     public const string RenataGlascDrawAbilityId = "RENATA_GLASC_PAY_1_BLUE_DRAW_1";
@@ -399,6 +407,24 @@ public static class P4ActivatedAbilityCatalog
             IsResourceSkill: true,
             ReactionSpeed: true,
             GeneratedMana: DragonSoulSageGeneratedMana),
+        new(
+            JhinMoveResourceAbilityId,
+            JhinCardNo,
+            JhinMoveResourceAbilityEffectKind,
+            "Jhin movement-triggered resource skill",
+            0,
+            0,
+            0,
+            RequiresBattlefieldSource: false,
+            ExhaustsSourceAsCost: false,
+            0,
+            AppliesSpellshieldTargetTax: false,
+            "Stage 4D-03CO opens only Jhin's movement-triggered non-legend resource-skill lane with server-captured movement context and payment-only generated power.",
+            IsResourceSkill: true,
+            PaymentOnlyResource: true,
+            GeneratedPower: JhinMoveResourceGeneratedPower,
+            ResourceRestriction: JhinMoveResourceRestriction,
+            GeneratedMana: JhinMoveResourceGeneratedMana),
         new(
             RenataGlascDrawAbilityId,
             RenataGlascCardNo,

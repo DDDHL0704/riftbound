@@ -6503,6 +6503,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveDragonSoulSageResourceSkill(state, intent, command, ability);
         }
 
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, StringComparison.Ordinal))
+        {
+            return ResolveJhinMovementResourceSkill(state, intent, command, ability);
+        }
+
         if (P4ActivatedAbilityCatalog.IsSigilTypedResourceAbility(ability.AbilityId))
         {
             return ResolveSigilTypedResourceSkill(state, intent, command, ability);
@@ -8007,6 +8012,289 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolveJhinMovementResourceSkill(
+        MatchState state,
+        PlayerIntent intent,
+        ActivateAbilityCommand command,
+        P4ActivatedAbilityDefinition ability)
+    {
+        if (state.PendingPayment is not null
+            || state.PendingHandChoice is not null
+            || state.PendingTaskQueue.IsBlocking
+            || !string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || state.StackItems.Count > 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "烬的移动资源技能只能在服务端捕获移动触发后的开放主阶段提交。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (NormalizeTargetObjectIds(command.TargetObjectIds).Count != 0
+            || command.TargetObjectIds.Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "烬的移动资源技能不接受目标。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var normalizedOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (normalizedOptionalCosts.Count != 1
+            || !TryParseJhinMovementTriggerOptionalCost(normalizedOptionalCosts[0], out var triggerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "烬的移动资源技能需要服务端签发的移动触发上下文。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var trigger = state.TriggerQueue.FirstOrDefault(candidate =>
+            string.Equals(candidate.TriggerId, triggerId, StringComparison.Ordinal)
+            && string.Equals(candidate.ControllerId, intent.PlayerId, StringComparison.Ordinal)
+            && string.Equals(candidate.SourceObjectId, command.SourceObjectId, StringComparison.Ordinal)
+            && string.Equals(candidate.EffectKind, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind, StringComparison.Ordinal)
+            && (string.Equals(candidate.TriggeredByEventKind, "UNIT_MOVED_TO_BATTLEFIELD", StringComparison.Ordinal)
+                || string.Equals(candidate.TriggeredByEventKind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)));
+        if (trigger is null
+            || !TryReadJhinMovementTriggerContext(trigger.TriggerId, out _, out var triggerSourceObjectId, out var origin, out var destination)
+            || !string.Equals(triggerSourceObjectId, command.SourceObjectId, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "烬的移动资源技能触发上下文已失效。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!IsControlledFieldObject(state, intent.PlayerId, command.SourceObjectId)
+            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || sourceState.IsFaceDown
+            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "烬的移动资源技能来源必须仍是当前玩家控制的公开场上单位。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "烬的移动资源技能只能由当前控制者结算。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, sourceState.CardNo))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "该来源没有服务端支持的烬移动资源技能。",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        if (!JhinMovementTriggerDestinationStillMatches(state, command.SourceObjectId, destination))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "烬的移动资源技能移动位置上下文已过期。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        const string paymentWindow = "ACTIVATE_ABILITY";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            intent.PlayerId,
+            command.SourceObjectId,
+            command.AbilityId);
+        var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var currentPool = runePools.TryGetValue(intent.PlayerId, out var pool) ? pool : RunePool.Empty;
+        var nextPool = currentPool with
+        {
+            Mana = currentPool.Mana + P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedMana
+        };
+        runePools[intent.PlayerId] = nextPool;
+        var temporaryPaymentResource = new TemporaryPaymentResourceState(
+            $"JHIN:{paymentId}",
+            intent.PlayerId,
+            command.SourceObjectId,
+            command.AbilityId,
+            paymentWindow,
+            generatedPower: P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedPower,
+            remainingPower: P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedPower,
+            allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind],
+            createdTick: state.Tick + 1);
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            RunePools = runePools,
+            TemporaryPaymentResources = state.TemporaryPaymentResources
+                .Concat([temporaryPaymentResource])
+                .ToArray(),
+            TriggerQueue = state.TriggerQueue
+                .Where(candidate => !string.Equals(candidate.TriggerId, trigger.TriggerId, StringComparison.Ordinal))
+                .ToArray(),
+            PriorityPlayerId = null,
+            PassedPriorityPlayerIds = []
+        };
+        var events = new List<GameEvent>
+        {
+            BuildTriggerResolvedEvent(trigger),
+            new(
+                "ABILITY_ACTIVATED",
+                $"{intent.PlayerId} 结算烬的移动资源技能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["cardNo"] = sourceState.CardNo,
+                    ["abilityId"] = command.AbilityId,
+                    ["effectKind"] = ability.EffectKind,
+                    ["paymentWindow"] = paymentWindow,
+                    ["paymentId"] = paymentId,
+                    ["movementTriggerId"] = trigger.TriggerId,
+                    ["triggeredByEventKind"] = trigger.TriggeredByEventKind,
+                    ["origin"] = origin,
+                    ["destination"] = destination,
+                    ["resourceSkill"] = true,
+                    ["paymentOnly"] = true,
+                    ["movementTriggered"] = true,
+                    ["generatedMana"] = P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedMana,
+                    ["generatedPower"] = P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedPower,
+                    ["resourceRestriction"] = ability.ResourceRestriction,
+                    ["temporaryPaymentResourceId"] = temporaryPaymentResource.ResourceId,
+                    ["resourceLifecycle"] = "mana-rune-pool-plus-temporary-payment-resource-ledger",
+                    ["stackPolicy"] = "no-ordinary-stack-item",
+                    ["generatedResourceCannotBeTargetedAsResponse"] = true
+                }),
+            new(
+                "MANA_GAINED",
+                $"{intent.PlayerId} 通过烬的移动资源技能获得 {P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedMana} 点法力",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["movementTriggerId"] = trigger.TriggerId,
+                    ["mana"] = P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedMana,
+                    ["manaAfter"] = nextPool.Mana,
+                    ["resourceSkill"] = true,
+                    ["movementTriggered"] = true,
+                    ["resourceLifecycle"] = "rune-pool-mana-reset-at-turn-cleanup"
+                }),
+            new(
+                "POWER_GAINED",
+                $"{intent.PlayerId} 通过烬的移动资源技能获得 {P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedPower} 点费用符能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["paymentWindow"] = paymentWindow,
+                    ["paymentId"] = paymentId,
+                    ["movementTriggerId"] = trigger.TriggerId,
+                    ["resourceSkill"] = true,
+                    ["paymentOnly"] = true,
+                    ["movementTriggered"] = true,
+                    ["generatedPower"] = P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedPower,
+                    ["generatedGenericPower"] = P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedPower,
+                    ["power"] = P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedPower,
+                    ["resourceRestriction"] = ability.ResourceRestriction,
+                    ["restrictionLifecycle"] = "temporary-payment-resource-ledger",
+                    ["temporaryPaymentResourceId"] = temporaryPaymentResource.ResourceId,
+                    ["remainingPower"] = temporaryPaymentResource.RemainingPower,
+                    ["allowedPaymentKinds"] = temporaryPaymentResource.AllowedPaymentKinds.ToArray()
+                })
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static bool TryParseJhinMovementTriggerOptionalCost(string optionalCost, out string triggerId)
+    {
+        triggerId = string.Empty;
+        if (string.IsNullOrWhiteSpace(optionalCost)
+            || !optionalCost.StartsWith(P4ActivatedAbilityCatalog.JhinMoveTriggerOptionalCostPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        triggerId = optionalCost[P4ActivatedAbilityCatalog.JhinMoveTriggerOptionalCostPrefix.Length..].Trim();
+        return !string.IsNullOrWhiteSpace(triggerId);
+    }
+
+    private static string JhinMovementResourceTriggerId(
+        long tick,
+        string sourceObjectId,
+        string origin,
+        string destination)
+    {
+        return $"JHIN_MOVE_RESOURCE::{tick.ToString(System.Globalization.CultureInfo.InvariantCulture)}::{sourceObjectId}::{origin}::{destination}";
+    }
+
+    private static bool TryReadJhinMovementTriggerContext(
+        string triggerId,
+        out long tick,
+        out string sourceObjectId,
+        out string origin,
+        out string destination)
+    {
+        tick = 0;
+        sourceObjectId = string.Empty;
+        origin = string.Empty;
+        destination = string.Empty;
+        var parts = triggerId.Split("::", StringSplitOptions.None);
+        if (parts.Length != 5
+            || !string.Equals(parts[0], "JHIN_MOVE_RESOURCE", StringComparison.Ordinal)
+            || !long.TryParse(
+                parts[1],
+                System.Globalization.NumberStyles.Integer,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out tick)
+            || string.IsNullOrWhiteSpace(parts[2])
+            || string.IsNullOrWhiteSpace(parts[3])
+            || string.IsNullOrWhiteSpace(parts[4]))
+        {
+            return false;
+        }
+
+        sourceObjectId = parts[2];
+        origin = parts[3];
+        destination = parts[4];
+        return true;
+    }
+
+    private static bool JhinMovementTriggerDestinationStillMatches(
+        MatchState state,
+        string sourceObjectId,
+        string destination)
+    {
+        if (!state.ObjectLocations.TryGetValue(sourceObjectId, out var location)
+            || !TryNormalizeMoveUnitZone(destination, out var destinationZone, out var destinationUsesPreciseLocation)
+            || !string.Equals(location.Zone, destinationZone, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (!destinationUsesPreciseLocation)
+        {
+            return true;
+        }
+
+        var destinationBattlefieldObjectId = PreciseBattlefieldLocationObjectId(NormalizeMoveUnitLocation(destination));
+        return string.Equals(location.BattlefieldObjectId, destinationBattlefieldObjectId, StringComparison.Ordinal);
     }
 
     private static ResolutionResult ResolveGatekeeperMaduliMoveAbility(
@@ -14088,6 +14376,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             command.SourceObjectId,
             originZone,
             destinationZone)).ToArray();
+        var jhinMovementResourceTrigger = BuildJhinMovementResourceTrigger(
+            state,
+            intent.PlayerId,
+            command.SourceObjectId,
+            sourceState,
+            originZone,
+            destinationZone);
+        IReadOnlyList<TriggerQueueItemState> jhinMovementResourceTriggers = jhinMovementResourceTrigger is null
+            ? []
+            : [jhinMovementResourceTrigger];
         var attachedEquipmentMoves = MoveAttachedEquipmentWithHost(
             playerZones,
             attachedEquipmentObjectIds,
@@ -14125,7 +14423,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             ObjectLocations = objectLocations,
             RunePools = runePools,
             CardObjects = cardObjects,
-            PassedPriorityPlayerIds = []
+            PassedPriorityPlayerIds = [],
+            TriggerQueue = state.TriggerQueue.Concat(jhinMovementResourceTriggers).ToArray()
         };
 
         var eventKind = string.Equals(destinationZone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
@@ -14151,6 +14450,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
         events.AddRange(attachedEquipmentMoves);
         events.AddRange(movementTriggerEvents);
+        foreach (var trigger in jhinMovementResourceTriggers)
+        {
+            events.Add(BuildTriggerQueuedEvent(trigger));
+        }
+
         events.AddRange(lethalCleanup.Events);
 
         var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId);
@@ -14361,6 +14665,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             command.SourceObjectId,
             MoveUnitBaseZone,
             MoveUnitBattlefieldZone)).ToArray();
+        var jhinMovementResourceTrigger = BuildJhinMovementResourceTrigger(
+            state,
+            intent.PlayerId,
+            command.SourceObjectId,
+            sourceState,
+            MoveUnitBaseZone,
+            destinationLocation);
+        IReadOnlyList<TriggerQueueItemState> jhinMovementResourceTriggers = jhinMovementResourceTrigger is null
+            ? []
+            : [jhinMovementResourceTrigger];
         var attachedEquipmentMoves = MoveAttachedEquipmentWithHost(
             playerZones,
             attachedEquipmentObjectIds,
@@ -14405,7 +14719,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             ObjectLocations = objectLocations,
             RunePools = runePools,
             CardObjects = cardObjects,
-            PassedPriorityPlayerIds = []
+            PassedPriorityPlayerIds = [],
+            TriggerQueue = state.TriggerQueue.Concat(jhinMovementResourceTriggers).ToArray()
         };
 
         var events = new List<GameEvent>
@@ -14427,6 +14742,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
         events.AddRange(attachedEquipmentMoves);
         events.AddRange(movementTriggerEvents);
+        foreach (var trigger in jhinMovementResourceTriggers)
+        {
+            events.Add(BuildTriggerQueuedEvent(trigger));
+        }
+
         events.AddRange(lethalCleanup.Events);
 
         var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId);
@@ -14561,6 +14881,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             command.SourceObjectId,
             originLocation,
             destinationLocation)).ToArray();
+        var jhinMovementResourceTrigger = BuildJhinMovementResourceTrigger(
+            state,
+            intent.PlayerId,
+            command.SourceObjectId,
+            sourceState,
+            originLocation,
+            destinationLocation);
+        IReadOnlyList<TriggerQueueItemState> jhinMovementResourceTriggers = jhinMovementResourceTrigger is null
+            ? []
+            : [jhinMovementResourceTrigger];
         var cleanupStackItem = new StackItemState(
             $"move-unit-{state.Tick + 1}",
             intent.PlayerId,
@@ -14585,7 +14915,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             ObjectLocations = objectLocations,
             RunePools = runePools,
             CardObjects = cardObjects,
-            PassedPriorityPlayerIds = []
+            PassedPriorityPlayerIds = [],
+            TriggerQueue = state.TriggerQueue.Concat(jhinMovementResourceTriggers).ToArray()
         };
 
         var events = new List<GameEvent>
@@ -14608,6 +14939,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 })
         };
         events.AddRange(movementTriggerEvents);
+        foreach (var trigger in jhinMovementResourceTriggers)
+        {
+            events.Add(BuildTriggerQueuedEvent(trigger));
+        }
+
         events.AddRange(lethalCleanup.Events);
 
         var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId);
@@ -14788,6 +15124,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             command.SourceObjectId,
             originLocation,
             destinationLocation)).ToArray();
+        var jhinMovementResourceTrigger = BuildJhinMovementResourceTrigger(
+            state,
+            intent.PlayerId,
+            command.SourceObjectId,
+            sourceState,
+            originLocation,
+            destinationLocation);
+        IReadOnlyList<TriggerQueueItemState> jhinMovementResourceTriggers = jhinMovementResourceTrigger is null
+            ? []
+            : [jhinMovementResourceTrigger];
         var cleanupStackItem = new StackItemState(
             $"move-unit-{state.Tick + 1}",
             intent.PlayerId,
@@ -14812,7 +15158,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             ObjectLocations = objectLocations,
             RunePools = runePools,
             CardObjects = cardObjects,
-            PassedPriorityPlayerIds = []
+            PassedPriorityPlayerIds = [],
+            TriggerQueue = state.TriggerQueue.Concat(jhinMovementResourceTriggers).ToArray()
         };
 
         var events = new List<GameEvent>
@@ -14834,6 +15181,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 })
         };
         events.AddRange(movementTriggerEvents);
+        foreach (var trigger in jhinMovementResourceTriggers)
+        {
+            events.Add(BuildTriggerQueuedEvent(trigger));
+        }
+
         events.AddRange(lethalCleanup.Events);
 
         var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId);
@@ -24649,6 +25001,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             turnEndPlayerZones,
             turnEndCardObjects,
             state.TurnPlayerId);
+        var expiredJhinMovementResourceTriggers = state.TriggerQueue
+            .Where(IsJhinMovementResourceTrigger)
+            .ToArray();
         var nextTurnState = cleanupState with
         {
             TurnNumber = state.TurnNumber + 1,
@@ -24664,7 +25019,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             DestroyedUnitOwnerIdsThisTurn = [],
             PlayerCardsPlayedThisTurn = new Dictionary<string, int>(StringComparer.Ordinal),
             ExtraTurnPlayerId = null,
-            TemporaryPaymentResources = []
+            TemporaryPaymentResources = [],
+            TriggerQueue = state.TriggerQueue
+                .Where(trigger => !IsJhinMovementResourceTrigger(trigger))
+                .ToArray()
         };
         var turnStartResult = ResolveTurnStart(nextTurnState);
         var turnEndEvents = BuildTurnEndEvents(
@@ -24677,6 +25035,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         InsertTurnEndStateBasedCleanupEvents(turnEndEvents, stateBasedCleanup.Events);
         var events = turnEndEvents
             .Concat(annieTurnEndEvents)
+            .Concat(expiredJhinMovementResourceTriggers.Select(BuildJhinMovementResourceTriggerExpiredEvent))
             .Concat(turnStartResult.Events)
             .ToArray();
 
@@ -24684,6 +25043,29 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             Events = events
         };
+    }
+
+    private static bool IsJhinMovementResourceTrigger(TriggerQueueItemState trigger)
+    {
+        return string.Equals(trigger.EffectKind, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind, StringComparison.Ordinal);
+    }
+
+    private static GameEvent BuildJhinMovementResourceTriggerExpiredEvent(TriggerQueueItemState trigger)
+    {
+        return new GameEvent(
+            "TRIGGER_EXPIRED",
+            "烬的移动资源技能触发窗口结束",
+            new Dictionary<string, object?>
+            {
+                ["triggerId"] = trigger.TriggerId,
+                ["sourceObjectId"] = trigger.SourceObjectId,
+                ["controllerId"] = trigger.ControllerId,
+                ["effectKind"] = trigger.EffectKind,
+                ["triggeredByEventKind"] = trigger.TriggeredByEventKind,
+                ["resourceSkill"] = true,
+                ["movementTriggered"] = true,
+                ["reason"] = "TURN_END"
+            });
     }
 
     private static void InsertTurnEndStateBasedCleanupEvents(
@@ -26545,6 +26927,35 @@ public sealed class CoreRuleEngine : IRuleEngine
             isExhausted: true,
             events);
         return events;
+    }
+
+    private static TriggerQueueItemState? BuildJhinMovementResourceTrigger(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        CardObjectState sourceState,
+        string origin,
+        string destination)
+    {
+        if (string.Equals(origin, destination, StringComparison.Ordinal)
+            || !string.Equals(sourceState.CardNo, P4ActivatedAbilityCatalog.JhinCardNo, StringComparison.Ordinal)
+            || sourceState.IsFaceDown
+            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId))
+        {
+            return null;
+        }
+
+        var triggeredByEventKind = destination.StartsWith(MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            ? "UNIT_MOVED_TO_BATTLEFIELD"
+            : "UNIT_MOVED_TO_BASE";
+        return new TriggerQueueItemState(
+            JhinMovementResourceTriggerId(state.Tick + 1, sourceObjectId, origin, destination),
+            playerId,
+            sourceObjectId,
+            P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind,
+            triggeredByEventKind);
     }
 
     private static bool IsTreasureHunterCardNo(string? cardNo)
