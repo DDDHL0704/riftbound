@@ -3414,12 +3414,22 @@ public sealed class PaymentEngineCoverageAuditTests
             "B_PAYMENT_ENGINE_OFFICIAL_BREADTH",
             "B-side PaymentEngine official breadth verifier / implementation slice",
             RemainingOfficialClosureGate,
-            "Fresh A dispatch and explicit runtime / focused-test write lock required before any B work begins; 4D-03CW records only the handoff baseline and does not dispatch B.",
-            "After 4D-03CV and the post-03CT resource-skill accounting refresh, expand the 192-row representative resource-skill row-interaction matrix into one concrete B-side official breadth verifier / implementation slice with executable prompt / command / audit / generated-resource lifetime / rollback tests, or minimally fix a concrete mismatch found by those tests; full official [A] / [C] resource-skill row interactions, official card-row parity and broader PaymentEngine official breadth remain open.",
-            "4D-03CV 192-row resource-skill official row-interaction matrix (32 candidates x 6 dimensions), 4D-03CU official row-interaction gate, 4D-03CT resource-skill official breadth refresh (32 total = 23 implemented + 9 bridge-closed + 0 current deferred), 4D-03CS-B legend bridge closure, 4D-03BR-B target/tax matrix, backend full, Chrome smoke and formal 18 are representative proxy evidence only.",
+            "Fresh A dispatch and explicit runtime / focused-test write lock required before any B work begins; 4D-03CW / 4D-03DB records only the handoff baseline and does not dispatch B.",
+            "After 4D-03CV through 4D-03DA and the post-03CT resource-skill accounting refresh, use a fresh A dispatch to expand the 192-row representative resource-skill row-interaction matrix plus target / typed activated runtime-card-row evidence into one concrete B-side official breadth verifier / implementation slice with executable prompt / command / audit / generated-resource lifetime / rollback tests, or minimally fix a concrete mismatch found by those tests; full official [A] / [C] resource-skill row interactions, full target-bearing activated ability official family, official card-row parity and broader PaymentEngine official breadth remain open.",
+            "4D-03CV 192-row resource-skill official row-interaction matrix (32 candidates x 6 dimensions), 4D-03CU official row-interaction gate, 4D-03CT resource-skill official breadth refresh (32 total = 23 implemented + 9 bridge-closed + 0 current deferred), 4D-03CX source-card runtime parity, 4D-03CY resource-skill runtime/card-row evidence, 4D-03CZ typed Sigil runtime/card-row audit, 4D-03DA target / typed activated ability runtime/card-row evidence, 4D-03CS-B legend bridge closure, 4D-03BR-B target/tax matrix, backend full, Chrome smoke and formal 18 are representative proxy evidence only.",
             "Runtime, tests beyond this focused A-side gate, frontend, browser scripts, card matrix JSON, fullOfficial status, final readiness status and riftbound-dotnet.sln remain locked until a fresh A dispatch.",
             "Project remains NOT READY and P0-005 remains open; fullOfficial upgrade is not allowed.",
             [
+                "docs/CURRENT_STAGE4D_03DB_PAYMENT_ENGINE_REMAINING_OFFICIAL_SCOPE_AFTER_RUNTIME_CARD_ROW_EVIDENCE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03DB_PAYMENT_ENGINE_REMAINING_OFFICIAL_SCOPE_AFTER_RUNTIME_CARD_ROW_EVIDENCE.md",
+                "docs/CURRENT_STAGE4D_03DA_PAYMENT_ENGINE_TARGET_TYPED_ACTIVATED_ABILITY_OFFICIAL_RUNTIME_CARD_ROW_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03DA_PAYMENT_ENGINE_TARGET_TYPED_ACTIVATED_ABILITY_OFFICIAL_RUNTIME_CARD_ROW_EVIDENCE.md",
+                "docs/CURRENT_STAGE4D_03CZ_PAYMENT_ENGINE_TYPED_SIGIL_RESOURCE_SKILL_RUNTIME_CARD_ROW_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03CZ_PAYMENT_ENGINE_TYPED_SIGIL_RESOURCE_SKILL_RUNTIME_CARD_ROW_EVIDENCE.md",
+                "docs/CURRENT_STAGE4D_03CY_PAYMENT_ENGINE_RESOURCE_SKILL_RUNTIME_CARD_ROW_EVIDENCE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03CY_PAYMENT_ENGINE_RESOURCE_SKILL_RUNTIME_CARD_ROW_EVIDENCE.md",
+                "docs/CURRENT_STAGE4D_03CX_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_SOURCE_CARD_RUNTIME_PARITY_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03CX_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_SOURCE_CARD_RUNTIME_PARITY_EVIDENCE.md",
                 "docs/CURRENT_STAGE4D_03CW_PAYMENT_ENGINE_OFFICIAL_BREADTH_HANDOFF.md",
                 "docs/CURRENT_STAGE4D_03CW_PAYMENT_ENGINE_OFFICIAL_BREADTH_BASELINE_EVIDENCE.md",
                 "docs/CURRENT_STAGE4D_03CV_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_MATRIX_AUDIT.md",
@@ -8328,6 +8338,9 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Contains("4D-03CT resource-skill official breadth refresh", gate.RepresentativeProxyEvidence, StringComparison.Ordinal);
         Assert.Contains("32 total = 23 implemented + 9 bridge-closed + 0 current deferred", gate.RepresentativeProxyEvidence, StringComparison.Ordinal);
         Assert.Contains("4D-03CS-B legend bridge closure", gate.RepresentativeProxyEvidence, StringComparison.Ordinal);
+        Assert.Contains("4D-03CY resource-skill runtime/card-row evidence", gate.RepresentativeProxyEvidence, StringComparison.Ordinal);
+        Assert.Contains("4D-03CZ typed Sigil runtime/card-row audit", gate.RepresentativeProxyEvidence, StringComparison.Ordinal);
+        Assert.Contains("4D-03DA target / typed activated ability runtime/card-row evidence", gate.RepresentativeProxyEvidence, StringComparison.Ordinal);
         Assert.Contains("representative proxy evidence only", gate.RepresentativeProxyEvidence, StringComparison.Ordinal);
         Assert.Contains("P0-005 remains open", gate.ClosureStatus, StringComparison.Ordinal);
         Assert.Contains(
@@ -8336,6 +8349,47 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Contains(
             "docs/CURRENT_STAGE4D_03CS_B_PAYMENT_ENGINE_LEGEND_RESOURCE_BRIDGE_CLOSURE_AUDIT.md",
             gate.DocAnchors);
+        Assert.Contains(
+            "docs/CURRENT_STAGE4D_03DA_PAYMENT_ENGINE_TARGET_TYPED_ACTIVATED_ABILITY_OFFICIAL_RUNTIME_CARD_ROW_AUDIT.md",
+            gate.DocAnchors);
+        Assert.Contains(
+            "docs/CURRENT_STAGE4D_03DB_PAYMENT_ENGINE_REMAINING_OFFICIAL_SCOPE_AFTER_RUNTIME_CARD_ROW_EVIDENCE_AUDIT.md",
+            gate.DocAnchors);
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialBreadthGateTracksPostRuntimeCardRowEvidenceWithoutClosingP0()
+    {
+        var gate = Assert.Single(
+            RemainingOfficialClosureGateManifest,
+            entry => string.Equals(entry.GateId, "B_PAYMENT_ENGINE_OFFICIAL_BREADTH", StringComparison.Ordinal));
+        var combinedText = string.Join(
+            " ",
+            new[]
+            {
+                gate.GateId,
+                gate.Owner,
+                gate.Classification,
+                gate.WriteLockRequirement,
+                gate.RequiredFutureEvidence,
+                gate.RepresentativeProxyEvidence,
+                gate.LockedScope,
+                gate.ClosureStatus
+            }.Concat(gate.DocAnchors));
+
+        Assert.Contains("4D-03DB", combinedText, StringComparison.Ordinal);
+        Assert.Contains("4D-03DA", combinedText, StringComparison.Ordinal);
+        Assert.Contains("4D-03CZ", combinedText, StringComparison.Ordinal);
+        Assert.Contains("4D-03CY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("runtime/card-row evidence", combinedText, StringComparison.Ordinal);
+        Assert.Contains("target / typed activated", combinedText, StringComparison.Ordinal);
+        Assert.Contains("full target-bearing activated ability official family", gate.RequiredFutureEvidence, StringComparison.Ordinal);
+        Assert.Contains("representative proxy evidence only", gate.RepresentativeProxyEvidence, StringComparison.Ordinal);
+        Assert.Contains("fresh A dispatch", gate.RequiredFutureEvidence, StringComparison.Ordinal);
+        Assert.Contains("card matrix JSON", gate.LockedScope, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", gate.ClosureStatus, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
