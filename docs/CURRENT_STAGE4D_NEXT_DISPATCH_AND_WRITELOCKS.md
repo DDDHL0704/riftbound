@@ -1,13 +1,14 @@
 # Stage 4D Next Dispatch and Writelocks
 
 日期：2026-05-16
-结论：**4D-03CD BLUE SENTINEL RESOURCE SKILL HANDOFF / PROJECT NOT READY**
+结论：**4D-03CE LUX RESOURCE SKILL HANDOFF / PROJECT NOT READY**
 
 本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance / baseline 归档；除本文明确记录的 focused verifier 外，不实现 runtime，不修改前端，不升级 full-official。当前 active goal 仍未完成，不得调用 `update_goal complete`。
 
 ## 1. 输入事实
 
 - 当前分支为 `main`，仓库当前只保留未跟踪 `riftbound-dotnet.sln`；该文件不得被本批任务触碰或纳入提交。
+- 4D-03CE PaymentEngine Lux spell-only tap-reaction resource skill handoff / baseline 已建立，入口为 `docs/CURRENT_STAGE4D_03CE_PAYMENT_ENGINE_LUX_RESOURCE_SKILL_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03CE_PAYMENT_ENGINE_LUX_RESOURCE_SKILL_BASELINE_EVIDENCE.md`。本批只做 A-side docs，把 4D-03CA 四条 non-legend lane 中的 Lux `OGS·014/024` spell-only tap-reaction generated mana lane 单独收窄为 future B-side implementation / verifier boundary；Jhin、Honeyfruit、Blue Sentinel 与 9 个 `LEGEND_ACT` bridge candidates 不进入本切片。A 侧基线验证 focused PaymentEngine coverage guard 127/127、adjacent PaymentEngine / resource skill / prompt / hub regression 685/685、backend full 4564/4564、`git diff --check` 通过；runtime、tests、frontend、browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；未派发 B，项目仍 **NOT READY**。
 - 4D-03CD PaymentEngine Blue Sentinel held-battlefield delayed next-main resource skill handoff / baseline 已建立，入口为 `docs/CURRENT_STAGE4D_03CD_PAYMENT_ENGINE_BLUE_SENTINEL_RESOURCE_SKILL_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03CD_PAYMENT_ENGINE_BLUE_SENTINEL_RESOURCE_SKILL_BASELINE_EVIDENCE.md`。本批只做 A-side docs，把 4D-03CA 四条 non-legend lane 中的 Blue Sentinel `UNL-087/219` held-battlefield delayed next-main generated power lane 单独收窄为 future B-side implementation / verifier boundary；Jhin、Honeyfruit、Lux 与 9 个 `LEGEND_ACT` bridge candidates 不进入本切片。A 侧基线验证 focused PaymentEngine coverage guard 127/127、adjacent PaymentEngine / resource skill / prompt / hub regression 685/685、backend full 4564/4564、`git diff --check` 通过；runtime、tests、frontend、browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；未派发 B，项目仍 **NOT READY**。
 - 4D-03CC PaymentEngine Honeyfruit equipment-reaction resource skill handoff / baseline 已建立，入口为 `docs/CURRENT_STAGE4D_03CC_PAYMENT_ENGINE_HONEYFRUIT_RESOURCE_SKILL_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03CC_PAYMENT_ENGINE_HONEYFRUIT_RESOURCE_SKILL_BASELINE_EVIDENCE.md`。本批只做 A-side docs，把 4D-03CA 四条 non-legend lane 中的 Honeyfruit `UNL-049/219` equipment reaction / level-six generated mana / power lane 单独收窄为 future B-side implementation / verifier boundary；Jhin、Blue Sentinel、Lux 与 9 个 `LEGEND_ACT` bridge candidates 不进入本切片。A 侧基线验证 focused PaymentEngine coverage guard 127/127、adjacent PaymentEngine / resource skill / prompt / hub regression 685/685、backend full 4564/4564、`git diff --check` 通过；runtime、tests、frontend、browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；未派发 B，项目仍 **NOT READY**。
 - 4D-03CB PaymentEngine Jhin movement-triggered resource skill handoff / baseline 已建立，入口为 `docs/CURRENT_STAGE4D_03CB_PAYMENT_ENGINE_JHIN_RESOURCE_SKILL_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03CB_PAYMENT_ENGINE_JHIN_RESOURCE_SKILL_BASELINE_EVIDENCE.md`。本批只做 A-side docs，把 4D-03CA 四条 non-legend lane 中的 Jhin `UNL-022/219` movement-triggered generated mana / power lane 单独收窄为 future B-side implementation / verifier boundary；Honeyfruit、Blue Sentinel、Lux 与 9 个 `LEGEND_ACT` bridge candidates 不进入本切片。A 侧基线验证 focused PaymentEngine coverage guard 127/127、adjacent PaymentEngine / resource skill / prompt / hub regression 685/685、backend full 4564/4564、`git diff --check` 通过；runtime、tests、frontend、browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；未派发 B，项目仍 **NOT READY**。
@@ -112,6 +113,7 @@
 
 | Queue | Owner | Status | Purpose | Write scope | Must not touch |
 |---|---|---|---|---|---|
+| 4D-03CE | A 主控 | Handoff / baseline recorded; no worker dispatched | Reserve future B-side implementation / verifier boundary for Lux `OGS·014/024` spell-only tap-reaction generated mana resource skill | completed handoff / baseline docs and checkpoint / completion / closure / dispatch / server audit / checklist docs | runtime、tests beyond future dispatch、Jhin / Honeyfruit / Blue Sentinel lanes、`LEGEND_ACT` bridge candidates、frontend runtime、browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-03CD | A 主控 | Handoff / baseline recorded; no worker dispatched | Reserve future B-side implementation / verifier boundary for Blue Sentinel `UNL-087/219` held-battlefield delayed next-main generated power resource skill | completed handoff / baseline docs and checkpoint / completion / closure / dispatch / server audit / checklist docs | runtime、tests beyond future dispatch、Jhin / Honeyfruit / Lux lanes、`LEGEND_ACT` bridge candidates、frontend runtime、browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-03CC | A 主控 | Handoff / baseline recorded; no worker dispatched | Reserve future B-side implementation / verifier boundary for Honeyfruit `UNL-049/219` equipment reaction / level-six generated mana / power resource skill | completed handoff / baseline docs and checkpoint / completion / closure / dispatch / server audit / checklist docs | runtime、tests beyond future dispatch、Jhin / Blue Sentinel / Lux lanes、`LEGEND_ACT` bridge candidates、frontend runtime、browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-03CB | A 主控 | Handoff / baseline recorded; no worker dispatched | Reserve future B-side implementation / verifier boundary for Jhin `UNL-022/219` movement-triggered generated mana / power resource skill | completed handoff / baseline docs and checkpoint / completion / closure / dispatch / server audit / checklist docs | runtime、tests beyond future dispatch、Honeyfruit / Blue Sentinel / Lux lanes、`LEGEND_ACT` bridge candidates、frontend runtime、browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY、`riftbound-dotnet.sln` |
@@ -174,6 +176,7 @@
 - 4D-FE event-label build gate frontend label write scope is closed after current-code build validation. Only `src/Riftbound.DevUi/src/components/match/EventLog.tsx` was changed. Server runtime, protocols, prompt/action legality, browser smoke scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
 - 4D-FE Chrome smoke fresh-run is closed after A validation. No source files, smoke scripts, formal 18-step scripts, runtime, card matrix JSON, fullOfficial / READY or `riftbound-dotnet.sln` were touched.
 - 4D-FE formal 18-step fresh-run is closed after A validation. No source files, smoke scripts, formal 18-step scripts, runtime, card matrix JSON, fullOfficial / READY or `riftbound-dotnet.sln` were touched.
+- 4D-03CE is A-side handoff / baseline only. No B / C / D / E worker is dispatched, no runtime / test / frontend / matrix write lock is open, and future Lux spell-only tap-reaction generated-resource implementation / verifier work requires a fresh explicit A dispatch. Jhin, Honeyfruit, Blue Sentinel, all `LEGEND_ACT` bridge candidates and `riftbound-dotnet.sln` remain locked.
 - 4D-03CD is A-side handoff / baseline only. No B / C / D / E worker is dispatched, no runtime / test / frontend / matrix write lock is open, and future Blue Sentinel held-battlefield delayed next-main generated-resource implementation / verifier work requires a fresh explicit A dispatch. Jhin, Honeyfruit, Lux, all `LEGEND_ACT` bridge candidates and `riftbound-dotnet.sln` remain locked.
 - 4D-03CC is A-side handoff / baseline only. No B / C / D / E worker is dispatched, no runtime / test / frontend / matrix write lock is open, and future Honeyfruit equipment-reaction generated-resource implementation / verifier work requires a fresh explicit A dispatch. Jhin, Blue Sentinel, Lux, all `LEGEND_ACT` bridge candidates and `riftbound-dotnet.sln` remain locked.
 - 4D-03CB is A-side handoff / baseline only. No B / C / D / E worker is dispatched, no runtime / test / frontend / matrix write lock is open, and future Jhin movement-triggered generated-resource implementation / verifier work requires a fresh explicit A dispatch. Honeyfruit, Blue Sentinel, Lux, all `LEGEND_ACT` bridge candidates and `riftbound-dotnet.sln` remain locked.
@@ -574,6 +577,20 @@ A accepts the 4D-03CD handoff / baseline because all of the following are true:
 7. P0-005, P1, frontend final validation, full-card matrix and READY remain open.
 
 Pause point: 4D-03CD establishes the future B-side Blue Sentinel held-battlefield delayed next-main resource skill boundary only. No B worker is dispatched in this batch, no write lock is open, and the project remains **NOT READY**.
+
+## 3.0W 4D-03CE Lux Handoff Gate Accepted
+
+A accepts the 4D-03CE handoff / baseline because all of the following are true:
+
+1. Current repo state remains on `main` with only expected untracked `riftbound-dotnet.sln`.
+2. 4D-03CA split the non-legend gate into four lanes, 4D-03CB separately reserved Jhin, 4D-03CC separately reserved Honeyfruit, 4D-03CD separately reserved Blue Sentinel, and this handoff reserves only `LANE_LUX_SPELL_ONLY_TAP_REACTION_RESOURCE_SKILL`.
+3. The future B boundary is limited to Lux `OGS·014/024` spell-only tap-reaction generated mana behavior, including tap reaction timing, pending spell payment context, command revalidation, audit / lifetime evidence and no-mutation rollback.
+4. Jhin, Honeyfruit, Blue Sentinel and the 9 `LEGEND_ACT` bridge candidates remain outside this slice.
+5. No runtime, tests, frontend, browser scripts, formal 18-step scripts, card matrix, fullOfficial / READY or `riftbound-dotnet.sln` file is touched by this handoff batch.
+6. Baseline validation passed: focused 127/127, adjacent PaymentEngine / resource skill / prompt / hub regression 685/685, backend full 4564/4564 and `git diff --check`.
+7. P0-005, P1, frontend final validation, full-card matrix and READY remain open.
+
+Pause point: 4D-03CE establishes the future B-side Lux spell-only tap-reaction resource skill boundary only. No B worker is dispatched in this batch, no write lock is open, and the project remains **NOT READY**.
 
 ## 3.1 4D-04Q-A Handoff Gate Accepted
 
@@ -1423,4 +1440,4 @@ E may identify matrix rows and official text blockers for Azir / Ezreal, but mus
 
 ## 15. Current Batch Stop Point
 
-This record stops after establishing 4D-03CD PaymentEngine Blue Sentinel held-battlefield delayed next-main resource skill handoff / baseline. The project remains **NOT READY**. No frontend, matrix, runtime or open test write window remains open, and `riftbound-dotnet.sln` remains untouched.
+This record stops after establishing 4D-03CE PaymentEngine Lux spell-only tap-reaction resource skill handoff / baseline. The project remains **NOT READY**. No frontend, matrix, runtime or open test write window remains open, and `riftbound-dotnet.sln` remains untouched.
