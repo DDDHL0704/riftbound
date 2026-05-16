@@ -24,6 +24,8 @@
 
 ## 2. 本次检查过的证据
 
+- `docs/CURRENT_STAGE4D_03EC_PAYMENT_ENGINE_POST_03EB_UPSTREAM_OFFICIAL_CLOSURE_DISPATCH_AUDIT.md` 与 evidence：确认 4D-03EC 已把 03EB E-side preflight 保持为 `E_CARD_MATRIX_READINESS` held gate，并把上游 official closure 依赖路由回 `B_PAYMENT_ENGINE_OFFICIAL_BREADTH`；`Post03EcUpstreamOfficialClosureDispatchManifest` classification=`post-03eb-upstream-official-closure-dispatch`，input dispatch manifest=`Post03EbCardMatrixReadinessDispatchManifest`，held residual category=`card-matrix-readiness`，concrete gate=`B_PAYMENT_ENGINE_OFFICIAL_BREADTH_POST_03EB_UPSTREAM_CLOSURE_VERIFIER`。当前 matrix skeleton 仍为 1009 snapshot entries / 811 functional units、`fullOfficialTrue=0`、`ready=false`；no E worker write，no matrix JSON write window，03EB remains input dispatch only。本批只是 dispatch/hold only，不是 closure。
+- `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`：确认新增 `Post03EcUpstreamOfficialClosureDispatchManifest`、`PaymentEnginePost03EcUpstreamOfficialClosureDispatchRoutesNextOfficialBreadthGate`、`PaymentEnginePost03EcUpstreamOfficialClosureDispatchKeepsEGateHeldWithoutOpeningMatrixJson`、`PaymentEnginePost03EcDoesNotClaimReadyOrFullOfficial` 与 current-head mapping guard；focused `PaymentEngineCoverageAuditTests` 227/227、backend full 4796/4796、`git diff --check` 通过。
 - `docs/CURRENT_STAGE4D_03EB_PAYMENT_ENGINE_POST_03EA_B_CARD_MATRIX_READINESS_DISPATCH_AUDIT.md` 与 evidence：确认 4D-03EB 已把 03EA-B verifier evidence 后的 `card-matrix-readiness` residual owner lock 路由到 `E_CARD_MATRIX_READINESS`；`Post03EbCardMatrixReadinessDispatchManifest` classification=`post-03ea-b-card-matrix-readiness-dispatch`，input evidence manifest=`Post03EaFullOfficialPaymentEngineMatrixVerifierEvidenceManifest`，selected residual category=`card-matrix-readiness`，downstream owner=`E_CARD_MATRIX_READINESS`。当前 matrix skeleton 仍为 1009 snapshot entries / 811 functional units、`fullOfficialTrue=0`、`ready=false`；no matrix JSON write window，03EA-B remains input evidence only。本批只是 dispatch/preflight only，不是 closure。
 - `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`：确认新增 `Post03EbCardMatrixReadinessDispatchManifest`、`PaymentEnginePost03EbCardMatrixReadinessDispatchSelectsEGateAfter03EaB`、`PaymentEnginePost03EbCardMatrixReadinessDispatchBindsMatrixInputsWithoutOpeningJsonWrite`、`PaymentEnginePost03EbCardMatrixReadinessDispatchDoesNotClaimReadyOrFullOfficial` 与 current-head mapping guard；focused `PaymentEngineCoverageAuditTests` 224/224、backend full 4793/4793、`git diff --check` 通过。
 - `docs/CURRENT_STAGE4D_03EA_B_PAYMENT_ENGINE_FULL_OFFICIAL_MATRIX_VERIFIER_AUDIT.md` 与 evidence：确认 4D-03EA-B 已把 03EA handoff contract 落成 `Post03EaFullOfficialPaymentEngineMatrixVerifierEvidenceManifest`；classification=`post-03dz-full-official-payment-engine-matrix-verifier-evidence`，input handoff manifest=`Post03EaFullOfficialPaymentEngineMatrixVerifierHandoffManifest`，input dispatch manifest=`Post03DzFullOfficialPaymentEngineMatrixDispatchManifest`。本批绑定 34 full official PaymentEngine matrix verifier evidence rows = 12 residual axes + 13 seed rows + 3 downstream aggregate rows + 6 input matrix summaries，并保留 prompt quote、legal command shape、Command revalidation、authoritative audit parity、rollback/no-mutation、generated-resource lifetime、source-card trace 与 card-row `fullOfficial=false` blocker。4D-03EA handoff and 4D-03DZ dispatch remain input evidence only；本批只是 verifier evidence only，不是 closure。
@@ -163,7 +165,30 @@ fullOfficialTrue=0
 fullOfficialFalse=811
 ```
 
-当前 4D-03EB PaymentEngine post-03EA-B card matrix readiness dispatch：
+当前 4D-03EC PaymentEngine post-03EB upstream official-closure dispatch / E-gate hold：
+
+```txt
+baseCommit=0a86b196 test: 固定 03eb card matrix readiness dispatch
+focused PaymentEngineCoverageAuditTests=227/227
+backend full current HEAD=4796/4796
+git diff --check=passed
+Post03EcUpstreamOfficialClosureDispatchManifest holds E_CARD_MATRIX_READINESS
+classification=post-03eb-upstream-official-closure-dispatch
+input dispatch manifest=Post03EbCardMatrixReadinessDispatchManifest
+held residual category=card-matrix-readiness
+concrete gate=B_PAYMENT_ENGINE_OFFICIAL_BREADTH_POST_03EB_UPSTREAM_CLOSURE_VERIFIER
+matrix skeleton remains locked
+fullOfficialTrue=0
+ready=false
+03EB remains input dispatch only
+E_CARD_MATRIX_READINESS remains held
+no runtime / frontend / Chrome / formal 18 / card matrix JSON / fullOfficial / final readiness / riftbound-dotnet.sln
+does not authorize P0-005 / P1 / full official PaymentEngine matrix closure / card matrix / READY
+Chrome smoke not run because there were no frontend changes
+P0-005 / P0-004 adjacency audit-sensitive / P1 / broader PaymentEngine official breadth / full official [A] / [C] resource-skill row interactions / keyword payment branches / remaining payment windows / complete replacement / optional / alternative / tax quote-command-audit parity closure / full official PaymentEngine matrix closure / E_CARD_MATRIX_READINESS / card matrix / READY=open
+```
+
+上一批 4D-03EB PaymentEngine post-03EA-B card matrix readiness dispatch：
 
 ```txt
 baseCommit=d0e376ea test: 固定 03ea-b full matrix verifier evidence
@@ -974,7 +999,7 @@ formal 18-step steps=18/18 OK
 
 ## 3. 主目标门槛映射
 
-当前 evidence chain trace：4D-03EB `Post03EbCardMatrixReadinessDispatchManifest` / `post-03ea-b-card-matrix-readiness-dispatch` selects `card-matrix-readiness` from the 4D-03DS residual owner locks, uses `Post03EaFullOfficialPaymentEngineMatrixVerifierEvidenceManifest` as input evidence manifest, routes downstream owner `E_CARD_MATRIX_READINESS`, and keeps no matrix JSON write window。03EA-B remains input evidence only；it cannot proxy card matrix JSON writes, `fullOfficial` upgrade, `E_CARD_MATRIX_READINESS` closure, card matrix closure or READY。Current matrix skeleton remains 1009 snapshot entries / 811 functional units, fullOfficialTrue=0, ready=false。A-side validation current-head backend full 4793/4793, focused `PaymentEngineCoverageAuditTests` 224/224 and `git diff --check` passed；4D-03EB is dispatch/preflight only, full official PaymentEngine matrix closure remains open, E_CARD_MATRIX_READINESS remains open, card matrix remains open and project remains NOT READY。
+当前 evidence chain trace：4D-03EC `Post03EcUpstreamOfficialClosureDispatchManifest` / `post-03eb-upstream-official-closure-dispatch` takes `Post03EbCardMatrixReadinessDispatchManifest` as input dispatch manifest, keeps `E_CARD_MATRIX_READINESS` / `card-matrix-readiness` held, and routes upstream official closure back to `B_PAYMENT_ENGINE_OFFICIAL_BREADTH` through fresh B-side test/docs verifier gate `B_PAYMENT_ENGINE_OFFICIAL_BREADTH_POST_03EB_UPSTREAM_CLOSURE_VERIFIER`。4D-03EB `Post03EbCardMatrixReadinessDispatchManifest` / `post-03ea-b-card-matrix-readiness-dispatch` remains input dispatch only；it selected `E_CARD_MATRIX_READINESS` / `card-matrix-readiness`, preserved fullOfficialTrue=0 and ready=false, kept no matrix JSON write window, recorded current-head backend full 4793/4793, and 03EA-B remains input evidence only。03EB cannot proxy upstream B/D closure, card matrix JSON writes, `fullOfficial` upgrade, `E_CARD_MATRIX_READINESS` closure, card matrix closure or READY。Current matrix skeleton remains 1009 snapshot entries / 811 functional units, fullOfficialTrue=0, ready=false；no E worker write and no matrix JSON write window。A-side validation current-head backend full 4796/4796, focused `PaymentEngineCoverageAuditTests` 227/227 and `git diff --check` passed；4D-03EC is post-03EB upstream official-closure dispatch / E-gate hold only, full official PaymentEngine matrix closure remains open, E_CARD_MATRIX_READINESS remains held, card matrix remains open and project remains NOT READY。
 
 当前 evidence chain trace：4D-03EA-B `Post03EaFullOfficialPaymentEngineMatrixVerifierEvidenceManifest` / `post-03dz-full-official-payment-engine-matrix-verifier-evidence` binds 34 full official PaymentEngine matrix verifier evidence rows = 12 residual axes + 13 seed rows + 3 downstream aggregate rows + 6 input matrix summaries。每行保留 prompt quote, legal command shape, Command revalidation, authoritative audit parity, rollback/no-mutation, generated-resource lifetime, source-card trace and card-row `fullOfficial=false` blocker evidence。4D-03EA handoff and 4D-03DZ dispatch remain input evidence only；4D-03DY-B quote parity evidence remains input evidence only；4D-03EA-B is verifier evidence only；full official PaymentEngine matrix closure remains open, E_CARD_MATRIX_READINESS remains open, card matrix remains open and project remains NOT READY。
 
@@ -987,19 +1012,19 @@ formal 18-step steps=18/18 OK
 | 要求 | 必需 artifact / gate | 已检查证据 | 当前状态 | 缺口 / 下一步 |
 |---|---|---|---|---|
 | 按 `docs/A_MASTER_AGENT_GOAL.md` 管理 | A-master 目标文档必须存在并作为最高级本地交付口径 | `docs/A_MASTER_AGENT_GOAL.md` 已读取；goal 文本与该文件一致 | OK / ONGOING | 后续任何 READY 判断都必须回到本 checklist 与 final audit |
-| A 维护 checkpoint | `docs/CURRENT_A_MASTER_CHECKPOINT.md` 最新、可恢复、含当前结论 | 文件顶部记录 4D-03EB `Post03EbCardMatrixReadinessDispatchManifest` accepted、classification=`post-03ea-b-card-matrix-readiness-dispatch`、baseCommit=d0e376ea、focused 224/224、backend full 4793/4793、input evidence=`Post03EaFullOfficialPaymentEngineMatrixVerifierEvidenceManifest`、selected category=`card-matrix-readiness`、downstream owner=`E_CARD_MATRIX_READINESS`，并保留 03EA-B / 03EA / 03DZ / 03DY-B / 03DY / 03DX-B / 03DX / 03DW-B / 03DW / 03DV-B / 03DV / 03DU / 03DS / 03DR / 03DQ input evidence、official matrix aggregate / seed / residual manifests、all-window downstream matrices、4D-FE formal 18-step pass、Chrome smoke pass、current-code frontend build pass；matrix skeleton 1009 / 811、fullOfficialTrue=0、ready=false；项目 NOT READY | OK / ONGOING | 后续每批继续保持 checkpoint 同步 |
+| A 维护 checkpoint | `docs/CURRENT_A_MASTER_CHECKPOINT.md` 最新、可恢复、含当前结论 | 文件顶部记录 4D-03EC `Post03EcUpstreamOfficialClosureDispatchManifest` accepted、classification=`post-03eb-upstream-official-closure-dispatch`、baseCommit=0a86b196、focused 227/227、backend full 4796/4796、input dispatch=`Post03EbCardMatrixReadinessDispatchManifest`、held category=`card-matrix-readiness`、held owner=`E_CARD_MATRIX_READINESS`、concrete gate=`B_PAYMENT_ENGINE_OFFICIAL_BREADTH_POST_03EB_UPSTREAM_CLOSURE_VERIFIER`，并保留 03EB / 03EA-B / 03EA / 03DZ / 03DY-B / 03DY / 03DX-B / 03DX / 03DW-B / 03DW / 03DV-B / 03DV / 03DU / 03DS / 03DR / 03DQ input evidence、official matrix aggregate / seed / residual manifests、all-window downstream matrices、4D-FE formal 18-step pass、Chrome smoke pass、current-code frontend build pass；matrix skeleton 1009 / 811、fullOfficialTrue=0、ready=false；项目 NOT READY | OK / ONGOING | 后续每批继续保持 checkpoint 同步 |
 | A 维护任务拆分 / 子 agent 分工 | A-master agent pool、写锁、下一步计划 | `A_MASTER_AGENT_GOAL.md` §7/§8；`CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已记录 4D-03DV / 4D-03DU / 4D-03DT / 4D-03DS / 4D-03DR / 4D-03DQ / 4D-03DP / 4D-03DO / 4D-03DN / 4D-03DM / 4D-03DL / 4D-03DK / 4D-03DJ / 4D-03DH accepted，且 03DG / 03DE / 03DD / 03DC-B / 03DB / 03DA / 03CX / 03CW / 03CV / 03CU / 03CT / 03CS-B 至 03BS 历史 guards / handoffs 均为 evidence / closure-boundary trace；03DV 只把 full-official-resource-skill-row-interactions owner lock 派发到 fresh B gate，03DU 只把 03DT selected broader-payment-engine-official-breadth owner lock 绑定到 input evidence，03DS 仍将 `D_COMPLETION_P0_AUDIT` 分类为 7 residual owner locks，03DQ worker write lock is closed，03DP old gate `B_PAYMENT_ENGINE_OFFICIAL_BREADTH_FULL_RESOURCE_SKILL_ROW_INTERACTION_MATRIX_VERIFIER` 不被 03DV 重开；当前无并发 runtime writer；remaining gap=P0-005、P1、broader PaymentEngine official breadth、full official `[A]` / `[C]` resource-skill row interactions、keyword payment branches、remaining payment windows、full official PaymentEngine matrix、full-card matrix、READY | ONGOING | 后续 matrix / remaining P0/P1 仍需单独写锁 |
 | A 维护阻断清单 | P0/P1 closure plan 与 completion audit | `CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md` 与 `CURRENT_COMPLETION_AUDIT.md` 仍为 NOT READY | NOT MET | P0/P1 未清零 |
-| A 控制写入范围 | 不并行改核心模块；当前 4D-03EB 只打开 card matrix readiness dispatch/preflight guard 与 A-side routing docs 写锁 | 4D-03EB 只更新 `PaymentEngineCoverageAuditTests` dispatch/preflight guard、新增 03EB audit / evidence docs，并同步 checkpoint / completion / dispatch / checklist / server audit / frontend plan / P0-P1 plan；Runtime、frontend、browser scripts、formal 18-step scripts、matrix JSON、READY 与 `riftbound-dotnet.sln` 仍锁定 | OK FOR THIS SLICE | 后续 runtime / frontend behavior / matrix 改动必须按 dispatch 文档独占 owner |
-| 默认不写功能代码 | A 不主动承接功能实现 | 本批为 test/docs-only E-side card matrix readiness dispatch guard，A 主控验收并同步 current-state docs；未改 runtime、前端本地裁决、matrix JSON 或 READY | OK FOR THIS SLICE | 不代表后续功能缺口已解决 |
+| A 控制写入范围 | 不并行改核心模块；当前 4D-03EC 只打开 upstream official-closure dispatch / E-gate hold guard 与 A-side routing docs 写锁 | 4D-03EC 只更新 `PaymentEngineCoverageAuditTests` dispatch/hold guard、新增 03EC audit / evidence docs，并同步 checkpoint / completion / dispatch / checklist / server audit / frontend plan / P0-P1 plan；Runtime、frontend、browser scripts、formal 18-step scripts、matrix JSON、READY 与 `riftbound-dotnet.sln` 仍锁定 | OK FOR THIS SLICE | 后续 runtime / frontend behavior / matrix 改动必须按 dispatch 文档独占 owner |
+| 默认不写功能代码 | A 不主动承接功能实现 | 本批为 test/docs-only upstream official-closure dispatch / E-gate hold guard，A 主控验收并同步 current-state docs；未改 runtime、前端本地裁决、matrix JSON 或 READY | OK FOR THIS SLICE | 不代表后续功能缺口已解决 |
 | 服务端唯一规则权威 | 服务端输出 authoritative snapshot、prompt、事件、规则裁决 | `CURRENT_SERVER_RULE_AUDIT.md` 与 Stage 4D docs 证明大量 representative server-authority paths | PARTIAL | full official battle / PaymentEngine / LayerEngine / card effects 仍未闭合 |
 | 前端只展示 authoritative snapshot | 前端不得持有隐藏信息或本地裁决规则 | `CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md` 与 4D-FE fresh-run evidence 断言主流程不暴露 raw hidden-info 文本；frontend plan 多处记录不本地推断；4D-FE smoke fresh-run 已过 | PARTIAL | 最终前端 contract audit 与后续最终状态 rerun 仍需在 READY 前处理 |
 | 前端只提交 `ActionPrompt` / `LegalAction` | UI 操作必须来自服务端 prompt | Stage 4D docs 多处记录 ActionPrompt / GameHub representative coverage | PARTIAL | 仍需最终全流程 frontend contract audit，不可用 representative coverage 代理 |
 | P0/P1 清零 | completion audit 中所有 P0/P1 为 resolved | closure plan / server audit 明确仍 open / partially resolved | NOT MET | 继续 P0-004、P0-005、LayerEngine、关键词、replay/property、full-card evidence |
-| 后端 full test | `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` | 4D-03EB focused `PaymentEngineCoverageAuditTests` 224/224 通过；current-head backend full 4793/4793 通过 | PASS AS CURRENT FOCUSED / FULL-BACKEND EVIDENCE | 只证明当前 focused 与 backend full 绿；不证明 P0/P1 全部满足 |
+| 后端 full test | `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` | 4D-03EC focused `PaymentEngineCoverageAuditTests` 227/227 通过；current-head backend full 4796/4796 通过 | PASS AS CURRENT FOCUSED / FULL-BACKEND EVIDENCE | 只证明当前 focused 与 backend full 绿；不证明 P0/P1 全部满足 |
 | 前端 build / typecheck / lint | `source ../../scripts/dev-env.sh && npm run build` | 4D-FE event-label build gate 当前代码状态 fresh-run 通过；package script 包含 checks、`tsc -b`、Vite build | PASS AS LATEST FRONTEND BUILD EVIDENCE | READY 前若后续代码继续变动仍需在最终代码状态 fresh run |
-| Chrome smoke | `source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` | 4D-FE Chrome smoke 是 last-known frontend evidence，覆盖 core routes；03EB 未改前端且未重跑 smoke | PASS AS LAST-KNOWN CHROME SMOKE EVIDENCE | READY 前若后续代码继续变动仍需在最终代码状态 fresh run，并用 `@chrome` 调试/验收 |
-| 正式 18 步 E2E | `npm run e2e:formal-18 -- --start-api`，覆盖 A_MASTER §11 1-18 | 4D-FE last-known formal 18 evidence 记录房间 `formal-18-1778886172096-1` 通过，18/18 OK；03EB 未重跑 formal | PASS AS LAST-KNOWN MAIN-FLOW EVIDENCE | 该文件明确不替代 P0/P1、full-card matrix、完整 PaymentEngine / LayerEngine |
+| Chrome smoke | `source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` | 4D-FE Chrome smoke 是 last-known frontend evidence，覆盖 core routes；03EC 未改前端且未重跑 smoke | PASS AS LAST-KNOWN CHROME SMOKE EVIDENCE | READY 前若后续代码继续变动仍需在最终代码状态 fresh run，并用 `@chrome` 调试/验收 |
+| 正式 18 步 E2E | `npm run e2e:formal-18 -- --start-api`，覆盖 A_MASTER §11 1-18 | 4D-FE last-known formal 18 evidence 记录房间 `formal-18-1778886172096-1` 通过，18/18 OK；03EC 未重跑 formal | PASS AS LAST-KNOWN MAIN-FLOW EVIDENCE | 该文件明确不替代 P0/P1、full-card matrix、完整 PaymentEngine / LayerEngine |
 | 卡牌覆盖矩阵完成 | 1009 card entries / 811 FUs 都有 official text、effect/oracle、FAQ、tests、full-official status | matrix skeleton unchanged：1009 snapshot entries / 811 functional units；实测 `fullOfficialTrue=0`、`fullOfficialFalse=811`、`ready=false` | NOT MET | 仍不得声明 full-card official coverage |
 | final completion audit READY | `docs/CURRENT_COMPLETION_AUDIT.md` 最终输出 READY | 当前文件结论 NOT READY | NOT MET | 禁止 `update_goal complete` |
 
@@ -1012,9 +1037,9 @@ formal 18-step steps=18/18 OK
 | §2.3 本地 / 联机 1v1 | 房间、双玩家、开局、对局 | 4D-FE formal 18 通过双浏览器等效流程 | PASS FOR MAIN FLOW |
 | §2.4 可长期维护 | 文档、测试、矩阵、写锁 | checkpoint / closure plan / audit docs 持续维护 | PARTIAL |
 | §2.5 P0/P1 清零 | 无阻断 | closure plan 仍列 P0/P1 | NOT MET |
-| §2.6 后端 full test | full test 绿 | 4D-03EB focused 224/224；current-head backend full 4793/4793 | PASS BUT NOT SUFFICIENT |
-| §2.7 Chrome smoke | smoke 绿 | 4D-FE last-known smoke pass；03EB 未重跑，因为没有前端变更 | PASS AS LAST-KNOWN CHROME SMOKE EVIDENCE |
-| §2.8 18 步 E2E | 正式 18 steps 通过 | 4D-FE last-known formal 18 fresh-run passed；03EB 未重跑 | PASS AS LAST-KNOWN MAIN-FLOW EVIDENCE |
+| §2.6 后端 full test | full test 绿 | 4D-03EC focused 227/227；current-head backend full 4796/4796 | PASS BUT NOT SUFFICIENT |
+| §2.7 Chrome smoke | smoke 绿 | 4D-FE last-known smoke pass；03EC 未重跑，因为没有前端变更 | PASS AS LAST-KNOWN CHROME SMOKE EVIDENCE |
+| §2.8 18 步 E2E | 正式 18 steps 通过 | 4D-FE last-known formal 18 fresh-run passed；03EC 未重跑 | PASS AS LAST-KNOWN MAIN-FLOW EVIDENCE |
 | §2.9 卡牌覆盖矩阵 | 矩阵完成 | 811/811 `fullOfficial=false` | NOT MET |
 | §2.10 completion audit READY | READY 后才能 complete | current audit NOT READY | NOT MET |
 | §4.1 固定 2026-04-27 快照 | 不实时抓取官网改范围 | matrix skeleton 指向 `data/official/card-catalog.zh-CN.json`，source `fetchedAt=2026-04-27` | PARTIAL，矩阵未完成 |
@@ -1023,9 +1048,9 @@ formal 18-step steps=18/18 OK
 | §4.4 覆盖字段 | `cardId`、`collectorId`、`oracleId` / `effectId`、FAQ、tests | matrix skeleton 只有骨架与 representative evidence | NOT MET |
 | §4.5 cardId 映射完整 | 复用 effect 但 cardId 完整 | 1009 entries 可统计，full-official 映射未完成 | PARTIAL |
 | §5 服务端权威 | 前端不得推断目标、费用、胜负等 | server audit / frontend plan 均要求如此 | PARTIAL，需最终 contract audit |
-| §6 A 边界 | A 读文档、规划、审计；默认不写功能代码 | A 主控执行 4D-03EB test/docs-only card matrix readiness dispatch；未写 runtime / 前端 / matrix / READY | OK FOR THIS SLICE |
-| §7 常驻子 agent | 优先复用 B/C/D/E，避免无目的重建 | 本批复用 Fermat explorer 给出 03EB owner/gate 建议，A 主控接手实施、审计、验证与收口；当前无并发 writer | OK FOR THIS SLICE |
-| §8 写入边界 | B/C/D/E 各自写入范围，不并行改核心模块 | 03EB 文档已明确只打开 card matrix readiness dispatch/preflight 与 A-side current-state docs；runtime、frontend / Chrome / browser scripts、formal 18-step scripts、matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 仍锁定，4D-FE label write scope closed | OK FOR THIS SLICE / ONGOING |
+| §6 A 边界 | A 读文档、规划、审计；默认不写功能代码 | A 主控执行 4D-03EC test/docs-only upstream official-closure dispatch / E-gate hold；未写 runtime / 前端 / matrix / READY | OK FOR THIS SLICE |
+| §7 常驻子 agent | 优先复用 B/C/D/E，避免无目的重建 | 本批复用 Nietzsche explorer 给出 03EC owner/gate 建议，A 主控接手实施、审计、验证与收口；当前无并发 writer | OK FOR THIS SLICE |
+| §8 写入边界 | B/C/D/E 各自写入范围，不并行改核心模块 | 03EC 文档已明确只打开 upstream official-closure dispatch / E-gate hold 与 A-side current-state docs；runtime、frontend / Chrome / browser scripts、formal 18-step scripts、matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 仍锁定，4D-FE label write scope closed | OK FOR THIS SLICE / ONGOING |
 | §9 P0 / P1 定义 | 根据 P0/P1 标准判断 READY | closure plan / server audit 仍有 open risks | NOT MET |
 | §10 阶段 0-4 | checkpoint、协议、前端、对战桌面、卡牌覆盖 | Stage 0-3 有大量证据；Stage 4 full-card 未完成 | PARTIAL |
 | §10 阶段 5 | full test、build、smoke、18-step、hidden info、P0/P1、matrix、READY | full test、current-code frontend build、current-code smoke 与 current-code formal 18 有证据；P0/P1 与 matrix 未满足 | NOT MET |
@@ -1038,14 +1063,14 @@ formal 18-step steps=18/18 OK
 
 | §13 item | 当前 evidence | 状态 |
 |---|---|---|
-| 1. 修改文件列表 | 当前 4D-03EB 修改 `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` 的 card matrix readiness dispatch/preflight guard，新增 03EB audit / evidence docs，并同步 A-side checkpoint / completion / dispatch / checklist / server audit / frontend plan / P0-P1 plan docs；未改 runtime / frontend / matrix | DONE FOR THIS SLICE / NOT FINAL |
-| 2. 新增文件列表 | 当前 4D-03EB 新增 `docs/CURRENT_STAGE4D_03EB_PAYMENT_ENGINE_POST_03EA_B_CARD_MATRIX_READINESS_DISPATCH_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03EB_PAYMENT_ENGINE_POST_03EA_B_CARD_MATRIX_READINESS_DISPATCH_EVIDENCE.md`；上一批 4D-03EA-B verifier evidence 仍作为 input evidence | DONE FOR THIS SLICE / NOT FINAL |
+| 1. 修改文件列表 | 当前 4D-03EC 修改 `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` 的 upstream official-closure dispatch / E-gate hold guard，新增 03EC audit / evidence docs，并同步 A-side checkpoint / completion / dispatch / checklist / server audit / frontend plan / P0-P1 plan docs；未改 runtime / frontend / matrix | DONE FOR THIS SLICE / NOT FINAL |
+| 2. 新增文件列表 | 当前 4D-03EC 新增 `docs/CURRENT_STAGE4D_03EC_PAYMENT_ENGINE_POST_03EB_UPSTREAM_OFFICIAL_CLOSURE_DISPATCH_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03EC_PAYMENT_ENGINE_POST_03EB_UPSTREAM_OFFICIAL_CLOSURE_DISPATCH_EVIDENCE.md`；上一批 4D-03EB dispatch 仍作为 input dispatch | DONE FOR THIS SLICE / NOT FINAL |
 | 3. 服务端规则补齐项 | Stage 4D docs 记录大量 focused slices | PARTIAL |
 | 4. 前端页面完成项 | frontend rebuild plan、current-code Chrome smoke 与 current-code formal 18 有证据 | PARTIAL |
 | 5. 接口契约说明 | ActionPrompt / LegalAction / snapshot 证据分散在 server audit 与 frontend plan | PARTIAL |
 | 6. 卡牌覆盖矩阵摘要 | 1009 snapshot entries / 811 functional units，`fullOfficialTrue=0`、`fullOfficialFalse=811`、`ready=false` | NOT MET |
 | 7. 隐藏信息保护检查结果 | formal 18 页面文本断言、server audit P1-004 代表性 redaction/property evidence | PARTIAL |
-| 8. 后端 full test 命令和结果 | 4D-03EB focused `PaymentEngineCoverageAuditTests` 224/224、backend full `dotnet test Riftbound.slnx --no-restore` 4793/4793、`git diff --check` passed | PASS AS CURRENT FOCUSED / FULL-BACKEND EVIDENCE |
+| 8. 后端 full test 命令和结果 | 4D-03EC focused `PaymentEngineCoverageAuditTests` 227/227、backend full `dotnet test Riftbound.slnx --no-restore` 4796/4796、`git diff --check` passed | PASS AS CURRENT FOCUSED / FULL-BACKEND EVIDENCE |
 | 9. 前端 build / typecheck / lint | 4D-FE current-code `npm run build` pass | PASS AS LATEST FRONTEND BUILD EVIDENCE |
 | 10. Chrome smoke | 4D-FE current-code `npm run smoke:chrome -- --start-api` pass | PASS AS LATEST CHROME SMOKE EVIDENCE |
 | 11. 18 步 E2E | 4D-FE current-code formal 18 pass | PASS AS LATEST MAIN-FLOW EVIDENCE |
@@ -1056,7 +1081,7 @@ formal 18-step steps=18/18 OK
 ## 6. 不能作为 completion 代理的信号
 
 - `dotnet test` 4740/4740 通过不能替代 P0/P1 清零。
-- 4D-03EB focused 224/224 与 backend full 4793/4793 通过不能替代 P0/P1 清零、full official PaymentEngine matrix closure、`E_CARD_MATRIX_READINESS`、card matrix JSON writes、`fullOfficial` upgrade、frontend final rerun、formal 18 final rerun 或 READY；它只把 03EA-B input evidence 后的 `card-matrix-readiness` owner lock 路由到 E-side preflight dispatch，且 matrix skeleton 仍为 fullOfficialTrue=0 / ready=false。
+- 4D-03EC focused 227/227 与 backend full 4796/4796 通过不能替代 P0/P1 清零、full official PaymentEngine matrix closure、`E_CARD_MATRIX_READINESS`、card matrix JSON writes、`fullOfficial` upgrade、frontend final rerun、formal 18 final rerun 或 READY；它只把 03EB input dispatch 后的 `E_CARD_MATRIX_READINESS` 保持为 held gate，并把上游 official closure 依赖路由回 B-side fresh verifier，且 matrix skeleton 仍为 fullOfficialTrue=0 / ready=false。
 - 4D-03DV focused 211/211 通过不能替代 P0/P1 清零、broader PaymentEngine official breadth、full official `[A]` / `[C]` resource-skill row interactions、keyword payment branches、remaining payment windows、replacement / optional / alternative / tax quote-command-audit parity、full official PaymentEngine matrix、full-card matrix、frontend final rerun 或 READY；它只把 full-official-resource-skill-row-interactions residual owner lock 派发到 fresh B gate，且 03DQ worker write lock remains closed。
 - 4D-03DU focused 210/210 通过不能替代 P0/P1 清零、broader PaymentEngine official breadth、full official `[A]` / `[C]` resource-skill row interactions、keyword payment branches、remaining payment windows、replacement / optional / alternative / tax quote-command-audit parity、full official PaymentEngine matrix、full-card matrix、frontend final rerun 或 READY；它只把 03DT selected owner lock 绑定到 post-03DS broader official breadth verifier evidence。
 - 4D-03DT focused 209/209 通过不能替代 P0/P1 清零、broader PaymentEngine official breadth、full official `[A]` / `[C]` resource-skill row interactions、keyword payment branches、remaining payment windows、replacement / optional / alternative / tax quote-command-audit parity、full official PaymentEngine matrix、full-card matrix、frontend final rerun 或 READY；它只把 03DS 的 broader official breadth owner lock 转成 future B handoff。
@@ -1131,4 +1156,4 @@ formal 18-step steps=18/18 OK
 
 Active goal **未完成**。不得调用 `update_goal complete`。
 
-当前最新 A-side 状态是 4D-03EB PaymentEngine post-03EA-B card matrix readiness dispatch accepted；latest focused evidence 为 `PaymentEngineCoverageAuditTests` 224/224，current-head backend full evidence 为 4793/4793。P0/P1 清零、P0-004 adjacency audit-sensitive、broader PaymentEngine official breadth、full official `[A]` / `[C]` resource-skill row interactions、完整 keyword payment branch parity、remaining payment windows closure、complete replacement / optional / alternative / tax quote-command-audit parity closure、full official PaymentEngine matrix closure、`E_CARD_MATRIX_READINESS`、完整 card matrix alignment official closure、完整 cross-window generated-resource official closure、完整 rollback failure official closure、完整 LayerEngine、P1 keyword breadth、full-card matrix、final frontend rerun、formal 18 final rerun 与 final completion audit READY 仍未闭合。
+当前最新 A-side 状态是 4D-03EC PaymentEngine post-03EB upstream official-closure dispatch / E-gate hold accepted；latest focused evidence 为 `PaymentEngineCoverageAuditTests` 227/227，current-head backend full evidence 为 4796/4796。P0/P1 清零、P0-004 adjacency audit-sensitive、broader PaymentEngine official breadth、full official `[A]` / `[C]` resource-skill row interactions、完整 keyword payment branch parity、remaining payment windows closure、complete replacement / optional / alternative / tax quote-command-audit parity closure、full official PaymentEngine matrix closure、`E_CARD_MATRIX_READINESS`、完整 card matrix alignment official closure、完整 cross-window generated-resource official closure、完整 rollback failure official closure、完整 LayerEngine、P1 keyword breadth、full-card matrix、final frontend rerun、formal 18 final rerun 与 final completion audit READY 仍未闭合。
