@@ -11134,6 +11134,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["playerId"] = playerId,
                 ["sourceObjectId"] = sourceObjectId,
                 ["abilityId"] = abilityId,
+                ["amount"] = manaAmount,
                 ["mana"] = manaAmount,
                 ["manaAfter"] = nextPool.Mana
             }));
@@ -11163,6 +11164,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["playerId"] = playerId,
                 ["sourceObjectId"] = sourceObjectId,
                 ["abilityId"] = abilityId,
+                ["amount"] = powerAmount,
                 ["power"] = powerAmount,
                 ["powerAfter"] = nextPool.Power
             }));
