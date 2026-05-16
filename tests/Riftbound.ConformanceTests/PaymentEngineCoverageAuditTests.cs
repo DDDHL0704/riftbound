@@ -63,6 +63,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string Post03DvFullOfficialResourceSkillRowInteractionsDispatch = "post-03du-full-official-resource-skill-row-interactions-dispatch";
     private const string Post03DvFullOfficialResourceSkillRowInteractionsVerifierEvidence = "post-03du-full-official-resource-skill-row-interactions-verifier-evidence";
     private const string Post03DwKeywordPaymentBranchesDispatch = "post-03dv-b-keyword-payment-branches-dispatch";
+    private const string Post03DwKeywordPaymentBranchesVerifierEvidence = "post-03dv-b-keyword-payment-branches-verifier-evidence";
     private const string OfficialBreadthFullResourceSkillInteractionMatrixVerifierGate = "B_PAYMENT_ENGINE_OFFICIAL_BREADTH_FULL_RESOURCE_SKILL_ROW_INTERACTION_MATRIX_VERIFIER";
     private const string Post03DqResidualAuditGate = "D_COMPLETION_P0_AUDIT";
     private const string Post03DsBroaderOfficialBreadthGate = "B_PAYMENT_ENGINE_OFFICIAL_BREADTH_POST_03DS_RESIDUAL_OWNER_LOCK_VERIFIER";
@@ -4560,6 +4561,37 @@ public sealed class PaymentEngineCoverageAuditTests
             Post03DwKeywordPaymentBranchesDispatchDocAnchors)
     ];
 
+    private static readonly string[] Post03DwKeywordPaymentBranchesVerifierEvidenceDocAnchors =
+    [
+        "docs/CURRENT_STAGE4D_03DW_B_PAYMENT_ENGINE_KEYWORD_PAYMENT_BRANCHES_VERIFIER_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03DW_B_PAYMENT_ENGINE_KEYWORD_PAYMENT_BRANCHES_VERIFIER_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03DW_PAYMENT_ENGINE_POST_03DV_B_KEYWORD_PAYMENT_BRANCHES_DISPATCH_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03DW_PAYMENT_ENGINE_POST_03DV_B_KEYWORD_PAYMENT_BRANCHES_DISPATCH_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03DV_B_PAYMENT_ENGINE_FULL_OFFICIAL_RESOURCE_SKILL_ROW_INTERACTIONS_VERIFIER_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03DV_B_PAYMENT_ENGINE_FULL_OFFICIAL_RESOURCE_SKILL_ROW_INTERACTIONS_VERIFIER_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03DV_PAYMENT_ENGINE_POST_03DU_FULL_OFFICIAL_RESOURCE_SKILL_ROW_INTERACTIONS_DISPATCH_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03DV_PAYMENT_ENGINE_POST_03DU_FULL_OFFICIAL_RESOURCE_SKILL_ROW_INTERACTIONS_DISPATCH_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03DU_PAYMENT_ENGINE_POST_03DS_BROADER_OFFICIAL_BREADTH_VERIFIER_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03DU_PAYMENT_ENGINE_POST_03DS_BROADER_OFFICIAL_BREADTH_VERIFIER_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03DS_PAYMENT_ENGINE_POST_03DQ_RESIDUAL_P0_AUDIT_CLASSIFICATION_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03DS_PAYMENT_ENGINE_POST_03DQ_RESIDUAL_P0_AUDIT_CLASSIFICATION_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03DR_PAYMENT_ENGINE_POST_03DQ_OFFICIAL_BREADTH_RESIDUAL_DISPATCH_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03DR_PAYMENT_ENGINE_POST_03DQ_OFFICIAL_BREADTH_RESIDUAL_DISPATCH_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03DQ_PAYMENT_ENGINE_FULL_RESOURCE_SKILL_ROW_INTERACTION_MATRIX_VERIFIER_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03DQ_PAYMENT_ENGINE_FULL_RESOURCE_SKILL_ROW_INTERACTION_MATRIX_VERIFIER_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03BP_PAYMENT_ENGINE_KEYWORD_BRANCH_MATRIX_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03BP_PAYMENT_ENGINE_KEYWORD_BRANCH_MATRIX_EVIDENCE.md",
+        "docs/CURRENT_COMPLETION_AUDIT.md",
+        "docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md",
+        "docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md",
+        "docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md",
+        "docs/CURRENT_SERVER_RULE_AUDIT.md",
+        "docs/CURRENT_FRONTEND_REBUILD_PLAN.md"
+    ];
+
+    private static readonly PaymentEnginePost03DwKeywordPaymentBranchesVerifierEvidenceEntry[] Post03DwKeywordPaymentBranchesVerifierEvidenceManifest =
+        BuildPost03DwKeywordPaymentBranchesVerifierEvidence();
+
     private static PaymentEngineOfficialBreadthFullResourceSkillInteractionMatrixVerifierEvidenceEntry[] BuildOfficialBreadthFullResourceSkillInteractionMatrixVerifierEvidence()
     {
         var handoff = Assert.Single(OfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoffManifest);
@@ -4594,6 +4626,51 @@ public sealed class PaymentEngineCoverageAuditTests
                     $"4D-03DQ binds card-row blocker evidence for {matrixRow.CardNo} / {matrixRow.InteractionDimension}: {closureRow.CardRowEvidence}",
                     "4D-03DQ executable verifier evidence only; project remains NOT READY, P0-005 remains open, P1 remains open, broader PaymentEngine official breadth remains open, full official PaymentEngine matrix remains open, full-card matrix remains open, fullOfficial remains false, card matrix JSON remains unchanged and final readiness is forbidden.",
                     [.. OfficialBreadthFullResourceSkillInteractionMatrixVerifierEvidenceDocAnchors, .. matrixRow.DocAnchors, .. closureRow.DocAnchors]);
+            })
+            .ToArray();
+    }
+
+    private static PaymentEnginePost03DwKeywordPaymentBranchesVerifierEvidenceEntry[] BuildPost03DwKeywordPaymentBranchesVerifierEvidence()
+    {
+        var dispatch = Assert.Single(Post03DwKeywordPaymentBranchesDispatchManifest);
+        var boundInputManifests = new[]
+        {
+            nameof(Post03DwKeywordPaymentBranchesDispatchManifest),
+            nameof(Post03DvFullOfficialResourceSkillRowInteractionsVerifierEvidenceManifest),
+            nameof(Post03DvFullOfficialResourceSkillRowInteractionsDispatchManifest),
+            nameof(Post03DuBroaderOfficialBreadthVerifierEvidenceManifest),
+            nameof(Post03DqResidualP0AuditClassificationManifest),
+            nameof(OfficialBreadthPost03DqResidualDispatchManifest),
+            nameof(OfficialBreadthFullResourceSkillInteractionMatrixVerifierEvidenceManifest),
+            nameof(KeywordPaymentBranchAllWindowMatrixManifest),
+            nameof(RemainingOfficialClosureGateManifest)
+        };
+
+        return KeywordPaymentBranchAllWindowMatrixManifest
+            .Select(matrixRow =>
+            {
+                return new PaymentEnginePost03DwKeywordPaymentBranchesVerifierEvidenceEntry(
+                    dispatch.InputGateId,
+                    dispatch.DownstreamOwner,
+                    dispatch.ConcreteScopeGateId,
+                    Post03DwKeywordPaymentBranchesVerifierEvidence,
+                    nameof(Post03DwKeywordPaymentBranchesDispatchManifest),
+                    dispatch.SelectedResidualCategory,
+                    boundInputManifests,
+                    matrixRow.MatrixRowId,
+                    matrixRow.Branch,
+                    matrixRow.ActionWindow,
+                    matrixRow.PaymentSurfaceScope,
+                    matrixRow.RepresentativeSurface,
+                    $"4D-03DW-B binds keyword payment prompt quote for {matrixRow.ActionWindow} / {matrixRow.Branch}: {matrixRow.PromptQuote}",
+                    $"4D-03DW-B binds Command revalidation for {matrixRow.ActionWindow} / {matrixRow.Branch}: {matrixRow.CommandRevalidation}",
+                    $"4D-03DW-B binds audit events for {matrixRow.ActionWindow} / {matrixRow.Branch}: {matrixRow.AuditExpectation}",
+                    $"4D-03DW-B binds rollback/no-mutation evidence for {matrixRow.ActionWindow} / {matrixRow.Branch}: {matrixRow.RollbackExpectation}",
+                    $"4D-03DW-B matrix trace consumes KeywordPaymentBranchAllWindowMatrixManifest row {matrixRow.MatrixRowId} and Post03DwKeywordPaymentBranchesDispatchManifest as input, not closure; selected residual category remains {dispatch.SelectedResidualCategory}.",
+                    $"4D-03DW-B card-row blocker / fullOfficial=false evidence for {matrixRow.ActionWindow} / {matrixRow.Branch}: card matrix JSON remains unchanged and no fullOfficial upgrade is permitted.",
+                    "Runtime, frontend, Chrome / browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial status, final readiness status and riftbound-dotnet.sln remain forbidden in 4D-03DW-B.",
+                    "4D-03DW-B verifier evidence only; 4D-03DW dispatch remains input evidence only, project remains NOT READY, P0-005 remains open, P1 remains open, broader PaymentEngine official breadth remains open, full official resource-skill row interactions remain open, remaining payment windows remain open, replacement parity remains open, full official matrix remains open, card matrix remains open and READY remains open.",
+                    [.. Post03DwKeywordPaymentBranchesVerifierEvidenceDocAnchors, .. matrixRow.DocAnchors]);
             })
             .ToArray();
     }
@@ -12750,20 +12827,185 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
-    public void PaymentEngineActiveGoalCompletionAuditMappingTracksCurrent03DwHeadEvidence()
+    public void PaymentEnginePost03DwKeywordPaymentBranchesVerifierEvidenceBinds48MatrixRowsWithoutClosingDispatch()
+    {
+        var repositoryRoot = ResolveRepositoryRoot();
+        var dispatch = Assert.Single(Post03DwKeywordPaymentBranchesDispatchManifest);
+        var selectedClassification = Assert.Single(
+            Post03DqResidualP0AuditClassificationManifest,
+            entry => string.Equals(entry.ResidualCategory, "keyword-payment-branches", StringComparison.Ordinal));
+        var expectedMatrixRowIds = KeywordPaymentBranchAllWindowMatrixManifest
+            .Select(entry => entry.MatrixRowId)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var actualMatrixRowIds = Post03DwKeywordPaymentBranchesVerifierEvidenceManifest
+            .Select(entry => entry.MatrixRowId)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var requiredBoundInputs = new[]
+        {
+            nameof(Post03DwKeywordPaymentBranchesDispatchManifest),
+            nameof(Post03DvFullOfficialResourceSkillRowInteractionsVerifierEvidenceManifest),
+            nameof(Post03DvFullOfficialResourceSkillRowInteractionsDispatchManifest),
+            nameof(Post03DuBroaderOfficialBreadthVerifierEvidenceManifest),
+            nameof(Post03DqResidualP0AuditClassificationManifest),
+            nameof(OfficialBreadthPost03DqResidualDispatchManifest),
+            nameof(OfficialBreadthFullResourceSkillInteractionMatrixVerifierEvidenceManifest),
+            nameof(KeywordPaymentBranchAllWindowMatrixManifest),
+            nameof(RemainingOfficialClosureGateManifest)
+        };
+        var combinedText = string.Join(
+            " ",
+            Post03DwKeywordPaymentBranchesVerifierEvidenceManifest.SelectMany(entry => new[]
+            {
+                entry.InputGateId,
+                entry.DownstreamOwner,
+                entry.ConcreteScopeGateId,
+                entry.Classification,
+                entry.InputDispatchManifest,
+                entry.SelectedResidualCategory,
+                entry.MatrixRowId,
+                entry.Branch,
+                entry.ActionWindow,
+                entry.PaymentSurfaceScope,
+                entry.RepresentativeSurface,
+                entry.PromptQuoteEvidence,
+                entry.CommandRevalidationEvidence,
+                entry.AuditEventEvidence,
+                entry.RollbackNoMutationEvidence,
+                entry.OfficialMatrixTrace,
+                entry.CardRowBlockerEvidence,
+                entry.ForbiddenScope,
+                entry.NonClosureStatus
+            }.Concat(entry.BoundInputEvidenceManifests)
+                .Concat(entry.DocAnchors)));
+
+        Assert.Equal(48, Post03DwKeywordPaymentBranchesVerifierEvidenceManifest.Length);
+        Assert.Equal(expectedMatrixRowIds, actualMatrixRowIds);
+        Assert.Equal(8, Post03DwKeywordPaymentBranchesVerifierEvidenceManifest.Select(entry => entry.Branch).Distinct(StringComparer.Ordinal).Count());
+        Assert.Equal(6, Post03DwKeywordPaymentBranchesVerifierEvidenceManifest.Select(entry => entry.ActionWindow).Distinct(StringComparer.Ordinal).Count());
+        Assert.Equal(Post03DwKeywordPaymentBranchesGate, dispatch.ConcreteScopeGateId);
+        Assert.Equal("keyword-payment-branches", dispatch.SelectedResidualCategory);
+        Assert.Equal("keyword-payment-branches", selectedClassification.ResidualCategory);
+
+        Assert.All(Post03DwKeywordPaymentBranchesVerifierEvidenceManifest, entry =>
+        {
+            var matrixRow = Assert.Single(
+                KeywordPaymentBranchAllWindowMatrixManifest,
+                row => string.Equals(row.MatrixRowId, entry.MatrixRowId, StringComparison.Ordinal));
+
+            Assert.Equal(Post03DqResidualAuditGate, entry.InputGateId);
+            Assert.Equal("B_PAYMENT_ENGINE_KEYWORD_PAYMENT_BRANCHES", entry.DownstreamOwner);
+            Assert.Equal(Post03DwKeywordPaymentBranchesGate, entry.ConcreteScopeGateId);
+            Assert.Equal(Post03DwKeywordPaymentBranchesVerifierEvidence, entry.Classification);
+            Assert.Equal(nameof(Post03DwKeywordPaymentBranchesDispatchManifest), entry.InputDispatchManifest);
+            Assert.Equal("keyword-payment-branches", entry.SelectedResidualCategory);
+            Assert.Equal(matrixRow.Branch, entry.Branch);
+            Assert.Equal(matrixRow.ActionWindow, entry.ActionWindow);
+            Assert.Equal(matrixRow.PaymentSurfaceScope, entry.PaymentSurfaceScope);
+            Assert.Equal(matrixRow.RepresentativeSurface, entry.RepresentativeSurface);
+            Assert.All(requiredBoundInputs, requiredInput => Assert.Contains(requiredInput, entry.BoundInputEvidenceManifests));
+            Assert.Contains("keyword payment prompt quote", entry.PromptQuoteEvidence, StringComparison.Ordinal);
+            Assert.Contains(matrixRow.PromptQuote, entry.PromptQuoteEvidence, StringComparison.Ordinal);
+            Assert.Contains("Command revalidation", entry.CommandRevalidationEvidence, StringComparison.Ordinal);
+            Assert.Contains(matrixRow.CommandRevalidation, entry.CommandRevalidationEvidence, StringComparison.Ordinal);
+            Assert.Contains("audit events", entry.AuditEventEvidence, StringComparison.Ordinal);
+            Assert.Contains(matrixRow.AuditExpectation, entry.AuditEventEvidence, StringComparison.Ordinal);
+            Assert.Contains("rollback/no-mutation", entry.RollbackNoMutationEvidence, StringComparison.Ordinal);
+            Assert.Contains(matrixRow.RollbackExpectation, entry.RollbackNoMutationEvidence, StringComparison.Ordinal);
+            Assert.Contains("KeywordPaymentBranchAllWindowMatrixManifest", entry.OfficialMatrixTrace, StringComparison.Ordinal);
+            Assert.Contains("Post03DwKeywordPaymentBranchesDispatchManifest", entry.OfficialMatrixTrace, StringComparison.Ordinal);
+            Assert.Contains("input, not closure", entry.OfficialMatrixTrace, StringComparison.Ordinal);
+            Assert.Contains("card-row blocker", entry.CardRowBlockerEvidence, StringComparison.Ordinal);
+            Assert.Contains("fullOfficial=false", entry.CardRowBlockerEvidence, StringComparison.Ordinal);
+            Assert.Contains("card matrix JSON remains unchanged", entry.CardRowBlockerEvidence, StringComparison.Ordinal);
+            Assert.Contains("Runtime", entry.ForbiddenScope, StringComparison.Ordinal);
+            Assert.Contains("frontend", entry.ForbiddenScope, StringComparison.Ordinal);
+            Assert.Contains("Chrome / browser scripts", entry.ForbiddenScope, StringComparison.Ordinal);
+            Assert.Contains("formal 18-step scripts", entry.ForbiddenScope, StringComparison.Ordinal);
+            Assert.Contains("card matrix JSON", entry.ForbiddenScope, StringComparison.Ordinal);
+            Assert.Contains("fullOfficial status", entry.ForbiddenScope, StringComparison.Ordinal);
+            Assert.Contains("final readiness status", entry.ForbiddenScope, StringComparison.Ordinal);
+            Assert.Contains("riftbound-dotnet.sln", entry.ForbiddenScope, StringComparison.Ordinal);
+            Assert.Contains("4D-03DW dispatch remains input evidence only", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("NOT READY", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P1 remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("broader PaymentEngine official breadth remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("full official resource-skill row interactions remain open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("remaining payment windows remain open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("replacement parity remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("full official matrix remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("card matrix remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("READY remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("docs/CURRENT_STAGE4D_03DW_B_PAYMENT_ENGINE_KEYWORD_PAYMENT_BRANCHES_VERIFIER_AUDIT.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03DW_B_PAYMENT_ENGINE_KEYWORD_PAYMENT_BRANCHES_VERIFIER_EVIDENCE.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03DW_PAYMENT_ENGINE_POST_03DV_B_KEYWORD_PAYMENT_BRANCHES_DISPATCH_AUDIT.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BP_PAYMENT_ENGINE_KEYWORD_BRANCH_MATRIX_AUDIT.md", entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor => Assert.True(File.Exists(Path.Combine(repositoryRoot, anchor)), anchor));
+        });
+
+        foreach (var actionWindow in KeywordPaymentBranchAllWindowActionWindowProfiles.Select(entry => entry.ActionWindow))
+        {
+            Assert.Equal(
+                8,
+                Post03DwKeywordPaymentBranchesVerifierEvidenceManifest.Count(entry => string.Equals(entry.ActionWindow, actionWindow, StringComparison.Ordinal)));
+        }
+
+        foreach (var branch in KeywordPaymentBranchManifest.Select(entry => entry.Branch))
+        {
+            Assert.Equal(
+                6,
+                Post03DwKeywordPaymentBranchesVerifierEvidenceManifest.Count(entry => string.Equals(entry.Branch, branch, StringComparison.Ordinal)));
+        }
+
+        Assert.Contains("4D-03DW-B", combinedText, StringComparison.Ordinal);
+        Assert.Contains("Post03DwKeywordPaymentBranchesDispatchManifest", combinedText, StringComparison.Ordinal);
+        Assert.Contains("Post03DwKeywordPaymentBranchesDispatchManifest as input, not closure", combinedText, StringComparison.Ordinal);
+        Assert.Contains("KeywordPaymentBranchAllWindowMatrixManifest", combinedText, StringComparison.Ordinal);
+        Assert.Contains("keyword payment prompt quote", combinedText, StringComparison.Ordinal);
+        Assert.Contains("Command revalidation", combinedText, StringComparison.Ordinal);
+        Assert.Contains("audit events", combinedText, StringComparison.Ordinal);
+        Assert.Contains("rollback/no-mutation", combinedText, StringComparison.Ordinal);
+        Assert.Contains("card-row blocker / fullOfficial=false", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.All(
+            Post03DwKeywordPaymentBranchesVerifierEvidenceDocAnchors,
+            anchor => Assert.True(File.Exists(Path.Combine(repositoryRoot, anchor)), anchor));
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("READY remains open", string.Empty, StringComparison.Ordinal)
+                .Replace("CANNOT_READY", string.Empty, StringComparison.Ordinal)
+                .Replace("READY_UNIT", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineActiveGoalCompletionAuditMappingTracksCurrent03DwBHeadEvidence()
     {
         var repositoryRoot = ResolveRepositoryRoot();
         var completionAudit = File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_COMPLETION_AUDIT.md"));
         var checklist = File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md"));
         var completionMapping = ExtractSection(completionAudit, "## 0.1 Active Goal 门槛到证据映射", "## 1.");
-        var checklistCurrentHead = ExtractSection(checklist, "当前 4D-03DW", "上一批 4D-03DV-B");
+        var checklistCurrentHead = ExtractSection(checklist, "当前 4D-03DW-B", "上一批 4D-03DW");
         var checklistMapping = ExtractSection(checklist, "## 3. 主目标门槛映射", "## 7.");
 
+        Assert.Contains("4D-03DW-B", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("Post03DwKeywordPaymentBranchesVerifierEvidenceManifest", completionMapping, StringComparison.Ordinal);
+        Assert.Contains(Post03DwKeywordPaymentBranchesVerifierEvidence, completionMapping, StringComparison.Ordinal);
         Assert.Contains("4D-03DW", completionMapping, StringComparison.Ordinal);
         Assert.Contains("Post03DwKeywordPaymentBranchesDispatchManifest", completionMapping, StringComparison.Ordinal);
         Assert.Contains(Post03DwKeywordPaymentBranchesDispatch, completionMapping, StringComparison.Ordinal);
         Assert.Contains(Post03DwKeywordPaymentBranchesGate, completionMapping, StringComparison.Ordinal);
         Assert.Contains("keyword-payment-branches", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("03DW dispatch is input evidence only", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("48 keyword branch evidence rows", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("8 keyword payment branches x 6 payment surfaces", completionMapping, StringComparison.Ordinal);
         Assert.Contains("03DV-B remains input evidence only", completionMapping, StringComparison.Ordinal);
         Assert.Contains("4D-03DV-B", completionMapping, StringComparison.Ordinal);
         Assert.Contains("Post03DvFullOfficialResourceSkillRowInteractionsVerifierEvidenceManifest", completionMapping, StringComparison.Ordinal);
@@ -12817,11 +13059,17 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.DoesNotContain("formal-18-1778623926434-15", completionMapping, StringComparison.Ordinal);
         Assert.DoesNotContain("IMPLEMENTED_TESTED 为 76", completionMapping, StringComparison.Ordinal);
 
+        Assert.Contains("4D-03DW-B", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("Post03DwKeywordPaymentBranchesVerifierEvidenceManifest", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains(Post03DwKeywordPaymentBranchesVerifierEvidence, checklistMapping, StringComparison.Ordinal);
         Assert.Contains("4D-03DW", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("Post03DwKeywordPaymentBranchesDispatchManifest", checklistMapping, StringComparison.Ordinal);
         Assert.Contains(Post03DwKeywordPaymentBranchesDispatch, checklistMapping, StringComparison.Ordinal);
         Assert.Contains(Post03DwKeywordPaymentBranchesGate, checklistMapping, StringComparison.Ordinal);
         Assert.Contains("keyword-payment-branches", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("03DW dispatch is input evidence only", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("48 keyword branch evidence rows", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("8 keyword payment branches x 6 payment surfaces", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("03DV-B remains input evidence only", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("4D-03DV-B", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("Post03DvFullOfficialResourceSkillRowInteractionsVerifierEvidenceManifest", checklistMapping, StringComparison.Ordinal);
@@ -12869,20 +13117,22 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Contains("fullOfficialTrue=0", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("ready=false", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("NOT READY", checklistMapping, StringComparison.Ordinal);
-        Assert.Contains("当前 4D-03DW", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("baseCommit=0e18b10f", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("focused PaymentEngineCoverageAuditTests=213/213", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("Post03DwKeywordPaymentBranchesDispatchManifest selects keyword-payment-branches", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("classification=post-03dv-b-keyword-payment-branches-dispatch", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("当前 4D-03DW-B", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("baseCommit=6950e1fd", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("focused PaymentEngineCoverageAuditTests=214/214", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("Post03DwKeywordPaymentBranchesVerifierEvidenceManifest binds 48 keyword branch evidence rows", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("classification=post-03dv-b-keyword-payment-branches-verifier-evidence", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains(Post03DwKeywordPaymentBranchesGate, checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("input evidence manifest=Post03DvFullOfficialResourceSkillRowInteractionsVerifierEvidenceManifest", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("bound input manifests=Post03DvFullOfficialResourceSkillRowInteractionsVerifierEvidenceManifest / Post03DvFullOfficialResourceSkillRowInteractionsDispatchManifest / Post03DuBroaderOfficialBreadthVerifierEvidenceManifest / Post03DqResidualP0AuditClassificationManifest / OfficialBreadthPost03DqResidualDispatchManifest / OfficialBreadthFullResourceSkillInteractionMatrixVerifierEvidenceManifest / KeywordPaymentBranchAllWindowMatrixManifest / RemainingOfficialClosureGateManifest", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("future B must prove keyword payment prompts / command revalidation / audit events / rollback / card-row blocker status across keyword payment branches", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("dispatch only; no runtime / frontend / Chrome / formal 18 / card matrix JSON / fullOfficial / final readiness / riftbound-dotnet.sln", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("input dispatch manifest=Post03DwKeywordPaymentBranchesDispatchManifest", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("bound input manifests=Post03DwKeywordPaymentBranchesDispatchManifest / Post03DvFullOfficialResourceSkillRowInteractionsVerifierEvidenceManifest / Post03DvFullOfficialResourceSkillRowInteractionsDispatchManifest / Post03DuBroaderOfficialBreadthVerifierEvidenceManifest / Post03DqResidualP0AuditClassificationManifest / OfficialBreadthPost03DqResidualDispatchManifest / OfficialBreadthFullResourceSkillInteractionMatrixVerifierEvidenceManifest / KeywordPaymentBranchAllWindowMatrixManifest / RemainingOfficialClosureGateManifest", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("8 keyword payment branches x 6 payment surfaces", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("keyword payment prompt quote / Command revalidation / audit events / rollback/no-mutation / matrix trace / card-row blocker fullOfficial=false", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("verifier evidence only; no runtime / frontend / Chrome / formal 18 / card matrix JSON / fullOfficial / final readiness / riftbound-dotnet.sln", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("03DW dispatch is input evidence only", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("03DV-B remains input evidence only", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("Chrome smoke not run because there were no frontend changes", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("P0-005 / P1 / broader PaymentEngine official breadth / full official [A] / [C] resource-skill row interactions / remaining payment windows / replacement parity / full official matrix / card matrix / READY=open", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("Post03DvFullOfficialResourceSkillRowInteractionsVerifierEvidenceManifest binds current 32 official RESOURCE_SKILLS rows", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("Post03DwKeywordPaymentBranchesDispatchManifest remains input, not closure", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("broader-payment-engine-official-breadth", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("full-official-resource-skill-row-interactions", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("keyword-payment-branches", checklistCurrentHead, StringComparison.Ordinal);
@@ -12908,13 +13158,17 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.DoesNotContain("latestCommit=739c27ac", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("latestCommit=8206b18d", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("latestCommit=57b583ec", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.DoesNotContain("baseCommit=0e18b10f", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("baseCommit=98e689fd", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("baseCommit=5f55fecf", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.DoesNotContain("focused PaymentEngineCoverageAuditTests=213/213", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("focused PaymentEngineCoverageAuditTests=212/212", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("focused PaymentEngineCoverageAuditTests=211/211", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("focused PaymentEngineCoverageAuditTests=206/206", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("focused PaymentEngineCoverageAuditTests=203/203", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("focused PaymentEngineCoverageAuditTests=190/190", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.DoesNotContain("当前 4D-03DW PaymentEngine post-03DV-B keyword payment branches dispatch", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.DoesNotContain("Post03DwKeywordPaymentBranchesDispatchManifest selects keyword-payment-branches", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("backend full=4740/4740", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("A 验收 4D-03DF test/docs-only completion audit refresh", checklistMapping, StringComparison.Ordinal);
         Assert.DoesNotContain("4D-03DF 只打开 completion audit", checklistMapping, StringComparison.Ordinal);
@@ -13535,6 +13789,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(Post03DvFullOfficialResourceSkillRowInteractionsDispatchManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(Post03DvFullOfficialResourceSkillRowInteractionsVerifierEvidenceManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(Post03DwKeywordPaymentBranchesDispatchManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(Post03DwKeywordPaymentBranchesVerifierEvidenceManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TypedSigilOfficialRuntimeCardRowAuditManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TargetTypedActivatedAbilityOfficialFamilyVerifierManifest.SelectMany(entry => entry.DocAnchors))
@@ -14025,6 +14280,29 @@ public sealed class PaymentEngineCoverageAuditTests
         IReadOnlyList<string> BoundInputEvidenceManifests,
         string DispatchRequirement,
         string RequiredFutureEvidence,
+        string ForbiddenScope,
+        string NonClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
+    private sealed record PaymentEnginePost03DwKeywordPaymentBranchesVerifierEvidenceEntry(
+        string InputGateId,
+        string DownstreamOwner,
+        string ConcreteScopeGateId,
+        string Classification,
+        string InputDispatchManifest,
+        string SelectedResidualCategory,
+        IReadOnlyList<string> BoundInputEvidenceManifests,
+        string MatrixRowId,
+        string Branch,
+        string ActionWindow,
+        string PaymentSurfaceScope,
+        string RepresentativeSurface,
+        string PromptQuoteEvidence,
+        string CommandRevalidationEvidence,
+        string AuditEventEvidence,
+        string RollbackNoMutationEvidence,
+        string OfficialMatrixTrace,
+        string CardRowBlockerEvidence,
         string ForbiddenScope,
         string NonClosureStatus,
         IReadOnlyList<string> DocAnchors);
