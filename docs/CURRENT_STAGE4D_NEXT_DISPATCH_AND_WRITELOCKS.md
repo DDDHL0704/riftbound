@@ -1,13 +1,14 @@
 # Stage 4D Next Dispatch and Writelocks
 
 日期：2026-05-16
-结论：**4D-03CR LUX RESOURCE SKILL / PROJECT NOT READY**
+结论：**4D-03CS LEGEND RESOURCE BRIDGE CLOSURE HANDOFF / PROJECT NOT READY**
 
 本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance / baseline 归档；除本文明确记录的 focused verifier 外，不实现 runtime，不修改前端，不升级 full-official。当前 active goal 仍未完成，不得调用 `update_goal complete`。
 
 ## 1. 输入事实
 
 - 当前分支为 `main`，仓库当前只保留未跟踪 `riftbound-dotnet.sln`；该文件不得被本批任务触碰或纳入提交。
+- 4D-03CS PaymentEngine legend resource bridge closure handoff / baseline 已建立，入口为 `docs/CURRENT_STAGE4D_03CS_PAYMENT_ENGINE_LEGEND_RESOURCE_BRIDGE_CLOSURE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03CS_PAYMENT_ENGINE_LEGEND_RESOURCE_BRIDGE_CLOSURE_BASELINE_EVIDENCE.md`。本批只做 A-side docs，把 Lux 后 non-legend deferred resource-skill lanes 已清空的事实转成 future B-side legend bridge closure boundary：当前 `PaymentEngineCoverageAuditTests` 证明 implemented resource-skill candidates=23、deferred=9、non-legend deferred candidates=none，唯一 next dispatch gate 是 `B_LEGEND_RESOURCE_ACTION_BRIDGE_VERIFIER`。A 侧 baseline 验证 focused PaymentEngine coverage guard 133/133 通过；runtime、tests、frontend、Chrome / browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；P0-005、P1、full-card matrix 与 READY 仍未关闭。
 - 4D-03CR PaymentEngine Lux spell-only tap-reaction resource skill 已完成并验收，入口为 `docs/CURRENT_STAGE4D_03CR_PAYMENT_ENGINE_LUX_RESOURCE_SKILL_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03CR_PAYMENT_ENGINE_LUX_RESOURCE_SKILL_EVIDENCE.md`。本批实现 `OGS·014/024` Lux resource-skill representative：spell `PLAY_CARD` prompt 在 ready controlled Lux source 可覆盖当前 mana shortfall 时公开 `LUX_SPELL_ONLY_RESOURCE:<sourceObjectId>`；`PLAY_CARD` 重验 source / readiness / controller / field-zone / spell-only use / necessity / duplicate source shape 后横置 Lux，生成 2 点 spell-only mana，消费当前 spell 所需资源并在 state publish 前清理剩余 generated mana。A 侧验证 focused Lux 9/9、Lux + coverage + fixture catalog audit 143/143、adjacent PaymentEngine / resource skill / legend / prompt / hub regression 742/742、backend full 4657/4657、`git diff --check` 通过；frontend、Chrome / browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；legend bridge resource-skill closure、P0-005、P1、full-card matrix 与 READY 仍未关闭。
 - 4D-03CQ PaymentEngine Blue Sentinel held-battlefield delayed next-main resource skill 已完成并验收，入口为 `docs/CURRENT_STAGE4D_03CQ_PAYMENT_ENGINE_BLUE_SENTINEL_RESOURCE_SKILL_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03CQ_PAYMENT_ENGINE_BLUE_SENTINEL_RESOURCE_SKILL_EVIDENCE.md`。本批实现 `UNL-087/219` Blue Sentinel resource-skill representative：held-battlefield resolution 捕获 delayed trigger；下一主阶段 pending rune payment 公开 `BLUE_SENTINEL_DELAYED_RESOURCE:<triggerId>`；`PAY_COST` 重验 trigger / source / battlefield / timing / payment-only rune use 后 materialize 1 点 temporary power 并清理 trigger。A 侧验证 focused + coverage + fixture catalog audit 146/146、adjacent PaymentEngine / resource skill / legend / prompt / hub regression 733/733、backend full 4648/4648、`git diff --check` 通过；frontend、Chrome / browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；Lux、legend bridge resource-skill closure、P0-005、P1、full-card matrix 与 READY 仍未关闭。
 - 4D-03CP PaymentEngine Honeyfruit equipment-reaction resource skill 已完成并验收，入口为 `docs/CURRENT_STAGE4D_03CP_PAYMENT_ENGINE_HONEYFRUIT_RESOURCE_SKILL_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03CP_PAYMENT_ENGINE_HONEYFRUIT_RESOURCE_SKILL_EVIDENCE.md`。本批实现 `UNL-049/219` Honeyfruit resource-skill representative：prompt 只在 stack-priority reaction、ready controlled base equipment source 时公开；base branch 横置 source 并生成 1 点 payment-only temporary power；level-six branch 通过 `HONEYFRUIT_LEVEL_SIX:<sourceObjectId>` choice 且经验不少于 6 时额外生成 1 mana。A 侧验证 focused 16/16、PaymentEngine coverage audit 133/133、adjacent PaymentEngine / resource skill / legend / prompt / hub regression 721/721、fixture-runner catalog audit recheck 150/150、backend full 4636/4636；frontend、Chrome / browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；Blue Sentinel、Lux、legend bridge resource-skill closure、P0-005、P1、full-card matrix 与 READY 仍未关闭。
@@ -126,6 +127,7 @@
 
 | Queue | Owner | Status | Purpose | Write scope | Must not touch |
 |---|---|---|---|---|---|
+| 4D-03CS | A 主控 | Handoff / baseline recorded; no worker dispatched | Convert the post-Lux state into a future B-side closure boundary for the exact 9-card Diana / Ornn / KaiSa / Darius legend resource bridge family | 4D-03CS handoff / baseline docs and checkpoint / completion / dispatch / server audit / checklist docs | runtime、tests beyond future dispatch、Jhin / Honeyfruit / Blue Sentinel / Lux non-legend lanes、frontend runtime、Chrome / browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-03CR | A 主控 | Focused runtime slice implemented and A-validated | Implement `OGS·014/024` Lux spell-only tap-reaction resource skill with server-filtered spell payment prompt, inline generated mana lifecycle and no-mutation verifier | `src/Riftbound.Engine/P4ActivatedAbilityCatalog.cs`, `src/Riftbound.Engine/CoreRuleEngine.cs`, `src/Riftbound.Engine/MatchSession.cs`, `tests/Riftbound.ConformanceTests/LuxResourceSkillTests.cs`, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, `tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs`, 4D-03CR audit / evidence docs, checkpoint / completion / dispatch docs | legend bridge candidates、frontend runtime、Chrome / browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-03CO | B-Implementation / Planck `019e2ee0-dd13-7f21-871d-d04756f77ddc` + A 主控 | Focused runtime slice implemented and A-validated | Implement `UNL-022/219` Jhin movement-triggered resource skill with server-captured trigger, hybrid mana / temporary-power lifecycle, prompt gating and no-mutation verifier | `src/Riftbound.Engine/P4ActivatedAbilityCatalog.cs`, `src/Riftbound.Engine/CoreRuleEngine.cs`, `src/Riftbound.Engine/MatchSession.cs`, `tests/Riftbound.ConformanceTests/JhinMovementResourceSkillTests.cs`, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, `tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs`, 4D-03CO audit / evidence docs, checkpoint / completion / closure / dispatch / server audit / checklist docs | Jhin alt / reprint parity、Honeyfruit / Blue Sentinel / Lux lanes、legend bridge candidates、frontend runtime、Chrome / browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-03CM | B-Implementation / Huygens `019e2ecc-6799-7eb3-ace4-c8039a56b6c7` + A 主控 | Focused verifier implemented and A-validated | Prove exact 9-card Diana / Ornn / KaiSa / Darius legend bridge prompt / command / rollback / source-card parity and normalized gain audit amount | `tests/Riftbound.ConformanceTests/LegendResourceBridgeVerifierTests.cs`, minimal `src/Riftbound.Engine/CoreRuleEngine.cs` event payload audit field, 4D-03CM audit / evidence docs, checkpoint / completion / closure / dispatch / server audit / checklist docs | generated-resource ledger lifetime / consumption / cleanup、frontend runtime、browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY、`riftbound-dotnet.sln` |
@@ -196,6 +198,7 @@
 
 ## 3. Exclusive Writelocks
 
+- 4D-03CS is A-side handoff / baseline only. No B / C / D / E worker is dispatched, no runtime / test / frontend / matrix write lock is open, and future legend bridge closure for Diana, Ornn, KaiSa and Darius requires a fresh explicit A dispatch. All non-legend resource-skill lanes, frontend runtime, Chrome / browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
 - 4D-03CR focused runtime write scope is closed after A validation. Only the Lux spell-only tap-reaction resource-skill engine / prompt / focused-test / coverage-manifest / fixture catalog audit files and A-side docs were changed. Legend bridge candidates, frontend runtime, Chrome / browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
 - 4D-FE event-label build gate frontend label write scope is closed after current-code build validation. Only `src/Riftbound.DevUi/src/components/match/EventLog.tsx` was changed. Server runtime, protocols, prompt/action legality, browser smoke scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
 - 4D-03CP focused runtime write scope is closed after A validation. Only the Honeyfruit equipment-reaction resource-skill engine / prompt / focused-test / coverage-manifest / catalog-audit files and A-side docs were changed. Blue Sentinel, Lux, legend bridge candidates, frontend runtime, Chrome / browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
@@ -280,6 +283,19 @@
 - C remains read-only while B might alter server prompt shape. Any frontend write window must wait until server `ActionPrompt` payload and event shape are stable.
 - E returns to read-only after 4D-03AT. The matrix must not be upgraded to `fullOfficial=true` for Azir, Maduli, Ezreal or other latest representatives merely because focused runtime evidence passed.
 - No parallel task may edit card matrix JSON, frontend stores, `ActionPrompt` contracts, battle state machine, stack, cleanup, hidden-info redaction, or E2E fixtures without an explicit owner and a fresh write-lock note.
+
+## 3.0Z 4D-03CS Legend Bridge Closure Handoff Gate Accepted
+
+4D-03CS is accepted as an A-side docs-only handoff / baseline. The next concrete resource-skill closure candidate is now the exact 9-card Diana / Ornn / KaiSa / Darius legend bridge family, not the already-closed Jhin / Honeyfruit / Blue Sentinel / Lux non-legend runtime lanes.
+
+Acceptance facts:
+
+1. `docs/CURRENT_STAGE4D_03CS_PAYMENT_ENGINE_LEGEND_RESOURCE_BRIDGE_CLOSURE_HANDOFF.md` and `docs/CURRENT_STAGE4D_03CS_PAYMENT_ENGINE_LEGEND_RESOURCE_BRIDGE_CLOSURE_BASELINE_EVIDENCE.md` exist and state the future B boundary.
+2. Focused PaymentEngine coverage guard passed 133/133.
+3. The current manifest keeps implemented resource-skill candidates at 23 and deferred candidates at 9.
+4. Deferred non-legend candidates are empty; the only next dispatch gate is `B_LEGEND_RESOURCE_ACTION_BRIDGE_VERIFIER`.
+5. No worker is dispatched and no runtime / test / frontend / matrix write lock is open.
+6. The handoff does not close P0-005, P1, full-card matrix, frontend final-state reruns or READY.
 
 ## 3.0 4D-03BL Handoff Gate Accepted
 
@@ -1488,4 +1504,4 @@ E may identify matrix rows and official text blockers for Azir / Ezreal, but mus
 
 ## 15. Current Batch Stop Point
 
-This record stops after establishing 4D-03CF PaymentEngine Diana legend resource-action bridge handoff / baseline. The project remains **NOT READY**. No frontend, matrix, runtime or open test write window remains open, and `riftbound-dotnet.sln` remains untouched.
+This record stops after establishing 4D-03CS PaymentEngine legend resource bridge closure handoff / baseline. The project remains **NOT READY**. No frontend, matrix, runtime or open test write window remains open, and `riftbound-dotnet.sln` remains untouched.
