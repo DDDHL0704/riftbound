@@ -36,6 +36,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string DeferredNonLegendResourceSkillRuntimeLane = "deferred-non-legend-resource-skill-runtime-lane";
     private const string LegendResourceBridgeAggregateVerifier = "legend-resource-bridge-aggregate-verifier";
     private const string LegendResourceBridgeImplementationAcceptance = "legend-resource-bridge-implementation-acceptance";
+    private const string LegendResourceBridgeResourceSkillClosure = "legend-resource-bridge-resource-skill-closure";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
     [
@@ -2470,31 +2471,7 @@ public sealed class PaymentEngineCoverageAuditTests
     ];
 
     private static readonly PaymentEngineDeferredResourceSkillNextDispatchGateEntry[] DeferredResourceSkillNextDispatchGateManifest =
-    [
-        new(
-            "B_LEGEND_RESOURCE_ACTION_BRIDGE_VERIFIER",
-            "B-side PaymentEngine legend resource action bridge / verifier slice",
-            DeferredResourceSkillNextDispatchGate,
-            DeferredLegendResourceActionBridge,
-            [
-                "OGN·247/298",
-                "OGN·253/298",
-                "OGN·299*/298",
-                "OGN·299/298",
-                "OGN·302*/298",
-                "OGN·302/298",
-                "SFD·189/221",
-                "SFD·244/221",
-                "UNL-197/219"
-            ],
-            "Fresh A dispatch required before treating Diana, Ornn, KaiSa or Darius LEGEND_ACT resource actions as RESOURCE_SKILLS bridge evidence.",
-            "Primary future write scope is a bridge verifier in PaymentEngineCoverageAuditTests and focused legend tests; runtime / catalog files are allowed only if the verifier exposes a concrete mismatch and A opens that narrower lock.",
-            "Frontend runtime, browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and riftbound-dotnet.sln remain locked.",
-            "Future evidence must bind each legend row to current LEGEND_ACT ability id, source-card group, timing restriction, generated resource type, payment-only restriction and explicit RESOURCE_SKILLS closure gap.",
-            "Existing Diana / Ornn / KaiSa / Darius LEGEND_ACT representative tests, 4D-03BY handoff, backend full, Chrome smoke and formal 18 are bridge inputs only, not proxy closure.",
-            "Project remains NOT READY and P0-005 remains open until legend bridge semantics are explicit and RESOURCE_SKILLS closure is separately accepted.",
-            DeferredResourceSkillNextDispatchGateDocAnchors)
-    ];
+    [];
 
     private static readonly string[] LegendResourceBridgeAggregateDocAnchors =
     [
@@ -2690,6 +2667,40 @@ public sealed class PaymentEngineCoverageAuditTests
             lockedScope,
             "Acceptance contract only; project remains NOT READY and P0-005 remains open until future B implementation / verifier evidence explicitly closes RESOURCE_SKILLS.",
             [.. LegendResourceBridgeImplementationAcceptanceDocAnchors, .. aggregateEntry.DocAnchors]);
+    }
+
+    private static readonly string[] LegendResourceBridgeResourceSkillClosureDocAnchors =
+    [
+        "docs/CURRENT_STAGE4D_03CS_B_PAYMENT_ENGINE_LEGEND_RESOURCE_BRIDGE_CLOSURE_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03CS_B_PAYMENT_ENGINE_LEGEND_RESOURCE_BRIDGE_CLOSURE_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03CS_PAYMENT_ENGINE_LEGEND_RESOURCE_BRIDGE_CLOSURE_HANDOFF.md",
+        "docs/CURRENT_STAGE4D_03CS_PAYMENT_ENGINE_LEGEND_RESOURCE_BRIDGE_CLOSURE_BASELINE_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md"
+    ];
+
+    private static readonly PaymentEngineLegendResourceBridgeResourceSkillClosureEntry[] LegendResourceBridgeResourceSkillClosureManifest =
+        LegendResourceBridgeImplementationAcceptanceManifest
+            .Select(entry => LegendResourceBridgeResourceSkillClosureEntry(entry))
+            .ToArray();
+
+    private static PaymentEngineLegendResourceBridgeResourceSkillClosureEntry LegendResourceBridgeResourceSkillClosureEntry(
+        PaymentEngineLegendResourceBridgeImplementationAcceptanceEntry acceptanceEntry)
+    {
+        return new(
+            acceptanceEntry.BridgeGroupId,
+            acceptanceEntry.Champion,
+            acceptanceEntry.AbilityId,
+            acceptanceEntry.CandidateCardNos,
+            "LegendResourceBridgeVerifierTests proves server-filtered ActionPrompt source requirements for the exact source-card group and timing gate.",
+            "LegendResourceBridgeVerifierTests proves command revalidation for ability id, source object, source-card group, timing gate, stale source, exhausted source and handwritten illegal ability.",
+            "LegendResourceBridgeVerifierTests proves MANA_GAINED / POWER_GAINED source-card, bridge-group, resource-kind, amount, generated-resource and rune-pool lifetime metadata.",
+            "LegendResourceBridgeVerifierTests proves later legal PAY_COST consumption, end-turn cleanup and duplicate-spend rejection for generated mana / power.",
+            "LegendResourceBridgeVerifierTests proves wrong timing, stale source, exhausted source, illegal command and duplicate-use no-mutation rollback.",
+            acceptanceEntry.SourceParityContract,
+            acceptanceEntry.ReminderBoundary,
+            "Closed as explicit RESOURCE_SKILLS bridge evidence for the exact 9-card Diana / Ornn / KaiSa / Darius legend family; not a LEGEND_ACT proxy.",
+            "Bridge gap closed only; project remains NOT READY, P0-005 remains open, fullOfficial remains false, and full official [A] / [C] resource skill breadth remains outside this slice.",
+            [.. LegendResourceBridgeResourceSkillClosureDocAnchors, .. acceptanceEntry.DocAnchors]);
     }
 
     private static readonly string[] DeferredNonLegendResourceSkillRuntimeLaneDocAnchors =
@@ -6093,78 +6104,40 @@ public sealed class PaymentEngineCoverageAuditTests
     [Fact]
     public void PaymentEngineDeferredResourceSkillNextDispatchGateManifestListsFreshBGates()
     {
-        var requiredGateIds = new[]
-        {
-            "B_LEGEND_RESOURCE_ACTION_BRIDGE_VERIFIER"
-        };
-
-        Assert.Equal(
-            requiredGateIds.Order(StringComparer.Ordinal),
-            DeferredResourceSkillNextDispatchGateManifest.Select(entry => entry.GateId).Order(StringComparer.Ordinal));
+        Assert.Empty(DeferredResourceSkillNextDispatchGateManifest);
         Assert.Empty(DeferredResourceSkillNextDispatchGateManifest
             .GroupBy(entry => entry.GateId, StringComparer.Ordinal)
             .Where(group => group.Count() > 1)
             .Select(group => group.Key));
-
-        Assert.All(DeferredResourceSkillNextDispatchGateManifest, entry =>
-        {
-            Assert.Equal(DeferredResourceSkillNextDispatchGate, entry.Classification);
-            Assert.Contains("Fresh A dispatch", entry.RequiredFreshDispatch, StringComparison.Ordinal);
-            Assert.Contains("NOT READY", entry.ClosureStatus, StringComparison.Ordinal);
-            Assert.Contains("P0-005 remains open", entry.ClosureStatus, StringComparison.Ordinal);
-            Assert.Contains("riftbound-dotnet.sln", entry.ForbiddenScope, StringComparison.Ordinal);
-            Assert.NotEmpty(entry.DocAnchors);
-            Assert.All(entry.DocAnchors, anchor =>
-            {
-                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
-                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
-            });
-        });
     }
 
     [Fact]
     public void PaymentEngineDeferredResourceSkillNextDispatchGateManifestMatchesDeferredFamilySplit()
     {
-        var candidateNosByClassification = DeferredResourceSkillFamilyManifest
-            .GroupBy(entry => entry.Classification, StringComparer.Ordinal)
-            .ToDictionary(
-                group => group.Key,
-                group => group.Select(entry => entry.CardNo).Order(StringComparer.Ordinal).ToArray(),
-                StringComparer.Ordinal);
-
-        Assert.All(DeferredResourceSkillNextDispatchGateManifest, entry =>
-        {
-            Assert.True(candidateNosByClassification.TryGetValue(entry.CandidateClassification, out var expectedCardNos));
-            Assert.Equal(expectedCardNos, entry.CandidateCardNos.Order(StringComparer.Ordinal).ToArray());
-        });
-
-        var coveredByDispatchGates = DeferredResourceSkillNextDispatchGateManifest
-            .SelectMany(entry => entry.CandidateCardNos)
-            .Order(StringComparer.Ordinal)
-            .ToArray();
         var deferredFamilySet = DeferredResourceSkillFamilyManifest
             .Select(entry => entry.CardNo)
             .Order(StringComparer.Ordinal)
             .ToArray();
+        var closureSet = LegendResourceBridgeResourceSkillClosureManifest
+            .SelectMany(entry => entry.CandidateCardNos)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
 
-        Assert.Equal(deferredFamilySet, coveredByDispatchGates);
-        Assert.Equal(9, coveredByDispatchGates.Length);
+        Assert.Empty(DeferredResourceSkillNextDispatchGateManifest);
+        Assert.Equal(deferredFamilySet, closureSet);
+        Assert.Equal(9, closureSet.Length);
     }
 
     [Fact]
     public void PaymentEngineDeferredResourceSkillNextDispatchGateRejectsProxyClosureAndCrossSliceMixing()
     {
-        Assert.DoesNotContain(
-            DeferredResourceSkillNextDispatchGateManifest,
-            entry => string.Equals(entry.CandidateClassification, DeferredNonLegendResourceSkillRuntimeVerifier, StringComparison.Ordinal));
-        var legendGate = Assert.Single(
-            DeferredResourceSkillNextDispatchGateManifest,
-            entry => string.Equals(entry.CandidateClassification, DeferredLegendResourceActionBridge, StringComparison.Ordinal));
-
-        Assert.Contains("LEGEND_ACT", legendGate.RequiredFutureEvidence, StringComparison.Ordinal);
-        Assert.Contains("not proxy closure", legendGate.RepresentativeProxyEvidence, StringComparison.Ordinal);
-        Assert.DoesNotContain("remaining non-legend", legendGate.ForbiddenScope, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("UNL-022/219", legendGate.CandidateCardNos);
+        Assert.Empty(DeferredResourceSkillNextDispatchGateManifest);
+        Assert.All(LegendResourceBridgeResourceSkillClosureManifest, entry =>
+        {
+            Assert.Contains("RESOURCE_SKILLS bridge evidence", entry.ClosureEvidence, StringComparison.Ordinal);
+            Assert.Contains("not a LEGEND_ACT proxy", entry.ClosureEvidence, StringComparison.Ordinal);
+            Assert.DoesNotContain("UNL-022/219", entry.CandidateCardNos);
+        });
     }
 
     [Fact]
@@ -6187,27 +6160,14 @@ public sealed class PaymentEngineCoverageAuditTests
                     entry.ClosureStatus
                 }.Concat(entry.CandidateCardNos).Concat(entry.DocAnchors)));
 
-        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
-        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
-        Assert.Contains("RESOURCE_SKILLS", combinedText, StringComparison.Ordinal);
-        Assert.Contains("proxy closure", combinedText, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("fullOfficial / READY", combinedText, StringComparison.Ordinal);
+        Assert.Empty(DeferredResourceSkillNextDispatchGateManifest);
+        Assert.Empty(combinedText);
         Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain(
-            "READY",
-            combinedText
-                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
-                .Replace("fullOfficial / READY", string.Empty, StringComparison.Ordinal)
-                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
-            StringComparison.Ordinal);
     }
 
     [Fact]
     public void PaymentEngineLegendResourceBridgeAggregateManifestMatchesLegendBridgeGateSet()
     {
-        var legendGate = Assert.Single(
-            DeferredResourceSkillNextDispatchGateManifest,
-            entry => string.Equals(entry.CandidateClassification, DeferredLegendResourceActionBridge, StringComparison.Ordinal));
         var aggregateCardNos = LegendResourceBridgeAggregateManifest
             .SelectMany(entry => entry.CandidateCardNos)
             .Order(StringComparer.Ordinal)
@@ -6215,6 +6175,10 @@ public sealed class PaymentEngineCoverageAuditTests
         var familyLegendCardNos = DeferredResourceSkillFamilyManifest
             .Where(entry => string.Equals(entry.Classification, DeferredLegendResourceActionBridge, StringComparison.Ordinal))
             .Select(entry => entry.CardNo)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var closureCardNos = LegendResourceBridgeResourceSkillClosureManifest
+            .SelectMany(entry => entry.CandidateCardNos)
             .Order(StringComparer.Ordinal)
             .ToArray();
 
@@ -6231,7 +6195,7 @@ public sealed class PaymentEngineCoverageAuditTests
                 "UNL-197/219"
             ],
             aggregateCardNos);
-        Assert.Equal(legendGate.CandidateCardNos.Order(StringComparer.Ordinal).ToArray(), aggregateCardNos);
+        Assert.Equal(closureCardNos, aggregateCardNos);
         Assert.Equal(familyLegendCardNos, aggregateCardNos);
         Assert.Equal(9, aggregateCardNos.Length);
         Assert.Equal(4, LegendResourceBridgeAggregateManifest.Length);
@@ -6437,6 +6401,120 @@ public sealed class PaymentEngineCoverageAuditTests
             combinedText
                 .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
                 .Replace("fullOfficial / READY", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineLegendResourceBridgeResourceSkillClosureManifestClosesExactNineCardBridgeGap()
+    {
+        var closureCardNos = LegendResourceBridgeResourceSkillClosureManifest
+            .SelectMany(entry => entry.CandidateCardNos)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var aggregateCardNos = LegendResourceBridgeAggregateManifest
+            .SelectMany(entry => entry.CandidateCardNos)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var deferredFamilyCardNos = DeferredResourceSkillFamilyManifest
+            .Select(entry => entry.CardNo)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(
+            [
+                "OGN·247/298",
+                "OGN·253/298",
+                "OGN·299*/298",
+                "OGN·299/298",
+                "OGN·302*/298",
+                "OGN·302/298",
+                "SFD·189/221",
+                "SFD·244/221",
+                "UNL-197/219"
+            ],
+            closureCardNos);
+        Assert.Equal(aggregateCardNos, closureCardNos);
+        Assert.Equal(deferredFamilyCardNos, closureCardNos);
+        Assert.Equal(4, LegendResourceBridgeResourceSkillClosureManifest.Length);
+        Assert.Empty(DeferredResourceSkillNextDispatchGateManifest);
+    }
+
+    [Fact]
+    public void PaymentEngineLegendResourceBridgeResourceSkillClosureManifestRequiresExplicitContractEvidence()
+    {
+        var repositoryRoot = ResolveRepositoryRoot();
+
+        Assert.All(LegendResourceBridgeResourceSkillClosureManifest, entry =>
+        {
+            Assert.Equal(LegendResourceBridgeResourceSkillClosure, entry.Classification);
+            Assert.Contains("LegendResourceBridgeVerifierTests", entry.PromptEvidence, StringComparison.Ordinal);
+            Assert.Contains("server-filtered ActionPrompt", entry.PromptEvidence, StringComparison.Ordinal);
+            Assert.Contains("source-card group", entry.PromptEvidence, StringComparison.Ordinal);
+            Assert.Contains("command revalidation", entry.CommandEvidence, StringComparison.Ordinal);
+            Assert.Contains("stale source", entry.CommandEvidence, StringComparison.Ordinal);
+            Assert.Contains("exhausted source", entry.CommandEvidence, StringComparison.Ordinal);
+            Assert.Contains("handwritten illegal ability", entry.CommandEvidence, StringComparison.Ordinal);
+            Assert.Contains("MANA_GAINED / POWER_GAINED", entry.AuditMetadataEvidence, StringComparison.Ordinal);
+            Assert.Contains("bridge-group", entry.AuditMetadataEvidence, StringComparison.Ordinal);
+            Assert.Contains("generated-resource", entry.AuditMetadataEvidence, StringComparison.Ordinal);
+            Assert.Contains("later legal PAY_COST consumption", entry.LifetimeEvidence, StringComparison.Ordinal);
+            Assert.Contains("end-turn cleanup", entry.LifetimeEvidence, StringComparison.Ordinal);
+            Assert.Contains("duplicate-spend rejection", entry.LifetimeEvidence, StringComparison.Ordinal);
+            Assert.Contains("no-mutation rollback", entry.RollbackEvidence, StringComparison.Ordinal);
+            Assert.Contains("source-card parity", entry.SourceParityEvidence, StringComparison.Ordinal);
+            Assert.Contains("cannot be targeted as responses", entry.ReminderBoundary, StringComparison.Ordinal);
+            Assert.Contains("RESOURCE_SKILLS bridge evidence", entry.ClosureEvidence, StringComparison.Ordinal);
+            Assert.Contains("not a LEGEND_ACT proxy", entry.ClosureEvidence, StringComparison.Ordinal);
+            Assert.Contains("NOT READY", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("fullOfficial remains false", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("[A]", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("[C]", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("docs/CURRENT_STAGE4D_03CS_B_PAYMENT_ENGINE_LEGEND_RESOURCE_BRIDGE_CLOSURE_AUDIT.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03CS_B_PAYMENT_ENGINE_LEGEND_RESOURCE_BRIDGE_CLOSURE_EVIDENCE.md", entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+                Assert.True(File.Exists(Path.Combine(repositoryRoot, anchor)), anchor);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineLegendResourceBridgeResourceSkillClosureManifestDoesNotClaimReadyOrFullOfficial()
+    {
+        var combinedText = string.Join(
+            " ",
+            LegendResourceBridgeResourceSkillClosureManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.BridgeGroupId,
+                    entry.Champion,
+                    entry.AbilityId,
+                    entry.Classification,
+                    entry.PromptEvidence,
+                    entry.CommandEvidence,
+                    entry.AuditMetadataEvidence,
+                    entry.LifetimeEvidence,
+                    entry.RollbackEvidence,
+                    entry.SourceParityEvidence,
+                    entry.ReminderBoundary,
+                    entry.ClosureEvidence,
+                    entry.NonClosureStatus
+                }.Concat(entry.CandidateCardNos)
+                    .Concat(entry.DocAnchors)));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("fullOfficial remains false", combinedText, StringComparison.Ordinal);
+        Assert.Contains("RESOURCE_SKILLS bridge evidence", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
                 .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
             StringComparison.Ordinal);
     }
@@ -6989,6 +7067,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(DeferredResourceSkillFamilyManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(LegendResourceBridgeAggregateManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(LegendResourceBridgeImplementationAcceptanceManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(LegendResourceBridgeResourceSkillClosureManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TargetTaxActivatedAbilityMatrixManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(RemainingOfficialClosureGateManifest.SelectMany(entry => entry.DocAnchors));
     }
@@ -7401,6 +7480,25 @@ public sealed class PaymentEngineCoverageAuditTests
         IReadOnlyList<string> DocAnchors)
     {
         public string Classification => LegendResourceBridgeImplementationAcceptance;
+    }
+
+    private sealed record PaymentEngineLegendResourceBridgeResourceSkillClosureEntry(
+        string BridgeGroupId,
+        string Champion,
+        string AbilityId,
+        IReadOnlyList<string> CandidateCardNos,
+        string PromptEvidence,
+        string CommandEvidence,
+        string AuditMetadataEvidence,
+        string LifetimeEvidence,
+        string RollbackEvidence,
+        string SourceParityEvidence,
+        string ReminderBoundary,
+        string ClosureEvidence,
+        string NonClosureStatus,
+        IReadOnlyList<string> DocAnchors)
+    {
+        public string Classification => LegendResourceBridgeResourceSkillClosure;
     }
 
     private sealed record PaymentEngineDeferredNonLegendResourceSkillRuntimeLaneEntry(

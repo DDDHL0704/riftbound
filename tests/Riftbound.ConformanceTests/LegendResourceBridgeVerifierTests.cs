@@ -189,10 +189,141 @@ public sealed class LegendResourceBridgeVerifierTests
 
         var result = await ResolveLegendActAsync(state, profile);
 
-        Assert.False(result.Accepted);
-        Assert.Equal(initialStateHash, MatchStateHasher.Hash(result.State));
-        Assert.Empty(result.Events);
+        AssertRejectedNoMutation(result, initialStateHash);
         Assert.False(result.State.CardObjects[profile.SourceObjectId].IsExhausted);
+    }
+
+    [Theory]
+    [MemberData(nameof(RejectProfiles))]
+    public void LegendResourceBridgePromptFiltersIllegalSourceAtWrongGate(BridgeProfile profile)
+    {
+        var state = BuildRejectState(profile);
+        var p1Prompt = ResolutionResult.BuildPrompts(state)["P1"];
+
+        Assert.DoesNotContain(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.LegendAct, StringComparison.Ordinal)
+                && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, profile.SourceObjectId, StringComparison.Ordinal)));
+    }
+
+    [Theory]
+    [MemberData(nameof(SuccessProfiles))]
+    public async Task LegendResourceBridgeRejectsStaleSourceWithoutMutation(BridgeProfile profile)
+    {
+        var state = BuildSuccessState(profile);
+        var zones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        zones["P1"] = zones["P1"] with
+        {
+            LegendZone = []
+        };
+        state = state with
+        {
+            PlayerZones = zones
+        };
+        var initialStateHash = MatchStateHasher.Hash(state);
+
+        var result = await ResolveLegendActAsync(state, profile);
+
+        AssertRejectedNoMutation(result, initialStateHash);
+    }
+
+    [Theory]
+    [MemberData(nameof(SuccessProfiles))]
+    public async Task LegendResourceBridgeRejectsExhaustedSourceAndDuplicateUseWithoutMutation(BridgeProfile profile)
+    {
+        var state = ExhaustSource(BuildSuccessState(profile), profile.SourceObjectId);
+        var initialStateHash = MatchStateHasher.Hash(state);
+
+        var exhausted = await ResolveLegendActAsync(state, profile);
+
+        AssertRejectedNoMutation(exhausted, initialStateHash);
+
+        var gained = await ResolveLegendActAsync(BuildSuccessState(profile), profile);
+        Assert.True(gained.Accepted, gained.ErrorMessage);
+        var afterFirstUseHash = MatchStateHasher.Hash(gained.State);
+
+        var duplicate = await ResolveLegendActAsync(gained.State, profile);
+
+        AssertRejectedNoMutation(duplicate, afterFirstUseHash);
+        Assert.Equal(new RunePool(
+            string.Equals(profile.ResourceKind, "mana", StringComparison.Ordinal) ? 1 : 0,
+            string.Equals(profile.ResourceKind, "power", StringComparison.Ordinal) ? 1 : 0),
+            duplicate.State.RunePools["P1"]);
+    }
+
+    [Theory]
+    [MemberData(nameof(SuccessProfiles))]
+    public async Task LegendResourceBridgeRejectsHandwrittenIllegalAbilityWithoutMutation(BridgeProfile profile)
+    {
+        var state = BuildSuccessState(profile);
+        var initialStateHash = MatchStateHasher.Hash(state);
+        var illegalAbilityId = profile.AbilityId switch
+        {
+            DianaAbilityId => OrnnAbilityId,
+            _ => DianaAbilityId
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent($"intent-legend-resource-bridge-illegal-ability-{profile.Name}-{profile.CardNo}", "P1", CommandTypes.LegendAct),
+            new LegendActCommand(profile.SourceObjectId, illegalAbilityId, [], []),
+            CancellationToken.None);
+
+        AssertRejectedNoMutation(result, initialStateHash);
+    }
+
+    [Theory]
+    [MemberData(nameof(ManaSuccessProfiles))]
+    public async Task LegendResourceBridgeGeneratedManaCannotBeSpentTwice(BridgeProfile profile)
+    {
+        var gained = await ResolveLegendActAsync(BuildSuccessState(profile), profile);
+        Assert.True(gained.Accepted, gained.ErrorMessage);
+        var pendingPayment = new PendingPaymentState(
+            $"LEGEND-RESOURCE-MANA-PAY-{profile.SourceObjectId}",
+            "LEGEND_RESOURCE_PAYMENT",
+            "P1",
+            manaCost: 1,
+            legalPaymentChoiceIds: ["SPEND_MANA:1"],
+            reason: "LEGEND_GENERATED_MANA_DUPLICATE_PREVENTION");
+        var paymentState = gained.State with
+        {
+            PendingPayment = pendingPayment
+        };
+        var paid = await PayCostAsync(paymentState, pendingPayment, ["SPEND_MANA:1"], profile, "mana-duplicate-first");
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        var afterSpendHash = MatchStateHasher.Hash(paid.State);
+
+        var duplicate = await PayCostAsync(paid.State, pendingPayment, ["SPEND_MANA:1"], profile, "mana-duplicate-second");
+
+        AssertRejectedNoMutation(duplicate, afterSpendHash);
+        Assert.Equal(RunePool.Empty, duplicate.State.RunePools["P1"]);
+    }
+
+    [Theory]
+    [MemberData(nameof(PowerSuccessProfiles))]
+    public async Task LegendResourceBridgeGeneratedPowerCannotBeSpentTwice(BridgeProfile profile)
+    {
+        var gained = await ResolveLegendActAsync(BuildSuccessState(profile), profile);
+        Assert.True(gained.Accepted, gained.ErrorMessage);
+        var pendingPayment = new PendingPaymentState(
+            $"LEGEND-RESOURCE-POWER-PAY-{profile.SourceObjectId}",
+            "LEGEND_RESOURCE_PAYMENT",
+            "P1",
+            powerCost: 1,
+            legalPaymentChoiceIds: ["SPEND_POWER:1"],
+            reason: "LEGEND_GENERATED_POWER_DUPLICATE_PREVENTION");
+        var paymentState = gained.State with
+        {
+            PendingPayment = pendingPayment
+        };
+        var paid = await PayCostAsync(paymentState, pendingPayment, ["SPEND_POWER:1"], profile, "power-duplicate-first");
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        var afterSpendHash = MatchStateHasher.Hash(paid.State);
+
+        var duplicate = await PayCostAsync(paid.State, pendingPayment, ["SPEND_POWER:1"], profile, "power-duplicate-second");
+
+        AssertRejectedNoMutation(duplicate, afterSpendHash);
+        Assert.Equal(RunePool.Empty, duplicate.State.RunePools["P1"]);
     }
 
     private static void AssertLegendActPrompt(MatchState state, BridgeProfile profile)
@@ -256,6 +387,40 @@ public sealed class LegendResourceBridgeVerifierTests
             new PlayerIntent($"intent-legend-resource-bridge-{profile.Name}-{profile.CardNo}", "P1", CommandTypes.LegendAct),
             new LegendActCommand(profile.SourceObjectId, profile.AbilityId, [], []),
             CancellationToken.None);
+    }
+
+    private static async Task<ResolutionResult> PayCostAsync(
+        MatchState state,
+        PendingPaymentState pendingPayment,
+        IReadOnlyList<string> paymentChoiceIds,
+        BridgeProfile profile,
+        string intentSuffix)
+    {
+        return await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent($"intent-legend-resource-bridge-{intentSuffix}-{profile.Name}-{profile.CardNo}", "P1", CommandTypes.PayCost),
+            new PayCostCommand(pendingPayment.PaymentId, pendingPayment.PaymentWindow, paymentChoiceIds),
+            CancellationToken.None);
+    }
+
+    private static void AssertRejectedNoMutation(ResolutionResult result, string initialStateHash)
+    {
+        Assert.False(result.Accepted);
+        Assert.Equal(initialStateHash, MatchStateHasher.Hash(result.State));
+        Assert.Empty(result.Events);
+    }
+
+    private static MatchState ExhaustSource(MatchState state, string sourceObjectId)
+    {
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[sourceObjectId] = cardObjects[sourceObjectId] with
+        {
+            IsExhausted = true
+        };
+        return state with
+        {
+            CardObjects = cardObjects
+        };
     }
 
     private static MatchState BuildSuccessState(BridgeProfile profile)
