@@ -34,6 +34,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string DeferredNonLegendResourceSkillRuntimeVerifier = "deferred-non-legend-resource-skill-runtime-verifier";
     private const string DeferredResourceSkillNextDispatchGate = "deferred-resource-skill-next-dispatch-gate";
     private const string DeferredNonLegendResourceSkillRuntimeLane = "deferred-non-legend-resource-skill-runtime-lane";
+    private const string LegendResourceBridgeAggregateVerifier = "legend-resource-bridge-aggregate-verifier";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
     [
@@ -2474,6 +2475,103 @@ public sealed class PaymentEngineCoverageAuditTests
             "Project remains NOT READY and P0-005 remains open until legend bridge semantics are explicit and RESOURCE_SKILLS closure is separately accepted.",
             DeferredResourceSkillNextDispatchGateDocAnchors)
     ];
+
+    private static readonly string[] LegendResourceBridgeAggregateDocAnchors =
+    [
+        "docs/CURRENT_STAGE4D_03CJ_PAYMENT_ENGINE_LEGEND_RESOURCE_BRIDGE_AGGREGATE_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03CJ_PAYMENT_ENGINE_LEGEND_RESOURCE_BRIDGE_AGGREGATE_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03BY_PAYMENT_ENGINE_LEGEND_RESOURCE_ACTION_BRIDGE_HANDOFF.md",
+        "docs/CURRENT_STAGE4D_03BY_PAYMENT_ENGINE_LEGEND_RESOURCE_ACTION_BRIDGE_BASELINE_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03BZ_PAYMENT_ENGINE_DEFERRED_RESOURCE_SKILL_NEXT_DISPATCH_GATE_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03BZ_PAYMENT_ENGINE_DEFERRED_RESOURCE_SKILL_NEXT_DISPATCH_GATE_EVIDENCE.md"
+    ];
+
+    private static readonly PaymentEngineLegendResourceBridgeAggregateEntry[] LegendResourceBridgeAggregateManifest =
+    [
+        LegendResourceBridgeAggregateEntry(
+            "LEGEND_BRIDGE_DIANA_SPELL_DUEL_MANA",
+            "Diana",
+            "LEGEND_SPELL_DUEL_EXHAUST_GAIN_1_MANA",
+            ["UNL-197/219"],
+            "spell-duel focus only",
+            "generated 1 mana",
+            "Existing P79LegendActDiana gains-mana and outside-focus rejection evidence is bridge input only.",
+            "Future B must bind ability id LEGEND_SPELL_DUEL_EXHAUST_GAIN_1_MANA, source-card group, spell-duel timing, generated mana consumption / lifetime, no-mutation rollback and RESOURCE_SKILLS closure gap under a fresh A dispatch.",
+            [
+                "docs/CURRENT_STAGE4D_03CF_PAYMENT_ENGINE_DIANA_LEGEND_RESOURCE_BRIDGE_HANDOFF.md",
+                "docs/CURRENT_STAGE4D_03CF_PAYMENT_ENGINE_DIANA_LEGEND_RESOURCE_BRIDGE_BASELINE_EVIDENCE.md"
+            ],
+            "Ornn / KaiSa / Darius bridge rows, non-legend lanes, frontend runtime, card matrix JSON, fullOfficial / READY and riftbound-dotnet.sln remain locked."),
+        LegendResourceBridgeAggregateEntry(
+            "LEGEND_BRIDGE_ORNN_EQUIPMENT_POWER",
+            "Ornn",
+            "LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_EQUIPMENT",
+            ["SFD·189/221", "SFD·244/221"],
+            "priority window with pending equipment only",
+            "generated 1 power for equipment / equipment skills",
+            "Existing P79LegendActOrnn pending-equipment and source-group evidence is bridge input only.",
+            "Future B must bind ability id LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_EQUIPMENT, source-card group, pending-equipment timing, equipment-only generated power consumption / lifetime, no-mutation rollback and RESOURCE_SKILLS closure gap under a fresh A dispatch.",
+            [
+                "docs/CURRENT_STAGE4D_03CG_PAYMENT_ENGINE_ORNN_LEGEND_RESOURCE_BRIDGE_HANDOFF.md",
+                "docs/CURRENT_STAGE4D_03CG_PAYMENT_ENGINE_ORNN_LEGEND_RESOURCE_BRIDGE_BASELINE_EVIDENCE.md"
+            ],
+            "Diana / KaiSa / Darius bridge rows, premium rows outside Ornn, non-legend lanes, frontend runtime, card matrix JSON, fullOfficial / READY and riftbound-dotnet.sln remain locked."),
+        LegendResourceBridgeAggregateEntry(
+            "LEGEND_BRIDGE_KAISA_SPELL_POWER",
+            "KaiSa",
+            "LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_SPELL",
+            ["OGN·247/298", "OGN·299/298", "OGN·299*/298"],
+            "priority window with pending spell only",
+            "generated 1 power for spells",
+            "Existing P79LegendActKaisa pending-spell and non-spell rejection evidence is bridge input only.",
+            "Future B must bind ability id LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_SPELL, source-card group, pending-spell timing, spell-only generated power consumption / lifetime, no-mutation rollback and RESOURCE_SKILLS closure gap under a fresh A dispatch.",
+            [
+                "docs/CURRENT_STAGE4D_03CH_PAYMENT_ENGINE_KAISA_LEGEND_RESOURCE_BRIDGE_HANDOFF.md",
+                "docs/CURRENT_STAGE4D_03CH_PAYMENT_ENGINE_KAISA_LEGEND_RESOURCE_BRIDGE_BASELINE_EVIDENCE.md"
+            ],
+            "Diana / Ornn / Darius bridge rows, KaiSa unit HASTE_READY / conquest draw, non-legend lanes, frontend runtime, card matrix JSON, fullOfficial / READY and riftbound-dotnet.sln remain locked."),
+        LegendResourceBridgeAggregateEntry(
+            "LEGEND_BRIDGE_DARIUS_INSPIRE_MANA",
+            "Darius",
+            "LEGEND_ENCOURAGE_EXHAUST_GAIN_1_MANA",
+            ["OGN·253/298", "OGN·302/298", "OGN·302*/298"],
+            "Inspire / another-card-played-this-turn gate",
+            "generated 1 mana",
+            "Existing P79LegendActDarius gain-after-prior-card and no-prior-card rejection evidence is bridge input only.",
+            "Future B must bind ability id LEGEND_ENCOURAGE_EXHAUST_GAIN_1_MANA, source-card group, Inspire timing, previous-card gate, generated mana consumption / lifetime, no-mutation rollback and RESOURCE_SKILLS closure gap under a fresh A dispatch.",
+            [
+                "docs/CURRENT_STAGE4D_03CI_PAYMENT_ENGINE_DARIUS_LEGEND_RESOURCE_BRIDGE_HANDOFF.md",
+                "docs/CURRENT_STAGE4D_03CI_PAYMENT_ENGINE_DARIUS_LEGEND_RESOURCE_BRIDGE_BASELINE_EVIDENCE.md"
+            ],
+            "Diana / Ornn / KaiSa bridge rows, Darius unit HASTE_READY / non-legend Darius or Draven work, non-legend lanes, frontend runtime, card matrix JSON, fullOfficial / READY and riftbound-dotnet.sln remain locked.")
+    ];
+
+    private static PaymentEngineLegendResourceBridgeAggregateEntry LegendResourceBridgeAggregateEntry(
+        string bridgeGroupId,
+        string champion,
+        string abilityId,
+        string[] candidateCardNos,
+        string timingRestriction,
+        string generatedResourceProfile,
+        string currentLegendEvidence,
+        string requiredFutureEvidence,
+        string[] requiredHandoffDocs,
+        string forbiddenScope)
+    {
+        return new(
+            bridgeGroupId,
+            champion,
+            abilityId,
+            candidateCardNos,
+            timingRestriction,
+            generatedResourceProfile,
+            currentLegendEvidence,
+            requiredFutureEvidence,
+            requiredHandoffDocs,
+            forbiddenScope,
+            "Aggregate legend bridge guard only; project remains NOT READY and P0-005 remains open. Current LEGEND_ACT evidence is proxy input, not RESOURCE_SKILLS closure.",
+            [.. LegendResourceBridgeAggregateDocAnchors, .. requiredHandoffDocs]);
+    }
 
     private static readonly string[] DeferredNonLegendResourceSkillRuntimeLaneDocAnchors =
     [
@@ -6045,6 +6143,131 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineLegendResourceBridgeAggregateManifestMatchesLegendBridgeGateSet()
+    {
+        var legendGate = Assert.Single(
+            DeferredResourceSkillNextDispatchGateManifest,
+            entry => string.Equals(entry.CandidateClassification, DeferredLegendResourceActionBridge, StringComparison.Ordinal));
+        var aggregateCardNos = LegendResourceBridgeAggregateManifest
+            .SelectMany(entry => entry.CandidateCardNos)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var familyLegendCardNos = DeferredResourceSkillFamilyManifest
+            .Where(entry => string.Equals(entry.Classification, DeferredLegendResourceActionBridge, StringComparison.Ordinal))
+            .Select(entry => entry.CardNo)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(
+            [
+                "OGN·247/298",
+                "OGN·253/298",
+                "OGN·299*/298",
+                "OGN·299/298",
+                "OGN·302*/298",
+                "OGN·302/298",
+                "SFD·189/221",
+                "SFD·244/221",
+                "UNL-197/219"
+            ],
+            aggregateCardNos);
+        Assert.Equal(legendGate.CandidateCardNos.Order(StringComparer.Ordinal).ToArray(), aggregateCardNos);
+        Assert.Equal(familyLegendCardNos, aggregateCardNos);
+        Assert.Equal(9, aggregateCardNos.Length);
+        Assert.Equal(4, LegendResourceBridgeAggregateManifest.Length);
+        Assert.Empty(aggregateCardNos
+            .GroupBy(cardNo => cardNo, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key));
+    }
+
+    [Fact]
+    public void PaymentEngineLegendResourceBridgeAggregateManifestRequiresPerChampionHandoffDocs()
+    {
+        var repositoryRoot = ResolveRepositoryRoot();
+
+        Assert.Equal(
+            [
+                "LEGEND_BRIDGE_DARIUS_INSPIRE_MANA",
+                "LEGEND_BRIDGE_DIANA_SPELL_DUEL_MANA",
+                "LEGEND_BRIDGE_KAISA_SPELL_POWER",
+                "LEGEND_BRIDGE_ORNN_EQUIPMENT_POWER"
+            ],
+            LegendResourceBridgeAggregateManifest.Select(entry => entry.BridgeGroupId).Order(StringComparer.Ordinal).ToArray());
+
+        Assert.All(LegendResourceBridgeAggregateManifest, entry =>
+        {
+            Assert.Equal(LegendResourceBridgeAggregateVerifier, entry.Classification);
+            Assert.False(string.IsNullOrWhiteSpace(entry.Champion));
+            Assert.False(string.IsNullOrWhiteSpace(entry.AbilityId));
+            Assert.NotEmpty(entry.CandidateCardNos);
+            Assert.False(string.IsNullOrWhiteSpace(entry.TimingRestriction));
+            Assert.False(string.IsNullOrWhiteSpace(entry.GeneratedResourceProfile));
+            Assert.Contains("bridge input only", entry.CurrentLegendEvidence, StringComparison.Ordinal);
+            Assert.Contains(entry.AbilityId, entry.RequiredFutureEvidence, StringComparison.Ordinal);
+            Assert.Contains("source-card group", entry.RequiredFutureEvidence, StringComparison.Ordinal);
+            Assert.Contains("fresh A dispatch", entry.RequiredFutureEvidence, StringComparison.Ordinal);
+            Assert.Contains("RESOURCE_SKILLS closure gap", entry.RequiredFutureEvidence, StringComparison.Ordinal);
+            Assert.Contains("card matrix JSON", entry.ForbiddenScope, StringComparison.Ordinal);
+            Assert.Contains("riftbound-dotnet.sln", entry.ForbiddenScope, StringComparison.Ordinal);
+            Assert.Contains("NOT READY", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.NotEmpty(entry.RequiredHandoffDocs);
+            Assert.Contains("docs/CURRENT_STAGE4D_03CJ_PAYMENT_ENGINE_LEGEND_RESOURCE_BRIDGE_AGGREGATE_AUDIT.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03CJ_PAYMENT_ENGINE_LEGEND_RESOURCE_BRIDGE_AGGREGATE_EVIDENCE.md", entry.DocAnchors);
+
+            Assert.All(entry.RequiredHandoffDocs, handoffDoc =>
+            {
+                Assert.Contains(handoffDoc, entry.DocAnchors);
+                Assert.True(File.Exists(Path.Combine(repositoryRoot, handoffDoc)), handoffDoc);
+            });
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineLegendResourceBridgeAggregateManifestRejectsProxyClosureAndReady()
+    {
+        var combinedText = string.Join(
+            " ",
+            LegendResourceBridgeAggregateManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.BridgeGroupId,
+                    entry.Champion,
+                    entry.AbilityId,
+                    entry.Classification,
+                    entry.TimingRestriction,
+                    entry.GeneratedResourceProfile,
+                    entry.CurrentLegendEvidence,
+                    entry.RequiredFutureEvidence,
+                    entry.ForbiddenScope,
+                    entry.ClosureStatus
+                }.Concat(entry.CandidateCardNos)
+                    .Concat(entry.RequiredHandoffDocs)
+                    .Concat(entry.DocAnchors)));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("proxy input", combinedText, StringComparison.Ordinal);
+        Assert.Contains("RESOURCE_SKILLS closure", combinedText, StringComparison.Ordinal);
+        Assert.Contains("fullOfficial / READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("riftbound-dotnet.sln", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("fullOfficial / READY", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PaymentEngineDeferredNonLegendResourceSkillRuntimeLaneManifestMatchesNonLegendGateSet()
     {
         var nonLegendDeferredCardNos = DeferredResourceSkillFamilyManifest
@@ -6643,6 +6866,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(ResourceSkillAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(ResourceSkillOfficialBreadthManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(DeferredResourceSkillFamilyManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(LegendResourceBridgeAggregateManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TargetTaxActivatedAbilityMatrixManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(RemainingOfficialClosureGateManifest.SelectMany(entry => entry.DocAnchors));
     }
@@ -7020,6 +7244,23 @@ public sealed class PaymentEngineCoverageAuditTests
         string RepresentativeProxyEvidence,
         string ClosureStatus,
         IReadOnlyList<string> DocAnchors);
+
+    private sealed record PaymentEngineLegendResourceBridgeAggregateEntry(
+        string BridgeGroupId,
+        string Champion,
+        string AbilityId,
+        IReadOnlyList<string> CandidateCardNos,
+        string TimingRestriction,
+        string GeneratedResourceProfile,
+        string CurrentLegendEvidence,
+        string RequiredFutureEvidence,
+        IReadOnlyList<string> RequiredHandoffDocs,
+        string ForbiddenScope,
+        string ClosureStatus,
+        IReadOnlyList<string> DocAnchors)
+    {
+        public string Classification => LegendResourceBridgeAggregateVerifier;
+    }
 
     private sealed record PaymentEngineDeferredNonLegendResourceSkillRuntimeLaneEntry(
         string LaneId,
