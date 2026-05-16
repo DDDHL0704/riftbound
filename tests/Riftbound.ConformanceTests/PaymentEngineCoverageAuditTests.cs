@@ -2272,6 +2272,8 @@ public sealed class PaymentEngineCoverageAuditTests
 
     private static readonly string[] ResourceSkillOfficialBreadthDocAnchors =
     [
+        "docs/CURRENT_STAGE4D_03CU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_GATE_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03CU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_GATE_EVIDENCE.md",
         "docs/CURRENT_STAGE4D_03CT_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_POST_BRIDGE_REFRESH_AUDIT.md",
         "docs/CURRENT_STAGE4D_03CT_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_POST_BRIDGE_REFRESH_EVIDENCE.md",
         "docs/CURRENT_STAGE4D_03BU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_AUDIT.md",
@@ -2769,11 +2771,15 @@ public sealed class PaymentEngineCoverageAuditTests
             "B-side PaymentEngine official breadth verifier / implementation slice",
             RemainingOfficialClosureGate,
             "Fresh A dispatch and explicit runtime / test write lock required before any B work begins.",
-            "Expand one remaining official PaymentEngine family into executable prompt / command / audit / rollback tests, or minimally fix a concrete mismatch found by those tests.",
-            "4D-03BR-B target/tax matrix, focused 107/107, adjacent 665/665, backend full 4544/4544, Chrome smoke and formal 18 are representative proxy evidence only.",
+            "Expand one remaining official PaymentEngine family after the post-03CT resource-skill accounting refresh into executable prompt / command / audit / rollback tests, or minimally fix a concrete mismatch found by those tests; full official [A] / [C] resource-skill row interactions and broader PaymentEngine official breadth remain open.",
+            "4D-03CT resource-skill official breadth refresh (32 total = 23 implemented + 9 bridge-closed + 0 current deferred), 4D-03CS-B legend bridge closure, 4D-03BR-B target/tax matrix, backend full, Chrome smoke and formal 18 are representative proxy evidence only.",
             "Runtime, tests, frontend, browser scripts, card matrix JSON, fullOfficial status, final readiness status and riftbound-dotnet.sln remain locked until a fresh A dispatch.",
             "Project remains NOT READY and P0-005 remains open; fullOfficial upgrade is not allowed.",
             [
+                "docs/CURRENT_STAGE4D_03CT_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_POST_BRIDGE_REFRESH_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03CT_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_POST_BRIDGE_REFRESH_EVIDENCE.md",
+                "docs/CURRENT_STAGE4D_03CS_B_PAYMENT_ENGINE_LEGEND_RESOURCE_BRIDGE_CLOSURE_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03CS_B_PAYMENT_ENGINE_LEGEND_RESOURCE_BRIDGE_CLOSURE_EVIDENCE.md",
                 "docs/CURRENT_STAGE4D_03BT_PAYMENT_ENGINE_REMAINING_OFFICIAL_CLOSURE_GATE_AUDIT.md",
                 "docs/CURRENT_STAGE4D_03BT_PAYMENT_ENGINE_REMAINING_OFFICIAL_CLOSURE_GATE_EVIDENCE.md",
                 "docs/CURRENT_STAGE4D_03BS_PAYMENT_ENGINE_REMAINING_OFFICIAL_SCOPE_HANDOFF.md",
@@ -5921,6 +5927,8 @@ public sealed class PaymentEngineCoverageAuditTests
             Assert.Contains("[A]", entry.ClosureStatus, StringComparison.Ordinal);
             Assert.Contains("[C]", entry.ClosureStatus, StringComparison.Ordinal);
             Assert.NotEmpty(entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03CU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_GATE_AUDIT.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03CU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_GATE_EVIDENCE.md", entry.DocAnchors);
             Assert.Contains("docs/CURRENT_STAGE4D_03CT_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_POST_BRIDGE_REFRESH_AUDIT.md", entry.DocAnchors);
             Assert.Contains("docs/CURRENT_STAGE4D_03CT_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_POST_BRIDGE_REFRESH_EVIDENCE.md", entry.DocAnchors);
             Assert.Contains("docs/CURRENT_STAGE4D_03BU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_AUDIT.md", entry.DocAnchors);
@@ -5994,6 +6002,37 @@ public sealed class PaymentEngineCoverageAuditTests
             "READY",
             combinedText.Replace("NOT READY", string.Empty, StringComparison.Ordinal),
             StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineResourceSkillOfficialBreadthManifestFramesNextOfficialRowInteractionGate()
+    {
+        var gate = Assert.Single(
+            RemainingOfficialClosureGateManifest,
+            entry => string.Equals(entry.GateId, "B_PAYMENT_ENGINE_OFFICIAL_BREADTH", StringComparison.Ordinal));
+        var deferredCandidateCount = ResourceSkillOfficialBreadthManifest
+            .Count(entry => string.Equals(entry.Classification, DeferredResourceSkillOfficialCandidate, StringComparison.Ordinal));
+        var implementedCandidateCount = ResourceSkillOfficialBreadthManifest
+            .Count(entry => string.Equals(entry.Classification, ImplementedResourceSkillOfficialCandidate, StringComparison.Ordinal));
+        var bridgeClosedCandidateCount = ResourceSkillOfficialBreadthManifest
+            .Count(entry => string.Equals(entry.Classification, BridgeClosedResourceSkillOfficialCandidate, StringComparison.Ordinal));
+
+        Assert.Contains("RESOURCE_SKILL_A_C_FAMILY", ResourceSkillOfficialBreadthManifest.Select(entry => entry.ResidualBlockerFamily).Distinct(StringComparer.Ordinal));
+        Assert.Contains("RESOURCE_SKILLS", ResourceSkillOfficialBreadthManifest.Select(entry => entry.OfficialResidualAxis).Distinct(StringComparer.Ordinal));
+        Assert.Equal(23, implementedCandidateCount);
+        Assert.Equal(9, bridgeClosedCandidateCount);
+        Assert.Equal(0, deferredCandidateCount);
+        Assert.Equal(32, ResourceSkillOfficialBreadthManifest.Length);
+        Assert.Contains("full official [A] / [C] resource-skill row interactions", gate.RequiredFutureEvidence, StringComparison.Ordinal);
+        Assert.Contains("32 total = 23 implemented + 9 bridge-closed + 0 current deferred", gate.RepresentativeProxyEvidence, StringComparison.Ordinal);
+        Assert.All(ResourceSkillOfficialBreadthManifest, entry =>
+        {
+            Assert.Contains("Future", entry.RequiredFutureEvidence, StringComparison.Ordinal);
+            Assert.Contains("complete resource-skill breadth verifier", entry.RequiredFutureEvidence, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("fullOfficial remains false", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("docs/CURRENT_STAGE4D_03CU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_GATE_AUDIT.md", entry.DocAnchors);
+        });
     }
 
     [Fact]
@@ -6830,6 +6869,28 @@ public sealed class PaymentEngineCoverageAuditTests
                 .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
                 .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
             StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineOfficialBreadthGateTracksPostResourceSkillRefreshWithoutClosingP0()
+    {
+        var gate = Assert.Single(
+            RemainingOfficialClosureGateManifest,
+            entry => string.Equals(entry.GateId, "B_PAYMENT_ENGINE_OFFICIAL_BREADTH", StringComparison.Ordinal));
+
+        Assert.Contains("post-03CT resource-skill accounting refresh", gate.RequiredFutureEvidence, StringComparison.Ordinal);
+        Assert.Contains("full official [A] / [C] resource-skill row interactions", gate.RequiredFutureEvidence, StringComparison.Ordinal);
+        Assert.Contains("4D-03CT resource-skill official breadth refresh", gate.RepresentativeProxyEvidence, StringComparison.Ordinal);
+        Assert.Contains("32 total = 23 implemented + 9 bridge-closed + 0 current deferred", gate.RepresentativeProxyEvidence, StringComparison.Ordinal);
+        Assert.Contains("4D-03CS-B legend bridge closure", gate.RepresentativeProxyEvidence, StringComparison.Ordinal);
+        Assert.Contains("representative proxy evidence only", gate.RepresentativeProxyEvidence, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", gate.ClosureStatus, StringComparison.Ordinal);
+        Assert.Contains(
+            "docs/CURRENT_STAGE4D_03CT_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_POST_BRIDGE_REFRESH_AUDIT.md",
+            gate.DocAnchors);
+        Assert.Contains(
+            "docs/CURRENT_STAGE4D_03CS_B_PAYMENT_ENGINE_LEGEND_RESOURCE_BRIDGE_CLOSURE_AUDIT.md",
+            gate.DocAnchors);
     }
 
     [Fact]
