@@ -3648,6 +3648,8 @@ public sealed class PaymentEngineCoverageAuditTests
             "Completion audit, server rule audit and closure plan must keep NOT READY until P0/P1, full-card matrix and final audit gates are all proven.",
             "Project remains NOT READY; update_goal complete is forbidden until final completion audit outputs a final readiness verdict.",
             [
+                "docs/CURRENT_STAGE4D_03DF_ACTIVE_GOAL_COMPLETION_AUDIT_REFRESH_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03DF_ACTIVE_GOAL_COMPLETION_AUDIT_REFRESH_EVIDENCE.md",
                 "docs/CURRENT_STAGE4D_03BT_PAYMENT_ENGINE_REMAINING_OFFICIAL_CLOSURE_GATE_AUDIT.md",
                 "docs/CURRENT_STAGE4D_03BT_PAYMENT_ENGINE_REMAINING_OFFICIAL_CLOSURE_GATE_EVIDENCE.md",
                 "docs/CURRENT_COMPLETION_AUDIT.md",
@@ -9150,6 +9152,37 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineActiveGoalCompletionAuditMappingTracksCurrent03DEHeadEvidence()
+    {
+        var repositoryRoot = ResolveRepositoryRoot();
+        var completionAudit = File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_COMPLETION_AUDIT.md"));
+        var checklist = File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md"));
+        var completionMapping = ExtractSection(completionAudit, "## 0.1 Active Goal 门槛到证据映射", "## 1.");
+        var checklistMapping = ExtractSection(checklist, "## 3. 主目标门槛映射", "## 7.");
+
+        Assert.Contains("4D-03DE", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("4740/4740", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("formal-18-1778886172096-1", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("1009 snapshot entries / 811 functional units", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("fullOfficialTrue=0", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("ready=false", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("NOT READY", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("P0-005", completionMapping, StringComparison.Ordinal);
+        Assert.DoesNotContain("4D-03W focused slice 后 backend full 4120/4120", completionMapping, StringComparison.Ordinal);
+        Assert.DoesNotContain("formal-18-1778623926434-15", completionMapping, StringComparison.Ordinal);
+        Assert.DoesNotContain("IMPLEMENTED_TESTED 为 76", completionMapping, StringComparison.Ordinal);
+
+        Assert.Contains("4D-03DE", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("4740/4740", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("1009 snapshot entries / 811 functional units", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("fullOfficialTrue=0", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("ready=false", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("NOT READY", checklistMapping, StringComparison.Ordinal);
+        Assert.DoesNotContain("03DB focused 159/159", checklistMapping, StringComparison.Ordinal);
+        Assert.DoesNotContain("4D-03DB fresh-run backend full 4728/4728", checklistMapping, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PaymentEngineOfficialBreadthGateRecordsFreshDispatchBaselineAfterRowInteractionMatrix()
     {
         var gate = Assert.Single(
@@ -9623,6 +9656,17 @@ public sealed class PaymentEngineCoverageAuditTests
         }
 
         throw new InvalidOperationException("Could not locate repository root containing Riftbound.slnx.");
+    }
+
+    private static string ExtractSection(string text, string startMarker, string endMarker)
+    {
+        var start = text.IndexOf(startMarker, StringComparison.Ordinal);
+        Assert.True(start >= 0, $"Missing section start marker: {startMarker}");
+
+        var end = text.IndexOf(endMarker, start + startMarker.Length, StringComparison.Ordinal);
+        Assert.True(end > start, $"Missing section end marker: {endMarker}");
+
+        return text[start..end];
     }
 
     private sealed record PaymentEngineResidualBlockerCoverageEntry(
