@@ -32,6 +32,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string DeferredResourceSkillOfficialCandidate = "deferred-resource-skill-official-candidate";
     private const string DeferredLegendResourceActionBridge = "deferred-legend-resource-action-bridge";
     private const string DeferredNonLegendResourceSkillRuntimeVerifier = "deferred-non-legend-resource-skill-runtime-verifier";
+    private const string DeferredResourceSkillNextDispatchGate = "deferred-resource-skill-next-dispatch-gate";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
     [
@@ -2414,6 +2415,64 @@ public sealed class PaymentEngineCoverageAuditTests
             "Deferred non-legend resource skill runtime / verifier only; project remains NOT READY and P0-005 remains open until RESOURCE_SKILLS closure is explicit.",
             DeferredResourceSkillFamilyDocAnchors);
     }
+
+    private static readonly string[] DeferredResourceSkillNextDispatchGateDocAnchors =
+    [
+        "docs/CURRENT_STAGE4D_03BZ_PAYMENT_ENGINE_DEFERRED_RESOURCE_SKILL_NEXT_DISPATCH_GATE_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03BZ_PAYMENT_ENGINE_DEFERRED_RESOURCE_SKILL_NEXT_DISPATCH_GATE_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03BY_PAYMENT_ENGINE_LEGEND_RESOURCE_ACTION_BRIDGE_HANDOFF.md",
+        "docs/CURRENT_STAGE4D_03BY_PAYMENT_ENGINE_LEGEND_RESOURCE_ACTION_BRIDGE_BASELINE_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03BX_PAYMENT_ENGINE_NON_LEGEND_RESOURCE_SKILL_RUNTIME_HANDOFF.md",
+        "docs/CURRENT_STAGE4D_03BX_PAYMENT_ENGINE_NON_LEGEND_RESOURCE_SKILL_RUNTIME_BASELINE_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03BW_PAYMENT_ENGINE_DEFERRED_RESOURCE_SKILL_FAMILY_VERIFIER_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03BW_PAYMENT_ENGINE_DEFERRED_RESOURCE_SKILL_FAMILY_VERIFIER_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md"
+    ];
+
+    private static readonly PaymentEngineDeferredResourceSkillNextDispatchGateEntry[] DeferredResourceSkillNextDispatchGateManifest =
+    [
+        new(
+            "B_DEFERRED_NON_LEGEND_RESOURCE_SKILL_RUNTIME",
+            "B-side PaymentEngine non-legend deferred resource skill runtime / verifier slice",
+            DeferredResourceSkillNextDispatchGate,
+            DeferredNonLegendResourceSkillRuntimeVerifier,
+            [
+                "OGS·014/024",
+                "UNL-022/219",
+                "UNL-049/219",
+                "UNL-087/219"
+            ],
+            "Fresh A dispatch required before modifying runtime or tests for Jhin, Honeyfruit, Blue Sentinel or Lux.",
+            "Primary future write scope is PaymentEngine / resource-skill focused tests and, only if a real mismatch is exposed, the minimal P4ActivatedAbilityCatalog / MatchSession / CoreRuleEngine / PaymentCostRules path needed for prompt, command, audit, generated-resource lifetime and rollback semantics.",
+            "Legend bridge rows, frontend runtime, browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and riftbound-dotnet.sln remain locked.",
+            "Future evidence must prove movement-triggered, equipment-reaction, held-battlefield delayed next-main and spell-only tap-reaction generated resource behavior without borrowing LEGEND_ACT evidence.",
+            "4D-03BX handoff, 4D-03BW split, current preflight fixtures, backend full, Chrome smoke and formal 18 are routing / representative evidence only.",
+            "Project remains NOT READY and P0-005 remains open until the non-legend runtime / verifier slice is explicitly dispatched, accepted and then reconciled with RESOURCE_SKILLS closure.",
+            DeferredResourceSkillNextDispatchGateDocAnchors),
+        new(
+            "B_LEGEND_RESOURCE_ACTION_BRIDGE_VERIFIER",
+            "B-side PaymentEngine legend resource action bridge / verifier slice",
+            DeferredResourceSkillNextDispatchGate,
+            DeferredLegendResourceActionBridge,
+            [
+                "OGN·247/298",
+                "OGN·253/298",
+                "OGN·299*/298",
+                "OGN·299/298",
+                "OGN·302*/298",
+                "OGN·302/298",
+                "SFD·189/221",
+                "SFD·244/221",
+                "UNL-197/219"
+            ],
+            "Fresh A dispatch required before treating Diana, Ornn, KaiSa or Darius LEGEND_ACT resource actions as RESOURCE_SKILLS bridge evidence.",
+            "Primary future write scope is a bridge verifier in PaymentEngineCoverageAuditTests and focused legend tests; runtime / catalog files are allowed only if the verifier exposes a concrete mismatch and A opens that narrower lock.",
+            "The 4 non-legend 03BX runtime candidates, frontend runtime, browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and riftbound-dotnet.sln remain locked.",
+            "Future evidence must bind each legend row to current LEGEND_ACT ability id, source-card group, timing restriction, generated resource type, payment-only restriction and explicit RESOURCE_SKILLS closure gap.",
+            "Existing Diana / Ornn / KaiSa / Darius LEGEND_ACT representative tests, 4D-03BY handoff, backend full, Chrome smoke and formal 18 are bridge inputs only, not proxy closure.",
+            "Project remains NOT READY and P0-005 remains open until legend bridge semantics are explicit and RESOURCE_SKILLS closure is separately accepted.",
+            DeferredResourceSkillNextDispatchGateDocAnchors)
+    ];
 
     private static readonly TargetTaxActivatedAbilityMatrixDimensionProfile[] TargetTaxActivatedAbilityMatrixDimensionProfiles =
     [
@@ -5800,6 +5859,123 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineDeferredResourceSkillNextDispatchGateManifestListsTwoFreshBGates()
+    {
+        var requiredGateIds = new[]
+        {
+            "B_DEFERRED_NON_LEGEND_RESOURCE_SKILL_RUNTIME",
+            "B_LEGEND_RESOURCE_ACTION_BRIDGE_VERIFIER"
+        };
+
+        Assert.Equal(
+            requiredGateIds.Order(StringComparer.Ordinal),
+            DeferredResourceSkillNextDispatchGateManifest.Select(entry => entry.GateId).Order(StringComparer.Ordinal));
+        Assert.Empty(DeferredResourceSkillNextDispatchGateManifest
+            .GroupBy(entry => entry.GateId, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key));
+
+        Assert.All(DeferredResourceSkillNextDispatchGateManifest, entry =>
+        {
+            Assert.Equal(DeferredResourceSkillNextDispatchGate, entry.Classification);
+            Assert.Contains("Fresh A dispatch", entry.RequiredFreshDispatch, StringComparison.Ordinal);
+            Assert.Contains("NOT READY", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("riftbound-dotnet.sln", entry.ForbiddenScope, StringComparison.Ordinal);
+            Assert.NotEmpty(entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineDeferredResourceSkillNextDispatchGateManifestMatchesDeferredFamilySplit()
+    {
+        var candidateNosByClassification = DeferredResourceSkillFamilyManifest
+            .GroupBy(entry => entry.Classification, StringComparer.Ordinal)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Select(entry => entry.CardNo).Order(StringComparer.Ordinal).ToArray(),
+                StringComparer.Ordinal);
+
+        Assert.All(DeferredResourceSkillNextDispatchGateManifest, entry =>
+        {
+            Assert.True(candidateNosByClassification.TryGetValue(entry.CandidateClassification, out var expectedCardNos));
+            Assert.Equal(expectedCardNos, entry.CandidateCardNos.Order(StringComparer.Ordinal).ToArray());
+        });
+
+        var coveredByDispatchGates = DeferredResourceSkillNextDispatchGateManifest
+            .SelectMany(entry => entry.CandidateCardNos)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var deferredFamilySet = DeferredResourceSkillFamilyManifest
+            .Select(entry => entry.CardNo)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(deferredFamilySet, coveredByDispatchGates);
+        Assert.Equal(13, coveredByDispatchGates.Length);
+    }
+
+    [Fact]
+    public void PaymentEngineDeferredResourceSkillNextDispatchGateRejectsProxyClosureAndCrossSliceMixing()
+    {
+        var nonLegendGate = Assert.Single(
+            DeferredResourceSkillNextDispatchGateManifest,
+            entry => string.Equals(entry.CandidateClassification, DeferredNonLegendResourceSkillRuntimeVerifier, StringComparison.Ordinal));
+        var legendGate = Assert.Single(
+            DeferredResourceSkillNextDispatchGateManifest,
+            entry => string.Equals(entry.CandidateClassification, DeferredLegendResourceActionBridge, StringComparison.Ordinal));
+
+        Assert.Contains("without borrowing LEGEND_ACT evidence", nonLegendGate.RequiredFutureEvidence, StringComparison.Ordinal);
+        Assert.Contains("Legend bridge rows", nonLegendGate.ForbiddenScope, StringComparison.Ordinal);
+        Assert.DoesNotContain("UNL-197/219", nonLegendGate.CandidateCardNos);
+
+        Assert.Contains("LEGEND_ACT", legendGate.RequiredFutureEvidence, StringComparison.Ordinal);
+        Assert.Contains("not proxy closure", legendGate.RepresentativeProxyEvidence, StringComparison.Ordinal);
+        Assert.Contains("4 non-legend 03BX runtime candidates", legendGate.ForbiddenScope, StringComparison.Ordinal);
+        Assert.DoesNotContain("UNL-022/219", legendGate.CandidateCardNos);
+    }
+
+    [Fact]
+    public void PaymentEngineDeferredResourceSkillNextDispatchGateDoesNotClaimReadyOrFullOfficial()
+    {
+        var combinedText = string.Join(
+            " ",
+            DeferredResourceSkillNextDispatchGateManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.GateId,
+                    entry.Owner,
+                    entry.Classification,
+                    entry.CandidateClassification,
+                    entry.RequiredFreshDispatch,
+                    entry.WriteLockScope,
+                    entry.ForbiddenScope,
+                    entry.RequiredFutureEvidence,
+                    entry.RepresentativeProxyEvidence,
+                    entry.ClosureStatus
+                }.Concat(entry.CandidateCardNos).Concat(entry.DocAnchors)));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("RESOURCE_SKILLS", combinedText, StringComparison.Ordinal);
+        Assert.Contains("proxy closure", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("fullOfficial / READY", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("fullOfficial / READY", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PaymentEngineTargetTaxActivatedAbilityMatrixCoversEveryTargetAbilityAndDimension()
     {
         var requiredAbilityIds = TargetColoredActivatedAbilityCoverageManifest
@@ -6632,6 +6808,20 @@ public sealed class PaymentEngineCoverageAuditTests
         string RequiredFutureEvidence,
         string RepresentativeProxyEvidence,
         string LockedScope,
+        string ClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
+    private sealed record PaymentEngineDeferredResourceSkillNextDispatchGateEntry(
+        string GateId,
+        string Owner,
+        string Classification,
+        string CandidateClassification,
+        IReadOnlyList<string> CandidateCardNos,
+        string RequiredFreshDispatch,
+        string WriteLockScope,
+        string ForbiddenScope,
+        string RequiredFutureEvidence,
+        string RepresentativeProxyEvidence,
         string ClosureStatus,
         IReadOnlyList<string> DocAnchors);
 
