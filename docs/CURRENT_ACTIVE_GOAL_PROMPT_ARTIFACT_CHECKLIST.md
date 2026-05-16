@@ -147,7 +147,66 @@ fullOfficialTrue=0
 fullOfficialFalse=811
 ```
 
-当前 4D-03DV PaymentEngine post-03DU full official resource-skill row interactions dispatch：
+当前 4D-03DV-B PaymentEngine full official resource-skill row interactions verifier evidence：
+
+```txt
+baseCommit=5f55fecf test: 固定 post-03du full resource-skill row interactions dispatch
+focused PaymentEngineCoverageAuditTests=212/212
+git diff --check=passed
+Post03DvFullOfficialResourceSkillRowInteractionsVerifierEvidenceManifest binds current 32 official RESOURCE_SKILLS rows
+classification=post-03du-full-official-resource-skill-row-interactions-verifier-evidence
+concrete B gate=B_PAYMENT_ENGINE_RESOURCE_SKILL_FULL_ROW_INTERACTIONS_POST_03DU_RESIDUAL_OWNER_LOCK_VERIFIER
+input dispatch manifest=Post03DvFullOfficialResourceSkillRowInteractionsDispatchManifest
+bound input manifests=Post03DvFullOfficialResourceSkillRowInteractionsDispatchManifest / Post03DuBroaderOfficialBreadthVerifierEvidenceManifest / Post03DqResidualP0AuditClassificationManifest / ResourceSkillOfficialRuntimeCardRowEvidenceManifest / ResourceSkillOfficialSourceCardRuntimeParityManifest / ResourceSkillOfficialRowInteractionMatrixManifest / ResourceSkillOfficialFamilyClosureManifest / OfficialBreadthFullResourceSkillInteractionMatrixVerifierEvidenceManifest / OfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoffManifest / OfficialBreadthNextDispatchAfterFamilyClosuresManifest / RemainingOfficialClosureGateManifest
+32 current official RESOURCE_SKILLS rows; 03CV matrix surfaces=192
+exact source-card groups / prompt quote / Command revalidation / audit parity / generated-resource lifetime / rollback no-mutation / official matrix trace / card-row blocker evidence
+verifier evidence only; no runtime / frontend / Chrome / formal 18 / card matrix JSON / fullOfficial / final readiness / riftbound-dotnet.sln
+03DQ worker write lock=closed; 03DV-B does not reopen the closed 03DO / 03DP / 03DQ gate
+P0-005 / P1 / broader PaymentEngine official breadth / full official [A] / [C] resource-skill row interactions / full official PaymentEngine matrix / full-card matrix / READY=open
+Post03DvFullOfficialResourceSkillRowInteractionsDispatchManifest selects full-official-resource-skill-row-interactions
+classification=post-03du-full-official-resource-skill-row-interactions-dispatch
+B_PAYMENT_ENGINE_RESOURCE_SKILL_FULL_ROW_INTERACTIONS_POST_03DU_RESIDUAL_OWNER_LOCK_VERIFIER
+input evidence manifest=Post03DuBroaderOfficialBreadthVerifierEvidenceManifest
+bound input manifests=Post03DuBroaderOfficialBreadthVerifierEvidenceManifest / Post03DqResidualP0AuditClassificationManifest / OfficialBreadthFullResourceSkillInteractionMatrixVerifierEvidenceManifest / OfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoffManifest / OfficialBreadthNextDispatchAfterFamilyClosuresManifest / RemainingOfficialClosureGateManifest
+dispatch only; no runtime / frontend / Chrome / formal 18 / card matrix JSON / fullOfficial / final readiness / riftbound-dotnet.sln
+03DQ worker write lock=closed; 03DV does not reopen the closed 03DO / 03DP / 03DQ gate
+future B must prove full official [A] / [C] resource-skill runtime/card-row interactions against exact source-card groups, prompt quote, Command revalidation, audit parity, generated-resource lifetime, rollback no-mutation, official matrix trace and card-row blocker evidence
+non-selected residual owner locks remain open: broader-payment-engine-official-breadth / keyword-payment-branches / remaining-payment-windows / replacement-optional-alternative-tax-quote-command-audit-parity / full-official-payment-engine-matrix / card-matrix-readiness
+Post03DuBroaderOfficialBreadthVerifierEvidenceManifest binds selected broader-payment-engine-official-breadth
+classification=post-03ds-broader-official-breadth-verifier-evidence
+bound input manifests=Post03DsBroaderOfficialBreadthHandoffManifest / Post03DqResidualP0AuditClassificationManifest / OfficialBreadthPost03DqResidualDispatchManifest / OfficialBreadthFullResourceSkillInteractionMatrixVerifierEvidenceManifest / OfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoffManifest / RemainingOfficialClosureGateManifest
+verifier evidence only; no runtime / frontend / Chrome / formal 18 / card matrix JSON / fullOfficial / final readiness / riftbound-dotnet.sln
+Post03DsBroaderOfficialBreadthHandoffManifest selects broader-payment-engine-official-breadth
+B_PAYMENT_ENGINE_OFFICIAL_BREADTH_POST_03DS_RESIDUAL_OWNER_LOCK_VERIFIER
+selected residual owner lock=broader-payment-engine-official-breadth
+non-selected residual owner locks remain open: full-official-resource-skill-row-interactions / keyword-payment-branches / remaining-payment-windows / replacement-optional-alternative-tax-quote-command-audit-parity / full-official-payment-engine-matrix / card-matrix-readiness
+B worker write scope=tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs plus 03DT handoff / baseline docs and A-side routing docs
+Post03DqResidualP0AuditClassificationManifest classifies 7 residual owner locks
+broader-payment-engine-official-breadth
+full-official-resource-skill-row-interactions
+keyword-payment-branches
+remaining-payment-windows
+replacement-optional-alternative-tax-quote-command-audit-parity
+full-official-payment-engine-matrix
+card-matrix-readiness
+B-side fresh A dispatch required
+E-side fresh A dispatch required
+OfficialBreadthPost03DqResidualDispatchManifest routes post-03DQ residual classification to D_COMPLETION_P0_AUDIT
+OfficialBreadthFullResourceSkillInteractionMatrixVerifierEvidenceManifest records 192 interaction surfaces
+OfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoffManifest remains the 03DP input contract
+B_PAYMENT_ENGINE_OFFICIAL_BREADTH_FULL_RESOURCE_SKILL_ROW_INTERACTION_MATRIX_VERIFIER
+prompt quote / Command revalidation / audit parity / generated-resource lifetime / rollback no-mutation / official matrix trace / card-row blocker evidence
+OfficialBreadthNextDispatchAfterFamilyClosuresManifest records 03DN / 03DM / 03DL current-lane closures as inputs only
+current official RESOURCE_SKILLS family lane=closed only for exact 32 rows
+ResourceSkillOfficialFamilyClosureManifest aligns 03CX source-card parity, 03CY runtime/card-row evidence, 03CV matrix rows and 03DG family verifier
+current target/typed activated ability official family lane=closed only for exact 8 rows
+current full non-target/typed activated ability residual breadth lane=closed only for exact Vi and Fluft Poro rows
+D-side write scope=closed after docs/test residual classification only
+B worker write scope=closed after 03DQ focused verifier evidence
+broader PaymentEngine official breadth / full official [A] / [C] resource-skill row interactions / keyword payment branches / remaining payment windows / replacement / optional / alternative / tax quote-command-audit parity / full official PaymentEngine matrix / E_CARD_MATRIX_READINESS=classified but still open
+```
+
+上一批 4D-03DV PaymentEngine post-03DU full official resource-skill row interactions dispatch：
 
 ```txt
 baseCommit=0fb9850b test: 固定 post-03ds breadth verifier
@@ -671,19 +730,21 @@ formal 18-step steps=18/18 OK
 
 ## 3. 主目标门槛映射
 
+当前 evidence chain trace：4D-03DV-B `Post03DvFullOfficialResourceSkillRowInteractionsVerifierEvidenceManifest` / `post-03du-full-official-resource-skill-row-interactions-verifier-evidence` 继承 4D-03DV `Post03DvFullOfficialResourceSkillRowInteractionsDispatchManifest` / `post-03du-full-official-resource-skill-row-interactions-dispatch` / `B_PAYMENT_ENGINE_RESOURCE_SKILL_FULL_ROW_INTERACTIONS_POST_03DU_RESIDUAL_OWNER_LOCK_VERIFIER`，继续绑定 4D-03DU `Post03DuBroaderOfficialBreadthVerifierEvidenceManifest` / `post-03ds-broader-official-breadth-verifier-evidence` / `B_PAYMENT_ENGINE_OFFICIAL_BREADTH_POST_03DS_RESIDUAL_OWNER_LOCK_VERIFIER`、4D-03DT `Post03DsBroaderOfficialBreadthHandoffManifest`、4D-03DS `Post03DqResidualP0AuditClassificationManifest` 7 residual owner locks（broader-payment-engine-official-breadth / full-official-resource-skill-row-interactions / keyword-payment-branches / remaining-payment-windows / replacement-optional-alternative-tax-quote-command-audit-parity / full-official-payment-engine-matrix / card-matrix-readiness）、4D-03DR `OfficialBreadthPost03DqResidualDispatchManifest` / `D_COMPLETION_P0_AUDIT`、4D-03DQ `OfficialBreadthFullResourceSkillInteractionMatrixVerifierEvidenceManifest`、4D-03DP `OfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoffManifest`、4D-03DO `OfficialBreadthNextDispatchAfterFamilyClosuresManifest` / `B_PAYMENT_ENGINE_OFFICIAL_BREADTH_FULL_RESOURCE_SKILL_ROW_INTERACTION_MATRIX_VERIFIER`、4D-03DN `ResourceSkillOfficialFamilyClosureManifest`、4D-03DM `TargetTypedActivatedAbilityOfficialFamilyClosureManifest`、4D-03DL `NonTargetTypedActivatedAbilityResidualBreadthClosureManifest`、4D-03DK `NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest`、4D-03DH `TargetTypedActivatedAbilityFullFamilyGapVerifierManifest` / `NonTargetTypedActivatedAbilityResidualPartitionManifest` and Vi and Fluft Poro。Matrix / frontend readiness evidence remains non-final: formal-18-1778886172096-1, 1009 snapshot entries / 811 functional units, fullOfficialTrue=0, ready=false, NOT READY, P0-005.
+
 | 要求 | 必需 artifact / gate | 已检查证据 | 当前状态 | 缺口 / 下一步 |
 |---|---|---|---|---|
 | 按 `docs/A_MASTER_AGENT_GOAL.md` 管理 | A-master 目标文档必须存在并作为最高级本地交付口径 | `docs/A_MASTER_AGENT_GOAL.md` 已读取；goal 文本与该文件一致 | OK / ONGOING | 后续任何 READY 判断都必须回到本 checklist 与 final audit |
-| A 维护 checkpoint | `docs/CURRENT_A_MASTER_CHECKPOINT.md` 最新、可恢复、含当前结论 | 文件顶部记录 4D-03DV `Post03DvFullOfficialResourceSkillRowInteractionsDispatchManifest` accepted、classification=`post-03du-full-official-resource-skill-row-interactions-dispatch`、baseCommit=0fb9850b、focused 211/211、gate=`B_PAYMENT_ENGINE_RESOURCE_SKILL_FULL_ROW_INTERACTIONS_POST_03DU_RESIDUAL_OWNER_LOCK_VERIFIER`，并保留 4D-03DU `Post03DuBroaderOfficialBreadthVerifierEvidenceManifest` accepted、classification=`post-03ds-broader-official-breadth-verifier-evidence`、gate=`B_PAYMENT_ENGINE_OFFICIAL_BREADTH_POST_03DS_RESIDUAL_OWNER_LOCK_VERIFIER`、4D-03DT `Post03DsBroaderOfficialBreadthHandoffManifest` accepted、4D-03DS `Post03DqResidualP0AuditClassificationManifest` accepted、4D-03DR `OfficialBreadthPost03DqResidualDispatchManifest` accepted、4D-03DQ `OfficialBreadthFullResourceSkillInteractionMatrixVerifierEvidenceManifest` accepted、4D-03DP `OfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoffManifest` accepted、4D-03DO `OfficialBreadthNextDispatchAfterFamilyClosuresManifest` accepted、4D-03DN `ResourceSkillOfficialFamilyClosureManifest` accepted、4D-03DM `TargetTypedActivatedAbilityOfficialFamilyClosureManifest` accepted、4D-03DL `NonTargetTypedActivatedAbilityResidualBreadthClosureManifest` accepted、4D-03DK `NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest` accepted、4D-03DJ residual dispatch accepted、4D-03DH `TargetTypedActivatedAbilityFullFamilyGapVerifierManifest` / `NonTargetTypedActivatedAbilityResidualPartitionManifest` accepted、4D-03DG resource-skill official family verifier accepted、03DC-B 至 03BS 历史 dispatch / baseline、4D-FE formal 18-step pass、Chrome smoke pass、current-code frontend build pass；latest full backend evidence=4751/4751 from 03DH；项目 NOT READY | OK / ONGOING | 后续每批继续保持 checkpoint 同步 |
+| A 维护 checkpoint | `docs/CURRENT_A_MASTER_CHECKPOINT.md` 最新、可恢复、含当前结论 | 文件顶部记录 4D-03DV-B `Post03DvFullOfficialResourceSkillRowInteractionsVerifierEvidenceManifest` accepted、classification=`post-03du-full-official-resource-skill-row-interactions-verifier-evidence`、baseCommit=5f55fecf、focused 212/212、gate=`B_PAYMENT_ENGINE_RESOURCE_SKILL_FULL_ROW_INTERACTIONS_POST_03DU_RESIDUAL_OWNER_LOCK_VERIFIER`，并保留 4D-03DV dispatch、4D-03DU `Post03DuBroaderOfficialBreadthVerifierEvidenceManifest` accepted、4D-03DT `Post03DsBroaderOfficialBreadthHandoffManifest` accepted、4D-03DS `Post03DqResidualP0AuditClassificationManifest` accepted、4D-03DR `OfficialBreadthPost03DqResidualDispatchManifest` accepted、4D-03DQ `OfficialBreadthFullResourceSkillInteractionMatrixVerifierEvidenceManifest` accepted、4D-03DP `OfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoffManifest` accepted、4D-03DO `OfficialBreadthNextDispatchAfterFamilyClosuresManifest` accepted、4D-03DN `ResourceSkillOfficialFamilyClosureManifest` accepted、4D-03DM `TargetTypedActivatedAbilityOfficialFamilyClosureManifest` accepted、4D-03DL `NonTargetTypedActivatedAbilityResidualBreadthClosureManifest` accepted、4D-03DK `NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest` accepted、4D-03DJ residual dispatch accepted、4D-03DH `TargetTypedActivatedAbilityFullFamilyGapVerifierManifest` / `NonTargetTypedActivatedAbilityResidualPartitionManifest` accepted、4D-03DG resource-skill official family verifier accepted、03DC-B 至 03BS 历史 dispatch / baseline、4D-FE formal 18-step pass、Chrome smoke pass、current-code frontend build pass；latest full backend evidence=4751/4751 from 03DH；项目 NOT READY | OK / ONGOING | 后续每批继续保持 checkpoint 同步 |
 | A 维护任务拆分 / 子 agent 分工 | A-master agent pool、写锁、下一步计划 | `A_MASTER_AGENT_GOAL.md` §7/§8；`CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已记录 4D-03DV / 4D-03DU / 4D-03DT / 4D-03DS / 4D-03DR / 4D-03DQ / 4D-03DP / 4D-03DO / 4D-03DN / 4D-03DM / 4D-03DL / 4D-03DK / 4D-03DJ / 4D-03DH accepted，且 03DG / 03DE / 03DD / 03DC-B / 03DB / 03DA / 03CX / 03CW / 03CV / 03CU / 03CT / 03CS-B 至 03BS 历史 guards / handoffs 均为 evidence / closure-boundary trace；03DV 只把 full-official-resource-skill-row-interactions owner lock 派发到 fresh B gate，03DU 只把 03DT selected broader-payment-engine-official-breadth owner lock 绑定到 input evidence，03DS 仍将 `D_COMPLETION_P0_AUDIT` 分类为 7 residual owner locks，03DQ worker write lock is closed，03DP old gate `B_PAYMENT_ENGINE_OFFICIAL_BREADTH_FULL_RESOURCE_SKILL_ROW_INTERACTION_MATRIX_VERIFIER` 不被 03DV 重开；当前无并发 runtime writer；remaining gap=P0-005、P1、broader PaymentEngine official breadth、full official `[A]` / `[C]` resource-skill row interactions、keyword payment branches、remaining payment windows、full official PaymentEngine matrix、full-card matrix、READY | ONGOING | 后续 matrix / remaining P0/P1 仍需单独写锁 |
 | A 维护阻断清单 | P0/P1 closure plan 与 completion audit | `CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md` 与 `CURRENT_COMPLETION_AUDIT.md` 仍为 NOT READY | NOT MET | P0/P1 未清零 |
-| A 控制写入范围 | 不并行改核心模块；当前 4D-03DV 只打开 post-03DU full official resource-skill row interactions dispatch 与 A-side audit docs 写锁 | 4D-03DV 只更新 `PaymentEngineCoverageAuditTests` dispatch guard、新增 03DV audit / evidence docs，并同步 checkpoint / completion / dispatch / checklist / server audit / frontend plan / P0-P1 plan；runtime、frontend、browser scripts、formal 18-step scripts、matrix JSON、READY 与 `riftbound-dotnet.sln` 仍锁定 | OK FOR THIS SLICE | 后续 runtime / frontend behavior / matrix 改动必须按 dispatch 文档独占 owner |
+| A 控制写入范围 | 不并行改核心模块；当前 4D-03DV-B 只打开 full official resource-skill row interactions verifier evidence 与 A-side audit docs 写锁 | 4D-03DV-B 只更新 `PaymentEngineCoverageAuditTests` verifier evidence guard、新增 03DV-B audit / evidence docs，并同步 checkpoint / completion / dispatch / checklist / server audit / frontend plan / P0-P1 plan；runtime、frontend、browser scripts、formal 18-step scripts、matrix JSON、READY 与 `riftbound-dotnet.sln` 仍锁定 | OK FOR THIS SLICE | 后续 runtime / frontend behavior / matrix 改动必须按 dispatch 文档独占 owner |
 | 默认不写功能代码 | A 不主动承接功能实现 | 本批为 test/docs-only resource-skill row interactions dispatch guard，A 主控验收并同步 current-state docs；未改 runtime、前端本地裁决、matrix JSON 或 READY | OK FOR THIS SLICE | 不代表后续功能缺口已解决 |
 | 服务端唯一规则权威 | 服务端输出 authoritative snapshot、prompt、事件、规则裁决 | `CURRENT_SERVER_RULE_AUDIT.md` 与 Stage 4D docs 证明大量 representative server-authority paths | PARTIAL | full official battle / PaymentEngine / LayerEngine / card effects 仍未闭合 |
 | 前端只展示 authoritative snapshot | 前端不得持有隐藏信息或本地裁决规则 | `CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md` 与 4D-FE fresh-run evidence 断言主流程不暴露 raw hidden-info 文本；frontend plan 多处记录不本地推断；4D-FE smoke fresh-run 已过 | PARTIAL | 最终前端 contract audit 与后续最终状态 rerun 仍需在 READY 前处理 |
 | 前端只提交 `ActionPrompt` / `LegalAction` | UI 操作必须来自服务端 prompt | Stage 4D docs 多处记录 ActionPrompt / GameHub representative coverage | PARTIAL | 仍需最终全流程 frontend contract audit，不可用 representative coverage 代理 |
 | P0/P1 清零 | completion audit 中所有 P0/P1 为 resolved | closure plan / server audit 明确仍 open / partially resolved | NOT MET | 继续 P0-004、P0-005、LayerEngine、关键词、replay/property、full-card evidence |
-| 后端 full test | `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` | 4D-03DV focused `PaymentEngineCoverageAuditTests` 211/211 通过；latest full backend evidence from 4D-03DH 为 4751/4751 | PASS AS LATEST FOCUSED / FULL-BACKEND EVIDENCE | 只证明最新 focused 与既有 full-backend evidence 绿；不证明 P0/P1 全部满足 |
+| 后端 full test | `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` | 4D-03DV-B focused `PaymentEngineCoverageAuditTests` 212/212 通过；latest full backend evidence from 4D-03DH 为 4751/4751 | PASS AS LATEST FOCUSED / FULL-BACKEND EVIDENCE | 只证明最新 focused 与既有 full-backend evidence 绿；不证明 P0/P1 全部满足 |
 | 前端 build / typecheck / lint | `source ../../scripts/dev-env.sh && npm run build` | 4D-FE event-label build gate 当前代码状态 fresh-run 通过；package script 包含 checks、`tsc -b`、Vite build | PASS AS LATEST FRONTEND BUILD EVIDENCE | READY 前若后续代码继续变动仍需在最终代码状态 fresh run |
 | Chrome smoke | `source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` | 4D-FE Chrome smoke 是 last-known frontend evidence，覆盖 core routes；03DV 未改前端且未重跑 smoke | PASS AS LAST-KNOWN CHROME SMOKE EVIDENCE | READY 前若后续代码继续变动仍需在最终代码状态 fresh run，并用 `@chrome` 调试/验收 |
 | 正式 18 步 E2E | `npm run e2e:formal-18 -- --start-api`，覆盖 A_MASTER §11 1-18 | 4D-FE last-known formal 18 evidence 记录房间 `formal-18-1778886172096-1` 通过，18/18 OK；03DV 未重跑 formal | PASS AS LAST-KNOWN MAIN-FLOW EVIDENCE | 该文件明确不替代 P0/P1、full-card matrix、完整 PaymentEngine / LayerEngine |
