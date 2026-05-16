@@ -10255,6 +10255,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     intent.PlayerId,
                     ability.ManaGainAmount,
                     command.SourceObjectId,
+                    sourceState.CardNo ?? string.Empty,
+                    ability.SourceCardNos,
                     command.AbilityId,
                     events);
                 break;
@@ -10264,6 +10266,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     intent.PlayerId,
                     ability.PowerGainAmount,
                     command.SourceObjectId,
+                    sourceState.CardNo ?? string.Empty,
+                    ability.SourceCardNos,
                     command.AbilityId,
                     events);
                 break;
@@ -11116,6 +11120,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         string playerId,
         int manaAmount,
         string sourceObjectId,
+        string sourceCardNo,
+        IReadOnlyList<string> sourceCardNos,
         string abilityId,
         List<GameEvent> events)
     {
@@ -11133,7 +11139,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 ["playerId"] = playerId,
                 ["sourceObjectId"] = sourceObjectId,
+                ["cardNo"] = sourceCardNo,
+                ["sourceCardNos"] = sourceCardNos.ToArray(),
                 ["abilityId"] = abilityId,
+                ["bridgeGroup"] = LegendResourceBridgeGroupId(abilityId),
+                ["resourceKind"] = "mana",
+                ["resourceLifecycle"] = "rune-pool-cleared-at-turn-end",
+                ["generatedResource"] = true,
                 ["amount"] = manaAmount,
                 ["mana"] = manaAmount,
                 ["manaAfter"] = nextPool.Mana
@@ -11146,6 +11158,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         string playerId,
         int powerAmount,
         string sourceObjectId,
+        string sourceCardNo,
+        IReadOnlyList<string> sourceCardNos,
         string abilityId,
         List<GameEvent> events)
     {
@@ -11163,12 +11177,30 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 ["playerId"] = playerId,
                 ["sourceObjectId"] = sourceObjectId,
+                ["cardNo"] = sourceCardNo,
+                ["sourceCardNos"] = sourceCardNos.ToArray(),
                 ["abilityId"] = abilityId,
+                ["bridgeGroup"] = LegendResourceBridgeGroupId(abilityId),
+                ["resourceKind"] = "power",
+                ["resourceLifecycle"] = "rune-pool-cleared-at-turn-end",
+                ["generatedResource"] = true,
                 ["amount"] = powerAmount,
                 ["power"] = powerAmount,
                 ["powerAfter"] = nextPool.Power
             }));
         return runePools;
+    }
+
+    private static string LegendResourceBridgeGroupId(string abilityId)
+    {
+        return abilityId switch
+        {
+            DianaLegendAbilityId => "diana-spell-duel-mana",
+            DariusLegendAbilityId => "darius-inspire-mana",
+            OrnnLegendAbilityId => "ornn-equipment-power",
+            KaisaLegendAbilityId => "kaisa-spell-power",
+            _ => "legend-resource-bridge"
+        };
     }
 
     private static void ReturnLegendTargetToOwnerHand(

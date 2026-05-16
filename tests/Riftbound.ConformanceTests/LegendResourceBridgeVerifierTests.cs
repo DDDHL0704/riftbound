@@ -37,6 +37,30 @@ public sealed class LegendResourceBridgeVerifierTests
         yield return [new BridgeProfile("Darius", "OGN·302*/298", "P1-LEGEND-DARIUS-OGN-302-ALT", DariusAbilityId, "mana", "no-previous-card")];
     }
 
+    public static IEnumerable<object[]> ManaSuccessProfiles()
+    {
+        foreach (var row in SuccessProfiles())
+        {
+            var profile = Assert.IsType<BridgeProfile>(row[0]);
+            if (string.Equals(profile.ResourceKind, "mana", StringComparison.Ordinal))
+            {
+                yield return row;
+            }
+        }
+    }
+
+    public static IEnumerable<object[]> PowerSuccessProfiles()
+    {
+        foreach (var row in SuccessProfiles())
+        {
+            var profile = Assert.IsType<BridgeProfile>(row[0]);
+            if (string.Equals(profile.ResourceKind, "power", StringComparison.Ordinal))
+            {
+                yield return row;
+            }
+        }
+    }
+
     [Theory]
     [MemberData(nameof(SuccessProfiles))]
     public async Task LegendResourceBridgeSuccessExposesPromptAndGainsOneResource(BridgeProfile profile)
@@ -60,6 +84,100 @@ public sealed class LegendResourceBridgeVerifierTests
         }
 
         AssertResourceGainedEvent(result.Events, profile);
+    }
+
+    [Theory]
+    [MemberData(nameof(ManaSuccessProfiles))]
+    public async Task LegendResourceBridgeGeneratedManaCanPayLaterLegalManaCost(BridgeProfile profile)
+    {
+        var gained = await ResolveLegendActAsync(BuildSuccessState(profile), profile);
+        Assert.True(gained.Accepted, gained.ErrorMessage);
+
+        var pendingPayment = new PendingPaymentState(
+            $"LEGEND-RESOURCE-MANA-PAY-{profile.SourceObjectId}",
+            "LEGEND_RESOURCE_PAYMENT",
+            "P1",
+            manaCost: 1,
+            legalPaymentChoiceIds: ["SPEND_MANA:1"],
+            reason: "LEGEND_GENERATED_MANA_CONSUMPTION");
+        var paymentState = gained.State with
+        {
+            PendingPayment = pendingPayment
+        };
+
+        var paid = await new CoreRuleEngine().ResolveAsync(
+            paymentState,
+            new PlayerIntent($"intent-legend-resource-bridge-mana-consume-{profile.Name}-{profile.CardNo}", "P1", CommandTypes.PayCost),
+            new PayCostCommand(pendingPayment.PaymentId, pendingPayment.PaymentWindow, ["SPEND_MANA:1"]),
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Equal(RunePool.Empty, paid.State.RunePools["P1"]);
+        var costEvent = Assert.Single(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(1, costEvent.Payload["totalManaCost"]);
+        Assert.Equal(0, costEvent.Payload["totalPowerCost"]);
+        Assert.Equal(0, costEvent.Payload["remainingMana"]);
+        Assert.Equal(["SPEND_MANA:1"], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        Assert.Contains(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [MemberData(nameof(PowerSuccessProfiles))]
+    public async Task LegendResourceBridgeGeneratedPowerCanPayLaterLegalPowerCost(BridgeProfile profile)
+    {
+        var gained = await ResolveLegendActAsync(BuildSuccessState(profile), profile);
+        Assert.True(gained.Accepted, gained.ErrorMessage);
+
+        var pendingPayment = new PendingPaymentState(
+            $"LEGEND-RESOURCE-POWER-PAY-{profile.SourceObjectId}",
+            "LEGEND_RESOURCE_PAYMENT",
+            "P1",
+            powerCost: 1,
+            legalPaymentChoiceIds: ["SPEND_POWER:1"],
+            reason: "LEGEND_GENERATED_POWER_CONSUMPTION");
+        var paymentState = gained.State with
+        {
+            PendingPayment = pendingPayment
+        };
+
+        var paid = await new CoreRuleEngine().ResolveAsync(
+            paymentState,
+            new PlayerIntent($"intent-legend-resource-bridge-power-consume-{profile.Name}-{profile.CardNo}", "P1", CommandTypes.PayCost),
+            new PayCostCommand(pendingPayment.PaymentId, pendingPayment.PaymentWindow, ["SPEND_POWER:1"]),
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Equal(RunePool.Empty, paid.State.RunePools["P1"]);
+        var costEvent = Assert.Single(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(0, costEvent.Payload["totalManaCost"]);
+        Assert.Equal(1, costEvent.Payload["totalPowerCost"]);
+        Assert.Equal(0, costEvent.Payload["remainingPower"]);
+        Assert.Equal(["SPEND_POWER:1"], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        Assert.Contains(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [MemberData(nameof(SuccessProfiles))]
+    public async Task LegendResourceBridgeGeneratedResourceUsesRunePoolEndTurnCleanupLifecycle(BridgeProfile profile)
+    {
+        var gained = await ResolveLegendActAsync(BuildSuccessState(profile), profile);
+        Assert.True(gained.Accepted, gained.ErrorMessage);
+
+        var cleanupState = MoveToOpenMainForEndTurn(gained.State);
+        var cleanup = await new CoreRuleEngine().ResolveAsync(
+            cleanupState,
+            new PlayerIntent($"intent-legend-resource-bridge-cleanup-{profile.Name}-{profile.CardNo}", "P1", CommandTypes.EndTurn),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(cleanup.Accepted, cleanup.ErrorMessage);
+        Assert.Equal(RunePool.Empty, cleanup.State.RunePools["P1"]);
+        Assert.Contains(
+            cleanup.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "RUNE_POOL_CLEARED", StringComparison.Ordinal)
+                && Assert.IsAssignableFrom<IEnumerable<string>>(gameEvent.Payload["playerIds"]).Contains("P1"));
     }
 
     [Theory]
@@ -116,7 +234,13 @@ public sealed class LegendResourceBridgeVerifierTests
 
         Assert.Equal("P1", resourceEvent.Payload["playerId"]);
         Assert.Equal(profile.SourceObjectId, resourceEvent.Payload["sourceObjectId"]);
+        Assert.Equal(profile.CardNo, resourceEvent.Payload["cardNo"]);
+        Assert.Contains(profile.CardNo, Assert.IsType<string[]>(resourceEvent.Payload["sourceCardNos"]));
         Assert.Equal(profile.AbilityId, resourceEvent.Payload["abilityId"]);
+        Assert.Equal(BridgeGroupFor(profile), resourceEvent.Payload["bridgeGroup"]);
+        Assert.Equal(profile.ResourceKind, resourceEvent.Payload["resourceKind"]);
+        Assert.Equal("rune-pool-cleared-at-turn-end", resourceEvent.Payload["resourceLifecycle"]);
+        Assert.True(Assert.IsType<bool>(resourceEvent.Payload["generatedResource"]));
         Assert.True(
             resourceEvent.Payload.TryGetValue("amount", out var amount),
             $"{eventKind} must expose a normalized amount payload field for the legend resource bridge.");
@@ -161,6 +285,34 @@ public sealed class LegendResourceBridgeVerifierTests
             "wrong-pending-equipment" => LegendPriorityWindowState(profile.CardNo, profile.SourceObjectId, CardObjectTags.EquipmentCard),
             "no-previous-card" => LegendActiveAbilityState(profile.CardNo, profile.SourceObjectId, mana: 0),
             _ => throw new InvalidOperationException($"Unknown reject gate: {profile.Gate}")
+        };
+    }
+
+    private static MatchState MoveToOpenMainForEndTurn(MatchState state)
+    {
+        return state with
+        {
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1",
+            Phase = MatchPhases.Main,
+            TimingState = TimingStates.NeutralOpen,
+            PriorityPlayerId = null,
+            PassedPriorityPlayerIds = [],
+            FocusPlayerId = null,
+            PassedFocusPlayerIds = [],
+            StackItems = []
+        };
+    }
+
+    private static string BridgeGroupFor(BridgeProfile profile)
+    {
+        return profile.AbilityId switch
+        {
+            DianaAbilityId => "diana-spell-duel-mana",
+            DariusAbilityId => "darius-inspire-mana",
+            OrnnAbilityId => "ornn-equipment-power",
+            KaisaAbilityId => "kaisa-spell-power",
+            _ => throw new InvalidOperationException($"Unknown bridge ability: {profile.AbilityId}")
         };
     }
 
