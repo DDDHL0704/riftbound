@@ -8712,13 +8712,11 @@ internal static class ActionPromptBuilder
             return [];
         }
 
-        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
-            ? currentPool
-            : RunePool.Empty;
         var behaviors = CardBehaviorRegistry.GetAll()
             .Where(behavior => string.Equals(behavior.CardNo, cardObject.CardNo, StringComparison.Ordinal))
             .Where(behavior => CardPermissionKeywordRules.EvaluatePlayTiming(state, playerId, behavior).IsAllowed)
-            .Where(behavior => runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, objectId))
+            .Where(behavior => PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, objectId)
+                >= PromptMinimumManaCost(state, playerId, behavior, objectId))
             .Where(behavior => PromptHasRequiredDestinationChoices(state, playerId, behavior))
             .ToArray();
         if (string.Equals(cardObject.CardNo, "SFD·039/221", StringComparison.Ordinal)
@@ -9038,7 +9036,7 @@ internal static class ActionPromptBuilder
             : RunePool.Empty;
         var manaRequired = PromptMinimumManaCost(state, playerId, behavior)
             + targetObjectIds.Sum(targetObjectId => SpellshieldTaxManaForTarget(state, playerId, targetObjectId));
-        return runePool.Mana >= manaRequired;
+        return runePool.Mana + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, null, manaRequired) >= manaRequired;
     }
 
     private static bool HasValidPromptTotalTargetPower(
@@ -10141,8 +10139,8 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        var paymentResourceChoices = PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior);
-        var paymentResourcePowerByTrait = PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior);
+        var paymentResourceChoices = PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId);
+        var paymentResourcePowerByTrait = PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior, sourceObjectId);
         var effectivePowerWithRecycle = runePool.TotalPower + paymentResourcePowerByTrait.Values.Sum();
         var hasteReadyPowerTrait = HasteReadyPowerTrait(behavior);
         var experience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
@@ -10432,6 +10430,76 @@ internal static class ActionPromptBuilder
             && !behavior.PlaysSourceToBaseAsEquipment;
     }
 
+    private static int PromptAvailableManaWithLuxSpellOnlyResource(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId)
+    {
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        var requiredMana = PromptMinimumManaCost(state, playerId, behavior, sourceObjectId);
+        return runePool.Mana + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, sourceObjectId, requiredMana);
+    }
+
+    private static int PromptLuxSpellOnlyGeneratedMana(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId,
+        int requiredMana)
+    {
+        if (!IsPromptSpellPlayBehavior(behavior))
+        {
+            return 0;
+        }
+
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        if (runePool.Mana >= requiredMana)
+        {
+            return 0;
+        }
+
+        var generatedMana = PromptLuxSpellOnlyResourceSourceObjectIds(state, playerId, sourceObjectId).Count
+            * P4ActivatedAbilityCatalog.LuxGeneratedMana;
+        return runePool.Mana + generatedMana >= requiredMana
+            ? generatedMana
+            : 0;
+    }
+
+    private static IReadOnlyList<string> PromptLuxSpellOnlyResourceSourceObjectIds(
+        MatchState state,
+        string playerId,
+        string? playedSourceObjectId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return [];
+        }
+
+        return zones.Base
+            .Concat(zones.Battlefields)
+            .Where(objectId => !string.Equals(objectId, playedSourceObjectId, StringComparison.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .Where(objectId => CanPromptLuxSpellOnlyResourceSource(state, playerId, objectId))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static bool CanPromptLuxSpellOnlyResourceSource(MatchState state, string playerId, string objectId)
+    {
+        return state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && string.Equals(cardObject.CardNo, P4ActivatedAbilityCatalog.LuxCardNo, StringComparison.Ordinal)
+            && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !cardObject.IsFaceDown
+            && !cardObject.IsExhausted
+            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId);
+    }
+
     private static bool PromptBattlefieldHeldNextSpellEchoActive(MatchState state, string playerId)
     {
         return state.UntilEndOfTurnEffects.Contains(
@@ -10559,9 +10627,10 @@ internal static class ActionPromptBuilder
     private static IReadOnlyList<ActionPromptChoiceDto> PlayCardPaymentResourceChoicesForBehavior(
         MatchState state,
         string playerId,
-        CardBehaviorDefinition behavior)
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId = null)
     {
-        if (!PlayCardBehaviorMayNeedPaymentResource(state, playerId, behavior))
+        if (!PlayCardBehaviorMayNeedPaymentResource(state, playerId, behavior, sourceObjectId))
         {
             return [];
         }
@@ -10570,46 +10639,46 @@ internal static class ActionPromptBuilder
             ? currentPool
             : RunePool.Empty;
         var paymentRequirements = PlayCardPowerPaymentResourceRequirements(state, playerId, runePool, behavior);
-        if (paymentRequirements.Count == 0)
+        var recycleChoices = Array.Empty<ActionPromptChoiceDto>();
+        var temporaryChoices = Array.Empty<ActionPromptChoiceDto>();
+        if (paymentRequirements.Count > 0
+            && state.PlayerZones.TryGetValue(playerId, out var zones))
         {
-            return [];
+            recycleChoices = zones.Base
+                .Where(objectId => IsRecycleRuneSource(state, playerId, objectId))
+                .Where(objectId => PlayCardRecycleRuneCanHelpPowerPayment(
+                    state,
+                    objectId,
+                    runePool,
+                    paymentRequirements))
+                .OrderBy(objectId => objectId, StringComparer.Ordinal)
+                .Select(objectId =>
+                {
+                    var choice = ObjectChoice(state, objectId, "payment resource action: recycle rune for trait power");
+                    return new ActionPromptChoiceDto(
+                        $"{RecycleRunePaymentOptionalCostPrefix}{objectId}",
+                        $"回收符文支付：{choice.Label}",
+                        choice.Reason);
+                })
+                .ToArray();
+            temporaryChoices = paymentRequirements
+                .SelectMany(requirement => TemporaryPaymentResourceChoicesForGenericPower(
+                    state,
+                    playerId,
+                    runePool,
+                    requirement.GenericPowerCost,
+                    requirement.PowerCostByTrait,
+                    "payment resource action: temporary resource for play card power"))
+                .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+                .Select(group => group.First())
+                .OrderBy(choice => choice.Id, StringComparer.Ordinal)
+                .ToArray();
         }
 
-        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
-        {
-            return [];
-        }
-
-        var recycleChoices = zones.Base
-            .Where(objectId => IsRecycleRuneSource(state, playerId, objectId))
-            .Where(objectId => PlayCardRecycleRuneCanHelpPowerPayment(
-                state,
-                objectId,
-                runePool,
-                paymentRequirements))
-            .OrderBy(objectId => objectId, StringComparer.Ordinal)
-            .Select(objectId =>
-            {
-                var choice = ObjectChoice(state, objectId, "payment resource action: recycle rune for trait power");
-                return new ActionPromptChoiceDto(
-                    $"{RecycleRunePaymentOptionalCostPrefix}{objectId}",
-                    $"回收符文支付：{choice.Label}",
-                    choice.Reason);
-            })
+        return recycleChoices
+            .Concat(temporaryChoices)
+            .Concat(PlayCardLuxSpellOnlyResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId))
             .ToArray();
-        var temporaryChoices = paymentRequirements
-            .SelectMany(requirement => TemporaryPaymentResourceChoicesForGenericPower(
-                state,
-                playerId,
-                runePool,
-                requirement.GenericPowerCost,
-                requirement.PowerCostByTrait,
-                "payment resource action: temporary resource for play card power"))
-            .GroupBy(choice => choice.Id, StringComparer.Ordinal)
-            .Select(group => group.First())
-            .OrderBy(choice => choice.Id, StringComparer.Ordinal)
-            .ToArray();
-        return recycleChoices.Concat(temporaryChoices).ToArray();
     }
 
     private static IReadOnlyList<PlayCardPowerPaymentRequirement> PlayCardPowerPaymentResourceRequirements(
@@ -10743,9 +10812,10 @@ internal static class ActionPromptBuilder
     private static IReadOnlyDictionary<string, int> PlayCardPaymentResourcePowerByTraitForBehavior(
         MatchState state,
         string playerId,
-        CardBehaviorDefinition behavior)
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId = null)
     {
-        if (!PlayCardBehaviorMayNeedPaymentResource(state, playerId, behavior))
+        if (!PlayCardBehaviorMayNeedPaymentResource(state, playerId, behavior, sourceObjectId))
         {
             return new Dictionary<string, int>(StringComparer.Ordinal);
         }
@@ -10753,7 +10823,7 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        var paymentResourceChoices = PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior);
+        var paymentResourceChoices = PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId);
         if (paymentResourceChoices.Count == 0)
         {
             return new Dictionary<string, int>(StringComparer.Ordinal);
@@ -10969,7 +11039,8 @@ internal static class ActionPromptBuilder
     private static bool PlayCardBehaviorMayNeedPaymentResource(
         MatchState state,
         string playerId,
-        CardBehaviorDefinition behavior)
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId = null)
     {
         return behavior.DamageAmountFromOptionalPowerCost
             || behavior.SourceDrawAdditionalPowerCost > 0
@@ -10977,7 +11048,59 @@ internal static class ActionPromptBuilder
             || behavior.TargetEffectAdditionalPowerCost > 0
             || behavior.HasteReadyPowerCost > 0
             || CanPromptCrescentGuardReadyOptionalCost(state, playerId, behavior)
-            || IsAkshanOrangeExtraEquipmentStealRepresentative(behavior);
+            || IsAkshanOrangeExtraEquipmentStealRepresentative(behavior)
+            || PlayCardLuxSpellOnlyResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId).Count > 0;
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> PlayCardLuxSpellOnlyResourceChoicesForBehavior(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId)
+    {
+        if (!IsPromptSpellPlayBehavior(behavior))
+        {
+            return [];
+        }
+
+        var requiredMana = PromptMinimumManaCost(state, playerId, behavior, sourceObjectId);
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        if (runePool.Mana >= requiredMana)
+        {
+            return [];
+        }
+
+        var sources = PromptLuxSpellOnlyResourceSourceObjectIds(state, playerId, sourceObjectId);
+        if (runePool.Mana + sources.Count * P4ActivatedAbilityCatalog.LuxGeneratedMana < requiredMana)
+        {
+            return [];
+        }
+
+        return sources
+            .Select(objectId =>
+            {
+                var choice = ObjectChoice(state, objectId, "payment resource action: Lux spell-only mana");
+                return new ActionPromptChoiceDto(
+                    $"{P4ActivatedAbilityCatalog.LuxSpellOnlyResourceActionPrefix}{objectId}",
+                    $"拉克丝法术费用：{choice.Label}",
+                    $"横置拉克丝获得 {P4ActivatedAbilityCatalog.LuxGeneratedMana} 点只能支付法术的法力");
+            })
+            .ToArray();
+    }
+
+    private static bool TryParseLuxSpellOnlyResourceActionId(string actionId, out string sourceObjectId)
+    {
+        sourceObjectId = string.Empty;
+        if (string.IsNullOrWhiteSpace(actionId)
+            || !actionId.StartsWith(P4ActivatedAbilityCatalog.LuxSpellOnlyResourceActionPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        sourceObjectId = actionId[P4ActivatedAbilityCatalog.LuxSpellOnlyResourceActionPrefix.Length..].Trim();
+        return !string.IsNullOrWhiteSpace(sourceObjectId);
     }
 
     private static string HasteReadyPowerTrait(CardBehaviorDefinition behavior)
@@ -12271,9 +12394,9 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        var paymentResourceChoices = PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior);
-        var paymentResourcePowerByTrait = PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior);
-        var paymentResourcePowerByChoice = PlayCardPaymentResourcePowerByChoiceForBehavior(state, playerId, behavior);
+        var paymentResourceChoices = PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId);
+        var paymentResourcePowerByTrait = PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior, sourceObjectId);
+        var paymentResourcePowerByChoice = PlayCardPaymentResourcePowerByChoiceForBehavior(state, playerId, behavior, sourceObjectId);
         var availablePowerByTrait = PlayCardAvailablePowerByTrait(
             runePool,
             new Dictionary<string, int>(StringComparer.Ordinal));
@@ -12295,6 +12418,13 @@ internal static class ActionPromptBuilder
             playerId,
             behavior,
             baseManaReductionBeforeBattlefieldSpellCost + nextSpellCostReductionMana);
+        var minimumManaCost = PromptMinimumManaCost(state, playerId, behavior, sourceObjectId);
+        var luxSpellOnlyGeneratedMana = PromptLuxSpellOnlyGeneratedMana(
+            state,
+            playerId,
+            behavior,
+            sourceObjectId,
+            minimumManaCost);
 
         return new Dictionary<string, object?>
         {
@@ -12304,7 +12434,7 @@ internal static class ActionPromptBuilder
             ["mode"] = string.IsNullOrWhiteSpace(behavior.Mode) ? null : behavior.Mode,
             ["modeLabel"] = PlayCardModeLabel(behavior.Mode),
             ["manaCost"] = behavior.ManaCost,
-            ["minimumManaCost"] = PromptMinimumManaCost(state, playerId, behavior, sourceObjectId),
+            ["minimumManaCost"] = minimumManaCost,
             ["battlefieldEquipmentCostReductionMana"] = PromptBattlefieldEquipmentCostReductionMana(state, playerId, behavior),
             ["nextSpellCostReductionMana"] = nextSpellCostReductionMana,
             ["battlefieldSpellCostReductionMana"] = battlefieldSpellCostReductionMana,
@@ -12323,6 +12453,9 @@ internal static class ActionPromptBuilder
             ["optionalCostChoices"] = PlayCardOptionalCostChoicesForBehavior(state, playerId, behavior, sourceObjectId),
             ["paymentResourceChoices"] = paymentResourceChoices,
             ["paymentResourcePowerByChoice"] = paymentResourcePowerByChoice,
+            ["availableMana"] = runePool.Mana,
+            ["availableManaWithPaymentResources"] = runePool.Mana + luxSpellOnlyGeneratedMana,
+            ["paymentResourceMana"] = luxSpellOnlyGeneratedMana,
             ["availablePower"] = runePool.TotalPower,
             ["availablePowerByTrait"] = availablePowerByTrait,
             ["availablePowerWithPaymentResources"] = runePool.TotalPower + paymentResourcePowerByTrait.Values.Sum(),
@@ -12337,9 +12470,10 @@ internal static class ActionPromptBuilder
     private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> PlayCardPaymentResourcePowerByChoiceForBehavior(
         MatchState state,
         string playerId,
-        CardBehaviorDefinition behavior)
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId = null)
     {
-        if (!PlayCardBehaviorMayNeedPaymentResource(state, playerId, behavior))
+        if (!PlayCardBehaviorMayNeedPaymentResource(state, playerId, behavior, sourceObjectId))
         {
             return new Dictionary<string, IReadOnlyDictionary<string, object?>>(StringComparer.Ordinal);
         }
@@ -12347,7 +12481,7 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        var paymentResourceChoices = PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior);
+        var paymentResourceChoices = PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId);
         if (paymentResourceChoices.Count == 0)
         {
             return new Dictionary<string, IReadOnlyDictionary<string, object?>>(StringComparer.Ordinal);
@@ -12378,9 +12512,30 @@ internal static class ActionPromptBuilder
                 StringComparer.Ordinal);
         foreach (var entry in TemporaryPaymentResourcePowerByChoice(
                      state,
-                     PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior)))
+                     paymentResourceChoices))
         {
             metadata[entry.Key] = entry.Value;
+        }
+
+        foreach (var choice in paymentResourceChoices)
+        {
+            if (!TryParseLuxSpellOnlyResourceActionId(choice.Id, out var luxSourceObjectId))
+            {
+                continue;
+            }
+
+            metadata[choice.Id] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["mana"] = P4ActivatedAbilityCatalog.LuxGeneratedMana,
+                ["paymentOnly"] = true,
+                ["spellOnly"] = true,
+                ["sourceObjectId"] = luxSourceObjectId,
+                ["cardNo"] = P4ActivatedAbilityCatalog.LuxCardNo,
+                ["abilityId"] = P4ActivatedAbilityCatalog.LuxResourceAbilityId,
+                ["resourceRestriction"] = P4ActivatedAbilityCatalog.LuxSpellOnlyResourceRestriction,
+                ["resourceLifecycle"] = "inline-spell-payment-resource",
+                ["generatedResourceCannotBeTargetedAsResponse"] = true
+            };
         }
 
         return metadata;

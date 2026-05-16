@@ -4449,6 +4449,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             paymentEvents,
             paymentWindow,
             paymentId);
+        runePools = ApplyLuxSpellOnlyResourceActions(
+            runePools,
+            cardObjects,
+            intent.PlayerId,
+            plan.LuxSpellOnlyResourceSourceObjectIds,
+            paymentEvents,
+            paymentWindow,
+            paymentId,
+            command.CardNo,
+            command.SourceObjectId);
         var inlineTemporaryPayment = BuildInlineTemporaryPaymentWindow(
             paymentPlan.PaymentId,
             paymentPlan.PaymentWindow,
@@ -4487,6 +4497,17 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        if (plan.LuxSpellOnlyRemainingMana > 0)
+        {
+            var postPaymentPool = runePools.TryGetValue(intent.PlayerId, out var poolAfterPayment)
+                ? poolAfterPayment
+                : RunePool.Empty;
+            runePools[intent.PlayerId] = postPaymentPool with
+            {
+                Mana = Math.Max(0, postPaymentPool.Mana - plan.LuxSpellOnlyRemainingMana)
+            };
+        }
+
         var playerExperience = paymentCommit.PlayerExperience;
         objectLocations[command.SourceObjectId] = new ObjectLocationState(intent.PlayerId, "STACK");
 
@@ -4604,6 +4625,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 })
         };
         events.AddRange(paymentEvents);
+        events.AddRange(BuildLuxSpellOnlyResourcePaymentEvents(
+            paymentPlan,
+            intent.PlayerId,
+            plan.LuxSpellOnlyResourceSourceObjectIds,
+            plan.LuxSpellOnlyConsumedMana));
         events.AddRange(BuildTemporaryPaymentResourcePaymentEvents(
             inlineTemporaryPayment,
             intent.PlayerId,
@@ -4640,7 +4666,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                         .Select(resource => resource.ResourceId)
                         .ToArray(),
                     ["temporaryPaymentResourcePower"] = consumedTemporaryPaymentResources
-                        .Sum(resource => resource.ConsumedPower)
+                        .Sum(resource => resource.ConsumedPower),
+                    ["luxSpellOnlyResourceActions"] = plan.LuxSpellOnlyResourceActions.ToArray(),
+                    ["luxSpellOnlyResourceSourceObjectIds"] = plan.LuxSpellOnlyResourceSourceObjectIds.ToArray(),
+                    ["luxSpellOnlyGeneratedMana"] = plan.LuxSpellOnlyGeneratedMana,
+                    ["luxSpellOnlyConsumedMana"] = plan.LuxSpellOnlyConsumedMana,
+                    ["luxSpellOnlyRemainingMana"] = plan.LuxSpellOnlyRemainingMana
                 })));
         if (battlefieldNextSpellEchoConsumed)
         {
@@ -14491,6 +14522,149 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryExtractLuxSpellOnlyResourceActions(
+        IReadOnlyList<string> normalizedOptionalCosts,
+        out IReadOnlyList<string> behaviorOptionalCosts,
+        out IReadOnlyList<string> paymentResourceActions,
+        out IReadOnlyList<string> sourceObjectIds)
+    {
+        var behaviorCosts = new List<string>();
+        var paymentActions = new List<string>();
+        var sources = new List<string>();
+        var seenSourceObjectIds = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var optionalCost in normalizedOptionalCosts)
+        {
+            if (TryParseLuxSpellOnlyResourceActionId(optionalCost, out var sourceObjectId))
+            {
+                if (!seenSourceObjectIds.Add(sourceObjectId))
+                {
+                    behaviorOptionalCosts = [];
+                    paymentResourceActions = [];
+                    sourceObjectIds = [];
+                    return false;
+                }
+
+                paymentActions.Add(optionalCost);
+                sources.Add(sourceObjectId);
+                continue;
+            }
+
+            if (optionalCost.StartsWith(P4ActivatedAbilityCatalog.LuxSpellOnlyResourceActionPrefix, StringComparison.Ordinal))
+            {
+                behaviorOptionalCosts = [];
+                paymentResourceActions = [];
+                sourceObjectIds = [];
+                return false;
+            }
+
+            behaviorCosts.Add(optionalCost);
+        }
+
+        behaviorOptionalCosts = behaviorCosts;
+        paymentResourceActions = paymentActions;
+        sourceObjectIds = sources;
+        return true;
+    }
+
+    private static bool TryParseLuxSpellOnlyResourceActionId(string actionId, out string sourceObjectId)
+    {
+        sourceObjectId = string.Empty;
+        if (string.IsNullOrWhiteSpace(actionId)
+            || !actionId.StartsWith(P4ActivatedAbilityCatalog.LuxSpellOnlyResourceActionPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        sourceObjectId = actionId[P4ActivatedAbilityCatalog.LuxSpellOnlyResourceActionPrefix.Length..].Trim();
+        return !string.IsNullOrWhiteSpace(sourceObjectId);
+    }
+
+    private static bool TryValidateLuxSpellOnlyResourceActions(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        int totalManaCost,
+        RunePool currentPool,
+        IReadOnlyList<string> sourceObjectIds,
+        out int generatedMana,
+        out int consumedMana,
+        out int remainingMana,
+        out string rejection)
+    {
+        generatedMana = 0;
+        consumedMana = 0;
+        remainingMana = 0;
+        rejection = string.Empty;
+        if (sourceObjectIds.Count == 0)
+        {
+            return true;
+        }
+
+        if (!IsSpellPlayBehavior(behavior))
+        {
+            rejection = "拉克丝资源只能支付法术费用。";
+            return false;
+        }
+
+        if (sourceObjectIds.Any(sourceObjectId => !CanUseLuxSpellOnlyResourceSource(state, playerId, sourceObjectId)))
+        {
+            rejection = "PLAY_CARD 包含非法拉克丝法术资源。";
+            return false;
+        }
+
+        var shortfall = totalManaCost - currentPool.Mana;
+        if (shortfall <= 0)
+        {
+            rejection = "PLAY_CARD 包含不必要的拉克丝法术资源。";
+            return false;
+        }
+
+        var requiredSourceCount = (shortfall + P4ActivatedAbilityCatalog.LuxGeneratedMana - 1)
+            / P4ActivatedAbilityCatalog.LuxGeneratedMana;
+        if (sourceObjectIds.Count > requiredSourceCount)
+        {
+            rejection = "PLAY_CARD 包含不必要的拉克丝法术资源。";
+            return false;
+        }
+
+        generatedMana = sourceObjectIds.Count * P4ActivatedAbilityCatalog.LuxGeneratedMana;
+        if (currentPool.Mana + generatedMana < totalManaCost)
+        {
+            rejection = "拉克丝法术资源不足以支付当前法术。";
+            return false;
+        }
+
+        consumedMana = Math.Min(generatedMana, shortfall);
+        remainingMana = generatedMana - consumedMana;
+        return consumedMana > 0;
+    }
+
+    private static bool CanUseLuxSpellOnlyResourceSource(MatchState state, string playerId, string sourceObjectId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones)
+            || (!zones.Base.Contains(sourceObjectId, StringComparer.Ordinal)
+                && !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
+            || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+            || !string.Equals(sourceState.CardNo, P4ActivatedAbilityCatalog.LuxCardNo, StringComparison.Ordinal)
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || sourceState.IsFaceDown
+            || sourceState.IsExhausted
+            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId))
+        {
+            return false;
+        }
+
+        if (!state.ObjectLocations.TryGetValue(sourceObjectId, out var location))
+        {
+            return true;
+        }
+
+        return string.Equals(location.Zone, "BASE", StringComparison.Ordinal)
+            || string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal);
+    }
+
     private static bool TryParseRecycleRunePaymentOptionalCost(
         string optionalCost,
         out string runeObjectId)
@@ -14514,7 +14688,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsPaymentResourceActionId(string choiceId)
     {
         return IsRecycleRunePaymentResourceActionId(choiceId)
-            || PaymentCostRules.TryParseTemporaryPaymentResourceActionId(choiceId, out _);
+            || PaymentCostRules.TryParseTemporaryPaymentResourceActionId(choiceId, out _)
+            || TryParseLuxSpellOnlyResourceActionId(choiceId, out _);
     }
 
     private static bool CanRecycleRuneForPayment(
@@ -14677,6 +14852,162 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return runePools;
+    }
+
+    private static Dictionary<string, RunePool> ApplyLuxSpellOnlyResourceActions(
+        IReadOnlyDictionary<string, RunePool> currentRunePools,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        IReadOnlyList<string> sourceObjectIds,
+        List<GameEvent> events,
+        string paymentWindow,
+        string paymentId,
+        string playedCardNo,
+        string playedSourceObjectId)
+    {
+        var runePools = currentRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        if (sourceObjectIds.Count == 0)
+        {
+            return runePools;
+        }
+
+        var currentPool = runePools.TryGetValue(playerId, out var existingPool) ? existingPool : RunePool.Empty;
+        foreach (var sourceObjectId in sourceObjectIds)
+        {
+            if (!cardObjects.TryGetValue(sourceObjectId, out var sourceState))
+            {
+                continue;
+            }
+
+            cardObjects[sourceObjectId] = sourceState with { IsExhausted = true };
+            currentPool = currentPool with { Mana = currentPool.Mana + P4ActivatedAbilityCatalog.LuxGeneratedMana };
+            runePools[playerId] = currentPool;
+            var temporaryResourceId = LuxSpellOnlyTemporaryPaymentResourceId(paymentId, sourceObjectId);
+
+            events.Add(new GameEvent(
+                "ABILITY_ACTIVATED",
+                $"{playerId} 横置拉克丝获得法术费用法力",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["cardNo"] = P4ActivatedAbilityCatalog.LuxCardNo,
+                    ["abilityId"] = P4ActivatedAbilityCatalog.LuxResourceAbilityId,
+                    ["effectKind"] = P4ActivatedAbilityCatalog.LuxResourceAbilityEffectKind,
+                    ["paymentWindow"] = paymentWindow,
+                    ["paymentId"] = paymentId,
+                    ["playedCardNo"] = playedCardNo,
+                    ["playedSourceObjectId"] = playedSourceObjectId,
+                    ["resourceSkill"] = true,
+                    ["paymentOnly"] = true,
+                    ["spellOnly"] = true,
+                    ["reactionSpeed"] = true,
+                    ["generatedMana"] = P4ActivatedAbilityCatalog.LuxGeneratedMana,
+                    ["resourceRestriction"] = P4ActivatedAbilityCatalog.LuxSpellOnlyResourceRestriction,
+                    ["temporaryPaymentResourceId"] = temporaryResourceId,
+                    ["resourceLifecycle"] = "inline-spell-payment-resource",
+                    ["stackPolicy"] = "no-ordinary-stack-item",
+                    ["generatedResourceCannotBeTargetedAsResponse"] = true
+                }));
+            events.Add(new GameEvent(
+                "UNIT_EXHAUSTED",
+                $"{playerId} 横置拉克丝作为法术资源费用",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["cardNo"] = sourceState.CardNo,
+                    ["abilityId"] = P4ActivatedAbilityCatalog.LuxResourceAbilityId,
+                    ["paymentWindow"] = paymentWindow,
+                    ["paymentId"] = paymentId,
+                    ["resourceSkill"] = true,
+                    ["paymentOnly"] = true
+                }));
+            events.Add(new GameEvent(
+                "MANA_GAINED",
+                $"{playerId} 通过拉克丝资源技能获得 {P4ActivatedAbilityCatalog.LuxGeneratedMana} 点法术费用法力",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["abilityId"] = P4ActivatedAbilityCatalog.LuxResourceAbilityId,
+                    ["paymentWindow"] = paymentWindow,
+                    ["paymentId"] = paymentId,
+                    ["resourceSkill"] = true,
+                    ["paymentOnly"] = true,
+                    ["spellOnly"] = true,
+                    ["generatedMana"] = P4ActivatedAbilityCatalog.LuxGeneratedMana,
+                    ["mana"] = P4ActivatedAbilityCatalog.LuxGeneratedMana,
+                    ["manaAfter"] = currentPool.Mana,
+                    ["resourceRestriction"] = P4ActivatedAbilityCatalog.LuxSpellOnlyResourceRestriction,
+                    ["restrictionLifecycle"] = "inline-spell-payment-resource",
+                    ["temporaryPaymentResourceId"] = temporaryResourceId
+                }));
+        }
+
+        return runePools;
+    }
+
+    private static IReadOnlyList<GameEvent> BuildLuxSpellOnlyResourcePaymentEvents(
+        PaymentCostRules.PaymentPlan paymentPlan,
+        string playerId,
+        IReadOnlyList<string> sourceObjectIds,
+        int consumedMana)
+    {
+        var events = new List<GameEvent>();
+        var remainingConsumedMana = consumedMana;
+        foreach (var sourceObjectId in sourceObjectIds)
+        {
+            var sourceConsumedMana = Math.Min(P4ActivatedAbilityCatalog.LuxGeneratedMana, remainingConsumedMana);
+            remainingConsumedMana -= sourceConsumedMana;
+            var remainingManaBeforeCleanup = P4ActivatedAbilityCatalog.LuxGeneratedMana - sourceConsumedMana;
+            var temporaryResourceId = LuxSpellOnlyTemporaryPaymentResourceId(paymentPlan.PaymentId, sourceObjectId);
+
+            if (sourceConsumedMana > 0)
+            {
+                events.Add(new GameEvent(
+                    "TEMPORARY_PAYMENT_RESOURCE_SPENT",
+                    $"{playerId} 消费拉克丝临时法力支付法术费用",
+                    new Dictionary<string, object?>
+                    {
+                        ["paymentId"] = paymentPlan.PaymentId,
+                        ["paymentWindow"] = paymentPlan.PaymentWindow,
+                        ["playerId"] = playerId,
+                        ["temporaryPaymentResourceId"] = temporaryResourceId,
+                        ["sourceObjectId"] = sourceObjectId,
+                        ["abilityId"] = P4ActivatedAbilityCatalog.LuxResourceAbilityId,
+                        ["consumedMana"] = sourceConsumedMana,
+                        ["remainingMana"] = remainingManaBeforeCleanup,
+                        ["allowedPaymentKinds"] = new[] { PaymentCostRules.RuneCostPaymentKind },
+                        ["resourceRestriction"] = P4ActivatedAbilityCatalog.LuxSpellOnlyResourceRestriction,
+                        ["paymentOnly"] = true,
+                        ["spellOnly"] = true
+                    }));
+            }
+
+            events.Add(new GameEvent(
+                "TEMPORARY_PAYMENT_RESOURCE_CLEARED",
+                $"{playerId} 的拉克丝临时法力支付窗口结束并清理",
+                new Dictionary<string, object?>
+                {
+                    ["paymentId"] = paymentPlan.PaymentId,
+                    ["paymentWindow"] = paymentPlan.PaymentWindow,
+                    ["playerId"] = playerId,
+                    ["temporaryPaymentResourceId"] = temporaryResourceId,
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["abilityId"] = P4ActivatedAbilityCatalog.LuxResourceAbilityId,
+                    ["remainingManaBeforeCleanup"] = remainingManaBeforeCleanup,
+                    ["paymentOnly"] = true,
+                    ["spellOnly"] = true
+                }));
+        }
+
+        return events;
+    }
+
+    private static string LuxSpellOnlyTemporaryPaymentResourceId(string paymentId, string sourceObjectId)
+    {
+        return $"LUX:{paymentId}:{sourceObjectId}";
     }
 
     private static bool HasFreeStandbyHidePermission(MatchState state, string playerId)
@@ -24570,12 +24901,25 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var normalizedCommandOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (!TryExtractLuxSpellOnlyResourceActions(
+                normalizedCommandOptionalCosts,
+                out var optionalCostsWithoutLuxResources,
+                out var luxSpellOnlyResourceActions,
+                out var luxSpellOnlyResourceSourceObjectIds))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                $"Unsupported Lux spell-only payment resource action for {behavior.DisplayName}.",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
         if (!TryExtractInlinePaymentResourceActions(
                 state,
                 intent.PlayerId,
-                normalizedCommandOptionalCosts,
+                optionalCostsWithoutLuxResources,
                 out var behaviorOptionalCosts,
-                out var paymentResourceActions,
+                out var nonLuxPaymentResourceActions,
                 out var recycledPaymentRuneObjectIds,
                 out var temporaryPaymentResourceActions))
         {
@@ -24585,6 +24929,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
             return false;
         }
+
+        var paymentResourceActions = nonLuxPaymentResourceActions
+            .Concat(luxSpellOnlyResourceActions)
+            .ToArray();
 
         if (!TryBuildOptionalCostPlan(
                 state,
@@ -24801,6 +25149,25 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (!TryValidateLuxSpellOnlyResourceActions(
+                state,
+                intent.PlayerId,
+                behavior,
+                totalManaCost,
+                paymentAdjustedPool,
+                luxSpellOnlyResourceSourceObjectIds,
+                out var luxSpellOnlyGeneratedMana,
+                out var luxSpellOnlyConsumedMana,
+                out var luxSpellOnlyRemainingMana,
+                out var luxSpellOnlyResourceRejection))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                luxSpellOnlyResourceRejection,
+                ErrorCodes.InsufficientCost);
+            return false;
+        }
+
         var currentExperience = state.PlayerExperience.TryGetValue(intent.PlayerId, out var availableExperience)
             ? availableExperience
             : 0;
@@ -24828,9 +25195,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                 battlefieldHeldUnitCostIncreaseMana,
                 spellshieldTaxMana,
                 spellshieldTaxTargetObjectIds,
-                recycledPaymentRuneObjectIds));
+                recycledPaymentRuneObjectIds,
+                luxSpellOnlyResourceActions,
+                luxSpellOnlyResourceSourceObjectIds,
+                luxSpellOnlyGeneratedMana,
+                luxSpellOnlyConsumedMana,
+                luxSpellOnlyRemainingMana));
         var authorizationRunePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        authorizationRunePools[intent.PlayerId] = paymentAdjustedPool;
+        authorizationRunePools[intent.PlayerId] = paymentAdjustedPool with
+        {
+            Mana = paymentAdjustedPool.Mana + luxSpellOnlyGeneratedMana
+        };
         var inlineTemporaryPayment = BuildInlineTemporaryPaymentWindow(
             paymentPlan.PaymentId,
             paymentPlan.PaymentWindow,
@@ -24865,7 +25240,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             currentExperience);
         if (!paymentAuthorization.Accepted)
         {
-            var errorMessage = currentPool.Mana < totalManaCost
+            var errorMessage = paymentAdjustedPool.Mana < totalManaCost
                 ? $"Not enough mana to play {behavior.DisplayName}."
                 : !CanPayPowerCost(paymentAdjustedPool, extraPowerCost, extraPowerCostByTrait)
                     ? $"Not enough power to play {behavior.DisplayName}."
@@ -24906,6 +25281,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             paymentResourceActions,
             recycledPaymentRuneObjectIds,
             temporaryPaymentResourceActions,
+            luxSpellOnlyResourceActions,
+            luxSpellOnlyResourceSourceObjectIds,
+            luxSpellOnlyGeneratedMana,
+            luxSpellOnlyConsumedMana,
+            luxSpellOnlyRemainingMana,
             rengarUnitPlayedTargetObjectId,
             leonaStunBoonTargetObjectId);
         return true;
@@ -24923,7 +25303,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             plan.BattlefieldHeldUnitCostIncreaseMana,
             plan.SpellshieldTaxMana,
             plan.SpellshieldTaxTargetObjectIds,
-            plan.RecycledPaymentRuneObjectIds);
+            plan.RecycledPaymentRuneObjectIds,
+            plan.LuxSpellOnlyResourceActions,
+            plan.LuxSpellOnlyResourceSourceObjectIds,
+            plan.LuxSpellOnlyGeneratedMana,
+            plan.LuxSpellOnlyConsumedMana,
+            plan.LuxSpellOnlyRemainingMana);
     }
 
     private static IReadOnlyDictionary<string, object?> BuildPlayCardPaymentAuditMetadata(
@@ -24936,7 +25321,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         int battlefieldHeldUnitCostIncreaseMana,
         int spellshieldTaxMana,
         IReadOnlyList<string> spellshieldTaxTargetObjectIds,
-        IReadOnlyList<string> recycledRuneObjectIds)
+        IReadOnlyList<string> recycledRuneObjectIds,
+        IReadOnlyList<string>? luxSpellOnlyResourceActions = null,
+        IReadOnlyList<string>? luxSpellOnlyResourceSourceObjectIds = null,
+        int luxSpellOnlyGeneratedMana = 0,
+        int luxSpellOnlyConsumedMana = 0,
+        int luxSpellOnlyRemainingMana = 0)
     {
         return new Dictionary<string, object?>(StringComparer.Ordinal)
         {
@@ -24949,7 +25339,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             ["battlefieldHeldUnitCostIncreaseMana"] = battlefieldHeldUnitCostIncreaseMana,
             ["spellshieldTaxMana"] = spellshieldTaxMana,
             ["spellshieldTaxTargetObjectIds"] = spellshieldTaxTargetObjectIds.ToArray(),
-            ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray()
+            ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
+            ["luxSpellOnlyResourceActions"] = (luxSpellOnlyResourceActions ?? Array.Empty<string>()).ToArray(),
+            ["luxSpellOnlyResourceSourceObjectIds"] = (luxSpellOnlyResourceSourceObjectIds ?? Array.Empty<string>()).ToArray(),
+            ["luxSpellOnlyGeneratedMana"] = luxSpellOnlyGeneratedMana,
+            ["luxSpellOnlyConsumedMana"] = luxSpellOnlyConsumedMana,
+            ["luxSpellOnlyRemainingMana"] = luxSpellOnlyRemainingMana
         };
     }
 
@@ -41928,6 +42323,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> PaymentResourceActions,
         IReadOnlyList<string> RecycledPaymentRuneObjectIds,
         IReadOnlyList<string> TemporaryPaymentResourceActions,
+        IReadOnlyList<string> LuxSpellOnlyResourceActions,
+        IReadOnlyList<string> LuxSpellOnlyResourceSourceObjectIds,
+        int LuxSpellOnlyGeneratedMana,
+        int LuxSpellOnlyConsumedMana,
+        int LuxSpellOnlyRemainingMana,
         string RengarUnitPlayedTargetObjectId,
         string LeonaStunBoonTargetObjectId);
 

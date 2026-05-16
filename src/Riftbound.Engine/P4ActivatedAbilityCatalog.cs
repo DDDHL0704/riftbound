@@ -95,6 +95,13 @@ public static class P4ActivatedAbilityCatalog
     public const string BlueSentinelPaymentOnlyResourceRestriction = "PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ";
     public const string BlueSentinelDelayedResourceActionPrefix = "BLUE_SENTINEL_DELAYED_RESOURCE:";
 
+    public const string LuxCardNo = "OGS·014/024";
+    public const string LuxResourceAbilityId = "LUX_REACTION_EXHAUST_GAIN_2_SPELL_ONLY_MANA";
+    public const string LuxResourceAbilityEffectKind = "LUX_REACTION_RESOURCE_SKILL_GAIN_2_SPELL_ONLY_MANA";
+    public const int LuxGeneratedMana = 2;
+    public const string LuxSpellOnlyResourceRestriction = "PLAY_SPELLS_ONLY_LUX_TEMPORARY_MANA_4D_03CR";
+    public const string LuxSpellOnlyResourceActionPrefix = "LUX_SPELL_ONLY_RESOURCE:";
+
     public const string RenataGlascCardNo = "SFD·088/221";
     public const string RenataGlascAltCardNo = "SFD·088a/221";
     public const string RenataGlascDrawAbilityId = "RENATA_GLASC_PAY_1_BLUE_DRAW_1";
@@ -478,6 +485,24 @@ public static class P4ActivatedAbilityCatalog
             GeneratedPower: BlueSentinelGeneratedPower,
             ResourceRestriction: BlueSentinelPaymentOnlyResourceRestriction),
         new(
+            LuxResourceAbilityId,
+            LuxCardNo,
+            LuxResourceAbilityEffectKind,
+            "Lux spell-only reaction resource skill",
+            0,
+            0,
+            0,
+            RequiresBattlefieldSource: false,
+            ExhaustsSourceAsCost: true,
+            0,
+            AppliesSpellshieldTargetTax: false,
+            "Stage 4D-03CR opens Lux's base-or-battlefield spell-only reaction payment resource representative with inline play-card cleanup.",
+            IsResourceSkill: true,
+            PaymentOnlyResource: true,
+            ReactionSpeed: true,
+            GeneratedMana: LuxGeneratedMana,
+            ResourceRestriction: LuxSpellOnlyResourceRestriction),
+        new(
             RenataGlascDrawAbilityId,
             RenataGlascCardNo,
             RenataGlascDrawAbilityEffectKind,
@@ -814,6 +839,11 @@ public static class P4ActivatedAbilityCatalog
     public static bool IsBlueSentinelResourceAbility(string? abilityId)
     {
         return string.Equals(abilityId, BlueSentinelResourceAbilityId, StringComparison.Ordinal);
+    }
+
+    public static bool IsLuxResourceAbility(string? abilityId)
+    {
+        return string.Equals(abilityId, LuxResourceAbilityId, StringComparison.Ordinal);
     }
 
     public static bool TryGetSigilTypedResourceProfile(
