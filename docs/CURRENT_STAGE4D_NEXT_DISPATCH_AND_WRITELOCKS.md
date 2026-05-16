@@ -1,13 +1,14 @@
 # Stage 4D Next Dispatch and Writelocks
 
 日期：2026-05-16
-结论：**4D-03CU RESOURCE SKILL OFFICIAL ROW INTERACTION GATE ACCEPTED / PROJECT NOT READY**
+结论：**4D-03CV RESOURCE SKILL OFFICIAL ROW INTERACTION MATRIX ACCEPTED / PROJECT NOT READY**
 
 本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance / baseline 归档；除本文明确记录的 focused verifier 外，不实现 runtime，不修改前端，不升级 full-official。当前 active goal 仍未完成，不得调用 `update_goal complete`。
 
 ## 1. 输入事实
 
 - 当前分支为 `main`，仓库当前只保留未跟踪 `riftbound-dotnet.sln`；该文件不得被本批任务触碰或纳入提交。
+- 4D-03CV PaymentEngine resource skill official row interaction matrix 已由 A 主控完成 focused test/docs-only verifier，入口为 `docs/CURRENT_STAGE4D_03CV_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_MATRIX_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03CV_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_MATRIX_EVIDENCE.md`。本批只改 `PaymentEngineCoverageAuditTests` 与 03CV docs：`ResourceSkillOfficialRowInteractionMatrixManifest` 现在覆盖 32 current official resource-skill candidates x 6 interaction dimensions = 192 rows，维度为 prompt quote、command revalidation、audit event parity、generated-resource lifetime、rollback no-mutation、official matrix trace。post-03CT split 保持 23 implemented + 9 bridge-closed + 0 current deferred；每行继续固定 `RESOURCE_SKILL_A_C_FAMILY` / `RESOURCE_SKILLS`、03CV anchor、`P0-005 remains open`、`fullOfficial remains false` 与 **NOT READY**。A 侧验证 focused 141/141、adjacent PaymentEngine / legend bridge / resource skill / legend action / PaymentEngine unification / prompt / GameHub 700/700、backend full 4710/4710 通过；runtime、frontend、Chrome / browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；P0-005、P1、full official PaymentEngine matrix、完整 `[A]` / `[C]` resource-skill runtime/card-row interactions、full-card matrix 与 READY 仍未关闭。
 - 4D-03CU PaymentEngine resource skill official row interaction gate 已由 A 主控完成 test-only refresh，入口为 `docs/CURRENT_STAGE4D_03CU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_GATE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03CU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_GATE_EVIDENCE.md`。本批只改 `PaymentEngineCoverageAuditTests` 与 03CU docs：`B_PAYMENT_ENGINE_OFFICIAL_BREADTH` 现在承接 post-03CT resource-skill accounting refresh，仍固定 32 total = 23 implemented + 9 bridge-closed + 0 current deferred，并把下一 B-side official breadth work 显式锁定为 future full official `[A]` / `[C]` resource-skill row interactions / broader PaymentEngine official breadth，而不是把 03CT accounting 当作 closure。A 侧验证 focused 138/138、adjacent PaymentEngine / legend bridge / resource skill / legend action / PaymentEngine unification / prompt / GameHub 697/697、backend full 4707/4707 通过；runtime、frontend、Chrome / browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；P0-005、P1、full official PaymentEngine matrix、完整 `[A]` / `[C]` resource-skill row interactions、full-card matrix 与 READY 仍未关闭。
 - 4D-03CT PaymentEngine resource skill official breadth post-bridge refresh 已由 B-Implementation / Arendt `019e2f51-8b43-7e62-a64e-971a0015be08` 完成并由 A 验收，入口为 `docs/CURRENT_STAGE4D_03CT_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_POST_BRIDGE_REFRESH_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03CT_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_POST_BRIDGE_REFRESH_EVIDENCE.md`。本批不改 runtime，只刷新 `PaymentEngineCoverageAuditTests`：fixed official resource-skill candidates=32，post-03CS-B split=23 implemented + 9 bridge-closed + 0 current deferred；`DeferredResourceSkillFamilyManifest` 当前为空。A 侧验证 focused PaymentEngine coverage audit 136/136、adjacent PaymentEngine / legend bridge / resource skill / legend action / prompt / GameHub 655/655、backend full 4705/4705 通过；runtime、frontend、Chrome / browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；P0-005、P1、full official PaymentEngine matrix、完整 `[A]` / `[C]` resource skill breadth、full-card matrix 与 READY 仍未关闭。
 - 4D-03CS-B PaymentEngine legend resource bridge `RESOURCE_SKILLS` closure verifier 已由 B-Implementation / James `019e2f3e-48c6-7fa3-b646-0378eda2f0c8` 完成并由 A 验收，入口为 `docs/CURRENT_STAGE4D_03CS_B_PAYMENT_ENGINE_LEGEND_RESOURCE_BRIDGE_CLOSURE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03CS_B_PAYMENT_ENGINE_LEGEND_RESOURCE_BRIDGE_CLOSURE_EVIDENCE.md`。本批不改 runtime，只扩展 `LegendResourceBridgeVerifierTests` 与 `PaymentEngineCoverageAuditTests`：Diana / Ornn / KaiSa / Darius exact 9-card legend bridge 现在作为显式 `RESOURCE_SKILLS` bridge evidence closure，而不是 `LEGEND_ACT` proxy；旧 `B_LEGEND_RESOURCE_ACTION_BRIDGE_VERIFIER` next-dispatch gate 已清空。A 侧验证 focused PaymentEngine + legend bridge 217/217、adjacent PaymentEngine / resource skill / legend / prompt / GameHub 655/655、backend full 4705/4705 通过；runtime、frontend、Chrome / browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；P0-005、P1、full official `[A]` / `[C]` resource skill breadth、full-card matrix 与 READY 仍未关闭。
@@ -130,6 +131,7 @@
 
 | Queue | Owner | Status | Purpose | Write scope | Must not touch |
 |---|---|---|---|---|---|
+| 4D-03CV | A 主控 | Focused row-interaction matrix implemented and A-validated | Expand the post-03CU resource-skill official breadth gate into a 192-row candidate x interaction-dimension matrix without claiming full official / READY | `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, 4D-03CV audit / evidence docs, checkpoint / completion / dispatch / server audit / frontend plan / P0-P1 plan / checklist docs | runtime、frontend runtime、Chrome / browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-03CU | A 主控 | Test-only gate refresh implemented and A-validated | Refresh `B_PAYMENT_ENGINE_OFFICIAL_BREADTH` after 03CT so the next official breadth work remains tied to `RESOURCE_SKILL_A_C_FAMILY` row interactions without claiming full official / READY | `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, 4D-03CU audit / evidence docs, checkpoint / completion / dispatch / server audit / frontend plan / P0-P1 plan / checklist docs | runtime、frontend runtime、Chrome / browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-03CT | B-Implementation / Arendt `019e2f51-8b43-7e62-a64e-971a0015be08` + A 主控 | Test-only audit refresh implemented and A-validated | Refresh post-03CS-B official resource-skill breadth accounting to 32 total = 23 implemented + 9 bridge-closed + 0 current deferred without claiming full official / READY | `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, 4D-03CT audit / evidence docs, checkpoint / completion / dispatch / server audit / frontend plan / P0-P1 plan / checklist docs | runtime、LegendResourceBridge runtime、frontend runtime、Chrome / browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-03CS-B | B-Implementation / James `019e2f3e-48c6-7fa3-b646-0378eda2f0c8` + A 主控 | Focused verifier implemented and A-validated | Close the exact 9-card Diana / Ornn / KaiSa / Darius legend bridge family as explicit `RESOURCE_SKILLS` bridge evidence without claiming full official / READY | `tests/Riftbound.ConformanceTests/LegendResourceBridgeVerifierTests.cs`, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, 4D-03CS-B audit / evidence docs, checkpoint / completion / dispatch / server audit / frontend plan / P0-P1 plan / checklist docs | runtime、Jhin / Honeyfruit / Blue Sentinel / Lux non-legend lanes、frontend runtime、Chrome / browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY、`riftbound-dotnet.sln` |
@@ -204,6 +206,7 @@
 
 ## 3. Exclusive Writelocks
 
+- 4D-03CV focused row-interaction matrix write scope is closed after A validation. Only `PaymentEngineCoverageAuditTests.cs`, 4D-03CV audit / evidence docs and A-side routing/audit docs were changed. Runtime, frontend runtime, Chrome / browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
 - 4D-03CU test-only gate refresh write scope is closed after A validation. Only `PaymentEngineCoverageAuditTests.cs`, 4D-03CU audit / evidence docs and A-side routing/audit docs were changed. Runtime, frontend runtime, Chrome / browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
 - 4D-03CT test-only audit refresh write scope is closed after A validation. Only `PaymentEngineCoverageAuditTests.cs`, 4D-03CT audit / evidence docs and A-side routing/audit docs were changed. Runtime, frontend runtime, Chrome / browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
 - 4D-03CS-B focused verifier write scope is closed after A validation. Only `LegendResourceBridgeVerifierTests.cs`, `PaymentEngineCoverageAuditTests.cs`, 4D-03CS-B docs and A-side routing/audit docs were changed. Runtime, frontend runtime, Chrome / browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
@@ -292,6 +295,23 @@
 - C remains read-only while B might alter server prompt shape. Any frontend write window must wait until server `ActionPrompt` payload and event shape are stable.
 - E returns to read-only after 4D-03AT. The matrix must not be upgraded to `fullOfficial=true` for Azir, Maduli, Ezreal or other latest representatives merely because focused runtime evidence passed.
 - No parallel task may edit card matrix JSON, frontend stores, `ActionPrompt` contracts, battle state machine, stack, cleanup, hidden-info redaction, or E2E fixtures without an explicit owner and a fresh write-lock note.
+
+## 3.0AA 4D-03CV Resource Skill Official Row Interaction Matrix Accepted
+
+4D-03CV is accepted as a focused test/docs-only row-interaction matrix. It expands the 4D-03CU gate into a candidate x dimension verifier without changing runtime or claiming full official readiness.
+
+Acceptance facts:
+
+1. `docs/CURRENT_STAGE4D_03CV_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_MATRIX_AUDIT.md` and `docs/CURRENT_STAGE4D_03CV_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_MATRIX_EVIDENCE.md` exist and record the accepted matrix evidence.
+2. `PaymentEngineCoverageAuditTests` creates `ResourceSkillOfficialRowInteractionMatrixManifest` from all current `ResourceSkillOfficialBreadthManifest` candidates.
+3. The matrix has 192 rows: 32 current official resource-skill candidates x six dimensions (`PROMPT_QUOTE`, `COMMAND_REVALIDATION`, `AUDIT_EVENT_PARITY`, `GENERATED_RESOURCE_LIFETIME`, `ROLLBACK_NO_MUTATION`, `OFFICIAL_MATRIX_TRACE`).
+4. The post-03CT split remains 23 implemented, 9 bridge-closed and 0 deferred.
+5. Every row carries `RESOURCE_SKILL_A_C_FAMILY`, `RESOURCE_SKILLS`, 03CV doc anchors, `P0-005 remains open`, `fullOfficial remains false` and project `NOT READY`.
+6. Focused PaymentEngine coverage audit passed 141/141.
+7. Adjacent PaymentEngine / legend bridge / resource skill / legend action / PaymentEngine unification / prompt / GameHub regression passed 700/700.
+8. Backend full passed 4710/4710.
+9. Runtime, frontend, Chrome / browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` were not touched.
+10. The matrix does not close P0-005, P1, full official PaymentEngine matrix, full official `[A]` / `[C]` resource-skill runtime/card-row interactions, full-card matrix, final frontend reruns or READY.
 
 ## 3.0Z 4D-03CU Resource Skill Official Row Interaction Gate Accepted
 
@@ -1559,4 +1579,4 @@ E may identify matrix rows and official text blockers for Azir / Ezreal, but mus
 
 ## 15. Current Batch Stop Point
 
-This record stops after accepting 4D-03CU PaymentEngine resource skill official row interaction gate refresh. The project remains **NOT READY**. No frontend, matrix, runtime or open test write window remains open, and `riftbound-dotnet.sln` remains untouched.
+This record stops after accepting 4D-03CV PaymentEngine resource skill official row interaction matrix. The project remains **NOT READY**. No frontend, matrix, runtime or open test write window remains open, and `riftbound-dotnet.sln` remains untouched.

@@ -38,6 +38,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string LegendResourceBridgeAggregateVerifier = "legend-resource-bridge-aggregate-verifier";
     private const string LegendResourceBridgeImplementationAcceptance = "legend-resource-bridge-implementation-acceptance";
     private const string LegendResourceBridgeResourceSkillClosure = "legend-resource-bridge-resource-skill-closure";
+    private const string ResourceSkillOfficialRowInteractionMatrix = "resource-skill-official-row-interaction-matrix";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
     [
@@ -2272,6 +2273,8 @@ public sealed class PaymentEngineCoverageAuditTests
 
     private static readonly string[] ResourceSkillOfficialBreadthDocAnchors =
     [
+        "docs/CURRENT_STAGE4D_03CV_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_MATRIX_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03CV_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_MATRIX_EVIDENCE.md",
         "docs/CURRENT_STAGE4D_03CU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_GATE_AUDIT.md",
         "docs/CURRENT_STAGE4D_03CU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_GATE_EVIDENCE.md",
         "docs/CURRENT_STAGE4D_03CT_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_POST_BRIDGE_REFRESH_AUDIT.md",
@@ -2368,6 +2371,84 @@ public sealed class PaymentEngineCoverageAuditTests
             "Future full official matrix work must still keep this source in the complete resource-skill breadth verifier and prove any broader official [A] / [C] row interactions before P0-005 closure.",
             "Bridge-closed official resource skill candidate only; project remains NOT READY, P0-005 remains open, fullOfficial remains false, and full official [A] / [C] resource skill breadth remains outside this slice.",
             ResourceSkillOfficialBreadthDocAnchors);
+    }
+
+    private static readonly ResourceSkillOfficialRowInteractionDimensionProfile[] ResourceSkillOfficialRowInteractionDimensionProfiles =
+    [
+        new(
+            "PROMPT_QUOTE",
+            "server-authoritative ActionPrompt quote",
+            "Prompt quote must identify legal source card, ability id, timing, generated-resource restriction and payment-only candidate before any frontend choice.",
+            "Future official closure must prove prompt shape for every official resource-skill candidate and card row, not only representative source rows.",
+            "docs/CURRENT_STAGE4D_03CU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_GATE_AUDIT.md"),
+        new(
+            "COMMAND_REVALIDATION",
+            "command-side source / timing / target / choice revalidation",
+            "Command revalidation must bind source card, candidate classification, ability id, timing, target or choice payload and generated-resource use before mutation.",
+            "Future official closure must prove stale source, illegal timing, invalid target, malformed choice, duplicate source and wrong resource commands reject before mutation.",
+            "docs/CURRENT_STAGE4D_03CS_B_PAYMENT_ENGINE_LEGEND_RESOURCE_BRIDGE_CLOSURE_AUDIT.md"),
+        new(
+            "AUDIT_EVENT_PARITY",
+            "ABILITY_ACTIVATED / generated-resource / COST_PAID audit trace",
+            "Audit parity must connect activation, generated resource creation, later legal spend, cleanup and rejected command absence to a single row trace.",
+            "Future official closure must prove audit payloads for every official row, including bridge-closed legend resource skills and catalog-bound representatives.",
+            "docs/CURRENT_STAGE4D_03CT_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_POST_BRIDGE_REFRESH_AUDIT.md"),
+        new(
+            "GENERATED_RESOURCE_LIFETIME",
+            "generated-resource payment-only lifetime and cleanup",
+            "Generated-resource lifetime must state legal consumption windows, restriction text, cleanup boundary, duplicate-spend rejection and wrong-window rejection.",
+            "Future official closure must prove payment-only lifetime for every generated mana or power variant across legal payment windows and cleanup points.",
+            "docs/CURRENT_STAGE4D_03BQ_PAYMENT_ENGINE_RESOURCE_SKILL_ALL_WINDOW_MATRIX_AUDIT.md"),
+        new(
+            "ROLLBACK_NO_MUTATION",
+            "no-mutation rollback for stale / illegal / duplicate interactions",
+            "Rollback evidence must preserve source state, targets, generated ledgers, pending queues, hand, board, stack, score and audit tail for rejected commands.",
+            "Future official closure must prove no-mutation rollback for every stale, illegal, duplicate, insufficient and malformed resource-skill branch.",
+            "docs/CURRENT_STAGE4D_03BL_PAYMENT_ENGINE_ROLLBACK_FAILURE_MATRIX_AUDIT.md"),
+        new(
+            "OFFICIAL_MATRIX_TRACE",
+            "official row / card-matrix trace with fullOfficial=false",
+            "Official matrix trace must keep resource-skill candidate rows tied to card matrix blockers, completion audit and no final-readiness / fullOfficial upgrade.",
+            "Future official closure must map every official card row to executable prompt, command, audit, lifetime and rollback evidence before fullOfficial can change.",
+            "docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md")
+    ];
+
+    private static readonly PaymentEngineResourceSkillOfficialRowInteractionMatrixEntry[] ResourceSkillOfficialRowInteractionMatrixManifest =
+        BuildResourceSkillOfficialRowInteractionMatrix();
+
+    private static PaymentEngineResourceSkillOfficialRowInteractionMatrixEntry[] BuildResourceSkillOfficialRowInteractionMatrix()
+    {
+        return ResourceSkillOfficialBreadthManifest
+            .SelectMany(candidate => ResourceSkillOfficialRowInteractionDimensionProfiles.Select(dimension =>
+                new PaymentEngineResourceSkillOfficialRowInteractionMatrixEntry(
+                    $"ROW_RESOURCE_SKILL_OFFICIAL_INTERACTION_{NormalizeMatrixToken(candidate.CardNo)}_{dimension.DimensionId}",
+                    candidate.CardNo,
+                    candidate.Classification,
+                    candidate.OfficialResourceProfile,
+                    ResourceSkillOfficialRowInteractionMatrix,
+                    candidate.ResidualBlockerFamily,
+                    candidate.OfficialResidualAxis,
+                    dimension.DimensionId,
+                    dimension.InteractionSurface,
+                    candidate.CurrentEvidenceStatus,
+                    candidate.RequiredFutureEvidence,
+                    dimension.RequiredEvidence,
+                    $"Full official [A] / [C] resource-skill row interaction for {candidate.CardNo} / {dimension.DimensionId} remains open across all card rows, generated-resource lifetime, payment-only restriction, cross-window consumption, target or choice variants, and no-mutation failures.",
+                    "Official row-interaction matrix representative only; project remains NOT READY, P0-005 remains open, fullOfficial remains false, and final readiness upgrade is forbidden.",
+                    [
+                        "docs/CURRENT_STAGE4D_03CV_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_MATRIX_AUDIT.md",
+                        "docs/CURRENT_STAGE4D_03CV_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_MATRIX_EVIDENCE.md",
+                        dimension.DocAnchor,
+                        .. candidate.DocAnchors
+                    ])))
+            .ToArray();
+    }
+
+    private static string NormalizeMatrixToken(string value)
+    {
+        return new string(value
+            .Select(character => char.IsLetterOrDigit(character) ? char.ToUpperInvariant(character) : '_')
+            .ToArray());
     }
 
     private static readonly string[] DeferredResourceSkillFamilyDocAnchors =
@@ -6036,6 +6117,127 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineResourceSkillOfficialRowInteractionMatrixCoversEveryCandidateAndDimension()
+    {
+        var requiredDimensions = new[]
+        {
+            "PROMPT_QUOTE",
+            "COMMAND_REVALIDATION",
+            "AUDIT_EVENT_PARITY",
+            "GENERATED_RESOURCE_LIFETIME",
+            "ROLLBACK_NO_MUTATION",
+            "OFFICIAL_MATRIX_TRACE"
+        };
+        var candidateCardNos = ResourceSkillOfficialBreadthManifest
+            .Select(entry => entry.CardNo)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var matrixCardNos = ResourceSkillOfficialRowInteractionMatrixManifest
+            .Select(entry => entry.CardNo)
+            .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(requiredDimensions.Order(StringComparer.Ordinal), ResourceSkillOfficialRowInteractionDimensionProfiles.Select(entry => entry.DimensionId).Order(StringComparer.Ordinal));
+        Assert.Equal(requiredDimensions.Order(StringComparer.Ordinal), ResourceSkillOfficialRowInteractionMatrixManifest.Select(entry => entry.InteractionDimension).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal));
+        Assert.Equal(candidateCardNos, matrixCardNos);
+        Assert.Equal(32 * requiredDimensions.Length, ResourceSkillOfficialRowInteractionMatrixManifest.Length);
+        Assert.Equal(192, ResourceSkillOfficialRowInteractionMatrixManifest.Length);
+        Assert.Empty(ResourceSkillOfficialRowInteractionMatrixManifest
+            .GroupBy(entry => entry.MatrixRowId, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key));
+        Assert.All(ResourceSkillOfficialRowInteractionMatrixManifest, entry =>
+        {
+            Assert.Equal(ResourceSkillOfficialRowInteractionMatrix, entry.Classification);
+            Assert.Equal("RESOURCE_SKILL_A_C_FAMILY", entry.ResidualBlockerFamily);
+            Assert.Equal("RESOURCE_SKILLS", entry.OfficialResidualAxis);
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineResourceSkillOfficialRowInteractionMatrixPreservesPostBridgeCandidateSplit()
+    {
+        var implementedRows = ResourceSkillOfficialRowInteractionMatrixManifest
+            .Where(entry => string.Equals(entry.CandidateClassification, ImplementedResourceSkillOfficialCandidate, StringComparison.Ordinal))
+            .Select(entry => entry.CardNo)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        var bridgeClosedRows = ResourceSkillOfficialRowInteractionMatrixManifest
+            .Where(entry => string.Equals(entry.CandidateClassification, BridgeClosedResourceSkillOfficialCandidate, StringComparison.Ordinal))
+            .Select(entry => entry.CardNo)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        var deferredRows = ResourceSkillOfficialRowInteractionMatrixManifest
+            .Where(entry => string.Equals(entry.CandidateClassification, DeferredResourceSkillOfficialCandidate, StringComparison.Ordinal))
+            .Select(entry => entry.CardNo)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(23, implementedRows.Length);
+        Assert.Equal(9, bridgeClosedRows.Length);
+        Assert.Empty(deferredRows);
+        Assert.All(ResourceSkillOfficialBreadthManifest, candidate =>
+        {
+            var rows = ResourceSkillOfficialRowInteractionMatrixManifest
+                .Where(entry => string.Equals(entry.CardNo, candidate.CardNo, StringComparison.Ordinal))
+                .ToArray();
+
+            Assert.Equal(ResourceSkillOfficialRowInteractionDimensionProfiles.Length, rows.Length);
+            Assert.All(rows, row =>
+            {
+                Assert.Equal(candidate.Classification, row.CandidateClassification);
+                Assert.Equal(candidate.OfficialResourceProfile, row.OfficialResourceProfile);
+                Assert.Equal(candidate.CurrentEvidenceStatus, row.CandidateEvidenceStatus);
+                Assert.Equal(candidate.RequiredFutureEvidence, row.CandidateRequiredFutureEvidence);
+                Assert.Contains("Future", row.CandidateRequiredFutureEvidence, StringComparison.Ordinal);
+                Assert.Contains("Full official [A] / [C] resource-skill row interaction", row.RemainingOfficialBreadth, StringComparison.Ordinal);
+                Assert.Contains("P0-005 remains open", row.ClosureStatus, StringComparison.Ordinal);
+                Assert.Contains("fullOfficial remains false", row.ClosureStatus, StringComparison.Ordinal);
+                Assert.Contains("docs/CURRENT_STAGE4D_03CV_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_MATRIX_AUDIT.md", row.DocAnchors);
+                Assert.Contains("docs/CURRENT_STAGE4D_03CV_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_MATRIX_EVIDENCE.md", row.DocAnchors);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineResourceSkillOfficialRowInteractionMatrixDoesNotClaimReadyOrFullOfficial()
+    {
+        var combinedText = string.Join(
+            " ",
+            ResourceSkillOfficialRowInteractionMatrixManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.MatrixRowId,
+                    entry.CardNo,
+                    entry.CandidateClassification,
+                    entry.OfficialResourceProfile,
+                    entry.Classification,
+                    entry.ResidualBlockerFamily,
+                    entry.OfficialResidualAxis,
+                    entry.InteractionDimension,
+                    entry.InteractionSurface,
+                    entry.CandidateEvidenceStatus,
+                    entry.CandidateRequiredFutureEvidence,
+                    entry.RequiredInteractionEvidence,
+                    entry.RemainingOfficialBreadth,
+                    entry.ClosureStatus
+                }.Concat(entry.DocAnchors)));
+
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("fullOfficial remains false", combinedText, StringComparison.Ordinal);
+        Assert.Contains("Official row-interaction matrix representative only", combinedText, StringComparison.Ordinal);
+        Assert.Contains("docs/CURRENT_STAGE4D_03CV_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_MATRIX_AUDIT.md", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText.Replace("NOT READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PaymentEngineDeferredResourceSkillFamilyManifestHasNoCurrentDeferredSet()
     {
         var officialDeferredCardNos = ResourceSkillOfficialBreadthManifest
@@ -7074,6 +7276,30 @@ public sealed class PaymentEngineCoverageAuditTests
         string ClosureStatus,
         IReadOnlyList<string> DocAnchors);
 
+    private sealed record ResourceSkillOfficialRowInteractionDimensionProfile(
+        string DimensionId,
+        string InteractionSurface,
+        string RequiredEvidence,
+        string RemainingOfficialBreadth,
+        string DocAnchor);
+
+    private sealed record PaymentEngineResourceSkillOfficialRowInteractionMatrixEntry(
+        string MatrixRowId,
+        string CardNo,
+        string CandidateClassification,
+        string OfficialResourceProfile,
+        string Classification,
+        string ResidualBlockerFamily,
+        string OfficialResidualAxis,
+        string InteractionDimension,
+        string InteractionSurface,
+        string CandidateEvidenceStatus,
+        string CandidateRequiredFutureEvidence,
+        string RequiredInteractionEvidence,
+        string RemainingOfficialBreadth,
+        string ClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
     private sealed record PaymentEngineDeferredResourceSkillFamilyEntry(
         string CardNo,
         string Classification,
@@ -7113,6 +7339,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(KeywordPaymentBranchAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(ResourceSkillAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(ResourceSkillOfficialBreadthManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(ResourceSkillOfficialRowInteractionMatrixManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(DeferredResourceSkillFamilyManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(LegendResourceBridgeAggregateManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(LegendResourceBridgeImplementationAcceptanceManifest.SelectMany(entry => entry.DocAnchors))
