@@ -25,13 +25,14 @@
 ## 2. 本次检查过的证据
 
 - `git status --short --branch`：当前 `main`，本批开始前只保留预期的 `riftbound-dotnet.sln` 未跟踪。
-- `git log --oneline -8`：本批开始前最新提交为 `df22d591 docs: hand off lux resource skill lane`，其后接 `8610f0eb`、`f7f81581`、`31a25a16`、`d847f27d`、`37bd55f3`、`2a274556`、`7d0bc6a1`。
+- `git log --oneline -8`：本批开始前最新提交为 `63fd4d1e docs: hand off diana legend resource bridge`，其后接 `df22d591`、`8610f0eb`、`f7f81581`、`31a25a16`、`d847f27d`、`37bd55f3`、`2a274556`。
 - `docs/A_MASTER_AGENT_GOAL.md`：目标、阶段门槛、18 步 E2E、checkpoint 与 final audit 要求。
-- `docs/CURRENT_A_MASTER_CHECKPOINT.md`：最新 A-master 恢复入口，顶部已记录 4D-03CF Diana legend resource-action bridge handoff / baseline、4D-03CE Lux spell-only tap-reaction resource skill handoff / baseline、4D-03CD Blue Sentinel held-battlefield delayed next-main resource skill handoff / baseline、4D-03CC Honeyfruit equipment-reaction resource skill handoff / baseline、4D-03CB Jhin movement-triggered resource skill handoff / baseline、4D-03CA non-legend deferred resource skill runtime lanes gate、4D-03BZ deferred resource skill next-dispatch gate、4D-03BY legend resource action bridge handoff / baseline、4D-03BX non-legend deferred resource skill runtime handoff / baseline、4D-03BW deferred resource skill family verifier、4D-03BV deferred resource skill family handoff / baseline、4D-03BU resource skill official breadth verifier、4D-03BU handoff / baseline、4D-03BT closure gate verifier、4D-03BS handoff / baseline、4D-FE formal 18-step fresh-run、Chrome smoke fresh-run、event-label build gate 与 4D-03BR-B / 4D-03BR / 4D-03BQ-B / 4D-03BQ / 4D-03BP-B / 03BP / 03BO-B / 03BO / 03BN / 03BM / 03BL-B / 03BK / 03BJ / 03BI / 03BH / 03BG / 03BF / 03BE / 03BD / 03BC。
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`：最新 A-master 恢复入口，顶部已记录 4D-03CG Ornn legend resource-action bridge handoff / baseline、4D-03CF Diana legend resource-action bridge handoff / baseline、4D-03CE Lux spell-only tap-reaction resource skill handoff / baseline、4D-03CD Blue Sentinel held-battlefield delayed next-main resource skill handoff / baseline、4D-03CC Honeyfruit equipment-reaction resource skill handoff / baseline、4D-03CB Jhin movement-triggered resource skill handoff / baseline、4D-03CA non-legend deferred resource skill runtime lanes gate、4D-03BZ deferred resource skill next-dispatch gate、4D-03BY legend resource action bridge handoff / baseline、4D-03BX non-legend deferred resource skill runtime handoff / baseline、4D-03BW deferred resource skill family verifier、4D-03BV deferred resource skill family handoff / baseline、4D-03BU resource skill official breadth verifier、4D-03BU handoff / baseline、4D-03BT closure gate verifier、4D-03BS handoff / baseline、4D-FE formal 18-step fresh-run、Chrome smoke fresh-run、event-label build gate 与 4D-03BR-B / 4D-03BR / 4D-03BQ-B / 4D-03BQ / 4D-03BP-B / 03BP / 03BO-B / 03BO / 03BN / 03BM / 03BL-B / 03BK / 03BJ / 03BI / 03BH / 03BG / 03BF / 03BE / 03BD / 03BC。
 - `docs/CURRENT_COMPLETION_AUDIT.md`：当前 completion audit 结论仍为 NOT READY。
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`：当前服务端 full official rule residual risks。
 - `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`：P0/P1 closure plan 与剩余规则域。
-- `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`：当前 4D-03CF Diana legend resource-action bridge handoff / baseline recorded、4D-03CE Lux spell-only tap-reaction resource skill handoff / baseline recorded、4D-03CD Blue Sentinel held-battlefield delayed next-main resource skill handoff / baseline recorded、4D-03CC Honeyfruit equipment-reaction resource skill handoff / baseline recorded、4D-03CB Jhin movement-triggered resource skill handoff / baseline recorded、4D-03CA non-legend deferred resource skill runtime lanes gate accepted、4D-03BZ deferred resource skill next-dispatch gate accepted、4D-03BY legend resource action bridge handoff / baseline recorded、4D-03BX non-legend deferred resource skill runtime handoff / baseline recorded、4D-03BW deferred resource skill family verifier accepted、4D-03BV deferred resource skill family handoff / baseline recorded、4D-03BU PaymentEngine resource skill official breadth verifier accepted、4D-03BU handoff / baseline recorded、4D-03BT PaymentEngine remaining official closure gate test-only verifier accepted、4D-03BS PaymentEngine remaining official scope handoff / baseline accepted、4D-FE formal 18-step fresh-run accepted、Chrome smoke fresh-run accepted、event-label build gate accepted；无打开的 PaymentEngine runtime / frontend / matrix / READY write lock；server runtime、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` locked。
+- `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`：当前 4D-03CG Ornn legend resource-action bridge handoff / baseline recorded、4D-03CF Diana legend resource-action bridge handoff / baseline recorded、4D-03CE Lux spell-only tap-reaction resource skill handoff / baseline recorded、4D-03CD Blue Sentinel held-battlefield delayed next-main resource skill handoff / baseline recorded、4D-03CC Honeyfruit equipment-reaction resource skill handoff / baseline recorded、4D-03CB Jhin movement-triggered resource skill handoff / baseline recorded、4D-03CA non-legend deferred resource skill runtime lanes gate accepted、4D-03BZ deferred resource skill next-dispatch gate accepted、4D-03BY legend resource action bridge handoff / baseline recorded、4D-03BX non-legend deferred resource skill runtime handoff / baseline recorded、4D-03BW deferred resource skill family verifier accepted、4D-03BV deferred resource skill family handoff / baseline recorded、4D-03BU PaymentEngine resource skill official breadth verifier accepted、4D-03BU handoff / baseline recorded、4D-03BT PaymentEngine remaining official closure gate test-only verifier accepted、4D-03BS PaymentEngine remaining official scope handoff / baseline accepted、4D-FE formal 18-step fresh-run accepted、Chrome smoke fresh-run accepted、event-label build gate accepted；无打开的 PaymentEngine runtime / frontend / matrix / READY write lock；server runtime、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` locked。
+- `docs/CURRENT_STAGE4D_03CG_PAYMENT_ENGINE_ORNN_LEGEND_RESOURCE_BRIDGE_HANDOFF.md` 与 baseline evidence：确认 A 主控已把 Ornn `SFD·189/221` / `SFD·244/221` equipment-only `LEGEND_ACT` generated-power branch 单独收窄为 future B-side bridge / verifier boundary；Diana、KaiSa、Darius、premium / reprint bridge rows、non-legend lanes 与 Ornn unit static-power / LayerEngine work 不进入该切片。
 - `docs/CURRENT_STAGE4D_03CF_PAYMENT_ENGINE_DIANA_LEGEND_RESOURCE_BRIDGE_HANDOFF.md` 与 baseline evidence：确认 A 主控已把 Diana `UNL-197/219` spell-duel-only `LEGEND_ACT` generated-mana branch 单独收窄为 future B-side bridge / verifier boundary；Ornn、KaiSa、Darius、premium / reprint bridge rows 与 non-legend lanes 不进入该切片。
 - `docs/CURRENT_STAGE4D_03CE_PAYMENT_ENGINE_LUX_RESOURCE_SKILL_HANDOFF.md` 与 baseline evidence：确认 A 主控已把 `LANE_LUX_SPELL_ONLY_TAP_REACTION_RESOURCE_SKILL` 单独收窄为 future B-side implementation / verifier boundary；Jhin、Honeyfruit、Blue Sentinel 与 9 个 `LEGEND_ACT` bridge candidates 不进入该切片。
 - `docs/CURRENT_STAGE4D_03CD_PAYMENT_ENGINE_BLUE_SENTINEL_RESOURCE_SKILL_HANDOFF.md` 与 baseline evidence：确认 A 主控已把 `LANE_BLUE_SENTINEL_DELAYED_NEXT_MAIN_RESOURCE_SKILL` 单独收窄为 future B-side implementation / verifier boundary；Jhin、Honeyfruit、Lux 与 9 个 `LEGEND_ACT` bridge candidates 不进入该切片。
@@ -93,6 +94,17 @@ adjacent PaymentEngine / resource skill / prompt / hub regression=685/685
 backend full=4564/4564
 git diff --check=passed
 Diana future legend bridge=1
+runtime / B dispatch=not opened
+```
+
+当前 4D-03CG Ornn legend resource-action bridge baseline 验证：
+
+```txt
+focused PaymentEngine coverage guard=127/127
+adjacent PaymentEngine / resource skill / prompt / hub regression=685/685
+backend full=4564/4564
+git diff --check=passed
+Ornn future legend bridge=2 card nos
 runtime / B dispatch=not opened
 ```
 
@@ -267,16 +279,16 @@ formal 18-step steps=18/18 OK
 | 要求 | 必需 artifact / gate | 已检查证据 | 当前状态 | 缺口 / 下一步 |
 |---|---|---|---|---|
 | 按 `docs/A_MASTER_AGENT_GOAL.md` 管理 | A-master 目标文档必须存在并作为最高级本地交付口径 | `docs/A_MASTER_AGENT_GOAL.md` 已读取；goal 文本与该文件一致 | OK / ONGOING | 后续任何 READY 判断都必须回到本 checklist 与 final audit |
-| A 维护 checkpoint | `docs/CURRENT_A_MASTER_CHECKPOINT.md` 最新、可恢复、含当前结论 | 文件顶部记录 4D-03CF Diana legend bridge handoff / baseline、4D-03CE Lux handoff / baseline、4D-03CD Blue Sentinel handoff / baseline、4D-03CC Honeyfruit handoff / baseline、4D-03CB Jhin handoff / baseline、4D-03CA non-legend resource skill runtime lanes gate、4D-03BZ deferred resource skill next-dispatch gate、4D-03BY legend resource action bridge handoff / baseline、4D-03BX non-legend deferred resource skill runtime handoff / baseline、4D-03BW deferred resource skill family verifier、4D-03BV deferred resource skill family handoff、4D-03BU resource skill official breadth verifier、4D-03BT closure gate verifier、4D-03BS handoff / baseline、4D-FE formal 18-step pass、Chrome smoke pass、current-code frontend build pass；latest focused 127/127、adjacent 685/685、backend full 4564/4564；项目 NOT READY | OK / ONGOING | 后续每批继续保持 checkpoint 同步 |
-| A 维护任务拆分 / 子 agent 分工 | A-master agent pool、写锁、下一步计划 | `A_MASTER_AGENT_GOAL.md` §7/§8；`CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已记录 4D-03CF Diana legend bridge handoff / baseline、4D-03CE Lux handoff / baseline、4D-03CD Blue Sentinel handoff / baseline、4D-03CC Honeyfruit handoff / baseline、4D-03CB Jhin handoff / baseline、4D-03CA executable non-legend runtime lane gate、4D-03BZ executable next-dispatch gate、4D-03BY legend bridge boundary、4D-03BX non-legend deferred resource skill runtime boundary、4D-03BW deferred resource skill family verifier accepted、4D-03BV deferred resource skill family boundary、4D-03BU official breadth verifier accepted、future 13 deferred resource skill candidates、4D-03BT executable B/E/D closure gate、4D-03BS future B/E/D routing boundary、4D-FE formal / smoke fresh-runs accepted，当前无 B worker / PaymentEngine runtime write lock | ONGOING | 后续 matrix / remaining P0/P1 仍需单独写锁 |
+| A 维护 checkpoint | `docs/CURRENT_A_MASTER_CHECKPOINT.md` 最新、可恢复、含当前结论 | 文件顶部记录 4D-03CG Ornn legend bridge handoff / baseline、4D-03CF Diana legend bridge handoff / baseline、4D-03CE Lux handoff / baseline、4D-03CD Blue Sentinel handoff / baseline、4D-03CC Honeyfruit handoff / baseline、4D-03CB Jhin handoff / baseline、4D-03CA non-legend resource skill runtime lanes gate、4D-03BZ deferred resource skill next-dispatch gate、4D-03BY legend resource action bridge handoff / baseline、4D-03BX non-legend deferred resource skill runtime handoff / baseline、4D-03BW deferred resource skill family verifier、4D-03BV deferred resource skill family handoff、4D-03BU resource skill official breadth verifier、4D-03BT closure gate verifier、4D-03BS handoff / baseline、4D-FE formal 18-step pass、Chrome smoke pass、current-code frontend build pass；latest focused 127/127、adjacent 685/685、backend full 4564/4564；项目 NOT READY | OK / ONGOING | 后续每批继续保持 checkpoint 同步 |
+| A 维护任务拆分 / 子 agent 分工 | A-master agent pool、写锁、下一步计划 | `A_MASTER_AGENT_GOAL.md` §7/§8；`CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已记录 4D-03CG Ornn legend bridge handoff / baseline、4D-03CF Diana legend bridge handoff / baseline、4D-03CE Lux handoff / baseline、4D-03CD Blue Sentinel handoff / baseline、4D-03CC Honeyfruit handoff / baseline、4D-03CB Jhin handoff / baseline、4D-03CA executable non-legend runtime lane gate、4D-03BZ executable next-dispatch gate、4D-03BY legend bridge boundary、4D-03BX non-legend deferred resource skill runtime boundary、4D-03BW deferred resource skill family verifier accepted、4D-03BV deferred resource skill family boundary、4D-03BU official breadth verifier accepted、future 13 deferred resource skill candidates、4D-03BT executable B/E/D closure gate、4D-03BS future B/E/D routing boundary、4D-FE formal / smoke fresh-runs accepted，当前无 B worker / PaymentEngine runtime write lock | ONGOING | 后续 matrix / remaining P0/P1 仍需单独写锁 |
 | A 维护阻断清单 | P0/P1 closure plan 与 completion audit | `CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md` 与 `CURRENT_COMPLETION_AUDIT.md` 仍为 NOT READY | NOT MET | P0/P1 未清零 |
-| A 控制写入范围 | 不并行改核心模块；当前 4D-03CF 只做 docs-only handoff / baseline | 4D-03CF 只新增 Diana legend bridge handoff / baseline docs 并同步 A-side docs；server runtime、tests、frontend、protocol、prompt submission、matrix、READY 仍锁定 | OK FOR THIS SLICE | 后续 runtime / frontend behavior / matrix 改动必须按 dispatch 文档独占 owner |
-| 默认不写功能代码 | A 不主动承接功能实现 | A 本批只做 P0-005 Diana spell-duel-only legend resource bridge future B boundary 与 baseline 记录；未改规则 runtime、协议、动作提交、前端本地裁决或 matrix JSON | OK FOR THIS SLICE | 不代表后续功能缺口已解决 |
+| A 控制写入范围 | 不并行改核心模块；当前 4D-03CG 只做 docs-only handoff / baseline | 4D-03CG 只新增 Ornn legend bridge handoff / baseline docs 并同步 A-side docs；server runtime、tests、frontend、protocol、prompt submission、matrix、READY 仍锁定 | OK FOR THIS SLICE | 后续 runtime / frontend behavior / matrix 改动必须按 dispatch 文档独占 owner |
+| 默认不写功能代码 | A 不主动承接功能实现 | A 本批只做 P0-005 Ornn equipment-only legend resource bridge future B boundary 与 baseline 记录；未改规则 runtime、协议、动作提交、前端本地裁决或 matrix JSON | OK FOR THIS SLICE | 不代表后续功能缺口已解决 |
 | 服务端唯一规则权威 | 服务端输出 authoritative snapshot、prompt、事件、规则裁决 | `CURRENT_SERVER_RULE_AUDIT.md` 与 Stage 4D docs 证明大量 representative server-authority paths | PARTIAL | full official battle / PaymentEngine / LayerEngine / card effects 仍未闭合 |
 | 前端只展示 authoritative snapshot | 前端不得持有隐藏信息或本地裁决规则 | `CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md` 与 4D-FE fresh-run evidence 断言主流程不暴露 raw hidden-info 文本；frontend plan 多处记录不本地推断；4D-FE smoke fresh-run 已过 | PARTIAL | 最终前端 contract audit 与后续最终状态 rerun 仍需在 READY 前处理 |
 | 前端只提交 `ActionPrompt` / `LegalAction` | UI 操作必须来自服务端 prompt | Stage 4D docs 多处记录 ActionPrompt / GameHub representative coverage | PARTIAL | 仍需最终全流程 frontend contract audit，不可用 representative coverage 代理 |
 | P0/P1 清零 | completion audit 中所有 P0/P1 为 resolved | closure plan / server audit 明确仍 open / partially resolved | NOT MET | 继续 P0-004、P0-005、LayerEngine、关键词、replay/property、full-card evidence |
-| 后端 full test | `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` | 4D-03CF baseline 记录 backend full 4564/4564 通过 | PASS AS LATEST CODE EVIDENCE | 只证明当前代码测试绿；不证明 P0/P1 全部满足 |
+| 后端 full test | `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` | 4D-03CG baseline 记录 backend full 4564/4564 通过 | PASS AS LATEST CODE EVIDENCE | 只证明当前代码测试绿；不证明 P0/P1 全部满足 |
 | 前端 build / typecheck / lint | `source ../../scripts/dev-env.sh && npm run build` | 4D-FE event-label build gate 当前代码状态 fresh-run 通过；package script 包含 checks、`tsc -b`、Vite build | PASS AS LATEST FRONTEND BUILD EVIDENCE | READY 前若后续代码继续变动仍需在最终代码状态 fresh run |
 | Chrome smoke | `source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` | 4D-FE Chrome smoke fresh-run 当前代码状态通过，覆盖 core routes | PASS AS LATEST CHROME SMOKE EVIDENCE | READY 前若后续代码继续变动仍需在最终代码状态 fresh run |
 | 正式 18 步 E2E | `npm run e2e:formal-18 -- --start-api`，覆盖 A_MASTER §11 1-18 | 4D-FE fresh-run 记录房间 `formal-18-1778886172096-1` 通过，18/18 OK | PASS AS LATEST MAIN-FLOW EVIDENCE | 该文件明确不替代 P0/P1、full-card matrix、完整 PaymentEngine / LayerEngine |
@@ -292,7 +304,7 @@ formal 18-step steps=18/18 OK
 | §2.3 本地 / 联机 1v1 | 房间、双玩家、开局、对局 | 4D-FE formal 18 通过双浏览器等效流程 | PASS FOR MAIN FLOW |
 | §2.4 可长期维护 | 文档、测试、矩阵、写锁 | checkpoint / closure plan / audit docs 持续维护 | PARTIAL |
 | §2.5 P0/P1 清零 | 无阻断 | closure plan 仍列 P0/P1 | NOT MET |
-| §2.6 后端 full test | full test 绿 | 4D-03CF 4564/4564 | PASS BUT NOT SUFFICIENT |
+| §2.6 后端 full test | full test 绿 | 4D-03CG 4564/4564 | PASS BUT NOT SUFFICIENT |
 | §2.7 Chrome smoke | smoke 绿 | 4D-FE current-code smoke pass | PASS AS LATEST CHROME SMOKE EVIDENCE |
 | §2.8 18 步 E2E | 正式 18 steps 通过 | 4D-FE current-code formal 18 fresh-run passed | PASS AS LATEST MAIN-FLOW EVIDENCE |
 | §2.9 卡牌覆盖矩阵 | 矩阵完成 | 811/811 `fullOfficial=false` | NOT MET |
@@ -303,9 +315,9 @@ formal 18-step steps=18/18 OK
 | §4.4 覆盖字段 | `cardId`、`collectorId`、`oracleId` / `effectId`、FAQ、tests | matrix skeleton 只有骨架与 representative evidence | NOT MET |
 | §4.5 cardId 映射完整 | 复用 effect 但 cardId 完整 | 1009 entries 可统计，full-official 映射未完成 | PARTIAL |
 | §5 服务端权威 | 前端不得推断目标、费用、胜负等 | server audit / frontend plan 均要求如此 | PARTIAL，需最终 contract audit |
-| §6 A 边界 | A 读文档、规划、审计；默认不写功能代码 | A 完成 4D-03CF docs-only Diana legend bridge handoff / baseline；未写规则 runtime / protocol / prompt submission / frontend / matrix | OK FOR THIS SLICE |
-| §7 常驻子 agent | 优先复用 B/C/D/E，避免无目的重建 | 本批未派发 B/C/D/E worker；4D-03CF 只把 Diana legend bridge 固定为 future B boundary | OK FOR THIS SLICE |
-| §8 写入边界 | B/C/D/E 各自写入范围，不并行改核心模块 | dispatch 文档已明确 4D-03CF 为 A-side handoff / baseline only；runtime / frontend / matrix 仍锁定，4D-FE label write scope closed | OK FOR THIS SLICE / ONGOING |
+| §6 A 边界 | A 读文档、规划、审计；默认不写功能代码 | A 完成 4D-03CG docs-only Ornn legend bridge handoff / baseline；未写规则 runtime / protocol / prompt submission / frontend / matrix | OK FOR THIS SLICE |
+| §7 常驻子 agent | 优先复用 B/C/D/E，避免无目的重建 | 本批未派发 B/C/D/E worker；4D-03CG 只把 Ornn legend bridge 固定为 future B boundary | OK FOR THIS SLICE |
+| §8 写入边界 | B/C/D/E 各自写入范围，不并行改核心模块 | dispatch 文档已明确 4D-03CG 为 A-side handoff / baseline only；runtime / frontend / matrix 仍锁定，4D-FE label write scope closed | OK FOR THIS SLICE / ONGOING |
 | §9 P0 / P1 定义 | 根据 P0/P1 标准判断 READY | closure plan / server audit 仍有 open risks | NOT MET |
 | §10 阶段 0-4 | checkpoint、协议、前端、对战桌面、卡牌覆盖 | Stage 0-3 有大量证据；Stage 4 full-card 未完成 | PARTIAL |
 | §10 阶段 5 | full test、build、smoke、18-step、hidden info、P0/P1、matrix、READY | full test、current-code frontend build、current-code smoke 与 current-code formal 18 有证据；P0/P1 与 matrix 未满足 | NOT MET |
@@ -318,14 +330,14 @@ formal 18-step steps=18/18 OK
 
 | §13 item | 当前 evidence | 状态 |
 |---|---|---|
-| 1. 修改文件列表 | 当前 4D-03CF docs-only handoff 修改 A-master / completion / server audit / closure / dispatch / checklist docs；未改 runtime / frontend / matrix | DONE FOR THIS SLICE / NOT FINAL |
-| 2. 新增文件列表 | 新增 `docs/CURRENT_STAGE4D_03CF_PAYMENT_ENGINE_DIANA_LEGEND_RESOURCE_BRIDGE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03CF_PAYMENT_ENGINE_DIANA_LEGEND_RESOURCE_BRIDGE_BASELINE_EVIDENCE.md` | DONE FOR THIS SLICE / NOT FINAL |
+| 1. 修改文件列表 | 当前 4D-03CG docs-only handoff 修改 A-master / completion / server audit / closure / dispatch / checklist docs；未改 runtime / frontend / matrix | DONE FOR THIS SLICE / NOT FINAL |
+| 2. 新增文件列表 | 新增 `docs/CURRENT_STAGE4D_03CG_PAYMENT_ENGINE_ORNN_LEGEND_RESOURCE_BRIDGE_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03CG_PAYMENT_ENGINE_ORNN_LEGEND_RESOURCE_BRIDGE_BASELINE_EVIDENCE.md` | DONE FOR THIS SLICE / NOT FINAL |
 | 3. 服务端规则补齐项 | Stage 4D docs 记录大量 focused slices | PARTIAL |
 | 4. 前端页面完成项 | frontend rebuild plan、current-code Chrome smoke 与 current-code formal 18 有证据 | PARTIAL |
 | 5. 接口契约说明 | ActionPrompt / LegalAction / snapshot 证据分散在 server audit 与 frontend plan | PARTIAL |
 | 6. 卡牌覆盖矩阵摘要 | 1009 entries / 811 FUs，0 full-official | NOT MET |
 | 7. 隐藏信息保护检查结果 | formal 18 页面文本断言、server audit P1-004 代表性 redaction/property evidence | PARTIAL |
-| 8. 后端 full test 命令和结果 | 4D-03CF baseline `dotnet test` 4564/4564 | PASS AS LATEST CODE EVIDENCE |
+| 8. 后端 full test 命令和结果 | 4D-03CG baseline `dotnet test` 4564/4564 | PASS AS LATEST CODE EVIDENCE |
 | 9. 前端 build / typecheck / lint | 4D-FE current-code `npm run build` pass | PASS AS LATEST FRONTEND BUILD EVIDENCE |
 | 10. Chrome smoke | 4D-FE current-code `npm run smoke:chrome -- --start-api` pass | PASS AS LATEST CHROME SMOKE EVIDENCE |
 | 11. 18 步 E2E | 4D-FE current-code formal 18 pass | PASS AS LATEST MAIN-FLOW EVIDENCE |
@@ -340,6 +352,7 @@ formal 18-step steps=18/18 OK
 - 4D-FE `npm run smoke:chrome -- --start-api` 通过不能替代 formal 18-step、P0/P1 清零、full-card matrix 或 READY；它只证明当前 DevUi core routes 的 smoke gate 通过。
 - 4D-FE `npm run e2e:formal-18 -- --start-api` 通过不能替代 P0/P1 清零、full-card matrix 或 READY；它只证明当前 DevUi formal 18-step main-flow gate 通过。
 - 4D-03BT closure-gate verifier 110/110 通过不能替代 B-side PaymentEngine official breadth、E-side card matrix readiness、D-side P0 audit 或 READY；它只证明这些 gate 已变成 executable guard，且当前 matrix 仍为 0 full-official。
+- 4D-03CG Ornn legend bridge handoff / baseline 不能替代 Ornn `SFD·189/221` / `SFD·244/221` equipment-only `LEGEND_ACT` branch 的 `RESOURCE_SKILLS` official bridge closure；它只证明 Ornn bridge 已被单独收窄为 future B-side boundary，且没有打开 runtime/test write lock。
 - 4D-03CF Diana legend bridge handoff / baseline 不能替代 Diana `UNL-197/219` spell-duel-only `LEGEND_ACT` branch 的 `RESOURCE_SKILLS` official bridge closure；它只证明 Diana bridge 已被单独收窄为 future B-side boundary，且没有打开 runtime/test write lock。
 - 4D-03CE Lux handoff / baseline 不能替代 Lux spell-only tap-reaction generated-resource runtime / verifier closure；它只证明 Lux lane 已被单独收窄为 future B-side boundary，且没有打开 runtime/test write lock。
 - 4D-03CD Blue Sentinel handoff / baseline 不能替代 Blue Sentinel held-battlefield delayed next-main generated-resource runtime / verifier closure；它只证明 Blue Sentinel lane 已被单独收窄为 future B-side boundary，且没有打开 runtime/test write lock。
@@ -384,4 +397,4 @@ formal 18-step steps=18/18 OK
 
 Active goal **未完成**。不得调用 `update_goal complete`。
 
-当前最新 A-side 状态是 4D-03CF PaymentEngine Diana legend resource-action bridge handoff / baseline recorded。P0/P1 清零、Diana / Ornn / KaiSa / Darius legend bridge closure、Jhin / Honeyfruit / Blue Sentinel / Lux runtime / verifier closure、full official PaymentEngine matrix、完整 target-bearing activated ability official family、完整 resource skill official family、完整 keyword payment branch parity、完整 card matrix alignment official closure、完整 cross-window generated-resource official closure、完整 rollback failure official closure、完整 LayerEngine、P1 keyword breadth、full-card matrix 与 final completion audit READY 仍未闭合。
+当前最新 A-side 状态是 4D-03CG PaymentEngine Ornn legend resource-action bridge handoff / baseline recorded。P0/P1 清零、Diana / Ornn / KaiSa / Darius legend bridge closure、Jhin / Honeyfruit / Blue Sentinel / Lux runtime / verifier closure、full official PaymentEngine matrix、完整 target-bearing activated ability official family、完整 resource skill official family、完整 keyword payment branch parity、完整 card matrix alignment official closure、完整 cross-window generated-resource official closure、完整 rollback failure official closure、完整 LayerEngine、P1 keyword breadth、full-card matrix 与 final completion audit READY 仍未闭合。
