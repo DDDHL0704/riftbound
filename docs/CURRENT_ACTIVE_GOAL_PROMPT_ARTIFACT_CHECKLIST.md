@@ -25,13 +25,14 @@
 ## 2. 本次检查过的证据
 
 - `git status --short --branch`：当前 `main`，本批开始前只保留预期的 `riftbound-dotnet.sln` 未跟踪。
-- `git log --oneline -8`：本批开始前最新提交为 `98b50162 docs: hand off resource skill official breadth`，其后接 `dadba1fe`、`2d1b3406`、`07bc097d`、`06f05b16`、`38263a6c`、`f5d5273e`、`e7f1c797`。
+- `git log --oneline -8`：本批开始前最新提交为 `7bba02ee test: verify resource skill official breadth`，其后接 `98b50162`、`dadba1fe`、`2d1b3406`、`07bc097d`、`06f05b16`、`38263a6c`、`f5d5273e`。
 - `docs/A_MASTER_AGENT_GOAL.md`：目标、阶段门槛、18 步 E2E、checkpoint 与 final audit 要求。
-- `docs/CURRENT_A_MASTER_CHECKPOINT.md`：最新 A-master 恢复入口，顶部已记录 4D-03BU resource skill official breadth verifier、4D-03BU handoff / baseline、4D-03BT closure gate verifier、4D-03BS handoff / baseline、4D-FE formal 18-step fresh-run、Chrome smoke fresh-run、event-label build gate 与 4D-03BR-B / 4D-03BR / 4D-03BQ-B / 4D-03BQ / 4D-03BP-B / 03BP / 03BO-B / 03BO / 03BN / 03BM / 03BL-B / 03BK / 03BJ / 03BI / 03BH / 03BG / 03BF / 03BE / 03BD / 03BC。
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`：最新 A-master 恢复入口，顶部已记录 4D-03BV deferred resource skill family handoff / baseline、4D-03BU resource skill official breadth verifier、4D-03BU handoff / baseline、4D-03BT closure gate verifier、4D-03BS handoff / baseline、4D-FE formal 18-step fresh-run、Chrome smoke fresh-run、event-label build gate 与 4D-03BR-B / 4D-03BR / 4D-03BQ-B / 4D-03BQ / 4D-03BP-B / 03BP / 03BO-B / 03BO / 03BN / 03BM / 03BL-B / 03BK / 03BJ / 03BI / 03BH / 03BG / 03BF / 03BE / 03BD / 03BC。
 - `docs/CURRENT_COMPLETION_AUDIT.md`：当前 completion audit 结论仍为 NOT READY。
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`：当前服务端 full official rule residual risks。
 - `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`：P0/P1 closure plan 与剩余规则域。
-- `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`：当前 4D-03BU PaymentEngine resource skill official breadth verifier accepted、4D-03BU handoff / baseline recorded、4D-03BT PaymentEngine remaining official closure gate test-only verifier accepted、4D-03BS PaymentEngine remaining official scope handoff / baseline accepted、4D-FE formal 18-step fresh-run accepted、Chrome smoke fresh-run accepted、event-label build gate accepted；无打开的 PaymentEngine runtime / frontend / matrix / READY write lock；server runtime、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` locked。
+- `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`：当前 4D-03BV deferred resource skill family handoff / baseline recorded、4D-03BU PaymentEngine resource skill official breadth verifier accepted、4D-03BU handoff / baseline recorded、4D-03BT PaymentEngine remaining official closure gate test-only verifier accepted、4D-03BS PaymentEngine remaining official scope handoff / baseline accepted、4D-FE formal 18-step fresh-run accepted、Chrome smoke fresh-run accepted、event-label build gate accepted；无打开的 PaymentEngine runtime / frontend / matrix / READY write lock；server runtime、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` locked。
+- `docs/CURRENT_STAGE4D_03BV_PAYMENT_ENGINE_DEFERRED_RESOURCE_SKILL_FAMILY_HANDOFF.md` 与 baseline evidence：确认 4D-03BU 之后，13 个 deferred official resource-skill candidates 已被拆成 9 个 existing `LEGEND_ACT` resource actions 与 4 个 non-legend unit / equipment / delayed resource skills；现有 legend representative tests 和 preflight evidence 不能代理 `RESOURCE_SKILLS` closure。
 - `docs/CURRENT_STAGE4D_03BU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_AUDIT.md` 与 evidence：确认 `PaymentEngineCoverageAuditTests.cs` 已用 `ResourceSkillOfficialBreadthManifest` 读取固定 official catalog resource-skill reminder text 候选，锁定 32 个 official resource-skill candidate snapshot entries、19 个 current implemented source card nos 与 13 个 deferred official candidates。
 - `docs/CURRENT_STAGE4D_03BU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_HANDOFF.md` 与 baseline evidence：确认 4D-03BT 后下一枚 concrete future B-side scope 已收窄到完整 `[A]` / `[C]` resource skill official breadth verifier / implementation slice；当前 `ResourceSkillCoverageManifest` 仍是 6 个 family entries / 19 个 current `IsResourceSkill=true` ability ids，`ResourceSkillAllWindowMatrixManifest` 仍是 36 行 representative matrix。
 - `docs/CURRENT_STAGE4D_03BT_PAYMENT_ENGINE_REMAINING_OFFICIAL_CLOSURE_GATE_AUDIT.md` 与 evidence：确认 `PaymentEngineCoverageAuditTests.cs` 已把 4D-03BS 的 B/E/D fresh-dispatch gates 转成 executable `RemainingOfficialClosureGateManifest`，并读取 card matrix skeleton 确认 1009 / 811、0 full-official、freeze ready=false。
@@ -86,6 +87,18 @@ implemented resource skill source card nos=19
 deferred official resource skill candidates=13
 ```
 
+当前 4D-03BV deferred resource skill family baseline 验证：
+
+```txt
+focused PaymentEngine coverage guard=115/115
+adjacent PaymentEngine / resource skill / prompt / hub regression=673/673
+backend full=4552/4552
+git diff --check=passed
+deferred official resource skill candidates=13
+legend bridge candidates=9
+non-legend runtime / verifier candidates=4
+```
+
 当前 4D-03BT closure-gate 验证：
 
 ```txt
@@ -133,8 +146,8 @@ formal 18-step steps=18/18 OK
 | 要求 | 必需 artifact / gate | 已检查证据 | 当前状态 | 缺口 / 下一步 |
 |---|---|---|---|---|
 | 按 `docs/A_MASTER_AGENT_GOAL.md` 管理 | A-master 目标文档必须存在并作为最高级本地交付口径 | `docs/A_MASTER_AGENT_GOAL.md` 已读取；goal 文本与该文件一致 | OK / ONGOING | 后续任何 READY 判断都必须回到本 checklist 与 final audit |
-| A 维护 checkpoint | `docs/CURRENT_A_MASTER_CHECKPOINT.md` 最新、可恢复、含当前结论 | 文件顶部记录 4D-03BU resource skill official breadth verifier、4D-03BU handoff / baseline、4D-03BT closure gate verifier、4D-03BS handoff / baseline、4D-FE formal 18-step pass、Chrome smoke pass、current-code frontend build pass；latest focused 115/115、adjacent 673/673、backend full 4552/4552；项目 NOT READY | OK / ONGOING | 后续每批继续保持 checkpoint 同步 |
-| A 维护任务拆分 / 子 agent 分工 | A-master agent pool、写锁、下一步计划 | `A_MASTER_AGENT_GOAL.md` §7/§8；`CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已记录 4D-03BU official breadth verifier accepted、future 13 deferred resource skill candidates、4D-03BT executable B/E/D closure gate、4D-03BS future B/E/D routing boundary、4D-FE formal / smoke fresh-runs accepted，当前无 B worker / PaymentEngine runtime write lock | ONGOING | 后续 matrix / remaining P0/P1 仍需单独写锁 |
+| A 维护 checkpoint | `docs/CURRENT_A_MASTER_CHECKPOINT.md` 最新、可恢复、含当前结论 | 文件顶部记录 4D-03BV deferred resource skill family handoff / baseline、4D-03BU resource skill official breadth verifier、4D-03BT closure gate verifier、4D-03BS handoff / baseline、4D-FE formal 18-step pass、Chrome smoke pass、current-code frontend build pass；latest focused 115/115、adjacent 673/673、backend full 4552/4552；项目 NOT READY | OK / ONGOING | 后续每批继续保持 checkpoint 同步 |
+| A 维护任务拆分 / 子 agent 分工 | A-master agent pool、写锁、下一步计划 | `A_MASTER_AGENT_GOAL.md` §7/§8；`CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已记录 4D-03BV deferred resource skill family boundary、4D-03BU official breadth verifier accepted、future 13 deferred resource skill candidates、4D-03BT executable B/E/D closure gate、4D-03BS future B/E/D routing boundary、4D-FE formal / smoke fresh-runs accepted，当前无 B worker / PaymentEngine runtime write lock | ONGOING | 后续 matrix / remaining P0/P1 仍需单独写锁 |
 | A 维护阻断清单 | P0/P1 closure plan 与 completion audit | `CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md` 与 `CURRENT_COMPLETION_AUDIT.md` 仍为 NOT READY | NOT MET | P0/P1 未清零 |
 | A 控制写入范围 | 不并行改核心模块；当前 4D-03BU verifier 只做 test-only guard + A-side docs | 4D-03BU 只改 `PaymentEngineCoverageAuditTests.cs` 与 A-master docs；server runtime、frontend、protocol、prompt submission、matrix、READY 仍锁定 | OK FOR THIS SLICE | 后续 runtime / frontend behavior / matrix 改动必须按 dispatch 文档独占 owner |
 | 默认不写功能代码 | A 不主动承接功能实现 | A 本批只做 P0-005 resource skill official breadth test-only verifier 与验证记录；未改规则 runtime、协议、动作提交、前端本地裁决或 matrix JSON | OK FOR THIS SLICE | 不代表后续功能缺口已解决 |
@@ -142,7 +155,7 @@ formal 18-step steps=18/18 OK
 | 前端只展示 authoritative snapshot | 前端不得持有隐藏信息或本地裁决规则 | `CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md` 与 4D-FE fresh-run evidence 断言主流程不暴露 raw hidden-info 文本；frontend plan 多处记录不本地推断；4D-FE smoke fresh-run 已过 | PARTIAL | 最终前端 contract audit 与后续最终状态 rerun 仍需在 READY 前处理 |
 | 前端只提交 `ActionPrompt` / `LegalAction` | UI 操作必须来自服务端 prompt | Stage 4D docs 多处记录 ActionPrompt / GameHub representative coverage | PARTIAL | 仍需最终全流程 frontend contract audit，不可用 representative coverage 代理 |
 | P0/P1 清零 | completion audit 中所有 P0/P1 为 resolved | closure plan / server audit 明确仍 open / partially resolved | NOT MET | 继续 P0-004、P0-005、LayerEngine、关键词、replay/property、full-card evidence |
-| 后端 full test | `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` | 4D-03BU 记录 backend full 4552/4552 通过 | PASS AS LATEST CODE EVIDENCE | 只证明当前代码测试绿；不证明 P0/P1 全部满足 |
+| 后端 full test | `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` | 4D-03BV baseline / 4D-03BU 记录 backend full 4552/4552 通过 | PASS AS LATEST CODE EVIDENCE | 只证明当前代码测试绿；不证明 P0/P1 全部满足 |
 | 前端 build / typecheck / lint | `source ../../scripts/dev-env.sh && npm run build` | 4D-FE event-label build gate 当前代码状态 fresh-run 通过；package script 包含 checks、`tsc -b`、Vite build | PASS AS LATEST FRONTEND BUILD EVIDENCE | READY 前若后续代码继续变动仍需在最终代码状态 fresh run |
 | Chrome smoke | `source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` | 4D-FE Chrome smoke fresh-run 当前代码状态通过，覆盖 core routes | PASS AS LATEST CHROME SMOKE EVIDENCE | READY 前若后续代码继续变动仍需在最终代码状态 fresh run |
 | 正式 18 步 E2E | `npm run e2e:formal-18 -- --start-api`，覆盖 A_MASTER §11 1-18 | 4D-FE fresh-run 记录房间 `formal-18-1778886172096-1` 通过，18/18 OK | PASS AS LATEST MAIN-FLOW EVIDENCE | 该文件明确不替代 P0/P1、full-card matrix、完整 PaymentEngine / LayerEngine |
@@ -158,7 +171,7 @@ formal 18-step steps=18/18 OK
 | §2.3 本地 / 联机 1v1 | 房间、双玩家、开局、对局 | 4D-FE formal 18 通过双浏览器等效流程 | PASS FOR MAIN FLOW |
 | §2.4 可长期维护 | 文档、测试、矩阵、写锁 | checkpoint / closure plan / audit docs 持续维护 | PARTIAL |
 | §2.5 P0/P1 清零 | 无阻断 | closure plan 仍列 P0/P1 | NOT MET |
-| §2.6 后端 full test | full test 绿 | 4D-03BU 4552/4552 | PASS BUT NOT SUFFICIENT |
+| §2.6 后端 full test | full test 绿 | 4D-03BV baseline / 4D-03BU 4552/4552 | PASS BUT NOT SUFFICIENT |
 | §2.7 Chrome smoke | smoke 绿 | 4D-FE current-code smoke pass | PASS AS LATEST CHROME SMOKE EVIDENCE |
 | §2.8 18 步 E2E | 正式 18 steps 通过 | 4D-FE current-code formal 18 fresh-run passed | PASS AS LATEST MAIN-FLOW EVIDENCE |
 | §2.9 卡牌覆盖矩阵 | 矩阵完成 | 811/811 `fullOfficial=false` | NOT MET |
@@ -191,7 +204,7 @@ formal 18-step steps=18/18 OK
 | 5. 接口契约说明 | ActionPrompt / LegalAction / snapshot 证据分散在 server audit 与 frontend plan | PARTIAL |
 | 6. 卡牌覆盖矩阵摘要 | 1009 entries / 811 FUs，0 full-official | NOT MET |
 | 7. 隐藏信息保护检查结果 | formal 18 页面文本断言、server audit P1-004 代表性 redaction/property evidence | PARTIAL |
-| 8. 后端 full test 命令和结果 | 4D-03BU `dotnet test` 4552/4552 | PASS AS LATEST CODE EVIDENCE |
+| 8. 后端 full test 命令和结果 | 4D-03BV baseline / 4D-03BU `dotnet test` 4552/4552 | PASS AS LATEST CODE EVIDENCE |
 | 9. 前端 build / typecheck / lint | 4D-FE current-code `npm run build` pass | PASS AS LATEST FRONTEND BUILD EVIDENCE |
 | 10. Chrome smoke | 4D-FE current-code `npm run smoke:chrome -- --start-api` pass | PASS AS LATEST CHROME SMOKE EVIDENCE |
 | 11. 18 步 E2E | 4D-FE current-code formal 18 pass | PASS AS LATEST MAIN-FLOW EVIDENCE |
@@ -206,6 +219,7 @@ formal 18-step steps=18/18 OK
 - 4D-FE `npm run smoke:chrome -- --start-api` 通过不能替代 formal 18-step、P0/P1 清零、full-card matrix 或 READY；它只证明当前 DevUi core routes 的 smoke gate 通过。
 - 4D-FE `npm run e2e:formal-18 -- --start-api` 通过不能替代 P0/P1 清零、full-card matrix 或 READY；它只证明当前 DevUi formal 18-step main-flow gate 通过。
 - 4D-03BT closure-gate verifier 110/110 通过不能替代 B-side PaymentEngine official breadth、E-side card matrix readiness、D-side P0 audit 或 READY；它只证明这些 gate 已变成 executable guard，且当前 matrix 仍为 0 full-official。
+- 4D-03BV deferred resource skill family handoff / baseline 不能替代 13 个 deferred official candidates 的实现或 verifier closure；它只证明这些 candidates 已被拆成 future legend bridge 与 non-legend runtime / verifier family boundary。
 - 4D-03BU 32-row resource skill official breadth reconciliation verifier 不能替代完整 `[A]` / `[C]` resource skill runtime implementation、generated-resource lifecycle breadth、full official PaymentEngine 或 full-card matrix closure；它只证明 fixed official catalog 32 candidates、current 19 implemented sources and 13 deferred official candidates are executable audit facts.
 - 4D-03BU resource skill official breadth handoff / baseline 不能替代完整 `[A]` / `[C]` resource skill official family、generated-resource lifecycle breadth、full official PaymentEngine 或 full-card matrix closure；它只证明下一步 B-side resource-skill breadth boundary 与当前 baseline 已固定。
 - 4D-03BS handoff / baseline 不能替代完整 PaymentEngine official breadth、full-card matrix 或 READY；它只证明 4D-03BR-B 后的 next dispatch boundary 与当前 baseline 已固定。
