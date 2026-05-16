@@ -2883,6 +2883,8 @@ public sealed record ResolutionResult(
             ? P4ActivatedAbilityCatalog.AncientStelePaymentOnlyResourceRestriction
             : string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, StringComparison.Ordinal)
                 ? P4ActivatedAbilityCatalog.JhinMoveResourceRestriction
+            : P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(resource.AbilityId)
+                ? P4ActivatedAbilityCatalog.HoneyfruitPaymentOnlyResourceRestriction
             : P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(resource.AbilityId)
                 ? P4ActivatedAbilityCatalog.GoldTokenPaymentOnlyResourceRestriction
             : P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction;
@@ -5781,6 +5783,7 @@ internal static class ActionPromptBuilder
             var conversionOptionalCostChoices = ActivateAbilityConversionOptionalCostChoices(state, playerId, ability);
             var isResourceConversionAbility = P4ActivatedAbilityCatalog.IsResourceConversionEquipmentAbility(ability.AbilityId);
             var jhinMoveTriggerChoices = ActivateAbilityJhinMoveTriggerChoices(state, playerId, sourceObjectId, ability);
+            var honeyfruitLevelSixChoices = ActivateAbilityHoneyfruitLevelSixChoices(state, playerId, sourceObjectId, ability);
             if (isResourceConversionAbility
                 && !string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.EnergyChannelResourceAbilityId, StringComparison.Ordinal)
                 && conversionOptionalCostChoices.Count == 0)
@@ -5828,7 +5831,9 @@ internal static class ActionPromptBuilder
                     ? conversionOptionalCostChoices
                     : jhinMoveTriggerChoices.Count > 0
                         ? jhinMoveTriggerChoices
-                        : paymentResourceChoices.Concat(armamentReattachChoices).ToArray(),
+                        : honeyfruitLevelSixChoices.Count > 0
+                            ? honeyfruitLevelSixChoices
+                            : paymentResourceChoices.Concat(armamentReattachChoices).ToArray(),
                 isResourceConversionAbility ? [] : paymentResourceChoices,
                 isResourceConversionAbility
                     ? new Dictionary<string, IReadOnlyDictionary<string, object?>>(StringComparer.Ordinal)
@@ -5910,6 +5915,28 @@ internal static class ActionPromptBuilder
                 $"{P4ActivatedAbilityCatalog.JhinMoveTriggerOptionalCostPrefix}{trigger.TriggerId}",
                 "移动触发",
                 "server-owned Jhin movement trigger context")
+        ];
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> ActivateAbilityHoneyfruitLevelSixChoices(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        P4ActivatedAbilityDefinition ability)
+    {
+        if (!P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(ability.AbilityId)
+            || !state.PlayerExperience.TryGetValue(playerId, out var experience)
+            || experience < P4ActivatedAbilityCatalog.HoneyfruitLevelSixExperience)
+        {
+            return [];
+        }
+
+        return
+        [
+            new ActionPromptChoiceDto(
+                $"{P4ActivatedAbilityCatalog.HoneyfruitLevelSixOptionalCostPrefix}{sourceObjectId}",
+                "6 级强化",
+                "Honeyfruit level-six branch: gain 1 mana plus 1 payment-only power")
         ];
     }
 
@@ -7267,6 +7294,8 @@ internal static class ActionPromptBuilder
             ? P4ActivatedAbilityCatalog.AncientStelePaymentOnlyResourceRestriction
             : string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, StringComparison.Ordinal)
                 ? P4ActivatedAbilityCatalog.JhinMoveResourceRestriction
+            : P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(resource.AbilityId)
+                ? P4ActivatedAbilityCatalog.HoneyfruitPaymentOnlyResourceRestriction
             : P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(resource.AbilityId)
                 ? P4ActivatedAbilityCatalog.GoldTokenPaymentOnlyResourceRestriction
             : P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction;
@@ -7721,6 +7750,15 @@ internal static class ActionPromptBuilder
                 && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
         }
 
+        if (P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(ability.AbilityId))
+        {
+            return string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+                && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
+                && state.StackItems.Count > 0
+                && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+                && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
+        }
+
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal))
         {
             return string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
@@ -7756,6 +7794,7 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId => "龙魂贤者",
             P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId => "烈娜塔·戈拉斯克",
             P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId => "烈娜塔·戈拉斯克",
+            P4ActivatedAbilityCatalog.HoneyfruitResourceAbilityId => "蜜糖果实",
             P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId => "阿兹尔",
             P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId => "守门者马杜里",
             P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId => "伊泽瑞尔",
@@ -7783,6 +7822,7 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId => "龙魂贤者：反应，横置，获得 1 点法力",
             P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId => "烈娜塔·戈拉斯克：支付 1 法力和 1 蓝色符能，抽 1 张牌",
             P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId => "烈娜塔·戈拉斯克：支付 4 法力和 4 蓝色符能并横置，获得 1 分",
+            P4ActivatedAbilityCatalog.HoneyfruitResourceAbilityId => "蜜糖果实：反应，横置，获得 1 点费用符能；6 级时额外获得 1 点法力",
             P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId => "阿兹尔：迅捷，支付 1 绿色符能，与受控单位交换位置",
             P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId => "守门者马杜里：支付 1 紫色符能，移动到较弱敌方战场",
             P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId => "伊泽瑞尔：迅捷，支付 1 蓝色符能，移动到你的基地",
@@ -11698,6 +11738,28 @@ internal static class ActionPromptBuilder
             view["bonusTag"] = requirement.RenataGoldExtraManaAvailable
                 ? P4ActivatedAbilityCatalog.GoldTokenRenataBonusTag
                 : string.Empty;
+        }
+
+        if (P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(requirement.AbilityId))
+        {
+            view["resourceSkill"] = true;
+            view["reactionSpeed"] = true;
+            view["paymentOnly"] = true;
+            view["generatedPower"] = P4ActivatedAbilityCatalog.HoneyfruitGeneratedPower;
+            view["generatedGenericPower"] = P4ActivatedAbilityCatalog.HoneyfruitGeneratedPower;
+            view["requiresBaseEquipmentSource"] = true;
+            view["resourceRestriction"] = P4ActivatedAbilityCatalog.HoneyfruitPaymentOnlyResourceRestriction;
+            view["timingPolicy"] = "stack-priority-reaction-representative";
+            view["reactionPolicy"] = "resolves-immediately-without-stack-item";
+            view["stackPolicy"] = "no-ordinary-stack-item";
+            view["resourceLifecycle"] = "temporary-payment-resource-ledger";
+            view["allowedPaymentKinds"] = new[] { PaymentCostRules.RuneCostPaymentKind };
+            view["levelSixExperienceRequirement"] = P4ActivatedAbilityCatalog.HoneyfruitLevelSixExperience;
+            view["levelSixEligible"] = requirement.OptionalCostChoices.Any(choice =>
+                choice.Id.StartsWith(P4ActivatedAbilityCatalog.HoneyfruitLevelSixOptionalCostPrefix, StringComparison.Ordinal));
+            view["levelSixOptionalCostPrefix"] = P4ActivatedAbilityCatalog.HoneyfruitLevelSixOptionalCostPrefix;
+            view["upgradedGeneratedMana"] = P4ActivatedAbilityCatalog.HoneyfruitUpgradedGeneratedMana;
+            view["generatedResourceCannotBeTargetedAsResponse"] = true;
         }
 
         if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId, StringComparison.Ordinal))

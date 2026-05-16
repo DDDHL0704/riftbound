@@ -381,6 +381,22 @@ public sealed class PaymentEngineCoverageAuditTests
                 "docs/CURRENT_STAGE4D_03CA_PAYMENT_ENGINE_NON_LEGEND_RESOURCE_SKILL_RUNTIME_LANES_AUDIT.md"
             ]),
         new(
+            "Honeyfruit equipment reaction payment-only resource skill",
+            [
+                P4ActivatedAbilityCatalog.HoneyfruitResourceAbilityId
+            ],
+            "HoneyfruitResourceSkillTests: prompt exposes ready base-equipment Honeyfruit reaction source, base generated power, and level-six upgraded branch eligibility",
+            "HoneyfruitResourceSkillTests: command revalidates source identity, equipment readiness, reaction timing, level-six legality and generated-resource request shape",
+            "HoneyfruitResourceSkillTests: ABILITY_ACTIVATED, UNIT_EXHAUSTED, POWER_GAINED, MANA_GAINED, spend and cleanup audit assertions",
+            "HoneyfruitResourceSkillTests: wrong timing, exhausted / stale / non-Honeyfruit source, illegal upgraded branch, duplicate spend and unsupported generated amount no-mutation guards",
+            "Representative coverage only; project remains NOT READY and P0-005 remains open for full-official resource skill breadth.",
+            [
+                "docs/CURRENT_STAGE4D_03CP_PAYMENT_ENGINE_HONEYFRUIT_RESOURCE_SKILL_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03CP_PAYMENT_ENGINE_HONEYFRUIT_RESOURCE_SKILL_EVIDENCE.md",
+                "docs/CURRENT_STAGE4D_03CC_PAYMENT_ENGINE_HONEYFRUIT_RESOURCE_SKILL_HANDOFF.md",
+                "docs/CURRENT_STAGE4D_03CA_PAYMENT_ENGINE_NON_LEGEND_RESOURCE_SKILL_RUNTIME_LANES_AUDIT.md"
+            ]),
+        new(
             "SFD Sigil typed payment-only resource skill family",
             [
                 P4ActivatedAbilityCatalog.RageSigilResourceAbilityId,
@@ -507,8 +523,8 @@ public sealed class PaymentEngineCoverageAuditTests
         new(
             "RESOURCE_SKILL_A_C_FAMILY",
             CatalogBoundRepresentative,
-            "4D-03CO binds the current 20 catalog `IsResourceSkill=true` representatives to prompt, command, ABILITY_ACTIVATED audit, and rollback anchors.",
-            "Malzahar, Dragon Soul Sage, Jhin movement-triggered resource skill, SFD / OGN Sigils, resource conversion equipment, and Gold token resource skills are catalog-bound representatives.",
+            "4D-03CP binds the current 21 catalog `IsResourceSkill=true` representatives to prompt, command, ABILITY_ACTIVATED audit, and rollback anchors.",
+            "Malzahar, Dragon Soul Sage, Jhin movement-triggered resource skill, Honeyfruit equipment reaction resource skill, SFD / OGN Sigils, resource conversion equipment, and Gold token resource skills are catalog-bound representatives.",
             "Complete official `[A]` / `[C]` resource skill breadth and cross-window resource-skill use are not proven beyond the current executable catalog.",
             "Future official closure must keep invalid timing, invalid target, wrong trait, duplicate source, payment-only misuse, and no-mutation rollback branches explicit.",
             "Catalog-bound representative only; project remains NOT READY and P0-005 remains open.",
@@ -2235,7 +2251,7 @@ public sealed class PaymentEngineCoverageAuditTests
     [
         ImplementedResourceSkillOfficialBreadthEntry("UNL·T05", "Gold token generic payment-only resource skill"),
         ImplementedResourceSkillOfficialBreadthEntry("UNL-022/219", "Jhin movement-triggered mana plus power generated resource skill"),
-        DeferredResourceSkillOfficialBreadthEntry("UNL-049/219", "Honeyfruit reaction resource skill plus level-six upgraded mana plus power branch"),
+        ImplementedResourceSkillOfficialBreadthEntry("UNL-049/219", "Honeyfruit reaction resource skill plus level-six upgraded mana plus power branch"),
         DeferredResourceSkillOfficialBreadthEntry("UNL-087/219", "Blue Sentinel held-battlefield delayed next-main generated power branch"),
         ImplementedResourceSkillOfficialBreadthEntry("UNL-093/219", "Dragon Soul Sage reaction generated mana resource skill"),
         DeferredResourceSkillOfficialBreadthEntry("UNL-197/219", "Diana spell-duel-only generated mana restriction branch"),
@@ -2311,12 +2327,6 @@ public sealed class PaymentEngineCoverageAuditTests
 
     private static readonly PaymentEngineDeferredResourceSkillFamilyEntry[] DeferredResourceSkillFamilyManifest =
     [
-        NonLegendDeferredResourceSkillFamilyEntry(
-            "UNL-049/219",
-            "equipment reaction resource skill",
-            "Honeyfruit reaction resource skill plus level-six upgraded mana plus power branch",
-            "Current code has Honeyfruit play / rejection fixture evidence, but no P4 resource-skill prompt / command / audit implementation for the official equipment reaction and level-six upgraded resource text.",
-            "Future B must prove tap reaction timing, level-six upgraded branch, generated power / mana lifetime, payment-only restrictions and no-mutation rollback under a fresh A dispatch."),
         NonLegendDeferredResourceSkillFamilyEntry(
             "UNL-087/219",
             "held-battlefield delayed-next-main resource skill",
@@ -2449,13 +2459,12 @@ public sealed class PaymentEngineCoverageAuditTests
             DeferredNonLegendResourceSkillRuntimeVerifier,
             [
                 "OGS·014/024",
-                "UNL-049/219",
                 "UNL-087/219"
             ],
-            "Fresh A dispatch required before modifying runtime or tests for Honeyfruit, Blue Sentinel or Lux.",
+            "Fresh A dispatch required before modifying runtime or tests for Blue Sentinel or Lux.",
             "Primary future write scope is PaymentEngine / resource-skill focused tests and, only if a real mismatch is exposed, the minimal P4ActivatedAbilityCatalog / MatchSession / CoreRuleEngine / PaymentCostRules path needed for prompt, command, audit, generated-resource lifetime and rollback semantics.",
             "Legend bridge rows, frontend runtime, browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and riftbound-dotnet.sln remain locked.",
-            "Future evidence must prove equipment-reaction, held-battlefield delayed next-main and spell-only tap-reaction generated resource behavior without borrowing LEGEND_ACT evidence.",
+            "Future evidence must prove held-battlefield delayed next-main and spell-only tap-reaction generated resource behavior without borrowing LEGEND_ACT evidence.",
             "4D-03BX handoff, 4D-03BW split, current preflight fixtures, backend full, Chrome smoke and formal 18 are routing / representative evidence only.",
             "Project remains NOT READY and P0-005 remains open until the non-legend runtime / verifier slice is explicitly dispatched, accepted and then reconciled with RESOURCE_SKILLS closure.",
             DeferredResourceSkillNextDispatchGateDocAnchors),
@@ -2477,7 +2486,7 @@ public sealed class PaymentEngineCoverageAuditTests
             ],
             "Fresh A dispatch required before treating Diana, Ornn, KaiSa or Darius LEGEND_ACT resource actions as RESOURCE_SKILLS bridge evidence.",
             "Primary future write scope is a bridge verifier in PaymentEngineCoverageAuditTests and focused legend tests; runtime / catalog files are allowed only if the verifier exposes a concrete mismatch and A opens that narrower lock.",
-            "The 3 non-legend 03BX runtime candidates, frontend runtime, browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and riftbound-dotnet.sln remain locked.",
+            "The 2 remaining non-legend 03BX runtime candidates, frontend runtime, browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and riftbound-dotnet.sln remain locked.",
             "Future evidence must bind each legend row to current LEGEND_ACT ability id, source-card group, timing restriction, generated resource type, payment-only restriction and explicit RESOURCE_SKILLS closure gap.",
             "Existing Diana / Ornn / KaiSa / Darius LEGEND_ACT representative tests, 4D-03BY handoff, backend full, Chrome smoke and formal 18 are bridge inputs only, not proxy closure.",
             "Project remains NOT READY and P0-005 remains open until legend bridge semantics are explicit and RESOURCE_SKILLS closure is separately accepted.",
@@ -2694,19 +2703,6 @@ public sealed class PaymentEngineCoverageAuditTests
 
     private static readonly PaymentEngineDeferredNonLegendResourceSkillRuntimeLaneEntry[] DeferredNonLegendResourceSkillRuntimeLaneManifest =
     [
-        new(
-            "LANE_HONEYFRUIT_EQUIPMENT_REACTION_RESOURCE_SKILL",
-            "UNL-049/219",
-            "Honeyfruit equipment reaction resource skill plus level-six upgraded mana / power branch",
-            "Current evidence is play / rejection fixture only; no P4 resource-skill prompt / command / audit path exists for the official tap reaction and level-six upgraded resource text.",
-            "Prompt must be server-filtered by tap reaction timing, source readiness and level-six upgraded branch availability.",
-            "Command must revalidate tap source, equipment-reaction timing, generated mana / power amount and payment-only use before mutating state.",
-            "Audit must connect ABILITY_ACTIVATED, generated mana / power availability, spend and cleanup to Honeyfruit and the upgraded branch decision.",
-            "Wrong timing, exhausted source, stale source, illegal upgraded branch and handwritten command branches must be no-mutation.",
-            "New focused Honeyfruit non-legend resource-skill tests or equivalent resource-skill runtime verifier.",
-            "LEGEND_ACT bridge rows, frontend runtime, browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and riftbound-dotnet.sln remain locked.",
-            "Project remains NOT READY and P0-005 remains open until this lane is implemented, accepted and reconciled with RESOURCE_SKILLS closure.",
-            DeferredNonLegendResourceSkillRuntimeLaneDocAnchors),
         new(
             "LANE_BLUE_SENTINEL_DELAYED_NEXT_MAIN_RESOURCE_SKILL",
             "UNL-087/219",
@@ -5624,7 +5620,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .ToArray();
 
         Assert.Equal(catalogResourceSkillAbilityIds, manifestAbilityIds);
-        Assert.Equal(20, manifestAbilityIds.Length);
+        Assert.Equal(21, manifestAbilityIds.Length);
         Assert.Empty(ResourceSkillCoverageManifest
             .SelectMany(entry => entry.AbilityIds)
             .GroupBy(abilityId => abilityId, StringComparer.Ordinal)
@@ -5662,7 +5658,7 @@ public sealed class PaymentEngineCoverageAuditTests
             entry => string.Equals(entry.Family, "RESOURCE_SKILL_A_C_FAMILY", StringComparison.Ordinal));
 
         Assert.Equal(CatalogBoundRepresentative, residualBlocker.Classification);
-        Assert.Contains("20", residualBlocker.CurrentEvidence, StringComparison.Ordinal);
+        Assert.Contains("21", residualBlocker.CurrentEvidence, StringComparison.Ordinal);
         Assert.Contains("IsResourceSkill=true", residualBlocker.CurrentEvidence, StringComparison.Ordinal);
         Assert.Contains("[A]", residualBlocker.MissingOfficialBreadth, StringComparison.Ordinal);
         Assert.Contains("[C]", residualBlocker.MissingOfficialBreadth, StringComparison.Ordinal);
@@ -5675,7 +5671,7 @@ public sealed class PaymentEngineCoverageAuditTests
             anchor => anchor.Contains("03AL_PAYMENT_ENGINE_RESOURCE_SKILL_COVERAGE_AUDIT", StringComparison.Ordinal));
 
         Assert.Equal(
-            20,
+            21,
             ResourceSkillCoverageManifest.SelectMany(entry => entry.AbilityIds).Distinct(StringComparer.Ordinal).Count());
     }
 
@@ -5763,7 +5759,7 @@ public sealed class PaymentEngineCoverageAuditTests
             requiredFamilies,
             ResourceSkillAllWindowMatrixManifest.Select(entry => entry.Family).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal));
         Assert.Equal(requiredActionWindows.Length * requiredFamilies.Length, ResourceSkillAllWindowMatrixManifest.Length);
-        Assert.Equal(42, ResourceSkillAllWindowMatrixManifest.Length);
+        Assert.Equal(48, ResourceSkillAllWindowMatrixManifest.Length);
         Assert.Empty(ResourceSkillAllWindowMatrixManifest
             .GroupBy(entry => (entry.ActionWindow, entry.Family))
             .Where(group => group.Count() > 1)
@@ -5938,8 +5934,8 @@ public sealed class PaymentEngineCoverageAuditTests
             .ToArray();
 
         Assert.Equal(implementedCatalogSourceCardNos, implementedManifestCardNos);
-        Assert.Equal(20, implementedManifestCardNos.Length);
-        Assert.Equal(12, deferredManifestCardNos.Length);
+        Assert.Equal(21, implementedManifestCardNos.Length);
+        Assert.Equal(11, deferredManifestCardNos.Length);
         Assert.Empty(implementedManifestCardNos.Intersect(deferredManifestCardNos, StringComparer.Ordinal));
     }
 
@@ -6037,7 +6033,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .ToArray();
 
         Assert.Equal(officialDeferredCardNos, familyManifestCardNos);
-        Assert.Equal(12, familyManifestCardNos.Length);
+        Assert.Equal(11, familyManifestCardNos.Length);
         Assert.Empty(DeferredResourceSkillFamilyManifest
             .GroupBy(entry => entry.CardNo, StringComparer.Ordinal)
             .Where(group => group.Count() > 1)
@@ -6071,9 +6067,9 @@ public sealed class PaymentEngineCoverageAuditTests
                 "UNL-197/219"
             ],
             legendBridgeCardNos);
-        Assert.Equal(["OGS·014/024", "UNL-049/219", "UNL-087/219"], nonLegendCardNos);
+        Assert.Equal(["OGS·014/024", "UNL-087/219"], nonLegendCardNos);
         Assert.Equal(9, legendBridgeCardNos.Length);
-        Assert.Equal(3, nonLegendCardNos.Length);
+        Assert.Equal(2, nonLegendCardNos.Length);
     }
 
     [Fact]
@@ -6178,7 +6174,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .ToArray();
 
         Assert.Equal(deferredFamilySet, coveredByDispatchGates);
-        Assert.Equal(12, coveredByDispatchGates.Length);
+        Assert.Equal(11, coveredByDispatchGates.Length);
     }
 
     [Fact]
@@ -6197,7 +6193,7 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Contains("LEGEND_ACT", legendGate.RequiredFutureEvidence, StringComparison.Ordinal);
         Assert.Contains("not proxy closure", legendGate.RepresentativeProxyEvidence, StringComparison.Ordinal);
-        Assert.Contains("3 non-legend 03BX runtime candidates", legendGate.ForbiddenScope, StringComparison.Ordinal);
+        Assert.Contains("2 remaining non-legend 03BX runtime candidates", legendGate.ForbiddenScope, StringComparison.Ordinal);
         Assert.DoesNotContain("UNL-022/219", legendGate.CandidateCardNos);
     }
 
@@ -6488,9 +6484,9 @@ public sealed class PaymentEngineCoverageAuditTests
             .Order(StringComparer.Ordinal)
             .ToArray();
 
-        Assert.Equal(["OGS·014/024", "UNL-049/219", "UNL-087/219"], laneCardNos);
+        Assert.Equal(["OGS·014/024", "UNL-087/219"], laneCardNos);
         Assert.Equal(nonLegendDeferredCardNos, laneCardNos);
-        Assert.Equal(3, laneCardNos.Length);
+        Assert.Equal(2, laneCardNos.Length);
         Assert.Empty(DeferredNonLegendResourceSkillRuntimeLaneManifest
             .GroupBy(entry => entry.CardNo, StringComparer.Ordinal)
             .Where(group => group.Count() > 1)
@@ -6533,7 +6529,7 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
-    public void PaymentEngineDeferredNonLegendResourceSkillRuntimeLaneManifestKeepsThreeRemainingAcceptanceLanesDistinct()
+    public void PaymentEngineDeferredNonLegendResourceSkillRuntimeLaneManifestKeepsTwoRemainingAcceptanceLanesDistinct()
     {
         var laneIds = DeferredNonLegendResourceSkillRuntimeLaneManifest
             .Select(entry => entry.LaneId)
@@ -6543,15 +6539,10 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Equal(
             [
                 "LANE_BLUE_SENTINEL_DELAYED_NEXT_MAIN_RESOURCE_SKILL",
-                "LANE_HONEYFRUIT_EQUIPMENT_REACTION_RESOURCE_SKILL",
                 "LANE_LUX_SPELL_ONLY_TAP_REACTION_RESOURCE_SKILL"
             ],
             laneIds);
 
-        Assert.Contains(DeferredNonLegendResourceSkillRuntimeLaneManifest, entry =>
-            entry.CardNo == "UNL-049/219"
-            && entry.RequiredPromptCondition.Contains("level-six", StringComparison.OrdinalIgnoreCase)
-            && entry.RequiredRollback.Contains("upgraded branch", StringComparison.OrdinalIgnoreCase));
         Assert.Contains(DeferredNonLegendResourceSkillRuntimeLaneManifest, entry =>
             entry.CardNo == "UNL-087/219"
             && entry.RequiredPromptCondition.Contains("delayed next-main", StringComparison.OrdinalIgnoreCase)

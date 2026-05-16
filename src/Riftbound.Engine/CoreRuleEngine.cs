@@ -6508,6 +6508,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveJhinMovementResourceSkill(state, intent, command, ability);
         }
 
+        if (P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(ability.AbilityId))
+        {
+            return ResolveHoneyfruitResourceSkill(state, intent, command, ability);
+        }
+
         if (P4ActivatedAbilityCatalog.IsSigilTypedResourceAbility(ability.AbilityId))
         {
             return ResolveSigilTypedResourceSkill(state, intent, command, ability);
@@ -9688,6 +9693,265 @@ public sealed class CoreRuleEngine : IRuleEngine
         return sourceState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
             && sourceState.Tags.Contains("金币", StringComparer.Ordinal)
             && sourceState.Tags.Contains("反应", StringComparer.Ordinal);
+    }
+
+    private static ResolutionResult ResolveHoneyfruitResourceSkill(
+        MatchState state,
+        PlayerIntent intent,
+        ActivateAbilityCommand command,
+        P4ActivatedAbilityDefinition ability)
+    {
+        const string timingContext = "STACK_PRIORITY_REACTION";
+        if (!DragonSoulSageResourceSkillTimingAllowed(state, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "蜜糖果实资源技能只能在当前玩家持有优先权的反应窗口提交。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (NormalizeTargetObjectIds(command.TargetObjectIds).Count != 0
+            || command.TargetObjectIds.Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "蜜糖果实资源技能不接受目标。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var normalizedOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        var levelSixBranch = false;
+        if (normalizedOptionalCosts.Count > 1)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "蜜糖果实资源技能只接受一个服务端签发的强化分支选择。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (normalizedOptionalCosts.Count == 1)
+        {
+            if (!TryParseHoneyfruitLevelSixOptionalCost(normalizedOptionalCosts[0], out var selectedSourceObjectId)
+                || !string.Equals(selectedSourceObjectId, command.SourceObjectId, StringComparison.Ordinal))
+            {
+                return RejectWithCorePrompts(
+                    state,
+                    "蜜糖果实资源技能收到不支持的生成资源分支。",
+                    ErrorCodes.InvalidTarget);
+            }
+
+            var experience = state.PlayerExperience.TryGetValue(intent.PlayerId, out var currentExperience)
+                ? currentExperience
+                : 0;
+            if (experience < P4ActivatedAbilityCatalog.HoneyfruitLevelSixExperience)
+            {
+                return RejectWithCorePrompts(
+                    state,
+                    "蜜糖果实 6 级强化分支需要至少 6 点经验。",
+                    ErrorCodes.InvalidTarget);
+            }
+
+            levelSixBranch = true;
+        }
+
+        if (!IsControlledBaseObject(state, intent.PlayerId, command.SourceObjectId)
+            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
+            || !sourceState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || sourceState.IsFaceDown
+            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "蜜糖果实资源技能来源必须是当前玩家控制的公开基地装备。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "蜜糖果实资源技能只能选择当前玩家控制的来源。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, sourceState.CardNo))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "该来源没有服务端支持的蜜糖果实资源技能。",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        if (sourceState.IsExhausted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "蜜糖果实资源技能来源必须未横置。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var currentPool = runePools.TryGetValue(intent.PlayerId, out var existingPool)
+            ? existingPool
+            : RunePool.Empty;
+        var nextPool = levelSixBranch
+            ? currentPool with { Mana = currentPool.Mana + P4ActivatedAbilityCatalog.HoneyfruitUpgradedGeneratedMana }
+            : currentPool;
+        runePools[intent.PlayerId] = nextPool;
+        cardObjects[command.SourceObjectId] = sourceState with
+        {
+            IsExhausted = true,
+            OwnerId = string.IsNullOrWhiteSpace(sourceState.OwnerId) ? intent.PlayerId : sourceState.OwnerId,
+            ControllerId = string.IsNullOrWhiteSpace(sourceState.ControllerId) ? intent.PlayerId : sourceState.ControllerId
+        };
+
+        const string paymentWindow = "ACTIVATE_ABILITY";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            intent.PlayerId,
+            command.SourceObjectId,
+            command.AbilityId);
+        var temporaryPaymentResource = new TemporaryPaymentResourceState(
+            $"HONEYFRUIT:{paymentId}",
+            intent.PlayerId,
+            command.SourceObjectId,
+            command.AbilityId,
+            paymentWindow,
+            generatedPower: P4ActivatedAbilityCatalog.HoneyfruitGeneratedPower,
+            remainingPower: P4ActivatedAbilityCatalog.HoneyfruitGeneratedPower,
+            allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind],
+            createdTick: state.Tick + 1);
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = objectLocations,
+            RunePools = runePools,
+            TemporaryPaymentResources = state.TemporaryPaymentResources
+                .Concat([temporaryPaymentResource])
+                .ToArray(),
+            PriorityPlayerId = state.PriorityPlayerId,
+            PassedPriorityPlayerIds = []
+        };
+        var generatedMana = levelSixBranch ? P4ActivatedAbilityCatalog.HoneyfruitUpgradedGeneratedMana : 0;
+        var events = new List<GameEvent>
+        {
+            new(
+                "ABILITY_ACTIVATED",
+                $"{intent.PlayerId} 激活蜜糖果实资源技能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["cardNo"] = sourceState.CardNo,
+                    ["abilityId"] = command.AbilityId,
+                    ["effectKind"] = ability.EffectKind,
+                    ["paymentWindow"] = paymentWindow,
+                    ["paymentId"] = paymentId,
+                    ["resourceSkill"] = true,
+                    ["reactionSpeed"] = true,
+                    ["paymentOnly"] = true,
+                    ["levelSixBranch"] = levelSixBranch,
+                    ["levelSixExperienceRequirement"] = P4ActivatedAbilityCatalog.HoneyfruitLevelSixExperience,
+                    ["generatedMana"] = generatedMana,
+                    ["generatedPower"] = P4ActivatedAbilityCatalog.HoneyfruitGeneratedPower,
+                    ["generatedGenericPower"] = P4ActivatedAbilityCatalog.HoneyfruitGeneratedPower,
+                    ["resourceRestriction"] = ability.ResourceRestriction,
+                    ["timingContext"] = timingContext,
+                    ["temporaryPaymentResourceId"] = temporaryPaymentResource.ResourceId,
+                    ["resourceLifecycle"] = "temporary-payment-resource-ledger",
+                    ["stackPolicy"] = "no-ordinary-stack-item",
+                    ["generatedResourceCannotBeTargetedAsResponse"] = true
+                }),
+            new(
+                "UNIT_EXHAUSTED",
+                "蜜糖果实横置支付资源技能费用",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["targetObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["paymentWindow"] = paymentWindow,
+                    ["paymentId"] = paymentId,
+                    ["wasExhausted"] = sourceState.IsExhausted,
+                    ["isExhausted"] = true,
+                    ["resourceSkill"] = true,
+                    ["reactionSpeed"] = true,
+                    ["paymentOnly"] = true,
+                    ["timingContext"] = timingContext
+                }),
+            new(
+                "POWER_GAINED",
+                $"{intent.PlayerId} 通过蜜糖果实资源技能获得 {P4ActivatedAbilityCatalog.HoneyfruitGeneratedPower} 点费用符能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["paymentWindow"] = paymentWindow,
+                    ["paymentId"] = paymentId,
+                    ["resourceSkill"] = true,
+                    ["reactionSpeed"] = true,
+                    ["paymentOnly"] = true,
+                    ["levelSixBranch"] = levelSixBranch,
+                    ["generatedPower"] = P4ActivatedAbilityCatalog.HoneyfruitGeneratedPower,
+                    ["generatedGenericPower"] = P4ActivatedAbilityCatalog.HoneyfruitGeneratedPower,
+                    ["power"] = P4ActivatedAbilityCatalog.HoneyfruitGeneratedPower,
+                    ["resourceRestriction"] = ability.ResourceRestriction,
+                    ["restrictionLifecycle"] = "temporary-payment-resource-ledger",
+                    ["temporaryPaymentResourceId"] = temporaryPaymentResource.ResourceId,
+                    ["remainingPower"] = temporaryPaymentResource.RemainingPower,
+                    ["allowedPaymentKinds"] = temporaryPaymentResource.AllowedPaymentKinds.ToArray()
+                })
+        };
+        if (levelSixBranch)
+        {
+            events.Add(new GameEvent(
+                "MANA_GAINED",
+                $"{intent.PlayerId} 通过蜜糖果实 6 级强化分支获得 {P4ActivatedAbilityCatalog.HoneyfruitUpgradedGeneratedMana} 点法力",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["paymentWindow"] = paymentWindow,
+                    ["paymentId"] = paymentId,
+                    ["resourceSkill"] = true,
+                    ["reactionSpeed"] = true,
+                    ["levelSixBranch"] = true,
+                    ["generatedMana"] = P4ActivatedAbilityCatalog.HoneyfruitUpgradedGeneratedMana,
+                    ["mana"] = P4ActivatedAbilityCatalog.HoneyfruitUpgradedGeneratedMana,
+                    ["manaAfter"] = nextPool.Mana,
+                    ["resourceLifecycle"] = "rune-pool-mana-reset-at-turn-cleanup"
+                }));
+        }
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static bool TryParseHoneyfruitLevelSixOptionalCost(string optionalCost, out string sourceObjectId)
+    {
+        sourceObjectId = string.Empty;
+        if (string.IsNullOrWhiteSpace(optionalCost)
+            || !optionalCost.StartsWith(P4ActivatedAbilityCatalog.HoneyfruitLevelSixOptionalCostPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        sourceObjectId = optionalCost[P4ActivatedAbilityCatalog.HoneyfruitLevelSixOptionalCostPrefix.Length..].Trim();
+        return !string.IsNullOrWhiteSpace(sourceObjectId);
     }
 
     private static ResolutionResult ResolveSigilTypedResourceSkill(

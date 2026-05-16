@@ -79,6 +79,15 @@ public static class P4ActivatedAbilityCatalog
     public const string JhinMoveResourceRestriction = "PAY_RUNE_COSTS_ONLY_JHIN_MOVE_TEMPORARY_LEDGER_4D_03CO";
     public const string JhinMoveTriggerOptionalCostPrefix = "JHIN_MOVE_TRIGGER:";
 
+    public const string HoneyfruitCardNo = "UNL-049/219";
+    public const string HoneyfruitResourceAbilityId = "HONEYFRUIT_REACTION_EXHAUST_GAIN_GENERIC_POWER";
+    public const string HoneyfruitResourceAbilityEffectKind = "HONEYFRUIT_REACTION_RESOURCE_SKILL_GAIN_GENERIC_POWER";
+    public const int HoneyfruitGeneratedPower = 1;
+    public const int HoneyfruitUpgradedGeneratedMana = 1;
+    public const int HoneyfruitLevelSixExperience = 6;
+    public const string HoneyfruitLevelSixOptionalCostPrefix = "HONEYFRUIT_LEVEL_SIX:";
+    public const string HoneyfruitPaymentOnlyResourceRestriction = "PAY_RUNE_COSTS_ONLY_HONEYFRUIT_TEMPORARY_LEDGER_4D_03CP";
+
     public const string RenataGlascCardNo = "SFD·088/221";
     public const string RenataGlascAltCardNo = "SFD·088a/221";
     public const string RenataGlascDrawAbilityId = "RENATA_GLASC_PAY_1_BLUE_DRAW_1";
@@ -426,6 +435,25 @@ public static class P4ActivatedAbilityCatalog
             ResourceRestriction: JhinMoveResourceRestriction,
             GeneratedMana: JhinMoveResourceGeneratedMana),
         new(
+            HoneyfruitResourceAbilityId,
+            HoneyfruitCardNo,
+            HoneyfruitResourceAbilityEffectKind,
+            "Honeyfruit reaction resource skill",
+            0,
+            0,
+            0,
+            RequiresBattlefieldSource: false,
+            ExhaustsSourceAsCost: true,
+            0,
+            AppliesSpellshieldTargetTax: false,
+            "Stage 4D-03CP opens Honeyfruit's base-equipment reaction-speed payment-only resource skill plus its level-six upgraded mana branch.",
+            IsResourceSkill: true,
+            PaymentOnlyResource: true,
+            GeneratedPower: HoneyfruitGeneratedPower,
+            ResourceRestriction: HoneyfruitPaymentOnlyResourceRestriction,
+            ReactionSpeed: true,
+            RequiresBaseEquipmentSource: true),
+        new(
             RenataGlascDrawAbilityId,
             RenataGlascCardNo,
             RenataGlascDrawAbilityEffectKind,
@@ -752,6 +780,11 @@ public static class P4ActivatedAbilityCatalog
     {
         return string.Equals(abilityId, GoldTokenUnlResourceAbilityId, StringComparison.Ordinal)
             || string.Equals(abilityId, GoldTokenSfdResourceAbilityId, StringComparison.Ordinal);
+    }
+
+    public static bool IsHoneyfruitResourceAbility(string? abilityId)
+    {
+        return string.Equals(abilityId, HoneyfruitResourceAbilityId, StringComparison.Ordinal);
     }
 
     public static bool TryGetSigilTypedResourceProfile(
