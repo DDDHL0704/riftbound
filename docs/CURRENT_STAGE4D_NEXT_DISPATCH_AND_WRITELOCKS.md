@@ -1,13 +1,14 @@
 # Stage 4D Next Dispatch and Writelocks
 
 日期：2026-05-16
-结论：**4D-03BW TEST-ONLY DEFERRED RESOURCE SKILL FAMILY VERIFIER ACCEPTED / PROJECT NOT READY**
+结论：**4D-03BX NON-LEGEND DEFERRED RESOURCE SKILL RUNTIME HANDOFF / PROJECT NOT READY**
 
 本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance / baseline 归档；除本文明确记录的 focused verifier 外，不实现 runtime，不修改前端，不升级 full-official。当前 active goal 仍未完成，不得调用 `update_goal complete`。
 
 ## 1. 输入事实
 
 - 当前分支为 `main`，仓库当前只保留未跟踪 `riftbound-dotnet.sln`；该文件不得被本批任务触碰或纳入提交。
+- 4D-03BX PaymentEngine non-legend deferred resource skill runtime handoff / baseline 已建立，入口为 `docs/CURRENT_STAGE4D_03BX_PAYMENT_ENGINE_NON_LEGEND_RESOURCE_SKILL_RUNTIME_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03BX_PAYMENT_ENGINE_NON_LEGEND_RESOURCE_SKILL_RUNTIME_BASELINE_EVIDENCE.md`。本批只做 A-side docs，把 4D-03BW 的 4 个 non-legend runtime / verifier candidates（Jhin `UNL-022/219`、Honeyfruit `UNL-049/219`、Blue Sentinel `UNL-087/219`、Lux `OGS·014/024`）收窄为下一枚 possible B-side implementation / verifier boundary；9 个 existing `LEGEND_ACT` bridge candidates 不进入该切片，仍需单独 fresh A dispatch。A 侧基线验证 focused PaymentEngine coverage guard 119/119、adjacent PaymentEngine / resource skill / prompt / hub regression 677/677、backend full 4556/4556、`git diff --check` 通过；runtime、tests、frontend、browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；项目仍 **NOT READY**。
 - 4D-03BW PaymentEngine deferred resource skill family verifier 已完成并验收，入口为 `docs/CURRENT_STAGE4D_03BW_PAYMENT_ENGINE_DEFERRED_RESOURCE_SKILL_FAMILY_VERIFIER_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03BW_PAYMENT_ENGINE_DEFERRED_RESOURCE_SKILL_FAMILY_VERIFIER_EVIDENCE.md`。本批只改 `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` 与 A-side docs，把 4D-03BU / 4D-03BV 的 13 个 deferred official resource-skill candidates 转成 executable `DeferredResourceSkillFamilyManifest`：9 个 existing `LEGEND_ACT` resource-action bridge candidates 与 4 个 non-legend runtime / verifier candidates；现有 legend representative evidence 不能代理 `RESOURCE_SKILLS` closure。A 侧验证 focused PaymentEngine coverage guard 119/119、adjacent PaymentEngine / resource skill / prompt / hub regression 677/677、backend full 4556/4556、`git diff --check` 通过；runtime、frontend、browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；项目仍 **NOT READY**。
 - 4D-03BV PaymentEngine deferred resource skill family handoff / baseline 已建立，入口为 `docs/CURRENT_STAGE4D_03BV_PAYMENT_ENGINE_DEFERRED_RESOURCE_SKILL_FAMILY_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03BV_PAYMENT_ENGINE_DEFERRED_RESOURCE_SKILL_FAMILY_BASELINE_EVIDENCE.md`。本批只做 A-side docs，把 4D-03BU 的 13 个 deferred official resource-skill candidates 拆成 9 个 existing `LEGEND_ACT` resource actions 与 4 个 non-legend unit / equipment / delayed resource skills；现有 Darius / Diana / KaiSa / Ornn `LEGEND_ACT` tests 不能代理 `RESOURCE_SKILLS` closure，Jhin / Honeyfruit / Blue Sentinel / Lux 仍需 future verifier / runtime breadth。A 侧基线验证 focused PaymentEngine coverage guard 115/115、adjacent PaymentEngine / resource skill / prompt / hub regression 673/673、backend full 4552/4552、`git diff --check` 通过；runtime、tests、frontend、browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；项目仍 **NOT READY**。
 - 4D-03BU PaymentEngine resource skill official breadth verifier 已完成并验收，入口为 `docs/CURRENT_STAGE4D_03BU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03BU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_EVIDENCE.md`。本批只改 `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` 与 A-side docs，把 fixed official catalog 中带 resource-skill reminder text 的 32 个 snapshot entries 转成 executable `ResourceSkillOfficialBreadthManifest`，并区分 19 个 current implemented `P4ActivatedAbilityCatalog.IsResourceSkill=true` source card nos 与 13 个 deferred official candidates。A 侧验证 focused 115/115、adjacent PaymentEngine / resource skill / prompt / hub regression 673/673、backend full 4552/4552、`git diff --check` 通过；runtime、frontend、browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；项目仍 **NOT READY**。
@@ -105,6 +106,7 @@
 
 | Queue | Owner | Status | Purpose | Write scope | Must not touch |
 |---|---|---|---|---|---|
+| 4D-03BX | A 主控 | Handoff / baseline recorded; no worker dispatched | Reserve B-side implementation / verifier boundary for the 4 non-legend deferred official resource-skill candidates | completed handoff / baseline docs and checkpoint / completion / closure / dispatch / server audit / checklist docs | runtime、tests beyond future dispatch、frontend runtime、browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-03BW | A 主控 | Test-only verifier implemented and A-validated | Make the 13 deferred official resource-skill family split executable and reject legend proxy closure | `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, 4D-03BW audit / evidence docs, checkpoint / completion / closure / dispatch / server audit / checklist docs | runtime、frontend runtime、browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-03BV | A 主控 | Handoff / baseline recorded; no worker dispatched | Split the 13 deferred official resource-skill candidates into legend bridge vs non-legend runtime / verifier families for future B work | completed handoff / baseline docs and checkpoint / completion / closure / dispatch / server audit / checklist docs | runtime、tests、frontend runtime、browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY、`riftbound-dotnet.sln` |
 | 4D-03BU-B | A 主控 | Test-only verifier implemented and A-validated | Reconcile fixed official resource skill candidates against current implemented resource skill catalog and keep deferred breadth explicit | `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, 4D-03BU audit / evidence docs, checkpoint / completion / closure / dispatch / server audit / checklist docs | runtime、frontend runtime、browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY、`riftbound-dotnet.sln` |
@@ -160,6 +162,7 @@
 - 4D-FE event-label build gate frontend label write scope is closed after current-code build validation. Only `src/Riftbound.DevUi/src/components/match/EventLog.tsx` was changed. Server runtime, protocols, prompt/action legality, browser smoke scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
 - 4D-FE Chrome smoke fresh-run is closed after A validation. No source files, smoke scripts, formal 18-step scripts, runtime, card matrix JSON, fullOfficial / READY or `riftbound-dotnet.sln` were touched.
 - 4D-FE formal 18-step fresh-run is closed after A validation. No source files, smoke scripts, formal 18-step scripts, runtime, card matrix JSON, fullOfficial / READY or `riftbound-dotnet.sln` were touched.
+- 4D-03BX is A-side handoff / baseline only. No B / C / D / E worker is dispatched, no runtime / test / frontend / matrix write lock is open, and future non-legend deferred resource-skill implementation / verifier work for Jhin, Honeyfruit, Blue Sentinel and Lux requires a fresh explicit A dispatch. The 9 legend bridge candidates remain outside this slice, and `riftbound-dotnet.sln` remains locked.
 - 4D-03BW focused-test write scope is closed after A validation. Runtime, frontend runtime, browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked. Future bridge / implementation work for the 13 deferred official candidates requires fresh explicit A dispatch.
 - 4D-03BV is A-side handoff / baseline only. No B / C / D / E worker is dispatched, no runtime / test / frontend / matrix write lock is open, and any future deferred resource skill family verifier or implementation work requires a fresh explicit A dispatch. `riftbound-dotnet.sln` remains locked.
 - 4D-03BU-B focused-test write scope is closed after A validation. Runtime, frontend runtime, browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked. Future implementation work for the 13 deferred official candidates requires a fresh explicit A dispatch.
@@ -455,6 +458,20 @@ A accepts the 4D-03BW verifier because all of the following are true:
 11. P0-005, P1, frontend final validation, full-card matrix and READY remain open.
 
 Pause point: 4D-03BW is accepted and its focused-test write scope is closed. The project remains **NOT READY**.
+
+## 3.0P 4D-03BX Handoff Gate Accepted
+
+A accepts the 4D-03BX handoff / baseline because all of the following are true:
+
+1. Current repo state remains on `main` with only expected untracked `riftbound-dotnet.sln` outside this docs-only batch.
+2. 4D-03BW fixed the deferred official resource-skill family split at 13 candidates: 9 existing `LEGEND_ACT` bridge candidates and 4 non-legend runtime / verifier candidates.
+3. 4D-03BX reserves only the 4 non-legend candidates for a future B-side implementation / verifier boundary: Jhin `UNL-022/219`, Honeyfruit `UNL-049/219`, Blue Sentinel `UNL-087/219` and Lux `OGS·014/024`.
+4. The 9 legend bridge candidates remain outside this slice and require a separate fresh A dispatch before any bridge or implementation work.
+5. This handoff itself did not modify runtime, tests, frontend, browser smoke scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY or `riftbound-dotnet.sln`.
+6. Baseline validation passed: focused 119/119, adjacent PaymentEngine / resource skill / prompt / hub regression 677/677, backend full 4556/4556 and `git diff --check`.
+7. P0-005, P1, frontend final validation, full-card matrix and READY remain open.
+
+Pause point: 4D-03BX establishes the future B-side non-legend deferred resource skill runtime / verifier boundary only. No B worker is dispatched in this batch, no write lock is open, and the project remains **NOT READY**.
 
 ## 3.1 4D-04Q-A Handoff Gate Accepted
 
