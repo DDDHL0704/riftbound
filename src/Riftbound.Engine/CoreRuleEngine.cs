@@ -10453,7 +10453,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = intent.PlayerId,
                     ["sourceObjectId"] = command.SourceObjectId,
+                    ["cardNo"] = sourceState.CardNo,
                     ["abilityId"] = command.AbilityId,
+                    ["effectKind"] = ability.EffectKind,
                     ["paymentWindow"] = paymentWindow,
                     ["paymentId"] = paymentId,
                     ["resourceSkill"] = true,

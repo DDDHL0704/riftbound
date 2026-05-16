@@ -102,9 +102,28 @@ public sealed class OgnSigilResourceSkillTests
         Assert.Equal(1, temporaryResource.RemainingPowerByTrait[profile.Trait]);
 
         var activatedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.Equal(SourceObjectId(profile), activatedEvent.Payload["sourceObjectId"]);
+        Assert.Equal(profile.SourceCardNo, activatedEvent.Payload["cardNo"]);
+        Assert.Equal(profile.AbilityId, activatedEvent.Payload["abilityId"]);
+        Assert.Equal(profile.EffectKind, activatedEvent.Payload["effectKind"]);
         Assert.Equal(profile.ResourceRestriction, activatedEvent.Payload["resourceRestriction"]);
         Assert.True(Assert.IsType<bool>(activatedEvent.Payload["typedPaymentOnlyResource"]));
+        Assert.Equal("temporary-payment-resource-ledger", activatedEvent.Payload["resourceLifecycle"]);
+        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], Assert.IsType<string[]>(activatedEvent.Payload["allowedPaymentKinds"]));
         Assert.Equal(1, Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(activatedEvent.Payload["generatedPowerByTrait"])[profile.Trait]);
+
+        var powerEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+        Assert.Equal(SourceObjectId(profile), powerEvent.Payload["sourceObjectId"]);
+        Assert.Equal(profile.SourceCardNo, powerEvent.Payload["cardNo"]);
+        Assert.Equal(profile.AbilityId, powerEvent.Payload["abilityId"]);
+        Assert.Equal(profile.EffectKind, powerEvent.Payload["effectKind"]);
+        Assert.Equal(profile.ResourceRestriction, powerEvent.Payload["resourceRestriction"]);
+        Assert.Equal(temporaryResource.ResourceId, powerEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal("temporary-payment-resource-ledger", powerEvent.Payload["restrictionLifecycle"]);
+        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], Assert.IsType<string[]>(powerEvent.Payload["allowedPaymentKinds"]));
+        Assert.Equal(1, Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(powerEvent.Payload["generatedPowerByTrait"])[profile.Trait]);
+        Assert.Equal(1, Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(powerEvent.Payload["powerByTrait"])[profile.Trait]);
+        Assert.Equal(1, Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(powerEvent.Payload["remainingPowerByTrait"])[profile.Trait]);
     }
 
     [Theory]

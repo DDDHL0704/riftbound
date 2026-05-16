@@ -41,6 +41,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string ResourceSkillOfficialRowInteractionMatrix = "resource-skill-official-row-interaction-matrix";
     private const string ResourceSkillOfficialSourceCardRuntimeParity = "resource-skill-official-source-card-runtime-parity";
     private const string ResourceSkillOfficialRuntimeCardRowEvidence = "resource-skill-official-runtime-card-row-evidence";
+    private const string TypedSigilOfficialRuntimeCardRowAudit = "typed-sigil-official-runtime-card-row-audit";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
     [
@@ -3094,6 +3095,66 @@ public sealed class PaymentEngineCoverageAuditTests
     private static PaymentEngineResourceSkillOfficialBreadthEntry ResourceSkillOfficialCandidateFor(string cardNo)
     {
         return ResourceSkillOfficialBreadthManifest.Single(entry => string.Equals(entry.CardNo, cardNo, StringComparison.Ordinal));
+    }
+
+    private static readonly string[] TypedSigilOfficialRuntimeCardRowAuditDocAnchors =
+    [
+        "docs/CURRENT_STAGE4D_03CZ_PAYMENT_ENGINE_TYPED_SIGIL_RESOURCE_SKILL_RUNTIME_CARD_ROW_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03CZ_PAYMENT_ENGINE_TYPED_SIGIL_RESOURCE_SKILL_RUNTIME_CARD_ROW_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03CY_PAYMENT_ENGINE_RESOURCE_SKILL_RUNTIME_CARD_ROW_EVIDENCE_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03CY_PAYMENT_ENGINE_RESOURCE_SKILL_RUNTIME_CARD_ROW_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03CX_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_SOURCE_CARD_RUNTIME_PARITY_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03CV_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_MATRIX_AUDIT.md",
+        "docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md",
+        "docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md"
+    ];
+
+    private static readonly PaymentEngineTypedSigilOfficialRuntimeCardRowAuditEntry[] TypedSigilOfficialRuntimeCardRowAuditManifest =
+        P4ActivatedAbilityCatalog.GetSigilTypedResourceProfiles()
+            .Select(TypedSigilOfficialRuntimeCardRowAuditEntry)
+            .ToArray();
+
+    private static PaymentEngineTypedSigilOfficialRuntimeCardRowAuditEntry TypedSigilOfficialRuntimeCardRowAuditEntry(
+        P4SigilTypedResourceProfile profile)
+    {
+        var runtimeRow = ResourceSkillOfficialRuntimeCardRowEvidenceManifest.Single(entry =>
+            string.Equals(entry.CardNo, profile.SourceCardNo, StringComparison.Ordinal));
+        var focusedTestType = string.Equals(profile.AbilityId, P4ActivatedAbilityCatalog.RageSigilResourceAbilityId, StringComparison.Ordinal)
+            ? typeof(RageSigilResourceSkillTests)
+            : profile.IsOgnReprint
+                ? typeof(OgnSigilResourceSkillTests)
+                : typeof(SfdSigilResourceSkillTests);
+        IReadOnlyList<string> focusedMethods = string.Equals(profile.AbilityId, P4ActivatedAbilityCatalog.RageSigilResourceAbilityId, StringComparison.Ordinal)
+            ?
+            [
+                nameof(RageSigilResourceSkillTests.RageSigilReactionPromptExposesBaseEquipmentTypedPaymentOnlyResourceSkill),
+                nameof(RageSigilResourceSkillTests.RageSigilReactionCommandExhaustsSourceCreatesRedTemporaryLedgerWithoutStackItem),
+                nameof(RageSigilResourceSkillTests.RageSigilTemporaryRedResourcePaysRuneCostsAndCleansUp),
+                nameof(RageSigilResourceSkillTests.RageSigilTemporaryRedResourceRejectsNonMatchingOrNonRunePaymentWithoutMutation),
+                nameof(RageSigilResourceSkillTests.RageSigilRejectsInvalidSourceOrPayloadWithoutMutation)
+            ]
+            : profile.IsOgnReprint
+                ? OgnSigilRuntimeCardRowMethods
+                : SfdSigilRuntimeCardRowMethods;
+
+        return new(
+            profile.SourceCardNo,
+            profile.AbilityId,
+            profile.EffectKind,
+            profile.Trait,
+            profile.TraitLabel,
+            profile.ResourceRestriction,
+            profile.IsOgnReprint,
+            focusedTestType,
+            focusedMethods,
+            $"{focusedTestType.Name}: prompt sourceRequirements bind cardNo={profile.SourceCardNo}, abilityId={profile.AbilityId}, trait={profile.Trait}, typedPaymentOnlyResource=true and resourceRestriction={profile.ResourceRestriction}.",
+            $"{focusedTestType.Name}: ACTIVATE_ABILITY command revalidates source-card {profile.SourceCardNo}, ability {profile.AbilityId}, base-equipment source, no-target payload and stack-priority reaction timing before mutation.",
+            $"{focusedTestType.Name}: ABILITY_ACTIVATED and POWER_GAINED audit metadata bind cardNo={profile.SourceCardNo}, abilityId={profile.AbilityId}, effectKind={profile.EffectKind}, trait={profile.Trait} and resourceRestriction={profile.ResourceRestriction}.",
+            $"{focusedTestType.Name}: generated typed temporary resource pays same-color or generic rune costs, rejects wrong-color and mana-only spends, then clears the temporary ledger for cardNo={profile.SourceCardNo}.",
+            $"{focusedTestType.Name}: stale, exhausted, wrong-card, wrong-print, malformed target or optional-cost commands reject without mutation for cardNo={profile.SourceCardNo}.",
+            $"{runtimeRow.CardRowEvidence} 4D-03CZ keeps the exact typed Sigil row fullOfficial=false while adding executable source-card audit metadata.",
+            "4D-03CZ typed Sigil runtime/card-row audit only; project remains NOT READY, P0-005 remains open, fullOfficial remains false, card matrix JSON remains unchanged and final readiness upgrade is forbidden.",
+            [.. TypedSigilOfficialRuntimeCardRowAuditDocAnchors, .. runtimeRow.DocAnchors]);
     }
 
     private static readonly string[] DeferredNonLegendResourceSkillRuntimeLaneDocAnchors =
@@ -7433,6 +7494,170 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineTypedSigilOfficialRuntimeCardRowAuditManifestCoversExactSfdAndOgnRows()
+    {
+        var expectedCardNos = new[]
+        {
+            "SFD·222/221",
+            "SFD·226/221",
+            "SFD·229/221",
+            "SFD·231/221",
+            "SFD·234/221",
+            "SFD·238/221",
+            "OGN·040/298",
+            "OGN·081/298",
+            "OGN·120/298",
+            "OGN·163/298",
+            "OGN·204/298",
+            "OGN·245/298"
+        };
+        var runtimeDefinitions = P4ActivatedAbilityCatalog.GetAll()
+            .Where(definition => definition.IsResourceSkill)
+            .ToDictionary(definition => definition.SourceCardNo, StringComparer.Ordinal);
+
+        Assert.Equal(12, TypedSigilOfficialRuntimeCardRowAuditManifest.Length);
+        Assert.Equal(expectedCardNos.Order(StringComparer.Ordinal), TypedSigilOfficialRuntimeCardRowAuditManifest.Select(entry => entry.CardNo).Order(StringComparer.Ordinal));
+        Assert.Equal(
+            P4ActivatedAbilityCatalog.GetSigilTypedResourceProfiles().Select(profile => profile.SourceCardNo).Order(StringComparer.Ordinal),
+            TypedSigilOfficialRuntimeCardRowAuditManifest.Select(entry => entry.CardNo).Order(StringComparer.Ordinal));
+
+        Assert.All(TypedSigilOfficialRuntimeCardRowAuditManifest, entry =>
+        {
+            var profile = Assert.Single(
+                P4ActivatedAbilityCatalog.GetSigilTypedResourceProfiles(),
+                candidate => string.Equals(candidate.SourceCardNo, entry.CardNo, StringComparison.Ordinal));
+            var runtimeDefinition = runtimeDefinitions[entry.CardNo];
+
+            Assert.Equal(TypedSigilOfficialRuntimeCardRowAudit, entry.Classification);
+            Assert.Equal(profile.AbilityId, entry.AbilityId);
+            Assert.Equal(profile.EffectKind, entry.EffectKind);
+            Assert.Equal(profile.Trait, entry.Trait);
+            Assert.Equal(profile.TraitLabel, entry.TraitLabel);
+            Assert.Equal(profile.ResourceRestriction, entry.ResourceRestriction);
+            Assert.Equal(profile.IsOgnReprint, entry.IsOgnReprint);
+            Assert.Equal(profile.AbilityId, runtimeDefinition.AbilityId);
+            Assert.True(runtimeDefinition.IsResourceSkill);
+            Assert.True(runtimeDefinition.PaymentOnlyResource);
+            Assert.True(runtimeDefinition.ReactionSpeed);
+            Assert.True(runtimeDefinition.RequiresBaseEquipmentSource);
+            Assert.True(runtimeDefinition.ExhaustsSourceAsCost);
+            Assert.Contains(ResourceSkillOfficialRuntimeCardRowEvidenceManifest, row => string.Equals(row.CardNo, entry.CardNo, StringComparison.Ordinal));
+            Assert.Contains(ResourceSkillOfficialSourceCardRuntimeParityManifest, row => string.Equals(row.CardNo, entry.CardNo, StringComparison.Ordinal));
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineTypedSigilOfficialRuntimeCardRowAuditManifestBindsFocusedVerifiersAndMatrixRows()
+    {
+        var repositoryRoot = ResolveRepositoryRoot();
+        var matrixPath = Path.Combine(repositoryRoot, "docs", "CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json");
+        using var document = JsonDocument.Parse(File.ReadAllText(matrixPath));
+        var snapshotEntries = document.RootElement.GetProperty("snapshotEntries").EnumerateArray().ToArray();
+
+        Assert.All(TypedSigilOfficialRuntimeCardRowAuditManifest, entry =>
+        {
+            Assert.Equal(
+                string.Equals(entry.CardNo, P4ActivatedAbilityCatalog.RageSigilCardNo, StringComparison.Ordinal)
+                    ? typeof(RageSigilResourceSkillTests)
+                    : entry.IsOgnReprint
+                        ? typeof(OgnSigilResourceSkillTests)
+                        : typeof(SfdSigilResourceSkillTests),
+                entry.FocusedTestType);
+            Assert.NotEmpty(entry.RequiredFocusedTestMethods);
+            Assert.Empty(entry.RequiredFocusedTestMethods
+                .GroupBy(methodName => methodName, StringComparer.Ordinal)
+                .Where(group => group.Count() > 1)
+                .Select(group => group.Key));
+
+            foreach (var methodName in entry.RequiredFocusedTestMethods)
+            {
+                var method = entry.FocusedTestType.GetMethod(methodName);
+
+                Assert.NotNull(method);
+                Assert.Contains(method.GetCustomAttributes(inherit: false), attribute => attribute is FactAttribute);
+            }
+
+            var snapshotEntry = Assert.Single(
+                snapshotEntries,
+                element => string.Equals(element.GetProperty("cardNo").GetString(), entry.CardNo, StringComparison.Ordinal));
+            var stage4B = snapshotEntry.GetProperty("stage4B");
+
+            Assert.Equal(entry.CardNo, stage4B.GetProperty("collectorId").GetString());
+            Assert.False(stage4B.GetProperty("fullOfficial").GetBoolean());
+            Assert.Contains(entry.CardNo, entry.CardRowEvidence, StringComparison.Ordinal);
+            Assert.Contains("fullOfficial=false", entry.CardRowEvidence, StringComparison.Ordinal);
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineTypedSigilOfficialRuntimeCardRowAuditManifestRequiresSourceCardAuditDocsAndNoReadyClaim()
+    {
+        var repositoryRoot = ResolveRepositoryRoot();
+        var combinedText = string.Join(
+            " ",
+            TypedSigilOfficialRuntimeCardRowAuditManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.CardNo,
+                    entry.Classification,
+                    entry.AbilityId,
+                    entry.EffectKind,
+                    entry.Trait,
+                    entry.TraitLabel,
+                    entry.ResourceRestriction,
+                    entry.FocusedTestType.FullName ?? entry.FocusedTestType.Name,
+                    entry.PromptEvidence,
+                    entry.CommandEvidence,
+                    entry.GeneratedResourceAuditEvidence,
+                    entry.LifetimeEvidence,
+                    entry.RollbackEvidence,
+                    entry.CardRowEvidence,
+                    entry.NonClosureStatus
+                }.Concat(entry.RequiredFocusedTestMethods)
+                    .Concat(entry.DocAnchors)));
+
+        Assert.All(TypedSigilOfficialRuntimeCardRowAuditManifest, entry =>
+        {
+            Assert.Contains($"cardNo={entry.CardNo}", entry.PromptEvidence, StringComparison.Ordinal);
+            Assert.Contains($"abilityId={entry.AbilityId}", entry.PromptEvidence, StringComparison.Ordinal);
+            Assert.Contains($"resourceRestriction={entry.ResourceRestriction}", entry.PromptEvidence, StringComparison.Ordinal);
+            Assert.Contains(entry.CardNo, entry.CommandEvidence, StringComparison.Ordinal);
+            Assert.Contains(entry.AbilityId, entry.CommandEvidence, StringComparison.Ordinal);
+            Assert.Contains($"cardNo={entry.CardNo}", entry.GeneratedResourceAuditEvidence, StringComparison.Ordinal);
+            Assert.Contains($"abilityId={entry.AbilityId}", entry.GeneratedResourceAuditEvidence, StringComparison.Ordinal);
+            Assert.Contains($"effectKind={entry.EffectKind}", entry.GeneratedResourceAuditEvidence, StringComparison.Ordinal);
+            Assert.Contains($"trait={entry.Trait}", entry.GeneratedResourceAuditEvidence, StringComparison.Ordinal);
+            Assert.Contains($"resourceRestriction={entry.ResourceRestriction}", entry.GeneratedResourceAuditEvidence, StringComparison.Ordinal);
+            Assert.Contains(entry.CardNo, entry.LifetimeEvidence, StringComparison.Ordinal);
+            Assert.Contains(entry.CardNo, entry.RollbackEvidence, StringComparison.Ordinal);
+            Assert.Contains("NOT READY", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("fullOfficial remains false", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("card matrix JSON remains unchanged", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("docs/CURRENT_STAGE4D_03CZ_PAYMENT_ENGINE_TYPED_SIGIL_RESOURCE_SKILL_RUNTIME_CARD_ROW_AUDIT.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03CZ_PAYMENT_ENGINE_TYPED_SIGIL_RESOURCE_SKILL_RUNTIME_CARD_ROW_EVIDENCE.md", entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+                Assert.True(File.Exists(Path.Combine(repositoryRoot, anchor)), anchor);
+            });
+        });
+
+        Assert.Contains("ABILITY_ACTIVATED and POWER_GAINED audit metadata", combinedText, StringComparison.Ordinal);
+        Assert.Contains("card matrix JSON remains unchanged", combinedText, StringComparison.Ordinal);
+        Assert.Contains("fullOfficial remains false", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PaymentEngineDeferredNonLegendResourceSkillRuntimeLaneManifestMatchesNonLegendGateSet()
     {
         var nonLegendDeferredCardNos = DeferredResourceSkillFamilyManifest
@@ -8069,6 +8294,28 @@ public sealed class PaymentEngineCoverageAuditTests
         string NonClosureStatus,
         IReadOnlyList<string> DocAnchors);
 
+    private sealed record PaymentEngineTypedSigilOfficialRuntimeCardRowAuditEntry(
+        string CardNo,
+        string AbilityId,
+        string EffectKind,
+        string Trait,
+        string TraitLabel,
+        string ResourceRestriction,
+        bool IsOgnReprint,
+        Type FocusedTestType,
+        IReadOnlyList<string> RequiredFocusedTestMethods,
+        string PromptEvidence,
+        string CommandEvidence,
+        string GeneratedResourceAuditEvidence,
+        string LifetimeEvidence,
+        string RollbackEvidence,
+        string CardRowEvidence,
+        string NonClosureStatus,
+        IReadOnlyList<string> DocAnchors)
+    {
+        public string Classification { get; } = TypedSigilOfficialRuntimeCardRowAudit;
+    }
+
     private sealed record PaymentEngineDeferredResourceSkillFamilyEntry(
         string CardNo,
         string Classification,
@@ -8111,6 +8358,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(ResourceSkillOfficialRowInteractionMatrixManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(ResourceSkillOfficialSourceCardRuntimeParityManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(ResourceSkillOfficialRuntimeCardRowEvidenceManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(TypedSigilOfficialRuntimeCardRowAuditManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(DeferredResourceSkillFamilyManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(LegendResourceBridgeAggregateManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(LegendResourceBridgeImplementationAcceptanceManifest.SelectMany(entry => entry.DocAnchors))

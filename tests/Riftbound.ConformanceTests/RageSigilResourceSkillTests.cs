@@ -113,18 +113,32 @@ public sealed class RageSigilResourceSkillTests
 
         var activatedEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.Equal(RageSigilObjectId, activatedEvent.Payload["sourceObjectId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.RageSigilCardNo, activatedEvent.Payload["cardNo"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.RageSigilResourceAbilityId, activatedEvent.Payload["abilityId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.RageSigilResourceAbilityEffectKind, activatedEvent.Payload["effectKind"]);
         Assert.True(Assert.IsType<bool>(activatedEvent.Payload["resourceSkill"]));
         Assert.True(Assert.IsType<bool>(activatedEvent.Payload["reactionSpeed"]));
         Assert.True(Assert.IsType<bool>(activatedEvent.Payload["paymentOnly"]));
         Assert.True(Assert.IsType<bool>(activatedEvent.Payload["typedPaymentOnlyResource"]));
         Assert.Equal(P4ActivatedAbilityCatalog.RageSigilTypedResourceRestriction, activatedEvent.Payload["resourceRestriction"]);
+        Assert.Equal("temporary-payment-resource-ledger", activatedEvent.Payload["resourceLifecycle"]);
+        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], Assert.IsType<string[]>(activatedEvent.Payload["allowedPaymentKinds"]));
         var generatedPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(activatedEvent.Payload["generatedPowerByTrait"]);
         Assert.Equal(1, generatedPowerByTrait[RuneTrait.Red]);
 
         var powerEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+        Assert.Equal(RageSigilObjectId, powerEvent.Payload["sourceObjectId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.RageSigilCardNo, powerEvent.Payload["cardNo"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.RageSigilResourceAbilityId, powerEvent.Payload["abilityId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.RageSigilResourceAbilityEffectKind, powerEvent.Payload["effectKind"]);
         Assert.Equal(temporaryResource.ResourceId, powerEvent.Payload["temporaryPaymentResourceId"]);
         Assert.Equal("temporary-payment-resource-ledger", powerEvent.Payload["restrictionLifecycle"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.RageSigilTypedResourceRestriction, powerEvent.Payload["resourceRestriction"]);
+        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], Assert.IsType<string[]>(powerEvent.Payload["allowedPaymentKinds"]));
+        var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(powerEvent.Payload["powerByTrait"]);
+        Assert.Equal(1, powerByTrait[RuneTrait.Red]);
         Assert.Equal(1, Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(powerEvent.Payload["remainingPowerByTrait"])[RuneTrait.Red]);
     }
 
