@@ -24,6 +24,8 @@
 
 ## 2. 本次检查过的证据
 
+- `docs/CURRENT_STAGE4D_03DK_PAYMENT_ENGINE_NON_TARGET_TYPED_ACTIVATED_ABILITY_RESIDUAL_VERIFIER_AUDIT.md` 与 evidence：确认 4D-03DK 已把 03DJ 派发的 Vi and Fluft Poro non-target/typed activated ability residual rows 转成 focused verifier evidence；`NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest` 逐行绑定真实 focused method anchors、prompt / Command / audit / stack-outcome-lifetime / rollback / card-row `fullOfficial=false` evidence，并要求 03DK 只能作为 evidence only，不能关闭 P0-005 / P1 / full official PaymentEngine matrix / full non-target/typed activated ability residual breadth / full-card matrix / `fullOfficial` / READY。
+- `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`：确认新增 `NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest`、Vi / Fluft Poro focused method anchor / docs-card-row-no-closure guards 与 `PaymentEngineOfficialBreadthGateRecords03DKAsNonTargetTypedResidualVerifierEvidenceOnly`；focused `PaymentEngineCoverageAuditTests` 190/190 通过，`git diff --check` 通过。
 - `docs/CURRENT_STAGE4D_03DJ_PAYMENT_ENGINE_NON_TARGET_TYPED_ACTIVATED_ABILITY_RESIDUAL_BREADTH_AUDIT.md` 与 evidence：确认 4D-03DJ 已把 03DH 留下的 Vi and Fluft Poro non-target/typed activated ability residual rows 收窄为 `B_PAYMENT_ENGINE_OFFICIAL_BREADTH_NON_TARGET_TYPED_ACTIVATED_ABILITY_RESIDUAL_VERIFIER`；`NonTargetTypedActivatedAbilityResidualBreadthDispatchManifest` 要求 future B 逐行证明 prompt / Command / audit / outcome / lifetime / rollback / card-row trace，且本批不改 runtime、frontend、Chrome / browser scripts、formal 18-step scripts、card matrix JSON、`fullOfficial` / READY 或 `riftbound-dotnet.sln`。
 - `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`：确认新增 `NonTargetTypedActivatedAbilityResidualBreadthDispatchManifest`、`PaymentEngineNonTargetTypedActivatedAbilityResidualBreadthDispatchRoutesViAndFluftPoroOnly` 与 `PaymentEngineOfficialBreadthGateRecords03DJAsNonTargetTypedResidualDispatchOnly`，要求 03DJ 只能作为 A-side dispatch evidence，保持 P0-005 / P1 / full official PaymentEngine matrix / full non-target/typed activated ability residual breadth / full-card matrix / `fullOfficial` / READY open。
 - `docs/CURRENT_STAGE4D_03DH_PAYMENT_ENGINE_TARGET_TYPED_ACTIVATED_ABILITY_FULL_FAMILY_GAP_VERIFIER_AUDIT.md` 与 evidence：确认 4D-03DH 已把当前 target / typed / experience / Spellshield-tax activated ability catalog predicate 固定为 8 个 rows，并通过 `TargetTypedActivatedAbilityFullFamilyGapVerifierManifest` 逐行绑定 03DE family verifier、03DA runtime/card-row evidence、03BR target/tax matrix 与 exact card-row `fullOfficial=false`；`NonTargetTypedActivatedAbilityResidualPartitionManifest` 同时把 Vi and Fluft Poro 留在 non-target/typed activated ability residual partition；focused 182/182、adjacent PaymentEngine/target-typed/prompt/GameHub 616/616、backend full 4751/4751、`git diff --check` 通过。
@@ -53,7 +55,7 @@
 - `docs/CURRENT_COMPLETION_AUDIT.md`：当前 completion audit 结论仍为 NOT READY。
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`：当前服务端 full official rule residual risks。
 - `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`：P0/P1 closure plan 与剩余规则域。
-- `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`：当前 4D-03DH target/typed activated ability full-family gap verifier accepted，`B_PAYMENT_ENGINE_OFFICIAL_BREADTH` 已把 03DH / 03DG / 03DE / 03DD / 03DC-B / 03DB / 03DA / 03CZ / 03CY / 03CX / 03CV 记录为 representative evidence only；future B-side official breadth、E-side matrix readiness 与 D-side P0 audit 仍需 fresh A dispatch 与 concrete write lock。4D-FE formal 18-step fresh-run accepted、Chrome smoke fresh-run accepted、event-label build gate accepted；P0/P1、frontend / matrix / READY 仍锁定；`riftbound-dotnet.sln` locked。
+- `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`：当前 4D-03DK non-target/typed activated ability residual verifier evidence accepted，`B_PAYMENT_ENGINE_OFFICIAL_BREADTH` 已把 03DK / 03DJ / 03DH / 03DG / 03DE / 03DD / 03DC-B / 03DB / 03DA / 03CZ / 03CY / 03CX / 03CV 记录为 evidence only；future B-side official breadth、E-side matrix readiness 与 D-side P0 audit 仍需 fresh A dispatch 与 concrete write lock。4D-FE formal 18-step fresh-run accepted、Chrome smoke fresh-run accepted、event-label build gate accepted；P0/P1、frontend / matrix / READY 仍锁定；`riftbound-dotnet.sln` locked。
 - `docs/CURRENT_STAGE4D_03CX_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_SOURCE_CARD_RUNTIME_PARITY_AUDIT.md` 与 evidence：确认 B-worker Kant 已把 32 个 official resource-skill candidates 转成 source-card runtime parity executable verifier；23 个 implemented rows 绑定 `P4ActivatedAbilityCatalog` exact `SourceCardNo` / `AbilityId` / `IsResourceSkill=true`，9 个 bridge-closed rows 绑定 `LegendResourceBridgeResourceSkillClosureManifest` exact source-card group / bridge group / ability id；focused 147/147、adjacent 706/706、backend full 4716/4716、`git diff --check` 通过。
 - `docs/CURRENT_STAGE4D_03CW_PAYMENT_ENGINE_OFFICIAL_BREADTH_HANDOFF.md` 与 baseline evidence：确认 A 主控已把 post-03CV `B_PAYMENT_ENGINE_OFFICIAL_BREADTH` boundary 固定为 fresh-dispatch handoff，4D-03CV 192-row resource-skill official row-interaction matrix 只能作为 representative proxy evidence；future B-side 仍需证明 selected full official `[A]` / `[C]` resource-skill runtime / card-row interactions；focused 142/142、adjacent 701/701、backend full 4711/4711。
 - `docs/CURRENT_STAGE4D_03CV_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_MATRIX_AUDIT.md` 与 evidence：确认 A 主控已把 post-03CU resource-skill official breadth gate 扩成 192-row candidate x interaction-dimension matrix，覆盖 prompt quote、command revalidation、audit event parity、generated-resource lifetime、rollback no-mutation 与 official matrix trace；split 保持 23 implemented + 9 bridge-closed + 0 deferred，同时保持 `P0-005 remains open`、`fullOfficial remains false` 与 READY open；focused 141/141、adjacent 700/700、backend full 4710/4710。
@@ -126,18 +128,18 @@ fullOfficialTrue=0
 fullOfficialFalse=811
 ```
 
-当前 4D-03DH PaymentEngine target/typed activated ability full-family gap verifier：
+当前 4D-03DK PaymentEngine non-target/typed activated ability residual verifier evidence：
 
 ```txt
-latestCommit=8206b18d test: 固定 target typed full-family gap verifier
-focused PaymentEngineCoverageAuditTests=182/182
-adjacent target/typed/payment/prompt/GameHub filter=616/616
-backend full=4751/4751
+latestCommit=21b624ca test: 固定 non-target typed residual 派发
+focused PaymentEngineCoverageAuditTests=190/190
 git diff --check=passed
-TargetTypedActivatedAbilityFullFamilyGapVerifierManifest recomputes current 8 target/typed/experience/Spellshield-tax catalog rows and binds them to 03DE, 03DA, 03BR and fullOfficial=false rows
-NonTargetTypedActivatedAbilityResidualPartitionManifest keeps Vi and Fluft Poro outside the target/typed closure
-PaymentEngineOfficialBreadthGateRecords03DHAsTargetTypedFullFamilyGapEvidenceOnly keeps this gap verifier as evidence only
-P0-005 / P1 / full official PaymentEngine matrix / non-target/typed activated ability residual breadth / full-card matrix / READY=open
+NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest reuses 03DJ Vi and Fluft Poro dispatch rows
+Vi evidence binds no-target paid activated ability prompt, Command, COST_PAID / ABILITY_ACTIVATED / STACK_ITEM_ADDED audit, stack resolution, rollback and fullOfficial=false card rows
+Fluft Poro evidence binds battlefield-only exhaust prompt, Command, UNIT_EXHAUSTED / COST_PAID / STACK_ITEM_ADDED audit, ordinary stack, two UNL·T02 Warhawk tokens, rollback and fullOfficial=false card rows
+PaymentEngineOfficialBreadthGateRecords03DKAsNonTargetTypedResidualVerifierEvidenceOnly keeps this verifier as evidence only
+latest full backend evidence=4751/4751 from 4D-03DH; backend full not rerun in 4D-03DK
+P0-005 / P1 / full official PaymentEngine matrix / full non-target/typed activated ability residual breadth / full-card matrix / READY=open
 frontend / Chrome / formal 18 / matrix / READY=not opened
 ```
 
@@ -523,16 +525,16 @@ formal 18-step steps=18/18 OK
 | 要求 | 必需 artifact / gate | 已检查证据 | 当前状态 | 缺口 / 下一步 |
 |---|---|---|---|---|
 | 按 `docs/A_MASTER_AGENT_GOAL.md` 管理 | A-master 目标文档必须存在并作为最高级本地交付口径 | `docs/A_MASTER_AGENT_GOAL.md` 已读取；goal 文本与该文件一致 | OK / ONGOING | 后续任何 READY 判断都必须回到本 checklist 与 final audit |
-| A 维护 checkpoint | `docs/CURRENT_A_MASTER_CHECKPOINT.md` 最新、可恢复、含当前结论 | 文件顶部记录 4D-03DI current-head mapping refresh、4D-03DH `TargetTypedActivatedAbilityFullFamilyGapVerifierManifest` / `NonTargetTypedActivatedAbilityResidualPartitionManifest` accepted、4D-03DG resource-skill official family verifier accepted、4D-03DE target/typed activated ability official family verifier accepted、4D-03DD next target/typed dispatch gate accepted、03DC-B 至 03BS 历史 dispatch / baseline、4D-FE formal 18-step pass、Chrome smoke pass、current-code frontend build pass；03DH latestCommit=8206b18d、focused 182/182、adjacent 616/616、backend full 4751/4751；项目 NOT READY | OK / ONGOING | 后续每批继续保持 checkpoint 同步 |
-| A 维护任务拆分 / 子 agent 分工 | A-master agent pool、写锁、下一步计划 | `A_MASTER_AGENT_GOAL.md` §7/§8；`CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已记录 4D-03DI / 4D-03DH accepted，且 03DG / 03DE / 03DD / 03DC-B / 03DB / 03DA / 03CX / 03CW / 03CV / 03CU / 03CT / 03CS-B 至 03BS 历史 guards / handoffs 均为 representative evidence only；当前无并发 writer；remaining gap=P0-005、P1、full official PaymentEngine matrix、non-target/typed activated ability residual breadth、full-card matrix、READY | ONGOING | 后续 matrix / remaining P0/P1 仍需单独写锁 |
+| A 维护 checkpoint | `docs/CURRENT_A_MASTER_CHECKPOINT.md` 最新、可恢复、含当前结论 | 文件顶部记录 4D-03DK `NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest` accepted、4D-03DJ residual dispatch accepted、4D-03DH `TargetTypedActivatedAbilityFullFamilyGapVerifierManifest` / `NonTargetTypedActivatedAbilityResidualPartitionManifest` accepted、4D-03DG resource-skill official family verifier accepted、03DC-B 至 03BS 历史 dispatch / baseline、4D-FE formal 18-step pass、Chrome smoke pass、current-code frontend build pass；03DK latestCommit=21b624ca、focused 190/190、latest full backend evidence=4751/4751 from 03DH；项目 NOT READY | OK / ONGOING | 后续每批继续保持 checkpoint 同步 |
+| A 维护任务拆分 / 子 agent 分工 | A-master agent pool、写锁、下一步计划 | `A_MASTER_AGENT_GOAL.md` §7/§8；`CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已记录 4D-03DK / 4D-03DJ / 4D-03DH accepted，且 03DG / 03DE / 03DD / 03DC-B / 03DB / 03DA / 03CX / 03CW / 03CV / 03CU / 03CT / 03CS-B 至 03BS 历史 guards / handoffs 均为 evidence only；当前无并发 writer；remaining gap=P0-005、P1、full official PaymentEngine matrix、full non-target/typed activated ability residual breadth、full-card matrix、READY | ONGOING | 后续 matrix / remaining P0/P1 仍需单独写锁 |
 | A 维护阻断清单 | P0/P1 closure plan 与 completion audit | `CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md` 与 `CURRENT_COMPLETION_AUDIT.md` 仍为 NOT READY | NOT MET | P0/P1 未清零 |
-| A 控制写入范围 | 不并行改核心模块；当前 4D-03DI 只打开 active-goal current-head mapping guard 与 A-side audit docs 写锁 | 4D-03DI 只更新 `PaymentEngineCoverageAuditTests` current-head guard、新增 03DI audit / evidence docs，并同步 checkpoint / completion / dispatch / checklist / server audit / frontend plan / P0-P1 plan；runtime、frontend、browser scripts、formal 18-step scripts、matrix JSON、READY 与 `riftbound-dotnet.sln` 仍锁定 | OK FOR THIS SLICE | 后续 runtime / frontend behavior / matrix 改动必须按 dispatch 文档独占 owner |
-| 默认不写功能代码 | A 不主动承接功能实现 | 本批由 A 主控完成 test/docs-only current-head mapping refresh；未改 runtime、前端本地裁决、matrix JSON 或 READY | OK FOR THIS SLICE | 不代表后续功能缺口已解决 |
+| A 控制写入范围 | 不并行改核心模块；当前 4D-03DK 只打开 residual verifier evidence guard 与 A-side audit docs 写锁 | 4D-03DK 只更新 `PaymentEngineCoverageAuditTests` verifier evidence guard、新增 03DK audit / evidence docs，并同步 checkpoint / completion / dispatch / checklist / server audit / frontend plan / P0-P1 plan；runtime、frontend、browser scripts、formal 18-step scripts、matrix JSON、READY 与 `riftbound-dotnet.sln` 仍锁定 | OK FOR THIS SLICE | 后续 runtime / frontend behavior / matrix 改动必须按 dispatch 文档独占 owner |
+| 默认不写功能代码 | A 不主动承接功能实现 | 本批由 B-Implementation / Ampere 完成 test/docs-only verifier，A 主控验收并同步 current-state docs；未改 runtime、前端本地裁决、matrix JSON 或 READY | OK FOR THIS SLICE | 不代表后续功能缺口已解决 |
 | 服务端唯一规则权威 | 服务端输出 authoritative snapshot、prompt、事件、规则裁决 | `CURRENT_SERVER_RULE_AUDIT.md` 与 Stage 4D docs 证明大量 representative server-authority paths | PARTIAL | full official battle / PaymentEngine / LayerEngine / card effects 仍未闭合 |
 | 前端只展示 authoritative snapshot | 前端不得持有隐藏信息或本地裁决规则 | `CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md` 与 4D-FE fresh-run evidence 断言主流程不暴露 raw hidden-info 文本；frontend plan 多处记录不本地推断；4D-FE smoke fresh-run 已过 | PARTIAL | 最终前端 contract audit 与后续最终状态 rerun 仍需在 READY 前处理 |
 | 前端只提交 `ActionPrompt` / `LegalAction` | UI 操作必须来自服务端 prompt | Stage 4D docs 多处记录 ActionPrompt / GameHub representative coverage | PARTIAL | 仍需最终全流程 frontend contract audit，不可用 representative coverage 代理 |
 | P0/P1 清零 | completion audit 中所有 P0/P1 为 resolved | closure plan / server audit 明确仍 open / partially resolved | NOT MET | 继续 P0-004、P0-005、LayerEngine、关键词、replay/property、full-card evidence |
-| 后端 full test | `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` | latest full backend evidence from 4D-03DH 为 4751/4751；focused 182/182 与 adjacent 616/616 通过 | PASS AS LATEST FULL-BACKEND EVIDENCE | 只证明最新 full-backend evidence 绿；不证明 P0/P1 全部满足 |
+| 后端 full test | `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` | 4D-03DK focused `PaymentEngineCoverageAuditTests` 190/190 通过；latest full backend evidence from 4D-03DH 为 4751/4751 | PASS AS LATEST FOCUSED / FULL-BACKEND EVIDENCE | 只证明最新 focused 与既有 full-backend evidence 绿；不证明 P0/P1 全部满足 |
 | 前端 build / typecheck / lint | `source ../../scripts/dev-env.sh && npm run build` | 4D-FE event-label build gate 当前代码状态 fresh-run 通过；package script 包含 checks、`tsc -b`、Vite build | PASS AS LATEST FRONTEND BUILD EVIDENCE | READY 前若后续代码继续变动仍需在最终代码状态 fresh run |
 | Chrome smoke | `source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` | 4D-FE Chrome smoke 是 last-known frontend evidence，覆盖 core routes；03DH 未改前端且未重跑 smoke | PASS AS LAST-KNOWN CHROME SMOKE EVIDENCE | READY 前若后续代码继续变动仍需在最终代码状态 fresh run，并用 `@chrome` 调试/验收 |
 | 正式 18 步 E2E | `npm run e2e:formal-18 -- --start-api`，覆盖 A_MASTER §11 1-18 | 4D-FE last-known formal 18 evidence 记录房间 `formal-18-1778886172096-1` 通过，18/18 OK；03DH 未重跑 formal | PASS AS LAST-KNOWN MAIN-FLOW EVIDENCE | 该文件明确不替代 P0/P1、full-card matrix、完整 PaymentEngine / LayerEngine |
@@ -548,7 +550,7 @@ formal 18-step steps=18/18 OK
 | §2.3 本地 / 联机 1v1 | 房间、双玩家、开局、对局 | 4D-FE formal 18 通过双浏览器等效流程 | PASS FOR MAIN FLOW |
 | §2.4 可长期维护 | 文档、测试、矩阵、写锁 | checkpoint / closure plan / audit docs 持续维护 | PARTIAL |
 | §2.5 P0/P1 清零 | 无阻断 | closure plan 仍列 P0/P1 | NOT MET |
-| §2.6 后端 full test | full test 绿 | latest 4D-03DH full backend 4751/4751；focused 182/182、adjacent 616/616 | PASS BUT NOT SUFFICIENT |
+| §2.6 后端 full test | full test 绿 | 4D-03DK focused 190/190；latest 4D-03DH full backend 4751/4751 | PASS BUT NOT SUFFICIENT |
 | §2.7 Chrome smoke | smoke 绿 | 4D-FE last-known smoke pass；03DH 未重跑 | PASS AS LAST-KNOWN CHROME SMOKE EVIDENCE |
 | §2.8 18 步 E2E | 正式 18 steps 通过 | 4D-FE last-known formal 18 fresh-run passed；03DH 未重跑 | PASS AS LAST-KNOWN MAIN-FLOW EVIDENCE |
 | §2.9 卡牌覆盖矩阵 | 矩阵完成 | 811/811 `fullOfficial=false` | NOT MET |
@@ -559,9 +561,9 @@ formal 18-step steps=18/18 OK
 | §4.4 覆盖字段 | `cardId`、`collectorId`、`oracleId` / `effectId`、FAQ、tests | matrix skeleton 只有骨架与 representative evidence | NOT MET |
 | §4.5 cardId 映射完整 | 复用 effect 但 cardId 完整 | 1009 entries 可统计，full-official 映射未完成 | PARTIAL |
 | §5 服务端权威 | 前端不得推断目标、费用、胜负等 | server audit / frontend plan 均要求如此 | PARTIAL，需最终 contract audit |
-| §6 A 边界 | A 读文档、规划、审计；默认不写功能代码 | A 验收 4D-03DI test/docs-only current-head mapping refresh；未写 runtime / 前端 / matrix / READY | OK FOR THIS SLICE |
+| §6 A 边界 | A 读文档、规划、审计；默认不写功能代码 | A 验收 B-Implementation / Ampere 的 4D-03DK test/docs-only residual verifier evidence；未写 runtime / 前端 / matrix / READY | OK FOR THIS SLICE |
 | §7 常驻子 agent | 优先复用 B/C/D/E，避免无目的重建 | 本批为单文件 conformance + A-side docs 收口，未出现需要并发拆分的 blocker；当前无并发 writer | OK FOR THIS SLICE |
-| §8 写入边界 | B/C/D/E 各自写入范围，不并行改核心模块 | dispatch 文档已明确 4D-03DI 只打开 active-goal checklist / completion / checkpoint / routing docs 与 focused conformance guard；runtime、frontend / Chrome / browser scripts、formal 18-step scripts、matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 仍锁定，4D-FE label write scope closed | OK FOR THIS SLICE / ONGOING |
+| §8 写入边界 | B/C/D/E 各自写入范围，不并行改核心模块 | dispatch 文档已明确 4D-03DK 只打开 focused verifier evidence guard 与 A-side current-state docs；runtime、frontend / Chrome / browser scripts、formal 18-step scripts、matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 仍锁定，4D-FE label write scope closed | OK FOR THIS SLICE / ONGOING |
 | §9 P0 / P1 定义 | 根据 P0/P1 标准判断 READY | closure plan / server audit 仍有 open risks | NOT MET |
 | §10 阶段 0-4 | checkpoint、协议、前端、对战桌面、卡牌覆盖 | Stage 0-3 有大量证据；Stage 4 full-card 未完成 | PARTIAL |
 | §10 阶段 5 | full test、build、smoke、18-step、hidden info、P0/P1、matrix、READY | full test、current-code frontend build、current-code smoke 与 current-code formal 18 有证据；P0/P1 与 matrix 未满足 | NOT MET |
@@ -574,14 +576,14 @@ formal 18-step steps=18/18 OK
 
 | §13 item | 当前 evidence | 状态 |
 |---|---|---|
-| 1. 修改文件列表 | 当前 4D-03DI 修改 `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` 的 current-head guard，新增 03DI audit / evidence docs，并同步 A-side checkpoint / completion / dispatch / checklist / server audit / frontend plan / P0-P1 plan docs；未改 runtime / frontend / matrix | DONE FOR THIS SLICE / NOT FINAL |
-| 2. 新增文件列表 | 新增 `docs/CURRENT_STAGE4D_03DI_ACTIVE_GOAL_CURRENT_HEAD_MAPPING_REFRESH_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03DI_ACTIVE_GOAL_CURRENT_HEAD_MAPPING_REFRESH_EVIDENCE.md` | DONE FOR THIS SLICE / NOT FINAL |
+| 1. 修改文件列表 | 当前 4D-03DK 修改 `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` 的 residual verifier evidence guard，新增 03DK audit / evidence docs，并同步 A-side checkpoint / completion / dispatch / checklist / server audit / frontend plan / P0-P1 plan docs；未改 runtime / frontend / matrix | DONE FOR THIS SLICE / NOT FINAL |
+| 2. 新增文件列表 | 新增 `docs/CURRENT_STAGE4D_03DK_PAYMENT_ENGINE_NON_TARGET_TYPED_ACTIVATED_ABILITY_RESIDUAL_VERIFIER_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03DK_PAYMENT_ENGINE_NON_TARGET_TYPED_ACTIVATED_ABILITY_RESIDUAL_VERIFIER_EVIDENCE.md` | DONE FOR THIS SLICE / NOT FINAL |
 | 3. 服务端规则补齐项 | Stage 4D docs 记录大量 focused slices | PARTIAL |
 | 4. 前端页面完成项 | frontend rebuild plan、current-code Chrome smoke 与 current-code formal 18 有证据 | PARTIAL |
 | 5. 接口契约说明 | ActionPrompt / LegalAction / snapshot 证据分散在 server audit 与 frontend plan | PARTIAL |
 | 6. 卡牌覆盖矩阵摘要 | 1009 snapshot entries / 811 functional units，`fullOfficialTrue=0`、`fullOfficialFalse=811`、`ready=false` | NOT MET |
 | 7. 隐藏信息保护检查结果 | formal 18 页面文本断言、server audit P1-004 代表性 redaction/property evidence | PARTIAL |
-| 8. 后端 full test 命令和结果 | 4D-03DH `dotnet test Riftbound.slnx --no-restore` 4751/4751；focused 182/182、adjacent 616/616、`git diff --check` passed | PASS AS LATEST FULL-BACKEND EVIDENCE |
+| 8. 后端 full test 命令和结果 | 4D-03DK focused `PaymentEngineCoverageAuditTests` 190/190、`git diff --check` passed；latest full backend remains 4D-03DH `dotnet test Riftbound.slnx --no-restore` 4751/4751 | PASS AS LATEST FOCUSED / FULL-BACKEND EVIDENCE |
 | 9. 前端 build / typecheck / lint | 4D-FE current-code `npm run build` pass | PASS AS LATEST FRONTEND BUILD EVIDENCE |
 | 10. Chrome smoke | 4D-FE current-code `npm run smoke:chrome -- --start-api` pass | PASS AS LATEST CHROME SMOKE EVIDENCE |
 | 11. 18 步 E2E | 4D-FE current-code formal 18 pass | PASS AS LATEST MAIN-FLOW EVIDENCE |
@@ -592,6 +594,7 @@ formal 18-step steps=18/18 OK
 ## 6. 不能作为 completion 代理的信号
 
 - `dotnet test` 4740/4740 通过不能替代 P0/P1 清零。
+- 4D-03DK focused 190/190 通过不能替代 P0/P1 清零、full non-target/typed activated ability residual breadth、full official PaymentEngine matrix、full-card matrix、frontend final rerun 或 READY；它只把 03DJ 派发的 Vi and Fluft Poro residual rows 固定为 focused verifier evidence。
 - 4D-03DH focused 182/182、adjacent 616/616 与 backend full 4751/4751 通过不能替代 P0/P1 清零、non-target/typed activated ability residual breadth、full official PaymentEngine matrix、full-card matrix、frontend final rerun 或 READY；它只把当前 8 个 target / typed / experience / Spellshield-tax rows 固定为 gap verifier evidence，并把 Vi and Fluft Poro 留在 residual partition。
 - 4D-03DG focused 177/177、adjacent 685/685 与 backend full 4746/4746 通过不能替代 P0/P1 清零、完整 target-bearing / typed activated ability official family、full official PaymentEngine matrix、full-card matrix、frontend final rerun 或 READY；它只把当前 32 个 official `RESOURCE_SKILLS` rows 固定为 representative official-family verifier evidence only。
 - 4D-03DE focused 171/171、adjacent 605/605 与 backend full 4740/4740 通过不能替代 P0/P1 清零、完整 target-bearing / typed activated ability official family、full official PaymentEngine matrix、full-card matrix、frontend final rerun 或 READY；它只把当前 8 个 target / typed / experience / Spellshield-tax activated ability representatives 固定为 representative official-family verifier evidence only。
@@ -657,4 +660,4 @@ formal 18-step steps=18/18 OK
 
 Active goal **未完成**。不得调用 `update_goal complete`。
 
-当前最新 A-side 状态是 4D-03DI active-goal current-head mapping refresh accepted；底层最新规则证据仍是 4D-03DH PaymentEngine target/typed activated ability full-family gap verifier accepted。P0/P1 清零、full official PaymentEngine matrix、non-target/typed activated ability residual breadth、完整 keyword payment branch parity、完整 card matrix alignment official closure、完整 cross-window generated-resource official closure、完整 rollback failure official closure、完整 LayerEngine、P1 keyword breadth、full-card matrix、final frontend rerun 与 final completion audit READY 仍未闭合。
+当前最新 A-side 状态是 4D-03DK PaymentEngine non-target/typed activated ability residual verifier evidence accepted；latest full backend evidence 仍来自 4D-03DH PaymentEngine target/typed activated ability full-family gap verifier。P0/P1 清零、full official PaymentEngine matrix、full non-target/typed activated ability residual breadth、完整 keyword payment branch parity、完整 card matrix alignment official closure、完整 cross-window generated-resource official closure、完整 rollback failure official closure、完整 LayerEngine、P1 keyword breadth、full-card matrix、final frontend rerun 与 final completion audit READY 仍未闭合。

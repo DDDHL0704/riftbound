@@ -49,6 +49,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string TargetTypedActivatedAbilityFullFamilyGapVerifier = "target-typed-activated-ability-full-family-gap-verifier";
     private const string NonTargetTypedActivatedAbilityResidualPartition = "non-target-typed-activated-ability-residual-partition";
     private const string NonTargetTypedActivatedAbilityResidualBreadthDispatch = "non-target-typed-activated-ability-residual-breadth-dispatch";
+    private const string NonTargetTypedActivatedAbilityResidualVerifierEvidence = "non-target-typed-activated-ability-residual-verifier-evidence";
     private const string NonTargetTypedActivatedAbilityResidualBreadthVerifierGate = "B_PAYMENT_ENGINE_OFFICIAL_BREADTH_NON_TARGET_TYPED_ACTIVATED_ABILITY_RESIDUAL_VERIFIER";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
@@ -3822,18 +3823,145 @@ public sealed class PaymentEngineCoverageAuditTests
                 .ToArray());
     }
 
+    private static readonly string[] NonTargetTypedActivatedAbilityResidualVerifierEvidenceDocAnchors =
+    [
+        "docs/CURRENT_STAGE4D_03DK_PAYMENT_ENGINE_NON_TARGET_TYPED_ACTIVATED_ABILITY_RESIDUAL_VERIFIER_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03DK_PAYMENT_ENGINE_NON_TARGET_TYPED_ACTIVATED_ABILITY_RESIDUAL_VERIFIER_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03DJ_PAYMENT_ENGINE_NON_TARGET_TYPED_ACTIVATED_ABILITY_RESIDUAL_BREADTH_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03DJ_PAYMENT_ENGINE_NON_TARGET_TYPED_ACTIVATED_ABILITY_RESIDUAL_BREADTH_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03DH_PAYMENT_ENGINE_TARGET_TYPED_ACTIVATED_ABILITY_FULL_FAMILY_GAP_VERIFIER_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03DH_PAYMENT_ENGINE_TARGET_TYPED_ACTIVATED_ABILITY_FULL_FAMILY_GAP_VERIFIER_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03B_PAYMENT_ENGINE_NON_PLAY_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03D_PAYMENT_ENGINE_ACTIVATE_RESOURCE_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03P_PAYMENT_ENGINE_FLUFT_PORO_WARHAWK_TOKEN_AUDIT.md",
+        "docs/CURRENT_COMPLETION_AUDIT.md"
+    ];
+
+    private static readonly PaymentEngineNonTargetTypedActivatedAbilityResidualVerifierEvidenceEntry[] NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest =
+        NonTargetTypedActivatedAbilityResidualBreadthDispatchManifest
+            .Select(NonTargetTypedActivatedAbilityResidualVerifierEvidenceEntry)
+            .ToArray();
+
+    private static PaymentEngineNonTargetTypedActivatedAbilityResidualVerifierEvidenceEntry NonTargetTypedActivatedAbilityResidualVerifierEvidenceEntry(
+        PaymentEngineNonTargetTypedActivatedAbilityResidualBreadthDispatchEntry dispatchRow)
+    {
+        if (!P4ActivatedAbilityCatalog.TryGetByAbilityId(dispatchRow.AbilityId, out var definition))
+        {
+            throw new InvalidOperationException($"Missing P4 activated ability definition for {dispatchRow.AbilityId}.");
+        }
+
+        var sourceCardGroupText = string.Join(", ", dispatchRow.SourceCardGroup);
+
+        if (string.Equals(dispatchRow.AbilityId, P4ActivatedAbilityCatalog.ViDoublePowerAbilityId, StringComparison.Ordinal))
+        {
+            var methodAnchors = new[]
+            {
+                MethodAnchor(typeof(PaymentEngineUnificationTests), nameof(PaymentEngineUnificationTests.ActivateAbilityViQuotesAndCommitsRecycleRunePaymentResource)),
+                MethodAnchor(typeof(PaymentEngineUnificationTests), nameof(PaymentEngineUnificationTests.ActivateAbilityViQuotesMixedResourcesAndCommitsTemporaryPaymentResource)),
+                MethodAnchor(typeof(PaymentEngineUnificationTests), nameof(PaymentEngineUnificationTests.ActivateAbilityRejectsInvalidTemporaryPaymentResourceActionsWithoutMutation)),
+                MethodAnchor(typeof(PaymentEngineUnificationTests), nameof(PaymentEngineUnificationTests.ActivateAbilityRejectsUnnecessaryRecycleRunePaymentResourceWithoutMutation)),
+                MethodAnchor(typeof(PaymentEngineUnificationTests), nameof(PaymentEngineUnificationTests.ActivateAbilityRejectsInvalidRecycleRunePaymentResourceWithoutMutation)),
+                MethodAnchor(typeof(ConformanceFixtureRunnerTests), nameof(ConformanceFixtureRunnerTests.P4ActivateAbilityCommandAddsViDoublePowerSkillToStack)),
+                MethodAnchor(typeof(ConformanceFixtureRunnerTests), nameof(ConformanceFixtureRunnerTests.P7TypedPowerPaymentActivatesViSkillWithTraitPool)),
+                MethodAnchor(typeof(ConformanceFixtureRunnerTests), nameof(ConformanceFixtureRunnerTests.P4ActivateAbilityCommandResolvesViDoublePowerSkillOnStack)),
+                MethodAnchor(typeof(ConformanceFixtureRunnerTests), nameof(ConformanceFixtureRunnerTests.P4ActivateAbilityCommandUsesCardIdentityAfterViIsPlayed)),
+                MethodAnchor(typeof(ConformanceFixtureRunnerTests), nameof(ConformanceFixtureRunnerTests.P4ActivateAbilityCommandRejectsViDoublePowerSkillTargetFixture)),
+                MethodAnchor(typeof(ConformanceFixtureRunnerTests), nameof(ConformanceFixtureRunnerTests.P4ActivateAbilityCommandRejectsViDoublePowerSkillOptionalCostFixture)),
+                MethodAnchor(typeof(ConformanceFixtureRunnerTests), nameof(ConformanceFixtureRunnerTests.P4ActivateAbilityCommandRejectsViDoublePowerSkillPowerMissingFixture)),
+                MethodAnchor(typeof(ConformanceFixtureRunnerTests), nameof(ConformanceFixtureRunnerTests.P4ActivateAbilityCommandRejectsViDoublePowerSkillNonViSourceFixture)),
+                MethodAnchor(typeof(ConformanceFixtureRunnerTests), nameof(ConformanceFixtureRunnerTests.P4ActivateAbilityCommandRejectsViDoublePowerSkillOpponentSourceFixture)),
+                MethodAnchor(typeof(ConformanceFixtureRunnerTests), nameof(ConformanceFixtureRunnerTests.P4ActivateAbilityCommandRejectsViDoublePowerSkillSourceNotFieldFixture))
+            };
+
+            return new(
+                dispatchRow.AbilityId,
+                dispatchRow.EffectKind,
+                dispatchRow.SourceCardGroup,
+                dispatchRow.DispatchGateId,
+                dispatchRow.CurrentPartitionEvidence,
+                dispatchRow.RequiredVerifierScope,
+                methodAnchors,
+                $"4D-03DK verifier binds {MethodAnchor(typeof(PaymentEngineUnificationTests), nameof(PaymentEngineUnificationTests.ActivateAbilityViQuotesAndCommitsRecycleRunePaymentResource))} and {MethodAnchor(typeof(PaymentEngineUnificationTests), nameof(PaymentEngineUnificationTests.ActivateAbilityViQuotesMixedResourcesAndCommitsTemporaryPaymentResource))}: open-main ACTIVATE_ABILITY prompt exposes Vi no-target paid activated ability for source-card group [{sourceCardGroupText}], no target choices, 2 mana plus red power quote and legal payment-resource choices.",
+                $"4D-03DK verifier binds {MethodAnchor(typeof(PaymentEngineUnificationTests), nameof(PaymentEngineUnificationTests.ActivateAbilityViQuotesAndCommitsRecycleRunePaymentResource))}, {MethodAnchor(typeof(PaymentEngineUnificationTests), nameof(PaymentEngineUnificationTests.ActivateAbilityViQuotesMixedResourcesAndCommitsTemporaryPaymentResource))}, {MethodAnchor(typeof(ConformanceFixtureRunnerTests), nameof(ConformanceFixtureRunnerTests.P4ActivateAbilityCommandAddsViDoublePowerSkillToStack))} and {MethodAnchor(typeof(ConformanceFixtureRunnerTests), nameof(ConformanceFixtureRunnerTests.P7TypedPowerPaymentActivatesViSkillWithTraitPool))}: ACTIVATE_ABILITY Command revalidates abilityId={dispatchRow.AbilityId}, source identity, no-target payload, 2 mana and red power payment before mutation.",
+                $"4D-03DK verifier binds COST_PAID / ABILITY_ACTIVATED / STACK_ITEM_ADDED audit evidence for abilityId={dispatchRow.AbilityId}, effectKind={definition.EffectKind}, paymentWindow=ACTIVATE_ABILITY, sourceObjectId, totalManaCost=2, totalPowerCost=1, red power and shared payment-resource identities.",
+                $"4D-03DK verifier binds {MethodAnchor(typeof(ConformanceFixtureRunnerTests), nameof(ConformanceFixtureRunnerTests.P4ActivateAbilityCommandResolvesViDoublePowerSkillOnStack))} and {MethodAnchor(typeof(ConformanceFixtureRunnerTests), nameof(ConformanceFixtureRunnerTests.P4ActivateAbilityCommandUsesCardIdentityAfterViIsPlayed))}: stack resolution doubles source unit power until end of turn, preserves source-card identity and clears the stack.",
+                $"4D-03DK verifier binds {MethodAnchor(typeof(PaymentEngineUnificationTests), nameof(PaymentEngineUnificationTests.ActivateAbilityRejectsInvalidTemporaryPaymentResourceActionsWithoutMutation))}, {MethodAnchor(typeof(PaymentEngineUnificationTests), nameof(PaymentEngineUnificationTests.ActivateAbilityRejectsUnnecessaryRecycleRunePaymentResourceWithoutMutation))}, {MethodAnchor(typeof(PaymentEngineUnificationTests), nameof(PaymentEngineUnificationTests.ActivateAbilityRejectsInvalidRecycleRunePaymentResourceWithoutMutation))} and Vi fixture rejection methods: target, optional-cost, insufficient-power, wrong-source, opponent-source and source-not-field variants rollback with no mutation.",
+                $"4D-03DK reads exact residual source-card group [{sourceCardGroupText}] as card-row trace only; fullOfficial=false remains required, docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json remains unchanged and no E_CARD_MATRIX_READINESS write is implied.",
+                "4D-03DK verifier evidence only; project remains NOT READY, P0-005 remains open, P1 remains open, full non-target/typed activated ability residual breadth remains open beyond this focused Vi/Fluft Poro verifier evidence, full official PaymentEngine matrix remains open, full-card matrix remains open, fullOfficial remains false, card matrix JSON remains unchanged and final readiness upgrade is forbidden.",
+                NonTargetTypedActivatedAbilityResidualVerifierEvidenceDocAnchors
+                    .Concat(dispatchRow.DocAnchors)
+                    .Distinct(StringComparer.Ordinal)
+                    .ToArray());
+        }
+
+        if (string.Equals(dispatchRow.AbilityId, P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId, StringComparison.Ordinal))
+        {
+            var methodAnchors = new[]
+            {
+                MethodAnchor(typeof(FluftPoroActivatedAbilityTests), nameof(FluftPoroActivatedAbilityTests.FluftPoroOpenMainPromptExposesWarhawkTokenRequirement)),
+                MethodAnchor(typeof(FluftPoroActivatedAbilityTests), nameof(FluftPoroActivatedAbilityTests.FluftPoroPromptHidesIllegalSources)),
+                MethodAnchor(typeof(FluftPoroActivatedAbilityTests), nameof(FluftPoroActivatedAbilityTests.FluftPoroActivationExhaustsSourceAndCreatesStackWithoutTokens)),
+                MethodAnchor(typeof(FluftPoroActivatedAbilityTests), nameof(FluftPoroActivatedAbilityTests.FluftPoroStackPassPassCreatesTwoWarhawksInControllerBase)),
+                MethodAnchor(typeof(FluftPoroActivatedAbilityTests), nameof(FluftPoroActivatedAbilityTests.FluftPoroRejectsInvalidCommandsWithoutMutation)),
+                MethodAnchor(typeof(ConformanceFixtureRunnerTests), nameof(ConformanceFixtureRunnerTests.P4ActivatedAbilityCatalogExposesRepresentativeSkillDefinitions)),
+                MethodAnchor(typeof(ConformanceFixtureRunnerTests), nameof(ConformanceFixtureRunnerTests.P4ActivatedAbilityCatalogAuditsDeferredSkillSurfacesAgainstOfficialText)),
+                MethodAnchor(typeof(ConformanceFixtureRunnerTests), nameof(ConformanceFixtureRunnerTests.P4FluftPoroTargetRejectedFixture))
+            };
+
+            return new(
+                dispatchRow.AbilityId,
+                dispatchRow.EffectKind,
+                dispatchRow.SourceCardGroup,
+                dispatchRow.DispatchGateId,
+                dispatchRow.CurrentPartitionEvidence,
+                dispatchRow.RequiredVerifierScope,
+                methodAnchors,
+                $"4D-03DK verifier binds {MethodAnchor(typeof(FluftPoroActivatedAbilityTests), nameof(FluftPoroActivatedAbilityTests.FluftPoroOpenMainPromptExposesWarhawkTokenRequirement))} and {MethodAnchor(typeof(FluftPoroActivatedAbilityTests), nameof(FluftPoroActivatedAbilityTests.FluftPoroPromptHidesIllegalSources))}: open-main ACTIVATE_ABILITY prompt exposes a no-target battlefield-only exhaust source for Fluft Poro source-card group [{sourceCardGroupText}], hides base/exhausted/wrong-controller/wrong-card/face-down/standby sources and quotes two Warhawk tokens with Spellshield.",
+                $"4D-03DK verifier binds {MethodAnchor(typeof(FluftPoroActivatedAbilityTests), nameof(FluftPoroActivatedAbilityTests.FluftPoroActivationExhaustsSourceAndCreatesStackWithoutTokens))}: ACTIVATE_ABILITY Command revalidates controlled ready battlefield source, no target payload, no optional costs, exhaust-as-cost and zero-resource payment before mutation.",
+                $"4D-03DK verifier binds ABILITY_ACTIVATED / UNIT_EXHAUSTED / COST_PAID / STACK_ITEM_ADDED audit evidence for abilityId={dispatchRow.AbilityId}, effectKind={definition.EffectKind}, paymentWindow=ACTIVATE_ABILITY, exhaustsSource=true, tokenCardNo={P4ActivatedAbilityCatalog.WarhawkTokenCardNo} and tokenCount={P4ActivatedAbilityCatalog.FluftPoroWarhawkTokenCount}.",
+                $"4D-03DK verifier binds {MethodAnchor(typeof(FluftPoroActivatedAbilityTests), nameof(FluftPoroActivatedAbilityTests.FluftPoroActivationExhaustsSourceAndCreatesStackWithoutTokens))} and {MethodAnchor(typeof(FluftPoroActivatedAbilityTests), nameof(FluftPoroActivatedAbilityTests.FluftPoroStackPassPassCreatesTwoWarhawksInControllerBase))}: ordinary stack is created before token creation, then pass-pass resolution creates exactly two {P4ActivatedAbilityCatalog.WarhawkTokenCardNo} Warhawk tokens with Spellshield in controller base while source remains exhausted.",
+                $"4D-03DK verifier binds {MethodAnchor(typeof(FluftPoroActivatedAbilityTests), nameof(FluftPoroActivatedAbilityTests.FluftPoroRejectsInvalidCommandsWithoutMutation))} and {MethodAnchor(typeof(FluftPoroActivatedAbilityTests), nameof(FluftPoroActivatedAbilityTests.FluftPoroPromptHidesIllegalSources))}: wrong timing, spell-duel, non-active player, target, unsupported optional cost, recycle rune, temporary resource, missing source, base/exhausted/wrong-controller/wrong-card/face-down/standby source variants rollback with no mutation.",
+                $"4D-03DK reads exact residual source-card group [{sourceCardGroupText}] as card-row trace only; fullOfficial=false remains required, docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json remains unchanged and no E_CARD_MATRIX_READINESS write is implied.",
+                "4D-03DK verifier evidence only; project remains NOT READY, P0-005 remains open, P1 remains open, full non-target/typed activated ability residual breadth remains open beyond this focused Vi/Fluft Poro verifier evidence, full official PaymentEngine matrix remains open, full-card matrix remains open, fullOfficial remains false, card matrix JSON remains unchanged and final readiness upgrade is forbidden.",
+                NonTargetTypedActivatedAbilityResidualVerifierEvidenceDocAnchors
+                    .Concat(dispatchRow.DocAnchors)
+                    .Distinct(StringComparer.Ordinal)
+                    .ToArray());
+        }
+
+        throw new InvalidOperationException($"Unsupported 4D-03DK non-target/typed residual verifier row: {dispatchRow.AbilityId}.");
+    }
+
+    private static string MethodAnchor(Type type, string methodName)
+    {
+        return $"{type.Name}.{methodName}";
+    }
+
+    private static Type FocusedVerifierTypeByName(string typeName)
+    {
+        return typeName switch
+        {
+            nameof(PaymentEngineUnificationTests) => typeof(PaymentEngineUnificationTests),
+            nameof(FluftPoroActivatedAbilityTests) => typeof(FluftPoroActivatedAbilityTests),
+            nameof(ConformanceFixtureRunnerTests) => typeof(ConformanceFixtureRunnerTests),
+            _ => throw new InvalidOperationException($"Unsupported focused verifier anchor type: {typeName}.")
+        };
+    }
+
     private static readonly PaymentEngineRemainingOfficialClosureGateEntry[] RemainingOfficialClosureGateManifest =
     [
         new(
             "B_PAYMENT_ENGINE_OFFICIAL_BREADTH",
             "B-side PaymentEngine official breadth verifier / implementation slice",
             RemainingOfficialClosureGate,
-            $"Fresh A dispatch: 4D-03DJ selects {NonTargetTypedActivatedAbilityResidualBreadthVerifierGate} as the next concrete B-side gate after 4D-03DH recorded B_PAYMENT_ENGINE_OFFICIAL_BREADTH_TARGET_TYPED_ACTIVATED_ABILITY_FULL_FAMILY_GAP_VERIFIER as target/typed full-family gap and residual partition evidence only. Future B must start from NonTargetTypedActivatedAbilityResidualBreadthDispatchManifest rows for Vi and Fluft Poro before any full non-target/typed activated ability residual breadth claim. 4D-03DD selected B_PAYMENT_ENGINE_TARGET_TYPED_ACTIVATED_ABILITY_OFFICIAL_FAMILY_VERIFIER after accepted 03DC-B selected resource-skill parity, 4D-03DE accepted that verifier as representative official-family verifier evidence and 4D-03DG accepted ResourceSkillOfficialFamilyVerifierManifest as current resource-skill official-family verifier evidence; broader PaymentEngine official breadth, matrix, fullOfficial or readiness work still needs fresh A review. 4D-03CW / 4D-03DB records only the handoff baseline and does not dispatch B; 4D-03DC-B, 4D-03DE, 4D-03DG and 4D-03DH are accepted representative evidence, not closure.",
-            $"After 4D-03CV through 4D-03DJ and the post-03CT resource-skill accounting refresh, the 192-row representative resource-skill row-interaction matrix, ResourceSkillOfficialRuntimeCardRowEvidenceManifest, ResourceSkillOfficialRowInteractionMatrixManifest, 03DC-B selected source-card / official card-row parity checks, TargetTypedActivatedAbilityOfficialFamilyVerifierManifest, TargetTypedActivatedAbilityFullFamilyGapVerifierManifest, NonTargetTypedActivatedAbilityResidualPartitionManifest, NonTargetTypedActivatedAbilityResidualBreadthDispatchManifest and ResourceSkillOfficialFamilyVerifierManifest remain representative evidence only. 4D-03DJ narrows one concrete fresh A dispatch to {NonTargetTypedActivatedAbilityResidualBreadthVerifierGate} for PAY_2_RED_DOUBLE_POWER and FLUFT_PORO_EXHAUST_CREATE_TWO_SPELLSHIELD_WARHAWKS, 4D-03DD narrows one concrete fresh A dispatch to B_PAYMENT_ENGINE_TARGET_TYPED_ACTIVATED_ABILITY_OFFICIAL_FAMILY_VERIFIER, 4D-03DE proves the current 8 target-bearing / typed / experience / Spellshield-tax activated ability representatives bind 03DA runtime/card-row evidence beyond the 03DA representative target / typed activated rows, 03BR-B target/tax matrix dimensions, exact catalog source-card groups and fullOfficial=false card rows, 4D-03DG proves the current 32 official RESOURCE_SKILLS family rows bind 03CX source-card parity, 03CY runtime/card-row evidence, 03CV matrix rows, focused verifier methods and fullOfficial=false card rows, and 4D-03DH proves the current target/typed predicate has 8 catalog rows while Vi and Fluft Poro remain non-target/typed activated residual partitions; full target-bearing / typed / experience / Spellshield-tax activated ability official family, full non-target/typed activated ability residual breadth, full official [A] / [C] resource-skill row interactions, full official PaymentEngine matrix, full-card matrix, E_CARD_MATRIX_READINESS and D_COMPLETION_P0_AUDIT remain open.",
-            $"4D-03DJ non-target/typed activated ability residual breadth dispatch, NonTargetTypedActivatedAbilityResidualBreadthDispatchManifest current Vi and Fluft Poro residual rows, {NonTargetTypedActivatedAbilityResidualBreadthVerifierGate}, 4D-03DH target/typed activated ability full-family gap verifier and residual partition, TargetTypedActivatedAbilityFullFamilyGapVerifierManifest current 8 target/typed catalog rows, NonTargetTypedActivatedAbilityResidualPartitionManifest current Vi and Fluft Poro residual rows, 4D-03DG resource-skill official family verifier, ResourceSkillOfficialFamilyVerifierManifest current 32 official RESOURCE_SKILLS rows (23 implemented + 9 bridge-closed + 0 deferred), 4D-03DE target/typed activated ability official family verifier, TargetTypedActivatedAbilityOfficialFamilyVerifierManifest current 8 representative abilities, 4D-03DD next concrete dispatch gate, 4D-03DC-B selected resource-skill runtime/card-row parity verifier, 4D-03DC concrete B dispatch contract for B_PAYMENT_ENGINE_RESOURCE_SKILL_RUNTIME_CARD_ROW_PARITY_VERIFIER, 4D-03CV 192-row resource-skill official row-interaction matrix (32 candidates x 6 dimensions), 4D-03CU official row-interaction gate, 4D-03CT resource-skill official breadth refresh (32 total = 23 implemented + 9 bridge-closed + 0 current deferred), 4D-03CX source-card runtime parity, 4D-03CY resource-skill runtime/card-row evidence, 4D-03CZ typed Sigil runtime/card-row audit, 4D-03DA target / typed activated ability runtime/card-row evidence, 4D-03CS-B legend bridge closure, 4D-03BR-B target/tax matrix, backend full, Chrome smoke and formal 18 are representative proxy evidence only.",
+            $"Fresh A dispatch: 4D-03DJ selects {NonTargetTypedActivatedAbilityResidualBreadthVerifierGate} as the next concrete B-side gate after 4D-03DH recorded B_PAYMENT_ENGINE_OFFICIAL_BREADTH_TARGET_TYPED_ACTIVATED_ABILITY_FULL_FAMILY_GAP_VERIFIER as target/typed full-family gap and residual partition evidence only. Future B must start from NonTargetTypedActivatedAbilityResidualBreadthDispatchManifest rows for Vi and Fluft Poro before any full non-target/typed activated ability residual breadth claim. 4D-03DK records NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest as focused verifier evidence only for those two rows under the 03DJ dispatch; it does not close P0-005, P1, full official PaymentEngine matrix, card matrix JSON, fullOfficial or final readiness. 4D-03DD selected B_PAYMENT_ENGINE_TARGET_TYPED_ACTIVATED_ABILITY_OFFICIAL_FAMILY_VERIFIER after accepted 03DC-B selected resource-skill parity, 4D-03DE accepted that verifier as representative official-family verifier evidence and 4D-03DG accepted ResourceSkillOfficialFamilyVerifierManifest as current resource-skill official-family verifier evidence; broader PaymentEngine official breadth, matrix, fullOfficial or readiness work still needs fresh A review. 4D-03CW / 4D-03DB records only the handoff baseline and does not dispatch B; 4D-03DC-B, 4D-03DE, 4D-03DG, 4D-03DH and 4D-03DK are accepted evidence, not closure.",
+            $"After 4D-03CV through 4D-03DK and the post-03CT resource-skill accounting refresh, the 192-row representative resource-skill row-interaction matrix, ResourceSkillOfficialRuntimeCardRowEvidenceManifest, ResourceSkillOfficialRowInteractionMatrixManifest, 03DC-B selected source-card / official card-row parity checks, TargetTypedActivatedAbilityOfficialFamilyVerifierManifest, TargetTypedActivatedAbilityFullFamilyGapVerifierManifest, NonTargetTypedActivatedAbilityResidualPartitionManifest, NonTargetTypedActivatedAbilityResidualBreadthDispatchManifest and ResourceSkillOfficialFamilyVerifierManifest remain representative evidence only, while NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest remains focused verifier evidence only. 4D-03DK proves the current Vi and Fluft Poro residual rows bind real focused methods for prompt, Command, audit, stack/outcome/lifetime, rollback and fullOfficial=false card rows, but it remains verifier evidence only. 4D-03DJ narrows one concrete fresh A dispatch to {NonTargetTypedActivatedAbilityResidualBreadthVerifierGate} for PAY_2_RED_DOUBLE_POWER and FLUFT_PORO_EXHAUST_CREATE_TWO_SPELLSHIELD_WARHAWKS, 4D-03DD narrows one concrete fresh A dispatch to B_PAYMENT_ENGINE_TARGET_TYPED_ACTIVATED_ABILITY_OFFICIAL_FAMILY_VERIFIER, 4D-03DE proves the current 8 target-bearing / typed / experience / Spellshield-tax activated ability representatives bind 03DA runtime/card-row evidence beyond the 03DA representative target / typed activated rows, 03BR-B target/tax matrix dimensions, exact catalog source-card groups and fullOfficial=false card rows, 4D-03DG proves the current 32 official RESOURCE_SKILLS family rows bind 03CX source-card parity, 03CY runtime/card-row evidence, 03CV matrix rows, focused verifier methods and fullOfficial=false card rows, and 4D-03DH proves the current target/typed predicate has 8 catalog rows while Vi and Fluft Poro remain non-target/typed activated residual partitions; full target-bearing / typed / experience / Spellshield-tax activated ability official family, full non-target/typed activated ability residual breadth, full official [A] / [C] resource-skill row interactions, full official PaymentEngine matrix, full-card matrix, E_CARD_MATRIX_READINESS and D_COMPLETION_P0_AUDIT remain open.",
+            $"4D-03DK non-target/typed activated ability residual verifier evidence, NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest current Vi and Fluft Poro focused verifier rows, 4D-03DJ non-target/typed activated ability residual breadth dispatch, NonTargetTypedActivatedAbilityResidualBreadthDispatchManifest current Vi and Fluft Poro residual rows, {NonTargetTypedActivatedAbilityResidualBreadthVerifierGate}, 4D-03DH target/typed activated ability full-family gap verifier and residual partition, TargetTypedActivatedAbilityFullFamilyGapVerifierManifest current 8 target/typed catalog rows, NonTargetTypedActivatedAbilityResidualPartitionManifest current Vi and Fluft Poro residual rows, 4D-03DG resource-skill official family verifier, ResourceSkillOfficialFamilyVerifierManifest current 32 official RESOURCE_SKILLS rows (23 implemented + 9 bridge-closed + 0 deferred), 4D-03DE target/typed activated ability official family verifier, TargetTypedActivatedAbilityOfficialFamilyVerifierManifest current 8 representative abilities, 4D-03DD next concrete dispatch gate, 4D-03DC-B selected resource-skill runtime/card-row parity verifier, 4D-03DC concrete B dispatch contract for B_PAYMENT_ENGINE_RESOURCE_SKILL_RUNTIME_CARD_ROW_PARITY_VERIFIER, 4D-03CV 192-row resource-skill official row-interaction matrix (32 candidates x 6 dimensions), 4D-03CU official row-interaction gate, 4D-03CT resource-skill official breadth refresh (32 total = 23 implemented + 9 bridge-closed + 0 current deferred), 4D-03CX source-card runtime parity, 4D-03CY resource-skill runtime/card-row evidence, 4D-03CZ typed Sigil runtime/card-row audit, 4D-03DA target / typed activated ability runtime/card-row evidence, 4D-03CS-B legend bridge closure, 4D-03BR-B target/tax matrix, backend full, Chrome smoke and formal 18 are representative proxy evidence only.",
             "Runtime, tests beyond this focused A-side gate, frontend, browser scripts, card matrix JSON, fullOfficial status, final readiness status and riftbound-dotnet.sln remain locked until a fresh A dispatch.",
-            "Project remains NOT READY and P0-005 remains open; fullOfficial upgrade is not allowed.",
+            "Project remains NOT READY, P0-005 remains open, P1 remains open, full official PaymentEngine matrix remains open, full-card matrix remains open and fullOfficial upgrade is not allowed.",
             [
+                "docs/CURRENT_STAGE4D_03DK_PAYMENT_ENGINE_NON_TARGET_TYPED_ACTIVATED_ABILITY_RESIDUAL_VERIFIER_AUDIT.md",
+                "docs/CURRENT_STAGE4D_03DK_PAYMENT_ENGINE_NON_TARGET_TYPED_ACTIVATED_ABILITY_RESIDUAL_VERIFIER_EVIDENCE.md",
                 "docs/CURRENT_STAGE4D_03DJ_PAYMENT_ENGINE_NON_TARGET_TYPED_ACTIVATED_ABILITY_RESIDUAL_BREADTH_AUDIT.md",
                 "docs/CURRENT_STAGE4D_03DJ_PAYMENT_ENGINE_NON_TARGET_TYPED_ACTIVATED_ABILITY_RESIDUAL_BREADTH_EVIDENCE.md",
                 "docs/CURRENT_STAGE4D_03DH_PAYMENT_ENGINE_TARGET_TYPED_ACTIVATED_ABILITY_FULL_FAMILY_GAP_VERIFIER_AUDIT.md",
@@ -9262,6 +9390,218 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineNonTargetTypedActivatedAbilityResidualVerifierEvidenceReuses03DjDispatchRows()
+    {
+        var verifierAbilityIds = NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest
+            .Select(entry => entry.AbilityId)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var dispatchAbilityIds = NonTargetTypedActivatedAbilityResidualBreadthDispatchManifest
+            .Select(entry => entry.AbilityId)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(dispatchAbilityIds, verifierAbilityIds);
+        Assert.Equal(
+            new[]
+            {
+                P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId,
+                P4ActivatedAbilityCatalog.ViDoublePowerAbilityId
+            }.Order(StringComparer.Ordinal),
+            verifierAbilityIds);
+        Assert.All(NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest, entry =>
+        {
+            var dispatchRow = Assert.Single(
+                NonTargetTypedActivatedAbilityResidualBreadthDispatchManifest,
+                row => string.Equals(row.AbilityId, entry.AbilityId, StringComparison.Ordinal));
+
+            Assert.Equal(NonTargetTypedActivatedAbilityResidualVerifierEvidence, entry.Classification);
+            Assert.Equal(dispatchRow.EffectKind, entry.EffectKind);
+            Assert.Equal(dispatchRow.SourceCardGroup, entry.SourceCardGroup);
+            Assert.Equal(dispatchRow.DispatchGateId, entry.DispatchGateId);
+            Assert.Equal(dispatchRow.CurrentPartitionEvidence, entry.CurrentPartitionEvidence);
+            Assert.Equal(dispatchRow.RequiredVerifierScope, entry.RequiredVerifierScope);
+            Assert.Contains("docs/CURRENT_STAGE4D_03DK_PAYMENT_ENGINE_NON_TARGET_TYPED_ACTIVATED_ABILITY_RESIDUAL_VERIFIER_AUDIT.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03DK_PAYMENT_ENGINE_NON_TARGET_TYPED_ACTIVATED_ABILITY_RESIDUAL_VERIFIER_EVIDENCE.md", entry.DocAnchors);
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineNonTargetTypedActivatedAbilityResidualVerifierEvidenceBindsRealFocusedMethods()
+    {
+        Assert.All(NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest, entry =>
+        {
+            Assert.NotEmpty(entry.FocusedMethodAnchors);
+            Assert.Empty(entry.FocusedMethodAnchors
+                .GroupBy(anchor => anchor, StringComparer.Ordinal)
+                .Where(group => group.Count() > 1)
+                .Select(group => group.Key));
+
+            foreach (var methodAnchor in entry.FocusedMethodAnchors)
+            {
+                var separatorIndex = methodAnchor.IndexOf('.', StringComparison.Ordinal);
+
+                Assert.True(separatorIndex > 0, methodAnchor);
+                var typeName = methodAnchor[..separatorIndex];
+                var methodName = methodAnchor[(separatorIndex + 1)..];
+                var focusedType = FocusedVerifierTypeByName(typeName);
+                var method = focusedType.GetMethod(methodName);
+
+                Assert.NotNull(method);
+                Assert.Contains(method.GetCustomAttributes(inherit: false), attribute => attribute is FactAttribute);
+            }
+        });
+
+        var vi = Assert.Single(
+            NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest,
+            entry => string.Equals(entry.AbilityId, P4ActivatedAbilityCatalog.ViDoublePowerAbilityId, StringComparison.Ordinal));
+        Assert.Contains(vi.FocusedMethodAnchors, anchor => anchor.StartsWith(nameof(PaymentEngineUnificationTests), StringComparison.Ordinal));
+        Assert.Contains(vi.FocusedMethodAnchors, anchor => anchor.StartsWith(nameof(ConformanceFixtureRunnerTests), StringComparison.Ordinal));
+
+        var fluftPoro = Assert.Single(
+            NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest,
+            entry => string.Equals(entry.AbilityId, P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId, StringComparison.Ordinal));
+        Assert.Contains(fluftPoro.FocusedMethodAnchors, anchor => anchor.StartsWith(nameof(FluftPoroActivatedAbilityTests), StringComparison.Ordinal));
+        Assert.Contains(fluftPoro.FocusedMethodAnchors, anchor => anchor.StartsWith(nameof(ConformanceFixtureRunnerTests), StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void PaymentEngineNonTargetTypedActivatedAbilityResidualVerifierEvidenceCoversViPromptStackRollback()
+    {
+        var vi = Assert.Single(
+            NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest,
+            entry => string.Equals(entry.AbilityId, P4ActivatedAbilityCatalog.ViDoublePowerAbilityId, StringComparison.Ordinal));
+        var combinedText = string.Join(
+            " ",
+            new[]
+            {
+                vi.AbilityId,
+                vi.EffectKind,
+                vi.PromptEvidence,
+                vi.CommandEvidence,
+                vi.AuditEvidence,
+                vi.StackOutcomeLifetimeEvidence,
+                vi.RollbackEvidence,
+                vi.CardRowEvidence,
+                vi.NonClosureStatus
+            }.Concat(vi.FocusedMethodAnchors)
+                .Concat(vi.SourceCardGroup)
+                .Concat(vi.DocAnchors));
+
+        Assert.Contains("no-target paid activated ability", combinedText, StringComparison.Ordinal);
+        Assert.Contains("2 mana", combinedText, StringComparison.Ordinal);
+        Assert.Contains("red power", combinedText, StringComparison.Ordinal);
+        Assert.Contains("ACTIVATE_ABILITY Command revalidates", combinedText, StringComparison.Ordinal);
+        Assert.Contains("COST_PAID", combinedText, StringComparison.Ordinal);
+        Assert.Contains("ABILITY_ACTIVATED", combinedText, StringComparison.Ordinal);
+        Assert.Contains("doubles source unit power until end of turn", combinedText, StringComparison.Ordinal);
+        Assert.Contains("rollback with no mutation", combinedText, StringComparison.Ordinal);
+        Assert.Contains(nameof(PaymentEngineUnificationTests.ActivateAbilityViQuotesAndCommitsRecycleRunePaymentResource), combinedText, StringComparison.Ordinal);
+        Assert.Contains(nameof(ConformanceFixtureRunnerTests.P4ActivateAbilityCommandResolvesViDoublePowerSkillOnStack), combinedText, StringComparison.Ordinal);
+        Assert.Contains("fullOfficial=false", combinedText, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineNonTargetTypedActivatedAbilityResidualVerifierEvidenceCoversFluftPoroPromptStackTokensRollback()
+    {
+        var fluftPoro = Assert.Single(
+            NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest,
+            entry => string.Equals(entry.AbilityId, P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId, StringComparison.Ordinal));
+        var combinedText = string.Join(
+            " ",
+            new[]
+            {
+                fluftPoro.AbilityId,
+                fluftPoro.EffectKind,
+                fluftPoro.PromptEvidence,
+                fluftPoro.CommandEvidence,
+                fluftPoro.AuditEvidence,
+                fluftPoro.StackOutcomeLifetimeEvidence,
+                fluftPoro.RollbackEvidence,
+                fluftPoro.CardRowEvidence,
+                fluftPoro.NonClosureStatus
+            }.Concat(fluftPoro.FocusedMethodAnchors)
+                .Concat(fluftPoro.SourceCardGroup)
+                .Concat(fluftPoro.DocAnchors));
+
+        Assert.Contains("battlefield-only exhaust source", combinedText, StringComparison.Ordinal);
+        Assert.Contains("controlled ready battlefield source", combinedText, StringComparison.Ordinal);
+        Assert.Contains("ordinary stack is created before token creation", combinedText, StringComparison.Ordinal);
+        Assert.Contains("exactly two", combinedText, StringComparison.Ordinal);
+        Assert.Contains(P4ActivatedAbilityCatalog.WarhawkTokenCardNo, combinedText, StringComparison.Ordinal);
+        Assert.Contains("Warhawk tokens with Spellshield in controller base", combinedText, StringComparison.Ordinal);
+        Assert.Contains("rollback with no mutation", combinedText, StringComparison.Ordinal);
+        Assert.Contains(nameof(FluftPoroActivatedAbilityTests.FluftPoroStackPassPassCreatesTwoWarhawksInControllerBase), combinedText, StringComparison.Ordinal);
+        Assert.Contains(nameof(FluftPoroActivatedAbilityTests.FluftPoroRejectsInvalidCommandsWithoutMutation), combinedText, StringComparison.Ordinal);
+        Assert.Contains("fullOfficial=false", combinedText, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineNonTargetTypedActivatedAbilityResidualVerifierEvidenceRequiresDocsCardRowsAndNoClosure()
+    {
+        var repositoryRoot = ResolveRepositoryRoot();
+        var matrixPath = Path.Combine(repositoryRoot, "docs", "CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json");
+        using var document = JsonDocument.Parse(File.ReadAllText(matrixPath));
+        var snapshotEntries = document.RootElement.GetProperty("snapshotEntries").EnumerateArray().ToArray();
+        var combinedText = string.Join(
+            " ",
+            NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.AbilityId,
+                    entry.EffectKind,
+                    entry.Classification,
+                    entry.DispatchGateId,
+                    entry.CurrentPartitionEvidence,
+                    entry.RequiredVerifierScope,
+                    entry.PromptEvidence,
+                    entry.CommandEvidence,
+                    entry.AuditEvidence,
+                    entry.StackOutcomeLifetimeEvidence,
+                    entry.RollbackEvidence,
+                    entry.CardRowEvidence,
+                    entry.NonClosureStatus
+                }.Concat(entry.FocusedMethodAnchors)
+                    .Concat(entry.SourceCardGroup)
+                    .Concat(entry.DocAnchors)));
+
+        Assert.All(
+            NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest.SelectMany(entry => entry.DocAnchors)
+                .Distinct(StringComparer.Ordinal),
+            anchor => Assert.True(File.Exists(Path.Combine(repositoryRoot, anchor)), anchor));
+        Assert.All(NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest, entry =>
+        {
+            Assert.Contains("verifier evidence only", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("NOT READY", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P1 remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("fullOfficial remains false", entry.NonClosureStatus, StringComparison.Ordinal);
+
+            foreach (var cardNo in entry.SourceCardGroup)
+            {
+                var snapshotEntry = Assert.Single(
+                    snapshotEntries,
+                    element => string.Equals(element.GetProperty("cardNo").GetString(), cardNo, StringComparison.Ordinal));
+                var stage4B = snapshotEntry.GetProperty("stage4B");
+
+                Assert.False(stage4B.GetProperty("fullOfficial").GetBoolean());
+                Assert.Equal(cardNo, stage4B.GetProperty("collectorId").GetString());
+                Assert.Contains(cardNo, entry.CardRowEvidence, StringComparison.Ordinal);
+            }
+        });
+
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("E_CARD_MATRIX_READINESS", string.Empty, StringComparison.Ordinal)
+                .Replace("READY_UNIT", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PaymentEngineTargetTypedFullFamilyGapVerifierRequires03DhDocsAndNoReadyClaim()
     {
         var repositoryRoot = ResolveRepositoryRoot();
@@ -10061,15 +10401,71 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
-    public void PaymentEngineActiveGoalCompletionAuditMappingTracksCurrent03DHHeadEvidence()
+    public void PaymentEngineOfficialBreadthGateRecords03DKAsNonTargetTypedResidualVerifierEvidenceOnly()
+    {
+        var gate = Assert.Single(
+            RemainingOfficialClosureGateManifest,
+            entry => string.Equals(entry.GateId, "B_PAYMENT_ENGINE_OFFICIAL_BREADTH", StringComparison.Ordinal));
+        var combinedText = string.Join(
+            " ",
+            new[]
+            {
+                gate.GateId,
+                gate.Owner,
+                gate.Classification,
+                gate.WriteLockRequirement,
+                gate.RequiredFutureEvidence,
+                gate.RepresentativeProxyEvidence,
+                gate.LockedScope,
+                gate.ClosureStatus
+            }.Concat(gate.DocAnchors));
+
+        Assert.Contains("4D-03DK", combinedText, StringComparison.Ordinal);
+        Assert.Contains("NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest", gate.WriteLockRequirement, StringComparison.Ordinal);
+        Assert.Contains("NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest", gate.RequiredFutureEvidence, StringComparison.Ordinal);
+        Assert.Contains("focused verifier evidence only", gate.WriteLockRequirement, StringComparison.Ordinal);
+        Assert.Contains("verifier evidence only", gate.RequiredFutureEvidence, StringComparison.Ordinal);
+        Assert.Contains("PAY_2_RED_DOUBLE_POWER", gate.RequiredFutureEvidence, StringComparison.Ordinal);
+        Assert.Contains("FLUFT_PORO_EXHAUST_CREATE_TWO_SPELLSHIELD_WARHAWKS", gate.RequiredFutureEvidence, StringComparison.Ordinal);
+        Assert.Contains("prompt, Command, audit, stack/outcome/lifetime, rollback and fullOfficial=false card rows", gate.RequiredFutureEvidence, StringComparison.Ordinal);
+        Assert.Contains("P0-005", gate.WriteLockRequirement, StringComparison.Ordinal);
+        Assert.Contains("P1", gate.WriteLockRequirement, StringComparison.Ordinal);
+        Assert.Contains("full official PaymentEngine matrix", gate.RequiredFutureEvidence, StringComparison.Ordinal);
+        Assert.Contains("E_CARD_MATRIX_READINESS", gate.RequiredFutureEvidence, StringComparison.Ordinal);
+        Assert.Contains("D_COMPLETION_P0_AUDIT", gate.RequiredFutureEvidence, StringComparison.Ordinal);
+        Assert.Contains("card matrix JSON", gate.LockedScope, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", gate.ClosureStatus, StringComparison.Ordinal);
+        Assert.Contains("P1 remains open", gate.ClosureStatus, StringComparison.Ordinal);
+        Assert.Contains("fullOfficial upgrade is not allowed", gate.ClosureStatus, StringComparison.Ordinal);
+        Assert.Contains(
+            "docs/CURRENT_STAGE4D_03DK_PAYMENT_ENGINE_NON_TARGET_TYPED_ACTIVATED_ABILITY_RESIDUAL_VERIFIER_AUDIT.md",
+            gate.DocAnchors);
+        Assert.Contains(
+            "docs/CURRENT_STAGE4D_03DK_PAYMENT_ENGINE_NON_TARGET_TYPED_ACTIVATED_ABILITY_RESIDUAL_VERIFIER_EVIDENCE.md",
+            gate.DocAnchors);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("E_CARD_MATRIX_READINESS", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineActiveGoalCompletionAuditMappingTracksCurrent03DKHeadEvidence()
     {
         var repositoryRoot = ResolveRepositoryRoot();
         var completionAudit = File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_COMPLETION_AUDIT.md"));
         var checklist = File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md"));
         var completionMapping = ExtractSection(completionAudit, "## 0.1 Active Goal 门槛到证据映射", "## 1.");
-        var checklistCurrentHead = ExtractSection(checklist, "当前 4D-03DH", "上一批 4D-03CW");
+        var checklistCurrentHead = ExtractSection(checklist, "当前 4D-03DK", "上一批 4D-03CW");
         var checklistMapping = ExtractSection(checklist, "## 3. 主目标门槛映射", "## 7.");
 
+        Assert.Contains("4D-03DK", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest", completionMapping, StringComparison.Ordinal);
         Assert.Contains("4D-03DH", completionMapping, StringComparison.Ordinal);
         Assert.Contains("TargetTypedActivatedAbilityFullFamilyGapVerifierManifest", completionMapping, StringComparison.Ordinal);
         Assert.Contains("NonTargetTypedActivatedAbilityResidualPartitionManifest", completionMapping, StringComparison.Ordinal);
@@ -10084,14 +10480,16 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.DoesNotContain("formal-18-1778623926434-15", completionMapping, StringComparison.Ordinal);
         Assert.DoesNotContain("IMPLEMENTED_TESTED 为 76", completionMapping, StringComparison.Ordinal);
 
+        Assert.Contains("4D-03DK", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("4D-03DH", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("TargetTypedActivatedAbilityFullFamilyGapVerifierManifest", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("NonTargetTypedActivatedAbilityResidualPartitionManifest", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("Vi and Fluft Poro", checklistMapping, StringComparison.Ordinal);
-        Assert.Contains("当前 4D-03DH", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("latestCommit=8206b18d", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("focused PaymentEngineCoverageAuditTests=182/182", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("backend full=4751/4751", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("当前 4D-03DK", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("latestCommit=21b624ca", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("focused PaymentEngineCoverageAuditTests=190/190", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("latest full backend evidence=4751/4751", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("1009 snapshot entries / 811 functional units", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("fullOfficialTrue=0", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("ready=false", checklistMapping, StringComparison.Ordinal);
@@ -10100,7 +10498,9 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.DoesNotContain("latest 4D-03DE full backend 4740/4740", checklistMapping, StringComparison.Ordinal);
         Assert.DoesNotContain("4D-03DG full backend 4746/4746", checklistMapping, StringComparison.Ordinal);
         Assert.DoesNotContain("当前 4D-03DE", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.DoesNotContain("当前 4D-03DH", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("latestCommit=739c27ac", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.DoesNotContain("latestCommit=8206b18d", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("backend full=4740/4740", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("A 验收 4D-03DF test/docs-only completion audit refresh", checklistMapping, StringComparison.Ordinal);
         Assert.DoesNotContain("4D-03DF 只打开 completion audit", checklistMapping, StringComparison.Ordinal);
@@ -10575,6 +10975,26 @@ public sealed class PaymentEngineCoverageAuditTests
         public string Classification { get; } = NonTargetTypedActivatedAbilityResidualBreadthDispatch;
     }
 
+    private sealed record PaymentEngineNonTargetTypedActivatedAbilityResidualVerifierEvidenceEntry(
+        string AbilityId,
+        string EffectKind,
+        IReadOnlyList<string> SourceCardGroup,
+        string DispatchGateId,
+        string CurrentPartitionEvidence,
+        string RequiredVerifierScope,
+        IReadOnlyList<string> FocusedMethodAnchors,
+        string PromptEvidence,
+        string CommandEvidence,
+        string AuditEvidence,
+        string StackOutcomeLifetimeEvidence,
+        string RollbackEvidence,
+        string CardRowEvidence,
+        string NonClosureStatus,
+        IReadOnlyList<string> DocAnchors)
+    {
+        public string Classification { get; } = NonTargetTypedActivatedAbilityResidualVerifierEvidence;
+    }
+
     private sealed record PaymentEngineDeferredResourceSkillFamilyEntry(
         string CardNo,
         string Classification,
@@ -10625,6 +11045,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(TargetTypedActivatedAbilityFullFamilyGapVerifierManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(NonTargetTypedActivatedAbilityResidualPartitionManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(NonTargetTypedActivatedAbilityResidualBreadthDispatchManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(DeferredResourceSkillFamilyManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(LegendResourceBridgeAggregateManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(LegendResourceBridgeImplementationAcceptanceManifest.SelectMany(entry => entry.DocAnchors))
