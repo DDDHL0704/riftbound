@@ -9862,6 +9862,7 @@ public sealed class PaymentEngineCoverageAuditTests
         var completionAudit = File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_COMPLETION_AUDIT.md"));
         var checklist = File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md"));
         var completionMapping = ExtractSection(completionAudit, "## 0.1 Active Goal 门槛到证据映射", "## 1.");
+        var checklistCurrentHead = ExtractSection(checklist, "当前 4D-03DH", "上一批 4D-03CW");
         var checklistMapping = ExtractSection(checklist, "## 3. 主目标门槛映射", "## 7.");
 
         Assert.Contains("4D-03DH", completionMapping, StringComparison.Ordinal);
@@ -9882,6 +9883,10 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Contains("TargetTypedActivatedAbilityFullFamilyGapVerifierManifest", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("NonTargetTypedActivatedAbilityResidualPartitionManifest", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("Vi and Fluft Poro", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("当前 4D-03DH", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("latestCommit=8206b18d", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("focused PaymentEngineCoverageAuditTests=182/182", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("backend full=4751/4751", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("1009 snapshot entries / 811 functional units", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("fullOfficialTrue=0", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("ready=false", checklistMapping, StringComparison.Ordinal);
@@ -9889,6 +9894,11 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.DoesNotContain("03DB focused 159/159", checklistMapping, StringComparison.Ordinal);
         Assert.DoesNotContain("latest 4D-03DE full backend 4740/4740", checklistMapping, StringComparison.Ordinal);
         Assert.DoesNotContain("4D-03DG full backend 4746/4746", checklistMapping, StringComparison.Ordinal);
+        Assert.DoesNotContain("当前 4D-03DE", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.DoesNotContain("latestCommit=739c27ac", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.DoesNotContain("backend full=4740/4740", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.DoesNotContain("A 验收 4D-03DF test/docs-only completion audit refresh", checklistMapping, StringComparison.Ordinal);
+        Assert.DoesNotContain("4D-03DF 只打开 completion audit", checklistMapping, StringComparison.Ordinal);
     }
 
     [Fact]
