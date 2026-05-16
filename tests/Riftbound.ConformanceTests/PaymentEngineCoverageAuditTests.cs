@@ -30,6 +30,8 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string RemainingOfficialClosureGate = "remaining-official-closure-gate";
     private const string ImplementedResourceSkillOfficialCandidate = "implemented-resource-skill-official-candidate";
     private const string DeferredResourceSkillOfficialCandidate = "deferred-resource-skill-official-candidate";
+    private const string DeferredLegendResourceActionBridge = "deferred-legend-resource-action-bridge";
+    private const string DeferredNonLegendResourceSkillRuntimeVerifier = "deferred-non-legend-resource-skill-runtime-verifier";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
     [
@@ -2277,6 +2279,140 @@ public sealed class PaymentEngineCoverageAuditTests
             "Future B-side verifier / implementation must prove prompt, command, audit, generated-resource lifetime, restriction text and no-mutation rollback behavior before this source can leave deferred status.",
             "Deferred official resource skill only; project remains NOT READY and P0-005 remains open for full official [A] / [C] resource skill breadth.",
             ResourceSkillOfficialBreadthDocAnchors);
+    }
+
+    private static readonly string[] DeferredResourceSkillFamilyDocAnchors =
+    [
+        "docs/CURRENT_STAGE4D_03BW_PAYMENT_ENGINE_DEFERRED_RESOURCE_SKILL_FAMILY_VERIFIER_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03BW_PAYMENT_ENGINE_DEFERRED_RESOURCE_SKILL_FAMILY_VERIFIER_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03BV_PAYMENT_ENGINE_DEFERRED_RESOURCE_SKILL_FAMILY_HANDOFF.md",
+        "docs/CURRENT_STAGE4D_03BV_PAYMENT_ENGINE_DEFERRED_RESOURCE_SKILL_FAMILY_BASELINE_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03BU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03BU_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_BREADTH_EVIDENCE.md"
+    ];
+
+    private static readonly PaymentEngineDeferredResourceSkillFamilyEntry[] DeferredResourceSkillFamilyManifest =
+    [
+        NonLegendDeferredResourceSkillFamilyEntry(
+            "UNL-022/219",
+            "MOVE_UNIT-triggered unit resource skill",
+            "Jhin movement-triggered mana plus power generated resource skill",
+            "Current code has Jhin play / preflight / Roam evidence, but no P4 resource-skill prompt / command / audit implementation for the official move-triggered generated-resource text.",
+            "Future B must prove movement-triggered generation, generated mana plus power lifetime, payment-only restrictions and no-mutation rollback under a fresh A dispatch."),
+        NonLegendDeferredResourceSkillFamilyEntry(
+            "UNL-049/219",
+            "equipment reaction resource skill",
+            "Honeyfruit reaction resource skill plus level-six upgraded mana plus power branch",
+            "Current code has Honeyfruit play / rejection fixture evidence, but no P4 resource-skill prompt / command / audit implementation for the official equipment reaction and level-six upgraded resource text.",
+            "Future B must prove tap reaction timing, level-six upgraded branch, generated power / mana lifetime, payment-only restrictions and no-mutation rollback under a fresh A dispatch."),
+        NonLegendDeferredResourceSkillFamilyEntry(
+            "UNL-087/219",
+            "held-battlefield delayed-next-main resource skill",
+            "Blue Sentinel held-battlefield delayed next-main generated power branch",
+            "Current code has Blue Sentinel play / preflight evidence, but no P4 resource-skill prompt / command / audit implementation for the official delayed next-main generated-resource text.",
+            "Future B must prove held-battlefield trigger capture, delayed next-main generation, generated power lifetime and no-mutation rollback under a fresh A dispatch."),
+        LegendDeferredResourceSkillFamilyEntry(
+            "UNL-197/219",
+            "Diana spell-duel-only legend resource action",
+            "Diana spell-duel-only generated mana restriction branch",
+            "Existing LEGEND_ACT representative tests prove Diana gains mana during spell-duel focus, but that evidence cannot close RESOURCE_SKILLS by proxy without an explicit resource-skill closure bridge.",
+            "Future B must bridge LEGEND_ACT timing, generated mana restriction and resource-skill closure semantics under a fresh A dispatch."),
+        LegendDeferredResourceSkillFamilyEntry(
+            "SFD·189/221",
+            "Ornn equipment-only legend resource action",
+            "Ornn Forge equipment-only generated power restriction branch",
+            "Existing LEGEND_ACT representative tests prove Ornn gains power for pending equipment, but that evidence cannot close RESOURCE_SKILLS by proxy without an explicit resource-skill closure bridge.",
+            "Future B must bridge LEGEND_ACT equipment-only restriction, generated power lifetime and resource-skill closure semantics under a fresh A dispatch."),
+        LegendDeferredResourceSkillFamilyEntry(
+            "SFD·244/221",
+            "Ornn reprint equipment-only legend resource action",
+            "Ornn Forge reprint equipment-only generated power restriction branch",
+            "Existing LEGEND_ACT definitions include the Ornn reprint, but that evidence cannot close RESOURCE_SKILLS by proxy without an explicit resource-skill closure bridge.",
+            "Future B must bridge reprint parity, equipment-only restriction, generated power lifetime and resource-skill closure semantics under a fresh A dispatch."),
+        NonLegendDeferredResourceSkillFamilyEntry(
+            "OGS·014/024",
+            "spell-only tap reaction resource skill",
+            "Lux spell-only generated mana restriction branch",
+            "Current code has Lux play / preflight evidence, but no P4 resource-skill prompt / command / audit implementation for the official spell-only tap reaction resource text.",
+            "Future B must prove tap reaction timing, spell-only generated mana consumption, invalid non-spell use and no-mutation rollback under a fresh A dispatch."),
+        LegendDeferredResourceSkillFamilyEntry(
+            "OGN·247/298",
+            "KaiSa spell-only legend resource action",
+            "KaiSa spell-only generated power restriction branch",
+            "Existing LEGEND_ACT representative tests prove KaiSa gains power in a priority window for pending spell, but that evidence cannot close RESOURCE_SKILLS by proxy without an explicit resource-skill closure bridge.",
+            "Future B must bridge pending-spell priority timing, spell-only generated power restriction and resource-skill closure semantics under a fresh A dispatch."),
+        LegendDeferredResourceSkillFamilyEntry(
+            "OGN·253/298",
+            "Darius Inspire-gated legend resource action",
+            "Darius Inspire-gated generated mana resource skill",
+            "Existing LEGEND_ACT representative tests prove Darius gains mana after another card this turn, but that evidence cannot close RESOURCE_SKILLS by proxy without an explicit resource-skill closure bridge.",
+            "Future B must bridge Inspire gating, generated mana lifetime and resource-skill closure semantics under a fresh A dispatch."),
+        LegendDeferredResourceSkillFamilyEntry(
+            "OGN·299/298",
+            "KaiSa premium spell-only legend resource action",
+            "KaiSa premium spell-only generated power restriction branch",
+            "Existing LEGEND_ACT definitions include the KaiSa premium source, but that evidence cannot close RESOURCE_SKILLS by proxy without an explicit resource-skill closure bridge.",
+            "Future B must bridge premium source parity, spell-only generated power restriction and resource-skill closure semantics under a fresh A dispatch."),
+        LegendDeferredResourceSkillFamilyEntry(
+            "OGN·299*/298",
+            "KaiSa premium alternate spell-only legend resource action",
+            "KaiSa premium alternate spell-only generated power restriction branch",
+            "Existing LEGEND_ACT definitions include the KaiSa premium alternate source, but that evidence cannot close RESOURCE_SKILLS by proxy without an explicit resource-skill closure bridge.",
+            "Future B must bridge premium alternate source parity, spell-only generated power restriction and resource-skill closure semantics under a fresh A dispatch."),
+        LegendDeferredResourceSkillFamilyEntry(
+            "OGN·302/298",
+            "Darius premium Inspire-gated legend resource action",
+            "Darius premium Inspire-gated generated mana resource skill",
+            "Existing LEGEND_ACT definitions include the Darius premium source, but that evidence cannot close RESOURCE_SKILLS by proxy without an explicit resource-skill closure bridge.",
+            "Future B must bridge premium source parity, Inspire gating, generated mana lifetime and resource-skill closure semantics under a fresh A dispatch."),
+        LegendDeferredResourceSkillFamilyEntry(
+            "OGN·302*/298",
+            "Darius premium alternate Inspire-gated legend resource action",
+            "Darius premium alternate Inspire-gated generated mana resource skill",
+            "Existing LEGEND_ACT definitions include the Darius premium alternate source, but that evidence cannot close RESOURCE_SKILLS by proxy without an explicit resource-skill closure bridge.",
+            "Future B must bridge premium alternate source parity, Inspire gating, generated mana lifetime and resource-skill closure semantics under a fresh A dispatch.")
+    ];
+
+    private static PaymentEngineDeferredResourceSkillFamilyEntry LegendDeferredResourceSkillFamilyEntry(
+        string cardNo,
+        string familySplit,
+        string officialResourceProfile,
+        string currentEvidenceStatus,
+        string requiredFutureWork)
+    {
+        return new(
+            cardNo,
+            DeferredLegendResourceActionBridge,
+            "RESOURCE_SKILL_A_C_FAMILY",
+            "RESOURCE_SKILLS",
+            "LEGEND_ACT",
+            familySplit,
+            officialResourceProfile,
+            currentEvidenceStatus,
+            requiredFutureWork,
+            "Deferred legend resource action bridge only; project remains NOT READY and P0-005 remains open until RESOURCE_SKILLS closure is explicit.",
+            DeferredResourceSkillFamilyDocAnchors);
+    }
+
+    private static PaymentEngineDeferredResourceSkillFamilyEntry NonLegendDeferredResourceSkillFamilyEntry(
+        string cardNo,
+        string familySplit,
+        string officialResourceProfile,
+        string currentEvidenceStatus,
+        string requiredFutureWork)
+    {
+        return new(
+            cardNo,
+            DeferredNonLegendResourceSkillRuntimeVerifier,
+            "RESOURCE_SKILL_A_C_FAMILY",
+            "RESOURCE_SKILLS",
+            "FUTURE_RESOURCE_SKILL_RUNTIME_OR_VERIFIER",
+            familySplit,
+            officialResourceProfile,
+            currentEvidenceStatus,
+            requiredFutureWork,
+            "Deferred non-legend resource skill runtime / verifier only; project remains NOT READY and P0-005 remains open until RESOURCE_SKILLS closure is explicit.",
+            DeferredResourceSkillFamilyDocAnchors);
     }
 
     private static readonly TargetTaxActivatedAbilityMatrixDimensionProfile[] TargetTaxActivatedAbilityMatrixDimensionProfiles =
@@ -5568,6 +5704,102 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineDeferredResourceSkillFamilyManifestMatchesOfficialDeferredSet()
+    {
+        var officialDeferredCardNos = ResourceSkillOfficialBreadthManifest
+            .Where(entry => string.Equals(entry.Classification, DeferredResourceSkillOfficialCandidate, StringComparison.Ordinal))
+            .Select(entry => entry.CardNo)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var familyManifestCardNos = DeferredResourceSkillFamilyManifest
+            .Select(entry => entry.CardNo)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(officialDeferredCardNos, familyManifestCardNos);
+        Assert.Equal(13, familyManifestCardNos.Length);
+        Assert.Empty(DeferredResourceSkillFamilyManifest
+            .GroupBy(entry => entry.CardNo, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key));
+    }
+
+    [Fact]
+    public void PaymentEngineDeferredResourceSkillFamilyManifestSplitsLegendBridgeAndNonLegendCandidates()
+    {
+        var legendBridgeCardNos = DeferredResourceSkillFamilyManifest
+            .Where(entry => string.Equals(entry.Classification, DeferredLegendResourceActionBridge, StringComparison.Ordinal))
+            .Select(entry => entry.CardNo)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var nonLegendCardNos = DeferredResourceSkillFamilyManifest
+            .Where(entry => string.Equals(entry.Classification, DeferredNonLegendResourceSkillRuntimeVerifier, StringComparison.Ordinal))
+            .Select(entry => entry.CardNo)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(
+            [
+                "OGN·247/298",
+                "OGN·253/298",
+                "OGN·299*/298",
+                "OGN·299/298",
+                "OGN·302*/298",
+                "OGN·302/298",
+                "SFD·189/221",
+                "SFD·244/221",
+                "UNL-197/219"
+            ],
+            legendBridgeCardNos);
+        Assert.Equal(["OGS·014/024", "UNL-022/219", "UNL-049/219", "UNL-087/219"], nonLegendCardNos);
+        Assert.Equal(9, legendBridgeCardNos.Length);
+        Assert.Equal(4, nonLegendCardNos.Length);
+    }
+
+    [Fact]
+    public void PaymentEngineDeferredResourceSkillFamilyManifestRejectsLegendProxyClosure()
+    {
+        var legendBridgeEntries = DeferredResourceSkillFamilyManifest
+            .Where(entry => string.Equals(entry.Classification, DeferredLegendResourceActionBridge, StringComparison.Ordinal))
+            .ToArray();
+
+        Assert.All(legendBridgeEntries, entry =>
+        {
+            Assert.Equal("LEGEND_ACT", entry.CurrentActionDomain);
+            Assert.Contains("cannot close RESOURCE_SKILLS by proxy", entry.CurrentEvidenceStatus, StringComparison.Ordinal);
+            Assert.Contains("bridge", entry.RequiredFutureWork, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("fresh A dispatch", entry.RequiredFutureWork, StringComparison.Ordinal);
+            Assert.Contains("RESOURCE_SKILLS closure is explicit", entry.ClosureStatus, StringComparison.Ordinal);
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineDeferredResourceSkillFamilyManifestRequiresEvidenceAndNoReadyClosure()
+    {
+        Assert.All(DeferredResourceSkillFamilyManifest, entry =>
+        {
+            Assert.Equal("RESOURCE_SKILL_A_C_FAMILY", entry.ResidualBlockerFamily);
+            Assert.Equal("RESOURCE_SKILLS", entry.OfficialResidualAxis);
+            Assert.False(string.IsNullOrWhiteSpace(entry.FamilySplit));
+            Assert.False(string.IsNullOrWhiteSpace(entry.OfficialResourceProfile));
+            Assert.False(string.IsNullOrWhiteSpace(entry.CurrentEvidenceStatus));
+            Assert.Contains("Future B", entry.RequiredFutureWork, StringComparison.Ordinal);
+            Assert.Contains("fresh A dispatch", entry.RequiredFutureWork, StringComparison.Ordinal);
+            Assert.Contains("NOT READY", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("RESOURCE_SKILLS closure is explicit", entry.ClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BW_PAYMENT_ENGINE_DEFERRED_RESOURCE_SKILL_FAMILY_VERIFIER_AUDIT.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BW_PAYMENT_ENGINE_DEFERRED_RESOURCE_SKILL_FAMILY_VERIFIER_EVIDENCE.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03BV_PAYMENT_ENGINE_DEFERRED_RESOURCE_SKILL_FAMILY_HANDOFF.md", entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
     public void PaymentEngineTargetTaxActivatedAbilityMatrixCoversEveryTargetAbilityAndDimension()
     {
         var requiredAbilityIds = TargetColoredActivatedAbilityCoverageManifest
@@ -5999,6 +6231,19 @@ public sealed class PaymentEngineCoverageAuditTests
         string ClosureStatus,
         IReadOnlyList<string> DocAnchors);
 
+    private sealed record PaymentEngineDeferredResourceSkillFamilyEntry(
+        string CardNo,
+        string Classification,
+        string ResidualBlockerFamily,
+        string OfficialResidualAxis,
+        string CurrentActionDomain,
+        string FamilySplit,
+        string OfficialResourceProfile,
+        string CurrentEvidenceStatus,
+        string RequiredFutureWork,
+        string ClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
     private sealed record HasteReadyCoverageEntry(
         string CardNo,
         string ExpectedPowerTrait,
@@ -6025,6 +6270,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(KeywordPaymentBranchAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(ResourceSkillAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(ResourceSkillOfficialBreadthManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(DeferredResourceSkillFamilyManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TargetTaxActivatedAbilityMatrixManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(RemainingOfficialClosureGateManifest.SelectMany(entry => entry.DocAnchors));
     }
