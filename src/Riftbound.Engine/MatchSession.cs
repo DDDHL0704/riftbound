@@ -2883,6 +2883,8 @@ public sealed record ResolutionResult(
             ? P4ActivatedAbilityCatalog.AncientStelePaymentOnlyResourceRestriction
             : string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, StringComparison.Ordinal)
                 ? P4ActivatedAbilityCatalog.JhinMoveResourceRestriction
+            : P4ActivatedAbilityCatalog.IsBlueSentinelResourceAbility(resource.AbilityId)
+                ? P4ActivatedAbilityCatalog.BlueSentinelPaymentOnlyResourceRestriction
             : P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(resource.AbilityId)
                 ? P4ActivatedAbilityCatalog.HoneyfruitPaymentOnlyResourceRestriction
             : P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(resource.AbilityId)
@@ -2929,8 +2931,119 @@ public sealed record ResolutionResult(
                 .Concat(payment.LegalPaymentChoiceIds.Where(choiceId =>
                     choiceId.StartsWith("RECYCLE_RUNE:", StringComparison.Ordinal)))
                 .Concat(TemporaryPaymentResourceActionIds(state, payment))
+                .Concat(BlueSentinelDelayedResourceActionIds(state, payment))
                 .Distinct(StringComparer.Ordinal)
                 .ToArray();
+    }
+
+    private static IReadOnlyList<string> BlueSentinelDelayedResourceActionIds(
+        MatchState state,
+        PendingPaymentState payment)
+    {
+        if (payment.PowerCost <= 0 && payment.PowerCostByTrait.Count == 0)
+        {
+            return [];
+        }
+
+        var runePool = state.RunePools.TryGetValue(payment.PlayerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        if (PaymentCostRules.CanPayPowerCost(runePool, payment.PowerCost, payment.PowerCostByTrait))
+        {
+            return [];
+        }
+
+        return state.TriggerQueue
+            .Where(trigger => BlueSentinelDelayedTriggerCanPay(state, payment, trigger))
+            .Select(trigger => $"{P4ActivatedAbilityCatalog.BlueSentinelDelayedResourceActionPrefix}{trigger.TriggerId}")
+            .ToArray();
+    }
+
+    private static bool BlueSentinelDelayedTriggerCanPay(
+        MatchState state,
+        PendingPaymentState payment,
+        TriggerQueueItemState trigger)
+    {
+        if (!TryReadBlueSentinelDelayedTriggerContext(trigger.TriggerId, out var capturedTurnNumber, out var sourceObjectId, out var battlefieldObjectId)
+            || !string.Equals(trigger.ControllerId, payment.PlayerId, StringComparison.Ordinal)
+            || !string.Equals(trigger.SourceObjectId, sourceObjectId, StringComparison.Ordinal)
+            || !string.Equals(trigger.EffectKind, P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityEffectKind, StringComparison.Ordinal)
+            || !string.Equals(trigger.TriggeredByEventKind, "BATTLEFIELD_HELD", StringComparison.Ordinal)
+            || state.TurnNumber != capturedTurnNumber + 1
+            || !string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, payment.PlayerId, StringComparison.Ordinal)
+            || !BlueSentinelDelayedSourceStillHoldsBattlefield(state, payment.PlayerId, sourceObjectId, battlefieldObjectId))
+        {
+            return false;
+        }
+
+        var runePool = state.RunePools.TryGetValue(payment.PlayerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        return TemporaryPaymentResourceCanHelpPowerCost(
+            runePool,
+            new TemporaryPaymentResourceState(
+                $"BLUE_SENTINEL:QUOTE:{trigger.TriggerId}",
+                payment.PlayerId,
+                sourceObjectId,
+                P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId,
+                payment.PaymentWindow,
+                generatedPower: P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower,
+                remainingPower: P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower,
+                allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind],
+                createdTick: state.Tick),
+            payment.PowerCost,
+            payment.PowerCostByTrait);
+    }
+
+    private static bool TryReadBlueSentinelDelayedTriggerContext(
+        string triggerId,
+        out int capturedTurnNumber,
+        out string sourceObjectId,
+        out string battlefieldObjectId)
+    {
+        capturedTurnNumber = 0;
+        sourceObjectId = string.Empty;
+        battlefieldObjectId = string.Empty;
+        var parts = triggerId.Split("::", StringSplitOptions.None);
+        if (parts.Length != 4
+            || !string.Equals(parts[0], "BLUE_SENTINEL_HELD_DELAYED_RESOURCE", StringComparison.Ordinal)
+            || !int.TryParse(
+                parts[1],
+                System.Globalization.NumberStyles.Integer,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out capturedTurnNumber)
+            || string.IsNullOrWhiteSpace(parts[2])
+            || string.IsNullOrWhiteSpace(parts[3]))
+        {
+            return false;
+        }
+
+        sourceObjectId = parts[2];
+        battlefieldObjectId = parts[3];
+        return capturedTurnNumber > 0;
+    }
+
+    private static bool BlueSentinelDelayedSourceStillHoldsBattlefield(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        string battlefieldObjectId)
+    {
+        return state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+            && string.Equals(sourceState.CardNo, P4ActivatedAbilityCatalog.BlueSentinelCardNo, StringComparison.Ordinal)
+            && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !sourceState.IsFaceDown
+            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
+            && state.ObjectLocations.TryGetValue(sourceObjectId, out var sourceLocation)
+            && string.Equals(sourceLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            && string.Equals(sourceLocation.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+            && state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal)
+            && (!state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
+                || SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId));
     }
 
     private static IReadOnlyList<string> TemporaryPaymentResourceActionIds(
@@ -5748,6 +5861,7 @@ internal static class ActionPromptBuilder
                 || !ActivateAbilitySourceMatches(ability, zones, sourceObjectId, cardObject)
                 || (ability.RequiresBattlefieldSource && !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
                 || (ability.ExhaustsSourceAsCost && cardObject.IsExhausted)
+                || P4ActivatedAbilityCatalog.IsBlueSentinelResourceAbility(ability.AbilityId)
                 || (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, StringComparison.Ordinal)
                     && !TryGetJhinMovementResourceTrigger(state, playerId, sourceObjectId, out _))
                 || (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId, StringComparison.Ordinal)
@@ -7294,6 +7408,8 @@ internal static class ActionPromptBuilder
             ? P4ActivatedAbilityCatalog.AncientStelePaymentOnlyResourceRestriction
             : string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, StringComparison.Ordinal)
                 ? P4ActivatedAbilityCatalog.JhinMoveResourceRestriction
+            : P4ActivatedAbilityCatalog.IsBlueSentinelResourceAbility(resource.AbilityId)
+                ? P4ActivatedAbilityCatalog.BlueSentinelPaymentOnlyResourceRestriction
             : P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(resource.AbilityId)
                 ? P4ActivatedAbilityCatalog.HoneyfruitPaymentOnlyResourceRestriction
             : P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(resource.AbilityId)
@@ -11170,6 +11286,10 @@ internal static class ActionPromptBuilder
                 {
                     label = $"临时费用符能：{TemporaryPaymentResourceTotalRemainingPower(resource)}";
                 }
+                else if (TryParseBlueSentinelDelayedResourceActionId(choiceId, out _))
+                {
+                    label = $"苍蓝雕纹魔像延迟费用符能：{P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower}";
+                }
 
                 return new ActionPromptChoiceDto(choiceId, label, "服务端支付资源候选");
             })
@@ -11248,8 +11368,132 @@ internal static class ActionPromptBuilder
     {
         return PendingPaymentResourceActionIds(payment)
             .Concat(TemporaryPaymentResourceActionIds(state, payment))
+            .Concat(BlueSentinelDelayedResourceActionIds(state, payment))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
+    }
+
+    private static IReadOnlyList<string> BlueSentinelDelayedResourceActionIds(
+        MatchState state,
+        PendingPaymentState payment)
+    {
+        if (payment.PowerCost <= 0 && payment.PowerCostByTrait.Count == 0)
+        {
+            return [];
+        }
+
+        var runePool = state.RunePools.TryGetValue(payment.PlayerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        if (PaymentCostRules.CanPayPowerCost(runePool, payment.PowerCost, payment.PowerCostByTrait))
+        {
+            return [];
+        }
+
+        return state.TriggerQueue
+            .Where(trigger => BlueSentinelDelayedTriggerCanPay(state, payment, trigger))
+            .Select(trigger => $"{P4ActivatedAbilityCatalog.BlueSentinelDelayedResourceActionPrefix}{trigger.TriggerId}")
+            .ToArray();
+    }
+
+    private static bool TryParseBlueSentinelDelayedResourceActionId(string actionId, out string triggerId)
+    {
+        triggerId = string.Empty;
+        if (string.IsNullOrWhiteSpace(actionId)
+            || !actionId.StartsWith(P4ActivatedAbilityCatalog.BlueSentinelDelayedResourceActionPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        triggerId = actionId[P4ActivatedAbilityCatalog.BlueSentinelDelayedResourceActionPrefix.Length..].Trim();
+        return !string.IsNullOrWhiteSpace(triggerId);
+    }
+
+    private static bool BlueSentinelDelayedTriggerCanPay(
+        MatchState state,
+        PendingPaymentState payment,
+        TriggerQueueItemState trigger)
+    {
+        if (!TryReadBlueSentinelDelayedTriggerContext(trigger.TriggerId, out var capturedTurnNumber, out var sourceObjectId, out var battlefieldObjectId)
+            || !string.Equals(trigger.ControllerId, payment.PlayerId, StringComparison.Ordinal)
+            || !string.Equals(trigger.SourceObjectId, sourceObjectId, StringComparison.Ordinal)
+            || !string.Equals(trigger.EffectKind, P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityEffectKind, StringComparison.Ordinal)
+            || !string.Equals(trigger.TriggeredByEventKind, "BATTLEFIELD_HELD", StringComparison.Ordinal)
+            || state.TurnNumber != capturedTurnNumber + 1
+            || !string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, payment.PlayerId, StringComparison.Ordinal)
+            || !BlueSentinelDelayedSourceStillHoldsBattlefield(state, payment.PlayerId, sourceObjectId, battlefieldObjectId))
+        {
+            return false;
+        }
+
+        var runePool = state.RunePools.TryGetValue(payment.PlayerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        return TemporaryPaymentResourceCanHelpPowerCost(
+            runePool,
+            new TemporaryPaymentResourceState(
+                $"BLUE_SENTINEL:QUOTE:{trigger.TriggerId}",
+                payment.PlayerId,
+                sourceObjectId,
+                P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId,
+                payment.PaymentWindow,
+                generatedPower: P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower,
+                remainingPower: P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower,
+                allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind],
+                createdTick: state.Tick),
+            payment.PowerCost,
+            payment.PowerCostByTrait);
+    }
+
+    private static bool TryReadBlueSentinelDelayedTriggerContext(
+        string triggerId,
+        out int capturedTurnNumber,
+        out string sourceObjectId,
+        out string battlefieldObjectId)
+    {
+        capturedTurnNumber = 0;
+        sourceObjectId = string.Empty;
+        battlefieldObjectId = string.Empty;
+        var parts = triggerId.Split("::", StringSplitOptions.None);
+        if (parts.Length != 4
+            || !string.Equals(parts[0], "BLUE_SENTINEL_HELD_DELAYED_RESOURCE", StringComparison.Ordinal)
+            || !int.TryParse(
+                parts[1],
+                System.Globalization.NumberStyles.Integer,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out capturedTurnNumber)
+            || string.IsNullOrWhiteSpace(parts[2])
+            || string.IsNullOrWhiteSpace(parts[3]))
+        {
+            return false;
+        }
+
+        sourceObjectId = parts[2];
+        battlefieldObjectId = parts[3];
+        return capturedTurnNumber > 0;
+    }
+
+    private static bool BlueSentinelDelayedSourceStillHoldsBattlefield(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        string battlefieldObjectId)
+    {
+        return state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+            && string.Equals(sourceState.CardNo, P4ActivatedAbilityCatalog.BlueSentinelCardNo, StringComparison.Ordinal)
+            && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !sourceState.IsFaceDown
+            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
+            && state.ObjectLocations.TryGetValue(sourceObjectId, out var sourceLocation)
+            && string.Equals(sourceLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && string.Equals(sourceLocation.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+            && state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal)
+            && (!state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
+                || SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId));
     }
 
     private static IReadOnlyDictionary<string, int> PendingPaymentResourcePowerByTrait(
@@ -11285,6 +11529,13 @@ internal static class ActionPromptBuilder
             }
         }
 
+        foreach (var choiceId in BlueSentinelDelayedResourceActionIds(state, payment))
+        {
+            powerByTrait[string.Empty] = powerByTrait.TryGetValue(string.Empty, out var existing)
+                ? existing + P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower
+                : P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower;
+        }
+
         return powerByTrait;
     }
 
@@ -11304,6 +11555,10 @@ internal static class ActionPromptBuilder
                     string.Equals(resource.ResourceId, resourceId, StringComparison.Ordinal)) is { } resource)
             {
                 total += TemporaryPaymentResourceTotalRemainingPower(resource);
+            }
+            else if (TryParseBlueSentinelDelayedResourceActionId(choiceId, out _))
+            {
+                total += P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower;
             }
         }
 
@@ -11335,6 +11590,28 @@ internal static class ActionPromptBuilder
                         trait = resource.RemainingPowerByTrait.Count == 1 && resource.RemainingPower == 0
                             ? resource.RemainingPowerByTrait.Keys.Single()
                             : string.Empty;
+                    }
+                    else if (TryParseBlueSentinelDelayedResourceActionId(choiceId, out var triggerId)
+                        && state.TriggerQueue.FirstOrDefault(trigger =>
+                            string.Equals(trigger.TriggerId, triggerId, StringComparison.Ordinal)) is { } trigger
+                        && TryReadBlueSentinelDelayedTriggerContext(trigger.TriggerId, out _, out var sourceObjectId, out var battlefieldObjectId))
+                    {
+                        power = P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower;
+                        trait = string.Empty;
+                        return (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>(StringComparer.Ordinal)
+                        {
+                            ["trait"] = trait,
+                            ["power"] = power,
+                            ["paymentOnly"] = true,
+                            ["delayedTriggerId"] = trigger.TriggerId,
+                            ["sourceObjectId"] = sourceObjectId,
+                            ["battlefieldObjectId"] = battlefieldObjectId,
+                            ["abilityId"] = P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId,
+                            ["resourceRestriction"] = P4ActivatedAbilityCatalog.BlueSentinelPaymentOnlyResourceRestriction,
+                            ["allowedPaymentKinds"] = new[] { PaymentCostRules.RuneCostPaymentKind },
+                            ["resourceLifecycle"] = "temporary-payment-resource-ledger",
+                            ["generatedResourceCannotBeTargetedAsResponse"] = true
+                        };
                     }
 
                     return (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>(StringComparer.Ordinal)

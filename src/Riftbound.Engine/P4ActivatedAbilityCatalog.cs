@@ -88,6 +88,13 @@ public static class P4ActivatedAbilityCatalog
     public const string HoneyfruitLevelSixOptionalCostPrefix = "HONEYFRUIT_LEVEL_SIX:";
     public const string HoneyfruitPaymentOnlyResourceRestriction = "PAY_RUNE_COSTS_ONLY_HONEYFRUIT_TEMPORARY_LEDGER_4D_03CP";
 
+    public const string BlueSentinelCardNo = "UNL-087/219";
+    public const string BlueSentinelResourceAbilityId = "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER";
+    public const string BlueSentinelResourceAbilityEffectKind = "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_RESOURCE_SKILL_GAIN_GENERIC_POWER";
+    public const int BlueSentinelGeneratedPower = 1;
+    public const string BlueSentinelPaymentOnlyResourceRestriction = "PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ";
+    public const string BlueSentinelDelayedResourceActionPrefix = "BLUE_SENTINEL_DELAYED_RESOURCE:";
+
     public const string RenataGlascCardNo = "SFD·088/221";
     public const string RenataGlascAltCardNo = "SFD·088a/221";
     public const string RenataGlascDrawAbilityId = "RENATA_GLASC_PAY_1_BLUE_DRAW_1";
@@ -454,6 +461,23 @@ public static class P4ActivatedAbilityCatalog
             ReactionSpeed: true,
             RequiresBaseEquipmentSource: true),
         new(
+            BlueSentinelResourceAbilityId,
+            BlueSentinelCardNo,
+            BlueSentinelResourceAbilityEffectKind,
+            "Blue Sentinel held-battlefield delayed resource skill",
+            0,
+            0,
+            0,
+            RequiresBattlefieldSource: true,
+            ExhaustsSourceAsCost: false,
+            0,
+            AppliesSpellshieldTargetTax: false,
+            "Stage 4D-03CQ opens Blue Sentinel's server-captured held-battlefield delayed next-main payment-only resource representative.",
+            IsResourceSkill: true,
+            PaymentOnlyResource: true,
+            GeneratedPower: BlueSentinelGeneratedPower,
+            ResourceRestriction: BlueSentinelPaymentOnlyResourceRestriction),
+        new(
             RenataGlascDrawAbilityId,
             RenataGlascCardNo,
             RenataGlascDrawAbilityEffectKind,
@@ -785,6 +809,11 @@ public static class P4ActivatedAbilityCatalog
     public static bool IsHoneyfruitResourceAbility(string? abilityId)
     {
         return string.Equals(abilityId, HoneyfruitResourceAbilityId, StringComparison.Ordinal);
+    }
+
+    public static bool IsBlueSentinelResourceAbility(string? abilityId)
+    {
+        return string.Equals(abilityId, BlueSentinelResourceAbilityId, StringComparison.Ordinal);
     }
 
     public static bool TryGetSigilTypedResourceProfile(
