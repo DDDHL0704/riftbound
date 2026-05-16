@@ -70,6 +70,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string Post03DyReplacementOptionalAlternativeTaxQuoteCommandAuditParityVerifierEvidence = "post-03dy-replacement-optional-alternative-tax-quote-command-audit-parity-verifier-evidence";
     private const string Post03DzFullOfficialPaymentEngineMatrixDispatch = "post-03dy-b-full-official-payment-engine-matrix-dispatch";
     private const string Post03EaFullOfficialPaymentEngineMatrixVerifierHandoff = "post-03dz-full-official-payment-engine-matrix-verifier-handoff";
+    private const string Post03EaFullOfficialPaymentEngineMatrixVerifierEvidence = "post-03dz-full-official-payment-engine-matrix-verifier-evidence";
     private const string OfficialBreadthFullResourceSkillInteractionMatrixVerifierGate = "B_PAYMENT_ENGINE_OFFICIAL_BREADTH_FULL_RESOURCE_SKILL_ROW_INTERACTION_MATRIX_VERIFIER";
     private const string Post03DqResidualAuditGate = "D_COMPLETION_P0_AUDIT";
     private const string Post03DsBroaderOfficialBreadthGate = "B_PAYMENT_ENGINE_OFFICIAL_BREADTH_POST_03DS_RESIDUAL_OWNER_LOCK_VERIFIER";
@@ -4886,6 +4887,243 @@ public sealed class PaymentEngineCoverageAuditTests
             "4D-03EA handoff / acceptance contract only; project remains NOT READY, P0-005 remains open, P0-004 adjacency audit-sensitive remains open, P1 remains open, broader PaymentEngine official breadth remains open, full official resource-skill row interactions remain open, keyword payment branches remain open, remaining payment windows remain open, complete replacement / optional / alternative / tax quote-command-audit parity closure remains open, full official PaymentEngine matrix closure remains open, E_CARD_MATRIX_READINESS remains open, card matrix remains open and READY remains open.",
             Post03EaFullOfficialPaymentEngineMatrixVerifierHandoffDocAnchors)
     ];
+
+    private static readonly string[] Post03EaFullOfficialPaymentEngineMatrixVerifierEvidenceDocAnchors =
+    [
+        "docs/CURRENT_STAGE4D_03EA_B_PAYMENT_ENGINE_FULL_OFFICIAL_MATRIX_VERIFIER_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03EA_B_PAYMENT_ENGINE_FULL_OFFICIAL_MATRIX_VERIFIER_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03EA_PAYMENT_ENGINE_POST_03DZ_FULL_OFFICIAL_MATRIX_VERIFIER_HANDOFF.md",
+        "docs/CURRENT_STAGE4D_03EA_PAYMENT_ENGINE_POST_03DZ_FULL_OFFICIAL_MATRIX_VERIFIER_BASELINE_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03DZ_PAYMENT_ENGINE_POST_03DY_B_FULL_OFFICIAL_MATRIX_DISPATCH_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03DZ_PAYMENT_ENGINE_POST_03DY_B_FULL_OFFICIAL_MATRIX_DISPATCH_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03DY_B_PAYMENT_ENGINE_QUOTE_COMMAND_AUDIT_PARITY_VERIFIER_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03DY_B_PAYMENT_ENGINE_QUOTE_COMMAND_AUDIT_PARITY_VERIFIER_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03BO_PAYMENT_ENGINE_OFFICIAL_MATRIX_DOWNSTREAM_AGGREGATE_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03BO_PAYMENT_ENGINE_OFFICIAL_MATRIX_DOWNSTREAM_AGGREGATE_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03BC_PAYMENT_ENGINE_OFFICIAL_MATRIX_ROW_SCHEMA_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03BC_PAYMENT_ENGINE_OFFICIAL_MATRIX_ROW_SCHEMA_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03BL_PAYMENT_ENGINE_ROLLBACK_FAILURE_MATRIX_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03BL_PAYMENT_ENGINE_ROLLBACK_FAILURE_MATRIX_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03BM_PAYMENT_ENGINE_CROSS_WINDOW_GENERATION_CONSUMPTION_MATRIX_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03BM_PAYMENT_ENGINE_CROSS_WINDOW_GENERATION_CONSUMPTION_MATRIX_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03BN_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_MATRIX_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03BN_PAYMENT_ENGINE_CARD_MATRIX_ALIGNMENT_MATRIX_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03BP_PAYMENT_ENGINE_KEYWORD_BRANCH_MATRIX_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03BP_PAYMENT_ENGINE_KEYWORD_BRANCH_MATRIX_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03BQ_PAYMENT_ENGINE_RESOURCE_SKILL_ALL_WINDOW_MATRIX_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03BQ_PAYMENT_ENGINE_RESOURCE_SKILL_ALL_WINDOW_MATRIX_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03BR_PAYMENT_ENGINE_TARGET_TAX_ACTIVATED_ABILITY_MATRIX_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03BR_PAYMENT_ENGINE_TARGET_TAX_ACTIVATED_ABILITY_MATRIX_EVIDENCE.md",
+        "docs/CURRENT_COMPLETION_AUDIT.md",
+        "docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md",
+        "docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md",
+        "docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md",
+        "docs/CURRENT_SERVER_RULE_AUDIT.md",
+        "docs/CURRENT_FRONTEND_REBUILD_PLAN.md"
+    ];
+
+    private static readonly PaymentEnginePost03EaFullOfficialPaymentEngineMatrixVerifierEvidenceEntry[] Post03EaFullOfficialPaymentEngineMatrixVerifierEvidenceManifest =
+        BuildPost03EaFullOfficialPaymentEngineMatrixVerifierEvidence();
+
+    private static PaymentEnginePost03EaFullOfficialPaymentEngineMatrixVerifierEvidenceEntry[] BuildPost03EaFullOfficialPaymentEngineMatrixVerifierEvidence()
+    {
+        var handoff = Assert.Single(Post03EaFullOfficialPaymentEngineMatrixVerifierHandoffManifest);
+        var dispatch = Assert.Single(Post03DzFullOfficialPaymentEngineMatrixDispatchManifest);
+        var boundInputManifests = new[]
+        {
+            nameof(Post03EaFullOfficialPaymentEngineMatrixVerifierHandoffManifest),
+            nameof(Post03DzFullOfficialPaymentEngineMatrixDispatchManifest),
+            nameof(Post03DyReplacementOptionalAlternativeTaxParityVerifierEvidenceManifest),
+            nameof(Post03DyReplacementOptionalAlternativeTaxParityDispatchManifest),
+            nameof(Post03DxRemainingPaymentWindowsVerifierEvidenceManifest),
+            nameof(Post03DxRemainingPaymentWindowsDispatchManifest),
+            nameof(Post03DwKeywordPaymentBranchesVerifierEvidenceManifest),
+            nameof(Post03DwKeywordPaymentBranchesDispatchManifest),
+            nameof(Post03DvFullOfficialResourceSkillRowInteractionsVerifierEvidenceManifest),
+            nameof(Post03DvFullOfficialResourceSkillRowInteractionsDispatchManifest),
+            nameof(Post03DuBroaderOfficialBreadthVerifierEvidenceManifest),
+            nameof(Post03DqResidualP0AuditClassificationManifest),
+            nameof(OfficialBreadthPost03DqResidualDispatchManifest),
+            nameof(OfficialBreadthFullResourceSkillInteractionMatrixVerifierEvidenceManifest),
+            nameof(OfficialPaymentEngineMatrixResidualManifest),
+            nameof(OfficialPaymentEngineMatrixSeedRowManifest),
+            nameof(PaymentEngineOfficialMatrixDownstreamAggregateManifest),
+            nameof(RollbackFailureAllWindowMatrixManifest),
+            nameof(CrossWindowGenerationConsumptionAllWindowMatrixManifest),
+            nameof(CardMatrixAlignmentAllWindowMatrixManifest),
+            nameof(KeywordPaymentBranchAllWindowMatrixManifest),
+            nameof(ResourceSkillAllWindowMatrixManifest),
+            nameof(TargetTaxActivatedAbilityMatrixManifest),
+            nameof(CoverageManifest),
+            nameof(RemainingOfficialClosureGateManifest)
+        };
+        var entries = new List<PaymentEnginePost03EaFullOfficialPaymentEngineMatrixVerifierEvidenceEntry>();
+
+        entries.AddRange(OfficialPaymentEngineMatrixResidualManifest.Select(entry =>
+            new PaymentEnginePost03EaFullOfficialPaymentEngineMatrixVerifierEvidenceEntry(
+                handoff.GateId,
+                handoff.ConcreteScopeGateId,
+                Post03EaFullOfficialPaymentEngineMatrixVerifierEvidence,
+                nameof(Post03EaFullOfficialPaymentEngineMatrixVerifierHandoffManifest),
+                nameof(Post03DzFullOfficialPaymentEngineMatrixDispatchManifest),
+                dispatch.SelectedResidualCategory,
+                boundInputManifests,
+                nameof(OfficialPaymentEngineMatrixResidualManifest),
+                entry.Axis,
+                entry.Classification,
+                OfficialPaymentEngineMatrixResidualManifest.Length,
+                entry.Axis,
+                "residual axis",
+                $"4D-03EA-B binds residual axis {entry.Axis}: {entry.RepresentativeEvidence}; required verifier remains {entry.RequiredFutureVerifier}.",
+                $"4D-03EA-B prompt quote evidence for residual axis {entry.Axis}: {entry.PromptCommandAuditExpectation}.",
+                $"4D-03EA-B legal command shape evidence for residual axis {entry.Axis}: command evidence remains server LegalAction / prompt-supported only, not local inference.",
+                $"4D-03EA-B Command revalidation evidence for residual axis {entry.Axis}: {entry.PromptCommandAuditExpectation}.",
+                $"4D-03EA-B authoritative audit parity evidence for residual axis {entry.Axis}: {entry.PromptCommandAuditExpectation}.",
+                $"4D-03EA-B rollback/no-mutation evidence for residual axis {entry.Axis}: {entry.RollbackExpectation}.",
+                $"4D-03EA-B generated-resource lifetime evidence for residual axis {entry.Axis}: generated-resource lifetime and nonresource boundary remain explicit; {entry.RemainingOfficialBreadth}.",
+                $"4D-03EA-B source-card trace evidence for residual axis {entry.Axis}: doc anchors [{string.Join(", ", entry.DocAnchors)}] stay bound and cannot be replaced by aggregate proxy evidence.",
+                $"4D-03EA-B card-row blocker / fullOfficial=false evidence for residual axis {entry.Axis}: card matrix JSON remains unchanged, no fullOfficial upgrade is permitted, and {entry.ClosureStatus}.",
+                "Runtime, frontend, Chrome / browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial status, final readiness status and riftbound-dotnet.sln remain forbidden in 4D-03EA-B.",
+                "4D-03EA-B verifier evidence only; 4D-03EA handoff and 4D-03DZ dispatch remain input evidence only, project remains NOT READY, P0-005 remains open, P0-004 adjacency audit-sensitive remains open, P1 remains open, broader PaymentEngine official breadth remains open, full official resource-skill row interactions remain open, keyword payment branches remain open, remaining payment windows remain open, complete replacement / optional / alternative / tax quote-command-audit parity closure remains open, full official PaymentEngine matrix closure remains open, E_CARD_MATRIX_READINESS remains open, card matrix remains open and READY remains open.",
+                [.. Post03EaFullOfficialPaymentEngineMatrixVerifierEvidenceDocAnchors, .. entry.DocAnchors])));
+
+        entries.AddRange(OfficialPaymentEngineMatrixSeedRowManifest.Select(entry =>
+            new PaymentEnginePost03EaFullOfficialPaymentEngineMatrixVerifierEvidenceEntry(
+                handoff.GateId,
+                handoff.ConcreteScopeGateId,
+                Post03EaFullOfficialPaymentEngineMatrixVerifierEvidence,
+                nameof(Post03EaFullOfficialPaymentEngineMatrixVerifierHandoffManifest),
+                nameof(Post03DzFullOfficialPaymentEngineMatrixDispatchManifest),
+                dispatch.SelectedResidualCategory,
+                boundInputManifests,
+                nameof(OfficialPaymentEngineMatrixSeedRowManifest),
+                entry.RowId,
+                entry.RowStatus,
+                OfficialPaymentEngineMatrixSeedRowManifest.Length,
+                entry.Axis,
+                $"{entry.ActionWindow} / {entry.PaymentOrPolicyProfile}",
+                $"4D-03EA-B binds seed row {entry.RowId}: status={entry.RowStatus}, axis={entry.Axis}, representative scope={entry.RepresentativeScope}.",
+                $"4D-03EA-B prompt quote evidence for seed row {entry.RowId}: {entry.PromptAnchor}.",
+                $"4D-03EA-B legal command shape evidence for seed row {entry.RowId}: {entry.CommandAnchor}; submitted command must match server prompt-supported shape.",
+                $"4D-03EA-B Command revalidation evidence for seed row {entry.RowId}: server command path must revalidate action window {entry.ActionWindow} before mutation.",
+                $"4D-03EA-B authoritative audit parity evidence for seed row {entry.RowId}: {entry.AuditAnchor}.",
+                $"4D-03EA-B rollback/no-mutation evidence for seed row {entry.RowId}: {entry.RollbackExpectation}.",
+                $"4D-03EA-B generated-resource lifetime evidence for seed row {entry.RowId}: payment/profile lifetime remains explicit through {entry.PaymentOrPolicyProfile}; {entry.RemainingOfficialBreadth}.",
+                $"4D-03EA-B source-card trace evidence for seed row {entry.RowId}: source row remains tied to action window {entry.ActionWindow} and docs [{string.Join(", ", entry.DocAnchors)}].",
+                $"4D-03EA-B card-row blocker / fullOfficial=false evidence for seed row {entry.RowId}: card matrix JSON remains unchanged, no fullOfficial upgrade is permitted, and {entry.ClosureStatus}.",
+                "Runtime, frontend, Chrome / browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial status, final readiness status and riftbound-dotnet.sln remain forbidden in 4D-03EA-B.",
+                "4D-03EA-B verifier evidence only; 4D-03EA handoff and 4D-03DZ dispatch remain input evidence only, project remains NOT READY, P0-005 remains open, P0-004 adjacency audit-sensitive remains open, P1 remains open, broader PaymentEngine official breadth remains open, full official resource-skill row interactions remain open, keyword payment branches remain open, remaining payment windows remain open, complete replacement / optional / alternative / tax quote-command-audit parity closure remains open, full official PaymentEngine matrix closure remains open, E_CARD_MATRIX_READINESS remains open, card matrix remains open and READY remains open.",
+                [.. Post03EaFullOfficialPaymentEngineMatrixVerifierEvidenceDocAnchors, .. entry.DocAnchors])));
+
+        entries.AddRange(PaymentEngineOfficialMatrixDownstreamAggregateManifest.Select(entry =>
+            new PaymentEnginePost03EaFullOfficialPaymentEngineMatrixVerifierEvidenceEntry(
+                handoff.GateId,
+                handoff.ConcreteScopeGateId,
+                Post03EaFullOfficialPaymentEngineMatrixVerifierEvidence,
+                nameof(Post03EaFullOfficialPaymentEngineMatrixVerifierHandoffManifest),
+                nameof(Post03DzFullOfficialPaymentEngineMatrixDispatchManifest),
+                dispatch.SelectedResidualCategory,
+                boundInputManifests,
+                nameof(PaymentEngineOfficialMatrixDownstreamAggregateManifest),
+                entry.AggregateRowId,
+                entry.Classification,
+                PaymentEngineOfficialMatrixDownstreamAggregateManifest.Length,
+                entry.Axis,
+                entry.PaymentSurfaceScope,
+                $"4D-03EA-B binds downstream aggregate row {entry.AggregateRowId}: official row {entry.OfficialMatrixRowId}, family manifest {entry.FamilyManifestName}, all-window manifest {entry.AllWindowManifestName}, family count {entry.FamilyCount}, all-window count {entry.AllWindowMatrixCount}.",
+                $"4D-03EA-B prompt quote evidence for downstream aggregate row {entry.AggregateRowId}: all source family rows keep prompt quote evidence through {entry.FamilyManifestName}.",
+                $"4D-03EA-B legal command shape evidence for downstream aggregate row {entry.AggregateRowId}: all-window manifest {entry.AllWindowManifestName} must remain server command-shaped evidence, not closure.",
+                $"4D-03EA-B Command revalidation evidence for downstream aggregate row {entry.AggregateRowId}: family classification {entry.FamilyClassification} and all-window classification {entry.AllWindowClassification} stay revalidation inputs.",
+                $"4D-03EA-B authoritative audit parity evidence for downstream aggregate row {entry.AggregateRowId}: aggregate scope {entry.AggregateScope}.",
+                $"4D-03EA-B rollback/no-mutation evidence for downstream aggregate row {entry.AggregateRowId}: {entry.RemainingOfficialBreadth}.",
+                $"4D-03EA-B generated-resource lifetime evidence for downstream aggregate row {entry.AggregateRowId}: all-window input keeps lifecycle / no-mutation dimensions visible before any full official matrix closure.",
+                $"4D-03EA-B source-card trace evidence for downstream aggregate row {entry.AggregateRowId}: docs [{string.Join(", ", entry.DocAnchors)}] remain row-specific input anchors.",
+                $"4D-03EA-B card-row blocker / fullOfficial=false evidence for downstream aggregate row {entry.AggregateRowId}: excluded surfaces {entry.ExcludedPaymentSurfaces}; card matrix JSON remains unchanged and {entry.ClosureStatus}.",
+                "Runtime, frontend, Chrome / browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial status, final readiness status and riftbound-dotnet.sln remain forbidden in 4D-03EA-B.",
+                "4D-03EA-B verifier evidence only; 4D-03EA handoff and 4D-03DZ dispatch remain input evidence only, project remains NOT READY, P0-005 remains open, P0-004 adjacency audit-sensitive remains open, P1 remains open, broader PaymentEngine official breadth remains open, full official resource-skill row interactions remain open, keyword payment branches remain open, remaining payment windows remain open, complete replacement / optional / alternative / tax quote-command-audit parity closure remains open, full official PaymentEngine matrix closure remains open, E_CARD_MATRIX_READINESS remains open, card matrix remains open and READY remains open.",
+                [.. Post03EaFullOfficialPaymentEngineMatrixVerifierEvidenceDocAnchors, .. entry.DocAnchors])));
+
+        entries.Add(BuildMatrixInputEvidence(
+            nameof(RollbackFailureAllWindowMatrixManifest),
+            RollbackFailureAllWindowMatrixManifest.Length,
+            RollbackFailureAllWindowMatrix,
+            "ROLLBACK_FAILURE_BRANCHES",
+            "rollback failure all-window matrix rows keep prompt quote / command rejection / audit expectation / no-mutation evidence across payment windows",
+            RollbackFailureAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors).Distinct(StringComparer.Ordinal).ToArray()));
+        entries.Add(BuildMatrixInputEvidence(
+            nameof(CrossWindowGenerationConsumptionAllWindowMatrixManifest),
+            CrossWindowGenerationConsumptionAllWindowMatrixManifest.Length,
+            CrossWindowAllWindowMatrix,
+            "CROSS_WINDOW_GENERATION_CONSUMPTION",
+            "cross-window generation / consumption all-window matrix rows keep prompt quote / command / audit / lifetime / no-mutation / restriction evidence",
+            CrossWindowGenerationConsumptionAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors).Distinct(StringComparer.Ordinal).ToArray()));
+        entries.Add(BuildMatrixInputEvidence(
+            nameof(CardMatrixAlignmentAllWindowMatrixManifest),
+            CardMatrixAlignmentAllWindowMatrixManifest.Length,
+            CardMatrixAllWindowMatrix,
+            "CARD_MATRIX_ALIGNMENT",
+            "card matrix alignment all-window rows keep prompt / command / audit / matrix sync / frontend snapshot trace evidence while card matrix JSON remains locked",
+            CardMatrixAlignmentAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors).Distinct(StringComparer.Ordinal).ToArray()));
+        entries.Add(BuildMatrixInputEvidence(
+            nameof(KeywordPaymentBranchAllWindowMatrixManifest),
+            KeywordPaymentBranchAllWindowMatrixManifest.Length,
+            KeywordBranchAllWindowMatrix,
+            "KEYWORD_BRANCHES / COST_MODIFIERS / OPTIONAL_EXTRA_ALTERNATIVE_COSTS / REPLACEMENT_PREVENTION",
+            "keyword branch all-window matrix rows keep prompt quote / Command revalidation / audit / rollback evidence across keyword branches",
+            KeywordPaymentBranchAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors).Distinct(StringComparer.Ordinal).ToArray()));
+        entries.Add(BuildMatrixInputEvidence(
+            nameof(ResourceSkillAllWindowMatrixManifest),
+            ResourceSkillAllWindowMatrixManifest.Length,
+            ResourceSkillAllWindowMatrix,
+            "RESOURCE_SKILLS",
+            "resource-skill all-window matrix rows keep prompt quote / Command revalidation / audit / generated-resource restriction / rollback evidence",
+            ResourceSkillAllWindowMatrixManifest.SelectMany(entry => entry.DocAnchors).Distinct(StringComparer.Ordinal).ToArray()));
+        entries.Add(BuildMatrixInputEvidence(
+            nameof(TargetTaxActivatedAbilityMatrixManifest),
+            TargetTaxActivatedAbilityMatrixManifest.Length,
+            TargetTaxActivatedAbilityMatrix,
+            "TARGET_TAXES",
+            "target-tax activated ability matrix rows keep source timing / target profile / payment profile / target-tax branch / prompt quote / command / audit / rollback evidence",
+            TargetTaxActivatedAbilityMatrixManifest.SelectMany(entry => entry.DocAnchors).Distinct(StringComparer.Ordinal).ToArray()));
+
+        return [.. entries];
+
+        PaymentEnginePost03EaFullOfficialPaymentEngineMatrixVerifierEvidenceEntry BuildMatrixInputEvidence(
+            string sourceManifest,
+            int sourceRowCount,
+            string sourceClassification,
+            string residualAxis,
+            string summary,
+            IReadOnlyList<string> docAnchors)
+        {
+            return new PaymentEnginePost03EaFullOfficialPaymentEngineMatrixVerifierEvidenceEntry(
+                handoff.GateId,
+                handoff.ConcreteScopeGateId,
+                Post03EaFullOfficialPaymentEngineMatrixVerifierEvidence,
+                nameof(Post03EaFullOfficialPaymentEngineMatrixVerifierHandoffManifest),
+                nameof(Post03DzFullOfficialPaymentEngineMatrixDispatchManifest),
+                dispatch.SelectedResidualCategory,
+                boundInputManifests,
+                sourceManifest,
+                sourceManifest,
+                sourceClassification,
+                sourceRowCount,
+                residualAxis,
+                "all-window input matrix",
+                $"4D-03EA-B binds input matrix {sourceManifest}: rows={sourceRowCount}; {summary}.",
+                $"4D-03EA-B prompt quote evidence for input matrix {sourceManifest}: {summary}.",
+                $"4D-03EA-B legal command shape evidence for input matrix {sourceManifest}: server LegalAction / prompt-supported command shape remains required for every input row.",
+                $"4D-03EA-B Command revalidation evidence for input matrix {sourceManifest}: every input row remains revalidation evidence only.",
+                $"4D-03EA-B authoritative audit parity evidence for input matrix {sourceManifest}: authoritative audit parity remains row-bound input evidence.",
+                $"4D-03EA-B rollback/no-mutation evidence for input matrix {sourceManifest}: rollback/no-mutation stays required before any matrix closure.",
+                $"4D-03EA-B generated-resource lifetime evidence for input matrix {sourceManifest}: generated-resource lifetime / restriction / cleanup dimensions remain visible where applicable.",
+                $"4D-03EA-B source-card trace evidence for input matrix {sourceManifest}: doc anchors [{string.Join(", ", docAnchors)}] remain source trace input evidence.",
+                $"4D-03EA-B card-row blocker / fullOfficial=false evidence for input matrix {sourceManifest}: card matrix JSON remains unchanged, no fullOfficial upgrade is permitted, and full official matrix closure remains open.",
+                "Runtime, frontend, Chrome / browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial status, final readiness status and riftbound-dotnet.sln remain forbidden in 4D-03EA-B.",
+                "4D-03EA-B verifier evidence only; 4D-03EA handoff and 4D-03DZ dispatch remain input evidence only, project remains NOT READY, P0-005 remains open, P0-004 adjacency audit-sensitive remains open, P1 remains open, broader PaymentEngine official breadth remains open, full official resource-skill row interactions remain open, keyword payment branches remain open, remaining payment windows remain open, complete replacement / optional / alternative / tax quote-command-audit parity closure remains open, full official PaymentEngine matrix closure remains open, E_CARD_MATRIX_READINESS remains open, card matrix remains open and READY remains open.",
+                [.. Post03EaFullOfficialPaymentEngineMatrixVerifierEvidenceDocAnchors, .. docAnchors]);
+        }
+    }
 
     private static PaymentEnginePost03DyReplacementOptionalAlternativeTaxParityVerifierEvidenceEntry[] BuildPost03DyReplacementOptionalAlternativeTaxParityVerifierEvidence()
     {
@@ -14242,15 +14480,220 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
-    public void PaymentEngineActiveGoalCompletionAuditMappingTracksCurrent03EaHeadHandoff()
+    public void PaymentEnginePost03EaFullOfficialPaymentEngineMatrixVerifierEvidenceBindsOfficialMatrixContractWithoutClosingFullOfficialMatrix()
+    {
+        var repositoryRoot = ResolveRepositoryRoot();
+        var handoff = Assert.Single(Post03EaFullOfficialPaymentEngineMatrixVerifierHandoffManifest);
+        var dispatch = Assert.Single(Post03DzFullOfficialPaymentEngineMatrixDispatchManifest);
+        var selectedClassification = Assert.Single(
+            Post03DqResidualP0AuditClassificationManifest,
+            entry => string.Equals(entry.ResidualCategory, "full-official-payment-engine-matrix", StringComparison.Ordinal));
+        var residualEvidenceRows = Post03EaFullOfficialPaymentEngineMatrixVerifierEvidenceManifest
+            .Where(entry => string.Equals(entry.EvidenceSourceManifest, nameof(OfficialPaymentEngineMatrixResidualManifest), StringComparison.Ordinal))
+            .ToArray();
+        var seedEvidenceRows = Post03EaFullOfficialPaymentEngineMatrixVerifierEvidenceManifest
+            .Where(entry => string.Equals(entry.EvidenceSourceManifest, nameof(OfficialPaymentEngineMatrixSeedRowManifest), StringComparison.Ordinal))
+            .ToArray();
+        var downstreamAggregateEvidenceRows = Post03EaFullOfficialPaymentEngineMatrixVerifierEvidenceManifest
+            .Where(entry => string.Equals(entry.EvidenceSourceManifest, nameof(PaymentEngineOfficialMatrixDownstreamAggregateManifest), StringComparison.Ordinal))
+            .ToArray();
+        var matrixInputRows = Post03EaFullOfficialPaymentEngineMatrixVerifierEvidenceManifest
+            .Where(entry => entry.PaymentSurfaceScope.Contains("all-window input matrix", StringComparison.Ordinal))
+            .ToArray();
+        var expectedMatrixInputs = new[]
+        {
+            new { SourceManifest = nameof(RollbackFailureAllWindowMatrixManifest), SourceRowCount = RollbackFailureAllWindowMatrixManifest.Length, Classification = RollbackFailureAllWindowMatrix },
+            new { SourceManifest = nameof(CrossWindowGenerationConsumptionAllWindowMatrixManifest), SourceRowCount = CrossWindowGenerationConsumptionAllWindowMatrixManifest.Length, Classification = CrossWindowAllWindowMatrix },
+            new { SourceManifest = nameof(CardMatrixAlignmentAllWindowMatrixManifest), SourceRowCount = CardMatrixAlignmentAllWindowMatrixManifest.Length, Classification = CardMatrixAllWindowMatrix },
+            new { SourceManifest = nameof(KeywordPaymentBranchAllWindowMatrixManifest), SourceRowCount = KeywordPaymentBranchAllWindowMatrixManifest.Length, Classification = KeywordBranchAllWindowMatrix },
+            new { SourceManifest = nameof(ResourceSkillAllWindowMatrixManifest), SourceRowCount = ResourceSkillAllWindowMatrixManifest.Length, Classification = ResourceSkillAllWindowMatrix },
+            new { SourceManifest = nameof(TargetTaxActivatedAbilityMatrixManifest), SourceRowCount = TargetTaxActivatedAbilityMatrixManifest.Length, Classification = TargetTaxActivatedAbilityMatrix }
+        };
+        var requiredBoundInputs = new[]
+        {
+            nameof(Post03EaFullOfficialPaymentEngineMatrixVerifierHandoffManifest),
+            nameof(Post03DzFullOfficialPaymentEngineMatrixDispatchManifest),
+            nameof(Post03DyReplacementOptionalAlternativeTaxParityVerifierEvidenceManifest),
+            nameof(Post03DyReplacementOptionalAlternativeTaxParityDispatchManifest),
+            nameof(Post03DxRemainingPaymentWindowsVerifierEvidenceManifest),
+            nameof(Post03DxRemainingPaymentWindowsDispatchManifest),
+            nameof(Post03DwKeywordPaymentBranchesVerifierEvidenceManifest),
+            nameof(Post03DwKeywordPaymentBranchesDispatchManifest),
+            nameof(Post03DvFullOfficialResourceSkillRowInteractionsVerifierEvidenceManifest),
+            nameof(Post03DvFullOfficialResourceSkillRowInteractionsDispatchManifest),
+            nameof(Post03DuBroaderOfficialBreadthVerifierEvidenceManifest),
+            nameof(Post03DqResidualP0AuditClassificationManifest),
+            nameof(OfficialBreadthPost03DqResidualDispatchManifest),
+            nameof(OfficialBreadthFullResourceSkillInteractionMatrixVerifierEvidenceManifest),
+            nameof(OfficialPaymentEngineMatrixResidualManifest),
+            nameof(OfficialPaymentEngineMatrixSeedRowManifest),
+            nameof(PaymentEngineOfficialMatrixDownstreamAggregateManifest),
+            nameof(RollbackFailureAllWindowMatrixManifest),
+            nameof(CrossWindowGenerationConsumptionAllWindowMatrixManifest),
+            nameof(CardMatrixAlignmentAllWindowMatrixManifest),
+            nameof(KeywordPaymentBranchAllWindowMatrixManifest),
+            nameof(ResourceSkillAllWindowMatrixManifest),
+            nameof(TargetTaxActivatedAbilityMatrixManifest),
+            nameof(CoverageManifest),
+            nameof(RemainingOfficialClosureGateManifest)
+        };
+        var combinedText = string.Join(
+            " ",
+            Post03EaFullOfficialPaymentEngineMatrixVerifierEvidenceManifest.SelectMany(entry => new[]
+            {
+                entry.GateId,
+                entry.ConcreteScopeGateId,
+                entry.Classification,
+                entry.InputHandoffManifest,
+                entry.InputDispatchManifest,
+                entry.SelectedResidualCategory,
+                entry.EvidenceSourceManifest,
+                entry.EvidenceRowId,
+                entry.EvidenceRowClassification,
+                entry.ResidualAxis,
+                entry.PaymentSurfaceScope,
+                entry.EvidenceSummary,
+                entry.PromptQuoteEvidence,
+                entry.LegalCommandShapeEvidence,
+                entry.CommandRevalidationEvidence,
+                entry.AuthoritativeAuditParityEvidence,
+                entry.RollbackNoMutationEvidence,
+                entry.GeneratedResourceLifetimeEvidence,
+                entry.SourceCardTraceEvidence,
+                entry.CardRowBlockerEvidence,
+                entry.ForbiddenScope,
+                entry.NonClosureStatus
+            }.Concat(entry.BoundInputEvidenceManifests)
+                .Concat(entry.DocAnchors)));
+
+        Assert.Equal(OfficialPaymentEngineMatrixResidualManifest.Length, residualEvidenceRows.Length);
+        Assert.Equal(
+            OfficialPaymentEngineMatrixResidualManifest.Select(entry => entry.Axis).Order(StringComparer.Ordinal),
+            residualEvidenceRows.Select(entry => entry.EvidenceRowId).Order(StringComparer.Ordinal));
+        Assert.Equal(OfficialPaymentEngineMatrixSeedRowManifest.Length, seedEvidenceRows.Length);
+        Assert.Equal(
+            OfficialPaymentEngineMatrixSeedRowManifest.Select(entry => entry.RowId).Order(StringComparer.Ordinal),
+            seedEvidenceRows.Select(entry => entry.EvidenceRowId).Order(StringComparer.Ordinal));
+        Assert.Equal(PaymentEngineOfficialMatrixDownstreamAggregateManifest.Length, downstreamAggregateEvidenceRows.Length);
+        Assert.Equal(
+            PaymentEngineOfficialMatrixDownstreamAggregateManifest.Select(entry => entry.AggregateRowId).Order(StringComparer.Ordinal),
+            downstreamAggregateEvidenceRows.Select(entry => entry.EvidenceRowId).Order(StringComparer.Ordinal));
+        Assert.Equal(expectedMatrixInputs.Length, matrixInputRows.Length);
+        Assert.Equal(
+            OfficialPaymentEngineMatrixResidualManifest.Length
+                + OfficialPaymentEngineMatrixSeedRowManifest.Length
+                + PaymentEngineOfficialMatrixDownstreamAggregateManifest.Length
+                + expectedMatrixInputs.Length,
+            Post03EaFullOfficialPaymentEngineMatrixVerifierEvidenceManifest.Length);
+
+        Assert.Equal(handoff.ConcreteScopeGateId, dispatch.ConcreteScopeGateId);
+        Assert.Equal("full-official-payment-engine-matrix", dispatch.SelectedResidualCategory);
+        Assert.Equal("full-official-payment-engine-matrix", selectedClassification.ResidualCategory);
+        Assert.Equal("B_PAYMENT_ENGINE_FULL_OFFICIAL_MATRIX", selectedClassification.DownstreamOwner);
+
+        foreach (var expected in expectedMatrixInputs)
+        {
+            var row = Assert.Single(matrixInputRows, entry => string.Equals(entry.EvidenceSourceManifest, expected.SourceManifest, StringComparison.Ordinal));
+
+            Assert.Equal(expected.SourceRowCount, row.SourceRowCount);
+            Assert.Equal(expected.Classification, row.EvidenceRowClassification);
+        }
+
+        Assert.All(Post03EaFullOfficialPaymentEngineMatrixVerifierEvidenceManifest, entry =>
+        {
+            Assert.Equal("B_PAYMENT_ENGINE_FULL_OFFICIAL_MATRIX", entry.GateId);
+            Assert.Equal(Post03DzFullOfficialPaymentEngineMatrixGate, entry.ConcreteScopeGateId);
+            Assert.Equal(Post03EaFullOfficialPaymentEngineMatrixVerifierEvidence, entry.Classification);
+            Assert.Equal(nameof(Post03EaFullOfficialPaymentEngineMatrixVerifierHandoffManifest), entry.InputHandoffManifest);
+            Assert.Equal(nameof(Post03DzFullOfficialPaymentEngineMatrixDispatchManifest), entry.InputDispatchManifest);
+            Assert.Equal("full-official-payment-engine-matrix", entry.SelectedResidualCategory);
+            Assert.All(requiredBoundInputs, requiredInput => Assert.Contains(requiredInput, entry.BoundInputEvidenceManifests));
+            Assert.Contains("4D-03EA-B", entry.EvidenceSummary, StringComparison.Ordinal);
+            Assert.Contains("prompt quote", entry.PromptQuoteEvidence, StringComparison.Ordinal);
+            Assert.Contains("legal command shape", entry.LegalCommandShapeEvidence, StringComparison.Ordinal);
+            Assert.Contains("Command revalidation", entry.CommandRevalidationEvidence, StringComparison.Ordinal);
+            Assert.Contains("authoritative audit parity", entry.AuthoritativeAuditParityEvidence, StringComparison.Ordinal);
+            Assert.Contains("rollback/no-mutation", entry.RollbackNoMutationEvidence, StringComparison.Ordinal);
+            Assert.Contains("generated-resource lifetime", entry.GeneratedResourceLifetimeEvidence, StringComparison.Ordinal);
+            Assert.Contains("source-card trace", entry.SourceCardTraceEvidence, StringComparison.Ordinal);
+            Assert.Contains("card-row blocker", entry.CardRowBlockerEvidence, StringComparison.Ordinal);
+            Assert.Contains("fullOfficial=false", entry.CardRowBlockerEvidence, StringComparison.Ordinal);
+            Assert.Contains("card matrix JSON remains unchanged", entry.CardRowBlockerEvidence, StringComparison.Ordinal);
+            Assert.Contains("Runtime", entry.ForbiddenScope, StringComparison.Ordinal);
+            Assert.Contains("frontend", entry.ForbiddenScope, StringComparison.Ordinal);
+            Assert.Contains("Chrome / browser scripts", entry.ForbiddenScope, StringComparison.Ordinal);
+            Assert.Contains("formal 18-step scripts", entry.ForbiddenScope, StringComparison.Ordinal);
+            Assert.Contains("card matrix JSON", entry.ForbiddenScope, StringComparison.Ordinal);
+            Assert.Contains("fullOfficial status", entry.ForbiddenScope, StringComparison.Ordinal);
+            Assert.Contains("final readiness status", entry.ForbiddenScope, StringComparison.Ordinal);
+            Assert.Contains("riftbound-dotnet.sln", entry.ForbiddenScope, StringComparison.Ordinal);
+            Assert.Contains("4D-03EA handoff and 4D-03DZ dispatch remain input evidence only", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("NOT READY", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-004 adjacency audit-sensitive remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P1 remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("broader PaymentEngine official breadth remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("full official resource-skill row interactions remain open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("keyword payment branches remain open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("remaining payment windows remain open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("complete replacement / optional / alternative / tax quote-command-audit parity closure remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("full official PaymentEngine matrix closure remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("E_CARD_MATRIX_READINESS remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("card matrix remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("READY remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("docs/CURRENT_STAGE4D_03EA_B_PAYMENT_ENGINE_FULL_OFFICIAL_MATRIX_VERIFIER_AUDIT.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03EA_B_PAYMENT_ENGINE_FULL_OFFICIAL_MATRIX_VERIFIER_EVIDENCE.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03EA_PAYMENT_ENGINE_POST_03DZ_FULL_OFFICIAL_MATRIX_VERIFIER_HANDOFF.md", entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor => Assert.True(File.Exists(Path.Combine(repositoryRoot, anchor)), anchor));
+        });
+
+        Assert.Contains("Post03EaFullOfficialPaymentEngineMatrixVerifierHandoffManifest", combinedText, StringComparison.Ordinal);
+        Assert.Contains("Post03DzFullOfficialPaymentEngineMatrixDispatchManifest", combinedText, StringComparison.Ordinal);
+        Assert.Contains("OfficialPaymentEngineMatrixResidualManifest", combinedText, StringComparison.Ordinal);
+        Assert.Contains("OfficialPaymentEngineMatrixSeedRowManifest", combinedText, StringComparison.Ordinal);
+        Assert.Contains("PaymentEngineOfficialMatrixDownstreamAggregateManifest", combinedText, StringComparison.Ordinal);
+        Assert.Contains("RollbackFailureAllWindowMatrixManifest", combinedText, StringComparison.Ordinal);
+        Assert.Contains("CrossWindowGenerationConsumptionAllWindowMatrixManifest", combinedText, StringComparison.Ordinal);
+        Assert.Contains("CardMatrixAlignmentAllWindowMatrixManifest", combinedText, StringComparison.Ordinal);
+        Assert.Contains("KeywordPaymentBranchAllWindowMatrixManifest", combinedText, StringComparison.Ordinal);
+        Assert.Contains("ResourceSkillAllWindowMatrixManifest", combinedText, StringComparison.Ordinal);
+        Assert.Contains("TargetTaxActivatedAbilityMatrixManifest", combinedText, StringComparison.Ordinal);
+        Assert.Contains("source-card trace", combinedText, StringComparison.Ordinal);
+        Assert.Contains("card-row blocker / fullOfficial=false", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.All(
+            Post03EaFullOfficialPaymentEngineMatrixVerifierEvidenceDocAnchors,
+            anchor => Assert.True(File.Exists(Path.Combine(repositoryRoot, anchor)), anchor));
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("READY remains open", string.Empty, StringComparison.Ordinal)
+                .Replace("E_CARD_MATRIX_READINESS", string.Empty, StringComparison.Ordinal)
+                .Replace("CANNOT_READY", string.Empty, StringComparison.Ordinal)
+                .Replace("READY_UNIT", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineActiveGoalCompletionAuditMappingTracksCurrent03EaBVerifierEvidence()
     {
         var repositoryRoot = ResolveRepositoryRoot();
         var completionAudit = File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_COMPLETION_AUDIT.md"));
         var checklist = File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md"));
         var completionMapping = ExtractSection(completionAudit, "## 0.1 Active Goal 门槛到证据映射", "## 1.");
-        var checklistCurrentHead = ExtractSection(checklist, "当前 4D-03EA", "上一批 4D-03DZ");
+        var checklistCurrentHead = ExtractSection(checklist, "当前 4D-03EA-B", "上一批 4D-03EA");
         var checklistMapping = ExtractSection(checklist, "## 3. 主目标门槛映射", "## 7.");
 
+        Assert.Contains("4D-03EA-B", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("Post03EaFullOfficialPaymentEngineMatrixVerifierEvidenceManifest", completionMapping, StringComparison.Ordinal);
+        Assert.Contains(Post03EaFullOfficialPaymentEngineMatrixVerifierEvidence, completionMapping, StringComparison.Ordinal);
+        Assert.Contains("34 full official PaymentEngine matrix verifier evidence rows", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("12 residual axes + 13 seed rows + 3 downstream aggregate rows + 6 input matrix summaries", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("4D-03EA handoff and 4D-03DZ dispatch remain input evidence only", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("verifier evidence only", completionMapping, StringComparison.Ordinal);
         Assert.Contains("4D-03EA", completionMapping, StringComparison.Ordinal);
         Assert.Contains("Post03EaFullOfficialPaymentEngineMatrixVerifierHandoffManifest", completionMapping, StringComparison.Ordinal);
         Assert.Contains(Post03EaFullOfficialPaymentEngineMatrixVerifierHandoff, completionMapping, StringComparison.Ordinal);
@@ -14494,6 +14937,13 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Contains("fullOfficialTrue=0", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("ready=false", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("NOT READY", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("4D-03EA-B", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("Post03EaFullOfficialPaymentEngineMatrixVerifierEvidenceManifest", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains(Post03EaFullOfficialPaymentEngineMatrixVerifierEvidence, checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("34 full official PaymentEngine matrix verifier evidence rows", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("12 residual axes + 13 seed rows + 3 downstream aggregate rows + 6 input matrix summaries", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("4D-03EA handoff and 4D-03DZ dispatch remain input evidence only", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("verifier evidence only", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("4D-03EA", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("Post03EaFullOfficialPaymentEngineMatrixVerifierHandoffManifest", checklistMapping, StringComparison.Ordinal);
         Assert.Contains(Post03EaFullOfficialPaymentEngineMatrixVerifierHandoff, checklistMapping, StringComparison.Ordinal);
@@ -14525,21 +14975,23 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Contains("TargetTaxActivatedAbilityMatrixManifest", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("full official PaymentEngine matrix closure remains open", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("E_CARD_MATRIX_READINESS remains open", checklistMapping, StringComparison.Ordinal);
-        Assert.Contains("当前 4D-03EA", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("baseCommit=4e50e99e", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("focused PaymentEngineCoverageAuditTests=220/220", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("Post03EaFullOfficialPaymentEngineMatrixVerifierHandoffManifest opens B-side acceptance contract", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("classification=post-03dz-full-official-payment-engine-matrix-verifier-handoff", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("当前 4D-03EA-B", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("baseCommit=0bc2403a", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("focused PaymentEngineCoverageAuditTests=221/221", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("Post03EaFullOfficialPaymentEngineMatrixVerifierEvidenceManifest binds full official matrix verifier evidence", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("classification=post-03dz-full-official-payment-engine-matrix-verifier-evidence", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains(Post03DzFullOfficialPaymentEngineMatrixGate, checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("input handoff manifest=Post03EaFullOfficialPaymentEngineMatrixVerifierHandoffManifest", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("input dispatch manifest=Post03DzFullOfficialPaymentEngineMatrixDispatchManifest", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("required residual manifest=OfficialPaymentEngineMatrixResidualManifest", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("required seed row manifest=OfficialPaymentEngineMatrixSeedRowManifest", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("required downstream aggregate manifest=PaymentEngineOfficialMatrixDownstreamAggregateManifest", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("future B must prove every residual axis / seed row / downstream aggregate row / all-window matrix input", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("residual axis rows=12", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("seed rows=13", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("downstream aggregate rows=3", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("input matrix summaries=6", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("prompt quote / legal command shape / Command revalidation / authoritative audit parity / rollback/no-mutation / generated-resource lifetime / source-card trace / card-row fullOfficial=false blocker", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("4D-03EA handoff remains input evidence only", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("4D-03DZ dispatch remains input evidence only", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("4D-03DY-B quote parity evidence remains input evidence only", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("handoff only; no runtime / frontend / Chrome / formal 18 / card matrix JSON / fullOfficial / final readiness / riftbound-dotnet.sln", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("verifier evidence only; no runtime / frontend / Chrome / formal 18 / card matrix JSON / fullOfficial / final readiness / riftbound-dotnet.sln", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("does not authorize P0-005 / P1 / full official PaymentEngine matrix closure / E_CARD_MATRIX_READINESS / card matrix / READY", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("Chrome smoke not run because there were no frontend changes", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("P0-005 / P0-004 adjacency audit-sensitive / P1 / broader PaymentEngine official breadth / full official [A] / [C] resource-skill row interactions / keyword payment branches / remaining payment windows / complete replacement / optional / alternative / tax quote-command-audit parity closure / full official PaymentEngine matrix closure / E_CARD_MATRIX_READINESS / card matrix / READY=open", checklistCurrentHead, StringComparison.Ordinal);
@@ -15213,6 +15665,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(Post03DyReplacementOptionalAlternativeTaxParityVerifierEvidenceManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(Post03DzFullOfficialPaymentEngineMatrixDispatchManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(Post03EaFullOfficialPaymentEngineMatrixVerifierHandoffManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(Post03EaFullOfficialPaymentEngineMatrixVerifierEvidenceManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TypedSigilOfficialRuntimeCardRowAuditManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TargetTypedActivatedAbilityOfficialFamilyVerifierManifest.SelectMany(entry => entry.DocAnchors))
@@ -15838,6 +16291,33 @@ public sealed class PaymentEngineCoverageAuditTests
         int ExpectedDownstreamAggregateRows,
         string WorkerWriteScope,
         string RequiredAcceptanceEvidence,
+        string ForbiddenScope,
+        string NonClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
+    private sealed record PaymentEnginePost03EaFullOfficialPaymentEngineMatrixVerifierEvidenceEntry(
+        string GateId,
+        string ConcreteScopeGateId,
+        string Classification,
+        string InputHandoffManifest,
+        string InputDispatchManifest,
+        string SelectedResidualCategory,
+        IReadOnlyList<string> BoundInputEvidenceManifests,
+        string EvidenceSourceManifest,
+        string EvidenceRowId,
+        string EvidenceRowClassification,
+        int SourceRowCount,
+        string ResidualAxis,
+        string PaymentSurfaceScope,
+        string EvidenceSummary,
+        string PromptQuoteEvidence,
+        string LegalCommandShapeEvidence,
+        string CommandRevalidationEvidence,
+        string AuthoritativeAuditParityEvidence,
+        string RollbackNoMutationEvidence,
+        string GeneratedResourceLifetimeEvidence,
+        string SourceCardTraceEvidence,
+        string CardRowBlockerEvidence,
         string ForbiddenScope,
         string NonClosureStatus,
         IReadOnlyList<string> DocAnchors);
