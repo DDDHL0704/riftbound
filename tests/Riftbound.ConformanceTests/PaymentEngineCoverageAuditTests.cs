@@ -54,6 +54,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string NonTargetTypedActivatedAbilityResidualVerifierEvidence = "non-target-typed-activated-ability-residual-verifier-evidence";
     private const string NonTargetTypedActivatedAbilityResidualBreadthClosure = "non-target-typed-activated-ability-residual-breadth-closure";
     private const string OfficialBreadthNextDispatchAfterFamilyClosures = "official-breadth-next-dispatch-after-family-closures";
+    private const string OfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoff = "official-breadth-full-resource-skill-row-interaction-matrix-verifier-handoff";
     private const string OfficialBreadthFullResourceSkillInteractionMatrixVerifierGate = "B_PAYMENT_ENGINE_OFFICIAL_BREADTH_FULL_RESOURCE_SKILL_ROW_INTERACTION_MATRIX_VERIFIER";
     private const string NonTargetTypedActivatedAbilityResidualBreadthVerifierGate = "B_PAYMENT_ENGINE_OFFICIAL_BREADTH_NON_TARGET_TYPED_ACTIVATED_ABILITY_RESIDUAL_VERIFIER";
 
@@ -4182,18 +4183,53 @@ public sealed class PaymentEngineCoverageAuditTests
             OfficialBreadthNextDispatchAfterFamilyClosuresDocAnchors)
     ];
 
+    private static readonly string[] OfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoffDocAnchors =
+    [
+        "docs/CURRENT_STAGE4D_03DP_PAYMENT_ENGINE_FULL_RESOURCE_SKILL_ROW_INTERACTION_MATRIX_VERIFIER_HANDOFF.md",
+        "docs/CURRENT_STAGE4D_03DP_PAYMENT_ENGINE_FULL_RESOURCE_SKILL_ROW_INTERACTION_MATRIX_VERIFIER_BASELINE_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03DO_PAYMENT_ENGINE_OFFICIAL_BREADTH_NEXT_DISPATCH_AFTER_FAMILY_CLOSURES_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03DO_PAYMENT_ENGINE_OFFICIAL_BREADTH_NEXT_DISPATCH_AFTER_FAMILY_CLOSURES_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03DN_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_FAMILY_CLOSURE_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03DN_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_FAMILY_CLOSURE_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03CV_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_MATRIX_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03CV_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_MATRIX_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md",
+        "docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md",
+        "docs/CURRENT_COMPLETION_AUDIT.md"
+    ];
+
+    private static readonly PaymentEngineOfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoffEntry[] OfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoffManifest =
+    [
+        new(
+            "B_PAYMENT_ENGINE_OFFICIAL_BREADTH",
+            OfficialBreadthFullResourceSkillInteractionMatrixVerifierGate,
+            OfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoff,
+            nameof(OfficialBreadthNextDispatchAfterFamilyClosuresManifest),
+            nameof(ResourceSkillOfficialFamilyClosureManifest),
+            nameof(ResourceSkillOfficialRowInteractionMatrixManifest),
+            ResourceSkillOfficialFamilyClosureManifest.Length,
+            ResourceSkillOfficialRowInteractionMatrixManifest.Length,
+            "4D-03DP opens only the B-side test/docs verifier acceptance contract for B_PAYMENT_ENGINE_OFFICIAL_BREADTH_FULL_RESOURCE_SKILL_ROW_INTERACTION_MATRIX_VERIFIER. Future B may update tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs and 03DP verifier evidence docs to prove the contract; runtime, frontend, Chrome / browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial status, final readiness status and riftbound-dotnet.sln remain locked.",
+            "B must bind every current official RESOURCE_SKILLS family row and every 03CV row-interaction dimension to executable verifier evidence: prompt quote, Command revalidation, audit parity, generated-resource lifetime, rollback no-mutation, official matrix trace and card-row fullOfficial=false blocker evidence. 03DN ResourceSkillOfficialFamilyClosureManifest, 03DM TargetTypedActivatedAbilityOfficialFamilyClosureManifest and 03DL NonTargetTypedActivatedAbilityResidualBreadthClosureManifest remain input closures only.",
+            "B must not treat 03DO, 03DN, 03DM, 03DL, 03CV, 03CY or 03DG evidence as P0-005 closure, P1 closure, full official PaymentEngine matrix closure, E_CARD_MATRIX_READINESS, full-card matrix closure or final readiness. Any runtime, frontend, Chrome smoke, formal 18-step, card matrix JSON or fullOfficial write requires a later explicit A dispatch.",
+            "4D-03DP handoff / acceptance contract only; project remains NOT READY, P0-005 remains open, P1 remains open, broader PaymentEngine official breadth remains open, full official PaymentEngine matrix remains open, full-card matrix remains open, fullOfficial remains false and final readiness is forbidden.",
+            OfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoffDocAnchors)
+    ];
+
     private static readonly PaymentEngineRemainingOfficialClosureGateEntry[] RemainingOfficialClosureGateManifest =
     [
         new(
             "B_PAYMENT_ENGINE_OFFICIAL_BREADTH",
             "B-side PaymentEngine official breadth verifier / implementation slice",
             RemainingOfficialClosureGate,
-            $"Fresh A dispatch: 4D-03DO records OfficialBreadthNextDispatchAfterFamilyClosuresManifest and selects {OfficialBreadthFullResourceSkillInteractionMatrixVerifierGate} as the next concrete B-side official breadth scope after the 03DN / 03DM / 03DL current-lane family closures. 03DO requires future B to prove full official [A] / [C] resource-skill row interactions plus broader PaymentEngine official matrix verifier baseline, while preserving 03DN as current 32-row RESOURCE_SKILLS family closure only, 03DM as current 8-row target/typed family closure only and 03DL as current Vi / Fluft Poro residual closure only. Historical guard chain remains visible: 4D-03DN records ResourceSkillOfficialFamilyClosureManifest as the executable closure guard for the exact current 32-row official RESOURCE_SKILLS family lane; 4D-03DM records TargetTypedActivatedAbilityOfficialFamilyClosureManifest as the executable closure guard for the exact current target/typed activated ability official family lane; 4D-03DL records NonTargetTypedActivatedAbilityResidualBreadthClosureManifest as the executable closure guard for {NonTargetTypedActivatedAbilityResidualBreadthVerifierGate}. 4D-03CW / 4D-03DB records only the handoff baseline and does not dispatch B; 4D-03DC concrete B dispatch contract followed B_PAYMENT_ENGINE_RESOURCE_SKILL_RUNTIME_CARD_ROW_PARITY_VERIFIER and 03DC-B selected resource-skill parity; 4D-03DD selected B_PAYMENT_ENGINE_TARGET_TYPED_ACTIVATED_ABILITY_OFFICIAL_FAMILY_VERIFIER after 03DC-B selected resource-skill parity; 4D-03DE accepted B_PAYMENT_ENGINE_TARGET_TYPED_ACTIVATED_ABILITY_OFFICIAL_FAMILY_VERIFIER as representative official-family verifier evidence; 4D-03DH recorded B_PAYMENT_ENGINE_OFFICIAL_BREADTH_TARGET_TYPED_ACTIVATED_ABILITY_FULL_FAMILY_GAP_VERIFIER; 4D-03DJ selected {NonTargetTypedActivatedAbilityResidualBreadthVerifierGate}; 4D-03DK records NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest as focused verifier evidence only for Vi and Fluft Poro and still leaves P0-005, P1 and full official PaymentEngine matrix open.",
-            $"After 4D-03DO, {OfficialBreadthFullResourceSkillInteractionMatrixVerifierGate} is the next concrete future B-side verifier baseline. It must bind full official [A] / [C] resource-skill row interactions, broader PaymentEngine official matrix rows, generated-resource lifetime, rollback breadth and card-row blocker evidence across the current 32 official RESOURCE_SKILLS family without claiming that ResourceSkillOfficialFamilyClosureManifest, TargetTypedActivatedAbilityOfficialFamilyClosureManifest or NonTargetTypedActivatedAbilityResidualBreadthClosureManifest already close broader official breadth. After 4D-03CV, the 192-row representative resource-skill row-interaction matrix, ResourceSkillOfficialRuntimeCardRowEvidenceManifest, ResourceSkillOfficialRowInteractionMatrixManifest and selected source-card / official card-row parity checks remain representative evidence only inside a fresh A dispatch chain; post-03CT resource-skill accounting refresh and 4D-03CW handoff evidence still require future full official [A] / [C] resource-skill row interactions and official card-row parity before any closure. 4D-03DC selected B_PAYMENT_ENGINE_RESOURCE_SKILL_RUNTIME_CARD_ROW_PARITY_VERIFIER; 4D-03DD selected B_PAYMENT_ENGINE_TARGET_TYPED_ACTIVATED_ABILITY_OFFICIAL_FAMILY_VERIFIER after 03DC-B selected resource-skill parity, while 03DA representative target / typed activated rows and 03BR-B target/tax matrix cannot proxy the full target-bearing / typed / experience / Spellshield-tax activated ability official family, full official PaymentEngine matrix, E_CARD_MATRIX_READINESS or D_COMPLETION_P0_AUDIT. 4D-03DE TargetTypedActivatedAbilityOfficialFamilyVerifierManifest covers current 8 target-bearing / typed / experience / Spellshield-tax activated ability representatives, 03DA runtime/card-row evidence, 03BR-B target/tax matrix dimensions, exact catalog source-card groups and fullOfficial=false card rows as representative official-family verifier evidence only. 4D-03DG ResourceSkillOfficialFamilyVerifierManifest covers current 32 official RESOURCE_SKILLS family rows with 03CX source-card parity, 03CY runtime/card-row evidence, 03CV matrix rows, focused verifier methods and fullOfficial=false card rows. 4D-03DH TargetTypedActivatedAbilityFullFamilyGapVerifierManifest and NonTargetTypedActivatedAbilityResidualPartitionManifest prove the current target/typed predicate has 8 catalog rows while Vi and Fluft Poro remain non-target/typed activated residual partitions; full non-target/typed activated ability residual breadth remains separate. 4D-03DJ selected {NonTargetTypedActivatedAbilityResidualBreadthVerifierGate}; NonTargetTypedActivatedAbilityResidualBreadthDispatchManifest and NonTargetTypedActivatedAbilityResidualPartitionManifest identify PAY_2_RED_DOUBLE_POWER and FLUFT_PORO_EXHAUST_CREATE_TWO_SPELLSHIELD_WARHAWKS as Vi and Fluft Poro rows, still representative evidence only until verifier closure. 4D-03DK NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest is focused verifier evidence only / verifier evidence only for PAY_2_RED_DOUBLE_POWER and FLUFT_PORO_EXHAUST_CREATE_TWO_SPELLSHIELD_WARHAWKS with prompt, Command, audit, stack/outcome/lifetime, rollback and fullOfficial=false card rows. 03DN closes the current official RESOURCE_SKILLS family lane is closed only for exact 32 rows by proving ResourceSkillOfficialFamilyClosureManifest aligns 03CX source-card parity, 03CY runtime/card-row evidence, 03CV matrix rows, 03DG family verifier, focused verifier methods, selected parity trace where applicable, prompt, Command, audit, generated-resource lifetime, rollback and fullOfficial=false card rows; full official [A] / [C] resource-skill row interactions remain open as broader official breadth. 03DM closes the current target/typed activated ability official family lane is closed only for exact 8 rows by proving TargetTypedActivatedAbilityOfficialFamilyClosureManifest aligns 03DA runtime/card-row evidence, 03DE family verifier, 03DH gap verifier and 03BR target/tax matrix rows. 03DL closes the current non-target/typed activated ability residual breadth lane only for PAY_2_RED_DOUBLE_POWER and FLUFT_PORO_EXHAUST_CREATE_TWO_SPELLSHIELD_WARHAWKS. P0-005, P1, full official PaymentEngine matrix, full-card matrix, E_CARD_MATRIX_READINESS and D_COMPLETION_P0_AUDIT remain open; representative evidence only.",
-            $"4D-03DO fresh dispatch after family closures, OfficialBreadthNextDispatchAfterFamilyClosuresManifest, {OfficialBreadthFullResourceSkillInteractionMatrixVerifierGate} selected as future B-side scope, 4D-03DN resource-skill official family closure guard, ResourceSkillOfficialFamilyClosureManifest current 32 official RESOURCE_SKILLS rows (23 implemented + 9 bridge-closed + 0 deferred; 32 total = 23 implemented + 9 bridge-closed + 0 current deferred), 4D-03DM target/typed activated ability official family closure guard, TargetTypedActivatedAbilityOfficialFamilyClosureManifest current 8 target/typed ability rows, 4D-03DL non-target/typed activated ability residual breadth closure guard, NonTargetTypedActivatedAbilityResidualBreadthClosureManifest current Vi and Fluft Poro closure rows, 4D-03DK non-target/typed activated ability residual verifier evidence, NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest current Vi and Fluft Poro focused verifier rows, 4D-03DJ non-target/typed activated ability residual breadth dispatch, NonTargetTypedActivatedAbilityResidualBreadthDispatchManifest current Vi and Fluft Poro residual rows, {NonTargetTypedActivatedAbilityResidualBreadthVerifierGate}, 4D-03DH target/typed activated ability full-family gap verifier and residual partition, TargetTypedActivatedAbilityFullFamilyGapVerifierManifest current 8 target/typed catalog rows, NonTargetTypedActivatedAbilityResidualPartitionManifest current Vi and Fluft Poro residual rows, 4D-03DG resource-skill official family verifier, ResourceSkillOfficialFamilyVerifierManifest current 32 official RESOURCE_SKILLS rows, 4D-03DE target/typed activated ability official family verifier, TargetTypedActivatedAbilityOfficialFamilyVerifierManifest current 8 representative abilities, 4D-03DD next concrete dispatch gate, 4D-03DC-B selected resource-skill runtime/card-row parity verifier, 4D-03DC concrete B dispatch contract for B_PAYMENT_ENGINE_RESOURCE_SKILL_RUNTIME_CARD_ROW_PARITY_VERIFIER, 4D-03CV 192-row resource-skill official row-interaction matrix (32 candidates x 6 dimensions), 4D-03CU official row-interaction gate, 4D-03CT resource-skill official breadth refresh (32 total = 23 implemented + 9 bridge-closed + 0 current deferred), 4D-03CX source-card runtime parity, 4D-03CY resource-skill runtime/card-row evidence, 4D-03CZ typed Sigil runtime/card-row audit, 4D-03DA target / typed activated ability runtime/card-row evidence, 4D-03CS-B legend bridge closure, 4D-03BR-B target/tax matrix, backend full, Chrome smoke and formal 18 are representative proxy evidence only.",
-            "Runtime, tests beyond this focused A-side gate, frontend, browser scripts, card matrix JSON, fullOfficial status, final readiness status and riftbound-dotnet.sln remain locked until a fresh A dispatch.",
+            $"Fresh A dispatch / worker handoff: 4D-03DP records OfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoffManifest as the acceptance contract for {OfficialBreadthFullResourceSkillInteractionMatrixVerifierGate} after 4D-03DO selected that concrete B-side official breadth scope. 03DP requires future B to prove the current 32 official RESOURCE_SKILLS rows x 6 03CV row-interaction dimensions = 192 interaction surfaces with executable prompt / Command / audit / generated-resource lifetime / rollback / card-row blocker evidence, while preserving 03DN as current 32-row RESOURCE_SKILLS family closure only, 03DM as current 8-row target/typed family closure only and 03DL as current Vi / Fluft Poro residual closure only. Historical guard chain remains visible: 4D-03DO records OfficialBreadthNextDispatchAfterFamilyClosuresManifest; 4D-03DN records ResourceSkillOfficialFamilyClosureManifest as the executable closure guard for the exact current 32-row official RESOURCE_SKILLS family lane; 4D-03DM records TargetTypedActivatedAbilityOfficialFamilyClosureManifest as the executable closure guard for the exact current target/typed activated ability official family lane; 4D-03DL records NonTargetTypedActivatedAbilityResidualBreadthClosureManifest as the executable closure guard for {NonTargetTypedActivatedAbilityResidualBreadthVerifierGate}. 4D-03CW / 4D-03DB records only the handoff baseline and does not dispatch B; 4D-03DC concrete B dispatch contract followed B_PAYMENT_ENGINE_RESOURCE_SKILL_RUNTIME_CARD_ROW_PARITY_VERIFIER and 03DC-B selected resource-skill parity; 4D-03DD selected B_PAYMENT_ENGINE_TARGET_TYPED_ACTIVATED_ABILITY_OFFICIAL_FAMILY_VERIFIER after 03DC-B selected resource-skill parity; 4D-03DE accepted B_PAYMENT_ENGINE_TARGET_TYPED_ACTIVATED_ABILITY_OFFICIAL_FAMILY_VERIFIER as representative official-family verifier evidence; 4D-03DH recorded B_PAYMENT_ENGINE_OFFICIAL_BREADTH_TARGET_TYPED_ACTIVATED_ABILITY_FULL_FAMILY_GAP_VERIFIER; 4D-03DJ selected {NonTargetTypedActivatedAbilityResidualBreadthVerifierGate}; 4D-03DK records NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest as focused verifier evidence only for Vi and Fluft Poro and still leaves P0-005, P1 and full official PaymentEngine matrix open.",
+            $"After 4D-03DP, {OfficialBreadthFullResourceSkillInteractionMatrixVerifierGate} has an explicit B-side handoff / acceptance contract. It must bind full official [A] / [C] resource-skill row interactions, broader PaymentEngine official matrix rows, generated-resource lifetime, rollback breadth and card-row blocker evidence across the current 32 official RESOURCE_SKILLS family and all 192 03CV row-interaction matrix surfaces without claiming that OfficialBreadthNextDispatchAfterFamilyClosuresManifest, ResourceSkillOfficialFamilyClosureManifest, TargetTypedActivatedAbilityOfficialFamilyClosureManifest or NonTargetTypedActivatedAbilityResidualBreadthClosureManifest already close broader official breadth. After 4D-03CV, the 192-row representative resource-skill row-interaction matrix, ResourceSkillOfficialRuntimeCardRowEvidenceManifest, ResourceSkillOfficialRowInteractionMatrixManifest and selected source-card / official card-row parity checks remain representative evidence only inside a fresh A dispatch chain; post-03CT resource-skill accounting refresh and 4D-03CW handoff evidence still require future full official [A] / [C] resource-skill row interactions and official card-row parity before any closure. 4D-03DC selected B_PAYMENT_ENGINE_RESOURCE_SKILL_RUNTIME_CARD_ROW_PARITY_VERIFIER; 4D-03DD selected B_PAYMENT_ENGINE_TARGET_TYPED_ACTIVATED_ABILITY_OFFICIAL_FAMILY_VERIFIER after 03DC-B selected resource-skill parity, while 03DA representative target / typed activated rows and 03BR-B target/tax matrix cannot proxy the full target-bearing / typed / experience / Spellshield-tax activated ability official family, full official PaymentEngine matrix, E_CARD_MATRIX_READINESS or D_COMPLETION_P0_AUDIT. 4D-03DE TargetTypedActivatedAbilityOfficialFamilyVerifierManifest covers current 8 target-bearing / typed / experience / Spellshield-tax activated ability representatives, 03DA runtime/card-row evidence, 03BR-B target/tax matrix dimensions, exact catalog source-card groups and fullOfficial=false card rows as representative official-family verifier evidence only. 4D-03DG ResourceSkillOfficialFamilyVerifierManifest covers current 32 official RESOURCE_SKILLS family rows with 03CX source-card parity, 03CY runtime/card-row evidence, 03CV matrix rows, focused verifier methods and fullOfficial=false card rows. 4D-03DH TargetTypedActivatedAbilityFullFamilyGapVerifierManifest and NonTargetTypedActivatedAbilityResidualPartitionManifest prove the current target/typed predicate has 8 catalog rows while Vi and Fluft Poro remain non-target/typed activated residual partitions; full non-target/typed activated ability residual breadth remains separate. 4D-03DJ selected {NonTargetTypedActivatedAbilityResidualBreadthVerifierGate}; NonTargetTypedActivatedAbilityResidualBreadthDispatchManifest and NonTargetTypedActivatedAbilityResidualPartitionManifest identify PAY_2_RED_DOUBLE_POWER and FLUFT_PORO_EXHAUST_CREATE_TWO_SPELLSHIELD_WARHAWKS as Vi and Fluft Poro rows, still representative evidence only until verifier closure. 4D-03DK NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest is focused verifier evidence only / verifier evidence only for PAY_2_RED_DOUBLE_POWER and FLUFT_PORO_EXHAUST_CREATE_TWO_SPELLSHIELD_WARHAWKS with prompt, Command, audit, stack/outcome/lifetime, rollback and fullOfficial=false card rows. 03DN closes the current official RESOURCE_SKILLS family lane is closed only for exact 32 rows by proving ResourceSkillOfficialFamilyClosureManifest aligns 03CX source-card parity, 03CY runtime/card-row evidence, 03CV matrix rows, 03DG family verifier, focused verifier methods, selected parity trace where applicable, prompt, Command, audit, generated-resource lifetime, rollback and fullOfficial=false card rows; full official [A] / [C] resource-skill row interactions remain open as broader official breadth. 03DM closes the current target/typed activated ability official family lane is closed only for exact 8 rows by proving TargetTypedActivatedAbilityOfficialFamilyClosureManifest aligns 03DA runtime/card-row evidence, 03DE family verifier, 03DH gap verifier and 03BR target/tax matrix rows. 03DL closes the current non-target/typed activated ability residual breadth lane only for PAY_2_RED_DOUBLE_POWER and FLUFT_PORO_EXHAUST_CREATE_TWO_SPELLSHIELD_WARHAWKS. P0-005, P1, full official PaymentEngine matrix, full-card matrix, E_CARD_MATRIX_READINESS and D_COMPLETION_P0_AUDIT remain open; representative evidence only.",
+            $"4D-03DP handoff / acceptance contract, OfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoffManifest, {OfficialBreadthFullResourceSkillInteractionMatrixVerifierGate} selected as future B-side test/docs verifier contract, 4D-03DO fresh dispatch after family closures, OfficialBreadthNextDispatchAfterFamilyClosuresManifest, 4D-03DN resource-skill official family closure guard, ResourceSkillOfficialFamilyClosureManifest current 32 official RESOURCE_SKILLS rows (23 implemented + 9 bridge-closed + 0 deferred; 32 total = 23 implemented + 9 bridge-closed + 0 current deferred), 4D-03DM target/typed activated ability official family closure guard, TargetTypedActivatedAbilityOfficialFamilyClosureManifest current 8 target/typed ability rows, 4D-03DL non-target/typed activated ability residual breadth closure guard, NonTargetTypedActivatedAbilityResidualBreadthClosureManifest current Vi and Fluft Poro closure rows, 4D-03DK non-target/typed activated ability residual verifier evidence, NonTargetTypedActivatedAbilityResidualVerifierEvidenceManifest current Vi and Fluft Poro focused verifier rows, 4D-03DJ non-target/typed activated ability residual breadth dispatch, NonTargetTypedActivatedAbilityResidualBreadthDispatchManifest current Vi and Fluft Poro residual rows, {NonTargetTypedActivatedAbilityResidualBreadthVerifierGate}, 4D-03DH target/typed activated ability full-family gap verifier and residual partition, TargetTypedActivatedAbilityFullFamilyGapVerifierManifest current 8 target/typed catalog rows, NonTargetTypedActivatedAbilityResidualPartitionManifest current Vi and Fluft Poro residual rows, 4D-03DG resource-skill official family verifier, ResourceSkillOfficialFamilyVerifierManifest current 32 official RESOURCE_SKILLS rows, 4D-03DE target/typed activated ability official family verifier, TargetTypedActivatedAbilityOfficialFamilyVerifierManifest current 8 representative abilities, 4D-03DD next concrete dispatch gate, 4D-03DC-B selected resource-skill runtime/card-row parity verifier, 4D-03DC concrete B dispatch contract for B_PAYMENT_ENGINE_RESOURCE_SKILL_RUNTIME_CARD_ROW_PARITY_VERIFIER, 4D-03CV 192-row resource-skill official row-interaction matrix (32 candidates x 6 dimensions), 4D-03CU official row-interaction gate, 4D-03CT resource-skill official breadth refresh (32 total = 23 implemented + 9 bridge-closed + 0 current deferred), 4D-03CX source-card runtime parity, 4D-03CY resource-skill runtime/card-row evidence, 4D-03CZ typed Sigil runtime/card-row audit, 4D-03DA target / typed activated ability runtime/card-row evidence, 4D-03CS-B legend bridge closure, 4D-03BR-B target/tax matrix, backend full, Chrome smoke and formal 18 are representative proxy evidence only.",
+            "Runtime, frontend, browser scripts, card matrix JSON, fullOfficial status, final readiness status and riftbound-dotnet.sln remain locked; the only future B write allowed by this contract is focused verifier test/docs evidence for B_PAYMENT_ENGINE_OFFICIAL_BREADTH_FULL_RESOURCE_SKILL_ROW_INTERACTION_MATRIX_VERIFIER.",
             "Project remains NOT READY, P0-005 remains open, P1 remains open, full official PaymentEngine matrix remains open, full-card matrix remains open and fullOfficial upgrade is not allowed.",
             [
+                "docs/CURRENT_STAGE4D_03DP_PAYMENT_ENGINE_FULL_RESOURCE_SKILL_ROW_INTERACTION_MATRIX_VERIFIER_HANDOFF.md",
+                "docs/CURRENT_STAGE4D_03DP_PAYMENT_ENGINE_FULL_RESOURCE_SKILL_ROW_INTERACTION_MATRIX_VERIFIER_BASELINE_EVIDENCE.md",
                 "docs/CURRENT_STAGE4D_03DO_PAYMENT_ENGINE_OFFICIAL_BREADTH_NEXT_DISPATCH_AFTER_FAMILY_CLOSURES_AUDIT.md",
                 "docs/CURRENT_STAGE4D_03DO_PAYMENT_ENGINE_OFFICIAL_BREADTH_NEXT_DISPATCH_AFTER_FAMILY_CLOSURES_EVIDENCE.md",
                 "docs/CURRENT_STAGE4D_03DN_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_FAMILY_CLOSURE_AUDIT.md",
@@ -11132,6 +11168,7 @@ public sealed class PaymentEngineCoverageAuditTests
             combinedText
                 .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
                 .Replace("E_CARD_MATRIX_READINESS", string.Empty, StringComparison.Ordinal)
+                .Replace("fullOfficial / READY", "fullOfficial", StringComparison.Ordinal)
                 .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
             StringComparison.Ordinal);
     }
@@ -11186,6 +11223,7 @@ public sealed class PaymentEngineCoverageAuditTests
             combinedText
                 .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
                 .Replace("E_CARD_MATRIX_READINESS", string.Empty, StringComparison.Ordinal)
+                .Replace("fullOfficial / READY", "fullOfficial", StringComparison.Ordinal)
                 .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
             StringComparison.Ordinal);
     }
@@ -11371,15 +11409,97 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
-    public void PaymentEngineActiveGoalCompletionAuditMappingTracksCurrent03DOHeadEvidence()
+    public void PaymentEngineOfficialBreadthGateRecords03DPAsWorkerHandoffAcceptanceContractOnly()
+    {
+        var handoff = Assert.Single(OfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoffManifest);
+        var gate = Assert.Single(
+            RemainingOfficialClosureGateManifest,
+            entry => string.Equals(entry.GateId, "B_PAYMENT_ENGINE_OFFICIAL_BREADTH", StringComparison.Ordinal));
+        var combinedText = string.Join(
+            " ",
+            new[]
+            {
+                handoff.GateId,
+                handoff.ConcreteScopeGateId,
+                handoff.Classification,
+                handoff.InputDispatchManifest,
+                handoff.RequiredFamilyClosureManifest,
+                handoff.RequiredRowInteractionMatrixManifest,
+                handoff.WorkerWriteScope,
+                handoff.RequiredAcceptanceEvidence,
+                handoff.ForbiddenScope,
+                handoff.NonClosureStatus,
+                gate.GateId,
+                gate.Owner,
+                gate.Classification,
+                gate.WriteLockRequirement,
+                gate.RequiredFutureEvidence,
+                gate.RepresentativeProxyEvidence,
+                gate.LockedScope,
+                gate.ClosureStatus
+            }
+                .Concat(handoff.DocAnchors)
+                .Concat(gate.DocAnchors));
+
+        Assert.Equal("B_PAYMENT_ENGINE_OFFICIAL_BREADTH", handoff.GateId);
+        Assert.Equal(OfficialBreadthFullResourceSkillInteractionMatrixVerifierGate, handoff.ConcreteScopeGateId);
+        Assert.Equal(OfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoff, handoff.Classification);
+        Assert.Equal(nameof(OfficialBreadthNextDispatchAfterFamilyClosuresManifest), handoff.InputDispatchManifest);
+        Assert.Equal(nameof(ResourceSkillOfficialFamilyClosureManifest), handoff.RequiredFamilyClosureManifest);
+        Assert.Equal(nameof(ResourceSkillOfficialRowInteractionMatrixManifest), handoff.RequiredRowInteractionMatrixManifest);
+        Assert.Equal(ResourceSkillOfficialFamilyClosureManifest.Length, handoff.ExpectedFamilyRows);
+        Assert.Equal(32, handoff.ExpectedFamilyRows);
+        Assert.Equal(ResourceSkillOfficialRowInteractionMatrixManifest.Length, handoff.ExpectedInteractionRows);
+        Assert.Equal(192, handoff.ExpectedInteractionRows);
+        Assert.Contains("4D-03DP", combinedText, StringComparison.Ordinal);
+        Assert.Contains("OfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoffManifest", gate.WriteLockRequirement, StringComparison.Ordinal);
+        Assert.Contains(OfficialBreadthFullResourceSkillInteractionMatrixVerifierGate, gate.WriteLockRequirement, StringComparison.Ordinal);
+        Assert.Contains(OfficialBreadthFullResourceSkillInteractionMatrixVerifierGate, gate.RequiredFutureEvidence, StringComparison.Ordinal);
+        Assert.Contains("current 32 official RESOURCE_SKILLS rows x 6 03CV row-interaction dimensions = 192", gate.WriteLockRequirement, StringComparison.Ordinal);
+        Assert.Contains("prompt quote", combinedText, StringComparison.Ordinal);
+        Assert.Contains("Command revalidation", combinedText, StringComparison.Ordinal);
+        Assert.Contains("audit parity", combinedText, StringComparison.Ordinal);
+        Assert.Contains("generated-resource lifetime", combinedText, StringComparison.Ordinal);
+        Assert.Contains("rollback no-mutation", combinedText, StringComparison.Ordinal);
+        Assert.Contains("card-row fullOfficial=false blocker evidence", combinedText, StringComparison.Ordinal);
+        Assert.Contains("ResourceSkillOfficialFamilyClosureManifest", combinedText, StringComparison.Ordinal);
+        Assert.Contains("TargetTypedActivatedAbilityOfficialFamilyClosureManifest", combinedText, StringComparison.Ordinal);
+        Assert.Contains("NonTargetTypedActivatedAbilityResidualBreadthClosureManifest", combinedText, StringComparison.Ordinal);
+        Assert.Contains("input closures only", combinedText, StringComparison.Ordinal);
+        Assert.Contains("runtime, frontend, Chrome / browser scripts", handoff.WorkerWriteScope, StringComparison.Ordinal);
+        Assert.Contains("card matrix JSON", handoff.ForbiddenScope, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P1 remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("fullOfficial upgrade is not allowed", gate.ClosureStatus, StringComparison.Ordinal);
+        Assert.Contains(
+            "docs/CURRENT_STAGE4D_03DP_PAYMENT_ENGINE_FULL_RESOURCE_SKILL_ROW_INTERACTION_MATRIX_VERIFIER_HANDOFF.md",
+            gate.DocAnchors);
+        Assert.Contains(
+            "docs/CURRENT_STAGE4D_03DP_PAYMENT_ENGINE_FULL_RESOURCE_SKILL_ROW_INTERACTION_MATRIX_VERIFIER_BASELINE_EVIDENCE.md",
+            gate.DocAnchors);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("E_CARD_MATRIX_READINESS", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineActiveGoalCompletionAuditMappingTracksCurrent03DPHeadEvidence()
     {
         var repositoryRoot = ResolveRepositoryRoot();
         var completionAudit = File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_COMPLETION_AUDIT.md"));
         var checklist = File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md"));
         var completionMapping = ExtractSection(completionAudit, "## 0.1 Active Goal 门槛到证据映射", "## 1.");
-        var checklistCurrentHead = ExtractSection(checklist, "当前 4D-03DO", "上一批 4D-03CW");
+        var checklistCurrentHead = ExtractSection(checklist, "当前 4D-03DP", "上一批 4D-03DO");
         var checklistMapping = ExtractSection(checklist, "## 3. 主目标门槛映射", "## 7.");
 
+        Assert.Contains("4D-03DP", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("OfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoffManifest", completionMapping, StringComparison.Ordinal);
         Assert.Contains("4D-03DO", completionMapping, StringComparison.Ordinal);
         Assert.Contains("OfficialBreadthNextDispatchAfterFamilyClosuresManifest", completionMapping, StringComparison.Ordinal);
         Assert.Contains(OfficialBreadthFullResourceSkillInteractionMatrixVerifierGate, completionMapping, StringComparison.Ordinal);
@@ -11405,6 +11525,8 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.DoesNotContain("formal-18-1778623926434-15", completionMapping, StringComparison.Ordinal);
         Assert.DoesNotContain("IMPLEMENTED_TESTED 为 76", completionMapping, StringComparison.Ordinal);
 
+        Assert.Contains("4D-03DP", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("OfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoffManifest", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("4D-03DO", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("OfficialBreadthNextDispatchAfterFamilyClosuresManifest", checklistMapping, StringComparison.Ordinal);
         Assert.Contains(OfficialBreadthFullResourceSkillInteractionMatrixVerifierGate, checklistMapping, StringComparison.Ordinal);
@@ -11424,18 +11546,21 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Contains("fullOfficialTrue=0", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("ready=false", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("NOT READY", checklistMapping, StringComparison.Ordinal);
-        Assert.Contains("当前 4D-03DO", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("latestCommit=e0ed981b", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("focused PaymentEngineCoverageAuditTests=202/202", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("当前 4D-03DP", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("latestCommit=57b583ec", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("focused PaymentEngineCoverageAuditTests=203/203", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("OfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoffManifest records 03DO as input dispatch", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains(OfficialBreadthFullResourceSkillInteractionMatrixVerifierGate, checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("OfficialBreadthNextDispatchAfterFamilyClosuresManifest records 03DN / 03DM / 03DL current-lane closures as inputs only", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("current official RESOURCE_SKILLS family lane=closed only for exact 32 rows", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("ResourceSkillOfficialFamilyClosureManifest aligns 03CX source-card parity, 03CY runtime/card-row evidence, 03CV matrix rows and 03DG family verifier", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("current target/typed activated ability official family lane=closed only for exact 8 rows", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("current full non-target/typed activated ability residual breadth lane=closed only for exact Vi and Fluft Poro rows", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("B worker write scope=focused verifier test/docs contract only", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("03DB focused 159/159", checklistMapping, StringComparison.Ordinal);
         Assert.DoesNotContain("latest 4D-03DE full backend 4740/4740", checklistMapping, StringComparison.Ordinal);
         Assert.DoesNotContain("4D-03DG full backend 4746/4746", checklistMapping, StringComparison.Ordinal);
+        Assert.DoesNotContain("当前 4D-03DO", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("当前 4D-03DN", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("当前 4D-03DM", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("当前 4D-03DL", checklistCurrentHead, StringComparison.Ordinal);
@@ -11480,7 +11605,7 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Contains("4D-03CV 192-row resource-skill official row-interaction matrix", gate.RepresentativeProxyEvidence, StringComparison.Ordinal);
         Assert.Contains("32 candidates x 6 dimensions", gate.RepresentativeProxyEvidence, StringComparison.Ordinal);
         Assert.Contains("representative proxy evidence only", gate.RepresentativeProxyEvidence, StringComparison.Ordinal);
-        Assert.Contains("tests beyond this focused A-side gate", gate.LockedScope, StringComparison.Ordinal);
+        Assert.Contains("focused verifier test/docs evidence", gate.LockedScope, StringComparison.Ordinal);
         Assert.Contains("P0-005 remains open", gate.ClosureStatus, StringComparison.Ordinal);
         Assert.Contains("fullOfficial upgrade is not allowed", gate.ClosureStatus, StringComparison.Ordinal);
         Assert.Contains(
@@ -12057,6 +12182,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(ResourceSkillOfficialFamilyVerifierManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(ResourceSkillOfficialFamilyClosureManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(OfficialBreadthNextDispatchAfterFamilyClosuresManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(OfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoffManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TypedSigilOfficialRuntimeCardRowAuditManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TargetTypedActivatedAbilityOfficialFamilyVerifierManifest.SelectMany(entry => entry.DocAnchors))
@@ -12452,6 +12578,21 @@ public sealed class PaymentEngineCoverageAuditTests
         IReadOnlyList<string> InputClosureManifests,
         string DispatchRequirement,
         string RequiredFutureEvidence,
+        string NonClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
+    private sealed record PaymentEngineOfficialBreadthFullResourceSkillInteractionMatrixVerifierHandoffEntry(
+        string GateId,
+        string ConcreteScopeGateId,
+        string Classification,
+        string InputDispatchManifest,
+        string RequiredFamilyClosureManifest,
+        string RequiredRowInteractionMatrixManifest,
+        int ExpectedFamilyRows,
+        int ExpectedInteractionRows,
+        string WorkerWriteScope,
+        string RequiredAcceptanceEvidence,
+        string ForbiddenScope,
         string NonClosureStatus,
         IReadOnlyList<string> DocAnchors);
 
