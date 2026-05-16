@@ -41,6 +41,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string ResourceSkillOfficialRowInteractionMatrix = "resource-skill-official-row-interaction-matrix";
     private const string ResourceSkillOfficialSourceCardRuntimeParity = "resource-skill-official-source-card-runtime-parity";
     private const string ResourceSkillOfficialRuntimeCardRowEvidence = "resource-skill-official-runtime-card-row-evidence";
+    private const string SelectedResourceSkillOfficialRuntimeCardRowParity = "selected-resource-skill-official-runtime-card-row-parity";
     private const string TypedSigilOfficialRuntimeCardRowAudit = "typed-sigil-official-runtime-card-row-audit";
     private const string TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidence = "target-typed-activated-ability-official-runtime-card-row-evidence";
 
@@ -3096,6 +3097,99 @@ public sealed class PaymentEngineCoverageAuditTests
     private static PaymentEngineResourceSkillOfficialBreadthEntry ResourceSkillOfficialCandidateFor(string cardNo)
     {
         return ResourceSkillOfficialBreadthManifest.Single(entry => string.Equals(entry.CardNo, cardNo, StringComparison.Ordinal));
+    }
+
+    private static readonly string[] SelectedResourceSkillOfficialRuntimeCardRowParityDocAnchors =
+    [
+        "docs/CURRENT_STAGE4D_03DC_B_PAYMENT_ENGINE_SELECTED_RESOURCE_SKILL_RUNTIME_CARD_ROW_PARITY_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03DC_B_PAYMENT_ENGINE_SELECTED_RESOURCE_SKILL_RUNTIME_CARD_ROW_PARITY_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03DC_PAYMENT_ENGINE_OFFICIAL_BREADTH_CONCRETE_B_DISPATCH_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03DC_PAYMENT_ENGINE_OFFICIAL_BREADTH_CONCRETE_B_DISPATCH_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03CY_PAYMENT_ENGINE_RESOURCE_SKILL_RUNTIME_CARD_ROW_EVIDENCE_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03CY_PAYMENT_ENGINE_RESOURCE_SKILL_RUNTIME_CARD_ROW_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03CX_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_SOURCE_CARD_RUNTIME_PARITY_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03CX_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_SOURCE_CARD_RUNTIME_PARITY_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03CV_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_MATRIX_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03CV_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_MATRIX_EVIDENCE.md"
+    ];
+
+    private static readonly PaymentEngineSelectedResourceSkillOfficialRuntimeCardRowParityEntry[] SelectedResourceSkillOfficialRuntimeCardRowParityManifest =
+    [
+        SelectedRuntimeCardRowParityEntry(
+            "MALZAHAR_A_A_TARGET_AS_COST",
+            "OGN·113/298",
+            "Malzahar [A A] target-as-cost payment-only generated power"),
+        SelectedRuntimeCardRowParityEntry(
+            "LUX_SPELL_ONLY_PAYMENT_STEP",
+            "OGS·014/024",
+            "Lux spell-only generated mana payment-step consumption"),
+        SelectedRuntimeCardRowParityEntry(
+            "DRAGON_SOUL_SAGE_REACTION_MANA",
+            "UNL-093/219",
+            "Dragon Soul Sage reaction-speed generated mana"),
+        SelectedRuntimeCardRowParityEntry(
+            "ANCIENT_STELE_CONVERSION_TEMP_RESOURCE",
+            "SFD·117/221",
+            "Ancient Stele conversion resource skill from mana to generic temporary resource"),
+        SelectedRuntimeCardRowParityEntry(
+            "GOLD_TOKEN_GENERIC_TEMP_RESOURCE",
+            "UNL·T05",
+            "Gold token destroy-cost generated generic temporary resource"),
+        SelectedRuntimeCardRowParityEntry(
+            "ORNN_BRIDGE_EQUIPMENT_ONLY_POWER",
+            "SFD·189/221",
+            "Ornn bridge-closed equipment-only generated power source-card group")
+    ];
+
+    private static PaymentEngineSelectedResourceSkillOfficialRuntimeCardRowParityEntry SelectedRuntimeCardRowParityEntry(
+        string selectedGroupId,
+        string cardNo,
+        string highSignalProfile)
+    {
+        var candidate = ResourceSkillOfficialCandidateFor(cardNo);
+        var parity = ResourceSkillOfficialSourceCardRuntimeParityManifest.Single(entry =>
+            string.Equals(entry.CardNo, cardNo, StringComparison.Ordinal));
+        var runtimeRow = ResourceSkillOfficialRuntimeCardRowEvidenceManifest.Single(entry =>
+            string.Equals(entry.CardNo, cardNo, StringComparison.Ordinal));
+        var closureEntry = string.IsNullOrWhiteSpace(parity.BridgeGroupId)
+            ? null
+            : LegendResourceBridgeResourceSkillClosureManifest.Single(entry =>
+                string.Equals(entry.BridgeGroupId, parity.BridgeGroupId, StringComparison.Ordinal));
+        var exactSourceCardGroup = closureEntry?.CandidateCardNos.ToArray() ?? parity.SourceCardGroup.ToArray();
+        var exactSourceGroupText = string.Join(", ", exactSourceCardGroup);
+        var matrixRows = ResourceSkillOfficialRowInteractionMatrixManifest
+            .Where(entry => string.Equals(entry.CardNo, cardNo, StringComparison.Ordinal))
+            .Select(entry => entry.MatrixRowId)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var bridgeClosureEvidence = closureEntry is null
+            ? "No bridge closure binding is required for this implemented runtime-catalog resource skill row."
+            : $"LegendResourceBridgeResourceSkillClosureManifest exact BridgeGroupId={closureEntry.BridgeGroupId}, AbilityId={closureEntry.AbilityId}, source-card group=[{exactSourceGroupText}] is bound; this is not a LEGEND_ACT proxy.";
+
+        return new(
+            selectedGroupId,
+            cardNo,
+            candidate.Classification,
+            SelectedResourceSkillOfficialRuntimeCardRowParity,
+            highSignalProfile,
+            candidate.OfficialResourceProfile,
+            parity.AbilityId,
+            parity.BridgeGroupId,
+            exactSourceCardGroup,
+            runtimeRow.FocusedTestType,
+            runtimeRow.RequiredFocusedTestMethods,
+            runtimeRow.InteractionDimensions,
+            matrixRows,
+            $"{parity.PromptEvidence} 03DC-B selected high-signal row {selectedGroupId} binds source-card group [{exactSourceGroupText}] before frontend inference.",
+            $"{parity.CommandEvidence} 03DC-B selected high-signal row {selectedGroupId} revalidates source-card group [{exactSourceGroupText}] before mutation.",
+            $"{parity.AuditEvidence} 03DC-B selected high-signal row {selectedGroupId} keeps ABILITY_ACTIVATED / COST_PAID / generated-resource audit identity tied to ability {parity.AbilityId}.",
+            $"{parity.LifetimeEvidence} 03DC-B selected high-signal row {selectedGroupId} keeps generated-resource lifetime, legal payment consumption and cleanup explicit.",
+            $"{parity.RollbackEvidence} 03DC-B selected high-signal row {selectedGroupId} keeps stale, illegal, duplicate and wrong-resource commands no-mutation.",
+            $"{parity.SourceCardParityEvidence} 03DC-B source-card parity binds selected source-card group [{exactSourceGroupText}] and ability {parity.AbilityId}.",
+            $"{runtimeRow.CardRowEvidence} 03DC-B official card-row parity checks every selected source-card group member [{exactSourceGroupText}] and keeps fullOfficial=false.",
+            bridgeClosureEvidence,
+            "03DC-B focused verifier only; selected rows move beyond 03CV / 03CY representative proxy evidence, but project remains NOT READY, P0-005 remains open, P1 remains open, fullOfficial remains false, card matrix JSON remains unchanged, full official [A] / [C] resource-skill breadth remains open and final readiness upgrade is forbidden.",
+            [.. SelectedResourceSkillOfficialRuntimeCardRowParityDocAnchors, .. runtimeRow.DocAnchors, .. parity.DocAnchors]);
     }
 
     private static readonly string[] TypedSigilOfficialRuntimeCardRowAuditDocAnchors =
@@ -7663,6 +7757,218 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineSelectedResourceSkillOfficialRuntimeCardRowParityManifestCoversHighSignalGroups()
+    {
+        var requiredGroupIds = new[]
+        {
+            "ANCIENT_STELE_CONVERSION_TEMP_RESOURCE",
+            "DRAGON_SOUL_SAGE_REACTION_MANA",
+            "GOLD_TOKEN_GENERIC_TEMP_RESOURCE",
+            "LUX_SPELL_ONLY_PAYMENT_STEP",
+            "MALZAHAR_A_A_TARGET_AS_COST",
+            "ORNN_BRIDGE_EQUIPMENT_ONLY_POWER"
+        };
+        var requiredCardNos = new[]
+        {
+            "OGN·113/298",
+            "OGS·014/024",
+            "UNL-093/219",
+            "SFD·117/221",
+            "UNL·T05",
+            "SFD·189/221"
+        };
+
+        Assert.Equal(6, SelectedResourceSkillOfficialRuntimeCardRowParityManifest.Length);
+        Assert.Equal(
+            requiredGroupIds.Order(StringComparer.Ordinal),
+            SelectedResourceSkillOfficialRuntimeCardRowParityManifest.Select(entry => entry.SelectedGroupId).Order(StringComparer.Ordinal));
+        Assert.Equal(
+            requiredCardNos.Order(StringComparer.Ordinal),
+            SelectedResourceSkillOfficialRuntimeCardRowParityManifest.Select(entry => entry.CardNo).Order(StringComparer.Ordinal));
+        Assert.Empty(SelectedResourceSkillOfficialRuntimeCardRowParityManifest
+            .GroupBy(entry => entry.SelectedGroupId, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key));
+
+        Assert.Contains(SelectedResourceSkillOfficialRuntimeCardRowParityManifest, entry => entry.HighSignalProfile.Contains("Malzahar [A A]", StringComparison.Ordinal));
+        Assert.Contains(SelectedResourceSkillOfficialRuntimeCardRowParityManifest, entry => entry.HighSignalProfile.Contains("Lux spell-only", StringComparison.Ordinal));
+        Assert.Contains(SelectedResourceSkillOfficialRuntimeCardRowParityManifest, entry => entry.HighSignalProfile.Contains("Dragon Soul Sage", StringComparison.Ordinal));
+        Assert.Contains(SelectedResourceSkillOfficialRuntimeCardRowParityManifest, entry => entry.HighSignalProfile.Contains("conversion resource skill", StringComparison.Ordinal));
+        Assert.Contains(SelectedResourceSkillOfficialRuntimeCardRowParityManifest, entry => entry.HighSignalProfile.Contains("Gold token", StringComparison.Ordinal));
+        Assert.Contains(SelectedResourceSkillOfficialRuntimeCardRowParityManifest, entry => entry.HighSignalProfile.Contains("bridge-closed", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void PaymentEngineSelectedResourceSkillOfficialRuntimeCardRowParityManifestBindsRuntimeRowsAndFocusedMethods()
+    {
+        Assert.All(SelectedResourceSkillOfficialRuntimeCardRowParityManifest, entry =>
+        {
+            var candidate = ResourceSkillOfficialCandidateFor(entry.CardNo);
+            var parity = Assert.Single(
+                ResourceSkillOfficialSourceCardRuntimeParityManifest,
+                parityEntry => string.Equals(parityEntry.CardNo, entry.CardNo, StringComparison.Ordinal));
+            var runtimeRow = Assert.Single(
+                ResourceSkillOfficialRuntimeCardRowEvidenceManifest,
+                runtimeEntry => string.Equals(runtimeEntry.CardNo, entry.CardNo, StringComparison.Ordinal));
+            var expectedMatrixRows = ResourceSkillOfficialRowInteractionMatrixManifest
+                .Where(matrixEntry => string.Equals(matrixEntry.CardNo, entry.CardNo, StringComparison.Ordinal))
+                .Select(matrixEntry => matrixEntry.MatrixRowId)
+                .Order(StringComparer.Ordinal)
+                .ToArray();
+
+            Assert.Equal(SelectedResourceSkillOfficialRuntimeCardRowParity, entry.Classification);
+            Assert.Equal(candidate.Classification, entry.CandidateClassification);
+            Assert.Equal(candidate.OfficialResourceProfile, entry.OfficialResourceProfile);
+            Assert.Equal(parity.AbilityId, entry.AbilityId);
+            Assert.Equal(parity.BridgeGroupId, entry.BridgeGroupId);
+            Assert.Equal(runtimeRow.FocusedTestType, entry.FocusedTestType);
+            Assert.Equal(runtimeRow.RequiredFocusedTestMethods, entry.RequiredFocusedTestMethods);
+            Assert.Equal(runtimeRow.InteractionDimensions.Order(StringComparer.Ordinal), entry.InteractionDimensions.Order(StringComparer.Ordinal));
+            Assert.Equal(expectedMatrixRows, entry.MatrixRowIds.Order(StringComparer.Ordinal));
+            Assert.Equal(ResourceSkillOfficialRowInteractionDimensionProfiles.Length, entry.MatrixRowIds.Count);
+
+            foreach (var methodName in entry.RequiredFocusedTestMethods)
+            {
+                var method = entry.FocusedTestType.GetMethod(methodName);
+
+                Assert.NotNull(method);
+                Assert.Contains(method.GetCustomAttributes(inherit: false), attribute => attribute is FactAttribute);
+            }
+
+            Assert.Contains(entry.CardNo, entry.PromptEvidence, StringComparison.Ordinal);
+            Assert.Contains(entry.AbilityId, entry.CommandEvidence, StringComparison.Ordinal);
+            Assert.Contains(entry.AbilityId, entry.AuditEvidence, StringComparison.Ordinal);
+            Assert.Contains("generated-resource lifetime", entry.LifetimeEvidence, StringComparison.Ordinal);
+            Assert.Contains("no-mutation", entry.RollbackEvidence, StringComparison.Ordinal);
+            Assert.Contains("03DC-B", entry.SourceCardParityEvidence, StringComparison.Ordinal);
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineSelectedResourceSkillOfficialRuntimeCardRowParityManifestBindsBridgeClosedExactSourceCardGroup()
+    {
+        var bridgeRows = SelectedResourceSkillOfficialRuntimeCardRowParityManifest
+            .Where(entry => string.Equals(entry.CandidateClassification, BridgeClosedResourceSkillOfficialCandidate, StringComparison.Ordinal))
+            .ToArray();
+
+        var bridgeRow = Assert.Single(bridgeRows);
+        var closureEntry = Assert.Single(
+            LegendResourceBridgeResourceSkillClosureManifest,
+            entry => entry.CandidateCardNos.Contains(bridgeRow.CardNo, StringComparer.Ordinal));
+
+        Assert.Equal("ORNN_BRIDGE_EQUIPMENT_ONLY_POWER", bridgeRow.SelectedGroupId);
+        Assert.Equal("SFD·189/221", bridgeRow.CardNo);
+        Assert.Equal(closureEntry.AbilityId, bridgeRow.AbilityId);
+        Assert.Equal(closureEntry.BridgeGroupId, bridgeRow.BridgeGroupId);
+        Assert.Equal(closureEntry.CandidateCardNos, bridgeRow.SourceCardGroup);
+        Assert.Equal(new[] { "SFD·189/221", "SFD·244/221" }, bridgeRow.SourceCardGroup);
+        Assert.Contains("LegendResourceBridgeResourceSkillClosureManifest", bridgeRow.BridgeClosureEvidence, StringComparison.Ordinal);
+        Assert.Contains("not a LEGEND_ACT proxy", bridgeRow.BridgeClosureEvidence, StringComparison.Ordinal);
+        Assert.Contains("not a LEGEND_ACT proxy", bridgeRow.SourceCardParityEvidence, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineSelectedResourceSkillOfficialRuntimeCardRowParityManifestReadsExactCardRowsAsNotFullOfficial()
+    {
+        var repositoryRoot = ResolveRepositoryRoot();
+        var matrixPath = Path.Combine(repositoryRoot, "docs", "CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json");
+        using var document = JsonDocument.Parse(File.ReadAllText(matrixPath));
+
+        var snapshotEntries = document.RootElement.GetProperty("snapshotEntries").EnumerateArray().ToArray();
+
+        Assert.All(SelectedResourceSkillOfficialRuntimeCardRowParityManifest, entry =>
+        {
+            Assert.NotEmpty(entry.SourceCardGroup);
+            Assert.All(entry.SourceCardGroup, sourceCardNo =>
+            {
+                var snapshotEntry = Assert.Single(
+                    snapshotEntries,
+                    element => string.Equals(element.GetProperty("cardNo").GetString(), sourceCardNo, StringComparison.Ordinal));
+                var stage4B = snapshotEntry.GetProperty("stage4B");
+
+                Assert.Equal(sourceCardNo, stage4B.GetProperty("collectorId").GetString());
+                Assert.Equal(sourceCardNo, snapshotEntry.GetProperty("cardNo").GetString());
+                Assert.False(stage4B.GetProperty("fullOfficial").GetBoolean());
+                Assert.Contains(sourceCardNo, entry.CardRowParityEvidence, StringComparison.Ordinal);
+                Assert.Contains("fullOfficial=false", entry.CardRowParityEvidence, StringComparison.Ordinal);
+            });
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineSelectedResourceSkillOfficialRuntimeCardRowParityManifestRequires03DcBDocsAndNoReadyClaim()
+    {
+        var repositoryRoot = ResolveRepositoryRoot();
+        var combinedText = string.Join(
+            " ",
+            SelectedResourceSkillOfficialRuntimeCardRowParityManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.SelectedGroupId,
+                    entry.CardNo,
+                    entry.CandidateClassification,
+                    entry.Classification,
+                    entry.HighSignalProfile,
+                    entry.OfficialResourceProfile,
+                    entry.AbilityId,
+                    entry.BridgeGroupId,
+                    entry.FocusedTestType.FullName ?? entry.FocusedTestType.Name,
+                    entry.PromptEvidence,
+                    entry.CommandEvidence,
+                    entry.AuditEvidence,
+                    entry.LifetimeEvidence,
+                    entry.RollbackEvidence,
+                    entry.SourceCardParityEvidence,
+                    entry.CardRowParityEvidence,
+                    entry.BridgeClosureEvidence,
+                    entry.NonClosureStatus
+                }.Concat(entry.SourceCardGroup)
+                    .Concat(entry.RequiredFocusedTestMethods)
+                    .Concat(entry.InteractionDimensions)
+                    .Concat(entry.MatrixRowIds)
+                    .Concat(entry.DocAnchors)));
+
+        Assert.All(SelectedResourceSkillOfficialRuntimeCardRowParityManifest, entry =>
+        {
+            Assert.Contains("prompt", entry.PromptEvidence, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("revalidates", entry.CommandEvidence, StringComparison.Ordinal);
+            Assert.Contains("audit", entry.AuditEvidence, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("lifetime", entry.LifetimeEvidence, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("no-mutation", entry.RollbackEvidence, StringComparison.Ordinal);
+            Assert.Contains("source-card", entry.SourceCardParityEvidence, StringComparison.Ordinal);
+            Assert.Contains("official card-row parity", entry.CardRowParityEvidence, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P1 remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("NOT READY", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("fullOfficial remains false", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("card matrix JSON remains unchanged", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("full official [A] / [C] resource-skill breadth remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("docs/CURRENT_STAGE4D_03DC_B_PAYMENT_ENGINE_SELECTED_RESOURCE_SKILL_RUNTIME_CARD_ROW_PARITY_AUDIT.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03DC_B_PAYMENT_ENGINE_SELECTED_RESOURCE_SKILL_RUNTIME_CARD_ROW_PARITY_EVIDENCE.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03DC_PAYMENT_ENGINE_OFFICIAL_BREADTH_CONCRETE_B_DISPATCH_AUDIT.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03DC_PAYMENT_ENGINE_OFFICIAL_BREADTH_CONCRETE_B_DISPATCH_EVIDENCE.md", entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+                Assert.True(File.Exists(Path.Combine(repositoryRoot, anchor)), anchor);
+            });
+        });
+
+        Assert.Contains("03CV / 03CY representative proxy evidence", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("fullOfficial remains false", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PaymentEngineTypedSigilOfficialRuntimeCardRowAuditManifestCoversExactSfdAndOgnRows()
     {
         var expectedCardNos = new[]
@@ -8733,6 +9039,31 @@ public sealed class PaymentEngineCoverageAuditTests
         string NonClosureStatus,
         IReadOnlyList<string> DocAnchors);
 
+    private sealed record PaymentEngineSelectedResourceSkillOfficialRuntimeCardRowParityEntry(
+        string SelectedGroupId,
+        string CardNo,
+        string CandidateClassification,
+        string Classification,
+        string HighSignalProfile,
+        string OfficialResourceProfile,
+        string AbilityId,
+        string BridgeGroupId,
+        IReadOnlyList<string> SourceCardGroup,
+        Type FocusedTestType,
+        IReadOnlyList<string> RequiredFocusedTestMethods,
+        IReadOnlyList<string> InteractionDimensions,
+        IReadOnlyList<string> MatrixRowIds,
+        string PromptEvidence,
+        string CommandEvidence,
+        string AuditEvidence,
+        string LifetimeEvidence,
+        string RollbackEvidence,
+        string SourceCardParityEvidence,
+        string CardRowParityEvidence,
+        string BridgeClosureEvidence,
+        string NonClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
     private sealed record PaymentEngineTypedSigilOfficialRuntimeCardRowAuditEntry(
         string CardNo,
         string AbilityId,
@@ -8824,6 +9155,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(ResourceSkillOfficialRowInteractionMatrixManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(ResourceSkillOfficialSourceCardRuntimeParityManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(ResourceSkillOfficialRuntimeCardRowEvidenceManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(SelectedResourceSkillOfficialRuntimeCardRowParityManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TypedSigilOfficialRuntimeCardRowAuditManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(DeferredResourceSkillFamilyManifest.SelectMany(entry => entry.DocAnchors))
