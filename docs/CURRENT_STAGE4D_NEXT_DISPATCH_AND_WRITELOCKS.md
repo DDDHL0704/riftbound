@@ -1,13 +1,14 @@
 # Stage 4D Next Dispatch and Writelocks
 
 日期：2026-05-16
-结论：**4D-03CX PAYMENT ENGINE RESOURCE SKILL SOURCE-CARD RUNTIME PARITY ACCEPTED / PROJECT NOT READY**
+结论：**4D-03CY PAYMENT ENGINE RESOURCE SKILL RUNTIME CARD-ROW EVIDENCE ACCEPTED / PROJECT NOT READY**
 
 本文件是 A 主控对下一批 B/C/D/E 工作的调度队列与写锁边界。它只做 planning / handoff / acceptance / baseline 归档；除本文明确记录的 focused verifier 外，不实现 runtime，不修改前端，不升级 full-official。当前 active goal 仍未完成，不得调用 `update_goal complete`。
 
 ## 1. 输入事实
 
 - 当前分支为 `main`，仓库当前只保留未跟踪 `riftbound-dotnet.sln`；该文件不得被本批任务触碰或纳入提交。
+- 4D-03CY PaymentEngine resource skill runtime/card-row evidence verifier 已由 A 主控完成并验收，入口为 `docs/CURRENT_STAGE4D_03CY_PAYMENT_ENGINE_RESOURCE_SKILL_RUNTIME_CARD_ROW_EVIDENCE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03CY_PAYMENT_ENGINE_RESOURCE_SKILL_RUNTIME_CARD_ROW_EVIDENCE.md`。本批只改 `PaymentEngineCoverageAuditTests` 与 03CY docs：新增 `ResourceSkillOfficialRuntimeCardRowEvidenceManifest`，覆盖 32 个 official resource-skill candidates；每行绑定 03CX source-card parity、真实 focused verifier 类型/方法、03CV 六类 interaction dimensions 与 card matrix skeleton exact `cardNo` / `collectorId` row，且确认 `fullOfficial=false` 与 card matrix JSON unchanged。A 侧验证 focused 151/151、adjacent PaymentEngine / legend bridge / resource skill / legend action / PaymentEngine unification / prompt / GameHub 710/710、backend full 4720/4720、`git diff --check` 通过；runtime、frontend、Chrome / browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；P0-005、P1、full official PaymentEngine matrix、完整 `[A]` / `[C]` resource-skill runtime/card-row interactions、full-card matrix 与 READY 仍未关闭。
 - 4D-03CX PaymentEngine resource skill official source-card runtime parity verifier 已由 B-Implementation / Kant `019e2f83-1e01-76b3-a939-0a8b43d0fb37` 完成并由 A 验收，入口为 `docs/CURRENT_STAGE4D_03CX_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_SOURCE_CARD_RUNTIME_PARITY_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03CX_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_SOURCE_CARD_RUNTIME_PARITY_EVIDENCE.md`。本批只改 `PaymentEngineCoverageAuditTests` 与 03CX docs：新增 `ResourceSkillOfficialSourceCardRuntimeParityManifest`，覆盖 32 个 official resource-skill candidates；23 个 implemented rows 绑定 runtime catalog exact `SourceCardNo` / `AbilityId` / `IsResourceSkill=true`，9 个 bridge-closed rows 绑定 exact source-card group / bridge group / ability id / source-card parity evidence。A 侧验证 focused 147/147、adjacent PaymentEngine / legend bridge / resource skill / legend action / PaymentEngine unification / prompt / GameHub 706/706、backend full 4716/4716、`git diff --check` 通过；runtime、frontend、Chrome / browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；P0-005、P1、full official PaymentEngine matrix、完整 `[A]` / `[C]` resource-skill runtime/card-row interactions、full-card matrix 与 READY 仍未关闭。
 - 4D-03CW PaymentEngine official breadth fresh-dispatch handoff / baseline 已由 A 主控完成 focused test/docs-only gate，入口为 `docs/CURRENT_STAGE4D_03CW_PAYMENT_ENGINE_OFFICIAL_BREADTH_HANDOFF.md` 与 `docs/CURRENT_STAGE4D_03CW_PAYMENT_ENGINE_OFFICIAL_BREADTH_BASELINE_EVIDENCE.md`。本批只改 `PaymentEngineCoverageAuditTests` 与 03CW docs：`B_PAYMENT_ENGINE_OFFICIAL_BREADTH` 现在显式记录 4D-03CV 192-row resource-skill official row-interaction matrix 为 representative proxy evidence only；future B-side work 仍需 fresh A dispatch，优先把 selected full official `[A]` / `[C]` resource-skill runtime / card-row interactions 转成 executable prompt / command / audit / generated-resource lifetime / rollback verifier。A 侧验证 focused 142/142、adjacent PaymentEngine / legend bridge / resource skill / legend action / PaymentEngine unification / prompt / GameHub 701/701、backend full 4711/4711 通过；runtime、frontend、Chrome / browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；P0-005、P1、full official PaymentEngine matrix、完整 `[A]` / `[C]` resource-skill runtime/card-row interactions、full-card matrix 与 READY 仍未关闭。
 - 4D-03CV PaymentEngine resource skill official row interaction matrix 已由 A 主控完成 focused test/docs-only verifier，入口为 `docs/CURRENT_STAGE4D_03CV_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_MATRIX_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03CV_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_ROW_INTERACTION_MATRIX_EVIDENCE.md`。本批只改 `PaymentEngineCoverageAuditTests` 与 03CV docs：`ResourceSkillOfficialRowInteractionMatrixManifest` 现在覆盖 32 current official resource-skill candidates x 6 interaction dimensions = 192 rows，维度为 prompt quote、command revalidation、audit event parity、generated-resource lifetime、rollback no-mutation、official matrix trace。post-03CT split 保持 23 implemented + 9 bridge-closed + 0 current deferred；每行继续固定 `RESOURCE_SKILL_A_C_FAMILY` / `RESOURCE_SKILLS`、03CV anchor、`P0-005 remains open`、`fullOfficial remains false` 与 **NOT READY**。A 侧验证 focused 141/141、adjacent PaymentEngine / legend bridge / resource skill / legend action / PaymentEngine unification / prompt / GameHub 700/700、backend full 4710/4710 通过；runtime、frontend、Chrome / browser scripts、formal 18-step scripts、card matrix JSON、fullOfficial / READY 与 `riftbound-dotnet.sln` 未触碰；P0-005、P1、full official PaymentEngine matrix、完整 `[A]` / `[C]` resource-skill runtime/card-row interactions、full-card matrix 与 READY 仍未关闭。
@@ -210,6 +211,7 @@
 
 ## 3. Exclusive Writelocks
 
+- 4D-03CY runtime/card-row evidence verifier write scope is closed after A validation. Only `PaymentEngineCoverageAuditTests.cs`, 4D-03CY audit / evidence docs and A-side routing/audit docs were changed. Runtime, frontend runtime, Chrome / browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
 - 4D-03CX source-card runtime parity verifier write scope is closed after A validation. Only `PaymentEngineCoverageAuditTests.cs`, 4D-03CX audit / evidence docs and A-side routing/audit docs were changed. Runtime, frontend runtime, Chrome / browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
 - 4D-03CW focused fresh-dispatch handoff gate write scope is closed after A validation. Only `PaymentEngineCoverageAuditTests.cs`, 4D-03CW handoff / baseline docs and A-side routing/audit docs were changed. Runtime, frontend runtime, Chrome / browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
 - 4D-03CV focused row-interaction matrix write scope is closed after A validation. Only `PaymentEngineCoverageAuditTests.cs`, 4D-03CV audit / evidence docs and A-side routing/audit docs were changed. Runtime, frontend runtime, Chrome / browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` remain locked.
@@ -301,6 +303,23 @@
 - C remains read-only while B might alter server prompt shape. Any frontend write window must wait until server `ActionPrompt` payload and event shape are stable.
 - E returns to read-only after 4D-03AT. The matrix must not be upgraded to `fullOfficial=true` for Azir, Maduli, Ezreal or other latest representatives merely because focused runtime evidence passed.
 - No parallel task may edit card matrix JSON, frontend stores, `ActionPrompt` contracts, battle state machine, stack, cleanup, hidden-info redaction, or E2E fixtures without an explicit owner and a fresh write-lock note.
+
+## 3.0AC 4D-03CY Resource Skill Runtime Card-Row Evidence Accepted
+
+4D-03CY is accepted as a focused test-only runtime/card-row evidence verifier. It binds the 32 current official resource-skill candidates to concrete focused verifier methods and exact card matrix snapshot rows without changing runtime or claiming full official readiness.
+
+Acceptance facts:
+
+1. `docs/CURRENT_STAGE4D_03CY_PAYMENT_ENGINE_RESOURCE_SKILL_RUNTIME_CARD_ROW_EVIDENCE_AUDIT.md` and `docs/CURRENT_STAGE4D_03CY_PAYMENT_ENGINE_RESOURCE_SKILL_RUNTIME_CARD_ROW_EVIDENCE.md` exist and record the accepted verifier evidence.
+2. `PaymentEngineCoverageAuditTests` creates `ResourceSkillOfficialRuntimeCardRowEvidenceManifest` from all current `ResourceSkillOfficialBreadthManifest` candidates.
+3. The manifest has 32 rows, one per official resource-skill candidate, and every row binds 03CX source-card parity, 03CV six interaction dimensions, focused verifier methods and exact `cardNo` / `collectorId` snapshot row evidence.
+4. The card matrix skeleton remains unchanged and every selected snapshot row keeps `fullOfficial=false`.
+5. Focused PaymentEngine coverage audit passed 151/151.
+6. Adjacent PaymentEngine / legend bridge / resource skill / legend action / PaymentEngine unification / prompt / GameHub regression passed 710/710.
+7. Backend full passed 4720/4720.
+8. `git diff --check` passed.
+9. Runtime, frontend, Chrome / browser scripts, formal 18-step scripts, card matrix JSON, fullOfficial / READY and `riftbound-dotnet.sln` were not touched.
+10. The verifier does not close P0-005, P1, full official PaymentEngine matrix, full official `[A]` / `[C]` resource-skill runtime/card-row interactions, full-card matrix, final frontend reruns or READY.
 
 ## 3.0AB 4D-03CW PaymentEngine Official Breadth Handoff Accepted
 

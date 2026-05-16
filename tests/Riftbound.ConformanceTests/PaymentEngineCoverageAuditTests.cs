@@ -40,6 +40,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string LegendResourceBridgeResourceSkillClosure = "legend-resource-bridge-resource-skill-closure";
     private const string ResourceSkillOfficialRowInteractionMatrix = "resource-skill-official-row-interaction-matrix";
     private const string ResourceSkillOfficialSourceCardRuntimeParity = "resource-skill-official-source-card-runtime-parity";
+    private const string ResourceSkillOfficialRuntimeCardRowEvidence = "resource-skill-official-runtime-card-row-evidence";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
     [
@@ -2859,6 +2860,235 @@ public sealed class PaymentEngineCoverageAuditTests
             FocusedEvidence: $"LegendResourceBridgeVerifierTests: SuccessProfiles / RejectProfiles exact source-card runtime parity anchor for {cardNo} within group [{exactGroupText}], AbilityId={closureEntry.AbilityId}, BridgeGroupId={closureEntry.BridgeGroupId}.",
             NonClosureStatus: "03CX bridge source-card parity verifier only; project remains NOT READY, P0-005 remains open, fullOfficial remains false, card matrix JSON remains unchanged, and full official [A] / [C] resource skill closure remains outside this slice.",
             DocAnchors: ResourceSkillOfficialSourceCardRuntimeParityDocAnchors);
+    }
+
+    private static readonly string[] ResourceSkillOfficialRuntimeCardRowEvidenceDocAnchors =
+    [
+        "docs/CURRENT_STAGE4D_03CY_PAYMENT_ENGINE_RESOURCE_SKILL_RUNTIME_CARD_ROW_EVIDENCE_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03CY_PAYMENT_ENGINE_RESOURCE_SKILL_RUNTIME_CARD_ROW_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03CX_PAYMENT_ENGINE_RESOURCE_SKILL_OFFICIAL_SOURCE_CARD_RUNTIME_PARITY_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03CW_PAYMENT_ENGINE_OFFICIAL_BREADTH_HANDOFF.md",
+        "docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md",
+        "docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md"
+    ];
+
+    private static readonly string[] SfdSigilRuntimeCardRowMethods =
+    [
+        nameof(SfdSigilResourceSkillTests.SfdSigilReactionPromptExposesBaseEquipmentTypedPaymentOnlyResourceSkills),
+        nameof(SfdSigilResourceSkillTests.SfdSigilReactionCommandExhaustsSourceCreatesTypedTemporaryLedgerWithoutStackItem),
+        nameof(SfdSigilResourceSkillTests.SfdSigilTemporaryTypedResourcePaysSameColorAndGenericRuneCosts),
+        nameof(SfdSigilResourceSkillTests.SfdSigilTemporaryTypedResourceRejectsWrongColorAndManaOnlyWithoutMutation)
+    ];
+
+    private static readonly string[] OgnSigilRuntimeCardRowMethods =
+    [
+        nameof(OgnSigilResourceSkillTests.OgnSigilReactionPromptExposesBaseEquipmentTypedPaymentOnlyResourceSkills),
+        nameof(OgnSigilResourceSkillTests.OgnSigilReactionCommandExhaustsSourceCreatesTypedTemporaryLedgerWithoutStackItem),
+        nameof(OgnSigilResourceSkillTests.OgnSigilTemporaryTypedResourcePaysSameColorAndGenericRuneCosts),
+        nameof(OgnSigilResourceSkillTests.OgnSigilTemporaryTypedResourceRejectsWrongColorAndManaOnlyWithoutMutation),
+        nameof(OgnSigilResourceSkillTests.OgnAndSfdSigilAbilityIdsCannotActivateTheOtherPrintings)
+    ];
+
+    private static readonly string[] LegendResourceBridgeRuntimeCardRowMethods =
+    [
+        nameof(LegendResourceBridgeVerifierTests.LegendResourceBridgeSuccessExposesPromptAndGainsOneResource),
+        nameof(LegendResourceBridgeVerifierTests.LegendResourceBridgeGeneratedManaCanPayLaterLegalManaCost),
+        nameof(LegendResourceBridgeVerifierTests.LegendResourceBridgeGeneratedPowerCanPayLaterLegalPowerCost),
+        nameof(LegendResourceBridgeVerifierTests.LegendResourceBridgeGeneratedResourceUsesRunePoolEndTurnCleanupLifecycle),
+        nameof(LegendResourceBridgeVerifierTests.LegendResourceBridgePromptFiltersIllegalSourceAtWrongGate),
+        nameof(LegendResourceBridgeVerifierTests.LegendResourceBridgeRejectsWrongGateWithoutMutation),
+        nameof(LegendResourceBridgeVerifierTests.LegendResourceBridgeRejectsStaleSourceWithoutMutation),
+        nameof(LegendResourceBridgeVerifierTests.LegendResourceBridgeRejectsExhaustedSourceAndDuplicateUseWithoutMutation),
+        nameof(LegendResourceBridgeVerifierTests.LegendResourceBridgeRejectsHandwrittenIllegalAbilityWithoutMutation),
+        nameof(LegendResourceBridgeVerifierTests.LegendResourceBridgeGeneratedManaCannotBeSpentTwice),
+        nameof(LegendResourceBridgeVerifierTests.LegendResourceBridgeGeneratedPowerCannotBeSpentTwice)
+    ];
+
+    private static readonly PaymentEngineResourceSkillOfficialRuntimeCardRowEvidenceEntry[] ResourceSkillOfficialRuntimeCardRowEvidenceManifest =
+    [
+        RuntimeCardRowEvidenceEntry(
+            "UNL·T05",
+            typeof(GoldTokenResourceSkillTests),
+            [
+                nameof(GoldTokenResourceSkillTests.GoldTokenReactionPromptExposesServerFilteredDestroyCostResourceSkills),
+                nameof(GoldTokenResourceSkillTests.GoldTokenResourceSkillDestroysSourceAndCreatesGenericTemporaryLedger),
+                nameof(GoldTokenResourceSkillTests.GoldTemporaryGenericResourcePaysGenericRuneCostAndCleansUp),
+                nameof(GoldTokenResourceSkillTests.GoldTemporaryResourceRejectsNonRuneOrUnnecessaryUseWithoutMutation),
+                nameof(GoldTokenResourceSkillTests.GoldTokenResourceSkillRejectsInvalidSourceTimingOrPayloadWithoutMutation)
+            ],
+            "GoldTokenResourceSkillTests binds UNL·T05 prompt, destroy-cost command, generated generic temporary payment resource lifetime, legal rune payment cleanup and invalid-source / wrong-resource rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry(
+            "UNL-022/219",
+            typeof(JhinMovementResourceSkillTests),
+            [
+                nameof(JhinMovementResourceSkillTests.JhinResourceSkillPromptAppearsOnlyAfterServerCapturedMoveTrigger),
+                nameof(JhinMovementResourceSkillTests.JhinMovementResourceSkillGainsManaAndPaymentOnlyPowerWithoutStackResponse),
+                nameof(JhinMovementResourceSkillTests.JhinGeneratedManaAndPowerCanPayLaterLegalRuneCostThenClear),
+                nameof(JhinMovementResourceSkillTests.JhinGeneratedResourcesExpireAtTurnEndWhenUnused),
+                nameof(JhinMovementResourceSkillTests.JhinMovementResourceSkillRejectsInvalidCommandsWithoutMutation)
+            ],
+            "JhinMovementResourceSkillTests binds UNL-022/219 prompt, movement-trigger command, generated mana / payment-only power lifetime, cleanup and stale / malformed rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry(
+            "UNL-049/219",
+            typeof(HoneyfruitResourceSkillTests),
+            [
+                nameof(HoneyfruitResourceSkillTests.HoneyfruitPromptExposesBaseAndLevelSixBranchesOnlyInLegalReactionWindow),
+                nameof(HoneyfruitResourceSkillTests.HoneyfruitBaseBranchExhaustsSourceCreatesPaymentOnlyGenericPowerWithoutStackItem),
+                nameof(HoneyfruitResourceSkillTests.HoneyfruitLevelSixBranchAddsManaAndPaymentOnlyGenericPower),
+                nameof(HoneyfruitResourceSkillTests.HoneyfruitGeneratedResourcesPayLaterRuneCostAndClearAtPaymentOrTurnCleanup),
+                nameof(HoneyfruitResourceSkillTests.HoneyfruitTemporaryResourceRejectsWrongOrDuplicateSpendWithoutMutation),
+                nameof(HoneyfruitResourceSkillTests.HoneyfruitRejectsInvalidSourceTimingOrPayloadWithoutMutation)
+            ],
+            "HoneyfruitResourceSkillTests binds UNL-049/219 prompt, base and level-six command branches, generated-resource lifetime, cleanup and duplicate / invalid rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry(
+            "UNL-087/219",
+            typeof(BlueSentinelResourceSkillTests),
+            [
+                nameof(BlueSentinelResourceSkillTests.BlueSentinelHeldBattlefieldQueuesServerOwnedDelayedTrigger),
+                nameof(BlueSentinelResourceSkillTests.BlueSentinelDelayedResourceIsPromptedAndConsumedOnlyForNextMainRunePayment),
+                nameof(BlueSentinelResourceSkillTests.BlueSentinelDelayedResourceRejectsInvalidCommandsWithoutMutation)
+            ],
+            "BlueSentinelResourceSkillTests binds UNL-087/219 delayed-trigger capture, next-main prompt / consumption, generated payment-only power cleanup and invalid-command rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry(
+            "UNL-093/219",
+            typeof(ReactionResourceSkillTests),
+            [
+                nameof(ReactionResourceSkillTests.DragonSoulSageReactionPromptExposesServerFilteredNoTargetResourceSkill),
+                nameof(ReactionResourceSkillTests.DragonSoulSageReactionCommandExhaustsSourceGainsManaWithoutOpeningStackItem),
+                nameof(ReactionResourceSkillTests.DragonSoulSageGeneratedManaUsesNormalRunePoolCleanupLifecycle),
+                nameof(ReactionResourceSkillTests.DragonSoulSageRejectsWrongTimingWithoutMutation),
+                nameof(ReactionResourceSkillTests.DragonSoulSageRejectsInvalidSourceOrPayloadWithoutMutation)
+            ],
+            "ReactionResourceSkillTests binds UNL-093/219 reaction prompt, no-target command, generated mana audit / cleanup and wrong timing / invalid source rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry(
+            "UNL-197/219",
+            typeof(LegendResourceBridgeVerifierTests),
+            LegendResourceBridgeRuntimeCardRowMethods,
+            "LegendResourceBridgeVerifierTests binds UNL-197/219 Diana spell-duel bridge prompt, generated mana, later legal payment, end-turn cleanup, source-card group parity and rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry(
+            "SFD·083/221",
+            typeof(ResourceConversionEquipmentResourceSkillTests),
+            [
+                nameof(ResourceConversionEquipmentResourceSkillTests.ResourceConversionReactionPromptExposesServerDefinedConversionChoices),
+                nameof(ResourceConversionEquipmentResourceSkillTests.HextechAnomalyConvertsOrdinaryGenericPowerToManaWithoutStackItem),
+                nameof(ResourceConversionEquipmentResourceSkillTests.ResourceConversionEquipmentRejectsInvalidTimingSourceOrPayloadWithoutMutation)
+            ],
+            "ResourceConversionEquipmentResourceSkillTests binds SFD·083/221 Hextech prompt, generic power to mana conversion command / audit and invalid timing / payload rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry(
+            "SFD·117/221",
+            typeof(ResourceConversionEquipmentResourceSkillTests),
+            [
+                nameof(ResourceConversionEquipmentResourceSkillTests.ResourceConversionReactionPromptExposesServerDefinedConversionChoices),
+                nameof(ResourceConversionEquipmentResourceSkillTests.AncientSteleConvertsManaToGenericTemporaryPaymentResource),
+                nameof(ResourceConversionEquipmentResourceSkillTests.AncientSteleTemporaryGenericResourcePaysGenericRuneCostButRejectsManaOnly),
+                nameof(ResourceConversionEquipmentResourceSkillTests.ResourceConversionEquipmentRejectsInvalidTimingSourceOrPayloadWithoutMutation)
+            ],
+            "ResourceConversionEquipmentResourceSkillTests binds SFD·117/221 Ancient Stele prompt, mana-to-generic temporary resource command, later legal spend, mana-only rejection and invalid payload rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry(
+            "SFD·189/221",
+            typeof(LegendResourceBridgeVerifierTests),
+            LegendResourceBridgeRuntimeCardRowMethods,
+            "LegendResourceBridgeVerifierTests binds SFD·189/221 Ornn bridge prompt, generated equipment-only power, later legal payment, end-turn cleanup, source-card group parity and rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry(
+            "SFD·222/221",
+            typeof(RageSigilResourceSkillTests),
+            [
+                nameof(RageSigilResourceSkillTests.RageSigilReactionPromptExposesBaseEquipmentTypedPaymentOnlyResourceSkill),
+                nameof(RageSigilResourceSkillTests.RageSigilReactionCommandExhaustsSourceCreatesRedTemporaryLedgerWithoutStackItem),
+                nameof(RageSigilResourceSkillTests.RageSigilTemporaryRedResourcePaysRuneCostsAndCleansUp),
+                nameof(RageSigilResourceSkillTests.RageSigilTemporaryRedResourceRejectsNonMatchingOrNonRunePaymentWithoutMutation),
+                nameof(RageSigilResourceSkillTests.RageSigilRejectsInvalidSourceOrPayloadWithoutMutation)
+            ],
+            "RageSigilResourceSkillTests binds SFD·222/221 typed red prompt, command, typed generated-resource lifetime, wrong-color / non-rune rollback and source-card evidence to the official card row."),
+        RuntimeCardRowEvidenceEntry("SFD·226/221", typeof(SfdSigilResourceSkillTests), SfdSigilRuntimeCardRowMethods, "SfdSigilResourceSkillTests binds SFD·226/221 Focus Sigil prompt, command, typed generated-resource lifetime and wrong-color / mana-only rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry("SFD·229/221", typeof(SfdSigilResourceSkillTests), SfdSigilRuntimeCardRowMethods, "SfdSigilResourceSkillTests binds SFD·229/221 Insight Sigil prompt, command, typed generated-resource lifetime and wrong-color / mana-only rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry("SFD·231/221", typeof(SfdSigilResourceSkillTests), SfdSigilRuntimeCardRowMethods, "SfdSigilResourceSkillTests binds SFD·231/221 Power Sigil prompt, command, typed generated-resource lifetime and wrong-color / mana-only rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry("SFD·234/221", typeof(SfdSigilResourceSkillTests), SfdSigilRuntimeCardRowMethods, "SfdSigilResourceSkillTests binds SFD·234/221 Discord Sigil prompt, command, typed generated-resource lifetime and wrong-color / mana-only rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry("SFD·238/221", typeof(SfdSigilResourceSkillTests), SfdSigilRuntimeCardRowMethods, "SfdSigilResourceSkillTests binds SFD·238/221 Unity Sigil prompt, command, typed generated-resource lifetime and wrong-color / mana-only rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry("SFD·244/221", typeof(LegendResourceBridgeVerifierTests), LegendResourceBridgeRuntimeCardRowMethods, "LegendResourceBridgeVerifierTests binds SFD·244/221 Ornn reprint bridge prompt, generated equipment-only power, later legal payment, end-turn cleanup, source-card group parity and rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry(
+            "SFD·T03",
+            typeof(GoldTokenResourceSkillTests),
+            [
+                nameof(GoldTokenResourceSkillTests.GoldTokenReactionPromptExposesServerFilteredDestroyCostResourceSkills),
+                nameof(GoldTokenResourceSkillTests.GoldTokenResourceSkillDestroysSourceAndCreatesGenericTemporaryLedger),
+                nameof(GoldTokenResourceSkillTests.GoldTemporaryGenericResourcePaysGenericRuneCostAndCleansUp),
+                nameof(GoldTokenResourceSkillTests.GoldTemporaryResourceRejectsNonRuneOrUnnecessaryUseWithoutMutation),
+                nameof(GoldTokenResourceSkillTests.GoldTokenResourceSkillRejectsInvalidSourceTimingOrPayloadWithoutMutation)
+            ],
+            "GoldTokenResourceSkillTests binds SFD·T03 prompt, destroy-cost command, generated generic temporary payment resource lifetime, legal rune payment cleanup and invalid-source / wrong-resource rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry(
+            "OGS·014/024",
+            typeof(LuxResourceSkillTests),
+            [
+                nameof(LuxResourceSkillTests.LuxSpellOnlyResourcePromptMakesShortManaSpellPlayable),
+                nameof(LuxResourceSkillTests.LuxSpellOnlyResourcePromptDoesNotMakeUnitPlayable),
+                nameof(LuxResourceSkillTests.LuxSpellOnlyResourcePaysSpellManaExhaustsSourceAndCleansLeftover),
+                nameof(LuxResourceSkillTests.LuxSpellOnlyResourceRejectsInvalidCommandsWithoutMutation)
+            ],
+            "LuxResourceSkillTests binds OGS·014/024 spell-only prompt, non-spell exclusion, generated mana command / cleanup and invalid / duplicate rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry("OGN·040/298", typeof(OgnSigilResourceSkillTests), OgnSigilRuntimeCardRowMethods, "OgnSigilResourceSkillTests binds OGN·040/298 Rage Sigil prompt, command, typed generated-resource lifetime and wrong-color / mana-only rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry("OGN·081/298", typeof(OgnSigilResourceSkillTests), OgnSigilRuntimeCardRowMethods, "OgnSigilResourceSkillTests binds OGN·081/298 Focus Sigil prompt, command, typed generated-resource lifetime and wrong-color / mana-only rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry(
+            "OGN·098/298",
+            typeof(ResourceConversionEquipmentResourceSkillTests),
+            [
+                nameof(ResourceConversionEquipmentResourceSkillTests.ResourceConversionReactionPromptExposesServerDefinedConversionChoices),
+                nameof(ResourceConversionEquipmentResourceSkillTests.EnergyChannelReactionCommandExhaustsSourceGainsManaWithoutStackItem),
+                nameof(ResourceConversionEquipmentResourceSkillTests.ResourceConversionEquipmentRejectsInvalidTimingSourceOrPayloadWithoutMutation)
+            ],
+            "ResourceConversionEquipmentResourceSkillTests binds OGN·098/298 Energy Channel prompt, generated mana command / audit and invalid timing / payload rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry(
+            "OGN·113/298",
+            typeof(MalzaharResourceSkillTests),
+            [
+                nameof(MalzaharResourceSkillTests.MalzaharOpenMainPromptExposesSourceAndFriendlyUnitOrEquipmentCostTargets),
+                nameof(MalzaharResourceSkillTests.MalzaharSpellDuelFocusPromptExposesSourceAndCostTargets),
+                nameof(MalzaharResourceSkillTests.MalzaharResourceSkillDestroysCostExhaustsSourceGainsPaymentOnlyPowerWithoutStack),
+                nameof(MalzaharResourceSkillTests.MalzaharTemporaryPaymentResourcePaysRuneCostAndCleansUpAtPaymentClose),
+                nameof(MalzaharResourceSkillTests.MalzaharTemporaryPaymentResourceCannotPayManaOnlyWindow),
+                nameof(MalzaharResourceSkillTests.MalzaharResourceSkillRejectsInvalidSourcesWithoutMutation),
+                nameof(MalzaharResourceSkillTests.MalzaharResourceSkillRejectsInvalidCostTargetsWithoutMutation)
+            ],
+            "MalzaharResourceSkillTests binds OGN·113/298 open-main / spell-duel prompts, target-as-cost command, generated payment-only power lifetime and invalid source / target rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry("OGN·120/298", typeof(OgnSigilResourceSkillTests), OgnSigilRuntimeCardRowMethods, "OgnSigilResourceSkillTests binds OGN·120/298 Insight Sigil prompt, command, typed generated-resource lifetime and wrong-color / mana-only rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry("OGN·163/298", typeof(OgnSigilResourceSkillTests), OgnSigilRuntimeCardRowMethods, "OgnSigilResourceSkillTests binds OGN·163/298 Power Sigil prompt, command, typed generated-resource lifetime and wrong-color / mana-only rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry("OGN·204/298", typeof(OgnSigilResourceSkillTests), OgnSigilRuntimeCardRowMethods, "OgnSigilResourceSkillTests binds OGN·204/298 Discord Sigil prompt, command, typed generated-resource lifetime and wrong-color / mana-only rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry("OGN·245/298", typeof(OgnSigilResourceSkillTests), OgnSigilRuntimeCardRowMethods, "OgnSigilResourceSkillTests binds OGN·245/298 Unity Sigil prompt, command, typed generated-resource lifetime and wrong-color / mana-only rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry("OGN·247/298", typeof(LegendResourceBridgeVerifierTests), LegendResourceBridgeRuntimeCardRowMethods, "LegendResourceBridgeVerifierTests binds OGN·247/298 KaiSa bridge prompt, generated spell-only power, later legal payment, end-turn cleanup, source-card group parity and rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry("OGN·253/298", typeof(LegendResourceBridgeVerifierTests), LegendResourceBridgeRuntimeCardRowMethods, "LegendResourceBridgeVerifierTests binds OGN·253/298 Darius bridge prompt, generated Inspire-gated mana, later legal payment, end-turn cleanup, source-card group parity and rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry("OGN·299/298", typeof(LegendResourceBridgeVerifierTests), LegendResourceBridgeRuntimeCardRowMethods, "LegendResourceBridgeVerifierTests binds OGN·299/298 KaiSa premium bridge prompt, generated spell-only power, later legal payment, end-turn cleanup, source-card group parity and rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry("OGN·299*/298", typeof(LegendResourceBridgeVerifierTests), LegendResourceBridgeRuntimeCardRowMethods, "LegendResourceBridgeVerifierTests binds OGN·299*/298 KaiSa alternate premium bridge prompt, generated spell-only power, later legal payment, end-turn cleanup, source-card group parity and rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry("OGN·302/298", typeof(LegendResourceBridgeVerifierTests), LegendResourceBridgeRuntimeCardRowMethods, "LegendResourceBridgeVerifierTests binds OGN·302/298 Darius premium bridge prompt, generated Inspire-gated mana, later legal payment, end-turn cleanup, source-card group parity and rollback to the official card row."),
+        RuntimeCardRowEvidenceEntry("OGN·302*/298", typeof(LegendResourceBridgeVerifierTests), LegendResourceBridgeRuntimeCardRowMethods, "LegendResourceBridgeVerifierTests binds OGN·302*/298 Darius alternate premium bridge prompt, generated Inspire-gated mana, later legal payment, end-turn cleanup, source-card group parity and rollback to the official card row.")
+    ];
+
+    private static PaymentEngineResourceSkillOfficialRuntimeCardRowEvidenceEntry RuntimeCardRowEvidenceEntry(
+        string cardNo,
+        Type focusedTestType,
+        IReadOnlyList<string> requiredFocusedTestMethods,
+        string runtimeInteractionEvidence)
+    {
+        var candidate = ResourceSkillOfficialCandidateFor(cardNo);
+        var parity = ResourceSkillOfficialSourceCardRuntimeParityManifest.Single(entry =>
+            string.Equals(entry.CardNo, cardNo, StringComparison.Ordinal));
+
+        return new(
+            cardNo,
+            parity.CandidateClassification,
+            ResourceSkillOfficialRuntimeCardRowEvidence,
+            candidate.OfficialResourceProfile,
+            parity.AbilityId,
+            parity.BridgeGroupId,
+            parity.SourceCardGroup,
+            focusedTestType,
+            requiredFocusedTestMethods,
+            ResourceSkillOfficialRowInteractionDimensionProfiles.Select(entry => entry.DimensionId).ToArray(),
+            runtimeInteractionEvidence,
+            $"Official card-row evidence for {cardNo} must be read from docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json by exact cardNo / collectorId with fullOfficial remains false; 03CY does not edit that JSON.",
+            $"{cardNo} runtime/card-row evidence is stronger than 03CV/03CX proxy-only rows because it binds focused verifier methods plus the exact snapshot card row, but P0-005 remains open.",
+            "03CY runtime/card-row evidence only; project remains NOT READY, P0-005 remains open, fullOfficial remains false, card matrix JSON remains unchanged and final readiness upgrade is forbidden.",
+            [.. ResourceSkillOfficialRuntimeCardRowEvidenceDocAnchors, .. parity.DocAnchors]);
     }
 
     private static PaymentEngineResourceSkillOfficialBreadthEntry ResourceSkillOfficialCandidateFor(string cardNo)
@@ -7048,6 +7278,161 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
+    public void PaymentEngineResourceSkillOfficialRuntimeCardRowEvidenceManifestCoversEveryOfficialCandidate()
+    {
+        var officialCandidateCardNos = ResourceSkillOfficialBreadthManifest
+            .Select(entry => entry.CardNo)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var evidenceCardNos = ResourceSkillOfficialRuntimeCardRowEvidenceManifest
+            .Select(entry => entry.CardNo)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var requiredDimensions = ResourceSkillOfficialRowInteractionDimensionProfiles
+            .Select(entry => entry.DimensionId)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(officialCandidateCardNos, evidenceCardNos);
+        Assert.Equal(32, ResourceSkillOfficialRuntimeCardRowEvidenceManifest.Length);
+        Assert.Empty(ResourceSkillOfficialRuntimeCardRowEvidenceManifest
+            .GroupBy(entry => entry.CardNo, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key));
+        Assert.All(ResourceSkillOfficialRuntimeCardRowEvidenceManifest, entry =>
+        {
+            var candidate = ResourceSkillOfficialCandidateFor(entry.CardNo);
+            var parity = Assert.Single(
+                ResourceSkillOfficialSourceCardRuntimeParityManifest,
+                parityEntry => string.Equals(parityEntry.CardNo, entry.CardNo, StringComparison.Ordinal));
+            var matrixDimensions = ResourceSkillOfficialRowInteractionMatrixManifest
+                .Where(matrixEntry => string.Equals(matrixEntry.CardNo, entry.CardNo, StringComparison.Ordinal))
+                .Select(matrixEntry => matrixEntry.InteractionDimension)
+                .Order(StringComparer.Ordinal)
+                .ToArray();
+
+            Assert.Equal(ResourceSkillOfficialRuntimeCardRowEvidence, entry.Classification);
+            Assert.Equal(candidate.Classification, entry.CandidateClassification);
+            Assert.Equal(candidate.OfficialResourceProfile, entry.OfficialResourceProfile);
+            Assert.Equal(parity.AbilityId, entry.AbilityId);
+            Assert.Equal(parity.BridgeGroupId, entry.BridgeGroupId);
+            Assert.Equal(parity.SourceCardGroup, entry.SourceCardGroup);
+            Assert.Equal(requiredDimensions, entry.InteractionDimensions.Order(StringComparer.Ordinal));
+            Assert.Equal(matrixDimensions, entry.InteractionDimensions.Order(StringComparer.Ordinal));
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineResourceSkillOfficialRuntimeCardRowEvidenceManifestBindsFocusedVerifierMethods()
+    {
+        Assert.All(ResourceSkillOfficialRuntimeCardRowEvidenceManifest, entry =>
+        {
+            Assert.NotEqual(typeof(PaymentEngineCoverageAuditTests), entry.FocusedTestType);
+            Assert.NotEmpty(entry.RequiredFocusedTestMethods);
+            Assert.Empty(entry.RequiredFocusedTestMethods
+                .GroupBy(methodName => methodName, StringComparer.Ordinal)
+                .Where(group => group.Count() > 1)
+                .Select(group => group.Key));
+
+            foreach (var methodName in entry.RequiredFocusedTestMethods)
+            {
+                var method = entry.FocusedTestType.GetMethod(methodName);
+
+                Assert.NotNull(method);
+                Assert.Contains(method.GetCustomAttributes(inherit: false), attribute => attribute is FactAttribute);
+            }
+
+            Assert.Contains(entry.CardNo, entry.RuntimeInteractionEvidence, StringComparison.Ordinal);
+            Assert.Contains(entry.FocusedTestType.Name, entry.RuntimeInteractionEvidence, StringComparison.Ordinal);
+            Assert.Contains("official card row", entry.RuntimeInteractionEvidence, StringComparison.OrdinalIgnoreCase);
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineResourceSkillOfficialRuntimeCardRowEvidenceManifestBindsExactSnapshotCardRows()
+    {
+        var repositoryRoot = ResolveRepositoryRoot();
+        var matrixPath = Path.Combine(repositoryRoot, "docs", "CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json");
+        using var document = JsonDocument.Parse(File.ReadAllText(matrixPath));
+
+        var snapshotEntries = document.RootElement.GetProperty("snapshotEntries").EnumerateArray().ToArray();
+
+        Assert.Equal(1009, snapshotEntries.Length);
+        Assert.All(ResourceSkillOfficialRuntimeCardRowEvidenceManifest, entry =>
+        {
+            var snapshotEntry = Assert.Single(
+                snapshotEntries,
+                element => string.Equals(element.GetProperty("cardNo").GetString(), entry.CardNo, StringComparison.Ordinal));
+            var stage4B = snapshotEntry.GetProperty("stage4B");
+
+            Assert.Equal(entry.CardNo, stage4B.GetProperty("collectorId").GetString());
+            Assert.Equal(entry.CardNo, snapshotEntry.GetProperty("cardNo").GetString());
+            Assert.False(stage4B.GetProperty("fullOfficial").GetBoolean());
+            Assert.True(stage4B.GetProperty("cardId").GetInt32() > 0);
+            Assert.False(string.IsNullOrWhiteSpace(stage4B.GetProperty("functionalUnitId").GetString()));
+            Assert.False(string.IsNullOrWhiteSpace(snapshotEntry.GetProperty("functionalUnitId").GetString()));
+            Assert.Contains(entry.CardNo, entry.CardRowEvidence, StringComparison.Ordinal);
+            Assert.Contains("fullOfficial remains false", entry.CardRowEvidence, StringComparison.Ordinal);
+            Assert.Contains("does not edit", entry.CardRowEvidence, StringComparison.Ordinal);
+        });
+    }
+
+    [Fact]
+    public void PaymentEngineResourceSkillOfficialRuntimeCardRowEvidenceManifestRequiresDocsAndDoesNotClaimReady()
+    {
+        var repositoryRoot = ResolveRepositoryRoot();
+        var combinedText = string.Join(
+            " ",
+            ResourceSkillOfficialRuntimeCardRowEvidenceManifest.SelectMany(entry =>
+                new[]
+                {
+                    entry.CardNo,
+                    entry.CandidateClassification,
+                    entry.Classification,
+                    entry.OfficialResourceProfile,
+                    entry.AbilityId,
+                    entry.BridgeGroupId,
+                    entry.FocusedTestType.FullName ?? entry.FocusedTestType.Name,
+                    entry.RuntimeInteractionEvidence,
+                    entry.CardRowEvidence,
+                    entry.EvidenceDelta,
+                    entry.NonClosureStatus
+                }.Concat(entry.SourceCardGroup)
+                    .Concat(entry.RequiredFocusedTestMethods)
+                    .Concat(entry.InteractionDimensions)
+                    .Concat(entry.DocAnchors)));
+
+        Assert.All(ResourceSkillOfficialRuntimeCardRowEvidenceManifest, entry =>
+        {
+            Assert.Contains("P0-005 remains open", entry.EvidenceDelta, StringComparison.Ordinal);
+            Assert.Contains("NOT READY", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("P0-005 remains open", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("fullOfficial remains false", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("card matrix JSON remains unchanged", entry.NonClosureStatus, StringComparison.Ordinal);
+            Assert.Contains("docs/CURRENT_STAGE4D_03CY_PAYMENT_ENGINE_RESOURCE_SKILL_RUNTIME_CARD_ROW_EVIDENCE_AUDIT.md", entry.DocAnchors);
+            Assert.Contains("docs/CURRENT_STAGE4D_03CY_PAYMENT_ENGINE_RESOURCE_SKILL_RUNTIME_CARD_ROW_EVIDENCE.md", entry.DocAnchors);
+            Assert.All(entry.DocAnchors, anchor =>
+            {
+                Assert.StartsWith("docs/", anchor, StringComparison.Ordinal);
+                Assert.EndsWith(".md", anchor, StringComparison.Ordinal);
+                Assert.True(File.Exists(Path.Combine(repositoryRoot, anchor)), anchor);
+            });
+        });
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("fullOfficial remains false", combinedText, StringComparison.Ordinal);
+        Assert.Contains("card matrix JSON remains unchanged", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PaymentEngineDeferredNonLegendResourceSkillRuntimeLaneManifestMatchesNonLegendGateSet()
     {
         var nonLegendDeferredCardNos = DeferredResourceSkillFamilyManifest
@@ -7667,6 +8052,23 @@ public sealed class PaymentEngineCoverageAuditTests
         string NonClosureStatus,
         IReadOnlyList<string> DocAnchors);
 
+    private sealed record PaymentEngineResourceSkillOfficialRuntimeCardRowEvidenceEntry(
+        string CardNo,
+        string CandidateClassification,
+        string Classification,
+        string OfficialResourceProfile,
+        string AbilityId,
+        string BridgeGroupId,
+        IReadOnlyList<string> SourceCardGroup,
+        Type FocusedTestType,
+        IReadOnlyList<string> RequiredFocusedTestMethods,
+        IReadOnlyList<string> InteractionDimensions,
+        string RuntimeInteractionEvidence,
+        string CardRowEvidence,
+        string EvidenceDelta,
+        string NonClosureStatus,
+        IReadOnlyList<string> DocAnchors);
+
     private sealed record PaymentEngineDeferredResourceSkillFamilyEntry(
         string CardNo,
         string Classification,
@@ -7708,6 +8110,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(ResourceSkillOfficialBreadthManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(ResourceSkillOfficialRowInteractionMatrixManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(ResourceSkillOfficialSourceCardRuntimeParityManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(ResourceSkillOfficialRuntimeCardRowEvidenceManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(DeferredResourceSkillFamilyManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(LegendResourceBridgeAggregateManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(LegendResourceBridgeImplementationAcceptanceManifest.SelectMany(entry => entry.DocAnchors))
