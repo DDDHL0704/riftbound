@@ -24,8 +24,10 @@
 
 ## 2. 本次检查过的证据
 
+- `docs/CURRENT_STAGE4D_03FN_E_CARD_MATRIX_READINESS_PAYMENT_COST_HASTE_READY_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE_AUDIT.md` 与 candidate：确认 4D-03FN-E 已把 03FM-E 之后的第五枚 payment-cost HASTE_READY targeting-stack blocker closure candidate 落到 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 顶层 `stage4D03FnPaymentCostHasteReadyTargetingStackBlockerClosureCandidate`；`Post03FnCardMatrixReadinessPaymentCostHasteReadyTargetingStackBlockerClosureCandidateManifest` classification=`post-03fm-e-card-matrix-readiness-payment-cost-haste-ready-targeting-stack-blocker-closure-candidate`，gate=`E_CARD_MATRIX_READINESS_POST_03FM_PAYMENT_COST_HASTE_READY_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE`，input previous closure candidate manifest=`Post03FmCardMatrixReadinessPaymentCostEquipmentTargetingStackBlockerClosureCandidateManifest`。该 candidate 只减少一个 Legion Rearguard payment-cost HASTE_READY targeting-stack row 的 NEEDS_ENGINE_SUPPORT blocker；fullOfficialTrue=0，ready=false；payment-cost blocker closure、B/D_ENGINE_SUPPORT payment-cost residual、A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE payment-cost residual、E_CARD_MATRIX_FAQ_REVIEW payment-cost residual、E_CARD_MATRIX_READINESS、card matrix 与 READY 仍 open。
+- `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`：主线程维护该测试文件；当前批次证据口径为 `Post03FnCardMatrixReadinessPaymentCostHasteReadyTargetingStackBlockerClosureCandidateManifest`，`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` passed、focused `PaymentEngineCoverageAuditTests` 304/304、current-head backend full `dotnet test Riftbound.slnx --no-restore` 4875/4875，`git diff --check` passed。
 - `docs/CURRENT_STAGE4D_03FM_E_CARD_MATRIX_READINESS_PAYMENT_COST_EQUIPMENT_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE_AUDIT.md` 与 candidate：确认 4D-03FM-E 已把 03FL-E 之后的第四枚 payment-cost equipment targeting-stack blocker closure candidate 落到 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 顶层 `stage4D03FmPaymentCostEquipmentTargetingStackBlockerClosureCandidate`；`Post03FmCardMatrixReadinessPaymentCostEquipmentTargetingStackBlockerClosureCandidateManifest` classification=`post-03fl-e-card-matrix-readiness-payment-cost-equipment-targeting-stack-blocker-closure-candidate`，gate=`E_CARD_MATRIX_READINESS_POST_03FL_PAYMENT_COST_EQUIPMENT_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE`，input previous closure candidate manifest=`Post03FlCardMatrixReadinessPaymentCostHasteReadyTargetingStackBlockerClosureCandidateManifest`。该 candidate 只减少一个 Energy Channel payment-cost equipment targeting-stack row 的 NEEDS_ENGINE_SUPPORT blocker；fullOfficialTrue=0，ready=false；payment-cost blocker closure、B/D_ENGINE_SUPPORT payment-cost residual、A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE payment-cost residual、E_CARD_MATRIX_FAQ_REVIEW payment-cost residual、E_CARD_MATRIX_READINESS、card matrix 与 READY 仍 open。
-- `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`：主线程维护该测试文件；当前批次证据口径为 `Post03FmCardMatrixReadinessPaymentCostEquipmentTargetingStackBlockerClosureCandidateManifest`，`jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` passed、focused `PaymentEngineCoverageAuditTests` 302/302、current-head backend full `dotnet test Riftbound.slnx --no-restore` 4873/4873，`git diff --check` passed。
+- `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`：主线程维护该测试文件；上一批证据口径为 `Post03FmCardMatrixReadinessPaymentCostEquipmentTargetingStackBlockerClosureCandidateManifest`，其 focused / backend full / `jq empty` / `git diff --check` 只作为 03FM-E 历史证据。
 - `docs/CURRENT_STAGE4D_03FL_E_CARD_MATRIX_READINESS_PAYMENT_COST_HASTE_READY_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE_AUDIT.md` 与 candidate：确认 4D-03FL-E 已把 03FK-E 之后的第三枚 payment-cost HASTE_READY targeting-stack blocker closure candidate 落到 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 顶层 `stage4D03FlPaymentCostHasteReadyTargetingStackBlockerClosureCandidate`；`Post03FlCardMatrixReadinessPaymentCostHasteReadyTargetingStackBlockerClosureCandidateManifest` classification=`post-03fk-e-card-matrix-readiness-payment-cost-haste-ready-targeting-stack-blocker-closure-candidate`，gate=`E_CARD_MATRIX_READINESS_POST_03FK_PAYMENT_COST_HASTE_READY_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE`，input previous closure candidate manifest=`Post03FkCardMatrixReadinessPaymentCostTargetingStackBlockerClosureCandidateManifest`。该 candidate 只减少一个 Blazing Drake payment-cost plus HASTE_READY targeting-stack row 的 NEEDS_ENGINE_SUPPORT blocker；fullOfficialTrue=0，ready=false；payment-cost blocker closure、B/D_ENGINE_SUPPORT payment-cost residual、A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE payment-cost residual、E_CARD_MATRIX_FAQ_REVIEW payment-cost residual、E_CARD_MATRIX_READINESS、card matrix 与 READY 仍 open。
 - `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`：主线程维护该测试文件；上一批证据口径为 `Post03FlCardMatrixReadinessPaymentCostHasteReadyTargetingStackBlockerClosureCandidateManifest`，其 focused / backend full / `jq empty` / `git diff --check` 只作为 03FL-E 历史证据。
 - `docs/CURRENT_STAGE4D_03FK_E_CARD_MATRIX_READINESS_PAYMENT_COST_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE_AUDIT.md` 与 candidate：确认 4D-03FK-E 已把 03FJ-E 之后的第二枚 payment-cost blocker closure candidate 落到 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 顶层 `stage4D03FkPaymentCostTargetingStackBlockerClosureCandidate`；`Post03FkCardMatrixReadinessPaymentCostTargetingStackBlockerClosureCandidateManifest` classification=`post-03fj-e-card-matrix-readiness-payment-cost-targeting-stack-blocker-closure-candidate`，gate=`E_CARD_MATRIX_READINESS_POST_03FJ_PAYMENT_COST_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE`，input previous closure candidate manifest=`Post03FjCardMatrixReadinessPaymentCostBlockerClosureCandidateManifest`。该 candidate 只减少一个 Raging Drake payment-cost plus targeting-stack row 的 NEEDS_ENGINE_SUPPORT blocker；fullOfficialTrue=0，ready=false；payment-cost blocker closure、B/D_ENGINE_SUPPORT payment-cost residual、A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE payment-cost residual、E_CARD_MATRIX_FAQ_REVIEW payment-cost residual、E_CARD_MATRIX_READINESS、card matrix 与 READY 仍 open。
@@ -33,7 +35,41 @@
 - `docs/CURRENT_STAGE4D_03FJ_E_CARD_MATRIX_READINESS_PAYMENT_COST_BLOCKER_CLOSURE_CANDIDATE_AUDIT.md` 与 candidate：确认 4D-03FJ-E 已把 03FI-E isolated diff verifier 之后的第一枚 payment-cost blocker closure candidate 落到 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 顶层 `stage4D03FjPaymentCostBlockerClosureCandidate`；`Post03FjCardMatrixReadinessPaymentCostBlockerClosureCandidateManifest` classification=`post-03fi-e-card-matrix-readiness-payment-cost-blocker-closure-candidate`，gate=`E_CARD_MATRIX_READINESS_POST_03FI_PAYMENT_COST_BLOCKER_CLOSURE_CANDIDATE`，input isolated diff verifier manifest=`Post03FiCardMatrixReadinessPaymentCostMatrixJsonIsolatedDiffVerifierManifest`。该 candidate 只减少一个 Steel Ballista payment-cost row 的 NEEDS_ENGINE_SUPPORT blocker；fullOfficialTrue=0，ready=false；payment-cost blocker closure、B/D_ENGINE_SUPPORT payment-cost residual、A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE payment-cost residual、E_CARD_MATRIX_FAQ_REVIEW payment-cost residual、E_CARD_MATRIX_READINESS、card matrix 与 READY 仍 open。
 - `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`：主线程维护该测试文件；前序批次证据口径为 `Post03FjCardMatrixReadinessPaymentCostBlockerClosureCandidateManifest`，其 focused / backend full / `jq empty` / `git diff --check` 只作为 03FJ-E 历史证据。
 
-当前 4D-03FM-E：
+当前 4D-03FN-E：
+
+```txt
+Post03FnCardMatrixReadinessPaymentCostHasteReadyTargetingStackBlockerClosureCandidateManifest records payment-cost HASTE_READY targeting-stack blocker closure candidate
+classification=post-03fm-e-card-matrix-readiness-payment-cost-haste-ready-targeting-stack-blocker-closure-candidate
+gate=E_CARD_MATRIX_READINESS_POST_03FM_PAYMENT_COST_HASTE_READY_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE
+input previous closure candidate manifest=Post03FmCardMatrixReadinessPaymentCostEquipmentTargetingStackBlockerClosureCandidateManifest
+selected functionalUnit=FU-c5c698baf9
+selected card=OGN·010/298 军团后卫
+selected effect=LEGION_REARGUARD_PLAY_UNIT_NO_OPTIONAL_HASTE
+payment-cost functionalUnits=360
+payment-cost snapshotEntries=446
+snapshotEntries 1009 -> 1009
+functionalUnits 811 -> 811
+NEEDS_ENGINE_SUPPORT 356 -> 355
+primary residual 212 -> 211
+payment-or-targeting-stack-timing NEEDS_ENGINE_SUPPORT 544 -> 543
+payment-and-targeting-stack-timing NEEDS_ENGINE_SUPPORT 253 -> 252
+selected row freezeStatus NEEDS_ENGINE_SUPPORT -> IMPLEMENTED_UNTESTED
+selected row fullOfficialBlockers NEEDS_ENGINE_SUPPORT; NEEDS_AUTOMATED_TEST_EVIDENCE -> NEEDS_AUTOMATED_TEST_EVIDENCE
+fullOfficialTrue=0
+ready=false
+NEEDS_AUTOMATED_TEST_EVIDENCE residual=328
+NEEDS_FAQ_REVIEW residual=92
+primary NEEDS_FAQ_REVIEW residual=61
+payment-cost blocker closure remains partially open
+B/D_ENGINE_SUPPORT payment-cost residual remains open
+A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE payment-cost residual remains open
+E_CARD_MATRIX_FAQ_REVIEW payment-cost residual remains open
+E_CARD_MATRIX_READINESS remains open
+READY remains open
+Chrome smoke not run because there were no frontend or browser-script changes
+```
+
+上一批 4D-03FM-E：
 
 ```txt
 Post03FmCardMatrixReadinessPaymentCostEquipmentTargetingStackBlockerClosureCandidateManifest records payment-cost equipment targeting-stack blocker closure candidate
@@ -2439,6 +2475,7 @@ formal 18-step steps=18/18 OK
 
 | 要求 | 必需 artifact / gate | 已检查证据 | 当前状态 | 缺口 / 下一步 |
 |---|---|---|---|---|
+| A 维护当前 4D-03FN-E 矩阵候选 | `Post03FnCardMatrixReadinessPaymentCostHasteReadyTargetingStackBlockerClosureCandidateManifest` / `E_CARD_MATRIX_READINESS_POST_03FM_PAYMENT_COST_HASTE_READY_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE` | 当前 latest slice 为 4D-03FN-E；classification=`post-03fm-e-card-matrix-readiness-payment-cost-haste-ready-targeting-stack-blocker-closure-candidate`；input previous closure candidate manifest=Post03FmCardMatrixReadinessPaymentCostEquipmentTargetingStackBlockerClosureCandidateManifest；selected functionalUnit=FU-c5c698baf9；selected card=OGN·010/298 军团后卫；NEEDS_ENGINE_SUPPORT 356 -> 355；primary residual 212 -> 211；payment-or-targeting-stack-timing NEEDS_ENGINE_SUPPORT 544 -> 543；payment-and-targeting-stack-timing NEEDS_ENGINE_SUPPORT 253 -> 252；NEEDS_AUTOMATED_TEST_EVIDENCE residual=328；NEEDS_FAQ_REVIEW residual=92；primary FAQ residual=61；fullOfficialTrue=0；ready=false | OK FOR THIS SLICE / NOT FINAL | payment-cost blocker closure remains partially open；READY remains open |
 | A 维护当前 4D-03FM-E 矩阵候选 | `Post03FmCardMatrixReadinessPaymentCostEquipmentTargetingStackBlockerClosureCandidateManifest` / `E_CARD_MATRIX_READINESS_POST_03FL_PAYMENT_COST_EQUIPMENT_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE` | 当前 latest slice 为 4D-03FM-E；classification=`post-03fl-e-card-matrix-readiness-payment-cost-equipment-targeting-stack-blocker-closure-candidate`；input previous closure candidate manifest=Post03FlCardMatrixReadinessPaymentCostHasteReadyTargetingStackBlockerClosureCandidateManifest；selected functionalUnit=FU-1fba4c9b24；selected card=OGN·098/298 能量通道；NEEDS_ENGINE_SUPPORT 357 -> 356；primary residual 213 -> 212；payment-or-targeting-stack-timing NEEDS_ENGINE_SUPPORT 545 -> 544；payment-and-targeting-stack-timing NEEDS_ENGINE_SUPPORT 254 -> 253；NEEDS_AUTOMATED_TEST_EVIDENCE residual=328；NEEDS_FAQ_REVIEW residual=92；primary FAQ residual=61；fullOfficialTrue=0；ready=false | OK FOR THIS SLICE / NOT FINAL | payment-cost blocker closure remains partially open；READY remains open |
 | 按 `docs/A_MASTER_AGENT_GOAL.md` 管理 | A-master 目标文档必须存在并作为最高级本地交付口径 | `docs/A_MASTER_AGENT_GOAL.md` 已读取；goal 文本与该文件一致 | OK / ONGOING | 后续任何 READY 判断都必须回到本 checklist 与 final audit |
 | A 维护 checkpoint | `docs/CURRENT_A_MASTER_CHECKPOINT.md` 最新、可恢复、含当前结论 | 文件顶部记录 4D-03FL-E `Post03FlCardMatrixReadinessPaymentCostHasteReadyTargetingStackBlockerClosureCandidateManifest` accepted as payment-cost HASTE_READY targeting-stack blocker closure candidate、classification=`post-03fk-e-card-matrix-readiness-payment-cost-haste-ready-targeting-stack-blocker-closure-candidate`、gate=`E_CARD_MATRIX_READINESS_POST_03FK_PAYMENT_COST_HASTE_READY_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE`、input previous closure candidate manifest=`Post03FkCardMatrixReadinessPaymentCostTargetingStackBlockerClosureCandidateManifest`；selected functionalUnit=`FU-02c7ba5138` / selected card=`OGN·001/298` 灼焰飞龙；NEEDS_ENGINE_SUPPORT 358 -> 357，primary residual 214 -> 213，fullOfficialTrue=0，ready=false；项目 NOT READY | OK / ONGOING | 后续每批继续保持 checkpoint 同步 |
