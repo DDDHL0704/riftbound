@@ -24,6 +24,8 @@
 
 ## 2. 本次检查过的证据
 
+- `docs/CURRENT_STAGE4D_03EV_E_CARD_MATRIX_READINESS_PAYMENT_COST_FAQ_RULE_SOURCE_RESIDUAL_DISPOSITION_AUDIT.md` 与 evidence：确认 4D-03EV-E 已把 03EU-A automated evidence residual closure evidence 之后的 03ES-BD lane-3 转成 payment-cost FAQ / rule-source residual disposition evidence；`Post03EvCardMatrixReadinessPaymentCostFaqRuleSourceResidualDispositionEvidenceManifest` classification=`post-03eu-e-card-matrix-readiness-payment-cost-faq-rule-source-residual-disposition-evidence`，gate=`E_CARD_MATRIX_FAQ_REVIEW_POST_03EU_PAYMENT_COST_FAQ_RULE_SOURCE_RESIDUAL_DISPOSITION_EVIDENCE`，input payment-cost automated evidence residual closure evidence manifest=`Post03EuCardMatrixReadinessPaymentCostAutomatedEvidenceResidualClosureEvidenceManifest`，input payment-cost residual workstream dispatch manifest=`Post03EsCardMatrixReadinessEngineSupportPaymentCostResidualWorkstreamDispatchManifest`，input FAQ / rule-source review preflight manifest=`Post03ElCardMatrixReadinessFaqRuleSourceReviewPreflightManifest`，dispatch lane=lane-3-e-faq-review-residual，dispatch owner=E_CARD_MATRIX_FAQ_REVIEW，residual blocker=NEEDS_FAQ_REVIEW，NEEDS_FAQ_REVIEW residual=92，primary NEEDS_FAQ_REVIEW residual=61，FAQ / rule-source disposition evidence scopes=6。该 evidence 只绑定 E-side FAQ / rule-source residual disposition，不授权 runtime、frontend、Chrome、formal 18、card matrix JSON、official catalog、fullOfficial 或 READY 写入；matrix blocker counts are still not rewritten，payment-cost blocker closure、B/D_ENGINE_SUPPORT、E_CARD_MATRIX_READINESS、card matrix 与 READY 仍 open。
+- `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`：确认新增 `Post03EvCardMatrixReadinessPaymentCostFaqRuleSourceResidualDispositionEvidenceManifest`、`PaymentEnginePost03EvCardMatrixReadinessPaymentCostFaqRuleSourceResidualDispositionEvidenceBindsLaneThreeWithoutJsonWrite`、`PaymentEnginePost03EvCardMatrixReadinessPaymentCostFaqRuleSourceResidualDispositionEvidenceDoesNotClaimClosureOrReady`，并把 current-head mapping guard 切到 4D-03EV-E；focused `PaymentEngineCoverageAuditTests` 267/267、backend full 4836/4836、`git diff --check` 通过。
 - `docs/CURRENT_STAGE4D_03EU_A_CARD_MATRIX_READINESS_PAYMENT_COST_AUTOMATED_EVIDENCE_RESIDUAL_CLOSURE_AUDIT.md` 与 evidence：确认 4D-03EU-A 已把 03ET-BD primary residual verifier evidence 之后的 03ES-BD lane-2 转成 payment-cost automated evidence residual closure evidence；`Post03EuCardMatrixReadinessPaymentCostAutomatedEvidenceResidualClosureEvidenceManifest` classification=`post-03et-a-card-matrix-readiness-payment-cost-automated-evidence-residual-closure-evidence`，gate=`A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE_POST_03ET_PAYMENT_COST_RESIDUAL_CLOSURE_EVIDENCE`，input payment-cost primary residual verifier evidence manifest=`Post03EtCardMatrixReadinessEngineSupportPaymentCostPrimaryResidualVerifierEvidenceManifest`，input payment-cost residual workstream dispatch manifest=`Post03EsCardMatrixReadinessEngineSupportPaymentCostResidualWorkstreamDispatchManifest`，dispatch lane=lane-2-a-automated-evidence-residual，dispatch owner=A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE，residual blocker=NEEDS_AUTOMATED_TEST_EVIDENCE，automated evidence residual=328，accepted automated evidence scopes=6，representative automated tests=19。该 evidence 只绑定 A-side automated evidence residual，不授权 runtime、frontend、Chrome、formal 18、card matrix JSON、official catalog、fullOfficial 或 READY 写入；matrix blocker counts are still not rewritten，payment-cost blocker closure、B/D_ENGINE_SUPPORT、E_CARD_MATRIX_READINESS、card matrix 与 READY 仍 open。
 - `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`：确认新增 `Post03EuCardMatrixReadinessPaymentCostAutomatedEvidenceResidualClosureEvidenceManifest`、`PaymentEnginePost03EuCardMatrixReadinessPaymentCostAutomatedEvidenceResidualClosureEvidenceBindsLaneTwoWithoutJsonWrite`、`PaymentEnginePost03EuCardMatrixReadinessPaymentCostAutomatedEvidenceResidualClosureEvidenceDoesNotClaimClosureOrReady`，并把 current-head mapping guard 切到 4D-03EU-A；focused `PaymentEngineCoverageAuditTests` 265/265、backend full 4834/4834、`git diff --check` 通过。
 - `docs/CURRENT_STAGE4D_03ET_BD_CARD_MATRIX_READINESS_ENGINE_SUPPORT_PAYMENT_COST_PRIMARY_RESIDUAL_VERIFIER_AUDIT.md` 与 evidence：确认 4D-03ET-BD 已把 03ES-BD lane-1 residual workstream 转成 payment-cost primary residual verifier evidence；`Post03EtCardMatrixReadinessEngineSupportPaymentCostPrimaryResidualVerifierEvidenceManifest` classification=`post-03es-bd-card-matrix-readiness-engine-support-payment-cost-primary-residual-verifier-evidence`，gate=`B_D_ENGINE_SUPPORT_POST_03ES_BD_PAYMENT_COST_PRIMARY_RESIDUAL_VERIFIER_EVIDENCE`，input payment-cost residual workstream dispatch manifest=`Post03EsCardMatrixReadinessEngineSupportPaymentCostResidualWorkstreamDispatchManifest`，dispatch lane=lane-1-bd-primary-engine-support-residual，residual verifier mode=stronger-d-side-verifier-evidence，primary residual=216。该 verifier 只绑定 stronger D-side evidence，不授权 runtime、frontend、Chrome、formal 18、card matrix JSON、official catalog、fullOfficial 或 READY 写入；payment-cost blocker closure、B/D_ENGINE_SUPPORT、E_CARD_MATRIX_READINESS、card matrix 与 READY 仍 open。
@@ -203,7 +205,82 @@ fullOfficialTrue=0
 fullOfficialFalse=811
 ```
 
-当前 4D-03EU-A payment-cost automated evidence residual closure evidence：
+当前 4D-03EV-E payment-cost FAQ / rule-source residual disposition evidence：
+
+```txt
+baseCommit=d30bf3cd test: 固定 03eu-a payment-cost automated evidence residual
+focused PaymentEngineCoverageAuditTests=267/267
+backend full current HEAD=4836/4836
+git diff --check=passed
+Post03EvCardMatrixReadinessPaymentCostFaqRuleSourceResidualDispositionEvidenceManifest binds lane-3 payment-cost FAQ / rule-source residual disposition evidence
+classification=post-03eu-e-card-matrix-readiness-payment-cost-faq-rule-source-residual-disposition-evidence
+input payment-cost automated evidence residual closure evidence manifest=Post03EuCardMatrixReadinessPaymentCostAutomatedEvidenceResidualClosureEvidenceManifest
+input payment-cost residual workstream dispatch manifest=Post03EsCardMatrixReadinessEngineSupportPaymentCostResidualWorkstreamDispatchManifest
+input FAQ / rule-source review preflight manifest=Post03ElCardMatrixReadinessFaqRuleSourceReviewPreflightManifest
+selected partition=bd-engine-support-payment-cost
+gate=E_CARD_MATRIX_FAQ_REVIEW_POST_03EU_PAYMENT_COST_FAQ_RULE_SOURCE_RESIDUAL_DISPOSITION_EVIDENCE
+dispatch lane=lane-3-e-faq-review-residual
+dispatch owner=E_CARD_MATRIX_FAQ_REVIEW
+residual blocker=NEEDS_FAQ_REVIEW
+NEEDS_FAQ_REVIEW residual=92
+primary NEEDS_FAQ_REVIEW residual=61
+FAQ / rule-source disposition evidence scopes=6
+Post03EuCardMatrixReadinessPaymentCostAutomatedEvidenceResidualClosureEvidenceManifest binds lane-2 payment-cost automated evidence residual closure evidence
+classification=post-03et-a-card-matrix-readiness-payment-cost-automated-evidence-residual-closure-evidence
+input payment-cost primary residual verifier evidence manifest=Post03EtCardMatrixReadinessEngineSupportPaymentCostPrimaryResidualVerifierEvidenceManifest
+gate=A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE_POST_03ET_PAYMENT_COST_RESIDUAL_CLOSURE_EVIDENCE
+dispatch lane=lane-2-a-automated-evidence-residual
+dispatch owner=A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE
+residual blocker=NEEDS_AUTOMATED_TEST_EVIDENCE
+automated evidence residual=328
+accepted automated evidence scopes=6
+representative automated tests=19
+Post03EtCardMatrixReadinessEngineSupportPaymentCostPrimaryResidualVerifierEvidenceManifest binds lane-1 primary residual stronger verifier evidence
+classification=post-03es-bd-card-matrix-readiness-engine-support-payment-cost-primary-residual-verifier-evidence
+input payment-cost residual workstream dispatch manifest=Post03EsCardMatrixReadinessEngineSupportPaymentCostResidualWorkstreamDispatchManifest
+selected partition=bd-engine-support-payment-cost
+gate=B_D_ENGINE_SUPPORT_POST_03ES_BD_PAYMENT_COST_PRIMARY_RESIDUAL_VERIFIER_EVIDENCE
+dispatch lane=lane-1-bd-primary-engine-support-residual
+dispatch owner=B/D_ENGINE_SUPPORT
+residual verifier mode=stronger-d-side-verifier-evidence
+selected matrix row query=payment-cost
+selected blocker=NEEDS_ENGINE_SUPPORT
+payment-cost functionalUnits=360 / NEEDS_ENGINE_SUPPORT=360 / NEEDS_AUTOMATED_TEST_EVIDENCE=328 / NEEDS_FAQ_REVIEW=92
+freeze statuses=IMPLEMENTED_TESTED=31; SHARED_ORACLE_IMPLEMENTATION=52; NEEDS_ENGINE_SUPPORT=216; NEEDS_FAQ_REVIEW=61
+evidence scopes=payment-plan-core-authorization-commit; authoritative-pay-cost-prompt-command-window; pending-pay-cost-resource-actions; temporary-payment-resource-inline; payment-window-surface-breadth; payment-cost-rollback-and-revalidation
+representative runtime tests=19
+runtime surfaces=PaymentCostRules.PaymentPlan; CoreRuleEngine.ResolvePendingPayCost; MatchSession PAY_COST prompt / commit surfaces
+primary residual=216
+NEEDS_AUTOMATED_TEST_EVIDENCE residual=328
+NEEDS_FAQ_REVIEW residual=92
+primary NEEDS_FAQ_REVIEW residual=61
+not ready for payment-cost blocker closure
+payment-cost blocker closure remains open
+03ES-BD remains input residual workstream dispatch only
+03EQ-BD remains input payment-cost verifier evidence only
+B/D_ENGINE_SUPPORT remains open
+E_CARD_MATRIX_READINESS remains open
+focused PaymentEngineCoverageAuditTests evidence
+backend full test
+payment-cost row-query trace
+current fullOfficial=false continuity
+no matrix JSON write proof
+focused PaymentEngineCoverageAuditTests=265/265
+backend full current HEAD=4834/4834
+matrix skeleton remains locked
+no runtime change reason
+matrix blocker counts are still not rewritten
+matrix JSON write not authorized
+no runtime / frontend / Chrome / formal 18 / card matrix JSON / official catalog / fullOfficial / final readiness / riftbound-dotnet.sln
+does not authorize P0-005 / P1 / full official PaymentEngine matrix closure / card matrix / READY
+Chrome smoke not run because there were no frontend or browser-script changes
+P0-005 / P0-004 adjacency audit-sensitive / P1 / broader PaymentEngine official breadth / full official [A] / [C] resource-skill row interactions / keyword payment branches / remaining payment windows / complete replacement / optional / alternative / tax quote-command-audit parity closure / full official PaymentEngine matrix closure / E_CARD_MATRIX_READINESS / card matrix / READY=open
+fullOfficialTrue=0
+ready=false
+NOT READY
+```
+
+上一批 4D-03EU-A payment-cost automated evidence residual closure evidence：
 
 ```txt
 baseCommit=b05c24d2 test: 固定 03et-bd payment-cost primary residual evidence
@@ -1715,6 +1792,8 @@ formal 18-step steps=18/18 OK
 
 ## 3. 主目标门槛映射
 
+当前 evidence chain trace：4D-03EV-E `Post03EvCardMatrixReadinessPaymentCostFaqRuleSourceResidualDispositionEvidenceManifest` / `post-03eu-e-card-matrix-readiness-payment-cost-faq-rule-source-residual-disposition-evidence` is payment-cost FAQ / rule-source residual disposition evidence for `E_CARD_MATRIX_FAQ_REVIEW_POST_03EU_PAYMENT_COST_FAQ_RULE_SOURCE_RESIDUAL_DISPOSITION_EVIDENCE`。It takes input payment-cost automated evidence residual closure evidence manifest=Post03EuCardMatrixReadinessPaymentCostAutomatedEvidenceResidualClosureEvidenceManifest, input payment-cost residual workstream dispatch manifest=Post03EsCardMatrixReadinessEngineSupportPaymentCostResidualWorkstreamDispatchManifest and input FAQ / rule-source review preflight manifest=Post03ElCardMatrixReadinessFaqRuleSourceReviewPreflightManifest。dispatch lane=lane-3-e-faq-review-residual；dispatch owner=E_CARD_MATRIX_FAQ_REVIEW；residual blocker=NEEDS_FAQ_REVIEW；NEEDS_FAQ_REVIEW residual=92；primary NEEDS_FAQ_REVIEW residual=61；FAQ / rule-source disposition evidence scopes=6。matrix blocker counts are still not rewritten；matrix JSON write not authorized；payment-cost blocker closure remains open；B/D_ENGINE_SUPPORT remains open；E_CARD_MATRIX_READINESS remains open；card matrix remains open；project remains NOT READY。A-side validation current-head backend full 4836/4836, focused `PaymentEngineCoverageAuditTests` 267/267 and `git diff --check` passed；4D-03EV-E is FAQ / rule-source residual disposition evidence only, no runtime implementation write was performed, no frontend or browser-script changes were made and Chrome smoke was not run。
+
 当前 evidence chain trace：4D-03ET-BD `Post03EtCardMatrixReadinessEngineSupportPaymentCostPrimaryResidualVerifierEvidenceManifest` / `post-03es-bd-card-matrix-readiness-engine-support-payment-cost-primary-residual-verifier-evidence` is payment-cost primary residual verifier evidence for `B_D_ENGINE_SUPPORT_POST_03ES_BD_PAYMENT_COST_PRIMARY_RESIDUAL_VERIFIER_EVIDENCE`。It takes input payment-cost residual workstream dispatch manifest=Post03EsCardMatrixReadinessEngineSupportPaymentCostResidualWorkstreamDispatchManifest, selected partition=bd-engine-support-payment-cost, selected matrix row query=payment-cost and selected blocker=NEEDS_ENGINE_SUPPORT。dispatch lane=lane-1-bd-primary-engine-support-residual, residual verifier mode=stronger-d-side-verifier-evidence, primary residual=216, representative runtime tests=19, runtime surfaces=PaymentCostRules.PaymentPlan; CoreRuleEngine.ResolvePendingPayCost; MatchSession PAY_COST prompt / commit surfaces。no runtime change reason recorded；payment-cost blocker closure remains open；B/D_ENGINE_SUPPORT remains open；E_CARD_MATRIX_READINESS remains open；fullOfficialTrue=0, ready=false and matrix JSON write not authorized remain fixed。A-side validation current-head backend full 4832/4832, focused `PaymentEngineCoverageAuditTests` 263/263 and `git diff --check` passed；4D-03ET-BD is primary residual verifier evidence only, no runtime implementation write was performed, no frontend or browser-script changes were made and Chrome smoke was not run；project remains NOT READY。
 
 当前 input evidence chain trace：4D-03ES-BD `Post03EsCardMatrixReadinessEngineSupportPaymentCostResidualWorkstreamDispatchManifest` / `post-03er-bd-card-matrix-readiness-engine-support-payment-cost-residual-workstream-dispatch` is payment-cost residual workstream dispatch for `E_CARD_MATRIX_READINESS_POST_03ER_BD_PAYMENT_COST_RESIDUAL_WORKSTREAM_DISPATCH`。It takes input payment-cost closure-readiness audit manifest=Post03ErCardMatrixReadinessEngineSupportPaymentCostClosureReadinessAuditManifest, selected partition=bd-engine-support-payment-cost, selected matrix row query=payment-cost and selected blocker=NEEDS_ENGINE_SUPPORT。dispatch lanes=lane-1-bd-primary-engine-support-residual; lane-2-a-automated-evidence-residual; lane-3-e-faq-review-residual; lane-4-e-matrix-readiness-gate-held。dispatch owners=B/D_ENGINE_SUPPORT; A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE; E_CARD_MATRIX_FAQ_REVIEW; E_CARD_MATRIX_READINESS。primary NEEDS_ENGINE_SUPPORT residual=216, NEEDS_AUTOMATED_TEST_EVIDENCE residual=328, NEEDS_FAQ_REVIEW residual=92 and primary NEEDS_FAQ_REVIEW residual=61 remain open。03ER-BD remains input payment-cost closure-readiness audit only；03EQ-BD remains input payment-cost verifier evidence only；payment-cost blocker closure remains open；B/D_ENGINE_SUPPORT remains open；E_CARD_MATRIX_READINESS remains open；fullOfficialTrue=0, ready=false and matrix JSON write not authorized remain fixed。A-side validation current-head backend full 4830/4830, focused `PaymentEngineCoverageAuditTests` 261/261 and `git diff --check` passed；4D-03ES-BD is residual workstream dispatch only, no runtime implementation write was performed, no frontend or browser-script changes were made and Chrome smoke was not run；project remains NOT READY。
@@ -1909,4 +1988,4 @@ formal 18-step steps=18/18 OK
 
 Active goal **未完成**。不得调用 `update_goal complete`。
 
-当前最新 A-side 状态是 4D-03EL-E E_CARD_MATRIX_READINESS FAQ / rule-source review preflight accepted；latest focused evidence 为 `PaymentEngineCoverageAuditTests` 247/247，current-head backend full evidence 为 4816/4816。P0/P1 清零、P0-004 adjacency audit-sensitive、full official PaymentEngine matrix closure、`E_CARD_MATRIX_READINESS`、完整 card matrix alignment official closure、完整 cross-window generated-resource official closure、完整 rollback failure official closure、完整 LayerEngine、P1 keyword breadth、full-card matrix、final frontend rerun、formal 18 final rerun 与 final completion audit READY 仍未闭合。
+当前最新 A-side 状态是 4D-03EV-E payment-cost FAQ / rule-source residual disposition evidence accepted；latest focused evidence 为 `PaymentEngineCoverageAuditTests` 267/267，current-head backend full evidence 为 4836/4836。P0/P1 清零、P0-004 adjacency audit-sensitive、full official PaymentEngine matrix closure、`E_CARD_MATRIX_READINESS`、完整 card matrix alignment official closure、完整 cross-window generated-resource official closure、完整 rollback failure official closure、完整 LayerEngine、P1 keyword breadth、full-card matrix、final frontend rerun、formal 18 final rerun 与 final completion audit READY 仍未闭合。
