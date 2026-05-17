@@ -100,6 +100,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string Post03FaCardMatrixReadinessPaymentCostBlockerDispositionWriteAuthorizationPreflight = "post-03ez-e-card-matrix-readiness-payment-cost-blocker-disposition-write-authorization-preflight";
     private const string Post03FbCardMatrixReadinessPaymentCostOwnerDispositionExecutionDispatch = "post-03fa-e-card-matrix-readiness-payment-cost-owner-disposition-execution-dispatch";
     private const string Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidence = "post-03fb-bd-card-matrix-readiness-payment-cost-primary-owner-disposition-evidence";
+    private const string Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidence = "post-03fc-a-card-matrix-readiness-payment-cost-automated-owner-disposition-evidence";
     private const string OfficialBreadthFullResourceSkillInteractionMatrixVerifierGate = "B_PAYMENT_ENGINE_OFFICIAL_BREADTH_FULL_RESOURCE_SKILL_ROW_INTERACTION_MATRIX_VERIFIER";
     private const string Post03DqResidualAuditGate = "D_COMPLETION_P0_AUDIT";
     private const string Post03DsBroaderOfficialBreadthGate = "B_PAYMENT_ENGINE_OFFICIAL_BREADTH_POST_03DS_RESIDUAL_OWNER_LOCK_VERIFIER";
@@ -136,6 +137,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string Post03FaCardMatrixReadinessPaymentCostBlockerDispositionWriteAuthorizationPreflightGate = "E_CARD_MATRIX_READINESS_POST_03EZ_PAYMENT_COST_BLOCKER_DISPOSITION_WRITE_AUTHORIZATION_PREFLIGHT";
     private const string Post03FbCardMatrixReadinessPaymentCostOwnerDispositionExecutionDispatchGate = "E_CARD_MATRIX_READINESS_POST_03FA_PAYMENT_COST_OWNER_DISPOSITION_EXECUTION_DISPATCH";
     private const string Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceGate = "B_D_ENGINE_SUPPORT_POST_03FB_PAYMENT_COST_PRIMARY_OWNER_DISPOSITION_EVIDENCE";
+    private const string Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceGate = "A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE_POST_03FC_PAYMENT_COST_AUTOMATED_OWNER_DISPOSITION_EVIDENCE";
     private const string NonTargetTypedActivatedAbilityResidualBreadthVerifierGate = "B_PAYMENT_ENGINE_OFFICIAL_BREADTH_NON_TARGET_TYPED_ACTIVATED_ABILITY_RESIDUAL_VERIFIER";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
@@ -7694,6 +7696,87 @@ public sealed class PaymentEngineCoverageAuditTests
                 "4D-03FC-BD B/D primary owner disposition evidence only; project remains NOT READY, primary residual=216 remains a non-closure row fact, payment-cost blocker closure remains open, B/D_ENGINE_SUPPORT remains open, A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE payment-cost residual remains open, E_CARD_MATRIX_FAQ_REVIEW payment-cost residual remains open, P0-005 remains open, P0-004 adjacency audit-sensitive remains open, P1 remains open, full official PaymentEngine matrix closure remains open, E_CARD_MATRIX_READINESS remains open, card matrix remains open and READY remains open.",
                 [nameof(Post03FbCardMatrixReadinessPaymentCostOwnerDispositionExecutionDispatchManifest), nameof(Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceManifest), nameof(Post03EzCardMatrixReadinessPaymentCostPostRuntimeClosureReadinessPreflightManifest), nameof(Post03FaCardMatrixReadinessPaymentCostBlockerDispositionWriteAuthorizationPreflightManifest), nameof(Post03EwCardMatrixReadinessPaymentCostMatrixReadinessGateHoldEvidenceManifest), nameof(Post03EuCardMatrixReadinessPaymentCostAutomatedEvidenceResidualClosureEvidenceManifest), nameof(Post03EvCardMatrixReadinessPaymentCostFaqRuleSourceResidualDispositionEvidenceManifest), nameof(Post03ExCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureDispatchManifest)],
                 Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceDocAnchors)
+        ];
+    }
+
+    private static readonly string[] Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceDocAnchors =
+    [
+        "docs/CURRENT_STAGE4D_03FD_A_CARD_MATRIX_READINESS_PAYMENT_COST_AUTOMATED_OWNER_DISPOSITION_EVIDENCE_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03FD_A_CARD_MATRIX_READINESS_PAYMENT_COST_AUTOMATED_OWNER_DISPOSITION_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03FC_BD_CARD_MATRIX_READINESS_PAYMENT_COST_PRIMARY_OWNER_DISPOSITION_EVIDENCE_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03FC_BD_CARD_MATRIX_READINESS_PAYMENT_COST_PRIMARY_OWNER_DISPOSITION_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03FB_E_CARD_MATRIX_READINESS_PAYMENT_COST_OWNER_DISPOSITION_EXECUTION_DISPATCH_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03FB_E_CARD_MATRIX_READINESS_PAYMENT_COST_OWNER_DISPOSITION_EXECUTION_DISPATCH_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03EU_A_CARD_MATRIX_READINESS_PAYMENT_COST_AUTOMATED_EVIDENCE_RESIDUAL_CLOSURE_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03EU_A_CARD_MATRIX_READINESS_PAYMENT_COST_AUTOMATED_EVIDENCE_RESIDUAL_CLOSURE_EVIDENCE.md",
+        "docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json",
+        "docs/CURRENT_COMPLETION_AUDIT.md",
+        "docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md",
+        "docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md",
+        "docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md",
+        "docs/CURRENT_A_MASTER_CHECKPOINT.md",
+        "docs/CURRENT_SERVER_RULE_AUDIT.md",
+        "docs/CURRENT_FRONTEND_REBUILD_PLAN.md"
+    ];
+
+    private static readonly PaymentEnginePost03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceEntry[] Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceManifest =
+        BuildPost03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceManifest();
+
+    private static PaymentEnginePost03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceEntry[] BuildPost03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceManifest()
+    {
+        var dispatch = Assert.Single(Post03FbCardMatrixReadinessPaymentCostOwnerDispositionExecutionDispatchManifest);
+        var automatedEvidence = Assert.Single(Post03EuCardMatrixReadinessPaymentCostAutomatedEvidenceResidualClosureEvidenceManifest);
+        var bdOwnerDispositionEvidence = Assert.Single(Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceManifest);
+
+        Assert.Contains("lane-2-a-automated-evidence-disposition", dispatch.DispositionLaneIds);
+        Assert.Contains("A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE", dispatch.DispositionOwners);
+        Assert.Contains("NEEDS_AUTOMATED_TEST_EVIDENCE", dispatch.DispositionBlockers);
+        Assert.Equal("A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE", automatedEvidence.DownstreamOwner);
+        Assert.Equal("B/D_ENGINE_SUPPORT", bdOwnerDispositionEvidence.DownstreamOwner);
+        Assert.Equal(dispatch.SelectedPartitionId, automatedEvidence.SelectedPartitionId);
+        Assert.Equal(dispatch.SelectedMatrixRowQuery, automatedEvidence.SelectedMatrixRowQuery);
+        Assert.Equal(dispatch.SelectedMatrixRowQuery, bdOwnerDispositionEvidence.SelectedMatrixRowQuery);
+        Assert.Equal(dispatch.ExpectedNeedsAutomatedTestEvidenceCount, automatedEvidence.AutomatedEvidenceResidualCount);
+        Assert.Equal(328, dispatch.ExpectedNeedsAutomatedTestEvidenceCount);
+        Assert.Contains("lane-1-bd-primary-engine-support-disposition", bdOwnerDispositionEvidence.DispositionLaneId, StringComparison.Ordinal);
+        Assert.Equal(6, automatedEvidence.AcceptedAutomatedEvidenceScopeCount);
+        Assert.Equal(19, automatedEvidence.RepresentativeAutomatedTestCount);
+
+        return
+        [
+            new(
+                Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceGate,
+                "A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE",
+                Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidence,
+                nameof(Post03FbCardMatrixReadinessPaymentCostOwnerDispositionExecutionDispatchManifest),
+                nameof(Post03EuCardMatrixReadinessPaymentCostAutomatedEvidenceResidualClosureEvidenceManifest),
+                nameof(Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceManifest),
+                dispatch.SelectedPartitionId,
+                dispatch.SelectedMatrixRowQuery,
+                "NEEDS_AUTOMATED_TEST_EVIDENCE",
+                "lane-2-a-automated-evidence-disposition",
+                "A automated owner disposition evidence",
+                "accepted automated evidence: 4D-03EU-A payment-cost automated evidence residual closure evidence remains bound through accepted automated evidence scopes=6, representative automated tests=19, focused PaymentEngineCoverageAuditTests=265/265 and backend full=4834/4834.",
+                "owner disposition evidence status: 4D-03FD-A binds 03FB lane-2 A owner disposition execution to 03EU automated evidence residual closure evidence and prior 03FC B/D owner disposition evidence; this is automated owner disposition evidence only and does not claim payment-cost blocker closure.",
+                dispatch.ExpectedPaymentCostFunctionalUnitCount,
+                dispatch.ExpectedNeedsEngineSupportCount,
+                dispatch.ExpectedNeedsAutomatedTestEvidenceCount,
+                dispatch.ExpectedNeedsFaqReviewCount,
+                dispatch.ExpectedImplementedTestedCount,
+                dispatch.ExpectedSharedOracleImplementationCount,
+                dispatch.ExpectedPrimaryNeedsEngineSupportCount,
+                dispatch.ExpectedPrimaryNeedsFaqReviewCount,
+                dispatch.ExpectedSnapshotEntryCount,
+                dispatch.ExpectedFunctionalUnitCount,
+                dispatch.ExpectedFullOfficialTrueCount,
+                dispatch.ExpectedReady,
+                "payment-cost row-query trace remains: functionalUnits=360; NEEDS_ENGINE_SUPPORT=360; NEEDS_AUTOMATED_TEST_EVIDENCE=328; NEEDS_FAQ_REVIEW=92; freeze statuses=IMPLEMENTED_TESTED=31; SHARED_ORACLE_IMPLEMENTATION=52; NEEDS_ENGINE_SUPPORT=216; NEEDS_FAQ_REVIEW=61; primary residual=216; fullOfficialTrue=0; ready=false.",
+                "matrix JSON write not authorized: 4D-03FD-A accepts automated owner disposition evidence only; docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json remains locked, blocker counts are not rewritten, fullOfficialTrue=0 and ready=false.",
+                "runtime, frontend, Chrome / browser scripts, formal 18-step scripts, docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json, data/official/card-catalog.zh-CN.json, fullOfficial status, final readiness status and riftbound-dotnet.sln remain locked.",
+                "next required evidence: future E FAQ owner disposition evidence for payment-cost NEEDS_FAQ_REVIEW residual=92 and primary FAQ residual=61; later E_CARD_MATRIX_READINESS authorization before any matrix JSON write.",
+                "4D-03FD-A automated owner disposition evidence only; project remains NOT READY, primary residual=216 remains a non-closure row fact, NEEDS_AUTOMATED_TEST_EVIDENCE residual=328 remains a non-closure row fact until matrix authorization, payment-cost blocker closure remains open, B/D_ENGINE_SUPPORT remains open, A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE payment-cost residual remains open, E_CARD_MATRIX_FAQ_REVIEW payment-cost residual remains open, P0-005 remains open, P0-004 adjacency audit-sensitive remains open, P1 remains open, full official PaymentEngine matrix closure remains open, E_CARD_MATRIX_READINESS remains open, card matrix remains open and READY remains open.",
+                [nameof(Post03FbCardMatrixReadinessPaymentCostOwnerDispositionExecutionDispatchManifest), nameof(Post03EuCardMatrixReadinessPaymentCostAutomatedEvidenceResidualClosureEvidenceManifest), nameof(Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceManifest), nameof(Post03FaCardMatrixReadinessPaymentCostBlockerDispositionWriteAuthorizationPreflightManifest), nameof(Post03EwCardMatrixReadinessPaymentCostMatrixReadinessGateHoldEvidenceManifest), nameof(Post03EvCardMatrixReadinessPaymentCostFaqRuleSourceResidualDispositionEvidenceManifest), nameof(Post03EtCardMatrixReadinessEngineSupportPaymentCostPrimaryResidualVerifierEvidenceManifest), nameof(Post03EsCardMatrixReadinessEngineSupportPaymentCostResidualWorkstreamDispatchManifest)],
+                Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceDocAnchors)
         ];
     }
 
@@ -20914,30 +20997,175 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
-    public void PaymentEngineActiveGoalCompletionAuditMappingTracksCurrent03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidence()
+    public void PaymentEnginePost03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceBindsLaneTwoWithoutJsonWrite()
+    {
+        var repositoryRoot = ResolveRepositoryRoot();
+        using var matrixDocument = JsonDocument.Parse(File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json")));
+        var root = matrixDocument.RootElement;
+        var snapshotEntries = root.GetProperty("snapshotEntries").EnumerateArray().ToArray();
+        var functionalUnits = root.GetProperty("functionalUnits").EnumerateArray().ToArray();
+        var freeze = root.GetProperty("stage4BCardCoverageFreeze");
+        var fullOfficialFunctionalUnits = functionalUnits
+            .Count(unit => unit.TryGetProperty("fullOfficial", out var fullOfficial)
+                && fullOfficial.ValueKind == JsonValueKind.True);
+        var evidence = Assert.Single(Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceManifest);
+
+        Assert.Equal(1009, snapshotEntries.Length);
+        Assert.Equal(811, functionalUnits.Length);
+        Assert.Equal(0, fullOfficialFunctionalUnits);
+        Assert.False(freeze.GetProperty("ready").GetBoolean());
+
+        Assert.Equal(Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceGate, evidence.GateId);
+        Assert.Equal("A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE", evidence.DownstreamOwner);
+        Assert.Equal(Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidence, evidence.Classification);
+        Assert.Equal(nameof(Post03FbCardMatrixReadinessPaymentCostOwnerDispositionExecutionDispatchManifest), evidence.InputOwnerDispositionExecutionDispatchManifest);
+        Assert.Equal(nameof(Post03EuCardMatrixReadinessPaymentCostAutomatedEvidenceResidualClosureEvidenceManifest), evidence.InputAutomatedEvidenceResidualClosureEvidenceManifest);
+        Assert.Equal(nameof(Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceManifest), evidence.InputBdPrimaryOwnerDispositionEvidenceManifest);
+        Assert.Equal("bd-engine-support-payment-cost", evidence.SelectedPartitionId);
+        Assert.Equal("payment-cost", evidence.SelectedMatrixRowQuery);
+        Assert.Equal("NEEDS_AUTOMATED_TEST_EVIDENCE", evidence.SelectedBlockerReason);
+        Assert.Equal("lane-2-a-automated-evidence-disposition", evidence.DispositionLaneId);
+        Assert.Contains("A automated owner disposition evidence", evidence.OwnerDispositionMode, StringComparison.Ordinal);
+        Assert.Contains("4D-03EU-A", evidence.AcceptedAutomatedEvidenceStatus, StringComparison.Ordinal);
+        Assert.Contains("accepted automated evidence scopes=6", evidence.AcceptedAutomatedEvidenceStatus, StringComparison.Ordinal);
+        Assert.Contains("representative automated tests=19", evidence.AcceptedAutomatedEvidenceStatus, StringComparison.Ordinal);
+        Assert.Contains("03FB lane-2", evidence.OwnerDispositionEvidenceStatus, StringComparison.Ordinal);
+        Assert.Contains("03EU automated evidence residual closure evidence", evidence.OwnerDispositionEvidenceStatus, StringComparison.Ordinal);
+        Assert.Contains("03FC B/D owner disposition evidence", evidence.OwnerDispositionEvidenceStatus, StringComparison.Ordinal);
+        Assert.Contains("owner disposition evidence only", evidence.OwnerDispositionEvidenceStatus, StringComparison.Ordinal);
+        Assert.Contains("primary residual=216", evidence.RowQueryTraceEvidence, StringComparison.Ordinal);
+        Assert.Contains("NEEDS_AUTOMATED_TEST_EVIDENCE=328", evidence.RowQueryTraceEvidence, StringComparison.Ordinal);
+        Assert.Contains("fullOfficialTrue=0", evidence.RowQueryTraceEvidence, StringComparison.Ordinal);
+        Assert.Contains("ready=false", evidence.RowQueryTraceEvidence, StringComparison.Ordinal);
+        Assert.Contains("matrix JSON write not authorized", evidence.MatrixJsonAuthorizationStatus, StringComparison.Ordinal);
+        Assert.Contains("docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json remains locked", evidence.MatrixJsonAuthorizationStatus, StringComparison.Ordinal);
+        Assert.Contains("runtime", evidence.LockedScope, StringComparison.Ordinal);
+        Assert.Contains("frontend", evidence.LockedScope, StringComparison.Ordinal);
+        Assert.Contains("Chrome / browser scripts", evidence.LockedScope, StringComparison.Ordinal);
+        Assert.Contains("future E FAQ owner disposition evidence", evidence.RequiredNextEvidence, StringComparison.Ordinal);
+        Assert.Contains("E_CARD_MATRIX_READINESS authorization", evidence.RequiredNextEvidence, StringComparison.Ordinal);
+        Assert.Contains("NOT READY", evidence.NonClosureStatus, StringComparison.Ordinal);
+        Assert.Contains("payment-cost blocker closure remains open", evidence.NonClosureStatus, StringComparison.Ordinal);
+        Assert.Contains("A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE payment-cost residual remains open", evidence.NonClosureStatus, StringComparison.Ordinal);
+
+        Assert.Equal(360, evidence.ExpectedPaymentCostFunctionalUnitCount);
+        Assert.Equal(360, evidence.ExpectedNeedsEngineSupportCount);
+        Assert.Equal(328, evidence.ExpectedNeedsAutomatedTestEvidenceCount);
+        Assert.Equal(92, evidence.ExpectedNeedsFaqReviewCount);
+        Assert.Equal(31, evidence.ExpectedImplementedTestedCount);
+        Assert.Equal(52, evidence.ExpectedSharedOracleImplementationCount);
+        Assert.Equal(216, evidence.ExpectedPrimaryNeedsEngineSupportCount);
+        Assert.Equal(61, evidence.ExpectedPrimaryNeedsFaqReviewCount);
+        Assert.Equal(1009, evidence.ExpectedSnapshotEntryCount);
+        Assert.Equal(811, evidence.ExpectedFunctionalUnitCount);
+        Assert.Equal(0, evidence.ExpectedFullOfficialTrueCount);
+        Assert.False(evidence.ExpectedReady);
+        Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
+        Assert.Equal(360, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
+        Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
+        Assert.Equal(216, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
+
+        Assert.Contains(nameof(Post03FbCardMatrixReadinessPaymentCostOwnerDispositionExecutionDispatchManifest), evidence.SourceManifests);
+        Assert.Contains(nameof(Post03EuCardMatrixReadinessPaymentCostAutomatedEvidenceResidualClosureEvidenceManifest), evidence.SourceManifests);
+        Assert.Contains(nameof(Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceManifest), evidence.SourceManifests);
+        Assert.Contains(nameof(Post03FaCardMatrixReadinessPaymentCostBlockerDispositionWriteAuthorizationPreflightManifest), evidence.SourceManifests);
+        Assert.All(evidence.DocAnchors, anchor => Assert.True(File.Exists(Path.Combine(repositoryRoot, anchor)), anchor));
+    }
+
+    [Fact]
+    public void PaymentEnginePost03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceDoesNotClaimClosureOrReady()
+    {
+        var combinedText = string.Join(
+            " ",
+            Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceManifest.SelectMany(entry => new[]
+            {
+                entry.GateId,
+                entry.DownstreamOwner,
+                entry.Classification,
+                entry.InputOwnerDispositionExecutionDispatchManifest,
+                entry.InputAutomatedEvidenceResidualClosureEvidenceManifest,
+                entry.InputBdPrimaryOwnerDispositionEvidenceManifest,
+                entry.SelectedPartitionId,
+                entry.SelectedMatrixRowQuery,
+                entry.SelectedBlockerReason,
+                entry.DispositionLaneId,
+                entry.OwnerDispositionMode,
+                entry.AcceptedAutomatedEvidenceStatus,
+                entry.OwnerDispositionEvidenceStatus,
+                entry.RowQueryTraceEvidence,
+                entry.MatrixJsonAuthorizationStatus,
+                entry.LockedScope,
+                entry.RequiredNextEvidence,
+                entry.NonClosureStatus
+            }.Concat(entry.SourceManifests)
+                .Concat(entry.DocAnchors)));
+
+        Assert.Contains("4D-03FD-A", combinedText, StringComparison.Ordinal);
+        Assert.Contains(Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidence, combinedText, StringComparison.Ordinal);
+        Assert.Contains(Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceGate, combinedText, StringComparison.Ordinal);
+        Assert.Contains(nameof(Post03FbCardMatrixReadinessPaymentCostOwnerDispositionExecutionDispatchManifest), combinedText, StringComparison.Ordinal);
+        Assert.Contains(nameof(Post03EuCardMatrixReadinessPaymentCostAutomatedEvidenceResidualClosureEvidenceManifest), combinedText, StringComparison.Ordinal);
+        Assert.Contains(nameof(Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceManifest), combinedText, StringComparison.Ordinal);
+        Assert.Contains("lane-2-a-automated-evidence-disposition", combinedText, StringComparison.Ordinal);
+        Assert.Contains("A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE", combinedText, StringComparison.Ordinal);
+        Assert.Contains("NEEDS_AUTOMATED_TEST_EVIDENCE", combinedText, StringComparison.Ordinal);
+        Assert.Contains("NEEDS_AUTOMATED_TEST_EVIDENCE=328", combinedText, StringComparison.Ordinal);
+        Assert.Contains("matrix JSON write not authorized", combinedText, StringComparison.Ordinal);
+        Assert.Contains("fullOfficialTrue=0", combinedText, StringComparison.Ordinal);
+        Assert.Contains("ready=false", combinedText, StringComparison.Ordinal);
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("payment-cost blocker closure remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("B/D_ENGINE_SUPPORT remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE payment-cost residual remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("E_CARD_MATRIX_FAQ_REVIEW payment-cost residual remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-004 adjacency audit-sensitive remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P1 remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("full official PaymentEngine matrix closure remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("E_CARD_MATRIX_READINESS remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("card matrix remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("READY remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("READY remains open", string.Empty, StringComparison.Ordinal)
+                .Replace("E_CARD_MATRIX_READINESS", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal)
+                .Replace("CANNOT_READY", string.Empty, StringComparison.Ordinal)
+                .Replace("READY_UNIT", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineActiveGoalCompletionAuditMappingTracksCurrent03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidence()
     {
         var repositoryRoot = ResolveRepositoryRoot();
         var completionAudit = File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_COMPLETION_AUDIT.md"));
         var checklist = File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md"));
         var completionMapping = ExtractSection(completionAudit, "## 0.1 Active Goal 门槛到证据映射", "## 1.");
         var completionActiveGoalTable = ExtractSection(completionAudit, "| Active goal 要求 | 当前证据 | 当前状态 |", "## 1.");
-        var checklistCurrentHead = ExtractSection(checklist, "当前 4D-03FC-BD", "上一批 4D-03FB-E");
+        var checklistCurrentHead = ExtractSection(checklist, "当前 4D-03FD-A", "上一批 4D-03FC-BD");
         var checklistMapping = ExtractSection(checklist, "## 3. 主目标门槛映射", "## 7.");
 
-        Assert.Contains("4D-03FC-BD", completionMapping, StringComparison.Ordinal);
-        Assert.Contains("Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceManifest", completionMapping, StringComparison.Ordinal);
-        Assert.Contains(Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidence, completionMapping, StringComparison.Ordinal);
-        Assert.Contains(Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceGate, completionMapping, StringComparison.Ordinal);
-        Assert.Contains("B/D primary owner disposition evidence", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("4D-03FD-A", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceManifest", completionMapping, StringComparison.Ordinal);
+        Assert.Contains(Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidence, completionMapping, StringComparison.Ordinal);
+        Assert.Contains(Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceGate, completionMapping, StringComparison.Ordinal);
+        Assert.Contains("automated owner disposition evidence", completionMapping, StringComparison.Ordinal);
         Assert.Contains("input owner disposition execution dispatch manifest=Post03FbCardMatrixReadinessPaymentCostOwnerDispositionExecutionDispatchManifest", completionMapping, StringComparison.Ordinal);
-        Assert.Contains("input runtime verifier evidence manifest=Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceManifest", completionMapping, StringComparison.Ordinal);
-        Assert.Contains("input post-runtime closure-readiness preflight manifest=Post03EzCardMatrixReadinessPaymentCostPostRuntimeClosureReadinessPreflightManifest", completionMapping, StringComparison.Ordinal);
-        Assert.Contains("lane-1-bd-primary-engine-support-disposition", completionMapping, StringComparison.Ordinal);
-        Assert.Contains("4D-03EY-BD", completionMapping, StringComparison.Ordinal);
-        Assert.Contains("4D-03EZ-BD", completionMapping, StringComparison.Ordinal);
-        Assert.Contains("future A automated owner disposition evidence", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("input automated evidence residual closure evidence manifest=Post03EuCardMatrixReadinessPaymentCostAutomatedEvidenceResidualClosureEvidenceManifest", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("input B/D primary owner disposition evidence manifest=Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceManifest", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("lane-2-a-automated-evidence-disposition", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("4D-03EU-A", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("4D-03FC-BD", completionMapping, StringComparison.Ordinal);
         Assert.Contains("future E FAQ owner disposition evidence", completionMapping, StringComparison.Ordinal);
         Assert.Contains("matrix JSON write not authorized", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("NEEDS_AUTOMATED_TEST_EVIDENCE residual=328", completionMapping, StringComparison.Ordinal);
         Assert.Contains("primary residual=216", completionMapping, StringComparison.Ordinal);
         Assert.Contains("payment-cost blocker closure remains open", completionMapping, StringComparison.Ordinal);
         Assert.Contains("B/D_ENGINE_SUPPORT remains open", completionMapping, StringComparison.Ordinal);
@@ -20946,23 +21174,23 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Contains("E_CARD_MATRIX_READINESS remains open", completionMapping, StringComparison.Ordinal);
         Assert.Contains("READY remains open", completionMapping, StringComparison.Ordinal);
 
-        Assert.Contains("当前 latest slice 为 4D-03FC-BD", completionActiveGoalTable, StringComparison.Ordinal);
-        Assert.Contains("Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceManifest", completionActiveGoalTable, StringComparison.Ordinal);
-        Assert.Contains("4D-03FC-BD", checklistMapping, StringComparison.Ordinal);
-        Assert.Contains("Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceManifest", checklistMapping, StringComparison.Ordinal);
-        Assert.Contains("当前 4D-03FC-BD", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("baseCommit=044f2e94", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("当前 latest slice 为 4D-03FD-A", completionActiveGoalTable, StringComparison.Ordinal);
+        Assert.Contains("Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceManifest", completionActiveGoalTable, StringComparison.Ordinal);
+        Assert.Contains("4D-03FD-A", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceManifest", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("当前 4D-03FD-A", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("baseCommit=b1ffaa84", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("focused PaymentEngineCoverageAuditTests=", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("backend full current HEAD=", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceManifest binds B/D primary owner disposition evidence", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("classification=post-03fb-bd-card-matrix-readiness-payment-cost-primary-owner-disposition-evidence", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("gate=B_D_ENGINE_SUPPORT_POST_03FB_PAYMENT_COST_PRIMARY_OWNER_DISPOSITION_EVIDENCE", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceManifest binds A automated owner disposition evidence", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("classification=post-03fc-a-card-matrix-readiness-payment-cost-automated-owner-disposition-evidence", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("gate=A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE_POST_03FC_PAYMENT_COST_AUTOMATED_OWNER_DISPOSITION_EVIDENCE", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("input owner disposition execution dispatch manifest=Post03FbCardMatrixReadinessPaymentCostOwnerDispositionExecutionDispatchManifest", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("input runtime verifier evidence manifest=Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceManifest", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("input post-runtime closure-readiness preflight manifest=Post03EzCardMatrixReadinessPaymentCostPostRuntimeClosureReadinessPreflightManifest", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("lane-1-bd-primary-engine-support-disposition", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("input automated evidence residual closure evidence manifest=Post03EuCardMatrixReadinessPaymentCostAutomatedEvidenceResidualClosureEvidenceManifest", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("input B/D primary owner disposition evidence manifest=Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceManifest", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("lane-2-a-automated-evidence-disposition", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("owner disposition evidence only", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("next required evidence=future A automated owner disposition evidence; future E FAQ owner disposition evidence; later E_CARD_MATRIX_READINESS authorization", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("next required evidence=future E FAQ owner disposition evidence; later E_CARD_MATRIX_READINESS authorization", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("primary residual=216", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("NEEDS_AUTOMATED_TEST_EVIDENCE residual=328", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("NEEDS_FAQ_REVIEW residual=92", checklistCurrentHead, StringComparison.Ordinal);
@@ -20976,7 +21204,7 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Contains("E_CARD_MATRIX_READINESS remains open", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("READY remains open", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("Chrome smoke not run because there were no frontend or browser-script changes", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.DoesNotContain("当前 4D-03FB-E", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.DoesNotContain("当前 4D-03FC-BD", checklistCurrentHead, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -22506,6 +22734,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(Post03FaCardMatrixReadinessPaymentCostBlockerDispositionWriteAuthorizationPreflightManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(Post03FbCardMatrixReadinessPaymentCostOwnerDispositionExecutionDispatchManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TypedSigilOfficialRuntimeCardRowAuditManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TargetTypedActivatedAbilityOfficialFamilyVerifierManifest.SelectMany(entry => entry.DocAnchors))
@@ -23978,6 +24207,40 @@ public sealed class PaymentEngineCoverageAuditTests
         string DispositionLaneId,
         string OwnerDispositionMode,
         string AcceptedRuntimeEvidenceStatus,
+        string OwnerDispositionEvidenceStatus,
+        int ExpectedPaymentCostFunctionalUnitCount,
+        int ExpectedNeedsEngineSupportCount,
+        int ExpectedNeedsAutomatedTestEvidenceCount,
+        int ExpectedNeedsFaqReviewCount,
+        int ExpectedImplementedTestedCount,
+        int ExpectedSharedOracleImplementationCount,
+        int ExpectedPrimaryNeedsEngineSupportCount,
+        int ExpectedPrimaryNeedsFaqReviewCount,
+        int ExpectedSnapshotEntryCount,
+        int ExpectedFunctionalUnitCount,
+        int ExpectedFullOfficialTrueCount,
+        bool ExpectedReady,
+        string RowQueryTraceEvidence,
+        string MatrixJsonAuthorizationStatus,
+        string LockedScope,
+        string RequiredNextEvidence,
+        string NonClosureStatus,
+        IReadOnlyList<string> SourceManifests,
+        IReadOnlyList<string> DocAnchors);
+
+    private sealed record PaymentEnginePost03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceEntry(
+        string GateId,
+        string DownstreamOwner,
+        string Classification,
+        string InputOwnerDispositionExecutionDispatchManifest,
+        string InputAutomatedEvidenceResidualClosureEvidenceManifest,
+        string InputBdPrimaryOwnerDispositionEvidenceManifest,
+        string SelectedPartitionId,
+        string SelectedMatrixRowQuery,
+        string SelectedBlockerReason,
+        string DispositionLaneId,
+        string OwnerDispositionMode,
+        string AcceptedAutomatedEvidenceStatus,
         string OwnerDispositionEvidenceStatus,
         int ExpectedPaymentCostFunctionalUnitCount,
         int ExpectedNeedsEngineSupportCount,
