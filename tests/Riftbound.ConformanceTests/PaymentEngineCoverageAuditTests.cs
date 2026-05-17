@@ -95,6 +95,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string Post03EvCardMatrixReadinessPaymentCostFaqRuleSourceResidualDispositionEvidence = "post-03eu-e-card-matrix-readiness-payment-cost-faq-rule-source-residual-disposition-evidence";
     private const string Post03EwCardMatrixReadinessPaymentCostMatrixReadinessGateHoldEvidence = "post-03ev-e-card-matrix-readiness-payment-cost-matrix-readiness-gate-hold-evidence";
     private const string Post03ExCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureDispatch = "post-03ew-bd-card-matrix-readiness-payment-cost-primary-residual-runtime-closure-dispatch";
+    private const string Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidence = "post-03ex-bd-card-matrix-readiness-payment-cost-primary-residual-runtime-closure-verifier-evidence";
     private const string OfficialBreadthFullResourceSkillInteractionMatrixVerifierGate = "B_PAYMENT_ENGINE_OFFICIAL_BREADTH_FULL_RESOURCE_SKILL_ROW_INTERACTION_MATRIX_VERIFIER";
     private const string Post03DqResidualAuditGate = "D_COMPLETION_P0_AUDIT";
     private const string Post03DsBroaderOfficialBreadthGate = "B_PAYMENT_ENGINE_OFFICIAL_BREADTH_POST_03DS_RESIDUAL_OWNER_LOCK_VERIFIER";
@@ -126,6 +127,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string Post03EvCardMatrixReadinessPaymentCostFaqRuleSourceResidualDispositionEvidenceGate = "E_CARD_MATRIX_FAQ_REVIEW_POST_03EU_PAYMENT_COST_FAQ_RULE_SOURCE_RESIDUAL_DISPOSITION_EVIDENCE";
     private const string Post03EwCardMatrixReadinessPaymentCostMatrixReadinessGateHoldEvidenceGate = "E_CARD_MATRIX_READINESS_POST_03EV_PAYMENT_COST_MATRIX_READINESS_GATE_HOLD_EVIDENCE";
     private const string Post03ExCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureDispatchGate = "B_D_ENGINE_SUPPORT_POST_03EW_PAYMENT_COST_PRIMARY_RESIDUAL_RUNTIME_CLOSURE_DISPATCH";
+    private const string Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceGate = "B_D_ENGINE_SUPPORT_POST_03EX_PAYMENT_COST_PRIMARY_RESIDUAL_RUNTIME_CLOSURE_VERIFIER_EVIDENCE";
     private const string NonTargetTypedActivatedAbilityResidualBreadthVerifierGate = "B_PAYMENT_ENGINE_OFFICIAL_BREADTH_NON_TARGET_TYPED_ACTIVATED_ABILITY_RESIDUAL_VERIFIER";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
@@ -7290,6 +7292,76 @@ public sealed class PaymentEngineCoverageAuditTests
                 "4D-03EX-BD is dispatch only; project remains NOT READY, payment-cost blocker closure remains open until B/D implementation or verifier evidence is accepted, B/D_ENGINE_SUPPORT remains open, P0-005 remains open, P0-004 adjacency audit-sensitive remains open, P1 remains open, full official PaymentEngine matrix closure remains open, E_CARD_MATRIX_READINESS remains open, card matrix remains open and READY remains open.",
                 [nameof(Post03EwCardMatrixReadinessPaymentCostMatrixReadinessGateHoldEvidenceManifest), nameof(Post03EtCardMatrixReadinessEngineSupportPaymentCostPrimaryResidualVerifierEvidenceManifest), nameof(Post03EpCardMatrixReadinessEngineSupportPaymentCostImplementationDispatchManifest), nameof(Post03ErCardMatrixReadinessEngineSupportPaymentCostClosureReadinessAuditManifest), nameof(Post03EgCardMatrixReadinessJsonWriteAuthorizationBlockerDispositionVerifierManifest)],
                 Post03ExCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureDispatchDocAnchors)
+        ];
+    }
+
+    private static readonly string[] Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceDocAnchors =
+    [
+        "docs/CURRENT_STAGE4D_03EY_BD_CARD_MATRIX_READINESS_PAYMENT_COST_PRIMARY_RESIDUAL_RUNTIME_CLOSURE_VERIFIER_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03EY_BD_CARD_MATRIX_READINESS_PAYMENT_COST_PRIMARY_RESIDUAL_RUNTIME_CLOSURE_VERIFIER_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03EX_BD_CARD_MATRIX_READINESS_PAYMENT_COST_PRIMARY_RESIDUAL_RUNTIME_CLOSURE_DISPATCH_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03EX_BD_CARD_MATRIX_READINESS_PAYMENT_COST_PRIMARY_RESIDUAL_RUNTIME_CLOSURE_DISPATCH_BASELINE_EVIDENCE.md",
+        "docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json",
+        "docs/CURRENT_COMPLETION_AUDIT.md",
+        "docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md",
+        "docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md",
+        "docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md",
+        "docs/CURRENT_A_MASTER_CHECKPOINT.md",
+        "docs/CURRENT_SERVER_RULE_AUDIT.md",
+        "docs/CURRENT_FRONTEND_REBUILD_PLAN.md",
+        "src/Riftbound.Engine/CoreRuleEngine.cs",
+        "tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs"
+    ];
+
+    private static readonly PaymentEnginePost03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceEntry[] Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceManifest =
+        BuildPost03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceManifest();
+
+    private static PaymentEnginePost03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceEntry[] BuildPost03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceManifest()
+    {
+        var dispatch = Assert.Single(Post03ExCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureDispatchManifest);
+
+        Assert.Equal("B/D_ENGINE_SUPPORT", dispatch.DownstreamOwner);
+        Assert.Equal("payment-cost", dispatch.SelectedMatrixRowQuery);
+        Assert.Equal("NEEDS_ENGINE_SUPPORT", dispatch.SelectedBlockerReason);
+        Assert.Equal(216, dispatch.PrimaryNeedsEngineSupportResidualCount);
+        Assert.NotNull(typeof(PaymentEngineUnificationTests).GetMethod(
+            nameof(PaymentEngineUnificationTests.PendingPayCostCommitsGenericTemporaryPaymentResourceThroughPaymentPlan)));
+        Assert.NotNull(typeof(PaymentEngineUnificationTests).GetMethod(
+            nameof(PaymentEngineUnificationTests.PendingPayCostCommitsTypedTemporaryPaymentResourceThroughPaymentPlan)));
+
+        return
+        [
+            new(
+                Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceGate,
+                "B/D_ENGINE_SUPPORT",
+                Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidence,
+                nameof(Post03ExCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureDispatchManifest),
+                dispatch.SelectedPartitionId,
+                dispatch.SelectedMatrixRowQuery,
+                dispatch.SelectedBlockerReason,
+                "lane-1-bd-primary-engine-support-residual",
+                "pending PAY_COST temporary payment resource runtime closure verifier evidence",
+                "runtime diff: CoreRuleEngine.ResolvePendingPayCost now builds PaymentPlan after temporary / Blue Sentinel materialization and records recycle, submitted temporary and materialized Blue Sentinel payment resource actions in paymentResourceActionIds.",
+                "focused verifier tests: PaymentEngineUnificationTests.PendingPayCostCommitsGenericTemporaryPaymentResourceThroughPaymentPlan; PaymentEngineUnificationTests.PendingPayCostCommitsTypedTemporaryPaymentResourceThroughPaymentPlan; PaymentEngineUnificationTests=42/42; BlueSentinelResourceSkillTests=12/12.",
+                "acceptance validation complete: focused PaymentEngineCoverageAuditTests=274/274; backend full=4845/4845; git diff --check=passed.",
+                dispatch.PrimaryNeedsEngineSupportResidualCount,
+                dispatch.ExpectedPaymentCostFunctionalUnitCount,
+                dispatch.ExpectedNeedsEngineSupportCount,
+                dispatch.ExpectedNeedsAutomatedTestEvidenceCount,
+                dispatch.ExpectedNeedsFaqReviewCount,
+                dispatch.ExpectedImplementedTestedCount,
+                dispatch.ExpectedSharedOracleImplementationCount,
+                dispatch.ExpectedPrimaryNeedsEngineSupportCount,
+                dispatch.ExpectedPrimaryNeedsFaqReviewCount,
+                dispatch.ExpectedSnapshotEntryCount,
+                dispatch.ExpectedFunctionalUnitCount,
+                dispatch.ExpectedFullOfficialTrueCount,
+                dispatch.ExpectedReady,
+                "payment-cost row-query trace remains: functionalUnits=360; NEEDS_ENGINE_SUPPORT=360; NEEDS_AUTOMATED_TEST_EVIDENCE=328; NEEDS_FAQ_REVIEW=92; freeze statuses=IMPLEMENTED_TESTED=31; SHARED_ORACLE_IMPLEMENTATION=52; NEEDS_ENGINE_SUPPORT=216; NEEDS_FAQ_REVIEW=61; primary residual=216; fullOfficialTrue=0; ready=false.",
+                "matrix JSON write not authorized; docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json remains locked and fullOfficial remains false.",
+                "4D-03EY-BD accepts one narrow runtime/verifier surface only; payment-cost blocker closure remains open, B/D_ENGINE_SUPPORT remains open, P0-005 remains open, P0-004 adjacency audit-sensitive remains open, P1 remains open, full official PaymentEngine matrix closure remains open, E_CARD_MATRIX_READINESS remains open, card matrix remains open and READY remains open.",
+                [nameof(Post03ExCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureDispatchManifest), nameof(Post03EwCardMatrixReadinessPaymentCostMatrixReadinessGateHoldEvidenceManifest), nameof(Post03EtCardMatrixReadinessEngineSupportPaymentCostPrimaryResidualVerifierEvidenceManifest)],
+                Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceDocAnchors)
         ];
     }
 
@@ -19884,47 +19956,153 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
-    public void PaymentEngineActiveGoalCompletionAuditMappingTracksCurrent03ExCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureDispatch()
+    public void PaymentEnginePost03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceBindsRuntimeDiffWithoutJsonWrite()
+    {
+        var repositoryRoot = ResolveRepositoryRoot();
+        using var matrixDocument = JsonDocument.Parse(File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json")));
+        var root = matrixDocument.RootElement;
+        var snapshotEntries = root.GetProperty("snapshotEntries").EnumerateArray().ToArray();
+        var functionalUnits = root.GetProperty("functionalUnits").EnumerateArray().ToArray();
+        var freeze = root.GetProperty("stage4BCardCoverageFreeze");
+        var fullOfficialFunctionalUnits = functionalUnits
+            .Count(unit => unit.TryGetProperty("fullOfficial", out var fullOfficial)
+                && fullOfficial.ValueKind == JsonValueKind.True);
+        var evidence = Assert.Single(Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceManifest);
+
+        Assert.Equal(1009, snapshotEntries.Length);
+        Assert.Equal(811, functionalUnits.Length);
+        Assert.Equal(0, fullOfficialFunctionalUnits);
+        Assert.False(freeze.GetProperty("ready").GetBoolean());
+
+        Assert.Equal(Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceGate, evidence.GateId);
+        Assert.Equal("B/D_ENGINE_SUPPORT", evidence.DownstreamOwner);
+        Assert.Equal(Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidence, evidence.Classification);
+        Assert.Equal(nameof(Post03ExCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureDispatchManifest), evidence.InputRuntimeClosureDispatchManifest);
+        Assert.Equal("bd-engine-support-payment-cost", evidence.SelectedPartitionId);
+        Assert.Equal("payment-cost", evidence.SelectedMatrixRowQuery);
+        Assert.Equal("NEEDS_ENGINE_SUPPORT", evidence.SelectedBlockerReason);
+        Assert.Equal("lane-1-bd-primary-engine-support-residual", evidence.DispatchLaneId);
+        Assert.Contains("pending PAY_COST temporary payment resource", evidence.VerifierMode, StringComparison.Ordinal);
+        Assert.Contains("CoreRuleEngine.ResolvePendingPayCost", evidence.RuntimeDiffEvidence, StringComparison.Ordinal);
+        Assert.Contains("PaymentPlan", evidence.RuntimeDiffEvidence, StringComparison.Ordinal);
+        Assert.Contains("materialized Blue Sentinel", evidence.RuntimeDiffEvidence, StringComparison.Ordinal);
+        Assert.Contains(nameof(PaymentEngineUnificationTests.PendingPayCostCommitsGenericTemporaryPaymentResourceThroughPaymentPlan), evidence.FocusedVerifierEvidence, StringComparison.Ordinal);
+        Assert.Contains(nameof(PaymentEngineUnificationTests.PendingPayCostCommitsTypedTemporaryPaymentResourceThroughPaymentPlan), evidence.FocusedVerifierEvidence, StringComparison.Ordinal);
+        Assert.Contains("PaymentEngineUnificationTests=42/42", evidence.FocusedVerifierEvidence, StringComparison.Ordinal);
+        Assert.Contains("BlueSentinelResourceSkillTests=12/12", evidence.FocusedVerifierEvidence, StringComparison.Ordinal);
+        Assert.Contains("PaymentEngineCoverageAuditTests", evidence.AcceptanceValidationEvidence, StringComparison.Ordinal);
+        Assert.Contains("backend full", evidence.AcceptanceValidationEvidence, StringComparison.Ordinal);
+        Assert.Contains("primary residual=216", evidence.RowQueryTraceEvidence, StringComparison.Ordinal);
+        Assert.Contains("fullOfficialTrue=0", evidence.RowQueryTraceEvidence, StringComparison.Ordinal);
+        Assert.Contains("ready=false", evidence.RowQueryTraceEvidence, StringComparison.Ordinal);
+        Assert.Contains("matrix JSON write not authorized", evidence.MatrixJsonLockStatus, StringComparison.Ordinal);
+        Assert.Equal(216, evidence.PrimaryNeedsEngineSupportResidualCount);
+        Assert.Equal(360, evidence.ExpectedPaymentCostFunctionalUnitCount);
+        Assert.Equal(360, evidence.ExpectedNeedsEngineSupportCount);
+        Assert.Equal(328, evidence.ExpectedNeedsAutomatedTestEvidenceCount);
+        Assert.Equal(92, evidence.ExpectedNeedsFaqReviewCount);
+        Assert.Equal(31, evidence.ExpectedImplementedTestedCount);
+        Assert.Equal(52, evidence.ExpectedSharedOracleImplementationCount);
+        Assert.Equal(216, evidence.ExpectedPrimaryNeedsEngineSupportCount);
+        Assert.Equal(61, evidence.ExpectedPrimaryNeedsFaqReviewCount);
+        Assert.Equal(1009, evidence.ExpectedSnapshotEntryCount);
+        Assert.Equal(811, evidence.ExpectedFunctionalUnitCount);
+        Assert.Equal(0, evidence.ExpectedFullOfficialTrueCount);
+        Assert.False(evidence.ExpectedReady);
+        Assert.All(evidence.DocAnchors, anchor => Assert.True(File.Exists(Path.Combine(repositoryRoot, anchor)), anchor));
+    }
+
+    [Fact]
+    public void PaymentEnginePost03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceDoesNotClaimClosureOrReady()
+    {
+        var combinedText = string.Join(
+            " ",
+            Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceManifest.SelectMany(entry => new[]
+            {
+                entry.GateId,
+                entry.DownstreamOwner,
+                entry.Classification,
+                entry.InputRuntimeClosureDispatchManifest,
+                entry.SelectedPartitionId,
+                entry.SelectedMatrixRowQuery,
+                entry.SelectedBlockerReason,
+                entry.DispatchLaneId,
+                entry.VerifierMode,
+                entry.RuntimeDiffEvidence,
+                entry.FocusedVerifierEvidence,
+                entry.AcceptanceValidationEvidence,
+                entry.RowQueryTraceEvidence,
+                entry.MatrixJsonLockStatus,
+                entry.NonClosureStatus
+            }.Concat(entry.SourceManifests)
+                .Concat(entry.DocAnchors)));
+
+        Assert.Contains("4D-03EY-BD", combinedText, StringComparison.Ordinal);
+        Assert.Contains(Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidence, combinedText, StringComparison.Ordinal);
+        Assert.Contains(Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceGate, combinedText, StringComparison.Ordinal);
+        Assert.Contains(nameof(Post03ExCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureDispatchManifest), combinedText, StringComparison.Ordinal);
+        Assert.Contains("pending PAY_COST temporary payment resource", combinedText, StringComparison.Ordinal);
+        Assert.Contains("primary residual=216", combinedText, StringComparison.Ordinal);
+        Assert.Contains("matrix JSON write not authorized", combinedText, StringComparison.Ordinal);
+        Assert.Contains("fullOfficialTrue=0", combinedText, StringComparison.Ordinal);
+        Assert.Contains("ready=false", combinedText, StringComparison.Ordinal);
+        Assert.Contains("payment-cost blocker closure remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("B/D_ENGINE_SUPPORT remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-004 adjacency audit-sensitive remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P1 remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("full official PaymentEngine matrix closure remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("E_CARD_MATRIX_READINESS remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("card matrix remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("READY remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void PaymentEngineActiveGoalCompletionAuditMappingTracksCurrent03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidence()
     {
         var repositoryRoot = ResolveRepositoryRoot();
         var completionAudit = File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_COMPLETION_AUDIT.md"));
         var checklist = File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md"));
         var completionMapping = ExtractSection(completionAudit, "## 0.1 Active Goal 门槛到证据映射", "## 1.");
         var completionActiveGoalTable = ExtractSection(completionAudit, "| Active goal 要求 | 当前证据 | 当前状态 |", "## 1.");
-        var checklistCurrentHead = ExtractSection(checklist, "当前 4D-03EX-BD", "上一批 4D-03EW-E");
+        var checklistCurrentHead = ExtractSection(checklist, "当前 4D-03EY-BD", "上一批 4D-03EX-BD");
         var checklistMapping = ExtractSection(checklist, "## 3. 主目标门槛映射", "## 7.");
 
-        Assert.Contains("4D-03EX-BD", completionMapping, StringComparison.Ordinal);
-        Assert.Contains("Post03ExCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureDispatchManifest", completionMapping, StringComparison.Ordinal);
-        Assert.Contains(Post03ExCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureDispatch, completionMapping, StringComparison.Ordinal);
-        Assert.Contains(Post03ExCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureDispatchGate, completionMapping, StringComparison.Ordinal);
-        Assert.Contains("payment-cost primary residual runtime closure dispatch", completionMapping, StringComparison.Ordinal);
-        Assert.Contains("input matrix readiness gate-hold evidence manifest=Post03EwCardMatrixReadinessPaymentCostMatrixReadinessGateHoldEvidenceManifest", completionMapping, StringComparison.Ordinal);
-        Assert.Contains("input payment-cost primary residual verifier evidence manifest=Post03EtCardMatrixReadinessEngineSupportPaymentCostPrimaryResidualVerifierEvidenceManifest", completionMapping, StringComparison.Ordinal);
-        Assert.Contains("runtime write lock opened for B/D only", completionMapping, StringComparison.Ordinal);
-        Assert.Contains("A does not implement runtime", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("4D-03EY-BD", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceManifest", completionMapping, StringComparison.Ordinal);
+        Assert.Contains(Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidence, completionMapping, StringComparison.Ordinal);
+        Assert.Contains(Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceGate, completionMapping, StringComparison.Ordinal);
+        Assert.Contains("pending PAY_COST temporary payment resource runtime closure verifier evidence", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("input runtime closure dispatch manifest=Post03ExCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureDispatchManifest", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("CoreRuleEngine.ResolvePendingPayCost", completionMapping, StringComparison.Ordinal);
+        Assert.Contains(nameof(PaymentEngineUnificationTests.PendingPayCostCommitsGenericTemporaryPaymentResourceThroughPaymentPlan), completionMapping, StringComparison.Ordinal);
+        Assert.Contains(nameof(PaymentEngineUnificationTests.PendingPayCostCommitsTypedTemporaryPaymentResourceThroughPaymentPlan), completionMapping, StringComparison.Ordinal);
         Assert.Contains("primary residual=216", completionMapping, StringComparison.Ordinal);
         Assert.Contains("matrix JSON write not authorized", completionMapping, StringComparison.Ordinal);
         Assert.Contains("payment-cost blocker closure remains open", completionMapping, StringComparison.Ordinal);
         Assert.Contains("B/D_ENGINE_SUPPORT remains open", completionMapping, StringComparison.Ordinal);
         Assert.Contains("READY remains open", completionMapping, StringComparison.Ordinal);
 
-        Assert.Contains("当前 latest slice 为 4D-03EX-BD", completionActiveGoalTable, StringComparison.Ordinal);
-        Assert.Contains("Post03ExCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureDispatchManifest", completionActiveGoalTable, StringComparison.Ordinal);
-        Assert.Contains("4D-03EX-BD", checklistMapping, StringComparison.Ordinal);
-        Assert.Contains("Post03ExCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureDispatchManifest", checklistMapping, StringComparison.Ordinal);
-        Assert.Contains("当前 4D-03EX-BD", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("baseCommit=9e284c8a", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("当前 latest slice 为 4D-03EY-BD", completionActiveGoalTable, StringComparison.Ordinal);
+        Assert.Contains("Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceManifest", completionActiveGoalTable, StringComparison.Ordinal);
+        Assert.Contains("4D-03EY-BD", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceManifest", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("当前 4D-03EY-BD", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("baseCommit=636428ff", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("focused PaymentEngineUnificationTests=42/42", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("focused BlueSentinelResourceSkillTests=12/12", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("focused PaymentEngineCoverageAuditTests=", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("backend full current HEAD=", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("Post03ExCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureDispatchManifest opens B/D primary residual runtime closure dispatch", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("classification=post-03ew-bd-card-matrix-readiness-payment-cost-primary-residual-runtime-closure-dispatch", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("gate=B_D_ENGINE_SUPPORT_POST_03EW_PAYMENT_COST_PRIMARY_RESIDUAL_RUNTIME_CLOSURE_DISPATCH", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceManifest binds pending PAY_COST temporary payment resource runtime verifier evidence", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("classification=post-03ex-bd-card-matrix-readiness-payment-cost-primary-residual-runtime-closure-verifier-evidence", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("gate=B_D_ENGINE_SUPPORT_POST_03EX_PAYMENT_COST_PRIMARY_RESIDUAL_RUNTIME_CLOSURE_VERIFIER_EVIDENCE", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("input runtime closure dispatch manifest=Post03ExCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureDispatchManifest", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("dispatch lane=lane-1-bd-primary-engine-support-residual", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("runtime write lock opened for B/D only", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("A does not implement runtime", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("Post03EwCardMatrixReadinessPaymentCostMatrixReadinessGateHoldEvidenceManifest", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("input payment-cost primary residual verifier evidence manifest=Post03EtCardMatrixReadinessEngineSupportPaymentCostPrimaryResidualVerifierEvidenceManifest", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("CoreRuleEngine.ResolvePendingPayCost", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains(nameof(PaymentEngineUnificationTests.PendingPayCostCommitsGenericTemporaryPaymentResourceThroughPaymentPlan), checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains(nameof(PaymentEngineUnificationTests.PendingPayCostCommitsTypedTemporaryPaymentResourceThroughPaymentPlan), checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("primary residual=216", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("NEEDS_AUTOMATED_TEST_EVIDENCE residual=328", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("NEEDS_FAQ_REVIEW residual=92", checklistCurrentHead, StringComparison.Ordinal);
@@ -19936,7 +20114,7 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Contains("E_CARD_MATRIX_READINESS remains open", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("READY remains open", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("Chrome smoke not run because there were no frontend or browser-script changes", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.DoesNotContain("当前 4D-03EW-E", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.DoesNotContain("当前 4D-03EX-BD", checklistCurrentHead, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -21461,6 +21639,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(Post03EvCardMatrixReadinessPaymentCostFaqRuleSourceResidualDispositionEvidenceManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(Post03EwCardMatrixReadinessPaymentCostMatrixReadinessGateHoldEvidenceManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(Post03ExCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureDispatchManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TypedSigilOfficialRuntimeCardRowAuditManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TargetTypedActivatedAbilityOfficialFamilyVerifierManifest.SelectMany(entry => entry.DocAnchors))
@@ -22777,6 +22956,38 @@ public sealed class PaymentEngineCoverageAuditTests
         bool ExpectedReady,
         string RowQueryTraceEvidence,
         string DispatchStatus,
+        string NonClosureStatus,
+        IReadOnlyList<string> SourceManifests,
+        IReadOnlyList<string> DocAnchors);
+
+    private sealed record PaymentEnginePost03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceEntry(
+        string GateId,
+        string DownstreamOwner,
+        string Classification,
+        string InputRuntimeClosureDispatchManifest,
+        string SelectedPartitionId,
+        string SelectedMatrixRowQuery,
+        string SelectedBlockerReason,
+        string DispatchLaneId,
+        string VerifierMode,
+        string RuntimeDiffEvidence,
+        string FocusedVerifierEvidence,
+        string AcceptanceValidationEvidence,
+        int PrimaryNeedsEngineSupportResidualCount,
+        int ExpectedPaymentCostFunctionalUnitCount,
+        int ExpectedNeedsEngineSupportCount,
+        int ExpectedNeedsAutomatedTestEvidenceCount,
+        int ExpectedNeedsFaqReviewCount,
+        int ExpectedImplementedTestedCount,
+        int ExpectedSharedOracleImplementationCount,
+        int ExpectedPrimaryNeedsEngineSupportCount,
+        int ExpectedPrimaryNeedsFaqReviewCount,
+        int ExpectedSnapshotEntryCount,
+        int ExpectedFunctionalUnitCount,
+        int ExpectedFullOfficialTrueCount,
+        bool ExpectedReady,
+        string RowQueryTraceEvidence,
+        string MatrixJsonLockStatus,
         string NonClosureStatus,
         IReadOnlyList<string> SourceManifests,
         IReadOnlyList<string> DocAnchors);

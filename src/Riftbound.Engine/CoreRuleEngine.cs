@@ -1224,11 +1224,6 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        var paymentPlan = BuildPendingPaymentPlan(
-            pendingPayment,
-            intent.PlayerId,
-            paymentResourceActions: paymentResourceActions,
-            legalPaymentChoiceIds: legalSpendChoiceIds);
         var paymentEvents = new List<GameEvent>();
         var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -1279,6 +1274,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        var paymentPlan = BuildPendingPaymentPlan(
+            pendingPayment,
+            intent.PlayerId,
+            paymentResourceActions: BuildSubmittedPendingPaymentResourceActions(
+                submittedPaymentResourceActions,
+                paymentResourceActions,
+                blueSentinelTemporaryActions),
+            legalPaymentChoiceIds: legalSpendChoiceIds);
         var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, temporaryAdjustedRunePools);
         if (!paymentCommit.Accepted)
         {
@@ -2865,6 +2868,46 @@ public sealed class CoreRuleEngine : IRuleEngine
             legalPaymentChoiceIds: legalPaymentChoiceIds ?? pendingPayment.LegalPaymentChoiceIds,
             reason: string.IsNullOrWhiteSpace(reason) ? pendingPayment.Reason : reason,
             sourceObjectId: sourceObjectId);
+    }
+
+    private static IReadOnlyList<string> BuildSubmittedPendingPaymentResourceActions(
+        IReadOnlyList<string> submittedPaymentResourceActions,
+        IReadOnlyList<string> recyclePaymentResourceActions,
+        IReadOnlyList<string> blueSentinelTemporaryPaymentResourceActions)
+    {
+        var recyclePaymentResourceActionIds = recyclePaymentResourceActions.ToHashSet(StringComparer.Ordinal);
+        var actions = new List<string>();
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        var blueSentinelTemporaryActionIndex = 0;
+
+        foreach (var submittedAction in submittedPaymentResourceActions)
+        {
+            string? actionToRecord = null;
+            if (PaymentCostRules.TryParseTemporaryPaymentResourceActionId(submittedAction, out _))
+            {
+                actionToRecord = submittedAction;
+            }
+            else if (TryParseBlueSentinelDelayedResourceActionId(submittedAction, out _))
+            {
+                if (blueSentinelTemporaryActionIndex < blueSentinelTemporaryPaymentResourceActions.Count)
+                {
+                    actionToRecord = blueSentinelTemporaryPaymentResourceActions[blueSentinelTemporaryActionIndex];
+                }
+
+                blueSentinelTemporaryActionIndex++;
+            }
+            else if (recyclePaymentResourceActionIds.Contains(submittedAction))
+            {
+                actionToRecord = submittedAction;
+            }
+
+            if (!string.IsNullOrWhiteSpace(actionToRecord) && seen.Add(actionToRecord))
+            {
+                actions.Add(actionToRecord);
+            }
+        }
+
+        return actions;
     }
 
     private static string BuildBattlefieldConquerGoldPaymentReason(

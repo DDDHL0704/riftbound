@@ -969,6 +969,80 @@ public sealed class PaymentEngineUnificationTests
     }
 
     [Fact]
+    public async Task PendingPayCostCommitsGenericTemporaryPaymentResourceThroughPaymentPlan()
+    {
+        var temporaryResource = TemporaryResource("MALZAHAR:TEMP-PENDING-PAY-COST-COMMIT");
+        var paymentResourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var state = PendingGenericPayCostTemporaryResourceState(temporaryResource);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-pending-pay-cost-generic-temporary-resource", "P1", CommandTypes.PayCost),
+            new PayCostCommand(
+                "PENDING-PAY-COST-GENERIC-1",
+                "TEST_PENDING_PAY_COST",
+                [paymentResourceAction, "SPEND_POWER:1"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(
+            ["TEMPORARY_PAYMENT_RESOURCE_SPENT", "TEMPORARY_PAYMENT_RESOURCE_CLEARED", "COST_PAID", "PAYMENT_WINDOW_CLOSED"],
+            result.Events.Select(evt => evt.Kind));
+        Assert.Null(result.State.PendingPayment);
+        Assert.Empty(result.State.TemporaryPaymentResources);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+
+        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        Assert.Equal([temporaryResource.ResourceId], Assert.IsType<string[]>(costEvent.Payload["temporaryPaymentResourceIds"]));
+        Assert.Equal(1, costEvent.Payload["temporaryPaymentResourcePower"]);
+        Assert.Equal([paymentResourceAction, "SPEND_POWER:1"], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        Assert.Equal(["SPEND_POWER:1"], Assert.IsType<string[]>(costEvent.Payload["legalPaymentChoiceIds"]));
+        Assert.Equal(0, costEvent.Payload["remainingMana"]);
+        Assert.Equal(0, costEvent.Payload["remainingPower"]);
+    }
+
+    [Fact]
+    public async Task PendingPayCostCommitsTypedTemporaryPaymentResourceThroughPaymentPlan()
+    {
+        var temporaryResource = TypedTemporaryResource("FOCUS_SIGIL:TEMP-PENDING-PAY-COST-GREEN", RuneTrait.Green);
+        var paymentResourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var state = PendingTypedPayCostTemporaryResourceState(temporaryResource, RuneTrait.Green);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-pending-pay-cost-typed-temporary-resource", "P1", CommandTypes.PayCost),
+            new PayCostCommand(
+                "PENDING-PAY-COST-GREEN-1",
+                "TEST_PENDING_PAY_COST",
+                [paymentResourceAction, "SPEND_POWER:green:1"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(
+            ["TEMPORARY_PAYMENT_RESOURCE_SPENT", "TEMPORARY_PAYMENT_RESOURCE_CLEARED", "COST_PAID", "PAYMENT_WINDOW_CLOSED"],
+            result.Events.Select(evt => evt.Kind));
+        Assert.Null(result.State.PendingPayment);
+        Assert.Empty(result.State.TemporaryPaymentResources);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+
+        var spentEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
+        var consumedPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(spentEvent.Payload["consumedPowerByTrait"]);
+        Assert.Equal(1, consumedPowerByTrait[RuneTrait.Green]);
+
+        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        Assert.Equal([temporaryResource.ResourceId], Assert.IsType<string[]>(costEvent.Payload["temporaryPaymentResourceIds"]));
+        Assert.Equal(0, costEvent.Payload["temporaryPaymentResourcePower"]);
+        Assert.Equal([paymentResourceAction, "SPEND_POWER:green:1"], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        Assert.Equal(["SPEND_POWER:green:1"], Assert.IsType<string[]>(costEvent.Payload["legalPaymentChoiceIds"]));
+        var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]);
+        Assert.Equal(1, powerByTrait[RuneTrait.Green]);
+        Assert.Equal(0, costEvent.Payload["remainingPower"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["remainingPowerByTrait"]));
+    }
+
+    [Fact]
     public async Task PendingPayCostRejectsUnnecessaryRecycleRuneWithoutMutation()
     {
         const string runeObjectId = "P1-RUNE-RED-PENDING-UNNEEDED";
@@ -1980,6 +2054,54 @@ public sealed class PaymentEngineUnificationTests
                 powerCost: 1,
                 legalPaymentChoiceIds: ["SPEND_POWER:1"],
                 reason: "PENDING_PAY_COST_TEMPORARY_RESOURCE_TEST"),
+            temporaryPaymentResources: [temporaryResource]);
+    }
+
+    private static MatchState PendingTypedPayCostTemporaryResourceState(
+        TemporaryPaymentResourceState temporaryResource,
+        string trait)
+    {
+        return new MatchState(
+            "payment-engine-pending-pay-cost-typed-temporary-room",
+            0,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            ["P1", "P2"],
+            "P1",
+            MatchPhases.Main,
+            TimingStates.NeutralOpen,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty
+            },
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal),
+            pendingPayment: new PendingPaymentState(
+                "PENDING-PAY-COST-GREEN-1",
+                "TEST_PENDING_PAY_COST",
+                "P1",
+                powerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [trait] = 1
+                },
+                legalPaymentChoiceIds: [$"SPEND_POWER:{trait}:1"],
+                reason: "PENDING_PAY_COST_TYPED_TEMPORARY_RESOURCE_TEST"),
             temporaryPaymentResources: [temporaryResource]);
     }
 
