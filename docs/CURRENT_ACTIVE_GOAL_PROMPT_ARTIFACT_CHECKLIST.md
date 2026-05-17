@@ -24,6 +24,11 @@
 
 ## 2. 本次检查过的证据
 
+- `docs/CURRENT_STAGE4D_03FF_E_CARD_MATRIX_READINESS_PAYMENT_COST_MATRIX_AUTHORIZATION_PREFLIGHT_AUDIT.md` 与 preflight：确认 4D-03FF-E 已把 03FC-BD B/D primary owner disposition evidence、03FD-A automated owner disposition evidence 与 03FE-E FAQ owner disposition evidence 聚合为 E_CARD_MATRIX_READINESS payment-cost matrix-readiness authorization preflight；`Post03FfCardMatrixReadinessPaymentCostMatrixAuthorizationPreflightManifest` classification=`post-03fe-e-card-matrix-readiness-payment-cost-matrix-authorization-preflight`，gate=`E_CARD_MATRIX_READINESS_POST_03FE_PAYMENT_COST_MATRIX_AUTHORIZATION_PREFLIGHT`，input B/D primary owner disposition evidence manifest=`Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceManifest`，input automated owner disposition evidence manifest=`Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceManifest`，input FAQ owner disposition evidence manifest=`Post03FeCardMatrixReadinessPaymentCostFaqOwnerDispositionEvidenceManifest`，input owner disposition execution dispatch manifest=`Post03FbCardMatrixReadinessPaymentCostOwnerDispositionExecutionDispatchManifest`，input blocker disposition write-authorization preflight manifest=`Post03FaCardMatrixReadinessPaymentCostBlockerDispositionWriteAuthorizationPreflightManifest`。该 preflight 只聚合 three owner disposition evidence lanes：lane-1-bd-primary-engine-support-disposition、lane-2-a-automated-evidence-disposition、lane-3-e-faq-rule-source-disposition；accepted owner disposition evidence count=3；matrix JSON write not authorized，payment-cost blocker closure、B/D_ENGINE_SUPPORT、A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE payment-cost residual、E_CARD_MATRIX_FAQ_REVIEW payment-cost residual、E_CARD_MATRIX_READINESS、card matrix 与 READY 仍 open。
+- `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`：主线程维护该测试文件；当前批次证据口径为 `Post03FfCardMatrixReadinessPaymentCostMatrixAuthorizationPreflightManifest`，current-head block baseCommit=88aaf5ed，focused `PaymentEngineCoverageAuditTests` 288/288、backend full 4859/4859、`git diff --check` passed。
+
+上一批 4D-03FE-E：
+
 - `docs/CURRENT_STAGE4D_03FE_E_CARD_MATRIX_READINESS_PAYMENT_COST_FAQ_OWNER_DISPOSITION_EVIDENCE_AUDIT.md` 与 evidence：确认 4D-03FE-E 已把 03FB-E owner disposition execution dispatch 的 lane-3 转成 E FAQ owner disposition evidence，并承接 03FC-BD B/D primary owner disposition evidence 与 03FD-A A automated owner disposition evidence；`Post03FeCardMatrixReadinessPaymentCostFaqOwnerDispositionEvidenceManifest` classification=`post-03fd-e-card-matrix-readiness-payment-cost-faq-owner-disposition-evidence`，gate=`E_CARD_MATRIX_FAQ_REVIEW_POST_03FD_PAYMENT_COST_FAQ_OWNER_DISPOSITION_EVIDENCE`，input owner disposition execution dispatch manifest=`Post03FbCardMatrixReadinessPaymentCostOwnerDispositionExecutionDispatchManifest`，input FAQ / rule-source residual disposition evidence manifest=`Post03EvCardMatrixReadinessPaymentCostFaqRuleSourceResidualDispositionEvidenceManifest`，input B/D primary owner disposition evidence manifest=`Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceManifest`，input automated owner disposition evidence manifest=`Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceManifest`，selected partition=bd-engine-support-payment-cost，selected matrix row query=payment-cost，selected blocker=NEEDS_FAQ_REVIEW。该 evidence 只绑定 lane-3-e-faq-rule-source-disposition / E_CARD_MATRIX_FAQ_REVIEW / NEEDS_FAQ_REVIEW residual=92 / primary FAQ residual=61；matrix JSON write not authorized，payment-cost blocker closure、B/D_ENGINE_SUPPORT、A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE payment-cost residual、E_CARD_MATRIX_FAQ_REVIEW payment-cost residual、E_CARD_MATRIX_READINESS、card matrix 与 READY 仍 open。
 - `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`：主线程维护该测试文件；当前批次证据口径为 `Post03FeCardMatrixReadinessPaymentCostFaqOwnerDispositionEvidenceManifest`，current-head block baseCommit=2da77b63，focused `PaymentEngineCoverageAuditTests` 286/286、backend full 4857/4857、`git diff --check` passed。
 
@@ -226,32 +231,35 @@ fullOfficialTrue=0
 fullOfficialFalse=811
 ```
 
-当前 4D-03FE-E payment-cost E FAQ owner disposition evidence：
+当前 4D-03FF-E payment-cost matrix-readiness authorization preflight：
 
 ```txt
-baseCommit=2da77b63
-focused PaymentEngineCoverageAuditTests=286/286
-backend full current HEAD=4857/4857
+baseCommit=88aaf5ed
+focused PaymentEngineCoverageAuditTests=288/288
+backend full current HEAD=4859/4859
 git diff --check=passed
-Post03FeCardMatrixReadinessPaymentCostFaqOwnerDispositionEvidenceManifest binds E FAQ owner disposition evidence
-classification=post-03fd-e-card-matrix-readiness-payment-cost-faq-owner-disposition-evidence
-input owner disposition execution dispatch manifest=Post03FbCardMatrixReadinessPaymentCostOwnerDispositionExecutionDispatchManifest
-input FAQ / rule-source residual disposition evidence manifest=Post03EvCardMatrixReadinessPaymentCostFaqRuleSourceResidualDispositionEvidenceManifest
+Post03FfCardMatrixReadinessPaymentCostMatrixAuthorizationPreflightManifest aggregates payment-cost owner disposition evidence
+classification=post-03fe-e-card-matrix-readiness-payment-cost-matrix-authorization-preflight
 input B/D primary owner disposition evidence manifest=Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceManifest
 input automated owner disposition evidence manifest=Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceManifest
+input FAQ owner disposition evidence manifest=Post03FeCardMatrixReadinessPaymentCostFaqOwnerDispositionEvidenceManifest
+input owner disposition execution dispatch manifest=Post03FbCardMatrixReadinessPaymentCostOwnerDispositionExecutionDispatchManifest
+input blocker disposition write-authorization preflight manifest=Post03FaCardMatrixReadinessPaymentCostBlockerDispositionWriteAuthorizationPreflightManifest
 selected partition=bd-engine-support-payment-cost
 selected matrix row query=payment-cost
-selected blocker=NEEDS_FAQ_REVIEW
-gate=E_CARD_MATRIX_FAQ_REVIEW_POST_03FD_PAYMENT_COST_FAQ_OWNER_DISPOSITION_EVIDENCE
-downstream owner=E_CARD_MATRIX_FAQ_REVIEW
+accepted owner disposition evidence count=3
+gate=E_CARD_MATRIX_READINESS_POST_03FE_PAYMENT_COST_MATRIX_AUTHORIZATION_PREFLIGHT
+downstream owner=E_CARD_MATRIX_READINESS
+lane-1-bd-primary-engine-support-disposition
+lane-2-a-automated-evidence-disposition
 lane-3-e-faq-rule-source-disposition
-E FAQ owner disposition evidence only
-03FC B/D primary owner disposition evidence carried forward
-03FD A automated owner disposition evidence carried forward
-next required evidence=later E_CARD_MATRIX_READINESS authorization before any matrix JSON write
+matrix-readiness authorization preflight only
+not matrix JSON write authorization
+next required evidence=future E_CARD_MATRIX_READINESS payment-cost matrix JSON write authorization verifier / request before any matrix JSON change
 primary residual=216
 NEEDS_AUTOMATED_TEST_EVIDENCE residual=328
 NEEDS_FAQ_REVIEW residual=92
+primary FAQ residual=61
 primary NEEDS_FAQ_REVIEW residual=61
 payment-cost functionalUnits=360 / NEEDS_ENGINE_SUPPORT=360 / NEEDS_AUTOMATED_TEST_EVIDENCE=328 / NEEDS_FAQ_REVIEW=92
 freeze statuses=IMPLEMENTED_TESTED=31; SHARED_ORACLE_IMPLEMENTATION=52; NEEDS_ENGINE_SUPPORT=216; NEEDS_FAQ_REVIEW=61
@@ -272,6 +280,10 @@ Chrome smoke not run because there were no frontend or browser-script changes
 P0-005 / P0-004 adjacency audit-sensitive / P1 / broader PaymentEngine official breadth / full official [A] / [C] resource-skill row interactions / keyword payment branches / remaining payment windows / complete replacement / optional / alternative / tax quote-command-audit parity closure / full official PaymentEngine matrix closure / E_CARD_MATRIX_READINESS / card matrix / READY=open
 NOT READY
 ```
+
+上一批 4D-03FE-E：
+
+当前 4D-03FE-E payment-cost E FAQ owner disposition evidence 仍作为 03FF-E input FAQ owner disposition evidence：`Post03FeCardMatrixReadinessPaymentCostFaqOwnerDispositionEvidenceManifest` / baseCommit=2da77b63 / focused `PaymentEngineCoverageAuditTests` 286/286 / backend full 4857/4857 / `git diff --check` passed。
 
 上一批 4D-03FD-A：
 
@@ -2179,6 +2191,10 @@ formal 18-step steps=18/18 OK
 
 ## 3. 主目标门槛映射
 
+当前 evidence chain trace：4D-03FF-E `Post03FfCardMatrixReadinessPaymentCostMatrixAuthorizationPreflightManifest` / `post-03fe-e-card-matrix-readiness-payment-cost-matrix-authorization-preflight` is E_CARD_MATRIX_READINESS payment-cost matrix-readiness authorization preflight for `E_CARD_MATRIX_READINESS_POST_03FE_PAYMENT_COST_MATRIX_AUTHORIZATION_PREFLIGHT`。baseCommit=88aaf5ed。It takes input B/D primary owner disposition evidence manifest=Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceManifest, input automated owner disposition evidence manifest=Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceManifest, input FAQ owner disposition evidence manifest=Post03FeCardMatrixReadinessPaymentCostFaqOwnerDispositionEvidenceManifest, input owner disposition execution dispatch manifest=Post03FbCardMatrixReadinessPaymentCostOwnerDispositionExecutionDispatchManifest and input blocker disposition write-authorization preflight manifest=Post03FaCardMatrixReadinessPaymentCostBlockerDispositionWriteAuthorizationPreflightManifest。selected partition=bd-engine-support-payment-cost；selected matrix row query=payment-cost；accepted owner disposition evidence count=3；downstream owner=E_CARD_MATRIX_READINESS。4D-03FF-E only aggregates three owner disposition evidence lanes: lane-1-bd-primary-engine-support-disposition, lane-2-a-automated-evidence-disposition and lane-3-e-faq-rule-source-disposition；this is matrix-readiness authorization preflight only, not matrix JSON write authorization。next required evidence=future E_CARD_MATRIX_READINESS payment-cost matrix JSON write authorization verifier / request before any matrix JSON change。primary residual=216；NEEDS_AUTOMATED_TEST_EVIDENCE residual=328；NEEDS_FAQ_REVIEW residual=92；primary FAQ residual=61。matrix readiness gate remains held；matrix JSON write not authorized；payment-cost blocker closure remains open；B/D_ENGINE_SUPPORT remains open；A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE payment-cost residual remains open；E_CARD_MATRIX_FAQ_REVIEW payment-cost residual remains open；E_CARD_MATRIX_READINESS remains open；card matrix remains open；READY remains open；project remains NOT READY。A-side validation current-head backend full 4859/4859, focused `PaymentEngineCoverageAuditTests` 288/288 and `git diff --check` passed；4D-03FF-E is conformance guard plus docs/current-state authorization preflight evidence, no runtime, frontend, matrix JSON or browser-script changes were made and Chrome smoke was not run。
+
+上一批 4D-03FE-E：
+
 当前 evidence chain trace：4D-03FE-E `Post03FeCardMatrixReadinessPaymentCostFaqOwnerDispositionEvidenceManifest` / `post-03fd-e-card-matrix-readiness-payment-cost-faq-owner-disposition-evidence` is E FAQ owner disposition evidence for `E_CARD_MATRIX_FAQ_REVIEW_POST_03FD_PAYMENT_COST_FAQ_OWNER_DISPOSITION_EVIDENCE`。baseCommit=2da77b63。It takes input owner disposition execution dispatch manifest=Post03FbCardMatrixReadinessPaymentCostOwnerDispositionExecutionDispatchManifest, input FAQ / rule-source residual disposition evidence manifest=Post03EvCardMatrixReadinessPaymentCostFaqRuleSourceResidualDispositionEvidenceManifest, input B/D primary owner disposition evidence manifest=Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceManifest and input automated owner disposition evidence manifest=Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceManifest。selected partition=bd-engine-support-payment-cost；selected matrix row query=payment-cost；selected blocker=NEEDS_FAQ_REVIEW；disposition lane=lane-3-e-faq-rule-source-disposition；downstream owner=E_CARD_MATRIX_FAQ_REVIEW。4D-03FE-E binds 4D-03EV-E FAQ / rule-source residual disposition evidence to the 4D-03FB-E lane-3 owner disposition requirement and carries forward 4D-03FC-BD B/D primary owner disposition evidence plus 4D-03FD-A A automated owner disposition evidence；this is owner disposition evidence only。next required evidence=later E_CARD_MATRIX_READINESS authorization before any matrix JSON write。primary residual=216；NEEDS_AUTOMATED_TEST_EVIDENCE residual=328；NEEDS_FAQ_REVIEW residual=92；primary FAQ residual=61。matrix readiness gate remains held；matrix JSON write not authorized；payment-cost blocker closure remains open；B/D_ENGINE_SUPPORT remains open；A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE payment-cost residual remains open；E_CARD_MATRIX_FAQ_REVIEW payment-cost residual remains open；E_CARD_MATRIX_READINESS remains open；card matrix remains open；READY remains open；project remains NOT READY。A-side validation current-head backend full 4857/4857, focused `PaymentEngineCoverageAuditTests` 286/286 and `git diff --check` passed；4D-03FE-E is test/docs-only owner evidence, no runtime, frontend or browser-script changes were made and Chrome smoke was not run。
 
 上一批 4D-03FD-A：
@@ -2248,16 +2264,16 @@ formal 18-step steps=18/18 OK
 | 要求 | 必需 artifact / gate | 已检查证据 | 当前状态 | 缺口 / 下一步 |
 |---|---|---|---|---|
 | 按 `docs/A_MASTER_AGENT_GOAL.md` 管理 | A-master 目标文档必须存在并作为最高级本地交付口径 | `docs/A_MASTER_AGENT_GOAL.md` 已读取；goal 文本与该文件一致 | OK / ONGOING | 后续任何 READY 判断都必须回到本 checklist 与 final audit |
-| A 维护 checkpoint | `docs/CURRENT_A_MASTER_CHECKPOINT.md` 最新、可恢复、含当前结论 | 文件顶部记录 4D-03FE-E `Post03FeCardMatrixReadinessPaymentCostFaqOwnerDispositionEvidenceManifest` accepted as E FAQ owner disposition evidence、classification=`post-03fd-e-card-matrix-readiness-payment-cost-faq-owner-disposition-evidence`、baseCommit=2da77b63、focused 286/286、backend full 4857/4857、input owner disposition execution dispatch=`Post03FbCardMatrixReadinessPaymentCostOwnerDispositionExecutionDispatchManifest`、input FAQ / rule-source residual disposition evidence=`Post03EvCardMatrixReadinessPaymentCostFaqRuleSourceResidualDispositionEvidenceManifest`、input B/D primary owner disposition evidence=`Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceManifest`、input automated owner disposition evidence=`Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceManifest`、lane-3-e-faq-rule-source-disposition、NEEDS_FAQ_REVIEW residual=92、primary FAQ residual=61，并保留 03FD-A / 03FC-BD / 03FB-E / 03FA-E / 03EZ-BD / 03EY-BD / 03EX-BD / 03EW-E / 03EV-E 等 input evidence；matrix skeleton 1009 / 811、fullOfficialTrue=0、ready=false；项目 NOT READY | OK / ONGOING | 后续每批继续保持 checkpoint 同步 |
+| A 维护 checkpoint | `docs/CURRENT_A_MASTER_CHECKPOINT.md` 最新、可恢复、含当前结论 | 文件顶部记录 4D-03FF-E `Post03FfCardMatrixReadinessPaymentCostMatrixAuthorizationPreflightManifest` accepted as payment-cost matrix-readiness authorization preflight、classification=`post-03fe-e-card-matrix-readiness-payment-cost-matrix-authorization-preflight`、baseCommit=88aaf5ed、focused 288/288、backend full 4859/4859、input B/D primary owner disposition evidence=`Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceManifest`、input automated owner disposition evidence=`Post03FdCardMatrixReadinessPaymentCostAutomatedOwnerDispositionEvidenceManifest`、input FAQ owner disposition evidence=`Post03FeCardMatrixReadinessPaymentCostFaqOwnerDispositionEvidenceManifest`、input owner disposition execution dispatch=`Post03FbCardMatrixReadinessPaymentCostOwnerDispositionExecutionDispatchManifest`、input blocker disposition write-authorization preflight=`Post03FaCardMatrixReadinessPaymentCostBlockerDispositionWriteAuthorizationPreflightManifest`、accepted owner disposition evidence count=3，并保留 03FE-E / 03FD-A / 03FC-BD / 03FB-E / 03FA-E 等 input evidence；matrix skeleton 1009 / 811、fullOfficialTrue=0、ready=false；项目 NOT READY | OK / ONGOING | 后续每批继续保持 checkpoint 同步 |
 | A 维护任务拆分 / 子 agent 分工 | A-master agent pool、写锁、下一步计划 | `A_MASTER_AGENT_GOAL.md` §7/§8；`CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` 已记录 4D-03DV / 4D-03DU / 4D-03DT / 4D-03DS / 4D-03DR / 4D-03DQ / 4D-03DP / 4D-03DO / 4D-03DN / 4D-03DM / 4D-03DL / 4D-03DK / 4D-03DJ / 4D-03DH accepted，且 03DG / 03DE / 03DD / 03DC-B / 03DB / 03DA / 03CX / 03CW / 03CV / 03CU / 03CT / 03CS-B 至 03BS 历史 guards / handoffs 均为 evidence / closure-boundary trace；03DV 只把 full-official-resource-skill-row-interactions owner lock 派发到 fresh B gate，03DU 只把 03DT selected broader-payment-engine-official-breadth owner lock 绑定到 input evidence，03DS 仍将 `D_COMPLETION_P0_AUDIT` 分类为 7 residual owner locks，03DQ worker write lock is closed，03DP old gate `B_PAYMENT_ENGINE_OFFICIAL_BREADTH_FULL_RESOURCE_SKILL_ROW_INTERACTION_MATRIX_VERIFIER` 不被 03DV 重开；当前无并发 runtime writer；remaining gap=P0-005、P1、broader PaymentEngine official breadth、full official `[A]` / `[C]` resource-skill row interactions、keyword payment branches、remaining payment windows、full official PaymentEngine matrix、full-card matrix、READY | ONGOING | 后续 matrix / remaining P0/P1 仍需单独写锁 |
 | A 维护阻断清单 | P0/P1 closure plan 与 completion audit | `CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md` 与 `CURRENT_COMPLETION_AUDIT.md` 仍为 NOT READY | NOT MET | P0/P1 未清零 |
-| A 控制写入范围 | 不并行改核心模块；当前 4D-03FE-E 只打开 payment-cost E FAQ owner disposition evidence guard 与 A-side current-state docs 写锁 | 4D-03FE-E 只新增 03FE-E conformance guard、03FE-E audit / evidence docs，并同步 checkpoint / completion / dispatch / checklist / server audit / frontend plan / P0-P1 plan；Runtime、frontend、browser scripts、formal 18-step scripts、matrix JSON、official card catalog、READY 与 `riftbound-dotnet.sln` 仍锁定 | OK FOR THIS SLICE | 后续 runtime / frontend behavior / matrix 改动必须按 dispatch 文档独占 owner |
+| A 控制写入范围 | 不并行改核心模块；当前 4D-03FF-E 只打开 payment-cost matrix-readiness authorization preflight guard 与 A-side current-state docs 写锁 | 4D-03FF-E 新增 03FF-E conformance guard、03FF-E audit / preflight docs，并同步 checkpoint / completion / dispatch / checklist / server audit / frontend plan / P0-P1 plan；Runtime、frontend、browser scripts、formal 18-step scripts、matrix JSON、official card catalog、READY 与 `riftbound-dotnet.sln` 仍锁定 | OK FOR THIS SLICE | 后续 runtime / frontend behavior / matrix 改动必须按 dispatch 文档独占 owner |
 | 默认不写功能代码 | A 不主动承接功能实现 | 本批为 test/docs-only card matrix readiness payment-cost verifier evidence guard，A 主控验收并同步 current-state docs；未改 runtime、前端本地裁决、matrix JSON 或 READY | OK FOR THIS SLICE | 不代表后续功能缺口已解决 |
 | 服务端唯一规则权威 | 服务端输出 authoritative snapshot、prompt、事件、规则裁决 | `CURRENT_SERVER_RULE_AUDIT.md` 与 Stage 4D docs 证明大量 representative server-authority paths | PARTIAL | full official battle / PaymentEngine / LayerEngine / card effects 仍未闭合 |
 | 前端只展示 authoritative snapshot | 前端不得持有隐藏信息或本地裁决规则 | `CURRENT_FORMAL_18_STEP_E2E_EVIDENCE.md` 与 4D-FE fresh-run evidence 断言主流程不暴露 raw hidden-info 文本；frontend plan 多处记录不本地推断；4D-FE smoke fresh-run 已过 | PARTIAL | 最终前端 contract audit 与后续最终状态 rerun 仍需在 READY 前处理 |
 | 前端只提交 `ActionPrompt` / `LegalAction` | UI 操作必须来自服务端 prompt | Stage 4D docs 多处记录 ActionPrompt / GameHub representative coverage | PARTIAL | 仍需最终全流程 frontend contract audit，不可用 representative coverage 代理 |
 | P0/P1 清零 | completion audit 中所有 P0/P1 为 resolved | closure plan / server audit 明确仍 open / partially resolved | NOT MET | 继续 P0-004、P0-005、LayerEngine、关键词、replay/property、full-card evidence |
-| 后端 full test | `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` | 4D-03FE-E focused `PaymentEngineCoverageAuditTests` 286/286 通过；current-head backend full 4857/4857 通过 | PASS AS CURRENT FOCUSED / FULL-BACKEND EVIDENCE | 只证明当前 focused 与 backend full 绿；不证明 P0/P1 全部满足 |
+| 后端 full test | `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` | 4D-03FF-E focused `PaymentEngineCoverageAuditTests` 288/288 通过；current-head backend full 4859/4859 通过 | PASS AS CURRENT FOCUSED / FULL-BACKEND EVIDENCE | 只证明当前 focused 与 backend full 绿；不证明 P0/P1 全部满足 |
 | 前端 build / typecheck / lint | `source ../../scripts/dev-env.sh && npm run build` | 4D-FE event-label build gate 当前代码状态 fresh-run 通过；package script 包含 checks、`tsc -b`、Vite build | PASS AS LATEST FRONTEND BUILD EVIDENCE | READY 前若后续代码继续变动仍需在最终代码状态 fresh run |
 | Chrome smoke | `source ../../scripts/dev-env.sh && npm run smoke:chrome -- --start-api` | 4D-FE Chrome smoke 是 last-known frontend evidence，覆盖 core routes；03EK-E 未改前端且未重跑 smoke | PASS AS LAST-KNOWN CHROME SMOKE EVIDENCE | READY 前若后续代码继续变动仍需在最终代码状态 fresh run，并用 `@chrome` 调试/验收 |
 | 正式 18 步 E2E | `npm run e2e:formal-18 -- --start-api`，覆盖 A_MASTER §11 1-18 | 4D-FE last-known formal 18 evidence 记录房间 `formal-18-1778886172096-1` 通过，18/18 OK；03EK-E 未重跑 formal | PASS AS LAST-KNOWN MAIN-FLOW EVIDENCE | 该文件明确不替代 P0/P1、full-card matrix、完整 PaymentEngine / LayerEngine |
@@ -2299,14 +2315,14 @@ formal 18-step steps=18/18 OK
 
 | §13 item | 当前 evidence | 状态 |
 |---|---|---|
-| 1. 修改文件列表 | 当前 4D-03FE-E 同步 `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` 的 conformance guard 与 A-side current-state docs；未改 runtime、frontend、matrix 或 `riftbound-dotnet.sln` | DONE FOR THIS SLICE / NOT FINAL |
-| 2. 新增文件列表 | 当前 4D-03FE-E 新增 `docs/CURRENT_STAGE4D_03FE_E_CARD_MATRIX_READINESS_PAYMENT_COST_FAQ_OWNER_DISPOSITION_EVIDENCE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03FE_E_CARD_MATRIX_READINESS_PAYMENT_COST_FAQ_OWNER_DISPOSITION_EVIDENCE.md`；上一批 4D-03FD-A automated owner disposition evidence 仍作为 input evidence | DONE FOR THIS SLICE / NOT FINAL |
+| 1. 修改文件列表 | 当前 4D-03FF-E 同步 `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` 的 conformance guard 与 A-side current-state docs；未改 runtime、frontend、matrix 或 `riftbound-dotnet.sln` | DONE FOR THIS SLICE / NOT FINAL |
+| 2. 新增文件列表 | 当前 4D-03FF-E 新增 `docs/CURRENT_STAGE4D_03FF_E_CARD_MATRIX_READINESS_PAYMENT_COST_MATRIX_AUTHORIZATION_PREFLIGHT_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03FF_E_CARD_MATRIX_READINESS_PAYMENT_COST_MATRIX_AUTHORIZATION_PREFLIGHT.md`；上一批 4D-03FE-E FAQ owner disposition evidence 仍作为 input evidence | DONE FOR THIS SLICE / NOT FINAL |
 | 3. 服务端规则补齐项 | Stage 4D docs 记录大量 focused slices | PARTIAL |
 | 4. 前端页面完成项 | frontend rebuild plan、current-code Chrome smoke 与 current-code formal 18 有证据 | PARTIAL |
 | 5. 接口契约说明 | ActionPrompt / LegalAction / snapshot 证据分散在 server audit 与 frontend plan | PARTIAL |
 | 6. 卡牌覆盖矩阵摘要 | 1009 snapshot entries / 811 functional units，`fullOfficialTrue=0`、`fullOfficialFalse=811`、`ready=false` | NOT MET |
 | 7. 隐藏信息保护检查结果 | formal 18 页面文本断言、server audit P1-004 代表性 redaction/property evidence | PARTIAL |
-| 8. 后端 full test 命令和结果 | 4D-03FE-E focused `PaymentEngineCoverageAuditTests` 286/286、backend full `dotnet test Riftbound.slnx --no-restore` 4857/4857、`git diff --check` passed | PASS AS CURRENT FOCUSED / FULL-BACKEND EVIDENCE |
+| 8. 后端 full test 命令和结果 | 4D-03FF-E focused `PaymentEngineCoverageAuditTests` 288/288、backend full `dotnet test Riftbound.slnx --no-restore` 4859/4859、`git diff --check` passed | PASS AS CURRENT FOCUSED / FULL-BACKEND EVIDENCE |
 | 9. 前端 build / typecheck / lint | 4D-FE current-code `npm run build` pass | PASS AS LATEST FRONTEND BUILD EVIDENCE |
 | 10. Chrome smoke | 4D-FE current-code `npm run smoke:chrome -- --start-api` pass | PASS AS LATEST CHROME SMOKE EVIDENCE |
 | 11. 18 步 E2E | 4D-FE current-code formal 18 pass | PASS AS LATEST MAIN-FLOW EVIDENCE |
@@ -2395,4 +2411,4 @@ formal 18-step steps=18/18 OK
 
 Active goal **未完成**。不得调用 `update_goal complete`。
 
-当前最新 A-side 状态是 4D-03FE-E payment-cost E FAQ owner disposition evidence accepted；latest focused evidence 为 `PaymentEngineCoverageAuditTests` 286/286，current-head backend full evidence 为 4857/4857，baseCommit=2da77b63。P0/P1 清零、P0-004 adjacency audit-sensitive、full official PaymentEngine matrix closure、`E_CARD_MATRIX_READINESS`、完整 card matrix alignment official closure、完整 cross-window generated-resource official closure、完整 rollback failure official closure、完整 LayerEngine、P1 keyword breadth、full-card matrix、final frontend rerun、formal 18 final rerun 与 final completion audit READY 仍未闭合。
+当前最新 A-side 状态是 4D-03FF-E payment-cost matrix-readiness authorization preflight accepted；latest focused evidence 为 `PaymentEngineCoverageAuditTests` 288/288，current-head backend full evidence 为 4859/4859，baseCommit=88aaf5ed。P0/P1 清零、P0-004 adjacency audit-sensitive、full official PaymentEngine matrix closure、`E_CARD_MATRIX_READINESS`、完整 card matrix alignment official closure、完整 cross-window generated-resource official closure、完整 rollback failure official closure、完整 LayerEngine、P1 keyword breadth、full-card matrix、final frontend rerun、formal 18 final rerun 与 final completion audit READY 仍未闭合。
