@@ -85,6 +85,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string Post03ElCardMatrixReadinessFaqRuleSourceReviewPreflight = "post-03ek-e-card-matrix-readiness-faq-rule-source-review-preflight";
     private const string Post03EmCardMatrixReadinessEngineSupportFreshDispatch = "post-03el-e-card-matrix-readiness-engine-support-fresh-dispatch";
     private const string Post03EnCardMatrixReadinessEngineSupportImplementationHandoff = "post-03em-bd-card-matrix-readiness-engine-support-implementation-handoff";
+    private const string Post03EoCardMatrixReadinessEngineSupportRowQueryPartition = "post-03en-bd-card-matrix-readiness-engine-support-row-query-partition";
     private const string OfficialBreadthFullResourceSkillInteractionMatrixVerifierGate = "B_PAYMENT_ENGINE_OFFICIAL_BREADTH_FULL_RESOURCE_SKILL_ROW_INTERACTION_MATRIX_VERIFIER";
     private const string Post03DqResidualAuditGate = "D_COMPLETION_P0_AUDIT";
     private const string Post03DsBroaderOfficialBreadthGate = "B_PAYMENT_ENGINE_OFFICIAL_BREADTH_POST_03DS_RESIDUAL_OWNER_LOCK_VERIFIER";
@@ -106,6 +107,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string Post03ElCardMatrixReadinessFaqRuleSourceReviewPreflightGate = "E_CARD_MATRIX_FAQ_REVIEW_POST_03EK_E_FAQ_RULE_SOURCE_REVIEW_PREFLIGHT";
     private const string Post03EmCardMatrixReadinessEngineSupportFreshDispatchGate = "B_D_ENGINE_SUPPORT_POST_03EL_E_ENGINE_SUPPORT_FRESH_DISPATCH";
     private const string Post03EnCardMatrixReadinessEngineSupportImplementationHandoffGate = "B_D_ENGINE_SUPPORT_POST_03EM_BD_ENGINE_SUPPORT_IMPLEMENTATION_HANDOFF";
+    private const string Post03EoCardMatrixReadinessEngineSupportRowQueryPartitionGate = "B_D_ENGINE_SUPPORT_POST_03EN_BD_ENGINE_SUPPORT_ROW_QUERY_PARTITION";
     private const string NonTargetTypedActivatedAbilityResidualBreadthVerifierGate = "B_PAYMENT_ENGINE_OFFICIAL_BREADTH_NON_TARGET_TYPED_ACTIVATED_ABILITY_RESIDUAL_VERIFIER";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
@@ -6271,6 +6273,81 @@ public sealed class PaymentEngineCoverageAuditTests
                 [nameof(Post03EmCardMatrixReadinessEngineSupportFreshDispatchManifest), nameof(Post03ElCardMatrixReadinessFaqRuleSourceReviewPreflightManifest), nameof(Post03EkCardMatrixReadinessAutomatedEvidenceClosureEvidenceManifest), nameof(Post03EiCardMatrixReadinessOwnerWorkstreamSequencingContractManifest), nameof(Post03EhCardMatrixReadinessBlockerDispositionDispatchContractManifest), nameof(Post03EgCardMatrixReadinessJsonWriteAuthorizationBlockerDispositionVerifierManifest), nameof(Post03EfCardMatrixReadinessJsonWriteAuthorizationPreflightManifest)],
                 Post03EnCardMatrixReadinessEngineSupportImplementationHandoffDocAnchors)
         ];
+    }
+
+    private static readonly string[] Post03EoCardMatrixReadinessEngineSupportRowQueryPartitionDocAnchors =
+    [
+        "docs/CURRENT_STAGE4D_03EO_BD_CARD_MATRIX_READINESS_ENGINE_SUPPORT_ROW_QUERY_PARTITION_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03EO_BD_CARD_MATRIX_READINESS_ENGINE_SUPPORT_ROW_QUERY_PARTITION_BASELINE_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03EN_BD_CARD_MATRIX_READINESS_ENGINE_SUPPORT_IMPLEMENTATION_HANDOFF_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03EN_BD_CARD_MATRIX_READINESS_ENGINE_SUPPORT_IMPLEMENTATION_HANDOFF_BASELINE_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03EM_BD_CARD_MATRIX_READINESS_ENGINE_SUPPORT_FRESH_DISPATCH_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03EM_BD_CARD_MATRIX_READINESS_ENGINE_SUPPORT_FRESH_DISPATCH_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03EG_E_CARD_MATRIX_READINESS_JSON_WRITE_AUTHORIZATION_BLOCKER_DISPOSITION_VERIFIER_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03EG_E_CARD_MATRIX_READINESS_JSON_WRITE_AUTHORIZATION_BLOCKER_DISPOSITION_VERIFIER_EVIDENCE.md",
+        "docs/CURRENT_STAGE4D_03EF_E_CARD_MATRIX_READINESS_JSON_WRITE_AUTHORIZATION_PREFLIGHT_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03EF_E_CARD_MATRIX_READINESS_JSON_WRITE_AUTHORIZATION_PREFLIGHT_EVIDENCE.md",
+        "docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json",
+        "docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md",
+        "docs/CURRENT_COMPLETION_AUDIT.md",
+        "docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md",
+        "docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md",
+        "docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md",
+        "docs/CURRENT_A_MASTER_CHECKPOINT.md",
+        "docs/CURRENT_SERVER_RULE_AUDIT.md",
+        "docs/CURRENT_FRONTEND_REBUILD_PLAN.md"
+    ];
+
+    private static readonly PaymentEnginePost03EoCardMatrixReadinessEngineSupportRowQueryPartitionEntry[] Post03EoCardMatrixReadinessEngineSupportRowQueryPartitionManifest =
+        BuildPost03EoCardMatrixReadinessEngineSupportRowQueryPartitionManifest();
+
+    private static PaymentEnginePost03EoCardMatrixReadinessEngineSupportRowQueryPartitionEntry[] BuildPost03EoCardMatrixReadinessEngineSupportRowQueryPartitionManifest()
+    {
+        var handoff = Assert.Single(Post03EnCardMatrixReadinessEngineSupportImplementationHandoffManifest);
+        var engineSupportRows = Post03EgCardMatrixReadinessJsonWriteAuthorizationBlockerDispositionVerifierManifest
+            .Where(entry =>
+                string.Equals(entry.BlockerReason, "NEEDS_ENGINE_SUPPORT", StringComparison.Ordinal)
+                && string.Equals(entry.DispositionOwner, "B/D_ENGINE_SUPPORT", StringComparison.Ordinal))
+            .ToArray();
+
+        Assert.Equal(handoff.SelectedTotalBlockedFunctionalUnitRowHits, engineSupportRows.Sum(entry => entry.ExpectedBlockedFunctionalUnitCount));
+
+        return engineSupportRows
+            .Select(entry =>
+            {
+                var isFirstImplementationSlice = string.Equals(entry.MatrixRowQuery, "payment-cost", StringComparison.Ordinal);
+                var partitionId = $"bd-engine-support-{entry.MatrixRowQuery}";
+                var futureImplementationSlice = isFirstImplementationSlice
+                    ? "first recommended B/D implementation or D-side verifier slice: payment-cost engine-support closure evidence, because it is the narrowest PaymentEngine cost surface before broader timing / all-functional-unit partitions."
+                    : $"future B/D implementation or D-side verifier slice: {entry.MatrixRowQuery} engine-support closure evidence after payment-cost is accepted or explicitly reprioritized by A.";
+
+                return new PaymentEnginePost03EoCardMatrixReadinessEngineSupportRowQueryPartitionEntry(
+                    Post03EoCardMatrixReadinessEngineSupportRowQueryPartitionGate,
+                    handoff.DownstreamOwner,
+                    Post03EoCardMatrixReadinessEngineSupportRowQueryPartition,
+                    nameof(Post03EnCardMatrixReadinessEngineSupportImplementationHandoffManifest),
+                    nameof(Post03EgCardMatrixReadinessJsonWriteAuthorizationBlockerDispositionVerifierManifest),
+                    handoff.SelectedDispositionOwner,
+                    handoff.SelectedBlockerReason,
+                    handoff.SelectedSequencingLaneId,
+                    handoff.SelectedFollowupGateId,
+                    partitionId,
+                    entry.MatrixRowQuery,
+                    entry.ExpectedBlockedFunctionalUnitCount,
+                    handoff.SelectedTotalBlockedFunctionalUnitRowHits,
+                    handoff.PriorOwnerWorkstreams,
+                    handoff.PriorTotalBlockedFunctionalUnitRowHits,
+                    handoff.TotalRowQueryBlockerHits,
+                    isFirstImplementationSlice,
+                    $"4D-03EO-BD partitions B/D_ENGINE_SUPPORT / NEEDS_ENGINE_SUPPORT by row query: {entry.MatrixRowQuery} owns {entry.ExpectedBlockedFunctionalUnitCount} engine-support blocker hits; no partition may open matrix JSON writes or claim B/D closure without implementation or D-side verifier evidence.",
+                    $"required future evidence for {partitionId}: {futureImplementationSlice} It must include implementation or verifier diff, focused PaymentEngineCoverageAuditTests evidence, affected row-query trace, backend full test, current fullOfficial=false continuity, no matrix JSON write proof and later A acceptance audit.",
+                    $"matrix JSON write not authorized: 4D-03EO-BD only partitions 1926 B/D engine-support row-query blocker hits after 4D-03EN-BD; {entry.MatrixRowQuery} still has {entry.ExpectedBlockedFunctionalUnitCount} NEEDS_ENGINE_SUPPORT rows, fullOfficialTrue=0 and ready=false remain unchanged.",
+                    "Runtime implementation, frontend, Chrome / browser scripts, formal 18-step scripts, docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json, data/official/card-catalog.zh-CN.json, fullOfficial status, final readiness status and riftbound-dotnet.sln remain forbidden in the A-side 4D-03EO-BD partition artifact.",
+                    "4D-03EO-BD engine-support row-query partition only; project remains NOT READY, B/D_ENGINE_SUPPORT remains open, P0-005 remains open, P0-004 adjacency audit-sensitive remains open, P1 remains open, full official PaymentEngine matrix closure remains open, E_CARD_MATRIX_READINESS remains open, card matrix remains open and READY remains open.",
+                    [nameof(Post03EnCardMatrixReadinessEngineSupportImplementationHandoffManifest), nameof(Post03EmCardMatrixReadinessEngineSupportFreshDispatchManifest), nameof(Post03EgCardMatrixReadinessJsonWriteAuthorizationBlockerDispositionVerifierManifest), nameof(Post03EfCardMatrixReadinessJsonWriteAuthorizationPreflightManifest)],
+                    Post03EoCardMatrixReadinessEngineSupportRowQueryPartitionDocAnchors);
+            })
+            .ToArray();
     }
 
     private static PaymentEnginePost03DyReplacementOptionalAlternativeTaxParityVerifierEvidenceEntry[] BuildPost03DyReplacementOptionalAlternativeTaxParityVerifierEvidence()
@@ -17404,16 +17481,154 @@ public sealed class PaymentEngineCoverageAuditTests
     }
 
     [Fact]
-    public void PaymentEngineActiveGoalCompletionAuditMappingTracksCurrent03EnCardMatrixReadinessEngineSupportImplementationHandoff()
+    public void PaymentEnginePost03EoCardMatrixReadinessEngineSupportRowQueryPartitionSplitsBdLaneWithoutOpeningJsonWrite()
+    {
+        var repositoryRoot = ResolveRepositoryRoot();
+        var matrixPath = Path.Combine(repositoryRoot, "docs", "CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json");
+        using var document = JsonDocument.Parse(File.ReadAllText(matrixPath));
+        var root = document.RootElement;
+        var functionalUnits = root.GetProperty("functionalUnits").EnumerateArray().ToArray();
+        var snapshotEntries = root.GetProperty("snapshotEntries").EnumerateArray().ToArray();
+        var fullOfficialFunctionalUnits = functionalUnits
+            .Count(unit => unit.GetProperty("stage4B").GetProperty("fullOfficial").GetBoolean());
+        var freeze = root.GetProperty("stage4BCardCoverageFreeze");
+        var partitions = Post03EoCardMatrixReadinessEngineSupportRowQueryPartitionManifest;
+        var handoff = Assert.Single(Post03EnCardMatrixReadinessEngineSupportImplementationHandoffManifest);
+
+        Assert.Equal(1009, snapshotEntries.Length);
+        Assert.Equal(811, functionalUnits.Length);
+        Assert.Equal(0, fullOfficialFunctionalUnits);
+        Assert.False(freeze.GetProperty("ready").GetBoolean());
+
+        Assert.Equal(4, partitions.Length);
+        Assert.Equal(1926, partitions.Sum(entry => entry.ExpectedNeedsEngineSupportCount));
+        Assert.All(partitions, entry =>
+        {
+            Assert.Equal(Post03EoCardMatrixReadinessEngineSupportRowQueryPartitionGate, entry.GateId);
+            Assert.Equal("B/D_ENGINE_SUPPORT", entry.DownstreamOwner);
+            Assert.Equal(Post03EoCardMatrixReadinessEngineSupportRowQueryPartition, entry.Classification);
+            Assert.Equal(nameof(Post03EnCardMatrixReadinessEngineSupportImplementationHandoffManifest), entry.InputEngineSupportImplementationHandoffManifest);
+            Assert.Equal(nameof(Post03EgCardMatrixReadinessJsonWriteAuthorizationBlockerDispositionVerifierManifest), entry.InputBlockerDispositionManifest);
+            Assert.Equal("B/D_ENGINE_SUPPORT", entry.SelectedDispositionOwner);
+            Assert.Equal("NEEDS_ENGINE_SUPPORT", entry.SelectedBlockerReason);
+            Assert.Equal("lane-3-bd-engine-support-fresh-dispatch", entry.SelectedSequencingLaneId);
+            Assert.Equal("B_D_ENGINE_SUPPORT_CARD_MATRIX_BLOCKER_CLOSURE_POST_03EG_E", entry.SelectedFollowupGateId);
+            Assert.StartsWith("bd-engine-support-", entry.PartitionId, StringComparison.Ordinal);
+            Assert.Equal(handoff.SelectedTotalBlockedFunctionalUnitRowHits, entry.SelectedTotalBlockedFunctionalUnitRowHits);
+            Assert.Equal(handoff.PriorOwnerWorkstreams, entry.PriorOwnerWorkstreams);
+            Assert.Equal(2254, entry.PriorTotalBlockedFunctionalUnitRowHits);
+            Assert.Equal(4180, entry.TotalRowQueryBlockerHits);
+            Assert.Contains("no partition may open matrix JSON writes", entry.PartitionRequirement, StringComparison.Ordinal);
+            Assert.Contains("implementation or D-side verifier", entry.RequiredFutureEvidence, StringComparison.Ordinal);
+            Assert.Contains("focused PaymentEngineCoverageAuditTests evidence", entry.RequiredFutureEvidence, StringComparison.Ordinal);
+            Assert.Contains("backend full test", entry.RequiredFutureEvidence, StringComparison.Ordinal);
+            Assert.Contains("current fullOfficial=false continuity", entry.RequiredFutureEvidence, StringComparison.Ordinal);
+            Assert.Contains("no matrix JSON write proof", entry.RequiredFutureEvidence, StringComparison.Ordinal);
+            Assert.Contains("matrix JSON write not authorized", entry.JsonWriteAuthorizationStatus, StringComparison.Ordinal);
+            Assert.Contains("fullOfficialTrue=0", entry.JsonWriteAuthorizationStatus, StringComparison.Ordinal);
+            Assert.Contains("ready=false", entry.JsonWriteAuthorizationStatus, StringComparison.Ordinal);
+            Assert.Contains("Runtime implementation", entry.LockedScope, StringComparison.Ordinal);
+            Assert.Contains("frontend", entry.LockedScope, StringComparison.Ordinal);
+            Assert.Contains("docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json", entry.LockedScope, StringComparison.Ordinal);
+            Assert.Contains("data/official/card-catalog.zh-CN.json", entry.LockedScope, StringComparison.Ordinal);
+            Assert.Contains(nameof(Post03EnCardMatrixReadinessEngineSupportImplementationHandoffManifest), entry.SourceManifests);
+            Assert.Contains(nameof(Post03EmCardMatrixReadinessEngineSupportFreshDispatchManifest), entry.SourceManifests);
+            Assert.Contains(nameof(Post03EgCardMatrixReadinessJsonWriteAuthorizationBlockerDispositionVerifierManifest), entry.SourceManifests);
+            Assert.Contains(nameof(Post03EfCardMatrixReadinessJsonWriteAuthorizationPreflightManifest), entry.SourceManifests);
+            Assert.All(entry.DocAnchors, anchor => Assert.True(File.Exists(Path.Combine(repositoryRoot, anchor)), anchor));
+        });
+
+        Assert.Contains(partitions, entry => string.Equals(entry.MatrixRowQuery, "all-functional-units", StringComparison.Ordinal) && entry.ExpectedNeedsEngineSupportCount == 762);
+        Assert.Contains(partitions, entry => string.Equals(entry.MatrixRowQuery, "payment-cost", StringComparison.Ordinal) && entry.ExpectedNeedsEngineSupportCount == 360);
+        Assert.Contains(partitions, entry => string.Equals(entry.MatrixRowQuery, "payment-or-targeting-stack-timing", StringComparison.Ordinal) && entry.ExpectedNeedsEngineSupportCount == 548);
+        Assert.Contains(partitions, entry => string.Equals(entry.MatrixRowQuery, "payment-and-targeting-stack-timing", StringComparison.Ordinal) && entry.ExpectedNeedsEngineSupportCount == 256);
+
+        var firstSlice = Assert.Single(partitions, entry => entry.FirstImplementationSlice);
+        Assert.Equal("payment-cost", firstSlice.MatrixRowQuery);
+        Assert.Equal(360, firstSlice.ExpectedNeedsEngineSupportCount);
+        Assert.Contains("first recommended B/D implementation", firstSlice.RequiredFutureEvidence, StringComparison.Ordinal);
+        Assert.Contains("narrowest PaymentEngine cost surface", firstSlice.RequiredFutureEvidence, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEnginePost03EoCardMatrixReadinessEngineSupportRowQueryPartitionDoesNotClaimReadyOrFullOfficial()
+    {
+        var combinedText = string.Join(
+            " ",
+            Post03EoCardMatrixReadinessEngineSupportRowQueryPartitionManifest.SelectMany(entry => new[]
+            {
+                entry.GateId,
+                entry.DownstreamOwner,
+                entry.Classification,
+                entry.InputEngineSupportImplementationHandoffManifest,
+                entry.InputBlockerDispositionManifest,
+                entry.SelectedDispositionOwner,
+                entry.SelectedBlockerReason,
+                entry.SelectedSequencingLaneId,
+                entry.SelectedFollowupGateId,
+                entry.PartitionId,
+                entry.MatrixRowQuery,
+                entry.PartitionRequirement,
+                entry.RequiredFutureEvidence,
+                entry.JsonWriteAuthorizationStatus,
+                entry.LockedScope,
+                entry.NonClosureStatus
+            }.Concat(entry.PriorOwnerWorkstreams)
+                .Concat(entry.SourceManifests)
+                .Concat(entry.DocAnchors)));
+
+        Assert.Contains("4D-03EO-BD", combinedText, StringComparison.Ordinal);
+        Assert.Contains(Post03EoCardMatrixReadinessEngineSupportRowQueryPartition, combinedText, StringComparison.Ordinal);
+        Assert.Contains(Post03EoCardMatrixReadinessEngineSupportRowQueryPartitionGate, combinedText, StringComparison.Ordinal);
+        Assert.Contains("engine-support row-query partition only", combinedText, StringComparison.Ordinal);
+        Assert.Contains("4D-03EN-BD", combinedText, StringComparison.Ordinal);
+        Assert.Contains("payment-cost", combinedText, StringComparison.Ordinal);
+        Assert.Contains("matrix JSON write not authorized", combinedText, StringComparison.Ordinal);
+        Assert.Contains("NOT READY", combinedText, StringComparison.Ordinal);
+        Assert.Contains("B/D_ENGINE_SUPPORT remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-005 remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P0-004 adjacency audit-sensitive remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("P1 remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("full official PaymentEngine matrix closure remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("E_CARD_MATRIX_READINESS remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("card matrix remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("READY remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("READY remains open", string.Empty, StringComparison.Ordinal)
+                .Replace("E_CARD_MATRIX_READINESS", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal)
+                .Replace("CANNOT_READY", string.Empty, StringComparison.Ordinal)
+                .Replace("READY_UNIT", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineActiveGoalCompletionAuditMappingTracksCurrent03EoCardMatrixReadinessEngineSupportRowQueryPartition()
     {
         var repositoryRoot = ResolveRepositoryRoot();
         var completionAudit = File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_COMPLETION_AUDIT.md"));
         var checklist = File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md"));
         var completionMapping = ExtractSection(completionAudit, "## 0.1 Active Goal 门槛到证据映射", "## 1.");
         var completionActiveGoalTable = ExtractSection(completionAudit, "| Active goal 要求 | 当前证据 | 当前状态 |", "## 1.");
-        var checklistCurrentHead = ExtractSection(checklist, "当前 4D-03EN-BD", "上一批 4D-03EM-BD");
+        var checklistCurrentHead = ExtractSection(checklist, "当前 4D-03EO-BD", "上一批 4D-03EN-BD");
         var checklistMapping = ExtractSection(checklist, "## 3. 主目标门槛映射", "## 7.");
 
+        Assert.Contains("4D-03EO-BD", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("Post03EoCardMatrixReadinessEngineSupportRowQueryPartitionManifest", completionMapping, StringComparison.Ordinal);
+        Assert.Contains(Post03EoCardMatrixReadinessEngineSupportRowQueryPartition, completionMapping, StringComparison.Ordinal);
+        Assert.Contains(Post03EoCardMatrixReadinessEngineSupportRowQueryPartitionGate, completionMapping, StringComparison.Ordinal);
+        Assert.Contains("engine-support row-query partition", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("input engine-support implementation handoff manifest=Post03EnCardMatrixReadinessEngineSupportImplementationHandoffManifest", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("row-query partitions=all-functional-units / NEEDS_ENGINE_SUPPORT=762; payment-cost / NEEDS_ENGINE_SUPPORT=360; payment-or-targeting-stack-timing / NEEDS_ENGINE_SUPPORT=548; payment-and-targeting-stack-timing / NEEDS_ENGINE_SUPPORT=256", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("first recommended B/D implementation slice=payment-cost / NEEDS_ENGINE_SUPPORT=360", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("4D-03EN-BD remains input engine-support implementation handoff only", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("matrix JSON write not authorized", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("B/D_ENGINE_SUPPORT / NEEDS_ENGINE_SUPPORT=1926 remains open", completionMapping, StringComparison.Ordinal);
         Assert.Contains("4D-03EN-BD", completionMapping, StringComparison.Ordinal);
         Assert.Contains("Post03EnCardMatrixReadinessEngineSupportImplementationHandoffManifest", completionMapping, StringComparison.Ordinal);
         Assert.Contains(Post03EnCardMatrixReadinessEngineSupportImplementationHandoff, completionMapping, StringComparison.Ordinal);
@@ -17726,7 +17941,9 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.DoesNotContain("formal-18-1778623926434-15", completionMapping, StringComparison.Ordinal);
         Assert.DoesNotContain("IMPLEMENTED_TESTED 为 76", completionMapping, StringComparison.Ordinal);
 
-        Assert.Contains("当前 latest slice 为 4D-03EN-BD", completionActiveGoalTable, StringComparison.Ordinal);
+        Assert.Contains("当前 latest slice 为 4D-03EO-BD", completionActiveGoalTable, StringComparison.Ordinal);
+        Assert.Contains("Post03EoCardMatrixReadinessEngineSupportRowQueryPartitionManifest", completionActiveGoalTable, StringComparison.Ordinal);
+        Assert.Contains(Post03EoCardMatrixReadinessEngineSupportRowQueryPartition, completionActiveGoalTable, StringComparison.Ordinal);
         Assert.Contains("Post03EnCardMatrixReadinessEngineSupportImplementationHandoffManifest", completionActiveGoalTable, StringComparison.Ordinal);
         Assert.Contains(Post03EnCardMatrixReadinessEngineSupportImplementationHandoff, completionActiveGoalTable, StringComparison.Ordinal);
         Assert.Contains("Post03EmCardMatrixReadinessEngineSupportFreshDispatchManifest", completionActiveGoalTable, StringComparison.Ordinal);
@@ -17739,8 +17956,9 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Contains(Post03EjCardMatrixReadinessAutomatedEvidencePreflight, completionActiveGoalTable, StringComparison.Ordinal);
         Assert.Contains("Post03EiCardMatrixReadinessOwnerWorkstreamSequencingContractManifest", completionActiveGoalTable, StringComparison.Ordinal);
         Assert.Contains(Post03EiCardMatrixReadinessOwnerWorkstreamSequencingContract, completionActiveGoalTable, StringComparison.Ordinal);
-        Assert.Contains("focused `PaymentEngineCoverageAuditTests` 251/251", completionActiveGoalTable, StringComparison.Ordinal);
-        Assert.Contains("backend full `dotnet test Riftbound.slnx --no-restore` 4820/4820", completionActiveGoalTable, StringComparison.Ordinal);
+        Assert.Contains("focused `PaymentEngineCoverageAuditTests` 253/253", completionActiveGoalTable, StringComparison.Ordinal);
+        Assert.Contains("backend full `dotnet test Riftbound.slnx --no-restore` 4822/4822", completionActiveGoalTable, StringComparison.Ordinal);
+        Assert.Contains("engine-support row-query partition", completionActiveGoalTable, StringComparison.Ordinal);
         Assert.Contains("engine-support implementation handoff", completionActiveGoalTable, StringComparison.Ordinal);
         Assert.Contains("engine-support fresh dispatch", completionActiveGoalTable, StringComparison.Ordinal);
         Assert.Contains("FAQ / rule-source review preflight", completionActiveGoalTable, StringComparison.Ordinal);
@@ -17749,6 +17967,7 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Contains("owner workstream sequencing contract", completionActiveGoalTable, StringComparison.Ordinal);
         Assert.Contains("total row-query blocker hits=4180", completionActiveGoalTable, StringComparison.Ordinal);
         Assert.Contains("matrix JSON write not authorized", completionActiveGoalTable, StringComparison.Ordinal);
+        Assert.DoesNotContain("当前 latest slice 为 4D-03EN-BD", completionActiveGoalTable, StringComparison.Ordinal);
         Assert.DoesNotContain("当前 latest slice 为 4D-03EM-BD", completionActiveGoalTable, StringComparison.Ordinal);
         Assert.DoesNotContain("当前 latest slice 为 4D-03EL-E", completionActiveGoalTable, StringComparison.Ordinal);
         Assert.DoesNotContain("当前 latest slice 为 4D-03EK-E", completionActiveGoalTable, StringComparison.Ordinal);
@@ -17908,6 +18127,14 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Contains("4D-03EC-B", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("Post03EcUpstreamOfficialClosureVerifierEvidenceManifest", checklistMapping, StringComparison.Ordinal);
         Assert.Contains(Post03EcUpstreamOfficialClosureVerifierEvidence, checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("4D-03EO-BD", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("Post03EoCardMatrixReadinessEngineSupportRowQueryPartitionManifest", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains(Post03EoCardMatrixReadinessEngineSupportRowQueryPartition, checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("engine-support row-query partition", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("input engine-support implementation handoff manifest=Post03EnCardMatrixReadinessEngineSupportImplementationHandoffManifest", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("row-query partitions=all-functional-units / NEEDS_ENGINE_SUPPORT=762; payment-cost / NEEDS_ENGINE_SUPPORT=360; payment-or-targeting-stack-timing / NEEDS_ENGINE_SUPPORT=548; payment-and-targeting-stack-timing / NEEDS_ENGINE_SUPPORT=256", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("first recommended B/D implementation slice=payment-cost / NEEDS_ENGINE_SUPPORT=360", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("4D-03EN-BD remains input engine-support implementation handoff only", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("4D-03EN-BD", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("Post03EnCardMatrixReadinessEngineSupportImplementationHandoffManifest", checklistMapping, StringComparison.Ordinal);
         Assert.Contains(Post03EnCardMatrixReadinessEngineSupportImplementationHandoff, checklistMapping, StringComparison.Ordinal);
@@ -17972,39 +18199,41 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Contains("4D-03EE-E", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("Post03EeCardMatrixReadinessEvidenceToRowMappingVerifierManifest", checklistMapping, StringComparison.Ordinal);
         Assert.Contains(Post03EeCardMatrixReadinessEvidenceToRowMappingVerifier, checklistMapping, StringComparison.Ordinal);
-        Assert.Contains("当前 4D-03EN-BD", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("baseCommit=8cb387c2", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("Post03EnCardMatrixReadinessEngineSupportImplementationHandoffManifest turns 03EM into B/D implementation handoff", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("classification=post-03em-bd-card-matrix-readiness-engine-support-implementation-handoff", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("input engine-support fresh dispatch manifest=Post03EmCardMatrixReadinessEngineSupportFreshDispatchManifest", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("input FAQ / rule-source review preflight manifest=Post03ElCardMatrixReadinessFaqRuleSourceReviewPreflightManifest", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("input owner workstream sequencing manifest=Post03EiCardMatrixReadinessOwnerWorkstreamSequencingContractManifest", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("当前 4D-03EO-BD", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("baseCommit=6d6e33d0", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("Post03EoCardMatrixReadinessEngineSupportRowQueryPartitionManifest partitions 03EN into B/D row-query slices", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("classification=post-03en-bd-card-matrix-readiness-engine-support-row-query-partition", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("input engine-support implementation handoff manifest=Post03EnCardMatrixReadinessEngineSupportImplementationHandoffManifest", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("input blocker disposition manifest=Post03EgCardMatrixReadinessJsonWriteAuthorizationBlockerDispositionVerifierManifest", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("downstream owner=B/D_ENGINE_SUPPORT", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("concrete gate=B_D_ENGINE_SUPPORT_POST_03EM_BD_ENGINE_SUPPORT_IMPLEMENTATION_HANDOFF", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("engine-support implementation handoff=selected lane-3-bd-engine-support-fresh-dispatch", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("concrete gate=B_D_ENGINE_SUPPORT_POST_03EN_BD_ENGINE_SUPPORT_ROW_QUERY_PARTITION", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("engine-support row-query partition=selected lane-3-bd-engine-support-fresh-dispatch", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("selected lane=lane-3-bd-engine-support-fresh-dispatch", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("selected owner workstream=B/D_ENGINE_SUPPORT / NEEDS_ENGINE_SUPPORT=1926", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("row-query partitions=all-functional-units / NEEDS_ENGINE_SUPPORT=762; payment-cost / NEEDS_ENGINE_SUPPORT=360; payment-or-targeting-stack-timing / NEEDS_ENGINE_SUPPORT=548; payment-and-targeting-stack-timing / NEEDS_ENGINE_SUPPORT=256", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("first recommended B/D implementation slice=payment-cost / NEEDS_ENGINE_SUPPORT=360", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("prior owner workstreams=A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE / NEEDS_AUTOMATED_TEST_EVIDENCE=1790; E_CARD_MATRIX_FAQ_REVIEW / NEEDS_FAQ_REVIEW=464 preflighted", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("total row-query blocker hits=4180", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("future B/D write lock boundary", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("future B/D write lock boundary remains partitioned", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("engine implementation or D-side verifier evidence required", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("focused PaymentEngineCoverageAuditTests evidence", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("backend full test", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("row-query trace", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("current fullOfficial=false continuity", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("no matrix JSON write proof", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("focused PaymentEngineCoverageAuditTests=251/251", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("backend full current HEAD=4820/4820", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("focused PaymentEngineCoverageAuditTests=253/253", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("backend full current HEAD=4822/4822", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("matrix skeleton remains locked", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("fullOfficialTrue=0", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("ready=false", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("03EN-BD remains input engine-support implementation handoff only", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("03EM-BD remains input engine-support fresh dispatch only", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("03EL-E remains input FAQ / rule-source review preflight only", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("03EK-E remains input automated evidence closure evidence only", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("03EI-E remains input owner workstream sequencing contract only", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("03EH-E remains input owner workstream dispatch contract only", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("E_CARD_MATRIX_READINESS remains open", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("no runtime implementation write in this A-side handoff artifact", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("no runtime implementation write in this A-side partition artifact", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("matrix JSON write not authorized", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("no runtime / frontend / Chrome / formal 18 / card matrix JSON / official catalog / fullOfficial / final readiness / riftbound-dotnet.sln", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("does not authorize P0-005 / P1 / full official PaymentEngine matrix closure / card matrix / READY", checklistCurrentHead, StringComparison.Ordinal);
@@ -18024,6 +18253,7 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.DoesNotContain("当前 4D-03DM", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("当前 4D-03DL", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("当前 4D-03DK", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.DoesNotContain("当前 4D-03EN-BD", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("当前 4D-03EL-E", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("当前 4D-03EM-BD", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("当前 4D-03ED-E", checklistCurrentHead, StringComparison.Ordinal);
@@ -18063,8 +18293,10 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.DoesNotContain("focused PaymentEngineCoverageAuditTests=231/231", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("focused PaymentEngineCoverageAuditTests=243/243", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("focused PaymentEngineCoverageAuditTests=245/245", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.DoesNotContain("focused PaymentEngineCoverageAuditTests=251/251", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("backend full current HEAD=4812/4812", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("backend full current HEAD=4814/4814", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.DoesNotContain("backend full current HEAD=4820/4820", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("当前 4D-03DZ PaymentEngine post-03DY-B full official matrix dispatch", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("当前 4D-03DY-B PaymentEngine quote-command-audit parity verifier evidence", checklistCurrentHead, StringComparison.Ordinal);
         Assert.DoesNotContain("当前 4D-03DY PaymentEngine post-03DX-B replacement / optional / alternative / tax quote-command-audit parity dispatch", checklistCurrentHead, StringComparison.Ordinal);
@@ -18715,6 +18947,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(Post03ElCardMatrixReadinessFaqRuleSourceReviewPreflightManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(Post03EmCardMatrixReadinessEngineSupportFreshDispatchManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(Post03EnCardMatrixReadinessEngineSupportImplementationHandoffManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(Post03EoCardMatrixReadinessEngineSupportRowQueryPartitionManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TypedSigilOfficialRuntimeCardRowAuditManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TargetTypedActivatedAbilityOfficialFamilyVerifierManifest.SelectMany(entry => entry.DocAnchors))
@@ -19690,6 +19923,32 @@ public sealed class PaymentEngineCoverageAuditTests
         string RequiredFutureAcceptanceEvidence,
         string FutureWriteScope,
         string JsonWriteAuthorizationStatus,
+        string NonClosureStatus,
+        IReadOnlyList<string> SourceManifests,
+        IReadOnlyList<string> DocAnchors);
+
+    private sealed record PaymentEnginePost03EoCardMatrixReadinessEngineSupportRowQueryPartitionEntry(
+        string GateId,
+        string DownstreamOwner,
+        string Classification,
+        string InputEngineSupportImplementationHandoffManifest,
+        string InputBlockerDispositionManifest,
+        string SelectedDispositionOwner,
+        string SelectedBlockerReason,
+        string SelectedSequencingLaneId,
+        string SelectedFollowupGateId,
+        string PartitionId,
+        string MatrixRowQuery,
+        int ExpectedNeedsEngineSupportCount,
+        int SelectedTotalBlockedFunctionalUnitRowHits,
+        IReadOnlyList<string> PriorOwnerWorkstreams,
+        int PriorTotalBlockedFunctionalUnitRowHits,
+        int TotalRowQueryBlockerHits,
+        bool FirstImplementationSlice,
+        string PartitionRequirement,
+        string RequiredFutureEvidence,
+        string JsonWriteAuthorizationStatus,
+        string LockedScope,
         string NonClosureStatus,
         IReadOnlyList<string> SourceManifests,
         IReadOnlyList<string> DocAnchors);
