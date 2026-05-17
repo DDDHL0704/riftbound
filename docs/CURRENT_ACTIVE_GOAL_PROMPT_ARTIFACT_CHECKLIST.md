@@ -24,6 +24,8 @@
 
 ## 2. 本次检查过的证据
 
+- `docs/CURRENT_STAGE4D_03FA_E_CARD_MATRIX_READINESS_PAYMENT_COST_BLOCKER_DISPOSITION_WRITE_AUTHORIZATION_PREFLIGHT_AUDIT.md` 与 evidence：确认 4D-03FA-E 已把 03EZ-BD post-runtime closure-readiness preflight、03EY-BD runtime verifier evidence、03EU-A automated evidence、03EV-E FAQ / rule-source evidence 与 03EW-E matrix gate-hold evidence 绑定到 exact payment-cost rows；`Post03FaCardMatrixReadinessPaymentCostBlockerDispositionWriteAuthorizationPreflightManifest` classification=`post-03ez-e-card-matrix-readiness-payment-cost-blocker-disposition-write-authorization-preflight`，gate=`E_CARD_MATRIX_READINESS_POST_03EZ_PAYMENT_COST_BLOCKER_DISPOSITION_WRITE_AUTHORIZATION_PREFLIGHT`，input post-runtime closure-readiness preflight manifest=`Post03EzCardMatrixReadinessPaymentCostPostRuntimeClosureReadinessPreflightManifest`，input runtime verifier evidence manifest=`Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceManifest`，input automated evidence manifest=`Post03EuCardMatrixReadinessPaymentCostAutomatedEvidenceResidualClosureEvidenceManifest`，input FAQ / rule-source evidence manifest=`Post03EvCardMatrixReadinessPaymentCostFaqRuleSourceResidualDispositionEvidenceManifest`，input matrix gate-hold evidence manifest=`Post03EwCardMatrixReadinessPaymentCostMatrixReadinessGateHoldEvidenceManifest`，selected partition=bd-engine-support-payment-cost，selected matrix row query=payment-cost，selected blockers=NEEDS_ENGINE_SUPPORT; NEEDS_AUTOMATED_TEST_EVIDENCE; NEEDS_FAQ_REVIEW。该 preflight 只证明 future owner disposition execution 的 row-bound request shape；matrix JSON write not authorized，payment-cost blocker closure、B/D_ENGINE_SUPPORT、E_CARD_MATRIX_READINESS、card matrix 与 READY 仍 open。
+- `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`：确认新增 `Post03FaCardMatrixReadinessPaymentCostBlockerDispositionWriteAuthorizationPreflightManifest`、`PaymentEnginePost03FaCardMatrixReadinessPaymentCostBlockerDispositionWriteAuthorizationPreflightBindsExactRowsWithoutJsonWrite`、`PaymentEnginePost03FaCardMatrixReadinessPaymentCostBlockerDispositionWriteAuthorizationPreflightDoesNotClaimClosureOrReady`，并把 current-head mapping guard 切到 4D-03FA-E；focused `PaymentEngineCoverageAuditTests` 278/278、backend full 4849/4849、`git diff --check` passed。
 - `docs/CURRENT_STAGE4D_03EZ_BD_CARD_MATRIX_READINESS_PAYMENT_COST_POST_RUNTIME_CLOSURE_READINESS_PREFLIGHT_AUDIT.md` 与 evidence：确认 4D-03EZ-BD 已把 03EY-BD runtime verifier evidence 转成 post-runtime closure-readiness preflight；`Post03EzCardMatrixReadinessPaymentCostPostRuntimeClosureReadinessPreflightManifest` classification=`post-03ey-bd-card-matrix-readiness-payment-cost-post-runtime-closure-readiness-preflight`，gate=`B_D_ENGINE_SUPPORT_POST_03EY_PAYMENT_COST_POST_RUNTIME_CLOSURE_READINESS_PREFLIGHT`，input runtime verifier evidence manifest=`Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceManifest`，input matrix readiness gate-hold evidence manifest=`Post03EwCardMatrixReadinessPaymentCostMatrixReadinessGateHoldEvidenceManifest`，selected partition=bd-engine-support-payment-cost，selected matrix row query=payment-cost，selected blocker=NEEDS_ENGINE_SUPPORT。该 preflight 只确认 03EY runtime evidence 已被纳入下一步 closure-readiness 判断；下一步仍需 future scoped payment-cost blocker disposition / matrix-readiness write-authorization preflight 绑定 exact payment-cost rows；matrix JSON write not authorized，payment-cost blocker closure、B/D_ENGINE_SUPPORT、E_CARD_MATRIX_READINESS、card matrix 与 READY 仍 open。
 - `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`：确认新增 `Post03EzCardMatrixReadinessPaymentCostPostRuntimeClosureReadinessPreflightManifest`、`PaymentEnginePost03EzCardMatrixReadinessPaymentCostPostRuntimeClosureReadinessPreflightBindsRuntimeEvidenceWithoutJsonWrite`、`PaymentEnginePost03EzCardMatrixReadinessPaymentCostPostRuntimeClosureReadinessPreflightDoesNotClaimClosureOrReady`，并把 current-head mapping guard 切到 4D-03EZ-BD；focused `PaymentEngineCoverageAuditTests` 276/276、backend full 4847/4847、`git diff --check` passed。
 - `docs/CURRENT_STAGE4D_03EY_BD_CARD_MATRIX_READINESS_PAYMENT_COST_PRIMARY_RESIDUAL_RUNTIME_CLOSURE_VERIFIER_AUDIT.md` 与 evidence：确认 4D-03EY-BD 已把 03EX-BD 打开的 B/D runtime + verifier dispatch 落成一个 pending `PAY_COST` temporary payment resource runtime closure verifier evidence；`Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceManifest` classification=`post-03ex-bd-card-matrix-readiness-payment-cost-primary-residual-runtime-closure-verifier-evidence`，gate=`B_D_ENGINE_SUPPORT_POST_03EX_PAYMENT_COST_PRIMARY_RESIDUAL_RUNTIME_CLOSURE_VERIFIER_EVIDENCE`，input runtime closure dispatch manifest=`Post03ExCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureDispatchManifest`，selected partition=bd-engine-support-payment-cost，selected matrix row query=payment-cost，selected blocker=NEEDS_ENGINE_SUPPORT，dispatch owner=B/D_ENGINE_SUPPORT，dispatch lane=lane-1-bd-primary-engine-support-residual。runtime diff 限定在 `CoreRuleEngine.ResolvePendingPayCost` / `PaymentPlan` commit path：pending `PAY_COST` 在 temporary / Blue Sentinel materialization 后构建 `PaymentPlan`，并把 recycle、submitted temporary 与 materialized Blue Sentinel payment resource actions 写入 `paymentResourceActionIds`。primary residual=216、NEEDS_AUTOMATED_TEST_EVIDENCE residual=328、NEEDS_FAQ_REVIEW residual=92、primary NEEDS_FAQ_REVIEW residual=61 仍 open；matrix readiness gate remains held，matrix JSON write not authorized，payment-cost blocker closure、B/D_ENGINE_SUPPORT、E_CARD_MATRIX_READINESS、card matrix 与 READY 仍 open。
@@ -212,6 +214,57 @@ freezeStatus: IMPLEMENTED_TESTED=76, IMPLEMENTED_UNTESTED=4, NEEDS_ENGINE_SUPPOR
 fullOfficialTrue=0
 fullOfficialFalse=811
 ```
+
+当前 4D-03FA-E payment-cost blocker disposition / matrix-readiness write-authorization preflight：
+
+```txt
+baseCommit=9d414c33 test: 固定 03ez-bd payment-cost closure preflight
+focused PaymentEngineCoverageAuditTests=278/278
+adjacent PaymentEngineUnificationTests|BlueSentinelResourceSkillTests|ConformanceFixtureShapeTests=168/168
+backend full current HEAD=4849/4849
+git diff --check=passed
+Post03FaCardMatrixReadinessPaymentCostBlockerDispositionWriteAuthorizationPreflightManifest binds exact payment-cost row evidence
+classification=post-03ez-e-card-matrix-readiness-payment-cost-blocker-disposition-write-authorization-preflight
+input post-runtime closure-readiness preflight manifest=Post03EzCardMatrixReadinessPaymentCostPostRuntimeClosureReadinessPreflightManifest
+input runtime verifier evidence manifest=Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceManifest
+input automated evidence manifest=Post03EuCardMatrixReadinessPaymentCostAutomatedEvidenceResidualClosureEvidenceManifest
+input FAQ / rule-source evidence manifest=Post03EvCardMatrixReadinessPaymentCostFaqRuleSourceResidualDispositionEvidenceManifest
+input matrix gate-hold evidence manifest=Post03EwCardMatrixReadinessPaymentCostMatrixReadinessGateHoldEvidenceManifest
+selected partition=bd-engine-support-payment-cost
+selected matrix row query=payment-cost
+selected blockers=NEEDS_ENGINE_SUPPORT; NEEDS_AUTOMATED_TEST_EVIDENCE; NEEDS_FAQ_REVIEW
+gate=E_CARD_MATRIX_READINESS_POST_03EZ_PAYMENT_COST_BLOCKER_DISPOSITION_WRITE_AUTHORIZATION_PREFLIGHT
+downstream owner=E_CARD_MATRIX_READINESS
+preflight mode=payment-cost blocker disposition / matrix-readiness write-authorization preflight
+next required evidence=future owner disposition execution
+primary residual=216
+NEEDS_AUTOMATED_TEST_EVIDENCE residual=328
+NEEDS_FAQ_REVIEW residual=92
+primary NEEDS_FAQ_REVIEW residual=61
+payment-cost functionalUnits=360 / NEEDS_ENGINE_SUPPORT=360 / NEEDS_AUTOMATED_TEST_EVIDENCE=328 / NEEDS_FAQ_REVIEW=92
+freeze statuses=IMPLEMENTED_TESTED=31; SHARED_ORACLE_IMPLEMENTATION=52; NEEDS_ENGINE_SUPPORT=216; NEEDS_FAQ_REVIEW=61
+matrix readiness gate remains held
+payment-cost blocker closure remains open
+B/D_ENGINE_SUPPORT remains open
+E_CARD_MATRIX_READINESS remains open
+READY remains open
+focused PaymentEngineCoverageAuditTests evidence
+backend full test
+payment-cost row-query trace
+current fullOfficial=false continuity
+no matrix JSON write proof
+matrix skeleton remains locked
+fullOfficialTrue=0
+ready=false
+matrix JSON write not authorized
+frontend / Chrome / formal 18 / card matrix JSON / official catalog / fullOfficial / final readiness / riftbound-dotnet.sln remain locked
+does not authorize payment-cost blocker closure / P0-005 / P1 / full official PaymentEngine matrix closure / card matrix / READY
+Chrome smoke not run because there were no frontend or browser-script changes
+P0-005 / P0-004 adjacency audit-sensitive / P1 / broader PaymentEngine official breadth / full official [A] / [C] resource-skill row interactions / keyword payment branches / remaining payment windows / complete replacement / optional / alternative / tax quote-command-audit parity closure / full official PaymentEngine matrix closure / E_CARD_MATRIX_READINESS / card matrix / READY=open
+NOT READY
+```
+
+上一批 4D-03EZ-BD payment-cost post-runtime closure-readiness preflight remains input evidence for 4D-03FA-E。
 
 当前 4D-03EZ-BD payment-cost post-runtime closure-readiness preflight：
 
@@ -1949,6 +2002,8 @@ formal 18-step steps=18/18 OK
 ```
 
 ## 3. 主目标门槛映射
+
+当前 evidence chain trace：4D-03FA-E `Post03FaCardMatrixReadinessPaymentCostBlockerDispositionWriteAuthorizationPreflightManifest` / `post-03ez-e-card-matrix-readiness-payment-cost-blocker-disposition-write-authorization-preflight` is payment-cost blocker disposition / matrix-readiness write-authorization preflight for `E_CARD_MATRIX_READINESS_POST_03EZ_PAYMENT_COST_BLOCKER_DISPOSITION_WRITE_AUTHORIZATION_PREFLIGHT`。It takes input post-runtime closure-readiness preflight manifest=Post03EzCardMatrixReadinessPaymentCostPostRuntimeClosureReadinessPreflightManifest, input runtime verifier evidence manifest=Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceManifest, input automated evidence manifest=Post03EuCardMatrixReadinessPaymentCostAutomatedEvidenceResidualClosureEvidenceManifest, input FAQ / rule-source evidence manifest=Post03EvCardMatrixReadinessPaymentCostFaqRuleSourceResidualDispositionEvidenceManifest and input matrix gate-hold evidence manifest=Post03EwCardMatrixReadinessPaymentCostMatrixReadinessGateHoldEvidenceManifest。selected partition=bd-engine-support-payment-cost；selected matrix row query=payment-cost；selected blockers=NEEDS_ENGINE_SUPPORT; NEEDS_AUTOMATED_TEST_EVIDENCE; NEEDS_FAQ_REVIEW；downstream owner=E_CARD_MATRIX_READINESS。4D-03FA-E binds exact payment-cost rows before any future owner disposition execution: payment-cost functionalUnits=360；NEEDS_ENGINE_SUPPORT=360；NEEDS_AUTOMATED_TEST_EVIDENCE=328；NEEDS_FAQ_REVIEW=92；primary residual=216；primary NEEDS_FAQ_REVIEW residual=61。future owner disposition execution must still prove B/D primary residual=216 disposition, A automated evidence residual=328 closure, E FAQ residual=92 / primary FAQ residual=61 closure, focused PaymentEngineCoverageAuditTests, backend full, current fullOfficial=false continuity and explicit E_CARD_MATRIX_READINESS acceptance before any card matrix JSON write request。matrix readiness gate remains held；matrix JSON write not authorized；payment-cost blocker closure remains open；B/D_ENGINE_SUPPORT remains open；E_CARD_MATRIX_READINESS remains open；card matrix remains open；READY remains open；project remains NOT READY。A-side validation current-head backend full 4849/4849, focused `PaymentEngineCoverageAuditTests` 278/278 and `git diff --check` passed；4D-03FA-E accepts preflight only, no runtime, frontend or browser-script changes were made and Chrome smoke was not run。
 
 当前 evidence chain trace：4D-03EZ-BD `Post03EzCardMatrixReadinessPaymentCostPostRuntimeClosureReadinessPreflightManifest` / `post-03ey-bd-card-matrix-readiness-payment-cost-post-runtime-closure-readiness-preflight` is post-runtime payment-cost closure-readiness preflight for `B_D_ENGINE_SUPPORT_POST_03EY_PAYMENT_COST_POST_RUNTIME_CLOSURE_READINESS_PREFLIGHT`。It takes input runtime verifier evidence manifest=Post03EyCardMatrixReadinessPaymentCostPrimaryResidualRuntimeClosureVerifierEvidenceManifest and input matrix readiness gate-hold evidence manifest=Post03EwCardMatrixReadinessPaymentCostMatrixReadinessGateHoldEvidenceManifest。selected partition=bd-engine-support-payment-cost；selected matrix row query=payment-cost；selected blocker=NEEDS_ENGINE_SUPPORT；downstream owner=B/D_ENGINE_SUPPORT。accepted runtime evidence includes 4D-03EY-BD pending PAY_COST temporary payment resource runtime verifier evidence, PaymentEngineUnificationTests=42/42, BlueSentinelResourceSkillTests=12/12, focused PaymentEngineCoverageAuditTests=274/274 and backend full=4845/4845。next required evidence=future scoped payment-cost blocker disposition / matrix-readiness write-authorization preflight binding 4D-03EY runtime evidence, 4D-03EU automated evidence, 4D-03EV FAQ evidence and 4D-03EW gate-hold evidence to exact payment-cost rows before any matrix JSON write or blocker closure request。primary residual=216；NEEDS_AUTOMATED_TEST_EVIDENCE residual=328；NEEDS_FAQ_REVIEW residual=92；primary NEEDS_FAQ_REVIEW residual=61。matrix readiness gate remains held；matrix JSON write not authorized；payment-cost blocker closure remains open；B/D_ENGINE_SUPPORT remains open；E_CARD_MATRIX_READINESS remains open；card matrix remains open；READY remains open；project remains NOT READY。A-side validation current-head backend full 4847/4847, focused `PaymentEngineCoverageAuditTests` 276/276 and `git diff --check` passed；4D-03EZ-BD accepts preflight only, no runtime, frontend or browser-script changes were made and Chrome smoke was not run。
 
