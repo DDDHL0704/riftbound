@@ -24,7 +24,37 @@
 
 ## 2. 本次检查过的证据
 
-当前 4D-03GT-E:
+当前 4D-03GU-E:
+
+```txt
+Post03GuCardMatrixReadinessPaymentCostFlameChompersSourceUnitTargetingStackBlockerClosureCandidateManifest records payment-cost Flame Chompers source-unit targeting-stack blocker closure candidate
+classification=post-03gt-e-card-matrix-readiness-payment-cost-flame-chompers-source-unit-targeting-stack-blocker-closure-candidate
+gate=E_CARD_MATRIX_READINESS_POST_03GT_PAYMENT_COST_FLAME_CHOMPERS_SOURCE_UNIT_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE
+input previous closure candidate manifest=Post03GtCardMatrixReadinessPaymentCostEdgeOfNightEquipmentTargetingStackBlockerClosureCandidateManifest
+selected functionalUnit=FU-af2c43c430
+selected card=OGN·006/298 嚼火者手雷
+payment-cost functionalUnits=360
+payment-cost snapshotEntries=446
+NEEDS_ENGINE_SUPPORT 323 -> 322
+primary residual 182 -> 182
+payment-or-targeting-stack-timing NEEDS_ENGINE_SUPPORT 511 -> 510
+payment-and-targeting-stack-timing NEEDS_ENGINE_SUPPORT 220 -> 219
+NEEDS_AUTOMATED_TEST_EVIDENCE residual=328
+NEEDS_FAQ_REVIEW residual=92
+primary NEEDS_FAQ_REVIEW residual=61
+fullOfficialTrue=0
+ready=false
+discard replacement pay-red-power path remains open
+cleanup/replacement queue remains open
+FEPR / targeting-timing breadth remains open
+payment-cost blocker closure remains partially open
+B/D_ENGINE_SUPPORT payment-cost residual remains open
+A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE payment-cost residual remains open
+E_CARD_MATRIX_FAQ_REVIEW payment-cost residual remains open
+READY remains open
+```
+
+上一批 4D-03GT-E:
 
 ```txt
 Post03GtCardMatrixReadinessPaymentCostEdgeOfNightEquipmentTargetingStackBlockerClosureCandidateManifest records payment-cost Edge of Night equipment targeting-stack blocker closure candidate
@@ -3457,6 +3487,7 @@ formal 18-step steps=18/18 OK
 
 | 要求 | 必需 artifact / gate | 已检查证据 | 当前状态 | 缺口 / 下一步 |
 |---|---|---|---|---|
+| A 维护当前 4D-03GU-E 矩阵候选 | `Post03GuCardMatrixReadinessPaymentCostFlameChompersSourceUnitTargetingStackBlockerClosureCandidateManifest` / `E_CARD_MATRIX_READINESS_POST_03GT_PAYMENT_COST_FLAME_CHOMPERS_SOURCE_UNIT_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE` | 当前 latest slice 为 4D-03GU-E；Post03GuCardMatrixReadinessPaymentCostFlameChompersSourceUnitTargetingStackBlockerClosureCandidateManifest records payment-cost Flame Chompers source-unit targeting-stack blocker closure candidate；classification=post-03gt-e-card-matrix-readiness-payment-cost-flame-chompers-source-unit-targeting-stack-blocker-closure-candidate；gate=E_CARD_MATRIX_READINESS_POST_03GT_PAYMENT_COST_FLAME_CHOMPERS_SOURCE_UNIT_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE；input previous closure candidate manifest=Post03GtCardMatrixReadinessPaymentCostEdgeOfNightEquipmentTargetingStackBlockerClosureCandidateManifest；selected functionalUnit=FU-af2c43c430；selected card=OGN·006/298 嚼火者手雷；payment-cost functionalUnits=360；payment-cost snapshotEntries=446；NEEDS_ENGINE_SUPPORT 323 -> 322；primary residual 182 -> 182；payment-or-targeting-stack-timing NEEDS_ENGINE_SUPPORT 511 -> 510；payment-and-targeting-stack-timing NEEDS_ENGINE_SUPPORT 220 -> 219；NEEDS_AUTOMATED_TEST_EVIDENCE residual=328；NEEDS_FAQ_REVIEW residual=92；primary NEEDS_FAQ_REVIEW residual=61；fullOfficialTrue=0；ready=false；discard replacement pay-red-power path remains open；cleanup/replacement queue remains open；FEPR / targeting-timing breadth remains open；Chrome smoke not run because there were no frontend or browser-script changes | OK FOR THIS SLICE / NOT FINAL | payment-cost blocker closure remains partially open；B/D_ENGINE_SUPPORT payment-cost residual remains open；A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE payment-cost residual remains open；E_CARD_MATRIX_FAQ_REVIEW payment-cost residual remains open；E_CARD_MATRIX_READINESS remains open；READY remains open |
 | A 维护当前 4D-03GT-E 矩阵候选 | `Post03GtCardMatrixReadinessPaymentCostEdgeOfNightEquipmentTargetingStackBlockerClosureCandidateManifest` / `E_CARD_MATRIX_READINESS_POST_03GS_PAYMENT_COST_EDGE_OF_NIGHT_EQUIPMENT_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE` | 当前 latest slice 为 4D-03GT-E；Post03GtCardMatrixReadinessPaymentCostEdgeOfNightEquipmentTargetingStackBlockerClosureCandidateManifest records payment-cost Edge of Night equipment targeting-stack blocker closure candidate；classification=post-03gs-e-card-matrix-readiness-payment-cost-edge-of-night-equipment-targeting-stack-blocker-closure-candidate；gate=E_CARD_MATRIX_READINESS_POST_03GS_PAYMENT_COST_EDGE_OF_NIGHT_EQUIPMENT_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE；input previous closure candidate manifest=Post03GsCardMatrixReadinessPaymentCostBerserkImpulseOpponentTopUnitTargetingStackBlockerClosureCandidateManifest；selected functionalUnit=FU-804412488c；selected card=SFD·139/221 夜之锋刃；payment-cost functionalUnits=360；payment-cost snapshotEntries=446；NEEDS_ENGINE_SUPPORT 324 -> 323；primary residual 182 -> 182；payment-or-targeting-stack-timing NEEDS_ENGINE_SUPPORT 512 -> 511；payment-and-targeting-stack-timing NEEDS_ENGINE_SUPPORT 221 -> 220；NEEDS_AUTOMATED_TEST_EVIDENCE residual=328；NEEDS_FAQ_REVIEW residual=92；primary NEEDS_FAQ_REVIEW residual=61；fullOfficialTrue=0；ready=false；equipment layer / continuous-effect breadth remains open；hidden-zone standby immediate attach breadth remains open；Chrome smoke not run because there were no frontend or browser-script changes | OK FOR THIS SLICE / NOT FINAL | payment-cost blocker closure remains partially open；B/D_ENGINE_SUPPORT payment-cost residual remains open；A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE payment-cost residual remains open；E_CARD_MATRIX_FAQ_REVIEW payment-cost residual remains open；E_CARD_MATRIX_READINESS remains open；READY remains open |
 | A 维护上一批 4D-03GS-E 矩阵候选 | `Post03GsCardMatrixReadinessPaymentCostBerserkImpulseOpponentTopUnitTargetingStackBlockerClosureCandidateManifest` / `E_CARD_MATRIX_READINESS_POST_03GR_PAYMENT_COST_BERSERK_IMPULSE_OPPONENT_TOP_UNIT_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE` | 当前 latest slice 为 4D-03GS-E；Post03GsCardMatrixReadinessPaymentCostBerserkImpulseOpponentTopUnitTargetingStackBlockerClosureCandidateManifest records payment-cost Berserk Impulse opponent-top-unit targeting-stack blocker closure candidate；classification=post-03gr-e-card-matrix-readiness-payment-cost-berserk-impulse-opponent-top-unit-targeting-stack-blocker-closure-candidate；gate=E_CARD_MATRIX_READINESS_POST_03GR_PAYMENT_COST_BERSERK_IMPULSE_OPPONENT_TOP_UNIT_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE；input previous closure candidate manifest=Post03GrCardMatrixReadinessPaymentCostZhonyasHourglassEquipmentTargetingStackBlockerClosureCandidateManifest；selected functionalUnit=FU-b05eda44ce；selected card=OGN·025/298 暴怒冲动；payment-cost functionalUnits=360；payment-cost snapshotEntries=446；NEEDS_ENGINE_SUPPORT 325 -> 324；primary residual 182 -> 182；payment-or-targeting-stack-timing NEEDS_ENGINE_SUPPORT 513 -> 512；payment-and-targeting-stack-timing NEEDS_ENGINE_SUPPORT 222 -> 221；NEEDS_AUTOMATED_TEST_EVIDENCE residual=328；NEEDS_FAQ_REVIEW residual=92；primary NEEDS_FAQ_REVIEW residual=61；fullOfficialTrue=0；ready=false；hidden-zone reveal / choose / recycle breadth remains open；battle/spell-duel breadth remains open；Chrome smoke not run because there were no frontend or browser-script changes | OK FOR THIS SLICE / NOT FINAL | payment-cost blocker closure remains partially open；B/D_ENGINE_SUPPORT payment-cost residual remains open；A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE payment-cost residual remains open；E_CARD_MATRIX_FAQ_REVIEW payment-cost residual remains open；E_CARD_MATRIX_READINESS remains open；READY remains open |
 | A 维护上一批 4D-03GR-E 矩阵候选 | `Post03GrCardMatrixReadinessPaymentCostZhonyasHourglassEquipmentTargetingStackBlockerClosureCandidateManifest` / `E_CARD_MATRIX_READINESS_POST_03GQ_PAYMENT_COST_ZHONYAS_HOURGLASS_EQUIPMENT_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE` | 当前 latest slice 为 4D-03GR-E；Post03GrCardMatrixReadinessPaymentCostZhonyasHourglassEquipmentTargetingStackBlockerClosureCandidateManifest records payment-cost Zhonyas Hourglass equipment targeting-stack blocker closure candidate；classification=post-03gq-e-card-matrix-readiness-payment-cost-zhonyas-hourglass-equipment-targeting-stack-blocker-closure-candidate；gate=E_CARD_MATRIX_READINESS_POST_03GQ_PAYMENT_COST_ZHONYAS_HOURGLASS_EQUIPMENT_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE；input previous closure candidate manifest=Post03GqCardMatrixReadinessPaymentCostShieldWallMoveFriendlyTargetingStackBlockerClosureCandidateManifest；selected functionalUnit=FU-fb79eea7fc；selected card=OGN·077/298 中娅沙漏；payment-cost functionalUnits=360；payment-cost snapshotEntries=446；NEEDS_ENGINE_SUPPORT 326 -> 325；primary residual 182 -> 182；payment-or-targeting-stack-timing NEEDS_ENGINE_SUPPORT 514 -> 513；payment-and-targeting-stack-timing NEEDS_ENGINE_SUPPORT 223 -> 222；NEEDS_AUTOMATED_TEST_EVIDENCE residual=328；NEEDS_FAQ_REVIEW residual=92；primary NEEDS_FAQ_REVIEW residual=61；fullOfficialTrue=0；ready=false；Chrome smoke not run because there were no frontend or browser-script changes | OK FOR THIS SLICE / NOT FINAL | payment-cost blocker closure remains partially open；B/D_ENGINE_SUPPORT payment-cost residual remains open；A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE payment-cost residual remains open；E_CARD_MATRIX_FAQ_REVIEW payment-cost residual remains open；E_CARD_MATRIX_READINESS remains open；READY remains open |
