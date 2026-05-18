@@ -133,6 +133,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string Post03GhCardMatrixReadinessPaymentCostPoppySpellshieldYordleTargetingStackBlockerClosureCandidate = "post-03gg-e-card-matrix-readiness-payment-cost-poppy-spellshield-yordle-targeting-stack-blocker-closure-candidate";
     private const string Post03GiCardMatrixReadinessPaymentCostLuxSpellOnlyResourceTargetingStackBlockerClosureCandidate = "post-03gh-e-card-matrix-readiness-payment-cost-lux-spell-only-resource-targeting-stack-blocker-closure-candidate";
     private const string Post03GjCardMatrixReadinessPaymentCostHuntingRhythmBanishBattlefieldTargetingStackBlockerClosureCandidate = "post-03gi-e-card-matrix-readiness-payment-cost-hunting-rhythm-banish-battlefield-targeting-stack-blocker-closure-candidate";
+    private const string Post03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidate = "post-03gj-e-card-matrix-readiness-payment-cost-hard-bargain-counter-spell-targeting-stack-blocker-closure-candidate";
     private const string OfficialBreadthFullResourceSkillInteractionMatrixVerifierGate = "B_PAYMENT_ENGINE_OFFICIAL_BREADTH_FULL_RESOURCE_SKILL_ROW_INTERACTION_MATRIX_VERIFIER";
     private const string Post03DqResidualAuditGate = "D_COMPLETION_P0_AUDIT";
     private const string Post03DsBroaderOfficialBreadthGate = "B_PAYMENT_ENGINE_OFFICIAL_BREADTH_POST_03DS_RESIDUAL_OWNER_LOCK_VERIFIER";
@@ -202,6 +203,7 @@ public sealed class PaymentEngineCoverageAuditTests
     private const string Post03GhCardMatrixReadinessPaymentCostPoppySpellshieldYordleTargetingStackBlockerClosureCandidateGate = "E_CARD_MATRIX_READINESS_POST_03GG_PAYMENT_COST_POPPY_SPELLSHIELD_YORDLE_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE";
     private const string Post03GiCardMatrixReadinessPaymentCostLuxSpellOnlyResourceTargetingStackBlockerClosureCandidateGate = "E_CARD_MATRIX_READINESS_POST_03GH_PAYMENT_COST_LUX_SPELL_ONLY_RESOURCE_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE";
     private const string Post03GjCardMatrixReadinessPaymentCostHuntingRhythmBanishBattlefieldTargetingStackBlockerClosureCandidateGate = "E_CARD_MATRIX_READINESS_POST_03GI_PAYMENT_COST_HUNTING_RHYTHM_BANISH_BATTLEFIELD_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE";
+    private const string Post03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidateGate = "E_CARD_MATRIX_READINESS_POST_03GJ_PAYMENT_COST_HARD_BARGAIN_COUNTER_SPELL_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE";
     private const string NonTargetTypedActivatedAbilityResidualBreadthVerifierGate = "B_PAYMENT_ENGINE_OFFICIAL_BREADTH_NON_TARGET_TYPED_ACTIVATED_ABILITY_RESIDUAL_VERIFIER";
 
     private static readonly PaymentEngineActionWindowCoverageEntry[] CoverageManifest =
@@ -8854,6 +8856,33 @@ public sealed class PaymentEngineCoverageAuditTests
     private static readonly PaymentEnginePost03FjCardMatrixReadinessPaymentCostBlockerClosureCandidateEntry[] Post03GjCardMatrixReadinessPaymentCostHuntingRhythmBanishBattlefieldTargetingStackBlockerClosureCandidateManifest =
         BuildPost03GjCardMatrixReadinessPaymentCostHuntingRhythmBanishBattlefieldTargetingStackBlockerClosureCandidateManifest();
 
+    private static readonly string[] Post03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidateDocAnchors =
+    [
+        "docs/CURRENT_STAGE4D_03GK_E_CARD_MATRIX_READINESS_PAYMENT_COST_HARD_BARGAIN_COUNTER_SPELL_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03GK_E_CARD_MATRIX_READINESS_PAYMENT_COST_HARD_BARGAIN_COUNTER_SPELL_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE.md",
+        "docs/rules-evidence-index.md",
+        "docs/p2-rules-preflight.md",
+        "docs/CURRENT_P2_STATUS.md",
+        "docs/CURRENT_FRONTEND_REBUILD_PLAN.md",
+        "docs/CURRENT_SERVER_RULE_AUDIT.md",
+        "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+        "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+        "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hard-bargain-counter-spell-decline-pay.fixture.json",
+        "docs/CURRENT_STAGE4D_03GJ_E_CARD_MATRIX_READINESS_PAYMENT_COST_HUNTING_RHYTHM_BANISH_BATTLEFIELD_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE_AUDIT.md",
+        "docs/CURRENT_STAGE4D_03GJ_E_CARD_MATRIX_READINESS_PAYMENT_COST_HUNTING_RHYTHM_BANISH_BATTLEFIELD_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE.md",
+        "docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json",
+        "docs/CURRENT_COMPLETION_AUDIT.md",
+        "docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md",
+        "docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md",
+        "docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md",
+        "docs/CURRENT_A_MASTER_CHECKPOINT.md",
+        "docs/CURRENT_SERVER_RULE_AUDIT.md",
+        "docs/CURRENT_FRONTEND_REBUILD_PLAN.md"
+    ];
+
+    private static readonly PaymentEnginePost03FjCardMatrixReadinessPaymentCostBlockerClosureCandidateEntry[] Post03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidateManifest =
+        BuildPost03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidateManifest();
+
     private static PaymentEnginePost03FjCardMatrixReadinessPaymentCostBlockerClosureCandidateEntry[] BuildPost03FjCardMatrixReadinessPaymentCostBlockerClosureCandidateManifest()
     {
         var isolatedDiff = Assert.Single(Post03FiCardMatrixReadinessPaymentCostMatrixJsonIsolatedDiffVerifierManifest);
@@ -10365,6 +10394,62 @@ public sealed class PaymentEngineCoverageAuditTests
                 "4D-03GJ-E payment-cost Hunting Rhythm banish-to-battlefield targeting-stack blocker closure candidate only; project remains NOT READY, payment-cost blocker closure remains partially open, B/D_ENGINE_SUPPORT payment-cost residual remains open, A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE payment-cost residual remains open, E_CARD_MATRIX_FAQ_REVIEW payment-cost residual remains open, P0-005 remains open, P0-004 adjacency audit-sensitive remains open, P1 remains open, full official PaymentEngine matrix closure remains open, E_CARD_MATRIX_READINESS remains open, card matrix remains open and READY remains open.",
                 [nameof(Post03GiCardMatrixReadinessPaymentCostLuxSpellOnlyResourceTargetingStackBlockerClosureCandidateManifest), nameof(Post03GhCardMatrixReadinessPaymentCostPoppySpellshieldYordleTargetingStackBlockerClosureCandidateManifest), nameof(Post03GgCardMatrixReadinessPaymentCostMovingPerchSpellshieldTokenTargetingStackBlockerClosureCandidateManifest)],
                 Post03GjCardMatrixReadinessPaymentCostHuntingRhythmBanishBattlefieldTargetingStackBlockerClosureCandidateDocAnchors)
+        ];
+    }
+
+    private static PaymentEnginePost03FjCardMatrixReadinessPaymentCostBlockerClosureCandidateEntry[] BuildPost03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidateManifest()
+    {
+        var previousCandidate = Assert.Single(Post03GjCardMatrixReadinessPaymentCostHuntingRhythmBanishBattlefieldTargetingStackBlockerClosureCandidateManifest);
+
+        Assert.Equal(Post03GjCardMatrixReadinessPaymentCostHuntingRhythmBanishBattlefieldTargetingStackBlockerClosureCandidateGate, previousCandidate.GateId);
+        Assert.Equal("E_CARD_MATRIX_READINESS", previousCandidate.DownstreamOwner);
+        Assert.Equal(333, previousCandidate.NeedsEngineSupportAfter);
+        Assert.Equal(189, previousCandidate.PrimaryNeedsEngineSupportAfter);
+        Assert.Equal(328, previousCandidate.NeedsAutomatedTestEvidenceAfter);
+        Assert.Equal(92, previousCandidate.NeedsFaqReviewAfter);
+        Assert.Equal(0, previousCandidate.FullOfficialTrueAfter);
+        Assert.False(previousCandidate.ExpectedReady);
+
+        return
+        [
+            new(
+                Post03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidateGate,
+                "E_CARD_MATRIX_READINESS",
+                Post03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidate,
+                nameof(Post03GjCardMatrixReadinessPaymentCostHuntingRhythmBanishBattlefieldTargetingStackBlockerClosureCandidateManifest),
+                previousCandidate.SelectedPartitionId,
+                previousCandidate.SelectedMatrixRowQuery,
+                "FU-81cecf5c79",
+                "SFD·136/221",
+                "强买强卖",
+                "HARD_BARGAIN_COUNTER_SPELL_TARGET_DECLINES_PAY_2_NO_ECHO",
+                "payment-cost Hard Bargain counter-spell targeting-stack blocker closure candidate accepted for one direct-card-behavior row with existing p2 preflight, fixture, registry, P2 status and rules-evidence coverage; this is a row-level engine-support blocker reduction, not full official readiness.",
+                previousCandidate.PaymentCostFunctionalUnitsAfter,
+                previousCandidate.PaymentCostFunctionalUnitsAfter,
+                previousCandidate.PaymentCostSnapshotEntriesAfter,
+                previousCandidate.PaymentCostSnapshotEntriesAfter,
+                previousCandidate.NeedsEngineSupportAfter,
+                332,
+                previousCandidate.NeedsAutomatedTestEvidenceAfter,
+                previousCandidate.NeedsAutomatedTestEvidenceAfter,
+                previousCandidate.NeedsFaqReviewAfter,
+                previousCandidate.NeedsFaqReviewAfter,
+                previousCandidate.PrimaryNeedsEngineSupportAfter,
+                188,
+                previousCandidate.PrimaryNeedsFaqReviewAfter,
+                previousCandidate.PrimaryNeedsFaqReviewAfter,
+                previousCandidate.ExpectedSnapshotEntryCount,
+                previousCandidate.ExpectedFunctionalUnitCount,
+                previousCandidate.FullOfficialTrueAfter,
+                previousCandidate.FullOfficialTrueAfter,
+                previousCandidate.ExpectedReady,
+                "exact selected row transition: FU-81cecf5c79 / SFD·136/221 强买强卖 moves freezeStatus NEEDS_ENGINE_SUPPORT -> IMPLEMENTED_UNTESTED, statusFlags IMPLEMENTED_UNTESTED+NEEDS_ENGINE_SUPPORT -> IMPLEMENTED_UNTESTED and fullOfficialBlockers NEEDS_ENGINE_SUPPORT+NEEDS_AUTOMATED_TEST_EVIDENCE -> NEEDS_AUTOMATED_TEST_EVIDENCE.",
+                "blocker-count reduction verified: payment-cost functionalUnits 360 -> 360, payment-cost snapshotEntries 446 -> 446, NEEDS_ENGINE_SUPPORT 333 -> 332, primary residual 189 -> 188, payment-or-targeting-stack-timing NEEDS_ENGINE_SUPPORT 521 -> 520, payment-and-targeting-stack-timing NEEDS_ENGINE_SUPPORT 230 -> 229, NEEDS_AUTOMATED_TEST_EVIDENCE 328 -> 328, NEEDS_FAQ_REVIEW 92 -> 92, primary FAQ residual 61 -> 61, fullOfficialTrue 0 -> 0 and ready false -> false.",
+                "runtime, frontend, Chrome / browser scripts, formal 18-step scripts, data/official/card-catalog.zh-CN.json, non-selected matrix rows, fullOfficial status, final readiness status and riftbound-dotnet.sln remain locked.",
+                "next required evidence: continue payment-cost blocker closure with broader residual reductions, automated evidence disposition, FAQ disposition, focused/full validation, Chrome/formal reruns where applicable and final completion audit before READY.",
+                "4D-03GK-E payment-cost Hard Bargain counter-spell targeting-stack blocker closure candidate only; project remains NOT READY, payment-cost blocker closure remains partially open, B/D_ENGINE_SUPPORT payment-cost residual remains open, A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE payment-cost residual remains open, E_CARD_MATRIX_FAQ_REVIEW payment-cost residual remains open, P0-005 remains open, P0-004 adjacency audit-sensitive remains open, P1 remains open, full official PaymentEngine matrix closure remains open, E_CARD_MATRIX_READINESS remains open, card matrix remains open and READY remains open.",
+                [nameof(Post03GjCardMatrixReadinessPaymentCostHuntingRhythmBanishBattlefieldTargetingStackBlockerClosureCandidateManifest), nameof(Post03GiCardMatrixReadinessPaymentCostLuxSpellOnlyResourceTargetingStackBlockerClosureCandidateManifest), nameof(Post03GhCardMatrixReadinessPaymentCostPoppySpellshieldYordleTargetingStackBlockerClosureCandidateManifest)],
+                Post03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidateDocAnchors)
         ];
     }
 
@@ -20512,7 +20597,7 @@ public sealed class PaymentEngineCoverageAuditTests
             Assert.Contains(nameof(RemainingOfficialClosureGateManifest), entry.SourceManifests);
             Assert.Equal(entry.ExpectedFunctionalUnitCount, CountPost03EeMatrixRows(functionalUnits, entry.MatrixRowQuery));
             Assert.Equal(
-                AdjustPost03FiExpectedNeedsEngineSupportCountForCurrent03GjCandidates(entry.MatrixRowQuery, entry.ExpectedNeedsEngineSupportCount),
+                AdjustPost03FiExpectedNeedsEngineSupportCountForCurrent03GkCandidates(entry.MatrixRowQuery, entry.ExpectedNeedsEngineSupportCount),
                 CountPost03EfMatrixRowsWithBlocker(functionalUnits, entry.MatrixRowQuery, "NEEDS_ENGINE_SUPPORT"));
             Assert.Equal(entry.ExpectedNeedsAutomatedTestEvidenceCount, CountPost03EfMatrixRowsWithBlocker(functionalUnits, entry.MatrixRowQuery, "NEEDS_AUTOMATED_TEST_EVIDENCE"));
             Assert.Equal(entry.ExpectedNeedsFaqReviewCount, CountPost03EfMatrixRowsWithBlocker(functionalUnits, entry.MatrixRowQuery, "NEEDS_FAQ_REVIEW"));
@@ -20622,7 +20707,7 @@ public sealed class PaymentEngineCoverageAuditTests
             Assert.Contains(nameof(Post03EdCardMatrixReadinessMappingPreflightManifest), entry.SourceManifests);
             Assert.True(entry.BlockerReason is "NEEDS_ENGINE_SUPPORT" or "NEEDS_AUTOMATED_TEST_EVIDENCE" or "NEEDS_FAQ_REVIEW");
             var expectedCurrentBlockedFunctionalUnitCount = string.Equals(entry.BlockerReason, "NEEDS_ENGINE_SUPPORT", StringComparison.Ordinal)
-                ? AdjustPost03FiExpectedNeedsEngineSupportCountForCurrent03GjCandidates(entry.MatrixRowQuery, entry.ExpectedBlockedFunctionalUnitCount)
+                ? AdjustPost03FiExpectedNeedsEngineSupportCountForCurrent03GkCandidates(entry.MatrixRowQuery, entry.ExpectedBlockedFunctionalUnitCount)
                 : entry.ExpectedBlockedFunctionalUnitCount;
 
             Assert.Equal(expectedCurrentBlockedFunctionalUnitCount, CountPost03EfMatrixRowsWithBlocker(functionalUnits, entry.MatrixRowQuery, entry.BlockerReason));
@@ -21681,12 +21766,12 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Equal(216, dispatch.ExpectedPrimaryNeedsEngineSupportCount);
         Assert.Equal(61, dispatch.ExpectedPrimaryNeedsFaqReviewCount);
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
         Assert.Equal(31, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "IMPLEMENTED_TESTED"));
         Assert.Equal(52, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "SHARED_ORACLE_IMPLEMENTATION"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
 
         Assert.Contains("payment-cost / NEEDS_ENGINE_SUPPORT=360 only", dispatch.WorkerWriteLockBoundary, StringComparison.Ordinal);
@@ -21841,12 +21926,12 @@ public sealed class PaymentEngineCoverageAuditTests
         });
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
         Assert.Equal(31, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "IMPLEMENTED_TESTED"));
         Assert.Equal(52, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "SHARED_ORACLE_IMPLEMENTATION"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
 
         var combinedRepresentativeTests = string.Join(" ", evidenceRows.SelectMany(entry => entry.RepresentativeTests));
@@ -21995,10 +22080,10 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Contains(auditRows, entry => entry.ClosureReadinessStatus.Contains("fullOfficialTrue=0", StringComparison.Ordinal));
         Assert.Contains(auditRows, entry => entry.ClosureReadinessStatus.Contains("ready=false", StringComparison.Ordinal));
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
     }
 
@@ -22151,10 +22236,10 @@ public sealed class PaymentEngineCoverageAuditTests
         });
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
     }
 
@@ -22298,10 +22383,10 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.All(evidence.DocAnchors, anchor => Assert.True(File.Exists(Path.Combine(repositoryRoot, anchor)), anchor));
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
     }
 
@@ -22448,10 +22533,10 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.All(evidence.DocAnchors, anchor => Assert.True(File.Exists(Path.Combine(repositoryRoot, anchor)), anchor));
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
     }
 
@@ -22597,10 +22682,10 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.All(evidence.DocAnchors, anchor => Assert.True(File.Exists(Path.Combine(repositoryRoot, anchor)), anchor));
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
     }
 
@@ -22755,10 +22840,10 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.All(evidence.DocAnchors, anchor => Assert.True(File.Exists(Path.Combine(repositoryRoot, anchor)), anchor));
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
     }
 
@@ -23245,12 +23330,12 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.False(preflight.ExpectedReady);
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
         Assert.Equal(31, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "IMPLEMENTED_TESTED"));
         Assert.Equal(52, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "SHARED_ORACLE_IMPLEMENTATION"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
 
         Assert.Contains(nameof(Post03EzCardMatrixReadinessPaymentCostPostRuntimeClosureReadinessPreflightManifest), preflight.SourceManifests);
@@ -23385,7 +23470,7 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Equal(0, dispatch.ExpectedFullOfficialTrueCount);
         Assert.False(dispatch.ExpectedReady);
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
 
@@ -23521,10 +23606,10 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Equal(0, evidence.ExpectedFullOfficialTrueCount);
         Assert.False(evidence.ExpectedReady);
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
 
         Assert.Contains(nameof(Post03FbCardMatrixReadinessPaymentCostOwnerDispositionExecutionDispatchManifest), evidence.SourceManifests);
@@ -23665,10 +23750,10 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Equal(0, evidence.ExpectedFullOfficialTrueCount);
         Assert.False(evidence.ExpectedReady);
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
 
         Assert.Contains(nameof(Post03FbCardMatrixReadinessPaymentCostOwnerDispositionExecutionDispatchManifest), evidence.SourceManifests);
@@ -23813,10 +23898,10 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Equal(0, evidence.ExpectedFullOfficialTrueCount);
         Assert.False(evidence.ExpectedReady);
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
 
         Assert.Contains(nameof(Post03FbCardMatrixReadinessPaymentCostOwnerDispositionExecutionDispatchManifest), evidence.SourceManifests);
@@ -23966,10 +24051,10 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Equal(0, preflight.ExpectedFullOfficialTrueCount);
         Assert.False(preflight.ExpectedReady);
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
 
         Assert.Contains(nameof(Post03FcCardMatrixReadinessPaymentCostBdPrimaryOwnerDispositionEvidenceManifest), preflight.SourceManifests);
@@ -24116,10 +24201,10 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Equal(0, verifier.ExpectedFullOfficialTrueCount);
         Assert.False(verifier.ExpectedReady);
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
 
         Assert.Contains(nameof(Post03FfCardMatrixReadinessPaymentCostMatrixAuthorizationPreflightManifest), verifier.SourceManifests);
@@ -24258,10 +24343,10 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Equal(0, authorization.ExpectedFullOfficialTrueCount);
         Assert.False(authorization.ExpectedReady);
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
 
         Assert.Contains(nameof(Post03FgCardMatrixReadinessPaymentCostMatrixJsonWriteAuthorizationVerifierManifest), authorization.SourceManifests);
@@ -24406,10 +24491,10 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
         Assert.Equal(360, transitionGroups.Sum(group => group.GetProperty("count").GetInt32()));
         Assert.All(transitionGroups, group => Assert.Contains("unchanged", group.GetProperty("transition").GetString(), StringComparison.Ordinal));
@@ -24546,10 +24631,10 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
 
         Assert.Equal(360, rowCountContinuity.GetProperty("paymentCostFunctionalUnitsBefore").GetInt32());
@@ -24699,13 +24784,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(359, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(358, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -24859,13 +24944,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(358, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(357, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -25019,13 +25104,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(357, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(356, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -25179,13 +25264,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(356, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(355, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -25339,13 +25424,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(355, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(354, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -25499,13 +25584,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(354, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(353, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -25659,13 +25744,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(353, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(352, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -25819,13 +25904,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(352, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(351, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -25980,13 +26065,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(351, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(350, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -26141,13 +26226,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(350, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(349, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -26302,13 +26387,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(349, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(348, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -26463,13 +26548,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(348, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(347, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -26624,13 +26709,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(347, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(346, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -26785,13 +26870,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(346, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(345, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -26946,13 +27031,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(345, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(344, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -27107,13 +27192,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(344, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(343, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -27268,13 +27353,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(343, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(342, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -27430,13 +27515,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(342, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(341, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -27592,13 +27677,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(341, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(340, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -27754,13 +27839,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(340, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(339, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -27916,13 +28001,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(339, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(338, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -28078,13 +28163,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(338, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(337, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -28243,13 +28328,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(337, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(336, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -28405,13 +28490,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(336, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(335, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -28568,13 +28653,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(335, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(334, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -28730,13 +28815,13 @@ public sealed class PaymentEngineCoverageAuditTests
 
         Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
         Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
-        Assert.Equal(333, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
         Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(189, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
         Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
-        Assert.Equal(521, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
-        Assert.Equal(230, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
 
         Assert.Equal(334, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
         Assert.Equal(333, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
@@ -28838,29 +28923,193 @@ public sealed class PaymentEngineCoverageAuditTests
             StringComparison.Ordinal);
     }
 
+
     [Fact]
-    public void PaymentEngineActiveGoalCompletionAuditMappingTracksCurrent03GjCardMatrixReadinessPaymentCostHuntingRhythmBanishBattlefieldTargetingStackBlockerClosureCandidate()
+    public void PaymentEnginePost03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidateReducesTwentyEighthEngineSupportBlocker()
+    {
+        var repositoryRoot = ResolveRepositoryRoot();
+        using var matrixDocument = JsonDocument.Parse(File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json")));
+        var root = matrixDocument.RootElement;
+        var snapshotEntries = root.GetProperty("snapshotEntries").EnumerateArray().ToArray();
+        var functionalUnits = root.GetProperty("functionalUnits").EnumerateArray().ToArray();
+        var freeze = root.GetProperty("stage4BCardCoverageFreeze");
+        var closureCandidate = root.GetProperty("stage4D03GkPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidate");
+        var rowCountContinuity = closureCandidate.GetProperty("rowCountContinuity");
+        var selectedTransition = closureCandidate.GetProperty("selectedRowTransition");
+        var writeScope = closureCandidate.GetProperty("writeScope");
+        var manifest = Assert.Single(Post03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidateManifest);
+        var selectedFunctionalUnit = Assert.Single(
+            functionalUnits,
+            unit => string.Equals(unit.GetProperty("functionalUnitId").GetString(), manifest.SelectedFunctionalUnitId, StringComparison.Ordinal));
+        var selectedSnapshotEntry = Assert.Single(
+            snapshotEntries,
+            entry => string.Equals(entry.GetProperty("functionalUnitId").GetString(), manifest.SelectedFunctionalUnitId, StringComparison.Ordinal));
+
+        Assert.Equal(1009, snapshotEntries.Length);
+        Assert.Equal(811, functionalUnits.Length);
+        Assert.Equal(0, functionalUnits.Count(unit => unit.TryGetProperty("fullOfficial", out var fullOfficial) && fullOfficial.ValueKind == JsonValueKind.True));
+        Assert.False(freeze.GetProperty("ready").GetBoolean());
+
+        Assert.Equal(Post03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidateGate, manifest.GateId);
+        Assert.Equal("E_CARD_MATRIX_READINESS", manifest.DownstreamOwner);
+        Assert.Equal(Post03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidate, manifest.Classification);
+        Assert.Equal(nameof(Post03GjCardMatrixReadinessPaymentCostHuntingRhythmBanishBattlefieldTargetingStackBlockerClosureCandidateManifest), manifest.InputIsolatedDiffVerifierManifest);
+        Assert.Equal("bd-engine-support-payment-cost", manifest.SelectedPartitionId);
+        Assert.Equal("payment-cost", manifest.SelectedMatrixRowQuery);
+        Assert.Equal("FU-81cecf5c79", manifest.SelectedFunctionalUnitId);
+        Assert.Equal("SFD·136/221", manifest.SelectedCardNo);
+        Assert.Equal("强买强卖", manifest.SelectedCardName);
+        Assert.Equal("HARD_BARGAIN_COUNTER_SPELL_TARGET_DECLINES_PAY_2_NO_ECHO", manifest.SelectedEffectKind);
+
+        Assert.Equal("4D-03GK-E", closureCandidate.GetProperty("stage").GetString());
+        Assert.Equal(Post03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidate, closureCandidate.GetProperty("classification").GetString());
+        Assert.Equal(Post03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidateGate, closureCandidate.GetProperty("gate").GetString());
+        Assert.Equal(nameof(Post03GjCardMatrixReadinessPaymentCostHuntingRhythmBanishBattlefieldTargetingStackBlockerClosureCandidateManifest), closureCandidate.GetProperty("inputPreviousClosureCandidateManifest").GetString());
+        Assert.Equal(manifest.SelectedFunctionalUnitId, closureCandidate.GetProperty("selectedFunctionalUnitId").GetString());
+        Assert.Equal("payment-and-targeting-stack-timing", closureCandidate.GetProperty("selectedSecondaryMatrixRowQuery").GetString());
+        Assert.True(writeScope.GetProperty("isolatedToPaymentCostRow").GetBoolean());
+        Assert.True(writeScope.GetProperty("affectedTargetingStackTimingRow").GetBoolean());
+        Assert.Equal(1, writeScope.GetProperty("functionalUnitsChanged").GetInt32());
+        Assert.Equal(1, writeScope.GetProperty("snapshotEntriesChanged").GetInt32());
+        Assert.False(writeScope.GetProperty("nonPaymentCostRowsChanged").GetBoolean());
+        Assert.True(writeScope.GetProperty("stage4BFreezeStatusChanged").GetBoolean());
+        Assert.True(writeScope.GetProperty("stage4BStatusFlagsChanged").GetBoolean());
+        Assert.False(writeScope.GetProperty("fullOfficialChanged").GetBoolean());
+        Assert.False(writeScope.GetProperty("readyChanged").GetBoolean());
+
+        Assert.Equal(360, CountPost03EeMatrixRows(functionalUnits, "payment-cost"));
+        Assert.Equal(446, CountPost03EeMatrixRows(snapshotEntries, "payment-cost"));
+        Assert.Equal(332, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(328, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_AUTOMATED_TEST_EVIDENCE"));
+        Assert.Equal(92, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-cost", "NEEDS_FAQ_REVIEW"));
+        Assert.Equal(188, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(61, CountPost03EpPaymentCostRowsByStage4BFreezeStatus(functionalUnits, "NEEDS_FAQ_REVIEW"));
+        Assert.Equal(520, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-or-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+        Assert.Equal(229, CountPost03EfMatrixRowsWithBlocker(functionalUnits, "payment-and-targeting-stack-timing", "NEEDS_ENGINE_SUPPORT"));
+
+        Assert.Equal(333, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsBefore").GetInt32());
+        Assert.Equal(332, rowCountContinuity.GetProperty("needsEngineSupportFunctionalUnitsAfter").GetInt32());
+        Assert.Equal(189, rowCountContinuity.GetProperty("primaryNeedsEngineSupportBefore").GetInt32());
+        Assert.Equal(188, rowCountContinuity.GetProperty("primaryNeedsEngineSupportAfter").GetInt32());
+        Assert.Equal(521, rowCountContinuity.GetProperty("paymentOrTargetingStackTimingNeedsEngineSupportBefore").GetInt32());
+        Assert.Equal(520, rowCountContinuity.GetProperty("paymentOrTargetingStackTimingNeedsEngineSupportAfter").GetInt32());
+        Assert.Equal(230, rowCountContinuity.GetProperty("paymentAndTargetingStackTimingNeedsEngineSupportBefore").GetInt32());
+        Assert.Equal(229, rowCountContinuity.GetProperty("paymentAndTargetingStackTimingNeedsEngineSupportAfter").GetInt32());
+        Assert.Equal(0, rowCountContinuity.GetProperty("fullOfficialTrueAfter").GetInt32());
+        Assert.False(rowCountContinuity.GetProperty("readyAfter").GetBoolean());
+
+        Assert.Equal("NEEDS_ENGINE_SUPPORT", selectedTransition.GetProperty("beforeFreezeStatus").GetString());
+        Assert.Equal("IMPLEMENTED_UNTESTED", selectedTransition.GetProperty("afterFreezeStatus").GetString());
+        Assert.Equal("IMPLEMENTED_UNTESTED", selectedFunctionalUnit.GetProperty("stage4B").GetProperty("freezeStatus").GetString());
+        Assert.Equal("IMPLEMENTED_UNTESTED", selectedSnapshotEntry.GetProperty("stage4B").GetProperty("freezeStatus").GetString());
+        Assert.True(HasStringArrayValue(selectedFunctionalUnit, "uncoveredEffectCategories", "payment-cost"));
+        Assert.True(HasStringArrayValue(selectedFunctionalUnit, "uncoveredEffectCategories", "targeting-stack-timing"));
+        Assert.False(HasStage4BBlocker(selectedFunctionalUnit, "NEEDS_ENGINE_SUPPORT"));
+        Assert.True(HasStage4BBlocker(selectedFunctionalUnit, "NEEDS_AUTOMATED_TEST_EVIDENCE"));
+        Assert.False(selectedFunctionalUnit.GetProperty("stage4B").GetProperty("fullOfficial").GetBoolean());
+
+        Assert.Equal(332, manifest.NeedsEngineSupportAfter);
+        Assert.Equal(188, manifest.PrimaryNeedsEngineSupportAfter);
+        Assert.Equal(328, manifest.NeedsAutomatedTestEvidenceAfter);
+        Assert.Equal(92, manifest.NeedsFaqReviewAfter);
+        Assert.Equal(0, manifest.FullOfficialTrueAfter);
+        Assert.False(manifest.ExpectedReady);
+        Assert.All(manifest.DocAnchors, anchor => Assert.True(File.Exists(Path.Combine(repositoryRoot, anchor)), anchor));
+    }
+
+    [Fact]
+    public void PaymentEnginePost03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidateDoesNotClaimReady()
+    {
+        var repositoryRoot = ResolveRepositoryRoot();
+        using var matrixDocument = JsonDocument.Parse(File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json")));
+        var closureCandidate = matrixDocument.RootElement.GetProperty("stage4D03GkPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidate");
+        var combinedText = string.Join(
+            " ",
+            Post03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidateManifest.SelectMany(entry => new[]
+            {
+                entry.GateId,
+                entry.DownstreamOwner,
+                entry.Classification,
+                entry.InputIsolatedDiffVerifierManifest,
+                entry.SelectedPartitionId,
+                entry.SelectedMatrixRowQuery,
+                entry.SelectedFunctionalUnitId,
+                entry.SelectedCardNo,
+                entry.SelectedCardName,
+                entry.SelectedEffectKind,
+                entry.ClosureCandidateStatus,
+                entry.SelectedRowTransitionEvidence,
+                entry.BlockerCountReductionEvidence,
+                entry.LockedScope,
+                entry.RequiredNextEvidence,
+                entry.NonClosureStatus,
+                closureCandidate.GetProperty("statusImpact").GetString() ?? string.Empty
+            }.Concat(entry.SourceManifests)
+                .Concat(entry.DocAnchors)
+                .Concat(closureCandidate.GetProperty("nonClosure").EnumerateArray().Select(item => item.GetString() ?? string.Empty))));
+
+        Assert.Contains("4D-03GK-E", combinedText, StringComparison.Ordinal);
+        Assert.Contains(Post03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidate, combinedText, StringComparison.Ordinal);
+        Assert.Contains(Post03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidateGate, combinedText, StringComparison.Ordinal);
+        Assert.Contains(nameof(Post03GjCardMatrixReadinessPaymentCostHuntingRhythmBanishBattlefieldTargetingStackBlockerClosureCandidateManifest), combinedText, StringComparison.Ordinal);
+        Assert.Contains("FU-81cecf5c79", combinedText, StringComparison.Ordinal);
+        Assert.Contains("SFD·136/221", combinedText, StringComparison.Ordinal);
+        Assert.Contains("强买强卖", combinedText, StringComparison.Ordinal);
+        Assert.Contains("NEEDS_ENGINE_SUPPORT 333 -> 332", combinedText, StringComparison.Ordinal);
+        Assert.Contains("primary residual 189 -> 188", combinedText, StringComparison.Ordinal);
+        Assert.Contains("payment-or-targeting-stack-timing NEEDS_ENGINE_SUPPORT 521 -> 520", combinedText, StringComparison.Ordinal);
+        Assert.Contains("payment-and-targeting-stack-timing NEEDS_ENGINE_SUPPORT 230 -> 229", combinedText, StringComparison.Ordinal);
+        Assert.Contains("NEEDS_AUTOMATED_TEST_EVIDENCE 328 -> 328", combinedText, StringComparison.Ordinal);
+        Assert.Contains("NEEDS_FAQ_REVIEW 92 -> 92", combinedText, StringComparison.Ordinal);
+        Assert.Contains("fullOfficialTrue 0 -> 0", combinedText, StringComparison.Ordinal);
+        Assert.Contains("ready false -> false", combinedText, StringComparison.Ordinal);
+        Assert.Contains("payment-cost blocker closure remains partially open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("B/D_ENGINE_SUPPORT payment-cost residual remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE payment-cost residual remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("E_CARD_MATRIX_FAQ_REVIEW payment-cost residual remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("E_CARD_MATRIX_READINESS remains open", combinedText, StringComparison.Ordinal);
+        Assert.Contains("READY remains open", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("FullOfficialRulePass", combinedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("fullOfficial=true", combinedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            "READY",
+            combinedText
+                .Replace("NOT READY", string.Empty, StringComparison.Ordinal)
+                .Replace("READY remains open", string.Empty, StringComparison.Ordinal)
+                .Replace("no READY claim", string.Empty, StringComparison.Ordinal)
+                .Replace("before READY", string.Empty, StringComparison.Ordinal)
+                .Replace("E_CARD_MATRIX_READINESS", string.Empty, StringComparison.Ordinal)
+                .Replace("ECHO_READY", string.Empty, StringComparison.Ordinal)
+                .Replace("HASTE_READY", string.Empty, StringComparison.Ordinal)
+                .Replace("OPTIONAL_READY_POWER", string.Empty, StringComparison.Ordinal)
+                .Replace("CANNOT_READY", string.Empty, StringComparison.Ordinal)
+                .Replace("READY_UNIT", string.Empty, StringComparison.Ordinal),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PaymentEngineActiveGoalCompletionAuditMappingTracksCurrent03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidate()
     {
         var repositoryRoot = ResolveRepositoryRoot();
         var completionAudit = File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_COMPLETION_AUDIT.md"));
         var checklist = File.ReadAllText(Path.Combine(repositoryRoot, "docs", "CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md"));
         var completionMapping = ExtractSection(completionAudit, "## 0.1 Active Goal 门槛到证据映射", "## 1.");
         var completionActiveGoalTable = ExtractSection(completionAudit, "| Active goal 要求 | 当前证据 | 当前状态 |", "## 1.");
-        var checklistCurrentHead = ExtractSection(checklist, "当前 4D-03GJ-E", "上一批 4D-03GI-E");
+        var checklistCurrentHead = ExtractSection(checklist, "当前 4D-03GK-E", "上一批 4D-03GJ-E");
         var checklistMapping = ExtractSection(checklist, "## 3. 主目标门槛映射", "## 7.");
 
-        Assert.Contains("4D-03GJ-E", completionMapping, StringComparison.Ordinal);
-        Assert.Contains("Post03GjCardMatrixReadinessPaymentCostHuntingRhythmBanishBattlefieldTargetingStackBlockerClosureCandidateManifest", completionMapping, StringComparison.Ordinal);
-        Assert.Contains(Post03GjCardMatrixReadinessPaymentCostHuntingRhythmBanishBattlefieldTargetingStackBlockerClosureCandidate, completionMapping, StringComparison.Ordinal);
-        Assert.Contains(Post03GjCardMatrixReadinessPaymentCostHuntingRhythmBanishBattlefieldTargetingStackBlockerClosureCandidateGate, completionMapping, StringComparison.Ordinal);
-        Assert.Contains("payment-cost Hunting Rhythm banish-to-battlefield targeting-stack blocker closure candidate", completionMapping, StringComparison.Ordinal);
-        Assert.Contains("input previous closure candidate manifest=Post03GiCardMatrixReadinessPaymentCostLuxSpellOnlyResourceTargetingStackBlockerClosureCandidateManifest", completionMapping, StringComparison.Ordinal);
-        Assert.Contains("selected functionalUnit=FU-d3afd3a6db", completionMapping, StringComparison.Ordinal);
-        Assert.Contains("selected card=UNL-184/219 狩猎律动", completionMapping, StringComparison.Ordinal);
-        Assert.Contains("NEEDS_ENGINE_SUPPORT 334 -> 333", completionMapping, StringComparison.Ordinal);
-        Assert.Contains("primary residual 190 -> 189", completionMapping, StringComparison.Ordinal);
-        Assert.Contains("payment-or-targeting-stack-timing NEEDS_ENGINE_SUPPORT 522 -> 521", completionMapping, StringComparison.Ordinal);
-        Assert.Contains("payment-and-targeting-stack-timing NEEDS_ENGINE_SUPPORT 231 -> 230", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("4D-03GK-E", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("Post03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidateManifest", completionMapping, StringComparison.Ordinal);
+        Assert.Contains(Post03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidate, completionMapping, StringComparison.Ordinal);
+        Assert.Contains(Post03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidateGate, completionMapping, StringComparison.Ordinal);
+        Assert.Contains("payment-cost Hard Bargain counter-spell targeting-stack blocker closure candidate", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("input previous closure candidate manifest=Post03GjCardMatrixReadinessPaymentCostHuntingRhythmBanishBattlefieldTargetingStackBlockerClosureCandidateManifest", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("selected functionalUnit=FU-81cecf5c79", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("selected card=SFD·136/221 强买强卖", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("NEEDS_ENGINE_SUPPORT 333 -> 332", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("primary residual 189 -> 188", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("payment-or-targeting-stack-timing NEEDS_ENGINE_SUPPORT 521 -> 520", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("payment-and-targeting-stack-timing NEEDS_ENGINE_SUPPORT 230 -> 229", completionMapping, StringComparison.Ordinal);
         Assert.Contains("NEEDS_AUTOMATED_TEST_EVIDENCE residual=328", completionMapping, StringComparison.Ordinal);
         Assert.Contains("NEEDS_FAQ_REVIEW residual=92", completionMapping, StringComparison.Ordinal);
         Assert.Contains("primary FAQ residual=61", completionMapping, StringComparison.Ordinal);
@@ -28872,33 +29121,33 @@ public sealed class PaymentEngineCoverageAuditTests
         Assert.Contains("E_CARD_MATRIX_FAQ_REVIEW payment-cost residual remains open", completionMapping, StringComparison.Ordinal);
         Assert.Contains("E_CARD_MATRIX_READINESS remains open", completionMapping, StringComparison.Ordinal);
         Assert.Contains("READY remains open", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("4D-03GJ-E", completionMapping, StringComparison.Ordinal);
+        Assert.Contains("Post03GjCardMatrixReadinessPaymentCostHuntingRhythmBanishBattlefieldTargetingStackBlockerClosureCandidateManifest", completionMapping, StringComparison.Ordinal);
         Assert.Contains("4D-03GI-E", completionMapping, StringComparison.Ordinal);
         Assert.Contains("Post03GiCardMatrixReadinessPaymentCostLuxSpellOnlyResourceTargetingStackBlockerClosureCandidateManifest", completionMapping, StringComparison.Ordinal);
-        Assert.Contains("4D-03GH-E", completionMapping, StringComparison.Ordinal);
-        Assert.Contains("Post03GhCardMatrixReadinessPaymentCostPoppySpellshieldYordleTargetingStackBlockerClosureCandidateManifest", completionMapping, StringComparison.Ordinal);
 
-        Assert.Contains("当前 latest slice 为 4D-03GJ-E", completionActiveGoalTable, StringComparison.Ordinal);
-        Assert.Contains("Post03GjCardMatrixReadinessPaymentCostHuntingRhythmBanishBattlefieldTargetingStackBlockerClosureCandidateManifest", completionActiveGoalTable, StringComparison.Ordinal);
+        Assert.Contains("当前 latest slice 为 4D-03GK-E", completionActiveGoalTable, StringComparison.Ordinal);
+        Assert.Contains("Post03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidateManifest", completionActiveGoalTable, StringComparison.Ordinal);
+        Assert.Contains("4D-03GK-E", checklistMapping, StringComparison.Ordinal);
+        Assert.Contains("Post03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidateManifest", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("4D-03GJ-E", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("Post03GjCardMatrixReadinessPaymentCostHuntingRhythmBanishBattlefieldTargetingStackBlockerClosureCandidateManifest", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("4D-03GI-E", checklistMapping, StringComparison.Ordinal);
         Assert.Contains("Post03GiCardMatrixReadinessPaymentCostLuxSpellOnlyResourceTargetingStackBlockerClosureCandidateManifest", checklistMapping, StringComparison.Ordinal);
-        Assert.Contains("4D-03GH-E", checklistMapping, StringComparison.Ordinal);
-        Assert.Contains("Post03GhCardMatrixReadinessPaymentCostPoppySpellshieldYordleTargetingStackBlockerClosureCandidateManifest", checklistMapping, StringComparison.Ordinal);
 
-        Assert.Contains("当前 4D-03GJ-E", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("Post03GjCardMatrixReadinessPaymentCostHuntingRhythmBanishBattlefieldTargetingStackBlockerClosureCandidateManifest records payment-cost Hunting Rhythm banish-to-battlefield targeting-stack blocker closure candidate", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("classification=post-03gi-e-card-matrix-readiness-payment-cost-hunting-rhythm-banish-battlefield-targeting-stack-blocker-closure-candidate", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("gate=E_CARD_MATRIX_READINESS_POST_03GI_PAYMENT_COST_HUNTING_RHYTHM_BANISH_BATTLEFIELD_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("input previous closure candidate manifest=Post03GiCardMatrixReadinessPaymentCostLuxSpellOnlyResourceTargetingStackBlockerClosureCandidateManifest", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("selected functionalUnit=FU-d3afd3a6db", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("selected card=UNL-184/219 狩猎律动", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("当前 4D-03GK-E", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("Post03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidateManifest records payment-cost Hard Bargain counter-spell targeting-stack blocker closure candidate", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("classification=post-03gj-e-card-matrix-readiness-payment-cost-hard-bargain-counter-spell-targeting-stack-blocker-closure-candidate", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("gate=E_CARD_MATRIX_READINESS_POST_03GJ_PAYMENT_COST_HARD_BARGAIN_COUNTER_SPELL_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("input previous closure candidate manifest=Post03GjCardMatrixReadinessPaymentCostHuntingRhythmBanishBattlefieldTargetingStackBlockerClosureCandidateManifest", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("selected functionalUnit=FU-81cecf5c79", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("selected card=SFD·136/221 强买强卖", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("payment-cost functionalUnits=360", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("payment-cost snapshotEntries=446", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("NEEDS_ENGINE_SUPPORT 334 -> 333", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("primary residual 190 -> 189", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("payment-or-targeting-stack-timing NEEDS_ENGINE_SUPPORT 522 -> 521", checklistCurrentHead, StringComparison.Ordinal);
-        Assert.Contains("payment-and-targeting-stack-timing NEEDS_ENGINE_SUPPORT 231 -> 230", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("NEEDS_ENGINE_SUPPORT 333 -> 332", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("primary residual 189 -> 188", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("payment-or-targeting-stack-timing NEEDS_ENGINE_SUPPORT 521 -> 520", checklistCurrentHead, StringComparison.Ordinal);
+        Assert.Contains("payment-and-targeting-stack-timing NEEDS_ENGINE_SUPPORT 230 -> 229", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("NEEDS_AUTOMATED_TEST_EVIDENCE residual=328", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("NEEDS_FAQ_REVIEW residual=92", checklistCurrentHead, StringComparison.Ordinal);
         Assert.Contains("primary NEEDS_FAQ_REVIEW residual=61", checklistCurrentHead, StringComparison.Ordinal);
@@ -30473,6 +30722,7 @@ public sealed class PaymentEngineCoverageAuditTests
             .Concat(Post03GhCardMatrixReadinessPaymentCostPoppySpellshieldYordleTargetingStackBlockerClosureCandidateManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(Post03GiCardMatrixReadinessPaymentCostLuxSpellOnlyResourceTargetingStackBlockerClosureCandidateManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(Post03GjCardMatrixReadinessPaymentCostHuntingRhythmBanishBattlefieldTargetingStackBlockerClosureCandidateManifest.SelectMany(entry => entry.DocAnchors))
+            .Concat(Post03GkCardMatrixReadinessPaymentCostHardBargainCounterSpellTargetingStackBlockerClosureCandidateManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TypedSigilOfficialRuntimeCardRowAuditManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TargetTypedActivatedAbilityOfficialRuntimeCardRowEvidenceManifest.SelectMany(entry => entry.DocAnchors))
             .Concat(TargetTypedActivatedAbilityOfficialFamilyVerifierManifest.SelectMany(entry => entry.DocAnchors))
@@ -30532,14 +30782,14 @@ public sealed class PaymentEngineCoverageAuditTests
             MatchesPost03EeMatrixRowQuery(unit, matrixRowQuery) && HasStage4BBlocker(unit, blocker));
     }
 
-    private static int AdjustPost03FiExpectedNeedsEngineSupportCountForCurrent03GjCandidates(
+    private static int AdjustPost03FiExpectedNeedsEngineSupportCountForCurrent03GkCandidates(
         string matrixRowQuery,
         int pre03FjExpectedCount)
     {
         return matrixRowQuery switch
         {
-            "all-functional-units" or "payment-cost" or "payment-or-targeting-stack-timing" => pre03FjExpectedCount - 27,
-            "payment-and-targeting-stack-timing" => pre03FjExpectedCount - 26,
+            "all-functional-units" or "payment-cost" or "payment-or-targeting-stack-timing" => pre03FjExpectedCount - 28,
+            "payment-and-targeting-stack-timing" => pre03FjExpectedCount - 27,
             _ => pre03FjExpectedCount
         };
     }
