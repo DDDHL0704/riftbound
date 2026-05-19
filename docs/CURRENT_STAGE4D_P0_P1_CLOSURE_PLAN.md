@@ -1,5 +1,7 @@
 # Stage 4D P0/P1 Closure Plan
 
+4D-03HX-E payment-cost Sea Monster Hook equipment targeting-stack blocker closure candidate 已建立：only one E_CARD_MATRIX_READINESS row-level blocker count moved, NEEDS_ENGINE_SUPPORT 294 -> 293；P0/P1 closure, PaymentEngine full closure, FAQ review, card matrix readiness, formal E2E, and READY remain open；validation passed: jq empty passed; PaymentEngineCoverageAuditTests 432/432 passed; dotnet test Riftbound.slnx --no-restore 5003/5003 passed; git diff --check passed.
+
 4D-03HW-E payment-cost Glasc Bartender last-breath targeting-stack blocker closure candidate 已建立：only one E_CARD_MATRIX_READINESS row-level blocker count moved, NEEDS_ENGINE_SUPPORT 295 -> 294；P0/P1 closure, PaymentEngine full closure, FAQ review, card matrix readiness, formal E2E, and READY remain open。
 
 4D-03HV-E payment-cost Draven keyword-unit targeting-stack blocker closure candidate 已建立：only one E_CARD_MATRIX_READINESS row-level blocker count moved, NEEDS_ENGINE_SUPPORT 296 -> 295；P0/P1 closure, PaymentEngine full closure, FAQ review, card matrix readiness, formal E2E, and READY remain open。
