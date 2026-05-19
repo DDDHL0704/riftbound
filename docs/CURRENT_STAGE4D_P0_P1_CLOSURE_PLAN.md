@@ -1,5 +1,7 @@
 # Stage 4D P0/P1 Closure Plan
 
+4D-03HW-E payment-cost Glasc Bartender last-breath targeting-stack blocker closure candidate 已建立：only one E_CARD_MATRIX_READINESS row-level blocker count moved, NEEDS_ENGINE_SUPPORT 295 -> 294；P0/P1 closure, PaymentEngine full closure, FAQ review, card matrix readiness, formal E2E, and READY remain open。
+
 4D-03HV-E payment-cost Draven keyword-unit targeting-stack blocker closure candidate 已建立：only one E_CARD_MATRIX_READINESS row-level blocker count moved, NEEDS_ENGINE_SUPPORT 296 -> 295；P0/P1 closure, PaymentEngine full closure, FAQ review, card matrix readiness, formal E2E, and READY remain open。
 
 4D-03HU-E payment-cost Draven battle-body targeting-stack blocker closure candidate 已建立：E_CARD_MATRIX_READINESS 已把 4D-03HT-E 后的第六十四枚 row-level blocker-count reduction 落入 `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` 顶层 `stage4D03HuPaymentCostDravenBattleBodyTargetingStackBlockerClosureCandidate`。This candidate reduces one payment-cost NEEDS_ENGINE_SUPPORT blocker only：NEEDS_ENGINE_SUPPORT 297 -> 296；primary residual 182 -> 182；payment-or-targeting-stack-timing NEEDS_ENGINE_SUPPORT 485 -> 484；payment-and-targeting-stack-timing NEEDS_ENGINE_SUPPORT 195 -> 194；NEEDS_AUTOMATED_TEST_EVIDENCE residual=328；NEEDS_FAQ_REVIEW residual=92；fullOfficialTrue=0；ready=false。P0/P1 closure, card matrix closure and READY remain open；项目仍 **NOT READY**。
