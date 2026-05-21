@@ -56,12 +56,45 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest accepted server/test checkpoint is `df09955c` for 4D-04W, with 4D-04X dispatch at `3c236ed4`; latest integrated DOC_MATRIX checkpoint is `2fc955fd` for DOC_MATRIX commit `3fbb760b`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local matrix commit `3fbb760b`; this 16:20 A_MAIN entry authorizes continuing from 03NQ onward after board sync.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest accepted server/test checkpoint is `89759790` for 4D-04X; latest integrated DOC_MATRIX checkpoint is `2fc955fd` for DOC_MATRIX commit `3fbb760b`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local matrix commit `3fbb760b`; A_MAIN observed allowed in-progress 03NQ-03NT matrix/current-docs/candidate-audit edits at 16:35 under the rolling lane.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 16:35 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` accepted 4D-04X implementation commit `89759790`; checkpoint docs in this commit close the 04X B_SERVER write lock.
+
+Write locks:
+
+- 4D-04X B_SERVER write lock is closed after A_MAIN validation.
+- No new runtime, frontend, matrix, protocol, official catalog, browser/Chrome/formal E2E, `fullOfficial`, READY or `riftbound-dotnet.sln` lock is opened by this entry.
+- `DOC_MATRIX_CURRENT` rolling matrix lane remains **ACTIVE** under the existing approval; no new approval is required for the already-open 03NQ-03NT bundle.
+
+Status:
+
+- 4D-04X added focused stale replay coverage for closed `TRIGGER_PAYMENT` windows: original successful-payment and decline `PAY_COST` replay reject without mutation, duplicate events, duplicate tokens or second next-contest advancement.
+- Runtime changed: no. Protocol shape changed: no. Hidden-info leakage found: no.
+- `DOC_MATRIX_CURRENT` was observed at `0af61a14` with allowed in-progress 03NQ-03NT matrix/current-docs/candidate-audit files, so the document/matrix lane is not idle and has no new unanswered question for A_MAIN.
+- Project remains **NOT READY**.
+
+Validation:
+
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~TriggerPaymentTests"`: passed 67/67.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngine|FullyQualifiedName~PaymentPlan|FullyQualifiedName~PAY_COST|FullyQualifiedName~ActionPrompt|FullyQualifiedName~Prompt|FullyQualifiedName~TriggerPayment"`: passed 958/958.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed 5254/5254.
+- `git diff --check`: passed.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: keep completing the 03NQ-03NT bundle under the rolling lane, commit one clean handoff when validation passes, and write the selected rows / count deltas / validation here.
+- `A_MAIN`: pause after committing this 04X checkpoint because the user asked to stop at the current batch boundary.
 
 ### 2026-05-21 16:20 A_MAIN
 
