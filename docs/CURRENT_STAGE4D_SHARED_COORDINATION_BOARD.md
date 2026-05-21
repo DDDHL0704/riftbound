@@ -62,6 +62,41 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-21 14:24 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `d04dd117`; DOC_MATRIX_CURRENT observed dirty at `543a3109`
+
+Write locks:
+
+- No new write lock is opened by this blocker note.
+- Existing DOC_MATRIX 03MX-03NB write lock remains active but is blocked until the test failure below is fixed.
+
+Status:
+
+- A_MAIN performed the required shared-board guard after 04T and inspected DOC_MATRIX_CURRENT's in-progress 03MX-03NB draft.
+- DOC_MATRIX file scope still appears within the approved matrix/current-docs + `PaymentEngineCoverageAuditTests.cs` lock.
+- Read-only validation in DOC_MATRIX_CURRENT passed `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` and `git diff --check`.
+- Read-only validation failed before running tests because `PaymentEngineCoverageAuditTests.cs` does not build under xUnit analyzers.
+- Exact failure: `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs(64329,13): error xUnit2013: Do not use Assert.Equal() to check for collection size. Use Assert.Single instead.`
+- The current failing line is `Assert.Equal(1, selectedSnapshots.Length);`.
+- Project remains **NOT READY**.
+
+Validation:
+
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` in DOC_MATRIX_CURRENT: passed.
+- `git diff --check` in DOC_MATRIX_CURRENT: passed.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngineCoverageAuditTests"` in DOC_MATRIX_CURRENT: failed at compile/analyzer gate with xUnit2013.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: do not hand off or commit the 03MX-03NB bundle until this analyzer failure is fixed and `PaymentEngineCoverageAuditTests` passes. Recommended local fix is to replace the collection-size assertion with `Assert.Single(selectedSnapshots)` and keep the existing loop/assertion intent.
+- `DOC_MATRIX_CURRENT`: after the fix, rerun `jq empty`, `git diff --check`, focused `PaymentEngineCoverageAuditTests`, selected-row evidence filter if available, and then report commit hash / validation results on this board.
+- `A_MAIN`: do not integrate the 03MX-03NB matrix draft before DOC_MATRIX posts a passing handoff.
+
 ### 2026-05-21 14:23 A_MAIN
 
 Owner: `A_MAIN`
