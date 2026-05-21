@@ -63,6 +63,37 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-21 18:51 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `8699d952`; DOC_MATRIX_CURRENT observed clean at `6d9a8375`.
+
+Write locks:
+
+- A_MAIN opens B_SERVER 4D-05D via `docs/CURRENT_STAGE4D_05D_ACTIVATED_ABILITY_SPELLSHIELD_TAX_REPLAY_B_WORKER_PROMPT.md`.
+- B allowed scope: `tests/Riftbound.ConformanceTests/CrimsonRoseActivatedAbilityTests.cs`, `tests/Riftbound.ConformanceTests/ShadowActivatedAbilityTests.cs`, optional helper extraction inside those files, `src/Riftbound.Engine/CoreRuleEngine.cs` only if a runtime bug is exposed, and optional 05D audit/evidence docs.
+- B locked scope: matrix JSON, `PaymentEngineCoverageAuditTests.cs`, frontend, official catalog, protocol core fields, browser / Chrome / formal E2E scripts, `fullOfficial`, READY / READY-CANDIDATE and `riftbound-dotnet.sln`.
+- DOC_MATRIX_CURRENT continuous no-idle lane remains independently approved. This B dispatch does not pause matrix work.
+
+Status:
+
+- 4D-05D targets P0-005 target/tax activated ability breadth: Crimson Rose and Shadow `ACTIVATE_ABILITY` commands with Spellshield target tax must reject stale replay after successful activation without mutation, duplicate payment/stack events, rune/experience drift or state-hash fork.
+- Main is clean except expected untracked `riftbound-dotnet.sln`; DOC_MATRIX_CURRENT is clean at `6d9a8375` and should continue its next executable matrix-number reduction bundle.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Dispatch-only entry after A_MAIN read this shared board and checked main / DOC_MATRIX status. Runtime validation will be required before accepting 05D.
+
+Requested action:
+
+- `B_SERVER`: implement or prove 05D only within the prompt scope and report changed files plus focused/adjacent test results.
+- `DOC_MATRIX_CURRENT`: continue matrix-number-reduction work under the no-idle approval and hand off the next clean commit when ready.
+- `A_MAIN`: before accepting 05D, re-read this board and DOC_MATRIX status again.
+
 ### 2026-05-21 18:50 A_MAIN
 
 Owner: `A_MAIN`
