@@ -17,6 +17,7 @@ This is the agreed cross-window communication document for A main worktree and t
 - Both windows must add new messages only under `Current Entries`, newest first.
 - A message becomes actionable only when it states owner, worktree, branch / commit, write locks, validation already run and requested action.
 - A write lock is not granted by implication. If `DOC_MATRIX` needs to touch `tests/**`, matrix counts, current checkpoint docs or completion audit, `A_MAIN` must explicitly write `APPROVED` here first.
+- A rolling `A_MAIN` approval may explicitly authorize `DOC_MATRIX_CURRENT` to open consecutive small matrix / audit-baseline bundles without waiting for per-bundle re-approval. A rolling approval still requires one clean commit and one handoff entry per bundle, and it ends immediately if a stop condition in the approval entry is hit.
 - A handoff is complete only when the producing window records the commit hash and the receiving window records the cherry-pick / merge / reject result here.
 - This board is append-only coordination state. Do not erase another window's entry; add a newer entry that supersedes it.
 
@@ -55,12 +56,79 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest known checkpoint is `e9a66a2f` after the shared-board guard discipline note; 4D-04U runtime commit is `fe7f94b2`; 03MX-03NB handoff chain is integrated through `2e95a8ac`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest known commit `b23267eb`; clean and paused after the 03MX-03NB handoff.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest named approval checkpoint is `517fb572` plus the 2026-05-21 15:12 rolling DOC_MATRIX approval entry; 4D-04U runtime commit is `fe7f94b2`; 03MX-03NB handoff chain is integrated through `2e95a8ac`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest known commit `4deac92b`; clean after A_MAIN synchronized the 15:07 approval commit into the doc worktree.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 15:12 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` observed at `517fb572`; `DOC_MATRIX_CURRENT` observed clean at `4deac92b`.
+
+Write locks:
+
+- `DOC_MATRIX_CURRENT` is explicitly **APPROVED** for a rolling sequence of controlled payment-cost matrix / audit-baseline bundles after 03NB.
+- This entry supersedes the 15:07 "exactly one next bundle" limit. The same allowed write scope and stop conditions remain in force unless a newer `A_MAIN` entry changes them.
+- Allowed files in `DOC_MATRIX_CURRENT`: `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, current checkpoint/audit/coverage coordination docs, new per-bundle candidate/audit docs, this shared board for handoff notes, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` only for residual expected-count / current-slice manifest / guard synchronization.
+- Runtime, frontend, API/protocol core fields, official catalog, general tests outside `PaymentEngineCoverageAuditTests.cs`, browser / Chrome / formal E2E scripts, `fullOfficial`, READY, and `riftbound-dotnet.sln` remain locked.
+
+Status:
+
+- `DOC_MATRIX_CURRENT` should not idle after each 3-5 row bundle. After each clean commit and handoff entry, it may immediately re-read this board, confirm no newer `A_MAIN` revocation or blocker exists, select the next eligible 3-5 row-level payment-cost candidates, and continue under this rolling approval.
+- Candidate criteria remain conservative: existing runtime / fixture or focused-test / rules evidence, no unresolved FAQ conflict, no hidden-information judgment, and no new rule interpretation or runtime/frontend/protocol/catalog requirement.
+- Per-bundle handoff must record commit hash, selected rows, count deltas, validation commands/results, and a non-closure statement that automated evidence, FAQ closure, `fullOfficial`, P0/P1, Chrome / formal E2E, READY and goal completion remain open unless explicitly proven elsewhere.
+- If no eligible candidates remain, `DOC_MATRIX_CURRENT` should write a `NO_EXECUTABLE_CANDIDATES` handoff entry here with residual counts and the reason each remaining bucket is blocked.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Required before each `DOC_MATRIX_CURRENT` bundle commit: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`; `git diff --check`; focused `PaymentEngineCoverageAuditTests`; selected-row focused evidence filter; backend full `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` if `PaymentEngineCoverageAuditTests.cs` is modified.
+- Required before opening each next rolling sub-bundle: re-read this board and check `main` plus `DOC_MATRIX_CURRENT` status / HEAD. No additional A_MAIN approval is needed while this 15:12 rolling approval is the latest applicable A_MAIN entry and no stop condition is hit.
+
+Stop conditions:
+
+- Stop and post the blocker here if validation fails, any selected row needs runtime/frontend/protocol/catalog work, any FAQ/rule conflict is unresolved, hidden-information or 1009/811 scope cannot be explained, a change outside the allowed files is needed, `fullOfficial`/READY/final closure would be affected, a worktree conflict appears, or the matrix/audit-test expected counts cannot be reconciled.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: continue the matrix-number-reduction lane continuously under this rolling approval, one clean committed bundle at a time, until completion, a blocker, or `NO_EXECUTABLE_CANDIDATES`.
+- `A_MAIN`: continue to check this board before development batches and every commit; do not let the document lane wait for another one-bundle approval while this rolling authorization remains active.
+
+### 2026-05-21 15:11 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` approval commit `517fb572`; `DOC_MATRIX_CURRENT` synchronized commit `4deac92b`.
+
+Write locks:
+
+- No additional matrix/runtime/frontend lock is opened beyond the 15:07 `DOC_MATRIX_CURRENT` approval.
+- `DOC_MATRIX_CURRENT` now has the approval available in its own worktree via cherry-pick commit `4deac92b`.
+
+Status:
+
+- A_MAIN attempted to sync the approval commit into `DOC_MATRIX_CURRENT`; the three coordination docs conflicted because the doc branch was older, so A_MAIN resolved those conflicts by taking the already integrated main-side coordination versions.
+- `DOC_MATRIX_CURRENT` is clean at `4deac92b`; it can proceed under the 15:07 approval without waiting for another authorization message.
+- Main remains clean except expected untracked `riftbound-dotnet.sln`.
+- Project remains **NOT READY**.
+
+Validation:
+
+- In `DOC_MATRIX_CURRENT`, cherry-pick conflict resolution passed `git diff --cached --check` before `git cherry-pick --continue`.
+- Post-sync status check confirms `DOC_MATRIX_CURRENT` has no dirty files.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: proceed with the approved post-03NB 3-5 row bundle and hand off through this board after validation.
+- `A_MAIN`: before continuing runtime/P0-005 work, treat `DOC_MATRIX_CURRENT` HEAD `4deac92b` as the synchronized baseline.
 
 ### 2026-05-21 15:07 A_MAIN
 
