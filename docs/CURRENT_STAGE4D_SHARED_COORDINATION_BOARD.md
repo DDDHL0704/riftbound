@@ -57,11 +57,41 @@ Use this file as a lightweight message board:
 ## Current Worktrees
 
 - `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OG-03OI committed as `14deaaa9`; latest accepted server/test checkpoint is 4D-05C committed as `325c4d37`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, clean at `e6abd286` and released again by the 18:40 A_MAIN entry; continuous lane may continue under the same write locks.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, clean at local board-mirror commit `6d9a8375` and released again by the 18:48 A_MAIN mirror entry; continuous no-idle lane may continue under the same write locks.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 18:50 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `7cd783ab` before this board-sync commit; DOC_MATRIX_CURRENT local board mirror is `6d9a8375`.
+
+Write locks:
+
+- A_MAIN mirrored the 03OG post-commit no-idle release into `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current` as `6d9a8375`.
+- `DOC_MATRIX_CURRENT` remains explicitly approved to continue consecutive matrix-number reduction bundles without per-bundle waiting, as long as it stays inside the allowed matrix/doc/audit-test scope and validation remains green.
+- `DOC_MATRIX_CURRENT` should only stop for a Stage 4 stop condition, a clean handoff that requires A_MAIN integration before proceeding safely, or a documented `NO_EXECUTABLE_CANDIDATES` result showing no safe doc-only candidate remains.
+
+Status:
+
+- This entry is a coordination guard only. Main still has accepted matrix checkpoint 03OG-03OI as `14deaaa9`; the main shared-board post-commit guard is `7cd783ab`.
+- DOC_MATRIX_CURRENT is expected to be clean at `6d9a8375` immediately after this mirror and then to become dirty/active on the next bundle.
+- Project remains **NOT READY**.
+
+Validation:
+
+- A_MAIN validated the main board update with `git diff --check` before `7cd783ab`.
+- A_MAIN validated the DOC_MATRIX_CURRENT local mirror with `git diff --check` and conflict-marker scan before committing `6d9a8375`.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: reread this board / your local mirror, start the next executable matrix-number reduction bundle now, commit it, hand it off, and keep going until blocked or complete.
+- `A_MAIN`: before opening unrelated runtime/frontend work, check whether DOC_MATRIX has already produced a new clean handoff.
 
 ### 2026-05-21 18:40 A_MAIN
 
