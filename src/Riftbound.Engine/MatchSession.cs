@@ -357,7 +357,14 @@ public sealed record ContinuousEffectState(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     string? Lifecycle = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    IReadOnlyList<string>? ParticipantObjectIds = null);
+    IReadOnlyList<string>? ParticipantObjectIds = null,
+    int Sequence = 0,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    IReadOnlyList<string>? SourceDependencyObjectIds = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    IReadOnlyList<string>? TargetDependencyObjectIds = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    IReadOnlyList<string>? ParticipantDependencyObjectIds = null);
 
 public sealed record PowerModifierLedgerEntry
 {
@@ -1819,6 +1826,7 @@ public sealed record MatchState
             .ThenBy(effect => effect.Layer, StringComparer.Ordinal)
             .ThenBy(effect => effect.AppliedOrder ?? int.MaxValue)
             .ThenBy(effect => effect.EffectId, StringComparer.Ordinal)
+            .Select((effect, index) => effect with { Sequence = index + 1 })
             .ToArray();
     }
 
@@ -1846,6 +1854,9 @@ public sealed record MatchState
         }
 
         var equipmentObjectIds = ControlledPublicFieldEquipmentObjectIds(state, controllerId);
+        var sourceDependencyObjectIds = PublicFieldDependencyObjectIds(state, [objectId]);
+        var targetDependencyObjectIds = PublicFieldDependencyObjectIds(state, [objectId]);
+        var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, equipmentObjectIds);
         var basePower = behavior.SourceUnitPower > 0
             ? behavior.SourceUnitPower
             : cardObject.Power - cardObject.UntilEndOfTurnPowerModifier - equipmentObjectIds.Count;
@@ -1866,7 +1877,10 @@ public sealed record MatchState
             LayerEngineFoundationResiduals(),
             Condition: "SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_PUBLIC_FIELD_EQUIPMENT_COUNT",
             Lifecycle: "RECOMPUTED_FROM_CURRENT_AUTHORITATIVE_FIELD_STATE",
-            ParticipantObjectIds: equipmentObjectIds);
+            ParticipantObjectIds: equipmentObjectIds,
+            SourceDependencyObjectIds: sourceDependencyObjectIds,
+            TargetDependencyObjectIds: targetDependencyObjectIds,
+            ParticipantDependencyObjectIds: participantDependencyObjectIds);
         return true;
     }
 
@@ -1889,10 +1903,13 @@ public sealed record MatchState
             }
 
             var participantObjectIds = BattlefieldStaticAuraParticipantObjectIds(state, battlefieldObjectId);
+            var sourceDependencyObjectIds = PublicFieldDependencyObjectIds(state, [battlefieldObjectId]);
+            var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, participantObjectIds);
 
             foreach (var participantObjectId in participantObjectIds)
             {
                 var participant = state.CardObjects[participantObjectId];
+                var targetDependencyObjectIds = PublicFieldDependencyObjectIds(state, [participantObjectId]);
                 effects.Add(new ContinuousEffectState(
                     $"STATIC_AURA:BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE:{battlefieldObjectId}:{participantObjectId}",
                     "BATTLEFIELD",
@@ -1910,7 +1927,10 @@ public sealed record MatchState
                     LayerEngineFoundationResiduals(),
                     Condition: "SOURCE_BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE_AND_PARTICIPANT_UNIT_AT_BATTLEFIELD",
                     Lifecycle: "DERIVED_FROM_CURRENT_BATTLEFIELD_OBJECT_LOCATIONS",
-                    ParticipantObjectIds: participantObjectIds));
+                    ParticipantObjectIds: participantObjectIds,
+                    SourceDependencyObjectIds: sourceDependencyObjectIds,
+                    TargetDependencyObjectIds: targetDependencyObjectIds,
+                    ParticipantDependencyObjectIds: participantDependencyObjectIds));
             }
         }
 
@@ -1941,6 +1961,21 @@ public sealed record MatchState
                 && state.CardObjects.TryGetValue(objectId, out var participant)
                 && participant.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
             .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> PublicFieldDependencyObjectIds(
+        MatchState state,
+        IEnumerable<string?> objectIds)
+    {
+        return objectIds
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Select(objectId => objectId!.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && !cardObject.IsFaceDown
+                && TryFindFieldObjectLocation(state.PlayerZones, objectId, out _))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray();
     }
@@ -3124,7 +3159,8 @@ public sealed record ResolutionResult(
             ["sourceObjectId"] = effect.SourceObjectId,
             ["powerDelta"] = effect.PowerDelta,
             ["basePower"] = effect.BasePower,
-            ["effectivePower"] = effect.EffectivePower
+            ["effectivePower"] = effect.EffectivePower,
+            ["sequence"] = effect.Sequence
         };
         if (!string.IsNullOrWhiteSpace(effect.EffectKind))
         {
@@ -3184,6 +3220,21 @@ public sealed record ResolutionResult(
         if (effect.ParticipantObjectIds is { Count: > 0 })
         {
             view["participantObjectIds"] = effect.ParticipantObjectIds;
+        }
+
+        if (effect.SourceDependencyObjectIds is { Count: > 0 })
+        {
+            view["sourceDependencyObjectIds"] = effect.SourceDependencyObjectIds;
+        }
+
+        if (effect.TargetDependencyObjectIds is { Count: > 0 })
+        {
+            view["targetDependencyObjectIds"] = effect.TargetDependencyObjectIds;
+        }
+
+        if (effect.ParticipantDependencyObjectIds is { Count: > 0 })
+        {
+            view["participantDependencyObjectIds"] = effect.ParticipantDependencyObjectIds;
         }
 
         if (effect.DeferredLayerEngineResiduals is { Count: > 0 })

@@ -7935,6 +7935,7 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal(3, powerEffect.BasePower);
         Assert.Equal(5, powerEffect.EffectivePower);
         Assert.Null(powerEffect.AppliedOrder);
+        Assert.True(powerEffect.Sequence > 0);
         Assert.Contains(
             state.ContinuousEffects,
             effect => string.Equals(effect.EffectId, "GLOBAL:GLOBAL_DAMAGE_PREVENTION", StringComparison.Ordinal));
@@ -7949,6 +7950,7 @@ public sealed class ConformanceFixtureShapeTests
                 && Assert.IsType<int>(effect["basePower"]) == 3
                 && Assert.IsType<int>(effect["effectivePower"]) == 5);
         Assert.False(snapshotPowerEffect.ContainsKey("appliedOrder"));
+        Assert.True(Assert.IsType<int>(snapshotPowerEffect["sequence"]) > 0);
 
         var objects = ObjectView(PlayerView(snapshot, "alice"));
         var unitView = Assert.IsType<Dictionary<string, object?>>(objects["A-UNIT-1"]);
@@ -8044,6 +8046,11 @@ public sealed class ConformanceFixtureShapeTests
             powerEffects
                 .Select(effect => effect.AppliedOrder.GetValueOrDefault())
                 .ToArray());
+        Assert.Equal(
+            [1, 2],
+            powerEffects
+                .Select(effect => effect.Sequence)
+                .ToArray());
 
         var snapshot = ResolutionResult.BuildSnapshots(state)["alice"];
         var continuousEffects = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
@@ -8061,6 +8068,11 @@ public sealed class ConformanceFixtureShapeTests
             [1, 2],
             powerEffectViews
                 .Select(effect => Assert.IsType<int>(effect["appliedOrder"]))
+                .ToArray());
+        Assert.Equal(
+            [1, 2],
+            powerEffectViews
+                .Select(effect => Assert.IsType<int>(effect["sequence"]))
                 .ToArray());
     }
 

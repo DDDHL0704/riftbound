@@ -53,6 +53,11 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         Assert.Equal(
             [FriendlyBaseEquipmentObjectId, SecondFriendlyBaseEquipmentObjectId],
             staticAura.ParticipantObjectIds);
+        Assert.Equal([OrnnObjectId], staticAura.SourceDependencyObjectIds);
+        Assert.Equal([OrnnObjectId], staticAura.TargetDependencyObjectIds);
+        Assert.Equal(
+            [FriendlyBaseEquipmentObjectId, SecondFriendlyBaseEquipmentObjectId],
+            staticAura.ParticipantDependencyObjectIds);
         Assert.Equal("SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_PUBLIC_FIELD_EQUIPMENT_COUNT", staticAura.Condition);
         Assert.Equal("RECOMPUTED_FROM_CURRENT_AUTHORITATIVE_FIELD_STATE", staticAura.Lifecycle);
 
@@ -250,6 +255,14 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
             state.ContinuousEffects,
             effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
                 && string.Equals(effect.SourceObjectId, OrnnObjectId, StringComparison.Ordinal));
+
+        var snapshot = ResolutionResult.BuildSnapshots(state)["P1"];
+        var continuousEffects = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
+            snapshot.Timing["continuousEffects"]);
+        Assert.DoesNotContain(
+            continuousEffects,
+            effect => string.Equals(effect["layer"] as string, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect["sourceObjectId"] as string, OrnnObjectId, StringComparison.Ordinal));
     }
 
     private static async Task<ResolutionResult> PlayOrnnAsync(
@@ -514,14 +527,24 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         Assert.Equal(
             "RECOMPUTED_FROM_CURRENT_AUTHORITATIVE_FIELD_STATE",
             Assert.IsType<string>(effect["lifecycle"]));
+        Assert.Equal(
+            [sourceObjectId],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(effect["sourceDependencyObjectIds"]));
+        Assert.Equal(
+            [targetObjectId],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(effect["targetDependencyObjectIds"]));
         if (participantObjectIds.Count == 0)
         {
             Assert.False(effect.ContainsKey("participantObjectIds"));
+            Assert.False(effect.ContainsKey("participantDependencyObjectIds"));
             return;
         }
 
         Assert.Equal(
             participantObjectIds,
             Assert.IsAssignableFrom<IReadOnlyList<string>>(effect["participantObjectIds"]));
+        Assert.Equal(
+            participantObjectIds,
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(effect["participantDependencyObjectIds"]));
     }
 }
