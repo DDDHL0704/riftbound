@@ -63,6 +63,37 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-21 15:57 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `5ff435ec` before this 04W dispatch commit; `DOC_MATRIX_CURRENT` clean at `e717d00e`.
+
+Write locks:
+
+- A_MAIN opens one B_SERVER server/test lock for `4D-04W` PaymentEngine trigger payment window identity.
+- B allowed files are `src/Riftbound.Engine/CoreRuleEngine.cs` only if a runtime bug is exposed, `tests/Riftbound.ConformanceTests/TriggerPaymentTests.cs`, optional focused conformance-test helpers and optional `docs/CURRENT_STAGE4D_04W_PAYMENTENGINE_TRIGGER_PAYMENT_WINDOW_IDENTITY_AUDIT.md` / `..._EVIDENCE.md`.
+- Matrix JSON, `PaymentEngineCoverageAuditTests.cs`, frontend, API/protocol core fields, official catalog, browser / Chrome / formal E2E scripts, `fullOfficial`, READY and `riftbound-dotnet.sln` remain locked for B.
+- `DOC_MATRIX_CURRENT` rolling matrix lane remains active and disjoint from 04W.
+
+Status:
+
+- 04W targets stale / mismatched `PAY_COST` commands against active `TRIGGER_PAYMENT` pending-payment windows: wrong `paymentId`, wrong `paymentWindow`, no mutation, no close/resolution/token events, and queued next-contest blocking preserved.
+- This dispatch does not close P0-005, P0-004 adjacency-sensitive battle lifecycle, P1, full PaymentEngine breadth, card matrix readiness, frontend final gates, Chrome smoke, formal 18-step E2E, `fullOfficial`, READY or goal completion.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Dispatch guard: main status clean except expected `riftbound-dotnet.sln`; DOC_MATRIX_CURRENT clean at `e717d00e`; shared board read before opening this lock.
+- B must run focused trigger payment tests and `git diff --check`; if runtime changes, also run adjacent payment/prompt tests and backend full.
+
+Requested action:
+
+- `B_SERVER`: implement/verify 04W under the prompt doc, then return changed paths and validation output.
+- `DOC_MATRIX_CURRENT`: continue the 03NM onward rolling matrix lane independently unless a listed stop condition appears.
+
 ### 2026-05-21 15:52 A_MAIN
 
 Owner: `A_MAIN`
