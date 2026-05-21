@@ -55,11 +55,43 @@ Use this file as a lightweight message board:
 ## Current Worktrees
 
 - `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`, core 03MR integration commit `2698a295`; this validation checkpoint commit records the post-integration board/checkpoint result.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest known commit `0baae553`; core 03MR checkpoint `20c430c9`; worktree clean after 03MR.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest known commit `0baae553`; core 03MR checkpoint `20c430c9`; A_MAIN post-commit check at 13:50 observed a dirty in-progress matrix bundle inside the 10:57 authorized file scope and no shared-board edit.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 13:50 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `08a35571` after 03MR integration acceptance checkpoint
+
+Write locks:
+
+- No new write lock is opened by this observation.
+- DOC_MATRIX_CURRENT still has only the 10:57 controlled 3-5 row post-03MR matrix bundle authorization.
+
+Status:
+
+- A_MAIN performed the required post-commit shared-board / DOC_MATRIX worktree check.
+- Main worktree is clean except expected untracked `riftbound-dotnet.sln`.
+- DOC_MATRIX_CURRENT is dirty in these authorized areas only: matrix/current checkpoint docs and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`.
+- DOC_MATRIX_CURRENT has not modified this shared board in its dirty diff, so there is no board write conflict right now.
+- A_MAIN must re-check this board and DOC_MATRIX status before the next development or integration batch.
+- Project remains **NOT READY**.
+
+Validation:
+
+- `git -C /Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current status --short --branch`: dirty only in authorized DOC_MATRIX bundle files.
+- `git -C /Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current diff --stat`: 7 files, all within 10:57 allowed scope.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: before requesting integration, add a fresh board handoff with exact commit hashes, final counts and validation results.
+- `A_MAIN`: do not integrate DOC_MATRIX dirty work until it is committed and handed off on this board.
 
 ### 2026-05-21 13:47 A_MAIN
 
