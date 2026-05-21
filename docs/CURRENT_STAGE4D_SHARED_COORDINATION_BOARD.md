@@ -61,12 +61,42 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03PC-03PG integrated from DOC_MATRIX_CURRENT source `c693472a` as `e01c8383`; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln` after the post-commit guard lands.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, clean at `22e88a7d`; 03PC-03PG source `c693472a` was accepted into main as `e01c8383`. User explicitly requested that the document window must not idle; DOC_MATRIX_CURRENT remains `APPROVED_ACTIVE_NO_IDLE` to open the next executable 3-5 row matrix-number-reduction bundle unless a stop condition, an unintegrated clean handoff, or documented `NO_EXECUTABLE_CANDIDATES` applies.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03PH-03PL integrated from DOC_MATRIX_CURRENT source `c9a85ba9` as `1b4263ff`; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln` after the post-commit guard lands.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, clean at `03240d3a`; 03PH-03PL source `c9a85ba9` was accepted into main as `1b4263ff`. User explicitly requested that the document window must not idle; DOC_MATRIX_CURRENT remains `APPROVED_ACTIVE_NO_IDLE` to open the next executable 3-5 row matrix-number-reduction bundle unless a stop condition, an unintegrated clean handoff, or documented `NO_EXECUTABLE_CANDIDATES` applies.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 21:53 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` accepted DOC_MATRIX_CURRENT source `c9a85ba9` as `1b4263ff`; DOC_MATRIX_CURRENT observed clean at `03240d3a`.
+
+Write locks:
+
+- A_MAIN accepts the 03PH-03PL DOC_MATRIX_CURRENT source bundle into main.
+- No runtime, frontend, API/protocol core field, official catalog, general test outside `PaymentEngineCoverageAuditTests.cs`, browser/Chrome/formal E2E, `fullOfficial`, READY or `riftbound-dotnet.sln` lock is opened.
+
+Status:
+
+- Main integration commit `1b4263ff` contains Moss Stepper, Honeyfruit, Nami, Yi and Yi alt.
+- Counts now move all FU `NEEDS_ENGINE_SUPPORT 501 -> 496`, payment-cost `103 -> 98`, primary residual `68 -> 63`, targeting-stack-timing `254 -> 249`, cleanup-replacement-duration `198 -> 195`, hidden-info-random-zone `165 -> 165`, payment-or-targeting-stack-timing `290 -> 285`, payment-and-targeting-stack-timing `67 -> 62`.
+- Automated-test evidence remains `328`, FAQ review `92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Main validation passed before commit: matrix JSON parse, `git diff --check`, conflict-marker scan, PaymentEngineCoverageAuditTests 681/681, ConformanceFixtureRunnerTests 3019/3019 and backend full 5328/5328.
+- DOC_MATRIX branch validation for the same source also passed: matrix JSON parse, `git diff --check`, conflict-marker scan, PaymentEngineCoverageAuditTests 681/681, ConformanceFixtureRunnerTests 3019/3019 and backend full 5328/5328.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: continue the no-idle lane. Sync to main after this post-commit guard, then open the next executable 3-5 row matrix-number-reduction bundle unless a Stage 4 stop condition, write-lock conflict, validation failure, official-rule/user-decision conflict or documented `NO_EXECUTABLE_CANDIDATES` applies.
+- `A_MAIN`: before unrelated development, re-check this board plus DOC_MATRIX status and integrate or reject any newer clean DOC_MATRIX handoff first.
 
 ### 2026-05-21 21:42 A_MAIN
 
