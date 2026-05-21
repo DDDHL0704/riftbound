@@ -253,6 +253,54 @@ public sealed class LegendResourceBridgeVerifierTests
 
     [Theory]
     [MemberData(nameof(SuccessProfiles))]
+    public async Task LegendResourceBridgeRejectsAcceptedCommandReplayWithoutMutation(BridgeProfile profile)
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildSuccessState(profile);
+        var command = new LegendActCommand(profile.SourceObjectId, profile.AbilityId, [], []);
+
+        AssertLegendActPrompt(state, profile);
+
+        var gained = await engine.ResolveAsync(
+            state,
+            new PlayerIntent($"intent-legend-resource-bridge-replay-first-{profile.Name}-{profile.CardNo}", "P1", CommandTypes.LegendAct),
+            command,
+            CancellationToken.None);
+
+        Assert.True(gained.Accepted, gained.ErrorMessage);
+        Assert.True(gained.State.CardObjects[profile.SourceObjectId].IsExhausted);
+        Assert.Equal(1, CountEvents(gained.Events, ResourceEventKind(profile)));
+        Assert.Equal(0, CountEvents(gained.Events, "COST_PAID"));
+        Assert.Null(gained.State.PendingPayment);
+        Assert.Equal(state.PendingTaskQueue.Phase, gained.State.PendingTaskQueue.Phase);
+        Assert.Equal(state.PendingTaskQueue.ActiveTaskId, gained.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(state.PendingTaskQueue.Tasks, gained.State.PendingTaskQueue.Tasks);
+        AssertNoLegendActPromptForSource(gained.State, profile);
+        var postGainHash = MatchStateHasher.Hash(gained.State);
+
+        var replay = await engine.ResolveAsync(
+            gained.State,
+            new PlayerIntent($"intent-legend-resource-bridge-replay-second-{profile.Name}-{profile.CardNo}", "P1", CommandTypes.LegendAct),
+            command,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Empty(replay.Events);
+        Assert.Equal(postGainHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(gained.State.RunePools["P1"], replay.State.RunePools["P1"]);
+        Assert.Equal(gained.State.StackItems, replay.State.StackItems);
+        Assert.Equal(gained.State.PendingTaskQueue.Phase, replay.State.PendingTaskQueue.Phase);
+        Assert.Equal(gained.State.PendingTaskQueue.ActiveTaskId, replay.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(gained.State.PendingTaskQueue.Tasks, replay.State.PendingTaskQueue.Tasks);
+        Assert.Null(replay.State.PendingPayment);
+        Assert.True(replay.State.CardObjects[profile.SourceObjectId].IsExhausted);
+        AssertNoLegendActPromptForSource(replay.State, profile);
+        Assert.Equal(0, CountEvents(replay.Events, ResourceEventKind(profile)));
+        Assert.Equal(0, CountEvents(replay.Events, "COST_PAID"));
+    }
+
+    [Theory]
+    [MemberData(nameof(SuccessProfiles))]
     public async Task LegendResourceBridgeRejectsHandwrittenIllegalAbilityWithoutMutation(BridgeProfile profile)
     {
         var state = BuildSuccessState(profile);
@@ -354,6 +402,16 @@ public sealed class LegendResourceBridgeVerifierTests
         Assert.True(Assert.IsType<bool>(requirement["resolvesImmediately"]));
     }
 
+    private static void AssertNoLegendActPromptForSource(MatchState state, BridgeProfile profile)
+    {
+        var p1Prompt = ResolutionResult.BuildPrompts(state)["P1"];
+
+        Assert.DoesNotContain(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.LegendAct, StringComparison.Ordinal)
+                && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, profile.SourceObjectId, StringComparison.Ordinal)));
+    }
+
     private static void AssertResourceGainedEvent(
         IReadOnlyList<GameEvent> events,
         BridgeProfile profile)
@@ -376,6 +434,18 @@ public sealed class LegendResourceBridgeVerifierTests
             resourceEvent.Payload.TryGetValue("amount", out var amount),
             $"{eventKind} must expose a normalized amount payload field for the legend resource bridge.");
         Assert.Equal(1, amount);
+    }
+
+    private static string ResourceEventKind(BridgeProfile profile)
+    {
+        return string.Equals(profile.ResourceKind, "mana", StringComparison.Ordinal)
+            ? "MANA_GAINED"
+            : "POWER_GAINED";
+    }
+
+    private static int CountEvents(IReadOnlyList<GameEvent> events, string kind)
+    {
+        return events.Count(gameEvent => string.Equals(gameEvent.Kind, kind, StringComparison.Ordinal));
     }
 
     private static async Task<ResolutionResult> ResolveLegendActAsync(

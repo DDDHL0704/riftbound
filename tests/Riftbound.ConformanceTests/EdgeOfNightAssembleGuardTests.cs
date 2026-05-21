@@ -45,6 +45,74 @@ public sealed class EdgeOfNightAssembleGuardTests
         Assert.Equal(["ASSEMBLE_PURPLE"], Assert.IsType<string[]>(attachedEvent.Payload["optionalCosts"]));
     }
 
+    [Fact]
+    public async Task EdgeOfNightAssembleRejectsAcceptedCommandReplayWithoutMutation()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildEdgeOfNightState();
+        var command = new AssembleEquipmentCommand(
+            "P1-EQUIPMENT-EDGE-OF-NIGHT",
+            "P1-UNIT-ASSEMBLE-TARGET",
+            ["ASSEMBLE_PURPLE"]);
+
+        var assembled = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-edge-of-night-assemble-first", "P1", CommandTypes.AssembleEquipment),
+            command,
+            CancellationToken.None);
+
+        Assert.True(assembled.Accepted, assembled.ErrorMessage);
+        Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], assembled.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(1, CountEvents(assembled.Events, "COST_PAID"));
+        Assert.Equal(1, CountEvents(assembled.Events, "EQUIPMENT_ATTACHED"));
+        Assert.Equal(new RunePool(0, 0), assembled.State.RunePools["P1"]);
+        Assert.Equal(
+            "P1-UNIT-ASSEMBLE-TARGET",
+            assembled.State.CardObjects["P1-EQUIPMENT-EDGE-OF-NIGHT"].AttachedToObjectId);
+        Assert.Null(assembled.State.PendingPayment);
+        Assert.Empty(assembled.State.StackItems);
+        Assert.Equal("IDLE", assembled.State.PendingTaskQueue.Phase);
+        Assert.Empty(assembled.State.PendingTaskQueue.Tasks);
+        Assert.DoesNotContain(
+            ResolutionResult.BuildPrompts(assembled.State)["P1"].Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.AssembleEquipment, StringComparison.Ordinal)
+                && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, "P1-EQUIPMENT-EDGE-OF-NIGHT", StringComparison.Ordinal)));
+        var postAssembleHash = MatchStateHasher.Hash(assembled.State);
+
+        var replay = await engine.ResolveAsync(
+            assembled.State,
+            new PlayerIntent("intent-edge-of-night-assemble-replay", "P1", CommandTypes.AssembleEquipment),
+            command,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Empty(replay.Events);
+        Assert.Equal(postAssembleHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(assembled.State.RunePools["P1"], replay.State.RunePools["P1"]);
+        Assert.Equal(assembled.State.PlayerZones["P1"].Base, replay.State.PlayerZones["P1"].Base);
+        Assert.Equal(assembled.State.PlayerZones["P1"].Hand, replay.State.PlayerZones["P1"].Hand);
+        Assert.Equal(assembled.State.PlayerZones["P2"].Base, replay.State.PlayerZones["P2"].Base);
+        Assert.Equal(
+            assembled.State.CardObjects["P1-EQUIPMENT-EDGE-OF-NIGHT"].AttachedToObjectId,
+            replay.State.CardObjects["P1-EQUIPMENT-EDGE-OF-NIGHT"].AttachedToObjectId);
+        Assert.True(replay.State.CardObjects["P1-FACE-DOWN-EDGE-OF-NIGHT"].IsFaceDown);
+        Assert.Null(replay.State.CardObjects["P1-FACE-DOWN-EDGE-OF-NIGHT"].CardNo);
+        Assert.True(replay.State.CardObjects["P1-FACE-DOWN-STANDBY-UNIT"].IsFaceDown);
+        Assert.Null(replay.State.CardObjects["P1-FACE-DOWN-STANDBY-UNIT"].CardNo);
+        Assert.Null(replay.State.PendingPayment);
+        Assert.Empty(replay.State.StackItems);
+        Assert.Equal(assembled.State.PendingTaskQueue.Phase, replay.State.PendingTaskQueue.Phase);
+        Assert.Equal(assembled.State.PendingTaskQueue.ActiveTaskId, replay.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(assembled.State.PendingTaskQueue.Tasks, replay.State.PendingTaskQueue.Tasks);
+        Assert.DoesNotContain(
+            ResolutionResult.BuildPrompts(replay.State)["P1"].Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.AssembleEquipment, StringComparison.Ordinal)
+                && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, "P1-EQUIPMENT-EDGE-OF-NIGHT", StringComparison.Ordinal)));
+        Assert.DoesNotContain(replay.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            || string.Equals(gameEvent.Kind, "EQUIPMENT_ATTACHED", StringComparison.Ordinal));
+    }
+
     [Theory]
     [InlineData("P1-FACE-DOWN-EDGE-OF-NIGHT", "P1-UNIT-ASSEMBLE-TARGET", "ASSEMBLE_PURPLE", 1)]
     [InlineData("P1-HAND-EDGE-OF-NIGHT", "P1-UNIT-ASSEMBLE-TARGET", "ASSEMBLE_PURPLE", 1)]
@@ -186,6 +254,11 @@ public sealed class EdgeOfNightAssembleGuardTests
                 "SFD·139/221",
                 targetObjectIds),
             CancellationToken.None);
+    }
+
+    private static int CountEvents(IReadOnlyList<GameEvent> events, string kind)
+    {
+        return events.Count(gameEvent => string.Equals(gameEvent.Kind, kind, StringComparison.Ordinal));
     }
 
     private static MatchState BuildEdgeOfNightState(int purplePower = 1)

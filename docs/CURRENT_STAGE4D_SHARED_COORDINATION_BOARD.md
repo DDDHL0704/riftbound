@@ -61,12 +61,45 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03ON-03OR integrated as `b5b3d59c`; latest accepted server/test checkpoint is 4D-05H committed as `4d0ed8d0`; 4D-05I B_SERVER dispatch is opening from `e778ab42`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, active dirty at `aecf97bb` with `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` and untracked `516`; 03ON-03OR was accepted into main as `b5b3d59c`; DOC_MATRIX_CURRENT is explicitly `APPROVED_ACTIVE_NO_IDLE` to finish the current bundle, validate it, commit it, hand it off, and then keep opening the next executable 3-5 row matrix-number-reduction bundles until a stop condition or documented `NO_EXECUTABLE_CANDIDATES`.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03ON-03OR integrated as `b5b3d59c`; latest accepted server/test checkpoint is 4D-05I pending acceptance commit from this 20:41 entry; exact HEAD must still be checked before each batch / commit; main currently has 05I B_SERVER test edits, checkpoint docs and expected untracked `riftbound-dotnet.sln`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, active dirty at `aecf97bb` with current docs, matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` and 03OS-03OW candidate/audit docs; 03ON-03OR was accepted into main as `b5b3d59c`; DOC_MATRIX_CURRENT is explicitly `APPROVED_ACTIVE_NO_IDLE` to finish the current bundle, validate it, commit it, hand it off, and then keep opening the next executable 3-5 row matrix-number-reduction bundles until a stop condition or documented `NO_EXECUTABLE_CANDIDATES`.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 20:41 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `cfdd2da5` before the 05I acceptance commit; `DOC_MATRIX_CURRENT` observed active dirty at `aecf97bb`.
+
+Write locks:
+
+- A_MAIN accepts B_SERVER 4D-05I in `tests/Riftbound.ConformanceTests/EdgeOfNightAssembleGuardTests.cs` and `tests/Riftbound.ConformanceTests/LegendResourceBridgeVerifierTests.cs`.
+- The 05I B_SERVER write lock is closed after this acceptance; no runtime, protocol, frontend, matrix JSON, `PaymentEngineCoverageAuditTests.cs`, official catalog, Chrome/browser/formal E2E, `fullOfficial`, READY or `riftbound-dotnet.sln` lock is opened by 05I.
+- DOC_MATRIX_CURRENT remains independently `APPROVED_ACTIVE_NO_IDLE`; it is currently dirty in its own worktree on matrix/current docs, candidate docs and `PaymentEngineCoverageAuditTests.cs` and must finish its own validation / commit / handoff.
+
+Status:
+
+- 05I adds accepted-command stale replay guards for `ASSEMBLE_EQUIPMENT` and `LEGEND_ACT`.
+- Runtime changed: no. Protocol shape changed: no. Hidden-info leakage found: no.
+- Project remains **NOT READY**.
+
+Validation:
+
+- `git diff --check` passed.
+- Conflict-marker scan over docs/tests/src returned no matches.
+- Focused 05I validation passed: `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~EdgeOfNightAssembleGuardTests|FullyQualifiedName~LegendResourceBridgeVerifierTests"` 108/108.
+- Adjacent 05I validation passed: `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~EdgeOfNightAssembleGuardTests|FullyQualifiedName~LegendResourceBridgeVerifierTests|FullyQualifiedName~PaymentEngine|FullyQualifiedName~ActionPrompt|FullyQualifiedName~Prompt|FullyQualifiedName~MatchStateHasher|FullyQualifiedName~AssembleEquipment|FullyQualifiedName~LegendAct"` 1155/1155.
+- Backend full test passed: `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 5322/5322.
+
+Requested action:
+
+- `A_MAIN`: commit the 05I acceptance, then re-check this board and DOC_MATRIX status before opening another development dispatch.
+- `DOC_MATRIX_CURRENT`: continue the active matrix-number-reduction bundle under the no-idle approval and hand off the next clean commit when ready.
 
 ### 2026-05-21 20:35 A_MAIN
 
