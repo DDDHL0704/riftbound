@@ -56,12 +56,44 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest accepted server/test checkpoint is `89759790` for 4D-04X, active B_SERVER dispatch is 4D-04Y, and latest integrated DOC_MATRIX commit is `3f79b08d`.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest accepted server/test checkpoint is 4D-04Y in the checkpoint containing the 17:05 A_MAIN entry, and latest integrated DOC_MATRIX commit is `3f79b08d`.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local matrix commit `3f79b08d`; clean after 03NQ-03NT and rolling lane approved to continue 03NU+ unless a listed stop condition appears.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 17:05 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` after DOC_MATRIX integration commit `0077bf3b`; 4D-04Y B_SERVER test acceptance is ready to commit in the current checkpoint.
+
+Write locks:
+
+- 4D-04Y B_SERVER write lock is closed after A_MAIN validation.
+- No runtime, frontend, matrix, protocol, official catalog, browser/Chrome/formal E2E, `fullOfficial`, READY or `riftbound-dotnet.sln` lock is opened by this entry.
+- `DOC_MATRIX_CURRENT` rolling matrix lane remains **ACTIVE** under the 17:01 A_MAIN acceptance; it should continue from 03NU+ unless a stop condition appears.
+
+Status:
+
+- 4D-04Y added focused stale replay coverage for ordinary non-trigger pending `PAY_COST` windows: `SPEND_MANA:1`, `SPEND_POWER:1` and `SPEND_POWER:red:1`.
+- Runtime changed: no. Protocol shape changed: no. Hidden-info leakage found: no.
+- Project remains **NOT READY**.
+
+Validation:
+
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~PaymentEngineUnificationTests"`: passed 49/49.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngine|FullyQualifiedName~PaymentPlan|FullyQualifiedName~PAY_COST|FullyQualifiedName~ActionPrompt|FullyQualifiedName~Prompt"`: passed 905/905.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed 5259/5259.
+- `git diff --check` and `git diff --cached --check`: passed.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: continue the 03NU+ matrix-number-reduction lane under the existing rolling approval and hand off the next clean commit here.
+- `A_MAIN`: commit this 04Y checkpoint and then re-check DOC_MATRIX status before opening any next development batch.
 
 ### 2026-05-21 17:01 A_MAIN
 

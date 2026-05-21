@@ -1045,6 +1045,54 @@ public sealed class PaymentEngineUnificationTests
     }
 
     [Theory]
+    [InlineData("mana", "PENDING-PAY-COST-MANA-1", "SPEND_MANA:1")]
+    [InlineData("generic-power", "PENDING-PAY-COST-GENERIC-POOL-1", "SPEND_POWER:1")]
+    [InlineData("typed-power", "PENDING-PAY-COST-RED-POOL-1", "SPEND_POWER:red:1")]
+    public async Task PendingPayCostRejectsStaleOrdinaryReplayAfterWindowClosesWithoutMutation(
+        string costShape,
+        string paymentId,
+        string paymentChoiceId)
+    {
+        var state = PendingOrdinaryPayCostState(costShape, paymentId, paymentChoiceId);
+        var command = new PayCostCommand(
+            paymentId,
+            "TEST_PENDING_PAY_COST",
+            [paymentChoiceId]);
+
+        var paid = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent($"intent-pending-pay-cost-{costShape}-ordinary-first", "P1", CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Equal(["COST_PAID", "PAYMENT_WINDOW_CLOSED"], paid.Events.Select(gameEvent => gameEvent.Kind));
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Equal(RunePool.Empty, paid.State.RunePools["P1"]);
+        AssertNoPayCostPrompt(paid.State);
+        var costEvent = Assert.Single(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(paymentId, costEvent.Payload["paymentId"]);
+        Assert.Equal("TEST_PENDING_PAY_COST", costEvent.Payload["paymentWindow"]);
+        Assert.Equal([paymentChoiceId], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        Assert.Equal([paymentChoiceId], Assert.IsType<string[]>(costEvent.Payload["legalPaymentChoiceIds"]));
+        var afterSpendHash = MatchStateHasher.Hash(paid.State);
+
+        var replay = await new CoreRuleEngine().ResolveAsync(
+            paid.State,
+            new PlayerIntent($"intent-pending-pay-cost-{costShape}-ordinary-replay", "P1", CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Empty(replay.Events);
+        Assert.Equal(afterSpendHash, MatchStateHasher.Hash(replay.State));
+        Assert.Null(replay.State.PendingPayment);
+        AssertNoPayCostPrompt(replay.State);
+        Assert.Equal(RunePool.Empty, replay.State.RunePools["P1"]);
+        Assert.Empty(replay.State.StackItems);
+    }
+
+    [Theory]
     [InlineData("wrong-player")]
     [InlineData("wrong-payment-id")]
     [InlineData("wrong-payment-window")]
@@ -2140,6 +2188,96 @@ public sealed class PaymentEngineUnificationTests
                 legalPaymentChoiceIds: ["SPEND_POWER:1"],
                 reason: "PENDING_PAY_COST_TEMPORARY_RESOURCE_TEST"),
             temporaryPaymentResources: [temporaryResource]);
+    }
+
+    private static MatchState PendingOrdinaryPayCostState(
+        string costShape,
+        string paymentId,
+        string paymentChoiceId)
+    {
+        var runePool = costShape switch
+        {
+            "mana" => new RunePool(1, 0),
+            "generic-power" => new RunePool(0, 1),
+            "typed-power" => new RunePool(
+                0,
+                0,
+                new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [RuneTrait.Red] = 1
+                }),
+            _ => throw new ArgumentOutOfRangeException(nameof(costShape), costShape, null)
+        };
+        var pendingPayment = costShape switch
+        {
+            "mana" => new PendingPaymentState(
+                paymentId,
+                "TEST_PENDING_PAY_COST",
+                "P1",
+                manaCost: 1,
+                legalPaymentChoiceIds: [paymentChoiceId],
+                reason: "PENDING_PAY_COST_ORDINARY_MANA_REPLAY_TEST"),
+            "generic-power" => new PendingPaymentState(
+                paymentId,
+                "TEST_PENDING_PAY_COST",
+                "P1",
+                powerCost: 1,
+                legalPaymentChoiceIds: [paymentChoiceId],
+                reason: "PENDING_PAY_COST_ORDINARY_GENERIC_POWER_REPLAY_TEST"),
+            "typed-power" => new PendingPaymentState(
+                paymentId,
+                "TEST_PENDING_PAY_COST",
+                "P1",
+                powerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [RuneTrait.Red] = 1
+                },
+                legalPaymentChoiceIds: [paymentChoiceId],
+                reason: "PENDING_PAY_COST_ORDINARY_TYPED_POWER_REPLAY_TEST"),
+            _ => throw new ArgumentOutOfRangeException(nameof(costShape), costShape, null)
+        };
+
+        return new MatchState(
+            "payment-engine-pending-pay-cost-ordinary-room",
+            0,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            ["P1", "P2"],
+            "P1",
+            MatchPhases.Main,
+            TimingStates.NeutralOpen,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = runePool,
+                ["P2"] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty
+            },
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal),
+            pendingPayment: pendingPayment);
+    }
+
+    private static void AssertNoPayCostPrompt(MatchState state)
+    {
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        Assert.DoesNotContain(CommandTypes.PayCost, prompt.Actions);
+        Assert.DoesNotContain(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
     }
 
     private static MatchState PendingTypedPayCostTemporaryResourceState(
