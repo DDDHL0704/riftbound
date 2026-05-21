@@ -61,12 +61,81 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03ON-03OR integrated as `b5b3d59c`; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, active dirty at `aecf97bb` with current docs, matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` and 03OS-03OW candidate/audit docs; 03ON-03OR was accepted into main as `b5b3d59c`; DOC_MATRIX_CURRENT is explicitly `APPROVED_ACTIVE_NO_IDLE` to finish the current bundle, validate it, commit it, hand it off, and then keep opening the next executable 3-5 row matrix-number-reduction bundles until a stop condition or documented `NO_EXECUTABLE_CANDIDATES`.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OS-03OW from DOC_MATRIX_CURRENT source `9a672881` integrated in the current A_MAIN working tree with commit pending; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; latest board-only guard commit observed as `34d70f19`; exact HEAD must still be checked before each batch / commit; main currently has the accepted 03OS-03OW integration staged plus this shared-board handoff/release note unstaged, and expected untracked `riftbound-dotnet.sln`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, clean at `9a672881`; 03OS-03OW has been accepted into the current A_MAIN working tree and should be considered released once A_MAIN records the integration commit hash. User explicitly requested that the document window must not idle; DOC_MATRIX_CURRENT remains `APPROVED_ACTIVE_NO_IDLE` to open the next executable 3-5 row matrix-number-reduction bundle unless a stop condition or documented `NO_EXECUTABLE_CANDIDATES` applies.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 21:00 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `34d70f19` before the 03OS-03OW integration commit; DOC_MATRIX_CURRENT clean at `9a672881`.
+
+Write locks:
+
+- A_MAIN accepts DOC_MATRIX_CURRENT source commit `9a672881` for 03OS-03OW into the main working tree.
+- Scope remains matrix/current docs, 03OS-03OW candidate/audit docs and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` residual expected-count/current-slice baseline sync.
+- No runtime, frontend, API/protocol core field, official catalog, general test outside `PaymentEngineCoverageAuditTests.cs`, browser/Chrome/formal E2E, `fullOfficial`, READY or `riftbound-dotnet.sln` lock is opened.
+
+Status:
+
+- Main validation passed after conflict resolution: no conflict markers, matrix JSON parse, diff checks, PaymentEngineCoverageAuditTests 676/676, ConformanceFixtureRunnerTests 3019/3019 and backend full 5323/5323.
+- Counts now include all FU `NEEDS_ENGINE_SUPPORT 516 -> 511`, payment-cost `118 -> 113`, primary residual `81 -> 76`, targeting-stack-timing `263 -> 260`, cleanup-replacement-duration `203 -> 201`, hidden-info-random-zone `169 -> 167`, payment-or-targeting-stack-timing `305 -> 300`, payment-and-targeting-stack-timing `76 -> 73`; automated evidence `328`, FAQ review `92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`.
+- User explicitly requested the document window not idle. The 20:58 pause request is superseded after A_MAIN accepts the handoff.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Conflict-marker scan over `docs`, `tests` and `src` returned no matches.
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` passed.
+- `git diff --check` and `git diff --cached --check` passed.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngineCoverageAuditTests"` passed, 676/676.
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"` passed, 3019/3019.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` passed, 5323/5323.
+
+Requested action:
+
+- `A_MAIN`: commit the accepted 03OS-03OW integration, then record the post-commit hash.
+- `DOC_MATRIX_CURRENT`: after the A_MAIN post-commit hash is recorded, immediately open the next executable 3-5 row matrix-number-reduction bundle under `APPROVED_ACTIVE_NO_IDLE`; if a candidate needs locked runtime/frontend/protocol/general-test work, mark it blocked and select another executable candidate.
+
+### 2026-05-21 20:58 DOC_MATRIX_CURRENT
+
+Owner: `DOC_MATRIX_CURRENT`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521` clean at `9a672881` (`checkpoint: stage 4D matrix 03OS-03OW UNL evidence sync`); main was observed at `34d70f19` before handoff and now shows an in-progress 03OS-03OW integration plus expected untracked `riftbound-dotnet.sln`.
+
+Write locks:
+
+- This handoff used only the approved matrix-number-reduction scope: current docs, `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, 03OS-03OW candidate/audit docs and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` residual expected-count/current-slice baseline synchronization.
+- No runtime, frontend, API/protocol core field, official catalog, general test outside `PaymentEngineCoverageAuditTests.cs`, browser/Chrome/formal E2E, `fullOfficial`, final-readiness or `riftbound-dotnet.sln` change is included.
+
+Status:
+
+- 03OS-03OW selected rows: `FU-88a67bee9c` / `UNL-022/219` 烬 / `JHIN_SPELLSHIELD_ROAM_PLAY_KEYWORD_UNIT`; `FU-6167a33f64` / `UNL-022a/219` 烬 / `JHIN_ALT_A_SPELLSHIELD_ROAM_PLAY_KEYWORD_UNIT`; `FU-fa568fbe53` / `UNL-025/219` 不死军团 / `UNDEAD_LEGION_HAND_PLAY_SPIRIT_UNIT`; `FU-523f9b22de` / `UNL-026/219` 泽拉斯 / `XERATH_ACTIVATED_SKILL_PLAY_UNIT`; `FU-88fe3a652e` / `UNL-028a/219` 派克 / `PYKE_ALT_A_PLAY_UNIT_OPTIONAL_READY_POWER`.
+- Counts moved all functionalUnits `NEEDS_ENGINE_SUPPORT 516 -> 511`, payment-cost `118 -> 113`, primary residual `81 -> 76`, targeting-stack-timing `263 -> 260`, cleanup-replacement-duration `203 -> 201`, hidden-info-random-zone `169 -> 167`, payment-or-targeting-stack-timing `305 -> 300`, payment-and-targeting-stack-timing `76 -> 73`; automated evidence `328`, FAQ review `92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`.
+- Project remains **NOT READY**. Automated evidence disposition, Jhin / Jhin alt Spellshield roam breadth, Undead Legion graveyard / extra-cost breadth, Xerath activated-skill breadth, Pyke standby / reaction / roam breadth, complete PaymentEngine, P0/P1, frontend/browser/formal E2E and final readiness remain open.
+- After the handoff note, `git status` in main shows the 03OS-03OW matrix/current-doc/audit-test files staged for integration and this shared-board handoff note unstaged; no `UU` unmerged paths were visible on the latest recheck. DOC_MATRIX_CURRENT is pausing and is not committing or finishing A_MAIN integration from this window.
+
+Validation:
+
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` passed.
+- `git diff --check` and `git diff --cached --check` passed.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngineCoverageAuditTests"` passed, 676/676.
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"` passed, 3019/3019.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` passed, 5252/5252.
+- Frontend build / Chrome smoke not run because this bundle has no frontend or browser-script changes.
+
+Requested action:
+
+- `A_MAIN`: finish, reject or reset the in-progress integration of DOC_MATRIX_CURRENT commit `9a672881` before opening unrelated development work.
+- `DOC_MATRIX_CURRENT`: pause at this batch boundary per the 20:43 A_MAIN entry / user instruction; do not open the next matrix bundle unless user or A_MAIN explicitly resumes the lane.
 
 ### 2026-05-21 20:43 A_MAIN
 
