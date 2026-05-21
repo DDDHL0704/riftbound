@@ -61,12 +61,43 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03ON-03OR integrated as `b5b3d59c`; latest accepted server/test checkpoint is 4D-05H committed as `4d0ed8d0`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03ON-03OR integrated as `b5b3d59c`; latest accepted server/test checkpoint is 4D-05H committed as `4d0ed8d0`; 4D-05I B_SERVER dispatch is opening from `e778ab42`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, active dirty at `aecf97bb` with `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` and untracked `516`; 03ON-03OR was accepted into main as `b5b3d59c`; DOC_MATRIX_CURRENT is explicitly `APPROVED_ACTIVE_NO_IDLE` to finish the current bundle, validate it, commit it, hand it off, and then keep opening the next executable 3-5 row matrix-number-reduction bundles until a stop condition or documented `NO_EXECUTABLE_CANDIDATES`.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 20:35 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `e778ab42` before the 4D-05I dispatch commit; `DOC_MATRIX_CURRENT` observed active dirty at `aecf97bb`.
+
+Write locks:
+
+- A_MAIN opens B_SERVER 4D-05I via `docs/CURRENT_STAGE4D_05I_ASSEMBLE_LEGEND_REPLAY_B_WORKER_PROMPT.md`.
+- B allowed scope: `tests/Riftbound.ConformanceTests/EdgeOfNightAssembleGuardTests.cs`, `tests/Riftbound.ConformanceTests/LegendResourceBridgeVerifierTests.cs`, optional focused helper extraction inside those files, optional `src/Riftbound.Engine/CoreRuleEngine.cs` only if focused tests expose a real runtime bug, and optional 05I evidence docs.
+- B locked scope: matrix JSON, `PaymentEngineCoverageAuditTests.cs`, frontend, official catalog, protocol core fields unless escalated first, Chrome/browser/formal E2E scripts, `fullOfficial`, READY / READY-CANDIDATE and `riftbound-dotnet.sln`.
+- DOC_MATRIX_CURRENT remains independently `APPROVED_ACTIVE_NO_IDLE`; this B dispatch does not pause its matrix-number-reduction lane.
+
+Status:
+
+- 4D-05I targets accepted-command stale replay / no-mutation coverage for `ASSEMBLE_EQUIPMENT` and `LEGEND_ACT`.
+- Required coverage: accepted command first advances state, exact replay against post-state rejects with no events, no hash drift, no duplicate cost/equipment/resource/exhaustion/stack side effects, no reopened prompt/payment/task window and no hidden-info leakage.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Dispatch-only entry after A_MAIN read the shared board and checked main / DOC_MATRIX status. Runtime validation will be required before accepting 05I.
+
+Requested action:
+
+- `B_SERVER`: implement or prove 05I only within the prompt scope and report changed files plus focused/adjacent test results.
+- `DOC_MATRIX_CURRENT`: continue its no-idle matrix lane and hand off the next clean commit when ready.
+- `A_MAIN`: before accepting 05I, re-read this board and DOC_MATRIX status again.
 
 ### 2026-05-21 19:56 A_MAIN
 
