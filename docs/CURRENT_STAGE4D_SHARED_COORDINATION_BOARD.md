@@ -61,12 +61,46 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03ON-03OR integrated as `b5b3d59c`; latest accepted server/test checkpoint is 4D-05H pending acceptance commit from this 19:53 entry; exact HEAD must still be checked before each batch / commit; main currently has 05H B_SERVER test edits, checkpoint docs and expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, clean at `aecf97bb`; 03ON-03OR was accepted into main as `b5b3d59c`; DOC_MATRIX_CURRENT is explicitly `APPROVED_ACTIVE_NO_IDLE` to open the next executable 3-5 row matrix-number-reduction bundle immediately under the rolling lane.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03ON-03OR integrated as `b5b3d59c`; latest accepted server/test checkpoint is 4D-05H committed as `4d0ed8d0`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, active dirty at `aecf97bb` with `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` and untracked `516`; 03ON-03OR was accepted into main as `b5b3d59c`; DOC_MATRIX_CURRENT is explicitly `APPROVED_ACTIVE_NO_IDLE` to finish the current bundle, validate it, commit it, hand it off, and then keep opening the next executable 3-5 row matrix-number-reduction bundles until a stop condition or documented `NO_EXECUTABLE_CANDIDATES`.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 19:56 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `4d0ed8d0`; `DOC_MATRIX_CURRENT` observed active dirty at `aecf97bb`.
+
+Write locks:
+
+- A_MAIN confirms the 4D-05H B_SERVER acceptance was committed as `4d0ed8d0` (`test: guard assign order replay`).
+- The 05H B_SERVER write lock is closed. No runtime, protocol, frontend, matrix JSON, `PaymentEngineCoverageAuditTests.cs`, official catalog, Chrome/browser/formal E2E, `fullOfficial`, READY or `riftbound-dotnet.sln` lock is opened by this entry.
+- DOC_MATRIX_CURRENT remains independently `APPROVED_ACTIVE_NO_IDLE` for the matrix-number-reduction lane. Its allowed scope remains matrix/current docs, per-bundle candidate/audit docs and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` expected-count/current-slice baseline sync.
+
+Status:
+
+- Main post-commit status is clean except expected untracked `riftbound-dotnet.sln`.
+- DOC_MATRIX_CURRENT is not idle: its worktree is dirty on `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` and untracked `516`.
+- DOC_MATRIX_CURRENT must finish the current allowed bundle to validation / commit / handoff. After a clean handoff, if A_MAIN has not paused the lane and no integration is blocking its local branch, it should immediately select the next executable 3-5 row candidate.
+- If a candidate needs runtime/frontend/protocol/general-test changes, mark that candidate `BLOCKED` with the reason and select another executable candidate instead of waiting.
+- Stop only for Stage 4 stop conditions, explicit A_MAIN pause, write-lock conflict, validation failure, official-rule conflict needing user decision, hidden-info leakage, or documented `NO_EXECUTABLE_CANDIDATES`.
+- Project remains **NOT READY**.
+
+Validation:
+
+- A_MAIN post-commit status check passed: main has only expected untracked `riftbound-dotnet.sln`.
+- DOC_MATRIX_CURRENT status check confirms active dirty matrix/audit-test work, so the lane has executable work and should not idle.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: continue the current dirty matrix-number-reduction bundle now; do not wait for another per-bundle approval while this no-idle authorization remains active.
+- `DOC_MATRIX_CURRENT`: when the current bundle is clean, run its required validation, commit it, add a handoff entry here with commit hash / counts / commands, then continue another executable bundle unless a stop condition applies.
+- `A_MAIN`: before opening or committing any unrelated development batch, re-read this board and DOC_MATRIX status, answer any newer DOC_MATRIX question, and integrate or reject any clean DOC_MATRIX handoff first.
 
 ### 2026-05-21 19:53 A_MAIN
 
