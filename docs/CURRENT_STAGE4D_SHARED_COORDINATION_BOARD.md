@@ -61,12 +61,72 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OX-03PB integrated from DOC_MATRIX_CURRENT source `878d3c60` as `066feb5b`; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln` after the post-commit guard lands.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, clean at `e910b616`; 03OX-03PB source `878d3c60` was accepted into main as `066feb5b`. User explicitly requested that the document window must not idle; DOC_MATRIX_CURRENT remains `APPROVED_ACTIVE_NO_IDLE` to open the next executable 3-5 row matrix-number-reduction bundle unless a stop condition, an unintegrated clean handoff, or documented `NO_EXECUTABLE_CANDIDATES` applies.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03PC-03PG integrated from DOC_MATRIX_CURRENT source `c693472a` as `e01c8383`; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln` after the post-commit guard lands.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, clean at `22e88a7d`; 03PC-03PG source `c693472a` was accepted into main as `e01c8383`. User explicitly requested that the document window must not idle; DOC_MATRIX_CURRENT remains `APPROVED_ACTIVE_NO_IDLE` to open the next executable 3-5 row matrix-number-reduction bundle unless a stop condition, an unintegrated clean handoff, or documented `NO_EXECUTABLE_CANDIDATES` applies.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 21:42 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` accepted DOC_MATRIX_CURRENT source `c693472a` as `e01c8383`; DOC_MATRIX_CURRENT observed clean at `22e88a7d`.
+
+Write locks:
+
+- A_MAIN accepts the 03PC-03PG DOC_MATRIX_CURRENT source bundle into main.
+- No runtime, frontend, API/protocol core field, official catalog, general test outside `PaymentEngineCoverageAuditTests.cs`, browser/Chrome/formal E2E, `fullOfficial`, READY or `riftbound-dotnet.sln` lock is opened.
+
+Status:
+
+- Main integration commit `e01c8383` contains Kenken, Soul Sword, Aerie Head Fan, Stay Away and Forgotten Signpost.
+- Counts now move all FU `NEEDS_ENGINE_SUPPORT 506 -> 501`, payment-cost `108 -> 103`, primary residual `73 -> 68`, targeting-stack-timing `257 -> 254`, cleanup-replacement-duration `199 -> 198`, hidden-info-random-zone `166 -> 165`, payment-or-targeting-stack-timing `295 -> 290`, payment-and-targeting-stack-timing `70 -> 67`.
+- Automated-test evidence remains `328`, FAQ review `92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Main validation passed before commit: matrix JSON parse, `git diff --check`, conflict-marker scan, PaymentEngineCoverageAuditTests 679/679, ConformanceFixtureRunnerTests 3019/3019 and backend full 5326/5326.
+- DOC_MATRIX branch validation for the same source also passed: matrix JSON parse, `git diff --check`, conflict-marker scan, PaymentEngineCoverageAuditTests 679/679, ConformanceFixtureRunnerTests 3019/3019 and backend full 5326/5326.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: continue the no-idle lane. Sync to main after this post-commit guard, then open the next executable 3-5 row matrix-number-reduction bundle unless a Stage 4 stop condition, write-lock conflict, validation failure, official-rule/user-decision conflict or documented `NO_EXECUTABLE_CANDIDATES` applies.
+- `A_MAIN`: before unrelated development, re-check this board plus DOC_MATRIX status and integrate or reject any newer clean DOC_MATRIX handoff first.
+
+### 2026-05-21 21:41 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521-next` at `c693472a` (`checkpoint: stage 4D matrix 03PC-03PG UNL control layer targeting evidence sync`)
+
+Write locks:
+
+- Matrix/current docs, 03PC-03PG candidate/audit docs and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` residual/current-slice baseline sync only.
+- No runtime, frontend, API/protocol core field, official catalog, general test outside `PaymentEngineCoverageAuditTests.cs`, browser/Chrome/formal E2E, `fullOfficial`, READY or `riftbound-dotnet.sln` lock is opened.
+
+Status:
+
+- 03PC-03PG handoff is ready: Kenken, Soul Sword, Aerie Head Fan, Stay Away and Forgotten Signpost.
+- Counts now move all FU `NEEDS_ENGINE_SUPPORT 506 -> 501`, payment-cost `108 -> 103`, primary residual `73 -> 68`, targeting-stack-timing `257 -> 254`, cleanup-replacement-duration `199 -> 198`, hidden-info-random-zone `166 -> 165`, payment-or-targeting-stack-timing `295 -> 290`, payment-and-targeting-stack-timing `70 -> 67`.
+- Automated-test evidence remains `328`, FAQ review `92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`.
+- Project remains **NOT READY**.
+
+Validation:
+
+- DOC_MATRIX branch revalidation passed in this window: matrix JSON parse, `git diff --check HEAD^ HEAD`, conflict-marker scan, PaymentEngineCoverageAuditTests 679/679, ConformanceFixtureRunnerTests 3019/3019 and backend full 5326/5326.
+- Frontend build / Chrome smoke were not run because there were no frontend or browser-script changes.
+
+Requested action:
+
+- `A_MAIN`: integrate or explicitly reject source commit `c693472a` before unrelated runtime/frontend/general development.
+- `DOC_MATRIX_CURRENT`: pause after this handoff; do not open the next matrix-number-reduction bundle until A_MAIN records the integration/reject result here or the user explicitly overrides.
 
 ### 2026-05-21 21:25 A_MAIN
 
