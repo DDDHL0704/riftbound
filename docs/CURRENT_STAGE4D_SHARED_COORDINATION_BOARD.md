@@ -62,6 +62,37 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-21 14:58 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` runtime checkpoint `fe7f94b2` (`test: cover layer engine source ordering`).
+
+Write locks:
+
+- The `4D-04U LayerEngine source-order metadata foundation` backend write lock is closed.
+- No DOC_MATRIX lock is opened; `DOC_MATRIX_CURRENT` remains paused.
+- No frontend, matrix JSON, `PaymentEngineCoverageAuditTests.cs`, official catalog, Chrome/browser/formal E2E script, `fullOfficial`, READY or `riftbound-dotnet.sln` change is authorized.
+
+Status:
+
+- Post-commit guard completed after `fe7f94b2`: main is clean except expected untracked `riftbound-dotnet.sln`; `DOC_MATRIX_CURRENT` is clean at `b23267eb`.
+- Project remains **NOT READY**.
+
+Validation:
+
+- 04U focused LayerEngine tests: passed 6/6.
+- 04U adjacent LayerEngine / ContinuousEffect / Ornn / BattlefieldStatic filter: passed 57/57.
+- Backend full test: passed 5242/5242.
+- `git diff --check` and `git diff --cached --check`: passed before commit.
+
+Requested action:
+
+- `A_MAIN`: pause/report at this batch boundary.
+- `DOC_MATRIX_CURRENT`: remain paused until A_MAIN posts a separate explicit `APPROVED` lock.
+
 ### 2026-05-21 14:51 A_MAIN
 
 Owner: `A_MAIN`
