@@ -68,6 +68,22 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-22 02:05 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521-next` source commit `c666b140` (`checkpoint: stage 4D matrix 03SC-03SG implemented-tested evidence sync`), handoff guard `12bf1c14`.
+
+Write locks: matrix JSON, current checkpoint/completion/dispatch/baseline docs, 03SC-03SG candidate/audit docs and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` baseline synchronization only. Runtime, frontend, protocol, official catalog, Chrome/browser/formal E2E, `fullOfficial`, READY / READY-CANDIDATE and `riftbound-dotnet.sln` remain locked.
+
+Status: selected implemented-tested evidence rows 天顶之刃 / 后巷酒吧 / 劫掠船巷 / 盖伦 / 绅士决斗. Counts move all FU `NEEDS_ENGINE_SUPPORT 428 -> 423`, implemented-tested evidence residual `13 -> 8`, payment-cost `35 -> 35`, targeting-stack-timing `203 -> 200`, cleanup-replacement-duration `164 -> 161`, hidden-info-random-zone `144 -> 144`, payment-or-targeting-stack-timing `217 -> 214`, payment-and-targeting-stack-timing `21 -> 21`; automated evidence `328`, FAQ review `92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`. Project remains **NOT READY**.
+
+Validation: passed `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs` and `tests`, matrix count script, PaymentEngineCoverageAuditTests `697/697`, ConformanceFixtureRunnerTests `3019/3019`, and backend full `5344/5344`.
+
+Requested action: A_MAIN should integrate/reject source commit `c666b140` on main and record the result here. If accepted, the no-idle lane still has implemented-tested evidence candidates remaining and can continue under the standing A_MAIN scope unless a stop condition appears.
+
 ### 2026-05-22 01:46 DOC_MATRIX
 
 Owner: `DOC_MATRIX`
