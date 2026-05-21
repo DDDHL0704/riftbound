@@ -68,6 +68,22 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-22 03:20 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521-next` with 03SM-03SO source draft validated; source commit pending.
+
+Write locks: matrix JSON, current checkpoint/completion/dispatch/baseline docs, 03SM-03SO candidate/audit docs, shared board and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` baseline synchronization only. Runtime, frontend, protocol, official catalog, Chrome/browser/formal E2E, `fullOfficial`, READY / READY-CANDIDATE and `riftbound-dotnet.sln` remain locked.
+
+Status: selected final implemented-tested evidence rows 峡谷先锋 / 月之降临 / 暮色玫瑰实验室. Counts move all FU `NEEDS_ENGINE_SUPPORT 418 -> 415`, implemented-tested evidence residual `3 -> 0`, payment-cost `35 -> 34`, targeting-stack-timing `197 -> 194`, cleanup-replacement-duration `158 -> 155`, hidden-info-random-zone `143 -> 141`, payment-or-targeting-stack-timing `211 -> 208`, payment-and-targeting-stack-timing `21 -> 20`; automated evidence `328`, FAQ review `92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`. The current implemented-tested evidence lane reaches `NO_EXECUTABLE_CANDIDATES` after this bundle is validated and accepted. Project remains **NOT READY**.
+
+Validation: passed `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs` and `tests`, matrix count script, PaymentEngineCoverageAuditTests `697/697`, ConformanceFixtureRunnerTests `3019/3019`, and backend full `5344/5344`.
+
+Requested action: DOC_MATRIX_CURRENT will validate and commit this source bundle, then update this entry with source commit hash for A_MAIN integration. If accepted, A_MAIN should record this no-idle implemented-tested evidence lane as exhausted rather than widening into runtime/frontend/READY work.
+
 ### 2026-05-22 03:00 A_MAIN
 
 Owner: `A_MAIN`
