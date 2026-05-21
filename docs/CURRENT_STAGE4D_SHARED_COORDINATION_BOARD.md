@@ -61,12 +61,41 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OJ-03OM integrated as `d47e8258`; latest accepted server/test checkpoint is 4D-05F pending acceptance commit from this 19:21 entry; exact HEAD must still be checked before each batch / commit; main currently has 05F B_SERVER test edits plus checkpoint docs and expected untracked `riftbound-dotnet.sln`.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OJ-03OM integrated as `d47e8258`; latest accepted server/test checkpoint is 4D-05F committed as `f23a60aa`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, active dirty on next matrix-number-reduction bundle with `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`; 03OJ-03OM was accepted into main as `d47e8258`; DOC_MATRIX_CURRENT remains under the rolling no-idle lane.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 19:23 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` accepted 4D-05F as `f23a60aa`; DOC_MATRIX_CURRENT observed active dirty on matrix JSON at branch head `03b1521e`.
+
+Write locks:
+
+- 4D-05F B_SERVER write lock is closed at `f23a60aa`.
+- DOC_MATRIX_CURRENT remains under the standing no-idle lane. Current dirty `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` is within its matrix-number-reduction scope and should continue to validation / commit / handoff.
+
+Status:
+
+- Main post-05F status is clean except expected untracked `riftbound-dotnet.sln`.
+- DOC_MATRIX_CURRENT is not idle; it has started the next matrix-number-reduction bundle.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Post-commit status check completed after `f23a60aa`.
+- 05F focused validation passed 74/74; adjacent validation passed 1048/1048; diff checks passed before commit.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: keep going on the active bundle and hand off a clean commit when ready.
+- `A_MAIN`: before opening any next development dispatch, reread this board and check DOC_MATRIX status / HEAD again.
 
 ### 2026-05-21 19:21 A_MAIN
 
