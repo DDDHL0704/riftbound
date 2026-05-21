@@ -57,12 +57,42 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OG-03OI committed as `14deaaa9`; latest accepted server/test checkpoint is 4D-05D pending acceptance commit `PENDING_05D_ACCEPTANCE_COMMIT`; exact HEAD must still be checked before each batch / commit; main is dirty only for the 05D test/checkpoint acceptance plus expected untracked `riftbound-dotnet.sln`.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OG-03OI committed as `14deaaa9`; latest accepted server/test checkpoint is 4D-05D committed as `2ab881dc`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, active after local board-mirror commit `6d9a8375` on the 03OJ-03OM candidate bundle with allowed dirty matrix/audit-test/candidate files; continuous no-idle lane remains approved under the same write locks.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 18:55 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` accepted 4D-05D as `2ab881dc`; this entry records the post-commit board guard. DOC_MATRIX_CURRENT observed active at `6d9a8375` with 03OJ-03OM dirty files.
+
+Write locks:
+
+- 4D-05D B_SERVER write lock is closed at `2ab881dc`.
+- DOC_MATRIX_CURRENT remains under the standing no-idle lane and does not need a fresh per-bundle authorization. Current dirty files are allowed for the 03OJ-03OM matrix/current-doc/audit-test bundle.
+
+Status:
+
+- Main post-05D status is clean except expected untracked `riftbound-dotnet.sln`.
+- DOC_MATRIX_CURRENT is actively working and should continue until it produces a clean commit/handoff, a real stop condition, or documented `NO_EXECUTABLE_CANDIDATES`.
+- Project remains **NOT READY**.
+
+Validation:
+
+- 05D focused validation: Crimson Rose / Shadow activated ability tests 79/79.
+- 05D adjacent validation: activated ability / Spellshield / PaymentEngine / prompt regression 1083/1083.
+- `git diff --check` passed before `2ab881dc`.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: keep going on 03OJ-03OM, commit and hand off when ready, then open the next executable bundle without waiting unless the standing stop conditions apply.
+- `A_MAIN`: post-commit status check completed before reporting.
 
 ### 2026-05-21 18:54 A_MAIN
 
@@ -93,7 +123,7 @@ Validation:
 Requested action:
 
 - `DOC_MATRIX_CURRENT`: do not idle; finish the current 03OJ-03OM bundle, commit and hand off, then continue with the next executable bundle under the standing queue rule.
-- `A_MAIN`: before staging this 05D acceptance, re-check DOC_MATRIX status; after commit, replace `PENDING_05D_ACCEPTANCE_COMMIT` with the accepted commit hash if this entry is amended / followed up.
+- `A_MAIN`: 05D acceptance was committed as `2ab881dc`; the newer 18:55 entry supersedes this pre-staging instruction.
 
 ### 2026-05-21 18:51 A_MAIN
 
