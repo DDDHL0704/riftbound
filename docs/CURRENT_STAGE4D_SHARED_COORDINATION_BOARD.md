@@ -12,6 +12,7 @@ This is the agreed cross-window communication document for A main worktree and t
 
 - Both windows must read this board before opening a new Stage 4D matrix / audit-test / checkpoint batch.
 - A_MAIN must read this board and check both main and DOC_MATRIX worktree status before opening any development batch, before staging a checkpoint commit, after creating a checkpoint commit, and before reporting a committed batch to the user.
+- A_MAIN checkpoint commits must carry this guard as an explicit habit: pre-commit board read, main status check, DOC_MATRIX status / HEAD check, post-commit status check, and reconciliation of any newer DOC_MATRIX question before unrelated runtime or frontend work continues.
 - If A_MAIN sees a newer DOC_MATRIX entry, dirty DOC_MATRIX worktree, changed DOC_MATRIX HEAD, or unresolved DOC_MATRIX question, A_MAIN must answer / reconcile this board before continuing unrelated runtime or frontend development.
 - Both windows must add new messages only under `Current Entries`, newest first.
 - A message becomes actionable only when it states owner, worktree, branch / commit, write locks, validation already run and requested action.
@@ -54,7 +55,7 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`, latest validation checkpoint `e0a669af`; integrated 03MS-03MW bundle commit `651bd6bf`.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; shared-board guard protocol starts after pre-guard board-correction commit `00be5c90`; latest validation checkpoint `e0a669af`; integrated 03MS-03MW bundle commit `651bd6bf`.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest known commit `543a3109`; clean and paused after the 03MS-03MW handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
