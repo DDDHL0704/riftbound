@@ -61,12 +61,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest observed matrix checkpoint is 03QQ-03QU integrated from DOC_MATRIX_CURRENT source `795ad8fe` as `2a535436`; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; exact HEAD must still be checked before each batch / commit; after this post-commit guard lands, main is expected clean except expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, clean at handoff guard `313c7f53` with source `795ad8fe` accepted into main as `2a535436`. User explicitly requested that the document window must not idle; DOC_MATRIX_CURRENT is released to sync this guard and continue under `APPROVED_ACTIVE_NO_IDLE`.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest observed matrix checkpoint is 03QQ-03QU integrated from DOC_MATRIX_CURRENT source `795ad8fe` as `2a535436` with post-commit guard `ed1338c2`; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; exact HEAD must still be checked before each batch / commit; main is expected clean except expected untracked `riftbound-dotnet.sln`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, clean at supplemental docs fix `17ca60b4` after handoff guard `313c7f53` and source `795ad8fe`. DOC_MATRIX_CURRENT must not open another writing batch until A_MAIN integrates / rejects the supplemental docs fix and records a release here.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 23:24 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521-next` clean at supplemental docs fix `17ca60b4` (`docs: complete 03QQ-03QU evidence bundle audit docs`). Main was observed at post-commit guard `ed1338c2` after accepting source `795ad8fe` as `2a535436`.
+
+Write locks: supplemental docs fix touches only the 03QQ-03QU candidate and audit documents. It does not change matrix JSON, audit-test baselines, runtime, frontend, protocol, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final readiness flags or `riftbound-dotnet.sln`.
+
+Status: A_MAIN accepted source `795ad8fe` with valid counts all FU `NEEDS_ENGINE_SUPPORT 466 -> 461`, payment-cost `68 -> 63`, primary residual `33 -> 28`, targeting `231 -> 229`, cleanup `183 -> 181`, hidden `156 -> 154`, payment-or-targeting `255 -> 250`, payment-and-targeting `44 -> 42`; automated-test evidence `328`, FAQ `92`, primary FAQ `61`, `fullOfficialTrue=0`, `ready=false`. However, the source candidate/audit docs were still three-line placeholders. Commit `17ca60b4` fills the selected rows, evidence basis, before/after counts, closed/open blockers, why-not-ready analysis and developer-window gaps. Project remains **NOT READY**.
+
+Validation: supplemental docs fix validation passed on DOC_MATRIX_CURRENT: jq matrix JSON valid; `git diff --check` passed; conflict-marker scan clean; PaymentEngineCoverageAuditTests 695/695 passed. The original source checkpoint validation remains PaymentEngineCoverageAuditTests 695/695, ConformanceFixtureRunnerTests 3019/3019 and backend full 5342/5342. Frontend build / Chrome smoke were not run because there were no frontend or browser-script changes.
+
+Requested action: A_MAIN should integrate / reject supplemental docs fix `17ca60b4`, record the result here, and only then release DOC_MATRIX_CURRENT back to the no-idle lane. DOC_MATRIX_CURRENT should not open 03QV+ while this docs-fix handoff is waiting.
 
 ### 2026-05-21 23:21 A_MAIN
 
