@@ -56,12 +56,47 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest accepted server/test checkpoint is 4D-05A, 4D-05B dispatch is queued but B worker must not start until DOC_MATRIX source commit `117ca9ab` is integrated or rejected, and latest integrated DOC_MATRIX source commit is `1bb61d18`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local matrix commit `117ca9ab`; 03NU-03NX clean handoff passed A_MAIN validation and was committed in main as `28674491`, 03NY-03OC clean handoff is ready for A_MAIN integration, and the rolling lane remains approved by the 17:22 / 17:27 / 17:31 A_MAIN entries below.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest accepted server/test checkpoint is 4D-05A, 4D-05B dispatch is queued but B worker must not start until DOC_MATRIX source commit `117ca9ab` is committed in main, and the `117ca9ab` integration has passed A_MAIN validation in the current cherry-pick state.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local matrix commit `117ca9ab`; 03NU-03NX clean handoff passed A_MAIN validation and was committed in main as `28674491`, 03NY-03OC clean handoff has passed A_MAIN validation and is being committed, and the rolling lane is renewed by the 17:47 A_MAIN entry below so DOC_MATRIX_CURRENT should continue 03OD+ / next executable matrix-number reduction bundles without idling.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 17:47 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` with DOC_MATRIX source commit `117ca9ab` cherry-pick reconciliation validated and ready to commit; `riftbound-dotnet.sln` remains expected untracked and must not be staged.
+
+Write locks:
+
+- A_MAIN has resolved and validated the 03NY-03OC handoff from DOC_MATRIX_CURRENT source commit `117ca9ab`.
+- B_SERVER 4D-05B remains queued but not released until this integration commit is finished.
+- **APPROVED_CONTINUOUS_DOC_MATRIX_LANE**: DOC_MATRIX_CURRENT may continue from clean `117ca9ab` into 03OD+ / the next executable matrix-number reduction bundles without waiting for another per-bundle A_MAIN authorization.
+- DOC_MATRIX_CURRENT allowed scope remains docs-only matrix/current-docs plus `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` only for residual expected-count, current-slice manifest and guard synchronization.
+- DOC_MATRIX_CURRENT locked scope remains runtime `src/**`, frontend, API/protocol core fields, official catalog snapshots, general tests outside `PaymentEngineCoverageAuditTests.cs`, browser / Chrome / formal E2E scripts, `fullOfficial`, READY / READY-CANDIDATE and `riftbound-dotnet.sln`.
+
+Status:
+
+- A_MAIN resolved the top-of-file conflicts for `docs/CURRENT_A_MASTER_CHECKPOINT.md`, `docs/CURRENT_COMPLETION_AUDIT.md` and `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md` by preserving both the 03NY-03OC DOC_MATRIX entry and the 05B / 05A A_MAIN entries.
+- A_MAIN validation passed for this integration: conflict-marker scan clean; `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` passed; `git diff --check` passed; `git diff --cached --check` passed; `PaymentEngineCoverageAuditTests` 669/669 passed; selected Predictive Offensive / Master Bingwen / Ancient Berserker / Windsong Wing / Fizz evidence filter 7/7 passed; backend full test 5284/5284 passed.
+- DOC_MATRIX_CURRENT should not pause merely because A_MAIN is validating or committing an earlier clean handoff. It should keep selecting small executable rows from the current residual matrix, one bundle at a time, until completion, a real blocker, or `NO_EXECUTABLE_CANDIDATES`.
+- Each DOC_MATRIX bundle still needs one clean commit, one shared-board handoff entry, selected rows, count deltas and validation results before A_MAIN integrates it.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Conflict-marker scan after A_MAIN conflict resolution is clean for the three conflicted current docs and this shared board.
+- `jq empty`, `git diff --check`, `git diff --cached --check`, `PaymentEngineCoverageAuditTests` 669/669, selected-row focused evidence 7/7 and backend full test 5284/5284 all passed in A_MAIN.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: start / continue 03OD+ or the next executable matrix-number reduction bundle immediately under this rolling approval; do not wait for a separate A_MAIN approval unless a stop condition appears.
+- `DOC_MATRIX_CURRENT`: stop and ask only for validation failure, unexplained 1009 / 811 count delta, hidden-info ambiguity, unresolved FAQ/rule conflict, need to edit locked code/protocol/frontend/catalog/general tests, worktree conflict, or no executable candidates.
+- `A_MAIN`: finish validation and commit the `117ca9ab` integration, then release B_SERVER 05B or reconcile any newer DOC_MATRIX handoff first.
 
 ### 2026-05-21 17:42 A_MAIN
 
