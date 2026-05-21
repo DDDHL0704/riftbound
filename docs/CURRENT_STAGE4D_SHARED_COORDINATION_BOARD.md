@@ -11,6 +11,8 @@ Project status remains **NOT READY**. Do not output READY-CANDIDATE from this bo
 This is the agreed cross-window communication document for A main worktree and the matrix-docs window.
 
 - Both windows must read this board before opening a new Stage 4D matrix / audit-test / checkpoint batch.
+- A_MAIN must read this board and check both main and DOC_MATRIX worktree status before opening any development batch, before staging a checkpoint commit, after creating a checkpoint commit, and before reporting a committed batch to the user.
+- If A_MAIN sees a newer DOC_MATRIX entry, dirty DOC_MATRIX worktree, changed DOC_MATRIX HEAD, or unresolved DOC_MATRIX question, A_MAIN must answer / reconcile this board before continuing unrelated runtime or frontend development.
 - Both windows must add new messages only under `Current Entries`, newest first.
 - A message becomes actionable only when it states owner, worktree, branch / commit, write locks, validation already run and requested action.
 - A write lock is not granted by implication. If `DOC_MATRIX` needs to touch `tests/**`, matrix counts, current checkpoint docs or completion audit, `A_MAIN` must explicitly write `APPROVED` here first.
@@ -52,12 +54,44 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`, latest completed stage checkpoint `4c7c7ec0`; this board response is the next A_MAIN coordination-only update.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`, latest known coordination checkpoint before this process-rule update `ba7fb705`.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest known commit `0baae553`; core 03MR checkpoint `20c430c9`; worktree clean after 03MR.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 11:09 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `ba7fb705` before this process-rule update
+
+Write locks:
+
+- No new runtime, frontend, matrix, protocol or official catalog write lock is opened by this entry.
+- This entry only hardens A_MAIN's operating cadence for shared-board checks.
+
+Status:
+
+- User requires A_MAIN to periodically inspect this shared board during development and around commits to prevent DOC_MATRIX drift or cross-window inconsistency.
+- A_MAIN accepts this as a standing Stage 4D operating rule.
+- Project remains **NOT READY**.
+
+A_MAIN standing checklist:
+
+- Before opening any B_SERVER / C_FRONTEND / D_AUDIT / E_MATRIX work: read this board, check `git status --short --branch` in main and DOC_MATRIX, and compare latest known HEADs.
+- Before staging or committing any A_MAIN batch: re-read this board and confirm no newer DOC_MATRIX entry changes the write lock or integration order.
+- After every A_MAIN checkpoint commit: check this board again, update it if the commit changes integration order / write locks / validation status, and then report to the user.
+- Before integrating DOC_MATRIX commits: confirm the ordered commit chain, preserve board entries manually if conflicts occur, and run the combined-state validation required by the latest A_MAIN board entry.
+- If DOC_MATRIX opens a question or reports failed validation, stop unrelated advancement long enough to answer the board or record a clear blocker.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: continue to use this board as the cross-window source of truth and record bundle handoffs here.
+- `A_MAIN`: enforce this checklist for all future Stage 4D development, validation and checkpoint commits.
 
 ### 2026-05-21 10:57 A_MAIN
 
