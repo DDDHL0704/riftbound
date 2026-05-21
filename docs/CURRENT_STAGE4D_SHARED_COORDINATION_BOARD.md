@@ -56,12 +56,46 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest HEAD `1ad4bf33` integrates DOC_MATRIX source commit `117ca9ab` for 03NY-03OC; exact HEAD must still be checked before each batch / commit; latest accepted server/test checkpoint is 4D-05A; 4D-05B dispatch is queued for release after this board-result commit / post-commit guard.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local matrix commit `117ca9ab`; 03NU-03NX clean handoff passed A_MAIN validation and was committed in main as `28674491`, 03NY-03OC clean handoff passed A_MAIN validation and was committed in main as `1ad4bf33`, and the rolling lane is renewed by the 17:50 A_MAIN entry below so DOC_MATRIX_CURRENT should continue 03OD+ / next executable matrix-number reduction bundles without idling.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest HEAD `b33ed45f` records the `117ca9ab` -> `1ad4bf33` integration result and continuous DOC_MATRIX lane; exact HEAD must still be checked before each batch / commit; latest accepted server/test checkpoint is 4D-05A; 4D-05B is released by the 17:52 A_MAIN entry below.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local commit observed by A_MAIN is `117ca9ab` with allowed dirty `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`; 03NY-03OC clean handoff passed A_MAIN validation and was committed in main as `1ad4bf33`; the rolling lane is active and DOC_MATRIX_CURRENT appears to be working the next executable bundle.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 17:52 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `b33ed45f` (`docs: record matrix 03NY integration and rolling lane`).
+
+Write locks:
+
+- A_MAIN post-commit guard checked main and DOC_MATRIX_CURRENT after recording the 03NY-03OC integration result.
+- DOC_MATRIX_CURRENT is no longer idle: A_MAIN observed allowed dirty `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` in `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`.
+- DOC_MATRIX_CURRENT continuous lane remains approved for matrix/current-docs plus `PaymentEngineCoverageAuditTests.cs` residual-count / current-slice guard synchronization only.
+- B_SERVER 4D-05B is now released with the existing prompt `docs/CURRENT_STAGE4D_05B_PAYMENTENGINE_PENDING_PAY_COST_TEMPORARY_RESOURCE_GUARD_B_WORKER_PROMPT.md`.
+- B_SERVER 4D-05B allowed files remain `tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs`, optional helper extraction inside that file, `src/Riftbound.Engine/CoreRuleEngine.cs` only if a runtime bug is exposed, and optional 05B audit/evidence docs.
+- B_SERVER 4D-05B locked files remain matrix JSON, `PaymentEngineCoverageAuditTests.cs`, frontend, official catalog, protocol core fields, browser / Chrome / formal E2E scripts, `fullOfficial`, READY / READY-CANDIDATE and `riftbound-dotnet.sln`.
+
+Status:
+
+- Main is clean except expected untracked `riftbound-dotnet.sln`.
+- DOC_MATRIX_CURRENT is actively working an allowed next matrix bundle and has no clean handoff yet. This is expected and does not block the disjoint B_SERVER 05B runtime-test slice.
+- A_MAIN must check this board and DOC_MATRIX_CURRENT again before staging or committing B_SERVER 05B acceptance, and must integrate any newer clean DOC_MATRIX handoff before unrelated follow-on runtime/frontend work if one appears.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Post-commit status check only; no new runtime test is required by this coordination entry.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: continue the current 03OD+ / next executable matrix-number reduction bundle; do not stop for authorization unless a listed stop condition appears.
+- `B_SERVER`: start 4D-05B under the existing prompt and do not touch DOC_MATRIX locked files.
+- `A_MAIN`: supervise both lanes and reconcile DOC_MATRIX handoff before any later unrelated batch.
 
 ### 2026-05-21 17:50 A_MAIN
 
