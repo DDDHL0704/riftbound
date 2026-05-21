@@ -56,12 +56,46 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest accepted server/test checkpoint is `df09955c` for 4D-04W; latest integrated DOC_MATRIX checkpoint is `3aec3c71` for DOC_MATRIX commit `5e929b48`.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest accepted server/test checkpoint is `df09955c` for 4D-04W, with post-04W coordination guard `5d2e8b0f`; latest integrated DOC_MATRIX checkpoint is `3aec3c71` for DOC_MATRIX commit `5e929b48`.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local matrix commit `5e929b48`; board-sync commit `e717d00e` authorizes continuing from 03NM onward.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 16:09 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `5d2e8b0f`; `DOC_MATRIX_CURRENT` observed at `e717d00e` with in-progress 03NM-03NP draft files.
+
+Write locks:
+
+- `DOC_MATRIX_CURRENT` is explicitly **APPROVED** to continue the matrix-number-reduction lane without waiting for another A_MAIN message.
+- This is a rolling approval for consecutive small matrix / audit-test baseline bundles. It supersedes any interpretation that the 16:04 entry required DOC_MATRIX to pause.
+- Allowed DOC_MATRIX scope remains: `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, current checkpoint/audit/coverage coordination docs, new per-bundle candidate/audit docs, this shared board for handoff notes, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` only for residual expected-count / current-slice manifest / guard synchronization.
+- Runtime, frontend, API/protocol core fields, official catalog, general tests outside `PaymentEngineCoverageAuditTests.cs`, browser / Chrome / formal E2E scripts, `fullOfficial`, READY and `riftbound-dotnet.sln` remain locked for DOC_MATRIX.
+
+Status:
+
+- `DOC_MATRIX_CURRENT` should not idle while eligible matrix rows remain. It should finish the current 03NM-03NP draft, validate it, commit one clean handoff, write that handoff here, then immediately select the next eligible bundle under the same approval.
+- Candidate selection should prioritize rows where existing runtime behavior, existing fixtures, existing focused tests or rule evidence make a docs/audit-baseline update possible without server/frontend/protocol/catalog changes.
+- If a selected row would require runtime/frontend/protocol/catalog work, leave that row blocked and pick another eligible row instead.
+- If no eligible rows remain, write `NO_EXECUTABLE_CANDIDATES` here with residual counts and blocker reasons instead of waiting silently.
+- Project remains **NOT READY**.
+
+Validation:
+
+- A_MAIN pre-entry guard checked main status clean except expected untracked `riftbound-dotnet.sln`.
+- A_MAIN observed `DOC_MATRIX_CURRENT` dirty files within allowed rolling-lane scope: matrix skeleton, current checkpoint/audit coordination docs, `PaymentEngineCoverageAuditTests.cs`, and 03NM-03NP candidate/audit docs.
+- DOC_MATRIX must run per-bundle validation before each handoff: matrix JSON parse, `git diff --check`, focused `PaymentEngineCoverageAuditTests`, selected-row evidence filter, and backend full if `PaymentEngineCoverageAuditTests.cs` expected counts / guards change.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: continue now. Do not pause for A_MAIN approval unless validation fails, a stop condition is hit, a write-lock conflict appears, or there are no executable candidates.
+- `A_MAIN`: continue checking this board and DOC_MATRIX status before each development batch and before every commit; if DOC_MATRIX produces a handoff commit, reconcile it before unrelated runtime/frontend work.
 
 ### 2026-05-21 16:04 A_MAIN
 
