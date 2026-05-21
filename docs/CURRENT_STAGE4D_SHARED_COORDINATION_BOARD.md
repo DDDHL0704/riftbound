@@ -56,12 +56,116 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OD-03OF committed as `3e82b986`; latest accepted server/test checkpoint is 4D-05C committed as `325c4d37`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, active on 03OG-03OI matrix/current-doc/audit-test work from board-only base `9c5af6e9`; 03OD-03OF clean handoff passed A_MAIN validation and was committed in main as `3e82b986`; continuous lane is released by the 18:17 / 18:18 A_MAIN no-idle entries.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OG-03OI pending commit after A_MAIN validation; latest accepted server/test checkpoint is 4D-05C committed as `325c4d37`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, clean at `e6abd286` and paused until A_MAIN commits integration result; continuous lane will be released again by the A_MAIN resolution entry below.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 18:38 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `5aff801a`; DOC_MATRIX source commit `e6abd286` cherry-pick reconciliation validated and ready to commit.
+
+Write locks:
+
+- A_MAIN has resolved the 03OG-03OI handoff from DOC_MATRIX_CURRENT source commit `e6abd286`.
+- A_MAIN preserved the DOC_MATRIX 18:36 handoff / wait entries and the 05C B_SERVER acceptance during conflict resolution.
+- This integration touches matrix/current docs and `PaymentEngineCoverageAuditTests.cs`; it does not touch runtime, frontend, API/protocol core fields, official catalog snapshots, general tests outside `PaymentEngineCoverageAuditTests.cs`, browser / Chrome / formal E2E scripts, `fullOfficial`, READY / READY-CANDIDATE or `riftbound-dotnet.sln`.
+- After A_MAIN records the commit and post-commit guard, DOC_MATRIX_CURRENT may continue the next executable matrix-number reduction bundle under the rolling lane.
+
+Status:
+
+- 03OG-03OI is accepted on main pending commit. Counts now include all FU `NEEDS_ENGINE_SUPPORT 528 -> 525`, payment-cost `130 -> 127`, primary residual `90`, targeting-stack-timing `273 -> 270`, cleanup-replacement-duration `208`, hidden-info-random-zone `170`, payment-or-targeting-stack-timing `317 -> 314`, payment-and-targeting-stack-timing `86 -> 83`; `NEEDS_AUTOMATED_TEST_EVIDENCE=328`, `NEEDS_FAQ_REVIEW=92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Conflict-marker scan clean after A_MAIN conflict resolution.
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`: passed.
+- `git diff --check`: passed.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngineCoverageAuditTests"`: passed 672/672.
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~Lucian|FullyQualifiedName~Yone|FullyQualifiedName~Sivir"`: passed 14/14.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed 5299/5299.
+
+Requested action:
+
+- `A_MAIN`: commit the 03OG-03OI integration, then run post-commit guard.
+- `DOC_MATRIX_CURRENT`: wait for the post-commit release entry, then continue the next executable matrix-number reduction bundle.
+
+### 2026-05-21 18:36 DOC_MATRIX_CURRENT
+
+Owner: `DOC_MATRIX_CURRENT`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521` at `e6abd286`; main worktree `/Users/dinghaolin/MyProjects/riftbound-dotnet` observed at `5aff801a`.
+
+Write locks:
+
+- No new DOC_MATRIX batch is opened by this entry.
+- DOC_MATRIX_CURRENT remains paused after 03OG-03OI.
+- Do not continue matrix/current-doc/audit-test reductions until A_MAIN resolves or explicitly redirects the current main-worktree integration state.
+
+Status:
+
+- DOC_MATRIX_CURRENT is clean at `e6abd286`.
+- Main worktree currently has 03OG-03OI integration changes staged plus unresolved current-doc conflicts in `docs/CURRENT_A_MASTER_CHECKPOINT.md`, `docs/CURRENT_COMPLETION_AUDIT.md`, `docs/CURRENT_SERVER_RULE_AUDIT.md` and `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`.
+- Main worktree also has modified `docs/CURRENT_STAGE4D_SHARED_COORDINATION_BOARD.md` and expected untracked `riftbound-dotnet.sln`.
+- This conflicts with the older board description that main was clean except `riftbound-dotnet.sln`; treat the observed main status as the active blocker until A_MAIN records a newer resolution.
+- Potential risk: opening another matrix-number bundle before this handoff is accepted/rejected would compound audit baseline and current-doc merge pressure.
+- Unknown: whether A_MAIN intends to finish resolving the current 03OG-03OI integration, reject it, or ask DOC_MATRIX_CURRENT to rebase/cherry-pick from a newer base.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Read latest shared board from main worktree.
+- Checked main status / HEAD: `main` at `5aff801a` with unresolved current-doc conflicts listed above.
+- Checked DOC_MATRIX_CURRENT status / HEAD: clean at `e6abd286`.
+
+Requested action:
+
+- `A_MAIN`: record whether it will resolve, reject, or redirect the `e6abd286` integration; after that, update this board with the accepted base / next DOC_MATRIX permission.
+- `DOC_MATRIX_CURRENT`: wait; do not open the next matrix-number reduction batch from `e6abd286` while main integration is unresolved.
+
+### 2026-05-21 18:36 DOC_MATRIX_CURRENT
+
+Owner: `DOC_MATRIX_CURRENT`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521` at `e6abd286` (`checkpoint: stage 4D matrix 03OG-03OI SFD shared oracle evidence bundle sync`).
+
+Write locks:
+
+- Used the active 18:21 / 18:28 A_MAIN continuous DOC_MATRIX approval.
+- Touched only matrix/current docs, new 03OG-03OI candidate/audit docs, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` residual expected-count / current-slice guard synchronization.
+- Runtime, frontend, API/protocol core fields, official catalog snapshots, general tests outside `PaymentEngineCoverageAuditTests.cs`, browser / Chrome / formal E2E scripts, `fullOfficial`, final readiness state and `riftbound-dotnet.sln` remain locked.
+
+Status:
+
+- 03OG-03OI closes only the selected row-level `NEEDS_ENGINE_SUPPORT` blocker for three SFD payment-cost shared-oracle rows: Lucian (`FU-de2dbad3c5` / `SFD·113/221`), Yone (`FU-d1c30c4216` / `SFD·116/221`) and Sivir (`FU-83471f1082` / `SFD·120/221`).
+- Counts move all FU `NEEDS_ENGINE_SUPPORT 528 -> 525`, payment-cost `130 -> 127`, primary residual `90 -> 90`, targeting-stack-timing `273 -> 270`, cleanup-replacement-duration `208 -> 208`, hidden-info-random-zone `170 -> 170`, payment-or-targeting-stack-timing `317 -> 314`, payment-and-targeting-stack-timing `86 -> 83`; `NEEDS_AUTOMATED_TEST_EVIDENCE=328`, `NEEDS_FAQ_REVIEW=92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`.
+- Automated evidence disposition, Tempered assemble / armament attach, Spellshield2 target-tax, battle / layer / target-stack breadth, complete PaymentEngine / PAY_COST matrix, P0/P1, Chrome / formal E2E, `fullOfficial` and final readiness remain open.
+- Project remains **NOT READY**.
+
+Validation:
+
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`: passed.
+- `git diff --check`: passed.
+- `git diff --cached --check`: passed.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngineCoverageAuditTests"`: passed 672/672.
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~Lucian|FullyQualifiedName~Yone|FullyQualifiedName~Sivir"`: passed 14/14.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed 5248/5248.
+
+Requested action:
+
+- `A_MAIN`: integrate or reject DOC_MATRIX_CURRENT commit `e6abd286` before unrelated follow-on work that depends on current matrix counts.
+- `DOC_MATRIX_CURRENT`: pause here per user instruction after this batch.
 
 ### 2026-05-21 18:32 A_MAIN
 
