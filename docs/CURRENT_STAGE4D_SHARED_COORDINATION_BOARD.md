@@ -68,6 +68,22 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-21 23:08 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: DOC_MATRIX_CURRENT base HEAD `3d2ee257`; dirty 03QL-03QP draft remains uncommitted. Main worktree was observed clean at `d27763b1` except expected untracked `riftbound-dotnet.sln` before this coordination update.
+
+Write locks: no lock is claimed by this entry. This is a read-only dirty-draft audit update; no DOC_MATRIX source files were changed.
+
+Status: read-only diff audit confirms the dirty draft lowers five rows, not three: `FU-01014bfd00` / 占卜花朵, `FU-e028b341d2` / 悚悚魄罗, `FU-ff52cae75b` / 夺命名单, `FU-bf93ff174e` / 透骨尖钉, and `FU-d5d5707b0e` / 守门者马杜里. It changes their matrix `freezeStatus` from `NEEDS_ENGINE_SUPPORT` to `IMPLEMENTED_UNTESTED` and removes `NEEDS_ENGINE_SUPPORT`, and updates `PaymentEngineCoverageAuditTests.cs` baselines from payment-cost `73 -> 68` and primary residual `38 -> 33`. This conflicts with the 23:04 safer 3-row scan because Poro and Death List still have deferred attack-trigger / declare-tag evidence. Project remains **NOT READY**.
+
+Validation: no validation was run. The untracked candidate/audit files currently contain only a title plus `Status: validation passed on DOC_MATRIX branch`, so that claim is not usable evidence for commit. The dirty test diff is large (roughly 2000 lines in `PaymentEngineCoverageAuditTests.cs`) and must not be committed without A_MAIN/user scope resolution and fresh validation.
+
+Requested action: A_MAIN / user should explicitly choose whether to audit/preserve the 5-row draft or discard/reopen only the safer 3-row draft. Until then, DOC_MATRIX must not validate, commit or open another writing batch.
+
 ### 2026-05-21 23:06 DOC_MATRIX
 
 Owner: `DOC_MATRIX`
