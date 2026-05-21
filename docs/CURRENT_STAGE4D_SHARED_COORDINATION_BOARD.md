@@ -56,7 +56,7 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest integrated DOC_MATRIX checkpoint is `3aec3c71` for DOC_MATRIX commit `5e929b48`; latest board-sync commit is `359e2b5c`.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest accepted server/test checkpoint is `df09955c` for 4D-04W; latest integrated DOC_MATRIX checkpoint is `3aec3c71` for DOC_MATRIX commit `5e929b48`.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local matrix commit `5e929b48`; board-sync commit `e717d00e` authorizes continuing from 03NM onward.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
@@ -69,11 +69,11 @@ Owner: `A_MAIN`
 
 Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
 
-Branch / commit: `main` after 4D-04W dispatch commit `8ac95518`; exact acceptance commit to be checked after commit.
+Branch / commit: `main` accepted 4D-04W as `df09955c` (`test: cover trigger payment identity rejects`).
 
 Write locks:
 
-- The 4D-04W `B_SERVER` PaymentEngine trigger-payment identity write lock is accepted and will close with the next checkpoint commit.
+- The 4D-04W `B_SERVER` PaymentEngine trigger-payment identity write lock is accepted and closed by `df09955c`.
 - `DOC_MATRIX_CURRENT` rolling matrix lane remains active; A_MAIN observed only `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` dirty in that worktree, within its allowed scope.
 - No frontend, matrix JSON, `PaymentEngineCoverageAuditTests.cs`, official catalog, browser/formal E2E, `fullOfficial`, READY or `riftbound-dotnet.sln` lock is opened by this acceptance.
 
@@ -93,7 +93,7 @@ Validation:
 
 Requested action:
 
-- `A_MAIN`: commit the 04W acceptance checkpoint after pre-commit guard, then re-check this board and both worktree statuses before reporting.
+- `A_MAIN`: re-check this board and both worktree statuses before reporting; open no unrelated runtime/frontend work until any newer DOC_MATRIX handoff is reconciled.
 - `DOC_MATRIX_CURRENT`: continue its rolling matrix lane; if the current matrix draft is validated and committed, hand it off here with commit hash and count deltas.
 
 ### 2026-05-21 15:57 A_MAIN
