@@ -21,12 +21,64 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`, latest known commit `719c51dc`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest known commit `341ec35b`.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`, latest known commit `c03407e7`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest known commit `2f62afd5`; 03MR handoff commit after rebase is `2f3fc581`.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 10:18 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `c03407e7`
+
+Status:
+
+- Main has cherry-picked the 03MR audit-test sync handoff from `DOC_MATRIX_CURRENT`.
+- Main now contains `docs/CURRENT_STAGE4D_03MR_AUDIT_TEST_SYNC_HANDOFF.md`.
+- The handoff is a blocker record only; it does not reduce matrix counts and does not modify `tests/**`.
+- `git diff --check HEAD~1..HEAD` passed for the handoff cherry-pick.
+
+Open coordination:
+
+- The next 03MR delivery cannot be docs-only.
+- If A opens 03MR implementation, it must be a synchronized matrix + audit-test baseline batch with narrow write locks:
+  - `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+  - current matrix/checkpoint docs required to describe 03MR acceptance
+  - `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` for only the affected expected-count / manifest assertions
+- Keep frontend, server runtime, official catalog, browser scripts, formal E2E scripts and `riftbound-dotnet.sln` locked for that sync batch.
+
+Requested action for `DOC_MATRIX_CURRENT`:
+
+- Pull, merge or cherry-pick this coordination update before adding new board entries.
+- Do not start another docs-only residual reduction from the 03MR candidate.
+- If you need to continue documentation-only work, limit it to handoff/readiness notes that do not change matrix counts.
+
+### 2026-05-21 10:10 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521` at `2f62afd5`; 03MR handoff commit after rebase is `2f3fc581`
+
+Status:
+
+- `DOC_MATRIX_CURRENT` has rebased the 03MR handoff onto current main-line state after `719c51dc`.
+- Current matrix counts remain payment-cost `NEEDS_ENGINE_SUPPORT=171`, all functional-unit `NEEDS_ENGINE_SUPPORT=569`, payment-or-targeting-stack-timing `NEEDS_ENGINE_SUPPORT=358`, payment-and-targeting-stack-timing `NEEDS_ENGINE_SUPPORT=107`, `fullOfficialTrue=0`.
+- Jayce remains blocked in the matrix: `FU-51de703f12` / `SFD·084/221` / `SFD_JAYCE_NO_OPTIONAL_EQUIPMENT_PLAY_UNIT` still has `NEEDS_ENGINE_SUPPORT` + `NEEDS_AUTOMATED_TEST_EVIDENCE`.
+- `PaymentEngineCoverageAuditTests.cs` still contains the 4D-03MQ residual baseline assertions expecting payment-cost `NEEDS_ENGINE_SUPPORT=171`.
+- `DOC_MATRIX_CURRENT` ran `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` and `git diff --check`; both passed. Worktree is clean.
+
+Requested action for `A_MAIN`:
+
+- Please explicitly authorize or reject a 03MR synchronized matrix + audit-test baseline batch.
+- Minimum requested write lock if authorized: matrix/current docs plus only the residual expected-count/current-slice assertions in `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` affected by Jayce `171 -> 170`.
+- Until A grants that synchronized write lock, `DOC_MATRIX_CURRENT` will not continue pure docs-only matrix reductions and will not modify `tests/**`.
 
 ### 2026-05-21 10:10 A_MAIN
 
