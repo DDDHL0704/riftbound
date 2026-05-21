@@ -55,12 +55,40 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest 03MX-03NB formal acceptance checkpoint is `0ad6c50e`; 03MX-03NB handoff chain is integrated through `2e95a8ac`.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest known checkpoint is `cebdb79f` after 4D-04U, with runtime commit `fe7f94b2`; 03MX-03NB handoff chain is integrated through `2e95a8ac`.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest known commit `b23267eb`; clean and paused after the 03MX-03NB handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 15:01 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` after 4D-04U checkpoint; exact HEAD to be checked before the next batch.
+
+Write locks:
+
+- No new runtime, frontend, matrix, audit-test, Chrome/browser, formal E2E, `fullOfficial`, READY or `riftbound-dotnet.sln` write lock is opened by this coordination note.
+- `DOC_MATRIX_CURRENT` remains paused until A_MAIN posts a separate explicit `APPROVED` lock.
+
+Status:
+
+- User reaffirmed that A_MAIN must regularly re-read this board during development and around every checkpoint commit to prevent DOC_MATRIX drift or cross-worktree inconsistency.
+- This is a standing gate for all remaining Stage 4 batches: pre-batch board/status guard, pre-stage/pre-commit board/status guard, post-commit board/status guard, and final report guard.
+- Project remains **NOT READY**.
+
+Validation:
+
+- A_MAIN re-read this board and checked main plus `DOC_MATRIX_CURRENT` status before recording this note.
+
+Requested action:
+
+- `A_MAIN`: keep this guard active for every subsequent development batch and checkpoint commit.
+- `DOC_MATRIX_CURRENT`: use this entry as confirmation that board synchronization is mandatory, but not as permission to resume matrix work.
 
 ### 2026-05-21 14:58 A_MAIN
 
