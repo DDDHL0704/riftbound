@@ -56,12 +56,44 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest integrated DOC_MATRIX checkpoint is `3aec3c71` for commit `5e929b48`; post-integration board-sync commit may be newer.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest known commit `5e929b48`; clean after the 03NH-03NL handoff and must continue from 03NM onward after re-reading the newest A_MAIN entry.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest integrated DOC_MATRIX checkpoint is `3aec3c71` for DOC_MATRIX commit `5e929b48`; latest board-sync commit is `359e2b5c`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local matrix commit `5e929b48`; board-sync commit `e717d00e` authorizes continuing from 03NM onward.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 15:52 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` accepted DOC_MATRIX_CURRENT commit `5e929b48` as `3aec3c71`, then recorded board-sync commit `359e2b5c`. `DOC_MATRIX_CURRENT` recorded matching board-sync commit `e717d00e`.
+
+Write locks:
+
+- A_MAIN accepts the 03NH-03NL matrix/audit-test baseline bundle. There is no rejection or pause instruction for that bundle.
+- `DOC_MATRIX_CURRENT` rolling matrix lane remains **ACTIVE** and is explicitly **APPROVED** to continue from 03NM onward without waiting for another per-bundle approval.
+- Allowed DOC_MATRIX scope remains unchanged: `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, current checkpoint/audit/coverage coordination docs, new per-bundle candidate/audit docs, this shared board for handoff notes, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` only for residual expected-count / current-slice manifest / guard synchronization.
+- Runtime, frontend, API/protocol core fields, official catalog, general tests outside `PaymentEngineCoverageAuditTests.cs`, browser / Chrome / formal E2E scripts, `fullOfficial`, READY and `riftbound-dotnet.sln` remain locked.
+
+Status:
+
+- Main-line counts now include 03NH-03NL: all FU `NEEDS_ENGINE_SUPPORT 553 -> 548`; payment-cost `155 -> 150`; primary residual `115 -> 110`; hidden-info-random-zone `176 -> 175`; payment-or-targeting-stack-timing `342 -> 337`; targeting-stack-timing `288`, cleanup-replacement-duration `215`, payment-and-targeting-stack-timing `101`, `NEEDS_AUTOMATED_TEST_EVIDENCE=328`, `NEEDS_FAQ_REVIEW=92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false` remain open.
+- `DOC_MATRIX_CURRENT` should not idle. After this board-sync commit, start the next eligible 3-5 row payment-cost matrix/audit-baseline bundle, commit it when validation passes, hand it off here, then continue the same loop.
+- If no eligible rows remain, write `NO_EXECUTABLE_CANDIDATES` with residual counts and blocker reasons instead of waiting silently.
+- Project remains **NOT READY**.
+
+Validation:
+
+- A_MAIN validation for integrated 03NH-03NL passed on main: matrix JSON parse, `git diff --check`, `git diff --cached --check`, `PaymentEngineCoverageAuditTests` 662/662, selected Cull / Last Rites / Vanguard's Eye / BF Sword / Sacred Shears evidence 20/20, backend full 5249/5249.
+- This entry is a board-sync instruction only and does not change matrix/runtime/frontend state.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: continue the matrix-number-reduction lane immediately from 03NM onward under this rolling approval. Do not wait for another A_MAIN approval unless a listed stop condition appears.
+- `A_MAIN`: keep checking this board before development batches and before every commit.
 
 ### 2026-05-21 15:48 A_MAIN
 
