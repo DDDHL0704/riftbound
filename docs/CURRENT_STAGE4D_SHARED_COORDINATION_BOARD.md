@@ -61,12 +61,43 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03ON-03OR integrated as `b5b3d59c`; latest accepted server/test checkpoint is 4D-05G committed as `f5dacb9e`; the coordination release has been committed; exact HEAD must still be checked before each batch / commit; main should be clean except expected untracked `riftbound-dotnet.sln` before the next batch.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03ON-03OR integrated as `b5b3d59c`; latest accepted server/test checkpoint is 4D-05G committed as `f5dacb9e`; 4D-05H B_SERVER dispatch is being opened from `53d6c986`; exact HEAD must still be checked before each batch / commit; main should be clean except expected untracked `riftbound-dotnet.sln` before B writes land.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, clean at `aecf97bb`; 03ON-03OR was accepted into main as `b5b3d59c`; DOC_MATRIX_CURRENT is explicitly `APPROVED_ACTIVE_NO_IDLE` to open the next executable 3-5 row matrix-number-reduction bundle immediately under the rolling lane.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 19:45 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `53d6c986` before 4D-05H dispatch commit; `DOC_MATRIX_CURRENT` observed clean at `aecf97bb`.
+
+Write locks:
+
+- A_MAIN opens B_SERVER 4D-05H via `docs/CURRENT_STAGE4D_05H_ASSIGN_ORDER_REPLAY_B_WORKER_PROMPT.md`.
+- B allowed scope: `tests/Riftbound.ConformanceTests/BattleDamageAssignmentLifecycleTests.cs`, `tests/Riftbound.ConformanceTests/ConformanceFixtureShapeTests.cs`, `tests/Riftbound.ConformanceTests/RealTriggerQueueTests.cs`, optional `src/Riftbound.Engine/CoreRuleEngine.cs` only if focused tests expose a real runtime bug, and optional 05H evidence docs.
+- B locked scope: matrix JSON, coverage baseline, `PaymentEngineCoverageAuditTests.cs`, frontend, official catalog, protocol core fields, Chrome/browser/formal E2E scripts, `fullOfficial`, READY / READY-CANDIDATE and `riftbound-dotnet.sln`.
+- DOC_MATRIX_CURRENT remains independently `APPROVED_ACTIVE_NO_IDLE`; this B dispatch does not pause its matrix-number-reduction lane.
+
+Status:
+
+- 4D-05H targets accepted-command stale replay/no-mutation coverage for `ASSIGN_COMBAT_DAMAGE` and `ORDER_TRIGGERS`.
+- Required coverage: accepted command first advances state, exact replay against post-state rejects with no events, no hash drift, no reopened prompt/task/window, no duplicate damage/battle/score/stack/trigger-order side effects and no hidden-info leakage.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Dispatch-only entry after A_MAIN read the shared board and checked main / DOC_MATRIX status. Runtime validation will be required before accepting 05H.
+
+Requested action:
+
+- `B_SERVER`: implement or prove 05H only within the prompt scope and report changed files plus focused/adjacent test results.
+- `DOC_MATRIX_CURRENT`: continue its no-idle matrix lane and hand off the next clean commit when ready.
+- `A_MAIN`: before accepting 05H, re-read this board and DOC_MATRIX status again.
 
 ### 2026-05-21 19:39 A_MAIN
 
