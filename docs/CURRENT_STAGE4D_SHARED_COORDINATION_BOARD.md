@@ -61,12 +61,43 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OJ-03OM integrated as `d47e8258`; latest accepted server/test checkpoint is 4D-05E committed as `dab35038`; active B_SERVER dispatch is 4D-05F from this board/checkpoint update; exact HEAD must still be checked before each batch / commit; main currently has the 05F dispatch doc update plus expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, clean at `03b1521e`; 03OJ-03OM was accepted into main as `d47e8258`; released under the rolling no-idle lane to open the next executable 3-5 row matrix-number-reduction bundle immediately after reading this entry.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OJ-03OM integrated as `d47e8258`; latest accepted server/test checkpoint is 4D-05F pending acceptance commit from this 19:21 entry; exact HEAD must still be checked before each batch / commit; main currently has 05F B_SERVER test edits plus checkpoint docs and expected untracked `riftbound-dotnet.sln`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, active dirty on next matrix-number-reduction bundle with `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`; 03OJ-03OM was accepted into main as `d47e8258`; DOC_MATRIX_CURRENT remains under the rolling no-idle lane.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 19:21 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `876623c6` before the 05F acceptance commit; DOC_MATRIX_CURRENT observed active dirty on matrix JSON.
+
+Write locks:
+
+- A_MAIN accepts B_SERVER 4D-05F in `tests/Riftbound.ConformanceTests/TriggerPaymentTests.cs`.
+- The 05F B_SERVER write lock is closed after this acceptance; no runtime, protocol, frontend, matrix JSON, `PaymentEngineCoverageAuditTests.cs`, official catalog, Chrome/browser/formal E2E, `fullOfficial`, READY or `riftbound-dotnet.sln` lock is opened by 05F.
+- DOC_MATRIX_CURRENT rolling no-idle lane remains active and independent. Its current dirty matrix bundle should continue to validation / commit / handoff.
+
+Status:
+
+- 05F adds focused trigger-payment representative replay guards for Sunken Temple Powerful, OGN Vayne conquer and Icevale Archer attack: each successful `TRIGGER_PAYMENT` payment accepts once, closes the window, then exact stale replay rejects with no events, exact state-hash preservation, no restored `PendingPayment`, no `PAY_COST` prompt fork, no task queue fork and no duplicate cost / draw / return-to-hand / power-modifier / trigger side effects.
+- Runtime changed: no. Protocol shape changed: no. Hidden-info leakage found: no.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Focused 05F validation passed: `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~TriggerPaymentTests"` 74/74.
+- Adjacent 05F validation passed: `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~TriggerPayment|FullyQualifiedName~PaymentEngine|FullyQualifiedName~ActionPrompt|FullyQualifiedName~Prompt|FullyQualifiedName~BattleDamageAssignmentLifecycle"` 1048/1048.
+- `git diff --check` passed before commit staging.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: keep going on the active matrix-number-reduction bundle and hand off a clean commit when ready.
+- `A_MAIN`: commit the 05F acceptance, then perform post-commit board/status guard before any next development dispatch.
 
 ### 2026-05-21 19:16 A_MAIN
 

@@ -387,6 +387,45 @@ public sealed class TriggerPaymentTests
     }
 
     [Fact]
+    public async Task BattlefieldConquerSunkenTemplePowerfulPaymentRejectsPostPaymentReplayWithoutMutation()
+    {
+        var engine = new CoreRuleEngine();
+        var opened = await DeclareSunkenTempleBattleAsync(BuildBattlefieldConquerPowerfulDrawState(), engine);
+        var payment = AssertSunkenTemplePaymentOpen(opened);
+        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [PayOneMana]);
+
+        var paid = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-sunken-temple-pay-before-replay", "P1", CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Equal(0, paid.State.RunePools["P1"].Mana);
+        Assert.Equal(["P1-BATTLEFIELD-POWERFUL-DRAW-001"], paid.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-BATTLEFIELD-POWERFUL-DRAW-002"], paid.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(1, CountEvents(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)));
+        Assert.Equal(1, CountEvents(paid.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, PowerfulDrawTrigger, StringComparison.Ordinal)));
+        Assert.Equal(1, CountEvents(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)));
+        Assert.Equal(1, CountEvents(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal)));
+        var postPaymentHash = MatchStateHasher.Hash(paid.State);
+
+        var replay = await engine.ResolveAsync(
+            paid.State,
+            new PlayerIntent("intent-sunken-temple-pay-stale-replay", "P1", CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        AssertRepresentativeClosedReplayRejectedNoMutation(replay, paid.State, postPaymentHash);
+        Assert.Equal(0, replay.State.RunePools["P1"].Mana);
+        Assert.Equal(["P1-BATTLEFIELD-POWERFUL-DRAW-001"], replay.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-BATTLEFIELD-POWERFUL-DRAW-002"], replay.State.PlayerZones["P1"].MainDeck);
+    }
+
+    [Fact]
     public async Task BattlefieldConquerSunkenTemplePowerfulPaymentDeclineClosesWithoutDraw()
     {
         var engine = new CoreRuleEngine();
@@ -543,6 +582,45 @@ public sealed class TriggerPaymentTests
     }
 
     [Fact]
+    public async Task OgnVayneConquerPaymentRejectsPostPaymentReplayWithoutMutation()
+    {
+        var engine = new CoreRuleEngine();
+        var opened = await DeclareVayneBattleAsync(BuildOgnVayneConquerRecallState(), engine);
+        var payment = AssertVaynePaymentOpen(opened);
+        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [PayOneMana]);
+
+        var paid = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-vayne-pay-before-replay", "P1", CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Equal(0, paid.State.RunePools["P1"].Mana);
+        Assert.Contains("P1-BATTLEFIELD-VAYNE", paid.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain("P1-BATTLEFIELD-VAYNE", paid.State.PlayerZones["P1"].Battlefields);
+        Assert.False(paid.State.CardObjects.ContainsKey("P1-BATTLEFIELD-VAYNE"));
+        Assert.Equal(1, CountEvents(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)));
+        Assert.Equal(1, CountEvents(paid.Events, IsVayneTriggerResolved));
+        Assert.Equal(1, CountEvents(paid.Events, IsVayneReturnedToHand));
+        Assert.Equal(1, CountEvents(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal)));
+        var postPaymentHash = MatchStateHasher.Hash(paid.State);
+
+        var replay = await engine.ResolveAsync(
+            paid.State,
+            new PlayerIntent("intent-vayne-pay-stale-replay", "P1", CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        AssertRepresentativeClosedReplayRejectedNoMutation(replay, paid.State, postPaymentHash);
+        Assert.Equal(0, replay.State.RunePools["P1"].Mana);
+        Assert.Contains("P1-BATTLEFIELD-VAYNE", replay.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain("P1-BATTLEFIELD-VAYNE", replay.State.PlayerZones["P1"].Battlefields);
+        Assert.False(replay.State.CardObjects.ContainsKey("P1-BATTLEFIELD-VAYNE"));
+    }
+
+    [Fact]
     public async Task OgnVayneConquerPaymentDeclineClosesWithoutReturning()
     {
         var engine = new CoreRuleEngine();
@@ -686,6 +764,57 @@ public sealed class TriggerPaymentTests
         Assert.Contains(paid.Events, IsIcevaleTriggerResolved);
         Assert.Contains(paid.Events, IsIcevalePowerModified);
         Assert.Contains(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task IcevaleArcherAttackPaymentRejectsPostPaymentReplayWithoutMutation()
+    {
+        var engine = new CoreRuleEngine();
+        var opened = await DeclareIcevaleBattleAsync(BuildIcevaleArcherAttackState(), engine);
+        var payment = AssertIcevalePaymentOpen(opened);
+        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [PayOneMana]);
+
+        var paid = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-icevale-pay-before-replay", "P1", CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Equal(0, paid.State.RunePools["P1"].Mana);
+        var paidTarget = paid.State.CardObjects["P2-BATTLEFIELD-ICEVALE-TARGET"];
+        Assert.Equal(2, paidTarget.Power);
+        Assert.Equal(-1, paidTarget.UntilEndOfTurnPowerModifier);
+        Assert.Single(paidTarget.UntilEndOfTurnPowerModifiers);
+        Assert.Single(
+            paid.State.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P2-BATTLEFIELD-ICEVALE-TARGET", StringComparison.Ordinal)
+                && string.Equals(effect.EffectKind, IcevaleTrigger, StringComparison.Ordinal));
+        Assert.Equal(1, CountEvents(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)));
+        Assert.Equal(1, CountEvents(paid.Events, IsIcevaleTriggerResolved));
+        Assert.Equal(1, CountEvents(paid.Events, IsIcevalePowerModified));
+        Assert.Equal(1, CountEvents(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal)));
+        var postPaymentHash = MatchStateHasher.Hash(paid.State);
+
+        var replay = await engine.ResolveAsync(
+            paid.State,
+            new PlayerIntent("intent-icevale-pay-stale-replay", "P1", CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        AssertRepresentativeClosedReplayRejectedNoMutation(replay, paid.State, postPaymentHash);
+        Assert.Equal(0, replay.State.RunePools["P1"].Mana);
+        var replayTarget = replay.State.CardObjects["P2-BATTLEFIELD-ICEVALE-TARGET"];
+        Assert.Equal(2, replayTarget.Power);
+        Assert.Equal(-1, replayTarget.UntilEndOfTurnPowerModifier);
+        Assert.Single(replayTarget.UntilEndOfTurnPowerModifiers);
+        Assert.Single(
+            replay.State.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P2-BATTLEFIELD-ICEVALE-TARGET", StringComparison.Ordinal)
+                && string.Equals(effect.EffectKind, IcevaleTrigger, StringComparison.Ordinal));
     }
 
     [Fact]
@@ -1769,6 +1898,36 @@ public sealed class TriggerPaymentTests
         Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal));
         Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_TOKEN_CREATED", StringComparison.Ordinal));
         Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
+    }
+
+    private static void AssertRepresentativeClosedReplayRejectedNoMutation(
+        ResolutionResult result,
+        MatchState original,
+        string expectedHash)
+    {
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(expectedHash, MatchStateHasher.Hash(result.State));
+        Assert.Equal(MatchStateHasher.Hash(original), MatchStateHasher.Hash(result.State));
+        Assert.Null(result.State.PendingPayment);
+        AssertNoPendingPayCostPrompt(result);
+        Assert.Equal(original.PendingTaskQueue.Phase, result.State.PendingTaskQueue.Phase);
+        Assert.Equal(original.PendingTaskQueue.ActiveTaskId, result.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(original.PendingTaskQueue.IsBlocking, result.State.PendingTaskQueue.IsBlocking);
+        Assert.Equal(
+            original.PendingTaskQueue.Tasks.Select(task => task.TaskId).ToArray(),
+            result.State.PendingTaskQueue.Tasks.Select(task => task.TaskId).ToArray());
+        AssertNoRepresentativeTriggerPaymentSideEffects(result);
+    }
+
+    private static void AssertNoRepresentativeTriggerPaymentSideEffects(ResolutionResult result)
+    {
+        AssertNoTriggerPaymentSideEffects(result);
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_RETURNED_TO_HAND", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal));
     }
 
     private static void AssertFioraRejectedNoMutation(
