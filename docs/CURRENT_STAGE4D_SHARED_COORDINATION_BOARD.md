@@ -56,12 +56,42 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest HEAD `3a16fb32` after the board-only 05B release record; exact HEAD must still be checked before each batch / commit; 4D-05B acceptance has passed A_MAIN validation and is being committed; latest accepted server/test checkpoint will be 4D-05B after that commit.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted server/test checkpoint is 4D-05B committed as `d17f871f`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local commit observed by A_MAIN is `117ca9ab` with allowed dirty `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`; 03NY-03OC clean handoff passed A_MAIN validation and was committed in main as `1ad4bf33`; the rolling lane is active and DOC_MATRIX_CURRENT appears to be working the next executable bundle.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 18:03 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `d17f871f` (`test: cover pending pay cost temporary resource guards`).
+
+Write locks:
+
+- 4D-05B B_SERVER write lock is closed and committed.
+- No new B_SERVER / runtime lock is opened by this entry.
+- DOC_MATRIX_CURRENT continuous lane remains approved and active in `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`.
+
+Status:
+
+- A_MAIN post-commit guard passed: main is clean except expected untracked `riftbound-dotnet.sln`.
+- DOC_MATRIX_CURRENT is still actively working allowed 03OD-03OF matrix/current-doc/audit-test files and has no clean handoff yet.
+- A_MAIN will integrate the next DOC_MATRIX clean handoff before opening unrelated follow-on runtime/frontend work if that handoff appears first.
+- Project remains **NOT READY**.
+
+Validation:
+
+- 4D-05B validation before commit: PaymentEngineUnificationTests 78/78; adjacent payment/prompt/temp-resource 956/956; backend full 5292/5292; `git diff --check` passed.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: continue the current matrix-number reduction bundle until it reaches a clean commit + handoff or a listed stop condition.
+- `A_MAIN`: monitor DOC_MATRIX status before the next batch/commit.
 
 ### 2026-05-21 18:02 A_MAIN
 
