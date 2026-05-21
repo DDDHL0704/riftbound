@@ -1093,6 +1093,51 @@ public sealed class PaymentEngineUnificationTests
     }
 
     [Theory]
+    [InlineData("mana", "PENDING-PAY-COST-MANA-1", "SPEND_MANA:1", "wrong-player")]
+    [InlineData("mana", "PENDING-PAY-COST-MANA-1", "SPEND_MANA:1", "wrong-payment-id")]
+    [InlineData("mana", "PENDING-PAY-COST-MANA-1", "SPEND_MANA:1", "wrong-payment-window")]
+    [InlineData("generic-power", "PENDING-PAY-COST-GENERIC-POOL-1", "SPEND_POWER:1", "wrong-player")]
+    [InlineData("generic-power", "PENDING-PAY-COST-GENERIC-POOL-1", "SPEND_POWER:1", "wrong-payment-id")]
+    [InlineData("generic-power", "PENDING-PAY-COST-GENERIC-POOL-1", "SPEND_POWER:1", "wrong-payment-window")]
+    [InlineData("typed-power", "PENDING-PAY-COST-RED-POOL-1", "SPEND_POWER:red:1", "wrong-player")]
+    [InlineData("typed-power", "PENDING-PAY-COST-RED-POOL-1", "SPEND_POWER:red:1", "wrong-payment-id")]
+    [InlineData("typed-power", "PENDING-PAY-COST-RED-POOL-1", "SPEND_POWER:red:1", "wrong-payment-window")]
+    public async Task PendingPayCostRejectsWrongPlayerPaymentIdOrWindowOrdinaryActiveWindowWithoutMutation(
+        string costShape,
+        string paymentId,
+        string paymentChoiceId,
+        string scenario)
+    {
+        var state = PendingOrdinaryPayCostState(costShape, paymentId, paymentChoiceId);
+        var initialHash = MatchStateHasher.Hash(state);
+        var command = new PayCostCommand(
+            scenario == "wrong-payment-id" ? $"{paymentId}:stale" : paymentId,
+            scenario == "wrong-payment-window" ? "OTHER_PAYMENT_WINDOW" : "TEST_PENDING_PAY_COST",
+            [paymentChoiceId]);
+        var intentPlayerId = scenario == "wrong-player" ? "P2" : "P1";
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent($"intent-pending-pay-cost-{costShape}-ordinary-active-{scenario}", intentPlayerId, CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Empty(result.Events);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+        Assert.NotNull(result.State.PendingPayment);
+        var pendingPayment = result.State.PendingPayment;
+        Assert.Equal(paymentId, pendingPayment.PaymentId);
+        Assert.Equal("TEST_PENDING_PAY_COST", pendingPayment.PaymentWindow);
+        Assert.Equal("P1", pendingPayment.PlayerId);
+        Assert.Equal([paymentChoiceId], pendingPayment.LegalPaymentChoiceIds);
+        Assert.Equal(state.RunePools["P1"], result.State.RunePools["P1"]);
+        Assert.Equal(RunePool.Empty, result.State.RunePools["P2"]);
+        Assert.Empty(result.State.StackItems);
+        AssertAuthoritativePayCostPrompt(result.State, paymentId, paymentChoiceId);
+    }
+
+    [Theory]
     [InlineData("wrong-player")]
     [InlineData("wrong-payment-id")]
     [InlineData("wrong-payment-window")]
@@ -2278,6 +2323,28 @@ public sealed class PaymentEngineUnificationTests
         Assert.DoesNotContain(
             prompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+    }
+
+    private static void AssertAuthoritativePayCostPrompt(
+        MatchState state,
+        string paymentId,
+        string paymentChoiceId)
+    {
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PayCost, prompt.Actions);
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+        Assert.True(candidate.Enabled);
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        Assert.Equal(paymentId, metadata["paymentId"]);
+        Assert.Equal("TEST_PENDING_PAY_COST", metadata["paymentWindow"]);
+        var paymentChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentChoices"]);
+        Assert.Equal([paymentChoiceId], paymentChoices.Select(choice => choice.Id).ToArray());
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentResourceChoices"]);
+        Assert.Empty(paymentResourceChoices);
     }
 
     private static MatchState PendingTypedPayCostTemporaryResourceState(

@@ -56,12 +56,45 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest observed main commit is `d8b0cf80` (`docs: dispatch pending pay cost identity guard`); latest accepted server/test checkpoint is `09f11f7d` for 4D-04Y, and latest integrated DOC_MATRIX source commit is `1bb61d18`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local matrix commit `1bb61d18`; 03NU-03NX clean handoff passed A_MAIN validation and is being committed in main, and the rolling lane remains approved by the 17:22 A_MAIN entry below.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest observed main commit is `28674491` (`checkpoint: stage 4D matrix 03NU-03NX SFD evidence bundle sync`); latest accepted server/test checkpoint is the 4D-04Z entry below, pending this checkpoint commit, and latest integrated DOC_MATRIX source commit is `1bb61d18`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local matrix commit `1bb61d18`; 03NU-03NX clean handoff passed A_MAIN validation and was committed in main as `28674491`, and the rolling lane remains approved by the 17:22 / 17:27 A_MAIN entries below.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 17:27 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `28674491`; 4D-04Z acceptance is pending this checkpoint commit.
+
+Write locks:
+
+- 4D-04Z B_SERVER write lock is closed after A_MAIN validation.
+- `DOC_MATRIX_CURRENT` remains **APPROVED** to continue docs-only matrix-number reduction bundles under the rolling lane.
+- DOC_MATRIX_CURRENT must not edit `tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs`, runtime `src/**`, frontend, protocol fields, browser/Chrome/formal E2E scripts, hidden-info policy, `fullOfficial`, READY / READY-CANDIDATE or `riftbound-dotnet.sln`.
+
+Status:
+
+- A_MAIN integrated DOC_MATRIX source commit `1bb61d18` into main as `28674491`.
+- A_MAIN accepted the B_SERVER 4D-04Z test-only slice in `tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs`.
+- 04Z covers active ordinary non-trigger `PAY_COST` identity guards for wrong player, wrong `paymentId`, and wrong `paymentWindow` across mana, generic power and typed power.
+- DOC_MATRIX_CURRENT was observed active after `1bb61d18` with an allowed in-progress `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` change, so the matrix lane is no longer idle.
+- Runtime changed: no. Protocol changed: no. Hidden-info leakage found: no.
+- Project remains **NOT READY**.
+
+Validation:
+
+- DOC_MATRIX integration validation in main: no conflict markers, jq matrix JSON, diff checks, `PaymentEngineCoverageAuditTests` 667/667, selected 03NU-03NX evidence 10/10 and backend full 5270/5270.
+- 4D-04Z validation in main: `PaymentEngineUnificationTests` 58/58, adjacent payment/prompt 916/916, backend full 5270/5270, `git diff --check` and `git diff --cached --check`.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: continue the next executable docs-only matrix-number reduction bundle immediately, one clean commit per bundle, and hand off with commit hash, selected rows, count deltas and validation. Stop only on validation failure, unexplained matrix delta, locked-file need, unresolved rules/FAQ conflict, or no executable candidates.
+- `A_MAIN`: commit this 4D-04Z acceptance checkpoint, then pause at the current batch boundary as requested unless the user asks to continue.
 
 ### 2026-05-21 17:22 A_MAIN
 
