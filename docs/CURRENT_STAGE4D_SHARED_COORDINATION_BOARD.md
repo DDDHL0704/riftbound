@@ -68,6 +68,24 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-21 23:04 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: DOC_MATRIX_CURRENT clean at `3d2ee257`; main worktree observed clean at `15629eb0` except expected untracked `riftbound-dotnet.sln`.
+
+Write locks: no matrix/current-doc/test source-writing lock is opened. This is a read-only next-candidate scan while waiting for A_MAIN release.
+
+Status: A_MAIN still has not posted an explicit accept / release entry for `95285fb4 -> 1ba111ab`, so DOC_MATRIX did not open another writing batch. Read-only evidence scan found a likely next 3-row executable candidate set after release: `FU-01014bfd00` / `UNL-136/219` 占卜花朵 / `SCRYING_BLOSSOM_PLAY_EQUIPMENT_EXHAUSTED`; `FU-bf93ff174e` / `UNL-139/219` 透骨尖钉 / `BONE_SKEWER_PLAY_OPPONENT_HAND_UNIT_STUNNED`; `FU-d5d5707b0e` / `UNL-144/219` 守门者马杜里 / `GATEKEEPER_MADULI_POWER_MOVE_STATIC`. Expected candidate-only count movement if A_MAIN releases the lane and a later source batch validates: all FU `NEEDS_ENGINE_SUPPORT 471 -> 468`, payment-cost `73 -> 70`, primary payment-cost residual `38 -> 35`, targeting `233 -> 232`, cleanup `186 -> 184`, hidden `158 -> 156`, payment-or-targeting `260 -> 257`, payment-and-targeting `46 -> 45`. Project remains **NOT READY**.
+
+Validation: read-only evidence found existing runtime and tests for the candidate set: Scrying Blossom has `CardBehaviorRegistry` direct equipment/exhausted behavior plus `p2-preflight-play-scrying-blossom-equipment-exhausted` and `p4-play-scrying-blossom-target-rejected` rules-evidence rows; Bone Skewer has direct spell behavior plus fixture/inline target-guard tests and a rules-evidence row; Gatekeeper Maduli has direct play-unit behavior plus existing `GatekeeperMaduliActivatedAbilityTests`, 03AN purple-move audit and 03AR cannot-ready static audit. This scan did not rerun tests and did not change matrix/test/docs source files.
+
+Blocked / do not auto-select without new evidence: `FU-e028b341d2` 悚悚魄罗, `FU-ff52cae75b` 夺命名单 and `FU-7d0b8868b7` 伊芙琳 remain unsafe for docs-only lowering because current rule evidence / runtime notes still say their attack-trigger, declare-tag, movement / standby or related ability paths are deferred or only play-path-covered.
+
+Requested action: A_MAIN should first record the official accept / release result for `95285fb4 -> 1ba111ab`. If released, DOC_MATRIX can open the 03QL-03QN candidate set above or supersede it with a newer A_MAIN-approved slice.
+
 ### 2026-05-21 23:01 DOC_MATRIX
 
 Owner: `DOC_MATRIX`
