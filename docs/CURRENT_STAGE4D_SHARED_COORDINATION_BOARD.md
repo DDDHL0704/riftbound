@@ -56,12 +56,45 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest accepted server/test checkpoint is 4D-04Y in the checkpoint containing the 17:05 A_MAIN entry, and latest integrated DOC_MATRIX commit is `3f79b08d`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local matrix commit `3f79b08d`; clean after 03NQ-03NT and rolling lane approved to continue 03NU+ unless a listed stop condition appears.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest accepted server/test checkpoint is `09f11f7d` for 4D-04Y, and latest integrated DOC_MATRIX commit is `3f79b08d`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local matrix commit `3f79b08d`; A_MAIN observed active 03NU-03NX in-progress edits at 17:11 and rolling lane remains approved.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 17:11 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `09f11f7d`; clean except expected `?? riftbound-dotnet.sln`. `DOC_MATRIX_CURRENT` is at `3f79b08d` with active 03NU-03NX dirty matrix/current-doc/audit-test work.
+
+Write locks:
+
+- `APPROVED`: `DOC_MATRIX_CURRENT` should keep executing the matrix-number-reduction lane without waiting for per-bundle A_MAIN approval.
+- Allowed rolling scope remains: matrix JSON, current checkpoint/audit/coverage coordination docs, per-bundle candidate/audit docs, this shared board, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` only for residual expected-count / current-slice manifest / guard synchronization caused by the same matrix bundle.
+- After each clean DOC_MATRIX commit and board handoff, `DOC_MATRIX_CURRENT` may immediately open the next 3-5 row bundle on its own branch even if A_MAIN has not integrated the previous DOC commit yet.
+- Runtime, frontend, API/protocol core fields, official catalog snapshots, general tests outside `PaymentEngineCoverageAuditTests.cs`, browser / Chrome / formal E2E scripts, `fullOfficial`, READY and `riftbound-dotnet.sln` remain locked for DOC_MATRIX.
+
+Status:
+
+- Current DOC_MATRIX work is not idle: A_MAIN sees in-progress 03NU-03NX edits in the DOC worktree.
+- To prevent idle waiting, DOC_MATRIX should use this loop until the lane is complete or blocked by a listed stop condition: choose the next eligible 3-5 rows, verify existing runtime/test/rules evidence, update matrix/current docs and count guards, run validation, commit, write a handoff entry, then immediately continue with the next eligible rows.
+- If one candidate row lacks evidence, has FAQ ambiguity, or needs runtime/frontend work, mark that row skipped / BLOCKED in the candidate audit and replace it with the next eligible row instead of stopping the whole lane.
+- Preferred selection order remains row-level matrix-number reduction first: payment-cost SFD/equipment/runtime-evidenced rows, then payment-or-targeting-stack rows with existing implementation/evidence, then payment-and-targeting-stack rows with existing implementation/evidence, then other high-confidence rows where the audit can explain the 1009 / 811 count delta.
+- Stop and write a `BLOCKED` board entry only if validation fails for a non-count-guard reason, a hidden-info leak is found, a rules / FAQ conflict cannot be decided, the 1009 / 811 count delta cannot be explained, runtime/frontend/protocol work is required, or no executable matrix-number-reduction candidates remain.
+- Project remains **NOT READY**.
+
+Validation:
+
+- A_MAIN inspected main status/log/board and DOC_MATRIX status/log/board. No runtime or frontend command is run for this coordination-only entry.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: finish 03NU-03NX, commit and hand off when validation passes, then continue 03NY+ immediately under this rolling approval. Do not pause merely because A_MAIN has not integrated the prior clean DOC commit yet.
+- `A_MAIN`: keep checking this board and DOC status before each development batch and before every commit; integrate DOC commits in order as they become clean.
 
 ### 2026-05-21 17:05 A_MAIN
 
