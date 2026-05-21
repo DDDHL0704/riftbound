@@ -74,7 +74,7 @@ Owner: `DOC_MATRIX`
 
 Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
 
-Branch / commit: `codex/stage4d-matrix-docs-current-20260521-next` validated source candidate for 4D-03SH..03SL; commit hash pending.
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521-next` source commit `6b2ed811` (`checkpoint: stage 4D matrix 03SH-03SL evidence sync`).
 
 Write locks: matrix JSON, current checkpoint/completion/dispatch/baseline docs, 03SH-03SL candidate/audit docs and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` baseline synchronization only. Runtime, frontend, protocol, official catalog, Chrome/browser/formal E2E, `fullOfficial`, READY / READY-CANDIDATE and `riftbound-dotnet.sln` remain locked.
 
@@ -82,7 +82,7 @@ Status: selected implemented-tested evidence rows 厄斐琉斯 / 狂热粉丝 / 
 
 Validation: passed `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs` and `tests`, matrix count script, PaymentEngineCoverageAuditTests `697/697`, ConformanceFixtureRunnerTests `3019/3019`, and backend full `5344/5344`.
 
-Requested action: after validation and commit, A_MAIN should integrate/reject the source bundle. The no-idle lane has three implemented-tested evidence candidates remaining after this draft and can continue under the standing A_MAIN scope unless a stop condition appears.
+Requested action: A_MAIN should integrate/reject source commit `6b2ed811` on main and record the result here. The no-idle lane has three implemented-tested evidence candidates remaining after this bundle and can continue under the standing A_MAIN scope unless a stop condition appears.
 
 ### 2026-05-22 02:20 A_MAIN
 
