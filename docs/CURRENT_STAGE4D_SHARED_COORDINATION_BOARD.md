@@ -56,12 +56,45 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest accepted server/test checkpoint is 4D-05A, 4D-05B dispatch is queued but B worker must not start until DOC_MATRIX source commit `117ca9ab` is committed in main, and the `117ca9ab` integration has passed A_MAIN validation in the current cherry-pick state.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local matrix commit `117ca9ab`; 03NU-03NX clean handoff passed A_MAIN validation and was committed in main as `28674491`, 03NY-03OC clean handoff has passed A_MAIN validation and is being committed, and the rolling lane is renewed by the 17:47 A_MAIN entry below so DOC_MATRIX_CURRENT should continue 03OD+ / next executable matrix-number reduction bundles without idling.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest HEAD `1ad4bf33` integrates DOC_MATRIX source commit `117ca9ab` for 03NY-03OC; exact HEAD must still be checked before each batch / commit; latest accepted server/test checkpoint is 4D-05A; 4D-05B dispatch is queued for release after this board-result commit / post-commit guard.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local matrix commit `117ca9ab`; 03NU-03NX clean handoff passed A_MAIN validation and was committed in main as `28674491`, 03NY-03OC clean handoff passed A_MAIN validation and was committed in main as `1ad4bf33`, and the rolling lane is renewed by the 17:50 A_MAIN entry below so DOC_MATRIX_CURRENT should continue 03OD+ / next executable matrix-number reduction bundles without idling.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 17:50 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `1ad4bf33` (`checkpoint: stage 4D matrix 03NY-03OC SFD evidence bundle sync`).
+
+Write locks:
+
+- A_MAIN integrated DOC_MATRIX_CURRENT source commit `117ca9ab` into main as `1ad4bf33`.
+- A_MAIN keeps B_SERVER 4D-05B queued until this board-result commit is recorded and the post-commit guard checks DOC_MATRIX status again.
+- **APPROVED_CONTINUOUS_DOC_MATRIX_LANE remains active**: DOC_MATRIX_CURRENT should start or continue 03OD+ / the next executable matrix-number reduction bundle immediately, without waiting for another per-bundle A_MAIN authorization.
+- DOC_MATRIX_CURRENT allowed scope remains `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, current checkpoint/audit/coverage/coordination docs, new per-bundle candidate/audit docs, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` only for residual expected-count / current-slice manifest / guard synchronization.
+- DOC_MATRIX_CURRENT locked scope remains runtime `src/**`, frontend, API/protocol core fields, official catalog snapshots, general tests outside `PaymentEngineCoverageAuditTests.cs`, browser / Chrome / formal E2E scripts, `fullOfficial`, READY / READY-CANDIDATE and `riftbound-dotnet.sln`.
+
+Status:
+
+- 03NY-03OC is accepted on main. Counts now include all FU `NEEDS_ENGINE_SUPPORT 536 -> 531`, payment-cost `138 -> 133`, primary residual `98 -> 93`, targeting-stack-timing `281 -> 276`, cleanup-replacement-duration `210 -> 210`, hidden-info-random-zone `175 -> 172`, payment-or-targeting-stack-timing `325 -> 320`, payment-and-targeting-stack-timing `94 -> 89`; `NEEDS_AUTOMATED_TEST_EVIDENCE=328`, `NEEDS_FAQ_REVIEW=92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`.
+- DOC_MATRIX_CURRENT has no reason to idle on authorization now. It should keep selecting small executable rows, committing one clean bundle and one handoff entry at a time, until completion, validation failure, locked-scope need, unresolved rules conflict, unexplained 1009 / 811 delta, worktree conflict or `NO_EXECUTABLE_CANDIDATES`.
+- Project remains **NOT READY**.
+
+Validation:
+
+- A_MAIN validation passed before commit: conflict-marker scan clean; `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`; `git diff --check`; `git diff --cached --check`; `PaymentEngineCoverageAuditTests` 669/669; selected Predictive Offensive / Master Bingwen / Ancient Berserker / Windsong Wing / Fizz evidence filter 7/7; backend full test 5284/5284.
+- Post-commit status check: main is clean except expected untracked `riftbound-dotnet.sln`; DOC_MATRIX_CURRENT is clean at `117ca9ab`.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: continue 03OD+ / next executable matrix-number reduction work now. Do not wait for a separate approval if the bundle stays inside the allowed scope and validation remains green.
+- `DOC_MATRIX_CURRENT`: each bundle must end with a clean commit, selected rows, count deltas, validation results and one shared-board handoff entry.
+- `A_MAIN`: after this board-result commit, re-check the board and DOC_MATRIX status; if no newer handoff is waiting, release B_SERVER 4D-05B.
 
 ### 2026-05-21 17:47 A_MAIN
 
