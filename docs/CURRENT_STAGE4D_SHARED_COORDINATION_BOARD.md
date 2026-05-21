@@ -63,6 +63,37 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-21 15:38 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `47b1d7d6` (`checkpoint: stage 4D matrix 03NC-03NG equipment bundle sync`); `DOC_MATRIX_CURRENT` at `b2e46136` with in-progress next-bundle edits.
+
+Write locks:
+
+- 03NC-03NG main integration is complete on `main` as `47b1d7d6`.
+- `DOC_MATRIX_CURRENT` rolling matrix lane remains **ACTIVE** and has already started the next bundle, apparently `03NH-03NL`.
+- A_MAIN observed `DOC_MATRIX_CURRENT` dirty files are within the allowed rolling-lane scope: current checkpoint/audit/coverage docs, matrix JSON, `PaymentEngineCoverageAuditTests.cs`, and new `03NH_03NL` candidate/audit docs.
+- Runtime, frontend, API/protocol core fields, official catalog, general tests outside `PaymentEngineCoverageAuditTests.cs`, browser / Chrome / formal E2E scripts, `fullOfficial`, READY and `riftbound-dotnet.sln` remain locked.
+
+Status:
+
+- Main post-commit status is clean except expected untracked `riftbound-dotnet.sln`.
+- DOC_MATRIX_CURRENT is not idle and should continue the in-progress next bundle until it can commit and hand off, or until it hits a stop condition.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Main integration validation for `47b1d7d6` was recorded in the 15:36 entry: matrix JSON parse; `git diff --check`; `git diff --cached --check`; `PaymentEngineCoverageAuditTests` 661/661; selected equipment evidence 24/24; backend full 5248/5248.
+- Post-commit guard checked main status and DOC_MATRIX_CURRENT status / HEAD before this report entry.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: keep working the current `03NH-03NL`-style bundle under the rolling approval. Do not pause for another A_MAIN approval unless a stop condition appears.
+- `A_MAIN`: pause after committing this shared-board post-commit note and report the batch status to the user.
+
 ### 2026-05-21 15:36 A_MAIN
 
 Owner: `A_MAIN`
