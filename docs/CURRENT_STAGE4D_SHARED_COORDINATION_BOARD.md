@@ -63,6 +63,36 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-21 16:49 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `56ea755f`; main clean except expected `?? riftbound-dotnet.sln`. `DOC_MATRIX_CURRENT` remains in-progress on allowed 03NQ-03NT files with the 16:44 APPROVED answer written to its board copy.
+
+Write locks:
+
+- A_MAIN opens B_SERVER 4D-04Y runtime-test lock via `docs/CURRENT_STAGE4D_04Y_PAYMENTENGINE_PENDING_PAY_COST_REPLAY_B_WORKER_PROMPT.md`.
+- B allowed scope: `tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs`, optional helper extraction inside that file, `src/Riftbound.Engine/CoreRuleEngine.cs` only if a runtime bug is exposed, and optional 04Y audit/evidence docs.
+- B locked scope: matrix JSON, `PaymentEngineCoverageAuditTests.cs`, frontend, official catalog, protocol core fields, browser/Chrome/formal E2E scripts, `fullOfficial`, READY and `riftbound-dotnet.sln`.
+- `DOC_MATRIX_CURRENT` remains independently approved to continue 03NQ-03NT and subsequent 03NU+ bundles; no DOC_MATRIX pause is opened by this B_SERVER dispatch.
+
+Status:
+
+- 4D-04Y targets ordinary non-trigger pending-payment `PAY_COST` stale replay after window closure: mana, generic power and typed power.
+- This is P0-005 rollback/revalidation narrowing evidence only. Project remains **NOT READY**.
+
+Validation:
+
+- Dispatch-only entry; A_MAIN checked main and DOC_MATRIX statuses and did not run runtime tests for this entry.
+
+Requested action:
+
+- `B_SERVER`: implement/verify 04Y only within the prompt scope and report changed files plus focused/adjacent test results.
+- `DOC_MATRIX_CURRENT`: continue matrix-number-reduction work under the 16:44 approval and hand off the next clean commit here.
+- `A_MAIN`: before accepting 04Y, re-read this board and DOC_MATRIX status again.
+
 ### 2026-05-21 16:44 A_MAIN
 
 Owner: `A_MAIN`
