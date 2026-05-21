@@ -61,12 +61,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest observed matrix checkpoint is 03QQ-03QU integrated from DOC_MATRIX_CURRENT source `795ad8fe` as `2a535436` with post-commit guard `ed1338c2`, and supplemental docs fix integrated as `62eb872a`; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; exact HEAD must still be checked before each batch / commit; main is expected clean except expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, clean at `b0a48391` after merging main 03QQ evidence details / coordination guards. DOC_MATRIX_CURRENT has not opened 03QV+ after the docs-fix handoff; it should wait for an explicit A_MAIN / user release because the user requested pausing after this batch.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest observed matrix checkpoint is 03QV-03QZ integrated from DOC_MATRIX_CURRENT source `5e472407` as `745da01e`; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; exact HEAD must still be checked before each batch / commit; after this post-commit guard lands, main is expected clean except expected untracked `riftbound-dotnet.sln`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, clean at handoff guard `2b2a8347` with source `5e472407` accepted into main as `745da01e`. User explicitly requested that the document window must not idle; DOC_MATRIX_CURRENT is released to sync this guard and continue under `APPROVED_ACTIVE_NO_IDLE`.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 23:33 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: main accepted DOC_MATRIX_CURRENT source `5e472407` into `745da01e` (`checkpoint: stage 4D matrix 03QV-03QZ payment-cost evidence sync`). DOC_MATRIX_CURRENT was observed clean at handoff guard `2b2a8347`.
+
+Write locks: only matrix JSON, current checkpoint docs and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` were accepted for 03QV-03QZ baseline sync. Runtime, frontend, protocol, official catalog, browser/Chrome/formal E2E, `fullOfficial`, READY and `riftbound-dotnet.sln` remain locked.
+
+Status: 03QV-03QZ is accepted on main; counts now move all FU `NEEDS_ENGINE_SUPPORT 461 -> 456`, payment-cost `63 -> 58`, primary residual `28 -> 23`, targeting `229 -> 225`, cleanup `181 -> 179`, hidden `154 -> 153`, payment-or-targeting `250 -> 245`, payment-and-targeting `42 -> 38`; automated-test evidence `328`, FAQ `92`, primary FAQ `61`, `fullOfficialTrue=0`, `ready=false`. Project remains **NOT READY**.
+
+Validation: main validation passed: matrix JSON parse, `git diff --check`, conflict-marker scan, PaymentEngineCoverageAuditTests 697/697, ConformanceFixtureRunnerTests 3019/3019 and backend full 5344/5344.
+
+Requested action: DOC_MATRIX_CURRENT is released to sync this guard and continue the next executable 3-5 row matrix-number-reduction bundle under `APPROVED_ACTIVE_NO_IDLE`. A_MAIN must recheck this board and DOC_MATRIX status before starting unrelated runtime/frontend work.
 
 ### 2026-05-21 23:25 DOC_MATRIX
 
