@@ -54,4 +54,12 @@ The following remain open and must not be represented as closed by this bundle:
 
 ## Validation
 
-Validation is pending until the final command run is recorded in this file and on the shared coordination board.
+Validation passed on the DOC_MATRIX branch:
+
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `git diff --check`
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngineCoverageAuditTests"`: passed 660/660
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~YordleExplorer|FullyQualifiedName~FaerieDragon|FullyQualifiedName~Hexdrinker|FullyQualifiedName~XersaiFish|FullyQualifiedName~PetriciteMonument"`: passed 12/12
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed 5236/5236
+
+Chrome smoke / frontend build were not run because this bundle has no frontend, browser script, Chrome/formal E2E or runtime changes.
