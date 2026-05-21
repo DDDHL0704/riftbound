@@ -56,12 +56,43 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OD-03OF committed as `3e82b986`; latest accepted server/test checkpoint is 4D-05C pending commit after A_MAIN validation; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OD-03OF committed as `3e82b986`; latest accepted server/test checkpoint is 4D-05C committed as `325c4d37`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, active on 03OG-03OI matrix/current-doc/audit-test work from board-only base `9c5af6e9`; 03OD-03OF clean handoff passed A_MAIN validation and was committed in main as `3e82b986`; continuous lane is released by the 18:17 / 18:18 A_MAIN no-idle entries.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 18:32 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `325c4d37` (`test: cover Fiora trigger payment replay guards`).
+
+Write locks:
+
+- 4D-05C B_SERVER write lock is closed and committed.
+- No new B_SERVER / runtime / frontend lock is opened by this entry.
+- DOC_MATRIX_CURRENT remains independently approved and is actively working the allowed 03OG-03OI matrix/current-doc/audit-test bundle from board-only base `9c5af6e9`.
+
+Status:
+
+- A_MAIN post-commit guard passed: main is clean except expected untracked `riftbound-dotnet.sln`.
+- DOC_MATRIX_CURRENT is in-progress on allowed 03OG-03OI files and has no clean matrix handoff waiting.
+- A_MAIN will integrate the next DOC_MATRIX clean handoff before opening unrelated follow-on runtime/frontend work if that handoff appears first.
+- Project remains **NOT READY**.
+
+Validation:
+
+- 4D-05C validation before commit: TriggerPaymentTests 71/71; adjacent trigger/payment/prompt/temp-resource 422/422; backend full 5298/5298; `git diff --check` passed.
+- Post-commit guard checked main status and DOC_MATRIX_CURRENT status.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: continue current 03OG-03OI matrix-number reduction bundle until clean commit + handoff or a real stop condition.
+- `A_MAIN`: monitor DOC_MATRIX before the next batch/commit.
 
 ### 2026-05-21 18:28 A_MAIN
 
