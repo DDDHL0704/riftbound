@@ -61,12 +61,44 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OJ-03OM integrated as `d47e8258`; latest accepted server/test checkpoint is 4D-05F committed as `f23a60aa`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OJ-03OM integrated as `d47e8258`; latest accepted server/test checkpoint is 4D-05F committed as `f23a60aa`; active B_SERVER dispatch is 4D-05G from this board/checkpoint update; exact HEAD must still be checked before each batch / commit; main currently has the 05G dispatch doc update plus expected untracked `riftbound-dotnet.sln`.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, active dirty on next matrix-number-reduction bundle with `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`; 03OJ-03OM was accepted into main as `d47e8258`; DOC_MATRIX_CURRENT remains under the rolling no-idle lane.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 19:25 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `358cdac5`; DOC_MATRIX_CURRENT observed active dirty on 03ON-03OR matrix/current-doc/audit-test files at branch head `03b1521e`.
+
+Write locks:
+
+- A_MAIN opens B_SERVER 4D-05G via `docs/CURRENT_STAGE4D_05G_RESOURCE_SKILL_ACTIVATION_REPLAY_B_WORKER_PROMPT.md`.
+- B allowed scope: `tests/Riftbound.ConformanceTests/MalzaharResourceSkillTests.cs`, `tests/Riftbound.ConformanceTests/GoldTokenResourceSkillTests.cs`, optional `src/Riftbound.Engine/CoreRuleEngine.cs` only if the focused tests expose a real runtime bug, and optional 05G audit/evidence docs named in the prompt.
+- B locked scope: matrix JSON, coverage baseline, `PaymentEngineCoverageAuditTests.cs`, frontend, official catalog, protocol core fields, Chrome/browser/formal E2E scripts, `fullOfficial`, READY / READY-CANDIDATE and `riftbound-dotnet.sln`.
+- DOC_MATRIX_CURRENT remains independently `APPROVED_ACTIVE_NO_IDLE`; this B dispatch does not pause its active 03ON-03OR matrix-number-reduction bundle.
+
+Status:
+
+- 4D-05G targets P0-005 resource-skill activation replay breadth for immediate `ACTIVATE_ABILITY` paths that create payment-only temporary resources.
+- Required coverage: Malzahar and Gold token successful resource-skill activations must accept once and reject exact stale replay with no events, no hash drift, no duplicate activation / exhaust / removal / generated-resource side effects, unchanged stack/priority context and exactly one temporary payment resource.
+- Main was clean except expected untracked `riftbound-dotnet.sln`; DOC_MATRIX_CURRENT is active but within its allowed lane.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Dispatch-only entry after A_MAIN read the shared board and checked main / DOC_MATRIX status. Runtime validation will be required before accepting 05G.
+
+Requested action:
+
+- `B_SERVER`: implement or prove 05G only within the prompt scope and report changed files plus focused/adjacent test results.
+- `DOC_MATRIX_CURRENT`: continue its active 03ON-03OR bundle under the no-idle approval and hand off the next clean commit when ready.
+- `A_MAIN`: before accepting 05G, re-read this board and DOC_MATRIX status again.
 
 ### 2026-05-21 19:23 A_MAIN
 
