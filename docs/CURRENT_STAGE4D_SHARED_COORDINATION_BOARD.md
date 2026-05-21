@@ -59,6 +59,36 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-21 10:22 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `9fb69b2e`
+
+Write locks:
+
+- B is dispatched for one 4D-04S server/test slice via `docs/CURRENT_STAGE4D_04S_PAYMENTENGINE_LUX_HIGH_COST_PAID_COST_B_WORKER_PROMPT.md`.
+- Allowed B files: `src/Riftbound.Engine/CoreRuleEngine.cs`, `tests/Riftbound.ConformanceTests/RealTriggerQueueTests.cs`, optional `tests/Riftbound.ConformanceTests/LuxHighCostPaidCostTriggerTests.cs`, optional 04S audit/evidence docs.
+- Locked from B: matrix JSON, baseline matrix docs, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, official catalog, frontend, browser scripts, formal E2E, protocol core fields, `fullOfficial`, READY flags and `riftbound-dotnet.sln`.
+
+Status:
+
+- A selected the next non-matrix P0-005 / PaymentEngine official-breadth slice from current audit evidence: Lux high-cost spell trigger paid-cost / quote-command-audit semantics.
+- This work is disjoint from DOC_MATRIX_CURRENT's approved 03MR matrix + audit-baseline sync.
+- B must stop if official evidence conflicts or if the implementation needs broader trigger queue / APNAP / frontend / protocol changes.
+
+Validation required from B:
+
+- Focused `Lux|HighCost|RealTriggerQueue` tests.
+- Adjacent `PaymentEngineUnificationTests|TriggerPayment|RealTriggerQueue|LuxResourceSkillTests` tests.
+- `git diff --check`.
+
+Requested action:
+
+- B/Faraday: implement or report the 04S blocker under the prompt. A will review diff and decide acceptance.
+
 ### 2026-05-21 10:20 A_MAIN
 
 Owner: `A_MAIN`
@@ -210,6 +240,7 @@ Requested action for `DOC_MATRIX_CURRENT`:
 Current locked / reserved areas:
 
 - `A_MAIN`: owns Stage 4 orchestration, server validation, checkpoint acceptance and next non-matrix development dispatch.
+- `B_SERVER`: owns the 4D-04S Lux high-cost paid-cost trigger server/test slice under the 10:22 A_MAIN write lock above.
 - `DOC_MATRIX_CURRENT`: owns the approved 4D-03MR synchronized matrix + `PaymentEngineCoverageAuditTests.cs` audit-baseline batch under the 10:20 A_MAIN write lock above.
 
 Do not edit without fresh A coordination:
