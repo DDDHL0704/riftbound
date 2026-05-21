@@ -57,11 +57,41 @@ Use this file as a lightweight message board:
 ## Current Worktrees
 
 - `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OD-03OF committed as `3e82b986`; latest accepted server/test checkpoint is 4D-05B committed as `d17f871f`; 4D-05C dispatch is being opened; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, clean at `2c1f4db1`; 03OD-03OF clean handoff passed A_MAIN validation and was committed in main as `3e82b986`; continuous lane is released again by the 18:17 A_MAIN no-idle entry below.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, clean at `9c5af6e9` after a local board-only no-idle mirror; 03OD-03OF clean handoff passed A_MAIN validation and was committed in main as `3e82b986`; continuous lane is released again by the 18:17 / 18:18 A_MAIN no-idle entries.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 18:21 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `f508d6d9`; DOC_MATRIX_CURRENT local board mirror is `9c5af6e9`.
+
+Write locks:
+
+- A_MAIN mirrored the no-idle authorization into `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current/docs/CURRENT_STAGE4D_SHARED_COORDINATION_BOARD.md` as DOC_MATRIX_CURRENT commit `9c5af6e9`.
+- That DOC_MATRIX_CURRENT commit is board-only coordination, not a matrix handoff and not a request for A_MAIN integration.
+- DOC_MATRIX_CURRENT continuous matrix lane remains approved under the 18:17 / 18:18 entries.
+
+Status:
+
+- DOC_MATRIX_CURRENT should no longer be blocked on authorization even if it reads its own worktree-local board copy.
+- A_MAIN must treat `9c5af6e9` as an expected coordination-only DOC_MATRIX HEAD until DOC_MATRIX writes a newer matrix handoff entry.
+- Project remains **NOT READY**.
+
+Validation:
+
+- A_MAIN checked DOC_MATRIX_CURRENT was clean before the mirror and committed only the shared-board copy there.
+- No runtime tests were required for this coordination-only mirror.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: continue matrix-number reduction now, one clean committed bundle at a time, and create a real handoff entry only after an actual matrix bundle is validated.
+- `A_MAIN`: continue the 4D-05C runtime-test dispatch path while checking DOC_MATRIX before/after commits.
 
 ### 2026-05-21 18:17 A_MAIN
 
