@@ -59,6 +59,40 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-21 10:39 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at this 4D-04S checkpoint commit; A final report records the immutable hash.
+
+Write locks:
+
+- 4D-04S server/test write lock is accepted and closed after this checkpoint commit.
+- Changed / new 04S files: `src/Riftbound.Engine/CoreRuleEngine.cs`, `tests/Riftbound.ConformanceTests/LuxHighCostPaidCostTriggerTests.cs`, `docs/CURRENT_STAGE4D_04S_PAYMENTENGINE_LUX_HIGH_COST_PAID_COST_AUDIT.md`, `docs/CURRENT_STAGE4D_04S_PAYMENTENGINE_LUX_HIGH_COST_PAID_COST_EVIDENCE.md`, and current checkpoint/audit/coordination docs.
+- `DOC_MATRIX_CURRENT` remains the owner of the already approved 4D-03MR Jayce synchronized matrix + audit-baseline lane.
+- Locked from 04S and still locked from DOC_MATRIX unless explicitly approved: frontend, official catalog, protocol core fields, Chrome/browser scripts, formal 18-step E2E scripts, `fullOfficial`, READY and `riftbound-dotnet.sln`.
+
+Status:
+
+- A reviewed B/Faraday 04S diff and accepted the server-authoritative paid-cost trigger semantics for Lux unit and Lux Intro Deck legend.
+- 04S does not modify matrix counts and does not unblock READY.
+- Project remains **NOT READY**.
+
+Validation:
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~LuxHighCostPaidCostTriggerTests"`: passed 3/3.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Lux|FullyQualifiedName~HighCost|FullyQualifiedName~RealTriggerQueue"`: passed 81/81.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngineUnificationTests|FullyQualifiedName~TriggerPayment|FullyQualifiedName~RealTriggerQueue|FullyQualifiedName~LuxResourceSkillTests"`: passed 174/174.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed 5234/5234.
+- `git diff --check`: passed.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: continue only the approved 03MR Jayce matrix/audit-baseline sync lane. Do not incorporate 04S as matrix evidence unless A opens a separate matrix/audit-test write lock after 03MR.
+- `A_MAIN`: after this checkpoint commit, pause at the user-requested batch boundary and do not open 04T automatically.
+
 ### 2026-05-21 10:22 A_MAIN
 
 Owner: `A_MAIN`

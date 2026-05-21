@@ -4854,6 +4854,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             behavior,
             stackItem,
+            plan.TotalManaCost,
             events);
         ResolveArenaServiceCrewEquipmentPlayedTriggers(
             playerZones,
@@ -4874,7 +4875,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         events.AddRange(battlefieldInsightResult.Events);
         rngCursor = battlefieldInsightResult.RngCursor;
 
-        if (TryGetLuxHighCostSpellDrawCardNo(playerZones, cardObjects, intent.PlayerId, behavior, out var luxLegendCardNo))
+        if (TryGetLuxHighCostSpellDrawCardNo(
+                playerZones,
+                cardObjects,
+                intent.PlayerId,
+                behavior,
+                plan.TotalManaCost,
+                out var luxLegendCardNo))
         {
             events.Add(new GameEvent(
                 "LEGEND_TRIGGER_RESOLVED",
@@ -26529,10 +26536,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId,
         CardBehaviorDefinition playedBehavior,
+        int paidMana,
         out string cardNo)
     {
         cardNo = LuxIntroLegendCardNo;
-        if (!IsHighCostSpellForLux(playedBehavior)
+        if (!IsHighCostSpellForLux(playedBehavior, paidMana)
             || !playerZones.TryGetValue(playerId, out var zones))
         {
             return false;
@@ -26551,11 +26559,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         return false;
     }
 
-    private static bool IsHighCostSpellForLux(CardBehaviorDefinition behavior)
+    private static bool IsHighCostSpellForLux(CardBehaviorDefinition behavior, int paidMana)
     {
-        return behavior.ManaCost >= 5
-            && !behavior.PlaysSourceToBaseAsUnit
-            && !behavior.PlaysSourceToBaseAsEquipment;
+        return paidMana >= 5
+            && IsSpellPlayBehavior(behavior);
     }
 
     private static IReadOnlyList<GameEvent> ReadyRunesForAnnieAtTurnEnd(
@@ -30566,9 +30573,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         string playerId,
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
+        int paidMana,
         List<GameEvent> events)
     {
-        if (!IsHighCostSpellForLux(behavior))
+        if (!IsHighCostSpellForLux(behavior, paidMana))
         {
             return;
         }

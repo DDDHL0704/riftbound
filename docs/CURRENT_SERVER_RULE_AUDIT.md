@@ -4596,6 +4596,8 @@
 | 双人房间/重连/snapshot/prompt | PASS | `GameHub` 具备 join/reconnect/request snapshot/submit flow。 |
 | 隐藏手牌/面朝下对象 | PASS | 手牌、face-down、随机 seed/rngCursor 与 spectator replay frame 均已裁剪。 |
 | 官方 deck/opening/mulligan | RISKY | 已有 `SUBMIT_DECK -> READY -> MULLIGAN` 正式路径、deck validator、负例矩阵、起手调度边界和 Hub smoke；剩余风险主要是产品前端仍需强制正式入口。 |
+2026-05-21 4D-04S PaymentEngine Lux high-cost paid-cost representative accepted：Lux unit and Lux Intro Deck legend high-cost spell trigger qualification now uses server-resolved paid mana rather than printed mana cost. Focused tests prove cost reduction below threshold does not trigger, Spellshield tax raising paid mana to 5 does trigger, insufficient tax rejects without mutation and opponent snapshots do not reveal the hidden draw. Validation passed: 3/3 focused, 81/81 Lux/HighCost/RealTriggerQueue, 174/174 PaymentEngine/Trigger/Lux adjacent, backend full 5234/5234 and `git diff --check`. Full PaymentEngine official breadth and READY remain open.
+
 | 区域/对象/控制权/战场位置 | RISKY | 已有 `ObjectLocations`、`BattlefieldStates`、`BattlefieldTasks` 与 4D-01 destination-scoped contest task foundation；仍缺完整 battlefield/standby/control/held/conquer task 状态机。 |
 | FEPR/优先权/焦点 | RISKY | 有 `TurnWindowState`、`SpellDuelState`、`BattlefieldTasks`、focus/prompt；仍缺完整 pending task/state machine。 |
 | 栈/出牌/费用/目标 | RISKY | 大量代表路径实现；PLAY_CARD 与代表性非出牌路径已 typed-power aware，但通用支付来源/目标语法仍不足。 |
