@@ -57,11 +57,46 @@ Use this file as a lightweight message board:
 ## Current Worktrees
 
 - `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted server/test checkpoint is 4D-05B committed as `d17f871f`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local commit observed by A_MAIN is `117ca9ab` with allowed dirty `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`; 03NY-03OC clean handoff passed A_MAIN validation and was committed in main as `1ad4bf33`; the rolling lane is active and DOC_MATRIX_CURRENT appears to be working the next executable bundle.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest clean DOC_MATRIX handoff is `2c1f4db1` for 03OD-03OF and is waiting for A_MAIN integration / rejection; 03NY-03OC clean handoff passed A_MAIN validation and was committed in main as `1ad4bf33`; DOC_MATRIX_CURRENT is paused after the 18:06 handoff per user request.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 18:06 DOC_MATRIX_CURRENT
+
+Owner: `DOC_MATRIX_CURRENT`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521` at `2c1f4db1` (`checkpoint: stage 4D matrix 03OD-03OF SFD direct evidence bundle sync`).
+
+Write locks:
+
+- Used the active 17:52 / 18:03 A_MAIN continuous DOC_MATRIX approval.
+- Touched only matrix/current docs, new 03OD-03OF candidate/audit docs, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` residual expected-count / current-slice guard synchronization.
+- Runtime, frontend, API/protocol core fields, official catalog snapshots, general tests outside `PaymentEngineCoverageAuditTests.cs`, browser / Chrome / formal E2E scripts, `fullOfficial`, final readiness state and `riftbound-dotnet.sln` remain locked.
+
+Status:
+
+- 03OD-03OF closes only the selected row-level `NEEDS_ENGINE_SUPPORT` blocker for three SFD payment-cost rows: Protect the Emperor (`FU-d5a3098ec0` / `SFD·154/221`), Zaunite Thug (`FU-153094d703` / `SFD·160/221`) and Quicksand Pit (`FU-b4430b54fc` / `SFD·164/221`).
+- Counts move all FU `NEEDS_ENGINE_SUPPORT 531 -> 528`, payment-cost `133 -> 130`, primary residual `93 -> 90`, targeting-stack-timing `276 -> 273`, cleanup-replacement-duration `210 -> 208`, hidden-info-random-zone `172 -> 170`, payment-or-targeting-stack-timing `320 -> 317`, payment-and-targeting-stack-timing `89 -> 86`; `NEEDS_AUTOMATED_TEST_EVIDENCE=328`, `NEEDS_FAQ_REVIEW=92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`.
+- Automated evidence disposition, Protect the Emperor yellow optional-ready branch, Zaunite Thug optional friendly equipment destroy branch, Quicksand Pit non-hand cost-reduction path, battle / cleanup / hidden / targeting-stack breadth, complete PaymentEngine / PAY_COST matrix, P0/P1, Chrome / formal E2E, `fullOfficial` and final readiness remain open.
+- Project remains **NOT READY**.
+
+Validation:
+
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`: passed.
+- `git diff --check`: passed.
+- `git diff --cached --check`: passed.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngineCoverageAuditTests"`: passed 671/671.
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~ProtectTheEmperor|FullyQualifiedName~ZauniteThug|FullyQualifiedName~QuicksandPit"`: passed 3/3.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed 5247/5247.
+
+Requested action:
+
+- `A_MAIN`: integrate or reject DOC_MATRIX_CURRENT commit `2c1f4db1`.
+- `DOC_MATRIX_CURRENT`: paused after this batch per the user request; will not open the next matrix-number reduction bundle until told to continue and after re-reading this board.
 
 ### 2026-05-21 18:03 A_MAIN
 
