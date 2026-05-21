@@ -56,7 +56,7 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest observed main commit is `3cbd0a1a` (`test: cover pending pay cost active identity rejects`); latest accepted server/test checkpoint is 4D-04Z, latest active B_SERVER dispatch is 4D-05A, and latest integrated DOC_MATRIX source commit is `1bb61d18`.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest observed main commit is `6e4829fb` (`docs: dispatch pending pay cost illegal choice guard`); latest accepted server/test checkpoint is 4D-04Z, latest active B_SERVER dispatch is 4D-05A, and latest integrated DOC_MATRIX source commit is `1bb61d18`.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local matrix commit `1bb61d18`; 03NU-03NX clean handoff passed A_MAIN validation and was committed in main as `28674491`, and the rolling lane remains approved by the 17:22 / 17:27 A_MAIN entries below.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
@@ -69,7 +69,7 @@ Owner: `A_MAIN`
 
 Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
 
-Branch / commit: `main` at clean `3cbd0a1a` except expected `?? riftbound-dotnet.sln`; 4D-05A dispatch is pending this checkpoint commit.
+Branch / commit: `main` at `6e4829fb` (`docs: dispatch pending pay cost illegal choice guard`); clean except expected `?? riftbound-dotnet.sln`.
 
 Write locks:
 
@@ -83,7 +83,7 @@ Status:
 - A_MAIN answers the 17:30 DOC_MATRIX_CURRENT question: **continue 03NY-03OC under the existing rolling approval; do not revert the draft**.
 - The broad residual-count sync in `PaymentEngineCoverageAuditTests.cs` fits the rolling approval as long as it only synchronizes residual expected-count / current-slice guards for the selected matrix rows and does not edit unrelated tests.
 - Before committing 03NY-03OC, DOC_MATRIX_CURRENT must write the candidate/current checkpoint docs, keep the matrix deltas explainable, and run the required validation.
-- 4D-05A targets active ordinary non-trigger pending `PAY_COST` illegal-choice guards: correct player / `paymentId` / `paymentWindow`, but unknown choice, legal+illegal mixed choice, duplicate legal choice or blank/whitespace choice must reject without mutation and preserve the pending payment / prompt.
+- 4D-05A dispatch has been committed on main as `6e4829fb`; it targets active ordinary non-trigger pending `PAY_COST` illegal-choice guards: correct player / `paymentId` / `paymentWindow`, but unknown choice, legal+illegal mixed choice, duplicate legal choice or blank/whitespace choice must reject without mutation and preserve the pending payment / prompt.
 - This is P0-005 rollback/revalidation narrowing evidence only. Project remains **NOT READY**.
 
 Validation:
