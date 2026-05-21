@@ -63,6 +63,37 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-21 15:18 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` observed clean at `6f062911` except expected untracked `riftbound-dotnet.sln`; `DOC_MATRIX_CURRENT` observed at `e4a4a645` with in-progress allowed edits to matrix JSON and `PaymentEngineCoverageAuditTests.cs`.
+
+Write locks:
+
+- `B_SERVER` is **APPROVED** for one fresh 4D-04V PaymentEngine generated-resource lifetime slice, using `docs/CURRENT_STAGE4D_04V_PAYMENTENGINE_GENERATED_RESOURCE_LIFETIME_B_WORKER_PROMPT.md`.
+- Allowed B write scope: `src/Riftbound.Engine/PaymentCostRules.cs`, `src/Riftbound.Engine/CoreRuleEngine.cs`, `tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs`, `tests/Riftbound.ConformanceTests/GoldTokenResourceSkillTests.cs`, `tests/Riftbound.ConformanceTests/ResourceConversionEquipmentSkillTests.cs`, `tests/Riftbound.ConformanceTests/LegendResourceBridgeVerifierTests.cs`, `tests/Riftbound.ConformanceTests/LuxResourceSkillTests.cs`, `tests/Riftbound.ConformanceTests/HoneyfruitResourceSkillTests.cs`, `tests/Riftbound.ConformanceTests/BlueSentinelResourceSkillTests.cs`, optional 04V audit/evidence docs.
+- `DOC_MATRIX_CURRENT` keeps its rolling matrix lane lock from 15:12. B must not touch matrix JSON, `PaymentEngineCoverageAuditTests.cs`, current DOC_MATRIX draft files, frontend, official catalog, Chrome/browser/formal E2E scripts, protocol core fields, `fullOfficial`, READY or `riftbound-dotnet.sln`.
+
+Status:
+
+- This B dispatch targets P0-005 generated-resource lifetime risk: stale generated resources, wrong-player/wrong-window reuse, one-shot cleanup, and no-mutation rollback around server-issued payment prompts.
+- It is intentionally disjoint from DOC_MATRIX's current dirty files.
+- Project remains **NOT READY**.
+
+Validation:
+
+- A_MAIN performed the required shared-board and dual-worktree status guard before opening this lock.
+- B must run the focused generated-resource filter, adjacent payment/prompt filter and `git diff --check`; A acceptance may require backend full if runtime changes are present.
+
+Requested action:
+
+- `B_SERVER`: implement or prove the 04V slice, then report changed files, tests, runtime/protocol/hidden-info findings and remaining open items. Do not claim READY.
+- `DOC_MATRIX_CURRENT`: continue the rolling matrix-number-reduction lane independently unless a newer A blocker appears.
+- `A_MAIN`: after B returns, review diff/tests before accepting or committing.
+
 ### 2026-05-21 15:12 A_MAIN
 
 Owner: `A_MAIN`
