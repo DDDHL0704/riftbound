@@ -61,12 +61,137 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03PR-03PV integrated from DOC_MATRIX_CURRENT source `4e70de0c` as `bed4b0cc`; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln` after the post-commit guard lands.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, clean at `ac050824` with source `4e70de0c` accepted into main as `bed4b0cc`. User explicitly requested that the document window must not idle; DOC_MATRIX_CURRENT is released to sync main post-commit guard, then continue the next executable 3-5 row matrix-number-reduction bundle unless a stop condition, an unintegrated clean handoff, or documented `NO_EXECUTABLE_CANDIDATES` applies.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03PW-03QF integrated from DOC_MATRIX_CURRENT source `78e1d77c` as `904dc5bf`; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln` after the post-commit guard lands.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, clean at `94a1de50` with source `78e1d77c` accepted into main as `904dc5bf`. User explicitly requested that the document window must not idle; DOC_MATRIX_CURRENT is released to sync main post-commit guard, then continue the next executable 3-5 row matrix-number-reduction bundle unless a stop condition, an unintegrated clean handoff, or documented `NO_EXECUTABLE_CANDIDATES` applies.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 22:47 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` accepted DOC_MATRIX_CURRENT source `78e1d77c` as `904dc5bf`; DOC_MATRIX_CURRENT observed clean at `94a1de50`.
+
+Write locks:
+
+- A_MAIN accepts the 03PW-03QF DOC_MATRIX_CURRENT source bundle into main.
+- No runtime, frontend, API/protocol core field, official catalog, general test outside `PaymentEngineCoverageAuditTests.cs`, browser/Chrome/formal E2E, `fullOfficial`, READY or `riftbound-dotnet.sln` lock is opened.
+
+Status:
+
+- Main integration commit `904dc5bf` contains SFD battlefield rows plus the normalized UNL follow-on rows.
+- Counts now move all FU `NEEDS_ENGINE_SUPPORT 486 -> 476`, payment-cost `88 -> 78`, primary residual `53 -> 43`, targeting-stack-timing `240 -> 236`, cleanup-replacement-duration `189 -> 188`, hidden-info-random-zone `159 -> 158`, payment-or-targeting-stack-timing `275 -> 265`, payment-and-targeting-stack-timing `53 -> 49`.
+- Automated-test evidence remains `328`, FAQ review `92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Main validation passed before commit: matrix JSON parse, `git diff --check`, conflict-marker scan, PaymentEngineCoverageAuditTests 689/689, ConformanceFixtureRunnerTests 3019/3019 and backend full 5336/5336.
+- DOC_MATRIX branch validation for the same source also passed: matrix JSON parse, `git diff --check`, conflict-marker scan, PaymentEngineCoverageAuditTests 689/689, ConformanceFixtureRunnerTests 3019/3019 and backend full 5336/5336.
+
+Requested action:
+
+- DOC_MATRIX_CURRENT may merge / sync this post-commit guard, then continue the next executable matrix-number-reduction bundle under `APPROVED_ACTIVE_NO_IDLE`.
+
+### 2026-05-21 22:47 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: DOC_MATRIX_CURRENT clean at `94a1de50`; A_MAIN main worktree observed at `040f5063` with 03PW-03QF source-scope files staged.
+
+Write locks:
+
+- No new DOC_MATRIX write lock is opened.
+- This entry corrects the 22:46 entry's post-update main-status expectation: main is not dirty only on this shared board; the 03PW-03QF source-scope files are already staged in main.
+
+Status:
+
+- Main staged files match the 03PW-03QF source scope: matrix/current docs, four 03PW-03QA / 03QB-03QF candidate/audit docs, `CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`, `CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`.
+- Main unstaged file is this shared coordination board. `riftbound-dotnet.sln` remains expected untracked and is not staged.
+- `git diff --cached --check` passed for the staged source-scope files.
+- DOC_MATRIX_CURRENT remains clean at `94a1de50`; source handoff remains `78e1d77c`.
+- Project remains **NOT READY**.
+
+Validation:
+
+- No new runtime or test validation was run by this status-correction entry beyond `git diff --cached --check` on main.
+
+Requested action:
+
+- `A_MAIN`: finish or reject the already staged main integration for source `78e1d77c`, include or reconcile the latest shared-board entries as appropriate, and record the committed / rejected result here.
+- `DOC_MATRIX`: continue to pause new writing batches while the main integration is staged / unresolved.
+
+### 2026-05-21 22:46 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521-next` clean at guard `94a1de50`; source handoff `78e1d77c` (`checkpoint: stage 4D matrix 03PW-03QF payment-cost evidence sync`).
+
+Write locks:
+
+- No new source-writing lock is opened by this entry.
+- This entry supersedes the stale 22:43 DOC_MATRIX blocker entry after the DOC_MATRIX worktree produced a clean handoff.
+- Source scope was matrix/current docs, 03PW-03QA and 03QB-03QF candidate/audit docs, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` residual/current-slice baseline sync only.
+- No runtime, frontend, API/protocol core field, official catalog, general tests outside `PaymentEngineCoverageAuditTests.cs`, browser/Chrome/formal E2E, `fullOfficial`, project-ready state or `riftbound-dotnet.sln` lock is opened.
+
+Status:
+
+- DOC_MATRIX_CURRENT is currently clean at `94a1de50`; source commit `78e1d77c` is ready for A_MAIN integrate / reject.
+- Selected bundles: 4D-03PW-E..4D-03QA-E SFD battlefield evidence bundle and 4D-03QB-E..4D-03QF-E UNL follow-on evidence bundle.
+- Counts moved all FU `NEEDS_ENGINE_SUPPORT 486 -> 476`, payment-cost `88 -> 78`, primary residual `53 -> 43`, targeting-stack-timing `240 -> 236`, cleanup-replacement-duration `189 -> 188`, hidden-info-random-zone `159 -> 158`, payment-or-targeting-stack-timing `275 -> 265`, payment-and-targeting-stack-timing `53 -> 49`.
+- Automated-test evidence remains `328`, FAQ review remains `92`, primary FAQ residual remains `61`, `fullOfficialTrue=0`, `ready=false`. Project remains **NOT READY**.
+
+Validation:
+
+- DOC_MATRIX branch validation recorded in the source handoff: jq matrix JSON valid; `git diff --check` passed; conflict-marker scan clean; PaymentEngineCoverageAuditTests 689/689 passed; ConformanceFixtureRunnerTests 3019/3019 passed; backend full test 5336/5336 passed.
+- Main worktree status after this board update is expected to remain dirty only on this shared board plus expected untracked `riftbound-dotnet.sln`.
+
+Requested action:
+
+- `A_MAIN`: cherry-pick / integrate / reject source `78e1d77c`, record the result here, and only then release DOC_MATRIX_CURRENT back to the no-idle lane if clean.
+- `DOC_MATRIX`: pause writing new matrix/audit-baseline batches while this clean source handoff is unintegrated; read-only next-candidate scanning is okay if A_MAIN wants it.
+
+### 2026-05-21 22:43 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521-next` at `c41ac069`; current worktree is dirty and must not be committed before A_MAIN/user裁决.
+
+Write locks:
+
+- No new lock is being claimed by this entry.
+- This entry only updates the canonical shared board in the main worktree.
+- DOC_MATRIX will treat this board as the first file to read at every future start / resume before any matrix, audit-baseline or checkpoint work.
+
+Status:
+
+- Latest shared-board口径 has been re-read. Top A_MAIN entry remains 2026-05-21 22:28: main accepted DOC_MATRIX_CURRENT source `4e70de0c` as `bed4b0cc`, and released DOC_MATRIX_CURRENT to sync the post-commit guard and continue under `APPROVED_ACTIVE_NO_IDLE`.
+- Active goal text already contains the mandatory shared-board-first gate. This window can inspect the active goal and mark it complete when truly done, but cannot rewrite the active objective in-place; any further wording change needs user-side goal update.
+- DOC_MATRIX_CURRENT local dirty state now includes conflicting future draft artifacts / partial edits around 03PW-03QA and 03QB-03QF. The conflict is batch-number and document-matrix drift, not a validated source bundle.
+- Current dirty files include matrix/current docs, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, SFD 03PW-03QA candidate/audit docs, UNL 03PW-03QA candidate/audit docs and UNL 03QB-03QF candidate/audit docs.
+- Because those draft batch IDs are inconsistent with each other and are not recorded as an accepted shared-board handoff, DOC_MATRIX is pausing before validation or commit.
+- Project remains **NOT READY**.
+
+Validation:
+
+- No validation has been run for the dirty draft state in this entry.
+- Main worktree status was checked and is clean except expected untracked `riftbound-dotnet.sln`.
+- DOC_MATRIX_CURRENT status was checked and is dirty as described above.
+
+Requested action:
+
+- `A_MAIN` / user: please choose the cleanup path before DOC_MATRIX continues: either preserve/reconcile the existing SFD 03PW-03QA and UNL 03QB-03QF drafts as the intended next sequence, or authorize DOC_MATRIX to discard/renumber stale draft artifacts and reopen exactly one uniquely named next bundle from the current matrix.
+- Until that decision is recorded here, DOC_MATRIX will not validate, commit or open another matrix-number-reduction bundle.
 
 ### 2026-05-21 22:28 A_MAIN
 
