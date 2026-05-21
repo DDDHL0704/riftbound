@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/MyProjects/riftbound-dotnet/docs/CURREN
 
 Project status remains **NOT READY**. Do not output READY-CANDIDATE from this board.
 
-Current rolling decision: `DOC_MATRIX_CURRENT` is `APPROVED_ACTIVE_NO_IDLE` for the next executable matrix-number-reduction bundle under the scope and stop conditions below.
+Current rolling decision: `DOC_MATRIX_CURRENT` is `APPROVED_ACTIVE_NO_IDLE` for the next executable matrix-number-reduction bundle under the scope and stop conditions below. As of 2026-05-22 01:07, the primary payment-cost B/D residual lane is closed with `NO_EXECUTABLE_CANDIDATES`; the active docs-only lane is now current-matrix `IMPLEMENTED_TESTED` rows with `NEEDS_ENGINE_SUPPORT` plus representative automated/runtime-window evidence.
 
 ## Coordination Contract
 
@@ -61,12 +61,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest observed matrix checkpoint is 03RU-03RW integrated from DOC_MATRIX_CURRENT source `c5e5d91d` as `66a3dac2`; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; exact HEAD must still be checked before each batch / commit; after the 03RU post-commit guard `17065919`, main is expected clean except expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, merging A_MAIN post-commit guard `17065919` after handoff guard `047d186f` and source commit `c5e5d91d`; after this closure commit lands, DOC_MATRIX_CURRENT is expected clean and the current primary payment-cost B/D residual lane has `NO_EXECUTABLE_CANDIDATES` unless a new A_MAIN scope is opened.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest observed matrix checkpoint is 03RU-03RW integrated from DOC_MATRIX_CURRENT source `c5e5d91d` as `66a3dac2`; latest closure sync is `a3e98708`; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; exact HEAD must still be checked before each batch / commit; main is expected clean except expected untracked `riftbound-dotnet.sln`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, clean at closure commit `603b5ae0`; primary payment-cost B/D residual lane has `NO_EXECUTABLE_CANDIDATES`; A_MAIN now authorizes the next docs-only implemented-tested evidence scope recorded in the 01:07 entry below.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-22 01:07 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: main `a3e98708` syncs DOC_MATRIX_CURRENT closure commit `603b5ae0` after accepting DOC source `c5e5d91d` as `66a3dac2` and recording guard `17065919`.
+
+Write locks: opens a new DOC_MATRIX_CURRENT docs-only matrix-number-reduction lock. Allowed writes are `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`, current A checkpoint / completion audit / next-dispatch docs, per-bundle candidate/audit docs, this shared board, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` baseline synchronization only. Runtime, frontend, protocol core fields, official catalog, Chrome/browser/formal E2E scripts, `fullOfficial`, READY / READY-CANDIDATE and `riftbound-dotnet.sln` remain locked.
+
+Status: primary payment-cost B/D residual is closed with `NO_EXECUTABLE_CANDIDATES`. Current counts are all FU `NEEDS_ENGINE_SUPPORT=433`, payment-cost `35`, primary payment-cost residual `0`, targeting-stack-timing `208`, cleanup-replacement-duration `167`, hidden-info-random-zone `144`, payment-or-targeting-stack-timing `222`, payment-and-targeting-stack-timing `21`; automated evidence `328`, FAQ review `92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`. To prevent DOC_MATRIX idle time while staying within docs-only evidence work, A_MAIN authorizes the next executable 3-5 row bundle from current matrix order where `stage4B.fullOfficialBlockers` includes `NEEDS_ENGINE_SUPPORT`, `stage4B.freezeStatus=IMPLEMENTED_TESTED`, and `stage4B.automatedTests.status=REPRESENTATIVE_AUTOMATED_EVIDENCE_PRESENT` or an equivalent existing runtime-window evidence status. Seed candidates observed from current matrix are `FU-44f29ad8f7` 顺劈, `FU-441cb9fb7f` 海克斯射线, `FU-7f4a387b92` 自适应机器人, `FU-bf81341dd2` 拉文布鲁姆学生 and `FU-2779c06158` 决斗. Project remains **NOT READY**.
+
+Validation: A_MAIN final closure-sync validation passed `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs` and `tests`, matrix count script, PaymentEngineCoverageAuditTests `697/697`, and backend full `5344/5344`.
+
+Requested action: DOC_MATRIX_CURRENT should sync this authorization if needed, open the implemented-tested evidence bundle, validate with `jq`, `git diff --check`, conflict-marker scan, matrix count script, PaymentEngineCoverageAuditTests, ConformanceFixtureRunnerTests and backend full unless A_MAIN narrows after seeing the exact diff, then commit and hand off. Stop for validation failure, official-rule ambiguity, hidden-info concern, write-lock conflict, dirty main/DOC conflict, or documented `NO_EXECUTABLE_CANDIDATES` under this new scope.
 
 ### 2026-05-22 01:00 DOC_MATRIX
 
