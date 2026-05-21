@@ -57,12 +57,49 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OG-03OI committed as `14deaaa9`; latest accepted server/test checkpoint is 4D-05D committed as `2ab881dc`; active B_SERVER dispatch is 4D-05E from `b9b16424`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln` before this dispatch update.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, active after local board-mirror commit `6d9a8375` on the 03OJ-03OM candidate bundle with allowed dirty matrix/audit-test/candidate files; continuous no-idle lane remains approved under the same write locks.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OG-03OI committed as `14deaaa9`; latest accepted server/test checkpoint is 4D-05D committed as `2ab881dc`; active B_SERVER dispatch is 4D-05E from `23323037`; exact HEAD must still be checked before each batch / commit; main now has this DOC_MATRIX board handoff plus unrelated active 05E B_SERVER test edits and expected untracked `riftbound-dotnet.sln`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, handoff ready at `03b1521e` for the 03OJ-03OM matrix/audit-test baseline bundle; paused after this batch per user instruction until A_MAIN/user resumes or integrates/rejects the handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 19:02 DOC_MATRIX_CURRENT
+
+Owner: `DOC_MATRIX_CURRENT`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521` at `03b1521e`; main observed at `23323037` with only expected untracked `riftbound-dotnet.sln` before this board handoff edit.
+
+Write locks:
+
+- Used the standing DOC_MATRIX continuous lane for one 03OJ-03OM matrix/current-doc + `PaymentEngineCoverageAuditTests.cs` residual expected-count/current-slice baseline bundle.
+- Touched only matrix/current docs, new 03OJ-03OM candidate/audit docs, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`.
+- Runtime `src/**`, frontend, API/protocol core fields, official catalog snapshots, general tests outside `PaymentEngineCoverageAuditTests.cs`, browser/Chrome/formal E2E scripts, `fullOfficial`, final readiness and `riftbound-dotnet.sln` remain locked.
+
+Status:
+
+- Handoff ready for commit `03b1521e` (`checkpoint: stage 4D matrix 03OJ-03OM UNL direct unit evidence sync`).
+- Selected rows: Ascended Believer `FU-cfaef75b23`, Baby Shark `FU-ec8f0355c7`, Yeti Brawler `FU-7535ec3aac`, Crescent Guard `FU-bd6c450460`.
+- Counts move all FU `NEEDS_ENGINE_SUPPORT 525 -> 521`, payment-cost `127 -> 123`, primary residual `90 -> 86`, targeting-stack-timing `270 -> 266`, cleanup `208 -> 205`, hidden `170 -> 170`, payment-or-targeting `314 -> 310`, payment-and-targeting `83 -> 79`; automated-test evidence `328`, FAQ `92`, primary FAQ `61`, `fullOfficialTrue=0`, `ready=false`.
+- Still open: automated evidence disposition for all four rows, Ascended Believer spell-memory breadth, Baby Shark exact HASTE_READY / Assault breadth, Yeti conquer / overdamage / Gold-token breadth, Crescent Guard optional purple-payment breadth, complete cleanup/layer/battle/target-stack/PaymentEngine/PAY_COST, P0/P1, frontend/browser/formal E2E, `fullOfficial` and final readiness.
+- Project remains **NOT READY**. DOC_MATRIX_CURRENT is pausing after this batch because the user explicitly asked to stop after this batch.
+- Post-handoff status check saw unrelated active 05E B_SERVER dirty test files in main (`ArmedAssaulterHasteTemperedTests.cs`, `ReksaiHasteReadyRedPaymentTests.cs`); DOC_MATRIX did not touch or stage them.
+
+Validation:
+
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` passed.
+- `git diff --check` passed.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngineCoverageAuditTests"` passed, 674/674.
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~AscendedBeliever|FullyQualifiedName~BabyShark|FullyQualifiedName~YetiBrawler|FullyQualifiedName~CrescentGuard"` passed, 4/4.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` passed, 5250/5250.
+- Frontend build / Chrome smoke not run because this bundle has no frontend or browser-script changes.
+
+Requested action:
+
+- `A_MAIN`: integrate/cherry-pick or reject DOC_MATRIX_CURRENT commit `03b1521e`; after integration, record the result here before unrelated matrix/current-state assumptions move on.
+- `DOC_MATRIX_CURRENT`: paused per user instruction after this one batch; will reread this board before any next start.
 
 ### 2026-05-21 19:00 A_MAIN
 
