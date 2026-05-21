@@ -56,12 +56,75 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OD-03OF committed as `3e82b986`; latest accepted server/test checkpoint is 4D-05B committed as `d17f871f`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, clean at `2c1f4db1`; 03OD-03OF clean handoff passed A_MAIN validation and was committed in main as `3e82b986`; continuous lane is released again by the 18:14 A_MAIN entry below.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OD-03OF committed as `3e82b986`; latest accepted server/test checkpoint is 4D-05B committed as `d17f871f`; 4D-05C dispatch is being opened; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, clean at `2c1f4db1`; 03OD-03OF clean handoff passed A_MAIN validation and was committed in main as `3e82b986`; continuous lane is released again by the 18:17 A_MAIN no-idle entry below.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 18:17 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `4b944135`; dispatch/coordination docs are dirty and being committed.
+
+Write locks:
+
+- **APPROVED_CONTINUOUS_DOC_MATRIX_LANE remains active and supersedes the older 18:06 paused wording.**
+- `DOC_MATRIX_CURRENT` may keep opening consecutive small matrix-number reduction bundles from `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current` without waiting for another A_MAIN authorization.
+- Allowed scope remains `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, current checkpoint/audit/coverage/coordination docs, new per-bundle candidate/audit docs, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` only for residual expected-count / current-slice manifest / guard synchronization.
+- Locked scope remains runtime `src/**`, frontend, API/protocol core fields, official catalog snapshots, general tests outside `PaymentEngineCoverageAuditTests.cs`, browser / Chrome / formal E2E scripts, `fullOfficial`, READY / READY-CANDIDATE and `riftbound-dotnet.sln`.
+
+Status:
+
+- DOC_MATRIX_CURRENT is clean at `2c1f4db1`; no clean handoff is waiting right now.
+- It should not idle for authorization while A_MAIN opens or validates the disjoint B_SERVER 4D-05C runtime-test slice.
+- It should keep reducing explainable matrix numbers one clean committed bundle at a time until the matrix lane is complete, a listed stop condition appears, A_MAIN needs to integrate a clean handoff, or it records `NO_EXECUTABLE_CANDIDATES`.
+- Project remains **NOT READY**.
+
+Validation:
+
+- A_MAIN checked main status and DOC_MATRIX_CURRENT status before this entry.
+- This is a coordination/no-idle authorization entry; no runtime tests were required for this entry.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: resume / continue immediately. Pick the next executable matrix-number reduction bundle, validate it, commit it in its worktree, and add one handoff entry here. Do not wait unless a stop condition appears.
+- `A_MAIN`: before each commit and after each commit, re-check this board and DOC_MATRIX status; integrate any newer clean DOC_MATRIX handoff before unrelated follow-on work.
+
+### 2026-05-21 18:15 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `4b944135`; 4D-05C dispatch docs are being committed.
+
+Write locks:
+
+- A_MAIN opens B_SERVER 4D-05C runtime-test lock via `docs/CURRENT_STAGE4D_05C_TRIGGER_PAYMENT_FIORA_IDENTITY_REPLAY_B_WORKER_PROMPT.md`.
+- B allowed scope: `tests/Riftbound.ConformanceTests/TriggerPaymentTests.cs`, optional helper extraction inside that file, `src/Riftbound.Engine/CoreRuleEngine.cs` only if a runtime bug is exposed, and optional 05C audit/evidence docs.
+- B locked scope: matrix JSON, `PaymentEngineCoverageAuditTests.cs`, frontend, official catalog, protocol core fields, browser / Chrome / formal E2E scripts, `fullOfficial`, READY / READY-CANDIDATE and `riftbound-dotnet.sln`.
+- DOC_MATRIX_CURRENT continuous lane remains released and may continue independently from clean `2c1f4db1`.
+
+Status:
+
+- 4D-05C target is SFD Fiora typed/yellow `TRIGGER_PAYMENT` active-window identity and closed-window replay guards.
+- Required behaviors: wrong `paymentId`, wrong `paymentWindow`, post-payment replay and post-decline replay all reject without mutation, duplicate events, prompt/window fork, extra recycle/power-gain/readiness or state hash changes.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Dispatch/coordination-only entry; A_MAIN checked main and DOC_MATRIX statuses and did not run runtime tests for this entry.
+
+Requested action:
+
+- `B_SERVER`: start 4D-05C under the prompt above and do not touch DOC_MATRIX locked files.
+- `DOC_MATRIX_CURRENT`: continue next executable matrix-number reduction bundle without waiting for a new authorization.
+- `A_MAIN`: validate and commit this dispatch, then supervise B and DOC_MATRIX handoff ordering.
 
 ### 2026-05-21 18:14 A_MAIN
 
