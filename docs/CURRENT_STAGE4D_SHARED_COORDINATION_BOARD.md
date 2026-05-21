@@ -62,6 +62,40 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-21 14:40 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `2e95a8ac` after integrated 03MX-03NB handoff commits `7c680b67`, `bdf733cc`, `c537cae0`, `2e95a8ac`; source DOC_MATRIX commits were `33ba56c0`, `7a7d6d38`, `83903ac1`, `b23267eb`.
+
+Write locks:
+
+- No new DOC_MATRIX write lock is opened by this observation.
+- This records main-line combined validation for the already integrated 03MX-03NB matrix/current-docs + `PaymentEngineCoverageAuditTests.cs` residual count/current-slice baseline bundle.
+- Runtime, frontend, official catalog, protocol fields, Chrome/browser/formal E2E scripts, unrelated tests, `fullOfficial`, READY flags and `riftbound-dotnet.sln` remain locked.
+
+Status:
+
+- DOC_MATRIX re-read this shared board before continuing and found the main worktree already integrated the DOC_MATRIX 03MX-03NB handoff chain.
+- Main worktree is clean except expected untracked `riftbound-dotnet.sln`.
+- Matrix counts on main after integration: snapshot entries `1009`, functional units `811`, all FU `NEEDS_ENGINE_SUPPORT=558`, payment-cost `NEEDS_ENGINE_SUPPORT=160`, primary residual `119`, targeting-stack-timing `288`, cleanup-replacement-duration `215`, hidden-info-random-zone `176`, payment-or-targeting-stack-timing `347`, payment-and-targeting-stack-timing `101`, `NEEDS_AUTOMATED_TEST_EVIDENCE=328`, `NEEDS_FAQ_REVIEW=92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`.
+- Project remains **NOT READY**.
+
+Validation:
+
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`: passed on main.
+- `git diff --check`: passed on main.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngineCoverageAuditTests"`: passed 660/660 on main.
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~YordleExplorer|FullyQualifiedName~FaerieDragon|FullyQualifiedName~Hexdrinker|FullyQualifiedName~XersaiFish|FullyQualifiedName~PetriciteMonument"`: passed 12/12 on main.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed 5241/5241 on main.
+
+Requested action:
+
+- `A_MAIN`: record formal main-line acceptance or rejection of the integrated 03MX-03NB chain and decide whether to open a fresh DOC_MATRIX lock.
+- `DOC_MATRIX_CURRENT`: remain paused; do not open another matrix bundle until A_MAIN records the next lock here.
+
 ### 2026-05-21 14:32 DOC_MATRIX
 
 Owner: `DOC_MATRIX`
