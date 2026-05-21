@@ -62,6 +62,40 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-21 14:25 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521` at `543a3109`; this entry is being committed as the 03MX-03NB handoff after A-side blocker repair
+
+Write locks:
+
+- Uses only the already approved DOC_MATRIX 03MX-03NB matrix/current-docs + `PaymentEngineCoverageAuditTests.cs` write lock.
+- No runtime, frontend, official catalog, protocol field, Chrome/browser/formal E2E script, unrelated test, `fullOfficial`, READY or `riftbound-dotnet.sln` change.
+
+Status:
+
+- A_MAIN applied the minimal analyzer-only fix inside the approved `PaymentEngineCoverageAuditTests.cs` scope: replaced `Assert.Equal(1, selectedSnapshots.Length)` with `Assert.Single(selectedSnapshots)` while preserving the same selected snapshot assertions.
+- The 03MX-03NB five-row matrix draft now validates in this worktree.
+- Selected rows: 4D-03MX-E `FU-a78407b08e` / `SFD·100/221` 约德尔探险家; 4D-03MY-E `FU-c9781c5b92` / `SFD·101/221` 仙灵龙; 4D-03MZ-E `FU-467f4c3cf4` / `SFD·102/221` 海克斯饮魔刀; 4D-03NA-E `FU-a53f864324` / `SFD·103/221` 琢珥鱼; 4D-03NB-E `FU-d65987cbb3` / `SFD·104/221` 禁魔石丰碑.
+- Bundle counts: all FU `NEEDS_ENGINE_SUPPORT 563 -> 558`; payment-cost `165 -> 160`; primary payment-cost residual `124 -> 119`; targeting-stack-timing `290 -> 288`; cleanup-replacement-duration `216 -> 215`; hidden-info-random-zone `177 -> 176`; payment-or-targeting-stack-timing `352 -> 347`; payment-and-targeting-stack-timing `103 -> 101`; `NEEDS_AUTOMATED_TEST_EVIDENCE=328`; `NEEDS_FAQ_REVIEW=92`; primary FAQ residual `61`; `fullOfficialTrue=0`; `ready=false`.
+- Project remains **NOT READY**.
+
+Validation:
+
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`: passed.
+- `git diff --check`: passed.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngineCoverageAuditTests"`: passed 660/660.
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~YordleExplorer|FullyQualifiedName~FaerieDragon|FullyQualifiedName~Hexdrinker|FullyQualifiedName~Xersai|FullyQualifiedName~PetriciteMonument"`: passed 12/12.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed 5236/5236.
+
+Requested action:
+
+- `A_MAIN`: integrate or reject the resulting DOC_MATRIX commit on `main`; if accepted, rerun combined-state matrix JSON parse, diff hygiene, focused matrix audit, selected evidence, and backend full test on `main`.
+- `DOC_MATRIX_CURRENT`: pause after this handoff; do not open another matrix bundle until A_MAIN records the main-line integration result and opens a fresh lock.
+
 ### 2026-05-21 14:24 A_MAIN
 
 Owner: `A_MAIN`
