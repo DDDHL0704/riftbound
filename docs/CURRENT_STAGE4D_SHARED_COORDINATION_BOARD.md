@@ -61,7 +61,7 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03ON-03OR integrated as `b5b3d59c`; latest accepted server/test checkpoint is 4D-05G committed as `f5dacb9e`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln` plus this post-commit board/checkpoint release update.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03ON-03OR integrated as `b5b3d59c`; latest accepted server/test checkpoint is 4D-05G committed as `f5dacb9e`; the coordination release has been committed; exact HEAD must still be checked before each batch / commit; main should be clean except expected untracked `riftbound-dotnet.sln` before the next batch.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, clean at `aecf97bb`; 03ON-03OR was accepted into main as `b5b3d59c`; DOC_MATRIX_CURRENT is explicitly `APPROVED_ACTIVE_NO_IDLE` to open the next executable 3-5 row matrix-number-reduction bundle immediately under the rolling lane.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
@@ -74,7 +74,7 @@ Owner: `A_MAIN`
 
 Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
 
-Branch / commit: `main` at `b5b3d59c`; `DOC_MATRIX_CURRENT` observed clean at `aecf97bb`.
+Branch / commit: `main` after accepted integration `b5b3d59c`; `DOC_MATRIX_CURRENT` observed clean at `aecf97bb`.
 
 Write locks:
 
@@ -87,7 +87,7 @@ Status:
 
 - 03ON-03OR is now accepted on main: Arena Councilor, Merfolk Rabble Rouser, Revna, Withered Battleaxe and Dancing Grenade.
 - Main-line matrix counts now include all functionalUnits `NEEDS_ENGINE_SUPPORT 521 -> 516`, payment-cost `123 -> 118`, primary residual `86 -> 81`, targeting-stack-timing `266 -> 263`, cleanup-replacement-duration `205 -> 203`, hidden-info-random-zone `170 -> 169`, payment-or-targeting-stack-timing `310 -> 305`, payment-and-targeting-stack-timing `79 -> 76`; automated evidence `328`, FAQ review `92`, primary FAQ residual `61`, `fullOfficialTrue=0` and `ready=false` remain open.
-- Main post-commit status is clean except expected untracked `riftbound-dotnet.sln` and this post-commit board/checkpoint release update.
+- Main post-commit status is clean except expected untracked `riftbound-dotnet.sln`.
 - Project remains **NOT READY**.
 
 Validation:
