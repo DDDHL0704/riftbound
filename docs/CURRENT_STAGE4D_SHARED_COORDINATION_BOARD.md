@@ -52,12 +52,58 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`, latest known commit `f92eb47c`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest known commit `f92eb47c` after rebase.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`, latest known commit `c191b25c`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest known commit `c191b25c`; worktree clean at A preflight.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 10:20 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `c191b25c`
+
+Write locks:
+
+- `DOC_MATRIX_CURRENT` is APPROVED to open exactly one 4D-03MR synchronized matrix + audit-test baseline batch.
+- Allowed files:
+  - `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+  - `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`
+  - `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+  - `docs/CURRENT_COMPLETION_AUDIT.md`
+  - `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`
+  - `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`
+  - `docs/CURRENT_STAGE4D_SHARED_COORDINATION_BOARD.md`
+  - `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`
+- Locked files / areas: `src/**`, `src/Riftbound.DevUi/**`, official catalog/snapshot data, browser/Chrome/formal E2E scripts, all tests except the one audit file above, protocol core fields, `fullOfficial`, READY flags and `riftbound-dotnet.sln`.
+
+Status:
+
+- A approves the Jayce 03MR sync because the handoff proves existing runtime, P2/P4 fixture and rules-evidence support for `FU-51de703f12` / `SFD·084/221` / `SFD_JAYCE_NO_OPTIONAL_EQUIPMENT_PLAY_UNIT`.
+- This approval is not permission to implement runtime behavior; it is only permission to synchronize the matrix row and audit-test baseline that currently block the docs window.
+- Expected count direction from the handoff: all FU `NEEDS_ENGINE_SUPPORT 569 -> 568`, payment-cost `171 -> 170`, targeting-stack-timing `294 -> 293`, cleanup-replacement-duration `217 -> 216`, hidden-info-random-zone `178 -> 177`, payment-or-targeting-stack-timing `358 -> 357`, payment-and-targeting-stack-timing `107 -> 106`.
+- `NEEDS_AUTOMATED_TEST_EVIDENCE` remains open for Jayce; `fullOfficialTrue` remains `0`; final readiness remains **NOT READY**.
+
+Validation required before DOC_MATRIX commits:
+
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `git diff --check`
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngineCoverageAuditTests"`
+- Focused Jayce fixture evidence must still pass, using the narrowest available filter covering `Jayce` / `SFD_JAYCE` / `p2-preflight-play-sfd-jayce-no-optional-equipment-static` / `p4-play-sfd-jayce-target-rejected`.
+
+Stop conditions:
+
+- Stop immediately if the batch requires runtime/frontend/protocol changes, official catalog edits, hidden-info interpretation changes, or any rule interpretation beyond the existing handoff evidence.
+- Stop immediately if the PaymentEngine audit update becomes more than a baseline/count/manifest synchronization for the 03MR Jayce row.
+- Stop immediately on failed validation and record the failure here; do not continue to another card.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: perform the 03MR synchronized batch under this lock, commit only after required validation passes, then record the commit hash and results here.
 
 ### 2026-05-21 10:19 DOC_MATRIX
 
@@ -164,16 +210,11 @@ Requested action for `DOC_MATRIX_CURRENT`:
 Current locked / reserved areas:
 
 - `A_MAIN`: owns Stage 4 orchestration, server validation, checkpoint acceptance and next non-matrix development dispatch.
-- `DOC_MATRIX_CURRENT`: owns 03MR handoff documentation only until A opens the synchronized matrix/test batch.
+- `DOC_MATRIX_CURRENT`: owns the approved 4D-03MR synchronized matrix + `PaymentEngineCoverageAuditTests.cs` audit-baseline batch under the 10:20 A_MAIN write lock above.
 
 Do not edit without fresh A coordination:
 
-- `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
-- `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`
-- `docs/CURRENT_COMPLETION_AUDIT.md`
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`
-- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
-- `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`
 - frontend runtime / Chrome scripts / formal 18-step E2E scripts
 - `riftbound-dotnet.sln`
 
