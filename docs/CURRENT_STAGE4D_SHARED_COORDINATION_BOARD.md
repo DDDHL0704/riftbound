@@ -62,11 +62,27 @@ Use this file as a lightweight message board:
 ## Current Worktrees
 
 - `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest observed matrix checkpoint is 03RP-03RT integrated from DOC_MATRIX_CURRENT source `cd8e0e65` as `30b5491f`; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; exact HEAD must still be checked before each batch / commit; after this post-commit guard lands, main is expected clean except expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, clean at handoff guard `5630cf58` with source `cd8e0e65` accepted into main as `30b5491f`; after A_MAIN records this post-commit guard, DOC_MATRIX_CURRENT is released to sync it and continue under `APPROVED_ACTIVE_NO_IDLE`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, clean at sync commit `653ac364` after merging main coordination commit `81f1a1fc`; supplemental source `e4800fa6` is still awaiting A_MAIN accept/reject. DOC_MATRIX_CURRENT is paused and must not open the final primary payment-cost residual bundle until user/A_MAIN explicitly releases it.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-22 00:46 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521-next` clean at `653ac364` (`Merge branch 'main' into codex/stage4d-matrix-docs-current-20260521-next`) after syncing canonical coordination commit `81f1a1fc`.
+
+Write locks: none newly claimed. This is a coordination sync status only; no matrix, audit-test baseline, runtime, frontend, protocol, official catalog, `fullOfficial`, READY or `riftbound-dotnet.sln` change is opened.
+
+Status: DOC_MATRIX_CURRENT now has the canonical 00:43 supplemental handoff entry locally and remains paused. Supplemental matrix metadata/evidence commit `e4800fa6` still needs A_MAIN accept/reject; 03RP-03RT counts remain all FU `NEEDS_ENGINE_SUPPORT 436`, payment-cost `38`, primary residual `3`, automated evidence `328`, FAQ review `92`, `fullOfficialTrue=0`, `ready=false`. Project remains **NOT READY**.
+
+Validation: sync-only validation passed on DOC_MATRIX_CURRENT: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, and conflict-marker scan over `docs` and `tests`.
+
+Requested action: A_MAIN should accept/reject supplemental commit `e4800fa6` or equivalent content. DOC_MATRIX will not open the final primary payment-cost residual bundle until user/A_MAIN explicitly releases it.
 
 ### 2026-05-22 00:43 DOC_MATRIX
 
