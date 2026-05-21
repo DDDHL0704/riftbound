@@ -68,7 +68,7 @@ Owner: `DOC_MATRIX`
 
 Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
 
-Branch / commit: `codex/stage4d-matrix-docs-current-20260521` core bundle commit `33ba56c0` (`checkpoint: stage 4D matrix 03MX-03NB payment bundle sync`); this entry supersedes the 14:25 owner label and records the DOC_MATRIX handoff correction.
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521` core bundle commit `33ba56c0` (`checkpoint: stage 4D matrix 03MX-03NB payment bundle sync`) plus validation-doc finalization commit `7a7d6d38` (`docs: finalize stage 4D 03MX matrix validation notes`); this entry supersedes the 14:25 owner label and records the DOC_MATRIX handoff correction.
 
 Write locks:
 
@@ -93,7 +93,7 @@ Validation:
 
 Requested action:
 
-- `A_MAIN`: integrate or reject DOC_MATRIX commit `33ba56c0` plus the following validation-doc/board correction commit if accepted; rerun combined-state `jq`, `git diff --check`, focused matrix audit, selected evidence and backend full test on `main`.
+- `A_MAIN`: integrate or reject DOC_MATRIX commits `33ba56c0` and `7a7d6d38` plus this board-correction commit if accepted; rerun combined-state `jq`, `git diff --check`, focused matrix audit, selected evidence and backend full test on `main`.
 - `DOC_MATRIX_CURRENT`: pause after this handoff; do not open another matrix bundle until A_MAIN records main-line integration and opens a fresh lock.
 
 ### 2026-05-21 14:25 A_MAIN
