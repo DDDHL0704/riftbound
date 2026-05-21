@@ -181,6 +181,58 @@ public sealed class MalzaharResourceSkillTests
     }
 
     [Fact]
+    public async Task MalzaharResourceSkillReplayAfterImmediateActivationRejectsWithoutMutation()
+    {
+        var state = BuildMalzaharState();
+        var command = new ActivateAbilityCommand(
+            MalzaharObjectId,
+            P4ActivatedAbilityCatalog.MalzaharResourceAbilityId,
+            [FriendlyUnitObjectId]);
+
+        var accepted = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-malzahar-resource-skill-replay-accept", "P1", "ACTIVATE_ABILITY"),
+            command,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.True(accepted.State.CardObjects[MalzaharObjectId].IsExhausted);
+        Assert.DoesNotContain(FriendlyUnitObjectId, accepted.State.PlayerZones["P1"].Base);
+        Assert.Contains(FriendlyUnitObjectId, accepted.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal("GRAVEYARD", accepted.State.ObjectLocations[FriendlyUnitObjectId].Zone);
+        Assert.Empty(accepted.State.StackItems);
+        var temporaryResource = Assert.Single(accepted.State.TemporaryPaymentResources);
+        Assert.Equal(MalzaharObjectId, temporaryResource.SourceObjectId);
+        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, temporaryResource.AbilityId);
+        Assert.Single(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.Single(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_EXHAUSTED", StringComparison.Ordinal));
+        Assert.Single(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
+        Assert.Single(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+
+        var postActivationHash = MatchStateHasher.Hash(accepted.State);
+        var replay = await new CoreRuleEngine().ResolveAsync(
+            accepted.State,
+            new PlayerIntent("intent-malzahar-resource-skill-replay-stale", "P1", "ACTIVATE_ABILITY"),
+            command,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Empty(replay.Events);
+        Assert.Equal(postActivationHash, MatchStateHasher.Hash(replay.State));
+        Assert.True(replay.State.CardObjects[MalzaharObjectId].IsExhausted);
+        Assert.DoesNotContain(FriendlyUnitObjectId, replay.State.PlayerZones["P1"].Base);
+        Assert.Contains(FriendlyUnitObjectId, replay.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal("GRAVEYARD", replay.State.ObjectLocations[FriendlyUnitObjectId].Zone);
+        Assert.Empty(replay.State.StackItems);
+        Assert.Single(replay.State.TemporaryPaymentResources);
+        Assert.DoesNotContain(replay.Events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.DoesNotContain(replay.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_EXHAUSTED", StringComparison.Ordinal));
+        Assert.DoesNotContain(replay.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
+        Assert.DoesNotContain(replay.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_DESTROYED", StringComparison.Ordinal));
+        Assert.DoesNotContain(replay.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task MalzaharSpellDuelFocusResolvesImmediatelyAndKeepsSpellDuelOpenWithoutReactionWindow()
     {
         var state = BuildMalzaharState() with

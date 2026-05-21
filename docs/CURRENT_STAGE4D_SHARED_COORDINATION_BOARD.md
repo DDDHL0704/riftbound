@@ -61,12 +61,79 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OJ-03OM integrated as `d47e8258`; latest accepted server/test checkpoint is 4D-05F committed as `f23a60aa`; active B_SERVER dispatch is 4D-05G from this board/checkpoint update; exact HEAD must still be checked before each batch / commit; main currently has the 05G dispatch doc update plus expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, active dirty on next matrix-number-reduction bundle with `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`; 03OJ-03OM was accepted into main as `d47e8258`; DOC_MATRIX_CURRENT remains under the rolling no-idle lane.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OJ-03OM integrated as `d47e8258`; latest accepted server/test checkpoint is 4D-05G pending acceptance commit from this 19:33 entry; exact HEAD must still be checked before each batch / commit; main currently has 05G B_SERVER test edits, the DOC_MATRIX handoff board entry, checkpoint docs and expected untracked `riftbound-dotnet.sln`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, handoff ready at `aecf97bb` for 03ON-03OR; 03OJ-03OM was accepted into main as `d47e8258`; DOC_MATRIX_CURRENT remains under the rolling no-idle lane but must wait for A_MAIN integration / reject of `aecf97bb` before opening another bundle.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 19:33 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `c1f80e8c` before the 05G acceptance commit; DOC_MATRIX_CURRENT observed clean at `aecf97bb` with handoff ready.
+
+Write locks:
+
+- A_MAIN accepts B_SERVER 4D-05G in `tests/Riftbound.ConformanceTests/MalzaharResourceSkillTests.cs` and `tests/Riftbound.ConformanceTests/GoldTokenResourceSkillTests.cs`.
+- The 05G B_SERVER write lock is closed after this acceptance; no runtime, protocol, frontend, matrix JSON, `PaymentEngineCoverageAuditTests.cs`, official catalog, Chrome/browser/formal E2E, `fullOfficial`, READY or `riftbound-dotnet.sln` lock is opened by 05G.
+- DOC_MATRIX_CURRENT handoff `aecf97bb` is waiting. A_MAIN will integrate or reject that handoff after committing the 05G acceptance.
+
+Status:
+
+- 05G adds focused immediate resource-skill activation replay guards for Malzahar and UNL Gold token: each successful `ACTIVATE_ABILITY` accepts once, creates exactly one payment-only temporary resource, then exact stale replay rejects with no events, exact state-hash preservation, no duplicate activation / exhaust / removal / generated-resource side effects and unchanged stack / priority context.
+- Runtime changed: no. Protocol shape changed: no. Hidden-info leakage found: no.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Focused 05G validation passed: `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~MalzaharResourceSkillTests|FullyQualifiedName~GoldTokenResourceSkillTests"` 59/59.
+- Adjacent 05G validation passed: `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ResourceSkill|FullyQualifiedName~TemporaryPaymentResource|FullyQualifiedName~PaymentEngine|FullyQualifiedName~ActionPrompt|FullyQualifiedName~Prompt|FullyQualifiedName~GoldToken|FullyQualifiedName~Malzahar"` 1154/1154.
+- `git diff --check` passed before commit staging.
+
+Requested action:
+
+- `A_MAIN`: commit the 05G acceptance, then integrate/reject DOC_MATRIX_CURRENT `aecf97bb` before opening another development dispatch.
+- `DOC_MATRIX_CURRENT`: wait for A_MAIN integration / reject of `aecf97bb` before opening another matrix-number-reduction bundle.
+
+### 2026-05-21 19:31 DOC_MATRIX_CURRENT
+
+Owner: `DOC_MATRIX_CURRENT`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521` at `aecf97bb`; main observed at `c1f80e8c` with unrelated active B_SERVER 05G dirty test files (`GoldTokenResourceSkillTests.cs`, `MalzaharResourceSkillTests.cs`) plus expected untracked `riftbound-dotnet.sln`.
+
+Write locks:
+
+- Used the standing `DOC_MATRIX_CURRENT` no-idle lane for one 03ON-03OR matrix/current-doc + `PaymentEngineCoverageAuditTests.cs` residual expected-count/current-slice baseline bundle.
+- Touched only matrix/current docs, new 03ON-03OR candidate/audit docs, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`.
+- Runtime `src/**`, frontend, API/protocol core fields, official catalog snapshots, general tests outside `PaymentEngineCoverageAuditTests.cs`, browser/Chrome/formal E2E scripts, `fullOfficial`, final readiness and `riftbound-dotnet.sln` remain locked.
+
+Status:
+
+- Handoff ready for commit `aecf97bb` (`checkpoint: stage 4D matrix 03ON-03OR UNL early evidence sync`).
+- Selected rows: Arena Councilor `FU-a0023d7dc7`, Merfolk Rabble Rouser `FU-194c419d09`, Revna `FU-fae4cb2b90`, Withered Battleaxe `FU-c751ddbacb`, Dancing Grenade `FU-3afa21c91d`.
+- Counts move all FU `NEEDS_ENGINE_SUPPORT 521 -> 516`, payment-cost `123 -> 118`, primary residual `86 -> 81`, targeting-stack-timing `266 -> 263`, cleanup `205 -> 203`, hidden `170 -> 169`, payment-or-targeting `310 -> 305`, payment-and-targeting `79 -> 76`; automated-test evidence `328`, FAQ `92`, primary FAQ `61`, `fullOfficialTrue=0`, `ready=false`.
+- Still open: automated evidence disposition for all five rows, Arena Councilor tap/exhausted modifier, Merfolk standby hidden reaction, Revna roam movement, Withered Battleaxe equipment lifecycle, Dancing Grenade recast branch, complete cleanup/hidden/layer/control-zone/target-stack/PaymentEngine/PAY_COST, P0/P1, frontend/browser/formal E2E, `fullOfficial` and final readiness.
+- Project remains **NOT READY**.
+
+Validation:
+
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` passed.
+- `git diff --check` passed.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngineCoverageAuditTests"` passed, 675/675.
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"` passed, 3019/3019.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` passed, 5251/5251 after final docs sync.
+- Frontend build / Chrome smoke not run because this bundle has no frontend or browser-script changes.
+
+Requested action:
+
+- `A_MAIN`: integrate/cherry-pick or reject DOC_MATRIX_CURRENT commit `aecf97bb`; record the result here before unrelated matrix/current-state assumptions move on.
+- `DOC_MATRIX_CURRENT`: wait for A_MAIN integration / reject of `aecf97bb` before opening another matrix-number-reduction bundle.
 
 ### 2026-05-21 19:25 A_MAIN
 

@@ -215,6 +215,60 @@ public sealed class GoldTokenResourceSkillTests
     }
 
     [Fact]
+    public async Task GoldTokenResourceSkillReplayAfterImmediateActivationRejectsWithoutMutation()
+    {
+        var state = BuildGoldPriorityState();
+        var command = Command(UnlGoldObjectId, P4ActivatedAbilityCatalog.GoldTokenUnlResourceAbilityId);
+
+        var accepted = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-gold-token-resource-replay-accept", "P1", CommandTypes.ActivateAbility),
+            command,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.DoesNotContain(UnlGoldObjectId, accepted.State.CardObjects.Keys);
+        Assert.DoesNotContain(UnlGoldObjectId, accepted.State.PlayerZones["P1"].Base);
+        Assert.Contains(UnlGoldObjectId, accepted.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal("GRAVEYARD", accepted.State.ObjectLocations[UnlGoldObjectId].Zone);
+        Assert.Equal(TimingStates.NeutralClosed, accepted.State.TimingState);
+        Assert.Equal([PendingStackItemId], accepted.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.Equal("P1", accepted.State.PriorityPlayerId);
+        var temporaryResource = Assert.Single(accepted.State.TemporaryPaymentResources);
+        Assert.Equal(UnlGoldObjectId, temporaryResource.SourceObjectId);
+        Assert.Equal(P4ActivatedAbilityCatalog.GoldTokenUnlResourceAbilityId, temporaryResource.AbilityId);
+        Assert.Single(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.Single(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_EXHAUSTED", StringComparison.Ordinal));
+        Assert.Single(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_DESTROYED", StringComparison.Ordinal));
+        Assert.DoesNotContain(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "MANA_GAINED", StringComparison.Ordinal));
+        Assert.Single(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+
+        var postActivationHash = MatchStateHasher.Hash(accepted.State);
+        var replay = await new CoreRuleEngine().ResolveAsync(
+            accepted.State,
+            new PlayerIntent("intent-gold-token-resource-replay-stale", "P1", CommandTypes.ActivateAbility),
+            command,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Empty(replay.Events);
+        Assert.Equal(postActivationHash, MatchStateHasher.Hash(replay.State));
+        Assert.DoesNotContain(UnlGoldObjectId, replay.State.CardObjects.Keys);
+        Assert.DoesNotContain(UnlGoldObjectId, replay.State.PlayerZones["P1"].Base);
+        Assert.Contains(UnlGoldObjectId, replay.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal("GRAVEYARD", replay.State.ObjectLocations[UnlGoldObjectId].Zone);
+        Assert.Equal(TimingStates.NeutralClosed, replay.State.TimingState);
+        Assert.Equal([PendingStackItemId], replay.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.Equal("P1", replay.State.PriorityPlayerId);
+        Assert.Single(replay.State.TemporaryPaymentResources);
+        Assert.DoesNotContain(replay.Events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.DoesNotContain(replay.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_EXHAUSTED", StringComparison.Ordinal));
+        Assert.DoesNotContain(replay.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_DESTROYED", StringComparison.Ordinal));
+        Assert.DoesNotContain(replay.Events, gameEvent => string.Equals(gameEvent.Kind, "MANA_GAINED", StringComparison.Ordinal));
+        Assert.DoesNotContain(replay.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task GoldTemporaryGenericResourcePaysGenericRuneCostAndCleansUp()
     {
         var resourceState = (await ResolveGoldAsync(
