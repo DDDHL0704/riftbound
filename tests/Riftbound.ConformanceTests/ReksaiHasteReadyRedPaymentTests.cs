@@ -170,6 +170,65 @@ public sealed class ReksaiHasteReadyRedPaymentTests
         Assert.Equal([RedRuneObjectId], Assert.IsType<string[]>(costEvent.Payload["recycledRuneObjectIds"]));
     }
 
+    [Fact]
+    public async Task ReplayingAcceptedRecycleRedRuneHasteReadyPlayCardRejectsWithoutMutation()
+    {
+        var paymentResourceAction = $"RECYCLE_RUNE:{RedRuneObjectId}";
+        var engine = new CoreRuleEngine();
+        var state = BuildReksaiState(
+            ReksaiCardNo,
+            new RunePool(4, 0),
+            baseObjectIds: [RedRuneObjectId],
+            runeDeckObjectIds: [RuneDeckObjectId],
+            extraCardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [RedRuneObjectId] = RuneCard(RedRuneObjectId, RuneTrait.Red),
+                [RuneDeckObjectId] = RuneCard(RuneDeckObjectId, RuneTrait.Green)
+            });
+        var command = ReksaiCommand(
+            ReksaiCardNo,
+            optionalCosts: [HasteOptionalCostNames.HasteReady, paymentResourceAction]);
+
+        var played = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-reksai-play-once", "P1", CommandTypes.PlayCard),
+            command,
+            CancellationToken.None);
+
+        Assert.True(played.Accepted, played.ErrorMessage);
+        Assert.Equal(["CARD_PLAYED", "RUNE_RECYCLED", "POWER_GAINED", "COST_PAID", "STACK_ITEM_ADDED"], played.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        var postAcceptanceHash = MatchStateHasher.Hash(played.State);
+        var postAcceptanceHand = played.State.PlayerZones["P1"].Hand.ToArray();
+        var postAcceptanceBase = played.State.PlayerZones["P1"].Base.ToArray();
+        var postAcceptanceRuneDeck = played.State.PlayerZones["P1"].RuneDeck.ToArray();
+        var postAcceptanceStackIds = played.State.StackItems.Select(stackItem => stackItem.SourceObjectId).ToArray();
+        var postAcceptanceRunePool = played.State.RunePools["P1"];
+        var postAcceptanceLocation = played.State.ObjectLocations[ReksaiObjectId];
+
+        var replay = await engine.ResolveAsync(
+            played.State,
+            new PlayerIntent("intent-reksai-play-replay", "P1", CommandTypes.PlayCard),
+            command,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Empty(replay.Events);
+        Assert.DoesNotContain(replay.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal)
+            || string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal)
+            || string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal)
+            || string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            || string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        Assert.Equal(postAcceptanceHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(postAcceptanceHand, replay.State.PlayerZones["P1"].Hand);
+        Assert.Equal(postAcceptanceBase, replay.State.PlayerZones["P1"].Base);
+        Assert.Equal(postAcceptanceRuneDeck, replay.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(postAcceptanceStackIds, replay.State.StackItems.Select(stackItem => stackItem.SourceObjectId).ToArray());
+        Assert.Equal(postAcceptanceRunePool, replay.State.RunePools["P1"]);
+        Assert.Equal(postAcceptanceLocation, replay.State.ObjectLocations[ReksaiObjectId]);
+        Assert.Single(replay.State.StackItems);
+    }
+
     [Theory]
     [InlineData("wrong-trait-power")]
     [InlineData("generic-temporary-resource")]

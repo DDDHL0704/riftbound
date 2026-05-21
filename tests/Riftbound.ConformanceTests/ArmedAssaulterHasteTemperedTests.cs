@@ -86,6 +86,50 @@ public sealed class ArmedAssaulterHasteTemperedTests
     }
 
     [Fact]
+    public async Task ReplayingAcceptedHasteReadyTemperedPlayCardRejectsWithoutMutation()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildArmedAssaulterState(mana: 7, redPower: 1);
+        var optionalCosts = new[] { TemperedAttachCost(SpinningAxeObjectId), HasteOptionalCostNames.HasteReady };
+        var command = ArmedAssaulterCommand(optionalCosts);
+
+        var played = await PlayArmedAssaulterAsync(engine, state, command);
+
+        Assert.True(played.Accepted, played.ErrorMessage);
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"], played.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        var postAcceptanceHash = MatchStateHasher.Hash(played.State);
+        var postAcceptanceRunePool = played.State.RunePools["P1"];
+        var postAcceptanceHand = played.State.PlayerZones["P1"].Hand.ToArray();
+        var postAcceptanceBase = played.State.PlayerZones["P1"].Base.ToArray();
+        var postAcceptanceStack = played.State.StackItems.ToArray();
+        var postAcceptanceEquipment = played.State.CardObjects[SpinningAxeObjectId];
+        var postAcceptanceUnitLocation = played.State.ObjectLocations[ArmedAssaulterObjectId];
+
+        var replay = await engine.ResolveAsync(
+            played.State,
+            new PlayerIntent("intent-armed-assaulter-replay", "P1", CommandTypes.PlayCard),
+            command,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Empty(replay.Events);
+        Assert.DoesNotContain(replay.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal)
+            || string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            || string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        Assert.Equal(postAcceptanceHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(postAcceptanceRunePool, replay.State.RunePools["P1"]);
+        Assert.Equal(postAcceptanceHand, replay.State.PlayerZones["P1"].Hand);
+        Assert.Equal(postAcceptanceBase, replay.State.PlayerZones["P1"].Base);
+        Assert.Equal(postAcceptanceStack, replay.State.StackItems);
+        Assert.Equal(postAcceptanceEquipment, replay.State.CardObjects[SpinningAxeObjectId]);
+        Assert.Equal(postAcceptanceUnitLocation, replay.State.ObjectLocations[ArmedAssaulterObjectId]);
+        var stackItem = Assert.Single(replay.State.StackItems);
+        Assert.Equal(optionalCosts, stackItem.OptionalCosts);
+        Assert.Null(replay.State.CardObjects[SpinningAxeObjectId].AttachedToObjectId);
+    }
+
+    [Fact]
     public async Task LegalTemperedOnlyAttachesButDoesNotSetHasteReadyFlag()
     {
         var engine = new CoreRuleEngine();
@@ -232,15 +276,28 @@ public sealed class ArmedAssaulterHasteTemperedTests
         MatchState state,
         IReadOnlyList<string> optionalCosts)
     {
+        return await PlayArmedAssaulterAsync(engine, state, ArmedAssaulterCommand(optionalCosts));
+    }
+
+    private static async Task<ResolutionResult> PlayArmedAssaulterAsync(
+        CoreRuleEngine engine,
+        MatchState state,
+        PlayCardCommand command)
+    {
         return await engine.ResolveAsync(
             state,
             new PlayerIntent("intent-armed-assaulter-play", "P1", CommandTypes.PlayCard),
-            new PlayCardCommand(
-                ArmedAssaulterObjectId,
-                ArmedAssaulterCardNo,
-                [],
-                OptionalCosts: optionalCosts),
+            command,
             CancellationToken.None);
+    }
+
+    private static PlayCardCommand ArmedAssaulterCommand(IReadOnlyList<string> optionalCosts)
+    {
+        return new PlayCardCommand(
+            ArmedAssaulterObjectId,
+            ArmedAssaulterCardNo,
+            [],
+            OptionalCosts: optionalCosts);
     }
 
     private static async Task<ResolutionResult> ResolveTopStackAsync(
