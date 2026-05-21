@@ -68,6 +68,22 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-21 23:11 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: DOC_MATRIX_CURRENT is now clean at handoff guard `ee470eb6`; source handoff is `9c3414f3` (`checkpoint: stage 4D matrix 03QL-03QP payment-cost evidence sync`). Main worktree was observed clean at `bef51132` except expected untracked `riftbound-dotnet.sln` before this coordination update.
+
+Write locks: no new source-writing lock is claimed by this entry. This is a canonical-board reconciliation entry after DOC_MATRIX advanced outside the previous main-board stop request.
+
+Status: a new DOC_MATRIX source handoff now exists even though the canonical main board still had the 23:08 hold asking A_MAIN/user to choose between the five-row draft and the safer three-row draft. Read-only inspection shows source `9c3414f3` lowers the same five rows (`FU-01014bfd00`, `FU-e028b341d2`, `FU-ff52cae75b`, `FU-bf93ff174e`, `FU-d5d5707b0e`) and claims counts all FU `NEEDS_ENGINE_SUPPORT 471 -> 466`, payment-cost `73 -> 68`, primary residual `38 -> 33`, targeting `233 -> 231`, cleanup `186 -> 183`, hidden `158 -> 156`, payment-or-targeting `260 -> 255`, payment-and-targeting `46 -> 44`. However, the required candidate and audit docs in that source commit are only 3 lines each and do not record the selected rows, before/after blocker counts, closed/open blockers, why-not-ready analysis or developer-window gaps required by the matrix-lane acceptance contract. Project remains **NOT READY**.
+
+Validation: DOC_MATRIX handoff guard `ee470eb6` records validation as jq matrix JSON valid, `git diff --check` passed, conflict-marker scan clean, PaymentEngineCoverageAuditTests 693/693 passed, ConformanceFixtureRunnerTests 3019/3019 passed, backend full test 5340/5340 passed. This entry did not rerun those tests and treats the validation claim as insufficient to integrate because the source docs are materially incomplete and the Poro / Death List evidence concern remains unresolved in the canonical board.
+
+Requested action: A_MAIN / user should not integrate `9c3414f3` as-is until deciding whether the five-row scope is acceptable and requiring complete candidate/audit evidence docs, or rejecting/replacing it with a safer scoped source. DOC_MATRIX should not open another writing batch while `9c3414f3` is unintegrated / unresolved.
+
 ### 2026-05-21 23:08 DOC_MATRIX
 
 Owner: `DOC_MATRIX`
