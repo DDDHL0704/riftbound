@@ -983,6 +983,103 @@ public sealed class TriggerPaymentTests
         Assert.DoesNotContain(declined.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
     }
 
+    [Theory]
+    [InlineData("wrong-payment-id")]
+    [InlineData("wrong-payment-window")]
+    public async Task SfdFioraYellowTriggerPaymentRejectsWrongPaymentIdentityWithoutMutation(string scenario)
+    {
+        var engine = new CoreRuleEngine();
+        var opened = await ResolveFioraPowerfulReadyTriggerAsync(BuildFioraPowerfulReadyState(yellowPower: 1), engine);
+        var payment = AssertFioraPaymentOpen(opened, expectedResourceActionIds: []);
+        var command = scenario switch
+        {
+            "wrong-payment-id" => new PayCostCommand(
+                $"{payment.PaymentId}:stale",
+                payment.PaymentWindow,
+                [PayOneYellowPower]),
+            _ => new PayCostCommand(
+                payment.PaymentId,
+                "STALE_TRIGGER_PAYMENT",
+                [PayOneYellowPower])
+        };
+
+        var rejected = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent($"intent-fiora-yellow-{scenario}", "P1", CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        AssertFioraRejectedNoMutation(rejected, opened.State, payment, expectedResourceActionIds: [], ErrorCodes.PhaseNotAllowed);
+        AssertFioraPayCostPromptMatchesPendingPayment(rejected, expectedResourceActionIds: []);
+    }
+
+    [Fact]
+    public async Task SfdFioraYellowPaymentRejectsPostPaymentReplayWithoutMutation()
+    {
+        var engine = new CoreRuleEngine();
+        var opened = await ResolveFioraPowerfulReadyTriggerAsync(BuildFioraPowerfulReadyState(yellowPower: 1), engine);
+        var payment = AssertFioraPaymentOpen(opened, expectedResourceActionIds: []);
+        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [PayOneYellowPower]);
+
+        var paid = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-fiora-yellow-pay-before-replay", "P1", CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.False(paid.State.CardObjects["P1-FIORA-TARGET"].IsExhausted);
+        Assert.Empty(paid.State.RunePools["P1"].PowerByTrait);
+        Assert.Equal(1, CountEvents(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)));
+        Assert.Equal(1, CountEvents(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)));
+        Assert.Equal(1, CountEvents(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal)));
+        var postPaymentHash = MatchStateHasher.Hash(paid.State);
+
+        var replay = await engine.ResolveAsync(
+            paid.State,
+            new PlayerIntent("intent-fiora-yellow-pay-stale-replay", "P1", CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        AssertFioraClosedReplayRejectedNoMutation(replay, paid.State, postPaymentHash);
+        Assert.False(replay.State.CardObjects["P1-FIORA-TARGET"].IsExhausted);
+        Assert.Empty(replay.State.RunePools["P1"].PowerByTrait);
+    }
+
+    [Fact]
+    public async Task SfdFioraDeclineRejectsPostDeclineReplayWithoutMutation()
+    {
+        var engine = new CoreRuleEngine();
+        var opened = await ResolveFioraPowerfulReadyTriggerAsync(BuildFioraPowerfulReadyState(yellowPower: 1), engine);
+        var payment = AssertFioraPaymentOpen(opened, expectedResourceActionIds: []);
+        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [Decline]);
+
+        var declined = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-fiora-decline-before-replay", "P1", CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        Assert.True(declined.Accepted, declined.ErrorMessage);
+        Assert.Null(declined.State.PendingPayment);
+        Assert.True(declined.State.CardObjects["P1-FIORA-TARGET"].IsExhausted);
+        Assert.Equal(1, declined.State.RunePools["P1"].PowerByTrait[RuneTrait.Yellow]);
+        Assert.Equal(1, CountEvents(declined.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_PAYMENT_DECLINED", StringComparison.Ordinal)));
+        Assert.Equal(1, CountEvents(declined.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal)));
+        var postDeclineHash = MatchStateHasher.Hash(declined.State);
+
+        var replay = await engine.ResolveAsync(
+            declined.State,
+            new PlayerIntent("intent-fiora-decline-stale-replay", "P1", CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        AssertFioraClosedReplayRejectedNoMutation(replay, declined.State, postDeclineHash);
+        Assert.True(replay.State.CardObjects["P1-FIORA-TARGET"].IsExhausted);
+        Assert.Equal(1, replay.State.RunePools["P1"].PowerByTrait[RuneTrait.Yellow]);
+    }
+
     [Fact]
     public async Task SfdFioraPaymentCanRecycleYellowRuneResource()
     {
@@ -1672,6 +1769,107 @@ public sealed class TriggerPaymentTests
         Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal));
         Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_TOKEN_CREATED", StringComparison.Ordinal));
         Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
+    }
+
+    private static void AssertFioraRejectedNoMutation(
+        ResolutionResult result,
+        MatchState original,
+        PendingPaymentState expectedPayment,
+        IReadOnlyList<string> expectedResourceActionIds,
+        string expectedErrorCode)
+    {
+        Assert.False(result.Accepted);
+        Assert.Equal(expectedErrorCode, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(MatchStateHasher.Hash(original), MatchStateHasher.Hash(result.State));
+        AssertFioraPendingPaymentPreserved(result.State.PendingPayment, expectedPayment, expectedResourceActionIds);
+        Assert.True(result.State.CardObjects["P1-FIORA-TARGET"].IsExhausted);
+        Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Yellow]);
+        AssertNoFioraTriggerPaymentSideEffects(result);
+    }
+
+    private static void AssertFioraClosedReplayRejectedNoMutation(
+        ResolutionResult result,
+        MatchState original,
+        string expectedHash)
+    {
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(expectedHash, MatchStateHasher.Hash(result.State));
+        Assert.Equal(MatchStateHasher.Hash(original), MatchStateHasher.Hash(result.State));
+        Assert.Null(result.State.PendingPayment);
+        AssertNoPendingPayCostPrompt(result);
+        AssertNoFioraTriggerPaymentSideEffects(result);
+    }
+
+    private static void AssertFioraPendingPaymentPreserved(
+        PendingPaymentState? actual,
+        PendingPaymentState expected,
+        IReadOnlyList<string> expectedResourceActionIds)
+    {
+        Assert.NotNull(actual);
+        Assert.Equal(expected.PaymentId, actual.PaymentId);
+        Assert.Equal(expected.PaymentWindow, actual.PaymentWindow);
+        Assert.Equal(expected.PlayerId, actual.PlayerId);
+        Assert.Equal(expected.ManaCost, actual.ManaCost);
+        Assert.Equal(expected.PowerCost, actual.PowerCost);
+        Assert.Equal(expected.PowerCostByTrait, actual.PowerCostByTrait);
+        Assert.Equal([PayOneYellowPower, Decline], actual.LegalPaymentChoiceIds);
+        Assert.Equal(expectedResourceActionIds, actual.PaymentResourceActionIds);
+    }
+
+    private static void AssertFioraPayCostPromptMatchesPendingPayment(
+        ResolutionResult result,
+        IReadOnlyList<string> expectedResourceActionIds)
+    {
+        var payment = result.State.PendingPayment;
+        Assert.NotNull(payment);
+        var prompt = result.Prompts["P1"];
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        Assert.Equal(payment.PaymentId, Assert.IsType<string>(metadata["paymentId"]));
+        Assert.Equal(payment.PaymentWindow, Assert.IsType<string>(metadata["paymentWindow"]));
+        var cost = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(metadata["cost"]);
+        Assert.Equal(payment.ManaCost, Assert.IsType<int>(cost["mana"]));
+        var costPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(cost["powerByTrait"]);
+        Assert.Equal(payment.PowerCostByTrait, costPowerByTrait);
+        var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentChoices"])
+            .Select(choice => choice.Id)
+            .ToArray();
+        Assert.Equal([PayOneYellowPower, Decline], choices);
+        var resourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentResourceChoices"])
+            .Select(choice => choice.Id)
+            .ToArray();
+        Assert.Equal(expectedResourceActionIds, resourceChoices);
+    }
+
+    private static void AssertNoPendingPayCostPrompt(ResolutionResult result)
+    {
+        Assert.Null(result.State.PendingPayment);
+        var prompt = result.Prompts["P1"];
+        Assert.NotEqual(PromptTypes.PayCost, prompt.View?.Type);
+        Assert.DoesNotContain(
+            prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+    }
+
+    private static void AssertNoFioraTriggerPaymentSideEffects(ResolutionResult result)
+    {
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_PAYMENT_DECLINED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, FioraTrigger, StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_CLEARED", StringComparison.Ordinal));
     }
 
     private static void AssertNextContestedBattlefieldNotAdvanced(ResolutionResult result)

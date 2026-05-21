@@ -56,12 +56,46 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OD-03OF committed as `3e82b986`; latest accepted server/test checkpoint is 4D-05B committed as `d17f871f`; 4D-05C dispatch is being opened; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, clean at `9c5af6e9` after a local board-only no-idle mirror; 03OD-03OF clean handoff passed A_MAIN validation and was committed in main as `3e82b986`; continuous lane is released again by the 18:17 / 18:18 A_MAIN no-idle entries.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OD-03OF committed as `3e82b986`; latest accepted server/test checkpoint is 4D-05C pending commit after A_MAIN validation; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, active on 03OG-03OI matrix/current-doc/audit-test work from board-only base `9c5af6e9`; 03OD-03OF clean handoff passed A_MAIN validation and was committed in main as `3e82b986`; continuous lane is released by the 18:17 / 18:18 A_MAIN no-idle entries.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 18:28 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `cb6739c0`; 4D-05C acceptance files are dirty and being committed.
+
+Write locks:
+
+- B_SERVER 4D-05C write lock is closed after A_MAIN validation.
+- A_MAIN touched `tests/Riftbound.ConformanceTests/TriggerPaymentTests.cs`, current checkpoint/audit/dispatch docs and this shared board for the 05C acceptance.
+- A_MAIN did not touch matrix JSON, `PaymentEngineCoverageAuditTests.cs`, frontend, official catalog, protocol core fields, Chrome/browser/formal E2E scripts, `fullOfficial`, READY or `riftbound-dotnet.sln`.
+- DOC_MATRIX_CURRENT remains independently approved and is actively working the allowed 03OG-03OI matrix/current-doc/audit-test bundle from board-only base `9c5af6e9`.
+
+Status:
+
+- 4D-05C is accepted: SFD Fiora typed/yellow `TRIGGER_PAYMENT` active-window wrong `paymentId` / wrong `paymentWindow` submissions and post-payment / post-decline stale replays reject without mutation or duplicate side effects.
+- Runtime changed: no. Protocol changed: no. Hidden-info leakage found: no.
+- DOC_MATRIX_CURRENT is active on 03OG-03OI allowed matrix/current-doc/audit-test files and has no clean matrix handoff waiting.
+- Project remains **NOT READY**.
+
+Validation:
+
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~TriggerPaymentTests"`: passed 71/71.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~TriggerPaymentTests|FullyQualifiedName~PaymentEngineUnificationTests|FullyQualifiedName~RealTriggerQueue|FullyQualifiedName~ActionPrompt|FullyQualifiedName~Prompt|FullyQualifiedName~TemporaryPaymentResource"`: passed 422/422.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed 5298/5298.
+- `git diff --check`: passed.
+
+Requested action:
+
+- `A_MAIN`: commit 4D-05C acceptance, then run post-commit guard.
+- `DOC_MATRIX_CURRENT`: continue matrix-number reduction under the existing no-idle authorization unless a real stop condition appears.
 
 ### 2026-05-21 18:21 A_MAIN
 
