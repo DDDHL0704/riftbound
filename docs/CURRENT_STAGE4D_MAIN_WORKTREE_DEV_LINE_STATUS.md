@@ -2,7 +2,7 @@
 
 Date: 2026-05-22
 
-Conclusion: **A-SIDE 03RX-03SB ACCEPTED / DOC_MATRIX NO-IDLE CONTINUES / PROJECT NOT READY**
+Conclusion: **A-SIDE 03SC-03SG ACCEPTED / DOC_MATRIX NO-IDLE CONTINUES / PROJECT NOT READY**
 
 ## Purpose
 
@@ -14,29 +14,29 @@ The main worktree remains responsible for A-side architecture, planning, accepta
 
 - Main A/dev worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
   - Branch: `main`
-  - Latest observed head: `f7f7b9c5` plus A_MAIN accept guard in progress
+  - Latest observed accepted source head: `8a2d9179` plus A_MAIN 03SC-03SG accept guard in progress
   - Local status at latest verification: only expected untracked `riftbound-dotnet.sln`
 - Matrix-docs current worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
   - Branch: `codex/stage4d-matrix-docs-current-20260521-next`
-  - Latest observed closure head: `603b5ae0`
+  - Latest observed source head: `c666b140` with 03SC-03SG handoff recorded in the shared board
   - Local status at latest verification: clean
 
 ## Current Accepted Stage 4D State
 
-Latest accepted shared baseline is the 03RX..03SB implemented-tested evidence bundle accepted on main:
+Latest accepted shared baseline is the 03SC..03SG implemented-tested evidence bundle accepted on main:
 
 - Snapshot entries: `1009`
 - Functional units: `811`
-- Source commit: `8e852ee9`, accepted on main as `1e4250fe`
-- DOC_MATRIX handoff guard: `1ecf5931`, accepted on main as `f7f7b9c5`
-- All FU `NEEDS_ENGINE_SUPPORT`: `428`
-- Implemented-tested evidence residual: `13`
+- Source commit: `c666b140`, accepted on main as `8a2d9179`
+- DOC_MATRIX handoff guard: recorded on main before source acceptance as `96777553`
+- All FU `NEEDS_ENGINE_SUPPORT`: `423`
+- Implemented-tested evidence residual: `8`
 - Payment-cost `NEEDS_ENGINE_SUPPORT`: `35`
 - Primary payment-cost residual: `0`
-- Targeting-stack-timing `NEEDS_ENGINE_SUPPORT`: `203`
-- Cleanup-replacement-duration `NEEDS_ENGINE_SUPPORT`: `164`
+- Targeting-stack-timing `NEEDS_ENGINE_SUPPORT`: `200`
+- Cleanup-replacement-duration `NEEDS_ENGINE_SUPPORT`: `161`
 - Hidden-info-random-zone `NEEDS_ENGINE_SUPPORT`: `144`
-- Payment-or-targeting-stack-timing `NEEDS_ENGINE_SUPPORT`: `217`
+- Payment-or-targeting-stack-timing `NEEDS_ENGINE_SUPPORT`: `214`
 - Payment-and-targeting-stack-timing `NEEDS_ENGINE_SUPPORT`: `21`
 - `NEEDS_AUTOMATED_TEST_EVIDENCE` residual: `328`
 - `NEEDS_FAQ_REVIEW` residual: `92`
