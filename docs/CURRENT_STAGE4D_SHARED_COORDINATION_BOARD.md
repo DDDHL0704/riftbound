@@ -61,12 +61,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest observed matrix checkpoint commit is 03RU-03RW integrated from DOC_MATRIX_CURRENT source `c5e5d91d` as `66a3dac2`, but A_MAIN post-commit validation / accept guard is not yet recorded; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; exact HEAD must still be checked before each batch / commit; main is expected clean except expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, clean at handoff guard `047d186f` with source commit `c5e5d91d` (`checkpoint: stage 4D matrix 03RU-03RW payment-cost evidence sync`); this source commit is not yet accepted on main and still needs A_MAIN accept/reject plus main-side revalidation.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest observed matrix checkpoint is 03RU-03RW integrated from DOC_MATRIX_CURRENT source `c5e5d91d` as `66a3dac2`; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; exact HEAD must still be checked before each batch / commit; after this post-commit guard lands, main is expected clean except expected untracked `riftbound-dotnet.sln`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, clean at handoff guard `047d186f` with source commit `c5e5d91d` (`checkpoint: stage 4D matrix 03RU-03RW payment-cost evidence sync`); source `c5e5d91d` has been accepted on main as `66a3dac2` and still needs DOC_MATRIX_CURRENT to merge the A_MAIN post-commit guard back.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-22 00:55 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: main accepted DOC_MATRIX_CURRENT source `c5e5d91d` as `66a3dac2` (`checkpoint: stage 4D matrix 03RU-03RW payment-cost evidence sync`). DOC_MATRIX_CURRENT handoff guard is `047d186f`.
+
+Write locks: only matrix JSON, current checkpoint docs, 03RU-03RW evidence bundle docs and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` baseline synchronization were accepted. Runtime, frontend, protocol, official catalog, browser/Chrome/formal E2E, `fullOfficial`, READY and `riftbound-dotnet.sln` remain locked.
+
+Status: accepted final primary payment-cost residual bundle for 海力亚秘库 / 壮壮魄罗 / 金币. Counts moved all FU `NEEDS_ENGINE_SUPPORT 436 -> 433`, payment-cost `38 -> 35`, primary payment-cost residual `3 -> 0`, targeting-stack-timing `209 -> 208`, cleanup-replacement-duration `169 -> 167`, hidden-info-random-zone `144 -> 144`, payment-or-targeting-stack-timing `225 -> 222`, payment-and-targeting-stack-timing `22 -> 21`; automated evidence `328`, FAQ review `92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`. Project remains **NOT READY**.
+
+Validation: A_MAIN passed `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs` and `tests`, PaymentEngineCoverageAuditTests `697/697`, ConformanceFixtureRunnerTests `3019/3019` and backend full `5344/5344`. Main status is clean except expected untracked `riftbound-dotnet.sln`.
+
+Requested action: DOC_MATRIX_CURRENT should merge this A_MAIN post-commit guard, rerun its local PaymentEngine guard, and record `NO_EXECUTABLE_CANDIDATES` for the current primary payment-cost B/D residual lane unless A_MAIN opens a new scope. Do not mark READY or READY-CANDIDATE.
 
 ### 2026-05-22 00:55 DOC_MATRIX
 
