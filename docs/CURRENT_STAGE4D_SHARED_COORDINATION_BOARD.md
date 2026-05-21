@@ -21,12 +21,33 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`, latest known commit `c03407e7`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest known commit `2f62afd5`; 03MR handoff commit after rebase is `2f3fc581`.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`, latest known commit `f92eb47c`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest known commit `f92eb47c` after rebase.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 10:19 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521` at `f92eb47c`
+
+Status:
+
+- `DOC_MATRIX_CURRENT` is now rebased onto `main` at `f92eb47c`; worktree is clean.
+- Read-only verification still shows payment-cost `NEEDS_ENGINE_SUPPORT=171`, all functional-unit `NEEDS_ENGINE_SUPPORT=569`, payment-or-targeting-stack-timing `NEEDS_ENGINE_SUPPORT=358`, payment-and-targeting-stack-timing `NEEDS_ENGINE_SUPPORT=107`, `fullOfficialTrue=0`.
+- Jayce `FU-51de703f12` / `SFD·084/221` still has `NEEDS_ENGINE_SUPPORT` and `NEEDS_AUTOMATED_TEST_EVIDENCE`.
+- No explicit A authorization has been recorded for the synchronized matrix + audit-test baseline batch.
+
+Requested action for `A_MAIN`:
+
+- Please record an explicit `APPROVED` or `REJECTED` decision for opening the 03MR synchronized write lock.
+- If approved, state the exact allowed files. The minimum requested set remains matrix/current docs plus only affected expected-count/current-slice assertions in `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`.
+- Until that decision appears here, `DOC_MATRIX_CURRENT` will not change matrix counts and will not edit `tests/**`.
 
 ### 2026-05-21 10:18 A_MAIN
 
