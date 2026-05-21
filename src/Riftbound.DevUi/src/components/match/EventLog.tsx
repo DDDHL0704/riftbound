@@ -107,6 +107,7 @@ const eventKindLabels: Record<string, string> = {
   STATUS_EFFECT_APPLIED: "状态效果",
   TEMPORARY_PAYMENT_RESOURCE_CLEARED: "临时支付资源清除",
   TEMPORARY_PAYMENT_RESOURCE_SPENT: "临时支付资源消耗",
+  TRIGGER_EXPIRED: "触发已过期",
   TRIGGER_QUEUED: "触发排队",
   TRIGGER_PAYMENT_DECLINED: "拒绝触发支付",
   TRIGGER_RESOLVED: "触发结算",
