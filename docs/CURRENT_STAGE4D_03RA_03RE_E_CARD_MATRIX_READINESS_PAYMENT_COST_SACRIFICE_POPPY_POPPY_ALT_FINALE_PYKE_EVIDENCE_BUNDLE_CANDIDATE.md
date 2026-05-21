@@ -1,6 +1,6 @@
 # 4D-03RA..03RE E_CARD_MATRIX_READINESS Payment-Cost Evidence Bundle Candidate
 
-Status: candidate prepared on `DOC_MATRIX_CURRENT`; validation must be rerun on the final dirty tree before commit. Project remains **NOT READY**.
+Status: candidate validated on `DOC_MATRIX_CURRENT`; project remains **NOT READY**.
 
 ## Scope
 
@@ -49,6 +49,19 @@ Still open:
 - Sacrifice cleanup, hidden-info and layer breadth remain open beyond the representative direct fixture.
 - Perfect Finale Echo, target lifecycle, cleanup and hidden-info breadth remain open beyond the four representative modes.
 - Pyke legend-action full official breadth, standby / reaction timing, cleanup, hidden-info and non-play-domain representative breadth remain open.
+
+## Validation Results
+
+Passed on `DOC_MATRIX_CURRENT`:
+
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+- `git diff --check`
+- conflict-marker scan over `docs` and `tests` returned no matches
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngineCoverageAuditTests"`: 697/697 passed
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: 3019/3019 passed
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: 5344/5344 passed
+
+Frontend build and Chrome smoke were not run because this batch changed only matrix/current docs and the narrow payment audit baseline, with no frontend runtime or browser-script changes.
 
 ## Why Not Ready
 

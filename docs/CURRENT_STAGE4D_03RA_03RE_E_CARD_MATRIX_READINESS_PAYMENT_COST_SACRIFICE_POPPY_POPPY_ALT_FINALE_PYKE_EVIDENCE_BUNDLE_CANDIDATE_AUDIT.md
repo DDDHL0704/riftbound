@@ -1,6 +1,6 @@
 # 4D-03RA..03RE Candidate Audit
 
-Status: audit prepared on `DOC_MATRIX_CURRENT`; validation must be rerun on the final dirty tree before commit. Project remains **NOT READY**.
+Status: audit validated on `DOC_MATRIX_CURRENT`; project remains **NOT READY**.
 
 ## Authorization And Write Scope
 
@@ -56,15 +56,15 @@ Open:
 - Pyke legend-action / standby / hidden / cleanup official breadth
 - frontend/browser/formal E2E gates
 
-## Validation Plan
+## Validation Results
 
-Required before commit:
+Passed on `DOC_MATRIX_CURRENT`:
 
 - `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
 - `git diff --check`
-- conflict-marker scan
-- focused `PaymentEngineCoverageAuditTests`
-- focused/adjacent evidence tests matching Sacrifice, Poppy, Perfect Finale and Pyke where available
-- backend full test because matrix and audit baseline are both changed
+- conflict-marker scan over `docs` and `tests` returned no matches
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngineCoverageAuditTests"`: 697/697 passed
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: 3019/3019 passed
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: 5344/5344 passed
 
 Frontend build and Chrome smoke are not required for this batch because no frontend runtime or browser script changed.
