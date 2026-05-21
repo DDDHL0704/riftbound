@@ -55,12 +55,44 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest known checkpoint is `cebdb79f` after 4D-04U, with runtime commit `fe7f94b2`; 03MX-03NB handoff chain is integrated through `2e95a8ac`.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest known checkpoint is `e9a66a2f` after the shared-board guard discipline note; 4D-04U runtime commit is `fe7f94b2`; 03MX-03NB handoff chain is integrated through `2e95a8ac`.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest known commit `b23267eb`; clean and paused after the 03MX-03NB handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 15:07 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `e9a66a2f`; `DOC_MATRIX_CURRENT` observed clean at `b23267eb`.
+
+Write locks:
+
+- `DOC_MATRIX_CURRENT` is explicitly **APPROVED** to open exactly one next controlled payment-cost matrix/audit-baseline bundle after 03NB, nominally `4D-03NC-E..4D-03NG-E`.
+- Allowed files in `DOC_MATRIX_CURRENT`: `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, current checkpoint/audit/coverage coordination docs, new per-bundle candidate/audit docs, this shared board for handoff notes, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` only for residual expected-count / current-slice manifest / guard synchronization.
+- Runtime, frontend, API/protocol core fields, official catalog, general tests outside `PaymentEngineCoverageAuditTests.cs`, browser / Chrome / formal E2E scripts, `fullOfficial`, READY, and `riftbound-dotnet.sln` remain locked.
+
+Status:
+
+- This approval unblocks DOC_MATRIX_CURRENT from the 15:01 pause state and keeps the doc/matrix lane parallel with A_MAIN's runtime planning.
+- Start-count continuity from the integrated 03MX-03NB bundle: all FU `NEEDS_ENGINE_SUPPORT=558`, payment-cost `160`, primary residual `119`, targeting-stack-timing `288`, cleanup-replacement-duration `215`, hidden-info-random-zone `176`, payment-or-targeting-stack-timing `347`, payment-and-targeting-stack-timing `101`, `NEEDS_AUTOMATED_TEST_EVIDENCE=328`, `NEEDS_FAQ_REVIEW=92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`.
+- Selection criteria: choose 3 to 5 row-level payment-cost candidates with existing runtime / fixture or focused test / rules evidence, no unresolved FAQ conflict, and no new rule interpretation or runtime change requirement.
+- The bundle may reduce only row-level `NEEDS_ENGINE_SUPPORT` counts. It must not claim automated-evidence closure, FAQ closure, full official PaymentEngine closure, `fullOfficial=true`, P0/P1 closure, Chrome / formal E2E closure, READY, or goal completion.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Required in `DOC_MATRIX_CURRENT` before handoff: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`; `git diff --check`; focused `PaymentEngineCoverageAuditTests`; selected-row focused evidence filter; backend full `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` if `PaymentEngineCoverageAuditTests.cs` is modified.
+- If any selected row requires runtime/frontend/protocol/catalog changes, FAQ interpretation, hidden-info judgment, or count deltas that cannot be explained from 1009/811 scope, stop and post the blocker here.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: proceed under this `APPROVED` lock, commit only after validation passes, then record commit hash, selected rows, count deltas, validation commands/results, and non-closure statement on this board.
+- `A_MAIN`: continue runtime/P0-005 planning after this authorization checkpoint, but keep checking this board before staging or reporting any batch.
 
 ### 2026-05-21 15:01 A_MAIN
 
