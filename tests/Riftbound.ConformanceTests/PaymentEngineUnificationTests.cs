@@ -1138,6 +1138,43 @@ public sealed class PaymentEngineUnificationTests
     }
 
     [Theory]
+    [MemberData(nameof(PendingPayCostIllegalOrdinaryChoiceCases))]
+    public async Task PendingPayCostRejectsIllegalOrdinaryActiveWindowChoicesWithoutMutation(
+        string costShape,
+        string paymentId,
+        string paymentChoiceId,
+        string scenario,
+        string[] submittedPaymentChoiceIds)
+    {
+        var state = PendingOrdinaryPayCostState(costShape, paymentId, paymentChoiceId);
+        var initialHash = MatchStateHasher.Hash(state);
+        var command = new PayCostCommand(
+            paymentId,
+            "TEST_PENDING_PAY_COST",
+            submittedPaymentChoiceIds);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent($"intent-pending-pay-cost-{costShape}-ordinary-active-illegal-{scenario}", "P1", CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Empty(result.Events);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+        Assert.NotNull(result.State.PendingPayment);
+        var pendingPayment = result.State.PendingPayment;
+        Assert.Equal(paymentId, pendingPayment.PaymentId);
+        Assert.Equal("TEST_PENDING_PAY_COST", pendingPayment.PaymentWindow);
+        Assert.Equal("P1", pendingPayment.PlayerId);
+        Assert.Equal([paymentChoiceId], pendingPayment.LegalPaymentChoiceIds);
+        Assert.Equal(state.RunePools["P1"], result.State.RunePools["P1"]);
+        Assert.Equal(RunePool.Empty, result.State.RunePools["P2"]);
+        Assert.Empty(result.State.StackItems);
+        AssertAuthoritativePayCostPrompt(result.State, paymentId, paymentChoiceId);
+    }
+
+    [Theory]
     [InlineData("wrong-player")]
     [InlineData("wrong-payment-id")]
     [InlineData("wrong-payment-window")]
@@ -2314,6 +2351,50 @@ public sealed class PaymentEngineUnificationTests
             },
             new Dictionary<string, CardObjectState>(StringComparer.Ordinal),
             pendingPayment: pendingPayment);
+    }
+
+    public static IEnumerable<object[]> PendingPayCostIllegalOrdinaryChoiceCases()
+    {
+        foreach (var (costShape, paymentId, paymentChoiceId, unsupportedPaymentChoiceId) in new[]
+                 {
+                     ("mana", "PENDING-PAY-COST-MANA-1", "SPEND_MANA:1", "SPEND_MANA:2"),
+                     ("generic-power", "PENDING-PAY-COST-GENERIC-POOL-1", "SPEND_POWER:1", "SPEND_POWER:blue:1"),
+                     ("typed-power", "PENDING-PAY-COST-RED-POOL-1", "SPEND_POWER:red:1", "SPEND_POWER:blue:1")
+                 })
+        {
+            yield return
+            [
+                costShape,
+                paymentId,
+                paymentChoiceId,
+                "unsupported-choice-only",
+                new[] { unsupportedPaymentChoiceId }
+            ];
+            yield return
+            [
+                costShape,
+                paymentId,
+                paymentChoiceId,
+                "legal-plus-unsupported-choice",
+                new[] { paymentChoiceId, unsupportedPaymentChoiceId }
+            ];
+            yield return
+            [
+                costShape,
+                paymentId,
+                paymentChoiceId,
+                "duplicate-legal-choice",
+                new[] { paymentChoiceId, paymentChoiceId }
+            ];
+            yield return
+            [
+                costShape,
+                paymentId,
+                paymentChoiceId,
+                "blank-choice-entry",
+                new[] { paymentChoiceId, "  " }
+            ];
+        }
     }
 
     private static void AssertNoPayCostPrompt(MatchState state)

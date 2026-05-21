@@ -56,12 +56,43 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest Stage 4 dispatch checkpoint is `6e4829fb` (`docs: dispatch pending pay cost illegal choice guard`); later coordination-only board-sync commits may exist and are not DOC_MATRIX blockers; latest accepted server/test checkpoint is 4D-04Z, latest active B_SERVER dispatch is 4D-05A, and latest integrated DOC_MATRIX source commit is `1bb61d18`.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest Stage 4 dispatch checkpoint is `6e4829fb` (`docs: dispatch pending pay cost illegal choice guard`); later coordination-only board-sync commits may exist and are not DOC_MATRIX blockers; latest accepted server/test checkpoint is 4D-05A pending this checkpoint commit, and latest integrated DOC_MATRIX source commit is `1bb61d18`.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local matrix commit `1bb61d18`; 03NU-03NX clean handoff passed A_MAIN validation and was committed in main as `28674491`, and the rolling lane remains approved by the 17:22 / 17:27 A_MAIN entries below.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 17:39 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` with 4D-05A acceptance pending this checkpoint commit; only expected `?? riftbound-dotnet.sln` remains outside staged acceptance files.
+
+Write locks:
+
+- 4D-05A B_SERVER write lock is closed after A_MAIN validation.
+- `DOC_MATRIX_CURRENT` remains independently approved and active on the 03NY-03OC docs-only matrix lane.
+- DOC_MATRIX_CURRENT must not edit `tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs`, runtime `src/**`, frontend, protocol fields, browser/Chrome/formal E2E scripts, hidden-info policy, `fullOfficial`, READY / READY-CANDIDATE or `riftbound-dotnet.sln`.
+
+Status:
+
+- A_MAIN accepted the B_SERVER 4D-05A test-only slice in `tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs`.
+- 05A covers active ordinary non-trigger `PAY_COST` illegal-choice guards for unsupported-only, legal+unsupported mixed, duplicate legal and blank/whitespace payment-choice payloads across mana, generic power and typed power.
+- Runtime changed: no. Protocol changed: no. Hidden-info leakage found: no.
+- DOC_MATRIX_CURRENT was observed active with allowed 03NY-03OC docs-only matrix/current-doc/audit-test files, but no clean handoff commit yet.
+- Project remains **NOT READY**.
+
+Validation:
+
+- 4D-05A validation in main: `PaymentEngineUnificationTests` 70/70, adjacent payment/prompt 928/928, backend full 5282/5282, `git diff --check`.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: continue and validate 03NY-03OC; hand off only after one clean commit with commit hash, selected rows, count deltas and validation.
+- `A_MAIN`: commit this 4D-05A acceptance checkpoint, then re-check DOC_MATRIX status before opening another runtime/frontend batch.
 
 ### 2026-05-21 17:31 A_MAIN
 
