@@ -4615,6 +4615,74 @@ public sealed class BattleDamageAssignmentLifecycleTests
     }
 
     [Fact]
+    public async Task NaturalAssignCombatDamageRejectsAcceptedCommandReplayWithoutMutation()
+    {
+        var state = BuildNaturalStartBattleState(includeHiddenStandby: true, includeNextContest: true);
+        AssertHiddenStandbyIdentityRedactedFromUnauthorizedProjection(state, HiddenStandbyObjectId);
+
+        var opened = await DeclareAssignmentBattleAsync(state);
+        Assert.True(opened.Accepted, opened.ErrorMessage);
+        Assert.Equal(PromptTypes.AssignCombatDamage, opened.Prompts["P1"].View?.Type);
+        AssertHiddenStandbyIdentityRedactedFromUnauthorizedProjection(opened.State, HiddenStandbyObjectId);
+
+        var engine = new CoreRuleEngine();
+        var command = new AssignCombatDamageCommand(
+            $"battle:{BattlefieldObjectId}",
+            BattlefieldObjectId,
+            LegalAssignments());
+
+        var assigned = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-natural-assign-accepted-replay-source", "P1", CommandTypes.AssignCombatDamage),
+            command,
+            CancellationToken.None);
+
+        Assert.True(assigned.Accepted, assigned.ErrorMessage);
+        Assert.False(assigned.State.BattleState.IsActive);
+        Assert.Contains(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_STEP_STARTED", StringComparison.Ordinal));
+        Assert.Contains(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "COMBAT_DAMAGE_ASSIGNED", StringComparison.Ordinal));
+        Assert.Contains(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        Assert.Contains(assigned.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
+        Assert.Equal(TimingStates.SpellDuelOpen, assigned.State.TimingState);
+        Assert.Equal($"task:start-spell-duel:{NextBattlefieldObjectId}", assigned.State.PendingTaskQueue.ActiveTaskId);
+
+        var acceptedStateHash = MatchStateHasher.Hash(assigned.State);
+        var acceptedStackItemIds = assigned.State.StackItems.Select(item => item.StackItemId).ToArray();
+        var acceptedP1Battlefields = assigned.State.PlayerZones["P1"].Battlefields.ToArray();
+        var acceptedP2Graveyard = assigned.State.PlayerZones["P2"].Graveyard.ToArray();
+
+        var replay = await engine.ResolveAsync(
+            assigned.State,
+            new PlayerIntent("intent-natural-assign-accepted-replay-stale", "P1", CommandTypes.AssignCombatDamage),
+            command,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, replay.ErrorCode);
+        Assert.Empty(replay.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(assigned.State.Tick, replay.State.Tick);
+        Assert.False(replay.State.BattleState.IsActive);
+        Assert.Equal(TimingStates.SpellDuelOpen, replay.State.TimingState);
+        Assert.Equal("SPELL_DUEL_TASKS", replay.State.PendingTaskQueue.Phase);
+        Assert.Equal($"task:start-spell-duel:{NextBattlefieldObjectId}", replay.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(acceptedStackItemIds, replay.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.Equal(acceptedP1Battlefields, replay.State.PlayerZones["P1"].Battlefields.ToArray());
+        Assert.Equal(acceptedP2Graveyard, replay.State.PlayerZones["P2"].Graveyard.ToArray());
+        Assert.DoesNotContain(
+            replay.State.PendingTaskQueue.Tasks,
+            task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
+                && string.Equals(task.BattlefieldObjectId, BattlefieldObjectId, StringComparison.Ordinal));
+        Assert.NotEqual(PromptTypes.AssignCombatDamage, replay.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.AssignCombatDamage, replay.Prompts["P2"].View?.Type);
+        Assert.NotEqual(PromptTypes.BattleDeclaration, replay.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.BattleDeclaration, replay.Prompts["P2"].View?.Type);
+        AssertHiddenStandbyIdentityRedactedFromUnauthorizedProjection(replay.State, HiddenStandbyObjectId);
+    }
+
+    [Fact]
     public async Task NaturalAssignCombatDamageAdvancesNextContestedBattlefieldTask()
     {
         var opened = await DeclareAssignmentBattleAsync(BuildNaturalStartBattleState(includeNextContest: true));

@@ -207,6 +207,26 @@ public sealed class RealTriggerQueueTests
             ordered.State.StackItems.Select(item => item.StackItemId).ToArray());
         Assert.Equal("P2", ordered.State.PriorityPlayerId);
 
+        var orderedStateHash = MatchStateHasher.Hash(ordered.State);
+        var orderedStackItemIds = ordered.State.StackItems.Select(item => item.StackItemId).ToArray();
+        var replay = await engine.ResolveAsync(
+            ordered.State,
+            new PlayerIntent("intent-cleanup-watchful-default-order-replay", "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(OrderedTriggerIds: defaultOrder),
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, replay.ErrorCode);
+        Assert.Empty(replay.Events);
+        Assert.Equal(orderedStateHash, MatchStateHasher.Hash(replay.State));
+        Assert.Empty(replay.State.TriggerQueue);
+        Assert.Equal(orderedStackItemIds, replay.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.Equal("P2", replay.State.PriorityPlayerId);
+        Assert.Empty(replay.State.PlayerZones["P1"].Hand);
+        Assert.Empty(replay.State.PlayerZones["P2"].Hand);
+        Assert.NotEqual(PromptTypes.OrderTriggers, replay.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.OrderTriggers, replay.Prompts["P2"].View?.Type);
+
         var p2TriggerPass = await engine.ResolveAsync(
             ordered.State,
             new PlayerIntent("intent-cleanup-watchful-p2-trigger-pass", "P2", CommandTypes.PassPriority),
