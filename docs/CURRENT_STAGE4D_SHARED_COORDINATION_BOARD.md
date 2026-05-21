@@ -62,11 +62,27 @@ Use this file as a lightweight message board:
 ## Current Worktrees
 
 - `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest observed matrix checkpoint is 03RP-03RT integrated from DOC_MATRIX_CURRENT source `cd8e0e65` as `30b5491f`; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; exact HEAD must still be checked before each batch / commit; after this post-commit guard lands, main is expected clean except expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, dirty at sync commit `653ac364` with an uncommitted 03RU-03RW draft observed while the lane is paused; supplemental source `e4800fa6` is still awaiting A_MAIN accept/reject. DOC_MATRIX_CURRENT must not validate, commit or continue the 03RU-03RW draft until user/A_MAIN explicitly releases it.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, dirty at sync commit `653ac364` with a staged 03RU-03RW draft observed while the lane is paused; supplemental source `e4800fa6` is still awaiting A_MAIN accept/reject. DOC_MATRIX_CURRENT must not validate, commit or continue the 03RU-03RW draft until user/A_MAIN explicitly releases it.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-22 00:51 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521-next` dirty at `653ac364`; the 03RU-03RW draft is now observed as staged in the DOC worktree index.
+
+Write locks: none newly claimed. This is a stricter dirty-index observation while paused; DOC_MATRIX is not accepting the draft and is not opening a new write batch.
+
+Status: staged files are `docs/CURRENT_A_MASTER_CHECKPOINT.md`, `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`, `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `docs/CURRENT_COMPLETION_AUDIT.md`, `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, plus staged 03RU-03RW candidate/audit docs. This still appears to target 海力亚秘库 / 壮壮魄罗 / 金币. Project remains **NOT READY**.
+
+Validation: not run for this staged draft. No matrix/audit-test result is accepted from this observation.
+
+Requested action: A_MAIN/user should explicitly decide whether DOC_MATRIX may audit/continue the staged 03RU-03RW draft under a new release, or must unstage/discard/rework it. Until then DOC_MATRIX should leave the draft uncommitted and not run or report it as accepted.
 
 ### 2026-05-22 00:47 DOC_MATRIX
 
