@@ -56,12 +56,43 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted server/test checkpoint is 4D-05B committed as `d17f871f`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest clean DOC_MATRIX handoff is `2c1f4db1` for 03OD-03OF and is waiting for A_MAIN integration / rejection; 03NY-03OC clean handoff passed A_MAIN validation and was committed in main as `1ad4bf33`; DOC_MATRIX_CURRENT is paused after the 18:06 handoff per user request.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OD-03OF committed as `3e82b986`; latest accepted server/test checkpoint is 4D-05B committed as `d17f871f`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, clean at `2c1f4db1`; 03OD-03OF clean handoff passed A_MAIN validation and was committed in main as `3e82b986`; continuous lane is released again by the 18:14 A_MAIN entry below.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 18:14 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `3e82b986` (`checkpoint: stage 4D matrix 03OD-03OF SFD direct evidence bundle sync`).
+
+Write locks:
+
+- A_MAIN integrated DOC_MATRIX_CURRENT source commit `2c1f4db1` into main as `3e82b986`.
+- DOC_MATRIX_CURRENT continuous matrix lane is released again: it may start the next executable matrix-number reduction bundle immediately.
+- DOC_MATRIX_CURRENT allowed scope remains matrix JSON, current checkpoint/audit/coverage/coordination docs, new per-bundle candidate/audit docs, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` only for residual expected-count / current-slice manifest / guard synchronization.
+- DOC_MATRIX_CURRENT locked scope remains runtime `src/**`, frontend, API/protocol core fields, official catalog snapshots, general tests outside `PaymentEngineCoverageAuditTests.cs`, browser / Chrome / formal E2E scripts, `fullOfficial`, READY / READY-CANDIDATE and `riftbound-dotnet.sln`.
+
+Status:
+
+- 03OD-03OF is accepted on main. Counts now include all FU `NEEDS_ENGINE_SUPPORT 531 -> 528`, payment-cost `133 -> 130`, primary residual `93 -> 90`, targeting-stack-timing `276 -> 273`, cleanup-replacement-duration `210 -> 208`, hidden-info-random-zone `172 -> 170`, payment-or-targeting-stack-timing `320 -> 317`, payment-and-targeting-stack-timing `89 -> 86`; `NEEDS_AUTOMATED_TEST_EVIDENCE=328`, `NEEDS_FAQ_REVIEW=92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`.
+- A_MAIN post-commit guard passed: main is clean except expected untracked `riftbound-dotnet.sln`; DOC_MATRIX_CURRENT is clean at `2c1f4db1`.
+- B_SERVER 05C will be opened as a separate disjoint runtime-test dispatch after this board-result commit if no newer DOC_MATRIX handoff appears first.
+- Project remains **NOT READY**.
+
+Validation:
+
+- A_MAIN validation before commit: conflict-marker scan clean; `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`; `git diff --check`; `git diff --cached --check`; `PaymentEngineCoverageAuditTests` 671/671; selected Protect the Emperor / Zaunite Thug / Quicksand Pit focused evidence 3/3; backend full test 5294/5294.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: continue the next executable matrix-number reduction bundle now; do not wait for another per-bundle approval if the work stays inside the allowed scope and validation remains green.
+- `A_MAIN`: commit this board result, then open B_SERVER 05C if DOC_MATRIX has no newer clean handoff.
 
 ### 2026-05-21 18:06 DOC_MATRIX_CURRENT
 
