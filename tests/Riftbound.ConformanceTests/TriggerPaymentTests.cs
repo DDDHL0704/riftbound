@@ -229,6 +229,76 @@ public sealed class TriggerPaymentTests
     }
 
     [Fact]
+    public async Task BattlefieldConquerGoldTriggerPaymentRejectsPostPaymentReplayWithoutMutation()
+    {
+        var engine = new CoreRuleEngine();
+        var opened = await DeclareBattleAsync(BuildBattlefieldConquerGoldState(includeNextContest: true), engine);
+        var payment = AssertTriggerPaymentOpen(opened);
+        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [PayOneMana]);
+
+        var paid = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-trigger-payment-pay-before-replay", "P1", CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Single(GoldTokenIds(paid.State));
+        AssertNextContestedBattlefieldAdvancedAfterPaymentClosed(paid, declined: false);
+        var postPaymentHash = MatchStateHasher.Hash(paid.State);
+
+        var replay = await engine.ResolveAsync(
+            paid.State,
+            new PlayerIntent("intent-trigger-payment-pay-stale-replay", "P1", CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Empty(replay.Events);
+        AssertNoTriggerPaymentSideEffects(replay);
+        Assert.Equal(postPaymentHash, MatchStateHasher.Hash(replay.State));
+        Assert.Null(replay.State.PendingPayment);
+        Assert.Equal(GoldTokenIds(paid.State), GoldTokenIds(replay.State));
+        AssertNextContestedBattlefieldStillAdvancedOnceAfterReplay(paid, replay, declined: false);
+    }
+
+    [Fact]
+    public async Task BattlefieldConquerGoldTriggerPaymentRejectsPostDeclineReplayWithoutMutation()
+    {
+        var engine = new CoreRuleEngine();
+        var opened = await DeclareBattleAsync(BuildBattlefieldConquerGoldState(includeNextContest: true), engine);
+        var payment = AssertTriggerPaymentOpen(opened);
+        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [Decline]);
+
+        var declined = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-trigger-payment-decline-before-replay", "P1", CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        Assert.True(declined.Accepted, declined.ErrorMessage);
+        Assert.Null(declined.State.PendingPayment);
+        Assert.Empty(GoldTokenIds(declined.State));
+        AssertNextContestedBattlefieldAdvancedAfterPaymentClosed(declined, declined: true);
+        var postDeclineHash = MatchStateHasher.Hash(declined.State);
+
+        var replay = await engine.ResolveAsync(
+            declined.State,
+            new PlayerIntent("intent-trigger-payment-decline-stale-replay", "P1", CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Empty(replay.Events);
+        AssertNoTriggerPaymentSideEffects(replay);
+        Assert.Equal(postDeclineHash, MatchStateHasher.Hash(replay.State));
+        Assert.Null(replay.State.PendingPayment);
+        Assert.Empty(GoldTokenIds(replay.State));
+        AssertNextContestedBattlefieldStillAdvancedOnceAfterReplay(declined, replay, declined: true);
+    }
+
+    [Fact]
     public async Task BattlefieldConquerGoldTriggerPaymentRejectsInvalidChoiceWithoutAdvancingNextContestedBattlefield()
     {
         var engine = new CoreRuleEngine();
@@ -1643,6 +1713,35 @@ public sealed class TriggerPaymentTests
 
         Assert.True(paymentClosedIndex < nextContestIndex);
         Assert.True(nextContestIndex < nextSpellDuelIndex);
+    }
+
+    private static void AssertNextContestedBattlefieldStillAdvancedOnceAfterReplay(
+        ResolutionResult closed,
+        ResolutionResult replay,
+        bool declined)
+    {
+        Assert.Equal(TimingStates.SpellDuelOpen, replay.State.TimingState);
+        Assert.Equal(closed.State.PendingTaskQueue.Phase, replay.State.PendingTaskQueue.Phase);
+        Assert.Equal(closed.State.PendingTaskQueue.ActiveTaskId, replay.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(closed.State.PendingTaskQueue.IsBlocking, replay.State.PendingTaskQueue.IsBlocking);
+        Assert.Equal(
+            closed.State.PendingTaskQueue.Tasks.Select(task => task.TaskId).ToArray(),
+            replay.State.PendingTaskQueue.Tasks.Select(task => task.TaskId).ToArray());
+        Assert.Equal(closed.Prompts["P1"].View?.Type, replay.Prompts["P1"].View?.Type);
+        Assert.Equal(PromptTypes.SpellDuelFocus, replay.Prompts["P1"].View?.Type);
+        Assert.Equal("P1-BATTLEFIELD-NEXT-FIELD", replay.Prompts["P1"].View?.RelatedBattlefieldId);
+        Assert.Equal(
+            1,
+            CountEvents(closed.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal)
+                && Equals(gameEvent.Payload["declined"], declined)));
+        Assert.Empty(replay.Events);
+    }
+
+    private static int CountEvents(
+        IReadOnlyList<GameEvent> events,
+        Func<GameEvent, bool> predicate)
+    {
+        return events.Count(predicate);
     }
 
     private static int EventIndex(
