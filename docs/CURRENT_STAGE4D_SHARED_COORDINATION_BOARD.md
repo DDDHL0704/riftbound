@@ -63,6 +63,39 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-21 16:02 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` after 4D-04W dispatch commit `8ac95518`; exact acceptance commit to be checked after commit.
+
+Write locks:
+
+- The 4D-04W `B_SERVER` PaymentEngine trigger-payment identity write lock is accepted and will close with the next checkpoint commit.
+- `DOC_MATRIX_CURRENT` rolling matrix lane remains active; A_MAIN observed only `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` dirty in that worktree, within its allowed scope.
+- No frontend, matrix JSON, `PaymentEngineCoverageAuditTests.cs`, official catalog, browser/formal E2E, `fullOfficial`, READY or `riftbound-dotnet.sln` lock is opened by this acceptance.
+
+Status:
+
+- B_SERVER changed only `TriggerPaymentTests.cs` and 04W audit/evidence docs.
+- Runtime changed: no. Protocol shape changed: no. Hidden-info leak found: no.
+- New coverage: active `TRIGGER_PAYMENT` pending-payment windows reject wrong `paymentId` and wrong `paymentWindow` `PAY_COST` commands without mutation, preserve pending payment, emit no cost/decline/close/resolution/token side effects, and keep queued next-contest blocking intact.
+- Project remains **NOT READY**.
+
+Validation:
+
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~TriggerPaymentTests"`: passed 65/65.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngine|FullyQualifiedName~PaymentPlan|FullyQualifiedName~PAY_COST|FullyQualifiedName~ActionPrompt|FullyQualifiedName~Prompt|FullyQualifiedName~TriggerPayment"`: passed 955/955.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed 5251/5251.
+- `git diff --check`: passed.
+
+Requested action:
+
+- `A_MAIN`: commit the 04W acceptance checkpoint after pre-commit guard, then re-check this board and both worktree statuses before reporting.
+- `DOC_MATRIX_CURRENT`: continue its rolling matrix lane; if the current matrix draft is validated and committed, hand it off here with commit hash and count deltas.
+
 ### 2026-05-21 15:57 A_MAIN
 
 Owner: `A_MAIN`

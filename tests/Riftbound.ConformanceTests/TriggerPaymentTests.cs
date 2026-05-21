@@ -190,6 +190,44 @@ public sealed class TriggerPaymentTests
         AssertRejectedNoMutation(malformed, opened.State, ErrorCodes.InvalidPayload);
     }
 
+    [Theory]
+    [InlineData("wrong-payment-id")]
+    [InlineData("wrong-payment-window")]
+    public async Task BattlefieldConquerGoldTriggerPaymentRejectsWrongPaymentIdentityWithoutMutation(string scenario)
+    {
+        var engine = new CoreRuleEngine();
+        var opened = await DeclareBattleAsync(BuildBattlefieldConquerGoldState(includeNextContest: true), engine);
+        var payment = AssertTriggerPaymentOpen(opened);
+        var command = scenario switch
+        {
+            "wrong-payment-id" => new PayCostCommand(
+                $"{payment.PaymentId}:stale",
+                payment.PaymentWindow,
+                [PayOneMana]),
+            _ => new PayCostCommand(
+                payment.PaymentId,
+                "STALE_TRIGGER_PAYMENT",
+                [PayOneMana])
+        };
+
+        AssertNextContestedBattlefieldNotAdvanced(opened);
+
+        var rejected = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent($"intent-trigger-payment-{scenario}", "P1", CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        AssertRejectedNoMutation(rejected, opened.State, ErrorCodes.PhaseNotAllowed);
+        AssertNoTriggerPaymentSideEffects(rejected);
+        Assert.NotNull(rejected.State.PendingPayment);
+        Assert.Equal(payment.PaymentId, rejected.State.PendingPayment.PaymentId);
+        Assert.Equal(payment.PaymentWindow, rejected.State.PendingPayment.PaymentWindow);
+        Assert.Equal([PayOneMana, Decline], rejected.State.PendingPayment.LegalPaymentChoiceIds);
+        Assert.Empty(GoldTokenIds(rejected.State));
+        AssertNextContestedBattlefieldNotAdvanced(rejected);
+    }
+
     [Fact]
     public async Task BattlefieldConquerGoldTriggerPaymentRejectsInvalidChoiceWithoutAdvancingNextContestedBattlefield()
     {
@@ -1554,6 +1592,16 @@ public sealed class TriggerPaymentTests
         Assert.Equal(original.PlayerZones["P1"].Hand, result.State.PlayerZones["P1"].Hand);
         Assert.Equal(original.PlayerZones["P1"].MainDeck, result.State.PlayerZones["P1"].MainDeck);
         Assert.Equal(GoldTokenIds(original), GoldTokenIds(result.State));
+    }
+
+    private static void AssertNoTriggerPaymentSideEffects(ResolutionResult result)
+    {
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_PAYMENT_DECLINED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_TOKEN_CREATED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
     }
 
     private static void AssertNextContestedBattlefieldNotAdvanced(ResolutionResult result)
