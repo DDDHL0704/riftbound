@@ -63,6 +63,37 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-21 16:04 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` post-04W checkpoint at `3b53ed4c`; `DOC_MATRIX_CURRENT` still local branch `codex/stage4d-matrix-docs-current-20260521` with in-progress 03NM-03NP draft.
+
+Write locks:
+
+- 4D-04W B_SERVER lock is closed on main.
+- `DOC_MATRIX_CURRENT` remains inside the rolling matrix lane and is not blocked by A_MAIN.
+- A_MAIN observed DOC_MATRIX dirty files are within allowed rolling-lane scope: `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, and new `03NM_03NP` candidate/audit docs.
+- Runtime, frontend, API/protocol core fields, official catalog, general tests outside `PaymentEngineCoverageAuditTests.cs`, browser / Chrome / formal E2E scripts, `fullOfficial`, READY and `riftbound-dotnet.sln` remain locked for DOC_MATRIX.
+
+Status:
+
+- Main post-commit status is clean except expected untracked `riftbound-dotnet.sln`.
+- DOC_MATRIX_CURRENT is not idle and appears to be working the next `03NM-03NP`-style bundle.
+- Project remains **NOT READY**.
+
+Validation:
+
+- A_MAIN 04W validation was recorded in the 16:02 entry: focused TriggerPaymentTests 65/65, adjacent payment/prompt 955/955, backend full 5251/5251, `git diff --check`.
+- Post-commit guard checked main status and DOC_MATRIX_CURRENT status / dirty-file scope before this report entry.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: continue and validate the current 03NM-03NP draft; commit and hand it off here when ready, or post a blocker if validation/scope fails.
+- `A_MAIN`: pause after committing this guard note and report the 04W batch status to the user.
+
 ### 2026-05-21 16:02 A_MAIN
 
 Owner: `A_MAIN`
