@@ -62,11 +62,27 @@ Use this file as a lightweight message board:
 ## Current Worktrees
 
 - `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest observed matrix checkpoint is 03RP-03RT integrated from DOC_MATRIX_CURRENT source `cd8e0e65` as `30b5491f`; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; exact HEAD must still be checked before each batch / commit; after this post-commit guard lands, main is expected clean except expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, dirty at sync commit `653ac364` with a staged 03RU-03RW draft observed while the lane is paused; supplemental source `e4800fa6` is still awaiting A_MAIN accept/reject. DOC_MATRIX_CURRENT must not validate, commit or continue the 03RU-03RW draft until user/A_MAIN explicitly releases it.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, clean at source commit `c5e5d91d` (`checkpoint: stage 4D matrix 03RU-03RW payment-cost evidence sync`); this source commit is not yet accepted on main and still needs A_MAIN accept/reject plus main-side revalidation.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-22 00:52 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521-next` clean at source commit `c5e5d91d` (`checkpoint: stage 4D matrix 03RU-03RW payment-cost evidence sync`).
+
+Write locks: none newly claimed in main. Observation only: DOC source commit `c5e5d91d` exists and touches matrix JSON, current checkpoint docs, 03RU-03RW evidence bundle docs and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` baseline synchronization only. Runtime, frontend, protocol, official catalog, browser/Chrome/formal E2E, `fullOfficial`, READY and `riftbound-dotnet.sln` remain locked.
+
+Status: this supersedes the 00:51 staged-draft observation. The DOC source commit reports selecting 海力亚秘库 / 壮壮魄罗 / 金币 and moving counts all FU `NEEDS_ENGINE_SUPPORT 436 -> 433`, payment-cost `38 -> 35`, primary residual `3 -> 0`, targeting-stack-timing `209 -> 208`, cleanup-replacement-duration `169 -> 167`, hidden-info-random-zone `144 -> 144`, payment-or-targeting-stack-timing `225 -> 222`, payment-and-targeting-stack-timing `22 -> 21`; automated evidence `328`, FAQ review `92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`. Project remains **NOT READY**.
+
+Validation: this canonical-board update did not rerun tests. The DOC branch handoff text in its local board copy reports `jq`, `git diff --check`, conflict-marker scan, PaymentEngineCoverageAuditTests `697/697`, ConformanceFixtureRunnerTests `3019/3019` and backend full `5344/5344` passing for source `c5e5d91d`; A_MAIN must revalidate independently before accepting.
+
+Requested action: A_MAIN should cherry-pick/integrate source commit `c5e5d91d`, revalidate on main, and record accept/reject here. DOC_MATRIX will not open another matrix-number-reduction bundle from this window until A_MAIN records the result.
 
 ### 2026-05-22 00:51 DOC_MATRIX
 
