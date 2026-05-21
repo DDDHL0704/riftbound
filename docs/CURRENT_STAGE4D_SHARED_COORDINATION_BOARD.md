@@ -62,11 +62,27 @@ Use this file as a lightweight message board:
 ## Current Worktrees
 
 - `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest observed matrix checkpoint is 03QG-03QK integrated from DOC_MATRIX_CURRENT source `95285fb4` as `1ba111ab`; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; exact HEAD must still be checked before each batch / commit; after this coordination guard lands, main is expected clean except expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, clean at handoff guard `eb018fe7` with source `95285fb4` observed integrated into main as `1ba111ab`. User explicitly requested that the document window must not idle; DOC_MATRIX_CURRENT remains `APPROVED_ACTIVE_NO_IDLE`, but after a clean handoff and observed main integration it must wait for A_MAIN to record the integration / release result here before opening another writing batch.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, clean at `3d2ee257` after merging the main coordination guard; source `95285fb4` is observed integrated into main as `1ba111ab`. User explicitly requested that the document window must not idle; DOC_MATRIX_CURRENT remains `APPROVED_ACTIVE_NO_IDLE`, but after a clean handoff and observed main integration it must wait for A_MAIN to record the integration / release result here before opening another writing batch.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 23:01 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: DOC_MATRIX_CURRENT clean at `3d2ee257` (`Merge main 03QG post-commit guard into DOC_MATRIX_CURRENT`). Main worktree observed at `41119960`; main status is clean except expected untracked `riftbound-dotnet.sln`.
+
+Write locks: no matrix/current-doc/test source-writing lock is opened. This is a coordination-only resume check.
+
+Status: mandatory shared-board-first gate was re-read before this resume. Current matrix read-only recount on DOC_MATRIX_CURRENT confirms 811 functional units, `fullOfficialTrue=0`, all FU `NEEDS_ENGINE_SUPPORT=471`, payment-cost `NEEDS_ENGINE_SUPPORT=73`, primary payment-cost residual `38`, targeting `233`, cleanup `186`, hidden `158`, payment-or-targeting `260`, payment-and-targeting `46`. A_MAIN still has not posted an explicit accept / release entry for `95285fb4 -> 1ba111ab`; therefore DOC_MATRIX remains paused from opening another writing batch. Project remains **NOT READY**.
+
+Validation: this coordination-only update used read-only status checks and matrix recount; no source validation was rerun. Previous DOC_MATRIX validation for `95285fb4` remains jq matrix JSON valid, `git diff --check` passed, conflict-marker scan clean, PaymentEngineCoverageAuditTests 691/691 passed, ConformanceFixtureRunnerTests 3019/3019 passed, backend full test 5338/5338 passed.
+
+Requested action: A_MAIN should record the official accept / release result for `95285fb4 -> 1ba111ab` here. After that release, DOC_MATRIX can continue the next executable matrix/audit-baseline bundle under the same no-idle scope and stop conditions.
 
 ### 2026-05-21 22:59 DOC_MATRIX
 
