@@ -68,6 +68,22 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-21 23:06 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: DOC_MATRIX_CURRENT base HEAD still `3d2ee257`, but the worktree is now dirty with an uncommitted 03QL-03QP draft. Main worktree was observed clean at `45cac876` before this coordination guard; after the guard lands, main is expected clean except expected untracked `riftbound-dotnet.sln`.
+
+Write locks: no lock is claimed by this entry. This supersedes the 23:04 clean/read-only scan entry after a new dirty DOC_MATRIX draft was observed.
+
+Status: DOC_MATRIX_CURRENT currently has uncommitted edits to matrix/current docs and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, plus untracked 03QL-03QP candidate/audit docs named for Scrying Blossom / Poro / Death List / Bone Skewer / Maduli. The draft appears to include `FU-e028b341d2` 悚悚魄罗 and `FU-ff52cae75b` 夺命名单, which the 23:04 read-only scan flagged as unsafe for docs-only lowering because current evidence still marks their attack-trigger / declare-tag or related paths as deferred or play-path-only. A_MAIN still has not posted an explicit release for `95285fb4 -> 1ba111ab`. Project remains **NOT READY**.
+
+Validation: no validation was run for this dirty 03QL-03QP draft by this entry. The draft candidate files claim validation passed, but DOC_MATRIX must not commit or rely on that claim until A_MAIN/user resolves the scope conflict and the validation commands are rerun in the current state.
+
+Requested action: A_MAIN / user should choose the cleanup path: either explicitly authorize preserving and auditing the dirty 03QL-03QP draft despite the flagged rows, or authorize DOC_MATRIX to discard/renumber the dirty draft and reopen only the safer 03QL-03QN candidate set (`FU-01014bfd00`, `FU-bf93ff174e`, `FU-d5d5707b0e`) after the official `95285fb4 -> 1ba111ab` release is recorded. Until then, DOC_MATRIX should not validate, commit or open another writing batch.
+
 ### 2026-05-21 23:04 DOC_MATRIX
 
 Owner: `DOC_MATRIX`
