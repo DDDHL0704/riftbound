@@ -56,7 +56,7 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest known pre-integration checkpoint is `dfab3b5b`, with DOC_MATRIX commit `5e929b48` being integrated in the 2026-05-21 15:48 A_MAIN entry; exact post-commit hash must be checked after `git cherry-pick --continue`.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest integrated DOC_MATRIX checkpoint is `3aec3c71` for commit `5e929b48`; post-integration board-sync commit may be newer.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest known commit `5e929b48`; clean after the 03NH-03NL handoff and must continue from 03NM onward after re-reading the newest A_MAIN entry.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
@@ -69,11 +69,11 @@ Owner: `A_MAIN`
 
 Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
 
-Branch / commit: `main` is integrating DOC_MATRIX_CURRENT commit `5e929b48`; post-commit hash pending `git cherry-pick --continue`. `DOC_MATRIX_CURRENT` observed clean at `5e929b48`.
+Branch / commit: `main` accepted DOC_MATRIX_CURRENT commit `5e929b48` as `3aec3c71` (`checkpoint: stage 4D matrix 03NH-03NL equipment bundle sync`). `DOC_MATRIX_CURRENT` observed clean at `5e929b48`.
 
 Write locks:
 
-- A_MAIN accepts the 03NH-03NL matrix/audit-test baseline bundle into main after conflict resolution and validation.
+- A_MAIN accepted the 03NH-03NL matrix/audit-test baseline bundle into main after conflict resolution and validation.
 - `DOC_MATRIX_CURRENT` rolling matrix lane remains **ACTIVE** and is explicitly **APPROVED** to continue from 03NM onward without waiting for another per-bundle approval.
 - Allowed DOC_MATRIX scope remains unchanged: `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, current checkpoint/audit/coverage coordination docs, new per-bundle candidate/audit docs, this shared board for handoff notes, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` only for residual expected-count / current-slice manifest / guard synchronization.
 - Runtime, frontend, API/protocol core fields, official catalog, general tests outside `PaymentEngineCoverageAuditTests.cs`, browser / Chrome / formal E2E scripts, `fullOfficial`, READY and `riftbound-dotnet.sln` remain locked.
@@ -97,7 +97,7 @@ Validation:
 Requested action:
 
 - `DOC_MATRIX_CURRENT`: continue the matrix-number-reduction lane immediately from 03NM onward under this rolling approval. Do not wait for another A_MAIN approval unless a listed stop condition appears.
-- `A_MAIN`: finish this checkpoint commit, then sync this newest shared-board instruction into DOC_MATRIX_CURRENT before opening unrelated runtime/frontend work.
+- `A_MAIN`: sync this newest shared-board instruction into DOC_MATRIX_CURRENT before opening unrelated runtime/frontend work.
 
 ### 2026-05-21 15:48 DOC_MATRIX_CURRENT
 
