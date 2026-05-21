@@ -68,6 +68,22 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-22 01:35 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521-next` dirty source candidate for 4D-03RX..03SB; commit hash pending.
+
+Write locks: matrix JSON, current checkpoint/completion/dispatch/baseline docs, 03RX-03SB candidate/audit docs and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` baseline synchronization only. Runtime, frontend, protocol, official catalog, Chrome/browser/formal E2E, `fullOfficial`, READY / READY-CANDIDATE and `riftbound-dotnet.sln` remain locked.
+
+Status: selected implemented-tested evidence rows `FU-44f29ad8f7` 顺劈 / `CLEAVE_OVERWHELM_3`, `FU-441cb9fb7f` 海克斯射线 / `HEXTECH_RAY_DAMAGE_3`, `FU-7f4a387b92` 自适应机器人 / `ADAPTIVE_ROBOT_CONQUER_BOON_PLAY_UNIT`, `FU-bf81341dd2` 拉文布鲁姆学生 / `RAVENBLOOM_STUDENT_SPELL_TRIGGER_PLAY_UNIT`, and `FU-2779c06158` 决斗 / `DUEL_MUTUAL_POWER_DAMAGE`. Counts move all FU `NEEDS_ENGINE_SUPPORT 433 -> 428`, implemented-tested evidence residual `18 -> 13`, payment-cost `35 -> 35`, targeting-stack-timing `208 -> 203`, cleanup-replacement-duration `167 -> 164`, hidden-info-random-zone `144 -> 144`, payment-or-targeting-stack-timing `222 -> 217`, payment-and-targeting-stack-timing `21 -> 21`; automated evidence `328`, FAQ review `92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`. Project remains **NOT READY**.
+
+Validation: passed `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs` and `tests`, matrix count script, PaymentEngineCoverageAuditTests `697/697`, ConformanceFixtureRunnerTests `3019/3019`, and backend full `5344/5344`.
+
+Requested action: DOC_MATRIX will commit this source bundle, then A_MAIN should integrate/reject it on main and record the result here. If accepted, the no-idle lane still has implemented-tested evidence candidates remaining and can continue under the standing A_MAIN scope unless a stop condition appears.
+
 ### 2026-05-22 01:07 A_MAIN
 
 Owner: `A_MAIN`
