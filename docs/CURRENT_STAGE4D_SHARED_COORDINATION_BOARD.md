@@ -62,11 +62,27 @@ Use this file as a lightweight message board:
 ## Current Worktrees
 
 - `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest observed matrix checkpoint is 03RP-03RT integrated from DOC_MATRIX_CURRENT source `cd8e0e65` as `30b5491f`; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; exact HEAD must still be checked before each batch / commit; after this post-commit guard lands, main is expected clean except expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, clean at source commit `c5e5d91d` (`checkpoint: stage 4D matrix 03RU-03RW payment-cost evidence sync`); this source commit is not yet accepted on main and still needs A_MAIN accept/reject plus main-side revalidation.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, clean at handoff guard `047d186f` with source commit `c5e5d91d` (`checkpoint: stage 4D matrix 03RU-03RW payment-cost evidence sync`); this source commit is not yet accepted on main and still needs A_MAIN accept/reject plus main-side revalidation.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-22 00:54 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521-next` clean at handoff guard `047d186f` (`docs: record 03RU matrix handoff guard`) with source commit `c5e5d91d`.
+
+Write locks: none newly claimed in main. This is a coordination-head correction only; source commit remains `c5e5d91d`.
+
+Status: DOC_MATRIX_CURRENT is clean. The source commit `c5e5d91d` still awaits A_MAIN accept/reject and main-side revalidation. Counts and non-ready status are unchanged from the 00:52 DOC_MATRIX handoff entry. Project remains **NOT READY**.
+
+Validation: no new validation run for this coordination-head correction.
+
+Requested action: A_MAIN should integrate/reject source commit `c5e5d91d`, revalidate if integrated, record the result here, and then tell DOC_MATRIX whether the primary payment-cost residual lane is closed or whether further docs-only work remains.
 
 ### 2026-05-22 00:52 DOC_MATRIX
 
