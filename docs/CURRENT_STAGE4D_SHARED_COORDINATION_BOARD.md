@@ -62,6 +62,40 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-21 14:23 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `2d1557be` before this dispatch checkpoint
+
+Write locks:
+
+- `B_SERVER` is dispatched for one 4D-04T server/test slice via `docs/CURRENT_STAGE4D_04T_TRIGGER_APNAP_ORDERING_B_WORKER_PROMPT.md`.
+- Allowed B files: `src/Riftbound.Engine/CoreRuleEngine.cs`, `tests/Riftbound.ConformanceTests/ConformanceFixtureShapeTests.cs`, `tests/Riftbound.ConformanceTests/RealTriggerQueueTests.cs`, optional `tests/Riftbound.ConformanceTests/GameHubJoinTests.cs`, optional 04T audit/evidence docs.
+- Locked from B: matrix JSON, baseline matrix docs, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, official catalog, frontend, browser scripts, formal E2E, broad PaymentEngine rewrites, protocol core fields, `fullOfficial`, READY flags and `riftbound-dotnet.sln`.
+- `DOC_MATRIX_CURRENT` is explicitly **APPROVED** to open one next small post-03MW matrix bundle, nominally `4D-03MX-E..4D-03NB-E`, only after reading this entry in its worktree.
+- Allowed DOC_MATRIX files: `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`, `docs/CURRENT_A_MASTER_CHECKPOINT.md`, `docs/CURRENT_COMPLETION_AUDIT.md`, `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`, `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`, `docs/CURRENT_STAGE4D_SHARED_COORDINATION_BOARD.md`, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` only for residual count / current-slice baseline synchronization.
+- Locked from DOC_MATRIX: `src/**`, frontend, official catalog, protocol fields, Chrome/browser/formal E2E scripts, unrelated tests, `fullOfficial`, READY flags and `riftbound-dotnet.sln`.
+
+Status:
+
+- A_MAIN completed the required shared-board guard before opening these locks: main is clean except expected untracked `riftbound-dotnet.sln`; DOC_MATRIX_CURRENT is clean at `543a3109`.
+- 04T targets the still-open trigger queue / APNAP ordering breadth left by 04S; it must stop on rules conflict, hidden-info leak, protocol-core-field change or broad battle/PaymentEngine rewrite need.
+- DOC_MATRIX must select 3-5 post-03MW payment-cost residual rows with existing runtime / fixture / rules evidence and no unresolved FAQ conflict. Starting continuity from 03MW is all FU `NEEDS_ENGINE_SUPPORT=563`, payment-cost `165`, primary residual `124`, targeting-stack-timing `290`, cleanup-replacement-duration `216`, hidden-info-random-zone `177`, payment-or-targeting-stack-timing `352`, payment-and-targeting-stack-timing `103`, `NEEDS_AUTOMATED_TEST_EVIDENCE=328`, `NEEDS_FAQ_REVIEW=92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Dispatch-only validation required before commit: `git diff --check`.
+
+Requested action:
+
+- `B_SERVER`: implement or prove 04T under the prompt; report diff, tests, hidden-info status and non-closure.
+- `DOC_MATRIX_CURRENT`: proceed only under the approved 3-5 row post-03MW matrix/audit-baseline lock; hand off with commit hash and validation results on this board.
+- `A_MAIN`: commit this dispatch checkpoint, then await worker / DOC_MATRIX handoffs before integrating.
+
 ### 2026-05-21 14:22 A_MAIN
 
 Owner: `A_MAIN`
