@@ -62,7 +62,7 @@ Use this file as a lightweight message board:
 ## Current Worktrees
 
 - `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest observed matrix checkpoint is 03QQ-03QU integrated from DOC_MATRIX_CURRENT source `795ad8fe` as `2a535436` with post-commit guard `ed1338c2`, and supplemental docs fix integrated as `62eb872a`; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; exact HEAD must still be checked before each batch / commit; main is expected clean except expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, clean at `498b6c04` after merging main 03QQ evidence details. DOC_MATRIX_CURRENT has not opened 03QV+ after the docs-fix handoff; it should wait for an explicit A_MAIN / user release because the user requested pausing after this batch.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, clean at `b0a48391` after merging main 03QQ evidence details / coordination guards. DOC_MATRIX_CURRENT has not opened 03QV+ after the docs-fix handoff; it should wait for an explicit A_MAIN / user release because the user requested pausing after this batch.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
@@ -74,7 +74,7 @@ Owner: `DOC_MATRIX`
 
 Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
 
-Branch / commit: DOC_MATRIX_CURRENT clean at `498b6c04` (`Merge main 03QQ evidence details into DOC_MATRIX_CURRENT`). Main was observed at `29b8fee5`; supplemental docs fix is present on main as `62eb872a` after the earlier DOC fix `17ca60b4`.
+Branch / commit: DOC_MATRIX_CURRENT clean at `b0a48391` (`Merge branch 'main' into codex/stage4d-matrix-docs-current-20260521-next`). Main was observed at `a0189a2c`; supplemental docs fix is present on main as `62eb872a` after the earlier DOC fix `17ca60b4`.
 
 Write locks: none open. This is a coordination correction entry only; no matrix, audit-test baseline, runtime, frontend, protocol, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final readiness flag or `riftbound-dotnet.sln` write lock is claimed.
 
