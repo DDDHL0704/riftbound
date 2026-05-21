@@ -2,7 +2,7 @@
 
 Date: 2026-05-22
 
-Conclusion: **A-SIDE COORDINATION ACCEPTED / DOC_MATRIX NO-IDLE REROUTED / PROJECT NOT READY**
+Conclusion: **A-SIDE 03RX-03SB ACCEPTED / DOC_MATRIX NO-IDLE CONTINUES / PROJECT NOT READY**
 
 ## Purpose
 
@@ -14,7 +14,7 @@ The main worktree remains responsible for A-side architecture, planning, accepta
 
 - Main A/dev worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
   - Branch: `main`
-  - Latest observed head: `a3e98708`
+  - Latest observed head: `f7f7b9c5` plus A_MAIN accept guard in progress
   - Local status at latest verification: only expected untracked `riftbound-dotnet.sln`
 - Matrix-docs current worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
   - Branch: `codex/stage4d-matrix-docs-current-20260521-next`
@@ -23,20 +23,20 @@ The main worktree remains responsible for A-side architecture, planning, accepta
 
 ## Current Accepted Stage 4D State
 
-Latest accepted shared baseline is the 03RU..03RW payment-cost primary residual closure accepted on main:
+Latest accepted shared baseline is the 03RX..03SB implemented-tested evidence bundle accepted on main:
 
 - Snapshot entries: `1009`
 - Functional units: `811`
-- Source commit: `c5e5d91d`, accepted on main as `66a3dac2`
-- A_MAIN post-commit guard: `17065919`
-- DOC_MATRIX closure commit: `603b5ae0`, synchronized to main as `a3e98708`
-- All FU `NEEDS_ENGINE_SUPPORT`: `433`
+- Source commit: `8e852ee9`, accepted on main as `1e4250fe`
+- DOC_MATRIX handoff guard: `1ecf5931`, accepted on main as `f7f7b9c5`
+- All FU `NEEDS_ENGINE_SUPPORT`: `428`
+- Implemented-tested evidence residual: `13`
 - Payment-cost `NEEDS_ENGINE_SUPPORT`: `35`
 - Primary payment-cost residual: `0`
-- Targeting-stack-timing `NEEDS_ENGINE_SUPPORT`: `208`
-- Cleanup-replacement-duration `NEEDS_ENGINE_SUPPORT`: `167`
+- Targeting-stack-timing `NEEDS_ENGINE_SUPPORT`: `203`
+- Cleanup-replacement-duration `NEEDS_ENGINE_SUPPORT`: `164`
 - Hidden-info-random-zone `NEEDS_ENGINE_SUPPORT`: `144`
-- Payment-or-targeting-stack-timing `NEEDS_ENGINE_SUPPORT`: `222`
+- Payment-or-targeting-stack-timing `NEEDS_ENGINE_SUPPORT`: `217`
 - Payment-and-targeting-stack-timing `NEEDS_ENGINE_SUPPORT`: `21`
 - `NEEDS_AUTOMATED_TEST_EVIDENCE` residual: `328`
 - `NEEDS_FAQ_REVIEW` residual: `92`
