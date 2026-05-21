@@ -1364,6 +1364,12 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal("HIDDEN", Assert.IsType<string>(hiddenTrigger["sourceVisibility"]));
         Assert.DoesNotContain("P2-HIDDEN-STANDBY", hiddenTrigger.Values.Select(value => value?.ToString() ?? string.Empty));
         Assert.DoesNotContain("SECRET_HIDDEN_STANDBY_TRIGGER", hiddenTrigger.Values.Select(value => value?.ToString() ?? string.Empty));
+        Assert.DoesNotContain("P2-HIDDEN-STANDBY", CanonicalJson.Serialize(prompt), StringComparison.Ordinal);
+        Assert.DoesNotContain("SECRET_HIDDEN_STANDBY_TRIGGER", CanonicalJson.Serialize(prompt), StringComparison.Ordinal);
+
+        var p1SnapshotJson = CanonicalJson.Serialize(ResolutionResult.BuildSnapshots(state)["P1"]);
+        Assert.DoesNotContain("P2-HIDDEN-STANDBY", p1SnapshotJson, StringComparison.Ordinal);
+        Assert.DoesNotContain("SECRET_HIDDEN_STANDBY_TRIGGER", p1SnapshotJson, StringComparison.Ordinal);
 
         var directSubmit = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -1372,6 +1378,9 @@ public sealed class ConformanceFixtureShapeTests
             CancellationToken.None);
         Assert.True(directSubmit.Accepted, directSubmit.ErrorMessage);
         Assert.Empty(directSubmit.State.TriggerQueue);
+        var publicEventJson = CanonicalJson.Serialize(directSubmit.Events);
+        Assert.DoesNotContain("P2-HIDDEN-STANDBY", publicEventJson, StringComparison.Ordinal);
+        Assert.DoesNotContain("SECRET_HIDDEN_STANDBY_TRIGGER", publicEventJson, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -1422,6 +1431,71 @@ public sealed class ConformanceFixtureShapeTests
             CancellationToken.None);
 
         AssertOrderRejectedWithoutMutation(result, state, ErrorCodes.InvalidPayload);
+    }
+
+    [Fact]
+    public async Task OrderTriggersApnapWithinControllerReorderAcceptedWithoutCrossControllerReorder()
+    {
+        var state = BuildP0ContractMixedControllerTriggerQueueState();
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.OrderTriggers, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        Assert.Equal(
+            ["TRIGGER-3", "TRIGGER-1", "TRIGGER-2"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["orderedTriggerIds"]));
+
+        var accepted = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-apnap-within-controller-reorder", "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(OrderedTriggerIds: ["TRIGGER-3", "TRIGGER-2", "TRIGGER-1"]),
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Empty(accepted.State.TriggerQueue);
+        Assert.Equal(
+            ["ordered-TRIGGER-1", "ordered-TRIGGER-2", "ordered-TRIGGER-3"],
+            accepted.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.Equal("ordered-TRIGGER-3", accepted.State.StackItems[^1].StackItemId);
+        Assert.Equal("P2", accepted.State.PriorityPlayerId);
+        var orderedEvent = Assert.Single(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGERS_ORDERED", StringComparison.Ordinal));
+        Assert.Equal(
+            ["TRIGGER-3", "TRIGGER-2", "TRIGGER-1"],
+            Assert.IsType<string[]>(orderedEvent.Payload["orderedTriggerIds"]));
+    }
+
+    [Fact]
+    public async Task OrderTriggersApnapRejectsWrongPlayerMissingDuplicateAndForeignIdsWithoutChangingState()
+    {
+        var state = BuildP0ContractBattleInitialApnapTriggerQueueState();
+        var engine = new CoreRuleEngine();
+
+        var wrongPlayer = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-apnap-wrong-player-order", "P2", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(OrderedTriggerIds: ["TRIGGER-BATTLE-DEFENDER", "TRIGGER-BATTLE-ATTACKER"]),
+            CancellationToken.None);
+        var missing = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-apnap-missing-trigger-order", "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(OrderedTriggerIds: ["TRIGGER-BATTLE-DEFENDER"]),
+            CancellationToken.None);
+        var duplicate = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-apnap-duplicate-trigger-order", "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(OrderedTriggerIds: ["TRIGGER-BATTLE-DEFENDER", "TRIGGER-BATTLE-DEFENDER"]),
+            CancellationToken.None);
+        var foreign = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-apnap-foreign-trigger-order", "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(OrderedTriggerIds: ["TRIGGER-BATTLE-DEFENDER", "TRIGGER-FOREIGN"]),
+            CancellationToken.None);
+
+        AssertOrderRejectedWithoutMutation(wrongPlayer, state, ErrorCodes.PhaseNotAllowed);
+        AssertOrderRejectedWithoutMutation(missing, state, ErrorCodes.InvalidPayload);
+        AssertOrderRejectedWithoutMutation(duplicate, state, ErrorCodes.InvalidPayload);
+        AssertOrderRejectedWithoutMutation(foreign, state, ErrorCodes.InvalidTarget);
     }
 
     [Fact]
