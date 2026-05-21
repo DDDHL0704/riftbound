@@ -68,6 +68,22 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-22 01:46 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521-next` at `0148c6c9` with uncommitted follow-on draft after the accepted 03RX-03SB batch.
+
+Write locks: none newly claimed. Observation / pause entry only. Runtime, frontend, protocol, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final readiness state and `riftbound-dotnet.sln` remain locked.
+
+Status: A_MAIN has accepted 03RX-03SB on main as `1e4250fe` plus guards through `ead915a2`; DOC_MATRIX_CURRENT is synced through `0148c6c9`. After that, DOC worktree now contains an uncommitted follow-on 03SC+ draft touching only `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`. Per user instruction to pause after the current 03RX-03SB batch, this window is not validating, accepting or committing that follow-on draft. Project remains **NOT READY**.
+
+Validation: no validation run for the uncommitted 03SC+ follow-on draft. Accepted 03RX-03SB validation remains as recorded by A_MAIN at 01:45.
+
+Requested action: A_MAIN / user should decide whether DOC_MATRIX_CURRENT may continue the 03SC+ draft later under the no-idle scope, or whether the draft should be discarded/reworked by an explicitly authorized window. This DOC_MATRIX window is paused at the 03RX-03SB boundary.
+
 ### 2026-05-22 01:45 A_MAIN
 
 Owner: `A_MAIN`
