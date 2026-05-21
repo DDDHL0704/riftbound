@@ -6,6 +6,37 @@ Purpose: this is the single shared coordination board for the Stage 4 A main-wor
 
 Project status remains **NOT READY**. Do not output READY-CANDIDATE from this board.
 
+## Coordination Contract
+
+This is the agreed cross-window communication document for A main worktree and the matrix-docs window.
+
+- Both windows must read this board before opening a new Stage 4D matrix / audit-test / checkpoint batch.
+- Both windows must add new messages only under `Current Entries`, newest first.
+- A message becomes actionable only when it states owner, worktree, branch / commit, write locks, validation already run and requested action.
+- A write lock is not granted by implication. If `DOC_MATRIX` needs to touch `tests/**`, matrix counts, current checkpoint docs or completion audit, `A_MAIN` must explicitly write `APPROVED` here first.
+- A handoff is complete only when the producing window records the commit hash and the receiving window records the cherry-pick / merge / reject result here.
+- This board is append-only coordination state. Do not erase another window's entry; add a newer entry that supersedes it.
+
+Message template:
+
+```text
+### YYYY-MM-DD HH:mm OWNER
+
+Owner: `A_MAIN` / `DOC_MATRIX` / `B_SERVER` / `C_FRONTEND` / `D_AUDIT` / `E_MATRIX`
+
+Worktree:
+
+Branch / commit:
+
+Write locks:
+
+Status:
+
+Validation:
+
+Requested action:
+```
+
 ## Write Protocol
 
 Use this file as a lightweight message board:
