@@ -2,7 +2,7 @@
 
 Date: 2026-05-22
 
-Conclusion: **A-SIDE 03SC-03SG ACCEPTED / DOC_MATRIX NO-IDLE CONTINUES / PROJECT NOT READY**
+Conclusion: **A-SIDE 03SH-03SL ACCEPTED / DOC_MATRIX NO-IDLE CONTINUES / PROJECT NOT READY**
 
 ## Purpose
 
@@ -14,29 +14,29 @@ The main worktree remains responsible for A-side architecture, planning, accepta
 
 - Main A/dev worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
   - Branch: `main`
-  - Latest observed accepted source head: `8a2d9179` plus A_MAIN 03SC-03SG accept guard in progress
+  - Latest observed accepted handoff head: `1b58dcaa` plus A_MAIN 03SH-03SL accept guard in progress
   - Local status at latest verification: only expected untracked `riftbound-dotnet.sln`
 - Matrix-docs current worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
   - Branch: `codex/stage4d-matrix-docs-current-20260521-next`
-  - Latest observed source head: `c666b140` with 03SC-03SG handoff recorded in the shared board
+  - Latest observed source head: `6b2ed811` with 03SH-03SL handoff `19ed1197`
   - Local status at latest verification: clean
 
 ## Current Accepted Stage 4D State
 
-Latest accepted shared baseline is the 03SC..03SG implemented-tested evidence bundle accepted on main:
+Latest accepted shared baseline is the 03SH..03SL implemented-tested evidence bundle accepted on main:
 
 - Snapshot entries: `1009`
 - Functional units: `811`
-- Source commit: `c666b140`, accepted on main as `8a2d9179`
-- DOC_MATRIX handoff guard: recorded on main before source acceptance as `96777553`
-- All FU `NEEDS_ENGINE_SUPPORT`: `423`
-- Implemented-tested evidence residual: `8`
+- Source commit: `6b2ed811`, accepted on main as `3ae81ea3`
+- DOC_MATRIX handoff guard: `19ed1197`, accepted on main as `1b58dcaa`
+- All FU `NEEDS_ENGINE_SUPPORT`: `418`
+- Implemented-tested evidence residual: `3`
 - Payment-cost `NEEDS_ENGINE_SUPPORT`: `35`
 - Primary payment-cost residual: `0`
-- Targeting-stack-timing `NEEDS_ENGINE_SUPPORT`: `200`
-- Cleanup-replacement-duration `NEEDS_ENGINE_SUPPORT`: `161`
-- Hidden-info-random-zone `NEEDS_ENGINE_SUPPORT`: `144`
-- Payment-or-targeting-stack-timing `NEEDS_ENGINE_SUPPORT`: `214`
+- Targeting-stack-timing `NEEDS_ENGINE_SUPPORT`: `197`
+- Cleanup-replacement-duration `NEEDS_ENGINE_SUPPORT`: `158`
+- Hidden-info-random-zone `NEEDS_ENGINE_SUPPORT`: `143`
+- Payment-or-targeting-stack-timing `NEEDS_ENGINE_SUPPORT`: `211`
 - Payment-and-targeting-stack-timing `NEEDS_ENGINE_SUPPORT`: `21`
 - `NEEDS_AUTOMATED_TEST_EVIDENCE` residual: `328`
 - `NEEDS_FAQ_REVIEW` residual: `92`
@@ -75,7 +75,7 @@ Current DOC_MATRIX route:
    - `stage4B.fullOfficialBlockers` includes `NEEDS_ENGINE_SUPPORT`
    - `stage4B.freezeStatus=IMPLEMENTED_TESTED`
    - `stage4B.automatedTests.status=REPRESENTATIVE_AUTOMATED_EVIDENCE_PRESENT` or an equivalent runtime-window evidence status
-2. First seed candidates from current matrix order are 顺劈, 海克斯射线, 自适应机器人, 拉文布鲁姆学生 and 决斗.
+2. The remaining current-matrix implemented-tested seed candidates are 峡谷先锋, 月之降临 and 暮色玫瑰实验室.
 3. The bundle remains docs-only: matrix JSON, baseline/current docs, per-bundle candidate/audit docs, shared board and `PaymentEngineCoverageAuditTests.cs` baseline synchronization.
 4. Required handoff validation remains `jq`, `git diff --check`, conflict-marker scan, count script, PaymentEngineCoverageAuditTests, ConformanceFixtureRunnerTests and backend full unless A_MAIN narrows after seeing the exact diff.
 
