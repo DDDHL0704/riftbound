@@ -364,7 +364,9 @@ public sealed record ContinuousEffectState(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     IReadOnlyList<string>? TargetDependencyObjectIds = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    IReadOnlyList<string>? ParticipantDependencyObjectIds = null);
+    IReadOnlyList<string>? ParticipantDependencyObjectIds = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    int? SourceOrder = null);
 
 public sealed record PowerModifierLedgerEntry
 {
@@ -1819,15 +1821,32 @@ public sealed record MatchState
         }
 
         effects.AddRange(BuildBattlefieldAllUnitsStaticAuraEffects(state));
+        var publicFieldSourceOrders = PublicFieldSourceOrders(state);
 
         return effects
+            .Select(effect => ApplySourceOrder(effect, publicFieldSourceOrders))
             .OrderBy(effect => effect.Scope, StringComparer.Ordinal)
             .ThenBy(effect => effect.TargetObjectId, StringComparer.Ordinal)
             .ThenBy(effect => effect.Layer, StringComparer.Ordinal)
             .ThenBy(effect => effect.AppliedOrder ?? int.MaxValue)
+            .ThenBy(effect => effect.SourceOrder ?? int.MaxValue)
             .ThenBy(effect => effect.EffectId, StringComparer.Ordinal)
             .Select((effect, index) => effect with { Sequence = index + 1 })
             .ToArray();
+    }
+
+    private static ContinuousEffectState ApplySourceOrder(
+        ContinuousEffectState effect,
+        IReadOnlyDictionary<string, int> publicFieldSourceOrders)
+    {
+        if (string.IsNullOrWhiteSpace(effect.SourceObjectId))
+        {
+            return effect;
+        }
+
+        return publicFieldSourceOrders.TryGetValue(effect.SourceObjectId, out var sourceOrder)
+            ? effect with { SourceOrder = sourceOrder }
+            : effect;
     }
 
     private static bool TryBuildFriendlyEquipmentStaticAuraEffect(
@@ -1978,6 +1997,29 @@ public sealed record MatchState
                 && TryFindFieldObjectLocation(state.PlayerZones, objectId, out _))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray();
+    }
+
+    private static IReadOnlyDictionary<string, int> PublicFieldSourceOrders(MatchState state)
+    {
+        var sourceOrders = new Dictionary<string, int>(StringComparer.Ordinal);
+        var nextSourceOrder = 1;
+        foreach (var playerId in state.PlayerZones.Keys.OrderBy(playerId => playerId, StringComparer.Ordinal))
+        {
+            var zones = state.PlayerZones[playerId];
+            foreach (var objectId in zones.Base.Concat(zones.Battlefields))
+            {
+                if (sourceOrders.ContainsKey(objectId)
+                    || !state.CardObjects.TryGetValue(objectId, out var cardObject)
+                    || cardObject.IsFaceDown)
+                {
+                    continue;
+                }
+
+                sourceOrders[objectId] = nextSourceOrder++;
+            }
+        }
+
+        return sourceOrders;
     }
 
     private static IReadOnlyList<string> ControlledPublicFieldEquipmentObjectIds(MatchState state, string controllerId)
@@ -3205,6 +3247,11 @@ public sealed record ResolutionResult(
         if (effect.AppliedOrder.HasValue)
         {
             view["appliedOrder"] = effect.AppliedOrder.Value;
+        }
+
+        if (effect.SourceOrder.HasValue)
+        {
+            view["sourceOrder"] = effect.SourceOrder.Value;
         }
 
         if (!string.IsNullOrWhiteSpace(effect.Condition))

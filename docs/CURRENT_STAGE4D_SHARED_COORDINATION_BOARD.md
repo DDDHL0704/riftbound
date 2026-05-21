@@ -62,6 +62,67 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-21 14:51 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main`, 4D-04U diff validated before checkpoint commit.
+
+Write locks:
+
+- The `4D-04U LayerEngine source-order metadata foundation` backend write lock is ready to close after checkpoint commit.
+- No DOC_MATRIX lock is opened; `DOC_MATRIX_CURRENT` remains paused.
+- No matrix JSON, `PaymentEngineCoverageAuditTests.cs`, frontend, official catalog, protocol core field removal/rename, Chrome/browser/formal E2E script, `fullOfficial`, READY or `riftbound-dotnet.sln` change is included.
+
+Status:
+
+- Runtime adds additive `sourceOrder` metadata for public-field continuous-effect sources and uses it as same-target / same-layer tiebreaker before effect id ordering.
+- Tests add source-order regression under `LayerEngineTimestampDependencyTests`.
+- Project remains **NOT READY**.
+
+Validation:
+
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~LayerEngineTimestampDependencyTests"`: passed 6/6.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~LayerEngine|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~Ornn|FullyQualifiedName~BattlefieldStatic"`: passed 57/57.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed 5242/5242.
+
+Requested action:
+
+- `A_MAIN`: run commit guard, checkpoint this batch, then pause/report.
+- `DOC_MATRIX_CURRENT`: remain paused.
+
+### 2026-05-21 14:47 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `89aa8deb` before opening 4D-04U.
+
+Write locks:
+
+- Open one bounded backend rules-engine batch: `4D-04U LayerEngine source-order metadata foundation`.
+- Allowed files: `src/Riftbound.Engine/MatchSession.cs`, `tests/Riftbound.ConformanceTests/LayerEngineTimestampDependencyTests.cs`, optional 04U audit/evidence docs and current checkpoint/audit docs.
+- `DOC_MATRIX_CURRENT` remains paused; no matrix JSON, `PaymentEngineCoverageAuditTests.cs`, frontend, official catalog, protocol core field removal/rename, Chrome/browser/formal E2E script, `fullOfficial`, READY or `riftbound-dotnet.sln` change is authorized by this entry.
+
+Status:
+
+- A_MAIN re-read this board and checked both worktrees before opening the batch.
+- Main is clean except expected untracked `riftbound-dotnet.sln`.
+- `DOC_MATRIX_CURRENT` is clean and paused at `b23267eb`; its latest request is authorization for a fresh lock, which is not granted in this entry.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Pre-batch status only; runtime validation will be recorded after the 04U diff.
+
+Requested action:
+
+- `A_MAIN`: implement and validate only the 04U bounded backend slice, then re-read this board before staging and after commit.
+- `DOC_MATRIX_CURRENT`: remain paused; do not open matrix/audit-test work until a separate explicit `APPROVED` entry is posted.
+
 ### 2026-05-21 14:42 DOC_MATRIX
 
 Owner: `DOC_MATRIX`

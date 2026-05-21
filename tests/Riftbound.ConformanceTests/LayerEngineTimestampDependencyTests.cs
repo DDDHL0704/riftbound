@@ -14,6 +14,9 @@ public sealed class LayerEngineTimestampDependencyTests
     private const string BattlefieldSourceObjectId = "P1-BATTLEFIELD-POWER-PLUS";
     private const string BattlefieldAttackerObjectId = "P1-BATTLEFIELD-STATIC-ATTACKER";
     private const string BattlefieldDefenderObjectId = "P2-BATTLEFIELD-STATIC-DEFENDER";
+    private const string FieldFirstBattlefieldSourceObjectId = "P1-BATTLEFIELD-Z-SOURCE";
+    private const string FieldLaterBattlefieldSourceObjectId = "P1-BATTLEFIELD-A-SOURCE";
+    private const string BattlefieldSharedUnitObjectId = "P1-BATTLEFIELD-SOURCE-ORDER-UNIT";
 
     [Fact]
     public void LayerEngineContinuousEffectSequenceIsStableForMixedPowerAndStaticAuraState()
@@ -164,6 +167,36 @@ public sealed class LayerEngineTimestampDependencyTests
         AssertDoesNotExposeDependencyObjectId(snapshot, BattlefieldDefenderObjectId);
     }
 
+    [Fact]
+    public void LayerEngineStaticAuraSourceOrderUsesPublicFieldOrderBeforeEffectId()
+    {
+        Assert.True(
+            string.CompareOrdinal(FieldLaterBattlefieldSourceObjectId, FieldFirstBattlefieldSourceObjectId) < 0,
+            "The fixture keeps lexical object id order opposite to public field order.");
+
+        var state = BuildBattlefieldSourceOrderState();
+
+        var snapshot = ResolutionResult.BuildSnapshots(state)["P1"];
+        var sourceOrderViews = ContinuousEffectViews(snapshot)
+            .Where(effect => string.Equals(effect["effectKind"] as string, "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE", StringComparison.Ordinal)
+                && string.Equals(effect["targetObjectId"] as string, BattlefieldSharedUnitObjectId, StringComparison.Ordinal))
+            .OrderBy(effect => Assert.IsType<int>(effect["sequence"]))
+            .ToArray();
+
+        Assert.Equal(
+            [FieldFirstBattlefieldSourceObjectId, FieldLaterBattlefieldSourceObjectId],
+            sourceOrderViews.Select(effect => Assert.IsType<string>(effect["sourceObjectId"])).ToArray());
+        Assert.Equal([1, 3], sourceOrderViews.Select(effect => Assert.IsType<int>(effect["sourceOrder"])).ToArray());
+        Assert.Equal(
+            sourceOrderViews.Select(effect => Assert.IsType<int>(effect["sourceOrder"])).ToArray(),
+            state.ContinuousEffects
+                .Where(effect => string.Equals(effect.EffectKind, "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE", StringComparison.Ordinal)
+                    && string.Equals(effect.TargetObjectId, BattlefieldSharedUnitObjectId, StringComparison.Ordinal))
+                .OrderBy(effect => effect.Sequence)
+                .Select(effect => effect.SourceOrder.GetValueOrDefault())
+                .ToArray());
+    }
+
     private static MatchState BuildMixedLayerState()
     {
         var cardObjects = BuildOrnnCardObjects(includeSecondPublicEquipment: false);
@@ -292,6 +325,33 @@ public sealed class LayerEngineTimestampDependencyTests
         };
     }
 
+    private static MatchState BuildBattlefieldSourceOrderState()
+    {
+        return BaseState("layer-engine-battlefield-source-order") with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields =
+                    [
+                        FieldFirstBattlefieldSourceObjectId,
+                        BattlefieldSharedUnitObjectId,
+                        FieldLaterBattlefieldSourceObjectId
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [FieldFirstBattlefieldSourceObjectId] = BattlefieldPowerSource(FieldFirstBattlefieldSourceObjectId),
+                [FieldLaterBattlefieldSourceObjectId] = BattlefieldPowerSource(FieldLaterBattlefieldSourceObjectId),
+                [BattlefieldSharedUnitObjectId] = Unit(BattlefieldSharedUnitObjectId, "P1", power: 2)
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+        };
+    }
+
     private static MatchState BaseState(string roomId)
     {
         return new MatchState(
@@ -323,6 +383,16 @@ public sealed class LayerEngineTimestampDependencyTests
             tags: [CardObjectTags.UnitCard],
             ownerId: playerId,
             controllerId: playerId);
+    }
+
+    private static CardObjectState BattlefieldPowerSource(string objectId)
+    {
+        return new CardObjectState(
+            objectId,
+            cardNo: "OGN·294/298",
+            tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+            ownerId: "P1",
+            controllerId: "P1");
     }
 
     private static CardObjectState Equipment(string objectId, bool isFaceDown)
