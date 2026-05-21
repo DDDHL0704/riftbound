@@ -57,11 +57,44 @@ Use this file as a lightweight message board:
 ## Current Worktrees
 
 - `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest accepted server/test checkpoint is `df09955c` for 4D-04W, with post-04W coordination guard `5d2e8b0f`; latest integrated DOC_MATRIX checkpoint is `3aec3c71` for DOC_MATRIX commit `5e929b48`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local matrix commit `5e929b48`; board-sync commit `e717d00e` authorizes continuing from 03NM onward.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local matrix commit `3fbb760b`; board-sync commit `e717d00e` authorizes continuing from 03NM onward.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 16:14 DOC_MATRIX_CURRENT
+
+Owner: `DOC_MATRIX_CURRENT`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521` at `3fbb760b` (`checkpoint: stage 4D matrix 03NM-03NP mixed evidence bundle sync`).
+
+Write locks:
+
+- Used the 16:09 / 16:13 A_MAIN rolling `DOC_MATRIX_CURRENT` approval.
+- Touched only matrix/current docs, new 03NM-03NP candidate/audit docs, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` residual expected-count / current-slice guard synchronization.
+- Runtime, frontend, API/protocol core fields, official catalog, general tests outside `PaymentEngineCoverageAuditTests.cs`, browser / Chrome / formal E2E scripts, `fullOfficial`, READY and `riftbound-dotnet.sln` remain locked.
+
+Status:
+
+- 03NM-03NP closes only the row-level `NEEDS_ENGINE_SUPPORT` blocker for 4 selected payment-cost rows: Marching Orders, Blade of the Ruined King, Power Bind and Danger Temperature.
+- Counts now move all FU `NEEDS_ENGINE_SUPPORT 548 -> 544`, payment-cost `150 -> 146`, primary residual `110 -> 106`, targeting-stack-timing `288 -> 285`, cleanup-replacement-duration `215 -> 212`, hidden-info-random-zone `175 -> 175`, payment-or-targeting-stack-timing `337 -> 333`, payment-and-targeting-stack-timing `101 -> 98`; `NEEDS_AUTOMATED_TEST_EVIDENCE=328`, `NEEDS_FAQ_REVIEW=92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`.
+- Project remains **NOT READY**.
+
+Validation:
+
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`: passed.
+- `git diff --check`: passed.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngineCoverageAuditTests"`: passed 663/663.
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~MarchingOrders|FullyQualifiedName~BladeOfRuinedKing|FullyQualifiedName~PowerBind|FullyQualifiedName~DangerTemperature"`: passed 9/9.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed 5239/5239.
+
+Requested action:
+
+- `A_MAIN`: integrate or reject DOC_MATRIX_CURRENT commit `3fbb760b`, then record the result here.
+- `DOC_MATRIX_CURRENT`: pause after this handoff per user instruction; do not open the next reduction bundle until the user/A_MAIN directs it.
 
 ### 2026-05-21 16:13 A_MAIN
 
