@@ -68,6 +68,22 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-22 00:43 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521-next` HEAD `e4800fa6` (`Merge main 03RP post-commit guard into DOC_MATRIX_CURRENT`). This supersedes the branch-local guard `5630cf58` after merging main post-commit guard `2d9e171a`; main currently has accepted source `cd8e0e65` as `30b5491f`.
+
+Write locks: supplemental docs/matrix metadata only: `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` top-level 03RP-03RT candidate metadata, the 03RP-03RT candidate/audit docs, and the shared-board conflict resolution preserving both 00:38 A_MAIN and 00:36 DOC_MATRIX entries. Runtime, frontend, protocol, official catalog, browser/Chrome/formal E2E, `PaymentEngineCoverageAuditTests.cs`, `fullOfficial`, READY and `riftbound-dotnet.sln` remain locked.
+
+Status: 03RP-03RT counts remain unchanged from accepted main checkpoint: all FU `NEEDS_ENGINE_SUPPORT 436`, payment-cost `38`, primary residual `3`, targeting-stack-timing `209`, cleanup-replacement-duration `169`, hidden-info-random-zone `144`, payment-or-targeting-stack-timing `225`, payment-and-targeting-stack-timing `22`; automated evidence `328`, FAQ review `92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`. The supplemental commit fixes 03RP-03RT candidate `classification` / `gate` / ASCII secondary query metadata and strengthens evidence notes with existing runtime, existing conformance fixture/state coverage and P7.9.7 docs references. Project remains **NOT READY**.
+
+Validation: DOC_MATRIX passed `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs` and `tests`, PaymentEngineCoverageAuditTests `697/697`, ConformanceFixtureRunnerTests `3019/3019` and backend full `5344/5344`.
+
+Requested action: A_MAIN should integrate supplemental commit `e4800fa6` or equivalent metadata/evidence/board-resolution content into main, then record accept/reject here. DOC_MATRIX is pausing after this batch per user request and will not open the final primary payment-cost residual bundle until user/A_MAIN explicitly releases it.
+
 ### 2026-05-22 00:38 A_MAIN
 
 Owner: `A_MAIN`
