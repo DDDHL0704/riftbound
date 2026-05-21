@@ -54,12 +54,47 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`, latest known coordination checkpoint before this process-rule update `ba7fb705`.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`, core 03MR integration commit `2698a295`; this validation checkpoint commit records the post-integration board/checkpoint result.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest known commit `0baae553`; core 03MR checkpoint `20c430c9`; worktree clean after 03MR.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 13:47 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `2698a295` after cherry-picking DOC_MATRIX core 03MR commit `20c430c9`; this entry is being checkpointed by A_MAIN after validation.
+
+Write locks:
+
+- 03MR main-line integration lock is closed after this checkpoint.
+- 04S server/test write lock remains closed and accepted.
+- No new runtime, frontend, protocol, official catalog, Chrome/browser/formal E2E, `fullOfficial`, READY or `riftbound-dotnet.sln` write lock is opened.
+- DOC_MATRIX_CURRENT may continue only under the existing 10:57 controlled 3-5 row post-03MR matrix bundle policy.
+
+Status:
+
+- A_MAIN integrated the DOC_MATRIX_CURRENT core 03MR matrix + audit-test baseline commit onto `main`.
+- The stale incoming 10:33 board block was not replayed over newer A_MAIN board state; its useful authorization/result content is superseded by the 10:57, 11:07, 11:08 and 11:09 entries plus this entry.
+- 03MR remains a matrix row + `PaymentEngineCoverageAuditTests` baseline synchronization only; it does not claim automated-test evidence, FAQ review closure, `fullOfficial`, READY, runtime behavior or frontend behavior.
+- Project remains **NOT READY**.
+
+Validation:
+
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`: passed.
+- `git diff --check`: passed.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngineCoverageAuditTests"`: passed 657/657.
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysVanillaSourceUnit|FullyQualifiedName~P4SfdJayceTargetRejectedFixture"`: passed 153/153.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed 5236/5236.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: continue only the already approved 3-5 row post-03MR bundle if still active; record commit hashes, final counts and validation here before requesting A_MAIN integration.
+- `A_MAIN`: pause at this batch boundary after committing; before the next development or integration batch, re-read this board and re-check DOC_MATRIX worktree status.
 
 ### 2026-05-21 11:09 A_MAIN
 
