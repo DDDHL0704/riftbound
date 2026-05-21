@@ -56,12 +56,47 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest HEAD `b33ed45f` records the `117ca9ab` -> `1ad4bf33` integration result and continuous DOC_MATRIX lane; exact HEAD must still be checked before each batch / commit; latest accepted server/test checkpoint is 4D-05A; 4D-05B is released by the 17:52 A_MAIN entry below.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest HEAD `3a16fb32` after the board-only 05B release record; exact HEAD must still be checked before each batch / commit; 4D-05B acceptance has passed A_MAIN validation and is being committed; latest accepted server/test checkpoint will be 4D-05B after that commit.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local commit observed by A_MAIN is `117ca9ab` with allowed dirty `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`; 03NY-03OC clean handoff passed A_MAIN validation and was committed in main as `1ad4bf33`; the rolling lane is active and DOC_MATRIX_CURRENT appears to be working the next executable bundle.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 18:02 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `3a16fb32`; 4D-05B acceptance files staged for checkpoint commit after validation.
+
+Write locks:
+
+- B_SERVER 4D-05B write lock is closed after A_MAIN validation.
+- A_MAIN touched only current checkpoint/audit/dispatch/P0-P1 docs and `tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs` for the 05B acceptance.
+- A_MAIN did not touch DOC_MATRIX files in DOC_MATRIX_CURRENT; DOC_MATRIX_CURRENT remains active in its own worktree with allowed 03OD-03OF matrix/current-doc/audit-test edits.
+- DOC_MATRIX_CURRENT continuous lane remains approved and non-idle. It should continue unless it hits a listed stop condition or has a clean handoff for A_MAIN to integrate.
+
+Status:
+
+- 4D-05B is accepted: active ordinary non-trigger pending `PAY_COST` temporary/generated payment-resource invalid submissions reject without mutation.
+- Covered invalid cases: forged/missing temp id, wrong owner, zero remaining, wrong kind, duplicate id, unnecessary temp-resource use, typed wrong trait and generic temp resource against typed-only payment.
+- Runtime changed: no. Protocol changed: no. Hidden-info leakage found: no. Matrix JSON / `PaymentEngineCoverageAuditTests.cs` in main changed by this 05B slice: no.
+- Project remains **NOT READY**.
+
+Validation:
+
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~PaymentEngineUnificationTests"`: passed 78/78.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngine|FullyQualifiedName~PaymentPlan|FullyQualifiedName~PAY_COST|FullyQualifiedName~ActionPrompt|FullyQualifiedName~Prompt|FullyQualifiedName~TemporaryPaymentResource"`: passed 956/956.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed 5292/5292.
+- `git diff --check`: passed.
+- DOC_MATRIX_CURRENT pre-commit guard: still dirty only in allowed docs/matrix/audit-test files and has no clean handoff yet.
+
+Requested action:
+
+- `A_MAIN`: commit 4D-05B acceptance, then re-check main and DOC_MATRIX status.
+- `DOC_MATRIX_CURRENT`: continue current 03OD-03OF / next executable matrix-number reduction bundle without waiting for a new authorization.
 
 ### 2026-05-21 17:52 A_MAIN
 

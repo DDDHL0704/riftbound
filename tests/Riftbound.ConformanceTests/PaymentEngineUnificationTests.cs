@@ -1217,6 +1217,54 @@ public sealed class PaymentEngineUnificationTests
         Assert.Equal(PlayerZones.Empty, result.State.PlayerZones["P2"]);
     }
 
+    [Theory]
+    [InlineData("forged-id")]
+    [InlineData("wrong-owner")]
+    [InlineData("zero-remaining")]
+    [InlineData("wrong-kind")]
+    [InlineData("duplicate-id")]
+    [InlineData("unnecessary")]
+    [InlineData("typed-wrong-trait")]
+    [InlineData("generic-for-typed")]
+    public async Task PendingPayCostRejectsInvalidTemporaryPaymentResourceActiveWindowWithoutMutation(string scenario)
+    {
+        var (
+            state,
+            paymentId,
+            paymentChoiceId,
+            submittedPaymentChoiceIds,
+            expectedPromptPaymentResourceActions) = PendingPayCostTemporaryResourceGuardCase(scenario);
+        var initialHash = MatchStateHasher.Hash(state);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent($"intent-pending-pay-cost-temporary-active-guard-{scenario}", "P1", CommandTypes.PayCost),
+            new PayCostCommand(
+                paymentId,
+                "TEST_PENDING_PAY_COST",
+                submittedPaymentChoiceIds),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Empty(result.Events);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+        Assert.NotNull(result.State.PendingPayment);
+        var pendingPayment = result.State.PendingPayment;
+        Assert.Equal(paymentId, pendingPayment.PaymentId);
+        Assert.Equal("TEST_PENDING_PAY_COST", pendingPayment.PaymentWindow);
+        Assert.Equal("P1", pendingPayment.PlayerId);
+        Assert.Equal([paymentChoiceId], pendingPayment.LegalPaymentChoiceIds);
+        Assert.Equal(state.RunePools["P1"], result.State.RunePools["P1"]);
+        Assert.Equal(state.RunePools["P2"], result.State.RunePools["P2"]);
+        AssertTemporaryPaymentResourcesPreserved(state, result.State);
+        Assert.Empty(result.State.StackItems);
+        AssertAuthoritativePayCostPrompt(
+            result.State,
+            paymentId,
+            paymentChoiceId,
+            expectedPromptPaymentResourceActions);
+    }
+
     [Fact]
     public async Task PendingPayCostCommitsTypedTemporaryPaymentResourceThroughPaymentPlan()
     {
@@ -2406,10 +2454,158 @@ public sealed class PaymentEngineUnificationTests
             candidate => string.Equals(candidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
     }
 
+    private static (
+        MatchState State,
+        string PaymentId,
+        string PaymentChoiceId,
+        IReadOnlyList<string> SubmittedPaymentChoiceIds,
+        IReadOnlyList<string> ExpectedPromptPaymentResourceActions) PendingPayCostTemporaryResourceGuardCase(string scenario)
+    {
+        const string genericPaymentId = "PENDING-PAY-COST-GENERIC-1";
+        const string genericPaymentChoiceId = "SPEND_POWER:1";
+        const string typedPaymentId = "PENDING-PAY-COST-GREEN-1";
+        const string typedPaymentChoiceId = "SPEND_POWER:green:1";
+
+        if (string.Equals(scenario, "forged-id", StringComparison.Ordinal))
+        {
+            var temporaryResource = TemporaryResource("MALZAHAR:TEMP-PENDING-PAY-COST-FORGED-AVAILABLE");
+            var legalAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+            var forgedAction = PaymentCostRules.TemporaryPaymentResourceActionId("MALZAHAR:TEMP-PENDING-PAY-COST-FORGED-MISSING");
+            return (
+                PendingGenericPayCostTemporaryResourceState(temporaryResource),
+                genericPaymentId,
+                genericPaymentChoiceId,
+                new[] { forgedAction, genericPaymentChoiceId },
+                new[] { legalAction });
+        }
+
+        if (string.Equals(scenario, "wrong-owner", StringComparison.Ordinal))
+        {
+            var temporaryResource = TemporaryResource(
+                "MALZAHAR:TEMP-PENDING-PAY-COST-WRONG-OWNER",
+                ownerPlayerId: "P2");
+            var action = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+            return (
+                PendingGenericPayCostTemporaryResourceState(temporaryResource),
+                genericPaymentId,
+                genericPaymentChoiceId,
+                new[] { action, genericPaymentChoiceId },
+                Array.Empty<string>());
+        }
+
+        if (string.Equals(scenario, "zero-remaining", StringComparison.Ordinal))
+        {
+            var temporaryResource = TemporaryResource(
+                "MALZAHAR:TEMP-PENDING-PAY-COST-ZERO",
+                remainingPower: 0);
+            var action = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+            return (
+                PendingGenericPayCostTemporaryResourceState(temporaryResource),
+                genericPaymentId,
+                genericPaymentChoiceId,
+                new[] { action, genericPaymentChoiceId },
+                Array.Empty<string>());
+        }
+
+        if (string.Equals(scenario, "wrong-kind", StringComparison.Ordinal))
+        {
+            var temporaryResource = TemporaryResource(
+                "MALZAHAR:TEMP-PENDING-PAY-COST-WRONG-KIND",
+                allowedPaymentKinds: ["SCORE_COST"]);
+            var action = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+            return (
+                PendingGenericPayCostTemporaryResourceState(temporaryResource),
+                genericPaymentId,
+                genericPaymentChoiceId,
+                new[] { action, genericPaymentChoiceId },
+                Array.Empty<string>());
+        }
+
+        if (string.Equals(scenario, "duplicate-id", StringComparison.Ordinal))
+        {
+            var temporaryResource = TemporaryResource("MALZAHAR:TEMP-PENDING-PAY-COST-DUPLICATE");
+            var action = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+            return (
+                PendingGenericPayCostTemporaryResourceState(temporaryResource),
+                genericPaymentId,
+                genericPaymentChoiceId,
+                new[] { action, action, genericPaymentChoiceId },
+                new[] { action });
+        }
+
+        if (string.Equals(scenario, "unnecessary", StringComparison.Ordinal))
+        {
+            var temporaryResource = TemporaryResource("MALZAHAR:TEMP-PENDING-PAY-COST-UNNECESSARY");
+            var action = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+            var state = PendingGenericPayCostTemporaryResourceState(temporaryResource) with
+            {
+                RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+                {
+                    ["P1"] = new(0, 1),
+                    ["P2"] = RunePool.Empty
+                }
+            };
+            return (
+                state,
+                genericPaymentId,
+                genericPaymentChoiceId,
+                new[] { action, genericPaymentChoiceId },
+                Array.Empty<string>());
+        }
+
+        if (string.Equals(scenario, "typed-wrong-trait", StringComparison.Ordinal))
+        {
+            var temporaryResource = TypedTemporaryResource("RAGE_SIGIL:TEMP-PENDING-PAY-COST-RED-WRONG", RuneTrait.Red);
+            var action = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+            return (
+                PendingTypedPayCostTemporaryResourceState(temporaryResource, RuneTrait.Green),
+                typedPaymentId,
+                typedPaymentChoiceId,
+                new[] { action, typedPaymentChoiceId },
+                Array.Empty<string>());
+        }
+
+        if (string.Equals(scenario, "generic-for-typed", StringComparison.Ordinal))
+        {
+            var temporaryResource = TemporaryResource("MALZAHAR:TEMP-PENDING-PAY-COST-GENERIC-FOR-TYPED");
+            var action = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+            return (
+                PendingTypedPayCostTemporaryResourceState(temporaryResource, RuneTrait.Green),
+                typedPaymentId,
+                typedPaymentChoiceId,
+                new[] { action, typedPaymentChoiceId },
+                Array.Empty<string>());
+        }
+
+        throw new ArgumentOutOfRangeException(nameof(scenario), scenario, null);
+    }
+
+    private static void AssertTemporaryPaymentResourcesPreserved(MatchState expectedState, MatchState actualState)
+    {
+        Assert.Equal(expectedState.TemporaryPaymentResources.Count, actualState.TemporaryPaymentResources.Count);
+        foreach (var expectedResource in expectedState.TemporaryPaymentResources)
+        {
+            var actualResource = Assert.Single(
+                actualState.TemporaryPaymentResources,
+                resource => string.Equals(resource.ResourceId, expectedResource.ResourceId, StringComparison.Ordinal));
+            Assert.Equal(expectedResource.OwnerPlayerId, actualResource.OwnerPlayerId);
+            Assert.Equal(expectedResource.SourceObjectId, actualResource.SourceObjectId);
+            Assert.Equal(expectedResource.AbilityId, actualResource.AbilityId);
+            Assert.Equal(expectedResource.PaymentWindow, actualResource.PaymentWindow);
+            Assert.Equal(expectedResource.GeneratedPower, actualResource.GeneratedPower);
+            Assert.Equal(expectedResource.RemainingPower, actualResource.RemainingPower);
+            Assert.Equal(expectedResource.GeneratedPowerByTrait, actualResource.GeneratedPowerByTrait);
+            Assert.Equal(expectedResource.RemainingPowerByTrait, actualResource.RemainingPowerByTrait);
+            Assert.Equal(expectedResource.AllowedPaymentKinds, actualResource.AllowedPaymentKinds);
+            Assert.Equal(expectedResource.CreatedTick, actualResource.CreatedTick);
+        }
+    }
+
     private static void AssertAuthoritativePayCostPrompt(
         MatchState state,
         string paymentId,
-        string paymentChoiceId)
+        string paymentChoiceId,
+        IReadOnlyList<string>? expectedPaymentResourceChoiceIds = null)
     {
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
         Assert.True(prompt.Actionable);
@@ -2425,7 +2621,9 @@ public sealed class PaymentEngineUnificationTests
         var paymentChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentChoices"]);
         Assert.Equal([paymentChoiceId], paymentChoices.Select(choice => choice.Id).ToArray());
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentResourceChoices"]);
-        Assert.Empty(paymentResourceChoices);
+        Assert.Equal(
+            expectedPaymentResourceChoiceIds ?? [],
+            paymentResourceChoices.Select(choice => choice.Id).ToArray());
     }
 
     private static MatchState PendingTypedPayCostTemporaryResourceState(
