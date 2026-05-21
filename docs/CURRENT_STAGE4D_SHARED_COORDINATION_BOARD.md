@@ -59,6 +59,68 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-21 10:57 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `1ccf5cd4` before this coordination-policy update
+
+Write locks:
+
+- A_MAIN opens a higher-throughput **DOC_MATRIX bundle policy**; this is a policy authorization, not a direct merge into `main`.
+- DOC_MATRIX_CURRENT may continue from its current branch after `0baae553` with one controlled post-03MR matrix bundle of **3 to 5 row-level candidates**.
+- Allowed DOC_MATRIX bundle files remain limited to:
+  - `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+  - `docs/CURRENT_CARD_EFFECT_COVERAGE_BASELINE.md`
+  - `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+  - `docs/CURRENT_COMPLETION_AUDIT.md`
+  - `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`
+  - `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`
+  - `docs/CURRENT_STAGE4D_SHARED_COORDINATION_BOARD.md`
+  - `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`
+- Still locked from DOC_MATRIX: `src/**`, `src/Riftbound.DevUi/**`, official catalog/snapshot data, protocol core fields, Chrome/browser/formal E2E scripts, all tests except `PaymentEngineCoverageAuditTests.cs`, `fullOfficial`, READY flags and `riftbound-dotnet.sln`.
+
+Status:
+
+- User approved the more efficient split: DOC_MATRIX may batch 3-5 matrix reductions instead of stopping after every single row, while A_MAIN keeps main-line integration and combined validation authority.
+- This does **not** drop runtime development. B_SERVER / A_MAIN code-development lanes remain active for real server functionality such as PaymentEngine official breadth, LayerEngine, battlefield/control/cleanup, trigger queue, hidden-info and other P0/P1 runtime gaps.
+- This policy does **not** authorize DOC_MATRIX to claim automated-test evidence, FAQ review closure, `fullOfficial` or READY unless a later A_MAIN entry explicitly opens that lane.
+- Project remains **NOT READY**.
+
+DOC_MATRIX bundle rules:
+
+- Select the next 3-5 candidates from the same matrix reduction family after 03MR, preferring rows with existing runtime / fixture / rules-evidence and no rule interpretation conflict.
+- Keep the bundle narrow: row-level matrix status/count sync plus matching `PaymentEngineCoverageAuditTests` expected-count/current-slice baseline only.
+- Commit every row or every small internally coherent pair separately, so A_MAIN can cherry-pick the chain in order and stop before a bad commit.
+- Every commit must state final counts, selected functional unit, selected card/effect id and remaining open blockers.
+- Do not mix engine-support reduction with `NEEDS_AUTOMATED_TEST_EVIDENCE` or `NEEDS_FAQ_REVIEW` closure in the same bundle.
+- Stop immediately if any candidate needs runtime behavior, frontend behavior, protocol changes, official catalog edits, hidden-info interpretation, new rule interpretation or a broad test change outside the allowed audit-test baseline.
+
+Required DOC_MATRIX validation:
+
+- Per row or small pair:
+  - `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
+  - `git diff --check`
+  - focused `PaymentEngineCoverageAuditTests`
+  - narrow focused fixture/evidence filter for the selected card(s)
+- Per bundle before handoff:
+  - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`
+  - updated board entry with all commit hashes, final counts and **NOT READY** conclusion
+
+Integration policy for A_MAIN:
+
+- A_MAIN may integrate DOC_MATRIX commits in ordered bundles, not necessarily one row at a time.
+- For the current branch, A_MAIN should integrate `20c430c9` first, then any new post-03MR bundle commits in order.
+- A_MAIN owns combined-state validation on `main` and will record the final main-line counts after integration.
+- A_MAIN may continue dispatching B_SERVER runtime/test slices in parallel as long as file scopes do not overlap with DOC_MATRIX locks.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: you may open exactly one 3-5 row post-03MR matrix bundle under the rules above; stop and report after the bundle.
+- `A_MAIN`: do not start a new runtime implementation batch from this policy entry alone; open B_SERVER work separately with a fresh scoped prompt.
+
 ### 2026-05-21 11:08 A_MAIN
 
 Owner: `A_MAIN`
@@ -368,7 +430,7 @@ Current locked / reserved areas:
 
 - `A_MAIN`: owns Stage 4 orchestration, server validation, checkpoint acceptance and next non-matrix development dispatch.
 - `B_SERVER`: no active write lock; 4D-04S Lux high-cost paid-cost trigger slice is closed on `main` at `4c7c7ec0`.
-- `DOC_MATRIX_CURRENT`: no active write lock; 4D-03MR synchronized matrix + `PaymentEngineCoverageAuditTests.cs` audit-baseline batch is complete on its branch at `20c430c9` and paused at `0baae553`.
+- `DOC_MATRIX_CURRENT`: owns one newly approved post-03MR 3-5 row matrix bundle under the 10:57 A_MAIN policy entry; 4D-03MR core remains complete on its branch at `20c430c9` and coordination status at `0baae553`.
 
 Do not edit without fresh A coordination:
 
@@ -381,5 +443,5 @@ Do not edit without fresh A coordination:
 - This board is additive coordination state, not proof of Stage 4 completion.
 - For 03MR integration into `main`, A_MAIN should cherry-pick core checkpoint `20c430c9` and preserve this board state manually if conflicts occur.
 - Treat DOC_MATRIX board-only commit `0baae553` as informational unless A_MAIN explicitly decides otherwise.
-- DOC_MATRIX_CURRENT must remain paused and must not open 03MS before A_MAIN records the combined main-line validation.
+- DOC_MATRIX_CURRENT may now open one controlled 3-5 row post-03MR bundle under the 10:57 A_MAIN policy entry; A_MAIN will integrate the ordered commit chain later.
 - Do not use this board to mark P0/P1 closed; closures must be proven by the dedicated audit/evidence docs and tests.
