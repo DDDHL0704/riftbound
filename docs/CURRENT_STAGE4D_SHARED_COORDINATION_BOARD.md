@@ -63,6 +63,74 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-21 15:36 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` integration of DOC_MATRIX_CURRENT commit `b2e46136`; final checkpoint commit hash pending `git cherry-pick --continue`.
+
+Write locks:
+
+- The 03NC-03NG integration lock is accepted after validation and will close with this checkpoint commit.
+- `DOC_MATRIX_CURRENT` rolling matrix lane remains **ACTIVE** and is not waiting on another per-bundle approval.
+- `DOC_MATRIX_CURRENT` was observed with in-progress dirty files only in the allowed rolling-lane scope: `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`.
+- Runtime, frontend, API/protocol core fields, official catalog, general tests outside `PaymentEngineCoverageAuditTests.cs`, browser / Chrome / formal E2E scripts, `fullOfficial`, READY and `riftbound-dotnet.sln` remain locked.
+
+Status:
+
+- A_MAIN resolved the main cherry-pick conflicts by preserving both A_MAIN 04V records and DOC_MATRIX 03NC-03NG records.
+- Main-line matrix counts now include the 03NC-03NG delta: all FU `NEEDS_ENGINE_SUPPORT 558 -> 553`, payment-cost `160 -> 155`, primary residual `119 -> 115`, payment-or-targeting-stack-timing `347 -> 342`; targeting-stack-timing `288`, cleanup-replacement-duration `215`, hidden-info-random-zone `176`, payment-and-targeting-stack-timing `101`, automated evidence `328`, FAQ review `92`, `fullOfficialTrue=0` and `ready=false` remain open.
+- Project remains **NOT READY**.
+
+Validation:
+
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`: passed.
+- `git diff --check`: passed.
+- `git diff --cached --check`: passed.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngineCoverageAuditTests"`: passed 661/661.
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~Warmogs|FullyQualifiedName~Trinity|FullyQualifiedName~BoneClub|FullyQualifiedName~BoneclubPromo|FullyQualifiedName~DoransRing|FullyQualifiedName~BootsOfSwiftness"`: passed 24/24.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed 5248/5248.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: continue the in-progress next rolling bundle, commit it when validation passes, then hand it off here. Keep going bundle-by-bundle until completion, blocker, or `NO_EXECUTABLE_CANDIDATES`.
+- `A_MAIN`: finish the cherry-pick checkpoint commit, then re-check this board and both worktree statuses before reporting.
+
+### 2026-05-21 15:34 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` is integrating DOC_MATRIX_CURRENT commit `b2e46136`; final main integration commit hash pending `git cherry-pick --continue`. `DOC_MATRIX_CURRENT` remains clean at `b2e46136`.
+
+Write locks:
+
+- This entry supersedes the 15:27 pause sentence for the matrix lane. `DOC_MATRIX_CURRENT` rolling approval is still **ACTIVE**.
+- `DOC_MATRIX_CURRENT` is explicitly **APPROVED** to start the next small post-03NG payment-cost matrix / audit-baseline bundle without waiting for another per-bundle approval.
+- Allowed scope remains unchanged: `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, current checkpoint/audit/coverage coordination docs, new per-bundle candidate/audit docs, this shared board for handoff notes, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` only for residual expected-count / current-slice manifest / guard synchronization.
+- Runtime, frontend, API/protocol core fields, official catalog, general tests outside `PaymentEngineCoverageAuditTests.cs`, browser / Chrome / formal E2E scripts, `fullOfficial`, READY and `riftbound-dotnet.sln` remain locked.
+
+Status:
+
+- A_MAIN is resolving the main cherry-pick conflict for `b2e46136`; conflicts are only top-of-file checkpoint/audit/dispatch entries and preserve both A_MAIN 04V and DOC_MATRIX 03NC-03NG records.
+- No DOC_MATRIX drift is found: its worktree is clean and its latest handoff commit is the expected `b2e46136`.
+- The next DOC_MATRIX bundle should start from the post-03NG continuity counts: all FU `NEEDS_ENGINE_SUPPORT=553`, payment-cost `155`, primary residual `115`, targeting-stack-timing `288`, cleanup-replacement-duration `215`, hidden-info-random-zone `176`, payment-or-targeting-stack-timing `342`, payment-and-targeting-stack-timing `101`, `NEEDS_AUTOMATED_TEST_EVIDENCE=328`, `NEEDS_FAQ_REVIEW=92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`.
+- Project remains **NOT READY**.
+
+Validation:
+
+- DOC_MATRIX validation for `b2e46136` was recorded as passed: matrix JSON parse, `git diff --check`, `PaymentEngineCoverageAuditTests` 661/661, selected Warmog's Armor / Trinity Force / Bone Club / BoneclubPromo / Doran's Ring / Boots of Swiftness focused evidence 24/24, backend full 5237/5237.
+- A_MAIN integration validation is still pending for the current cherry-pick and will be recorded in a newer entry before the integration commit is reported.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: do not idle. Re-read this entry, confirm the worktree is clean at `b2e46136`, then continue the matrix-number-reduction lane with the next eligible 3-5 row bundle under the rolling approval. Commit one clean bundle and hand it off here with selected rows, count deltas, validation and non-closure statement.
+- `DOC_MATRIX_CURRENT`: keep going bundle-by-bundle until completion, a validation/blocker stop condition, or `NO_EXECUTABLE_CANDIDATES`. Do not wait for another A_MAIN approval while this entry remains the newest applicable A_MAIN instruction.
+- `A_MAIN`: finish integrating `b2e46136`, then check this board again before unrelated development and before each commit.
+
 ### 2026-05-21 15:27 A_MAIN
 
 Owner: `A_MAIN`
