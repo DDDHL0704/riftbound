@@ -62,6 +62,40 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-21 14:32 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521` core bundle commit `33ba56c0` (`checkpoint: stage 4D matrix 03MX-03NB payment bundle sync`); this entry supersedes the 14:25 owner label and records the DOC_MATRIX handoff correction.
+
+Write locks:
+
+- Used only the A_MAIN 14:23 approved 03MX-03NB matrix/current-docs + `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` residual count/current-slice baseline synchronization lock.
+- No runtime, frontend, official catalog, protocol field, Chrome/browser/formal E2E script, unrelated test, `fullOfficial`, READY or `riftbound-dotnet.sln` change.
+
+Status:
+
+- Completed one five-row post-03MW payment-cost bundle on the DOC_MATRIX branch.
+- Selected rows: 4D-03MX-E `FU-a78407b08e` / `SFD·100/221` 约德尔探险家 / `YORDLE_EXPLORER_RUNE_COST_DRAW_PLAY_UNIT`; 4D-03MY-E `FU-c9781c5b92` / `SFD·101/221` 仙灵龙 / `FAERIE_DRAGON_PLAY_UNIT_GRANT_UP_TO_FOUR_BOONS`; 4D-03MZ-E `FU-467f4c3cf4` / `SFD·102/221` 海克斯饮魔刀 / `HEXDRINKER_PLAY_EQUIPMENT`; 4D-03NA-E `FU-a53f864324` / `SFD·103/221` 琢珥鱼 / `XERSAI_FISH_PLAY_UNIT_NO_OPTIONAL_HASTE`; 4D-03NB-E `FU-d65987cbb3` / `SFD·104/221` 禁魔石丰碑 / `PETRICITE_MONUMENT_PLAY_EQUIPMENT_EPHEMERAL`.
+- Final DOC_MATRIX-branch counts: all FU `NEEDS_ENGINE_SUPPORT 563 -> 558`; payment-cost `165 -> 160`; primary payment-cost residual `124 -> 119`; targeting-stack-timing `290 -> 288`; cleanup-replacement-duration `216 -> 215`; hidden-info-random-zone `177 -> 176`; payment-or-targeting-stack-timing `352 -> 347`; payment-and-targeting-stack-timing `103 -> 101`; `NEEDS_AUTOMATED_TEST_EVIDENCE=328`; `NEEDS_FAQ_REVIEW=92`; primary FAQ residual `61`; `fullOfficialTrue=0`; `ready=false`.
+- Candidate/audit docs are `docs/CURRENT_STAGE4D_03MX_03NB_E_CARD_MATRIX_READINESS_PAYMENT_COST_BUNDLE_CANDIDATE.md` and `docs/CURRENT_STAGE4D_03MX_03NB_E_CARD_MATRIX_READINESS_PAYMENT_COST_BUNDLE_CANDIDATE_AUDIT.md`.
+- Project remains **NOT READY**.
+
+Validation:
+
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`: passed.
+- `git diff --check`: passed.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngineCoverageAuditTests"`: passed 660/660 before and after validation-doc finalization.
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~YordleExplorer|FullyQualifiedName~FaerieDragon|FullyQualifiedName~Hexdrinker|FullyQualifiedName~XersaiFish|FullyQualifiedName~PetriciteMonument"`: passed 12/12.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed 5236/5236.
+
+Requested action:
+
+- `A_MAIN`: integrate or reject DOC_MATRIX commit `33ba56c0` plus the following validation-doc/board correction commit if accepted; rerun combined-state `jq`, `git diff --check`, focused matrix audit, selected evidence and backend full test on `main`.
+- `DOC_MATRIX_CURRENT`: pause after this handoff; do not open another matrix bundle until A_MAIN records main-line integration and opens a fresh lock.
+
 ### 2026-05-21 14:25 A_MAIN
 
 Owner: `A_MAIN`
