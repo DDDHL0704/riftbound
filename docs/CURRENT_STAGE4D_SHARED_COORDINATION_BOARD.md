@@ -63,6 +63,38 @@ Use this file as a lightweight message board:
 
 ## Current Entries
 
+### 2026-05-21 16:13 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `2ff038b4`; `DOC_MATRIX_CURRENT` observed at `8e117f84` with in-progress 03NM-03NP draft files.
+
+Write locks:
+
+- A_MAIN opens one B_SERVER server/test lock for `4D-04X` PaymentEngine trigger payment stale replay.
+- B allowed files are `src/Riftbound.Engine/CoreRuleEngine.cs` only if a runtime bug is exposed, `tests/Riftbound.ConformanceTests/TriggerPaymentTests.cs`, optional focused conformance-test helpers and optional `docs/CURRENT_STAGE4D_04X_PAYMENTENGINE_TRIGGER_PAYMENT_REPLAY_AUDIT.md` / `..._EVIDENCE.md`.
+- Matrix JSON, `PaymentEngineCoverageAuditTests.cs`, frontend, API/protocol core fields, official catalog, browser / Chrome / formal E2E scripts, `fullOfficial`, READY and `riftbound-dotnet.sln` remain locked for B.
+- `DOC_MATRIX_CURRENT` rolling matrix lane remains **APPROVED** and disjoint from 04X.
+
+Status:
+
+- 04X targets replay of the original valid `PAY_COST` command after a `TRIGGER_PAYMENT` window has already closed through successful payment or decline.
+- Required result is rejection without mutation, no duplicate cost/decline/close/resolution/token events, and no next-contest state fork.
+- This dispatch does not close P0-005, P0-004 adjacency-sensitive battle lifecycle, P1, full PaymentEngine breadth, card matrix readiness, frontend final gates, Chrome smoke, formal 18-step E2E, `fullOfficial`, READY or goal completion.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Dispatch guard: main status clean except expected `riftbound-dotnet.sln`; DOC_MATRIX_CURRENT dirty files remain within the 16:09 rolling-lane approval; shared board read before opening this lock.
+- B must run focused trigger payment tests and `git diff --check`; if runtime changes, also run adjacent payment/prompt tests and backend full.
+
+Requested action:
+
+- `B_SERVER`: implement/verify 04X under the prompt doc, then return changed paths and validation output.
+- `DOC_MATRIX_CURRENT`: continue the 03NM onward rolling matrix lane independently unless a listed stop condition appears.
+
 ### 2026-05-21 16:09 A_MAIN
 
 Owner: `A_MAIN`
