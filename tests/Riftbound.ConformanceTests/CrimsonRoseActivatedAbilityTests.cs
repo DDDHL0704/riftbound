@@ -164,6 +164,59 @@ public sealed class CrimsonRoseActivatedAbilityTests
     }
 
     [Fact]
+    public async Task CrimsonRoseEnemySpellshieldTargetTaxRejectsSuccessfulCommandReplayWithoutMutation()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildCrimsonRoseState(mana: 1, experience: 3);
+        var command = CrimsonRoseCommand([EnemySpellshieldUnitObjectId]);
+
+        var activated = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-crimson-spellshield-tax-first", "P1", CommandTypes.ActivateAbility),
+            command,
+            CancellationToken.None);
+
+        Assert.True(activated.Accepted, activated.ErrorMessage);
+        Assert.Equal(["ABILITY_ACTIVATED", "EQUIPMENT_EXHAUSTED", "COST_PAID", "STACK_ITEM_ADDED"], activated.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(1, CountEvents(activated.Events, "ABILITY_ACTIVATED"));
+        Assert.Equal(1, CountEvents(activated.Events, "COST_PAID"));
+        Assert.Equal(1, CountEvents(activated.Events, "STACK_ITEM_ADDED"));
+        Assert.Equal(0, activated.State.RunePools["P1"].Mana);
+        Assert.Equal(0, activated.State.PlayerExperience["P1"]);
+        Assert.True(activated.State.CardObjects[CrimsonRoseObjectId].IsExhausted);
+        Assert.Equal([CrimsonRoseObjectId, FriendlyBaseUnitObjectId], activated.State.PlayerZones["P1"].Base);
+        Assert.Equal(new ObjectLocationState("P1", "BASE"), activated.State.ObjectLocations[CrimsonRoseObjectId]);
+        Assert.Equal(new ObjectLocationState("P2", "BATTLEFIELD", "P2-MAIN"), activated.State.ObjectLocations[EnemySpellshieldUnitObjectId]);
+        var stackItem = Assert.Single(activated.State.StackItems);
+        Assert.Equal(CrimsonRoseObjectId, stackItem.SourceObjectId);
+        Assert.Equal(P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityEffectKind, stackItem.EffectKind);
+        Assert.Equal([EnemySpellshieldUnitObjectId], stackItem.TargetObjectIds);
+        var costEvent = Assert.Single(activated.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(1, costEvent.Payload["spellshieldTaxMana"]);
+        Assert.Equal([EnemySpellshieldUnitObjectId], Assert.IsType<string[]>(costEvent.Payload["spellshieldTaxTargetObjectIds"]));
+        var postActivationHash = MatchStateHasher.Hash(activated.State);
+
+        var replay = await engine.ResolveAsync(
+            activated.State,
+            new PlayerIntent("intent-crimson-spellshield-tax-replay", "P1", CommandTypes.ActivateAbility),
+            command,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Empty(replay.Events);
+        Assert.Equal(postActivationHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(activated.State.RunePools["P1"], replay.State.RunePools["P1"]);
+        Assert.Equal(activated.State.PlayerExperience["P1"], replay.State.PlayerExperience["P1"]);
+        Assert.Equal(activated.State.PlayerZones["P1"].Base, replay.State.PlayerZones["P1"].Base);
+        Assert.Equal(activated.State.PlayerZones["P2"].Battlefields, replay.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal(activated.State.ObjectLocations[CrimsonRoseObjectId], replay.State.ObjectLocations[CrimsonRoseObjectId]);
+        Assert.Equal(activated.State.ObjectLocations[EnemySpellshieldUnitObjectId], replay.State.ObjectLocations[EnemySpellshieldUnitObjectId]);
+        Assert.True(replay.State.CardObjects[CrimsonRoseObjectId].IsExhausted);
+        var replayStackItem = Assert.Single(replay.State.StackItems);
+        Assert.Equal(stackItem, replayStackItem);
+    }
+
+    [Fact]
     public async Task CrimsonRoseStackPassPassReadiesTargetAndKeepsSourceInBaseExhausted()
     {
         var engine = new CoreRuleEngine();
@@ -335,6 +388,11 @@ public sealed class CrimsonRoseActivatedAbilityTests
         Assert.False(result.Accepted);
         Assert.Empty(result.Events);
         Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+    }
+
+    private static int CountEvents(IReadOnlyList<GameEvent> events, string kind)
+    {
+        return events.Count(gameEvent => string.Equals(gameEvent.Kind, kind, StringComparison.Ordinal));
     }
 
     private static MatchState BuildInvalidScenarioState(string scenario)

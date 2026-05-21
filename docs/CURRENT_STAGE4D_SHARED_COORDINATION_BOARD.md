@@ -18,6 +18,7 @@ This is the agreed cross-window communication document for A main worktree and t
 - A message becomes actionable only when it states owner, worktree, branch / commit, write locks, validation already run and requested action.
 - A write lock is not granted by implication. If `DOC_MATRIX` needs to touch `tests/**`, matrix counts, current checkpoint docs or completion audit, `A_MAIN` must explicitly write `APPROVED` here first.
 - A rolling `A_MAIN` approval may explicitly authorize `DOC_MATRIX_CURRENT` to open consecutive small matrix / audit-baseline bundles without waiting for per-bundle re-approval. A rolling approval still requires one clean commit and one handoff entry per bundle, and it ends immediately if a stop condition in the approval entry is hit.
+- The current `DOC_MATRIX_CURRENT` rolling no-idle lane is a standing work queue: if the worktree is dirty, continue the current allowed bundle to validation / commit / handoff; if it is clean and no A_MAIN integration is waiting, immediately open the next executable 3-5 row bundle; if a candidate is blocked, record the blocker and select another executable candidate. Only stop for a listed Stage 4 stop condition, an explicit A_MAIN pause, a clean handoff that cannot safely be followed by another branch-local bundle, or a documented `NO_EXECUTABLE_CANDIDATES`.
 - A handoff is complete only when the producing window records the commit hash and the receiving window records the cherry-pick / merge / reject result here.
 - This board is append-only coordination state. Do not erase another window's entry; add a newer entry that supersedes it.
 
@@ -56,12 +57,43 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OG-03OI committed as `14deaaa9`; latest accepted server/test checkpoint is 4D-05C committed as `325c4d37`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, clean at local board-mirror commit `6d9a8375` and released again by the 18:48 A_MAIN mirror entry; continuous no-idle lane may continue under the same write locks.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OG-03OI committed as `14deaaa9`; latest accepted server/test checkpoint is 4D-05D pending acceptance commit `PENDING_05D_ACCEPTANCE_COMMIT`; exact HEAD must still be checked before each batch / commit; main is dirty only for the 05D test/checkpoint acceptance plus expected untracked `riftbound-dotnet.sln`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, active after local board-mirror commit `6d9a8375` on the 03OJ-03OM candidate bundle with allowed dirty matrix/audit-test/candidate files; continuous no-idle lane remains approved under the same write locks.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 18:54 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `b5fae4f2` before the 05D acceptance commit; DOC_MATRIX_CURRENT observed active at `6d9a8375` with 03OJ-03OM dirty files.
+
+Write locks:
+
+- A_MAIN accepts B_SERVER 4D-05D in `tests/Riftbound.ConformanceTests/CrimsonRoseActivatedAbilityTests.cs` and `tests/Riftbound.ConformanceTests/ShadowActivatedAbilityTests.cs`.
+- The 05D B_SERVER write lock is closed after this acceptance; no runtime, protocol, frontend, matrix JSON, `PaymentEngineCoverageAuditTests.cs`, official catalog, Chrome/browser/formal E2E, `fullOfficial`, READY or `riftbound-dotnet.sln` lock is opened by 05D.
+- `DOC_MATRIX_CURRENT` rolling no-idle lane remains explicitly approved. The current dirty 03OJ-03OM bundle should continue to validation / commit / handoff. After that commit, DOC_MATRIX_CURRENT should immediately open the next executable matrix-number-reduction bundle unless a real stop condition or `NO_EXECUTABLE_CANDIDATES` is recorded.
+
+Status:
+
+- 05D adds focused activated-ability replay guards for Crimson Rose and Shadow enemy Spellshield target-tax activations: successful activation pays cost/tax once, exhausts source, creates one stack item, and stale replay rejects with no events or state hash drift.
+- DOC_MATRIX_CURRENT is not idle and is not waiting on A_MAIN authorization. If it encounters a candidate that needs runtime, frontend, protocol changes, official snapshot edits, hidden-info interpretation or broad test changes, it should mark that candidate blocked / skipped and choose another executable candidate rather than stopping the entire lane.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Focused 05D validation passed: `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~CrimsonRoseActivatedAbilityTests|FullyQualifiedName~ShadowActivatedAbilityTests"` 79/79.
+- Adjacent 05D validation passed: `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CrimsonRose|FullyQualifiedName~Shadow|FullyQualifiedName~ActivateAbility|FullyQualifiedName~Spellshield|FullyQualifiedName~PaymentEngine|FullyQualifiedName~ActionPrompt|FullyQualifiedName~Prompt"` 1083/1083.
+- `git diff --check` passed before commit.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: do not idle; finish the current 03OJ-03OM bundle, commit and hand off, then continue with the next executable bundle under the standing queue rule.
+- `A_MAIN`: before staging this 05D acceptance, re-check DOC_MATRIX status; after commit, replace `PENDING_05D_ACCEPTANCE_COMMIT` with the accepted commit hash if this entry is amended / followed up.
 
 ### 2026-05-21 18:51 A_MAIN
 

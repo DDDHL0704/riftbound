@@ -392,6 +392,61 @@ public sealed class ShadowActivatedAbilityTests
     }
 
     [Fact]
+    public async Task ShadowEnemySpellshieldTargetTaxRejectsSuccessfulCommandReplayWithoutMutation()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildShadowState(mana: 2, power: 1);
+        var command = ShadowCommand(targetObjectIds: [EnemySpellshieldAttackerObjectId]);
+
+        var activated = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-shadow-spellshield-tax-first", "P1", CommandTypes.ActivateAbility),
+            command,
+            CancellationToken.None);
+
+        Assert.True(activated.Accepted, activated.ErrorMessage);
+        Assert.Equal(["ABILITY_ACTIVATED", "UNIT_EXHAUSTED", "COST_PAID", "STACK_ITEM_ADDED"], activated.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(1, CountEvents(activated.Events, "ABILITY_ACTIVATED"));
+        Assert.Equal(1, CountEvents(activated.Events, "COST_PAID"));
+        Assert.Equal(1, CountEvents(activated.Events, "STACK_ITEM_ADDED"));
+        Assert.Equal(new RunePool(0, 0), activated.State.RunePools["P1"]);
+        Assert.Equal(0, activated.State.PlayerExperience["P1"]);
+        Assert.True(activated.State.CardObjects[ShadowObjectId].IsExhausted);
+        Assert.Equal([ShadowObjectId, FriendlyAttackerObjectId], activated.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(new ObjectLocationState("P1", "BATTLEFIELD", BattlefieldObjectId), activated.State.ObjectLocations[ShadowObjectId]);
+        Assert.Equal(new ObjectLocationState("P2", "BATTLEFIELD", BattlefieldObjectId), activated.State.ObjectLocations[EnemySpellshieldAttackerObjectId]);
+        var stackItem = Assert.Single(activated.State.StackItems);
+        Assert.Equal(ShadowObjectId, stackItem.SourceObjectId);
+        Assert.Equal(P4ActivatedAbilityCatalog.ShadowStunAbilityEffectKind, stackItem.EffectKind);
+        Assert.Equal([EnemySpellshieldAttackerObjectId], stackItem.TargetObjectIds);
+        var costEvent = Assert.Single(activated.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(1, costEvent.Payload["spellshieldTaxMana"]);
+        Assert.Equal(2, costEvent.Payload["totalManaCost"]);
+        Assert.Equal(1, costEvent.Payload["totalPowerCost"]);
+        Assert.Equal([EnemySpellshieldAttackerObjectId], Assert.IsType<string[]>(costEvent.Payload["spellshieldTaxTargetObjectIds"]));
+        var postActivationHash = MatchStateHasher.Hash(activated.State);
+
+        var replay = await engine.ResolveAsync(
+            activated.State,
+            new PlayerIntent("intent-shadow-spellshield-tax-replay", "P1", CommandTypes.ActivateAbility),
+            command,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Empty(replay.Events);
+        Assert.Equal(postActivationHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(activated.State.RunePools["P1"], replay.State.RunePools["P1"]);
+        Assert.Equal(activated.State.PlayerExperience["P1"], replay.State.PlayerExperience["P1"]);
+        Assert.Equal(activated.State.PlayerZones["P1"].Battlefields, replay.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(activated.State.PlayerZones["P2"].Battlefields, replay.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal(activated.State.ObjectLocations[ShadowObjectId], replay.State.ObjectLocations[ShadowObjectId]);
+        Assert.Equal(activated.State.ObjectLocations[EnemySpellshieldAttackerObjectId], replay.State.ObjectLocations[EnemySpellshieldAttackerObjectId]);
+        Assert.True(replay.State.CardObjects[ShadowObjectId].IsExhausted);
+        var replayStackItem = Assert.Single(replay.State.StackItems);
+        Assert.Equal(stackItem, replayStackItem);
+    }
+
+    [Fact]
     public async Task ShadowStackPassPassStunsTargetAndKeepsSourceBattlefieldExhausted()
     {
         var engine = new CoreRuleEngine();
@@ -552,6 +607,11 @@ public sealed class ShadowActivatedAbilityTests
         Assert.False(result.Accepted);
         Assert.Empty(result.Events);
         Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+    }
+
+    private static int CountEvents(IReadOnlyList<GameEvent> events, string kind)
+    {
+        return events.Count(gameEvent => string.Equals(gameEvent.Kind, kind, StringComparison.Ordinal));
     }
 
     private static async Task<ResolutionResult> OpenNaturalShadowBattleResponseAsync(
