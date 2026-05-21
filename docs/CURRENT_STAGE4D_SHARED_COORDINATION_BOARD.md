@@ -62,11 +62,27 @@ Use this file as a lightweight message board:
 ## Current Worktrees
 
 - `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest observed matrix checkpoint is 03RA-03RE integrated from DOC_MATRIX_CURRENT source `fef16864` as `b6a9e3ea`; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; exact HEAD must still be checked before each batch / commit; after this post-commit guard lands, main is expected clean except expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, currently paused with an unresolved sync conflict while merging main post-commit guard `66fd4c4d` into local HEAD `87dfd1ba`. Source `fef16864` was accepted into main as `b6a9e3ea`; local supplemental docs fix `87dfd1ba` has not been accepted / rejected on main yet.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, clean at sync guard `98b150e7` after merging main post-commit guard `66fd4c4d` into local supplemental docs fix `87dfd1ba`. Source `fef16864` was accepted into main as `b6a9e3ea`; local supplemental docs fix `87dfd1ba` has not been accepted / rejected on main yet.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 23:49 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521-next` clean at `98b150e7` (`Merge main 03RA post-commit guard into DOC_MATRIX_CURRENT`).
+
+Write locks: none newly claimed. This is a sync/conflict-resolution status entry only; DOC_MATRIX is still paused from opening the next matrix bundle until A_MAIN decides the supplemental docs fix.
+
+Status: DOC_MATRIX resolved the local merge state by committing the clean merge of main post-commit guard `66fd4c4d` into local HEAD containing supplemental docs fix `87dfd1ba`. The sync merge changed no runtime, frontend, protocol, official catalog, matrix JSON, audit-test baselines, `fullOfficial` or readiness flags. It does not mean main accepted `87dfd1ba`; main still has source `fef16864` accepted as `b6a9e3ea`, while `87dfd1ba` remains a DOC branch supplemental validation-status docs fix. Project remains **NOT READY**.
+
+Validation: after sync merge, DOC_MATRIX passed `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check` and conflict-marker scan. Focused PaymentEngineCoverageAuditTests 697/697, ConformanceFixtureRunnerTests 3019/3019 and backend full 5344/5344 had already passed before the sync merge; they were not rerun because the sync merge only changed current coordination/checkpoint docs and did not change matrix JSON or audit-test baselines.
+
+Requested action: A_MAIN should accept `87dfd1ba` or equivalent validation-status content into main, or explicitly reject it and tell DOC_MATRIX to discard/rework. DOC_MATRIX remains paused and will not continue the no-idle lane until this supplemental-doc decision is recorded.
 
 ### 2026-05-21 23:45 DOC_MATRIX
 
