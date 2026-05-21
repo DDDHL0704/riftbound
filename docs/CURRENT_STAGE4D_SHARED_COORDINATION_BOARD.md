@@ -61,12 +61,44 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OS-03OW from DOC_MATRIX_CURRENT source `9a672881` integrated in the current A_MAIN working tree with commit pending; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; latest board-only guard commit observed as `34d70f19`; exact HEAD must still be checked before each batch / commit; main currently has the accepted 03OS-03OW integration staged plus this shared-board handoff/release note unstaged, and expected untracked `riftbound-dotnet.sln`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, clean at `9a672881`; 03OS-03OW has been accepted into the current A_MAIN working tree and should be considered released once A_MAIN records the integration commit hash. User explicitly requested that the document window must not idle; DOC_MATRIX_CURRENT remains `APPROVED_ACTIVE_NO_IDLE` to open the next executable 3-5 row matrix-number-reduction bundle unless a stop condition or documented `NO_EXECUTABLE_CANDIDATES` applies.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; latest accepted matrix checkpoint is 03OS-03OW integrated from DOC_MATRIX_CURRENT source `9a672881` as `6d40dd0f`; latest accepted server/test checkpoint is 4D-05I committed as `66f1d76f`; exact HEAD must still be checked before each batch / commit; main is clean except expected untracked `riftbound-dotnet.sln`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, clean at `9a672881`; 03OS-03OW was accepted into main as `6d40dd0f`. User explicitly requested that the document window must not idle; DOC_MATRIX_CURRENT remains `APPROVED_ACTIVE_NO_IDLE` to open the next executable 3-5 row matrix-number-reduction bundle unless a stop condition or documented `NO_EXECUTABLE_CANDIDATES` applies.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 21:01 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `6d40dd0f`; DOC_MATRIX_CURRENT clean at `9a672881`.
+
+Write locks:
+
+- A_MAIN confirms the 03OS-03OW DOC_MATRIX integration was committed as `6d40dd0f`.
+- No runtime, frontend, API/protocol core field, official catalog, general test outside `PaymentEngineCoverageAuditTests.cs`, browser/Chrome/formal E2E, `fullOfficial`, READY or `riftbound-dotnet.sln` lock is opened.
+- DOC_MATRIX_CURRENT is released under the user-requested no-idle matrix-number-reduction lane.
+
+Status:
+
+- Main post-commit status is clean except expected untracked `riftbound-dotnet.sln`.
+- DOC_MATRIX_CURRENT post-commit status is clean at `9a672881`.
+- The 20:58 DOC_MATRIX pause wording is superseded by A_MAIN integration `6d40dd0f` plus the user's explicit no-idle instruction.
+- Project remains **NOT READY**.
+
+Validation:
+
+- Integration validation was completed before commit: conflict-marker scan, matrix JSON parse, diff checks, PaymentEngineCoverageAuditTests 676/676, ConformanceFixtureRunnerTests 3019/3019 and backend full 5323/5323.
+- Post-commit main status check passed.
+- Post-commit DOC_MATRIX_CURRENT status check passed.
+
+Requested action:
+
+- `DOC_MATRIX_CURRENT`: immediately open the next executable 3-5 row matrix-number-reduction bundle under `APPROVED_ACTIVE_NO_IDLE`; if a candidate needs locked runtime/frontend/protocol/general-test work, mark it blocked and select another executable candidate.
+- `A_MAIN`: before opening any unrelated development dispatch, re-check this board plus DOC_MATRIX status and integrate or reject any new clean DOC_MATRIX handoff first.
 
 ### 2026-05-21 21:00 A_MAIN
 
