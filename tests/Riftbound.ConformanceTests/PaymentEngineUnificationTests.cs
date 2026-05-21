@@ -1000,6 +1000,91 @@ public sealed class PaymentEngineUnificationTests
         Assert.Equal(["SPEND_POWER:1"], Assert.IsType<string[]>(costEvent.Payload["legalPaymentChoiceIds"]));
         Assert.Equal(0, costEvent.Payload["remainingMana"]);
         Assert.Equal(0, costEvent.Payload["remainingPower"]);
+
+        var clearedPrompt = ResolutionResult.BuildPrompts(result.State)["P1"];
+        Assert.DoesNotContain(
+            clearedPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task PendingPayCostRejectsStaleTemporaryPaymentResourceReplayWithoutMutation()
+    {
+        var temporaryResource = TemporaryResource("MALZAHAR:TEMP-PENDING-PAY-COST-STALE-REPLAY");
+        var paymentResourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var state = PendingGenericPayCostTemporaryResourceState(temporaryResource);
+        var command = new PayCostCommand(
+            "PENDING-PAY-COST-GENERIC-1",
+            "TEST_PENDING_PAY_COST",
+            [paymentResourceAction, "SPEND_POWER:1"]);
+
+        var paid = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-pending-pay-cost-stale-temporary-first", "P1", CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Empty(paid.State.TemporaryPaymentResources);
+        Assert.Empty(paid.State.StackItems);
+        var afterSpendHash = MatchStateHasher.Hash(paid.State);
+
+        var replay = await new CoreRuleEngine().ResolveAsync(
+            paid.State,
+            new PlayerIntent("intent-pending-pay-cost-stale-temporary-replay", "P1", CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Empty(replay.Events);
+        Assert.Equal(afterSpendHash, MatchStateHasher.Hash(replay.State));
+        Assert.Null(replay.State.PendingPayment);
+        Assert.Empty(replay.State.TemporaryPaymentResources);
+        Assert.Empty(replay.State.StackItems);
+    }
+
+    [Theory]
+    [InlineData("wrong-player")]
+    [InlineData("wrong-payment-id")]
+    [InlineData("wrong-payment-window")]
+    public async Task PendingPayCostRejectsWrongPlayerOrWindowTemporaryPaymentResourceWithoutMutation(string scenario)
+    {
+        var temporaryResource = TemporaryResource("MALZAHAR:TEMP-PENDING-PAY-COST-WRONG-WINDOW");
+        var paymentResourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var state = PendingGenericPayCostTemporaryResourceState(temporaryResource);
+        var command = scenario switch
+        {
+            "wrong-payment-id" => new PayCostCommand(
+                "PENDING-PAY-COST-GENERIC-OTHER",
+                "TEST_PENDING_PAY_COST",
+                [paymentResourceAction, "SPEND_POWER:1"]),
+            "wrong-payment-window" => new PayCostCommand(
+                "PENDING-PAY-COST-GENERIC-1",
+                "OTHER_PAYMENT_WINDOW",
+                [paymentResourceAction, "SPEND_POWER:1"]),
+            _ => new PayCostCommand(
+                "PENDING-PAY-COST-GENERIC-1",
+                "TEST_PENDING_PAY_COST",
+                [paymentResourceAction, "SPEND_POWER:1"])
+        };
+        var intentPlayerId = scenario == "wrong-player" ? "P2" : "P1";
+        var initialHash = MatchStateHasher.Hash(state);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent($"intent-pending-pay-cost-temporary-{scenario}", intentPlayerId, CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Empty(result.Events);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+        Assert.NotNull(result.State.PendingPayment);
+        Assert.Single(result.State.TemporaryPaymentResources);
+        Assert.Empty(result.State.StackItems);
+        Assert.Equal(PlayerZones.Empty, result.State.PlayerZones["P1"]);
+        Assert.Equal(PlayerZones.Empty, result.State.PlayerZones["P2"]);
     }
 
     [Fact]

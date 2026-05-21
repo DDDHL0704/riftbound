@@ -112,6 +112,50 @@ public sealed class ResourceConversionEquipmentResourceSkillTests
     }
 
     [Fact]
+    public async Task EnergyChannelGeneratedResourceManaCannotBeSpentTwiceWithoutMutation()
+    {
+        var gained = await ResolveAsync(
+            BuildPriorityState(RunePool.Empty),
+            EnergyChannelObjectId,
+            P4ActivatedAbilityCatalog.EnergyChannelResourceAbilityId);
+        Assert.True(gained.Accepted, gained.ErrorMessage);
+
+        var pendingPayment = new PendingPaymentState(
+            "PAY-ENERGY-CHANNEL-MANA-1",
+            "TEST_PENDING_PAY_COST",
+            "P1",
+            manaCost: 1,
+            legalPaymentChoiceIds: ["SPEND_MANA:1"]);
+        var paymentState = gained.State with
+        {
+            PendingPayment = pendingPayment
+        };
+        var paid = await new CoreRuleEngine().ResolveAsync(
+            paymentState,
+            new PlayerIntent("intent-energy-channel-generated-mana-first", "P1", CommandTypes.PayCost),
+            new PayCostCommand(pendingPayment.PaymentId, pendingPayment.PaymentWindow, ["SPEND_MANA:1"]),
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Equal(RunePool.Empty, paid.State.RunePools["P1"]);
+        Assert.Equal([PendingStackItemId], paid.State.StackItems.Select(item => item.StackItemId).ToArray());
+        var afterSpendHash = MatchStateHasher.Hash(paid.State);
+
+        var duplicate = await new CoreRuleEngine().ResolveAsync(
+            paid.State,
+            new PlayerIntent("intent-energy-channel-generated-mana-second", "P1", CommandTypes.PayCost),
+            new PayCostCommand(pendingPayment.PaymentId, pendingPayment.PaymentWindow, ["SPEND_MANA:1"]),
+            CancellationToken.None);
+
+        Assert.False(duplicate.Accepted);
+        Assert.Empty(duplicate.Events);
+        Assert.Equal(afterSpendHash, MatchStateHasher.Hash(duplicate.State));
+        Assert.Equal(RunePool.Empty, duplicate.State.RunePools["P1"]);
+        Assert.Equal([PendingStackItemId], duplicate.State.StackItems.Select(item => item.StackItemId).ToArray());
+    }
+
+    [Fact]
     public async Task AncientSteleConvertsManaToGenericTemporaryPaymentResource()
     {
         var result = await ResolveAsync(
