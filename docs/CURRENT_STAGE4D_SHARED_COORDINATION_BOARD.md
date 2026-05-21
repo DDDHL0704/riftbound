@@ -56,12 +56,78 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest Stage 4 dispatch checkpoint is `6e4829fb` (`docs: dispatch pending pay cost illegal choice guard`); later coordination-only board-sync commits may exist and are not DOC_MATRIX blockers; latest accepted server/test checkpoint is 4D-05A pending this checkpoint commit, and latest integrated DOC_MATRIX source commit is `1bb61d18`.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local matrix commit `1bb61d18`; 03NU-03NX clean handoff passed A_MAIN validation and was committed in main as `28674491`, and the rolling lane remains approved by the 17:22 / 17:27 A_MAIN entries below.
+- `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; exact HEAD must be checked before each batch / commit; latest accepted server/test checkpoint is 4D-05A, 4D-05B dispatch is queued but B worker must not start until DOC_MATRIX source commit `117ca9ab` is integrated or rejected, and latest integrated DOC_MATRIX source commit is `1bb61d18`.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521`, latest local matrix commit `117ca9ab`; 03NU-03NX clean handoff passed A_MAIN validation and was committed in main as `28674491`, 03NY-03OC clean handoff is ready for A_MAIN integration, and the rolling lane remains approved by the 17:22 / 17:27 / 17:31 A_MAIN entries below.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-21 17:42 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Branch / commit: `main` at `e13cd6f8`; 4D-05B dispatch docs are being committed, but B worker dispatch is held until DOC_MATRIX `117ca9ab` integration finishes.
+
+Write locks:
+
+- A_MAIN prepares B_SERVER 4D-05B runtime-test lock via `docs/CURRENT_STAGE4D_05B_PAYMENTENGINE_PENDING_PAY_COST_TEMPORARY_RESOURCE_GUARD_B_WORKER_PROMPT.md`.
+- B allowed scope after release: `tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs`, optional helper extraction inside that file, `src/Riftbound.Engine/CoreRuleEngine.cs` only if a runtime bug is exposed, and optional 05B audit/evidence docs.
+- B locked scope: matrix JSON, `PaymentEngineCoverageAuditTests.cs`, frontend, official catalog, protocol core fields, browser/Chrome/formal E2E scripts, `fullOfficial`, READY and `riftbound-dotnet.sln`.
+- A_MAIN sees DOC_MATRIX_CURRENT clean handoff `117ca9ab`; no B worker should start until A_MAIN integrates or rejects that handoff.
+
+Status:
+
+- 4D-05B target is active ordinary non-trigger pending `PAY_COST` temporary/generated payment-resource guards: correct player / `paymentId` / `paymentWindow`, but forged, missing, wrong-owner, exhausted, wrong-kind, duplicate or unnecessary temporary resource action must reject without mutation and preserve the pending payment / prompt.
+- DOC_MATRIX_CURRENT has completed 03NY-03OC and is paused at clean `117ca9ab`, pending A_MAIN integration.
+- This is P0-005 rollback/revalidation narrowing evidence only. Project remains **NOT READY**.
+
+Validation:
+
+- Dispatch/coordination-only entry; A_MAIN checked main and DOC_MATRIX statuses and did not run runtime tests for this entry.
+
+Requested action:
+
+- `A_MAIN`: commit this 05B dispatch documentation, then integrate or reject DOC_MATRIX_CURRENT `117ca9ab` before starting B_SERVER 05B implementation.
+- `DOC_MATRIX_CURRENT`: remain paused at `117ca9ab` until A_MAIN records integration / rejection.
+- `B_SERVER`: wait for A_MAIN release before starting 05B.
+
+### 2026-05-21 17:42 DOC_MATRIX_CURRENT
+
+Owner: `DOC_MATRIX_CURRENT`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: `codex/stage4d-matrix-docs-current-20260521` at clean `117ca9ab` (`checkpoint: stage 4D matrix 03NY-03OC SFD evidence bundle sync`).
+
+Write locks:
+
+- Used the 17:31 A_MAIN answer and rolling DOC_MATRIX approval.
+- Touched only matrix/current docs, new 03NY-03OC candidate/audit docs, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` residual expected-count / current-slice guard synchronization.
+- Runtime, frontend, API/protocol core fields, official catalog snapshots, general tests outside `PaymentEngineCoverageAuditTests.cs`, browser / Chrome / formal E2E scripts, `fullOfficial`, final readiness state and `riftbound-dotnet.sln` remain locked.
+
+Status:
+
+- 03NY-03OC closes only the row-level `NEEDS_ENGINE_SUPPORT` blocker for five SFD payment-cost rows: Predictive Offensive (`FU-f8a1c01b1f` / `SFD·122/221`), Master Bingwen (`FU-000f38461c` / `SFD·127/221`), Ancient Berserker (`FU-807ad1d0c7` / `SFD·131/221`), Windsong Wing (`FU-e8ab25c204` / `SFD·138/221`) and SFD Fizz (`FU-5085d2421e` / `SFD·140/221`).
+- Counts move all FU `NEEDS_ENGINE_SUPPORT 536 -> 531`, payment-cost `138 -> 133`, primary residual `98 -> 93`, targeting-stack-timing `281 -> 276`, cleanup-replacement-duration `210 -> 210`, hidden-info-random-zone `175 -> 172`, payment-or-targeting-stack-timing `325 -> 320`, payment-and-targeting-stack-timing `94 -> 89`; `NEEDS_AUTOMATED_TEST_EVIDENCE=328`, `NEEDS_FAQ_REVIEW=92`, primary FAQ residual `61`, `fullOfficialTrue=0`, `ready=false`.
+- Project remains **NOT READY**.
+- DOC_MATRIX_CURRENT is pausing after this one completed batch per the user request and is not opening 03OD+ until told to continue.
+
+Validation:
+
+- `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`: passed.
+- `git diff --check`: passed.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PaymentEngineCoverageAuditTests"`: passed 669/669 after final doc status update.
+- `source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~PredictiveOffensive|FullyQualifiedName~MasterBingwen|FullyQualifiedName~AncientBerserker|FullyQualifiedName~WindsongWing|FullyQualifiedName~Fizz"`: passed 7/7.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed 5245/5245.
+- `git diff --cached --check`: passed before commit.
+
+Requested action:
+
+- `A_MAIN`: integrate or reject DOC_MATRIX_CURRENT commit `117ca9ab`, then record the result here.
+- `DOC_MATRIX_CURRENT`: pause at this batch boundary until the user or A_MAIN asks for another batch.
 
 ### 2026-05-21 17:39 A_MAIN
 
