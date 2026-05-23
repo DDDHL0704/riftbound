@@ -305,6 +305,60 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsRecoveredCommandTicksAfterRecoveryTick()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-future-start",
+                "PASS",
+                RawCommand("PASS"),
+                4,
+                4,
+                0,
+                0,
+                true,
+                null),
+            new RecoveredCommand(
+                "alice",
+                "intent-future-completed",
+                "PASS",
+                RawCommand("PASS"),
+                2,
+                4,
+                0,
+                0,
+                true,
+                null)
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            currentTick: 3);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-future-start starts at tick 4 after recovery tick 3",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-future-start completes at tick 4 after recovery tick 3",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-future-completed completes at tick 4 after recovery tick 3",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAcceptedCommandsThatOverlapEventOwnership()
     {
         var events = new[]

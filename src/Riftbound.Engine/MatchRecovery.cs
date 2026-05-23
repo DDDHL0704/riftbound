@@ -466,7 +466,7 @@ public static class MatchRecoveryValidator
         }
 
         ValidateEvents(currentTick, lastEventSequence, events, errors);
-        ValidateCommands(lastEventSequence, commands, events, errors);
+        ValidateCommands(currentTick, lastEventSequence, commands, events, errors);
         ValidatePlayerViews(currentTick, lastEventSequence, playerViews, errors);
         ValidatePlayerViewAgreement(playerViews, errors);
         ValidateAuthoritativeState(roomId, currentTick, authoritativeState, playerViews, errors);
@@ -559,6 +559,7 @@ public static class MatchRecoveryValidator
     }
 
     private static void ValidateCommands(
+        long? currentTick,
         long lastEventSequence,
         IReadOnlyList<RecoveredCommand> commands,
         IReadOnlyList<RecoveredEvent> events,
@@ -597,6 +598,21 @@ public static class MatchRecoveryValidator
             {
                 errors.Add(
                     $"command {command.ClientIntentId} completes before tick start: {command.StartedTick}->{command.CompletedTick}");
+            }
+
+            if (currentTick is { } recoveryTick)
+            {
+                if (command.StartedTick > recoveryTick)
+                {
+                    errors.Add(
+                        $"command {command.ClientIntentId} starts at tick {command.StartedTick} after recovery tick {recoveryTick}");
+                }
+
+                if (command.CompletedTick > recoveryTick)
+                {
+                    errors.Add(
+                        $"command {command.ClientIntentId} completes at tick {command.CompletedTick} after recovery tick {recoveryTick}");
+                }
             }
 
             if (command.CompletedEventSequence < command.StartedEventSequence)
