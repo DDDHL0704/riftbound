@@ -467,7 +467,7 @@ public static class MatchRecoveryValidator
 
         ValidateEvents(lastEventSequence, events, errors);
         ValidateCommands(lastEventSequence, commands, events, errors);
-        ValidatePlayerViews(lastEventSequence, playerViews, errors);
+        ValidatePlayerViews(currentTick, lastEventSequence, playerViews, errors);
         ValidatePlayerViewAgreement(playerViews, errors);
         ValidateAuthoritativeState(roomId, currentTick, authoritativeState, playerViews, errors);
         ValidateSpectatorReplayFrame(
@@ -661,6 +661,7 @@ public static class MatchRecoveryValidator
     }
 
     private static void ValidatePlayerViews(
+        long? currentTick,
         long lastEventSequence,
         IReadOnlyDictionary<string, RecoveredPlayerView> playerViews,
         List<string> errors)
@@ -678,6 +679,12 @@ public static class MatchRecoveryValidator
                     $"snapshot for {view.PlayerId} has payload tick {view.Snapshot.Tick} but row tick {view.SnapshotTick}");
             }
 
+            if (currentTick is { } recoveryTick && view.SnapshotTick > recoveryTick)
+            {
+                errors.Add(
+                    $"snapshot for {view.PlayerId} has row tick {view.SnapshotTick} after recovery tick {recoveryTick}");
+            }
+
             if (view.SnapshotEventSequence > lastEventSequence)
             {
                 errors.Add(
@@ -688,6 +695,14 @@ public static class MatchRecoveryValidator
             {
                 errors.Add(
                     $"prompt for {view.PlayerId} points to future event sequence {view.PromptEventSequence}");
+            }
+
+            if (currentTick is { } currentRecoveryTick
+                && view.PromptTick is { } futurePromptRowTick
+                && futurePromptRowTick > currentRecoveryTick)
+            {
+                errors.Add(
+                    $"prompt for {view.PlayerId} has row tick {futurePromptRowTick} after recovery tick {currentRecoveryTick}");
             }
 
             if (view.Prompt is not null

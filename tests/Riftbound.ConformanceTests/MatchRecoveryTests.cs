@@ -86,6 +86,37 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsPlayerViewTicksAfterRecoveryTick()
+    {
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = PlayerView("alice", 4, 0) with
+            {
+                PromptTick = 5
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            playerViews,
+            currentTick: 3);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice has row tick 4 after recovery tick 3",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "prompt for alice has row tick 5 after recovery tick 3",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsOutOfOrderRecoveredEvents()
     {
         var events = new[]
