@@ -465,7 +465,7 @@ public static class MatchRecoveryValidator
             errors.Add("last event sequence cannot be negative");
         }
 
-        ValidateEvents(lastEventSequence, events, errors);
+        ValidateEvents(currentTick, lastEventSequence, events, errors);
         ValidateCommands(lastEventSequence, commands, events, errors);
         ValidatePlayerViews(currentTick, lastEventSequence, playerViews, errors);
         ValidatePlayerViewAgreement(playerViews, errors);
@@ -482,6 +482,7 @@ public static class MatchRecoveryValidator
     }
 
     private static void ValidateEvents(
+        long? currentTick,
         long lastEventSequence,
         IReadOnlyList<RecoveredEvent> events,
         List<string> errors)
@@ -504,6 +505,7 @@ public static class MatchRecoveryValidator
         }
 
         var previousFrameSequence = 0L;
+        var previousFrameTick = 0L;
         foreach (var gameEvent in events)
         {
             if (gameEvent.Sequence <= previousFrameSequence)
@@ -512,7 +514,30 @@ public static class MatchRecoveryValidator
                     $"event stream is not ordered by sequence: {gameEvent.Sequence} after {previousFrameSequence}");
             }
 
+            if (gameEvent.Tick < 0)
+            {
+                errors.Add($"event sequence {gameEvent.Sequence} has negative tick {gameEvent.Tick}");
+            }
+
+            if (gameEvent.Order < 0)
+            {
+                errors.Add($"event sequence {gameEvent.Sequence} has negative order {gameEvent.Order}");
+            }
+
+            if (currentTick is { } recoveryTick && gameEvent.Tick > recoveryTick)
+            {
+                errors.Add(
+                    $"event sequence {gameEvent.Sequence} has tick {gameEvent.Tick} after recovery tick {recoveryTick}");
+            }
+
+            if (gameEvent.Tick < previousFrameTick)
+            {
+                errors.Add(
+                    $"event sequence {gameEvent.Sequence} tick {gameEvent.Tick} is before previous event tick {previousFrameTick}");
+            }
+
             previousFrameSequence = gameEvent.Sequence;
+            previousFrameTick = gameEvent.Tick;
         }
 
         var previous = 0L;

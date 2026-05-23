@@ -170,6 +170,52 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsInvalidRecoveredEventTickAndOrder()
+    {
+        var events = new[]
+        {
+            new RecoveredEvent(
+                1,
+                -1,
+                0,
+                new GameEvent("NEGATIVE_TICK", "negative tick", new Dictionary<string, object?>())),
+            new RecoveredEvent(
+                2,
+                4,
+                -1,
+                new GameEvent("FUTURE_EVENT", "future event", new Dictionary<string, object?>())),
+            new RecoveredEvent(
+                3,
+                2,
+                0,
+                new GameEvent("BACKWARD_TICK", "backward tick", new Dictionary<string, object?>()))
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            3,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            currentTick: 3);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("event sequence 1 has negative tick -1", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("event sequence 2 has negative order -1", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("event sequence 2 has tick 4 after recovery tick 3", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "event sequence 3 tick 2 is before previous event tick 4",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsRejectedCommandsThatAdvanceTickOrRecordEvents()
     {
         var events = new[]
