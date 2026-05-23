@@ -286,6 +286,30 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsBlankRecoveredEventKind()
+    {
+        var events = new[]
+        {
+            new RecoveredEvent(
+                1,
+                0,
+                0,
+                new GameEvent(" ", "blank kind", new Dictionary<string, object?>()))
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            1,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("event sequence 1 kind is required", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsRejectedCommandsThatAdvanceTickOrRecordEvents()
     {
         var events = new[]

@@ -518,6 +518,11 @@ public static class MatchRecoveryValidator
                 errors.Add($"event sequence value {gameEvent.Sequence} must be positive");
             }
 
+            if (string.IsNullOrWhiteSpace(gameEvent.Event.Kind))
+            {
+                errors.Add($"event sequence {gameEvent.Sequence} kind is required");
+            }
+
             if (gameEvent.Sequence <= previousFrameSequence)
             {
                 errors.Add(
