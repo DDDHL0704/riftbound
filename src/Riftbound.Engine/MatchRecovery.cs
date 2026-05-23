@@ -440,6 +440,9 @@ public sealed class NoopMatchRecoveryStore : IMatchRecoveryStore
 
 public static class MatchRecoveryValidator
 {
+    private const string DevSeedScenarioPrefix = "DEV_SEED_SCENARIO:";
+    private const string DevSeedScenarioCommandType = "DEV_SEED_SCENARIO";
+
     public static IReadOnlyList<string> Validate(
         string roomId,
         long lastEventSequence,
@@ -533,6 +536,13 @@ public static class MatchRecoveryValidator
                     $"command {command.ClientIntentId} has negative started event sequence {command.StartedEventSequence}");
             }
 
+            if (TryReadRawCommandType(command.RawCommand, out var rawCommandType)
+                && !string.Equals(rawCommandType, ExpectedRawCommandType(command.CommandType), StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} raw cmdType {rawCommandType} does not match recovered command type {command.CommandType}");
+            }
+
             if (command.StartedTick < 0)
             {
                 errors.Add(
@@ -602,6 +612,33 @@ public static class MatchRecoveryValidator
                 }
             }
         }
+    }
+
+    private static bool TryReadRawCommandType(JsonElement? rawCommand, out string commandType)
+    {
+        commandType = string.Empty;
+        if (rawCommand is not { ValueKind: JsonValueKind.Object } raw
+            || !raw.TryGetProperty("cmdType", out var rawCommandType)
+            || rawCommandType.ValueKind != JsonValueKind.String)
+        {
+            return false;
+        }
+
+        var value = rawCommandType.GetString();
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        commandType = value.Trim();
+        return true;
+    }
+
+    private static string ExpectedRawCommandType(string recoveredCommandType)
+    {
+        return recoveredCommandType.StartsWith(DevSeedScenarioPrefix, StringComparison.Ordinal)
+            ? DevSeedScenarioCommandType
+            : recoveredCommandType;
     }
 
     private static void ValidatePlayerViews(

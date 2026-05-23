@@ -197,6 +197,70 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsRawCommandTypeMismatch()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-mismatched-raw",
+                "PASS",
+                RawCommand("END_TURN"),
+                2,
+                2,
+                0,
+                0,
+                false,
+                "mismatched raw command")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-mismatched-raw raw cmdType END_TURN does not match recovered command type PASS",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorAcceptsDevSeedScenarioRawCommandType()
+    {
+        var events = new[]
+        {
+            RecoveredEvent(1, "DEV_SCENARIO_SEEDED")
+        };
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-dev-seed",
+                "DEV_SEED_SCENARIO:basic-play",
+                RawDevSeedCommand("basic-play"),
+                0,
+                1,
+                0,
+                1,
+                true,
+                null)
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            1,
+            commands,
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Empty(errors);
+    }
+
+    [Fact]
     public void RecoveryFrameComputesReplayTailFromEarliestPlayerSnapshot()
     {
         var events = new[]
@@ -1203,6 +1267,11 @@ public sealed class MatchRecoveryTests
     private static JsonElement RawCommand(string cmdType)
     {
         return JsonDocument.Parse($$"""{"cmdType":"{{cmdType}}"}""").RootElement.Clone();
+    }
+
+    private static JsonElement RawDevSeedCommand(string scenarioId)
+    {
+        return JsonDocument.Parse($$"""{"cmdType":"DEV_SEED_SCENARIO","scenarioId":"{{scenarioId}}"}""").RootElement.Clone();
     }
 
     private sealed class FixedRecoveryStore(MatchRecoveryFrame? frame) : IMatchRecoveryStore
