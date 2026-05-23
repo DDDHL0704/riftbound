@@ -922,9 +922,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return Complete(ResolvePassFocus(state, intent));
         }
 
-        if (command is PassPriorityCommand
-            && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-            && string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal))
+        if (command is PassPriorityCommand)
         {
             return Complete(RejectWithCorePrompts(
                 state,
