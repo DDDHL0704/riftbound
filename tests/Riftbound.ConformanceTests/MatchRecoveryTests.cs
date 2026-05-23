@@ -147,6 +147,36 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsNegativePlayerViewRowMetadata()
+    {
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = PlayerView("alice", 0, 0) with
+            {
+                SnapshotTick = -1,
+                SnapshotEventSequence = -2,
+                PromptTick = -3,
+                PromptEventSequence = -4
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("snapshot for alice has negative row tick -1", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("snapshot for alice has negative event sequence -2", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("prompt for alice has negative row tick -3", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("prompt for alice has negative event sequence -4", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsOutOfOrderRecoveredEvents()
     {
         var events = new[]

@@ -786,10 +786,21 @@ public static class MatchRecoveryValidator
                     $"snapshot for {view.PlayerId} has payload tick {view.Snapshot.Tick} but row tick {view.SnapshotTick}");
             }
 
+            if (view.SnapshotTick < 0)
+            {
+                errors.Add($"snapshot for {view.PlayerId} has negative row tick {view.SnapshotTick}");
+            }
+
             if (currentTick is { } recoveryTick && view.SnapshotTick > recoveryTick)
             {
                 errors.Add(
                     $"snapshot for {view.PlayerId} has row tick {view.SnapshotTick} after recovery tick {recoveryTick}");
+            }
+
+            if (view.SnapshotEventSequence < 0)
+            {
+                errors.Add(
+                    $"snapshot for {view.PlayerId} has negative event sequence {view.SnapshotEventSequence}");
             }
 
             if (view.SnapshotEventSequence > lastEventSequence)
@@ -816,6 +827,17 @@ public static class MatchRecoveryValidator
             {
                 errors.Add(
                     $"prompt for {view.PlayerId} points to future event sequence {view.PromptEventSequence}");
+            }
+
+            if (view.PromptTick is { } negativePromptRowTick && negativePromptRowTick < 0)
+            {
+                errors.Add($"prompt for {view.PlayerId} has negative row tick {negativePromptRowTick}");
+            }
+
+            if (view.PromptEventSequence is { } negativePromptEventSequence && negativePromptEventSequence < 0)
+            {
+                errors.Add(
+                    $"prompt for {view.PlayerId} has negative event sequence {negativePromptEventSequence}");
             }
 
             if (currentTick is { } currentRecoveryTick
