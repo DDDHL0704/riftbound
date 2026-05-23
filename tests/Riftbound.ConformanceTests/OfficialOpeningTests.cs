@@ -2144,6 +2144,7 @@ public sealed class OfficialOpeningTests
         var secondPlayerId = finalReady.State.OpeningSecondActionPlayerId!;
         Assert.NotEqual(activePlayerId, secondPlayerId);
         AssertOfficialReadyMulliganPromptQueueAudit(finalReady, activePlayerId, secondPlayerId);
+        Assert.Equal(finalReady.Prompts[activePlayerId].SnapshotTick, prompt.SnapshotTick);
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
@@ -2184,6 +2185,152 @@ public sealed class OfficialOpeningTests
             Assert.DoesNotContain(CommandTypes.SubmitDeck, replayPrompt.Actions);
             Assert.DoesNotContain(
                 replayPrompt.Candidates ?? [],
+                candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
+                    || string.Equals(candidate.Action, CommandTypes.SubmitDeck, StringComparison.Ordinal));
+        }
+    }
+
+    [Fact]
+    public Task PromptIdOnlyFirstReadyBothDecksPromptReplayAfterFinalReadyRejectsWithoutMutation()
+    {
+        return AssertFirstReadyBothDecksEnvelopeAfterFinalReadyRejectsWithoutMutation(
+            "official-first-ready-prompt-id-only-after-final-ready-room",
+            "ready-p1-both-decks-prompt-id-only-replay-after-final-ready",
+            PromptIdOnlyReadyRawCommand,
+            "行动窗口已过期，请按最新提示重新提交。");
+    }
+
+    [Fact]
+    public Task SnapshotOnlyFirstReadyBothDecksPromptAfterFinalReadyAcceptsWithoutMutation()
+    {
+        return AssertFirstReadyBothDecksEnvelopeAfterFinalReadyRejectsWithoutMutation(
+            "official-first-ready-snapshot-only-after-final-ready-room",
+            "ready-p1-both-decks-snapshot-only-after-final-ready",
+            prompt =>
+            {
+                Assert.NotNull(prompt.SnapshotTick);
+                return SnapshotOnlyReadyRawCommand(prompt.SnapshotTick.Value);
+            },
+            expectedAccepted: true);
+    }
+
+    private static async Task AssertFirstReadyBothDecksEnvelopeAfterFinalReadyRejectsWithoutMutation(
+        string sessionName,
+        string intentId,
+        Func<ActionPromptDto, JsonElement> replayCommandFactory,
+        string? expectedMessage = null,
+        bool expectedAccepted = false)
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildValidDeck(catalog);
+        var p2Deck = BuildValidDeck(catalog);
+        var session = new MatchSession(sessionName, new CoreRuleEngine());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        await session.SubmitDeckAsync(
+            "P1",
+            "submit-p1",
+            ToSubmitCommand(p1Deck),
+            RawCommand("SUBMIT_DECK"),
+            CancellationToken.None);
+        var bothSubmitted = await session.SubmitDeckAsync(
+            "P2",
+            "submit-p2",
+            ToSubmitCommand(p2Deck),
+            RawCommand("SUBMIT_DECK"),
+            CancellationToken.None);
+
+        Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
+        AssertOfficialSubmitDeckBothReadyPromptQueueAudit(bothSubmitted, p1Deck, p2Deck);
+
+        var prompt = bothSubmitted.Prompts["P1"];
+        Assert.True(prompt.Actionable);
+        Assert.Equal(["READY"], prompt.Actions);
+
+        var firstReady = await session.ReadyAsync(
+            "P1",
+            "ready-p1-both-decks-prompt-accepted",
+            PromptScopedReadyRawCommand(prompt),
+            CancellationToken.None);
+
+        Assert.True(firstReady.Accepted, firstReady.ErrorMessage);
+        Assert.Equal(1, firstReady.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "PLAYER_READY", StringComparison.Ordinal)));
+        Assert.DoesNotContain(firstReady.Events, gameEvent => string.Equals(gameEvent.Kind, "OFFICIAL_OPENING_STARTED", StringComparison.Ordinal));
+        Assert.DoesNotContain(firstReady.Events, gameEvent => string.Equals(gameEvent.Kind, "MATCH_STARTED", StringComparison.Ordinal));
+        AssertOfficialSingleReadyBothDecksPromptQueueAudit(firstReady, "P1", "P2", p1Deck, p2Deck);
+
+        var finalReady = await session.ReadyAsync(
+            "P2",
+            "ready-p2-after-first-ready",
+            RawCommand("READY"),
+            CancellationToken.None);
+
+        Assert.True(finalReady.Accepted, finalReady.ErrorMessage);
+        Assert.Equal(MatchStatuses.InProgress, finalReady.State.Status);
+        Assert.Equal(MatchPhases.Mulligan, finalReady.State.Phase);
+        Assert.Equal(TimingStates.Mulligan, finalReady.State.TimingState);
+        Assert.Equal(["P1", "P2"], finalReady.State.ReadyPlayerIds);
+        Assert.Contains(finalReady.Events, gameEvent => string.Equals(gameEvent.Kind, "PLAYER_READY", StringComparison.Ordinal));
+        Assert.Contains(finalReady.Events, gameEvent => string.Equals(gameEvent.Kind, "OFFICIAL_OPENING_STARTED", StringComparison.Ordinal));
+        Assert.Contains(finalReady.Events, gameEvent => string.Equals(gameEvent.Kind, "MATCH_STARTED", StringComparison.Ordinal));
+
+        var activePlayerId = finalReady.State.ActivePlayerId;
+        var secondPlayerId = finalReady.State.OpeningSecondActionPlayerId!;
+        Assert.NotEqual(activePlayerId, secondPlayerId);
+        AssertOfficialReadyMulliganPromptQueueAudit(finalReady, activePlayerId, secondPlayerId);
+
+        foreach (var finalReadyPrompt in finalReady.Prompts.Values)
+        {
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(
+                finalReadyPrompt.Candidates ?? [],
+                candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
+                    || string.Equals(candidate.Action, CommandTypes.SubmitDeck, StringComparison.Ordinal));
+        }
+
+        var finalReadyHash = MatchStateHasher.Hash(finalReady.State);
+        var result = await session.ReadyAsync(
+            "P1",
+            intentId,
+            replayCommandFactory(prompt),
+            CancellationToken.None);
+
+        if (expectedAccepted)
+        {
+            Assert.True(result.Accepted, result.ErrorMessage);
+        }
+        else
+        {
+            Assert.False(result.Accepted);
+            Assert.Equal(ErrorCodes.PromptExpired, result.ErrorCode);
+            Assert.Equal(expectedMessage, result.ErrorMessage);
+        }
+
+        Assert.Empty(result.Events);
+        Assert.Equal(finalReadyHash, MatchStateHasher.Hash(result.State));
+        Assert.Equal(finalReady.State.Tick, result.State.Tick);
+        Assert.Equal(finalReady.State.RngCursor, result.State.RngCursor);
+        Assert.Equal(finalReady.State.ReadyPlayerIds, result.State.ReadyPlayerIds);
+        Assert.Equal(finalReady.State.PlayerZones[activePlayerId].Hand, result.State.PlayerZones[activePlayerId].Hand);
+        Assert.Equal(finalReady.State.PlayerZones[secondPlayerId].Hand, result.State.PlayerZones[secondPlayerId].Hand);
+        Assert.Equal(finalReady.State.PlayerZones[activePlayerId].MainDeck, result.State.PlayerZones[activePlayerId].MainDeck);
+        Assert.Equal(finalReady.State.PlayerZones[secondPlayerId].MainDeck, result.State.PlayerZones[secondPlayerId].MainDeck);
+        Assert.Equal(finalReady.State.MulliganCompletedPlayerIds, result.State.MulliganCompletedPlayerIds);
+        Assert.Equal(finalReady.State.OpeningSecondActionPlayerId, result.State.OpeningSecondActionPlayerId);
+        AssertOfficialReadyMulliganPromptQueueAudit(result, activePlayerId, secondPlayerId);
+        Assert.Equal(finalReady.Prompts[activePlayerId].PromptId, result.Prompts[activePlayerId].PromptId);
+        Assert.Equal(finalReady.Prompts[activePlayerId].SnapshotTick, result.Prompts[activePlayerId].SnapshotTick);
+        Assert.Equal(finalReady.Prompts[secondPlayerId].PromptId, result.Prompts[secondPlayerId].PromptId);
+        Assert.Equal(finalReady.Prompts[secondPlayerId].SnapshotTick, result.Prompts[secondPlayerId].SnapshotTick);
+
+        foreach (var rejectedPrompt in result.Prompts.Values)
+        {
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(
+                rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
                     || string.Equals(candidate.Action, CommandTypes.SubmitDeck, StringComparison.Ordinal));
         }
