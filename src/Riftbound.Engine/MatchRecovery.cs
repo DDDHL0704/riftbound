@@ -191,6 +191,12 @@ public static class MatchActionLogReplayer
                     $"command {command.ClientIntentId} accepted={result.Accepted} but recovered accepted={command.Accepted}");
             }
 
+            if (!string.Equals(result.ErrorMessage, command.ErrorMessage, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} error message {FormatReplayError(result.ErrorMessage)} but recovered error message {FormatReplayError(command.ErrorMessage)}");
+            }
+
             if (result.State.Tick != command.CompletedTick)
             {
                 errors.Add(
@@ -219,6 +225,11 @@ public static class MatchActionLogReplayer
             replayedHash,
             expectedHash,
             errors);
+    }
+
+    private static string FormatReplayError(string? errorMessage)
+    {
+        return errorMessage is null ? "<null>" : $"\"{errorMessage}\"";
     }
 
     private static async ValueTask<ResolutionResult> ReplayCommandAsync(

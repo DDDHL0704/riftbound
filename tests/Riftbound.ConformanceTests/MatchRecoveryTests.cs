@@ -562,6 +562,87 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public async Task ActionLogReplayerReplaysAcceptedAndRejectedCommandDiagnosticsToFinalStateHash()
+    {
+        var initialState = ReplayInitialState();
+        var journal = new RecordingMatchJournal();
+        var liveSession = new MatchSession(initialState, new PlaceholderRuleEngine(), journal);
+        await liveSession.SubmitAsync("alice", "intent-pass", new PassCommand(), RawCommand("PASS"), CancellationToken.None);
+        await liveSession.SubmitAsync(
+            "alice",
+            "intent-unsupported",
+            new UnsupportedCommand("UNKNOWN_RECOVERY_TEST", RawCommand("UNKNOWN_RECOVERY_TEST")),
+            RawCommand("UNKNOWN_RECOVERY_TEST"),
+            CancellationToken.None);
+        await liveSession.SubmitAsync(
+            "alice",
+            "intent-end-turn",
+            new EndTurnCommand(),
+            RawCommand("END_TURN"),
+            CancellationToken.None);
+        await liveSession.SubmitAsync(
+            "bob",
+            "intent-surrender",
+            new SurrenderCommand(),
+            RawCommand("SURRENDER"),
+            CancellationToken.None);
+        var expectedFinalState = journal.Entries[^1].AuthoritativeState;
+        var recoveredCommands = journal.Entries.Select(ToRecoveredCommand).ToArray();
+
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(
+            initialState,
+            recoveredCommands,
+            expectedFinalState,
+            new PlaceholderRuleEngine(),
+            CancellationToken.None);
+
+        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+        Assert.Equal(MatchStateHasher.Hash(expectedFinalState), replay.ExpectedStateHash);
+        Assert.Equal(replay.ExpectedStateHash, replay.ReplayedStateHash);
+        Assert.Empty(replay.Errors);
+        var rejected = Assert.Single(journal.Entries, entry => !entry.Accepted);
+        Assert.Equal("UNKNOWN_RECOVERY_TEST", rejected.CommandType);
+        Assert.Equal("当前命令不受服务端支持。", rejected.ErrorMessage);
+        Assert.Equal(rejected.StartedTick, rejected.CompletedTick);
+        Assert.Equal(rejected.StartedEventSequence, rejected.CompletedEventSequence);
+    }
+
+    [Fact]
+    public async Task ActionLogReplayerReportsRejectedCommandDiagnosticMismatch()
+    {
+        var initialState = ReplayInitialState();
+        var journal = new RecordingMatchJournal();
+        var liveSession = new MatchSession(initialState, new PlaceholderRuleEngine(), journal);
+        await liveSession.SubmitAsync(
+            "alice",
+            "intent-unsupported",
+            new UnsupportedCommand("UNKNOWN_RECOVERY_TEST", RawCommand("UNKNOWN_RECOVERY_TEST")),
+            RawCommand("UNKNOWN_RECOVERY_TEST"),
+            CancellationToken.None);
+        var expectedFinalState = journal.Entries[^1].AuthoritativeState;
+        var recoveredCommands = journal.Entries
+            .Select(ToRecoveredCommand)
+            .Select(command => string.Equals(command.ClientIntentId, "intent-unsupported", StringComparison.Ordinal)
+                ? command with { ErrorMessage = "tampered recovered diagnostic" }
+                : command)
+            .ToArray();
+
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(
+            initialState,
+            recoveredCommands,
+            expectedFinalState,
+            new PlaceholderRuleEngine(),
+            CancellationToken.None);
+
+        Assert.False(replay.IsMatch);
+        Assert.Equal(replay.ExpectedStateHash, replay.ReplayedStateHash);
+        Assert.Contains(
+            replay.Errors,
+            error => error.Contains("command intent-unsupported error message", StringComparison.Ordinal)
+                && error.Contains("tampered recovered diagnostic", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task RegistryRunsActionLogReplayAuditBeforeRecoveryRestore()
     {
         var initialState = MatchReplayInitialStateBuilder.FromSeats(
