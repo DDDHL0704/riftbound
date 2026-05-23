@@ -175,10 +175,19 @@ public sealed class RageSigilResourceSkillTests
         var payCostCandidate = Assert.Single(
             prompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
-        Assert.Contains(
-            Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
-                Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(payCostCandidate.Metadata)["paymentResourceChoices"]),
-            choice => string.Equals(choice.Id, resourceAction, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(payCostCandidate.Metadata);
+        var paymentResourceChoices = Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(
+            metadata["paymentResourceChoices"]);
+        Assert.Contains(paymentResourceChoices, choice => string.Equals(choice.Id, resourceAction, StringComparison.Ordinal));
+        Assert.Equal([resourceAction], Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["paymentResourceActionIds"]));
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            metadata["paymentResourcePowerByChoice"]);
+        Assert.Equal(0, paymentResourcePowerByChoice[resourceAction]["power"]);
+        Assert.Equal(RuneTrait.Red, paymentResourcePowerByChoice[resourceAction]["trait"]);
+        Assert.Equal(true, paymentResourcePowerByChoice[resourceAction]["paymentOnly"]);
+        var quotedPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
+            paymentResourcePowerByChoice[resourceAction]["powerByTrait"]);
+        Assert.Equal(1, quotedPowerByTrait[RuneTrait.Red]);
 
         var spendChoice = caseName == "red-typed" ? "SPEND_POWER:red:1" : "SPEND_POWER:any:1";
         var result = await new CoreRuleEngine().ResolveAsync(
@@ -191,14 +200,60 @@ public sealed class RageSigilResourceSkillTests
         Assert.Null(result.State.PendingPayment);
         Assert.Empty(result.State.TemporaryPaymentResources);
         Assert.Equal(RunePool.Empty, result.State.RunePools["P1"]);
+        Assert.Equal(
+            ["TEMPORARY_PAYMENT_RESOURCE_SPENT", "TEMPORARY_PAYMENT_RESOURCE_CLEARED", "COST_PAID", "PAYMENT_WINDOW_CLOSED"],
+            result.Events.Select(gameEvent => gameEvent.Kind));
 
         var spentEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
+        Assert.Equal(pendingPayment.PaymentId, spentEvent.Payload["paymentId"]);
+        Assert.Equal(pendingPayment.PaymentWindow, spentEvent.Payload["paymentWindow"]);
+        Assert.Equal("P1", spentEvent.Payload["playerId"]);
         Assert.Equal(temporaryResource.ResourceId, spentEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal(RageSigilObjectId, spentEvent.Payload["sourceObjectId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.RageSigilResourceAbilityId, spentEvent.Payload["abilityId"]);
         Assert.Equal(0, spentEvent.Payload["consumedPower"]);
         var consumedPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(spentEvent.Payload["consumedPowerByTrait"]);
         Assert.Equal(1, consumedPowerByTrait[RuneTrait.Red]);
+        Assert.Equal(0, spentEvent.Payload["remainingPower"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(spentEvent.Payload["remainingPowerByTrait"]));
+        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], Assert.IsType<string[]>(spentEvent.Payload["allowedPaymentKinds"]));
+        Assert.Equal(true, spentEvent.Payload["paymentOnly"]);
+
+        var cleanupEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_CLEARED", StringComparison.Ordinal));
+        Assert.Equal(pendingPayment.PaymentId, cleanupEvent.Payload["paymentId"]);
+        Assert.Equal(pendingPayment.PaymentWindow, cleanupEvent.Payload["paymentWindow"]);
+        Assert.Equal("P1", cleanupEvent.Payload["playerId"]);
+        Assert.Equal(temporaryResource.ResourceId, cleanupEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal(0, cleanupEvent.Payload["remainingPowerBeforeCleanup"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(cleanupEvent.Payload["remainingPowerByTraitBeforeCleanup"]));
+        Assert.Equal(true, cleanupEvent.Payload["paymentOnly"]);
+
         var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(pendingPayment.PaymentId, costEvent.Payload["paymentId"]);
+        Assert.Equal(pendingPayment.PaymentWindow, costEvent.Payload["paymentWindow"]);
+        Assert.Equal("P1", costEvent.Payload["playerId"]);
+        Assert.Equal([resourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        Assert.Equal([resourceAction, spendChoice], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        Assert.Equal([spendChoice], Assert.IsType<string[]>(costEvent.Payload["legalPaymentChoiceIds"]));
         Assert.Equal([temporaryResource.ResourceId], Assert.IsType<string[]>(costEvent.Payload["temporaryPaymentResourceIds"]));
+        Assert.Equal(0, costEvent.Payload["temporaryPaymentResourcePower"]);
+        Assert.Equal(caseName == "red-typed" ? 0 : 1, costEvent.Payload["power"]);
+        var costPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]);
+        if (caseName == "red-typed")
+        {
+            Assert.Equal(1, costPowerByTrait[RuneTrait.Red]);
+        }
+        else
+        {
+            Assert.Empty(costPowerByTrait);
+        }
+
+        Assert.Equal(0, costEvent.Payload["remainingPower"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["remainingPowerByTrait"]));
+
+        var paymentWindowClosedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        Assert.Equal(pendingPayment.PaymentId, paymentWindowClosedEvent.Payload["paymentId"]);
+        Assert.Equal(pendingPayment.PaymentWindow, paymentWindowClosedEvent.Payload["paymentWindow"]);
     }
 
     [Theory]

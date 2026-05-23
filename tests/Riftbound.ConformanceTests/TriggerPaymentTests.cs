@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -261,6 +262,62 @@ public sealed class TriggerPaymentTests
         Assert.Null(replay.State.PendingPayment);
         Assert.Equal(GoldTokenIds(paid.State), GoldTokenIds(replay.State));
         AssertNextContestedBattlefieldStillAdvancedOnceAfterReplay(paid, replay, declined: false);
+    }
+
+    [Fact]
+    public async Task BattlefieldConquerGoldTriggerPaymentStalePromptReplayAfterNextContestStartsRejectsWithoutMutation()
+    {
+        var opened = await DeclareBattleAsync(BuildBattlefieldConquerGoldState(includeNextContest: true));
+        var payment = AssertTriggerPaymentOpen(opened);
+        AssertNextContestedBattlefieldNotAdvanced(opened);
+
+        var session = new MatchSession(opened.State, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PayCost, prompt.Actions);
+
+        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [PayOneMana]);
+        var staleRawCommand = PromptScopedPayCostRawCommand(command, prompt);
+
+        var paid = await session.SubmitAsync(
+            "P1",
+            "intent-trigger-payment-pay-before-stale-prompt-replay",
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Single(GoldTokenIds(paid.State));
+        AssertNextContestedBattlefieldAdvancedAfterPaymentClosed(paid, declined: false);
+        Assert.Contains(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Contains(paid.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, GoldTrigger, StringComparison.Ordinal));
+        Assert.Contains(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        var postPaymentHash = MatchStateHasher.Hash(paid.State);
+        var paidGoldTokenIds = GoldTokenIds(paid.State);
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            "intent-trigger-payment-pay-stale-prompt-replay",
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
+        Assert.Empty(replay.Events);
+        AssertNoTriggerPaymentSideEffects(replay);
+        Assert.Equal(postPaymentHash, MatchStateHasher.Hash(replay.State));
+        Assert.Null(replay.State.PendingPayment);
+        Assert.Equal(paidGoldTokenIds, GoldTokenIds(replay.State));
+        AssertNextContestedBattlefieldStillAdvancedOnceAfterReplay(paid, replay, declined: false);
+        AssertNoPendingPayCostPrompt(replay);
     }
 
     [Fact]
@@ -1372,29 +1429,66 @@ public sealed class TriggerPaymentTests
         Assert.Empty(paid.State.TemporaryPaymentResources);
         Assert.False(paid.State.CardObjects["P1-FIORA-TARGET"].IsExhausted);
         Assert.Empty(paid.State.RunePools["P1"].PowerByTrait);
+        var spentIndex = EventIndex(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
+        var clearedIndex = EventIndex(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_CLEARED", StringComparison.Ordinal));
+        var costIndex = EventIndex(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        var closedIndex = EventIndex(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        var resolvedIndex = EventIndex(paid.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, FioraTrigger, StringComparison.Ordinal));
+        var readiedIndex = EventIndex(paid.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-FIORA-TARGET", StringComparison.Ordinal));
+        Assert.True(spentIndex < clearedIndex);
+        Assert.True(clearedIndex < costIndex);
+        Assert.True(costIndex < closedIndex);
+        Assert.True(costIndex < resolvedIndex);
+        Assert.True(resolvedIndex < readiedIndex);
+
         var spentEvent = Assert.Single(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
         var clearedEvent = Assert.Single(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_CLEARED", StringComparison.Ordinal));
         var costEvent = Assert.Single(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        var paymentWindowClosedEvent = Assert.Single(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
         Assert.Equal(payment.PaymentId, spentEvent.Payload["paymentId"]);
         Assert.Equal(payment.PaymentId, clearedEvent.Payload["paymentId"]);
         Assert.Equal(payment.PaymentId, costEvent.Payload["paymentId"]);
+        Assert.Equal(payment.PaymentId, paymentWindowClosedEvent.Payload["paymentId"]);
         Assert.Equal(TriggerPaymentWindow, spentEvent.Payload["paymentWindow"]);
         Assert.Equal(TriggerPaymentWindow, clearedEvent.Payload["paymentWindow"]);
         Assert.Equal(TriggerPaymentWindow, costEvent.Payload["paymentWindow"]);
+        Assert.Equal(TriggerPaymentWindow, paymentWindowClosedEvent.Payload["paymentWindow"]);
+        Assert.Equal("P1", spentEvent.Payload["playerId"]);
+        Assert.Equal("P1", clearedEvent.Payload["playerId"]);
+        Assert.Equal("P1", costEvent.Payload["playerId"]);
         Assert.Equal(temporaryResource.ResourceId, spentEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal(temporaryResource.ResourceId, clearedEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal("P1-UNITY-SIGIL", spentEvent.Payload["sourceObjectId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.UnitySigilResourceAbilityId, spentEvent.Payload["abilityId"]);
         Assert.Equal(0, spentEvent.Payload["consumedPower"]);
         var spentPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(spentEvent.Payload["consumedPowerByTrait"]);
         Assert.Equal(1, spentPowerByTrait[RuneTrait.Yellow]);
+        Assert.Equal(0, spentEvent.Payload["remainingPower"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(spentEvent.Payload["remainingPowerByTrait"]));
+        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], Assert.IsType<string[]>(spentEvent.Payload["allowedPaymentKinds"]));
+        Assert.Equal(true, spentEvent.Payload["paymentOnly"]);
+        Assert.Equal(0, clearedEvent.Payload["remainingPowerBeforeCleanup"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(clearedEvent.Payload["remainingPowerByTraitBeforeCleanup"]));
+        Assert.Equal(true, clearedEvent.Payload["paymentOnly"]);
         Assert.Equal([resourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
         Assert.Equal([resourceAction, PayOneYellowPower], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        Assert.Equal([PayOneYellowPower, Decline], Assert.IsType<string[]>(costEvent.Payload["legalPaymentChoiceIds"]));
         Assert.Equal([temporaryResource.ResourceId], Assert.IsType<string[]>(costEvent.Payload["temporaryPaymentResourceIds"]));
         Assert.Equal(0, costEvent.Payload["temporaryPaymentResourcePower"]);
         var costPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["temporaryPaymentResourcePowerByTrait"]);
         Assert.Equal(1, costPowerByTrait[RuneTrait.Yellow]);
+        var paidPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]);
+        Assert.Equal(1, paidPowerByTrait[RuneTrait.Yellow]);
+        Assert.Equal(0, costEvent.Payload["remainingPower"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["remainingPowerByTrait"]));
         Assert.Contains(paid.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-FIORA-TARGET", StringComparison.Ordinal));
-        Assert.Contains(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        Assert.Equal(false, paymentWindowClosedEvent.Payload["declined"]);
     }
 
     [Theory]
@@ -2015,6 +2109,21 @@ public sealed class TriggerPaymentTests
         Assert.DoesNotContain(
             prompt.Candidates ?? [],
             promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+    }
+
+    private static JsonElement PromptScopedPayCostRawCommand(
+        PayCostCommand command,
+        ActionPromptDto prompt)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.PayCost,
+            paymentId = command.PaymentId,
+            paymentWindow = command.PaymentWindow,
+            paymentChoiceIds = command.PaymentChoiceIds,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick
+        });
     }
 
     private static void AssertNoFioraTriggerPaymentSideEffects(ResolutionResult result)

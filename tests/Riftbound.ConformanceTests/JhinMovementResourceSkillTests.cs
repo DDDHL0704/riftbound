@@ -78,6 +78,7 @@ public sealed class JhinMovementResourceSkillTests
     public async Task JhinMovementResourceSkillGainsManaAndPaymentOnlyPowerWithoutStackResponse()
     {
         var moved = await MoveJhinAsync(BuildJhinBaseState());
+        var trigger = Assert.Single(moved.State.TriggerQueue);
         var triggerChoice = JhinTriggerChoice(moved.State);
 
         var result = await ActivateJhinAsync(moved.State, optionalCosts: [triggerChoice]);
@@ -97,14 +98,51 @@ public sealed class JhinMovementResourceSkillTests
         var snapshotResource = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
             result.Snapshots["P1"].Timing["temporaryPaymentResources"]));
         Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceRestriction, snapshotResource["resourceRestriction"]);
+        Assert.Equal(
+            ["TRIGGER_RESOLVED", "ABILITY_ACTIVATED", "MANA_GAINED", "POWER_GAINED"],
+            result.Events.Select(gameEvent => gameEvent.Kind));
+
+        var triggerResolvedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal));
+        Assert.Equal(trigger.TriggerId, triggerResolvedEvent.Payload["triggerId"]);
 
         var activatedEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
+        var paymentId = Assert.IsType<string>(activatedEvent.Payload["paymentId"]);
+        Assert.Equal("ACTIVATE_ABILITY", activatedEvent.Payload["paymentWindow"]);
+        Assert.Equal(trigger.TriggerId, activatedEvent.Payload["movementTriggerId"]);
+        Assert.Equal("BASE", activatedEvent.Payload["origin"]);
+        Assert.Equal("BATTLEFIELD", activatedEvent.Payload["destination"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedMana, activatedEvent.Payload["generatedMana"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedPower, activatedEvent.Payload["generatedPower"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceRestriction, activatedEvent.Payload["resourceRestriction"]);
+        Assert.Equal(temporaryResource.ResourceId, activatedEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal($"JHIN:{paymentId}", temporaryResource.ResourceId);
+        Assert.Equal("mana-rune-pool-plus-temporary-payment-resource-ledger", activatedEvent.Payload["resourceLifecycle"]);
         Assert.Equal("no-ordinary-stack-item", activatedEvent.Payload["stackPolicy"]);
         Assert.True(Assert.IsType<bool>(activatedEvent.Payload["generatedResourceCannotBeTargetedAsResponse"]));
-        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal));
-        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "MANA_GAINED", StringComparison.Ordinal));
-        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+
+        var manaEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "MANA_GAINED", StringComparison.Ordinal));
+        Assert.Equal(JhinObjectId, manaEvent.Payload["sourceObjectId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, manaEvent.Payload["abilityId"]);
+        Assert.Equal(trigger.TriggerId, manaEvent.Payload["movementTriggerId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedMana, manaEvent.Payload["mana"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedMana, manaEvent.Payload["manaAfter"]);
+        Assert.Equal("rune-pool-mana-reset-at-turn-cleanup", manaEvent.Payload["resourceLifecycle"]);
+
+        var powerEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+        Assert.Equal(paymentId, powerEvent.Payload["paymentId"]);
+        Assert.Equal("ACTIVATE_ABILITY", powerEvent.Payload["paymentWindow"]);
+        Assert.Equal(JhinObjectId, powerEvent.Payload["sourceObjectId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, powerEvent.Payload["abilityId"]);
+        Assert.Equal(trigger.TriggerId, powerEvent.Payload["movementTriggerId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedPower, powerEvent.Payload["generatedPower"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedPower, powerEvent.Payload["power"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedPower, powerEvent.Payload["remainingPower"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceRestriction, powerEvent.Payload["resourceRestriction"]);
+        Assert.Equal("temporary-payment-resource-ledger", powerEvent.Payload["restrictionLifecycle"]);
+        Assert.Equal(temporaryResource.ResourceId, powerEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], Assert.IsType<string[]>(powerEvent.Payload["allowedPaymentKinds"]));
         Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
     }
 
@@ -171,9 +209,22 @@ public sealed class JhinMovementResourceSkillTests
             manaCost: 1,
             powerCost: 1,
             legalPaymentChoiceIds: ["SPEND_MANA:1", "SPEND_POWER:any:1"]);
+        var paymentState = activated.State with { PendingPayment = pendingPayment };
+        var prompt = ResolutionResult.BuildPrompts(paymentState)["P1"];
+        var payCostCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(payCostCandidate.Metadata);
+        var resourceActions = Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["paymentResourceActionIds"]);
+        Assert.Equal([resourceAction], resourceActions);
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            metadata["paymentResourcePowerByChoice"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedPower, paymentResourcePowerByChoice[resourceAction]["power"]);
+        Assert.Equal(true, paymentResourcePowerByChoice[resourceAction]["paymentOnly"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(paymentResourcePowerByChoice[resourceAction]["powerByTrait"]));
 
         var result = await new CoreRuleEngine().ResolveAsync(
-            activated.State with { PendingPayment = pendingPayment },
+            paymentState,
             new PlayerIntent("intent-jhin-pay-generated", "P1", CommandTypes.PayCost),
             new PayCostCommand(pendingPayment.PaymentId, pendingPayment.PaymentWindow, [resourceAction, "SPEND_MANA:1", "SPEND_POWER:any:1"]),
             CancellationToken.None);
@@ -182,9 +233,48 @@ public sealed class JhinMovementResourceSkillTests
         Assert.Null(result.State.PendingPayment);
         Assert.Empty(result.State.TemporaryPaymentResources);
         Assert.Equal(RunePool.Empty, result.State.RunePools["P1"]);
-        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
-        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_CLEARED", StringComparison.Ordinal));
-        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(
+            ["TEMPORARY_PAYMENT_RESOURCE_SPENT", "TEMPORARY_PAYMENT_RESOURCE_CLEARED", "COST_PAID", "PAYMENT_WINDOW_CLOSED"],
+            result.Events.Select(gameEvent => gameEvent.Kind));
+
+        var spentEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
+        Assert.Equal(pendingPayment.PaymentId, spentEvent.Payload["paymentId"]);
+        Assert.Equal(pendingPayment.PaymentWindow, spentEvent.Payload["paymentWindow"]);
+        Assert.Equal(temporaryResource.ResourceId, spentEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal(JhinObjectId, spentEvent.Payload["sourceObjectId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, spentEvent.Payload["abilityId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedPower, spentEvent.Payload["consumedPower"]);
+        Assert.Equal(0, spentEvent.Payload["remainingPower"]);
+        Assert.Equal(true, spentEvent.Payload["paymentOnly"]);
+        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], Assert.IsType<string[]>(spentEvent.Payload["allowedPaymentKinds"]));
+
+        var cleanupEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_CLEARED", StringComparison.Ordinal));
+        Assert.Equal(pendingPayment.PaymentId, cleanupEvent.Payload["paymentId"]);
+        Assert.Equal(pendingPayment.PaymentWindow, cleanupEvent.Payload["paymentWindow"]);
+        Assert.Equal(temporaryResource.ResourceId, cleanupEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal(0, cleanupEvent.Payload["remainingPowerBeforeCleanup"]);
+        Assert.Equal(true, cleanupEvent.Payload["paymentOnly"]);
+
+        var costEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(pendingPayment.PaymentId, costEvent.Payload["paymentId"]);
+        Assert.Equal(pendingPayment.PaymentWindow, costEvent.Payload["paymentWindow"]);
+        Assert.Equal([resourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        Assert.Equal([resourceAction, "SPEND_MANA:1", "SPEND_POWER:any:1"], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        Assert.Equal(["SPEND_MANA:1", "SPEND_POWER:any:1"], Assert.IsType<string[]>(costEvent.Payload["legalPaymentChoiceIds"]));
+        Assert.Equal([temporaryResource.ResourceId], Assert.IsType<string[]>(costEvent.Payload["temporaryPaymentResourceIds"]));
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedPower, costEvent.Payload["temporaryPaymentResourcePower"]);
+        Assert.Equal(1, costEvent.Payload["mana"]);
+        Assert.Equal(1, costEvent.Payload["power"]);
+        Assert.Equal(0, costEvent.Payload["remainingMana"]);
+        Assert.Equal(0, costEvent.Payload["remainingPower"]);
+
+        var paymentWindowClosedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        Assert.Equal(pendingPayment.PaymentId, paymentWindowClosedEvent.Payload["paymentId"]);
+        Assert.Equal(pendingPayment.PaymentWindow, paymentWindowClosedEvent.Payload["paymentWindow"]);
     }
 
     [Fact]

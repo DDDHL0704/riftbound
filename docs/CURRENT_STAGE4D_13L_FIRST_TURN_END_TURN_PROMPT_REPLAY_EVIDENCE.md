@@ -1,0 +1,51 @@
+# Stage 4D-13L First Turn End Turn Prompt Replay Evidence
+
+Status: accepted.
+
+## Code
+
+- `src/Riftbound.Engine/MatchSession.cs`
+  - Added prompt-freshness candidates for ordinary main windows so stale guard accepts both the broad canonical prompt and the narrow `CoreRuleEngine` prompt.
+- `tests/Riftbound.ConformanceTests/OfficialOpeningTests.cs`
+  - Added `FirstTurnEndTurnPromptReplayAfterNextPlayerStartsRejectsWithoutMutation`.
+  - Added `AssertOfficialFirstTurnEndTurnNextPlayerPromptQueueAudit`.
+
+## Focused Validation
+
+```text
+/Users/dinghaolin/.dotnet/dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~.FirstTurnEndTurnPromptReplayAfterNextPlayerStartsRejectsWithoutMutation"
+```
+
+Result: passed `1/1`.
+
+## Adjacent Validation
+
+```text
+/Users/dinghaolin/.dotnet/dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~OfficialOpeningTests|FullyQualifiedName~ConformanceFixtureShapeTests|FullyQualifiedName~Prompt|FullyQualifiedName~MatchStateHasher|FullyQualifiedName~GameHubJoinTests"
+```
+
+Result: passed `770/770`.
+
+## Backend Full Validation
+
+```text
+/Users/dinghaolin/.dotnet/dotnet test Riftbound.slnx --no-restore
+```
+
+Result: passed `5726/5726`.
+
+## Mechanical Validation
+
+```text
+git diff --check
+rg -n '^(<<<<<<<|=======|>>>>>>>)' docs tests src
+rg -n '[ \t]+$' docs/CURRENT_STAGE4D_{05,06,07,08,09,10,11,12,13}*.md
+```
+
+Result: passed. `git diff --check` produced no output; conflict-marker scan over `docs`, `tests` and `src` found no matches; trailing-whitespace scan for the 05J through 13L evidence/docs set found no matches.
+
+## DOC Matrix Guard
+
+`DOC_MATRIX_CURRENT` remains clean at `4c999922`; A_MAIN did not integrate or reject that source commit because main still has active 05J-13L dirty runtime/test/docs slices.
+
+Project remains **NOT READY**.

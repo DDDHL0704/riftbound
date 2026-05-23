@@ -13847,6 +13847,10 @@ public sealed class MatchSession : IMatchSession
                     "对局已经结束，不能提交卡组。",
                     ErrorCodes.MatchFinished);
             }
+            else if (TryRejectStalePrompt(state, normalizedPlayerId, rawCommand, out var promptRejection))
+            {
+                result = promptRejection;
+            }
             else if (state.Status == MatchStatuses.InProgress)
             {
                 result = ResolutionResult.Rejected(
@@ -13877,6 +13881,14 @@ public sealed class MatchSession : IMatchSession
                         state,
                         $"卡组不合法：{string.Join("；", validation.Errors)}",
                         ErrorCodes.InvalidDeck);
+                }
+                else if (state.PlayerDecklists.TryGetValue(normalizedPlayerId, out var existingDecklist)
+                    && OfficialDecklistsEqual(existingDecklist, decklist))
+                {
+                    result = ResolutionResult.Rejected(
+                        state,
+                        "玩家已经提交相同卡组。",
+                        ErrorCodes.PhaseNotAllowed);
                 }
                 else
                 {
@@ -13975,6 +13987,12 @@ public sealed class MatchSession : IMatchSession
             if (state.Status == MatchStatuses.Finished)
             {
                 throw new MatchSessionException(ErrorCodes.MatchFinished, "对局已经结束，不能准备。");
+            }
+
+            if (TryRejectStalePrompt(state, normalizedPlayerId, rawCommand, out var promptRejection))
+            {
+                intentCache[cacheKey] = new CachedResolution("READY", promptRejection);
+                return promptRejection;
             }
 
             if (state.Status == MatchStatuses.InProgress)
@@ -14127,20 +14145,25 @@ public sealed class MatchSession : IMatchSession
                 return cached.Result;
             }
 
-            if (state.Status == MatchStatuses.Finished)
-            {
-                throw new MatchSessionException(ErrorCodes.MatchFinished, "对局已经结束，不能继续提交行动。");
-            }
-
-            if (state.Status != MatchStatuses.InProgress)
-            {
-                throw new MatchSessionException(ErrorCodes.MatchNotStarted, "对局尚未开始。");
-            }
-
             var startedTick = state.Tick;
             var startedEventSequence = lastEventSequence;
             ResolutionResult result;
-            if (TryRejectStalePrompt(state, normalizedPlayerId, rawCommand, out var promptRejection))
+            if (state.Status == MatchStatuses.Finished)
+            {
+                if (TryRejectStalePrompt(state, normalizedPlayerId, rawCommand, out var promptRejection))
+                {
+                    result = promptRejection;
+                }
+                else
+                {
+                    throw new MatchSessionException(ErrorCodes.MatchFinished, "对局已经结束，不能继续提交行动。");
+                }
+            }
+            else if (state.Status != MatchStatuses.InProgress)
+            {
+                throw new MatchSessionException(ErrorCodes.MatchNotStarted, "对局尚未开始。");
+            }
+            else if (TryRejectStalePrompt(state, normalizedPlayerId, rawCommand, out var promptRejection))
             {
                 result = promptRejection;
             }
@@ -14206,9 +14229,9 @@ public sealed class MatchSession : IMatchSession
             return false;
         }
 
-        var currentPrompt = ResolutionResult.BuildPrompts(state)[playerId];
+        var currentPrompts = BuildPromptFreshnessCandidates(state, playerId);
         if (hasPromptId
-            && !string.Equals(submittedPromptId, currentPrompt.PromptId, StringComparison.Ordinal))
+            && !currentPrompts.Any(currentPrompt => string.Equals(submittedPromptId, currentPrompt.PromptId, StringComparison.Ordinal)))
         {
             rejection = ResolutionResult.Rejected(
                 state,
@@ -14218,7 +14241,7 @@ public sealed class MatchSession : IMatchSession
         }
 
         if (hasSnapshotTick
-            && submittedSnapshotTick != currentPrompt.SnapshotTick)
+            && !currentPrompts.Any(currentPrompt => submittedSnapshotTick == currentPrompt.SnapshotTick))
         {
             rejection = ResolutionResult.Rejected(
                 state,
@@ -14228,6 +14251,80 @@ public sealed class MatchSession : IMatchSession
         }
 
         return false;
+    }
+
+    private static IReadOnlyList<ActionPromptDto> BuildPromptFreshnessCandidates(MatchState state, string playerId)
+    {
+        var currentPrompt = ResolutionResult.BuildPrompts(state)[playerId];
+        if (!IsOrdinaryMainOpenPromptState(state, playerId))
+        {
+            return [currentPrompt];
+        }
+
+        var implementedPrompt = ActionPromptBuilder.Build(
+            state,
+            playerId,
+            true,
+            "当前玩家普通开环行动",
+            WithSurrender(ImplementedMainOpenActions(state, playerId)));
+
+        return string.Equals(currentPrompt.PromptId, implementedPrompt.PromptId, StringComparison.Ordinal)
+            ? [currentPrompt]
+            : [currentPrompt, implementedPrompt];
+    }
+
+    private static bool IsOrdinaryMainOpenPromptState(MatchState state, string playerId)
+    {
+        return string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal)
+            && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            && string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            && string.Equals(state.ActivePlayerId, playerId, StringComparison.Ordinal)
+            && string.Equals(state.TurnPlayerId, playerId, StringComparison.Ordinal)
+            && state.PendingPayment is null
+            && state.PendingHandChoice is null
+            && string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+            && string.IsNullOrWhiteSpace(state.FocusPlayerId)
+            && state.StackItems.Count == 0
+            && !ResolutionResult.HasOpenOrderTriggersWindow(state)
+            && !ResolutionResult.HasOpenBattleDamageAssignmentWindow(state)
+            && ResolutionResult.ActiveStartBattleTask(state) is null
+            && !ResolutionResult.HasBlockingPendingTaskQueue(state);
+    }
+
+    private static IReadOnlyList<string> ImplementedMainOpenActions(MatchState state, string playerId)
+    {
+        var reason = "当前玩家普通开环行动";
+        var implementedSourceDrivenActions = new[]
+        {
+            "PLAY_CARD",
+            "ACTIVATE_ABILITY",
+            "ASSEMBLE_EQUIPMENT",
+            "MOVE_UNIT",
+            "DECLARE_BATTLE",
+            "HIDE_CARD",
+            "REVEAL_CARD",
+            "TAP_RUNE",
+            "RECYCLE_RUNE",
+            "LEGEND_ACT"
+        };
+        var actions = implementedSourceDrivenActions
+            .Where(action =>
+            {
+                var prompt = ActionPromptBuilder.Build(state, playerId, true, reason, [action]);
+                var candidate = prompt.Candidates?.FirstOrDefault();
+                return candidate?.Enabled == true;
+            })
+            .ToList();
+
+        actions.Add("END_TURN");
+        return actions;
+    }
+
+    private static IReadOnlyList<string> WithSurrender(IReadOnlyList<string> actions)
+    {
+        return actions.Contains(CommandTypes.Surrender, StringComparer.Ordinal)
+            ? actions
+            : actions.Concat([CommandTypes.Surrender]).ToArray();
     }
 
     private static bool TryReadStringProperty(JsonElement element, string propertyName, out string value)
@@ -14427,6 +14524,15 @@ public sealed class MatchSession : IMatchSession
     {
         return state.Seats.Count == 2
             && state.Seats.Keys.All(playerId => state.PlayerDecklists.ContainsKey(playerId));
+    }
+
+    private static bool OfficialDecklistsEqual(OfficialDecklist left, OfficialDecklist right)
+    {
+        return string.Equals(left.LegendCardNo, right.LegendCardNo, StringComparison.Ordinal)
+            && string.Equals(left.ChampionCardNo, right.ChampionCardNo, StringComparison.Ordinal)
+            && left.MainDeck.SequenceEqual(right.MainDeck, StringComparer.Ordinal)
+            && left.RuneDeck.SequenceEqual(right.RuneDeck, StringComparer.Ordinal)
+            && left.Battlefields.SequenceEqual(right.Battlefields, StringComparer.Ordinal);
     }
 
     private static OfficialOpeningBuildResult BuildOfficialOpeningState(

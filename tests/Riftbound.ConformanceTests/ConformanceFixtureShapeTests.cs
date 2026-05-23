@@ -1417,6 +1417,122 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public async Task OrderTriggersRejectsAcceptedCommandReplayWithoutMutation()
+    {
+        var state = BuildP0ContractBattleInitialApnapTriggerQueueState();
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.OrderTriggers, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        var orderedTriggerIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["orderedTriggerIds"]);
+        var command = new OrderTriggersCommand(OrderedTriggerIds: orderedTriggerIds);
+        var engine = new CoreRuleEngine();
+
+        var accepted = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-apnap-order-before-replay", "P1", CommandTypes.OrderTriggers),
+            command,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Equal(["TRIGGERS_ORDERED", "TRIGGERS_MOVED_TO_STACK"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Empty(accepted.State.TriggerQueue);
+        Assert.Equal(
+            ["ordered-TRIGGER-BATTLE-ATTACKER", "ordered-TRIGGER-BATTLE-DEFENDER"],
+            accepted.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.Equal("ordered-TRIGGER-BATTLE-DEFENDER", accepted.State.StackItems[^1].StackItemId);
+        Assert.Equal("P2", accepted.State.PriorityPlayerId);
+        Assert.Equal(PromptTypes.StackPriority, accepted.Prompts["P2"].View?.Type);
+        Assert.DoesNotContain(CommandTypes.OrderTriggers, accepted.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.OrderTriggers, accepted.Prompts["P2"].Actions);
+        var acceptedHash = MatchStateHasher.Hash(accepted.State);
+
+        var replay = await engine.ResolveAsync(
+            accepted.State,
+            new PlayerIntent("intent-apnap-order-stale-replay", "P1", CommandTypes.OrderTriggers),
+            command,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, replay.ErrorCode);
+        Assert.Empty(replay.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.Empty(replay.State.TriggerQueue);
+        Assert.Equal(
+            ["ordered-TRIGGER-BATTLE-ATTACKER", "ordered-TRIGGER-BATTLE-DEFENDER"],
+            replay.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.Equal("ordered-TRIGGER-BATTLE-DEFENDER", replay.State.StackItems[^1].StackItemId);
+        Assert.Equal("P2", replay.State.PriorityPlayerId);
+        Assert.Equal(PromptTypes.StackPriority, replay.Prompts["P2"].View?.Type);
+        Assert.DoesNotContain(CommandTypes.OrderTriggers, replay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.OrderTriggers, replay.Prompts["P2"].Actions);
+    }
+
+    [Fact]
+    public async Task OrderTriggersStalePromptReplayAfterStackPriorityStartsRejectsWithoutMutation()
+    {
+        var state = BuildP0ContractBattleInitialApnapTriggerQueueState();
+        var session = new MatchSession(state, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.OrderTriggers, prompt.View?.Type);
+        Assert.Contains(CommandTypes.OrderTriggers, prompt.Actions);
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.OrderTriggers, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        var orderedTriggerIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["orderedTriggerIds"]);
+
+        var command = new OrderTriggersCommand(OrderedTriggerIds: orderedTriggerIds);
+        var staleRawCommand = PromptScopedOrderTriggersRawCommand(command, prompt);
+
+        var accepted = await session.SubmitAsync(
+            "P1",
+            "intent-apnap-order-before-stale-prompt-replay",
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Equal(["TRIGGERS_ORDERED", "TRIGGERS_MOVED_TO_STACK"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Empty(accepted.State.TriggerQueue);
+        Assert.Equal(
+            ["ordered-TRIGGER-BATTLE-ATTACKER", "ordered-TRIGGER-BATTLE-DEFENDER"],
+            accepted.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.Equal("ordered-TRIGGER-BATTLE-DEFENDER", accepted.State.StackItems[^1].StackItemId);
+        Assert.Equal("P2", accepted.State.PriorityPlayerId);
+        Assert.Equal(PromptTypes.StackPriority, accepted.Prompts["P2"].View?.Type);
+        Assert.DoesNotContain(CommandTypes.OrderTriggers, accepted.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.OrderTriggers, accepted.Prompts["P2"].Actions);
+        var acceptedHash = MatchStateHasher.Hash(accepted.State);
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            "intent-apnap-order-stale-prompt-replay",
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
+        Assert.Empty(replay.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.Empty(replay.State.TriggerQueue);
+        Assert.Equal(
+            ["ordered-TRIGGER-BATTLE-ATTACKER", "ordered-TRIGGER-BATTLE-DEFENDER"],
+            replay.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.Equal("ordered-TRIGGER-BATTLE-DEFENDER", replay.State.StackItems[^1].StackItemId);
+        Assert.Equal("P2", replay.State.PriorityPlayerId);
+        Assert.Equal(PromptTypes.StackPriority, replay.Prompts["P2"].View?.Type);
+        Assert.DoesNotContain(CommandTypes.OrderTriggers, replay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.OrderTriggers, replay.Prompts["P2"].Actions);
+    }
+
+    [Fact]
     public async Task OrderTriggersApnapIllegalCrossControllerReorderRejectedWithoutChangingState()
     {
         var state = BuildP0ContractBattleInitialApnapTriggerQueueState();
@@ -8668,5 +8784,18 @@ public sealed class ConformanceFixtureShapeTests
     private static JsonElement RawCommand(string cmdType)
     {
         return JsonDocument.Parse($$"""{"cmdType":"{{cmdType}}"}""").RootElement.Clone();
+    }
+
+    private static JsonElement PromptScopedOrderTriggersRawCommand(
+        OrderTriggersCommand command,
+        ActionPromptDto prompt)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.OrderTriggers,
+            orderedTriggerIds = command.OrderedTriggerIds,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick
+        });
     }
 }

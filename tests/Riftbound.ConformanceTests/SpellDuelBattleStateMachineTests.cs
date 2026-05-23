@@ -1,5 +1,6 @@
 using Riftbound.Contracts;
 using Riftbound.Engine;
+using System.Text.Json;
 using Xunit;
 
 namespace Riftbound.ConformanceTests;
@@ -10,6 +11,8 @@ public sealed class SpellDuelBattleStateMachineTests
     public void MultipleContestedBattlefieldsExposeOneActiveSpellDuelTaskInDeterministicOrder()
     {
         var state = MultiContestSpellDuelState();
+        var snapshot = ResolutionResult.BuildSnapshots(state)["P1"];
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
 
         Assert.Equal("BF-A", state.SpellDuelState.BattlefieldObjectId);
         Assert.Equal("spell-duel:BF-A", state.SpellDuelState.SpellDuelId);
@@ -31,6 +34,8 @@ public sealed class SpellDuelBattleStateMachineTests
             .ToArray();
         Assert.Equal(["BF-A", "BF-B"], startBattleTasks.Select(task => task.BattlefieldObjectId).ToArray());
         Assert.All(startBattleTasks, task => Assert.Equal("WAITING_FOR_SPELL_DUEL", task.Status));
+
+        AssertMultiContestActiveSpellDuelTaskAudit(state, snapshot, prompt);
     }
 
     [Fact]
@@ -44,6 +49,7 @@ public sealed class SpellDuelBattleStateMachineTests
             CancellationToken.None);
 
         AssertRejectedWithoutMutation(state, nonFocusResult, ErrorCodes.PhaseNotAllowed);
+        AssertNonFocusPassFocusRejectionAudit(nonFocusResult);
 
         var neutralState = IdleNeutralState();
         var wrongTimingResult = await new CoreRuleEngine().ResolveAsync(
@@ -53,6 +59,43 @@ public sealed class SpellDuelBattleStateMachineTests
             CancellationToken.None);
 
         AssertRejectedWithoutMutation(neutralState, wrongTimingResult, ErrorCodes.PhaseNotAllowed);
+        AssertWrongTimingPassFocusRejectionAudit(wrongTimingResult);
+    }
+
+    [Fact]
+    public async Task PassFocusRejectsAcceptedCommandReplayWithoutMutation()
+    {
+        var engine = new CoreRuleEngine();
+        var state = MultiContestSpellDuelState();
+        var command = new PassFocusCommand();
+
+        var accepted = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-pass-focus-accepted-before-replay", "P1", CommandTypes.PassFocus),
+            command,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Equal(["FOCUS_PASSED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal("P2", accepted.State.FocusPlayerId);
+        Assert.Equal(["P1"], accepted.State.PassedFocusPlayerIds);
+        Assert.Equal(PromptTypes.SpellDuelFocus, accepted.Prompts["P2"].View?.Type);
+        Assert.Contains(CommandTypes.PassFocus, accepted.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.PassFocus, accepted.Prompts["P1"].Actions);
+        var acceptedHash = MatchStateHasher.Hash(accepted.State);
+
+        var replay = await engine.ResolveAsync(
+            accepted.State,
+            new PlayerIntent("intent-pass-focus-accepted-stale-replay", "P1", CommandTypes.PassFocus),
+            command,
+            CancellationToken.None);
+
+        AssertRejectedWithoutMutation(accepted.State, replay, ErrorCodes.PhaseNotAllowed);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(PromptTypes.SpellDuelFocus, replay.Prompts["P2"].View?.Type);
+        Assert.Contains(CommandTypes.PassFocus, replay.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.PassFocus, replay.Prompts["P1"].Actions);
+        AssertAcceptedPassFocusReplayRejectionAudit(replay);
     }
 
     [Fact]
@@ -83,6 +126,7 @@ public sealed class SpellDuelBattleStateMachineTests
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["stackItemId"] as string, "STACK-SWIFT-A", StringComparison.Ordinal));
+        AssertStackResolutionReturnsToActiveSpellDuelTaskAudit(result);
     }
 
     [Fact]
@@ -112,11 +156,60 @@ public sealed class SpellDuelBattleStateMachineTests
             task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
                 && string.Equals(task.BattlefieldObjectId, "BF-A", StringComparison.Ordinal));
 
-        var started = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal));
-        Assert.Equal("BF-B", started.Payload["battlefieldObjectId"]);
-        Assert.Equal(["P1", "P2"], Assert.IsType<string[]>(started.Payload["participantControllerIds"]));
-        Assert.Equal(["P1-B", "P2-B"], Assert.IsType<string[]>(started.Payload["participantObjectIds"]));
+        AssertSpellDuelCloseCleanupPromptQueueAudit(result);
+    }
+
+    [Fact]
+    public async Task SpellDuelFocusStalePromptReplayAfterNextContestStartsRejectsWithoutMutation()
+    {
+        var state = MultiContestSpellDuelState(lethalFirstDefender: true, passedFocusPlayerIds: ["P2"]);
+        var session = new MatchSession(state, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        Assert.Equal(PromptTypes.SpellDuelFocus, prompt.View?.Type);
+        Assert.Equal("spell-duel:BF-A", prompt.View?.RelatedSpellDuelId);
+        Assert.Contains(CommandTypes.PassFocus, prompt.Actions);
+        var staleRawCommand = PromptScopedRawCommand(CommandTypes.PassFocus, prompt);
+
+        var accepted = await session.SubmitAsync(
+            "P1",
+            "intent-close-first-spell-duel-before-stale-prompt-replay",
+            new PassFocusCommand(),
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Equal(
+            ["FOCUS_PASSED", "SPELL_DUEL_CLOSED", "UNIT_DESTROYED", "BATTLEFIELD_CONTESTED", "SPELL_DUEL_STARTED"],
+            accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal("BF-B", accepted.State.SpellDuelState.BattlefieldObjectId);
+        Assert.Equal("task:start-spell-duel:BF-B", accepted.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal("P1", accepted.State.FocusPlayerId);
+        Assert.Equal(PromptTypes.SpellDuelFocus, accepted.Prompts["P1"].View?.Type);
+        Assert.Equal("spell-duel:BF-B", accepted.Prompts["P1"].View?.RelatedSpellDuelId);
+        Assert.Contains(CommandTypes.PassFocus, accepted.Prompts["P1"].Actions);
+        var acceptedHash = MatchStateHasher.Hash(accepted.State);
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            "intent-stale-first-spell-duel-prompt-replay",
+            new PassFocusCommand(),
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
+        Assert.Empty(replay.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal("BF-B", replay.State.SpellDuelState.BattlefieldObjectId);
+        Assert.Equal("task:start-spell-duel:BF-B", replay.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal("P1", replay.State.FocusPlayerId);
+        Assert.Equal(PromptTypes.SpellDuelFocus, replay.Prompts["P1"].View?.Type);
+        Assert.Equal("spell-duel:BF-B", replay.Prompts["P1"].View?.RelatedSpellDuelId);
+        Assert.Contains(CommandTypes.PassFocus, replay.Prompts["P1"].Actions);
+        AssertStaleFirstSpellDuelPromptReplayAudit(replay);
     }
 
     [Fact]
@@ -148,6 +241,7 @@ public sealed class SpellDuelBattleStateMachineTests
         Assert.Equal("BF-A", prompt.View?.RelatedBattlefieldId);
         Assert.Equal("spell-duel:BF-A", prompt.View?.RelatedSpellDuelId);
         AssertOpponentHiddenStandbyRedacted(snapshot, "P2-HIDDEN-STANDBY");
+        AssertReconnectSpellDuelTaskMetadataAudit(reconnect, snapshot, prompt);
     }
 
     [Fact]
@@ -178,6 +272,7 @@ public sealed class SpellDuelBattleStateMachineTests
         Assert.Equal("BF-A", prompt.View?.RelatedBattlefieldId);
         Assert.Equal("battle:BF-A", prompt.View?.RelatedBattleId);
         AssertOpponentHiddenStandbyRedacted(snapshot, "P2-HIDDEN-STANDBY");
+        AssertReconnectBattleTaskMetadataAudit(reconnect, snapshot, prompt);
     }
 
     private static void AssertRejectedWithoutMutation(
@@ -190,6 +285,418 @@ public sealed class SpellDuelBattleStateMachineTests
         Assert.Empty(result.Events);
         Assert.Equal(state.Tick, result.State.Tick);
         Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(result.State));
+    }
+
+    private static void AssertNonFocusPassFocusRejectionAudit(ResolutionResult result)
+    {
+        AssertMultiContestActiveSpellDuelTaskAudit(
+            result.State,
+            result.Snapshots["P1"],
+            result.Prompts["P1"]);
+        Assert.False(result.Prompts["P2"].Actionable);
+        Assert.DoesNotContain(CommandTypes.PassFocus, result.Prompts["P2"].Actions);
+        Assert.Equal(PromptTypes.SpellDuelFocus, result.Prompts["P2"].View?.Type);
+        Assert.Equal("BF-A", result.Prompts["P2"].View?.RelatedBattlefieldId);
+        Assert.Equal("spell-duel:BF-A", result.Prompts["P2"].View?.RelatedSpellDuelId);
+    }
+
+    private static void AssertWrongTimingPassFocusRejectionAudit(ResolutionResult result)
+    {
+        Assert.Equal(TimingStates.NeutralOpen, result.State.TimingState);
+        Assert.Null(result.State.FocusPlayerId);
+        Assert.Empty(result.State.PassedFocusPlayerIds);
+        Assert.Equal("IDLE", result.State.PendingTaskQueue.Phase);
+        Assert.Null(result.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Empty(result.State.PendingTaskQueue.Tasks);
+        Assert.Empty(result.State.BattlefieldTasks);
+        Assert.DoesNotContain(CommandTypes.PassFocus, result.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.PassFocus, result.Prompts["P2"].Actions);
+    }
+
+    private static void AssertAcceptedPassFocusReplayRejectionAudit(ResolutionResult result)
+    {
+        Assert.Equal(TimingStates.SpellDuelOpen, result.State.TimingState);
+        Assert.Equal("P2", result.State.FocusPlayerId);
+        Assert.Equal(["P1"], result.State.PassedFocusPlayerIds);
+        Assert.Equal("BF-A", result.State.SpellDuelState.BattlefieldObjectId);
+        Assert.Equal("spell-duel:BF-A", result.State.SpellDuelState.SpellDuelId);
+        Assert.Equal("SPELL_DUEL_TASKS", result.State.PendingTaskQueue.Phase);
+        Assert.Equal("task:start-spell-duel:BF-A", result.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(
+            ["BATTLEFIELD_CONTESTED", "BATTLEFIELD_CONTESTED", "START_SPELL_DUEL", "START_SPELL_DUEL", "START_BATTLE", "START_BATTLE"],
+            result.State.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
+        Assert.Equal(
+            ["cleanup:battlefield-contested:BF-A", "cleanup:battlefield-contested:BF-B", "task:start-spell-duel:BF-A", "task:start-spell-duel:BF-B", "task:start-battle:BF-A", "task:start-battle:BF-B"],
+            result.State.PendingTaskQueue.Tasks.Select(task => task.TaskId).ToArray());
+
+        var queue = Assert.IsType<Dictionary<string, object?>>(result.Snapshots["P2"].Timing["pendingTaskQueue"]);
+        Assert.Equal("SPELL_DUEL_TASKS", Assert.IsType<string>(queue["phase"]));
+        Assert.True(Assert.IsType<bool>(queue["isBlocking"]));
+        Assert.Equal("task:start-spell-duel:BF-A", Assert.IsType<string>(queue["activeTaskId"]));
+        Assert.True(result.Prompts["P2"].Actionable);
+        Assert.Equal("BF-A", result.Prompts["P2"].View?.RelatedBattlefieldId);
+        Assert.Equal("spell-duel:BF-A", result.Prompts["P2"].View?.RelatedSpellDuelId);
+        Assert.False(result.Prompts["P1"].Actionable);
+        Assert.Equal("BF-A", result.Prompts["P1"].View?.RelatedBattlefieldId);
+        Assert.Equal("spell-duel:BF-A", result.Prompts["P1"].View?.RelatedSpellDuelId);
+    }
+
+    private static void AssertStackResolutionReturnsToActiveSpellDuelTaskAudit(ResolutionResult result)
+    {
+        var resolved = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
+        Assert.Equal("STACK-SWIFT-A", resolved.Payload["stackItemId"]);
+        Assert.Equal(TimingStates.SpellDuelOpen, result.State.TimingState);
+        Assert.Equal("P2", result.State.FocusPlayerId);
+        Assert.Empty(result.State.PassedFocusPlayerIds);
+        Assert.Empty(result.State.StackItems);
+        Assert.Equal("BF-A", result.State.SpellDuelState.BattlefieldObjectId);
+        Assert.Equal("spell-duel:BF-A", result.State.SpellDuelState.SpellDuelId);
+        Assert.Empty(result.State.SpellDuelState.StackItemIds);
+        Assert.Equal("SPELL_DUEL_TASKS", result.State.PendingTaskQueue.Phase);
+        Assert.Equal("task:start-spell-duel:BF-A", result.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(
+            ["BATTLEFIELD_CONTESTED", "BATTLEFIELD_CONTESTED", "START_SPELL_DUEL", "START_SPELL_DUEL", "START_BATTLE", "START_BATTLE"],
+            result.State.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
+
+        var queue = Assert.IsType<Dictionary<string, object?>>(result.Snapshots["P2"].Timing["pendingTaskQueue"]);
+        Assert.Equal("SPELL_DUEL_TASKS", Assert.IsType<string>(queue["phase"]));
+        Assert.Equal("task:start-spell-duel:BF-A", Assert.IsType<string>(queue["activeTaskId"]));
+        var battlefieldTasks = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(result.Snapshots["P2"].Timing["battlefieldTasks"]);
+        var activeSpellDuelTask = Assert.Single(battlefieldTasks, task =>
+            string.Equals(task["kind"] as string, "START_SPELL_DUEL", StringComparison.Ordinal)
+            && string.Equals(task["status"] as string, "ACTIVE", StringComparison.Ordinal)
+            && string.Equals(task["battlefieldObjectId"] as string, "BF-A", StringComparison.Ordinal));
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(activeSpellDuelTask["stackItemIds"]));
+        Assert.True(result.Prompts["P2"].Actionable);
+        Assert.Contains(CommandTypes.PassFocus, result.Prompts["P2"].Actions);
+        Assert.Equal(PromptTypes.SpellDuelFocus, result.Prompts["P2"].View?.Type);
+        Assert.Equal("BF-A", result.Prompts["P2"].View?.RelatedBattlefieldId);
+        Assert.Equal("spell-duel:BF-A", result.Prompts["P2"].View?.RelatedSpellDuelId);
+        Assert.False(result.Prompts["P1"].Actionable);
+        Assert.DoesNotContain(CommandTypes.PassFocus, result.Prompts["P1"].Actions);
+    }
+
+    private static void AssertStaleFirstSpellDuelPromptReplayAudit(ResolutionResult result)
+    {
+        Assert.Equal(TimingStates.SpellDuelOpen, result.State.TimingState);
+        Assert.Equal("P1", result.State.FocusPlayerId);
+        Assert.Empty(result.State.PassedFocusPlayerIds);
+        Assert.Equal("BF-B", result.State.SpellDuelState.BattlefieldObjectId);
+        Assert.Equal("spell-duel:BF-B", result.State.SpellDuelState.SpellDuelId);
+        Assert.Contains(BattlefieldTaskMarkers.SpellDuelCompleted("BF-A"), result.State.UntilEndOfTurnEffects);
+        Assert.Equal("SPELL_DUEL_TASKS", result.State.PendingTaskQueue.Phase);
+        Assert.Equal("task:start-spell-duel:BF-B", result.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(
+            ["BATTLEFIELD_CONTESTED", "START_SPELL_DUEL", "START_BATTLE"],
+            result.State.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
+        Assert.Equal(
+            ["BF-B", "BF-B", "BF-B"],
+            result.State.PendingTaskQueue.Tasks.Select(task => task.BattlefieldObjectId!).ToArray());
+        Assert.DoesNotContain(
+            result.State.PendingTaskQueue.Tasks,
+            task => string.Equals(task.BattlefieldObjectId, "BF-A", StringComparison.Ordinal));
+
+        var queue = Assert.IsType<Dictionary<string, object?>>(result.Snapshots["P1"].Timing["pendingTaskQueue"]);
+        Assert.Equal("SPELL_DUEL_TASKS", Assert.IsType<string>(queue["phase"]));
+        Assert.Equal("task:start-spell-duel:BF-B", Assert.IsType<string>(queue["activeTaskId"]));
+        Assert.True(result.Prompts["P1"].Actionable);
+        Assert.Equal("BF-B", result.Prompts["P1"].View?.RelatedBattlefieldId);
+        Assert.Equal("spell-duel:BF-B", result.Prompts["P1"].View?.RelatedSpellDuelId);
+        Assert.False(result.Prompts["P2"].Actionable);
+        Assert.DoesNotContain(CommandTypes.PassFocus, result.Prompts["P2"].Actions);
+    }
+
+    private static void AssertReconnectSpellDuelTaskMetadataAudit(
+        PlayerSessionDto reconnect,
+        SnapshotDto snapshot,
+        ActionPromptDto prompt)
+    {
+        Assert.Equal("P1", reconnect.PlayerId);
+        Assert.False(string.IsNullOrWhiteSpace(reconnect.ReconnectToken));
+        Assert.Equal("P1", snapshot.Timing["focusPlayerId"]);
+
+        var queue = Assert.IsType<Dictionary<string, object?>>(snapshot.Timing["pendingTaskQueue"]);
+        Assert.True(Assert.IsType<bool>(queue["hasTasks"]));
+        Assert.True(Assert.IsType<bool>(queue["isBlocking"]));
+        Assert.Equal("SPELL_DUEL_TASKS", Assert.IsType<string>(queue["phase"]));
+        Assert.Equal("task:start-spell-duel:BF-A", Assert.IsType<string>(queue["activeTaskId"]));
+        var queueTasks = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(queue["tasks"]);
+        Assert.Equal(
+            ["BATTLEFIELD_CONTESTED", "BATTLEFIELD_CONTESTED", "START_SPELL_DUEL", "START_SPELL_DUEL", "START_BATTLE", "START_BATTLE"],
+            queueTasks.Select(task => Assert.IsType<string>(task["kind"])).ToArray());
+        Assert.DoesNotContain("P2-HIDDEN-STANDBY", queueTasks.Select(task => task["objectId"] as string));
+
+        var activeTask = Assert.Single(
+            Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(snapshot.Timing["battlefieldTasks"]),
+            task => string.Equals(task["kind"] as string, "START_SPELL_DUEL", StringComparison.Ordinal)
+                && string.Equals(task["status"] as string, "ACTIVE", StringComparison.Ordinal)
+                && string.Equals(task["battlefieldObjectId"] as string, "BF-A", StringComparison.Ordinal));
+        Assert.Equal("BATTLEFIELD_CONTESTED", Assert.IsType<string>(activeTask["reason"]));
+        Assert.Equal("P1", Assert.IsType<string>(activeTask["actingPlayerId"]));
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(activeTask["stackItemIds"]));
+
+        Assert.True(prompt.Actionable);
+        Assert.Contains(CommandTypes.PassFocus, prompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, prompt.Actions);
+        Assert.Equal("BF-A", prompt.View?.RelatedBattlefieldId);
+        Assert.Equal("spell-duel:BF-A", prompt.View?.RelatedSpellDuelId);
+    }
+
+    private static void AssertReconnectBattleTaskMetadataAudit(
+        PlayerSessionDto reconnect,
+        SnapshotDto snapshot,
+        ActionPromptDto prompt)
+    {
+        Assert.Equal("P1", reconnect.PlayerId);
+        Assert.False(string.IsNullOrWhiteSpace(reconnect.ReconnectToken));
+        var queue = Assert.IsType<Dictionary<string, object?>>(snapshot.Timing["pendingTaskQueue"]);
+        Assert.True(Assert.IsType<bool>(queue["hasTasks"]));
+        Assert.True(Assert.IsType<bool>(queue["isBlocking"]));
+        Assert.Equal("BATTLE_TASKS", Assert.IsType<string>(queue["phase"]));
+        Assert.Equal("task:start-battle:BF-A", Assert.IsType<string>(queue["activeTaskId"]));
+        var queueTasks = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(queue["tasks"]);
+        Assert.Equal(
+            ["BATTLEFIELD_CONTESTED", "BATTLEFIELD_CONTESTED", "START_SPELL_DUEL", "START_SPELL_DUEL", "START_BATTLE", "START_BATTLE"],
+            queueTasks.Select(task => Assert.IsType<string>(task["kind"])).ToArray());
+        Assert.Equal(
+            ["BF-A", "BF-B", "BF-A", "BF-B", "BF-A", "BF-B"],
+            queueTasks.Select(task => Assert.IsType<string>(task["battlefieldObjectId"])).ToArray());
+        Assert.DoesNotContain("P2-HIDDEN-STANDBY", queueTasks.Select(task => task["objectId"] as string));
+
+        var activeTask = Assert.Single(
+            Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(snapshot.Timing["battlefieldTasks"]),
+            task => string.Equals(task["kind"] as string, "START_BATTLE", StringComparison.Ordinal)
+                && string.Equals(task["battlefieldObjectId"] as string, "BF-A", StringComparison.Ordinal));
+        Assert.Equal("PENDING", Assert.IsType<string>(activeTask["status"]));
+        Assert.Equal("SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST", Assert.IsType<string>(activeTask["reason"]));
+        Assert.Equal("battle:BF-A", Assert.IsType<string>(activeTask["battleId"]));
+        Assert.Null(activeTask["actingPlayerId"]);
+
+        Assert.True(prompt.Actionable);
+        Assert.Contains(CommandTypes.DeclareBattle, prompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, prompt.Actions);
+        Assert.Equal(PromptTypes.BattleDeclaration, prompt.View?.Type);
+        Assert.Equal("BF-A", prompt.View?.RelatedBattlefieldId);
+        Assert.Equal("battle:BF-A", prompt.View?.RelatedBattleId);
+    }
+
+    private static void AssertSpellDuelCloseCleanupPromptQueueAudit(ResolutionResult result)
+    {
+        var events = result.Events;
+        var focusPassedIndex = EventIndex(events, gameEvent =>
+            string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
+        var focusPassed = events[focusPassedIndex];
+        Assert.Equal("P1", focusPassed.Payload["playerId"]);
+        Assert.Equal("P1", focusPassed.Payload["focusPlayerId"]);
+
+        var spellDuelClosedIndex = EventIndex(events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
+        var spellDuelClosed = events[spellDuelClosedIndex];
+        Assert.Equal("P1", spellDuelClosed.Payload["turnPlayerId"]);
+        Assert.Equal(["BF-A"], StringList(spellDuelClosed.Payload["completedBattlefieldObjectIds"]));
+
+        var destroyedIndex = EventIndex(events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-A", StringComparison.Ordinal));
+        var destroyed = events[destroyedIndex];
+        Assert.Equal("SPELL_DUEL_CLEANUP", destroyed.Payload["sourceObjectId"]);
+        Assert.Equal("P2", destroyed.Payload["ownerPlayerId"]);
+        Assert.Equal("P1", destroyed.Payload["destroyedByPlayerId"]);
+        Assert.Equal("GRAVEYARD", destroyed.Payload["destinationZone"]);
+        Assert.Equal("LETHAL_DAMAGE", destroyed.Payload["reason"]);
+
+        var contestedIndex = EventIndex(events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "BF-B", StringComparison.Ordinal));
+        var contested = events[contestedIndex];
+        Assert.Equal("P1", contested.Payload["playerId"]);
+        Assert.Equal("P1", contested.Payload["causedByPlayerId"]);
+        Assert.Equal(["P1", "P2"], StringList(contested.Payload["participantControllerIds"]));
+        Assert.Equal(["P1-B", "P2-B"], StringList(contested.Payload["participantObjectIds"]));
+
+        var startedIndex = EventIndex(events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "BF-B", StringComparison.Ordinal));
+        var started = events[startedIndex];
+        Assert.Equal("task:start-spell-duel:BF-B", started.Payload["taskId"]);
+        Assert.Equal("BATTLEFIELD_CONTESTED", started.Payload["reason"]);
+        Assert.Equal("P1", started.Payload["playerId"]);
+        Assert.Equal("P1", started.Payload["focusPlayerId"]);
+        Assert.Equal("P1", started.Payload["causedByPlayerId"]);
+        Assert.Equal(["P1", "P2"], StringList(started.Payload["participantControllerIds"]));
+        Assert.Equal(["P1-B", "P2-B"], StringList(started.Payload["participantObjectIds"]));
+
+        Assert.True(focusPassedIndex < spellDuelClosedIndex);
+        Assert.True(spellDuelClosedIndex < destroyedIndex);
+        Assert.True(destroyedIndex < contestedIndex);
+        Assert.True(contestedIndex < startedIndex);
+
+        Assert.Equal(TimingStates.SpellDuelOpen, result.State.TimingState);
+        Assert.Equal("P1", result.State.FocusPlayerId);
+        Assert.Empty(result.State.PassedFocusPlayerIds);
+        Assert.Equal("BF-B", result.State.SpellDuelState.BattlefieldObjectId);
+        Assert.Equal("spell-duel:BF-B", result.State.SpellDuelState.SpellDuelId);
+        Assert.Contains(BattlefieldTaskMarkers.SpellDuelCompleted("BF-A"), result.State.UntilEndOfTurnEffects);
+        Assert.Equal("SPELL_DUEL_TASKS", result.State.PendingTaskQueue.Phase);
+        Assert.Equal("task:start-spell-duel:BF-B", result.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(
+            ["BATTLEFIELD_CONTESTED", "START_SPELL_DUEL", "START_BATTLE"],
+            result.State.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
+        Assert.Equal(
+            ["cleanup:battlefield-contested:BF-B", "task:start-spell-duel:BF-B", "task:start-battle:BF-B"],
+            result.State.PendingTaskQueue.Tasks.Select(task => task.TaskId).ToArray());
+        Assert.Equal(
+            ["BF-B", "BF-B", "BF-B"],
+            result.State.PendingTaskQueue.Tasks.Select(task => task.BattlefieldObjectId!).ToArray());
+        Assert.DoesNotContain(
+            result.State.PendingTaskQueue.Tasks,
+            task => string.Equals(task.BattlefieldObjectId, "BF-A", StringComparison.Ordinal));
+
+        var activeSpellDuelTask = Assert.Single(
+            result.State.BattlefieldTasks,
+            task => string.Equals(task.Kind, "START_SPELL_DUEL", StringComparison.Ordinal)
+                && string.Equals(task.BattlefieldObjectId, "BF-B", StringComparison.Ordinal));
+        Assert.Equal("ACTIVE", activeSpellDuelTask.Status);
+        Assert.Equal("BATTLEFIELD_CONTESTED", activeSpellDuelTask.Reason);
+        Assert.Equal("P1", activeSpellDuelTask.ActingPlayerId);
+        Assert.Equal(["P1", "P2"], activeSpellDuelTask.ParticipantControllerIds);
+        Assert.Equal(["P1-B", "P2-B"], activeSpellDuelTask.ParticipantObjectIds);
+        var waitingBattleTask = Assert.Single(
+            result.State.BattlefieldTasks,
+            task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
+                && string.Equals(task.BattlefieldObjectId, "BF-B", StringComparison.Ordinal));
+        Assert.Equal("WAITING_FOR_SPELL_DUEL", waitingBattleTask.Status);
+        Assert.Equal("SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST", waitingBattleTask.Reason);
+        Assert.DoesNotContain(
+            result.State.BattlefieldTasks,
+            task => string.Equals(task.BattlefieldObjectId, "BF-A", StringComparison.Ordinal));
+
+        var queue = Assert.IsType<Dictionary<string, object?>>(result.Snapshots["P1"].Timing["pendingTaskQueue"]);
+        Assert.True(Assert.IsType<bool>(queue["hasTasks"]));
+        Assert.True(Assert.IsType<bool>(queue["isBlocking"]));
+        Assert.Equal("SPELL_DUEL_TASKS", Assert.IsType<string>(queue["phase"]));
+        Assert.Equal("task:start-spell-duel:BF-B", Assert.IsType<string>(queue["activeTaskId"]));
+        var queueTasks = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(queue["tasks"]);
+        Assert.Equal(
+            ["BATTLEFIELD_CONTESTED", "START_SPELL_DUEL", "START_BATTLE"],
+            queueTasks.Select(task => Assert.IsType<string>(task["kind"])).ToArray());
+        Assert.Equal(
+            ["cleanup:battlefield-contested:BF-B", "task:start-spell-duel:BF-B", "task:start-battle:BF-B"],
+            queueTasks.Select(task => Assert.IsType<string>(task["taskId"])).ToArray());
+        Assert.Equal(
+            ["BF-B", "BF-B", "BF-B"],
+            queueTasks.Select(task => Assert.IsType<string>(task["battlefieldObjectId"])).ToArray());
+
+        var battlefieldTasks = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(result.Snapshots["P1"].Timing["battlefieldTasks"]);
+        Assert.Equal(
+            ["START_SPELL_DUEL", "START_BATTLE"],
+            battlefieldTasks.Select(task => Assert.IsType<string>(task["kind"])).ToArray());
+        Assert.Equal(
+            ["ACTIVE", "WAITING_FOR_SPELL_DUEL"],
+            battlefieldTasks.Select(task => Assert.IsType<string>(task["status"])).ToArray());
+        Assert.Equal(
+            ["BF-B", "BF-B"],
+            battlefieldTasks.Select(task => Assert.IsType<string>(task["battlefieldObjectId"])).ToArray());
+
+        Assert.True(result.Prompts["P1"].Actionable);
+        Assert.Equal(PromptTypes.SpellDuelFocus, result.Prompts["P1"].View?.Type);
+        Assert.Equal("BF-B", result.Prompts["P1"].View?.RelatedBattlefieldId);
+        Assert.Equal("spell-duel:BF-B", result.Prompts["P1"].View?.RelatedSpellDuelId);
+        Assert.Contains(CommandTypes.PassFocus, result.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.DeclareBattle, result.Prompts["P1"].Actions);
+        Assert.False(result.Prompts["P2"].Actionable);
+        Assert.DoesNotContain(CommandTypes.PassFocus, result.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.DeclareBattle, result.Prompts["P2"].Actions);
+
+        var p1PromptJson = JsonSerializer.Serialize(result.Prompts["P1"]);
+        Assert.DoesNotContain("P2-A", p1PromptJson, StringComparison.Ordinal);
+        Assert.DoesNotContain("task:start-battle:BF-A", p1PromptJson, StringComparison.Ordinal);
+        Assert.DoesNotContain("spell-duel:BF-A", p1PromptJson, StringComparison.Ordinal);
+    }
+
+    private static void AssertMultiContestActiveSpellDuelTaskAudit(
+        MatchState state,
+        SnapshotDto snapshot,
+        ActionPromptDto prompt)
+    {
+        Assert.Equal(TimingStates.SpellDuelOpen, state.TimingState);
+        Assert.Equal("P1", state.FocusPlayerId);
+        Assert.Empty(state.PassedFocusPlayerIds);
+        Assert.Equal("BF-A", state.SpellDuelState.BattlefieldObjectId);
+        Assert.Equal("spell-duel:BF-A", state.SpellDuelState.SpellDuelId);
+        Assert.Equal("SPELL_DUEL_TASKS", state.PendingTaskQueue.Phase);
+        Assert.Equal("task:start-spell-duel:BF-A", state.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(
+            ["BATTLEFIELD_CONTESTED", "BATTLEFIELD_CONTESTED", "START_SPELL_DUEL", "START_SPELL_DUEL", "START_BATTLE", "START_BATTLE"],
+            state.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
+        Assert.Equal(
+            ["BF-A", "BF-B", "BF-A", "BF-B", "BF-A", "BF-B"],
+            state.PendingTaskQueue.Tasks.Select(task => task.BattlefieldObjectId!).ToArray());
+        Assert.Equal(
+            [
+                "cleanup:battlefield-contested:BF-A",
+                "cleanup:battlefield-contested:BF-B",
+                "task:start-spell-duel:BF-A",
+                "task:start-spell-duel:BF-B",
+                "task:start-battle:BF-A",
+                "task:start-battle:BF-B"
+            ],
+            state.PendingTaskQueue.Tasks.Select(task => task.TaskId).ToArray());
+
+        var queue = Assert.IsType<Dictionary<string, object?>>(snapshot.Timing["pendingTaskQueue"]);
+        Assert.Equal("SPELL_DUEL_TASKS", Assert.IsType<string>(queue["phase"]));
+        Assert.True(Assert.IsType<bool>(queue["hasTasks"]));
+        Assert.True(Assert.IsType<bool>(queue["isBlocking"]));
+        Assert.Equal("task:start-spell-duel:BF-A", Assert.IsType<string>(queue["activeTaskId"]));
+        var queueTasks = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(queue["tasks"]);
+        Assert.Equal(
+            ["BATTLEFIELD_CONTESTED", "BATTLEFIELD_CONTESTED", "START_SPELL_DUEL", "START_SPELL_DUEL", "START_BATTLE", "START_BATTLE"],
+            queueTasks.Select(task => Assert.IsType<string>(task["kind"])).ToArray());
+        Assert.Equal(
+            ["BF-A", "BF-B", "BF-A", "BF-B", "BF-A", "BF-B"],
+            queueTasks.Select(task => Assert.IsType<string>(task["battlefieldObjectId"])).ToArray());
+        Assert.Equal(
+            [
+                "cleanup:battlefield-contested:BF-A",
+                "cleanup:battlefield-contested:BF-B",
+                "task:start-spell-duel:BF-A",
+                "task:start-spell-duel:BF-B",
+                "task:start-battle:BF-A",
+                "task:start-battle:BF-B"
+            ],
+            queueTasks.Select(task => Assert.IsType<string>(task["taskId"])).ToArray());
+
+        var battlefieldTasks = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(snapshot.Timing["battlefieldTasks"]);
+        Assert.Equal(
+            ["START_SPELL_DUEL", "START_BATTLE", "START_SPELL_DUEL", "START_BATTLE"],
+            battlefieldTasks.Select(task => Assert.IsType<string>(task["kind"])).ToArray());
+        Assert.Equal(
+            ["ACTIVE", "WAITING_FOR_SPELL_DUEL", "PENDING", "WAITING_FOR_SPELL_DUEL"],
+            battlefieldTasks.Select(task => Assert.IsType<string>(task["status"])).ToArray());
+        Assert.Equal(
+            ["BF-A", "BF-A", "BF-B", "BF-B"],
+            battlefieldTasks.Select(task => Assert.IsType<string>(task["battlefieldObjectId"])).ToArray());
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.SpellDuelFocus, prompt.View?.Type);
+        Assert.Equal("BF-A", prompt.View?.RelatedBattlefieldId);
+        Assert.Equal("spell-duel:BF-A", prompt.View?.RelatedSpellDuelId);
+        Assert.Equal(["PASS_FOCUS", "SURRENDER"], prompt.Actions);
+        Assert.Contains(CommandTypes.PassFocus, prompt.Actions);
+    }
+
+    private static int EventIndex(IReadOnlyList<GameEvent> events, Func<GameEvent, bool> predicate)
+    {
+        for (var index = 0; index < events.Count; index++)
+        {
+            if (predicate(events[index]))
+            {
+                return index;
+            }
+        }
+
+        throw new Xunit.Sdk.XunitException("Expected event was not found.");
     }
 
     private static void AssertOpponentHiddenStandbyRedacted(SnapshotDto snapshot, string hiddenObjectId)
@@ -393,5 +900,16 @@ public sealed class SpellDuelBattleStateMachineTests
     private static IReadOnlyList<string> StringList(object? value)
     {
         return Assert.IsAssignableFrom<IReadOnlyList<string>>(value);
+    }
+
+    private static JsonElement PromptScopedRawCommand(string cmdType, ActionPromptDto prompt)
+    {
+        using var document = JsonDocument.Parse(JsonSerializer.Serialize(new Dictionary<string, object?>
+        {
+            ["cmdType"] = cmdType,
+            ["promptId"] = prompt.PromptId,
+            ["snapshotTick"] = prompt.SnapshotTick
+        }));
+        return document.RootElement.Clone();
     }
 }

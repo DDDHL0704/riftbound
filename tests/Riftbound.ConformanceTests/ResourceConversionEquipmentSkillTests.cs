@@ -201,17 +201,82 @@ public sealed class ResourceConversionEquipmentResourceSkillTests
             "P1",
             powerCost: 2,
             legalPaymentChoiceIds: ["SPEND_POWER:any:2"]);
+        var genericState = resourceState with
+        {
+            PendingPayment = genericPayment
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(genericState)["P1"];
+        Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        var payCostCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(payCostCandidate.Metadata);
+        var paymentResourceChoices = Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(
+            metadata["paymentResourceChoices"]);
+        Assert.Equal([resourceAction], paymentResourceChoices.Select(choice => choice.Id).ToArray());
+        Assert.Equal([resourceAction], Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["paymentResourceActionIds"]));
+        Assert.Equal(2, Assert.IsType<int>(metadata["availablePowerWithPaymentResources"]));
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            metadata["paymentResourcePowerByChoice"]);
+        Assert.Equal(2, paymentResourcePowerByChoice[resourceAction]["power"]);
+        Assert.Equal(true, paymentResourcePowerByChoice[resourceAction]["paymentOnly"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(paymentResourcePowerByChoice[resourceAction]["powerByTrait"]));
 
         var genericResult = await new CoreRuleEngine().ResolveAsync(
-            resourceState with { PendingPayment = genericPayment },
+            genericState,
             new PlayerIntent("intent-ancient-stele-pay-generic", "P1", CommandTypes.PayCost),
             new PayCostCommand(genericPayment.PaymentId, genericPayment.PaymentWindow, [resourceAction, "SPEND_POWER:any:2"]),
             CancellationToken.None);
 
         Assert.True(genericResult.Accepted, genericResult.ErrorMessage);
+        Assert.Null(genericResult.State.PendingPayment);
         Assert.Empty(genericResult.State.TemporaryPaymentResources);
         Assert.Equal(RunePool.Empty, genericResult.State.RunePools["P1"]);
-        Assert.Contains(genericResult.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
+        Assert.Equal(
+            ["TEMPORARY_PAYMENT_RESOURCE_SPENT", "TEMPORARY_PAYMENT_RESOURCE_CLEARED", "COST_PAID", "PAYMENT_WINDOW_CLOSED"],
+            genericResult.Events.Select(gameEvent => gameEvent.Kind));
+
+        var spentEvent = Assert.Single(genericResult.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
+        Assert.Equal(genericPayment.PaymentId, spentEvent.Payload["paymentId"]);
+        Assert.Equal(genericPayment.PaymentWindow, spentEvent.Payload["paymentWindow"]);
+        Assert.Equal("P1", spentEvent.Payload["playerId"]);
+        Assert.Equal(temporaryResource.ResourceId, spentEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal(AncientSteleObjectId, spentEvent.Payload["sourceObjectId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, spentEvent.Payload["abilityId"]);
+        Assert.Equal(2, spentEvent.Payload["consumedPower"]);
+        Assert.Equal(0, spentEvent.Payload["remainingPower"]);
+        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], Assert.IsType<string[]>(spentEvent.Payload["allowedPaymentKinds"]));
+        Assert.Equal(true, spentEvent.Payload["paymentOnly"]);
+
+        var cleanupEvent = Assert.Single(genericResult.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_CLEARED", StringComparison.Ordinal));
+        Assert.Equal(genericPayment.PaymentId, cleanupEvent.Payload["paymentId"]);
+        Assert.Equal(genericPayment.PaymentWindow, cleanupEvent.Payload["paymentWindow"]);
+        Assert.Equal("P1", cleanupEvent.Payload["playerId"]);
+        Assert.Equal(temporaryResource.ResourceId, cleanupEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal(0, cleanupEvent.Payload["remainingPowerBeforeCleanup"]);
+        Assert.Equal(true, cleanupEvent.Payload["paymentOnly"]);
+
+        var costEvent = Assert.Single(genericResult.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(genericPayment.PaymentId, costEvent.Payload["paymentId"]);
+        Assert.Equal(genericPayment.PaymentWindow, costEvent.Payload["paymentWindow"]);
+        Assert.Equal("P1", costEvent.Payload["playerId"]);
+        Assert.Equal([resourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        Assert.Equal([resourceAction, "SPEND_POWER:any:2"], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        Assert.Equal(["SPEND_POWER:any:2"], Assert.IsType<string[]>(costEvent.Payload["legalPaymentChoiceIds"]));
+        Assert.Equal([temporaryResource.ResourceId], Assert.IsType<string[]>(costEvent.Payload["temporaryPaymentResourceIds"]));
+        Assert.Equal(2, costEvent.Payload["temporaryPaymentResourcePower"]);
+        Assert.Equal(2, costEvent.Payload["power"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]));
+        Assert.Equal(0, costEvent.Payload["remainingPower"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["remainingPowerByTrait"]));
+
+        var paymentWindowClosedEvent = Assert.Single(genericResult.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        Assert.Equal(genericPayment.PaymentId, paymentWindowClosedEvent.Payload["paymentId"]);
+        Assert.Equal(genericPayment.PaymentWindow, paymentWindowClosedEvent.Payload["paymentWindow"]);
 
         resourceState = (await ResolveAsync(
             BuildPriorityState(new RunePool(2, 0)),

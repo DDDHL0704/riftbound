@@ -1,0 +1,54 @@
+# Stage 4D-06A Pass Replay Evidence
+
+Date: 2026-05-22
+
+Project status: **NOT READY**
+
+## Changed Files
+
+- `src/Riftbound.Engine/CoreRuleEngine.cs`
+- `tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs`
+- `docs/CURRENT_A_MASTER_CHECKPOINT.md`
+- `docs/CURRENT_COMPLETION_AUDIT.md`
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`
+- `docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md`
+- `docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md`
+- `docs/CURRENT_STAGE4D_SHARED_COORDINATION_BOARD.md`
+- `docs/CURRENT_STAGE4D_06A_PASS_REPLAY_AUDIT.md`
+- `docs/CURRENT_STAGE4D_06A_PASS_REPLAY_EVIDENCE.md`
+
+## Validation
+
+```bash
+source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~CoreRuleEngineAcceptsGenericPassInOrdinaryMainWindow|FullyQualifiedName~CoreRuleEngineRejectsAcceptedGenericPassReplayWithoutMutation"
+```
+
+Result: passed `2/2`.
+
+```bash
+source scripts/dev-env.sh && dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~GenericPass|FullyQualifiedName~PassPriority|FullyQualifiedName~PassFocus|FullyQualifiedName~EndTurn|FullyQualifiedName~ConformanceFixtureShapeTests|FullyQualifiedName~MatchStateHasher|FullyQualifiedName~LegacyJavaFixtureMatchesCurrentRuleSkeletonButStillRequiresRuleAudit"
+```
+
+Result: passed `153/153`.
+
+```bash
+source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
+```
+
+Result: passed `5363/5363`.
+
+```bash
+git diff --check
+rg -n '^(<<<<<<<|=======|>>>>>>>)' docs tests src
+rg -n '[ \t]+$' docs/CURRENT_STAGE4D_05J_HAND_CHOICE_REPLAY_AUDIT.md docs/CURRENT_STAGE4D_05J_HAND_CHOICE_REPLAY_EVIDENCE.md docs/CURRENT_STAGE4D_05K_PASS_FOCUS_REPLAY_AUDIT.md docs/CURRENT_STAGE4D_05K_PASS_FOCUS_REPLAY_EVIDENCE.md docs/CURRENT_STAGE4D_05L_PASS_PRIORITY_REPLAY_AUDIT.md docs/CURRENT_STAGE4D_05L_PASS_PRIORITY_REPLAY_EVIDENCE.md docs/CURRENT_STAGE4D_05M_DECLARE_BATTLE_REPLAY_AUDIT.md docs/CURRENT_STAGE4D_05M_DECLARE_BATTLE_REPLAY_EVIDENCE.md docs/CURRENT_STAGE4D_05N_MOVE_UNIT_REPLAY_AUDIT.md docs/CURRENT_STAGE4D_05N_MOVE_UNIT_REPLAY_EVIDENCE.md docs/CURRENT_STAGE4D_05O_END_TURN_REPLAY_AUDIT.md docs/CURRENT_STAGE4D_05O_END_TURN_REPLAY_EVIDENCE.md docs/CURRENT_STAGE4D_05P_SURRENDER_REPLAY_AUDIT.md docs/CURRENT_STAGE4D_05P_SURRENDER_REPLAY_EVIDENCE.md docs/CURRENT_STAGE4D_05Q_TAP_RUNE_REPLAY_AUDIT.md docs/CURRENT_STAGE4D_05Q_TAP_RUNE_REPLAY_EVIDENCE.md docs/CURRENT_STAGE4D_05R_RECYCLE_RUNE_REPLAY_AUDIT.md docs/CURRENT_STAGE4D_05R_RECYCLE_RUNE_REPLAY_EVIDENCE.md docs/CURRENT_STAGE4D_05S_PLAY_CARD_REPLAY_AUDIT.md docs/CURRENT_STAGE4D_05S_PLAY_CARD_REPLAY_EVIDENCE.md docs/CURRENT_STAGE4D_05T_ACTIVATE_ABILITY_REPLAY_AUDIT.md docs/CURRENT_STAGE4D_05T_ACTIVATE_ABILITY_REPLAY_EVIDENCE.md docs/CURRENT_STAGE4D_05U_HIDE_CARD_REPLAY_AUDIT.md docs/CURRENT_STAGE4D_05U_HIDE_CARD_REPLAY_EVIDENCE.md docs/CURRENT_STAGE4D_05V_REVEAL_CARD_REPLAY_AUDIT.md docs/CURRENT_STAGE4D_05V_REVEAL_CARD_REPLAY_EVIDENCE.md docs/CURRENT_STAGE4D_05W_REVEAL_CARD_REACTION_REPLAY_AUDIT.md docs/CURRENT_STAGE4D_05W_REVEAL_CARD_REACTION_REPLAY_EVIDENCE.md docs/CURRENT_STAGE4D_05X_MULLIGAN_REPLAY_AUDIT.md docs/CURRENT_STAGE4D_05X_MULLIGAN_REPLAY_EVIDENCE.md docs/CURRENT_STAGE4D_05Y_READY_REPLAY_AUDIT.md docs/CURRENT_STAGE4D_05Y_READY_REPLAY_EVIDENCE.md docs/CURRENT_STAGE4D_05Z_SUBMIT_DECK_REPLAY_AUDIT.md docs/CURRENT_STAGE4D_05Z_SUBMIT_DECK_REPLAY_EVIDENCE.md docs/CURRENT_STAGE4D_06A_PASS_REPLAY_AUDIT.md docs/CURRENT_STAGE4D_06A_PASS_REPLAY_EVIDENCE.md
+```
+
+Result: passed. No whitespace warnings, conflict markers or trailing whitespace in the new 05J..06A evidence docs.
+
+## Runtime And Protocol
+
+Runtime changed: yes. `CoreRuleEngine` now handles generic `PASS` directly and rejects accepted generic-pass replay from the same open main state without mutating state.
+
+Protocol shape changed: no.
+
+Hidden-info leakage found: no.

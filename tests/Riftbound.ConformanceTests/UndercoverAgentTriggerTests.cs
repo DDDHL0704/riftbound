@@ -60,6 +60,107 @@ public sealed class UndercoverAgentTriggerTests
     }
 
     [Fact]
+    public async Task UndercoverAgentHandChoiceRejectsAcceptedCommandReplayWithoutMutation()
+    {
+        var engine = new CoreRuleEngine();
+        var pending = await ResolveUndercoverAgentTriggerAsync(
+            engine,
+            BuildUndercoverAgentDestroyedState(["P1-HAND-001", "P1-HAND-002", "P1-HAND-003"]));
+        var choice = pending.State.PendingHandChoice!;
+        var command = new ChooseHandCardsCommand(
+            choice.ChoiceId,
+            choice.ChoiceWindow,
+            ["P1-HAND-001", "P1-HAND-002"]);
+
+        var accepted = await engine.ResolveAsync(
+            pending.State,
+            new PlayerIntent("intent-undercover-hand-choice-before-replay", "P1", CommandTypes.ChooseHandCards),
+            command,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Null(accepted.State.PendingHandChoice);
+        Assert.Equal(["P1-HAND-003", "P1-DRAW-001", "P1-DRAW-002"], accepted.State.PlayerZones["P1"].Hand);
+        Assert.Equal(2, accepted.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal)));
+        Assert.Equal(2, DrawnCardCount(accepted.Events));
+        var acceptedHash = MatchStateHasher.Hash(accepted.State);
+
+        var replay = await engine.ResolveAsync(
+            accepted.State,
+            new PlayerIntent("intent-undercover-hand-choice-stale-replay", "P1", CommandTypes.ChooseHandCards),
+            command,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, replay.ErrorCode);
+        Assert.Empty(replay.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        AssertNoMutation(accepted.State, replay.State);
+        Assert.NotEqual(PromptTypes.HandChoice, replay.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.HandChoice, replay.Prompts["P2"].View?.Type);
+    }
+
+    [Fact]
+    public async Task UndercoverAgentHandChoiceStalePromptReplayAfterWindowClosesRejectsWithoutMutation()
+    {
+        var pending = await ResolveUndercoverAgentTriggerAsync(
+            new CoreRuleEngine(),
+            BuildUndercoverAgentDestroyedState(["P1-HAND-001", "P1-HAND-002", "P1-HAND-003"]));
+        var choice = pending.State.PendingHandChoice!;
+        var session = new MatchSession(pending.State, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.HandChoice, prompt.View?.Type);
+        Assert.Contains(CommandTypes.ChooseHandCards, prompt.Actions);
+
+        var command = new ChooseHandCardsCommand(
+            choice.ChoiceId,
+            choice.ChoiceWindow,
+            ["P1-HAND-001", "P1-HAND-002"]);
+        var staleRawCommand = PromptScopedChooseHandCardsRawCommand(command, prompt);
+
+        var accepted = await session.SubmitAsync(
+            "P1",
+            "intent-undercover-hand-choice-before-stale-prompt-replay",
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Null(accepted.State.PendingHandChoice);
+        Assert.Equal(["P1-HAND-003", "P1-DRAW-001", "P1-DRAW-002"], accepted.State.PlayerZones["P1"].Hand);
+        Assert.Contains("P1-HAND-001", accepted.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains("P1-HAND-002", accepted.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(2, accepted.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal)));
+        Assert.Equal(2, DrawnCardCount(accepted.Events));
+        Assert.Contains(accepted.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "HAND_CHOICE_RESOLVED", StringComparison.Ordinal));
+        Assert.NotEqual(PromptTypes.HandChoice, accepted.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.HandChoice, accepted.Prompts["P2"].View?.Type);
+        var acceptedHash = MatchStateHasher.Hash(accepted.State);
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            "intent-undercover-hand-choice-stale-prompt-replay",
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
+        Assert.Empty(replay.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        AssertNoMutation(accepted.State, replay.State);
+        Assert.NotEqual(PromptTypes.HandChoice, replay.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.HandChoice, replay.Prompts["P2"].View?.Type);
+        Assert.DoesNotContain(CommandTypes.ChooseHandCards, replay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.ChooseHandCards, replay.Prompts["P2"].Actions);
+    }
+
+    [Fact]
     public async Task StateBasedCleanupUndercoverAgentQueuesAndOpensHandChoiceThroughStack()
     {
         var engine = new CoreRuleEngine();
@@ -263,6 +364,21 @@ public sealed class UndercoverAgentTriggerTests
                 && count is int typedCount
                     ? typedCount
                     : 0);
+    }
+
+    private static JsonElement PromptScopedChooseHandCardsRawCommand(
+        ChooseHandCardsCommand command,
+        ActionPromptDto prompt)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.ChooseHandCards,
+            choiceId = command.ChoiceId,
+            choiceWindow = command.ChoiceWindow,
+            chosenObjectIds = command.ChosenObjectIds,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick
+        });
     }
 
     private static async Task<ResolutionResult> ResolveUndercoverAgentTriggerAsync(

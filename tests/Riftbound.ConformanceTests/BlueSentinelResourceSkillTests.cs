@@ -60,6 +60,21 @@ public sealed class BlueSentinelResourceSkillTests
         Assert.Equal($"{P4ActivatedAbilityCatalog.BlueSentinelDelayedResourceActionPrefix}{trigger.TriggerId}", resourceAction.Id);
         var resourceActionIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["paymentResourceActionIds"]);
         Assert.Equal([resourceAction.Id], resourceActionIds);
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            metadata["paymentResourcePowerByChoice"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower, paymentResourcePowerByChoice[resourceAction.Id]["power"]);
+        Assert.Equal(true, paymentResourcePowerByChoice[resourceAction.Id]["paymentOnly"]);
+        Assert.Equal(trigger.TriggerId, paymentResourcePowerByChoice[resourceAction.Id]["delayedTriggerId"]);
+        Assert.Equal(BlueSentinelObjectId, paymentResourcePowerByChoice[resourceAction.Id]["sourceObjectId"]);
+        Assert.Equal(BattlefieldObjectId, paymentResourcePowerByChoice[resourceAction.Id]["battlefieldObjectId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId, paymentResourcePowerByChoice[resourceAction.Id]["abilityId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.BlueSentinelPaymentOnlyResourceRestriction, paymentResourcePowerByChoice[resourceAction.Id]["resourceRestriction"]);
+        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], Assert.IsType<string[]>(paymentResourcePowerByChoice[resourceAction.Id]["allowedPaymentKinds"]));
+        Assert.Equal("temporary-payment-resource-ledger", paymentResourcePowerByChoice[resourceAction.Id]["resourceLifecycle"]);
+        Assert.Equal(true, paymentResourcePowerByChoice[resourceAction.Id]["generatedResourceCannotBeTargetedAsResponse"]);
+
+        var expectedTemporaryResourceId = $"BLUE_SENTINEL:{payment.PaymentId}:{trigger.TriggerId}";
+        var expectedTemporaryResourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(expectedTemporaryResourceId);
 
         var result = await new CoreRuleEngine().ResolveAsync(
             paymentState,
@@ -72,15 +87,72 @@ public sealed class BlueSentinelResourceSkillTests
         Assert.Empty(result.State.TriggerQueue);
         Assert.Empty(result.State.TemporaryPaymentResources);
         Assert.Equal(RunePool.Empty, result.State.RunePools["P2"]);
+        Assert.Equal(
+            [
+                "TRIGGER_RESOLVED",
+                "ABILITY_ACTIVATED",
+                "POWER_GAINED",
+                "TEMPORARY_PAYMENT_RESOURCE_SPENT",
+                "TEMPORARY_PAYMENT_RESOURCE_CLEARED",
+                "COST_PAID",
+                "PAYMENT_WINDOW_CLOSED"
+            ],
+            result.Events.Select(gameEvent => gameEvent.Kind));
+
+        var triggerResolvedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal));
+        Assert.Equal(trigger.TriggerId, triggerResolvedEvent.Payload["triggerId"]);
         var activatedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
         Assert.Equal(P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId, activatedEvent.Payload["abilityId"]);
+        Assert.Equal(payment.PaymentId, activatedEvent.Payload["paymentId"]);
+        Assert.Equal(payment.PaymentWindow, activatedEvent.Payload["paymentWindow"]);
         Assert.Equal(trigger.TriggerId, activatedEvent.Payload["delayedTriggerId"]);
         Assert.Equal(BattlefieldObjectId, activatedEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal(expectedTemporaryResourceId, activatedEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.BlueSentinelPaymentOnlyResourceRestriction, activatedEvent.Payload["resourceRestriction"]);
         Assert.Equal("no-ordinary-stack-item", activatedEvent.Payload["stackPolicy"]);
         Assert.True(Assert.IsType<bool>(activatedEvent.Payload["generatedResourceCannotBeTargetedAsResponse"]));
-        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
-        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
-        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_CLEARED", StringComparison.Ordinal));
+
+        var powerGainedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+        Assert.Equal(payment.PaymentId, powerGainedEvent.Payload["paymentId"]);
+        Assert.Equal(payment.PaymentWindow, powerGainedEvent.Payload["paymentWindow"]);
+        Assert.Equal(trigger.TriggerId, powerGainedEvent.Payload["delayedTriggerId"]);
+        Assert.Equal(expectedTemporaryResourceId, powerGainedEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower, powerGainedEvent.Payload["power"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower, powerGainedEvent.Payload["remainingPower"]);
+        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], Assert.IsType<string[]>(powerGainedEvent.Payload["allowedPaymentKinds"]));
+
+        var spendEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
+        Assert.Equal(payment.PaymentId, spendEvent.Payload["paymentId"]);
+        Assert.Equal(payment.PaymentWindow, spendEvent.Payload["paymentWindow"]);
+        Assert.Equal(expectedTemporaryResourceId, spendEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal(BlueSentinelObjectId, spendEvent.Payload["sourceObjectId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId, spendEvent.Payload["abilityId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower, spendEvent.Payload["consumedPower"]);
+        Assert.Equal(0, spendEvent.Payload["remainingPower"]);
+        Assert.Equal(true, spendEvent.Payload["paymentOnly"]);
+        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], Assert.IsType<string[]>(spendEvent.Payload["allowedPaymentKinds"]));
+
+        var cleanupEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_CLEARED", StringComparison.Ordinal));
+        Assert.Equal(payment.PaymentId, cleanupEvent.Payload["paymentId"]);
+        Assert.Equal(payment.PaymentWindow, cleanupEvent.Payload["paymentWindow"]);
+        Assert.Equal(expectedTemporaryResourceId, cleanupEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal(0, cleanupEvent.Payload["remainingPowerBeforeCleanup"]);
+        Assert.Equal(true, cleanupEvent.Payload["paymentOnly"]);
+
+        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(payment.PaymentId, costEvent.Payload["paymentId"]);
+        Assert.Equal(payment.PaymentWindow, costEvent.Payload["paymentWindow"]);
+        Assert.Equal([expectedTemporaryResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        Assert.Equal([resourceAction.Id, "SPEND_POWER:any:1"], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        Assert.Equal(["SPEND_POWER:any:1"], Assert.IsType<string[]>(costEvent.Payload["legalPaymentChoiceIds"]));
+        Assert.Equal([expectedTemporaryResourceId], Assert.IsType<string[]>(costEvent.Payload["temporaryPaymentResourceIds"]));
+        Assert.Equal(P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower, costEvent.Payload["temporaryPaymentResourcePower"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower, costEvent.Payload["power"]);
+        Assert.Equal(0, costEvent.Payload["remainingPower"]);
+
+        var paymentWindowClosedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        Assert.Equal(payment.PaymentId, paymentWindowClosedEvent.Payload["paymentId"]);
+        Assert.Equal(payment.PaymentWindow, paymentWindowClosedEvent.Payload["paymentWindow"]);
         Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
     }
 

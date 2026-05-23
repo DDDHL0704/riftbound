@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -116,6 +117,69 @@ public sealed class ReactionResourceSkillTests
     }
 
     [Fact]
+    public async Task DragonSoulSageReactionResourceStalePromptReplayAfterManaGainRejectsWithoutMutation()
+    {
+        var state = BuildDragonSoulSagePriorityState();
+        var command = DragonSoulSageCommand();
+        var session = new MatchSession(state, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Contains(CommandTypes.ActivateAbility, prompt.Actions);
+        var activateCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        Assert.True(activateCandidate.Enabled);
+        Assert.Contains(
+            activateCandidate.Sources ?? [],
+            source => string.Equals(source.Id, DragonSoulSageObjectId, StringComparison.Ordinal));
+        var staleRawCommand = PromptScopedRawCommand(CommandTypes.ActivateAbility, prompt);
+
+        var gained = await session.SubmitAsync(
+            "P1",
+            "intent-dragon-soul-sage-before-stale-prompt-replay",
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.True(gained.Accepted, gained.ErrorMessage);
+        Assert.True(gained.State.CardObjects[DragonSoulSageObjectId].IsExhausted);
+        Assert.Equal(P4ActivatedAbilityCatalog.DragonSoulSageGeneratedMana, gained.State.RunePools["P1"].Mana);
+        Assert.Empty(gained.State.TemporaryPaymentResources);
+        Assert.Equal([PendingStackItemId], gained.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.Null(gained.State.PendingPayment);
+        Assert.Single(gained.Events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.Single(gained.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_EXHAUSTED", StringComparison.Ordinal));
+        Assert.Single(gained.Events, gameEvent => string.Equals(gameEvent.Kind, "MANA_GAINED", StringComparison.Ordinal));
+        Assert.DoesNotContain(gained.Events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        AssertNoDragonSoulSageResourceSkill(gained.Prompts["P1"]);
+        var postGainHash = MatchStateHasher.Hash(gained.State);
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            "intent-dragon-soul-sage-stale-prompt-replay",
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
+        Assert.Empty(replay.Events);
+        Assert.Equal(postGainHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(gained.State.RunePools["P1"], replay.State.RunePools["P1"]);
+        Assert.True(replay.State.CardObjects[DragonSoulSageObjectId].IsExhausted);
+        Assert.Empty(replay.State.TemporaryPaymentResources);
+        Assert.Equal(gained.State.StackItems, replay.State.StackItems);
+        Assert.Equal(gained.State.PendingTaskQueue.Phase, replay.State.PendingTaskQueue.Phase);
+        Assert.Equal(gained.State.PendingTaskQueue.ActiveTaskId, replay.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(gained.State.PendingTaskQueue.Tasks, replay.State.PendingTaskQueue.Tasks);
+        Assert.Null(replay.State.PendingPayment);
+        AssertNoDragonSoulSageResourceSkill(replay.Prompts["P1"]);
+    }
+
+    [Fact]
     public async Task DragonSoulSageGeneratedManaUsesNormalRunePoolCleanupLifecycle()
     {
         var result = await ResolveDragonSoulSageAsync(BuildDragonSoulSagePriorityState());
@@ -220,6 +284,16 @@ public sealed class ReactionResourceSkillTests
             P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId,
             targetObjectIds ?? [],
             optionalCosts);
+    }
+
+    private static JsonElement PromptScopedRawCommand(string cmdType, ActionPromptDto prompt)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            cmdType,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick
+        });
     }
 
     private static void AssertNoDragonSoulSageResourceSkill(ActionPromptDto prompt)

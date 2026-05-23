@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -105,6 +106,188 @@ public sealed class FluftPoroActivatedAbilityTests
         Assert.Equal(P4ActivatedAbilityCatalog.WarhawkTokenCardNo, costEvent.Payload["tokenCardNo"]);
         Assert.Equal(P4ActivatedAbilityCatalog.FluftPoroWarhawkTokenCount, costEvent.Payload["tokenCount"]);
         Assert.Empty(Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+    }
+
+    [Fact]
+    public async Task FluftPoroRejectsAcceptedActivationReplayWithoutMutation()
+    {
+        var engine = new CoreRuleEngine();
+        var command = FluftPoroCommand();
+
+        var accepted = await engine.ResolveAsync(
+            BuildFluftPoroState(),
+            new PlayerIntent("intent-fluft-poro-before-replay", "P1", CommandTypes.ActivateAbility),
+            command,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Equal(["ABILITY_ACTIVATED", "UNIT_EXHAUSTED", "COST_PAID", "STACK_ITEM_ADDED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.True(accepted.State.CardObjects[FluftObjectId].IsExhausted);
+        Assert.Equal([FluftObjectId], accepted.State.PlayerZones["P1"].Battlefields);
+        Assert.DoesNotContain(accepted.State.CardObjects.Values, card => string.Equals(card.CardNo, P4ActivatedAbilityCatalog.WarhawkTokenCardNo, StringComparison.Ordinal));
+        Assert.Equal(TimingStates.NeutralClosed, accepted.State.TimingState);
+        Assert.Equal("P1", accepted.State.PriorityPlayerId);
+        var stackItem = Assert.Single(accepted.State.StackItems);
+        Assert.Equal(P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityEffectKind, stackItem.EffectKind);
+        Assert.Equal(P4ActivatedAbilityCatalog.FluftPoroCardNo, stackItem.CardNo);
+        Assert.Empty(stackItem.TargetObjectIds);
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, accepted.Prompts["P1"].Actions);
+        AssertFluftPoroStackPriorityPromptQueueAudit(accepted);
+        var acceptedHash = MatchStateHasher.Hash(accepted.State);
+
+        var replay = await engine.ResolveAsync(
+            accepted.State,
+            new PlayerIntent("intent-fluft-poro-stale-replay", "P1", CommandTypes.ActivateAbility),
+            command,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, replay.ErrorCode);
+        Assert.Empty(replay.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.True(replay.State.CardObjects[FluftObjectId].IsExhausted);
+        Assert.Equal([FluftObjectId], replay.State.PlayerZones["P1"].Battlefields);
+        var replayStackItem = Assert.Single(replay.State.StackItems);
+        Assert.Equal(stackItem.StackItemId, replayStackItem.StackItemId);
+        Assert.Equal(P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityEffectKind, replayStackItem.EffectKind);
+        Assert.Equal(P4ActivatedAbilityCatalog.FluftPoroCardNo, replayStackItem.CardNo);
+        Assert.Empty(replayStackItem.TargetObjectIds);
+        Assert.Equal(TimingStates.NeutralClosed, replay.State.TimingState);
+        Assert.Equal("P1", replay.State.PriorityPlayerId);
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, replay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(replay.State.CardObjects.Values, card => string.Equals(card.CardNo, P4ActivatedAbilityCatalog.WarhawkTokenCardNo, StringComparison.Ordinal));
+        AssertFluftPoroStackPriorityPromptQueueAudit(replay);
+    }
+
+    [Fact]
+    public async Task FluftPoroActivationStalePromptReplayAfterStackPriorityStartsRejectsWithoutMutation()
+    {
+        var state = BuildFluftPoroState();
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        Assert.Contains(CommandTypes.ActivateAbility, prompt.Actions);
+        var command = FluftPoroCommand();
+        var staleRawCommand = PromptScopedActivateAbilityRawCommand(command, prompt);
+        var session = new MatchSession(state, new CoreRuleEngine(), NoopMatchJournal.Instance);
+
+        var accepted = await session.SubmitAsync(
+            "P1",
+            "intent-fluft-poro-before-stale-prompt-replay",
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Equal(["ABILITY_ACTIVATED", "UNIT_EXHAUSTED", "COST_PAID", "STACK_ITEM_ADDED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        var acceptedHash = MatchStateHasher.Hash(accepted.State);
+        var stackItem = Assert.Single(accepted.State.StackItems);
+        Assert.Equal(P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityEffectKind, stackItem.EffectKind);
+        Assert.Equal(P4ActivatedAbilityCatalog.FluftPoroCardNo, stackItem.CardNo);
+        Assert.True(accepted.State.CardObjects[FluftObjectId].IsExhausted);
+        Assert.Equal(TimingStates.NeutralClosed, accepted.State.TimingState);
+        Assert.Equal("P1", accepted.State.PriorityPlayerId);
+        Assert.Contains(CommandTypes.PassPriority, accepted.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, accepted.Prompts["P1"].Actions);
+        AssertFluftPoroStackPriorityPromptQueueAudit(accepted);
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            "intent-fluft-poro-stale-action-prompt-replay",
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
+        Assert.Empty(replay.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.True(replay.State.CardObjects[FluftObjectId].IsExhausted);
+        Assert.Equal([FluftObjectId], replay.State.PlayerZones["P1"].Battlefields);
+        var replayStackItem = Assert.Single(replay.State.StackItems);
+        Assert.Equal(stackItem.StackItemId, replayStackItem.StackItemId);
+        Assert.Equal(P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityEffectKind, replayStackItem.EffectKind);
+        Assert.Equal(P4ActivatedAbilityCatalog.FluftPoroCardNo, replayStackItem.CardNo);
+        Assert.Empty(replayStackItem.TargetObjectIds);
+        Assert.Equal(TimingStates.NeutralClosed, replay.State.TimingState);
+        Assert.Equal("P1", replay.State.PriorityPlayerId);
+        Assert.Contains(CommandTypes.PassPriority, replay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, replay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(replay.State.CardObjects.Values, card => string.Equals(card.CardNo, P4ActivatedAbilityCatalog.WarhawkTokenCardNo, StringComparison.Ordinal));
+        AssertFluftPoroStackPriorityPromptQueueAudit(replay);
+    }
+
+    private static void AssertFluftPoroStackPriorityPromptQueueAudit(ResolutionResult result)
+    {
+        Assert.Equal("P1", result.State.ActivePlayerId);
+        Assert.Equal("P1", result.State.TurnPlayerId);
+        Assert.Equal(MatchPhases.Main, result.State.Phase);
+        Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
+        Assert.Equal("P1", result.State.PriorityPlayerId);
+        Assert.Empty(result.State.PassedPriorityPlayerIds);
+        Assert.Null(result.State.FocusPlayerId);
+        Assert.Empty(result.State.PassedFocusPlayerIds);
+        Assert.Empty(result.State.BattlefieldTasks);
+        Assert.False(result.State.PendingTaskQueue.HasTasks);
+        Assert.False(result.State.PendingTaskQueue.IsBlocking);
+        Assert.Equal("IDLE", result.State.PendingTaskQueue.Phase);
+        Assert.Null(result.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Empty(result.State.PendingTaskQueue.Tasks);
+
+        Assert.Equal([FluftObjectId], result.State.PlayerZones["P1"].Battlefields);
+        Assert.True(result.State.CardObjects[FluftObjectId].IsExhausted);
+        Assert.Equal("P1", result.State.ObjectLocations[FluftObjectId].PlayerId);
+        Assert.Equal("BATTLEFIELD", result.State.ObjectLocations[FluftObjectId].Zone);
+        Assert.Equal("P1-MAIN", result.State.ObjectLocations[FluftObjectId].BattlefieldObjectId);
+        Assert.DoesNotContain(
+            result.State.CardObjects.Values,
+            card => string.Equals(card.CardNo, P4ActivatedAbilityCatalog.WarhawkTokenCardNo, StringComparison.Ordinal));
+
+        var stackItem = Assert.Single(result.State.StackItems);
+        Assert.Equal("P1", stackItem.ControllerId);
+        Assert.Equal(FluftObjectId, stackItem.SourceObjectId);
+        Assert.Equal(P4ActivatedAbilityCatalog.FluftPoroCardNo, stackItem.CardNo);
+        Assert.Equal(P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityEffectKind, stackItem.EffectKind);
+        Assert.Empty(stackItem.TargetObjectIds);
+
+        foreach (var snapshot in result.Snapshots.Values)
+        {
+            Assert.Equal(result.State.Tick, snapshot.Tick);
+            Assert.Equal("P1", snapshot.ActivePlayerId);
+            Assert.Equal("P1", Assert.IsType<string>(snapshot.Timing["turnPlayerId"]));
+            Assert.Equal(MatchPhases.Main, Assert.IsType<string>(snapshot.Timing["phase"]));
+            Assert.Equal(TimingStates.NeutralClosed, Assert.IsType<string>(snapshot.Timing["timingState"]));
+            Assert.Equal("P1", Assert.IsType<string>(snapshot.Timing["priorityPlayerId"]));
+            Assert.Null(snapshot.Timing["focusPlayerId"]);
+
+            var snapshotStackItem = Assert.IsType<Dictionary<string, object?>>(Assert.Single(snapshot.Stack));
+            Assert.Equal(stackItem.StackItemId, Assert.IsType<string>(snapshotStackItem["stackItemId"]));
+            Assert.Equal("P1", Assert.IsType<string>(snapshotStackItem["controllerId"]));
+            Assert.Equal(FluftObjectId, Assert.IsType<string>(snapshotStackItem["sourceObjectId"]));
+            Assert.Equal(P4ActivatedAbilityCatalog.FluftPoroCardNo, Assert.IsType<string>(snapshotStackItem["cardNo"]));
+
+            var queue = Assert.IsType<Dictionary<string, object?>>(snapshot.Timing["pendingTaskQueue"]);
+            Assert.False(Assert.IsType<bool>(queue["hasTasks"]));
+            Assert.False(Assert.IsType<bool>(queue["isBlocking"]));
+            Assert.Equal("IDLE", Assert.IsType<string>(queue["phase"]));
+            Assert.Null(queue["activeTaskId"]);
+            Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(queue["tasks"]));
+        }
+
+        Assert.Equal("P1", result.Prompts["P1"].PlayerId);
+        Assert.True(result.Prompts["P1"].Actionable);
+        Assert.Equal(PromptTypes.StackPriority, result.Prompts["P1"].View?.Type);
+        Assert.Equal(stackItem.StackItemId, result.Prompts["P1"].View?.RelatedStackItemId);
+        Assert.Contains(CommandTypes.PassPriority, result.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, result.Prompts["P1"].Actions);
+        Assert.DoesNotContain(result.Prompts["P1"].Candidates ?? [], candidate =>
+            string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal)
+            && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, FluftObjectId, StringComparison.Ordinal)));
+        Assert.Equal(result.State.Tick, result.Prompts["P1"].SnapshotTick);
+
+        Assert.Equal("P2", result.Prompts["P2"].PlayerId);
+        Assert.False(result.Prompts["P2"].Actionable);
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, result.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.PassPriority, result.Prompts["P2"].Actions);
+        Assert.Equal(result.State.Tick, result.Prompts["P2"].SnapshotTick);
     }
 
     [Fact]
@@ -217,6 +400,22 @@ public sealed class FluftPoroActivatedAbilityTests
             P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId,
             targetObjectIds ?? [],
             optionalCosts);
+    }
+
+    private static JsonElement PromptScopedActivateAbilityRawCommand(
+        ActivateAbilityCommand command,
+        ActionPromptDto prompt)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            cmdType = command.CmdType,
+            sourceObjectId = command.SourceObjectId,
+            abilityId = command.AbilityId,
+            targetObjectIds = command.TargetObjectIds,
+            optionalCosts = command.OptionalCosts ?? [],
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick
+        });
     }
 
     private static async Task AssertRejectedNoMutationAsync(

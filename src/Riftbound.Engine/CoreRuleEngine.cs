@@ -839,6 +839,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.PhaseNotAllowed));
         }
 
+        if (command is PassCommand)
+        {
+            return Complete(ResolvePass(state, intent));
+        }
+
         if (command is EndTurnCommand)
         {
             return Complete(ResolveEndTurn(state, intent));
@@ -25427,6 +25432,70 @@ public sealed class CoreRuleEngine : IRuleEngine
             && string.Equals(state.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
             && !string.IsNullOrWhiteSpace(state.FocusPlayerId)
             && string.Equals(state.FocusPlayerId, playerId, StringComparison.Ordinal);
+    }
+
+    private static ResolutionResult ResolvePass(MatchState state, PlayerIntent intent)
+    {
+        if (CanPassPriority(state, intent.PlayerId))
+        {
+            return ResolvePassPriority(state, intent);
+        }
+
+        if (CanPassFocus(state, intent.PlayerId))
+        {
+            return ResolvePassFocus(state, intent);
+        }
+
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || !string.Equals(state.TurnPlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+            || state.StackItems.Count > 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "让过只能由当前玩家在可让过窗口中提交。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (state.PassedPriorityPlayerIds.Contains(intent.PlayerId, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "当前普通开环已经让过。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            PassedPriorityPlayerIds = state.PassedPriorityPlayerIds
+                .Concat([intent.PlayerId])
+                .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray()
+        };
+        var events = new[]
+        {
+            new GameEvent(
+                "TURN_ENDED",
+                $"{intent.PlayerId} 选择暂不行动",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["turnPlayerId"] = state.TurnPlayerId
+                })
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
     }
 
     private static ResolutionResult ResolvePassPriority(MatchState state, PlayerIntent intent)

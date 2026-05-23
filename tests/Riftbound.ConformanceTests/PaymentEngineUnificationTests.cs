@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -1090,6 +1091,226 @@ public sealed class PaymentEngineUnificationTests
         AssertNoPayCostPrompt(replay.State);
         Assert.Equal(RunePool.Empty, replay.State.RunePools["P1"]);
         Assert.Empty(replay.State.StackItems);
+    }
+
+    [Theory]
+    [InlineData("mana", "PENDING-PAY-COST-MANA-1", "SPEND_MANA:1")]
+    [InlineData("generic-power", "PENDING-PAY-COST-GENERIC-POOL-1", "SPEND_POWER:1")]
+    [InlineData("typed-power", "PENDING-PAY-COST-RED-POOL-1", "SPEND_POWER:red:1")]
+    public async Task PendingPayCostPromptScopedOrdinaryReplayAfterWindowClosesRejectsWithoutMutation(
+        string costShape,
+        string paymentId,
+        string paymentChoiceId)
+    {
+        var session = new MatchSession(
+            PendingOrdinaryPayCostState(costShape, paymentId, paymentChoiceId),
+            new CoreRuleEngine(),
+            NoopMatchJournal.Instance);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PayCost, prompt.Actions);
+        var command = new PayCostCommand(
+            paymentId,
+            "TEST_PENDING_PAY_COST",
+            [paymentChoiceId]);
+        var staleRawCommand = PromptScopedPayCostRawCommand(command, prompt);
+
+        var paid = await session.SubmitAsync(
+            "P1",
+            $"intent-pending-pay-cost-{costShape}-prompt-scoped-first",
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Equal(["COST_PAID", "PAYMENT_WINDOW_CLOSED"], paid.Events.Select(gameEvent => gameEvent.Kind));
+        Assert.Null(paid.State.PendingPayment);
+        AssertNoPayCostPrompt(paid.State);
+        Assert.Equal(RunePool.Empty, paid.State.RunePools["P1"]);
+        var postPaymentHash = MatchStateHasher.Hash(paid.State);
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            $"intent-pending-pay-cost-{costShape}-prompt-scoped-replay",
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
+        Assert.Empty(replay.Events);
+        Assert.Equal(postPaymentHash, MatchStateHasher.Hash(replay.State));
+        Assert.Null(replay.State.PendingPayment);
+        AssertNoPayCostPrompt(replay.State);
+        Assert.Equal(RunePool.Empty, replay.State.RunePools["P1"]);
+        Assert.Empty(replay.State.StackItems);
+    }
+
+    [Fact]
+    public async Task PendingPayCostPromptScopedTemporaryResourceReplayAfterWindowClosesRejectsWithoutMutation()
+    {
+        var temporaryResource = TemporaryResource("MALZAHAR:TEMP-PENDING-PAY-COST-PROMPT-SCOPED-STALE");
+        var paymentResourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var session = new MatchSession(
+            PendingGenericPayCostTemporaryResourceState(temporaryResource),
+            new CoreRuleEngine(),
+            NoopMatchJournal.Instance);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PayCost, prompt.Actions);
+        var command = new PayCostCommand(
+            "PENDING-PAY-COST-GENERIC-1",
+            "TEST_PENDING_PAY_COST",
+            [paymentResourceAction, "SPEND_POWER:1"]);
+        var staleRawCommand = PromptScopedPayCostRawCommand(command, prompt);
+
+        var paid = await session.SubmitAsync(
+            "P1",
+            "intent-pending-pay-cost-temporary-prompt-scoped-first",
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Equal(
+            ["TEMPORARY_PAYMENT_RESOURCE_SPENT", "TEMPORARY_PAYMENT_RESOURCE_CLEARED", "COST_PAID", "PAYMENT_WINDOW_CLOSED"],
+            paid.Events.Select(evt => evt.Kind));
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Empty(paid.State.TemporaryPaymentResources);
+        AssertNoPayCostPrompt(paid.State);
+        var postPaymentHash = MatchStateHasher.Hash(paid.State);
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            "intent-pending-pay-cost-temporary-prompt-scoped-replay",
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
+        Assert.Empty(replay.Events);
+        Assert.Equal(postPaymentHash, MatchStateHasher.Hash(replay.State));
+        Assert.Null(replay.State.PendingPayment);
+        Assert.Empty(replay.State.TemporaryPaymentResources);
+        AssertNoPayCostPrompt(replay.State);
+        Assert.Empty(replay.State.StackItems);
+    }
+
+    [Theory]
+    [InlineData("mana", "PENDING-PAY-COST-MANA-1", "SPEND_MANA:1")]
+    [InlineData("generic-power", "PENDING-PAY-COST-GENERIC-POOL-1", "SPEND_POWER:1")]
+    [InlineData("typed-power", "PENDING-PAY-COST-RED-POOL-1", "SPEND_POWER:red:1")]
+    public async Task PendingPayCostDuplicateClientIntentAfterWindowClosesReturnsCachedOrdinaryResultWithoutMutation(
+        string costShape,
+        string paymentId,
+        string paymentChoiceId)
+    {
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(
+            PendingOrdinaryPayCostState(costShape, paymentId, paymentChoiceId),
+            new CoreRuleEngine(),
+            journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        var command = new PayCostCommand(
+            paymentId,
+            "TEST_PENDING_PAY_COST",
+            [paymentChoiceId]);
+        var rawCommand = PromptScopedPayCostRawCommand(command, prompt);
+        var clientIntentId = $"intent-pending-pay-cost-{costShape}-duplicate";
+
+        var paid = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+        var postPaymentHash = MatchStateHasher.Hash(paid.State);
+
+        var duplicate = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+        var gameplayEntries = journal.Entries
+            .Where(entry => string.Equals(entry.CommandType, CommandTypes.PayCost, StringComparison.Ordinal))
+            .ToArray();
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.True(duplicate.Accepted, duplicate.ErrorMessage);
+        Assert.Equal(["COST_PAID", "PAYMENT_WINDOW_CLOSED"], paid.Events.Select(gameEvent => gameEvent.Kind));
+        Assert.Equal(paid.Events, duplicate.Events);
+        Assert.Equal(postPaymentHash, MatchStateHasher.Hash(duplicate.State));
+        Assert.Null(duplicate.State.PendingPayment);
+        AssertNoPayCostPrompt(duplicate.State);
+        Assert.Equal(RunePool.Empty, duplicate.State.RunePools["P1"]);
+        Assert.Empty(duplicate.State.StackItems);
+        Assert.Single(gameplayEntries);
+    }
+
+    [Fact]
+    public async Task PendingPayCostDuplicateClientIntentAfterWindowClosesReturnsCachedTemporaryResourceResultWithoutMutation()
+    {
+        var temporaryResource = TemporaryResource("MALZAHAR:TEMP-PENDING-PAY-COST-DUPLICATE-INTENT");
+        var paymentResourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(
+            PendingGenericPayCostTemporaryResourceState(temporaryResource),
+            new CoreRuleEngine(),
+            journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        var command = new PayCostCommand(
+            "PENDING-PAY-COST-GENERIC-1",
+            "TEST_PENDING_PAY_COST",
+            [paymentResourceAction, "SPEND_POWER:1"]);
+        var rawCommand = PromptScopedPayCostRawCommand(command, prompt);
+        const string clientIntentId = "intent-pending-pay-cost-temporary-duplicate";
+
+        var paid = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+        var postPaymentHash = MatchStateHasher.Hash(paid.State);
+
+        var duplicate = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+        var gameplayEntries = journal.Entries
+            .Where(entry => string.Equals(entry.CommandType, CommandTypes.PayCost, StringComparison.Ordinal))
+            .ToArray();
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.True(duplicate.Accepted, duplicate.ErrorMessage);
+        Assert.Equal(
+            ["TEMPORARY_PAYMENT_RESOURCE_SPENT", "TEMPORARY_PAYMENT_RESOURCE_CLEARED", "COST_PAID", "PAYMENT_WINDOW_CLOSED"],
+            paid.Events.Select(evt => evt.Kind));
+        Assert.Equal(paid.Events, duplicate.Events);
+        Assert.Equal(postPaymentHash, MatchStateHasher.Hash(duplicate.State));
+        Assert.Null(duplicate.State.PendingPayment);
+        Assert.Empty(duplicate.State.TemporaryPaymentResources);
+        AssertNoPayCostPrompt(duplicate.State);
+        Assert.Empty(duplicate.State.StackItems);
+        Assert.Single(gameplayEntries);
     }
 
     [Theory]
@@ -2624,6 +2845,30 @@ public sealed class PaymentEngineUnificationTests
         Assert.Equal(
             expectedPaymentResourceChoiceIds ?? [],
             paymentResourceChoices.Select(choice => choice.Id).ToArray());
+    }
+
+    private static JsonElement PromptScopedPayCostRawCommand(PayCostCommand command, ActionPromptDto prompt)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.PayCost,
+            paymentId = command.PaymentId,
+            paymentWindow = command.PaymentWindow,
+            paymentChoiceIds = command.PaymentChoiceIds,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick
+        });
+    }
+
+    private sealed class RecordingMatchJournal : IMatchJournal
+    {
+        public List<MatchJournalEntry> Entries { get; } = [];
+
+        public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
+        {
+            Entries.Add(entry);
+            return ValueTask.CompletedTask;
+        }
     }
 
     private static MatchState PendingTypedPayCostTemporaryResourceState(
