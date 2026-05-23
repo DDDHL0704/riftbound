@@ -261,6 +261,92 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsDuplicateRecoveredCommandIntentForSamePlayer()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-duplicate",
+                "PASS",
+                RawCommand("PASS"),
+                2,
+                2,
+                0,
+                0,
+                false,
+                "first rejected duplicate"),
+            new RecoveredCommand(
+                "alice",
+                "intent-duplicate",
+                "END_TURN",
+                RawCommand("END_TURN"),
+                2,
+                2,
+                0,
+                0,
+                false,
+                "second rejected duplicate")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-duplicate for player alice appears more than once in recovery frame",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorAllowsSameRecoveredCommandIntentForDifferentPlayers()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-shared",
+                "PASS",
+                RawCommand("PASS"),
+                2,
+                2,
+                0,
+                0,
+                false,
+                "alice rejected command"),
+            new RecoveredCommand(
+                "bob",
+                "intent-shared",
+                "PASS",
+                RawCommand("PASS"),
+                2,
+                2,
+                0,
+                0,
+                false,
+                "bob rejected command")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "appears more than once in recovery frame",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryFrameComputesReplayTailFromEarliestPlayerSnapshot()
     {
         var events = new[]

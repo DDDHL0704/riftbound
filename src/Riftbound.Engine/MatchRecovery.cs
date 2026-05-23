@@ -528,8 +528,15 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         var acceptedEventOwners = new Dictionary<long, string>();
+        var seenCommandIntents = new HashSet<(string PlayerId, string ClientIntentId)>();
         foreach (var command in commands)
         {
+            if (!seenCommandIntents.Add((command.PlayerId, command.ClientIntentId)))
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} for player {command.PlayerId} appears more than once in recovery frame");
+            }
+
             if (command.StartedEventSequence < 0)
             {
                 errors.Add(
