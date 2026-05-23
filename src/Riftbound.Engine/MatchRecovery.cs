@@ -660,8 +660,18 @@ public static class MatchRecoveryValidator
             var actualEventCount = events.Count(gameEvent =>
                 gameEvent.Sequence > command.StartedEventSequence
                 && gameEvent.Sequence <= command.CompletedEventSequence);
+            if (command.Accepted && command.ErrorMessage is not null)
+            {
+                errors.Add($"accepted command {command.ClientIntentId} has error message");
+            }
+
             if (!command.Accepted)
             {
+                if (string.IsNullOrWhiteSpace(command.ErrorMessage))
+                {
+                    errors.Add($"rejected command {command.ClientIntentId} is missing error message");
+                }
+
                 if (expectedEventCount > 0)
                 {
                     errors.Add(
