@@ -1066,6 +1066,11 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame snapshot stack is required");
         }
 
+        if (string.IsNullOrWhiteSpace(spectatorReplayFrame.SpectatorSnapshot.TurnState))
+        {
+            errors.Add("spectator replay frame snapshot turn state is required");
+        }
+
         if (spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("seed")
             || spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("rngCursor"))
         {
