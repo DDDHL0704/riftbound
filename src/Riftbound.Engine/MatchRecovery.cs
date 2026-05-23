@@ -1083,6 +1083,15 @@ public static class MatchRecoveryValidator
                 $"spectator replay frame snapshot turn number {spectatorReplayFrame.SpectatorSnapshot.TurnNumber} does not match authoritative state turn number {authoritativeState.TurnNumber}");
         }
 
+        if (!string.Equals(
+                spectatorReplayFrame.SpectatorSnapshot.ActivePlayerId,
+                authoritativeState.ActivePlayerId,
+                StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"spectator replay frame snapshot active player {spectatorReplayFrame.SpectatorSnapshot.ActivePlayerId} does not match authoritative state active player {authoritativeState.ActivePlayerId}");
+        }
+
         if (spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("seed")
             || spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("rngCursor"))
         {
