@@ -1045,6 +1045,12 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        if (spectatorReplayFrame.SpectatorSnapshot.Timing is null)
+        {
+            errors.Add("spectator replay frame snapshot timing is required");
+            return;
+        }
+
         if (spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("seed")
             || spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("rngCursor"))
         {

@@ -1450,6 +1450,57 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsMissingSpectatorReplaySnapshotTiming()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            });
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState) with
+            {
+                SpectatorSnapshot = MatchReplayRedactor.BuildSpectatorFrame(
+                    "room-a",
+                    3,
+                    2,
+                    events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+                    authoritativeState).SpectatorSnapshot with
+                    {
+                        Timing = null!
+                    }
+            };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot timing is required", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void MatchStateHashIsStableAcrossDictionaryInsertionOrder()
     {
         var first = new MatchState(
