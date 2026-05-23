@@ -8,7 +8,9 @@ Canonical board path: `/Users/dinghaolin/MyProjects/riftbound-dotnet/docs/CURREN
 
 Project status remains **NOT READY**. Do not output READY-CANDIDATE from this board.
 
-Current rolling decision: `A_MAIN` is continuing the active dirty 05J-16B server/test/docs closure stack. `DOC_MATRIX_CURRENT` is clean at handoff/source commit `4c999922` and must stay in guard pause until A_MAIN commits or otherwise makes the 05J-16B stack integration-safe, then integrates or rejects `4c999922` and records the result here. No new matrix JSON / current-doc / `PaymentEngineCoverageAuditTests.cs` work is authorized from this board state alone. Project remains **NOT READY**.
+Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `4c999922` into main as `44eb06f4` after resolving current-doc prepend conflicts and revalidating matrix/test/backend gates. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `ConformanceFixtureRunnerTests` `3038/3038`, backend full `5929/5929`. Project remains **NOT READY**.
+
+Current DOC_MATRIX approved scope: `DOC_MATRIX_CURRENT` should first sync to main `44eb06f4`, then continue only `4D-03SU..03SV` docs/matrix-only FAQ / rule-source disposition for exactly two implemented-tested non-payment rows: `FU-5cea85e7c3` 狂热粉丝 and `FU-422b450261` 雷克塞. Allowed writes are matrix JSON/current matrix docs, per-bundle candidate/audit docs, this shared-board handoff entry, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` only for residual-baseline synchronization. Runtime, frontend, protocol, official catalog, general test implementation, Chrome/browser/formal E2E scripts, `fullOfficial`, READY / READY-CANDIDATE and `riftbound-dotnet.sln` remain locked. If a selected row fails source/evidence checks, record the guard reason and continue within this exact scope; if both rows are exhausted, record `NO_EXECUTABLE_CANDIDATES` for this scope instead of widening work.
 
 ## Coordination Contract
 
