@@ -1051,6 +1051,11 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        if (spectatorReplayFrame.SpectatorSnapshot.Players is null)
+        {
+            errors.Add("spectator replay frame snapshot players are required");
+        }
+
         if (spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("seed")
             || spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("rngCursor"))
         {
