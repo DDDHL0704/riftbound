@@ -609,6 +609,12 @@ public static class MatchRecoveryValidator
                     $"command {command.ClientIntentId} has negative started event sequence {command.StartedEventSequence}");
             }
 
+            if (command.CompletedEventSequence < 0)
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} has negative completed event sequence {command.CompletedEventSequence}");
+            }
+
             ValidateRawCommandShape(command, errors);
             if (!string.IsNullOrWhiteSpace(command.CommandType)
                 && TryReadRawCommandType(command.RawCommand, out var rawCommandType)

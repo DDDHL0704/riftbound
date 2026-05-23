@@ -335,6 +335,38 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsNegativeCommandCompletedEventSequence()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-negative-completed-sequence",
+                "PASS",
+                RawCommand("PASS"),
+                0,
+                0,
+                0,
+                -1,
+                true,
+                null)
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-negative-completed-sequence has negative completed event sequence -1",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsRecoveredCommandTicksAfterRecoveryTick()
     {
         var commands = new[]
