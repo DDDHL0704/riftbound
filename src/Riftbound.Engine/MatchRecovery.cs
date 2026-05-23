@@ -582,6 +582,21 @@ public static class MatchRecoveryValidator
             previousFrameStartedEventSequence = command.StartedEventSequence;
             previousFrameCompletedEventSequence = command.CompletedEventSequence;
 
+            if (string.IsNullOrWhiteSpace(command.PlayerId))
+            {
+                errors.Add("command player id is required");
+            }
+
+            if (string.IsNullOrWhiteSpace(command.ClientIntentId))
+            {
+                errors.Add("command client intent id is required");
+            }
+
+            if (string.IsNullOrWhiteSpace(command.CommandType))
+            {
+                errors.Add("command type is required");
+            }
+
             if (!seenCommandIntents.Add((command.PlayerId, command.ClientIntentId)))
             {
                 errors.Add(
@@ -594,7 +609,8 @@ public static class MatchRecoveryValidator
                     $"command {command.ClientIntentId} has negative started event sequence {command.StartedEventSequence}");
             }
 
-            if (TryReadRawCommandType(command.RawCommand, out var rawCommandType)
+            if (!string.IsNullOrWhiteSpace(command.CommandType)
+                && TryReadRawCommandType(command.RawCommand, out var rawCommandType)
                 && !string.Equals(rawCommandType, ExpectedRawCommandType(command.CommandType), StringComparison.Ordinal))
             {
                 errors.Add(

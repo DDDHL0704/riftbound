@@ -402,6 +402,42 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsBlankRecoveredCommandIdentityAndType()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                " ",
+                "",
+                " ",
+                null,
+                0,
+                0,
+                0,
+                0,
+                false,
+                "missing command identity")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("command player id is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("command client intent id is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("command type is required", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAcceptedCommandsThatOverlapEventOwnership()
     {
         var events = new[]
