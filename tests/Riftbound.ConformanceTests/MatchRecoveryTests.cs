@@ -246,6 +246,30 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsNonPositiveRecoveredEventSequence()
+    {
+        var events = new[]
+        {
+            RecoveredEvent(0, "ZERO_SEQUENCE"),
+            RecoveredEvent(-1, "NEGATIVE_SEQUENCE")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("event sequence value 0 must be positive", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("event sequence value -1 must be positive", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsRejectedCommandsThatAdvanceTickOrRecordEvents()
     {
         var events = new[]

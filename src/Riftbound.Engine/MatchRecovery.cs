@@ -508,6 +508,11 @@ public static class MatchRecoveryValidator
         var previousFrameTick = 0L;
         foreach (var gameEvent in events)
         {
+            if (gameEvent.Sequence <= 0)
+            {
+                errors.Add($"event sequence value {gameEvent.Sequence} must be positive");
+            }
+
             if (gameEvent.Sequence <= previousFrameSequence)
             {
                 errors.Add(
