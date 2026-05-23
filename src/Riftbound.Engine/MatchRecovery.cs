@@ -691,6 +691,15 @@ public static class MatchRecoveryValidator
             }
 
             if (view.Prompt is not null
+                && view.Prompt.SnapshotTick is { } promptSnapshotTick
+                && view.PromptTick is { } promptRowTick
+                && promptSnapshotTick != promptRowTick)
+            {
+                errors.Add(
+                    $"prompt for {view.PlayerId} has payload snapshot tick {promptSnapshotTick} but row tick {promptRowTick}");
+            }
+
+            if (view.Prompt is not null
                 && !string.Equals(view.PlayerId, view.Prompt.PlayerId, StringComparison.Ordinal))
             {
                 errors.Add($"prompt for {view.PlayerId} has payload player {view.Prompt.PlayerId}");

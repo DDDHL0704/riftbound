@@ -60,6 +60,32 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsPromptSnapshotTickMismatch()
+    {
+        var prompt = new ActionPromptDto(
+            "alice",
+            true,
+            "test prompt",
+            ["PASS"],
+            SnapshotTick: 7);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = PlayerView("alice", 3, 0) with
+            {
+                Prompt = prompt
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "prompt for alice has payload snapshot tick 7 but row tick 3",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsOutOfOrderRecoveredEvents()
     {
         var events = new[]
