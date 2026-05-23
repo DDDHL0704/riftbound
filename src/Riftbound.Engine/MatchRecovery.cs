@@ -524,6 +524,7 @@ public static class MatchRecoveryValidator
         IReadOnlyList<RecoveredEvent> events,
         List<string> errors)
     {
+        var acceptedEventOwners = new Dictionary<long, string>();
         foreach (var command in commands)
         {
             if (command.StartedEventSequence < 0)
@@ -578,6 +579,27 @@ public static class MatchRecoveryValidator
             {
                 errors.Add(
                     $"command {command.ClientIntentId} covers {expectedEventCount} event(s) but {actualEventCount} were loaded");
+            }
+
+            if (command.Accepted)
+            {
+                foreach (var gameEvent in events.Where(gameEvent =>
+                    gameEvent.Sequence > command.StartedEventSequence
+                    && gameEvent.Sequence <= command.CompletedEventSequence))
+                {
+                    if (acceptedEventOwners.TryGetValue(gameEvent.Sequence, out var owner))
+                    {
+                        if (!string.Equals(owner, command.ClientIntentId, StringComparison.Ordinal))
+                        {
+                            errors.Add(
+                                $"event sequence {gameEvent.Sequence} is covered by multiple accepted commands: {owner} and {command.ClientIntentId}");
+                        }
+                    }
+                    else
+                    {
+                        acceptedEventOwners.Add(gameEvent.Sequence, command.ClientIntentId);
+                    }
+                }
             }
         }
     }

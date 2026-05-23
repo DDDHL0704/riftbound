@@ -149,6 +149,54 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAcceptedCommandsThatOverlapEventOwnership()
+    {
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-first",
+                "END_TURN",
+                RawCommand("END_TURN"),
+                1,
+                2,
+                0,
+                2,
+                true,
+                null),
+            new RecoveredCommand(
+                "bob",
+                "intent-overlap",
+                "PASS",
+                RawCommand("PASS"),
+                2,
+                2,
+                1,
+                2,
+                true,
+                null)
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            commands,
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "event sequence 2 is covered by multiple accepted commands: intent-first and intent-overlap",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryFrameComputesReplayTailFromEarliestPlayerSnapshot()
     {
         var events = new[]
