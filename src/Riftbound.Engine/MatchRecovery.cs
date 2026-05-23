@@ -567,8 +567,21 @@ public static class MatchRecoveryValidator
     {
         var acceptedEventOwners = new Dictionary<long, string>();
         var seenCommandIntents = new HashSet<(string PlayerId, string ClientIntentId)>();
+        var previousFrameStartedEventSequence = 0L;
+        var previousFrameCompletedEventSequence = 0L;
         foreach (var command in commands)
         {
+            if (command.StartedEventSequence < previousFrameStartedEventSequence
+                || (command.StartedEventSequence == previousFrameStartedEventSequence
+                    && command.CompletedEventSequence < previousFrameCompletedEventSequence))
+            {
+                errors.Add(
+                    $"command stream is not ordered by event span: {command.ClientIntentId} {command.StartedEventSequence}->{command.CompletedEventSequence} after {previousFrameStartedEventSequence}->{previousFrameCompletedEventSequence}");
+            }
+
+            previousFrameStartedEventSequence = command.StartedEventSequence;
+            previousFrameCompletedEventSequence = command.CompletedEventSequence;
+
             if (!seenCommandIntents.Add((command.PlayerId, command.ClientIntentId)))
             {
                 errors.Add(

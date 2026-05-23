@@ -359,6 +359,49 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsOutOfOrderRecoveredCommands()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-later",
+                "PASS",
+                RawCommand("PASS"),
+                2,
+                2,
+                2,
+                2,
+                true,
+                null),
+            new RecoveredCommand(
+                "alice",
+                "intent-earlier",
+                "PASS",
+                RawCommand("PASS"),
+                1,
+                1,
+                1,
+                1,
+                true,
+                null)
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command stream is not ordered by event span: intent-earlier 1->1 after 2->2",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAcceptedCommandsThatOverlapEventOwnership()
     {
         var events = new[]
