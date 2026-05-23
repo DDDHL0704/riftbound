@@ -465,6 +465,11 @@ public static class MatchRecoveryValidator
             errors.Add("last event sequence cannot be negative");
         }
 
+        if (currentTick is < 0)
+        {
+            errors.Add("current tick cannot be negative");
+        }
+
         ValidateEvents(currentTick, lastEventSequence, events, errors);
         ValidateCommands(currentTick, lastEventSequence, commands, events, errors);
         ValidatePlayerViews(currentTick, lastEventSequence, playerViews, errors);

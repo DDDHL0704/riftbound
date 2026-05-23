@@ -60,6 +60,22 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsNegativeCurrentTick()
+    {
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            currentTick: -1);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("current tick cannot be negative", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsPromptSnapshotTickMismatch()
     {
         var prompt = new ActionPromptDto(
