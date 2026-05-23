@@ -630,6 +630,12 @@ public static class MatchRecoveryValidator
                     $"command {command.ClientIntentId} has negative started tick {command.StartedTick}");
             }
 
+            if (command.CompletedTick < 0)
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} has negative completed tick {command.CompletedTick}");
+            }
+
             if (command.CompletedTick < command.StartedTick)
             {
                 errors.Add(
