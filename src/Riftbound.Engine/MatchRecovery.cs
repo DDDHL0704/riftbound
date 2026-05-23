@@ -818,6 +818,11 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
+            if (view.Snapshot.Players is null)
+            {
+                errors.Add($"snapshot for {view.PlayerId} players are required");
+            }
+
             if (view.Snapshot.Tick != view.SnapshotTick)
             {
                 errors.Add(
@@ -1044,6 +1049,11 @@ public static class MatchRecoveryValidator
     public static IReadOnlyDictionary<string, string> ExtractSeats(SnapshotDto snapshot)
     {
         var seats = new Dictionary<string, string>(StringComparer.Ordinal);
+        if (snapshot.Players is null)
+        {
+            return seats;
+        }
+
         foreach (var (playerId, player) in snapshot.Players)
         {
             if (TryReadSeat(player, out var seat))
