@@ -60,6 +60,47 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsRejectedCommandsThatAdvanceTickOrRecordEvents()
+    {
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED")
+        };
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-unsupported",
+                "UNKNOWN_RECOVERY_TEST",
+                RawCommand("UNKNOWN_RECOVERY_TEST"),
+                4,
+                5,
+                0,
+                1,
+                false,
+                "当前命令不受服务端支持。")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            1,
+            commands,
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "rejected command intent-unsupported covers 1 event(s)",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "rejected command intent-unsupported advances tick 4->5",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryFrameComputesReplayTailFromEarliestPlayerSnapshot()
     {
         var events = new[]

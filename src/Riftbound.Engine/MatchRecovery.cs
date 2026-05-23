@@ -548,7 +548,21 @@ public static class MatchRecoveryValidator
             var actualEventCount = events.Count(gameEvent =>
                 gameEvent.Sequence > command.StartedEventSequence
                 && gameEvent.Sequence <= command.CompletedEventSequence);
-            if (command.Accepted && actualEventCount != expectedEventCount)
+            if (!command.Accepted)
+            {
+                if (expectedEventCount > 0)
+                {
+                    errors.Add(
+                        $"rejected command {command.ClientIntentId} covers {expectedEventCount} event(s); rejected commands must not record events");
+                }
+
+                if (command.CompletedTick != command.StartedTick)
+                {
+                    errors.Add(
+                        $"rejected command {command.ClientIntentId} advances tick {command.StartedTick}->{command.CompletedTick}");
+                }
+            }
+            else if (actualEventCount != expectedEventCount)
             {
                 errors.Add(
                     $"command {command.ClientIntentId} covers {expectedEventCount} event(s) but {actualEventCount} were loaded");
