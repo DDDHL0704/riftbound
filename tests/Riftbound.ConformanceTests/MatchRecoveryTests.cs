@@ -193,6 +193,41 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsMissingPlayerViewSnapshot()
+    {
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = PlayerView("alice", 0, 0) with
+            {
+                Snapshot = null!
+            },
+            ["bob"] = PlayerView("bob", 0, 0)
+        };
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            });
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            playerViews,
+            authoritativeState);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("snapshot for alice is required", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsOutOfOrderRecoveredEvents()
     {
         var events = new[]

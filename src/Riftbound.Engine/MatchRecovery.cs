@@ -812,6 +812,12 @@ public static class MatchRecoveryValidator
                 errors.Add($"player view key {playerId} does not match payload player {view.PlayerId}");
             }
 
+            if (view.Snapshot is null)
+            {
+                errors.Add($"snapshot for {view.PlayerId} is required");
+                continue;
+            }
+
             if (view.Snapshot.Tick != view.SnapshotTick)
             {
                 errors.Add(
@@ -901,17 +907,20 @@ public static class MatchRecoveryValidator
         IReadOnlyDictionary<string, RecoveredPlayerView> playerViews,
         List<string> errors)
     {
-        if (playerViews.Count <= 1)
+        var viewsWithSnapshots = playerViews.Values
+            .Where(view => view.Snapshot is not null)
+            .ToArray();
+        if (viewsWithSnapshots.Length <= 1)
         {
             return;
         }
 
-        var baseline = playerViews.Values
+        var baseline = viewsWithSnapshots
             .OrderBy(view => view.PlayerId, StringComparer.Ordinal)
             .First()
             .Snapshot;
         var baselineSeats = ExtractSeats(baseline);
-        foreach (var view in playerViews.Values)
+        foreach (var view in viewsWithSnapshots)
         {
             if (view.Snapshot.TurnNumber != baseline.TurnNumber)
             {
@@ -955,6 +964,11 @@ public static class MatchRecoveryValidator
 
         foreach (var view in playerViews.Values)
         {
+            if (view.Snapshot is null)
+            {
+                continue;
+            }
+
             if (view.Snapshot.TurnNumber != authoritativeState.TurnNumber)
             {
                 errors.Add($"snapshot for {view.PlayerId} disagrees with authoritative state turn number");
