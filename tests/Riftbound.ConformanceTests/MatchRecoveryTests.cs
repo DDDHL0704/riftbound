@@ -60,6 +60,29 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsOutOfOrderRecoveredEvents()
+    {
+        var events = new[]
+        {
+            RecoveredEvent(2, "TURN_BEGAN"),
+            RecoveredEvent(1, "TURN_ENDED")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "event stream is not ordered by sequence: 1 after 2",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsRejectedCommandsThatAdvanceTickOrRecordEvents()
     {
         var events = new[]

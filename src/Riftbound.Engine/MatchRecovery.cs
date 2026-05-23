@@ -503,6 +503,18 @@ public static class MatchRecoveryValidator
                 $"event stream ends at {orderedEvents[^1].Sequence} but match last event sequence is {lastEventSequence}");
         }
 
+        var previousFrameSequence = 0L;
+        foreach (var gameEvent in events)
+        {
+            if (gameEvent.Sequence <= previousFrameSequence)
+            {
+                errors.Add(
+                    $"event stream is not ordered by sequence: {gameEvent.Sequence} after {previousFrameSequence}");
+            }
+
+            previousFrameSequence = gameEvent.Sequence;
+        }
+
         var previous = 0L;
         var seen = new HashSet<long>();
         foreach (var gameEvent in orderedEvents)
