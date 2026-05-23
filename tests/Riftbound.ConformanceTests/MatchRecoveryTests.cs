@@ -101,6 +101,54 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsCommandsWithInvalidTickBounds()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-negative-tick",
+                "PASS",
+                RawCommand("PASS"),
+                -1,
+                0,
+                0,
+                0,
+                true,
+                null),
+            new RecoveredCommand(
+                "alice",
+                "intent-backward-tick",
+                "PASS",
+                RawCommand("PASS"),
+                5,
+                4,
+                0,
+                0,
+                true,
+                null)
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-negative-tick has negative started tick -1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-backward-tick completes before tick start: 5->4",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryFrameComputesReplayTailFromEarliestPlayerSnapshot()
     {
         var events = new[]

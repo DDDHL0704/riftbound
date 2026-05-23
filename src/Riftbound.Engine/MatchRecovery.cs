@@ -532,6 +532,18 @@ public static class MatchRecoveryValidator
                     $"command {command.ClientIntentId} has negative started event sequence {command.StartedEventSequence}");
             }
 
+            if (command.StartedTick < 0)
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} has negative started tick {command.StartedTick}");
+            }
+
+            if (command.CompletedTick < command.StartedTick)
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} completes before tick start: {command.StartedTick}->{command.CompletedTick}");
+            }
+
             if (command.CompletedEventSequence < command.StartedEventSequence)
             {
                 errors.Add(
