@@ -1071,6 +1071,12 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame snapshot turn state is required");
         }
 
+        if (spectatorReplayFrame.SpectatorSnapshot.Tick != spectatorReplayFrame.Tick)
+        {
+            errors.Add(
+                $"spectator replay frame snapshot tick {spectatorReplayFrame.SpectatorSnapshot.Tick} does not match frame tick {spectatorReplayFrame.Tick}");
+        }
+
         if (spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("seed")
             || spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("rngCursor"))
         {
