@@ -6108,6 +6108,334 @@ public sealed class OfficialOpeningTests
             CommandTypes.ChooseHandCards);
     }
 
+    [Fact]
+    public Task PromptIdOnlyRevealCardWithFirstReadyPromptAfterFinalReadyRejectsWithoutMutation()
+    {
+        return AssertGenericCommandFirstReadyEnvelopeAfterFinalReadyRejectsWithoutMutation(
+            "official-reveal-card-prompt-id-only-with-first-ready-prompt-after-final-ready-room",
+            "reveal-card-prompt-id-only-with-first-ready-prompt-after-final-ready",
+            new RevealCardCommand("missing-source", "missing-card", []),
+            CommandTypes.RevealCard,
+            prompt => PromptIdOnlyBasicRawCommand(CommandTypes.RevealCard, prompt),
+            ErrorCodes.PromptExpired,
+            "行动窗口已过期，请按最新提示重新提交。");
+    }
+
+    [Fact]
+    public Task SnapshotOnlyRevealCardWithFirstReadyPromptAfterFinalReadyRejectsWithoutMutation()
+    {
+        return AssertGenericCommandFirstReadyEnvelopeAfterFinalReadyRejectsWithoutMutation(
+            "official-reveal-card-snapshot-only-with-first-ready-prompt-after-final-ready-room",
+            "reveal-card-snapshot-only-with-first-ready-prompt-after-final-ready",
+            new RevealCardCommand("missing-source", "missing-card", []),
+            CommandTypes.RevealCard,
+            prompt =>
+            {
+                Assert.NotNull(prompt.SnapshotTick);
+                return SnapshotOnlyBasicRawCommand(CommandTypes.RevealCard, prompt.SnapshotTick.Value);
+            },
+            ErrorCodes.UnsupportedCardBehavior,
+            "暂不支持该牌的待命翻开行为：missing-card");
+    }
+
+    [Fact]
+    public Task PromptIdOnlyLegendActWithFirstReadyPromptAfterFinalReadyRejectsWithoutMutation()
+    {
+        return AssertGenericCommandFirstReadyEnvelopeAfterFinalReadyRejectsWithoutMutation(
+            "official-legend-act-prompt-id-only-with-first-ready-prompt-after-final-ready-room",
+            "legend-act-prompt-id-only-with-first-ready-prompt-after-final-ready",
+            new LegendActCommand("missing-source", "missing-ability", []),
+            CommandTypes.LegendAct,
+            prompt => PromptIdOnlyBasicRawCommand(CommandTypes.LegendAct, prompt),
+            ErrorCodes.PromptExpired,
+            "行动窗口已过期，请按最新提示重新提交。");
+    }
+
+    [Fact]
+    public Task SnapshotOnlyLegendActWithFirstReadyPromptAfterFinalReadyRejectsWithoutMutation()
+    {
+        return AssertGenericCommandFirstReadyEnvelopeAfterFinalReadyRejectsWithoutMutation(
+            "official-legend-act-snapshot-only-with-first-ready-prompt-after-final-ready-room",
+            "legend-act-snapshot-only-with-first-ready-prompt-after-final-ready",
+            new LegendActCommand("missing-source", "missing-ability", []),
+            CommandTypes.LegendAct,
+            prompt =>
+            {
+                Assert.NotNull(prompt.SnapshotTick);
+                return SnapshotOnlyBasicRawCommand(CommandTypes.LegendAct, prompt.SnapshotTick.Value);
+            },
+            ErrorCodes.UnsupportedCardBehavior,
+            "当前传奇行动尚未由服务端开放。");
+    }
+
+    [Fact]
+    public Task PromptIdOnlyAssembleEquipmentWithFirstReadyPromptAfterFinalReadyRejectsWithoutMutation()
+    {
+        return AssertGenericCommandFirstReadyEnvelopeAfterFinalReadyRejectsWithoutMutation(
+            "official-assemble-equipment-prompt-id-only-with-first-ready-prompt-after-final-ready-room",
+            "assemble-equipment-prompt-id-only-with-first-ready-prompt-after-final-ready",
+            new AssembleEquipmentCommand("missing-source", "missing-target"),
+            CommandTypes.AssembleEquipment,
+            prompt => PromptIdOnlyBasicRawCommand(CommandTypes.AssembleEquipment, prompt),
+            ErrorCodes.PromptExpired,
+            "行动窗口已过期，请按最新提示重新提交。");
+    }
+
+    [Fact]
+    public Task SnapshotOnlyAssembleEquipmentWithFirstReadyPromptAfterFinalReadyRejectsWithoutMutation()
+    {
+        return AssertGenericCommandFirstReadyEnvelopeAfterFinalReadyRejectsWithoutMutation(
+            "official-assemble-equipment-snapshot-only-with-first-ready-prompt-after-final-ready-room",
+            "assemble-equipment-snapshot-only-with-first-ready-prompt-after-final-ready",
+            new AssembleEquipmentCommand("missing-source", "missing-target"),
+            CommandTypes.AssembleEquipment,
+            prompt =>
+            {
+                Assert.NotNull(prompt.SnapshotTick);
+                return SnapshotOnlyBasicRawCommand(CommandTypes.AssembleEquipment, prompt.SnapshotTick.Value);
+            },
+            ErrorCodes.UnsupportedCommand,
+            "当前装备装配路径尚未由服务端开放。");
+    }
+
+    [Fact]
+    public Task PromptIdOnlyPayCostWithFirstReadyPromptAfterFinalReadyRejectsWithoutMutation()
+    {
+        return AssertGenericCommandFirstReadyEnvelopeAfterFinalReadyRejectsWithoutMutation(
+            "official-pay-cost-prompt-id-only-with-first-ready-prompt-after-final-ready-room",
+            "pay-cost-prompt-id-only-with-first-ready-prompt-after-final-ready",
+            new PayCostCommand("missing-payment", "missing-window", []),
+            CommandTypes.PayCost,
+            prompt => PromptIdOnlyBasicRawCommand(CommandTypes.PayCost, prompt),
+            ErrorCodes.PromptExpired,
+            "行动窗口已过期，请按最新提示重新提交。");
+    }
+
+    [Fact]
+    public Task SnapshotOnlyPayCostWithFirstReadyPromptAfterFinalReadyRejectsWithoutMutation()
+    {
+        return AssertGenericCommandFirstReadyEnvelopeAfterFinalReadyRejectsWithoutMutation(
+            "official-pay-cost-snapshot-only-with-first-ready-prompt-after-final-ready-room",
+            "pay-cost-snapshot-only-with-first-ready-prompt-after-final-ready",
+            new PayCostCommand("missing-payment", "missing-window", []),
+            CommandTypes.PayCost,
+            prompt =>
+            {
+                Assert.NotNull(prompt.SnapshotTick);
+                return SnapshotOnlyBasicRawCommand(CommandTypes.PayCost, prompt.SnapshotTick.Value);
+            },
+            ErrorCodes.PhaseNotAllowed,
+            "当前没有服务端支付窗口可处理 PAY_COST。");
+    }
+
+    [Fact]
+    public Task PromptIdOnlyAssignCombatDamageWithFirstReadyPromptAfterFinalReadyRejectsWithoutMutation()
+    {
+        return AssertGenericCommandFirstReadyEnvelopeAfterFinalReadyRejectsWithoutMutation(
+            "official-assign-combat-damage-prompt-id-only-with-first-ready-prompt-after-final-ready-room",
+            "assign-combat-damage-prompt-id-only-with-first-ready-prompt-after-final-ready",
+            new AssignCombatDamageCommand("missing-battle", "missing-battlefield", []),
+            CommandTypes.AssignCombatDamage,
+            prompt => PromptIdOnlyBasicRawCommand(CommandTypes.AssignCombatDamage, prompt),
+            ErrorCodes.PromptExpired,
+            "行动窗口已过期，请按最新提示重新提交。");
+    }
+
+    [Fact]
+    public Task SnapshotOnlyAssignCombatDamageWithFirstReadyPromptAfterFinalReadyRejectsWithoutMutation()
+    {
+        return AssertGenericCommandFirstReadyEnvelopeAfterFinalReadyRejectsWithoutMutation(
+            "official-assign-combat-damage-snapshot-only-with-first-ready-prompt-after-final-ready-room",
+            "assign-combat-damage-snapshot-only-with-first-ready-prompt-after-final-ready",
+            new AssignCombatDamageCommand("missing-battle", "missing-battlefield", []),
+            CommandTypes.AssignCombatDamage,
+            prompt =>
+            {
+                Assert.NotNull(prompt.SnapshotTick);
+                return SnapshotOnlyBasicRawCommand(CommandTypes.AssignCombatDamage, prompt.SnapshotTick.Value);
+            },
+            ErrorCodes.InvalidPayload,
+            "ASSIGN_COMBAT_DAMAGE 需要 battleId、battlefieldId 与非空 assignments。");
+    }
+
+    [Fact]
+    public Task PromptIdOnlyOrderTriggersWithFirstReadyPromptAfterFinalReadyRejectsWithoutMutation()
+    {
+        return AssertGenericCommandFirstReadyEnvelopeAfterFinalReadyRejectsWithoutMutation(
+            "official-order-triggers-prompt-id-only-with-first-ready-prompt-after-final-ready-room",
+            "order-triggers-prompt-id-only-with-first-ready-prompt-after-final-ready",
+            new OrderTriggersCommand(OrderedTriggerIds: []),
+            CommandTypes.OrderTriggers,
+            prompt => PromptIdOnlyBasicRawCommand(CommandTypes.OrderTriggers, prompt),
+            ErrorCodes.PromptExpired,
+            "行动窗口已过期，请按最新提示重新提交。");
+    }
+
+    [Fact]
+    public Task SnapshotOnlyOrderTriggersWithFirstReadyPromptAfterFinalReadyRejectsWithoutMutation()
+    {
+        return AssertGenericCommandFirstReadyEnvelopeAfterFinalReadyRejectsWithoutMutation(
+            "official-order-triggers-snapshot-only-with-first-ready-prompt-after-final-ready-room",
+            "order-triggers-snapshot-only-with-first-ready-prompt-after-final-ready",
+            new OrderTriggersCommand(OrderedTriggerIds: []),
+            CommandTypes.OrderTriggers,
+            prompt =>
+            {
+                Assert.NotNull(prompt.SnapshotTick);
+                return SnapshotOnlyBasicRawCommand(CommandTypes.OrderTriggers, prompt.SnapshotTick.Value);
+            },
+            ErrorCodes.InvalidPayload,
+            "ORDER_TRIGGERS 需要非空且不重复的 orderedTriggerIds。");
+    }
+
+    [Fact]
+    public Task PromptIdOnlyChooseHandCardsWithFirstReadyPromptAfterFinalReadyRejectsWithoutMutation()
+    {
+        return AssertGenericCommandFirstReadyEnvelopeAfterFinalReadyRejectsWithoutMutation(
+            "official-choose-hand-cards-prompt-id-only-with-first-ready-prompt-after-final-ready-room",
+            "choose-hand-cards-prompt-id-only-with-first-ready-prompt-after-final-ready",
+            new ChooseHandCardsCommand("missing-choice", "missing-window", []),
+            CommandTypes.ChooseHandCards,
+            prompt => PromptIdOnlyBasicRawCommand(CommandTypes.ChooseHandCards, prompt),
+            ErrorCodes.PromptExpired,
+            "行动窗口已过期，请按最新提示重新提交。");
+    }
+
+    [Fact]
+    public Task SnapshotOnlyChooseHandCardsWithFirstReadyPromptAfterFinalReadyRejectsWithoutMutation()
+    {
+        return AssertGenericCommandFirstReadyEnvelopeAfterFinalReadyRejectsWithoutMutation(
+            "official-choose-hand-cards-snapshot-only-with-first-ready-prompt-after-final-ready-room",
+            "choose-hand-cards-snapshot-only-with-first-ready-prompt-after-final-ready",
+            new ChooseHandCardsCommand("missing-choice", "missing-window", []),
+            CommandTypes.ChooseHandCards,
+            prompt =>
+            {
+                Assert.NotNull(prompt.SnapshotTick);
+                return SnapshotOnlyBasicRawCommand(CommandTypes.ChooseHandCards, prompt.SnapshotTick.Value);
+            },
+            ErrorCodes.PhaseNotAllowed,
+            "当前没有服务端手牌选择窗口可处理 CHOOSE_HAND_CARDS。");
+    }
+
+    private static async Task AssertGenericCommandFirstReadyEnvelopeAfterFinalReadyRejectsWithoutMutation(
+        string sessionName,
+        string intentId,
+        GameCommand command,
+        string commandType,
+        Func<ActionPromptDto, JsonElement> rawCommandFactory,
+        string expectedErrorCode,
+        string expectedMessage)
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildValidDeck(catalog);
+        var p2Deck = BuildValidDeck(catalog);
+        var session = new MatchSession(sessionName, new CoreRuleEngine());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        await session.SubmitDeckAsync(
+            "P1",
+            "submit-p1",
+            ToSubmitCommand(p1Deck),
+            RawCommand("SUBMIT_DECK"),
+            CancellationToken.None);
+        var bothSubmitted = await session.SubmitDeckAsync(
+            "P2",
+            "submit-p2",
+            ToSubmitCommand(p2Deck),
+            RawCommand("SUBMIT_DECK"),
+            CancellationToken.None);
+
+        Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
+        AssertOfficialSubmitDeckBothReadyPromptQueueAudit(bothSubmitted, p1Deck, p2Deck);
+
+        var prompt = bothSubmitted.Prompts["P1"];
+        Assert.True(prompt.Actionable);
+        Assert.Equal(["READY"], prompt.Actions);
+
+        var firstReady = await session.ReadyAsync(
+            "P1",
+            "ready-p1-both-decks-prompt-accepted",
+            PromptScopedReadyRawCommand(prompt),
+            CancellationToken.None);
+
+        Assert.True(firstReady.Accepted, firstReady.ErrorMessage);
+        Assert.Equal(1, firstReady.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "PLAYER_READY", StringComparison.Ordinal)));
+        Assert.DoesNotContain(firstReady.Events, gameEvent => string.Equals(gameEvent.Kind, "OFFICIAL_OPENING_STARTED", StringComparison.Ordinal));
+        Assert.DoesNotContain(firstReady.Events, gameEvent => string.Equals(gameEvent.Kind, "MATCH_STARTED", StringComparison.Ordinal));
+        AssertOfficialSingleReadyBothDecksPromptQueueAudit(firstReady, "P1", "P2", p1Deck, p2Deck);
+
+        var finalReady = await session.ReadyAsync(
+            "P2",
+            "ready-p2-after-first-ready",
+            RawCommand("READY"),
+            CancellationToken.None);
+
+        Assert.True(finalReady.Accepted, finalReady.ErrorMessage);
+        Assert.Equal(MatchStatuses.InProgress, finalReady.State.Status);
+        Assert.Equal(MatchPhases.Mulligan, finalReady.State.Phase);
+        Assert.Equal(TimingStates.Mulligan, finalReady.State.TimingState);
+        Assert.Equal(["P1", "P2"], finalReady.State.ReadyPlayerIds);
+        Assert.Contains(finalReady.Events, gameEvent => string.Equals(gameEvent.Kind, "PLAYER_READY", StringComparison.Ordinal));
+        Assert.Contains(finalReady.Events, gameEvent => string.Equals(gameEvent.Kind, "OFFICIAL_OPENING_STARTED", StringComparison.Ordinal));
+        Assert.Contains(finalReady.Events, gameEvent => string.Equals(gameEvent.Kind, "MATCH_STARTED", StringComparison.Ordinal));
+
+        var activePlayerId = finalReady.State.ActivePlayerId;
+        var secondPlayerId = finalReady.State.OpeningSecondActionPlayerId!;
+        Assert.NotEqual(activePlayerId, secondPlayerId);
+        AssertOfficialReadyMulliganPromptQueueAudit(finalReady, activePlayerId, secondPlayerId);
+        Assert.Equal(finalReady.Prompts[activePlayerId].SnapshotTick, prompt.SnapshotTick);
+
+        foreach (var finalReadyPrompt in finalReady.Prompts.Values)
+        {
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(
+                finalReadyPrompt.Candidates ?? [],
+                candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
+                    || string.Equals(candidate.Action, CommandTypes.SubmitDeck, StringComparison.Ordinal));
+        }
+
+        var finalReadyHash = MatchStateHasher.Hash(finalReady.State);
+        var rejected = await session.SubmitAsync(
+            activePlayerId,
+            intentId,
+            command,
+            rawCommandFactory(prompt),
+            CancellationToken.None);
+
+        Assert.False(rejected.Accepted);
+        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
+        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        Assert.Empty(rejected.Events);
+        Assert.Equal(finalReadyHash, MatchStateHasher.Hash(rejected.State));
+        Assert.Equal(finalReady.State.Tick, rejected.State.Tick);
+        Assert.Equal(finalReady.State.RngCursor, rejected.State.RngCursor);
+        Assert.Equal(finalReady.State.ReadyPlayerIds, rejected.State.ReadyPlayerIds);
+        Assert.Equal(finalReady.State.PlayerZones[activePlayerId].Hand, rejected.State.PlayerZones[activePlayerId].Hand);
+        Assert.Equal(finalReady.State.PlayerZones[secondPlayerId].Hand, rejected.State.PlayerZones[secondPlayerId].Hand);
+        Assert.Equal(finalReady.State.PlayerZones[activePlayerId].MainDeck, rejected.State.PlayerZones[activePlayerId].MainDeck);
+        Assert.Equal(finalReady.State.PlayerZones[secondPlayerId].MainDeck, rejected.State.PlayerZones[secondPlayerId].MainDeck);
+        Assert.Equal(finalReady.State.MulliganCompletedPlayerIds, rejected.State.MulliganCompletedPlayerIds);
+        Assert.Equal(finalReady.State.OpeningSecondActionPlayerId, rejected.State.OpeningSecondActionPlayerId);
+        AssertOfficialReadyMulliganPromptQueueAudit(rejected, activePlayerId, secondPlayerId);
+        Assert.Equal(finalReady.Prompts[activePlayerId].PromptId, rejected.Prompts[activePlayerId].PromptId);
+        Assert.Equal(finalReady.Prompts[activePlayerId].SnapshotTick, rejected.Prompts[activePlayerId].SnapshotTick);
+        Assert.Equal(finalReady.Prompts[secondPlayerId].PromptId, rejected.Prompts[secondPlayerId].PromptId);
+        Assert.Equal(finalReady.Prompts[secondPlayerId].SnapshotTick, rejected.Prompts[secondPlayerId].SnapshotTick);
+
+        foreach (var rejectedPrompt in rejected.Prompts.Values)
+        {
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(
+                rejectedPrompt.Candidates ?? [],
+                candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
+                    || string.Equals(candidate.Action, CommandTypes.SubmitDeck, StringComparison.Ordinal));
+        }
+    }
+
     private static async Task AssertCommandWithFirstReadyPromptAfterFinalReadyRejectsWithoutMutation(
         string sessionName,
         string intentId,
