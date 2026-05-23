@@ -523,6 +523,11 @@ public static class MatchRecoveryValidator
                 errors.Add($"event sequence {gameEvent.Sequence} kind is required");
             }
 
+            if (gameEvent.Event.Payload is null)
+            {
+                errors.Add($"event sequence {gameEvent.Sequence} payload is required");
+            }
+
             if (gameEvent.Sequence <= previousFrameSequence)
             {
                 errors.Add(

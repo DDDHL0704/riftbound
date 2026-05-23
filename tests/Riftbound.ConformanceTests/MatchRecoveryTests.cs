@@ -310,6 +310,30 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsNullRecoveredEventPayload()
+    {
+        var events = new[]
+        {
+            new RecoveredEvent(
+                1,
+                0,
+                0,
+                new GameEvent("NULL_PAYLOAD", "null payload", null!))
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            1,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("event sequence 1 payload is required", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsRejectedCommandsThatAdvanceTickOrRecordEvents()
     {
         var events = new[]
