@@ -117,6 +117,36 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsPromptMetadataWithoutMatchingPayload()
+    {
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = PlayerView("alice", 3, 0) with
+            {
+                Prompt = null
+            },
+            ["bob"] = PlayerView("bob", 3, 0) with
+            {
+                PromptTick = null,
+                PromptEventSequence = null
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "prompt metadata for alice has tick/event sequence without prompt payload",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "prompt for bob is missing row tick/event sequence metadata",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsOutOfOrderRecoveredEvents()
     {
         var events = new[]

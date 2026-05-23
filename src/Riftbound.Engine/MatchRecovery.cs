@@ -691,6 +691,20 @@ public static class MatchRecoveryValidator
                     $"snapshot for {view.PlayerId} points to future event sequence {view.SnapshotEventSequence}");
             }
 
+            if (view.Prompt is null
+                && (view.PromptTick is not null || view.PromptEventSequence is not null))
+            {
+                errors.Add(
+                    $"prompt metadata for {view.PlayerId} has tick/event sequence without prompt payload");
+            }
+
+            if (view.Prompt is not null
+                && (view.PromptTick is null || view.PromptEventSequence is null))
+            {
+                errors.Add(
+                    $"prompt for {view.PlayerId} is missing row tick/event sequence metadata");
+            }
+
             if (view.Prompt is not null && view.PromptEventSequence > lastEventSequence)
             {
                 errors.Add(
