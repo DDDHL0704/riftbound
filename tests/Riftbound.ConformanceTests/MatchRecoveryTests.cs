@@ -486,6 +486,70 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsInvalidRawCommandShape()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-raw-array",
+                "PASS",
+                RawJson("[]"),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "raw array"),
+            new RecoveredCommand(
+                "alice",
+                "intent-raw-missing-cmd",
+                "PASS",
+                RawJson("""{"payload":true}"""),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "missing cmd type"),
+            new RecoveredCommand(
+                "alice",
+                "intent-raw-blank-cmd",
+                "PASS",
+                RawJson("""{"cmdType":" "}"""),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "blank cmd type")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-raw-array raw command must be a JSON object",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-raw-missing-cmd raw command is missing cmdType",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-raw-blank-cmd raw cmdType is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAcceptedCommandsThatOverlapEventOwnership()
     {
         var events = new[]
@@ -1690,6 +1754,11 @@ public sealed class MatchRecoveryTests
     private static JsonElement RawCommand(string cmdType)
     {
         return JsonDocument.Parse($$"""{"cmdType":"{{cmdType}}"}""").RootElement.Clone();
+    }
+
+    private static JsonElement RawJson(string json)
+    {
+        return JsonDocument.Parse(json).RootElement.Clone();
     }
 
     private static JsonElement RawDevSeedCommand(string scenarioId)

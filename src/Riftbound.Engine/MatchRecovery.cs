@@ -609,6 +609,7 @@ public static class MatchRecoveryValidator
                     $"command {command.ClientIntentId} has negative started event sequence {command.StartedEventSequence}");
             }
 
+            ValidateRawCommandShape(command, errors);
             if (!string.IsNullOrWhiteSpace(command.CommandType)
                 && TryReadRawCommandType(command.RawCommand, out var rawCommandType)
                 && !string.Equals(rawCommandType, ExpectedRawCommandType(command.CommandType), StringComparison.Ordinal))
@@ -710,6 +711,32 @@ public static class MatchRecoveryValidator
                     }
                 }
             }
+        }
+    }
+
+    private static void ValidateRawCommandShape(RecoveredCommand command, List<string> errors)
+    {
+        if (command.RawCommand is not { } rawCommand)
+        {
+            return;
+        }
+
+        if (rawCommand.ValueKind != JsonValueKind.Object)
+        {
+            errors.Add($"command {command.ClientIntentId} raw command must be a JSON object");
+            return;
+        }
+
+        if (!rawCommand.TryGetProperty("cmdType", out var rawCommandType))
+        {
+            errors.Add($"command {command.ClientIntentId} raw command is missing cmdType");
+            return;
+        }
+
+        if (rawCommandType.ValueKind != JsonValueKind.String
+            || string.IsNullOrWhiteSpace(rawCommandType.GetString()))
+        {
+            errors.Add($"command {command.ClientIntentId} raw cmdType is required");
         }
     }
 
