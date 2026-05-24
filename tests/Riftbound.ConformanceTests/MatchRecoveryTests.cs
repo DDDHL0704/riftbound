@@ -6494,6 +6494,144 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplaySnapshotVisiblePlayerObjectScalarMismatch()
+    {
+        const string visibleBattlefieldObjectId = "alice-visible-battlefield-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = [visibleBattlefieldObjectId]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [visibleBattlefieldObjectId] = new(
+                    visibleBattlefieldObjectId,
+                    damage: 1,
+                    isAttacking: true,
+                    power: 6,
+                    untilEndOfTurnPowerModifier: 2,
+                    isExhausted: true,
+                    tags: [CardObjectTags.UnitCard],
+                    manaCost: 3,
+                    attachedToObjectId: "alice-parent-1",
+                    cardNo: "SFD-VISIBLE",
+                    ownerId: "alice",
+                    controllerId: "alice")
+            });
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var players = spectatorReplayFrame.SpectatorSnapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objects = Assert.IsType<Dictionary<string, object?>>(alicePayload["objects"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var visiblePayload = Assert.IsType<Dictionary<string, object?>>(objects[visibleBattlefieldObjectId])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        visiblePayload["cardNo"] = "SFD-DRIFT";
+        visiblePayload["ownerId"] = "bob";
+        visiblePayload["controllerId"] = "bob";
+        visiblePayload["attachedToObjectId"] = "alice-parent-drift";
+        visiblePayload["damage"] = 2;
+        visiblePayload["power"] = 7;
+        visiblePayload["basePower"] = 8;
+        visiblePayload["effectivePower"] = 9;
+        visiblePayload["untilEndOfTurnPowerModifier"] = 3;
+        visiblePayload["manaCost"] = 4;
+        visiblePayload["isExhausted"] = false;
+        visiblePayload["isAttacking"] = false;
+        visiblePayload["isDefending"] = true;
+        objects[visibleBattlefieldObjectId] = visiblePayload;
+        alicePayload["objects"] = objects;
+        players["alice"] = alicePayload;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Players = players
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 card number does not match authoritative object card number", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 owner id does not match authoritative object owner id", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 controller id does not match authoritative object controller id", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 attached object id does not match authoritative object attached object id", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 damage does not match authoritative object damage", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 power does not match authoritative object power", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 base power does not match authoritative object base power", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 effective power does not match authoritative object effective power", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 until-end-of-turn power modifier does not match authoritative object until-end-of-turn power modifier", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 mana cost does not match authoritative object mana cost", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 exhausted state does not match authoritative object exhausted state", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 attacking state does not match authoritative object attacking state", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 defending state does not match authoritative object defending state", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingPhaseMismatch()
     {
         var authoritativeState = new MatchState(

@@ -2040,16 +2040,22 @@ public static class MatchRecoveryValidator
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} object id does not match authoritative object id");
         }
 
-        var expectedFaceDown = authoritativeState.CardObjects.TryGetValue(objectId, out var cardObject)
-            && cardObject.IsFaceDown;
+        var hasAuthoritativeObject = authoritativeState.CardObjects.TryGetValue(objectId, out var cardObject);
+        var expectedFaceDown = hasAuthoritativeObject && cardObject is not null && cardObject.IsFaceDown;
         if (!TryReadObjectBool(objectPayload, "isFaceDown", out var isFaceDown)
             || isFaceDown != expectedFaceDown)
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} face-down flag does not match authoritative spectator redaction");
         }
 
+        if (!hasAuthoritativeObject || cardObject is null)
+        {
+            return;
+        }
+
         if (!expectedFaceDown)
         {
+            ValidateSpectatorSnapshotVisiblePlayerObjectScalars(playerId, objectId, objectPayload, cardObject, errors);
             return;
         }
 
@@ -2058,6 +2064,169 @@ public static class MatchRecoveryValidator
             || TryReadObjectValue(objectPayload, "power", out _))
         {
             errors.Add($"spectator replay frame snapshot player {playerId} hidden face-down object {objectId} exposes private metadata");
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotVisiblePlayerObjectScalars(
+        string playerId,
+        string objectId,
+        object? objectPayload,
+        CardObjectState cardObject,
+        List<string> errors)
+    {
+        ValidateSpectatorSnapshotPlayerObjectOptionalStringScalar(
+            playerId,
+            objectId,
+            objectPayload,
+            "cardNo",
+            cardObject.CardNo,
+            "card number",
+            errors);
+        ValidateSpectatorSnapshotPlayerObjectOptionalStringScalar(
+            playerId,
+            objectId,
+            objectPayload,
+            "ownerId",
+            cardObject.OwnerId,
+            "owner id",
+            errors);
+        ValidateSpectatorSnapshotPlayerObjectOptionalStringScalar(
+            playerId,
+            objectId,
+            objectPayload,
+            "controllerId",
+            cardObject.ControllerId,
+            "controller id",
+            errors);
+        ValidateSpectatorSnapshotPlayerObjectOptionalStringScalar(
+            playerId,
+            objectId,
+            objectPayload,
+            "attachedToObjectId",
+            cardObject.AttachedToObjectId,
+            "attached object id",
+            errors);
+
+        ValidateSpectatorSnapshotPlayerObjectIntScalar(
+            playerId,
+            objectId,
+            objectPayload,
+            "damage",
+            cardObject.Damage,
+            "damage",
+            errors);
+        ValidateSpectatorSnapshotPlayerObjectIntScalar(
+            playerId,
+            objectId,
+            objectPayload,
+            "power",
+            cardObject.Power,
+            "power",
+            errors);
+        ValidateSpectatorSnapshotPlayerObjectIntScalar(
+            playerId,
+            objectId,
+            objectPayload,
+            "basePower",
+            cardObject.Power - cardObject.UntilEndOfTurnPowerModifier,
+            "base power",
+            errors);
+        ValidateSpectatorSnapshotPlayerObjectIntScalar(
+            playerId,
+            objectId,
+            objectPayload,
+            "effectivePower",
+            cardObject.Power,
+            "effective power",
+            errors);
+        ValidateSpectatorSnapshotPlayerObjectIntScalar(
+            playerId,
+            objectId,
+            objectPayload,
+            "untilEndOfTurnPowerModifier",
+            cardObject.UntilEndOfTurnPowerModifier,
+            "until-end-of-turn power modifier",
+            errors);
+        ValidateSpectatorSnapshotPlayerObjectIntScalar(
+            playerId,
+            objectId,
+            objectPayload,
+            "manaCost",
+            cardObject.ManaCost,
+            "mana cost",
+            errors);
+
+        ValidateSpectatorSnapshotPlayerObjectBoolScalar(
+            playerId,
+            objectId,
+            objectPayload,
+            "isExhausted",
+            cardObject.IsExhausted,
+            "exhausted state",
+            errors);
+        ValidateSpectatorSnapshotPlayerObjectBoolScalar(
+            playerId,
+            objectId,
+            objectPayload,
+            "isAttacking",
+            cardObject.IsAttacking,
+            "attacking state",
+            errors);
+        ValidateSpectatorSnapshotPlayerObjectBoolScalar(
+            playerId,
+            objectId,
+            objectPayload,
+            "isDefending",
+            cardObject.IsDefending,
+            "defending state",
+            errors);
+    }
+
+    private static void ValidateSpectatorSnapshotPlayerObjectOptionalStringScalar(
+        string playerId,
+        string objectId,
+        object? objectPayload,
+        string key,
+        string? expected,
+        string description,
+        List<string> errors)
+    {
+        if (!TryReadObjectOptionalString(objectPayload, key, out var value)
+            || !string.Equals(value, expected ?? string.Empty, StringComparison.Ordinal))
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}");
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotPlayerObjectIntScalar(
+        string playerId,
+        string objectId,
+        object? objectPayload,
+        string key,
+        int expected,
+        string description,
+        List<string> errors)
+    {
+        if (!TryReadObjectInt(objectPayload, key, out var value)
+            || value != expected)
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}");
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotPlayerObjectBoolScalar(
+        string playerId,
+        string objectId,
+        object? objectPayload,
+        string key,
+        bool expected,
+        string description,
+        List<string> errors)
+    {
+        if (!TryReadObjectBool(objectPayload, key, out var value)
+            || value != expected)
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}");
         }
     }
 
