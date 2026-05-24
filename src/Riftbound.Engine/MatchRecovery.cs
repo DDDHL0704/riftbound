@@ -1955,6 +1955,7 @@ public static class MatchRecoveryValidator
             errors.Add($"authoritative state tick {authoritativeState.Tick} does not match recovery tick {expectedTick}");
         }
 
+        ValidateAuthoritativeStateScalars(authoritativeState, errors);
         ValidateAuthoritativeStateSeats(authoritativeState, errors);
         ValidateAuthoritativeStateResolutionHistory(authoritativeState, errors);
         ValidateAuthoritativeStatePlayerPointers(authoritativeState, errors);
@@ -1981,6 +1982,85 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"snapshot for {view.PlayerId} disagrees with authoritative state seats");
             }
+        }
+    }
+
+    private static void ValidateAuthoritativeStateScalars(
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        ValidateAuthoritativeStateRequiredText(
+            "room id",
+            authoritativeState.RoomId,
+            errors);
+
+        if (authoritativeState.Tick < 0)
+        {
+            errors.Add($"authoritative state tick {authoritativeState.Tick} cannot be negative");
+        }
+
+        if (authoritativeState.TurnNumber < 1)
+        {
+            errors.Add($"authoritative state turn number {authoritativeState.TurnNumber} is invalid");
+        }
+
+        ValidateAuthoritativeStateKnownText(
+            "status",
+            authoritativeState.Status,
+            IsKnownMatchStatus,
+            errors);
+        ValidateAuthoritativeStateKnownText(
+            "phase",
+            authoritativeState.Phase,
+            IsKnownMatchPhase,
+            errors);
+        ValidateAuthoritativeStateKnownText(
+            "timing state",
+            authoritativeState.TimingState,
+            IsKnownTimingState,
+            errors);
+
+        if (authoritativeState.RngCursor < 0)
+        {
+            errors.Add($"authoritative state rng cursor {authoritativeState.RngCursor} cannot be negative");
+        }
+    }
+
+    private static string? ValidateAuthoritativeStateRequiredText(
+        string valueLabel,
+        string? value,
+        List<string> errors)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            errors.Add($"authoritative state {valueLabel} is required");
+            return null;
+        }
+
+        var normalizedValue = value.Trim();
+        if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
+        {
+            errors.Add($"authoritative state {valueLabel} {normalizedValue} has surrounding whitespace");
+        }
+
+        return normalizedValue;
+    }
+
+    private static void ValidateAuthoritativeStateKnownText(
+        string valueLabel,
+        string? value,
+        Func<string, bool> isKnownValue,
+        List<string> errors)
+    {
+        var normalizedValue = ValidateAuthoritativeStateRequiredText(valueLabel, value, errors);
+        if (normalizedValue is null)
+        {
+            return;
+        }
+
+        if (!isKnownValue(normalizedValue))
+        {
+            errors.Add($"authoritative state {valueLabel} {normalizedValue} is invalid");
         }
     }
 
