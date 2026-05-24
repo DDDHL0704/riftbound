@@ -3602,6 +3602,8 @@ public sealed class MatchRecoveryTests
                             EffectKind = " TEST_POWER ",
                             Duration = " UNTIL_END_OF_TURN ",
                             TargetObjectId = " obj-1 ",
+                            SourceObjectId = " source-1 ",
+                            SourceCardNo = " TEST-SOURCE ",
                             SourcePath = " Test.Path ",
                             PowerDelta = 0,
                             MinimumPower = -1,
@@ -3621,7 +3623,11 @@ public sealed class MatchRecoveryTests
                             1,
                             2,
                             1,
-                            1),
+                            1)
+                        {
+                            SourceObjectId = "",
+                            SourceCardNo = " "
+                        },
                         new PowerModifierLedgerEntry(
                             "power-2",
                             "TEST_POWER",
@@ -3702,6 +3708,18 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains("authoritative state card object obj-1 power modifier power-1 source path Test.Path has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state card object obj-1 power modifier power-1 source object source-1 has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state card object obj-1 power modifier power-1 source object is blank", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state card object obj-1 power modifier power-1 source card no TEST-SOURCE has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state card object obj-1 power modifier power-1 source card no is blank", StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains("authoritative state card object obj-1 power modifier power-1 target object other-1 does not match card object", StringComparison.Ordinal));

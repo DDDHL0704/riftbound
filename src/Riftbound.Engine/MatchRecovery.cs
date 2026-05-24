@@ -2101,6 +2101,31 @@ public static class MatchRecoveryValidator
         return normalizedValue;
     }
 
+    private static string? ValidateAuthoritativeStateNullableTextValue(
+        string valueLabel,
+        string? value,
+        List<string> errors)
+    {
+        if (value is null)
+        {
+            return null;
+        }
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            errors.Add($"authoritative state {valueLabel} is blank");
+            return null;
+        }
+
+        var normalizedValue = value.Trim();
+        if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
+        {
+            errors.Add($"authoritative state {valueLabel} {normalizedValue} has surrounding whitespace");
+        }
+
+        return normalizedValue;
+    }
+
     private static void ValidateAuthoritativeStateResourceValues(
         MatchState authoritativeState,
         List<string> errors)
@@ -3283,6 +3308,14 @@ public static class MatchRecoveryValidator
             ValidateAuthoritativeStateRequiredText(
                 $"card object {objectId} power modifier {modifierLabel} source path",
                 modifier.SourcePath,
+                errors);
+            ValidateAuthoritativeStateNullableTextValue(
+                $"card object {objectId} power modifier {modifierLabel} source object",
+                modifier.SourceObjectId,
+                errors);
+            ValidateAuthoritativeStateNullableTextValue(
+                $"card object {objectId} power modifier {modifierLabel} source card no",
+                modifier.SourceCardNo,
                 errors);
 
             if (targetObjectId is not null && !string.Equals(targetObjectId, objectId.Trim(), StringComparison.Ordinal))
