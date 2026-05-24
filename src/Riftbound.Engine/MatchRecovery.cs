@@ -1134,6 +1134,15 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame timing priority player does not match authoritative state priority player");
         }
 
+        if (!TryReadString(
+                spectatorReplayFrame.SpectatorSnapshot.Timing,
+                "focusPlayerId",
+                out var spectatorFocusPlayerId)
+            || !string.Equals(spectatorFocusPlayerId, authoritativeState.FocusPlayerId, StringComparison.Ordinal))
+        {
+            errors.Add("spectator replay frame timing focus player does not match authoritative state focus player");
+        }
+
         if (spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("seed")
             || spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("rngCursor"))
         {
