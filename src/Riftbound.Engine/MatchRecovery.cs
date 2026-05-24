@@ -153,6 +153,19 @@ public static class MatchActionLogReplayer
                 errors.Add($"action-log replay initial state turn number {replayInitialState.TurnNumber} must be 1");
             }
 
+            var expectedInitialPlayerId = ReplayInitialPlayerIdFor(replayInitialState);
+            if (!string.Equals(replayInitialState.ActivePlayerId, expectedInitialPlayerId, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"action-log replay initial state active player {replayInitialState.ActivePlayerId} must be {expectedInitialPlayerId}");
+            }
+
+            if (!string.Equals(replayInitialState.TurnPlayerId, expectedInitialPlayerId, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"action-log replay initial state turn player {replayInitialState.TurnPlayerId} must be {expectedInitialPlayerId}");
+            }
+
             if (!string.Equals(replayInitialState.Status, MatchStatuses.Seating, StringComparison.Ordinal))
             {
                 errors.Add(
@@ -200,6 +213,26 @@ public static class MatchActionLogReplayer
             : replay.Errors
                 .Select(error => $"action-log replay audit failed: {error}")
                 .ToArray();
+    }
+
+    private static string ReplayInitialPlayerIdFor(MatchState replayInitialState)
+    {
+        return replayInitialState.Seats
+            .OrderBy(entry => ReplayInitialSeatSort(entry.Value))
+            .ThenBy(entry => entry.Key, StringComparer.Ordinal)
+            .Select(entry => entry.Key)
+            .FirstOrDefault()
+            ?? "P1";
+    }
+
+    private static int ReplayInitialSeatSort(string seat)
+    {
+        return seat switch
+        {
+            "P1" => 0,
+            "P2" => 1,
+            _ => 10
+        };
     }
 
     public static async ValueTask<MatchActionLogReplayResult> VerifyFinalStateAsync(
