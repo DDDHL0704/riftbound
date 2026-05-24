@@ -1298,6 +1298,7 @@ public static class MatchRecoveryValidator
             else
             {
                 ValidateSnapshotPlayerPayloads(view, errors);
+                ValidateSnapshotPlayerCoverage(view, playerViews.Keys, errors);
             }
 
             if (view.Snapshot.Tick != view.SnapshotTick)
@@ -1453,6 +1454,20 @@ public static class MatchRecoveryValidator
             JsonElement { ValueKind: JsonValueKind.Object } => true,
             _ => false
         };
+    }
+
+    private static void ValidateSnapshotPlayerCoverage(
+        RecoveredPlayerView view,
+        IEnumerable<string> expectedPlayerIds,
+        List<string> errors)
+    {
+        foreach (var expectedPlayerId in expectedPlayerIds)
+        {
+            if (!view.Snapshot.Players.ContainsKey(expectedPlayerId))
+            {
+                errors.Add($"snapshot for {view.PlayerId} is missing player {expectedPlayerId}");
+            }
+        }
     }
 
     private static void ValidatePlayerViewAgreement(
