@@ -1306,6 +1306,22 @@ public static class MatchRecoveryValidator
                 ValidateSnapshotTimingPlayerMembership(view, "priorityPlayerId", "priority player", errors);
                 ValidateSnapshotTimingPlayerMembership(view, "focusPlayerId", "focus player", errors);
                 ValidateSnapshotTimingPlayerMembership(view, "winnerPlayerId", "winner player", errors);
+                ValidateSnapshotTimingPlayerListMembership(view, "readyPlayerIds", "ready player", errors);
+                ValidateSnapshotTimingPlayerListMembership(
+                    view,
+                    "passedPriorityPlayerIds",
+                    "passed priority player",
+                    errors);
+                ValidateSnapshotTimingPlayerListMembership(
+                    view,
+                    "passedFocusPlayerIds",
+                    "passed focus player",
+                    errors);
+                ValidateSnapshotTimingPlayerListMembership(
+                    view,
+                    "destroyedUnitOwnerIdsThisTurn",
+                    "destroyed unit owner",
+                    errors);
             }
 
             if (view.Snapshot.Tick != view.SnapshotTick)
@@ -1500,6 +1516,35 @@ public static class MatchRecoveryValidator
         {
             errors.Add(
                 $"snapshot for {view.PlayerId} timing {label} {playerId} is missing from players");
+        }
+    }
+
+    private static void ValidateSnapshotTimingPlayerListMembership(
+        RecoveredPlayerView view,
+        string key,
+        string label,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadStringList(view.Snapshot.Timing, key, out var playerIds))
+        {
+            return;
+        }
+
+        foreach (var playerId in playerIds)
+        {
+            if (string.IsNullOrWhiteSpace(playerId))
+            {
+                errors.Add($"snapshot for {view.PlayerId} timing {label} id is required");
+                continue;
+            }
+
+            var normalizedPlayerId = playerId.Trim();
+            if (!view.Snapshot.Players.ContainsKey(normalizedPlayerId))
+            {
+                errors.Add(
+                    $"snapshot for {view.PlayerId} timing {label} {normalizedPlayerId} is missing from players");
+            }
         }
     }
 
