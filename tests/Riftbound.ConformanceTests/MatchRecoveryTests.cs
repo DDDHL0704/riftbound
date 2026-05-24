@@ -2940,6 +2940,55 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateStackAndTriggerControllersOutsideSeats()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            stackItems:
+            [
+                new StackItemState(
+                    "stack-1",
+                    controllerId: "charlie",
+                    sourceObjectId: "obj-1",
+                    effectKind: "SPELL")
+            ],
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    "trigger-1",
+                    controllerId: "diana",
+                    sourceObjectId: "obj-2",
+                    effectKind: "LAST_BREATH",
+                    triggeredByEventKind: "OBJECT_DESTROYED")
+            ]);
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state stack item stack-1 controller player charlie is missing from seats", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state trigger queue item trigger-1 controller player diana is missing from seats", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorAcceptsMatchingSpectatorReplayFrame()
     {
         var authoritativeState = new MatchState(

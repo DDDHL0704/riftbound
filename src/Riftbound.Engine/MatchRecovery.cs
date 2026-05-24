@@ -2084,6 +2084,8 @@ public static class MatchRecoveryValidator
             errors);
         ValidateAuthoritativeStateCardObjectPlayers(authoritativeState.CardObjects, seatPlayerIds, errors);
         ValidateAuthoritativeStateObjectLocationPlayers(authoritativeState.ObjectLocations, seatPlayerIds, errors);
+        ValidateAuthoritativeStateStackPlayers(authoritativeState.StackItems, seatPlayerIds, errors);
+        ValidateAuthoritativeStateTriggerQueuePlayers(authoritativeState.TriggerQueue, seatPlayerIds, errors);
     }
 
     private static void ValidateAuthoritativeStateRequiredPlayerPointer(
@@ -2244,6 +2246,60 @@ public static class MatchRecoveryValidator
             ValidateAuthoritativeStateRequiredObjectPlayer(
                 $"object location {objectId} player",
                 location.PlayerId,
+                seatPlayerIds,
+                errors);
+        }
+    }
+
+    private static void ValidateAuthoritativeStateStackPlayers(
+        IReadOnlyList<StackItemState>? stackItems,
+        IReadOnlySet<string> seatPlayerIds,
+        List<string> errors)
+    {
+        if (stackItems is null)
+        {
+            errors.Add("authoritative state stack items list is required");
+            return;
+        }
+
+        foreach (var stackItem in stackItems.OrderBy(item => item?.StackItemId ?? string.Empty, StringComparer.Ordinal))
+        {
+            if (stackItem is null)
+            {
+                errors.Add("authoritative state stack item is required");
+                continue;
+            }
+
+            ValidateAuthoritativeStateRequiredObjectPlayer(
+                $"stack item {stackItem.StackItemId} controller player",
+                stackItem.ControllerId,
+                seatPlayerIds,
+                errors);
+        }
+    }
+
+    private static void ValidateAuthoritativeStateTriggerQueuePlayers(
+        IReadOnlyList<TriggerQueueItemState>? triggerQueue,
+        IReadOnlySet<string> seatPlayerIds,
+        List<string> errors)
+    {
+        if (triggerQueue is null)
+        {
+            errors.Add("authoritative state trigger queue list is required");
+            return;
+        }
+
+        foreach (var trigger in triggerQueue.OrderBy(item => item?.TriggerId ?? string.Empty, StringComparer.Ordinal))
+        {
+            if (trigger is null)
+            {
+                errors.Add("authoritative state trigger queue item is required");
+                continue;
+            }
+
+            ValidateAuthoritativeStateRequiredObjectPlayer(
+                $"trigger queue item {trigger.TriggerId} controller player",
+                trigger.ControllerId,
                 seatPlayerIds,
                 errors);
         }
