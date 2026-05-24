@@ -577,6 +577,46 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAcceptedCommandRecoveredEventOrderMismatch()
+    {
+        var events = new[]
+        {
+            new RecoveredEvent(
+                1,
+                1,
+                1,
+                new GameEvent("TURN_ENDED", "TURN_ENDED", new Dictionary<string, object?>()))
+        };
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-order-mismatch",
+                "END_TURN",
+                RawCommand("END_TURN"),
+                0,
+                1,
+                0,
+                1,
+                true,
+                null)
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            1,
+            commands,
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "event sequence 1 has order 1 but command intent-order-mismatch expects order 0",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsNegativeCommandCompletedEventSequence()
     {
         var commands = new[]
@@ -5196,7 +5236,7 @@ public sealed class MatchRecoveryTests
         return new RecoveredEvent(
             sequence,
             sequence,
-            0,
+            (int)sequence - 1,
             new GameEvent(kind, kind, new Dictionary<string, object?>()));
     }
 

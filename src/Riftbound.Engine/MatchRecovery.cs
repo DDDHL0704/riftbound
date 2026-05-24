@@ -1119,9 +1119,23 @@ public static class MatchRecoveryValidator
 
             if (command.Accepted)
             {
-                foreach (var gameEvent in events.Where(gameEvent =>
-                    gameEvent.Sequence > command.StartedEventSequence
-                    && gameEvent.Sequence <= command.CompletedEventSequence))
+                var commandEvents = events
+                    .Where(gameEvent =>
+                        gameEvent.Sequence > command.StartedEventSequence
+                        && gameEvent.Sequence <= command.CompletedEventSequence)
+                    .OrderBy(gameEvent => gameEvent.Sequence)
+                    .ToArray();
+                for (var eventIndex = 0; eventIndex < commandEvents.Length; eventIndex++)
+                {
+                    var gameEvent = commandEvents[eventIndex];
+                    if (gameEvent.Order != eventIndex)
+                    {
+                        errors.Add(
+                            $"event sequence {gameEvent.Sequence} has order {gameEvent.Order} but command {command.ClientIntentId} expects order {eventIndex}");
+                    }
+                }
+
+                foreach (var gameEvent in commandEvents)
                 {
                     if (acceptedEventOwners.TryGetValue(gameEvent.Sequence, out var owner))
                     {
