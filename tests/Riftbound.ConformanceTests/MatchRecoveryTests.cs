@@ -2989,6 +2989,71 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStatePendingPlayersOutsideSeats()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            pendingPayment: new PendingPaymentState(
+                "payment-1",
+                "PAY_COST",
+                "charlie",
+                manaCost: 1,
+                legalPaymentChoiceIds: ["SPEND_MANA:1"],
+                reason: "test"),
+            pendingHandChoice: new PendingHandChoiceState(
+                "choice-1",
+                "CHOOSE_HAND_CARDS",
+                "diana",
+                requiredCount: 1,
+                maxCount: 1,
+                legalObjectIds: ["obj-1"],
+                reason: "test",
+                sourceObjectId: "obj-2",
+                effectKind: "DRAW_DISCARD"),
+            temporaryPaymentResources:
+            [
+                new TemporaryPaymentResourceState(
+                    "temp-1",
+                    "eve",
+                    "obj-3",
+                    "ability-1",
+                    "PAY_COST",
+                    generatedPower: 1,
+                    remainingPower: 1,
+                    allowedPaymentKinds: ["power"],
+                    createdTick: 0)
+            ]);
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state pending payment player charlie is missing from seats", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state pending hand choice player diana is missing from seats", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state temporary payment resource temp-1 owner player eve is missing from seats", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorAcceptsMatchingSpectatorReplayFrame()
     {
         var authoritativeState = new MatchState(

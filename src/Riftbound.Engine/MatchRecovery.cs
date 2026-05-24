@@ -2086,6 +2086,12 @@ public static class MatchRecoveryValidator
         ValidateAuthoritativeStateObjectLocationPlayers(authoritativeState.ObjectLocations, seatPlayerIds, errors);
         ValidateAuthoritativeStateStackPlayers(authoritativeState.StackItems, seatPlayerIds, errors);
         ValidateAuthoritativeStateTriggerQueuePlayers(authoritativeState.TriggerQueue, seatPlayerIds, errors);
+        ValidateAuthoritativeStatePendingPaymentPlayer(authoritativeState.PendingPayment, seatPlayerIds, errors);
+        ValidateAuthoritativeStatePendingHandChoicePlayer(authoritativeState.PendingHandChoice, seatPlayerIds, errors);
+        ValidateAuthoritativeStateTemporaryPaymentResourcePlayers(
+            authoritativeState.TemporaryPaymentResources,
+            seatPlayerIds,
+            errors);
     }
 
     private static void ValidateAuthoritativeStateRequiredPlayerPointer(
@@ -2300,6 +2306,69 @@ public static class MatchRecoveryValidator
             ValidateAuthoritativeStateRequiredObjectPlayer(
                 $"trigger queue item {trigger.TriggerId} controller player",
                 trigger.ControllerId,
+                seatPlayerIds,
+                errors);
+        }
+    }
+
+    private static void ValidateAuthoritativeStatePendingPaymentPlayer(
+        PendingPaymentState? pendingPayment,
+        IReadOnlySet<string> seatPlayerIds,
+        List<string> errors)
+    {
+        if (pendingPayment is null)
+        {
+            return;
+        }
+
+        ValidateAuthoritativeStateRequiredObjectPlayer(
+            "pending payment player",
+            pendingPayment.PlayerId,
+            seatPlayerIds,
+            errors);
+    }
+
+    private static void ValidateAuthoritativeStatePendingHandChoicePlayer(
+        PendingHandChoiceState? pendingHandChoice,
+        IReadOnlySet<string> seatPlayerIds,
+        List<string> errors)
+    {
+        if (pendingHandChoice is null)
+        {
+            return;
+        }
+
+        ValidateAuthoritativeStateRequiredObjectPlayer(
+            "pending hand choice player",
+            pendingHandChoice.PlayerId,
+            seatPlayerIds,
+            errors);
+    }
+
+    private static void ValidateAuthoritativeStateTemporaryPaymentResourcePlayers(
+        IReadOnlyList<TemporaryPaymentResourceState>? temporaryPaymentResources,
+        IReadOnlySet<string> seatPlayerIds,
+        List<string> errors)
+    {
+        if (temporaryPaymentResources is null)
+        {
+            errors.Add("authoritative state temporary payment resources list is required");
+            return;
+        }
+
+        foreach (var resource in temporaryPaymentResources.OrderBy(
+            item => item?.ResourceId ?? string.Empty,
+            StringComparer.Ordinal))
+        {
+            if (resource is null)
+            {
+                errors.Add("authoritative state temporary payment resource is required");
+                continue;
+            }
+
+            ValidateAuthoritativeStateRequiredObjectPlayer(
+                $"temporary payment resource {resource.ResourceId} owner player",
+                resource.OwnerPlayerId,
                 seatPlayerIds,
                 errors);
         }
