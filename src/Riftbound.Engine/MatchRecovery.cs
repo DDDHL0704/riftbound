@@ -1670,7 +1670,11 @@ public static class MatchRecoveryValidator
             && TryReadObjectString(value, "battlefieldId", out var battlefieldId)
             && string.Equals(battlefieldId, state.BattleState.BattlefieldObjectId, StringComparison.Ordinal)
             && TryReadObjectString(value, "assigningPlayerId", out var assigningPlayerId)
-            && string.Equals(assigningPlayerId, ResolutionResult.BattleDamageAssigningPlayerId(state), StringComparison.Ordinal);
+            && string.Equals(assigningPlayerId, ResolutionResult.BattleDamageAssigningPlayerId(state), StringComparison.Ordinal)
+            && TryReadObjectIntDictionary(value, "damagePool", out var damagePool)
+            && IntDictionariesEqual(
+                damagePool,
+                ResolutionResult.BattleDamagePoolFor(state, state.BattleState));
     }
 
     private static bool TryReadObjectBool(object? value, string key, out bool flag)
@@ -1748,6 +1752,33 @@ public static class MatchRecoveryValidator
         }
 
         texts = new Dictionary<string, string>(StringComparer.Ordinal);
+        return false;
+    }
+
+    private static bool TryReadObjectIntDictionary(
+        object? value,
+        string key,
+        out IReadOnlyDictionary<string, int> numbers)
+    {
+        if (value is IReadOnlyDictionary<string, object?> readOnlyDictionary
+            && readOnlyDictionary.TryGetValue(key, out var readOnlyValue))
+        {
+            return TryReadIntDictionaryValue(readOnlyValue, out numbers);
+        }
+
+        if (value is IDictionary<string, object?> dictionary
+            && dictionary.TryGetValue(key, out var dictionaryValue))
+        {
+            return TryReadIntDictionaryValue(dictionaryValue, out numbers);
+        }
+
+        if (value is JsonElement { ValueKind: JsonValueKind.Object } json
+            && json.TryGetProperty(key, out var jsonValue))
+        {
+            return TryReadIntDictionaryValue(jsonValue, out numbers);
+        }
+
+        numbers = new Dictionary<string, int>(StringComparer.Ordinal);
         return false;
     }
 
@@ -1870,6 +1901,81 @@ public static class MatchRecoveryValidator
         }
 
         texts = parsed;
+        return true;
+    }
+
+    private static bool TryReadIntDictionaryValue(
+        object? value,
+        out IReadOnlyDictionary<string, int> numbers)
+    {
+        numbers = new Dictionary<string, int>(StringComparer.Ordinal);
+        if (value is null)
+        {
+            return false;
+        }
+
+        if (value is IReadOnlyDictionary<string, int> intDictionary)
+        {
+            numbers = intDictionary;
+            return true;
+        }
+
+        if (value is IEnumerable<KeyValuePair<string, int>> intPairs)
+        {
+            numbers = intPairs.ToDictionary(
+                entry => entry.Key,
+                entry => entry.Value,
+                StringComparer.Ordinal);
+            return true;
+        }
+
+        if (value is IReadOnlyDictionary<string, object?> readOnlyDictionary)
+        {
+            return TryConvertObjectIntDictionary(readOnlyDictionary, out numbers);
+        }
+
+        if (value is IDictionary<string, object?> dictionary)
+        {
+            return TryConvertObjectIntDictionary(dictionary, out numbers);
+        }
+
+        if (value is JsonElement { ValueKind: JsonValueKind.Object } jsonObject)
+        {
+            var parsed = new Dictionary<string, int>(StringComparer.Ordinal);
+            foreach (var property in jsonObject.EnumerateObject())
+            {
+                if (!TryReadIntValue(property.Value, out var number))
+                {
+                    return false;
+                }
+
+                parsed[property.Name] = number;
+            }
+
+            numbers = parsed;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryConvertObjectIntDictionary(
+        IEnumerable<KeyValuePair<string, object?>> values,
+        out IReadOnlyDictionary<string, int> numbers)
+    {
+        var parsed = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (var (key, value) in values)
+        {
+            if (!TryReadIntValue(value, out var number))
+            {
+                numbers = new Dictionary<string, int>(StringComparer.Ordinal);
+                return false;
+            }
+
+            parsed[key] = number;
+        }
+
+        numbers = parsed;
         return true;
     }
 
@@ -2032,6 +2138,16 @@ public static class MatchRecoveryValidator
             && left.All(entry =>
                 right.TryGetValue(entry.Key, out var value)
                 && string.Equals(value, entry.Value, StringComparison.Ordinal));
+    }
+
+    private static bool IntDictionariesEqual(
+        IReadOnlyDictionary<string, int> left,
+        IReadOnlyDictionary<string, int> right)
+    {
+        return left.Count == right.Count
+            && left.All(entry =>
+                right.TryGetValue(entry.Key, out var value)
+                && value == entry.Value);
     }
 
     private static bool SeatsEqual(
