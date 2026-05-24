@@ -2077,6 +2077,71 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplaySnapshotStackDamageAmountsMismatch()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            stackItems:
+            [
+                new StackItemState(
+                    "stack-1",
+                    "alice",
+                    sourceObjectId: "spell-1",
+                    effectKind: "DAMAGE",
+                    cardNo: "SFD-001",
+                    targetObjectIds: ["target-1"],
+                    damageAmount: 3)
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var stack = spectatorReplayFrame.SpectatorSnapshot.Stack.ToArray();
+        var firstStackItem = Assert.IsType<Dictionary<string, object?>>(stack[0]);
+        var corruptedStackItem = new Dictionary<string, object?>(firstStackItem, StringComparer.Ordinal)
+        {
+            ["damageAmount"] = 4
+        };
+        stack[0] = corruptedStackItem;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Stack = stack
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot stack damage amounts disagree with authoritative state stack damage amounts", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsMissingSpectatorReplaySnapshotTurnState()
     {
         var authoritativeState = new MatchState(

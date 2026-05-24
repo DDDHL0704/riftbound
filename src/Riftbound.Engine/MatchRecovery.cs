@@ -1136,6 +1136,17 @@ public static class MatchRecoveryValidator
             {
                 errors.Add("spectator replay frame snapshot stack target object ids disagree with authoritative state stack target object ids");
             }
+
+            var spectatorStackDamageAmounts = ExtractStackItemIntValues(
+                spectatorReplayFrame.SpectatorSnapshot,
+                "damageAmount");
+            var authoritativeStackDamageAmounts = authoritativeState.StackItems
+                .Select(item => item.DamageAmount)
+                .ToArray();
+            if (!IntListsEqual(spectatorStackDamageAmounts, authoritativeStackDamageAmounts))
+            {
+                errors.Add("spectator replay frame snapshot stack damage amounts disagree with authoritative state stack damage amounts");
+            }
         }
 
         if (string.IsNullOrWhiteSpace(spectatorReplayFrame.SpectatorSnapshot.TurnState))
@@ -1345,6 +1356,25 @@ public static class MatchRecoveryValidator
         return values;
     }
 
+    private static IReadOnlyList<int> ExtractStackItemIntValues(SnapshotDto snapshot, string key)
+    {
+        if (snapshot.Stack is null)
+        {
+            return [];
+        }
+
+        var values = new List<int>();
+        foreach (var item in snapshot.Stack)
+        {
+            if (TryReadObjectInt(item, key, out var value))
+            {
+                values.Add(value);
+            }
+        }
+
+        return values;
+    }
+
     private static bool TryReadSeat(object? player, out string seat)
     {
         if (player is IReadOnlyDictionary<string, object?> readOnlyDictionary
@@ -1438,6 +1468,30 @@ public static class MatchRecoveryValidator
         return false;
     }
 
+    private static bool TryReadObjectInt(object? value, string key, out int number)
+    {
+        if (value is IReadOnlyDictionary<string, object?> readOnlyDictionary
+            && readOnlyDictionary.TryGetValue(key, out var readOnlyValue))
+        {
+            return TryReadIntValue(readOnlyValue, out number);
+        }
+
+        if (value is IDictionary<string, object?> dictionary
+            && dictionary.TryGetValue(key, out var dictionaryValue))
+        {
+            return TryReadIntValue(dictionaryValue, out number);
+        }
+
+        if (value is JsonElement { ValueKind: JsonValueKind.Object } json
+            && json.TryGetProperty(key, out var jsonValue))
+        {
+            return TryReadIntValue(jsonValue, out number);
+        }
+
+        number = 0;
+        return false;
+    }
+
     private static bool TryReadStringValue(object? value, out string? text)
     {
         text = null;
@@ -1464,6 +1518,26 @@ public static class MatchRecoveryValidator
         }
 
         return false;
+    }
+
+    private static bool TryReadIntValue(object? value, out int number)
+    {
+        switch (value)
+        {
+            case int intValue:
+                number = intValue;
+                return true;
+            case long longValue when longValue >= int.MinValue && longValue <= int.MaxValue:
+                number = (int)longValue;
+                return true;
+            case JsonElement { ValueKind: JsonValueKind.Number } jsonNumber
+                when jsonNumber.TryGetInt32(out var jsonInt):
+                number = jsonInt;
+                return true;
+            default:
+                number = 0;
+                return false;
+        }
     }
 
     private static bool TryReadStringListValue(object? value, out IReadOnlyList<string> texts)
@@ -1555,6 +1629,14 @@ public static class MatchRecoveryValidator
     {
         return left.Count == right.Count
             && left.SequenceEqual(right, StringComparer.Ordinal);
+    }
+
+    private static bool IntListsEqual(
+        IReadOnlyList<int> left,
+        IReadOnlyList<int> right)
+    {
+        return left.Count == right.Count
+            && left.SequenceEqual(right);
     }
 
     private static bool StringListCollectionsEqual(
