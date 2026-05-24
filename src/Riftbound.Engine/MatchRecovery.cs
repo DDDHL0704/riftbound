@@ -1573,6 +1573,12 @@ public static class MatchRecoveryValidator
             || string.Equals(value, MatchStatuses.Finished, StringComparison.Ordinal);
     }
 
+    private static bool IsKnownSeat(string value)
+    {
+        return string.Equals(value, "P1", StringComparison.Ordinal)
+            || string.Equals(value, "P2", StringComparison.Ordinal);
+    }
+
     private static void ValidateSnapshotTimingPlayerMembership(
         RecoveredPlayerView view,
         string key,
@@ -1677,6 +1683,7 @@ public static class MatchRecoveryValidator
         RecoveredPlayerView view,
         List<string> errors)
     {
+        var seenSeats = new HashSet<string>(StringComparer.Ordinal);
         foreach (var (snapshotPlayerId, playerPayload) in view.Snapshot.Players)
         {
             if (!IsSnapshotPlayerPayloadObject(playerPayload))
@@ -1700,6 +1707,26 @@ public static class MatchRecoveryValidator
                 || string.IsNullOrWhiteSpace(seat))
             {
                 errors.Add($"snapshot for {view.PlayerId} player {snapshotPlayerId} seat is required");
+                continue;
+            }
+
+            var normalizedSeat = seat.Trim();
+            if (!string.Equals(seat, normalizedSeat, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"snapshot for {view.PlayerId} player {snapshotPlayerId} seat {normalizedSeat} has surrounding whitespace");
+            }
+
+            if (!IsKnownSeat(normalizedSeat))
+            {
+                errors.Add($"snapshot for {view.PlayerId} player {snapshotPlayerId} seat {normalizedSeat} is invalid");
+                continue;
+            }
+
+            if (!seenSeats.Add(normalizedSeat))
+            {
+                errors.Add(
+                    $"snapshot for {view.PlayerId} player {snapshotPlayerId} seat {normalizedSeat} is duplicated");
             }
         }
     }

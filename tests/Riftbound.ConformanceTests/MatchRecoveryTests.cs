@@ -863,7 +863,7 @@ public sealed class MatchRecoveryTests
                         {
                             ["seat"] = "P4"
                         },
-                        ["eve"] = RawJson("""{"id":"eve","seat":"P5"}""")
+                        ["eve"] = RawJson("""{"id":"eve","seat":"P2"}""")
                     }
                 }
             }
@@ -890,6 +890,53 @@ public sealed class MatchRecoveryTests
         Assert.DoesNotContain(
             errors,
             error => error.Contains("snapshot for alice player eve", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSnapshotPlayerSeatValueDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = new Dictionary<string, object?>
+                    {
+                        ["alice"] = new Dictionary<string, object?>
+                        {
+                            ["id"] = "alice",
+                            ["seat"] = " P1 "
+                        },
+                        ["bob"] = new Dictionary<string, object?>
+                        {
+                            ["id"] = "bob",
+                            ["seat"] = "P3"
+                        },
+                        ["charlie"] = RawJson("""{"id":"charlie","seat":"P1"}""")
+                    }
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player alice seat P1 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player bob seat P3 is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player charlie seat P1 is duplicated",
+                StringComparison.Ordinal));
     }
 
     [Fact]
