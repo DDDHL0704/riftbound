@@ -3242,6 +3242,7 @@ public sealed class MatchRecoveryTests
             {
                 PaymentId = " payment-1 ",
                 PaymentWindow = " PAY_COST ",
+                Reason = " test ",
                 ManaCost = -1,
                 PowerCost = -2,
                 PowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
@@ -3269,6 +3270,9 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains("authoritative state pending payment payment-1 window PAY_COST has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state pending payment payment-1 reason test has surrounding whitespace", StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains("authoritative state pending payment payment-1 mana cost -1 cannot be negative", StringComparison.Ordinal));
@@ -3323,6 +3327,9 @@ public sealed class MatchRecoveryTests
             {
                 ChoiceId = " choice-1 ",
                 ChoiceWindow = " CHOOSE_HAND_CARDS ",
+                Reason = " ",
+                SourceObjectId = null!,
+                EffectKind = " DRAW_DISCARD ",
                 RequiredCount = 2,
                 MaxCount = 1,
                 LegalObjectIds = [" hand-1 ", "hand-1", ""]
@@ -3381,6 +3388,15 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains("authoritative state pending hand choice choice-1 window CHOOSE_HAND_CARDS has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state pending hand choice choice-1 reason is blank", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state pending hand choice choice-1 source object value is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state pending hand choice choice-1 effect kind DRAW_DISCARD has surrounding whitespace", StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains("authoritative state pending hand choice choice-1 max count 1 is less than required count 2", StringComparison.Ordinal));
@@ -4000,6 +4016,9 @@ public sealed class MatchRecoveryTests
             [
                 new TemporaryPaymentResourceState("temp-1", "alice", remainingPower: 1)
                 {
+                    SourceObjectId = " source-1 ",
+                    AbilityId = null!,
+                    PaymentWindow = " ",
                     GeneratedPower = -1,
                     RemainingPower = -2,
                     CreatedTick = 3,
@@ -4051,6 +4070,15 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains("authoritative state temporary payment resource temp-1 generated power -1 cannot be negative", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state temporary payment resource temp-1 source object source-1 has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state temporary payment resource temp-1 ability id value is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state temporary payment resource temp-1 payment window is blank", StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains("authoritative state temporary payment resource temp-1 remaining power -2 cannot be negative", StringComparison.Ordinal));

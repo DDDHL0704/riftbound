@@ -2263,6 +2263,19 @@ public static class MatchRecoveryValidator
                 errors.Add($"authoritative state temporary payment resource {resourceId} is duplicated");
             }
 
+            ValidateAuthoritativeStateOptionalTextValue(
+                $"temporary payment resource {resourceLabel} source object",
+                resource.SourceObjectId,
+                errors);
+            ValidateAuthoritativeStateOptionalTextValue(
+                $"temporary payment resource {resourceLabel} ability id",
+                resource.AbilityId,
+                errors);
+            ValidateAuthoritativeStateOptionalTextValue(
+                $"temporary payment resource {resourceLabel} payment window",
+                resource.PaymentWindow,
+                errors);
+
             if (resource.GeneratedPower < 0)
             {
                 errors.Add(
@@ -2408,6 +2421,10 @@ public static class MatchRecoveryValidator
             $"pending payment {paymentLabel} window",
             pendingPayment.PaymentWindow,
             errors);
+        ValidateAuthoritativeStateOptionalTextValue(
+            $"pending payment {paymentLabel} reason",
+            pendingPayment.Reason,
+            errors);
 
         if (pendingPayment.ManaCost < 0)
         {
@@ -2455,6 +2472,18 @@ public static class MatchRecoveryValidator
         ValidateAuthoritativeStateRequiredText(
             $"pending hand choice {choiceLabel} window",
             pendingHandChoice.ChoiceWindow,
+            errors);
+        ValidateAuthoritativeStateOptionalTextValue(
+            $"pending hand choice {choiceLabel} reason",
+            pendingHandChoice.Reason,
+            errors);
+        ValidateAuthoritativeStateOptionalTextValue(
+            $"pending hand choice {choiceLabel} source object",
+            pendingHandChoice.SourceObjectId,
+            errors);
+        ValidateAuthoritativeStateOptionalTextValue(
+            $"pending hand choice {choiceLabel} effect kind",
+            pendingHandChoice.EffectKind,
             errors);
 
         if (pendingHandChoice.RequiredCount < 1)
