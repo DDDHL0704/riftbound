@@ -1114,6 +1114,10 @@ public static class MatchRecoveryValidator
                 {
                     errors.Add($"rejected command {command.ClientIntentId} is missing error message");
                 }
+                else if (!string.Equals(command.ErrorMessage, command.ErrorMessage.Trim(), StringComparison.Ordinal))
+                {
+                    errors.Add($"rejected command {command.ClientIntentId} error message has surrounding whitespace");
+                }
 
                 if (expectedEventCount > 0)
                 {

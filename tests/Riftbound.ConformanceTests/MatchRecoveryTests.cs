@@ -1966,6 +1966,38 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsRejectedCommandDiagnosticWithSurroundingWhitespace()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-rejected-trim",
+                "PASS",
+                RawCommand("PASS"),
+                0,
+                0,
+                0,
+                0,
+                false,
+                " rejected diagnostic ")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "rejected command intent-rejected-trim error message has surrounding whitespace",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsInvalidRawCommandShape()
     {
         var commands = new[]
