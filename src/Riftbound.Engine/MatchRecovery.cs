@@ -1526,8 +1526,16 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         if (view.Snapshot.Timing is null
-            || !TryReadStringList(view.Snapshot.Timing, key, out var playerIds))
+            || !view.Snapshot.Timing.TryGetValue(key, out var rawPlayerIds)
+            || rawPlayerIds is null
+            || rawPlayerIds is JsonElement { ValueKind: JsonValueKind.Null })
         {
+            return;
+        }
+
+        if (!TryReadStringList(view.Snapshot.Timing, key, out var playerIds))
+        {
+            errors.Add($"snapshot for {view.PlayerId} timing {label} list is invalid");
             return;
         }
 
