@@ -3015,6 +3015,140 @@ public static class MatchRecoveryValidator
             || string.Equals(cardObject.OwnerId, playerId, StringComparison.Ordinal);
     }
 
+    private static void ValidateSpectatorPendingTaskQueuePayload(
+        IReadOnlyDictionary<string, object?> timing,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        if (!timing.TryGetValue("pendingTaskQueue", out var queuePayload)
+            || !IsSnapshotPlayerPayloadObject(queuePayload))
+        {
+            errors.Add("spectator replay frame timing pending task queue is required");
+            return;
+        }
+
+        var authoritativeQueue = authoritativeState.PendingTaskQueue;
+        if (!TryReadObjectBool(queuePayload, "hasTasks", out var hasTasks)
+            || hasTasks != authoritativeQueue.HasTasks)
+        {
+            errors.Add("spectator replay frame timing pending task queue has tasks does not match authoritative state pending task queue has tasks");
+        }
+
+        if (!TryReadObjectBool(queuePayload, "isBlocking", out var isBlocking)
+            || isBlocking != authoritativeQueue.IsBlocking)
+        {
+            errors.Add("spectator replay frame timing pending task queue blocking state does not match authoritative state pending task queue blocking state");
+        }
+
+        if (!TryReadObjectString(queuePayload, "phase", out var phase)
+            || !string.Equals(phase, authoritativeQueue.Phase, StringComparison.Ordinal))
+        {
+            errors.Add("spectator replay frame timing pending task queue phase does not match authoritative state pending task queue phase");
+        }
+
+        var activeTaskId = ExpectedSpectatorPendingTaskQueueActiveTaskId(authoritativeState);
+        if (!TryReadObjectOptionalString(queuePayload, "activeTaskId", out var spectatorActiveTaskId)
+            || !string.Equals(spectatorActiveTaskId, activeTaskId, StringComparison.Ordinal))
+        {
+            errors.Add("spectator replay frame timing pending task queue active task id does not match authoritative state pending task queue active task id");
+        }
+
+        if (!TryReadObjectList(queuePayload, "tasks", out var taskPayloads)
+            || taskPayloads.Count != authoritativeQueue.Tasks.Count)
+        {
+            errors.Add("spectator replay frame timing pending task queue task count does not match authoritative state pending task queue task count");
+        }
+
+        if (!TryReadObjectValue(queuePayload, "metadata", out var metadataPayload)
+            || !IsSnapshotPlayerPayloadObject(metadataPayload))
+        {
+            errors.Add("spectator replay frame timing pending task queue metadata is required");
+            return;
+        }
+
+        if (!TryReadObjectInt(metadataPayload, "taskCount", out var taskCount)
+            || taskCount != authoritativeQueue.Tasks.Count)
+        {
+            errors.Add("spectator replay frame timing pending task queue metadata task count does not match authoritative state pending task queue task count");
+        }
+
+        if (!TryReadObjectStringList(metadataPayload, "stateBasedTaskKinds", out var stateBasedTaskKinds)
+            || !StringListsEqual(stateBasedTaskKinds, ExpectedStateBasedTaskKinds(authoritativeQueue.Tasks)))
+        {
+            errors.Add("spectator replay frame timing pending task queue metadata state-based task kinds do not match authoritative state pending task queue state-based task kinds");
+        }
+    }
+
+    private static string ExpectedSpectatorPendingTaskQueueActiveTaskId(MatchState authoritativeState)
+    {
+        var queue = authoritativeState.PendingTaskQueue;
+        var activeTask = queue.Tasks.FirstOrDefault(task =>
+            string.Equals(task.TaskId, queue.ActiveTaskId, StringComparison.Ordinal));
+        return activeTask is null
+            ? queue.ActiveTaskId ?? string.Empty
+            : VisibleCleanupTaskIdForRecovery(authoritativeState, activeTask);
+    }
+
+    private static string VisibleCleanupTaskIdForRecovery(MatchState authoritativeState, CleanupTaskState task)
+    {
+        if (!ShouldHideCleanupTaskObjectIdForRecovery(authoritativeState, task))
+        {
+            return task.TaskId;
+        }
+
+        var ordinal = HiddenStandbyOrdinalForRecovery(
+            authoritativeState,
+            task.ObjectId!,
+            task.BattlefieldObjectId);
+        return $"cleanup:illegal-standby:{task.BattlefieldObjectId}:hidden-standby-{ordinal}";
+    }
+
+    private static bool ShouldHideCleanupTaskObjectIdForRecovery(MatchState authoritativeState, CleanupTaskState task)
+    {
+        return string.Equals(task.Kind, "REMOVE_ILLEGAL_STANDBY", StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(task.ObjectId)
+            && authoritativeState.CardObjects.TryGetValue(task.ObjectId, out var cardObject)
+            && cardObject.IsFaceDown
+            && cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal);
+    }
+
+    private static int HiddenStandbyOrdinalForRecovery(
+        MatchState authoritativeState,
+        string objectId,
+        string? battlefieldObjectId)
+    {
+        if (string.IsNullOrWhiteSpace(battlefieldObjectId)
+            || !authoritativeState.BattlefieldStates.TryGetValue(battlefieldObjectId, out var battlefield))
+        {
+            return 1;
+        }
+
+        var hiddenIds = battlefield.StandbyObjectIds
+            .Where(candidate => IsHiddenBattlefieldStandbyForSpectator(authoritativeState, candidate))
+            .OrderBy(candidate => candidate, StringComparer.Ordinal)
+            .ToArray();
+        var index = Array.IndexOf(hiddenIds, objectId);
+        return index < 0 ? 1 : index + 1;
+    }
+
+    private static IReadOnlyList<string> ExpectedStateBasedTaskKinds(IReadOnlyList<CleanupTaskState> tasks)
+    {
+        return tasks
+            .Where(task => IsSnapshotStateBasedCleanupTaskForRecovery(task.Kind))
+            .Select(task => task.Kind)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(kind => kind, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static bool IsSnapshotStateBasedCleanupTaskForRecovery(string kind)
+    {
+        return string.Equals(kind, "DESTROY_LETHAL_UNIT", StringComparison.Ordinal)
+            || string.Equals(kind, "DESTROY_ZERO_POWER_UNIT", StringComparison.Ordinal)
+            || string.Equals(kind, "REMOVE_ILLEGAL_STANDBY", StringComparison.Ordinal)
+            || string.Equals(kind, "RECALL_UNATTACHED_EQUIPMENT", StringComparison.Ordinal);
+    }
+
     private static void ValidateSpectatorBattlefieldTaskPayloads(
         IReadOnlyDictionary<string, object?> timing,
         MatchState authoritativeState,
@@ -5944,6 +6078,7 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame timing winning score does not match authoritative state winning score");
         }
 
+        ValidateSpectatorPendingTaskQueuePayload(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
         ValidateSpectatorBattlefieldTaskPayloads(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
 
         if (!spectatorReplayFrame.SpectatorSnapshot.Timing.TryGetValue("turnWindow", out var spectatorTurnWindow)
