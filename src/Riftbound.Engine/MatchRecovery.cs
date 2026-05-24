@@ -3143,6 +3143,100 @@ public static class MatchRecoveryValidator
                 cardObject.Tags,
                 errors,
                 rejectDuplicates: true);
+            ValidateAuthoritativeStateCardObjectPowerModifierValues(
+                objectId,
+                cardObject.UntilEndOfTurnPowerModifiers,
+                errors);
+        }
+    }
+
+    private static void ValidateAuthoritativeStateCardObjectPowerModifierValues(
+        string objectId,
+        IReadOnlyList<PowerModifierLedgerEntry>? powerModifiers,
+        List<string> errors)
+    {
+        if (powerModifiers is null)
+        {
+            errors.Add($"authoritative state card object {objectId} power modifier list is required");
+            return;
+        }
+
+        var seenEffectIds = new HashSet<string>(StringComparer.Ordinal);
+        var seenAppliedOrders = new HashSet<int>();
+        foreach (var modifier in powerModifiers.OrderBy(
+            entry => entry?.EffectId ?? string.Empty,
+            StringComparer.Ordinal))
+        {
+            if (modifier is null)
+            {
+                errors.Add($"authoritative state card object {objectId} power modifier is required");
+                continue;
+            }
+
+            var modifierId = ValidateAuthoritativeStateRequiredText(
+                $"card object {objectId} power modifier id",
+                modifier.EffectId,
+                errors);
+            var modifierLabel = modifierId ?? "<unknown>";
+            if (modifierId is not null && !seenEffectIds.Add(modifierId))
+            {
+                errors.Add($"authoritative state card object {objectId} power modifier {modifierId} is duplicated");
+            }
+
+            ValidateAuthoritativeStateRequiredText(
+                $"card object {objectId} power modifier {modifierLabel} effect kind",
+                modifier.EffectKind,
+                errors);
+            ValidateAuthoritativeStateRequiredText(
+                $"card object {objectId} power modifier {modifierLabel} duration",
+                modifier.Duration,
+                errors);
+            var targetObjectId = ValidateAuthoritativeStateRequiredText(
+                $"card object {objectId} power modifier {modifierLabel} target object",
+                modifier.TargetObjectId,
+                errors);
+            ValidateAuthoritativeStateRequiredText(
+                $"card object {objectId} power modifier {modifierLabel} source path",
+                modifier.SourcePath,
+                errors);
+
+            if (targetObjectId is not null && !string.Equals(targetObjectId, objectId.Trim(), StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"authoritative state card object {objectId} power modifier {modifierLabel} target object {targetObjectId} does not match card object");
+            }
+
+            if (modifier.PowerDelta == 0)
+            {
+                errors.Add(
+                    $"authoritative state card object {objectId} power modifier {modifierLabel} power delta 0 is invalid");
+            }
+
+            if (modifier.MinimumPower < 0)
+            {
+                errors.Add(
+                    $"authoritative state card object {objectId} power modifier {modifierLabel} minimum power {modifier.MinimumPower} cannot be negative");
+            }
+
+            if (modifier.MinimumPower > 0 && modifier.ResultingPower < modifier.MinimumPower)
+            {
+                errors.Add(
+                    $"authoritative state card object {objectId} power modifier {modifierLabel} resulting power {modifier.ResultingPower} is less than minimum power {modifier.MinimumPower}");
+            }
+
+            if (modifier.AppliedOrder is { } appliedOrder)
+            {
+                if (appliedOrder < 1)
+                {
+                    errors.Add(
+                        $"authoritative state card object {objectId} power modifier {modifierLabel} applied order {appliedOrder} is invalid");
+                }
+                else if (!seenAppliedOrders.Add(appliedOrder))
+                {
+                    errors.Add(
+                        $"authoritative state card object {objectId} power modifier applied order {appliedOrder} is duplicated");
+                }
+            }
         }
     }
 

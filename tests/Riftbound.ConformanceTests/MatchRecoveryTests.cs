@@ -3500,6 +3500,195 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateCardObjectPowerModifierValueDrift()
+    {
+        var malformedLedgerState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob")
+        {
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["obj-1"] = new(
+                    "obj-1",
+                    power: 3,
+                    untilEndOfTurnPowerModifier: 1,
+                    tags: ["unit"],
+                    untilEndOfTurnPowerModifiers:
+                    [
+                        new PowerModifierLedgerEntry(
+                            "power-1",
+                            "TEST_POWER",
+                            "UNTIL_END_OF_TURN",
+                            "obj-1",
+                            "source-1",
+                            "TEST-SOURCE",
+                            1,
+                            2,
+                            3,
+                            "Test.Path",
+                            1,
+                            0,
+                            3,
+                            1)
+                    ])
+                {
+                    UntilEndOfTurnPowerModifiers =
+                    [
+                        new PowerModifierLedgerEntry(
+                            "power-1",
+                            "TEST_POWER",
+                            "UNTIL_END_OF_TURN",
+                            "obj-1",
+                            "source-1",
+                            "TEST-SOURCE",
+                            1,
+                            2,
+                            3,
+                            "Test.Path",
+                            1,
+                            0,
+                            3,
+                            1)
+                        {
+                            EffectId = " power-1 ",
+                            EffectKind = " TEST_POWER ",
+                            Duration = " UNTIL_END_OF_TURN ",
+                            TargetObjectId = " obj-1 ",
+                            SourcePath = " Test.Path ",
+                            PowerDelta = 0,
+                            MinimumPower = -1,
+                            AppliedOrder = 1
+                        },
+                        new PowerModifierLedgerEntry(
+                            "power-1",
+                            "TEST_POWER",
+                            "UNTIL_END_OF_TURN",
+                            "other-1",
+                            "source-1",
+                            "TEST-SOURCE",
+                            1,
+                            2,
+                            0,
+                            "Test.Path",
+                            1,
+                            2,
+                            1,
+                            1),
+                        new PowerModifierLedgerEntry(
+                            "power-2",
+                            "TEST_POWER",
+                            "UNTIL_END_OF_TURN",
+                            "obj-1",
+                            "source-1",
+                            "TEST-SOURCE",
+                            1,
+                            2,
+                            3,
+                            "Test.Path",
+                            1,
+                            0,
+                            3,
+                            1)
+                        {
+                            AppliedOrder = 0
+                        },
+                        null!
+                    ]
+                }
+            }
+        };
+        var nullLedgerState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob")
+        {
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["obj-2"] = new("obj-2")
+                {
+                    UntilEndOfTurnPowerModifiers = null!
+                }
+            }
+        };
+
+        var errors = new List<string>();
+        errors.AddRange(MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            malformedLedgerState,
+            currentTick: 0));
+        errors.AddRange(MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            nullLedgerState,
+            currentTick: 0));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state card object obj-1 power modifier id power-1 has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state card object obj-1 power modifier power-1 is duplicated", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state card object obj-1 power modifier power-1 effect kind TEST_POWER has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state card object obj-1 power modifier power-1 duration UNTIL_END_OF_TURN has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state card object obj-1 power modifier power-1 target object obj-1 has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state card object obj-1 power modifier power-1 source path Test.Path has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state card object obj-1 power modifier power-1 target object other-1 does not match card object", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state card object obj-1 power modifier power-1 power delta 0 is invalid", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state card object obj-1 power modifier power-1 minimum power -1 cannot be negative", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state card object obj-1 power modifier power-1 resulting power 1 is less than minimum power 2", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state card object obj-1 power modifier power-2 applied order 0 is invalid", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state card object obj-1 power modifier applied order 1 is duplicated", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state card object obj-1 power modifier is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state card object obj-2 power modifier list is required", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAuthoritativeStateObjectReferencesOutsideRegistry()
     {
         var authoritativeState = new MatchState(
