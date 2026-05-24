@@ -5243,6 +5243,57 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public async Task ActionLogReplayerRejectsReplayInitialStateSeatValueDrift()
+    {
+        var replayInitialState = MatchReplayInitialStateBuilder.FromSeats(
+            "room-a",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P1",
+                ["charlie"] = "P3"
+            });
+        var frame = new MatchRecoveryFrame(
+            "room-a",
+            0,
+            0,
+            [
+                new RecoveredCommand(
+                    "alice",
+                    "intent-rejected-seat-drift",
+                    "PASS",
+                    RawCommand("PASS"),
+                    0,
+                    0,
+                    0,
+                    0,
+                    false,
+                    "rejected command for seat drift audit")
+            ],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            [],
+            replayInitialState,
+            replayInitialState);
+
+        var errors = await MatchActionLogReplayer.ValidateRecoveryFrameAsync(
+            frame,
+            new PlaceholderRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "action-log replay initial state seat P1 is duplicated",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "action-log replay initial state seat P3 for charlie is invalid",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task ActionLogReplayerReportsRejectedCommandDiagnosticMismatch()
     {
         var initialState = ReplayInitialState();

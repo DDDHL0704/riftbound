@@ -158,6 +158,8 @@ public static class MatchActionLogReplayer
                 errors.Add("action-log replay initial state seats are required");
             }
 
+            ValidateReplayInitialSeats(replayInitialState.Seats, errors);
+
             if (recovery.AuthoritativeState is { } authoritativeState
                 && !StringMapEquals(replayInitialState.Seats, authoritativeState.Seats))
             {
@@ -374,6 +376,58 @@ public static class MatchActionLogReplayer
             "P2" => 1,
             _ => 10
         };
+    }
+
+    private static void ValidateReplayInitialSeats(
+        IReadOnlyDictionary<string, string> seats,
+        List<string> errors)
+    {
+        var seenSeats = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var (playerId, seat) in seats.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            var normalizedPlayerId = playerId.Trim();
+            if (string.IsNullOrWhiteSpace(playerId))
+            {
+                errors.Add("action-log replay initial state seat player id is required");
+            }
+            else if (!string.Equals(playerId, normalizedPlayerId, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"action-log replay initial state seat player {normalizedPlayerId} has surrounding whitespace");
+            }
+
+            var playerLabel = string.IsNullOrWhiteSpace(normalizedPlayerId)
+                ? "<blank>"
+                : normalizedPlayerId;
+            if (string.IsNullOrWhiteSpace(seat))
+            {
+                errors.Add($"action-log replay initial state seat for {playerLabel} is required");
+                continue;
+            }
+
+            var normalizedSeat = seat.Trim();
+            if (!string.Equals(seat, normalizedSeat, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"action-log replay initial state seat {normalizedSeat} for {playerLabel} has surrounding whitespace");
+            }
+
+            if (!IsKnownSeat(normalizedSeat))
+            {
+                errors.Add($"action-log replay initial state seat {normalizedSeat} for {playerLabel} is invalid");
+            }
+
+            if (!seenSeats.Add(normalizedSeat))
+            {
+                errors.Add($"action-log replay initial state seat {normalizedSeat} is duplicated");
+            }
+        }
+    }
+
+    private static bool IsKnownSeat(string seat)
+    {
+        return string.Equals(seat, "P1", StringComparison.Ordinal)
+            || string.Equals(seat, "P2", StringComparison.Ordinal);
     }
 
     private static bool DictionaryKeysEqual<TValue>(
