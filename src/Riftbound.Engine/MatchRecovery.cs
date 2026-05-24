@@ -2053,6 +2053,8 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        ValidateSpectatorSnapshotPlayerObjectLocation(playerId, objectId, objectPayload, authoritativeState, errors);
+
         if (!expectedFaceDown)
         {
             ValidateSpectatorSnapshotVisiblePlayerObjectScalars(playerId, objectId, objectPayload, cardObject, errors);
@@ -2065,6 +2067,113 @@ public static class MatchRecoveryValidator
         {
             errors.Add($"spectator replay frame snapshot player {playerId} hidden face-down object {objectId} exposes private metadata");
         }
+    }
+
+    private static void ValidateSpectatorSnapshotPlayerObjectLocation(
+        string playerId,
+        string objectId,
+        object? objectPayload,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        var expectedLocation = ExpectedSpectatorObjectLocation(authoritativeState, objectId);
+        if (expectedLocation is null)
+        {
+            if (TryReadObjectValue(objectPayload, "location", out _))
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location must be absent without authoritative object location");
+            }
+
+            return;
+        }
+
+        if (!TryReadObjectValue(objectPayload, "location", out var locationPayload)
+            || !IsSnapshotPlayerPayloadObject(locationPayload))
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location is required");
+            return;
+        }
+
+        if (!TryReadObjectString(locationPayload, "playerId", out var locationPlayerId)
+            || !string.Equals(locationPlayerId, expectedLocation.PlayerId, StringComparison.Ordinal))
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location player id does not match authoritative object location player id");
+        }
+
+        if (!TryReadObjectString(locationPayload, "zone", out var zone)
+            || !string.Equals(zone, expectedLocation.Zone, StringComparison.Ordinal))
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location zone does not match authoritative object location zone");
+        }
+
+        if (!TryReadObjectOptionalString(locationPayload, "battlefieldObjectId", out var battlefieldObjectId)
+            || !string.Equals(
+                battlefieldObjectId,
+                expectedLocation.BattlefieldObjectId ?? string.Empty,
+                StringComparison.Ordinal))
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location battlefield object id does not match authoritative object location battlefield object id");
+        }
+    }
+
+    private static ObjectLocationState? ExpectedSpectatorObjectLocation(
+        MatchState authoritativeState,
+        string objectId)
+    {
+        if (authoritativeState.ObjectLocations.TryGetValue(objectId, out var location))
+        {
+            return location;
+        }
+
+        foreach (var (playerId, zones) in authoritativeState.PlayerZones)
+        {
+            if (zones.MainDeck.Contains(objectId, StringComparer.Ordinal))
+            {
+                return new ObjectLocationState(playerId, "MAIN_DECK");
+            }
+
+            if (zones.RuneDeck.Contains(objectId, StringComparer.Ordinal))
+            {
+                return new ObjectLocationState(playerId, "RUNE_DECK");
+            }
+
+            if (zones.Hand.Contains(objectId, StringComparer.Ordinal))
+            {
+                return new ObjectLocationState(playerId, "HAND");
+            }
+
+            if (zones.Base.Contains(objectId, StringComparer.Ordinal))
+            {
+                return new ObjectLocationState(playerId, "BASE");
+            }
+
+            if (zones.Battlefields.Contains(objectId, StringComparer.Ordinal))
+            {
+                return new ObjectLocationState(playerId, "BATTLEFIELD");
+            }
+
+            if (zones.Graveyard.Contains(objectId, StringComparer.Ordinal))
+            {
+                return new ObjectLocationState(playerId, "GRAVEYARD");
+            }
+
+            if (zones.Banished.Contains(objectId, StringComparer.Ordinal))
+            {
+                return new ObjectLocationState(playerId, "BANISHED");
+            }
+
+            if (zones.LegendZone.Contains(objectId, StringComparer.Ordinal))
+            {
+                return new ObjectLocationState(playerId, "LEGEND");
+            }
+
+            if (zones.ChampionZone.Contains(objectId, StringComparer.Ordinal))
+            {
+                return new ObjectLocationState(playerId, "CHAMPION");
+            }
+        }
+
+        return null;
     }
 
     private static void ValidateSpectatorSnapshotVisiblePlayerObjectScalars(
