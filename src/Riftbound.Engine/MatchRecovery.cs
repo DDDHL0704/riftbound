@@ -1065,10 +1065,22 @@ public static class MatchRecoveryValidator
         {
             errors.Add("spectator replay frame snapshot stack is required");
         }
-        else if (spectatorReplayFrame.SpectatorSnapshot.Stack.Count != authoritativeState.StackItems.Count)
+        else
         {
-            errors.Add(
-                $"spectator replay frame snapshot stack count {spectatorReplayFrame.SpectatorSnapshot.Stack.Count} does not match authoritative state stack count {authoritativeState.StackItems.Count}");
+            if (spectatorReplayFrame.SpectatorSnapshot.Stack.Count != authoritativeState.StackItems.Count)
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot stack count {spectatorReplayFrame.SpectatorSnapshot.Stack.Count} does not match authoritative state stack count {authoritativeState.StackItems.Count}");
+            }
+
+            var spectatorStackItemIds = ExtractStackItemIds(spectatorReplayFrame.SpectatorSnapshot);
+            var authoritativeStackItemIds = authoritativeState.StackItems
+                .Select(item => item.StackItemId)
+                .ToArray();
+            if (!StringListsEqual(spectatorStackItemIds, authoritativeStackItemIds))
+            {
+                errors.Add("spectator replay frame snapshot stack item ids disagree with authoritative state stack item ids");
+            }
         }
 
         if (string.IsNullOrWhiteSpace(spectatorReplayFrame.SpectatorSnapshot.TurnState))
@@ -1218,6 +1230,26 @@ public static class MatchRecoveryValidator
         return seats;
     }
 
+    private static IReadOnlyList<string> ExtractStackItemIds(SnapshotDto snapshot)
+    {
+        if (snapshot.Stack is null)
+        {
+            return [];
+        }
+
+        var stackItemIds = new List<string>();
+        foreach (var item in snapshot.Stack)
+        {
+            if (TryReadObjectString(item, "stackItemId", out var stackItemId)
+                && !string.IsNullOrWhiteSpace(stackItemId))
+            {
+                stackItemIds.Add(stackItemId);
+            }
+        }
+
+        return stackItemIds;
+    }
+
     private static bool TryReadSeat(object? player, out string seat)
     {
         if (player is IReadOnlyDictionary<string, object?> readOnlyDictionary
@@ -1254,12 +1286,42 @@ public static class MatchRecoveryValidator
         string key,
         out string? text)
     {
-        text = null;
         if (!values.TryGetValue(key, out var value))
         {
+            text = null;
             return false;
         }
 
+        return TryReadStringValue(value, out text);
+    }
+
+    private static bool TryReadObjectString(object? value, string key, out string? text)
+    {
+        if (value is IReadOnlyDictionary<string, object?> readOnlyDictionary
+            && readOnlyDictionary.TryGetValue(key, out var readOnlyValue))
+        {
+            return TryReadStringValue(readOnlyValue, out text);
+        }
+
+        if (value is IDictionary<string, object?> dictionary
+            && dictionary.TryGetValue(key, out var dictionaryValue))
+        {
+            return TryReadStringValue(dictionaryValue, out text);
+        }
+
+        if (value is JsonElement { ValueKind: JsonValueKind.Object } json
+            && json.TryGetProperty(key, out var jsonValue))
+        {
+            return TryReadStringValue(jsonValue, out text);
+        }
+
+        text = null;
+        return false;
+    }
+
+    private static bool TryReadStringValue(object? value, out string? text)
+    {
+        text = null;
         if (value is null)
         {
             return true;
