@@ -3096,6 +3096,28 @@ public static class MatchRecoveryValidator
         {
             errors.Add("spectator replay frame timing battlefield task stack item ids disagree with authoritative state battlefield task stack item ids");
         }
+
+        if (!StringListsEqual(
+                ExtractObjectOptionalStringValues(spectatorBattlefieldTasks, "spellDuelId"),
+                authoritativeBattlefieldTasks
+                    .Select(task => string.Equals(task.Kind, "START_SPELL_DUEL", StringComparison.Ordinal)
+                        ? BattleLifecycleIds.SpellDuelIdForBattlefield(task.BattlefieldObjectId) ?? string.Empty
+                        : string.Empty)
+                    .ToArray()))
+        {
+            errors.Add("spectator replay frame timing battlefield task spell duel ids disagree with authoritative state battlefield task spell duel ids");
+        }
+
+        if (!StringListsEqual(
+                ExtractObjectOptionalStringValues(spectatorBattlefieldTasks, "battleId"),
+                authoritativeBattlefieldTasks
+                    .Select(task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
+                        ? BattleLifecycleIds.BattleIdForBattlefield(task.BattlefieldObjectId) ?? string.Empty
+                        : string.Empty)
+                    .ToArray()))
+        {
+            errors.Add("spectator replay frame timing battlefield task battle ids disagree with authoritative state battlefield task battle ids");
+        }
     }
 
     private static bool BattlefieldObjectPairsEqual(
