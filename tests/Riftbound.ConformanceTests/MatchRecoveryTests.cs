@@ -412,6 +412,62 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsMalformedSnapshotPlayerPayloads()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = new Dictionary<string, object?>
+                    {
+                        ["alice"] = new Dictionary<string, object?>
+                        {
+                            ["id"] = "wrong-alice",
+                            ["seat"] = "P1"
+                        },
+                        ["bob"] = new Dictionary<string, object?>
+                        {
+                            ["id"] = "bob",
+                            ["seat"] = " "
+                        },
+                        ["charlie"] = "not-a-player-payload",
+                        ["diana"] = new Dictionary<string, object?>
+                        {
+                            ["seat"] = "P4"
+                        },
+                        ["eve"] = RawJson("""{"id":"eve","seat":"P5"}""")
+                    }
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player alice payload id wrong-alice does not match player key",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("snapshot for alice player bob seat is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player charlie payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("snapshot for alice player diana id is required", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains("snapshot for alice player eve", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsOutOfOrderRecoveredEvents()
     {
         var events = new[]

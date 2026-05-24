@@ -1295,6 +1295,10 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"snapshot for {view.PlayerId} players are required");
             }
+            else
+            {
+                ValidateSnapshotPlayerPayloads(view, errors);
+            }
 
             if (view.Snapshot.Tick != view.SnapshotTick)
             {
@@ -1407,6 +1411,48 @@ public static class MatchRecoveryValidator
                 errors.Add($"prompt for {view.PlayerId} has payload player {view.Prompt.PlayerId}");
             }
         }
+    }
+
+    private static void ValidateSnapshotPlayerPayloads(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        foreach (var (snapshotPlayerId, playerPayload) in view.Snapshot.Players)
+        {
+            if (!IsSnapshotPlayerPayloadObject(playerPayload))
+            {
+                errors.Add($"snapshot for {view.PlayerId} player {snapshotPlayerId} payload is required");
+                continue;
+            }
+
+            if (!TryReadObjectString(playerPayload, "id", out var payloadId)
+                || string.IsNullOrWhiteSpace(payloadId))
+            {
+                errors.Add($"snapshot for {view.PlayerId} player {snapshotPlayerId} id is required");
+            }
+            else if (!string.Equals(payloadId, snapshotPlayerId, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"snapshot for {view.PlayerId} player {snapshotPlayerId} payload id {payloadId} does not match player key");
+            }
+
+            if (!TryReadObjectString(playerPayload, "seat", out var seat)
+                || string.IsNullOrWhiteSpace(seat))
+            {
+                errors.Add($"snapshot for {view.PlayerId} player {snapshotPlayerId} seat is required");
+            }
+        }
+    }
+
+    private static bool IsSnapshotPlayerPayloadObject(object? playerPayload)
+    {
+        return playerPayload switch
+        {
+            IReadOnlyDictionary<string, object?> => true,
+            IDictionary<string, object?> => true,
+            JsonElement { ValueKind: JsonValueKind.Object } => true,
+            _ => false
+        };
     }
 
     private static void ValidatePlayerViewAgreement(
