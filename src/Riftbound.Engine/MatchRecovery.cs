@@ -4675,6 +4675,39 @@ public static class MatchRecoveryValidator
             {
                 errors.Add("spectator replay frame timing battlefield resolution ids disagree with authoritative state battlefield resolution ids");
             }
+
+            var spectatorBattlefieldResolutionTicks = ExtractObjectLongValues(
+                spectatorBattlefieldResolutions,
+                "tick");
+            var authoritativeBattlefieldResolutionTicks = authoritativeState.BattlefieldResolutions
+                .Select(resolution => resolution.Tick)
+                .ToArray();
+            if (!LongListsEqual(spectatorBattlefieldResolutionTicks, authoritativeBattlefieldResolutionTicks))
+            {
+                errors.Add("spectator replay frame timing battlefield resolution ticks disagree with authoritative state battlefield resolution ticks");
+            }
+
+            var spectatorBattlefieldResolutionKinds = ExtractObjectStringValues(
+                spectatorBattlefieldResolutions,
+                "kind");
+            var authoritativeBattlefieldResolutionKinds = authoritativeState.BattlefieldResolutions
+                .Select(resolution => resolution.Kind)
+                .ToArray();
+            if (!StringListsEqual(spectatorBattlefieldResolutionKinds, authoritativeBattlefieldResolutionKinds))
+            {
+                errors.Add("spectator replay frame timing battlefield resolution kinds disagree with authoritative state battlefield resolution kinds");
+            }
+
+            var spectatorBattlefieldResolutionReasons = ExtractObjectStringValues(
+                spectatorBattlefieldResolutions,
+                "reason");
+            var authoritativeBattlefieldResolutionReasons = authoritativeState.BattlefieldResolutions
+                .Select(resolution => resolution.Reason)
+                .ToArray();
+            if (!StringListsEqual(spectatorBattlefieldResolutionReasons, authoritativeBattlefieldResolutionReasons))
+            {
+                errors.Add("spectator replay frame timing battlefield resolution reasons disagree with authoritative state battlefield resolution reasons");
+            }
         }
 
         if (!TryReadObjectList(
@@ -4700,6 +4733,39 @@ public static class MatchRecoveryValidator
             if (!StringListsEqual(spectatorBattleResolutionIds, authoritativeBattleResolutionIds))
             {
                 errors.Add("spectator replay frame timing battle resolution ids disagree with authoritative state battle resolution ids");
+            }
+
+            var spectatorBattleResolutionTicks = ExtractObjectLongValues(
+                spectatorBattleResolutions,
+                "tick");
+            var authoritativeBattleResolutionTicks = authoritativeState.BattleResolutions
+                .Select(resolution => resolution.Tick)
+                .ToArray();
+            if (!LongListsEqual(spectatorBattleResolutionTicks, authoritativeBattleResolutionTicks))
+            {
+                errors.Add("spectator replay frame timing battle resolution ticks disagree with authoritative state battle resolution ticks");
+            }
+
+            var spectatorBattleResolutionKinds = ExtractObjectStringValues(
+                spectatorBattleResolutions,
+                "kind");
+            var authoritativeBattleResolutionKinds = authoritativeState.BattleResolutions
+                .Select(resolution => resolution.Kind)
+                .ToArray();
+            if (!StringListsEqual(spectatorBattleResolutionKinds, authoritativeBattleResolutionKinds))
+            {
+                errors.Add("spectator replay frame timing battle resolution kinds disagree with authoritative state battle resolution kinds");
+            }
+
+            var spectatorBattleResolutionReasons = ExtractObjectStringValues(
+                spectatorBattleResolutions,
+                "reason");
+            var authoritativeBattleResolutionReasons = authoritativeState.BattleResolutions
+                .Select(resolution => resolution.Reason)
+                .ToArray();
+            if (!StringListsEqual(spectatorBattleResolutionReasons, authoritativeBattleResolutionReasons))
+            {
+                errors.Add("spectator replay frame timing battle resolution reasons disagree with authoritative state battle resolution reasons");
             }
         }
 
@@ -4920,6 +4986,22 @@ public static class MatchRecoveryValidator
         return values;
     }
 
+    private static IReadOnlyList<long> ExtractObjectLongValues(
+        IReadOnlyList<object?> items,
+        string key)
+    {
+        var values = new List<long>();
+        foreach (var item in items)
+        {
+            if (TryReadObjectLong(item, key, out var value))
+            {
+                values.Add(value);
+            }
+        }
+
+        return values;
+    }
+
     private static bool TryReadObjectString(object? value, string key, out string? text)
     {
         if (value is IReadOnlyDictionary<string, object?> readOnlyDictionary
@@ -5025,6 +5107,30 @@ public static class MatchRecoveryValidator
             && json.TryGetProperty(key, out var jsonValue))
         {
             return TryReadIntValue(jsonValue, out number);
+        }
+
+        number = 0;
+        return false;
+    }
+
+    private static bool TryReadObjectLong(object? value, string key, out long number)
+    {
+        if (value is IReadOnlyDictionary<string, object?> readOnlyDictionary
+            && readOnlyDictionary.TryGetValue(key, out var readOnlyValue))
+        {
+            return TryReadLongValue(readOnlyValue, out number);
+        }
+
+        if (value is IDictionary<string, object?> dictionary
+            && dictionary.TryGetValue(key, out var dictionaryValue))
+        {
+            return TryReadLongValue(dictionaryValue, out number);
+        }
+
+        if (value is JsonElement { ValueKind: JsonValueKind.Object } json
+            && json.TryGetProperty(key, out var jsonValue))
+        {
+            return TryReadLongValue(jsonValue, out number);
         }
 
         number = 0;
@@ -5674,6 +5780,26 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static bool TryReadLongValue(object? value, out long number)
+    {
+        switch (value)
+        {
+            case int intValue:
+                number = intValue;
+                return true;
+            case long longValue:
+                number = longValue;
+                return true;
+            case JsonElement { ValueKind: JsonValueKind.Number } jsonNumber
+                when jsonNumber.TryGetInt64(out var jsonLong):
+                number = jsonLong;
+                return true;
+            default:
+                number = 0;
+                return false;
+        }
+    }
+
     private static bool TryReadStringListValue(object? value, out IReadOnlyList<string> texts)
     {
         texts = [];
@@ -5768,6 +5894,14 @@ public static class MatchRecoveryValidator
     private static bool IntListsEqual(
         IReadOnlyList<int> left,
         IReadOnlyList<int> right)
+    {
+        return left.Count == right.Count
+            && left.SequenceEqual(right);
+    }
+
+    private static bool LongListsEqual(
+        IReadOnlyList<long> left,
+        IReadOnlyList<long> right)
     {
         return left.Count == right.Count
             && left.SequenceEqual(right);
