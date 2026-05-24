@@ -1281,6 +1281,15 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame timing destroyed unit owners do not match authoritative state destroyed unit owners");
         }
 
+        if (!TryReadString(
+                spectatorReplayFrame.SpectatorSnapshot.Timing,
+                "roomStatus",
+                out var spectatorRoomStatus)
+            || !string.Equals(spectatorRoomStatus, authoritativeState.Status, StringComparison.Ordinal))
+        {
+            errors.Add("spectator replay frame timing room status does not match authoritative state room status");
+        }
+
         if (spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("seed")
             || spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("rngCursor"))
         {
