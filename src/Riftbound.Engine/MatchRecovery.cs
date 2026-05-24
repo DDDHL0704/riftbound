@@ -2085,6 +2085,7 @@ public static class MatchRecoveryValidator
         ValidateAuthoritativeStateCardObjectIdentities(authoritativeState.CardObjects, errors);
         ValidateAuthoritativeStateCardObjectPlayers(authoritativeState.CardObjects, seatPlayerIds, errors);
         ValidateAuthoritativeStateObjectLocationPlayers(authoritativeState.ObjectLocations, seatPlayerIds, errors);
+        ValidateAuthoritativeStateObjectLocationZones(authoritativeState.ObjectLocations, errors);
         ValidateAuthoritativeStateStackPlayers(authoritativeState.StackItems, seatPlayerIds, errors);
         ValidateAuthoritativeStateTriggerQueuePlayers(authoritativeState.TriggerQueue, seatPlayerIds, errors);
         ValidateAuthoritativeStatePendingPaymentPlayer(authoritativeState.PendingPayment, seatPlayerIds, errors);
@@ -2295,6 +2296,60 @@ public static class MatchRecoveryValidator
                 seatPlayerIds,
                 errors);
         }
+    }
+
+    private static void ValidateAuthoritativeStateObjectLocationZones(
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
+        List<string> errors)
+    {
+        if (objectLocations is null)
+        {
+            return;
+        }
+
+        foreach (var (objectId, location) in objectLocations.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            if (location is null)
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(location.Zone))
+            {
+                errors.Add($"authoritative state object location {objectId} zone is required");
+                continue;
+            }
+
+            var normalizedZone = location.Zone.Trim();
+            if (!string.Equals(location.Zone, normalizedZone, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"authoritative state object location {objectId} zone {normalizedZone} has surrounding whitespace");
+            }
+
+            if (!IsKnownAuthoritativeObjectLocationZone(normalizedZone))
+            {
+                errors.Add($"authoritative state object location {objectId} zone {normalizedZone} is not supported");
+            }
+        }
+    }
+
+    private static bool IsKnownAuthoritativeObjectLocationZone(string zone)
+    {
+        return zone switch
+        {
+            "MAIN_DECK"
+                or "RUNE_DECK"
+                or "HAND"
+                or "BASE"
+                or "BATTLEFIELD"
+                or "GRAVEYARD"
+                or "BANISHED"
+                or "LEGEND"
+                or "CHAMPION"
+                or "STACK" => true,
+            _ => false
+        };
     }
 
     private static void ValidateAuthoritativeStateStackPlayers(
