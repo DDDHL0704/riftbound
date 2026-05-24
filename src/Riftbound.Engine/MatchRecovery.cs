@@ -1960,6 +1960,7 @@ public static class MatchRecoveryValidator
         ValidateAuthoritativeStateResourceValues(authoritativeState, errors);
         ValidateAuthoritativeStatePlayerZoneValues(authoritativeState.PlayerZones, errors);
         ValidateAuthoritativeStateStackAndTriggerValues(authoritativeState, errors);
+        ValidateAuthoritativeStatePendingPaymentValues(authoritativeState.PendingPayment, errors);
         ValidateAuthoritativeStateResolutionHistory(authoritativeState, errors);
         ValidateAuthoritativeStatePlayerPointers(authoritativeState, errors);
 
@@ -2331,6 +2332,54 @@ public static class MatchRecoveryValidator
         ValidateAuthoritativeStateTriggerQueueValues(authoritativeState.TriggerQueue, errors);
     }
 
+    private static void ValidateAuthoritativeStatePendingPaymentValues(
+        PendingPaymentState? pendingPayment,
+        List<string> errors)
+    {
+        if (pendingPayment is null)
+        {
+            return;
+        }
+
+        var paymentId = ValidateAuthoritativeStateRequiredText(
+            "pending payment id",
+            pendingPayment.PaymentId,
+            errors);
+        var paymentLabel = paymentId ?? "<unknown>";
+        ValidateAuthoritativeStateRequiredText(
+            $"pending payment {paymentLabel} window",
+            pendingPayment.PaymentWindow,
+            errors);
+
+        if (pendingPayment.ManaCost < 0)
+        {
+            errors.Add(
+                $"authoritative state pending payment {paymentLabel} mana cost {pendingPayment.ManaCost} cannot be negative");
+        }
+
+        if (pendingPayment.PowerCost < 0)
+        {
+            errors.Add(
+                $"authoritative state pending payment {paymentLabel} power cost {pendingPayment.PowerCost} cannot be negative");
+        }
+
+        ValidateAuthoritativeStateTraitPowerValues(
+            $"pending payment {paymentLabel}",
+            "power cost trait",
+            pendingPayment.PowerCostByTrait,
+            errors);
+        ValidateAuthoritativeStateStringListValues(
+            $"pending payment {paymentLabel} legal payment choice",
+            pendingPayment.LegalPaymentChoiceIds,
+            errors,
+            rejectDuplicates: true);
+        ValidateAuthoritativeStateStringListValues(
+            $"pending payment {paymentLabel} payment resource action",
+            pendingPayment.PaymentResourceActionIds,
+            errors,
+            rejectDuplicates: true);
+    }
+
     private static void ValidateAuthoritativeStateStackItemValues(
         IReadOnlyList<StackItemState>? stackItems,
         List<string> errors)
@@ -2426,7 +2475,8 @@ public static class MatchRecoveryValidator
     private static void ValidateAuthoritativeStateStringListValues(
         string itemLabel,
         IReadOnlyList<string>? values,
-        List<string> errors)
+        List<string> errors,
+        bool rejectDuplicates = false)
     {
         if (values is null)
         {
@@ -2434,6 +2484,9 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        var seenValues = rejectDuplicates
+            ? new HashSet<string>(StringComparer.Ordinal)
+            : null;
         foreach (var value in values)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -2446,6 +2499,11 @@ public static class MatchRecoveryValidator
             if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
             {
                 errors.Add($"authoritative state {itemLabel} {normalizedValue} has surrounding whitespace");
+            }
+
+            if (seenValues is not null && !seenValues.Add(normalizedValue))
+            {
+                errors.Add($"authoritative state {itemLabel} {normalizedValue} is duplicated");
             }
         }
     }
