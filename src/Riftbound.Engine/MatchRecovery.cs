@@ -1674,7 +1674,11 @@ public static class MatchRecoveryValidator
             && TryReadObjectIntDictionary(value, "damagePool", out var damagePool)
             && IntDictionariesEqual(
                 damagePool,
-                ResolutionResult.BattleDamagePoolFor(state, state.BattleState));
+                ResolutionResult.BattleDamagePoolFor(state, state.BattleState))
+            && TryReadObjectStringListDictionary(value, "legalTargets", out var legalTargets)
+            && StringListDictionariesEqual(
+                legalTargets,
+                ResolutionResult.BattleDamageLegalTargetsFor(state.BattleState));
     }
 
     private static bool TryReadObjectBool(object? value, string key, out bool flag)
@@ -1779,6 +1783,33 @@ public static class MatchRecoveryValidator
         }
 
         numbers = new Dictionary<string, int>(StringComparer.Ordinal);
+        return false;
+    }
+
+    private static bool TryReadObjectStringListDictionary(
+        object? value,
+        string key,
+        out IReadOnlyDictionary<string, IReadOnlyList<string>> texts)
+    {
+        if (value is IReadOnlyDictionary<string, object?> readOnlyDictionary
+            && readOnlyDictionary.TryGetValue(key, out var readOnlyValue))
+        {
+            return TryReadStringListDictionaryValue(readOnlyValue, out texts);
+        }
+
+        if (value is IDictionary<string, object?> dictionary
+            && dictionary.TryGetValue(key, out var dictionaryValue))
+        {
+            return TryReadStringListDictionaryValue(dictionaryValue, out texts);
+        }
+
+        if (value is JsonElement { ValueKind: JsonValueKind.Object } json
+            && json.TryGetProperty(key, out var jsonValue))
+        {
+            return TryReadStringListDictionaryValue(jsonValue, out texts);
+        }
+
+        texts = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
         return false;
     }
 
@@ -1979,6 +2010,81 @@ public static class MatchRecoveryValidator
         return true;
     }
 
+    private static bool TryReadStringListDictionaryValue(
+        object? value,
+        out IReadOnlyDictionary<string, IReadOnlyList<string>> texts)
+    {
+        texts = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+        if (value is null)
+        {
+            return false;
+        }
+
+        if (value is IReadOnlyDictionary<string, IReadOnlyList<string>> stringListDictionary)
+        {
+            texts = stringListDictionary;
+            return true;
+        }
+
+        if (value is IEnumerable<KeyValuePair<string, IReadOnlyList<string>>> stringListPairs)
+        {
+            texts = stringListPairs.ToDictionary(
+                entry => entry.Key,
+                entry => entry.Value,
+                StringComparer.Ordinal);
+            return true;
+        }
+
+        if (value is IReadOnlyDictionary<string, object?> readOnlyDictionary)
+        {
+            return TryConvertObjectStringListDictionary(readOnlyDictionary, out texts);
+        }
+
+        if (value is IDictionary<string, object?> dictionary)
+        {
+            return TryConvertObjectStringListDictionary(dictionary, out texts);
+        }
+
+        if (value is JsonElement { ValueKind: JsonValueKind.Object } jsonObject)
+        {
+            var parsed = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+            foreach (var property in jsonObject.EnumerateObject())
+            {
+                if (!TryReadStringListValue(property.Value, out var values))
+                {
+                    return false;
+                }
+
+                parsed[property.Name] = values;
+            }
+
+            texts = parsed;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryConvertObjectStringListDictionary(
+        IEnumerable<KeyValuePair<string, object?>> values,
+        out IReadOnlyDictionary<string, IReadOnlyList<string>> texts)
+    {
+        var parsed = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+        foreach (var (key, value) in values)
+        {
+            if (!TryReadStringListValue(value, out var strings))
+            {
+                texts = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+                return false;
+            }
+
+            parsed[key] = strings;
+        }
+
+        texts = parsed;
+        return true;
+    }
+
     private static bool TryReadOptionalStringValue(object? value, out string text)
     {
         if (TryReadStringValue(value, out var maybeText))
@@ -2148,6 +2254,16 @@ public static class MatchRecoveryValidator
             && left.All(entry =>
                 right.TryGetValue(entry.Key, out var value)
                 && value == entry.Value);
+    }
+
+    private static bool StringListDictionariesEqual(
+        IReadOnlyDictionary<string, IReadOnlyList<string>> left,
+        IReadOnlyDictionary<string, IReadOnlyList<string>> right)
+    {
+        return left.Count == right.Count
+            && left.All(entry =>
+                right.TryGetValue(entry.Key, out var values)
+                && StringListsEqual(entry.Value, values));
     }
 
     private static bool SeatsEqual(
