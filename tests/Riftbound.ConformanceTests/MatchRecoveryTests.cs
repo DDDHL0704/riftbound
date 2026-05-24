@@ -534,6 +534,49 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsRecoveredCommandsThatStartBeforePreviousCompletedTick()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-first",
+                "PASS",
+                RawCommand("PASS"),
+                4,
+                4,
+                0,
+                0,
+                true,
+                null),
+            new RecoveredCommand(
+                "alice",
+                "intent-backward-tick",
+                "PASS",
+                RawCommand("PASS"),
+                3,
+                3,
+                0,
+                0,
+                true,
+                null)
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-backward-tick starts at tick 3 before previous command completed tick 4",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsNegativeCommandCompletedEventSequence()
     {
         var commands = new[]

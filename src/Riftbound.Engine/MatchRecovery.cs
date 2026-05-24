@@ -974,6 +974,7 @@ public static class MatchRecoveryValidator
         var seenCommandIntents = new HashSet<(string PlayerId, string ClientIntentId)>();
         var previousFrameStartedEventSequence = 0L;
         var previousFrameCompletedEventSequence = 0L;
+        var previousFrameCompletedTick = 0L;
         foreach (var command in commands)
         {
             if (command.StartedEventSequence < previousFrameStartedEventSequence
@@ -1046,6 +1047,14 @@ public static class MatchRecoveryValidator
                 errors.Add(
                     $"command {command.ClientIntentId} completes before tick start: {command.StartedTick}->{command.CompletedTick}");
             }
+
+            if (command.StartedTick < previousFrameCompletedTick)
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} starts at tick {command.StartedTick} before previous command completed tick {previousFrameCompletedTick}");
+            }
+
+            previousFrameCompletedTick = Math.Max(previousFrameCompletedTick, command.CompletedTick);
 
             if (currentTick is { } recoveryTick)
             {
