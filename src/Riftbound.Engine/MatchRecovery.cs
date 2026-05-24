@@ -1081,6 +1081,17 @@ public static class MatchRecoveryValidator
             {
                 errors.Add("spectator replay frame snapshot stack item ids disagree with authoritative state stack item ids");
             }
+
+            var spectatorStackControllerIds = ExtractStackItemStringValues(
+                spectatorReplayFrame.SpectatorSnapshot,
+                "controllerId");
+            var authoritativeStackControllerIds = authoritativeState.StackItems
+                .Select(item => item.ControllerId)
+                .ToArray();
+            if (!StringListsEqual(spectatorStackControllerIds, authoritativeStackControllerIds))
+            {
+                errors.Add("spectator replay frame snapshot stack controller ids disagree with authoritative state stack controller ids");
+            }
         }
 
         if (string.IsNullOrWhiteSpace(spectatorReplayFrame.SpectatorSnapshot.TurnState))
@@ -1248,6 +1259,25 @@ public static class MatchRecoveryValidator
         }
 
         return stackItemIds;
+    }
+
+    private static IReadOnlyList<string> ExtractStackItemStringValues(SnapshotDto snapshot, string key)
+    {
+        if (snapshot.Stack is null)
+        {
+            return [];
+        }
+
+        var values = new List<string>();
+        foreach (var item in snapshot.Stack)
+        {
+            if (TryReadObjectString(item, key, out var value))
+            {
+                values.Add(value ?? string.Empty);
+            }
+        }
+
+        return values;
     }
 
     private static bool TryReadSeat(object? player, out string seat)
