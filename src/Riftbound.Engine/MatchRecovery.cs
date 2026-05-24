@@ -1958,6 +1958,7 @@ public static class MatchRecoveryValidator
         ValidateAuthoritativeStateScalars(authoritativeState, errors);
         ValidateAuthoritativeStateSeats(authoritativeState, errors);
         ValidateAuthoritativeStateResourceValues(authoritativeState, errors);
+        ValidateAuthoritativeStatePlayerZoneValues(authoritativeState.PlayerZones, errors);
         ValidateAuthoritativeStateResolutionHistory(authoritativeState, errors);
         ValidateAuthoritativeStatePlayerPointers(authoritativeState, errors);
 
@@ -2945,7 +2946,10 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        var playerZoneLocations = BuildAuthoritativeStatePlayerZoneObjectIndex(playerZones, errors);
+        var playerZoneLocations = BuildAuthoritativeStatePlayerZoneObjectIndex(
+            playerZones,
+            errors,
+            reportZoneValueErrors: false);
         if (playerZoneLocations.Count == 0)
         {
             return;
@@ -2985,9 +2989,25 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateAuthoritativeStatePlayerZoneValues(
+        IReadOnlyDictionary<string, PlayerZones>? playerZones,
+        List<string> errors)
+    {
+        if (playerZones is null)
+        {
+            return;
+        }
+
+        _ = BuildAuthoritativeStatePlayerZoneObjectIndex(
+            playerZones,
+            errors,
+            reportZoneValueErrors: true);
+    }
+
     private static Dictionary<string, AuthoritativeStateZoneLocation> BuildAuthoritativeStatePlayerZoneObjectIndex(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
-        List<string> errors)
+        List<string> errors,
+        bool reportZoneValueErrors)
     {
         var playerZoneLocations = new Dictionary<string, AuthoritativeStateZoneLocation>(StringComparer.Ordinal);
         foreach (var (playerId, zones) in playerZones.OrderBy(entry => entry.Key, StringComparer.Ordinal))
@@ -2998,60 +3018,79 @@ public static class MatchRecoveryValidator
             }
 
             var normalizedPlayerId = playerId.Trim();
+            if (zones is null)
+            {
+                if (reportZoneValueErrors)
+                {
+                    errors.Add($"authoritative state player zones for {normalizedPlayerId} are required");
+                }
+
+                continue;
+            }
+
             AddAuthoritativeStatePlayerZoneObjects(
                 playerZoneLocations,
                 normalizedPlayerId,
                 "MAIN_DECK",
                 zones.MainDeck,
-                errors);
+                errors,
+                reportZoneValueErrors);
             AddAuthoritativeStatePlayerZoneObjects(
                 playerZoneLocations,
                 normalizedPlayerId,
                 "RUNE_DECK",
                 zones.RuneDeck,
-                errors);
+                errors,
+                reportZoneValueErrors);
             AddAuthoritativeStatePlayerZoneObjects(
                 playerZoneLocations,
                 normalizedPlayerId,
                 "HAND",
                 zones.Hand,
-                errors);
+                errors,
+                reportZoneValueErrors);
             AddAuthoritativeStatePlayerZoneObjects(
                 playerZoneLocations,
                 normalizedPlayerId,
                 "BASE",
                 zones.Base,
-                errors);
+                errors,
+                reportZoneValueErrors);
             AddAuthoritativeStatePlayerZoneObjects(
                 playerZoneLocations,
                 normalizedPlayerId,
                 "BATTLEFIELD",
                 zones.Battlefields,
-                errors);
+                errors,
+                reportZoneValueErrors);
             AddAuthoritativeStatePlayerZoneObjects(
                 playerZoneLocations,
                 normalizedPlayerId,
                 "GRAVEYARD",
                 zones.Graveyard,
-                errors);
+                errors,
+                reportZoneValueErrors);
             AddAuthoritativeStatePlayerZoneObjects(
                 playerZoneLocations,
                 normalizedPlayerId,
                 "BANISHED",
                 zones.Banished,
-                errors);
+                errors,
+                reportZoneValueErrors);
             AddAuthoritativeStatePlayerZoneObjects(
                 playerZoneLocations,
                 normalizedPlayerId,
                 "LEGEND",
                 zones.LegendZone,
-                errors);
+                errors,
+                reportZoneValueErrors);
             AddAuthoritativeStatePlayerZoneObjects(
                 playerZoneLocations,
                 normalizedPlayerId,
                 "CHAMPION",
                 zones.ChampionZone,
-                errors);
+                errors,
+                reportZoneValueErrors);
         }
 
         return playerZoneLocations;
@@ -3062,10 +3101,16 @@ public static class MatchRecoveryValidator
         string playerId,
         string zone,
         IReadOnlyList<string>? objectIds,
-        List<string> errors)
+        List<string> errors,
+        bool reportZoneValueErrors)
     {
         if (objectIds is null)
         {
+            if (reportZoneValueErrors)
+            {
+                errors.Add($"authoritative state player zones {playerId}/{zone} list is required");
+            }
+
             return;
         }
 
@@ -3073,12 +3118,17 @@ public static class MatchRecoveryValidator
         {
             if (string.IsNullOrWhiteSpace(objectId))
             {
-                errors.Add($"authoritative state player zones {playerId}/{zone} object id is required");
+                if (reportZoneValueErrors)
+                {
+                    errors.Add($"authoritative state player zones {playerId}/{zone} object id is required");
+                }
+
                 continue;
             }
 
             var normalizedObjectId = objectId.Trim();
-            if (!string.Equals(objectId, normalizedObjectId, StringComparison.Ordinal))
+            if (reportZoneValueErrors
+                && !string.Equals(objectId, normalizedObjectId, StringComparison.Ordinal))
             {
                 errors.Add(
                     $"authoritative state player zones {playerId}/{zone} object {normalizedObjectId} has surrounding whitespace");
@@ -3087,8 +3137,12 @@ public static class MatchRecoveryValidator
             var location = new AuthoritativeStateZoneLocation(playerId, zone);
             if (playerZoneLocations.TryGetValue(normalizedObjectId, out var existingLocation))
             {
-                errors.Add(
-                    $"authoritative state player zones object {normalizedObjectId} is duplicated between {existingLocation.PlayerId}/{existingLocation.Zone} and {playerId}/{zone}");
+                if (reportZoneValueErrors)
+                {
+                    errors.Add(
+                        $"authoritative state player zones object {normalizedObjectId} is duplicated between {existingLocation.PlayerId}/{existingLocation.Zone} and {playerId}/{zone}");
+                }
+
                 continue;
             }
 
