@@ -1129,6 +1129,20 @@ public static class MatchRecoveryValidator
                 }
             }
         }
+
+        if (commands.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var gameEvent in events.OrderBy(gameEvent => gameEvent.Sequence))
+        {
+            if (!acceptedEventOwners.ContainsKey(gameEvent.Sequence))
+            {
+                errors.Add(
+                    $"event sequence {gameEvent.Sequence} is not covered by an accepted command");
+            }
+        }
     }
 
     private static void ValidateRawCommandShape(RecoveredCommand command, List<string> errors)
