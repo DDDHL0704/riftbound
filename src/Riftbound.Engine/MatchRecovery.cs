@@ -1956,6 +1956,7 @@ public static class MatchRecoveryValidator
         }
 
         ValidateAuthoritativeStateSeats(authoritativeState, errors);
+        ValidateAuthoritativeStatePlayerPointers(authoritativeState, errors);
 
         foreach (var view in playerViews.Values)
         {
@@ -1979,6 +1980,51 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"snapshot for {view.PlayerId} disagrees with authoritative state seats");
             }
+        }
+    }
+
+    private static void ValidateAuthoritativeStatePlayerPointers(
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        var seatPlayerIds = authoritativeState.Seats.Keys
+            .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
+            .Select(playerId => playerId.Trim())
+            .ToHashSet(StringComparer.Ordinal);
+
+        ValidateAuthoritativeStateRequiredPlayerPointer(
+            "active player",
+            authoritativeState.ActivePlayerId,
+            seatPlayerIds,
+            errors);
+        ValidateAuthoritativeStateRequiredPlayerPointer(
+            "turn player",
+            authoritativeState.TurnPlayerId,
+            seatPlayerIds,
+            errors);
+    }
+
+    private static void ValidateAuthoritativeStateRequiredPlayerPointer(
+        string pointerName,
+        string? playerId,
+        IReadOnlySet<string> seatPlayerIds,
+        List<string> errors)
+    {
+        if (string.IsNullOrWhiteSpace(playerId))
+        {
+            errors.Add($"authoritative state {pointerName} is required");
+            return;
+        }
+
+        var normalizedPlayerId = playerId.Trim();
+        if (!string.Equals(playerId, normalizedPlayerId, StringComparison.Ordinal))
+        {
+            errors.Add($"authoritative state {pointerName} {normalizedPlayerId} has surrounding whitespace");
+        }
+
+        if (!seatPlayerIds.Contains(normalizedPlayerId))
+        {
+            errors.Add($"authoritative state {pointerName} {normalizedPlayerId} is missing from seats");
         }
     }
 
