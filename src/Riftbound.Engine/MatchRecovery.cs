@@ -1303,6 +1303,9 @@ public static class MatchRecoveryValidator
                 ValidateSnapshotPlayerCoverage(view, playerViews.Keys, errors);
                 ValidateSnapshotActivePlayer(view, errors);
                 ValidateSnapshotTimingPlayerMembership(view, "turnPlayerId", "turn player", errors);
+                ValidateSnapshotTimingPlayerMembership(view, "priorityPlayerId", "priority player", errors);
+                ValidateSnapshotTimingPlayerMembership(view, "focusPlayerId", "focus player", errors);
+                ValidateSnapshotTimingPlayerMembership(view, "winnerPlayerId", "winner player", errors);
             }
 
             if (view.Snapshot.Tick != view.SnapshotTick)
