@@ -856,7 +856,7 @@ public static class MatchRecoveryValidator
         }
 
         ValidateEvents(currentTick, lastEventSequence, events, errors);
-        ValidateCommands(currentTick, lastEventSequence, commands, events, errors);
+        ValidateCommands(currentTick, lastEventSequence, commands, events, playerViews.Keys, errors);
         ValidatePlayerViews(currentTick, lastEventSequence, playerViews, errors);
         ValidatePlayerViewAgreement(playerViews, errors);
         ValidateAuthoritativeState(roomId, currentTick, authoritativeState, playerViews, errors);
@@ -968,10 +968,12 @@ public static class MatchRecoveryValidator
         long lastEventSequence,
         IReadOnlyList<RecoveredCommand> commands,
         IReadOnlyList<RecoveredEvent> events,
+        IEnumerable<string> recoveredPlayerIds,
         List<string> errors)
     {
         var acceptedEventOwners = new Dictionary<long, string>();
         var seenCommandIntents = new HashSet<(string PlayerId, string ClientIntentId)>();
+        var knownRecoveredPlayerIds = recoveredPlayerIds.ToHashSet(StringComparer.Ordinal);
         var previousFrameStartedEventSequence = 0L;
         var previousFrameCompletedEventSequence = 0L;
         var previousFrameCompletedTick = 0L;
@@ -1006,6 +1008,14 @@ public static class MatchRecoveryValidator
                 command.CommandType,
                 "type",
                 errors);
+
+            if (normalizedPlayerId.Length > 0
+                && knownRecoveredPlayerIds.Count > 0
+                && !knownRecoveredPlayerIds.Contains(normalizedPlayerId))
+            {
+                errors.Add(
+                    $"command {normalizedClientIntentId} player {normalizedPlayerId} is missing from recovered player views");
+            }
 
             if (!seenCommandIntents.Add((normalizedPlayerId, normalizedClientIntentId)))
             {

@@ -1918,6 +1918,43 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsRecoveredCommandPlayerOutsidePlayerViews()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "charlie",
+                "intent-unknown-player",
+                "PASS",
+                RawCommand("PASS"),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "unknown recovered command player")
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = PlayerView("alice", 0, 0),
+            ["bob"] = PlayerView("bob", 0, 0)
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-unknown-player player charlie is missing from recovered player views",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsCommandDiagnosticPresenceMismatch()
     {
         var commands = new[]
