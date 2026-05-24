@@ -2829,6 +2829,74 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStatePlayerMapsOutsideSeats()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["charlie"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["diana"] = PlayerZones.Empty
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["eve"] = 1
+            },
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["frank"] = 1
+            },
+            playerCardsPlayedThisTurn: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["gina"] = 1
+            },
+            playerDecklists: new Dictionary<string, OfficialDecklist>(StringComparer.Ordinal)
+            {
+                ["henry"] = new("LEGEND-001", "CHAMPION-001", ["MAIN-001"], ["RUNE-001"], ["BATTLEFIELD-001"])
+            });
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state rune pool player charlie is missing from seats", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state zone player diana is missing from seats", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state score player eve is missing from seats", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state experience player frank is missing from seats", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state cards played player gina is missing from seats", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state decklist player henry is missing from seats", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorAcceptsMatchingSpectatorReplayFrame()
     {
         var authoritativeState = new MatchState(

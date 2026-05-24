@@ -2052,6 +2052,36 @@ public static class MatchRecoveryValidator
             authoritativeState.DestroyedUnitOwnerIdsThisTurn,
             seatPlayerIds,
             errors);
+        ValidateAuthoritativeStatePlayerMap(
+            "rune pool player",
+            authoritativeState.RunePools,
+            seatPlayerIds,
+            errors);
+        ValidateAuthoritativeStatePlayerMap(
+            "zone player",
+            authoritativeState.PlayerZones,
+            seatPlayerIds,
+            errors);
+        ValidateAuthoritativeStatePlayerMap(
+            "score player",
+            authoritativeState.PlayerScores,
+            seatPlayerIds,
+            errors);
+        ValidateAuthoritativeStatePlayerMap(
+            "experience player",
+            authoritativeState.PlayerExperience,
+            seatPlayerIds,
+            errors);
+        ValidateAuthoritativeStatePlayerMap(
+            "cards played player",
+            authoritativeState.PlayerCardsPlayedThisTurn,
+            seatPlayerIds,
+            errors);
+        ValidateAuthoritativeStatePlayerMap(
+            "decklist player",
+            authoritativeState.PlayerDecklists,
+            seatPlayerIds,
+            errors);
     }
 
     private static void ValidateAuthoritativeStateRequiredPlayerPointer(
@@ -2115,6 +2145,45 @@ public static class MatchRecoveryValidator
             if (!seenPlayerIds.Add(normalizedPlayerId))
             {
                 errors.Add($"authoritative state {listMemberName} {normalizedPlayerId} is duplicated");
+            }
+        }
+    }
+
+    private static void ValidateAuthoritativeStatePlayerMap<TValue>(
+        string mapKeyName,
+        IReadOnlyDictionary<string, TValue>? values,
+        IReadOnlySet<string> seatPlayerIds,
+        List<string> errors)
+    {
+        if (values is null)
+        {
+            errors.Add($"authoritative state {mapKeyName} map is required");
+            return;
+        }
+
+        var seenPlayerIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var playerId in values.Keys.OrderBy(playerId => playerId, StringComparer.Ordinal))
+        {
+            if (string.IsNullOrWhiteSpace(playerId))
+            {
+                errors.Add($"authoritative state {mapKeyName} id is required");
+                continue;
+            }
+
+            var normalizedPlayerId = playerId.Trim();
+            if (!string.Equals(playerId, normalizedPlayerId, StringComparison.Ordinal))
+            {
+                errors.Add($"authoritative state {mapKeyName} {normalizedPlayerId} has surrounding whitespace");
+            }
+
+            if (!seatPlayerIds.Contains(normalizedPlayerId))
+            {
+                errors.Add($"authoritative state {mapKeyName} {normalizedPlayerId} is missing from seats");
+            }
+
+            if (!seenPlayerIds.Add(normalizedPlayerId))
+            {
+                errors.Add($"authoritative state {mapKeyName} {normalizedPlayerId} is duplicated");
             }
         }
     }
