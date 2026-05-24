@@ -412,6 +412,40 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsMissingSnapshotStructuralFields()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Lanes = null!,
+                    Stack = null!,
+                    Timing = null!,
+                    TurnState = " "
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("snapshot for alice lanes are required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("snapshot for alice stack is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("snapshot for alice timing is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("snapshot for alice turn state is required", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsMalformedSnapshotPlayerPayloads()
     {
         var alice = PlayerView("alice", 0, 0);

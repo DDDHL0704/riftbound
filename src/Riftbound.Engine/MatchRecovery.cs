@@ -1291,6 +1291,8 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
+            ValidateSnapshotShape(view, errors);
+
             if (view.Snapshot.Players is null)
             {
                 errors.Add($"snapshot for {view.PlayerId} players are required");
@@ -1417,6 +1419,31 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"prompt for {view.PlayerId} has payload player {view.Prompt.PlayerId}");
             }
+        }
+    }
+
+    private static void ValidateSnapshotShape(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Lanes is null)
+        {
+            errors.Add($"snapshot for {view.PlayerId} lanes are required");
+        }
+
+        if (view.Snapshot.Stack is null)
+        {
+            errors.Add($"snapshot for {view.PlayerId} stack is required");
+        }
+
+        if (view.Snapshot.Timing is null)
+        {
+            errors.Add($"snapshot for {view.PlayerId} timing is required");
+        }
+
+        if (string.IsNullOrWhiteSpace(view.Snapshot.TurnState))
+        {
+            errors.Add($"snapshot for {view.PlayerId} turn state is required");
         }
     }
 
