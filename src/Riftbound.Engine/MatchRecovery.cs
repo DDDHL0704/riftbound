@@ -3543,6 +3543,217 @@ public static class MatchRecoveryValidator
             powerCostByTrait);
     }
 
+    private static void ValidateSpectatorTemporaryPaymentResourcePayloads(
+        IReadOnlyDictionary<string, object?> timing,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        if (!TryReadObjectList(timing, "temporaryPaymentResources", out var spectatorResources))
+        {
+            errors.Add("spectator replay frame timing temporary payment resources are required");
+            return;
+        }
+
+        var authoritativeResources = authoritativeState.TemporaryPaymentResources;
+        if (spectatorResources.Count != authoritativeResources.Count)
+        {
+            errors.Add(
+                $"spectator replay frame timing temporary payment resource count {spectatorResources.Count} does not match authoritative state temporary payment resource count {authoritativeResources.Count}");
+            return;
+        }
+
+        var resourceIdsMatch = true;
+        var ownerPlayerIdsMatch = true;
+        var sourceObjectIdsMatch = true;
+        var abilityIdsMatch = true;
+        var paymentWindowsMatch = true;
+        var generatedPowersMatch = true;
+        var remainingPowersMatch = true;
+        var generatedPowerTraitsMatch = true;
+        var remainingPowerTraitsMatch = true;
+        var allowedPaymentKindsMatch = true;
+        var paymentOnlyFlagsMatch = true;
+        var resourceRestrictionsMatch = true;
+        var createdTicksMatch = true;
+
+        for (var index = 0; index < authoritativeResources.Count; index++)
+        {
+            var spectatorResource = spectatorResources[index];
+            if (!IsSnapshotPlayerPayloadObject(spectatorResource))
+            {
+                errors.Add("spectator replay frame timing temporary payment resource payload is required");
+                return;
+            }
+
+            var authoritativeResource = authoritativeResources[index];
+            if (!TryReadObjectString(spectatorResource, "resourceId", out var resourceId)
+                || !string.Equals(resourceId, authoritativeResource.ResourceId, StringComparison.Ordinal))
+            {
+                resourceIdsMatch = false;
+            }
+
+            if (!TryReadObjectString(spectatorResource, "ownerPlayerId", out var ownerPlayerId)
+                || !string.Equals(ownerPlayerId, authoritativeResource.OwnerPlayerId, StringComparison.Ordinal))
+            {
+                ownerPlayerIdsMatch = false;
+            }
+
+            if (!TryReadObjectString(spectatorResource, "sourceObjectId", out var sourceObjectId)
+                || !string.Equals(sourceObjectId, authoritativeResource.SourceObjectId, StringComparison.Ordinal))
+            {
+                sourceObjectIdsMatch = false;
+            }
+
+            if (!TryReadObjectString(spectatorResource, "abilityId", out var abilityId)
+                || !string.Equals(abilityId, authoritativeResource.AbilityId, StringComparison.Ordinal))
+            {
+                abilityIdsMatch = false;
+            }
+
+            if (!TryReadObjectString(spectatorResource, "paymentWindow", out var paymentWindow)
+                || !string.Equals(paymentWindow, authoritativeResource.PaymentWindow, StringComparison.Ordinal))
+            {
+                paymentWindowsMatch = false;
+            }
+
+            if (!TryReadObjectInt(spectatorResource, "generatedPower", out var generatedPower)
+                || generatedPower != authoritativeResource.GeneratedPower)
+            {
+                generatedPowersMatch = false;
+            }
+
+            if (!TryReadObjectInt(spectatorResource, "remainingPower", out var remainingPower)
+                || remainingPower != authoritativeResource.RemainingPower)
+            {
+                remainingPowersMatch = false;
+            }
+
+            if (!TryReadObjectIntDictionary(spectatorResource, "generatedPowerByTrait", out var generatedPowerByTrait)
+                || !IntDictionariesEqual(generatedPowerByTrait, authoritativeResource.GeneratedPowerByTrait))
+            {
+                generatedPowerTraitsMatch = false;
+            }
+
+            if (!TryReadObjectIntDictionary(spectatorResource, "remainingPowerByTrait", out var remainingPowerByTrait)
+                || !IntDictionariesEqual(remainingPowerByTrait, authoritativeResource.RemainingPowerByTrait))
+            {
+                remainingPowerTraitsMatch = false;
+            }
+
+            if (!TryReadObjectStringList(spectatorResource, "allowedPaymentKinds", out var allowedPaymentKinds)
+                || !StringListsEqual(allowedPaymentKinds, authoritativeResource.AllowedPaymentKinds))
+            {
+                allowedPaymentKindsMatch = false;
+            }
+
+            if (!TryReadObjectBool(spectatorResource, "paymentOnly", out var paymentOnly)
+                || !paymentOnly)
+            {
+                paymentOnlyFlagsMatch = false;
+            }
+
+            if (!TryReadObjectString(spectatorResource, "resourceRestriction", out var resourceRestriction)
+                || !string.Equals(
+                    resourceRestriction,
+                    TemporaryPaymentResourceRestrictionForRecovery(authoritativeResource),
+                    StringComparison.Ordinal))
+            {
+                resourceRestrictionsMatch = false;
+            }
+
+            if (!TryReadObjectLong(spectatorResource, "createdTick", out var createdTick)
+                || createdTick != authoritativeResource.CreatedTick)
+            {
+                createdTicksMatch = false;
+            }
+        }
+
+        if (!resourceIdsMatch)
+        {
+            errors.Add("spectator replay frame timing temporary payment resource ids disagree with authoritative state temporary payment resource ids");
+        }
+
+        if (!ownerPlayerIdsMatch)
+        {
+            errors.Add("spectator replay frame timing temporary payment resource owners disagree with authoritative state temporary payment resource owners");
+        }
+
+        if (!sourceObjectIdsMatch)
+        {
+            errors.Add("spectator replay frame timing temporary payment resource source objects disagree with authoritative state temporary payment resource source objects");
+        }
+
+        if (!abilityIdsMatch)
+        {
+            errors.Add("spectator replay frame timing temporary payment resource ability ids disagree with authoritative state temporary payment resource ability ids");
+        }
+
+        if (!paymentWindowsMatch)
+        {
+            errors.Add("spectator replay frame timing temporary payment resource payment windows disagree with authoritative state temporary payment resource payment windows");
+        }
+
+        if (!generatedPowersMatch)
+        {
+            errors.Add("spectator replay frame timing temporary payment resource generated powers disagree with authoritative state temporary payment resource generated powers");
+        }
+
+        if (!remainingPowersMatch)
+        {
+            errors.Add("spectator replay frame timing temporary payment resource remaining powers disagree with authoritative state temporary payment resource remaining powers");
+        }
+
+        if (!generatedPowerTraitsMatch)
+        {
+            errors.Add("spectator replay frame timing temporary payment resource generated power traits disagree with authoritative state temporary payment resource generated power traits");
+        }
+
+        if (!remainingPowerTraitsMatch)
+        {
+            errors.Add("spectator replay frame timing temporary payment resource remaining power traits disagree with authoritative state temporary payment resource remaining power traits");
+        }
+
+        if (!allowedPaymentKindsMatch)
+        {
+            errors.Add("spectator replay frame timing temporary payment resource allowed payment kinds disagree with authoritative state temporary payment resource allowed payment kinds");
+        }
+
+        if (!paymentOnlyFlagsMatch)
+        {
+            errors.Add("spectator replay frame timing temporary payment resource payment-only flags disagree with authoritative state temporary payment resource payment-only flags");
+        }
+
+        if (!resourceRestrictionsMatch)
+        {
+            errors.Add("spectator replay frame timing temporary payment resource restrictions disagree with authoritative state temporary payment resource restrictions");
+        }
+
+        if (!createdTicksMatch)
+        {
+            errors.Add("spectator replay frame timing temporary payment resource created ticks disagree with authoritative state temporary payment resource created ticks");
+        }
+    }
+
+    private static string TemporaryPaymentResourceRestrictionForRecovery(TemporaryPaymentResourceState resource)
+    {
+        if (P4ActivatedAbilityCatalog.TryGetSigilTypedResourceProfile(resource.AbilityId, out var profile))
+        {
+            return profile.ResourceRestriction;
+        }
+
+        return string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, StringComparison.Ordinal)
+            ? P4ActivatedAbilityCatalog.AncientStelePaymentOnlyResourceRestriction
+            : string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, StringComparison.Ordinal)
+                ? P4ActivatedAbilityCatalog.JhinMoveResourceRestriction
+            : P4ActivatedAbilityCatalog.IsBlueSentinelResourceAbility(resource.AbilityId)
+                ? P4ActivatedAbilityCatalog.BlueSentinelPaymentOnlyResourceRestriction
+            : P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(resource.AbilityId)
+                ? P4ActivatedAbilityCatalog.HoneyfruitPaymentOnlyResourceRestriction
+            : P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(resource.AbilityId)
+                ? P4ActivatedAbilityCatalog.GoldTokenPaymentOnlyResourceRestriction
+            : P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction;
+    }
+
     private static void ValidateSpectatorPendingHandChoicePayload(
         IReadOnlyDictionary<string, object?> timing,
         MatchState authoritativeState,
@@ -6563,6 +6774,10 @@ public static class MatchRecoveryValidator
         ValidateSpectatorPendingTaskQueuePayload(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
         ValidateSpectatorPendingPaymentPayload(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
         ValidateSpectatorPendingHandChoicePayload(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
+        ValidateSpectatorTemporaryPaymentResourcePayloads(
+            spectatorReplayFrame.SpectatorSnapshot.Timing,
+            authoritativeState,
+            errors);
         ValidateSpectatorBattlefieldTaskPayloads(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
 
         if (!spectatorReplayFrame.SpectatorSnapshot.Timing.TryGetValue("turnWindow", out var spectatorTurnWindow)
