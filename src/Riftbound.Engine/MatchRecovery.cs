@@ -1962,6 +1962,7 @@ public static class MatchRecoveryValidator
         ValidateAuthoritativeStateStackAndTriggerValues(authoritativeState, errors);
         ValidateAuthoritativeStatePendingPaymentValues(authoritativeState.PendingPayment, errors);
         ValidateAuthoritativeStatePendingHandChoiceValues(authoritativeState.PendingHandChoice, errors);
+        ValidateAuthoritativeStateUntilEndOfTurnEffectValues(authoritativeState.UntilEndOfTurnEffects, errors);
         ValidateAuthoritativeStateResolutionHistory(authoritativeState, errors);
         ValidateAuthoritativeStatePlayerPointers(authoritativeState, errors);
 
@@ -2431,6 +2432,17 @@ public static class MatchRecoveryValidator
                     $"authoritative state pending hand choice {choiceLabel} legal object count {distinctLegalObjectCount} is less than required count {pendingHandChoice.RequiredCount}");
             }
         }
+    }
+
+    private static void ValidateAuthoritativeStateUntilEndOfTurnEffectValues(
+        IReadOnlyList<string>? untilEndOfTurnEffects,
+        List<string> errors)
+    {
+        ValidateAuthoritativeStateStringListValues(
+            "until end of turn effect",
+            untilEndOfTurnEffects,
+            errors,
+            rejectDuplicates: true);
     }
 
     private static void ValidateAuthoritativeStateStackItemValues(

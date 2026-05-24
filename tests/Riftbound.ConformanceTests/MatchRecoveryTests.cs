@@ -3368,6 +3368,71 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateUntilEndOfTurnEffectValueDrift()
+    {
+        var malformedListState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            untilEndOfTurnEffects: ["STUNNED"])
+        {
+            UntilEndOfTurnEffects = [" STUNNED ", "STUNNED", ""]
+        };
+        var nullListState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob")
+        {
+            UntilEndOfTurnEffects = null!
+        };
+
+        var errors = new List<string>();
+        errors.AddRange(MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            malformedListState,
+            currentTick: 0));
+        errors.AddRange(MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            nullListState,
+            currentTick: 0));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state until end of turn effect STUNNED has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state until end of turn effect STUNNED is duplicated", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state until end of turn effect is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state until end of turn effect list is required", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAuthoritativeStateObjectReferencesOutsideRegistry()
     {
         var authoritativeState = new MatchState(
