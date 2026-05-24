@@ -2082,6 +2082,8 @@ public static class MatchRecoveryValidator
             authoritativeState.PlayerDecklists,
             seatPlayerIds,
             errors);
+        ValidateAuthoritativeStateCardObjectPlayers(authoritativeState.CardObjects, seatPlayerIds, errors);
+        ValidateAuthoritativeStateObjectLocationPlayers(authoritativeState.ObjectLocations, seatPlayerIds, errors);
     }
 
     private static void ValidateAuthoritativeStateRequiredPlayerPointer(
@@ -2185,6 +2187,118 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"authoritative state {mapKeyName} {normalizedPlayerId} is duplicated");
             }
+        }
+    }
+
+    private static void ValidateAuthoritativeStateCardObjectPlayers(
+        IReadOnlyDictionary<string, CardObjectState>? cardObjects,
+        IReadOnlySet<string> seatPlayerIds,
+        List<string> errors)
+    {
+        if (cardObjects is null)
+        {
+            errors.Add("authoritative state card objects map is required");
+            return;
+        }
+
+        foreach (var (objectId, cardObject) in cardObjects.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            if (cardObject is null)
+            {
+                errors.Add($"authoritative state card object {objectId} is required");
+                continue;
+            }
+
+            ValidateAuthoritativeStateOptionalObjectPlayer(
+                $"card object {objectId} owner player",
+                cardObject.OwnerId,
+                seatPlayerIds,
+                errors);
+            ValidateAuthoritativeStateOptionalObjectPlayer(
+                $"card object {objectId} controller player",
+                cardObject.ControllerId,
+                seatPlayerIds,
+                errors);
+        }
+    }
+
+    private static void ValidateAuthoritativeStateObjectLocationPlayers(
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
+        IReadOnlySet<string> seatPlayerIds,
+        List<string> errors)
+    {
+        if (objectLocations is null)
+        {
+            errors.Add("authoritative state object locations map is required");
+            return;
+        }
+
+        foreach (var (objectId, location) in objectLocations.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            if (location is null)
+            {
+                errors.Add($"authoritative state object location {objectId} is required");
+                continue;
+            }
+
+            ValidateAuthoritativeStateRequiredObjectPlayer(
+                $"object location {objectId} player",
+                location.PlayerId,
+                seatPlayerIds,
+                errors);
+        }
+    }
+
+    private static void ValidateAuthoritativeStateRequiredObjectPlayer(
+        string playerLabel,
+        string? playerId,
+        IReadOnlySet<string> seatPlayerIds,
+        List<string> errors)
+    {
+        if (string.IsNullOrWhiteSpace(playerId))
+        {
+            errors.Add($"authoritative state {playerLabel} is required");
+            return;
+        }
+
+        ValidateAuthoritativeStateObjectPlayer(playerLabel, playerId, seatPlayerIds, errors);
+    }
+
+    private static void ValidateAuthoritativeStateOptionalObjectPlayer(
+        string playerLabel,
+        string? playerId,
+        IReadOnlySet<string> seatPlayerIds,
+        List<string> errors)
+    {
+        if (playerId is null)
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(playerId))
+        {
+            errors.Add($"authoritative state {playerLabel} is blank");
+            return;
+        }
+
+        ValidateAuthoritativeStateObjectPlayer(playerLabel, playerId, seatPlayerIds, errors);
+    }
+
+    private static void ValidateAuthoritativeStateObjectPlayer(
+        string playerLabel,
+        string playerId,
+        IReadOnlySet<string> seatPlayerIds,
+        List<string> errors)
+    {
+        var normalizedPlayerId = playerId.Trim();
+        if (!string.Equals(playerId, normalizedPlayerId, StringComparison.Ordinal))
+        {
+            errors.Add($"authoritative state {playerLabel} {normalizedPlayerId} has surrounding whitespace");
+        }
+
+        if (!seatPlayerIds.Contains(normalizedPlayerId))
+        {
+            errors.Add($"authoritative state {playerLabel} {normalizedPlayerId} is missing from seats");
         }
     }
 
