@@ -1147,6 +1147,17 @@ public static class MatchRecoveryValidator
             {
                 errors.Add("spectator replay frame snapshot stack damage amounts disagree with authoritative state stack damage amounts");
             }
+
+            var spectatorStackDestinations = ExtractStackItemOptionalStringValues(
+                spectatorReplayFrame.SpectatorSnapshot,
+                "destination");
+            var authoritativeStackDestinations = authoritativeState.StackItems
+                .Select(item => item.Destination)
+                .ToArray();
+            if (!StringListsEqual(spectatorStackDestinations, authoritativeStackDestinations))
+            {
+                errors.Add("spectator replay frame snapshot stack destinations disagree with authoritative state stack destinations");
+            }
         }
 
         if (string.IsNullOrWhiteSpace(spectatorReplayFrame.SpectatorSnapshot.TurnState))
@@ -1335,6 +1346,25 @@ public static class MatchRecoveryValidator
         return values;
     }
 
+    private static IReadOnlyList<string> ExtractStackItemOptionalStringValues(SnapshotDto snapshot, string key)
+    {
+        if (snapshot.Stack is null)
+        {
+            return [];
+        }
+
+        var values = new List<string>();
+        foreach (var item in snapshot.Stack)
+        {
+            if (TryReadObjectOptionalString(item, key, out var value))
+            {
+                values.Add(value);
+            }
+        }
+
+        return values;
+    }
+
     private static IReadOnlyList<IReadOnlyList<string>> ExtractStackItemStringListValues(
         SnapshotDto snapshot,
         string key)
@@ -1444,6 +1474,45 @@ public static class MatchRecoveryValidator
         return false;
     }
 
+    private static bool TryReadObjectOptionalString(object? value, string key, out string text)
+    {
+        if (value is IReadOnlyDictionary<string, object?> readOnlyDictionary)
+        {
+            if (!readOnlyDictionary.TryGetValue(key, out var readOnlyValue))
+            {
+                text = string.Empty;
+                return true;
+            }
+
+            return TryReadOptionalStringValue(readOnlyValue, out text);
+        }
+
+        if (value is IDictionary<string, object?> dictionary)
+        {
+            if (!dictionary.TryGetValue(key, out var dictionaryValue))
+            {
+                text = string.Empty;
+                return true;
+            }
+
+            return TryReadOptionalStringValue(dictionaryValue, out text);
+        }
+
+        if (value is JsonElement { ValueKind: JsonValueKind.Object } json)
+        {
+            if (!json.TryGetProperty(key, out var jsonValue))
+            {
+                text = string.Empty;
+                return true;
+            }
+
+            return TryReadOptionalStringValue(jsonValue, out text);
+        }
+
+        text = string.Empty;
+        return false;
+    }
+
     private static bool TryReadObjectStringList(object? value, string key, out IReadOnlyList<string> texts)
     {
         if (value is IReadOnlyDictionary<string, object?> readOnlyDictionary
@@ -1517,6 +1586,18 @@ public static class MatchRecoveryValidator
             return true;
         }
 
+        return false;
+    }
+
+    private static bool TryReadOptionalStringValue(object? value, out string text)
+    {
+        if (TryReadStringValue(value, out var maybeText))
+        {
+            text = maybeText ?? string.Empty;
+            return true;
+        }
+
+        text = string.Empty;
         return false;
     }
 
