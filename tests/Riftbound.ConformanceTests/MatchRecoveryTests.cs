@@ -4456,7 +4456,7 @@ public sealed class MatchRecoveryTests
                     null,
                     "alice",
                     " missing-source ",
-                    [],
+                    [" participant-1 ", "participant-1", ""],
                     [" BATTLEFIELD_HELD ", "BATTLEFIELD_HELD"]),
                 new(
                     "battlefield-resolution-1",
@@ -4482,7 +4482,7 @@ public sealed class MatchRecoveryTests
                     "alice",
                     "bob",
                     "alice",
-                    [],
+                    [" attacker-1 ", "attacker-1", ""],
                     [],
                     [],
                     [],
@@ -4541,6 +4541,15 @@ public sealed class MatchRecoveryTests
             error => error.Contains("authoritative state battlefield resolution battlefield-resolution-1 source object is blank", StringComparison.Ordinal));
         Assert.Contains(
             errors,
+            error => error.Contains("authoritative state battlefield resolution battlefield-resolution-1 participant object participant-1 has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution battlefield-resolution-1 participant object participant-1 is duplicated", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution battlefield-resolution-1 participant object is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
             error => error.Contains("authoritative state battlefield resolution battlefield-resolution-1 related event kind BATTLEFIELD_HELD is duplicated", StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -4557,6 +4566,15 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains("authoritative state battle resolution battle-resolution-1 reason is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution battle-resolution-1 attacker object attacker-1 has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution battle-resolution-1 attacker object attacker-1 is duplicated", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution battle-resolution-1 attacker object is required", StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains("authoritative state battle resolution battle-resolution-1 related event kind BATTLE_CLOSED is duplicated", StringComparison.Ordinal));

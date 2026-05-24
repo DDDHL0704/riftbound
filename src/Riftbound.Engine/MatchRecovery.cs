@@ -2745,6 +2745,13 @@ public static class MatchRecoveryValidator
             ValidateAuthoritativeStateResolutionTextList(
                 "battlefield resolution",
                 resolutionId,
+                "participant object",
+                resolution.ParticipantObjectIds,
+                errors,
+                requireList: false);
+            ValidateAuthoritativeStateResolutionTextList(
+                "battlefield resolution",
+                resolutionId,
                 "related event kind",
                 resolution.RelatedEventKinds,
                 errors);
@@ -2796,6 +2803,41 @@ public static class MatchRecoveryValidator
                 "reason",
                 resolution.Reason,
                 errors);
+            ValidateAuthoritativeStateResolutionTextList(
+                "battle resolution",
+                resolutionId,
+                "attacker object",
+                resolution.AttackerObjectIds,
+                errors,
+                requireList: false);
+            ValidateAuthoritativeStateResolutionTextList(
+                "battle resolution",
+                resolutionId,
+                "defender object",
+                resolution.DefenderObjectIds,
+                errors,
+                requireList: false);
+            ValidateAuthoritativeStateResolutionTextList(
+                "battle resolution",
+                resolutionId,
+                "surviving attacker object",
+                resolution.SurvivingAttackerObjectIds,
+                errors,
+                requireList: false);
+            ValidateAuthoritativeStateResolutionTextList(
+                "battle resolution",
+                resolutionId,
+                "surviving defender object",
+                resolution.SurvivingDefenderObjectIds,
+                errors,
+                requireList: false);
+            ValidateAuthoritativeStateResolutionTextList(
+                "battle resolution",
+                resolutionId,
+                "destroyed object",
+                resolution.DestroyedObjectIds,
+                errors,
+                requireList: false);
             ValidateAuthoritativeStateResolutionTextList(
                 "battle resolution",
                 resolutionId,
@@ -2881,13 +2923,18 @@ public static class MatchRecoveryValidator
         string resolutionId,
         string valueLabel,
         IReadOnlyList<string>? values,
-        List<string> errors)
+        List<string> errors,
+        bool requireList = true)
     {
         var diagnosticResolutionId = string.IsNullOrEmpty(resolutionId) ? "<missing>" : resolutionId;
         if (values is null)
         {
-            errors.Add(
-                $"authoritative state {resolutionLabel} {diagnosticResolutionId} {valueLabel} list is required");
+            if (requireList)
+            {
+                errors.Add(
+                    $"authoritative state {resolutionLabel} {diagnosticResolutionId} {valueLabel} list is required");
+            }
+
             return;
         }
 
