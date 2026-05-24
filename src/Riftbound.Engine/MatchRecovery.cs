@@ -2014,6 +2014,81 @@ public static class MatchRecoveryValidator
         {
             errors.Add("spectator replay frame snapshot lane battlefields disagree with authoritative state battlefields");
         }
+
+        ValidateSpectatorSnapshotBattlefieldScalarPayloads(battlefieldItems, authoritativeState, errors);
+    }
+
+    private static void ValidateSpectatorSnapshotBattlefieldScalarPayloads(
+        IReadOnlyList<object?> spectatorBattlefields,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        var authoritativeBattlefields = authoritativeState.BattlefieldStates.Values.ToArray();
+        var count = Math.Min(spectatorBattlefields.Count, authoritativeBattlefields.Length);
+        for (var index = 0; index < count; index++)
+        {
+            var spectatorBattlefield = spectatorBattlefields[index];
+            var authoritativeBattlefield = authoritativeBattlefields[index];
+            var battlefieldObjectId = authoritativeBattlefield.BattlefieldObjectId;
+
+            if (!TryReadObjectString(spectatorBattlefield, "zonePlayerId", out var zonePlayerId)
+                || !string.Equals(zonePlayerId, authoritativeBattlefield.ZonePlayerId, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} zone player does not match authoritative state zone player");
+            }
+
+            if (!TryReadObjectOptionalString(spectatorBattlefield, "cardNo", out var cardNo)
+                || !string.Equals(cardNo, authoritativeBattlefield.CardNo ?? string.Empty, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} card number does not match authoritative state card number");
+            }
+
+            if (!TryReadObjectOptionalString(spectatorBattlefield, "controllerId", out var controllerId)
+                || !string.Equals(controllerId, authoritativeBattlefield.ControllerId ?? string.Empty, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} controller does not match authoritative state controller");
+            }
+
+            if (!TryReadObjectString(spectatorBattlefield, "status", out var status)
+                || !string.Equals(status, authoritativeBattlefield.Status, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} status does not match authoritative state status");
+            }
+
+            if (!TryReadObjectBool(spectatorBattlefield, "contested", out var contested)
+                || contested != authoritativeBattlefield.Contested)
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} contested does not match authoritative state contested");
+            }
+
+            if (!TryReadObjectInt(spectatorBattlefield, "standbySlotCount", out var standbySlotCount)
+                || standbySlotCount != authoritativeBattlefield.StandbyObjectIds.Count)
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby slot count does not match authoritative state standby slot count");
+            }
+
+            if (!TryReadObjectInt(spectatorBattlefield, "faceDownStandbyCount", out var faceDownStandbyCount)
+                || faceDownStandbyCount != authoritativeBattlefield.FaceDownStandbyCount)
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} face-down standby count does not match authoritative state face-down standby count");
+            }
+
+            var hiddenStandbyCount = authoritativeBattlefield.StandbyObjectIds.Count(objectId =>
+                IsHiddenBattlefieldStandbyForSpectator(authoritativeState, objectId));
+            if (!TryReadObjectInt(spectatorBattlefield, "hiddenStandbyCount", out var spectatorHiddenStandbyCount)
+                || spectatorHiddenStandbyCount != hiddenStandbyCount)
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} hidden standby count does not match authoritative state hidden standby count");
+            }
+        }
     }
 
     private static IReadOnlyList<(string PlayerId, string ObjectId)> ExpectedSpectatorLaneBattlefieldObjectPairs(

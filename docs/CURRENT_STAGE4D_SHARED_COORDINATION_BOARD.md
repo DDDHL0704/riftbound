@@ -12023,3 +12023,24 @@ DOC_MATRIX coordination:
 - DOC_MATRIX must not touch runtime/frontend/protocol/formal scripts or `riftbound-dotnet.sln`.
 
 Project remains **NOT READY**.
+
+### 2026-05-24 Stage 4D-17EY A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Status:
+
+- Stage 4D-17EY recovery spectator battlefield scalar validation is accepted and the A_MAIN write lock is closed.
+- `MatchRecoveryValidator.ValidateSpectatorReplayFrame` now validates spectator lane `battlefields` scalar payloads against authoritative battlefield state after identity parity: zone player, card number, controller, status, contested, standby slot count, face-down standby count and hidden standby count.
+- Validation passed: focused `MatchRecoveryTests` `174/174`; adjacent recovery/opening/store-smoke `755/755`; backend full `6120/6120`; `git diff --check`; anchored conflict-marker scan; matrix JSON parse.
+- Matrix JSON, `PaymentEngineCoverageAuditTests.cs`, frontend, protocol, official catalog, browser/Chrome/formal E2E, `fullOfficial`, READY / READY-CANDIDATE and `riftbound-dotnet.sln` remain locked.
+
+DOC_MATRIX coordination:
+
+- DOC_MATRIX approved scope remains `4D-03SU..03SV` docs/matrix-only work.
+- DOC_MATRIX should sync to latest `main` containing Stage 4D-17EY before continuing that scope.
+- DOC_MATRIX must not touch runtime/frontend/protocol/formal scripts or `riftbound-dotnet.sln`.
+
+Project remains **NOT READY**.
