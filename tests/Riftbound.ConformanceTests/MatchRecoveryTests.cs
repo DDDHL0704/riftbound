@@ -3206,6 +3206,124 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateResourceValueDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            2,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob")
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["alice"] = new RunePool(0, 0)
+                {
+                    Mana = -1,
+                    Power = -2,
+                    PowerByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [" blue "] = -1,
+                        ["blue"] = 1
+                    }
+                }
+            },
+            PlayerScores = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["alice"] = -1
+            },
+            PlayerExperience = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["alice"] = -2
+            },
+            PlayerCardsPlayedThisTurn = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["alice"] = 0
+            },
+            TemporaryPaymentResources =
+            [
+                new TemporaryPaymentResourceState("temp-1", "alice", remainingPower: 1)
+                {
+                    GeneratedPower = -1,
+                    RemainingPower = -2,
+                    CreatedTick = 3,
+                    GeneratedPowerByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [" red "] = 0,
+                        ["red"] = 1
+                    },
+                    RemainingPowerByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [" green "] = -1,
+                        ["green"] = 1
+                    },
+                    AllowedPaymentKinds = [" power ", "power", ""]
+                }
+            ]
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 2);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state rune pool for alice mana -1 cannot be negative", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state rune pool for alice power -2 cannot be negative", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state rune pool for alice power trait blue value -1 must be positive", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state rune pool for alice power trait blue is duplicated", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state score for alice -1 cannot be negative", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state experience for alice -2 cannot be negative", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state cards played this turn for alice 0 must be positive", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state temporary payment resource temp-1 generated power -1 cannot be negative", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state temporary payment resource temp-1 remaining power -2 cannot be negative", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state temporary payment resource temp-1 created tick 3 is after authoritative state tick 2", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state temporary payment resource temp-1 generated power trait red value 0 must be positive", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state temporary payment resource temp-1 generated power trait red is duplicated", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state temporary payment resource temp-1 remaining power trait green value -1 must be positive", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state temporary payment resource temp-1 remaining power trait green is duplicated", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state temporary payment resource temp-1 allowed payment kind power is duplicated", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAuthoritativeStateObjectIdentityAndLocationReferenceDrift()
     {
         var authoritativeState = new MatchState(

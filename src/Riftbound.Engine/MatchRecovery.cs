@@ -1957,6 +1957,7 @@ public static class MatchRecoveryValidator
 
         ValidateAuthoritativeStateScalars(authoritativeState, errors);
         ValidateAuthoritativeStateSeats(authoritativeState, errors);
+        ValidateAuthoritativeStateResourceValues(authoritativeState, errors);
         ValidateAuthoritativeStateResolutionHistory(authoritativeState, errors);
         ValidateAuthoritativeStatePlayerPointers(authoritativeState, errors);
 
@@ -2061,6 +2062,262 @@ public static class MatchRecoveryValidator
         if (!isKnownValue(normalizedValue))
         {
             errors.Add($"authoritative state {valueLabel} {normalizedValue} is invalid");
+        }
+    }
+
+    private static void ValidateAuthoritativeStateResourceValues(
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        ValidateAuthoritativeStateRunePoolValues(authoritativeState.RunePools, errors);
+        ValidateAuthoritativeStateIntegerMapValues(
+            "score",
+            authoritativeState.PlayerScores,
+            requirePositive: false,
+            errors);
+        ValidateAuthoritativeStateIntegerMapValues(
+            "experience",
+            authoritativeState.PlayerExperience,
+            requirePositive: false,
+            errors);
+        ValidateAuthoritativeStateIntegerMapValues(
+            "cards played this turn",
+            authoritativeState.PlayerCardsPlayedThisTurn,
+            requirePositive: true,
+            errors);
+        ValidateAuthoritativeStateTemporaryPaymentResourceValues(
+            authoritativeState.TemporaryPaymentResources,
+            authoritativeState.Tick,
+            errors);
+    }
+
+    private static void ValidateAuthoritativeStateRunePoolValues(
+        IReadOnlyDictionary<string, RunePool>? runePools,
+        List<string> errors)
+    {
+        if (runePools is null)
+        {
+            return;
+        }
+
+        foreach (var (playerId, runePool) in runePools.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            if (string.IsNullOrWhiteSpace(playerId))
+            {
+                continue;
+            }
+
+            var playerLabel = playerId.Trim();
+            if (runePool is null)
+            {
+                errors.Add($"authoritative state rune pool for {playerLabel} is required");
+                continue;
+            }
+
+            if (runePool.Mana < 0)
+            {
+                errors.Add(
+                    $"authoritative state rune pool for {playerLabel} mana {runePool.Mana} cannot be negative");
+            }
+
+            if (runePool.Power < 0)
+            {
+                errors.Add(
+                    $"authoritative state rune pool for {playerLabel} power {runePool.Power} cannot be negative");
+            }
+
+            ValidateAuthoritativeStateTraitPowerValues(
+                $"rune pool for {playerLabel}",
+                "power trait",
+                runePool.PowerByTrait,
+                errors);
+        }
+    }
+
+    private static void ValidateAuthoritativeStateIntegerMapValues(
+        string valueLabel,
+        IReadOnlyDictionary<string, int>? values,
+        bool requirePositive,
+        List<string> errors)
+    {
+        if (values is null)
+        {
+            return;
+        }
+
+        foreach (var (playerId, value) in values.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            if (string.IsNullOrWhiteSpace(playerId))
+            {
+                continue;
+            }
+
+            var playerLabel = playerId.Trim();
+            if (requirePositive)
+            {
+                if (value <= 0)
+                {
+                    errors.Add(
+                        $"authoritative state {valueLabel} for {playerLabel} {value} must be positive");
+                }
+
+                continue;
+            }
+
+            if (value < 0)
+            {
+                errors.Add(
+                    $"authoritative state {valueLabel} for {playerLabel} {value} cannot be negative");
+            }
+        }
+    }
+
+    private static void ValidateAuthoritativeStateTemporaryPaymentResourceValues(
+        IReadOnlyList<TemporaryPaymentResourceState>? temporaryPaymentResources,
+        long authoritativeTick,
+        List<string> errors)
+    {
+        if (temporaryPaymentResources is null)
+        {
+            return;
+        }
+
+        var seenResourceIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var resource in temporaryPaymentResources.OrderBy(
+            item => item?.ResourceId ?? string.Empty,
+            StringComparer.Ordinal))
+        {
+            if (resource is null)
+            {
+                continue;
+            }
+
+            var resourceId = ValidateAuthoritativeStateRequiredText(
+                "temporary payment resource id",
+                resource.ResourceId,
+                errors);
+            var resourceLabel = resourceId ?? "<unknown>";
+            if (resourceId is not null && !seenResourceIds.Add(resourceId))
+            {
+                errors.Add($"authoritative state temporary payment resource {resourceId} is duplicated");
+            }
+
+            if (resource.GeneratedPower < 0)
+            {
+                errors.Add(
+                    $"authoritative state temporary payment resource {resourceLabel} generated power {resource.GeneratedPower} cannot be negative");
+            }
+
+            if (resource.RemainingPower < 0)
+            {
+                errors.Add(
+                    $"authoritative state temporary payment resource {resourceLabel} remaining power {resource.RemainingPower} cannot be negative");
+            }
+
+            if (resource.CreatedTick < 0)
+            {
+                errors.Add(
+                    $"authoritative state temporary payment resource {resourceLabel} created tick {resource.CreatedTick} cannot be negative");
+            }
+            else if (resource.CreatedTick > authoritativeTick)
+            {
+                errors.Add(
+                    $"authoritative state temporary payment resource {resourceLabel} created tick {resource.CreatedTick} is after authoritative state tick {authoritativeTick}");
+            }
+
+            ValidateAuthoritativeStateTraitPowerValues(
+                $"temporary payment resource {resourceLabel}",
+                "generated power trait",
+                resource.GeneratedPowerByTrait,
+                errors);
+            ValidateAuthoritativeStateTraitPowerValues(
+                $"temporary payment resource {resourceLabel}",
+                "remaining power trait",
+                resource.RemainingPowerByTrait,
+                errors);
+            ValidateAuthoritativeStatePaymentKindValues(
+                resourceLabel,
+                resource.AllowedPaymentKinds,
+                errors);
+        }
+    }
+
+    private static void ValidateAuthoritativeStateTraitPowerValues(
+        string ownerLabel,
+        string traitLabel,
+        IReadOnlyDictionary<string, int>? values,
+        List<string> errors)
+    {
+        if (values is null)
+        {
+            errors.Add($"authoritative state {ownerLabel} {traitLabel} map is required");
+            return;
+        }
+
+        var seenTraits = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var (trait, value) in values.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            if (string.IsNullOrWhiteSpace(trait))
+            {
+                errors.Add($"authoritative state {ownerLabel} {traitLabel} is required");
+                continue;
+            }
+
+            var normalizedTrait = RuneTrait.Normalize(trait);
+            var trimmedTrait = trait.Trim();
+            if (!string.Equals(trait, trimmedTrait, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"authoritative state {ownerLabel} {traitLabel} {normalizedTrait} has surrounding whitespace");
+            }
+
+            if (value <= 0)
+            {
+                errors.Add(
+                    $"authoritative state {ownerLabel} {traitLabel} {normalizedTrait} value {value} must be positive");
+            }
+
+            if (!seenTraits.Add(normalizedTrait))
+            {
+                errors.Add($"authoritative state {ownerLabel} {traitLabel} {normalizedTrait} is duplicated");
+            }
+        }
+    }
+
+    private static void ValidateAuthoritativeStatePaymentKindValues(
+        string resourceLabel,
+        IReadOnlyList<string>? allowedPaymentKinds,
+        List<string> errors)
+    {
+        if (allowedPaymentKinds is null)
+        {
+            errors.Add(
+                $"authoritative state temporary payment resource {resourceLabel} allowed payment kind list is required");
+            return;
+        }
+
+        var seenPaymentKinds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var paymentKind in allowedPaymentKinds)
+        {
+            if (string.IsNullOrWhiteSpace(paymentKind))
+            {
+                errors.Add(
+                    $"authoritative state temporary payment resource {resourceLabel} allowed payment kind is required");
+                continue;
+            }
+
+            var normalizedPaymentKind = paymentKind.Trim();
+            if (!string.Equals(paymentKind, normalizedPaymentKind, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"authoritative state temporary payment resource {resourceLabel} allowed payment kind {normalizedPaymentKind} has surrounding whitespace");
+            }
+
+            if (!seenPaymentKinds.Add(normalizedPaymentKind))
+            {
+                errors.Add(
+                    $"authoritative state temporary payment resource {resourceLabel} allowed payment kind {normalizedPaymentKind} is duplicated");
+            }
         }
     }
 
