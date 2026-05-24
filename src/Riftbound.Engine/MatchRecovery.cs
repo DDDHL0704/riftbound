@@ -1856,6 +1856,12 @@ public static class MatchRecoveryValidator
         };
     }
 
+    private static bool IsNullSnapshotPayloadValue(object? payload)
+    {
+        return payload is null
+            || payload is JsonElement { ValueKind: JsonValueKind.Null or JsonValueKind.Undefined };
+    }
+
     private static void ValidateSpectatorSnapshotPlayerPayloads(
         SnapshotDto snapshot,
         MatchState authoritativeState,
@@ -3258,6 +3264,85 @@ public static class MatchRecoveryValidator
             || string.Equals(kind, "DESTROY_ZERO_POWER_UNIT", StringComparison.Ordinal)
             || string.Equals(kind, "REMOVE_ILLEGAL_STANDBY", StringComparison.Ordinal)
             || string.Equals(kind, "RECALL_UNATTACHED_EQUIPMENT", StringComparison.Ordinal);
+    }
+
+    private static void ValidateSpectatorPendingPaymentPayload(
+        IReadOnlyDictionary<string, object?> timing,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        if (!timing.TryGetValue("pendingPayment", out var paymentPayload))
+        {
+            errors.Add("spectator replay frame timing pending payment is required");
+            return;
+        }
+
+        var authoritativePayment = authoritativeState.PendingPayment;
+        if (authoritativePayment is null)
+        {
+            if (!IsNullSnapshotPayloadValue(paymentPayload))
+            {
+                errors.Add("spectator replay frame timing pending payment must be empty when authoritative state has no pending payment");
+            }
+
+            return;
+        }
+
+        if (!IsSnapshotPlayerPayloadObject(paymentPayload))
+        {
+            errors.Add("spectator replay frame timing pending payment is required");
+            return;
+        }
+
+        if (!TryReadObjectString(paymentPayload, "paymentId", out var paymentId)
+            || !string.Equals(paymentId, authoritativePayment.PaymentId, StringComparison.Ordinal))
+        {
+            errors.Add("spectator replay frame timing pending payment id does not match authoritative state pending payment id");
+        }
+
+        if (!TryReadObjectString(paymentPayload, "paymentWindow", out var paymentWindow)
+            || !string.Equals(paymentWindow, authoritativePayment.PaymentWindow, StringComparison.Ordinal))
+        {
+            errors.Add("spectator replay frame timing pending payment window does not match authoritative state pending payment window");
+        }
+
+        if (!TryReadObjectString(paymentPayload, "playerId", out var playerId)
+            || !string.Equals(playerId, authoritativePayment.PlayerId, StringComparison.Ordinal))
+        {
+            errors.Add("spectator replay frame timing pending payment player does not match authoritative state pending payment player");
+        }
+
+        if (!TryReadObjectValue(paymentPayload, "cost", out var costPayload)
+            || !IsSnapshotPlayerPayloadObject(costPayload))
+        {
+            errors.Add("spectator replay frame timing pending payment cost is required");
+        }
+        else
+        {
+            if (!TryReadObjectInt(costPayload, "mana", out var manaCost)
+                || manaCost != authoritativePayment.ManaCost)
+            {
+                errors.Add("spectator replay frame timing pending payment mana cost does not match authoritative state pending payment mana cost");
+            }
+
+            if (!TryReadObjectInt(costPayload, "power", out var powerCost)
+                || powerCost != authoritativePayment.PowerCost)
+            {
+                errors.Add("spectator replay frame timing pending payment power cost does not match authoritative state pending payment power cost");
+            }
+
+            if (!TryReadObjectIntDictionary(costPayload, "powerByTrait", out var powerCostByTrait)
+                || !IntDictionariesEqual(powerCostByTrait, authoritativePayment.PowerCostByTrait))
+            {
+                errors.Add("spectator replay frame timing pending payment power cost traits do not match authoritative state pending payment power cost traits");
+            }
+        }
+
+        if (!TryReadObjectStringList(paymentPayload, "paymentChoices", out var paymentChoices)
+            || !StringListsEqual(paymentChoices, authoritativePayment.LegalPaymentChoiceIds))
+        {
+            errors.Add("spectator replay frame timing pending payment choices do not match authoritative state pending payment choices");
+        }
     }
 
     private static void ValidateSpectatorBattlefieldTaskPayloads(
@@ -6190,6 +6275,7 @@ public static class MatchRecoveryValidator
         }
 
         ValidateSpectatorPendingTaskQueuePayload(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
+        ValidateSpectatorPendingPaymentPayload(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
         ValidateSpectatorBattlefieldTaskPayloads(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
 
         if (!spectatorReplayFrame.SpectatorSnapshot.Timing.TryGetValue("turnWindow", out var spectatorTurnWindow)
