@@ -2180,6 +2180,23 @@ public static class MatchRecoveryValidator
             cardObject.IsDefending,
             "defending state",
             errors);
+
+        ValidateSpectatorSnapshotPlayerObjectStringListScalar(
+            playerId,
+            objectId,
+            objectPayload,
+            "tags",
+            cardObject.Tags,
+            "tags",
+            errors);
+        ValidateSpectatorSnapshotPlayerObjectStringListScalar(
+            playerId,
+            objectId,
+            objectPayload,
+            "untilEndOfTurnEffects",
+            cardObject.UntilEndOfTurnEffects,
+            "until-end-of-turn effects",
+            errors);
     }
 
     private static void ValidateSpectatorSnapshotPlayerObjectOptionalStringScalar(
@@ -2227,6 +2244,22 @@ public static class MatchRecoveryValidator
             || value != expected)
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}");
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotPlayerObjectStringListScalar(
+        string playerId,
+        string objectId,
+        object? objectPayload,
+        string key,
+        IReadOnlyList<string> expected,
+        string description,
+        List<string> errors)
+    {
+        if (!TryReadObjectStringList(objectPayload, key, out var value)
+            || !StringListsEqual(value, expected))
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} do not match authoritative object {description}");
         }
     }
 
