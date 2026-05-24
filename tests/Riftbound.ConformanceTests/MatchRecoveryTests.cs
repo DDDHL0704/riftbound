@@ -208,6 +208,43 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsPromptRowsThatDriftFromSnapshotRows()
+    {
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = PlayerView("alice", 1, 1) with
+            {
+                PromptTick = 2,
+                PromptEventSequence = 2
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            playerViews,
+            currentTick: 2);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "prompt for alice has row tick 2 but snapshot row tick 1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "prompt for alice has event sequence 2 but snapshot event sequence 1",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsNegativePlayerViewRowMetadata()
     {
         var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)

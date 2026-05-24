@@ -1374,6 +1374,22 @@ public static class MatchRecoveryValidator
             }
 
             if (view.Prompt is not null
+                && view.PromptTick is { } promptTick
+                && promptTick != view.SnapshotTick)
+            {
+                errors.Add(
+                    $"prompt for {view.PlayerId} has row tick {promptTick} but snapshot row tick {view.SnapshotTick}");
+            }
+
+            if (view.Prompt is not null
+                && view.PromptEventSequence is { } promptEventSequence
+                && promptEventSequence != view.SnapshotEventSequence)
+            {
+                errors.Add(
+                    $"prompt for {view.PlayerId} has event sequence {promptEventSequence} but snapshot event sequence {view.SnapshotEventSequence}");
+            }
+
+            if (view.Prompt is not null
                 && !string.Equals(view.PlayerId, view.Prompt.PlayerId, StringComparison.Ordinal))
             {
                 errors.Add($"prompt for {view.PlayerId} has payload player {view.Prompt.PlayerId}");
