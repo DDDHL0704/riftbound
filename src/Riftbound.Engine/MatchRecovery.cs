@@ -135,16 +135,51 @@ public static class MatchActionLogReplayer
             errors.Add("action-log replay audit requires replay initial state");
         }
 
-        if (recovery.ReplayInitialState is { } replayInitialState
-            && !string.Equals(replayInitialState.RoomId, recovery.RoomId, StringComparison.Ordinal))
+        if (recovery.ReplayInitialState is { } replayInitialState)
         {
-            errors.Add(
-                $"action-log replay initial state room {replayInitialState.RoomId} does not match recovery room {recovery.RoomId}");
-        }
+            if (!string.Equals(replayInitialState.RoomId, recovery.RoomId, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"action-log replay initial state room {replayInitialState.RoomId} does not match recovery room {recovery.RoomId}");
+            }
 
-        if (recovery.ReplayInitialState is { Tick: not 0 } replayInitialStateWithTickDrift)
-        {
-            errors.Add($"action-log replay initial state tick {replayInitialStateWithTickDrift.Tick} must be 0");
+            if (replayInitialState.Tick != 0)
+            {
+                errors.Add($"action-log replay initial state tick {replayInitialState.Tick} must be 0");
+            }
+
+            if (replayInitialState.TurnNumber != 1)
+            {
+                errors.Add($"action-log replay initial state turn number {replayInitialState.TurnNumber} must be 1");
+            }
+
+            if (!string.Equals(replayInitialState.Status, MatchStatuses.Seating, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"action-log replay initial state status {replayInitialState.Status} must be {MatchStatuses.Seating}");
+            }
+
+            if (!string.Equals(replayInitialState.Phase, MatchPhases.Room, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"action-log replay initial state phase {replayInitialState.Phase} must be {MatchPhases.Room}");
+            }
+
+            if (!string.Equals(replayInitialState.TimingState, TimingStates.Room, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"action-log replay initial state timing state {replayInitialState.TimingState} must be {TimingStates.Room}");
+            }
+
+            if (replayInitialState.Seed != 0)
+            {
+                errors.Add($"action-log replay initial state seed {replayInitialState.Seed} must be 0");
+            }
+
+            if (replayInitialState.RngCursor != 0)
+            {
+                errors.Add($"action-log replay initial state rng cursor {replayInitialState.RngCursor} must be 0");
+            }
         }
 
         if (errors.Count > 0)

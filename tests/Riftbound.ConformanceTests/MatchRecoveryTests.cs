@@ -4202,6 +4202,60 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public async Task RegistryRejectsRecoveryFrameWhenReplayInitialStateScalarBaselineMismatches()
+    {
+        var initialState = MatchReplayInitialStateBuilder.FromSeats(
+            "room-a",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            });
+        var journal = new RecordingMatchJournal();
+        var liveSession = new MatchSession(initialState, new PlaceholderRuleEngine(), journal);
+        await liveSession.ReadyAsync("alice", "intent-ready-a", RawCommand("READY"), CancellationToken.None);
+        var expectedFinalState = journal.Entries[^1].AuthoritativeState;
+        var wrongInitialState = initialState with
+        {
+            TurnNumber = 3,
+            Status = MatchStatuses.InProgress,
+            Phase = MatchPhases.Main,
+            TimingState = TimingStates.NeutralOpen,
+            Seed = 42,
+            RngCursor = 9
+        };
+        var frame = new MatchRecoveryFrame(
+            "room-a",
+            expectedFinalState.Tick,
+            journal.Entries[^1].CompletedEventSequence,
+            journal.Entries.Select(ToRecoveredCommand).ToArray(),
+            ToRecoveredEvents(journal.Entries),
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            [],
+            expectedFinalState,
+            wrongInitialState);
+        var registry = new InMemoryMatchSessionRegistry(
+            new PlaceholderRuleEngine(),
+            NoopMatchJournal.Instance,
+            new FixedRecoveryStore(frame));
+
+        var error = await Assert.ThrowsAsync<MatchSessionException>(async () =>
+            await registry.GetOrCreateAsync("room-a", CancellationToken.None));
+
+        Assert.Equal(ErrorCodes.RecoveryInconsistent, error.Code);
+        Assert.Contains("action-log audit failed", error.Message, StringComparison.Ordinal);
+        Assert.Contains("action-log replay initial state turn number 3 must be 1", error.Message, StringComparison.Ordinal);
+        Assert.Contains("action-log replay initial state status IN_PROGRESS must be SEATING", error.Message, StringComparison.Ordinal);
+        Assert.Contains("action-log replay initial state phase MAIN must be ROOM", error.Message, StringComparison.Ordinal);
+        Assert.Contains(
+            "action-log replay initial state timing state NEUTRAL_OPEN must be ROOM",
+            error.Message,
+            StringComparison.Ordinal);
+        Assert.Contains("action-log replay initial state seed 42 must be 0", error.Message, StringComparison.Ordinal);
+        Assert.Contains("action-log replay initial state rng cursor 9 must be 0", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void SpectatorReplayFrameRedactsPrivateZonesFaceDownObjectsAndRngState()
     {
         var state = new MatchState(
