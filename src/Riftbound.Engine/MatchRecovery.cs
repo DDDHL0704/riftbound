@@ -1092,6 +1092,12 @@ public static class MatchRecoveryValidator
                 $"spectator replay frame snapshot active player {spectatorReplayFrame.SpectatorSnapshot.ActivePlayerId} does not match authoritative state active player {authoritativeState.ActivePlayerId}");
         }
 
+        var spectatorSeats = ExtractSeats(spectatorReplayFrame.SpectatorSnapshot);
+        if (!SeatsEqual(authoritativeState.Seats, spectatorSeats))
+        {
+            errors.Add("spectator replay frame snapshot seats disagree with authoritative state seats");
+        }
+
         if (spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("seed")
             || spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("rngCursor"))
         {
