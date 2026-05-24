@@ -135,6 +135,13 @@ public static class MatchActionLogReplayer
             errors.Add("action-log replay audit requires replay initial state");
         }
 
+        if (recovery.ReplayInitialState is { } replayInitialState
+            && !string.Equals(replayInitialState.RoomId, recovery.RoomId, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"action-log replay initial state room {replayInitialState.RoomId} does not match recovery room {recovery.RoomId}");
+        }
+
         if (errors.Count > 0)
         {
             return errors;
