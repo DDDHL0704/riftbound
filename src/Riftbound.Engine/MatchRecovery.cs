@@ -1260,6 +1260,15 @@ public static class MatchRecoveryValidator
             || string.IsNullOrWhiteSpace(rawCommandType.GetString()))
         {
             errors.Add($"command {command.ClientIntentId} raw cmdType is required");
+            return;
+        }
+
+        var rawCommandTypeValue = rawCommandType.GetString()!;
+        var normalizedRawCommandType = rawCommandTypeValue.Trim();
+        if (!string.Equals(rawCommandTypeValue, normalizedRawCommandType, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"command {command.ClientIntentId} raw cmdType {normalizedRawCommandType} has surrounding whitespace");
         }
     }
 

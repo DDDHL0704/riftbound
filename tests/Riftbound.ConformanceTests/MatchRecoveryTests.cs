@@ -2030,6 +2030,38 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsRawCommandTypeWithSurroundingWhitespace()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-raw-trim",
+                "PASS",
+                RawJson("""{"cmdType":" PASS "}"""),
+                0,
+                0,
+                0,
+                0,
+                true,
+                null)
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-raw-trim raw cmdType PASS has surrounding whitespace",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAcceptedCommandsThatOverlapEventOwnership()
     {
         var events = new[]
