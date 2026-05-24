@@ -543,6 +543,42 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTurnNumbersBelowOne()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var zeroTurnView = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    TurnNumber = 0
+                }
+            }
+        };
+        var negativeTurnView = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    TurnNumber = -1
+                }
+            }
+        };
+
+        var zeroErrors = MatchRecoveryValidator.Validate("room-a", 0, [], [], zeroTurnView);
+        var negativeErrors = MatchRecoveryValidator.Validate("room-a", 0, [], [], negativeTurnView);
+
+        Assert.Contains(
+            zeroErrors,
+            error => error.Contains("snapshot for alice has invalid turn number 0", StringComparison.Ordinal));
+        Assert.Contains(
+            negativeErrors,
+            error => error.Contains("snapshot for alice has invalid turn number -1", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsOutOfOrderRecoveredEvents()
     {
         var events = new[]

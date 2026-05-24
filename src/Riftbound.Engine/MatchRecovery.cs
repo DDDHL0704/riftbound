@@ -1308,6 +1308,11 @@ public static class MatchRecoveryValidator
                     $"snapshot for {view.PlayerId} has payload tick {view.Snapshot.Tick} but row tick {view.SnapshotTick}");
             }
 
+            if (view.Snapshot.TurnNumber < 1)
+            {
+                errors.Add($"snapshot for {view.PlayerId} has invalid turn number {view.Snapshot.TurnNumber}");
+            }
+
             if (view.SnapshotTick < 0)
             {
                 errors.Add($"snapshot for {view.PlayerId} has negative row tick {view.SnapshotTick}");
