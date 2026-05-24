@@ -1882,6 +1882,42 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsRecoveredCommandIdentityAndTypeWithSurroundingWhitespace()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                " alice ",
+                " intent-trim ",
+                " PASS ",
+                RawCommand("PASS"),
+                0,
+                0,
+                0,
+                0,
+                true,
+                null)
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("command player id alice has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("command client intent id intent-trim has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("command type PASS has surrounding whitespace", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsCommandDiagnosticPresenceMismatch()
     {
         var commands = new[]

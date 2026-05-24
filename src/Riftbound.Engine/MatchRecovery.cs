@@ -994,25 +994,23 @@ public static class MatchRecoveryValidator
             previousFrameStartedEventSequence = command.StartedEventSequence;
             previousFrameCompletedEventSequence = command.CompletedEventSequence;
 
-            if (string.IsNullOrWhiteSpace(command.PlayerId))
-            {
-                errors.Add("command player id is required");
-            }
+            var normalizedPlayerId = ValidateCommandRequiredNormalizedString(
+                command.PlayerId,
+                "player id",
+                errors);
+            var normalizedClientIntentId = ValidateCommandRequiredNormalizedString(
+                command.ClientIntentId,
+                "client intent id",
+                errors);
+            var normalizedCommandType = ValidateCommandRequiredNormalizedString(
+                command.CommandType,
+                "type",
+                errors);
 
-            if (string.IsNullOrWhiteSpace(command.ClientIntentId))
-            {
-                errors.Add("command client intent id is required");
-            }
-
-            if (string.IsNullOrWhiteSpace(command.CommandType))
-            {
-                errors.Add("command type is required");
-            }
-
-            if (!seenCommandIntents.Add((command.PlayerId, command.ClientIntentId)))
+            if (!seenCommandIntents.Add((normalizedPlayerId, normalizedClientIntentId)))
             {
                 errors.Add(
-                    $"command {command.ClientIntentId} for player {command.PlayerId} appears more than once in recovery frame");
+                    $"command {normalizedClientIntentId} for player {normalizedPlayerId} appears more than once in recovery frame");
             }
 
             if (command.StartedEventSequence < 0)
@@ -1028,9 +1026,9 @@ public static class MatchRecoveryValidator
             }
 
             ValidateRawCommandShape(command, errors);
-            if (!string.IsNullOrWhiteSpace(command.CommandType)
+            if (!string.IsNullOrWhiteSpace(normalizedCommandType)
                 && TryReadRawCommandType(command.RawCommand, out var rawCommandType)
-                && !string.Equals(rawCommandType, ExpectedRawCommandType(command.CommandType), StringComparison.Ordinal))
+                && !string.Equals(rawCommandType, ExpectedRawCommandType(normalizedCommandType), StringComparison.Ordinal))
             {
                 errors.Add(
                     $"command {command.ClientIntentId} raw cmdType {rawCommandType} does not match recovered command type {command.CommandType}");
@@ -1217,6 +1215,26 @@ public static class MatchRecoveryValidator
                     $"event sequence {gameEvent.Sequence} is not covered by an accepted command");
             }
         }
+    }
+
+    private static string ValidateCommandRequiredNormalizedString(
+        string value,
+        string label,
+        List<string> errors)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            errors.Add($"command {label} is required");
+            return string.Empty;
+        }
+
+        var normalizedValue = value.Trim();
+        if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
+        {
+            errors.Add($"command {label} {normalizedValue} has surrounding whitespace");
+        }
+
+        return normalizedValue;
     }
 
     private static void ValidateRawCommandShape(RecoveredCommand command, List<string> errors)
