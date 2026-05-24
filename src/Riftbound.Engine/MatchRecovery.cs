@@ -985,6 +985,12 @@ public static class MatchRecoveryValidator
                     $"command stream is not ordered by event span: {command.ClientIntentId} {command.StartedEventSequence}->{command.CompletedEventSequence} after {previousFrameStartedEventSequence}->{previousFrameCompletedEventSequence}");
             }
 
+            if (command.StartedEventSequence != previousFrameCompletedEventSequence)
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} starts at event sequence {command.StartedEventSequence} but previous command completed at {previousFrameCompletedEventSequence}; command event spans must be contiguous");
+            }
+
             previousFrameStartedEventSequence = command.StartedEventSequence;
             previousFrameCompletedEventSequence = command.CompletedEventSequence;
 

@@ -577,6 +577,54 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsRecoveredCommandEventSpanGap()
+    {
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-first",
+                "END_TURN",
+                RawCommand("END_TURN"),
+                1,
+                1,
+                0,
+                1,
+                true,
+                null),
+            new RecoveredCommand(
+                "bob",
+                "intent-gap",
+                "PASS",
+                RawCommand("PASS"),
+                1,
+                1,
+                2,
+                2,
+                true,
+                null)
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            commands,
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-gap starts at event sequence 2 but previous command completed at 1; command event spans must be contiguous",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAcceptedCommandRecoveredEventOrderMismatch()
     {
         var events = new[]
