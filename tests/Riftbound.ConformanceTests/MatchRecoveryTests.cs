@@ -486,6 +486,37 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsMissingSnapshotTimingCoreFields()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .Where(entry => entry.Key == "timingState")
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("snapshot for alice timing phase is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("snapshot for alice timing turn player is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("snapshot for alice timing room status is required", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsMalformedSnapshotPlayerPayloads()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -5961,7 +5992,10 @@ public sealed class MatchRecoveryTests
             [],
             new Dictionary<string, object?>
             {
-                ["timingState"] = "NEUTRAL_OPEN"
+                ["phase"] = MatchPhases.Main,
+                ["timingState"] = "NEUTRAL_OPEN",
+                ["turnPlayerId"] = activePlayerId,
+                ["roomStatus"] = MatchStatuses.InProgress
             },
             "NEUTRAL_OPEN");
         var prompt = new ActionPromptDto(playerId, true, "test", ["PASS"]);
