@@ -4663,6 +4663,19 @@ public static class MatchRecoveryValidator
             errors.Add(
                 $"spectator replay frame timing battlefield resolution count {spectatorBattlefieldResolutions.Count} does not match authoritative state battlefield resolution count {authoritativeState.BattlefieldResolutions.Count}");
         }
+        else
+        {
+            var spectatorBattlefieldResolutionIds = ExtractObjectStringValues(
+                spectatorBattlefieldResolutions,
+                "resolutionId");
+            var authoritativeBattlefieldResolutionIds = authoritativeState.BattlefieldResolutions
+                .Select(resolution => resolution.ResolutionId)
+                .ToArray();
+            if (!StringListsEqual(spectatorBattlefieldResolutionIds, authoritativeBattlefieldResolutionIds))
+            {
+                errors.Add("spectator replay frame timing battlefield resolution ids disagree with authoritative state battlefield resolution ids");
+            }
+        }
 
         if (!TryReadObjectList(
                 spectatorReplayFrame.SpectatorSnapshot.Timing,
@@ -4675,6 +4688,19 @@ public static class MatchRecoveryValidator
         {
             errors.Add(
                 $"spectator replay frame timing battle resolution count {spectatorBattleResolutions.Count} does not match authoritative state battle resolution count {authoritativeState.BattleResolutions.Count}");
+        }
+        else
+        {
+            var spectatorBattleResolutionIds = ExtractObjectStringValues(
+                spectatorBattleResolutions,
+                "resolutionId");
+            var authoritativeBattleResolutionIds = authoritativeState.BattleResolutions
+                .Select(resolution => resolution.ResolutionId)
+                .ToArray();
+            if (!StringListsEqual(spectatorBattleResolutionIds, authoritativeBattleResolutionIds))
+            {
+                errors.Add("spectator replay frame timing battle resolution ids disagree with authoritative state battle resolution ids");
+            }
         }
 
         if (spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("seed")
@@ -4876,6 +4902,22 @@ public static class MatchRecoveryValidator
         }
 
         return false;
+    }
+
+    private static IReadOnlyList<string> ExtractObjectStringValues(
+        IReadOnlyList<object?> items,
+        string key)
+    {
+        var values = new List<string>();
+        foreach (var item in items)
+        {
+            if (TryReadObjectString(item, key, out var value))
+            {
+                values.Add(value ?? string.Empty);
+            }
+        }
+
+        return values;
     }
 
     private static bool TryReadObjectString(object? value, string key, out string? text)
