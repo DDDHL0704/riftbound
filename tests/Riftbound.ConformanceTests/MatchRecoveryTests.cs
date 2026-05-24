@@ -3291,6 +3291,112 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateResolutionPlayerAndObjectReferenceDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["battlefield-1", "attacker-1"]
+                },
+                ["bob"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["defender-1"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["battlefield-1"] = new("battlefield-1", ownerId: "alice", controllerId: "alice"),
+                ["attacker-1"] = new("attacker-1", ownerId: "alice", controllerId: "alice"),
+                ["defender-1"] = new("defender-1", ownerId: "bob", controllerId: "bob")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["battlefield-1"] = new("alice", "BATTLEFIELD", "battlefield-1"),
+                ["attacker-1"] = new("alice", "BATTLEFIELD", "battlefield-1"),
+                ["defender-1"] = new("bob", "BATTLEFIELD", "battlefield-1")
+            },
+            battlefieldResolutions:
+            [
+                new(
+                    "battlefield-resolution-1",
+                    0,
+                    "CONTROL_CHANGED",
+                    "test",
+                    "missing-battlefield",
+                    "charlie",
+                    "diana",
+                    "eve",
+                    "missing-source",
+                    ["missing-participant"],
+                    ["BATTLEFIELD_CONTROL_CHANGED"])
+            ],
+            battleResolutions:
+            [
+                new(
+                    "battle-resolution-1",
+                    0,
+                    "CLOSED",
+                    "test",
+                    "missing-battlefield-2",
+                    "frank",
+                    "gina",
+                    "henry",
+                    ["missing-attacker"],
+                    ["missing-defender"],
+                    ["missing-surviving-attacker"],
+                    ["missing-surviving-defender"],
+                    ["missing-destroyed"],
+                    ["BATTLE_CLOSED"])
+            ]);
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution battlefield-resolution-1 player charlie is missing from seats", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution battlefield-resolution-1 controller player eve is missing from seats", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution battle-resolution-1 attacking player frank is missing from seats", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution battle-resolution-1 winner player henry is missing from seats", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution battlefield-resolution-1 battlefield object missing-battlefield is missing from object registry", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution battlefield-resolution-1 source object missing-source is missing from object registry", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution battle-resolution-1 battlefield object missing-battlefield-2 is missing from object registry", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution battle-resolution-1 destroyed object missing-destroyed is missing from object registry", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorAcceptsMatchingSpectatorReplayFrame()
     {
         var authoritativeState = new MatchState(

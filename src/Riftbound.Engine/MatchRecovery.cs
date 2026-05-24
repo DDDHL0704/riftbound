@@ -2098,6 +2098,14 @@ public static class MatchRecoveryValidator
             authoritativeState.TemporaryPaymentResources,
             seatPlayerIds,
             errors);
+        ValidateAuthoritativeStateBattlefieldResolutionPlayers(
+            authoritativeState.BattlefieldResolutions,
+            seatPlayerIds,
+            errors);
+        ValidateAuthoritativeStateBattleResolutionPlayers(
+            authoritativeState.BattleResolutions,
+            seatPlayerIds,
+            errors);
         ValidateAuthoritativeStateObjectReferences(authoritativeState, errors);
     }
 
@@ -2739,6 +2747,71 @@ public static class MatchRecoveryValidator
                 knownObjectIds,
                 errors);
         }
+
+        foreach (var resolution in authoritativeState.BattlefieldResolutions
+            .OrderBy(item => item?.ResolutionId ?? string.Empty, StringComparer.Ordinal))
+        {
+            if (resolution is null)
+            {
+                continue;
+            }
+
+            ValidateAuthoritativeStateRequiredObjectReference(
+                $"battlefield resolution {resolution.ResolutionId} battlefield object",
+                resolution.BattlefieldObjectId,
+                knownObjectIds,
+                errors);
+            ValidateAuthoritativeStateOptionalObjectReference(
+                $"battlefield resolution {resolution.ResolutionId} source object",
+                resolution.SourceObjectId,
+                knownObjectIds,
+                errors);
+            ValidateAuthoritativeStateObjectReferenceList(
+                $"battlefield resolution {resolution.ResolutionId} participant object",
+                resolution.ParticipantObjectIds,
+                knownObjectIds,
+                errors);
+        }
+
+        foreach (var resolution in authoritativeState.BattleResolutions
+            .OrderBy(item => item?.ResolutionId ?? string.Empty, StringComparer.Ordinal))
+        {
+            if (resolution is null)
+            {
+                continue;
+            }
+
+            ValidateAuthoritativeStateRequiredObjectReference(
+                $"battle resolution {resolution.ResolutionId} battlefield object",
+                resolution.BattlefieldId,
+                knownObjectIds,
+                errors);
+            ValidateAuthoritativeStateObjectReferenceList(
+                $"battle resolution {resolution.ResolutionId} attacker object",
+                resolution.AttackerObjectIds,
+                knownObjectIds,
+                errors);
+            ValidateAuthoritativeStateObjectReferenceList(
+                $"battle resolution {resolution.ResolutionId} defender object",
+                resolution.DefenderObjectIds,
+                knownObjectIds,
+                errors);
+            ValidateAuthoritativeStateObjectReferenceList(
+                $"battle resolution {resolution.ResolutionId} surviving attacker object",
+                resolution.SurvivingAttackerObjectIds,
+                knownObjectIds,
+                errors);
+            ValidateAuthoritativeStateObjectReferenceList(
+                $"battle resolution {resolution.ResolutionId} surviving defender object",
+                resolution.SurvivingDefenderObjectIds,
+                knownObjectIds,
+                errors);
+            ValidateAuthoritativeStateObjectReferenceList(
+                $"battle resolution {resolution.ResolutionId} destroyed object",
+                resolution.DestroyedObjectIds,
+                knownObjectIds,
+                errors);
+        }
     }
 
     private static IReadOnlySet<string> BuildAuthoritativeStateKnownObjectIds(MatchState authoritativeState)
@@ -2786,6 +2859,21 @@ public static class MatchRecoveryValidator
         {
             ValidateAuthoritativeStateOptionalObjectReference(objectLabel, objectId, knownObjectIds, errors);
         }
+    }
+
+    private static void ValidateAuthoritativeStateRequiredObjectReference(
+        string objectLabel,
+        string? objectId,
+        IReadOnlySet<string> knownObjectIds,
+        List<string> errors)
+    {
+        if (string.IsNullOrWhiteSpace(objectId))
+        {
+            errors.Add($"authoritative state {objectLabel} is required");
+            return;
+        }
+
+        ValidateAuthoritativeStateOptionalObjectReference(objectLabel, objectId, knownObjectIds, errors);
     }
 
     private static void ValidateAuthoritativeStateOptionalObjectReference(
@@ -2861,6 +2949,84 @@ public static class MatchRecoveryValidator
         if (!seatPlayerIds.Contains(normalizedPlayerId))
         {
             errors.Add($"authoritative state {playerLabel} {normalizedPlayerId} is missing from seats");
+        }
+    }
+
+    private static void ValidateAuthoritativeStateBattlefieldResolutionPlayers(
+        IReadOnlyList<BattlefieldResolutionState>? battlefieldResolutions,
+        IReadOnlySet<string> seatPlayerIds,
+        List<string> errors)
+    {
+        if (battlefieldResolutions is null)
+        {
+            errors.Add("authoritative state battlefield resolutions list is required");
+            return;
+        }
+
+        foreach (var resolution in battlefieldResolutions.OrderBy(
+            item => item?.ResolutionId ?? string.Empty,
+            StringComparer.Ordinal))
+        {
+            if (resolution is null)
+            {
+                errors.Add("authoritative state battlefield resolution is required");
+                continue;
+            }
+
+            ValidateAuthoritativeStateOptionalObjectPlayer(
+                $"battlefield resolution {resolution.ResolutionId} player",
+                resolution.PlayerId,
+                seatPlayerIds,
+                errors);
+            ValidateAuthoritativeStateOptionalObjectPlayer(
+                $"battlefield resolution {resolution.ResolutionId} previous controller player",
+                resolution.PreviousControllerId,
+                seatPlayerIds,
+                errors);
+            ValidateAuthoritativeStateOptionalObjectPlayer(
+                $"battlefield resolution {resolution.ResolutionId} controller player",
+                resolution.ControllerId,
+                seatPlayerIds,
+                errors);
+        }
+    }
+
+    private static void ValidateAuthoritativeStateBattleResolutionPlayers(
+        IReadOnlyList<BattleResolutionState>? battleResolutions,
+        IReadOnlySet<string> seatPlayerIds,
+        List<string> errors)
+    {
+        if (battleResolutions is null)
+        {
+            errors.Add("authoritative state battle resolutions list is required");
+            return;
+        }
+
+        foreach (var resolution in battleResolutions.OrderBy(
+            item => item?.ResolutionId ?? string.Empty,
+            StringComparer.Ordinal))
+        {
+            if (resolution is null)
+            {
+                errors.Add("authoritative state battle resolution is required");
+                continue;
+            }
+
+            ValidateAuthoritativeStateOptionalObjectPlayer(
+                $"battle resolution {resolution.ResolutionId} attacking player",
+                resolution.AttackingPlayerId,
+                seatPlayerIds,
+                errors);
+            ValidateAuthoritativeStateOptionalObjectPlayer(
+                $"battle resolution {resolution.ResolutionId} defending player",
+                resolution.DefendingPlayerId,
+                seatPlayerIds,
+                errors);
+            ValidateAuthoritativeStateOptionalObjectPlayer(
+                $"battle resolution {resolution.ResolutionId} winner player",
+                resolution.WinnerPlayerId,
+                seatPlayerIds,
+                errors);
         }
     }
 
