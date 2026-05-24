@@ -2092,6 +2092,7 @@ public static class MatchRecoveryValidator
             authoritativeState.TemporaryPaymentResources,
             seatPlayerIds,
             errors);
+        ValidateAuthoritativeStateObjectReferences(authoritativeState, errors);
     }
 
     private static void ValidateAuthoritativeStateRequiredPlayerPointer(
@@ -2371,6 +2372,151 @@ public static class MatchRecoveryValidator
                 resource.OwnerPlayerId,
                 seatPlayerIds,
                 errors);
+        }
+    }
+
+    private static void ValidateAuthoritativeStateObjectReferences(
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
+        if (knownObjectIds.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var stackItem in authoritativeState.StackItems
+            .OrderBy(item => item?.StackItemId ?? string.Empty, StringComparer.Ordinal))
+        {
+            if (stackItem is null)
+            {
+                continue;
+            }
+
+            ValidateAuthoritativeStateOptionalObjectReference(
+                $"stack item {stackItem.StackItemId} source object",
+                stackItem.SourceObjectId,
+                knownObjectIds,
+                errors);
+            ValidateAuthoritativeStateObjectReferenceList(
+                $"stack item {stackItem.StackItemId} target object",
+                stackItem.TargetObjectIds,
+                knownObjectIds,
+                errors);
+        }
+
+        foreach (var trigger in authoritativeState.TriggerQueue
+            .OrderBy(item => item?.TriggerId ?? string.Empty, StringComparer.Ordinal))
+        {
+            if (trigger is null)
+            {
+                continue;
+            }
+
+            ValidateAuthoritativeStateOptionalObjectReference(
+                $"trigger queue item {trigger.TriggerId} source object",
+                trigger.SourceObjectId,
+                knownObjectIds,
+                errors);
+        }
+
+        if (authoritativeState.PendingHandChoice is not null)
+        {
+            ValidateAuthoritativeStateOptionalObjectReference(
+                $"pending hand choice {authoritativeState.PendingHandChoice.ChoiceId} source object",
+                authoritativeState.PendingHandChoice.SourceObjectId,
+                knownObjectIds,
+                errors);
+            ValidateAuthoritativeStateObjectReferenceList(
+                $"pending hand choice {authoritativeState.PendingHandChoice.ChoiceId} legal object",
+                authoritativeState.PendingHandChoice.LegalObjectIds,
+                knownObjectIds,
+                errors);
+        }
+
+        foreach (var resource in authoritativeState.TemporaryPaymentResources
+            .OrderBy(item => item?.ResourceId ?? string.Empty, StringComparer.Ordinal))
+        {
+            if (resource is null)
+            {
+                continue;
+            }
+
+            ValidateAuthoritativeStateOptionalObjectReference(
+                $"temporary payment resource {resource.ResourceId} source object",
+                resource.SourceObjectId,
+                knownObjectIds,
+                errors);
+        }
+    }
+
+    private static IReadOnlySet<string> BuildAuthoritativeStateKnownObjectIds(MatchState authoritativeState)
+    {
+        var knownObjectIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var objectId in authoritativeState.CardObjects.Keys)
+        {
+            AddKnownObjectId(knownObjectIds, objectId);
+        }
+
+        foreach (var cardObject in authoritativeState.CardObjects.Values)
+        {
+            AddKnownObjectId(knownObjectIds, cardObject.ObjectId);
+        }
+
+        foreach (var objectId in authoritativeState.ObjectLocations.Keys)
+        {
+            AddKnownObjectId(knownObjectIds, objectId);
+        }
+
+        return knownObjectIds;
+    }
+
+    private static void AddKnownObjectId(HashSet<string> knownObjectIds, string? objectId)
+    {
+        if (!string.IsNullOrWhiteSpace(objectId))
+        {
+            knownObjectIds.Add(objectId.Trim());
+        }
+    }
+
+    private static void ValidateAuthoritativeStateObjectReferenceList(
+        string objectLabel,
+        IReadOnlyList<string>? objectIds,
+        IReadOnlySet<string> knownObjectIds,
+        List<string> errors)
+    {
+        if (objectIds is null)
+        {
+            errors.Add($"authoritative state {objectLabel} list is required");
+            return;
+        }
+
+        foreach (var objectId in objectIds)
+        {
+            ValidateAuthoritativeStateOptionalObjectReference(objectLabel, objectId, knownObjectIds, errors);
+        }
+    }
+
+    private static void ValidateAuthoritativeStateOptionalObjectReference(
+        string objectLabel,
+        string? objectId,
+        IReadOnlySet<string> knownObjectIds,
+        List<string> errors)
+    {
+        if (string.IsNullOrWhiteSpace(objectId))
+        {
+            return;
+        }
+
+        var normalizedObjectId = objectId.Trim();
+        if (!string.Equals(objectId, normalizedObjectId, StringComparison.Ordinal))
+        {
+            errors.Add($"authoritative state {objectLabel} {normalizedObjectId} has surrounding whitespace");
+        }
+
+        if (!knownObjectIds.Contains(normalizedObjectId))
+        {
+            errors.Add($"authoritative state {objectLabel} {normalizedObjectId} is missing from object registry");
         }
     }
 

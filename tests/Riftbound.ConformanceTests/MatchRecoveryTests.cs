@@ -3054,6 +3054,99 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateObjectReferencesOutsideRegistry()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["known-1"] = new("known-1", ownerId: "alice", controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["known-1"] = new("alice", "HAND")
+            },
+            stackItems:
+            [
+                new StackItemState(
+                    "stack-1",
+                    "alice",
+                    sourceObjectId: "missing-stack-source",
+                    effectKind: "DAMAGE",
+                    targetObjectIds: ["missing-stack-target"])
+            ],
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    "trigger-1",
+                    "bob",
+                    sourceObjectId: "missing-trigger-source",
+                    effectKind: "LAST_BREATH",
+                    triggeredByEventKind: "OBJECT_DESTROYED")
+            ],
+            pendingHandChoice: new PendingHandChoiceState(
+                "choice-1",
+                "CHOOSE_HAND_CARDS",
+                "alice",
+                requiredCount: 1,
+                maxCount: 1,
+                legalObjectIds: ["missing-choice-legal"],
+                reason: "test",
+                sourceObjectId: "missing-choice-source",
+                effectKind: "DRAW_DISCARD"),
+            temporaryPaymentResources:
+            [
+                new TemporaryPaymentResourceState(
+                    "temp-1",
+                    "bob",
+                    "missing-temp-source",
+                    "ability-1",
+                    "PAY_COST",
+                    generatedPower: 1,
+                    remainingPower: 1,
+                    allowedPaymentKinds: ["power"],
+                    createdTick: 0)
+            ]);
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state stack item stack-1 source object missing-stack-source is missing from object registry", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state stack item stack-1 target object missing-stack-target is missing from object registry", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state trigger queue item trigger-1 source object missing-trigger-source is missing from object registry", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state pending hand choice choice-1 source object missing-choice-source is missing from object registry", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state pending hand choice choice-1 legal object missing-choice-legal is missing from object registry", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state temporary payment resource temp-1 source object missing-temp-source is missing from object registry", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorAcceptsMatchingSpectatorReplayFrame()
     {
         var authoritativeState = new MatchState(
