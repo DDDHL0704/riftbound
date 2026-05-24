@@ -1303,9 +1303,24 @@ public static class MatchRecoveryValidator
                 ValidateSnapshotPlayerCoverage(view, playerViews.Keys, errors);
                 ValidateSnapshotActivePlayer(view, errors);
                 ValidateSnapshotTimingPlayerMembership(view, "turnPlayerId", "turn player", errors);
-                ValidateSnapshotTimingPlayerMembership(view, "priorityPlayerId", "priority player", errors);
-                ValidateSnapshotTimingPlayerMembership(view, "focusPlayerId", "focus player", errors);
-                ValidateSnapshotTimingPlayerMembership(view, "winnerPlayerId", "winner player", errors);
+                ValidateSnapshotTimingPlayerMembership(
+                    view,
+                    "priorityPlayerId",
+                    "priority player",
+                    errors,
+                    optional: true);
+                ValidateSnapshotTimingPlayerMembership(
+                    view,
+                    "focusPlayerId",
+                    "focus player",
+                    errors,
+                    optional: true);
+                ValidateSnapshotTimingPlayerMembership(
+                    view,
+                    "winnerPlayerId",
+                    "winner player",
+                    errors,
+                    optional: true);
                 ValidateSnapshotTimingPlayerListMembership(view, "readyPlayerIds", "ready player", errors);
                 ValidateSnapshotTimingPlayerListMembership(
                     view,
@@ -1503,19 +1518,42 @@ public static class MatchRecoveryValidator
         RecoveredPlayerView view,
         string key,
         string label,
-        List<string> errors)
+        List<string> errors,
+        bool optional = false)
     {
         if (view.Snapshot.Timing is null
-            || !TryReadString(view.Snapshot.Timing, key, out var playerId)
-            || string.IsNullOrWhiteSpace(playerId))
+            || !view.Snapshot.Timing.TryGetValue(key, out var rawPlayerId)
+            || rawPlayerId is null
+            || rawPlayerId is JsonElement { ValueKind: JsonValueKind.Null })
         {
             return;
         }
 
-        if (!view.Snapshot.Players.ContainsKey(playerId))
+        if (!TryReadString(view.Snapshot.Timing, key, out var playerId))
+        {
+            if (optional)
+            {
+                errors.Add($"snapshot for {view.PlayerId} timing {label} id is invalid");
+            }
+
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(playerId))
+        {
+            if (optional)
+            {
+                errors.Add($"snapshot for {view.PlayerId} timing {label} id is required");
+            }
+
+            return;
+        }
+
+        var normalizedPlayerId = playerId.Trim();
+        if (!view.Snapshot.Players.ContainsKey(normalizedPlayerId))
         {
             errors.Add(
-                $"snapshot for {view.PlayerId} timing {label} {playerId} is missing from players");
+                $"snapshot for {view.PlayerId} timing {label} {normalizedPlayerId} is missing from players");
         }
     }
 
