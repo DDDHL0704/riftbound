@@ -1305,6 +1305,12 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame timing turn window does not match authoritative state turn window");
         }
 
+        if (!spectatorReplayFrame.SpectatorSnapshot.Timing.TryGetValue("spellDuel", out var spectatorSpellDuel)
+            || !SpellDuelMatches(spectatorSpellDuel, authoritativeState.SpellDuelState))
+        {
+            errors.Add("spectator replay frame timing spell duel does not match authoritative state spell duel");
+        }
+
         if (spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("seed")
             || spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("rngCursor"))
         {
@@ -1597,6 +1603,26 @@ public static class MatchRecoveryValidator
             && hasStack == expected.HasStack
             && TryReadObjectString(value, "actingPlayerId", out var actingPlayerId)
             && string.Equals(actingPlayerId, expected.ActingPlayerId, StringComparison.Ordinal);
+    }
+
+    private static bool SpellDuelMatches(object? value, SpellDuelState expected)
+    {
+        return TryReadObjectBool(value, "isActive", out var isActive)
+            && isActive == expected.IsActive
+            && TryReadObjectBool(value, "isClosed", out var isClosed)
+            && isClosed == expected.IsClosed
+            && TryReadObjectString(value, "spellDuelId", out var spellDuelId)
+            && string.Equals(spellDuelId, expected.SpellDuelId, StringComparison.Ordinal)
+            && TryReadObjectString(value, "battlefieldObjectId", out var battlefieldObjectId)
+            && string.Equals(battlefieldObjectId, expected.BattlefieldObjectId, StringComparison.Ordinal)
+            && TryReadObjectString(value, "focusPlayerId", out var focusPlayerId)
+            && string.Equals(focusPlayerId, expected.FocusPlayerId, StringComparison.Ordinal)
+            && TryReadObjectStringList(value, "passedFocusPlayerIds", out var passedFocusPlayerIds)
+            && StringListsEqual(passedFocusPlayerIds, expected.PassedFocusPlayerIds)
+            && TryReadObjectStringList(value, "stackItemIds", out var stackItemIds)
+            && StringListsEqual(stackItemIds, expected.StackItemIds)
+            && TryReadObjectStringList(value, "stackControllerIds", out var stackControllerIds)
+            && StringListsEqual(stackControllerIds, expected.StackControllerIds);
     }
 
     private static bool TryReadObjectBool(object? value, string key, out bool flag)
