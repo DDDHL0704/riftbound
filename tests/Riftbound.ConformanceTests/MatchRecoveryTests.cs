@@ -4131,13 +4131,23 @@ public sealed class MatchRecoveryTests
                     attachedToObjectId: "missing-attach",
                     ownerId: "alice",
                     controllerId: "alice"),
-                ["unit-1"] = new("unit-1", ownerId: "alice", controllerId: "alice")
-            },
-            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+                ["unit-1"] = new("unit-1", ownerId: "alice", controllerId: "alice"),
+                ["blank-battlefield"] = new("blank-battlefield", ownerId: "alice", controllerId: "alice")
+            })
+        {
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
             {
                 ["known-1"] = new("alice", "HAND"),
                 ["unit-1"] = new("alice", "BATTLEFIELD", "missing-battlefield")
-            });
+                {
+                    BattlefieldObjectId = " missing-battlefield "
+                },
+                ["blank-battlefield"] = new("alice", "BATTLEFIELD")
+                {
+                    BattlefieldObjectId = ""
+                }
+            }
+        };
 
         var errors = MatchRecoveryValidator.Validate(
             "room-a",
@@ -4156,7 +4166,13 @@ public sealed class MatchRecoveryTests
             error => error.Contains("authoritative state card object known-1 attached object missing-attach is missing from object registry", StringComparison.Ordinal));
         Assert.Contains(
             errors,
+            error => error.Contains("authoritative state object location unit-1 battlefield object missing-battlefield has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
             error => error.Contains("authoritative state object location unit-1 battlefield object missing-battlefield is missing from object registry", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state object location blank-battlefield battlefield object is blank", StringComparison.Ordinal));
     }
 
     [Fact]

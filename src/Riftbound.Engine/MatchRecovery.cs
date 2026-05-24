@@ -3456,6 +3456,11 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"authoritative state object location {objectId} zone {normalizedZone} is not supported");
             }
+
+            ValidateAuthoritativeStateNullableTextValue(
+                $"object location {objectId} battlefield object",
+                location.BattlefieldObjectId,
+                errors);
         }
     }
 
