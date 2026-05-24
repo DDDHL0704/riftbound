@@ -12,8 +12,16 @@ public sealed class MatchRecoveryTests
     {
         var events = new[]
         {
-            RecoveredEvent(1, "TURN_ENDED"),
-            RecoveredEvent(2, "TURN_BEGAN")
+            new RecoveredEvent(
+                1,
+                2,
+                0,
+                new GameEvent("TURN_ENDED", "TURN_ENDED", new Dictionary<string, object?>())),
+            new RecoveredEvent(
+                2,
+                2,
+                1,
+                new GameEvent("TURN_BEGAN", "TURN_BEGAN", new Dictionary<string, object?>()))
         };
         var commands = new[]
         {
@@ -741,6 +749,51 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "command intent-tail-mismatch completes at tick 3 but covered event tick tail is 2",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsAcceptedCommandRecoveredEventTickBeforeCompletedTick()
+    {
+        var events = new[]
+        {
+            new RecoveredEvent(
+                1,
+                2,
+                0,
+                new GameEvent("TURN_ENDED", "TURN_ENDED", new Dictionary<string, object?>())),
+            new RecoveredEvent(
+                2,
+                3,
+                1,
+                new GameEvent("TURN_BEGAN", "TURN_BEGAN", new Dictionary<string, object?>()))
+        };
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-event-tick-drift",
+                "END_TURN",
+                RawCommand("END_TURN"),
+                1,
+                3,
+                0,
+                2,
+                true,
+                null)
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            commands,
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "event sequence 1 has tick 2 but command intent-event-tick-drift completed tick is 3",
                 StringComparison.Ordinal));
     }
 

@@ -1150,6 +1150,12 @@ public static class MatchRecoveryValidator
                         errors.Add(
                             $"event sequence {gameEvent.Sequence} has tick {gameEvent.Tick} outside command {command.ClientIntentId} tick span {command.StartedTick}->{command.CompletedTick}");
                     }
+
+                    if (gameEvent.Tick != command.CompletedTick)
+                    {
+                        errors.Add(
+                            $"event sequence {gameEvent.Sequence} has tick {gameEvent.Tick} but command {command.ClientIntentId} completed tick is {command.CompletedTick}");
+                    }
                 }
 
                 if (commandEvents.Length > 0)
