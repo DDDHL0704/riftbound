@@ -3012,11 +3012,15 @@ public sealed class MatchRecoveryTests
                     effectKind: "SPELL")
                 {
                     StackItemId = " stack-1 ",
+                    SourceObjectId = " obj-1 ",
                     EffectKind = " SPELL ",
+                    CardNo = " CARD-1 ",
                     TargetObjectIds = [" target-1 ", ""],
                     DamageAmount = -1,
                     EffectRepeatCount = 0,
-                    OptionalCosts = null!
+                    OptionalCosts = null!,
+                    Destination = " GRAVEYARD ",
+                    TimingContext = " OPEN_MAIN "
                 },
                 new StackItemState(
                     "stack-1",
@@ -3024,7 +3028,11 @@ public sealed class MatchRecoveryTests
                     sourceObjectId: "obj-2",
                     effectKind: "SPELL")
                 {
-                    EffectKind = ""
+                    SourceObjectId = null!,
+                    EffectKind = "",
+                    CardNo = null!,
+                    Destination = " ",
+                    TimingContext = null!
                 }
             ],
             TriggerQueue =
@@ -3037,6 +3045,7 @@ public sealed class MatchRecoveryTests
                     triggeredByEventKind: "OBJECT_DESTROYED")
                 {
                     TriggerId = " trigger-1 ",
+                    SourceObjectId = " obj-1 ",
                     EffectKind = " LAST_BREATH ",
                     TriggeredByEventKind = " OBJECT_DESTROYED "
                 },
@@ -3047,6 +3056,7 @@ public sealed class MatchRecoveryTests
                     effectKind: "LAST_BREATH",
                     triggeredByEventKind: "OBJECT_DESTROYED")
                 {
+                    SourceObjectId = " ",
                     EffectKind = "",
                     TriggeredByEventKind = ""
                 }
@@ -3076,6 +3086,30 @@ public sealed class MatchRecoveryTests
             error => error.Contains("authoritative state stack item stack-1 effect kind is required", StringComparison.Ordinal));
         Assert.Contains(
             errors,
+            error => error.Contains("authoritative state stack item stack-1 source object obj-1 has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state stack item stack-1 source object value is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state stack item stack-1 card no CARD-1 has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state stack item stack-1 card no value is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state stack item stack-1 destination GRAVEYARD has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state stack item stack-1 destination is blank", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state stack item stack-1 timing context OPEN_MAIN has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state stack item stack-1 timing context value is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
             error => error.Contains("authoritative state stack item stack-1 target object target-1 has surrounding whitespace", StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -3098,6 +3132,12 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains("authoritative state trigger queue item trigger-1 effect kind LAST_BREATH has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state trigger queue item trigger-1 source object obj-1 has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state trigger queue item trigger-1 source object is blank", StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains("authoritative state trigger queue item trigger-1 triggered event kind OBJECT_DESTROYED has surrounding whitespace", StringComparison.Ordinal));

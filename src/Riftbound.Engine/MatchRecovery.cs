@@ -2070,6 +2070,37 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static string? ValidateAuthoritativeStateOptionalTextValue(
+        string valueLabel,
+        string? value,
+        List<string> errors)
+    {
+        if (value is null)
+        {
+            errors.Add($"authoritative state {valueLabel} value is required");
+            return null;
+        }
+
+        if (value.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            errors.Add($"authoritative state {valueLabel} is blank");
+            return null;
+        }
+
+        var normalizedValue = value.Trim();
+        if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
+        {
+            errors.Add($"authoritative state {valueLabel} {normalizedValue} has surrounding whitespace");
+        }
+
+        return normalizedValue;
+    }
+
     private static void ValidateAuthoritativeStateResourceValues(
         MatchState authoritativeState,
         List<string> errors)
@@ -2476,6 +2507,22 @@ public static class MatchRecoveryValidator
                 $"stack item {stackItemLabel} effect kind",
                 stackItem.EffectKind,
                 errors);
+            ValidateAuthoritativeStateOptionalTextValue(
+                $"stack item {stackItemLabel} source object",
+                stackItem.SourceObjectId,
+                errors);
+            ValidateAuthoritativeStateOptionalTextValue(
+                $"stack item {stackItemLabel} card no",
+                stackItem.CardNo,
+                errors);
+            ValidateAuthoritativeStateOptionalTextValue(
+                $"stack item {stackItemLabel} destination",
+                stackItem.Destination,
+                errors);
+            ValidateAuthoritativeStateOptionalTextValue(
+                $"stack item {stackItemLabel} timing context",
+                stackItem.TimingContext,
+                errors);
             ValidateAuthoritativeStateStringListValues(
                 $"stack item {stackItemLabel} target object",
                 stackItem.TargetObjectIds,
@@ -2533,6 +2580,10 @@ public static class MatchRecoveryValidator
             ValidateAuthoritativeStateRequiredText(
                 $"trigger queue item {triggerLabel} triggered event kind",
                 trigger.TriggeredByEventKind,
+                errors);
+            ValidateAuthoritativeStateOptionalTextValue(
+                $"trigger queue item {triggerLabel} source object",
+                trigger.SourceObjectId,
                 errors);
         }
     }
