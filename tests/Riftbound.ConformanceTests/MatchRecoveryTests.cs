@@ -23,7 +23,7 @@ public sealed class MatchRecoveryTests
                 "END_TURN",
                 null,
                 0,
-                1,
+                2,
                 0,
                 2,
                 true,
@@ -613,6 +613,46 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "event sequence 1 has order 1 but command intent-order-mismatch expects order 0",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsAcceptedCommandRecoveredEventTickOutsideCommandSpan()
+    {
+        var events = new[]
+        {
+            new RecoveredEvent(
+                1,
+                4,
+                0,
+                new GameEvent("TURN_ENDED", "TURN_ENDED", new Dictionary<string, object?>()))
+        };
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-tick-mismatch",
+                "END_TURN",
+                RawCommand("END_TURN"),
+                1,
+                3,
+                0,
+                1,
+                true,
+                null)
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            1,
+            commands,
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "event sequence 1 has tick 4 outside command intent-tick-mismatch tick span 1->3",
                 StringComparison.Ordinal));
     }
 

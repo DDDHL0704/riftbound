@@ -1133,6 +1133,12 @@ public static class MatchRecoveryValidator
                         errors.Add(
                             $"event sequence {gameEvent.Sequence} has order {gameEvent.Order} but command {command.ClientIntentId} expects order {eventIndex}");
                     }
+
+                    if (gameEvent.Tick < command.StartedTick || gameEvent.Tick > command.CompletedTick)
+                    {
+                        errors.Add(
+                            $"event sequence {gameEvent.Sequence} has tick {gameEvent.Tick} outside command {command.ClientIntentId} tick span {command.StartedTick}->{command.CompletedTick}");
+                    }
                 }
 
                 foreach (var gameEvent in commandEvents)
