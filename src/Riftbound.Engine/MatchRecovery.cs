@@ -1098,6 +1098,15 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame snapshot seats disagree with authoritative state seats");
         }
 
+        if (!TryReadString(
+                spectatorReplayFrame.SpectatorSnapshot.Timing,
+                "phase",
+                out var spectatorPhase)
+            || !string.Equals(spectatorPhase, authoritativeState.Phase, StringComparison.Ordinal))
+        {
+            errors.Add("spectator replay frame timing phase does not match authoritative state phase");
+        }
+
         if (spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("seed")
             || spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("rngCursor"))
         {
@@ -1152,6 +1161,42 @@ public static class MatchRecoveryValidator
         }
 
         seat = string.Empty;
+        return false;
+    }
+
+    private static bool TryReadString(
+        IReadOnlyDictionary<string, object?> values,
+        string key,
+        out string? text)
+    {
+        text = null;
+        if (!values.TryGetValue(key, out var value))
+        {
+            return false;
+        }
+
+        if (value is null)
+        {
+            return true;
+        }
+
+        if (value is string stringValue)
+        {
+            text = stringValue;
+            return true;
+        }
+
+        if (value is JsonElement { ValueKind: JsonValueKind.String } jsonString)
+        {
+            text = jsonString.GetString();
+            return true;
+        }
+
+        if (value is JsonElement { ValueKind: JsonValueKind.Null })
+        {
+            return true;
+        }
+
         return false;
     }
 
