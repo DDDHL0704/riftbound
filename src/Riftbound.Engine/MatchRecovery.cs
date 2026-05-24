@@ -1092,6 +1092,17 @@ public static class MatchRecoveryValidator
             {
                 errors.Add("spectator replay frame snapshot stack controller ids disagree with authoritative state stack controller ids");
             }
+
+            var spectatorStackSourceObjectIds = ExtractStackItemStringValues(
+                spectatorReplayFrame.SpectatorSnapshot,
+                "sourceObjectId");
+            var authoritativeStackSourceObjectIds = authoritativeState.StackItems
+                .Select(item => item.SourceObjectId)
+                .ToArray();
+            if (!StringListsEqual(spectatorStackSourceObjectIds, authoritativeStackSourceObjectIds))
+            {
+                errors.Add("spectator replay frame snapshot stack source object ids disagree with authoritative state stack source object ids");
+            }
         }
 
         if (string.IsNullOrWhiteSpace(spectatorReplayFrame.SpectatorSnapshot.TurnState))
