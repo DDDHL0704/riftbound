@@ -6369,6 +6369,146 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplaySnapshotPlayerZoneMismatch()
+    {
+        const string hiddenStandbyObjectId = "alice-hidden-standby-1";
+        const string visibleBattlefieldObjectId = "alice-visible-battlefield-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["alice-main-1"],
+                    RuneDeck = ["alice-rune-1"],
+                    Hand = ["alice-hand-1"],
+                    Base = ["alice-base-1"],
+                    Battlefields = [visibleBattlefieldObjectId, hiddenStandbyObjectId],
+                    Graveyard = ["alice-grave-1"],
+                    Banished = ["alice-banished-1"],
+                    LegendZone = ["alice-legend-1"],
+                    ChampionZone = ["alice-champion-1"]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["alice-base-1"] = new("alice-base-1", cardNo: "SFD-BASE", ownerId: "alice", controllerId: "alice"),
+                [visibleBattlefieldObjectId] = new(visibleBattlefieldObjectId, cardNo: "SFD-VISIBLE", ownerId: "alice", controllerId: "alice"),
+                [hiddenStandbyObjectId] = new(
+                    hiddenStandbyObjectId,
+                    isFaceDown: true,
+                    cardNo: "SFD-HIDDEN",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby]),
+                ["alice-grave-1"] = new("alice-grave-1", cardNo: "SFD-GRAVE", ownerId: "alice", controllerId: "alice"),
+                ["alice-banished-1"] = new("alice-banished-1", cardNo: "SFD-BANISHED", ownerId: "alice", controllerId: "alice"),
+                ["alice-legend-1"] = new("alice-legend-1", cardNo: "SFD-LEGEND", ownerId: "alice", controllerId: "alice"),
+                ["alice-champion-1"] = new("alice-champion-1", cardNo: "SFD-CHAMPION", ownerId: "alice", controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [hiddenStandbyObjectId] = new("alice", "BATTLEFIELD", visibleBattlefieldObjectId)
+            });
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var players = spectatorReplayFrame.SpectatorSnapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var zones = Assert.IsType<Dictionary<string, object?>>(alicePayload["zones"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        zones["mainDeckCount"] = 2;
+        zones["runeDeckCount"] = 2;
+        zones["hand"] = new[] { "alice-hand-1" };
+        zones["handHidden"] = 2;
+        zones["base"] = new[] { "alice-base-drift" };
+        zones["battlefields"] = new[] { visibleBattlefieldObjectId, hiddenStandbyObjectId };
+        zones["battlefieldHiddenStandbyCount"] = 0;
+        zones["graveyard"] = new[] { "alice-grave-drift" };
+        zones["banished"] = new[] { "alice-banished-drift" };
+        zones["legendZone"] = new[] { "alice-legend-drift" };
+        zones["championZone"] = new[] { "alice-champion-drift" };
+        alicePayload["zones"] = zones;
+        players["alice"] = alicePayload;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Players = players
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice main deck count does not match authoritative state main deck count", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice rune deck count does not match authoritative state rune deck count", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice hand objects must be redacted for spectator view", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice hidden hand count does not match authoritative state hand count", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice base objects do not match authoritative state base objects", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice battlefield objects do not match authoritative state battlefield objects", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice hidden battlefield standby count does not match authoritative state hidden battlefield standby count", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice graveyard objects do not match authoritative state graveyard objects", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice banished objects do not match authoritative state banished objects", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice legend zone objects do not match authoritative state legend zone objects", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice champion zone objects do not match authoritative state champion zone objects", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplaySnapshotPlayerObjectCoverageAndRedactionMismatch()
     {
         const string handObjectId = "alice-hand-1";

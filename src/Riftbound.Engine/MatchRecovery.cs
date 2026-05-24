@@ -1952,7 +1952,116 @@ public static class MatchRecoveryValidator
                 errors.Add($"spectator replay frame snapshot player {playerId} mulligan completed does not match authoritative state mulligan completed");
             }
 
+            ValidateSpectatorSnapshotPlayerZonePayloads(playerId, playerPayload, zones, authoritativeState, errors);
             ValidateSpectatorSnapshotPlayerObjectPayloads(playerId, playerPayload, authoritativeState, errors);
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotPlayerZonePayloads(
+        string playerId,
+        object? playerPayload,
+        PlayerZones zones,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(playerPayload, "zones", out var zonePayload)
+            || !IsSnapshotPlayerPayloadObject(zonePayload))
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} zones are required");
+            return;
+        }
+
+        if (!TryReadObjectInt(zonePayload, "mainDeckCount", out var mainDeckCount)
+            || mainDeckCount != zones.MainDeck.Count)
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} main deck count does not match authoritative state main deck count");
+        }
+
+        if (!TryReadObjectInt(zonePayload, "runeDeckCount", out var runeDeckCount)
+            || runeDeckCount != zones.RuneDeck.Count)
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} rune deck count does not match authoritative state rune deck count");
+        }
+
+        if (!TryReadObjectStringList(zonePayload, "hand", out var handObjects)
+            || handObjects.Count != 0)
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} hand objects must be redacted for spectator view");
+        }
+
+        if (!TryReadObjectInt(zonePayload, "handHidden", out var handHidden)
+            || handHidden != zones.Hand.Count)
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} hidden hand count does not match authoritative state hand count");
+        }
+
+        ValidateSpectatorSnapshotPlayerZoneStringList(
+            playerId,
+            zonePayload,
+            "base",
+            zones.Base,
+            "base objects",
+            errors);
+        ValidateSpectatorSnapshotPlayerZoneStringList(
+            playerId,
+            zonePayload,
+            "battlefields",
+            zones.Battlefields
+                .Where(objectId => !IsHiddenBattlefieldStandbyForSpectator(authoritativeState, objectId))
+                .ToArray(),
+            "battlefield objects",
+            errors);
+
+        var expectedHiddenStandbyCount = zones.Battlefields.Count(objectId =>
+            IsHiddenBattlefieldStandbyForSpectator(authoritativeState, objectId));
+        if (!TryReadObjectInt(zonePayload, "battlefieldHiddenStandbyCount", out var hiddenStandbyCount)
+            || hiddenStandbyCount != expectedHiddenStandbyCount)
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} hidden battlefield standby count does not match authoritative state hidden battlefield standby count");
+        }
+
+        ValidateSpectatorSnapshotPlayerZoneStringList(
+            playerId,
+            zonePayload,
+            "graveyard",
+            zones.Graveyard,
+            "graveyard objects",
+            errors);
+        ValidateSpectatorSnapshotPlayerZoneStringList(
+            playerId,
+            zonePayload,
+            "banished",
+            zones.Banished,
+            "banished objects",
+            errors);
+        ValidateSpectatorSnapshotPlayerZoneStringList(
+            playerId,
+            zonePayload,
+            "legendZone",
+            zones.LegendZone,
+            "legend zone objects",
+            errors);
+        ValidateSpectatorSnapshotPlayerZoneStringList(
+            playerId,
+            zonePayload,
+            "championZone",
+            zones.ChampionZone,
+            "champion zone objects",
+            errors);
+    }
+
+    private static void ValidateSpectatorSnapshotPlayerZoneStringList(
+        string playerId,
+        object? zonePayload,
+        string key,
+        IReadOnlyList<string> expected,
+        string description,
+        List<string> errors)
+    {
+        if (!TryReadObjectStringList(zonePayload, key, out var value)
+            || !StringListsEqual(value, expected))
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} {description} do not match authoritative state {description}");
         }
     }
 
