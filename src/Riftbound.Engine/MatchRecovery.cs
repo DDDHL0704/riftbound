@@ -1951,6 +1951,113 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"spectator replay frame snapshot player {playerId} mulligan completed does not match authoritative state mulligan completed");
             }
+
+            ValidateSpectatorSnapshotPlayerObjectPayloads(playerId, playerPayload, authoritativeState, errors);
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotPlayerObjectPayloads(
+        string playerId,
+        object? playerPayload,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        if (!TryReadObjectDictionary(playerPayload, "objects", out var objectPayloads))
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} objects are required");
+            return;
+        }
+
+        var expectedObjectIds = ExpectedSpectatorPlayerObjectIds(authoritativeState, playerId);
+        var expectedObjectIdSet = expectedObjectIds.ToHashSet(StringComparer.Ordinal);
+        foreach (var expectedObjectId in expectedObjectIds)
+        {
+            if (!objectPayloads.ContainsKey(expectedObjectId))
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} is missing visible object {expectedObjectId}");
+            }
+        }
+
+        foreach (var objectId in objectPayloads.Keys)
+        {
+            if (!expectedObjectIdSet.Contains(objectId))
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} is not visible in authoritative spectator view");
+            }
+        }
+
+        foreach (var expectedObjectId in expectedObjectIds)
+        {
+            if (!objectPayloads.TryGetValue(expectedObjectId, out var objectPayload))
+            {
+                continue;
+            }
+
+            ValidateSpectatorSnapshotPlayerObjectPayload(
+                playerId,
+                expectedObjectId,
+                objectPayload,
+                authoritativeState,
+                errors);
+        }
+    }
+
+    private static IReadOnlyList<string> ExpectedSpectatorPlayerObjectIds(
+        MatchState authoritativeState,
+        string playerId)
+    {
+        var zones = authoritativeState.PlayerZones.TryGetValue(playerId, out var playerZones)
+            ? playerZones
+            : PlayerZones.Empty;
+        return zones.Base
+            .Concat(zones.Battlefields.Where(objectId => !IsHiddenBattlefieldStandbyForSpectator(authoritativeState, objectId)))
+            .Concat(zones.Graveyard)
+            .Concat(zones.Banished)
+            .Concat(zones.LegendZone)
+            .Concat(zones.ChampionZone)
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Distinct(StringComparer.Ordinal)
+            .Where(objectId => authoritativeState.CardObjects.ContainsKey(objectId))
+            .ToArray();
+    }
+
+    private static void ValidateSpectatorSnapshotPlayerObjectPayload(
+        string playerId,
+        string objectId,
+        object? objectPayload,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        if (!IsSnapshotPlayerPayloadObject(objectPayload))
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} payload is required");
+            return;
+        }
+
+        if (!TryReadObjectString(objectPayload, "objectId", out var payloadObjectId)
+            || !string.Equals(payloadObjectId, objectId, StringComparison.Ordinal))
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} object id does not match authoritative object id");
+        }
+
+        var expectedFaceDown = authoritativeState.CardObjects.TryGetValue(objectId, out var cardObject)
+            && cardObject.IsFaceDown;
+        if (!TryReadObjectBool(objectPayload, "isFaceDown", out var isFaceDown)
+            || isFaceDown != expectedFaceDown)
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} face-down flag does not match authoritative spectator redaction");
+        }
+
+        if (!expectedFaceDown)
+        {
+            return;
+        }
+
+        if (TryReadObjectValue(objectPayload, "cardNo", out _)
+            || TryReadObjectValue(objectPayload, "tags", out _)
+            || TryReadObjectValue(objectPayload, "power", out _))
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} hidden face-down object {objectId} exposes private metadata");
         }
     }
 
@@ -5772,6 +5879,43 @@ public static class MatchRecoveryValidator
             return true;
         }
 
+        return false;
+    }
+
+    private static bool TryReadObjectDictionary(
+        object? value,
+        string key,
+        out IReadOnlyDictionary<string, object?> objects)
+    {
+        objects = new Dictionary<string, object?>(StringComparer.Ordinal);
+        return TryReadObjectValue(value, key, out var nested)
+            && TryReadObjectDictionaryValue(nested, out objects);
+    }
+
+    private static bool TryReadObjectDictionaryValue(
+        object? value,
+        out IReadOnlyDictionary<string, object?> objects)
+    {
+        if (value is IReadOnlyDictionary<string, object?> readOnlyDictionary)
+        {
+            objects = readOnlyDictionary;
+            return true;
+        }
+
+        if (value is IDictionary<string, object?> dictionary)
+        {
+            objects = new Dictionary<string, object?>(dictionary, StringComparer.Ordinal);
+            return true;
+        }
+
+        if (value is JsonElement { ValueKind: JsonValueKind.Object } json)
+        {
+            objects = json.EnumerateObject()
+                .ToDictionary(property => property.Name, property => (object?)property.Value, StringComparer.Ordinal);
+            return true;
+        }
+
+        objects = new Dictionary<string, object?>(StringComparer.Ordinal);
         return false;
     }
 
