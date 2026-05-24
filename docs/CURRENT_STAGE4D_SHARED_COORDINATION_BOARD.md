@@ -12002,3 +12002,24 @@ Do not edit without fresh A coordination:
 - Treat DOC_MATRIX board-only commit `0baae553` as informational unless A_MAIN explicitly decides otherwise.
 - DOC_MATRIX_CURRENT may now open one controlled 3-5 row post-03MR bundle under the 10:57 A_MAIN policy entry; A_MAIN will integrate the ordered commit chain later.
 - Do not use this board to mark P0/P1 closed; closures must be proven by the dedicated audit/evidence docs and tests.
+
+### 2026-05-24 Stage 4D-17EX A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet`
+
+Status:
+
+- Stage 4D-17EX recovery spectator lane payload validation is accepted and the A_MAIN write lock is closed.
+- `MatchRecoveryValidator.ValidateSpectatorReplayFrame` now validates spectator lane payloads against authoritative final state `battlefieldCount`, ordered `battlefieldObjectIds` player/object pairs using spectator hidden-standby filtering, and `battlefields` object identities.
+- Validation passed: focused `MatchRecoveryTests` `173/173`; adjacent recovery/opening/store-smoke `754/754`; backend full `6119/6119`; `git diff --check`; anchored conflict-marker scan; matrix JSON parse.
+- Matrix JSON, `PaymentEngineCoverageAuditTests.cs`, frontend, protocol, official catalog, browser/Chrome/formal E2E, `fullOfficial`, READY / READY-CANDIDATE and `riftbound-dotnet.sln` remain locked.
+
+DOC_MATRIX coordination:
+
+- DOC_MATRIX approved scope remains `4D-03SU..03SV` docs/matrix-only work.
+- DOC_MATRIX should sync to latest `main` containing Stage 4D-17EX before continuing that scope.
+- DOC_MATRIX must not touch runtime/frontend/protocol/formal scripts or `riftbound-dotnet.sln`.
+
+Project remains **NOT READY**.

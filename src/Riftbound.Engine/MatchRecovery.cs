@@ -1954,6 +1954,139 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateSpectatorSnapshotLanePayloads(
+        SnapshotDto snapshot,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        var expectedBattlefieldObjectPairs = ExpectedSpectatorLaneBattlefieldObjectPairs(authoritativeState);
+        if (!TryReadObjectInt(snapshot.Lanes, "battlefieldCount", out var battlefieldCount)
+            || battlefieldCount != expectedBattlefieldObjectPairs.Count)
+        {
+            errors.Add(
+                $"spectator replay frame snapshot lane battlefield count {battlefieldCount} does not match authoritative state battlefield object count {expectedBattlefieldObjectPairs.Count}");
+        }
+
+        if (!TryReadObjectList(snapshot.Lanes, "battlefieldObjectIds", out var battlefieldObjectItems))
+        {
+            errors.Add("spectator replay frame snapshot lane battlefield object ids are required");
+        }
+        else
+        {
+            var spectatorBattlefieldObjectPairs = new List<(string PlayerId, string ObjectId)>();
+            var malformedPair = false;
+            foreach (var item in battlefieldObjectItems)
+            {
+                if (!TryReadObjectString(item, "playerId", out var playerId)
+                    || string.IsNullOrWhiteSpace(playerId)
+                    || !TryReadObjectString(item, "objectId", out var objectId)
+                    || string.IsNullOrWhiteSpace(objectId))
+                {
+                    malformedPair = true;
+                    continue;
+                }
+
+                spectatorBattlefieldObjectPairs.Add((playerId, objectId));
+            }
+
+            if (malformedPair)
+            {
+                errors.Add("spectator replay frame snapshot lane battlefield object ids require player id and object id");
+            }
+
+            if (!BattlefieldObjectPairsEqual(spectatorBattlefieldObjectPairs, expectedBattlefieldObjectPairs))
+            {
+                errors.Add("spectator replay frame snapshot lane battlefield object ids disagree with authoritative state battlefield object ids");
+            }
+        }
+
+        if (!TryReadObjectList(snapshot.Lanes, "battlefields", out var battlefieldItems))
+        {
+            errors.Add("spectator replay frame snapshot lane battlefields are required");
+            return;
+        }
+
+        var spectatorBattlefieldObjectIds = ExtractObjectStringValues(battlefieldItems, "battlefieldObjectId");
+        var authoritativeBattlefieldObjectIds = authoritativeState.BattlefieldStates.Values
+            .Select(battlefield => battlefield.BattlefieldObjectId)
+            .ToArray();
+        if (!StringListsEqual(spectatorBattlefieldObjectIds, authoritativeBattlefieldObjectIds))
+        {
+            errors.Add("spectator replay frame snapshot lane battlefields disagree with authoritative state battlefields");
+        }
+    }
+
+    private static IReadOnlyList<(string PlayerId, string ObjectId)> ExpectedSpectatorLaneBattlefieldObjectPairs(
+        MatchState authoritativeState)
+    {
+        return authoritativeState.PlayerZones
+            .OrderBy(entry => authoritativeState.Seats.TryGetValue(entry.Key, out var seat) ? seat : entry.Key, StringComparer.Ordinal)
+            .SelectMany(entry => entry.Value.Battlefields
+                .Where(objectId => !IsHiddenBattlefieldStandbyForSpectator(authoritativeState, objectId))
+                .Select(objectId => (entry.Key, objectId)))
+            .ToArray();
+    }
+
+    private static bool IsHiddenBattlefieldStandbyForSpectator(MatchState authoritativeState, string objectId)
+    {
+        if (!authoritativeState.CardObjects.TryGetValue(objectId, out var cardObject)
+            || !cardObject.IsFaceDown
+            || !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !authoritativeState.ObjectLocations.TryGetValue(objectId, out var location)
+            || !string.Equals(location.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(location.BattlefieldObjectId))
+        {
+            return false;
+        }
+
+        return !string.Equals(cardObject.OwnerId, "__spectator__", StringComparison.Ordinal)
+            && !string.Equals(
+                EffectiveFieldControllerIdForRecovery(authoritativeState, objectId, cardObject),
+                "__spectator__",
+                StringComparison.Ordinal);
+    }
+
+    private static string EffectiveFieldControllerIdForRecovery(
+        MatchState authoritativeState,
+        string objectId,
+        CardObjectState cardObject)
+    {
+        if (!string.IsNullOrWhiteSpace(cardObject.ControllerId))
+        {
+            return cardObject.ControllerId;
+        }
+
+        if (!string.IsNullOrWhiteSpace(cardObject.OwnerId))
+        {
+            return cardObject.OwnerId;
+        }
+
+        return authoritativeState.ObjectLocations.TryGetValue(objectId, out var location)
+            ? location.PlayerId
+            : string.Empty;
+    }
+
+    private static bool BattlefieldObjectPairsEqual(
+        IReadOnlyList<(string PlayerId, string ObjectId)> left,
+        IReadOnlyList<(string PlayerId, string ObjectId)> right)
+    {
+        if (left.Count != right.Count)
+        {
+            return false;
+        }
+
+        for (var index = 0; index < left.Count; index++)
+        {
+            if (!string.Equals(left[index].PlayerId, right[index].PlayerId, StringComparison.Ordinal)
+                || !string.Equals(left[index].ObjectId, right[index].ObjectId, StringComparison.Ordinal))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private static void ValidateSnapshotPlayerCoverage(
         RecoveredPlayerView view,
         IEnumerable<string> expectedPlayerIds,
@@ -4501,6 +4634,13 @@ public static class MatchRecoveryValidator
         if (spectatorReplayFrame.SpectatorSnapshot.Lanes is null)
         {
             errors.Add("spectator replay frame snapshot lanes are required");
+        }
+        else
+        {
+            ValidateSpectatorSnapshotLanePayloads(
+                spectatorReplayFrame.SpectatorSnapshot,
+                authoritativeState,
+                errors);
         }
 
         if (spectatorReplayFrame.SpectatorSnapshot.Stack is null)

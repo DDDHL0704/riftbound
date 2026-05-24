@@ -4861,6 +4861,135 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplaySnapshotLanePayloadMismatch()
+    {
+        const string battlefieldObjectId = "battlefield-a";
+        const string aliceUnitObjectId = "alice-unit-a";
+        const string aliceHiddenStandbyObjectId = "alice-standby-a";
+        const string bobUnitObjectId = "bob-unit-a";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = [battlefieldObjectId, aliceUnitObjectId, aliceHiddenStandbyObjectId]
+                },
+                ["bob"] = PlayerZones.Empty with
+                {
+                    Battlefields = [bobUnitObjectId]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new(
+                    battlefieldObjectId,
+                    cardNo: "TEST-BATTLEFIELD",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
+                [aliceUnitObjectId] = new(
+                    aliceUnitObjectId,
+                    power: 3,
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.UnitCard]),
+                [aliceHiddenStandbyObjectId] = new(
+                    aliceHiddenStandbyObjectId,
+                    power: 2,
+                    isFaceDown: true,
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby]),
+                [bobUnitObjectId] = new(
+                    bobUnitObjectId,
+                    power: 2,
+                    ownerId: "bob",
+                    controllerId: "bob",
+                    tags: [CardObjectTags.UnitCard])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId),
+                [aliceUnitObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId),
+                [aliceHiddenStandbyObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId),
+                [bobUnitObjectId] = new("bob", "BATTLEFIELD", battlefieldObjectId)
+            });
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var lanes = spectatorReplayFrame.SpectatorSnapshot.Lanes.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        lanes["battlefieldCount"] = 1;
+
+        var battlefieldObjectItems = Assert.IsAssignableFrom<IReadOnlyList<object?>>(lanes["battlefieldObjectIds"])
+            .ToArray();
+        battlefieldObjectItems[0] = new Dictionary<string, object?>
+        {
+            ["playerId"] = "bob",
+            ["objectId"] = "wrong-object"
+        };
+        lanes["battlefieldObjectIds"] = battlefieldObjectItems;
+
+        var battlefieldItems = Assert.IsAssignableFrom<IReadOnlyList<object?>>(lanes["battlefields"])
+            .ToArray();
+        var firstBattlefield = Assert.IsType<Dictionary<string, object?>>(battlefieldItems[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        firstBattlefield["battlefieldObjectId"] = "wrong-battlefield";
+        battlefieldItems[0] = firstBattlefield;
+        lanes["battlefields"] = battlefieldItems;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Lanes = lanes
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot lane battlefield count 1 does not match authoritative state battlefield object count 3", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot lane battlefield object ids disagree with authoritative state battlefield object ids", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot lane battlefields disagree with authoritative state battlefields", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsMissingSpectatorReplaySnapshotStack()
     {
         var authoritativeState = new MatchState(
