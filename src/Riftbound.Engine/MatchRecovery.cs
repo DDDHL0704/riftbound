@@ -855,8 +855,23 @@ public static class MatchRecoveryValidator
             errors.Add("current tick cannot be negative");
         }
 
+        IEnumerable<string> commandPlayerIds = playerViews.Keys;
+        var commandPlayerScopeLabel = "recovered player views";
+        if (playerViews.Count == 0 && authoritativeState is { } state)
+        {
+            commandPlayerIds = state.Seats.Keys;
+            commandPlayerScopeLabel = "authoritative state seats";
+        }
+
         ValidateEvents(currentTick, lastEventSequence, events, errors);
-        ValidateCommands(currentTick, lastEventSequence, commands, events, playerViews.Keys, errors);
+        ValidateCommands(
+            currentTick,
+            lastEventSequence,
+            commands,
+            events,
+            commandPlayerIds,
+            commandPlayerScopeLabel,
+            errors);
         ValidatePlayerViews(currentTick, lastEventSequence, playerViews, errors);
         ValidatePlayerViewAgreement(playerViews, errors);
         ValidateAuthoritativeState(roomId, currentTick, authoritativeState, playerViews, errors);
@@ -969,6 +984,7 @@ public static class MatchRecoveryValidator
         IReadOnlyList<RecoveredCommand> commands,
         IReadOnlyList<RecoveredEvent> events,
         IEnumerable<string> recoveredPlayerIds,
+        string recoveredPlayerScopeLabel,
         List<string> errors)
     {
         var acceptedEventOwners = new Dictionary<long, string>();
@@ -1014,7 +1030,7 @@ public static class MatchRecoveryValidator
                 && !knownRecoveredPlayerIds.Contains(normalizedPlayerId))
             {
                 errors.Add(
-                    $"command {normalizedClientIntentId} player {normalizedPlayerId} is missing from recovered player views");
+                    $"command {normalizedClientIntentId} player {normalizedPlayerId} is missing from {recoveredPlayerScopeLabel}");
             }
 
             if (!seenCommandIntents.Add((normalizedPlayerId, normalizedClientIntentId)))

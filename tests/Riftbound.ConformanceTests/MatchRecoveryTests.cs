@@ -1955,6 +1955,39 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsRecoveredCommandPlayerOutsideAuthoritativeSeats()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "charlie",
+                "intent-unknown-seat-player",
+                "PASS",
+                RawCommand("PASS"),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "unknown authoritative command player")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            ReplayInitialState());
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-unknown-seat-player player charlie is missing from authoritative state seats",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsCommandDiagnosticPresenceMismatch()
     {
         var commands = new[]
