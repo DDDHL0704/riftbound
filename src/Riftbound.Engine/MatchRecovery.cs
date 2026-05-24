@@ -2905,6 +2905,8 @@ public static class MatchRecoveryValidator
             authoritativeState.PlayerDecklists,
             seatPlayerIds,
             errors);
+        ValidateAuthoritativeStateMapKeys("card object map key", authoritativeState.CardObjects, errors);
+        ValidateAuthoritativeStateMapKeys("object location map key", authoritativeState.ObjectLocations, errors);
         ValidateAuthoritativeStateCardObjectIdentities(authoritativeState.CardObjects, errors);
         ValidateAuthoritativeStateCardObjectValues(authoritativeState.CardObjects, errors);
         ValidateAuthoritativeStateCardObjectPlayers(authoritativeState.CardObjects, seatPlayerIds, errors);
@@ -3066,6 +3068,38 @@ public static class MatchRecoveryValidator
                 cardObject.ControllerId,
                 seatPlayerIds,
                 errors);
+        }
+    }
+
+    private static void ValidateAuthoritativeStateMapKeys<TValue>(
+        string mapKeyLabel,
+        IReadOnlyDictionary<string, TValue>? values,
+        List<string> errors)
+    {
+        if (values is null)
+        {
+            return;
+        }
+
+        var seenKeys = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var key in values.Keys.OrderBy(key => key, StringComparer.Ordinal))
+        {
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                errors.Add($"authoritative state {mapKeyLabel} is required");
+                continue;
+            }
+
+            var normalizedKey = key.Trim();
+            if (!string.Equals(key, normalizedKey, StringComparison.Ordinal))
+            {
+                errors.Add($"authoritative state {mapKeyLabel} {normalizedKey} has surrounding whitespace");
+            }
+
+            if (!seenKeys.Add(normalizedKey))
+            {
+                errors.Add($"authoritative state {mapKeyLabel} {normalizedKey} is duplicated");
+            }
         }
     }
 
