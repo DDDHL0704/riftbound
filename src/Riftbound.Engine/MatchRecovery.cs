@@ -1103,6 +1103,17 @@ public static class MatchRecoveryValidator
             {
                 errors.Add("spectator replay frame snapshot stack source object ids disagree with authoritative state stack source object ids");
             }
+
+            var spectatorStackEffectKinds = ExtractStackItemStringValues(
+                spectatorReplayFrame.SpectatorSnapshot,
+                "effectKind");
+            var authoritativeStackEffectKinds = authoritativeState.StackItems
+                .Select(item => item.EffectKind)
+                .ToArray();
+            if (!StringListsEqual(spectatorStackEffectKinds, authoritativeStackEffectKinds))
+            {
+                errors.Add("spectator replay frame snapshot stack effect kinds disagree with authoritative state stack effect kinds");
+            }
         }
 
         if (string.IsNullOrWhiteSpace(spectatorReplayFrame.SpectatorSnapshot.TurnState))
