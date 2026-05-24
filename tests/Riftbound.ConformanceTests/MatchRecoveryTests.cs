@@ -8314,6 +8314,111 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingPendingHandChoiceMismatch()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            pendingHandChoice: new PendingHandChoiceState(
+                "choice-1",
+                "CHOOSE_HAND_CARDS",
+                "alice",
+                requiredCount: 1,
+                maxCount: 2,
+                legalObjectIds: ["alice-hand-1", "alice-hand-2"],
+                reason: "test-choice",
+                sourceObjectId: "source-1",
+                effectKind: "DRAW_DISCARD"));
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var pendingHandChoice = Assert.IsType<Dictionary<string, object?>>(timing["pendingHandChoice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        pendingHandChoice["choiceId"] = "wrong-choice";
+        pendingHandChoice["choiceWindow"] = "WRONG_WINDOW";
+        pendingHandChoice["playerId"] = "bob";
+        pendingHandChoice["requiredCount"] = 3;
+        pendingHandChoice["maxCount"] = 4;
+        pendingHandChoice["reason"] = "wrong-reason";
+        pendingHandChoice["sourceObjectId"] = "wrong-source";
+        pendingHandChoice["effectKind"] = "WRONG_EFFECT";
+        pendingHandChoice["choiceState"] = "PENDING_CHOICE";
+        pendingHandChoice["legalObjectIds"] = new[] { "alice-hand-1" };
+        timing["pendingHandChoice"] = pendingHandChoice;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending hand choice id does not match authoritative state pending hand choice id", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending hand choice window does not match authoritative state pending hand choice window", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending hand choice player does not match authoritative state pending hand choice player", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending hand choice required count does not match authoritative state pending hand choice required count", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending hand choice max count does not match authoritative state pending hand choice max count", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending hand choice reason does not match authoritative state pending hand choice reason", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending hand choice source object does not match authoritative state pending hand choice source object", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending hand choice effect kind does not match authoritative state pending hand choice effect kind", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending hand choice state does not match authoritative spectator pending hand choice state", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending hand choice legal object ids must be redacted", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingTurnWindowMismatch()
     {
         var authoritativeState = new MatchState(

@@ -3345,6 +3345,94 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateSpectatorPendingHandChoicePayload(
+        IReadOnlyDictionary<string, object?> timing,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        if (!timing.TryGetValue("pendingHandChoice", out var choicePayload))
+        {
+            errors.Add("spectator replay frame timing pending hand choice is required");
+            return;
+        }
+
+        var authoritativeChoice = authoritativeState.PendingHandChoice;
+        if (authoritativeChoice is null)
+        {
+            if (!IsNullSnapshotPayloadValue(choicePayload))
+            {
+                errors.Add("spectator replay frame timing pending hand choice must be empty when authoritative state has no pending hand choice");
+            }
+
+            return;
+        }
+
+        if (!IsSnapshotPlayerPayloadObject(choicePayload))
+        {
+            errors.Add("spectator replay frame timing pending hand choice is required");
+            return;
+        }
+
+        if (!TryReadObjectString(choicePayload, "choiceId", out var choiceId)
+            || !string.Equals(choiceId, authoritativeChoice.ChoiceId, StringComparison.Ordinal))
+        {
+            errors.Add("spectator replay frame timing pending hand choice id does not match authoritative state pending hand choice id");
+        }
+
+        if (!TryReadObjectString(choicePayload, "choiceWindow", out var choiceWindow)
+            || !string.Equals(choiceWindow, authoritativeChoice.ChoiceWindow, StringComparison.Ordinal))
+        {
+            errors.Add("spectator replay frame timing pending hand choice window does not match authoritative state pending hand choice window");
+        }
+
+        if (!TryReadObjectString(choicePayload, "playerId", out var playerId)
+            || !string.Equals(playerId, authoritativeChoice.PlayerId, StringComparison.Ordinal))
+        {
+            errors.Add("spectator replay frame timing pending hand choice player does not match authoritative state pending hand choice player");
+        }
+
+        if (!TryReadObjectInt(choicePayload, "requiredCount", out var requiredCount)
+            || requiredCount != authoritativeChoice.RequiredCount)
+        {
+            errors.Add("spectator replay frame timing pending hand choice required count does not match authoritative state pending hand choice required count");
+        }
+
+        if (!TryReadObjectInt(choicePayload, "maxCount", out var maxCount)
+            || maxCount != authoritativeChoice.MaxCount)
+        {
+            errors.Add("spectator replay frame timing pending hand choice max count does not match authoritative state pending hand choice max count");
+        }
+
+        if (!TryReadObjectString(choicePayload, "reason", out var reason)
+            || !string.Equals(reason, authoritativeChoice.Reason, StringComparison.Ordinal))
+        {
+            errors.Add("spectator replay frame timing pending hand choice reason does not match authoritative state pending hand choice reason");
+        }
+
+        if (!TryReadObjectString(choicePayload, "sourceObjectId", out var sourceObjectId)
+            || !string.Equals(sourceObjectId, authoritativeChoice.SourceObjectId, StringComparison.Ordinal))
+        {
+            errors.Add("spectator replay frame timing pending hand choice source object does not match authoritative state pending hand choice source object");
+        }
+
+        if (!TryReadObjectString(choicePayload, "effectKind", out var effectKind)
+            || !string.Equals(effectKind, authoritativeChoice.EffectKind, StringComparison.Ordinal))
+        {
+            errors.Add("spectator replay frame timing pending hand choice effect kind does not match authoritative state pending hand choice effect kind");
+        }
+
+        if (!TryReadObjectString(choicePayload, "choiceState", out var choiceState)
+            || !string.Equals(choiceState, "WAITING_FOR_CHOICE", StringComparison.Ordinal))
+        {
+            errors.Add("spectator replay frame timing pending hand choice state does not match authoritative spectator pending hand choice state");
+        }
+
+        if (TryReadObjectValue(choicePayload, "legalObjectIds", out _))
+        {
+            errors.Add("spectator replay frame timing pending hand choice legal object ids must be redacted");
+        }
+    }
+
     private static void ValidateSpectatorBattlefieldTaskPayloads(
         IReadOnlyDictionary<string, object?> timing,
         MatchState authoritativeState,
@@ -6276,6 +6364,7 @@ public static class MatchRecoveryValidator
 
         ValidateSpectatorPendingTaskQueuePayload(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
         ValidateSpectatorPendingPaymentPayload(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
+        ValidateSpectatorPendingHandChoicePayload(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
         ValidateSpectatorBattlefieldTaskPayloads(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
 
         if (!spectatorReplayFrame.SpectatorSnapshot.Timing.TryGetValue("turnWindow", out var spectatorTurnWindow)
