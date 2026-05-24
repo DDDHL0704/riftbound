@@ -862,6 +862,38 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsCommandStartedEventSequenceAfterMatchSequence()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-start-after-tail",
+                "PASS",
+                RawCommand("PASS"),
+                1,
+                1,
+                2,
+                2,
+                false,
+                "command starts beyond event tail")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            1,
+            commands,
+            [RecoveredEvent(1, "TURN_ENDED")],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-start-after-tail starts at 2 after match sequence 1",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsNegativeCommandCompletedTick()
     {
         var commands = new[]

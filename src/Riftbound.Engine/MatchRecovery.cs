@@ -1083,6 +1083,12 @@ public static class MatchRecoveryValidator
                     $"command {command.ClientIntentId} completes before it starts: {command.StartedEventSequence}->{command.CompletedEventSequence}");
             }
 
+            if (command.StartedEventSequence > lastEventSequence)
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} starts at {command.StartedEventSequence} after match sequence {lastEventSequence}");
+            }
+
             if (command.CompletedEventSequence > lastEventSequence)
             {
                 errors.Add(
