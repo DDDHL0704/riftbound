@@ -207,6 +207,27 @@ public static class MatchActionLogReplayer
                 errors,
                 allowMissingZeroEntries: true);
 
+            ValidateEmptyListBaseline(
+                "ready players",
+                replayInitialState.ReadyPlayerIds,
+                errors);
+            ValidateEmptyListBaseline(
+                "passed priority players",
+                replayInitialState.PassedPriorityPlayerIds,
+                errors);
+            ValidateEmptyListBaseline(
+                "passed focus players",
+                replayInitialState.PassedFocusPlayerIds,
+                errors);
+            ValidateEmptyListBaseline(
+                "mulligan completed players",
+                replayInitialState.MulliganCompletedPlayerIds,
+                errors);
+            ValidateEmptyListBaseline(
+                "destroyed unit owners this turn",
+                replayInitialState.DestroyedUnitOwnerIdsThisTurn,
+                errors);
+
             var expectedInitialPlayerId = ReplayInitialPlayerIdFor(replayInitialState);
             if (!string.Equals(replayInitialState.ActivePlayerId, expectedInitialPlayerId, StringComparison.Ordinal))
             {
@@ -332,6 +353,17 @@ public static class MatchActionLogReplayer
                 errors.Add(
                     $"action-log replay initial state {counterName} for {counter.Key} must be 0");
             }
+        }
+    }
+
+    private static void ValidateEmptyListBaseline(
+        string listName,
+        IReadOnlyList<string> values,
+        List<string> errors)
+    {
+        if (values.Count > 0)
+        {
+            errors.Add($"action-log replay initial state {listName} must be empty");
         }
     }
 
