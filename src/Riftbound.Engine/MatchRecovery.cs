@@ -190,6 +190,23 @@ public static class MatchActionLogReplayer
                 }
             }
 
+            ValidateZeroCounterBaseline(
+                "score",
+                replayInitialState.PlayerScores,
+                replayInitialState.Seats,
+                errors);
+            ValidateZeroCounterBaseline(
+                "experience",
+                replayInitialState.PlayerExperience,
+                replayInitialState.Seats,
+                errors);
+            ValidateZeroCounterBaseline(
+                "cards played this turn",
+                replayInitialState.PlayerCardsPlayedThisTurn,
+                replayInitialState.Seats,
+                errors,
+                allowMissingZeroEntries: true);
+
             var expectedInitialPlayerId = ReplayInitialPlayerIdFor(replayInitialState);
             if (!string.Equals(replayInitialState.ActivePlayerId, expectedInitialPlayerId, StringComparison.Ordinal))
             {
@@ -291,6 +308,31 @@ public static class MatchActionLogReplayer
             && zones.Banished.Count == 0
             && zones.LegendZone.Count == 0
             && zones.ChampionZone.Count == 0;
+    }
+
+    private static void ValidateZeroCounterBaseline(
+        string counterName,
+        IReadOnlyDictionary<string, int> counters,
+        IReadOnlyDictionary<string, string> seats,
+        List<string> errors,
+        bool allowMissingZeroEntries = false)
+    {
+        var playersMatchSeats = allowMissingZeroEntries
+            ? counters.Keys.All(seats.ContainsKey)
+            : DictionaryKeysEqual(counters, seats);
+        if (!playersMatchSeats)
+        {
+            errors.Add($"action-log replay initial state {counterName} players must match seats");
+        }
+
+        foreach (var counter in counters.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            if (counter.Value != 0)
+            {
+                errors.Add(
+                    $"action-log replay initial state {counterName} for {counter.Key} must be 0");
+            }
+        }
     }
 
     private static bool StringMapEquals(
