@@ -249,6 +249,51 @@ public static class MatchActionLogReplayer
                 replayInitialState.ExtraTurnPlayerId,
                 errors);
 
+            ValidateEmptyDictionaryBaseline(
+                "card objects",
+                replayInitialState.CardObjects,
+                errors);
+            ValidateEmptyDictionaryBaseline(
+                "object locations",
+                replayInitialState.ObjectLocations,
+                errors);
+            ValidateEmptyDictionaryBaseline(
+                "player decklists",
+                replayInitialState.PlayerDecklists,
+                errors);
+            ValidateEmptyListBaseline(
+                "stack items",
+                replayInitialState.StackItems,
+                errors);
+            ValidateEmptyListBaseline(
+                "trigger queue",
+                replayInitialState.TriggerQueue,
+                errors);
+            ValidateEmptyListBaseline(
+                "battlefield resolutions",
+                replayInitialState.BattlefieldResolutions,
+                errors);
+            ValidateEmptyListBaseline(
+                "battle resolutions",
+                replayInitialState.BattleResolutions,
+                errors);
+            ValidateEmptyListBaseline(
+                "until end of turn effects",
+                replayInitialState.UntilEndOfTurnEffects,
+                errors);
+            ValidateEmptyListBaseline(
+                "temporary payment resources",
+                replayInitialState.TemporaryPaymentResources,
+                errors);
+            ValidateNullBaseline(
+                "pending payment",
+                replayInitialState.PendingPayment,
+                errors);
+            ValidateNullBaseline(
+                "pending hand choice",
+                replayInitialState.PendingHandChoice,
+                errors);
+
             var expectedInitialPlayerId = ReplayInitialPlayerIdFor(replayInitialState);
             if (!string.Equals(replayInitialState.ActivePlayerId, expectedInitialPlayerId, StringComparison.Ordinal))
             {
@@ -377,14 +422,36 @@ public static class MatchActionLogReplayer
         }
     }
 
-    private static void ValidateEmptyListBaseline(
+    private static void ValidateEmptyDictionaryBaseline<TValue>(
+        string mapName,
+        IReadOnlyDictionary<string, TValue> values,
+        List<string> errors)
+    {
+        if (values.Count > 0)
+        {
+            errors.Add($"action-log replay initial state {mapName} must be empty");
+        }
+    }
+
+    private static void ValidateEmptyListBaseline<TValue>(
         string listName,
-        IReadOnlyList<string> values,
+        IReadOnlyList<TValue> values,
         List<string> errors)
     {
         if (values.Count > 0)
         {
             errors.Add($"action-log replay initial state {listName} must be empty");
+        }
+    }
+
+    private static void ValidateNullBaseline(
+        string valueName,
+        object? value,
+        List<string> errors)
+    {
+        if (value is not null)
+        {
+            errors.Add($"action-log replay initial state {valueName} must be empty");
         }
     }
 

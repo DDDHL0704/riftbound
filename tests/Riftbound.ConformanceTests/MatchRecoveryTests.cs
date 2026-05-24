@@ -4609,6 +4609,162 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public async Task RegistryRejectsRecoveryFrameWhenReplayInitialStateStructuralBaselineMismatches()
+    {
+        var initialState = MatchReplayInitialStateBuilder.FromSeats(
+            "room-a",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            });
+        var journal = new RecordingMatchJournal();
+        var liveSession = new MatchSession(initialState, new PlaceholderRuleEngine(), journal);
+        await liveSession.ReadyAsync("alice", "intent-ready-a", RawCommand("READY"), CancellationToken.None);
+        var expectedFinalState = journal.Entries[^1].AuthoritativeState;
+        var wrongInitialState = initialState with
+        {
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["obj-1"] = new("obj-1", cardNo: "TEST-001", ownerId: "alice", controllerId: "alice")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["obj-1"] = new("alice", "HAND")
+            },
+            PlayerDecklists = new Dictionary<string, OfficialDecklist>(StringComparer.Ordinal)
+            {
+                ["alice"] = new("LEGEND-001", "CHAMPION-001", ["MAIN-001"], ["RUNE-001"], ["BATTLEFIELD-001"])
+            },
+            StackItems =
+            [
+                new("stack-1", "alice", "obj-1", "TEST_EFFECT")
+            ],
+            TriggerQueue =
+            [
+                new("trigger-1", "alice", "obj-1", "TEST_EFFECT", "TEST_EVENT")
+            ],
+            BattlefieldResolutions =
+            [
+                new(
+                    "battlefield-resolution-1",
+                    0,
+                    "TEST",
+                    "test",
+                    "battlefield-1",
+                    "alice",
+                    null,
+                    "alice",
+                    "obj-1",
+                    ["obj-1"],
+                    ["TEST_EVENT"])
+            ],
+            BattleResolutions =
+            [
+                new(
+                    "battle-resolution-1",
+                    0,
+                    "TEST",
+                    "test",
+                    "battlefield-1",
+                    "alice",
+                    "bob",
+                    "alice",
+                    ["attacker-1"],
+                    ["defender-1"],
+                    ["attacker-1"],
+                    [],
+                    ["defender-1"],
+                    ["TEST_EVENT"])
+            ],
+            UntilEndOfTurnEffects = ["effect-1"],
+            TemporaryPaymentResources =
+            [
+                new("resource-1", "alice", remainingPower: 1)
+            ],
+            PendingPayment = new(
+                "payment-1",
+                "MAIN_ACTION",
+                "alice",
+                manaCost: 1,
+                legalPaymentChoiceIds: ["choice-1"],
+                reason: "test"),
+            PendingHandChoice = new(
+                "choice-1",
+                "TEST",
+                "alice",
+                1,
+                1,
+                ["obj-1"],
+                "test")
+        };
+        var frame = new MatchRecoveryFrame(
+            "room-a",
+            expectedFinalState.Tick,
+            journal.Entries[^1].CompletedEventSequence,
+            journal.Entries.Select(ToRecoveredCommand).ToArray(),
+            ToRecoveredEvents(journal.Entries),
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            [],
+            expectedFinalState,
+            wrongInitialState);
+        var registry = new InMemoryMatchSessionRegistry(
+            new PlaceholderRuleEngine(),
+            NoopMatchJournal.Instance,
+            new FixedRecoveryStore(frame));
+
+        var error = await Assert.ThrowsAsync<MatchSessionException>(async () =>
+            await registry.GetOrCreateAsync("room-a", CancellationToken.None));
+
+        Assert.Equal(ErrorCodes.RecoveryInconsistent, error.Code);
+        Assert.Contains("action-log audit failed", error.Message, StringComparison.Ordinal);
+        Assert.Contains(
+            "action-log replay initial state card objects must be empty",
+            error.Message,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "action-log replay initial state object locations must be empty",
+            error.Message,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "action-log replay initial state player decklists must be empty",
+            error.Message,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "action-log replay initial state stack items must be empty",
+            error.Message,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "action-log replay initial state trigger queue must be empty",
+            error.Message,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "action-log replay initial state battlefield resolutions must be empty",
+            error.Message,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "action-log replay initial state battle resolutions must be empty",
+            error.Message,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "action-log replay initial state until end of turn effects must be empty",
+            error.Message,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "action-log replay initial state temporary payment resources must be empty",
+            error.Message,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "action-log replay initial state pending payment must be empty",
+            error.Message,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "action-log replay initial state pending hand choice must be empty",
+            error.Message,
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void SpectatorReplayFrameRedactsPrivateZonesFaceDownObjectsAndRngState()
     {
         var state = new MatchState(
