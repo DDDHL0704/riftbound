@@ -1290,6 +1290,15 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame timing room status does not match authoritative state room status");
         }
 
+        if (!TryReadStringList(
+                spectatorReplayFrame.SpectatorSnapshot.Timing,
+                "readyPlayerIds",
+                out var spectatorReadyPlayerIds)
+            || !StringListsEqual(spectatorReadyPlayerIds, authoritativeState.ReadyPlayerIds))
+        {
+            errors.Add("spectator replay frame timing ready players do not match authoritative state ready players");
+        }
+
         if (spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("seed")
             || spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("rngCursor"))
         {
