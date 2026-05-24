@@ -1060,6 +1060,12 @@ public static class MatchRecoveryValidator
                     $"command {command.ClientIntentId} starts at tick {command.StartedTick} before previous command completed tick {previousFrameCompletedTick}");
             }
 
+            if (command.StartedTick != previousFrameCompletedTick)
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} starts at tick {command.StartedTick} but previous command completed at tick {previousFrameCompletedTick}; command ticks must be contiguous");
+            }
+
             previousFrameCompletedTick = Math.Max(previousFrameCompletedTick, command.CompletedTick);
 
             if (currentTick is { } recoveryTick)

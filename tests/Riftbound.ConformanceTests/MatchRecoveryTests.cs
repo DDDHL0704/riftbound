@@ -585,6 +585,53 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsRecoveredCommandTickGap()
+    {
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED")
+        };
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-first",
+                "END_TURN",
+                RawCommand("END_TURN"),
+                0,
+                1,
+                0,
+                1,
+                true,
+                null),
+            new RecoveredCommand(
+                "bob",
+                "intent-tick-gap",
+                "PASS",
+                RawCommand("PASS"),
+                3,
+                3,
+                1,
+                1,
+                false,
+                "test rejection")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            1,
+            commands,
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-tick-gap starts at tick 3 but previous command completed at tick 1; command ticks must be contiguous",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsRecoveredCommandEventSpanGap()
     {
         var events = new[]
