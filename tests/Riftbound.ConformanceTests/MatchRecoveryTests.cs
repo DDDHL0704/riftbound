@@ -446,6 +446,46 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTurnStateTimingStateMismatch()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var missingTimingState = alice.Snapshot.Timing
+            .Where(entry => entry.Key != "timingState")
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = missingTimingState
+                }
+            },
+            ["bob"] = PlayerView("bob", 0, 0) with
+            {
+                Snapshot = PlayerView("bob", 0, 0).Snapshot with
+                {
+                    Timing = new Dictionary<string, object?>
+                    {
+                        ["timingState"] = TimingStates.Room
+                    }
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("snapshot for alice timing state is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for bob turn state NEUTRAL_OPEN does not match timing state ROOM",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsMalformedSnapshotPlayerPayloads()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -5919,7 +5959,10 @@ public sealed class MatchRecoveryTests
             },
             new Dictionary<string, object?>(),
             [],
-            new Dictionary<string, object?>(),
+            new Dictionary<string, object?>
+            {
+                ["timingState"] = "NEUTRAL_OPEN"
+            },
             "NEUTRAL_OPEN");
         var prompt = new ActionPromptDto(playerId, true, "test", ["PASS"]);
 

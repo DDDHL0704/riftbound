@@ -1445,6 +1445,21 @@ public static class MatchRecoveryValidator
         {
             errors.Add($"snapshot for {view.PlayerId} turn state is required");
         }
+
+        if (view.Snapshot.Timing is not null)
+        {
+            if (!TryReadString(view.Snapshot.Timing, "timingState", out var snapshotTimingState)
+                || string.IsNullOrWhiteSpace(snapshotTimingState))
+            {
+                errors.Add($"snapshot for {view.PlayerId} timing state is required");
+            }
+            else if (!string.IsNullOrWhiteSpace(view.Snapshot.TurnState)
+                && !string.Equals(view.Snapshot.TurnState, snapshotTimingState, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"snapshot for {view.PlayerId} turn state {view.Snapshot.TurnState} does not match timing state {snapshotTimingState}");
+            }
+        }
     }
 
     private static void ValidateSnapshotPlayerPayloads(
