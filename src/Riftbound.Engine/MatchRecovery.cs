@@ -1646,10 +1646,10 @@ public static class MatchRecoveryValidator
             && TryReadObjectStringDictionary(value, "participantControllerIds", out var participantControllerIds)
             && StringDictionariesEqual(participantControllerIds, expected.ParticipantControllerIds)
             && TryReadObjectValue(value, "damageAssignment", out var damageAssignment)
-            && BattleDamageAssignmentPendingMatches(damageAssignment, state);
+            && BattleDamageAssignmentMatches(damageAssignment, state);
     }
 
-    private static bool BattleDamageAssignmentPendingMatches(object? value, MatchState state)
+    private static bool BattleDamageAssignmentMatches(object? value, MatchState state)
     {
         var expectedPending = ResolutionResult.HasOpenBattleDamageAssignmentWindow(state);
         if (!TryReadObjectBool(value, "isPending", out var isPending)
@@ -1664,7 +1664,13 @@ public static class MatchRecoveryValidator
         }
 
         return TryReadObjectString(value, "phase", out var phase)
-            && string.Equals(phase, "DAMAGE_ASSIGNMENT", StringComparison.Ordinal);
+            && string.Equals(phase, "DAMAGE_ASSIGNMENT", StringComparison.Ordinal)
+            && TryReadObjectString(value, "battleId", out var battleId)
+            && string.Equals(battleId, state.BattleState.BattleId, StringComparison.Ordinal)
+            && TryReadObjectString(value, "battlefieldId", out var battlefieldId)
+            && string.Equals(battlefieldId, state.BattleState.BattlefieldObjectId, StringComparison.Ordinal)
+            && TryReadObjectString(value, "assigningPlayerId", out var assigningPlayerId)
+            && string.Equals(assigningPlayerId, ResolutionResult.BattleDamageAssigningPlayerId(state), StringComparison.Ordinal);
     }
 
     private static bool TryReadObjectBool(object? value, string key, out bool flag)
