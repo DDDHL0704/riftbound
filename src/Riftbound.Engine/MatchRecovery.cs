@@ -3058,6 +3058,14 @@ public static class MatchRecoveryValidator
         {
             errors.Add("spectator replay frame timing pending task queue task count does not match authoritative state pending task queue task count");
         }
+        else
+        {
+            ValidateSpectatorPendingTaskQueueTaskPayloads(
+                taskPayloads,
+                authoritativeState,
+                authoritativeQueue.Tasks,
+                errors);
+        }
 
         if (!TryReadObjectValue(queuePayload, "metadata", out var metadataPayload)
             || !IsSnapshotPlayerPayloadObject(metadataPayload))
@@ -3076,6 +3084,109 @@ public static class MatchRecoveryValidator
             || !StringListsEqual(stateBasedTaskKinds, ExpectedStateBasedTaskKinds(authoritativeQueue.Tasks)))
         {
             errors.Add("spectator replay frame timing pending task queue metadata state-based task kinds do not match authoritative state pending task queue state-based task kinds");
+        }
+    }
+
+    private static void ValidateSpectatorPendingTaskQueueTaskPayloads(
+        IReadOnlyList<object?> taskPayloads,
+        MatchState authoritativeState,
+        IReadOnlyList<CleanupTaskState> authoritativeTasks,
+        List<string> errors)
+    {
+        if (!StringListsEqual(
+                ExtractObjectStringValues(taskPayloads, "taskId"),
+                authoritativeTasks.Select(task => VisibleCleanupTaskIdForRecovery(authoritativeState, task)).ToArray()))
+        {
+            errors.Add("spectator replay frame timing pending task queue task ids do not match authoritative state pending task queue task ids");
+        }
+
+        if (!StringListsEqual(
+                ExtractObjectStringValues(taskPayloads, "kind"),
+                authoritativeTasks.Select(task => task.Kind).ToArray()))
+        {
+            errors.Add("spectator replay frame timing pending task queue task kinds do not match authoritative state pending task queue task kinds");
+        }
+
+        if (!StringListsEqual(
+                ExtractObjectStringValues(taskPayloads, "reason"),
+                authoritativeTasks.Select(task => task.Reason).ToArray()))
+        {
+            errors.Add("spectator replay frame timing pending task queue task reasons do not match authoritative state pending task queue task reasons");
+        }
+
+        if (!StringListsEqual(
+                ExtractObjectOptionalStringValues(taskPayloads, "playerId"),
+                authoritativeTasks.Select(task => task.PlayerId ?? string.Empty).ToArray()))
+        {
+            errors.Add("spectator replay frame timing pending task queue task players do not match authoritative state pending task queue task players");
+        }
+
+        if (!StringListsEqual(
+                ExtractObjectOptionalStringValues(taskPayloads, "battlefieldObjectId"),
+                authoritativeTasks.Select(task => task.BattlefieldObjectId ?? string.Empty).ToArray()))
+        {
+            errors.Add("spectator replay frame timing pending task queue task battlefield object ids do not match authoritative state pending task queue task battlefield object ids");
+        }
+
+        var objectIdMismatch = false;
+        var hiddenObjectMismatch = false;
+        var hiddenObjectKindMismatch = false;
+        for (var index = 0; index < authoritativeTasks.Count; index++)
+        {
+            var task = authoritativeTasks[index];
+            var taskPayload = taskPayloads[index];
+            if (ShouldHideCleanupTaskObjectIdForRecovery(authoritativeState, task))
+            {
+                if (TryReadObjectValue(taskPayload, "objectId", out _))
+                {
+                    objectIdMismatch = true;
+                }
+
+                if (!TryReadObjectBool(taskPayload, "hiddenObject", out var hiddenObject)
+                    || !hiddenObject)
+                {
+                    hiddenObjectMismatch = true;
+                }
+
+                if (!TryReadObjectString(taskPayload, "hiddenObjectKind", out var hiddenObjectKind)
+                    || !string.Equals(hiddenObjectKind, "BATTLEFIELD_STANDBY", StringComparison.Ordinal))
+                {
+                    hiddenObjectKindMismatch = true;
+                }
+
+                continue;
+            }
+
+            if (!TryReadObjectOptionalString(taskPayload, "objectId", out var objectId)
+                || !string.Equals(objectId, task.ObjectId ?? string.Empty, StringComparison.Ordinal))
+            {
+                objectIdMismatch = true;
+            }
+
+            if (TryReadObjectValue(taskPayload, "hiddenObject", out _))
+            {
+                hiddenObjectMismatch = true;
+            }
+
+            if (TryReadObjectValue(taskPayload, "hiddenObjectKind", out _))
+            {
+                hiddenObjectKindMismatch = true;
+            }
+        }
+
+        if (objectIdMismatch)
+        {
+            errors.Add("spectator replay frame timing pending task queue task object ids do not match authoritative state pending task queue task object ids");
+        }
+
+        if (hiddenObjectMismatch)
+        {
+            errors.Add("spectator replay frame timing pending task queue task hidden object flags do not match authoritative state pending task queue task hidden object flags");
+        }
+
+        if (hiddenObjectKindMismatch)
+        {
+            errors.Add("spectator replay frame timing pending task queue task hidden object kinds do not match authoritative state pending task queue task hidden object kinds");
         }
     }
 
