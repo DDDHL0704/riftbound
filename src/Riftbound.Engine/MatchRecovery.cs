@@ -3015,6 +3015,89 @@ public static class MatchRecoveryValidator
             || string.Equals(cardObject.OwnerId, playerId, StringComparison.Ordinal);
     }
 
+    private static void ValidateSpectatorBattlefieldTaskPayloads(
+        IReadOnlyDictionary<string, object?> timing,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        if (!TryReadObjectList(timing, "battlefieldTasks", out var spectatorBattlefieldTasks))
+        {
+            errors.Add("spectator replay frame timing battlefield tasks are required");
+            return;
+        }
+
+        var authoritativeBattlefieldTasks = authoritativeState.BattlefieldTasks;
+        if (spectatorBattlefieldTasks.Count != authoritativeBattlefieldTasks.Count)
+        {
+            errors.Add(
+                $"spectator replay frame timing battlefield task count {spectatorBattlefieldTasks.Count} does not match authoritative state battlefield task count {authoritativeBattlefieldTasks.Count}");
+            return;
+        }
+
+        if (!StringListsEqual(
+                ExtractObjectStringValues(spectatorBattlefieldTasks, "taskId"),
+                authoritativeBattlefieldTasks.Select(task => task.TaskId).ToArray()))
+        {
+            errors.Add("spectator replay frame timing battlefield task ids disagree with authoritative state battlefield task ids");
+        }
+
+        if (!StringListsEqual(
+                ExtractObjectStringValues(spectatorBattlefieldTasks, "kind"),
+                authoritativeBattlefieldTasks.Select(task => task.Kind).ToArray()))
+        {
+            errors.Add("spectator replay frame timing battlefield task kinds disagree with authoritative state battlefield task kinds");
+        }
+
+        if (!StringListsEqual(
+                ExtractObjectStringValues(spectatorBattlefieldTasks, "status"),
+                authoritativeBattlefieldTasks.Select(task => task.Status).ToArray()))
+        {
+            errors.Add("spectator replay frame timing battlefield task statuses disagree with authoritative state battlefield task statuses");
+        }
+
+        if (!StringListsEqual(
+                ExtractObjectStringValues(spectatorBattlefieldTasks, "reason"),
+                authoritativeBattlefieldTasks.Select(task => task.Reason).ToArray()))
+        {
+            errors.Add("spectator replay frame timing battlefield task reasons disagree with authoritative state battlefield task reasons");
+        }
+
+        if (!StringListsEqual(
+                ExtractObjectStringValues(spectatorBattlefieldTasks, "battlefieldObjectId"),
+                authoritativeBattlefieldTasks.Select(task => task.BattlefieldObjectId).ToArray()))
+        {
+            errors.Add("spectator replay frame timing battlefield task battlefield object ids disagree with authoritative state battlefield task battlefield object ids");
+        }
+
+        if (!StringListCollectionsEqual(
+                ExtractObjectStringListValues(spectatorBattlefieldTasks, "participantControllerIds"),
+                authoritativeBattlefieldTasks.Select(task => task.ParticipantControllerIds).ToArray()))
+        {
+            errors.Add("spectator replay frame timing battlefield task participant controller ids disagree with authoritative state battlefield task participant controller ids");
+        }
+
+        if (!StringListCollectionsEqual(
+                ExtractObjectStringListValues(spectatorBattlefieldTasks, "participantObjectIds"),
+                authoritativeBattlefieldTasks.Select(task => task.ParticipantObjectIds).ToArray()))
+        {
+            errors.Add("spectator replay frame timing battlefield task participant object ids disagree with authoritative state battlefield task participant object ids");
+        }
+
+        if (!StringListsEqual(
+                ExtractObjectOptionalStringValues(spectatorBattlefieldTasks, "actingPlayerId"),
+                authoritativeBattlefieldTasks.Select(task => task.ActingPlayerId ?? string.Empty).ToArray()))
+        {
+            errors.Add("spectator replay frame timing battlefield task acting players disagree with authoritative state battlefield task acting players");
+        }
+
+        if (!StringListCollectionsEqual(
+                ExtractObjectStringListValues(spectatorBattlefieldTasks, "stackItemIds"),
+                authoritativeBattlefieldTasks.Select(task => task.StackItemIds).ToArray()))
+        {
+            errors.Add("spectator replay frame timing battlefield task stack item ids disagree with authoritative state battlefield task stack item ids");
+        }
+    }
+
     private static bool BattlefieldObjectPairsEqual(
         IReadOnlyList<(string PlayerId, string ObjectId)> left,
         IReadOnlyList<(string PlayerId, string ObjectId)> right)
@@ -5839,6 +5922,8 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame timing winning score does not match authoritative state winning score");
         }
 
+        ValidateSpectatorBattlefieldTaskPayloads(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
+
         if (!spectatorReplayFrame.SpectatorSnapshot.Timing.TryGetValue("turnWindow", out var spectatorTurnWindow)
             || !TurnWindowMatches(spectatorTurnWindow, authoritativeState.TurnWindow))
         {
@@ -6427,6 +6512,22 @@ public static class MatchRecoveryValidator
             if (TryReadObjectString(item, key, out var value))
             {
                 values.Add(value ?? string.Empty);
+            }
+        }
+
+        return values;
+    }
+
+    private static IReadOnlyList<string> ExtractObjectOptionalStringValues(
+        IReadOnlyList<object?> items,
+        string key)
+    {
+        var values = new List<string>();
+        foreach (var item in items)
+        {
+            if (TryReadObjectOptionalString(item, key, out var value))
+            {
+                values.Add(value);
             }
         }
 
