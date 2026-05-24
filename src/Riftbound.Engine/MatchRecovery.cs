@@ -1411,17 +1411,29 @@ public static class MatchRecoveryValidator
 
         var baseline = viewsWithSnapshots
             .OrderBy(view => view.PlayerId, StringComparer.Ordinal)
-            .First()
-            .Snapshot;
-        var baselineSeats = ExtractSeats(baseline);
+            .First();
+        var baselineSnapshot = baseline.Snapshot;
+        var baselineSnapshotTick = baseline.SnapshotTick;
+        var baselineSnapshotEventSequence = baseline.SnapshotEventSequence;
+        var baselineSeats = ExtractSeats(baselineSnapshot);
         foreach (var view in viewsWithSnapshots)
         {
-            if (view.Snapshot.TurnNumber != baseline.TurnNumber)
+            if (view.SnapshotTick != baselineSnapshotTick)
+            {
+                errors.Add($"snapshot for {view.PlayerId} disagrees on row tick");
+            }
+
+            if (view.SnapshotEventSequence != baselineSnapshotEventSequence)
+            {
+                errors.Add($"snapshot for {view.PlayerId} disagrees on event sequence");
+            }
+
+            if (view.Snapshot.TurnNumber != baselineSnapshot.TurnNumber)
             {
                 errors.Add($"snapshot for {view.PlayerId} disagrees on turn number");
             }
 
-            if (!string.Equals(view.Snapshot.ActivePlayerId, baseline.ActivePlayerId, StringComparison.Ordinal))
+            if (!string.Equals(view.Snapshot.ActivePlayerId, baselineSnapshot.ActivePlayerId, StringComparison.Ordinal))
             {
                 errors.Add($"snapshot for {view.PlayerId} disagrees on active player");
             }

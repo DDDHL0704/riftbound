@@ -245,6 +245,36 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsPlayerSnapshotRowsThatDisagreeAcrossPlayers()
+    {
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = PlayerView("alice", 1, 1),
+            ["bob"] = PlayerView("bob", 2, 2)
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            playerViews,
+            currentTick: 2);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("snapshot for bob disagrees on row tick", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("snapshot for bob disagrees on event sequence", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsNegativePlayerViewRowMetadata()
     {
         var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
