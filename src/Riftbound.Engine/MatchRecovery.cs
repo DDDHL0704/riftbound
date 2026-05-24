@@ -443,6 +443,11 @@ public static class MatchRecoveryValidator
     private const string DevSeedScenarioPrefix = "DEV_SEED_SCENARIO:";
     private const string DevSeedScenarioCommandType = "DEV_SEED_SCENARIO";
 
+    private sealed record BattleRequiredAssignmentView(
+        string SourceObjectId,
+        int Damage,
+        IReadOnlyList<string> LegalTargetObjectIds);
+
     public static IReadOnlyList<string> Validate(
         string roomId,
         long lastEventSequence,
@@ -1686,7 +1691,11 @@ public static class MatchRecoveryValidator
             && TryReadObjectIntDictionary(value, "lethalDamageThreshold", out var lethalDamageThreshold)
             && IntDictionariesEqual(
                 lethalDamageThreshold,
-                ResolutionResult.BattleLethalDamageThresholdFor(state, state.BattleState));
+                ResolutionResult.BattleLethalDamageThresholdFor(state, state.BattleState))
+            && TryReadObjectRequiredAssignments(value, "requiredAssignments", out var requiredAssignments)
+            && RequiredAssignmentsEqual(
+                requiredAssignments,
+                ResolutionResult.BattleRequiredAssignmentsFor(state, state.BattleState));
     }
 
     private static bool TryReadObjectBool(object? value, string key, out bool flag)
@@ -1818,6 +1827,33 @@ public static class MatchRecoveryValidator
         }
 
         texts = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+        return false;
+    }
+
+    private static bool TryReadObjectRequiredAssignments(
+        object? value,
+        string key,
+        out IReadOnlyList<BattleRequiredAssignmentView> assignments)
+    {
+        if (value is IReadOnlyDictionary<string, object?> readOnlyDictionary
+            && readOnlyDictionary.TryGetValue(key, out var readOnlyValue))
+        {
+            return TryReadRequiredAssignmentsValue(readOnlyValue, out assignments);
+        }
+
+        if (value is IDictionary<string, object?> dictionary
+            && dictionary.TryGetValue(key, out var dictionaryValue))
+        {
+            return TryReadRequiredAssignmentsValue(dictionaryValue, out assignments);
+        }
+
+        if (value is JsonElement { ValueKind: JsonValueKind.Object } json
+            && json.TryGetProperty(key, out var jsonValue))
+        {
+            return TryReadRequiredAssignmentsValue(jsonValue, out assignments);
+        }
+
+        assignments = [];
         return false;
     }
 
@@ -2093,6 +2129,90 @@ public static class MatchRecoveryValidator
         return true;
     }
 
+    private static bool TryReadRequiredAssignmentsValue(
+        object? value,
+        out IReadOnlyList<BattleRequiredAssignmentView> assignments)
+    {
+        assignments = [];
+        if (value is null)
+        {
+            return false;
+        }
+
+        if (value is IReadOnlyList<BattleRequiredAssignmentView> assignmentList)
+        {
+            assignments = assignmentList;
+            return true;
+        }
+
+        if (value is IEnumerable<BattleRequiredAssignmentView> assignmentEnumerable)
+        {
+            assignments = assignmentEnumerable.ToArray();
+            return true;
+        }
+
+        if (value is JsonElement { ValueKind: JsonValueKind.Array } jsonArray)
+        {
+            var parsed = new List<BattleRequiredAssignmentView>();
+            foreach (var item in jsonArray.EnumerateArray())
+            {
+                if (!TryReadRequiredAssignmentValue(item, out var assignment))
+                {
+                    return false;
+                }
+
+                parsed.Add(assignment);
+            }
+
+            assignments = parsed;
+            return true;
+        }
+
+        if (value is IEnumerable<object?> objectValues)
+        {
+            return TryConvertRequiredAssignmentObjects(objectValues, out assignments);
+        }
+
+        return false;
+    }
+
+    private static bool TryConvertRequiredAssignmentObjects(
+        IEnumerable<object?> values,
+        out IReadOnlyList<BattleRequiredAssignmentView> assignments)
+    {
+        var parsed = new List<BattleRequiredAssignmentView>();
+        foreach (var value in values)
+        {
+            if (!TryReadRequiredAssignmentValue(value, out var assignment))
+            {
+                assignments = [];
+                return false;
+            }
+
+            parsed.Add(assignment);
+        }
+
+        assignments = parsed;
+        return true;
+    }
+
+    private static bool TryReadRequiredAssignmentValue(
+        object? value,
+        out BattleRequiredAssignmentView assignment)
+    {
+        assignment = new BattleRequiredAssignmentView(string.Empty, 0, []);
+        if (!TryReadObjectString(value, "sourceObjectId", out var sourceObjectId)
+            || sourceObjectId is null
+            || !TryReadObjectInt(value, "damage", out var damage)
+            || !TryReadObjectStringList(value, "legalTargetObjectIds", out var legalTargetObjectIds))
+        {
+            return false;
+        }
+
+        assignment = new BattleRequiredAssignmentView(sourceObjectId, damage, legalTargetObjectIds);
+        return true;
+    }
+
     private static bool TryReadOptionalStringValue(object? value, out string text)
     {
         if (TryReadStringValue(value, out var maybeText))
@@ -2272,6 +2392,43 @@ public static class MatchRecoveryValidator
             && left.All(entry =>
                 right.TryGetValue(entry.Key, out var values)
                 && StringListsEqual(entry.Value, values));
+    }
+
+    private static bool RequiredAssignmentsEqual(
+        IReadOnlyList<BattleRequiredAssignmentView> left,
+        IReadOnlyList<IReadOnlyDictionary<string, object?>> right)
+    {
+        return TryConvertRequiredAssignmentObjects(right, out var parsedRight)
+            && RequiredAssignmentsEqual(left, parsedRight);
+    }
+
+    private static bool RequiredAssignmentsEqual(
+        IReadOnlyList<BattleRequiredAssignmentView> left,
+        IReadOnlyList<BattleRequiredAssignmentView> right)
+    {
+        if (left.Count != right.Count)
+        {
+            return false;
+        }
+
+        for (var index = 0; index < left.Count; index++)
+        {
+            if (!RequiredAssignmentEqual(left[index], right[index]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool RequiredAssignmentEqual(
+        BattleRequiredAssignmentView left,
+        BattleRequiredAssignmentView right)
+    {
+        return string.Equals(left.SourceObjectId, right.SourceObjectId, StringComparison.Ordinal)
+            && left.Damage == right.Damage
+            && StringListsEqual(left.LegalTargetObjectIds, right.LegalTargetObjectIds);
     }
 
     private static bool SeatsEqual(
