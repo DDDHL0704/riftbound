@@ -3397,6 +3397,137 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateResolutionHistoryValueDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            2,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["battlefield-1"] = new("battlefield-1", ownerId: "alice", controllerId: "alice")
+            })
+        {
+            BattlefieldResolutions =
+            [
+                new(
+                    " battlefield-resolution-1 ",
+                    -1,
+                    " HELD ",
+                    " ",
+                    "battlefield-1",
+                    "alice",
+                    null,
+                    "alice",
+                    null,
+                    [],
+                    [" BATTLEFIELD_HELD ", "BATTLEFIELD_HELD"]),
+                new(
+                    "battlefield-resolution-1",
+                    3,
+                    "CONQUERED",
+                    "test",
+                    "battlefield-1",
+                    "alice",
+                    null,
+                    "alice",
+                    null,
+                    [],
+                    ["BATTLEFIELD_CONQUERED"])
+            ],
+            BattleResolutions =
+            [
+                new(
+                    " battle-resolution-1 ",
+                    -2,
+                    " CLOSED ",
+                    "",
+                    "battlefield-1",
+                    "alice",
+                    "bob",
+                    "alice",
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [" BATTLE_CLOSED ", "BATTLE_CLOSED"]),
+                new(
+                    "battle-resolution-1",
+                    4,
+                    "NO_RESULT",
+                    "test",
+                    "battlefield-1",
+                    "alice",
+                    "bob",
+                    null,
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    ["BATTLE_NO_RESULT"])
+            ]
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 2);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution battlefield-resolution-1 id has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution battlefield-resolution-1 tick -1 cannot be negative", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution battlefield-resolution-1 tick 3 is after authoritative state tick 2", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution battlefield-resolution-1 id is duplicated", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution battlefield-resolution-1 kind HELD has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution battlefield-resolution-1 reason is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution battlefield-resolution-1 related event kind BATTLEFIELD_HELD is duplicated", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution battle-resolution-1 tick -2 cannot be negative", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution battle-resolution-1 tick 4 is after authoritative state tick 2", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution battle-resolution-1 id is duplicated", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution battle-resolution-1 kind CLOSED has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution battle-resolution-1 reason is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution battle-resolution-1 related event kind BATTLE_CLOSED is duplicated", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorAcceptsMatchingSpectatorReplayFrame()
     {
         var authoritativeState = new MatchState(

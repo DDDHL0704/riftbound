@@ -1956,6 +1956,7 @@ public static class MatchRecoveryValidator
         }
 
         ValidateAuthoritativeStateSeats(authoritativeState, errors);
+        ValidateAuthoritativeStateResolutionHistory(authoritativeState, errors);
         ValidateAuthoritativeStatePlayerPointers(authoritativeState, errors);
 
         foreach (var view in playerViews.Values)
@@ -1979,6 +1980,239 @@ public static class MatchRecoveryValidator
             if (!SeatsEqual(authoritativeState.Seats, viewSeats))
             {
                 errors.Add($"snapshot for {view.PlayerId} disagrees with authoritative state seats");
+            }
+        }
+    }
+
+    private static void ValidateAuthoritativeStateResolutionHistory(
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        ValidateAuthoritativeStateBattlefieldResolutionMetadata(
+            authoritativeState.BattlefieldResolutions,
+            authoritativeState.Tick,
+            errors);
+        ValidateAuthoritativeStateBattleResolutionMetadata(
+            authoritativeState.BattleResolutions,
+            authoritativeState.Tick,
+            errors);
+    }
+
+    private static void ValidateAuthoritativeStateBattlefieldResolutionMetadata(
+        IReadOnlyList<BattlefieldResolutionState>? battlefieldResolutions,
+        long authoritativeTick,
+        List<string> errors)
+    {
+        if (battlefieldResolutions is null)
+        {
+            errors.Add("authoritative state battlefield resolutions list is required");
+            return;
+        }
+
+        var seenResolutionIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var resolution in battlefieldResolutions.OrderBy(
+            item => item?.ResolutionId ?? string.Empty,
+            StringComparer.Ordinal))
+        {
+            if (resolution is null)
+            {
+                errors.Add("authoritative state battlefield resolution is required");
+                continue;
+            }
+
+            var resolutionId = ValidateAuthoritativeStateResolutionId(
+                "battlefield resolution",
+                resolution.ResolutionId,
+                seenResolutionIds,
+                errors);
+            ValidateAuthoritativeStateResolutionTick(
+                "battlefield resolution",
+                resolutionId,
+                resolution.Tick,
+                authoritativeTick,
+                errors);
+            ValidateAuthoritativeStateResolutionText(
+                "battlefield resolution",
+                resolutionId,
+                "kind",
+                resolution.Kind,
+                errors);
+            ValidateAuthoritativeStateResolutionText(
+                "battlefield resolution",
+                resolutionId,
+                "reason",
+                resolution.Reason,
+                errors);
+            ValidateAuthoritativeStateResolutionTextList(
+                "battlefield resolution",
+                resolutionId,
+                "related event kind",
+                resolution.RelatedEventKinds,
+                errors);
+        }
+    }
+
+    private static void ValidateAuthoritativeStateBattleResolutionMetadata(
+        IReadOnlyList<BattleResolutionState>? battleResolutions,
+        long authoritativeTick,
+        List<string> errors)
+    {
+        if (battleResolutions is null)
+        {
+            errors.Add("authoritative state battle resolutions list is required");
+            return;
+        }
+
+        var seenResolutionIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var resolution in battleResolutions.OrderBy(
+            item => item?.ResolutionId ?? string.Empty,
+            StringComparer.Ordinal))
+        {
+            if (resolution is null)
+            {
+                errors.Add("authoritative state battle resolution is required");
+                continue;
+            }
+
+            var resolutionId = ValidateAuthoritativeStateResolutionId(
+                "battle resolution",
+                resolution.ResolutionId,
+                seenResolutionIds,
+                errors);
+            ValidateAuthoritativeStateResolutionTick(
+                "battle resolution",
+                resolutionId,
+                resolution.Tick,
+                authoritativeTick,
+                errors);
+            ValidateAuthoritativeStateResolutionText(
+                "battle resolution",
+                resolutionId,
+                "kind",
+                resolution.Kind,
+                errors);
+            ValidateAuthoritativeStateResolutionText(
+                "battle resolution",
+                resolutionId,
+                "reason",
+                resolution.Reason,
+                errors);
+            ValidateAuthoritativeStateResolutionTextList(
+                "battle resolution",
+                resolutionId,
+                "related event kind",
+                resolution.RelatedEventKinds,
+                errors);
+        }
+    }
+
+    private static string ValidateAuthoritativeStateResolutionId(
+        string resolutionLabel,
+        string? resolutionId,
+        ISet<string> seenResolutionIds,
+        List<string> errors)
+    {
+        if (string.IsNullOrWhiteSpace(resolutionId))
+        {
+            errors.Add($"authoritative state {resolutionLabel} id is required");
+            return string.Empty;
+        }
+
+        var normalizedResolutionId = resolutionId.Trim();
+        if (!string.Equals(resolutionId, normalizedResolutionId, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"authoritative state {resolutionLabel} {normalizedResolutionId} id has surrounding whitespace");
+        }
+
+        if (!seenResolutionIds.Add(normalizedResolutionId))
+        {
+            errors.Add($"authoritative state {resolutionLabel} {normalizedResolutionId} id is duplicated");
+        }
+
+        return normalizedResolutionId;
+    }
+
+    private static void ValidateAuthoritativeStateResolutionTick(
+        string resolutionLabel,
+        string resolutionId,
+        long tick,
+        long authoritativeTick,
+        List<string> errors)
+    {
+        var diagnosticResolutionId = string.IsNullOrEmpty(resolutionId) ? "<missing>" : resolutionId;
+        if (tick < 0)
+        {
+            errors.Add(
+                $"authoritative state {resolutionLabel} {diagnosticResolutionId} tick {tick} cannot be negative");
+        }
+
+        if (tick > authoritativeTick)
+        {
+            errors.Add(
+                $"authoritative state {resolutionLabel} {diagnosticResolutionId} tick {tick} is after authoritative state tick {authoritativeTick}");
+        }
+    }
+
+    private static void ValidateAuthoritativeStateResolutionText(
+        string resolutionLabel,
+        string resolutionId,
+        string valueLabel,
+        string? value,
+        List<string> errors)
+    {
+        var diagnosticResolutionId = string.IsNullOrEmpty(resolutionId) ? "<missing>" : resolutionId;
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            errors.Add(
+                $"authoritative state {resolutionLabel} {diagnosticResolutionId} {valueLabel} is required");
+            return;
+        }
+
+        var normalizedValue = value.Trim();
+        if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"authoritative state {resolutionLabel} {diagnosticResolutionId} {valueLabel} {normalizedValue} has surrounding whitespace");
+        }
+    }
+
+    private static void ValidateAuthoritativeStateResolutionTextList(
+        string resolutionLabel,
+        string resolutionId,
+        string valueLabel,
+        IReadOnlyList<string>? values,
+        List<string> errors)
+    {
+        var diagnosticResolutionId = string.IsNullOrEmpty(resolutionId) ? "<missing>" : resolutionId;
+        if (values is null)
+        {
+            errors.Add(
+                $"authoritative state {resolutionLabel} {diagnosticResolutionId} {valueLabel} list is required");
+            return;
+        }
+
+        var seenValues = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var value in values)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                errors.Add(
+                    $"authoritative state {resolutionLabel} {diagnosticResolutionId} {valueLabel} is required");
+                continue;
+            }
+
+            var normalizedValue = value.Trim();
+            if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"authoritative state {resolutionLabel} {diagnosticResolutionId} {valueLabel} {normalizedValue} has surrounding whitespace");
+            }
+
+            if (!seenValues.Add(normalizedValue))
+            {
+                errors.Add(
+                    $"authoritative state {resolutionLabel} {diagnosticResolutionId} {valueLabel} {normalizedValue} is duplicated");
             }
         }
     }
