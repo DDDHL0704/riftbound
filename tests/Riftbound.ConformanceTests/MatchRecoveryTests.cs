@@ -505,6 +505,44 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotActivePlayerOutsidePlayerMap()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var missingActivePlayerView = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    ActivePlayerId = "charlie"
+                }
+            }
+        };
+        var blankActivePlayerView = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    ActivePlayerId = " "
+                }
+            }
+        };
+
+        var missingErrors = MatchRecoveryValidator.Validate("room-a", 0, [], [], missingActivePlayerView);
+        var blankErrors = MatchRecoveryValidator.Validate("room-a", 0, [], [], blankActivePlayerView);
+
+        Assert.Contains(
+            missingErrors,
+            error => error.Contains(
+                "snapshot for alice active player charlie is missing from players",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            blankErrors,
+            error => error.Contains("snapshot for alice active player is required", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsOutOfOrderRecoveredEvents()
     {
         var events = new[]

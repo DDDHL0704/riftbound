@@ -1299,6 +1299,7 @@ public static class MatchRecoveryValidator
             {
                 ValidateSnapshotPlayerPayloads(view, errors);
                 ValidateSnapshotPlayerCoverage(view, playerViews.Keys, errors);
+                ValidateSnapshotActivePlayer(view, errors);
             }
 
             if (view.Snapshot.Tick != view.SnapshotTick)
@@ -1467,6 +1468,23 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"snapshot for {view.PlayerId} is missing player {expectedPlayerId}");
             }
+        }
+    }
+
+    private static void ValidateSnapshotActivePlayer(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (string.IsNullOrWhiteSpace(view.Snapshot.ActivePlayerId))
+        {
+            errors.Add($"snapshot for {view.PlayerId} active player is required");
+            return;
+        }
+
+        if (!view.Snapshot.Players.ContainsKey(view.Snapshot.ActivePlayerId))
+        {
+            errors.Add(
+                $"snapshot for {view.PlayerId} active player {view.Snapshot.ActivePlayerId} is missing from players");
         }
     }
 
