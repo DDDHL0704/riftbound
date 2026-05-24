@@ -1152,6 +1152,15 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame timing winner player does not match authoritative state winner player");
         }
 
+        if (!TryReadStringList(
+                spectatorReplayFrame.SpectatorSnapshot.Timing,
+                "passedPriorityPlayerIds",
+                out var spectatorPassedPriorityPlayerIds)
+            || !StringListsEqual(spectatorPassedPriorityPlayerIds, authoritativeState.PassedPriorityPlayerIds))
+        {
+            errors.Add("spectator replay frame timing passed priority players do not match authoritative state passed priority players");
+        }
+
         if (spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("seed")
             || spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("rngCursor"))
         {
@@ -1243,6 +1252,57 @@ public static class MatchRecoveryValidator
         }
 
         return false;
+    }
+
+    private static bool TryReadStringList(
+        IReadOnlyDictionary<string, object?> values,
+        string key,
+        out IReadOnlyList<string> texts)
+    {
+        texts = [];
+        if (!values.TryGetValue(key, out var value) || value is null)
+        {
+            return false;
+        }
+
+        if (value is IReadOnlyList<string> stringList)
+        {
+            texts = stringList;
+            return true;
+        }
+
+        if (value is IEnumerable<string> stringEnumerable)
+        {
+            texts = stringEnumerable.ToArray();
+            return true;
+        }
+
+        if (value is JsonElement { ValueKind: JsonValueKind.Array } jsonArray)
+        {
+            var parsed = new List<string>();
+            foreach (var item in jsonArray.EnumerateArray())
+            {
+                if (item.ValueKind != JsonValueKind.String)
+                {
+                    return false;
+                }
+
+                parsed.Add(item.GetString()!);
+            }
+
+            texts = parsed;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool StringListsEqual(
+        IReadOnlyList<string> left,
+        IReadOnlyList<string> right)
+    {
+        return left.Count == right.Count
+            && left.SequenceEqual(right, StringComparer.Ordinal);
     }
 
     private static bool SeatsEqual(
