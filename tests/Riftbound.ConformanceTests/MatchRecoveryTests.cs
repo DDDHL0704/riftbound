@@ -3233,6 +3233,64 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateObjectLocationPlayerZoneDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Hand = ["obj-1", "dup-1"]
+                },
+                ["bob"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["dup-1"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["obj-1"] = new("obj-1", ownerId: "alice", controllerId: "alice"),
+                ["dup-1"] = new("dup-1", ownerId: "alice", controllerId: "alice"),
+                ["missing-zone-1"] = new("missing-zone-1", ownerId: "alice", controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["obj-1"] = new("alice", "GRAVEYARD"),
+                ["dup-1"] = new("alice", "HAND"),
+                ["missing-zone-1"] = new("alice", "HAND")
+            });
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state player zones object dup-1 is duplicated between alice/HAND and bob/BATTLEFIELD", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state object location missing-zone-1 is missing from player zones", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state object location obj-1 alice/GRAVEYARD disagrees with player zones alice/HAND", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorAcceptsMatchingSpectatorReplayFrame()
     {
         var authoritativeState = new MatchState(

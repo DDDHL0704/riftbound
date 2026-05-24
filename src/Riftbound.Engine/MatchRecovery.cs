@@ -2086,6 +2086,10 @@ public static class MatchRecoveryValidator
         ValidateAuthoritativeStateCardObjectPlayers(authoritativeState.CardObjects, seatPlayerIds, errors);
         ValidateAuthoritativeStateObjectLocationPlayers(authoritativeState.ObjectLocations, seatPlayerIds, errors);
         ValidateAuthoritativeStateObjectLocationZones(authoritativeState.ObjectLocations, errors);
+        ValidateAuthoritativeStateObjectLocationPlayerZones(
+            authoritativeState.PlayerZones,
+            authoritativeState.ObjectLocations,
+            errors);
         ValidateAuthoritativeStateStackPlayers(authoritativeState.StackItems, seatPlayerIds, errors);
         ValidateAuthoritativeStateTriggerQueuePlayers(authoritativeState.TriggerQueue, seatPlayerIds, errors);
         ValidateAuthoritativeStatePendingPaymentPlayer(authoritativeState.PendingPayment, seatPlayerIds, errors);
@@ -2351,6 +2355,169 @@ public static class MatchRecoveryValidator
             _ => false
         };
     }
+
+    private static void ValidateAuthoritativeStateObjectLocationPlayerZones(
+        IReadOnlyDictionary<string, PlayerZones>? playerZones,
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
+        List<string> errors)
+    {
+        if (playerZones is null || objectLocations is null)
+        {
+            return;
+        }
+
+        var playerZoneLocations = BuildAuthoritativeStatePlayerZoneObjectIndex(playerZones, errors);
+        if (playerZoneLocations.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var (objectId, location) in objectLocations.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            if (location is null
+                || string.IsNullOrWhiteSpace(objectId)
+                || string.IsNullOrWhiteSpace(location.PlayerId)
+                || string.IsNullOrWhiteSpace(location.Zone))
+            {
+                continue;
+            }
+
+            var normalizedZone = location.Zone.Trim();
+            if (!IsKnownAuthoritativeObjectLocationZone(normalizedZone)
+                || string.Equals(normalizedZone, "STACK", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var normalizedObjectId = objectId.Trim();
+            var normalizedPlayerId = location.PlayerId.Trim();
+            if (!playerZoneLocations.TryGetValue(normalizedObjectId, out var playerZoneLocation))
+            {
+                errors.Add($"authoritative state object location {normalizedObjectId} is missing from player zones");
+                continue;
+            }
+
+            if (!string.Equals(playerZoneLocation.PlayerId, normalizedPlayerId, StringComparison.Ordinal)
+                || !string.Equals(playerZoneLocation.Zone, normalizedZone, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"authoritative state object location {normalizedObjectId} {normalizedPlayerId}/{normalizedZone} disagrees with player zones {playerZoneLocation.PlayerId}/{playerZoneLocation.Zone}");
+            }
+        }
+    }
+
+    private static Dictionary<string, AuthoritativeStateZoneLocation> BuildAuthoritativeStatePlayerZoneObjectIndex(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        List<string> errors)
+    {
+        var playerZoneLocations = new Dictionary<string, AuthoritativeStateZoneLocation>(StringComparer.Ordinal);
+        foreach (var (playerId, zones) in playerZones.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            if (string.IsNullOrWhiteSpace(playerId))
+            {
+                continue;
+            }
+
+            var normalizedPlayerId = playerId.Trim();
+            AddAuthoritativeStatePlayerZoneObjects(
+                playerZoneLocations,
+                normalizedPlayerId,
+                "MAIN_DECK",
+                zones.MainDeck,
+                errors);
+            AddAuthoritativeStatePlayerZoneObjects(
+                playerZoneLocations,
+                normalizedPlayerId,
+                "RUNE_DECK",
+                zones.RuneDeck,
+                errors);
+            AddAuthoritativeStatePlayerZoneObjects(
+                playerZoneLocations,
+                normalizedPlayerId,
+                "HAND",
+                zones.Hand,
+                errors);
+            AddAuthoritativeStatePlayerZoneObjects(
+                playerZoneLocations,
+                normalizedPlayerId,
+                "BASE",
+                zones.Base,
+                errors);
+            AddAuthoritativeStatePlayerZoneObjects(
+                playerZoneLocations,
+                normalizedPlayerId,
+                "BATTLEFIELD",
+                zones.Battlefields,
+                errors);
+            AddAuthoritativeStatePlayerZoneObjects(
+                playerZoneLocations,
+                normalizedPlayerId,
+                "GRAVEYARD",
+                zones.Graveyard,
+                errors);
+            AddAuthoritativeStatePlayerZoneObjects(
+                playerZoneLocations,
+                normalizedPlayerId,
+                "BANISHED",
+                zones.Banished,
+                errors);
+            AddAuthoritativeStatePlayerZoneObjects(
+                playerZoneLocations,
+                normalizedPlayerId,
+                "LEGEND",
+                zones.LegendZone,
+                errors);
+            AddAuthoritativeStatePlayerZoneObjects(
+                playerZoneLocations,
+                normalizedPlayerId,
+                "CHAMPION",
+                zones.ChampionZone,
+                errors);
+        }
+
+        return playerZoneLocations;
+    }
+
+    private static void AddAuthoritativeStatePlayerZoneObjects(
+        Dictionary<string, AuthoritativeStateZoneLocation> playerZoneLocations,
+        string playerId,
+        string zone,
+        IReadOnlyList<string>? objectIds,
+        List<string> errors)
+    {
+        if (objectIds is null)
+        {
+            return;
+        }
+
+        foreach (var objectId in objectIds)
+        {
+            if (string.IsNullOrWhiteSpace(objectId))
+            {
+                errors.Add($"authoritative state player zones {playerId}/{zone} object id is required");
+                continue;
+            }
+
+            var normalizedObjectId = objectId.Trim();
+            if (!string.Equals(objectId, normalizedObjectId, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"authoritative state player zones {playerId}/{zone} object {normalizedObjectId} has surrounding whitespace");
+            }
+
+            var location = new AuthoritativeStateZoneLocation(playerId, zone);
+            if (playerZoneLocations.TryGetValue(normalizedObjectId, out var existingLocation))
+            {
+                errors.Add(
+                    $"authoritative state player zones object {normalizedObjectId} is duplicated between {existingLocation.PlayerId}/{existingLocation.Zone} and {playerId}/{zone}");
+                continue;
+            }
+
+            playerZoneLocations[normalizedObjectId] = location;
+        }
+    }
+
+    private readonly record struct AuthoritativeStateZoneLocation(string PlayerId, string Zone);
 
     private static void ValidateAuthoritativeStateStackPlayers(
         IReadOnlyList<StackItemState>? stackItems,
