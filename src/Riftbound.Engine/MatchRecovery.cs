@@ -1955,6 +1955,8 @@ public static class MatchRecoveryValidator
             errors.Add($"authoritative state tick {authoritativeState.Tick} does not match recovery tick {expectedTick}");
         }
 
+        ValidateAuthoritativeStateSeats(authoritativeState, errors);
+
         foreach (var view in playerViews.Values)
         {
             if (view.Snapshot is null)
@@ -1976,6 +1978,50 @@ public static class MatchRecoveryValidator
             if (!SeatsEqual(authoritativeState.Seats, viewSeats))
             {
                 errors.Add($"snapshot for {view.PlayerId} disagrees with authoritative state seats");
+            }
+        }
+    }
+
+    private static void ValidateAuthoritativeStateSeats(
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        var seenSeats = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var (playerId, seat) in authoritativeState.Seats.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            var normalizedPlayerId = playerId.Trim();
+            if (string.IsNullOrWhiteSpace(playerId))
+            {
+                errors.Add("authoritative state seat player id is required");
+            }
+            else if (!string.Equals(playerId, normalizedPlayerId, StringComparison.Ordinal))
+            {
+                errors.Add($"authoritative state seat player {normalizedPlayerId} has surrounding whitespace");
+            }
+
+            var playerLabel = string.IsNullOrWhiteSpace(normalizedPlayerId)
+                ? "<blank>"
+                : normalizedPlayerId;
+            if (string.IsNullOrWhiteSpace(seat))
+            {
+                errors.Add($"authoritative state seat for {playerLabel} is required");
+                continue;
+            }
+
+            var normalizedSeat = seat.Trim();
+            if (!string.Equals(seat, normalizedSeat, StringComparison.Ordinal))
+            {
+                errors.Add($"authoritative state seat {normalizedSeat} for {playerLabel} has surrounding whitespace");
+            }
+
+            if (!IsKnownSeat(normalizedSeat))
+            {
+                errors.Add($"authoritative state seat {normalizedSeat} for {playerLabel} is invalid");
+            }
+
+            if (!seenSeats.Add(normalizedSeat))
+            {
+                errors.Add($"authoritative state seat {normalizedSeat} is duplicated");
             }
         }
     }
