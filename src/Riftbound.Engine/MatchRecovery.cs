@@ -153,6 +153,17 @@ public static class MatchActionLogReplayer
                 errors.Add($"action-log replay initial state turn number {replayInitialState.TurnNumber} must be 1");
             }
 
+            if (replayInitialState.Seats.Count == 0)
+            {
+                errors.Add("action-log replay initial state seats are required");
+            }
+
+            if (recovery.AuthoritativeState is { } authoritativeState
+                && !StringMapEquals(replayInitialState.Seats, authoritativeState.Seats))
+            {
+                errors.Add("action-log replay initial state seats do not match authoritative final state seats");
+            }
+
             var expectedInitialPlayerId = ReplayInitialPlayerIdFor(replayInitialState);
             if (!string.Equals(replayInitialState.ActivePlayerId, expectedInitialPlayerId, StringComparison.Ordinal))
             {
@@ -233,6 +244,16 @@ public static class MatchActionLogReplayer
             "P2" => 1,
             _ => 10
         };
+    }
+
+    private static bool StringMapEquals(
+        IReadOnlyDictionary<string, string> left,
+        IReadOnlyDictionary<string, string> right)
+    {
+        return left.Count == right.Count
+            && left.All(entry =>
+                right.TryGetValue(entry.Key, out var rightValue)
+                && string.Equals(entry.Value, rightValue, StringComparison.Ordinal));
     }
 
     public static async ValueTask<MatchActionLogReplayResult> VerifyFinalStateAsync(
