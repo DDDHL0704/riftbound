@@ -4651,6 +4651,32 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame timing battle does not match authoritative state battle");
         }
 
+        if (!TryReadObjectList(
+                spectatorReplayFrame.SpectatorSnapshot.Timing,
+                "battlefieldResolutions",
+                out var spectatorBattlefieldResolutions))
+        {
+            errors.Add("spectator replay frame timing battlefield resolutions are required");
+        }
+        else if (spectatorBattlefieldResolutions.Count != authoritativeState.BattlefieldResolutions.Count)
+        {
+            errors.Add(
+                $"spectator replay frame timing battlefield resolution count {spectatorBattlefieldResolutions.Count} does not match authoritative state battlefield resolution count {authoritativeState.BattlefieldResolutions.Count}");
+        }
+
+        if (!TryReadObjectList(
+                spectatorReplayFrame.SpectatorSnapshot.Timing,
+                "battleResolutions",
+                out var spectatorBattleResolutions))
+        {
+            errors.Add("spectator replay frame timing battle resolutions are required");
+        }
+        else if (spectatorBattleResolutions.Count != authoritativeState.BattleResolutions.Count)
+        {
+            errors.Add(
+                $"spectator replay frame timing battle resolution count {spectatorBattleResolutions.Count} does not match authoritative state battle resolution count {authoritativeState.BattleResolutions.Count}");
+        }
+
         if (spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("seed")
             || spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("rngCursor"))
         {
@@ -4818,6 +4844,38 @@ public static class MatchRecoveryValidator
         }
 
         return TryReadStringValue(value, out text);
+    }
+
+    private static bool TryReadObjectList(
+        IReadOnlyDictionary<string, object?> values,
+        string key,
+        out IReadOnlyList<object?> items)
+    {
+        items = [];
+        if (!values.TryGetValue(key, out var value) || value is null)
+        {
+            return false;
+        }
+
+        if (value is IReadOnlyList<object?> readOnlyList)
+        {
+            items = readOnlyList;
+            return true;
+        }
+
+        if (value is IEnumerable<object?> enumerable)
+        {
+            items = enumerable.ToArray();
+            return true;
+        }
+
+        if (value is JsonElement { ValueKind: JsonValueKind.Array } jsonArray)
+        {
+            items = jsonArray.EnumerateArray().Select(item => (object?)item).ToArray();
+            return true;
+        }
+
+        return false;
     }
 
     private static bool TryReadObjectString(object? value, string key, out string? text)
