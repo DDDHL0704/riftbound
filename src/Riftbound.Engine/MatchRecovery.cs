@@ -1125,6 +1125,15 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame timing turn player does not match authoritative state turn player");
         }
 
+        if (!TryReadString(
+                spectatorReplayFrame.SpectatorSnapshot.Timing,
+                "priorityPlayerId",
+                out var spectatorPriorityPlayerId)
+            || !string.Equals(spectatorPriorityPlayerId, authoritativeState.PriorityPlayerId, StringComparison.Ordinal))
+        {
+            errors.Add("spectator replay frame timing priority player does not match authoritative state priority player");
+        }
+
         if (spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("seed")
             || spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("rngCursor"))
         {
