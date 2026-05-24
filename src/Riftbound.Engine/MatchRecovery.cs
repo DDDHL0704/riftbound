@@ -1302,6 +1302,7 @@ public static class MatchRecoveryValidator
                 ValidateSnapshotPlayerPayloads(view, errors);
                 ValidateSnapshotPlayerCoverage(view, playerViews.Keys, errors);
                 ValidateSnapshotActivePlayer(view, errors);
+                ValidateSnapshotTimingPlayerMembership(view, "turnPlayerId", "turn player", errors);
             }
 
             if (view.Snapshot.Tick != view.SnapshotTick)
@@ -1476,6 +1477,26 @@ public static class MatchRecoveryValidator
             || string.IsNullOrWhiteSpace(value))
         {
             errors.Add($"snapshot for {view.PlayerId} timing {label} is required");
+        }
+    }
+
+    private static void ValidateSnapshotTimingPlayerMembership(
+        RecoveredPlayerView view,
+        string key,
+        string label,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadString(view.Snapshot.Timing, key, out var playerId)
+            || string.IsNullOrWhiteSpace(playerId))
+        {
+            return;
+        }
+
+        if (!view.Snapshot.Players.ContainsKey(playerId))
+        {
+            errors.Add(
+                $"snapshot for {view.PlayerId} timing {label} {playerId} is missing from players");
         }
     }
 
