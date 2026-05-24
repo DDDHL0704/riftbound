@@ -1027,6 +1027,43 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsRecoveredCommandTickTailBeforeRecoveryTick()
+    {
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED")
+        };
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-tail-behind",
+                "END_TURN",
+                RawCommand("END_TURN"),
+                0,
+                1,
+                0,
+                1,
+                true,
+                null)
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            1,
+            commands,
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            currentTick: 3);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command tick tail 1 does not match recovery tick 3",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsOutOfOrderRecoveredCommands()
     {
         var commands = new[]

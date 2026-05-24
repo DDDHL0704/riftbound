@@ -1203,6 +1203,12 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        if (currentTick is { } frameCurrentTick && previousFrameCompletedTick != frameCurrentTick)
+        {
+            errors.Add(
+                $"command tick tail {previousFrameCompletedTick} does not match recovery tick {frameCurrentTick}");
+        }
+
         foreach (var gameEvent in events.OrderBy(gameEvent => gameEvent.Sequence))
         {
             if (!acceptedEventOwners.ContainsKey(gameEvent.Sequence))
