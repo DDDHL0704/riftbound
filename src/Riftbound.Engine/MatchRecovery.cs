@@ -2016,6 +2016,7 @@ public static class MatchRecoveryValidator
         }
 
         ValidateSpectatorSnapshotBattlefieldScalarPayloads(battlefieldItems, authoritativeState, errors);
+        ValidateSpectatorSnapshotBattlefieldListPayloads(battlefieldItems, authoritativeState, errors);
     }
 
     private static void ValidateSpectatorSnapshotBattlefieldScalarPayloads(
@@ -2089,6 +2090,137 @@ public static class MatchRecoveryValidator
                     $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} hidden standby count does not match authoritative state hidden standby count");
             }
         }
+    }
+
+    private static void ValidateSpectatorSnapshotBattlefieldListPayloads(
+        IReadOnlyList<object?> spectatorBattlefields,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        var authoritativeBattlefields = authoritativeState.BattlefieldStates.Values.ToArray();
+        var count = Math.Min(spectatorBattlefields.Count, authoritativeBattlefields.Length);
+        for (var index = 0; index < count; index++)
+        {
+            var spectatorBattlefield = spectatorBattlefields[index];
+            var authoritativeBattlefield = authoritativeBattlefields[index];
+            var battlefieldObjectId = authoritativeBattlefield.BattlefieldObjectId;
+
+            if (!TryReadObjectStringList(spectatorBattlefield, "occupantObjectIds", out var occupantObjectIds)
+                || !StringListsEqual(occupantObjectIds, authoritativeBattlefield.OccupantObjectIds))
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} occupant object ids do not match authoritative state occupant object ids");
+            }
+
+            if (!TryReadObjectStringList(spectatorBattlefield, "occupantControllerIds", out var occupantControllerIds)
+                || !StringListsEqual(occupantControllerIds, authoritativeBattlefield.OccupantControllerIds))
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} occupant controller ids do not match authoritative state occupant controller ids");
+            }
+
+            var expectedUnitsBySide = ExpectedSpectatorUnitsBySide(authoritativeState, authoritativeBattlefield);
+            if (!TryReadObjectStringListDictionary(spectatorBattlefield, "unitsBySide", out var unitsBySide)
+                || !StringListDictionariesEqual(unitsBySide, expectedUnitsBySide))
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} units by side do not match authoritative state units by side");
+            }
+
+            var visibleStandbyObjectIds = authoritativeBattlefield.StandbyObjectIds
+                .Where(objectId => !IsHiddenBattlefieldStandbyForSpectator(authoritativeState, objectId))
+                .ToArray();
+            if (!TryReadObjectStringList(spectatorBattlefield, "standbyObjectIds", out var standbyObjectIds)
+                || !StringListsEqual(standbyObjectIds, visibleStandbyObjectIds))
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby object ids do not match authoritative state visible standby object ids");
+            }
+
+            var expectedScoredPlayerIds = SpectatorBattlefieldScoredThisTurnByPlayers(
+                authoritativeState,
+                battlefieldObjectId);
+            if (!TryReadObjectStringList(spectatorBattlefield, "scoredThisTurnPlayerIds", out var scoredPlayerIds)
+                || !StringListsEqual(scoredPlayerIds, expectedScoredPlayerIds))
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} scored player ids do not match authoritative state scored player ids");
+            }
+
+            var expectedPendingTaskKinds = authoritativeState.PendingCleanupTasks
+                .Where(task => string.Equals(task.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal))
+                .Select(task => task.Kind)
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(kind => kind, StringComparer.Ordinal)
+                .ToArray();
+            if (!TryReadObjectStringList(spectatorBattlefield, "pendingTaskKinds", out var pendingTaskKinds)
+                || !StringListsEqual(pendingTaskKinds, expectedPendingTaskKinds))
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} pending task kinds do not match authoritative state pending task kinds");
+            }
+        }
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlyList<string>> ExpectedSpectatorUnitsBySide(
+        MatchState authoritativeState,
+        BattlefieldState battlefield)
+    {
+        return battlefield.OccupantObjectIds
+            .Where(objectId => authoritativeState.CardObjects.ContainsKey(objectId))
+            .GroupBy(
+                objectId => EffectiveFieldControllerIdForRecovery(
+                    authoritativeState,
+                    objectId,
+                    authoritativeState.CardObjects[objectId]),
+                StringComparer.Ordinal)
+            .Where(group => !string.IsNullOrWhiteSpace(group.Key))
+            .OrderBy(group => group.Key, StringComparer.Ordinal)
+            .ToDictionary(
+                group => group.Key,
+                group => (IReadOnlyList<string>)group.OrderBy(objectId => objectId, StringComparer.Ordinal).ToArray(),
+                StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyList<string> SpectatorBattlefieldScoredThisTurnByPlayers(
+        MatchState authoritativeState,
+        string battlefieldObjectId)
+    {
+        return authoritativeState.UntilEndOfTurnEffects
+            .Select(effectId => TryParseBattlefieldScoreGainedMarker(effectId, out var markerBattlefieldObjectId, out var playerId)
+                && string.Equals(markerBattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+                    ? playerId
+                    : null)
+            .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
+            .Cast<string>()
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static bool TryParseBattlefieldScoreGainedMarker(
+        string effectId,
+        out string battlefieldObjectId,
+        out string playerId)
+    {
+        battlefieldObjectId = string.Empty;
+        playerId = string.Empty;
+        if (!effectId.StartsWith(BattlefieldTaskMarkers.ScoreGainedThisTurnPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var marker = effectId[BattlefieldTaskMarkers.ScoreGainedThisTurnPrefix.Length..];
+        var separator = marker.LastIndexOf(':');
+        if (separator <= 0 || separator == marker.Length - 1)
+        {
+            return false;
+        }
+
+        battlefieldObjectId = marker[..separator];
+        playerId = marker[(separator + 1)..];
+        return !string.IsNullOrWhiteSpace(battlefieldObjectId)
+            && !string.IsNullOrWhiteSpace(playerId);
     }
 
     private static IReadOnlyList<(string PlayerId, string ObjectId)> ExpectedSpectatorLaneBattlefieldObjectPairs(
