@@ -1480,6 +1480,10 @@ public static class MatchRecoveryValidator
         {
             errors.Add($"snapshot for {view.PlayerId} turn state is required");
         }
+        else if (!IsKnownTimingState(view.Snapshot.TurnState))
+        {
+            errors.Add($"snapshot for {view.PlayerId} turn state {view.Snapshot.TurnState} is invalid");
+        }
 
         if (view.Snapshot.Timing is not null)
         {
@@ -1488,16 +1492,24 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"snapshot for {view.PlayerId} timing state is required");
             }
-            else if (!string.IsNullOrWhiteSpace(view.Snapshot.TurnState)
-                && !string.Equals(view.Snapshot.TurnState, snapshotTimingState, StringComparison.Ordinal))
+            else
             {
-                errors.Add(
-                    $"snapshot for {view.PlayerId} turn state {view.Snapshot.TurnState} does not match timing state {snapshotTimingState}");
+                if (!IsKnownTimingState(snapshotTimingState))
+                {
+                    errors.Add($"snapshot for {view.PlayerId} timing state {snapshotTimingState} is invalid");
+                }
+
+                if (!string.IsNullOrWhiteSpace(view.Snapshot.TurnState)
+                    && !string.Equals(view.Snapshot.TurnState, snapshotTimingState, StringComparison.Ordinal))
+                {
+                    errors.Add(
+                        $"snapshot for {view.PlayerId} turn state {view.Snapshot.TurnState} does not match timing state {snapshotTimingState}");
+                }
             }
 
-            ValidateSnapshotTimingRequiredString(view, "phase", "phase", errors);
+            ValidateSnapshotTimingAllowedString(view, "phase", "phase", IsKnownMatchPhase, errors);
             ValidateSnapshotTimingRequiredString(view, "turnPlayerId", "turn player", errors);
-            ValidateSnapshotTimingRequiredString(view, "roomStatus", "room status", errors);
+            ValidateSnapshotTimingAllowedString(view, "roomStatus", "room status", IsKnownMatchStatus, errors);
         }
     }
 
@@ -1512,6 +1524,53 @@ public static class MatchRecoveryValidator
         {
             errors.Add($"snapshot for {view.PlayerId} timing {label} is required");
         }
+    }
+
+    private static void ValidateSnapshotTimingAllowedString(
+        RecoveredPlayerView view,
+        string key,
+        string label,
+        Func<string, bool> isKnownValue,
+        List<string> errors)
+    {
+        if (!TryReadString(view.Snapshot.Timing, key, out var value)
+            || string.IsNullOrWhiteSpace(value))
+        {
+            errors.Add($"snapshot for {view.PlayerId} timing {label} is required");
+            return;
+        }
+
+        if (!isKnownValue(value))
+        {
+            errors.Add($"snapshot for {view.PlayerId} timing {label} {value} is invalid");
+        }
+    }
+
+    private static bool IsKnownMatchPhase(string value)
+    {
+        return string.Equals(value, MatchPhases.Room, StringComparison.Ordinal)
+            || string.Equals(value, MatchPhases.Mulligan, StringComparison.Ordinal)
+            || string.Equals(value, MatchPhases.TurnStart, StringComparison.Ordinal)
+            || string.Equals(value, MatchPhases.Main, StringComparison.Ordinal)
+            || string.Equals(value, MatchPhases.TurnEnd, StringComparison.Ordinal);
+    }
+
+    private static bool IsKnownTimingState(string value)
+    {
+        return string.Equals(value, TimingStates.Room, StringComparison.Ordinal)
+            || string.Equals(value, TimingStates.Mulligan, StringComparison.Ordinal)
+            || string.Equals(value, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || string.Equals(value, TimingStates.NeutralClosed, StringComparison.Ordinal)
+            || string.Equals(value, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+            || string.Equals(value, TimingStates.SpellDuelClosed, StringComparison.Ordinal);
+    }
+
+    private static bool IsKnownMatchStatus(string value)
+    {
+        return string.Equals(value, MatchStatuses.Empty, StringComparison.Ordinal)
+            || string.Equals(value, MatchStatuses.Seating, StringComparison.Ordinal)
+            || string.Equals(value, MatchStatuses.InProgress, StringComparison.Ordinal)
+            || string.Equals(value, MatchStatuses.Finished, StringComparison.Ordinal);
     }
 
     private static void ValidateSnapshotTimingPlayerMembership(
