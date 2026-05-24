@@ -142,6 +142,11 @@ public static class MatchActionLogReplayer
                 $"action-log replay initial state room {replayInitialState.RoomId} does not match recovery room {recovery.RoomId}");
         }
 
+        if (recovery.ReplayInitialState is { Tick: not 0 } replayInitialStateWithTickDrift)
+        {
+            errors.Add($"action-log replay initial state tick {replayInitialStateWithTickDrift.Tick} must be 0");
+        }
+
         if (errors.Count > 0)
         {
             return errors;
