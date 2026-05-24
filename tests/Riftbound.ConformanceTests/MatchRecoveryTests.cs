@@ -4355,6 +4355,66 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public async Task RegistryRejectsRecoveryFrameWhenReplayInitialStatePlayerResourceBaselineMismatches()
+    {
+        var initialState = MatchReplayInitialStateBuilder.FromSeats(
+            "room-a",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            });
+        var journal = new RecordingMatchJournal();
+        var liveSession = new MatchSession(initialState, new PlaceholderRuleEngine(), journal);
+        await liveSession.ReadyAsync("alice", "intent-ready-a", RawCommand("READY"), CancellationToken.None);
+        var expectedFinalState = journal.Entries[^1].AuthoritativeState;
+        var wrongInitialState = initialState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["alice"] = new(1, 0),
+                ["bob"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty,
+                ["bob"] = PlayerZones.Empty with
+                {
+                    Hand = ["bob-hand-1"]
+                }
+            }
+        };
+        var frame = new MatchRecoveryFrame(
+            "room-a",
+            expectedFinalState.Tick,
+            journal.Entries[^1].CompletedEventSequence,
+            journal.Entries.Select(ToRecoveredCommand).ToArray(),
+            ToRecoveredEvents(journal.Entries),
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            [],
+            expectedFinalState,
+            wrongInitialState);
+        var registry = new InMemoryMatchSessionRegistry(
+            new PlaceholderRuleEngine(),
+            NoopMatchJournal.Instance,
+            new FixedRecoveryStore(frame));
+
+        var error = await Assert.ThrowsAsync<MatchSessionException>(async () =>
+            await registry.GetOrCreateAsync("room-a", CancellationToken.None));
+
+        Assert.Equal(ErrorCodes.RecoveryInconsistent, error.Code);
+        Assert.Contains("action-log audit failed", error.Message, StringComparison.Ordinal);
+        Assert.Contains(
+            "action-log replay initial state rune pool for alice must be empty",
+            error.Message,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "action-log replay initial state zones for bob must be empty",
+            error.Message,
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void SpectatorReplayFrameRedactsPrivateZonesFaceDownObjectsAndRngState()
     {
         var state = new MatchState(

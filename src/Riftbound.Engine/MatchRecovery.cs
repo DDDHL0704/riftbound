@@ -164,6 +164,32 @@ public static class MatchActionLogReplayer
                 errors.Add("action-log replay initial state seats do not match authoritative final state seats");
             }
 
+            if (!DictionaryKeysEqual(replayInitialState.RunePools, replayInitialState.Seats))
+            {
+                errors.Add("action-log replay initial state rune pool players must match seats");
+            }
+
+            foreach (var runePool in replayInitialState.RunePools.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+            {
+                if (!RunePool.Empty.Equals(runePool.Value))
+                {
+                    errors.Add($"action-log replay initial state rune pool for {runePool.Key} must be empty");
+                }
+            }
+
+            if (!DictionaryKeysEqual(replayInitialState.PlayerZones, replayInitialState.Seats))
+            {
+                errors.Add("action-log replay initial state zone players must match seats");
+            }
+
+            foreach (var playerZones in replayInitialState.PlayerZones.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+            {
+                if (!IsEmptyPlayerZones(playerZones.Value))
+                {
+                    errors.Add($"action-log replay initial state zones for {playerZones.Key} must be empty");
+                }
+            }
+
             var expectedInitialPlayerId = ReplayInitialPlayerIdFor(replayInitialState);
             if (!string.Equals(replayInitialState.ActivePlayerId, expectedInitialPlayerId, StringComparison.Ordinal))
             {
@@ -244,6 +270,27 @@ public static class MatchActionLogReplayer
             "P2" => 1,
             _ => 10
         };
+    }
+
+    private static bool DictionaryKeysEqual<TValue>(
+        IReadOnlyDictionary<string, TValue> values,
+        IReadOnlyDictionary<string, string> seats)
+    {
+        return values.Count == seats.Count
+            && values.Keys.All(seats.ContainsKey);
+    }
+
+    private static bool IsEmptyPlayerZones(PlayerZones zones)
+    {
+        return zones.MainDeck.Count == 0
+            && zones.RuneDeck.Count == 0
+            && zones.Hand.Count == 0
+            && zones.Base.Count == 0
+            && zones.Battlefields.Count == 0
+            && zones.Graveyard.Count == 0
+            && zones.Banished.Count == 0
+            && zones.LegendZone.Count == 0
+            && zones.ChampionZone.Count == 0;
     }
 
     private static bool StringMapEquals(
