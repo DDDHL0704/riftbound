@@ -1853,6 +1853,107 @@ public static class MatchRecoveryValidator
         };
     }
 
+    private static void ValidateSpectatorSnapshotPlayerPayloads(
+        SnapshotDto snapshot,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        foreach (var expectedPlayerId in authoritativeState.Seats.Keys)
+        {
+            if (!snapshot.Players.ContainsKey(expectedPlayerId))
+            {
+                errors.Add($"spectator replay frame snapshot is missing player {expectedPlayerId}");
+            }
+        }
+
+        foreach (var (playerId, playerPayload) in snapshot.Players)
+        {
+            if (!authoritativeState.Seats.ContainsKey(playerId))
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} is not in authoritative seats");
+            }
+
+            if (!IsSnapshotPlayerPayloadObject(playerPayload))
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} payload is required");
+                continue;
+            }
+
+            if (!TryReadObjectString(playerPayload, "id", out var payloadId)
+                || !string.Equals(payloadId, playerId, StringComparison.Ordinal))
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} payload id does not match player key");
+            }
+
+            if (!TryReadObjectString(playerPayload, "name", out var name)
+                || !string.Equals(name, playerId, StringComparison.Ordinal))
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} name does not match player id");
+            }
+
+            var expectedReady = authoritativeState.ReadyPlayerIds.Contains(playerId, StringComparer.Ordinal);
+            if (!TryReadObjectBool(playerPayload, "ready", out var ready)
+                || ready != expectedReady)
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} ready does not match authoritative state ready");
+            }
+
+            var zones = authoritativeState.PlayerZones.TryGetValue(playerId, out var playerZones)
+                ? playerZones
+                : PlayerZones.Empty;
+            if (!TryReadObjectInt(playerPayload, "handSize", out var handSize)
+                || handSize != zones.Hand.Count)
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} hand size does not match authoritative state hand size");
+            }
+
+            var expectedScore = authoritativeState.PlayerScores.TryGetValue(playerId, out var score)
+                ? score
+                : 0;
+            if (!TryReadObjectInt(playerPayload, "score", out var payloadScore)
+                || payloadScore != expectedScore)
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} score does not match authoritative state score");
+            }
+
+            var expectedExperience = authoritativeState.PlayerExperience.TryGetValue(playerId, out var experience)
+                ? experience
+                : 0;
+            if (!TryReadObjectInt(playerPayload, "experience", out var payloadExperience)
+                || payloadExperience != expectedExperience)
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} experience does not match authoritative state experience");
+            }
+
+            var expectedCardsPlayedThisTurn = authoritativeState.PlayerCardsPlayedThisTurn.TryGetValue(
+                playerId,
+                out var cardsPlayedThisTurn)
+                ? cardsPlayedThisTurn
+                : 0;
+            if (!TryReadObjectInt(playerPayload, "cardsPlayedThisTurn", out var payloadCardsPlayedThisTurn)
+                || payloadCardsPlayedThisTurn != expectedCardsPlayedThisTurn)
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} cards played this turn does not match authoritative state cards played this turn");
+            }
+
+            var expectedDeckSubmitted = authoritativeState.PlayerDecklists.ContainsKey(playerId);
+            if (!TryReadObjectBool(playerPayload, "deckSubmitted", out var deckSubmitted)
+                || deckSubmitted != expectedDeckSubmitted)
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} deck submitted does not match authoritative state deck submitted");
+            }
+
+            var expectedMulliganCompleted = authoritativeState.MulliganCompletedPlayerIds.Contains(
+                playerId,
+                StringComparer.Ordinal);
+            if (!TryReadObjectBool(playerPayload, "mulliganCompleted", out var mulliganCompleted)
+                || mulliganCompleted != expectedMulliganCompleted)
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} mulligan completed does not match authoritative state mulligan completed");
+            }
+        }
+    }
+
     private static void ValidateSnapshotPlayerCoverage(
         RecoveredPlayerView view,
         IEnumerable<string> expectedPlayerIds,
@@ -4388,6 +4489,13 @@ public static class MatchRecoveryValidator
         if (spectatorReplayFrame.SpectatorSnapshot.Players is null)
         {
             errors.Add("spectator replay frame snapshot players are required");
+        }
+        else
+        {
+            ValidateSpectatorSnapshotPlayerPayloads(
+                spectatorReplayFrame.SpectatorSnapshot,
+                authoritativeState,
+                errors);
         }
 
         if (spectatorReplayFrame.SpectatorSnapshot.Lanes is null)
