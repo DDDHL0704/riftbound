@@ -1312,7 +1312,7 @@ public static class MatchRecoveryValidator
         }
 
         if (!spectatorReplayFrame.SpectatorSnapshot.Timing.TryGetValue("battle", out var spectatorBattle)
-            || !BattleMatches(spectatorBattle, authoritativeState.BattleState))
+            || !BattleMatches(spectatorBattle, authoritativeState, authoritativeState.BattleState))
         {
             errors.Add("spectator replay frame timing battle does not match authoritative state battle");
         }
@@ -1631,7 +1631,7 @@ public static class MatchRecoveryValidator
             && StringListsEqual(stackControllerIds, expected.StackControllerIds);
     }
 
-    private static bool BattleMatches(object? value, BattleState expected)
+    private static bool BattleMatches(object? value, MatchState state, BattleState expected)
     {
         return TryReadObjectBool(value, "isActive", out var isActive)
             && isActive == expected.IsActive
@@ -1644,7 +1644,15 @@ public static class MatchRecoveryValidator
             && TryReadObjectStringList(value, "defenderObjectIds", out var defenderObjectIds)
             && StringListsEqual(defenderObjectIds, expected.DefenderObjectIds)
             && TryReadObjectStringDictionary(value, "participantControllerIds", out var participantControllerIds)
-            && StringDictionariesEqual(participantControllerIds, expected.ParticipantControllerIds);
+            && StringDictionariesEqual(participantControllerIds, expected.ParticipantControllerIds)
+            && TryReadObjectValue(value, "damageAssignment", out var damageAssignment)
+            && BattleDamageAssignmentPendingMatches(damageAssignment, state);
+    }
+
+    private static bool BattleDamageAssignmentPendingMatches(object? value, MatchState state)
+    {
+        return TryReadObjectBool(value, "isPending", out var isPending)
+            && isPending == ResolutionResult.HasOpenBattleDamageAssignmentWindow(state);
     }
 
     private static bool TryReadObjectBool(object? value, string key, out bool flag)
@@ -1668,6 +1676,33 @@ public static class MatchRecoveryValidator
         }
 
         flag = false;
+        return false;
+    }
+
+    private static bool TryReadObjectValue(object? value, string key, out object? nested)
+    {
+        if (value is IReadOnlyDictionary<string, object?> readOnlyDictionary
+            && readOnlyDictionary.TryGetValue(key, out var readOnlyValue))
+        {
+            nested = readOnlyValue;
+            return true;
+        }
+
+        if (value is IDictionary<string, object?> dictionary
+            && dictionary.TryGetValue(key, out var dictionaryValue))
+        {
+            nested = dictionaryValue;
+            return true;
+        }
+
+        if (value is JsonElement { ValueKind: JsonValueKind.Object } json
+            && json.TryGetProperty(key, out var jsonValue))
+        {
+            nested = jsonValue;
+            return true;
+        }
+
+        nested = null;
         return false;
     }
 
