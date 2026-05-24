@@ -876,6 +876,9 @@ public static class MatchRecoveryValidator
 {
     private const string DevSeedScenarioPrefix = "DEV_SEED_SCENARIO:";
     private const string DevSeedScenarioCommandType = "DEV_SEED_SCENARIO";
+    private const int BaseWinningScore = 8;
+    private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
+    private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
 
     private sealed record BattleRequiredAssignmentView(
         string SourceObjectId,
@@ -2986,6 +2989,30 @@ public static class MatchRecoveryValidator
         return authoritativeState.ObjectLocations.TryGetValue(objectId, out var location)
             ? location.PlayerId
             : string.Empty;
+    }
+
+    private static int EffectiveWinningScoreForRecovery(MatchState authoritativeState)
+    {
+        var modifier = authoritativeState.PlayerZones
+            .Sum(entry => entry.Value.Battlefields.Count(objectId =>
+                authoritativeState.CardObjects.TryGetValue(objectId, out var cardObject)
+                && (string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreCardNo, StringComparison.Ordinal)
+                    || string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreAltCardNo, StringComparison.Ordinal))
+                && SourceObjectControlledByPlayerOrLegacyOwnedForRecovery(cardObject, entry.Key)));
+        return BaseWinningScore + modifier;
+    }
+
+    private static bool SourceObjectControlledByPlayerOrLegacyOwnedForRecovery(
+        CardObjectState cardObject,
+        string playerId)
+    {
+        if (!string.IsNullOrWhiteSpace(cardObject.ControllerId))
+        {
+            return string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal);
+        }
+
+        return string.IsNullOrWhiteSpace(cardObject.OwnerId)
+            || string.Equals(cardObject.OwnerId, playerId, StringComparison.Ordinal);
     }
 
     private static bool BattlefieldObjectPairsEqual(
@@ -5801,6 +5828,15 @@ public static class MatchRecoveryValidator
             || !StringListsEqual(spectatorReadyPlayerIds, authoritativeState.ReadyPlayerIds))
         {
             errors.Add("spectator replay frame timing ready players do not match authoritative state ready players");
+        }
+
+        if (!TryReadObjectInt(
+                spectatorReplayFrame.SpectatorSnapshot.Timing,
+                "winningScore",
+                out var spectatorWinningScore)
+            || spectatorWinningScore != EffectiveWinningScoreForRecovery(authoritativeState))
+        {
+            errors.Add("spectator replay frame timing winning score does not match authoritative state winning score");
         }
 
         if (!spectatorReplayFrame.SpectatorSnapshot.Timing.TryGetValue("turnWindow", out var spectatorTurnWindow)
