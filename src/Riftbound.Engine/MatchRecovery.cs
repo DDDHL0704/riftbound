@@ -1141,6 +1141,16 @@ public static class MatchRecoveryValidator
                     }
                 }
 
+                if (commandEvents.Length > 0)
+                {
+                    var lastCoveredEventTick = commandEvents.Max(gameEvent => gameEvent.Tick);
+                    if (lastCoveredEventTick != command.CompletedTick)
+                    {
+                        errors.Add(
+                            $"command {command.ClientIntentId} completes at tick {command.CompletedTick} but covered event tick tail is {lastCoveredEventTick}");
+                    }
+                }
+
                 foreach (var gameEvent in commandEvents)
                 {
                     if (acceptedEventOwners.TryGetValue(gameEvent.Sequence, out var owner))

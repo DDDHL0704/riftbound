@@ -657,6 +657,46 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAcceptedCommandCompletedTickMismatchCoveredEventTail()
+    {
+        var events = new[]
+        {
+            new RecoveredEvent(
+                1,
+                2,
+                0,
+                new GameEvent("TURN_ENDED", "TURN_ENDED", new Dictionary<string, object?>()))
+        };
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-tail-mismatch",
+                "END_TURN",
+                RawCommand("END_TURN"),
+                1,
+                3,
+                0,
+                1,
+                true,
+                null)
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            1,
+            commands,
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-tail-mismatch completes at tick 3 but covered event tick tail is 2",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsNegativeCommandCompletedEventSequence()
     {
         var commands = new[]
