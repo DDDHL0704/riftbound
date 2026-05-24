@@ -3262,6 +3262,15 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
+            ValidateAuthoritativeStateNullableTextValue(
+                $"card object {objectId} card no",
+                cardObject.CardNo,
+                errors);
+            ValidateAuthoritativeStateNullableTextValue(
+                $"card object {objectId} attached object",
+                cardObject.AttachedToObjectId,
+                errors);
+
             if (cardObject.Damage < 0)
             {
                 errors.Add($"authoritative state card object {objectId} damage {cardObject.Damage} cannot be negative");

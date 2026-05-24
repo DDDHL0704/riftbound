@@ -3512,6 +3512,8 @@ public sealed class MatchRecoveryTests
                     tags: ["attacker"],
                     manaCost: 1)
                 {
+                    CardNo = " CARD-1 ",
+                    AttachedToObjectId = "",
                     Damage = -1,
                     ManaCost = -2,
                     UntilEndOfTurnEffects = [" STUNNED ", "STUNNED", ""],
@@ -3532,6 +3534,12 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains("authoritative state card object obj-1 damage -1 cannot be negative", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state card object obj-1 card no CARD-1 has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state card object obj-1 attached object is blank", StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains("authoritative state card object obj-1 mana cost -2 cannot be negative", StringComparison.Ordinal));
