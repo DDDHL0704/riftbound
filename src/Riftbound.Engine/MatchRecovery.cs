@@ -267,6 +267,15 @@ public static class MatchActionLogReplayer
                     $"command {command.ClientIntentId} replayed event {index + 1} kind {replayedEvents[index].Kind} but recovered event sequence {recoveredEvents[index].Sequence} kind {recoveredEvents[index].Event.Kind}");
             }
 
+            if (!string.Equals(
+                    replayedEvents[index].Description,
+                    recoveredEvents[index].Event.Description,
+                    StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} replayed event {index + 1} description {FormatReplayError(replayedEvents[index].Description)} but recovered event sequence {recoveredEvents[index].Sequence} description {FormatReplayError(recoveredEvents[index].Event.Description)}");
+            }
+
             var replayedPayloadHash = MatchStateHasher.HashValue(replayedEvents[index].Payload);
             var recoveredPayloadHash = MatchStateHasher.HashValue(recoveredEvents[index].Event.Payload);
             if (!string.Equals(replayedPayloadHash, recoveredPayloadHash, StringComparison.Ordinal))

@@ -3999,6 +3999,45 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public async Task ActionLogReplayerReportsRecoveredEventDescriptionMismatch()
+    {
+        var initialState = ReplayInitialState();
+        var journal = new RecordingMatchJournal();
+        var liveSession = new MatchSession(initialState, new PlaceholderRuleEngine(), journal);
+        await liveSession.SubmitAsync("alice", "intent-pass", new PassCommand(), RawCommand("PASS"), CancellationToken.None);
+        var expectedFinalState = journal.Entries[^1].AuthoritativeState;
+        var recoveredCommands = journal.Entries.Select(ToRecoveredCommand).ToArray();
+        var recoveredEvents = ToRecoveredEvents(journal.Entries);
+        Assert.NotEmpty(recoveredEvents);
+        var tamperedEvents = recoveredEvents
+            .Select((recoveredEvent, index) => index == 0
+                ? recoveredEvent with
+                {
+                    Event = recoveredEvent.Event with
+                    {
+                        Description = "tampered recovered description"
+                    }
+                }
+                : recoveredEvent)
+            .ToArray();
+
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(
+            initialState,
+            recoveredCommands,
+            expectedFinalState,
+            new PlaceholderRuleEngine(),
+            CancellationToken.None,
+            tamperedEvents);
+
+        Assert.False(replay.IsMatch);
+        Assert.Equal(replay.ExpectedStateHash, replay.ReplayedStateHash);
+        Assert.Contains(
+            replay.Errors,
+            error => error.Contains("command intent-pass replayed event 1 description", StringComparison.Ordinal)
+                && error.Contains("tampered recovered description", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task RegistryRunsActionLogReplayAuditBeforeRecoveryRestore()
     {
         var initialState = MatchReplayInitialStateBuilder.FromSeats(
