@@ -1114,6 +1114,17 @@ public static class MatchRecoveryValidator
             {
                 errors.Add("spectator replay frame snapshot stack effect kinds disagree with authoritative state stack effect kinds");
             }
+
+            var spectatorStackCardNumbers = ExtractStackItemStringValues(
+                spectatorReplayFrame.SpectatorSnapshot,
+                "cardNo");
+            var authoritativeStackCardNumbers = authoritativeState.StackItems
+                .Select(item => item.CardNo)
+                .ToArray();
+            if (!StringListsEqual(spectatorStackCardNumbers, authoritativeStackCardNumbers))
+            {
+                errors.Add("spectator replay frame snapshot stack card numbers disagree with authoritative state stack card numbers");
+            }
         }
 
         if (string.IsNullOrWhiteSpace(spectatorReplayFrame.SpectatorSnapshot.TurnState))
