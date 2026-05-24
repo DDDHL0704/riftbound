@@ -1961,6 +1961,7 @@ public static class MatchRecoveryValidator
         ValidateAuthoritativeStatePlayerZoneValues(authoritativeState.PlayerZones, errors);
         ValidateAuthoritativeStateStackAndTriggerValues(authoritativeState, errors);
         ValidateAuthoritativeStatePendingPaymentValues(authoritativeState.PendingPayment, errors);
+        ValidateAuthoritativeStatePendingHandChoiceValues(authoritativeState.PendingHandChoice, errors);
         ValidateAuthoritativeStateResolutionHistory(authoritativeState, errors);
         ValidateAuthoritativeStatePlayerPointers(authoritativeState, errors);
 
@@ -2378,6 +2379,58 @@ public static class MatchRecoveryValidator
             pendingPayment.PaymentResourceActionIds,
             errors,
             rejectDuplicates: true);
+    }
+
+    private static void ValidateAuthoritativeStatePendingHandChoiceValues(
+        PendingHandChoiceState? pendingHandChoice,
+        List<string> errors)
+    {
+        if (pendingHandChoice is null)
+        {
+            return;
+        }
+
+        var choiceId = ValidateAuthoritativeStateRequiredText(
+            "pending hand choice id",
+            pendingHandChoice.ChoiceId,
+            errors);
+        var choiceLabel = choiceId ?? "<unknown>";
+        ValidateAuthoritativeStateRequiredText(
+            $"pending hand choice {choiceLabel} window",
+            pendingHandChoice.ChoiceWindow,
+            errors);
+
+        if (pendingHandChoice.RequiredCount < 1)
+        {
+            errors.Add(
+                $"authoritative state pending hand choice {choiceLabel} required count {pendingHandChoice.RequiredCount} is invalid");
+        }
+
+        if (pendingHandChoice.MaxCount < pendingHandChoice.RequiredCount)
+        {
+            errors.Add(
+                $"authoritative state pending hand choice {choiceLabel} max count {pendingHandChoice.MaxCount} is less than required count {pendingHandChoice.RequiredCount}");
+        }
+
+        ValidateAuthoritativeStateStringListValues(
+            $"pending hand choice {choiceLabel} legal object",
+            pendingHandChoice.LegalObjectIds,
+            errors,
+            rejectDuplicates: true);
+
+        if (pendingHandChoice.LegalObjectIds is not null && pendingHandChoice.RequiredCount > 0)
+        {
+            var distinctLegalObjectCount = pendingHandChoice.LegalObjectIds
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .Select(value => value.Trim())
+                .Distinct(StringComparer.Ordinal)
+                .Count();
+            if (distinctLegalObjectCount < pendingHandChoice.RequiredCount)
+            {
+                errors.Add(
+                    $"authoritative state pending hand choice {choiceLabel} legal object count {distinctLegalObjectCount} is less than required count {pendingHandChoice.RequiredCount}");
+            }
+        }
     }
 
     private static void ValidateAuthoritativeStateStackItemValues(

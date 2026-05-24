@@ -3256,6 +3256,118 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStatePendingHandChoiceValueDrift()
+    {
+        var malformedListState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob")
+        {
+            PendingHandChoice = new PendingHandChoiceState(
+                "choice-1",
+                "CHOOSE_HAND_CARDS",
+                "alice",
+                requiredCount: 2,
+                maxCount: 2,
+                legalObjectIds: ["hand-1", "hand-2"],
+                reason: "test",
+                sourceObjectId: "source-1",
+                effectKind: "DRAW_DISCARD")
+            {
+                ChoiceId = " choice-1 ",
+                ChoiceWindow = " CHOOSE_HAND_CARDS ",
+                RequiredCount = 2,
+                MaxCount = 1,
+                LegalObjectIds = [" hand-1 ", "hand-1", ""]
+            }
+        };
+        var invalidRequiredState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob")
+        {
+            PendingHandChoice = new PendingHandChoiceState(
+                "choice-2",
+                "CHOOSE_HAND_CARDS",
+                "alice",
+                requiredCount: 1,
+                maxCount: 1,
+                legalObjectIds: ["hand-1"],
+                reason: "test",
+                sourceObjectId: "source-1",
+                effectKind: "DRAW_DISCARD")
+            {
+                RequiredCount = 0,
+                MaxCount = -1,
+                LegalObjectIds = null!
+            }
+        };
+
+        var errors = new List<string>();
+        errors.AddRange(MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            malformedListState,
+            currentTick: 0));
+        errors.AddRange(MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            invalidRequiredState,
+            currentTick: 0));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state pending hand choice id choice-1 has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state pending hand choice choice-1 window CHOOSE_HAND_CARDS has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state pending hand choice choice-1 max count 1 is less than required count 2", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state pending hand choice choice-1 legal object hand-1 has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state pending hand choice choice-1 legal object hand-1 is duplicated", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state pending hand choice choice-1 legal object is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state pending hand choice choice-1 legal object count 1 is less than required count 2", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state pending hand choice choice-2 required count 0 is invalid", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state pending hand choice choice-2 max count -1 is less than required count 0", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state pending hand choice choice-2 legal object list is required", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAuthoritativeStateObjectReferencesOutsideRegistry()
     {
         var authoritativeState = new MatchState(
