@@ -3566,6 +3566,66 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattleDamageAssignmentLethalThresholdMismatch()
+    {
+        var authoritativeState = BattleDamageAssignmentState();
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var battle = Assert.IsType<Dictionary<string, object?>>(timing["battle"]).ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var damageAssignment = Assert.IsType<Dictionary<string, object?>>(battle["damageAssignment"]).ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var lethalDamageThreshold = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
+            damageAssignment["lethalDamageThreshold"]).ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        Assert.Equal(2, lethalDamageThreshold["defender-a"]);
+        lethalDamageThreshold["defender-a"] = 1;
+        damageAssignment["lethalDamageThreshold"] = lethalDamageThreshold;
+        battle["damageAssignment"] = damageAssignment;
+        timing["battle"] = battle;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle does not match authoritative state battle", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplaySnapshotTurnStateMismatch()
     {
         var authoritativeState = new MatchState(

@@ -1682,7 +1682,11 @@ public static class MatchRecoveryValidator
             && TryReadObjectIntDictionary(value, "existingDamage", out var existingDamage)
             && IntDictionariesEqual(
                 existingDamage,
-                ResolutionResult.BattleExistingDamageFor(state, state.BattleState));
+                ResolutionResult.BattleExistingDamageFor(state, state.BattleState))
+            && TryReadObjectIntDictionary(value, "lethalDamageThreshold", out var lethalDamageThreshold)
+            && IntDictionariesEqual(
+                lethalDamageThreshold,
+                ResolutionResult.BattleLethalDamageThresholdFor(state, state.BattleState));
     }
 
     private static bool TryReadObjectBool(object? value, string key, out bool flag)
