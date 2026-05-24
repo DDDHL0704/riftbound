@@ -1313,6 +1313,12 @@ public static class MatchRecoveryValidator
                     $"snapshot for {view.PlayerId} has row tick {view.SnapshotTick} after recovery tick {recoveryTick}");
             }
 
+            if (currentTick is { } snapshotRecoveryTick && view.SnapshotTick != snapshotRecoveryTick)
+            {
+                errors.Add(
+                    $"snapshot for {view.PlayerId} has row tick {view.SnapshotTick} but recovery tick {snapshotRecoveryTick}");
+            }
+
             if (view.SnapshotEventSequence < 0)
             {
                 errors.Add(
@@ -1323,6 +1329,12 @@ public static class MatchRecoveryValidator
             {
                 errors.Add(
                     $"snapshot for {view.PlayerId} points to future event sequence {view.SnapshotEventSequence}");
+            }
+
+            if (view.SnapshotEventSequence != lastEventSequence)
+            {
+                errors.Add(
+                    $"snapshot for {view.PlayerId} has event sequence {view.SnapshotEventSequence} but recovery event sequence {lastEventSequence}");
             }
 
             if (view.Prompt is null
