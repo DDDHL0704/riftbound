@@ -2783,6 +2783,52 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStatePlayerListsOutsideSeats()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            readyPlayerIds: ["charlie"],
+            passedPriorityPlayerIds: ["diana"],
+            passedFocusPlayerIds: ["eve"],
+            destroyedUnitOwnerIdsThisTurn: ["frank"],
+            mulliganCompletedPlayerIds: ["gina"]);
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state ready player charlie is missing from seats", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state passed priority player diana is missing from seats", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state passed focus player eve is missing from seats", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state destroyed unit owner frank is missing from seats", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state mulligan completed player gina is missing from seats", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorAcceptsMatchingSpectatorReplayFrame()
     {
         var authoritativeState = new MatchState(

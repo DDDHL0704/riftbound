@@ -2027,6 +2027,31 @@ public static class MatchRecoveryValidator
             authoritativeState.ExtraTurnPlayerId,
             seatPlayerIds,
             errors);
+        ValidateAuthoritativeStatePlayerList(
+            "ready player",
+            authoritativeState.ReadyPlayerIds,
+            seatPlayerIds,
+            errors);
+        ValidateAuthoritativeStatePlayerList(
+            "passed priority player",
+            authoritativeState.PassedPriorityPlayerIds,
+            seatPlayerIds,
+            errors);
+        ValidateAuthoritativeStatePlayerList(
+            "passed focus player",
+            authoritativeState.PassedFocusPlayerIds,
+            seatPlayerIds,
+            errors);
+        ValidateAuthoritativeStatePlayerList(
+            "mulligan completed player",
+            authoritativeState.MulliganCompletedPlayerIds,
+            seatPlayerIds,
+            errors);
+        ValidateAuthoritativeStatePlayerList(
+            "destroyed unit owner",
+            authoritativeState.DestroyedUnitOwnerIdsThisTurn,
+            seatPlayerIds,
+            errors);
     }
 
     private static void ValidateAuthoritativeStateRequiredPlayerPointer(
@@ -2050,6 +2075,47 @@ public static class MatchRecoveryValidator
         if (!seatPlayerIds.Contains(normalizedPlayerId))
         {
             errors.Add($"authoritative state {pointerName} {normalizedPlayerId} is missing from seats");
+        }
+    }
+
+    private static void ValidateAuthoritativeStatePlayerList(
+        string listMemberName,
+        IReadOnlyList<string>? playerIds,
+        IReadOnlySet<string> seatPlayerIds,
+        List<string> errors)
+    {
+        if (playerIds is null)
+        {
+            errors.Add($"authoritative state {listMemberName} list is required");
+            return;
+        }
+
+        var seenPlayerIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var playerId in playerIds)
+        {
+            if (string.IsNullOrWhiteSpace(playerId))
+            {
+                errors.Add($"authoritative state {listMemberName} id is required");
+                continue;
+            }
+
+            var normalizedPlayerId = playerId.Trim();
+            if (!string.Equals(playerId, normalizedPlayerId, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"authoritative state {listMemberName} {normalizedPlayerId} has surrounding whitespace");
+            }
+
+            if (!seatPlayerIds.Contains(normalizedPlayerId))
+            {
+                errors.Add(
+                    $"authoritative state {listMemberName} {normalizedPlayerId} is missing from seats");
+            }
+
+            if (!seenPlayerIds.Add(normalizedPlayerId))
+            {
+                errors.Add($"authoritative state {listMemberName} {normalizedPlayerId} is duplicated");
+            }
         }
     }
 
