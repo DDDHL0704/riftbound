@@ -1550,6 +1550,12 @@ public static class MatchRecoveryValidator
         }
 
         var normalizedPlayerId = playerId.Trim();
+        if (!string.Equals(playerId, normalizedPlayerId, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"snapshot for {view.PlayerId} timing {label} {normalizedPlayerId} has surrounding whitespace");
+        }
+
         if (!view.Snapshot.Players.ContainsKey(normalizedPlayerId))
         {
             errors.Add(
@@ -1587,6 +1593,12 @@ public static class MatchRecoveryValidator
             }
 
             var normalizedPlayerId = playerId.Trim();
+            if (!string.Equals(playerId, normalizedPlayerId, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"snapshot for {view.PlayerId} timing {label} {normalizedPlayerId} has surrounding whitespace");
+            }
+
             if (!seenPlayerIds.Add(normalizedPlayerId))
             {
                 errors.Add(
