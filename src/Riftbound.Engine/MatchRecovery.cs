@@ -1170,6 +1170,15 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame timing passed focus players do not match authoritative state passed focus players");
         }
 
+        if (!TryReadStringList(
+                spectatorReplayFrame.SpectatorSnapshot.Timing,
+                "destroyedUnitOwnerIdsThisTurn",
+                out var spectatorDestroyedUnitOwnerIdsThisTurn)
+            || !StringListsEqual(spectatorDestroyedUnitOwnerIdsThisTurn, authoritativeState.DestroyedUnitOwnerIdsThisTurn))
+        {
+            errors.Add("spectator replay frame timing destroyed unit owners do not match authoritative state destroyed unit owners");
+        }
+
         if (spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("seed")
             || spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("rngCursor"))
         {
