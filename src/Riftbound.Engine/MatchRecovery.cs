@@ -2719,6 +2719,7 @@ public static class MatchRecoveryValidator
                 resolution.ResolutionId,
                 seenResolutionIds,
                 errors);
+            var diagnosticResolutionId = string.IsNullOrEmpty(resolutionId) ? "<missing>" : resolutionId;
             ValidateAuthoritativeStateResolutionTick(
                 "battlefield resolution",
                 resolutionId,
@@ -2736,6 +2737,10 @@ public static class MatchRecoveryValidator
                 resolutionId,
                 "reason",
                 resolution.Reason,
+                errors);
+            ValidateAuthoritativeStateNullableTextValue(
+                $"battlefield resolution {diagnosticResolutionId} source object",
+                resolution.SourceObjectId,
                 errors);
             ValidateAuthoritativeStateResolutionTextList(
                 "battlefield resolution",

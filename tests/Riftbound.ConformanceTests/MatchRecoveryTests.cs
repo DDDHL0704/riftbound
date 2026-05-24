@@ -4455,7 +4455,7 @@ public sealed class MatchRecoveryTests
                     "alice",
                     null,
                     "alice",
-                    null,
+                    " missing-source ",
                     [],
                     [" BATTLEFIELD_HELD ", "BATTLEFIELD_HELD"]),
                 new(
@@ -4467,7 +4467,7 @@ public sealed class MatchRecoveryTests
                     "alice",
                     null,
                     "alice",
-                    null,
+                    "",
                     [],
                     ["BATTLEFIELD_CONQUERED"])
             ],
@@ -4533,6 +4533,12 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains("authoritative state battlefield resolution battlefield-resolution-1 reason is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution battlefield-resolution-1 source object missing-source has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution battlefield-resolution-1 source object is blank", StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains("authoritative state battlefield resolution battlefield-resolution-1 related event kind BATTLEFIELD_HELD is duplicated", StringComparison.Ordinal));
