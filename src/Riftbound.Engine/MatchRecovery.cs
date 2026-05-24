@@ -2082,6 +2082,7 @@ public static class MatchRecoveryValidator
             authoritativeState.PlayerDecklists,
             seatPlayerIds,
             errors);
+        ValidateAuthoritativeStateCardObjectIdentities(authoritativeState.CardObjects, errors);
         ValidateAuthoritativeStateCardObjectPlayers(authoritativeState.CardObjects, seatPlayerIds, errors);
         ValidateAuthoritativeStateObjectLocationPlayers(authoritativeState.ObjectLocations, seatPlayerIds, errors);
         ValidateAuthoritativeStateStackPlayers(authoritativeState.StackItems, seatPlayerIds, errors);
@@ -2228,6 +2229,44 @@ public static class MatchRecoveryValidator
                 cardObject.ControllerId,
                 seatPlayerIds,
                 errors);
+        }
+    }
+
+    private static void ValidateAuthoritativeStateCardObjectIdentities(
+        IReadOnlyDictionary<string, CardObjectState>? cardObjects,
+        List<string> errors)
+    {
+        if (cardObjects is null)
+        {
+            return;
+        }
+
+        foreach (var (objectId, cardObject) in cardObjects.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            if (cardObject is null)
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(cardObject.ObjectId))
+            {
+                errors.Add($"authoritative state card object {objectId} object id is required");
+                continue;
+            }
+
+            var normalizedMapObjectId = objectId.Trim();
+            var normalizedCardObjectId = cardObject.ObjectId.Trim();
+            if (!string.Equals(cardObject.ObjectId, normalizedCardObjectId, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"authoritative state card object {objectId} object id {normalizedCardObjectId} has surrounding whitespace");
+            }
+
+            if (!string.Equals(normalizedMapObjectId, normalizedCardObjectId, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"authoritative state card object {objectId} object id {normalizedCardObjectId} does not match map key");
+            }
         }
     }
 
@@ -2383,6 +2422,36 @@ public static class MatchRecoveryValidator
         if (knownObjectIds.Count == 0)
         {
             return;
+        }
+
+        foreach (var (objectId, cardObject) in authoritativeState.CardObjects
+            .OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            if (cardObject is null)
+            {
+                continue;
+            }
+
+            ValidateAuthoritativeStateOptionalObjectReference(
+                $"card object {objectId} attached object",
+                cardObject.AttachedToObjectId,
+                knownObjectIds,
+                errors);
+        }
+
+        foreach (var (objectId, location) in authoritativeState.ObjectLocations
+            .OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            if (location is null)
+            {
+                continue;
+            }
+
+            ValidateAuthoritativeStateOptionalObjectReference(
+                $"object location {objectId} battlefield object",
+                location.BattlefieldObjectId,
+                knownObjectIds,
+                errors);
         }
 
         foreach (var stackItem in authoritativeState.StackItems

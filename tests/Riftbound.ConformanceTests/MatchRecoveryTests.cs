@@ -3147,6 +3147,55 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateObjectIdentityAndLocationReferenceDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["known-1"] = new(
+                    "known-mismatch",
+                    attachedToObjectId: "missing-attach",
+                    ownerId: "alice",
+                    controllerId: "alice"),
+                ["unit-1"] = new("unit-1", ownerId: "alice", controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["known-1"] = new("alice", "HAND"),
+                ["unit-1"] = new("alice", "BATTLEFIELD", "missing-battlefield")
+            });
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state card object known-1 object id known-mismatch does not match map key", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state card object known-1 attached object missing-attach is missing from object registry", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state object location unit-1 battlefield object missing-battlefield is missing from object registry", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorAcceptsMatchingSpectatorReplayFrame()
     {
         var authoritativeState = new MatchState(
