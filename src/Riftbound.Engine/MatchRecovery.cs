@@ -4708,6 +4708,61 @@ public static class MatchRecoveryValidator
             {
                 errors.Add("spectator replay frame timing battlefield resolution reasons disagree with authoritative state battlefield resolution reasons");
             }
+
+            var spectatorBattlefieldResolutionBattlefieldObjectIds = ExtractObjectStringValues(
+                spectatorBattlefieldResolutions,
+                "battlefieldObjectId");
+            var authoritativeBattlefieldResolutionBattlefieldObjectIds = authoritativeState.BattlefieldResolutions
+                .Select(resolution => resolution.BattlefieldObjectId)
+                .ToArray();
+            if (!StringListsEqual(spectatorBattlefieldResolutionBattlefieldObjectIds, authoritativeBattlefieldResolutionBattlefieldObjectIds))
+            {
+                errors.Add("spectator replay frame timing battlefield resolution battlefield object ids disagree with authoritative state battlefield resolution battlefield object ids");
+            }
+
+            var spectatorBattlefieldResolutionPlayerIds = ExtractObjectStringValues(
+                spectatorBattlefieldResolutions,
+                "playerId");
+            var authoritativeBattlefieldResolutionPlayerIds = authoritativeState.BattlefieldResolutions
+                .Select(resolution => resolution.PlayerId ?? string.Empty)
+                .ToArray();
+            if (!StringListsEqual(spectatorBattlefieldResolutionPlayerIds, authoritativeBattlefieldResolutionPlayerIds))
+            {
+                errors.Add("spectator replay frame timing battlefield resolution player ids disagree with authoritative state battlefield resolution player ids");
+            }
+
+            var spectatorBattlefieldResolutionPreviousControllerIds = ExtractObjectStringValues(
+                spectatorBattlefieldResolutions,
+                "previousControllerId");
+            var authoritativeBattlefieldResolutionPreviousControllerIds = authoritativeState.BattlefieldResolutions
+                .Select(resolution => resolution.PreviousControllerId ?? string.Empty)
+                .ToArray();
+            if (!StringListsEqual(spectatorBattlefieldResolutionPreviousControllerIds, authoritativeBattlefieldResolutionPreviousControllerIds))
+            {
+                errors.Add("spectator replay frame timing battlefield resolution previous controller ids disagree with authoritative state battlefield resolution previous controller ids");
+            }
+
+            var spectatorBattlefieldResolutionControllerIds = ExtractObjectStringValues(
+                spectatorBattlefieldResolutions,
+                "controllerId");
+            var authoritativeBattlefieldResolutionControllerIds = authoritativeState.BattlefieldResolutions
+                .Select(resolution => resolution.ControllerId ?? string.Empty)
+                .ToArray();
+            if (!StringListsEqual(spectatorBattlefieldResolutionControllerIds, authoritativeBattlefieldResolutionControllerIds))
+            {
+                errors.Add("spectator replay frame timing battlefield resolution controller ids disagree with authoritative state battlefield resolution controller ids");
+            }
+
+            var spectatorBattlefieldResolutionSourceObjectIds = ExtractObjectStringValues(
+                spectatorBattlefieldResolutions,
+                "sourceObjectId");
+            var authoritativeBattlefieldResolutionSourceObjectIds = authoritativeState.BattlefieldResolutions
+                .Select(resolution => resolution.SourceObjectId ?? string.Empty)
+                .ToArray();
+            if (!StringListsEqual(spectatorBattlefieldResolutionSourceObjectIds, authoritativeBattlefieldResolutionSourceObjectIds))
+            {
+                errors.Add("spectator replay frame timing battlefield resolution source object ids disagree with authoritative state battlefield resolution source object ids");
+            }
         }
 
         if (!TryReadObjectList(
@@ -4766,6 +4821,50 @@ public static class MatchRecoveryValidator
             if (!StringListsEqual(spectatorBattleResolutionReasons, authoritativeBattleResolutionReasons))
             {
                 errors.Add("spectator replay frame timing battle resolution reasons disagree with authoritative state battle resolution reasons");
+            }
+
+            var spectatorBattleResolutionBattlefieldIds = ExtractObjectStringValues(
+                spectatorBattleResolutions,
+                "battlefieldId");
+            var authoritativeBattleResolutionBattlefieldIds = authoritativeState.BattleResolutions
+                .Select(resolution => resolution.BattlefieldId)
+                .ToArray();
+            if (!StringListsEqual(spectatorBattleResolutionBattlefieldIds, authoritativeBattleResolutionBattlefieldIds))
+            {
+                errors.Add("spectator replay frame timing battle resolution battlefield ids disagree with authoritative state battle resolution battlefield ids");
+            }
+
+            var spectatorBattleResolutionAttackingPlayerIds = ExtractObjectStringValues(
+                spectatorBattleResolutions,
+                "attackingPlayerId");
+            var authoritativeBattleResolutionAttackingPlayerIds = authoritativeState.BattleResolutions
+                .Select(resolution => resolution.AttackingPlayerId ?? string.Empty)
+                .ToArray();
+            if (!StringListsEqual(spectatorBattleResolutionAttackingPlayerIds, authoritativeBattleResolutionAttackingPlayerIds))
+            {
+                errors.Add("spectator replay frame timing battle resolution attacking player ids disagree with authoritative state battle resolution attacking player ids");
+            }
+
+            var spectatorBattleResolutionDefendingPlayerIds = ExtractObjectStringValues(
+                spectatorBattleResolutions,
+                "defendingPlayerId");
+            var authoritativeBattleResolutionDefendingPlayerIds = authoritativeState.BattleResolutions
+                .Select(resolution => resolution.DefendingPlayerId ?? string.Empty)
+                .ToArray();
+            if (!StringListsEqual(spectatorBattleResolutionDefendingPlayerIds, authoritativeBattleResolutionDefendingPlayerIds))
+            {
+                errors.Add("spectator replay frame timing battle resolution defending player ids disagree with authoritative state battle resolution defending player ids");
+            }
+
+            var spectatorBattleResolutionWinnerPlayerIds = ExtractObjectStringValues(
+                spectatorBattleResolutions,
+                "winnerPlayerId");
+            var authoritativeBattleResolutionWinnerPlayerIds = authoritativeState.BattleResolutions
+                .Select(resolution => resolution.WinnerPlayerId ?? string.Empty)
+                .ToArray();
+            if (!StringListsEqual(spectatorBattleResolutionWinnerPlayerIds, authoritativeBattleResolutionWinnerPlayerIds))
+            {
+                errors.Add("spectator replay frame timing battle resolution winner player ids disagree with authoritative state battle resolution winner player ids");
             }
         }
 
