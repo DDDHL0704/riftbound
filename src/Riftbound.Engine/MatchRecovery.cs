@@ -2002,6 +2002,31 @@ public static class MatchRecoveryValidator
             authoritativeState.TurnPlayerId,
             seatPlayerIds,
             errors);
+        ValidateAuthoritativeStateOptionalPlayerPointer(
+            "priority player",
+            authoritativeState.PriorityPlayerId,
+            seatPlayerIds,
+            errors);
+        ValidateAuthoritativeStateOptionalPlayerPointer(
+            "focus player",
+            authoritativeState.FocusPlayerId,
+            seatPlayerIds,
+            errors);
+        ValidateAuthoritativeStateOptionalPlayerPointer(
+            "winner player",
+            authoritativeState.WinnerPlayerId,
+            seatPlayerIds,
+            errors);
+        ValidateAuthoritativeStateOptionalPlayerPointer(
+            "opening second action player",
+            authoritativeState.OpeningSecondActionPlayerId,
+            seatPlayerIds,
+            errors);
+        ValidateAuthoritativeStateOptionalPlayerPointer(
+            "extra turn player",
+            authoritativeState.ExtraTurnPlayerId,
+            seatPlayerIds,
+            errors);
     }
 
     private static void ValidateAuthoritativeStateRequiredPlayerPointer(
@@ -2013,6 +2038,35 @@ public static class MatchRecoveryValidator
         if (string.IsNullOrWhiteSpace(playerId))
         {
             errors.Add($"authoritative state {pointerName} is required");
+            return;
+        }
+
+        var normalizedPlayerId = playerId.Trim();
+        if (!string.Equals(playerId, normalizedPlayerId, StringComparison.Ordinal))
+        {
+            errors.Add($"authoritative state {pointerName} {normalizedPlayerId} has surrounding whitespace");
+        }
+
+        if (!seatPlayerIds.Contains(normalizedPlayerId))
+        {
+            errors.Add($"authoritative state {pointerName} {normalizedPlayerId} is missing from seats");
+        }
+    }
+
+    private static void ValidateAuthoritativeStateOptionalPlayerPointer(
+        string pointerName,
+        string? playerId,
+        IReadOnlySet<string> seatPlayerIds,
+        List<string> errors)
+    {
+        if (playerId is null)
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(playerId))
+        {
+            errors.Add($"authoritative state {pointerName} is blank");
             return;
         }
 
