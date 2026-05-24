@@ -1959,6 +1959,7 @@ public static class MatchRecoveryValidator
         ValidateAuthoritativeStateSeats(authoritativeState, errors);
         ValidateAuthoritativeStateResourceValues(authoritativeState, errors);
         ValidateAuthoritativeStatePlayerZoneValues(authoritativeState.PlayerZones, errors);
+        ValidateAuthoritativeStateStackAndTriggerValues(authoritativeState, errors);
         ValidateAuthoritativeStateResolutionHistory(authoritativeState, errors);
         ValidateAuthoritativeStatePlayerPointers(authoritativeState, errors);
 
@@ -2318,6 +2319,133 @@ public static class MatchRecoveryValidator
             {
                 errors.Add(
                     $"authoritative state temporary payment resource {resourceLabel} allowed payment kind {normalizedPaymentKind} is duplicated");
+            }
+        }
+    }
+
+    private static void ValidateAuthoritativeStateStackAndTriggerValues(
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        ValidateAuthoritativeStateStackItemValues(authoritativeState.StackItems, errors);
+        ValidateAuthoritativeStateTriggerQueueValues(authoritativeState.TriggerQueue, errors);
+    }
+
+    private static void ValidateAuthoritativeStateStackItemValues(
+        IReadOnlyList<StackItemState>? stackItems,
+        List<string> errors)
+    {
+        if (stackItems is null)
+        {
+            return;
+        }
+
+        var seenStackItemIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var stackItem in stackItems.OrderBy(item => item?.StackItemId ?? string.Empty, StringComparer.Ordinal))
+        {
+            if (stackItem is null)
+            {
+                continue;
+            }
+
+            var stackItemId = ValidateAuthoritativeStateRequiredText(
+                "stack item id",
+                stackItem.StackItemId,
+                errors);
+            var stackItemLabel = stackItemId ?? "<unknown>";
+            if (stackItemId is not null && !seenStackItemIds.Add(stackItemId))
+            {
+                errors.Add($"authoritative state stack item {stackItemId} is duplicated");
+            }
+
+            ValidateAuthoritativeStateRequiredText(
+                $"stack item {stackItemLabel} effect kind",
+                stackItem.EffectKind,
+                errors);
+            ValidateAuthoritativeStateStringListValues(
+                $"stack item {stackItemLabel} target object",
+                stackItem.TargetObjectIds,
+                errors);
+            ValidateAuthoritativeStateStringListValues(
+                $"stack item {stackItemLabel} optional cost",
+                stackItem.OptionalCosts,
+                errors);
+
+            if (stackItem.DamageAmount < 0)
+            {
+                errors.Add(
+                    $"authoritative state stack item {stackItemLabel} damage amount {stackItem.DamageAmount} cannot be negative");
+            }
+
+            if (stackItem.EffectRepeatCount < 1)
+            {
+                errors.Add(
+                    $"authoritative state stack item {stackItemLabel} effect repeat count {stackItem.EffectRepeatCount} is invalid");
+            }
+        }
+    }
+
+    private static void ValidateAuthoritativeStateTriggerQueueValues(
+        IReadOnlyList<TriggerQueueItemState>? triggerQueue,
+        List<string> errors)
+    {
+        if (triggerQueue is null)
+        {
+            return;
+        }
+
+        var seenTriggerIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var trigger in triggerQueue.OrderBy(item => item?.TriggerId ?? string.Empty, StringComparer.Ordinal))
+        {
+            if (trigger is null)
+            {
+                continue;
+            }
+
+            var triggerId = ValidateAuthoritativeStateRequiredText(
+                "trigger queue item id",
+                trigger.TriggerId,
+                errors);
+            var triggerLabel = triggerId ?? "<unknown>";
+            if (triggerId is not null && !seenTriggerIds.Add(triggerId))
+            {
+                errors.Add($"authoritative state trigger queue item {triggerId} is duplicated");
+            }
+
+            ValidateAuthoritativeStateRequiredText(
+                $"trigger queue item {triggerLabel} effect kind",
+                trigger.EffectKind,
+                errors);
+            ValidateAuthoritativeStateRequiredText(
+                $"trigger queue item {triggerLabel} triggered event kind",
+                trigger.TriggeredByEventKind,
+                errors);
+        }
+    }
+
+    private static void ValidateAuthoritativeStateStringListValues(
+        string itemLabel,
+        IReadOnlyList<string>? values,
+        List<string> errors)
+    {
+        if (values is null)
+        {
+            errors.Add($"authoritative state {itemLabel} list is required");
+            return;
+        }
+
+        foreach (var value in values)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                errors.Add($"authoritative state {itemLabel} is required");
+                continue;
+            }
+
+            var normalizedValue = value.Trim();
+            if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
+            {
+                errors.Add($"authoritative state {itemLabel} {normalizedValue} has surrounding whitespace");
             }
         }
     }

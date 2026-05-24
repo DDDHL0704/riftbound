@@ -2989,6 +2989,124 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateStackAndTriggerValueDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob")
+        {
+            StackItems =
+            [
+                new StackItemState(
+                    "stack-1",
+                    "alice",
+                    sourceObjectId: "obj-1",
+                    effectKind: "SPELL")
+                {
+                    StackItemId = " stack-1 ",
+                    EffectKind = " SPELL ",
+                    TargetObjectIds = [" target-1 ", ""],
+                    DamageAmount = -1,
+                    EffectRepeatCount = 0,
+                    OptionalCosts = null!
+                },
+                new StackItemState(
+                    "stack-1",
+                    "bob",
+                    sourceObjectId: "obj-2",
+                    effectKind: "SPELL")
+                {
+                    EffectKind = ""
+                }
+            ],
+            TriggerQueue =
+            [
+                new TriggerQueueItemState(
+                    "trigger-1",
+                    "alice",
+                    sourceObjectId: "obj-1",
+                    effectKind: "LAST_BREATH",
+                    triggeredByEventKind: "OBJECT_DESTROYED")
+                {
+                    TriggerId = " trigger-1 ",
+                    EffectKind = " LAST_BREATH ",
+                    TriggeredByEventKind = " OBJECT_DESTROYED "
+                },
+                new TriggerQueueItemState(
+                    "trigger-1",
+                    "bob",
+                    sourceObjectId: "obj-2",
+                    effectKind: "LAST_BREATH",
+                    triggeredByEventKind: "OBJECT_DESTROYED")
+                {
+                    EffectKind = "",
+                    TriggeredByEventKind = ""
+                }
+            ]
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state stack item id stack-1 has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state stack item stack-1 is duplicated", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state stack item stack-1 effect kind SPELL has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state stack item stack-1 effect kind is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state stack item stack-1 target object target-1 has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state stack item stack-1 target object is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state stack item stack-1 optional cost list is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state stack item stack-1 damage amount -1 cannot be negative", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state stack item stack-1 effect repeat count 0 is invalid", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state trigger queue item id trigger-1 has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state trigger queue item trigger-1 is duplicated", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state trigger queue item trigger-1 effect kind LAST_BREATH has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state trigger queue item trigger-1 triggered event kind OBJECT_DESTROYED has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state trigger queue item trigger-1 triggered event kind is required", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAuthoritativeStatePendingPlayersOutsideSeats()
     {
         var authoritativeState = new MatchState(
