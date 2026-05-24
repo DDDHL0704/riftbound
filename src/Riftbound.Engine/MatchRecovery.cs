@@ -1299,6 +1299,12 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame timing ready players do not match authoritative state ready players");
         }
 
+        if (!spectatorReplayFrame.SpectatorSnapshot.Timing.TryGetValue("turnWindow", out var spectatorTurnWindow)
+            || !TurnWindowMatches(spectatorTurnWindow, authoritativeState.TurnWindow))
+        {
+            errors.Add("spectator replay frame timing turn window does not match authoritative state turn window");
+        }
+
         if (spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("seed")
             || spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("rngCursor"))
         {
@@ -1579,6 +1585,44 @@ public static class MatchRecoveryValidator
         return false;
     }
 
+    private static bool TurnWindowMatches(object? value, TurnWindowState expected)
+    {
+        return TryReadObjectString(value, "state", out var state)
+            && string.Equals(state, expected.State, StringComparison.Ordinal)
+            && TryReadObjectBool(value, "isSpellDuel", out var isSpellDuel)
+            && isSpellDuel == expected.IsSpellDuel
+            && TryReadObjectBool(value, "isClosed", out var isClosed)
+            && isClosed == expected.IsClosed
+            && TryReadObjectBool(value, "hasStack", out var hasStack)
+            && hasStack == expected.HasStack
+            && TryReadObjectString(value, "actingPlayerId", out var actingPlayerId)
+            && string.Equals(actingPlayerId, expected.ActingPlayerId, StringComparison.Ordinal);
+    }
+
+    private static bool TryReadObjectBool(object? value, string key, out bool flag)
+    {
+        if (value is IReadOnlyDictionary<string, object?> readOnlyDictionary
+            && readOnlyDictionary.TryGetValue(key, out var readOnlyValue))
+        {
+            return TryReadBoolValue(readOnlyValue, out flag);
+        }
+
+        if (value is IDictionary<string, object?> dictionary
+            && dictionary.TryGetValue(key, out var dictionaryValue))
+        {
+            return TryReadBoolValue(dictionaryValue, out flag);
+        }
+
+        if (value is JsonElement { ValueKind: JsonValueKind.Object } json
+            && json.TryGetProperty(key, out var jsonValue))
+        {
+            return TryReadBoolValue(jsonValue, out flag);
+        }
+
+        flag = false;
+        return false;
+    }
+
     private static bool TryReadStringValue(object? value, out string? text)
     {
         text = null;
@@ -1605,6 +1649,25 @@ public static class MatchRecoveryValidator
         }
 
         return false;
+    }
+
+    private static bool TryReadBoolValue(object? value, out bool flag)
+    {
+        switch (value)
+        {
+            case bool boolValue:
+                flag = boolValue;
+                return true;
+            case JsonElement { ValueKind: JsonValueKind.True }:
+                flag = true;
+                return true;
+            case JsonElement { ValueKind: JsonValueKind.False }:
+                flag = false;
+                return true;
+            default:
+                flag = false;
+                return false;
+        }
     }
 
     private static bool TryReadOptionalStringValue(object? value, out string text)
