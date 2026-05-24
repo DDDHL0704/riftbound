@@ -1952,8 +1952,50 @@ public static class MatchRecoveryValidator
                 errors.Add($"spectator replay frame snapshot player {playerId} mulligan completed does not match authoritative state mulligan completed");
             }
 
+            ValidateSpectatorSnapshotPlayerRunePoolPayload(playerId, playerPayload, authoritativeState, errors);
             ValidateSpectatorSnapshotPlayerZonePayloads(playerId, playerPayload, zones, authoritativeState, errors);
             ValidateSpectatorSnapshotPlayerObjectPayloads(playerId, playerPayload, authoritativeState, errors);
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotPlayerRunePoolPayload(
+        string playerId,
+        object? playerPayload,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(playerPayload, "runePool", out var runePoolPayload)
+            || !IsSnapshotPlayerPayloadObject(runePoolPayload))
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} rune pool is required");
+            return;
+        }
+
+        var expectedRunePool = authoritativeState.RunePools.TryGetValue(playerId, out var runePool)
+            ? runePool
+            : RunePool.Empty;
+        if (!TryReadObjectInt(runePoolPayload, "mana", out var mana)
+            || mana != expectedRunePool.Mana)
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} rune pool mana does not match authoritative rune pool mana");
+        }
+
+        if (!TryReadObjectInt(runePoolPayload, "power", out var power)
+            || power != expectedRunePool.TotalPower)
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} rune pool total power does not match authoritative rune pool total power");
+        }
+
+        if (!TryReadObjectInt(runePoolPayload, "untypedPower", out var untypedPower)
+            || untypedPower != expectedRunePool.Power)
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} rune pool untyped power does not match authoritative rune pool untyped power");
+        }
+
+        if (!TryReadObjectIntDictionary(runePoolPayload, "powerByTrait", out var powerByTrait)
+            || !IntDictionariesEqual(powerByTrait, expectedRunePool.PowerByTrait))
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} rune pool power by trait does not match authoritative rune pool power by trait");
         }
     }
 
