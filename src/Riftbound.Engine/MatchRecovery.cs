@@ -1065,6 +1065,11 @@ public static class MatchRecoveryValidator
         {
             errors.Add("spectator replay frame snapshot stack is required");
         }
+        else if (spectatorReplayFrame.SpectatorSnapshot.Stack.Count != authoritativeState.StackItems.Count)
+        {
+            errors.Add(
+                $"spectator replay frame snapshot stack count {spectatorReplayFrame.SpectatorSnapshot.Stack.Count} does not match authoritative state stack count {authoritativeState.StackItems.Count}");
+        }
 
         if (string.IsNullOrWhiteSpace(spectatorReplayFrame.SpectatorSnapshot.TurnState))
         {
