@@ -1071,6 +1071,14 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame snapshot turn state is required");
         }
 
+        if (!string.Equals(
+                spectatorReplayFrame.SpectatorSnapshot.TurnState,
+                authoritativeState.TimingState,
+                StringComparison.Ordinal))
+        {
+            errors.Add("spectator replay frame snapshot turn state does not match authoritative state timing state");
+        }
+
         if (spectatorReplayFrame.SpectatorSnapshot.Tick != spectatorReplayFrame.Tick)
         {
             errors.Add(
