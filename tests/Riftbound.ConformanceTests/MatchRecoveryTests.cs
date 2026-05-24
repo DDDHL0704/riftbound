@@ -3797,13 +3797,15 @@ public sealed class MatchRecoveryTests
             CancellationToken.None);
         var expectedFinalState = journal.Entries[^1].AuthoritativeState;
         var recoveredCommands = journal.Entries.Select(ToRecoveredCommand).ToArray();
+        var recoveredEvents = ToRecoveredEvents(journal.Entries);
 
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(
             initialState,
             recoveredCommands,
             expectedFinalState,
             new PlaceholderRuleEngine(),
-            CancellationToken.None);
+            CancellationToken.None,
+            recoveredEvents);
 
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
         Assert.Equal(MatchStateHasher.Hash(expectedFinalState), replay.ExpectedStateHash);
@@ -3918,6 +3920,45 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public async Task ActionLogReplayerReportsRecoveredEventKindMismatch()
+    {
+        var initialState = ReplayInitialState();
+        var journal = new RecordingMatchJournal();
+        var liveSession = new MatchSession(initialState, new PlaceholderRuleEngine(), journal);
+        await liveSession.SubmitAsync("alice", "intent-pass", new PassCommand(), RawCommand("PASS"), CancellationToken.None);
+        var expectedFinalState = journal.Entries[^1].AuthoritativeState;
+        var recoveredCommands = journal.Entries.Select(ToRecoveredCommand).ToArray();
+        var recoveredEvents = ToRecoveredEvents(journal.Entries);
+        Assert.NotEmpty(recoveredEvents);
+        var tamperedEvents = recoveredEvents
+            .Select((recoveredEvent, index) => index == 0
+                ? recoveredEvent with
+                {
+                    Event = recoveredEvent.Event with
+                    {
+                        Kind = "TAMPERED_EVENT_KIND"
+                    }
+                }
+                : recoveredEvent)
+            .ToArray();
+
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(
+            initialState,
+            recoveredCommands,
+            expectedFinalState,
+            new PlaceholderRuleEngine(),
+            CancellationToken.None,
+            tamperedEvents);
+
+        Assert.False(replay.IsMatch);
+        Assert.Equal(replay.ExpectedStateHash, replay.ReplayedStateHash);
+        Assert.Contains(
+            replay.Errors,
+            error => error.Contains("command intent-pass replayed event 1 kind", StringComparison.Ordinal)
+                && error.Contains("TAMPERED_EVENT_KIND", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task RegistryRunsActionLogReplayAuditBeforeRecoveryRestore()
     {
         var initialState = MatchReplayInitialStateBuilder.FromSeats(
@@ -3936,7 +3977,7 @@ public sealed class MatchRecoveryTests
             expectedFinalState.Tick,
             journal.Entries[^1].CompletedEventSequence,
             journal.Entries.Select(ToRecoveredCommand).ToArray(),
-            [],
+            ToRecoveredEvents(journal.Entries),
             new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
             [],
             expectedFinalState,
@@ -3975,7 +4016,7 @@ public sealed class MatchRecoveryTests
             wrongFinalState.Tick,
             journal.Entries[^1].CompletedEventSequence,
             journal.Entries.Select(ToRecoveredCommand).ToArray(),
-            [],
+            ToRecoveredEvents(journal.Entries),
             new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
             [],
             wrongFinalState,
@@ -4258,6 +4299,24 @@ public sealed class MatchRecoveryTests
             entry.CompletedEventSequence,
             entry.Accepted,
             entry.ErrorMessage);
+    }
+
+    private static IReadOnlyList<RecoveredEvent> ToRecoveredEvents(IEnumerable<MatchJournalEntry> entries)
+    {
+        var recoveredEvents = new List<RecoveredEvent>();
+        foreach (var entry in entries)
+        {
+            for (var index = 0; index < entry.Events.Count; index++)
+            {
+                recoveredEvents.Add(new RecoveredEvent(
+                    entry.StartedEventSequence + index + 1,
+                    entry.CompletedTick,
+                    index,
+                    entry.Events[index]));
+            }
+        }
+
+        return recoveredEvents;
     }
 
     private static MatchState BattleDamageAssignmentState()

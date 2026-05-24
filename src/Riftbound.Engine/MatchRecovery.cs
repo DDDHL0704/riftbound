@@ -145,7 +145,8 @@ public static class MatchActionLogReplayer
                 recovery.Commands,
                 recovery.AuthoritativeState!,
                 ruleEngine,
-                cancellationToken)
+                cancellationToken,
+                recovery.Events)
             .ConfigureAwait(false);
         return replay.IsMatch
             ? []
@@ -159,7 +160,8 @@ public static class MatchActionLogReplayer
         IReadOnlyList<RecoveredCommand> commands,
         MatchState expectedFinalState,
         IRuleEngine ruleEngine,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        IReadOnlyList<RecoveredEvent>? events = null)
     {
         ArgumentNullException.ThrowIfNull(initialState);
         ArgumentNullException.ThrowIfNull(commands);
@@ -210,6 +212,18 @@ public static class MatchActionLogReplayer
                     $"command {command.ClientIntentId} replayed {result.Events.Count} event(s) but recovered span expects {expectedEventCount}");
             }
 
+            if (events is not null)
+            {
+                var recoveredEvents = events
+                    .Where(gameEvent =>
+                        gameEvent.Sequence > command.StartedEventSequence
+                        && gameEvent.Sequence <= command.CompletedEventSequence)
+                    .OrderBy(gameEvent => gameEvent.Sequence)
+                    .ThenBy(gameEvent => gameEvent.Order)
+                    .ToArray();
+                ValidateReplayedEvents(command, result.Events, recoveredEvents, errors);
+            }
+
             replayedState = result.State;
         }
 
@@ -230,6 +244,29 @@ public static class MatchActionLogReplayer
     private static string FormatReplayError(string? errorMessage)
     {
         return errorMessage is null ? "<null>" : $"\"{errorMessage}\"";
+    }
+
+    private static void ValidateReplayedEvents(
+        RecoveredCommand command,
+        IReadOnlyList<GameEvent> replayedEvents,
+        IReadOnlyList<RecoveredEvent> recoveredEvents,
+        List<string> errors)
+    {
+        if (replayedEvents.Count != recoveredEvents.Count)
+        {
+            errors.Add(
+                $"command {command.ClientIntentId} replayed {replayedEvents.Count} event(s) but recovered event stream has {recoveredEvents.Count}");
+        }
+
+        var comparableCount = Math.Min(replayedEvents.Count, recoveredEvents.Count);
+        for (var index = 0; index < comparableCount; index++)
+        {
+            if (!string.Equals(replayedEvents[index].Kind, recoveredEvents[index].Event.Kind, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} replayed event {index + 1} kind {replayedEvents[index].Kind} but recovered event sequence {recoveredEvents[index].Sequence} kind {recoveredEvents[index].Event.Kind}");
+            }
+        }
     }
 
     private static async ValueTask<ResolutionResult> ReplayCommandAsync(
