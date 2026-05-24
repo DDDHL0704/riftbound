@@ -3959,6 +3959,46 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public async Task ActionLogReplayerReportsRecoveredEventPayloadMismatch()
+    {
+        var initialState = ReplayInitialState();
+        var journal = new RecordingMatchJournal();
+        var liveSession = new MatchSession(initialState, new PlaceholderRuleEngine(), journal);
+        await liveSession.SubmitAsync("alice", "intent-pass", new PassCommand(), RawCommand("PASS"), CancellationToken.None);
+        var expectedFinalState = journal.Entries[^1].AuthoritativeState;
+        var recoveredCommands = journal.Entries.Select(ToRecoveredCommand).ToArray();
+        var recoveredEvents = ToRecoveredEvents(journal.Entries);
+        Assert.NotEmpty(recoveredEvents);
+        var tamperedEvents = recoveredEvents
+            .Select((recoveredEvent, index) => index == 0
+                ? recoveredEvent with
+                {
+                    Event = recoveredEvent.Event with
+                    {
+                        Payload = recoveredEvent.Event.Payload
+                            .Append(new KeyValuePair<string, object?>("tampered", true))
+                            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal)
+                    }
+                }
+                : recoveredEvent)
+            .ToArray();
+
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(
+            initialState,
+            recoveredCommands,
+            expectedFinalState,
+            new PlaceholderRuleEngine(),
+            CancellationToken.None,
+            tamperedEvents);
+
+        Assert.False(replay.IsMatch);
+        Assert.Equal(replay.ExpectedStateHash, replay.ReplayedStateHash);
+        Assert.Contains(
+            replay.Errors,
+            error => error.Contains("command intent-pass replayed event 1 payload hash", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task RegistryRunsActionLogReplayAuditBeforeRecoveryRestore()
     {
         var initialState = MatchReplayInitialStateBuilder.FromSeats(

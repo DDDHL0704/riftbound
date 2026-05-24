@@ -266,6 +266,14 @@ public static class MatchActionLogReplayer
                 errors.Add(
                     $"command {command.ClientIntentId} replayed event {index + 1} kind {replayedEvents[index].Kind} but recovered event sequence {recoveredEvents[index].Sequence} kind {recoveredEvents[index].Event.Kind}");
             }
+
+            var replayedPayloadHash = MatchStateHasher.HashValue(replayedEvents[index].Payload);
+            var recoveredPayloadHash = MatchStateHasher.HashValue(recoveredEvents[index].Event.Payload);
+            if (!string.Equals(replayedPayloadHash, recoveredPayloadHash, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} replayed event {index + 1} payload hash {replayedPayloadHash} but recovered event sequence {recoveredEvents[index].Sequence} payload hash {recoveredPayloadHash}");
+            }
         }
     }
 
@@ -402,10 +410,15 @@ public static class MatchStateHasher
     {
         ArgumentNullException.ThrowIfNull(state);
 
+        return HashValue(state);
+    }
+
+    public static string HashValue(object? value)
+    {
         using var stream = new MemoryStream();
         using (var writer = new Utf8JsonWriter(stream))
         {
-            WriteCanonicalValue(writer, JsonSerializer.SerializeToElement(state));
+            WriteCanonicalValue(writer, JsonSerializer.SerializeToElement(value));
         }
 
         return Convert.ToHexString(SHA256.HashData(stream.ToArray())).ToLowerInvariant();
