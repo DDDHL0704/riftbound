@@ -1651,8 +1651,20 @@ public static class MatchRecoveryValidator
 
     private static bool BattleDamageAssignmentPendingMatches(object? value, MatchState state)
     {
-        return TryReadObjectBool(value, "isPending", out var isPending)
-            && isPending == ResolutionResult.HasOpenBattleDamageAssignmentWindow(state);
+        var expectedPending = ResolutionResult.HasOpenBattleDamageAssignmentWindow(state);
+        if (!TryReadObjectBool(value, "isPending", out var isPending)
+            || isPending != expectedPending)
+        {
+            return false;
+        }
+
+        if (!expectedPending)
+        {
+            return true;
+        }
+
+        return TryReadObjectString(value, "phase", out var phase)
+            && string.Equals(phase, "DAMAGE_ASSIGNMENT", StringComparison.Ordinal);
     }
 
     private static bool TryReadObjectBool(object? value, string key, out bool flag)
