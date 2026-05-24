@@ -697,6 +697,38 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAcceptedCommandTickAdvanceWithoutEvents()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-empty-advance",
+                "PASS",
+                RawCommand("PASS"),
+                1,
+                2,
+                0,
+                0,
+                true,
+                null)
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "accepted command intent-empty-advance advances tick 1->2 without events",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsNegativeCommandCompletedEventSequence()
     {
         var commands = new[]

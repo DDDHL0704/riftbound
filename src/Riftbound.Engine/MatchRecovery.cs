@@ -1116,6 +1116,11 @@ public static class MatchRecoveryValidator
                 errors.Add(
                     $"command {command.ClientIntentId} covers {expectedEventCount} event(s) but {actualEventCount} were loaded");
             }
+            else if (expectedEventCount == 0 && command.CompletedTick != command.StartedTick)
+            {
+                errors.Add(
+                    $"accepted command {command.ClientIntentId} advances tick {command.StartedTick}->{command.CompletedTick} without events");
+            }
 
             if (command.Accepted)
             {
