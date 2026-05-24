@@ -1531,6 +1531,7 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        var seenPlayerIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var playerId in playerIds)
         {
             if (string.IsNullOrWhiteSpace(playerId))
@@ -1540,6 +1541,13 @@ public static class MatchRecoveryValidator
             }
 
             var normalizedPlayerId = playerId.Trim();
+            if (!seenPlayerIds.Add(normalizedPlayerId))
+            {
+                errors.Add(
+                    $"snapshot for {view.PlayerId} timing {label} {normalizedPlayerId} is duplicated");
+                continue;
+            }
+
             if (!view.Snapshot.Players.ContainsKey(normalizedPlayerId))
             {
                 errors.Add(
