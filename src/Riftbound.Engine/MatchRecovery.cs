@@ -1143,6 +1143,15 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame timing focus player does not match authoritative state focus player");
         }
 
+        if (!TryReadString(
+                spectatorReplayFrame.SpectatorSnapshot.Timing,
+                "winnerPlayerId",
+                out var spectatorWinnerPlayerId)
+            || !string.Equals(spectatorWinnerPlayerId, authoritativeState.WinnerPlayerId, StringComparison.Ordinal))
+        {
+            errors.Add("spectator replay frame timing winner player does not match authoritative state winner player");
+        }
+
         if (spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("seed")
             || spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("rngCursor"))
         {
