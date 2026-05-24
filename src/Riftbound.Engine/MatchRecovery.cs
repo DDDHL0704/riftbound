@@ -2906,6 +2906,7 @@ public static class MatchRecoveryValidator
             seatPlayerIds,
             errors);
         ValidateAuthoritativeStateCardObjectIdentities(authoritativeState.CardObjects, errors);
+        ValidateAuthoritativeStateCardObjectValues(authoritativeState.CardObjects, errors);
         ValidateAuthoritativeStateCardObjectPlayers(authoritativeState.CardObjects, seatPlayerIds, errors);
         ValidateAuthoritativeStateObjectLocationPlayers(authoritativeState.ObjectLocations, seatPlayerIds, errors);
         ValidateAuthoritativeStateObjectLocationZones(authoritativeState.ObjectLocations, errors);
@@ -3103,6 +3104,45 @@ public static class MatchRecoveryValidator
                 errors.Add(
                     $"authoritative state card object {objectId} object id {normalizedCardObjectId} does not match map key");
             }
+        }
+    }
+
+    private static void ValidateAuthoritativeStateCardObjectValues(
+        IReadOnlyDictionary<string, CardObjectState>? cardObjects,
+        List<string> errors)
+    {
+        if (cardObjects is null)
+        {
+            return;
+        }
+
+        foreach (var (objectId, cardObject) in cardObjects.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            if (cardObject is null)
+            {
+                continue;
+            }
+
+            if (cardObject.Damage < 0)
+            {
+                errors.Add($"authoritative state card object {objectId} damage {cardObject.Damage} cannot be negative");
+            }
+
+            if (cardObject.ManaCost < 0)
+            {
+                errors.Add($"authoritative state card object {objectId} mana cost {cardObject.ManaCost} cannot be negative");
+            }
+
+            ValidateAuthoritativeStateStringListValues(
+                $"card object {objectId} until end of turn effect",
+                cardObject.UntilEndOfTurnEffects,
+                errors,
+                rejectDuplicates: true);
+            ValidateAuthoritativeStateStringListValues(
+                $"card object {objectId} tag",
+                cardObject.Tags,
+                errors,
+                rejectDuplicates: true);
         }
     }
 
