@@ -1119,6 +1119,114 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingPaymentPayloadPropertyNameDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["pendingPayment"] = RawJson("""
+            {
+                "paymentId": "payment-1",
+                "paymentId": "payment-1",
+                " playerId ": "alice",
+                "": true,
+                "paymentWindow": "PAY_COST",
+                "playerId": "alice",
+                "cost": {
+                    "mana": 0,
+                    "mana": 0,
+                    " power ": 1,
+                    "": true,
+                    "power": 1,
+                    "powerByTrait": { "blue": 1 }
+                },
+                "paymentChoices": [ "SPEND_POWER:blue:1" ],
+                "paymentResourceActions": []
+            }
+            """);
+        timing["temporaryPaymentResources"] = new object?[]
+        {
+            RawJson("""
+                {
+                    "resourceId": "temp-payment-resource-1",
+                    "resourceId": "temp-payment-resource-1",
+                    " ownerPlayerId ": "alice",
+                    "": true,
+                    "sourceObjectId": "source-1",
+                    "abilityId": "TEST_TEMP_RESOURCE_ABILITY",
+                    "paymentWindow": "PAY_COST",
+                    "generatedPower": 2,
+                    "remainingPower": 1,
+                    "generatedPowerByTrait": { "blue": 2 },
+                    "remainingPowerByTrait": { "blue": 1 },
+                    "allowedPaymentKinds": [ "RUNE_COST" ],
+                    "paymentOnly": true,
+                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J",
+                    "createdTick": 0
+                }
+                """)
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending payment property paymentId appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending payment property playerId has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending payment property name is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending payment cost property mana appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending payment cost property power has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending payment cost property name is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing temporary payment resource item property resourceId appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing temporary payment resource item property ownerPlayerId has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing temporary payment resource item property name is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingPaymentPowerTraitMapPropertyNameDrift()
     {
         var alice = PlayerView("alice", 0, 0);

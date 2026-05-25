@@ -2096,7 +2096,13 @@ public static class MatchRecoveryValidator
             ValidateSnapshotTimingBattleDamageAssignmentPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingBattleDamageAssignmentMapPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingBattleDamageAssignmentRequiredAssignmentPayloadPropertyNames(view, errors);
+            ValidateSnapshotTimingPaymentPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingPaymentPowerTraitPayloadPropertyNames(view, errors);
+            ValidateSnapshotTimingListItemPayloadPropertyNames(
+                view,
+                "temporaryPaymentResources",
+                "temporary payment resource",
+                errors);
             ValidateSnapshotTimingListItemPayloadPropertyNames(
                 view,
                 "continuousEffects",
@@ -2324,6 +2330,34 @@ public static class MatchRecoveryValidator
         ValidateSnapshotPayloadObjectPropertyNames(
             powerTraitPayload,
             $"snapshot for {view.PlayerId} timing temporary payment resource {payloadLabel}",
+            errors);
+    }
+
+    private static void ValidateSnapshotTimingPaymentPayloadPropertyNames(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectValue(view.Snapshot.Timing, "pendingPayment", out var pendingPaymentPayload)
+            || !IsSnapshotPlayerPayloadObject(pendingPaymentPayload))
+        {
+            return;
+        }
+
+        ValidateSnapshotPayloadObjectPropertyNames(
+            pendingPaymentPayload,
+            $"snapshot for {view.PlayerId} timing pending payment",
+            errors);
+
+        if (!TryReadObjectValue(pendingPaymentPayload, "cost", out var costPayload)
+            || !IsSnapshotPlayerPayloadObject(costPayload))
+        {
+            return;
+        }
+
+        ValidateSnapshotPayloadObjectPropertyNames(
+            costPayload,
+            $"snapshot for {view.PlayerId} timing pending payment cost",
             errors);
     }
 
