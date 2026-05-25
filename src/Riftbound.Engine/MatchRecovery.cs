@@ -2326,6 +2326,8 @@ public static class MatchRecoveryValidator
         {
             IReadOnlyDictionary<string, object?> readOnlyDictionary => readOnlyDictionary.Keys,
             IDictionary<string, object?> dictionary => dictionary.Keys,
+            IReadOnlyDictionary<string, string> stringDictionary => stringDictionary.Keys,
+            IEnumerable<KeyValuePair<string, string>> stringPairs => stringPairs.Select(entry => entry.Key),
             IReadOnlyDictionary<string, int> intDictionary => intDictionary.Keys,
             IEnumerable<KeyValuePair<string, int>> intPairs => intPairs.Select(entry => entry.Key),
             IReadOnlyDictionary<string, IReadOnlyList<string>> stringListDictionary => stringListDictionary.Keys,
@@ -7976,6 +7978,9 @@ public static class MatchRecoveryValidator
                 spectatorBattle,
                 "spectator replay frame timing battle",
                 errors);
+            ValidateSpectatorBattleParticipantControllerPayloadPropertyNames(
+                spectatorBattle,
+                errors);
 
             if (TryReadObjectValue(spectatorBattle, "damageAssignment", out var spectatorDamageAssignment)
                 && IsSnapshotPlayerPayloadObject(spectatorDamageAssignment))
@@ -8359,6 +8364,21 @@ public static class MatchRecoveryValidator
                 "spectator replay frame timing battle damage assignment required assignment item",
                 errors);
         }
+    }
+
+    private static void ValidateSpectatorBattleParticipantControllerPayloadPropertyNames(
+        object? battlePayload,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(battlePayload, "participantControllerIds", out var participantControllerIds))
+        {
+            return;
+        }
+
+        ValidateSnapshotPayloadObjectPropertyNames(
+            participantControllerIds,
+            "spectator replay frame timing battle participant controllers",
+            errors);
     }
 
     private static void ValidateSpectatorBattleDamageAssignmentMapPayloadPropertyNames(
