@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-17IF recovery snapshot timing temporary-payment-resource allowed-payment-kind list-value shape validation is recovery-frame player-view snapshot validation only and validated focused single test `1/1`, focused recovery `259/259`, adjacent recovery/opening/store-smoke `840/840`, backend full `6205/6205`. It does not change DOC_MATRIX approved scope or open frontend/final-readiness locks.
+Current A_MAIN latest accepted slice: Stage 4D-17IG recovery snapshot timing pending-payment list-value shape validation is recovery-frame player-view snapshot validation only and validated focused single test `1/1`, focused recovery `260/260`, adjacent recovery/opening/store-smoke `841/841`, backend full `6206/6206`. It does not change DOC_MATRIX approved scope or open frontend/final-readiness locks.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-17IF; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-05-25 21:28 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in this checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-17IG; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-05-25 21:38 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in this checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-25 21:38 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main` contains local HEAD `1bdedc17` before this Stage 4D-17IG work and will contain the Stage 4D-17IG checkpoint entry after commit/push. DOC_MATRIX_CURRENT remains clean at branch `codex/stage4d-matrix-docs-current`, HEAD `17bde0c3`; A_MAIN did not touch that worktree.
+
+Write locks: A_MAIN server P1-004 recovery snapshot timing pending-payment list-value shape validation slice. Allowed files are `src/Riftbound.Engine/MatchRecovery.cs`, `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs`, current checkpoint/completion/P0-P1/next-dispatch docs, this shared board, and dedicated 4D-17IG audit/evidence docs. Matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, frontend, protocol, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final readiness status and `riftbound-dotnet.sln` remain locked.
+
+Status: accepted 4D-17IG recovery snapshot timing pending-payment list-value shape validation. `MatchRecoveryValidator.ValidateSnapshotShape` now rejects recovered player-view snapshot `Timing["pendingPayment"]` string-list fields `paymentChoices` and `paymentResourceActions` with blank values, surrounding-whitespace values or duplicate normalized values before pending-payment field consumers can consume those lists. Project remains **NOT READY**.
+
+Validation: focused single test `1/1`; focused `MatchRecoveryTests` `260/260`; adjacent recovery/opening/store-smoke `841/841`; backend full `6206/6206`; `git diff --check`; anchored conflict-marker scan; `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`.
+
+Requested action: A_MAIN may continue runtime/server closure after the next fresh status/board check. Future DOC_MATRIX work must re-read this board and obtain/observe an approved scope. Do not change final readiness status.
 
 ### 2026-05-25 21:28 A_MAIN
 
