@@ -2558,6 +2558,66 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsCardActionCommandRawPayloadShapeDrift()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-hide-card-cmdtype-only",
+                CommandTypes.HideCard,
+                RawCommand(CommandTypes.HideCard),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "missing hide card payload"),
+            new RecoveredCommand(
+                "alice",
+                "intent-reveal-card-malformed",
+                CommandTypes.RevealCard,
+                RawJson("""
+                    {
+                      "cmdType": "REVEAL_CARD",
+                      "sourceObjectId": "source-1",
+                      "cardNo": "CARD-1",
+                      "targetObjectIds": ["target-1", " "]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "malformed reveal card payload")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-hide-card-cmdtype-only raw HIDE_CARD sourceObjectId is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-hide-card-cmdtype-only raw HIDE_CARD cardNo is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-reveal-card-malformed raw REVEAL_CARD targetObjectIds[1] is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorAcceptsDevSeedScenarioRawCommandType()
     {
         var events = new[]
