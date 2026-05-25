@@ -1391,6 +1391,10 @@ public static class MatchRecoveryValidator
                 ValidateRawCommandRequiredString(command, rawCommand, "abilityId", errors);
                 ValidateRawCommandStringArray(command, rawCommand, "targetObjectIds", errors);
                 break;
+            case CommandTypes.TapRune:
+            case CommandTypes.RecycleRune:
+                ValidateRawCommandRequiredString(command, rawCommand, "sourceObjectId", errors);
+                break;
             case CommandTypes.PayCost:
                 ValidateRawCommandRequiredString(command, rawCommand, "paymentId", errors);
                 ValidateRawCommandRequiredString(command, rawCommand, "paymentWindow", errors);

@@ -2505,6 +2505,59 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsRuneActionCommandRawPayloadShapeDrift()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-tap-rune-cmdtype-only",
+                CommandTypes.TapRune,
+                RawCommand(CommandTypes.TapRune),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "missing tap rune payload"),
+            new RecoveredCommand(
+                "alice",
+                "intent-recycle-rune-malformed",
+                CommandTypes.RecycleRune,
+                RawJson("""
+                    {
+                      "cmdType": "RECYCLE_RUNE",
+                      "sourceObjectId": " "
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "malformed recycle rune payload")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-tap-rune-cmdtype-only raw TAP_RUNE sourceObjectId is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-recycle-rune-malformed raw RECYCLE_RUNE sourceObjectId is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorAcceptsDevSeedScenarioRawCommandType()
     {
         var events = new[]
