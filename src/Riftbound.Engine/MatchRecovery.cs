@@ -7847,21 +7847,66 @@ public static class MatchRecoveryValidator
         ValidateSpectatorBattlefieldTaskPayloads(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
 
         if (!spectatorReplayFrame.SpectatorSnapshot.Timing.TryGetValue("turnWindow", out var spectatorTurnWindow)
-            || !TurnWindowMatches(spectatorTurnWindow, authoritativeState.TurnWindow))
+            || !IsSnapshotPlayerPayloadObject(spectatorTurnWindow))
         {
             errors.Add("spectator replay frame timing turn window does not match authoritative state turn window");
         }
+        else
+        {
+            ValidateSnapshotPayloadObjectPropertyNames(
+                spectatorTurnWindow,
+                "spectator replay frame timing turn window",
+                errors);
+
+            if (!TurnWindowMatches(spectatorTurnWindow, authoritativeState.TurnWindow))
+            {
+                errors.Add("spectator replay frame timing turn window does not match authoritative state turn window");
+            }
+        }
 
         if (!spectatorReplayFrame.SpectatorSnapshot.Timing.TryGetValue("spellDuel", out var spectatorSpellDuel)
-            || !SpellDuelMatches(spectatorSpellDuel, authoritativeState.SpellDuelState))
+            || !IsSnapshotPlayerPayloadObject(spectatorSpellDuel))
         {
             errors.Add("spectator replay frame timing spell duel does not match authoritative state spell duel");
         }
+        else
+        {
+            ValidateSnapshotPayloadObjectPropertyNames(
+                spectatorSpellDuel,
+                "spectator replay frame timing spell duel",
+                errors);
+
+            if (!SpellDuelMatches(spectatorSpellDuel, authoritativeState.SpellDuelState))
+            {
+                errors.Add("spectator replay frame timing spell duel does not match authoritative state spell duel");
+            }
+        }
 
         if (!spectatorReplayFrame.SpectatorSnapshot.Timing.TryGetValue("battle", out var spectatorBattle)
-            || !BattleMatches(spectatorBattle, authoritativeState, authoritativeState.BattleState))
+            || !IsSnapshotPlayerPayloadObject(spectatorBattle))
         {
             errors.Add("spectator replay frame timing battle does not match authoritative state battle");
+        }
+        else
+        {
+            ValidateSnapshotPayloadObjectPropertyNames(
+                spectatorBattle,
+                "spectator replay frame timing battle",
+                errors);
+
+            if (TryReadObjectValue(spectatorBattle, "damageAssignment", out var spectatorDamageAssignment)
+                && IsSnapshotPlayerPayloadObject(spectatorDamageAssignment))
+            {
+                ValidateSnapshotPayloadObjectPropertyNames(
+                    spectatorDamageAssignment,
+                    "spectator replay frame timing battle damage assignment",
+                    errors);
+            }
+
+            if (!BattleMatches(spectatorBattle, authoritativeState, authoritativeState.BattleState))
+            {
+                errors.Add("spectator replay frame timing battle does not match authoritative state battle");
+            }
         }
 
         if (!TryReadObjectList(

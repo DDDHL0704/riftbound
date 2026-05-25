@@ -11249,6 +11249,146 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingWindowBattlePropertyNameDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+
+        var turnWindow = Assert.IsType<Dictionary<string, object?>>(timing["turnWindow"]);
+        var spellDuel = Assert.IsType<Dictionary<string, object?>>(timing["spellDuel"]);
+        var battle = Assert.IsType<Dictionary<string, object?>>(timing["battle"]);
+        var damageAssignment = Assert.IsType<Dictionary<string, object?>>(battle["damageAssignment"]);
+
+        timing["turnWindow"] = RawJson($$"""
+            {
+                "state": {{JsonSerializer.Serialize(turnWindow["state"])}},
+                "state": {{JsonSerializer.Serialize(turnWindow["state"])}},
+                " isClosed ": {{JsonSerializer.Serialize(turnWindow["isClosed"])}},
+                "": true,
+                "isSpellDuel": {{JsonSerializer.Serialize(turnWindow["isSpellDuel"])}},
+                "isClosed": {{JsonSerializer.Serialize(turnWindow["isClosed"])}},
+                "hasStack": {{JsonSerializer.Serialize(turnWindow["hasStack"])}},
+                "actingPlayerId": {{JsonSerializer.Serialize(turnWindow["actingPlayerId"])}}
+            }
+            """);
+        timing["spellDuel"] = RawJson($$"""
+            {
+                "isActive": {{JsonSerializer.Serialize(spellDuel["isActive"])}},
+                "isActive": {{JsonSerializer.Serialize(spellDuel["isActive"])}},
+                " focusPlayerId ": {{JsonSerializer.Serialize(spellDuel["focusPlayerId"])}},
+                "": true,
+                "isClosed": {{JsonSerializer.Serialize(spellDuel["isClosed"])}},
+                "spellDuelId": {{JsonSerializer.Serialize(spellDuel["spellDuelId"])}},
+                "battlefieldObjectId": {{JsonSerializer.Serialize(spellDuel["battlefieldObjectId"])}},
+                "focusPlayerId": {{JsonSerializer.Serialize(spellDuel["focusPlayerId"])}},
+                "passedFocusPlayerIds": {{JsonSerializer.Serialize(spellDuel["passedFocusPlayerIds"])}},
+                "stackItemIds": {{JsonSerializer.Serialize(spellDuel["stackItemIds"])}},
+                "stackControllerIds": {{JsonSerializer.Serialize(spellDuel["stackControllerIds"])}}
+            }
+            """);
+        timing["battle"] = RawJson($$"""
+            {
+                "isActive": {{JsonSerializer.Serialize(battle["isActive"])}},
+                "isActive": {{JsonSerializer.Serialize(battle["isActive"])}},
+                " battleId ": {{JsonSerializer.Serialize(battle["battleId"])}},
+                "": true,
+                "battleId": {{JsonSerializer.Serialize(battle["battleId"])}},
+                "battlefieldObjectId": {{JsonSerializer.Serialize(battle["battlefieldObjectId"])}},
+                "attackerObjectIds": {{JsonSerializer.Serialize(battle["attackerObjectIds"])}},
+                "defenderObjectIds": {{JsonSerializer.Serialize(battle["defenderObjectIds"])}},
+                "participantControllerIds": {{JsonSerializer.Serialize(battle["participantControllerIds"])}},
+                "damageAssignment": {
+                    "isPending": {{JsonSerializer.Serialize(damageAssignment["isPending"])}},
+                    "isPending": {{JsonSerializer.Serialize(damageAssignment["isPending"])}},
+                    " isPending ": {{JsonSerializer.Serialize(damageAssignment["isPending"])}},
+                    "": true
+                }
+            }
+            """);
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing turn window property state appears more than once", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing turn window property isClosed has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing turn window property name is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing spell duel property isActive appears more than once", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing spell duel property focusPlayerId has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing spell duel property name is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle property isActive appears more than once", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle property battleId has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle property name is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle damage assignment property isPending appears more than once", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle damage assignment property isPending has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle damage assignment property name is required", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingResolutionHistoryCountMismatch()
     {
         var authoritativeState = new MatchState(
