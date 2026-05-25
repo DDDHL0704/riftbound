@@ -893,6 +893,56 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotPlayerPayloadPropertyNameDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = new Dictionary<string, object?>
+                    {
+                        ["alice"] = RawJson("""
+                            {
+                                "id": "alice",
+                                "id": "alice",
+                                " seat ": "P1",
+                                "": true,
+                                "seat": "P1"
+                            }
+                            """),
+                        ["bob"] = new Dictionary<string, object?>
+                        {
+                            ["id"] = "bob",
+                            ["seat"] = "P2"
+                        }
+                    }
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player alice property id appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player alice property seat has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player alice property name is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotPlayerSeatValueDrift()
     {
         var alice = PlayerView("alice", 0, 0);

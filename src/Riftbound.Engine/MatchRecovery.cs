@@ -2243,6 +2243,11 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
+            ValidateSnapshotPayloadObjectPropertyNames(
+                playerPayload,
+                $"snapshot for {view.PlayerId} player {snapshotPlayerId}",
+                errors);
+
             if (!TryReadObjectString(playerPayload, "id", out var payloadId)
                 || string.IsNullOrWhiteSpace(payloadId))
             {
