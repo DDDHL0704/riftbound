@@ -3037,6 +3037,11 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         List<string> errors)
     {
+        ValidateSnapshotPayloadObjectPropertyNames(
+            snapshot.Lanes,
+            "spectator replay frame snapshot lanes",
+            errors);
+
         var expectedBattlefieldObjectPairs = ExpectedSpectatorLaneBattlefieldObjectPairs(authoritativeState);
         if (!TryReadObjectInt(snapshot.Lanes, "battlefieldCount", out var battlefieldCount)
             || battlefieldCount != expectedBattlefieldObjectPairs.Count)
@@ -3053,8 +3058,20 @@ public static class MatchRecoveryValidator
         {
             var spectatorBattlefieldObjectPairs = new List<(string PlayerId, string ObjectId)>();
             var malformedPair = false;
-            foreach (var item in battlefieldObjectItems)
+            for (var index = 0; index < battlefieldObjectItems.Count; index++)
             {
+                var item = battlefieldObjectItems[index];
+                if (!IsSnapshotPlayerPayloadObject(item))
+                {
+                    malformedPair = true;
+                    continue;
+                }
+
+                ValidateSnapshotPayloadObjectPropertyNames(
+                    item,
+                    $"spectator replay frame snapshot lane battlefield object id item {index + 1}",
+                    errors);
+
                 if (!TryReadObjectString(item, "playerId", out var playerId)
                     || string.IsNullOrWhiteSpace(playerId)
                     || !TryReadObjectString(item, "objectId", out var objectId)
@@ -3093,9 +3110,33 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame snapshot lane battlefields disagree with authoritative state battlefields");
         }
 
+        ValidateSpectatorSnapshotBattlefieldPayloadPropertyNames(battlefieldItems, authoritativeState, errors);
         ValidateSpectatorSnapshotBattlefieldScalarPayloads(battlefieldItems, authoritativeState, errors);
         ValidateSpectatorSnapshotBattlefieldListPayloads(battlefieldItems, authoritativeState, errors);
         ValidateSpectatorSnapshotStandbySlotPayloads(battlefieldItems, authoritativeState, errors);
+    }
+
+    private static void ValidateSpectatorSnapshotBattlefieldPayloadPropertyNames(
+        IReadOnlyList<object?> spectatorBattlefields,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        var authoritativeBattlefields = authoritativeState.BattlefieldStates.Values.ToArray();
+        var count = Math.Min(spectatorBattlefields.Count, authoritativeBattlefields.Length);
+        for (var index = 0; index < count; index++)
+        {
+            var spectatorBattlefield = spectatorBattlefields[index];
+            if (!IsSnapshotPlayerPayloadObject(spectatorBattlefield))
+            {
+                continue;
+            }
+
+            var battlefieldObjectId = authoritativeBattlefields[index].BattlefieldObjectId;
+            ValidateSnapshotPayloadObjectPropertyNames(
+                spectatorBattlefield,
+                $"spectator replay frame snapshot lane battlefield {battlefieldObjectId}",
+                errors);
+        }
     }
 
     private static void ValidateSpectatorSnapshotBattlefieldScalarPayloads(
@@ -3351,6 +3392,14 @@ public static class MatchRecoveryValidator
     {
         var battlefieldObjectId = authoritativeBattlefield.BattlefieldObjectId;
         var expectedSlotId = $"{battlefieldObjectId}:standby:{slotIndex + 1}";
+        if (IsSnapshotPlayerPayloadObject(spectatorStandbySlot))
+        {
+            ValidateSnapshotPayloadObjectPropertyNames(
+                spectatorStandbySlot,
+                $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby slot {expectedSlotId}",
+                errors);
+        }
+
         if (!TryReadObjectString(spectatorStandbySlot, "slotId", out var slotId)
             || !string.Equals(slotId, expectedSlotId, StringComparison.Ordinal))
         {
