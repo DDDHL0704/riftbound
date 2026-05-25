@@ -8,11 +8,11 @@ Canonical board path: `/Users/dinghaolin/MyProjects/riftbound-dotnet/docs/CURREN
 
 Project status remains **NOT READY**. Do not output READY-CANDIDATE from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-17FR recovery spectator trigger-queue validation is recovery spectator replay validation only and validated focused single test `1/1`, focused recovery `193/193`, adjacent recovery/opening/store-smoke `774/774`, backend full `6139/6139`. It does not change DOC_MATRIX approved scope or open frontend/READY locks.
+Current A_MAIN latest accepted slice: Stage 4D-17FS recovery command raw-payload validation is recovery command replay validation only and validated focused single test `1/1`, focused recovery `194/194`, adjacent recovery/opening/store-smoke `775/775`, backend full `6140/6140`. It does not change DOC_MATRIX approved scope or open frontend/final-readiness locks.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `4c999922` into main as `44eb06f4` after resolving current-doc prepend conflicts and revalidating matrix/test/backend gates. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `ConformanceFixtureRunnerTests` `3038/3038`, backend full `5929/5929`. Project remains **NOT READY**.
 
-Current DOC_MATRIX approved scope: `DOC_MATRIX_CURRENT` should first sync to latest main containing Stage 4D-17FR, then continue only `4D-03SU..03SV` docs/matrix-only FAQ / rule-source disposition for exactly two implemented-tested non-payment rows: `FU-5cea85e7c3` 狂热粉丝 and `FU-422b450261` 雷克塞. Allowed writes are matrix JSON/current matrix docs, per-bundle candidate/audit docs, this shared-board handoff entry, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` only for residual-baseline synchronization. Runtime, frontend, protocol, official catalog, general test implementation, Chrome/browser/formal E2E scripts, `fullOfficial`, READY / READY-CANDIDATE and `riftbound-dotnet.sln` remain locked. If a selected row fails source/evidence checks, record the guard reason and continue within this exact scope; if both rows are exhausted, record `NO_EXECUTABLE_CANDIDATES` for this scope instead of widening work.
+Current DOC_MATRIX approved scope: `DOC_MATRIX_CURRENT` should first sync to latest main containing Stage 4D-17FS, then continue only `4D-03SU..03SV` docs/matrix-only FAQ / rule-source disposition for exactly two implemented-tested non-payment rows: `FU-5cea85e7c3` 狂热粉丝 and `FU-422b450261` 雷克塞. Allowed writes are matrix JSON/current matrix docs, per-bundle candidate/audit docs, this shared-board handoff entry, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` only for residual-baseline synchronization. Runtime, frontend, protocol, official catalog, general test implementation, Chrome/browser/formal E2E scripts, `fullOfficial`, final readiness status and `riftbound-dotnet.sln` remain locked. If a selected row fails source/evidence checks, record the guard reason and continue within this exact scope; if both rows are exhausted, record `NO_EXECUTABLE_CANDIDATES` for this scope instead of widening work.
 
 ## Coordination Contract
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`; latest accepted server/test checkpoint is Stage 4D-17FR in this A_MAIN slice; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, last observed clean at handoff/source commit `4c999922` (`checkpoint: stage 4D matrix 03SP-03ST FAQ disposition`); should sync to latest main containing Stage 4D-17FR before continuing the already approved `4D-03SU..03SV` docs/matrix-only FAQ / rule-source scope. This path was absent when A_MAIN checked from `/Users/dinghaolin/IdeaProjects/riftbound` on 2026-05-25.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`; latest accepted server/test checkpoint is Stage 4D-17FS in this A_MAIN slice; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, last observed clean at handoff/source commit `4c999922` (`checkpoint: stage 4D matrix 03SP-03ST FAQ disposition`); should sync to latest main containing Stage 4D-17FS before continuing the already approved `4D-03SU..03SV` docs/matrix-only FAQ / rule-source scope. This path was absent when A_MAIN checked from `/Users/dinghaolin/IdeaProjects/riftbound` on 2026-05-25.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-25 10:20 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main` contains local HEAD `c6d4bc12` before this Stage 4D-17FS work and will contain the Stage 4D-17FS checkpoint entry after commit. The configured `/Users/dinghaolin/MyProjects/riftbound-dotnet` and DOC_MATRIX_CURRENT paths were not present on this machine; this worktree is the checked main branch and contains `09d57f6f checkpoint: stage 4D recovery spectator temporary payment resources`.
+
+Write locks: A_MAIN server P1-004 recovery command raw-payload validation slice. Allowed files are `src/Riftbound.Engine/MatchRecovery.cs`, `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs`, current checkpoint/completion/P0-P1/next-dispatch docs, this shared board, and dedicated 4D-17FS audit/evidence docs. Matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, frontend, protocol, official catalog, browser, formal E2E, `fullOfficial`, final readiness status and `riftbound-dotnet.sln` remain locked.
+
+Status: accepted 4D-17FS recovery command raw-payload validation. `MatchRecoveryValidator` now rejects accepted payload-bearing recovered commands whose persisted raw command is missing, preventing payload replay from falling back to a `cmdType`-only command for targets, object ids, payment choices or decklists. Project remains **NOT READY**.
+
+Validation: focused single test `1/1`; focused `MatchRecoveryTests` `194/194`; adjacent recovery/opening/store-smoke `775/775`; backend full `6140/6140`; `git diff --check`; anchored conflict-marker scan; `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`.
+
+Requested action: DOC_MATRIX_CURRENT may continue only after syncing to latest main containing Stage 4D-17FS and must stay inside the already approved `4D-03SU..03SV` docs/matrix-only scope. Do not change final readiness status.
 
 ### 2026-05-25 10:10 A_MAIN
 

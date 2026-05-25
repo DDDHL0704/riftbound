@@ -2244,6 +2244,54 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAcceptedPayloadCommandWithoutRawCommand()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-paycost-missing-raw",
+                CommandTypes.PayCost,
+                null,
+                0,
+                0,
+                0,
+                0,
+                true,
+                null),
+            new RecoveredCommand(
+                "alice",
+                "intent-pass-without-raw",
+                CommandTypes.Pass,
+                null,
+                0,
+                0,
+                0,
+                0,
+                true,
+                null)
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "accepted command intent-paycost-missing-raw raw command is required for PAY_COST",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "intent-pass-without-raw raw command is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorAcceptsDevSeedScenarioRawCommandType()
     {
         var events = new[]

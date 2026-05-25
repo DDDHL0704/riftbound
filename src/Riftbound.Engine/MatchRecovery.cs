@@ -1082,6 +1082,14 @@ public static class MatchRecoveryValidator
                 "type",
                 errors);
 
+            if (command.Accepted
+                && command.RawCommand is null
+                && CommandRequiresRawPayloadForReplay(normalizedCommandType))
+            {
+                errors.Add(
+                    $"accepted command {normalizedClientIntentId} raw command is required for {normalizedCommandType}");
+            }
+
             if (normalizedPlayerId.Length > 0
                 && knownRecoveredPlayerIds.Count > 0
                 && !knownRecoveredPlayerIds.Contains(normalizedPlayerId))
@@ -1357,6 +1365,30 @@ public static class MatchRecoveryValidator
             errors.Add(
                 $"command {command.ClientIntentId} raw cmdType {normalizedRawCommandType} has surrounding whitespace");
         }
+    }
+
+    private static bool CommandRequiresRawPayloadForReplay(string recoveredCommandType)
+    {
+        return recoveredCommandType switch
+        {
+            CommandTypes.SubmitDeck
+                or CommandTypes.Mulligan
+                or CommandTypes.PlayCard
+                or CommandTypes.ActivateAbility
+                or CommandTypes.LegendAct
+                or CommandTypes.HideCard
+                or CommandTypes.TapRune
+                or CommandTypes.RecycleRune
+                or CommandTypes.RevealCard
+                or CommandTypes.MoveUnit
+                or CommandTypes.AssembleEquipment
+                or CommandTypes.DeclareBattle
+                or CommandTypes.PayCost
+                or CommandTypes.AssignCombatDamage
+                or CommandTypes.OrderTriggers
+                or CommandTypes.ChooseHandCards => true,
+            _ => false
+        };
     }
 
     private static bool TryReadRawCommandType(JsonElement? rawCommand, out string commandType)
