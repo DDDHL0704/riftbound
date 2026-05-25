@@ -2598,6 +2598,11 @@ public static class MatchRecoveryValidator
                 playerPayload,
                 $"snapshot for {view.PlayerId} player {snapshotPlayerId}",
                 errors);
+            ValidateSnapshotPlayerRunePoolPowerTraitPayloadPropertyNames(
+                view,
+                snapshotPlayerId,
+                playerPayload,
+                errors);
 
             if (!TryReadObjectString(playerPayload, "id", out var payloadId)
                 || string.IsNullOrWhiteSpace(payloadId))
@@ -2636,6 +2641,25 @@ public static class MatchRecoveryValidator
                     $"snapshot for {view.PlayerId} player {snapshotPlayerId} seat {normalizedSeat} is duplicated");
             }
         }
+    }
+
+    private static void ValidateSnapshotPlayerRunePoolPowerTraitPayloadPropertyNames(
+        RecoveredPlayerView view,
+        string snapshotPlayerId,
+        object? playerPayload,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(playerPayload, "runePool", out var runePoolPayload)
+            || !IsSnapshotPlayerPayloadObject(runePoolPayload)
+            || !TryReadObjectValue(runePoolPayload, "powerByTrait", out var powerByTraitPayload))
+        {
+            return;
+        }
+
+        ValidateSnapshotPayloadObjectPropertyNames(
+            powerByTraitPayload,
+            $"snapshot for {view.PlayerId} player {snapshotPlayerId} rune pool power by trait",
+            errors);
     }
 
     private static bool IsSnapshotPlayerPayloadObject(object? playerPayload)
