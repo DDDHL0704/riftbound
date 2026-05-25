@@ -7749,6 +7749,11 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        ValidateSnapshotPayloadObjectPropertyNames(
+            spectatorReplayFrame.SpectatorSnapshot.Timing,
+            "spectator replay frame timing",
+            errors);
+
         if (spectatorReplayFrame.SpectatorSnapshot.Players is null)
         {
             errors.Add("spectator replay frame snapshot players are required");
