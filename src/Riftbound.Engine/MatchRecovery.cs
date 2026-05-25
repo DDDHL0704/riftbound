@@ -2082,6 +2082,11 @@ public static class MatchRecoveryValidator
                 "continuousEffects",
                 "continuous effect",
                 errors);
+            ValidateSnapshotTimingListItemPayloadPropertyNames(
+                view,
+                "triggerQueue",
+                "trigger queue",
+                errors);
         }
     }
 
