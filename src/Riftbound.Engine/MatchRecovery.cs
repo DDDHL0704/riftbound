@@ -2096,6 +2096,7 @@ public static class MatchRecoveryValidator
             ValidateSnapshotTimingBattleDamageAssignmentPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingBattleDamageAssignmentMapPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingBattleDamageAssignmentRequiredAssignmentPayloadPropertyNames(view, errors);
+            ValidateSnapshotTimingPaymentPowerTraitPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingListItemPayloadPropertyNames(
                 view,
                 "continuousEffects",
@@ -2258,6 +2259,72 @@ public static class MatchRecoveryValidator
                 $"snapshot for {view.PlayerId} timing battle damage assignment required assignment item",
                 errors);
         }
+    }
+
+    private static void ValidateSnapshotTimingPaymentPowerTraitPayloadPropertyNames(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null)
+        {
+            return;
+        }
+
+        if (TryReadObjectValue(view.Snapshot.Timing, "pendingPayment", out var pendingPaymentPayload)
+            && IsSnapshotPlayerPayloadObject(pendingPaymentPayload)
+            && TryReadObjectValue(pendingPaymentPayload, "cost", out var costPayload)
+            && IsSnapshotPlayerPayloadObject(costPayload)
+            && TryReadObjectValue(costPayload, "powerByTrait", out var powerByTraitPayload))
+        {
+            ValidateSnapshotPayloadObjectPropertyNames(
+                powerByTraitPayload,
+                $"snapshot for {view.PlayerId} timing pending payment power cost traits",
+                errors);
+        }
+
+        if (!TryReadObjectList(view.Snapshot.Timing, "temporaryPaymentResources", out var resources))
+        {
+            return;
+        }
+
+        foreach (var resource in resources)
+        {
+            if (!IsSnapshotPlayerPayloadObject(resource))
+            {
+                continue;
+            }
+
+            ValidateSnapshotTimingTemporaryPaymentResourcePowerTraitPayloadPropertyNames(
+                view,
+                resource,
+                "generatedPowerByTrait",
+                "generated power traits",
+                errors);
+            ValidateSnapshotTimingTemporaryPaymentResourcePowerTraitPayloadPropertyNames(
+                view,
+                resource,
+                "remainingPowerByTrait",
+                "remaining power traits",
+                errors);
+        }
+    }
+
+    private static void ValidateSnapshotTimingTemporaryPaymentResourcePowerTraitPayloadPropertyNames(
+        RecoveredPlayerView view,
+        object? resourcePayload,
+        string payloadKey,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(resourcePayload, payloadKey, out var powerTraitPayload))
+        {
+            return;
+        }
+
+        ValidateSnapshotPayloadObjectPropertyNames(
+            powerTraitPayload,
+            $"snapshot for {view.PlayerId} timing temporary payment resource {payloadLabel}",
+            errors);
     }
 
     private static void ValidateSnapshotTimingRequiredString(

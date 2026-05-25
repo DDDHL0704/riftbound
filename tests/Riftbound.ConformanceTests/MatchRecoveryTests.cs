@@ -1119,6 +1119,121 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingPaymentPowerTraitMapPropertyNameDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["pendingPayment"] = RawJson("""
+            {
+                "paymentId": "payment-1",
+                "paymentWindow": "PAY_COST",
+                "playerId": "alice",
+                "cost": {
+                    "mana": 0,
+                    "power": 1,
+                    "powerByTrait": {
+                        "blue": 1,
+                        "blue": 1,
+                        " red ": 1,
+                        "": true
+                    }
+                },
+                "paymentChoices": [ "SPEND_POWER:blue:1" ],
+                "paymentResourceActions": []
+            }
+            """);
+        timing["temporaryPaymentResources"] = new object?[]
+        {
+            RawJson("""
+                {
+                    "resourceId": "temp-payment-resource-1",
+                    "ownerPlayerId": "alice",
+                    "sourceObjectId": "source-1",
+                    "abilityId": "TEST_TEMP_RESOURCE_ABILITY",
+                    "paymentWindow": "PAY_COST",
+                    "generatedPower": 2,
+                    "remainingPower": 1,
+                    "generatedPowerByTrait": {
+                        "red": 2,
+                        "red": 2,
+                        " blue ": 1,
+                        "": true
+                    },
+                    "remainingPowerByTrait": {
+                        "green": 1,
+                        "green": 1,
+                        " white ": 1,
+                        "": true
+                    },
+                    "allowedPaymentKinds": [ "RUNE_COST" ],
+                    "paymentOnly": true,
+                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J",
+                    "createdTick": 0
+                }
+                """)
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending payment power cost traits property blue appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending payment power cost traits property red has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending payment power cost traits property name is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing temporary payment resource generated power traits property red appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing temporary payment resource generated power traits property blue has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing temporary payment resource generated power traits property name is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing temporary payment resource remaining power traits property green appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing temporary payment resource remaining power traits property white has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing temporary payment resource remaining power traits property name is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsMissingSnapshotTimingCoreFields()
     {
         var alice = PlayerView("alice", 0, 0);
