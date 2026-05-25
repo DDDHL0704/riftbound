@@ -8063,6 +8063,92 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplaySnapshotRunePoolPowerTraitMapPropertyNameDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["alice"] = new(
+                    mana: 2,
+                    power: 3,
+                    powerByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Red] = 4,
+                        [RuneTrait.Blue] = 1
+                    })
+            });
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var players = spectatorReplayFrame.SpectatorSnapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var runePool = Assert.IsType<Dictionary<string, object?>>(alicePayload["runePool"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        runePool["powerByTrait"] = RawJson("""
+            {
+                "red": 4,
+                "red": 4,
+                " blue ": 1,
+                "": true
+            }
+            """);
+        alicePayload["runePool"] = runePool;
+        players["alice"] = alicePayload;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Players = players
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice rune pool power by trait property red appears more than once", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice rune pool power by trait property blue has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice rune pool power by trait property name is required", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplaySnapshotPlayerRunePoolMismatch()
     {
         var authoritativeState = new MatchState(

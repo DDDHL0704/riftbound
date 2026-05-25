@@ -2470,6 +2470,7 @@ public static class MatchRecoveryValidator
             runePoolPayload,
             $"spectator replay frame snapshot player {playerId} rune pool",
             errors);
+        ValidateSpectatorSnapshotPlayerRunePoolPowerTraitPayloadPropertyNames(playerId, runePoolPayload, errors);
 
         var expectedRunePool = authoritativeState.RunePools.TryGetValue(playerId, out var runePool)
             ? runePool
@@ -2497,6 +2498,22 @@ public static class MatchRecoveryValidator
         {
             errors.Add($"spectator replay frame snapshot player {playerId} rune pool power by trait does not match authoritative rune pool power by trait");
         }
+    }
+
+    private static void ValidateSpectatorSnapshotPlayerRunePoolPowerTraitPayloadPropertyNames(
+        string playerId,
+        object? runePoolPayload,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(runePoolPayload, "powerByTrait", out var powerByTraitPayload))
+        {
+            return;
+        }
+
+        ValidateSnapshotPayloadObjectPropertyNames(
+            powerByTraitPayload,
+            $"spectator replay frame snapshot player {playerId} rune pool power by trait",
+            errors);
     }
 
     private static void ValidateSpectatorSnapshotPlayerZonePayloads(
