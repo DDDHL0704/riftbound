@@ -2608,6 +2608,11 @@ public static class MatchRecoveryValidator
                 snapshotPlayerId,
                 playerPayload,
                 errors);
+            ValidateSnapshotPlayerZonesPayloadPropertyNames(
+                view,
+                snapshotPlayerId,
+                playerPayload,
+                errors);
 
             if (!TryReadObjectString(playerPayload, "id", out var payloadId)
                 || string.IsNullOrWhiteSpace(payloadId))
@@ -2682,6 +2687,24 @@ public static class MatchRecoveryValidator
         ValidateSnapshotPayloadObjectPropertyNames(
             powerByTraitPayload,
             $"snapshot for {view.PlayerId} player {snapshotPlayerId} rune pool power by trait",
+            errors);
+    }
+
+    private static void ValidateSnapshotPlayerZonesPayloadPropertyNames(
+        RecoveredPlayerView view,
+        string snapshotPlayerId,
+        object? playerPayload,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(playerPayload, "zones", out var zonesPayload)
+            || !IsSnapshotPlayerPayloadObject(zonesPayload))
+        {
+            return;
+        }
+
+        ValidateSnapshotPayloadObjectPropertyNames(
+            zonesPayload,
+            $"snapshot for {view.PlayerId} player {snapshotPlayerId} zones",
             errors);
     }
 
