@@ -13260,6 +13260,130 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingPendingPaymentValueDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            pendingPayment: new PendingPaymentState(
+                "payment-1",
+                "PAY_COST",
+                "alice",
+                manaCost: 2,
+                powerCost: 1,
+                powerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    ["blue"] = 1
+                },
+                legalPaymentChoiceIds: ["SPEND_MANA:2", "SPEND_POWER:1"],
+                reason: "test-payment"));
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        timing["pendingPayment"] = RawJson("""
+            {
+                "paymentId": " payment-1 ",
+                "paymentWindow": "",
+                "playerId": " alice ",
+                "cost": {
+                    "mana": -1,
+                    "power": "one",
+                    "powerByTrait": {
+                        "blue": "one",
+                        "red": 0,
+                        "green": -1
+                    }
+                },
+                "paymentChoices": [ "SPEND_MANA:2", " SPEND_MANA:2 ", "" ],
+                "paymentResourceActions": [ "RECYCLE_RUNE:rune-1", " RECYCLE_RUNE:rune-1 ", "" ]
+            }
+            """);
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment payment id payment-1 has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment payment window is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment player id alice has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment cost mana -1 cannot be negative", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment cost power is invalid", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment cost power cost trait blue value is invalid", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment cost power cost trait red value 0 must be positive", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment cost power cost trait green value -1 must be positive", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment payment choice SPEND_MANA:2 has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment payment choice SPEND_MANA:2 is duplicated", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment payment choice is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment payment resource action RECYCLE_RUNE:rune-1 has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment payment resource action RECYCLE_RUNE:rune-1 is duplicated", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment payment resource action is required", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingPendingPaymentResourceActionsMismatch()
     {
         const string temporaryResourceId = "temp-payment-resource-1";

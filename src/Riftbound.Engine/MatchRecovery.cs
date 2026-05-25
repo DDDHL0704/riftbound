@@ -5226,6 +5226,7 @@ public static class MatchRecoveryValidator
             paymentPayload,
             "spectator replay frame timing pending payment",
             errors);
+        ValidateSpectatorPendingPaymentPayloadValues(paymentPayload, errors);
 
         if (!TryReadObjectString(paymentPayload, "paymentId", out var paymentId)
             || !string.Equals(paymentId, authoritativePayment.PaymentId, StringComparison.Ordinal))
@@ -5288,6 +5289,68 @@ public static class MatchRecoveryValidator
         {
             errors.Add("spectator replay frame timing pending payment resource actions do not match authoritative state pending payment resource actions");
         }
+    }
+
+    private static void ValidateSpectatorPendingPaymentPayloadValues(
+        object? paymentPayload,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing pending payment";
+        ValidateSnapshotPayloadRequiredStringValue(
+            paymentPayload,
+            "paymentId",
+            payloadLabel,
+            "payment id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            paymentPayload,
+            "paymentWindow",
+            payloadLabel,
+            "payment window",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            paymentPayload,
+            "playerId",
+            payloadLabel,
+            "player id",
+            errors);
+        ValidateSnapshotPayloadStringListValues(
+            paymentPayload,
+            "paymentChoices",
+            payloadLabel,
+            "payment choice",
+            errors);
+        ValidateSnapshotPayloadStringListValues(
+            paymentPayload,
+            "paymentResourceActions",
+            payloadLabel,
+            "payment resource action",
+            errors);
+
+        if (!TryReadObjectValue(paymentPayload, "cost", out var costPayload)
+            || !IsSnapshotPlayerPayloadObject(costPayload))
+        {
+            return;
+        }
+
+        ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+            costPayload,
+            "mana",
+            $"{payloadLabel} cost",
+            "mana",
+            errors);
+        ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+            costPayload,
+            "power",
+            $"{payloadLabel} cost",
+            "power",
+            errors);
+        ValidateSnapshotPayloadRequiredPositiveIntMapValues(
+            costPayload,
+            "powerByTrait",
+            $"{payloadLabel} cost",
+            "power cost trait",
+            errors);
     }
 
     private static IReadOnlyList<string> ExpectedSpectatorPendingPaymentResourceActionIds(
