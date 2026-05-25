@@ -4591,6 +4591,11 @@ public static class MatchRecoveryValidator
                 return;
             }
 
+            ValidateSnapshotPayloadObjectPropertyNames(
+                spectatorResource,
+                "spectator replay frame timing temporary payment resource item",
+                errors);
+
             var authoritativeResource = authoritativeResources[index];
             if (!TryReadObjectString(spectatorResource, "resourceId", out var resourceId)
                 || !string.Equals(resourceId, authoritativeResource.ResourceId, StringComparison.Ordinal))
@@ -4865,6 +4870,20 @@ public static class MatchRecoveryValidator
             errors.Add(
                 $"spectator replay frame timing battlefield task count {spectatorBattlefieldTasks.Count} does not match authoritative state battlefield task count {authoritativeBattlefieldTasks.Count}");
             return;
+        }
+
+        foreach (var spectatorBattlefieldTask in spectatorBattlefieldTasks)
+        {
+            if (!IsSnapshotPlayerPayloadObject(spectatorBattlefieldTask))
+            {
+                errors.Add("spectator replay frame timing battlefield task payload is required");
+                return;
+            }
+
+            ValidateSnapshotPayloadObjectPropertyNames(
+                spectatorBattlefieldTask,
+                "spectator replay frame timing battlefield task item",
+                errors);
         }
 
         if (!StringListsEqual(
