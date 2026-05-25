@@ -2414,6 +2414,97 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsPrimaryActionCommandRawPayloadShapeDrift()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-play-cmdtype-only",
+                CommandTypes.PlayCard,
+                RawCommand(CommandTypes.PlayCard),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "missing play payload"),
+            new RecoveredCommand(
+                "alice",
+                "intent-activate-malformed",
+                CommandTypes.ActivateAbility,
+                RawJson("""
+                    {
+                      "cmdType": "ACTIVATE_ABILITY",
+                      "sourceObjectId": "ability-source-1",
+                      "abilityId": "ability-1",
+                      "targetObjectIds": ["target-1", " "]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "malformed ability payload"),
+            new RecoveredCommand(
+                "alice",
+                "intent-legend-cmdtype-only",
+                CommandTypes.LegendAct,
+                RawCommand(CommandTypes.LegendAct),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "missing legend payload")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-play-cmdtype-only raw PLAY_CARD sourceObjectId is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-play-cmdtype-only raw PLAY_CARD cardNo is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-play-cmdtype-only raw PLAY_CARD targetObjectIds must be an array",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-activate-malformed raw ACTIVATE_ABILITY targetObjectIds[1] is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-legend-cmdtype-only raw LEGEND_ACT sourceObjectId is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-legend-cmdtype-only raw LEGEND_ACT abilityId is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-legend-cmdtype-only raw LEGEND_ACT targetObjectIds must be an array",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorAcceptsDevSeedScenarioRawCommandType()
     {
         var events = new[]

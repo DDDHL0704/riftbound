@@ -1380,6 +1380,17 @@ public static class MatchRecoveryValidator
 
         switch (normalizedCommandType)
         {
+            case CommandTypes.PlayCard:
+                ValidateRawCommandRequiredString(command, rawCommand, "sourceObjectId", errors);
+                ValidateRawCommandRequiredString(command, rawCommand, "cardNo", errors);
+                ValidateRawCommandStringArray(command, rawCommand, "targetObjectIds", errors);
+                break;
+            case CommandTypes.ActivateAbility:
+            case CommandTypes.LegendAct:
+                ValidateRawCommandRequiredString(command, rawCommand, "sourceObjectId", errors);
+                ValidateRawCommandRequiredString(command, rawCommand, "abilityId", errors);
+                ValidateRawCommandStringArray(command, rawCommand, "targetObjectIds", errors);
+                break;
             case CommandTypes.PayCost:
                 ValidateRawCommandRequiredString(command, rawCommand, "paymentId", errors);
                 ValidateRawCommandRequiredString(command, rawCommand, "paymentWindow", errors);
