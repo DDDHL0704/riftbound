@@ -2558,6 +2558,111 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsCombatAssignmentPropertyNameDrift()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-assignment-duplicate-property",
+                CommandTypes.AssignCombatDamage,
+                RawJson("""
+                    {
+                      "cmdType": "ASSIGN_COMBAT_DAMAGE",
+                      "battleId": "battle-1",
+                      "battlefieldId": "battlefield-1",
+                      "assignments": [
+                        {
+                          "sourceObjectId": "attacker-1",
+                          "sourceObjectId": "attacker-2",
+                          "targetObjectId": "defender-1",
+                          "damage": 2
+                        }
+                      ]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "duplicate assignment property"),
+            new RecoveredCommand(
+                "alice",
+                "intent-assignment-property-trim",
+                CommandTypes.AssignCombatDamage,
+                RawJson("""
+                    {
+                      "cmdType": "ASSIGN_COMBAT_DAMAGE",
+                      "battleId": "battle-1",
+                      "battlefieldId": "battlefield-1",
+                      "assignments": [
+                        {
+                          "sourceObjectId": "attacker-1",
+                          " targetObjectId ": "defender-1",
+                          "damage": 2
+                        }
+                      ]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "trim assignment property"),
+            new RecoveredCommand(
+                "alice",
+                "intent-assignment-blank-property",
+                CommandTypes.AssignCombatDamage,
+                RawJson("""
+                    {
+                      "cmdType": "ASSIGN_COMBAT_DAMAGE",
+                      "battleId": "battle-1",
+                      "battlefieldId": "battlefield-1",
+                      "assignments": [
+                        {
+                          "sourceObjectId": "attacker-1",
+                          "targetObjectId": "defender-1",
+                          "damage": 2,
+                          "": true
+                        }
+                      ]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "blank assignment property")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-assignment-duplicate-property raw ASSIGN_COMBAT_DAMAGE assignments[0] property sourceObjectId appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-assignment-property-trim raw ASSIGN_COMBAT_DAMAGE assignments[0] property targetObjectId has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-assignment-blank-property raw ASSIGN_COMBAT_DAMAGE assignments[0] property name is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsPrimaryActionCommandRawPayloadShapeDrift()
     {
         var commands = new[]

@@ -1346,7 +1346,7 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        ValidateRawCommandPropertyNames(command, rawCommand, errors);
+        ValidateRawCommandObjectPropertyNames(command, "raw command", rawCommand, errors);
 
         if (!rawCommand.TryGetProperty("cmdType", out var rawCommandType))
         {
@@ -1373,8 +1373,9 @@ public static class MatchRecoveryValidator
         ValidateRawCommandOptionalNonNegativeInteger(command, rawCommand, "snapshotTick", errors);
     }
 
-    private static void ValidateRawCommandPropertyNames(
+    private static void ValidateRawCommandObjectPropertyNames(
         RecoveredCommand command,
+        string scopeLabel,
         JsonElement rawCommand,
         List<string> errors)
     {
@@ -1383,7 +1384,7 @@ public static class MatchRecoveryValidator
         {
             if (string.IsNullOrWhiteSpace(property.Name))
             {
-                errors.Add($"command {command.ClientIntentId} raw command property name is required");
+                errors.Add($"command {command.ClientIntentId} {scopeLabel} property name is required");
                 continue;
             }
 
@@ -1391,13 +1392,13 @@ public static class MatchRecoveryValidator
             if (!string.Equals(property.Name, normalizedName, StringComparison.Ordinal))
             {
                 errors.Add(
-                    $"command {command.ClientIntentId} raw command property {normalizedName} has surrounding whitespace");
+                    $"command {command.ClientIntentId} {scopeLabel} property {normalizedName} has surrounding whitespace");
             }
 
             if (!seenPropertyNames.Add(normalizedName))
             {
                 errors.Add(
-                    $"command {command.ClientIntentId} raw command property {normalizedName} appears more than once");
+                    $"command {command.ClientIntentId} {scopeLabel} property {normalizedName} appears more than once");
             }
         }
     }
@@ -1701,6 +1702,11 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
+            ValidateRawCommandObjectPropertyNames(
+                command,
+                $"raw {command.CommandType} assignments[{index}]",
+                assignment,
+                errors);
             ValidateRawCommandAssignmentString(command, assignment, index, "sourceObjectId", errors);
             ValidateRawCommandAssignmentString(command, assignment, index, "targetObjectId", errors);
             if (!assignment.TryGetProperty("damage", out var damage)
