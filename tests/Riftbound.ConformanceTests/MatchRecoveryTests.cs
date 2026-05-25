@@ -2682,6 +2682,71 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsDeclareBattleCommandRawPayloadShapeDrift()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-declare-battle-cmdtype-only",
+                CommandTypes.DeclareBattle,
+                RawCommand(CommandTypes.DeclareBattle),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "missing declare battle payload"),
+            new RecoveredCommand(
+                "alice",
+                "intent-declare-battle-malformed",
+                CommandTypes.DeclareBattle,
+                RawJson("""
+                    {
+                      "cmdType": "DECLARE_BATTLE",
+                      "battlefieldId": "battlefield-1",
+                      "attackerObjectIds": ["attacker-1", " "],
+                      "defenderObjectIds": ["defender-1"]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "malformed declare battle payload")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-declare-battle-cmdtype-only raw DECLARE_BATTLE battlefieldId is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-declare-battle-cmdtype-only raw DECLARE_BATTLE attackerObjectIds must be an array",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-declare-battle-cmdtype-only raw DECLARE_BATTLE defenderObjectIds must be an array",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-declare-battle-malformed raw DECLARE_BATTLE attackerObjectIds[1] is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorAcceptsDevSeedScenarioRawCommandType()
     {
         var events = new[]

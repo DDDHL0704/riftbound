@@ -1413,6 +1413,11 @@ public static class MatchRecoveryValidator
                 ValidateRawCommandRequiredString(command, rawCommand, "sourceObjectId", errors);
                 ValidateRawCommandRequiredString(command, rawCommand, "targetObjectId", errors);
                 break;
+            case CommandTypes.DeclareBattle:
+                ValidateRawCommandRequiredString(command, rawCommand, "battlefieldId", errors);
+                ValidateRawCommandStringArray(command, rawCommand, "attackerObjectIds", errors);
+                ValidateRawCommandStringArray(command, rawCommand, "defenderObjectIds", errors);
+                break;
             case CommandTypes.PayCost:
                 ValidateRawCommandRequiredString(command, rawCommand, "paymentId", errors);
                 ValidateRawCommandRequiredString(command, rawCommand, "paymentWindow", errors);
