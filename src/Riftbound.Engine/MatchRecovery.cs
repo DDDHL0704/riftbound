@@ -2684,6 +2684,11 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        ValidateSnapshotPayloadObjectPropertyNames(
+            objectPayload,
+            $"spectator replay frame snapshot player {playerId} object {objectId}",
+            errors);
+
         if (!TryReadObjectString(objectPayload, "objectId", out var payloadObjectId)
             || !string.Equals(payloadObjectId, objectId, StringComparison.Ordinal))
         {
@@ -2743,6 +2748,11 @@ public static class MatchRecoveryValidator
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location is required");
             return;
         }
+
+        ValidateSnapshotPayloadObjectPropertyNames(
+            locationPayload,
+            $"spectator replay frame snapshot player {playerId} object {objectId} location",
+            errors);
 
         if (!TryReadObjectString(locationPayload, "playerId", out var locationPlayerId)
             || !string.Equals(locationPlayerId, expectedLocation.PlayerId, StringComparison.Ordinal))
