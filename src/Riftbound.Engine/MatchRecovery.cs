@@ -2115,6 +2115,11 @@ public static class MatchRecoveryValidator
                 errors);
             ValidateSnapshotTimingListItemPayloadPropertyNames(
                 view,
+                "battlefieldTasks",
+                "battlefield task",
+                errors);
+            ValidateSnapshotTimingListItemPayloadPropertyNames(
+                view,
                 "battlefieldResolutions",
                 "battlefield resolution",
                 errors);
