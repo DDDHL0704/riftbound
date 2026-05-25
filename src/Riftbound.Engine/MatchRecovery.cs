@@ -1346,6 +1346,8 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        ValidateRawCommandPropertyNames(command, rawCommand, errors);
+
         if (!rawCommand.TryGetProperty("cmdType", out var rawCommandType))
         {
             errors.Add($"command {command.ClientIntentId} raw command is missing cmdType");
@@ -1369,6 +1371,35 @@ public static class MatchRecoveryValidator
 
         ValidateRawCommandOptionalString(command, rawCommand, "promptId", errors);
         ValidateRawCommandOptionalNonNegativeInteger(command, rawCommand, "snapshotTick", errors);
+    }
+
+    private static void ValidateRawCommandPropertyNames(
+        RecoveredCommand command,
+        JsonElement rawCommand,
+        List<string> errors)
+    {
+        var seenPropertyNames = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var property in rawCommand.EnumerateObject())
+        {
+            if (string.IsNullOrWhiteSpace(property.Name))
+            {
+                errors.Add($"command {command.ClientIntentId} raw command property name is required");
+                continue;
+            }
+
+            var normalizedName = property.Name.Trim();
+            if (!string.Equals(property.Name, normalizedName, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} raw command property {normalizedName} has surrounding whitespace");
+            }
+
+            if (!seenPropertyNames.Add(normalizedName))
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} raw command property {normalizedName} appears more than once");
+            }
+        }
     }
 
     private static void ValidateRawCommandPayloadShape(

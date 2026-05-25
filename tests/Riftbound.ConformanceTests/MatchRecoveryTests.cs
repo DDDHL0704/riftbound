@@ -2244,6 +2244,70 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsRawCommandPropertyNameDrift()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-raw-duplicate-property",
+                "END_TURN",
+                RawJson("""{"cmdType":"PASS","cmdType":"END_TURN"}"""),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "duplicate raw property"),
+            new RecoveredCommand(
+                "alice",
+                "intent-raw-property-trim",
+                "PASS",
+                RawJson("""{"cmdType":"PASS"," promptId ":"room-a:0:alice:PASS"}"""),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "trimmed raw property"),
+            new RecoveredCommand(
+                "alice",
+                "intent-raw-blank-property",
+                "PASS",
+                RawJson("""{"cmdType":"PASS","":true}"""),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "blank raw property")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-raw-duplicate-property raw command property cmdType appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-raw-property-trim raw command property promptId has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-raw-blank-property raw command property name is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAcceptedCommandsThatOverlapEventOwnership()
     {
         var events = new[]
