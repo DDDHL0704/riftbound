@@ -1082,12 +1082,11 @@ public static class MatchRecoveryValidator
                 "type",
                 errors);
 
-            if (command.Accepted
-                && command.RawCommand is null
-                && CommandRequiresRawPayloadForReplay(normalizedCommandType))
+            if (command.RawCommand is null
+                && CommandRequiresRawPayload(normalizedCommandType))
             {
                 errors.Add(
-                    $"accepted command {normalizedClientIntentId} raw command is required for {normalizedCommandType}");
+                    $"command {normalizedClientIntentId} raw command is required for {normalizedCommandType}");
             }
 
             if (normalizedPlayerId.Length > 0
@@ -1367,7 +1366,7 @@ public static class MatchRecoveryValidator
         }
     }
 
-    private static bool CommandRequiresRawPayloadForReplay(string recoveredCommandType)
+    private static bool CommandRequiresRawPayload(string recoveredCommandType)
     {
         return recoveredCommandType switch
         {

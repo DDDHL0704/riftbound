@@ -2244,7 +2244,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsAcceptedPayloadCommandWithoutRawCommand()
+    public void RecoveryValidatorRejectsPayloadCommandWithoutRawCommand()
     {
         var commands = new[]
         {
@@ -2259,6 +2259,17 @@ public sealed class MatchRecoveryTests
                 0,
                 true,
                 null),
+            new RecoveredCommand(
+                "alice",
+                "intent-choice-missing-raw",
+                CommandTypes.ChooseHandCards,
+                null,
+                0,
+                0,
+                0,
+                0,
+                false,
+                "invalid hand choice"),
             new RecoveredCommand(
                 "alice",
                 "intent-pass-without-raw",
@@ -2282,7 +2293,12 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "accepted command intent-paycost-missing-raw raw command is required for PAY_COST",
+                "command intent-paycost-missing-raw raw command is required for PAY_COST",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-choice-missing-raw raw command is required for CHOOSE_HAND_CARDS",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
