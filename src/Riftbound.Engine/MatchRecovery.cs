@@ -1422,10 +1422,12 @@ public static class MatchRecoveryValidator
                 ValidateRawCommandRequiredString(command, rawCommand, "sourceObjectId", errors);
                 ValidateRawCommandRequiredString(command, rawCommand, "origin", errors);
                 ValidateRawCommandRequiredString(command, rawCommand, "destination", errors);
+                ValidateRawCommandOptionalStringArray(command, rawCommand, "optionalCosts", errors);
                 break;
             case CommandTypes.AssembleEquipment:
                 ValidateRawCommandRequiredString(command, rawCommand, "sourceObjectId", errors);
                 ValidateRawCommandRequiredString(command, rawCommand, "targetObjectId", errors);
+                ValidateRawCommandOptionalStringArray(command, rawCommand, "optionalCosts", errors);
                 break;
             case CommandTypes.DeclareBattle:
                 ValidateRawCommandRequiredString(command, rawCommand, "battlefieldId", errors);

@@ -2833,6 +2833,69 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsMovementAndEquipmentOptionalCommandRawPayloadShapeDrift()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-move-optional-costs-malformed",
+                CommandTypes.MoveUnit,
+                RawJson("""
+                    {
+                      "cmdType": "MOVE_UNIT",
+                      "sourceObjectId": "unit-1",
+                      "origin": "BATTLEFIELD:alice-MAIN",
+                      "destination": "BATTLEFIELD:alice-MAIN",
+                      "optionalCosts": ["ROAM", " "]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "malformed move optional costs"),
+            new RecoveredCommand(
+                "alice",
+                "intent-assemble-optional-costs-malformed",
+                CommandTypes.AssembleEquipment,
+                RawJson("""
+                    {
+                      "cmdType": "ASSEMBLE_EQUIPMENT",
+                      "sourceObjectId": "equipment-1",
+                      "targetObjectId": "unit-1",
+                      "optionalCosts": "TEMPERED_ATTACH:equipment-1"
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "malformed assemble optional costs")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-move-optional-costs-malformed raw MOVE_UNIT optionalCosts[1] is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-assemble-optional-costs-malformed raw ASSEMBLE_EQUIPMENT optionalCosts must be an array",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsDeclareBattleCommandRawPayloadShapeDrift()
     {
         var commands = new[]
