@@ -7923,6 +7923,20 @@ public static class MatchRecoveryValidator
         }
         else
         {
+            foreach (var resolutionPayload in spectatorBattlefieldResolutions)
+            {
+                if (!IsSnapshotPlayerPayloadObject(resolutionPayload))
+                {
+                    errors.Add("spectator replay frame timing battlefield resolution payload is required");
+                    continue;
+                }
+
+                ValidateSnapshotPayloadObjectPropertyNames(
+                    resolutionPayload,
+                    "spectator replay frame timing battlefield resolution item",
+                    errors);
+            }
+
             var spectatorBattlefieldResolutionIds = ExtractObjectStringValues(
                 spectatorBattlefieldResolutions,
                 "resolutionId");
@@ -8059,6 +8073,20 @@ public static class MatchRecoveryValidator
         }
         else
         {
+            foreach (var resolutionPayload in spectatorBattleResolutions)
+            {
+                if (!IsSnapshotPlayerPayloadObject(resolutionPayload))
+                {
+                    errors.Add("spectator replay frame timing battle resolution payload is required");
+                    continue;
+                }
+
+                ValidateSnapshotPayloadObjectPropertyNames(
+                    resolutionPayload,
+                    "spectator replay frame timing battle resolution item",
+                    errors);
+            }
+
             var spectatorBattleResolutionIds = ExtractObjectStringValues(
                 spectatorBattleResolutions,
                 "resolutionId");
