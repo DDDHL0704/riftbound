@@ -66,11 +66,27 @@ Use this file as a lightweight message board:
 ## Current Worktrees
 
 - `A_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-dotnet`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`; latest accepted server/test checkpoint is Stage 4D-17FP in this A_MAIN slice, with expected clean status after checkpoint commit except expected untracked `riftbound-dotnet.sln`; exact HEAD must still be checked before each batch / commit.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, last observed clean at handoff/source commit `4c999922` (`checkpoint: stage 4D matrix 03SP-03ST FAQ disposition`); should sync to latest main containing Stage 4D-17FP before continuing the already approved `4D-03SU..03SV` docs/matrix-only FAQ / rule-source scope.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, source commit `7cb78f27` (`checkpoint: stage 4D matrix 03SU-03SV FAQ disposition`) is ready for A_MAIN integration review; no further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-25 10:26 DOC_MATRIX
+
+Owner: `DOC_MATRIX`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`
+
+Branch / commit: branch `codex/stage4d-matrix-docs-current`; source commit `7cb78f27` (`checkpoint: stage 4D matrix 03SU-03SV FAQ disposition`). This board handoff is being committed after recording that source hash.
+
+Write locks: closes the approved `4D-03SU..03SV` docs/matrix-only FAQ / rule-source disposition slice for exactly `FU-5cea85e7c3` 狂热粉丝 and `FU-422b450261` 雷克塞. Touched files are `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` residual-baseline sync only, `docs/CURRENT_STAGE4D_03SU_03SV_E_CARD_MATRIX_READINESS_NONPAYMENT_FAQ_RULE_SOURCE_DISPOSITION_BUNDLE_CANDIDATE_AUDIT.md`, and `docs/CURRENT_STAGE4D_03SU_03SV_E_CARD_MATRIX_READINESS_NONPAYMENT_FAQ_RULE_SOURCE_DISPOSITION_BUNDLE_CANDIDATE_EVIDENCE.md`. Runtime, frontend, protocol, official catalog, browser/formal scripts, final readiness gates and `riftbound-dotnet.sln` remain locked.
+
+Status: accepted branch-local DOC_MATRIX bundle. Matrix counts now show functional-unit FAQ blockers `174 -> 172`, snapshot-entry FAQ blockers `227 -> 224`, non-payment FAQ blockers `82 -> 80`, payment-cost FAQ blockers unchanged at `92`, payment-or-targeting-stack-timing FAQ blockers `124 -> 122`, primary FAQ blockers unchanged at `128`, `fullOfficialTrue=0`, `ready=false`. Project remains **NOT READY**.
+
+Validation: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`; `git diff --check`; conflict-marker scan over `docs` and `tests`; focused `PaymentEngineCoverageAuditTests` `697/697`; adjacent/focused combined `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`; final post-metadata-sync `PaymentEngineCoverageAuditTests` `697/697`.
+
+Requested action: A_MAIN should integrate or reject DOC_MATRIX source commit `7cb78f27` plus this board handoff commit after checking latest main and preserving newer board entries. Do not widen DOC_MATRIX scope from this handoff.
 
 ### 2026-05-24 23:09 A_MAIN
 
