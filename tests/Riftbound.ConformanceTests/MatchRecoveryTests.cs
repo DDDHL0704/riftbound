@@ -2164,6 +2164,86 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsRawCommandPromptEnvelopeShapeDrift()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-prompt-id-trim",
+                "PASS",
+                RawJson("""{"cmdType":"PASS","promptId":" room-a:0:alice:PASS "}"""),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "prompt id trim"),
+            new RecoveredCommand(
+                "alice",
+                "intent-prompt-id-blank",
+                "PASS",
+                RawJson("""{"cmdType":"PASS","promptId":" "}"""),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "prompt id blank"),
+            new RecoveredCommand(
+                "alice",
+                "intent-snapshot-tick-string",
+                "PASS",
+                RawJson("""{"cmdType":"PASS","snapshotTick":"3"}"""),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "snapshot tick string"),
+            new RecoveredCommand(
+                "alice",
+                "intent-snapshot-tick-negative",
+                "PASS",
+                RawJson("""{"cmdType":"PASS","snapshotTick":-1}"""),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "snapshot tick negative")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-prompt-id-trim raw PASS promptId room-a:0:alice:PASS has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-prompt-id-blank raw PASS promptId is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-snapshot-tick-string raw PASS snapshotTick must be a non-negative integer",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-snapshot-tick-negative raw PASS snapshotTick must be a non-negative integer",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAcceptedCommandsThatOverlapEventOwnership()
     {
         var events = new[]

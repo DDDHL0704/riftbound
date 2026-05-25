@@ -1366,6 +1366,9 @@ public static class MatchRecoveryValidator
             errors.Add(
                 $"command {command.ClientIntentId} raw cmdType {normalizedRawCommandType} has surrounding whitespace");
         }
+
+        ValidateRawCommandOptionalString(command, rawCommand, "promptId", errors);
+        ValidateRawCommandOptionalNonNegativeInteger(command, rawCommand, "snapshotTick", errors);
     }
 
     private static void ValidateRawCommandPayloadShape(
@@ -1549,6 +1552,26 @@ public static class MatchRecoveryValidator
         {
             errors.Add(
                 $"command {command.ClientIntentId} raw {command.CommandType} {propertyName} {normalizedValue} has surrounding whitespace");
+        }
+    }
+
+    private static void ValidateRawCommandOptionalNonNegativeInteger(
+        RecoveredCommand command,
+        JsonElement rawCommand,
+        string propertyName,
+        List<string> errors)
+    {
+        if (!rawCommand.TryGetProperty(propertyName, out var property))
+        {
+            return;
+        }
+
+        if (property.ValueKind != JsonValueKind.Number
+            || !property.TryGetInt64(out var value)
+            || value < 0)
+        {
+            errors.Add(
+                $"command {command.ClientIntentId} raw {command.CommandType} {propertyName} must be a non-negative integer");
         }
     }
 
