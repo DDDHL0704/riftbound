@@ -2087,6 +2087,16 @@ public static class MatchRecoveryValidator
                 "triggerQueue",
                 "trigger queue",
                 errors);
+            ValidateSnapshotTimingListItemPayloadPropertyNames(
+                view,
+                "battlefieldResolutions",
+                "battlefield resolution",
+                errors);
+            ValidateSnapshotTimingListItemPayloadPropertyNames(
+                view,
+                "battleResolutions",
+                "battle resolution",
+                errors);
         }
     }
 
