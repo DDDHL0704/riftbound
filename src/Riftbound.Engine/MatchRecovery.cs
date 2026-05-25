@@ -6123,6 +6123,7 @@ public static class MatchRecoveryValidator
                 "spectator replay frame timing temporary payment resource item",
                 errors);
             ValidateSpectatorTemporaryPaymentResourcePowerTraitPayloadPropertyNames(spectatorResource, errors);
+            ValidateSpectatorTemporaryPaymentResourcePayloadValues(spectatorResource, errors);
 
             var authoritativeResource = authoritativeResources[index];
             if (!TryReadObjectString(spectatorResource, "resourceId", out var resourceId)
@@ -6271,6 +6272,91 @@ public static class MatchRecoveryValidator
         {
             errors.Add("spectator replay frame timing temporary payment resource created ticks disagree with authoritative state temporary payment resource created ticks");
         }
+    }
+
+    private static void ValidateSpectatorTemporaryPaymentResourcePayloadValues(
+        object? resourcePayload,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing temporary payment resource item";
+        ValidateSnapshotPayloadRequiredStringValue(
+            resourcePayload,
+            "resourceId",
+            payloadLabel,
+            "resource id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            resourcePayload,
+            "ownerPlayerId",
+            payloadLabel,
+            "owner player id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            resourcePayload,
+            "sourceObjectId",
+            payloadLabel,
+            "source object id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            resourcePayload,
+            "abilityId",
+            payloadLabel,
+            "ability id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            resourcePayload,
+            "paymentWindow",
+            payloadLabel,
+            "payment window",
+            errors);
+        ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+            resourcePayload,
+            "generatedPower",
+            payloadLabel,
+            "generated power",
+            errors);
+        ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+            resourcePayload,
+            "remainingPower",
+            payloadLabel,
+            "remaining power",
+            errors);
+        ValidateSnapshotPayloadRequiredPositiveIntMapValues(
+            resourcePayload,
+            "generatedPowerByTrait",
+            payloadLabel,
+            "generated power trait",
+            errors);
+        ValidateSnapshotPayloadRequiredPositiveIntMapValues(
+            resourcePayload,
+            "remainingPowerByTrait",
+            payloadLabel,
+            "remaining power trait",
+            errors);
+        ValidateSnapshotPayloadStringListValues(
+            resourcePayload,
+            "allowedPaymentKinds",
+            payloadLabel,
+            "allowed payment kind",
+            errors);
+        ValidateSnapshotPayloadRequiredTrueBoolValue(
+            resourcePayload,
+            "paymentOnly",
+            payloadLabel,
+            "payment-only flag",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            resourcePayload,
+            "resourceRestriction",
+            payloadLabel,
+            "resource restriction",
+            errors);
+        ValidateSnapshotPayloadRequiredNonNegativeLongValue(
+            resourcePayload,
+            "createdTick",
+            payloadLabel,
+            "created tick",
+            errors);
     }
 
     private static void ValidateSpectatorPendingPaymentPowerTraitPayloadPropertyNames(
