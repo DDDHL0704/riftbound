@@ -3793,6 +3793,11 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        ValidateSnapshotPayloadObjectPropertyNames(
+            paymentPayload,
+            "spectator replay frame timing pending payment",
+            errors);
+
         if (!TryReadObjectString(paymentPayload, "paymentId", out var paymentId)
             || !string.Equals(paymentId, authoritativePayment.PaymentId, StringComparison.Ordinal))
         {
@@ -3818,6 +3823,11 @@ public static class MatchRecoveryValidator
         }
         else
         {
+            ValidateSnapshotPayloadObjectPropertyNames(
+                costPayload,
+                "spectator replay frame timing pending payment cost",
+                errors);
+
             if (!TryReadObjectInt(costPayload, "mana", out var manaCost)
                 || manaCost != authoritativePayment.ManaCost)
             {
