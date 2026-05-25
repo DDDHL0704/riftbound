@@ -1427,6 +1427,8 @@ public static class MatchRecoveryValidator
                 ValidateRawCommandRequiredString(command, rawCommand, "battlefieldId", errors);
                 ValidateRawCommandStringArray(command, rawCommand, "attackerObjectIds", errors);
                 ValidateRawCommandStringArray(command, rawCommand, "defenderObjectIds", errors);
+                ValidateRawCommandOptionalStringArray(command, rawCommand, "optionalCosts", errors);
+                ValidateRawCommandOptionalStringArray(command, rawCommand, "battlefieldTargetObjectIds", errors);
                 break;
             case CommandTypes.PayCost:
                 ValidateRawCommandRequiredString(command, rawCommand, "paymentId", errors);
@@ -1481,6 +1483,48 @@ public static class MatchRecoveryValidator
     {
         if (!rawCommand.TryGetProperty(propertyName, out var property)
             || property.ValueKind != JsonValueKind.Array)
+        {
+            errors.Add(
+                $"command {command.ClientIntentId} raw {command.CommandType} {propertyName} must be an array");
+            return;
+        }
+
+        var index = 0;
+        foreach (var item in property.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.String
+                || string.IsNullOrWhiteSpace(item.GetString()))
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} raw {command.CommandType} {propertyName}[{index}] is required");
+                index++;
+                continue;
+            }
+
+            var value = item.GetString()!;
+            var normalizedValue = value.Trim();
+            if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} raw {command.CommandType} {propertyName}[{index}] {normalizedValue} has surrounding whitespace");
+            }
+
+            index++;
+        }
+    }
+
+    private static void ValidateRawCommandOptionalStringArray(
+        RecoveredCommand command,
+        JsonElement rawCommand,
+        string propertyName,
+        List<string> errors)
+    {
+        if (!rawCommand.TryGetProperty(propertyName, out var property))
+        {
+            return;
+        }
+
+        if (property.ValueKind != JsonValueKind.Array)
         {
             errors.Add(
                 $"command {command.ClientIntentId} raw {command.CommandType} {propertyName} must be an array");

@@ -2747,6 +2747,72 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsDeclareBattleOptionalCommandRawPayloadShapeDrift()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-declare-battle-optional-costs-malformed",
+                CommandTypes.DeclareBattle,
+                RawJson("""
+                    {
+                      "cmdType": "DECLARE_BATTLE",
+                      "battlefieldId": "battlefield-1",
+                      "attackerObjectIds": ["attacker-1"],
+                      "defenderObjectIds": ["defender-1"],
+                      "optionalCosts": ["COMBAT_ASSIGNMENT", " "],
+                      "battlefieldTargetObjectIds": ["defender-1"]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "malformed declare battle optional costs"),
+            new RecoveredCommand(
+                "alice",
+                "intent-declare-battle-targets-malformed",
+                CommandTypes.DeclareBattle,
+                RawJson("""
+                    {
+                      "cmdType": "DECLARE_BATTLE",
+                      "battlefieldId": "battlefield-1",
+                      "attackerObjectIds": ["attacker-1"],
+                      "defenderObjectIds": ["defender-1"],
+                      "optionalCosts": ["COMBAT_ASSIGNMENT"],
+                      "battlefieldTargetObjectIds": "defender-1"
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "malformed declare battle optional targets")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-declare-battle-optional-costs-malformed raw DECLARE_BATTLE optionalCosts[1] is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-declare-battle-targets-malformed raw DECLARE_BATTLE battlefieldTargetObjectIds must be an array",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsOpeningCommandRawPayloadShapeDrift()
     {
         var commands = new[]
