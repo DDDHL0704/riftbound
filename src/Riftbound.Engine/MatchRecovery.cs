@@ -3508,6 +3508,11 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        ValidateSnapshotPayloadObjectPropertyNames(
+            queuePayload,
+            "spectator replay frame timing pending task queue",
+            errors);
+
         var authoritativeQueue = authoritativeState.PendingTaskQueue;
         if (!TryReadObjectBool(queuePayload, "hasTasks", out var hasTasks)
             || hasTasks != authoritativeQueue.HasTasks)
@@ -3555,6 +3560,11 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        ValidateSnapshotPayloadObjectPropertyNames(
+            metadataPayload,
+            "spectator replay frame timing pending task queue metadata",
+            errors);
+
         if (!TryReadObjectInt(metadataPayload, "taskCount", out var taskCount)
             || taskCount != authoritativeQueue.Tasks.Count)
         {
@@ -3574,6 +3584,20 @@ public static class MatchRecoveryValidator
         IReadOnlyList<CleanupTaskState> authoritativeTasks,
         List<string> errors)
     {
+        foreach (var taskPayload in taskPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(taskPayload))
+            {
+                errors.Add("spectator replay frame timing pending task queue task payload is required");
+                return;
+            }
+
+            ValidateSnapshotPayloadObjectPropertyNames(
+                taskPayload,
+                "spectator replay frame timing pending task queue task item",
+                errors);
+        }
+
         if (!StringListsEqual(
                 ExtractObjectStringValues(taskPayloads, "taskId"),
                 authoritativeTasks.Select(task => VisibleCleanupTaskIdForRecovery(authoritativeState, task)).ToArray()))
