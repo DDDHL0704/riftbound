@@ -1060,6 +1060,65 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingBattleDamageAssignmentRequiredAssignmentPropertyNameDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["battle"] = RawJson("""
+            {
+                "isActive": true,
+                "battleId": "battle-1",
+                "damageAssignment": {
+                    "isPending": true,
+                    "requiredAssignments": [
+                        {
+                            "sourceObjectId": "attacker-a",
+                            "sourceObjectId": "attacker-a",
+                            " targetObjectId ": "defender-a",
+                            "": true,
+                            "targetObjectId": "defender-a"
+                        }
+                    ]
+                }
+            }
+            """);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment required assignment item property sourceObjectId appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment required assignment item property targetObjectId has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment required assignment item property targetObjectId appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment required assignment item property name is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsMissingSnapshotTimingCoreFields()
     {
         var alice = PlayerView("alice", 0, 0);

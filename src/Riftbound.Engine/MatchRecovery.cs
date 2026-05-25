@@ -2095,6 +2095,7 @@ public static class MatchRecoveryValidator
             ValidateSnapshotTimingBattleParticipantControllerPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingBattleDamageAssignmentPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingBattleDamageAssignmentMapPayloadPropertyNames(view, errors);
+            ValidateSnapshotTimingBattleDamageAssignmentRequiredAssignmentPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingListItemPayloadPropertyNames(
                 view,
                 "continuousEffects",
@@ -2229,6 +2230,34 @@ public static class MatchRecoveryValidator
             mapPayload,
             $"snapshot for {view.PlayerId} timing battle damage assignment {payloadLabel}",
             errors);
+    }
+
+    private static void ValidateSnapshotTimingBattleDamageAssignmentRequiredAssignmentPayloadPropertyNames(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectValue(view.Snapshot.Timing, "battle", out var battlePayload)
+            || !IsSnapshotPlayerPayloadObject(battlePayload)
+            || !TryReadObjectValue(battlePayload, "damageAssignment", out var damageAssignmentPayload)
+            || !IsSnapshotPlayerPayloadObject(damageAssignmentPayload)
+            || !TryReadObjectList(damageAssignmentPayload, "requiredAssignments", out var requiredAssignments))
+        {
+            return;
+        }
+
+        foreach (var requiredAssignment in requiredAssignments)
+        {
+            if (!IsSnapshotPlayerPayloadObject(requiredAssignment))
+            {
+                continue;
+            }
+
+            ValidateSnapshotPayloadObjectPropertyNames(
+                requiredAssignment,
+                $"snapshot for {view.PlayerId} timing battle damage assignment required assignment item",
+                errors);
+        }
     }
 
     private static void ValidateSnapshotTimingRequiredString(
