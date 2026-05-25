@@ -3907,6 +3907,7 @@ public static class MatchRecoveryValidator
                 costPayload,
                 "spectator replay frame timing pending payment cost",
                 errors);
+            ValidateSpectatorPendingPaymentPowerTraitPayloadPropertyNames(costPayload, errors);
 
             if (!TryReadObjectInt(costPayload, "mana", out var manaCost)
                 || manaCost != authoritativePayment.ManaCost)
@@ -4709,6 +4710,7 @@ public static class MatchRecoveryValidator
                 spectatorResource,
                 "spectator replay frame timing temporary payment resource item",
                 errors);
+            ValidateSpectatorTemporaryPaymentResourcePowerTraitPayloadPropertyNames(spectatorResource, errors);
 
             var authoritativeResource = authoritativeResources[index];
             if (!TryReadObjectString(spectatorResource, "resourceId", out var resourceId)
@@ -4857,6 +4859,54 @@ public static class MatchRecoveryValidator
         {
             errors.Add("spectator replay frame timing temporary payment resource created ticks disagree with authoritative state temporary payment resource created ticks");
         }
+    }
+
+    private static void ValidateSpectatorPendingPaymentPowerTraitPayloadPropertyNames(
+        object? costPayload,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(costPayload, "powerByTrait", out var powerByTraitPayload))
+        {
+            return;
+        }
+
+        ValidateSnapshotPayloadObjectPropertyNames(
+            powerByTraitPayload,
+            "spectator replay frame timing pending payment power cost traits",
+            errors);
+    }
+
+    private static void ValidateSpectatorTemporaryPaymentResourcePowerTraitPayloadPropertyNames(
+        object? resourcePayload,
+        List<string> errors)
+    {
+        ValidateSpectatorTemporaryPaymentResourcePowerTraitPayloadPropertyNames(
+            resourcePayload,
+            "generatedPowerByTrait",
+            "generated power traits",
+            errors);
+        ValidateSpectatorTemporaryPaymentResourcePowerTraitPayloadPropertyNames(
+            resourcePayload,
+            "remainingPowerByTrait",
+            "remaining power traits",
+            errors);
+    }
+
+    private static void ValidateSpectatorTemporaryPaymentResourcePowerTraitPayloadPropertyNames(
+        object? resourcePayload,
+        string payloadKey,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(resourcePayload, payloadKey, out var powerTraitPayload))
+        {
+            return;
+        }
+
+        ValidateSnapshotPayloadObjectPropertyNames(
+            powerTraitPayload,
+            $"spectator replay frame timing temporary payment resource {payloadLabel}",
+            errors);
     }
 
     private static string TemporaryPaymentResourceRestrictionForRecovery(TemporaryPaymentResourceState resource)
