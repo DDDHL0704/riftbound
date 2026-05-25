@@ -2077,6 +2077,11 @@ public static class MatchRecoveryValidator
             ValidateSnapshotTimingAllowedString(view, "phase", "phase", IsKnownMatchPhase, errors);
             ValidateSnapshotTimingRequiredString(view, "turnPlayerId", "turn player", errors);
             ValidateSnapshotTimingAllowedString(view, "roomStatus", "room status", IsKnownMatchStatus, errors);
+            ValidateSnapshotTimingListItemPayloadPropertyNames(
+                view,
+                "continuousEffects",
+                "continuous effect",
+                errors);
         }
     }
 
@@ -2132,6 +2137,32 @@ public static class MatchRecoveryValidator
             ValidateSnapshotPayloadObjectPropertyNames(
                 stackItem,
                 $"snapshot for {view.PlayerId} stack item {stackItemLabel}",
+                errors);
+        }
+    }
+
+    private static void ValidateSnapshotTimingListItemPayloadPropertyNames(
+        RecoveredPlayerView view,
+        string key,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectList(view.Snapshot.Timing, key, out var payloads))
+        {
+            return;
+        }
+
+        foreach (var payload in payloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(payload))
+            {
+                continue;
+            }
+
+            ValidateSnapshotPayloadObjectPropertyNames(
+                payload,
+                $"snapshot for {view.PlayerId} timing {payloadLabel} item",
                 errors);
         }
     }
