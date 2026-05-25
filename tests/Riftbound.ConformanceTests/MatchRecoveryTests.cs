@@ -2618,6 +2618,70 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsMovementAndEquipmentCommandRawPayloadShapeDrift()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-move-unit-cmdtype-only",
+                CommandTypes.MoveUnit,
+                RawCommand(CommandTypes.MoveUnit),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "missing move unit payload"),
+            new RecoveredCommand(
+                "alice",
+                "intent-assemble-equipment-malformed",
+                CommandTypes.AssembleEquipment,
+                RawJson("""
+                    {
+                      "cmdType": "ASSEMBLE_EQUIPMENT",
+                      "sourceObjectId": "equipment-1",
+                      "targetObjectId": " "
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "malformed assemble equipment payload")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-move-unit-cmdtype-only raw MOVE_UNIT sourceObjectId is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-move-unit-cmdtype-only raw MOVE_UNIT origin is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-move-unit-cmdtype-only raw MOVE_UNIT destination is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-assemble-equipment-malformed raw ASSEMBLE_EQUIPMENT targetObjectId is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorAcceptsDevSeedScenarioRawCommandType()
     {
         var events = new[]

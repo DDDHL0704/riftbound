@@ -1404,6 +1404,15 @@ public static class MatchRecoveryValidator
                 ValidateRawCommandRequiredString(command, rawCommand, "cardNo", errors);
                 ValidateRawCommandStringArray(command, rawCommand, "targetObjectIds", errors);
                 break;
+            case CommandTypes.MoveUnit:
+                ValidateRawCommandRequiredString(command, rawCommand, "sourceObjectId", errors);
+                ValidateRawCommandRequiredString(command, rawCommand, "origin", errors);
+                ValidateRawCommandRequiredString(command, rawCommand, "destination", errors);
+                break;
+            case CommandTypes.AssembleEquipment:
+                ValidateRawCommandRequiredString(command, rawCommand, "sourceObjectId", errors);
+                ValidateRawCommandRequiredString(command, rawCommand, "targetObjectId", errors);
+                break;
             case CommandTypes.PayCost:
                 ValidateRawCommandRequiredString(command, rawCommand, "paymentId", errors);
                 ValidateRawCommandRequiredString(command, rawCommand, "paymentWindow", errors);
