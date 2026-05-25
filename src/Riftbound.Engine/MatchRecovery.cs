@@ -3380,6 +3380,38 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        ValidateSnapshotStringListValues(values, payloadLabel, itemLabel, errors);
+    }
+
+    private static void ValidateSnapshotPayloadRequiredStringListValues(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(payload, key, out var listPayload)
+            || IsNullSnapshotPayloadValue(listPayload))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} list is required");
+            return;
+        }
+
+        if (!TryReadStringListValue(listPayload, out var values))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} list is invalid");
+            return;
+        }
+
+        ValidateSnapshotStringListValues(values, payloadLabel, itemLabel, errors);
+    }
+
+    private static void ValidateSnapshotStringListValues(
+        IEnumerable<string> values,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors)
+    {
         var seenValues = new HashSet<string>(StringComparer.Ordinal);
         foreach (var value in values)
         {
@@ -9831,6 +9863,9 @@ public static class MatchRecoveryValidator
                 spectatorSpellDuel,
                 "spectator replay frame timing spell duel",
                 errors);
+            ValidateSpectatorSpellDuelPayloadValues(
+                spectatorSpellDuel,
+                errors);
 
             if (!SpellDuelMatches(spectatorSpellDuel, authoritativeState.SpellDuelState))
             {
@@ -10438,6 +10473,61 @@ public static class MatchRecoveryValidator
             "actingPlayerId",
             payloadLabel,
             "acting player id",
+            errors);
+    }
+
+    private static void ValidateSpectatorSpellDuelPayloadValues(
+        object? spellDuelPayload,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing spell duel";
+        ValidateSnapshotPayloadRequiredBoolValue(
+            spellDuelPayload,
+            "isActive",
+            payloadLabel,
+            "active flag",
+            errors);
+        ValidateSnapshotPayloadRequiredBoolValue(
+            spellDuelPayload,
+            "isClosed",
+            payloadLabel,
+            "closed flag",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            spellDuelPayload,
+            "spellDuelId",
+            payloadLabel,
+            "spell duel id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            spellDuelPayload,
+            "battlefieldObjectId",
+            payloadLabel,
+            "battlefield object id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            spellDuelPayload,
+            "focusPlayerId",
+            payloadLabel,
+            "focus player id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListValues(
+            spellDuelPayload,
+            "passedFocusPlayerIds",
+            payloadLabel,
+            "passed focus player id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListValues(
+            spellDuelPayload,
+            "stackItemIds",
+            payloadLabel,
+            "stack item id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListValues(
+            spellDuelPayload,
+            "stackControllerIds",
+            payloadLabel,
+            "stack controller id",
             errors);
     }
 

@@ -15724,6 +15724,103 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingSpellDuelValueDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.SpellDuelOpen,
+            focusPlayerId: "alice",
+            passedFocusPlayerIds: ["bob"]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var spellDuel = Assert.IsType<Dictionary<string, object?>>(timing["spellDuel"]).ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        spellDuel["isActive"] = "true";
+        spellDuel["isClosed"] = null;
+        spellDuel["spellDuelId"] = " spell-duel:BF-A ";
+        spellDuel["battlefieldObjectId"] = 7;
+        spellDuel["focusPlayerId"] = " alice ";
+        spellDuel["passedFocusPlayerIds"] = new[] { "bob", " bob ", "" };
+        spellDuel["stackItemIds"] = "stack-1";
+        spellDuel["stackControllerIds"] = null;
+        timing["spellDuel"] = spellDuel;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing spell duel active flag is invalid", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing spell duel closed flag is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing spell duel spell duel id spell-duel:BF-A has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing spell duel battlefield object id is invalid", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing spell duel focus player id alice has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing spell duel passed focus player id bob has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing spell duel passed focus player id bob is duplicated", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing spell duel passed focus player id is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing spell duel stack item id list is invalid", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing spell duel stack controller id list is required", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingBattleMismatch()
     {
         var authoritativeState = new MatchState(
