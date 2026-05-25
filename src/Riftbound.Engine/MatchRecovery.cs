@@ -2635,7 +2635,19 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         List<string> errors)
     {
-        if (!TryReadObjectDictionary(playerPayload, "objects", out var objectPayloads))
+        if (!TryReadObjectValue(playerPayload, "objects", out var objectsPayload)
+            || !IsSnapshotPlayerPayloadObject(objectsPayload))
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} objects are required");
+            return;
+        }
+
+        ValidateSnapshotPayloadObjectPropertyNames(
+            objectsPayload,
+            $"spectator replay frame snapshot player {playerId} objects",
+            errors);
+
+        if (!TryReadObjectDictionaryValue(objectsPayload, out var objectPayloads))
         {
             errors.Add($"spectator replay frame snapshot player {playerId} objects are required");
             return;
@@ -8754,16 +8766,6 @@ public static class MatchRecoveryValidator
         return false;
     }
 
-    private static bool TryReadObjectDictionary(
-        object? value,
-        string key,
-        out IReadOnlyDictionary<string, object?> objects)
-    {
-        objects = new Dictionary<string, object?>(StringComparer.Ordinal);
-        return TryReadObjectValue(value, key, out var nested)
-            && TryReadObjectDictionaryValue(nested, out objects);
-    }
-
     private static bool TryReadObjectDictionaryValue(
         object? value,
         out IReadOnlyDictionary<string, object?> objects)
@@ -8782,8 +8784,13 @@ public static class MatchRecoveryValidator
 
         if (value is JsonElement { ValueKind: JsonValueKind.Object } json)
         {
-            objects = json.EnumerateObject()
-                .ToDictionary(property => property.Name, property => (object?)property.Value, StringComparer.Ordinal);
+            var parsed = new Dictionary<string, object?>(StringComparer.Ordinal);
+            foreach (var property in json.EnumerateObject())
+            {
+                parsed[property.Name] = property.Value;
+            }
+
+            objects = parsed;
             return true;
         }
 
