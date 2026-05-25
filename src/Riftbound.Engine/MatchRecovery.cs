@@ -1394,7 +1394,9 @@ public static class MatchRecoveryValidator
                 ValidateRawCommandRequiredString(command, rawCommand, "sourceObjectId", errors);
                 ValidateRawCommandRequiredString(command, rawCommand, "cardNo", errors);
                 ValidateRawCommandStringArray(command, rawCommand, "targetObjectIds", errors);
+                ValidateRawCommandOptionalString(command, rawCommand, "mode", errors);
                 ValidateRawCommandOptionalStringArray(command, rawCommand, "optionalCosts", errors);
+                ValidateRawCommandOptionalString(command, rawCommand, "destination", errors);
                 break;
             case CommandTypes.ActivateAbility:
             case CommandTypes.LegendAct:
@@ -1410,13 +1412,16 @@ public static class MatchRecoveryValidator
             case CommandTypes.HideCard:
                 ValidateRawCommandRequiredString(command, rawCommand, "sourceObjectId", errors);
                 ValidateRawCommandRequiredString(command, rawCommand, "cardNo", errors);
+                ValidateRawCommandOptionalString(command, rawCommand, "destination", errors);
                 ValidateRawCommandOptionalStringArray(command, rawCommand, "optionalCosts", errors);
                 break;
             case CommandTypes.RevealCard:
                 ValidateRawCommandRequiredString(command, rawCommand, "sourceObjectId", errors);
                 ValidateRawCommandRequiredString(command, rawCommand, "cardNo", errors);
                 ValidateRawCommandStringArray(command, rawCommand, "targetObjectIds", errors);
+                ValidateRawCommandOptionalString(command, rawCommand, "mode", errors);
                 ValidateRawCommandOptionalStringArray(command, rawCommand, "optionalCosts", errors);
+                ValidateRawCommandOptionalString(command, rawCommand, "destination", errors);
                 break;
             case CommandTypes.MoveUnit:
                 ValidateRawCommandRequiredString(command, rawCommand, "sourceObjectId", errors);
@@ -1516,6 +1521,34 @@ public static class MatchRecoveryValidator
             }
 
             index++;
+        }
+    }
+
+    private static void ValidateRawCommandOptionalString(
+        RecoveredCommand command,
+        JsonElement rawCommand,
+        string propertyName,
+        List<string> errors)
+    {
+        if (!rawCommand.TryGetProperty(propertyName, out var property))
+        {
+            return;
+        }
+
+        if (property.ValueKind != JsonValueKind.String
+            || string.IsNullOrWhiteSpace(property.GetString()))
+        {
+            errors.Add(
+                $"command {command.ClientIntentId} raw {command.CommandType} {propertyName} is required");
+            return;
+        }
+
+        var value = property.GetString()!;
+        var normalizedValue = value.Trim();
+        if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"command {command.ClientIntentId} raw {command.CommandType} {propertyName} {normalizedValue} has surrounding whitespace");
         }
     }
 

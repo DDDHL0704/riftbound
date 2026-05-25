@@ -2769,6 +2769,100 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsCardActionOptionalScalarCommandRawPayloadShapeDrift()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-play-mode-malformed",
+                CommandTypes.PlayCard,
+                RawJson("""
+                    {
+                      "cmdType": "PLAY_CARD",
+                      "sourceObjectId": "source-1",
+                      "cardNo": "CARD-1",
+                      "targetObjectIds": [],
+                      "mode": " AMBUSH ",
+                      "destination": "BATTLEFIELD:alice-MAIN"
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "malformed play mode"),
+            new RecoveredCommand(
+                "alice",
+                "intent-hide-destination-malformed",
+                CommandTypes.HideCard,
+                RawJson("""
+                    {
+                      "cmdType": "HIDE_CARD",
+                      "sourceObjectId": "source-1",
+                      "cardNo": "CARD-1",
+                      "destination": " "
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "malformed hide destination"),
+            new RecoveredCommand(
+                "alice",
+                "intent-reveal-scalar-malformed",
+                CommandTypes.RevealCard,
+                RawJson("""
+                    {
+                      "cmdType": "REVEAL_CARD",
+                      "sourceObjectId": "source-1",
+                      "cardNo": "CARD-1",
+                      "targetObjectIds": ["target-1"],
+                      "mode": 5,
+                      "destination": " STACK "
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "malformed reveal scalar payload")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-play-mode-malformed raw PLAY_CARD mode AMBUSH has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-hide-destination-malformed raw HIDE_CARD destination is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-reveal-scalar-malformed raw REVEAL_CARD mode is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-reveal-scalar-malformed raw REVEAL_CARD destination STACK has surrounding whitespace",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsMovementAndEquipmentCommandRawPayloadShapeDrift()
     {
         var commands = new[]
