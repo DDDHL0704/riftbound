@@ -2137,6 +2137,7 @@ public static class MatchRecoveryValidator
                 "battleResolutions",
                 "battle resolution",
                 errors);
+            ValidateSnapshotTimingResolutionHistoryListPayloadValues(view, errors);
         }
     }
 
@@ -2652,6 +2653,92 @@ public static class MatchRecoveryValidator
                 "stackItemIds",
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
                 "stack item id",
+                errors);
+        }
+    }
+
+    private static void ValidateSnapshotTimingResolutionHistoryListPayloadValues(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null)
+        {
+            return;
+        }
+
+        if (TryReadObjectList(view.Snapshot.Timing, "battlefieldResolutions", out var battlefieldResolutionPayloads))
+        {
+            foreach (var resolutionPayload in battlefieldResolutionPayloads)
+            {
+                if (!IsSnapshotPlayerPayloadObject(resolutionPayload))
+                {
+                    continue;
+                }
+
+                const string payloadLabel = "battlefield resolution item";
+                ValidateSnapshotPayloadStringListValues(
+                    resolutionPayload,
+                    "participantObjectIds",
+                    $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                    "participant object id",
+                    errors);
+                ValidateSnapshotPayloadStringListValues(
+                    resolutionPayload,
+                    "relatedEventKinds",
+                    $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                    "related event kind",
+                    errors);
+            }
+        }
+
+        if (!TryReadObjectList(view.Snapshot.Timing, "battleResolutions", out var battleResolutionPayloads))
+        {
+            return;
+        }
+
+        foreach (var resolutionPayload in battleResolutionPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(resolutionPayload))
+            {
+                continue;
+            }
+
+            const string payloadLabel = "battle resolution item";
+            ValidateSnapshotPayloadStringListValues(
+                resolutionPayload,
+                "attackerObjectIds",
+                $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                "attacker object id",
+                errors);
+            ValidateSnapshotPayloadStringListValues(
+                resolutionPayload,
+                "defenderObjectIds",
+                $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                "defender object id",
+                errors);
+            ValidateSnapshotPayloadStringListValues(
+                resolutionPayload,
+                "survivingAttackerObjectIds",
+                $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                "surviving attacker object id",
+                errors);
+            ValidateSnapshotPayloadStringListValues(
+                resolutionPayload,
+                "survivingDefenderObjectIds",
+                $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                "surviving defender object id",
+                errors);
+            ValidateSnapshotPayloadStringListValues(
+                resolutionPayload,
+                "destroyedObjectIds",
+                $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                "destroyed object id",
+                errors);
+            ValidateSnapshotPayloadStringListValues(
+                resolutionPayload,
+                "relatedEventKinds",
+                $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                "related event kind",
                 errors);
         }
     }

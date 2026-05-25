@@ -1234,6 +1234,184 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingResolutionHistoryListValueDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["battlefieldResolutions"] = RawJson("""
+            [
+                {
+                    "resolutionId": "battlefield-resolution-1",
+                    "tick": 1,
+                    "kind": "HELD",
+                    "reason": "BATTLEFIELD_HELD",
+                    "battlefieldObjectId": "battlefield-1",
+                    "playerId": "alice",
+                    "previousControllerId": "bob",
+                    "controllerId": "alice",
+                    "sourceObjectId": "source-1",
+                    "participantObjectIds": ["participant-1", " participant-1 ", ""],
+                    "relatedEventKinds": ["BATTLEFIELD_HELD", " BATTLEFIELD_HELD ", ""]
+                }
+            ]
+            """);
+        timing["battleResolutions"] = RawJson("""
+            [
+                {
+                    "resolutionId": "battle-resolution-1",
+                    "tick": 1,
+                    "kind": "RESOLVED",
+                    "reason": "BATTLE_RESOLVED",
+                    "battlefieldId": "battlefield-1",
+                    "attackingPlayerId": "alice",
+                    "defendingPlayerId": "bob",
+                    "winnerPlayerId": "alice",
+                    "attackerObjectIds": ["attacker-1", " attacker-1 ", ""],
+                    "defenderObjectIds": ["defender-1", " defender-1 ", ""],
+                    "survivingAttackerObjectIds": ["surviving-attacker-1", " surviving-attacker-1 ", ""],
+                    "survivingDefenderObjectIds": ["surviving-defender-1", " surviving-defender-1 ", ""],
+                    "destroyedObjectIds": ["destroyed-1", " destroyed-1 ", ""],
+                    "relatedEventKinds": ["BATTLE_RESOLVED", " BATTLE_RESOLVED ", ""]
+                }
+            ]
+            """);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield resolution item participant object id participant-1 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield resolution item participant object id participant-1 is duplicated",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield resolution item participant object id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield resolution item related event kind BATTLEFIELD_HELD has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield resolution item related event kind BATTLEFIELD_HELD is duplicated",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield resolution item related event kind is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item attacker object id attacker-1 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item attacker object id attacker-1 is duplicated",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item attacker object id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item defender object id defender-1 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item defender object id defender-1 is duplicated",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item defender object id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item surviving attacker object id surviving-attacker-1 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item surviving attacker object id surviving-attacker-1 is duplicated",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item surviving attacker object id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item surviving defender object id surviving-defender-1 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item surviving defender object id surviving-defender-1 is duplicated",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item surviving defender object id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item destroyed object id destroyed-1 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item destroyed object id destroyed-1 is duplicated",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item destroyed object id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item related event kind BATTLE_RESOLVED has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item related event kind BATTLE_RESOLVED is duplicated",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item related event kind is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingWindowPayloadPropertyNameDrift()
     {
         var alice = PlayerView("alice", 0, 0);
