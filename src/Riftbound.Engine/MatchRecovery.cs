@@ -2038,6 +2038,11 @@ public static class MatchRecoveryValidator
 
         if (view.Snapshot.Timing is not null)
         {
+            ValidateSnapshotPayloadObjectPropertyNames(
+                view.Snapshot.Timing,
+                $"snapshot for {view.PlayerId} timing",
+                errors);
+
             if (!TryReadString(view.Snapshot.Timing, "timingState", out var snapshotTimingState)
                 || string.IsNullOrWhiteSpace(snapshotTimingState))
             {
