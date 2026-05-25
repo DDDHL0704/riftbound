@@ -2094,6 +2094,7 @@ public static class MatchRecoveryValidator
                 errors);
             ValidateSnapshotTimingBattleParticipantControllerPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingBattleDamageAssignmentPayloadPropertyNames(view, errors);
+            ValidateSnapshotTimingBattleDamageAssignmentMapPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingListItemPayloadPropertyNames(
                 view,
                 "continuousEffects",
@@ -2170,6 +2171,63 @@ public static class MatchRecoveryValidator
         ValidateSnapshotPayloadObjectPropertyNames(
             damageAssignmentPayload,
             $"snapshot for {view.PlayerId} timing battle damage assignment",
+            errors);
+    }
+
+    private static void ValidateSnapshotTimingBattleDamageAssignmentMapPayloadPropertyNames(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectValue(view.Snapshot.Timing, "battle", out var battlePayload)
+            || !IsSnapshotPlayerPayloadObject(battlePayload)
+            || !TryReadObjectValue(battlePayload, "damageAssignment", out var damageAssignmentPayload)
+            || !IsSnapshotPlayerPayloadObject(damageAssignmentPayload))
+        {
+            return;
+        }
+
+        ValidateSnapshotTimingBattleDamageAssignmentMapPayloadPropertyNames(
+            view,
+            damageAssignmentPayload,
+            "damagePool",
+            "damage pool",
+            errors);
+        ValidateSnapshotTimingBattleDamageAssignmentMapPayloadPropertyNames(
+            view,
+            damageAssignmentPayload,
+            "legalTargets",
+            "legal targets",
+            errors);
+        ValidateSnapshotTimingBattleDamageAssignmentMapPayloadPropertyNames(
+            view,
+            damageAssignmentPayload,
+            "existingDamage",
+            "existing damage",
+            errors);
+        ValidateSnapshotTimingBattleDamageAssignmentMapPayloadPropertyNames(
+            view,
+            damageAssignmentPayload,
+            "lethalDamageThreshold",
+            "lethal damage threshold",
+            errors);
+    }
+
+    private static void ValidateSnapshotTimingBattleDamageAssignmentMapPayloadPropertyNames(
+        RecoveredPlayerView view,
+        object? damageAssignmentPayload,
+        string payloadKey,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(damageAssignmentPayload, payloadKey, out var mapPayload))
+        {
+            return;
+        }
+
+        ValidateSnapshotPayloadObjectPropertyNames(
+            mapPayload,
+            $"snapshot for {view.PlayerId} timing battle damage assignment {payloadLabel}",
             errors);
     }
 
