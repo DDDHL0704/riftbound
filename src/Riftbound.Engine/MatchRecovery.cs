@@ -2092,6 +2092,7 @@ public static class MatchRecoveryValidator
                 "battle",
                 "battle",
                 errors);
+            ValidateSnapshotTimingBattleParticipantControllerPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingBattleDamageAssignmentPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingListItemPayloadPropertyNames(
                 view,
@@ -2132,6 +2133,24 @@ public static class MatchRecoveryValidator
         ValidateSnapshotPayloadObjectPropertyNames(
             payload,
             $"snapshot for {view.PlayerId} timing {payloadLabel}",
+            errors);
+    }
+
+    private static void ValidateSnapshotTimingBattleParticipantControllerPayloadPropertyNames(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectValue(view.Snapshot.Timing, "battle", out var battlePayload)
+            || !IsSnapshotPlayerPayloadObject(battlePayload)
+            || !TryReadObjectValue(battlePayload, "participantControllerIds", out var participantControllerIdsPayload))
+        {
+            return;
+        }
+
+        ValidateSnapshotPayloadObjectPropertyNames(
+            participantControllerIdsPayload,
+            $"snapshot for {view.PlayerId} timing battle participant controllers",
             errors);
     }
 
