@@ -5605,6 +5605,7 @@ public static class MatchRecoveryValidator
                 spectatorEffect,
                 "spectator replay frame timing continuous effect item",
                 errors);
+            ValidateSpectatorContinuousEffectPayloadValues(spectatorEffect, errors);
 
             var authoritativeEffect = authoritativeEffects[index];
             if (!TryReadObjectString(spectatorEffect, "effectId", out var effectId)
@@ -5919,6 +5920,43 @@ public static class MatchRecoveryValidator
         {
             errors.Add("spectator replay frame timing continuous effect deferred LayerEngine residuals disagree with authoritative state continuous effect deferred LayerEngine residuals");
         }
+    }
+
+    private static void ValidateSpectatorContinuousEffectPayloadValues(
+        object? effectPayload,
+        List<string> errors)
+    {
+        const string effectLabel = "spectator replay frame timing continuous effect item";
+        ValidateSnapshotPayloadStringListValues(
+            effectPayload,
+            "participantObjectIds",
+            effectLabel,
+            "participant object id",
+            errors);
+        ValidateSnapshotPayloadStringListValues(
+            effectPayload,
+            "sourceDependencyObjectIds",
+            effectLabel,
+            "source dependency object id",
+            errors);
+        ValidateSnapshotPayloadStringListValues(
+            effectPayload,
+            "targetDependencyObjectIds",
+            effectLabel,
+            "target dependency object id",
+            errors);
+        ValidateSnapshotPayloadStringListValues(
+            effectPayload,
+            "participantDependencyObjectIds",
+            effectLabel,
+            "participant dependency object id",
+            errors);
+        ValidateSnapshotPayloadStringListValues(
+            effectPayload,
+            "deferredLayerEngineResiduals",
+            effectLabel,
+            "deferred LayerEngine residual",
+            errors);
     }
 
     private static void ValidateSpectatorTriggerQueuePayloads(
