@@ -7493,6 +7493,87 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplaySnapshotStackPropertyNameDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            stackItems:
+            [
+                new StackItemState(
+                    "stack-1",
+                    "alice",
+                    sourceObjectId: "spell-1",
+                    effectKind: "DAMAGE",
+                    cardNo: "SFD-001",
+                    targetObjectIds: ["target-1"],
+                    damageAmount: 3,
+                    destination: "discard")
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var stack = spectatorReplayFrame.SpectatorSnapshot.Stack.ToArray();
+        stack[0] = RawJson("""
+            {
+                "stackItemId": "stack-1",
+                "stackItemId": "stack-1",
+                " controllerId ": "alice",
+                "": true,
+                "controllerId": "alice",
+                "sourceObjectId": "spell-1",
+                "effectKind": "DAMAGE",
+                "cardNo": "SFD-001",
+                "targetObjectIds": ["target-1"],
+                "damageAmount": 3,
+                "destination": "discard"
+            }
+            """);
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Stack = stack
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot stack item stack-1 property stackItemId appears more than once", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot stack item stack-1 property controllerId has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot stack item stack-1 property name is required", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsMissingSpectatorReplaySnapshotTurnState()
     {
         var authoritativeState = new MatchState(

@@ -7668,6 +7668,11 @@ public static class MatchRecoveryValidator
         }
         else
         {
+            ValidateSpectatorSnapshotStackItemPayloadPropertyNames(
+                spectatorReplayFrame.SpectatorSnapshot,
+                authoritativeState,
+                errors);
+
             if (spectatorReplayFrame.SpectatorSnapshot.Stack.Count != authoritativeState.StackItems.Count)
             {
                 errors.Add(
@@ -8340,6 +8345,37 @@ public static class MatchRecoveryValidator
         }
 
         return seats;
+    }
+
+    private static void ValidateSpectatorSnapshotStackItemPayloadPropertyNames(
+        SnapshotDto snapshot,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        if (snapshot.Stack is null)
+        {
+            return;
+        }
+
+        for (var index = 0; index < snapshot.Stack.Count; index++)
+        {
+            var stackItem = snapshot.Stack[index];
+            if (!IsSnapshotPlayerPayloadObject(stackItem))
+            {
+                continue;
+            }
+
+            var stackItemLabel = index < authoritativeState.StackItems.Count
+                ? authoritativeState.StackItems[index].StackItemId
+                : TryReadObjectString(stackItem, "stackItemId", out var stackItemId)
+                    && !string.IsNullOrWhiteSpace(stackItemId)
+                    ? stackItemId
+                    : $"#{index + 1}";
+            ValidateSnapshotPayloadObjectPropertyNames(
+                stackItem,
+                $"spectator replay frame snapshot stack item {stackItemLabel}",
+                errors);
+        }
     }
 
     private static IReadOnlyList<string> ExtractStackItemIds(SnapshotDto snapshot)
