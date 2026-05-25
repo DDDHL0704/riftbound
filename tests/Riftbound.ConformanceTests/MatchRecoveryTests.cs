@@ -2706,6 +2706,69 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsCardActionOptionalCommandRawPayloadShapeDrift()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-hide-optional-costs-malformed",
+                CommandTypes.HideCard,
+                RawJson("""
+                    {
+                      "cmdType": "HIDE_CARD",
+                      "sourceObjectId": "source-1",
+                      "cardNo": "CARD-1",
+                      "optionalCosts": ["STANDBY_HIDE", " "]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "malformed hide optional costs"),
+            new RecoveredCommand(
+                "alice",
+                "intent-reveal-optional-costs-malformed",
+                CommandTypes.RevealCard,
+                RawJson("""
+                    {
+                      "cmdType": "REVEAL_CARD",
+                      "sourceObjectId": "source-1",
+                      "cardNo": "CARD-1",
+                      "targetObjectIds": ["target-1"],
+                      "optionalCosts": "STANDBY_REVEAL"
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "malformed reveal optional costs")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-hide-optional-costs-malformed raw HIDE_CARD optionalCosts[1] is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-reveal-optional-costs-malformed raw REVEAL_CARD optionalCosts must be an array",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsMovementAndEquipmentCommandRawPayloadShapeDrift()
     {
         var commands = new[]

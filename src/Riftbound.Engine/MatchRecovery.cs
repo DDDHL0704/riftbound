@@ -1410,11 +1410,13 @@ public static class MatchRecoveryValidator
             case CommandTypes.HideCard:
                 ValidateRawCommandRequiredString(command, rawCommand, "sourceObjectId", errors);
                 ValidateRawCommandRequiredString(command, rawCommand, "cardNo", errors);
+                ValidateRawCommandOptionalStringArray(command, rawCommand, "optionalCosts", errors);
                 break;
             case CommandTypes.RevealCard:
                 ValidateRawCommandRequiredString(command, rawCommand, "sourceObjectId", errors);
                 ValidateRawCommandRequiredString(command, rawCommand, "cardNo", errors);
                 ValidateRawCommandStringArray(command, rawCommand, "targetObjectIds", errors);
+                ValidateRawCommandOptionalStringArray(command, rawCommand, "optionalCosts", errors);
                 break;
             case CommandTypes.MoveUnit:
                 ValidateRawCommandRequiredString(command, rawCommand, "sourceObjectId", errors);
