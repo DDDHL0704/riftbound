@@ -1381,6 +1381,12 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        if (normalizedCommandType.StartsWith(DevSeedScenarioPrefix, StringComparison.Ordinal))
+        {
+            ValidateRawDevSeedScenarioPayload(command, rawCommand, normalizedCommandType, errors);
+            return;
+        }
+
         switch (normalizedCommandType)
         {
             case CommandTypes.SubmitDeck:
@@ -1462,6 +1468,29 @@ public static class MatchRecoveryValidator
                 ValidateRawCommandRequiredString(command, rawCommand, "choiceWindow", errors);
                 ValidateRawCommandStringArray(command, rawCommand, "chosenObjectIds", errors);
                 break;
+        }
+    }
+
+    private static void ValidateRawDevSeedScenarioPayload(
+        RecoveredCommand command,
+        JsonElement rawCommand,
+        string normalizedCommandType,
+        List<string> errors)
+    {
+        ValidateRawCommandRequiredString(command, rawCommand, "scenarioId", errors);
+        if (!rawCommand.TryGetProperty("scenarioId", out var scenarioIdProperty)
+            || scenarioIdProperty.ValueKind != JsonValueKind.String
+            || string.IsNullOrWhiteSpace(scenarioIdProperty.GetString()))
+        {
+            return;
+        }
+
+        var scenarioId = scenarioIdProperty.GetString()!.Trim();
+        var expectedScenarioId = normalizedCommandType[DevSeedScenarioPrefix.Length..];
+        if (!string.Equals(scenarioId, expectedScenarioId, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"command {command.ClientIntentId} raw {command.CommandType} scenarioId {scenarioId} does not match recovered scenario {expectedScenarioId}");
         }
     }
 
@@ -1703,6 +1732,11 @@ public static class MatchRecoveryValidator
 
     private static bool CommandRequiresRawPayload(string recoveredCommandType)
     {
+        if (recoveredCommandType.StartsWith(DevSeedScenarioPrefix, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
         return recoveredCommandType switch
         {
             CommandTypes.SubmitDeck

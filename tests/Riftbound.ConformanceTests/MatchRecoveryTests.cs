@@ -3347,6 +3347,86 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsDevSeedScenarioRawPayloadShapeDrift()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-dev-seed-missing-raw",
+                "DEV_SEED_SCENARIO:basic-play",
+                null,
+                0,
+                0,
+                0,
+                0,
+                false,
+                "missing raw dev seed"),
+            new RecoveredCommand(
+                "alice",
+                "intent-dev-seed-missing-scenario",
+                "DEV_SEED_SCENARIO:basic-play",
+                RawJson("""{"cmdType":"DEV_SEED_SCENARIO"}"""),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "missing raw scenario"),
+            new RecoveredCommand(
+                "alice",
+                "intent-dev-seed-trim-scenario",
+                "DEV_SEED_SCENARIO:basic-play",
+                RawJson("""{"cmdType":"DEV_SEED_SCENARIO","scenarioId":" basic-play "}"""),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "trim raw scenario"),
+            new RecoveredCommand(
+                "alice",
+                "intent-dev-seed-mismatched-scenario",
+                "DEV_SEED_SCENARIO:basic-play",
+                RawDevSeedCommand("movement"),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "mismatched raw scenario")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-dev-seed-missing-raw raw command is required for DEV_SEED_SCENARIO:basic-play",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-dev-seed-missing-scenario raw DEV_SEED_SCENARIO:basic-play scenarioId is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-dev-seed-trim-scenario raw DEV_SEED_SCENARIO:basic-play scenarioId basic-play has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-dev-seed-mismatched-scenario raw DEV_SEED_SCENARIO:basic-play scenarioId movement does not match recovered scenario basic-play",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsDuplicateRecoveredCommandIntentForSamePlayer()
     {
         var commands = new[]
