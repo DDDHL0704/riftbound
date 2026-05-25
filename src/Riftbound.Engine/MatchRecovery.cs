@@ -1394,12 +1394,14 @@ public static class MatchRecoveryValidator
                 ValidateRawCommandRequiredString(command, rawCommand, "sourceObjectId", errors);
                 ValidateRawCommandRequiredString(command, rawCommand, "cardNo", errors);
                 ValidateRawCommandStringArray(command, rawCommand, "targetObjectIds", errors);
+                ValidateRawCommandOptionalStringArray(command, rawCommand, "optionalCosts", errors);
                 break;
             case CommandTypes.ActivateAbility:
             case CommandTypes.LegendAct:
                 ValidateRawCommandRequiredString(command, rawCommand, "sourceObjectId", errors);
                 ValidateRawCommandRequiredString(command, rawCommand, "abilityId", errors);
                 ValidateRawCommandStringArray(command, rawCommand, "targetObjectIds", errors);
+                ValidateRawCommandOptionalStringArray(command, rawCommand, "optionalCosts", errors);
                 break;
             case CommandTypes.TapRune:
             case CommandTypes.RecycleRune:

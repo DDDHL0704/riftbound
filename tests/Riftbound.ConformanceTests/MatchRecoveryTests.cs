@@ -2505,6 +2505,94 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsPrimaryActionOptionalCommandRawPayloadShapeDrift()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-play-optional-costs-malformed",
+                CommandTypes.PlayCard,
+                RawJson("""
+                    {
+                      "cmdType": "PLAY_CARD",
+                      "sourceObjectId": "source-1",
+                      "cardNo": "CARD-1",
+                      "targetObjectIds": [],
+                      "optionalCosts": ["TEMPERED_ATTACH:equipment-1", " "]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "malformed play optional costs"),
+            new RecoveredCommand(
+                "alice",
+                "intent-activate-optional-costs-malformed",
+                CommandTypes.ActivateAbility,
+                RawJson("""
+                    {
+                      "cmdType": "ACTIVATE_ABILITY",
+                      "sourceObjectId": "ability-source-1",
+                      "abilityId": "ability-1",
+                      "targetObjectIds": ["target-1"],
+                      "optionalCosts": "RECYCLE_RUNE:rune-1"
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "malformed activate optional costs"),
+            new RecoveredCommand(
+                "alice",
+                "intent-legend-optional-costs-malformed",
+                CommandTypes.LegendAct,
+                RawJson("""
+                    {
+                      "cmdType": "LEGEND_ACT",
+                      "sourceObjectId": "legend-1",
+                      "abilityId": "legend-ability-1",
+                      "targetObjectIds": ["target-1"],
+                      "optionalCosts": [" RECYCLE_RUNE:rune-1 "]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "malformed legend optional costs")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-play-optional-costs-malformed raw PLAY_CARD optionalCosts[1] is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-activate-optional-costs-malformed raw ACTIVATE_ABILITY optionalCosts must be an array",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-legend-optional-costs-malformed raw LEGEND_ACT optionalCosts[0] RECYCLE_RUNE:rune-1 has surrounding whitespace",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsRuneActionCommandRawPayloadShapeDrift()
     {
         var commands = new[]
