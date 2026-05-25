@@ -1977,6 +1977,92 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingPendingPaymentScalarValueDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var aliceTiming = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        aliceTiming["pendingPayment"] = RawJson("""
+            {
+                "paymentId": " payment-1 ",
+                "paymentWindow": "",
+                "playerId": " alice ",
+                "cost": {
+                    "mana": -1,
+                    "power": "one",
+                    "powerByTrait": { "blue": 1 }
+                },
+                "paymentChoices": [],
+                "paymentResourceActions": []
+            }
+            """);
+
+        var bob = PlayerView("bob", 0, 0);
+        var bobTiming = bob.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        bobTiming["pendingPayment"] = RawJson("""
+            {
+                "paymentId": "payment-2",
+                "paymentWindow": "PAY_COST",
+                "playerId": "bob",
+                "paymentChoices": [],
+                "paymentResourceActions": []
+            }
+            """);
+
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = aliceTiming
+                }
+            },
+            ["bob"] = bob with
+            {
+                Snapshot = bob.Snapshot with
+                {
+                    Timing = bobTiming
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending payment payment id payment-1 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending payment payment window is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending payment player id alice has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending payment cost mana -1 cannot be negative",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending payment cost power is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for bob timing pending payment cost is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingPendingPaymentListValueDrift()
     {
         var alice = PlayerView("alice", 0, 0);

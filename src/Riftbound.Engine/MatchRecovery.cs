@@ -2098,6 +2098,7 @@ public static class MatchRecoveryValidator
             ValidateSnapshotTimingBattleDamageAssignmentRequiredAssignmentPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingPaymentPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingPaymentPowerTraitPayloadPropertyNames(view, errors);
+            ValidateSnapshotTimingPendingPaymentScalarPayloadValues(view, errors);
             ValidateSnapshotTimingPendingPaymentListPayloadValues(view, errors);
             ValidateSnapshotTimingPendingTaskQueuePayloadPropertyNames(view, errors);
             ValidateSnapshotTimingObjectPayloadPropertyNames(
@@ -2400,6 +2401,59 @@ public static class MatchRecoveryValidator
             "paymentResourceActions",
             $"snapshot for {view.PlayerId} timing pending payment",
             "payment resource action",
+            errors);
+    }
+
+    private static void ValidateSnapshotTimingPendingPaymentScalarPayloadValues(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectValue(view.Snapshot.Timing, "pendingPayment", out var pendingPaymentPayload)
+            || !IsSnapshotPlayerPayloadObject(pendingPaymentPayload))
+        {
+            return;
+        }
+
+        var payloadLabel = $"snapshot for {view.PlayerId} timing pending payment";
+        ValidateSnapshotPayloadRequiredStringValue(
+            pendingPaymentPayload,
+            "paymentId",
+            payloadLabel,
+            "payment id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            pendingPaymentPayload,
+            "paymentWindow",
+            payloadLabel,
+            "payment window",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            pendingPaymentPayload,
+            "playerId",
+            payloadLabel,
+            "player id",
+            errors);
+
+        if (!TryReadObjectValue(pendingPaymentPayload, "cost", out var costPayload)
+            || !IsSnapshotPlayerPayloadObject(costPayload))
+        {
+            errors.Add($"{payloadLabel} cost is required");
+            return;
+        }
+
+        var costLabel = $"{payloadLabel} cost";
+        ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+            costPayload,
+            "mana",
+            costLabel,
+            "mana",
+            errors);
+        ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+            costPayload,
+            "power",
+            costLabel,
+            "power",
             errors);
     }
 
@@ -3261,6 +3315,34 @@ public static class MatchRecoveryValidator
         }
 
         return normalizedValue;
+    }
+
+    private static int? ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(payload, key, out var rawValue)
+            || IsNullSnapshotPayloadValue(rawValue))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} is required");
+            return null;
+        }
+
+        if (!TryReadIntValue(rawValue, out var value))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} is invalid");
+            return null;
+        }
+
+        if (value < 0)
+        {
+            errors.Add($"{payloadLabel} {itemLabel} {value} cannot be negative");
+        }
+
+        return value;
     }
 
     private static string? ValidateSnapshotPayloadOptionalStringValue(
