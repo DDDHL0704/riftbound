@@ -2326,6 +2326,10 @@ public static class MatchRecoveryValidator
         {
             IReadOnlyDictionary<string, object?> readOnlyDictionary => readOnlyDictionary.Keys,
             IDictionary<string, object?> dictionary => dictionary.Keys,
+            IReadOnlyDictionary<string, int> intDictionary => intDictionary.Keys,
+            IEnumerable<KeyValuePair<string, int>> intPairs => intPairs.Select(entry => entry.Key),
+            IReadOnlyDictionary<string, IReadOnlyList<string>> stringListDictionary => stringListDictionary.Keys,
+            IEnumerable<KeyValuePair<string, IReadOnlyList<string>>> stringListPairs => stringListPairs.Select(entry => entry.Key),
             JsonElement { ValueKind: JsonValueKind.Object } json => json.EnumerateObject().Select(property => property.Name),
             _ => []
         };
@@ -7980,6 +7984,9 @@ public static class MatchRecoveryValidator
                     spectatorDamageAssignment,
                     "spectator replay frame timing battle damage assignment",
                     errors);
+                ValidateSpectatorBattleDamageAssignmentMapPayloadPropertyNames(
+                    spectatorDamageAssignment,
+                    errors);
                 ValidateSpectatorBattleDamageAssignmentRequiredAssignmentPayloadPropertyNames(
                     spectatorDamageAssignment,
                     errors);
@@ -8352,6 +8359,49 @@ public static class MatchRecoveryValidator
                 "spectator replay frame timing battle damage assignment required assignment item",
                 errors);
         }
+    }
+
+    private static void ValidateSpectatorBattleDamageAssignmentMapPayloadPropertyNames(
+        object? damageAssignmentPayload,
+        List<string> errors)
+    {
+        ValidateSpectatorBattleDamageAssignmentMapPayloadPropertyNames(
+            damageAssignmentPayload,
+            "damagePool",
+            "damage pool",
+            errors);
+        ValidateSpectatorBattleDamageAssignmentMapPayloadPropertyNames(
+            damageAssignmentPayload,
+            "legalTargets",
+            "legal targets",
+            errors);
+        ValidateSpectatorBattleDamageAssignmentMapPayloadPropertyNames(
+            damageAssignmentPayload,
+            "existingDamage",
+            "existing damage",
+            errors);
+        ValidateSpectatorBattleDamageAssignmentMapPayloadPropertyNames(
+            damageAssignmentPayload,
+            "lethalDamageThreshold",
+            "lethal damage threshold",
+            errors);
+    }
+
+    private static void ValidateSpectatorBattleDamageAssignmentMapPayloadPropertyNames(
+        object? damageAssignmentPayload,
+        string payloadKey,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(damageAssignmentPayload, payloadKey, out var mapPayload))
+        {
+            return;
+        }
+
+        ValidateSnapshotPayloadObjectPropertyNames(
+            mapPayload,
+            $"spectator replay frame timing battle damage assignment {payloadLabel}",
+            errors);
     }
 
     public static IReadOnlyDictionary<string, string> ExtractSeats(SnapshotDto snapshot)
