@@ -3334,6 +3334,19 @@ public static class MatchRecoveryValidator
         };
     }
 
+    private static bool IsSnapshotStringMapPayloadObject(object? payload)
+    {
+        return payload switch
+        {
+            IReadOnlyDictionary<string, string> => true,
+            IEnumerable<KeyValuePair<string, string>> => true,
+            IReadOnlyDictionary<string, object?> => true,
+            IDictionary<string, object?> => true,
+            JsonElement { ValueKind: JsonValueKind.Object } => true,
+            _ => false
+        };
+    }
+
     private static void ValidateSnapshotPayloadObjectPropertyNames(
         object? payload,
         string payloadLabel,
@@ -3404,6 +3417,54 @@ public static class MatchRecoveryValidator
         }
 
         ValidateSnapshotStringListValues(values, payloadLabel, itemLabel, errors);
+    }
+
+    private static void ValidateSnapshotPayloadRequiredStringDictionaryValues(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(payload, key, out var mapPayload)
+            || IsNullSnapshotPayloadValue(mapPayload))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} map is required");
+            return;
+        }
+
+        if (!IsSnapshotStringMapPayloadObject(mapPayload))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} map is invalid");
+            return;
+        }
+
+        foreach (var (mapKey, rawValue) in EnumerateSnapshotPayloadObjectValues(mapPayload))
+        {
+            if (string.IsNullOrWhiteSpace(mapKey))
+            {
+                continue;
+            }
+
+            var normalizedKey = mapKey.Trim();
+            if (!TryReadStringValue(rawValue, out var value))
+            {
+                errors.Add($"{payloadLabel} {itemLabel} {normalizedKey} value is invalid");
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                errors.Add($"{payloadLabel} {itemLabel} {normalizedKey} value is required");
+                continue;
+            }
+
+            var normalizedValue = value.Trim();
+            if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
+            {
+                errors.Add($"{payloadLabel} {itemLabel} {normalizedKey} value {normalizedValue} has surrounding whitespace");
+            }
+        }
     }
 
     private static void ValidateSnapshotStringListValues(
@@ -3718,6 +3779,10 @@ public static class MatchRecoveryValidator
         {
             IReadOnlyDictionary<string, object?> readOnlyDictionary => readOnlyDictionary,
             IDictionary<string, object?> dictionary => dictionary,
+            IReadOnlyDictionary<string, string> stringDictionary => stringDictionary.Select(entry =>
+                new KeyValuePair<string, object?>(entry.Key, entry.Value)),
+            IEnumerable<KeyValuePair<string, string>> stringPairs => stringPairs.Select(entry =>
+                new KeyValuePair<string, object?>(entry.Key, entry.Value)),
             IReadOnlyDictionary<string, int> intDictionary => intDictionary.Select(entry =>
                 new KeyValuePair<string, object?>(entry.Key, entry.Value)),
             IEnumerable<KeyValuePair<string, int>> intPairs => intPairs.Select(entry =>
@@ -9887,6 +9952,9 @@ public static class MatchRecoveryValidator
             ValidateSpectatorBattleParticipantControllerPayloadPropertyNames(
                 spectatorBattle,
                 errors);
+            ValidateSpectatorBattlePayloadValues(
+                spectatorBattle,
+                errors);
 
             if (TryReadObjectValue(spectatorBattle, "damageAssignment", out var spectatorDamageAssignment)
                 && IsSnapshotPlayerPayloadObject(spectatorDamageAssignment))
@@ -10528,6 +10596,49 @@ public static class MatchRecoveryValidator
             "stackControllerIds",
             payloadLabel,
             "stack controller id",
+            errors);
+    }
+
+    private static void ValidateSpectatorBattlePayloadValues(
+        object? battlePayload,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing battle";
+        ValidateSnapshotPayloadRequiredBoolValue(
+            battlePayload,
+            "isActive",
+            payloadLabel,
+            "active flag",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            battlePayload,
+            "battleId",
+            payloadLabel,
+            "battle id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            battlePayload,
+            "battlefieldObjectId",
+            payloadLabel,
+            "battlefield object id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListValues(
+            battlePayload,
+            "attackerObjectIds",
+            payloadLabel,
+            "attacker object id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListValues(
+            battlePayload,
+            "defenderObjectIds",
+            payloadLabel,
+            "defender object id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringDictionaryValues(
+            battlePayload,
+            "participantControllerIds",
+            payloadLabel,
+            "participant controller",
             errors);
     }
 
