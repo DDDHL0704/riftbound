@@ -3631,6 +3631,32 @@ public static class MatchRecoveryValidator
         return value;
     }
 
+    private static int? ValidateSnapshotPayloadRequiredPositiveIntValue(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors)
+    {
+        var value = ValidateSnapshotPayloadRequiredIntValue(
+            payload,
+            key,
+            payloadLabel,
+            itemLabel,
+            errors);
+        if (value is null)
+        {
+            return null;
+        }
+
+        if (value <= 0)
+        {
+            errors.Add($"{payloadLabel} {itemLabel} {value} must be positive");
+        }
+
+        return value;
+    }
+
     private static long? ValidateSnapshotPayloadRequiredNonNegativeLongValue(
         object? payload,
         string key,
@@ -6944,6 +6970,7 @@ public static class MatchRecoveryValidator
             choicePayload,
             "spectator replay frame timing pending hand choice",
             errors);
+        ValidateSpectatorPendingHandChoicePayloadValues(choicePayload, errors);
 
         if (!TryReadObjectString(choicePayload, "choiceId", out var choiceId)
             || !string.Equals(choiceId, authoritativeChoice.ChoiceId, StringComparison.Ordinal))
@@ -7003,6 +7030,75 @@ public static class MatchRecoveryValidator
         {
             errors.Add("spectator replay frame timing pending hand choice legal object ids must be redacted");
         }
+    }
+
+    private static void ValidateSpectatorPendingHandChoicePayloadValues(
+        object? choicePayload,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing pending hand choice";
+        ValidateSnapshotPayloadRequiredStringValue(
+            choicePayload,
+            "choiceId",
+            payloadLabel,
+            "id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            choicePayload,
+            "choiceWindow",
+            payloadLabel,
+            "window",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            choicePayload,
+            "playerId",
+            payloadLabel,
+            "player id",
+            errors);
+        var requiredCount = ValidateSnapshotPayloadRequiredPositiveIntValue(
+            choicePayload,
+            "requiredCount",
+            payloadLabel,
+            "required count",
+            errors);
+        var maxCount = ValidateSnapshotPayloadRequiredPositiveIntValue(
+            choicePayload,
+            "maxCount",
+            payloadLabel,
+            "max count",
+            errors);
+        if (requiredCount is not null
+            && maxCount is not null
+            && maxCount.Value < requiredCount.Value)
+        {
+            errors.Add($"{payloadLabel} max count {maxCount.Value} is less than required count {requiredCount.Value}");
+        }
+
+        ValidateSnapshotPayloadOptionalStringValue(
+            choicePayload,
+            "reason",
+            payloadLabel,
+            "reason",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            choicePayload,
+            "sourceObjectId",
+            payloadLabel,
+            "source object id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            choicePayload,
+            "effectKind",
+            payloadLabel,
+            "effect kind",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            choicePayload,
+            "choiceState",
+            payloadLabel,
+            "state",
+            errors,
+            value => string.Equals(value, "WAITING_FOR_CHOICE", StringComparison.Ordinal));
     }
 
     private static void ValidateSpectatorBattlefieldTaskPayloads(
