@@ -2111,6 +2111,7 @@ public static class MatchRecoveryValidator
                 "temporaryPaymentResources",
                 "temporary payment resource",
                 errors);
+            ValidateSnapshotTimingTemporaryPaymentResourceScalarPayloadValues(view, errors);
             ValidateSnapshotTimingTemporaryPaymentResourceListPayloadValues(view, errors);
             ValidateSnapshotTimingListItemPayloadPropertyNames(
                 view,
@@ -2771,6 +2772,100 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateSnapshotTimingTemporaryPaymentResourceScalarPayloadValues(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectList(view.Snapshot.Timing, "temporaryPaymentResources", out var resourcePayloads))
+        {
+            return;
+        }
+
+        foreach (var resourcePayload in resourcePayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(resourcePayload))
+            {
+                continue;
+            }
+
+            const string resourceLabel = "temporary payment resource item";
+            var payloadLabel = $"snapshot for {view.PlayerId} timing {resourceLabel}";
+            ValidateSnapshotPayloadRequiredStringValue(
+                resourcePayload,
+                "resourceId",
+                payloadLabel,
+                "resource id",
+                errors);
+            ValidateSnapshotPayloadRequiredStringValue(
+                resourcePayload,
+                "ownerPlayerId",
+                payloadLabel,
+                "owner player id",
+                errors);
+            ValidateSnapshotPayloadOptionalStringValue(
+                resourcePayload,
+                "sourceObjectId",
+                payloadLabel,
+                "source object id",
+                errors);
+            ValidateSnapshotPayloadOptionalStringValue(
+                resourcePayload,
+                "abilityId",
+                payloadLabel,
+                "ability id",
+                errors);
+            ValidateSnapshotPayloadOptionalStringValue(
+                resourcePayload,
+                "paymentWindow",
+                payloadLabel,
+                "payment window",
+                errors);
+            ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+                resourcePayload,
+                "generatedPower",
+                payloadLabel,
+                "generated power",
+                errors);
+            ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+                resourcePayload,
+                "remainingPower",
+                payloadLabel,
+                "remaining power",
+                errors);
+            ValidateSnapshotPayloadRequiredPositiveIntMapValues(
+                resourcePayload,
+                "generatedPowerByTrait",
+                payloadLabel,
+                "generated power trait",
+                errors);
+            ValidateSnapshotPayloadRequiredPositiveIntMapValues(
+                resourcePayload,
+                "remainingPowerByTrait",
+                payloadLabel,
+                "remaining power trait",
+                errors);
+            ValidateSnapshotPayloadRequiredTrueBoolValue(
+                resourcePayload,
+                "paymentOnly",
+                payloadLabel,
+                "payment-only flag",
+                errors);
+            ValidateSnapshotPayloadRequiredStringValue(
+                resourcePayload,
+                "resourceRestriction",
+                payloadLabel,
+                "resource restriction",
+                errors);
+            ValidateSnapshotPayloadRequiredNonNegativeLongValue(
+                resourcePayload,
+                "createdTick",
+                payloadLabel,
+                "created tick",
+                errors);
+        }
+    }
+
     private static void ValidateSnapshotTimingResolutionHistoryListPayloadValues(
         RecoveredPlayerView view,
         List<string> errors)
@@ -3362,6 +3457,60 @@ public static class MatchRecoveryValidator
         }
 
         return value;
+    }
+
+    private static long? ValidateSnapshotPayloadRequiredNonNegativeLongValue(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(payload, key, out var rawValue)
+            || IsNullSnapshotPayloadValue(rawValue))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} is required");
+            return null;
+        }
+
+        if (!TryReadLongValue(rawValue, out var value))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} is invalid");
+            return null;
+        }
+
+        if (value < 0)
+        {
+            errors.Add($"{payloadLabel} {itemLabel} {value} cannot be negative");
+        }
+
+        return value;
+    }
+
+    private static void ValidateSnapshotPayloadRequiredTrueBoolValue(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(payload, key, out var rawValue)
+            || IsNullSnapshotPayloadValue(rawValue))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} is required");
+            return;
+        }
+
+        if (!TryReadBoolValue(rawValue, out var value))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} is invalid");
+            return;
+        }
+
+        if (!value)
+        {
+            errors.Add($"{payloadLabel} {itemLabel} must be true");
+        }
     }
 
     private static void ValidateSnapshotPayloadRequiredPositiveIntMapValues(

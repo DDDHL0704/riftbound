@@ -2268,6 +2268,166 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingTemporaryPaymentResourceValueDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var aliceTiming = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        aliceTiming["temporaryPaymentResources"] = new object?[]
+        {
+            RawJson("""
+                {
+                    "resourceId": " temp-payment-resource-1 ",
+                    "ownerPlayerId": "",
+                    "sourceObjectId": " source-1 ",
+                    "abilityId": 7,
+                    "paymentWindow": " PAY_COST ",
+                    "generatedPower": -1,
+                    "remainingPower": "one",
+                    "generatedPowerByTrait": {
+                        "blue": "two",
+                        "red": 0
+                    },
+                    "remainingPowerByTrait": {
+                        "green": -1
+                    },
+                    "allowedPaymentKinds": [ "RUNE_COST" ],
+                    "paymentOnly": false,
+                    "resourceRestriction": " ",
+                    "createdTick": -1
+                }
+                """)
+        };
+
+        var bob = PlayerView("bob", 0, 0);
+        var bobTiming = bob.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        bobTiming["temporaryPaymentResources"] = new object?[]
+        {
+            RawJson("""
+                {
+                    "resourceId": "temp-payment-resource-2",
+                    "ownerPlayerId": "bob",
+                    "generatedPower": 0,
+                    "remainingPower": 0,
+                    "allowedPaymentKinds": []
+                }
+                """)
+        };
+
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = aliceTiming
+                }
+            },
+            ["bob"] = bob with
+            {
+                Snapshot = bob.Snapshot with
+                {
+                    Timing = bobTiming
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing temporary payment resource item resource id temp-payment-resource-1 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing temporary payment resource item owner player id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing temporary payment resource item source object id source-1 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing temporary payment resource item ability id is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing temporary payment resource item payment window PAY_COST has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing temporary payment resource item generated power -1 cannot be negative",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing temporary payment resource item remaining power is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing temporary payment resource item generated power trait blue value is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing temporary payment resource item generated power trait red value 0 must be positive",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing temporary payment resource item remaining power trait green value -1 must be positive",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing temporary payment resource item payment-only flag must be true",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing temporary payment resource item resource restriction is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing temporary payment resource item created tick -1 cannot be negative",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for bob timing temporary payment resource item generated power trait map is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for bob timing temporary payment resource item remaining power trait map is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for bob timing temporary payment resource item payment-only flag is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for bob timing temporary payment resource item resource restriction is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for bob timing temporary payment resource item created tick is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsMissingSnapshotTimingCoreFields()
     {
         var alice = PlayerView("alice", 0, 0);
