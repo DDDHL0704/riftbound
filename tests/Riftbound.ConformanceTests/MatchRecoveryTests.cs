@@ -563,6 +563,51 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotStackItemPropertyNameDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Stack =
+                    [
+                        RawJson("""
+                            {
+                                "stackItemId": "stack-1",
+                                "stackItemId": "stack-1",
+                                " controllerId ": "alice",
+                                "": true,
+                                "controllerId": "alice"
+                            }
+                            """)
+                    ]
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice stack item stack-1 property stackItemId appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice stack item stack-1 property controllerId has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice stack item stack-1 property name is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsMissingSnapshotTimingCoreFields()
     {
         var alice = PlayerView("alice", 0, 0);

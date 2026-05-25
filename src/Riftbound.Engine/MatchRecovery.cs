@@ -2028,6 +2028,10 @@ public static class MatchRecoveryValidator
         {
             errors.Add($"snapshot for {view.PlayerId} stack is required");
         }
+        else
+        {
+            ValidateSnapshotStackItemPayloadPropertyNames(view, errors);
+        }
 
         if (view.Snapshot.Timing is null)
         {
@@ -2106,6 +2110,29 @@ public static class MatchRecoveryValidator
         if (!isKnownValue(value))
         {
             errors.Add($"snapshot for {view.PlayerId} timing {label} {value} is invalid");
+        }
+    }
+
+    private static void ValidateSnapshotStackItemPayloadPropertyNames(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        for (var index = 0; index < view.Snapshot.Stack.Count; index++)
+        {
+            var stackItem = view.Snapshot.Stack[index];
+            if (!IsSnapshotPlayerPayloadObject(stackItem))
+            {
+                continue;
+            }
+
+            var stackItemLabel = TryReadObjectString(stackItem, "stackItemId", out var stackItemId)
+                && !string.IsNullOrWhiteSpace(stackItemId)
+                    ? stackItemId
+                    : $"#{index + 1}";
+            ValidateSnapshotPayloadObjectPropertyNames(
+                stackItem,
+                $"snapshot for {view.PlayerId} stack item {stackItemLabel}",
+                errors);
         }
     }
 
