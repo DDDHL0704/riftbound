@@ -2618,6 +2618,11 @@ public static class MatchRecoveryValidator
                 snapshotPlayerId,
                 playerPayload,
                 errors);
+            ValidateSnapshotPlayerObjectPayloadPropertyNames(
+                view,
+                snapshotPlayerId,
+                playerPayload,
+                errors);
 
             if (!TryReadObjectString(playerPayload, "id", out var payloadId)
                 || string.IsNullOrWhiteSpace(payloadId))
@@ -2729,6 +2734,32 @@ public static class MatchRecoveryValidator
             objectsPayload,
             $"snapshot for {view.PlayerId} player {snapshotPlayerId} objects",
             errors);
+    }
+
+    private static void ValidateSnapshotPlayerObjectPayloadPropertyNames(
+        RecoveredPlayerView view,
+        string snapshotPlayerId,
+        object? playerPayload,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(playerPayload, "objects", out var objectsPayload)
+            || !TryReadObjectDictionaryValue(objectsPayload, out var objectPayloads))
+        {
+            return;
+        }
+
+        foreach (var (objectId, objectPayload) in objectPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(objectPayload))
+            {
+                continue;
+            }
+
+            ValidateSnapshotPayloadObjectPropertyNames(
+                objectPayload,
+                $"snapshot for {view.PlayerId} player {snapshotPlayerId} object {objectId}",
+                errors);
+        }
     }
 
     private static bool IsSnapshotPlayerPayloadObject(object? playerPayload)
