@@ -3347,6 +3347,19 @@ public static class MatchRecoveryValidator
         };
     }
 
+    private static bool IsSnapshotStringListMapPayloadObject(object? payload)
+    {
+        return payload switch
+        {
+            IReadOnlyDictionary<string, IReadOnlyList<string>> => true,
+            IEnumerable<KeyValuePair<string, IReadOnlyList<string>>> => true,
+            IReadOnlyDictionary<string, object?> => true,
+            IDictionary<string, object?> => true,
+            JsonElement { ValueKind: JsonValueKind.Object } => true,
+            _ => false
+        };
+    }
+
     private static void ValidateSnapshotPayloadObjectPropertyNames(
         object? payload,
         string payloadLabel,
@@ -3464,6 +3477,49 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"{payloadLabel} {itemLabel} {normalizedKey} value {normalizedValue} has surrounding whitespace");
             }
+        }
+    }
+
+    private static void ValidateSnapshotPayloadRequiredStringListDictionaryValues(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        string listItemLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(payload, key, out var mapPayload)
+            || IsNullSnapshotPayloadValue(mapPayload))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} map is required");
+            return;
+        }
+
+        if (!IsSnapshotStringListMapPayloadObject(mapPayload))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} map is invalid");
+            return;
+        }
+
+        foreach (var (mapKey, rawValue) in EnumerateSnapshotPayloadObjectValues(mapPayload))
+        {
+            if (string.IsNullOrWhiteSpace(mapKey))
+            {
+                continue;
+            }
+
+            var normalizedKey = mapKey.Trim();
+            if (!TryReadStringListValue(rawValue, out var values))
+            {
+                errors.Add($"{payloadLabel} {itemLabel} {normalizedKey} list is invalid");
+                continue;
+            }
+
+            ValidateSnapshotStringListValues(
+                values,
+                $"{payloadLabel} {itemLabel} {normalizedKey}",
+                listItemLabel,
+                errors);
         }
     }
 
@@ -3690,6 +3746,47 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateSnapshotPayloadRequiredNonNegativeIntMapValues(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(payload, key, out var mapPayload)
+            || IsNullSnapshotPayloadValue(mapPayload))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} map is required");
+            return;
+        }
+
+        if (!IsSnapshotIntMapPayloadObject(mapPayload))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} map is invalid");
+            return;
+        }
+
+        foreach (var (mapKey, rawValue) in EnumerateSnapshotPayloadObjectValues(mapPayload))
+        {
+            if (string.IsNullOrWhiteSpace(mapKey))
+            {
+                continue;
+            }
+
+            var normalizedKey = mapKey.Trim();
+            if (!TryReadIntValue(rawValue, out var value))
+            {
+                errors.Add($"{payloadLabel} {itemLabel} {normalizedKey} value is invalid");
+                continue;
+            }
+
+            if (value < 0)
+            {
+                errors.Add($"{payloadLabel} {itemLabel} {normalizedKey} value {value} cannot be negative");
+            }
+        }
+    }
+
     private static string? ValidateSnapshotPayloadOptionalStringValue(
         object? payload,
         string key,
@@ -3786,6 +3883,10 @@ public static class MatchRecoveryValidator
             IReadOnlyDictionary<string, int> intDictionary => intDictionary.Select(entry =>
                 new KeyValuePair<string, object?>(entry.Key, entry.Value)),
             IEnumerable<KeyValuePair<string, int>> intPairs => intPairs.Select(entry =>
+                new KeyValuePair<string, object?>(entry.Key, entry.Value)),
+            IReadOnlyDictionary<string, IReadOnlyList<string>> stringListDictionary => stringListDictionary.Select(entry =>
+                new KeyValuePair<string, object?>(entry.Key, entry.Value)),
+            IEnumerable<KeyValuePair<string, IReadOnlyList<string>>> stringListPairs => stringListPairs.Select(entry =>
                 new KeyValuePair<string, object?>(entry.Key, entry.Value)),
             JsonElement { ValueKind: JsonValueKind.Object } json => json.EnumerateObject().Select(property =>
                 new KeyValuePair<string, object?>(property.Name, property.Value)),
@@ -9955,6 +10056,10 @@ public static class MatchRecoveryValidator
             ValidateSpectatorBattlePayloadValues(
                 spectatorBattle,
                 errors);
+            ValidateSpectatorBattleDamageAssignmentPayloadValues(
+                spectatorBattle,
+                authoritativeState,
+                errors);
 
             if (TryReadObjectValue(spectatorBattle, "damageAssignment", out var spectatorDamageAssignment)
                 && IsSnapshotPlayerPayloadObject(spectatorDamageAssignment))
@@ -10639,6 +10744,151 @@ public static class MatchRecoveryValidator
             "participantControllerIds",
             payloadLabel,
             "participant controller",
+            errors);
+    }
+
+    private static void ValidateSpectatorBattleDamageAssignmentPayloadValues(
+        object? battlePayload,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing battle damage assignment";
+        if (!TryReadObjectValue(battlePayload, "damageAssignment", out var damageAssignmentPayload)
+            || IsNullSnapshotPayloadValue(damageAssignmentPayload))
+        {
+            errors.Add($"{payloadLabel} payload is required");
+            return;
+        }
+
+        if (!IsSnapshotPlayerPayloadObject(damageAssignmentPayload))
+        {
+            errors.Add($"{payloadLabel} payload is invalid");
+            return;
+        }
+
+        ValidateSnapshotPayloadRequiredBoolValue(
+            damageAssignmentPayload,
+            "isPending",
+            payloadLabel,
+            "pending flag",
+            errors);
+
+        var shouldValidatePendingFields = ResolutionResult.HasOpenBattleDamageAssignmentWindow(authoritativeState)
+            || (TryReadObjectBool(damageAssignmentPayload, "isPending", out var isPending) && isPending);
+        if (!shouldValidatePendingFields)
+        {
+            return;
+        }
+
+        ValidateSnapshotPayloadRequiredStringValue(
+            damageAssignmentPayload,
+            "phase",
+            payloadLabel,
+            "phase",
+            errors,
+            value => string.Equals(value, "DAMAGE_ASSIGNMENT", StringComparison.Ordinal));
+        ValidateSnapshotPayloadRequiredStringValue(
+            damageAssignmentPayload,
+            "battleId",
+            payloadLabel,
+            "battle id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            damageAssignmentPayload,
+            "battlefieldId",
+            payloadLabel,
+            "battlefield id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            damageAssignmentPayload,
+            "assigningPlayerId",
+            payloadLabel,
+            "assigning player id",
+            errors);
+        ValidateSnapshotPayloadRequiredNonNegativeIntMapValues(
+            damageAssignmentPayload,
+            "damagePool",
+            payloadLabel,
+            "damage pool",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListDictionaryValues(
+            damageAssignmentPayload,
+            "legalTargets",
+            payloadLabel,
+            "legal targets",
+            "legal target object id",
+            errors);
+        ValidateSnapshotPayloadRequiredNonNegativeIntMapValues(
+            damageAssignmentPayload,
+            "existingDamage",
+            payloadLabel,
+            "existing damage",
+            errors);
+        ValidateSnapshotPayloadRequiredNonNegativeIntMapValues(
+            damageAssignmentPayload,
+            "lethalDamageThreshold",
+            payloadLabel,
+            "lethal damage threshold",
+            errors);
+        ValidateSpectatorBattleDamageAssignmentRequiredAssignmentValues(
+            damageAssignmentPayload,
+            errors);
+    }
+
+    private static void ValidateSpectatorBattleDamageAssignmentRequiredAssignmentValues(
+        object? damageAssignmentPayload,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing battle damage assignment required assignment";
+        if (!TryReadObjectValue(damageAssignmentPayload, "requiredAssignments", out var requiredAssignmentsPayload)
+            || IsNullSnapshotPayloadValue(requiredAssignmentsPayload))
+        {
+            errors.Add($"{payloadLabel} list is required");
+            return;
+        }
+
+        if (!TryReadObjectListValue(requiredAssignmentsPayload, out var requiredAssignments))
+        {
+            errors.Add($"{payloadLabel} list is invalid");
+            return;
+        }
+
+        foreach (var requiredAssignment in requiredAssignments)
+        {
+            if (!IsSnapshotPlayerPayloadObject(requiredAssignment))
+            {
+                errors.Add($"{payloadLabel} item payload is required");
+                continue;
+            }
+
+            ValidateSpectatorBattleDamageAssignmentRequiredAssignmentItemValues(
+                requiredAssignment,
+                errors);
+        }
+    }
+
+    private static void ValidateSpectatorBattleDamageAssignmentRequiredAssignmentItemValues(
+        object? requiredAssignmentPayload,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing battle damage assignment required assignment item";
+        ValidateSnapshotPayloadRequiredStringValue(
+            requiredAssignmentPayload,
+            "sourceObjectId",
+            payloadLabel,
+            "source object id",
+            errors);
+        ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+            requiredAssignmentPayload,
+            "damage",
+            payloadLabel,
+            "damage",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListValues(
+            requiredAssignmentPayload,
+            "legalTargetObjectIds",
+            payloadLabel,
+            "legal target object id",
             errors);
     }
 

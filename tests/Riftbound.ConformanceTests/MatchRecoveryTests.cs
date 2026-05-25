@@ -17790,6 +17790,149 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattleDamageAssignmentValueDrift()
+    {
+        var authoritativeState = BattleDamageAssignmentState();
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var battle = Assert.IsType<Dictionary<string, object?>>(timing["battle"]).ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var damageAssignment = Assert.IsType<Dictionary<string, object?>>(battle["damageAssignment"]).ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        damageAssignment["isPending"] = "true";
+        damageAssignment["phase"] = " DAMAGE_ASSIGNMENT ";
+        damageAssignment["battleId"] = "";
+        damageAssignment["battlefieldId"] = 17;
+        damageAssignment["assigningPlayerId"] = " alice ";
+        damageAssignment["damagePool"] = RawJson("""
+            {
+                "attacker-a": "3",
+                "defender-a": -1
+            }
+            """);
+        damageAssignment["legalTargets"] = RawJson("""
+            {
+                "attacker-a": "defender-a",
+                "defender-a": [" defender-a ", "", "defender-a"]
+            }
+            """);
+        damageAssignment["existingDamage"] = "not-a-map";
+        damageAssignment["lethalDamageThreshold"] = RawJson("""
+            {
+                "defender-a": null,
+                "attacker-a": -2
+            }
+            """);
+        damageAssignment["requiredAssignments"] = RawJson("""
+            [
+                {
+                    "sourceObjectId": " attacker-a ",
+                    "damage": "3",
+                    "legalTargetObjectIds": ["defender-a", " defender-a ", ""]
+                },
+                "not-an-assignment"
+            ]
+            """);
+        battle["damageAssignment"] = damageAssignment;
+        timing["battle"] = battle;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle damage assignment pending flag is invalid", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle damage assignment phase DAMAGE_ASSIGNMENT has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle damage assignment battle id is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle damage assignment battlefield id is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle damage assignment assigning player id alice has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle damage assignment damage pool attacker-a value is invalid", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle damage assignment damage pool defender-a value -1 cannot be negative", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle damage assignment legal targets attacker-a list is invalid", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle damage assignment legal targets defender-a legal target object id defender-a has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle damage assignment legal targets defender-a legal target object id defender-a is duplicated", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle damage assignment legal targets defender-a legal target object id is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle damage assignment existing damage map is invalid", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle damage assignment lethal damage threshold defender-a value is invalid", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle damage assignment lethal damage threshold attacker-a value -2 cannot be negative", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle damage assignment required assignment item source object id attacker-a has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle damage assignment required assignment item damage is invalid", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle damage assignment required assignment item legal target object id defender-a has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle damage assignment required assignment item legal target object id defender-a is duplicated", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle damage assignment required assignment item legal target object id is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle damage assignment required assignment item payload is required", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingBattleParticipantControllerPropertyNameDrift()
     {
         var authoritativeState = BattleDamageAssignmentState();
