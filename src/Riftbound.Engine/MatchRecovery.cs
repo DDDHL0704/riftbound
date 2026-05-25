@@ -5946,6 +5946,7 @@ public static class MatchRecoveryValidator
         var sourceVisibilitiesMatch = true;
         var effectKindsMatch = true;
         var triggeredEventKindsMatch = true;
+        var seenTriggerIds = new HashSet<string>(StringComparer.Ordinal);
 
         for (var index = 0; index < authoritativeTriggers.Count; index++)
         {
@@ -5960,6 +5961,7 @@ public static class MatchRecoveryValidator
                 spectatorTrigger,
                 "spectator replay frame timing trigger queue item",
                 errors);
+            ValidateSpectatorTriggerQueuePayloadValues(spectatorTrigger, seenTriggerIds, errors);
 
             var authoritativeTrigger = authoritativeTriggers[index];
             var hiddenSource = IsHiddenBattlefieldStandbyForSpectator(
@@ -6035,6 +6037,56 @@ public static class MatchRecoveryValidator
         {
             errors.Add("spectator replay frame timing trigger queue triggered event kinds disagree with authoritative state trigger queue triggered event kinds");
         }
+    }
+
+    private static void ValidateSpectatorTriggerQueuePayloadValues(
+        object? triggerPayload,
+        HashSet<string> seenTriggerIds,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing trigger queue item";
+        var triggerId = ValidateSnapshotPayloadRequiredStringValue(
+            triggerPayload,
+            "triggerId",
+            payloadLabel,
+            "trigger id",
+            errors);
+        if (triggerId is not null && !seenTriggerIds.Add(triggerId))
+        {
+            errors.Add($"{payloadLabel} trigger id {triggerId} is duplicated");
+        }
+
+        ValidateSnapshotPayloadRequiredStringValue(
+            triggerPayload,
+            "controllerId",
+            payloadLabel,
+            "controller id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            triggerPayload,
+            "sourceObjectId",
+            payloadLabel,
+            "source object id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            triggerPayload,
+            "sourceVisibility",
+            payloadLabel,
+            "source visibility",
+            errors,
+            IsKnownTriggerSourceVisibility);
+        ValidateSnapshotPayloadRequiredStringValue(
+            triggerPayload,
+            "effectKind",
+            payloadLabel,
+            "effect kind",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            triggerPayload,
+            "triggeredByEventKind",
+            payloadLabel,
+            "triggered event kind",
+            errors);
     }
 
     private static bool OptionalStringSnapshotValueMatches(object? payload, string key, string? expected)
