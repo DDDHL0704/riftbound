@@ -943,6 +943,53 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotPlayersMapPropertyNameDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = new Dictionary<string, object?>
+                    {
+                        ["alice"] = new Dictionary<string, object?>
+                        {
+                            ["id"] = "alice",
+                            ["seat"] = "P1"
+                        },
+                        [" alice "] = new Dictionary<string, object?>
+                        {
+                            ["id"] = " alice ",
+                            ["seat"] = "P2"
+                        },
+                        [""] = "not-a-player-payload"
+                    }
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice players property alice has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice players property alice appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice players property name is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotPlayerSeatValueDrift()
     {
         var alice = PlayerView("alice", 0, 0);

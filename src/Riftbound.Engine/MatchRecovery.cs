@@ -2234,6 +2234,11 @@ public static class MatchRecoveryValidator
         RecoveredPlayerView view,
         List<string> errors)
     {
+        ValidateSnapshotPayloadObjectPropertyNames(
+            view.Snapshot.Players,
+            $"snapshot for {view.PlayerId} players",
+            errors);
+
         var seenSeats = new HashSet<string>(StringComparer.Ordinal);
         foreach (var (snapshotPlayerId, playerPayload) in view.Snapshot.Players)
         {
