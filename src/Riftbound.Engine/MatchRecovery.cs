@@ -1380,6 +1380,16 @@ public static class MatchRecoveryValidator
 
         switch (normalizedCommandType)
         {
+            case CommandTypes.SubmitDeck:
+                ValidateRawCommandRequiredString(command, rawCommand, "legendCardNo", errors);
+                ValidateRawCommandRequiredString(command, rawCommand, "championCardNo", errors);
+                ValidateRawCommandStringArray(command, rawCommand, "mainDeck", errors);
+                ValidateRawCommandStringArray(command, rawCommand, "runeDeck", errors);
+                ValidateRawCommandStringArray(command, rawCommand, "battlefields", errors);
+                break;
+            case CommandTypes.Mulligan:
+                ValidateRawCommandStringArray(command, rawCommand, "handObjectIds", errors);
+                break;
             case CommandTypes.PlayCard:
                 ValidateRawCommandRequiredString(command, rawCommand, "sourceObjectId", errors);
                 ValidateRawCommandRequiredString(command, rawCommand, "cardNo", errors);

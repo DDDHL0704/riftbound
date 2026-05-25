@@ -2747,6 +2747,120 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsOpeningCommandRawPayloadShapeDrift()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-submit-deck-cmdtype-only",
+                CommandTypes.SubmitDeck,
+                RawCommand(CommandTypes.SubmitDeck),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "missing submit deck payload"),
+            new RecoveredCommand(
+                "alice",
+                "intent-submit-deck-malformed",
+                CommandTypes.SubmitDeck,
+                RawJson("""
+                    {
+                      "cmdType": "SUBMIT_DECK",
+                      "legendCardNo": "LEGEND-1",
+                      "championCardNo": "CHAMPION-1",
+                      "mainDeck": ["MAIN-1", " "],
+                      "runeDeck": ["RUNE-1"],
+                      "battlefields": ["BATTLEFIELD-1"]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "malformed submit deck payload"),
+            new RecoveredCommand(
+                "alice",
+                "intent-mulligan-cmdtype-only",
+                CommandTypes.Mulligan,
+                RawCommand(CommandTypes.Mulligan),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "missing mulligan payload"),
+            new RecoveredCommand(
+                "alice",
+                "intent-mulligan-malformed",
+                CommandTypes.Mulligan,
+                RawJson("""
+                    {
+                      "cmdType": "MULLIGAN",
+                      "handObjectIds": ["hand-1", " "]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "malformed mulligan payload")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-submit-deck-cmdtype-only raw SUBMIT_DECK legendCardNo is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-submit-deck-cmdtype-only raw SUBMIT_DECK championCardNo is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-submit-deck-cmdtype-only raw SUBMIT_DECK mainDeck must be an array",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-submit-deck-cmdtype-only raw SUBMIT_DECK runeDeck must be an array",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-submit-deck-cmdtype-only raw SUBMIT_DECK battlefields must be an array",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-submit-deck-malformed raw SUBMIT_DECK mainDeck[1] is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-mulligan-cmdtype-only raw MULLIGAN handObjectIds must be an array",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-mulligan-malformed raw MULLIGAN handObjectIds[1] is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorAcceptsDevSeedScenarioRawCommandType()
     {
         var events = new[]
