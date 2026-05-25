@@ -10,9 +10,9 @@ Project status remains **NOT READY**. Do not claim final readiness from this boa
 
 Current A_MAIN latest accepted slice: Stage 4D-17FU recovery command P0 raw-payload shape validation is recovery command replay validation only and validated focused single test `1/1`, focused recovery `195/195`, adjacent recovery/opening/store-smoke `776/776`, backend full `6141/6141`. It does not change DOC_MATRIX approved scope or open frontend/final-readiness locks.
 
-Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `4c999922` into main as `44eb06f4` after resolving current-doc prepend conflicts and revalidating matrix/test/backend gates. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `ConformanceFixtureRunnerTests` `3038/3038`, backend full `5929/5929`. Project remains **NOT READY**.
+Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
-Current DOC_MATRIX handoff: `DOC_MATRIX_CURRENT` is clean at handoff commit `17bde0c3` wrapping source commit `7cb78f27` (`checkpoint: stage 4D matrix 03SU-03SV FAQ disposition`). A_MAIN must integrate or reject that source plus handoff after the Stage 4D-17FU runtime checkpoint and before opening another runtime/frontend slice. The handed-off scope is the already approved `4D-03SU..03SV` docs/matrix-only FAQ / rule-source disposition for exactly two implemented-tested non-payment rows: `FU-5cea85e7c3` 狂热粉丝 and `FU-422b450261` 雷克塞. Runtime, frontend, protocol, official catalog, general test implementation, Chrome/browser/formal E2E scripts, `fullOfficial`, final readiness status and `riftbound-dotnet.sln` remain locked. Do not widen DOC_MATRIX scope from this handoff.
+Current DOC_MATRIX handoff: integrated. Source `7cb78f27` (`checkpoint: stage 4D matrix 03SU-03SV FAQ disposition`) and handoff `17bde0c3` were accepted by A_MAIN in this checkpoint. No further DOC_MATRIX rows are open from that handoff; future DOC_MATRIX work must re-read this board and obtain/observe an approved scope. Runtime, frontend, protocol, official catalog, general test implementation, Chrome/browser/formal E2E scripts, `fullOfficial`, final readiness status and `riftbound-dotnet.sln` remain locked.
 
 ## Coordination Contract
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`; latest accepted server/test checkpoint is Stage 4D-17FU in this A_MAIN slice; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-05-25 at clean HEAD `17bde0c3` with source commit `7cb78f27` ready for A_MAIN integration/reject. A_MAIN did not touch that worktree. No further DOC_MATRIX rows should be opened from this handoff before A_MAIN records the integration/reject result.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated in this checkpoint; latest accepted server/test checkpoint remains Stage 4D-17FU; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-05-25 at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in this checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-25 10:34 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main` contains local HEAD `aab5c30e` before this integration work and will contain DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` after this checkpoint commit. DOC_MATRIX_CURRENT was clean at branch `codex/stage4d-matrix-docs-current`, HEAD `17bde0c3`; A_MAIN did not touch that worktree.
+
+Write locks: A_MAIN DOC_MATRIX integration only. Allowed files are `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` residual-baseline sync, paired 03SU/03SV audit/evidence docs, current checkpoint/completion/P0-P1/next-dispatch docs, and this shared board. Runtime, frontend, protocol, official catalog, browser, formal E2E, `fullOfficial`, final readiness status and `riftbound-dotnet.sln` remain locked.
+
+Status: accepted DOC_MATRIX source `7cb78f27` plus handoff `17bde0c3`. The integration closes only two approved non-payment FAQ/rule-source blockers for `FU-5cea85e7c3` 狂热粉丝 and `FU-422b450261` 雷克塞. Matrix counts now show functional-unit FAQ blockers `174 -> 172`, snapshot-entry FAQ blockers `227 -> 224`, non-payment FAQ blockers `82 -> 80`, payment-or-targeting-stack-timing FAQ blockers `124 -> 122`, payment-cost FAQ blockers unchanged at `92`, primary FAQ blockers unchanged at `128`, `fullOfficialTrue=0`, and `ready=false`. Project remains **NOT READY**.
+
+Validation: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`; `git diff --check`; anchored conflict-marker scan; focused `PaymentEngineCoverageAuditTests` `697/697`; adjacent `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`; backend full `6141/6141`.
+
+Requested action: DOC_MATRIX handoff is integrated. Future DOC_MATRIX work must re-read this board and obtain/observe an approved scope. A_MAIN may resume runtime/server closure after a fresh status/board check. Do not change final readiness status.
 
 ### 2026-05-25 10:26 A_MAIN
 
