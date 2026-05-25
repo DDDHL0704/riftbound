@@ -9877,6 +9877,9 @@ public static class MatchRecoveryValidator
                     resolutionPayload,
                     "spectator replay frame timing battlefield resolution item",
                     errors);
+                ValidateSpectatorBattlefieldResolutionPayloadListValues(
+                    resolutionPayload,
+                    errors);
             }
 
             var spectatorBattlefieldResolutionIds = ExtractObjectStringValues(
@@ -10026,6 +10029,9 @@ public static class MatchRecoveryValidator
                 ValidateSnapshotPayloadObjectPropertyNames(
                     resolutionPayload,
                     "spectator replay frame timing battle resolution item",
+                    errors);
+                ValidateSpectatorBattleResolutionPayloadListValues(
+                    resolutionPayload,
                     errors);
             }
 
@@ -10189,6 +10195,68 @@ public static class MatchRecoveryValidator
         {
             errors.Add("spectator replay frame timing leaks random state");
         }
+    }
+
+    private static void ValidateSpectatorBattlefieldResolutionPayloadListValues(
+        object? resolutionPayload,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing battlefield resolution item";
+        ValidateSnapshotPayloadStringListValues(
+            resolutionPayload,
+            "participantObjectIds",
+            payloadLabel,
+            "participant object id",
+            errors);
+        ValidateSnapshotPayloadStringListValues(
+            resolutionPayload,
+            "relatedEventKinds",
+            payloadLabel,
+            "related event kind",
+            errors);
+    }
+
+    private static void ValidateSpectatorBattleResolutionPayloadListValues(
+        object? resolutionPayload,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing battle resolution item";
+        ValidateSnapshotPayloadStringListValues(
+            resolutionPayload,
+            "attackerObjectIds",
+            payloadLabel,
+            "attacker object id",
+            errors);
+        ValidateSnapshotPayloadStringListValues(
+            resolutionPayload,
+            "defenderObjectIds",
+            payloadLabel,
+            "defender object id",
+            errors);
+        ValidateSnapshotPayloadStringListValues(
+            resolutionPayload,
+            "survivingAttackerObjectIds",
+            payloadLabel,
+            "surviving attacker object id",
+            errors);
+        ValidateSnapshotPayloadStringListValues(
+            resolutionPayload,
+            "survivingDefenderObjectIds",
+            payloadLabel,
+            "surviving defender object id",
+            errors);
+        ValidateSnapshotPayloadStringListValues(
+            resolutionPayload,
+            "destroyedObjectIds",
+            payloadLabel,
+            "destroyed object id",
+            errors);
+        ValidateSnapshotPayloadStringListValues(
+            resolutionPayload,
+            "relatedEventKinds",
+            payloadLabel,
+            "related event kind",
+            errors);
     }
 
     private static void ValidateSpectatorBattleDamageAssignmentRequiredAssignmentPayloadPropertyNames(
