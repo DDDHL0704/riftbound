@@ -2109,6 +2109,7 @@ public static class MatchRecoveryValidator
                 "temporaryPaymentResources",
                 "temporary payment resource",
                 errors);
+            ValidateSnapshotTimingTemporaryPaymentResourceListPayloadValues(view, errors);
             ValidateSnapshotTimingListItemPayloadPropertyNames(
                 view,
                 "continuousEffects",
@@ -2653,6 +2654,33 @@ public static class MatchRecoveryValidator
                 "stackItemIds",
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
                 "stack item id",
+                errors);
+        }
+    }
+
+    private static void ValidateSnapshotTimingTemporaryPaymentResourceListPayloadValues(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectList(view.Snapshot.Timing, "temporaryPaymentResources", out var resourcePayloads))
+        {
+            return;
+        }
+
+        foreach (var resourcePayload in resourcePayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(resourcePayload))
+            {
+                continue;
+            }
+
+            const string payloadLabel = "temporary payment resource item";
+            ValidateSnapshotPayloadStringListValues(
+                resourcePayload,
+                "allowedPaymentKinds",
+                $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                "allowed payment kind",
                 errors);
         }
     }
