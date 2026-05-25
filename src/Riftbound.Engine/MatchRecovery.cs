@@ -3914,6 +3914,117 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateSpectatorTriggerQueuePayloads(
+        IReadOnlyDictionary<string, object?> timing,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        if (!TryReadObjectList(timing, "triggerQueue", out var spectatorTriggers))
+        {
+            errors.Add("spectator replay frame timing trigger queue is required");
+            return;
+        }
+
+        var authoritativeTriggers = authoritativeState.TriggerQueue;
+        if (spectatorTriggers.Count != authoritativeTriggers.Count)
+        {
+            errors.Add(
+                $"spectator replay frame timing trigger queue count {spectatorTriggers.Count} does not match authoritative state trigger queue count {authoritativeTriggers.Count}");
+            return;
+        }
+
+        var triggerIdsMatch = true;
+        var controllerIdsMatch = true;
+        var sourceObjectIdsMatch = true;
+        var sourceVisibilitiesMatch = true;
+        var effectKindsMatch = true;
+        var triggeredEventKindsMatch = true;
+
+        for (var index = 0; index < authoritativeTriggers.Count; index++)
+        {
+            var spectatorTrigger = spectatorTriggers[index];
+            if (!IsSnapshotPlayerPayloadObject(spectatorTrigger))
+            {
+                errors.Add("spectator replay frame timing trigger queue item payload is required");
+                return;
+            }
+
+            var authoritativeTrigger = authoritativeTriggers[index];
+            var hiddenSource = IsHiddenBattlefieldStandbyForSpectator(
+                authoritativeState,
+                authoritativeTrigger.SourceObjectId);
+            var expectedSourceObjectId = hiddenSource ? "HIDDEN" : authoritativeTrigger.SourceObjectId;
+            var expectedSourceVisibility = hiddenSource ? "HIDDEN" : "VISIBLE";
+            var expectedEffectKind = hiddenSource ? "HIDDEN" : authoritativeTrigger.EffectKind;
+
+            if (!TryReadObjectString(spectatorTrigger, "triggerId", out var triggerId)
+                || !string.Equals(triggerId, authoritativeTrigger.TriggerId, StringComparison.Ordinal))
+            {
+                triggerIdsMatch = false;
+            }
+
+            if (!TryReadObjectString(spectatorTrigger, "controllerId", out var controllerId)
+                || !string.Equals(controllerId, authoritativeTrigger.ControllerId, StringComparison.Ordinal))
+            {
+                controllerIdsMatch = false;
+            }
+
+            if (!TryReadObjectString(spectatorTrigger, "sourceObjectId", out var sourceObjectId)
+                || !string.Equals(sourceObjectId, expectedSourceObjectId, StringComparison.Ordinal))
+            {
+                sourceObjectIdsMatch = false;
+            }
+
+            if (!TryReadObjectString(spectatorTrigger, "sourceVisibility", out var sourceVisibility)
+                || !string.Equals(sourceVisibility, expectedSourceVisibility, StringComparison.Ordinal))
+            {
+                sourceVisibilitiesMatch = false;
+            }
+
+            if (!TryReadObjectString(spectatorTrigger, "effectKind", out var effectKind)
+                || !string.Equals(effectKind, expectedEffectKind, StringComparison.Ordinal))
+            {
+                effectKindsMatch = false;
+            }
+
+            if (!TryReadObjectString(spectatorTrigger, "triggeredByEventKind", out var triggeredEventKind)
+                || !string.Equals(triggeredEventKind, authoritativeTrigger.TriggeredByEventKind, StringComparison.Ordinal))
+            {
+                triggeredEventKindsMatch = false;
+            }
+        }
+
+        if (!triggerIdsMatch)
+        {
+            errors.Add("spectator replay frame timing trigger queue ids disagree with authoritative state trigger queue ids");
+        }
+
+        if (!controllerIdsMatch)
+        {
+            errors.Add("spectator replay frame timing trigger queue controller ids disagree with authoritative state trigger queue controller ids");
+        }
+
+        if (!sourceObjectIdsMatch)
+        {
+            errors.Add("spectator replay frame timing trigger queue source object ids disagree with authoritative state trigger queue source object ids");
+        }
+
+        if (!sourceVisibilitiesMatch)
+        {
+            errors.Add("spectator replay frame timing trigger queue source visibilities disagree with authoritative state trigger queue source visibilities");
+        }
+
+        if (!effectKindsMatch)
+        {
+            errors.Add("spectator replay frame timing trigger queue effect kinds disagree with authoritative state trigger queue effect kinds");
+        }
+
+        if (!triggeredEventKindsMatch)
+        {
+            errors.Add("spectator replay frame timing trigger queue triggered event kinds disagree with authoritative state trigger queue triggered event kinds");
+        }
+    }
+
     private static bool OptionalStringSnapshotValueMatches(object? payload, string key, string? expected)
     {
         var expectedText = expected ?? string.Empty;
@@ -7185,6 +7296,7 @@ public static class MatchRecoveryValidator
         ValidateSpectatorPendingPaymentPayload(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
         ValidateSpectatorPendingHandChoicePayload(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
         ValidateSpectatorContinuousEffectPayloads(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
+        ValidateSpectatorTriggerQueuePayloads(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
         ValidateSpectatorTemporaryPaymentResourcePayloads(
             spectatorReplayFrame.SpectatorSnapshot.Timing,
             authoritativeState,
