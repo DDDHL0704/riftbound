@@ -9877,6 +9877,9 @@ public static class MatchRecoveryValidator
                     resolutionPayload,
                     "spectator replay frame timing battlefield resolution item",
                     errors);
+                ValidateSpectatorBattlefieldResolutionPayloadValues(
+                    resolutionPayload,
+                    errors);
                 ValidateSpectatorBattlefieldResolutionPayloadListValues(
                     resolutionPayload,
                     errors);
@@ -10029,6 +10032,9 @@ public static class MatchRecoveryValidator
                 ValidateSnapshotPayloadObjectPropertyNames(
                     resolutionPayload,
                     "spectator replay frame timing battle resolution item",
+                    errors);
+                ValidateSpectatorBattleResolutionPayloadValues(
+                    resolutionPayload,
                     errors);
                 ValidateSpectatorBattleResolutionPayloadListValues(
                     resolutionPayload,
@@ -10216,6 +10222,67 @@ public static class MatchRecoveryValidator
             errors);
     }
 
+    private static void ValidateSpectatorBattlefieldResolutionPayloadValues(
+        object? resolutionPayload,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing battlefield resolution item";
+        ValidateSnapshotPayloadRequiredStringValue(
+            resolutionPayload,
+            "resolutionId",
+            payloadLabel,
+            "resolution id",
+            errors);
+        ValidateSnapshotPayloadRequiredNonNegativeLongValue(
+            resolutionPayload,
+            "tick",
+            payloadLabel,
+            "tick",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            resolutionPayload,
+            "kind",
+            payloadLabel,
+            "kind",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            resolutionPayload,
+            "reason",
+            payloadLabel,
+            "reason",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            resolutionPayload,
+            "battlefieldObjectId",
+            payloadLabel,
+            "battlefield object id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            resolutionPayload,
+            "playerId",
+            payloadLabel,
+            "player id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            resolutionPayload,
+            "previousControllerId",
+            payloadLabel,
+            "previous controller id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            resolutionPayload,
+            "controllerId",
+            payloadLabel,
+            "controller id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            resolutionPayload,
+            "sourceObjectId",
+            payloadLabel,
+            "source object id",
+            errors);
+    }
+
     private static void ValidateSpectatorBattleResolutionPayloadListValues(
         object? resolutionPayload,
         List<string> errors)
@@ -10256,6 +10323,61 @@ public static class MatchRecoveryValidator
             "relatedEventKinds",
             payloadLabel,
             "related event kind",
+            errors);
+    }
+
+    private static void ValidateSpectatorBattleResolutionPayloadValues(
+        object? resolutionPayload,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing battle resolution item";
+        ValidateSnapshotPayloadRequiredStringValue(
+            resolutionPayload,
+            "resolutionId",
+            payloadLabel,
+            "resolution id",
+            errors);
+        ValidateSnapshotPayloadRequiredNonNegativeLongValue(
+            resolutionPayload,
+            "tick",
+            payloadLabel,
+            "tick",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            resolutionPayload,
+            "kind",
+            payloadLabel,
+            "kind",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            resolutionPayload,
+            "reason",
+            payloadLabel,
+            "reason",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            resolutionPayload,
+            "battlefieldId",
+            payloadLabel,
+            "battlefield id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            resolutionPayload,
+            "attackingPlayerId",
+            payloadLabel,
+            "attacking player id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            resolutionPayload,
+            "defendingPlayerId",
+            payloadLabel,
+            "defending player id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            resolutionPayload,
+            "winnerPlayerId",
+            payloadLabel,
+            "winner player id",
             errors);
     }
 
