@@ -4827,6 +4827,11 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        ValidateSnapshotPayloadObjectPropertyNames(
+            choicePayload,
+            "spectator replay frame timing pending hand choice",
+            errors);
+
         if (!TryReadObjectString(choicePayload, "choiceId", out var choiceId)
             || !string.Equals(choiceId, authoritativeChoice.ChoiceId, StringComparison.Ordinal))
         {
