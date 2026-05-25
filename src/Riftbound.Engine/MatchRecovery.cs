@@ -6818,6 +6818,9 @@ public static class MatchRecoveryValidator
                 spectatorBattlefieldTask,
                 "spectator replay frame timing battlefield task item",
                 errors);
+            ValidateSpectatorBattlefieldTaskPayloadListValues(
+                spectatorBattlefieldTask,
+                errors);
         }
 
         if (!StringListsEqual(
@@ -6904,6 +6907,31 @@ public static class MatchRecoveryValidator
         {
             errors.Add("spectator replay frame timing battlefield task battle ids disagree with authoritative state battlefield task battle ids");
         }
+    }
+
+    private static void ValidateSpectatorBattlefieldTaskPayloadListValues(
+        object? spectatorBattlefieldTask,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing battlefield task item";
+        ValidateSnapshotPayloadStringListValues(
+            spectatorBattlefieldTask,
+            "participantControllerIds",
+            payloadLabel,
+            "participant controller id",
+            errors);
+        ValidateSnapshotPayloadStringListValues(
+            spectatorBattlefieldTask,
+            "participantObjectIds",
+            payloadLabel,
+            "participant object id",
+            errors);
+        ValidateSnapshotPayloadStringListValues(
+            spectatorBattlefieldTask,
+            "stackItemIds",
+            payloadLabel,
+            "stack item id",
+            errors);
     }
 
     private static bool BattlefieldObjectPairsEqual(
