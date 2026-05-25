@@ -2016,6 +2016,13 @@ public static class MatchRecoveryValidator
         {
             errors.Add($"snapshot for {view.PlayerId} lanes are required");
         }
+        else
+        {
+            ValidateSnapshotPayloadObjectPropertyNames(
+                view.Snapshot.Lanes,
+                $"snapshot for {view.PlayerId} lanes",
+                errors);
+        }
 
         if (view.Snapshot.Stack is null)
         {
