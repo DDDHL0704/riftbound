@@ -2098,6 +2098,11 @@ public static class MatchRecoveryValidator
             ValidateSnapshotTimingBattleDamageAssignmentRequiredAssignmentPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingPaymentPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingPaymentPowerTraitPayloadPropertyNames(view, errors);
+            ValidateSnapshotTimingObjectPayloadPropertyNames(
+                view,
+                "pendingHandChoice",
+                "pending hand choice",
+                errors);
             ValidateSnapshotTimingListItemPayloadPropertyNames(
                 view,
                 "temporaryPaymentResources",
