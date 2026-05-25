@@ -2293,6 +2293,44 @@ public static class MatchRecoveryValidator
         };
     }
 
+    private static void ValidateSnapshotPayloadObjectPropertyNames(
+        object? payload,
+        string payloadLabel,
+        List<string> errors)
+    {
+        var seenPropertyNames = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var propertyName in EnumerateSnapshotPayloadObjectPropertyNames(payload))
+        {
+            if (string.IsNullOrWhiteSpace(propertyName))
+            {
+                errors.Add($"{payloadLabel} property name is required");
+                continue;
+            }
+
+            var normalizedName = propertyName.Trim();
+            if (!string.Equals(propertyName, normalizedName, StringComparison.Ordinal))
+            {
+                errors.Add($"{payloadLabel} property {normalizedName} has surrounding whitespace");
+            }
+
+            if (!seenPropertyNames.Add(normalizedName))
+            {
+                errors.Add($"{payloadLabel} property {normalizedName} appears more than once");
+            }
+        }
+    }
+
+    private static IEnumerable<string> EnumerateSnapshotPayloadObjectPropertyNames(object? payload)
+    {
+        return payload switch
+        {
+            IReadOnlyDictionary<string, object?> readOnlyDictionary => readOnlyDictionary.Keys,
+            IDictionary<string, object?> dictionary => dictionary.Keys,
+            JsonElement { ValueKind: JsonValueKind.Object } json => json.EnumerateObject().Select(property => property.Name),
+            _ => []
+        };
+    }
+
     private static bool IsNullSnapshotPayloadValue(object? payload)
     {
         return payload is null
@@ -4036,6 +4074,11 @@ public static class MatchRecoveryValidator
                 return;
             }
 
+            ValidateSnapshotPayloadObjectPropertyNames(
+                spectatorEffect,
+                "spectator replay frame timing continuous effect item",
+                errors);
+
             var authoritativeEffect = authoritativeEffects[index];
             if (!TryReadObjectString(spectatorEffect, "effectId", out var effectId)
                 || !string.Equals(effectId, authoritativeEffect.EffectId, StringComparison.Ordinal))
@@ -4385,6 +4428,11 @@ public static class MatchRecoveryValidator
                 errors.Add("spectator replay frame timing trigger queue item payload is required");
                 return;
             }
+
+            ValidateSnapshotPayloadObjectPropertyNames(
+                spectatorTrigger,
+                "spectator replay frame timing trigger queue item",
+                errors);
 
             var authoritativeTrigger = authoritativeTriggers[index];
             var hiddenSource = IsHiddenBattlefieldStandbyForSpectator(
