@@ -2308,6 +2308,112 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsP0PayloadCommandRawPayloadShapeDrift()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-paycost-cmdtype-only",
+                CommandTypes.PayCost,
+                RawCommand(CommandTypes.PayCost),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "missing payment payload"),
+            new RecoveredCommand(
+                "alice",
+                "intent-assign-malformed",
+                CommandTypes.AssignCombatDamage,
+                RawJson("""
+                    {
+                      "cmdType": "ASSIGN_COMBAT_DAMAGE",
+                      "battleId": "battle-1",
+                      "battlefieldId": "battlefield-1",
+                      "assignments": [
+                        { "sourceObjectId": "attacker-1" }
+                      ]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "malformed assignment payload"),
+            new RecoveredCommand(
+                "alice",
+                "intent-order-cmdtype-only",
+                CommandTypes.OrderTriggers,
+                RawCommand(CommandTypes.OrderTriggers),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "missing trigger order payload"),
+            new RecoveredCommand(
+                "alice",
+                "intent-choice-malformed",
+                CommandTypes.ChooseHandCards,
+                RawJson("""
+                    {
+                      "cmdType": "CHOOSE_HAND_CARDS",
+                      "choiceId": "choice-1",
+                      "choiceWindow": "TEST_CHOICE",
+                      "chosenObjectIds": ["object-1", " "]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "malformed choice payload")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-paycost-cmdtype-only raw PAY_COST paymentId is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-paycost-cmdtype-only raw PAY_COST paymentChoiceIds must be an array",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-assign-malformed raw ASSIGN_COMBAT_DAMAGE assignments[0].targetObjectId is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-assign-malformed raw ASSIGN_COMBAT_DAMAGE assignments[0].damage is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-order-cmdtype-only raw ORDER_TRIGGERS orderedTriggerIds or triggerIds must be an array",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-choice-malformed raw CHOOSE_HAND_CARDS chosenObjectIds[1] is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorAcceptsDevSeedScenarioRawCommandType()
     {
         var events = new[]

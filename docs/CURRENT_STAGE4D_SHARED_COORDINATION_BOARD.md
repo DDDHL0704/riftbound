@@ -4,15 +4,15 @@ Date: 2026-05-21
 
 Purpose: this is the single shared coordination board for the Stage 4 A main-worktree agent and the matrix-docs window. It is for handoffs, write locks, current branch/worktree facts and merge requests only. It does not replace `docs/CURRENT_A_MASTER_CHECKPOINT.md`, `docs/CURRENT_COMPLETION_AUDIT.md`, card matrix files or rule evidence documents.
 
-Canonical board path: `/Users/dinghaolin/MyProjects/riftbound-dotnet/docs/CURRENT_STAGE4D_SHARED_COORDINATION_BOARD.md`. All windows must read and write this main-worktree file, not a stale per-worktree copy.
+Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STAGE4D_SHARED_COORDINATION_BOARD.md`. All windows must read and write this main-worktree file, not a stale per-worktree copy.
 
-Project status remains **NOT READY**. Do not output READY-CANDIDATE from this board.
+Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-17FT recovery rejected command raw-payload validation is recovery command replay validation only and validated focused single test `1/1`, focused recovery `194/194`, adjacent recovery/opening/store-smoke `775/775`, backend full `6140/6140`. It does not change DOC_MATRIX approved scope or open frontend/final-readiness locks.
+Current A_MAIN latest accepted slice: Stage 4D-17FU recovery command P0 raw-payload shape validation is recovery command replay validation only and validated focused single test `1/1`, focused recovery `195/195`, adjacent recovery/opening/store-smoke `776/776`, backend full `6141/6141`. It does not change DOC_MATRIX approved scope or open frontend/final-readiness locks.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `4c999922` into main as `44eb06f4` after resolving current-doc prepend conflicts and revalidating matrix/test/backend gates. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `ConformanceFixtureRunnerTests` `3038/3038`, backend full `5929/5929`. Project remains **NOT READY**.
 
-Current DOC_MATRIX approved scope: `DOC_MATRIX_CURRENT` should first sync to latest main containing Stage 4D-17FT, then continue only `4D-03SU..03SV` docs/matrix-only FAQ / rule-source disposition for exactly two implemented-tested non-payment rows: `FU-5cea85e7c3` 狂热粉丝 and `FU-422b450261` 雷克塞. Allowed writes are matrix JSON/current matrix docs, per-bundle candidate/audit docs, this shared-board handoff entry, and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs` only for residual-baseline synchronization. Runtime, frontend, protocol, official catalog, general test implementation, Chrome/browser/formal E2E scripts, `fullOfficial`, final readiness status and `riftbound-dotnet.sln` remain locked. If a selected row fails source/evidence checks, record the guard reason and continue within this exact scope; if both rows are exhausted, record `NO_EXECUTABLE_CANDIDATES` for this scope instead of widening work.
+Current DOC_MATRIX handoff: `DOC_MATRIX_CURRENT` is clean at handoff commit `17bde0c3` wrapping source commit `7cb78f27` (`checkpoint: stage 4D matrix 03SU-03SV FAQ disposition`). A_MAIN must integrate or reject that source plus handoff after the Stage 4D-17FU runtime checkpoint and before opening another runtime/frontend slice. The handed-off scope is the already approved `4D-03SU..03SV` docs/matrix-only FAQ / rule-source disposition for exactly two implemented-tested non-payment rows: `FU-5cea85e7c3` 狂热粉丝 and `FU-422b450261` 雷克塞. Runtime, frontend, protocol, official catalog, general test implementation, Chrome/browser/formal E2E scripts, `fullOfficial`, final readiness status and `riftbound-dotnet.sln` remain locked. Do not widen DOC_MATRIX scope from this handoff.
 
 ## Coordination Contract
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`; latest accepted server/test checkpoint is Stage 4D-17FT in this A_MAIN slice; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current-20260521-next`, last observed from A_MAIN on 2026-05-25 at HEAD `09d57f6f` with dirty `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` and `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`; A_MAIN did not touch that worktree. It should reconcile / sync to latest main containing Stage 4D-17FT before continuing the already approved `4D-03SU..03SV` docs/matrix-only FAQ / rule-source scope.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`; latest accepted server/test checkpoint is Stage 4D-17FU in this A_MAIN slice; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-05-25 at clean HEAD `17bde0c3` with source commit `7cb78f27` ready for A_MAIN integration/reject. A_MAIN did not touch that worktree. No further DOC_MATRIX rows should be opened from this handoff before A_MAIN records the integration/reject result.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-05-25 10:26 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main` contains local HEAD `ddf611e1` before this Stage 4D-17FU work and will contain the Stage 4D-17FU checkpoint entry after commit. Pre-batch DOC_MATRIX_CURRENT check matched the earlier board at HEAD `09d57f6f` with dirty matrix/test-baseline files. Pre-commit recheck found `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current` clean on branch `codex/stage4d-matrix-docs-current`, HEAD `17bde0c3`, wrapping source commit `7cb78f27`; A_MAIN did not touch that worktree.
+
+Write locks: A_MAIN server P1-004 recovery command P0 raw-payload shape validation slice. Allowed files are `src/Riftbound.Engine/MatchRecovery.cs`, `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs`, current checkpoint/completion/P0-P1/next-dispatch docs, this shared board, and dedicated 4D-17FU audit/evidence docs. Matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, frontend, protocol, official catalog, browser, formal E2E, `fullOfficial`, final readiness status and `riftbound-dotnet.sln` remain locked.
+
+Status: accepted 4D-17FU recovery command P0 raw-payload shape validation. `MatchRecoveryValidator` now rejects present raw commands for `PAY_COST`, `ASSIGN_COMBAT_DAMAGE`, `ORDER_TRIGGERS` and `CHOOSE_HAND_CARDS` when required replay payload fields are missing or malformed, preventing cmdType-only replay payloads from losing payment choices, combat assignments, trigger order or hand-choice selections. Project remains **NOT READY**.
+
+Validation: focused single test `1/1`; focused `MatchRecoveryTests` `195/195`; adjacent recovery/opening/store-smoke `776/776`; backend full `6141/6141`; `git diff --check`; anchored conflict-marker scan; `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`.
+
+Requested action: After this Stage 4D-17FU runtime checkpoint, A_MAIN must integrate or reject DOC_MATRIX source commit `7cb78f27` plus handoff commit `17bde0c3` before opening another runtime/frontend slice. Do not change final readiness status.
 
 ### 2026-05-25 10:21 A_MAIN
 

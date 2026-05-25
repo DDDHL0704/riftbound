@@ -1124,6 +1124,8 @@ public static class MatchRecoveryValidator
                     $"command {command.ClientIntentId} raw cmdType {rawCommandType} does not match recovered command type {command.CommandType}");
             }
 
+            ValidateRawCommandPayloadShape(command, normalizedCommandType, errors);
+
             if (command.StartedTick < 0)
             {
                 errors.Add(
@@ -1364,6 +1366,185 @@ public static class MatchRecoveryValidator
             errors.Add(
                 $"command {command.ClientIntentId} raw cmdType {normalizedRawCommandType} has surrounding whitespace");
         }
+    }
+
+    private static void ValidateRawCommandPayloadShape(
+        RecoveredCommand command,
+        string normalizedCommandType,
+        List<string> errors)
+    {
+        if (command.RawCommand is not { ValueKind: JsonValueKind.Object } rawCommand)
+        {
+            return;
+        }
+
+        switch (normalizedCommandType)
+        {
+            case CommandTypes.PayCost:
+                ValidateRawCommandRequiredString(command, rawCommand, "paymentId", errors);
+                ValidateRawCommandRequiredString(command, rawCommand, "paymentWindow", errors);
+                ValidateRawCommandStringArray(command, rawCommand, "paymentChoiceIds", errors);
+                break;
+            case CommandTypes.AssignCombatDamage:
+                ValidateRawCommandRequiredString(command, rawCommand, "battleId", errors);
+                ValidateRawCommandRequiredString(command, rawCommand, "battlefieldId", errors);
+                ValidateRawCommandCombatAssignments(command, rawCommand, errors);
+                break;
+            case CommandTypes.OrderTriggers:
+                ValidateRawCommandOrderedTriggerIds(command, rawCommand, errors);
+                break;
+            case CommandTypes.ChooseHandCards:
+                ValidateRawCommandRequiredString(command, rawCommand, "choiceId", errors);
+                ValidateRawCommandRequiredString(command, rawCommand, "choiceWindow", errors);
+                ValidateRawCommandStringArray(command, rawCommand, "chosenObjectIds", errors);
+                break;
+        }
+    }
+
+    private static void ValidateRawCommandRequiredString(
+        RecoveredCommand command,
+        JsonElement rawCommand,
+        string propertyName,
+        List<string> errors)
+    {
+        if (!rawCommand.TryGetProperty(propertyName, out var property)
+            || property.ValueKind != JsonValueKind.String
+            || string.IsNullOrWhiteSpace(property.GetString()))
+        {
+            errors.Add(
+                $"command {command.ClientIntentId} raw {command.CommandType} {propertyName} is required");
+            return;
+        }
+
+        var value = property.GetString()!;
+        var normalizedValue = value.Trim();
+        if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"command {command.ClientIntentId} raw {command.CommandType} {propertyName} {normalizedValue} has surrounding whitespace");
+        }
+    }
+
+    private static void ValidateRawCommandStringArray(
+        RecoveredCommand command,
+        JsonElement rawCommand,
+        string propertyName,
+        List<string> errors)
+    {
+        if (!rawCommand.TryGetProperty(propertyName, out var property)
+            || property.ValueKind != JsonValueKind.Array)
+        {
+            errors.Add(
+                $"command {command.ClientIntentId} raw {command.CommandType} {propertyName} must be an array");
+            return;
+        }
+
+        var index = 0;
+        foreach (var item in property.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.String
+                || string.IsNullOrWhiteSpace(item.GetString()))
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} raw {command.CommandType} {propertyName}[{index}] is required");
+                index++;
+                continue;
+            }
+
+            var value = item.GetString()!;
+            var normalizedValue = value.Trim();
+            if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} raw {command.CommandType} {propertyName}[{index}] {normalizedValue} has surrounding whitespace");
+            }
+
+            index++;
+        }
+    }
+
+    private static void ValidateRawCommandCombatAssignments(
+        RecoveredCommand command,
+        JsonElement rawCommand,
+        List<string> errors)
+    {
+        if (!rawCommand.TryGetProperty("assignments", out var assignments)
+            || assignments.ValueKind != JsonValueKind.Array)
+        {
+            errors.Add(
+                $"command {command.ClientIntentId} raw {command.CommandType} assignments must be an array");
+            return;
+        }
+
+        var index = 0;
+        foreach (var assignment in assignments.EnumerateArray())
+        {
+            if (assignment.ValueKind != JsonValueKind.Object)
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} raw {command.CommandType} assignments[{index}] must be an object");
+                index++;
+                continue;
+            }
+
+            ValidateRawCommandAssignmentString(command, assignment, index, "sourceObjectId", errors);
+            ValidateRawCommandAssignmentString(command, assignment, index, "targetObjectId", errors);
+            if (!assignment.TryGetProperty("damage", out var damage)
+                || damage.ValueKind != JsonValueKind.Number
+                || !damage.TryGetInt32(out _))
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} raw {command.CommandType} assignments[{index}].damage is required");
+            }
+
+            index++;
+        }
+    }
+
+    private static void ValidateRawCommandAssignmentString(
+        RecoveredCommand command,
+        JsonElement assignment,
+        int index,
+        string propertyName,
+        List<string> errors)
+    {
+        if (!assignment.TryGetProperty(propertyName, out var property)
+            || property.ValueKind != JsonValueKind.String
+            || string.IsNullOrWhiteSpace(property.GetString()))
+        {
+            errors.Add(
+                $"command {command.ClientIntentId} raw {command.CommandType} assignments[{index}].{propertyName} is required");
+            return;
+        }
+
+        var value = property.GetString()!;
+        var normalizedValue = value.Trim();
+        if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"command {command.ClientIntentId} raw {command.CommandType} assignments[{index}].{propertyName} {normalizedValue} has surrounding whitespace");
+        }
+    }
+
+    private static void ValidateRawCommandOrderedTriggerIds(
+        RecoveredCommand command,
+        JsonElement rawCommand,
+        List<string> errors)
+    {
+        if (rawCommand.TryGetProperty("orderedTriggerIds", out _))
+        {
+            ValidateRawCommandStringArray(command, rawCommand, "orderedTriggerIds", errors);
+            return;
+        }
+
+        if (rawCommand.TryGetProperty("triggerIds", out _))
+        {
+            ValidateRawCommandStringArray(command, rawCommand, "triggerIds", errors);
+            return;
+        }
+
+        errors.Add(
+            $"command {command.ClientIntentId} raw {command.CommandType} orderedTriggerIds or triggerIds must be an array");
     }
 
     private static bool CommandRequiresRawPayload(string recoveredCommandType)
