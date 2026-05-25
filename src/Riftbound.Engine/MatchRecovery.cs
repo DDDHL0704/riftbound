@@ -2114,6 +2114,7 @@ public static class MatchRecoveryValidator
                 "continuousEffects",
                 "continuous effect",
                 errors);
+            ValidateSnapshotTimingContinuousEffectListPayloadValues(view, errors);
             ValidateSnapshotTimingListItemPayloadPropertyNames(
                 view,
                 "triggerQueue",
@@ -2494,6 +2495,57 @@ public static class MatchRecoveryValidator
             ValidateSnapshotPayloadObjectPropertyNames(
                 payload,
                 $"snapshot for {view.PlayerId} timing {payloadLabel} item",
+                errors);
+        }
+    }
+
+    private static void ValidateSnapshotTimingContinuousEffectListPayloadValues(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectList(view.Snapshot.Timing, "continuousEffects", out var effectPayloads))
+        {
+            return;
+        }
+
+        foreach (var effectPayload in effectPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(effectPayload))
+            {
+                continue;
+            }
+
+            const string effectLabel = "continuous effect item";
+            ValidateSnapshotPayloadStringListValues(
+                effectPayload,
+                "participantObjectIds",
+                $"snapshot for {view.PlayerId} timing {effectLabel}",
+                "participant object id",
+                errors);
+            ValidateSnapshotPayloadStringListValues(
+                effectPayload,
+                "sourceDependencyObjectIds",
+                $"snapshot for {view.PlayerId} timing {effectLabel}",
+                "source dependency object id",
+                errors);
+            ValidateSnapshotPayloadStringListValues(
+                effectPayload,
+                "targetDependencyObjectIds",
+                $"snapshot for {view.PlayerId} timing {effectLabel}",
+                "target dependency object id",
+                errors);
+            ValidateSnapshotPayloadStringListValues(
+                effectPayload,
+                "participantDependencyObjectIds",
+                $"snapshot for {view.PlayerId} timing {effectLabel}",
+                "participant dependency object id",
+                errors);
+            ValidateSnapshotPayloadStringListValues(
+                effectPayload,
+                "deferredLayerEngineResiduals",
+                $"snapshot for {view.PlayerId} timing {effectLabel}",
+                "deferred LayerEngine residual",
                 errors);
         }
     }
@@ -2884,6 +2936,47 @@ public static class MatchRecoveryValidator
             if (!seenPropertyNames.Add(normalizedName))
             {
                 errors.Add($"{payloadLabel} property {normalizedName} appears more than once");
+            }
+        }
+    }
+
+    private static void ValidateSnapshotPayloadStringListValues(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(payload, key, out var listPayload)
+            || IsNullSnapshotPayloadValue(listPayload))
+        {
+            return;
+        }
+
+        if (!TryReadStringListValue(listPayload, out var values))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} list is invalid");
+            return;
+        }
+
+        var seenValues = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var value in values)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                errors.Add($"{payloadLabel} {itemLabel} is required");
+                continue;
+            }
+
+            var normalizedValue = value.Trim();
+            if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
+            {
+                errors.Add($"{payloadLabel} {itemLabel} {normalizedValue} has surrounding whitespace");
+            }
+
+            if (!seenValues.Add(normalizedValue))
+            {
+                errors.Add($"{payloadLabel} {itemLabel} {normalizedValue} is duplicated");
             }
         }
     }
