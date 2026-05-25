@@ -798,6 +798,99 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingPendingTaskQueuePropertyNameDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["pendingTaskQueue"] = RawJson("""
+            {
+                "hasTasks": true,
+                "hasTasks": true,
+                " isBlocking ": true,
+                "": true,
+                "isBlocking": true,
+                "phase": "STATE_BASED_CLEANUP",
+                "activeTaskId": "task-1",
+                "tasks": [
+                    {
+                        "taskId": "task-1",
+                        "taskId": "task-1",
+                        " kind ": "DESTROY_LETHAL_UNIT",
+                        "": true,
+                        "kind": "DESTROY_LETHAL_UNIT"
+                    }
+                ],
+                "metadata": {
+                    "taskCount": 1,
+                    "taskCount": 1,
+                    " stateBasedTaskKinds ": ["DESTROY_LETHAL_UNIT"],
+                    "": true,
+                    "stateBasedTaskKinds": ["DESTROY_LETHAL_UNIT"]
+                }
+            }
+            """);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue property hasTasks appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue property isBlocking has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue property name is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue task item property taskId appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue task item property kind has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue task item property name is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue metadata property taskCount appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue metadata property stateBasedTaskKinds has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue metadata property name is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingResolutionHistoryPropertyNameDrift()
     {
         var alice = PlayerView("alice", 0, 0);

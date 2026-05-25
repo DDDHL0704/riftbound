@@ -2098,6 +2098,7 @@ public static class MatchRecoveryValidator
             ValidateSnapshotTimingBattleDamageAssignmentRequiredAssignmentPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingPaymentPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingPaymentPowerTraitPayloadPropertyNames(view, errors);
+            ValidateSnapshotTimingPendingTaskQueuePayloadPropertyNames(view, errors);
             ValidateSnapshotTimingObjectPayloadPropertyNames(
                 view,
                 "pendingHandChoice",
@@ -2368,6 +2369,50 @@ public static class MatchRecoveryValidator
         ValidateSnapshotPayloadObjectPropertyNames(
             costPayload,
             $"snapshot for {view.PlayerId} timing pending payment cost",
+            errors);
+    }
+
+    private static void ValidateSnapshotTimingPendingTaskQueuePayloadPropertyNames(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectValue(view.Snapshot.Timing, "pendingTaskQueue", out var queuePayload)
+            || !IsSnapshotPlayerPayloadObject(queuePayload))
+        {
+            return;
+        }
+
+        ValidateSnapshotPayloadObjectPropertyNames(
+            queuePayload,
+            $"snapshot for {view.PlayerId} timing pending task queue",
+            errors);
+
+        if (TryReadObjectList(queuePayload, "tasks", out var taskPayloads))
+        {
+            foreach (var taskPayload in taskPayloads)
+            {
+                if (!IsSnapshotPlayerPayloadObject(taskPayload))
+                {
+                    continue;
+                }
+
+                ValidateSnapshotPayloadObjectPropertyNames(
+                    taskPayload,
+                    $"snapshot for {view.PlayerId} timing pending task queue task item",
+                    errors);
+            }
+        }
+
+        if (!TryReadObjectValue(queuePayload, "metadata", out var metadataPayload)
+            || !IsSnapshotPlayerPayloadObject(metadataPayload))
+        {
+            return;
+        }
+
+        ValidateSnapshotPayloadObjectPropertyNames(
+            metadataPayload,
+            $"snapshot for {view.PlayerId} timing pending task queue metadata",
             errors);
     }
 
