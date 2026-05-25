@@ -3262,6 +3262,11 @@ public static class MatchRecoveryValidator
                     $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} occupant controller ids do not match authoritative state occupant controller ids");
             }
 
+            ValidateSpectatorSnapshotBattlefieldUnitsBySidePayloadPropertyNames(
+                battlefieldObjectId,
+                spectatorBattlefield,
+                errors);
+
             var expectedUnitsBySide = ExpectedSpectatorUnitsBySide(authoritativeState, authoritativeBattlefield);
             if (!TryReadObjectStringListDictionary(spectatorBattlefield, "unitsBySide", out var unitsBySide)
                 || !StringListDictionariesEqual(unitsBySide, expectedUnitsBySide))
@@ -3303,6 +3308,22 @@ public static class MatchRecoveryValidator
                     $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} pending task kinds do not match authoritative state pending task kinds");
             }
         }
+    }
+
+    private static void ValidateSpectatorSnapshotBattlefieldUnitsBySidePayloadPropertyNames(
+        string battlefieldObjectId,
+        object? battlefieldPayload,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(battlefieldPayload, "unitsBySide", out var unitsBySidePayload))
+        {
+            return;
+        }
+
+        ValidateSnapshotPayloadObjectPropertyNames(
+            unitsBySidePayload,
+            $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} units by side",
+            errors);
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyList<string>> ExpectedSpectatorUnitsBySide(
