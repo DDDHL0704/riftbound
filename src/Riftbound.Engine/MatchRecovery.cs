@@ -3459,6 +3459,29 @@ public static class MatchRecoveryValidator
         return value;
     }
 
+    private static int? ValidateSnapshotPayloadRequiredIntValue(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(payload, key, out var rawValue)
+            || IsNullSnapshotPayloadValue(rawValue))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} is required");
+            return null;
+        }
+
+        if (!TryReadIntValue(rawValue, out var value))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} is invalid");
+            return null;
+        }
+
+        return value;
+    }
+
     private static long? ValidateSnapshotPayloadRequiredNonNegativeLongValue(
         object? payload,
         string key,
@@ -3596,6 +3619,28 @@ public static class MatchRecoveryValidator
         }
 
         return normalizedValue;
+    }
+
+    private static int? ValidateSnapshotPayloadOptionalIntValue(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(payload, key, out var rawValue)
+            || IsNullSnapshotPayloadValue(rawValue))
+        {
+            return null;
+        }
+
+        if (!TryReadIntValue(rawValue, out var value))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} is invalid");
+            return null;
+        }
+
+        return value;
     }
 
     private static IEnumerable<string> EnumerateSnapshotPayloadObjectPropertyNames(object? payload)
@@ -5927,6 +5972,138 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         const string effectLabel = "spectator replay frame timing continuous effect item";
+        ValidateSnapshotPayloadRequiredStringValue(
+            effectPayload,
+            "effectId",
+            effectLabel,
+            "effect id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            effectPayload,
+            "scope",
+            effectLabel,
+            "scope",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            effectPayload,
+            "layer",
+            effectLabel,
+            "layer",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            effectPayload,
+            "duration",
+            effectLabel,
+            "duration",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            effectPayload,
+            "targetObjectId",
+            effectLabel,
+            "target object id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            effectPayload,
+            "sourceObjectId",
+            effectLabel,
+            "source object id",
+            errors);
+        ValidateSnapshotPayloadRequiredIntValue(
+            effectPayload,
+            "powerDelta",
+            effectLabel,
+            "power delta",
+            errors);
+        ValidateSnapshotPayloadRequiredIntValue(
+            effectPayload,
+            "basePower",
+            effectLabel,
+            "base power",
+            errors);
+        ValidateSnapshotPayloadRequiredIntValue(
+            effectPayload,
+            "effectivePower",
+            effectLabel,
+            "effective power",
+            errors);
+        ValidateSnapshotPayloadRequiredIntValue(
+            effectPayload,
+            "sequence",
+            effectLabel,
+            "sequence",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            effectPayload,
+            "effectKind",
+            effectLabel,
+            "effect kind",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            effectPayload,
+            "sourceCardNo",
+            effectLabel,
+            "source card no",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            effectPayload,
+            "sourcePath",
+            effectLabel,
+            "source path",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            effectPayload,
+            "layerEngineStatus",
+            effectLabel,
+            "layer engine status",
+            errors);
+        ValidateSnapshotPayloadOptionalIntValue(
+            effectPayload,
+            "requestedPowerDelta",
+            effectLabel,
+            "requested power delta",
+            errors);
+        ValidateSnapshotPayloadOptionalIntValue(
+            effectPayload,
+            "appliedPowerDelta",
+            effectLabel,
+            "applied power delta",
+            errors);
+        ValidateSnapshotPayloadOptionalIntValue(
+            effectPayload,
+            "minimumPower",
+            effectLabel,
+            "minimum power",
+            errors);
+        ValidateSnapshotPayloadOptionalIntValue(
+            effectPayload,
+            "resultingPower",
+            effectLabel,
+            "resulting power",
+            errors);
+        ValidateSnapshotPayloadOptionalIntValue(
+            effectPayload,
+            "appliedOrder",
+            effectLabel,
+            "applied order",
+            errors);
+        ValidateSnapshotPayloadOptionalIntValue(
+            effectPayload,
+            "sourceOrder",
+            effectLabel,
+            "source order",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            effectPayload,
+            "condition",
+            effectLabel,
+            "condition",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            effectPayload,
+            "lifecycle",
+            effectLabel,
+            "lifecycle",
+            errors);
         ValidateSnapshotPayloadStringListValues(
             effectPayload,
             "participantObjectIds",
