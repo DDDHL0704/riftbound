@@ -2348,6 +2348,11 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         List<string> errors)
     {
+        ValidateSnapshotPayloadObjectPropertyNames(
+            snapshot.Players,
+            "spectator replay frame snapshot players",
+            errors);
+
         foreach (var expectedPlayerId in authoritativeState.Seats.Keys)
         {
             if (!snapshot.Players.ContainsKey(expectedPlayerId))
