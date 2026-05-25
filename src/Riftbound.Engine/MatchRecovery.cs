@@ -2363,6 +2363,11 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
+            ValidateSnapshotPayloadObjectPropertyNames(
+                playerPayload,
+                $"spectator replay frame snapshot player {playerId}",
+                errors);
+
             if (!TryReadObjectString(playerPayload, "id", out var payloadId)
                 || !string.Equals(payloadId, playerId, StringComparison.Ordinal))
             {
@@ -2455,6 +2460,11 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        ValidateSnapshotPayloadObjectPropertyNames(
+            runePoolPayload,
+            $"spectator replay frame snapshot player {playerId} rune pool",
+            errors);
+
         var expectedRunePool = authoritativeState.RunePools.TryGetValue(playerId, out var runePool)
             ? runePool
             : RunePool.Empty;
@@ -2496,6 +2506,11 @@ public static class MatchRecoveryValidator
             errors.Add($"spectator replay frame snapshot player {playerId} zones are required");
             return;
         }
+
+        ValidateSnapshotPayloadObjectPropertyNames(
+            zonePayload,
+            $"spectator replay frame snapshot player {playerId} zones",
+            errors);
 
         if (!TryReadObjectInt(zonePayload, "mainDeckCount", out var mainDeckCount)
             || mainDeckCount != zones.MainDeck.Count)

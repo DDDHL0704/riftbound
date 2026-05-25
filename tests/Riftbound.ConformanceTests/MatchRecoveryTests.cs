@@ -7689,6 +7689,127 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplaySnapshotPlayerPayloadPropertyNameDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var players = spectatorReplayFrame.SpectatorSnapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        players["alice"] = RawJson("""
+            {
+                "id": "alice",
+                "id": "alice",
+                " name ": "alice",
+                "": true,
+                "name": "alice",
+                "ready": true,
+                "handSize": 0,
+                "score": 0,
+                "experience": 0,
+                "cardsPlayedThisTurn": 0,
+                "deckSubmitted": false,
+                "mulliganCompleted": false,
+                "runePool": {
+                    "mana": 0,
+                    "mana": 0,
+                    " power ": 0,
+                    "": true,
+                    "power": 0,
+                    "untypedPower": 0,
+                    "powerByTrait": {}
+                },
+                "zones": {
+                    "mainDeckCount": 0,
+                    "mainDeckCount": 0,
+                    " runeDeckCount ": 0,
+                    "": true,
+                    "runeDeckCount": 0,
+                    "hand": [],
+                    "handHidden": 0,
+                    "base": [],
+                    "battlefields": [],
+                    "battlefieldHiddenStandbyCount": 0,
+                    "graveyard": [],
+                    "banished": [],
+                    "legendZone": [],
+                    "championZone": []
+                },
+                "objects": {}
+            }
+            """);
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Players = players
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice property id appears more than once", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice property name has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice property name is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice rune pool property mana appears more than once", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice rune pool property power has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice rune pool property name is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice zones property mainDeckCount appears more than once", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice zones property runeDeckCount has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame snapshot player alice zones property name is required", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplaySnapshotPlayerRunePoolMismatch()
     {
         var authoritativeState = new MatchState(
