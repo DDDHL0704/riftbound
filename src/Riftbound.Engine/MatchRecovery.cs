@@ -2120,6 +2120,7 @@ public static class MatchRecoveryValidator
                 "triggerQueue",
                 "trigger queue",
                 errors);
+            ValidateSnapshotTimingTriggerQueuePayloadValues(view, errors);
             ValidateSnapshotTimingListItemPayloadPropertyNames(
                 view,
                 "battlefieldTasks",
@@ -2548,6 +2549,77 @@ public static class MatchRecoveryValidator
                 "deferred LayerEngine residual",
                 errors);
         }
+    }
+
+    private static void ValidateSnapshotTimingTriggerQueuePayloadValues(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectList(view.Snapshot.Timing, "triggerQueue", out var triggerPayloads))
+        {
+            return;
+        }
+
+        var seenTriggerIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var triggerPayload in triggerPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(triggerPayload))
+            {
+                continue;
+            }
+
+            const string payloadLabel = "trigger queue item";
+            var triggerLabel = $"snapshot for {view.PlayerId} timing {payloadLabel}";
+            var triggerId = ValidateSnapshotPayloadRequiredStringValue(
+                triggerPayload,
+                "triggerId",
+                triggerLabel,
+                "trigger id",
+                errors);
+            if (triggerId is not null && !seenTriggerIds.Add(triggerId))
+            {
+                errors.Add($"{triggerLabel} trigger id {triggerId} is duplicated");
+            }
+
+            ValidateSnapshotPayloadRequiredStringValue(
+                triggerPayload,
+                "controllerId",
+                triggerLabel,
+                "controller id",
+                errors);
+            ValidateSnapshotPayloadOptionalStringValue(
+                triggerPayload,
+                "sourceObjectId",
+                triggerLabel,
+                "source object id",
+                errors);
+            ValidateSnapshotPayloadRequiredStringValue(
+                triggerPayload,
+                "sourceVisibility",
+                triggerLabel,
+                "source visibility",
+                errors,
+                IsKnownTriggerSourceVisibility);
+            ValidateSnapshotPayloadRequiredStringValue(
+                triggerPayload,
+                "effectKind",
+                triggerLabel,
+                "effect kind",
+                errors);
+            ValidateSnapshotPayloadRequiredStringValue(
+                triggerPayload,
+                "triggeredByEventKind",
+                triggerLabel,
+                "triggered event kind",
+                errors);
+        }
+    }
+
+    private static bool IsKnownTriggerSourceVisibility(string value)
+    {
+        return string.Equals(value, "VISIBLE", StringComparison.Ordinal)
+            || string.Equals(value, "HIDDEN", StringComparison.Ordinal);
     }
 
     private static bool IsKnownMatchPhase(string value)
@@ -2979,6 +3051,79 @@ public static class MatchRecoveryValidator
                 errors.Add($"{payloadLabel} {itemLabel} {normalizedValue} is duplicated");
             }
         }
+    }
+
+    private static string? ValidateSnapshotPayloadRequiredStringValue(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors,
+        Func<string, bool>? isKnownValue = null)
+    {
+        if (!TryReadObjectString(payload, key, out var value)
+            || string.IsNullOrWhiteSpace(value))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} is required");
+            return null;
+        }
+
+        var normalizedValue = value.Trim();
+        if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} {normalizedValue} has surrounding whitespace");
+        }
+
+        if (isKnownValue is not null && !isKnownValue(normalizedValue))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} {normalizedValue} is invalid");
+        }
+
+        return normalizedValue;
+    }
+
+    private static string? ValidateSnapshotPayloadOptionalStringValue(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(payload, key, out var rawValue)
+            || IsNullSnapshotPayloadValue(rawValue))
+        {
+            return null;
+        }
+
+        if (!TryReadStringValue(rawValue, out var value))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} is invalid");
+            return null;
+        }
+
+        if (value is null)
+        {
+            return null;
+        }
+
+        if (value.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} is required");
+            return null;
+        }
+
+        var normalizedValue = value.Trim();
+        if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} {normalizedValue} has surrounding whitespace");
+        }
+
+        return normalizedValue;
     }
 
     private static IEnumerable<string> EnumerateSnapshotPayloadObjectPropertyNames(object? payload)
