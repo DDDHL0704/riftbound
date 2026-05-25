@@ -7980,6 +7980,9 @@ public static class MatchRecoveryValidator
                     spectatorDamageAssignment,
                     "spectator replay frame timing battle damage assignment",
                     errors);
+                ValidateSpectatorBattleDamageAssignmentRequiredAssignmentPayloadPropertyNames(
+                    spectatorDamageAssignment,
+                    errors);
             }
 
             if (!BattleMatches(spectatorBattle, authoritativeState, authoritativeState.BattleState))
@@ -8325,6 +8328,29 @@ public static class MatchRecoveryValidator
             || spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("rngCursor"))
         {
             errors.Add("spectator replay frame timing leaks random state");
+        }
+    }
+
+    private static void ValidateSpectatorBattleDamageAssignmentRequiredAssignmentPayloadPropertyNames(
+        object? damageAssignmentPayload,
+        List<string> errors)
+    {
+        if (!TryReadObjectList(damageAssignmentPayload, "requiredAssignments", out var requiredAssignments))
+        {
+            return;
+        }
+
+        foreach (var requiredAssignment in requiredAssignments)
+        {
+            if (!IsSnapshotPlayerPayloadObject(requiredAssignment))
+            {
+                continue;
+            }
+
+            ValidateSnapshotPayloadObjectPropertyNames(
+                requiredAssignment,
+                "spectator replay frame timing battle damage assignment required assignment item",
+                errors);
         }
     }
 
