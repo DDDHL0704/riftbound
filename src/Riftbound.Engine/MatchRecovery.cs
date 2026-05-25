@@ -2455,6 +2455,12 @@ public static class MatchRecoveryValidator
             costLabel,
             "power",
             errors);
+        ValidateSnapshotPayloadRequiredPositiveIntMapValues(
+            costPayload,
+            "powerByTrait",
+            costLabel,
+            "power cost trait",
+            errors);
     }
 
     private static void ValidateSnapshotTimingPendingTaskQueuePayloadPropertyNames(
@@ -3220,6 +3226,19 @@ public static class MatchRecoveryValidator
         };
     }
 
+    private static bool IsSnapshotIntMapPayloadObject(object? payload)
+    {
+        return payload switch
+        {
+            IReadOnlyDictionary<string, object?> => true,
+            IDictionary<string, object?> => true,
+            IReadOnlyDictionary<string, int> => true,
+            IEnumerable<KeyValuePair<string, int>> => true,
+            JsonElement { ValueKind: JsonValueKind.Object } => true,
+            _ => false
+        };
+    }
+
     private static void ValidateSnapshotPayloadObjectPropertyNames(
         object? payload,
         string payloadLabel,
@@ -3345,6 +3364,47 @@ public static class MatchRecoveryValidator
         return value;
     }
 
+    private static void ValidateSnapshotPayloadRequiredPositiveIntMapValues(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(payload, key, out var mapPayload)
+            || IsNullSnapshotPayloadValue(mapPayload))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} map is required");
+            return;
+        }
+
+        if (!IsSnapshotIntMapPayloadObject(mapPayload))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} map is invalid");
+            return;
+        }
+
+        foreach (var (mapKey, rawValue) in EnumerateSnapshotPayloadObjectValues(mapPayload))
+        {
+            if (string.IsNullOrWhiteSpace(mapKey))
+            {
+                continue;
+            }
+
+            var normalizedKey = mapKey.Trim();
+            if (!TryReadIntValue(rawValue, out var value))
+            {
+                errors.Add($"{payloadLabel} {itemLabel} {normalizedKey} value is invalid");
+                continue;
+            }
+
+            if (value <= 0)
+            {
+                errors.Add($"{payloadLabel} {itemLabel} {normalizedKey} value {value} must be positive");
+            }
+        }
+    }
+
     private static string? ValidateSnapshotPayloadOptionalStringValue(
         object? payload,
         string key,
@@ -3402,6 +3462,22 @@ public static class MatchRecoveryValidator
             IReadOnlyDictionary<string, IReadOnlyList<string>> stringListDictionary => stringListDictionary.Keys,
             IEnumerable<KeyValuePair<string, IReadOnlyList<string>>> stringListPairs => stringListPairs.Select(entry => entry.Key),
             JsonElement { ValueKind: JsonValueKind.Object } json => json.EnumerateObject().Select(property => property.Name),
+            _ => []
+        };
+    }
+
+    private static IEnumerable<KeyValuePair<string, object?>> EnumerateSnapshotPayloadObjectValues(object? payload)
+    {
+        return payload switch
+        {
+            IReadOnlyDictionary<string, object?> readOnlyDictionary => readOnlyDictionary,
+            IDictionary<string, object?> dictionary => dictionary,
+            IReadOnlyDictionary<string, int> intDictionary => intDictionary.Select(entry =>
+                new KeyValuePair<string, object?>(entry.Key, entry.Value)),
+            IEnumerable<KeyValuePair<string, int>> intPairs => intPairs.Select(entry =>
+                new KeyValuePair<string, object?>(entry.Key, entry.Value)),
+            JsonElement { ValueKind: JsonValueKind.Object } json => json.EnumerateObject().Select(property =>
+                new KeyValuePair<string, object?>(property.Name, property.Value)),
             _ => []
         };
     }

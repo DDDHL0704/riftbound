@@ -2063,6 +2063,90 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingPendingPaymentPowerTraitValueDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var aliceTiming = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        aliceTiming["pendingPayment"] = RawJson("""
+            {
+                "paymentId": "payment-1",
+                "paymentWindow": "PAY_COST",
+                "playerId": "alice",
+                "cost": {
+                    "mana": 0,
+                    "power": 1,
+                    "powerByTrait": {
+                        "blue": "one",
+                        "red": 0,
+                        "green": -1
+                    }
+                },
+                "paymentChoices": [],
+                "paymentResourceActions": []
+            }
+            """);
+
+        var bob = PlayerView("bob", 0, 0);
+        var bobTiming = bob.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        bobTiming["pendingPayment"] = RawJson("""
+            {
+                "paymentId": "payment-2",
+                "paymentWindow": "PAY_COST",
+                "playerId": "bob",
+                "cost": {
+                    "mana": 0,
+                    "power": 1
+                },
+                "paymentChoices": [],
+                "paymentResourceActions": []
+            }
+            """);
+
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = aliceTiming
+                }
+            },
+            ["bob"] = bob with
+            {
+                Snapshot = bob.Snapshot with
+                {
+                    Timing = bobTiming
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending payment cost power cost trait blue value is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending payment cost power cost trait red value 0 must be positive",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending payment cost power cost trait green value -1 must be positive",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for bob timing pending payment cost power cost trait map is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingPendingPaymentListValueDrift()
     {
         var alice = PlayerView("alice", 0, 0);
