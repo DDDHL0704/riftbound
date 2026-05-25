@@ -3536,6 +3536,26 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateSnapshotPayloadRequiredBoolValue(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(payload, key, out var rawValue)
+            || IsNullSnapshotPayloadValue(rawValue))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} is required");
+            return;
+        }
+
+        if (!TryReadBoolValue(rawValue, out _))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} is invalid");
+        }
+    }
+
     private static void ValidateSnapshotPayloadRequiredPositiveIntMapValues(
         object? payload,
         string key,
@@ -9790,6 +9810,9 @@ public static class MatchRecoveryValidator
                 spectatorTurnWindow,
                 "spectator replay frame timing turn window",
                 errors);
+            ValidateSpectatorTurnWindowPayloadValues(
+                spectatorTurnWindow,
+                errors);
 
             if (!TurnWindowMatches(spectatorTurnWindow, authoritativeState.TurnWindow))
             {
@@ -10378,6 +10401,43 @@ public static class MatchRecoveryValidator
             "winnerPlayerId",
             payloadLabel,
             "winner player id",
+            errors);
+    }
+
+    private static void ValidateSpectatorTurnWindowPayloadValues(
+        object? turnWindowPayload,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing turn window";
+        ValidateSnapshotPayloadRequiredStringValue(
+            turnWindowPayload,
+            "state",
+            payloadLabel,
+            "state",
+            errors);
+        ValidateSnapshotPayloadRequiredBoolValue(
+            turnWindowPayload,
+            "isSpellDuel",
+            payloadLabel,
+            "is spell duel flag",
+            errors);
+        ValidateSnapshotPayloadRequiredBoolValue(
+            turnWindowPayload,
+            "isClosed",
+            payloadLabel,
+            "is closed flag",
+            errors);
+        ValidateSnapshotPayloadRequiredBoolValue(
+            turnWindowPayload,
+            "hasStack",
+            payloadLabel,
+            "has stack flag",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            turnWindowPayload,
+            "actingPlayerId",
+            payloadLabel,
+            "acting player id",
             errors);
     }
 
