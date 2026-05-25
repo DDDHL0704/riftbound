@@ -8409,6 +8409,216 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingContinuousEffectsMismatch()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Base = ["source-1", "target-1"]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new("source-1", ownerId: "alice", controllerId: "alice"),
+                ["target-1"] = new(
+                    "target-1",
+                    power: 5,
+                    untilEndOfTurnPowerModifier: 2,
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    untilEndOfTurnPowerModifiers:
+                    [
+                        new PowerModifierLedgerEntry(
+                            "effect-1",
+                            "TEST_POWER_MODIFIER",
+                            "UNTIL_END_OF_TURN",
+                            "target-1",
+                            "source-1",
+                            "SRC-001",
+                            powerDelta: 2,
+                            basePower: 3,
+                            effectivePower: 5,
+                            sourcePath: "test-source-path",
+                            requestedPowerDelta: 4,
+                            minimumPower: 1,
+                            resultingPower: 5,
+                            appliedOrder: 7)
+                    ])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new("alice", "BASE"),
+                ["target-1"] = new("alice", "BASE")
+            });
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var continuousEffects = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["continuousEffects"])
+            .ToArray();
+        var effect = Assert.IsType<Dictionary<string, object?>>(continuousEffects[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        Assert.Equal("FOUNDATION_ONLY", Assert.IsType<string>(effect["layerEngineStatus"]));
+        Assert.Equal(7, Assert.IsType<int>(effect["appliedOrder"]));
+
+        effect["effectId"] = "wrong-effect";
+        effect["scope"] = "WRONG_SCOPE";
+        effect["layer"] = "WRONG_LAYER";
+        effect["duration"] = "WRONG_DURATION";
+        effect["targetObjectId"] = "wrong-target";
+        effect["sourceObjectId"] = "wrong-source";
+        effect["powerDelta"] = 99;
+        effect["basePower"] = 98;
+        effect["effectivePower"] = 97;
+        effect["sequence"] = 96;
+        effect["effectKind"] = "WRONG_EFFECT_KIND";
+        effect["sourceCardNo"] = "WRONG_CARD";
+        effect["sourcePath"] = "wrong-source-path";
+        effect["layerEngineStatus"] = "WRONG_LAYER_ENGINE_STATUS";
+        effect["requestedPowerDelta"] = 95;
+        effect["appliedPowerDelta"] = 94;
+        effect["minimumPower"] = 93;
+        effect["resultingPower"] = 92;
+        effect["appliedOrder"] = 91;
+        effect["sourceOrder"] = 90;
+        effect["condition"] = "unexpected-condition";
+        effect["lifecycle"] = "unexpected-lifecycle";
+        effect["participantObjectIds"] = new[] { "unexpected-participant" };
+        effect["sourceDependencyObjectIds"] = new[] { "unexpected-source-dependency" };
+        effect["targetDependencyObjectIds"] = new[] { "unexpected-target-dependency" };
+        effect["participantDependencyObjectIds"] = new[] { "unexpected-participant-dependency" };
+        effect["deferredLayerEngineResiduals"] = new[] { "unexpected-residual" };
+        continuousEffects[0] = effect;
+        timing["continuousEffects"] = continuousEffects;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect ids disagree with authoritative state continuous effect ids", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect scopes disagree with authoritative state continuous effect scopes", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect layers disagree with authoritative state continuous effect layers", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect durations disagree with authoritative state continuous effect durations", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect target objects disagree with authoritative state continuous effect target objects", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect source objects disagree with authoritative state continuous effect source objects", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect power deltas disagree with authoritative state continuous effect power deltas", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect base powers disagree with authoritative state continuous effect base powers", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect effective powers disagree with authoritative state continuous effect effective powers", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect sequences disagree with authoritative state continuous effect sequences", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect kinds disagree with authoritative state continuous effect kinds", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect source card numbers disagree with authoritative state continuous effect source card numbers", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect source paths disagree with authoritative state continuous effect source paths", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect layer engine statuses disagree with authoritative state continuous effect layer engine statuses", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect requested power deltas disagree with authoritative state continuous effect requested power deltas", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect applied power deltas disagree with authoritative state continuous effect applied power deltas", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect minimum powers disagree with authoritative state continuous effect minimum powers", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect resulting powers disagree with authoritative state continuous effect resulting powers", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect applied orders disagree with authoritative state continuous effect applied orders", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect source orders disagree with authoritative state continuous effect source orders", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect conditions disagree with authoritative state continuous effect conditions", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect lifecycles disagree with authoritative state continuous effect lifecycles", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect participant object ids disagree with authoritative state continuous effect participant object ids", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect source dependency object ids disagree with authoritative state continuous effect source dependency object ids", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect target dependency object ids disagree with authoritative state continuous effect target dependency object ids", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect participant dependency object ids disagree with authoritative state continuous effect participant dependency object ids", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effect deferred LayerEngine residuals disagree with authoritative state continuous effect deferred LayerEngine residuals", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourcesMismatch()
     {
         var authoritativeState = new MatchState(

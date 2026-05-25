@@ -3543,6 +3543,416 @@ public static class MatchRecoveryValidator
             powerCostByTrait);
     }
 
+    private static void ValidateSpectatorContinuousEffectPayloads(
+        IReadOnlyDictionary<string, object?> timing,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        if (!TryReadObjectList(timing, "continuousEffects", out var spectatorEffects))
+        {
+            errors.Add("spectator replay frame timing continuous effects are required");
+            return;
+        }
+
+        var authoritativeEffects = authoritativeState.ContinuousEffects;
+        if (spectatorEffects.Count != authoritativeEffects.Count)
+        {
+            errors.Add(
+                $"spectator replay frame timing continuous effect count {spectatorEffects.Count} does not match authoritative state continuous effect count {authoritativeEffects.Count}");
+            return;
+        }
+
+        var effectIdsMatch = true;
+        var scopesMatch = true;
+        var layersMatch = true;
+        var durationsMatch = true;
+        var targetObjectIdsMatch = true;
+        var sourceObjectIdsMatch = true;
+        var powerDeltasMatch = true;
+        var basePowersMatch = true;
+        var effectivePowersMatch = true;
+        var sequencesMatch = true;
+        var effectKindsMatch = true;
+        var sourceCardNumbersMatch = true;
+        var sourcePathsMatch = true;
+        var layerEngineStatusesMatch = true;
+        var requestedPowerDeltasMatch = true;
+        var appliedPowerDeltasMatch = true;
+        var minimumPowersMatch = true;
+        var resultingPowersMatch = true;
+        var appliedOrdersMatch = true;
+        var sourceOrdersMatch = true;
+        var conditionsMatch = true;
+        var lifecyclesMatch = true;
+        var participantObjectIdsMatch = true;
+        var sourceDependencyObjectIdsMatch = true;
+        var targetDependencyObjectIdsMatch = true;
+        var participantDependencyObjectIdsMatch = true;
+        var deferredLayerEngineResidualsMatch = true;
+
+        for (var index = 0; index < authoritativeEffects.Count; index++)
+        {
+            var spectatorEffect = spectatorEffects[index];
+            if (!IsSnapshotPlayerPayloadObject(spectatorEffect))
+            {
+                errors.Add("spectator replay frame timing continuous effect payload is required");
+                return;
+            }
+
+            var authoritativeEffect = authoritativeEffects[index];
+            if (!TryReadObjectString(spectatorEffect, "effectId", out var effectId)
+                || !string.Equals(effectId, authoritativeEffect.EffectId, StringComparison.Ordinal))
+            {
+                effectIdsMatch = false;
+            }
+
+            if (!TryReadObjectString(spectatorEffect, "scope", out var scope)
+                || !string.Equals(scope, authoritativeEffect.Scope, StringComparison.Ordinal))
+            {
+                scopesMatch = false;
+            }
+
+            if (!TryReadObjectString(spectatorEffect, "layer", out var layer)
+                || !string.Equals(layer, authoritativeEffect.Layer, StringComparison.Ordinal))
+            {
+                layersMatch = false;
+            }
+
+            if (!TryReadObjectString(spectatorEffect, "duration", out var duration)
+                || !string.Equals(duration, authoritativeEffect.Duration, StringComparison.Ordinal))
+            {
+                durationsMatch = false;
+            }
+
+            if (!TryReadObjectValue(spectatorEffect, "targetObjectId", out var targetObjectIdPayload)
+                || !TryReadOptionalStringValue(targetObjectIdPayload, out var targetObjectId)
+                || !string.Equals(
+                    targetObjectId,
+                    authoritativeEffect.TargetObjectId ?? string.Empty,
+                    StringComparison.Ordinal))
+            {
+                targetObjectIdsMatch = false;
+            }
+
+            if (!TryReadObjectValue(spectatorEffect, "sourceObjectId", out var sourceObjectIdPayload)
+                || !TryReadOptionalStringValue(sourceObjectIdPayload, out var sourceObjectId)
+                || !string.Equals(
+                    sourceObjectId,
+                    authoritativeEffect.SourceObjectId ?? string.Empty,
+                    StringComparison.Ordinal))
+            {
+                sourceObjectIdsMatch = false;
+            }
+
+            if (!TryReadObjectInt(spectatorEffect, "powerDelta", out var powerDelta)
+                || powerDelta != authoritativeEffect.PowerDelta)
+            {
+                powerDeltasMatch = false;
+            }
+
+            if (!TryReadObjectInt(spectatorEffect, "basePower", out var basePower)
+                || basePower != authoritativeEffect.BasePower)
+            {
+                basePowersMatch = false;
+            }
+
+            if (!TryReadObjectInt(spectatorEffect, "effectivePower", out var effectivePower)
+                || effectivePower != authoritativeEffect.EffectivePower)
+            {
+                effectivePowersMatch = false;
+            }
+
+            if (!TryReadObjectInt(spectatorEffect, "sequence", out var sequence)
+                || sequence != authoritativeEffect.Sequence)
+            {
+                sequencesMatch = false;
+            }
+
+            if (!OptionalStringSnapshotValueMatches(spectatorEffect, "effectKind", authoritativeEffect.EffectKind))
+            {
+                effectKindsMatch = false;
+            }
+
+            if (!OptionalStringSnapshotValueMatches(spectatorEffect, "sourceCardNo", authoritativeEffect.SourceCardNo))
+            {
+                sourceCardNumbersMatch = false;
+            }
+
+            if (!OptionalStringSnapshotValueMatches(spectatorEffect, "sourcePath", authoritativeEffect.SourcePath))
+            {
+                sourcePathsMatch = false;
+            }
+
+            if (!OptionalStringSnapshotValueMatches(
+                    spectatorEffect,
+                    "layerEngineStatus",
+                    authoritativeEffect.IsLayerEngineFoundationOnly ? "FOUNDATION_ONLY" : null))
+            {
+                layerEngineStatusesMatch = false;
+            }
+
+            if (!OptionalIntSnapshotValueMatches(
+                    spectatorEffect,
+                    "requestedPowerDelta",
+                    authoritativeEffect.RequestedPowerDelta))
+            {
+                requestedPowerDeltasMatch = false;
+            }
+
+            if (!OptionalIntSnapshotValueMatches(
+                    spectatorEffect,
+                    "appliedPowerDelta",
+                    authoritativeEffect.AppliedPowerDelta))
+            {
+                appliedPowerDeltasMatch = false;
+            }
+
+            if (!OptionalIntSnapshotValueMatches(spectatorEffect, "minimumPower", authoritativeEffect.MinimumPower))
+            {
+                minimumPowersMatch = false;
+            }
+
+            if (!OptionalIntSnapshotValueMatches(spectatorEffect, "resultingPower", authoritativeEffect.ResultingPower))
+            {
+                resultingPowersMatch = false;
+            }
+
+            if (!OptionalIntSnapshotValueMatches(spectatorEffect, "appliedOrder", authoritativeEffect.AppliedOrder))
+            {
+                appliedOrdersMatch = false;
+            }
+
+            if (!OptionalIntSnapshotValueMatches(spectatorEffect, "sourceOrder", authoritativeEffect.SourceOrder))
+            {
+                sourceOrdersMatch = false;
+            }
+
+            if (!OptionalStringSnapshotValueMatches(spectatorEffect, "condition", authoritativeEffect.Condition))
+            {
+                conditionsMatch = false;
+            }
+
+            if (!OptionalStringSnapshotValueMatches(spectatorEffect, "lifecycle", authoritativeEffect.Lifecycle))
+            {
+                lifecyclesMatch = false;
+            }
+
+            if (!OptionalStringListSnapshotValueMatches(
+                    spectatorEffect,
+                    "participantObjectIds",
+                    authoritativeEffect.ParticipantObjectIds))
+            {
+                participantObjectIdsMatch = false;
+            }
+
+            if (!OptionalStringListSnapshotValueMatches(
+                    spectatorEffect,
+                    "sourceDependencyObjectIds",
+                    authoritativeEffect.SourceDependencyObjectIds))
+            {
+                sourceDependencyObjectIdsMatch = false;
+            }
+
+            if (!OptionalStringListSnapshotValueMatches(
+                    spectatorEffect,
+                    "targetDependencyObjectIds",
+                    authoritativeEffect.TargetDependencyObjectIds))
+            {
+                targetDependencyObjectIdsMatch = false;
+            }
+
+            if (!OptionalStringListSnapshotValueMatches(
+                    spectatorEffect,
+                    "participantDependencyObjectIds",
+                    authoritativeEffect.ParticipantDependencyObjectIds))
+            {
+                participantDependencyObjectIdsMatch = false;
+            }
+
+            if (!OptionalStringListSnapshotValueMatches(
+                    spectatorEffect,
+                    "deferredLayerEngineResiduals",
+                    authoritativeEffect.DeferredLayerEngineResiduals))
+            {
+                deferredLayerEngineResidualsMatch = false;
+            }
+        }
+
+        if (!effectIdsMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect ids disagree with authoritative state continuous effect ids");
+        }
+
+        if (!scopesMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect scopes disagree with authoritative state continuous effect scopes");
+        }
+
+        if (!layersMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect layers disagree with authoritative state continuous effect layers");
+        }
+
+        if (!durationsMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect durations disagree with authoritative state continuous effect durations");
+        }
+
+        if (!targetObjectIdsMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect target objects disagree with authoritative state continuous effect target objects");
+        }
+
+        if (!sourceObjectIdsMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect source objects disagree with authoritative state continuous effect source objects");
+        }
+
+        if (!powerDeltasMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect power deltas disagree with authoritative state continuous effect power deltas");
+        }
+
+        if (!basePowersMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect base powers disagree with authoritative state continuous effect base powers");
+        }
+
+        if (!effectivePowersMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect effective powers disagree with authoritative state continuous effect effective powers");
+        }
+
+        if (!sequencesMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect sequences disagree with authoritative state continuous effect sequences");
+        }
+
+        if (!effectKindsMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect kinds disagree with authoritative state continuous effect kinds");
+        }
+
+        if (!sourceCardNumbersMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect source card numbers disagree with authoritative state continuous effect source card numbers");
+        }
+
+        if (!sourcePathsMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect source paths disagree with authoritative state continuous effect source paths");
+        }
+
+        if (!layerEngineStatusesMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect layer engine statuses disagree with authoritative state continuous effect layer engine statuses");
+        }
+
+        if (!requestedPowerDeltasMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect requested power deltas disagree with authoritative state continuous effect requested power deltas");
+        }
+
+        if (!appliedPowerDeltasMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect applied power deltas disagree with authoritative state continuous effect applied power deltas");
+        }
+
+        if (!minimumPowersMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect minimum powers disagree with authoritative state continuous effect minimum powers");
+        }
+
+        if (!resultingPowersMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect resulting powers disagree with authoritative state continuous effect resulting powers");
+        }
+
+        if (!appliedOrdersMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect applied orders disagree with authoritative state continuous effect applied orders");
+        }
+
+        if (!sourceOrdersMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect source orders disagree with authoritative state continuous effect source orders");
+        }
+
+        if (!conditionsMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect conditions disagree with authoritative state continuous effect conditions");
+        }
+
+        if (!lifecyclesMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect lifecycles disagree with authoritative state continuous effect lifecycles");
+        }
+
+        if (!participantObjectIdsMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect participant object ids disagree with authoritative state continuous effect participant object ids");
+        }
+
+        if (!sourceDependencyObjectIdsMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect source dependency object ids disagree with authoritative state continuous effect source dependency object ids");
+        }
+
+        if (!targetDependencyObjectIdsMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect target dependency object ids disagree with authoritative state continuous effect target dependency object ids");
+        }
+
+        if (!participantDependencyObjectIdsMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect participant dependency object ids disagree with authoritative state continuous effect participant dependency object ids");
+        }
+
+        if (!deferredLayerEngineResidualsMatch)
+        {
+            errors.Add("spectator replay frame timing continuous effect deferred LayerEngine residuals disagree with authoritative state continuous effect deferred LayerEngine residuals");
+        }
+    }
+
+    private static bool OptionalStringSnapshotValueMatches(object? payload, string key, string? expected)
+    {
+        var expectedText = expected ?? string.Empty;
+        if (!TryReadObjectValue(payload, key, out var value))
+        {
+            return string.IsNullOrEmpty(expectedText);
+        }
+
+        return TryReadOptionalStringValue(value, out var actual)
+            && string.Equals(actual, expectedText, StringComparison.Ordinal);
+    }
+
+    private static bool OptionalIntSnapshotValueMatches(object? payload, string key, int? expected)
+    {
+        if (!TryReadObjectValue(payload, key, out var value))
+        {
+            return !expected.HasValue;
+        }
+
+        return expected.HasValue
+            && TryReadIntValue(value, out var actual)
+            && actual == expected.Value;
+    }
+
+    private static bool OptionalStringListSnapshotValueMatches(
+        object? payload,
+        string key,
+        IReadOnlyList<string>? expected)
+    {
+        IReadOnlyList<string> expectedValues = expected ?? [];
+        if (!TryReadObjectValue(payload, key, out var value))
+        {
+            return expectedValues.Count == 0;
+        }
+
+        return TryReadStringListValue(value, out var actual)
+            && StringListsEqual(actual, expectedValues);
+    }
+
     private static void ValidateSpectatorTemporaryPaymentResourcePayloads(
         IReadOnlyDictionary<string, object?> timing,
         MatchState authoritativeState,
@@ -6774,6 +7184,7 @@ public static class MatchRecoveryValidator
         ValidateSpectatorPendingTaskQueuePayload(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
         ValidateSpectatorPendingPaymentPayload(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
         ValidateSpectatorPendingHandChoicePayload(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
+        ValidateSpectatorContinuousEffectPayloads(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
         ValidateSpectatorTemporaryPaymentResourcePayloads(
             spectatorReplayFrame.SpectatorSnapshot.Timing,
             authoritativeState,
