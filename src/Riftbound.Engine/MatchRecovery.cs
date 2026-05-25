@@ -2077,6 +2077,22 @@ public static class MatchRecoveryValidator
             ValidateSnapshotTimingAllowedString(view, "phase", "phase", IsKnownMatchPhase, errors);
             ValidateSnapshotTimingRequiredString(view, "turnPlayerId", "turn player", errors);
             ValidateSnapshotTimingAllowedString(view, "roomStatus", "room status", IsKnownMatchStatus, errors);
+            ValidateSnapshotTimingObjectPayloadPropertyNames(
+                view,
+                "turnWindow",
+                "turn window",
+                errors);
+            ValidateSnapshotTimingObjectPayloadPropertyNames(
+                view,
+                "spellDuel",
+                "spell duel",
+                errors);
+            ValidateSnapshotTimingObjectPayloadPropertyNames(
+                view,
+                "battle",
+                "battle",
+                errors);
+            ValidateSnapshotTimingBattleDamageAssignmentPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingListItemPayloadPropertyNames(
                 view,
                 "continuousEffects",
@@ -2098,6 +2114,44 @@ public static class MatchRecoveryValidator
                 "battle resolution",
                 errors);
         }
+    }
+
+    private static void ValidateSnapshotTimingObjectPayloadPropertyNames(
+        RecoveredPlayerView view,
+        string key,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectValue(view.Snapshot.Timing, key, out var payload)
+            || !IsSnapshotPlayerPayloadObject(payload))
+        {
+            return;
+        }
+
+        ValidateSnapshotPayloadObjectPropertyNames(
+            payload,
+            $"snapshot for {view.PlayerId} timing {payloadLabel}",
+            errors);
+    }
+
+    private static void ValidateSnapshotTimingBattleDamageAssignmentPayloadPropertyNames(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectValue(view.Snapshot.Timing, "battle", out var battlePayload)
+            || !IsSnapshotPlayerPayloadObject(battlePayload)
+            || !TryReadObjectValue(battlePayload, "damageAssignment", out var damageAssignmentPayload)
+            || !IsSnapshotPlayerPayloadObject(damageAssignmentPayload))
+        {
+            return;
+        }
+
+        ValidateSnapshotPayloadObjectPropertyNames(
+            damageAssignmentPayload,
+            $"snapshot for {view.PlayerId} timing battle damage assignment",
+            errors);
     }
 
     private static void ValidateSnapshotTimingRequiredString(
