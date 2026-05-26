@@ -2106,6 +2106,7 @@ public static class MatchRecoveryValidator
             ValidateSnapshotTimingPendingPaymentListPayloadValues(view, errors);
             ValidateSnapshotTimingPendingTaskQueuePayloadPropertyNames(view, errors);
             ValidateSnapshotTimingPendingTaskQueueTaskPayloadShapes(view, errors);
+            ValidateSnapshotTimingPendingTaskQueueMetadataPayloadShape(view, errors);
             ValidateSnapshotTimingPendingTaskQueuePayloadValues(view, errors);
             ValidateSnapshotTimingObjectPayloadPropertyNames(
                 view,
@@ -2654,6 +2655,25 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"snapshot for {view.PlayerId} timing pending task queue task payload is required");
             }
+        }
+    }
+
+    private static void ValidateSnapshotTimingPendingTaskQueueMetadataPayloadShape(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectValue(view.Snapshot.Timing, "pendingTaskQueue", out var queuePayload)
+            || !IsSnapshotPlayerPayloadObject(queuePayload)
+            || !TryReadObjectValue(queuePayload, "metadata", out var metadataPayload)
+            || IsNullSnapshotPayloadValue(metadataPayload))
+        {
+            return;
+        }
+
+        if (!IsSnapshotPlayerPayloadObject(metadataPayload))
+        {
+            errors.Add($"snapshot for {view.PlayerId} timing pending task queue metadata payload is required");
         }
     }
 
