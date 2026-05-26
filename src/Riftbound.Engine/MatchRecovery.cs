@@ -3731,6 +3731,25 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateSnapshotPayloadOptionalBoolValue(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(payload, key, out var rawValue)
+            || IsNullSnapshotPayloadValue(rawValue))
+        {
+            return;
+        }
+
+        if (!TryReadBoolValue(rawValue, out _))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} is invalid");
+        }
+    }
+
     private static void ValidateSnapshotPayloadRequiredPositiveIntMapValues(
         object? payload,
         string key,
@@ -5230,6 +5249,7 @@ public static class MatchRecoveryValidator
             queuePayload,
             "spectator replay frame timing pending task queue",
             errors);
+        ValidateSpectatorPendingTaskQueuePayloadValues(queuePayload, errors);
 
         var authoritativeQueue = authoritativeState.PendingTaskQueue;
         if (!TryReadObjectBool(queuePayload, "hasTasks", out var hasTasks)
@@ -5282,6 +5302,7 @@ public static class MatchRecoveryValidator
             metadataPayload,
             "spectator replay frame timing pending task queue metadata",
             errors);
+        ValidateSpectatorPendingTaskQueueMetadataPayloadValues(metadataPayload, errors);
 
         if (!TryReadObjectInt(metadataPayload, "taskCount", out var taskCount)
             || taskCount != authoritativeQueue.Tasks.Count)
@@ -5314,6 +5335,7 @@ public static class MatchRecoveryValidator
                 taskPayload,
                 "spectator replay frame timing pending task queue task item",
                 errors);
+            ValidateSpectatorPendingTaskQueueTaskPayloadValues(taskPayload, errors);
         }
 
         if (!StringListsEqual(
@@ -5411,6 +5433,123 @@ public static class MatchRecoveryValidator
         {
             errors.Add("spectator replay frame timing pending task queue task hidden object kinds do not match authoritative state pending task queue task hidden object kinds");
         }
+    }
+
+    private static void ValidateSpectatorPendingTaskQueuePayloadValues(
+        object? queuePayload,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing pending task queue";
+        ValidateSnapshotPayloadRequiredBoolValue(
+            queuePayload,
+            "hasTasks",
+            payloadLabel,
+            "has tasks flag",
+            errors);
+        ValidateSnapshotPayloadRequiredBoolValue(
+            queuePayload,
+            "isBlocking",
+            payloadLabel,
+            "blocking flag",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            queuePayload,
+            "phase",
+            payloadLabel,
+            "phase",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            queuePayload,
+            "activeTaskId",
+            payloadLabel,
+            "active task id",
+            errors);
+
+        if (!TryReadObjectValue(queuePayload, "tasks", out var tasksPayload)
+            || IsNullSnapshotPayloadValue(tasksPayload))
+        {
+            errors.Add($"{payloadLabel} task list is required");
+            return;
+        }
+
+        if (!TryReadObjectListValue(tasksPayload, out _))
+        {
+            errors.Add($"{payloadLabel} task list is invalid");
+        }
+    }
+
+    private static void ValidateSpectatorPendingTaskQueueMetadataPayloadValues(
+        object? metadataPayload,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing pending task queue metadata";
+        ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+            metadataPayload,
+            "taskCount",
+            payloadLabel,
+            "task count",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListValues(
+            metadataPayload,
+            "stateBasedTaskKinds",
+            payloadLabel,
+            "state-based task kind",
+            errors);
+    }
+
+    private static void ValidateSpectatorPendingTaskQueueTaskPayloadValues(
+        object? taskPayload,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing pending task queue task item";
+        ValidateSnapshotPayloadRequiredStringValue(
+            taskPayload,
+            "taskId",
+            payloadLabel,
+            "task id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            taskPayload,
+            "kind",
+            payloadLabel,
+            "kind",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            taskPayload,
+            "reason",
+            payloadLabel,
+            "reason",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            taskPayload,
+            "playerId",
+            payloadLabel,
+            "player id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            taskPayload,
+            "battlefieldObjectId",
+            payloadLabel,
+            "battlefield object id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            taskPayload,
+            "objectId",
+            payloadLabel,
+            "object id",
+            errors);
+        ValidateSnapshotPayloadOptionalBoolValue(
+            taskPayload,
+            "hiddenObject",
+            payloadLabel,
+            "hidden object flag",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            taskPayload,
+            "hiddenObjectKind",
+            payloadLabel,
+            "hidden object kind",
+            errors);
     }
 
     private static string ExpectedSpectatorPendingTaskQueueActiveTaskId(MatchState authoritativeState)
