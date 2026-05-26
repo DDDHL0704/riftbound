@@ -2125,6 +2125,11 @@ public static class MatchRecoveryValidator
             ValidateSnapshotTimingPendingTaskQueueTaskPayloadShapes(view, errors);
             ValidateSnapshotTimingPendingTaskQueueMetadataPayloadShape(view, errors);
             ValidateSnapshotTimingPendingTaskQueuePayloadValues(view, errors);
+            ValidateSnapshotTimingObjectPayloadShape(
+                view,
+                "pendingHandChoice",
+                "pending hand choice",
+                errors);
             ValidateSnapshotTimingObjectPayloadPropertyNames(
                 view,
                 "pendingHandChoice",
