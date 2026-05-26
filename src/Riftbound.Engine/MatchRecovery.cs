@@ -9974,6 +9974,10 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame snapshot seats disagree with authoritative state seats");
         }
 
+        ValidateSpectatorCoreTimingPayloadValues(
+            spectatorReplayFrame.SpectatorSnapshot.Timing,
+            errors);
+
         if (!TryReadString(
                 spectatorReplayFrame.SpectatorSnapshot.Timing,
                 "phase",
@@ -10712,6 +10716,52 @@ public static class MatchRecoveryValidator
             "winnerPlayerId",
             payloadLabel,
             "winner player id",
+            errors);
+    }
+
+    private static void ValidateSpectatorCoreTimingPayloadValues(
+        IReadOnlyDictionary<string, object?> timing,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing";
+        ValidateSnapshotPayloadRequiredStringValue(
+            timing,
+            "phase",
+            payloadLabel,
+            "phase",
+            errors,
+            IsKnownMatchPhase);
+        ValidateSnapshotPayloadRequiredStringValue(
+            timing,
+            "timingState",
+            payloadLabel,
+            "timing state",
+            errors,
+            IsKnownTimingState);
+        ValidateSnapshotPayloadRequiredStringValue(
+            timing,
+            "turnPlayerId",
+            payloadLabel,
+            "turn player id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            timing,
+            "roomStatus",
+            payloadLabel,
+            "room status",
+            errors,
+            IsKnownMatchStatus);
+        ValidateSnapshotPayloadRequiredStringListValues(
+            timing,
+            "readyPlayerIds",
+            payloadLabel,
+            "ready player id",
+            errors);
+        ValidateSnapshotPayloadRequiredPositiveIntValue(
+            timing,
+            "winningScore",
+            payloadLabel,
+            "winning score",
             errors);
     }
 
