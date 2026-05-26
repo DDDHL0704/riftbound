@@ -3519,6 +3519,11 @@ public static class MatchRecoveryValidator
                 playerPayload,
                 $"snapshot for {view.PlayerId} player {snapshotPlayerId}",
                 errors);
+            ValidateSnapshotPlayerRunePoolPayloadShape(
+                view,
+                snapshotPlayerId,
+                playerPayload,
+                errors);
             ValidateSnapshotPlayerRunePoolPayloadPropertyNames(
                 view,
                 snapshotPlayerId,
@@ -3586,6 +3591,24 @@ public static class MatchRecoveryValidator
                 errors.Add(
                     $"snapshot for {view.PlayerId} player {snapshotPlayerId} seat {normalizedSeat} is duplicated");
             }
+        }
+    }
+
+    private static void ValidateSnapshotPlayerRunePoolPayloadShape(
+        RecoveredPlayerView view,
+        string snapshotPlayerId,
+        object? playerPayload,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(playerPayload, "runePool", out var runePoolPayload)
+            || IsNullSnapshotPayloadValue(runePoolPayload))
+        {
+            return;
+        }
+
+        if (!IsSnapshotPlayerPayloadObject(runePoolPayload))
+        {
+            errors.Add($"snapshot for {view.PlayerId} player {snapshotPlayerId} rune pool payload is required");
         }
     }
 
