@@ -2148,6 +2148,7 @@ public static class MatchRecoveryValidator
                 "battleResolutions",
                 "battle resolution",
                 errors);
+            ValidateSnapshotTimingResolutionHistoryScalarPayloadValues(view, errors);
             ValidateSnapshotTimingResolutionHistoryListPayloadValues(view, errors);
         }
     }
@@ -3055,6 +3056,50 @@ public static class MatchRecoveryValidator
                 "createdTick",
                 payloadLabel,
                 "created tick",
+                errors);
+        }
+    }
+
+    private static void ValidateSnapshotTimingResolutionHistoryScalarPayloadValues(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null)
+        {
+            return;
+        }
+
+        if (TryReadObjectList(view.Snapshot.Timing, "battlefieldResolutions", out var battlefieldResolutionPayloads))
+        {
+            foreach (var resolutionPayload in battlefieldResolutionPayloads)
+            {
+                if (!IsSnapshotPlayerPayloadObject(resolutionPayload))
+                {
+                    continue;
+                }
+
+                ValidateBattlefieldResolutionPayloadValues(
+                    resolutionPayload,
+                    $"snapshot for {view.PlayerId} timing battlefield resolution item",
+                    errors);
+            }
+        }
+
+        if (!TryReadObjectList(view.Snapshot.Timing, "battleResolutions", out var battleResolutionPayloads))
+        {
+            return;
+        }
+
+        foreach (var resolutionPayload in battleResolutionPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(resolutionPayload))
+            {
+                continue;
+            }
+
+            ValidateBattleResolutionPayloadValues(
+                resolutionPayload,
+                $"snapshot for {view.PlayerId} timing battle resolution item",
                 errors);
         }
     }
@@ -10942,6 +10987,14 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing battlefield resolution item";
+        ValidateBattlefieldResolutionPayloadValues(resolutionPayload, payloadLabel, errors);
+    }
+
+    private static void ValidateBattlefieldResolutionPayloadValues(
+        object? resolutionPayload,
+        string payloadLabel,
+        List<string> errors)
+    {
         ValidateSnapshotPayloadRequiredStringValue(
             resolutionPayload,
             "resolutionId",
@@ -11046,6 +11099,14 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing battle resolution item";
+        ValidateBattleResolutionPayloadValues(resolutionPayload, payloadLabel, errors);
+    }
+
+    private static void ValidateBattleResolutionPayloadValues(
+        object? resolutionPayload,
+        string payloadLabel,
+        List<string> errors)
+    {
         ValidateSnapshotPayloadRequiredStringValue(
             resolutionPayload,
             "resolutionId",
