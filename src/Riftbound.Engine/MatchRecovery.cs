@@ -2099,6 +2099,7 @@ public static class MatchRecoveryValidator
             ValidateSnapshotTimingBattleDamageAssignmentPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingBattleDamageAssignmentMapPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingBattleDamageAssignmentRequiredAssignmentPayloadPropertyNames(view, errors);
+            ValidateSnapshotTimingBattleDamageAssignmentPayloadValues(view, errors);
             ValidateSnapshotTimingPaymentPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingPaymentPowerTraitPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingPendingPaymentScalarPayloadValues(view, errors);
@@ -2255,6 +2256,44 @@ public static class MatchRecoveryValidator
         ValidateSnapshotPayloadObjectPropertyNames(
             damageAssignmentPayload,
             $"snapshot for {view.PlayerId} timing battle damage assignment",
+            errors);
+    }
+
+    private static void ValidateSnapshotTimingBattleDamageAssignmentPayloadValues(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectValue(view.Snapshot.Timing, "battle", out var battlePayload)
+            || !IsSnapshotPlayerPayloadObject(battlePayload)
+            || !TryReadObjectValue(battlePayload, "damageAssignment", out var damageAssignmentPayload)
+            || IsNullSnapshotPayloadValue(damageAssignmentPayload))
+        {
+            return;
+        }
+
+        const string payloadSuffix = "timing battle damage assignment";
+        var payloadLabel = $"snapshot for {view.PlayerId} {payloadSuffix}";
+        if (!IsSnapshotPlayerPayloadObject(damageAssignmentPayload))
+        {
+            errors.Add($"{payloadLabel} payload is invalid");
+            return;
+        }
+
+        ValidateSnapshotPayloadRequiredBoolValue(
+            damageAssignmentPayload,
+            "isPending",
+            payloadLabel,
+            "pending flag",
+            errors);
+
+        var shouldValidatePendingFields =
+            (TryReadObjectBool(damageAssignmentPayload, "isPending", out var isPending) && isPending)
+            || HasBattleDamageAssignmentPendingFields(damageAssignmentPayload);
+        ValidateBattleDamageAssignmentPendingPayloadValues(
+            damageAssignmentPayload,
+            payloadLabel,
+            shouldValidatePendingFields,
             errors);
     }
 
@@ -11340,6 +11379,32 @@ public static class MatchRecoveryValidator
 
         var shouldValidatePendingFields = ResolutionResult.HasOpenBattleDamageAssignmentWindow(authoritativeState)
             || (TryReadObjectBool(damageAssignmentPayload, "isPending", out var isPending) && isPending);
+        ValidateBattleDamageAssignmentPendingPayloadValues(
+            damageAssignmentPayload,
+            payloadLabel,
+            shouldValidatePendingFields,
+            errors);
+    }
+
+    private static bool HasBattleDamageAssignmentPendingFields(object? damageAssignmentPayload)
+    {
+        return TryReadObjectValue(damageAssignmentPayload, "phase", out _)
+            || TryReadObjectValue(damageAssignmentPayload, "battleId", out _)
+            || TryReadObjectValue(damageAssignmentPayload, "battlefieldId", out _)
+            || TryReadObjectValue(damageAssignmentPayload, "assigningPlayerId", out _)
+            || TryReadObjectValue(damageAssignmentPayload, "damagePool", out _)
+            || TryReadObjectValue(damageAssignmentPayload, "legalTargets", out _)
+            || TryReadObjectValue(damageAssignmentPayload, "existingDamage", out _)
+            || TryReadObjectValue(damageAssignmentPayload, "lethalDamageThreshold", out _)
+            || TryReadObjectValue(damageAssignmentPayload, "requiredAssignments", out _);
+    }
+
+    private static void ValidateBattleDamageAssignmentPendingPayloadValues(
+        object? damageAssignmentPayload,
+        string payloadLabel,
+        bool shouldValidatePendingFields,
+        List<string> errors)
+    {
         if (!shouldValidatePendingFields)
         {
             return;
@@ -11395,16 +11460,17 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "lethal damage threshold",
             errors);
-        ValidateSpectatorBattleDamageAssignmentRequiredAssignmentValues(
+        ValidateBattleDamageAssignmentRequiredAssignmentValues(
             damageAssignmentPayload,
+            $"{payloadLabel} required assignment",
             errors);
     }
 
-    private static void ValidateSpectatorBattleDamageAssignmentRequiredAssignmentValues(
+    private static void ValidateBattleDamageAssignmentRequiredAssignmentValues(
         object? damageAssignmentPayload,
+        string payloadLabel,
         List<string> errors)
     {
-        const string payloadLabel = "spectator replay frame timing battle damage assignment required assignment";
         if (!TryReadObjectValue(damageAssignmentPayload, "requiredAssignments", out var requiredAssignmentsPayload)
             || IsNullSnapshotPayloadValue(requiredAssignmentsPayload))
         {
@@ -11426,17 +11492,18 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            ValidateSpectatorBattleDamageAssignmentRequiredAssignmentItemValues(
+            ValidateBattleDamageAssignmentRequiredAssignmentItemValues(
                 requiredAssignment,
+                $"{payloadLabel} item",
                 errors);
         }
     }
 
-    private static void ValidateSpectatorBattleDamageAssignmentRequiredAssignmentItemValues(
+    private static void ValidateBattleDamageAssignmentRequiredAssignmentItemValues(
         object? requiredAssignmentPayload,
+        string payloadLabel,
         List<string> errors)
     {
-        const string payloadLabel = "spectator replay frame timing battle damage assignment required assignment item";
         ValidateSnapshotPayloadRequiredStringValue(
             requiredAssignmentPayload,
             "sourceObjectId",
