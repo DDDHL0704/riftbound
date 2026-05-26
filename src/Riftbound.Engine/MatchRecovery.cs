@@ -2099,6 +2099,11 @@ public static class MatchRecoveryValidator
                 "spell duel",
                 errors);
             ValidateSnapshotTimingSpellDuelPayloadValues(view, errors);
+            ValidateSnapshotTimingObjectPayloadShape(
+                view,
+                "battle",
+                "battle",
+                errors);
             ValidateSnapshotTimingObjectPayloadPropertyNames(
                 view,
                 "battle",
