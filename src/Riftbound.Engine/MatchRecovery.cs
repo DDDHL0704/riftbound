@@ -3534,6 +3534,11 @@ public static class MatchRecoveryValidator
                 snapshotPlayerId,
                 playerPayload,
                 errors);
+            ValidateSnapshotPlayerZonesPayloadShape(
+                view,
+                snapshotPlayerId,
+                playerPayload,
+                errors);
             ValidateSnapshotPlayerZonesPayloadPropertyNames(
                 view,
                 snapshotPlayerId,
@@ -3647,6 +3652,24 @@ public static class MatchRecoveryValidator
             powerByTraitPayload,
             $"snapshot for {view.PlayerId} player {snapshotPlayerId} rune pool power by trait",
             errors);
+    }
+
+    private static void ValidateSnapshotPlayerZonesPayloadShape(
+        RecoveredPlayerView view,
+        string snapshotPlayerId,
+        object? playerPayload,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(playerPayload, "zones", out var zonesPayload)
+            || IsNullSnapshotPayloadValue(zonesPayload))
+        {
+            return;
+        }
+
+        if (!IsSnapshotPlayerPayloadObject(zonesPayload))
+        {
+            errors.Add($"snapshot for {view.PlayerId} player {snapshotPlayerId} zones payload is required");
+        }
     }
 
     private static void ValidateSnapshotPlayerZonesPayloadPropertyNames(
