@@ -3544,6 +3544,11 @@ public static class MatchRecoveryValidator
                 snapshotPlayerId,
                 playerPayload,
                 errors);
+            ValidateSnapshotPlayerObjectsPayloadShape(
+                view,
+                snapshotPlayerId,
+                playerPayload,
+                errors);
             ValidateSnapshotPlayerObjectsPayloadPropertyNames(
                 view,
                 snapshotPlayerId,
@@ -3688,6 +3693,24 @@ public static class MatchRecoveryValidator
             zonesPayload,
             $"snapshot for {view.PlayerId} player {snapshotPlayerId} zones",
             errors);
+    }
+
+    private static void ValidateSnapshotPlayerObjectsPayloadShape(
+        RecoveredPlayerView view,
+        string snapshotPlayerId,
+        object? playerPayload,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(playerPayload, "objects", out var objectsPayload)
+            || IsNullSnapshotPayloadValue(objectsPayload))
+        {
+            return;
+        }
+
+        if (!IsSnapshotPlayerPayloadObject(objectsPayload))
+        {
+            errors.Add($"snapshot for {view.PlayerId} player {snapshotPlayerId} objects payload is required");
+        }
     }
 
     private static void ValidateSnapshotPlayerObjectsPayloadPropertyNames(
