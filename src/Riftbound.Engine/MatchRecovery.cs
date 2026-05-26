@@ -2107,6 +2107,7 @@ public static class MatchRecoveryValidator
                 "pendingHandChoice",
                 "pending hand choice",
                 errors);
+            ValidateSnapshotTimingPendingHandChoicePayloadValues(view, errors);
             ValidateSnapshotTimingListItemPayloadPropertyNames(
                 view,
                 "temporaryPaymentResources",
@@ -2550,6 +2551,37 @@ public static class MatchRecoveryValidator
             metadataPayload,
             $"{payloadLabel} metadata",
             errors);
+    }
+
+    private static void ValidateSnapshotTimingPendingHandChoicePayloadValues(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectValue(view.Snapshot.Timing, "pendingHandChoice", out var choicePayload)
+            || !IsSnapshotPlayerPayloadObject(choicePayload))
+        {
+            return;
+        }
+
+        var payloadLabel = $"snapshot for {view.PlayerId} timing pending hand choice";
+        ValidatePendingHandChoicePayloadValues(
+            choicePayload,
+            payloadLabel,
+            IsKnownSnapshotPendingHandChoiceState,
+            errors);
+        ValidateSnapshotPayloadStringListValues(
+            choicePayload,
+            "legalObjectIds",
+            payloadLabel,
+            "legal object id",
+            errors);
+    }
+
+    private static bool IsKnownSnapshotPendingHandChoiceState(string value)
+    {
+        return string.Equals(value, "PENDING_CHOICE", StringComparison.Ordinal)
+            || string.Equals(value, "WAITING_FOR_CHOICE", StringComparison.Ordinal);
     }
 
     private static void ValidateSnapshotTimingRequiredString(
@@ -7276,6 +7308,19 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing pending hand choice";
+        ValidatePendingHandChoicePayloadValues(
+            choicePayload,
+            payloadLabel,
+            value => string.Equals(value, "WAITING_FOR_CHOICE", StringComparison.Ordinal),
+            errors);
+    }
+
+    private static void ValidatePendingHandChoicePayloadValues(
+        object? choicePayload,
+        string payloadLabel,
+        Func<string, bool> isKnownChoiceState,
+        List<string> errors)
+    {
         ValidateSnapshotPayloadRequiredStringValue(
             choicePayload,
             "choiceId",
@@ -7337,7 +7382,7 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "state",
             errors,
-            value => string.Equals(value, "WAITING_FOR_CHOICE", StringComparison.Ordinal));
+            isKnownChoiceState);
     }
 
     private static void ValidateSpectatorBattlefieldTaskPayloads(
