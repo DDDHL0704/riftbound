@@ -2101,6 +2101,7 @@ public static class MatchRecoveryValidator
             ValidateSnapshotTimingPendingPaymentScalarPayloadValues(view, errors);
             ValidateSnapshotTimingPendingPaymentListPayloadValues(view, errors);
             ValidateSnapshotTimingPendingTaskQueuePayloadPropertyNames(view, errors);
+            ValidateSnapshotTimingPendingTaskQueuePayloadValues(view, errors);
             ValidateSnapshotTimingObjectPayloadPropertyNames(
                 view,
                 "pendingHandChoice",
@@ -2505,6 +2506,48 @@ public static class MatchRecoveryValidator
         ValidateSnapshotPayloadObjectPropertyNames(
             metadataPayload,
             $"snapshot for {view.PlayerId} timing pending task queue metadata",
+            errors);
+    }
+
+    private static void ValidateSnapshotTimingPendingTaskQueuePayloadValues(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectValue(view.Snapshot.Timing, "pendingTaskQueue", out var queuePayload)
+            || !IsSnapshotPlayerPayloadObject(queuePayload))
+        {
+            return;
+        }
+
+        var payloadLabel = $"snapshot for {view.PlayerId} timing pending task queue";
+        ValidatePendingTaskQueuePayloadValues(queuePayload, payloadLabel, errors);
+
+        if (TryReadObjectList(queuePayload, "tasks", out var taskPayloads))
+        {
+            foreach (var taskPayload in taskPayloads)
+            {
+                if (!IsSnapshotPlayerPayloadObject(taskPayload))
+                {
+                    continue;
+                }
+
+                ValidatePendingTaskQueueTaskPayloadValues(
+                    taskPayload,
+                    $"{payloadLabel} task item",
+                    errors);
+            }
+        }
+
+        if (!TryReadObjectValue(queuePayload, "metadata", out var metadataPayload)
+            || !IsSnapshotPlayerPayloadObject(metadataPayload))
+        {
+            return;
+        }
+
+        ValidatePendingTaskQueueMetadataPayloadValues(
+            metadataPayload,
+            $"{payloadLabel} metadata",
             errors);
     }
 
@@ -5440,6 +5483,14 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing pending task queue";
+        ValidatePendingTaskQueuePayloadValues(queuePayload, payloadLabel, errors);
+    }
+
+    private static void ValidatePendingTaskQueuePayloadValues(
+        object? queuePayload,
+        string payloadLabel,
+        List<string> errors)
+    {
         ValidateSnapshotPayloadRequiredBoolValue(
             queuePayload,
             "hasTasks",
@@ -5483,6 +5534,14 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing pending task queue metadata";
+        ValidatePendingTaskQueueMetadataPayloadValues(metadataPayload, payloadLabel, errors);
+    }
+
+    private static void ValidatePendingTaskQueueMetadataPayloadValues(
+        object? metadataPayload,
+        string payloadLabel,
+        List<string> errors)
+    {
         ValidateSnapshotPayloadRequiredNonNegativeIntValue(
             metadataPayload,
             "taskCount",
@@ -5502,6 +5561,14 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing pending task queue task item";
+        ValidatePendingTaskQueueTaskPayloadValues(taskPayload, payloadLabel, errors);
+    }
+
+    private static void ValidatePendingTaskQueueTaskPayloadValues(
+        object? taskPayload,
+        string payloadLabel,
+        List<string> errors)
+    {
         ValidateSnapshotPayloadRequiredStringValue(
             taskPayload,
             "taskId",

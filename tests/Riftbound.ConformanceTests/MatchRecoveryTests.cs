@@ -1161,6 +1161,147 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingPendingTaskQueueValueDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var pendingTaskQueue = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["hasTasks"] = "true",
+            ["isBlocking"] = null,
+            ["phase"] = " STATE_BASED_CLEANUP ",
+            ["activeTaskId"] = new object?[] { "task-1" },
+            ["tasks"] = new object?[]
+            {
+                new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["taskId"] = " task-1 ",
+                    ["kind"] = "",
+                    ["reason"] = 42,
+                    ["playerId"] = " bob ",
+                    ["battlefieldObjectId"] = new object?[] { "battlefield-1" },
+                    ["hiddenObject"] = "true",
+                    ["hiddenObjectKind"] = " BATTLEFIELD_STANDBY "
+                },
+                new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["taskId"] = "task-2",
+                    ["kind"] = "RECALL_UNATTACHED_EQUIPMENT",
+                    ["reason"] = "STATE_BASED_ACTION",
+                    ["objectId"] = " equipment-1 ",
+                    ["hiddenObject"] = 7,
+                    ["hiddenObjectKind"] = 8
+                }
+            },
+            ["metadata"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["taskCount"] = -1,
+                ["stateBasedTaskKinds"] = new[] { "DESTROY_LETHAL_UNIT", " DESTROY_LETHAL_UNIT ", "" }
+            }
+        };
+        timing["pendingTaskQueue"] = pendingTaskQueue;
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue has tasks flag is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue blocking flag is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue phase STATE_BASED_CLEANUP has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue active task id is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue metadata task count -1 cannot be negative",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue metadata state-based task kind DESTROY_LETHAL_UNIT has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue metadata state-based task kind DESTROY_LETHAL_UNIT is duplicated",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue metadata state-based task kind is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue task item task id task-1 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue task item kind is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue task item reason is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue task item player id bob has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue task item battlefield object id is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue task item hidden object flag is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue task item hidden object kind BATTLEFIELD_STANDBY has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue task item object id equipment-1 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue task item hidden object kind is invalid",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingResolutionHistoryPropertyNameDrift()
     {
         var alice = PlayerView("alice", 0, 0);
