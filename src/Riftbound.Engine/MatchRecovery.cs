@@ -2112,6 +2112,11 @@ public static class MatchRecoveryValidator
                 "pending hand choice",
                 errors);
             ValidateSnapshotTimingPendingHandChoicePayloadValues(view, errors);
+            ValidateSnapshotTimingListItemPayloadShapes(
+                view,
+                "temporaryPaymentResources",
+                "temporary payment resource",
+                errors);
             ValidateSnapshotTimingListItemPayloadPropertyNames(
                 view,
                 "temporaryPaymentResources",
@@ -2119,6 +2124,11 @@ public static class MatchRecoveryValidator
                 errors);
             ValidateSnapshotTimingTemporaryPaymentResourceScalarPayloadValues(view, errors);
             ValidateSnapshotTimingTemporaryPaymentResourceListPayloadValues(view, errors);
+            ValidateSnapshotTimingListItemPayloadShapes(
+                view,
+                "continuousEffects",
+                "continuous effect",
+                errors);
             ValidateSnapshotTimingListItemPayloadPropertyNames(
                 view,
                 "continuousEffects",
@@ -2126,23 +2136,42 @@ public static class MatchRecoveryValidator
                 errors);
             ValidateSnapshotTimingContinuousEffectScalarPayloadValues(view, errors);
             ValidateSnapshotTimingContinuousEffectListPayloadValues(view, errors);
+            ValidateSnapshotTimingListItemPayloadShapes(
+                view,
+                "triggerQueue",
+                "trigger queue item",
+                errors);
             ValidateSnapshotTimingListItemPayloadPropertyNames(
                 view,
                 "triggerQueue",
                 "trigger queue",
                 errors);
             ValidateSnapshotTimingTriggerQueuePayloadValues(view, errors);
+            ValidateSnapshotTimingListItemPayloadShapes(
+                view,
+                "battlefieldTasks",
+                "battlefield task",
+                errors);
             ValidateSnapshotTimingListItemPayloadPropertyNames(
                 view,
                 "battlefieldTasks",
                 "battlefield task",
                 errors);
             ValidateSnapshotTimingBattlefieldTaskListPayloadValues(view, errors);
-            ValidateSnapshotTimingResolutionHistoryItemPayloads(view, errors);
+            ValidateSnapshotTimingListItemPayloadShapes(
+                view,
+                "battlefieldResolutions",
+                "battlefield resolution",
+                errors);
             ValidateSnapshotTimingListItemPayloadPropertyNames(
                 view,
                 "battlefieldResolutions",
                 "battlefield resolution",
+                errors);
+            ValidateSnapshotTimingListItemPayloadShapes(
+                view,
+                "battleResolutions",
+                "battle resolution",
                 errors);
             ValidateSnapshotTimingListItemPayloadPropertyNames(
                 view,
@@ -2761,28 +2790,7 @@ public static class MatchRecoveryValidator
         }
     }
 
-    private static void ValidateSnapshotTimingResolutionHistoryItemPayloads(
-        RecoveredPlayerView view,
-        List<string> errors)
-    {
-        if (view.Snapshot.Timing is null)
-        {
-            return;
-        }
-
-        ValidateSnapshotTimingResolutionHistoryItemPayloads(
-            view,
-            "battlefieldResolutions",
-            "battlefield resolution",
-            errors);
-        ValidateSnapshotTimingResolutionHistoryItemPayloads(
-            view,
-            "battleResolutions",
-            "battle resolution",
-            errors);
-    }
-
-    private static void ValidateSnapshotTimingResolutionHistoryItemPayloads(
+    private static void ValidateSnapshotTimingListItemPayloadShapes(
         RecoveredPlayerView view,
         string key,
         string payloadLabel,
