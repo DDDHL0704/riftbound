@@ -2077,6 +2077,11 @@ public static class MatchRecoveryValidator
             ValidateSnapshotTimingAllowedString(view, "phase", "phase", IsKnownMatchPhase, errors);
             ValidateSnapshotTimingRequiredString(view, "turnPlayerId", "turn player", errors);
             ValidateSnapshotTimingAllowedString(view, "roomStatus", "room status", IsKnownMatchStatus, errors);
+            ValidateSnapshotTimingObjectPayloadShape(
+                view,
+                "turnWindow",
+                "turn window",
+                errors);
             ValidateSnapshotTimingObjectPayloadPropertyNames(
                 view,
                 "turnWindow",
@@ -2184,6 +2189,25 @@ public static class MatchRecoveryValidator
                 errors);
             ValidateSnapshotTimingResolutionHistoryScalarPayloadValues(view, errors);
             ValidateSnapshotTimingResolutionHistoryListPayloadValues(view, errors);
+        }
+    }
+
+    private static void ValidateSnapshotTimingObjectPayloadShape(
+        RecoveredPlayerView view,
+        string key,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectValue(view.Snapshot.Timing, key, out var payload)
+            || IsNullSnapshotPayloadValue(payload))
+        {
+            return;
+        }
+
+        if (!IsSnapshotPlayerPayloadObject(payload))
+        {
+            errors.Add($"snapshot for {view.PlayerId} timing {payloadLabel} payload is required");
         }
     }
 
