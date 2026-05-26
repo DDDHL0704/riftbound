@@ -2138,6 +2138,7 @@ public static class MatchRecoveryValidator
                 "battlefield task",
                 errors);
             ValidateSnapshotTimingBattlefieldTaskListPayloadValues(view, errors);
+            ValidateSnapshotTimingResolutionHistoryItemPayloads(view, errors);
             ValidateSnapshotTimingListItemPayloadPropertyNames(
                 view,
                 "battlefieldResolutions",
@@ -2757,6 +2758,48 @@ public static class MatchRecoveryValidator
                 payload,
                 $"snapshot for {view.PlayerId} timing {payloadLabel} item",
                 errors);
+        }
+    }
+
+    private static void ValidateSnapshotTimingResolutionHistoryItemPayloads(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null)
+        {
+            return;
+        }
+
+        ValidateSnapshotTimingResolutionHistoryItemPayloads(
+            view,
+            "battlefieldResolutions",
+            "battlefield resolution",
+            errors);
+        ValidateSnapshotTimingResolutionHistoryItemPayloads(
+            view,
+            "battleResolutions",
+            "battle resolution",
+            errors);
+    }
+
+    private static void ValidateSnapshotTimingResolutionHistoryItemPayloads(
+        RecoveredPlayerView view,
+        string key,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectList(view.Snapshot.Timing, key, out var payloads))
+        {
+            return;
+        }
+
+        foreach (var payload in payloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(payload))
+            {
+                errors.Add($"snapshot for {view.PlayerId} timing {payloadLabel} payload is required");
+            }
         }
     }
 
