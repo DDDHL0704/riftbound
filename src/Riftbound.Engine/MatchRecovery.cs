@@ -2082,6 +2082,7 @@ public static class MatchRecoveryValidator
                 "turnWindow",
                 "turn window",
                 errors);
+            ValidateSnapshotTimingTurnWindowPayloadValues(view, errors);
             ValidateSnapshotTimingObjectPayloadPropertyNames(
                 view,
                 "spellDuel",
@@ -2164,6 +2165,23 @@ public static class MatchRecoveryValidator
         ValidateSnapshotPayloadObjectPropertyNames(
             payload,
             $"snapshot for {view.PlayerId} timing {payloadLabel}",
+            errors);
+    }
+
+    private static void ValidateSnapshotTimingTurnWindowPayloadValues(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectValue(view.Snapshot.Timing, "turnWindow", out var turnWindowPayload)
+            || !IsSnapshotPlayerPayloadObject(turnWindowPayload))
+        {
+            return;
+        }
+
+        ValidateTurnWindowPayloadValues(
+            turnWindowPayload,
+            $"snapshot for {view.PlayerId} timing turn window",
             errors);
     }
 
@@ -11104,6 +11122,14 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing turn window";
+        ValidateTurnWindowPayloadValues(turnWindowPayload, payloadLabel, errors);
+    }
+
+    private static void ValidateTurnWindowPayloadValues(
+        object? turnWindowPayload,
+        string payloadLabel,
+        List<string> errors)
+    {
         ValidateSnapshotPayloadRequiredStringValue(
             turnWindowPayload,
             "state",
