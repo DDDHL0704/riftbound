@@ -2094,6 +2094,7 @@ public static class MatchRecoveryValidator
                 "battle",
                 "battle",
                 errors);
+            ValidateSnapshotTimingBattlePayloadValues(view, errors);
             ValidateSnapshotTimingBattleParticipantControllerPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingBattleDamageAssignmentPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingBattleDamageAssignmentMapPayloadPropertyNames(view, errors);
@@ -2200,6 +2201,23 @@ public static class MatchRecoveryValidator
         ValidateSpellDuelPayloadValues(
             spellDuelPayload,
             $"snapshot for {view.PlayerId} timing spell duel",
+            errors);
+    }
+
+    private static void ValidateSnapshotTimingBattlePayloadValues(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectValue(view.Snapshot.Timing, "battle", out var battlePayload)
+            || !IsSnapshotPlayerPayloadObject(battlePayload))
+        {
+            return;
+        }
+
+        ValidateBattlePayloadValues(
+            battlePayload,
+            $"snapshot for {view.PlayerId} timing battle",
             errors);
     }
 
@@ -11248,6 +11266,14 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing battle";
+        ValidateBattlePayloadValues(battlePayload, payloadLabel, errors);
+    }
+
+    private static void ValidateBattlePayloadValues(
+        object? battlePayload,
+        string payloadLabel,
+        List<string> errors)
+    {
         ValidateSnapshotPayloadRequiredBoolValue(
             battlePayload,
             "isActive",
