@@ -3554,6 +3554,11 @@ public static class MatchRecoveryValidator
                 snapshotPlayerId,
                 playerPayload,
                 errors);
+            ValidateSnapshotPlayerObjectPayloadShapes(
+                view,
+                snapshotPlayerId,
+                playerPayload,
+                errors);
             ValidateSnapshotPlayerObjectPayloadPropertyNames(
                 view,
                 snapshotPlayerId,
@@ -3729,6 +3734,27 @@ public static class MatchRecoveryValidator
             objectsPayload,
             $"snapshot for {view.PlayerId} player {snapshotPlayerId} objects",
             errors);
+    }
+
+    private static void ValidateSnapshotPlayerObjectPayloadShapes(
+        RecoveredPlayerView view,
+        string snapshotPlayerId,
+        object? playerPayload,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(playerPayload, "objects", out var objectsPayload)
+            || !TryReadObjectDictionaryValue(objectsPayload, out var objectPayloads))
+        {
+            return;
+        }
+
+        foreach (var (objectId, objectPayload) in objectPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(objectPayload))
+            {
+                errors.Add($"snapshot for {view.PlayerId} player {snapshotPlayerId} object {objectId} payload is required");
+            }
+        }
     }
 
     private static void ValidateSnapshotPlayerObjectPayloadPropertyNames(
