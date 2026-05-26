@@ -2100,6 +2100,7 @@ public static class MatchRecoveryValidator
             ValidateSnapshotTimingBattleDamageAssignmentMapPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingBattleDamageAssignmentRequiredAssignmentPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingBattleDamageAssignmentPayloadValues(view, errors);
+            ValidateSnapshotTimingPendingPaymentPayloadShape(view, errors);
             ValidateSnapshotTimingPaymentPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingPaymentPowerTraitPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingPendingPaymentScalarPayloadValues(view, errors);
@@ -2508,6 +2509,23 @@ public static class MatchRecoveryValidator
             costPayload,
             $"snapshot for {view.PlayerId} timing pending payment cost",
             errors);
+    }
+
+    private static void ValidateSnapshotTimingPendingPaymentPayloadShape(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectValue(view.Snapshot.Timing, "pendingPayment", out var pendingPaymentPayload)
+            || IsNullSnapshotPayloadValue(pendingPaymentPayload))
+        {
+            return;
+        }
+
+        if (!IsSnapshotPlayerPayloadObject(pendingPaymentPayload))
+        {
+            errors.Add($"snapshot for {view.PlayerId} timing pending payment payload is required");
+        }
     }
 
     private static void ValidateSnapshotTimingPendingPaymentListPayloadValues(
