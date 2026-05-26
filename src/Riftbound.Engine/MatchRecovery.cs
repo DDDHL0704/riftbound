@@ -10004,6 +10004,9 @@ public static class MatchRecoveryValidator
         ValidateSpectatorPriorityTimingPayloadValues(
             spectatorReplayFrame.SpectatorSnapshot.Timing,
             errors);
+        ValidateSpectatorFocusTimingPayloadValues(
+            spectatorReplayFrame.SpectatorSnapshot.Timing,
+            errors);
 
         if (!TryReadString(
                 spectatorReplayFrame.SpectatorSnapshot.Timing,
@@ -10728,6 +10731,37 @@ public static class MatchRecoveryValidator
             "passedPriorityPlayerIds",
             payloadLabel,
             "passed priority player id",
+            errors);
+    }
+
+    private static void ValidateSpectatorFocusTimingPayloadValues(
+        IReadOnlyDictionary<string, object?> timing,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing";
+        ValidateSnapshotPayloadOptionalStringValue(
+            timing,
+            "focusPlayerId",
+            payloadLabel,
+            "focus player id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            timing,
+            "winnerPlayerId",
+            payloadLabel,
+            "winner player id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListValues(
+            timing,
+            "passedFocusPlayerIds",
+            payloadLabel,
+            "passed focus player id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListValues(
+            timing,
+            "destroyedUnitOwnerIdsThisTurn",
+            payloadLabel,
+            "destroyed unit owner id",
             errors);
     }
 
