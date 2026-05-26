@@ -10001,6 +10001,10 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame timing turn player does not match authoritative state turn player");
         }
 
+        ValidateSpectatorPriorityTimingPayloadValues(
+            spectatorReplayFrame.SpectatorSnapshot.Timing,
+            errors);
+
         if (!TryReadString(
                 spectatorReplayFrame.SpectatorSnapshot.Timing,
                 "priorityPlayerId",
@@ -10705,6 +10709,25 @@ public static class MatchRecoveryValidator
             "winnerPlayerId",
             payloadLabel,
             "winner player id",
+            errors);
+    }
+
+    private static void ValidateSpectatorPriorityTimingPayloadValues(
+        IReadOnlyDictionary<string, object?> timing,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing";
+        ValidateSnapshotPayloadOptionalStringValue(
+            timing,
+            "priorityPlayerId",
+            payloadLabel,
+            "priority player id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListValues(
+            timing,
+            "passedPriorityPlayerIds",
+            payloadLabel,
+            "passed priority player id",
             errors);
     }
 
