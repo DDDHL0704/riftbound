@@ -2119,6 +2119,7 @@ public static class MatchRecoveryValidator
                 "continuousEffects",
                 "continuous effect",
                 errors);
+            ValidateSnapshotTimingContinuousEffectScalarPayloadValues(view, errors);
             ValidateSnapshotTimingContinuousEffectListPayloadValues(view, errors);
             ValidateSnapshotTimingListItemPayloadPropertyNames(
                 view,
@@ -2629,6 +2630,30 @@ public static class MatchRecoveryValidator
             ValidateSnapshotPayloadObjectPropertyNames(
                 payload,
                 $"snapshot for {view.PlayerId} timing {payloadLabel} item",
+                errors);
+        }
+    }
+
+    private static void ValidateSnapshotTimingContinuousEffectScalarPayloadValues(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectList(view.Snapshot.Timing, "continuousEffects", out var effectPayloads))
+        {
+            return;
+        }
+
+        foreach (var effectPayload in effectPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(effectPayload))
+            {
+                continue;
+            }
+
+            ValidateContinuousEffectScalarPayloadValues(
+                effectPayload,
+                $"snapshot for {view.PlayerId} timing continuous effect item",
                 errors);
         }
     }
@@ -6422,6 +6447,44 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         const string effectLabel = "spectator replay frame timing continuous effect item";
+        ValidateContinuousEffectScalarPayloadValues(effectPayload, effectLabel, errors);
+        ValidateSnapshotPayloadStringListValues(
+            effectPayload,
+            "participantObjectIds",
+            effectLabel,
+            "participant object id",
+            errors);
+        ValidateSnapshotPayloadStringListValues(
+            effectPayload,
+            "sourceDependencyObjectIds",
+            effectLabel,
+            "source dependency object id",
+            errors);
+        ValidateSnapshotPayloadStringListValues(
+            effectPayload,
+            "targetDependencyObjectIds",
+            effectLabel,
+            "target dependency object id",
+            errors);
+        ValidateSnapshotPayloadStringListValues(
+            effectPayload,
+            "participantDependencyObjectIds",
+            effectLabel,
+            "participant dependency object id",
+            errors);
+        ValidateSnapshotPayloadStringListValues(
+            effectPayload,
+            "deferredLayerEngineResiduals",
+            effectLabel,
+            "deferred LayerEngine residual",
+            errors);
+    }
+
+    private static void ValidateContinuousEffectScalarPayloadValues(
+        object? effectPayload,
+        string effectLabel,
+        List<string> errors)
+    {
         ValidateSnapshotPayloadRequiredStringValue(
             effectPayload,
             "effectId",
@@ -6553,36 +6616,6 @@ public static class MatchRecoveryValidator
             "lifecycle",
             effectLabel,
             "lifecycle",
-            errors);
-        ValidateSnapshotPayloadStringListValues(
-            effectPayload,
-            "participantObjectIds",
-            effectLabel,
-            "participant object id",
-            errors);
-        ValidateSnapshotPayloadStringListValues(
-            effectPayload,
-            "sourceDependencyObjectIds",
-            effectLabel,
-            "source dependency object id",
-            errors);
-        ValidateSnapshotPayloadStringListValues(
-            effectPayload,
-            "targetDependencyObjectIds",
-            effectLabel,
-            "target dependency object id",
-            errors);
-        ValidateSnapshotPayloadStringListValues(
-            effectPayload,
-            "participantDependencyObjectIds",
-            effectLabel,
-            "participant dependency object id",
-            errors);
-        ValidateSnapshotPayloadStringListValues(
-            effectPayload,
-            "deferredLayerEngineResiduals",
-            effectLabel,
-            "deferred LayerEngine residual",
             errors);
     }
 

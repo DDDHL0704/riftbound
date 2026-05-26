@@ -759,6 +759,171 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingContinuousEffectScalarValueDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["continuousEffects"] = new object?[]
+        {
+            RawJson("""
+                {
+                    "effectId": " effect-1 ",
+                    "scope": "",
+                    "layer": 7,
+                    "duration": " UNTIL_END_OF_TURN ",
+                    "targetObjectId": " target-1 ",
+                    "sourceObjectId": ["source-1"],
+                    "powerDelta": "2",
+                    "basePower": 3.5,
+                    "effectivePower": null,
+                    "sequence": "1",
+                    "effectKind": " TEST_POWER_MODIFIER ",
+                    "sourceCardNo": " SRC-001 ",
+                    "sourcePath": 123,
+                    "layerEngineStatus": " FOUNDATION_ONLY ",
+                    "requestedPowerDelta": "4",
+                    "appliedPowerDelta": 2.5,
+                    "minimumPower": "1",
+                    "resultingPower": 5.5,
+                    "appliedOrder": "7",
+                    "sourceOrder": {},
+                    "condition": " condition ",
+                    "lifecycle": 42,
+                    "participantObjectIds": ["participant-1"],
+                    "sourceDependencyObjectIds": ["source-1"],
+                    "targetDependencyObjectIds": ["target-1"],
+                    "participantDependencyObjectIds": ["dependency-1"],
+                    "deferredLayerEngineResiduals": ["residual-1"]
+                }
+                """)
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item effect id effect-1 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item scope is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item layer is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item duration UNTIL_END_OF_TURN has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item target object id target-1 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item source object id is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item power delta is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item base power is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item effective power is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item sequence is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item effect kind TEST_POWER_MODIFIER has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item source card no SRC-001 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item source path is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item layer engine status FOUNDATION_ONLY has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item requested power delta is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item applied power delta is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item minimum power is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item resulting power is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item applied order is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item source order is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item condition condition has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item lifecycle is invalid",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingTriggerQueuePropertyNameDrift()
     {
         var alice = PlayerView("alice", 0, 0);
