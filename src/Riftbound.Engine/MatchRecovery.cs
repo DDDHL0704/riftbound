@@ -2088,6 +2088,11 @@ public static class MatchRecoveryValidator
                 "turn window",
                 errors);
             ValidateSnapshotTimingTurnWindowPayloadValues(view, errors);
+            ValidateSnapshotTimingObjectPayloadShape(
+                view,
+                "spellDuel",
+                "spell duel",
+                errors);
             ValidateSnapshotTimingObjectPayloadPropertyNames(
                 view,
                 "spellDuel",
