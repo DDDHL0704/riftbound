@@ -12774,7 +12774,63 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing battle";
-        ValidateBattlePayloadValues(battlePayload, payloadLabel, errors);
+        ValidateSnapshotPayloadRequiredBoolValue(
+            battlePayload,
+            "isActive",
+            payloadLabel,
+            "active flag",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            battlePayload,
+            "battleId",
+            payloadLabel,
+            "battle id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            battlePayload,
+            "battlefieldObjectId",
+            payloadLabel,
+            "battlefield object id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListValues(
+            battlePayload,
+            "attackerObjectIds",
+            payloadLabel,
+            "attacker object id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListValues(
+            battlePayload,
+            "defenderObjectIds",
+            payloadLabel,
+            "defender object id",
+            errors);
+        ValidateSpectatorBattleParticipantControllerPayloadValues(battlePayload, errors);
+    }
+
+    private static void ValidateSpectatorBattleParticipantControllerPayloadValues(
+        object? battlePayload,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing battle";
+        if (!TryReadObjectValue(battlePayload, "participantControllerIds", out var participantControllerIdsPayload)
+            || IsNullSnapshotPayloadValue(participantControllerIdsPayload))
+        {
+            errors.Add($"{payloadLabel} participant controller map is required");
+            return;
+        }
+
+        if (!IsSnapshotStringMapPayloadObject(participantControllerIdsPayload))
+        {
+            errors.Add($"{payloadLabel} participant controller map payload is required");
+            return;
+        }
+
+        ValidateSnapshotPayloadRequiredStringDictionaryValues(
+            battlePayload,
+            "participantControllerIds",
+            payloadLabel,
+            "participant controller",
+            errors);
     }
 
     private static void ValidateBattlePayloadValues(
