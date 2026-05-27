@@ -7022,6 +7022,12 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing pending task queue metadata";
+        ValidateSpectatorRequiredStringListPayloadShape(
+            metadataPayload,
+            payloadLabel,
+            "stateBasedTaskKinds",
+            "state-based task kind",
+            errors);
         ValidatePendingTaskQueueMetadataPayloadValues(metadataPayload, payloadLabel, errors);
     }
 
