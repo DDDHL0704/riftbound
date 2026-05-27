@@ -3549,6 +3549,11 @@ public static class MatchRecoveryValidator
                 snapshotPlayerId,
                 playerPayload,
                 errors);
+            ValidateSnapshotPlayerZonesPayloadValues(
+                view,
+                snapshotPlayerId,
+                playerPayload,
+                errors);
             ValidateSnapshotPlayerObjectsPayloadShape(
                 view,
                 snapshotPlayerId,
@@ -3736,6 +3741,87 @@ public static class MatchRecoveryValidator
         ValidateSnapshotPayloadObjectPropertyNames(
             zonesPayload,
             $"snapshot for {view.PlayerId} player {snapshotPlayerId} zones",
+            errors);
+    }
+
+    private static void ValidateSnapshotPlayerZonesPayloadValues(
+        RecoveredPlayerView view,
+        string snapshotPlayerId,
+        object? playerPayload,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(playerPayload, "zones", out var zonesPayload)
+            || !IsSnapshotPlayerPayloadObject(zonesPayload))
+        {
+            return;
+        }
+
+        var payloadLabel = $"snapshot for {view.PlayerId} player {snapshotPlayerId} zones";
+        ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+            zonesPayload,
+            "mainDeckCount",
+            payloadLabel,
+            "main deck count",
+            errors);
+        ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+            zonesPayload,
+            "runeDeckCount",
+            payloadLabel,
+            "rune deck count",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListValues(
+            zonesPayload,
+            "hand",
+            payloadLabel,
+            "hand object",
+            errors);
+        ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+            zonesPayload,
+            "handHidden",
+            payloadLabel,
+            "hidden hand count",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListValues(
+            zonesPayload,
+            "base",
+            payloadLabel,
+            "base object",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListValues(
+            zonesPayload,
+            "battlefields",
+            payloadLabel,
+            "battlefield object",
+            errors);
+        ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+            zonesPayload,
+            "battlefieldHiddenStandbyCount",
+            payloadLabel,
+            "hidden battlefield standby count",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListValues(
+            zonesPayload,
+            "graveyard",
+            payloadLabel,
+            "graveyard object",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListValues(
+            zonesPayload,
+            "banished",
+            payloadLabel,
+            "banished object",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListValues(
+            zonesPayload,
+            "legendZone",
+            payloadLabel,
+            "legend zone object",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListValues(
+            zonesPayload,
+            "championZone",
+            payloadLabel,
+            "champion zone object",
             errors);
     }
 
