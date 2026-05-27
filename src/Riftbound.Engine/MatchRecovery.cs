@@ -9119,6 +9119,7 @@ public static class MatchRecoveryValidator
         var paymentOnlyFlagsMatch = true;
         var resourceRestrictionsMatch = true;
         var createdTicksMatch = true;
+        var seenResourceIds = new HashSet<string>(StringComparer.Ordinal);
 
         for (var index = 0; index < authoritativeResources.Count; index++)
         {
@@ -9134,7 +9135,11 @@ public static class MatchRecoveryValidator
                 "spectator replay frame timing temporary payment resource item",
                 errors);
             ValidateSpectatorTemporaryPaymentResourcePowerTraitPayloadPropertyNames(spectatorResource, errors);
-            ValidateSpectatorTemporaryPaymentResourcePayloadValues(spectatorResource, errors);
+            var resourceIdValue = ValidateSpectatorTemporaryPaymentResourcePayloadValues(spectatorResource, errors);
+            if (resourceIdValue is not null && !seenResourceIds.Add(resourceIdValue))
+            {
+                errors.Add($"spectator replay frame timing temporary payment resource item resource id {resourceIdValue} is duplicated");
+            }
 
             var authoritativeResource = authoritativeResources[index];
             if (!TryReadObjectString(spectatorResource, "resourceId", out var resourceId)
@@ -9285,12 +9290,12 @@ public static class MatchRecoveryValidator
         }
     }
 
-    private static void ValidateSpectatorTemporaryPaymentResourcePayloadValues(
+    private static string? ValidateSpectatorTemporaryPaymentResourcePayloadValues(
         object? resourcePayload,
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing temporary payment resource item";
-        ValidateSnapshotPayloadRequiredStringValue(
+        var resourceId = ValidateSnapshotPayloadRequiredStringValue(
             resourcePayload,
             "resourceId",
             payloadLabel,
@@ -9380,6 +9385,7 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "created tick",
             errors);
+        return resourceId;
     }
 
     private static void ValidateSpectatorPendingPaymentPowerTraitPayloadPropertyNames(
