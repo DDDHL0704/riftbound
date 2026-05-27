@@ -3623,6 +3623,7 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        var seenResourceIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var resourcePayload in resourcePayloads)
         {
             if (!IsSnapshotPlayerPayloadObject(resourcePayload))
@@ -3632,12 +3633,17 @@ public static class MatchRecoveryValidator
 
             const string resourceLabel = "temporary payment resource item";
             var payloadLabel = $"snapshot for {view.PlayerId} timing {resourceLabel}";
-            ValidateSnapshotPayloadRequiredStringValue(
+            var resourceId = ValidateSnapshotPayloadRequiredStringValue(
                 resourcePayload,
                 "resourceId",
                 payloadLabel,
                 "resource id",
                 errors);
+            if (resourceId is not null && !seenResourceIds.Add(resourceId))
+            {
+                errors.Add($"{payloadLabel} resource id {resourceId} is duplicated");
+            }
+
             ValidateSnapshotPayloadRequiredStringValue(
                 resourcePayload,
                 "ownerPlayerId",

@@ -4586,6 +4586,69 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingTemporaryPaymentResourceDuplicateIds()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["temporaryPaymentResources"] = new object?[]
+        {
+            RawJson("""
+                {
+                    "resourceId": "temp-payment-resource-1",
+                    "ownerPlayerId": "alice",
+                    "sourceObjectId": "source-1",
+                    "abilityId": "TEST_TEMP_RESOURCE_ABILITY_1",
+                    "paymentWindow": "PAY_COST",
+                    "generatedPower": 2,
+                    "remainingPower": 1,
+                    "generatedPowerByTrait": { "blue": 2 },
+                    "remainingPowerByTrait": { "blue": 1 },
+                    "allowedPaymentKinds": [ "RUNE_COST" ],
+                    "paymentOnly": true,
+                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J",
+                    "createdTick": 0
+                }
+                """),
+            RawJson("""
+                {
+                    "resourceId": "temp-payment-resource-1",
+                    "ownerPlayerId": "alice",
+                    "sourceObjectId": "source-2",
+                    "abilityId": "TEST_TEMP_RESOURCE_ABILITY_2",
+                    "paymentWindow": "PAY_COST",
+                    "generatedPower": 3,
+                    "remainingPower": 2,
+                    "generatedPowerByTrait": { "red": 3 },
+                    "remainingPowerByTrait": { "red": 2 },
+                    "allowedPaymentKinds": [ "RUNE_COST" ],
+                    "paymentOnly": true,
+                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J",
+                    "createdTick": 1
+                }
+                """)
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing temporary payment resource item resource id temp-payment-resource-1 is duplicated",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingTemporaryPaymentResourceValueDrift()
     {
         var alice = PlayerView("alice", 0, 0);
