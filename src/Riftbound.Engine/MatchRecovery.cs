@@ -5609,6 +5609,7 @@ public static class MatchRecoveryValidator
             "tags",
             cardObject.Tags,
             "tags",
+            "tag",
             errors);
         ValidateSpectatorSnapshotPlayerObjectStringListScalar(
             playerId,
@@ -5617,6 +5618,7 @@ public static class MatchRecoveryValidator
             "untilEndOfTurnEffects",
             cardObject.UntilEndOfTurnEffects,
             "until-end-of-turn effects",
+            "until-end-of-turn effect",
             errors);
     }
 
@@ -5725,10 +5727,26 @@ public static class MatchRecoveryValidator
         string key,
         IReadOnlyList<string> expected,
         string description,
+        string listItemDescription,
         List<string> errors)
     {
-        if (!TryReadObjectStringList(objectPayload, key, out var value)
-            || !StringListsEqual(value, expected))
+        var payloadLabel = $"spectator replay frame snapshot player {playerId} object {objectId}";
+        var hasScalar = TryReadObjectValue(objectPayload, key, out var rawValue)
+            && !IsNullSnapshotPayloadValue(rawValue);
+        ValidateSnapshotPayloadStringListValues(
+            objectPayload,
+            key,
+            payloadLabel,
+            listItemDescription,
+            errors);
+        if (!hasScalar)
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} do not match authoritative object {description}");
+            return;
+        }
+
+        if (TryReadObjectStringList(objectPayload, key, out var value)
+            && !StringListsEqual(value, expected))
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} do not match authoritative object {description}");
         }
