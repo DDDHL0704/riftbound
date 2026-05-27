@@ -9147,24 +9147,16 @@ public static class MatchRecoveryValidator
         }
 
         var authoritativeTriggers = authoritativeState.TriggerQueue;
-        if (spectatorTriggers.Count != authoritativeTriggers.Count)
+        var validateAuthoritativeParity = spectatorTriggers.Count == authoritativeTriggers.Count;
+        if (!validateAuthoritativeParity)
         {
             errors.Add(
                 $"spectator replay frame timing trigger queue count {spectatorTriggers.Count} does not match authoritative state trigger queue count {authoritativeTriggers.Count}");
-            return;
         }
 
-        var triggerIdsMatch = true;
-        var controllerIdsMatch = true;
-        var sourceObjectIdsMatch = true;
-        var sourceVisibilitiesMatch = true;
-        var effectKindsMatch = true;
-        var triggeredEventKindsMatch = true;
         var seenTriggerIds = new HashSet<string>(StringComparer.Ordinal);
-
-        for (var index = 0; index < authoritativeTriggers.Count; index++)
+        foreach (var spectatorTrigger in spectatorTriggers)
         {
-            var spectatorTrigger = spectatorTriggers[index];
             if (!IsSnapshotPlayerPayloadObject(spectatorTrigger))
             {
                 errors.Add("spectator replay frame timing trigger queue item payload is required");
@@ -9176,6 +9168,27 @@ public static class MatchRecoveryValidator
                 "spectator replay frame timing trigger queue item",
                 errors);
             ValidateSpectatorTriggerQueuePayloadValues(spectatorTrigger, seenTriggerIds, errors);
+        }
+
+        if (!validateAuthoritativeParity)
+        {
+            return;
+        }
+
+        var triggerIdsMatch = true;
+        var controllerIdsMatch = true;
+        var sourceObjectIdsMatch = true;
+        var sourceVisibilitiesMatch = true;
+        var effectKindsMatch = true;
+        var triggeredEventKindsMatch = true;
+
+        for (var index = 0; index < authoritativeTriggers.Count; index++)
+        {
+            var spectatorTrigger = spectatorTriggers[index];
+            if (!IsSnapshotPlayerPayloadObject(spectatorTrigger))
+            {
+                continue;
+            }
 
             var authoritativeTrigger = authoritativeTriggers[index];
             var hiddenSource = IsHiddenBattlefieldStandbyForSpectator(
