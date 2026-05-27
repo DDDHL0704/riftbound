@@ -6297,6 +6297,11 @@ public static class MatchRecoveryValidator
             objectPayloads,
             expectedObjectIdSet,
             errors);
+        ValidateSpectatorSnapshotExtraPlayerObjectStringScalarPayloadValues(
+            playerId,
+            objectPayloads,
+            expectedObjectIdSet,
+            errors);
 
         foreach (var expectedObjectId in expectedObjectIds)
         {
@@ -6386,6 +6391,47 @@ public static class MatchRecoveryValidator
                 "isFaceDown",
                 payloadLabel,
                 "face-down flag",
+                errors);
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotExtraPlayerObjectStringScalarPayloadValues(
+        string playerId,
+        IReadOnlyDictionary<string, object?> objectPayloads,
+        IReadOnlySet<string> expectedObjectIds,
+        List<string> errors)
+    {
+        foreach (var (objectId, objectPayload) in objectPayloads)
+        {
+            if (expectedObjectIds.Contains(objectId) || !IsSnapshotPlayerPayloadObject(objectPayload))
+            {
+                continue;
+            }
+
+            var payloadLabel = $"spectator replay frame snapshot player {playerId} object {objectId}";
+            ValidateSnapshotPayloadOptionalStringValue(
+                objectPayload,
+                "cardNo",
+                payloadLabel,
+                "card number",
+                errors);
+            ValidateSnapshotPayloadOptionalStringValue(
+                objectPayload,
+                "ownerId",
+                payloadLabel,
+                "owner id",
+                errors);
+            ValidateSnapshotPayloadOptionalStringValue(
+                objectPayload,
+                "controllerId",
+                payloadLabel,
+                "controller id",
+                errors);
+            ValidateSnapshotPayloadOptionalStringValue(
+                objectPayload,
+                "attachedToObjectId",
+                payloadLabel,
+                "attached object id",
                 errors);
         }
     }
