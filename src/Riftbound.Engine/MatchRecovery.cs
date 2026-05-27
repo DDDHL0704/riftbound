@@ -6312,6 +6312,11 @@ public static class MatchRecoveryValidator
             objectPayloads,
             expectedObjectIdSet,
             errors);
+        ValidateSpectatorSnapshotExtraPlayerObjectListScalarPayloadValues(
+            playerId,
+            objectPayloads,
+            expectedObjectIdSet,
+            errors);
 
         foreach (var expectedObjectId in expectedObjectIds)
         {
@@ -6530,6 +6535,47 @@ public static class MatchRecoveryValidator
                 "isDefending",
                 payloadLabel,
                 "defending state",
+                errors);
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotExtraPlayerObjectListScalarPayloadValues(
+        string playerId,
+        IReadOnlyDictionary<string, object?> objectPayloads,
+        IReadOnlySet<string> expectedObjectIds,
+        List<string> errors)
+    {
+        foreach (var (objectId, objectPayload) in objectPayloads)
+        {
+            if (expectedObjectIds.Contains(objectId) || !IsSnapshotPlayerPayloadObject(objectPayload))
+            {
+                continue;
+            }
+
+            var payloadLabel = $"spectator replay frame snapshot player {playerId} object {objectId}";
+            ValidateSpectatorRequiredStringListPayloadShape(
+                objectPayload,
+                payloadLabel,
+                "tags",
+                "tag",
+                errors);
+            ValidateSnapshotPayloadStringListValues(
+                objectPayload,
+                "tags",
+                payloadLabel,
+                "tag",
+                errors);
+            ValidateSpectatorRequiredStringListPayloadShape(
+                objectPayload,
+                payloadLabel,
+                "untilEndOfTurnEffects",
+                "until-end-of-turn effect",
+                errors);
+            ValidateSnapshotPayloadStringListValues(
+                objectPayload,
+                "untilEndOfTurnEffects",
+                payloadLabel,
+                "until-end-of-turn effect",
                 errors);
         }
     }
