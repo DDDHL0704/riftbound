@@ -11846,9 +11846,13 @@ public static class MatchRecoveryValidator
         ValidateSpectatorBattlefieldTaskPayloads(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
 
         if (!spectatorReplayFrame.SpectatorSnapshot.Timing.TryGetValue("turnWindow", out var spectatorTurnWindow)
-            || !IsSnapshotPlayerPayloadObject(spectatorTurnWindow))
+            || IsNullSnapshotPayloadValue(spectatorTurnWindow))
         {
             errors.Add("spectator replay frame timing turn window does not match authoritative state turn window");
+        }
+        else if (!IsSnapshotPlayerPayloadObject(spectatorTurnWindow))
+        {
+            errors.Add("spectator replay frame timing turn window payload is required");
         }
         else
         {
@@ -11867,9 +11871,13 @@ public static class MatchRecoveryValidator
         }
 
         if (!spectatorReplayFrame.SpectatorSnapshot.Timing.TryGetValue("spellDuel", out var spectatorSpellDuel)
-            || !IsSnapshotPlayerPayloadObject(spectatorSpellDuel))
+            || IsNullSnapshotPayloadValue(spectatorSpellDuel))
         {
             errors.Add("spectator replay frame timing spell duel does not match authoritative state spell duel");
+        }
+        else if (!IsSnapshotPlayerPayloadObject(spectatorSpellDuel))
+        {
+            errors.Add("spectator replay frame timing spell duel payload is required");
         }
         else
         {
@@ -11888,9 +11896,13 @@ public static class MatchRecoveryValidator
         }
 
         if (!spectatorReplayFrame.SpectatorSnapshot.Timing.TryGetValue("battle", out var spectatorBattle)
-            || !IsSnapshotPlayerPayloadObject(spectatorBattle))
+            || IsNullSnapshotPayloadValue(spectatorBattle))
         {
             errors.Add("spectator replay frame timing battle does not match authoritative state battle");
+        }
+        else if (!IsSnapshotPlayerPayloadObject(spectatorBattle))
+        {
+            errors.Add("spectator replay frame timing battle payload is required");
         }
         else
         {
