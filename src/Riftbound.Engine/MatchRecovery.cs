@@ -7684,6 +7684,7 @@ public static class MatchRecoveryValidator
         IReadOnlyList<CleanupTaskState> authoritativeTasks,
         List<string> errors)
     {
+        var seenTaskIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var taskPayload in taskPayloads)
         {
             if (!IsSnapshotPlayerPayloadObject(taskPayload))
@@ -7696,7 +7697,11 @@ public static class MatchRecoveryValidator
                 taskPayload,
                 "spectator replay frame timing pending task queue task item",
                 errors);
-            ValidateSpectatorPendingTaskQueueTaskPayloadValues(taskPayload, errors);
+            var taskId = ValidateSpectatorPendingTaskQueueTaskPayloadValues(taskPayload, errors);
+            if (taskId is not null && !seenTaskIds.Add(taskId))
+            {
+                errors.Add($"spectator replay frame timing pending task queue task item task id {taskId} is duplicated");
+            }
         }
 
         if (!StringListsEqual(
@@ -7880,12 +7885,12 @@ public static class MatchRecoveryValidator
             errors);
     }
 
-    private static void ValidateSpectatorPendingTaskQueueTaskPayloadValues(
+    private static string? ValidateSpectatorPendingTaskQueueTaskPayloadValues(
         object? taskPayload,
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing pending task queue task item";
-        ValidatePendingTaskQueueTaskPayloadValues(taskPayload, payloadLabel, errors);
+        return ValidatePendingTaskQueueTaskPayloadValues(taskPayload, payloadLabel, errors);
     }
 
     private static string? ValidatePendingTaskQueueTaskPayloadValues(
