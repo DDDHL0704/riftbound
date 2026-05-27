@@ -6287,6 +6287,11 @@ public static class MatchRecoveryValidator
             objectPayloads,
             expectedObjectIdSet,
             errors);
+        ValidateSpectatorSnapshotExtraPlayerObjectPayloadPropertyNames(
+            playerId,
+            objectPayloads,
+            expectedObjectIdSet,
+            errors);
 
         foreach (var expectedObjectId in expectedObjectIds)
         {
@@ -6321,6 +6326,26 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} payload is required");
             }
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotExtraPlayerObjectPayloadPropertyNames(
+        string playerId,
+        IReadOnlyDictionary<string, object?> objectPayloads,
+        IReadOnlySet<string> expectedObjectIds,
+        List<string> errors)
+    {
+        foreach (var (objectId, objectPayload) in objectPayloads)
+        {
+            if (expectedObjectIds.Contains(objectId) || !IsSnapshotPlayerPayloadObject(objectPayload))
+            {
+                continue;
+            }
+
+            ValidateSnapshotPayloadObjectPropertyNames(
+                objectPayload,
+                $"spectator replay frame snapshot player {playerId} object {objectId}",
+                errors);
         }
     }
 
