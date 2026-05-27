@@ -5697,8 +5697,22 @@ public static class MatchRecoveryValidator
         string description,
         List<string> errors)
     {
-        if (!TryReadObjectBool(objectPayload, key, out var value)
-            || value != expected)
+        var payloadLabel = $"spectator replay frame snapshot player {playerId} object {objectId}";
+        var hasScalar = TryReadObjectValue(objectPayload, key, out var rawValue)
+            && !IsNullSnapshotPayloadValue(rawValue);
+        ValidateSnapshotPayloadOptionalBoolValue(
+            objectPayload,
+            key,
+            payloadLabel,
+            description,
+            errors);
+        if (!hasScalar)
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}");
+            return;
+        }
+
+        if (TryReadObjectBool(objectPayload, key, out var value) && value != expected)
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}");
         }
