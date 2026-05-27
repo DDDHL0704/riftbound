@@ -7609,7 +7609,7 @@ public static class MatchRecoveryValidator
             queuePayload,
             "spectator replay frame timing pending task queue",
             errors);
-        ValidateSpectatorPendingTaskQueuePayloadValues(queuePayload, errors);
+        var validatedSpectatorActiveTaskId = ValidateSpectatorPendingTaskQueuePayloadValues(queuePayload, errors);
 
         var authoritativeQueue = authoritativeState.PendingTaskQueue;
         if (!TryReadObjectBool(queuePayload, "hasTasks", out var hasTasks)
@@ -7648,6 +7648,7 @@ public static class MatchRecoveryValidator
                 taskPayloads,
                 authoritativeState,
                 authoritativeQueue.Tasks,
+                validatedSpectatorActiveTaskId,
                 errors);
         }
 
@@ -7687,6 +7688,7 @@ public static class MatchRecoveryValidator
         IReadOnlyList<object?> taskPayloads,
         MatchState authoritativeState,
         IReadOnlyList<CleanupTaskState> authoritativeTasks,
+        string? activeTaskId,
         List<string> errors)
     {
         var seenTaskIds = new HashSet<string>(StringComparer.Ordinal);
@@ -7707,6 +7709,11 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"spectator replay frame timing pending task queue task item task id {taskId} is duplicated");
             }
+        }
+
+        if (!string.IsNullOrEmpty(activeTaskId) && !seenTaskIds.Contains(activeTaskId))
+        {
+            errors.Add($"spectator replay frame timing pending task queue active task id {activeTaskId} does not match a pending task queue task id");
         }
 
         if (!StringListsEqual(
@@ -7806,12 +7813,12 @@ public static class MatchRecoveryValidator
         }
     }
 
-    private static void ValidateSpectatorPendingTaskQueuePayloadValues(
+    private static string? ValidateSpectatorPendingTaskQueuePayloadValues(
         object? queuePayload,
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing pending task queue";
-        ValidatePendingTaskQueuePayloadValues(queuePayload, payloadLabel, errors);
+        return ValidatePendingTaskQueuePayloadValues(queuePayload, payloadLabel, errors);
     }
 
     private static string? ValidatePendingTaskQueuePayloadValues(
