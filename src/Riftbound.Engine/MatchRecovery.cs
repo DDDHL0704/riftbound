@@ -5377,20 +5377,47 @@ public static class MatchRecoveryValidator
             $"spectator replay frame snapshot player {playerId} object {objectId} location",
             errors);
 
-        if (!TryReadObjectString(locationPayload, "playerId", out var locationPlayerId)
-            || !string.Equals(locationPlayerId, expectedLocation.PlayerId, StringComparison.Ordinal))
+        var payloadLabel = $"spectator replay frame snapshot player {playerId} object {objectId} location";
+        var locationPlayerId = ValidateSnapshotPayloadRequiredStringValue(
+            locationPayload,
+            "playerId",
+            payloadLabel,
+            "player id",
+            errors);
+        if (locationPlayerId is not null
+            && !string.Equals(locationPlayerId, expectedLocation.PlayerId, StringComparison.Ordinal))
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location player id does not match authoritative object location player id");
         }
 
-        if (!TryReadObjectString(locationPayload, "zone", out var zone)
-            || !string.Equals(zone, expectedLocation.Zone, StringComparison.Ordinal))
+        var zone = ValidateSnapshotPayloadRequiredStringValue(
+            locationPayload,
+            "zone",
+            payloadLabel,
+            "zone",
+            errors,
+            IsKnownObjectLocationZone);
+        if (zone is not null
+            && !string.Equals(zone, expectedLocation.Zone, StringComparison.Ordinal))
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location zone does not match authoritative object location zone");
         }
 
-        if (!TryReadObjectOptionalString(locationPayload, "battlefieldObjectId", out var battlefieldObjectId)
-            || !string.Equals(
+        var hasBattlefieldObjectId = TryReadObjectValue(locationPayload, "battlefieldObjectId", out var battlefieldObjectIdPayload)
+            && !IsNullSnapshotPayloadValue(battlefieldObjectIdPayload);
+        var battlefieldObjectId = ValidateSnapshotPayloadOptionalStringValue(
+            locationPayload,
+            "battlefieldObjectId",
+            payloadLabel,
+            "battlefield object id",
+            errors);
+        if (!hasBattlefieldObjectId)
+        {
+            battlefieldObjectId = string.Empty;
+        }
+
+        if (battlefieldObjectId is not null
+            && !string.Equals(
                 battlefieldObjectId,
                 expectedLocation.BattlefieldObjectId ?? string.Empty,
                 StringComparison.Ordinal))
