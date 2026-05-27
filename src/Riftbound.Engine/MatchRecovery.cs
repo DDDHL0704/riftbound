@@ -12792,6 +12792,9 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "battlefield object id",
             errors);
+        ValidateSpectatorBattleParticipantListPayloadShapes(
+            battlePayload,
+            errors);
         ValidateSnapshotPayloadRequiredStringListValues(
             battlePayload,
             "attackerObjectIds",
@@ -12805,6 +12808,40 @@ public static class MatchRecoveryValidator
             "defender object id",
             errors);
         ValidateSpectatorBattleParticipantControllerPayloadValues(battlePayload, errors);
+    }
+
+    private static void ValidateSpectatorBattleParticipantListPayloadShapes(
+        object? battlePayload,
+        List<string> errors)
+    {
+        ValidateSpectatorBattleParticipantListPayloadShape(
+            battlePayload,
+            "attackerObjectIds",
+            "attacker object id",
+            errors);
+        ValidateSpectatorBattleParticipantListPayloadShape(
+            battlePayload,
+            "defenderObjectIds",
+            "defender object id",
+            errors);
+    }
+
+    private static void ValidateSpectatorBattleParticipantListPayloadShape(
+        object? battlePayload,
+        string payloadKey,
+        string itemLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(battlePayload, payloadKey, out var listPayload)
+            || IsNullSnapshotPayloadValue(listPayload))
+        {
+            return;
+        }
+
+        if (!TryReadStringListValue(listPayload, out _))
+        {
+            errors.Add($"spectator replay frame timing battle {itemLabel} list payload is required");
+        }
     }
 
     private static void ValidateSpectatorBattleParticipantControllerPayloadValues(
