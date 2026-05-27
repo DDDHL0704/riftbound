@@ -5150,6 +5150,12 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "untyped power",
             errors);
+        ValidateSpectatorRequiredIntMapPayloadShape(
+            runePoolPayload,
+            payloadLabel,
+            "powerByTrait",
+            "power trait",
+            errors);
         ValidateSnapshotPayloadRequiredPositiveIntMapValues(
             runePoolPayload,
             "powerByTrait",
@@ -13017,6 +13023,25 @@ public static class MatchRecoveryValidator
         if (!TryReadStringListValue(listPayload, out _))
         {
             errors.Add($"{payloadLabel} {itemLabel} list payload is required");
+        }
+    }
+
+    private static void ValidateSpectatorRequiredIntMapPayloadShape(
+        object? payload,
+        string payloadLabel,
+        string payloadKey,
+        string itemLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(payload, payloadKey, out var mapPayload)
+            || IsNullSnapshotPayloadValue(mapPayload))
+        {
+            return;
+        }
+
+        if (!IsSnapshotIntMapPayloadObject(mapPayload))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} map payload is required");
         }
     }
 
