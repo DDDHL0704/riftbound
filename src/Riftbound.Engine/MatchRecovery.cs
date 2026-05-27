@@ -3192,7 +3192,7 @@ public static class MatchRecoveryValidator
         }
 
         var payloadLabel = $"snapshot for {view.PlayerId} timing pending task queue";
-        ValidatePendingTaskQueuePayloadValues(queuePayload, payloadLabel, errors);
+        var activeTaskId = ValidatePendingTaskQueuePayloadValues(queuePayload, payloadLabel, errors);
 
         if (TryReadObjectList(queuePayload, "tasks", out var taskPayloads))
         {
@@ -3212,6 +3212,11 @@ public static class MatchRecoveryValidator
                 {
                     errors.Add($"{payloadLabel} task item task id {taskId} is duplicated");
                 }
+            }
+
+            if (!string.IsNullOrEmpty(activeTaskId) && !seenTaskIds.Contains(activeTaskId))
+            {
+                errors.Add($"{payloadLabel} active task id {activeTaskId} does not match a pending task queue task id");
             }
         }
 
@@ -7809,7 +7814,7 @@ public static class MatchRecoveryValidator
         ValidatePendingTaskQueuePayloadValues(queuePayload, payloadLabel, errors);
     }
 
-    private static void ValidatePendingTaskQueuePayloadValues(
+    private static string? ValidatePendingTaskQueuePayloadValues(
         object? queuePayload,
         string payloadLabel,
         List<string> errors)
@@ -7832,7 +7837,7 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "phase",
             errors);
-        ValidateSnapshotPayloadOptionalStringValue(
+        var activeTaskId = ValidateSnapshotPayloadOptionalStringValue(
             queuePayload,
             "activeTaskId",
             payloadLabel,
@@ -7843,13 +7848,15 @@ public static class MatchRecoveryValidator
             || IsNullSnapshotPayloadValue(tasksPayload))
         {
             errors.Add($"{payloadLabel} task list is required");
-            return;
+            return activeTaskId;
         }
 
         if (!TryReadObjectListValue(tasksPayload, out _))
         {
             errors.Add($"{payloadLabel} task list is invalid");
         }
+
+        return activeTaskId;
     }
 
     private static void ValidateSpectatorPendingTaskQueueMetadataPayloadValues(
