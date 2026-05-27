@@ -6349,6 +6349,12 @@ public static class MatchRecoveryValidator
         string authoritativeDescription,
         List<string> errors)
     {
+        ValidateSpectatorRequiredStringListPayloadShape(
+            battlefieldPayload,
+            payloadLabel,
+            key,
+            itemDescription,
+            errors);
         ValidateSnapshotPayloadRequiredStringListValues(
             battlefieldPayload,
             key,
