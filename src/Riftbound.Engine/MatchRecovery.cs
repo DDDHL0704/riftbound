@@ -6329,6 +6329,12 @@ public static class MatchRecoveryValidator
             expectedObjectIdSet,
             authoritativeState,
             errors);
+        ValidateSpectatorSnapshotExtraVisiblePlayerObjectScalarParity(
+            playerId,
+            objectPayloads,
+            expectedObjectIdSet,
+            authoritativeState,
+            errors);
 
         foreach (var expectedObjectId in expectedObjectIds)
         {
@@ -6707,6 +6713,33 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"spectator replay frame snapshot player {playerId} hidden face-down object {objectId} exposes private metadata");
             }
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotExtraVisiblePlayerObjectScalarParity(
+        string playerId,
+        IReadOnlyDictionary<string, object?> objectPayloads,
+        IReadOnlySet<string> expectedObjectIds,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        foreach (var (objectId, objectPayload) in objectPayloads)
+        {
+            if (expectedObjectIds.Contains(objectId)
+                || !IsSnapshotPlayerPayloadObject(objectPayload)
+                || !authoritativeState.CardObjects.TryGetValue(objectId, out var cardObject)
+                || cardObject.IsFaceDown
+                || IsHiddenPlayerObjectForSpectator(authoritativeState, objectId))
+            {
+                continue;
+            }
+
+            ValidateSpectatorSnapshotVisiblePlayerObjectScalars(
+                playerId,
+                objectId,
+                objectPayload,
+                cardObject,
+                errors);
         }
     }
 
