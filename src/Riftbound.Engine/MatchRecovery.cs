@@ -7416,6 +7416,12 @@ public static class MatchRecoveryValidator
             $"{payloadLabel} cost",
             "power",
             errors);
+        ValidateSpectatorRequiredIntMapPayloadShape(
+            costPayload,
+            $"{payloadLabel} cost",
+            "powerByTrait",
+            "power cost trait",
+            errors);
         ValidateSnapshotPayloadRequiredPositiveIntMapValues(
             costPayload,
             "powerByTrait",
@@ -8643,11 +8649,23 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "remaining power",
             errors);
+        ValidateSpectatorRequiredIntMapPayloadShape(
+            resourcePayload,
+            payloadLabel,
+            "generatedPowerByTrait",
+            "generated power trait",
+            errors);
         ValidateSnapshotPayloadRequiredPositiveIntMapValues(
             resourcePayload,
             "generatedPowerByTrait",
             payloadLabel,
             "generated power trait",
+            errors);
+        ValidateSpectatorRequiredIntMapPayloadShape(
+            resourcePayload,
+            payloadLabel,
+            "remainingPowerByTrait",
+            "remaining power trait",
             errors);
         ValidateSnapshotPayloadRequiredPositiveIntMapValues(
             resourcePayload,

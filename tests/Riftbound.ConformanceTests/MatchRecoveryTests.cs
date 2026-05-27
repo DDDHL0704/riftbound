@@ -20626,6 +20626,124 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingPaymentPowerTraitMapPayloadShapeDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new("source-1", ownerId: "alice", controllerId: "alice")
+            },
+            pendingPayment: new PendingPaymentState(
+                "payment-1",
+                "PAY_COST",
+                "alice",
+                powerCost: 1,
+                powerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    ["blue"] = 1
+                },
+                legalPaymentChoiceIds: ["SPEND_POWER:blue:1"],
+                reason: "test-payment-trait-map"),
+            temporaryPaymentResources:
+            [
+                new TemporaryPaymentResourceState(
+                    "temp-payment-resource-1",
+                    "alice",
+                    "source-1",
+                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "PAY_COST",
+                    generatedPower: 2,
+                    remainingPower: 1,
+                    allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind],
+                    createdTick: 2,
+                    generatedPowerByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        ["red"] = 2
+                    },
+                    remainingPowerByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        ["red"] = 1
+                    })
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var pendingPayment = Assert.IsType<Dictionary<string, object?>>(timing["pendingPayment"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var cost = Assert.IsType<Dictionary<string, object?>>(pendingPayment["cost"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cost["powerByTrait"] = RawJson("""["blue"]""");
+        pendingPayment["cost"] = cost;
+        timing["pendingPayment"] = pendingPayment;
+        var temporaryResources = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["temporaryPaymentResources"])
+            .ToArray();
+        var resource = Assert.IsType<Dictionary<string, object?>>(temporaryResources[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        resource["generatedPowerByTrait"] = RawJson("""["red"]""");
+        resource["remainingPowerByTrait"] = RawJson("""true""");
+        temporaryResources[0] = resource;
+        timing["temporaryPaymentResources"] = temporaryResources;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing pending payment cost power cost trait map payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing temporary payment resource item generated power trait map payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing temporary payment resource item remaining power trait map payload is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingPaymentPowerTraitMapPropertyNameDrift()
     {
         var authoritativeState = new MatchState(
