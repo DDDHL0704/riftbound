@@ -14165,6 +14165,7 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        var seenStackItemIds = new HashSet<string>(StringComparer.Ordinal);
         for (var index = 0; index < snapshot.Stack.Count; index++)
         {
             var stackItem = snapshot.Stack[index];
@@ -14184,16 +14185,20 @@ public static class MatchRecoveryValidator
                 stackItem,
                 $"spectator replay frame snapshot stack item {stackItemLabel}",
                 errors);
-            ValidateSpectatorSnapshotStackItemPayloadValues(stackItem, stackItemLabel, errors);
+            var normalizedStackItemId = ValidateSpectatorSnapshotStackItemPayloadValues(stackItem, stackItemLabel, errors);
+            if (normalizedStackItemId is not null && !seenStackItemIds.Add(normalizedStackItemId))
+            {
+                errors.Add($"spectator replay frame snapshot stack item {normalizedStackItemId} is duplicated");
+            }
         }
     }
 
-    private static void ValidateSpectatorSnapshotStackItemPayloadValues(
+    private static string? ValidateSpectatorSnapshotStackItemPayloadValues(
         object? stackItem,
         string stackItemLabel,
         List<string> errors)
     {
-        ValidateStackItemPayloadValues(
+        return ValidateStackItemPayloadValues(
             stackItem,
             $"spectator replay frame snapshot stack item {stackItemLabel}",
             errors);
