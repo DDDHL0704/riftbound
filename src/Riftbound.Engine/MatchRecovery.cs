@@ -9945,11 +9945,11 @@ public static class MatchRecoveryValidator
         }
 
         var authoritativeBattlefieldTasks = authoritativeState.BattlefieldTasks;
-        if (spectatorBattlefieldTasks.Count != authoritativeBattlefieldTasks.Count)
+        var validateAuthoritativeBattlefieldTaskParity = spectatorBattlefieldTasks.Count == authoritativeBattlefieldTasks.Count;
+        if (!validateAuthoritativeBattlefieldTaskParity)
         {
             errors.Add(
                 $"spectator replay frame timing battlefield task count {spectatorBattlefieldTasks.Count} does not match authoritative state battlefield task count {authoritativeBattlefieldTasks.Count}");
-            return;
         }
 
         var seenTaskIds = new HashSet<string>(StringComparer.Ordinal);
@@ -9972,6 +9972,11 @@ public static class MatchRecoveryValidator
             ValidateSpectatorBattlefieldTaskPayloadListValues(
                 spectatorBattlefieldTask,
                 errors);
+        }
+
+        if (!validateAuthoritativeBattlefieldTaskParity)
+        {
+            return;
         }
 
         if (!StringListsEqual(
