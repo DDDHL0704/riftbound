@@ -6614,6 +6614,7 @@ public static class MatchRecoveryValidator
 
             var payloadLabel = $"spectator replay frame snapshot player {playerId} object {objectId} location";
             var expectedLocation = ExpectedSpectatorObjectLocation(authoritativeState, objectId);
+            var hasAuthoritativeObject = authoritativeState.CardObjects.ContainsKey(objectId);
             if (!TryReadObjectValue(objectPayload, "location", out var locationPayload)
                 || IsNullSnapshotPayloadValue(locationPayload))
             {
@@ -6680,6 +6681,11 @@ public static class MatchRecoveryValidator
                     StringComparison.Ordinal))
             {
                 errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location battlefield object id does not match authoritative object location battlefield object id");
+            }
+
+            if (expectedLocation is null && hasAuthoritativeObject)
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location must be absent without authoritative object location");
             }
         }
     }
