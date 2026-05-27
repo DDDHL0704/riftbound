@@ -4872,6 +4872,85 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotPlayerObjectLocationValueShapeDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var players = alice.Snapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["objects"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["object-1"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "object-1",
+                ["location"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["playerId"] = " alice ",
+                    ["zone"] = "UNKNOWN_ZONE",
+                    ["battlefieldObjectId"] = 7
+                }
+            },
+            ["object-2"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "object-2",
+                ["location"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["playerId"] = "",
+                    ["zone"] = " BATTLEFIELD ",
+                    ["battlefieldObjectId"] = " battlefield-1 "
+                }
+            }
+        };
+        players["alice"] = alicePayload;
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player alice object object-1 location player id alice has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player alice object object-1 location zone UNKNOWN_ZONE is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player alice object object-1 location battlefield object id is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player alice object object-2 location player id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player alice object object-2 location zone BATTLEFIELD has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player alice object object-2 location battlefield object id battlefield-1 has surrounding whitespace",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotPlayerSeatValueDrift()
     {
         var alice = PlayerView("alice", 0, 0);

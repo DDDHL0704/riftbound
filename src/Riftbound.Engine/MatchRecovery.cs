@@ -3584,6 +3584,11 @@ public static class MatchRecoveryValidator
                 snapshotPlayerId,
                 playerPayload,
                 errors);
+            ValidateSnapshotPlayerObjectLocationPayloadValues(
+                view,
+                snapshotPlayerId,
+                playerPayload,
+                errors);
 
             if (!TryReadObjectString(playerPayload, "id", out var payloadId)
                 || string.IsNullOrWhiteSpace(payloadId))
@@ -3960,6 +3965,50 @@ public static class MatchRecoveryValidator
             ValidateSnapshotPayloadObjectPropertyNames(
                 locationPayload,
                 $"snapshot for {view.PlayerId} player {snapshotPlayerId} object {objectId} location",
+                errors);
+        }
+    }
+
+    private static void ValidateSnapshotPlayerObjectLocationPayloadValues(
+        RecoveredPlayerView view,
+        string snapshotPlayerId,
+        object? playerPayload,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(playerPayload, "objects", out var objectsPayload)
+            || !TryReadObjectDictionaryValue(objectsPayload, out var objectPayloads))
+        {
+            return;
+        }
+
+        foreach (var (objectId, objectPayload) in objectPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(objectPayload)
+                || !TryReadObjectValue(objectPayload, "location", out var locationPayload)
+                || !IsSnapshotPlayerPayloadObject(locationPayload))
+            {
+                continue;
+            }
+
+            var payloadLabel = $"snapshot for {view.PlayerId} player {snapshotPlayerId} object {objectId} location";
+            ValidateSnapshotPayloadRequiredStringValue(
+                locationPayload,
+                "playerId",
+                payloadLabel,
+                "player id",
+                errors);
+            ValidateSnapshotPayloadRequiredStringValue(
+                locationPayload,
+                "zone",
+                payloadLabel,
+                "zone",
+                errors,
+                IsKnownObjectLocationZone);
+            ValidateSnapshotPayloadOptionalStringValue(
+                locationPayload,
+                "battlefieldObjectId",
+                payloadLabel,
+                "battlefield object id",
                 errors);
         }
     }
@@ -9758,7 +9807,7 @@ public static class MatchRecoveryValidator
                     $"authoritative state object location {objectId} zone {normalizedZone} has surrounding whitespace");
             }
 
-            if (!IsKnownAuthoritativeObjectLocationZone(normalizedZone))
+            if (!IsKnownObjectLocationZone(normalizedZone))
             {
                 errors.Add($"authoritative state object location {objectId} zone {normalizedZone} is not supported");
             }
@@ -9770,7 +9819,7 @@ public static class MatchRecoveryValidator
         }
     }
 
-    private static bool IsKnownAuthoritativeObjectLocationZone(string zone)
+    private static bool IsKnownObjectLocationZone(string zone)
     {
         return zone switch
         {
@@ -9818,7 +9867,7 @@ public static class MatchRecoveryValidator
             }
 
             var normalizedZone = location.Zone.Trim();
-            if (!IsKnownAuthoritativeObjectLocationZone(normalizedZone)
+            if (!IsKnownObjectLocationZone(normalizedZone)
                 || string.Equals(normalizedZone, "STACK", StringComparison.Ordinal))
             {
                 continue;
