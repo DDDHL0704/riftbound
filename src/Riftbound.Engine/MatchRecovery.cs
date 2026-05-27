@@ -8296,9 +8296,16 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         List<string> errors)
     {
-        if (!TryReadObjectList(timing, "temporaryPaymentResources", out var spectatorResources))
+        if (!timing.TryGetValue("temporaryPaymentResources", out var temporaryPaymentResourcesPayload)
+            || IsNullSnapshotPayloadValue(temporaryPaymentResourcesPayload))
         {
             errors.Add("spectator replay frame timing temporary payment resources are required");
+            return;
+        }
+
+        if (!TryReadObjectListValue(temporaryPaymentResourcesPayload, out var spectatorResources))
+        {
+            errors.Add("spectator replay frame timing temporary payment resources payload is required");
             return;
         }
 
@@ -8330,7 +8337,7 @@ public static class MatchRecoveryValidator
             if (!IsSnapshotPlayerPayloadObject(spectatorResource))
             {
                 errors.Add("spectator replay frame timing temporary payment resource payload is required");
-                return;
+                continue;
             }
 
             ValidateSnapshotPayloadObjectPropertyNames(
@@ -8823,9 +8830,16 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         List<string> errors)
     {
-        if (!TryReadObjectList(timing, "battlefieldTasks", out var spectatorBattlefieldTasks))
+        if (!timing.TryGetValue("battlefieldTasks", out var battlefieldTasksPayload)
+            || IsNullSnapshotPayloadValue(battlefieldTasksPayload))
         {
             errors.Add("spectator replay frame timing battlefield tasks are required");
+            return;
+        }
+
+        if (!TryReadObjectListValue(battlefieldTasksPayload, out var spectatorBattlefieldTasks))
+        {
+            errors.Add("spectator replay frame timing battlefield tasks payload is required");
             return;
         }
 
@@ -8842,7 +8856,7 @@ public static class MatchRecoveryValidator
             if (!IsSnapshotPlayerPayloadObject(spectatorBattlefieldTask))
             {
                 errors.Add("spectator replay frame timing battlefield task payload is required");
-                return;
+                continue;
             }
 
             ValidateSnapshotPayloadObjectPropertyNames(

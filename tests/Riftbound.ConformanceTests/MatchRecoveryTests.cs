@@ -19310,6 +19310,208 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceAndBattlefieldTaskPayloadShapeDrift()
+    {
+        const string sourceObjectId1 = "source-1";
+        const string sourceObjectId2 = "source-2";
+        const string battlefieldObjectId = "alice-contested-battlefield-1";
+        const string aliceUnitObjectId = "alice-battlefield-unit-1";
+        const string bobUnitObjectId = "bob-battlefield-unit-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Base = [sourceObjectId1, sourceObjectId2],
+                    Battlefields = [battlefieldObjectId, aliceUnitObjectId]
+                },
+                ["bob"] = PlayerZones.Empty with
+                {
+                    Battlefields = [bobUnitObjectId]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId1] = new(sourceObjectId1, ownerId: "alice", controllerId: "alice"),
+                [sourceObjectId2] = new(sourceObjectId2, ownerId: "alice", controllerId: "alice"),
+                [battlefieldObjectId] = new(
+                    battlefieldObjectId,
+                    cardNo: "SFD-BATTLEFIELD",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
+                [aliceUnitObjectId] = new(
+                    aliceUnitObjectId,
+                    cardNo: "SFD-ALICE-UNIT",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.UnitCard]),
+                [bobUnitObjectId] = new(
+                    bobUnitObjectId,
+                    cardNo: "SFD-BOB-UNIT",
+                    ownerId: "bob",
+                    controllerId: "bob",
+                    tags: [CardObjectTags.UnitCard])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId1] = new("alice", "BASE"),
+                [sourceObjectId2] = new("alice", "BASE"),
+                [aliceUnitObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId),
+                [bobUnitObjectId] = new("bob", "BATTLEFIELD", battlefieldObjectId)
+            },
+            temporaryPaymentResources:
+            [
+                new TemporaryPaymentResourceState(
+                    "temp-payment-resource-1",
+                    "alice",
+                    sourceObjectId1,
+                    "TEST_TEMP_RESOURCE_ABILITY_1",
+                    "PAY_COST",
+                    generatedPower: 3,
+                    remainingPower: 1,
+                    allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind],
+                    createdTick: 2,
+                    generatedPowerByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        ["blue"] = 2
+                    },
+                    remainingPowerByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        ["blue"] = 1
+                    }),
+                new TemporaryPaymentResourceState(
+                    "temp-payment-resource-2",
+                    "alice",
+                    sourceObjectId2,
+                    "TEST_TEMP_RESOURCE_ABILITY_2",
+                    "PAY_COST",
+                    generatedPower: 2,
+                    remainingPower: 2,
+                    allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind],
+                    createdTick: 3,
+                    generatedPowerByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        ["red"] = 2
+                    },
+                    remainingPowerByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        ["red"] = 2
+                    })
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+
+        var malformedListFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var malformedListTiming = malformedListFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        malformedListTiming["temporaryPaymentResources"] = "not-temporary-payment-resources";
+        malformedListTiming["battlefieldTasks"] = "not-battlefield-tasks";
+        malformedListFrame = malformedListFrame with
+        {
+            SpectatorSnapshot = malformedListFrame.SpectatorSnapshot with
+            {
+                Timing = malformedListTiming
+            }
+        };
+
+        var malformedListErrors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: malformedListFrame);
+
+        Assert.Contains(
+            malformedListErrors,
+            error => error.Contains(
+                "spectator replay frame timing temporary payment resources payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            malformedListErrors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield tasks payload is required",
+                StringComparison.Ordinal));
+
+        var malformedItemFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var malformedItemTiming = malformedItemFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var temporaryResources = Assert.IsAssignableFrom<IEnumerable<object?>>(malformedItemTiming["temporaryPaymentResources"])
+            .ToArray();
+        Assert.Equal(2, temporaryResources.Length);
+        temporaryResources[0] = "not-temporary-resource-1";
+        temporaryResources[1] = "not-temporary-resource-2";
+        malformedItemTiming["temporaryPaymentResources"] = temporaryResources;
+        var battlefieldTasks = Assert.IsAssignableFrom<IEnumerable<object?>>(malformedItemTiming["battlefieldTasks"])
+            .ToArray();
+        Assert.Equal(2, battlefieldTasks.Length);
+        battlefieldTasks[0] = "not-battlefield-task-1";
+        battlefieldTasks[1] = "not-battlefield-task-2";
+        malformedItemTiming["battlefieldTasks"] = battlefieldTasks;
+        malformedItemFrame = malformedItemFrame with
+        {
+            SpectatorSnapshot = malformedItemFrame.SpectatorSnapshot with
+            {
+                Timing = malformedItemTiming
+            }
+        };
+
+        var malformedItemErrors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: malformedItemFrame);
+
+        Assert.Equal(
+            2,
+            malformedItemErrors.Count(error => error.Contains(
+                "spectator replay frame timing temporary payment resource payload is required",
+                StringComparison.Ordinal)));
+        Assert.Equal(
+            2,
+            malformedItemErrors.Count(error => error.Contains(
+                "spectator replay frame timing battlefield task payload is required",
+                StringComparison.Ordinal)));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourcesMismatch()
     {
         var authoritativeState = new MatchState(
