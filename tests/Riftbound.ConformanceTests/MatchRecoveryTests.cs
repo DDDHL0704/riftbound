@@ -1155,6 +1155,143 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotLanesBattlefieldStandbySlotItemValueShapeDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Lanes = new Dictionary<string, object?>(StringComparer.Ordinal)
+                    {
+                        ["battlefieldCount"] = 1,
+                        ["battlefieldObjectIds"] = Array.Empty<object?>(),
+                        ["battlefields"] = new object?[]
+                        {
+                            new Dictionary<string, object?>(StringComparer.Ordinal)
+                            {
+                                ["battlefieldObjectId"] = "battlefield-a",
+                                ["zonePlayerId"] = "alice",
+                                ["cardNo"] = "TEST-BATTLEFIELD",
+                                ["controllerId"] = "alice",
+                                ["status"] = "CONTROLLED",
+                                ["contested"] = false,
+                                ["scoredThisTurn"] = false,
+                                ["standbySlotCount"] = 3,
+                                ["faceDownStandbyCount"] = 1,
+                                ["hiddenStandbyCount"] = 1,
+                                ["occupantObjectIds"] = Array.Empty<string>(),
+                                ["occupantControllerIds"] = Array.Empty<string>(),
+                                ["unitsBySide"] = new Dictionary<string, object?>(StringComparer.Ordinal),
+                                ["standbyObjectIds"] = new[] { "standby-a", "standby-b", "standby-c" },
+                                ["scoredThisTurnPlayerIds"] = Array.Empty<string>(),
+                                ["pendingTaskKinds"] = Array.Empty<string>(),
+                                ["standbySlots"] = new object?[]
+                                {
+                                    new Dictionary<string, object?>(StringComparer.Ordinal)
+                                    {
+                                        ["slotId"] = " battlefield-a:standby:1 ",
+                                        ["battlefieldObjectId"] = 123,
+                                        ["sidePlayerId"] = " alice ",
+                                        ["controllerId"] = 123,
+                                        ["visible"] = true,
+                                        ["state"] = " UNKNOWN ",
+                                        ["isFaceDown"] = "false",
+                                        ["objectId"] = 123
+                                    },
+                                    new Dictionary<string, object?>(StringComparer.Ordinal)
+                                    {
+                                        ["slotId"] = "battlefield-a:standby:2",
+                                        ["battlefieldObjectId"] = "battlefield-a",
+                                        ["visible"] = "true",
+                                        ["state"] = "VISIBLE",
+                                        ["isFaceDown"] = false,
+                                        ["objectId"] = 123
+                                    },
+                                    new Dictionary<string, object?>(StringComparer.Ordinal)
+                                    {
+                                        ["slotId"] = "battlefield-a:standby:3",
+                                        ["battlefieldObjectId"] = "battlefield-a",
+                                        ["visible"] = false,
+                                        ["state"] = "VISIBLE",
+                                        ["isFaceDown"] = true,
+                                        ["objectId"] = "standby-c"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 standby slot item 1 slot id battlefield-a:standby:1 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 standby slot item 1 battlefield id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 standby slot item 1 side player alice has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 standby slot item 1 controller is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 standby slot item 1 state UNKNOWN has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 standby slot item 1 state UNKNOWN is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 standby slot item 1 face-down flag is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 standby slot item 1 object id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 standby slot item 2 visibility is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 standby slot item 2 object id is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 standby slot item 3 state does not match visibility",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 standby slot item 3 hidden object id must be redacted",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotStackItemPropertyNameDrift()
     {
         var alice = PlayerView("alice", 0, 0);

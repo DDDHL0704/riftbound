@@ -2031,6 +2031,7 @@ public static class MatchRecoveryValidator
             ValidateSnapshotLaneBattlefieldStandbySlotListPayloadShapes(view, errors);
             ValidateSnapshotLaneBattlefieldStandbySlotItemPayloadShapes(view, errors);
             ValidateSnapshotLaneBattlefieldStandbySlotItemPayloadPropertyNames(view, errors);
+            ValidateSnapshotLaneBattlefieldStandbySlotItemPayloadValues(view, errors);
         }
 
         if (view.Snapshot.Stack is null)
@@ -2513,6 +2514,115 @@ public static class MatchRecoveryValidator
                 "standbySlots",
                 $"snapshot for {view.PlayerId} lanes battlefield item {index + 1} standby slot",
                 errors);
+        }
+    }
+
+    private static void ValidateSnapshotLaneBattlefieldStandbySlotItemPayloadValues(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (!TryReadObjectList(view.Snapshot.Lanes, "battlefields", out var items))
+        {
+            return;
+        }
+
+        for (var index = 0; index < items.Count; index++)
+        {
+            var item = items[index];
+            if (!IsSnapshotPlayerPayloadObject(item)
+                || !TryReadObjectList(item, "standbySlots", out var standbySlots))
+            {
+                continue;
+            }
+
+            for (var slotIndex = 0; slotIndex < standbySlots.Count; slotIndex++)
+            {
+                var slot = standbySlots[slotIndex];
+                if (!IsSnapshotPlayerPayloadObject(slot))
+                {
+                    continue;
+                }
+
+                var slotLabel = $"snapshot for {view.PlayerId} lanes battlefield item {index + 1} standby slot item {slotIndex + 1}";
+                ValidateSnapshotPayloadRequiredStringValue(
+                    slot,
+                    "slotId",
+                    slotLabel,
+                    "slot id",
+                    errors);
+                ValidateSnapshotPayloadRequiredStringValue(
+                    slot,
+                    "battlefieldObjectId",
+                    slotLabel,
+                    "battlefield id",
+                    errors);
+                ValidateSnapshotPayloadOptionalStringValue(
+                    slot,
+                    "sidePlayerId",
+                    slotLabel,
+                    "side player",
+                    errors);
+                ValidateSnapshotPayloadOptionalStringValue(
+                    slot,
+                    "controllerId",
+                    slotLabel,
+                    "controller",
+                    errors);
+                ValidateSnapshotPayloadRequiredBoolValue(
+                    slot,
+                    "visible",
+                    slotLabel,
+                    "visibility",
+                    errors);
+                var state = ValidateSnapshotPayloadRequiredStringValue(
+                    slot,
+                    "state",
+                    slotLabel,
+                    "state",
+                    errors,
+                    IsKnownStandbySlotState);
+                ValidateSnapshotPayloadRequiredBoolValue(
+                    slot,
+                    "isFaceDown",
+                    slotLabel,
+                    "face-down flag",
+                    errors);
+
+                if (TryReadObjectBool(slot, "visible", out var visible))
+                {
+                    if (state is not null)
+                    {
+                        var expectedState = visible ? "VISIBLE" : "HIDDEN";
+                        if (!string.Equals(state, expectedState, StringComparison.Ordinal))
+                        {
+                            errors.Add($"{slotLabel} state does not match visibility");
+                        }
+                    }
+
+                    if (visible)
+                    {
+                        ValidateSnapshotPayloadRequiredStringValue(
+                            slot,
+                            "objectId",
+                            slotLabel,
+                            "object id",
+                            errors);
+                    }
+                    else if (TryReadObjectValue(slot, "objectId", out _))
+                    {
+                        errors.Add($"{slotLabel} hidden object id must be redacted");
+                    }
+                }
+                else
+                {
+                    ValidateSnapshotPayloadOptionalStringValue(
+                        slot,
+                        "objectId",
+                        slotLabel,
+                        "object id",
+                        errors);
+                }
+            }
         }
     }
 
@@ -3686,6 +3796,12 @@ public static class MatchRecoveryValidator
     }
 
     private static bool IsKnownTriggerSourceVisibility(string value)
+    {
+        return string.Equals(value, "VISIBLE", StringComparison.Ordinal)
+            || string.Equals(value, "HIDDEN", StringComparison.Ordinal);
+    }
+
+    private static bool IsKnownStandbySlotState(string value)
     {
         return string.Equals(value, "VISIBLE", StringComparison.Ordinal)
             || string.Equals(value, "HIDDEN", StringComparison.Ordinal);
