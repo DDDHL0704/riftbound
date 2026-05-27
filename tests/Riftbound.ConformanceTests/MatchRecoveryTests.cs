@@ -18803,6 +18803,201 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingContinuousEffectAndTriggerQueuePayloadShapeDrift()
+    {
+        const string sourceObjectId1 = "source-1";
+        const string sourceObjectId2 = "source-2";
+        const string targetObjectId1 = "target-1";
+        const string targetObjectId2 = "target-2";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Base = [sourceObjectId1, targetObjectId1, sourceObjectId2, targetObjectId2]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId1] = new(sourceObjectId1, ownerId: "alice", controllerId: "alice"),
+                [sourceObjectId2] = new(sourceObjectId2, ownerId: "alice", controllerId: "alice"),
+                [targetObjectId1] = new(
+                    targetObjectId1,
+                    power: 5,
+                    untilEndOfTurnPowerModifier: 2,
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    untilEndOfTurnPowerModifiers:
+                    [
+                        new PowerModifierLedgerEntry(
+                            "effect-1",
+                            "TEST_POWER_MODIFIER",
+                            "UNTIL_END_OF_TURN",
+                            targetObjectId1,
+                            sourceObjectId1,
+                            "SRC-001",
+                            powerDelta: 2,
+                            basePower: 3,
+                            effectivePower: 5,
+                            sourcePath: "test-source-path-1")
+                    ]),
+                [targetObjectId2] = new(
+                    targetObjectId2,
+                    power: 6,
+                    untilEndOfTurnPowerModifier: 3,
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    untilEndOfTurnPowerModifiers:
+                    [
+                        new PowerModifierLedgerEntry(
+                            "effect-2",
+                            "TEST_POWER_MODIFIER",
+                            "UNTIL_END_OF_TURN",
+                            targetObjectId2,
+                            sourceObjectId2,
+                            "SRC-002",
+                            powerDelta: 3,
+                            basePower: 3,
+                            effectivePower: 6,
+                            sourcePath: "test-source-path-2")
+                    ])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId1] = new("alice", "BASE"),
+                [sourceObjectId2] = new("alice", "BASE"),
+                [targetObjectId1] = new("alice", "BASE"),
+                [targetObjectId2] = new("alice", "BASE")
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    "trigger-1",
+                    "alice",
+                    sourceObjectId1,
+                    "LAST_BREATH",
+                    "OBJECT_DESTROYED"),
+                new TriggerQueueItemState(
+                    "trigger-2",
+                    "alice",
+                    sourceObjectId2,
+                    "RALLY",
+                    "UNIT_READY")
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+
+        var malformedListFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var malformedListTiming = malformedListFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        malformedListTiming["continuousEffects"] = "not-continuous-effects";
+        malformedListTiming["triggerQueue"] = "not-trigger-queue";
+        malformedListFrame = malformedListFrame with
+        {
+            SpectatorSnapshot = malformedListFrame.SpectatorSnapshot with
+            {
+                Timing = malformedListTiming
+            }
+        };
+
+        var malformedListErrors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: malformedListFrame);
+
+        Assert.Contains(
+            malformedListErrors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effects payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            malformedListErrors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue payload is required",
+                StringComparison.Ordinal));
+
+        var malformedItemFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var malformedItemTiming = malformedItemFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var continuousEffects = Assert.IsAssignableFrom<IEnumerable<object?>>(malformedItemTiming["continuousEffects"])
+            .ToArray();
+        Assert.Equal(2, continuousEffects.Length);
+        continuousEffects[0] = "not-effect-1";
+        continuousEffects[1] = "not-effect-2";
+        malformedItemTiming["continuousEffects"] = continuousEffects;
+        var triggerQueue = Assert.IsAssignableFrom<IEnumerable<object?>>(malformedItemTiming["triggerQueue"])
+            .ToArray();
+        Assert.Equal(2, triggerQueue.Length);
+        triggerQueue[0] = "not-trigger-1";
+        triggerQueue[1] = "not-trigger-2";
+        malformedItemTiming["triggerQueue"] = triggerQueue;
+        malformedItemFrame = malformedItemFrame with
+        {
+            SpectatorSnapshot = malformedItemFrame.SpectatorSnapshot with
+            {
+                Timing = malformedItemTiming
+            }
+        };
+
+        var malformedItemErrors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: malformedItemFrame);
+
+        Assert.Equal(
+            2,
+            malformedItemErrors.Count(error => error.Contains(
+                "spectator replay frame timing continuous effect payload is required",
+                StringComparison.Ordinal)));
+        Assert.Equal(
+            2,
+            malformedItemErrors.Count(error => error.Contains(
+                "spectator replay frame timing trigger queue item payload is required",
+                StringComparison.Ordinal)));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueMismatch()
     {
         const string battlefieldObjectId = "battlefield-a";

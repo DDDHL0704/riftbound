@@ -7521,9 +7521,16 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         List<string> errors)
     {
-        if (!TryReadObjectList(timing, "continuousEffects", out var spectatorEffects))
+        if (!timing.TryGetValue("continuousEffects", out var continuousEffectsPayload)
+            || IsNullSnapshotPayloadValue(continuousEffectsPayload))
         {
             errors.Add("spectator replay frame timing continuous effects are required");
+            return;
+        }
+
+        if (!TryReadObjectListValue(continuousEffectsPayload, out var spectatorEffects))
+        {
+            errors.Add("spectator replay frame timing continuous effects payload is required");
             return;
         }
 
@@ -7569,7 +7576,7 @@ public static class MatchRecoveryValidator
             if (!IsSnapshotPlayerPayloadObject(spectatorEffect))
             {
                 errors.Add("spectator replay frame timing continuous effect payload is required");
-                return;
+                continue;
             }
 
             ValidateSnapshotPayloadObjectPropertyNames(
@@ -8075,9 +8082,16 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         List<string> errors)
     {
-        if (!TryReadObjectList(timing, "triggerQueue", out var spectatorTriggers))
+        if (!timing.TryGetValue("triggerQueue", out var triggerQueuePayload)
+            || IsNullSnapshotPayloadValue(triggerQueuePayload))
         {
             errors.Add("spectator replay frame timing trigger queue is required");
+            return;
+        }
+
+        if (!TryReadObjectListValue(triggerQueuePayload, out var spectatorTriggers))
+        {
+            errors.Add("spectator replay frame timing trigger queue payload is required");
             return;
         }
 
@@ -8103,7 +8117,7 @@ public static class MatchRecoveryValidator
             if (!IsSnapshotPlayerPayloadObject(spectatorTrigger))
             {
                 errors.Add("spectator replay frame timing trigger queue item payload is required");
-                return;
+                continue;
             }
 
             ValidateSnapshotPayloadObjectPropertyNames(
