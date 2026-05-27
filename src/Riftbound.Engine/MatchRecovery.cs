@@ -5763,11 +5763,16 @@ public static class MatchRecoveryValidator
             errors);
 
         var expectedBattlefieldObjectPairs = ExpectedSpectatorLaneBattlefieldObjectPairs(authoritativeState);
-        if (!TryReadObjectInt(snapshot.Lanes, "battlefieldCount", out var battlefieldCount)
-            || battlefieldCount != expectedBattlefieldObjectPairs.Count)
+        var battlefieldCount = ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+            snapshot.Lanes,
+            "battlefieldCount",
+            "spectator replay frame snapshot lanes",
+            "battlefield count",
+            errors);
+        if (battlefieldCount is null || battlefieldCount != expectedBattlefieldObjectPairs.Count)
         {
             errors.Add(
-                $"spectator replay frame snapshot lane battlefield count {battlefieldCount} does not match authoritative state battlefield object count {expectedBattlefieldObjectPairs.Count}");
+                $"spectator replay frame snapshot lane battlefield count {battlefieldCount.GetValueOrDefault()} does not match authoritative state battlefield object count {expectedBattlefieldObjectPairs.Count}");
         }
 
         if (!TryReadObjectList(snapshot.Lanes, "battlefieldObjectIds", out var battlefieldObjectItems))
@@ -5882,64 +5887,181 @@ public static class MatchRecoveryValidator
             var spectatorBattlefield = spectatorBattlefields[index];
             var authoritativeBattlefield = authoritativeBattlefields[index];
             var battlefieldObjectId = authoritativeBattlefield.BattlefieldObjectId;
+            var payloadLabel = $"spectator replay frame snapshot lane battlefield {battlefieldObjectId}";
 
-            if (!TryReadObjectString(spectatorBattlefield, "zonePlayerId", out var zonePlayerId)
-                || !string.Equals(zonePlayerId, authoritativeBattlefield.ZonePlayerId, StringComparison.Ordinal))
+            if (!IsSnapshotPlayerPayloadObject(spectatorBattlefield))
             {
-                errors.Add(
-                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} zone player does not match authoritative state zone player");
+                errors.Add($"{payloadLabel} payload is required");
+                continue;
             }
 
-            if (!TryReadObjectOptionalString(spectatorBattlefield, "cardNo", out var cardNo)
-                || !string.Equals(cardNo, authoritativeBattlefield.CardNo ?? string.Empty, StringComparison.Ordinal))
-            {
-                errors.Add(
-                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} card number does not match authoritative state card number");
-            }
-
-            if (!TryReadObjectOptionalString(spectatorBattlefield, "controllerId", out var controllerId)
-                || !string.Equals(controllerId, authoritativeBattlefield.ControllerId ?? string.Empty, StringComparison.Ordinal))
-            {
-                errors.Add(
-                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} controller does not match authoritative state controller");
-            }
-
-            if (!TryReadObjectString(spectatorBattlefield, "status", out var status)
-                || !string.Equals(status, authoritativeBattlefield.Status, StringComparison.Ordinal))
-            {
-                errors.Add(
-                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} status does not match authoritative state status");
-            }
-
-            if (!TryReadObjectBool(spectatorBattlefield, "contested", out var contested)
-                || contested != authoritativeBattlefield.Contested)
-            {
-                errors.Add(
-                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} contested does not match authoritative state contested");
-            }
-
-            if (!TryReadObjectInt(spectatorBattlefield, "standbySlotCount", out var standbySlotCount)
-                || standbySlotCount != authoritativeBattlefield.StandbyObjectIds.Count)
-            {
-                errors.Add(
-                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby slot count does not match authoritative state standby slot count");
-            }
-
-            if (!TryReadObjectInt(spectatorBattlefield, "faceDownStandbyCount", out var faceDownStandbyCount)
-                || faceDownStandbyCount != authoritativeBattlefield.FaceDownStandbyCount)
-            {
-                errors.Add(
-                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} face-down standby count does not match authoritative state face-down standby count");
-            }
+            ValidateSpectatorSnapshotBattlefieldRequiredStringScalar(
+                spectatorBattlefield,
+                "battlefieldObjectId",
+                authoritativeBattlefield.BattlefieldObjectId,
+                payloadLabel,
+                "battlefield object id",
+                "authoritative state battlefield object id",
+                errors);
+            ValidateSpectatorSnapshotBattlefieldRequiredStringScalar(
+                spectatorBattlefield,
+                "zonePlayerId",
+                authoritativeBattlefield.ZonePlayerId,
+                payloadLabel,
+                "zone player",
+                "authoritative state zone player",
+                errors);
+            ValidateSpectatorSnapshotBattlefieldOptionalStringScalar(
+                spectatorBattlefield,
+                "cardNo",
+                authoritativeBattlefield.CardNo,
+                payloadLabel,
+                "card number",
+                "authoritative state card number",
+                errors);
+            ValidateSpectatorSnapshotBattlefieldOptionalStringScalar(
+                spectatorBattlefield,
+                "controllerId",
+                authoritativeBattlefield.ControllerId,
+                payloadLabel,
+                "controller",
+                "authoritative state controller",
+                errors);
+            ValidateSpectatorSnapshotBattlefieldRequiredStringScalar(
+                spectatorBattlefield,
+                "status",
+                authoritativeBattlefield.Status,
+                payloadLabel,
+                "status",
+                "authoritative state status",
+                errors);
+            ValidateSpectatorSnapshotBattlefieldBoolScalar(
+                spectatorBattlefield,
+                "contested",
+                authoritativeBattlefield.Contested,
+                payloadLabel,
+                "contested",
+                "authoritative state contested",
+                errors);
+            ValidateSpectatorSnapshotBattlefieldNonNegativeIntScalar(
+                spectatorBattlefield,
+                "standbySlotCount",
+                authoritativeBattlefield.StandbyObjectIds.Count,
+                payloadLabel,
+                "standby slot count",
+                "authoritative state standby slot count",
+                errors);
+            ValidateSpectatorSnapshotBattlefieldNonNegativeIntScalar(
+                spectatorBattlefield,
+                "faceDownStandbyCount",
+                authoritativeBattlefield.FaceDownStandbyCount,
+                payloadLabel,
+                "face-down standby count",
+                "authoritative state face-down standby count",
+                errors);
 
             var hiddenStandbyCount = authoritativeBattlefield.StandbyObjectIds.Count(objectId =>
                 IsHiddenBattlefieldStandbyForSpectator(authoritativeState, objectId));
-            if (!TryReadObjectInt(spectatorBattlefield, "hiddenStandbyCount", out var spectatorHiddenStandbyCount)
-                || spectatorHiddenStandbyCount != hiddenStandbyCount)
-            {
-                errors.Add(
-                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} hidden standby count does not match authoritative state hidden standby count");
-            }
+            ValidateSpectatorSnapshotBattlefieldNonNegativeIntScalar(
+                spectatorBattlefield,
+                "hiddenStandbyCount",
+                hiddenStandbyCount,
+                payloadLabel,
+                "hidden standby count",
+                "authoritative state hidden standby count",
+                errors);
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotBattlefieldRequiredStringScalar(
+        object? battlefieldPayload,
+        string key,
+        string expected,
+        string payloadLabel,
+        string description,
+        string mismatchDescription,
+        List<string> errors)
+    {
+        var value = ValidateSnapshotPayloadRequiredStringValue(
+            battlefieldPayload,
+            key,
+            payloadLabel,
+            description,
+            errors);
+        if (value is null || !string.Equals(value, expected, StringComparison.Ordinal))
+        {
+            errors.Add($"{payloadLabel} {description} does not match {mismatchDescription}");
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotBattlefieldOptionalStringScalar(
+        object? battlefieldPayload,
+        string key,
+        string? expected,
+        string payloadLabel,
+        string description,
+        string mismatchDescription,
+        List<string> errors)
+    {
+        var hasScalar = TryReadObjectValue(battlefieldPayload, key, out var rawValue)
+            && !IsNullSnapshotPayloadValue(rawValue);
+        var value = ValidateSnapshotPayloadOptionalStringValue(
+            battlefieldPayload,
+            key,
+            payloadLabel,
+            description,
+            errors);
+        if (!hasScalar)
+        {
+            value = string.Empty;
+        }
+
+        if (value is not null
+            && !string.Equals(value, expected ?? string.Empty, StringComparison.Ordinal))
+        {
+            errors.Add($"{payloadLabel} {description} does not match {mismatchDescription}");
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotBattlefieldBoolScalar(
+        object? battlefieldPayload,
+        string key,
+        bool expected,
+        string payloadLabel,
+        string description,
+        string mismatchDescription,
+        List<string> errors)
+    {
+        ValidateSnapshotPayloadRequiredBoolValue(
+            battlefieldPayload,
+            key,
+            payloadLabel,
+            description,
+            errors);
+        if (!TryReadObjectBool(battlefieldPayload, key, out var value) || value != expected)
+        {
+            errors.Add($"{payloadLabel} {description} does not match {mismatchDescription}");
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotBattlefieldNonNegativeIntScalar(
+        object? battlefieldPayload,
+        string key,
+        int expected,
+        string payloadLabel,
+        string description,
+        string mismatchDescription,
+        List<string> errors)
+    {
+        var value = ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+            battlefieldPayload,
+            key,
+            payloadLabel,
+            description,
+            errors);
+        if (value is null || value != expected)
+        {
+            errors.Add($"{payloadLabel} {description} does not match {mismatchDescription}");
         }
     }
 
