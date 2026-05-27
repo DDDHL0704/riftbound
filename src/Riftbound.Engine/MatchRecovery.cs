@@ -3813,6 +3813,7 @@ public static class MatchRecoveryValidator
 
         if (TryReadObjectList(view.Snapshot.Timing, "battlefieldResolutions", out var battlefieldResolutionPayloads))
         {
+            var seenBattlefieldResolutionIds = new HashSet<string>(StringComparer.Ordinal);
             foreach (var resolutionPayload in battlefieldResolutionPayloads)
             {
                 if (!IsSnapshotPlayerPayloadObject(resolutionPayload))
@@ -3820,10 +3821,15 @@ public static class MatchRecoveryValidator
                     continue;
                 }
 
-                ValidateBattlefieldResolutionPayloadValues(
+                var resolutionLabel = $"snapshot for {view.PlayerId} timing battlefield resolution item";
+                var resolutionId = ValidateBattlefieldResolutionPayloadValues(
                     resolutionPayload,
-                    $"snapshot for {view.PlayerId} timing battlefield resolution item",
+                    resolutionLabel,
                     errors);
+                if (resolutionId is not null && !seenBattlefieldResolutionIds.Add(resolutionId))
+                {
+                    errors.Add($"{resolutionLabel} resolution id {resolutionId} is duplicated");
+                }
             }
         }
 
@@ -3832,6 +3838,7 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        var seenBattleResolutionIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var resolutionPayload in battleResolutionPayloads)
         {
             if (!IsSnapshotPlayerPayloadObject(resolutionPayload))
@@ -3839,10 +3846,15 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            ValidateBattleResolutionPayloadValues(
+            var resolutionLabel = $"snapshot for {view.PlayerId} timing battle resolution item";
+            var resolutionId = ValidateBattleResolutionPayloadValues(
                 resolutionPayload,
-                $"snapshot for {view.PlayerId} timing battle resolution item",
+                resolutionLabel,
                 errors);
+            if (resolutionId is not null && !seenBattleResolutionIds.Add(resolutionId))
+            {
+                errors.Add($"{resolutionLabel} resolution id {resolutionId} is duplicated");
+            }
         }
     }
 
@@ -13338,12 +13350,12 @@ public static class MatchRecoveryValidator
         ValidateBattlefieldResolutionPayloadValues(resolutionPayload, payloadLabel, errors);
     }
 
-    private static void ValidateBattlefieldResolutionPayloadValues(
+    private static string? ValidateBattlefieldResolutionPayloadValues(
         object? resolutionPayload,
         string payloadLabel,
         List<string> errors)
     {
-        ValidateSnapshotPayloadRequiredStringValue(
+        var resolutionId = ValidateSnapshotPayloadRequiredStringValue(
             resolutionPayload,
             "resolutionId",
             payloadLabel,
@@ -13397,6 +13409,7 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "source object id",
             errors);
+        return resolutionId;
     }
 
     private static void ValidateSpectatorBattleResolutionPayloadListValues(
@@ -13486,12 +13499,12 @@ public static class MatchRecoveryValidator
         ValidateBattleResolutionPayloadValues(resolutionPayload, payloadLabel, errors);
     }
 
-    private static void ValidateBattleResolutionPayloadValues(
+    private static string? ValidateBattleResolutionPayloadValues(
         object? resolutionPayload,
         string payloadLabel,
         List<string> errors)
     {
-        ValidateSnapshotPayloadRequiredStringValue(
+        var resolutionId = ValidateSnapshotPayloadRequiredStringValue(
             resolutionPayload,
             "resolutionId",
             payloadLabel,
@@ -13539,6 +13552,7 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "winner player id",
             errors);
+        return resolutionId;
     }
 
     private static void ValidateSpectatorCoreTimingPayloadValues(

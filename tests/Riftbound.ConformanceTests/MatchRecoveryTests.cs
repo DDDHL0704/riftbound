@@ -3089,6 +3089,83 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingResolutionHistoryDuplicateIds()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["battlefieldResolutions"] = RawJson("""
+            [
+                {
+                    "resolutionId": " battlefield-resolution-duplicate ",
+                    "tick": 1,
+                    "kind": "HELD",
+                    "reason": "BATTLEFIELD_HELD",
+                    "battlefieldObjectId": "battlefield-1"
+                },
+                {
+                    "resolutionId": "battlefield-resolution-duplicate",
+                    "tick": 2,
+                    "kind": "CONTROL_CHANGED",
+                    "reason": "BATTLEFIELD_CONTROL_CHANGED",
+                    "battlefieldObjectId": "battlefield-2"
+                }
+            ]
+            """);
+        timing["battleResolutions"] = RawJson("""
+            [
+                {
+                    "resolutionId": " battle-resolution-duplicate ",
+                    "tick": 1,
+                    "kind": "CLOSED",
+                    "reason": "BATTLE_CLOSED",
+                    "battlefieldId": "battlefield-1"
+                },
+                {
+                    "resolutionId": "battle-resolution-duplicate",
+                    "tick": 2,
+                    "kind": "CLOSED",
+                    "reason": "BATTLE_CLOSED",
+                    "battlefieldId": "battlefield-2"
+                }
+            ]
+            """);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield resolution item resolution id battlefield-resolution-duplicate has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield resolution item resolution id battlefield-resolution-duplicate is duplicated",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item resolution id battle-resolution-duplicate has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item resolution id battle-resolution-duplicate is duplicated",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingResolutionHistoryListValueDrift()
     {
         var alice = PlayerView("alice", 0, 0);
