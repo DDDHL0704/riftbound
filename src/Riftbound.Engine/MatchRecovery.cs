@@ -7655,6 +7655,7 @@ public static class MatchRecoveryValidator
         var queueResult = ValidateSpectatorPendingTaskQueuePayloadValues(queuePayload, errors);
         var validatedSpectatorActiveTaskId = queueResult.ActiveTaskId;
         int? taskPayloadCount = null;
+        IReadOnlyList<string>? taskKinds = null;
 
         var authoritativeQueue = authoritativeState.PendingTaskQueue;
         if (!TryReadObjectBool(queuePayload, "hasTasks", out var hasTasks)
@@ -7701,7 +7702,7 @@ public static class MatchRecoveryValidator
             }
             else
             {
-                ValidateSpectatorPendingTaskQueueTaskPayloads(
+                taskKinds = ValidateSpectatorPendingTaskQueueTaskPayloads(
                     taskPayloads,
                     authoritativeState,
                     authoritativeQueue.Tasks,
@@ -7743,6 +7744,13 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame timing pending task queue metadata task count does not match authoritative state pending task queue task count");
         }
 
+        if (taskKinds is not null
+            && TryReadObjectStringList(metadataPayload, "stateBasedTaskKinds", out var taskPayloadStateBasedTaskKinds)
+            && !StringListsEqual(taskPayloadStateBasedTaskKinds, ExpectedStateBasedTaskKinds(taskKinds)))
+        {
+            errors.Add("spectator replay frame timing pending task queue metadata state-based task kinds do not match pending task queue task kinds");
+        }
+
         if (!TryReadObjectStringList(metadataPayload, "stateBasedTaskKinds", out var stateBasedTaskKinds)
             || !StringListsEqual(stateBasedTaskKinds, ExpectedStateBasedTaskKinds(authoritativeQueue.Tasks)))
         {
@@ -7750,7 +7758,7 @@ public static class MatchRecoveryValidator
         }
     }
 
-    private static void ValidateSpectatorPendingTaskQueueTaskPayloads(
+    private static IReadOnlyList<string>? ValidateSpectatorPendingTaskQueueTaskPayloads(
         IReadOnlyList<object?> taskPayloads,
         MatchState authoritativeState,
         IReadOnlyList<CleanupTaskState> authoritativeTasks,
@@ -7758,11 +7766,14 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         var seenTaskIds = new HashSet<string>(StringComparer.Ordinal);
+        var taskKinds = new List<string>();
+        var taskKindsAreValid = true;
         foreach (var taskPayload in taskPayloads)
         {
             if (!IsSnapshotPlayerPayloadObject(taskPayload))
             {
                 errors.Add("spectator replay frame timing pending task queue task payload is required");
+                taskKindsAreValid = false;
                 continue;
             }
 
@@ -7770,10 +7781,20 @@ public static class MatchRecoveryValidator
                 taskPayload,
                 "spectator replay frame timing pending task queue task item",
                 errors);
-            var taskId = ValidateSpectatorPendingTaskQueueTaskPayloadValues(taskPayload, errors);
+            var taskResult = ValidateSpectatorPendingTaskQueueTaskPayloadValues(taskPayload, errors);
+            var taskId = taskResult.TaskId;
             if (taskId is not null && !seenTaskIds.Add(taskId))
             {
                 errors.Add($"spectator replay frame timing pending task queue task item task id {taskId} is duplicated");
+            }
+
+            if (taskResult.Kind is null)
+            {
+                taskKindsAreValid = false;
+            }
+            else
+            {
+                taskKinds.Add(taskResult.Kind);
             }
         }
 
@@ -7882,6 +7903,8 @@ public static class MatchRecoveryValidator
         {
             errors.Add("spectator replay frame timing pending task queue task hidden object kinds do not match authoritative state pending task queue task hidden object kinds");
         }
+
+        return taskKindsAreValid ? taskKinds : null;
     }
 
     private static (string? ActiveTaskId, bool? HasTasks, bool? IsBlocking) ValidateSpectatorPendingTaskQueuePayloadValues(
@@ -8002,12 +8025,12 @@ public static class MatchRecoveryValidator
         return taskCount;
     }
 
-    private static string? ValidateSpectatorPendingTaskQueueTaskPayloadValues(
+    private static (string? TaskId, string? Kind) ValidateSpectatorPendingTaskQueueTaskPayloadValues(
         object? taskPayload,
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing pending task queue task item";
-        return ValidatePendingTaskQueueTaskPayloadValues(taskPayload, payloadLabel, errors).TaskId;
+        return ValidatePendingTaskQueueTaskPayloadValues(taskPayload, payloadLabel, errors);
     }
 
     private static (string? TaskId, string? Kind) ValidatePendingTaskQueueTaskPayloadValues(
