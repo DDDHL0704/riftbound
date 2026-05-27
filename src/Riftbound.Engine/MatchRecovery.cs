@@ -9664,6 +9664,7 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        var seenTaskIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var spectatorBattlefieldTask in spectatorBattlefieldTasks)
         {
             if (!IsSnapshotPlayerPayloadObject(spectatorBattlefieldTask))
@@ -9675,6 +9676,10 @@ public static class MatchRecoveryValidator
             ValidateSnapshotPayloadObjectPropertyNames(
                 spectatorBattlefieldTask,
                 "spectator replay frame timing battlefield task item",
+                errors);
+            ValidateSpectatorBattlefieldTaskPayloadScalarValues(
+                spectatorBattlefieldTask,
+                seenTaskIds,
                 errors);
             ValidateSpectatorBattlefieldTaskPayloadListValues(
                 spectatorBattlefieldTask,
@@ -9765,6 +9770,67 @@ public static class MatchRecoveryValidator
         {
             errors.Add("spectator replay frame timing battlefield task battle ids disagree with authoritative state battlefield task battle ids");
         }
+    }
+
+    private static void ValidateSpectatorBattlefieldTaskPayloadScalarValues(
+        object? spectatorBattlefieldTask,
+        HashSet<string> seenTaskIds,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing battlefield task item";
+        var taskId = ValidateSnapshotPayloadRequiredStringValue(
+            spectatorBattlefieldTask,
+            "taskId",
+            payloadLabel,
+            "task id",
+            errors);
+        if (taskId is not null && !seenTaskIds.Add(taskId))
+        {
+            errors.Add($"{payloadLabel} task id {taskId} is duplicated");
+        }
+
+        ValidateSnapshotPayloadRequiredStringValue(
+            spectatorBattlefieldTask,
+            "kind",
+            payloadLabel,
+            "kind",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            spectatorBattlefieldTask,
+            "status",
+            payloadLabel,
+            "status",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            spectatorBattlefieldTask,
+            "reason",
+            payloadLabel,
+            "reason",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            spectatorBattlefieldTask,
+            "battlefieldObjectId",
+            payloadLabel,
+            "battlefield object id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            spectatorBattlefieldTask,
+            "actingPlayerId",
+            payloadLabel,
+            "acting player id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            spectatorBattlefieldTask,
+            "spellDuelId",
+            payloadLabel,
+            "spell duel id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            spectatorBattlefieldTask,
+            "battleId",
+            payloadLabel,
+            "battle id",
+            errors);
     }
 
     private static void ValidateSpectatorBattlefieldTaskPayloadListValues(
