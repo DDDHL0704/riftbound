@@ -8340,6 +8340,7 @@ public static class MatchRecoveryValidator
         var targetDependencyObjectIdsMatch = true;
         var participantDependencyObjectIdsMatch = true;
         var deferredLayerEngineResidualsMatch = true;
+        var seenEffectIds = new HashSet<string>(StringComparer.Ordinal);
 
         for (var index = 0; index < authoritativeEffects.Count; index++)
         {
@@ -8354,7 +8355,11 @@ public static class MatchRecoveryValidator
                 spectatorEffect,
                 "spectator replay frame timing continuous effect item",
                 errors);
-            ValidateSpectatorContinuousEffectPayloadValues(spectatorEffect, errors);
+            var effectIdValue = ValidateSpectatorContinuousEffectPayloadValues(spectatorEffect, errors);
+            if (effectIdValue is not null && !seenEffectIds.Add(effectIdValue))
+            {
+                errors.Add($"spectator replay frame timing continuous effect item effect id {effectIdValue} is duplicated");
+            }
 
             var authoritativeEffect = authoritativeEffects[index];
             if (!TryReadObjectString(spectatorEffect, "effectId", out var effectId)
@@ -8671,12 +8676,12 @@ public static class MatchRecoveryValidator
         }
     }
 
-    private static void ValidateSpectatorContinuousEffectPayloadValues(
+    private static string? ValidateSpectatorContinuousEffectPayloadValues(
         object? effectPayload,
         List<string> errors)
     {
         const string effectLabel = "spectator replay frame timing continuous effect item";
-        ValidateContinuousEffectScalarPayloadValues(effectPayload, effectLabel, errors);
+        var effectId = ValidateContinuousEffectScalarPayloadValues(effectPayload, effectLabel, errors);
         ValidateSnapshotPayloadStringListValues(
             effectPayload,
             "participantObjectIds",
@@ -8707,14 +8712,15 @@ public static class MatchRecoveryValidator
             effectLabel,
             "deferred LayerEngine residual",
             errors);
+        return effectId;
     }
 
-    private static void ValidateContinuousEffectScalarPayloadValues(
+    private static string? ValidateContinuousEffectScalarPayloadValues(
         object? effectPayload,
         string effectLabel,
         List<string> errors)
     {
-        ValidateSnapshotPayloadRequiredStringValue(
+        var effectId = ValidateSnapshotPayloadRequiredStringValue(
             effectPayload,
             "effectId",
             effectLabel,
@@ -8846,6 +8852,7 @@ public static class MatchRecoveryValidator
             effectLabel,
             "lifecycle",
             errors);
+        return effectId;
     }
 
     private static void ValidateSpectatorTriggerQueuePayloads(
