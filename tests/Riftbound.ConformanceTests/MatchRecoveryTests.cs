@@ -4366,6 +4366,44 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotPlayerRunePoolPowerTraitMapPayloadShapeDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var players = alice.Snapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["runePool"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["mana"] = 2,
+            ["power"] = 3,
+            ["untypedPower"] = 0,
+            ["powerByTrait"] = RawJson("""["red"]""")
+        };
+        players["alice"] = alicePayload;
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player alice rune pool power trait map payload is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotPlayerRunePoolPowerTraitMapPropertyNameDrift()
     {
         var alice = PlayerView("alice", 0, 0);

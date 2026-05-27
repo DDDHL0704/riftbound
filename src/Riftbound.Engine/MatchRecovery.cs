@@ -3748,6 +3748,12 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "untyped power",
             errors);
+        ValidateSnapshotPayloadRequiredIntMapPayloadShape(
+            runePoolPayload,
+            "powerByTrait",
+            payloadLabel,
+            "power trait",
+            errors);
         ValidateSnapshotPayloadRequiredPositiveIntMapValues(
             runePoolPayload,
             "powerByTrait",
