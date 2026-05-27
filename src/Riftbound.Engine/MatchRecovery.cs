@@ -7652,7 +7652,8 @@ public static class MatchRecoveryValidator
             queuePayload,
             "spectator replay frame timing pending task queue",
             errors);
-        var validatedSpectatorActiveTaskId = ValidateSpectatorPendingTaskQueuePayloadValues(queuePayload, errors);
+        var queueResult = ValidateSpectatorPendingTaskQueuePayloadValues(queuePayload, errors);
+        var validatedSpectatorActiveTaskId = queueResult.ActiveTaskId;
 
         var authoritativeQueue = authoritativeState.PendingTaskQueue;
         if (!TryReadObjectBool(queuePayload, "hasTasks", out var hasTasks)
@@ -7687,6 +7688,12 @@ public static class MatchRecoveryValidator
         }
         else
         {
+            ValidateSnapshotPendingTaskQueueFlagsMatchTaskCount(
+                queueResult,
+                taskPayloads.Count,
+                "spectator replay frame timing pending task queue",
+                errors);
+
             ValidateSpectatorPendingTaskQueueTaskPayloads(
                 taskPayloads,
                 authoritativeState,
@@ -7861,12 +7868,12 @@ public static class MatchRecoveryValidator
         }
     }
 
-    private static string? ValidateSpectatorPendingTaskQueuePayloadValues(
+    private static (string? ActiveTaskId, bool? HasTasks, bool? IsBlocking) ValidateSpectatorPendingTaskQueuePayloadValues(
         object? queuePayload,
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing pending task queue";
-        return ValidatePendingTaskQueuePayloadValues(queuePayload, payloadLabel, errors).ActiveTaskId;
+        return ValidatePendingTaskQueuePayloadValues(queuePayload, payloadLabel, errors);
     }
 
     private static (string? ActiveTaskId, bool? HasTasks, bool? IsBlocking) ValidatePendingTaskQueuePayloadValues(
