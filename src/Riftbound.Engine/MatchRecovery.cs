@@ -5299,14 +5299,27 @@ public static class MatchRecoveryValidator
             $"spectator replay frame snapshot player {playerId} object {objectId}",
             errors);
 
-        if (!TryReadObjectString(objectPayload, "objectId", out var payloadObjectId)
-            || !string.Equals(payloadObjectId, objectId, StringComparison.Ordinal))
+        var payloadLabel = $"spectator replay frame snapshot player {playerId} object {objectId}";
+        var payloadObjectId = ValidateSnapshotPayloadRequiredStringValue(
+            objectPayload,
+            "objectId",
+            payloadLabel,
+            "object id",
+            errors);
+        if (payloadObjectId is not null
+            && !string.Equals(payloadObjectId, objectId, StringComparison.Ordinal))
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} object id does not match authoritative object id");
         }
 
         var hasAuthoritativeObject = authoritativeState.CardObjects.TryGetValue(objectId, out var cardObject);
         var expectedFaceDown = hasAuthoritativeObject && cardObject is not null && cardObject.IsFaceDown;
+        ValidateSnapshotPayloadRequiredBoolValue(
+            objectPayload,
+            "isFaceDown",
+            payloadLabel,
+            "face-down flag",
+            errors);
         if (!TryReadObjectBool(objectPayload, "isFaceDown", out var isFaceDown)
             || isFaceDown != expectedFaceDown)
         {
