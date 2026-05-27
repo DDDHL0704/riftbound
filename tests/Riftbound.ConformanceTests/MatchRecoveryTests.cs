@@ -21294,6 +21294,79 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattleDamageAssignmentPayloadShapeDrift()
+    {
+        var authoritativeState = BattleDamageAssignmentState();
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+
+        IReadOnlyList<string> ValidateBattle(Action<Dictionary<string, object?>> mutateBattle)
+        {
+            var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+                "room-a",
+                3,
+                2,
+                events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+                authoritativeState);
+            var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+                entry => entry.Key,
+                entry => entry.Value,
+                StringComparer.Ordinal);
+            var battle = Assert.IsType<Dictionary<string, object?>>(timing["battle"]).ToDictionary(
+                entry => entry.Key,
+                entry => entry.Value,
+                StringComparer.Ordinal);
+            mutateBattle(battle);
+            timing["battle"] = battle;
+            spectatorReplayFrame = spectatorReplayFrame with
+            {
+                SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+                {
+                    Timing = timing
+                }
+            };
+
+            return MatchRecoveryValidator.Validate(
+                "room-a",
+                2,
+                [],
+                events,
+                new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+                authoritativeState,
+                currentTick: 3,
+                spectatorReplayFrame: spectatorReplayFrame);
+        }
+
+        var damageAssignmentErrors = ValidateBattle(battle =>
+        {
+            battle["damageAssignment"] = "not-damage-assignment";
+        });
+
+        Assert.Contains(
+            damageAssignmentErrors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment payload is required",
+                StringComparison.Ordinal));
+
+        var requiredAssignmentErrors = ValidateBattle(battle =>
+        {
+            var damageAssignment = Assert.IsType<Dictionary<string, object?>>(battle["damageAssignment"])
+                .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+            damageAssignment["requiredAssignments"] = "not-required-assignments";
+            battle["damageAssignment"] = damageAssignment;
+        });
+
+        Assert.Contains(
+            requiredAssignmentErrors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment required assignment list payload is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingResolutionHistoryPayloadShapeDrift()
     {
         var authoritativeState = new MatchState(

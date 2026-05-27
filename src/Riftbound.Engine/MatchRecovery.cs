@@ -12829,13 +12829,13 @@ public static class MatchRecoveryValidator
         if (!TryReadObjectValue(battlePayload, "damageAssignment", out var damageAssignmentPayload)
             || IsNullSnapshotPayloadValue(damageAssignmentPayload))
         {
-            errors.Add($"{payloadLabel} payload is required");
+            errors.Add($"{payloadLabel} is required");
             return;
         }
 
         if (!IsSnapshotPlayerPayloadObject(damageAssignmentPayload))
         {
-            errors.Add($"{payloadLabel} payload is invalid");
+            errors.Add($"{payloadLabel} payload is required");
             return;
         }
 
@@ -12949,7 +12949,7 @@ public static class MatchRecoveryValidator
 
         if (!TryReadObjectListValue(requiredAssignmentsPayload, out var requiredAssignments))
         {
-            errors.Add($"{payloadLabel} list is invalid");
+            errors.Add($"{payloadLabel} list payload is required");
             return;
         }
 
