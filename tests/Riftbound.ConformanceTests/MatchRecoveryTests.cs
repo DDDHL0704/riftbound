@@ -4553,6 +4553,81 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotPlayerZonesListPayloadShapeDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var players = alice.Snapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["zones"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["mainDeckCount"] = 0,
+            ["runeDeckCount"] = 0,
+            ["hand"] = RawJson("""{"objectId":"hand-1"}"""),
+            ["handHidden"] = 0,
+            ["base"] = 7,
+            ["battlefields"] = false,
+            ["battlefieldHiddenStandbyCount"] = 0,
+            ["graveyard"] = "not-graveyard-list",
+            ["banished"] = RawJson("""{"objectId":"banished-1"}"""),
+            ["legendZone"] = 3,
+            ["championZone"] = RawJson("""{"objectId":"champion-1"}""")
+        };
+        players["alice"] = alicePayload;
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player alice zones hand object list payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player alice zones base object list payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player alice zones battlefield object list payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player alice zones graveyard object list payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player alice zones banished object list payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player alice zones legend zone object list payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player alice zones champion zone object list payload is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotPlayerZonesPayloadPropertyNameDrift()
     {
         var alice = PlayerView("alice", 0, 0);

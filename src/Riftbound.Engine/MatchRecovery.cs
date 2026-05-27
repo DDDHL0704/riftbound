@@ -3823,6 +3823,12 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "rune deck count",
             errors);
+        ValidateSnapshotPayloadRequiredStringListPayloadShape(
+            zonesPayload,
+            "hand",
+            payloadLabel,
+            "hand object",
+            errors);
         ValidateSnapshotPayloadRequiredStringListValues(
             zonesPayload,
             "hand",
@@ -3835,11 +3841,23 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "hidden hand count",
             errors);
+        ValidateSnapshotPayloadRequiredStringListPayloadShape(
+            zonesPayload,
+            "base",
+            payloadLabel,
+            "base object",
+            errors);
         ValidateSnapshotPayloadRequiredStringListValues(
             zonesPayload,
             "base",
             payloadLabel,
             "base object",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListPayloadShape(
+            zonesPayload,
+            "battlefields",
+            payloadLabel,
+            "battlefield object",
             errors);
         ValidateSnapshotPayloadRequiredStringListValues(
             zonesPayload,
@@ -3853,7 +3871,7 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "hidden battlefield standby count",
             errors);
-        ValidateSnapshotPayloadRequiredStringListValues(
+        ValidateSnapshotPayloadRequiredStringListPayloadShape(
             zonesPayload,
             "graveyard",
             payloadLabel,
@@ -3861,15 +3879,39 @@ public static class MatchRecoveryValidator
             errors);
         ValidateSnapshotPayloadRequiredStringListValues(
             zonesPayload,
+            "graveyard",
+            payloadLabel,
+            "graveyard object",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListPayloadShape(
+            zonesPayload,
             "banished",
             payloadLabel,
             "banished object",
             errors);
         ValidateSnapshotPayloadRequiredStringListValues(
             zonesPayload,
+            "banished",
+            payloadLabel,
+            "banished object",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListPayloadShape(
+            zonesPayload,
             "legendZone",
             payloadLabel,
             "legend zone object",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListValues(
+            zonesPayload,
+            "legendZone",
+            payloadLabel,
+            "legend zone object",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListPayloadShape(
+            zonesPayload,
+            "championZone",
+            payloadLabel,
+            "champion zone object",
             errors);
         ValidateSnapshotPayloadRequiredStringListValues(
             zonesPayload,
@@ -4406,6 +4448,25 @@ public static class MatchRecoveryValidator
         }
 
         ValidateSnapshotStringListValues(values, payloadLabel, itemLabel, errors);
+    }
+
+    private static void ValidateSnapshotPayloadRequiredStringListPayloadShape(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(payload, key, out var listPayload)
+            || IsNullSnapshotPayloadValue(listPayload))
+        {
+            return;
+        }
+
+        if (!TryReadStringListValue(listPayload, out _))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} list payload is required");
+        }
     }
 
     private static void ValidateSnapshotPayloadRequiredStringDictionaryValues(
@@ -13075,16 +13136,7 @@ public static class MatchRecoveryValidator
         string itemLabel,
         List<string> errors)
     {
-        if (!TryReadObjectValue(payload, payloadKey, out var listPayload)
-            || IsNullSnapshotPayloadValue(listPayload))
-        {
-            return;
-        }
-
-        if (!TryReadStringListValue(listPayload, out _))
-        {
-            errors.Add($"{payloadLabel} {itemLabel} list payload is required");
-        }
+        ValidateSnapshotPayloadRequiredStringListPayloadShape(payload, payloadKey, payloadLabel, itemLabel, errors);
     }
 
     private static void ValidateSpectatorRequiredIntMapPayloadShape(
