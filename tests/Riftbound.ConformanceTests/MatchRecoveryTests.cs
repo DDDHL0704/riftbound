@@ -597,6 +597,40 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotLanesListItemPayloadShapeDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Lanes = new Dictionary<string, object?>(StringComparer.Ordinal)
+                    {
+                        ["battlefieldCount"] = 0,
+                        ["battlefieldObjectIds"] = new object?[] { "battlefield-a" },
+                        ["battlefields"] = new object?[] { 7 }
+                    }
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield object id item 1 payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 payload is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotStackItemPropertyNameDrift()
     {
         var alice = PlayerView("alice", 0, 0);

@@ -2023,6 +2023,7 @@ public static class MatchRecoveryValidator
                 $"snapshot for {view.PlayerId} lanes",
                 errors);
             ValidateSnapshotLaneListPayloadShapes(view, errors);
+            ValidateSnapshotLaneListItemPayloadShapes(view, errors);
         }
 
         if (view.Snapshot.Stack is null)
@@ -2224,6 +2225,22 @@ public static class MatchRecoveryValidator
             "battlefields",
             payloadLabel,
             "battlefield",
+            errors);
+    }
+
+    private static void ValidateSnapshotLaneListItemPayloadShapes(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        ValidateSnapshotPayloadObjectListItemPayloadShapes(
+            view.Snapshot.Lanes,
+            "battlefieldObjectIds",
+            $"snapshot for {view.PlayerId} lanes battlefield object id",
+            errors);
+        ValidateSnapshotPayloadObjectListItemPayloadShapes(
+            view.Snapshot.Lanes,
+            "battlefields",
+            $"snapshot for {view.PlayerId} lanes battlefield",
             errors);
     }
 
@@ -4517,6 +4534,28 @@ public static class MatchRecoveryValidator
         if (!TryReadObjectListValue(listPayload, out _))
         {
             errors.Add($"{payloadLabel} {itemLabel} list payload is required");
+        }
+    }
+
+    private static void ValidateSnapshotPayloadObjectListItemPayloadShapes(
+        object? payload,
+        string key,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(payload, key, out var listPayload)
+            || IsNullSnapshotPayloadValue(listPayload)
+            || !TryReadObjectListValue(listPayload, out var items))
+        {
+            return;
+        }
+
+        for (var index = 0; index < items.Count; index++)
+        {
+            if (!IsSnapshotPlayerPayloadObject(items[index]))
+            {
+                errors.Add($"{payloadLabel} item {index + 1} payload is required");
+            }
         }
     }
 
