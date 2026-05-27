@@ -4213,11 +4213,23 @@ public static class MatchRecoveryValidator
             }
 
             var payloadLabel = $"snapshot for {view.PlayerId} player {snapshotPlayerId} object {objectId}";
+            ValidateSnapshotPayloadRequiredStringListPayloadShape(
+                objectPayload,
+                "tags",
+                payloadLabel,
+                "tag",
+                errors);
             ValidateSnapshotPayloadStringListValues(
                 objectPayload,
                 "tags",
                 payloadLabel,
                 "tag",
+                errors);
+            ValidateSnapshotPayloadRequiredStringListPayloadShape(
+                objectPayload,
+                "untilEndOfTurnEffects",
+                payloadLabel,
+                "until-end-of-turn effect",
                 errors);
             ValidateSnapshotPayloadStringListValues(
                 objectPayload,
