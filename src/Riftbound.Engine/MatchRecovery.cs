@@ -6336,23 +6336,37 @@ public static class MatchRecoveryValidator
     {
         var battlefieldObjectId = authoritativeBattlefield.BattlefieldObjectId;
         var expectedSlotId = $"{battlefieldObjectId}:standby:{slotIndex + 1}";
-        if (IsSnapshotPlayerPayloadObject(spectatorStandbySlot))
+        var payloadLabel = $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby slot {expectedSlotId}";
+        if (!IsSnapshotPlayerPayloadObject(spectatorStandbySlot))
         {
-            ValidateSnapshotPayloadObjectPropertyNames(
-                spectatorStandbySlot,
-                $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby slot {expectedSlotId}",
-                errors);
+            errors.Add($"{payloadLabel} payload is required");
+            return;
         }
 
-        if (!TryReadObjectString(spectatorStandbySlot, "slotId", out var slotId)
-            || !string.Equals(slotId, expectedSlotId, StringComparison.Ordinal))
+        ValidateSnapshotPayloadObjectPropertyNames(
+            spectatorStandbySlot,
+            payloadLabel,
+            errors);
+
+        var slotId = ValidateSnapshotPayloadRequiredStringValue(
+            spectatorStandbySlot,
+            "slotId",
+            payloadLabel,
+            "slot id",
+            errors);
+        if (slotId is null || !string.Equals(slotId, expectedSlotId, StringComparison.Ordinal))
         {
             errors.Add(
                 $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby slot {expectedSlotId} slot id does not match authoritative state slot id");
         }
 
-        if (!TryReadObjectString(spectatorStandbySlot, "battlefieldObjectId", out var payloadBattlefieldObjectId)
-            || !string.Equals(payloadBattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal))
+        var payloadBattlefieldObjectId = ValidateSnapshotPayloadRequiredStringValue(
+            spectatorStandbySlot,
+            "battlefieldObjectId",
+            payloadLabel,
+            "battlefield id",
+            errors);
+        if (payloadBattlefieldObjectId is null || !string.Equals(payloadBattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal))
         {
             errors.Add(
                 $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby slot {expectedSlotId} battlefield id does not match authoritative state battlefield id");
@@ -6363,21 +6377,53 @@ public static class MatchRecoveryValidator
             authoritativeState,
             standbyObjectId,
             expectedControllerId);
-        if (!TryReadObjectOptionalString(spectatorStandbySlot, "sidePlayerId", out var sidePlayerId)
-            || !string.Equals(sidePlayerId, expectedSidePlayerId, StringComparison.Ordinal))
+        var hasSidePlayerId = TryReadObjectValue(spectatorStandbySlot, "sidePlayerId", out var sidePlayerIdPayload)
+            && !IsNullSnapshotPayloadValue(sidePlayerIdPayload);
+        var sidePlayerId = ValidateSnapshotPayloadOptionalStringValue(
+            spectatorStandbySlot,
+            "sidePlayerId",
+            payloadLabel,
+            "side player",
+            errors);
+        if (!hasSidePlayerId)
+        {
+            sidePlayerId = string.Empty;
+        }
+
+        if (sidePlayerId is not null
+            && !string.Equals(sidePlayerId, expectedSidePlayerId, StringComparison.Ordinal))
         {
             errors.Add(
                 $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby slot {expectedSlotId} side player does not match authoritative state side player");
         }
 
-        if (!TryReadObjectOptionalString(spectatorStandbySlot, "controllerId", out var controllerId)
-            || !string.Equals(controllerId, expectedControllerId, StringComparison.Ordinal))
+        var hasControllerId = TryReadObjectValue(spectatorStandbySlot, "controllerId", out var controllerIdPayload)
+            && !IsNullSnapshotPayloadValue(controllerIdPayload);
+        var controllerId = ValidateSnapshotPayloadOptionalStringValue(
+            spectatorStandbySlot,
+            "controllerId",
+            payloadLabel,
+            "controller",
+            errors);
+        if (!hasControllerId)
+        {
+            controllerId = string.Empty;
+        }
+
+        if (controllerId is not null
+            && !string.Equals(controllerId, expectedControllerId, StringComparison.Ordinal))
         {
             errors.Add(
                 $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby slot {expectedSlotId} controller does not match authoritative state controller");
         }
 
         var expectedVisible = !IsHiddenBattlefieldStandbyForSpectator(authoritativeState, standbyObjectId);
+        ValidateSnapshotPayloadRequiredBoolValue(
+            spectatorStandbySlot,
+            "visible",
+            payloadLabel,
+            "visibility",
+            errors);
         if (!TryReadObjectBool(spectatorStandbySlot, "visible", out var visible)
             || visible != expectedVisible)
         {
@@ -6386,8 +6432,13 @@ public static class MatchRecoveryValidator
         }
 
         var expectedState = expectedVisible ? "VISIBLE" : "HIDDEN";
-        if (!TryReadObjectString(spectatorStandbySlot, "state", out var state)
-            || !string.Equals(state, expectedState, StringComparison.Ordinal))
+        var state = ValidateSnapshotPayloadRequiredStringValue(
+            spectatorStandbySlot,
+            "state",
+            payloadLabel,
+            "state",
+            errors);
+        if (state is null || !string.Equals(state, expectedState, StringComparison.Ordinal))
         {
             errors.Add(
                 $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby slot {expectedSlotId} state does not match authoritative spectator state");
@@ -6395,6 +6446,12 @@ public static class MatchRecoveryValidator
 
         var expectedIsFaceDown = authoritativeState.CardObjects.TryGetValue(standbyObjectId, out var cardObject)
             && cardObject.IsFaceDown;
+        ValidateSnapshotPayloadRequiredBoolValue(
+            spectatorStandbySlot,
+            "isFaceDown",
+            payloadLabel,
+            "face-down flag",
+            errors);
         if (!TryReadObjectBool(spectatorStandbySlot, "isFaceDown", out var isFaceDown)
             || isFaceDown != expectedIsFaceDown)
         {
@@ -6404,8 +6461,13 @@ public static class MatchRecoveryValidator
 
         if (expectedVisible)
         {
-            if (!TryReadObjectString(spectatorStandbySlot, "objectId", out var objectId)
-                || !string.Equals(objectId, standbyObjectId, StringComparison.Ordinal))
+            var objectId = ValidateSnapshotPayloadRequiredStringValue(
+                spectatorStandbySlot,
+                "objectId",
+                payloadLabel,
+                "object id",
+                errors);
+            if (objectId is null || !string.Equals(objectId, standbyObjectId, StringComparison.Ordinal))
             {
                 errors.Add(
                     $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby slot {expectedSlotId} object id does not match authoritative visible standby object id");

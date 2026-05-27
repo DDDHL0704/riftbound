@@ -11653,6 +11653,164 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplaySnapshotStandbySlotValueShapeDrift()
+    {
+        const string battlefieldObjectId = "battlefield-a";
+        const string hiddenStandbyObjectId = "standby-hidden-a";
+        const string visibleStandbyObjectId = "standby-visible-a";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = [battlefieldObjectId, hiddenStandbyObjectId, visibleStandbyObjectId]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new(
+                    battlefieldObjectId,
+                    cardNo: "TEST-BATTLEFIELD",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
+                [hiddenStandbyObjectId] = new(
+                    hiddenStandbyObjectId,
+                    power: 2,
+                    isFaceDown: true,
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby]),
+                [visibleStandbyObjectId] = new(
+                    visibleStandbyObjectId,
+                    power: 2,
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId),
+                [hiddenStandbyObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId),
+                [visibleStandbyObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId)
+            });
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var lanes = spectatorReplayFrame.SpectatorSnapshot.Lanes.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var battlefieldItems = Assert.IsAssignableFrom<IReadOnlyList<object?>>(lanes["battlefields"])
+            .ToArray();
+        var battlefieldPayload = Assert.IsType<Dictionary<string, object?>>(battlefieldItems[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var standbySlots = Assert.IsAssignableFrom<IReadOnlyList<object?>>(battlefieldPayload["standbySlots"])
+            .ToArray();
+        standbySlots[0] = "not-a-slot";
+
+        var visibleSlot = Assert.IsType<Dictionary<string, object?>>(standbySlots[1])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        visibleSlot["slotId"] = " battlefield-a:standby:2 ";
+        visibleSlot["battlefieldObjectId"] = 123;
+        visibleSlot["sidePlayerId"] = " alice ";
+        visibleSlot["controllerId"] = 123;
+        visibleSlot["visible"] = "true";
+        visibleSlot["state"] = " VISIBLE ";
+        visibleSlot["isFaceDown"] = "false";
+        visibleSlot["objectId"] = 123;
+        standbySlots[1] = visibleSlot;
+        battlefieldPayload["standbySlots"] = standbySlots;
+        battlefieldItems[0] = battlefieldPayload;
+        lanes["battlefields"] = battlefieldItems;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Lanes = lanes
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a standby slot battlefield-a:standby:1 payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a standby slot battlefield-a:standby:2 slot id battlefield-a:standby:2 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a standby slot battlefield-a:standby:2 battlefield id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a standby slot battlefield-a:standby:2 side player alice has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a standby slot battlefield-a:standby:2 controller is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a standby slot battlefield-a:standby:2 visibility is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a standby slot battlefield-a:standby:2 state VISIBLE has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a standby slot battlefield-a:standby:2 face-down flag is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a standby slot battlefield-a:standby:2 object id is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplaySnapshotStandbySlotMismatch()
     {
         const string battlefieldObjectId = "battlefield-a";
