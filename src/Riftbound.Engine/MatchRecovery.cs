@@ -9481,11 +9481,23 @@ public static class MatchRecoveryValidator
     {
         const string effectLabel = "spectator replay frame timing continuous effect item";
         var effectId = ValidateContinuousEffectScalarPayloadValues(effectPayload, effectLabel, errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            effectPayload,
+            effectLabel,
+            "participantObjectIds",
+            "participant object id",
+            errors);
         ValidateSnapshotPayloadStringListValues(
             effectPayload,
             "participantObjectIds",
             effectLabel,
             "participant object id",
+            errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            effectPayload,
+            effectLabel,
+            "sourceDependencyObjectIds",
+            "source dependency object id",
             errors);
         ValidateSnapshotPayloadStringListValues(
             effectPayload,
@@ -9493,17 +9505,35 @@ public static class MatchRecoveryValidator
             effectLabel,
             "source dependency object id",
             errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            effectPayload,
+            effectLabel,
+            "targetDependencyObjectIds",
+            "target dependency object id",
+            errors);
         ValidateSnapshotPayloadStringListValues(
             effectPayload,
             "targetDependencyObjectIds",
             effectLabel,
             "target dependency object id",
             errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            effectPayload,
+            effectLabel,
+            "participantDependencyObjectIds",
+            "participant dependency object id",
+            errors);
         ValidateSnapshotPayloadStringListValues(
             effectPayload,
             "participantDependencyObjectIds",
             effectLabel,
             "participant dependency object id",
+            errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            effectPayload,
+            effectLabel,
+            "deferredLayerEngineResiduals",
+            "deferred LayerEngine residual",
             errors);
         ValidateSnapshotPayloadStringListValues(
             effectPayload,
