@@ -11930,12 +11930,16 @@ public static class MatchRecoveryValidator
             }
         }
 
-        if (!TryReadObjectList(
-                spectatorReplayFrame.SpectatorSnapshot.Timing,
+        if (!spectatorReplayFrame.SpectatorSnapshot.Timing.TryGetValue(
                 "battlefieldResolutions",
-                out var spectatorBattlefieldResolutions))
+                out var battlefieldResolutionsPayload)
+            || IsNullSnapshotPayloadValue(battlefieldResolutionsPayload))
         {
             errors.Add("spectator replay frame timing battlefield resolutions are required");
+        }
+        else if (!TryReadObjectListValue(battlefieldResolutionsPayload, out var spectatorBattlefieldResolutions))
+        {
+            errors.Add("spectator replay frame timing battlefield resolutions payload is required");
         }
         else if (spectatorBattlefieldResolutions.Count != authoritativeState.BattlefieldResolutions.Count)
         {
@@ -12086,12 +12090,16 @@ public static class MatchRecoveryValidator
             }
         }
 
-        if (!TryReadObjectList(
-                spectatorReplayFrame.SpectatorSnapshot.Timing,
+        if (!spectatorReplayFrame.SpectatorSnapshot.Timing.TryGetValue(
                 "battleResolutions",
-                out var spectatorBattleResolutions))
+                out var battleResolutionsPayload)
+            || IsNullSnapshotPayloadValue(battleResolutionsPayload))
         {
             errors.Add("spectator replay frame timing battle resolutions are required");
+        }
+        else if (!TryReadObjectListValue(battleResolutionsPayload, out var spectatorBattleResolutions))
+        {
+            errors.Add("spectator replay frame timing battle resolutions payload is required");
         }
         else if (spectatorBattleResolutions.Count != authoritativeState.BattleResolutions.Count)
         {

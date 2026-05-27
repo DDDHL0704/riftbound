@@ -20996,6 +20996,204 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingResolutionHistoryPayloadShapeDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["battlefield-1"] = new("battlefield-1", ownerId: "alice", controllerId: "alice"),
+                ["battlefield-2"] = new("battlefield-2", ownerId: "bob", controllerId: "bob"),
+                ["source-1"] = new("source-1", ownerId: "alice", controllerId: "alice"),
+                ["source-2"] = new("source-2", ownerId: "bob", controllerId: "bob"),
+                ["attacker-1"] = new("attacker-1", ownerId: "alice", controllerId: "alice"),
+                ["attacker-2"] = new("attacker-2", ownerId: "alice", controllerId: "alice"),
+                ["defender-1"] = new("defender-1", ownerId: "bob", controllerId: "bob"),
+                ["defender-2"] = new("defender-2", ownerId: "bob", controllerId: "bob")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["battlefield-1"] = new("alice", "BATTLEFIELD", "battlefield-1"),
+                ["battlefield-2"] = new("bob", "BATTLEFIELD", "battlefield-2"),
+                ["source-1"] = new("alice", "BATTLEFIELD", "source-1"),
+                ["source-2"] = new("bob", "BATTLEFIELD", "source-2"),
+                ["attacker-1"] = new("alice", "BATTLEFIELD", "attacker-1"),
+                ["attacker-2"] = new("alice", "BATTLEFIELD", "attacker-2"),
+                ["defender-1"] = new("bob", "BATTLEFIELD", "defender-1"),
+                ["defender-2"] = new("bob", "BATTLEFIELD", "defender-2")
+            },
+            battlefieldResolutions:
+            [
+                new(
+                    "battlefield-resolution-1",
+                    3,
+                    "HELD",
+                    "test-1",
+                    "battlefield-1",
+                    "alice",
+                    null,
+                    "alice",
+                    "source-1",
+                    ["source-1"],
+                    ["BATTLEFIELD_HELD"]),
+                new(
+                    "battlefield-resolution-2",
+                    4,
+                    "HELD",
+                    "test-2",
+                    "battlefield-2",
+                    "bob",
+                    "alice",
+                    "bob",
+                    "source-2",
+                    ["source-2"],
+                    ["BATTLEFIELD_HELD"])
+            ],
+            battleResolutions:
+            [
+                new(
+                    "battle-resolution-1",
+                    3,
+                    "CLOSED",
+                    "test-1",
+                    "battlefield-1",
+                    "alice",
+                    "bob",
+                    "alice",
+                    ["attacker-1"],
+                    ["defender-1"],
+                    ["attacker-1"],
+                    [],
+                    ["defender-1"],
+                    ["BATTLE_CLOSED"]),
+                new(
+                    "battle-resolution-2",
+                    4,
+                    "CLOSED",
+                    "test-2",
+                    "battlefield-2",
+                    "alice",
+                    "bob",
+                    "bob",
+                    ["attacker-2"],
+                    ["defender-2"],
+                    [],
+                    ["defender-2"],
+                    ["attacker-2"],
+                    ["BATTLE_CLOSED"])
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+
+        var malformedListFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var malformedListTiming = malformedListFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        malformedListTiming["battlefieldResolutions"] = "not-battlefield-resolutions";
+        malformedListTiming["battleResolutions"] = "not-battle-resolutions";
+        malformedListFrame = malformedListFrame with
+        {
+            SpectatorSnapshot = malformedListFrame.SpectatorSnapshot with
+            {
+                Timing = malformedListTiming
+            }
+        };
+
+        var malformedListErrors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: malformedListFrame);
+
+        Assert.Contains(
+            malformedListErrors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolutions payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            malformedListErrors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolutions payload is required",
+                StringComparison.Ordinal));
+
+        var malformedItemFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var malformedItemTiming = malformedItemFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var battlefieldResolutions = Assert.IsAssignableFrom<IEnumerable<object?>>(malformedItemTiming["battlefieldResolutions"])
+            .ToArray();
+        Assert.Equal(2, battlefieldResolutions.Length);
+        battlefieldResolutions[0] = "not-battlefield-resolution-1";
+        battlefieldResolutions[1] = "not-battlefield-resolution-2";
+        malformedItemTiming["battlefieldResolutions"] = battlefieldResolutions;
+        var battleResolutions = Assert.IsAssignableFrom<IEnumerable<object?>>(malformedItemTiming["battleResolutions"])
+            .ToArray();
+        Assert.Equal(2, battleResolutions.Length);
+        battleResolutions[0] = "not-battle-resolution-1";
+        battleResolutions[1] = "not-battle-resolution-2";
+        malformedItemTiming["battleResolutions"] = battleResolutions;
+        malformedItemFrame = malformedItemFrame with
+        {
+            SpectatorSnapshot = malformedItemFrame.SpectatorSnapshot with
+            {
+                Timing = malformedItemTiming
+            }
+        };
+
+        var malformedItemErrors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: malformedItemFrame);
+
+        Assert.Equal(
+            2,
+            malformedItemErrors.Count(error => error.Contains(
+                "spectator replay frame timing battlefield resolution payload is required",
+                StringComparison.Ordinal)));
+        Assert.Equal(
+            2,
+            malformedItemErrors.Count(error => error.Contains(
+                "spectator replay frame timing battle resolution payload is required",
+                StringComparison.Ordinal)));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingResolutionHistoryCountMismatch()
     {
         var authoritativeState = new MatchState(
