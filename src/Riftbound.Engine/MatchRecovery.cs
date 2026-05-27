@@ -3589,6 +3589,11 @@ public static class MatchRecoveryValidator
                 snapshotPlayerId,
                 playerPayload,
                 errors);
+            ValidateSnapshotPlayerObjectBooleanScalarPayloadValues(
+                view,
+                snapshotPlayerId,
+                playerPayload,
+                errors);
             ValidateSnapshotPlayerObjectLocationPayloadShapes(
                 view,
                 snapshotPlayerId,
@@ -4072,6 +4077,47 @@ public static class MatchRecoveryValidator
                 "manaCost",
                 payloadLabel,
                 "mana cost",
+                errors);
+        }
+    }
+
+    private static void ValidateSnapshotPlayerObjectBooleanScalarPayloadValues(
+        RecoveredPlayerView view,
+        string snapshotPlayerId,
+        object? playerPayload,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(playerPayload, "objects", out var objectsPayload)
+            || !TryReadObjectDictionaryValue(objectsPayload, out var objectPayloads))
+        {
+            return;
+        }
+
+        foreach (var (objectId, objectPayload) in objectPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(objectPayload))
+            {
+                continue;
+            }
+
+            var payloadLabel = $"snapshot for {view.PlayerId} player {snapshotPlayerId} object {objectId}";
+            ValidateSnapshotPayloadOptionalBoolValue(
+                objectPayload,
+                "isExhausted",
+                payloadLabel,
+                "exhausted state",
+                errors);
+            ValidateSnapshotPayloadOptionalBoolValue(
+                objectPayload,
+                "isAttacking",
+                payloadLabel,
+                "attacking state",
+                errors);
+            ValidateSnapshotPayloadOptionalBoolValue(
+                objectPayload,
+                "isDefending",
+                payloadLabel,
+                "defending state",
                 errors);
         }
     }
