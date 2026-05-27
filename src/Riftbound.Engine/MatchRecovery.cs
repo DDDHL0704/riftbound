@@ -5951,6 +5951,12 @@ public static class MatchRecoveryValidator
         var payloadLabel = $"spectator replay frame snapshot player {playerId} object {objectId}";
         var hasScalar = TryReadObjectValue(objectPayload, key, out var rawValue)
             && !IsNullSnapshotPayloadValue(rawValue);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            objectPayload,
+            payloadLabel,
+            key,
+            listItemDescription,
+            errors);
         ValidateSnapshotPayloadStringListValues(
             objectPayload,
             key,
