@@ -3326,6 +3326,7 @@ public static class MatchRecoveryValidator
         RecoveredPlayerView view,
         List<string> errors)
     {
+        var seenStackItemIds = new HashSet<string>(StringComparer.Ordinal);
         for (var index = 0; index < view.Snapshot.Stack.Count; index++)
         {
             var stackItem = view.Snapshot.Stack[index];
@@ -3335,10 +3336,14 @@ public static class MatchRecoveryValidator
             }
 
             var stackItemLabel = SnapshotStackItemLabel(stackItem, index);
-            ValidateStackItemPayloadValues(
+            var stackItemId = ValidateStackItemPayloadValues(
                 stackItem,
                 $"snapshot for {view.PlayerId} stack item {stackItemLabel}",
                 errors);
+            if (stackItemId is not null && !seenStackItemIds.Add(stackItemId))
+            {
+                errors.Add($"snapshot for {view.PlayerId} stack item {stackItemId} is duplicated");
+            }
         }
     }
 
@@ -14194,12 +14199,12 @@ public static class MatchRecoveryValidator
             errors);
     }
 
-    private static void ValidateStackItemPayloadValues(
+    private static string? ValidateStackItemPayloadValues(
         object? stackItem,
         string payloadLabel,
         List<string> errors)
     {
-        ValidateSnapshotPayloadRequiredStringValue(
+        var stackItemId = ValidateSnapshotPayloadRequiredStringValue(
             stackItem,
             "stackItemId",
             payloadLabel,
@@ -14247,6 +14252,7 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "destination",
             errors);
+        return stackItemId;
     }
 
     private static IReadOnlyList<string> ExtractStackItemIds(SnapshotDto snapshot)

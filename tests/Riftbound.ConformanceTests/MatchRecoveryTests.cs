@@ -1443,6 +1443,48 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotStackItemDuplicateIds()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Stack =
+                    [
+                        new Dictionary<string, object?>(StringComparer.Ordinal)
+                        {
+                            ["stackItemId"] = "stack-1",
+                            ["controllerId"] = "alice",
+                            ["effectKind"] = "DAMAGE",
+                            ["targetObjectIds"] = new[] { "target-1" },
+                            ["damageAmount"] = 0
+                        },
+                        new Dictionary<string, object?>(StringComparer.Ordinal)
+                        {
+                            ["stackItemId"] = "stack-1",
+                            ["controllerId"] = "alice",
+                            ["effectKind"] = "DRAW",
+                            ["targetObjectIds"] = new[] { "target-2" },
+                            ["damageAmount"] = 0
+                        }
+                    ]
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice stack item stack-1 is duplicated",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingListItemPayloadShapeDrift()
     {
         var alice = PlayerView("alice", 0, 0);
