@@ -6607,9 +6607,15 @@ public static class MatchRecoveryValidator
             }
 
             var payloadLabel = $"spectator replay frame snapshot player {playerId} object {objectId} location";
+            var expectedLocation = ExpectedSpectatorObjectLocation(authoritativeState, objectId);
             if (!TryReadObjectValue(objectPayload, "location", out var locationPayload)
                 || IsNullSnapshotPayloadValue(locationPayload))
             {
+                if (expectedLocation is not null)
+                {
+                    errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location is required");
+                }
+
                 continue;
             }
 
@@ -6619,7 +6625,6 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            var expectedLocation = ExpectedSpectatorObjectLocation(authoritativeState, objectId);
             ValidateSnapshotPayloadObjectPropertyNames(locationPayload, payloadLabel, errors);
             var locationPlayerId = ValidateSnapshotPayloadRequiredStringValue(
                 locationPayload,
