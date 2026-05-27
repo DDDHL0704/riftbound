@@ -3574,6 +3574,11 @@ public static class MatchRecoveryValidator
                 snapshotPlayerId,
                 playerPayload,
                 errors);
+            ValidateSnapshotPlayerObjectPayloadValues(
+                view,
+                snapshotPlayerId,
+                playerPayload,
+                errors);
             ValidateSnapshotPlayerObjectLocationPayloadShapes(
                 view,
                 snapshotPlayerId,
@@ -3909,6 +3914,48 @@ public static class MatchRecoveryValidator
             ValidateSnapshotPayloadObjectPropertyNames(
                 objectPayload,
                 $"snapshot for {view.PlayerId} player {snapshotPlayerId} object {objectId}",
+                errors);
+        }
+    }
+
+    private static void ValidateSnapshotPlayerObjectPayloadValues(
+        RecoveredPlayerView view,
+        string snapshotPlayerId,
+        object? playerPayload,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(playerPayload, "objects", out var objectsPayload)
+            || !TryReadObjectDictionaryValue(objectsPayload, out var objectPayloads))
+        {
+            return;
+        }
+
+        foreach (var (objectId, objectPayload) in objectPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(objectPayload))
+            {
+                continue;
+            }
+
+            var payloadLabel = $"snapshot for {view.PlayerId} player {snapshotPlayerId} object {objectId}";
+            var payloadObjectId = ValidateSnapshotPayloadRequiredStringValue(
+                objectPayload,
+                "objectId",
+                payloadLabel,
+                "object id",
+                errors);
+            if (payloadObjectId is not null
+                && !string.Equals(payloadObjectId, objectId, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"snapshot for {view.PlayerId} player {snapshotPlayerId} object {objectId} payload object id {payloadObjectId} does not match object key");
+            }
+
+            ValidateSnapshotPayloadRequiredBoolValue(
+                objectPayload,
+                "isFaceDown",
+                payloadLabel,
+                "face-down flag",
                 errors);
         }
     }
