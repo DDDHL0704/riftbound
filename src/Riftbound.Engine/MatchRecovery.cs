@@ -3579,6 +3579,11 @@ public static class MatchRecoveryValidator
                 snapshotPlayerId,
                 playerPayload,
                 errors);
+            ValidateSnapshotPlayerObjectStringScalarPayloadValues(
+                view,
+                snapshotPlayerId,
+                playerPayload,
+                errors);
             ValidateSnapshotPlayerObjectLocationPayloadShapes(
                 view,
                 snapshotPlayerId,
@@ -3956,6 +3961,53 @@ public static class MatchRecoveryValidator
                 "isFaceDown",
                 payloadLabel,
                 "face-down flag",
+                errors);
+        }
+    }
+
+    private static void ValidateSnapshotPlayerObjectStringScalarPayloadValues(
+        RecoveredPlayerView view,
+        string snapshotPlayerId,
+        object? playerPayload,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(playerPayload, "objects", out var objectsPayload)
+            || !TryReadObjectDictionaryValue(objectsPayload, out var objectPayloads))
+        {
+            return;
+        }
+
+        foreach (var (objectId, objectPayload) in objectPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(objectPayload))
+            {
+                continue;
+            }
+
+            var payloadLabel = $"snapshot for {view.PlayerId} player {snapshotPlayerId} object {objectId}";
+            ValidateSnapshotPayloadOptionalStringValue(
+                objectPayload,
+                "cardNo",
+                payloadLabel,
+                "card number",
+                errors);
+            ValidateSnapshotPayloadOptionalStringValue(
+                objectPayload,
+                "ownerId",
+                payloadLabel,
+                "owner id",
+                errors);
+            ValidateSnapshotPayloadOptionalStringValue(
+                objectPayload,
+                "controllerId",
+                payloadLabel,
+                "controller id",
+                errors);
+            ValidateSnapshotPayloadOptionalStringValue(
+                objectPayload,
+                "attachedToObjectId",
+                payloadLabel,
+                "attached object id",
                 errors);
         }
     }
