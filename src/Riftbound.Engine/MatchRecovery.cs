@@ -2026,6 +2026,7 @@ public static class MatchRecoveryValidator
             ValidateSnapshotLaneListItemPayloadShapes(view, errors);
             ValidateSnapshotLaneListItemPayloadPropertyNames(view, errors);
             ValidateSnapshotLaneBattlefieldObjectIdItemPayloadValues(view, errors);
+            ValidateSnapshotLaneBattlefieldItemScalarPayloadValues(view, errors);
         }
 
         if (view.Snapshot.Stack is null)
@@ -2291,6 +2292,88 @@ public static class MatchRecoveryValidator
                 "objectId",
                 itemLabel,
                 "object id",
+                errors);
+        }
+    }
+
+    private static void ValidateSnapshotLaneBattlefieldItemScalarPayloadValues(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (!TryReadObjectList(view.Snapshot.Lanes, "battlefields", out var items))
+        {
+            return;
+        }
+
+        for (var index = 0; index < items.Count; index++)
+        {
+            var item = items[index];
+            if (!IsSnapshotPlayerPayloadObject(item))
+            {
+                continue;
+            }
+
+            var itemLabel = $"snapshot for {view.PlayerId} lanes battlefield item {index + 1}";
+            ValidateSnapshotPayloadRequiredStringValue(
+                item,
+                "battlefieldObjectId",
+                itemLabel,
+                "battlefield object id",
+                errors);
+            ValidateSnapshotPayloadRequiredStringValue(
+                item,
+                "zonePlayerId",
+                itemLabel,
+                "zone player",
+                errors);
+            ValidateSnapshotPayloadOptionalStringValue(
+                item,
+                "cardNo",
+                itemLabel,
+                "card number",
+                errors);
+            ValidateSnapshotPayloadOptionalStringValue(
+                item,
+                "controllerId",
+                itemLabel,
+                "controller",
+                errors);
+            ValidateSnapshotPayloadRequiredStringValue(
+                item,
+                "status",
+                itemLabel,
+                "status",
+                errors,
+                IsKnownBattlefieldStatus);
+            ValidateSnapshotPayloadRequiredBoolValue(
+                item,
+                "contested",
+                itemLabel,
+                "contested",
+                errors);
+            ValidateSnapshotPayloadRequiredBoolValue(
+                item,
+                "scoredThisTurn",
+                itemLabel,
+                "scored this turn",
+                errors);
+            ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+                item,
+                "standbySlotCount",
+                itemLabel,
+                "standby slot count",
+                errors);
+            ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+                item,
+                "faceDownStandbyCount",
+                itemLabel,
+                "face-down standby count",
+                errors);
+            ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+                item,
+                "hiddenStandbyCount",
+                itemLabel,
+                "hidden standby count",
                 errors);
         }
     }
@@ -3495,6 +3578,13 @@ public static class MatchRecoveryValidator
             || string.Equals(value, MatchStatuses.Seating, StringComparison.Ordinal)
             || string.Equals(value, MatchStatuses.InProgress, StringComparison.Ordinal)
             || string.Equals(value, MatchStatuses.Finished, StringComparison.Ordinal);
+    }
+
+    private static bool IsKnownBattlefieldStatus(string value)
+    {
+        return string.Equals(value, "CONTROLLED", StringComparison.Ordinal)
+            || string.Equals(value, "UNCONTROLLED", StringComparison.Ordinal)
+            || string.Equals(value, "CONTESTED", StringComparison.Ordinal);
     }
 
     private static bool IsKnownSeat(string value)

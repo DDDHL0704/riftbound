@@ -763,6 +763,100 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotLanesBattlefieldItemScalarValueShapeDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Lanes = new Dictionary<string, object?>(StringComparer.Ordinal)
+                    {
+                        ["battlefieldCount"] = 1,
+                        ["battlefieldObjectIds"] = Array.Empty<object?>(),
+                        ["battlefields"] = new object?[]
+                        {
+                            new Dictionary<string, object?>(StringComparer.Ordinal)
+                            {
+                                ["battlefieldObjectId"] = " battlefield-a ",
+                                ["zonePlayerId"] = " ",
+                                ["cardNo"] = RawJson("[]"),
+                                ["controllerId"] = " alice ",
+                                ["status"] = " UNKNOWN ",
+                                ["contested"] = "false",
+                                ["scoredThisTurn"] = 1,
+                                ["standbySlotCount"] = "zero",
+                                ["faceDownStandbyCount"] = -1,
+                                ["hiddenStandbyCount"] = -2
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 battlefield object id battlefield-a has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 zone player is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 card number is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 controller alice has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 status UNKNOWN has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 status UNKNOWN is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 contested is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 scored this turn is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 standby slot count is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 face-down standby count -1 cannot be negative",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 hidden standby count -2 cannot be negative",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotStackItemPropertyNameDrift()
     {
         var alice = PlayerView("alice", 0, 0);
