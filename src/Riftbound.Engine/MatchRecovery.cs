@@ -6302,6 +6302,11 @@ public static class MatchRecoveryValidator
             objectPayloads,
             expectedObjectIdSet,
             errors);
+        ValidateSpectatorSnapshotExtraPlayerObjectNumericScalarPayloadValues(
+            playerId,
+            objectPayloads,
+            expectedObjectIdSet,
+            errors);
 
         foreach (var expectedObjectId in expectedObjectIds)
         {
@@ -6432,6 +6437,59 @@ public static class MatchRecoveryValidator
                 "attachedToObjectId",
                 payloadLabel,
                 "attached object id",
+                errors);
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotExtraPlayerObjectNumericScalarPayloadValues(
+        string playerId,
+        IReadOnlyDictionary<string, object?> objectPayloads,
+        IReadOnlySet<string> expectedObjectIds,
+        List<string> errors)
+    {
+        foreach (var (objectId, objectPayload) in objectPayloads)
+        {
+            if (expectedObjectIds.Contains(objectId) || !IsSnapshotPlayerPayloadObject(objectPayload))
+            {
+                continue;
+            }
+
+            var payloadLabel = $"spectator replay frame snapshot player {playerId} object {objectId}";
+            ValidateSnapshotPayloadOptionalNonNegativeIntValue(
+                objectPayload,
+                "damage",
+                payloadLabel,
+                "damage",
+                errors);
+            ValidateSnapshotPayloadOptionalIntValue(
+                objectPayload,
+                "power",
+                payloadLabel,
+                "power",
+                errors);
+            ValidateSnapshotPayloadOptionalIntValue(
+                objectPayload,
+                "basePower",
+                payloadLabel,
+                "base power",
+                errors);
+            ValidateSnapshotPayloadOptionalIntValue(
+                objectPayload,
+                "effectivePower",
+                payloadLabel,
+                "effective power",
+                errors);
+            ValidateSnapshotPayloadOptionalIntValue(
+                objectPayload,
+                "untilEndOfTurnPowerModifier",
+                payloadLabel,
+                "until-end-of-turn power modifier",
+                errors);
+            ValidateSnapshotPayloadOptionalNonNegativeIntValue(
+                objectPayload,
+                "manaCost",
+                payloadLabel,
+                "mana cost",
                 errors);
         }
     }
