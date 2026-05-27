@@ -14070,6 +14070,132 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplaySnapshotPlayerNestedPayloadShapeDrift()
+    {
+        const string bobPayloadObjectId = "bob-payload-object-1";
+        const string bobLocationObjectId = "bob-location-object-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty,
+                ["bob"] = PlayerZones.Empty with
+                {
+                    Battlefields = [bobPayloadObjectId, bobLocationObjectId]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [bobPayloadObjectId] = new(
+                    bobPayloadObjectId,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "SFD-PAYLOAD",
+                    ownerId: "bob",
+                    controllerId: "bob"),
+                [bobLocationObjectId] = new(
+                    bobLocationObjectId,
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "SFD-LOCATION",
+                    ownerId: "bob",
+                    controllerId: "bob")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [bobLocationObjectId] = new("bob", "BATTLEFIELD", bobPayloadObjectId)
+            });
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var players = spectatorReplayFrame.SpectatorSnapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["runePool"] = "not-rune-pool";
+        alicePayload["zones"] = "not-zones";
+        alicePayload["objects"] = "not-objects";
+        players["alice"] = alicePayload;
+
+        var bobPayload = Assert.IsType<Dictionary<string, object?>>(players["bob"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var bobObjects = Assert.IsType<Dictionary<string, object?>>(bobPayload["objects"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        bobObjects[bobPayloadObjectId] = "not-object";
+        var bobLocationPayload = Assert.IsType<Dictionary<string, object?>>(bobObjects[bobLocationObjectId])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        bobLocationPayload["location"] = "not-location";
+        bobObjects[bobLocationObjectId] = bobLocationPayload;
+        bobPayload["objects"] = bobObjects;
+        players["bob"] = bobPayload;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Players = players
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice rune pool payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice zones payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice objects payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player bob object bob-payload-object-1 payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player bob object bob-location-object-1 location payload is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplaySnapshotPlayerObjectCoverageAndRedactionMismatch()
     {
         const string handObjectId = "alice-hand-1";

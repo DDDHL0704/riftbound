@@ -5089,9 +5089,15 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         if (!TryReadObjectValue(playerPayload, "runePool", out var runePoolPayload)
-            || !IsSnapshotPlayerPayloadObject(runePoolPayload))
+            || IsNullSnapshotPayloadValue(runePoolPayload))
         {
             errors.Add($"spectator replay frame snapshot player {playerId} rune pool is required");
+            return;
+        }
+
+        if (!IsSnapshotPlayerPayloadObject(runePoolPayload))
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} rune pool payload is required");
             return;
         }
 
@@ -5176,9 +5182,15 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         if (!TryReadObjectValue(playerPayload, "zones", out var zonePayload)
-            || !IsSnapshotPlayerPayloadObject(zonePayload))
+            || IsNullSnapshotPayloadValue(zonePayload))
         {
             errors.Add($"spectator replay frame snapshot player {playerId} zones are required");
+            return;
+        }
+
+        if (!IsSnapshotPlayerPayloadObject(zonePayload))
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} zones payload is required");
             return;
         }
 
@@ -5363,9 +5375,15 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         if (!TryReadObjectValue(playerPayload, "objects", out var objectsPayload)
-            || !IsSnapshotPlayerPayloadObject(objectsPayload))
+            || IsNullSnapshotPayloadValue(objectsPayload))
         {
             errors.Add($"spectator replay frame snapshot player {playerId} objects are required");
+            return;
+        }
+
+        if (!IsSnapshotPlayerPayloadObject(objectsPayload))
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} objects payload is required");
             return;
         }
 
@@ -5376,7 +5394,7 @@ public static class MatchRecoveryValidator
 
         if (!TryReadObjectDictionaryValue(objectsPayload, out var objectPayloads))
         {
-            errors.Add($"spectator replay frame snapshot player {playerId} objects are required");
+            errors.Add($"spectator replay frame snapshot player {playerId} objects payload is required");
             return;
         }
 
@@ -5518,9 +5536,15 @@ public static class MatchRecoveryValidator
         }
 
         if (!TryReadObjectValue(objectPayload, "location", out var locationPayload)
-            || !IsSnapshotPlayerPayloadObject(locationPayload))
+            || IsNullSnapshotPayloadValue(locationPayload))
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location is required");
+            return;
+        }
+
+        if (!IsSnapshotPlayerPayloadObject(locationPayload))
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location payload is required");
             return;
         }
 
