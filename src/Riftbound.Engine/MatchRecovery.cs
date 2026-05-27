@@ -8566,10 +8566,35 @@ public static class MatchRecoveryValidator
         }
 
         var authoritativeEffects = authoritativeState.ContinuousEffects;
-        if (spectatorEffects.Count != authoritativeEffects.Count)
+        var validateAuthoritativeParity = spectatorEffects.Count == authoritativeEffects.Count;
+        if (!validateAuthoritativeParity)
         {
             errors.Add(
                 $"spectator replay frame timing continuous effect count {spectatorEffects.Count} does not match authoritative state continuous effect count {authoritativeEffects.Count}");
+        }
+
+        var seenEffectIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var spectatorEffect in spectatorEffects)
+        {
+            if (!IsSnapshotPlayerPayloadObject(spectatorEffect))
+            {
+                errors.Add("spectator replay frame timing continuous effect payload is required");
+                continue;
+            }
+
+            ValidateSnapshotPayloadObjectPropertyNames(
+                spectatorEffect,
+                "spectator replay frame timing continuous effect item",
+                errors);
+            var effectIdValue = ValidateSpectatorContinuousEffectPayloadValues(spectatorEffect, errors);
+            if (effectIdValue is not null && !seenEffectIds.Add(effectIdValue))
+            {
+                errors.Add($"spectator replay frame timing continuous effect item effect id {effectIdValue} is duplicated");
+            }
+        }
+
+        if (!validateAuthoritativeParity)
+        {
             return;
         }
 
@@ -8600,25 +8625,13 @@ public static class MatchRecoveryValidator
         var targetDependencyObjectIdsMatch = true;
         var participantDependencyObjectIdsMatch = true;
         var deferredLayerEngineResidualsMatch = true;
-        var seenEffectIds = new HashSet<string>(StringComparer.Ordinal);
 
         for (var index = 0; index < authoritativeEffects.Count; index++)
         {
             var spectatorEffect = spectatorEffects[index];
             if (!IsSnapshotPlayerPayloadObject(spectatorEffect))
             {
-                errors.Add("spectator replay frame timing continuous effect payload is required");
                 continue;
-            }
-
-            ValidateSnapshotPayloadObjectPropertyNames(
-                spectatorEffect,
-                "spectator replay frame timing continuous effect item",
-                errors);
-            var effectIdValue = ValidateSpectatorContinuousEffectPayloadValues(spectatorEffect, errors);
-            if (effectIdValue is not null && !seenEffectIds.Add(effectIdValue))
-            {
-                errors.Add($"spectator replay frame timing continuous effect item effect id {effectIdValue} is duplicated");
             }
 
             var authoritativeEffect = authoritativeEffects[index];
