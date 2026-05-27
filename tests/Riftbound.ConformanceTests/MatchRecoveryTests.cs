@@ -13148,6 +13148,112 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplaySnapshotVisiblePlayerObjectStringScalarValueShapeDrift()
+    {
+        const string visibleBattlefieldObjectId = "alice-visible-battlefield-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = [visibleBattlefieldObjectId]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [visibleBattlefieldObjectId] = new(
+                    visibleBattlefieldObjectId,
+                    damage: 1,
+                    power: 6,
+                    tags: [CardObjectTags.UnitCard],
+                    attachedToObjectId: "alice-parent-1",
+                    cardNo: "SFD-VISIBLE",
+                    ownerId: "alice",
+                    controllerId: "alice")
+            });
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var players = spectatorReplayFrame.SpectatorSnapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objects = Assert.IsType<Dictionary<string, object?>>(alicePayload["objects"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var visiblePayload = Assert.IsType<Dictionary<string, object?>>(objects[visibleBattlefieldObjectId])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        visiblePayload["cardNo"] = 123;
+        visiblePayload["ownerId"] = " alice ";
+        visiblePayload["controllerId"] = " ";
+        visiblePayload["attachedToObjectId"] = " alice-parent-1 ";
+        objects[visibleBattlefieldObjectId] = visiblePayload;
+        alicePayload["objects"] = objects;
+        players["alice"] = alicePayload;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Players = players
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice object alice-visible-battlefield-1 card number is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice object alice-visible-battlefield-1 owner id alice has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice object alice-visible-battlefield-1 controller id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice object alice-visible-battlefield-1 attached object id alice-parent-1 has surrounding whitespace",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplaySnapshotVisiblePlayerObjectScalarMismatch()
     {
         const string visibleBattlefieldObjectId = "alice-visible-battlefield-1";

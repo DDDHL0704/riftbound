@@ -5627,8 +5627,22 @@ public static class MatchRecoveryValidator
         string description,
         List<string> errors)
     {
-        if (!TryReadObjectOptionalString(objectPayload, key, out var value)
-            || !string.Equals(value, expected ?? string.Empty, StringComparison.Ordinal))
+        var payloadLabel = $"spectator replay frame snapshot player {playerId} object {objectId}";
+        var hasScalar = TryReadObjectValue(objectPayload, key, out var rawValue)
+            && !IsNullSnapshotPayloadValue(rawValue);
+        var value = ValidateSnapshotPayloadOptionalStringValue(
+            objectPayload,
+            key,
+            payloadLabel,
+            description,
+            errors);
+        if (!hasScalar)
+        {
+            value = string.Empty;
+        }
+
+        if (value is not null
+            && !string.Equals(value, expected ?? string.Empty, StringComparison.Ordinal))
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}");
         }
