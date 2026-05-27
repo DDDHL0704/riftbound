@@ -1846,6 +1846,97 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingContinuousEffectDuplicateIds()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["continuousEffects"] = new object?[]
+        {
+            RawJson("""
+                {
+                    "effectId": "effect-1",
+                    "scope": "OBJECT",
+                    "layer": "POWER_MODIFICATION",
+                    "duration": "UNTIL_END_OF_TURN",
+                    "targetObjectId": "target-1",
+                    "sourceObjectId": "source-1",
+                    "powerDelta": 2,
+                    "basePower": 3,
+                    "effectivePower": 5,
+                    "sequence": 0,
+                    "effectKind": "TEST_POWER_MODIFIER",
+                    "sourceCardNo": "SRC-001",
+                    "sourcePath": "test",
+                    "layerEngineStatus": "FOUNDATION_ONLY",
+                    "requestedPowerDelta": 2,
+                    "appliedPowerDelta": 2,
+                    "minimumPower": 0,
+                    "resultingPower": 5,
+                    "appliedOrder": 1,
+                    "sourceOrder": 1,
+                    "condition": "condition",
+                    "lifecycle": "active",
+                    "participantObjectIds": ["participant-1"],
+                    "sourceDependencyObjectIds": ["source-1"],
+                    "targetDependencyObjectIds": ["target-1"],
+                    "participantDependencyObjectIds": ["dependency-1"],
+                    "deferredLayerEngineResiduals": ["residual-1"]
+                }
+                """),
+            RawJson("""
+                {
+                    "effectId": "effect-1",
+                    "scope": "OBJECT",
+                    "layer": "POWER_MODIFICATION",
+                    "duration": "UNTIL_END_OF_TURN",
+                    "targetObjectId": "target-2",
+                    "sourceObjectId": "source-2",
+                    "powerDelta": 1,
+                    "basePower": 4,
+                    "effectivePower": 5,
+                    "sequence": 1,
+                    "effectKind": "TEST_POWER_MODIFIER",
+                    "sourceCardNo": "SRC-002",
+                    "sourcePath": "test",
+                    "layerEngineStatus": "FOUNDATION_ONLY",
+                    "requestedPowerDelta": 1,
+                    "appliedPowerDelta": 1,
+                    "minimumPower": 0,
+                    "resultingPower": 5,
+                    "appliedOrder": 2,
+                    "sourceOrder": 2,
+                    "condition": "condition",
+                    "lifecycle": "active",
+                    "participantObjectIds": ["participant-2"],
+                    "sourceDependencyObjectIds": ["source-2"],
+                    "targetDependencyObjectIds": ["target-2"],
+                    "participantDependencyObjectIds": ["dependency-2"],
+                    "deferredLayerEngineResiduals": ["residual-2"]
+                }
+                """)
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item effect id effect-1 is duplicated",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingTriggerQueuePropertyNameDrift()
     {
         var alice = PlayerView("alice", 0, 0);

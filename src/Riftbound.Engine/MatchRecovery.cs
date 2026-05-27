@@ -3412,6 +3412,7 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        var seenEffectIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var effectPayload in effectPayloads)
         {
             if (!IsSnapshotPlayerPayloadObject(effectPayload))
@@ -3419,10 +3420,14 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            ValidateContinuousEffectScalarPayloadValues(
+            var effectId = ValidateContinuousEffectScalarPayloadValues(
                 effectPayload,
                 $"snapshot for {view.PlayerId} timing continuous effect item",
                 errors);
+            if (effectId is not null && !seenEffectIds.Add(effectId))
+            {
+                errors.Add($"snapshot for {view.PlayerId} timing continuous effect item effect id {effectId} is duplicated");
+            }
         }
     }
 
