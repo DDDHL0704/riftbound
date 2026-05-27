@@ -857,6 +857,130 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotLanesBattlefieldItemListValueShapeDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Lanes = new Dictionary<string, object?>(StringComparer.Ordinal)
+                    {
+                        ["battlefieldCount"] = 1,
+                        ["battlefieldObjectIds"] = Array.Empty<object?>(),
+                        ["battlefields"] = new object?[]
+                        {
+                            new Dictionary<string, object?>(StringComparer.Ordinal)
+                            {
+                                ["battlefieldObjectId"] = "battlefield-a",
+                                ["zonePlayerId"] = "alice",
+                                ["cardNo"] = "TEST-BATTLEFIELD",
+                                ["controllerId"] = "alice",
+                                ["status"] = "CONTROLLED",
+                                ["contested"] = false,
+                                ["scoredThisTurn"] = false,
+                                ["standbySlotCount"] = 0,
+                                ["faceDownStandbyCount"] = 0,
+                                ["hiddenStandbyCount"] = 0,
+                                ["occupantObjectIds"] = RawJson("""{"objectId":"unit-a"}"""),
+                                ["occupantControllerIds"] = new[] { " alice ", "", "alice" },
+                                ["unitsBySide"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+                                {
+                                    ["alice"] = new[] { " unit-a ", "", "unit-a" },
+                                    ["bob"] = new object?[] { "unit-b", 1 }
+                                },
+                                ["standbyObjectIds"] = 7,
+                                ["scoredThisTurnPlayerIds"] = new[] { " alice ", "", "alice" },
+                                ["pendingTaskKinds"] = new[] { " CLEANUP ", "", "CLEANUP" }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 occupant object id list is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 occupant controller id alice has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 occupant controller id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 occupant controller id alice is duplicated",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 units by side alice unit object id unit-a has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 units by side alice unit object id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 units by side alice unit object id unit-a is duplicated",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 units by side bob list is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 standby object id list is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 scored player id alice has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 scored player id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 scored player id alice is duplicated",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 pending task kind CLEANUP has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 pending task kind is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 pending task kind CLEANUP is duplicated",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotStackItemPropertyNameDrift()
     {
         var alice = PlayerView("alice", 0, 0);

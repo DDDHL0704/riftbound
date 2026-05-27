@@ -2027,6 +2027,7 @@ public static class MatchRecoveryValidator
             ValidateSnapshotLaneListItemPayloadPropertyNames(view, errors);
             ValidateSnapshotLaneBattlefieldObjectIdItemPayloadValues(view, errors);
             ValidateSnapshotLaneBattlefieldItemScalarPayloadValues(view, errors);
+            ValidateSnapshotLaneBattlefieldItemListPayloadValues(view, errors);
         }
 
         if (view.Snapshot.Stack is null)
@@ -2374,6 +2375,64 @@ public static class MatchRecoveryValidator
                 "hiddenStandbyCount",
                 itemLabel,
                 "hidden standby count",
+                errors);
+        }
+    }
+
+    private static void ValidateSnapshotLaneBattlefieldItemListPayloadValues(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (!TryReadObjectList(view.Snapshot.Lanes, "battlefields", out var items))
+        {
+            return;
+        }
+
+        for (var index = 0; index < items.Count; index++)
+        {
+            var item = items[index];
+            if (!IsSnapshotPlayerPayloadObject(item))
+            {
+                continue;
+            }
+
+            var itemLabel = $"snapshot for {view.PlayerId} lanes battlefield item {index + 1}";
+            ValidateSnapshotPayloadRequiredStringListValues(
+                item,
+                "occupantObjectIds",
+                itemLabel,
+                "occupant object id",
+                errors);
+            ValidateSnapshotPayloadRequiredStringListValues(
+                item,
+                "occupantControllerIds",
+                itemLabel,
+                "occupant controller id",
+                errors);
+            ValidateSnapshotPayloadRequiredStringListDictionaryValues(
+                item,
+                "unitsBySide",
+                itemLabel,
+                "units by side",
+                "unit object id",
+                errors);
+            ValidateSnapshotPayloadRequiredStringListValues(
+                item,
+                "standbyObjectIds",
+                itemLabel,
+                "standby object id",
+                errors);
+            ValidateSnapshotPayloadRequiredStringListValues(
+                item,
+                "scoredThisTurnPlayerIds",
+                itemLabel,
+                "scored player id",
+                errors);
+            ValidateSnapshotPayloadRequiredStringListValues(
+                item,
+                "pendingTaskKinds",
+                itemLabel,
+                "pending task kind",
                 errors);
         }
     }
