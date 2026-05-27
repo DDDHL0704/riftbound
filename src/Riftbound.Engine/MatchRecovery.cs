@@ -6317,6 +6317,11 @@ public static class MatchRecoveryValidator
             objectPayloads,
             expectedObjectIdSet,
             errors);
+        ValidateSpectatorSnapshotExtraPlayerObjectLocationPayloadValues(
+            playerId,
+            objectPayloads,
+            expectedObjectIdSet,
+            errors);
 
         foreach (var expectedObjectId in expectedObjectIds)
         {
@@ -6576,6 +6581,55 @@ public static class MatchRecoveryValidator
                 "untilEndOfTurnEffects",
                 payloadLabel,
                 "until-end-of-turn effect",
+                errors);
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotExtraPlayerObjectLocationPayloadValues(
+        string playerId,
+        IReadOnlyDictionary<string, object?> objectPayloads,
+        IReadOnlySet<string> expectedObjectIds,
+        List<string> errors)
+    {
+        foreach (var (objectId, objectPayload) in objectPayloads)
+        {
+            if (expectedObjectIds.Contains(objectId) || !IsSnapshotPlayerPayloadObject(objectPayload))
+            {
+                continue;
+            }
+
+            var payloadLabel = $"spectator replay frame snapshot player {playerId} object {objectId} location";
+            if (!TryReadObjectValue(objectPayload, "location", out var locationPayload)
+                || IsNullSnapshotPayloadValue(locationPayload))
+            {
+                continue;
+            }
+
+            if (!IsSnapshotPlayerPayloadObject(locationPayload))
+            {
+                errors.Add($"{payloadLabel} payload is required");
+                continue;
+            }
+
+            ValidateSnapshotPayloadObjectPropertyNames(locationPayload, payloadLabel, errors);
+            ValidateSnapshotPayloadRequiredStringValue(
+                locationPayload,
+                "playerId",
+                payloadLabel,
+                "player id",
+                errors);
+            ValidateSnapshotPayloadRequiredStringValue(
+                locationPayload,
+                "zone",
+                payloadLabel,
+                "zone",
+                errors,
+                IsKnownObjectLocationZone);
+            ValidateSnapshotPayloadOptionalStringValue(
+                locationPayload,
+                "battlefieldObjectId",
+                payloadLabel,
+                "battlefield object id",
                 errors);
         }
     }
