@@ -6321,6 +6321,7 @@ public static class MatchRecoveryValidator
             playerId,
             objectPayloads,
             expectedObjectIdSet,
+            authoritativeState,
             errors);
         ValidateSpectatorSnapshotExtraPlayerObjectRedaction(
             playerId,
@@ -6595,6 +6596,7 @@ public static class MatchRecoveryValidator
         string playerId,
         IReadOnlyDictionary<string, object?> objectPayloads,
         IReadOnlySet<string> expectedObjectIds,
+        MatchState authoritativeState,
         List<string> errors)
     {
         foreach (var (objectId, objectPayload) in objectPayloads)
@@ -6617,26 +6619,57 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
+            var expectedLocation = ExpectedSpectatorObjectLocation(authoritativeState, objectId);
             ValidateSnapshotPayloadObjectPropertyNames(locationPayload, payloadLabel, errors);
-            ValidateSnapshotPayloadRequiredStringValue(
+            var locationPlayerId = ValidateSnapshotPayloadRequiredStringValue(
                 locationPayload,
                 "playerId",
                 payloadLabel,
                 "player id",
                 errors);
-            ValidateSnapshotPayloadRequiredStringValue(
+            if (expectedLocation is not null
+                && locationPlayerId is not null
+                && !string.Equals(locationPlayerId, expectedLocation.PlayerId, StringComparison.Ordinal))
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location player id does not match authoritative object location player id");
+            }
+
+            var zone = ValidateSnapshotPayloadRequiredStringValue(
                 locationPayload,
                 "zone",
                 payloadLabel,
                 "zone",
                 errors,
                 IsKnownObjectLocationZone);
-            ValidateSnapshotPayloadOptionalStringValue(
+            if (expectedLocation is not null
+                && zone is not null
+                && !string.Equals(zone, expectedLocation.Zone, StringComparison.Ordinal))
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location zone does not match authoritative object location zone");
+            }
+
+            var hasBattlefieldObjectId = TryReadObjectValue(locationPayload, "battlefieldObjectId", out var battlefieldObjectIdPayload)
+                && !IsNullSnapshotPayloadValue(battlefieldObjectIdPayload);
+            var battlefieldObjectId = ValidateSnapshotPayloadOptionalStringValue(
                 locationPayload,
                 "battlefieldObjectId",
                 payloadLabel,
                 "battlefield object id",
                 errors);
+            if (!hasBattlefieldObjectId)
+            {
+                battlefieldObjectId = string.Empty;
+            }
+
+            if (expectedLocation is not null
+                && battlefieldObjectId is not null
+                && !string.Equals(
+                    battlefieldObjectId,
+                    expectedLocation.BattlefieldObjectId ?? string.Empty,
+                    StringComparison.Ordinal))
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location battlefield object id does not match authoritative object location battlefield object id");
+            }
         }
     }
 
