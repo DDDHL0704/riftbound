@@ -3594,6 +3594,11 @@ public static class MatchRecoveryValidator
                 snapshotPlayerId,
                 playerPayload,
                 errors);
+            ValidateSnapshotPlayerObjectListScalarPayloadValues(
+                view,
+                snapshotPlayerId,
+                playerPayload,
+                errors);
             ValidateSnapshotPlayerObjectLocationPayloadShapes(
                 view,
                 snapshotPlayerId,
@@ -4118,6 +4123,41 @@ public static class MatchRecoveryValidator
                 "isDefending",
                 payloadLabel,
                 "defending state",
+                errors);
+        }
+    }
+
+    private static void ValidateSnapshotPlayerObjectListScalarPayloadValues(
+        RecoveredPlayerView view,
+        string snapshotPlayerId,
+        object? playerPayload,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(playerPayload, "objects", out var objectsPayload)
+            || !TryReadObjectDictionaryValue(objectsPayload, out var objectPayloads))
+        {
+            return;
+        }
+
+        foreach (var (objectId, objectPayload) in objectPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(objectPayload))
+            {
+                continue;
+            }
+
+            var payloadLabel = $"snapshot for {view.PlayerId} player {snapshotPlayerId} object {objectId}";
+            ValidateSnapshotPayloadStringListValues(
+                objectPayload,
+                "tags",
+                payloadLabel,
+                "tag",
+                errors);
+            ValidateSnapshotPayloadStringListValues(
+                objectPayload,
+                "untilEndOfTurnEffects",
+                payloadLabel,
+                "until-end-of-turn effect",
                 errors);
         }
     }
