@@ -11352,6 +11352,190 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplaySnapshotBattlefieldListValueShapeDrift()
+    {
+        const string battlefieldObjectId = "battlefield-a";
+        const string aliceUnitObjectId = "alice-unit-a";
+        const string bobUnitObjectId = "bob-unit-a";
+        const string aliceHiddenStandbyObjectId = "alice-standby-a";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = [battlefieldObjectId, aliceUnitObjectId, aliceHiddenStandbyObjectId]
+                },
+                ["bob"] = PlayerZones.Empty with
+                {
+                    Battlefields = [bobUnitObjectId]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new(
+                    battlefieldObjectId,
+                    cardNo: "TEST-BATTLEFIELD",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
+                [aliceUnitObjectId] = new(
+                    aliceUnitObjectId,
+                    power: 3,
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.UnitCard]),
+                [bobUnitObjectId] = new(
+                    bobUnitObjectId,
+                    power: 2,
+                    ownerId: "bob",
+                    controllerId: "bob",
+                    tags: [CardObjectTags.UnitCard]),
+                [aliceHiddenStandbyObjectId] = new(
+                    aliceHiddenStandbyObjectId,
+                    power: 2,
+                    isFaceDown: true,
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId),
+                [aliceUnitObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId),
+                [bobUnitObjectId] = new("bob", "BATTLEFIELD", battlefieldObjectId),
+                [aliceHiddenStandbyObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId)
+            },
+            untilEndOfTurnEffects: [BattlefieldTaskMarkers.ScoreGainedThisTurn(battlefieldObjectId, "alice")]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var lanes = spectatorReplayFrame.SpectatorSnapshot.Lanes.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var battlefieldItems = Assert.IsAssignableFrom<IReadOnlyList<object?>>(lanes["battlefields"])
+            .ToArray();
+        var battlefieldPayload = Assert.IsType<Dictionary<string, object?>>(battlefieldItems[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        battlefieldPayload["occupantObjectIds"] = new object?[] { aliceUnitObjectId, 1 };
+        battlefieldPayload["occupantControllerIds"] = new[] { " alice ", "", "alice" };
+        battlefieldPayload["unitsBySide"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["alice"] = new[] { " alice-unit-a ", "", "alice-unit-a" },
+            ["bob"] = new object?[] { bobUnitObjectId, 1 }
+        };
+        battlefieldPayload["standbyObjectIds"] = 123;
+        battlefieldPayload["scoredThisTurnPlayerIds"] = new[] { " alice ", "", "alice" };
+        battlefieldPayload["pendingTaskKinds"] = new[] { " TEST_TASK ", "", "TEST_TASK" };
+        battlefieldItems[0] = battlefieldPayload;
+        lanes["battlefields"] = battlefieldItems;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Lanes = lanes
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a occupant object id list is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a occupant controller id alice has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a occupant controller id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a occupant controller id alice is duplicated",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a units by side alice unit object id alice-unit-a has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a units by side alice unit object id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a units by side alice unit object id alice-unit-a is duplicated",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a units by side bob list is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a standby object id list is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a scored player id alice has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a pending task kind TEST_TASK has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a pending task kind is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a pending task kind TEST_TASK is duplicated",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplaySnapshotBattlefieldUnitsBySidePropertyNameDrift()
     {
         const string battlefieldObjectId = "battlefield-a";

@@ -6077,20 +6077,31 @@ public static class MatchRecoveryValidator
             var spectatorBattlefield = spectatorBattlefields[index];
             var authoritativeBattlefield = authoritativeBattlefields[index];
             var battlefieldObjectId = authoritativeBattlefield.BattlefieldObjectId;
+            var payloadLabel = $"spectator replay frame snapshot lane battlefield {battlefieldObjectId}";
 
-            if (!TryReadObjectStringList(spectatorBattlefield, "occupantObjectIds", out var occupantObjectIds)
-                || !StringListsEqual(occupantObjectIds, authoritativeBattlefield.OccupantObjectIds))
+            if (!IsSnapshotPlayerPayloadObject(spectatorBattlefield))
             {
-                errors.Add(
-                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} occupant object ids do not match authoritative state occupant object ids");
+                continue;
             }
 
-            if (!TryReadObjectStringList(spectatorBattlefield, "occupantControllerIds", out var occupantControllerIds)
-                || !StringListsEqual(occupantControllerIds, authoritativeBattlefield.OccupantControllerIds))
-            {
-                errors.Add(
-                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} occupant controller ids do not match authoritative state occupant controller ids");
-            }
+            ValidateSpectatorSnapshotBattlefieldStringListScalar(
+                spectatorBattlefield,
+                "occupantObjectIds",
+                authoritativeBattlefield.OccupantObjectIds,
+                payloadLabel,
+                "occupant object id",
+                "occupant object ids",
+                "authoritative state occupant object ids",
+                errors);
+            ValidateSpectatorSnapshotBattlefieldStringListScalar(
+                spectatorBattlefield,
+                "occupantControllerIds",
+                authoritativeBattlefield.OccupantControllerIds,
+                payloadLabel,
+                "occupant controller id",
+                "occupant controller ids",
+                "authoritative state occupant controller ids",
+                errors);
 
             ValidateSpectatorSnapshotBattlefieldUnitsBySidePayloadPropertyNames(
                 battlefieldObjectId,
@@ -6098,32 +6109,41 @@ public static class MatchRecoveryValidator
                 errors);
 
             var expectedUnitsBySide = ExpectedSpectatorUnitsBySide(authoritativeState, authoritativeBattlefield);
-            if (!TryReadObjectStringListDictionary(spectatorBattlefield, "unitsBySide", out var unitsBySide)
-                || !StringListDictionariesEqual(unitsBySide, expectedUnitsBySide))
-            {
-                errors.Add(
-                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} units by side do not match authoritative state units by side");
-            }
+            ValidateSpectatorSnapshotBattlefieldStringListDictionaryScalar(
+                spectatorBattlefield,
+                "unitsBySide",
+                expectedUnitsBySide,
+                payloadLabel,
+                "units by side",
+                "unit object id",
+                "authoritative state units by side",
+                errors);
 
             var visibleStandbyObjectIds = authoritativeBattlefield.StandbyObjectIds
                 .Where(objectId => !IsHiddenBattlefieldStandbyForSpectator(authoritativeState, objectId))
                 .ToArray();
-            if (!TryReadObjectStringList(spectatorBattlefield, "standbyObjectIds", out var standbyObjectIds)
-                || !StringListsEqual(standbyObjectIds, visibleStandbyObjectIds))
-            {
-                errors.Add(
-                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby object ids do not match authoritative state visible standby object ids");
-            }
+            ValidateSpectatorSnapshotBattlefieldStringListScalar(
+                spectatorBattlefield,
+                "standbyObjectIds",
+                visibleStandbyObjectIds,
+                payloadLabel,
+                "standby object id",
+                "standby object ids",
+                "authoritative state visible standby object ids",
+                errors);
 
             var expectedScoredPlayerIds = SpectatorBattlefieldScoredThisTurnByPlayers(
                 authoritativeState,
                 battlefieldObjectId);
-            if (!TryReadObjectStringList(spectatorBattlefield, "scoredThisTurnPlayerIds", out var scoredPlayerIds)
-                || !StringListsEqual(scoredPlayerIds, expectedScoredPlayerIds))
-            {
-                errors.Add(
-                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} scored player ids do not match authoritative state scored player ids");
-            }
+            ValidateSpectatorSnapshotBattlefieldStringListScalar(
+                spectatorBattlefield,
+                "scoredThisTurnPlayerIds",
+                expectedScoredPlayerIds,
+                payloadLabel,
+                "scored player id",
+                "scored player ids",
+                "authoritative state scored player ids",
+                errors);
 
             var expectedPendingTaskKinds = authoritativeState.PendingCleanupTasks
                 .Where(task => string.Equals(task.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal))
@@ -6131,12 +6151,62 @@ public static class MatchRecoveryValidator
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(kind => kind, StringComparer.Ordinal)
                 .ToArray();
-            if (!TryReadObjectStringList(spectatorBattlefield, "pendingTaskKinds", out var pendingTaskKinds)
-                || !StringListsEqual(pendingTaskKinds, expectedPendingTaskKinds))
-            {
-                errors.Add(
-                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} pending task kinds do not match authoritative state pending task kinds");
-            }
+            ValidateSpectatorSnapshotBattlefieldStringListScalar(
+                spectatorBattlefield,
+                "pendingTaskKinds",
+                expectedPendingTaskKinds,
+                payloadLabel,
+                "pending task kind",
+                "pending task kinds",
+                "authoritative state pending task kinds",
+                errors);
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotBattlefieldStringListScalar(
+        object? battlefieldPayload,
+        string key,
+        IReadOnlyList<string> expected,
+        string payloadLabel,
+        string itemDescription,
+        string mismatchDescription,
+        string authoritativeDescription,
+        List<string> errors)
+    {
+        ValidateSnapshotPayloadRequiredStringListValues(
+            battlefieldPayload,
+            key,
+            payloadLabel,
+            itemDescription,
+            errors);
+        if (!TryReadObjectStringList(battlefieldPayload, key, out var value)
+            || !StringListsEqual(value, expected))
+        {
+            errors.Add($"{payloadLabel} {mismatchDescription} do not match {authoritativeDescription}");
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotBattlefieldStringListDictionaryScalar(
+        object? battlefieldPayload,
+        string key,
+        IReadOnlyDictionary<string, IReadOnlyList<string>> expected,
+        string payloadLabel,
+        string itemDescription,
+        string listItemDescription,
+        string authoritativeDescription,
+        List<string> errors)
+    {
+        ValidateSnapshotPayloadRequiredStringListDictionaryValues(
+            battlefieldPayload,
+            key,
+            payloadLabel,
+            itemDescription,
+            listItemDescription,
+            errors);
+        if (!TryReadObjectStringListDictionary(battlefieldPayload, key, out var value)
+            || !StringListDictionariesEqual(value, expected))
+        {
+            errors.Add($"{payloadLabel} {itemDescription} do not match {authoritativeDescription}");
         }
     }
 
