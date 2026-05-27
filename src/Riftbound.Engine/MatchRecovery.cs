@@ -6817,9 +6817,15 @@ public static class MatchRecoveryValidator
         }
 
         if (!TryReadObjectValue(queuePayload, "metadata", out var metadataPayload)
-            || !IsSnapshotPlayerPayloadObject(metadataPayload))
+            || IsNullSnapshotPayloadValue(metadataPayload))
         {
             errors.Add("spectator replay frame timing pending task queue metadata is required");
+            return;
+        }
+
+        if (!IsSnapshotPlayerPayloadObject(metadataPayload))
+        {
+            errors.Add("spectator replay frame timing pending task queue metadata payload is required");
             return;
         }
 
@@ -6853,7 +6859,7 @@ public static class MatchRecoveryValidator
             if (!IsSnapshotPlayerPayloadObject(taskPayload))
             {
                 errors.Add("spectator replay frame timing pending task queue task payload is required");
-                return;
+                continue;
             }
 
             ValidateSnapshotPayloadObjectPropertyNames(
@@ -7230,9 +7236,13 @@ public static class MatchRecoveryValidator
         }
 
         if (!TryReadObjectValue(paymentPayload, "cost", out var costPayload)
-            || !IsSnapshotPlayerPayloadObject(costPayload))
+            || IsNullSnapshotPayloadValue(costPayload))
         {
             errors.Add("spectator replay frame timing pending payment cost is required");
+        }
+        else if (!IsSnapshotPlayerPayloadObject(costPayload))
+        {
+            errors.Add("spectator replay frame timing pending payment cost payload is required");
         }
         else
         {

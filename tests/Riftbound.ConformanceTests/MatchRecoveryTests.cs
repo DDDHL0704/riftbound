@@ -20500,6 +20500,142 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingPendingNestedPayloadShapeDrift()
+    {
+        const string battlefieldObjectId = "alice-cleanup-battlefield-1";
+        const string hiddenStandbyObjectId = "bob-hidden-standby-1";
+        const string equipmentObjectId = "alice-unattached-equipment-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = [battlefieldObjectId, equipmentObjectId]
+                },
+                ["bob"] = PlayerZones.Empty with
+                {
+                    Battlefields = [hiddenStandbyObjectId]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new(
+                    battlefieldObjectId,
+                    cardNo: "SFD-BATTLEFIELD",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
+                [hiddenStandbyObjectId] = new(
+                    hiddenStandbyObjectId,
+                    power: 2,
+                    isFaceDown: true,
+                    ownerId: "bob",
+                    controllerId: "bob",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby]),
+                [equipmentObjectId] = new(
+                    equipmentObjectId,
+                    cardNo: "SFD-EQUIPMENT",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.EquipmentCard])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId),
+                [hiddenStandbyObjectId] = new("bob", "BATTLEFIELD", battlefieldObjectId),
+                [equipmentObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId)
+            },
+            pendingPayment: new PendingPaymentState(
+                "payment-1",
+                "PAY_COST",
+                "alice",
+                manaCost: 2,
+                powerCost: 1,
+                powerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    ["blue"] = 1
+                },
+                legalPaymentChoiceIds: ["SPEND_MANA:2", "SPEND_POWER:1"],
+                reason: "test-payment"));
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var pendingTaskQueue = Assert.IsType<Dictionary<string, object?>>(timing["pendingTaskQueue"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var tasks = Assert.IsAssignableFrom<IReadOnlyList<object?>>(pendingTaskQueue["tasks"])
+            .ToArray();
+        Assert.Equal(2, tasks.Length);
+        tasks[0] = "not-hidden-task";
+        tasks[1] = 17;
+        pendingTaskQueue["tasks"] = tasks;
+        pendingTaskQueue["metadata"] = new[] { "not-metadata" };
+        timing["pendingTaskQueue"] = pendingTaskQueue;
+
+        var pendingPayment = Assert.IsType<Dictionary<string, object?>>(timing["pendingPayment"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        pendingPayment["cost"] = "not-cost";
+        timing["pendingPayment"] = pendingPayment;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Equal(
+            2,
+            errors.Count(error => error.Contains(
+                "spectator replay frame timing pending task queue task payload is required",
+                StringComparison.Ordinal)));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing pending task queue metadata payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing pending payment cost payload is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingTurnWindowMismatch()
     {
         var authoritativeState = new MatchState(
