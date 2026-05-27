@@ -2025,6 +2025,7 @@ public static class MatchRecoveryValidator
             ValidateSnapshotLaneListPayloadShapes(view, errors);
             ValidateSnapshotLaneListItemPayloadShapes(view, errors);
             ValidateSnapshotLaneListItemPayloadPropertyNames(view, errors);
+            ValidateSnapshotLaneBattlefieldObjectIdItemPayloadValues(view, errors);
         }
 
         if (view.Snapshot.Stack is null)
@@ -2259,6 +2260,39 @@ public static class MatchRecoveryValidator
             "battlefields",
             $"snapshot for {view.PlayerId} lanes battlefield",
             errors);
+    }
+
+    private static void ValidateSnapshotLaneBattlefieldObjectIdItemPayloadValues(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (!TryReadObjectList(view.Snapshot.Lanes, "battlefieldObjectIds", out var items))
+        {
+            return;
+        }
+
+        for (var index = 0; index < items.Count; index++)
+        {
+            var item = items[index];
+            if (!IsSnapshotPlayerPayloadObject(item))
+            {
+                continue;
+            }
+
+            var itemLabel = $"snapshot for {view.PlayerId} lanes battlefield object id item {index + 1}";
+            ValidateSnapshotPayloadRequiredStringValue(
+                item,
+                "playerId",
+                itemLabel,
+                "player id",
+                errors);
+            ValidateSnapshotPayloadRequiredStringValue(
+                item,
+                "objectId",
+                itemLabel,
+                "object id",
+                errors);
+        }
     }
 
     private static void ValidateSnapshotTimingObjectPayloadShape(
