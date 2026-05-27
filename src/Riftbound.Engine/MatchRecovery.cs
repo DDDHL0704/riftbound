@@ -6718,13 +6718,30 @@ public static class MatchRecoveryValidator
             }
 
             if ((expectedFaceDown || (hasValidFaceDownFlag && isFaceDown))
-                && (TryReadObjectValue(objectPayload, "cardNo", out _)
-                || TryReadObjectValue(objectPayload, "tags", out _)
-                || TryReadObjectValue(objectPayload, "power", out _)))
+                && SpectatorFaceDownObjectExposesPrivateMetadata(objectPayload))
             {
                 errors.Add($"spectator replay frame snapshot player {playerId} hidden face-down object {objectId} exposes private metadata");
             }
         }
+    }
+
+    private static bool SpectatorFaceDownObjectExposesPrivateMetadata(object? objectPayload)
+    {
+        return TryReadObjectValue(objectPayload, "damage", out _)
+            || TryReadObjectValue(objectPayload, "power", out _)
+            || TryReadObjectValue(objectPayload, "basePower", out _)
+            || TryReadObjectValue(objectPayload, "effectivePower", out _)
+            || TryReadObjectValue(objectPayload, "untilEndOfTurnPowerModifier", out _)
+            || TryReadObjectValue(objectPayload, "isExhausted", out _)
+            || TryReadObjectValue(objectPayload, "isAttacking", out _)
+            || TryReadObjectValue(objectPayload, "isDefending", out _)
+            || TryReadObjectValue(objectPayload, "tags", out _)
+            || TryReadObjectValue(objectPayload, "untilEndOfTurnEffects", out _)
+            || TryReadObjectValue(objectPayload, "manaCost", out _)
+            || TryReadObjectValue(objectPayload, "attachedToObjectId", out _)
+            || TryReadObjectValue(objectPayload, "cardNo", out _)
+            || TryReadObjectValue(objectPayload, "ownerId", out _)
+            || TryReadObjectValue(objectPayload, "controllerId", out _);
     }
 
     private static void ValidateSpectatorSnapshotExtraVisiblePlayerObjectScalarParity(
@@ -6841,9 +6858,7 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        if (TryReadObjectValue(objectPayload, "cardNo", out _)
-            || TryReadObjectValue(objectPayload, "tags", out _)
-            || TryReadObjectValue(objectPayload, "power", out _))
+        if (SpectatorFaceDownObjectExposesPrivateMetadata(objectPayload))
         {
             errors.Add($"spectator replay frame snapshot player {playerId} hidden face-down object {objectId} exposes private metadata");
         }
