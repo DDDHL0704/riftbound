@@ -5781,21 +5781,32 @@ public static class MatchRecoveryValidator
             for (var index = 0; index < battlefieldObjectItems.Count; index++)
             {
                 var item = battlefieldObjectItems[index];
+                var itemLabel = $"spectator replay frame snapshot lane battlefield object id item {index + 1}";
                 if (!IsSnapshotPlayerPayloadObject(item))
                 {
+                    errors.Add($"{itemLabel} payload is required");
                     malformedPair = true;
                     continue;
                 }
 
                 ValidateSnapshotPayloadObjectPropertyNames(
                     item,
-                    $"spectator replay frame snapshot lane battlefield object id item {index + 1}",
+                    itemLabel,
                     errors);
 
-                if (!TryReadObjectString(item, "playerId", out var playerId)
-                    || string.IsNullOrWhiteSpace(playerId)
-                    || !TryReadObjectString(item, "objectId", out var objectId)
-                    || string.IsNullOrWhiteSpace(objectId))
+                var playerId = ValidateSnapshotPayloadRequiredStringValue(
+                    item,
+                    "playerId",
+                    itemLabel,
+                    "player id",
+                    errors);
+                var objectId = ValidateSnapshotPayloadRequiredStringValue(
+                    item,
+                    "objectId",
+                    itemLabel,
+                    "object id",
+                    errors);
+                if (playerId is null || objectId is null)
                 {
                     malformedPair = true;
                     continue;
