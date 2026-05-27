@@ -2022,6 +2022,7 @@ public static class MatchRecoveryValidator
                 view.Snapshot.Lanes,
                 $"snapshot for {view.PlayerId} lanes",
                 errors);
+            ValidateSnapshotLaneListPayloadShapes(view, errors);
         }
 
         if (view.Snapshot.Stack is null)
@@ -2205,6 +2206,25 @@ public static class MatchRecoveryValidator
             ValidateSnapshotTimingResolutionHistoryScalarPayloadValues(view, errors);
             ValidateSnapshotTimingResolutionHistoryListPayloadValues(view, errors);
         }
+    }
+
+    private static void ValidateSnapshotLaneListPayloadShapes(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        var payloadLabel = $"snapshot for {view.PlayerId} lanes";
+        ValidateSnapshotPayloadRequiredObjectListPayloadShape(
+            view.Snapshot.Lanes,
+            "battlefieldObjectIds",
+            payloadLabel,
+            "battlefield object id",
+            errors);
+        ValidateSnapshotPayloadRequiredObjectListPayloadShape(
+            view.Snapshot.Lanes,
+            "battlefields",
+            payloadLabel,
+            "battlefield",
+            errors);
     }
 
     private static void ValidateSnapshotTimingObjectPayloadShape(
@@ -4476,6 +4496,25 @@ public static class MatchRecoveryValidator
         }
 
         if (!TryReadStringListValue(listPayload, out _))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} list payload is required");
+        }
+    }
+
+    private static void ValidateSnapshotPayloadRequiredObjectListPayloadShape(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(payload, key, out var listPayload)
+            || IsNullSnapshotPayloadValue(listPayload))
+        {
+            return;
+        }
+
+        if (!TryReadObjectListValue(listPayload, out _))
         {
             errors.Add($"{payloadLabel} {itemLabel} list payload is required");
         }
