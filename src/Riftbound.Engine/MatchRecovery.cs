@@ -12597,6 +12597,12 @@ public static class MatchRecoveryValidator
             "room status",
             errors,
             IsKnownMatchStatus);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            timing,
+            payloadLabel,
+            "readyPlayerIds",
+            "ready player id",
+            errors);
         ValidateSnapshotPayloadRequiredStringListValues(
             timing,
             "readyPlayerIds",
@@ -12621,6 +12627,12 @@ public static class MatchRecoveryValidator
             "priorityPlayerId",
             payloadLabel,
             "priority player id",
+            errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            timing,
+            payloadLabel,
+            "passedPriorityPlayerIds",
+            "passed priority player id",
             errors);
         ValidateSnapshotPayloadRequiredStringListValues(
             timing,
@@ -12647,11 +12659,23 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "winner player id",
             errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            timing,
+            payloadLabel,
+            "passedFocusPlayerIds",
+            "passed focus player id",
+            errors);
         ValidateSnapshotPayloadRequiredStringListValues(
             timing,
             "passedFocusPlayerIds",
             payloadLabel,
             "passed focus player id",
+            errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            timing,
+            payloadLabel,
+            "destroyedUnitOwnerIdsThisTurn",
+            "destroyed unit owner id",
             errors);
         ValidateSnapshotPayloadRequiredStringListValues(
             timing,
