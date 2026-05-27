@@ -13789,6 +13789,109 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplaySnapshotStandbySlotPayloadShapeWithCountMismatch()
+    {
+        const string battlefieldObjectId = "battlefield-a";
+        const string standbyObjectId = "standby-visible-a";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = [battlefieldObjectId, standbyObjectId]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new(
+                    battlefieldObjectId,
+                    cardNo: "TEST-BATTLEFIELD",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
+                [standbyObjectId] = new(
+                    standbyObjectId,
+                    power: 2,
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId),
+                [standbyObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId)
+            });
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var lanes = spectatorReplayFrame.SpectatorSnapshot.Lanes.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var battlefieldItems = Assert.IsAssignableFrom<IReadOnlyList<object?>>(lanes["battlefields"])
+            .ToArray();
+        var battlefieldPayload = Assert.IsType<Dictionary<string, object?>>(battlefieldItems[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var standbySlots = Assert.IsAssignableFrom<IReadOnlyList<object?>>(battlefieldPayload["standbySlots"])
+            .ToList();
+        Assert.Single(standbySlots);
+        standbySlots.Add("not-a-standby-slot-payload");
+        battlefieldPayload["standbySlots"] = standbySlots.ToArray();
+        battlefieldItems[0] = battlefieldPayload;
+        lanes["battlefields"] = battlefieldItems;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Lanes = lanes
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a standby slot item 2 payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield battlefield-a standby slots count does not match authoritative state standby slots count",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplaySnapshotStandbySlotMismatch()
     {
         const string battlefieldObjectId = "battlefield-a";

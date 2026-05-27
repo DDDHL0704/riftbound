@@ -7383,6 +7383,12 @@ public static class MatchRecoveryValidator
                     $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby slots count does not match authoritative state standby slots count");
             }
 
+            ValidateSpectatorSnapshotExtraStandbySlotPayloadShapes(
+                standbySlots,
+                battlefieldObjectId,
+                authoritativeBattlefield.StandbyObjectIds.Count,
+                errors);
+
             var slotCount = Math.Min(standbySlots.Count, authoritativeBattlefield.StandbyObjectIds.Count);
             for (var slotIndex = 0; slotIndex < slotCount; slotIndex++)
             {
@@ -7393,6 +7399,21 @@ public static class MatchRecoveryValidator
                     authoritativeBattlefield.StandbyObjectIds[slotIndex],
                     slotIndex,
                     errors);
+            }
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotExtraStandbySlotPayloadShapes(
+        IReadOnlyList<object?> spectatorStandbySlots,
+        string battlefieldObjectId,
+        int authoritativeStandbySlotCount,
+        List<string> errors)
+    {
+        for (var slotIndex = authoritativeStandbySlotCount; slotIndex < spectatorStandbySlots.Count; slotIndex++)
+        {
+            if (!IsSnapshotPlayerPayloadObject(spectatorStandbySlots[slotIndex]))
+            {
+                errors.Add($"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby slot item {slotIndex + 1} payload is required");
             }
         }
     }
