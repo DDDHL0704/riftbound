@@ -5533,7 +5533,8 @@ public static class MatchRecoveryValidator
             "damage",
             cardObject.Damage,
             "damage",
-            errors);
+            errors,
+            mustBeNonNegative: true);
         ValidateSpectatorSnapshotPlayerObjectIntScalar(
             playerId,
             objectId,
@@ -5573,7 +5574,8 @@ public static class MatchRecoveryValidator
             "manaCost",
             cardObject.ManaCost,
             "mana cost",
-            errors);
+            errors,
+            mustBeNonNegative: true);
 
         ValidateSpectatorSnapshotPlayerObjectBoolScalar(
             playerId,
@@ -5655,10 +5657,32 @@ public static class MatchRecoveryValidator
         string key,
         int expected,
         string description,
-        List<string> errors)
+        List<string> errors,
+        bool mustBeNonNegative = false)
     {
-        if (!TryReadObjectInt(objectPayload, key, out var value)
-            || value != expected)
+        var payloadLabel = $"spectator replay frame snapshot player {playerId} object {objectId}";
+        var hasScalar = TryReadObjectValue(objectPayload, key, out var rawValue)
+            && !IsNullSnapshotPayloadValue(rawValue);
+        var value = mustBeNonNegative
+            ? ValidateSnapshotPayloadOptionalNonNegativeIntValue(
+                objectPayload,
+                key,
+                payloadLabel,
+                description,
+                errors)
+            : ValidateSnapshotPayloadOptionalIntValue(
+                objectPayload,
+                key,
+                payloadLabel,
+                description,
+                errors);
+        if (!hasScalar)
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}");
+            return;
+        }
+
+        if (value is not null && value != expected)
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}");
         }
