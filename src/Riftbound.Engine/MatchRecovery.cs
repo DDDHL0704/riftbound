@@ -2193,6 +2193,7 @@ public static class MatchRecoveryValidator
                 "battlefieldTasks",
                 "battlefield task",
                 errors);
+            ValidateSnapshotTimingBattlefieldTaskScalarPayloadValues(view, errors);
             ValidateSnapshotTimingBattlefieldTaskListPayloadValues(view, errors);
             ValidateSnapshotTimingListItemPayloadShapes(
                 view,
@@ -3543,6 +3544,82 @@ public static class MatchRecoveryValidator
                 "triggeredByEventKind",
                 triggerLabel,
                 "triggered event kind",
+                errors);
+        }
+    }
+
+    private static void ValidateSnapshotTimingBattlefieldTaskScalarPayloadValues(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectList(view.Snapshot.Timing, "battlefieldTasks", out var taskPayloads))
+        {
+            return;
+        }
+
+        var seenTaskIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var taskPayload in taskPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(taskPayload))
+            {
+                continue;
+            }
+
+            const string payloadLabel = "battlefield task item";
+            var taskLabel = $"snapshot for {view.PlayerId} timing {payloadLabel}";
+            var taskId = ValidateSnapshotPayloadRequiredStringValue(
+                taskPayload,
+                "taskId",
+                taskLabel,
+                "task id",
+                errors);
+            if (taskId is not null && !seenTaskIds.Add(taskId))
+            {
+                errors.Add($"{taskLabel} task id {taskId} is duplicated");
+            }
+
+            ValidateSnapshotPayloadRequiredStringValue(
+                taskPayload,
+                "kind",
+                taskLabel,
+                "kind",
+                errors);
+            ValidateSnapshotPayloadRequiredStringValue(
+                taskPayload,
+                "status",
+                taskLabel,
+                "status",
+                errors);
+            ValidateSnapshotPayloadRequiredStringValue(
+                taskPayload,
+                "reason",
+                taskLabel,
+                "reason",
+                errors);
+            ValidateSnapshotPayloadRequiredStringValue(
+                taskPayload,
+                "battlefieldObjectId",
+                taskLabel,
+                "battlefield object id",
+                errors);
+            ValidateSnapshotPayloadOptionalStringValue(
+                taskPayload,
+                "actingPlayerId",
+                taskLabel,
+                "acting player id",
+                errors);
+            ValidateSnapshotPayloadOptionalStringValue(
+                taskPayload,
+                "spellDuelId",
+                taskLabel,
+                "spell duel id",
+                errors);
+            ValidateSnapshotPayloadOptionalStringValue(
+                taskPayload,
+                "battleId",
+                taskLabel,
+                "battle id",
                 errors);
         }
     }

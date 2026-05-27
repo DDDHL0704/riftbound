@@ -2200,6 +2200,103 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingBattlefieldTaskScalarValueDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["battlefieldTasks"] = new object?[]
+        {
+            RawJson("""
+                {
+                    "taskId": " task:duplicate ",
+                    "kind": "",
+                    "status": " PENDING ",
+                    "reason": 7,
+                    "battlefieldObjectId": " battlefield-1 ",
+                    "participantControllerIds": ["alice"],
+                    "participantObjectIds": ["object-1"],
+                    "actingPlayerId": " alice ",
+                    "stackItemIds": [],
+                    "battleId": " battle-battlefield-1 "
+                }
+                """),
+            RawJson("""
+                {
+                    "taskId": "task:duplicate",
+                    "kind": "START_SPELL_DUEL",
+                    "status": "PENDING",
+                    "reason": "BATTLEFIELD_CONTESTED",
+                    "battlefieldObjectId": "battlefield-1",
+                    "participantControllerIds": ["alice"],
+                    "participantObjectIds": ["object-1"],
+                    "actingPlayerId": "alice",
+                    "stackItemIds": [],
+                    "spellDuelId": 13
+                }
+                """)
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield task item task id task:duplicate has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield task item task id task:duplicate is duplicated",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield task item kind is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield task item status PENDING has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield task item reason is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield task item battlefield object id battlefield-1 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield task item acting player id alice has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield task item spell duel id is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield task item battle id battle-battlefield-1 has surrounding whitespace",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingPendingHandChoicePayloadShapeDrift()
     {
         var alice = PlayerView("alice", 0, 0);
