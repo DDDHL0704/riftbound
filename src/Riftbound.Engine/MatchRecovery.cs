@@ -10657,17 +10657,35 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing battlefield task item";
+        ValidateSpectatorRequiredStringListPayloadShape(
+            spectatorBattlefieldTask,
+            payloadLabel,
+            "participantControllerIds",
+            "participant controller id",
+            errors);
         ValidateSnapshotPayloadStringListValues(
             spectatorBattlefieldTask,
             "participantControllerIds",
             payloadLabel,
             "participant controller id",
             errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            spectatorBattlefieldTask,
+            payloadLabel,
+            "participantObjectIds",
+            "participant object id",
+            errors);
         ValidateSnapshotPayloadStringListValues(
             spectatorBattlefieldTask,
             "participantObjectIds",
             payloadLabel,
             "participant object id",
+            errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            spectatorBattlefieldTask,
+            payloadLabel,
+            "stackItemIds",
+            "stack item id",
             errors);
         ValidateSnapshotPayloadStringListValues(
             spectatorBattlefieldTask,
