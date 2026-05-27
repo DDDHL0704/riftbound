@@ -3584,6 +3584,11 @@ public static class MatchRecoveryValidator
                 snapshotPlayerId,
                 playerPayload,
                 errors);
+            ValidateSnapshotPlayerObjectNumericScalarPayloadValues(
+                view,
+                snapshotPlayerId,
+                playerPayload,
+                errors);
             ValidateSnapshotPlayerObjectLocationPayloadShapes(
                 view,
                 snapshotPlayerId,
@@ -4008,6 +4013,65 @@ public static class MatchRecoveryValidator
                 "attachedToObjectId",
                 payloadLabel,
                 "attached object id",
+                errors);
+        }
+    }
+
+    private static void ValidateSnapshotPlayerObjectNumericScalarPayloadValues(
+        RecoveredPlayerView view,
+        string snapshotPlayerId,
+        object? playerPayload,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(playerPayload, "objects", out var objectsPayload)
+            || !TryReadObjectDictionaryValue(objectsPayload, out var objectPayloads))
+        {
+            return;
+        }
+
+        foreach (var (objectId, objectPayload) in objectPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(objectPayload))
+            {
+                continue;
+            }
+
+            var payloadLabel = $"snapshot for {view.PlayerId} player {snapshotPlayerId} object {objectId}";
+            ValidateSnapshotPayloadOptionalNonNegativeIntValue(
+                objectPayload,
+                "damage",
+                payloadLabel,
+                "damage",
+                errors);
+            ValidateSnapshotPayloadOptionalIntValue(
+                objectPayload,
+                "power",
+                payloadLabel,
+                "power",
+                errors);
+            ValidateSnapshotPayloadOptionalIntValue(
+                objectPayload,
+                "basePower",
+                payloadLabel,
+                "base power",
+                errors);
+            ValidateSnapshotPayloadOptionalIntValue(
+                objectPayload,
+                "effectivePower",
+                payloadLabel,
+                "effective power",
+                errors);
+            ValidateSnapshotPayloadOptionalIntValue(
+                objectPayload,
+                "untilEndOfTurnPowerModifier",
+                payloadLabel,
+                "until-end-of-turn power modifier",
+                errors);
+            ValidateSnapshotPayloadOptionalNonNegativeIntValue(
+                objectPayload,
+                "manaCost",
+                payloadLabel,
+                "mana cost",
                 errors);
         }
     }
@@ -4695,6 +4759,22 @@ public static class MatchRecoveryValidator
         {
             errors.Add($"{payloadLabel} {itemLabel} is invalid");
             return null;
+        }
+
+        return value;
+    }
+
+    private static int? ValidateSnapshotPayloadOptionalNonNegativeIntValue(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors)
+    {
+        var value = ValidateSnapshotPayloadOptionalIntValue(payload, key, payloadLabel, itemLabel, errors);
+        if (value is < 0)
+        {
+            errors.Add($"{payloadLabel} {itemLabel} {value} cannot be negative");
         }
 
         return value;
