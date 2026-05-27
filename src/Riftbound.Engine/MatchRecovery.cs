@@ -12711,7 +12711,35 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing spell duel";
+        ValidateSpectatorSpellDuelListPayloadShapes(
+            spellDuelPayload,
+            errors);
         ValidateSpellDuelPayloadValues(spellDuelPayload, payloadLabel, errors);
+    }
+
+    private static void ValidateSpectatorSpellDuelListPayloadShapes(
+        object? spellDuelPayload,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing spell duel";
+        ValidateSpectatorRequiredStringListPayloadShape(
+            spellDuelPayload,
+            payloadLabel,
+            "passedFocusPlayerIds",
+            "passed focus player id",
+            errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            spellDuelPayload,
+            payloadLabel,
+            "stackItemIds",
+            "stack item id",
+            errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            spellDuelPayload,
+            payloadLabel,
+            "stackControllerIds",
+            "stack controller id",
+            errors);
     }
 
     private static void ValidateSpellDuelPayloadValues(
@@ -12814,25 +12842,29 @@ public static class MatchRecoveryValidator
         object? battlePayload,
         List<string> errors)
     {
-        ValidateSpectatorBattleParticipantListPayloadShape(
+        const string payloadLabel = "spectator replay frame timing battle";
+        ValidateSpectatorRequiredStringListPayloadShape(
             battlePayload,
+            payloadLabel,
             "attackerObjectIds",
             "attacker object id",
             errors);
-        ValidateSpectatorBattleParticipantListPayloadShape(
+        ValidateSpectatorRequiredStringListPayloadShape(
             battlePayload,
+            payloadLabel,
             "defenderObjectIds",
             "defender object id",
             errors);
     }
 
-    private static void ValidateSpectatorBattleParticipantListPayloadShape(
-        object? battlePayload,
+    private static void ValidateSpectatorRequiredStringListPayloadShape(
+        object? payload,
+        string payloadLabel,
         string payloadKey,
         string itemLabel,
         List<string> errors)
     {
-        if (!TryReadObjectValue(battlePayload, payloadKey, out var listPayload)
+        if (!TryReadObjectValue(payload, payloadKey, out var listPayload)
             || IsNullSnapshotPayloadValue(listPayload))
         {
             return;
@@ -12840,7 +12872,7 @@ public static class MatchRecoveryValidator
 
         if (!TryReadStringListValue(listPayload, out _))
         {
-            errors.Add($"spectator replay frame timing battle {itemLabel} list payload is required");
+            errors.Add($"{payloadLabel} {itemLabel} list payload is required");
         }
     }
 
