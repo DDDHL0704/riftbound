@@ -12904,6 +12904,9 @@ public static class MatchRecoveryValidator
         ValidateSpectatorBattleDamageAssignmentMapPayloadShapes(
             damageAssignmentPayload,
             errors);
+        ValidateSpectatorBattleDamageAssignmentRequiredAssignmentItemPayloadShapes(
+            damageAssignmentPayload,
+            errors);
 
         var shouldValidatePendingFields = ResolutionResult.HasOpenBattleDamageAssignmentWindow(authoritativeState)
             || (TryReadObjectBool(damageAssignmentPayload, "isPending", out var isPending) && isPending);
@@ -12960,6 +12963,45 @@ public static class MatchRecoveryValidator
         if (!isValidMapPayload(mapPayload))
         {
             errors.Add($"spectator replay frame timing battle damage assignment {payloadLabel} map payload is required");
+        }
+    }
+
+    private static void ValidateSpectatorBattleDamageAssignmentRequiredAssignmentItemPayloadShapes(
+        object? damageAssignmentPayload,
+        List<string> errors)
+    {
+        if (!TryReadObjectList(damageAssignmentPayload, "requiredAssignments", out var requiredAssignments))
+        {
+            return;
+        }
+
+        foreach (var requiredAssignment in requiredAssignments)
+        {
+            if (!IsSnapshotPlayerPayloadObject(requiredAssignment))
+            {
+                continue;
+            }
+
+            ValidateSpectatorBattleDamageAssignmentRequiredAssignmentItemPayloadShape(
+                requiredAssignment,
+                errors);
+        }
+    }
+
+    private static void ValidateSpectatorBattleDamageAssignmentRequiredAssignmentItemPayloadShape(
+        object? requiredAssignmentPayload,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(requiredAssignmentPayload, "legalTargetObjectIds", out var legalTargetObjectIdsPayload)
+            || IsNullSnapshotPayloadValue(legalTargetObjectIdsPayload))
+        {
+            return;
+        }
+
+        if (!TryReadStringListValue(legalTargetObjectIdsPayload, out _))
+        {
+            errors.Add(
+                "spectator replay frame timing battle damage assignment required assignment item legal target object id list payload is required");
         }
     }
 
