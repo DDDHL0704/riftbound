@@ -3196,6 +3196,7 @@ public static class MatchRecoveryValidator
 
         if (TryReadObjectList(queuePayload, "tasks", out var taskPayloads))
         {
+            var seenTaskIds = new HashSet<string>(StringComparer.Ordinal);
             foreach (var taskPayload in taskPayloads)
             {
                 if (!IsSnapshotPlayerPayloadObject(taskPayload))
@@ -3203,10 +3204,14 @@ public static class MatchRecoveryValidator
                     continue;
                 }
 
-                ValidatePendingTaskQueueTaskPayloadValues(
+                var taskId = ValidatePendingTaskQueueTaskPayloadValues(
                     taskPayload,
                     $"{payloadLabel} task item",
                     errors);
+                if (taskId is not null && !seenTaskIds.Add(taskId))
+                {
+                    errors.Add($"{payloadLabel} task item task id {taskId} is duplicated");
+                }
             }
         }
 
@@ -7883,12 +7888,12 @@ public static class MatchRecoveryValidator
         ValidatePendingTaskQueueTaskPayloadValues(taskPayload, payloadLabel, errors);
     }
 
-    private static void ValidatePendingTaskQueueTaskPayloadValues(
+    private static string? ValidatePendingTaskQueueTaskPayloadValues(
         object? taskPayload,
         string payloadLabel,
         List<string> errors)
     {
-        ValidateSnapshotPayloadRequiredStringValue(
+        var taskId = ValidateSnapshotPayloadRequiredStringValue(
             taskPayload,
             "taskId",
             payloadLabel,
@@ -7936,6 +7941,7 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "hidden object kind",
             errors);
+        return taskId;
     }
 
     private static string ExpectedSpectatorPendingTaskQueueActiveTaskId(MatchState authoritativeState)
