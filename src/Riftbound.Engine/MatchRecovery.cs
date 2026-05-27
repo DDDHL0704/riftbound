@@ -6322,6 +6322,11 @@ public static class MatchRecoveryValidator
             objectPayloads,
             expectedObjectIdSet,
             errors);
+        ValidateSpectatorSnapshotExtraPlayerObjectRedaction(
+            playerId,
+            objectPayloads,
+            expectedObjectIdSet,
+            errors);
 
         foreach (var expectedObjectId in expectedObjectIds)
         {
@@ -6631,6 +6636,31 @@ public static class MatchRecoveryValidator
                 payloadLabel,
                 "battlefield object id",
                 errors);
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotExtraPlayerObjectRedaction(
+        string playerId,
+        IReadOnlyDictionary<string, object?> objectPayloads,
+        IReadOnlySet<string> expectedObjectIds,
+        List<string> errors)
+    {
+        foreach (var (objectId, objectPayload) in objectPayloads)
+        {
+            if (expectedObjectIds.Contains(objectId)
+                || !IsSnapshotPlayerPayloadObject(objectPayload)
+                || !TryReadObjectBool(objectPayload, "isFaceDown", out var isFaceDown)
+                || !isFaceDown)
+            {
+                continue;
+            }
+
+            if (TryReadObjectValue(objectPayload, "cardNo", out _)
+                || TryReadObjectValue(objectPayload, "tags", out _)
+                || TryReadObjectValue(objectPayload, "power", out _))
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} hidden face-down object {objectId} exposes private metadata");
+            }
         }
     }
 
