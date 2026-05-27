@@ -6307,6 +6307,11 @@ public static class MatchRecoveryValidator
             objectPayloads,
             expectedObjectIdSet,
             errors);
+        ValidateSpectatorSnapshotExtraPlayerObjectBooleanScalarPayloadValues(
+            playerId,
+            objectPayloads,
+            expectedObjectIdSet,
+            errors);
 
         foreach (var expectedObjectId in expectedObjectIds)
         {
@@ -6490,6 +6495,41 @@ public static class MatchRecoveryValidator
                 "manaCost",
                 payloadLabel,
                 "mana cost",
+                errors);
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotExtraPlayerObjectBooleanScalarPayloadValues(
+        string playerId,
+        IReadOnlyDictionary<string, object?> objectPayloads,
+        IReadOnlySet<string> expectedObjectIds,
+        List<string> errors)
+    {
+        foreach (var (objectId, objectPayload) in objectPayloads)
+        {
+            if (expectedObjectIds.Contains(objectId) || !IsSnapshotPlayerPayloadObject(objectPayload))
+            {
+                continue;
+            }
+
+            var payloadLabel = $"spectator replay frame snapshot player {playerId} object {objectId}";
+            ValidateSnapshotPayloadOptionalBoolValue(
+                objectPayload,
+                "isExhausted",
+                payloadLabel,
+                "exhausted state",
+                errors);
+            ValidateSnapshotPayloadOptionalBoolValue(
+                objectPayload,
+                "isAttacking",
+                payloadLabel,
+                "attacking state",
+                errors);
+            ValidateSnapshotPayloadOptionalBoolValue(
+                objectPayload,
+                "isDefending",
+                payloadLabel,
+                "defending state",
                 errors);
         }
     }
