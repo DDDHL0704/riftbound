@@ -9374,10 +9374,36 @@ public static class MatchRecoveryValidator
         }
 
         var authoritativeResources = authoritativeState.TemporaryPaymentResources;
-        if (spectatorResources.Count != authoritativeResources.Count)
+        var validateAuthoritativeResourceParity = spectatorResources.Count == authoritativeResources.Count;
+        if (!validateAuthoritativeResourceParity)
         {
             errors.Add(
                 $"spectator replay frame timing temporary payment resource count {spectatorResources.Count} does not match authoritative state temporary payment resource count {authoritativeResources.Count}");
+        }
+
+        var seenResourceIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var spectatorResource in spectatorResources)
+        {
+            if (!IsSnapshotPlayerPayloadObject(spectatorResource))
+            {
+                errors.Add("spectator replay frame timing temporary payment resource payload is required");
+                continue;
+            }
+
+            ValidateSnapshotPayloadObjectPropertyNames(
+                spectatorResource,
+                "spectator replay frame timing temporary payment resource item",
+                errors);
+            ValidateSpectatorTemporaryPaymentResourcePowerTraitPayloadPropertyNames(spectatorResource, errors);
+            var resourceIdValue = ValidateSpectatorTemporaryPaymentResourcePayloadValues(spectatorResource, errors);
+            if (resourceIdValue is not null && !seenResourceIds.Add(resourceIdValue))
+            {
+                errors.Add($"spectator replay frame timing temporary payment resource item resource id {resourceIdValue} is duplicated");
+            }
+        }
+
+        if (!validateAuthoritativeResourceParity)
+        {
             return;
         }
 
@@ -9394,26 +9420,13 @@ public static class MatchRecoveryValidator
         var paymentOnlyFlagsMatch = true;
         var resourceRestrictionsMatch = true;
         var createdTicksMatch = true;
-        var seenResourceIds = new HashSet<string>(StringComparer.Ordinal);
 
         for (var index = 0; index < authoritativeResources.Count; index++)
         {
             var spectatorResource = spectatorResources[index];
             if (!IsSnapshotPlayerPayloadObject(spectatorResource))
             {
-                errors.Add("spectator replay frame timing temporary payment resource payload is required");
                 continue;
-            }
-
-            ValidateSnapshotPayloadObjectPropertyNames(
-                spectatorResource,
-                "spectator replay frame timing temporary payment resource item",
-                errors);
-            ValidateSpectatorTemporaryPaymentResourcePowerTraitPayloadPropertyNames(spectatorResource, errors);
-            var resourceIdValue = ValidateSpectatorTemporaryPaymentResourcePayloadValues(spectatorResource, errors);
-            if (resourceIdValue is not null && !seenResourceIds.Add(resourceIdValue))
-            {
-                errors.Add($"spectator replay frame timing temporary payment resource item resource id {resourceIdValue} is duplicated");
             }
 
             var authoritativeResource = authoritativeResources[index];
