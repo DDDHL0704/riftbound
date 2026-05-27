@@ -6326,6 +6326,7 @@ public static class MatchRecoveryValidator
             playerId,
             objectPayloads,
             expectedObjectIdSet,
+            authoritativeState,
             errors);
 
         foreach (var expectedObjectId in expectedObjectIds)
@@ -6643,25 +6644,42 @@ public static class MatchRecoveryValidator
         string playerId,
         IReadOnlyDictionary<string, object?> objectPayloads,
         IReadOnlySet<string> expectedObjectIds,
+        MatchState authoritativeState,
         List<string> errors)
     {
         foreach (var (objectId, objectPayload) in objectPayloads)
         {
             if (expectedObjectIds.Contains(objectId)
-                || !IsSnapshotPlayerPayloadObject(objectPayload)
-                || !TryReadObjectBool(objectPayload, "isFaceDown", out var isFaceDown)
-                || !isFaceDown)
+                || !IsSnapshotPlayerPayloadObject(objectPayload))
             {
                 continue;
             }
 
-            if (TryReadObjectValue(objectPayload, "cardNo", out _)
+            var requiresFaceDownRedaction = IsHiddenPlayerObjectForSpectator(authoritativeState, objectId);
+            var hasValidFaceDownFlag = TryReadObjectBool(objectPayload, "isFaceDown", out var isFaceDown);
+            if (requiresFaceDownRedaction && hasValidFaceDownFlag && !isFaceDown)
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} face-down flag does not match authoritative spectator redaction");
+            }
+
+            if ((requiresFaceDownRedaction || (hasValidFaceDownFlag && isFaceDown))
+                && (TryReadObjectValue(objectPayload, "cardNo", out _)
                 || TryReadObjectValue(objectPayload, "tags", out _)
-                || TryReadObjectValue(objectPayload, "power", out _))
+                || TryReadObjectValue(objectPayload, "power", out _)))
             {
                 errors.Add($"spectator replay frame snapshot player {playerId} hidden face-down object {objectId} exposes private metadata");
             }
         }
+    }
+
+    private static bool IsHiddenPlayerObjectForSpectator(MatchState authoritativeState, string objectId)
+    {
+        var expectedLocation = ExpectedSpectatorObjectLocation(authoritativeState, objectId);
+        return expectedLocation is not null
+            && (string.Equals(expectedLocation.Zone, "MAIN_DECK", StringComparison.Ordinal)
+                || string.Equals(expectedLocation.Zone, "RUNE_DECK", StringComparison.Ordinal)
+                || string.Equals(expectedLocation.Zone, "HAND", StringComparison.Ordinal)
+                || IsHiddenBattlefieldStandbyForSpectator(authoritativeState, objectId));
     }
 
     private static IReadOnlyList<string> ExpectedSpectatorPlayerObjectIds(
