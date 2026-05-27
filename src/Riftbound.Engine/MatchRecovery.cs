@@ -6839,8 +6839,8 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "face-down flag",
             errors);
-        if (!TryReadObjectBool(objectPayload, "isFaceDown", out var isFaceDown)
-            || isFaceDown != expectedFaceDown)
+        var hasValidFaceDownFlag = TryReadObjectBool(objectPayload, "isFaceDown", out var isFaceDown);
+        if (!hasValidFaceDownFlag || isFaceDown != expectedFaceDown)
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} face-down flag does not match authoritative spectator redaction");
         }
@@ -6855,6 +6855,13 @@ public static class MatchRecoveryValidator
         if (!expectedFaceDown)
         {
             ValidateSpectatorSnapshotVisiblePlayerObjectScalars(playerId, objectId, objectPayload, cardObject, errors);
+            if (hasValidFaceDownFlag
+                && isFaceDown
+                && SpectatorFaceDownObjectExposesPrivateMetadata(objectPayload))
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} hidden face-down object {objectId} exposes private metadata");
+            }
+
             return;
         }
 
