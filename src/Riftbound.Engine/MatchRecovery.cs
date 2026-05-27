@@ -7307,11 +7307,23 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "player id",
             errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            paymentPayload,
+            payloadLabel,
+            "paymentChoices",
+            "payment choice",
+            errors);
         ValidateSnapshotPayloadStringListValues(
             paymentPayload,
             "paymentChoices",
             payloadLabel,
             "payment choice",
+            errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            paymentPayload,
+            payloadLabel,
+            "paymentResourceActions",
+            "payment resource action",
             errors);
         ValidateSnapshotPayloadStringListValues(
             paymentPayload,
