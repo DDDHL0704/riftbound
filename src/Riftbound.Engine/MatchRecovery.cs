@@ -12394,11 +12394,23 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing battlefield resolution item";
+        ValidateSpectatorRequiredStringListPayloadShape(
+            resolutionPayload,
+            payloadLabel,
+            "participantObjectIds",
+            "participant object id",
+            errors);
         ValidateSnapshotPayloadStringListValues(
             resolutionPayload,
             "participantObjectIds",
             payloadLabel,
             "participant object id",
+            errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            resolutionPayload,
+            payloadLabel,
+            "relatedEventKinds",
+            "related event kind",
             errors);
         ValidateSnapshotPayloadStringListValues(
             resolutionPayload,
@@ -12482,11 +12494,23 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing battle resolution item";
+        ValidateSpectatorRequiredStringListPayloadShape(
+            resolutionPayload,
+            payloadLabel,
+            "attackerObjectIds",
+            "attacker object id",
+            errors);
         ValidateSnapshotPayloadStringListValues(
             resolutionPayload,
             "attackerObjectIds",
             payloadLabel,
             "attacker object id",
+            errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            resolutionPayload,
+            payloadLabel,
+            "defenderObjectIds",
+            "defender object id",
             errors);
         ValidateSnapshotPayloadStringListValues(
             resolutionPayload,
@@ -12494,11 +12518,23 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "defender object id",
             errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            resolutionPayload,
+            payloadLabel,
+            "survivingAttackerObjectIds",
+            "surviving attacker object id",
+            errors);
         ValidateSnapshotPayloadStringListValues(
             resolutionPayload,
             "survivingAttackerObjectIds",
             payloadLabel,
             "surviving attacker object id",
+            errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            resolutionPayload,
+            payloadLabel,
+            "survivingDefenderObjectIds",
+            "surviving defender object id",
             errors);
         ValidateSnapshotPayloadStringListValues(
             resolutionPayload,
@@ -12506,11 +12542,23 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "surviving defender object id",
             errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            resolutionPayload,
+            payloadLabel,
+            "destroyedObjectIds",
+            "destroyed object id",
+            errors);
         ValidateSnapshotPayloadStringListValues(
             resolutionPayload,
             "destroyedObjectIds",
             payloadLabel,
             "destroyed object id",
+            errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            resolutionPayload,
+            payloadLabel,
+            "relatedEventKinds",
+            "related event kind",
             errors);
         ValidateSnapshotPayloadStringListValues(
             resolutionPayload,
