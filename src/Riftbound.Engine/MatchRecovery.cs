@@ -11363,7 +11363,7 @@ public static class MatchRecoveryValidator
         }
         else
         {
-            ValidateSpectatorSnapshotStackItemPayloadPropertyNames(
+            ValidateSpectatorSnapshotStackItemPayloads(
                 spectatorReplayFrame.SpectatorSnapshot,
                 authoritativeState,
                 errors);
@@ -12790,7 +12790,7 @@ public static class MatchRecoveryValidator
         return seats;
     }
 
-    private static void ValidateSpectatorSnapshotStackItemPayloadPropertyNames(
+    private static void ValidateSpectatorSnapshotStackItemPayloads(
         SnapshotDto snapshot,
         MatchState authoritativeState,
         List<string> errors)
@@ -12803,22 +12803,80 @@ public static class MatchRecoveryValidator
         for (var index = 0; index < snapshot.Stack.Count; index++)
         {
             var stackItem = snapshot.Stack[index];
-            if (!IsSnapshotPlayerPayloadObject(stackItem))
-            {
-                continue;
-            }
-
             var stackItemLabel = index < authoritativeState.StackItems.Count
                 ? authoritativeState.StackItems[index].StackItemId
                 : TryReadObjectString(stackItem, "stackItemId", out var stackItemId)
                     && !string.IsNullOrWhiteSpace(stackItemId)
                     ? stackItemId
                     : $"#{index + 1}";
+            if (!IsSnapshotPlayerPayloadObject(stackItem))
+            {
+                errors.Add($"spectator replay frame snapshot stack item {stackItemLabel} payload is required");
+                continue;
+            }
+
             ValidateSnapshotPayloadObjectPropertyNames(
                 stackItem,
                 $"spectator replay frame snapshot stack item {stackItemLabel}",
                 errors);
+            ValidateSpectatorSnapshotStackItemPayloadValues(stackItem, stackItemLabel, errors);
         }
+    }
+
+    private static void ValidateSpectatorSnapshotStackItemPayloadValues(
+        object? stackItem,
+        string stackItemLabel,
+        List<string> errors)
+    {
+        var payloadLabel = $"spectator replay frame snapshot stack item {stackItemLabel}";
+        ValidateSnapshotPayloadRequiredStringValue(
+            stackItem,
+            "stackItemId",
+            payloadLabel,
+            "stack item id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            stackItem,
+            "controllerId",
+            payloadLabel,
+            "controller id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            stackItem,
+            "sourceObjectId",
+            payloadLabel,
+            "source object id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            stackItem,
+            "effectKind",
+            payloadLabel,
+            "effect kind",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            stackItem,
+            "cardNo",
+            payloadLabel,
+            "card no",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListValues(
+            stackItem,
+            "targetObjectIds",
+            payloadLabel,
+            "target object id",
+            errors);
+        ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+            stackItem,
+            "damageAmount",
+            payloadLabel,
+            "damage amount",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            stackItem,
+            "destination",
+            payloadLabel,
+            "destination",
+            errors);
     }
 
     private static IReadOnlyList<string> ExtractStackItemIds(SnapshotDto snapshot)

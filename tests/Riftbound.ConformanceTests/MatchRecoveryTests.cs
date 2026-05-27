@@ -12646,6 +12646,139 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplaySnapshotStackItemValueShapeDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            stackItems:
+            [
+                new StackItemState(
+                    "stack-1",
+                    "alice",
+                    sourceObjectId: "spell-1",
+                    effectKind: "DRAW",
+                    cardNo: "SFD-001",
+                    targetObjectIds: ["target-1"]),
+                new StackItemState(
+                    "stack-2",
+                    "bob",
+                    sourceObjectId: "spell-2",
+                    effectKind: "DAMAGE",
+                    cardNo: "SFD-002",
+                    targetObjectIds: ["target-2"],
+                    damageAmount: 3,
+                    destination: "graveyard")
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var stack = spectatorReplayFrame.SpectatorSnapshot.Stack.ToArray();
+        stack[0] = "not-a-stack-item";
+
+        var secondStackItem = Assert.IsType<Dictionary<string, object?>>(stack[1])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        secondStackItem["stackItemId"] = " stack-2 ";
+        secondStackItem["controllerId"] = " ";
+        secondStackItem["sourceObjectId"] = 123;
+        secondStackItem["effectKind"] = " DAMAGE ";
+        secondStackItem["cardNo"] = " SFD-002 ";
+        secondStackItem["targetObjectIds"] = new[] { " target-2 ", "", "target-2" };
+        secondStackItem["damageAmount"] = -1;
+        secondStackItem["destination"] = 123;
+        stack[1] = secondStackItem;
+
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Stack = stack
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot stack item stack-1 payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot stack item stack-2 stack item id stack-2 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot stack item stack-2 controller id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot stack item stack-2 source object id is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot stack item stack-2 effect kind DAMAGE has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot stack item stack-2 card no SFD-002 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot stack item stack-2 target object id target-2 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot stack item stack-2 target object id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot stack item stack-2 target object id target-2 is duplicated",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot stack item stack-2 damage amount -1 cannot be negative",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot stack item stack-2 destination is invalid",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsMissingSpectatorReplaySnapshotTurnState()
     {
         var authoritativeState = new MatchState(
