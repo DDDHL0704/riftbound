@@ -6758,9 +6758,15 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         if (!timing.TryGetValue("pendingTaskQueue", out var queuePayload)
-            || !IsSnapshotPlayerPayloadObject(queuePayload))
+            || IsNullSnapshotPayloadValue(queuePayload))
         {
             errors.Add("spectator replay frame timing pending task queue is required");
+            return;
+        }
+
+        if (!IsSnapshotPlayerPayloadObject(queuePayload))
+        {
+            errors.Add("spectator replay frame timing pending task queue payload is required");
             return;
         }
 
@@ -7187,9 +7193,15 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        if (!IsSnapshotPlayerPayloadObject(paymentPayload))
+        if (IsNullSnapshotPayloadValue(paymentPayload))
         {
             errors.Add("spectator replay frame timing pending payment is required");
+            return;
+        }
+
+        if (!IsSnapshotPlayerPayloadObject(paymentPayload))
+        {
+            errors.Add("spectator replay frame timing pending payment payload is required");
             return;
         }
 
@@ -8671,9 +8683,15 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        if (!IsSnapshotPlayerPayloadObject(choicePayload))
+        if (IsNullSnapshotPayloadValue(choicePayload))
         {
             errors.Add("spectator replay frame timing pending hand choice is required");
+            return;
+        }
+
+        if (!IsSnapshotPlayerPayloadObject(choicePayload))
+        {
+            errors.Add("spectator replay frame timing pending hand choice payload is required");
             return;
         }
 
