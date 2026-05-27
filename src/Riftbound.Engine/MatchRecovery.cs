@@ -7654,6 +7654,7 @@ public static class MatchRecoveryValidator
             errors);
         var queueResult = ValidateSpectatorPendingTaskQueuePayloadValues(queuePayload, errors);
         var validatedSpectatorActiveTaskId = queueResult.ActiveTaskId;
+        int? taskPayloadCount = null;
 
         var authoritativeQueue = authoritativeState.PendingTaskQueue;
         if (!TryReadObjectBool(queuePayload, "hasTasks", out var hasTasks)
@@ -7681,25 +7682,32 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame timing pending task queue active task id does not match authoritative state pending task queue active task id");
         }
 
-        if (!TryReadObjectList(queuePayload, "tasks", out var taskPayloads)
-            || taskPayloads.Count != authoritativeQueue.Tasks.Count)
+        if (!TryReadObjectList(queuePayload, "tasks", out var taskPayloads))
         {
             errors.Add("spectator replay frame timing pending task queue task count does not match authoritative state pending task queue task count");
         }
         else
         {
+            taskPayloadCount = taskPayloads.Count;
             ValidateSnapshotPendingTaskQueueFlagsMatchTaskCount(
                 queueResult,
                 taskPayloads.Count,
                 "spectator replay frame timing pending task queue",
                 errors);
 
-            ValidateSpectatorPendingTaskQueueTaskPayloads(
-                taskPayloads,
-                authoritativeState,
-                authoritativeQueue.Tasks,
-                validatedSpectatorActiveTaskId,
-                errors);
+            if (taskPayloads.Count != authoritativeQueue.Tasks.Count)
+            {
+                errors.Add("spectator replay frame timing pending task queue task count does not match authoritative state pending task queue task count");
+            }
+            else
+            {
+                ValidateSpectatorPendingTaskQueueTaskPayloads(
+                    taskPayloads,
+                    authoritativeState,
+                    authoritativeQueue.Tasks,
+                    validatedSpectatorActiveTaskId,
+                    errors);
+            }
         }
 
         if (!TryReadObjectValue(queuePayload, "metadata", out var metadataPayload)
@@ -7719,9 +7727,17 @@ public static class MatchRecoveryValidator
             metadataPayload,
             "spectator replay frame timing pending task queue metadata",
             errors);
-        ValidateSpectatorPendingTaskQueueMetadataPayloadValues(metadataPayload, errors);
+        var metadataTaskCount = ValidateSpectatorPendingTaskQueueMetadataPayloadValues(metadataPayload, errors);
+        if (taskPayloadCount is int actualTaskCount
+            && metadataTaskCount is int expectedTaskCount
+            && expectedTaskCount >= 0
+            && expectedTaskCount != actualTaskCount)
+        {
+            errors.Add(
+                $"spectator replay frame timing pending task queue metadata task count {expectedTaskCount} does not match pending task queue task count {actualTaskCount}");
+        }
 
-        if (!TryReadObjectInt(metadataPayload, "taskCount", out var taskCount)
+        if (metadataTaskCount is not int taskCount
             || taskCount != authoritativeQueue.Tasks.Count)
         {
             errors.Add("spectator replay frame timing pending task queue metadata task count does not match authoritative state pending task queue task count");
@@ -7952,7 +7968,7 @@ public static class MatchRecoveryValidator
         return value ? "true" : "false";
     }
 
-    private static void ValidateSpectatorPendingTaskQueueMetadataPayloadValues(
+    private static int? ValidateSpectatorPendingTaskQueueMetadataPayloadValues(
         object? metadataPayload,
         List<string> errors)
     {
@@ -7963,7 +7979,7 @@ public static class MatchRecoveryValidator
             "stateBasedTaskKinds",
             "state-based task kind",
             errors);
-        ValidatePendingTaskQueueMetadataPayloadValues(metadataPayload, payloadLabel, errors);
+        return ValidatePendingTaskQueueMetadataPayloadValues(metadataPayload, payloadLabel, errors);
     }
 
     private static int? ValidatePendingTaskQueueMetadataPayloadValues(
