@@ -3193,9 +3193,11 @@ public static class MatchRecoveryValidator
 
         var payloadLabel = $"snapshot for {view.PlayerId} timing pending task queue";
         var activeTaskId = ValidatePendingTaskQueuePayloadValues(queuePayload, payloadLabel, errors);
+        int? taskPayloadCount = null;
 
         if (TryReadObjectList(queuePayload, "tasks", out var taskPayloads))
         {
+            taskPayloadCount = taskPayloads.Count;
             var seenTaskIds = new HashSet<string>(StringComparer.Ordinal);
             foreach (var taskPayload in taskPayloads)
             {
@@ -3226,10 +3228,18 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        ValidatePendingTaskQueueMetadataPayloadValues(
+        var metadataTaskCount = ValidatePendingTaskQueueMetadataPayloadValues(
             metadataPayload,
             $"{payloadLabel} metadata",
             errors);
+        if (taskPayloadCount is int actualTaskCount
+            && metadataTaskCount is int expectedTaskCount
+            && expectedTaskCount >= 0
+            && expectedTaskCount != actualTaskCount)
+        {
+            errors.Add(
+                $"{payloadLabel} metadata task count {expectedTaskCount} does not match pending task queue task count {actualTaskCount}");
+        }
     }
 
     private static void ValidateSnapshotTimingPendingHandChoicePayloadValues(
@@ -7880,12 +7890,12 @@ public static class MatchRecoveryValidator
         ValidatePendingTaskQueueMetadataPayloadValues(metadataPayload, payloadLabel, errors);
     }
 
-    private static void ValidatePendingTaskQueueMetadataPayloadValues(
+    private static int? ValidatePendingTaskQueueMetadataPayloadValues(
         object? metadataPayload,
         string payloadLabel,
         List<string> errors)
     {
-        ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+        var taskCount = ValidateSnapshotPayloadRequiredNonNegativeIntValue(
             metadataPayload,
             "taskCount",
             payloadLabel,
@@ -7897,6 +7907,7 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "state-based task kind",
             errors);
+        return taskCount;
     }
 
     private static string? ValidateSpectatorPendingTaskQueueTaskPayloadValues(

@@ -2921,6 +2921,59 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingPendingTaskQueueMetadataTaskCountMismatch()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["pendingTaskQueue"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["hasTasks"] = true,
+            ["isBlocking"] = true,
+            ["phase"] = "STATE_BASED_CLEANUP",
+            ["activeTaskId"] = "task-1",
+            ["tasks"] = new object?[]
+            {
+                new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["taskId"] = "task-1",
+                    ["kind"] = "DESTROY_LETHAL_UNIT",
+                    ["reason"] = "STATE_BASED_ACTION"
+                },
+                new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["taskId"] = "task-2",
+                    ["kind"] = "RECALL_UNATTACHED_EQUIPMENT",
+                    ["reason"] = "STATE_BASED_ACTION"
+                }
+            },
+            ["metadata"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["taskCount"] = 1,
+                ["stateBasedTaskKinds"] = new[] { "DESTROY_LETHAL_UNIT" }
+            }
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue metadata task count 1 does not match pending task queue task count 2",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingResolutionHistoryPropertyNameDrift()
     {
         var alice = PlayerView("alice", 0, 0);
