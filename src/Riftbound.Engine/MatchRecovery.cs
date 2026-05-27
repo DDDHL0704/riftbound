@@ -7759,6 +7759,11 @@ public static class MatchRecoveryValidator
             errors.Add($"spectator replay frame timing pending task queue active task id {activeTaskId} does not match a pending task queue task id");
         }
 
+        if (taskPayloads.Count > 0 && string.IsNullOrEmpty(activeTaskId))
+        {
+            errors.Add("spectator replay frame timing pending task queue active task id is required when pending task queue has tasks");
+        }
+
         if (!StringListsEqual(
                 ExtractObjectStringValues(taskPayloads, "taskId"),
                 authoritativeTasks.Select(task => VisibleCleanupTaskIdForRecovery(authoritativeState, task)).ToArray()))
