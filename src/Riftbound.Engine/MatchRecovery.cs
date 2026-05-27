@@ -6885,6 +6885,8 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        ValidateSpectatorSnapshotExtraBattlefieldPayloadShapes(battlefieldItems, authoritativeState, errors);
+
         var spectatorBattlefieldObjectIds = ExtractObjectStringValues(battlefieldItems, "battlefieldObjectId");
         var authoritativeBattlefieldObjectIds = authoritativeState.BattlefieldStates.Values
             .Select(battlefield => battlefield.BattlefieldObjectId)
@@ -6898,6 +6900,21 @@ public static class MatchRecoveryValidator
         ValidateSpectatorSnapshotBattlefieldScalarPayloads(battlefieldItems, authoritativeState, errors);
         ValidateSpectatorSnapshotBattlefieldListPayloads(battlefieldItems, authoritativeState, errors);
         ValidateSpectatorSnapshotStandbySlotPayloads(battlefieldItems, authoritativeState, errors);
+    }
+
+    private static void ValidateSpectatorSnapshotExtraBattlefieldPayloadShapes(
+        IReadOnlyList<object?> spectatorBattlefields,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        var authoritativeBattlefieldCount = authoritativeState.BattlefieldStates.Count;
+        for (var index = authoritativeBattlefieldCount; index < spectatorBattlefields.Count; index++)
+        {
+            if (!IsSnapshotPlayerPayloadObject(spectatorBattlefields[index]))
+            {
+                errors.Add($"spectator replay frame snapshot lane battlefield item {index + 1} payload is required");
+            }
+        }
     }
 
     private static void ValidateSpectatorSnapshotBattlefieldPayloadPropertyNames(
