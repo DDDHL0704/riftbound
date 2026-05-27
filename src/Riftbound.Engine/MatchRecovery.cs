@@ -6282,6 +6282,12 @@ public static class MatchRecoveryValidator
             }
         }
 
+        ValidateSpectatorSnapshotExtraPlayerObjectPayloadShapes(
+            playerId,
+            objectPayloads,
+            expectedObjectIdSet,
+            errors);
+
         foreach (var expectedObjectId in expectedObjectIds)
         {
             if (!objectPayloads.TryGetValue(expectedObjectId, out var objectPayload))
@@ -6295,6 +6301,26 @@ public static class MatchRecoveryValidator
                 objectPayload,
                 authoritativeState,
                 errors);
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotExtraPlayerObjectPayloadShapes(
+        string playerId,
+        IReadOnlyDictionary<string, object?> objectPayloads,
+        IReadOnlySet<string> expectedObjectIds,
+        List<string> errors)
+    {
+        foreach (var (objectId, objectPayload) in objectPayloads)
+        {
+            if (expectedObjectIds.Contains(objectId))
+            {
+                continue;
+            }
+
+            if (!IsSnapshotPlayerPayloadObject(objectPayload))
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} payload is required");
+            }
         }
     }
 
