@@ -3194,6 +3194,8 @@ public static class MatchRecoveryValidator
         var payloadLabel = $"snapshot for {view.PlayerId} timing pending task queue";
         var activeTaskId = ValidatePendingTaskQueuePayloadValues(queuePayload, payloadLabel, errors);
         int? taskPayloadCount = null;
+        var taskKinds = new List<string>();
+        var taskKindsAreValid = true;
 
         if (TryReadObjectList(queuePayload, "tasks", out var taskPayloads))
         {
@@ -3206,13 +3208,23 @@ public static class MatchRecoveryValidator
                     continue;
                 }
 
-                var taskId = ValidatePendingTaskQueueTaskPayloadValues(
+                var taskResult = ValidatePendingTaskQueueTaskPayloadValues(
                     taskPayload,
                     $"{payloadLabel} task item",
                     errors);
+                var taskId = taskResult.TaskId;
                 if (taskId is not null && !seenTaskIds.Add(taskId))
                 {
                     errors.Add($"{payloadLabel} task item task id {taskId} is duplicated");
+                }
+
+                if (taskResult.Kind is null)
+                {
+                    taskKindsAreValid = false;
+                }
+                else
+                {
+                    taskKinds.Add(taskResult.Kind);
                 }
             }
 
@@ -3239,6 +3251,15 @@ public static class MatchRecoveryValidator
         {
             errors.Add(
                 $"{payloadLabel} metadata task count {expectedTaskCount} does not match pending task queue task count {actualTaskCount}");
+        }
+
+        if (taskPayloadCount is not null
+            && taskKindsAreValid
+            && TryReadObjectStringList(metadataPayload, "stateBasedTaskKinds", out var stateBasedTaskKinds)
+            && !StringListsEqual(stateBasedTaskKinds, ExpectedStateBasedTaskKinds(taskKinds)))
+        {
+            errors.Add(
+                $"{payloadLabel} metadata state-based task kinds do not match pending task queue task kinds");
         }
     }
 
@@ -7915,10 +7936,10 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing pending task queue task item";
-        return ValidatePendingTaskQueueTaskPayloadValues(taskPayload, payloadLabel, errors);
+        return ValidatePendingTaskQueueTaskPayloadValues(taskPayload, payloadLabel, errors).TaskId;
     }
 
-    private static string? ValidatePendingTaskQueueTaskPayloadValues(
+    private static (string? TaskId, string? Kind) ValidatePendingTaskQueueTaskPayloadValues(
         object? taskPayload,
         string payloadLabel,
         List<string> errors)
@@ -7929,7 +7950,7 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "task id",
             errors);
-        ValidateSnapshotPayloadRequiredStringValue(
+        var kind = ValidateSnapshotPayloadRequiredStringValue(
             taskPayload,
             "kind",
             payloadLabel,
@@ -7971,7 +7992,7 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "hidden object kind",
             errors);
-        return taskId;
+        return (taskId, kind);
     }
 
     private static string ExpectedSpectatorPendingTaskQueueActiveTaskId(MatchState authoritativeState)
@@ -8028,9 +8049,13 @@ public static class MatchRecoveryValidator
 
     private static IReadOnlyList<string> ExpectedStateBasedTaskKinds(IReadOnlyList<CleanupTaskState> tasks)
     {
-        return tasks
-            .Where(task => IsSnapshotStateBasedCleanupTaskForRecovery(task.Kind))
-            .Select(task => task.Kind)
+        return ExpectedStateBasedTaskKinds(tasks.Select(task => task.Kind));
+    }
+
+    private static IReadOnlyList<string> ExpectedStateBasedTaskKinds(IEnumerable<string> taskKinds)
+    {
+        return taskKinds
+            .Where(IsSnapshotStateBasedCleanupTaskForRecovery)
             .Distinct(StringComparer.Ordinal)
             .OrderBy(kind => kind, StringComparer.Ordinal)
             .ToArray();
