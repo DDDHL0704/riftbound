@@ -3192,7 +3192,8 @@ public static class MatchRecoveryValidator
         }
 
         var payloadLabel = $"snapshot for {view.PlayerId} timing pending task queue";
-        var activeTaskId = ValidatePendingTaskQueuePayloadValues(queuePayload, payloadLabel, errors);
+        var queueResult = ValidatePendingTaskQueuePayloadValues(queuePayload, payloadLabel, errors);
+        var activeTaskId = queueResult.ActiveTaskId;
         int? taskPayloadCount = null;
         var taskKinds = new List<string>();
         var taskKindsAreValid = true;
@@ -3232,6 +3233,12 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"{payloadLabel} active task id {activeTaskId} does not match a pending task queue task id");
             }
+
+            ValidateSnapshotPendingTaskQueueFlagsMatchTaskCount(
+                queueResult,
+                taskPayloads.Count,
+                payloadLabel,
+                errors);
         }
 
         if (!TryReadObjectValue(queuePayload, "metadata", out var metadataPayload)
@@ -7849,10 +7856,10 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing pending task queue";
-        return ValidatePendingTaskQueuePayloadValues(queuePayload, payloadLabel, errors);
+        return ValidatePendingTaskQueuePayloadValues(queuePayload, payloadLabel, errors).ActiveTaskId;
     }
 
-    private static string? ValidatePendingTaskQueuePayloadValues(
+    private static (string? ActiveTaskId, bool? HasTasks, bool? IsBlocking) ValidatePendingTaskQueuePayloadValues(
         object? queuePayload,
         string payloadLabel,
         List<string> errors)
@@ -7881,12 +7888,18 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "active task id",
             errors);
+        var hasTasks = TryReadObjectBool(queuePayload, "hasTasks", out var hasTasksValue)
+            ? hasTasksValue
+            : (bool?)null;
+        var isBlocking = TryReadObjectBool(queuePayload, "isBlocking", out var isBlockingValue)
+            ? isBlockingValue
+            : (bool?)null;
 
         if (!TryReadObjectValue(queuePayload, "tasks", out var tasksPayload)
             || IsNullSnapshotPayloadValue(tasksPayload))
         {
             errors.Add($"{payloadLabel} task list is required");
-            return activeTaskId;
+            return (activeTaskId, hasTasks, isBlocking);
         }
 
         if (!TryReadObjectListValue(tasksPayload, out _))
@@ -7894,7 +7907,32 @@ public static class MatchRecoveryValidator
             errors.Add($"{payloadLabel} task list is invalid");
         }
 
-        return activeTaskId;
+        return (activeTaskId, hasTasks, isBlocking);
+    }
+
+    private static void ValidateSnapshotPendingTaskQueueFlagsMatchTaskCount(
+        (string? ActiveTaskId, bool? HasTasks, bool? IsBlocking) queueResult,
+        int taskCount,
+        string payloadLabel,
+        List<string> errors)
+    {
+        var hasTasks = taskCount > 0;
+        if (queueResult.HasTasks is bool actualHasTasks && actualHasTasks != hasTasks)
+        {
+            errors.Add(
+                $"{payloadLabel} has tasks flag {FormatBoolForRecoveryDiagnostic(actualHasTasks)} does not match pending task queue task count {taskCount}");
+        }
+
+        if (queueResult.IsBlocking is bool actualIsBlocking && actualIsBlocking != hasTasks)
+        {
+            errors.Add(
+                $"{payloadLabel} blocking flag {FormatBoolForRecoveryDiagnostic(actualIsBlocking)} does not match pending task queue task count {taskCount}");
+        }
+    }
+
+    private static string FormatBoolForRecoveryDiagnostic(bool value)
+    {
+        return value ? "true" : "false";
     }
 
     private static void ValidateSpectatorPendingTaskQueueMetadataPayloadValues(
