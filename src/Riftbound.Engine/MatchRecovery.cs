@@ -11333,6 +11333,19 @@ public static class MatchRecoveryValidator
             "spectator replay frame timing",
             errors);
 
+        ValidateSpectatorSnapshotCoreNumericScalarValues(
+            spectatorReplayFrame.SpectatorSnapshot,
+            errors);
+        var spectatorSnapshotTurnState = ValidateSpectatorSnapshotRequiredStringScalarValue(
+            spectatorReplayFrame.SpectatorSnapshot.TurnState,
+            "turn state",
+            errors,
+            IsKnownTimingState);
+        var spectatorSnapshotActivePlayerId = ValidateSpectatorSnapshotRequiredStringScalarValue(
+            spectatorReplayFrame.SpectatorSnapshot.ActivePlayerId,
+            "active player",
+            errors);
+
         if (spectatorReplayFrame.SpectatorSnapshot.Players is null)
         {
             errors.Add("spectator replay frame snapshot players are required");
@@ -11461,13 +11474,9 @@ public static class MatchRecoveryValidator
             }
         }
 
-        if (string.IsNullOrWhiteSpace(spectatorReplayFrame.SpectatorSnapshot.TurnState))
-        {
-            errors.Add("spectator replay frame snapshot turn state is required");
-        }
-
-        if (!string.Equals(
-                spectatorReplayFrame.SpectatorSnapshot.TurnState,
+        if (spectatorSnapshotTurnState is not null
+            && !string.Equals(
+                spectatorSnapshotTurnState,
                 authoritativeState.TimingState,
                 StringComparison.Ordinal))
         {
@@ -11486,13 +11495,14 @@ public static class MatchRecoveryValidator
                 $"spectator replay frame snapshot turn number {spectatorReplayFrame.SpectatorSnapshot.TurnNumber} does not match authoritative state turn number {authoritativeState.TurnNumber}");
         }
 
-        if (!string.Equals(
-                spectatorReplayFrame.SpectatorSnapshot.ActivePlayerId,
+        if (spectatorSnapshotActivePlayerId is not null
+            && !string.Equals(
+                spectatorSnapshotActivePlayerId,
                 authoritativeState.ActivePlayerId,
                 StringComparison.Ordinal))
         {
             errors.Add(
-                $"spectator replay frame snapshot active player {spectatorReplayFrame.SpectatorSnapshot.ActivePlayerId} does not match authoritative state active player {authoritativeState.ActivePlayerId}");
+                $"spectator replay frame snapshot active player {spectatorSnapshotActivePlayerId} does not match authoritative state active player {authoritativeState.ActivePlayerId}");
         }
 
         var spectatorSeats = ExtractSeats(spectatorReplayFrame.SpectatorSnapshot);
@@ -12066,6 +12076,47 @@ public static class MatchRecoveryValidator
         {
             errors.Add("spectator replay frame timing leaks random state");
         }
+    }
+
+    private static void ValidateSpectatorSnapshotCoreNumericScalarValues(
+        SnapshotDto snapshot,
+        List<string> errors)
+    {
+        if (snapshot.Tick < 0)
+        {
+            errors.Add($"spectator replay frame snapshot tick {snapshot.Tick} cannot be negative");
+        }
+
+        if (snapshot.TurnNumber < 1)
+        {
+            errors.Add($"spectator replay frame snapshot turn number {snapshot.TurnNumber} must be positive");
+        }
+    }
+
+    private static string? ValidateSpectatorSnapshotRequiredStringScalarValue(
+        string? value,
+        string itemLabel,
+        List<string> errors,
+        Func<string, bool>? isKnownValue = null)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            errors.Add($"spectator replay frame snapshot {itemLabel} is required");
+            return null;
+        }
+
+        var normalizedValue = value.Trim();
+        if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
+        {
+            errors.Add($"spectator replay frame snapshot {itemLabel} {normalizedValue} has surrounding whitespace");
+        }
+
+        if (isKnownValue is not null && !isKnownValue(normalizedValue))
+        {
+            errors.Add($"spectator replay frame snapshot {itemLabel} {normalizedValue} is invalid");
+        }
+
+        return normalizedValue;
     }
 
     private static void ValidateSpectatorBattlefieldResolutionPayloadListValues(
