@@ -2024,6 +2024,7 @@ public static class MatchRecoveryValidator
                 errors);
             ValidateSnapshotLaneListPayloadShapes(view, errors);
             ValidateSnapshotLaneListItemPayloadShapes(view, errors);
+            ValidateSnapshotLaneListItemPayloadPropertyNames(view, errors);
         }
 
         if (view.Snapshot.Stack is null)
@@ -2238,6 +2239,22 @@ public static class MatchRecoveryValidator
             $"snapshot for {view.PlayerId} lanes battlefield object id",
             errors);
         ValidateSnapshotPayloadObjectListItemPayloadShapes(
+            view.Snapshot.Lanes,
+            "battlefields",
+            $"snapshot for {view.PlayerId} lanes battlefield",
+            errors);
+    }
+
+    private static void ValidateSnapshotLaneListItemPayloadPropertyNames(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        ValidateSnapshotPayloadObjectListItemPayloadPropertyNames(
+            view.Snapshot.Lanes,
+            "battlefieldObjectIds",
+            $"snapshot for {view.PlayerId} lanes battlefield object id",
+            errors);
+        ValidateSnapshotPayloadObjectListItemPayloadPropertyNames(
             view.Snapshot.Lanes,
             "battlefields",
             $"snapshot for {view.PlayerId} lanes battlefield",
@@ -4556,6 +4573,33 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"{payloadLabel} item {index + 1} payload is required");
             }
+        }
+    }
+
+    private static void ValidateSnapshotPayloadObjectListItemPayloadPropertyNames(
+        object? payload,
+        string key,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(payload, key, out var listPayload)
+            || IsNullSnapshotPayloadValue(listPayload)
+            || !TryReadObjectListValue(listPayload, out var items))
+        {
+            return;
+        }
+
+        for (var index = 0; index < items.Count; index++)
+        {
+            if (!IsSnapshotPlayerPayloadObject(items[index]))
+            {
+                continue;
+            }
+
+            ValidateSnapshotPayloadObjectPropertyNames(
+                items[index],
+                $"{payloadLabel} item {index + 1}",
+                errors);
         }
     }
 

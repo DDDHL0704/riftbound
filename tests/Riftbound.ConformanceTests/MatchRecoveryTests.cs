@@ -631,6 +631,82 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotLanesListItemPropertyNameDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Lanes = new Dictionary<string, object?>(StringComparer.Ordinal)
+                    {
+                        ["battlefieldCount"] = 0,
+                        ["battlefieldObjectIds"] = new object?[]
+                        {
+                            RawJson("""
+                                {
+                                    "playerId": "alice",
+                                    "playerId": "alice",
+                                    " objectId ": "battlefield-a",
+                                    "": true,
+                                    "objectId": "battlefield-a"
+                                }
+                                """)
+                        },
+                        ["battlefields"] = new object?[]
+                        {
+                            RawJson("""
+                                {
+                                    "battlefieldObjectId": "battlefield-a",
+                                    "battlefieldObjectId": "battlefield-a",
+                                    " zonePlayerId ": "alice",
+                                    "": true,
+                                    "zonePlayerId": "alice"
+                                }
+                                """)
+                        }
+                    }
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield object id item 1 property playerId appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield object id item 1 property objectId has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield object id item 1 property name is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 property battlefieldObjectId appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 property zonePlayerId has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 property name is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotStackItemPropertyNameDrift()
     {
         var alice = PlayerView("alice", 0, 0);
