@@ -1361,6 +1361,88 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotStackItemValueShapeDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Stack =
+                    [
+                        new Dictionary<string, object?>(StringComparer.Ordinal)
+                        {
+                            ["stackItemId"] = " ",
+                            ["controllerId"] = " ",
+                            ["sourceObjectId"] = 123,
+                            ["effectKind"] = " DAMAGE ",
+                            ["cardNo"] = " SFD-002 ",
+                            ["targetObjectIds"] = new[] { " target-2 ", "", "target-2" },
+                            ["damageAmount"] = -1,
+                            ["destination"] = 123
+                        }
+                    ]
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice stack item #1 stack item id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice stack item #1 controller id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice stack item #1 source object id is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice stack item #1 effect kind DAMAGE has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice stack item #1 card no SFD-002 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice stack item #1 target object id target-2 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice stack item #1 target object id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice stack item #1 target object id target-2 is duplicated",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice stack item #1 damage amount -1 cannot be negative",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice stack item #1 destination is invalid",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingListItemPayloadShapeDrift()
     {
         var alice = PlayerView("alice", 0, 0);

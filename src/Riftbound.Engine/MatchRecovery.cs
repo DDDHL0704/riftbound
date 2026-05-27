@@ -2042,6 +2042,7 @@ public static class MatchRecoveryValidator
         {
             ValidateSnapshotStackItemPayloadShapes(view, errors);
             ValidateSnapshotStackItemPayloadPropertyNames(view, errors);
+            ValidateSnapshotStackItemPayloadValues(view, errors);
         }
 
         if (view.Snapshot.Timing is null)
@@ -3296,10 +3297,7 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            var stackItemLabel = TryReadObjectString(stackItem, "stackItemId", out var stackItemId)
-                && !string.IsNullOrWhiteSpace(stackItemId)
-                    ? stackItemId
-                    : $"#{index + 1}";
+            var stackItemLabel = SnapshotStackItemLabel(stackItem, index);
             ValidateSnapshotPayloadObjectPropertyNames(
                 stackItem,
                 $"snapshot for {view.PlayerId} stack item {stackItemLabel}",
@@ -3319,12 +3317,37 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            var stackItemLabel = TryReadObjectString(stackItem, "stackItemId", out var stackItemId)
-                && !string.IsNullOrWhiteSpace(stackItemId)
-                    ? stackItemId
-                    : $"#{index + 1}";
+            var stackItemLabel = SnapshotStackItemLabel(stackItem, index);
             errors.Add($"snapshot for {view.PlayerId} stack item {stackItemLabel} payload is required");
         }
+    }
+
+    private static void ValidateSnapshotStackItemPayloadValues(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        for (var index = 0; index < view.Snapshot.Stack.Count; index++)
+        {
+            var stackItem = view.Snapshot.Stack[index];
+            if (!IsSnapshotPlayerPayloadObject(stackItem))
+            {
+                continue;
+            }
+
+            var stackItemLabel = SnapshotStackItemLabel(stackItem, index);
+            ValidateStackItemPayloadValues(
+                stackItem,
+                $"snapshot for {view.PlayerId} stack item {stackItemLabel}",
+                errors);
+        }
+    }
+
+    private static string SnapshotStackItemLabel(object? stackItem, int index)
+    {
+        return TryReadObjectString(stackItem, "stackItemId", out var stackItemId)
+            && !string.IsNullOrWhiteSpace(stackItemId)
+                ? stackItemId
+                : $"#{index + 1}";
     }
 
     private static void ValidateSnapshotTimingListItemPayloadPropertyNames(
@@ -14165,7 +14188,17 @@ public static class MatchRecoveryValidator
         string stackItemLabel,
         List<string> errors)
     {
-        var payloadLabel = $"spectator replay frame snapshot stack item {stackItemLabel}";
+        ValidateStackItemPayloadValues(
+            stackItem,
+            $"spectator replay frame snapshot stack item {stackItemLabel}",
+            errors);
+    }
+
+    private static void ValidateStackItemPayloadValues(
+        object? stackItem,
+        string payloadLabel,
+        List<string> errors)
+    {
         ValidateSnapshotPayloadRequiredStringValue(
             stackItem,
             "stackItemId",
