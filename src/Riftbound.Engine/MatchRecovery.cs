@@ -7696,18 +7696,17 @@ public static class MatchRecoveryValidator
                 "spectator replay frame timing pending task queue",
                 errors);
 
+            taskKinds = ValidateSpectatorPendingTaskQueueTaskPayloads(
+                taskPayloads,
+                authoritativeState,
+                authoritativeQueue.Tasks,
+                validatedSpectatorActiveTaskId,
+                errors,
+                validateAuthoritativeParity: taskPayloads.Count == authoritativeQueue.Tasks.Count);
+
             if (taskPayloads.Count != authoritativeQueue.Tasks.Count)
             {
                 errors.Add("spectator replay frame timing pending task queue task count does not match authoritative state pending task queue task count");
-            }
-            else
-            {
-                taskKinds = ValidateSpectatorPendingTaskQueueTaskPayloads(
-                    taskPayloads,
-                    authoritativeState,
-                    authoritativeQueue.Tasks,
-                    validatedSpectatorActiveTaskId,
-                    errors);
             }
         }
 
@@ -7763,7 +7762,8 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         IReadOnlyList<CleanupTaskState> authoritativeTasks,
         string? activeTaskId,
-        List<string> errors)
+        List<string> errors,
+        bool validateAuthoritativeParity)
     {
         var seenTaskIds = new HashSet<string>(StringComparer.Ordinal);
         var taskKinds = new List<string>();
@@ -7806,6 +7806,11 @@ public static class MatchRecoveryValidator
         if (taskPayloads.Count > 0 && string.IsNullOrEmpty(activeTaskId))
         {
             errors.Add("spectator replay frame timing pending task queue active task id is required when pending task queue has tasks");
+        }
+
+        if (!validateAuthoritativeParity)
+        {
+            return taskKindsAreValid ? taskKinds : null;
         }
 
         if (!StringListsEqual(
