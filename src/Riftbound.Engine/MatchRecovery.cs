@@ -2029,6 +2029,7 @@ public static class MatchRecoveryValidator
             ValidateSnapshotLaneBattlefieldItemScalarPayloadValues(view, errors);
             ValidateSnapshotLaneBattlefieldItemListPayloadValues(view, errors);
             ValidateSnapshotLaneBattlefieldStandbySlotListPayloadShapes(view, errors);
+            ValidateSnapshotLaneBattlefieldStandbySlotItemPayloadShapes(view, errors);
         }
 
         if (view.Snapshot.Stack is null)
@@ -2460,6 +2461,31 @@ public static class MatchRecoveryValidator
                 "standbySlots",
                 $"snapshot for {view.PlayerId} lanes battlefield item {index + 1}",
                 "standby slot",
+                errors);
+        }
+    }
+
+    private static void ValidateSnapshotLaneBattlefieldStandbySlotItemPayloadShapes(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (!TryReadObjectList(view.Snapshot.Lanes, "battlefields", out var items))
+        {
+            return;
+        }
+
+        for (var index = 0; index < items.Count; index++)
+        {
+            var item = items[index];
+            if (!IsSnapshotPlayerPayloadObject(item))
+            {
+                continue;
+            }
+
+            ValidateSnapshotPayloadObjectListItemPayloadShapes(
+                item,
+                "standbySlots",
+                $"snapshot for {view.PlayerId} lanes battlefield item {index + 1} standby slot",
                 errors);
         }
     }

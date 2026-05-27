@@ -1032,6 +1032,57 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotLanesBattlefieldStandbySlotItemPayloadShapeDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Lanes = new Dictionary<string, object?>(StringComparer.Ordinal)
+                    {
+                        ["battlefieldCount"] = 1,
+                        ["battlefieldObjectIds"] = Array.Empty<object?>(),
+                        ["battlefields"] = new object?[]
+                        {
+                            new Dictionary<string, object?>(StringComparer.Ordinal)
+                            {
+                                ["battlefieldObjectId"] = "battlefield-a",
+                                ["zonePlayerId"] = "alice",
+                                ["cardNo"] = "TEST-BATTLEFIELD",
+                                ["controllerId"] = "alice",
+                                ["status"] = "CONTROLLED",
+                                ["contested"] = false,
+                                ["scoredThisTurn"] = false,
+                                ["standbySlotCount"] = 1,
+                                ["faceDownStandbyCount"] = 0,
+                                ["hiddenStandbyCount"] = 0,
+                                ["occupantObjectIds"] = Array.Empty<string>(),
+                                ["occupantControllerIds"] = Array.Empty<string>(),
+                                ["unitsBySide"] = new Dictionary<string, object?>(StringComparer.Ordinal),
+                                ["standbyObjectIds"] = new[] { "standby-a" },
+                                ["scoredThisTurnPlayerIds"] = Array.Empty<string>(),
+                                ["pendingTaskKinds"] = Array.Empty<string>(),
+                                ["standbySlots"] = new object?[] { "not-a-slot" }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice lanes battlefield item 1 standby slot item 1 payload is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotStackItemPropertyNameDrift()
     {
         var alice = PlayerView("alice", 0, 0);
