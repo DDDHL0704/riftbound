@@ -5297,6 +5297,12 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "rune deck count",
             errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            zonePayload,
+            payloadLabel,
+            "hand",
+            "hand object",
+            errors);
         ValidateSnapshotPayloadRequiredStringListValues(
             zonePayload,
             "hand",
@@ -5309,11 +5315,23 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "hidden hand count",
             errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            zonePayload,
+            payloadLabel,
+            "base",
+            "base object",
+            errors);
         ValidateSnapshotPayloadRequiredStringListValues(
             zonePayload,
             "base",
             payloadLabel,
             "base object",
+            errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            zonePayload,
+            payloadLabel,
+            "battlefields",
+            "battlefield object",
             errors);
         ValidateSnapshotPayloadRequiredStringListValues(
             zonePayload,
@@ -5327,11 +5345,23 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "hidden battlefield standby count",
             errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            zonePayload,
+            payloadLabel,
+            "graveyard",
+            "graveyard object",
+            errors);
         ValidateSnapshotPayloadRequiredStringListValues(
             zonePayload,
             "graveyard",
             payloadLabel,
             "graveyard object",
+            errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            zonePayload,
+            payloadLabel,
+            "banished",
+            "banished object",
             errors);
         ValidateSnapshotPayloadRequiredStringListValues(
             zonePayload,
@@ -5339,11 +5369,23 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "banished object",
             errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            zonePayload,
+            payloadLabel,
+            "legendZone",
+            "legend zone object",
+            errors);
         ValidateSnapshotPayloadRequiredStringListValues(
             zonePayload,
             "legendZone",
             payloadLabel,
             "legend zone object",
+            errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            zonePayload,
+            payloadLabel,
+            "championZone",
+            "champion zone object",
             errors);
         ValidateSnapshotPayloadRequiredStringListValues(
             zonePayload,
