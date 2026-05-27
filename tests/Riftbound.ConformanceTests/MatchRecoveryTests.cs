@@ -24757,6 +24757,223 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingResolutionHistoryDuplicateIds()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["battlefield-1"] = new("battlefield-1", ownerId: "alice", controllerId: "alice"),
+                ["battlefield-2"] = new("battlefield-2", ownerId: "bob", controllerId: "bob"),
+                ["source-1"] = new("source-1", ownerId: "alice", controllerId: "alice"),
+                ["source-2"] = new("source-2", ownerId: "bob", controllerId: "bob"),
+                ["attacker-1"] = new("attacker-1", ownerId: "alice", controllerId: "alice"),
+                ["attacker-2"] = new("attacker-2", ownerId: "alice", controllerId: "alice"),
+                ["defender-1"] = new("defender-1", ownerId: "bob", controllerId: "bob"),
+                ["defender-2"] = new("defender-2", ownerId: "bob", controllerId: "bob"),
+                ["destroyed-1"] = new("destroyed-1", ownerId: "bob", controllerId: "bob"),
+                ["destroyed-2"] = new("destroyed-2", ownerId: "alice", controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["battlefield-1"] = new("alice", "BATTLEFIELD", "battlefield-1"),
+                ["battlefield-2"] = new("bob", "BATTLEFIELD", "battlefield-2"),
+                ["source-1"] = new("alice", "BATTLEFIELD", "source-1"),
+                ["source-2"] = new("bob", "BATTLEFIELD", "source-2"),
+                ["attacker-1"] = new("alice", "BATTLEFIELD", "attacker-1"),
+                ["attacker-2"] = new("alice", "BATTLEFIELD", "attacker-2"),
+                ["defender-1"] = new("bob", "BATTLEFIELD", "defender-1"),
+                ["defender-2"] = new("bob", "BATTLEFIELD", "defender-2"),
+                ["destroyed-1"] = new("bob", "GRAVEYARD", "destroyed-1"),
+                ["destroyed-2"] = new("alice", "GRAVEYARD", "destroyed-2")
+            },
+            battlefieldResolutions:
+            [
+                new(
+                    "battlefield-resolution-1",
+                    3,
+                    "HELD",
+                    "test-1",
+                    "battlefield-1",
+                    "alice",
+                    null,
+                    "alice",
+                    "source-1",
+                    ["source-1"],
+                    ["BATTLEFIELD_HELD"]),
+                new(
+                    "battlefield-resolution-2",
+                    4,
+                    "HELD",
+                    "test-2",
+                    "battlefield-2",
+                    "bob",
+                    "alice",
+                    "bob",
+                    "source-2",
+                    ["source-2"],
+                    ["BATTLEFIELD_HELD"])
+            ],
+            battleResolutions:
+            [
+                new(
+                    "battle-resolution-1",
+                    3,
+                    "CLOSED",
+                    "test-1",
+                    "battlefield-1",
+                    "alice",
+                    "bob",
+                    "alice",
+                    ["attacker-1"],
+                    ["defender-1"],
+                    ["attacker-1"],
+                    [],
+                    ["defender-1"],
+                    ["BATTLE_CLOSED"]),
+                new(
+                    "battle-resolution-2",
+                    4,
+                    "CLOSED",
+                    "test-2",
+                    "battlefield-2",
+                    "alice",
+                    "bob",
+                    "bob",
+                    ["attacker-2"],
+                    ["defender-2"],
+                    [],
+                    ["defender-2"],
+                    ["attacker-2"],
+                    ["BATTLE_CLOSED"])
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        timing["battlefieldResolutions"] = new object?[]
+        {
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["resolutionId"] = " battlefield-resolution-duplicate ",
+                ["tick"] = 3,
+                ["kind"] = "HELD",
+                ["reason"] = "test-1",
+                ["battlefieldObjectId"] = "battlefield-1",
+                ["playerId"] = "alice",
+                ["controllerId"] = "alice",
+                ["sourceObjectId"] = "source-1",
+                ["participantObjectIds"] = new[] { "source-1" },
+                ["relatedEventKinds"] = new[] { "BATTLEFIELD_HELD" }
+            },
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["resolutionId"] = "battlefield-resolution-duplicate",
+                ["tick"] = 4,
+                ["kind"] = "HELD",
+                ["reason"] = "test-2",
+                ["battlefieldObjectId"] = "battlefield-2",
+                ["playerId"] = "bob",
+                ["previousControllerId"] = "alice",
+                ["controllerId"] = "bob",
+                ["sourceObjectId"] = "source-2",
+                ["participantObjectIds"] = new[] { "source-2" },
+                ["relatedEventKinds"] = new[] { "BATTLEFIELD_HELD" }
+            }
+        };
+        timing["battleResolutions"] = new object?[]
+        {
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["resolutionId"] = " battle-resolution-duplicate ",
+                ["tick"] = 3,
+                ["kind"] = "CLOSED",
+                ["reason"] = "test-1",
+                ["battlefieldId"] = "battlefield-1",
+                ["attackingPlayerId"] = "alice",
+                ["defendingPlayerId"] = "bob",
+                ["winnerPlayerId"] = "alice",
+                ["attackerObjectIds"] = new[] { "attacker-1" },
+                ["defenderObjectIds"] = new[] { "defender-1" },
+                ["survivingAttackerObjectIds"] = new[] { "attacker-1" },
+                ["survivingDefenderObjectIds"] = Array.Empty<string>(),
+                ["destroyedObjectIds"] = new[] { "defender-1" },
+                ["relatedEventKinds"] = new[] { "BATTLE_CLOSED" }
+            },
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["resolutionId"] = "battle-resolution-duplicate",
+                ["tick"] = 4,
+                ["kind"] = "CLOSED",
+                ["reason"] = "test-2",
+                ["battlefieldId"] = "battlefield-2",
+                ["attackingPlayerId"] = "alice",
+                ["defendingPlayerId"] = "bob",
+                ["winnerPlayerId"] = "bob",
+                ["attackerObjectIds"] = new[] { "attacker-2" },
+                ["defenderObjectIds"] = new[] { "defender-2" },
+                ["survivingAttackerObjectIds"] = Array.Empty<string>(),
+                ["survivingDefenderObjectIds"] = new[] { "defender-2" },
+                ["destroyedObjectIds"] = new[] { "attacker-2" },
+                ["relatedEventKinds"] = new[] { "BATTLE_CLOSED" }
+            }
+        };
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battlefield resolution item resolution id battlefield-resolution-duplicate has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battlefield resolution item resolution id battlefield-resolution-duplicate is duplicated", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle resolution item resolution id battle-resolution-duplicate has surrounding whitespace", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle resolution item resolution id battle-resolution-duplicate is duplicated", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingResolutionHistoryScalarMismatch()
     {
         var authoritativeState = new MatchState(

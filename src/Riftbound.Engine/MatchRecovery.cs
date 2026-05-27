@@ -12928,6 +12928,7 @@ public static class MatchRecoveryValidator
         }
         else
         {
+            var seenSpectatorBattlefieldResolutionIds = new HashSet<string>(StringComparer.Ordinal);
             foreach (var resolutionPayload in spectatorBattlefieldResolutions)
             {
                 if (!IsSnapshotPlayerPayloadObject(resolutionPayload))
@@ -12940,9 +12941,14 @@ public static class MatchRecoveryValidator
                     resolutionPayload,
                     "spectator replay frame timing battlefield resolution item",
                     errors);
-                ValidateSpectatorBattlefieldResolutionPayloadValues(
+                var resolutionId = ValidateSpectatorBattlefieldResolutionPayloadValues(
                     resolutionPayload,
                     errors);
+                if (resolutionId is not null && !seenSpectatorBattlefieldResolutionIds.Add(resolutionId))
+                {
+                    errors.Add($"spectator replay frame timing battlefield resolution item resolution id {resolutionId} is duplicated");
+                }
+
                 ValidateSpectatorBattlefieldResolutionPayloadListValues(
                     resolutionPayload,
                     errors);
@@ -13088,6 +13094,7 @@ public static class MatchRecoveryValidator
         }
         else
         {
+            var seenSpectatorBattleResolutionIds = new HashSet<string>(StringComparer.Ordinal);
             foreach (var resolutionPayload in spectatorBattleResolutions)
             {
                 if (!IsSnapshotPlayerPayloadObject(resolutionPayload))
@@ -13100,9 +13107,14 @@ public static class MatchRecoveryValidator
                     resolutionPayload,
                     "spectator replay frame timing battle resolution item",
                     errors);
-                ValidateSpectatorBattleResolutionPayloadValues(
+                var resolutionId = ValidateSpectatorBattleResolutionPayloadValues(
                     resolutionPayload,
                     errors);
+                if (resolutionId is not null && !seenSpectatorBattleResolutionIds.Add(resolutionId))
+                {
+                    errors.Add($"spectator replay frame timing battle resolution item resolution id {resolutionId} is duplicated");
+                }
+
                 ValidateSpectatorBattleResolutionPayloadListValues(
                     resolutionPayload,
                     errors);
@@ -13342,12 +13354,12 @@ public static class MatchRecoveryValidator
             errors);
     }
 
-    private static void ValidateSpectatorBattlefieldResolutionPayloadValues(
+    private static string? ValidateSpectatorBattlefieldResolutionPayloadValues(
         object? resolutionPayload,
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing battlefield resolution item";
-        ValidateBattlefieldResolutionPayloadValues(resolutionPayload, payloadLabel, errors);
+        return ValidateBattlefieldResolutionPayloadValues(resolutionPayload, payloadLabel, errors);
     }
 
     private static string? ValidateBattlefieldResolutionPayloadValues(
@@ -13491,12 +13503,12 @@ public static class MatchRecoveryValidator
             errors);
     }
 
-    private static void ValidateSpectatorBattleResolutionPayloadValues(
+    private static string? ValidateSpectatorBattleResolutionPayloadValues(
         object? resolutionPayload,
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing battle resolution item";
-        ValidateBattleResolutionPayloadValues(resolutionPayload, payloadLabel, errors);
+        return ValidateBattleResolutionPayloadValues(resolutionPayload, payloadLabel, errors);
     }
 
     private static string? ValidateBattleResolutionPayloadValues(
