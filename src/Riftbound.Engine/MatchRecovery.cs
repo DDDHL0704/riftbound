@@ -2643,6 +2643,12 @@ public static class MatchRecoveryValidator
             costLabel,
             "power",
             errors);
+        ValidateSnapshotPayloadRequiredIntMapPayloadShape(
+            costPayload,
+            "powerByTrait",
+            costLabel,
+            "power cost trait",
+            errors);
         ValidateSnapshotPayloadRequiredPositiveIntMapValues(
             costPayload,
             "powerByTrait",
@@ -3195,11 +3201,23 @@ public static class MatchRecoveryValidator
                 payloadLabel,
                 "remaining power",
                 errors);
+            ValidateSnapshotPayloadRequiredIntMapPayloadShape(
+                resourcePayload,
+                "generatedPowerByTrait",
+                payloadLabel,
+                "generated power trait",
+                errors);
             ValidateSnapshotPayloadRequiredPositiveIntMapValues(
                 resourcePayload,
                 "generatedPowerByTrait",
                 payloadLabel,
                 "generated power trait",
+                errors);
+            ValidateSnapshotPayloadRequiredIntMapPayloadShape(
+                resourcePayload,
+                "remainingPowerByTrait",
+                payloadLabel,
+                "remaining power trait",
                 errors);
             ValidateSnapshotPayloadRequiredPositiveIntMapValues(
                 resourcePayload,
@@ -4740,6 +4758,25 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"{payloadLabel} {itemLabel} {normalizedKey} value {value} must be positive");
             }
+        }
+    }
+
+    private static void ValidateSnapshotPayloadRequiredIntMapPayloadShape(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(payload, key, out var mapPayload)
+            || IsNullSnapshotPayloadValue(mapPayload))
+        {
+            return;
+        }
+
+        if (!IsSnapshotIntMapPayloadObject(mapPayload))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} map payload is required");
         }
     }
 
