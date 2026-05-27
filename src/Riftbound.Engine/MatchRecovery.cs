@@ -5100,6 +5100,7 @@ public static class MatchRecoveryValidator
             $"spectator replay frame snapshot player {playerId} rune pool",
             errors);
         ValidateSpectatorSnapshotPlayerRunePoolPowerTraitPayloadPropertyNames(playerId, runePoolPayload, errors);
+        ValidateSpectatorSnapshotPlayerRunePoolPayloadValues(playerId, runePoolPayload, errors);
 
         var expectedRunePool = authoritativeState.RunePools.TryGetValue(playerId, out var runePool)
             ? runePool
@@ -5127,6 +5128,28 @@ public static class MatchRecoveryValidator
         {
             errors.Add($"spectator replay frame snapshot player {playerId} rune pool power by trait does not match authoritative rune pool power by trait");
         }
+    }
+
+    private static void ValidateSpectatorSnapshotPlayerRunePoolPayloadValues(
+        string playerId,
+        object? runePoolPayload,
+        List<string> errors)
+    {
+        var payloadLabel = $"spectator replay frame snapshot player {playerId} rune pool";
+        ValidateSnapshotPayloadRequiredNonNegativeIntValue(runePoolPayload, "mana", payloadLabel, "mana", errors);
+        ValidateSnapshotPayloadRequiredNonNegativeIntValue(runePoolPayload, "power", payloadLabel, "power", errors);
+        ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+            runePoolPayload,
+            "untypedPower",
+            payloadLabel,
+            "untyped power",
+            errors);
+        ValidateSnapshotPayloadRequiredPositiveIntMapValues(
+            runePoolPayload,
+            "powerByTrait",
+            payloadLabel,
+            "power trait",
+            errors);
     }
 
     private static void ValidateSpectatorSnapshotPlayerRunePoolPowerTraitPayloadPropertyNames(
