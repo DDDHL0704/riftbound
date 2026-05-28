@@ -3602,6 +3602,104 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingResolutionHistoryItemListPayloadShapeDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["battlefieldResolutions"] = RawJson("""
+            [
+                {
+                    "resolutionId": "battlefield-resolution-1",
+                    "tick": 1,
+                    "kind": "HELD",
+                    "reason": "BATTLEFIELD_HELD",
+                    "battlefieldObjectId": "battlefield-1",
+                    "playerId": "alice",
+                    "previousControllerId": "bob",
+                    "controllerId": "alice",
+                    "sourceObjectId": "source-1",
+                    "participantObjectIds": "not-participant-object-list",
+                    "relatedEventKinds": 7
+                }
+            ]
+            """);
+        timing["battleResolutions"] = RawJson("""
+            [
+                {
+                    "resolutionId": "battle-resolution-1",
+                    "tick": 1,
+                    "kind": "RESOLVED",
+                    "reason": "BATTLE_RESOLVED",
+                    "battlefieldId": "battlefield-1",
+                    "attackingPlayerId": "alice",
+                    "defendingPlayerId": "bob",
+                    "winnerPlayerId": "alice",
+                    "attackerObjectIds": "not-attacker-list",
+                    "defenderObjectIds": 7,
+                    "survivingAttackerObjectIds": "not-surviving-attacker-list",
+                    "survivingDefenderObjectIds": 8,
+                    "destroyedObjectIds": "not-destroyed-list",
+                    "relatedEventKinds": { "kind": "BATTLE_RESOLVED" }
+                }
+            ]
+            """);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield resolution item participant object id list payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield resolution item related event kind list payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item attacker object id list payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item defender object id list payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item surviving attacker object id list payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item surviving defender object id list payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item destroyed object id list payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item related event kind list payload is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingResolutionHistoryListValueDrift()
     {
         var alice = PlayerView("alice", 0, 0);

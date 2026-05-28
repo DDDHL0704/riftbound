@@ -3984,11 +3984,23 @@ public static class MatchRecoveryValidator
                 }
 
                 const string payloadLabel = "battlefield resolution item";
+                ValidateSnapshotPayloadRequiredStringListPayloadShape(
+                    resolutionPayload,
+                    "participantObjectIds",
+                    $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                    "participant object id",
+                    errors);
                 ValidateSnapshotPayloadStringListValues(
                     resolutionPayload,
                     "participantObjectIds",
                     $"snapshot for {view.PlayerId} timing {payloadLabel}",
                     "participant object id",
+                    errors);
+                ValidateSnapshotPayloadRequiredStringListPayloadShape(
+                    resolutionPayload,
+                    "relatedEventKinds",
+                    $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                    "related event kind",
                     errors);
                 ValidateSnapshotPayloadStringListValues(
                     resolutionPayload,
@@ -4012,7 +4024,7 @@ public static class MatchRecoveryValidator
             }
 
             const string payloadLabel = "battle resolution item";
-            ValidateSnapshotPayloadStringListValues(
+            ValidateSnapshotPayloadRequiredStringListPayloadShape(
                 resolutionPayload,
                 "attackerObjectIds",
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
@@ -4020,11 +4032,23 @@ public static class MatchRecoveryValidator
                 errors);
             ValidateSnapshotPayloadStringListValues(
                 resolutionPayload,
+                "attackerObjectIds",
+                $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                "attacker object id",
+                errors);
+            ValidateSnapshotPayloadRequiredStringListPayloadShape(
+                resolutionPayload,
                 "defenderObjectIds",
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
                 "defender object id",
                 errors);
             ValidateSnapshotPayloadStringListValues(
+                resolutionPayload,
+                "defenderObjectIds",
+                $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                "defender object id",
+                errors);
+            ValidateSnapshotPayloadRequiredStringListPayloadShape(
                 resolutionPayload,
                 "survivingAttackerObjectIds",
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
@@ -4032,15 +4056,39 @@ public static class MatchRecoveryValidator
                 errors);
             ValidateSnapshotPayloadStringListValues(
                 resolutionPayload,
+                "survivingAttackerObjectIds",
+                $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                "surviving attacker object id",
+                errors);
+            ValidateSnapshotPayloadRequiredStringListPayloadShape(
+                resolutionPayload,
                 "survivingDefenderObjectIds",
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
                 "surviving defender object id",
                 errors);
             ValidateSnapshotPayloadStringListValues(
                 resolutionPayload,
+                "survivingDefenderObjectIds",
+                $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                "surviving defender object id",
+                errors);
+            ValidateSnapshotPayloadRequiredStringListPayloadShape(
+                resolutionPayload,
                 "destroyedObjectIds",
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
                 "destroyed object id",
+                errors);
+            ValidateSnapshotPayloadStringListValues(
+                resolutionPayload,
+                "destroyedObjectIds",
+                $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                "destroyed object id",
+                errors);
+            ValidateSnapshotPayloadRequiredStringListPayloadShape(
+                resolutionPayload,
+                "relatedEventKinds",
+                $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                "related event kind",
                 errors);
             ValidateSnapshotPayloadStringListValues(
                 resolutionPayload,
