@@ -3000,11 +3000,23 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        ValidateSnapshotPayloadRequiredStringListPayloadShape(
+            pendingPaymentPayload,
+            "paymentChoices",
+            $"snapshot for {view.PlayerId} timing pending payment",
+            "payment choice",
+            errors);
         ValidateSnapshotPayloadStringListValues(
             pendingPaymentPayload,
             "paymentChoices",
             $"snapshot for {view.PlayerId} timing pending payment",
             "payment choice",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListPayloadShape(
+            pendingPaymentPayload,
+            "paymentResourceActions",
+            $"snapshot for {view.PlayerId} timing pending payment",
+            "payment resource action",
             errors);
         ValidateSnapshotPayloadStringListValues(
             pendingPaymentPayload,
