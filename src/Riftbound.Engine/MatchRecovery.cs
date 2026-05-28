@@ -10205,6 +10205,12 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "remaining power trait",
             errors);
+        ValidateSpectatorRequiredStringListPayloadShape(
+            resourcePayload,
+            payloadLabel,
+            "allowedPaymentKinds",
+            "allowed payment kind",
+            errors);
         ValidateSnapshotPayloadStringListValues(
             resourcePayload,
             "allowedPaymentKinds",
