@@ -3695,7 +3695,7 @@ public static class MatchRecoveryValidator
             }
 
             const string payloadLabel = "battlefield task item";
-            ValidateSnapshotPayloadStringListValues(
+            ValidateSnapshotPayloadRequiredStringListPayloadShape(
                 taskPayload,
                 "participantControllerIds",
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
@@ -3703,9 +3703,27 @@ public static class MatchRecoveryValidator
                 errors);
             ValidateSnapshotPayloadStringListValues(
                 taskPayload,
+                "participantControllerIds",
+                $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                "participant controller id",
+                errors);
+            ValidateSnapshotPayloadRequiredStringListPayloadShape(
+                taskPayload,
                 "participantObjectIds",
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
                 "participant object id",
+                errors);
+            ValidateSnapshotPayloadStringListValues(
+                taskPayload,
+                "participantObjectIds",
+                $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                "participant object id",
+                errors);
+            ValidateSnapshotPayloadRequiredStringListPayloadShape(
+                taskPayload,
+                "stackItemIds",
+                $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                "stack item id",
                 errors);
             ValidateSnapshotPayloadStringListValues(
                 taskPayload,
