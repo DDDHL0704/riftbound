@@ -3264,6 +3264,12 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        ValidateSnapshotPayloadRequiredStringListPayloadShape(
+            metadataPayload,
+            "stateBasedTaskKinds",
+            $"{payloadLabel} metadata",
+            "state-based task kind",
+            errors);
         var metadataTaskCount = ValidatePendingTaskQueueMetadataPayloadValues(
             metadataPayload,
             $"{payloadLabel} metadata",
