@@ -3503,7 +3503,7 @@ public static class MatchRecoveryValidator
             }
 
             const string effectLabel = "continuous effect item";
-            ValidateSnapshotPayloadStringListValues(
+            ValidateSnapshotPayloadRequiredStringListPayloadShape(
                 effectPayload,
                 "participantObjectIds",
                 $"snapshot for {view.PlayerId} timing {effectLabel}",
@@ -3511,11 +3511,23 @@ public static class MatchRecoveryValidator
                 errors);
             ValidateSnapshotPayloadStringListValues(
                 effectPayload,
+                "participantObjectIds",
+                $"snapshot for {view.PlayerId} timing {effectLabel}",
+                "participant object id",
+                errors);
+            ValidateSnapshotPayloadRequiredStringListPayloadShape(
+                effectPayload,
                 "sourceDependencyObjectIds",
                 $"snapshot for {view.PlayerId} timing {effectLabel}",
                 "source dependency object id",
                 errors);
             ValidateSnapshotPayloadStringListValues(
+                effectPayload,
+                "sourceDependencyObjectIds",
+                $"snapshot for {view.PlayerId} timing {effectLabel}",
+                "source dependency object id",
+                errors);
+            ValidateSnapshotPayloadRequiredStringListPayloadShape(
                 effectPayload,
                 "targetDependencyObjectIds",
                 $"snapshot for {view.PlayerId} timing {effectLabel}",
@@ -3523,9 +3535,27 @@ public static class MatchRecoveryValidator
                 errors);
             ValidateSnapshotPayloadStringListValues(
                 effectPayload,
+                "targetDependencyObjectIds",
+                $"snapshot for {view.PlayerId} timing {effectLabel}",
+                "target dependency object id",
+                errors);
+            ValidateSnapshotPayloadRequiredStringListPayloadShape(
+                effectPayload,
                 "participantDependencyObjectIds",
                 $"snapshot for {view.PlayerId} timing {effectLabel}",
                 "participant dependency object id",
+                errors);
+            ValidateSnapshotPayloadStringListValues(
+                effectPayload,
+                "participantDependencyObjectIds",
+                $"snapshot for {view.PlayerId} timing {effectLabel}",
+                "participant dependency object id",
+                errors);
+            ValidateSnapshotPayloadRequiredStringListPayloadShape(
+                effectPayload,
+                "deferredLayerEngineResiduals",
+                $"snapshot for {view.PlayerId} timing {effectLabel}",
+                "deferred LayerEngine residual",
                 errors);
             ValidateSnapshotPayloadStringListValues(
                 effectPayload,
