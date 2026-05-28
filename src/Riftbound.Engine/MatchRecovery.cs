@@ -3734,6 +3734,12 @@ public static class MatchRecoveryValidator
             }
 
             const string payloadLabel = "temporary payment resource item";
+            ValidateSnapshotPayloadRequiredStringListPayloadShape(
+                resourcePayload,
+                "allowedPaymentKinds",
+                $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                "allowed payment kind",
+                errors);
             ValidateSnapshotPayloadStringListValues(
                 resourcePayload,
                 "allowedPaymentKinds",
