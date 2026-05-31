@@ -2089,6 +2089,7 @@ public static class MatchRecoveryValidator
             ValidateSnapshotTimingAllowedString(view, "phase", "phase", IsKnownMatchPhase, errors);
             ValidateSnapshotTimingRequiredString(view, "turnPlayerId", "turn player", errors);
             ValidateSnapshotTimingAllowedString(view, "roomStatus", "room status", IsKnownMatchStatus, errors);
+            ValidateSnapshotTimingTopLevelPlayerListPayloadShapes(view, errors);
             ValidateSnapshotTimingObjectPayloadShape(
                 view,
                 "turnWindow",
@@ -2218,6 +2219,37 @@ public static class MatchRecoveryValidator
             ValidateSnapshotTimingResolutionHistoryScalarPayloadValues(view, errors);
             ValidateSnapshotTimingResolutionHistoryListPayloadValues(view, errors);
         }
+    }
+
+    private static void ValidateSnapshotTimingTopLevelPlayerListPayloadShapes(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        var payloadLabel = $"snapshot for {view.PlayerId} timing";
+        ValidateSnapshotPayloadRequiredStringListPayloadShape(
+            view.Snapshot.Timing,
+            "readyPlayerIds",
+            payloadLabel,
+            "ready player",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListPayloadShape(
+            view.Snapshot.Timing,
+            "passedPriorityPlayerIds",
+            payloadLabel,
+            "passed priority player",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListPayloadShape(
+            view.Snapshot.Timing,
+            "passedFocusPlayerIds",
+            payloadLabel,
+            "passed focus player",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListPayloadShape(
+            view.Snapshot.Timing,
+            "destroyedUnitOwnerIdsThisTurn",
+            payloadLabel,
+            "destroyed unit owner",
+            errors);
     }
 
     private static void ValidateSnapshotLaneListPayloadShapes(
