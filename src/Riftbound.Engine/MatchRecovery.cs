@@ -2879,6 +2879,10 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "pending flag",
             errors);
+        ValidateBattleDamageAssignmentMapPayloadShapes(
+            damageAssignmentPayload,
+            payloadLabel,
+            errors);
 
         var shouldValidatePendingFields =
             (TryReadObjectBool(damageAssignmentPayload, "isPending", out var isPending) && isPending)
@@ -15045,36 +15049,52 @@ public static class MatchRecoveryValidator
         object? damageAssignmentPayload,
         List<string> errors)
     {
-        ValidateSpectatorBattleDamageAssignmentMapPayloadShape(
+        ValidateBattleDamageAssignmentMapPayloadShapes(
+            damageAssignmentPayload,
+            "spectator replay frame timing battle damage assignment",
+            errors);
+    }
+
+    private static void ValidateBattleDamageAssignmentMapPayloadShapes(
+        object? damageAssignmentPayload,
+        string payloadLabel,
+        List<string> errors)
+    {
+        ValidateBattleDamageAssignmentMapPayloadShape(
             damageAssignmentPayload,
             "damagePool",
+            payloadLabel,
             "damage pool",
             IsSnapshotIntMapPayloadObject,
             errors);
-        ValidateSpectatorBattleDamageAssignmentMapPayloadShape(
+        ValidateBattleDamageAssignmentMapPayloadShape(
             damageAssignmentPayload,
             "legalTargets",
+            payloadLabel,
             "legal targets",
             IsSnapshotStringListMapPayloadObject,
             errors);
-        ValidateSpectatorBattleDamageAssignmentMapPayloadShape(
+        ValidateBattleDamageAssignmentMapPayloadShape(
             damageAssignmentPayload,
             "existingDamage",
+            payloadLabel,
             "existing damage",
             IsSnapshotIntMapPayloadObject,
             errors);
-        ValidateSpectatorBattleDamageAssignmentMapPayloadShape(
+        ValidateBattleDamageAssignmentMapPayloadShape(
             damageAssignmentPayload,
             "lethalDamageThreshold",
+            payloadLabel,
             "lethal damage threshold",
             IsSnapshotIntMapPayloadObject,
             errors);
     }
 
-    private static void ValidateSpectatorBattleDamageAssignmentMapPayloadShape(
+    private static void ValidateBattleDamageAssignmentMapPayloadShape(
         object? damageAssignmentPayload,
         string payloadKey,
         string payloadLabel,
+        string mapLabel,
         Func<object?, bool> isValidMapPayload,
         List<string> errors)
     {
@@ -15086,7 +15106,7 @@ public static class MatchRecoveryValidator
 
         if (!isValidMapPayload(mapPayload))
         {
-            errors.Add($"spectator replay frame timing battle damage assignment {payloadLabel} map payload is required");
+            errors.Add($"{payloadLabel} {mapLabel} map payload is required");
         }
     }
 
