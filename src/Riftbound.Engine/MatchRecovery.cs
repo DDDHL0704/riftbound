@@ -3334,10 +3334,15 @@ public static class MatchRecoveryValidator
     {
         if (view.Snapshot.Timing is null
             || !TryReadObjectValue(view.Snapshot.Timing, "pendingTaskQueue", out var queuePayload)
-            || !IsSnapshotPlayerPayloadObject(queuePayload)
-            || !TryReadObjectValue(queuePayload, "metadata", out var metadataPayload)
+            || !IsSnapshotPlayerPayloadObject(queuePayload))
+        {
+            return;
+        }
+
+        if (!TryReadObjectValue(queuePayload, "metadata", out var metadataPayload)
             || IsNullSnapshotPayloadValue(metadataPayload))
         {
+            errors.Add($"snapshot for {view.PlayerId} timing pending task queue metadata is required");
             return;
         }
 

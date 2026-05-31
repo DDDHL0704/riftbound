@@ -2754,6 +2754,49 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingPendingTaskQueueMetadataRequiredDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var pendingTaskQueue = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["hasTasks"] = true,
+            ["isBlocking"] = false,
+            ["phase"] = "STATE_BASED_CLEANUP",
+            ["activeTaskId"] = "task-1",
+            ["tasks"] = new object?[]
+            {
+                new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["taskId"] = "task-1",
+                    ["kind"] = "DESTROY_LETHAL_UNIT",
+                    ["reason"] = "STATE_BASED_ACTION"
+                }
+            }
+        };
+        timing["pendingTaskQueue"] = pendingTaskQueue;
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending task queue metadata is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingPendingTaskQueueMetadataListPayloadShapeDrift()
     {
         var alice = PlayerView("alice", 0, 0);
