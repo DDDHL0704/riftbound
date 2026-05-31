@@ -2149,6 +2149,7 @@ public static class MatchRecoveryValidator
                 "pending hand choice",
                 errors);
             ValidateSnapshotTimingPendingHandChoicePayloadValues(view, errors);
+            ValidateSnapshotTimingTopLevelObjectListPayloadShapes(view, errors);
             ValidateSnapshotTimingListItemPayloadShapes(
                 view,
                 "temporaryPaymentResources",
@@ -2249,6 +2250,49 @@ public static class MatchRecoveryValidator
             "destroyedUnitOwnerIdsThisTurn",
             payloadLabel,
             "destroyed unit owner",
+            errors);
+    }
+
+    private static void ValidateSnapshotTimingTopLevelObjectListPayloadShapes(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        var payloadLabel = $"snapshot for {view.PlayerId} timing";
+        ValidateSnapshotPayloadRequiredObjectListPayloadShape(
+            view.Snapshot.Timing,
+            "temporaryPaymentResources",
+            payloadLabel,
+            "temporary payment resource",
+            errors);
+        ValidateSnapshotPayloadRequiredObjectListPayloadShape(
+            view.Snapshot.Timing,
+            "continuousEffects",
+            payloadLabel,
+            "continuous effect",
+            errors);
+        ValidateSnapshotPayloadRequiredObjectListPayloadShape(
+            view.Snapshot.Timing,
+            "triggerQueue",
+            payloadLabel,
+            "trigger queue",
+            errors);
+        ValidateSnapshotPayloadRequiredObjectListPayloadShape(
+            view.Snapshot.Timing,
+            "battlefieldTasks",
+            payloadLabel,
+            "battlefield task",
+            errors);
+        ValidateSnapshotPayloadRequiredObjectListPayloadShape(
+            view.Snapshot.Timing,
+            "battlefieldResolutions",
+            payloadLabel,
+            "battlefield resolution",
+            errors);
+        ValidateSnapshotPayloadRequiredObjectListPayloadShape(
+            view.Snapshot.Timing,
+            "battleResolutions",
+            payloadLabel,
+            "battle resolution",
             errors);
     }
 
