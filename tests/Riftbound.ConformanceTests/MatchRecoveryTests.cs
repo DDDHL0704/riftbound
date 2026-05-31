@@ -5407,6 +5407,41 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingPendingPaymentCostPayloadShapeDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["pendingPayment"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["paymentId"] = "payment-1",
+            ["paymentWindow"] = "PAY_COST",
+            ["playerId"] = "alice",
+            ["cost"] = "not-cost",
+            ["paymentChoices"] = new[] { "SPEND_MANA:1" },
+            ["paymentResourceActions"] = Array.Empty<string>()
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending payment cost payload is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingPendingPaymentScalarValueDrift()
     {
         var alice = PlayerView("alice", 0, 0);

@@ -3207,9 +3207,15 @@ public static class MatchRecoveryValidator
             errors);
 
         if (!TryReadObjectValue(pendingPaymentPayload, "cost", out var costPayload)
-            || !IsSnapshotPlayerPayloadObject(costPayload))
+            || IsNullSnapshotPayloadValue(costPayload))
         {
             errors.Add($"{payloadLabel} cost is required");
+            return;
+        }
+
+        if (!IsSnapshotPlayerPayloadObject(costPayload))
+        {
+            errors.Add($"{payloadLabel} cost payload is required");
             return;
         }
 
