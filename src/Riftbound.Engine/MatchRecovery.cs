@@ -2727,9 +2727,39 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        ValidateSnapshotTimingSpellDuelListPayloadShapes(
+            view,
+            spellDuelPayload,
+            errors);
         ValidateSpellDuelPayloadValues(
             spellDuelPayload,
             $"snapshot for {view.PlayerId} timing spell duel",
+            errors);
+    }
+
+    private static void ValidateSnapshotTimingSpellDuelListPayloadShapes(
+        RecoveredPlayerView view,
+        object? spellDuelPayload,
+        List<string> errors)
+    {
+        var payloadLabel = $"snapshot for {view.PlayerId} timing spell duel";
+        ValidateSnapshotPayloadRequiredStringListPayloadShape(
+            spellDuelPayload,
+            "passedFocusPlayerIds",
+            payloadLabel,
+            "passed focus player id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListPayloadShape(
+            spellDuelPayload,
+            "stackItemIds",
+            payloadLabel,
+            "stack item id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListPayloadShape(
+            spellDuelPayload,
+            "stackControllerIds",
+            payloadLabel,
+            "stack controller id",
             errors);
     }
 
