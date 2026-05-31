@@ -8757,6 +8757,13 @@ public static class MatchRecoveryValidator
             ? isBlockingValue
             : (bool?)null;
 
+        ValidateSnapshotPayloadRequiredObjectListPayloadShape(
+            queuePayload,
+            "tasks",
+            payloadLabel,
+            "task",
+            errors);
+
         if (!TryReadObjectValue(queuePayload, "tasks", out var tasksPayload)
             || IsNullSnapshotPayloadValue(tasksPayload))
         {
