@@ -3310,6 +3310,12 @@ public static class MatchRecoveryValidator
             payloadLabel,
             IsKnownSnapshotPendingHandChoiceState,
             errors);
+        ValidateSnapshotPayloadRequiredStringListPayloadShape(
+            choicePayload,
+            "legalObjectIds",
+            payloadLabel,
+            "legal object id",
+            errors);
         ValidateSnapshotPayloadStringListValues(
             choicePayload,
             "legalObjectIds",

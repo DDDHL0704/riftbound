@@ -2491,6 +2491,46 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingPendingHandChoiceListPayloadShapeDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["pendingHandChoice"] = RawJson("""
+            {
+                "choiceId": "choice-1",
+                "choiceWindow": "CHOOSE_HAND_CARDS",
+                "playerId": "alice",
+                "requiredCount": 1,
+                "maxCount": 2,
+                "reason": "test-choice",
+                "sourceObjectId": "source-1",
+                "effectKind": "DRAW_DISCARD",
+                "choiceState": "PENDING_CHOICE",
+                "legalObjectIds": "not-legal-object-id-list"
+            }
+            """);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing pending hand choice legal object id list payload is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingPendingHandChoiceValueDrift()
     {
         var alice = PlayerView("alice", 0, 0);
