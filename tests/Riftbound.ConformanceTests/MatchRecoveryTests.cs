@@ -2240,6 +2240,68 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueRedactionConsistencyDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["triggerQueue"] = new object?[]
+        {
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["triggerId"] = "trigger-hidden",
+                ["controllerId"] = "alice",
+                ["sourceObjectId"] = "hidden-source-1",
+                ["sourceVisibility"] = "HIDDEN",
+                ["effectKind"] = "LAST_BREATH",
+                ["triggeredByEventKind"] = "OBJECT_DESTROYED"
+            },
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["triggerId"] = "trigger-visible",
+                ["controllerId"] = "alice",
+                ["sourceObjectId"] = "HIDDEN",
+                ["sourceVisibility"] = "VISIBLE",
+                ["effectKind"] = "HIDDEN",
+                ["triggeredByEventKind"] = "OBJECT_DESTROYED"
+            }
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item hidden source object id must be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item hidden effect kind must be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item visible source object id must not be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item visible effect kind must not be redacted",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingBattlefieldTaskPropertyNameDrift()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -26152,6 +26214,161 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains("spectator replay frame timing trigger queue triggered event kinds disagree with authoritative state trigger queue triggered event kinds", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueRedactionConsistencyDrift()
+    {
+        const string battlefieldObjectId = "battlefield-a";
+        const string visibleSourceObjectId = "visible-source-1";
+        const string hiddenSourceObjectId = "hidden-source-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Base = [visibleSourceObjectId],
+                    Battlefields = [battlefieldObjectId, hiddenSourceObjectId]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new(
+                    battlefieldObjectId,
+                    cardNo: "TEST-BATTLEFIELD",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
+                [visibleSourceObjectId] = new(
+                    visibleSourceObjectId,
+                    ownerId: "alice",
+                    controllerId: "alice"),
+                [hiddenSourceObjectId] = new(
+                    hiddenSourceObjectId,
+                    power: 2,
+                    isFaceDown: true,
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId),
+                [visibleSourceObjectId] = new("alice", "BASE"),
+                [hiddenSourceObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId)
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    "trigger-visible",
+                    "alice",
+                    visibleSourceObjectId,
+                    "LAST_BREATH",
+                    "OBJECT_DESTROYED"),
+                new TriggerQueueItemState(
+                    "trigger-hidden",
+                    "bob",
+                    hiddenSourceObjectId,
+                    "AMBUSH_REVEALED",
+                    "BATTLEFIELD_HELD")
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var triggerQueue = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["triggerQueue"])
+            .ToList();
+        var visibleTrigger = Assert.IsType<Dictionary<string, object?>>(triggerQueue[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var hiddenTrigger = Assert.IsType<Dictionary<string, object?>>(triggerQueue[1])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        Assert.Equal("VISIBLE", Assert.IsType<string>(visibleTrigger["sourceVisibility"]));
+        Assert.Equal("HIDDEN", Assert.IsType<string>(hiddenTrigger["sourceVisibility"]));
+
+        visibleTrigger["sourceObjectId"] = "HIDDEN";
+        visibleTrigger["effectKind"] = "HIDDEN";
+        hiddenTrigger["sourceObjectId"] = hiddenSourceObjectId;
+        hiddenTrigger["effectKind"] = "AMBUSH_REVEALED";
+        triggerQueue[0] = visibleTrigger;
+        triggerQueue[1] = hiddenTrigger;
+        triggerQueue.Add(new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["triggerId"] = "trigger-extra",
+            ["controllerId"] = "alice",
+            ["sourceObjectId"] = "HIDDEN",
+            ["sourceVisibility"] = "VISIBLE",
+            ["effectKind"] = "HIDDEN",
+            ["triggeredByEventKind"] = "OBJECT_DESTROYED"
+        });
+        timing["triggerQueue"] = triggerQueue.ToArray();
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item hidden source object id must be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item hidden effect kind must be redacted",
+                StringComparison.Ordinal));
+        Assert.Equal(
+            2,
+            errors.Count(error => error.Contains(
+                "spectator replay frame timing trigger queue item visible source object id must not be redacted",
+                StringComparison.Ordinal)));
+        Assert.Equal(
+            2,
+            errors.Count(error => error.Contains(
+                "spectator replay frame timing trigger queue item visible effect kind must not be redacted",
+                StringComparison.Ordinal)));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count 3 does not match authoritative state trigger queue count 2",
+                StringComparison.Ordinal));
     }
 
     [Fact]

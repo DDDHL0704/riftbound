@@ -3787,20 +3787,20 @@ public static class MatchRecoveryValidator
                 triggerLabel,
                 "controller id",
                 errors);
-            ValidateSnapshotPayloadRequiredStringValue(
+            var sourceObjectId = ValidateSnapshotPayloadRequiredStringValue(
                 triggerPayload,
                 "sourceObjectId",
                 triggerLabel,
                 "source object id",
                 errors);
-            ValidateSnapshotPayloadRequiredStringValue(
+            var sourceVisibility = ValidateSnapshotPayloadRequiredStringValue(
                 triggerPayload,
                 "sourceVisibility",
                 triggerLabel,
                 "source visibility",
                 errors,
                 IsKnownTriggerSourceVisibility);
-            ValidateSnapshotPayloadRequiredStringValue(
+            var effectKind = ValidateSnapshotPayloadRequiredStringValue(
                 triggerPayload,
                 "effectKind",
                 triggerLabel,
@@ -3811,6 +3811,13 @@ public static class MatchRecoveryValidator
                 "triggeredByEventKind",
                 triggerLabel,
                 "triggered event kind",
+                errors);
+
+            ValidateTriggerQueueSourceRedactionConsistency(
+                triggerLabel,
+                sourceObjectId,
+                sourceVisibility,
+                effectKind,
                 errors);
         }
     }
@@ -10138,20 +10145,20 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "controller id",
             errors);
-        ValidateSnapshotPayloadRequiredStringValue(
+        var sourceObjectId = ValidateSnapshotPayloadRequiredStringValue(
             triggerPayload,
             "sourceObjectId",
             payloadLabel,
             "source object id",
             errors);
-        ValidateSnapshotPayloadRequiredStringValue(
+        var sourceVisibility = ValidateSnapshotPayloadRequiredStringValue(
             triggerPayload,
             "sourceVisibility",
             payloadLabel,
             "source visibility",
             errors,
             IsKnownTriggerSourceVisibility);
-        ValidateSnapshotPayloadRequiredStringValue(
+        var effectKind = ValidateSnapshotPayloadRequiredStringValue(
             triggerPayload,
             "effectKind",
             payloadLabel,
@@ -10163,6 +10170,51 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "triggered event kind",
             errors);
+
+        ValidateTriggerQueueSourceRedactionConsistency(
+            payloadLabel,
+            sourceObjectId,
+            sourceVisibility,
+            effectKind,
+            errors);
+    }
+
+    private static void ValidateTriggerQueueSourceRedactionConsistency(
+        string payloadLabel,
+        string? sourceObjectId,
+        string? sourceVisibility,
+        string? effectKind,
+        List<string> errors)
+    {
+        if (string.Equals(sourceVisibility, "HIDDEN", StringComparison.Ordinal))
+        {
+            if (sourceObjectId is not null
+                && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal))
+            {
+                errors.Add($"{payloadLabel} hidden source object id must be redacted");
+            }
+
+            if (effectKind is not null
+                && !string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal))
+            {
+                errors.Add($"{payloadLabel} hidden effect kind must be redacted");
+            }
+
+            return;
+        }
+
+        if (string.Equals(sourceVisibility, "VISIBLE", StringComparison.Ordinal))
+        {
+            if (string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal))
+            {
+                errors.Add($"{payloadLabel} visible source object id must not be redacted");
+            }
+
+            if (string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal))
+            {
+                errors.Add($"{payloadLabel} visible effect kind must not be redacted");
+            }
+        }
     }
 
     private static bool OptionalStringSnapshotValueMatches(object? payload, string key, string? expected)
