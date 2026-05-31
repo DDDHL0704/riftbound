@@ -3787,7 +3787,7 @@ public static class MatchRecoveryValidator
                 triggerLabel,
                 "controller id",
                 errors);
-            ValidateSnapshotPayloadOptionalStringValue(
+            ValidateSnapshotPayloadRequiredStringValue(
                 triggerPayload,
                 "sourceObjectId",
                 triggerLabel,

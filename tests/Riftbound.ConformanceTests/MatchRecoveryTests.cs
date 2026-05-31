@@ -2194,6 +2194,52 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueSourceObjectRequiredDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["triggerQueue"] = new object?[]
+        {
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["triggerId"] = "trigger-1",
+                ["controllerId"] = "alice",
+                ["sourceVisibility"] = "VISIBLE",
+                ["effectKind"] = "LAST_BREATH",
+                ["triggeredByEventKind"] = "OBJECT_DESTROYED"
+            },
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["triggerId"] = "trigger-2",
+                ["controllerId"] = "alice",
+                ["sourceObjectId"] = null,
+                ["sourceVisibility"] = "VISIBLE",
+                ["effectKind"] = "LAST_BREATH",
+                ["triggeredByEventKind"] = "OBJECT_DESTROYED"
+            }
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Equal(
+            2,
+            errors.Count(error => error.Contains(
+                "snapshot for alice timing trigger queue item source object id is required",
+                StringComparison.Ordinal)));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingBattlefieldTaskPropertyNameDrift()
     {
         var alice = PlayerView("alice", 0, 0);
