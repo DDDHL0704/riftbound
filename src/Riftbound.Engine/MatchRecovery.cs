@@ -2883,6 +2883,10 @@ public static class MatchRecoveryValidator
             damageAssignmentPayload,
             payloadLabel,
             errors);
+        ValidateBattleDamageAssignmentRequiredAssignmentItemPayloadShapes(
+            damageAssignmentPayload,
+            payloadLabel,
+            errors);
 
         var shouldValidatePendingFields =
             (TryReadObjectBool(damageAssignmentPayload, "isPending", out var isPending) && isPending)
@@ -15114,6 +15118,17 @@ public static class MatchRecoveryValidator
         object? damageAssignmentPayload,
         List<string> errors)
     {
+        ValidateBattleDamageAssignmentRequiredAssignmentItemPayloadShapes(
+            damageAssignmentPayload,
+            "spectator replay frame timing battle damage assignment",
+            errors);
+    }
+
+    private static void ValidateBattleDamageAssignmentRequiredAssignmentItemPayloadShapes(
+        object? damageAssignmentPayload,
+        string payloadLabel,
+        List<string> errors)
+    {
         if (!TryReadObjectList(damageAssignmentPayload, "requiredAssignments", out var requiredAssignments))
         {
             return;
@@ -15126,14 +15141,16 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            ValidateSpectatorBattleDamageAssignmentRequiredAssignmentItemPayloadShape(
+            ValidateBattleDamageAssignmentRequiredAssignmentItemPayloadShape(
                 requiredAssignment,
+                payloadLabel,
                 errors);
         }
     }
 
-    private static void ValidateSpectatorBattleDamageAssignmentRequiredAssignmentItemPayloadShape(
+    private static void ValidateBattleDamageAssignmentRequiredAssignmentItemPayloadShape(
         object? requiredAssignmentPayload,
+        string payloadLabel,
         List<string> errors)
     {
         if (!TryReadObjectValue(requiredAssignmentPayload, "legalTargetObjectIds", out var legalTargetObjectIdsPayload)
@@ -15144,8 +15161,7 @@ public static class MatchRecoveryValidator
 
         if (!TryReadStringListValue(legalTargetObjectIdsPayload, out _))
         {
-            errors.Add(
-                "spectator replay frame timing battle damage assignment required assignment item legal target object id list payload is required");
+            errors.Add($"{payloadLabel} required assignment item legal target object id list payload is required");
         }
     }
 
