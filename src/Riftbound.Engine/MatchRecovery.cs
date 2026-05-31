@@ -2774,10 +2774,45 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        ValidateSnapshotTimingBattleParticipantPayloadShapes(
+            view,
+            battlePayload,
+            errors);
         ValidateBattlePayloadValues(
             battlePayload,
             $"snapshot for {view.PlayerId} timing battle",
             errors);
+    }
+
+    private static void ValidateSnapshotTimingBattleParticipantPayloadShapes(
+        RecoveredPlayerView view,
+        object? battlePayload,
+        List<string> errors)
+    {
+        var payloadLabel = $"snapshot for {view.PlayerId} timing battle";
+        ValidateSnapshotPayloadRequiredStringListPayloadShape(
+            battlePayload,
+            "attackerObjectIds",
+            payloadLabel,
+            "attacker object id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListPayloadShape(
+            battlePayload,
+            "defenderObjectIds",
+            payloadLabel,
+            "defender object id",
+            errors);
+
+        if (!TryReadObjectValue(battlePayload, "participantControllerIds", out var participantControllerIdsPayload)
+            || IsNullSnapshotPayloadValue(participantControllerIdsPayload))
+        {
+            return;
+        }
+
+        if (!IsSnapshotStringMapPayloadObject(participantControllerIdsPayload))
+        {
+            errors.Add($"{payloadLabel} participant controller map payload is required");
+        }
     }
 
     private static void ValidateSnapshotTimingBattleParticipantControllerPayloadPropertyNames(
