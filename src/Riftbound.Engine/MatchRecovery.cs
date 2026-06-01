@@ -4111,6 +4111,7 @@ public static class MatchRecoveryValidator
                 battleId,
                 hasBattleIdPayload,
                 errors);
+            ValidateBattlefieldTaskKindSpecificIdentityExclusivity(taskLabel, kind, spellDuelId, battleId, errors);
             ValidateBattlefieldTaskKindConsistency(taskLabel, kind, status, reason, errors);
         }
     }
@@ -4190,6 +4191,35 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"{taskLabel} battle id {battleId} does not match battlefield battle id {expectedBattleId}");
             }
+        }
+    }
+
+    private static void ValidateBattlefieldTaskKindSpecificIdentityExclusivity(
+        string taskLabel,
+        string? kind,
+        string? spellDuelId,
+        string? battleId,
+        List<string> errors)
+    {
+        if (kind is null)
+        {
+            return;
+        }
+
+        if (string.Equals(kind, "START_SPELL_DUEL", StringComparison.Ordinal))
+        {
+            if (battleId is { Length: > 0 })
+            {
+                errors.Add($"{taskLabel} battle id {battleId} is invalid for START_SPELL_DUEL");
+            }
+
+            return;
+        }
+
+        if (string.Equals(kind, "START_BATTLE", StringComparison.Ordinal)
+            && spellDuelId is { Length: > 0 })
+        {
+            errors.Add($"{taskLabel} spell duel id {spellDuelId} is invalid for START_BATTLE");
         }
     }
 
@@ -14088,6 +14118,7 @@ public static class MatchRecoveryValidator
             battleId,
             hasBattleIdPayload,
             errors);
+        ValidateBattlefieldTaskKindSpecificIdentityExclusivity(payloadLabel, kind, spellDuelId, battleId, errors);
         ValidateBattlefieldTaskKindConsistency(payloadLabel, kind, status, reason, errors);
     }
 

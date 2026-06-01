@@ -6780,6 +6780,68 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingBattlefieldTaskKindSpecificIdentityExclusivityDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["battlefieldTasks"] = new object?[]
+        {
+            RawJson("""
+                {
+                    "taskId": "task-spell-duel-extra-battle-id",
+                    "kind": "START_SPELL_DUEL",
+                    "status": "PENDING",
+                    "reason": "BATTLEFIELD_CONTESTED",
+                    "battlefieldObjectId": "battlefield-a",
+                    "participantControllerIds": [],
+                    "participantObjectIds": [],
+                    "stackItemIds": [],
+                    "spellDuelId": "spell-duel:battlefield-a",
+                    "battleId": "battle:battlefield-a"
+                }
+                """),
+            RawJson("""
+                {
+                    "taskId": "task-battle-extra-spell-duel-id",
+                    "kind": "START_BATTLE",
+                    "status": "PENDING",
+                    "reason": "SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST",
+                    "battlefieldObjectId": "battlefield-b",
+                    "participantControllerIds": [],
+                    "participantObjectIds": [],
+                    "stackItemIds": [],
+                    "battleId": "battle:battlefield-b",
+                    "spellDuelId": "spell-duel:battlefield-b"
+                }
+                """)
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield task item battle id battle:battlefield-a is invalid for START_SPELL_DUEL",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield task item spell duel id spell-duel:battlefield-b is invalid for START_BATTLE",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingBattlefieldTaskObjectReferencesOutsideSnapshotObjects()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -29052,6 +29114,103 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing battlefield task count 4 does not match authoritative state battlefield task count 0",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattlefieldTaskKindSpecificIdentityExclusivityWithCountMismatch()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var battlefieldTasks = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["battlefieldTasks"])
+            .ToList();
+        Assert.Empty(battlefieldTasks);
+        battlefieldTasks.Add(new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["taskId"] = "task-spell-duel-extra-battle-id",
+            ["kind"] = "START_SPELL_DUEL",
+            ["status"] = "PENDING",
+            ["reason"] = "BATTLEFIELD_CONTESTED",
+            ["battlefieldObjectId"] = "battlefield-a",
+            ["participantControllerIds"] = Array.Empty<string>(),
+            ["participantObjectIds"] = Array.Empty<string>(),
+            ["stackItemIds"] = Array.Empty<string>(),
+            ["spellDuelId"] = "spell-duel:battlefield-a",
+            ["battleId"] = "battle:battlefield-a"
+        });
+        battlefieldTasks.Add(new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["taskId"] = "task-battle-extra-spell-duel-id",
+            ["kind"] = "START_BATTLE",
+            ["status"] = "PENDING",
+            ["reason"] = "SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST",
+            ["battlefieldObjectId"] = "battlefield-b",
+            ["participantControllerIds"] = Array.Empty<string>(),
+            ["participantObjectIds"] = Array.Empty<string>(),
+            ["stackItemIds"] = Array.Empty<string>(),
+            ["battleId"] = "battle:battlefield-b",
+            ["spellDuelId"] = "spell-duel:battlefield-b"
+        });
+        timing["battlefieldTasks"] = battlefieldTasks.ToArray();
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield task item battle id battle:battlefield-a is invalid for START_SPELL_DUEL",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield task item spell duel id spell-duel:battlefield-b is invalid for START_BATTLE",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield task count 2 does not match authoritative state battlefield task count 0",
                 StringComparison.Ordinal));
     }
 
