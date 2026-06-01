@@ -6019,7 +6019,8 @@ public static class MatchRecoveryValidator
         string payloadLabel,
         string itemLabel,
         List<string> errors,
-        Func<string, bool>? isKnownValue = null)
+        Func<string, bool>? isKnownValue = null,
+        bool rejectEmptyString = false)
     {
         if (!TryReadObjectValue(payload, key, out var rawValue)
             || IsNullSnapshotPayloadValue(rawValue))
@@ -6040,6 +6041,12 @@ public static class MatchRecoveryValidator
 
         if (value.Length == 0)
         {
+            if (rejectEmptyString)
+            {
+                errors.Add($"{payloadLabel} {itemLabel} is required");
+                return null;
+            }
+
             return string.Empty;
         }
 
@@ -10139,26 +10146,30 @@ public static class MatchRecoveryValidator
             "effectKind",
             effectLabel,
             "effect kind",
-            errors);
+            errors,
+            rejectEmptyString: true);
         ValidateSnapshotPayloadOptionalStringValue(
             effectPayload,
             "sourceCardNo",
             effectLabel,
             "source card no",
-            errors);
+            errors,
+            rejectEmptyString: true);
         ValidateSnapshotPayloadOptionalStringValue(
             effectPayload,
             "sourcePath",
             effectLabel,
             "source path",
-            errors);
+            errors,
+            rejectEmptyString: true);
         var layerEngineStatus = ValidateSnapshotPayloadOptionalStringValue(
             effectPayload,
             "layerEngineStatus",
             effectLabel,
             "layer engine status",
             errors,
-            IsKnownContinuousEffectLayerEngineStatus);
+            IsKnownContinuousEffectLayerEngineStatus,
+            rejectEmptyString: true);
         ValidateContinuousEffectLayerEngineResidualConsistency(
             effectPayload,
             effectLabel,
@@ -10207,13 +10218,15 @@ public static class MatchRecoveryValidator
             "condition",
             effectLabel,
             "condition",
-            errors);
+            errors,
+            rejectEmptyString: true);
         ValidateSnapshotPayloadOptionalStringValue(
             effectPayload,
             "lifecycle",
             effectLabel,
             "lifecycle",
-            errors);
+            errors,
+            rejectEmptyString: true);
         return (effectId, sequence);
     }
 
