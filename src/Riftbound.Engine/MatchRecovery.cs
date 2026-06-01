@@ -4296,6 +4296,25 @@ public static class MatchRecoveryValidator
             || string.Equals(value, "HIDDEN", StringComparison.Ordinal);
     }
 
+    private static bool IsKnownContinuousEffectScope(string value)
+    {
+        return string.Equals(value, "GLOBAL", StringComparison.Ordinal)
+            || string.Equals(value, "OBJECT", StringComparison.Ordinal)
+            || string.Equals(value, "BATTLEFIELD", StringComparison.Ordinal);
+    }
+
+    private static bool IsKnownContinuousEffectLayer(string value)
+    {
+        return string.Equals(value, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+            || string.Equals(value, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            || string.Equals(value, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal);
+    }
+
+    private static bool IsKnownContinuousEffectLayerEngineStatus(string value)
+    {
+        return string.Equals(value, "FOUNDATION_ONLY", StringComparison.Ordinal);
+    }
+
     private static bool IsKnownStandbySlotState(string value)
     {
         return string.Equals(value, "VISIBLE", StringComparison.Ordinal)
@@ -5900,7 +5919,8 @@ public static class MatchRecoveryValidator
         string key,
         string payloadLabel,
         string itemLabel,
-        List<string> errors)
+        List<string> errors,
+        Func<string, bool>? isKnownValue = null)
     {
         if (!TryReadObjectValue(payload, key, out var rawValue)
             || IsNullSnapshotPayloadValue(rawValue))
@@ -5934,6 +5954,11 @@ public static class MatchRecoveryValidator
         if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
         {
             errors.Add($"{payloadLabel} {itemLabel} {normalizedValue} has surrounding whitespace");
+        }
+
+        if (isKnownValue is not null && !isKnownValue(normalizedValue))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} {normalizedValue} is invalid");
         }
 
         return normalizedValue;
@@ -9860,13 +9885,15 @@ public static class MatchRecoveryValidator
             "scope",
             effectLabel,
             "scope",
-            errors);
+            errors,
+            IsKnownContinuousEffectScope);
         ValidateSnapshotPayloadRequiredStringValue(
             effectPayload,
             "layer",
             effectLabel,
             "layer",
-            errors);
+            errors,
+            IsKnownContinuousEffectLayer);
         ValidateSnapshotPayloadRequiredStringValue(
             effectPayload,
             "duration",
@@ -9932,7 +9959,8 @@ public static class MatchRecoveryValidator
             "layerEngineStatus",
             effectLabel,
             "layer engine status",
-            errors);
+            errors,
+            IsKnownContinuousEffectLayerEngineStatus);
         ValidateSnapshotPayloadOptionalIntValue(
             effectPayload,
             "requestedPowerDelta",
