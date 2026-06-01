@@ -4252,6 +4252,9 @@ public static class MatchRecoveryValidator
         var knownPlayerIds = view.Snapshot.Players is null
             ? null
             : BuildNormalizedPlayerIdSet(view.Snapshot.Players.Keys);
+        var knownStackItemIds = view.Snapshot.Stack is null
+            ? null
+            : BuildKnownStackItemIds(ExtractStackItemIds(view.Snapshot));
         foreach (var taskPayload in taskPayloads)
         {
             if (!IsSnapshotPlayerPayloadObject(taskPayload))
@@ -4309,6 +4312,13 @@ public static class MatchRecoveryValidator
                 "stackItemIds",
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
                 "stack item id",
+                errors);
+            ValidateTimingStackItemReferenceList(
+                taskPayload,
+                "stackItemIds",
+                $"snapshot for {view.PlayerId} timing {payloadLabel} stack item id",
+                knownStackItemIds,
+                "stack",
                 errors);
         }
     }
@@ -4751,6 +4761,14 @@ public static class MatchRecoveryValidator
         return playerIds
             .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
             .Select(playerId => playerId.Trim())
+            .ToHashSet(StringComparer.Ordinal);
+    }
+
+    private static IReadOnlySet<string> BuildKnownStackItemIds(IEnumerable<string?> stackItemIds)
+    {
+        return stackItemIds
+            .Where(stackItemId => !string.IsNullOrWhiteSpace(stackItemId))
+            .Select(stackItemId => stackItemId!.Trim())
             .ToHashSet(StringComparer.Ordinal);
     }
 
@@ -10650,6 +10668,39 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateTimingStackItemReferenceList(
+        object? payload,
+        string payloadKey,
+        string stackItemLabel,
+        IReadOnlySet<string>? knownStackItemIds,
+        string knownStackLabel,
+        List<string> errors)
+    {
+        if (knownStackItemIds is null)
+        {
+            return;
+        }
+
+        if (!TryReadObjectStringList(payload, payloadKey, out var stackItemIds))
+        {
+            return;
+        }
+
+        foreach (var stackItemId in stackItemIds)
+        {
+            if (string.IsNullOrWhiteSpace(stackItemId))
+            {
+                continue;
+            }
+
+            var normalizedStackItemId = stackItemId.Trim();
+            if (!knownStackItemIds.Contains(normalizedStackItemId))
+            {
+                errors.Add($"{stackItemLabel} {normalizedStackItemId} is missing from {knownStackLabel}");
+            }
+        }
+    }
+
     private static void ValidateTimingObjectReferenceDictionaryKeys(
         object? effectPayload,
         string payloadKey,
@@ -13828,6 +13879,7 @@ public static class MatchRecoveryValidator
         var seenTaskIds = new HashSet<string>(StringComparer.Ordinal);
         var seatPlayerIds = BuildNormalizedPlayerIdSet(authoritativeState.Seats.Keys);
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
+        var knownStackItemIds = BuildKnownStackItemIds(authoritativeState.StackItems.Select(item => item?.StackItemId));
         foreach (var spectatorBattlefieldTask in spectatorBattlefieldTasks)
         {
             if (!IsSnapshotPlayerPayloadObject(spectatorBattlefieldTask))
@@ -13850,6 +13902,7 @@ public static class MatchRecoveryValidator
                 spectatorBattlefieldTask,
                 seatPlayerIds,
                 knownObjectIds,
+                knownStackItemIds,
                 errors);
         }
 
@@ -14042,6 +14095,7 @@ public static class MatchRecoveryValidator
         object? spectatorBattlefieldTask,
         IReadOnlySet<string> seatPlayerIds,
         IReadOnlySet<string> knownObjectIds,
+        IReadOnlySet<string> knownStackItemIds,
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing battlefield task item";
@@ -14094,6 +14148,13 @@ public static class MatchRecoveryValidator
             "stackItemIds",
             payloadLabel,
             "stack item id",
+            errors);
+        ValidateTimingStackItemReferenceList(
+            spectatorBattlefieldTask,
+            "stackItemIds",
+            $"{payloadLabel} stack item id",
+            knownStackItemIds,
+            "authoritative stack items",
             errors);
     }
 
