@@ -13962,6 +13962,11 @@ public static class MatchRecoveryValidator
                     $"authoritative state {ownerLabel} {traitLabel} {normalizedTrait} has surrounding whitespace");
             }
 
+            RejectAuthoritativeStateRedactionSentinel(
+                $"{ownerLabel} {traitLabel}",
+                trimmedTrait,
+                errors);
+
             if (value <= 0)
             {
                 errors.Add(

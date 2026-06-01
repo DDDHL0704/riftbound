@@ -17117,6 +17117,83 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateTraitPowerRedactionSentinelDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            2,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob")
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["alice"] = new RunePool(0, 0)
+                {
+                    PowerByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        ["HIDDEN"] = 1
+                    }
+                }
+            },
+            PendingPayment = new PendingPaymentState(
+                "payment-1",
+                "PAY_COST",
+                "alice",
+                legalPaymentChoiceIds: ["choice-1"],
+                paymentResourceActionIds: ["resource-action-1"])
+            {
+                PowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    ["HIDDEN"] = 1
+                }
+            },
+            TemporaryPaymentResources =
+            [
+                new TemporaryPaymentResourceState("temp-1", "alice", remainingPower: 1)
+                {
+                    GeneratedPowerByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        ["HIDDEN"] = 1
+                    },
+                    RemainingPowerByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        ["HIDDEN"] = 1
+                    },
+                    AllowedPaymentKinds = ["power"]
+                }
+            ]
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 2);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state rune pool for alice power trait must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state pending payment payment-1 power cost trait must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state temporary payment resource temp-1 generated power trait must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state temporary payment resource temp-1 remaining power trait must not be redacted", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAuthoritativeStateResourceValueDrift()
     {
         var authoritativeState = new MatchState(
