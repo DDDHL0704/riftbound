@@ -4279,6 +4279,9 @@ public static class MatchRecoveryValidator
         var knownObjectIds = view.Snapshot.Players is null
             ? null
             : BuildSnapshotKnownObjectIds(view.Snapshot);
+        var objectLocations = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotObjectLocationIndex(view.Snapshot);
         var knownPlayerIds = view.Snapshot.Players is null
             ? null
             : BuildNormalizedPlayerIdSet(view.Snapshot.Players.Keys);
@@ -4330,6 +4333,11 @@ public static class MatchRecoveryValidator
                 $"snapshot for {view.PlayerId} timing {payloadLabel} participant object id",
                 knownObjectIds,
                 "objects",
+                errors);
+            ValidateBattlefieldTaskParticipantObjectBattlefieldMembership(
+                taskPayload,
+                $"snapshot for {view.PlayerId} timing {payloadLabel} participant object id",
+                objectLocations,
                 errors);
             ValidateSnapshotPayloadRequiredStringListPayloadShape(
                 taskPayload,
@@ -4825,6 +4833,49 @@ public static class MatchRecoveryValidator
         }
 
         return knownObjectIds;
+    }
+
+    private static IReadOnlyDictionary<string, ObjectLocationState> BuildSnapshotObjectLocationIndex(SnapshotDto snapshot)
+    {
+        var objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal);
+        if (snapshot.Players is null)
+        {
+            return objectLocations;
+        }
+
+        foreach (var playerPayload in snapshot.Players.Values)
+        {
+            if (!TryReadObjectValue(playerPayload, "objects", out var objectsPayload)
+                || !TryReadObjectDictionaryValue(objectsPayload, out var objectPayloads))
+            {
+                continue;
+            }
+
+            foreach (var (objectId, objectPayload) in objectPayloads)
+            {
+                if (string.IsNullOrWhiteSpace(objectId)
+                    || !IsSnapshotPlayerPayloadObject(objectPayload)
+                    || !TryReadObjectValue(objectPayload, "location", out var locationPayload)
+                    || !IsSnapshotPlayerPayloadObject(locationPayload)
+                    || !TryReadObjectString(locationPayload, "playerId", out var playerId)
+                    || string.IsNullOrWhiteSpace(playerId)
+                    || !TryReadObjectString(locationPayload, "zone", out var zone)
+                    || string.IsNullOrWhiteSpace(zone)
+                    || !TryReadObjectOptionalString(locationPayload, "battlefieldObjectId", out var battlefieldObjectId))
+                {
+                    continue;
+                }
+
+                objectLocations[objectId.Trim()] = new ObjectLocationState(
+                    playerId.Trim(),
+                    zone.Trim(),
+                    string.IsNullOrWhiteSpace(battlefieldObjectId)
+                        ? null
+                        : battlefieldObjectId.Trim());
+            }
+        }
+
+        return objectLocations;
     }
 
     private static void ValidateSnapshotTimingPlayerMembership(
@@ -10698,6 +10749,53 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateBattlefieldTaskParticipantObjectBattlefieldMembership(
+        object? taskPayload,
+        string participantObjectLabel,
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
+        List<string> errors)
+    {
+        if (objectLocations is null
+            || !TryReadObjectString(taskPayload, "battlefieldObjectId", out var battlefieldObjectId)
+            || string.IsNullOrWhiteSpace(battlefieldObjectId)
+            || !TryReadObjectStringList(taskPayload, "participantObjectIds", out var participantObjectIds))
+        {
+            return;
+        }
+
+        var normalizedBattlefieldObjectId = battlefieldObjectId.Trim();
+        var seenParticipantObjectIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var participantObjectId in participantObjectIds)
+        {
+            if (string.IsNullOrWhiteSpace(participantObjectId))
+            {
+                continue;
+            }
+
+            var normalizedParticipantObjectId = participantObjectId.Trim();
+            if (!seenParticipantObjectIds.Add(normalizedParticipantObjectId))
+            {
+                continue;
+            }
+
+            if (!objectLocations.TryGetValue(normalizedParticipantObjectId, out var location))
+            {
+                errors.Add($"{participantObjectLabel} {normalizedParticipantObjectId} is missing from object locations");
+                continue;
+            }
+
+            if (!string.Equals(location.Zone?.Trim(), "BATTLEFIELD", StringComparison.Ordinal)
+                || !string.Equals(
+                    location.BattlefieldObjectId?.Trim() ?? string.Empty,
+                    normalizedBattlefieldObjectId,
+                    StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{participantObjectLabel} {normalizedParticipantObjectId} is not located at battlefield object id {normalizedBattlefieldObjectId}");
+            }
+        }
+    }
+
     private static void ValidateTimingStackItemReferenceList(
         object? payload,
         string payloadKey,
@@ -13932,6 +14030,7 @@ public static class MatchRecoveryValidator
                 spectatorBattlefieldTask,
                 seatPlayerIds,
                 knownObjectIds,
+                authoritativeState.ObjectLocations,
                 knownStackItemIds,
                 errors);
         }
@@ -14126,6 +14225,7 @@ public static class MatchRecoveryValidator
         object? spectatorBattlefieldTask,
         IReadOnlySet<string> seatPlayerIds,
         IReadOnlySet<string> knownObjectIds,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
         IReadOnlySet<string> knownStackItemIds,
         List<string> errors)
     {
@@ -14167,6 +14267,11 @@ public static class MatchRecoveryValidator
             $"{payloadLabel} participant object id",
             knownObjectIds,
             "object registry",
+            errors);
+        ValidateBattlefieldTaskParticipantObjectBattlefieldMembership(
+            spectatorBattlefieldTask,
+            $"{payloadLabel} participant object id",
+            objectLocations,
             errors);
         ValidateSpectatorRequiredStringListPayloadShape(
             spectatorBattlefieldTask,
