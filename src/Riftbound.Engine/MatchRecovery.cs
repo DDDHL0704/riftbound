@@ -10273,6 +10273,15 @@ public static class MatchRecoveryValidator
             layer,
             layerEngineStatus,
             errors);
+        ValidateContinuousEffectPowerModifierFoundationSourceCardConsistency(
+            effectPayload,
+            effectLabel,
+            scope,
+            layer,
+            sourceCardNo,
+            sourceObjectId,
+            layerEngineStatus,
+            errors);
         ValidateContinuousEffectPowerModifierFoundationModifierScalarCompleteness(
             effectPayload,
             effectLabel,
@@ -11097,6 +11106,42 @@ public static class MatchRecoveryValidator
         {
             errors.Add(diagnostic);
         }
+    }
+
+    private static void ValidateContinuousEffectPowerModifierFoundationSourceCardConsistency(
+        object? effectPayload,
+        string effectLabel,
+        string? scope,
+        string? layer,
+        string? sourceCardNo,
+        string? sourceObjectId,
+        string? layerEngineStatus,
+        List<string> errors)
+    {
+        if (scope is null
+            || layer is null
+            || !IsKnownContinuousEffectScope(scope)
+            || !IsKnownContinuousEffectLayer(layer)
+            || !string.Equals(layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+            || !IsContinuousEffectLayerScopeValid(scope, layer))
+        {
+            return;
+        }
+
+        var hasFoundationOnlyStatus = string.Equals(layerEngineStatus, "FOUNDATION_ONLY", StringComparison.Ordinal);
+        var hasReadableResiduals = TryReadObjectStringList(
+                effectPayload,
+                "deferredLayerEngineResiduals",
+                out var residuals)
+            && residuals.Count > 0;
+        if ((!hasFoundationOnlyStatus && !hasReadableResiduals)
+            || sourceCardNo is null
+            || sourceObjectId is not null)
+        {
+            return;
+        }
+
+        errors.Add($"{effectLabel} POWER_MODIFIER foundation source card no must be absent without source object id");
     }
 
     private static void ValidateContinuousEffectPowerModifierNonFoundationMetadataAbsence(
