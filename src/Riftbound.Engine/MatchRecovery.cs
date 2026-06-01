@@ -10275,6 +10275,7 @@ public static class MatchRecoveryValidator
             effectKind,
             sourceCardNo,
             sourcePath,
+            sourceObjectId,
             layerEngineStatus,
             errors);
         ValidateContinuousEffectPowerModifierSourceOrderConsistency(
@@ -11034,6 +11035,7 @@ public static class MatchRecoveryValidator
         string? effectKind,
         string? sourceCardNo,
         string? sourcePath,
+        string? sourceObjectId,
         string? layerEngineStatus,
         List<string> errors)
     {
@@ -11071,6 +11073,11 @@ public static class MatchRecoveryValidator
         if (sourcePath is not null)
         {
             errors.Add($"{effectLabel} POWER_MODIFIER source path must be absent without foundation metadata");
+        }
+
+        if (sourceObjectId is not null)
+        {
+            errors.Add($"{effectLabel} POWER_MODIFIER source object id must be absent without foundation metadata");
         }
     }
 
