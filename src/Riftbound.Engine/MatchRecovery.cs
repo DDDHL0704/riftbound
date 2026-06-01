@@ -10140,17 +10140,25 @@ public static class MatchRecoveryValidator
             effectLabel,
             "power delta",
             errors);
-        ValidateSnapshotPayloadRequiredIntValue(
+        var basePower = ValidateSnapshotPayloadRequiredIntValue(
             effectPayload,
             "basePower",
             effectLabel,
             "base power",
             errors);
-        ValidateSnapshotPayloadRequiredIntValue(
+        var effectivePower = ValidateSnapshotPayloadRequiredIntValue(
             effectPayload,
             "effectivePower",
             effectLabel,
             "effective power",
+            errors);
+        ValidateContinuousEffectRuleTextPowerScalarConsistency(
+            effectLabel,
+            scope,
+            layer,
+            powerDelta,
+            basePower,
+            effectivePower,
             errors);
         var sequence = ValidateSnapshotPayloadRequiredPositiveIntValue(
             effectPayload,
@@ -10800,6 +10808,46 @@ public static class MatchRecoveryValidator
         if (!string.Equals(duration, "UNTIL_END_OF_TURN", StringComparison.Ordinal))
         {
             errors.Add($"{effectLabel} {layer} duration {duration} is invalid");
+        }
+    }
+
+    private static void ValidateContinuousEffectRuleTextPowerScalarConsistency(
+        string effectLabel,
+        string? scope,
+        string? layer,
+        int? powerDelta,
+        int? basePower,
+        int? effectivePower,
+        List<string> errors)
+    {
+        if (scope is null
+            || layer is null
+            || !IsKnownContinuousEffectScope(scope)
+            || !IsKnownContinuousEffectLayer(layer)
+            || !string.Equals(layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            || !IsContinuousEffectLayerScopeValid(scope, layer))
+        {
+            return;
+        }
+
+        if (powerDelta.HasValue && powerDelta.Value != 0)
+        {
+            errors.Add($"{effectLabel} RULE_TEXT power delta must be 0");
+        }
+
+        if (!string.Equals(scope, "GLOBAL", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        if (basePower.HasValue && basePower.Value != 0)
+        {
+            errors.Add($"{effectLabel} global rule text base power must be 0");
+        }
+
+        if (effectivePower.HasValue && effectivePower.Value != 0)
+        {
+            errors.Add($"{effectLabel} global rule text effective power must be 0");
         }
     }
 
