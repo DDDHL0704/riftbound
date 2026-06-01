@@ -2968,6 +2968,12 @@ public static class MatchRecoveryValidator
             payloadLabel,
             shouldValidatePendingFields,
             errors);
+        ValidateBattleDamageAssignmentIdentityConsistency(
+            battlePayload,
+            damageAssignmentPayload,
+            payloadLabel,
+            shouldValidatePendingFields,
+            errors);
         ValidateBattleDamageAssignmentPlayerReferences(
             damageAssignmentPayload,
             payloadLabel,
@@ -18450,6 +18456,12 @@ public static class MatchRecoveryValidator
             payloadLabel,
             shouldValidatePendingFields,
             errors);
+        ValidateBattleDamageAssignmentIdentityConsistency(
+            battlePayload,
+            damageAssignmentPayload,
+            payloadLabel,
+            shouldValidatePendingFields,
+            errors);
         ValidateBattleDamageAssignmentPlayerReferences(
             damageAssignmentPayload,
             payloadLabel,
@@ -18674,6 +18686,65 @@ public static class MatchRecoveryValidator
             knownPlayerIds,
             knownPlayerLabel,
             errors);
+    }
+
+    private static void ValidateBattleDamageAssignmentIdentityConsistency(
+        object? battlePayload,
+        object? damageAssignmentPayload,
+        string payloadLabel,
+        bool shouldValidatePendingFields,
+        List<string> errors)
+    {
+        if (!shouldValidatePendingFields)
+        {
+            return;
+        }
+
+        ValidateBattleDamageAssignmentIdentityConsistency(
+            battlePayload,
+            "battleId",
+            "battle id",
+            damageAssignmentPayload,
+            "battleId",
+            "battle id",
+            payloadLabel,
+            errors);
+        ValidateBattleDamageAssignmentIdentityConsistency(
+            battlePayload,
+            "battlefieldObjectId",
+            "battlefield object id",
+            damageAssignmentPayload,
+            "battlefieldId",
+            "battlefield object id",
+            payloadLabel,
+            errors);
+    }
+
+    private static void ValidateBattleDamageAssignmentIdentityConsistency(
+        object? battlePayload,
+        string battleKey,
+        string battleLabel,
+        object? damageAssignmentPayload,
+        string damageAssignmentKey,
+        string damageAssignmentLabel,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectString(battlePayload, battleKey, out var battleValue)
+            || string.IsNullOrWhiteSpace(battleValue)
+            || !TryReadObjectString(damageAssignmentPayload, damageAssignmentKey, out var damageAssignmentValue)
+            || string.IsNullOrWhiteSpace(damageAssignmentValue))
+        {
+            return;
+        }
+
+        var normalizedBattleValue = battleValue.Trim();
+        var normalizedDamageAssignmentValue = damageAssignmentValue.Trim();
+        if (!string.Equals(normalizedDamageAssignmentValue, normalizedBattleValue, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} {damageAssignmentLabel} {normalizedDamageAssignmentValue} does not match enclosing battle {battleLabel} {normalizedBattleValue}");
+        }
     }
 
     private static void ValidateBattleDamageAssignmentRequiredAssignmentValues(
