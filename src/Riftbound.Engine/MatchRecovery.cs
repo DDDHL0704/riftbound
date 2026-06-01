@@ -3870,7 +3870,7 @@ public static class MatchRecoveryValidator
                 errors.Add($"{triggerLabel} trigger id {triggerId} is duplicated");
             }
 
-            ValidateSnapshotPayloadRequiredStringValue(
+            var controllerId = ValidateSnapshotPayloadRequiredStringValue(
                 triggerPayload,
                 "controllerId",
                 triggerLabel,
@@ -3895,13 +3895,19 @@ public static class MatchRecoveryValidator
                 triggerLabel,
                 "effect kind",
                 errors);
-            ValidateSnapshotPayloadRequiredStringValue(
+            var triggeredEventKind = ValidateSnapshotPayloadRequiredStringValue(
                 triggerPayload,
                 "triggeredByEventKind",
                 triggerLabel,
                 "triggered event kind",
                 errors);
             ValidateTriggerQueuePromptFieldAbsence(triggerPayload, triggerLabel, errors);
+            ValidateTriggerQueueIdentityRedactionSentinelAbsence(
+                triggerLabel,
+                triggerId,
+                controllerId,
+                triggeredEventKind,
+                errors);
 
             ValidateTriggerQueueSourceRedactionConsistency(
                 triggerLabel,
@@ -12291,7 +12297,7 @@ public static class MatchRecoveryValidator
             errors.Add($"{payloadLabel} trigger id {triggerId} is duplicated");
         }
 
-        ValidateSnapshotPayloadRequiredStringValue(
+        var controllerId = ValidateSnapshotPayloadRequiredStringValue(
             triggerPayload,
             "controllerId",
             payloadLabel,
@@ -12316,13 +12322,19 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "effect kind",
             errors);
-        ValidateSnapshotPayloadRequiredStringValue(
+        var triggeredEventKind = ValidateSnapshotPayloadRequiredStringValue(
             triggerPayload,
             "triggeredByEventKind",
             payloadLabel,
             "triggered event kind",
             errors);
         ValidateTriggerQueuePromptFieldAbsence(triggerPayload, payloadLabel, errors);
+        ValidateTriggerQueueIdentityRedactionSentinelAbsence(
+            payloadLabel,
+            triggerId,
+            controllerId,
+            triggeredEventKind,
+            errors);
 
         ValidateTriggerQueueSourceRedactionConsistency(
             payloadLabel,
@@ -12367,6 +12379,29 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"{payloadLabel} visible effect kind must not be redacted");
             }
+        }
+    }
+
+    private static void ValidateTriggerQueueIdentityRedactionSentinelAbsence(
+        string payloadLabel,
+        string? triggerId,
+        string? controllerId,
+        string? triggeredEventKind,
+        List<string> errors)
+    {
+        if (string.Equals(triggerId, "HIDDEN", StringComparison.Ordinal))
+        {
+            errors.Add($"{payloadLabel} trigger id must not be redacted");
+        }
+
+        if (string.Equals(controllerId, "HIDDEN", StringComparison.Ordinal))
+        {
+            errors.Add($"{payloadLabel} controller id must not be redacted");
+        }
+
+        if (string.Equals(triggeredEventKind, "HIDDEN", StringComparison.Ordinal))
+        {
+            errors.Add($"{payloadLabel} triggered event kind must not be redacted");
         }
     }
 
