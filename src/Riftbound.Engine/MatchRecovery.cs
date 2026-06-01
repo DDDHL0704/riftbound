@@ -10457,6 +10457,10 @@ public static class MatchRecoveryValidator
             "targetDependencyObjectIds",
             $"{effectLabel} static aura target dependency object id list must include target object id",
             errors);
+        ValidateContinuousEffectStaticAuraBattlefieldParticipantObjectListConsistency(
+            effectPayload,
+            effectLabel,
+            errors);
     }
 
     private static void ValidateContinuousEffectStaticAuraRequiredListPresence(
@@ -10488,6 +10492,41 @@ public static class MatchRecoveryValidator
         }
 
         errors.Add($"{diagnosticPrefix} {objectId}");
+    }
+
+    private static void ValidateContinuousEffectStaticAuraBattlefieldParticipantObjectListConsistency(
+        object? effectPayload,
+        string effectLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectString(effectPayload, "scope", out var scope)
+            || !string.Equals(scope, "BATTLEFIELD", StringComparison.Ordinal)
+            || !TryReadObjectString(effectPayload, "duration", out var duration)
+            || !string.Equals(
+                duration,
+                "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD",
+                StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        if (!TryReadObjectValue(effectPayload, "participantObjectIds", out var participantObjectIdsPayload)
+            || IsNullSnapshotPayloadValue(participantObjectIdsPayload))
+        {
+            errors.Add($"{effectLabel} battlefield static aura participant object id list is required");
+            return;
+        }
+
+        if (!TryReadObjectString(effectPayload, "targetObjectId", out var targetObjectId)
+            || !TryReadObjectStringList(effectPayload, "participantObjectIds", out var participantObjectIds)
+            || participantObjectIds.Count == 0
+            || participantObjectIds.Contains(targetObjectId, StringComparer.Ordinal))
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{effectLabel} battlefield static aura participant object id list must include target object id {targetObjectId}");
     }
 
     private static void ValidateContinuousEffectLayerDurationConsistency(

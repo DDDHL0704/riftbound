@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-17PQ recovery timing continuous-effect static-aura dependency-object validation is recovered player-view snapshot timing and spectator replay-frame timing `continuousEffects[]` `STATIC_AURA` source/target dependency-list membership diagnostics only and validated focused static-aura dependency-object consistency tests `2/2`, focused recovery `474/474`, adjacent recovery/opening/store-smoke `1055/1055`, backend full `6420/6420`. It does not change DOC_MATRIX approved scope or open frontend/final-status locks.
+Current A_MAIN latest accepted slice: Stage 4D-17PR recovery timing continuous-effect static-aura participant validation is recovered player-view snapshot timing and spectator replay-frame timing battlefield-scope `STATIC_AURA` `participantObjectIds` required/target-membership diagnostics only and validated focused static-aura participant consistency tests `3/3`, focused recovery `476/476`, adjacent recovery/opening/store-smoke `1057/1057`, backend full `6422/6422`. It does not change DOC_MATRIX approved scope or open frontend/final-status locks.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-17PQ; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-01 12:08 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in this checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-17PR; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-01 12:17 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in this checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-01 12:17 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main`; latest local commit before this entry is `abfae1a2` (`checkpoint: stage 4D recovery continuous effect static aura dependency objects`). This entry records the Stage 4D-17PR work to be committed/pushed as `checkpoint: stage 4D recovery continuous effect static aura participants`. DOC_MATRIX_CURRENT remains clean at `17bde0c3`; A_MAIN did not touch that worktree.
+
+Write locks: A_MAIN touched only `src/Riftbound.Engine/MatchRecovery.cs`, `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs`, current checkpoint/completion/P0-P1/next-dispatch docs, this shared board, and `docs/CURRENT_STAGE4D_17PR_RECOVERY_TIMING_CONTINUOUS_EFFECT_STATIC_AURA_PARTICIPANT_AUDIT.md`. Matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, frontend, protocol, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-17PR recovery timing continuous-effect static-aura participant validation accepted. `MatchRecoveryValidator` now emits explicit diagnostics when recovered player-view snapshot timing or spectator replay-frame timing battlefield-scope `STATIC_AURA` continuous-effect item payloads omit `participantObjectIds` or carry a readable non-empty participant list that omits the readable `targetObjectId`. Project remains **NOT READY**.
+
+Validation: focused static-aura participant consistency tests `3/3`; focused recovery `476/476`; adjacent recovery/opening/store-smoke `1057/1057`; backend full `6422/6422`; mechanical checks passed (`git diff --check`, anchored conflict-marker scan, matrix JSON parse).
+
+Requested action: no DOC_MATRIX action requested. Future DOC_MATRIX work must re-read this board and obtain/observe an approved scope before touching matrix/test/checkpoint files.
 
 ### 2026-06-01 12:08 A_MAIN
 
