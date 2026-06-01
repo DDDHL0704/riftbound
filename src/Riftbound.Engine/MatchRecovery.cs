@@ -3849,6 +3849,9 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        var knownPlayerIds = view.Snapshot.Players is null
+            ? null
+            : BuildNormalizedPlayerIdSet(view.Snapshot.Players.Keys);
         var seenTriggerIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var triggerPayload in triggerPayloads)
         {
@@ -3907,6 +3910,12 @@ public static class MatchRecoveryValidator
                 triggerId,
                 controllerId,
                 triggeredEventKind,
+                errors);
+            ValidateTriggerQueueControllerPlayerMembership(
+                triggerLabel,
+                controllerId,
+                knownPlayerIds,
+                "players",
                 errors);
 
             ValidateTriggerQueueSourceRedactionConsistency(
@@ -4462,6 +4471,14 @@ public static class MatchRecoveryValidator
     {
         return string.Equals(value, "P1", StringComparison.Ordinal)
             || string.Equals(value, "P2", StringComparison.Ordinal);
+    }
+
+    private static IReadOnlySet<string> BuildNormalizedPlayerIdSet(IEnumerable<string> playerIds)
+    {
+        return playerIds
+            .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
+            .Select(playerId => playerId.Trim())
+            .ToHashSet(StringComparer.Ordinal);
     }
 
     private static void ValidateSnapshotTimingPlayerMembership(
@@ -12168,6 +12185,7 @@ public static class MatchRecoveryValidator
                 $"spectator replay frame timing trigger queue count {spectatorTriggers.Count} does not match authoritative state trigger queue count {authoritativeTriggers.Count}");
         }
 
+        var seatPlayerIds = BuildNormalizedPlayerIdSet(authoritativeState.Seats.Keys);
         var seenTriggerIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var spectatorTrigger in spectatorTriggers)
         {
@@ -12181,7 +12199,7 @@ public static class MatchRecoveryValidator
                 spectatorTrigger,
                 "spectator replay frame timing trigger queue item",
                 errors);
-            ValidateSpectatorTriggerQueuePayloadValues(spectatorTrigger, seenTriggerIds, errors);
+            ValidateSpectatorTriggerQueuePayloadValues(spectatorTrigger, seenTriggerIds, seatPlayerIds, errors);
         }
 
         if (!validateAuthoritativeParity)
@@ -12283,6 +12301,7 @@ public static class MatchRecoveryValidator
     private static void ValidateSpectatorTriggerQueuePayloadValues(
         object? triggerPayload,
         HashSet<string> seenTriggerIds,
+        IReadOnlySet<string> seatPlayerIds,
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing trigger queue item";
@@ -12334,6 +12353,12 @@ public static class MatchRecoveryValidator
             triggerId,
             controllerId,
             triggeredEventKind,
+            errors);
+        ValidateTriggerQueueControllerPlayerMembership(
+            payloadLabel,
+            controllerId,
+            seatPlayerIds,
+            "seats",
             errors);
 
         ValidateTriggerQueueSourceRedactionConsistency(
@@ -12402,6 +12427,26 @@ public static class MatchRecoveryValidator
         if (string.Equals(triggeredEventKind, "HIDDEN", StringComparison.Ordinal))
         {
             errors.Add($"{payloadLabel} triggered event kind must not be redacted");
+        }
+    }
+
+    private static void ValidateTriggerQueueControllerPlayerMembership(
+        string payloadLabel,
+        string? controllerId,
+        IReadOnlySet<string>? knownPlayerIds,
+        string knownPlayerLabel,
+        List<string> errors)
+    {
+        if (controllerId is null
+            || knownPlayerIds is null
+            || string.Equals(controllerId, "HIDDEN", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        if (!knownPlayerIds.Contains(controllerId))
+        {
+            errors.Add($"{payloadLabel} controller id {controllerId} is missing from {knownPlayerLabel}");
         }
     }
 
