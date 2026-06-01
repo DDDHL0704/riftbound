@@ -10122,12 +10122,13 @@ public static class MatchRecoveryValidator
             "target object id",
             errors);
         ValidateContinuousEffectTargetObjectConsistency(effectLabel, scope, layer, targetObjectId, errors);
-        ValidateSnapshotPayloadRequiredNullableStringValue(
+        var sourceObjectId = ValidateSnapshotPayloadRequiredNullableStringValue(
             effectPayload,
             "sourceObjectId",
             effectLabel,
             "source object id",
             errors);
+        ValidateContinuousEffectSourceObjectConsistency(effectLabel, scope, layer, sourceObjectId, errors);
         var powerDelta = ValidateSnapshotPayloadRequiredIntValue(
             effectPayload,
             "powerDelta",
@@ -10332,6 +10333,40 @@ public static class MatchRecoveryValidator
         }
 
         errors.Add($"{effectLabel} {layer} target object id is required");
+    }
+
+    private static void ValidateContinuousEffectSourceObjectConsistency(
+        string effectLabel,
+        string? scope,
+        string? layer,
+        string? sourceObjectId,
+        List<string> errors)
+    {
+        if (scope is null
+            || layer is null
+            || !IsKnownContinuousEffectScope(scope)
+            || !IsKnownContinuousEffectLayer(layer)
+            || !IsContinuousEffectLayerScopeValid(scope, layer))
+        {
+            return;
+        }
+
+        if (string.Equals(layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            && string.Equals(scope, "GLOBAL", StringComparison.Ordinal))
+        {
+            if (sourceObjectId is not null)
+            {
+                errors.Add($"{effectLabel} global rule text source object id must be absent");
+            }
+
+            return;
+        }
+
+        if (string.Equals(layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+            && sourceObjectId is null)
+        {
+            errors.Add($"{effectLabel} static aura source object id is required");
+        }
     }
 
     private static void ValidateContinuousEffectLayerDurationConsistency(
