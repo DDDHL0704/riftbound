@@ -10272,6 +10272,7 @@ public static class MatchRecoveryValidator
             effectLabel,
             scope,
             layer,
+            sourceObjectId,
             requestedPowerDelta,
             appliedPowerDelta,
             minimumPower,
@@ -11110,6 +11111,7 @@ public static class MatchRecoveryValidator
         string effectLabel,
         string? scope,
         string? layer,
+        string? sourceObjectId,
         int? requestedPowerDelta,
         int? appliedPowerDelta,
         int? minimumPower,
@@ -11147,6 +11149,12 @@ public static class MatchRecoveryValidator
         if (!hasTrackedModifierScalar)
         {
             return;
+        }
+
+        if (sourceObjectId is null)
+        {
+            errors.Add(
+                $"{effectLabel} POWER_MODIFIER foundation source object id is required when tracked modifier scalars are present");
         }
 
         if (!requestedPowerDelta.HasValue)
