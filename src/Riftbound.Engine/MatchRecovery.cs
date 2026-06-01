@@ -10207,6 +10207,13 @@ public static class MatchRecoveryValidator
             layer,
             layerEngineStatus,
             errors);
+        ValidateContinuousEffectPowerModifierFoundationResidualCanonicality(
+            effectPayload,
+            effectLabel,
+            scope,
+            layer,
+            layerEngineStatus,
+            errors);
         var requestedPowerDelta = ValidateSnapshotPayloadOptionalIntValue(
             effectPayload,
             "requestedPowerDelta",
@@ -11596,6 +11603,50 @@ public static class MatchRecoveryValidator
 
         errors.Add(
             $"{effectLabel} resulting power {resultingPower.Value} is less than minimum power {minimumPower.Value}");
+    }
+
+    private static void ValidateContinuousEffectPowerModifierFoundationResidualCanonicality(
+        object? effectPayload,
+        string effectLabel,
+        string? scope,
+        string? layer,
+        string? layerEngineStatus,
+        List<string> errors)
+    {
+        if (scope is null
+            || layer is null
+            || !IsKnownContinuousEffectScope(scope)
+            || !IsKnownContinuousEffectLayer(layer)
+            || !string.Equals(layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+            || !IsContinuousEffectLayerScopeValid(scope, layer)
+            || !string.Equals(layerEngineStatus, "FOUNDATION_ONLY", StringComparison.Ordinal)
+            || !TryReadObjectStringList(effectPayload, "deferredLayerEngineResiduals", out var residuals)
+            || residuals.Count == 0)
+        {
+            return;
+        }
+
+        if (StringListsEqual(residuals, ContinuousEffectFoundationResiduals()))
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{effectLabel} POWER_MODIFIER foundation deferred LayerEngine residual list must match current foundation residual set");
+    }
+
+    private static IReadOnlyList<string> ContinuousEffectFoundationResiduals()
+    {
+        return
+        [
+            "timestamp ordering",
+            "dependency ordering",
+            "source ordering",
+            "keyword gain/loss layering",
+            "multiple equipment/static aura interactions",
+            "minimum-power layering",
+            "full official LayerEngine coverage"
+        ];
     }
 
     private static void ValidateContinuousEffectLayerEngineResidualConsistency(
