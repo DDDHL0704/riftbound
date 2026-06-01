@@ -10295,6 +10295,21 @@ public static class MatchRecoveryValidator
             appliedOrder,
             layerEngineStatus,
             errors);
+        ValidateContinuousEffectPowerModifierFoundationLegacyRemainderMetadataConsistency(
+            effectPayload,
+            effectLabel,
+            scope,
+            layer,
+            effectKind,
+            sourcePath,
+            sourceObjectId,
+            requestedPowerDelta,
+            appliedPowerDelta,
+            minimumPower,
+            resultingPower,
+            appliedOrder,
+            layerEngineStatus,
+            errors);
         ValidateContinuousEffectPowerModifierFoundationResultingPowerConsistency(
             effectPayload,
             effectLabel,
@@ -11293,6 +11308,67 @@ public static class MatchRecoveryValidator
         {
             errors.Add(
                 $"{effectLabel} POWER_MODIFIER foundation applied order is required {diagnosticReason}");
+        }
+    }
+
+    private static void ValidateContinuousEffectPowerModifierFoundationLegacyRemainderMetadataConsistency(
+        object? effectPayload,
+        string effectLabel,
+        string? scope,
+        string? layer,
+        string? effectKind,
+        string? sourcePath,
+        string? sourceObjectId,
+        int? requestedPowerDelta,
+        int? appliedPowerDelta,
+        int? minimumPower,
+        int? resultingPower,
+        int? appliedOrder,
+        string? layerEngineStatus,
+        List<string> errors)
+    {
+        if (scope is null
+            || layer is null
+            || !IsKnownContinuousEffectScope(scope)
+            || !IsKnownContinuousEffectLayer(layer)
+            || !string.Equals(layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+            || !IsContinuousEffectLayerScopeValid(scope, layer))
+        {
+            return;
+        }
+
+        var hasFoundationOnlyStatus = string.Equals(layerEngineStatus, "FOUNDATION_ONLY", StringComparison.Ordinal);
+        var hasReadableResiduals = TryReadObjectStringList(
+                effectPayload,
+                "deferredLayerEngineResiduals",
+                out var residuals)
+            && residuals.Count > 0;
+        var hasTrackedModifierScalar = requestedPowerDelta.HasValue
+            || appliedPowerDelta.HasValue
+            || minimumPower.HasValue
+            || resultingPower.HasValue
+            || appliedOrder.HasValue;
+        if ((!hasFoundationOnlyStatus && !hasReadableResiduals)
+            || sourceObjectId is not null
+            || hasTrackedModifierScalar)
+        {
+            return;
+        }
+
+        const string legacyEffectKind = "LEGACY_UNTRACKED_POWER_MODIFIER";
+        const string legacySourcePath = "MatchState.ContinuousEffects.LegacyRemainder";
+        if (effectKind is not null
+            && !string.Equals(effectKind, legacyEffectKind, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{effectLabel} POWER_MODIFIER foundation legacy remainder effect kind must be {legacyEffectKind} without source object id");
+        }
+
+        if (sourcePath is not null
+            && !string.Equals(sourcePath, legacySourcePath, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{effectLabel} POWER_MODIFIER foundation legacy remainder source path must be {legacySourcePath} without source object id");
         }
     }
 
