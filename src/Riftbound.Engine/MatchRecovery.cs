@@ -11183,10 +11183,14 @@ public static class MatchRecoveryValidator
             || minimumPower.HasValue
             || resultingPower.HasValue
             || appliedOrder.HasValue;
-        if (!hasTrackedModifierScalar)
+        if (!hasTrackedModifierScalar && sourceObjectId is null)
         {
             return;
         }
+
+        var diagnosticReason = hasTrackedModifierScalar
+            ? "when tracked modifier scalars are present"
+            : "when foundation source object id is present";
 
         if (sourceObjectId is null)
         {
@@ -11197,31 +11201,31 @@ public static class MatchRecoveryValidator
         if (!requestedPowerDelta.HasValue)
         {
             errors.Add(
-                $"{effectLabel} POWER_MODIFIER foundation requested power delta is required when tracked modifier scalars are present");
+                $"{effectLabel} POWER_MODIFIER foundation requested power delta is required {diagnosticReason}");
         }
 
         if (!appliedPowerDelta.HasValue)
         {
             errors.Add(
-                $"{effectLabel} POWER_MODIFIER foundation applied power delta is required when tracked modifier scalars are present");
+                $"{effectLabel} POWER_MODIFIER foundation applied power delta is required {diagnosticReason}");
         }
 
         if (!minimumPower.HasValue)
         {
             errors.Add(
-                $"{effectLabel} POWER_MODIFIER foundation minimum power is required when tracked modifier scalars are present");
+                $"{effectLabel} POWER_MODIFIER foundation minimum power is required {diagnosticReason}");
         }
 
         if (!resultingPower.HasValue)
         {
             errors.Add(
-                $"{effectLabel} POWER_MODIFIER foundation resulting power is required when tracked modifier scalars are present");
+                $"{effectLabel} POWER_MODIFIER foundation resulting power is required {diagnosticReason}");
         }
 
         if (!appliedOrder.HasValue)
         {
             errors.Add(
-                $"{effectLabel} POWER_MODIFIER foundation applied order is required when tracked modifier scalars are present");
+                $"{effectLabel} POWER_MODIFIER foundation applied order is required {diagnosticReason}");
         }
     }
 
