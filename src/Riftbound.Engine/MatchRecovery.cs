@@ -10449,8 +10449,29 @@ public static class MatchRecoveryValidator
             effectPayload,
             $"{effectLabel} static aura source order is required",
             errors);
-        ValidateContinuousEffectStaticAuraAppliedOrderAbsence(
+        ValidateContinuousEffectStaticAuraReadableIntAbsence(
             effectPayload,
+            "requestedPowerDelta",
+            $"{effectLabel} static aura requested power delta must be absent",
+            errors);
+        ValidateContinuousEffectStaticAuraReadableIntAbsence(
+            effectPayload,
+            "appliedPowerDelta",
+            $"{effectLabel} static aura applied power delta must be absent",
+            errors);
+        ValidateContinuousEffectStaticAuraReadableIntAbsence(
+            effectPayload,
+            "minimumPower",
+            $"{effectLabel} static aura minimum power must be absent",
+            errors);
+        ValidateContinuousEffectStaticAuraReadableIntAbsence(
+            effectPayload,
+            "resultingPower",
+            $"{effectLabel} static aura resulting power must be absent",
+            errors);
+        ValidateContinuousEffectStaticAuraReadableIntAbsence(
+            effectPayload,
+            "appliedOrder",
             $"{effectLabel} static aura applied order must be absent",
             errors);
         ValidateContinuousEffectStaticAuraDependencyListMembership(
@@ -10496,14 +10517,15 @@ public static class MatchRecoveryValidator
         }
     }
 
-    private static void ValidateContinuousEffectStaticAuraAppliedOrderAbsence(
+    private static void ValidateContinuousEffectStaticAuraReadableIntAbsence(
         object? effectPayload,
+        string key,
         string diagnostic,
         List<string> errors)
     {
-        if (!TryReadObjectValue(effectPayload, "appliedOrder", out var appliedOrderPayload)
-            || IsNullSnapshotPayloadValue(appliedOrderPayload)
-            || !TryReadIntValue(appliedOrderPayload, out _))
+        if (!TryReadObjectValue(effectPayload, key, out var valuePayload)
+            || IsNullSnapshotPayloadValue(valuePayload)
+            || !TryReadIntValue(valuePayload, out _))
         {
             return;
         }

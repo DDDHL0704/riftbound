@@ -2935,6 +2935,78 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingContinuousEffectStaticAuraModifierScalarConsistencyDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["continuousEffects"] = new object?[]
+        {
+            RawJson("""
+                {
+                    "effectId": "effect-static-aura-modifier-scalars",
+                    "scope": "OBJECT",
+                    "layer": "STATIC_AURA",
+                    "duration": "WHILE_SOURCE_ON_PUBLIC_FIELD",
+                    "targetObjectId": "target-static",
+                    "sourceObjectId": "source-static",
+                    "powerDelta": 1,
+                    "basePower": 3,
+                    "effectivePower": 4,
+                    "sequence": 1,
+                    "effectKind": "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER",
+                    "sourceCardNo": "SRC-001",
+                    "sourcePath": "CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute",
+                    "condition": "SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_PUBLIC_FIELD_EQUIPMENT_COUNT",
+                    "lifecycle": "RECOMPUTED_FROM_CURRENT_AUTHORITATIVE_FIELD_STATE",
+                    "layerEngineStatus": "FOUNDATION_ONLY",
+                    "sourceDependencyObjectIds": ["source-static"],
+                    "targetDependencyObjectIds": ["target-static"],
+                    "sourceOrder": 1,
+                    "requestedPowerDelta": 1,
+                    "appliedPowerDelta": 1,
+                    "minimumPower": 0,
+                    "resultingPower": 4,
+                    "deferredLayerEngineResiduals": ["residual-1"]
+                }
+                """)
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item static aura requested power delta must be absent",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item static aura applied power delta must be absent",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item static aura minimum power must be absent",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item static aura resulting power must be absent",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingContinuousEffectLayerDurationConsistencyDrift()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -29180,6 +29252,150 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing continuous effect item static aura applied order must be absent",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect count 2 does not match authoritative state continuous effect count 1",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingContinuousEffectStaticAuraModifierScalarConsistencyDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Base = ["source-1", "target-1"]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new("source-1", ownerId: "alice", controllerId: "alice"),
+                ["target-1"] = new(
+                    "target-1",
+                    power: 5,
+                    untilEndOfTurnPowerModifier: 2,
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    untilEndOfTurnPowerModifiers:
+                    [
+                        new PowerModifierLedgerEntry(
+                            "effect-1",
+                            "TEST_POWER_MODIFIER",
+                            "UNTIL_END_OF_TURN",
+                            "target-1",
+                            "source-1",
+                            "SRC-001",
+                            powerDelta: 2,
+                            basePower: 3,
+                            effectivePower: 5)
+                    ])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new("alice", "BASE"),
+                ["target-1"] = new("alice", "BASE")
+            });
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var continuousEffects = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["continuousEffects"])
+            .ToList();
+        Assert.Single(continuousEffects);
+        continuousEffects.Add(new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["effectId"] = "effect-static-aura-modifier-scalars",
+            ["scope"] = "OBJECT",
+            ["layer"] = "STATIC_AURA",
+            ["duration"] = "WHILE_SOURCE_ON_PUBLIC_FIELD",
+            ["targetObjectId"] = "target-static",
+            ["sourceObjectId"] = "source-static",
+            ["powerDelta"] = 1,
+            ["basePower"] = 3,
+            ["effectivePower"] = 4,
+            ["sequence"] = 2,
+            ["effectKind"] = "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER",
+            ["sourceCardNo"] = "SRC-001",
+            ["sourcePath"] = "CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute",
+            ["condition"] = "SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_PUBLIC_FIELD_EQUIPMENT_COUNT",
+            ["lifecycle"] = "RECOMPUTED_FROM_CURRENT_AUTHORITATIVE_FIELD_STATE",
+            ["layerEngineStatus"] = "FOUNDATION_ONLY",
+            ["sourceDependencyObjectIds"] = new[] { "source-static" },
+            ["targetDependencyObjectIds"] = new[] { "target-static" },
+            ["sourceOrder"] = 1,
+            ["requestedPowerDelta"] = 1,
+            ["appliedPowerDelta"] = 1,
+            ["minimumPower"] = 0,
+            ["resultingPower"] = 4,
+            ["deferredLayerEngineResiduals"] = new[] { "residual-1" }
+        });
+        timing["continuousEffects"] = continuousEffects.ToArray();
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect item static aura requested power delta must be absent",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect item static aura applied power delta must be absent",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect item static aura minimum power must be absent",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect item static aura resulting power must be absent",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
