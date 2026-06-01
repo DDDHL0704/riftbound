@@ -3651,6 +3651,8 @@ public static class MatchRecoveryValidator
         }
 
         var seenEffectIds = new HashSet<string>(StringComparer.Ordinal);
+        var seenSequences = new HashSet<int>();
+        var validSequences = new List<int>();
         foreach (var effectPayload in effectPayloads)
         {
             if (!IsSnapshotPlayerPayloadObject(effectPayload))
@@ -3658,14 +3660,69 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            var effectId = ValidateContinuousEffectScalarPayloadValues(
+            var effectValues = ValidateContinuousEffectScalarPayloadValues(
                 effectPayload,
                 $"snapshot for {view.PlayerId} timing continuous effect item",
                 errors);
-            if (effectId is not null && !seenEffectIds.Add(effectId))
+            if (effectValues.EffectId is not null && !seenEffectIds.Add(effectValues.EffectId))
             {
-                errors.Add($"snapshot for {view.PlayerId} timing continuous effect item effect id {effectId} is duplicated");
+                errors.Add(
+                    $"snapshot for {view.PlayerId} timing continuous effect item effect id {effectValues.EffectId} is duplicated");
             }
+
+            ValidateContinuousEffectSequenceValue(
+                $"snapshot for {view.PlayerId} timing continuous effect item",
+                effectValues.Sequence,
+                seenSequences,
+                validSequences,
+                errors);
+        }
+
+        ValidateContinuousEffectSequenceContinuity(
+            $"snapshot for {view.PlayerId} timing continuous effect item",
+            validSequences,
+            errors);
+    }
+
+    private static void ValidateContinuousEffectSequenceValue(
+        string effectLabel,
+        int? sequence,
+        HashSet<int> seenSequences,
+        List<int> validSequences,
+        List<string> errors)
+    {
+        if (!sequence.HasValue || sequence.Value <= 0)
+        {
+            return;
+        }
+
+        validSequences.Add(sequence.Value);
+        if (!seenSequences.Add(sequence.Value))
+        {
+            errors.Add($"{effectLabel} sequence {sequence.Value} is duplicated");
+        }
+    }
+
+    private static void ValidateContinuousEffectSequenceContinuity(
+        string effectLabel,
+        IReadOnlyList<int> validSequences,
+        List<string> errors)
+    {
+        if (validSequences.Count == 0)
+        {
+            return;
+        }
+
+        var expectedSequence = 1;
+        foreach (var sequence in validSequences.Distinct().OrderBy(sequence => sequence))
+        {
+            if (sequence != expectedSequence)
+            {
+                errors.Add($"{effectLabel} sequence values must be contiguous from 1");
+                return;
+            }
+
+            expectedSequence++;
         }
     }
 
@@ -9425,6 +9482,8 @@ public static class MatchRecoveryValidator
         }
 
         var seenEffectIds = new HashSet<string>(StringComparer.Ordinal);
+        var seenSequences = new HashSet<int>();
+        var validSequences = new List<int>();
         foreach (var spectatorEffect in spectatorEffects)
         {
             if (!IsSnapshotPlayerPayloadObject(spectatorEffect))
@@ -9437,12 +9496,25 @@ public static class MatchRecoveryValidator
                 spectatorEffect,
                 "spectator replay frame timing continuous effect item",
                 errors);
-            var effectIdValue = ValidateSpectatorContinuousEffectPayloadValues(spectatorEffect, errors);
-            if (effectIdValue is not null && !seenEffectIds.Add(effectIdValue))
+            var effectValues = ValidateSpectatorContinuousEffectPayloadValues(spectatorEffect, errors);
+            if (effectValues.EffectId is not null && !seenEffectIds.Add(effectValues.EffectId))
             {
-                errors.Add($"spectator replay frame timing continuous effect item effect id {effectIdValue} is duplicated");
+                errors.Add(
+                    $"spectator replay frame timing continuous effect item effect id {effectValues.EffectId} is duplicated");
             }
+
+            ValidateContinuousEffectSequenceValue(
+                "spectator replay frame timing continuous effect item",
+                effectValues.Sequence,
+                seenSequences,
+                validSequences,
+                errors);
         }
+
+        ValidateContinuousEffectSequenceContinuity(
+            "spectator replay frame timing continuous effect item",
+            validSequences,
+            errors);
 
         if (!validateAuthoritativeParity)
         {
@@ -9800,12 +9872,12 @@ public static class MatchRecoveryValidator
         }
     }
 
-    private static string? ValidateSpectatorContinuousEffectPayloadValues(
+    private static (string? EffectId, int? Sequence) ValidateSpectatorContinuousEffectPayloadValues(
         object? effectPayload,
         List<string> errors)
     {
         const string effectLabel = "spectator replay frame timing continuous effect item";
-        var effectId = ValidateContinuousEffectScalarPayloadValues(effectPayload, effectLabel, errors);
+        var effectValues = ValidateContinuousEffectScalarPayloadValues(effectPayload, effectLabel, errors);
         ValidateSpectatorRequiredStringListPayloadShape(
             effectPayload,
             effectLabel,
@@ -9866,10 +9938,10 @@ public static class MatchRecoveryValidator
             effectLabel,
             "deferred LayerEngine residual",
             errors);
-        return effectId;
+        return effectValues;
     }
 
-    private static string? ValidateContinuousEffectScalarPayloadValues(
+    private static (string? EffectId, int? Sequence) ValidateContinuousEffectScalarPayloadValues(
         object? effectPayload,
         string effectLabel,
         List<string> errors)
@@ -9930,7 +10002,7 @@ public static class MatchRecoveryValidator
             effectLabel,
             "effective power",
             errors);
-        ValidateSnapshotPayloadRequiredIntValue(
+        var sequence = ValidateSnapshotPayloadRequiredPositiveIntValue(
             effectPayload,
             "sequence",
             effectLabel,
@@ -10014,7 +10086,7 @@ public static class MatchRecoveryValidator
             effectLabel,
             "lifecycle",
             errors);
-        return effectId;
+        return (effectId, sequence);
     }
 
     private static void ValidateContinuousEffectLayerEngineResidualConsistency(

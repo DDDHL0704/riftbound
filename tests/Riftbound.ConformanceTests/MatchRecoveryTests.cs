@@ -2089,6 +2089,101 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingContinuousEffectSequenceCanonicalityDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["continuousEffects"] = new object?[]
+        {
+            RawJson("""
+                {
+                    "effectId": "effect-zero-sequence",
+                    "scope": "OBJECT",
+                    "layer": "POWER_MODIFIER",
+                    "duration": "UNTIL_END_OF_TURN",
+                    "targetObjectId": "target-1",
+                    "sourceObjectId": "source-1",
+                    "powerDelta": 1,
+                    "basePower": 3,
+                    "effectivePower": 4,
+                    "sequence": 0
+                }
+                """),
+            RawJson("""
+                {
+                    "effectId": "effect-duplicate-sequence-a",
+                    "scope": "OBJECT",
+                    "layer": "POWER_MODIFIER",
+                    "duration": "UNTIL_END_OF_TURN",
+                    "targetObjectId": "target-2",
+                    "sourceObjectId": "source-2",
+                    "powerDelta": 1,
+                    "basePower": 4,
+                    "effectivePower": 5,
+                    "sequence": 1
+                }
+                """),
+            RawJson("""
+                {
+                    "effectId": "effect-duplicate-sequence-b",
+                    "scope": "OBJECT",
+                    "layer": "POWER_MODIFIER",
+                    "duration": "UNTIL_END_OF_TURN",
+                    "targetObjectId": "target-3",
+                    "sourceObjectId": "source-3",
+                    "powerDelta": 1,
+                    "basePower": 5,
+                    "effectivePower": 6,
+                    "sequence": 1
+                }
+                """),
+            RawJson("""
+                {
+                    "effectId": "effect-gapped-sequence",
+                    "scope": "OBJECT",
+                    "layer": "POWER_MODIFIER",
+                    "duration": "UNTIL_END_OF_TURN",
+                    "targetObjectId": "target-4",
+                    "sourceObjectId": "source-4",
+                    "powerDelta": 1,
+                    "basePower": 6,
+                    "effectivePower": 7,
+                    "sequence": 3
+                }
+                """)
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item sequence 0 must be positive",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item sequence 1 is duplicated",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item sequence values must be contiguous from 1",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingContinuousEffectDuplicateIds()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -26024,6 +26119,130 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing continuous effect item deferred LayerEngine residuals require foundation-only layer engine status",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect count 2 does not match authoritative state continuous effect count 1",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingContinuousEffectSequenceCanonicalityDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Base = ["source-1", "target-1"]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new("source-1", ownerId: "alice", controllerId: "alice"),
+                ["target-1"] = new(
+                    "target-1",
+                    power: 5,
+                    untilEndOfTurnPowerModifier: 2,
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    untilEndOfTurnPowerModifiers:
+                    [
+                        new PowerModifierLedgerEntry(
+                            "effect-1",
+                            "TEST_POWER_MODIFIER",
+                            "UNTIL_END_OF_TURN",
+                            "target-1",
+                            "source-1",
+                            "SRC-001",
+                            powerDelta: 2,
+                            basePower: 3,
+                            effectivePower: 5)
+                    ])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new("alice", "BASE"),
+                ["target-1"] = new("alice", "BASE")
+            });
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var continuousEffects = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["continuousEffects"])
+            .ToList();
+        Assert.Single(continuousEffects);
+        var effect = Assert.IsType<Dictionary<string, object?>>(continuousEffects[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        effect["sequence"] = 0;
+        continuousEffects[0] = effect;
+        continuousEffects.Add(new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["effectId"] = "effect-extra",
+            ["scope"] = "OBJECT",
+            ["layer"] = "POWER_MODIFIER",
+            ["duration"] = "UNTIL_END_OF_TURN",
+            ["targetObjectId"] = "target-extra",
+            ["sourceObjectId"] = "source-extra",
+            ["powerDelta"] = 1,
+            ["basePower"] = 2,
+            ["effectivePower"] = 3,
+            ["sequence"] = 3
+        });
+        timing["continuousEffects"] = continuousEffects.ToArray();
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect item sequence 0 must be positive",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect item sequence values must be contiguous from 1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
