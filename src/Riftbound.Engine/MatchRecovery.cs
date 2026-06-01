@@ -6092,11 +6092,6 @@ public static class MatchRecoveryValidator
             return null;
         }
 
-        if (value.Length == 0)
-        {
-            return string.Empty;
-        }
-
         if (string.IsNullOrWhiteSpace(value))
         {
             errors.Add($"{payloadLabel} {itemLabel} is required");
