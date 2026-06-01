@@ -10255,6 +10255,7 @@ public static class MatchRecoveryValidator
             lifecycle,
             errors);
         ValidateContinuousEffectNonStaticAuraParticipantListAbsence(effectPayload, effectLabel, layer, errors);
+        ValidateContinuousEffectNonStaticAuraDependencyListAbsence(effectPayload, effectLabel, layer, errors);
         return (effectId, sequence);
     }
 
@@ -10447,6 +10448,31 @@ public static class MatchRecoveryValidator
             effectPayload,
             "participantDependencyObjectIds",
             $"{effectLabel} {layer} participant dependency object id list must be absent",
+            errors);
+    }
+
+    private static void ValidateContinuousEffectNonStaticAuraDependencyListAbsence(
+        object? effectPayload,
+        string effectLabel,
+        string? layer,
+        List<string> errors)
+    {
+        if (layer is null
+            || !IsKnownContinuousEffectLayer(layer)
+            || string.Equals(layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        ValidateContinuousEffectReadableStringListAbsence(
+            effectPayload,
+            "sourceDependencyObjectIds",
+            $"{effectLabel} {layer} source dependency object id list must be absent",
+            errors);
+        ValidateContinuousEffectReadableStringListAbsence(
+            effectPayload,
+            "targetDependencyObjectIds",
+            $"{effectLabel} {layer} target dependency object id list must be absent",
             errors);
     }
 
