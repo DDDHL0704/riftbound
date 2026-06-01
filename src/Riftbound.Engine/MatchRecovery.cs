@@ -14189,7 +14189,8 @@ public static class MatchRecoveryValidator
             "until end of turn effect",
             untilEndOfTurnEffects,
             errors,
-            rejectDuplicates: true);
+            rejectDuplicates: true,
+            rejectRedactionSentinel: true);
     }
 
     private static void ValidateAuthoritativeStateStackItemValues(
