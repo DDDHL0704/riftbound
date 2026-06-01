@@ -2848,6 +2848,10 @@ public static class MatchRecoveryValidator
             knownObjectIds,
             "objects",
             errors);
+        ValidateBattleParticipantControllerMembership(
+            battlePayload,
+            $"snapshot for {view.PlayerId} timing battle",
+            errors);
     }
 
     private static void ValidateSnapshotTimingBattleParticipantPayloadShapes(
@@ -18244,6 +18248,10 @@ public static class MatchRecoveryValidator
             knownObjectIds,
             "object registry",
             errors);
+        ValidateBattleParticipantControllerMembership(
+            battlePayload,
+            payloadLabel,
+            errors);
     }
 
     private static void ValidateSpectatorBattleParticipantListPayloadShapes(
@@ -18421,6 +18429,41 @@ public static class MatchRecoveryValidator
             knownObjectIds,
             knownObjectLabel,
             errors);
+    }
+
+    private static void ValidateBattleParticipantControllerMembership(
+        object? battlePayload,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (!TryBuildBattleParticipantObjectIdSet(battlePayload, out var participantObjectIds)
+            || !TryReadObjectStringDictionary(battlePayload, "participantControllerIds", out var participantControllerIds))
+        {
+            return;
+        }
+
+        var controllerObjectIds = participantControllerIds.Keys
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Select(objectId => objectId.Trim())
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (var controllerObjectId in controllerObjectIds)
+        {
+            if (!participantObjectIds.Contains(controllerObjectId))
+            {
+                errors.Add(
+                    $"{payloadLabel} participant controller object id {controllerObjectId} is not an enclosing battle participant");
+            }
+        }
+
+        foreach (var participantObjectId in participantObjectIds)
+        {
+            if (!controllerObjectIds.Contains(participantObjectId))
+            {
+                errors.Add(
+                    $"{payloadLabel} participant controller for participant object id {participantObjectId} is required");
+            }
+        }
     }
 
     private static void ValidateSpectatorBattleDamageAssignmentPayloadValues(
