@@ -10000,7 +10000,7 @@ public static class MatchRecoveryValidator
             effectLabel,
             "source object id",
             errors);
-        ValidateSnapshotPayloadRequiredIntValue(
+        var powerDelta = ValidateSnapshotPayloadRequiredIntValue(
             effectPayload,
             "powerDelta",
             effectLabel,
@@ -10060,12 +10060,13 @@ public static class MatchRecoveryValidator
             effectLabel,
             "requested power delta",
             errors);
-        ValidateSnapshotPayloadOptionalIntValue(
+        var appliedPowerDelta = ValidateSnapshotPayloadOptionalIntValue(
             effectPayload,
             "appliedPowerDelta",
             effectLabel,
             "applied power delta",
             errors);
+        ValidateContinuousEffectAppliedPowerDeltaConsistency(effectLabel, powerDelta, appliedPowerDelta, errors);
         var minimumPower = ValidateSnapshotPayloadOptionalNonNegativeIntValue(
             effectPayload,
             "minimumPower",
@@ -10104,6 +10105,23 @@ public static class MatchRecoveryValidator
             "lifecycle",
             errors);
         return (effectId, sequence);
+    }
+
+    private static void ValidateContinuousEffectAppliedPowerDeltaConsistency(
+        string effectLabel,
+        int? powerDelta,
+        int? appliedPowerDelta,
+        List<string> errors)
+    {
+        if (!powerDelta.HasValue
+            || !appliedPowerDelta.HasValue
+            || appliedPowerDelta.Value == powerDelta.Value)
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{effectLabel} applied power delta {appliedPowerDelta.Value} must match power delta {powerDelta.Value}");
     }
 
     private static void ValidateContinuousEffectPowerFloorConsistency(
