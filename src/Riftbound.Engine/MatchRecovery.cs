@@ -10160,6 +10160,12 @@ public static class MatchRecoveryValidator
             basePower,
             effectivePower,
             errors);
+        ValidateContinuousEffectPowerModifierPowerDeltaConsistency(
+            effectLabel,
+            scope,
+            layer,
+            powerDelta,
+            errors);
         var sequence = ValidateSnapshotPayloadRequiredPositiveIntValue(
             effectPayload,
             "sequence",
@@ -10929,6 +10935,28 @@ public static class MatchRecoveryValidator
         {
             errors.Add($"{effectLabel} global rule text effective power must be 0");
         }
+    }
+
+    private static void ValidateContinuousEffectPowerModifierPowerDeltaConsistency(
+        string effectLabel,
+        string? scope,
+        string? layer,
+        int? powerDelta,
+        List<string> errors)
+    {
+        if (scope is null
+            || layer is null
+            || !IsKnownContinuousEffectScope(scope)
+            || !IsKnownContinuousEffectLayer(layer)
+            || !string.Equals(layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+            || !IsContinuousEffectLayerScopeValid(scope, layer)
+            || !powerDelta.HasValue
+            || powerDelta.Value != 0)
+        {
+            return;
+        }
+
+        errors.Add($"{effectLabel} POWER_MODIFIER power delta must be nonzero");
     }
 
     private static void ValidateContinuousEffectRuleTextModifierScalarAbsence(
