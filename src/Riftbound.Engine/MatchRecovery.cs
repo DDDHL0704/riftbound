@@ -15495,6 +15495,10 @@ public static class MatchRecoveryValidator
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         if (knownObjectIds.Count == 0)
         {
+            ValidateAuthoritativeStateTriggerQueueSourceObjectReferences(
+                authoritativeState.TriggerQueue,
+                knownObjectIds,
+                errors);
             return;
         }
 
@@ -15548,20 +15552,10 @@ public static class MatchRecoveryValidator
                 errors);
         }
 
-        foreach (var trigger in authoritativeState.TriggerQueue
-            .OrderBy(item => item?.TriggerId ?? string.Empty, StringComparer.Ordinal))
-        {
-            if (trigger is null)
-            {
-                continue;
-            }
-
-            ValidateAuthoritativeStateOptionalObjectReference(
-                $"trigger queue item {trigger.TriggerId} source object",
-                trigger.SourceObjectId,
-                knownObjectIds,
-                errors);
-        }
+        ValidateAuthoritativeStateTriggerQueueSourceObjectReferences(
+            authoritativeState.TriggerQueue,
+            knownObjectIds,
+            errors);
 
         if (authoritativeState.PendingHandChoice is not null)
         {
@@ -15653,6 +15647,40 @@ public static class MatchRecoveryValidator
             ValidateAuthoritativeStateObjectReferenceList(
                 $"battle resolution {resolution.ResolutionId} destroyed object",
                 resolution.DestroyedObjectIds,
+                knownObjectIds,
+                errors);
+        }
+    }
+
+    private static void ValidateAuthoritativeStateTriggerQueueSourceObjectReferences(
+        IReadOnlyList<TriggerQueueItemState>? triggerQueue,
+        IReadOnlySet<string> knownObjectIds,
+        List<string> errors)
+    {
+        if (triggerQueue is null)
+        {
+            return;
+        }
+
+        foreach (var trigger in triggerQueue.OrderBy(item => item?.TriggerId ?? string.Empty, StringComparer.Ordinal))
+        {
+            if (trigger is null
+                || string.IsNullOrWhiteSpace(trigger.SourceObjectId))
+            {
+                continue;
+            }
+
+            var sourceObjectId = trigger.SourceObjectId.Trim();
+            if (string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
+                || (knownObjectIds.Count == 0
+                    && !string.Equals(sourceObjectId, trigger.SourceObjectId, StringComparison.Ordinal)))
+            {
+                continue;
+            }
+
+            ValidateAuthoritativeStateOptionalObjectReference(
+                $"trigger queue item {trigger.TriggerId} source object",
+                trigger.SourceObjectId,
                 knownObjectIds,
                 errors);
         }

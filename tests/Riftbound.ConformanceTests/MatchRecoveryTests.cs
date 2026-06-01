@@ -15443,6 +15443,46 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueSourceObjectWithEmptyObjectRegistry()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    "trigger-1",
+                    "alice",
+                    sourceObjectId: "source-1",
+                    effectKind: "LAST_BREATH",
+                    triggeredByEventKind: "OBJECT_DESTROYED")
+            ]);
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state trigger queue item trigger-1 source object source-1 is missing from object registry",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueRedactionSentinelDrift()
     {
         var authoritativeState = new MatchState(
