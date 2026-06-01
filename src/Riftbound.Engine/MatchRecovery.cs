@@ -10192,6 +10192,15 @@ public static class MatchRecoveryValidator
             duration,
             powerDelta,
             errors);
+        ValidateContinuousEffectStaticAuraBattlefieldPowerScalarConsistency(
+            effectLabel,
+            scope,
+            layer,
+            duration,
+            powerDelta,
+            basePower,
+            effectivePower,
+            errors);
         var sequence = ValidateSnapshotPayloadRequiredPositiveIntValue(
             effectPayload,
             "sequence",
@@ -11354,6 +11363,43 @@ public static class MatchRecoveryValidator
         {
             errors.Add($"{effectLabel} battlefield static aura power delta {powerDelta.Value} must be 1");
         }
+    }
+
+    private static void ValidateContinuousEffectStaticAuraBattlefieldPowerScalarConsistency(
+        string effectLabel,
+        string? scope,
+        string? layer,
+        string? duration,
+        int? powerDelta,
+        int? basePower,
+        int? effectivePower,
+        List<string> errors)
+    {
+        if (scope is null
+            || layer is null
+            || duration is null
+            || !powerDelta.HasValue
+            || !basePower.HasValue
+            || !effectivePower.HasValue
+            || !IsKnownContinuousEffectScope(scope)
+            || !IsKnownContinuousEffectLayer(layer)
+            || !IsKnownContinuousEffectDuration(duration)
+            || !string.Equals(layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+            || !string.Equals(scope, "BATTLEFIELD", StringComparison.Ordinal)
+            || !string.Equals(duration, "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", StringComparison.Ordinal)
+            || !IsContinuousEffectLayerScopeValid(scope, layer))
+        {
+            return;
+        }
+
+        var expectedEffectivePower = basePower.Value + powerDelta.Value;
+        if (effectivePower.Value == expectedEffectivePower)
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{effectLabel} battlefield static aura effective power {effectivePower.Value} must equal base power {basePower.Value} plus power delta {powerDelta.Value}");
     }
 
     private static void ValidateContinuousEffectRuleTextModifierScalarAbsence(
