@@ -10587,6 +10587,7 @@ public static class MatchRecoveryValidator
             layer,
             duration,
             effectKind,
+            sourceCardNo,
             sourcePath,
             condition,
             lifecycle,
@@ -10599,6 +10600,7 @@ public static class MatchRecoveryValidator
         string? layer,
         string? duration,
         string? effectKind,
+        string? sourceCardNo,
         string? sourcePath,
         string? condition,
         string? lifecycle,
@@ -10662,6 +10664,12 @@ public static class MatchRecoveryValidator
                 effectKind,
                 "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE",
                 "battlefield static aura effect kind",
+                errors);
+            ValidateContinuousEffectStaticAuraMetadataValue(
+                effectLabel,
+                sourceCardNo,
+                ContinuousEffectStaticAuraCards.BattlefieldAllUnitsPowerPlusOneCardNo,
+                "battlefield static aura source card no",
                 errors);
             ValidateContinuousEffectStaticAuraMetadataValue(
                 effectLabel,
