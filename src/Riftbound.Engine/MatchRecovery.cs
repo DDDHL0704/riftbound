@@ -9954,13 +9954,18 @@ public static class MatchRecoveryValidator
             effectLabel,
             "source path",
             errors);
-        ValidateSnapshotPayloadOptionalStringValue(
+        var layerEngineStatus = ValidateSnapshotPayloadOptionalStringValue(
             effectPayload,
             "layerEngineStatus",
             effectLabel,
             "layer engine status",
             errors,
             IsKnownContinuousEffectLayerEngineStatus);
+        ValidateContinuousEffectLayerEngineResidualConsistency(
+            effectPayload,
+            effectLabel,
+            layerEngineStatus,
+            errors);
         ValidateSnapshotPayloadOptionalIntValue(
             effectPayload,
             "requestedPowerDelta",
@@ -10010,6 +10015,42 @@ public static class MatchRecoveryValidator
             "lifecycle",
             errors);
         return effectId;
+    }
+
+    private static void ValidateContinuousEffectLayerEngineResidualConsistency(
+        object? effectPayload,
+        string effectLabel,
+        string? layerEngineStatus,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(effectPayload, "deferredLayerEngineResiduals", out var residualPayload)
+            || IsNullSnapshotPayloadValue(residualPayload))
+        {
+            if (string.Equals(layerEngineStatus, "FOUNDATION_ONLY", StringComparison.Ordinal))
+            {
+                errors.Add($"{effectLabel} deferred LayerEngine residual list is required");
+            }
+
+            return;
+        }
+
+        if (!TryReadStringListValue(residualPayload, out var residuals))
+        {
+            return;
+        }
+
+        if (residuals.Count == 0)
+        {
+            if (string.Equals(layerEngineStatus, "FOUNDATION_ONLY", StringComparison.Ordinal))
+            {
+                errors.Add($"{effectLabel} deferred LayerEngine residual list is required");
+            }
+        }
+
+        if (!string.Equals(layerEngineStatus, "FOUNDATION_ONLY", StringComparison.Ordinal))
+        {
+            errors.Add($"{effectLabel} deferred LayerEngine residuals require foundation-only layer engine status");
+        }
     }
 
     private static void ValidateSpectatorTriggerQueuePayloads(
