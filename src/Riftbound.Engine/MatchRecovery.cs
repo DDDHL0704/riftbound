@@ -15495,6 +15495,10 @@ public static class MatchRecoveryValidator
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         if (knownObjectIds.Count == 0)
         {
+            ValidateAuthoritativeStateStackItemObjectReferences(
+                authoritativeState.StackItems,
+                knownObjectIds,
+                errors);
             ValidateAuthoritativeStateTriggerQueueSourceObjectReferences(
                 authoritativeState.TriggerQueue,
                 knownObjectIds,
@@ -15532,25 +15536,10 @@ public static class MatchRecoveryValidator
                 errors);
         }
 
-        foreach (var stackItem in authoritativeState.StackItems
-            .OrderBy(item => item?.StackItemId ?? string.Empty, StringComparer.Ordinal))
-        {
-            if (stackItem is null)
-            {
-                continue;
-            }
-
-            ValidateAuthoritativeStateOptionalObjectReference(
-                $"stack item {stackItem.StackItemId} source object",
-                stackItem.SourceObjectId,
-                knownObjectIds,
-                errors);
-            ValidateAuthoritativeStateObjectReferenceList(
-                $"stack item {stackItem.StackItemId} target object",
-                stackItem.TargetObjectIds,
-                knownObjectIds,
-                errors);
-        }
+        ValidateAuthoritativeStateStackItemObjectReferences(
+            authoritativeState.StackItems,
+            knownObjectIds,
+            errors);
 
         ValidateAuthoritativeStateTriggerQueueSourceObjectReferences(
             authoritativeState.TriggerQueue,
@@ -15647,6 +15636,36 @@ public static class MatchRecoveryValidator
             ValidateAuthoritativeStateObjectReferenceList(
                 $"battle resolution {resolution.ResolutionId} destroyed object",
                 resolution.DestroyedObjectIds,
+                knownObjectIds,
+                errors);
+        }
+    }
+
+    private static void ValidateAuthoritativeStateStackItemObjectReferences(
+        IReadOnlyList<StackItemState>? stackItems,
+        IReadOnlySet<string> knownObjectIds,
+        List<string> errors)
+    {
+        if (stackItems is null)
+        {
+            return;
+        }
+
+        foreach (var stackItem in stackItems.OrderBy(item => item?.StackItemId ?? string.Empty, StringComparer.Ordinal))
+        {
+            if (stackItem is null)
+            {
+                continue;
+            }
+
+            ValidateAuthoritativeStateOptionalObjectReference(
+                $"stack item {stackItem.StackItemId} source object",
+                stackItem.SourceObjectId,
+                knownObjectIds,
+                errors);
+            ValidateAuthoritativeStateObjectReferenceList(
+                $"stack item {stackItem.StackItemId} target object",
+                stackItem.TargetObjectIds,
                 knownObjectIds,
                 errors);
         }

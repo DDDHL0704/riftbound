@@ -15245,6 +15245,51 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateStackItemObjectReferencesWithEmptyObjectRegistry()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            stackItems:
+            [
+                new StackItemState(
+                    "stack-1",
+                    controllerId: "alice",
+                    sourceObjectId: "source-1",
+                    effectKind: "SPELL",
+                    targetObjectIds: ["target-1"])
+            ]);
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state stack item stack-1 source object source-1 is missing from object registry",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state stack item stack-1 target object target-1 is missing from object registry",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAuthoritativeStateStackAndTriggerValueDrift()
     {
         var authoritativeState = new MatchState(
