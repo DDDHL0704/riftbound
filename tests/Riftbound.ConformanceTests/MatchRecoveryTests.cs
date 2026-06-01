@@ -4669,6 +4669,67 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingContinuousEffectStaticAuraObjectSourceTargetConsistencyDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["continuousEffects"] = new object?[]
+        {
+            RawJson("""
+                {
+                    "effectId": "effect-object-static-aura-source-target",
+                    "scope": "OBJECT",
+                    "layer": "STATIC_AURA",
+                    "duration": "WHILE_SOURCE_ON_PUBLIC_FIELD",
+                    "targetObjectId": "target-object",
+                    "sourceObjectId": "source-object",
+                    "powerDelta": 0,
+                    "basePower": 3,
+                    "effectivePower": 3,
+                    "sequence": 1,
+                    "effectKind": "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER",
+                    "sourceCardNo": "SRC-001",
+                    "sourcePath": "CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute",
+                    "condition": "SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_PUBLIC_FIELD_EQUIPMENT_COUNT",
+                    "lifecycle": "RECOMPUTED_FROM_CURRENT_AUTHORITATIVE_FIELD_STATE",
+                    "layerEngineStatus": "FOUNDATION_ONLY",
+                    "sourceDependencyObjectIds": ["source-object"],
+                    "targetDependencyObjectIds": ["target-object"],
+                    "sourceOrder": 1,
+                    "deferredLayerEngineResiduals": [
+                        "timestamp ordering",
+                        "dependency ordering",
+                        "source ordering",
+                        "keyword gain/loss layering",
+                        "multiple equipment/static aura interactions",
+                        "minimum-power layering",
+                        "full official LayerEngine coverage"
+                    ]
+                }
+                """)
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item object static aura target object id target-object must match source object id source-object",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingContinuousEffectStaticAuraPowerDeltaConsistencyDrift()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -34198,6 +34259,104 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing continuous effect item battlefield static aura source card no must be OGN·294/298",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect count 1 does not match authoritative state continuous effect count 0",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingContinuousEffectStaticAuraObjectSourceTargetConsistencyDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var continuousEffects = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["continuousEffects"])
+            .ToList();
+        Assert.Empty(continuousEffects);
+        continuousEffects.Add(new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["effectId"] = "effect-object-static-aura-source-target",
+            ["scope"] = "OBJECT",
+            ["layer"] = "STATIC_AURA",
+            ["duration"] = "WHILE_SOURCE_ON_PUBLIC_FIELD",
+            ["targetObjectId"] = "target-object",
+            ["sourceObjectId"] = "source-object",
+            ["powerDelta"] = 0,
+            ["basePower"] = 3,
+            ["effectivePower"] = 3,
+            ["sequence"] = 1,
+            ["effectKind"] = "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER",
+            ["sourceCardNo"] = "SRC-001",
+            ["sourcePath"] = "CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute",
+            ["condition"] = "SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_PUBLIC_FIELD_EQUIPMENT_COUNT",
+            ["lifecycle"] = "RECOMPUTED_FROM_CURRENT_AUTHORITATIVE_FIELD_STATE",
+            ["layerEngineStatus"] = "FOUNDATION_ONLY",
+            ["sourceDependencyObjectIds"] = new[] { "source-object" },
+            ["targetDependencyObjectIds"] = new[] { "target-object" },
+            ["sourceOrder"] = 1,
+            ["deferredLayerEngineResiduals"] = new[]
+            {
+                "timestamp ordering",
+                "dependency ordering",
+                "source ordering",
+                "keyword gain/loss layering",
+                "multiple equipment/static aura interactions",
+                "minimum-power layering",
+                "full official LayerEngine coverage"
+            }
+        });
+        timing["continuousEffects"] = continuousEffects.ToArray();
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect item object static aura target object id target-object must match source object id source-object",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

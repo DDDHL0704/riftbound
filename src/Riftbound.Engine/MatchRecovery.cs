@@ -10135,6 +10135,14 @@ public static class MatchRecoveryValidator
             "source object id",
             errors);
         ValidateContinuousEffectSourceObjectConsistency(effectLabel, scope, layer, sourceObjectId, errors);
+        ValidateContinuousEffectStaticAuraObjectSourceTargetConsistency(
+            effectLabel,
+            scope,
+            layer,
+            duration,
+            targetObjectId,
+            sourceObjectId,
+            errors);
         var powerDelta = ValidateSnapshotPayloadRequiredIntValue(
             effectPayload,
             "powerDelta",
@@ -10537,6 +10545,36 @@ public static class MatchRecoveryValidator
         {
             errors.Add($"{effectLabel} static aura source object id is required");
         }
+    }
+
+    private static void ValidateContinuousEffectStaticAuraObjectSourceTargetConsistency(
+        string effectLabel,
+        string? scope,
+        string? layer,
+        string? duration,
+        string? targetObjectId,
+        string? sourceObjectId,
+        List<string> errors)
+    {
+        if (scope is null
+            || layer is null
+            || duration is null
+            || targetObjectId is null
+            || sourceObjectId is null
+            || !IsKnownContinuousEffectScope(scope)
+            || !IsKnownContinuousEffectLayer(layer)
+            || !IsKnownContinuousEffectDuration(duration)
+            || !string.Equals(scope, "OBJECT", StringComparison.Ordinal)
+            || !string.Equals(layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+            || !string.Equals(duration, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal)
+            || !IsContinuousEffectLayerScopeValid(scope, layer)
+            || string.Equals(targetObjectId, sourceObjectId, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{effectLabel} object static aura target object id {targetObjectId} must match source object id {sourceObjectId}");
     }
 
     private static void ValidateContinuousEffectStaticAuraMetadataConsistency(
