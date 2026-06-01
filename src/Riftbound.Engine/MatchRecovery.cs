@@ -15840,6 +15840,11 @@ public static class MatchRecoveryValidator
                 cardObject.AttachedToObjectId,
                 knownObjectIds,
                 errors);
+            ValidateAuthoritativeStateCardObjectPowerModifierObjectReferences(
+                objectId,
+                cardObject.UntilEndOfTurnPowerModifiers,
+                knownObjectIds,
+                errors);
         }
 
         foreach (var (objectId, location) in authoritativeState.ObjectLocations
@@ -15987,6 +15992,44 @@ public static class MatchRecoveryValidator
             ValidateAuthoritativeStateObjectReferenceList(
                 $"stack item {stackItem.StackItemId} target object",
                 stackItem.TargetObjectIds,
+                knownObjectIds,
+                errors);
+        }
+    }
+
+    private static void ValidateAuthoritativeStateCardObjectPowerModifierObjectReferences(
+        string objectId,
+        IReadOnlyList<PowerModifierLedgerEntry>? powerModifiers,
+        IReadOnlySet<string> knownObjectIds,
+        List<string> errors)
+    {
+        if (powerModifiers is null)
+        {
+            return;
+        }
+
+        foreach (var modifier in powerModifiers.OrderBy(
+            entry => entry?.EffectId ?? string.Empty,
+            StringComparer.Ordinal))
+        {
+            if (modifier is null
+                || string.IsNullOrWhiteSpace(modifier.SourceObjectId))
+            {
+                continue;
+            }
+
+            var sourceObjectId = modifier.SourceObjectId.Trim();
+            if (string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var modifierLabel = string.IsNullOrWhiteSpace(modifier.EffectId)
+                ? "<unknown>"
+                : modifier.EffectId.Trim();
+            ValidateAuthoritativeStateOptionalObjectReference(
+                $"card object {objectId} power modifier {modifierLabel} source object",
+                modifier.SourceObjectId,
                 knownObjectIds,
                 errors);
         }
