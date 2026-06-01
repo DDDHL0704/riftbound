@@ -15081,6 +15081,58 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateDecklistRedactionSentinelDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob")
+        {
+            PlayerDecklists = new Dictionary<string, OfficialDecklist>(StringComparer.Ordinal)
+            {
+                ["alice"] = new(
+                    "HIDDEN",
+                    "HIDDEN",
+                    ["HIDDEN"],
+                    ["HIDDEN"],
+                    ["HIDDEN"])
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state decklist for alice legend card no must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state decklist for alice champion card no must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state decklist for alice main deck card must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state decklist for alice rune deck card must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state decklist for alice battlefield card must not be redacted", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAuthoritativeStatePlayerPointersOutsideSeats()
     {
         var authoritativeState = new MatchState(

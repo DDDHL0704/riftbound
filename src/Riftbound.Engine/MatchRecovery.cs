@@ -14824,6 +14824,7 @@ public static class MatchRecoveryValidator
             authoritativeState.PlayerDecklists,
             seatPlayerIds,
             errors);
+        ValidateAuthoritativeStateDecklistValues(authoritativeState.PlayerDecklists, errors);
         ValidateAuthoritativeStateMapKeys(
             "card object map key",
             authoritativeState.CardObjects,
@@ -14969,6 +14970,60 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"authoritative state {mapKeyName} {normalizedPlayerId} is duplicated");
             }
+        }
+    }
+
+    private static void ValidateAuthoritativeStateDecklistValues(
+        IReadOnlyDictionary<string, OfficialDecklist>? playerDecklists,
+        List<string> errors)
+    {
+        if (playerDecklists is null)
+        {
+            return;
+        }
+
+        foreach (var (playerId, decklist) in playerDecklists.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            var playerLabel = string.IsNullOrWhiteSpace(playerId) ? "<unknown>" : playerId.Trim();
+            if (decklist is null)
+            {
+                errors.Add($"authoritative state decklist for {playerLabel} is required");
+                continue;
+            }
+
+            var legendCardNo = ValidateAuthoritativeStateRequiredText(
+                $"decklist for {playerLabel} legend card no",
+                decklist.LegendCardNo,
+                errors);
+            RejectAuthoritativeStateRedactionSentinel(
+                $"decklist for {playerLabel} legend card no",
+                legendCardNo,
+                errors);
+
+            var championCardNo = ValidateAuthoritativeStateRequiredText(
+                $"decklist for {playerLabel} champion card no",
+                decklist.ChampionCardNo,
+                errors);
+            RejectAuthoritativeStateRedactionSentinel(
+                $"decklist for {playerLabel} champion card no",
+                championCardNo,
+                errors);
+
+            ValidateAuthoritativeStateStringListValues(
+                $"decklist for {playerLabel} main deck card",
+                decklist.MainDeck,
+                errors,
+                rejectRedactionSentinel: true);
+            ValidateAuthoritativeStateStringListValues(
+                $"decklist for {playerLabel} rune deck card",
+                decklist.RuneDeck,
+                errors,
+                rejectRedactionSentinel: true);
+            ValidateAuthoritativeStateStringListValues(
+                $"decklist for {playerLabel} battlefield card",
+                decklist.Battlefields,
+                errors,
+                rejectRedactionSentinel: true);
         }
     }
 
