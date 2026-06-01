@@ -10256,6 +10256,7 @@ public static class MatchRecoveryValidator
             errors);
         ValidateContinuousEffectNonStaticAuraParticipantListAbsence(effectPayload, effectLabel, layer, errors);
         ValidateContinuousEffectNonStaticAuraDependencyListAbsence(effectPayload, effectLabel, layer, errors);
+        ValidateContinuousEffectNonStaticAuraStaticMetadataAbsence(effectPayload, effectLabel, layer, errors);
         return (effectId, sequence);
     }
 
@@ -10476,6 +10477,31 @@ public static class MatchRecoveryValidator
             errors);
     }
 
+    private static void ValidateContinuousEffectNonStaticAuraStaticMetadataAbsence(
+        object? effectPayload,
+        string effectLabel,
+        string? layer,
+        List<string> errors)
+    {
+        if (layer is null
+            || !IsKnownContinuousEffectLayer(layer)
+            || string.Equals(layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        ValidateContinuousEffectReadableStringAbsence(
+            effectPayload,
+            "condition",
+            $"{effectLabel} {layer} condition must be absent",
+            errors);
+        ValidateContinuousEffectReadableStringAbsence(
+            effectPayload,
+            "lifecycle",
+            $"{effectLabel} {layer} lifecycle must be absent",
+            errors);
+    }
+
     private static void ValidateContinuousEffectReadableStringListAbsence(
         object? effectPayload,
         string key,
@@ -10484,6 +10510,21 @@ public static class MatchRecoveryValidator
     {
         if (!TryReadObjectStringList(effectPayload, key, out var values)
             || values.Count == 0)
+        {
+            return;
+        }
+
+        errors.Add(diagnostic);
+    }
+
+    private static void ValidateContinuousEffectReadableStringAbsence(
+        object? effectPayload,
+        string key,
+        string diagnostic,
+        List<string> errors)
+    {
+        if (!TryReadObjectString(effectPayload, key, out var value)
+            || string.IsNullOrWhiteSpace(value))
         {
             return;
         }
