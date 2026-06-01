@@ -14791,7 +14791,11 @@ public static class MatchRecoveryValidator
             authoritativeState.PlayerDecklists,
             seatPlayerIds,
             errors);
-        ValidateAuthoritativeStateMapKeys("card object map key", authoritativeState.CardObjects, errors);
+        ValidateAuthoritativeStateMapKeys(
+            "card object map key",
+            authoritativeState.CardObjects,
+            errors,
+            rejectRedactionSentinel: true);
         ValidateAuthoritativeStateMapKeys("object location map key", authoritativeState.ObjectLocations, errors);
         ValidateAuthoritativeStateCardObjectIdentities(authoritativeState.CardObjects, errors);
         ValidateAuthoritativeStateCardObjectValues(authoritativeState.CardObjects, errors);
@@ -14949,10 +14953,18 @@ public static class MatchRecoveryValidator
                 cardObject.OwnerId,
                 seatPlayerIds,
                 errors);
+            RejectAuthoritativeStateRedactionSentinel(
+                $"card object {objectId} owner player",
+                cardObject.OwnerId,
+                errors);
             ValidateAuthoritativeStateOptionalObjectPlayer(
                 $"card object {objectId} controller player",
                 cardObject.ControllerId,
                 seatPlayerIds,
+                errors);
+            RejectAuthoritativeStateRedactionSentinel(
+                $"card object {objectId} controller player",
+                cardObject.ControllerId,
                 errors);
         }
     }
@@ -14960,7 +14972,8 @@ public static class MatchRecoveryValidator
     private static void ValidateAuthoritativeStateMapKeys<TValue>(
         string mapKeyLabel,
         IReadOnlyDictionary<string, TValue>? values,
-        List<string> errors)
+        List<string> errors,
+        bool rejectRedactionSentinel = false)
     {
         if (values is null)
         {
@@ -14980,6 +14993,12 @@ public static class MatchRecoveryValidator
             if (!string.Equals(key, normalizedKey, StringComparison.Ordinal))
             {
                 errors.Add($"authoritative state {mapKeyLabel} {normalizedKey} has surrounding whitespace");
+            }
+
+            if (rejectRedactionSentinel
+                && string.Equals(normalizedKey, "HIDDEN", StringComparison.Ordinal))
+            {
+                errors.Add($"authoritative state {mapKeyLabel} must not be redacted");
             }
 
             if (!seenKeys.Add(normalizedKey))
@@ -15019,6 +15038,11 @@ public static class MatchRecoveryValidator
                     $"authoritative state card object {objectId} object id {normalizedCardObjectId} has surrounding whitespace");
             }
 
+            RejectAuthoritativeStateRedactionSentinel(
+                $"card object {objectId} object id",
+                normalizedCardObjectId,
+                errors);
+
             if (!string.Equals(normalizedMapObjectId, normalizedCardObjectId, StringComparison.Ordinal))
             {
                 errors.Add(
@@ -15043,13 +15067,21 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            ValidateAuthoritativeStateNullableTextValue(
+            var cardNo = ValidateAuthoritativeStateNullableTextValue(
                 $"card object {objectId} card no",
                 cardObject.CardNo,
                 errors);
-            ValidateAuthoritativeStateNullableTextValue(
+            RejectAuthoritativeStateRedactionSentinel(
+                $"card object {objectId} card no",
+                cardNo,
+                errors);
+            var attachedToObjectId = ValidateAuthoritativeStateNullableTextValue(
                 $"card object {objectId} attached object",
                 cardObject.AttachedToObjectId,
+                errors);
+            RejectAuthoritativeStateRedactionSentinel(
+                $"card object {objectId} attached object",
+                attachedToObjectId,
                 errors);
 
             if (cardObject.Damage < 0)
@@ -15066,12 +15098,14 @@ public static class MatchRecoveryValidator
                 $"card object {objectId} until end of turn effect",
                 cardObject.UntilEndOfTurnEffects,
                 errors,
-                rejectDuplicates: true);
+                rejectDuplicates: true,
+                rejectRedactionSentinel: true);
             ValidateAuthoritativeStateStringListValues(
                 $"card object {objectId} tag",
                 cardObject.Tags,
                 errors,
-                rejectDuplicates: true);
+                rejectDuplicates: true,
+                rejectRedactionSentinel: true);
             ValidateAuthoritativeStateCardObjectPowerModifierValues(
                 objectId,
                 cardObject.UntilEndOfTurnPowerModifiers,
