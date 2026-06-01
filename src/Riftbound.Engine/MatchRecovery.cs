@@ -10288,10 +10288,7 @@ public static class MatchRecoveryValidator
 
         if (residuals.Count == 0)
         {
-            if (string.Equals(layerEngineStatus, "FOUNDATION_ONLY", StringComparison.Ordinal))
-            {
-                errors.Add($"{effectLabel} deferred LayerEngine residual list is required");
-            }
+            errors.Add($"{effectLabel} deferred LayerEngine residual list is required");
         }
 
         if (!string.Equals(layerEngineStatus, "FOUNDATION_ONLY", StringComparison.Ordinal))
