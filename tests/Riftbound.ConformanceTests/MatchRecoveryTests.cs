@@ -6539,6 +6539,57 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingBattlefieldTaskKnownValueDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["battlefieldTasks"] = new object?[]
+        {
+            RawJson("""
+                {
+                    "taskId": "task-unknown-values",
+                    "kind": "UNKNOWN_TASK",
+                    "status": "PAUSED",
+                    "reason": "UNKNOWN_REASON",
+                    "battlefieldObjectId": "battlefield-a",
+                    "participantControllerIds": [],
+                    "participantObjectIds": [],
+                    "stackItemIds": []
+                }
+                """)
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield task item kind UNKNOWN_TASK is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield task item status PAUSED is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield task item reason UNKNOWN_REASON is invalid",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingBattlefieldTaskDerivedIdentityDrift()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -28862,6 +28913,93 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing battlefield task count 4 does not match authoritative state battlefield task count 0",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattlefieldTaskKnownValuesWithCountMismatch()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var battlefieldTasks = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["battlefieldTasks"])
+            .ToList();
+        Assert.Empty(battlefieldTasks);
+        battlefieldTasks.Add(new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["taskId"] = "task-unknown-values",
+            ["kind"] = "UNKNOWN_TASK",
+            ["status"] = "PAUSED",
+            ["reason"] = "UNKNOWN_REASON",
+            ["battlefieldObjectId"] = "battlefield-a",
+            ["participantControllerIds"] = Array.Empty<string>(),
+            ["participantObjectIds"] = Array.Empty<string>(),
+            ["stackItemIds"] = Array.Empty<string>()
+        });
+        timing["battlefieldTasks"] = battlefieldTasks.ToArray();
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield task item kind UNKNOWN_TASK is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield task item status PAUSED is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield task item reason UNKNOWN_REASON is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield task count 1 does not match authoritative state battlefield task count 0",
                 StringComparison.Ordinal));
     }
 

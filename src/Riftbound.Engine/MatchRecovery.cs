@@ -4044,19 +4044,22 @@ public static class MatchRecoveryValidator
                 "kind",
                 taskLabel,
                 "kind",
-                errors);
+                errors,
+                IsKnownBattlefieldTaskKind);
             ValidateSnapshotPayloadRequiredStringValue(
                 taskPayload,
                 "status",
                 taskLabel,
                 "status",
-                errors);
+                errors,
+                IsKnownBattlefieldTaskStatus);
             ValidateSnapshotPayloadRequiredStringValue(
                 taskPayload,
                 "reason",
                 taskLabel,
                 "reason",
-                errors);
+                errors,
+                IsKnownBattlefieldTaskReason);
             var battlefieldObjectId = ValidateSnapshotPayloadRequiredStringValue(
                 taskPayload,
                 "battlefieldObjectId",
@@ -4671,6 +4674,26 @@ public static class MatchRecoveryValidator
         return string.Equals(value, "CONTROLLED", StringComparison.Ordinal)
             || string.Equals(value, "UNCONTROLLED", StringComparison.Ordinal)
             || string.Equals(value, "CONTESTED", StringComparison.Ordinal);
+    }
+
+    private static bool IsKnownBattlefieldTaskKind(string value)
+    {
+        return string.Equals(value, "START_SPELL_DUEL", StringComparison.Ordinal)
+            || string.Equals(value, "START_BATTLE", StringComparison.Ordinal);
+    }
+
+    private static bool IsKnownBattlefieldTaskStatus(string value)
+    {
+        return string.Equals(value, "PENDING", StringComparison.Ordinal)
+            || string.Equals(value, "ACTIVE", StringComparison.Ordinal)
+            || string.Equals(value, "COMPLETED", StringComparison.Ordinal)
+            || string.Equals(value, "WAITING_FOR_SPELL_DUEL", StringComparison.Ordinal);
+    }
+
+    private static bool IsKnownBattlefieldTaskReason(string value)
+    {
+        return string.Equals(value, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal)
+            || string.Equals(value, "SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST", StringComparison.Ordinal);
     }
 
     private static bool IsKnownSeat(string value)
@@ -13901,19 +13924,22 @@ public static class MatchRecoveryValidator
             "kind",
             payloadLabel,
             "kind",
-            errors);
+            errors,
+            IsKnownBattlefieldTaskKind);
         ValidateSnapshotPayloadRequiredStringValue(
             spectatorBattlefieldTask,
             "status",
             payloadLabel,
             "status",
-            errors);
+            errors,
+            IsKnownBattlefieldTaskStatus);
         ValidateSnapshotPayloadRequiredStringValue(
             spectatorBattlefieldTask,
             "reason",
             payloadLabel,
             "reason",
-            errors);
+            errors,
+            IsKnownBattlefieldTaskReason);
         var battlefieldObjectId = ValidateSnapshotPayloadRequiredStringValue(
             spectatorBattlefieldTask,
             "battlefieldObjectId",
