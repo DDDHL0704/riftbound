@@ -4046,14 +4046,14 @@ public static class MatchRecoveryValidator
                 "kind",
                 errors,
                 IsKnownBattlefieldTaskKind);
-            ValidateSnapshotPayloadRequiredStringValue(
+            var status = ValidateSnapshotPayloadRequiredStringValue(
                 taskPayload,
                 "status",
                 taskLabel,
                 "status",
                 errors,
                 IsKnownBattlefieldTaskStatus);
-            ValidateSnapshotPayloadRequiredStringValue(
+            var reason = ValidateSnapshotPayloadRequiredStringValue(
                 taskPayload,
                 "reason",
                 taskLabel,
@@ -4111,6 +4111,7 @@ public static class MatchRecoveryValidator
                 battleId,
                 hasBattleIdPayload,
                 errors);
+            ValidateBattlefieldTaskKindConsistency(taskLabel, kind, status, reason, errors);
         }
     }
 
@@ -4188,6 +4189,49 @@ public static class MatchRecoveryValidator
             if (!string.Equals(battleId, expectedBattleId, StringComparison.Ordinal))
             {
                 errors.Add($"{taskLabel} battle id {battleId} does not match battlefield battle id {expectedBattleId}");
+            }
+        }
+    }
+
+    private static void ValidateBattlefieldTaskKindConsistency(
+        string taskLabel,
+        string? kind,
+        string? status,
+        string? reason,
+        List<string> errors)
+    {
+        if (kind is null)
+        {
+            return;
+        }
+
+        if (string.Equals(kind, "START_SPELL_DUEL", StringComparison.Ordinal))
+        {
+            if (reason is { Length: > 0 }
+                && !string.Equals(reason, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal))
+            {
+                errors.Add($"{taskLabel} reason {reason} does not match START_SPELL_DUEL reason BATTLEFIELD_CONTESTED");
+            }
+
+            if (string.Equals(status, "WAITING_FOR_SPELL_DUEL", StringComparison.Ordinal))
+            {
+                errors.Add($"{taskLabel} status WAITING_FOR_SPELL_DUEL is invalid for START_SPELL_DUEL");
+            }
+
+            return;
+        }
+
+        if (string.Equals(kind, "START_BATTLE", StringComparison.Ordinal))
+        {
+            if (reason is { Length: > 0 }
+                && !string.Equals(reason, "SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST", StringComparison.Ordinal))
+            {
+                errors.Add($"{taskLabel} reason {reason} does not match START_BATTLE reason SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST");
+            }
+
+            if (string.Equals(status, "COMPLETED", StringComparison.Ordinal))
+            {
+                errors.Add($"{taskLabel} status COMPLETED is invalid for START_BATTLE");
             }
         }
     }
@@ -13926,14 +13970,14 @@ public static class MatchRecoveryValidator
             "kind",
             errors,
             IsKnownBattlefieldTaskKind);
-        ValidateSnapshotPayloadRequiredStringValue(
+        var status = ValidateSnapshotPayloadRequiredStringValue(
             spectatorBattlefieldTask,
             "status",
             payloadLabel,
             "status",
             errors,
             IsKnownBattlefieldTaskStatus);
-        ValidateSnapshotPayloadRequiredStringValue(
+        var reason = ValidateSnapshotPayloadRequiredStringValue(
             spectatorBattlefieldTask,
             "reason",
             payloadLabel,
@@ -13991,6 +14035,7 @@ public static class MatchRecoveryValidator
             battleId,
             hasBattleIdPayload,
             errors);
+        ValidateBattlefieldTaskKindConsistency(payloadLabel, kind, status, reason, errors);
     }
 
     private static void ValidateSpectatorBattlefieldTaskPayloadListValues(
