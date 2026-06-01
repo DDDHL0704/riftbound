@@ -15940,6 +15940,75 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateTemporaryPaymentResourceRedactionSentinelDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            temporaryPaymentResources:
+            [
+                new TemporaryPaymentResourceState(
+                    "HIDDEN",
+                    "HIDDEN",
+                    "HIDDEN",
+                    "HIDDEN",
+                    "HIDDEN",
+                    generatedPower: 1,
+                    remainingPower: 1,
+                    allowedPaymentKinds: ["HIDDEN"],
+                    createdTick: 0)
+            ]);
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state temporary payment resource id must not be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state temporary payment resource HIDDEN owner player must not be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state temporary payment resource HIDDEN source object must not be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state temporary payment resource HIDDEN ability id must not be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state temporary payment resource HIDDEN payment window must not be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state temporary payment resource HIDDEN allowed payment kind must not be redacted",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAuthoritativeStatePendingPaymentValueDrift()
     {
         var authoritativeState = new MatchState(

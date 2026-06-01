@@ -13862,22 +13862,35 @@ public static class MatchRecoveryValidator
                 resource.ResourceId,
                 errors);
             var resourceLabel = resourceId ?? "<unknown>";
+            RejectAuthoritativeStateRedactionSentinel("temporary payment resource id", resourceId, errors);
             if (resourceId is not null && !seenResourceIds.Add(resourceId))
             {
                 errors.Add($"authoritative state temporary payment resource {resourceId} is duplicated");
             }
 
-            ValidateAuthoritativeStateOptionalTextValue(
+            var sourceObjectId = ValidateAuthoritativeStateOptionalTextValue(
                 $"temporary payment resource {resourceLabel} source object",
                 resource.SourceObjectId,
                 errors);
-            ValidateAuthoritativeStateOptionalTextValue(
+            RejectAuthoritativeStateRedactionSentinel(
+                $"temporary payment resource {resourceLabel} source object",
+                sourceObjectId,
+                errors);
+            var abilityId = ValidateAuthoritativeStateOptionalTextValue(
                 $"temporary payment resource {resourceLabel} ability id",
                 resource.AbilityId,
                 errors);
-            ValidateAuthoritativeStateOptionalTextValue(
+            RejectAuthoritativeStateRedactionSentinel(
+                $"temporary payment resource {resourceLabel} ability id",
+                abilityId,
+                errors);
+            var paymentWindow = ValidateAuthoritativeStateOptionalTextValue(
                 $"temporary payment resource {resourceLabel} payment window",
                 resource.PaymentWindow,
+                errors);
+            RejectAuthoritativeStateRedactionSentinel(
+                $"temporary payment resource {resourceLabel} payment window",
+                paymentWindow,
                 errors);
 
             if (resource.GeneratedPower < 0)
@@ -13990,6 +14003,11 @@ public static class MatchRecoveryValidator
                 errors.Add(
                     $"authoritative state temporary payment resource {resourceLabel} allowed payment kind {normalizedPaymentKind} has surrounding whitespace");
             }
+
+            RejectAuthoritativeStateRedactionSentinel(
+                $"temporary payment resource {resourceLabel} allowed payment kind",
+                normalizedPaymentKind,
+                errors);
 
             if (!seenPaymentKinds.Add(normalizedPaymentKind))
             {
@@ -15588,6 +15606,13 @@ public static class MatchRecoveryValidator
                 $"temporary payment resource {resource.ResourceId} owner player",
                 resource.OwnerPlayerId,
                 seatPlayerIds,
+                errors);
+            var resourceLabel = string.IsNullOrWhiteSpace(resource.ResourceId)
+                ? "<unknown>"
+                : resource.ResourceId.Trim();
+            RejectAuthoritativeStateRedactionSentinel(
+                $"temporary payment resource {resourceLabel} owner player",
+                resource.OwnerPlayerId,
                 errors);
         }
     }
