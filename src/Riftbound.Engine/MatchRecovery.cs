@@ -14064,9 +14064,19 @@ public static class MatchRecoveryValidator
                 trigger.TriggerId,
                 errors);
             var triggerLabel = triggerId ?? "<unknown>";
+            if (string.Equals(triggerId, "HIDDEN", StringComparison.Ordinal))
+            {
+                errors.Add("authoritative state trigger queue item id must not be redacted");
+            }
+
             if (triggerId is not null && !seenTriggerIds.Add(triggerId))
             {
                 errors.Add($"authoritative state trigger queue item {triggerId} is duplicated");
+            }
+
+            if (string.Equals(trigger.ControllerId, "HIDDEN", StringComparison.Ordinal))
+            {
+                errors.Add($"authoritative state trigger queue item {triggerLabel} controller player must not be redacted");
             }
 
             var effectKind = ValidateAuthoritativeStateRequiredText(
@@ -14078,10 +14088,15 @@ public static class MatchRecoveryValidator
                 errors.Add($"authoritative state trigger queue item {triggerLabel} effect kind must not be redacted");
             }
 
-            ValidateAuthoritativeStateRequiredText(
+            var triggeredEventKind = ValidateAuthoritativeStateRequiredText(
                 $"trigger queue item {triggerLabel} triggered event kind",
                 trigger.TriggeredByEventKind,
                 errors);
+            if (string.Equals(triggeredEventKind, "HIDDEN", StringComparison.Ordinal))
+            {
+                errors.Add($"authoritative state trigger queue item {triggerLabel} triggered event kind must not be redacted");
+            }
+
             var sourceObjectId = ValidateAuthoritativeStateOptionalTextValue(
                 $"trigger queue item {triggerLabel} source object",
                 trigger.SourceObjectId,
