@@ -10445,6 +10445,10 @@ public static class MatchRecoveryValidator
             "targetDependencyObjectIds",
             $"{effectLabel} static aura target dependency object id list is required",
             errors);
+        ValidateContinuousEffectStaticAuraParticipantObjectListPresence(
+            effectPayload,
+            effectLabel,
+            errors);
         ValidateContinuousEffectStaticAuraParticipantDependencyListPresence(
             effectPayload,
             effectLabel,
@@ -10557,6 +10561,25 @@ public static class MatchRecoveryValidator
         }
 
         errors.Add($"{diagnosticPrefix} {objectId}");
+    }
+
+    private static void ValidateContinuousEffectStaticAuraParticipantObjectListPresence(
+        object? effectPayload,
+        string effectLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectStringList(effectPayload, "participantDependencyObjectIds", out var participantDependencyObjectIds)
+            || participantDependencyObjectIds.Count == 0)
+        {
+            return;
+        }
+
+        if (!TryReadObjectValue(effectPayload, "participantObjectIds", out var participantObjectIdsPayload)
+            || IsNullSnapshotPayloadValue(participantObjectIdsPayload))
+        {
+            errors.Add(
+                $"{effectLabel} static aura participant object id list is required when participant dependency object id list is present");
+        }
     }
 
     private static void ValidateContinuousEffectStaticAuraParticipantDependencyListPresence(
