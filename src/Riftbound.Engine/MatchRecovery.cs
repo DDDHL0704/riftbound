@@ -3852,6 +3852,9 @@ public static class MatchRecoveryValidator
         var knownPlayerIds = view.Snapshot.Players is null
             ? null
             : BuildNormalizedPlayerIdSet(view.Snapshot.Players.Keys);
+        var knownObjectIds = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotKnownObjectIds(view.Snapshot);
         var seenTriggerIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var triggerPayload in triggerPayloads)
         {
@@ -3923,6 +3926,13 @@ public static class MatchRecoveryValidator
                 sourceObjectId,
                 sourceVisibility,
                 effectKind,
+                errors);
+            ValidateTriggerQueueVisibleSourceObjectMembership(
+                triggerLabel,
+                sourceObjectId,
+                sourceVisibility,
+                knownObjectIds,
+                "objects",
                 errors);
         }
     }
@@ -4479,6 +4489,35 @@ public static class MatchRecoveryValidator
             .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
             .Select(playerId => playerId.Trim())
             .ToHashSet(StringComparer.Ordinal);
+    }
+
+    private static IReadOnlySet<string> BuildSnapshotKnownObjectIds(SnapshotDto snapshot)
+    {
+        var knownObjectIds = new HashSet<string>(StringComparer.Ordinal);
+        if (snapshot.Players is null)
+        {
+            return knownObjectIds;
+        }
+
+        foreach (var playerPayload in snapshot.Players.Values)
+        {
+            if (!TryReadObjectValue(playerPayload, "objects", out var objectsPayload)
+                || !TryReadObjectDictionaryValue(objectsPayload, out var objectPayloads))
+            {
+                continue;
+            }
+
+            foreach (var (objectId, objectPayload) in objectPayloads)
+            {
+                AddKnownObjectId(knownObjectIds, objectId);
+                if (TryReadObjectString(objectPayload, "objectId", out var payloadObjectId))
+                {
+                    AddKnownObjectId(knownObjectIds, payloadObjectId);
+                }
+            }
+        }
+
+        return knownObjectIds;
     }
 
     private static void ValidateSnapshotTimingPlayerMembership(
@@ -12186,6 +12225,7 @@ public static class MatchRecoveryValidator
         }
 
         var seatPlayerIds = BuildNormalizedPlayerIdSet(authoritativeState.Seats.Keys);
+        var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         var seenTriggerIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var spectatorTrigger in spectatorTriggers)
         {
@@ -12199,7 +12239,12 @@ public static class MatchRecoveryValidator
                 spectatorTrigger,
                 "spectator replay frame timing trigger queue item",
                 errors);
-            ValidateSpectatorTriggerQueuePayloadValues(spectatorTrigger, seenTriggerIds, seatPlayerIds, errors);
+            ValidateSpectatorTriggerQueuePayloadValues(
+                spectatorTrigger,
+                seenTriggerIds,
+                seatPlayerIds,
+                knownObjectIds,
+                errors);
         }
 
         if (!validateAuthoritativeParity)
@@ -12302,6 +12347,7 @@ public static class MatchRecoveryValidator
         object? triggerPayload,
         HashSet<string> seenTriggerIds,
         IReadOnlySet<string> seatPlayerIds,
+        IReadOnlySet<string> knownObjectIds,
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing trigger queue item";
@@ -12366,6 +12412,13 @@ public static class MatchRecoveryValidator
             sourceObjectId,
             sourceVisibility,
             effectKind,
+            errors);
+        ValidateTriggerQueueVisibleSourceObjectMembership(
+            payloadLabel,
+            sourceObjectId,
+            sourceVisibility,
+            knownObjectIds,
+            "object registry",
             errors);
     }
 
@@ -12447,6 +12500,29 @@ public static class MatchRecoveryValidator
         if (!knownPlayerIds.Contains(controllerId))
         {
             errors.Add($"{payloadLabel} controller id {controllerId} is missing from {knownPlayerLabel}");
+        }
+    }
+
+    private static void ValidateTriggerQueueVisibleSourceObjectMembership(
+        string payloadLabel,
+        string? sourceObjectId,
+        string? sourceVisibility,
+        IReadOnlySet<string>? knownObjectIds,
+        string knownObjectLabel,
+        List<string> errors)
+    {
+        if (!string.Equals(sourceVisibility, "VISIBLE", StringComparison.Ordinal)
+            || sourceObjectId is null
+            || knownObjectIds is null
+            || knownObjectIds.Count == 0
+            || string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        if (!knownObjectIds.Contains(sourceObjectId))
+        {
+            errors.Add($"{payloadLabel} visible source object id {sourceObjectId} is missing from {knownObjectLabel}");
         }
     }
 
