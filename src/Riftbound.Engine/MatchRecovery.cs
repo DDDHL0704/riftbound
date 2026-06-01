@@ -10201,7 +10201,7 @@ public static class MatchRecoveryValidator
             layer,
             layerEngineStatus,
             errors);
-        ValidateSnapshotPayloadOptionalIntValue(
+        var requestedPowerDelta = ValidateSnapshotPayloadOptionalIntValue(
             effectPayload,
             "requestedPowerDelta",
             effectLabel,
@@ -10227,17 +10227,28 @@ public static class MatchRecoveryValidator
             "resulting power",
             errors);
         ValidateContinuousEffectPowerFloorConsistency(effectLabel, minimumPower, resultingPower, errors);
-        ValidateSnapshotPayloadOptionalPositiveIntValue(
+        var appliedOrder = ValidateSnapshotPayloadOptionalPositiveIntValue(
             effectPayload,
             "appliedOrder",
             effectLabel,
             "applied order",
             errors);
-        ValidateSnapshotPayloadOptionalPositiveIntValue(
+        var sourceOrder = ValidateSnapshotPayloadOptionalPositiveIntValue(
             effectPayload,
             "sourceOrder",
             effectLabel,
             "source order",
+            errors);
+        ValidateContinuousEffectRuleTextModifierScalarAbsence(
+            effectLabel,
+            scope,
+            layer,
+            requestedPowerDelta,
+            appliedPowerDelta,
+            minimumPower,
+            resultingPower,
+            appliedOrder,
+            sourceOrder,
             errors);
         var condition = ValidateSnapshotPayloadOptionalStringValue(
             effectPayload,
@@ -10848,6 +10859,59 @@ public static class MatchRecoveryValidator
         if (effectivePower.HasValue && effectivePower.Value != 0)
         {
             errors.Add($"{effectLabel} global rule text effective power must be 0");
+        }
+    }
+
+    private static void ValidateContinuousEffectRuleTextModifierScalarAbsence(
+        string effectLabel,
+        string? scope,
+        string? layer,
+        int? requestedPowerDelta,
+        int? appliedPowerDelta,
+        int? minimumPower,
+        int? resultingPower,
+        int? appliedOrder,
+        int? sourceOrder,
+        List<string> errors)
+    {
+        if (scope is null
+            || layer is null
+            || !IsKnownContinuousEffectScope(scope)
+            || !IsKnownContinuousEffectLayer(layer)
+            || !string.Equals(layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            || !IsContinuousEffectLayerScopeValid(scope, layer))
+        {
+            return;
+        }
+
+        if (requestedPowerDelta.HasValue)
+        {
+            errors.Add($"{effectLabel} RULE_TEXT requested power delta must be absent");
+        }
+
+        if (appliedPowerDelta.HasValue)
+        {
+            errors.Add($"{effectLabel} RULE_TEXT applied power delta must be absent");
+        }
+
+        if (minimumPower.HasValue)
+        {
+            errors.Add($"{effectLabel} RULE_TEXT minimum power must be absent");
+        }
+
+        if (resultingPower.HasValue)
+        {
+            errors.Add($"{effectLabel} RULE_TEXT resulting power must be absent");
+        }
+
+        if (appliedOrder.HasValue)
+        {
+            errors.Add($"{effectLabel} RULE_TEXT applied order must be absent");
+        }
+
+        if (sourceOrder.HasValue)
+        {
+            errors.Add($"{effectLabel} RULE_TEXT source order must be absent");
         }
     }
 
