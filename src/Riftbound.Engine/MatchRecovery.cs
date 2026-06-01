@@ -10260,6 +10260,13 @@ public static class MatchRecoveryValidator
             sourcePath,
             layerEngineStatus,
             errors);
+        ValidateContinuousEffectPowerModifierFoundationMetadataConsistency(
+            effectPayload,
+            effectLabel,
+            scope,
+            layer,
+            layerEngineStatus,
+            errors);
         ValidateContinuousEffectPowerModifierSourceOrderConsistency(
             effectLabel,
             scope,
@@ -10953,6 +10960,60 @@ public static class MatchRecoveryValidator
         }
 
         errors.Add($"{effectLabel} POWER_MODIFIER source order must be absent without source object id");
+    }
+
+    private static void ValidateContinuousEffectPowerModifierFoundationMetadataConsistency(
+        object? effectPayload,
+        string effectLabel,
+        string? scope,
+        string? layer,
+        string? layerEngineStatus,
+        List<string> errors)
+    {
+        if (scope is null
+            || layer is null
+            || !IsKnownContinuousEffectScope(scope)
+            || !IsKnownContinuousEffectLayer(layer)
+            || !string.Equals(layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+            || !IsContinuousEffectLayerScopeValid(scope, layer))
+        {
+            return;
+        }
+
+        var hasFoundationOnlyStatus = string.Equals(layerEngineStatus, "FOUNDATION_ONLY", StringComparison.Ordinal);
+        var hasReadableResiduals = TryReadObjectStringList(
+                effectPayload,
+                "deferredLayerEngineResiduals",
+                out var residuals)
+            && residuals.Count > 0;
+        if (!hasFoundationOnlyStatus && !hasReadableResiduals)
+        {
+            return;
+        }
+
+        ValidateContinuousEffectRequiredMetadataPresence(
+            effectPayload,
+            "effectKind",
+            $"{effectLabel} POWER_MODIFIER foundation effect kind is required",
+            errors);
+        ValidateContinuousEffectRequiredMetadataPresence(
+            effectPayload,
+            "sourcePath",
+            $"{effectLabel} POWER_MODIFIER foundation source path is required",
+            errors);
+    }
+
+    private static void ValidateContinuousEffectRequiredMetadataPresence(
+        object? effectPayload,
+        string key,
+        string diagnostic,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(effectPayload, key, out var valuePayload)
+            || IsNullSnapshotPayloadValue(valuePayload))
+        {
+            errors.Add(diagnostic);
+        }
     }
 
     private static void ValidateContinuousEffectRuleTextRuntimeMetadataAbsence(
