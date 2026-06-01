@@ -10120,6 +10120,7 @@ public static class MatchRecoveryValidator
             errors,
             IsKnownContinuousEffectDuration);
         ValidateContinuousEffectLayerDurationConsistency(effectLabel, layer, duration, errors);
+        ValidateContinuousEffectStaticAuraScopeDurationConsistency(effectLabel, scope, layer, duration, errors);
         var targetObjectId = ValidateSnapshotPayloadRequiredNullableStringValue(
             effectPayload,
             "targetObjectId",
@@ -10942,6 +10943,39 @@ public static class MatchRecoveryValidator
         if (!string.Equals(duration, "UNTIL_END_OF_TURN", StringComparison.Ordinal))
         {
             errors.Add($"{effectLabel} {layer} duration {duration} is invalid");
+        }
+    }
+
+    private static void ValidateContinuousEffectStaticAuraScopeDurationConsistency(
+        string effectLabel,
+        string? scope,
+        string? layer,
+        string? duration,
+        List<string> errors)
+    {
+        if (scope is null
+            || layer is null
+            || duration is null
+            || !IsKnownContinuousEffectScope(scope)
+            || !IsKnownContinuousEffectLayer(layer)
+            || !IsKnownContinuousEffectDuration(duration)
+            || !string.Equals(layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+            || !IsContinuousEffectLayerScopeValid(scope, layer))
+        {
+            return;
+        }
+
+        if (string.Equals(scope, "OBJECT", StringComparison.Ordinal)
+            && !string.Equals(duration, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal))
+        {
+            errors.Add($"{effectLabel} object static aura duration {duration} is invalid");
+            return;
+        }
+
+        if (string.Equals(scope, "BATTLEFIELD", StringComparison.Ordinal)
+            && !string.Equals(duration, "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", StringComparison.Ordinal))
+        {
+            errors.Add($"{effectLabel} battlefield static aura duration {duration} is invalid");
         }
     }
 
