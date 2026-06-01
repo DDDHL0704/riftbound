@@ -10267,6 +10267,16 @@ public static class MatchRecoveryValidator
             layer,
             layerEngineStatus,
             errors);
+        ValidateContinuousEffectPowerModifierNonFoundationMetadataAbsence(
+            effectPayload,
+            effectLabel,
+            scope,
+            layer,
+            effectKind,
+            sourceCardNo,
+            sourcePath,
+            layerEngineStatus,
+            errors);
         ValidateContinuousEffectPowerModifierSourceOrderConsistency(
             effectLabel,
             scope,
@@ -11013,6 +11023,54 @@ public static class MatchRecoveryValidator
             || IsNullSnapshotPayloadValue(valuePayload))
         {
             errors.Add(diagnostic);
+        }
+    }
+
+    private static void ValidateContinuousEffectPowerModifierNonFoundationMetadataAbsence(
+        object? effectPayload,
+        string effectLabel,
+        string? scope,
+        string? layer,
+        string? effectKind,
+        string? sourceCardNo,
+        string? sourcePath,
+        string? layerEngineStatus,
+        List<string> errors)
+    {
+        if (scope is null
+            || layer is null
+            || !IsKnownContinuousEffectScope(scope)
+            || !IsKnownContinuousEffectLayer(layer)
+            || !string.Equals(layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+            || !IsContinuousEffectLayerScopeValid(scope, layer))
+        {
+            return;
+        }
+
+        var hasFoundationOnlyStatus = string.Equals(layerEngineStatus, "FOUNDATION_ONLY", StringComparison.Ordinal);
+        var hasReadableResiduals = TryReadObjectStringList(
+                effectPayload,
+                "deferredLayerEngineResiduals",
+                out var residuals)
+            && residuals.Count > 0;
+        if (hasFoundationOnlyStatus || hasReadableResiduals)
+        {
+            return;
+        }
+
+        if (effectKind is not null)
+        {
+            errors.Add($"{effectLabel} POWER_MODIFIER effect kind must be absent without foundation metadata");
+        }
+
+        if (sourceCardNo is not null)
+        {
+            errors.Add($"{effectLabel} POWER_MODIFIER source card no must be absent without foundation metadata");
+        }
+
+        if (sourcePath is not null)
+        {
+            errors.Add($"{effectLabel} POWER_MODIFIER source path must be absent without foundation metadata");
         }
     }
 
