@@ -6063,6 +6063,55 @@ public static class MatchRecoveryValidator
         return normalizedValue;
     }
 
+    private static string? ValidateSnapshotPayloadRequiredNullableStringValue(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(payload, key, out var rawValue))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} field is required");
+            return null;
+        }
+
+        if (IsNullSnapshotPayloadValue(rawValue))
+        {
+            return null;
+        }
+
+        if (!TryReadStringValue(rawValue, out var value))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} is invalid");
+            return null;
+        }
+
+        if (value is null)
+        {
+            return null;
+        }
+
+        if (value.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} is required");
+            return null;
+        }
+
+        var normalizedValue = value.Trim();
+        if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
+        {
+            errors.Add($"{payloadLabel} {itemLabel} {normalizedValue} has surrounding whitespace");
+        }
+
+        return normalizedValue;
+    }
+
     private static int? ValidateSnapshotPayloadOptionalIntValue(
         object? payload,
         string key,
@@ -10054,13 +10103,13 @@ public static class MatchRecoveryValidator
             effectLabel,
             "duration",
             errors);
-        ValidateSnapshotPayloadOptionalStringValue(
+        ValidateSnapshotPayloadRequiredNullableStringValue(
             effectPayload,
             "targetObjectId",
             effectLabel,
             "target object id",
             errors);
-        ValidateSnapshotPayloadOptionalStringValue(
+        ValidateSnapshotPayloadRequiredNullableStringValue(
             effectPayload,
             "sourceObjectId",
             effectLabel,
