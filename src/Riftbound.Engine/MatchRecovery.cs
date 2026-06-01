@@ -10250,6 +10250,13 @@ public static class MatchRecoveryValidator
             appliedOrder,
             sourceOrder,
             errors);
+        ValidateContinuousEffectPowerModifierSourceOrderConsistency(
+            effectLabel,
+            scope,
+            layer,
+            sourceObjectId,
+            sourceOrder,
+            errors);
         var condition = ValidateSnapshotPayloadOptionalStringValue(
             effectPayload,
             "condition",
@@ -10913,6 +10920,29 @@ public static class MatchRecoveryValidator
         {
             errors.Add($"{effectLabel} RULE_TEXT source order must be absent");
         }
+    }
+
+    private static void ValidateContinuousEffectPowerModifierSourceOrderConsistency(
+        string effectLabel,
+        string? scope,
+        string? layer,
+        string? sourceObjectId,
+        int? sourceOrder,
+        List<string> errors)
+    {
+        if (scope is null
+            || layer is null
+            || !IsKnownContinuousEffectScope(scope)
+            || !IsKnownContinuousEffectLayer(layer)
+            || !string.Equals(layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+            || !IsContinuousEffectLayerScopeValid(scope, layer)
+            || !sourceOrder.HasValue
+            || sourceObjectId is not null)
+        {
+            return;
+        }
+
+        errors.Add($"{effectLabel} POWER_MODIFIER source order must be absent without source object id");
     }
 
     private static void ValidateContinuousEffectAppliedPowerDeltaConsistency(
