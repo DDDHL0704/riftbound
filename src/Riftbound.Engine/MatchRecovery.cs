@@ -14077,10 +14077,14 @@ public static class MatchRecoveryValidator
                 $"trigger queue item {triggerLabel} triggered event kind",
                 trigger.TriggeredByEventKind,
                 errors);
-            ValidateAuthoritativeStateOptionalTextValue(
+            var sourceObjectId = ValidateAuthoritativeStateOptionalTextValue(
                 $"trigger queue item {triggerLabel} source object",
                 trigger.SourceObjectId,
                 errors);
+            if (sourceObjectId is not null && sourceObjectId.Length == 0)
+            {
+                errors.Add($"authoritative state trigger queue item {triggerLabel} source object is required");
+            }
         }
     }
 
