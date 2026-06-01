@@ -3657,6 +3657,9 @@ public static class MatchRecoveryValidator
         var seenEffectIds = new HashSet<string>(StringComparer.Ordinal);
         var seenSequences = new HashSet<int>();
         var validSequences = new List<int>();
+        var knownObjectIds = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotKnownObjectIds(view.Snapshot);
         foreach (var effectPayload in effectPayloads)
         {
             if (!IsSnapshotPlayerPayloadObject(effectPayload))
@@ -3679,6 +3682,12 @@ public static class MatchRecoveryValidator
                 effectValues.Sequence,
                 seenSequences,
                 validSequences,
+                errors);
+            ValidateContinuousEffectObjectReferences(
+                effectPayload,
+                $"snapshot for {view.PlayerId} timing continuous effect item",
+                knownObjectIds,
+                "objects",
                 errors);
         }
 
@@ -9667,6 +9676,7 @@ public static class MatchRecoveryValidator
         var seenEffectIds = new HashSet<string>(StringComparer.Ordinal);
         var seenSequences = new HashSet<int>();
         var validSequences = new List<int>();
+        var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         foreach (var spectatorEffect in spectatorEffects)
         {
             if (!IsSnapshotPlayerPayloadObject(spectatorEffect))
@@ -9679,7 +9689,10 @@ public static class MatchRecoveryValidator
                 spectatorEffect,
                 "spectator replay frame timing continuous effect item",
                 errors);
-            var effectValues = ValidateSpectatorContinuousEffectPayloadValues(spectatorEffect, errors);
+            var effectValues = ValidateSpectatorContinuousEffectPayloadValues(
+                spectatorEffect,
+                knownObjectIds,
+                errors);
             if (effectValues.EffectId is not null && !seenEffectIds.Add(effectValues.EffectId))
             {
                 errors.Add(
@@ -10057,6 +10070,7 @@ public static class MatchRecoveryValidator
 
     private static (string? EffectId, int? Sequence) ValidateSpectatorContinuousEffectPayloadValues(
         object? effectPayload,
+        IReadOnlySet<string> knownObjectIds,
         List<string> errors)
     {
         const string effectLabel = "spectator replay frame timing continuous effect item";
@@ -10146,7 +10160,136 @@ public static class MatchRecoveryValidator
             "deferred LayerEngine residual",
             errors);
         ValidateContinuousEffectStaticAuraDependencyListConsistency(effectPayload, effectLabel, errors);
+        ValidateContinuousEffectObjectReferences(
+            effectPayload,
+            effectLabel,
+            knownObjectIds,
+            "object registry",
+            errors);
         return effectValues;
+    }
+
+    private static void ValidateContinuousEffectObjectReferences(
+        object? effectPayload,
+        string effectLabel,
+        IReadOnlySet<string>? knownObjectIds,
+        string knownObjectLabel,
+        List<string> errors)
+    {
+        if (knownObjectIds is null)
+        {
+            return;
+        }
+
+        ValidateContinuousEffectOptionalObjectReference(
+            effectPayload,
+            "targetObjectId",
+            $"{effectLabel} target object id",
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+        ValidateContinuousEffectOptionalObjectReference(
+            effectPayload,
+            "sourceObjectId",
+            $"{effectLabel} source object id",
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+        ValidateContinuousEffectObjectReferenceList(
+            effectPayload,
+            "participantObjectIds",
+            $"{effectLabel} participant object id",
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+        ValidateContinuousEffectObjectReferenceList(
+            effectPayload,
+            "sourceDependencyObjectIds",
+            $"{effectLabel} source dependency object id",
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+        ValidateContinuousEffectObjectReferenceList(
+            effectPayload,
+            "targetDependencyObjectIds",
+            $"{effectLabel} target dependency object id",
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+        ValidateContinuousEffectObjectReferenceList(
+            effectPayload,
+            "participantDependencyObjectIds",
+            $"{effectLabel} participant dependency object id",
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+    }
+
+    private static void ValidateContinuousEffectOptionalObjectReference(
+        object? effectPayload,
+        string payloadKey,
+        string objectLabel,
+        IReadOnlySet<string> knownObjectIds,
+        string knownObjectLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(effectPayload, payloadKey, out var objectIdPayload)
+            || IsNullSnapshotPayloadValue(objectIdPayload)
+            || !TryReadOptionalStringValue(objectIdPayload, out var objectId)
+            || string.IsNullOrWhiteSpace(objectId))
+        {
+            return;
+        }
+
+        ValidateContinuousEffectObjectReference(
+            objectLabel,
+            objectId,
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+    }
+
+    private static void ValidateContinuousEffectObjectReferenceList(
+        object? effectPayload,
+        string payloadKey,
+        string objectLabel,
+        IReadOnlySet<string> knownObjectIds,
+        string knownObjectLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectStringList(effectPayload, payloadKey, out var objectIds))
+        {
+            return;
+        }
+
+        foreach (var objectId in objectIds)
+        {
+            ValidateContinuousEffectObjectReference(
+                objectLabel,
+                objectId,
+                knownObjectIds,
+                knownObjectLabel,
+                errors);
+        }
+    }
+
+    private static void ValidateContinuousEffectObjectReference(
+        string objectLabel,
+        string objectId,
+        IReadOnlySet<string> knownObjectIds,
+        string knownObjectLabel,
+        List<string> errors)
+    {
+        if (string.IsNullOrWhiteSpace(objectId))
+        {
+            return;
+        }
+
+        var normalizedObjectId = objectId.Trim();
+        if (!knownObjectIds.Contains(normalizedObjectId))
+        {
+            errors.Add($"{objectLabel} {normalizedObjectId} is missing from {knownObjectLabel}");
+        }
     }
 
     private static (string? EffectId, int? Sequence) ValidateContinuousEffectScalarPayloadValues(
