@@ -14086,21 +14086,42 @@ public static class MatchRecoveryValidator
             pendingHandChoice.ChoiceId,
             errors);
         var choiceLabel = choiceId ?? "<unknown>";
-        ValidateAuthoritativeStateRequiredText(
+        RejectAuthoritativeStateRedactionSentinel("pending hand choice id", choiceId, errors);
+
+        var choiceWindow = ValidateAuthoritativeStateRequiredText(
             $"pending hand choice {choiceLabel} window",
             pendingHandChoice.ChoiceWindow,
             errors);
-        ValidateAuthoritativeStateOptionalTextValue(
+        RejectAuthoritativeStateRedactionSentinel(
+            $"pending hand choice {choiceLabel} window",
+            choiceWindow,
+            errors);
+
+        var reason = ValidateAuthoritativeStateOptionalTextValue(
             $"pending hand choice {choiceLabel} reason",
             pendingHandChoice.Reason,
             errors);
-        ValidateAuthoritativeStateOptionalTextValue(
+        RejectAuthoritativeStateRedactionSentinel(
+            $"pending hand choice {choiceLabel} reason",
+            reason,
+            errors);
+
+        var sourceObjectId = ValidateAuthoritativeStateOptionalTextValue(
             $"pending hand choice {choiceLabel} source object",
             pendingHandChoice.SourceObjectId,
             errors);
-        ValidateAuthoritativeStateOptionalTextValue(
+        RejectAuthoritativeStateRedactionSentinel(
+            $"pending hand choice {choiceLabel} source object",
+            sourceObjectId,
+            errors);
+
+        var effectKind = ValidateAuthoritativeStateOptionalTextValue(
             $"pending hand choice {choiceLabel} effect kind",
             pendingHandChoice.EffectKind,
+            errors);
+        RejectAuthoritativeStateRedactionSentinel(
+            $"pending hand choice {choiceLabel} effect kind",
+            effectKind,
             errors);
 
         if (pendingHandChoice.RequiredCount < 1)
@@ -14119,7 +14140,8 @@ public static class MatchRecoveryValidator
             $"pending hand choice {choiceLabel} legal object",
             pendingHandChoice.LegalObjectIds,
             errors,
-            rejectDuplicates: true);
+            rejectDuplicates: true,
+            rejectRedactionSentinel: true);
 
         if (pendingHandChoice.LegalObjectIds is not null && pendingHandChoice.RequiredCount > 0)
         {
@@ -15531,6 +15553,13 @@ public static class MatchRecoveryValidator
             "pending hand choice player",
             pendingHandChoice.PlayerId,
             seatPlayerIds,
+            errors);
+        var choiceLabel = string.IsNullOrWhiteSpace(pendingHandChoice.ChoiceId)
+            ? "<unknown>"
+            : pendingHandChoice.ChoiceId.Trim();
+        RejectAuthoritativeStateRedactionSentinel(
+            $"pending hand choice {choiceLabel} player",
+            pendingHandChoice.PlayerId,
             errors);
     }
 
