@@ -16735,6 +16735,58 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateObjectLocationRedactionSentinelDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob")
+        {
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["HIDDEN"] = new("HIDDEN", "HIDDEN", "HIDDEN")
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state object location map key must not be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state object location HIDDEN player must not be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state object location HIDDEN zone must not be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state object location HIDDEN battlefield object must not be redacted",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAuthoritativeStateObjectRegistryMapKeyDrift()
     {
         var authoritativeState = new MatchState(

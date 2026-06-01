@@ -14796,7 +14796,11 @@ public static class MatchRecoveryValidator
             authoritativeState.CardObjects,
             errors,
             rejectRedactionSentinel: true);
-        ValidateAuthoritativeStateMapKeys("object location map key", authoritativeState.ObjectLocations, errors);
+        ValidateAuthoritativeStateMapKeys(
+            "object location map key",
+            authoritativeState.ObjectLocations,
+            errors,
+            rejectRedactionSentinel: true);
         ValidateAuthoritativeStateCardObjectIdentities(authoritativeState.CardObjects, errors);
         ValidateAuthoritativeStateCardObjectValues(authoritativeState.CardObjects, errors);
         ValidateAuthoritativeStateCardObjectPlayers(authoritativeState.CardObjects, seatPlayerIds, errors);
@@ -15263,6 +15267,10 @@ public static class MatchRecoveryValidator
                 location.PlayerId,
                 seatPlayerIds,
                 errors);
+            RejectAuthoritativeStateRedactionSentinel(
+                $"object location {objectId} player",
+                location.PlayerId,
+                errors);
         }
     }
 
@@ -15295,14 +15303,23 @@ public static class MatchRecoveryValidator
                     $"authoritative state object location {objectId} zone {normalizedZone} has surrounding whitespace");
             }
 
+            RejectAuthoritativeStateRedactionSentinel(
+                $"object location {objectId} zone",
+                normalizedZone,
+                errors);
+
             if (!IsKnownObjectLocationZone(normalizedZone))
             {
                 errors.Add($"authoritative state object location {objectId} zone {normalizedZone} is not supported");
             }
 
-            ValidateAuthoritativeStateNullableTextValue(
+            var battlefieldObjectId = ValidateAuthoritativeStateNullableTextValue(
                 $"object location {objectId} battlefield object",
                 location.BattlefieldObjectId,
+                errors);
+            RejectAuthoritativeStateRedactionSentinel(
+                $"object location {objectId} battlefield object",
+                battlefieldObjectId,
                 errors);
         }
     }
