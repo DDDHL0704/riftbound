@@ -10280,6 +10280,15 @@ public static class MatchRecoveryValidator
             appliedOrder,
             layerEngineStatus,
             errors);
+        ValidateContinuousEffectPowerModifierFoundationResultingPowerConsistency(
+            effectPayload,
+            effectLabel,
+            scope,
+            layer,
+            effectivePower,
+            resultingPower,
+            layerEngineStatus,
+            errors);
         ValidateContinuousEffectPowerModifierNonFoundationMetadataAbsence(
             effectPayload,
             effectLabel,
@@ -11186,6 +11195,44 @@ public static class MatchRecoveryValidator
             errors.Add(
                 $"{effectLabel} POWER_MODIFIER foundation applied order is required when tracked modifier scalars are present");
         }
+    }
+
+    private static void ValidateContinuousEffectPowerModifierFoundationResultingPowerConsistency(
+        object? effectPayload,
+        string effectLabel,
+        string? scope,
+        string? layer,
+        int? effectivePower,
+        int? resultingPower,
+        string? layerEngineStatus,
+        List<string> errors)
+    {
+        if (scope is null
+            || layer is null
+            || !IsKnownContinuousEffectScope(scope)
+            || !IsKnownContinuousEffectLayer(layer)
+            || !string.Equals(layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+            || !IsContinuousEffectLayerScopeValid(scope, layer))
+        {
+            return;
+        }
+
+        var hasFoundationOnlyStatus = string.Equals(layerEngineStatus, "FOUNDATION_ONLY", StringComparison.Ordinal);
+        var hasReadableResiduals = TryReadObjectStringList(
+                effectPayload,
+                "deferredLayerEngineResiduals",
+                out var residuals)
+            && residuals.Count > 0;
+        if ((!hasFoundationOnlyStatus && !hasReadableResiduals)
+            || !effectivePower.HasValue
+            || !resultingPower.HasValue
+            || resultingPower.Value == effectivePower.Value)
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{effectLabel} POWER_MODIFIER foundation resulting power {resultingPower.Value} must match effective power {effectivePower.Value}");
     }
 
     private static void ValidateContinuousEffectPowerModifierNonFoundationModifierScalarAbsence(
