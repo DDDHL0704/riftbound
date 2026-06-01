@@ -15350,6 +15350,63 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateStackItemMetadataRedactionSentinelDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            stackItems:
+            [
+                new StackItemState(
+                    "stack-1",
+                    controllerId: "alice",
+                    effectKind: "SPELL",
+                    cardNo: "HIDDEN",
+                    optionalCosts: ["HIDDEN"],
+                    destination: "HIDDEN",
+                    timingContext: "HIDDEN")
+            ]);
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state stack item stack-1 card no must not be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state stack item stack-1 optional cost must not be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state stack item stack-1 destination must not be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state stack item stack-1 timing context must not be redacted",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAuthoritativeStateStackAndTriggerValueDrift()
     {
         var authoritativeState = new MatchState(

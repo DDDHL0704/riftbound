@@ -14178,18 +14178,33 @@ public static class MatchRecoveryValidator
                 errors.Add($"authoritative state stack item {stackItemLabel} source object must not be redacted");
             }
 
-            ValidateAuthoritativeStateOptionalTextValue(
+            var cardNo = ValidateAuthoritativeStateOptionalTextValue(
                 $"stack item {stackItemLabel} card no",
                 stackItem.CardNo,
                 errors);
-            ValidateAuthoritativeStateOptionalTextValue(
+            if (string.Equals(cardNo, "HIDDEN", StringComparison.Ordinal))
+            {
+                errors.Add($"authoritative state stack item {stackItemLabel} card no must not be redacted");
+            }
+
+            var destination = ValidateAuthoritativeStateOptionalTextValue(
                 $"stack item {stackItemLabel} destination",
                 stackItem.Destination,
                 errors);
-            ValidateAuthoritativeStateOptionalTextValue(
+            if (string.Equals(destination, "HIDDEN", StringComparison.Ordinal))
+            {
+                errors.Add($"authoritative state stack item {stackItemLabel} destination must not be redacted");
+            }
+
+            var timingContext = ValidateAuthoritativeStateOptionalTextValue(
                 $"stack item {stackItemLabel} timing context",
                 stackItem.TimingContext,
                 errors);
+            if (string.Equals(timingContext, "HIDDEN", StringComparison.Ordinal))
+            {
+                errors.Add($"authoritative state stack item {stackItemLabel} timing context must not be redacted");
+            }
+
             ValidateAuthoritativeStateStringListValues(
                 $"stack item {stackItemLabel} target object",
                 stackItem.TargetObjectIds,
@@ -14198,7 +14213,8 @@ public static class MatchRecoveryValidator
             ValidateAuthoritativeStateStringListValues(
                 $"stack item {stackItemLabel} optional cost",
                 stackItem.OptionalCosts,
-                errors);
+                errors,
+                rejectRedactionSentinel: true);
 
             if (stackItem.DamageAmount < 0)
             {
