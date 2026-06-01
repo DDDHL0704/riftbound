@@ -10153,21 +10153,21 @@ public static class MatchRecoveryValidator
             effectLabel,
             "sequence",
             errors);
-        ValidateSnapshotPayloadOptionalStringValue(
+        var effectKind = ValidateSnapshotPayloadOptionalStringValue(
             effectPayload,
             "effectKind",
             effectLabel,
             "effect kind",
             errors,
             rejectEmptyString: true);
-        ValidateSnapshotPayloadOptionalStringValue(
+        var sourceCardNo = ValidateSnapshotPayloadOptionalStringValue(
             effectPayload,
             "sourceCardNo",
             effectLabel,
             "source card no",
             errors,
             rejectEmptyString: true);
-        ValidateSnapshotPayloadOptionalStringValue(
+        var sourcePath = ValidateSnapshotPayloadOptionalStringValue(
             effectPayload,
             "sourcePath",
             effectLabel,
@@ -10226,20 +10226,29 @@ public static class MatchRecoveryValidator
             effectLabel,
             "source order",
             errors);
-        ValidateSnapshotPayloadOptionalStringValue(
+        var condition = ValidateSnapshotPayloadOptionalStringValue(
             effectPayload,
             "condition",
             effectLabel,
             "condition",
             errors,
             rejectEmptyString: true);
-        ValidateSnapshotPayloadOptionalStringValue(
+        var lifecycle = ValidateSnapshotPayloadOptionalStringValue(
             effectPayload,
             "lifecycle",
             effectLabel,
             "lifecycle",
             errors,
             rejectEmptyString: true);
+        ValidateContinuousEffectStaticAuraMetadataConsistency(
+            effectLabel,
+            layer,
+            effectKind,
+            sourceCardNo,
+            sourcePath,
+            condition,
+            lifecycle,
+            errors);
         return (effectId, sequence);
     }
 
@@ -10366,6 +10375,47 @@ public static class MatchRecoveryValidator
             && sourceObjectId is null)
         {
             errors.Add($"{effectLabel} static aura source object id is required");
+        }
+    }
+
+    private static void ValidateContinuousEffectStaticAuraMetadataConsistency(
+        string effectLabel,
+        string? layer,
+        string? effectKind,
+        string? sourceCardNo,
+        string? sourcePath,
+        string? condition,
+        string? lifecycle,
+        List<string> errors)
+    {
+        if (!string.Equals(layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        if (effectKind is null)
+        {
+            errors.Add($"{effectLabel} static aura effect kind is required");
+        }
+
+        if (sourceCardNo is null)
+        {
+            errors.Add($"{effectLabel} static aura source card no is required");
+        }
+
+        if (sourcePath is null)
+        {
+            errors.Add($"{effectLabel} static aura source path is required");
+        }
+
+        if (condition is null)
+        {
+            errors.Add($"{effectLabel} static aura condition is required");
+        }
+
+        if (lifecycle is null)
+        {
+            errors.Add($"{effectLabel} static aura lifecycle is required");
         }
     }
 
