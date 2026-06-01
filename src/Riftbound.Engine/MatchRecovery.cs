@@ -10214,6 +10214,13 @@ public static class MatchRecoveryValidator
             layer,
             layerEngineStatus,
             errors);
+        ValidateContinuousEffectStaticAuraFoundationResidualCanonicality(
+            effectPayload,
+            effectLabel,
+            scope,
+            layer,
+            layerEngineStatus,
+            errors);
         var requestedPowerDelta = ValidateSnapshotPayloadOptionalIntValue(
             effectPayload,
             "requestedPowerDelta",
@@ -11633,6 +11640,36 @@ public static class MatchRecoveryValidator
 
         errors.Add(
             $"{effectLabel} POWER_MODIFIER foundation deferred LayerEngine residual list must match current foundation residual set");
+    }
+
+    private static void ValidateContinuousEffectStaticAuraFoundationResidualCanonicality(
+        object? effectPayload,
+        string effectLabel,
+        string? scope,
+        string? layer,
+        string? layerEngineStatus,
+        List<string> errors)
+    {
+        if (scope is null
+            || layer is null
+            || !IsKnownContinuousEffectScope(scope)
+            || !IsKnownContinuousEffectLayer(layer)
+            || !string.Equals(layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+            || !IsContinuousEffectLayerScopeValid(scope, layer)
+            || !string.Equals(layerEngineStatus, "FOUNDATION_ONLY", StringComparison.Ordinal)
+            || !TryReadObjectStringList(effectPayload, "deferredLayerEngineResiduals", out var residuals)
+            || residuals.Count == 0)
+        {
+            return;
+        }
+
+        if (StringListsEqual(residuals, ContinuousEffectFoundationResiduals()))
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{effectLabel} static aura deferred LayerEngine residual list must match current foundation residual set");
     }
 
     private static IReadOnlyList<string> ContinuousEffectFoundationResiduals()
