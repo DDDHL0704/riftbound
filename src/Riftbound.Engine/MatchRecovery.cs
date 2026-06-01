@@ -15634,6 +15634,14 @@ public static class MatchRecoveryValidator
                     $"authoritative state player zones {playerId}/{zone} object {normalizedObjectId} has surrounding whitespace");
             }
 
+            if (reportZoneValueErrors)
+            {
+                RejectAuthoritativeStateRedactionSentinel(
+                    $"player zones {playerId}/{zone} object",
+                    normalizedObjectId,
+                    errors);
+            }
+
             var location = new AuthoritativeStateZoneLocation(playerId, zone);
             if (playerZoneLocations.TryGetValue(normalizedObjectId, out var existingLocation))
             {
