@@ -3756,6 +3756,12 @@ public static class MatchRecoveryValidator
                 $"snapshot for {view.PlayerId} timing {effectLabel}",
                 "participant object id",
                 errors);
+            ValidateSnapshotPayloadPresentStringListNonEmpty(
+                effectPayload,
+                "participantObjectIds",
+                $"snapshot for {view.PlayerId} timing {effectLabel}",
+                "participant object id",
+                errors);
             ValidateSnapshotPayloadRequiredStringListPayloadShape(
                 effectPayload,
                 "sourceDependencyObjectIds",
@@ -3763,6 +3769,12 @@ public static class MatchRecoveryValidator
                 "source dependency object id",
                 errors);
             ValidateSnapshotPayloadStringListValues(
+                effectPayload,
+                "sourceDependencyObjectIds",
+                $"snapshot for {view.PlayerId} timing {effectLabel}",
+                "source dependency object id",
+                errors);
+            ValidateSnapshotPayloadPresentStringListNonEmpty(
                 effectPayload,
                 "sourceDependencyObjectIds",
                 $"snapshot for {view.PlayerId} timing {effectLabel}",
@@ -3775,6 +3787,12 @@ public static class MatchRecoveryValidator
                 "target dependency object id",
                 errors);
             ValidateSnapshotPayloadStringListValues(
+                effectPayload,
+                "targetDependencyObjectIds",
+                $"snapshot for {view.PlayerId} timing {effectLabel}",
+                "target dependency object id",
+                errors);
+            ValidateSnapshotPayloadPresentStringListNonEmpty(
                 effectPayload,
                 "targetDependencyObjectIds",
                 $"snapshot for {view.PlayerId} timing {effectLabel}",
@@ -3787,6 +3805,12 @@ public static class MatchRecoveryValidator
                 "participant dependency object id",
                 errors);
             ValidateSnapshotPayloadStringListValues(
+                effectPayload,
+                "participantDependencyObjectIds",
+                $"snapshot for {view.PlayerId} timing {effectLabel}",
+                "participant dependency object id",
+                errors);
+            ValidateSnapshotPayloadPresentStringListNonEmpty(
                 effectPayload,
                 "participantDependencyObjectIds",
                 $"snapshot for {view.PlayerId} timing {effectLabel}",
@@ -5482,6 +5506,24 @@ public static class MatchRecoveryValidator
         {
             errors.Add($"{payloadLabel} {itemLabel} list payload is required");
         }
+    }
+
+    private static void ValidateSnapshotPayloadPresentStringListNonEmpty(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(payload, key, out var listPayload)
+            || IsNullSnapshotPayloadValue(listPayload)
+            || !TryReadStringListValue(listPayload, out var values)
+            || values.Count > 0)
+        {
+            return;
+        }
+
+        errors.Add($"{payloadLabel} {itemLabel} list must not be empty");
     }
 
     private static void ValidateSnapshotPayloadRequiredObjectListPayloadShape(
@@ -9906,6 +9948,12 @@ public static class MatchRecoveryValidator
             effectLabel,
             "participant object id",
             errors);
+        ValidateSnapshotPayloadPresentStringListNonEmpty(
+            effectPayload,
+            "participantObjectIds",
+            effectLabel,
+            "participant object id",
+            errors);
         ValidateSpectatorRequiredStringListPayloadShape(
             effectPayload,
             effectLabel,
@@ -9913,6 +9961,12 @@ public static class MatchRecoveryValidator
             "source dependency object id",
             errors);
         ValidateSnapshotPayloadStringListValues(
+            effectPayload,
+            "sourceDependencyObjectIds",
+            effectLabel,
+            "source dependency object id",
+            errors);
+        ValidateSnapshotPayloadPresentStringListNonEmpty(
             effectPayload,
             "sourceDependencyObjectIds",
             effectLabel,
@@ -9925,6 +9979,12 @@ public static class MatchRecoveryValidator
             "target dependency object id",
             errors);
         ValidateSnapshotPayloadStringListValues(
+            effectPayload,
+            "targetDependencyObjectIds",
+            effectLabel,
+            "target dependency object id",
+            errors);
+        ValidateSnapshotPayloadPresentStringListNonEmpty(
             effectPayload,
             "targetDependencyObjectIds",
             effectLabel,
@@ -9937,6 +9997,12 @@ public static class MatchRecoveryValidator
             "participant dependency object id",
             errors);
         ValidateSnapshotPayloadStringListValues(
+            effectPayload,
+            "participantDependencyObjectIds",
+            effectLabel,
+            "participant dependency object id",
+            errors);
+        ValidateSnapshotPayloadPresentStringListNonEmpty(
             effectPayload,
             "participantDependencyObjectIds",
             effectLabel,
