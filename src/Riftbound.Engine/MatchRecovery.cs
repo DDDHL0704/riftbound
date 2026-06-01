@@ -10092,7 +10092,7 @@ public static class MatchRecoveryValidator
             effectLabel,
             "effect id",
             errors);
-        ValidateSnapshotPayloadRequiredStringValue(
+        var scope = ValidateSnapshotPayloadRequiredStringValue(
             effectPayload,
             "scope",
             effectLabel,
@@ -10106,6 +10106,7 @@ public static class MatchRecoveryValidator
             "layer",
             errors,
             IsKnownContinuousEffectLayer);
+        ValidateContinuousEffectLayerScopeConsistency(effectLabel, scope, layer, errors);
         var duration = ValidateSnapshotPayloadRequiredStringValue(
             effectPayload,
             "duration",
@@ -10238,6 +10239,48 @@ public static class MatchRecoveryValidator
             errors,
             rejectEmptyString: true);
         return (effectId, sequence);
+    }
+
+    private static void ValidateContinuousEffectLayerScopeConsistency(
+        string effectLabel,
+        string? scope,
+        string? layer,
+        List<string> errors)
+    {
+        if (scope is null
+            || layer is null
+            || !IsKnownContinuousEffectScope(scope)
+            || !IsKnownContinuousEffectLayer(layer))
+        {
+            return;
+        }
+
+        if (string.Equals(layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal))
+        {
+            if (!string.Equals(scope, "OBJECT", StringComparison.Ordinal))
+            {
+                errors.Add($"{effectLabel} POWER_MODIFIER scope {scope} is invalid");
+            }
+
+            return;
+        }
+
+        if (string.Equals(layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal))
+        {
+            if (!string.Equals(scope, "GLOBAL", StringComparison.Ordinal)
+                && !string.Equals(scope, "OBJECT", StringComparison.Ordinal))
+            {
+                errors.Add($"{effectLabel} RULE_TEXT scope {scope} is invalid");
+            }
+
+            return;
+        }
+
+        if (!string.Equals(scope, "OBJECT", StringComparison.Ordinal)
+            && !string.Equals(scope, "BATTLEFIELD", StringComparison.Ordinal))
+        {
+            errors.Add($"{effectLabel} static aura scope {scope} is invalid");
+        }
     }
 
     private static void ValidateContinuousEffectLayerDurationConsistency(
