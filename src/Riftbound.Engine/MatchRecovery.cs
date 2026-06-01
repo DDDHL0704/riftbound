@@ -14145,19 +14145,39 @@ public static class MatchRecoveryValidator
                 stackItem.StackItemId,
                 errors);
             var stackItemLabel = stackItemId ?? "<unknown>";
+            if (string.Equals(stackItemId, "HIDDEN", StringComparison.Ordinal))
+            {
+                errors.Add("authoritative state stack item id must not be redacted");
+            }
+
             if (stackItemId is not null && !seenStackItemIds.Add(stackItemId))
             {
                 errors.Add($"authoritative state stack item {stackItemId} is duplicated");
             }
 
-            ValidateAuthoritativeStateRequiredText(
+            if (string.Equals(stackItem.ControllerId, "HIDDEN", StringComparison.Ordinal))
+            {
+                errors.Add($"authoritative state stack item {stackItemLabel} controller player must not be redacted");
+            }
+
+            var effectKind = ValidateAuthoritativeStateRequiredText(
                 $"stack item {stackItemLabel} effect kind",
                 stackItem.EffectKind,
                 errors);
-            ValidateAuthoritativeStateOptionalTextValue(
+            if (string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal))
+            {
+                errors.Add($"authoritative state stack item {stackItemLabel} effect kind must not be redacted");
+            }
+
+            var sourceObjectId = ValidateAuthoritativeStateOptionalTextValue(
                 $"stack item {stackItemLabel} source object",
                 stackItem.SourceObjectId,
                 errors);
+            if (string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal))
+            {
+                errors.Add($"authoritative state stack item {stackItemLabel} source object must not be redacted");
+            }
+
             ValidateAuthoritativeStateOptionalTextValue(
                 $"stack item {stackItemLabel} card no",
                 stackItem.CardNo,
@@ -14173,7 +14193,8 @@ public static class MatchRecoveryValidator
             ValidateAuthoritativeStateStringListValues(
                 $"stack item {stackItemLabel} target object",
                 stackItem.TargetObjectIds,
-                errors);
+                errors,
+                rejectRedactionSentinel: true);
             ValidateAuthoritativeStateStringListValues(
                 $"stack item {stackItemLabel} optional cost",
                 stackItem.OptionalCosts,
@@ -14267,7 +14288,8 @@ public static class MatchRecoveryValidator
         string itemLabel,
         IReadOnlyList<string>? values,
         List<string> errors,
-        bool rejectDuplicates = false)
+        bool rejectDuplicates = false,
+        bool rejectRedactionSentinel = false)
     {
         if (values is null)
         {
@@ -14290,6 +14312,12 @@ public static class MatchRecoveryValidator
             if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
             {
                 errors.Add($"authoritative state {itemLabel} {normalizedValue} has surrounding whitespace");
+            }
+
+            if (rejectRedactionSentinel
+                && string.Equals(normalizedValue, "HIDDEN", StringComparison.Ordinal))
+            {
+                errors.Add($"authoritative state {itemLabel} must not be redacted");
             }
 
             if (seenValues is not null && !seenValues.Add(normalizedValue))
