@@ -8744,6 +8744,93 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingBattlePlayerReferencesOutsideSnapshotPlayers()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var players = alice.Snapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["objects"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["battlefield-a"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "battlefield-a",
+                ["isFaceDown"] = false
+            },
+            ["attacker-a"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "attacker-a",
+                ["isFaceDown"] = false
+            },
+            ["defender-a"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "defender-a",
+                ["isFaceDown"] = false
+            }
+        };
+        players["alice"] = alicePayload;
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["battle"] = RawJson("""
+            {
+                "isActive": true,
+                "battleId": "battle-a",
+                "battlefieldObjectId": "battlefield-a",
+                "attackerObjectIds": ["attacker-a"],
+                "defenderObjectIds": ["defender-a"],
+                "participantControllerIds": {
+                    "attacker-a": "charlie",
+                    "defender-a": "diana"
+                },
+                "damageAssignment": {
+                    "isPending": true,
+                    "phase": "DAMAGE_ASSIGNMENT",
+                    "battleId": "battle-a",
+                    "battlefieldId": "battlefield-a",
+                    "assigningPlayerId": "charlie",
+                    "damagePool": {},
+                    "legalTargets": {},
+                    "existingDamage": {},
+                    "lethalDamageThreshold": {},
+                    "requiredAssignments": []
+                }
+            }
+            """);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players,
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle participant controller attacker-a player id charlie is missing from players",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle participant controller defender-a player id diana is missing from players",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment assigning player id charlie is missing from players",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingBattleParticipantPayloadShapeDrift()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -42734,6 +42821,79 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains("spectator replay frame timing battle does not match authoritative state battle", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattlePlayerReferencesOutsideSeats()
+    {
+        var authoritativeState = BattleDamageAssignmentState();
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var battle = Assert.IsType<Dictionary<string, object?>>(timing["battle"]).ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        battle["participantControllerIds"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["attacker-a"] = "charlie",
+            ["defender-a"] = "diana"
+        };
+        var damageAssignment = Assert.IsType<Dictionary<string, object?>>(battle["damageAssignment"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        damageAssignment["assigningPlayerId"] = "charlie";
+        battle["damageAssignment"] = damageAssignment;
+        timing["battle"] = battle;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle participant controller attacker-a player id charlie is missing from seats",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle participant controller defender-a player id diana is missing from seats",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment assigning player id charlie is missing from seats",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle does not match authoritative state battle",
+                StringComparison.Ordinal));
     }
 
     [Fact]

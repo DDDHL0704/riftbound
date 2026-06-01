@@ -2826,12 +2826,21 @@ public static class MatchRecoveryValidator
             view,
             battlePayload,
             errors);
+        var knownPlayerIds = view.Snapshot.Players is null
+            ? null
+            : BuildNormalizedPlayerIdSet(view.Snapshot.Players.Keys);
         var knownObjectIds = view.Snapshot.Players is null
             ? null
             : BuildSnapshotKnownObjectIds(view.Snapshot);
         ValidateBattlePayloadValues(
             battlePayload,
             $"snapshot for {view.PlayerId} timing battle",
+            errors);
+        ValidateBattlePlayerReferences(
+            battlePayload,
+            $"snapshot for {view.PlayerId} timing battle",
+            knownPlayerIds,
+            "players",
             errors);
         ValidateBattleObjectReferences(
             battlePayload,
@@ -2945,6 +2954,9 @@ public static class MatchRecoveryValidator
             payloadLabel,
             errors);
 
+        var knownPlayerIds = view.Snapshot.Players is null
+            ? null
+            : BuildNormalizedPlayerIdSet(view.Snapshot.Players.Keys);
         var knownObjectIds = view.Snapshot.Players is null
             ? null
             : BuildSnapshotKnownObjectIds(view.Snapshot);
@@ -2955,6 +2967,12 @@ public static class MatchRecoveryValidator
             damageAssignmentPayload,
             payloadLabel,
             shouldValidatePendingFields,
+            errors);
+        ValidateBattleDamageAssignmentPlayerReferences(
+            damageAssignmentPayload,
+            payloadLabel,
+            knownPlayerIds,
+            "players",
             errors);
         ValidateBattleDamageAssignmentObjectReferences(
             damageAssignmentPayload,
@@ -10290,6 +10308,90 @@ public static class MatchRecoveryValidator
             knownObjectIds,
             knownObjectLabel,
             errors);
+    }
+
+    private static void ValidateTimingOptionalPlayerReference(
+        object? payload,
+        string payloadKey,
+        string playerLabel,
+        IReadOnlySet<string>? knownPlayerIds,
+        string knownPlayerLabel,
+        List<string> errors)
+    {
+        if (knownPlayerIds is null)
+        {
+            return;
+        }
+
+        if (!TryReadObjectValue(payload, payloadKey, out var playerIdPayload)
+            || IsNullSnapshotPayloadValue(playerIdPayload)
+            || !TryReadOptionalStringValue(playerIdPayload, out var playerId)
+            || string.IsNullOrWhiteSpace(playerId))
+        {
+            return;
+        }
+
+        ValidateTimingPlayerReference(
+            playerLabel,
+            playerId,
+            knownPlayerIds,
+            knownPlayerLabel,
+            errors);
+    }
+
+    private static void ValidateTimingPlayerReferenceDictionaryValues(
+        object? payload,
+        string payloadKey,
+        string payloadLabel,
+        string itemLabel,
+        string valueLabel,
+        IReadOnlySet<string>? knownPlayerIds,
+        string knownPlayerLabel,
+        List<string> errors)
+    {
+        if (knownPlayerIds is null)
+        {
+            return;
+        }
+
+        if (!TryReadObjectValue(payload, payloadKey, out var mapPayload)
+            || IsNullSnapshotPayloadValue(mapPayload)
+            || !IsSnapshotStringMapPayloadObject(mapPayload))
+        {
+            return;
+        }
+
+        foreach (var (mapKey, rawValue) in EnumerateSnapshotPayloadObjectValues(mapPayload))
+        {
+            if (string.IsNullOrWhiteSpace(mapKey)
+                || !TryReadStringValue(rawValue, out var playerId)
+                || string.IsNullOrWhiteSpace(playerId))
+            {
+                continue;
+            }
+
+            var normalizedKey = mapKey.Trim();
+            ValidateTimingPlayerReference(
+                $"{payloadLabel} {itemLabel} {normalizedKey} {valueLabel}",
+                playerId,
+                knownPlayerIds,
+                knownPlayerLabel,
+                errors);
+        }
+    }
+
+    private static void ValidateTimingPlayerReference(
+        string playerLabel,
+        string playerId,
+        IReadOnlySet<string> knownPlayerIds,
+        string knownPlayerLabel,
+        List<string> errors)
+    {
+        var normalizedPlayerId = playerId.Trim();
+        if (!knownPlayerIds.Contains(normalizedPlayerId))
+        {
+            errors.Add($"{playerLabel} {normalizedPlayerId} is missing from {knownPlayerLabel}");
+        }
     }
 
     private static void ValidateTimingObjectReferenceList(
@@ -18082,6 +18184,7 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing battle";
+        var knownPlayerIds = BuildNormalizedPlayerIdSet(authoritativeState.Seats.Keys);
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         ValidateSnapshotPayloadRequiredBoolValue(
             battlePayload,
@@ -18117,6 +18220,12 @@ public static class MatchRecoveryValidator
             "defender object id",
             errors);
         ValidateSpectatorBattleParticipantControllerPayloadValues(battlePayload, errors);
+        ValidateBattlePlayerReferences(
+            battlePayload,
+            payloadLabel,
+            knownPlayerIds,
+            "seats",
+            errors);
         ValidateBattleObjectReferences(
             battlePayload,
             payloadLabel,
@@ -18242,6 +18351,24 @@ public static class MatchRecoveryValidator
             errors);
     }
 
+    private static void ValidateBattlePlayerReferences(
+        object? battlePayload,
+        string payloadLabel,
+        IReadOnlySet<string>? knownPlayerIds,
+        string knownPlayerLabel,
+        List<string> errors)
+    {
+        ValidateTimingPlayerReferenceDictionaryValues(
+            battlePayload,
+            "participantControllerIds",
+            payloadLabel,
+            "participant controller",
+            "player id",
+            knownPlayerIds,
+            knownPlayerLabel,
+            errors);
+    }
+
     private static void ValidateBattleObjectReferences(
         object? battlePayload,
         string payloadLabel,
@@ -18322,6 +18449,12 @@ public static class MatchRecoveryValidator
             damageAssignmentPayload,
             payloadLabel,
             shouldValidatePendingFields,
+            errors);
+        ValidateBattleDamageAssignmentPlayerReferences(
+            damageAssignmentPayload,
+            payloadLabel,
+            BuildNormalizedPlayerIdSet(authoritativeState.Seats.Keys),
+            "seats",
             errors);
         ValidateBattleDamageAssignmentObjectReferences(
             damageAssignmentPayload,
@@ -18524,6 +18657,22 @@ public static class MatchRecoveryValidator
         ValidateBattleDamageAssignmentRequiredAssignmentValues(
             damageAssignmentPayload,
             $"{payloadLabel} required assignment",
+            errors);
+    }
+
+    private static void ValidateBattleDamageAssignmentPlayerReferences(
+        object? damageAssignmentPayload,
+        string payloadLabel,
+        IReadOnlySet<string>? knownPlayerIds,
+        string knownPlayerLabel,
+        List<string> errors)
+    {
+        ValidateTimingOptionalPlayerReference(
+            damageAssignmentPayload,
+            "assigningPlayerId",
+            $"{payloadLabel} assigning player id",
+            knownPlayerIds,
+            knownPlayerLabel,
             errors);
     }
 
