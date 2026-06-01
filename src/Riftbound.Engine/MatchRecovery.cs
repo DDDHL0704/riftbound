@@ -13588,10 +13588,11 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         List<string> errors)
     {
-        ValidateAuthoritativeStateRequiredText(
+        var roomId = ValidateAuthoritativeStateRequiredText(
             "room id",
             authoritativeState.RoomId,
             errors);
+        RejectAuthoritativeStateRedactionSentinel("room id", roomId, errors);
 
         if (authoritativeState.Tick < 0)
         {
@@ -13607,17 +13608,20 @@ public static class MatchRecoveryValidator
             "status",
             authoritativeState.Status,
             IsKnownMatchStatus,
-            errors);
+            errors,
+            rejectRedactionSentinel: true);
         ValidateAuthoritativeStateKnownText(
             "phase",
             authoritativeState.Phase,
             IsKnownMatchPhase,
-            errors);
+            errors,
+            rejectRedactionSentinel: true);
         ValidateAuthoritativeStateKnownText(
             "timing state",
             authoritativeState.TimingState,
             IsKnownTimingState,
-            errors);
+            errors,
+            rejectRedactionSentinel: true);
 
         if (authoritativeState.RngCursor < 0)
         {
@@ -13649,12 +13653,18 @@ public static class MatchRecoveryValidator
         string valueLabel,
         string? value,
         Func<string, bool> isKnownValue,
-        List<string> errors)
+        List<string> errors,
+        bool rejectRedactionSentinel = false)
     {
         var normalizedValue = ValidateAuthoritativeStateRequiredText(valueLabel, value, errors);
         if (normalizedValue is null)
         {
             return;
+        }
+
+        if (rejectRedactionSentinel)
+        {
+            RejectAuthoritativeStateRedactionSentinel(valueLabel, normalizedValue, errors);
         }
 
         if (!isKnownValue(normalizedValue))

@@ -17201,6 +17201,47 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateScalarRedactionSentinelDrift()
+    {
+        var authoritativeState = new MatchState(
+            "HIDDEN",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: "HIDDEN",
+            turnPlayerId: "bob",
+            phase: "HIDDEN",
+            timingState: "HIDDEN");
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state room id must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state status must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state phase must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state timing state must not be redacted", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAuthoritativeStateTraitPowerRedactionSentinelDrift()
     {
         var authoritativeState = new MatchState(
