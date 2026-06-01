@@ -4039,7 +4039,7 @@ public static class MatchRecoveryValidator
                 errors.Add($"{taskLabel} task id {taskId} is duplicated");
             }
 
-            ValidateSnapshotPayloadRequiredStringValue(
+            var kind = ValidateSnapshotPayloadRequiredStringValue(
                 taskPayload,
                 "kind",
                 taskLabel,
@@ -4057,7 +4057,7 @@ public static class MatchRecoveryValidator
                 taskLabel,
                 "reason",
                 errors);
-            ValidateSnapshotPayloadRequiredStringValue(
+            var battlefieldObjectId = ValidateSnapshotPayloadRequiredStringValue(
                 taskPayload,
                 "battlefieldObjectId",
                 taskLabel,
@@ -4083,18 +4083,109 @@ public static class MatchRecoveryValidator
                 knownPlayerIds,
                 "players",
                 errors);
-            ValidateSnapshotPayloadOptionalStringValue(
+            var hasSpellDuelIdPayload = TryReadObjectValue(taskPayload, "spellDuelId", out var spellDuelIdPayload)
+                && !IsNullSnapshotPayloadValue(spellDuelIdPayload);
+            var spellDuelId = ValidateSnapshotPayloadOptionalStringValue(
                 taskPayload,
                 "spellDuelId",
                 taskLabel,
                 "spell duel id",
                 errors);
-            ValidateSnapshotPayloadOptionalStringValue(
+            var hasBattleIdPayload = TryReadObjectValue(taskPayload, "battleId", out var battleIdPayload)
+                && !IsNullSnapshotPayloadValue(battleIdPayload);
+            var battleId = ValidateSnapshotPayloadOptionalStringValue(
                 taskPayload,
                 "battleId",
                 taskLabel,
                 "battle id",
                 errors);
+            ValidateBattlefieldTaskDerivedIdentity(
+                taskLabel,
+                kind,
+                battlefieldObjectId,
+                spellDuelId,
+                hasSpellDuelIdPayload,
+                battleId,
+                hasBattleIdPayload,
+                errors);
+        }
+    }
+
+    private static void ValidateBattlefieldTaskDerivedIdentity(
+        string taskLabel,
+        string? kind,
+        string? battlefieldObjectId,
+        string? spellDuelId,
+        bool hasSpellDuelIdPayload,
+        string? battleId,
+        bool hasBattleIdPayload,
+        List<string> errors)
+    {
+        if (kind is null || battlefieldObjectId is null)
+        {
+            return;
+        }
+
+        if (string.Equals(kind, "START_SPELL_DUEL", StringComparison.Ordinal))
+        {
+            var expectedSpellDuelId = BattleLifecycleIds.SpellDuelIdForBattlefield(battlefieldObjectId);
+            if (expectedSpellDuelId is null)
+            {
+                return;
+            }
+
+            if (spellDuelId is null)
+            {
+                if (!hasSpellDuelIdPayload)
+                {
+                    errors.Add($"{taskLabel} spell duel id is required for START_SPELL_DUEL");
+                }
+
+                return;
+            }
+
+            if (spellDuelId.Length == 0)
+            {
+                errors.Add($"{taskLabel} spell duel id is required for START_SPELL_DUEL");
+                return;
+            }
+
+            if (!string.Equals(spellDuelId, expectedSpellDuelId, StringComparison.Ordinal))
+            {
+                errors.Add($"{taskLabel} spell duel id {spellDuelId} does not match battlefield spell duel id {expectedSpellDuelId}");
+            }
+
+            return;
+        }
+
+        if (string.Equals(kind, "START_BATTLE", StringComparison.Ordinal))
+        {
+            var expectedBattleId = BattleLifecycleIds.BattleIdForBattlefield(battlefieldObjectId);
+            if (expectedBattleId is null)
+            {
+                return;
+            }
+
+            if (battleId is null)
+            {
+                if (!hasBattleIdPayload)
+                {
+                    errors.Add($"{taskLabel} battle id is required for START_BATTLE");
+                }
+
+                return;
+            }
+
+            if (battleId.Length == 0)
+            {
+                errors.Add($"{taskLabel} battle id is required for START_BATTLE");
+                return;
+            }
+
+            if (!string.Equals(battleId, expectedBattleId, StringComparison.Ordinal))
+            {
+                errors.Add($"{taskLabel} battle id {battleId} does not match battlefield battle id {expectedBattleId}");
+            }
         }
     }
 
@@ -13805,7 +13896,7 @@ public static class MatchRecoveryValidator
             errors.Add($"{payloadLabel} task id {taskId} is duplicated");
         }
 
-        ValidateSnapshotPayloadRequiredStringValue(
+        var kind = ValidateSnapshotPayloadRequiredStringValue(
             spectatorBattlefieldTask,
             "kind",
             payloadLabel,
@@ -13823,7 +13914,7 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "reason",
             errors);
-        ValidateSnapshotPayloadRequiredStringValue(
+        var battlefieldObjectId = ValidateSnapshotPayloadRequiredStringValue(
             spectatorBattlefieldTask,
             "battlefieldObjectId",
             payloadLabel,
@@ -13849,17 +13940,30 @@ public static class MatchRecoveryValidator
             seatPlayerIds,
             "seats",
             errors);
-        ValidateSnapshotPayloadOptionalStringValue(
+        var hasSpellDuelIdPayload = TryReadObjectValue(spectatorBattlefieldTask, "spellDuelId", out var spellDuelIdPayload)
+            && !IsNullSnapshotPayloadValue(spellDuelIdPayload);
+        var spellDuelId = ValidateSnapshotPayloadOptionalStringValue(
             spectatorBattlefieldTask,
             "spellDuelId",
             payloadLabel,
             "spell duel id",
             errors);
-        ValidateSnapshotPayloadOptionalStringValue(
+        var hasBattleIdPayload = TryReadObjectValue(spectatorBattlefieldTask, "battleId", out var battleIdPayload)
+            && !IsNullSnapshotPayloadValue(battleIdPayload);
+        var battleId = ValidateSnapshotPayloadOptionalStringValue(
             spectatorBattlefieldTask,
             "battleId",
             payloadLabel,
             "battle id",
+            errors);
+        ValidateBattlefieldTaskDerivedIdentity(
+            payloadLabel,
+            kind,
+            battlefieldObjectId,
+            spellDuelId,
+            hasSpellDuelIdPayload,
+            battleId,
+            hasBattleIdPayload,
             errors);
     }
 
