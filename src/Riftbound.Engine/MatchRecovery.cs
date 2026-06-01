@@ -10115,12 +10115,13 @@ public static class MatchRecoveryValidator
             errors,
             IsKnownContinuousEffectDuration);
         ValidateContinuousEffectLayerDurationConsistency(effectLabel, layer, duration, errors);
-        ValidateSnapshotPayloadRequiredNullableStringValue(
+        var targetObjectId = ValidateSnapshotPayloadRequiredNullableStringValue(
             effectPayload,
             "targetObjectId",
             effectLabel,
             "target object id",
             errors);
+        ValidateContinuousEffectTargetObjectConsistency(effectLabel, scope, layer, targetObjectId, errors);
         ValidateSnapshotPayloadRequiredNullableStringValue(
             effectPayload,
             "sourceObjectId",
@@ -10241,6 +10242,23 @@ public static class MatchRecoveryValidator
         return (effectId, sequence);
     }
 
+    private static bool IsContinuousEffectLayerScopeValid(string scope, string layer)
+    {
+        if (string.Equals(layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal))
+        {
+            return string.Equals(scope, "OBJECT", StringComparison.Ordinal);
+        }
+
+        if (string.Equals(layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal))
+        {
+            return string.Equals(scope, "GLOBAL", StringComparison.Ordinal)
+                || string.Equals(scope, "OBJECT", StringComparison.Ordinal);
+        }
+
+        return string.Equals(scope, "OBJECT", StringComparison.Ordinal)
+            || string.Equals(scope, "BATTLEFIELD", StringComparison.Ordinal);
+    }
+
     private static void ValidateContinuousEffectLayerScopeConsistency(
         string effectLabel,
         string? scope,
@@ -10255,32 +10273,65 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        if (IsContinuousEffectLayerScopeValid(scope, layer))
+        {
+            return;
+        }
+
         if (string.Equals(layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal))
         {
-            if (!string.Equals(scope, "OBJECT", StringComparison.Ordinal))
-            {
-                errors.Add($"{effectLabel} POWER_MODIFIER scope {scope} is invalid");
-            }
-
+            errors.Add($"{effectLabel} POWER_MODIFIER scope {scope} is invalid");
             return;
         }
 
         if (string.Equals(layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal))
         {
-            if (!string.Equals(scope, "GLOBAL", StringComparison.Ordinal)
-                && !string.Equals(scope, "OBJECT", StringComparison.Ordinal))
+            errors.Add($"{effectLabel} RULE_TEXT scope {scope} is invalid");
+            return;
+        }
+
+        errors.Add($"{effectLabel} static aura scope {scope} is invalid");
+    }
+
+    private static void ValidateContinuousEffectTargetObjectConsistency(
+        string effectLabel,
+        string? scope,
+        string? layer,
+        string? targetObjectId,
+        List<string> errors)
+    {
+        if (scope is null
+            || layer is null
+            || !IsKnownContinuousEffectScope(scope)
+            || !IsKnownContinuousEffectLayer(layer)
+            || !IsContinuousEffectLayerScopeValid(scope, layer))
+        {
+            return;
+        }
+
+        if (string.Equals(layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            && string.Equals(scope, "GLOBAL", StringComparison.Ordinal))
+        {
+            if (targetObjectId is not null)
             {
-                errors.Add($"{effectLabel} RULE_TEXT scope {scope} is invalid");
+                errors.Add($"{effectLabel} global rule text target object id must be absent");
             }
 
             return;
         }
 
-        if (!string.Equals(scope, "OBJECT", StringComparison.Ordinal)
-            && !string.Equals(scope, "BATTLEFIELD", StringComparison.Ordinal))
+        if (targetObjectId is not null)
         {
-            errors.Add($"{effectLabel} static aura scope {scope} is invalid");
+            return;
         }
+
+        if (string.Equals(layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal))
+        {
+            errors.Add($"{effectLabel} static aura target object id is required");
+            return;
+        }
+
+        errors.Add($"{effectLabel} {layer} target object id is required");
     }
 
     private static void ValidateContinuousEffectLayerDurationConsistency(
