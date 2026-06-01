@@ -3897,6 +3897,7 @@ public static class MatchRecoveryValidator
                 triggerLabel,
                 "triggered event kind",
                 errors);
+            ValidateTriggerQueuePromptFieldAbsence(triggerPayload, triggerLabel, errors);
 
             ValidateTriggerQueueSourceRedactionConsistency(
                 triggerLabel,
@@ -12317,6 +12318,7 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "triggered event kind",
             errors);
+        ValidateTriggerQueuePromptFieldAbsence(triggerPayload, payloadLabel, errors);
 
         ValidateTriggerQueueSourceRedactionConsistency(
             payloadLabel,
@@ -12361,6 +12363,22 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"{payloadLabel} visible effect kind must not be redacted");
             }
+        }
+    }
+
+    private static void ValidateTriggerQueuePromptFieldAbsence(
+        object? triggerPayload,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (TryReadObjectValue(triggerPayload, "summary", out _))
+        {
+            errors.Add($"{payloadLabel} summary must be absent from timing trigger queue item");
+        }
+
+        if (TryReadObjectValue(triggerPayload, "visibleText", out _))
+        {
+            errors.Add($"{payloadLabel} visible text must be absent from timing trigger queue item");
         }
     }
 
