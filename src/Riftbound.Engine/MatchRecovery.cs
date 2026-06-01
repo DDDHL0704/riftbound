@@ -2974,6 +2974,12 @@ public static class MatchRecoveryValidator
             payloadLabel,
             shouldValidatePendingFields,
             errors);
+        ValidateBattleDamageAssignmentParticipantMembership(
+            battlePayload,
+            damageAssignmentPayload,
+            payloadLabel,
+            shouldValidatePendingFields,
+            errors);
         ValidateBattleDamageAssignmentPlayerReferences(
             damageAssignmentPayload,
             payloadLabel,
@@ -18462,6 +18468,12 @@ public static class MatchRecoveryValidator
             payloadLabel,
             shouldValidatePendingFields,
             errors);
+        ValidateBattleDamageAssignmentParticipantMembership(
+            battlePayload,
+            damageAssignmentPayload,
+            payloadLabel,
+            shouldValidatePendingFields,
+            errors);
         ValidateBattleDamageAssignmentPlayerReferences(
             damageAssignmentPayload,
             payloadLabel,
@@ -18744,6 +18756,180 @@ public static class MatchRecoveryValidator
         {
             errors.Add(
                 $"{payloadLabel} {damageAssignmentLabel} {normalizedDamageAssignmentValue} does not match enclosing battle {battleLabel} {normalizedBattleValue}");
+        }
+    }
+
+    private static void ValidateBattleDamageAssignmentParticipantMembership(
+        object? battlePayload,
+        object? damageAssignmentPayload,
+        string payloadLabel,
+        bool shouldValidatePendingFields,
+        List<string> errors)
+    {
+        if (!shouldValidatePendingFields
+            || !TryBuildBattleParticipantObjectIdSet(battlePayload, out var participantObjectIds))
+        {
+            return;
+        }
+
+        ValidateBattleDamageAssignmentParticipantIntMapKeys(
+            damageAssignmentPayload,
+            "damagePool",
+            $"{payloadLabel} damage pool source object id",
+            participantObjectIds,
+            errors);
+        ValidateBattleDamageAssignmentLegalTargetParticipants(
+            damageAssignmentPayload,
+            participantObjectIds,
+            payloadLabel,
+            errors);
+        ValidateBattleDamageAssignmentParticipantIntMapKeys(
+            damageAssignmentPayload,
+            "existingDamage",
+            $"{payloadLabel} existing damage object id",
+            participantObjectIds,
+            errors);
+        ValidateBattleDamageAssignmentParticipantIntMapKeys(
+            damageAssignmentPayload,
+            "lethalDamageThreshold",
+            $"{payloadLabel} lethal damage threshold object id",
+            participantObjectIds,
+            errors);
+        ValidateBattleDamageAssignmentRequiredAssignmentParticipantMembership(
+            damageAssignmentPayload,
+            participantObjectIds,
+            payloadLabel,
+            errors);
+    }
+
+    private static bool TryBuildBattleParticipantObjectIdSet(
+        object? battlePayload,
+        out IReadOnlySet<string> participantObjectIds)
+    {
+        if (!TryReadObjectStringList(battlePayload, "attackerObjectIds", out var attackerObjectIds)
+            || !TryReadObjectStringList(battlePayload, "defenderObjectIds", out var defenderObjectIds))
+        {
+            participantObjectIds = new HashSet<string>(StringComparer.Ordinal);
+            return false;
+        }
+
+        participantObjectIds = attackerObjectIds
+            .Concat(defenderObjectIds)
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Select(objectId => objectId.Trim())
+            .ToHashSet(StringComparer.Ordinal);
+        return true;
+    }
+
+    private static void ValidateBattleDamageAssignmentParticipantIntMapKeys(
+        object? damageAssignmentPayload,
+        string payloadKey,
+        string itemLabel,
+        IReadOnlySet<string> participantObjectIds,
+        List<string> errors)
+    {
+        if (!TryReadObjectIntDictionary(damageAssignmentPayload, payloadKey, out var entries))
+        {
+            return;
+        }
+
+        foreach (var objectId in entries.Keys)
+        {
+            ValidateBattleDamageAssignmentParticipantObjectId(
+                objectId,
+                itemLabel,
+                participantObjectIds,
+                errors);
+        }
+    }
+
+    private static void ValidateBattleDamageAssignmentLegalTargetParticipants(
+        object? damageAssignmentPayload,
+        IReadOnlySet<string> participantObjectIds,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectStringListDictionary(damageAssignmentPayload, "legalTargets", out var legalTargets))
+        {
+            return;
+        }
+
+        foreach (var (sourceObjectId, legalTargetObjectIds) in legalTargets)
+        {
+            ValidateBattleDamageAssignmentParticipantObjectId(
+                sourceObjectId,
+                $"{payloadLabel} legal targets source object id",
+                participantObjectIds,
+                errors);
+            foreach (var legalTargetObjectId in legalTargetObjectIds)
+            {
+                ValidateBattleDamageAssignmentParticipantObjectId(
+                    legalTargetObjectId,
+                    $"{payloadLabel} legal targets legal target object id",
+                    participantObjectIds,
+                    errors);
+            }
+        }
+    }
+
+    private static void ValidateBattleDamageAssignmentRequiredAssignmentParticipantMembership(
+        object? damageAssignmentPayload,
+        IReadOnlySet<string> participantObjectIds,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectList(damageAssignmentPayload, "requiredAssignments", out var requiredAssignments))
+        {
+            return;
+        }
+
+        foreach (var requiredAssignment in requiredAssignments)
+        {
+            if (!IsSnapshotPlayerPayloadObject(requiredAssignment))
+            {
+                continue;
+            }
+
+            if (TryReadObjectString(requiredAssignment, "sourceObjectId", out var sourceObjectId))
+            {
+                ValidateBattleDamageAssignmentParticipantObjectId(
+                    sourceObjectId,
+                    $"{payloadLabel} required assignment item source object id",
+                    participantObjectIds,
+                    errors);
+            }
+
+            if (!TryReadObjectStringList(requiredAssignment, "legalTargetObjectIds", out var legalTargetObjectIds))
+            {
+                continue;
+            }
+
+            foreach (var legalTargetObjectId in legalTargetObjectIds)
+            {
+                ValidateBattleDamageAssignmentParticipantObjectId(
+                    legalTargetObjectId,
+                    $"{payloadLabel} required assignment item legal target object id",
+                    participantObjectIds,
+                    errors);
+            }
+        }
+    }
+
+    private static void ValidateBattleDamageAssignmentParticipantObjectId(
+        string? objectId,
+        string itemLabel,
+        IReadOnlySet<string> participantObjectIds,
+        List<string> errors)
+    {
+        if (string.IsNullOrWhiteSpace(objectId))
+        {
+            return;
+        }
+
+        var normalizedObjectId = objectId.Trim();
+        if (!participantObjectIds.Contains(normalizedObjectId))
+        {
+            errors.Add($"{itemLabel} {normalizedObjectId} is not an enclosing battle participant");
         }
     }
 

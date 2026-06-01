@@ -9187,6 +9187,126 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingBattleDamageAssignmentParticipantsOutsideBattle()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var players = alice.Snapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["objects"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["battlefield-a"] = new Dictionary<string, object?>(StringComparer.Ordinal),
+            ["attacker-a"] = new Dictionary<string, object?>(StringComparer.Ordinal),
+            ["defender-a"] = new Dictionary<string, object?>(StringComparer.Ordinal),
+            ["nonparticipant-pool-source"] = new Dictionary<string, object?>(StringComparer.Ordinal),
+            ["nonparticipant-legal-source"] = new Dictionary<string, object?>(StringComparer.Ordinal),
+            ["nonparticipant-legal-target"] = new Dictionary<string, object?>(StringComparer.Ordinal),
+            ["nonparticipant-existing"] = new Dictionary<string, object?>(StringComparer.Ordinal),
+            ["nonparticipant-lethal"] = new Dictionary<string, object?>(StringComparer.Ordinal),
+            ["nonparticipant-required-source"] = new Dictionary<string, object?>(StringComparer.Ordinal),
+            ["nonparticipant-required-target"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        };
+        players["alice"] = alicePayload;
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["battle"] = RawJson("""
+            {
+                "isActive": true,
+                "battleId": "battle-a",
+                "battlefieldObjectId": "battlefield-a",
+                "attackerObjectIds": ["attacker-a"],
+                "defenderObjectIds": ["defender-a"],
+                "participantControllerIds": {
+                    "attacker-a": "alice",
+                    "defender-a": "alice"
+                },
+                "damageAssignment": {
+                    "isPending": true,
+                    "phase": "DAMAGE_ASSIGNMENT",
+                    "battleId": "battle-a",
+                    "battlefieldId": "battlefield-a",
+                    "assigningPlayerId": "alice",
+                    "damagePool": {
+                        "attacker-a": 3,
+                        "nonparticipant-pool-source": 1
+                    },
+                    "legalTargets": {
+                        "attacker-a": ["defender-a", "nonparticipant-legal-target"],
+                        "nonparticipant-legal-source": ["defender-a"]
+                    },
+                    "existingDamage": {
+                        "defender-a": 0,
+                        "nonparticipant-existing": 0
+                    },
+                    "lethalDamageThreshold": {
+                        "defender-a": 2,
+                        "nonparticipant-lethal": 1
+                    },
+                    "requiredAssignments": [
+                        {
+                            "sourceObjectId": "nonparticipant-required-source",
+                            "damage": 1,
+                            "legalTargetObjectIds": ["defender-a", "nonparticipant-required-target"]
+                        }
+                    ]
+                }
+            }
+            """);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players,
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment damage pool source object id nonparticipant-pool-source is not an enclosing battle participant",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment legal targets source object id nonparticipant-legal-source is not an enclosing battle participant",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment legal targets legal target object id nonparticipant-legal-target is not an enclosing battle participant",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment existing damage object id nonparticipant-existing is not an enclosing battle participant",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment lethal damage threshold object id nonparticipant-lethal is not an enclosing battle participant",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment required assignment item source object id nonparticipant-required-source is not an enclosing battle participant",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment required assignment item legal target object id nonparticipant-required-target is not an enclosing battle participant",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingBattleDamageAssignmentValueDrift()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -42950,6 +43070,128 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment battlefield object id attacker-a does not match enclosing battle battlefield object id battlefield-a",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle does not match authoritative state battle", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattleDamageAssignmentParticipantsOutsideBattle()
+    {
+        var authoritativeState = BattleDamageAssignmentState();
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var battle = Assert.IsType<Dictionary<string, object?>>(timing["battle"]).ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var damageAssignment = Assert.IsType<Dictionary<string, object?>>(battle["damageAssignment"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var damagePool = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(damageAssignment["damagePool"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        damagePool["battlefield-a"] = 1;
+        damageAssignment["damagePool"] = damagePool;
+        var legalTargets = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<string>>>(
+            damageAssignment["legalTargets"]).ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        legalTargets["attacker-a"] = ["defender-a", "battlefield-a"];
+        legalTargets["battlefield-a"] = ["defender-a"];
+        damageAssignment["legalTargets"] = legalTargets;
+        var existingDamage = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
+            damageAssignment["existingDamage"]).ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        existingDamage["battlefield-a"] = 0;
+        damageAssignment["existingDamage"] = existingDamage;
+        var lethalDamageThreshold = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
+            damageAssignment["lethalDamageThreshold"]).ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        lethalDamageThreshold["battlefield-a"] = 1;
+        damageAssignment["lethalDamageThreshold"] = lethalDamageThreshold;
+        var requiredAssignments = Assert.IsAssignableFrom<IReadOnlyList<IReadOnlyDictionary<string, object?>>>(
+            damageAssignment["requiredAssignments"])
+            .Select(entry => entry.ToDictionary(item => item.Key, item => item.Value, StringComparer.Ordinal))
+            .ToList();
+        requiredAssignments.Add(new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["sourceObjectId"] = "battlefield-a",
+            ["damage"] = 1,
+            ["legalTargetObjectIds"] = new[] { "battlefield-a" }
+        });
+        damageAssignment["requiredAssignments"] = requiredAssignments;
+        battle["damageAssignment"] = damageAssignment;
+        timing["battle"] = battle;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment damage pool source object id battlefield-a is not an enclosing battle participant",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment legal targets source object id battlefield-a is not an enclosing battle participant",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment legal targets legal target object id battlefield-a is not an enclosing battle participant",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment existing damage object id battlefield-a is not an enclosing battle participant",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment lethal damage threshold object id battlefield-a is not an enclosing battle participant",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment required assignment item source object id battlefield-a is not an enclosing battle participant",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment required assignment item legal target object id battlefield-a is not an enclosing battle participant",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
