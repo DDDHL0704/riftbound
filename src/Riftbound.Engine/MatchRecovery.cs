@@ -4510,10 +4510,6 @@ public static class MatchRecoveryValidator
             foreach (var (objectId, objectPayload) in objectPayloads)
             {
                 AddKnownObjectId(knownObjectIds, objectId);
-                if (TryReadObjectString(objectPayload, "objectId", out var payloadObjectId))
-                {
-                    AddKnownObjectId(knownObjectIds, payloadObjectId);
-                }
             }
         }
 
@@ -15668,11 +15664,6 @@ public static class MatchRecoveryValidator
         foreach (var objectId in authoritativeState.CardObjects.Keys)
         {
             AddKnownObjectId(knownObjectIds, objectId);
-        }
-
-        foreach (var cardObject in authoritativeState.CardObjects.Values)
-        {
-            AddKnownObjectId(knownObjectIds, cardObject.ObjectId);
         }
 
         foreach (var objectId in authoritativeState.ObjectLocations.Keys)
