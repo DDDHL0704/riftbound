@@ -15805,6 +15805,70 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStatePendingPaymentRedactionSentinelDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            pendingPayment: new PendingPaymentState(
+                "HIDDEN",
+                "HIDDEN",
+                "HIDDEN",
+                manaCost: 1,
+                legalPaymentChoiceIds: ["HIDDEN"],
+                reason: "HIDDEN",
+                paymentResourceActionIds: ["HIDDEN"]));
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state pending payment id must not be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state pending payment HIDDEN player must not be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state pending payment HIDDEN window must not be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state pending payment HIDDEN reason must not be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state pending payment HIDDEN legal payment choice must not be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state pending payment HIDDEN payment resource action must not be redacted",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAuthoritativeStatePendingPaymentValueDrift()
     {
         var authoritativeState = new MatchState(

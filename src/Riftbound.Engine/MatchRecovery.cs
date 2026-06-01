@@ -13694,6 +13694,17 @@ public static class MatchRecoveryValidator
         return normalizedValue;
     }
 
+    private static void RejectAuthoritativeStateRedactionSentinel(
+        string valueLabel,
+        string? value,
+        List<string> errors)
+    {
+        if (string.Equals(value?.Trim(), "HIDDEN", StringComparison.Ordinal))
+        {
+            errors.Add($"authoritative state {valueLabel} must not be redacted");
+        }
+    }
+
     private static string? ValidateAuthoritativeStateNullableTextValue(
         string valueLabel,
         string? value,
@@ -14010,13 +14021,24 @@ public static class MatchRecoveryValidator
             pendingPayment.PaymentId,
             errors);
         var paymentLabel = paymentId ?? "<unknown>";
-        ValidateAuthoritativeStateRequiredText(
+        RejectAuthoritativeStateRedactionSentinel("pending payment id", paymentId, errors);
+
+        var paymentWindow = ValidateAuthoritativeStateRequiredText(
             $"pending payment {paymentLabel} window",
             pendingPayment.PaymentWindow,
             errors);
-        ValidateAuthoritativeStateOptionalTextValue(
+        RejectAuthoritativeStateRedactionSentinel(
+            $"pending payment {paymentLabel} window",
+            paymentWindow,
+            errors);
+
+        var reason = ValidateAuthoritativeStateOptionalTextValue(
             $"pending payment {paymentLabel} reason",
             pendingPayment.Reason,
+            errors);
+        RejectAuthoritativeStateRedactionSentinel(
+            $"pending payment {paymentLabel} reason",
+            reason,
             errors);
 
         if (pendingPayment.ManaCost < 0)
@@ -14040,12 +14062,14 @@ public static class MatchRecoveryValidator
             $"pending payment {paymentLabel} legal payment choice",
             pendingPayment.LegalPaymentChoiceIds,
             errors,
-            rejectDuplicates: true);
+            rejectDuplicates: true,
+            rejectRedactionSentinel: true);
         ValidateAuthoritativeStateStringListValues(
             $"pending payment {paymentLabel} payment resource action",
             pendingPayment.PaymentResourceActionIds,
             errors,
-            rejectDuplicates: true);
+            rejectDuplicates: true,
+            rejectRedactionSentinel: true);
     }
 
     private static void ValidateAuthoritativeStatePendingHandChoiceValues(
@@ -15483,6 +15507,13 @@ public static class MatchRecoveryValidator
             "pending payment player",
             pendingPayment.PlayerId,
             seatPlayerIds,
+            errors);
+        var paymentLabel = string.IsNullOrWhiteSpace(pendingPayment.PaymentId)
+            ? "<unknown>"
+            : pendingPayment.PaymentId.Trim();
+        RejectAuthoritativeStateRedactionSentinel(
+            $"pending payment {paymentLabel} player",
+            pendingPayment.PlayerId,
             errors);
     }
 
