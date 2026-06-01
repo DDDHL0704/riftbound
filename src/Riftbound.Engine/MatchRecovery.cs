@@ -10250,6 +10250,16 @@ public static class MatchRecoveryValidator
             appliedOrder,
             sourceOrder,
             errors);
+        ValidateContinuousEffectRuleTextRuntimeMetadataAbsence(
+            effectPayload,
+            effectLabel,
+            scope,
+            layer,
+            effectKind,
+            sourceCardNo,
+            sourcePath,
+            layerEngineStatus,
+            errors);
         ValidateContinuousEffectPowerModifierSourceOrderConsistency(
             effectLabel,
             scope,
@@ -10943,6 +10953,54 @@ public static class MatchRecoveryValidator
         }
 
         errors.Add($"{effectLabel} POWER_MODIFIER source order must be absent without source object id");
+    }
+
+    private static void ValidateContinuousEffectRuleTextRuntimeMetadataAbsence(
+        object? effectPayload,
+        string effectLabel,
+        string? scope,
+        string? layer,
+        string? effectKind,
+        string? sourceCardNo,
+        string? sourcePath,
+        string? layerEngineStatus,
+        List<string> errors)
+    {
+        if (scope is null
+            || layer is null
+            || !IsKnownContinuousEffectScope(scope)
+            || !IsKnownContinuousEffectLayer(layer)
+            || !string.Equals(layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            || !IsContinuousEffectLayerScopeValid(scope, layer))
+        {
+            return;
+        }
+
+        if (effectKind is not null)
+        {
+            errors.Add($"{effectLabel} RULE_TEXT effect kind must be absent");
+        }
+
+        if (sourceCardNo is not null)
+        {
+            errors.Add($"{effectLabel} RULE_TEXT source card no must be absent");
+        }
+
+        if (sourcePath is not null)
+        {
+            errors.Add($"{effectLabel} RULE_TEXT source path must be absent");
+        }
+
+        if (layerEngineStatus is not null)
+        {
+            errors.Add($"{effectLabel} RULE_TEXT layer engine status must be absent");
+        }
+
+        ValidateContinuousEffectReadableStringListAbsence(
+            effectPayload,
+            "deferredLayerEngineResiduals",
+            $"{effectLabel} RULE_TEXT deferred LayerEngine residual list must be absent",
+            errors);
     }
 
     private static void ValidateContinuousEffectAppliedPowerDeltaConsistency(
