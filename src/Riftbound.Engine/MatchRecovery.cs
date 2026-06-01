@@ -10106,13 +10106,14 @@ public static class MatchRecoveryValidator
             "layer",
             errors,
             IsKnownContinuousEffectLayer);
-        ValidateSnapshotPayloadRequiredStringValue(
+        var duration = ValidateSnapshotPayloadRequiredStringValue(
             effectPayload,
             "duration",
             effectLabel,
             "duration",
             errors,
             IsKnownContinuousEffectDuration);
+        ValidateContinuousEffectLayerDurationConsistency(effectLabel, layer, duration, errors);
         ValidateSnapshotPayloadRequiredNullableStringValue(
             effectPayload,
             "targetObjectId",
@@ -10237,6 +10238,40 @@ public static class MatchRecoveryValidator
             errors,
             rejectEmptyString: true);
         return (effectId, sequence);
+    }
+
+    private static void ValidateContinuousEffectLayerDurationConsistency(
+        string effectLabel,
+        string? layer,
+        string? duration,
+        List<string> errors)
+    {
+        if (layer is null
+            || duration is null
+            || !IsKnownContinuousEffectLayer(layer)
+            || !IsKnownContinuousEffectDuration(duration))
+        {
+            return;
+        }
+
+        if (string.Equals(layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal))
+        {
+            if (!string.Equals(duration, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal)
+                && !string.Equals(
+                    duration,
+                    "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD",
+                    StringComparison.Ordinal))
+            {
+                errors.Add($"{effectLabel} static aura duration {duration} is invalid");
+            }
+
+            return;
+        }
+
+        if (!string.Equals(duration, "UNTIL_END_OF_TURN", StringComparison.Ordinal))
+        {
+            errors.Add($"{effectLabel} {layer} duration {duration} is invalid");
+        }
     }
 
     private static void ValidateContinuousEffectAppliedPowerDeltaConsistency(
