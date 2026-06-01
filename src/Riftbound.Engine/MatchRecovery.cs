@@ -2945,6 +2945,9 @@ public static class MatchRecoveryValidator
             payloadLabel,
             errors);
 
+        var knownObjectIds = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotKnownObjectIds(view.Snapshot);
         var shouldValidatePendingFields =
             (TryReadObjectBool(damageAssignmentPayload, "isPending", out var isPending) && isPending)
             || HasBattleDamageAssignmentPendingFields(damageAssignmentPayload);
@@ -2952,6 +2955,12 @@ public static class MatchRecoveryValidator
             damageAssignmentPayload,
             payloadLabel,
             shouldValidatePendingFields,
+            errors);
+        ValidateBattleDamageAssignmentObjectReferences(
+            damageAssignmentPayload,
+            payloadLabel,
+            knownObjectIds,
+            "objects",
             errors);
     }
 
@@ -10320,6 +10329,25 @@ public static class MatchRecoveryValidator
         string knownObjectLabel,
         List<string> errors)
     {
+        ValidateTimingObjectReferenceMapKeys(
+            effectPayload,
+            payloadKey,
+            objectLabel,
+            IsSnapshotStringMapPayloadObject,
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+    }
+
+    private static void ValidateTimingObjectReferenceMapKeys(
+        object? effectPayload,
+        string payloadKey,
+        string objectLabel,
+        Func<object?, bool> isValidMapPayload,
+        IReadOnlySet<string>? knownObjectIds,
+        string knownObjectLabel,
+        List<string> errors)
+    {
         if (knownObjectIds is null)
         {
             return;
@@ -10327,7 +10355,7 @@ public static class MatchRecoveryValidator
 
         if (!TryReadObjectValue(effectPayload, payloadKey, out var mapPayload)
             || IsNullSnapshotPayloadValue(mapPayload)
-            || !IsSnapshotStringMapPayloadObject(mapPayload))
+            || !isValidMapPayload(mapPayload))
         {
             return;
         }
@@ -10340,6 +10368,53 @@ public static class MatchRecoveryValidator
                 knownObjectIds,
                 knownObjectLabel,
                 errors);
+        }
+    }
+
+    private static void ValidateTimingObjectReferenceStringListDictionary(
+        object? effectPayload,
+        string payloadKey,
+        string sourceObjectLabel,
+        string targetObjectLabel,
+        IReadOnlySet<string>? knownObjectIds,
+        string knownObjectLabel,
+        List<string> errors)
+    {
+        if (knownObjectIds is null)
+        {
+            return;
+        }
+
+        if (!TryReadObjectValue(effectPayload, payloadKey, out var mapPayload)
+            || IsNullSnapshotPayloadValue(mapPayload)
+            || !IsSnapshotStringListMapPayloadObject(mapPayload))
+        {
+            return;
+        }
+
+        foreach (var (sourceObjectId, targetObjectIdsPayload) in EnumerateSnapshotPayloadObjectValues(mapPayload))
+        {
+            ValidateTimingObjectReference(
+                sourceObjectLabel,
+                sourceObjectId,
+                knownObjectIds,
+                knownObjectLabel,
+                errors);
+
+            if (!TryReadStringListValue(targetObjectIdsPayload, out var targetObjectIds))
+            {
+                continue;
+            }
+
+            foreach (var targetObjectId in targetObjectIds)
+            {
+                ValidateTimingObjectReference(
+                    targetObjectLabel,
+                    targetObjectId,
+                    knownObjectIds,
+                    knownObjectLabel,
+                    errors);
+            }
         }
     }
 
@@ -18248,6 +18323,12 @@ public static class MatchRecoveryValidator
             payloadLabel,
             shouldValidatePendingFields,
             errors);
+        ValidateBattleDamageAssignmentObjectReferences(
+            damageAssignmentPayload,
+            payloadLabel,
+            BuildAuthoritativeStateKnownObjectIds(authoritativeState),
+            "object registry",
+            errors);
     }
 
     private static void ValidateSpectatorBattleDamageAssignmentMapPayloadShapes(
@@ -18502,6 +18583,101 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "legal target object id",
             errors);
+    }
+
+    private static void ValidateBattleDamageAssignmentObjectReferences(
+        object? damageAssignmentPayload,
+        string payloadLabel,
+        IReadOnlySet<string>? knownObjectIds,
+        string knownObjectLabel,
+        List<string> errors)
+    {
+        if (knownObjectIds is null)
+        {
+            return;
+        }
+
+        ValidateTimingOptionalObjectReference(
+            damageAssignmentPayload,
+            "battlefieldId",
+            $"{payloadLabel} battlefield object id",
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+        ValidateTimingObjectReferenceMapKeys(
+            damageAssignmentPayload,
+            "damagePool",
+            $"{payloadLabel} damage pool source object id",
+            IsSnapshotIntMapPayloadObject,
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+        ValidateTimingObjectReferenceStringListDictionary(
+            damageAssignmentPayload,
+            "legalTargets",
+            $"{payloadLabel} legal targets source object id",
+            $"{payloadLabel} legal targets legal target object id",
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+        ValidateTimingObjectReferenceMapKeys(
+            damageAssignmentPayload,
+            "existingDamage",
+            $"{payloadLabel} existing damage object id",
+            IsSnapshotIntMapPayloadObject,
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+        ValidateTimingObjectReferenceMapKeys(
+            damageAssignmentPayload,
+            "lethalDamageThreshold",
+            $"{payloadLabel} lethal damage threshold object id",
+            IsSnapshotIntMapPayloadObject,
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+        ValidateBattleDamageAssignmentRequiredAssignmentObjectReferences(
+            damageAssignmentPayload,
+            payloadLabel,
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+    }
+
+    private static void ValidateBattleDamageAssignmentRequiredAssignmentObjectReferences(
+        object? damageAssignmentPayload,
+        string payloadLabel,
+        IReadOnlySet<string> knownObjectIds,
+        string knownObjectLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectList(damageAssignmentPayload, "requiredAssignments", out var requiredAssignments))
+        {
+            return;
+        }
+
+        foreach (var requiredAssignment in requiredAssignments)
+        {
+            if (!IsSnapshotPlayerPayloadObject(requiredAssignment))
+            {
+                continue;
+            }
+
+            ValidateTimingOptionalObjectReference(
+                requiredAssignment,
+                "sourceObjectId",
+                $"{payloadLabel} required assignment item source object id",
+                knownObjectIds,
+                knownObjectLabel,
+                errors);
+            ValidateTimingObjectReferenceList(
+                requiredAssignment,
+                "legalTargetObjectIds",
+                $"{payloadLabel} required assignment item legal target object id",
+                knownObjectIds,
+                knownObjectLabel,
+                errors);
+        }
     }
 
     private static void ValidateSpectatorBattleDamageAssignmentRequiredAssignmentPayloadPropertyNames(

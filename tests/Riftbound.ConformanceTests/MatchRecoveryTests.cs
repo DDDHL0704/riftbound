@@ -8915,6 +8915,120 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingBattleDamageAssignmentObjectReferencesOutsideSnapshotObjects()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var players = alice.Snapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["objects"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["battlefield-a"] = new Dictionary<string, object?>(StringComparer.Ordinal),
+            ["attacker-a"] = new Dictionary<string, object?>(StringComparer.Ordinal),
+            ["defender-a"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        };
+        players["alice"] = alicePayload;
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["battle"] = RawJson("""
+            {
+                "isActive": true,
+                "battleId": "battle-a",
+                "battlefieldObjectId": "battlefield-a",
+                "attackerObjectIds": ["attacker-a"],
+                "defenderObjectIds": ["defender-a"],
+                "participantControllerIds": {
+                    "attacker-a": "alice",
+                    "defender-a": "bob"
+                },
+                "damageAssignment": {
+                    "isPending": true,
+                    "phase": "DAMAGE_ASSIGNMENT",
+                    "battleId": "battle-a",
+                    "battlefieldId": "missing-battlefield",
+                    "assigningPlayerId": "alice",
+                    "damagePool": {
+                        "missing-pool-source": 3
+                    },
+                    "legalTargets": {
+                        "missing-legal-source": ["missing-legal-target"]
+                    },
+                    "existingDamage": {
+                        "missing-existing": 0
+                    },
+                    "lethalDamageThreshold": {
+                        "missing-lethal": 2
+                    },
+                    "requiredAssignments": [
+                        {
+                            "sourceObjectId": "missing-required-source",
+                            "damage": 3,
+                            "legalTargetObjectIds": ["missing-required-target"]
+                        }
+                    ]
+                }
+            }
+            """);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players,
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment battlefield object id missing-battlefield is missing from objects",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment damage pool source object id missing-pool-source is missing from objects",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment legal targets source object id missing-legal-source is missing from objects",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment legal targets legal target object id missing-legal-target is missing from objects",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment existing damage object id missing-existing is missing from objects",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment lethal damage threshold object id missing-lethal is missing from objects",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment required assignment item source object id missing-required-source is missing from objects",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment required assignment item legal target object id missing-required-target is missing from objects",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingBattleDamageAssignmentValueDrift()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -42504,6 +42618,122 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment required assignment item legal target object id list payload is required",
                 StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattleDamageAssignmentObjectReferencesOutsideRegistry()
+    {
+        var authoritativeState = BattleDamageAssignmentState();
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var battle = Assert.IsType<Dictionary<string, object?>>(timing["battle"]).ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var damageAssignment = Assert.IsType<Dictionary<string, object?>>(battle["damageAssignment"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        damageAssignment["battlefieldId"] = "missing-battlefield";
+        damageAssignment["damagePool"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["missing-pool-source"] = 3
+        };
+        damageAssignment["legalTargets"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["missing-legal-source"] = new[] { "missing-legal-target" }
+        };
+        damageAssignment["existingDamage"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["missing-existing"] = 0
+        };
+        damageAssignment["lethalDamageThreshold"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["missing-lethal"] = 2
+        };
+        damageAssignment["requiredAssignments"] = new object?[]
+        {
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["sourceObjectId"] = "missing-required-source",
+                ["damage"] = 3,
+                ["legalTargetObjectIds"] = new[] { "missing-required-target" }
+            }
+        };
+        battle["damageAssignment"] = damageAssignment;
+        timing["battle"] = battle;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment battlefield object id missing-battlefield is missing from object registry",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment damage pool source object id missing-pool-source is missing from object registry",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment legal targets source object id missing-legal-source is missing from object registry",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment legal targets legal target object id missing-legal-target is missing from object registry",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment existing damage object id missing-existing is missing from object registry",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment lethal damage threshold object id missing-lethal is missing from object registry",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment required assignment item source object id missing-required-source is missing from object registry",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment required assignment item legal target object id missing-required-target is missing from object registry",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle does not match authoritative state battle", StringComparison.Ordinal));
     }
 
     [Fact]
