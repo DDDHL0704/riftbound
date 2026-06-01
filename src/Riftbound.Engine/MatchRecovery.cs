@@ -12514,7 +12514,6 @@ public static class MatchRecoveryValidator
         if (!string.Equals(sourceVisibility, "VISIBLE", StringComparison.Ordinal)
             || sourceObjectId is null
             || knownObjectIds is null
-            || knownObjectIds.Count == 0
             || string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal))
         {
             return;
