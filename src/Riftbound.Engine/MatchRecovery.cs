@@ -10449,6 +10449,10 @@ public static class MatchRecoveryValidator
             effectPayload,
             $"{effectLabel} static aura source order is required",
             errors);
+        ValidateContinuousEffectStaticAuraAppliedOrderAbsence(
+            effectPayload,
+            $"{effectLabel} static aura applied order must be absent",
+            errors);
         ValidateContinuousEffectStaticAuraDependencyListMembership(
             effectPayload,
             "sourceObjectId",
@@ -10490,6 +10494,21 @@ public static class MatchRecoveryValidator
         {
             errors.Add(diagnostic);
         }
+    }
+
+    private static void ValidateContinuousEffectStaticAuraAppliedOrderAbsence(
+        object? effectPayload,
+        string diagnostic,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(effectPayload, "appliedOrder", out var appliedOrderPayload)
+            || IsNullSnapshotPayloadValue(appliedOrderPayload)
+            || !TryReadIntValue(appliedOrderPayload, out _))
+        {
+            return;
+        }
+
+        errors.Add(diagnostic);
     }
 
     private static void ValidateContinuousEffectStaticAuraDependencyListMembership(
