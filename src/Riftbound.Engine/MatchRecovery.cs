@@ -4013,6 +4013,9 @@ public static class MatchRecoveryValidator
         }
 
         var seenTaskIds = new HashSet<string>(StringComparer.Ordinal);
+        var knownPlayerIds = view.Snapshot.Players is null
+            ? null
+            : BuildNormalizedPlayerIdSet(view.Snapshot.Players.Keys);
         var knownObjectIds = view.Snapshot.Players is null
             ? null
             : BuildSnapshotKnownObjectIds(view.Snapshot);
@@ -4073,6 +4076,13 @@ public static class MatchRecoveryValidator
                 taskLabel,
                 "acting player id",
                 errors);
+            ValidateTimingOptionalPlayerReference(
+                taskPayload,
+                "actingPlayerId",
+                $"{taskLabel} acting player id",
+                knownPlayerIds,
+                "players",
+                errors);
             ValidateSnapshotPayloadOptionalStringValue(
                 taskPayload,
                 "spellDuelId",
@@ -4101,6 +4111,9 @@ public static class MatchRecoveryValidator
         var knownObjectIds = view.Snapshot.Players is null
             ? null
             : BuildSnapshotKnownObjectIds(view.Snapshot);
+        var knownPlayerIds = view.Snapshot.Players is null
+            ? null
+            : BuildNormalizedPlayerIdSet(view.Snapshot.Players.Keys);
         foreach (var taskPayload in taskPayloads)
         {
             if (!IsSnapshotPlayerPayloadObject(taskPayload))
@@ -4120,6 +4133,13 @@ public static class MatchRecoveryValidator
                 "participantControllerIds",
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
                 "participant controller id",
+                errors);
+            ValidateTimingPlayerReferenceList(
+                taskPayload,
+                "participantControllerIds",
+                $"snapshot for {view.PlayerId} timing {payloadLabel} participant controller id",
+                knownPlayerIds,
+                "players",
                 errors);
             ValidateSnapshotPayloadRequiredStringListPayloadShape(
                 taskPayload,
@@ -10400,6 +10420,35 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateTimingPlayerReferenceList(
+        object? payload,
+        string payloadKey,
+        string playerLabel,
+        IReadOnlySet<string>? knownPlayerIds,
+        string knownPlayerLabel,
+        List<string> errors)
+    {
+        if (knownPlayerIds is null)
+        {
+            return;
+        }
+
+        if (!TryReadObjectStringList(payload, payloadKey, out var playerIds))
+        {
+            return;
+        }
+
+        foreach (var playerId in playerIds)
+        {
+            ValidateTimingPlayerReference(
+                playerLabel,
+                playerId,
+                knownPlayerIds,
+                knownPlayerLabel,
+                errors);
+        }
+    }
+
     private static void ValidateTimingPlayerReference(
         string playerLabel,
         string playerId,
@@ -13619,6 +13668,7 @@ public static class MatchRecoveryValidator
         }
 
         var seenTaskIds = new HashSet<string>(StringComparer.Ordinal);
+        var seatPlayerIds = BuildNormalizedPlayerIdSet(authoritativeState.Seats.Keys);
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         foreach (var spectatorBattlefieldTask in spectatorBattlefieldTasks)
         {
@@ -13635,10 +13685,12 @@ public static class MatchRecoveryValidator
             ValidateSpectatorBattlefieldTaskPayloadScalarValues(
                 spectatorBattlefieldTask,
                 seenTaskIds,
+                seatPlayerIds,
                 knownObjectIds,
                 errors);
             ValidateSpectatorBattlefieldTaskPayloadListValues(
                 spectatorBattlefieldTask,
+                seatPlayerIds,
                 knownObjectIds,
                 errors);
         }
@@ -13737,6 +13789,7 @@ public static class MatchRecoveryValidator
     private static void ValidateSpectatorBattlefieldTaskPayloadScalarValues(
         object? spectatorBattlefieldTask,
         HashSet<string> seenTaskIds,
+        IReadOnlySet<string> seatPlayerIds,
         IReadOnlySet<string> knownObjectIds,
         List<string> errors)
     {
@@ -13789,6 +13842,13 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "acting player id",
             errors);
+        ValidateTimingOptionalPlayerReference(
+            spectatorBattlefieldTask,
+            "actingPlayerId",
+            $"{payloadLabel} acting player id",
+            seatPlayerIds,
+            "seats",
+            errors);
         ValidateSnapshotPayloadOptionalStringValue(
             spectatorBattlefieldTask,
             "spellDuelId",
@@ -13805,6 +13865,7 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSpectatorBattlefieldTaskPayloadListValues(
         object? spectatorBattlefieldTask,
+        IReadOnlySet<string> seatPlayerIds,
         IReadOnlySet<string> knownObjectIds,
         List<string> errors)
     {
@@ -13820,6 +13881,13 @@ public static class MatchRecoveryValidator
             "participantControllerIds",
             payloadLabel,
             "participant controller id",
+            errors);
+        ValidateTimingPlayerReferenceList(
+            spectatorBattlefieldTask,
+            "participantControllerIds",
+            $"{payloadLabel} participant controller id",
+            seatPlayerIds,
+            "seats",
             errors);
         ValidateSpectatorRequiredStringListPayloadShape(
             spectatorBattlefieldTask,
