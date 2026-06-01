@@ -14875,6 +14875,8 @@ public static class MatchRecoveryValidator
             errors.Add($"authoritative state {pointerName} {normalizedPlayerId} has surrounding whitespace");
         }
 
+        RejectAuthoritativeStateRedactionSentinel(pointerName, normalizedPlayerId, errors);
+
         if (!seatPlayerIds.Contains(normalizedPlayerId))
         {
             errors.Add($"authoritative state {pointerName} {normalizedPlayerId} is missing from seats");
@@ -14908,6 +14910,8 @@ public static class MatchRecoveryValidator
                 errors.Add(
                     $"authoritative state {listMemberName} {normalizedPlayerId} has surrounding whitespace");
             }
+
+            RejectAuthoritativeStateRedactionSentinel(listMemberName, normalizedPlayerId, errors);
 
             if (!seatPlayerIds.Contains(normalizedPlayerId))
             {
@@ -14948,6 +14952,8 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"authoritative state {mapKeyName} {normalizedPlayerId} has surrounding whitespace");
             }
+
+            RejectAuthoritativeStateRedactionSentinel(mapKeyName, normalizedPlayerId, errors);
 
             if (!seatPlayerIds.Contains(normalizedPlayerId))
             {
@@ -16199,6 +16205,8 @@ public static class MatchRecoveryValidator
             errors.Add($"authoritative state {pointerName} {normalizedPlayerId} has surrounding whitespace");
         }
 
+        RejectAuthoritativeStateRedactionSentinel(pointerName, normalizedPlayerId, errors);
+
         if (!seatPlayerIds.Contains(normalizedPlayerId))
         {
             errors.Add($"authoritative state {pointerName} {normalizedPlayerId} is missing from seats");
@@ -16222,6 +16230,8 @@ public static class MatchRecoveryValidator
                 errors.Add($"authoritative state seat player {normalizedPlayerId} has surrounding whitespace");
             }
 
+            RejectAuthoritativeStateRedactionSentinel("seat player id", normalizedPlayerId, errors);
+
             var playerLabel = string.IsNullOrWhiteSpace(normalizedPlayerId)
                 ? "<blank>"
                 : normalizedPlayerId;
@@ -16236,6 +16246,8 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"authoritative state seat {normalizedSeat} for {playerLabel} has surrounding whitespace");
             }
+
+            RejectAuthoritativeStateRedactionSentinel($"seat for {playerLabel}", normalizedSeat, errors);
 
             if (!IsKnownSeat(normalizedSeat))
             {

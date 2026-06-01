@@ -14961,6 +14961,126 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStatePlayerIdentityRedactionSentinelDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "HIDDEN",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["HIDDEN"] = "HIDDEN",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "HIDDEN",
+            priorityPlayerId: "HIDDEN",
+            focusPlayerId: "HIDDEN",
+            winnerPlayerId: "HIDDEN",
+            extraTurnPlayerId: "HIDDEN",
+            openingSecondActionPlayerId: "HIDDEN",
+            readyPlayerIds: ["HIDDEN"],
+            passedPriorityPlayerIds: ["HIDDEN"],
+            passedFocusPlayerIds: ["HIDDEN"],
+            destroyedUnitOwnerIdsThisTurn: ["HIDDEN"],
+            mulliganCompletedPlayerIds: ["HIDDEN"],
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["HIDDEN"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["HIDDEN"] = PlayerZones.Empty
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["HIDDEN"] = 1
+            },
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["HIDDEN"] = 1
+            },
+            playerCardsPlayedThisTurn: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["HIDDEN"] = 1
+            },
+            playerDecklists: new Dictionary<string, OfficialDecklist>(StringComparer.Ordinal)
+            {
+                ["HIDDEN"] = new("LEGEND-001", "CHAMPION-001", ["MAIN-001"], ["RUNE-001"], ["BATTLEFIELD-001"])
+            });
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state seat player id must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state seat for HIDDEN must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state active player must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state turn player must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state priority player must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state focus player must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state winner player must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state opening second action player must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state extra turn player must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state ready player must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state passed priority player must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state passed focus player must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state mulligan completed player must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state destroyed unit owner must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state rune pool player must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state zone player must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state score player must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state experience player must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state cards played player must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state decklist player must not be redacted", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAuthoritativeStatePlayerPointersOutsideSeats()
     {
         var authoritativeState = new MatchState(

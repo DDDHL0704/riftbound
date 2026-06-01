@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-17RV recovery authoritative resolution history redaction sentinel validation is authoritative battlefield/battle resolution id/kind/reason/player/object/list/event-kind redaction-boundary enforcement against `HIDDEN`, validated focused resolution-history redaction sentinel test `1/1`, focused ResolutionHistory/Resolution tests `77/77`, focused recovery `574/574`, adjacent recovery/opening/store-smoke `1155/1155`, backend full `6520/6520`. It does not change DOC_MATRIX approved scope or open frontend/final-status locks.
+Current A_MAIN latest accepted slice: Stage 4D-17RW recovery authoritative player identity redaction sentinel validation is authoritative seat/player-pointer/player-list/player-map-key redaction-boundary enforcement against `HIDDEN`, validated focused player-identity redaction sentinel test `1/1`, focused AuthoritativeStatePlayer/AuthoritativeStateSeat tests `6/6`, focused recovery `575/575`, adjacent recovery/opening/store-smoke `1156/1156`, backend full `6521/6521`. It does not change DOC_MATRIX approved scope or open frontend/final-status locks.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-17RV; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-17RW; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-01 20:58 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in this checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-01 22:09 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main`; latest local commit before this entry is `cbee89c7` (`checkpoint: stage 4D recovery authoritative resolution history redaction sentinels`). This entry records the Stage 4D-17RW work to be committed/pushed as `checkpoint: stage 4D recovery authoritative player identity redaction sentinels`. DOC_MATRIX_CURRENT remains clean at `17bde0c3`; A_MAIN did not touch that worktree.
+
+Write locks: A_MAIN touched only `src/Riftbound.Engine/MatchRecovery.cs`, `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs`, current checkpoint/completion/P0-P1/next-dispatch docs, this shared board, and `docs/CURRENT_STAGE4D_17RW_RECOVERY_AUTHORITATIVE_PLAYER_IDENTITY_REDACTION_SENTINEL_AUDIT.md`. Matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, frontend, protocol, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-17RW recovery authoritative player identity redaction sentinel validation accepted. `MatchRecoveryValidator` now emits explicit diagnostics when authoritative seat player ids/seat values, required or optional player pointers, top-level player lists or player-keyed map keys use the view-redaction sentinel `HIDDEN`. Project remains **NOT READY**.
+
+Validation: focused player-identity redaction sentinel test `1/1`; focused AuthoritativeStatePlayer/AuthoritativeStateSeat tests `6/6`; focused recovery `575/575`; adjacent recovery/opening/store-smoke `1156/1156`; backend full `6521/6521`; mechanical checks passed (`git diff --check`, anchored conflict-marker scan, matrix JSON parse).
+
+Requested action: no DOC_MATRIX action requested. Future DOC_MATRIX work must re-read this board and obtain/observe an approved scope before touching matrix/test/checkpoint files.
 
 ### 2026-06-01 22:01 A_MAIN
 
