@@ -3957,6 +3957,9 @@ public static class MatchRecoveryValidator
         }
 
         var seenTaskIds = new HashSet<string>(StringComparer.Ordinal);
+        var knownObjectIds = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotKnownObjectIds(view.Snapshot);
         foreach (var taskPayload in taskPayloads)
         {
             if (!IsSnapshotPlayerPayloadObject(taskPayload))
@@ -4001,6 +4004,13 @@ public static class MatchRecoveryValidator
                 taskLabel,
                 "battlefield object id",
                 errors);
+            ValidateTimingOptionalObjectReference(
+                taskPayload,
+                "battlefieldObjectId",
+                $"{taskLabel} battlefield object id",
+                knownObjectIds,
+                "objects",
+                errors);
             ValidateSnapshotPayloadOptionalStringValue(
                 taskPayload,
                 "actingPlayerId",
@@ -4032,6 +4042,9 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        var knownObjectIds = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotKnownObjectIds(view.Snapshot);
         foreach (var taskPayload in taskPayloads)
         {
             if (!IsSnapshotPlayerPayloadObject(taskPayload))
@@ -4063,6 +4076,13 @@ public static class MatchRecoveryValidator
                 "participantObjectIds",
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
                 "participant object id",
+                errors);
+            ValidateTimingObjectReferenceList(
+                taskPayload,
+                "participantObjectIds",
+                $"snapshot for {view.PlayerId} timing {payloadLabel} participant object id",
+                knownObjectIds,
+                "objects",
                 errors);
             ValidateSnapshotPayloadRequiredStringListPayloadShape(
                 taskPayload,
@@ -10181,42 +10201,42 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        ValidateContinuousEffectOptionalObjectReference(
+        ValidateTimingOptionalObjectReference(
             effectPayload,
             "targetObjectId",
             $"{effectLabel} target object id",
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateContinuousEffectOptionalObjectReference(
+        ValidateTimingOptionalObjectReference(
             effectPayload,
             "sourceObjectId",
             $"{effectLabel} source object id",
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateContinuousEffectObjectReferenceList(
+        ValidateTimingObjectReferenceList(
             effectPayload,
             "participantObjectIds",
             $"{effectLabel} participant object id",
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateContinuousEffectObjectReferenceList(
+        ValidateTimingObjectReferenceList(
             effectPayload,
             "sourceDependencyObjectIds",
             $"{effectLabel} source dependency object id",
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateContinuousEffectObjectReferenceList(
+        ValidateTimingObjectReferenceList(
             effectPayload,
             "targetDependencyObjectIds",
             $"{effectLabel} target dependency object id",
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateContinuousEffectObjectReferenceList(
+        ValidateTimingObjectReferenceList(
             effectPayload,
             "participantDependencyObjectIds",
             $"{effectLabel} participant dependency object id",
@@ -10225,14 +10245,19 @@ public static class MatchRecoveryValidator
             errors);
     }
 
-    private static void ValidateContinuousEffectOptionalObjectReference(
+    private static void ValidateTimingOptionalObjectReference(
         object? effectPayload,
         string payloadKey,
         string objectLabel,
-        IReadOnlySet<string> knownObjectIds,
+        IReadOnlySet<string>? knownObjectIds,
         string knownObjectLabel,
         List<string> errors)
     {
+        if (knownObjectIds is null)
+        {
+            return;
+        }
+
         if (!TryReadObjectValue(effectPayload, payloadKey, out var objectIdPayload)
             || IsNullSnapshotPayloadValue(objectIdPayload)
             || !TryReadOptionalStringValue(objectIdPayload, out var objectId)
@@ -10241,7 +10266,7 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        ValidateContinuousEffectObjectReference(
+        ValidateTimingObjectReference(
             objectLabel,
             objectId,
             knownObjectIds,
@@ -10249,14 +10274,19 @@ public static class MatchRecoveryValidator
             errors);
     }
 
-    private static void ValidateContinuousEffectObjectReferenceList(
+    private static void ValidateTimingObjectReferenceList(
         object? effectPayload,
         string payloadKey,
         string objectLabel,
-        IReadOnlySet<string> knownObjectIds,
+        IReadOnlySet<string>? knownObjectIds,
         string knownObjectLabel,
         List<string> errors)
     {
+        if (knownObjectIds is null)
+        {
+            return;
+        }
+
         if (!TryReadObjectStringList(effectPayload, payloadKey, out var objectIds))
         {
             return;
@@ -10264,7 +10294,7 @@ public static class MatchRecoveryValidator
 
         foreach (var objectId in objectIds)
         {
-            ValidateContinuousEffectObjectReference(
+            ValidateTimingObjectReference(
                 objectLabel,
                 objectId,
                 knownObjectIds,
@@ -10273,7 +10303,7 @@ public static class MatchRecoveryValidator
         }
     }
 
-    private static void ValidateContinuousEffectObjectReference(
+    private static void ValidateTimingObjectReference(
         string objectLabel,
         string objectId,
         IReadOnlySet<string> knownObjectIds,
@@ -13352,6 +13382,7 @@ public static class MatchRecoveryValidator
         }
 
         var seenTaskIds = new HashSet<string>(StringComparer.Ordinal);
+        var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         foreach (var spectatorBattlefieldTask in spectatorBattlefieldTasks)
         {
             if (!IsSnapshotPlayerPayloadObject(spectatorBattlefieldTask))
@@ -13367,9 +13398,11 @@ public static class MatchRecoveryValidator
             ValidateSpectatorBattlefieldTaskPayloadScalarValues(
                 spectatorBattlefieldTask,
                 seenTaskIds,
+                knownObjectIds,
                 errors);
             ValidateSpectatorBattlefieldTaskPayloadListValues(
                 spectatorBattlefieldTask,
+                knownObjectIds,
                 errors);
         }
 
@@ -13467,6 +13500,7 @@ public static class MatchRecoveryValidator
     private static void ValidateSpectatorBattlefieldTaskPayloadScalarValues(
         object? spectatorBattlefieldTask,
         HashSet<string> seenTaskIds,
+        IReadOnlySet<string> knownObjectIds,
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing battlefield task item";
@@ -13505,6 +13539,13 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "battlefield object id",
             errors);
+        ValidateTimingOptionalObjectReference(
+            spectatorBattlefieldTask,
+            "battlefieldObjectId",
+            $"{payloadLabel} battlefield object id",
+            knownObjectIds,
+            "object registry",
+            errors);
         ValidateSnapshotPayloadOptionalStringValue(
             spectatorBattlefieldTask,
             "actingPlayerId",
@@ -13527,6 +13568,7 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSpectatorBattlefieldTaskPayloadListValues(
         object? spectatorBattlefieldTask,
+        IReadOnlySet<string> knownObjectIds,
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing battlefield task item";
@@ -13553,6 +13595,13 @@ public static class MatchRecoveryValidator
             "participantObjectIds",
             payloadLabel,
             "participant object id",
+            errors);
+        ValidateTimingObjectReferenceList(
+            spectatorBattlefieldTask,
+            "participantObjectIds",
+            $"{payloadLabel} participant object id",
+            knownObjectIds,
+            "object registry",
             errors);
         ValidateSpectatorRequiredStringListPayloadShape(
             spectatorBattlefieldTask,
