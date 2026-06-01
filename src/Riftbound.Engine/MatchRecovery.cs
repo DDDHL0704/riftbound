@@ -2065,6 +2065,10 @@ public static class MatchRecoveryValidator
                 view.Snapshot.Timing,
                 $"snapshot for {view.PlayerId} timing",
                 errors);
+            ValidateTimingOrderTriggerPromptFieldAbsence(
+                view.Snapshot.Timing,
+                $"snapshot for {view.PlayerId} timing",
+                errors);
 
             if (!TryReadString(view.Snapshot.Timing, "timingState", out var snapshotTimingState)
                 || string.IsNullOrWhiteSpace(snapshotTimingState))
@@ -12382,6 +12386,35 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateTimingOrderTriggerPromptFieldAbsence(
+        object? timingPayload,
+        string timingLabel,
+        List<string> errors)
+    {
+        ValidateTimingPromptFieldAbsence(timingPayload, "orderingPlayerId", timingLabel, errors);
+        ValidateTimingPromptFieldAbsence(timingPayload, "orderedTriggerIds", timingLabel, errors);
+        ValidateTimingPromptFieldAbsence(timingPayload, "triggerIds", timingLabel, errors);
+        ValidateTimingPromptFieldAbsence(timingPayload, "triggers", timingLabel, errors);
+        ValidateTimingPromptFieldAbsence(timingPayload, "triggerChoices", timingLabel, errors);
+        ValidateTimingPromptFieldAbsence(timingPayload, "legalOrderingConstraints", timingLabel, errors);
+        ValidateTimingPromptFieldAbsence(timingPayload, "triggeredByEventKind", timingLabel, errors);
+        ValidateTimingPromptFieldAbsence(timingPayload, "orderingState", timingLabel, errors);
+    }
+
+    private static void ValidateTimingPromptFieldAbsence(
+        object? timingPayload,
+        string key,
+        string timingLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(timingPayload, key, out _))
+        {
+            return;
+        }
+
+        errors.Add($"{timingLabel} order-trigger prompt field {key} must be absent");
+    }
+
     private static bool OptionalStringSnapshotValueMatches(object? payload, string key, string? expected)
     {
         var expectedText = expected ?? string.Empty;
@@ -15795,6 +15828,10 @@ public static class MatchRecoveryValidator
         }
 
         ValidateSnapshotPayloadObjectPropertyNames(
+            spectatorReplayFrame.SpectatorSnapshot.Timing,
+            "spectator replay frame timing",
+            errors);
+        ValidateTimingOrderTriggerPromptFieldAbsence(
             spectatorReplayFrame.SpectatorSnapshot.Timing,
             "spectator replay frame timing",
             errors);
