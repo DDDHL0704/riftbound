@@ -2826,9 +2826,18 @@ public static class MatchRecoveryValidator
             view,
             battlePayload,
             errors);
+        var knownObjectIds = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotKnownObjectIds(view.Snapshot);
         ValidateBattlePayloadValues(
             battlePayload,
             $"snapshot for {view.PlayerId} timing battle",
+            errors);
+        ValidateBattleObjectReferences(
+            battlePayload,
+            $"snapshot for {view.PlayerId} timing battle",
+            knownObjectIds,
+            "objects",
             errors);
     }
 
@@ -10303,6 +10312,37 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateTimingObjectReferenceDictionaryKeys(
+        object? effectPayload,
+        string payloadKey,
+        string objectLabel,
+        IReadOnlySet<string>? knownObjectIds,
+        string knownObjectLabel,
+        List<string> errors)
+    {
+        if (knownObjectIds is null)
+        {
+            return;
+        }
+
+        if (!TryReadObjectValue(effectPayload, payloadKey, out var mapPayload)
+            || IsNullSnapshotPayloadValue(mapPayload)
+            || !IsSnapshotStringMapPayloadObject(mapPayload))
+        {
+            return;
+        }
+
+        foreach (var (objectId, _) in EnumerateSnapshotPayloadObjectValues(mapPayload))
+        {
+            ValidateTimingObjectReference(
+                objectLabel,
+                objectId,
+                knownObjectIds,
+                knownObjectLabel,
+                errors);
+        }
+    }
+
     private static void ValidateTimingObjectReference(
         string objectLabel,
         string objectId,
@@ -17008,6 +17048,7 @@ public static class MatchRecoveryValidator
                 errors);
             ValidateSpectatorBattlePayloadValues(
                 spectatorBattle,
+                authoritativeState,
                 errors);
             ValidateSpectatorBattleDamageAssignmentPayloadValues(
                 spectatorBattle,
@@ -17962,9 +18003,11 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSpectatorBattlePayloadValues(
         object? battlePayload,
+        MatchState authoritativeState,
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing battle";
+        var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         ValidateSnapshotPayloadRequiredBoolValue(
             battlePayload,
             "isActive",
@@ -17999,6 +18042,12 @@ public static class MatchRecoveryValidator
             "defender object id",
             errors);
         ValidateSpectatorBattleParticipantControllerPayloadValues(battlePayload, errors);
+        ValidateBattleObjectReferences(
+            battlePayload,
+            payloadLabel,
+            knownObjectIds,
+            "object registry",
+            errors);
     }
 
     private static void ValidateSpectatorBattleParticipantListPayloadShapes(
@@ -18115,6 +18164,48 @@ public static class MatchRecoveryValidator
             "participantControllerIds",
             payloadLabel,
             "participant controller",
+            errors);
+    }
+
+    private static void ValidateBattleObjectReferences(
+        object? battlePayload,
+        string payloadLabel,
+        IReadOnlySet<string>? knownObjectIds,
+        string knownObjectLabel,
+        List<string> errors)
+    {
+        if (knownObjectIds is null)
+        {
+            return;
+        }
+
+        ValidateTimingOptionalObjectReference(
+            battlePayload,
+            "battlefieldObjectId",
+            $"{payloadLabel} battlefield object id",
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+        ValidateTimingObjectReferenceList(
+            battlePayload,
+            "attackerObjectIds",
+            $"{payloadLabel} attacker object id",
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+        ValidateTimingObjectReferenceList(
+            battlePayload,
+            "defenderObjectIds",
+            $"{payloadLabel} defender object id",
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+        ValidateTimingObjectReferenceDictionaryKeys(
+            battlePayload,
+            "participantControllerIds",
+            $"{payloadLabel} participant object id",
+            knownObjectIds,
+            knownObjectLabel,
             errors);
     }
 
