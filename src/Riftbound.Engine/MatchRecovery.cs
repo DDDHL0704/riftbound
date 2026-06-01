@@ -14467,9 +14467,19 @@ public static class MatchRecoveryValidator
                 "reason",
                 resolution.Reason,
                 errors);
-            ValidateAuthoritativeStateNullableTextValue(
+            ValidateAuthoritativeStateResolutionText(
+                "battlefield resolution",
+                resolutionId,
+                "battlefield object",
+                resolution.BattlefieldObjectId,
+                errors);
+            var sourceObjectId = ValidateAuthoritativeStateNullableTextValue(
                 $"battlefield resolution {diagnosticResolutionId} source object",
                 resolution.SourceObjectId,
+                errors);
+            RejectAuthoritativeStateRedactionSentinel(
+                $"battlefield resolution {diagnosticResolutionId} source object",
+                sourceObjectId,
                 errors);
             ValidateAuthoritativeStateResolutionTextList(
                 "battlefield resolution",
@@ -14531,6 +14541,12 @@ public static class MatchRecoveryValidator
                 resolutionId,
                 "reason",
                 resolution.Reason,
+                errors);
+            ValidateAuthoritativeStateResolutionText(
+                "battle resolution",
+                resolutionId,
+                "battlefield object",
+                resolution.BattlefieldId,
                 errors);
             ValidateAuthoritativeStateResolutionTextList(
                 "battle resolution",
@@ -14600,6 +14616,8 @@ public static class MatchRecoveryValidator
             errors.Add($"authoritative state {resolutionLabel} {normalizedResolutionId} id is duplicated");
         }
 
+        RejectAuthoritativeStateRedactionSentinel($"{resolutionLabel} id", normalizedResolutionId, errors);
+
         return normalizedResolutionId;
     }
 
@@ -14645,6 +14663,11 @@ public static class MatchRecoveryValidator
             errors.Add(
                 $"authoritative state {resolutionLabel} {diagnosticResolutionId} {valueLabel} {normalizedValue} has surrounding whitespace");
         }
+
+        RejectAuthoritativeStateRedactionSentinel(
+            $"{resolutionLabel} {diagnosticResolutionId} {valueLabel}",
+            normalizedValue,
+            errors);
     }
 
     private static void ValidateAuthoritativeStateResolutionTextList(
@@ -14683,6 +14706,11 @@ public static class MatchRecoveryValidator
                 errors.Add(
                     $"authoritative state {resolutionLabel} {diagnosticResolutionId} {valueLabel} {normalizedValue} has surrounding whitespace");
             }
+
+            RejectAuthoritativeStateRedactionSentinel(
+                $"{resolutionLabel} {diagnosticResolutionId} {valueLabel}",
+                normalizedValue,
+                errors);
 
             if (!seenValues.Add(normalizedValue))
             {
@@ -16072,15 +16100,27 @@ public static class MatchRecoveryValidator
                 resolution.PlayerId,
                 seatPlayerIds,
                 errors);
+            RejectAuthoritativeStateRedactionSentinel(
+                $"battlefield resolution {resolution.ResolutionId} player",
+                resolution.PlayerId,
+                errors);
             ValidateAuthoritativeStateOptionalObjectPlayer(
                 $"battlefield resolution {resolution.ResolutionId} previous controller player",
                 resolution.PreviousControllerId,
                 seatPlayerIds,
                 errors);
+            RejectAuthoritativeStateRedactionSentinel(
+                $"battlefield resolution {resolution.ResolutionId} previous controller player",
+                resolution.PreviousControllerId,
+                errors);
             ValidateAuthoritativeStateOptionalObjectPlayer(
                 $"battlefield resolution {resolution.ResolutionId} controller player",
                 resolution.ControllerId,
                 seatPlayerIds,
+                errors);
+            RejectAuthoritativeStateRedactionSentinel(
+                $"battlefield resolution {resolution.ResolutionId} controller player",
+                resolution.ControllerId,
                 errors);
         }
     }
@@ -16111,15 +16151,27 @@ public static class MatchRecoveryValidator
                 resolution.AttackingPlayerId,
                 seatPlayerIds,
                 errors);
+            RejectAuthoritativeStateRedactionSentinel(
+                $"battle resolution {resolution.ResolutionId} attacking player",
+                resolution.AttackingPlayerId,
+                errors);
             ValidateAuthoritativeStateOptionalObjectPlayer(
                 $"battle resolution {resolution.ResolutionId} defending player",
                 resolution.DefendingPlayerId,
                 seatPlayerIds,
                 errors);
+            RejectAuthoritativeStateRedactionSentinel(
+                $"battle resolution {resolution.ResolutionId} defending player",
+                resolution.DefendingPlayerId,
+                errors);
             ValidateAuthoritativeStateOptionalObjectPlayer(
                 $"battle resolution {resolution.ResolutionId} winner player",
                 resolution.WinnerPlayerId,
                 seatPlayerIds,
+                errors);
+            RejectAuthoritativeStateRedactionSentinel(
+                $"battle resolution {resolution.ResolutionId} winner player",
+                resolution.WinnerPlayerId,
                 errors);
         }
     }

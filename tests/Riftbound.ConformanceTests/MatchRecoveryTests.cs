@@ -17442,6 +17442,136 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateResolutionHistoryRedactionSentinelDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob")
+        {
+            BattlefieldResolutions =
+            [
+                new(
+                    "HIDDEN",
+                    0,
+                    "HIDDEN",
+                    "HIDDEN",
+                    "HIDDEN",
+                    "HIDDEN",
+                    "HIDDEN",
+                    "HIDDEN",
+                    "HIDDEN",
+                    ["HIDDEN"],
+                    ["HIDDEN"])
+            ],
+            BattleResolutions =
+            [
+                new(
+                    "HIDDEN",
+                    0,
+                    "HIDDEN",
+                    "HIDDEN",
+                    "HIDDEN",
+                    "HIDDEN",
+                    "HIDDEN",
+                    "HIDDEN",
+                    ["HIDDEN"],
+                    ["HIDDEN"],
+                    ["HIDDEN"],
+                    ["HIDDEN"],
+                    ["HIDDEN"],
+                    ["HIDDEN"])
+            ]
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution id must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution HIDDEN kind must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution HIDDEN reason must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution HIDDEN battlefield object must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution HIDDEN player must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution HIDDEN previous controller player must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution HIDDEN controller player must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution HIDDEN source object must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution HIDDEN participant object must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battlefield resolution HIDDEN related event kind must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution id must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution HIDDEN kind must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution HIDDEN reason must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution HIDDEN battlefield object must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution HIDDEN attacking player must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution HIDDEN defending player must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution HIDDEN winner player must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution HIDDEN attacker object must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution HIDDEN defender object must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution HIDDEN surviving attacker object must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution HIDDEN surviving defender object must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution HIDDEN destroyed object must not be redacted", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state battle resolution HIDDEN related event kind must not be redacted", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAuthoritativeStateResolutionHistoryValueDrift()
     {
         var authoritativeState = new MatchState(
