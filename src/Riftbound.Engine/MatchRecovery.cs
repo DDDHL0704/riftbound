@@ -2836,6 +2836,10 @@ public static class MatchRecoveryValidator
             battlePayload,
             $"snapshot for {view.PlayerId} timing battle",
             errors);
+        ValidateBattleActiveParticipantConsistency(
+            battlePayload,
+            $"snapshot for {view.PlayerId} timing battle",
+            errors);
         ValidateBattlePlayerReferences(
             battlePayload,
             $"snapshot for {view.PlayerId} timing battle",
@@ -18236,6 +18240,10 @@ public static class MatchRecoveryValidator
             "defender object id",
             errors);
         ValidateSpectatorBattleParticipantControllerPayloadValues(battlePayload, errors);
+        ValidateBattleActiveParticipantConsistency(
+            battlePayload,
+            payloadLabel,
+            errors);
         ValidateBattlePlayerReferences(
             battlePayload,
             payloadLabel,
@@ -18429,6 +18437,28 @@ public static class MatchRecoveryValidator
             knownObjectIds,
             knownObjectLabel,
             errors);
+    }
+
+    private static void ValidateBattleActiveParticipantConsistency(
+        object? battlePayload,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectBool(battlePayload, "isActive", out var isActive)
+            || !TryBuildBattleParticipantObjectIdSet(battlePayload, out var participantObjectIds))
+        {
+            return;
+        }
+
+        var hasParticipants = participantObjectIds.Count > 0;
+        if (isActive && !hasParticipants)
+        {
+            errors.Add($"{payloadLabel} active flag is true but no battle participants are present");
+        }
+        else if (!isActive && hasParticipants)
+        {
+            errors.Add($"{payloadLabel} active flag is false but battle participants are present");
+        }
     }
 
     private static void ValidateBattleParticipantControllerMembership(
