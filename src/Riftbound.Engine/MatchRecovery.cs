@@ -3828,6 +3828,10 @@ public static class MatchRecoveryValidator
                 $"snapshot for {view.PlayerId} timing {effectLabel}",
                 "deferred LayerEngine residual",
                 errors);
+            ValidateContinuousEffectStaticAuraDependencyListConsistency(
+                effectPayload,
+                $"snapshot for {view.PlayerId} timing {effectLabel}",
+                errors);
         }
     }
 
@@ -10078,6 +10082,7 @@ public static class MatchRecoveryValidator
             effectLabel,
             "deferred LayerEngine residual",
             errors);
+        ValidateContinuousEffectStaticAuraDependencyListConsistency(effectPayload, effectLabel, errors);
         return effectValues;
     }
 
@@ -10416,6 +10421,42 @@ public static class MatchRecoveryValidator
         if (lifecycle is null)
         {
             errors.Add($"{effectLabel} static aura lifecycle is required");
+        }
+    }
+
+    private static void ValidateContinuousEffectStaticAuraDependencyListConsistency(
+        object? effectPayload,
+        string effectLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectString(effectPayload, "layer", out var layer)
+            || !string.Equals(layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        ValidateContinuousEffectStaticAuraRequiredListPresence(
+            effectPayload,
+            "sourceDependencyObjectIds",
+            $"{effectLabel} static aura source dependency object id list is required",
+            errors);
+        ValidateContinuousEffectStaticAuraRequiredListPresence(
+            effectPayload,
+            "targetDependencyObjectIds",
+            $"{effectLabel} static aura target dependency object id list is required",
+            errors);
+    }
+
+    private static void ValidateContinuousEffectStaticAuraRequiredListPresence(
+        object? effectPayload,
+        string key,
+        string diagnostic,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(effectPayload, key, out var listPayload)
+            || IsNullSnapshotPayloadValue(listPayload))
+        {
+            errors.Add(diagnostic);
         }
     }
 
