@@ -2255,6 +2255,49 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingContinuousEffectDurationKnownValueDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["continuousEffects"] = new object?[]
+        {
+            RawJson("""
+                {
+                    "effectId": "effect-unknown-duration",
+                    "scope": "OBJECT",
+                    "layer": "POWER_MODIFIER",
+                    "duration": "UNKNOWN_DURATION",
+                    "targetObjectId": "target-1",
+                    "sourceObjectId": "source-1",
+                    "powerDelta": 1,
+                    "basePower": 3,
+                    "effectivePower": 4,
+                    "sequence": 1
+                }
+                """)
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item duration UNKNOWN_DURATION is invalid",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingContinuousEffectLayerEngineResidualConsistencyDrift()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -26977,6 +27020,121 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing continuous effect item layer engine status UNKNOWN_STATUS is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect count 2 does not match authoritative state continuous effect count 1",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingContinuousEffectDurationKnownValueDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Base = ["source-1", "target-1"]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new("source-1", ownerId: "alice", controllerId: "alice"),
+                ["target-1"] = new(
+                    "target-1",
+                    power: 5,
+                    untilEndOfTurnPowerModifier: 2,
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    untilEndOfTurnPowerModifiers:
+                    [
+                        new PowerModifierLedgerEntry(
+                            "effect-1",
+                            "TEST_POWER_MODIFIER",
+                            "UNTIL_END_OF_TURN",
+                            "target-1",
+                            "source-1",
+                            "SRC-001",
+                            powerDelta: 2,
+                            basePower: 3,
+                            effectivePower: 5)
+                    ])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new("alice", "BASE"),
+                ["target-1"] = new("alice", "BASE")
+            });
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var continuousEffects = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["continuousEffects"])
+            .ToList();
+        Assert.Single(continuousEffects);
+        continuousEffects.Add(new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["effectId"] = "effect-unknown-duration",
+            ["scope"] = "OBJECT",
+            ["layer"] = "POWER_MODIFIER",
+            ["duration"] = "UNKNOWN_DURATION",
+            ["targetObjectId"] = null,
+            ["sourceObjectId"] = null,
+            ["powerDelta"] = 0,
+            ["basePower"] = 0,
+            ["effectivePower"] = 0,
+            ["sequence"] = 2
+        });
+        timing["continuousEffects"] = continuousEffects.ToArray();
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect item duration UNKNOWN_DURATION is invalid",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

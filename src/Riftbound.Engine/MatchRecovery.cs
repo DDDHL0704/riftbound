@@ -4391,6 +4391,13 @@ public static class MatchRecoveryValidator
             || string.Equals(value, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal);
     }
 
+    private static bool IsKnownContinuousEffectDuration(string value)
+    {
+        return string.Equals(value, "UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            || string.Equals(value, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal)
+            || string.Equals(value, "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", StringComparison.Ordinal);
+    }
+
     private static bool IsKnownContinuousEffectLayerEngineStatus(string value)
     {
         return string.Equals(value, "FOUNDATION_ONLY", StringComparison.Ordinal);
@@ -10104,7 +10111,8 @@ public static class MatchRecoveryValidator
             "duration",
             effectLabel,
             "duration",
-            errors);
+            errors,
+            IsKnownContinuousEffectDuration);
         ValidateSnapshotPayloadRequiredNullableStringValue(
             effectPayload,
             "targetObjectId",
