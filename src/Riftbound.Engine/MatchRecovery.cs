@@ -10267,6 +10267,18 @@ public static class MatchRecoveryValidator
             layer,
             layerEngineStatus,
             errors);
+        ValidateContinuousEffectPowerModifierFoundationModifierScalarCompleteness(
+            effectPayload,
+            effectLabel,
+            scope,
+            layer,
+            requestedPowerDelta,
+            appliedPowerDelta,
+            minimumPower,
+            resultingPower,
+            appliedOrder,
+            layerEngineStatus,
+            errors);
         ValidateContinuousEffectPowerModifierNonFoundationMetadataAbsence(
             effectPayload,
             effectLabel,
@@ -11090,6 +11102,81 @@ public static class MatchRecoveryValidator
         if (sourceObjectId is not null)
         {
             errors.Add($"{effectLabel} POWER_MODIFIER source object id must be absent without foundation metadata");
+        }
+    }
+
+    private static void ValidateContinuousEffectPowerModifierFoundationModifierScalarCompleteness(
+        object? effectPayload,
+        string effectLabel,
+        string? scope,
+        string? layer,
+        int? requestedPowerDelta,
+        int? appliedPowerDelta,
+        int? minimumPower,
+        int? resultingPower,
+        int? appliedOrder,
+        string? layerEngineStatus,
+        List<string> errors)
+    {
+        if (scope is null
+            || layer is null
+            || !IsKnownContinuousEffectScope(scope)
+            || !IsKnownContinuousEffectLayer(layer)
+            || !string.Equals(layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+            || !IsContinuousEffectLayerScopeValid(scope, layer))
+        {
+            return;
+        }
+
+        var hasFoundationOnlyStatus = string.Equals(layerEngineStatus, "FOUNDATION_ONLY", StringComparison.Ordinal);
+        var hasReadableResiduals = TryReadObjectStringList(
+                effectPayload,
+                "deferredLayerEngineResiduals",
+                out var residuals)
+            && residuals.Count > 0;
+        if (!hasFoundationOnlyStatus && !hasReadableResiduals)
+        {
+            return;
+        }
+
+        var hasTrackedModifierScalar = requestedPowerDelta.HasValue
+            || appliedPowerDelta.HasValue
+            || minimumPower.HasValue
+            || resultingPower.HasValue
+            || appliedOrder.HasValue;
+        if (!hasTrackedModifierScalar)
+        {
+            return;
+        }
+
+        if (!requestedPowerDelta.HasValue)
+        {
+            errors.Add(
+                $"{effectLabel} POWER_MODIFIER foundation requested power delta is required when tracked modifier scalars are present");
+        }
+
+        if (!appliedPowerDelta.HasValue)
+        {
+            errors.Add(
+                $"{effectLabel} POWER_MODIFIER foundation applied power delta is required when tracked modifier scalars are present");
+        }
+
+        if (!minimumPower.HasValue)
+        {
+            errors.Add(
+                $"{effectLabel} POWER_MODIFIER foundation minimum power is required when tracked modifier scalars are present");
+        }
+
+        if (!resultingPower.HasValue)
+        {
+            errors.Add(
+                $"{effectLabel} POWER_MODIFIER foundation resulting power is required when tracked modifier scalars are present");
+        }
+
+        if (!appliedOrder.HasValue)
+        {
+            errors.Add(
+                $"{effectLabel} POWER_MODIFIER foundation applied order is required when tracked modifier scalars are present");
         }
     }
 
