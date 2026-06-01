@@ -15817,6 +15817,135 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateWorkflowObjectReferencesWithEmptyObjectRegistry()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            pendingHandChoice: new PendingHandChoiceState(
+                "choice-1",
+                "CHOOSE_HAND_CARDS",
+                "alice",
+                requiredCount: 1,
+                maxCount: 1,
+                legalObjectIds: ["missing-choice-legal"],
+                reason: "test",
+                sourceObjectId: "missing-choice-source",
+                effectKind: "DRAW_DISCARD"),
+            temporaryPaymentResources:
+            [
+                new TemporaryPaymentResourceState(
+                    "temp-1",
+                    "bob",
+                    "missing-temp-source",
+                    "ability-1",
+                    "PAY_COST",
+                    generatedPower: 1,
+                    remainingPower: 1,
+                    allowedPaymentKinds: ["power"],
+                    createdTick: 0)
+            ])
+        {
+            BattlefieldResolutions =
+            [
+                new(
+                    "battlefield-resolution-1",
+                    0,
+                    "CONTROL_CHANGED",
+                    "test",
+                    "missing-battlefield",
+                    "alice",
+                    null,
+                    "alice",
+                    "missing-bf-source",
+                    ["missing-participant"],
+                    ["BATTLEFIELD_CONTROL_CHANGED"])
+            ],
+            BattleResolutions =
+            [
+                new(
+                    "battle-resolution-1",
+                    0,
+                    "CLOSED",
+                    "test",
+                    "missing-battlefield-2",
+                    "alice",
+                    "bob",
+                    "alice",
+                    ["missing-attacker"],
+                    ["missing-defender"],
+                    ["missing-surviving-attacker"],
+                    ["missing-surviving-defender"],
+                    ["missing-destroyed"],
+                    ["BATTLE_CLOSED"])
+            ]
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state pending hand choice choice-1 source object missing-choice-source is missing from object registry",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state pending hand choice choice-1 legal object missing-choice-legal is missing from object registry",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state temporary payment resource temp-1 source object missing-temp-source is missing from object registry",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state battlefield resolution battlefield-resolution-1 battlefield object missing-battlefield is missing from object registry",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state battlefield resolution battlefield-resolution-1 source object missing-bf-source is missing from object registry",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state battlefield resolution battlefield-resolution-1 participant object missing-participant is missing from object registry",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state battle resolution battle-resolution-1 battlefield object missing-battlefield-2 is missing from object registry",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state battle resolution battle-resolution-1 attacker object missing-attacker is missing from object registry",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state battle resolution battle-resolution-1 destroyed object missing-destroyed is missing from object registry",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueRedactionSentinelDrift()
     {
         var authoritativeState = new MatchState(

@@ -15814,19 +15814,6 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
-        if (knownObjectIds.Count == 0)
-        {
-            ValidateAuthoritativeStateStackItemObjectReferences(
-                authoritativeState.StackItems,
-                knownObjectIds,
-                errors);
-            ValidateAuthoritativeStateTriggerQueueSourceObjectReferences(
-                authoritativeState.TriggerQueue,
-                knownObjectIds,
-                errors);
-            return;
-        }
-
         foreach (var (objectId, cardObject) in authoritativeState.CardObjects
             .OrderBy(entry => entry.Key, StringComparer.Ordinal))
         {
