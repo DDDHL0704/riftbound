@@ -16440,6 +16440,94 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateCardObjectPowerModifierRedactionSentinelDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob")
+        {
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["obj-1"] = new(
+                    "obj-1",
+                    power: 3,
+                    untilEndOfTurnPowerModifier: 1,
+                    untilEndOfTurnPowerModifiers:
+                    [
+                        new PowerModifierLedgerEntry(
+                            "HIDDEN",
+                            "HIDDEN",
+                            "HIDDEN",
+                            "HIDDEN",
+                            "HIDDEN",
+                            "HIDDEN",
+                            1,
+                            2,
+                            3,
+                            "HIDDEN",
+                            1,
+                            0,
+                            3,
+                            1)
+                    ])
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state card object obj-1 power modifier id must not be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state card object obj-1 power modifier HIDDEN effect kind must not be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state card object obj-1 power modifier HIDDEN duration must not be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state card object obj-1 power modifier HIDDEN target object must not be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state card object obj-1 power modifier HIDDEN source path must not be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state card object obj-1 power modifier HIDDEN source object must not be redacted",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state card object obj-1 power modifier HIDDEN source card no must not be redacted",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAuthoritativeStateCardObjectPowerModifierValueDrift()
     {
         var malformedLedgerState = new MatchState(

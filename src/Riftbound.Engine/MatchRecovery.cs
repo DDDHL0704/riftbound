@@ -15141,34 +15141,62 @@ public static class MatchRecoveryValidator
                 modifier.EffectId,
                 errors);
             var modifierLabel = modifierId ?? "<unknown>";
+            RejectAuthoritativeStateRedactionSentinel(
+                $"card object {objectId} power modifier id",
+                modifierId,
+                errors);
             if (modifierId is not null && !seenEffectIds.Add(modifierId))
             {
                 errors.Add($"authoritative state card object {objectId} power modifier {modifierId} is duplicated");
             }
 
-            ValidateAuthoritativeStateRequiredText(
+            var effectKind = ValidateAuthoritativeStateRequiredText(
                 $"card object {objectId} power modifier {modifierLabel} effect kind",
                 modifier.EffectKind,
                 errors);
-            ValidateAuthoritativeStateRequiredText(
+            RejectAuthoritativeStateRedactionSentinel(
+                $"card object {objectId} power modifier {modifierLabel} effect kind",
+                effectKind,
+                errors);
+            var duration = ValidateAuthoritativeStateRequiredText(
                 $"card object {objectId} power modifier {modifierLabel} duration",
                 modifier.Duration,
+                errors);
+            RejectAuthoritativeStateRedactionSentinel(
+                $"card object {objectId} power modifier {modifierLabel} duration",
+                duration,
                 errors);
             var targetObjectId = ValidateAuthoritativeStateRequiredText(
                 $"card object {objectId} power modifier {modifierLabel} target object",
                 modifier.TargetObjectId,
                 errors);
-            ValidateAuthoritativeStateRequiredText(
+            RejectAuthoritativeStateRedactionSentinel(
+                $"card object {objectId} power modifier {modifierLabel} target object",
+                targetObjectId,
+                errors);
+            var sourcePath = ValidateAuthoritativeStateRequiredText(
                 $"card object {objectId} power modifier {modifierLabel} source path",
                 modifier.SourcePath,
                 errors);
-            ValidateAuthoritativeStateNullableTextValue(
+            RejectAuthoritativeStateRedactionSentinel(
+                $"card object {objectId} power modifier {modifierLabel} source path",
+                sourcePath,
+                errors);
+            var sourceObjectId = ValidateAuthoritativeStateNullableTextValue(
                 $"card object {objectId} power modifier {modifierLabel} source object",
                 modifier.SourceObjectId,
                 errors);
-            ValidateAuthoritativeStateNullableTextValue(
+            RejectAuthoritativeStateRedactionSentinel(
+                $"card object {objectId} power modifier {modifierLabel} source object",
+                sourceObjectId,
+                errors);
+            var sourceCardNo = ValidateAuthoritativeStateNullableTextValue(
                 $"card object {objectId} power modifier {modifierLabel} source card no",
                 modifier.SourceCardNo,
+                errors);
+            RejectAuthoritativeStateRedactionSentinel(
+                $"card object {objectId} power modifier {modifierLabel} source card no",
+                sourceCardNo,
                 errors);
 
             if (targetObjectId is not null && !string.Equals(targetObjectId, objectId.Trim(), StringComparison.Ordinal))
