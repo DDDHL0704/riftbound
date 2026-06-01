@@ -10135,6 +10135,15 @@ public static class MatchRecoveryValidator
             "source object id",
             errors);
         ValidateContinuousEffectSourceObjectConsistency(effectLabel, scope, layer, sourceObjectId, errors);
+        ValidateContinuousEffectStaticAuraEffectIdConsistency(
+            effectLabel,
+            effectId,
+            scope,
+            layer,
+            duration,
+            targetObjectId,
+            sourceObjectId,
+            errors);
         ValidateContinuousEffectStaticAuraObjectSourceTargetConsistency(
             effectLabel,
             scope,
@@ -10545,6 +10554,75 @@ public static class MatchRecoveryValidator
         {
             errors.Add($"{effectLabel} static aura source object id is required");
         }
+    }
+
+    private static void ValidateContinuousEffectStaticAuraEffectIdConsistency(
+        string effectLabel,
+        string? effectId,
+        string? scope,
+        string? layer,
+        string? duration,
+        string? targetObjectId,
+        string? sourceObjectId,
+        List<string> errors)
+    {
+        if (effectId is null
+            || scope is null
+            || layer is null
+            || duration is null
+            || targetObjectId is null
+            || sourceObjectId is null
+            || !IsKnownContinuousEffectScope(scope)
+            || !IsKnownContinuousEffectLayer(layer)
+            || !IsKnownContinuousEffectDuration(duration)
+            || !string.Equals(layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+            || !IsContinuousEffectLayerScopeValid(scope, layer))
+        {
+            return;
+        }
+
+        if (string.Equals(scope, "OBJECT", StringComparison.Ordinal))
+        {
+            if (!string.Equals(duration, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal)
+                || !string.Equals(targetObjectId, sourceObjectId, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            ValidateContinuousEffectStaticAuraExpectedEffectId(
+                effectLabel,
+                effectId,
+                $"STATIC_AURA:FRIENDLY_EQUIPMENT_POWER:{sourceObjectId}",
+                "object static aura effect id",
+                errors);
+            return;
+        }
+
+        if (string.Equals(scope, "BATTLEFIELD", StringComparison.Ordinal)
+            && string.Equals(duration, "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", StringComparison.Ordinal))
+        {
+            ValidateContinuousEffectStaticAuraExpectedEffectId(
+                effectLabel,
+                effectId,
+                $"STATIC_AURA:BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE:{sourceObjectId}:{targetObjectId}",
+                "battlefield static aura effect id",
+                errors);
+        }
+    }
+
+    private static void ValidateContinuousEffectStaticAuraExpectedEffectId(
+        string effectLabel,
+        string actual,
+        string expected,
+        string diagnosticLabel,
+        List<string> errors)
+    {
+        if (string.Equals(actual, expected, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        errors.Add($"{effectLabel} {diagnosticLabel} must be {expected}");
     }
 
     private static void ValidateContinuousEffectStaticAuraObjectSourceTargetConsistency(
