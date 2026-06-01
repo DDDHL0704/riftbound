@@ -6059,6 +6059,22 @@ public static class MatchRecoveryValidator
         return value;
     }
 
+    private static int? ValidateSnapshotPayloadOptionalPositiveIntValue(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors)
+    {
+        var value = ValidateSnapshotPayloadOptionalIntValue(payload, key, payloadLabel, itemLabel, errors);
+        if (value is <= 0)
+        {
+            errors.Add($"{payloadLabel} {itemLabel} {value} must be positive");
+        }
+
+        return value;
+    }
+
     private static IEnumerable<string> EnumerateSnapshotPayloadObjectPropertyNames(object? payload)
     {
         return payload switch
@@ -10062,13 +10078,13 @@ public static class MatchRecoveryValidator
             effectLabel,
             "resulting power",
             errors);
-        ValidateSnapshotPayloadOptionalIntValue(
+        ValidateSnapshotPayloadOptionalPositiveIntValue(
             effectPayload,
             "appliedOrder",
             effectLabel,
             "applied order",
             errors);
-        ValidateSnapshotPayloadOptionalIntValue(
+        ValidateSnapshotPayloadOptionalPositiveIntValue(
             effectPayload,
             "sourceOrder",
             effectLabel,
