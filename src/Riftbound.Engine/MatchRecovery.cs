@@ -10066,18 +10066,19 @@ public static class MatchRecoveryValidator
             effectLabel,
             "applied power delta",
             errors);
-        ValidateSnapshotPayloadOptionalIntValue(
+        var minimumPower = ValidateSnapshotPayloadOptionalNonNegativeIntValue(
             effectPayload,
             "minimumPower",
             effectLabel,
             "minimum power",
             errors);
-        ValidateSnapshotPayloadOptionalIntValue(
+        var resultingPower = ValidateSnapshotPayloadOptionalIntValue(
             effectPayload,
             "resultingPower",
             effectLabel,
             "resulting power",
             errors);
+        ValidateContinuousEffectPowerFloorConsistency(effectLabel, minimumPower, resultingPower, errors);
         ValidateSnapshotPayloadOptionalPositiveIntValue(
             effectPayload,
             "appliedOrder",
@@ -10103,6 +10104,23 @@ public static class MatchRecoveryValidator
             "lifecycle",
             errors);
         return (effectId, sequence);
+    }
+
+    private static void ValidateContinuousEffectPowerFloorConsistency(
+        string effectLabel,
+        int? minimumPower,
+        int? resultingPower,
+        List<string> errors)
+    {
+        if (!minimumPower.HasValue
+            || !resultingPower.HasValue
+            || resultingPower.Value >= minimumPower.Value)
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{effectLabel} resulting power {resultingPower.Value} is less than minimum power {minimumPower.Value}");
     }
 
     private static void ValidateContinuousEffectLayerEngineResidualConsistency(
