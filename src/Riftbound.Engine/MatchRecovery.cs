@@ -10099,7 +10099,7 @@ public static class MatchRecoveryValidator
             "scope",
             errors,
             IsKnownContinuousEffectScope);
-        ValidateSnapshotPayloadRequiredStringValue(
+        var layer = ValidateSnapshotPayloadRequiredStringValue(
             effectPayload,
             "layer",
             effectLabel,
@@ -10181,6 +10181,7 @@ public static class MatchRecoveryValidator
         ValidateContinuousEffectLayerEngineResidualConsistency(
             effectPayload,
             effectLabel,
+            layer,
             layerEngineStatus,
             errors);
         ValidateSnapshotPayloadOptionalIntValue(
@@ -10275,15 +10276,23 @@ public static class MatchRecoveryValidator
     private static void ValidateContinuousEffectLayerEngineResidualConsistency(
         object? effectPayload,
         string effectLabel,
+        string? layer,
         string? layerEngineStatus,
         List<string> errors)
     {
+        var hasFoundationOnlyStatus = string.Equals(layerEngineStatus, "FOUNDATION_ONLY", StringComparison.Ordinal);
+        var isStaticAuraLayer = string.Equals(layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal);
         if (!TryReadObjectValue(effectPayload, "deferredLayerEngineResiduals", out var residualPayload)
             || IsNullSnapshotPayloadValue(residualPayload))
         {
-            if (string.Equals(layerEngineStatus, "FOUNDATION_ONLY", StringComparison.Ordinal))
+            if (hasFoundationOnlyStatus || isStaticAuraLayer)
             {
                 errors.Add($"{effectLabel} deferred LayerEngine residual list is required");
+            }
+
+            if (isStaticAuraLayer && !hasFoundationOnlyStatus)
+            {
+                errors.Add($"{effectLabel} static aura requires foundation-only layer engine status");
             }
 
             return;
@@ -10291,6 +10300,11 @@ public static class MatchRecoveryValidator
 
         if (!TryReadStringListValue(residualPayload, out var residuals))
         {
+            if (isStaticAuraLayer && !hasFoundationOnlyStatus)
+            {
+                errors.Add($"{effectLabel} static aura requires foundation-only layer engine status");
+            }
+
             return;
         }
 
@@ -10299,9 +10313,13 @@ public static class MatchRecoveryValidator
             errors.Add($"{effectLabel} deferred LayerEngine residual list is required");
         }
 
-        if (!string.Equals(layerEngineStatus, "FOUNDATION_ONLY", StringComparison.Ordinal))
+        if (!hasFoundationOnlyStatus)
         {
             errors.Add($"{effectLabel} deferred LayerEngine residuals require foundation-only layer engine status");
+            if (isStaticAuraLayer)
+            {
+                errors.Add($"{effectLabel} static aura requires foundation-only layer engine status");
+            }
         }
     }
 
