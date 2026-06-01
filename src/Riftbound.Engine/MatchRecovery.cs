@@ -10390,7 +10390,9 @@ public static class MatchRecoveryValidator
             rejectEmptyString: true);
         ValidateContinuousEffectStaticAuraMetadataConsistency(
             effectLabel,
+            scope,
             layer,
+            duration,
             effectKind,
             sourceCardNo,
             sourcePath,
@@ -10531,7 +10533,9 @@ public static class MatchRecoveryValidator
 
     private static void ValidateContinuousEffectStaticAuraMetadataConsistency(
         string effectLabel,
+        string? scope,
         string? layer,
+        string? duration,
         string? effectKind,
         string? sourceCardNo,
         string? sourcePath,
@@ -10568,6 +10572,123 @@ public static class MatchRecoveryValidator
         {
             errors.Add($"{effectLabel} static aura lifecycle is required");
         }
+
+        ValidateContinuousEffectStaticAuraMetadataValueConsistency(
+            effectLabel,
+            scope,
+            layer,
+            duration,
+            effectKind,
+            sourcePath,
+            condition,
+            lifecycle,
+            errors);
+    }
+
+    private static void ValidateContinuousEffectStaticAuraMetadataValueConsistency(
+        string effectLabel,
+        string? scope,
+        string? layer,
+        string? duration,
+        string? effectKind,
+        string? sourcePath,
+        string? condition,
+        string? lifecycle,
+        List<string> errors)
+    {
+        if (scope is null
+            || layer is null
+            || duration is null
+            || !IsKnownContinuousEffectScope(scope)
+            || !IsKnownContinuousEffectLayer(layer)
+            || !IsKnownContinuousEffectDuration(duration)
+            || !string.Equals(layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+            || !IsContinuousEffectLayerScopeValid(scope, layer))
+        {
+            return;
+        }
+
+        if (string.Equals(scope, "OBJECT", StringComparison.Ordinal))
+        {
+            if (!string.Equals(duration, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            ValidateContinuousEffectStaticAuraMetadataValue(
+                effectLabel,
+                effectKind,
+                "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER",
+                "object static aura effect kind",
+                errors);
+            ValidateContinuousEffectStaticAuraMetadataValue(
+                effectLabel,
+                sourcePath,
+                "CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute",
+                "object static aura source path",
+                errors);
+            ValidateContinuousEffectStaticAuraMetadataValue(
+                effectLabel,
+                condition,
+                "SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_PUBLIC_FIELD_EQUIPMENT_COUNT",
+                "object static aura condition",
+                errors);
+            ValidateContinuousEffectStaticAuraMetadataValue(
+                effectLabel,
+                lifecycle,
+                "RECOMPUTED_FROM_CURRENT_AUTHORITATIVE_FIELD_STATE",
+                "object static aura lifecycle",
+                errors);
+            return;
+        }
+
+        if (string.Equals(scope, "BATTLEFIELD", StringComparison.Ordinal))
+        {
+            if (!string.Equals(duration, "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            ValidateContinuousEffectStaticAuraMetadataValue(
+                effectLabel,
+                effectKind,
+                "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE",
+                "battlefield static aura effect kind",
+                errors);
+            ValidateContinuousEffectStaticAuraMetadataValue(
+                effectLabel,
+                sourcePath,
+                "CoreRuleEngine.ResolveBattlefieldAllUnitsPowerBonus",
+                "battlefield static aura source path",
+                errors);
+            ValidateContinuousEffectStaticAuraMetadataValue(
+                effectLabel,
+                condition,
+                "SOURCE_BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE_AND_PARTICIPANT_UNIT_AT_BATTLEFIELD",
+                "battlefield static aura condition",
+                errors);
+            ValidateContinuousEffectStaticAuraMetadataValue(
+                effectLabel,
+                lifecycle,
+                "DERIVED_FROM_CURRENT_BATTLEFIELD_OBJECT_LOCATIONS",
+                "battlefield static aura lifecycle",
+                errors);
+        }
+    }
+
+    private static void ValidateContinuousEffectStaticAuraMetadataValue(
+        string effectLabel,
+        string? actual,
+        string expected,
+        string diagnosticLabel,
+        List<string> errors)
+    {
+        if (actual is null || string.Equals(actual, expected, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        errors.Add($"{effectLabel} {diagnosticLabel} must be {expected}");
     }
 
     private static void ValidateContinuousEffectNonStaticAuraParticipantListAbsence(
