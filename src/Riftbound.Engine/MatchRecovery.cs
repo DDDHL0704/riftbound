@@ -14069,10 +14069,15 @@ public static class MatchRecoveryValidator
                 errors.Add($"authoritative state trigger queue item {triggerId} is duplicated");
             }
 
-            ValidateAuthoritativeStateRequiredText(
+            var effectKind = ValidateAuthoritativeStateRequiredText(
                 $"trigger queue item {triggerLabel} effect kind",
                 trigger.EffectKind,
                 errors);
+            if (string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal))
+            {
+                errors.Add($"authoritative state trigger queue item {triggerLabel} effect kind must not be redacted");
+            }
+
             ValidateAuthoritativeStateRequiredText(
                 $"trigger queue item {triggerLabel} triggered event kind",
                 trigger.TriggeredByEventKind,
@@ -14084,6 +14089,10 @@ public static class MatchRecoveryValidator
             if (sourceObjectId is not null && sourceObjectId.Length == 0)
             {
                 errors.Add($"authoritative state trigger queue item {triggerLabel} source object is required");
+            }
+            else if (string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal))
+            {
+                errors.Add($"authoritative state trigger queue item {triggerLabel} source object must not be redacted");
             }
         }
     }
