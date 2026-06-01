@@ -4606,6 +4606,145 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingContinuousEffectStaticAuraPowerDeltaConsistencyDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["continuousEffects"] = new object?[]
+        {
+            RawJson("""
+                {
+                    "effectId": "effect-object-static-aura-power-without-participants",
+                    "scope": "OBJECT",
+                    "layer": "STATIC_AURA",
+                    "duration": "WHILE_SOURCE_ON_PUBLIC_FIELD",
+                    "targetObjectId": "target-object-a",
+                    "sourceObjectId": "source-object-a",
+                    "powerDelta": 2,
+                    "basePower": 3,
+                    "effectivePower": 5,
+                    "sequence": 1,
+                    "effectKind": "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER",
+                    "sourceCardNo": "SRC-001",
+                    "sourcePath": "CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute",
+                    "condition": "SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_PUBLIC_FIELD_EQUIPMENT_COUNT",
+                    "lifecycle": "RECOMPUTED_FROM_CURRENT_AUTHORITATIVE_FIELD_STATE",
+                    "layerEngineStatus": "FOUNDATION_ONLY",
+                    "sourceDependencyObjectIds": ["source-object-a"],
+                    "targetDependencyObjectIds": ["target-object-a"],
+                    "sourceOrder": 1,
+                    "deferredLayerEngineResiduals": [
+                        "timestamp ordering",
+                        "dependency ordering",
+                        "source ordering",
+                        "keyword gain/loss layering",
+                        "multiple equipment/static aura interactions",
+                        "minimum-power layering",
+                        "full official LayerEngine coverage"
+                    ]
+                }
+                """),
+            RawJson("""
+                {
+                    "effectId": "effect-object-static-aura-power-count",
+                    "scope": "OBJECT",
+                    "layer": "STATIC_AURA",
+                    "duration": "WHILE_SOURCE_ON_PUBLIC_FIELD",
+                    "targetObjectId": "target-object-b",
+                    "sourceObjectId": "source-object-b",
+                    "powerDelta": 2,
+                    "basePower": 3,
+                    "effectivePower": 5,
+                    "sequence": 2,
+                    "effectKind": "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER",
+                    "sourceCardNo": "SRC-002",
+                    "sourcePath": "CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute",
+                    "condition": "SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_PUBLIC_FIELD_EQUIPMENT_COUNT",
+                    "lifecycle": "RECOMPUTED_FROM_CURRENT_AUTHORITATIVE_FIELD_STATE",
+                    "layerEngineStatus": "FOUNDATION_ONLY",
+                    "sourceDependencyObjectIds": ["source-object-b"],
+                    "targetDependencyObjectIds": ["target-object-b"],
+                    "participantObjectIds": ["equipment-object"],
+                    "participantDependencyObjectIds": ["equipment-object"],
+                    "sourceOrder": 1,
+                    "deferredLayerEngineResiduals": [
+                        "timestamp ordering",
+                        "dependency ordering",
+                        "source ordering",
+                        "keyword gain/loss layering",
+                        "multiple equipment/static aura interactions",
+                        "minimum-power layering",
+                        "full official LayerEngine coverage"
+                    ]
+                }
+                """),
+            RawJson("""
+                {
+                    "effectId": "effect-battlefield-static-aura-power",
+                    "scope": "BATTLEFIELD",
+                    "layer": "STATIC_AURA",
+                    "duration": "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD",
+                    "targetObjectId": "participant-1",
+                    "sourceObjectId": "battlefield-1",
+                    "powerDelta": 2,
+                    "basePower": 3,
+                    "effectivePower": 5,
+                    "sequence": 3,
+                    "effectKind": "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE",
+                    "sourceCardNo": "BF-001",
+                    "sourcePath": "CoreRuleEngine.ResolveBattlefieldAllUnitsPowerBonus",
+                    "condition": "SOURCE_BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE_AND_PARTICIPANT_UNIT_AT_BATTLEFIELD",
+                    "lifecycle": "DERIVED_FROM_CURRENT_BATTLEFIELD_OBJECT_LOCATIONS",
+                    "layerEngineStatus": "FOUNDATION_ONLY",
+                    "sourceDependencyObjectIds": ["battlefield-1"],
+                    "targetDependencyObjectIds": ["participant-1"],
+                    "participantObjectIds": ["participant-1"],
+                    "participantDependencyObjectIds": ["participant-1"],
+                    "sourceOrder": 1,
+                    "deferredLayerEngineResiduals": [
+                        "timestamp ordering",
+                        "dependency ordering",
+                        "source ordering",
+                        "keyword gain/loss layering",
+                        "multiple equipment/static aura interactions",
+                        "minimum-power layering",
+                        "full official LayerEngine coverage"
+                    ]
+                }
+                """)
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item object static aura power delta 2 must be 0 without participant object ids",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item object static aura power delta 2 must equal participant object count 1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item battlefield static aura power delta 2 must be 1",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingContinuousEffectStaticAuraFoundationDrift()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -33901,6 +34040,182 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing continuous effect count 2 does not match authoritative state continuous effect count 0",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingContinuousEffectStaticAuraPowerDeltaConsistencyDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var continuousEffects = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["continuousEffects"])
+            .ToList();
+        Assert.Empty(continuousEffects);
+        continuousEffects.Add(new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["effectId"] = "effect-object-static-aura-power-without-participants",
+            ["scope"] = "OBJECT",
+            ["layer"] = "STATIC_AURA",
+            ["duration"] = "WHILE_SOURCE_ON_PUBLIC_FIELD",
+            ["targetObjectId"] = "target-object-a",
+            ["sourceObjectId"] = "source-object-a",
+            ["powerDelta"] = 2,
+            ["basePower"] = 3,
+            ["effectivePower"] = 5,
+            ["sequence"] = 1,
+            ["effectKind"] = "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER",
+            ["sourceCardNo"] = "SRC-001",
+            ["sourcePath"] = "CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute",
+            ["condition"] = "SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_PUBLIC_FIELD_EQUIPMENT_COUNT",
+            ["lifecycle"] = "RECOMPUTED_FROM_CURRENT_AUTHORITATIVE_FIELD_STATE",
+            ["layerEngineStatus"] = "FOUNDATION_ONLY",
+            ["sourceDependencyObjectIds"] = new[] { "source-object-a" },
+            ["targetDependencyObjectIds"] = new[] { "target-object-a" },
+            ["sourceOrder"] = 1,
+            ["deferredLayerEngineResiduals"] = new[]
+            {
+                "timestamp ordering",
+                "dependency ordering",
+                "source ordering",
+                "keyword gain/loss layering",
+                "multiple equipment/static aura interactions",
+                "minimum-power layering",
+                "full official LayerEngine coverage"
+            }
+        });
+        continuousEffects.Add(new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["effectId"] = "effect-object-static-aura-power-count",
+            ["scope"] = "OBJECT",
+            ["layer"] = "STATIC_AURA",
+            ["duration"] = "WHILE_SOURCE_ON_PUBLIC_FIELD",
+            ["targetObjectId"] = "target-object-b",
+            ["sourceObjectId"] = "source-object-b",
+            ["powerDelta"] = 2,
+            ["basePower"] = 3,
+            ["effectivePower"] = 5,
+            ["sequence"] = 2,
+            ["effectKind"] = "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER",
+            ["sourceCardNo"] = "SRC-002",
+            ["sourcePath"] = "CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute",
+            ["condition"] = "SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_PUBLIC_FIELD_EQUIPMENT_COUNT",
+            ["lifecycle"] = "RECOMPUTED_FROM_CURRENT_AUTHORITATIVE_FIELD_STATE",
+            ["layerEngineStatus"] = "FOUNDATION_ONLY",
+            ["sourceDependencyObjectIds"] = new[] { "source-object-b" },
+            ["targetDependencyObjectIds"] = new[] { "target-object-b" },
+            ["participantObjectIds"] = new[] { "equipment-object" },
+            ["participantDependencyObjectIds"] = new[] { "equipment-object" },
+            ["sourceOrder"] = 1,
+            ["deferredLayerEngineResiduals"] = new[]
+            {
+                "timestamp ordering",
+                "dependency ordering",
+                "source ordering",
+                "keyword gain/loss layering",
+                "multiple equipment/static aura interactions",
+                "minimum-power layering",
+                "full official LayerEngine coverage"
+            }
+        });
+        continuousEffects.Add(new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["effectId"] = "effect-battlefield-static-aura-power",
+            ["scope"] = "BATTLEFIELD",
+            ["layer"] = "STATIC_AURA",
+            ["duration"] = "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD",
+            ["targetObjectId"] = "participant-1",
+            ["sourceObjectId"] = "battlefield-1",
+            ["powerDelta"] = 2,
+            ["basePower"] = 3,
+            ["effectivePower"] = 5,
+            ["sequence"] = 3,
+            ["effectKind"] = "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE",
+            ["sourceCardNo"] = "BF-001",
+            ["sourcePath"] = "CoreRuleEngine.ResolveBattlefieldAllUnitsPowerBonus",
+            ["condition"] = "SOURCE_BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE_AND_PARTICIPANT_UNIT_AT_BATTLEFIELD",
+            ["lifecycle"] = "DERIVED_FROM_CURRENT_BATTLEFIELD_OBJECT_LOCATIONS",
+            ["layerEngineStatus"] = "FOUNDATION_ONLY",
+            ["sourceDependencyObjectIds"] = new[] { "battlefield-1" },
+            ["targetDependencyObjectIds"] = new[] { "participant-1" },
+            ["participantObjectIds"] = new[] { "participant-1" },
+            ["participantDependencyObjectIds"] = new[] { "participant-1" },
+            ["sourceOrder"] = 1,
+            ["deferredLayerEngineResiduals"] = new[]
+            {
+                "timestamp ordering",
+                "dependency ordering",
+                "source ordering",
+                "keyword gain/loss layering",
+                "multiple equipment/static aura interactions",
+                "minimum-power layering",
+                "full official LayerEngine coverage"
+            }
+        });
+        timing["continuousEffects"] = continuousEffects.ToArray();
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect item object static aura power delta 2 must be 0 without participant object ids",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect item object static aura power delta 2 must equal participant object count 1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect item battlefield static aura power delta 2 must be 1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect count 3 does not match authoritative state continuous effect count 0",
                 StringComparison.Ordinal));
     }
 

@@ -10167,6 +10167,14 @@ public static class MatchRecoveryValidator
             layer,
             powerDelta,
             errors);
+        ValidateContinuousEffectStaticAuraPowerDeltaConsistency(
+            effectPayload,
+            effectLabel,
+            scope,
+            layer,
+            duration,
+            powerDelta,
+            errors);
         var sequence = ValidateSnapshotPayloadRequiredPositiveIntValue(
             effectPayload,
             "sequence",
@@ -11160,6 +11168,68 @@ public static class MatchRecoveryValidator
         }
 
         errors.Add($"{effectLabel} POWER_MODIFIER power delta must be nonzero");
+    }
+
+    private static void ValidateContinuousEffectStaticAuraPowerDeltaConsistency(
+        object? effectPayload,
+        string effectLabel,
+        string? scope,
+        string? layer,
+        string? duration,
+        int? powerDelta,
+        List<string> errors)
+    {
+        if (scope is null
+            || layer is null
+            || duration is null
+            || !powerDelta.HasValue
+            || !IsKnownContinuousEffectScope(scope)
+            || !IsKnownContinuousEffectLayer(layer)
+            || !IsKnownContinuousEffectDuration(duration)
+            || !string.Equals(layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+            || !IsContinuousEffectLayerScopeValid(scope, layer))
+        {
+            return;
+        }
+
+        if (string.Equals(scope, "OBJECT", StringComparison.Ordinal))
+        {
+            if (!string.Equals(duration, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            if (TryReadObjectValue(effectPayload, "participantObjectIds", out var participantObjectIdsPayload)
+                && !IsNullSnapshotPayloadValue(participantObjectIdsPayload))
+            {
+                if (!TryReadObjectStringList(effectPayload, "participantObjectIds", out var participantObjectIds))
+                {
+                    return;
+                }
+
+                if (powerDelta.Value != participantObjectIds.Count)
+                {
+                    errors.Add(
+                        $"{effectLabel} object static aura power delta {powerDelta.Value} must equal participant object count {participantObjectIds.Count}");
+                }
+
+                return;
+            }
+
+            if (powerDelta.Value != 0)
+            {
+                errors.Add($"{effectLabel} object static aura power delta {powerDelta.Value} must be 0 without participant object ids");
+            }
+
+            return;
+        }
+
+        if (string.Equals(scope, "BATTLEFIELD", StringComparison.Ordinal)
+            && string.Equals(duration, "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", StringComparison.Ordinal)
+            && powerDelta.Value != 1)
+        {
+            errors.Add($"{effectLabel} battlefield static aura power delta {powerDelta.Value} must be 1");
+        }
     }
 
     private static void ValidateContinuousEffectRuleTextModifierScalarAbsence(
