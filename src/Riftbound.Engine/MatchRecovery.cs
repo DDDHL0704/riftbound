@@ -4282,6 +4282,9 @@ public static class MatchRecoveryValidator
         var objectLocations = view.Snapshot.Players is null
             ? null
             : BuildSnapshotObjectLocationIndex(view.Snapshot);
+        var objectControllers = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotObjectControllerIndex(view.Snapshot);
         var knownPlayerIds = view.Snapshot.Players is null
             ? null
             : BuildNormalizedPlayerIdSet(view.Snapshot.Players.Keys);
@@ -4338,6 +4341,11 @@ public static class MatchRecoveryValidator
                 taskPayload,
                 $"snapshot for {view.PlayerId} timing {payloadLabel} participant object id",
                 objectLocations,
+                errors);
+            ValidateBattlefieldTaskParticipantControllerObjectConsistency(
+                taskPayload,
+                $"snapshot for {view.PlayerId} timing {payloadLabel} participant controller id",
+                objectControllers,
                 errors);
             ValidateSnapshotPayloadRequiredStringListPayloadShape(
                 taskPayload,
@@ -4876,6 +4884,66 @@ public static class MatchRecoveryValidator
         }
 
         return objectLocations;
+    }
+
+    private static IReadOnlyDictionary<string, string> BuildSnapshotObjectControllerIndex(SnapshotDto snapshot)
+    {
+        var objectControllers = new Dictionary<string, string>(StringComparer.Ordinal);
+        if (snapshot.Players is null)
+        {
+            return objectControllers;
+        }
+
+        foreach (var playerPayload in snapshot.Players.Values)
+        {
+            if (!TryReadObjectValue(playerPayload, "objects", out var objectsPayload)
+                || !TryReadObjectDictionaryValue(objectsPayload, out var objectPayloads))
+            {
+                continue;
+            }
+
+            foreach (var (objectId, objectPayload) in objectPayloads)
+            {
+                if (string.IsNullOrWhiteSpace(objectId)
+                    || !IsSnapshotPlayerPayloadObject(objectPayload))
+                {
+                    continue;
+                }
+
+                var controllerId = ReadSnapshotObjectEffectiveControllerId(objectPayload);
+                if (!string.IsNullOrWhiteSpace(controllerId))
+                {
+                    objectControllers[objectId.Trim()] = controllerId.Trim();
+                }
+            }
+        }
+
+        return objectControllers;
+    }
+
+    private static string? ReadSnapshotObjectEffectiveControllerId(object? objectPayload)
+    {
+        if (TryReadObjectOptionalString(objectPayload, "controllerId", out var controllerId)
+            && !string.IsNullOrWhiteSpace(controllerId))
+        {
+            return controllerId;
+        }
+
+        if (TryReadObjectOptionalString(objectPayload, "ownerId", out var ownerId)
+            && !string.IsNullOrWhiteSpace(ownerId))
+        {
+            return ownerId;
+        }
+
+        if (TryReadObjectValue(objectPayload, "location", out var locationPayload)
+            && IsSnapshotPlayerPayloadObject(locationPayload)
+            && TryReadObjectString(locationPayload, "playerId", out var locationPlayerId)
+            && !string.IsNullOrWhiteSpace(locationPlayerId))
+        {
+            return locationPlayerId;
+        }
+
+        return null;
     }
 
     private static void ValidateSnapshotTimingPlayerMembership(
@@ -10796,6 +10864,60 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateBattlefieldTaskParticipantControllerObjectConsistency(
+        object? taskPayload,
+        string participantControllerLabel,
+        IReadOnlyDictionary<string, string>? objectControllers,
+        List<string> errors)
+    {
+        if (objectControllers is null
+            || !TryReadObjectStringList(taskPayload, "participantControllerIds", out var participantControllerIds)
+            || !TryReadObjectStringList(taskPayload, "participantObjectIds", out var participantObjectIds))
+        {
+            return;
+        }
+
+        var expectedControllerIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var participantObjectId in participantObjectIds)
+        {
+            if (string.IsNullOrWhiteSpace(participantObjectId))
+            {
+                continue;
+            }
+
+            var normalizedParticipantObjectId = participantObjectId.Trim();
+            if (!objectControllers.TryGetValue(normalizedParticipantObjectId, out var controllerId)
+                || string.IsNullOrWhiteSpace(controllerId))
+            {
+                errors.Add($"{participantControllerLabel} for participant object id {normalizedParticipantObjectId} is missing from object controllers");
+                continue;
+            }
+
+            expectedControllerIds.Add(controllerId.Trim());
+        }
+
+        var actualControllerIds = participantControllerIds
+            .Where(controllerId => !string.IsNullOrWhiteSpace(controllerId))
+            .Select(controllerId => controllerId.Trim())
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (var controllerId in actualControllerIds.OrderBy(controllerId => controllerId, StringComparer.Ordinal))
+        {
+            if (!expectedControllerIds.Contains(controllerId))
+            {
+                errors.Add($"{participantControllerLabel} {controllerId} is not a controller for participant object ids");
+            }
+        }
+
+        foreach (var controllerId in expectedControllerIds.OrderBy(controllerId => controllerId, StringComparer.Ordinal))
+        {
+            if (!actualControllerIds.Contains(controllerId))
+            {
+                errors.Add($"{participantControllerLabel} {controllerId} is required by participant object ids");
+            }
+        }
+    }
+
     private static void ValidateTimingStackItemReferenceList(
         object? payload,
         string payloadKey,
@@ -14007,6 +14129,7 @@ public static class MatchRecoveryValidator
         var seenTaskIds = new HashSet<string>(StringComparer.Ordinal);
         var seatPlayerIds = BuildNormalizedPlayerIdSet(authoritativeState.Seats.Keys);
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
+        var objectControllers = BuildAuthoritativeStateObjectControllerIndex(authoritativeState);
         var knownStackItemIds = BuildKnownStackItemIds(authoritativeState.StackItems.Select(item => item?.StackItemId));
         foreach (var spectatorBattlefieldTask in spectatorBattlefieldTasks)
         {
@@ -14031,6 +14154,7 @@ public static class MatchRecoveryValidator
                 seatPlayerIds,
                 knownObjectIds,
                 authoritativeState.ObjectLocations,
+                objectControllers,
                 knownStackItemIds,
                 errors);
         }
@@ -14226,6 +14350,7 @@ public static class MatchRecoveryValidator
         IReadOnlySet<string> seatPlayerIds,
         IReadOnlySet<string> knownObjectIds,
         IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        IReadOnlyDictionary<string, string> objectControllers,
         IReadOnlySet<string> knownStackItemIds,
         List<string> errors)
     {
@@ -14272,6 +14397,11 @@ public static class MatchRecoveryValidator
             spectatorBattlefieldTask,
             $"{payloadLabel} participant object id",
             objectLocations,
+            errors);
+        ValidateBattlefieldTaskParticipantControllerObjectConsistency(
+            spectatorBattlefieldTask,
+            $"{payloadLabel} participant controller id",
+            objectControllers,
             errors);
         ValidateSpectatorRequiredStringListPayloadShape(
             spectatorBattlefieldTask,
@@ -16939,6 +17069,46 @@ public static class MatchRecoveryValidator
         }
 
         return knownObjectIds;
+    }
+
+    private static IReadOnlyDictionary<string, string> BuildAuthoritativeStateObjectControllerIndex(MatchState authoritativeState)
+    {
+        var objectControllers = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var (objectId, cardObject) in authoritativeState.CardObjects)
+        {
+            if (string.IsNullOrWhiteSpace(objectId))
+            {
+                continue;
+            }
+
+            var controllerId = EffectiveAuthoritativeObjectControllerId(authoritativeState, objectId, cardObject);
+            if (!string.IsNullOrWhiteSpace(controllerId))
+            {
+                objectControllers[objectId.Trim()] = controllerId.Trim();
+            }
+        }
+
+        return objectControllers;
+    }
+
+    private static string? EffectiveAuthoritativeObjectControllerId(
+        MatchState authoritativeState,
+        string objectId,
+        CardObjectState cardObject)
+    {
+        if (!string.IsNullOrWhiteSpace(cardObject.ControllerId))
+        {
+            return cardObject.ControllerId;
+        }
+
+        if (!string.IsNullOrWhiteSpace(cardObject.OwnerId))
+        {
+            return cardObject.OwnerId;
+        }
+
+        return authoritativeState.ObjectLocations.TryGetValue(objectId, out var location)
+            ? location.PlayerId
+            : null;
     }
 
     private static void AddKnownObjectId(HashSet<string> knownObjectIds, string? objectId)
