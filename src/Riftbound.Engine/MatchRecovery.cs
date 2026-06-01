@@ -11134,14 +11134,26 @@ public static class MatchRecoveryValidator
                 "deferredLayerEngineResiduals",
                 out var residuals)
             && residuals.Count > 0;
-        if ((!hasFoundationOnlyStatus && !hasReadableResiduals)
-            || sourceCardNo is null
-            || sourceObjectId is not null)
+        if (!hasFoundationOnlyStatus && !hasReadableResiduals)
         {
             return;
         }
 
-        errors.Add($"{effectLabel} POWER_MODIFIER foundation source card no must be absent without source object id");
+        if (sourceObjectId is null)
+        {
+            if (sourceCardNo is not null)
+            {
+                errors.Add($"{effectLabel} POWER_MODIFIER foundation source card no must be absent without source object id");
+            }
+
+            return;
+        }
+
+        if (!TryReadObjectValue(effectPayload, "sourceCardNo", out var sourceCardNoPayload)
+            || IsNullSnapshotPayloadValue(sourceCardNoPayload))
+        {
+            errors.Add($"{effectLabel} POWER_MODIFIER foundation source card no is required when source object id is present");
+        }
     }
 
     private static void ValidateContinuousEffectPowerModifierNonFoundationMetadataAbsence(
