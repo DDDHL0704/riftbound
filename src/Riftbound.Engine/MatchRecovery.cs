@@ -9262,6 +9262,42 @@ public static class MatchRecoveryValidator
                 "pending task kinds",
                 "authoritative state pending task kinds",
                 errors);
+            ValidateSpectatorSnapshotBattlefieldPendingTaskKindReferences(
+                spectatorBattlefield,
+                payloadLabel,
+                expectedPendingTaskKinds,
+                errors);
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotBattlefieldPendingTaskKindReferences(
+        object? battlefieldPayload,
+        string payloadLabel,
+        IReadOnlyList<string> expectedPendingTaskKinds,
+        List<string> errors)
+    {
+        if (!TryReadObjectStringList(battlefieldPayload, "pendingTaskKinds", out var pendingTaskKinds))
+        {
+            return;
+        }
+
+        var knownPendingTaskKinds = expectedPendingTaskKinds
+            .Where(kind => !string.IsNullOrWhiteSpace(kind))
+            .Select(kind => kind.Trim())
+            .ToHashSet(StringComparer.Ordinal);
+        foreach (var pendingTaskKind in pendingTaskKinds)
+        {
+            if (string.IsNullOrWhiteSpace(pendingTaskKind))
+            {
+                continue;
+            }
+
+            var normalizedPendingTaskKind = pendingTaskKind.Trim();
+            if (!knownPendingTaskKinds.Contains(normalizedPendingTaskKind))
+            {
+                errors.Add(
+                    $"{payloadLabel} pending task kind {normalizedPendingTaskKind} is missing from authoritative state pending task kinds");
+            }
         }
     }
 
