@@ -5271,6 +5271,15 @@ public static class MatchRecoveryValidator
                 survivingDefenderObjectIds,
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
                 errors);
+            ValidateBattleResolutionClosedWinnerSurvivorCompatibility(
+                ReadNormalizedPayloadString(resolutionPayload, "kind"),
+                ReadNormalizedPayloadString(resolutionPayload, "attackingPlayerId"),
+                ReadNormalizedPayloadString(resolutionPayload, "defendingPlayerId"),
+                ReadNormalizedPayloadString(resolutionPayload, "winnerPlayerId"),
+                survivingAttackerObjectIds,
+                survivingDefenderObjectIds,
+                $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                errors);
             ValidateSnapshotPayloadRequiredStringListPayloadShape(
                 resolutionPayload,
                 "relatedEventKinds",
@@ -5904,6 +5913,62 @@ public static class MatchRecoveryValidator
         if (survivingDefenderObjectIds.Count == 0)
         {
             errors.Add($"{payloadLabel} surviving defender object ids are required for kind {kind} reason {reason}");
+        }
+    }
+
+    private static void ValidateBattleResolutionClosedWinnerSurvivorCompatibility(
+        string? kind,
+        string? attackingPlayerId,
+        string? defendingPlayerId,
+        string? winnerPlayerId,
+        IReadOnlyList<string>? survivingAttackerObjectIds,
+        IReadOnlyList<string>? survivingDefenderObjectIds,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (!string.Equals(kind, "CLOSED", StringComparison.Ordinal)
+            || survivingAttackerObjectIds is null
+            || survivingDefenderObjectIds is null)
+        {
+            return;
+        }
+
+        var normalizedAttackingPlayerId = NormalizeOptionalCompatibilityText(attackingPlayerId);
+        var normalizedDefendingPlayerId = NormalizeOptionalCompatibilityText(defendingPlayerId);
+        var normalizedWinnerPlayerId = NormalizeOptionalCompatibilityText(winnerPlayerId);
+        if (normalizedWinnerPlayerId is null)
+        {
+            return;
+        }
+
+        if (string.Equals(normalizedWinnerPlayerId, normalizedAttackingPlayerId, StringComparison.Ordinal))
+        {
+            if (survivingAttackerObjectIds.Count == 0)
+            {
+                errors.Add($"{payloadLabel} surviving attacker object ids are required for winner player id {normalizedWinnerPlayerId} and kind {kind}");
+            }
+
+            if (survivingDefenderObjectIds.Count > 0)
+            {
+                errors.Add($"{payloadLabel} surviving defender object ids must be empty for winner player id {normalizedWinnerPlayerId} and kind {kind}");
+            }
+
+            return;
+        }
+
+        if (!string.Equals(normalizedWinnerPlayerId, normalizedDefendingPlayerId, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        if (survivingDefenderObjectIds.Count == 0)
+        {
+            errors.Add($"{payloadLabel} surviving defender object ids are required for winner player id {normalizedWinnerPlayerId} and kind {kind}");
+        }
+
+        if (survivingAttackerObjectIds.Count > 0)
+        {
+            errors.Add($"{payloadLabel} surviving attacker object ids must be empty for winner player id {normalizedWinnerPlayerId} and kind {kind}");
         }
     }
 
@@ -18703,6 +18768,15 @@ public static class MatchRecoveryValidator
                 survivingDefenderObjectIds,
                 diagnosticResolutionLabel,
                 errors);
+            ValidateBattleResolutionClosedWinnerSurvivorCompatibility(
+                kind,
+                resolution.AttackingPlayerId,
+                resolution.DefendingPlayerId,
+                resolution.WinnerPlayerId,
+                survivingAttackerObjectIds,
+                survivingDefenderObjectIds,
+                diagnosticResolutionLabel,
+                errors);
             var relatedEventKinds = ValidateAuthoritativeStateResolutionTextList(
                 "battle resolution",
                 resolutionId,
@@ -22332,6 +22406,15 @@ public static class MatchRecoveryValidator
         ValidateBattleResolutionNoResultSurvivorReasonCompatibility(
             ReadNormalizedPayloadString(resolutionPayload, "kind"),
             ReadNormalizedPayloadString(resolutionPayload, "reason"),
+            survivingAttackerObjectIds,
+            survivingDefenderObjectIds,
+            payloadLabel,
+            errors);
+        ValidateBattleResolutionClosedWinnerSurvivorCompatibility(
+            ReadNormalizedPayloadString(resolutionPayload, "kind"),
+            ReadNormalizedPayloadString(resolutionPayload, "attackingPlayerId"),
+            ReadNormalizedPayloadString(resolutionPayload, "defendingPlayerId"),
+            ReadNormalizedPayloadString(resolutionPayload, "winnerPlayerId"),
             survivingAttackerObjectIds,
             survivingDefenderObjectIds,
             payloadLabel,
