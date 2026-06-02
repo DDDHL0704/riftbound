@@ -20081,7 +20081,7 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            ValidateAuthoritativeStateOptionalObjectPlayer(
+            ValidateAuthoritativeStateRequiredObjectPlayer(
                 $"battle resolution {resolution.ResolutionId} attacking player",
                 resolution.AttackingPlayerId,
                 seatPlayerIds,
@@ -21852,7 +21852,7 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "battlefield id",
             errors);
-        var attackingPlayerId = ValidateSnapshotPayloadOptionalStringValue(
+        var attackingPlayerId = ValidateSnapshotPayloadRequiredStringValue(
             resolutionPayload,
             "attackingPlayerId",
             payloadLabel,
