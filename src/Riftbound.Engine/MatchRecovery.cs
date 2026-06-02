@@ -5383,6 +5383,24 @@ public static class MatchRecoveryValidator
             || string.Equals(kind, "CONQUERED", StringComparison.Ordinal);
     }
 
+    private static void ValidateBattlefieldResolutionCombatPlayerAvailability(
+        string? kind,
+        string? playerId,
+        string payloadLabel,
+        string playerLabel,
+        List<string> errors)
+    {
+        if (!IsCombatDerivedBattlefieldResolutionKind(kind))
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(playerId))
+        {
+            errors.Add($"{payloadLabel} {playerLabel} is required for kind {kind}");
+        }
+    }
+
     private static bool IsBattlefieldResolutionReasonValidForKind(string kind, string reason)
     {
         return kind switch
@@ -18197,6 +18215,12 @@ public static class MatchRecoveryValidator
                 reason,
                 $"authoritative state battlefield resolution {diagnosticResolutionId}",
                 errors);
+            ValidateBattlefieldResolutionCombatPlayerAvailability(
+                kind,
+                resolution.PlayerId,
+                $"authoritative state battlefield resolution {diagnosticResolutionId}",
+                "player",
+                errors);
             ValidateAuthoritativeStateResolutionText(
                 "battlefield resolution",
                 resolutionId,
@@ -21797,9 +21821,15 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "battlefield object id",
             errors);
-        ValidateSnapshotPayloadOptionalStringValue(
+        var playerId = ValidateSnapshotPayloadOptionalStringValue(
             resolutionPayload,
             "playerId",
+            payloadLabel,
+            "player id",
+            errors);
+        ValidateBattlefieldResolutionCombatPlayerAvailability(
+            kind,
+            playerId,
             payloadLabel,
             "player id",
             errors);
