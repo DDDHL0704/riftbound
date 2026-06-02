@@ -5264,6 +5264,13 @@ public static class MatchRecoveryValidator
                 destroyedObjectIds,
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
                 errors);
+            ValidateBattleResolutionNoResultSurvivorReasonCompatibility(
+                ReadNormalizedPayloadString(resolutionPayload, "kind"),
+                ReadNormalizedPayloadString(resolutionPayload, "reason"),
+                survivingAttackerObjectIds,
+                survivingDefenderObjectIds,
+                $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                errors);
             ValidateSnapshotPayloadRequiredStringListPayloadShape(
                 resolutionPayload,
                 "relatedEventKinds",
@@ -5848,6 +5855,55 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"{payloadLabel} destroyed object id {destroyedObjectId} also appears in surviving defender object ids");
             }
+        }
+    }
+
+    private static void ValidateBattleResolutionNoResultSurvivorReasonCompatibility(
+        string? kind,
+        string? reason,
+        IReadOnlyList<string>? survivingAttackerObjectIds,
+        IReadOnlyList<string>? survivingDefenderObjectIds,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (!string.Equals(kind, "NO_RESULT", StringComparison.Ordinal)
+            || reason is null
+            || !IsKnownBattleResolutionReason(reason)
+            || !IsBattleResolutionReasonValidForKind("NO_RESULT", reason)
+            || survivingAttackerObjectIds is null
+            || survivingDefenderObjectIds is null)
+        {
+            return;
+        }
+
+        if (string.Equals(reason, "ALL_PARTICIPANTS_DESTROYED", StringComparison.Ordinal))
+        {
+            if (survivingAttackerObjectIds.Count > 0)
+            {
+                errors.Add($"{payloadLabel} surviving attacker object ids must be empty for kind {kind} reason {reason}");
+            }
+
+            if (survivingDefenderObjectIds.Count > 0)
+            {
+                errors.Add($"{payloadLabel} surviving defender object ids must be empty for kind {kind} reason {reason}");
+            }
+
+            return;
+        }
+
+        if (!string.Equals(reason, "BOTH_SIDES_RETAIN_UNITS", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        if (survivingAttackerObjectIds.Count == 0)
+        {
+            errors.Add($"{payloadLabel} surviving attacker object ids are required for kind {kind} reason {reason}");
+        }
+
+        if (survivingDefenderObjectIds.Count == 0)
+        {
+            errors.Add($"{payloadLabel} surviving defender object ids are required for kind {kind} reason {reason}");
         }
     }
 
@@ -18640,6 +18696,13 @@ public static class MatchRecoveryValidator
                 destroyedObjectIds,
                 diagnosticResolutionLabel,
                 errors);
+            ValidateBattleResolutionNoResultSurvivorReasonCompatibility(
+                kind,
+                reason,
+                survivingAttackerObjectIds,
+                survivingDefenderObjectIds,
+                diagnosticResolutionLabel,
+                errors);
             var relatedEventKinds = ValidateAuthoritativeStateResolutionTextList(
                 "battle resolution",
                 resolutionId,
@@ -22264,6 +22327,13 @@ public static class MatchRecoveryValidator
             survivingAttackerObjectIds,
             survivingDefenderObjectIds,
             destroyedObjectIds,
+            payloadLabel,
+            errors);
+        ValidateBattleResolutionNoResultSurvivorReasonCompatibility(
+            ReadNormalizedPayloadString(resolutionPayload, "kind"),
+            ReadNormalizedPayloadString(resolutionPayload, "reason"),
+            survivingAttackerObjectIds,
+            survivingDefenderObjectIds,
             payloadLabel,
             errors);
         ValidateSpectatorRequiredStringListPayloadShape(
