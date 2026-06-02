@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-17UA recovery spectator snapshot lane standby-slot state known-value validation checks `battlefields[].standbySlots[]` `state` against the existing standby-slot state predicate under lane battlefield count mismatch, validated focused standby-state known-value test `1/1`, focused SpectatorReplaySnapshotLane filter `13/13`, focused SpectatorReplaySnapshotStandbySlot filter `3/3`, focused SpectatorReplaySnapshotBattlefield filter `6/6`, focused recovery `654/654`, adjacent recovery/opening/store-smoke `1235/1235`, backend full `6600/6600`. It does not change DOC_MATRIX approved scope or open frontend/final-status locks.
+Current A_MAIN latest accepted slice: Stage 4D-17UB recovery spectator snapshot lane standby-slot state/visibility consistency validation checks `battlefields[].standbySlots[]` `state` against the same payload's readable `visible` flag under lane battlefield count mismatch, validated focused state/visibility consistency test `1/1`, focused SpectatorReplaySnapshotLane filter `14/14`, focused SpectatorReplaySnapshotStandbySlot filter `3/3`, focused SpectatorReplaySnapshotBattlefield filter `6/6`, focused recovery `655/655`, adjacent recovery/opening/store-smoke `1236/1236`, backend full `6601/6601`. It does not change DOC_MATRIX approved scope or open frontend/final-status locks.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-17UA; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-02 15:04 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in this checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-17UB; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-02 15:21 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in this checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-02 15:21 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main`; latest local commit before this entry is `ed865256` (`checkpoint: stage 4D recovery spectator lane standby state`). This entry records the Stage 4D-17UB work to be committed/pushed as `checkpoint: stage 4D recovery spectator lane standby visibility`. DOC_MATRIX_CURRENT remains clean at `17bde0c3`; A_MAIN did not touch that worktree.
+
+Write locks: A_MAIN touched only `src/Riftbound.Engine/MatchRecovery.cs`, `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs`, current checkpoint/completion/P0-P1/next-dispatch docs, this shared board, and `docs/CURRENT_STAGE4D_17UB_RECOVERY_SPECTATOR_LANE_STANDBY_SLOT_STATE_VISIBILITY_AUDIT.md`. Matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, frontend, protocol, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-17UB recovery spectator snapshot lane standby-slot state/visibility consistency validation accepted. `MatchRecoveryValidator` now emits explicit same-payload consistency diagnostics when spectator replay-frame snapshot lane `battlefields[].standbySlots[]` readable `visible` and `state` values disagree under lane battlefield count mismatch. Project remains **NOT READY**.
+
+Validation: focused state/visibility consistency test `1/1`; focused SpectatorReplaySnapshotLane filter `14/14`; focused SpectatorReplaySnapshotStandbySlot filter `3/3`; focused SpectatorReplaySnapshotBattlefield filter `6/6`; focused recovery `655/655`; adjacent recovery/opening/store-smoke `1236/1236`; backend full `6601/6601`; `git diff --check`, anchored conflict-marker scan and matrix JSON parse passed. `dotnet format Riftbound.slnx --verify-no-changes --no-restore` remains blocked by unrelated pre-existing whitespace diagnostics outside this slice; no unrelated formatting was applied.
+
+Requested action: no DOC_MATRIX action requested. Future DOC_MATRIX work must re-read this board and obtain/observe an approved scope before touching matrix/test/checkpoint files.
 
 ### 2026-06-02 15:04 A_MAIN
 

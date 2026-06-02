@@ -9791,6 +9791,16 @@ public static class MatchRecoveryValidator
                 $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby slot {expectedSlotId} state does not match authoritative spectator state");
         }
 
+        if (state is not null && TryReadObjectBool(spectatorStandbySlot, "visible", out var payloadVisible))
+        {
+            var expectedPayloadState = payloadVisible ? "VISIBLE" : "HIDDEN";
+            if (!string.Equals(state, expectedPayloadState, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby slot {expectedSlotId} state does not match visibility");
+            }
+        }
+
         var expectedIsFaceDown = authoritativeState.CardObjects.TryGetValue(standbyObjectId, out var cardObject)
             && cardObject.IsFaceDown;
         ValidateSnapshotPayloadRequiredBoolValue(
