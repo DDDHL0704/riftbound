@@ -20792,8 +20792,12 @@ public static class MatchRecoveryValidator
         string resolutionId,
         List<string> errors)
     {
-        if (TryReadObjectString(resolutionPayload, key, out var actual)
-            && !string.Equals(actual, expected, StringComparison.Ordinal))
+        if (!TryReadObjectString(resolutionPayload, key, out var actual))
+        {
+            errors.Add(
+                $"{payloadLabel} {fieldLabel} does not match {authoritativeLabel} {fieldLabel} {expected} for resolution id {resolutionId}");
+        }
+        else if (!string.Equals(actual, expected, StringComparison.Ordinal))
         {
             errors.Add(
                 $"{payloadLabel} {fieldLabel} {actual ?? string.Empty} does not match {authoritativeLabel} {fieldLabel} {expected} for resolution id {resolutionId}");
@@ -20828,8 +20832,12 @@ public static class MatchRecoveryValidator
         string resolutionId,
         List<string> errors)
     {
-        if (TryReadObjectLong(resolutionPayload, key, out var actual)
-            && actual != expected)
+        if (!TryReadObjectLong(resolutionPayload, key, out var actual))
+        {
+            errors.Add(
+                $"{payloadLabel} {fieldLabel} does not match {authoritativeLabel} {fieldLabel} {expected} for resolution id {resolutionId}");
+        }
+        else if (actual != expected)
         {
             errors.Add(
                 $"{payloadLabel} {fieldLabel} {actual} does not match {authoritativeLabel} {fieldLabel} {expected} for resolution id {resolutionId}");
@@ -20846,8 +20854,8 @@ public static class MatchRecoveryValidator
         string resolutionId,
         List<string> errors)
     {
-        if (TryReadObjectStringList(resolutionPayload, key, out var actual)
-            && !StringListsEqual(actual, expected))
+        if (!TryReadObjectStringList(resolutionPayload, key, out var actual)
+            || !StringListsEqual(actual, expected))
         {
             errors.Add(
                 $"{payloadLabel} {fieldLabel} do not match {authoritativeLabel} {fieldLabel} for resolution id {resolutionId}");
