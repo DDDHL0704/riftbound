@@ -48535,6 +48535,281 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingResolutionHistoryKeyedValuesWithCountMismatch()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["battlefield-1"] = new("battlefield-1", ownerId: "alice", controllerId: "alice"),
+                ["source-1"] = new("source-1", ownerId: "alice", controllerId: "alice"),
+                ["participant-1"] = new("participant-1", ownerId: "alice", controllerId: "alice"),
+                ["attacker-1"] = new("attacker-1", ownerId: "alice", controllerId: "alice"),
+                ["defender-1"] = new("defender-1", ownerId: "bob", controllerId: "bob"),
+                ["destroyed-1"] = new("destroyed-1", ownerId: "bob", controllerId: "bob")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["battlefield-1"] = new("alice", "BATTLEFIELD", "battlefield-1"),
+                ["source-1"] = new("alice", "BATTLEFIELD", "source-1"),
+                ["participant-1"] = new("alice", "BATTLEFIELD", "participant-1"),
+                ["attacker-1"] = new("alice", "BATTLEFIELD", "attacker-1"),
+                ["defender-1"] = new("bob", "BATTLEFIELD", "defender-1"),
+                ["destroyed-1"] = new("bob", "GRAVEYARD", "destroyed-1")
+            },
+            battlefieldResolutions:
+            [
+                new(
+                    "battlefield-resolution-1",
+                    3,
+                    "HELD",
+                    "test",
+                    "battlefield-1",
+                    "alice",
+                    "bob",
+                    "alice",
+                    "source-1",
+                    ["participant-1"],
+                    ["BATTLEFIELD_HELD"])
+            ],
+            battleResolutions:
+            [
+                new(
+                    "battle-resolution-1",
+                    3,
+                    "CLOSED",
+                    "test",
+                    "battlefield-1",
+                    "alice",
+                    "bob",
+                    "alice",
+                    ["attacker-1"],
+                    ["defender-1"],
+                    ["attacker-1"],
+                    ["defender-1"],
+                    ["destroyed-1"],
+                    ["BATTLE_CLOSED"])
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var battlefieldResolutionPayload = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["battlefieldResolutions"])
+            .ToArray();
+        Assert.Single(battlefieldResolutionPayload);
+        var battlefieldResolution = Assert.IsType<Dictionary<string, object?>>(battlefieldResolutionPayload[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        battlefieldResolution["tick"] = 4L;
+        battlefieldResolution["kind"] = "OTHER_HELD";
+        battlefieldResolution["reason"] = "other";
+        battlefieldResolution["battlefieldObjectId"] = "other-battlefield";
+        battlefieldResolution["playerId"] = "bob";
+        battlefieldResolution["previousControllerId"] = "alice";
+        battlefieldResolution["controllerId"] = "bob";
+        battlefieldResolution["sourceObjectId"] = "other-source";
+        battlefieldResolution["participantObjectIds"] = new[] { "other-participant" };
+        battlefieldResolution["relatedEventKinds"] = new[] { "OTHER_EVENT" };
+        var extraBattlefieldResolution = battlefieldResolution.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        extraBattlefieldResolution["resolutionId"] = "battlefield-resolution-extra";
+        timing["battlefieldResolutions"] = new object?[] { battlefieldResolution, extraBattlefieldResolution };
+
+        var battleResolutionPayload = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["battleResolutions"])
+            .ToArray();
+        Assert.Single(battleResolutionPayload);
+        var battleResolution = Assert.IsType<Dictionary<string, object?>>(battleResolutionPayload[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        battleResolution["tick"] = 4L;
+        battleResolution["kind"] = "OTHER_CLOSED";
+        battleResolution["reason"] = "other";
+        battleResolution["battlefieldId"] = "other-battlefield";
+        battleResolution["attackingPlayerId"] = "bob";
+        battleResolution["defendingPlayerId"] = "alice";
+        battleResolution["winnerPlayerId"] = "bob";
+        battleResolution["attackerObjectIds"] = new[] { "other-attacker" };
+        battleResolution["defenderObjectIds"] = new[] { "other-defender" };
+        battleResolution["survivingAttackerObjectIds"] = new[] { "other-surviving-attacker" };
+        battleResolution["survivingDefenderObjectIds"] = new[] { "other-surviving-defender" };
+        battleResolution["destroyedObjectIds"] = new[] { "other-destroyed" };
+        battleResolution["relatedEventKinds"] = new[] { "OTHER_EVENT" };
+        var extraBattleResolution = battleResolution.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        extraBattleResolution["resolutionId"] = "battle-resolution-extra";
+        timing["battleResolutions"] = new object?[] { battleResolution, extraBattleResolution };
+
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolution count 2 does not match authoritative state battlefield resolution count 1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolution item tick 4 does not match authoritative state battlefield resolution tick 3 for resolution id battlefield-resolution-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolution item kind OTHER_HELD does not match authoritative state battlefield resolution kind HELD for resolution id battlefield-resolution-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolution item reason other does not match authoritative state battlefield resolution reason test for resolution id battlefield-resolution-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolution item battlefield object id other-battlefield does not match authoritative state battlefield resolution battlefield object id battlefield-1 for resolution id battlefield-resolution-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolution item player id bob does not match authoritative state battlefield resolution player id alice for resolution id battlefield-resolution-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolution item previous controller id alice does not match authoritative state battlefield resolution previous controller id bob for resolution id battlefield-resolution-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolution item controller id bob does not match authoritative state battlefield resolution controller id alice for resolution id battlefield-resolution-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolution item source object id other-source does not match authoritative state battlefield resolution source object id source-1 for resolution id battlefield-resolution-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolution item participant object ids do not match authoritative state battlefield resolution participant object ids for resolution id battlefield-resolution-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolution item related event kinds do not match authoritative state battlefield resolution related event kinds for resolution id battlefield-resolution-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolution count 2 does not match authoritative state battle resolution count 1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolution item tick 4 does not match authoritative state battle resolution tick 3 for resolution id battle-resolution-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolution item kind OTHER_CLOSED does not match authoritative state battle resolution kind CLOSED for resolution id battle-resolution-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolution item reason other does not match authoritative state battle resolution reason test for resolution id battle-resolution-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolution item battlefield id other-battlefield does not match authoritative state battle resolution battlefield id battlefield-1 for resolution id battle-resolution-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolution item attacking player id bob does not match authoritative state battle resolution attacking player id alice for resolution id battle-resolution-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolution item defending player id alice does not match authoritative state battle resolution defending player id bob for resolution id battle-resolution-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolution item winner player id bob does not match authoritative state battle resolution winner player id alice for resolution id battle-resolution-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolution item attacker object ids do not match authoritative state battle resolution attacker object ids for resolution id battle-resolution-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolution item defender object ids do not match authoritative state battle resolution defender object ids for resolution id battle-resolution-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolution item surviving attacker object ids do not match authoritative state battle resolution surviving attacker object ids for resolution id battle-resolution-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolution item surviving defender object ids do not match authoritative state battle resolution surviving defender object ids for resolution id battle-resolution-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolution item destroyed object ids do not match authoritative state battle resolution destroyed object ids for resolution id battle-resolution-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolution item related event kinds do not match authoritative state battle resolution related event kinds for resolution id battle-resolution-1",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingResolutionHistoryIdMismatch()
     {
         var authoritativeState = new MatchState(

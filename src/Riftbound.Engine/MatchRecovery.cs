@@ -19399,6 +19399,10 @@ public static class MatchRecoveryValidator
                 spectatorBattlefieldResolutions,
                 authoritativeBattlefieldResolutionsById,
                 errors);
+            ValidateSpectatorBattlefieldResolutionKeyedAuthoritativeValues(
+                spectatorBattlefieldResolutions,
+                authoritativeBattlefieldResolutionsById,
+                errors);
 
             if (validateAuthoritativeBattlefieldResolutionParity)
             {
@@ -19575,6 +19579,10 @@ public static class MatchRecoveryValidator
             var authoritativeBattleResolutionsById =
                 BuildAuthoritativeBattleResolutionsById(authoritativeState.BattleResolutions);
             ValidateSpectatorBattleResolutionAuthoritativeKeySet(
+                spectatorBattleResolutions,
+                authoritativeBattleResolutionsById,
+                errors);
+            ValidateSpectatorBattleResolutionKeyedAuthoritativeValues(
                 spectatorBattleResolutions,
                 authoritativeBattleResolutionsById,
                 errors);
@@ -19853,6 +19861,335 @@ public static class MatchRecoveryValidator
                 errors.Add(
                     $"{payloadLabel} resolution id {authoritativeResolutionId} is required by authoritative state battle resolutions");
             }
+        }
+    }
+
+    private static void ValidateSpectatorBattlefieldResolutionKeyedAuthoritativeValues(
+        IReadOnlyList<object?> resolutionPayloads,
+        IReadOnlyDictionary<string, BattlefieldResolutionState> authoritativeResolutionsById,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing battlefield resolution item";
+        const string authoritativeLabel = "authoritative state battlefield resolution";
+        foreach (var resolutionPayload in resolutionPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(resolutionPayload)
+                || !TryReadObjectString(resolutionPayload, "resolutionId", out var resolutionId)
+                || string.IsNullOrWhiteSpace(resolutionId))
+            {
+                continue;
+            }
+
+            var normalizedResolutionId = resolutionId.Trim();
+            if (!authoritativeResolutionsById.TryGetValue(normalizedResolutionId, out var authoritativeResolution))
+            {
+                continue;
+            }
+
+            ValidateSpectatorResolutionKeyedLongValue(
+                resolutionPayload,
+                "tick",
+                "tick",
+                authoritativeResolution.Tick,
+                payloadLabel,
+                authoritativeLabel,
+                normalizedResolutionId,
+                errors);
+            ValidateSpectatorResolutionKeyedStringValue(
+                resolutionPayload,
+                "kind",
+                "kind",
+                authoritativeResolution.Kind,
+                payloadLabel,
+                authoritativeLabel,
+                normalizedResolutionId,
+                errors);
+            ValidateSpectatorResolutionKeyedStringValue(
+                resolutionPayload,
+                "reason",
+                "reason",
+                authoritativeResolution.Reason,
+                payloadLabel,
+                authoritativeLabel,
+                normalizedResolutionId,
+                errors);
+            ValidateSpectatorResolutionKeyedStringValue(
+                resolutionPayload,
+                "battlefieldObjectId",
+                "battlefield object id",
+                authoritativeResolution.BattlefieldObjectId,
+                payloadLabel,
+                authoritativeLabel,
+                normalizedResolutionId,
+                errors);
+            ValidateSpectatorResolutionKeyedOptionalStringValue(
+                resolutionPayload,
+                "playerId",
+                "player id",
+                authoritativeResolution.PlayerId,
+                payloadLabel,
+                authoritativeLabel,
+                normalizedResolutionId,
+                errors);
+            ValidateSpectatorResolutionKeyedOptionalStringValue(
+                resolutionPayload,
+                "previousControllerId",
+                "previous controller id",
+                authoritativeResolution.PreviousControllerId,
+                payloadLabel,
+                authoritativeLabel,
+                normalizedResolutionId,
+                errors);
+            ValidateSpectatorResolutionKeyedOptionalStringValue(
+                resolutionPayload,
+                "controllerId",
+                "controller id",
+                authoritativeResolution.ControllerId,
+                payloadLabel,
+                authoritativeLabel,
+                normalizedResolutionId,
+                errors);
+            ValidateSpectatorResolutionKeyedOptionalStringValue(
+                resolutionPayload,
+                "sourceObjectId",
+                "source object id",
+                authoritativeResolution.SourceObjectId,
+                payloadLabel,
+                authoritativeLabel,
+                normalizedResolutionId,
+                errors);
+            ValidateSpectatorResolutionKeyedStringListValue(
+                resolutionPayload,
+                "participantObjectIds",
+                "participant object ids",
+                authoritativeResolution.ParticipantObjectIds,
+                payloadLabel,
+                authoritativeLabel,
+                normalizedResolutionId,
+                errors);
+            ValidateSpectatorResolutionKeyedStringListValue(
+                resolutionPayload,
+                "relatedEventKinds",
+                "related event kinds",
+                authoritativeResolution.RelatedEventKinds,
+                payloadLabel,
+                authoritativeLabel,
+                normalizedResolutionId,
+                errors);
+        }
+    }
+
+    private static void ValidateSpectatorBattleResolutionKeyedAuthoritativeValues(
+        IReadOnlyList<object?> resolutionPayloads,
+        IReadOnlyDictionary<string, BattleResolutionState> authoritativeResolutionsById,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing battle resolution item";
+        const string authoritativeLabel = "authoritative state battle resolution";
+        foreach (var resolutionPayload in resolutionPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(resolutionPayload)
+                || !TryReadObjectString(resolutionPayload, "resolutionId", out var resolutionId)
+                || string.IsNullOrWhiteSpace(resolutionId))
+            {
+                continue;
+            }
+
+            var normalizedResolutionId = resolutionId.Trim();
+            if (!authoritativeResolutionsById.TryGetValue(normalizedResolutionId, out var authoritativeResolution))
+            {
+                continue;
+            }
+
+            ValidateSpectatorResolutionKeyedLongValue(
+                resolutionPayload,
+                "tick",
+                "tick",
+                authoritativeResolution.Tick,
+                payloadLabel,
+                authoritativeLabel,
+                normalizedResolutionId,
+                errors);
+            ValidateSpectatorResolutionKeyedStringValue(
+                resolutionPayload,
+                "kind",
+                "kind",
+                authoritativeResolution.Kind,
+                payloadLabel,
+                authoritativeLabel,
+                normalizedResolutionId,
+                errors);
+            ValidateSpectatorResolutionKeyedStringValue(
+                resolutionPayload,
+                "reason",
+                "reason",
+                authoritativeResolution.Reason,
+                payloadLabel,
+                authoritativeLabel,
+                normalizedResolutionId,
+                errors);
+            ValidateSpectatorResolutionKeyedStringValue(
+                resolutionPayload,
+                "battlefieldId",
+                "battlefield id",
+                authoritativeResolution.BattlefieldId,
+                payloadLabel,
+                authoritativeLabel,
+                normalizedResolutionId,
+                errors);
+            ValidateSpectatorResolutionKeyedOptionalStringValue(
+                resolutionPayload,
+                "attackingPlayerId",
+                "attacking player id",
+                authoritativeResolution.AttackingPlayerId,
+                payloadLabel,
+                authoritativeLabel,
+                normalizedResolutionId,
+                errors);
+            ValidateSpectatorResolutionKeyedOptionalStringValue(
+                resolutionPayload,
+                "defendingPlayerId",
+                "defending player id",
+                authoritativeResolution.DefendingPlayerId,
+                payloadLabel,
+                authoritativeLabel,
+                normalizedResolutionId,
+                errors);
+            ValidateSpectatorResolutionKeyedOptionalStringValue(
+                resolutionPayload,
+                "winnerPlayerId",
+                "winner player id",
+                authoritativeResolution.WinnerPlayerId,
+                payloadLabel,
+                authoritativeLabel,
+                normalizedResolutionId,
+                errors);
+            ValidateSpectatorResolutionKeyedStringListValue(
+                resolutionPayload,
+                "attackerObjectIds",
+                "attacker object ids",
+                authoritativeResolution.AttackerObjectIds,
+                payloadLabel,
+                authoritativeLabel,
+                normalizedResolutionId,
+                errors);
+            ValidateSpectatorResolutionKeyedStringListValue(
+                resolutionPayload,
+                "defenderObjectIds",
+                "defender object ids",
+                authoritativeResolution.DefenderObjectIds,
+                payloadLabel,
+                authoritativeLabel,
+                normalizedResolutionId,
+                errors);
+            ValidateSpectatorResolutionKeyedStringListValue(
+                resolutionPayload,
+                "survivingAttackerObjectIds",
+                "surviving attacker object ids",
+                authoritativeResolution.SurvivingAttackerObjectIds,
+                payloadLabel,
+                authoritativeLabel,
+                normalizedResolutionId,
+                errors);
+            ValidateSpectatorResolutionKeyedStringListValue(
+                resolutionPayload,
+                "survivingDefenderObjectIds",
+                "surviving defender object ids",
+                authoritativeResolution.SurvivingDefenderObjectIds,
+                payloadLabel,
+                authoritativeLabel,
+                normalizedResolutionId,
+                errors);
+            ValidateSpectatorResolutionKeyedStringListValue(
+                resolutionPayload,
+                "destroyedObjectIds",
+                "destroyed object ids",
+                authoritativeResolution.DestroyedObjectIds,
+                payloadLabel,
+                authoritativeLabel,
+                normalizedResolutionId,
+                errors);
+            ValidateSpectatorResolutionKeyedStringListValue(
+                resolutionPayload,
+                "relatedEventKinds",
+                "related event kinds",
+                authoritativeResolution.RelatedEventKinds,
+                payloadLabel,
+                authoritativeLabel,
+                normalizedResolutionId,
+                errors);
+        }
+    }
+
+    private static void ValidateSpectatorResolutionKeyedStringValue(
+        object? resolutionPayload,
+        string key,
+        string fieldLabel,
+        string expected,
+        string payloadLabel,
+        string authoritativeLabel,
+        string resolutionId,
+        List<string> errors)
+    {
+        if (TryReadObjectString(resolutionPayload, key, out var actual)
+            && !string.Equals(actual, expected, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} {fieldLabel} {actual ?? string.Empty} does not match {authoritativeLabel} {fieldLabel} {expected} for resolution id {resolutionId}");
+        }
+    }
+
+    private static void ValidateSpectatorResolutionKeyedOptionalStringValue(
+        object? resolutionPayload,
+        string key,
+        string fieldLabel,
+        string? expected,
+        string payloadLabel,
+        string authoritativeLabel,
+        string resolutionId,
+        List<string> errors)
+    {
+        if (TryReadObjectOptionalString(resolutionPayload, key, out var actual)
+            && !string.Equals(actual, expected ?? string.Empty, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} {fieldLabel} {actual} does not match {authoritativeLabel} {fieldLabel} {expected ?? string.Empty} for resolution id {resolutionId}");
+        }
+    }
+
+    private static void ValidateSpectatorResolutionKeyedLongValue(
+        object? resolutionPayload,
+        string key,
+        string fieldLabel,
+        long expected,
+        string payloadLabel,
+        string authoritativeLabel,
+        string resolutionId,
+        List<string> errors)
+    {
+        if (TryReadObjectLong(resolutionPayload, key, out var actual)
+            && actual != expected)
+        {
+            errors.Add(
+                $"{payloadLabel} {fieldLabel} {actual} does not match {authoritativeLabel} {fieldLabel} {expected} for resolution id {resolutionId}");
+        }
+    }
+
+    private static void ValidateSpectatorResolutionKeyedStringListValue(
+        object? resolutionPayload,
+        string key,
+        string fieldLabel,
+        IReadOnlyList<string> expected,
+        string payloadLabel,
+        string authoritativeLabel,
+        string resolutionId,
+        List<string> errors)
+    {
+        if (TryReadObjectStringList(resolutionPayload, key, out var actual)
+            && !StringListsEqual(actual, expected))
+        {
+            errors.Add(
+                $"{payloadLabel} {fieldLabel} do not match {authoritativeLabel} {fieldLabel} for resolution id {resolutionId}");
         }
     }
 
