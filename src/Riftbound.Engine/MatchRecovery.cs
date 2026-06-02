@@ -5244,6 +5244,38 @@ public static class MatchRecoveryValidator
             || string.Equals(value, "CONTROL_CONFIRMED", StringComparison.Ordinal);
     }
 
+    private static void ValidateBattlefieldResolutionKindReasonCompatibility(
+        string? kind,
+        string? reason,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (kind is null
+            || reason is null
+            || !IsKnownBattlefieldResolutionKind(kind)
+            || !IsKnownBattlefieldResolutionReason(reason)
+            || IsBattlefieldResolutionReasonValidForKind(kind, reason))
+        {
+            return;
+        }
+
+        errors.Add($"{payloadLabel} reason {reason} is invalid for kind {kind}");
+    }
+
+    private static bool IsBattlefieldResolutionReasonValidForKind(string kind, string reason)
+    {
+        return kind switch
+        {
+            "HELD" => string.Equals(reason, "BATTLEFIELD_HELD", StringComparison.Ordinal),
+            "CONQUERED" => string.Equals(reason, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal),
+            "CONTROL_RESOLVED" => string.Equals(reason, "BATTLEFIELD_CONTROL_RESOLVED", StringComparison.Ordinal)
+                || string.Equals(reason, "UNCONTROLLED", StringComparison.Ordinal)
+                || string.Equals(reason, "CONTROL_CHANGED", StringComparison.Ordinal)
+                || string.Equals(reason, "CONTROL_CONFIRMED", StringComparison.Ordinal),
+            _ => false
+        };
+    }
+
     private static bool IsKnownBattleResolutionRelatedEventKind(string value)
     {
         return string.Equals(value, "DAMAGE_APPLIED", StringComparison.Ordinal)
@@ -5266,6 +5298,36 @@ public static class MatchRecoveryValidator
             || string.Equals(value, "BATTLE_NO_RESULT", StringComparison.Ordinal)
             || string.Equals(value, "ALL_PARTICIPANTS_DESTROYED", StringComparison.Ordinal)
             || string.Equals(value, "BOTH_SIDES_RETAIN_UNITS", StringComparison.Ordinal);
+    }
+
+    private static void ValidateBattleResolutionKindReasonCompatibility(
+        string? kind,
+        string? reason,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (kind is null
+            || reason is null
+            || !IsKnownBattleResolutionKind(kind)
+            || !IsKnownBattleResolutionReason(reason)
+            || IsBattleResolutionReasonValidForKind(kind, reason))
+        {
+            return;
+        }
+
+        errors.Add($"{payloadLabel} reason {reason} is invalid for kind {kind}");
+    }
+
+    private static bool IsBattleResolutionReasonValidForKind(string kind, string reason)
+    {
+        return kind switch
+        {
+            "CLOSED" => string.Equals(reason, "BATTLE_CLOSED", StringComparison.Ordinal),
+            "NO_RESULT" => string.Equals(reason, "BATTLE_NO_RESULT", StringComparison.Ordinal)
+                || string.Equals(reason, "ALL_PARTICIPANTS_DESTROYED", StringComparison.Ordinal)
+                || string.Equals(reason, "BOTH_SIDES_RETAIN_UNITS", StringComparison.Ordinal),
+            _ => false
+        };
     }
 
     private static bool IsKnownTriggerSourceVisibility(string value)
@@ -17807,20 +17869,25 @@ public static class MatchRecoveryValidator
                 resolution.Tick,
                 authoritativeTick,
                 errors);
-            ValidateAuthoritativeStateResolutionText(
+            var kind = ValidateAuthoritativeStateResolutionText(
                 "battlefield resolution",
                 resolutionId,
                 "kind",
                 resolution.Kind,
                 errors,
                 IsKnownBattlefieldResolutionKind);
-            ValidateAuthoritativeStateResolutionText(
+            var reason = ValidateAuthoritativeStateResolutionText(
                 "battlefield resolution",
                 resolutionId,
                 "reason",
                 resolution.Reason,
                 errors,
                 IsKnownBattlefieldResolutionReason);
+            ValidateBattlefieldResolutionKindReasonCompatibility(
+                kind,
+                reason,
+                $"authoritative state battlefield resolution {diagnosticResolutionId}",
+                errors);
             ValidateAuthoritativeStateResolutionText(
                 "battlefield resolution",
                 resolutionId,
@@ -17885,20 +17952,25 @@ public static class MatchRecoveryValidator
                 resolution.Tick,
                 authoritativeTick,
                 errors);
-            ValidateAuthoritativeStateResolutionText(
+            var kind = ValidateAuthoritativeStateResolutionText(
                 "battle resolution",
                 resolutionId,
                 "kind",
                 resolution.Kind,
                 errors,
                 IsKnownBattleResolutionKind);
-            ValidateAuthoritativeStateResolutionText(
+            var reason = ValidateAuthoritativeStateResolutionText(
                 "battle resolution",
                 resolutionId,
                 "reason",
                 resolution.Reason,
                 errors,
                 IsKnownBattleResolutionReason);
+            ValidateBattleResolutionKindReasonCompatibility(
+                kind,
+                reason,
+                $"authoritative state battle resolution {(string.IsNullOrEmpty(resolutionId) ? "<missing>" : resolutionId)}",
+                errors);
             ValidateAuthoritativeStateResolutionText(
                 "battle resolution",
                 resolutionId,
@@ -18000,7 +18072,7 @@ public static class MatchRecoveryValidator
         }
     }
 
-    private static void ValidateAuthoritativeStateResolutionText(
+    private static string? ValidateAuthoritativeStateResolutionText(
         string resolutionLabel,
         string resolutionId,
         string valueLabel,
@@ -18013,7 +18085,7 @@ public static class MatchRecoveryValidator
         {
             errors.Add(
                 $"authoritative state {resolutionLabel} {diagnosticResolutionId} {valueLabel} is required");
-            return;
+            return null;
         }
 
         var normalizedValue = value.Trim();
@@ -18033,6 +18105,8 @@ public static class MatchRecoveryValidator
             errors.Add(
                 $"authoritative state {resolutionLabel} {diagnosticResolutionId} {valueLabel} {normalizedValue} is invalid");
         }
+
+        return normalizedValue;
     }
 
     private static void ValidateAuthoritativeStateResolutionTextList(
@@ -21330,20 +21404,21 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "tick",
             errors);
-        ValidateSnapshotPayloadRequiredStringValue(
+        var kind = ValidateSnapshotPayloadRequiredStringValue(
             resolutionPayload,
             "kind",
             payloadLabel,
             "kind",
             errors,
             IsKnownBattlefieldResolutionKind);
-        ValidateSnapshotPayloadRequiredStringValue(
+        var reason = ValidateSnapshotPayloadRequiredStringValue(
             resolutionPayload,
             "reason",
             payloadLabel,
             "reason",
             errors,
             IsKnownBattlefieldResolutionReason);
+        ValidateBattlefieldResolutionKindReasonCompatibility(kind, reason, payloadLabel, errors);
         ValidateSnapshotPayloadRequiredStringValue(
             resolutionPayload,
             "battlefieldObjectId",
@@ -21482,20 +21557,21 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "tick",
             errors);
-        ValidateSnapshotPayloadRequiredStringValue(
+        var kind = ValidateSnapshotPayloadRequiredStringValue(
             resolutionPayload,
             "kind",
             payloadLabel,
             "kind",
             errors,
             IsKnownBattleResolutionKind);
-        ValidateSnapshotPayloadRequiredStringValue(
+        var reason = ValidateSnapshotPayloadRequiredStringValue(
             resolutionPayload,
             "reason",
             payloadLabel,
             "reason",
             errors,
             IsKnownBattleResolutionReason);
+        ValidateBattleResolutionKindReasonCompatibility(kind, reason, payloadLabel, errors);
         ValidateSnapshotPayloadRequiredStringValue(
             resolutionPayload,
             "battlefieldId",
