@@ -5125,6 +5125,14 @@ public static class MatchRecoveryValidator
                     "source object id",
                     "participant object id",
                     errors);
+                ValidateBattlefieldResolutionControlParticipantAbsence(
+                    ReadNormalizedPayloadString(resolutionPayload, "kind"),
+                    ReadNormalizedPayloadString(resolutionPayload, "sourceObjectId"),
+                    participantObjectIds,
+                    $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                    "source object id",
+                    "participant object id",
+                    errors);
                 ValidateSnapshotPayloadRequiredStringListPayloadShape(
                     resolutionPayload,
                     "relatedEventKinds",
@@ -5381,6 +5389,31 @@ public static class MatchRecoveryValidator
     {
         return string.Equals(kind, "HELD", StringComparison.Ordinal)
             || string.Equals(kind, "CONQUERED", StringComparison.Ordinal);
+    }
+
+    private static void ValidateBattlefieldResolutionControlParticipantAbsence(
+        string? kind,
+        string? sourceObjectId,
+        IReadOnlyList<string>? participantObjectIds,
+        string payloadLabel,
+        string sourceObjectLabel,
+        string participantObjectLabel,
+        List<string> errors)
+    {
+        if (!string.Equals(kind, "CONTROL_RESOLVED", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(sourceObjectId))
+        {
+            errors.Add($"{payloadLabel} {sourceObjectLabel} must be absent for kind {kind}");
+        }
+
+        if (participantObjectIds is not null && participantObjectIds.Count > 0)
+        {
+            errors.Add($"{payloadLabel} {participantObjectLabel} list must be empty for kind {kind}");
+        }
     }
 
     private static void ValidateBattlefieldResolutionCombatPlayerAvailability(
@@ -18374,6 +18407,14 @@ public static class MatchRecoveryValidator
                 "source object",
                 "participant object",
                 errors);
+            ValidateBattlefieldResolutionControlParticipantAbsence(
+                kind,
+                sourceObjectId,
+                participantObjectIds,
+                $"authoritative state battlefield resolution {diagnosticResolutionId}",
+                "source object",
+                "participant object",
+                errors);
             var relatedEventKinds = ValidateAuthoritativeStateResolutionTextList(
                 "battlefield resolution",
                 resolutionId,
@@ -21872,6 +21913,14 @@ public static class MatchRecoveryValidator
             "participant object id",
             errors);
         ValidateBattlefieldResolutionCombatParticipantAvailability(
+            ReadNormalizedPayloadString(resolutionPayload, "kind"),
+            ReadNormalizedPayloadString(resolutionPayload, "sourceObjectId"),
+            participantObjectIds,
+            payloadLabel,
+            "source object id",
+            "participant object id",
+            errors);
+        ValidateBattlefieldResolutionControlParticipantAbsence(
             ReadNormalizedPayloadString(resolutionPayload, "kind"),
             ReadNormalizedPayloadString(resolutionPayload, "sourceObjectId"),
             participantObjectIds,
