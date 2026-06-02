@@ -9472,6 +9472,7 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         List<string> errors)
     {
+        var knownPlayerIds = BuildNormalizedPlayerIdSet(authoritativeState.Seats.Keys);
         var authoritativeBattlefields = authoritativeState.BattlefieldStates.Values.ToArray();
         var count = Math.Min(spectatorBattlefields.Count, authoritativeBattlefields.Length);
         for (var index = 0; index < count; index++)
@@ -9506,6 +9507,7 @@ public static class MatchRecoveryValidator
                     authoritativeState,
                     authoritativeBattlefield,
                     authoritativeBattlefield.StandbyObjectIds[slotIndex],
+                    knownPlayerIds,
                     slotIndex,
                     errors);
             }
@@ -9532,6 +9534,7 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         BattlefieldState authoritativeBattlefield,
         string standbyObjectId,
+        IReadOnlySet<string> knownPlayerIds,
         int slotIndex,
         List<string> errors)
     {
@@ -9597,6 +9600,13 @@ public static class MatchRecoveryValidator
             errors.Add(
                 $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby slot {expectedSlotId} side player does not match authoritative state side player");
         }
+        ValidateTimingOptionalPlayerReference(
+            spectatorStandbySlot,
+            "sidePlayerId",
+            $"{payloadLabel} side player",
+            knownPlayerIds,
+            "seats",
+            errors);
 
         var hasControllerId = TryReadObjectValue(spectatorStandbySlot, "controllerId", out var controllerIdPayload)
             && !IsNullSnapshotPayloadValue(controllerIdPayload);
@@ -9617,6 +9627,13 @@ public static class MatchRecoveryValidator
             errors.Add(
                 $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby slot {expectedSlotId} controller does not match authoritative state controller");
         }
+        ValidateTimingOptionalPlayerReference(
+            spectatorStandbySlot,
+            "controllerId",
+            $"{payloadLabel} controller",
+            knownPlayerIds,
+            "seats",
+            errors);
 
         var expectedVisible = !IsHiddenBattlefieldStandbyForSpectator(authoritativeState, standbyObjectId);
         ValidateSnapshotPayloadRequiredBoolValue(
