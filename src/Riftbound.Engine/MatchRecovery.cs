@@ -887,6 +887,10 @@ public static class MatchRecoveryValidator
     private const string KogmawTriggerBattlefieldMarkerForRecovery = "::BATTLEFIELD::";
     private const string OgsLuxHighCostSpellPowerEffectKindForRecovery = "OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3";
     private const string StandardTriggerIdPrefixForRecovery = "TRIGGER-";
+    private const string TeemoOnPlaySelfPowerEffectKindForRecovery = "TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3";
+    private const string TeemoAltAOnPlaySelfPowerEffectKindForRecovery = "TEEMO_ALT_A_PLAY_UNIT_SELF_POWER_PLUS_3";
+    private const string TeemoAltBOnPlaySelfPowerEffectKindForRecovery = "TEEMO_ALT_B_PLAY_UNIT_SELF_POWER_PLUS_3";
+    private const string FndTeemoOnPlaySelfPowerEffectKindForRecovery = "FND_TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3";
 
     private sealed record BattleRequiredAssignmentView(
         string SourceObjectId,
@@ -4023,6 +4027,13 @@ public static class MatchRecoveryValidator
                 triggeredEventKind,
                 errors);
             ValidateTriggerQueueOgsLuxHighCostSpellContext(
+                triggerLabel,
+                triggerId,
+                sourceVisibility,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueTeemoOnPlaySelfPowerContext(
                 triggerLabel,
                 triggerId,
                 sourceVisibility,
@@ -16292,6 +16303,13 @@ public static class MatchRecoveryValidator
             effectKind,
             triggeredEventKind,
             errors);
+        ValidateTriggerQueueTeemoOnPlaySelfPowerContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            errors);
         ValidateTriggerQueueVisibleSourceObjectMembership(
             payloadLabel,
             sourceObjectId,
@@ -16666,6 +16684,107 @@ public static class MatchRecoveryValidator
             && triggerId.EndsWith(
                 $"-{OgsLuxHighCostSpellPowerEffectKindForRecovery}",
                 StringComparison.Ordinal);
+    }
+
+    private static void ValidateTriggerQueueTeemoOnPlaySelfPowerContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceVisibility,
+        string? effectKind,
+        string? triggeredEventKind,
+        List<string> errors)
+    {
+        if (triggerId is null || !IsTeemoOnPlaySelfPowerTriggerForRecovery(triggerId, effectKind))
+        {
+            return;
+        }
+
+        if (!TryReadTeemoOnPlaySelfPowerTriggerEffectKindForRecovery(triggerId, out var expectedEffectKind))
+        {
+            errors.Add($"{payloadLabel} teemo on-play self-power trigger id is invalid");
+            return;
+        }
+
+        if (sourceVisibility is not null
+            && !string.Equals(sourceVisibility, "VISIBLE", StringComparison.Ordinal))
+        {
+            errors.Add($"{payloadLabel} teemo on-play self-power source visibility must be VISIBLE");
+        }
+
+        if (effectKind is not null
+            && !string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal)
+            && !string.Equals(effectKind, expectedEffectKind, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} teemo on-play self-power effect kind {effectKind} must be {expectedEffectKind}");
+        }
+
+        if (triggeredEventKind is not null
+            && !string.Equals(triggeredEventKind, "HIDDEN", StringComparison.Ordinal)
+            && !string.Equals(triggeredEventKind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} teemo on-play self-power triggered event kind {triggeredEventKind} must be UNIT_PLAYED_TO_BASE");
+        }
+    }
+
+    private static bool IsTeemoOnPlaySelfPowerTriggerForRecovery(
+        string triggerId,
+        string? effectKind)
+    {
+        return TryReadTeemoOnPlaySelfPowerTriggerEffectKindForRecovery(triggerId, out _)
+            || IsTeemoOnPlaySelfPowerEffectKindForRecovery(effectKind);
+    }
+
+    private static bool TryReadTeemoOnPlaySelfPowerTriggerEffectKindForRecovery(
+        string triggerId,
+        out string effectKind)
+    {
+        effectKind = string.Empty;
+        if (!triggerId.StartsWith(StandardTriggerIdPrefixForRecovery, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return TryReadKnownTeemoOnPlaySelfPowerEffectKindSuffixForRecovery(
+            triggerId,
+            TeemoOnPlaySelfPowerEffectKindForRecovery,
+            out effectKind)
+            || TryReadKnownTeemoOnPlaySelfPowerEffectKindSuffixForRecovery(
+                triggerId,
+                TeemoAltAOnPlaySelfPowerEffectKindForRecovery,
+                out effectKind)
+            || TryReadKnownTeemoOnPlaySelfPowerEffectKindSuffixForRecovery(
+                triggerId,
+                TeemoAltBOnPlaySelfPowerEffectKindForRecovery,
+                out effectKind)
+            || TryReadKnownTeemoOnPlaySelfPowerEffectKindSuffixForRecovery(
+                triggerId,
+                FndTeemoOnPlaySelfPowerEffectKindForRecovery,
+                out effectKind);
+    }
+
+    private static bool TryReadKnownTeemoOnPlaySelfPowerEffectKindSuffixForRecovery(
+        string triggerId,
+        string candidateEffectKind,
+        out string effectKind)
+    {
+        effectKind = string.Empty;
+        if (!triggerId.EndsWith($"-{candidateEffectKind}", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        effectKind = candidateEffectKind;
+        return true;
+    }
+
+    private static bool IsTeemoOnPlaySelfPowerEffectKindForRecovery(string? effectKind)
+    {
+        return string.Equals(effectKind, TeemoOnPlaySelfPowerEffectKindForRecovery, StringComparison.Ordinal)
+            || string.Equals(effectKind, TeemoAltAOnPlaySelfPowerEffectKindForRecovery, StringComparison.Ordinal)
+            || string.Equals(effectKind, TeemoAltBOnPlaySelfPowerEffectKindForRecovery, StringComparison.Ordinal)
+            || string.Equals(effectKind, FndTeemoOnPlaySelfPowerEffectKindForRecovery, StringComparison.Ordinal);
     }
 
     private static void ValidateTriggerQueueControllerPlayerMembership(
@@ -19096,6 +19215,13 @@ public static class MatchRecoveryValidator
                 triggeredEventKind,
                 errors);
             ValidateTriggerQueueOgsLuxHighCostSpellContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
+                sourceVisibility: null,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueTeemoOnPlaySelfPowerContext(
                 $"authoritative state trigger queue item {triggerLabel}",
                 triggerId,
                 sourceVisibility: null,
