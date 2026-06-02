@@ -5163,6 +5163,11 @@ public static class MatchRecoveryValidator
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
                 "attacker object id",
                 errors);
+            ValidateBattleResolutionRequiredParticipantObjectList(
+                attackerObjectIds,
+                $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                "attacker object id",
+                errors);
             ValidateSnapshotPayloadRequiredStringListPayloadShape(
                 resolutionPayload,
                 "defenderObjectIds",
@@ -5172,6 +5177,11 @@ public static class MatchRecoveryValidator
             var defenderObjectIds = ValidateSnapshotPayloadStringListValues(
                 resolutionPayload,
                 "defenderObjectIds",
+                $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                "defender object id",
+                errors);
+            ValidateBattleResolutionRequiredParticipantObjectList(
+                defenderObjectIds,
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
                 "defender object id",
                 errors);
@@ -5477,6 +5487,20 @@ public static class MatchRecoveryValidator
     private static string? NormalizeOptionalCompatibilityText(string? value)
     {
         return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+    }
+
+    private static void ValidateBattleResolutionRequiredParticipantObjectList(
+        IReadOnlyList<string>? objectIds,
+        string payloadLabel,
+        string objectLabel,
+        List<string> errors)
+    {
+        if (objectIds is null || objectIds.Count > 0)
+        {
+            return;
+        }
+
+        errors.Add($"{payloadLabel} {objectLabel} list must not be empty");
     }
 
     private static void ValidateBattleResolutionResultListObjectMembership(
@@ -18196,17 +18220,19 @@ public static class MatchRecoveryValidator
                 resolution.Reason,
                 errors,
                 IsKnownBattleResolutionReason);
+            var diagnosticResolutionLabel =
+                $"authoritative state battle resolution {(string.IsNullOrEmpty(resolutionId) ? "<missing>" : resolutionId)}";
             ValidateBattleResolutionKindReasonCompatibility(
                 kind,
                 reason,
-                $"authoritative state battle resolution {(string.IsNullOrEmpty(resolutionId) ? "<missing>" : resolutionId)}",
+                diagnosticResolutionLabel,
                 errors);
             ValidateBattleResolutionPlayerRoleCompatibility(
                 kind,
                 resolution.AttackingPlayerId,
                 resolution.DefendingPlayerId,
                 resolution.WinnerPlayerId,
-                $"authoritative state battle resolution {(string.IsNullOrEmpty(resolutionId) ? "<missing>" : resolutionId)}",
+                diagnosticResolutionLabel,
                 errors);
             ValidateAuthoritativeStateResolutionText(
                 "battle resolution",
@@ -18221,6 +18247,11 @@ public static class MatchRecoveryValidator
                 resolution.AttackerObjectIds,
                 errors,
                 requireList: false);
+            ValidateBattleResolutionRequiredParticipantObjectList(
+                attackerObjectIds,
+                diagnosticResolutionLabel,
+                "attacker object",
+                errors);
             var defenderObjectIds = ValidateAuthoritativeStateResolutionTextList(
                 "battle resolution",
                 resolutionId,
@@ -18228,6 +18259,11 @@ public static class MatchRecoveryValidator
                 resolution.DefenderObjectIds,
                 errors,
                 requireList: false);
+            ValidateBattleResolutionRequiredParticipantObjectList(
+                defenderObjectIds,
+                diagnosticResolutionLabel,
+                "defender object",
+                errors);
             var survivingAttackerObjectIds = ValidateAuthoritativeStateResolutionTextList(
                 "battle resolution",
                 resolutionId,
@@ -18255,7 +18291,7 @@ public static class MatchRecoveryValidator
                 survivingAttackerObjectIds,
                 survivingDefenderObjectIds,
                 destroyedObjectIds,
-                $"authoritative state battle resolution {(string.IsNullOrEmpty(resolutionId) ? "<missing>" : resolutionId)}",
+                diagnosticResolutionLabel,
                 errors);
             var relatedEventKinds = ValidateAuthoritativeStateResolutionTextList(
                 "battle resolution",
@@ -18268,7 +18304,7 @@ public static class MatchRecoveryValidator
                 kind,
                 reason,
                 relatedEventKinds,
-                $"authoritative state battle resolution {(string.IsNullOrEmpty(resolutionId) ? "<missing>" : resolutionId)}",
+                diagnosticResolutionLabel,
                 errors);
         }
     }
@@ -21729,6 +21765,11 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "attacker object id",
             errors);
+        ValidateBattleResolutionRequiredParticipantObjectList(
+            attackerObjectIds,
+            payloadLabel,
+            "attacker object id",
+            errors);
         ValidateSpectatorRequiredStringListPayloadShape(
             resolutionPayload,
             payloadLabel,
@@ -21738,6 +21779,11 @@ public static class MatchRecoveryValidator
         var defenderObjectIds = ValidateSnapshotPayloadStringListValues(
             resolutionPayload,
             "defenderObjectIds",
+            payloadLabel,
+            "defender object id",
+            errors);
+        ValidateBattleResolutionRequiredParticipantObjectList(
+            defenderObjectIds,
             payloadLabel,
             "defender object id",
             errors);
