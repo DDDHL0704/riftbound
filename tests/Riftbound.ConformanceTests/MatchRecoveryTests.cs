@@ -7133,6 +7133,196 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingBattlefieldTaskActiveBattleLifecycleDrift()
+    {
+        var alice = PlayerView("alice", 0, 0, activePlayerId: "alice");
+        var players = alice.Snapshot.Players
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["objects"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["battlefield-a"] = SnapshotObjectPayload(
+                "battlefield-a",
+                "alice",
+                P6TokenFactoryCatalog.BattlefieldCardTag),
+            ["attacker-a"] = SnapshotObjectPayload(
+                "attacker-a",
+                "alice",
+                CardObjectTags.UnitCard,
+                "battlefield-a"),
+            ["defender-b"] = SnapshotObjectPayload(
+                "defender-b",
+                "bob",
+                CardObjectTags.UnitCard,
+                "battlefield-a")
+        };
+        players["alice"] = alicePayload;
+
+        var lanes = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["battlefieldObjectIds"] = new object?[]
+            {
+                new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["playerId"] = "alice",
+                    ["objectId"] = "battlefield-a"
+                }
+            },
+            ["battlefieldCount"] = 1,
+            ["battlefields"] = new object?[]
+            {
+                BattlefieldLanePayload("battlefield-a")
+            }
+        };
+        var stack = new object?[]
+        {
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["stackItemId"] = "stack-battle-a",
+                ["controllerId"] = "alice",
+                ["sourceObjectId"] = null,
+                ["effectKind"] = "TEST_EFFECT",
+                ["cardNo"] = null,
+                ["targetObjectIds"] = Array.Empty<string>(),
+                ["damageAmount"] = 0,
+                ["destination"] = null
+            }
+        };
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["timingState"] = TimingStates.NeutralClosed;
+        timing["battle"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["isActive"] = true,
+            ["battleId"] = "battle:battlefield-a",
+            ["battlefieldObjectId"] = "battlefield-a",
+            ["attackerObjectIds"] = new[] { "attacker-a" },
+            ["defenderObjectIds"] = new[] { "defender-b" },
+            ["participantControllerIds"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["attacker-a"] = "alice",
+                ["defender-b"] = "bob"
+            },
+            ["damageAssignment"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["isPending"] = false
+            }
+        };
+        timing["battlefieldTasks"] = new object?[]
+        {
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["taskId"] = "task:start-spell-duel:battlefield-a",
+                ["kind"] = "START_SPELL_DUEL",
+                ["status"] = "COMPLETED",
+                ["reason"] = "BATTLEFIELD_CONTESTED",
+                ["battlefieldObjectId"] = "battlefield-a",
+                ["participantControllerIds"] = new[] { "alice", "bob" },
+                ["participantObjectIds"] = new[] { "attacker-a", "defender-b" },
+                ["actingPlayerId"] = null,
+                ["stackItemIds"] = Array.Empty<string>(),
+                ["spellDuelId"] = "spell-duel:battlefield-a"
+            },
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["taskId"] = "task:start-battle:battlefield-a",
+                ["kind"] = "START_BATTLE",
+                ["status"] = "PENDING",
+                ["reason"] = "SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST",
+                ["battlefieldObjectId"] = "battlefield-a",
+                ["participantControllerIds"] = new[] { "alice", "bob" },
+                ["participantObjectIds"] = new[] { "attacker-a", "defender-b" },
+                ["actingPlayerId"] = "bob",
+                ["stackItemIds"] = new[] { "stack-battle-a" },
+                ["battleId"] = "battle:battlefield-a"
+            }
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players,
+                    Lanes = lanes,
+                    Stack = stack,
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield task item status PENDING does not match active battle status ACTIVE for battlefield object id battlefield-a",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield task item acting player id bob does not match active battle active player id alice for battlefield object id battlefield-a",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield task item stack item ids must be empty for active battle for battlefield object id battlefield-a",
+                StringComparison.Ordinal));
+
+        static Dictionary<string, object?> SnapshotObjectPayload(
+            string objectId,
+            string controllerId,
+            string tag,
+            string? battlefieldObjectId = null)
+        {
+            return new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = objectId,
+                ["ownerId"] = controllerId,
+                ["controllerId"] = controllerId,
+                ["isFaceDown"] = false,
+                ["tags"] = new[] { tag },
+                ["untilEndOfTurnEffects"] = Array.Empty<string>(),
+                ["location"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["playerId"] = controllerId,
+                    ["zone"] = "BATTLEFIELD",
+                    ["battlefieldObjectId"] = battlefieldObjectId ?? objectId
+                }
+            };
+        }
+
+        static Dictionary<string, object?> BattlefieldLanePayload(string battlefieldObjectId)
+        {
+            return new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["zonePlayerId"] = "alice",
+                ["cardNo"] = $"SFD-{battlefieldObjectId}",
+                ["controllerId"] = "alice",
+                ["status"] = "CONTESTED",
+                ["contested"] = true,
+                ["occupantObjectIds"] = new[] { "attacker-a", "defender-b" },
+                ["occupantControllerIds"] = new[] { "alice", "bob" },
+                ["unitsBySide"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["alice"] = new[] { "attacker-a" },
+                    ["bob"] = new[] { "defender-b" }
+                },
+                ["standbyObjectIds"] = Array.Empty<string>(),
+                ["standbySlots"] = Array.Empty<object?>(),
+                ["standbySlotCount"] = 0,
+                ["faceDownStandbyCount"] = 0,
+                ["hiddenStandbyCount"] = 0,
+                ["scoredThisTurn"] = false,
+                ["scoredThisTurnPlayerIds"] = Array.Empty<string>(),
+                ["pendingTaskKinds"] = Array.Empty<string>()
+            };
+        }
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingBattlefieldTaskKindSpecificIdentityExclusivityDrift()
     {
         var alice = PlayerView("alice", 0, 0);
