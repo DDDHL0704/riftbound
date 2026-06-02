@@ -10556,7 +10556,7 @@ public sealed class MatchRecoveryTests
         battleResolution["kind"] = "NO_RESULT";
         battleResolution["reason"] = "BATTLE_NO_RESULT";
         battleResolution["winnerPlayerId"] = null;
-        battleResolution["relatedEventKinds"] = new[] { "BATTLE_NO_RESULT" };
+        battleResolution["relatedEventKinds"] = new[] { "BATTLE_NO_RESULT", "BATTLE_CLOSED" };
         timing["battlefieldResolutions"] = Array.Empty<object?>();
         timing["battleResolutions"] = new object?[] { battleResolution };
         var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
@@ -10577,6 +10577,48 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "snapshot for alice timing battle resolution item reason BATTLE_NO_RESULT is invalid for kind NO_RESULT",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingResolutionHistoryBattleNoResultMissingClosedEventDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var players = alice.Snapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["objects"] = RetainedResolutionSnapshotObjects();
+        players["alice"] = alicePayload;
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var battleResolution = RetainedBattleResolutionPayload(0);
+        battleResolution["kind"] = "NO_RESULT";
+        battleResolution["reason"] = "BOTH_SIDES_RETAIN_UNITS";
+        battleResolution["winnerPlayerId"] = null;
+        battleResolution["relatedEventKinds"] = new[] { "BATTLE_NO_RESULT" };
+        timing["battlefieldResolutions"] = Array.Empty<object?>();
+        timing["battleResolutions"] = new object?[] { battleResolution };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players,
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item related event kinds must include BATTLE_CLOSED for kind NO_RESULT reason BOTH_SIDES_RETAIN_UNITS",
                 StringComparison.Ordinal));
     }
 
@@ -22743,7 +22785,7 @@ public sealed class MatchRecoveryTests
                     Kind = "NO_RESULT",
                     Reason = "BATTLE_NO_RESULT",
                     WinnerPlayerId = null,
-                    RelatedEventKinds = ["BATTLE_NO_RESULT"]
+                    RelatedEventKinds = ["BATTLE_NO_RESULT", "BATTLE_CLOSED"]
                 }
             ]
         };
@@ -22761,6 +22803,50 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "authoritative state battle resolution battle-resolution-0 reason BATTLE_NO_RESULT is invalid for kind NO_RESULT",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateResolutionHistoryBattleNoResultMissingClosedEventDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            2,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            cardObjects: RetainedResolutionCardObjects())
+        {
+            BattleResolutions =
+            [
+                RetainedBattleResolutionState(0) with
+                {
+                    Kind = "NO_RESULT",
+                    Reason = "BOTH_SIDES_RETAIN_UNITS",
+                    WinnerPlayerId = null,
+                    RelatedEventKinds = ["BATTLE_NO_RESULT"]
+                }
+            ]
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 2);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state battle resolution battle-resolution-0 related event kinds must include BATTLE_CLOSED for kind NO_RESULT reason BOTH_SIDES_RETAIN_UNITS",
                 StringComparison.Ordinal));
     }
 
@@ -60647,7 +60733,7 @@ public sealed class MatchRecoveryTests
                     Kind = "NO_RESULT",
                     Reason = "BOTH_SIDES_RETAIN_UNITS",
                     WinnerPlayerId = null,
-                    RelatedEventKinds = ["BATTLE_NO_RESULT"]
+                    RelatedEventKinds = ["BATTLE_NO_RESULT", "BATTLE_CLOSED"]
                 }
             ]);
         var events = new[]
@@ -60694,6 +60780,82 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing battle resolution item reason BATTLE_NO_RESULT is invalid for kind NO_RESULT",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingResolutionHistoryBattleNoResultMissingClosedEventDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            cardObjects: RetainedResolutionCardObjects(),
+            objectLocations: RetainedResolutionObjectLocations(),
+            battleResolutions:
+            [
+                RetainedBattleResolutionState(0) with
+                {
+                    Kind = "NO_RESULT",
+                    Reason = "BOTH_SIDES_RETAIN_UNITS",
+                    WinnerPlayerId = null,
+                    RelatedEventKinds = ["BATTLE_NO_RESULT", "BATTLE_CLOSED"]
+                }
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var battleResolutionPayload = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["battleResolutions"])
+            .ToArray();
+        Assert.Single(battleResolutionPayload);
+        var battleResolution = Assert.IsType<Dictionary<string, object?>>(battleResolutionPayload[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        battleResolution["relatedEventKinds"] = new[] { "BATTLE_NO_RESULT" };
+        timing["battleResolutions"] = new object?[] { battleResolution };
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolution item related event kinds must include BATTLE_CLOSED for kind NO_RESULT reason BOTH_SIDES_RETAIN_UNITS",
                 StringComparison.Ordinal));
     }
 

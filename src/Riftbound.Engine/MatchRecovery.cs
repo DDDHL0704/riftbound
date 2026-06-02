@@ -5665,6 +5665,12 @@ public static class MatchRecoveryValidator
             errors.Add($"{payloadLabel} related event kinds must include {expectedResultEventKind} for kind {kind} reason {reason}");
         }
 
+        if (string.Equals(kind, "NO_RESULT", StringComparison.Ordinal)
+            && !relatedEventKinds.Contains("BATTLE_CLOSED", StringComparer.Ordinal))
+        {
+            errors.Add($"{payloadLabel} related event kinds must include BATTLE_CLOSED for kind {kind} reason {reason}");
+        }
+
         if (string.Equals(kind, "CLOSED", StringComparison.Ordinal)
             && relatedEventKinds.Contains("BATTLE_NO_RESULT", StringComparer.Ordinal))
         {
