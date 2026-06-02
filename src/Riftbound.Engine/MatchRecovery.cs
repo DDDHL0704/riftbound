@@ -9770,8 +9770,8 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "visibility",
             errors);
-        if (!TryReadObjectBool(spectatorStandbySlot, "visible", out var visible)
-            || visible != expectedVisible)
+        var hasReadableVisible = TryReadObjectBool(spectatorStandbySlot, "visible", out var visible);
+        if (!hasReadableVisible || visible != expectedVisible)
         {
             errors.Add(
                 $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby slot {expectedSlotId} visibility does not match authoritative spectator visibility");
@@ -9791,9 +9791,9 @@ public static class MatchRecoveryValidator
                 $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby slot {expectedSlotId} state does not match authoritative spectator state");
         }
 
-        if (state is not null && TryReadObjectBool(spectatorStandbySlot, "visible", out var payloadVisible))
+        if (state is not null && hasReadableVisible)
         {
-            var expectedPayloadState = payloadVisible ? "VISIBLE" : "HIDDEN";
+            var expectedPayloadState = visible ? "VISIBLE" : "HIDDEN";
             if (!string.Equals(state, expectedPayloadState, StringComparison.Ordinal))
             {
                 errors.Add(
@@ -9814,6 +9814,16 @@ public static class MatchRecoveryValidator
         {
             errors.Add(
                 $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby slot {expectedSlotId} face-down flag does not match authoritative state face-down flag");
+        }
+
+        var hiddenObjectIdRedactionReported = false;
+        if (hasReadableVisible
+            && !visible
+            && TryReadObjectValue(spectatorStandbySlot, "objectId", out _))
+        {
+            errors.Add(
+                $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby slot {expectedSlotId} hidden object id must be redacted");
+            hiddenObjectIdRedactionReported = true;
         }
 
         if (expectedVisible)
@@ -9840,7 +9850,8 @@ public static class MatchRecoveryValidator
                     $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby slot {expectedSlotId} object id does not match authoritative visible standby object id");
             }
         }
-        else if (TryReadObjectValue(spectatorStandbySlot, "objectId", out _))
+        else if (!hiddenObjectIdRedactionReported
+            && TryReadObjectValue(spectatorStandbySlot, "objectId", out _))
         {
             errors.Add(
                 $"spectator replay frame snapshot lane battlefield {battlefieldObjectId} standby slot {expectedSlotId} hidden object id must be redacted");
