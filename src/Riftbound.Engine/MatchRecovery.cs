@@ -19170,6 +19170,10 @@ public static class MatchRecoveryValidator
                 spectatorReplayFrame.SpectatorSnapshot,
                 authoritativeState,
                 errors);
+            ValidateSpectatorSnapshotStackAuthoritativeKeySet(
+                spectatorReplayFrame.SpectatorSnapshot.Stack,
+                authoritativeState.StackItems,
+                errors);
 
             if (spectatorReplayFrame.SpectatorSnapshot.Stack.Count != authoritativeState.StackItems.Count)
             {
@@ -22012,6 +22016,45 @@ public static class MatchRecoveryValidator
             if (normalizedStackItemId is not null && !seenStackItemIds.Add(normalizedStackItemId))
             {
                 errors.Add($"spectator replay frame snapshot stack item {normalizedStackItemId} is duplicated");
+            }
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotStackAuthoritativeKeySet(
+        IReadOnlyList<object?> stackItems,
+        IReadOnlyList<StackItemState> authoritativeStackItems,
+        List<string> errors)
+    {
+        var authoritativeStackItemIds = authoritativeStackItems
+            .Select(item => item.StackItemId)
+            .Where(id => !string.IsNullOrWhiteSpace(id))
+            .Select(id => id.Trim())
+            .ToHashSet(StringComparer.Ordinal);
+        var actualStackItemIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var stackItem in stackItems)
+        {
+            if (!IsSnapshotPlayerPayloadObject(stackItem)
+                || !TryReadObjectString(stackItem, "stackItemId", out var stackItemId)
+                || string.IsNullOrWhiteSpace(stackItemId))
+            {
+                continue;
+            }
+
+            var normalizedStackItemId = stackItemId.Trim();
+            actualStackItemIds.Add(normalizedStackItemId);
+            if (!authoritativeStackItemIds.Contains(normalizedStackItemId))
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot stack item id {normalizedStackItemId} is not present in authoritative state stack items");
+            }
+        }
+
+        foreach (var authoritativeStackItemId in authoritativeStackItemIds.OrderBy(id => id, StringComparer.Ordinal))
+        {
+            if (!actualStackItemIds.Contains(authoritativeStackItemId))
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot stack item id {authoritativeStackItemId} is required by authoritative state stack items");
             }
         }
     }
