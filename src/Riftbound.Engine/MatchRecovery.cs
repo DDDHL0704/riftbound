@@ -4968,6 +4968,12 @@ public static class MatchRecoveryValidator
                 payloadLabel,
                 "generated power trait",
                 errors);
+            ValidateTemporaryPaymentResourcePowerTraitKeys(
+                resourcePayload,
+                "generatedPowerByTrait",
+                payloadLabel,
+                "generated power trait",
+                errors);
             ValidateSnapshotPayloadRequiredIntMapPayloadShape(
                 resourcePayload,
                 "remainingPowerByTrait",
@@ -4975,6 +4981,12 @@ public static class MatchRecoveryValidator
                 "remaining power trait",
                 errors);
             ValidateSnapshotPayloadRequiredPositiveIntMapValues(
+                resourcePayload,
+                "remainingPowerByTrait",
+                payloadLabel,
+                "remaining power trait",
+                errors);
+            ValidateTemporaryPaymentResourcePowerTraitKeys(
                 resourcePayload,
                 "remainingPowerByTrait",
                 payloadLabel,
@@ -5003,6 +5015,96 @@ public static class MatchRecoveryValidator
                 payloadLabel,
                 errors);
         }
+    }
+
+    private static void ValidateTemporaryPaymentResourcePowerTraitKeys(
+        object? resourcePayload,
+        string key,
+        string payloadLabel,
+        string traitLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(resourcePayload, key, out var mapPayload)
+            || IsNullSnapshotPayloadValue(mapPayload)
+            || !IsSnapshotIntMapPayloadObject(mapPayload))
+        {
+            return;
+        }
+
+        ValidateTemporaryPaymentResourcePowerTraitKeys(
+            EnumerateSnapshotPayloadObjectPropertyNames(mapPayload),
+            payloadLabel,
+            traitLabel,
+            errors);
+    }
+
+    private static void ValidateTemporaryPaymentResourcePowerTraitKeys(
+        IReadOnlyDictionary<string, int>? values,
+        string payloadLabel,
+        string traitLabel,
+        List<string> errors)
+    {
+        if (values is null)
+        {
+            return;
+        }
+
+        ValidateTemporaryPaymentResourcePowerTraitKeys(
+            values.Keys,
+            payloadLabel,
+            traitLabel,
+            errors);
+    }
+
+    private static void ValidateTemporaryPaymentResourcePowerTraitKeys(
+        IEnumerable<string> traits,
+        string payloadLabel,
+        string traitLabel,
+        List<string> errors)
+    {
+        var seenTraits = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var trait in traits)
+        {
+            if (string.IsNullOrWhiteSpace(trait))
+            {
+                continue;
+            }
+
+            var trimmedTrait = trait.Trim();
+            var normalizedTrait = RuneTrait.Normalize(trimmedTrait);
+            if (string.IsNullOrWhiteSpace(normalizedTrait))
+            {
+                continue;
+            }
+
+            if (!IsKnownRuneTrait(normalizedTrait))
+            {
+                errors.Add($"{payloadLabel} {traitLabel} {trimmedTrait} is not a known rune trait");
+                continue;
+            }
+
+            if (!string.Equals(trimmedTrait, normalizedTrait, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} {traitLabel} {trimmedTrait} must use canonical rune trait {normalizedTrait}");
+            }
+
+            if (!seenTraits.Add(normalizedTrait))
+            {
+                errors.Add($"{payloadLabel} {traitLabel} {normalizedTrait} is duplicated after normalization");
+            }
+        }
+    }
+
+    private static bool IsKnownRuneTrait(string trait)
+    {
+        return trait is
+            RuneTrait.Red
+            or RuneTrait.Green
+            or RuneTrait.Blue
+            or RuneTrait.Yellow
+            or RuneTrait.Orange
+            or RuneTrait.Purple;
     }
 
     private static void ValidateTemporaryPaymentResourcePayloadPowerBudget(
@@ -16925,6 +17027,12 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "generated power trait",
             errors);
+        ValidateTemporaryPaymentResourcePowerTraitKeys(
+            resourcePayload,
+            "generatedPowerByTrait",
+            payloadLabel,
+            "generated power trait",
+            errors);
         ValidateSpectatorRequiredIntMapPayloadShape(
             resourcePayload,
             payloadLabel,
@@ -16932,6 +17040,12 @@ public static class MatchRecoveryValidator
             "remaining power trait",
             errors);
         ValidateSnapshotPayloadRequiredPositiveIntMapValues(
+            resourcePayload,
+            "remainingPowerByTrait",
+            payloadLabel,
+            "remaining power trait",
+            errors);
+        ValidateTemporaryPaymentResourcePowerTraitKeys(
             resourcePayload,
             "remainingPowerByTrait",
             payloadLabel,
@@ -18108,10 +18222,20 @@ public static class MatchRecoveryValidator
                 "generated power trait",
                 resource.GeneratedPowerByTrait,
                 errors);
+            ValidateTemporaryPaymentResourcePowerTraitKeys(
+                resource.GeneratedPowerByTrait,
+                $"authoritative state temporary payment resource {resourceLabel}",
+                "generated power trait",
+                errors);
             ValidateAuthoritativeStateTraitPowerValues(
                 $"temporary payment resource {resourceLabel}",
                 "remaining power trait",
                 resource.RemainingPowerByTrait,
+                errors);
+            ValidateTemporaryPaymentResourcePowerTraitKeys(
+                resource.RemainingPowerByTrait,
+                $"authoritative state temporary payment resource {resourceLabel}",
+                "remaining power trait",
                 errors);
             ValidateTemporaryPaymentResourcePowerBudget(
                 resource.GeneratedPower,
