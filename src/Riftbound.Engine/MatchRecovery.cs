@@ -8294,21 +8294,13 @@ public static class MatchRecoveryValidator
 
             if (expectedLocation is not null)
             {
-                var expectedBattlefieldObjectId = expectedLocation.BattlefieldObjectId ?? string.Empty;
-                if (battlefieldObjectId is null)
-                {
-                    if (!string.IsNullOrEmpty(expectedBattlefieldObjectId))
-                    {
-                        errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location battlefield object id does not match authoritative object location battlefield object id");
-                    }
-                }
-                else if (!string.Equals(
+                ValidateSpectatorSnapshotObjectLocationBattlefieldObjectIdParity(
+                    playerId,
+                    objectId,
+                    hasBattlefieldObjectId,
                     battlefieldObjectId,
-                    expectedBattlefieldObjectId,
-                    StringComparison.Ordinal))
-                {
-                    errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location battlefield object id does not match authoritative object location battlefield object id");
-                }
+                    expectedLocation,
+                    errors);
             }
 
             if (expectedLocation is null && hasAuthoritativeObject)
@@ -8584,20 +8576,52 @@ public static class MatchRecoveryValidator
             battlefieldObjectId = string.Empty;
         }
 
+        ValidateSpectatorSnapshotObjectLocationBattlefieldObjectIdParity(
+            playerId,
+            objectId,
+            hasBattlefieldObjectId,
+            battlefieldObjectId,
+            expectedLocation,
+            errors);
+    }
+
+    private static void ValidateSpectatorSnapshotObjectLocationBattlefieldObjectIdParity(
+        string playerId,
+        string objectId,
+        bool hasBattlefieldObjectId,
+        string? battlefieldObjectId,
+        ObjectLocationState expectedLocation,
+        List<string> errors)
+    {
         var expectedBattlefieldObjectId = expectedLocation.BattlefieldObjectId ?? string.Empty;
+        var payloadLabel = $"spectator replay frame snapshot player {playerId} object {objectId} location battlefield object id";
+        if (string.IsNullOrEmpty(expectedBattlefieldObjectId))
+        {
+            if (battlefieldObjectId is not null
+                && !string.Equals(battlefieldObjectId, expectedBattlefieldObjectId, StringComparison.Ordinal))
+            {
+                errors.Add($"{payloadLabel} does not match authoritative object location battlefield object id");
+            }
+
+            return;
+        }
+
+        if (!hasBattlefieldObjectId || battlefieldObjectId is { Length: 0 })
+        {
+            errors.Add($"{payloadLabel} is required");
+            errors.Add($"{payloadLabel} does not match authoritative object location battlefield object id");
+            return;
+        }
+
         if (battlefieldObjectId is null)
         {
-            if (!string.IsNullOrEmpty(expectedBattlefieldObjectId))
-            {
-                errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location battlefield object id does not match authoritative object location battlefield object id");
-            }
+            errors.Add($"{payloadLabel} does not match authoritative object location battlefield object id");
+            return;
         }
-        else if (!string.Equals(
-            battlefieldObjectId,
-            expectedBattlefieldObjectId,
-            StringComparison.Ordinal))
+
+        if (!string.Equals(battlefieldObjectId, expectedBattlefieldObjectId, StringComparison.Ordinal))
         {
-            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location battlefield object id does not match authoritative object location battlefield object id");
+            errors.Add($"{payloadLabel} does not match authoritative object location battlefield object id");
         }
     }
 

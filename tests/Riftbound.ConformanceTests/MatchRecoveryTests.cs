@@ -28752,7 +28752,7 @@ public sealed class MatchRecoveryTests
             ["location"] = new Dictionary<string, object?>
             {
                 ["playerId"] = null,
-                ["battlefieldObjectId"] = battlefieldObjectId
+                ["battlefieldObjectId"] = null
             }
         };
         alicePayload["objects"] = objects;
@@ -28794,6 +28794,16 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame snapshot player alice object alice-hand-1 location zone does not match authoritative object location zone",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice object alice-hand-1 location battlefield object id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice object alice-hand-1 location battlefield object id does not match authoritative object location battlefield object id",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -31477,6 +31487,7 @@ public sealed class MatchRecoveryTests
         var locationPayload = Assert.IsType<Dictionary<string, object?>>(visiblePayload["location"])
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         Assert.True(locationPayload.Remove("playerId"));
+        Assert.True(locationPayload.Remove("battlefieldObjectId"));
         locationPayload["zone"] = null;
         visiblePayload["location"] = locationPayload;
         objects[visibleBattlefieldObjectId] = visiblePayload;
@@ -31519,6 +31530,16 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame snapshot player alice object alice-visible-battlefield-1 location zone does not match authoritative object location zone",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice object alice-visible-battlefield-1 location battlefield object id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice object alice-visible-battlefield-1 location battlefield object id does not match authoritative object location battlefield object id",
                 StringComparison.Ordinal));
     }
 
