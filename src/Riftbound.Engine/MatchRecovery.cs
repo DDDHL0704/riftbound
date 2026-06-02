@@ -4022,6 +4022,7 @@ public static class MatchRecoveryValidator
         var objectTags = view.Snapshot.Players is null
             ? null
             : BuildSnapshotObjectTagIndex(view.Snapshot);
+        var knownBattlefieldStateObjectIds = BuildSnapshotBattlefieldStateObjectIds(view.Snapshot);
         foreach (var taskPayload in taskPayloads)
         {
             if (!IsSnapshotPlayerPayloadObject(taskPayload))
@@ -4080,6 +4081,12 @@ public static class MatchRecoveryValidator
                 taskPayload,
                 $"{taskLabel} battlefield object id",
                 objectTags,
+                errors);
+            ValidateBattlefieldTaskBattlefieldStateMembership(
+                taskPayload,
+                $"{taskLabel} battlefield object id",
+                knownBattlefieldStateObjectIds,
+                "battlefield states",
                 errors);
             ValidateSnapshotPayloadOptionalStringValue(
                 taskPayload,
@@ -4857,6 +4864,30 @@ public static class MatchRecoveryValidator
         }
 
         return knownObjectIds;
+    }
+
+    private static IReadOnlySet<string>? BuildSnapshotBattlefieldStateObjectIds(SnapshotDto snapshot)
+    {
+        if (snapshot.Lanes is null
+            || !TryReadObjectList(snapshot.Lanes, "battlefields", out var battlefieldPayloads))
+        {
+            return null;
+        }
+
+        var battlefieldObjectIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var battlefieldPayload in battlefieldPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(battlefieldPayload)
+                || !TryReadObjectString(battlefieldPayload, "battlefieldObjectId", out var battlefieldObjectId)
+                || string.IsNullOrWhiteSpace(battlefieldObjectId))
+            {
+                continue;
+            }
+
+            battlefieldObjectIds.Add(battlefieldObjectId.Trim());
+        }
+
+        return battlefieldObjectIds;
     }
 
     private static IReadOnlyDictionary<string, ObjectLocationState> BuildSnapshotObjectLocationIndex(SnapshotDto snapshot)
@@ -10941,6 +10972,27 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateBattlefieldTaskBattlefieldStateMembership(
+        object? taskPayload,
+        string battlefieldObjectLabel,
+        IReadOnlySet<string>? battlefieldStateObjectIds,
+        string battlefieldStateLabel,
+        List<string> errors)
+    {
+        if (battlefieldStateObjectIds is null
+            || !TryReadObjectString(taskPayload, "battlefieldObjectId", out var battlefieldObjectId)
+            || string.IsNullOrWhiteSpace(battlefieldObjectId))
+        {
+            return;
+        }
+
+        var normalizedBattlefieldObjectId = battlefieldObjectId.Trim();
+        if (!battlefieldStateObjectIds.Contains(normalizedBattlefieldObjectId))
+        {
+            errors.Add($"{battlefieldObjectLabel} {normalizedBattlefieldObjectId} is missing from {battlefieldStateLabel}");
+        }
+    }
+
     private static void ValidateBattlefieldTaskParticipantObjectUnitMembership(
         object? taskPayload,
         string participantObjectLabel,
@@ -14247,6 +14299,7 @@ public static class MatchRecoveryValidator
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         var objectControllers = BuildAuthoritativeStateObjectControllerIndex(authoritativeState);
         var objectTags = BuildAuthoritativeStateObjectTagIndex(authoritativeState);
+        var battlefieldStateObjectIds = BuildAuthoritativeStateBattlefieldStateObjectIds(authoritativeState);
         var knownStackItemIds = BuildKnownStackItemIds(authoritativeState.StackItems.Select(item => item?.StackItemId));
         foreach (var spectatorBattlefieldTask in spectatorBattlefieldTasks)
         {
@@ -14266,6 +14319,7 @@ public static class MatchRecoveryValidator
                 seatPlayerIds,
                 knownObjectIds,
                 objectTags,
+                battlefieldStateObjectIds,
                 errors);
             ValidateSpectatorBattlefieldTaskPayloadListValues(
                 spectatorBattlefieldTask,
@@ -14375,6 +14429,7 @@ public static class MatchRecoveryValidator
         IReadOnlySet<string> seatPlayerIds,
         IReadOnlySet<string> knownObjectIds,
         IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
+        IReadOnlySet<string> battlefieldStateObjectIds,
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing battlefield task item";
@@ -14427,6 +14482,12 @@ public static class MatchRecoveryValidator
             spectatorBattlefieldTask,
             $"{payloadLabel} battlefield object id",
             objectTags,
+            errors);
+        ValidateBattlefieldTaskBattlefieldStateMembership(
+            spectatorBattlefieldTask,
+            $"{payloadLabel} battlefield object id",
+            battlefieldStateObjectIds,
+            "authoritative state battlefield states",
             errors);
         ValidateSnapshotPayloadOptionalStringValue(
             spectatorBattlefieldTask,
@@ -17200,6 +17261,15 @@ public static class MatchRecoveryValidator
         }
 
         return knownObjectIds;
+    }
+
+    private static IReadOnlySet<string> BuildAuthoritativeStateBattlefieldStateObjectIds(MatchState authoritativeState)
+    {
+        return authoritativeState.BattlefieldStates.Values
+            .Select(battlefield => battlefield.BattlefieldObjectId)
+            .Where(battlefieldObjectId => !string.IsNullOrWhiteSpace(battlefieldObjectId))
+            .Select(battlefieldObjectId => battlefieldObjectId.Trim())
+            .ToHashSet(StringComparer.Ordinal);
     }
 
     private static IReadOnlyDictionary<string, string> BuildAuthoritativeStateObjectControllerIndex(MatchState authoritativeState)
