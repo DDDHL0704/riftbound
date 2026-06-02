@@ -9865,6 +9865,11 @@ public static class MatchRecoveryValidator
             taskPayloads,
             authoritativeTasksByVisibleTaskId,
             errors);
+        ValidateSpectatorPendingTaskQueueKeyedAuthoritativeValues(
+            taskPayloads,
+            authoritativeTasksByVisibleTaskId,
+            authoritativeState,
+            errors);
 
         if (!validateAuthoritativeParity)
         {
@@ -10025,6 +10030,118 @@ public static class MatchRecoveryValidator
                 errors.Add(
                     $"{payloadLabel} task id {authoritativeTaskId} is required by authoritative state pending task queue tasks");
             }
+        }
+    }
+
+    private static void ValidateSpectatorPendingTaskQueueKeyedAuthoritativeValues(
+        IReadOnlyList<object?> taskPayloads,
+        IReadOnlyDictionary<string, CleanupTaskState> authoritativeTasksByVisibleTaskId,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing pending task queue task item";
+        foreach (var taskPayload in taskPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(taskPayload)
+                || !TryReadObjectString(taskPayload, "taskId", out var taskId)
+                || string.IsNullOrWhiteSpace(taskId))
+            {
+                continue;
+            }
+
+            var normalizedTaskId = taskId.Trim();
+            if (!authoritativeTasksByVisibleTaskId.TryGetValue(normalizedTaskId, out var authoritativeTask))
+            {
+                continue;
+            }
+
+            if (TryReadObjectString(taskPayload, "kind", out var kind)
+                && !string.Equals(kind, authoritativeTask.Kind, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} kind {kind} does not match authoritative state pending task queue task kind {authoritativeTask.Kind} for task id {normalizedTaskId}");
+            }
+
+            if (TryReadObjectString(taskPayload, "reason", out var reason)
+                && !string.Equals(reason, authoritativeTask.Reason, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} reason {reason} does not match authoritative state pending task queue task reason {authoritativeTask.Reason} for task id {normalizedTaskId}");
+            }
+
+            if (TryReadObjectOptionalString(taskPayload, "playerId", out var playerId)
+                && !string.Equals(playerId, authoritativeTask.PlayerId ?? string.Empty, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} player id {playerId} does not match authoritative state pending task queue task player id {authoritativeTask.PlayerId ?? string.Empty} for task id {normalizedTaskId}");
+            }
+
+            if (TryReadObjectOptionalString(taskPayload, "battlefieldObjectId", out var battlefieldObjectId)
+                && !string.Equals(battlefieldObjectId, authoritativeTask.BattlefieldObjectId ?? string.Empty, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} battlefield object id {battlefieldObjectId} does not match authoritative state pending task queue task battlefield object id {authoritativeTask.BattlefieldObjectId ?? string.Empty} for task id {normalizedTaskId}");
+            }
+
+            ValidateSpectatorPendingTaskQueueKeyedAuthoritativeObjectValues(
+                taskPayload,
+                authoritativeTask,
+                authoritativeState,
+                normalizedTaskId,
+                errors);
+        }
+    }
+
+    private static void ValidateSpectatorPendingTaskQueueKeyedAuthoritativeObjectValues(
+        object? taskPayload,
+        CleanupTaskState authoritativeTask,
+        MatchState authoritativeState,
+        string taskId,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing pending task queue task item";
+        if (ShouldHideCleanupTaskObjectIdForRecovery(authoritativeState, authoritativeTask))
+        {
+            if (TryReadObjectValue(taskPayload, "objectId", out _))
+            {
+                errors.Add(
+                    $"{payloadLabel} object id does not match authoritative state pending task queue task object id redaction for task id {taskId}");
+            }
+
+            if (!TryReadObjectBool(taskPayload, "hiddenObject", out var hiddenObject)
+                || !hiddenObject)
+            {
+                errors.Add(
+                    $"{payloadLabel} hidden object flag {FormatBoolForRecoveryDiagnostic(hiddenObject)} does not match authoritative state pending task queue task hidden object flag true for task id {taskId}");
+            }
+
+            if (!TryReadObjectString(taskPayload, "hiddenObjectKind", out var hiddenObjectKind)
+                || !string.Equals(hiddenObjectKind, "BATTLEFIELD_STANDBY", StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} hidden object kind {hiddenObjectKind ?? string.Empty} does not match authoritative state pending task queue task hidden object kind BATTLEFIELD_STANDBY for task id {taskId}");
+            }
+
+            return;
+        }
+
+        if (TryReadObjectOptionalString(taskPayload, "objectId", out var objectId)
+            && !string.Equals(objectId, authoritativeTask.ObjectId ?? string.Empty, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} object id {objectId} does not match authoritative state pending task queue task object id {authoritativeTask.ObjectId ?? string.Empty} for task id {taskId}");
+        }
+
+        if (TryReadObjectValue(taskPayload, "hiddenObject", out _))
+        {
+            errors.Add(
+                $"{payloadLabel} hidden object flag does not match authoritative state pending task queue task hidden object flag for task id {taskId}");
+        }
+
+        if (TryReadObjectValue(taskPayload, "hiddenObjectKind", out _))
+        {
+            errors.Add(
+                $"{payloadLabel} hidden object kind does not match authoritative state pending task queue task hidden object kind for task id {taskId}");
         }
     }
 
