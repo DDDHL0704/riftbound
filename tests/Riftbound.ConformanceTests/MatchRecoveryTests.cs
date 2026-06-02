@@ -10393,6 +10393,79 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingResolutionHistoryReasonValueDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var players = alice.Snapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["objects"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["battlefield-1"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        };
+        players["alice"] = alicePayload;
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["battlefieldResolutions"] = RawJson("""
+            [
+                {
+                    "resolutionId": "battlefield-resolution-1",
+                    "tick": 1,
+                    "kind": "HELD",
+                    "reason": "UNKNOWN_BATTLEFIELD_REASON",
+                    "battlefieldObjectId": "battlefield-1",
+                    "participantObjectIds": [],
+                    "relatedEventKinds": ["BATTLEFIELD_HELD"]
+                }
+            ]
+            """);
+        timing["battleResolutions"] = RawJson("""
+            [
+                {
+                    "resolutionId": "battle-resolution-1",
+                    "tick": 1,
+                    "kind": "CLOSED",
+                    "reason": "UNKNOWN_BATTLE_REASON",
+                    "battlefieldId": "battlefield-1",
+                    "attackerObjectIds": [],
+                    "defenderObjectIds": [],
+                    "survivingAttackerObjectIds": [],
+                    "survivingDefenderObjectIds": [],
+                    "destroyedObjectIds": [],
+                    "relatedEventKinds": ["BATTLE_CLOSED"]
+                }
+            ]
+            """);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players,
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield resolution item reason UNKNOWN_BATTLEFIELD_REASON is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item reason UNKNOWN_BATTLE_REASON is invalid",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingWindowPayloadPropertyNameDrift()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -21316,6 +21389,81 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "authoritative state battle resolution battle-resolution-1 kind UNKNOWN_BATTLE_KIND is invalid",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateResolutionHistoryReasonValueDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            2,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["battlefield-1"] = new("battlefield-1", ownerId: "alice", controllerId: "alice")
+            })
+        {
+            BattlefieldResolutions =
+            [
+                new(
+                    "battlefield-resolution-1",
+                    2,
+                    "HELD",
+                    "UNKNOWN_BATTLEFIELD_REASON",
+                    "battlefield-1",
+                    "alice",
+                    "bob",
+                    "alice",
+                    null,
+                    [],
+                    ["BATTLEFIELD_HELD"])
+            ],
+            BattleResolutions =
+            [
+                new(
+                    "battle-resolution-1",
+                    2,
+                    "CLOSED",
+                    "UNKNOWN_BATTLE_REASON",
+                    "battlefield-1",
+                    "alice",
+                    "bob",
+                    "alice",
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    ["BATTLE_CLOSED"])
+            ]
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 2);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state battlefield resolution battlefield-resolution-1 reason UNKNOWN_BATTLEFIELD_REASON is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state battle resolution battle-resolution-1 reason UNKNOWN_BATTLE_REASON is invalid",
                 StringComparison.Ordinal));
     }
 
@@ -57163,6 +57311,156 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing battle resolution item kind UNKNOWN_BATTLE_KIND is invalid",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingResolutionHistoryReasonValueDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["battlefield-1"] = new("battlefield-1", ownerId: "alice", controllerId: "alice"),
+                ["source-1"] = new("source-1", ownerId: "alice", controllerId: "alice"),
+                ["participant-1"] = new("participant-1", ownerId: "alice", controllerId: "alice"),
+                ["attacker-1"] = new("attacker-1", ownerId: "alice", controllerId: "alice"),
+                ["defender-1"] = new("defender-1", ownerId: "bob", controllerId: "bob"),
+                ["destroyed-1"] = new("destroyed-1", ownerId: "bob", controllerId: "bob")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["battlefield-1"] = new("alice", "BATTLEFIELD", "battlefield-1"),
+                ["source-1"] = new("alice", "BATTLEFIELD", "source-1"),
+                ["participant-1"] = new("alice", "BATTLEFIELD", "participant-1"),
+                ["attacker-1"] = new("alice", "BATTLEFIELD", "attacker-1"),
+                ["defender-1"] = new("bob", "BATTLEFIELD", "defender-1"),
+                ["destroyed-1"] = new("bob", "GRAVEYARD", "destroyed-1")
+            },
+            battlefieldResolutions:
+            [
+                new(
+                    "battlefield-resolution-1",
+                    3,
+                    "HELD",
+                    "BATTLEFIELD_HELD",
+                    "battlefield-1",
+                    "alice",
+                    "bob",
+                    "alice",
+                    "source-1",
+                    ["participant-1"],
+                    ["BATTLEFIELD_HELD"])
+            ],
+            battleResolutions:
+            [
+                new(
+                    "battle-resolution-1",
+                    3,
+                    "CLOSED",
+                    "BATTLE_CLOSED",
+                    "battlefield-1",
+                    "alice",
+                    "bob",
+                    "alice",
+                    ["attacker-1"],
+                    ["defender-1"],
+                    ["attacker-1"],
+                    [],
+                    ["destroyed-1"],
+                    ["BATTLE_CLOSED"])
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        timing["battlefieldResolutions"] = new object?[]
+        {
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["resolutionId"] = "battlefield-resolution-1",
+                ["tick"] = 3,
+                ["kind"] = "HELD",
+                ["reason"] = "UNKNOWN_BATTLEFIELD_REASON",
+                ["battlefieldObjectId"] = "battlefield-1",
+                ["playerId"] = "alice",
+                ["previousControllerId"] = "bob",
+                ["controllerId"] = "alice",
+                ["sourceObjectId"] = "source-1",
+                ["participantObjectIds"] = new[] { "participant-1" },
+                ["relatedEventKinds"] = new[] { "BATTLEFIELD_HELD" }
+            }
+        };
+        timing["battleResolutions"] = new object?[]
+        {
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["resolutionId"] = "battle-resolution-1",
+                ["tick"] = 3,
+                ["kind"] = "CLOSED",
+                ["reason"] = "UNKNOWN_BATTLE_REASON",
+                ["battlefieldId"] = "battlefield-1",
+                ["attackingPlayerId"] = "alice",
+                ["defendingPlayerId"] = "bob",
+                ["winnerPlayerId"] = "alice",
+                ["attackerObjectIds"] = new[] { "attacker-1" },
+                ["defenderObjectIds"] = new[] { "defender-1" },
+                ["survivingAttackerObjectIds"] = new[] { "attacker-1" },
+                ["survivingDefenderObjectIds"] = Array.Empty<string>(),
+                ["destroyedObjectIds"] = new[] { "destroyed-1" },
+                ["relatedEventKinds"] = new[] { "BATTLE_CLOSED" }
+            }
+        };
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolution item reason UNKNOWN_BATTLEFIELD_REASON is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolution item reason UNKNOWN_BATTLE_REASON is invalid",
                 StringComparison.Ordinal));
     }
 

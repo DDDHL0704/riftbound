@@ -5236,6 +5236,14 @@ public static class MatchRecoveryValidator
             || string.Equals(value, "CONTROL_RESOLVED", StringComparison.Ordinal);
     }
 
+    private static bool IsKnownBattlefieldResolutionReason(string value)
+    {
+        return IsKnownBattlefieldResolutionRelatedEventKind(value)
+            || string.Equals(value, "UNCONTROLLED", StringComparison.Ordinal)
+            || string.Equals(value, "CONTROL_CHANGED", StringComparison.Ordinal)
+            || string.Equals(value, "CONTROL_CONFIRMED", StringComparison.Ordinal);
+    }
+
     private static bool IsKnownBattleResolutionRelatedEventKind(string value)
     {
         return string.Equals(value, "DAMAGE_APPLIED", StringComparison.Ordinal)
@@ -5250,6 +5258,14 @@ public static class MatchRecoveryValidator
     {
         return string.Equals(value, "CLOSED", StringComparison.Ordinal)
             || string.Equals(value, "NO_RESULT", StringComparison.Ordinal);
+    }
+
+    private static bool IsKnownBattleResolutionReason(string value)
+    {
+        return string.Equals(value, "BATTLE_CLOSED", StringComparison.Ordinal)
+            || string.Equals(value, "BATTLE_NO_RESULT", StringComparison.Ordinal)
+            || string.Equals(value, "ALL_PARTICIPANTS_DESTROYED", StringComparison.Ordinal)
+            || string.Equals(value, "BOTH_SIDES_RETAIN_UNITS", StringComparison.Ordinal);
     }
 
     private static bool IsKnownTriggerSourceVisibility(string value)
@@ -17803,7 +17819,8 @@ public static class MatchRecoveryValidator
                 resolutionId,
                 "reason",
                 resolution.Reason,
-                errors);
+                errors,
+                IsKnownBattlefieldResolutionReason);
             ValidateAuthoritativeStateResolutionText(
                 "battlefield resolution",
                 resolutionId,
@@ -17880,7 +17897,8 @@ public static class MatchRecoveryValidator
                 resolutionId,
                 "reason",
                 resolution.Reason,
-                errors);
+                errors,
+                IsKnownBattleResolutionReason);
             ValidateAuthoritativeStateResolutionText(
                 "battle resolution",
                 resolutionId,
@@ -21324,7 +21342,8 @@ public static class MatchRecoveryValidator
             "reason",
             payloadLabel,
             "reason",
-            errors);
+            errors,
+            IsKnownBattlefieldResolutionReason);
         ValidateSnapshotPayloadRequiredStringValue(
             resolutionPayload,
             "battlefieldObjectId",
@@ -21475,7 +21494,8 @@ public static class MatchRecoveryValidator
             "reason",
             payloadLabel,
             "reason",
-            errors);
+            errors,
+            IsKnownBattleResolutionReason);
         ValidateSnapshotPayloadRequiredStringValue(
             resolutionPayload,
             "battlefieldId",
