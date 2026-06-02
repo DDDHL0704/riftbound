@@ -8236,8 +8236,6 @@ public static class MatchRecoveryValidator
             }
 
             ValidateSnapshotPayloadObjectPropertyNames(locationPayload, payloadLabel, errors);
-            var hasLocationPlayerId = TryReadObjectValue(locationPayload, "playerId", out var locationPlayerIdPayload)
-                && !IsNullSnapshotPayloadValue(locationPlayerIdPayload);
             var locationPlayerId = ValidateSnapshotPayloadRequiredStringValue(
                 locationPayload,
                 "playerId",
@@ -8248,10 +8246,7 @@ public static class MatchRecoveryValidator
             {
                 if (locationPlayerId is null)
                 {
-                    if (hasLocationPlayerId)
-                    {
-                        errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location player id does not match authoritative object location player id");
-                    }
+                    errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location player id does not match authoritative object location player id");
                 }
                 else if (!string.Equals(locationPlayerId, expectedLocation.PlayerId, StringComparison.Ordinal))
                 {
@@ -8259,8 +8254,6 @@ public static class MatchRecoveryValidator
                 }
             }
 
-            var hasZone = TryReadObjectValue(locationPayload, "zone", out var zonePayload)
-                && !IsNullSnapshotPayloadValue(zonePayload);
             var zone = ValidateSnapshotPayloadRequiredStringValue(
                 locationPayload,
                 "zone",
@@ -8272,10 +8265,7 @@ public static class MatchRecoveryValidator
             {
                 if (zone is null)
                 {
-                    if (hasZone)
-                    {
-                        errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location zone does not match authoritative object location zone");
-                    }
+                    errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location zone does not match authoritative object location zone");
                 }
                 else if (!string.Equals(zone, expectedLocation.Zone, StringComparison.Ordinal))
                 {
@@ -8542,8 +8532,6 @@ public static class MatchRecoveryValidator
             errors);
 
         var payloadLabel = $"spectator replay frame snapshot player {playerId} object {objectId} location";
-        var hasLocationPlayerId = TryReadObjectValue(locationPayload, "playerId", out var locationPlayerIdPayload)
-            && !IsNullSnapshotPayloadValue(locationPlayerIdPayload);
         var locationPlayerId = ValidateSnapshotPayloadRequiredStringValue(
             locationPayload,
             "playerId",
@@ -8552,18 +8540,13 @@ public static class MatchRecoveryValidator
             errors);
         if (locationPlayerId is null)
         {
-            if (hasLocationPlayerId)
-            {
-                errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location player id does not match authoritative object location player id");
-            }
+            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location player id does not match authoritative object location player id");
         }
         else if (!string.Equals(locationPlayerId, expectedLocation.PlayerId, StringComparison.Ordinal))
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location player id does not match authoritative object location player id");
         }
 
-        var hasZone = TryReadObjectValue(locationPayload, "zone", out var zonePayload)
-            && !IsNullSnapshotPayloadValue(zonePayload);
         var zone = ValidateSnapshotPayloadRequiredStringValue(
             locationPayload,
             "zone",
@@ -8573,10 +8556,7 @@ public static class MatchRecoveryValidator
             IsKnownObjectLocationZone);
         if (zone is null)
         {
-            if (hasZone)
-            {
-                errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location zone does not match authoritative object location zone");
-            }
+            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location zone does not match authoritative object location zone");
         }
         else if (!string.Equals(zone, expectedLocation.Zone, StringComparison.Ordinal))
         {
