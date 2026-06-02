@@ -13843,6 +13843,10 @@ public static class MatchRecoveryValidator
             }
         }
 
+        ValidateSpectatorTriggerQueueAuthoritativeKeySet(
+            spectatorTriggers,
+            authoritativeTriggersById,
+            errors);
         ValidateSpectatorTriggerQueueKeyedAuthoritativeValues(
             spectatorTriggers,
             authoritativeTriggersById,
@@ -13942,6 +13946,41 @@ public static class MatchRecoveryValidator
         if (!triggeredEventKindsMatch)
         {
             errors.Add("spectator replay frame timing trigger queue triggered event kinds disagree with authoritative state trigger queue triggered event kinds");
+        }
+    }
+
+    private static void ValidateSpectatorTriggerQueueAuthoritativeKeySet(
+        IReadOnlyList<object?> triggerPayloads,
+        IReadOnlyDictionary<string, TriggerQueueItemState> authoritativeTriggersById,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing trigger queue item";
+        var actualTriggerIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var triggerPayload in triggerPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(triggerPayload)
+                || !TryReadObjectString(triggerPayload, "triggerId", out var triggerId)
+                || string.IsNullOrWhiteSpace(triggerId))
+            {
+                continue;
+            }
+
+            var normalizedTriggerId = triggerId.Trim();
+            actualTriggerIds.Add(normalizedTriggerId);
+            if (!authoritativeTriggersById.ContainsKey(normalizedTriggerId))
+            {
+                errors.Add(
+                    $"{payloadLabel} trigger id {normalizedTriggerId} is not present in authoritative state trigger queue");
+            }
+        }
+
+        foreach (var authoritativeTriggerId in authoritativeTriggersById.Keys.OrderBy(id => id, StringComparer.Ordinal))
+        {
+            if (!actualTriggerIds.Contains(authoritativeTriggerId))
+            {
+                errors.Add(
+                    $"{payloadLabel} trigger id {authoritativeTriggerId} is required by authoritative state trigger queue");
+            }
         }
     }
 
