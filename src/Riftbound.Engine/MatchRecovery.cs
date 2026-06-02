@@ -5163,7 +5163,7 @@ public static class MatchRecoveryValidator
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
                 "attacker object id",
                 errors);
-            ValidateBattleResolutionRequiredParticipantObjectList(
+            ValidateBattleResolutionParticipantObjectListCount(
                 attackerObjectIds,
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
                 "attacker object id",
@@ -5180,7 +5180,7 @@ public static class MatchRecoveryValidator
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
                 "defender object id",
                 errors);
-            ValidateBattleResolutionRequiredParticipantObjectList(
+            ValidateBattleResolutionParticipantObjectListCount(
                 defenderObjectIds,
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
                 "defender object id",
@@ -5489,18 +5489,26 @@ public static class MatchRecoveryValidator
         return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     }
 
-    private static void ValidateBattleResolutionRequiredParticipantObjectList(
+    private static void ValidateBattleResolutionParticipantObjectListCount(
         IReadOnlyList<string>? objectIds,
         string payloadLabel,
         string objectLabel,
         List<string> errors)
     {
-        if (objectIds is null || objectIds.Count > 0)
+        if (objectIds is null)
         {
             return;
         }
 
-        errors.Add($"{payloadLabel} {objectLabel} list must not be empty");
+        if (objectIds.Count == 0)
+        {
+            errors.Add($"{payloadLabel} {objectLabel} list must not be empty");
+        }
+
+        if (objectIds.Count > 2)
+        {
+            errors.Add($"{payloadLabel} {objectLabel} list must contain at most 2 items");
+        }
     }
 
     private static void ValidateBattleResolutionResultListObjectMembership(
@@ -18247,7 +18255,7 @@ public static class MatchRecoveryValidator
                 resolution.AttackerObjectIds,
                 errors,
                 requireList: false);
-            ValidateBattleResolutionRequiredParticipantObjectList(
+            ValidateBattleResolutionParticipantObjectListCount(
                 attackerObjectIds,
                 diagnosticResolutionLabel,
                 "attacker object",
@@ -18259,7 +18267,7 @@ public static class MatchRecoveryValidator
                 resolution.DefenderObjectIds,
                 errors,
                 requireList: false);
-            ValidateBattleResolutionRequiredParticipantObjectList(
+            ValidateBattleResolutionParticipantObjectListCount(
                 defenderObjectIds,
                 diagnosticResolutionLabel,
                 "defender object",
@@ -21765,7 +21773,7 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "attacker object id",
             errors);
-        ValidateBattleResolutionRequiredParticipantObjectList(
+        ValidateBattleResolutionParticipantObjectListCount(
             attackerObjectIds,
             payloadLabel,
             "attacker object id",
@@ -21782,7 +21790,7 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "defender object id",
             errors);
-        ValidateBattleResolutionRequiredParticipantObjectList(
+        ValidateBattleResolutionParticipantObjectListCount(
             defenderObjectIds,
             payloadLabel,
             "defender object id",
