@@ -5865,6 +5865,44 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueTriggeredEventKindDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["triggerQueue"] = new object?[]
+        {
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["triggerId"] = "trigger-1",
+                ["controllerId"] = "alice",
+                ["sourceObjectId"] = "HIDDEN",
+                ["sourceVisibility"] = "HIDDEN",
+                ["effectKind"] = "HIDDEN",
+                ["triggeredByEventKind"] = "FORGED_EVENT"
+            }
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item triggered event kind FORGED_EVENT is invalid",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueSourceObjectRequiredDrift()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -20330,6 +20368,54 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains("authoritative state trigger queue item trigger-1 triggered event kind is required", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueTriggeredEventKindDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new("source-1", ownerId: "alice", controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new("alice", "BASE")
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    "trigger-1",
+                    "alice",
+                    sourceObjectId: "source-1",
+                    effectKind: "LAST_BREATH",
+                    triggeredByEventKind: "FORGED_EVENT")
+            ]);
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state trigger queue item trigger-1 triggered event kind FORGED_EVENT is invalid",
+                StringComparison.Ordinal));
     }
 
     [Fact]
@@ -53856,6 +53942,96 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item triggered event kind is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueTriggeredEventKindDrift()
+    {
+        const string sourceObjectId = "source-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Base = [sourceObjectId]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new(sourceObjectId, ownerId: "alice", controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new("alice", "BASE")
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    "trigger-1",
+                    "alice",
+                    sourceObjectId,
+                    "LAST_BREATH",
+                    "UNIT_DESTROYED")
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var triggerQueue = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["triggerQueue"])
+            .ToArray();
+        var trigger = Assert.IsType<Dictionary<string, object?>>(triggerQueue[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        trigger["triggeredByEventKind"] = "FORGED_EVENT";
+        triggerQueue[0] = trigger;
+        timing["triggerQueue"] = triggerQueue;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item triggered event kind FORGED_EVENT is invalid",
                 StringComparison.Ordinal));
     }
 

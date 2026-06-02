@@ -3981,6 +3981,7 @@ public static class MatchRecoveryValidator
                 controllerId,
                 triggeredEventKind,
                 errors);
+            ValidateTriggerQueueTriggeredEventKindKnownValue(triggerLabel, triggeredEventKind, errors);
             ValidateTriggerQueueControllerPlayerMembership(
                 triggerLabel,
                 controllerId,
@@ -6200,6 +6201,19 @@ public static class MatchRecoveryValidator
     {
         return string.Equals(value, "VISIBLE", StringComparison.Ordinal)
             || string.Equals(value, "HIDDEN", StringComparison.Ordinal);
+    }
+
+    private static bool IsKnownTriggerQueueTriggeredEventKind(string value)
+    {
+        return string.Equals(value, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
+            || string.Equals(value, "UNIT_DESTROYED", StringComparison.Ordinal)
+            || string.Equals(value, "BATTLEFIELD_HELD", StringComparison.Ordinal)
+            || string.Equals(value, "UNIT_MOVED_TO_BATTLEFIELD", StringComparison.Ordinal)
+            || string.Equals(value, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)
+            || string.Equals(value, "CARD_PLAYED", StringComparison.Ordinal)
+            || string.Equals(value, "BATTLE_DECLARED", StringComparison.Ordinal)
+            || string.Equals(value, "OBJECT_DESTROYED", StringComparison.Ordinal)
+            || string.Equals(value, "UNIT_READY", StringComparison.Ordinal);
     }
 
     private static bool IsKnownContinuousEffectScope(string value)
@@ -16202,6 +16216,7 @@ public static class MatchRecoveryValidator
             controllerId,
             triggeredEventKind,
             errors);
+        ValidateTriggerQueueTriggeredEventKindKnownValue(payloadLabel, triggeredEventKind, errors);
         ValidateTriggerQueueControllerPlayerMembership(
             payloadLabel,
             controllerId,
@@ -16283,6 +16298,21 @@ public static class MatchRecoveryValidator
         {
             errors.Add($"{payloadLabel} triggered event kind must not be redacted");
         }
+    }
+
+    private static void ValidateTriggerQueueTriggeredEventKindKnownValue(
+        string payloadLabel,
+        string? triggeredEventKind,
+        List<string> errors)
+    {
+        if (triggeredEventKind is null
+            || string.Equals(triggeredEventKind, "HIDDEN", StringComparison.Ordinal)
+            || IsKnownTriggerQueueTriggeredEventKind(triggeredEventKind))
+        {
+            return;
+        }
+
+        errors.Add($"{payloadLabel} triggered event kind {triggeredEventKind} is invalid");
     }
 
     private static void ValidateTriggerQueueControllerPlayerMembership(
@@ -18672,6 +18702,11 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"authoritative state trigger queue item {triggerLabel} triggered event kind must not be redacted");
             }
+
+            ValidateTriggerQueueTriggeredEventKindKnownValue(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggeredEventKind,
+                errors);
 
             var sourceObjectId = ValidateAuthoritativeStateOptionalTextValue(
                 $"trigger queue item {triggerLabel} source object",
