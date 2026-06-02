@@ -8949,6 +8949,7 @@ public static class MatchRecoveryValidator
             errors);
         if (!hasScalar)
         {
+            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} is required");
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}");
             return;
         }
