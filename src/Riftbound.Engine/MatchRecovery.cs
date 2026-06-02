@@ -8928,6 +8928,10 @@ public static class MatchRecoveryValidator
         ValidateSpectatorSnapshotBattlefieldPayloadPropertyNames(battlefieldItems, authoritativeState, errors);
         ValidateSpectatorSnapshotBattlefieldScalarPayloads(battlefieldItems, authoritativeState, errors);
         ValidateSpectatorSnapshotBattlefieldListPayloads(battlefieldItems, authoritativeState, errors);
+        ValidateSpectatorSnapshotBattlefieldPlayerReferences(
+            battlefieldItems,
+            authoritativeState,
+            errors);
         ValidateSpectatorSnapshotStandbySlotPayloads(battlefieldItems, authoritativeState, errors);
     }
 
@@ -9307,6 +9311,82 @@ public static class MatchRecoveryValidator
             || !StringListDictionariesEqual(value, expected))
         {
             errors.Add($"{payloadLabel} {itemDescription} do not match {authoritativeDescription}");
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotBattlefieldPlayerReferences(
+        IReadOnlyList<object?> spectatorBattlefields,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        var knownPlayerIds = BuildNormalizedPlayerIdSet(authoritativeState.Seats.Keys);
+        var authoritativeBattlefields = authoritativeState.BattlefieldStates.Values.ToArray();
+        var count = Math.Min(spectatorBattlefields.Count, authoritativeBattlefields.Length);
+        for (var index = 0; index < count; index++)
+        {
+            var spectatorBattlefield = spectatorBattlefields[index];
+            if (!IsSnapshotPlayerPayloadObject(spectatorBattlefield))
+            {
+                continue;
+            }
+
+            var battlefieldObjectId = authoritativeBattlefields[index].BattlefieldObjectId;
+            var payloadLabel = $"spectator replay frame snapshot lane battlefield {battlefieldObjectId}";
+            ValidateTimingOptionalPlayerReference(
+                spectatorBattlefield,
+                "zonePlayerId",
+                $"{payloadLabel} zone player",
+                knownPlayerIds,
+                "seats",
+                errors);
+            ValidateTimingOptionalPlayerReference(
+                spectatorBattlefield,
+                "controllerId",
+                $"{payloadLabel} controller",
+                knownPlayerIds,
+                "seats",
+                errors);
+            ValidateTimingPlayerReferenceList(
+                spectatorBattlefield,
+                "occupantControllerIds",
+                $"{payloadLabel} occupant controller id",
+                knownPlayerIds,
+                "seats",
+                errors);
+            ValidateSpectatorSnapshotBattlefieldUnitsBySidePlayerReferences(
+                spectatorBattlefield,
+                payloadLabel,
+                knownPlayerIds,
+                errors);
+            ValidateTimingPlayerReferenceList(
+                spectatorBattlefield,
+                "scoredThisTurnPlayerIds",
+                $"{payloadLabel} scored player id",
+                knownPlayerIds,
+                "seats",
+                errors);
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotBattlefieldUnitsBySidePlayerReferences(
+        object? battlefieldPayload,
+        string payloadLabel,
+        IReadOnlySet<string> knownPlayerIds,
+        List<string> errors)
+    {
+        if (!TryReadObjectStringListDictionary(battlefieldPayload, "unitsBySide", out var unitsBySide))
+        {
+            return;
+        }
+
+        foreach (var playerId in unitsBySide.Keys)
+        {
+            ValidateTimingPlayerReference(
+                $"{payloadLabel} units by side player",
+                playerId,
+                knownPlayerIds,
+                "seats",
+                errors);
         }
     }
 
