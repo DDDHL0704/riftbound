@@ -8005,14 +8005,23 @@ public static class MatchRecoveryValidator
             }
 
             var payloadLabel = $"spectator replay frame snapshot player {playerId} object {objectId}";
+            var hasPayloadObjectId = TryReadObjectValue(objectPayload, "objectId", out var payloadObjectIdRaw)
+                && !IsNullSnapshotPayloadValue(payloadObjectIdRaw);
             var payloadObjectId = ValidateSnapshotPayloadRequiredStringValue(
                 objectPayload,
                 "objectId",
                 payloadLabel,
                 "object id",
                 errors);
-            if (payloadObjectId is not null
-                && !string.Equals(payloadObjectId, objectId, StringComparison.Ordinal))
+            if (payloadObjectId is null)
+            {
+                if (hasPayloadObjectId)
+                {
+                    errors.Add(
+                        $"spectator replay frame snapshot player {playerId} object {objectId} payload object id does not match object key");
+                }
+            }
+            else if (!string.Equals(payloadObjectId, objectId, StringComparison.Ordinal))
             {
                 errors.Add(
                     $"spectator replay frame snapshot player {playerId} object {objectId} payload object id {payloadObjectId} does not match object key");
@@ -8447,14 +8456,22 @@ public static class MatchRecoveryValidator
             errors);
 
         var payloadLabel = $"spectator replay frame snapshot player {playerId} object {objectId}";
+        var hasPayloadObjectId = TryReadObjectValue(objectPayload, "objectId", out var payloadObjectIdRaw)
+            && !IsNullSnapshotPayloadValue(payloadObjectIdRaw);
         var payloadObjectId = ValidateSnapshotPayloadRequiredStringValue(
             objectPayload,
             "objectId",
             payloadLabel,
             "object id",
             errors);
-        if (payloadObjectId is not null
-            && !string.Equals(payloadObjectId, objectId, StringComparison.Ordinal))
+        if (payloadObjectId is null)
+        {
+            if (hasPayloadObjectId)
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} object id does not match authoritative object id");
+            }
+        }
+        else if (!string.Equals(payloadObjectId, objectId, StringComparison.Ordinal))
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} object id does not match authoritative object id");
         }
