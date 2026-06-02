@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
@@ -24304,6 +24305,176 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 $"spectator replay frame snapshot stack item destination banish does not match authoritative state stack item destination discard for stack item id {firstStackItemId}",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot stack item id forged-stack-extra is not present in authoritative state stack items",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot stack count 3 does not match authoritative state stack count 2",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplaySnapshotStackItemKeyedRequiredFieldAbsenceWithCountMismatch()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            stackItems:
+            [
+                new StackItemState(
+                    "stack-1",
+                    "alice",
+                    sourceObjectId: "spell-1",
+                    effectKind: "DAMAGE",
+                    cardNo: "SFD-001",
+                    targetObjectIds: ["target-1"],
+                    damageAmount: 2,
+                    destination: "discard"),
+                new StackItemState(
+                    "stack-2",
+                    "bob",
+                    sourceObjectId: "spell-2",
+                    effectKind: "DRAW",
+                    cardNo: "SFD-002")
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var stack = spectatorReplayFrame.SpectatorSnapshot.Stack.ToArray();
+        Assert.Equal(2, stack.Length);
+
+        var firstStackItem = Assert.IsType<Dictionary<string, object?>>(stack[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var secondStackItem = Assert.IsType<Dictionary<string, object?>>(stack[1]);
+        var firstStackItemId = Assert.IsType<string>(firstStackItem["stackItemId"]);
+        var expectedControllerId = Assert.IsType<string>(firstStackItem["controllerId"]);
+        var expectedSourceObjectId = Assert.IsType<string>(firstStackItem["sourceObjectId"]);
+        var expectedEffectKind = Assert.IsType<string>(firstStackItem["effectKind"]);
+        var expectedCardNo = Assert.IsType<string>(firstStackItem["cardNo"]);
+        var expectedTargetObjectIds = Assert.IsAssignableFrom<IEnumerable<string>>(firstStackItem["targetObjectIds"])
+            .ToArray();
+        var expectedDamageAmount = Assert.IsType<int>(firstStackItem["damageAmount"]);
+        var expectedDestination = Assert.IsType<string>(firstStackItem["destination"]);
+        Assert.Equal("target-1", Assert.Single(expectedTargetObjectIds));
+
+        Assert.True(firstStackItem.Remove("controllerId"));
+        firstStackItem["sourceObjectId"] = Array.Empty<object?>();
+        Assert.True(firstStackItem.Remove("effectKind"));
+        firstStackItem["cardNo"] = Array.Empty<object?>();
+        firstStackItem["targetObjectIds"] = new object?[] { expectedTargetObjectIds[0], 7 };
+        firstStackItem["damageAmount"] = expectedDamageAmount.ToString(CultureInfo.InvariantCulture);
+        firstStackItem["destination"] = Array.Empty<object?>();
+        var forgedExtraStackItem = new Dictionary<string, object?>(secondStackItem, StringComparer.Ordinal)
+        {
+            ["stackItemId"] = "forged-stack-extra"
+        };
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Stack = [firstStackItem, secondStackItem, forgedExtraStackItem]
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame snapshot stack item {firstStackItemId} controller id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame snapshot stack item {firstStackItemId} source object id is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame snapshot stack item {firstStackItemId} effect kind is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame snapshot stack item {firstStackItemId} card no is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame snapshot stack item {firstStackItemId} target object id list is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame snapshot stack item {firstStackItemId} damage amount is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame snapshot stack item {firstStackItemId} destination is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame snapshot stack item controller id does not match authoritative state stack item controller id {expectedControllerId} for stack item id {firstStackItemId}",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame snapshot stack item source object id does not match authoritative state stack item source object id {expectedSourceObjectId} for stack item id {firstStackItemId}",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame snapshot stack item effect kind does not match authoritative state stack item effect kind {expectedEffectKind} for stack item id {firstStackItemId}",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame snapshot stack item card no does not match authoritative state stack item card no {expectedCardNo} for stack item id {firstStackItemId}",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame snapshot stack item target object ids do not match authoritative state stack item target object ids for stack item id {firstStackItemId}",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame snapshot stack item damage amount does not match authoritative state stack item damage amount {expectedDamageAmount} for stack item id {firstStackItemId}",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame snapshot stack item destination does not match authoritative state stack item destination {expectedDestination} for stack item id {firstStackItemId}",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

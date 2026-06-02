@@ -22729,54 +22729,146 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            if (TryReadObjectString(stackItem, "controllerId", out var controllerId)
-                && !string.Equals(controllerId, authoritativeStackItem.ControllerId, StringComparison.Ordinal))
+            ValidateSpectatorSnapshotStackKeyedRequiredStringValue(
+                stackItem,
+                "controllerId",
+                "controller id",
+                authoritativeStackItem.ControllerId,
+                normalizedStackItemId,
+                errors);
+            ValidateSpectatorSnapshotStackKeyedOptionalStringValue(
+                stackItem,
+                "sourceObjectId",
+                "source object id",
+                authoritativeStackItem.SourceObjectId,
+                normalizedStackItemId,
+                errors);
+            ValidateSpectatorSnapshotStackKeyedRequiredStringValue(
+                stackItem,
+                "effectKind",
+                "effect kind",
+                authoritativeStackItem.EffectKind,
+                normalizedStackItemId,
+                errors);
+            ValidateSpectatorSnapshotStackKeyedOptionalStringValue(
+                stackItem,
+                "cardNo",
+                "card no",
+                authoritativeStackItem.CardNo,
+                normalizedStackItemId,
+                errors);
+            ValidateSpectatorSnapshotStackKeyedRequiredStringListValue(
+                stackItem,
+                "targetObjectIds",
+                "target object ids",
+                authoritativeStackItem.TargetObjectIds,
+                normalizedStackItemId,
+                errors);
+            ValidateSpectatorSnapshotStackKeyedRequiredIntValue(
+                stackItem,
+                "damageAmount",
+                "damage amount",
+                authoritativeStackItem.DamageAmount,
+                normalizedStackItemId,
+                errors);
+            ValidateSpectatorSnapshotStackKeyedOptionalStringValue(
+                stackItem,
+                "destination",
+                "destination",
+                authoritativeStackItem.Destination,
+                normalizedStackItemId,
+                errors);
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotStackKeyedRequiredStringValue(
+        object? stackItem,
+        string key,
+        string fieldLabel,
+        string expected,
+        string stackItemId,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame snapshot stack item";
+        if (!TryReadObjectString(stackItem, key, out var actual))
+        {
+            errors.Add(
+                $"{payloadLabel} {fieldLabel} does not match authoritative state stack item {fieldLabel} {expected} for stack item id {stackItemId}");
+            return;
+        }
+
+        if (!string.Equals(actual, expected, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} {fieldLabel} {actual} does not match authoritative state stack item {fieldLabel} {expected} for stack item id {stackItemId}");
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotStackKeyedOptionalStringValue(
+        object? stackItem,
+        string key,
+        string fieldLabel,
+        string? expected,
+        string stackItemId,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame snapshot stack item";
+        var expectedText = expected ?? string.Empty;
+        if (!TryReadObjectOptionalString(stackItem, key, out var actual))
+        {
+            if (!string.IsNullOrEmpty(expectedText))
             {
                 errors.Add(
-                    $"spectator replay frame snapshot stack item controller id {controllerId} does not match authoritative state stack item controller id {authoritativeStackItem.ControllerId} for stack item id {normalizedStackItemId}");
+                    $"{payloadLabel} {fieldLabel} does not match authoritative state stack item {fieldLabel} {expectedText} for stack item id {stackItemId}");
             }
 
-            if (TryReadObjectOptionalString(stackItem, "sourceObjectId", out var sourceObjectId)
-                && !string.Equals(sourceObjectId, authoritativeStackItem.SourceObjectId, StringComparison.Ordinal))
-            {
-                errors.Add(
-                    $"spectator replay frame snapshot stack item source object id {sourceObjectId} does not match authoritative state stack item source object id {authoritativeStackItem.SourceObjectId} for stack item id {normalizedStackItemId}");
-            }
+            return;
+        }
 
-            if (TryReadObjectString(stackItem, "effectKind", out var effectKind)
-                && !string.Equals(effectKind, authoritativeStackItem.EffectKind, StringComparison.Ordinal))
-            {
-                errors.Add(
-                    $"spectator replay frame snapshot stack item effect kind {effectKind} does not match authoritative state stack item effect kind {authoritativeStackItem.EffectKind} for stack item id {normalizedStackItemId}");
-            }
+        if (!string.Equals(actual, expectedText, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} {fieldLabel} {actual} does not match authoritative state stack item {fieldLabel} {expectedText} for stack item id {stackItemId}");
+        }
+    }
 
-            if (TryReadObjectOptionalString(stackItem, "cardNo", out var cardNo)
-                && !string.Equals(cardNo, authoritativeStackItem.CardNo, StringComparison.Ordinal))
-            {
-                errors.Add(
-                    $"spectator replay frame snapshot stack item card no {cardNo} does not match authoritative state stack item card no {authoritativeStackItem.CardNo} for stack item id {normalizedStackItemId}");
-            }
+    private static void ValidateSpectatorSnapshotStackKeyedRequiredStringListValue(
+        object? stackItem,
+        string key,
+        string fieldLabel,
+        IReadOnlyList<string> expected,
+        string stackItemId,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame snapshot stack item";
+        if (!TryReadObjectStringList(stackItem, key, out var actual)
+            || !StringListsEqual(actual, expected))
+        {
+            errors.Add(
+                $"{payloadLabel} {fieldLabel} do not match authoritative state stack item {fieldLabel} for stack item id {stackItemId}");
+        }
+    }
 
-            if (TryReadObjectStringList(stackItem, "targetObjectIds", out var targetObjectIds)
-                && !StringListsEqual(targetObjectIds, authoritativeStackItem.TargetObjectIds))
-            {
-                errors.Add(
-                    $"spectator replay frame snapshot stack item target object ids do not match authoritative state stack item target object ids for stack item id {normalizedStackItemId}");
-            }
+    private static void ValidateSpectatorSnapshotStackKeyedRequiredIntValue(
+        object? stackItem,
+        string key,
+        string fieldLabel,
+        int expected,
+        string stackItemId,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame snapshot stack item";
+        if (!TryReadObjectInt(stackItem, key, out var actual))
+        {
+            errors.Add(
+                $"{payloadLabel} {fieldLabel} does not match authoritative state stack item {fieldLabel} {expected} for stack item id {stackItemId}");
+            return;
+        }
 
-            if (TryReadObjectInt(stackItem, "damageAmount", out var damageAmount)
-                && damageAmount != authoritativeStackItem.DamageAmount)
-            {
-                errors.Add(
-                    $"spectator replay frame snapshot stack item damage amount {damageAmount} does not match authoritative state stack item damage amount {authoritativeStackItem.DamageAmount} for stack item id {normalizedStackItemId}");
-            }
-
-            if (TryReadObjectOptionalString(stackItem, "destination", out var destination)
-                && !string.Equals(destination, authoritativeStackItem.Destination, StringComparison.Ordinal))
-            {
-                errors.Add(
-                    $"spectator replay frame snapshot stack item destination {destination} does not match authoritative state stack item destination {authoritativeStackItem.Destination} for stack item id {normalizedStackItemId}");
-            }
+        if (actual != expected)
+        {
+            errors.Add(
+                $"{payloadLabel} {fieldLabel} {actual} does not match authoritative state stack item {fieldLabel} {expected} for stack item id {stackItemId}");
         }
     }
 
