@@ -10033,6 +10033,103 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingResolutionHistoryObjectReferencesOutsideSnapshotObjects()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["battlefieldResolutions"] = RawJson("""
+            [
+                {
+                    "resolutionId": "battlefield-resolution-1",
+                    "tick": 1,
+                    "kind": "HELD",
+                    "reason": "BATTLEFIELD_HELD",
+                    "battlefieldObjectId": "missing-battlefield",
+                    "sourceObjectId": "missing-source",
+                    "participantObjectIds": ["missing-participant"],
+                    "relatedEventKinds": ["BATTLEFIELD_HELD"]
+                }
+            ]
+            """);
+        timing["battleResolutions"] = RawJson("""
+            [
+                {
+                    "resolutionId": "battle-resolution-1",
+                    "tick": 1,
+                    "kind": "RESOLVED",
+                    "reason": "BATTLE_RESOLVED",
+                    "battlefieldId": "missing-battlefield-2",
+                    "attackerObjectIds": ["missing-attacker"],
+                    "defenderObjectIds": ["missing-defender"],
+                    "survivingAttackerObjectIds": ["missing-surviving-attacker"],
+                    "survivingDefenderObjectIds": ["missing-surviving-defender"],
+                    "destroyedObjectIds": ["missing-destroyed"],
+                    "relatedEventKinds": ["BATTLE_RESOLVED"]
+                }
+            ]
+            """);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield resolution item battlefield object id missing-battlefield is missing from objects",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield resolution item source object id missing-source is missing from objects",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield resolution item participant object id missing-participant is missing from objects",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item battlefield object id missing-battlefield-2 is missing from objects",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item attacker object id missing-attacker is missing from objects",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item defender object id missing-defender is missing from objects",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item surviving attacker object id missing-surviving-attacker is missing from objects",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item surviving defender object id missing-surviving-defender is missing from objects",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolution item destroyed object id missing-destroyed is missing from objects",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingWindowPayloadPropertyNameDrift()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -56029,6 +56126,173 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains("spectator replay frame timing battle resolution item related event kind list is invalid", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingResolutionHistoryObjectReferencesOutsideRegistry()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["battlefield-1"] = new("battlefield-1", ownerId: "alice", controllerId: "alice"),
+                ["source-1"] = new("source-1", ownerId: "alice", controllerId: "alice"),
+                ["participant-1"] = new("participant-1", ownerId: "alice", controllerId: "alice"),
+                ["attacker-1"] = new("attacker-1", ownerId: "alice", controllerId: "alice"),
+                ["defender-1"] = new("defender-1", ownerId: "bob", controllerId: "bob"),
+                ["destroyed-1"] = new("destroyed-1", ownerId: "bob", controllerId: "bob")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["battlefield-1"] = new("alice", "BATTLEFIELD", "battlefield-1"),
+                ["source-1"] = new("alice", "BATTLEFIELD", "source-1"),
+                ["participant-1"] = new("alice", "BATTLEFIELD", "participant-1"),
+                ["attacker-1"] = new("alice", "BATTLEFIELD", "attacker-1"),
+                ["defender-1"] = new("bob", "BATTLEFIELD", "defender-1"),
+                ["destroyed-1"] = new("bob", "GRAVEYARD", "destroyed-1")
+            },
+            battlefieldResolutions:
+            [
+                new(
+                    "battlefield-resolution-1",
+                    3,
+                    "HELD",
+                    "test",
+                    "battlefield-1",
+                    "alice",
+                    "bob",
+                    "alice",
+                    "source-1",
+                    ["participant-1"],
+                    ["BATTLEFIELD_HELD"])
+            ],
+            battleResolutions:
+            [
+                new(
+                    "battle-resolution-1",
+                    3,
+                    "CLOSED",
+                    "test",
+                    "battlefield-1",
+                    "alice",
+                    "bob",
+                    "alice",
+                    ["attacker-1"],
+                    ["defender-1"],
+                    ["attacker-1"],
+                    [],
+                    ["destroyed-1"],
+                    ["BATTLE_CLOSED"])
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        timing["battlefieldResolutions"] = new object?[]
+        {
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["resolutionId"] = "battlefield-resolution-1",
+                ["tick"] = 3,
+                ["kind"] = "HELD",
+                ["reason"] = "test",
+                ["battlefieldObjectId"] = "missing-battlefield",
+                ["playerId"] = "alice",
+                ["previousControllerId"] = "bob",
+                ["controllerId"] = "alice",
+                ["sourceObjectId"] = "missing-source",
+                ["participantObjectIds"] = new[] { "missing-participant" },
+                ["relatedEventKinds"] = new[] { "BATTLEFIELD_HELD" }
+            }
+        };
+        timing["battleResolutions"] = new object?[]
+        {
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["resolutionId"] = "battle-resolution-1",
+                ["tick"] = 3,
+                ["kind"] = "CLOSED",
+                ["reason"] = "test",
+                ["battlefieldId"] = "missing-battlefield-2",
+                ["attackingPlayerId"] = "alice",
+                ["defendingPlayerId"] = "bob",
+                ["winnerPlayerId"] = "alice",
+                ["attackerObjectIds"] = new[] { "missing-attacker" },
+                ["defenderObjectIds"] = new[] { "missing-defender" },
+                ["survivingAttackerObjectIds"] = new[] { "missing-surviving-attacker" },
+                ["survivingDefenderObjectIds"] = new[] { "missing-surviving-defender" },
+                ["destroyedObjectIds"] = new[] { "missing-destroyed" },
+                ["relatedEventKinds"] = new[] { "BATTLE_CLOSED" }
+            }
+        };
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battlefield resolution item battlefield object id missing-battlefield is missing from object registry", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battlefield resolution item source object id missing-source is missing from object registry", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battlefield resolution item participant object id missing-participant is missing from object registry", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle resolution item battlefield object id missing-battlefield-2 is missing from object registry", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle resolution item attacker object id missing-attacker is missing from object registry", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle resolution item defender object id missing-defender is missing from object registry", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle resolution item surviving attacker object id missing-surviving-attacker is missing from object registry", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle resolution item surviving defender object id missing-surviving-defender is missing from object registry", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle resolution item destroyed object id missing-destroyed is missing from object registry", StringComparison.Ordinal));
     }
 
     [Fact]

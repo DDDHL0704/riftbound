@@ -5009,6 +5009,9 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        var knownObjectIds = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotKnownObjectIds(view.Snapshot);
         if (TryReadObjectList(view.Snapshot.Timing, "battlefieldResolutions", out var battlefieldResolutionPayloads))
         {
             var seenBattlefieldResolutionIds = new HashSet<string>(StringComparer.Ordinal);
@@ -5023,6 +5026,12 @@ public static class MatchRecoveryValidator
                 var resolutionId = ValidateBattlefieldResolutionPayloadValues(
                     resolutionPayload,
                     resolutionLabel,
+                    errors);
+                ValidateBattlefieldResolutionObjectReferences(
+                    resolutionPayload,
+                    resolutionLabel,
+                    knownObjectIds,
+                    "objects",
                     errors);
                 if (resolutionId is not null && !seenBattlefieldResolutionIds.Add(resolutionId))
                 {
@@ -5048,6 +5057,12 @@ public static class MatchRecoveryValidator
             var resolutionId = ValidateBattleResolutionPayloadValues(
                 resolutionPayload,
                 resolutionLabel,
+                errors);
+            ValidateBattleResolutionObjectReferences(
+                resolutionPayload,
+                resolutionLabel,
+                knownObjectIds,
+                "objects",
                 errors);
             if (resolutionId is not null && !seenBattleResolutionIds.Add(resolutionId))
             {
@@ -20245,6 +20260,7 @@ public static class MatchRecoveryValidator
             }
         }
 
+        var spectatorKnownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         if (!spectatorReplayFrame.SpectatorSnapshot.Timing.TryGetValue(
                 "battlefieldResolutions",
                 out var battlefieldResolutionsPayload)
@@ -20289,6 +20305,12 @@ public static class MatchRecoveryValidator
 
                 ValidateSpectatorBattlefieldResolutionPayloadListValues(
                     resolutionPayload,
+                    errors);
+                ValidateBattlefieldResolutionObjectReferences(
+                    resolutionPayload,
+                    "spectator replay frame timing battlefield resolution item",
+                    spectatorKnownObjectIds,
+                    "object registry",
                     errors);
             }
 
@@ -20472,6 +20494,12 @@ public static class MatchRecoveryValidator
 
                 ValidateSpectatorBattleResolutionPayloadListValues(
                     resolutionPayload,
+                    errors);
+                ValidateBattleResolutionObjectReferences(
+                    resolutionPayload,
+                    "spectator replay frame timing battle resolution item",
+                    spectatorKnownObjectIds,
+                    "object registry",
                     errors);
             }
 
@@ -21383,6 +21411,87 @@ public static class MatchRecoveryValidator
             "winner player id",
             errors);
         return resolutionId;
+    }
+
+    private static void ValidateBattlefieldResolutionObjectReferences(
+        object? resolutionPayload,
+        string payloadLabel,
+        IReadOnlySet<string>? knownObjectIds,
+        string knownObjectLabel,
+        List<string> errors)
+    {
+        ValidateTimingOptionalObjectReference(
+            resolutionPayload,
+            "battlefieldObjectId",
+            $"{payloadLabel} battlefield object id",
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+        ValidateTimingOptionalObjectReference(
+            resolutionPayload,
+            "sourceObjectId",
+            $"{payloadLabel} source object id",
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+        ValidateTimingObjectReferenceList(
+            resolutionPayload,
+            "participantObjectIds",
+            $"{payloadLabel} participant object id",
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+    }
+
+    private static void ValidateBattleResolutionObjectReferences(
+        object? resolutionPayload,
+        string payloadLabel,
+        IReadOnlySet<string>? knownObjectIds,
+        string knownObjectLabel,
+        List<string> errors)
+    {
+        ValidateTimingOptionalObjectReference(
+            resolutionPayload,
+            "battlefieldId",
+            $"{payloadLabel} battlefield object id",
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+        ValidateTimingObjectReferenceList(
+            resolutionPayload,
+            "attackerObjectIds",
+            $"{payloadLabel} attacker object id",
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+        ValidateTimingObjectReferenceList(
+            resolutionPayload,
+            "defenderObjectIds",
+            $"{payloadLabel} defender object id",
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+        ValidateTimingObjectReferenceList(
+            resolutionPayload,
+            "survivingAttackerObjectIds",
+            $"{payloadLabel} surviving attacker object id",
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+        ValidateTimingObjectReferenceList(
+            resolutionPayload,
+            "survivingDefenderObjectIds",
+            $"{payloadLabel} surviving defender object id",
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+        ValidateTimingObjectReferenceList(
+            resolutionPayload,
+            "destroyedObjectIds",
+            $"{payloadLabel} destroyed object id",
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
     }
 
     private static void ValidateSpectatorCoreTimingPayloadValues(
