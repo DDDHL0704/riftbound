@@ -4117,6 +4117,12 @@ public static class MatchRecoveryValidator
                 taskLabel,
                 "battle id",
                 errors);
+            ValidateBattlefieldTaskDerivedTaskId(
+                taskLabel,
+                taskId,
+                kind,
+                battlefieldObjectId,
+                errors);
             ValidateBattlefieldTaskDerivedIdentity(
                 taskLabel,
                 kind,
@@ -4128,6 +4134,35 @@ public static class MatchRecoveryValidator
                 errors);
             ValidateBattlefieldTaskKindSpecificIdentityExclusivity(taskLabel, kind, spellDuelId, battleId, errors);
             ValidateBattlefieldTaskKindConsistency(taskLabel, kind, status, reason, errors);
+        }
+    }
+
+    private static void ValidateBattlefieldTaskDerivedTaskId(
+        string taskLabel,
+        string? taskId,
+        string? kind,
+        string? battlefieldObjectId,
+        List<string> errors)
+    {
+        if (taskId is null || kind is null || battlefieldObjectId is null)
+        {
+            return;
+        }
+
+        var expectedTaskId = kind switch
+        {
+            "START_SPELL_DUEL" => $"task:start-spell-duel:{battlefieldObjectId}",
+            "START_BATTLE" => $"task:start-battle:{battlefieldObjectId}",
+            _ => null
+        };
+        if (expectedTaskId is null)
+        {
+            return;
+        }
+
+        if (!string.Equals(taskId, expectedTaskId, StringComparison.Ordinal))
+        {
+            errors.Add($"{taskLabel} task id {taskId} does not match battlefield task id {expectedTaskId}");
         }
     }
 
@@ -14599,6 +14634,12 @@ public static class MatchRecoveryValidator
             "battleId",
             payloadLabel,
             "battle id",
+            errors);
+        ValidateBattlefieldTaskDerivedTaskId(
+            payloadLabel,
+            taskId,
+            kind,
+            battlefieldObjectId,
             errors);
         ValidateBattlefieldTaskDerivedIdentity(
             payloadLabel,
