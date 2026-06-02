@@ -883,6 +883,8 @@ public static class MatchRecoveryValidator
     private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
     private const string BlueSentinelDelayedTriggerIdPrefixForRecovery = "BLUE_SENTINEL_HELD_DELAYED_RESOURCE";
     private const string JhinMovementResourceTriggerIdPrefixForRecovery = "JHIN_MOVE_RESOURCE";
+    private const string KogmawLastBreathAoeEffectKindForRecovery = "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT";
+    private const string KogmawTriggerBattlefieldMarkerForRecovery = "::BATTLEFIELD::";
 
     private sealed record BattleRequiredAssignmentView(
         string SourceObjectId,
@@ -4009,6 +4011,12 @@ public static class MatchRecoveryValidator
                 triggerLabel,
                 triggerId,
                 sourceObjectId,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueKogmawLastBreathContext(
+                triggerLabel,
+                triggerId,
                 effectKind,
                 triggeredEventKind,
                 errors);
@@ -16241,32 +16249,38 @@ public static class MatchRecoveryValidator
             "seats",
             errors);
 
-            ValidateTriggerQueueSourceRedactionConsistency(
-                payloadLabel,
-                sourceObjectId,
-                sourceVisibility,
-                effectKind,
-                errors);
-            ValidateTriggerQueueBlueSentinelDelayedResourceContext(
-                payloadLabel,
-                triggerId,
-                sourceObjectId,
-                sourceVisibility,
-                effectKind,
-                triggeredEventKind,
-                errors);
-            ValidateTriggerQueueJhinMovementResourceContext(
-                payloadLabel,
-                triggerId,
-                sourceObjectId,
-                effectKind,
-                triggeredEventKind,
-                errors);
-            ValidateTriggerQueueVisibleSourceObjectMembership(
-                payloadLabel,
-                sourceObjectId,
-                sourceVisibility,
-                knownObjectIds,
+        ValidateTriggerQueueSourceRedactionConsistency(
+            payloadLabel,
+            sourceObjectId,
+            sourceVisibility,
+            effectKind,
+            errors);
+        ValidateTriggerQueueBlueSentinelDelayedResourceContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            errors);
+        ValidateTriggerQueueJhinMovementResourceContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            triggeredEventKind,
+            errors);
+        ValidateTriggerQueueKogmawLastBreathContext(
+            payloadLabel,
+            triggerId,
+            effectKind,
+            triggeredEventKind,
+            errors);
+        ValidateTriggerQueueVisibleSourceObjectMembership(
+            payloadLabel,
+            sourceObjectId,
+            sourceVisibility,
+            knownObjectIds,
             "object registry",
             errors);
     }
@@ -16495,6 +16509,64 @@ public static class MatchRecoveryValidator
         origin = parts[3];
         destination = parts[4];
         return tick > 0;
+    }
+
+    private static void ValidateTriggerQueueKogmawLastBreathContext(
+        string payloadLabel,
+        string? triggerId,
+        string? effectKind,
+        string? triggeredEventKind,
+        List<string> errors)
+    {
+        if (triggerId is null || !IsKogmawLastBreathTriggerIdForRecovery(triggerId))
+        {
+            return;
+        }
+
+        if (!TryReadKogmawLastBreathTriggerBattlefieldObjectIdForRecovery(triggerId, out _))
+        {
+            errors.Add($"{payloadLabel} kogmaw last breath trigger id is invalid");
+            return;
+        }
+
+        if (effectKind is not null
+            && !string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal)
+            && !string.Equals(effectKind, KogmawLastBreathAoeEffectKindForRecovery, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} kogmaw last breath effect kind {effectKind} must be {KogmawLastBreathAoeEffectKindForRecovery}");
+        }
+
+        if (triggeredEventKind is not null
+            && !string.Equals(triggeredEventKind, "HIDDEN", StringComparison.Ordinal)
+            && !string.Equals(triggeredEventKind, "UNIT_DESTROYED", StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} kogmaw last breath triggered event kind {triggeredEventKind} must be UNIT_DESTROYED");
+        }
+    }
+
+    private static bool IsKogmawLastBreathTriggerIdForRecovery(string triggerId)
+    {
+        return triggerId.Contains(
+            $"{KogmawLastBreathAoeEffectKindForRecovery}{KogmawTriggerBattlefieldMarkerForRecovery}",
+            StringComparison.Ordinal);
+    }
+
+    private static bool TryReadKogmawLastBreathTriggerBattlefieldObjectIdForRecovery(
+        string triggerId,
+        out string battlefieldObjectId)
+    {
+        battlefieldObjectId = string.Empty;
+        var marker = $"{KogmawLastBreathAoeEffectKindForRecovery}{KogmawTriggerBattlefieldMarkerForRecovery}";
+        var markerIndex = triggerId.LastIndexOf(marker, StringComparison.Ordinal);
+        if (markerIndex < 0)
+        {
+            return false;
+        }
+
+        battlefieldObjectId = triggerId[(markerIndex + marker.Length)..];
+        return !string.IsNullOrWhiteSpace(battlefieldObjectId);
     }
 
     private static void ValidateTriggerQueueControllerPlayerMembership(
@@ -18915,6 +18987,12 @@ public static class MatchRecoveryValidator
                 $"authoritative state trigger queue item {triggerLabel}",
                 triggerId,
                 sourceObjectId,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueKogmawLastBreathContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
                 effectKind,
                 triggeredEventKind,
                 errors);
