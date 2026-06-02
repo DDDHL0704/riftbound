@@ -10314,7 +10314,6 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         List<string> errors)
     {
-        const string payloadLabel = "spectator replay frame timing pending task queue task item";
         foreach (var taskPayload in taskPayloads)
         {
             if (!IsSnapshotPlayerPayloadObject(taskPayload)
@@ -10330,33 +10329,34 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            if (TryReadObjectString(taskPayload, "kind", out var kind)
-                && !string.Equals(kind, authoritativeTask.Kind, StringComparison.Ordinal))
-            {
-                errors.Add(
-                    $"{payloadLabel} kind {kind} does not match authoritative state pending task queue task kind {authoritativeTask.Kind} for task id {normalizedTaskId}");
-            }
-
-            if (TryReadObjectString(taskPayload, "reason", out var reason)
-                && !string.Equals(reason, authoritativeTask.Reason, StringComparison.Ordinal))
-            {
-                errors.Add(
-                    $"{payloadLabel} reason {reason} does not match authoritative state pending task queue task reason {authoritativeTask.Reason} for task id {normalizedTaskId}");
-            }
-
-            if (TryReadObjectOptionalString(taskPayload, "playerId", out var playerId)
-                && !string.Equals(playerId, authoritativeTask.PlayerId ?? string.Empty, StringComparison.Ordinal))
-            {
-                errors.Add(
-                    $"{payloadLabel} player id {playerId} does not match authoritative state pending task queue task player id {authoritativeTask.PlayerId ?? string.Empty} for task id {normalizedTaskId}");
-            }
-
-            if (TryReadObjectOptionalString(taskPayload, "battlefieldObjectId", out var battlefieldObjectId)
-                && !string.Equals(battlefieldObjectId, authoritativeTask.BattlefieldObjectId ?? string.Empty, StringComparison.Ordinal))
-            {
-                errors.Add(
-                    $"{payloadLabel} battlefield object id {battlefieldObjectId} does not match authoritative state pending task queue task battlefield object id {authoritativeTask.BattlefieldObjectId ?? string.Empty} for task id {normalizedTaskId}");
-            }
+            ValidateSpectatorPendingTaskQueueKeyedRequiredStringValue(
+                taskPayload,
+                "kind",
+                "kind",
+                authoritativeTask.Kind,
+                normalizedTaskId,
+                errors);
+            ValidateSpectatorPendingTaskQueueKeyedRequiredStringValue(
+                taskPayload,
+                "reason",
+                "reason",
+                authoritativeTask.Reason,
+                normalizedTaskId,
+                errors);
+            ValidateSpectatorPendingTaskQueueKeyedOptionalStringValue(
+                taskPayload,
+                "playerId",
+                "player id",
+                authoritativeTask.PlayerId,
+                normalizedTaskId,
+                errors);
+            ValidateSpectatorPendingTaskQueueKeyedOptionalStringValue(
+                taskPayload,
+                "battlefieldObjectId",
+                "battlefield object id",
+                authoritativeTask.BattlefieldObjectId,
+                normalizedTaskId,
+                errors);
 
             ValidateSpectatorPendingTaskQueueKeyedAuthoritativeObjectValues(
                 taskPayload,
@@ -10364,6 +10364,57 @@ public static class MatchRecoveryValidator
                 authoritativeState,
                 normalizedTaskId,
                 errors);
+        }
+    }
+
+    private static void ValidateSpectatorPendingTaskQueueKeyedRequiredStringValue(
+        object? taskPayload,
+        string key,
+        string fieldLabel,
+        string expected,
+        string taskId,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing pending task queue task item";
+        if (!TryReadObjectString(taskPayload, key, out var actual))
+        {
+            errors.Add(
+                $"{payloadLabel} {fieldLabel} does not match authoritative state pending task queue task {fieldLabel} {expected} for task id {taskId}");
+            return;
+        }
+
+        if (!string.Equals(actual, expected, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} {fieldLabel} {actual} does not match authoritative state pending task queue task {fieldLabel} {expected} for task id {taskId}");
+        }
+    }
+
+    private static void ValidateSpectatorPendingTaskQueueKeyedOptionalStringValue(
+        object? taskPayload,
+        string key,
+        string fieldLabel,
+        string? expected,
+        string taskId,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing pending task queue task item";
+        var expectedText = expected ?? string.Empty;
+        if (!TryReadObjectOptionalString(taskPayload, key, out var actual))
+        {
+            if (!string.IsNullOrEmpty(expectedText))
+            {
+                errors.Add(
+                    $"{payloadLabel} {fieldLabel} does not match authoritative state pending task queue task {fieldLabel} {expectedText} for task id {taskId}");
+            }
+
+            return;
+        }
+
+        if (!string.Equals(actual, expectedText, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} {fieldLabel} {actual} does not match authoritative state pending task queue task {fieldLabel} {expectedText} for task id {taskId}");
         }
     }
 
@@ -10400,12 +10451,13 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        if (TryReadObjectOptionalString(taskPayload, "objectId", out var objectId)
-            && !string.Equals(objectId, authoritativeTask.ObjectId ?? string.Empty, StringComparison.Ordinal))
-        {
-            errors.Add(
-                $"{payloadLabel} object id {objectId} does not match authoritative state pending task queue task object id {authoritativeTask.ObjectId ?? string.Empty} for task id {taskId}");
-        }
+        ValidateSpectatorPendingTaskQueueKeyedOptionalStringValue(
+            taskPayload,
+            "objectId",
+            "object id",
+            authoritativeTask.ObjectId,
+            taskId,
+            errors);
 
         if (TryReadObjectValue(taskPayload, "hiddenObject", out _))
         {

@@ -34465,6 +34465,191 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingPendingTaskQueueKeyedRequiredFieldAbsenceWithTaskCountMismatch()
+    {
+        const string battlefieldObjectId = "alice-cleanup-battlefield-1";
+        const string hiddenStandbyObjectId = "bob-hidden-standby-1";
+        const string equipmentObjectId = "alice-unattached-equipment-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = [battlefieldObjectId, equipmentObjectId]
+                },
+                ["bob"] = PlayerZones.Empty with
+                {
+                    Battlefields = [hiddenStandbyObjectId]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new(
+                    battlefieldObjectId,
+                    cardNo: "SFD-BATTLEFIELD",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
+                [hiddenStandbyObjectId] = new(
+                    hiddenStandbyObjectId,
+                    power: 2,
+                    isFaceDown: true,
+                    ownerId: "bob",
+                    controllerId: "bob",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby]),
+                [equipmentObjectId] = new(
+                    equipmentObjectId,
+                    cardNo: "SFD-EQUIPMENT",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.EquipmentCard])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId),
+                [hiddenStandbyObjectId] = new("bob", "BATTLEFIELD", battlefieldObjectId),
+                [equipmentObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId)
+            });
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var pendingTaskQueue = Assert.IsType<Dictionary<string, object?>>(timing["pendingTaskQueue"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var tasks = Assert.IsAssignableFrom<IReadOnlyList<object?>>(pendingTaskQueue["tasks"])
+            .ToArray();
+        Assert.Equal(2, tasks.Length);
+
+        var taskPayloads = tasks
+            .Select(task => Assert.IsType<Dictionary<string, object?>>(task)
+                .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal))
+            .ToArray();
+        var equipmentTask = taskPayloads.Single(task =>
+            task.TryGetValue("objectId", out var objectId)
+            && objectId is string objectIdText
+            && string.Equals(objectIdText, equipmentObjectId, StringComparison.Ordinal));
+        var equipmentTaskId = Assert.IsType<string>(equipmentTask["taskId"]);
+        var expectedKind = Assert.IsType<string>(equipmentTask["kind"]);
+        var expectedReason = Assert.IsType<string>(equipmentTask["reason"]);
+        var expectedPlayerId = Assert.IsType<string>(equipmentTask["playerId"]);
+        var expectedBattlefieldObjectId = Assert.IsType<string>(equipmentTask["battlefieldObjectId"]);
+        var expectedObjectId = Assert.IsType<string>(equipmentTask["objectId"]);
+
+        var forgedTask = equipmentTask.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        forgedTask["taskId"] = "forged-pending-task-extra";
+        Assert.True(equipmentTask.Remove("kind"));
+        equipmentTask["reason"] = Array.Empty<object?>();
+        equipmentTask["playerId"] = Array.Empty<object?>();
+        equipmentTask["battlefieldObjectId"] = 7;
+        equipmentTask["objectId"] = Array.Empty<object?>();
+
+        pendingTaskQueue["tasks"] = taskPayloads.Cast<object?>().Append(forgedTask).ToArray();
+        timing["pendingTaskQueue"] = pendingTaskQueue;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing pending task queue task item kind is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing pending task queue task item reason is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing pending task queue task item player id is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing pending task queue task item battlefield object id is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing pending task queue task item object id is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame timing pending task queue task item kind does not match authoritative state pending task queue task kind {expectedKind} for task id {equipmentTaskId}",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame timing pending task queue task item reason does not match authoritative state pending task queue task reason {expectedReason} for task id {equipmentTaskId}",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame timing pending task queue task item player id does not match authoritative state pending task queue task player id {expectedPlayerId} for task id {equipmentTaskId}",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame timing pending task queue task item battlefield object id does not match authoritative state pending task queue task battlefield object id {expectedBattlefieldObjectId} for task id {equipmentTaskId}",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame timing pending task queue task item object id does not match authoritative state pending task queue task object id {expectedObjectId} for task id {equipmentTaskId}",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing pending task queue task item task id forged-pending-task-extra is not present in authoritative state pending task queue tasks",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing pending task queue task count does not match authoritative state pending task queue task count",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingPendingTaskQueueTaskListPayloadShapeDrift()
     {
         var authoritativeState = new MatchState(
