@@ -885,6 +885,8 @@ public static class MatchRecoveryValidator
     private const string JhinMovementResourceTriggerIdPrefixForRecovery = "JHIN_MOVE_RESOURCE";
     private const string KogmawLastBreathAoeEffectKindForRecovery = "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT";
     private const string KogmawTriggerBattlefieldMarkerForRecovery = "::BATTLEFIELD::";
+    private const string OgsLuxHighCostSpellPowerEffectKindForRecovery = "OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3";
+    private const string StandardTriggerIdPrefixForRecovery = "TRIGGER-";
 
     private sealed record BattleRequiredAssignmentView(
         string SourceObjectId,
@@ -4017,6 +4019,13 @@ public static class MatchRecoveryValidator
             ValidateTriggerQueueKogmawLastBreathContext(
                 triggerLabel,
                 triggerId,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueOgsLuxHighCostSpellContext(
+                triggerLabel,
+                triggerId,
+                sourceVisibility,
                 effectKind,
                 triggeredEventKind,
                 errors);
@@ -16276,6 +16285,13 @@ public static class MatchRecoveryValidator
             effectKind,
             triggeredEventKind,
             errors);
+        ValidateTriggerQueueOgsLuxHighCostSpellContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            errors);
         ValidateTriggerQueueVisibleSourceObjectMembership(
             payloadLabel,
             sourceObjectId,
@@ -16592,6 +16608,64 @@ public static class MatchRecoveryValidator
 
         battlefieldObjectId = triggerId[(markerIndex + marker.Length)..];
         return !string.IsNullOrWhiteSpace(battlefieldObjectId);
+    }
+
+    private static void ValidateTriggerQueueOgsLuxHighCostSpellContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceVisibility,
+        string? effectKind,
+        string? triggeredEventKind,
+        List<string> errors)
+    {
+        if (triggerId is null || !IsOgsLuxHighCostSpellTriggerForRecovery(triggerId, effectKind))
+        {
+            return;
+        }
+
+        if (!IsOgsLuxHighCostSpellTriggerIdForRecovery(triggerId))
+        {
+            errors.Add($"{payloadLabel} ogs lux high cost spell trigger id is invalid");
+            return;
+        }
+
+        if (sourceVisibility is not null
+            && !string.Equals(sourceVisibility, "VISIBLE", StringComparison.Ordinal))
+        {
+            errors.Add($"{payloadLabel} ogs lux high cost spell source visibility must be VISIBLE");
+        }
+
+        if (effectKind is not null
+            && !string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal)
+            && !string.Equals(effectKind, OgsLuxHighCostSpellPowerEffectKindForRecovery, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} ogs lux high cost spell effect kind {effectKind} must be {OgsLuxHighCostSpellPowerEffectKindForRecovery}");
+        }
+
+        if (triggeredEventKind is not null
+            && !string.Equals(triggeredEventKind, "HIDDEN", StringComparison.Ordinal)
+            && !string.Equals(triggeredEventKind, "CARD_PLAYED", StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} ogs lux high cost spell triggered event kind {triggeredEventKind} must be CARD_PLAYED");
+        }
+    }
+
+    private static bool IsOgsLuxHighCostSpellTriggerForRecovery(
+        string triggerId,
+        string? effectKind)
+    {
+        return IsOgsLuxHighCostSpellTriggerIdForRecovery(triggerId)
+            || string.Equals(effectKind, OgsLuxHighCostSpellPowerEffectKindForRecovery, StringComparison.Ordinal);
+    }
+
+    private static bool IsOgsLuxHighCostSpellTriggerIdForRecovery(string triggerId)
+    {
+        return triggerId.StartsWith(StandardTriggerIdPrefixForRecovery, StringComparison.Ordinal)
+            && triggerId.EndsWith(
+                $"-{OgsLuxHighCostSpellPowerEffectKindForRecovery}",
+                StringComparison.Ordinal);
     }
 
     private static void ValidateTriggerQueueControllerPlayerMembership(
@@ -19018,6 +19092,13 @@ public static class MatchRecoveryValidator
             ValidateTriggerQueueKogmawLastBreathContext(
                 $"authoritative state trigger queue item {triggerLabel}",
                 triggerId,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueOgsLuxHighCostSpellContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
+                sourceVisibility: null,
                 effectKind,
                 triggeredEventKind,
                 errors);
