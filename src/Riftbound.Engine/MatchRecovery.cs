@@ -882,6 +882,7 @@ public static class MatchRecoveryValidator
     private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
     private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
     private const string BlueSentinelDelayedTriggerIdPrefixForRecovery = "BLUE_SENTINEL_HELD_DELAYED_RESOURCE";
+    private const string JhinMovementResourceTriggerIdPrefixForRecovery = "JHIN_MOVE_RESOURCE";
 
     private sealed record BattleRequiredAssignmentView(
         string SourceObjectId,
@@ -4001,6 +4002,13 @@ public static class MatchRecoveryValidator
                 triggerId,
                 sourceObjectId,
                 sourceVisibility,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueJhinMovementResourceContext(
+                triggerLabel,
+                triggerId,
+                sourceObjectId,
                 effectKind,
                 triggeredEventKind,
                 errors);
@@ -16247,6 +16255,13 @@ public static class MatchRecoveryValidator
                 effectKind,
                 triggeredEventKind,
                 errors);
+            ValidateTriggerQueueJhinMovementResourceContext(
+                payloadLabel,
+                triggerId,
+                sourceObjectId,
+                effectKind,
+                triggeredEventKind,
+                errors);
             ValidateTriggerQueueVisibleSourceObjectMembership(
                 payloadLabel,
                 sourceObjectId,
@@ -16390,6 +16405,96 @@ public static class MatchRecoveryValidator
     {
         return string.Equals(triggerId, BlueSentinelDelayedTriggerIdPrefixForRecovery, StringComparison.Ordinal)
             || triggerId.StartsWith($"{BlueSentinelDelayedTriggerIdPrefixForRecovery}::", StringComparison.Ordinal);
+    }
+
+    private static void ValidateTriggerQueueJhinMovementResourceContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceObjectId,
+        string? effectKind,
+        string? triggeredEventKind,
+        List<string> errors)
+    {
+        if (triggerId is null || !IsJhinMovementResourceTriggerIdForRecovery(triggerId))
+        {
+            return;
+        }
+
+        if (!TryReadJhinMovementTriggerContextForRecovery(
+                triggerId,
+                out _,
+                out var expectedSourceObjectId,
+                out _,
+                out var destination))
+        {
+            errors.Add($"{payloadLabel} jhin movement resource trigger id is invalid");
+            return;
+        }
+
+        if (sourceObjectId is not null
+            && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
+            && !string.Equals(sourceObjectId, expectedSourceObjectId, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} jhin movement resource source object id {sourceObjectId} must match trigger id source object id {expectedSourceObjectId}");
+        }
+
+        if (effectKind is not null
+            && !string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal)
+            && !string.Equals(effectKind, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} jhin movement resource effect kind {effectKind} must be {P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind}");
+        }
+
+        var expectedTriggeredEventKind = destination.StartsWith("BATTLEFIELD", StringComparison.Ordinal)
+            ? "UNIT_MOVED_TO_BATTLEFIELD"
+            : "UNIT_MOVED_TO_BASE";
+        if (triggeredEventKind is not null
+            && !string.Equals(triggeredEventKind, "HIDDEN", StringComparison.Ordinal)
+            && !string.Equals(triggeredEventKind, expectedTriggeredEventKind, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} jhin movement resource triggered event kind {triggeredEventKind} must be {expectedTriggeredEventKind}");
+        }
+    }
+
+    private static bool IsJhinMovementResourceTriggerIdForRecovery(string triggerId)
+    {
+        return string.Equals(triggerId, JhinMovementResourceTriggerIdPrefixForRecovery, StringComparison.Ordinal)
+            || triggerId.StartsWith($"{JhinMovementResourceTriggerIdPrefixForRecovery}::", StringComparison.Ordinal);
+    }
+
+    private static bool TryReadJhinMovementTriggerContextForRecovery(
+        string triggerId,
+        out long tick,
+        out string sourceObjectId,
+        out string origin,
+        out string destination)
+    {
+        tick = 0;
+        sourceObjectId = string.Empty;
+        origin = string.Empty;
+        destination = string.Empty;
+        var parts = triggerId.Split("::", StringSplitOptions.None);
+        if (parts.Length != 5
+            || !string.Equals(parts[0], JhinMovementResourceTriggerIdPrefixForRecovery, StringComparison.Ordinal)
+            || !long.TryParse(
+                parts[1],
+                NumberStyles.Integer,
+                CultureInfo.InvariantCulture,
+                out tick)
+            || string.IsNullOrWhiteSpace(parts[2])
+            || string.IsNullOrWhiteSpace(parts[3])
+            || string.IsNullOrWhiteSpace(parts[4]))
+        {
+            return false;
+        }
+
+        sourceObjectId = parts[2];
+        origin = parts[3];
+        destination = parts[4];
+        return tick > 0;
     }
 
     private static void ValidateTriggerQueueControllerPlayerMembership(
@@ -18803,6 +18908,13 @@ public static class MatchRecoveryValidator
                 triggerId,
                 sourceObjectId,
                 sourceVisibility: null,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueJhinMovementResourceContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
+                sourceObjectId,
                 effectKind,
                 triggeredEventKind,
                 errors);

@@ -5969,6 +5969,72 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueJhinMovementResourceContextDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var players = alice.Snapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["objects"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["wrong-source"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "wrong-source",
+                ["isFaceDown"] = false,
+                ["tags"] = Array.Empty<string>(),
+                ["untilEndOfTurnEffects"] = Array.Empty<string>()
+            }
+        };
+        players["alice"] = alicePayload;
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["triggerQueue"] = new object?[]
+        {
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["triggerId"] = "JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD",
+                ["controllerId"] = "alice",
+                ["sourceObjectId"] = "wrong-source",
+                ["sourceVisibility"] = "VISIBLE",
+                ["effectKind"] = "WRONG_EFFECT",
+                ["triggeredByEventKind"] = "UNIT_MOVED_TO_BASE"
+            }
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players,
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item jhin movement resource source object id wrong-source must match trigger id source object id source-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item jhin movement resource effect kind WRONG_EFFECT must be JHIN_MOVEMENT_RESOURCE_SKILL_GAIN_1_MANA_1_POWER",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item jhin movement resource triggered event kind UNIT_MOVED_TO_BASE must be UNIT_MOVED_TO_BATTLEFIELD",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueSourceObjectRequiredDrift()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -20539,6 +20605,64 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::2::source-1::battlefield-1 blue sentinel delayed resource triggered event kind UNIT_DESTROYED must be BATTLEFIELD_HELD",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueJhinMovementResourceContextDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["wrong-source"] = new("wrong-source", ownerId: "alice", controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["wrong-source"] = new("alice", "BASE")
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    "JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD",
+                    "alice",
+                    sourceObjectId: "wrong-source",
+                    effectKind: "WRONG_EFFECT",
+                    triggeredByEventKind: "UNIT_MOVED_TO_BASE")
+            ]);
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD jhin movement resource source object id wrong-source must match trigger id source object id source-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD jhin movement resource effect kind WRONG_EFFECT must be JHIN_MOVEMENT_RESOURCE_SKILL_GAIN_1_MANA_1_POWER",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD jhin movement resource triggered event kind UNIT_MOVED_TO_BASE must be UNIT_MOVED_TO_BATTLEFIELD",
                 StringComparison.Ordinal));
     }
 
@@ -54263,6 +54387,113 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item blue sentinel delayed resource triggered event kind UNIT_DESTROYED must be BATTLEFIELD_HELD",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueJhinMovementResourceContextDrift()
+    {
+        const string triggerId = "JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD";
+        const string sourceObjectId = "source-1";
+        const string wrongSourceObjectId = "wrong-source";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            2,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Base = [sourceObjectId, wrongSourceObjectId]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new(sourceObjectId, ownerId: "alice", controllerId: "alice"),
+                [wrongSourceObjectId] = new(wrongSourceObjectId, ownerId: "alice", controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new("alice", "BASE"),
+                [wrongSourceObjectId] = new("alice", "BASE")
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    triggerId,
+                    "alice",
+                    sourceObjectId,
+                    P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind,
+                    "UNIT_MOVED_TO_BATTLEFIELD")
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var triggerQueue = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["triggerQueue"])
+            .ToArray();
+        var trigger = Assert.IsType<Dictionary<string, object?>>(triggerQueue[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        trigger["sourceObjectId"] = wrongSourceObjectId;
+        trigger["sourceVisibility"] = "VISIBLE";
+        trigger["effectKind"] = "WRONG_EFFECT";
+        trigger["triggeredByEventKind"] = "UNIT_MOVED_TO_BASE";
+        triggerQueue[0] = trigger;
+        timing["triggerQueue"] = triggerQueue;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item jhin movement resource source object id wrong-source must match trigger id source object id source-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item jhin movement resource effect kind WRONG_EFFECT must be JHIN_MOVEMENT_RESOURCE_SKILL_GAIN_1_MANA_1_POWER",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item jhin movement resource triggered event kind UNIT_MOVED_TO_BASE must be UNIT_MOVED_TO_BATTLEFIELD",
                 StringComparison.Ordinal));
     }
 
