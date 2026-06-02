@@ -5459,6 +5459,54 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateBattlefieldResolutionControlPreviousControllerCompatibility(
+        string? kind,
+        string? reason,
+        string? previousControllerId,
+        string? controllerId,
+        string payloadLabel,
+        string previousControllerLabel,
+        string controllerLabel,
+        List<string> errors)
+    {
+        if (!string.Equals(kind, "CONTROL_RESOLVED", StringComparison.Ordinal)
+            || reason is null)
+        {
+            return;
+        }
+
+        var normalizedPreviousControllerId = string.IsNullOrWhiteSpace(previousControllerId)
+            ? null
+            : previousControllerId.Trim();
+        var normalizedControllerId = string.IsNullOrWhiteSpace(controllerId) ? null : controllerId.Trim();
+        if (string.Equals(reason, "CONTROL_CONFIRMED", StringComparison.Ordinal))
+        {
+            if (normalizedPreviousControllerId is null)
+            {
+                errors.Add($"{payloadLabel} {previousControllerLabel} is required for reason {reason}");
+            }
+
+            if (normalizedPreviousControllerId is not null
+                && normalizedControllerId is not null
+                && !string.Equals(normalizedPreviousControllerId, normalizedControllerId, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} {previousControllerLabel} {normalizedPreviousControllerId} must match {controllerLabel} {normalizedControllerId} for reason {reason}");
+            }
+
+            return;
+        }
+
+        if (string.Equals(reason, "CONTROL_CHANGED", StringComparison.Ordinal)
+            && normalizedPreviousControllerId is not null
+            && normalizedControllerId is not null
+            && string.Equals(normalizedPreviousControllerId, normalizedControllerId, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} {previousControllerLabel} {normalizedPreviousControllerId} must differ from {controllerLabel} {normalizedControllerId} for reason {reason}");
+        }
+    }
+
     private static bool IsBattlefieldResolutionReasonValidForKind(string kind, string reason)
     {
         return kind switch
@@ -18288,6 +18336,15 @@ public static class MatchRecoveryValidator
                 "player",
                 "controller",
                 errors);
+            ValidateBattlefieldResolutionControlPreviousControllerCompatibility(
+                kind,
+                reason,
+                resolution.PreviousControllerId,
+                resolution.ControllerId,
+                $"authoritative state battlefield resolution {diagnosticResolutionId}",
+                "previous controller",
+                "controller",
+                errors);
             ValidateAuthoritativeStateResolutionText(
                 "battlefield resolution",
                 resolutionId,
@@ -21900,7 +21957,7 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "player id",
             errors);
-        ValidateSnapshotPayloadOptionalStringValue(
+        var previousControllerId = ValidateSnapshotPayloadOptionalStringValue(
             resolutionPayload,
             "previousControllerId",
             payloadLabel,
@@ -21919,6 +21976,15 @@ public static class MatchRecoveryValidator
             controllerId,
             payloadLabel,
             "player id",
+            "controller id",
+            errors);
+        ValidateBattlefieldResolutionControlPreviousControllerCompatibility(
+            kind,
+            reason,
+            previousControllerId,
+            controllerId,
+            payloadLabel,
+            "previous controller id",
             "controller id",
             errors);
         ValidateSnapshotPayloadOptionalStringValue(

@@ -10843,6 +10843,93 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingResolutionHistoryBattlefieldControlPreviousControllerCompatibilityDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var players = alice.Snapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["objects"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["battlefield-1"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        };
+        players["alice"] = alicePayload;
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["battlefieldResolutions"] = RawJson("""
+            [
+                {
+                    "resolutionId": "battlefield-resolution-confirmed-missing-previous",
+                    "tick": 1,
+                    "kind": "CONTROL_RESOLVED",
+                    "reason": "CONTROL_CONFIRMED",
+                    "battlefieldObjectId": "battlefield-1",
+                    "playerId": "alice",
+                    "controllerId": "alice",
+                    "participantObjectIds": [],
+                    "relatedEventKinds": ["BATTLEFIELD_CONTROL_RESOLVED"]
+                },
+                {
+                    "resolutionId": "battlefield-resolution-confirmed-mismatch",
+                    "tick": 1,
+                    "kind": "CONTROL_RESOLVED",
+                    "reason": "CONTROL_CONFIRMED",
+                    "battlefieldObjectId": "battlefield-1",
+                    "playerId": "alice",
+                    "previousControllerId": "bob",
+                    "controllerId": "alice",
+                    "participantObjectIds": [],
+                    "relatedEventKinds": ["BATTLEFIELD_CONTROL_RESOLVED"]
+                },
+                {
+                    "resolutionId": "battlefield-resolution-changed-no-change",
+                    "tick": 1,
+                    "kind": "CONTROL_RESOLVED",
+                    "reason": "CONTROL_CHANGED",
+                    "battlefieldObjectId": "battlefield-1",
+                    "playerId": "alice",
+                    "previousControllerId": "alice",
+                    "controllerId": "alice",
+                    "participantObjectIds": [],
+                    "relatedEventKinds": ["BATTLEFIELD_CONTROL_RESOLVED"]
+                }
+            ]
+            """);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players,
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield resolution item previous controller id is required for reason CONTROL_CONFIRMED",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield resolution item previous controller id bob must match controller id alice for reason CONTROL_CONFIRMED",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield resolution item previous controller id alice must differ from controller id alice for reason CONTROL_CHANGED",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingResolutionHistorySurvivorObjectMembershipDrift()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -22732,6 +22819,92 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "authoritative state battlefield resolution battlefield-resolution-confirmed controller is required for reason CONTROL_CONFIRMED",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateResolutionHistoryBattlefieldControlPreviousControllerCompatibilityDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            2,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["battlefield-1"] = new("battlefield-1", ownerId: "alice", controllerId: "alice")
+            })
+        {
+            BattlefieldResolutions =
+            [
+                new(
+                    "battlefield-resolution-confirmed-missing-previous",
+                    2,
+                    "CONTROL_RESOLVED",
+                    "CONTROL_CONFIRMED",
+                    "battlefield-1",
+                    "alice",
+                    null,
+                    "alice",
+                    null,
+                    [],
+                    ["BATTLEFIELD_CONTROL_RESOLVED"]),
+                new(
+                    "battlefield-resolution-confirmed-mismatch",
+                    2,
+                    "CONTROL_RESOLVED",
+                    "CONTROL_CONFIRMED",
+                    "battlefield-1",
+                    "alice",
+                    "bob",
+                    "alice",
+                    null,
+                    [],
+                    ["BATTLEFIELD_CONTROL_RESOLVED"]),
+                new(
+                    "battlefield-resolution-changed-no-change",
+                    2,
+                    "CONTROL_RESOLVED",
+                    "CONTROL_CHANGED",
+                    "battlefield-1",
+                    "alice",
+                    "alice",
+                    "alice",
+                    null,
+                    [],
+                    ["BATTLEFIELD_CONTROL_RESOLVED"])
+            ]
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 2);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state battlefield resolution battlefield-resolution-confirmed-missing-previous previous controller is required for reason CONTROL_CONFIRMED",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state battlefield resolution battlefield-resolution-confirmed-mismatch previous controller bob must match controller alice for reason CONTROL_CONFIRMED",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state battlefield resolution battlefield-resolution-changed-no-change previous controller alice must differ from controller alice for reason CONTROL_CHANGED",
                 StringComparison.Ordinal));
     }
 
@@ -57269,6 +57442,139 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing battlefield resolution item controller id must be absent for reason UNCONTROLLED",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingResolutionHistoryBattlefieldControlPreviousControllerCompatibilityDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["battlefield-1"] = new("battlefield-1", ownerId: "alice", controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["battlefield-1"] = new("alice", "BATTLEFIELD", "battlefield-1")
+            },
+            battlefieldResolutions:
+            [
+                new(
+                    "battlefield-resolution-confirmed-missing-previous",
+                    3,
+                    "CONTROL_RESOLVED",
+                    "CONTROL_CONFIRMED",
+                    "battlefield-1",
+                    "alice",
+                    "alice",
+                    "alice",
+                    null,
+                    [],
+                    ["BATTLEFIELD_CONTROL_RESOLVED"]),
+                new(
+                    "battlefield-resolution-confirmed-mismatch",
+                    3,
+                    "CONTROL_RESOLVED",
+                    "CONTROL_CONFIRMED",
+                    "battlefield-1",
+                    "alice",
+                    "alice",
+                    "alice",
+                    null,
+                    [],
+                    ["BATTLEFIELD_CONTROL_RESOLVED"]),
+                new(
+                    "battlefield-resolution-changed-no-change",
+                    3,
+                    "CONTROL_RESOLVED",
+                    "CONTROL_CHANGED",
+                    "battlefield-1",
+                    "alice",
+                    "bob",
+                    "alice",
+                    null,
+                    [],
+                    ["BATTLEFIELD_CONTROL_RESOLVED"])
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var battlefieldResolutionPayload = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["battlefieldResolutions"])
+            .ToArray();
+        Assert.Equal(3, battlefieldResolutionPayload.Length);
+        var confirmedMissingPrevious = Assert.IsType<Dictionary<string, object?>>(battlefieldResolutionPayload[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        Assert.True(confirmedMissingPrevious.Remove("previousControllerId"));
+        var confirmedMismatch = Assert.IsType<Dictionary<string, object?>>(battlefieldResolutionPayload[1])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        confirmedMismatch["previousControllerId"] = "bob";
+        var changedNoChange = Assert.IsType<Dictionary<string, object?>>(battlefieldResolutionPayload[2])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        changedNoChange["previousControllerId"] = "alice";
+        timing["battlefieldResolutions"] = new object?[]
+        {
+            confirmedMissingPrevious,
+            confirmedMismatch,
+            changedNoChange
+        };
+
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolution item previous controller id is required for reason CONTROL_CONFIRMED",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolution item previous controller id bob must match controller id alice for reason CONTROL_CONFIRMED",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolution item previous controller id alice must differ from controller id alice for reason CONTROL_CHANGED",
                 StringComparison.Ordinal));
     }
 
