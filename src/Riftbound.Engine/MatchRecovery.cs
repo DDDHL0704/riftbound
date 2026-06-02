@@ -9858,6 +9858,14 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame timing pending task queue active task id is required when pending task queue has tasks");
         }
 
+        var authoritativeTasksByVisibleTaskId = BuildAuthoritativePendingTaskQueueTasksByVisibleTaskId(
+            authoritativeState,
+            authoritativeTasks);
+        ValidateSpectatorPendingTaskQueueAuthoritativeTaskKeySet(
+            taskPayloads,
+            authoritativeTasksByVisibleTaskId,
+            errors);
+
         if (!validateAuthoritativeParity)
         {
             return taskKindsAreValid ? taskKinds : null;
@@ -9960,6 +9968,64 @@ public static class MatchRecoveryValidator
         }
 
         return taskKindsAreValid ? taskKinds : null;
+    }
+
+    private static IReadOnlyDictionary<string, CleanupTaskState> BuildAuthoritativePendingTaskQueueTasksByVisibleTaskId(
+        MatchState authoritativeState,
+        IReadOnlyList<CleanupTaskState> authoritativeTasks)
+    {
+        var authoritativeTasksByVisibleTaskId = new Dictionary<string, CleanupTaskState>(StringComparer.Ordinal);
+        foreach (var authoritativeTask in authoritativeTasks)
+        {
+            var visibleTaskId = VisibleCleanupTaskIdForRecovery(authoritativeState, authoritativeTask);
+            if (string.IsNullOrWhiteSpace(visibleTaskId))
+            {
+                continue;
+            }
+
+            var normalizedTaskId = visibleTaskId.Trim();
+            if (!authoritativeTasksByVisibleTaskId.ContainsKey(normalizedTaskId))
+            {
+                authoritativeTasksByVisibleTaskId.Add(normalizedTaskId, authoritativeTask);
+            }
+        }
+
+        return authoritativeTasksByVisibleTaskId;
+    }
+
+    private static void ValidateSpectatorPendingTaskQueueAuthoritativeTaskKeySet(
+        IReadOnlyList<object?> taskPayloads,
+        IReadOnlyDictionary<string, CleanupTaskState> authoritativeTasksByVisibleTaskId,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing pending task queue task item";
+        var actualTaskIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var taskPayload in taskPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(taskPayload)
+                || !TryReadObjectString(taskPayload, "taskId", out var taskId)
+                || string.IsNullOrWhiteSpace(taskId))
+            {
+                continue;
+            }
+
+            var normalizedTaskId = taskId.Trim();
+            actualTaskIds.Add(normalizedTaskId);
+            if (!authoritativeTasksByVisibleTaskId.ContainsKey(normalizedTaskId))
+            {
+                errors.Add(
+                    $"{payloadLabel} task id {normalizedTaskId} is not present in authoritative state pending task queue tasks");
+            }
+        }
+
+        foreach (var authoritativeTaskId in authoritativeTasksByVisibleTaskId.Keys.OrderBy(id => id, StringComparer.Ordinal))
+        {
+            if (!actualTaskIds.Contains(authoritativeTaskId))
+            {
+                errors.Add(
+                    $"{payloadLabel} task id {authoritativeTaskId} is required by authoritative state pending task queue tasks");
+            }
+        }
     }
 
     private static (string? ActiveTaskId, bool? HasTasks, bool? IsBlocking) ValidateSpectatorPendingTaskQueuePayloadValues(
