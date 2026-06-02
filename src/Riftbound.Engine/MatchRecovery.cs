@@ -5422,6 +5422,63 @@ public static class MatchRecoveryValidator
         };
     }
 
+    private static void ValidateBattleResolutionPlayerRoleCompatibility(
+        string? kind,
+        string? attackingPlayerId,
+        string? defendingPlayerId,
+        string? winnerPlayerId,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (kind is null || !IsKnownBattleResolutionKind(kind))
+        {
+            return;
+        }
+
+        var normalizedAttackingPlayerId = NormalizeOptionalCompatibilityText(attackingPlayerId);
+        var normalizedDefendingPlayerId = NormalizeOptionalCompatibilityText(defendingPlayerId);
+        var normalizedWinnerPlayerId = NormalizeOptionalCompatibilityText(winnerPlayerId);
+
+        if (normalizedAttackingPlayerId is not null
+            && normalizedDefendingPlayerId is not null
+            && string.Equals(normalizedAttackingPlayerId, normalizedDefendingPlayerId, StringComparison.Ordinal))
+        {
+            errors.Add($"{payloadLabel} attacking player id {normalizedAttackingPlayerId} also appears as defending player id");
+        }
+
+        if (string.Equals(kind, "NO_RESULT", StringComparison.Ordinal))
+        {
+            if (normalizedWinnerPlayerId is not null)
+            {
+                errors.Add($"{payloadLabel} winner player id {normalizedWinnerPlayerId} is invalid for kind {kind}");
+            }
+
+            return;
+        }
+
+        if (!string.Equals(kind, "CLOSED", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        if (normalizedWinnerPlayerId is null)
+        {
+            errors.Add($"{payloadLabel} winner player id is required for kind {kind}");
+            return;
+        }
+
+        if (!string.Equals(normalizedWinnerPlayerId, normalizedAttackingPlayerId, StringComparison.Ordinal)
+            && !string.Equals(normalizedWinnerPlayerId, normalizedDefendingPlayerId, StringComparison.Ordinal))
+        {
+            errors.Add($"{payloadLabel} winner player id {normalizedWinnerPlayerId} is missing from attacking or defending player ids");
+        }
+    }
+
+    private static string? NormalizeOptionalCompatibilityText(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+    }
+
     private static void ValidateBattleResolutionResultListObjectMembership(
         IReadOnlyList<string>? attackerObjectIds,
         IReadOnlyList<string>? defenderObjectIds,
@@ -18144,6 +18201,13 @@ public static class MatchRecoveryValidator
                 reason,
                 $"authoritative state battle resolution {(string.IsNullOrEmpty(resolutionId) ? "<missing>" : resolutionId)}",
                 errors);
+            ValidateBattleResolutionPlayerRoleCompatibility(
+                kind,
+                resolution.AttackingPlayerId,
+                resolution.DefendingPlayerId,
+                resolution.WinnerPlayerId,
+                $"authoritative state battle resolution {(string.IsNullOrEmpty(resolutionId) ? "<missing>" : resolutionId)}",
+                errors);
             ValidateAuthoritativeStateResolutionText(
                 "battle resolution",
                 resolutionId,
@@ -21788,23 +21852,30 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "battlefield id",
             errors);
-        ValidateSnapshotPayloadOptionalStringValue(
+        var attackingPlayerId = ValidateSnapshotPayloadOptionalStringValue(
             resolutionPayload,
             "attackingPlayerId",
             payloadLabel,
             "attacking player id",
             errors);
-        ValidateSnapshotPayloadOptionalStringValue(
+        var defendingPlayerId = ValidateSnapshotPayloadOptionalStringValue(
             resolutionPayload,
             "defendingPlayerId",
             payloadLabel,
             "defending player id",
             errors);
-        ValidateSnapshotPayloadOptionalStringValue(
+        var winnerPlayerId = ValidateSnapshotPayloadOptionalStringValue(
             resolutionPayload,
             "winnerPlayerId",
             payloadLabel,
             "winner player id",
+            errors);
+        ValidateBattleResolutionPlayerRoleCompatibility(
+            kind,
+            attackingPlayerId,
+            defendingPlayerId,
+            winnerPlayerId,
+            payloadLabel,
             errors);
         return resolutionId;
     }
