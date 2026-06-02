@@ -5229,6 +5229,13 @@ public static class MatchRecoveryValidator
             || string.Equals(value, "BATTLEFIELD_CONTROL_RESOLVED", StringComparison.Ordinal);
     }
 
+    private static bool IsKnownBattlefieldResolutionKind(string value)
+    {
+        return string.Equals(value, "HELD", StringComparison.Ordinal)
+            || string.Equals(value, "CONQUERED", StringComparison.Ordinal)
+            || string.Equals(value, "CONTROL_RESOLVED", StringComparison.Ordinal);
+    }
+
     private static bool IsKnownBattleResolutionRelatedEventKind(string value)
     {
         return string.Equals(value, "DAMAGE_APPLIED", StringComparison.Ordinal)
@@ -5237,6 +5244,12 @@ public static class MatchRecoveryValidator
             || string.Equals(value, "UNIT_RECALLED_TO_BASE", StringComparison.Ordinal)
             || string.Equals(value, "BATTLE_CLOSED", StringComparison.Ordinal)
             || string.Equals(value, "BATTLE_NO_RESULT", StringComparison.Ordinal);
+    }
+
+    private static bool IsKnownBattleResolutionKind(string value)
+    {
+        return string.Equals(value, "CLOSED", StringComparison.Ordinal)
+            || string.Equals(value, "NO_RESULT", StringComparison.Ordinal);
     }
 
     private static bool IsKnownTriggerSourceVisibility(string value)
@@ -17783,7 +17796,8 @@ public static class MatchRecoveryValidator
                 resolutionId,
                 "kind",
                 resolution.Kind,
-                errors);
+                errors,
+                IsKnownBattlefieldResolutionKind);
             ValidateAuthoritativeStateResolutionText(
                 "battlefield resolution",
                 resolutionId,
@@ -17859,7 +17873,8 @@ public static class MatchRecoveryValidator
                 resolutionId,
                 "kind",
                 resolution.Kind,
-                errors);
+                errors,
+                IsKnownBattleResolutionKind);
             ValidateAuthoritativeStateResolutionText(
                 "battle resolution",
                 resolutionId,
@@ -17972,7 +17987,8 @@ public static class MatchRecoveryValidator
         string resolutionId,
         string valueLabel,
         string? value,
-        List<string> errors)
+        List<string> errors,
+        Func<string, bool>? isKnownValue = null)
     {
         var diagnosticResolutionId = string.IsNullOrEmpty(resolutionId) ? "<missing>" : resolutionId;
         if (string.IsNullOrWhiteSpace(value))
@@ -17993,6 +18009,12 @@ public static class MatchRecoveryValidator
             $"{resolutionLabel} {diagnosticResolutionId} {valueLabel}",
             normalizedValue,
             errors);
+
+        if (isKnownValue is not null && !isKnownValue(normalizedValue))
+        {
+            errors.Add(
+                $"authoritative state {resolutionLabel} {diagnosticResolutionId} {valueLabel} {normalizedValue} is invalid");
+        }
     }
 
     private static void ValidateAuthoritativeStateResolutionTextList(
@@ -21295,7 +21317,8 @@ public static class MatchRecoveryValidator
             "kind",
             payloadLabel,
             "kind",
-            errors);
+            errors,
+            IsKnownBattlefieldResolutionKind);
         ValidateSnapshotPayloadRequiredStringValue(
             resolutionPayload,
             "reason",
@@ -21445,7 +21468,8 @@ public static class MatchRecoveryValidator
             "kind",
             payloadLabel,
             "kind",
-            errors);
+            errors,
+            IsKnownBattleResolutionKind);
         ValidateSnapshotPayloadRequiredStringValue(
             resolutionPayload,
             "reason",
