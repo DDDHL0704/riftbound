@@ -5111,10 +5111,18 @@ public static class MatchRecoveryValidator
                     $"snapshot for {view.PlayerId} timing {payloadLabel}",
                     "participant object id",
                     errors);
-                ValidateSnapshotPayloadStringListValues(
+                var participantObjectIds = ValidateSnapshotPayloadStringListValues(
                     resolutionPayload,
                     "participantObjectIds",
                     $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                    "participant object id",
+                    errors);
+                ValidateBattlefieldResolutionCombatParticipantAvailability(
+                    ReadNormalizedPayloadString(resolutionPayload, "kind"),
+                    ReadNormalizedPayloadString(resolutionPayload, "sourceObjectId"),
+                    participantObjectIds,
+                    $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                    "source object id",
                     "participant object id",
                     errors);
                 ValidateSnapshotPayloadRequiredStringListPayloadShape(
@@ -5329,6 +5337,50 @@ public static class MatchRecoveryValidator
         }
 
         errors.Add($"{payloadLabel} reason {reason} is invalid for kind {kind}");
+    }
+
+    private static void ValidateBattlefieldResolutionCombatParticipantAvailability(
+        string? kind,
+        string? sourceObjectId,
+        IReadOnlyList<string>? participantObjectIds,
+        string payloadLabel,
+        string sourceObjectLabel,
+        string participantObjectLabel,
+        List<string> errors)
+    {
+        if (!IsCombatDerivedBattlefieldResolutionKind(kind))
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(sourceObjectId))
+        {
+            errors.Add($"{payloadLabel} {sourceObjectLabel} is required for kind {kind}");
+        }
+
+        if (participantObjectIds is null)
+        {
+            return;
+        }
+
+        if (participantObjectIds.Count == 0)
+        {
+            errors.Add($"{payloadLabel} {participantObjectLabel} list must not be empty for kind {kind}");
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(sourceObjectId)
+            && !participantObjectIds.Contains(sourceObjectId, StringComparer.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} {sourceObjectLabel} {sourceObjectId} must be present in {participantObjectLabel}s for kind {kind}");
+        }
+    }
+
+    private static bool IsCombatDerivedBattlefieldResolutionKind(string? kind)
+    {
+        return string.Equals(kind, "HELD", StringComparison.Ordinal)
+            || string.Equals(kind, "CONQUERED", StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldResolutionReasonValidForKind(string kind, string reason)
@@ -18159,13 +18211,21 @@ public static class MatchRecoveryValidator
                 $"battlefield resolution {diagnosticResolutionId} source object",
                 sourceObjectId,
                 errors);
-            ValidateAuthoritativeStateResolutionTextList(
+            var participantObjectIds = ValidateAuthoritativeStateResolutionTextList(
                 "battlefield resolution",
                 resolutionId,
                 "participant object",
                 resolution.ParticipantObjectIds,
                 errors,
                 requireList: false);
+            ValidateBattlefieldResolutionCombatParticipantAvailability(
+                kind,
+                sourceObjectId,
+                participantObjectIds,
+                $"authoritative state battlefield resolution {diagnosticResolutionId}",
+                "source object",
+                "participant object",
+                errors);
             var relatedEventKinds = ValidateAuthoritativeStateResolutionTextList(
                 "battlefield resolution",
                 resolutionId,
@@ -21657,10 +21717,18 @@ public static class MatchRecoveryValidator
             "participantObjectIds",
             "participant object id",
             errors);
-        ValidateSnapshotPayloadStringListValues(
+        var participantObjectIds = ValidateSnapshotPayloadStringListValues(
             resolutionPayload,
             "participantObjectIds",
             payloadLabel,
+            "participant object id",
+            errors);
+        ValidateBattlefieldResolutionCombatParticipantAvailability(
+            ReadNormalizedPayloadString(resolutionPayload, "kind"),
+            ReadNormalizedPayloadString(resolutionPayload, "sourceObjectId"),
+            participantObjectIds,
+            payloadLabel,
+            "source object id",
             "participant object id",
             errors);
         ValidateSpectatorRequiredStringListPayloadShape(
