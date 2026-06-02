@@ -10669,6 +10669,12 @@ public static class MatchRecoveryValidator
             validSequences,
             errors);
 
+        var authoritativeEffectsById = BuildAuthoritativeContinuousEffectsById(authoritativeEffects);
+        ValidateSpectatorContinuousEffectAuthoritativeKeySet(
+            spectatorEffects,
+            authoritativeEffectsById,
+            errors);
+
         if (!validateAuthoritativeParity)
         {
             return;
@@ -11022,6 +11028,62 @@ public static class MatchRecoveryValidator
         if (!deferredLayerEngineResidualsMatch)
         {
             errors.Add("spectator replay frame timing continuous effect deferred LayerEngine residuals disagree with authoritative state continuous effect deferred LayerEngine residuals");
+        }
+    }
+
+    private static IReadOnlyDictionary<string, ContinuousEffectState> BuildAuthoritativeContinuousEffectsById(
+        IReadOnlyList<ContinuousEffectState> authoritativeEffects)
+    {
+        var authoritativeEffectsById = new Dictionary<string, ContinuousEffectState>(StringComparer.Ordinal);
+        foreach (var authoritativeEffect in authoritativeEffects)
+        {
+            if (string.IsNullOrWhiteSpace(authoritativeEffect.EffectId))
+            {
+                continue;
+            }
+
+            var normalizedEffectId = authoritativeEffect.EffectId.Trim();
+            if (!authoritativeEffectsById.ContainsKey(normalizedEffectId))
+            {
+                authoritativeEffectsById.Add(normalizedEffectId, authoritativeEffect);
+            }
+        }
+
+        return authoritativeEffectsById;
+    }
+
+    private static void ValidateSpectatorContinuousEffectAuthoritativeKeySet(
+        IReadOnlyList<object?> effectPayloads,
+        IReadOnlyDictionary<string, ContinuousEffectState> authoritativeEffectsById,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing continuous effect item";
+        var actualEffectIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var effectPayload in effectPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(effectPayload)
+                || !TryReadObjectString(effectPayload, "effectId", out var effectId)
+                || string.IsNullOrWhiteSpace(effectId))
+            {
+                continue;
+            }
+
+            var normalizedEffectId = effectId.Trim();
+            actualEffectIds.Add(normalizedEffectId);
+            if (!authoritativeEffectsById.ContainsKey(normalizedEffectId))
+            {
+                errors.Add(
+                    $"{payloadLabel} effect id {normalizedEffectId} is not present in authoritative state continuous effects");
+            }
+        }
+
+        foreach (var authoritativeEffectId in authoritativeEffectsById.Keys.OrderBy(id => id, StringComparer.Ordinal))
+        {
+            if (!actualEffectIds.Contains(authoritativeEffectId))
+            {
+                errors.Add(
+                    $"{payloadLabel} effect id {authoritativeEffectId} is required by authoritative state continuous effects");
+            }
         }
     }
 
