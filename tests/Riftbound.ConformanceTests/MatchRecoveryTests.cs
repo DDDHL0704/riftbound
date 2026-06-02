@@ -44704,6 +44704,180 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedValuesWithCountMismatch()
+    {
+        const string sourceObjectId = "source-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new(sourceObjectId, ownerId: "alice", controllerId: "alice")
+            },
+            temporaryPaymentResources:
+            [
+                new TemporaryPaymentResourceState(
+                    "temp-payment-resource-1",
+                    "alice",
+                    sourceObjectId,
+                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "PAY_COST",
+                    generatedPower: 3,
+                    remainingPower: 1,
+                    allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind],
+                    createdTick: 2,
+                    generatedPowerByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        ["blue"] = 2
+                    },
+                    remainingPowerByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        ["blue"] = 1
+                    })
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var temporaryResources = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["temporaryPaymentResources"])
+            .ToArray();
+        Assert.Single(temporaryResources);
+        var resource = Assert.IsType<Dictionary<string, object?>>(temporaryResources[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        Assert.Equal(
+            P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction,
+            Assert.IsType<string>(resource["resourceRestriction"]));
+
+        resource["ownerPlayerId"] = "bob";
+        resource["sourceObjectId"] = "wrong-source";
+        resource["abilityId"] = "WRONG_ABILITY";
+        resource["paymentWindow"] = "WRONG_WINDOW";
+        resource["generatedPower"] = 9;
+        resource["remainingPower"] = 8;
+        resource["generatedPowerByTrait"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["green"] = 7
+        };
+        resource["remainingPowerByTrait"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["red"] = 6
+        };
+        resource["allowedPaymentKinds"] = new[] { "WRONG_PAYMENT_KIND" };
+        resource["paymentOnly"] = false;
+        resource["resourceRestriction"] = "WRONG_RESTRICTION";
+        resource["createdTick"] = 99L;
+        var extraResource = resource.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        extraResource["resourceId"] = "temp-payment-resource-extra";
+        temporaryResources[0] = resource;
+        timing["temporaryPaymentResources"] = new object?[] { resource, extraResource };
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing temporary payment resource count 2 does not match authoritative state temporary payment resource count 1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing temporary payment resource item owner player id bob does not match authoritative state temporary payment resource owner player id alice for resource id temp-payment-resource-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing temporary payment resource item source object id wrong-source does not match authoritative state temporary payment resource source object id source-1 for resource id temp-payment-resource-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing temporary payment resource item ability id WRONG_ABILITY does not match authoritative state temporary payment resource ability id TEST_TEMP_RESOURCE_ABILITY for resource id temp-payment-resource-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing temporary payment resource item payment window WRONG_WINDOW does not match authoritative state temporary payment resource payment window PAY_COST for resource id temp-payment-resource-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing temporary payment resource item generated power 9 does not match authoritative state temporary payment resource generated power 3 for resource id temp-payment-resource-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing temporary payment resource item remaining power 8 does not match authoritative state temporary payment resource remaining power 1 for resource id temp-payment-resource-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing temporary payment resource item generated power traits do not match authoritative state temporary payment resource generated power traits for resource id temp-payment-resource-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing temporary payment resource item remaining power traits do not match authoritative state temporary payment resource remaining power traits for resource id temp-payment-resource-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing temporary payment resource item allowed payment kinds do not match authoritative state temporary payment resource allowed payment kinds for resource id temp-payment-resource-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing temporary payment resource item payment-only flag False does not match authoritative state temporary payment resource payment-only flag true for resource id temp-payment-resource-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing temporary payment resource item resource restriction WRONG_RESTRICTION does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J for resource id temp-payment-resource-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing temporary payment resource item created tick 99 does not match authoritative state temporary payment resource created tick 2 for resource id temp-payment-resource-1",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourcesMismatch()
     {
         var authoritativeState = new MatchState(

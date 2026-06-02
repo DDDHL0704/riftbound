@@ -14734,6 +14734,10 @@ public static class MatchRecoveryValidator
             spectatorResources,
             authoritativeResourcesById,
             errors);
+        ValidateSpectatorTemporaryPaymentResourceKeyedAuthoritativeValues(
+            spectatorResources,
+            authoritativeResourcesById,
+            errors);
 
         if (!validateAuthoritativeResourceParity)
         {
@@ -14942,6 +14946,116 @@ public static class MatchRecoveryValidator
             {
                 errors.Add(
                     $"{payloadLabel} resource id {authoritativeResourceId} is required by authoritative state temporary payment resources");
+            }
+        }
+    }
+
+    private static void ValidateSpectatorTemporaryPaymentResourceKeyedAuthoritativeValues(
+        IReadOnlyList<object?> resourcePayloads,
+        IReadOnlyDictionary<string, TemporaryPaymentResourceState> authoritativeResourcesById,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing temporary payment resource item";
+        foreach (var resourcePayload in resourcePayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(resourcePayload)
+                || !TryReadObjectString(resourcePayload, "resourceId", out var resourceId)
+                || string.IsNullOrWhiteSpace(resourceId))
+            {
+                continue;
+            }
+
+            var normalizedResourceId = resourceId.Trim();
+            if (!authoritativeResourcesById.TryGetValue(normalizedResourceId, out var authoritativeResource))
+            {
+                continue;
+            }
+
+            if (TryReadObjectString(resourcePayload, "ownerPlayerId", out var ownerPlayerId)
+                && !string.Equals(ownerPlayerId, authoritativeResource.OwnerPlayerId, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} owner player id {ownerPlayerId} does not match authoritative state temporary payment resource owner player id {authoritativeResource.OwnerPlayerId} for resource id {normalizedResourceId}");
+            }
+
+            if (TryReadObjectString(resourcePayload, "sourceObjectId", out var sourceObjectId)
+                && !string.Equals(sourceObjectId, authoritativeResource.SourceObjectId, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} source object id {sourceObjectId} does not match authoritative state temporary payment resource source object id {authoritativeResource.SourceObjectId} for resource id {normalizedResourceId}");
+            }
+
+            if (TryReadObjectString(resourcePayload, "abilityId", out var abilityId)
+                && !string.Equals(abilityId, authoritativeResource.AbilityId, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} ability id {abilityId} does not match authoritative state temporary payment resource ability id {authoritativeResource.AbilityId} for resource id {normalizedResourceId}");
+            }
+
+            if (TryReadObjectString(resourcePayload, "paymentWindow", out var paymentWindow)
+                && !string.Equals(paymentWindow, authoritativeResource.PaymentWindow, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} payment window {paymentWindow} does not match authoritative state temporary payment resource payment window {authoritativeResource.PaymentWindow} for resource id {normalizedResourceId}");
+            }
+
+            if (TryReadObjectInt(resourcePayload, "generatedPower", out var generatedPower)
+                && generatedPower != authoritativeResource.GeneratedPower)
+            {
+                errors.Add(
+                    $"{payloadLabel} generated power {generatedPower} does not match authoritative state temporary payment resource generated power {authoritativeResource.GeneratedPower} for resource id {normalizedResourceId}");
+            }
+
+            if (TryReadObjectInt(resourcePayload, "remainingPower", out var remainingPower)
+                && remainingPower != authoritativeResource.RemainingPower)
+            {
+                errors.Add(
+                    $"{payloadLabel} remaining power {remainingPower} does not match authoritative state temporary payment resource remaining power {authoritativeResource.RemainingPower} for resource id {normalizedResourceId}");
+            }
+
+            if (TryReadObjectIntDictionary(resourcePayload, "generatedPowerByTrait", out var generatedPowerByTrait)
+                && !IntDictionariesEqual(generatedPowerByTrait, authoritativeResource.GeneratedPowerByTrait))
+            {
+                errors.Add(
+                    $"{payloadLabel} generated power traits do not match authoritative state temporary payment resource generated power traits for resource id {normalizedResourceId}");
+            }
+
+            if (TryReadObjectIntDictionary(resourcePayload, "remainingPowerByTrait", out var remainingPowerByTrait)
+                && !IntDictionariesEqual(remainingPowerByTrait, authoritativeResource.RemainingPowerByTrait))
+            {
+                errors.Add(
+                    $"{payloadLabel} remaining power traits do not match authoritative state temporary payment resource remaining power traits for resource id {normalizedResourceId}");
+            }
+
+            if (TryReadObjectStringList(resourcePayload, "allowedPaymentKinds", out var allowedPaymentKinds)
+                && !StringListsEqual(allowedPaymentKinds, authoritativeResource.AllowedPaymentKinds))
+            {
+                errors.Add(
+                    $"{payloadLabel} allowed payment kinds do not match authoritative state temporary payment resource allowed payment kinds for resource id {normalizedResourceId}");
+            }
+
+            if (TryReadObjectBool(resourcePayload, "paymentOnly", out var paymentOnly)
+                && !paymentOnly)
+            {
+                errors.Add(
+                    $"{payloadLabel} payment-only flag {paymentOnly} does not match authoritative state temporary payment resource payment-only flag true for resource id {normalizedResourceId}");
+            }
+
+            if (TryReadObjectString(resourcePayload, "resourceRestriction", out var resourceRestriction)
+                && !string.Equals(
+                    resourceRestriction,
+                    TemporaryPaymentResourceRestrictionForRecovery(authoritativeResource),
+                    StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} resource restriction {resourceRestriction} does not match authoritative state temporary payment resource resource restriction {TemporaryPaymentResourceRestrictionForRecovery(authoritativeResource)} for resource id {normalizedResourceId}");
+            }
+
+            if (TryReadObjectLong(resourcePayload, "createdTick", out var createdTick)
+                && createdTick != authoritativeResource.CreatedTick)
+            {
+                errors.Add(
+                    $"{payloadLabel} created tick {createdTick} does not match authoritative state temporary payment resource created tick {authoritativeResource.CreatedTick} for resource id {normalizedResourceId}");
             }
         }
     }
