@@ -4019,6 +4019,9 @@ public static class MatchRecoveryValidator
         var knownObjectIds = view.Snapshot.Players is null
             ? null
             : BuildSnapshotKnownObjectIds(view.Snapshot);
+        var objectTags = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotObjectTagIndex(view.Snapshot);
         foreach (var taskPayload in taskPayloads)
         {
             if (!IsSnapshotPlayerPayloadObject(taskPayload))
@@ -4072,6 +4075,11 @@ public static class MatchRecoveryValidator
                 $"{taskLabel} battlefield object id",
                 knownObjectIds,
                 "objects",
+                errors);
+            ValidateBattlefieldTaskBattlefieldObjectCardMembership(
+                taskPayload,
+                $"{taskLabel} battlefield object id",
+                objectTags,
                 errors);
             ValidateSnapshotPayloadOptionalStringValue(
                 taskPayload,
@@ -10907,6 +10915,32 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateBattlefieldTaskBattlefieldObjectCardMembership(
+        object? taskPayload,
+        string battlefieldObjectLabel,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
+        List<string> errors)
+    {
+        if (objectTags is null
+            || !TryReadObjectString(taskPayload, "battlefieldObjectId", out var battlefieldObjectId)
+            || string.IsNullOrWhiteSpace(battlefieldObjectId))
+        {
+            return;
+        }
+
+        var normalizedBattlefieldObjectId = battlefieldObjectId.Trim();
+        if (!objectTags.TryGetValue(normalizedBattlefieldObjectId, out var tags))
+        {
+            errors.Add($"{battlefieldObjectLabel} {normalizedBattlefieldObjectId} is missing from object tags");
+            return;
+        }
+
+        if (!tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag))
+        {
+            errors.Add($"{battlefieldObjectLabel} {normalizedBattlefieldObjectId} is not a battlefield card");
+        }
+    }
+
     private static void ValidateBattlefieldTaskParticipantObjectUnitMembership(
         object? taskPayload,
         string participantObjectLabel,
@@ -14231,6 +14265,7 @@ public static class MatchRecoveryValidator
                 seenTaskIds,
                 seatPlayerIds,
                 knownObjectIds,
+                objectTags,
                 errors);
             ValidateSpectatorBattlefieldTaskPayloadListValues(
                 spectatorBattlefieldTask,
@@ -14339,6 +14374,7 @@ public static class MatchRecoveryValidator
         HashSet<string> seenTaskIds,
         IReadOnlySet<string> seatPlayerIds,
         IReadOnlySet<string> knownObjectIds,
+        IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing battlefield task item";
@@ -14386,6 +14422,11 @@ public static class MatchRecoveryValidator
             $"{payloadLabel} battlefield object id",
             knownObjectIds,
             "object registry",
+            errors);
+        ValidateBattlefieldTaskBattlefieldObjectCardMembership(
+            spectatorBattlefieldTask,
+            $"{payloadLabel} battlefield object id",
+            objectTags,
             errors);
         ValidateSnapshotPayloadOptionalStringValue(
             spectatorBattlefieldTask,
