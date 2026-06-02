@@ -8841,6 +8841,11 @@ public static class MatchRecoveryValidator
         }
         else
         {
+            var knownPlayerIds = BuildNormalizedPlayerIdSet(authoritativeState.Seats.Keys);
+            var expectedBattlefieldObjectIds = expectedBattlefieldObjectPairs
+                .Select(pair => pair.ObjectId)
+                .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+                .ToHashSet(StringComparer.Ordinal);
             var spectatorBattlefieldObjectPairs = new List<(string PlayerId, string ObjectId)>();
             var malformedPair = false;
             for (var index = 0; index < battlefieldObjectItems.Count; index++)
@@ -8877,6 +8882,18 @@ public static class MatchRecoveryValidator
                     continue;
                 }
 
+                ValidateTimingPlayerReference(
+                    $"{itemLabel} player id",
+                    playerId,
+                    knownPlayerIds,
+                    "seats",
+                    errors);
+                ValidateTimingObjectReference(
+                    $"{itemLabel} object id",
+                    objectId,
+                    expectedBattlefieldObjectIds,
+                    "authoritative state battlefield object ids",
+                    errors);
                 spectatorBattlefieldObjectPairs.Add((playerId, objectId));
             }
 
