@@ -5765,6 +5765,11 @@ public static class MatchRecoveryValidator
         var normalizedDefendingPlayerId = NormalizeOptionalCompatibilityText(defendingPlayerId);
         var normalizedWinnerPlayerId = NormalizeOptionalCompatibilityText(winnerPlayerId);
 
+        if (normalizedDefendingPlayerId is null)
+        {
+            errors.Add($"{payloadLabel} defending player id is required");
+        }
+
         if (normalizedAttackingPlayerId is not null
             && normalizedDefendingPlayerId is not null
             && string.Equals(normalizedAttackingPlayerId, normalizedDefendingPlayerId, StringComparison.Ordinal))
