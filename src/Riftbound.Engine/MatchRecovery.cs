@@ -8774,8 +8774,18 @@ public static class MatchRecoveryValidator
             value = string.Empty;
         }
 
-        if (value is not null
-            && !string.Equals(value, expected ?? string.Empty, StringComparison.Ordinal))
+        var expectedText = expected ?? string.Empty;
+        if (value is null)
+        {
+            if (!string.IsNullOrEmpty(expectedText))
+            {
+                errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}");
+            }
+
+            return;
+        }
+
+        if (!string.Equals(value, expectedText, StringComparison.Ordinal))
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}");
         }
@@ -8813,7 +8823,7 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        if (value is not null && value != expected)
+        if (value is null || value != expected)
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}");
         }
@@ -8843,7 +8853,7 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        if (TryReadObjectBool(objectPayload, key, out var value) && value != expected)
+        if (!TryReadObjectBool(objectPayload, key, out var value) || value != expected)
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}");
         }
@@ -8880,8 +8890,8 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        if (TryReadObjectStringList(objectPayload, key, out var value)
-            && !StringListsEqual(value, expected))
+        if (!TryReadObjectStringList(objectPayload, key, out var value)
+            || !StringListsEqual(value, expected))
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} do not match authoritative object {description}");
         }
