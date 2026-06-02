@@ -16518,7 +16518,7 @@ public static class MatchRecoveryValidator
         string? triggeredEventKind,
         List<string> errors)
     {
-        if (triggerId is null || !IsKogmawLastBreathTriggerIdForRecovery(triggerId))
+        if (triggerId is null || !IsKogmawLastBreathTriggerIdForRecovery(triggerId, effectKind))
         {
             return;
         }
@@ -16546,11 +16546,36 @@ public static class MatchRecoveryValidator
         }
     }
 
-    private static bool IsKogmawLastBreathTriggerIdForRecovery(string triggerId)
+    private static bool IsKogmawLastBreathTriggerIdForRecovery(
+        string triggerId,
+        string? effectKind)
     {
-        return triggerId.Contains(
-            $"{KogmawLastBreathAoeEffectKindForRecovery}{KogmawTriggerBattlefieldMarkerForRecovery}",
-            StringComparison.Ordinal);
+        var marker = $"{KogmawLastBreathAoeEffectKindForRecovery}{KogmawTriggerBattlefieldMarkerForRecovery}";
+        var markerIndex = triggerId.LastIndexOf(marker, StringComparison.Ordinal);
+        if (markerIndex < 0)
+        {
+            return string.Equals(effectKind, KogmawLastBreathAoeEffectKindForRecovery, StringComparison.Ordinal);
+        }
+
+        return !IsNestedTriggerIdWithKogmawStackPrefixForRecovery(triggerId, effectKind, markerIndex);
+    }
+
+    private static bool IsNestedTriggerIdWithKogmawStackPrefixForRecovery(
+        string triggerId,
+        string? effectKind,
+        int markerIndex)
+    {
+        if (string.IsNullOrWhiteSpace(effectKind)
+            || string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal)
+            || string.Equals(effectKind, KogmawLastBreathAoeEffectKindForRecovery, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var effectTail = $"-{effectKind}";
+        var effectTailIndex = triggerId.LastIndexOf(effectTail, StringComparison.Ordinal);
+        return effectTailIndex > markerIndex
+            && effectTailIndex + effectTail.Length == triggerId.Length;
     }
 
     private static bool TryReadKogmawLastBreathTriggerBattlefieldObjectIdForRecovery(

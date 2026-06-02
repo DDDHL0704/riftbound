@@ -6097,6 +6097,59 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorAcceptsSnapshotTimingTriggerQueueNestedKogmawStackPrefix()
+    {
+        const string nestedTriggerId = "TRIGGER-TRIGGER-stack-1-kogmaw-source-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1-source-2-WATCHFUL_SENTINEL_LAST_BREATH_DRAW";
+        var alice = PlayerView("alice", 0, 0);
+        var players = alice.Snapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["objects"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["source-2"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "source-2",
+                ["isFaceDown"] = false,
+                ["tags"] = Array.Empty<string>(),
+                ["untilEndOfTurnEffects"] = Array.Empty<string>()
+            }
+        };
+        players["alice"] = alicePayload;
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["triggerQueue"] = new object?[]
+        {
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["triggerId"] = nestedTriggerId,
+                ["controllerId"] = "alice",
+                ["sourceObjectId"] = "source-2",
+                ["sourceVisibility"] = "VISIBLE",
+                ["effectKind"] = "WATCHFUL_SENTINEL_LAST_BREATH_DRAW",
+                ["triggeredByEventKind"] = "UNIT_DESTROYED"
+            }
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players,
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Empty(errors);
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueSourceObjectRequiredDrift()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -20780,6 +20833,51 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1 kogmaw last breath triggered event kind UNIT_MOVED_TO_BASE must be UNIT_DESTROYED",
                 StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorAcceptsAuthoritativeStateTriggerQueueNestedKogmawStackPrefix()
+    {
+        const string nestedTriggerId = "TRIGGER-TRIGGER-stack-1-kogmaw-source-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1-source-2-WATCHFUL_SENTINEL_LAST_BREATH_DRAW";
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["source-2"] = new("source-2", ownerId: "alice", controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["source-2"] = new("alice", "BASE")
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    nestedTriggerId,
+                    "alice",
+                    sourceObjectId: "source-2",
+                    effectKind: "WATCHFUL_SENTINEL_LAST_BREATH_DRAW",
+                    triggeredByEventKind: "UNIT_DESTROYED")
+            ]);
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Empty(errors);
     }
 
     [Fact]
@@ -54708,6 +54806,75 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing trigger queue item kogmaw last breath triggered event kind UNIT_MOVED_TO_BASE must be UNIT_DESTROYED",
                 StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorAcceptsSpectatorReplayTimingTriggerQueueNestedKogmawStackPrefix()
+    {
+        const string nestedTriggerId = "TRIGGER-TRIGGER-stack-1-kogmaw-source-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1-source-2-WATCHFUL_SENTINEL_LAST_BREATH_DRAW";
+        const string sourceObjectId = "source-2";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            2,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Base = [sourceObjectId]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new(sourceObjectId, ownerId: "alice", controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new("alice", "BASE")
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    nestedTriggerId,
+                    "alice",
+                    sourceObjectId,
+                    "WATCHFUL_SENTINEL_LAST_BREATH_DRAW",
+                    "UNIT_DESTROYED")
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Empty(errors);
     }
 
     [Fact]
