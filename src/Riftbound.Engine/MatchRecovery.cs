@@ -878,6 +878,7 @@ public static class MatchRecoveryValidator
     private const string DevSeedScenarioPrefix = "DEV_SEED_SCENARIO:";
     private const string DevSeedScenarioCommandType = "DEV_SEED_SCENARIO";
     private const int BaseWinningScore = 8;
+    private const int MaxRetainedResolutionHistoryItems = 12;
     private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
     private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
 
@@ -5017,6 +5018,10 @@ public static class MatchRecoveryValidator
             : BuildSnapshotKnownObjectIds(view.Snapshot);
         if (TryReadObjectList(view.Snapshot.Timing, "battlefieldResolutions", out var battlefieldResolutionPayloads))
         {
+            ValidateRetainedResolutionHistoryListCount(
+                battlefieldResolutionPayloads.Count,
+                $"snapshot for {view.PlayerId} timing battlefield resolutions",
+                errors);
             var seenBattlefieldResolutionIds = new HashSet<string>(StringComparer.Ordinal);
             foreach (var resolutionPayload in battlefieldResolutionPayloads)
             {
@@ -5054,6 +5059,10 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        ValidateRetainedResolutionHistoryListCount(
+            battleResolutionPayloads.Count,
+            $"snapshot for {view.PlayerId} timing battle resolutions",
+            errors);
         var seenBattleResolutionIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var resolutionPayload in battleResolutionPayloads)
         {
@@ -5272,6 +5281,20 @@ public static class MatchRecoveryValidator
         return string.Equals(value, "BATTLEFIELD_HELD", StringComparison.Ordinal)
             || string.Equals(value, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal)
             || string.Equals(value, "BATTLEFIELD_CONTROL_RESOLVED", StringComparison.Ordinal);
+    }
+
+    private static void ValidateRetainedResolutionHistoryListCount(
+        int count,
+        string listLabel,
+        List<string> errors)
+    {
+        if (count <= MaxRetainedResolutionHistoryItems)
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{listLabel} list has {count} items, maximum is {MaxRetainedResolutionHistoryItems}");
     }
 
     private static bool IsKnownBattlefieldResolutionKind(string value)
@@ -18312,6 +18335,10 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        ValidateRetainedResolutionHistoryListCount(
+            battlefieldResolutions.Count,
+            "authoritative state battlefield resolutions",
+            errors);
         var seenResolutionIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var resolution in battlefieldResolutions.OrderBy(
             item => item?.ResolutionId ?? string.Empty,
@@ -18441,6 +18468,10 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        ValidateRetainedResolutionHistoryListCount(
+            battleResolutions.Count,
+            "authoritative state battle resolutions",
+            errors);
         var seenResolutionIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var resolution in battleResolutions.OrderBy(
             item => item?.ResolutionId ?? string.Empty,
@@ -20988,6 +21019,10 @@ public static class MatchRecoveryValidator
         }
         else
         {
+            ValidateRetainedResolutionHistoryListCount(
+                spectatorBattlefieldResolutions.Count,
+                "spectator replay frame timing battlefield resolutions",
+                errors);
             var validateAuthoritativeBattlefieldResolutionParity =
                 spectatorBattlefieldResolutions.Count == authoritativeState.BattlefieldResolutions.Count;
             if (!validateAuthoritativeBattlefieldResolutionParity)
@@ -21183,6 +21218,10 @@ public static class MatchRecoveryValidator
         }
         else
         {
+            ValidateRetainedResolutionHistoryListCount(
+                spectatorBattleResolutions.Count,
+                "spectator replay frame timing battle resolutions",
+                errors);
             var validateAuthoritativeBattleResolutionParity =
                 spectatorBattleResolutions.Count == authoritativeState.BattleResolutions.Count;
             if (!validateAuthoritativeBattleResolutionParity)

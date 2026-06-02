@@ -10992,6 +10992,54 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingResolutionHistoryRetainedListMaximumDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var players = alice.Snapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["objects"] = RetainedResolutionSnapshotObjects();
+        players["alice"] = alicePayload;
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["battlefieldResolutions"] = Enumerable.Range(0, 13)
+            .Select(RetainedBattlefieldResolutionPayload)
+            .Cast<object?>()
+            .ToArray();
+        timing["battleResolutions"] = Enumerable.Range(0, 13)
+            .Select(RetainedBattleResolutionPayload)
+            .Cast<object?>()
+            .ToArray();
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players,
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield resolutions list has 13 items, maximum is 12",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolutions list has 13 items, maximum is 12",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingResolutionHistorySurvivorObjectMembershipDrift()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -23026,6 +23074,51 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "authoritative state battlefield resolution battlefield-resolution-control participant object list must be empty for kind CONTROL_RESOLVED",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateResolutionHistoryRetainedListMaximumDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            2,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            cardObjects: RetainedResolutionCardObjects())
+        {
+            BattlefieldResolutions = Enumerable.Range(0, 13)
+                .Select(RetainedBattlefieldResolutionState)
+                .ToArray(),
+            BattleResolutions = Enumerable.Range(0, 13)
+                .Select(RetainedBattleResolutionState)
+                .ToArray()
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 2);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state battlefield resolutions list has 13 items, maximum is 12",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state battle resolutions list has 13 items, maximum is 12",
                 StringComparison.Ordinal));
     }
 
@@ -57798,6 +57891,87 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingResolutionHistoryRetainedListMaximumDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            cardObjects: RetainedResolutionCardObjects(),
+            objectLocations: RetainedResolutionObjectLocations(),
+            battlefieldResolutions: Enumerable.Range(0, 12)
+                .Select(RetainedBattlefieldResolutionState)
+                .ToArray(),
+            battleResolutions: Enumerable.Range(0, 12)
+                .Select(RetainedBattleResolutionState)
+                .ToArray());
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var battlefieldResolutionPayloads = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["battlefieldResolutions"])
+            .ToList();
+        Assert.Equal(12, battlefieldResolutionPayloads.Count);
+        battlefieldResolutionPayloads.Add(RetainedBattlefieldResolutionPayload(12));
+        timing["battlefieldResolutions"] = battlefieldResolutionPayloads.ToArray();
+        var battleResolutionPayloads = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["battleResolutions"])
+            .ToList();
+        Assert.Equal(12, battleResolutionPayloads.Count);
+        battleResolutionPayloads.Add(RetainedBattleResolutionPayload(12));
+        timing["battleResolutions"] = battleResolutionPayloads.ToArray();
+
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolutions list has 13 items, maximum is 12",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolutions list has 13 items, maximum is 12",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingResolutionHistoryKeyedRequiredFieldAbsenceWithCountMismatch()
     {
         var authoritativeState = new MatchState(
@@ -63630,6 +63804,113 @@ public sealed class MatchRecoveryTests
             AssertSpectatorPlayerRedacted(frame.SpectatorSnapshot, "alice", $"A-{index}", 1 + index % 3);
             AssertSpectatorPlayerRedacted(frame.SpectatorSnapshot, "bob", $"B-{index}", 2 + index % 2);
         }
+    }
+
+    private static Dictionary<string, object?> RetainedResolutionSnapshotObjects()
+    {
+        return new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["battlefield-1"] = new Dictionary<string, object?>(StringComparer.Ordinal),
+            ["source-1"] = new Dictionary<string, object?>(StringComparer.Ordinal),
+            ["attacker-1"] = new Dictionary<string, object?>(StringComparer.Ordinal),
+            ["defender-1"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        };
+    }
+
+    private static Dictionary<string, object?> RetainedBattlefieldResolutionPayload(int index)
+    {
+        return new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["resolutionId"] = $"battlefield-resolution-{index}",
+            ["tick"] = 2,
+            ["kind"] = "HELD",
+            ["reason"] = "BATTLEFIELD_HELD",
+            ["battlefieldObjectId"] = "battlefield-1",
+            ["playerId"] = "alice",
+            ["previousControllerId"] = "bob",
+            ["controllerId"] = "alice",
+            ["sourceObjectId"] = "source-1",
+            ["participantObjectIds"] = new[] { "source-1" },
+            ["relatedEventKinds"] = new[] { "BATTLEFIELD_HELD" }
+        };
+    }
+
+    private static Dictionary<string, object?> RetainedBattleResolutionPayload(int index)
+    {
+        return new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["resolutionId"] = $"battle-resolution-{index}",
+            ["tick"] = 2,
+            ["kind"] = "CLOSED",
+            ["reason"] = "BATTLE_CLOSED",
+            ["battlefieldId"] = "battlefield-1",
+            ["attackingPlayerId"] = "alice",
+            ["defendingPlayerId"] = "bob",
+            ["winnerPlayerId"] = "alice",
+            ["attackerObjectIds"] = new[] { "attacker-1" },
+            ["defenderObjectIds"] = new[] { "defender-1" },
+            ["survivingAttackerObjectIds"] = new[] { "attacker-1" },
+            ["survivingDefenderObjectIds"] = Array.Empty<string>(),
+            ["destroyedObjectIds"] = new[] { "defender-1" },
+            ["relatedEventKinds"] = new[] { "BATTLE_CLOSED" }
+        };
+    }
+
+    private static Dictionary<string, CardObjectState> RetainedResolutionCardObjects()
+    {
+        return new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            ["battlefield-1"] = new("battlefield-1", ownerId: "alice", controllerId: "alice"),
+            ["source-1"] = new("source-1", ownerId: "alice", controllerId: "alice"),
+            ["attacker-1"] = new("attacker-1", ownerId: "alice", controllerId: "alice"),
+            ["defender-1"] = new("defender-1", ownerId: "bob", controllerId: "bob")
+        };
+    }
+
+    private static Dictionary<string, ObjectLocationState> RetainedResolutionObjectLocations()
+    {
+        return new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+        {
+            ["battlefield-1"] = new("alice", "BATTLEFIELD", "battlefield-1"),
+            ["source-1"] = new("alice", "BATTLEFIELD", "source-1"),
+            ["attacker-1"] = new("alice", "BATTLEFIELD", "attacker-1"),
+            ["defender-1"] = new("bob", "BATTLEFIELD", "defender-1")
+        };
+    }
+
+    private static BattlefieldResolutionState RetainedBattlefieldResolutionState(int index)
+    {
+        return new BattlefieldResolutionState(
+            $"battlefield-resolution-{index}",
+            2,
+            "HELD",
+            "BATTLEFIELD_HELD",
+            "battlefield-1",
+            "alice",
+            "bob",
+            "alice",
+            "source-1",
+            ["source-1"],
+            ["BATTLEFIELD_HELD"]);
+    }
+
+    private static BattleResolutionState RetainedBattleResolutionState(int index)
+    {
+        return new BattleResolutionState(
+            $"battle-resolution-{index}",
+            2,
+            "CLOSED",
+            "BATTLE_CLOSED",
+            "battlefield-1",
+            "alice",
+            "bob",
+            "alice",
+            ["attacker-1"],
+            ["defender-1"],
+            ["attacker-1"],
+            [],
+            ["defender-1"],
+            ["BATTLE_CLOSED"]);
     }
 
     private static MatchState ReplayInitialState()
