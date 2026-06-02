@@ -23143,6 +23143,110 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplaySnapshotStackItemObjectReferencesOutsideRegistryWithCountMismatch()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["spell-1"] = new("spell-1", ownerId: "alice", controllerId: "alice"),
+                ["spell-2"] = new("spell-2", ownerId: "bob", controllerId: "bob"),
+                ["target-1"] = new("target-1", ownerId: "bob", controllerId: "bob")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["spell-1"] = new("alice", "HAND"),
+                ["spell-2"] = new("bob", "HAND"),
+                ["target-1"] = new("bob", "FIELD")
+            },
+            stackItems:
+            [
+                new StackItemState(
+                    "stack-1",
+                    "alice",
+                    sourceObjectId: "spell-1",
+                    effectKind: "DRAW",
+                    cardNo: "SFD-001"),
+                new StackItemState(
+                    "stack-2",
+                    "bob",
+                    sourceObjectId: "spell-2",
+                    effectKind: "DAMAGE",
+                    cardNo: "SFD-002",
+                    targetObjectIds: ["target-1"],
+                    damageAmount: 2)
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var stack = spectatorReplayFrame.SpectatorSnapshot.Stack.ToArray();
+        Assert.Equal(2, stack.Length);
+
+        var firstStackItem = Assert.IsType<Dictionary<string, object?>>(stack[0]);
+        var secondStackItem = Assert.IsType<Dictionary<string, object?>>(stack[1]);
+        var forgedExtraStackItem = new Dictionary<string, object?>(secondStackItem, StringComparer.Ordinal)
+        {
+            ["stackItemId"] = "forged-stack-extra",
+            ["sourceObjectId"] = "missing-stack-source",
+            ["targetObjectIds"] = new[] { "missing-stack-target" }
+        };
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Stack = [firstStackItem, secondStackItem, forgedExtraStackItem]
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot stack item forged-stack-extra source object id missing-stack-source is missing from object registry",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot stack item forged-stack-extra target object id missing-stack-target is missing from object registry",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot stack item id forged-stack-extra is not present in authoritative state stack items",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot stack count 3 does not match authoritative state stack count 2",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplaySnapshotStackItemIdsMismatch()
     {
         var authoritativeState = new MatchState(

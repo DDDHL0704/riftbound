@@ -19170,6 +19170,10 @@ public static class MatchRecoveryValidator
                 spectatorReplayFrame.SpectatorSnapshot,
                 authoritativeState,
                 errors);
+            ValidateSpectatorSnapshotStackObjectReferences(
+                spectatorReplayFrame.SpectatorSnapshot.Stack,
+                BuildAuthoritativeStateKnownObjectIds(authoritativeState),
+                errors);
             ValidateSpectatorSnapshotStackAuthoritativeKeySet(
                 spectatorReplayFrame.SpectatorSnapshot.Stack,
                 authoritativeState.StackItems,
@@ -22021,6 +22025,40 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"spectator replay frame snapshot stack item {normalizedStackItemId} is duplicated");
             }
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotStackObjectReferences(
+        IReadOnlyList<object?> stackItems,
+        IReadOnlySet<string> knownObjectIds,
+        List<string> errors)
+    {
+        for (var index = 0; index < stackItems.Count; index++)
+        {
+            var stackItem = stackItems[index];
+            if (!IsSnapshotPlayerPayloadObject(stackItem))
+            {
+                continue;
+            }
+
+            var stackItemLabel = TryReadObjectString(stackItem, "stackItemId", out var stackItemId)
+                && !string.IsNullOrWhiteSpace(stackItemId)
+                ? stackItemId.Trim()
+                : $"#{index + 1}";
+            ValidateTimingOptionalObjectReference(
+                stackItem,
+                "sourceObjectId",
+                $"spectator replay frame snapshot stack item {stackItemLabel} source object id",
+                knownObjectIds,
+                "object registry",
+                errors);
+            ValidateTimingObjectReferenceList(
+                stackItem,
+                "targetObjectIds",
+                $"spectator replay frame snapshot stack item {stackItemLabel} target object id",
+                knownObjectIds,
+                "object registry",
+                errors);
         }
     }
 
