@@ -9500,6 +9500,11 @@ public static class MatchRecoveryValidator
                 errors);
 
             var slotCount = Math.Min(standbySlots.Count, authoritativeBattlefield.StandbyObjectIds.Count);
+            var visibleStandbyObjectIds = authoritativeBattlefield.StandbyObjectIds
+                .Where(objectId => !IsHiddenBattlefieldStandbyForSpectator(authoritativeState, objectId))
+                .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+                .Select(objectId => objectId.Trim())
+                .ToHashSet(StringComparer.Ordinal);
             for (var slotIndex = 0; slotIndex < slotCount; slotIndex++)
             {
                 ValidateSpectatorSnapshotStandbySlotPayload(
@@ -9508,6 +9513,7 @@ public static class MatchRecoveryValidator
                     authoritativeBattlefield,
                     authoritativeBattlefield.StandbyObjectIds[slotIndex],
                     knownPlayerIds,
+                    visibleStandbyObjectIds,
                     slotIndex,
                     errors);
             }
@@ -9535,6 +9541,7 @@ public static class MatchRecoveryValidator
         BattlefieldState authoritativeBattlefield,
         string standbyObjectId,
         IReadOnlySet<string> knownPlayerIds,
+        IReadOnlySet<string> visibleStandbyObjectIds,
         int slotIndex,
         List<string> errors)
     {
@@ -9685,6 +9692,16 @@ public static class MatchRecoveryValidator
                 payloadLabel,
                 "object id",
                 errors);
+            if (objectId is not null)
+            {
+                ValidateTimingObjectReference(
+                    $"{payloadLabel} object id",
+                    objectId,
+                    visibleStandbyObjectIds,
+                    "authoritative state visible standby object ids",
+                    errors);
+            }
+
             if (objectId is null || !string.Equals(objectId, standbyObjectId, StringComparison.Ordinal))
             {
                 errors.Add(
