@@ -8329,12 +8329,14 @@ public static class MatchRecoveryValidator
             var hasAuthoritativeObject = authoritativeState.CardObjects.TryGetValue(objectId, out var cardObject)
                 && cardObject is not null;
             var expectedFaceDown = requiresFaceDownRedaction || cardObject?.IsFaceDown == true;
-            var hasValidFaceDownFlag = TryReadObjectBool(objectPayload, "isFaceDown", out var isFaceDown);
-            if ((requiresFaceDownRedaction || hasAuthoritativeObject)
-                && (!hasValidFaceDownFlag || isFaceDown != expectedFaceDown))
-            {
-                errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} face-down flag does not match authoritative spectator redaction");
-            }
+            var hasValidFaceDownFlag = ValidateSpectatorSnapshotPlayerObjectFaceDownRedactionParity(
+                playerId,
+                objectId,
+                objectPayload,
+                shouldValidateParity: requiresFaceDownRedaction || hasAuthoritativeObject,
+                expectedFaceDown,
+                errors,
+                out var isFaceDown);
 
             if ((expectedFaceDown || (hasValidFaceDownFlag && isFaceDown))
                 && SpectatorFaceDownObjectExposesPrivateMetadata(objectPayload))
@@ -8461,11 +8463,14 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "face-down flag",
             errors);
-        var hasValidFaceDownFlag = TryReadObjectBool(objectPayload, "isFaceDown", out var isFaceDown);
-        if (!hasValidFaceDownFlag || isFaceDown != expectedFaceDown)
-        {
-            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} face-down flag does not match authoritative spectator redaction");
-        }
+        var hasValidFaceDownFlag = ValidateSpectatorSnapshotPlayerObjectFaceDownRedactionParity(
+            playerId,
+            objectId,
+            objectPayload,
+            shouldValidateParity: true,
+            expectedFaceDown,
+            errors,
+            out var isFaceDown);
 
         if (!hasAuthoritativeObject || cardObject is null)
         {
@@ -8491,6 +8496,24 @@ public static class MatchRecoveryValidator
         {
             errors.Add($"spectator replay frame snapshot player {playerId} hidden face-down object {objectId} exposes private metadata");
         }
+    }
+
+    private static bool ValidateSpectatorSnapshotPlayerObjectFaceDownRedactionParity(
+        string playerId,
+        string objectId,
+        object? objectPayload,
+        bool shouldValidateParity,
+        bool expectedFaceDown,
+        List<string> errors,
+        out bool isFaceDown)
+    {
+        var hasValidFaceDownFlag = TryReadObjectBool(objectPayload, "isFaceDown", out isFaceDown);
+        if (shouldValidateParity && (!hasValidFaceDownFlag || isFaceDown != expectedFaceDown))
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} face-down flag does not match authoritative spectator redaction");
+        }
+
+        return hasValidFaceDownFlag;
     }
 
     private static void ValidateSpectatorSnapshotPlayerObjectLocation(
