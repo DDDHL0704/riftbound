@@ -9036,7 +9036,8 @@ public static class MatchRecoveryValidator
                 payloadLabel,
                 "status",
                 "authoritative state status",
-                errors);
+                errors,
+                IsKnownBattlefieldStatus);
             ValidateSpectatorSnapshotBattlefieldBoolScalar(
                 spectatorBattlefield,
                 "contested",
@@ -9082,14 +9083,16 @@ public static class MatchRecoveryValidator
         string payloadLabel,
         string description,
         string mismatchDescription,
-        List<string> errors)
+        List<string> errors,
+        Func<string, bool>? isKnownValue = null)
     {
         var value = ValidateSnapshotPayloadRequiredStringValue(
             battlefieldPayload,
             key,
             payloadLabel,
             description,
-            errors);
+            errors,
+            isKnownValue);
         if (value is null || !string.Equals(value, expected, StringComparison.Ordinal))
         {
             errors.Add($"{payloadLabel} {description} does not match {mismatchDescription}");
