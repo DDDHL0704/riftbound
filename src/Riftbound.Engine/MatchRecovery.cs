@@ -4303,6 +4303,7 @@ public static class MatchRecoveryValidator
         var objectTags = view.Snapshot.Players is null
             ? null
             : BuildSnapshotObjectTagIndex(view.Snapshot);
+        var battlefieldStateOccupantObjectIds = BuildSnapshotBattlefieldStateOccupantObjectIds(view.Snapshot);
         var knownPlayerIds = view.Snapshot.Players is null
             ? null
             : BuildNormalizedPlayerIdSet(view.Snapshot.Players.Keys);
@@ -4364,6 +4365,12 @@ public static class MatchRecoveryValidator
                 taskPayload,
                 $"snapshot for {view.PlayerId} timing {payloadLabel} participant object id",
                 objectTags,
+                errors);
+            ValidateBattlefieldTaskParticipantObjectBattlefieldStateOccupantMembership(
+                taskPayload,
+                $"snapshot for {view.PlayerId} timing {payloadLabel} participant object id",
+                battlefieldStateOccupantObjectIds,
+                "battlefield state occupants",
                 errors);
             ValidateBattlefieldTaskParticipantControllerObjectConsistency(
                 taskPayload,
@@ -4888,6 +4895,34 @@ public static class MatchRecoveryValidator
         }
 
         return battlefieldObjectIds;
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlySet<string>>? BuildSnapshotBattlefieldStateOccupantObjectIds(SnapshotDto snapshot)
+    {
+        if (snapshot.Lanes is null
+            || !TryReadObjectList(snapshot.Lanes, "battlefields", out var battlefieldPayloads))
+        {
+            return null;
+        }
+
+        var occupantObjectIdsByBattlefield = new Dictionary<string, IReadOnlySet<string>>(StringComparer.Ordinal);
+        foreach (var battlefieldPayload in battlefieldPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(battlefieldPayload)
+                || !TryReadObjectString(battlefieldPayload, "battlefieldObjectId", out var battlefieldObjectId)
+                || string.IsNullOrWhiteSpace(battlefieldObjectId)
+                || !TryReadObjectStringList(battlefieldPayload, "occupantObjectIds", out var occupantObjectIds))
+            {
+                continue;
+            }
+
+            occupantObjectIdsByBattlefield[battlefieldObjectId.Trim()] = occupantObjectIds
+                .Where(occupantObjectId => !string.IsNullOrWhiteSpace(occupantObjectId))
+                .Select(occupantObjectId => occupantObjectId.Trim())
+                .ToHashSet(StringComparer.Ordinal);
+        }
+
+        return occupantObjectIdsByBattlefield;
     }
 
     private static IReadOnlyDictionary<string, ObjectLocationState> BuildSnapshotObjectLocationIndex(SnapshotDto snapshot)
@@ -11032,6 +11067,51 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateBattlefieldTaskParticipantObjectBattlefieldStateOccupantMembership(
+        object? taskPayload,
+        string participantObjectLabel,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? occupantObjectIdsByBattlefield,
+        string occupantObjectLabel,
+        List<string> errors)
+    {
+        if (occupantObjectIdsByBattlefield is null
+            || !TryReadObjectString(taskPayload, "battlefieldObjectId", out var battlefieldObjectId)
+            || string.IsNullOrWhiteSpace(battlefieldObjectId)
+            || !TryReadObjectStringList(taskPayload, "participantObjectIds", out var participantObjectIds))
+        {
+            return;
+        }
+
+        var normalizedBattlefieldObjectId = battlefieldObjectId.Trim();
+        if (!occupantObjectIdsByBattlefield.TryGetValue(normalizedBattlefieldObjectId, out var expectedParticipantObjectIds))
+        {
+            return;
+        }
+
+        var actualParticipantObjectIds = participantObjectIds
+            .Where(participantObjectId => !string.IsNullOrWhiteSpace(participantObjectId))
+            .Select(participantObjectId => participantObjectId.Trim())
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (var actualParticipantObjectId in actualParticipantObjectIds)
+        {
+            if (!expectedParticipantObjectIds.Contains(actualParticipantObjectId))
+            {
+                errors.Add(
+                    $"{participantObjectLabel} {actualParticipantObjectId} is not in {occupantObjectLabel} for battlefield object id {normalizedBattlefieldObjectId}");
+            }
+        }
+
+        foreach (var expectedParticipantObjectId in expectedParticipantObjectIds)
+        {
+            if (!actualParticipantObjectIds.Contains(expectedParticipantObjectId))
+            {
+                errors.Add(
+                    $"{participantObjectLabel} {expectedParticipantObjectId} is required by {occupantObjectLabel} for battlefield object id {normalizedBattlefieldObjectId}");
+            }
+        }
+    }
+
     private static void ValidateBattlefieldTaskParticipantControllerObjectConsistency(
         object? taskPayload,
         string participantControllerLabel,
@@ -14300,6 +14380,7 @@ public static class MatchRecoveryValidator
         var objectControllers = BuildAuthoritativeStateObjectControllerIndex(authoritativeState);
         var objectTags = BuildAuthoritativeStateObjectTagIndex(authoritativeState);
         var battlefieldStateObjectIds = BuildAuthoritativeStateBattlefieldStateObjectIds(authoritativeState);
+        var battlefieldStateOccupantObjectIds = BuildAuthoritativeStateBattlefieldStateOccupantObjectIds(authoritativeState);
         var knownStackItemIds = BuildKnownStackItemIds(authoritativeState.StackItems.Select(item => item?.StackItemId));
         foreach (var spectatorBattlefieldTask in spectatorBattlefieldTasks)
         {
@@ -14328,6 +14409,7 @@ public static class MatchRecoveryValidator
                 authoritativeState.ObjectLocations,
                 objectControllers,
                 objectTags,
+                battlefieldStateOccupantObjectIds,
                 knownStackItemIds,
                 errors);
         }
@@ -14538,6 +14620,7 @@ public static class MatchRecoveryValidator
         IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
         IReadOnlyDictionary<string, string> objectControllers,
         IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
+        IReadOnlyDictionary<string, IReadOnlySet<string>> battlefieldStateOccupantObjectIds,
         IReadOnlySet<string> knownStackItemIds,
         List<string> errors)
     {
@@ -14589,6 +14672,12 @@ public static class MatchRecoveryValidator
             spectatorBattlefieldTask,
             $"{payloadLabel} participant object id",
             objectTags,
+            errors);
+        ValidateBattlefieldTaskParticipantObjectBattlefieldStateOccupantMembership(
+            spectatorBattlefieldTask,
+            $"{payloadLabel} participant object id",
+            battlefieldStateOccupantObjectIds,
+            "authoritative state battlefield state occupants",
             errors);
         ValidateBattlefieldTaskParticipantControllerObjectConsistency(
             spectatorBattlefieldTask,
@@ -17270,6 +17359,20 @@ public static class MatchRecoveryValidator
             .Where(battlefieldObjectId => !string.IsNullOrWhiteSpace(battlefieldObjectId))
             .Select(battlefieldObjectId => battlefieldObjectId.Trim())
             .ToHashSet(StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlySet<string>> BuildAuthoritativeStateBattlefieldStateOccupantObjectIds(
+        MatchState authoritativeState)
+    {
+        return authoritativeState.BattlefieldStates.Values
+            .Where(battlefield => !string.IsNullOrWhiteSpace(battlefield.BattlefieldObjectId))
+            .ToDictionary(
+                battlefield => battlefield.BattlefieldObjectId.Trim(),
+                battlefield => (IReadOnlySet<string>)battlefield.OccupantObjectIds
+                    .Where(occupantObjectId => !string.IsNullOrWhiteSpace(occupantObjectId))
+                    .Select(occupantObjectId => occupantObjectId.Trim())
+                    .ToHashSet(StringComparer.Ordinal),
+                StringComparer.Ordinal);
     }
 
     private static IReadOnlyDictionary<string, string> BuildAuthoritativeStateObjectControllerIndex(MatchState authoritativeState)
