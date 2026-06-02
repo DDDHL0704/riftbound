@@ -4998,6 +4998,99 @@ public static class MatchRecoveryValidator
                 payloadLabel,
                 "created tick",
                 errors);
+            ValidateTemporaryPaymentResourcePayloadPowerBudget(
+                resourcePayload,
+                payloadLabel,
+                errors);
+        }
+    }
+
+    private static void ValidateTemporaryPaymentResourcePayloadPowerBudget(
+        object? resourcePayload,
+        string payloadLabel,
+        List<string> errors)
+    {
+        int? generatedPower = TryReadObjectInt(resourcePayload, "generatedPower", out var generatedPowerValue)
+            && generatedPowerValue >= 0
+                ? generatedPowerValue
+                : null;
+        int? remainingPower = TryReadObjectInt(resourcePayload, "remainingPower", out var remainingPowerValue)
+            && remainingPowerValue >= 0
+                ? remainingPowerValue
+                : null;
+        IReadOnlyDictionary<string, int>? generatedPowerByTrait = TryReadObjectIntDictionary(
+            resourcePayload,
+            "generatedPowerByTrait",
+            out var generatedPowerByTraitValue)
+                ? generatedPowerByTraitValue
+                : null;
+        IReadOnlyDictionary<string, int>? remainingPowerByTrait = TryReadObjectIntDictionary(
+            resourcePayload,
+            "remainingPowerByTrait",
+            out var remainingPowerByTraitValue)
+                ? remainingPowerByTraitValue
+                : null;
+
+        ValidateTemporaryPaymentResourcePowerBudget(
+            generatedPower,
+            remainingPower,
+            generatedPowerByTrait,
+            remainingPowerByTrait,
+            payloadLabel,
+            errors);
+    }
+
+    private static void ValidateTemporaryPaymentResourcePowerBudget(
+        int? generatedPower,
+        int? remainingPower,
+        IReadOnlyDictionary<string, int>? generatedPowerByTrait,
+        IReadOnlyDictionary<string, int>? remainingPowerByTrait,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (generatedPower is >= 0
+            && remainingPower is >= 0
+            && remainingPower.Value > generatedPower.Value)
+        {
+            errors.Add(
+                $"{payloadLabel} remaining power {remainingPower.Value} cannot exceed generated power {generatedPower.Value}");
+        }
+
+        if (generatedPowerByTrait is null || remainingPowerByTrait is null)
+        {
+            return;
+        }
+
+        var generatedPowerByNormalizedTrait = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (var (trait, value) in generatedPowerByTrait)
+        {
+            if (string.IsNullOrWhiteSpace(trait) || value <= 0)
+            {
+                continue;
+            }
+
+            generatedPowerByNormalizedTrait[RuneTrait.Normalize(trait)] = value;
+        }
+
+        foreach (var (trait, remainingTraitPower) in remainingPowerByTrait.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            if (string.IsNullOrWhiteSpace(trait) || remainingTraitPower <= 0)
+            {
+                continue;
+            }
+
+            var normalizedTrait = RuneTrait.Normalize(trait);
+            if (!generatedPowerByNormalizedTrait.TryGetValue(normalizedTrait, out var generatedTraitPower))
+            {
+                errors.Add($"{payloadLabel} remaining power trait {normalizedTrait} has no generated power trait");
+                continue;
+            }
+
+            if (remainingTraitPower > generatedTraitPower)
+            {
+                errors.Add(
+                    $"{payloadLabel} remaining power trait {normalizedTrait} value {remainingTraitPower} cannot exceed generated power trait value {generatedTraitPower}");
+            }
         }
     }
 
@@ -16874,6 +16967,10 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "created tick",
             errors);
+        ValidateTemporaryPaymentResourcePayloadPowerBudget(
+            resourcePayload,
+            payloadLabel,
+            errors);
         return resourceId;
     }
 
@@ -18015,6 +18112,13 @@ public static class MatchRecoveryValidator
                 $"temporary payment resource {resourceLabel}",
                 "remaining power trait",
                 resource.RemainingPowerByTrait,
+                errors);
+            ValidateTemporaryPaymentResourcePowerBudget(
+                resource.GeneratedPower,
+                resource.RemainingPower,
+                resource.GeneratedPowerByTrait,
+                resource.RemainingPowerByTrait,
+                $"authoritative state temporary payment resource {resourceLabel}",
                 errors);
             ValidateAuthoritativeStatePaymentKindValues(
                 resourceLabel,
