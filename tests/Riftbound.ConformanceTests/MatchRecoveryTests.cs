@@ -28803,6 +28803,160 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplaySnapshotPlayerExtraObjectLocationPayloadRequiredParityWithVisibilityMismatch()
+    {
+        const string missingLocationObjectId = "alice-hand-missing-location-1";
+        const string nullLocationObjectId = "alice-hand-null-location-1";
+        const string shapeLocationObjectId = "alice-hand-shape-location-1";
+        const string visibleBattlefieldObjectId = "alice-visible-battlefield-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Hand = [missingLocationObjectId, nullLocationObjectId, shapeLocationObjectId],
+                    Battlefields = [visibleBattlefieldObjectId]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [missingLocationObjectId] = new(
+                    missingLocationObjectId,
+                    power: 4,
+                    cardNo: "SFD-HAND-MISSING",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.UnitCard]),
+                [nullLocationObjectId] = new(
+                    nullLocationObjectId,
+                    power: 5,
+                    cardNo: "SFD-HAND-NULL",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.UnitCard]),
+                [shapeLocationObjectId] = new(
+                    shapeLocationObjectId,
+                    power: 6,
+                    cardNo: "SFD-HAND-SHAPE",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.UnitCard]),
+                [visibleBattlefieldObjectId] = new(
+                    visibleBattlefieldObjectId,
+                    power: 3,
+                    cardNo: "SFD-VISIBLE",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.UnitCard])
+            });
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var players = spectatorReplayFrame.SpectatorSnapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objects = Assert.IsType<Dictionary<string, object?>>(alicePayload["objects"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objects[missingLocationObjectId] = new Dictionary<string, object?>
+        {
+            ["objectId"] = missingLocationObjectId,
+            ["isFaceDown"] = false
+        };
+        objects[nullLocationObjectId] = new Dictionary<string, object?>
+        {
+            ["objectId"] = nullLocationObjectId,
+            ["isFaceDown"] = false,
+            ["location"] = null
+        };
+        objects[shapeLocationObjectId] = new Dictionary<string, object?>
+        {
+            ["objectId"] = shapeLocationObjectId,
+            ["isFaceDown"] = false,
+            ["location"] = "not-location"
+        };
+        alicePayload["objects"] = objects;
+        players["alice"] = alicePayload;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Players = players
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice object alice-hand-missing-location-1 location is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice object alice-hand-missing-location-1 location does not match authoritative object location",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice object alice-hand-null-location-1 location is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice object alice-hand-null-location-1 location does not match authoritative object location",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice object alice-hand-shape-location-1 location payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice object alice-hand-shape-location-1 location does not match authoritative object location",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice object alice-hand-missing-location-1 is not visible in authoritative spectator view",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplaySnapshotPlayerExtraObjectLocationParityWithVisibilityMismatch()
     {
         const string handObjectId = "alice-hand-1";
@@ -31365,6 +31519,153 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame snapshot player alice object alice-visible-battlefield-1 location zone does not match authoritative object location zone",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplaySnapshotPlayerObjectLocationPayloadRequiredParity()
+    {
+        const string battlefieldObjectId = "alice-battlefield-card-1";
+        const string missingLocationObjectId = "alice-visible-missing-location-1";
+        const string nullLocationObjectId = "alice-visible-null-location-1";
+        const string shapeLocationObjectId = "alice-visible-shape-location-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = [missingLocationObjectId, nullLocationObjectId, shapeLocationObjectId]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new(
+                    battlefieldObjectId,
+                    cardNo: "SFD-BATTLEFIELD",
+                    ownerId: "alice",
+                    controllerId: "alice"),
+                [missingLocationObjectId] = new(
+                    missingLocationObjectId,
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "SFD-VISIBLE-MISSING",
+                    ownerId: "alice",
+                    controllerId: "alice"),
+                [nullLocationObjectId] = new(
+                    nullLocationObjectId,
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "SFD-VISIBLE-NULL",
+                    ownerId: "alice",
+                    controllerId: "alice"),
+                [shapeLocationObjectId] = new(
+                    shapeLocationObjectId,
+                    power: 6,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "SFD-VISIBLE-SHAPE",
+                    ownerId: "alice",
+                    controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [missingLocationObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId),
+                [nullLocationObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId),
+                [shapeLocationObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId)
+            });
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var players = spectatorReplayFrame.SpectatorSnapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objects = Assert.IsType<Dictionary<string, object?>>(alicePayload["objects"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var missingLocationPayload = Assert.IsType<Dictionary<string, object?>>(objects[missingLocationObjectId])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        Assert.True(missingLocationPayload.Remove("location"));
+        objects[missingLocationObjectId] = missingLocationPayload;
+        var nullLocationPayload = Assert.IsType<Dictionary<string, object?>>(objects[nullLocationObjectId])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        nullLocationPayload["location"] = null;
+        objects[nullLocationObjectId] = nullLocationPayload;
+        var shapeLocationPayload = Assert.IsType<Dictionary<string, object?>>(objects[shapeLocationObjectId])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        shapeLocationPayload["location"] = "not-location";
+        objects[shapeLocationObjectId] = shapeLocationPayload;
+        alicePayload["objects"] = objects;
+        players["alice"] = alicePayload;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Players = players
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice object alice-visible-missing-location-1 location is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice object alice-visible-missing-location-1 location does not match authoritative object location",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice object alice-visible-null-location-1 location is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice object alice-visible-null-location-1 location does not match authoritative object location",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice object alice-visible-shape-location-1 location payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player alice object alice-visible-shape-location-1 location does not match authoritative object location",
                 StringComparison.Ordinal));
     }
 

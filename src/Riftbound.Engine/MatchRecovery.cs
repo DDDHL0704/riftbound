@@ -8224,6 +8224,7 @@ public static class MatchRecoveryValidator
                 if (expectedLocation is not null)
                 {
                     errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location is required");
+                    errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location does not match authoritative object location");
                 }
 
                 continue;
@@ -8232,6 +8233,11 @@ public static class MatchRecoveryValidator
             if (!IsSnapshotPlayerPayloadObject(locationPayload))
             {
                 errors.Add($"{payloadLabel} payload is required");
+                if (expectedLocation is not null)
+                {
+                    errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location does not match authoritative object location");
+                }
+
                 continue;
             }
 
@@ -8517,12 +8523,14 @@ public static class MatchRecoveryValidator
             || IsNullSnapshotPayloadValue(locationPayload))
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location is required");
+            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location does not match authoritative object location");
             return;
         }
 
         if (!IsSnapshotPlayerPayloadObject(locationPayload))
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location payload is required");
+            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location does not match authoritative object location");
             return;
         }
 
