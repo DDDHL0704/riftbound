@@ -4143,6 +4143,10 @@ public static class MatchRecoveryValidator
             $"snapshot for {view.PlayerId} timing battlefield task item",
             "battlefield state contest",
             errors);
+        ValidateSnapshotBattlefieldTaskActiveSpellDuelLifecycleConsistency(
+            view,
+            taskPayloads,
+            errors);
     }
 
     private static void ValidateBattlefieldTaskDerivedTaskId(
@@ -4447,6 +4451,70 @@ public static class MatchRecoveryValidator
             {
                 errors.Add(
                     $"{payloadLabel} stack item ids disagree with authoritative state battlefield task stack item ids for battlefield object id {normalizedBattlefieldObjectId} kind {normalizedKind}");
+            }
+        }
+    }
+
+    private static void ValidateSnapshotBattlefieldTaskActiveSpellDuelLifecycleConsistency(
+        RecoveredPlayerView view,
+        IReadOnlyList<object?> taskPayloads,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectValue(view.Snapshot.Timing, "spellDuel", out var spellDuelPayload)
+            || !IsSnapshotPlayerPayloadObject(spellDuelPayload)
+            || !TryReadObjectBool(spellDuelPayload, "isActive", out var isActive)
+            || !isActive
+            || !TryReadObjectOptionalString(spellDuelPayload, "battlefieldObjectId", out var spellDuelBattlefieldObjectId)
+            || string.IsNullOrWhiteSpace(spellDuelBattlefieldObjectId))
+        {
+            return;
+        }
+
+        var normalizedBattlefieldObjectId = spellDuelBattlefieldObjectId.Trim();
+        var hasFocusPlayerId = TryReadObjectOptionalString(spellDuelPayload, "focusPlayerId", out var focusPlayerId)
+            && !string.IsNullOrWhiteSpace(focusPlayerId);
+        if (hasFocusPlayerId)
+        {
+            focusPlayerId = focusPlayerId.Trim();
+        }
+
+        var hasStackItemIds = TryReadObjectStringList(spellDuelPayload, "stackItemIds", out var spellDuelStackItemIds);
+        var taskLabel = $"snapshot for {view.PlayerId} timing battlefield task item";
+        foreach (var taskPayload in taskPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(taskPayload)
+                || !TryReadObjectString(taskPayload, "kind", out var kind)
+                || string.IsNullOrWhiteSpace(kind)
+                || !string.Equals(kind.Trim(), "START_SPELL_DUEL", StringComparison.Ordinal)
+                || !TryReadObjectString(taskPayload, "battlefieldObjectId", out var battlefieldObjectId)
+                || string.IsNullOrWhiteSpace(battlefieldObjectId)
+                || !string.Equals(battlefieldObjectId.Trim(), normalizedBattlefieldObjectId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (TryReadObjectString(taskPayload, "status", out var status)
+                && !string.Equals(status, "ACTIVE", StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{taskLabel} status {status} does not match active spell duel status ACTIVE for battlefield object id {normalizedBattlefieldObjectId}");
+            }
+
+            if (hasFocusPlayerId
+                && TryReadObjectOptionalString(taskPayload, "actingPlayerId", out var actingPlayerId)
+                && !string.Equals(actingPlayerId, focusPlayerId, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{taskLabel} acting player id {actingPlayerId} does not match active spell duel focus player id {focusPlayerId} for battlefield object id {normalizedBattlefieldObjectId}");
+            }
+
+            if (hasStackItemIds
+                && TryReadObjectStringList(taskPayload, "stackItemIds", out var stackItemIds)
+                && !StringListsEqual(stackItemIds, spellDuelStackItemIds))
+            {
+                errors.Add(
+                    $"{taskLabel} stack item ids disagree with active spell duel stack item ids for battlefield object id {normalizedBattlefieldObjectId}");
             }
         }
     }
