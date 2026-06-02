@@ -9783,7 +9783,8 @@ public static class MatchRecoveryValidator
             "state",
             payloadLabel,
             "state",
-            errors);
+            errors,
+            IsKnownStandbySlotState);
         if (state is null || !string.Equals(state, expectedState, StringComparison.Ordinal))
         {
             errors.Add(
