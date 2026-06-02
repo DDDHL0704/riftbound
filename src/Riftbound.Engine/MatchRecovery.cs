@@ -8862,12 +8862,18 @@ public static class MatchRecoveryValidator
             payloadLabel,
             description,
             errors);
+        var expectedText = expected ?? string.Empty;
+        if (!string.IsNullOrEmpty(expectedText)
+            && (!hasScalar || value is { Length: 0 }))
+        {
+            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} is required");
+        }
+
         if (!hasScalar)
         {
             value = string.Empty;
         }
 
-        var expectedText = expected ?? string.Empty;
         if (value is null)
         {
             if (!string.IsNullOrEmpty(expectedText))
