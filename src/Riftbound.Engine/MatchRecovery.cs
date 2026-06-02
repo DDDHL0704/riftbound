@@ -13828,6 +13828,27 @@ public static class MatchRecoveryValidator
                 errors);
         }
 
+        var authoritativeTriggersById = new Dictionary<string, TriggerQueueItemState>(StringComparer.Ordinal);
+        foreach (var authoritativeTrigger in authoritativeTriggers)
+        {
+            if (string.IsNullOrWhiteSpace(authoritativeTrigger.TriggerId))
+            {
+                continue;
+            }
+
+            var normalizedTriggerId = authoritativeTrigger.TriggerId.Trim();
+            if (!authoritativeTriggersById.ContainsKey(normalizedTriggerId))
+            {
+                authoritativeTriggersById.Add(normalizedTriggerId, authoritativeTrigger);
+            }
+        }
+
+        ValidateSpectatorTriggerQueueKeyedAuthoritativeValues(
+            spectatorTriggers,
+            authoritativeTriggersById,
+            authoritativeState,
+            errors);
+
         if (!validateAuthoritativeParity)
         {
             return;
@@ -13921,6 +13942,72 @@ public static class MatchRecoveryValidator
         if (!triggeredEventKindsMatch)
         {
             errors.Add("spectator replay frame timing trigger queue triggered event kinds disagree with authoritative state trigger queue triggered event kinds");
+        }
+    }
+
+    private static void ValidateSpectatorTriggerQueueKeyedAuthoritativeValues(
+        IReadOnlyList<object?> triggerPayloads,
+        IReadOnlyDictionary<string, TriggerQueueItemState> authoritativeTriggersById,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing trigger queue item";
+        foreach (var triggerPayload in triggerPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(triggerPayload)
+                || !TryReadObjectString(triggerPayload, "triggerId", out var triggerId)
+                || string.IsNullOrWhiteSpace(triggerId))
+            {
+                continue;
+            }
+
+            var normalizedTriggerId = triggerId.Trim();
+            if (!authoritativeTriggersById.TryGetValue(normalizedTriggerId, out var authoritativeTrigger))
+            {
+                continue;
+            }
+
+            var hiddenSource = IsHiddenBattlefieldStandbyForSpectator(
+                authoritativeState,
+                authoritativeTrigger.SourceObjectId);
+            var expectedSourceObjectId = hiddenSource ? "HIDDEN" : authoritativeTrigger.SourceObjectId;
+            var expectedSourceVisibility = hiddenSource ? "HIDDEN" : "VISIBLE";
+            var expectedEffectKind = hiddenSource ? "HIDDEN" : authoritativeTrigger.EffectKind;
+
+            if (TryReadObjectString(triggerPayload, "controllerId", out var controllerId)
+                && !string.Equals(controllerId, authoritativeTrigger.ControllerId, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} controller id {controllerId} does not match authoritative state trigger queue controller id {authoritativeTrigger.ControllerId} for trigger id {normalizedTriggerId}");
+            }
+
+            if (TryReadObjectString(triggerPayload, "sourceObjectId", out var sourceObjectId)
+                && !string.Equals(sourceObjectId, expectedSourceObjectId, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} source object id {sourceObjectId} does not match authoritative state trigger queue source object id {expectedSourceObjectId} for trigger id {normalizedTriggerId}");
+            }
+
+            if (TryReadObjectString(triggerPayload, "sourceVisibility", out var sourceVisibility)
+                && !string.Equals(sourceVisibility, expectedSourceVisibility, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} source visibility {sourceVisibility} does not match authoritative state trigger queue source visibility {expectedSourceVisibility} for trigger id {normalizedTriggerId}");
+            }
+
+            if (TryReadObjectString(triggerPayload, "effectKind", out var effectKind)
+                && !string.Equals(effectKind, expectedEffectKind, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} effect kind {effectKind} does not match authoritative state trigger queue effect kind {expectedEffectKind} for trigger id {normalizedTriggerId}");
+            }
+
+            if (TryReadObjectString(triggerPayload, "triggeredByEventKind", out var triggeredEventKind)
+                && !string.Equals(triggeredEventKind, authoritativeTrigger.TriggeredByEventKind, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} triggered event kind {triggeredEventKind} does not match authoritative state trigger queue triggered event kind {authoritativeTrigger.TriggeredByEventKind} for trigger id {normalizedTriggerId}");
+            }
         }
     }
 
