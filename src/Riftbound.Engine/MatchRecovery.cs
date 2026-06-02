@@ -5123,13 +5123,18 @@ public static class MatchRecoveryValidator
                     $"snapshot for {view.PlayerId} timing {payloadLabel}",
                     "related event kind",
                     errors);
-                ValidateSnapshotPayloadStringListValues(
+                var relatedEventKinds = ValidateSnapshotPayloadStringListValues(
                     resolutionPayload,
                     "relatedEventKinds",
                     $"snapshot for {view.PlayerId} timing {payloadLabel}",
                     "related event kind",
                     errors,
                     IsKnownBattlefieldResolutionRelatedEventKind);
+                ValidateBattlefieldResolutionRelatedEventKindCompatibility(
+                    ReadNormalizedPayloadString(resolutionPayload, "kind"),
+                    relatedEventKinds,
+                    $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                    errors);
             }
         }
 
@@ -5212,13 +5217,19 @@ public static class MatchRecoveryValidator
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
                 "related event kind",
                 errors);
-            ValidateSnapshotPayloadStringListValues(
+            var relatedEventKinds = ValidateSnapshotPayloadStringListValues(
                 resolutionPayload,
                 "relatedEventKinds",
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
                 "related event kind",
                 errors,
                 IsKnownBattleResolutionRelatedEventKind);
+            ValidateBattleResolutionRelatedEventKindCompatibility(
+                ReadNormalizedPayloadString(resolutionPayload, "kind"),
+                ReadNormalizedPayloadString(resolutionPayload, "reason"),
+                relatedEventKinds,
+                $"snapshot for {view.PlayerId} timing {payloadLabel}",
+                errors);
         }
     }
 
@@ -5242,6 +5253,46 @@ public static class MatchRecoveryValidator
             || string.Equals(value, "UNCONTROLLED", StringComparison.Ordinal)
             || string.Equals(value, "CONTROL_CHANGED", StringComparison.Ordinal)
             || string.Equals(value, "CONTROL_CONFIRMED", StringComparison.Ordinal);
+    }
+
+    private static void ValidateBattlefieldResolutionRelatedEventKindCompatibility(
+        string? kind,
+        IReadOnlyList<string>? relatedEventKinds,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (kind is null
+            || relatedEventKinds is null
+            || !IsKnownBattlefieldResolutionKind(kind)
+            || relatedEventKinds.Any(relatedEventKind => !IsKnownBattlefieldResolutionRelatedEventKind(relatedEventKind)))
+        {
+            return;
+        }
+
+        var expectedRelatedEventKind = kind switch
+        {
+            "HELD" => "BATTLEFIELD_HELD",
+            "CONQUERED" => "BATTLEFIELD_CONQUERED",
+            "CONTROL_RESOLVED" => "BATTLEFIELD_CONTROL_RESOLVED",
+            _ => string.Empty
+        };
+        if (string.IsNullOrEmpty(expectedRelatedEventKind))
+        {
+            return;
+        }
+
+        foreach (var relatedEventKind in relatedEventKinds)
+        {
+            if (!string.Equals(relatedEventKind, expectedRelatedEventKind, StringComparison.Ordinal))
+            {
+                errors.Add($"{payloadLabel} related event kind {relatedEventKind} is invalid for kind {kind}");
+            }
+        }
+
+        if (!relatedEventKinds.Contains(expectedRelatedEventKind, StringComparer.Ordinal))
+        {
+            errors.Add($"{payloadLabel} related event kinds must include {expectedRelatedEventKind} for kind {kind}");
+        }
     }
 
     private static void ValidateBattlefieldResolutionKindReasonCompatibility(
@@ -5298,6 +5349,39 @@ public static class MatchRecoveryValidator
             || string.Equals(value, "BATTLE_NO_RESULT", StringComparison.Ordinal)
             || string.Equals(value, "ALL_PARTICIPANTS_DESTROYED", StringComparison.Ordinal)
             || string.Equals(value, "BOTH_SIDES_RETAIN_UNITS", StringComparison.Ordinal);
+    }
+
+    private static void ValidateBattleResolutionRelatedEventKindCompatibility(
+        string? kind,
+        string? reason,
+        IReadOnlyList<string>? relatedEventKinds,
+        string payloadLabel,
+        List<string> errors)
+    {
+        if (kind is null
+            || reason is null
+            || relatedEventKinds is null
+            || !IsKnownBattleResolutionKind(kind)
+            || !IsKnownBattleResolutionReason(reason)
+            || !IsBattleResolutionReasonValidForKind(kind, reason)
+            || relatedEventKinds.Any(relatedEventKind => !IsKnownBattleResolutionRelatedEventKind(relatedEventKind)))
+        {
+            return;
+        }
+
+        var expectedResultEventKind = string.Equals(kind, "NO_RESULT", StringComparison.Ordinal)
+            ? "BATTLE_NO_RESULT"
+            : "BATTLE_CLOSED";
+        if (!relatedEventKinds.Contains(expectedResultEventKind, StringComparer.Ordinal))
+        {
+            errors.Add($"{payloadLabel} related event kinds must include {expectedResultEventKind} for kind {kind} reason {reason}");
+        }
+
+        if (string.Equals(kind, "CLOSED", StringComparison.Ordinal)
+            && relatedEventKinds.Contains("BATTLE_NO_RESULT", StringComparer.Ordinal))
+        {
+            errors.Add($"{payloadLabel} related event kind BATTLE_NO_RESULT is invalid for kind {kind} reason {reason}");
+        }
     }
 
     private static void ValidateBattleResolutionKindReasonCompatibility(
@@ -6699,7 +6783,7 @@ public static class MatchRecoveryValidator
         }
     }
 
-    private static void ValidateSnapshotPayloadStringListValues(
+    private static IReadOnlyList<string>? ValidateSnapshotPayloadStringListValues(
         object? payload,
         string key,
         string payloadLabel,
@@ -6710,19 +6794,19 @@ public static class MatchRecoveryValidator
         if (!TryReadObjectValue(payload, key, out var listPayload)
             || IsNullSnapshotPayloadValue(listPayload))
         {
-            return;
+            return null;
         }
 
         if (!TryReadStringListValue(listPayload, out var values))
         {
             errors.Add($"{payloadLabel} {itemLabel} list is invalid");
-            return;
+            return null;
         }
 
-        ValidateSnapshotStringListValues(values, payloadLabel, itemLabel, errors, isKnownValue);
+        return ValidateSnapshotStringListValues(values, payloadLabel, itemLabel, errors, isKnownValue);
     }
 
-    private static void ValidateSnapshotPayloadRequiredStringListValues(
+    private static IReadOnlyList<string>? ValidateSnapshotPayloadRequiredStringListValues(
         object? payload,
         string key,
         string payloadLabel,
@@ -6734,16 +6818,16 @@ public static class MatchRecoveryValidator
             || IsNullSnapshotPayloadValue(listPayload))
         {
             errors.Add($"{payloadLabel} {itemLabel} list is required");
-            return;
+            return null;
         }
 
         if (!TryReadStringListValue(listPayload, out var values))
         {
             errors.Add($"{payloadLabel} {itemLabel} list is invalid");
-            return;
+            return null;
         }
 
-        ValidateSnapshotStringListValues(values, payloadLabel, itemLabel, errors, isKnownValue);
+        return ValidateSnapshotStringListValues(values, payloadLabel, itemLabel, errors, isKnownValue);
     }
 
     private static void ValidateSnapshotPayloadRequiredStringListPayloadShape(
@@ -6942,7 +7026,7 @@ public static class MatchRecoveryValidator
         }
     }
 
-    private static void ValidateSnapshotStringListValues(
+    private static IReadOnlyList<string> ValidateSnapshotStringListValues(
         IEnumerable<string> values,
         string payloadLabel,
         string itemLabel,
@@ -6950,6 +7034,7 @@ public static class MatchRecoveryValidator
         Func<string, bool>? isKnownValue = null)
     {
         var seenValues = new HashSet<string>(StringComparer.Ordinal);
+        var normalizedValues = new List<string>();
         foreach (var value in values)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -6959,6 +7044,7 @@ public static class MatchRecoveryValidator
             }
 
             var normalizedValue = value.Trim();
+            normalizedValues.Add(normalizedValue);
             if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
             {
                 errors.Add($"{payloadLabel} {itemLabel} {normalizedValue} has surrounding whitespace");
@@ -6974,6 +7060,15 @@ public static class MatchRecoveryValidator
                 errors.Add($"{payloadLabel} {itemLabel} {normalizedValue} is duplicated");
             }
         }
+
+        return normalizedValues;
+    }
+
+    private static string? ReadNormalizedPayloadString(object? payload, string key)
+    {
+        return TryReadObjectString(payload, key, out var value) && !string.IsNullOrWhiteSpace(value)
+            ? value.Trim()
+            : null;
     }
 
     private static string? ValidateSnapshotPayloadRequiredStringValue(
@@ -17909,13 +18004,18 @@ public static class MatchRecoveryValidator
                 resolution.ParticipantObjectIds,
                 errors,
                 requireList: false);
-            ValidateAuthoritativeStateResolutionTextList(
+            var relatedEventKinds = ValidateAuthoritativeStateResolutionTextList(
                 "battlefield resolution",
                 resolutionId,
                 "related event kind",
                 resolution.RelatedEventKinds,
                 errors,
                 isKnownValue: IsKnownBattlefieldResolutionRelatedEventKind);
+            ValidateBattlefieldResolutionRelatedEventKindCompatibility(
+                kind,
+                relatedEventKinds,
+                $"authoritative state battlefield resolution {diagnosticResolutionId}",
+                errors);
         }
     }
 
@@ -18012,13 +18112,19 @@ public static class MatchRecoveryValidator
                 resolution.DestroyedObjectIds,
                 errors,
                 requireList: false);
-            ValidateAuthoritativeStateResolutionTextList(
+            var relatedEventKinds = ValidateAuthoritativeStateResolutionTextList(
                 "battle resolution",
                 resolutionId,
                 "related event kind",
                 resolution.RelatedEventKinds,
                 errors,
                 isKnownValue: IsKnownBattleResolutionRelatedEventKind);
+            ValidateBattleResolutionRelatedEventKindCompatibility(
+                kind,
+                reason,
+                relatedEventKinds,
+                $"authoritative state battle resolution {(string.IsNullOrEmpty(resolutionId) ? "<missing>" : resolutionId)}",
+                errors);
         }
     }
 
@@ -18109,7 +18215,7 @@ public static class MatchRecoveryValidator
         return normalizedValue;
     }
 
-    private static void ValidateAuthoritativeStateResolutionTextList(
+    private static IReadOnlyList<string>? ValidateAuthoritativeStateResolutionTextList(
         string resolutionLabel,
         string resolutionId,
         string valueLabel,
@@ -18127,10 +18233,11 @@ public static class MatchRecoveryValidator
                     $"authoritative state {resolutionLabel} {diagnosticResolutionId} {valueLabel} list is required");
             }
 
-            return;
+            return null;
         }
 
         var seenValues = new HashSet<string>(StringComparer.Ordinal);
+        var normalizedValues = new List<string>();
         foreach (var value in values)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -18141,6 +18248,7 @@ public static class MatchRecoveryValidator
             }
 
             var normalizedValue = value.Trim();
+            normalizedValues.Add(normalizedValue);
             if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
             {
                 errors.Add(
@@ -18164,6 +18272,8 @@ public static class MatchRecoveryValidator
                     $"authoritative state {resolutionLabel} {diagnosticResolutionId} {valueLabel} {normalizedValue} is duplicated");
             }
         }
+
+        return normalizedValues;
     }
 
     private static void ValidateAuthoritativeStatePlayerPointers(
@@ -21370,13 +21480,18 @@ public static class MatchRecoveryValidator
             "relatedEventKinds",
             "related event kind",
             errors);
-        ValidateSnapshotPayloadStringListValues(
+        var relatedEventKinds = ValidateSnapshotPayloadStringListValues(
             resolutionPayload,
             "relatedEventKinds",
             payloadLabel,
             "related event kind",
             errors,
             IsKnownBattlefieldResolutionRelatedEventKind);
+        ValidateBattlefieldResolutionRelatedEventKindCompatibility(
+            ReadNormalizedPayloadString(resolutionPayload, "kind"),
+            relatedEventKinds,
+            payloadLabel,
+            errors);
     }
 
     private static string? ValidateSpectatorBattlefieldResolutionPayloadValues(
@@ -21523,13 +21638,19 @@ public static class MatchRecoveryValidator
             "relatedEventKinds",
             "related event kind",
             errors);
-        ValidateSnapshotPayloadStringListValues(
+        var relatedEventKinds = ValidateSnapshotPayloadStringListValues(
             resolutionPayload,
             "relatedEventKinds",
             payloadLabel,
             "related event kind",
             errors,
             IsKnownBattleResolutionRelatedEventKind);
+        ValidateBattleResolutionRelatedEventKindCompatibility(
+            ReadNormalizedPayloadString(resolutionPayload, "kind"),
+            ReadNormalizedPayloadString(resolutionPayload, "reason"),
+            relatedEventKinds,
+            payloadLabel,
+            errors);
     }
 
     private static string? ValidateSpectatorBattleResolutionPayloadValues(
