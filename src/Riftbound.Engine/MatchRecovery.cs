@@ -14715,6 +14715,26 @@ public static class MatchRecoveryValidator
             }
         }
 
+        var authoritativeResourcesById = new Dictionary<string, TemporaryPaymentResourceState>(StringComparer.Ordinal);
+        foreach (var authoritativeResource in authoritativeResources)
+        {
+            if (string.IsNullOrWhiteSpace(authoritativeResource.ResourceId))
+            {
+                continue;
+            }
+
+            var normalizedResourceId = authoritativeResource.ResourceId.Trim();
+            if (!authoritativeResourcesById.ContainsKey(normalizedResourceId))
+            {
+                authoritativeResourcesById.Add(normalizedResourceId, authoritativeResource);
+            }
+        }
+
+        ValidateSpectatorTemporaryPaymentResourceAuthoritativeKeySet(
+            spectatorResources,
+            authoritativeResourcesById,
+            errors);
+
         if (!validateAuthoritativeResourceParity)
         {
             return;
@@ -14888,6 +14908,41 @@ public static class MatchRecoveryValidator
         if (!createdTicksMatch)
         {
             errors.Add("spectator replay frame timing temporary payment resource created ticks disagree with authoritative state temporary payment resource created ticks");
+        }
+    }
+
+    private static void ValidateSpectatorTemporaryPaymentResourceAuthoritativeKeySet(
+        IReadOnlyList<object?> resourcePayloads,
+        IReadOnlyDictionary<string, TemporaryPaymentResourceState> authoritativeResourcesById,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing temporary payment resource item";
+        var actualResourceIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var resourcePayload in resourcePayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(resourcePayload)
+                || !TryReadObjectString(resourcePayload, "resourceId", out var resourceId)
+                || string.IsNullOrWhiteSpace(resourceId))
+            {
+                continue;
+            }
+
+            var normalizedResourceId = resourceId.Trim();
+            actualResourceIds.Add(normalizedResourceId);
+            if (!authoritativeResourcesById.ContainsKey(normalizedResourceId))
+            {
+                errors.Add(
+                    $"{payloadLabel} resource id {normalizedResourceId} is not present in authoritative state temporary payment resources");
+            }
+        }
+
+        foreach (var authoritativeResourceId in authoritativeResourcesById.Keys.OrderBy(id => id, StringComparer.Ordinal))
+        {
+            if (!actualResourceIds.Contains(authoritativeResourceId))
+            {
+                errors.Add(
+                    $"{payloadLabel} resource id {authoritativeResourceId} is required by authoritative state temporary payment resources");
+            }
         }
     }
 
