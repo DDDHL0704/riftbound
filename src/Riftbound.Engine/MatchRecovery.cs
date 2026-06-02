@@ -4023,6 +4023,7 @@ public static class MatchRecoveryValidator
             ? null
             : BuildSnapshotObjectTagIndex(view.Snapshot);
         var knownBattlefieldStateObjectIds = BuildSnapshotBattlefieldStateObjectIds(view.Snapshot);
+        var requiredTaskKindsByBattlefield = BuildSnapshotRequiredBattlefieldTaskKindsByBattlefield(view.Snapshot);
         foreach (var taskPayload in taskPayloads)
         {
             if (!IsSnapshotPlayerPayloadObject(taskPayload))
@@ -4135,6 +4136,13 @@ public static class MatchRecoveryValidator
             ValidateBattlefieldTaskKindSpecificIdentityExclusivity(taskLabel, kind, spellDuelId, battleId, errors);
             ValidateBattlefieldTaskKindConsistency(taskLabel, kind, status, reason, errors);
         }
+
+        ValidateBattlefieldTaskKindSet(
+            taskPayloads,
+            requiredTaskKindsByBattlefield,
+            $"snapshot for {view.PlayerId} timing battlefield task item",
+            "battlefield state contest",
+            errors);
     }
 
     private static void ValidateBattlefieldTaskDerivedTaskId(
@@ -4312,6 +4320,79 @@ public static class MatchRecoveryValidator
             if (string.Equals(status, "COMPLETED", StringComparison.Ordinal))
             {
                 errors.Add($"{taskLabel} status COMPLETED is invalid for START_BATTLE");
+            }
+        }
+    }
+
+    private static void ValidateBattlefieldTaskKindSet(
+        IReadOnlyList<object?> taskPayloads,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? requiredTaskKindsByBattlefield,
+        string taskLabel,
+        string requiredTaskKindsLabel,
+        List<string> errors)
+    {
+        if (requiredTaskKindsByBattlefield is null)
+        {
+            return;
+        }
+
+        var actualTaskKindsByBattlefield = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+        foreach (var taskPayload in taskPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(taskPayload)
+                || !TryReadObjectString(taskPayload, "kind", out var kind)
+                || string.IsNullOrWhiteSpace(kind)
+                || !TryReadObjectString(taskPayload, "battlefieldObjectId", out var battlefieldObjectId)
+                || string.IsNullOrWhiteSpace(battlefieldObjectId))
+            {
+                continue;
+            }
+
+            var normalizedKind = kind.Trim();
+            if (!IsKnownBattlefieldTaskKind(normalizedKind))
+            {
+                continue;
+            }
+
+            var normalizedBattlefieldObjectId = battlefieldObjectId.Trim();
+            if (!actualTaskKindsByBattlefield.TryGetValue(normalizedBattlefieldObjectId, out var actualTaskKinds))
+            {
+                actualTaskKinds = new HashSet<string>(StringComparer.Ordinal);
+                actualTaskKindsByBattlefield[normalizedBattlefieldObjectId] = actualTaskKinds;
+            }
+
+            if (!actualTaskKinds.Add(normalizedKind))
+            {
+                errors.Add(
+                    $"{taskLabel} kind {normalizedKind} is duplicated for battlefield object id {normalizedBattlefieldObjectId}");
+            }
+        }
+
+        foreach (var battlefieldObjectId in actualTaskKindsByBattlefield.Keys.OrderBy(id => id, StringComparer.Ordinal))
+        {
+            var actualTaskKinds = actualTaskKindsByBattlefield[battlefieldObjectId];
+            requiredTaskKindsByBattlefield.TryGetValue(battlefieldObjectId, out var requiredTaskKinds);
+            foreach (var actualTaskKind in actualTaskKinds.OrderBy(kind => kind, StringComparer.Ordinal))
+            {
+                if (requiredTaskKinds is null || !requiredTaskKinds.Contains(actualTaskKind))
+                {
+                    errors.Add(
+                        $"{taskLabel} kind {actualTaskKind} is not required by {requiredTaskKindsLabel} for battlefield object id {battlefieldObjectId}");
+                }
+            }
+        }
+
+        foreach (var battlefieldObjectId in requiredTaskKindsByBattlefield.Keys.OrderBy(id => id, StringComparer.Ordinal))
+        {
+            var requiredTaskKinds = requiredTaskKindsByBattlefield[battlefieldObjectId];
+            actualTaskKindsByBattlefield.TryGetValue(battlefieldObjectId, out var actualTaskKinds);
+            foreach (var requiredTaskKind in requiredTaskKinds.OrderBy(kind => kind, StringComparer.Ordinal))
+            {
+                if (actualTaskKinds is null || !actualTaskKinds.Contains(requiredTaskKind))
+                {
+                    errors.Add(
+                        $"{taskLabel} kind {requiredTaskKind} is required by {requiredTaskKindsLabel} for battlefield object id {battlefieldObjectId}");
+                }
             }
         }
     }
@@ -4958,6 +5039,44 @@ public static class MatchRecoveryValidator
         }
 
         return occupantObjectIdsByBattlefield;
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlySet<string>>? BuildSnapshotRequiredBattlefieldTaskKindsByBattlefield(
+        SnapshotDto snapshot)
+    {
+        if (snapshot.Lanes is null
+            || !TryReadObjectList(snapshot.Lanes, "battlefields", out var battlefieldPayloads))
+        {
+            return null;
+        }
+
+        var taskKindsByBattlefield = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+        foreach (var battlefieldPayload in battlefieldPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(battlefieldPayload)
+                || !TryReadObjectString(battlefieldPayload, "battlefieldObjectId", out var battlefieldObjectId)
+                || string.IsNullOrWhiteSpace(battlefieldObjectId)
+                || !TryReadObjectBool(battlefieldPayload, "contested", out var contested)
+                || !contested)
+            {
+                continue;
+            }
+
+            var normalizedBattlefieldObjectId = battlefieldObjectId.Trim();
+            if (!taskKindsByBattlefield.TryGetValue(normalizedBattlefieldObjectId, out var taskKinds))
+            {
+                taskKinds = new HashSet<string>(StringComparer.Ordinal);
+                taskKindsByBattlefield[normalizedBattlefieldObjectId] = taskKinds;
+            }
+
+            taskKinds.Add("START_SPELL_DUEL");
+            taskKinds.Add("START_BATTLE");
+        }
+
+        return taskKindsByBattlefield.ToDictionary(
+            entry => entry.Key,
+            entry => (IReadOnlySet<string>)entry.Value,
+            StringComparer.Ordinal);
     }
 
     private static IReadOnlyDictionary<string, ObjectLocationState> BuildSnapshotObjectLocationIndex(SnapshotDto snapshot)
@@ -14417,6 +14536,8 @@ public static class MatchRecoveryValidator
         var battlefieldStateObjectIds = BuildAuthoritativeStateBattlefieldStateObjectIds(authoritativeState);
         var battlefieldStateOccupantObjectIds = BuildAuthoritativeStateBattlefieldStateOccupantObjectIds(authoritativeState);
         var knownStackItemIds = BuildKnownStackItemIds(authoritativeState.StackItems.Select(item => item?.StackItemId));
+        var requiredTaskKindsByBattlefield =
+            BuildAuthoritativeStateRequiredBattlefieldTaskKindsByBattlefield(authoritativeBattlefieldTasks);
         foreach (var spectatorBattlefieldTask in spectatorBattlefieldTasks)
         {
             if (!IsSnapshotPlayerPayloadObject(spectatorBattlefieldTask))
@@ -14448,6 +14569,13 @@ public static class MatchRecoveryValidator
                 knownStackItemIds,
                 errors);
         }
+
+        ValidateBattlefieldTaskKindSet(
+            spectatorBattlefieldTasks,
+            requiredTaskKindsByBattlefield,
+            "spectator replay frame timing battlefield task item",
+            "authoritative state battlefield tasks",
+            errors);
 
         if (!validateAuthoritativeBattlefieldTaskParity)
         {
@@ -17414,6 +17542,35 @@ public static class MatchRecoveryValidator
                     .Select(occupantObjectId => occupantObjectId.Trim())
                     .ToHashSet(StringComparer.Ordinal),
                 StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlySet<string>> BuildAuthoritativeStateRequiredBattlefieldTaskKindsByBattlefield(
+        IReadOnlyList<BattlefieldTaskState> battlefieldTasks)
+    {
+        var taskKindsByBattlefield = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+        foreach (var battlefieldTask in battlefieldTasks)
+        {
+            if (string.IsNullOrWhiteSpace(battlefieldTask.BattlefieldObjectId)
+                || string.IsNullOrWhiteSpace(battlefieldTask.Kind)
+                || !IsKnownBattlefieldTaskKind(battlefieldTask.Kind))
+            {
+                continue;
+            }
+
+            var battlefieldObjectId = battlefieldTask.BattlefieldObjectId.Trim();
+            if (!taskKindsByBattlefield.TryGetValue(battlefieldObjectId, out var taskKinds))
+            {
+                taskKinds = new HashSet<string>(StringComparer.Ordinal);
+                taskKindsByBattlefield[battlefieldObjectId] = taskKinds;
+            }
+
+            taskKinds.Add(battlefieldTask.Kind.Trim());
+        }
+
+        return taskKindsByBattlefield.ToDictionary(
+            entry => entry.Key,
+            entry => (IReadOnlySet<string>)entry.Value,
+            StringComparer.Ordinal);
     }
 
     private static IReadOnlyDictionary<string, string> BuildAuthoritativeStateObjectControllerIndex(MatchState authoritativeState)
