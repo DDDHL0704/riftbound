@@ -5022,6 +5022,11 @@ public static class MatchRecoveryValidator
                 battlefieldResolutionPayloads.Count,
                 $"snapshot for {view.PlayerId} timing battlefield resolutions",
                 errors);
+            ValidateRetainedResolutionHistoryPayloadTickOrder(
+                battlefieldResolutionPayloads,
+                $"snapshot for {view.PlayerId} timing battlefield resolutions",
+                $"snapshot for {view.PlayerId} timing battlefield resolution item",
+                errors);
             var seenBattlefieldResolutionIds = new HashSet<string>(StringComparer.Ordinal);
             foreach (var resolutionPayload in battlefieldResolutionPayloads)
             {
@@ -5062,6 +5067,11 @@ public static class MatchRecoveryValidator
         ValidateRetainedResolutionHistoryListCount(
             battleResolutionPayloads.Count,
             $"snapshot for {view.PlayerId} timing battle resolutions",
+            errors);
+        ValidateRetainedResolutionHistoryPayloadTickOrder(
+            battleResolutionPayloads,
+            $"snapshot for {view.PlayerId} timing battle resolutions",
+            $"snapshot for {view.PlayerId} timing battle resolution item",
             errors);
         var seenBattleResolutionIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var resolutionPayload in battleResolutionPayloads)
@@ -5295,6 +5305,34 @@ public static class MatchRecoveryValidator
 
         errors.Add(
             $"{listLabel} list has {count} items, maximum is {MaxRetainedResolutionHistoryItems}");
+    }
+
+    private static void ValidateRetainedResolutionHistoryPayloadTickOrder(
+        IReadOnlyList<object?> resolutionPayloads,
+        string listLabel,
+        string itemLabel,
+        List<string> errors)
+    {
+        long? previousTick = null;
+        foreach (var resolutionPayload in resolutionPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(resolutionPayload)
+                || !TryReadObjectLong(resolutionPayload, "tick", out var tick)
+                || tick < 0)
+            {
+                continue;
+            }
+
+            if (previousTick is long previous && tick > previous)
+            {
+                var resolutionId = ReadNormalizedPayloadString(resolutionPayload, "resolutionId");
+                var diagnosticResolutionId = string.IsNullOrEmpty(resolutionId) ? "<missing>" : resolutionId;
+                errors.Add(
+                    $"{listLabel} ticks must be retained newest-first: {itemLabel} resolution id {diagnosticResolutionId} tick {tick} appears after earlier tick {previous}");
+            }
+
+            previousTick = tick;
+        }
     }
 
     private static bool IsKnownBattlefieldResolutionKind(string value)
@@ -18339,6 +18377,14 @@ public static class MatchRecoveryValidator
             battlefieldResolutions.Count,
             "authoritative state battlefield resolutions",
             errors);
+        ValidateRetainedResolutionHistoryStateTickOrder(
+            battlefieldResolutions,
+            resolution => resolution?.ResolutionId,
+            resolution => resolution?.Tick,
+            authoritativeTick,
+            "authoritative state battlefield resolutions",
+            "battlefield resolution",
+            errors);
         var seenResolutionIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var resolution in battlefieldResolutions.OrderBy(
             item => item?.ResolutionId ?? string.Empty,
@@ -18472,6 +18518,14 @@ public static class MatchRecoveryValidator
             battleResolutions.Count,
             "authoritative state battle resolutions",
             errors);
+        ValidateRetainedResolutionHistoryStateTickOrder(
+            battleResolutions,
+            resolution => resolution?.ResolutionId,
+            resolution => resolution?.Tick,
+            authoritativeTick,
+            "authoritative state battle resolutions",
+            "battle resolution",
+            errors);
         var seenResolutionIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var resolution in battleResolutions.OrderBy(
             item => item?.ResolutionId ?? string.Empty,
@@ -18594,6 +18648,36 @@ public static class MatchRecoveryValidator
                 relatedEventKinds,
                 diagnosticResolutionLabel,
                 errors);
+        }
+    }
+
+    private static void ValidateRetainedResolutionHistoryStateTickOrder<TResolution>(
+        IReadOnlyList<TResolution?> resolutions,
+        Func<TResolution?, string?> readResolutionId,
+        Func<TResolution?, long?> readTick,
+        long authoritativeTick,
+        string listLabel,
+        string resolutionLabel,
+        List<string> errors)
+    {
+        long? previousTick = null;
+        foreach (var resolution in resolutions)
+        {
+            var tick = readTick(resolution);
+            if (tick is null || tick < 0 || tick > authoritativeTick)
+            {
+                continue;
+            }
+
+            if (previousTick is long previous && tick > previous)
+            {
+                var resolutionId = readResolutionId(resolution)?.Trim();
+                var diagnosticResolutionId = string.IsNullOrEmpty(resolutionId) ? "<missing>" : resolutionId;
+                errors.Add(
+                    $"{listLabel} ticks must be retained newest-first: {resolutionLabel} {diagnosticResolutionId} tick {tick} appears after earlier tick {previous}");
+            }
+
+            previousTick = tick;
         }
     }
 
@@ -21023,6 +21107,11 @@ public static class MatchRecoveryValidator
                 spectatorBattlefieldResolutions.Count,
                 "spectator replay frame timing battlefield resolutions",
                 errors);
+            ValidateRetainedResolutionHistoryPayloadTickOrder(
+                spectatorBattlefieldResolutions,
+                "spectator replay frame timing battlefield resolutions",
+                "spectator replay frame timing battlefield resolution item",
+                errors);
             var validateAuthoritativeBattlefieldResolutionParity =
                 spectatorBattlefieldResolutions.Count == authoritativeState.BattlefieldResolutions.Count;
             if (!validateAuthoritativeBattlefieldResolutionParity)
@@ -21221,6 +21310,11 @@ public static class MatchRecoveryValidator
             ValidateRetainedResolutionHistoryListCount(
                 spectatorBattleResolutions.Count,
                 "spectator replay frame timing battle resolutions",
+                errors);
+            ValidateRetainedResolutionHistoryPayloadTickOrder(
+                spectatorBattleResolutions,
+                "spectator replay frame timing battle resolutions",
+                "spectator replay frame timing battle resolution item",
                 errors);
             var validateAuthoritativeBattleResolutionParity =
                 spectatorBattleResolutions.Count == authoritativeState.BattleResolutions.Count;

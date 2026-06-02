@@ -11040,6 +11040,64 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingResolutionHistoryRetainedTickOrderDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var players = alice.Snapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["objects"] = RetainedResolutionSnapshotObjects();
+        players["alice"] = alicePayload;
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var olderBattlefieldResolution = RetainedBattlefieldResolutionPayload(0);
+        olderBattlefieldResolution["tick"] = 1;
+        var newerBattlefieldResolution = RetainedBattlefieldResolutionPayload(1);
+        newerBattlefieldResolution["tick"] = 2;
+        timing["battlefieldResolutions"] = new object?[]
+        {
+            olderBattlefieldResolution,
+            newerBattlefieldResolution
+        };
+        var olderBattleResolution = RetainedBattleResolutionPayload(0);
+        olderBattleResolution["tick"] = 1;
+        var newerBattleResolution = RetainedBattleResolutionPayload(1);
+        newerBattleResolution["tick"] = 2;
+        timing["battleResolutions"] = new object?[]
+        {
+            olderBattleResolution,
+            newerBattleResolution
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players,
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield resolutions ticks must be retained newest-first: snapshot for alice timing battlefield resolution item resolution id battlefield-resolution-1 tick 2 appears after earlier tick 1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle resolutions ticks must be retained newest-first: snapshot for alice timing battle resolution item resolution id battle-resolution-1 tick 2 appears after earlier tick 1",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingResolutionHistorySurvivorObjectMembershipDrift()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -23119,6 +23177,55 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "authoritative state battle resolutions list has 13 items, maximum is 12",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateResolutionHistoryRetainedTickOrderDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            2,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            cardObjects: RetainedResolutionCardObjects())
+        {
+            BattlefieldResolutions =
+            [
+                RetainedBattlefieldResolutionState(0) with { Tick = 1 },
+                RetainedBattlefieldResolutionState(1) with { Tick = 2 }
+            ],
+            BattleResolutions =
+            [
+                RetainedBattleResolutionState(0) with { Tick = 1 },
+                RetainedBattleResolutionState(1) with { Tick = 2 }
+            ]
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 2);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state battlefield resolutions ticks must be retained newest-first: battlefield resolution battlefield-resolution-1 tick 2 appears after earlier tick 1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state battle resolutions ticks must be retained newest-first: battle resolution battle-resolution-1 tick 2 appears after earlier tick 1",
                 StringComparison.Ordinal));
     }
 
@@ -57968,6 +58075,90 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing battle resolutions list has 13 items, maximum is 12",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingResolutionHistoryRetainedTickOrderDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            2,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            cardObjects: RetainedResolutionCardObjects(),
+            objectLocations: RetainedResolutionObjectLocations(),
+            battlefieldResolutions:
+            [
+                RetainedBattlefieldResolutionState(1) with { Tick = 2 },
+                RetainedBattlefieldResolutionState(0) with { Tick = 1 }
+            ],
+            battleResolutions:
+            [
+                RetainedBattleResolutionState(1) with { Tick = 2 },
+                RetainedBattleResolutionState(0) with { Tick = 1 }
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            2,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var battlefieldResolutionPayloads = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["battlefieldResolutions"])
+            .Reverse()
+            .ToArray();
+        Assert.Equal(2, battlefieldResolutionPayloads.Length);
+        timing["battlefieldResolutions"] = battlefieldResolutionPayloads;
+        var battleResolutionPayloads = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["battleResolutions"])
+            .Reverse()
+            .ToArray();
+        Assert.Equal(2, battleResolutionPayloads.Length);
+        timing["battleResolutions"] = battleResolutionPayloads;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 2,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolutions ticks must be retained newest-first: spectator replay frame timing battlefield resolution item resolution id battlefield-resolution-1 tick 2 appears after earlier tick 1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolutions ticks must be retained newest-first: spectator replay frame timing battle resolution item resolution id battle-resolution-1 tick 2 appears after earlier tick 1",
                 StringComparison.Ordinal));
     }
 
