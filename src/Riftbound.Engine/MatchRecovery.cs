@@ -5695,8 +5695,7 @@ public static class MatchRecoveryValidator
         return kind switch
         {
             "CLOSED" => string.Equals(reason, "BATTLE_CLOSED", StringComparison.Ordinal),
-            "NO_RESULT" => string.Equals(reason, "BATTLE_NO_RESULT", StringComparison.Ordinal)
-                || string.Equals(reason, "ALL_PARTICIPANTS_DESTROYED", StringComparison.Ordinal)
+            "NO_RESULT" => string.Equals(reason, "ALL_PARTICIPANTS_DESTROYED", StringComparison.Ordinal)
                 || string.Equals(reason, "BOTH_SIDES_RETAIN_UNITS", StringComparison.Ordinal),
             _ => false
         };
