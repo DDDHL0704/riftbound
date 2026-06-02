@@ -8346,12 +8346,9 @@ public static class MatchRecoveryValidator
             var hasAuthoritativeObject = authoritativeState.CardObjects.TryGetValue(objectId, out var cardObject)
                 && cardObject is not null;
             var expectedFaceDown = requiresFaceDownRedaction || cardObject?.IsFaceDown == true;
-            var hasFaceDownFlag = TryReadObjectValue(objectPayload, "isFaceDown", out var faceDownPayload)
-                && !IsNullSnapshotPayloadValue(faceDownPayload);
             var hasValidFaceDownFlag = TryReadObjectBool(objectPayload, "isFaceDown", out var isFaceDown);
             if ((requiresFaceDownRedaction || hasAuthoritativeObject)
-                && ((hasValidFaceDownFlag && isFaceDown != expectedFaceDown)
-                    || (!hasValidFaceDownFlag && hasFaceDownFlag)))
+                && (!hasValidFaceDownFlag || isFaceDown != expectedFaceDown))
             {
                 errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} face-down flag does not match authoritative spectator redaction");
             }
