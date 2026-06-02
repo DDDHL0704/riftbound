@@ -19174,6 +19174,10 @@ public static class MatchRecoveryValidator
                 spectatorReplayFrame.SpectatorSnapshot.Stack,
                 authoritativeState.StackItems,
                 errors);
+            ValidateSpectatorSnapshotStackKeyedAuthoritativeValues(
+                spectatorReplayFrame.SpectatorSnapshot.Stack,
+                authoritativeState.StackItems,
+                errors);
 
             if (spectatorReplayFrame.SpectatorSnapshot.Stack.Count != authoritativeState.StackItems.Count)
             {
@@ -22016,6 +22020,92 @@ public static class MatchRecoveryValidator
             if (normalizedStackItemId is not null && !seenStackItemIds.Add(normalizedStackItemId))
             {
                 errors.Add($"spectator replay frame snapshot stack item {normalizedStackItemId} is duplicated");
+            }
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotStackKeyedAuthoritativeValues(
+        IReadOnlyList<object?> stackItems,
+        IReadOnlyList<StackItemState> authoritativeStackItems,
+        List<string> errors)
+    {
+        var authoritativeStackItemsById = new Dictionary<string, StackItemState>(StringComparer.Ordinal);
+        foreach (var authoritativeStackItem in authoritativeStackItems)
+        {
+            if (string.IsNullOrWhiteSpace(authoritativeStackItem.StackItemId))
+            {
+                continue;
+            }
+
+            var normalizedStackItemId = authoritativeStackItem.StackItemId.Trim();
+            if (!authoritativeStackItemsById.ContainsKey(normalizedStackItemId))
+            {
+                authoritativeStackItemsById.Add(normalizedStackItemId, authoritativeStackItem);
+            }
+        }
+
+        foreach (var stackItem in stackItems)
+        {
+            if (!IsSnapshotPlayerPayloadObject(stackItem)
+                || !TryReadObjectString(stackItem, "stackItemId", out var stackItemId)
+                || string.IsNullOrWhiteSpace(stackItemId))
+            {
+                continue;
+            }
+
+            var normalizedStackItemId = stackItemId.Trim();
+            if (!authoritativeStackItemsById.TryGetValue(normalizedStackItemId, out var authoritativeStackItem))
+            {
+                continue;
+            }
+
+            if (TryReadObjectString(stackItem, "controllerId", out var controllerId)
+                && !string.Equals(controllerId, authoritativeStackItem.ControllerId, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot stack item controller id {controllerId} does not match authoritative state stack item controller id {authoritativeStackItem.ControllerId} for stack item id {normalizedStackItemId}");
+            }
+
+            if (TryReadObjectOptionalString(stackItem, "sourceObjectId", out var sourceObjectId)
+                && !string.Equals(sourceObjectId, authoritativeStackItem.SourceObjectId, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot stack item source object id {sourceObjectId} does not match authoritative state stack item source object id {authoritativeStackItem.SourceObjectId} for stack item id {normalizedStackItemId}");
+            }
+
+            if (TryReadObjectString(stackItem, "effectKind", out var effectKind)
+                && !string.Equals(effectKind, authoritativeStackItem.EffectKind, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot stack item effect kind {effectKind} does not match authoritative state stack item effect kind {authoritativeStackItem.EffectKind} for stack item id {normalizedStackItemId}");
+            }
+
+            if (TryReadObjectOptionalString(stackItem, "cardNo", out var cardNo)
+                && !string.Equals(cardNo, authoritativeStackItem.CardNo, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot stack item card no {cardNo} does not match authoritative state stack item card no {authoritativeStackItem.CardNo} for stack item id {normalizedStackItemId}");
+            }
+
+            if (TryReadObjectStringList(stackItem, "targetObjectIds", out var targetObjectIds)
+                && !StringListsEqual(targetObjectIds, authoritativeStackItem.TargetObjectIds))
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot stack item target object ids do not match authoritative state stack item target object ids for stack item id {normalizedStackItemId}");
+            }
+
+            if (TryReadObjectInt(stackItem, "damageAmount", out var damageAmount)
+                && damageAmount != authoritativeStackItem.DamageAmount)
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot stack item damage amount {damageAmount} does not match authoritative state stack item damage amount {authoritativeStackItem.DamageAmount} for stack item id {normalizedStackItemId}");
+            }
+
+            if (TryReadObjectOptionalString(stackItem, "destination", out var destination)
+                && !string.Equals(destination, authoritativeStackItem.Destination, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"spectator replay frame snapshot stack item destination {destination} does not match authoritative state stack item destination {authoritativeStackItem.Destination} for stack item id {normalizedStackItemId}");
             }
         }
     }
