@@ -4415,7 +4415,6 @@ public static class MatchRecoveryValidator
         IReadOnlyDictionary<(string BattlefieldObjectId, string Kind), BattlefieldTaskState> authoritativeTasksByKey,
         List<string> errors)
     {
-        const string payloadLabel = "spectator replay frame timing battlefield task item";
         foreach (var taskPayload in taskPayloads)
         {
             if (!IsSnapshotPlayerPayloadObject(taskPayload)
@@ -4441,26 +4440,101 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            if (TryReadObjectString(taskPayload, "status", out var status)
-                && !string.Equals(status, authoritativeTask.Status, StringComparison.Ordinal))
+            ValidateSpectatorBattlefieldTaskKeyedRequiredStringValue(
+                taskPayload,
+                "status",
+                "status",
+                authoritativeTask.Status,
+                normalizedBattlefieldObjectId,
+                normalizedKind,
+                errors);
+            ValidateSpectatorBattlefieldTaskKeyedOptionalStringValue(
+                taskPayload,
+                "actingPlayerId",
+                "acting player id",
+                authoritativeTask.ActingPlayerId,
+                normalizedBattlefieldObjectId,
+                normalizedKind,
+                errors);
+            ValidateSpectatorBattlefieldTaskKeyedRequiredStringListValue(
+                taskPayload,
+                "stackItemIds",
+                "stack item ids",
+                authoritativeTask.StackItemIds,
+                normalizedBattlefieldObjectId,
+                normalizedKind,
+                errors);
+        }
+    }
+
+    private static void ValidateSpectatorBattlefieldTaskKeyedRequiredStringValue(
+        object? taskPayload,
+        string key,
+        string fieldLabel,
+        string expected,
+        string battlefieldObjectId,
+        string kind,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing battlefield task item";
+        if (!TryReadObjectString(taskPayload, key, out var actual))
+        {
+            errors.Add(
+                $"{payloadLabel} {fieldLabel} does not match authoritative state battlefield task {fieldLabel} {expected} for battlefield object id {battlefieldObjectId} kind {kind}");
+            return;
+        }
+
+        if (!string.Equals(actual, expected, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} {fieldLabel} {actual} does not match authoritative state battlefield task {fieldLabel} {expected} for battlefield object id {battlefieldObjectId} kind {kind}");
+        }
+    }
+
+    private static void ValidateSpectatorBattlefieldTaskKeyedOptionalStringValue(
+        object? taskPayload,
+        string key,
+        string fieldLabel,
+        string? expected,
+        string battlefieldObjectId,
+        string kind,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing battlefield task item";
+        var expectedText = expected ?? string.Empty;
+        if (!TryReadObjectOptionalString(taskPayload, key, out var actual))
+        {
+            if (!string.IsNullOrEmpty(expectedText))
             {
                 errors.Add(
-                    $"{payloadLabel} status {status} does not match authoritative state battlefield task status {authoritativeTask.Status} for battlefield object id {normalizedBattlefieldObjectId} kind {normalizedKind}");
+                    $"{payloadLabel} {fieldLabel} does not match authoritative state battlefield task {fieldLabel} {expectedText} for battlefield object id {battlefieldObjectId} kind {kind}");
             }
 
-            if (TryReadObjectOptionalString(taskPayload, "actingPlayerId", out var actingPlayerId)
-                && !string.Equals(actingPlayerId, authoritativeTask.ActingPlayerId ?? string.Empty, StringComparison.Ordinal))
-            {
-                errors.Add(
-                    $"{payloadLabel} acting player id {actingPlayerId} does not match authoritative state battlefield task acting player id {authoritativeTask.ActingPlayerId ?? string.Empty} for battlefield object id {normalizedBattlefieldObjectId} kind {normalizedKind}");
-            }
+            return;
+        }
 
-            if (TryReadObjectStringList(taskPayload, "stackItemIds", out var stackItemIds)
-                && !StringListsEqual(stackItemIds, authoritativeTask.StackItemIds))
-            {
-                errors.Add(
-                    $"{payloadLabel} stack item ids disagree with authoritative state battlefield task stack item ids for battlefield object id {normalizedBattlefieldObjectId} kind {normalizedKind}");
-            }
+        if (!string.Equals(actual, expectedText, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} {fieldLabel} {actual} does not match authoritative state battlefield task {fieldLabel} {expectedText} for battlefield object id {battlefieldObjectId} kind {kind}");
+        }
+    }
+
+    private static void ValidateSpectatorBattlefieldTaskKeyedRequiredStringListValue(
+        object? taskPayload,
+        string key,
+        string fieldLabel,
+        IReadOnlyList<string> expected,
+        string battlefieldObjectId,
+        string kind,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing battlefield task item";
+        if (!TryReadObjectStringList(taskPayload, key, out var actual)
+            || !StringListsEqual(actual, expected))
+        {
+            errors.Add(
+                $"{payloadLabel} {fieldLabel} disagree with authoritative state battlefield task {fieldLabel} for battlefield object id {battlefieldObjectId} kind {kind}");
         }
     }
 
