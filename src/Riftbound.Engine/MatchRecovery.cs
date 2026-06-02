@@ -881,6 +881,7 @@ public static class MatchRecoveryValidator
     private const int MaxRetainedResolutionHistoryItems = 12;
     private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
     private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
+    private const string BlueSentinelDelayedTriggerIdPrefixForRecovery = "BLUE_SENTINEL_HELD_DELAYED_RESOURCE";
 
     private sealed record BattleRequiredAssignmentView(
         string SourceObjectId,
@@ -3994,6 +3995,14 @@ public static class MatchRecoveryValidator
                 sourceObjectId,
                 sourceVisibility,
                 effectKind,
+                errors);
+            ValidateTriggerQueueBlueSentinelDelayedResourceContext(
+                triggerLabel,
+                triggerId,
+                sourceObjectId,
+                sourceVisibility,
+                effectKind,
+                triggeredEventKind,
                 errors);
             ValidateTriggerQueueVisibleSourceObjectMembership(
                 triggerLabel,
@@ -12270,7 +12279,7 @@ public static class MatchRecoveryValidator
         battlefieldObjectId = string.Empty;
         var parts = triggerId.Split("::", StringSplitOptions.None);
         if (parts.Length != 4
-            || !string.Equals(parts[0], "BLUE_SENTINEL_HELD_DELAYED_RESOURCE", StringComparison.Ordinal)
+            || !string.Equals(parts[0], BlueSentinelDelayedTriggerIdPrefixForRecovery, StringComparison.Ordinal)
             || !int.TryParse(
                 parts[1],
                 System.Globalization.NumberStyles.Integer,
@@ -16224,17 +16233,25 @@ public static class MatchRecoveryValidator
             "seats",
             errors);
 
-        ValidateTriggerQueueSourceRedactionConsistency(
-            payloadLabel,
-            sourceObjectId,
-            sourceVisibility,
-            effectKind,
-            errors);
-        ValidateTriggerQueueVisibleSourceObjectMembership(
-            payloadLabel,
-            sourceObjectId,
-            sourceVisibility,
-            knownObjectIds,
+            ValidateTriggerQueueSourceRedactionConsistency(
+                payloadLabel,
+                sourceObjectId,
+                sourceVisibility,
+                effectKind,
+                errors);
+            ValidateTriggerQueueBlueSentinelDelayedResourceContext(
+                payloadLabel,
+                triggerId,
+                sourceObjectId,
+                sourceVisibility,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueVisibleSourceObjectMembership(
+                payloadLabel,
+                sourceObjectId,
+                sourceVisibility,
+                knownObjectIds,
             "object registry",
             errors);
     }
@@ -16313,6 +16330,66 @@ public static class MatchRecoveryValidator
         }
 
         errors.Add($"{payloadLabel} triggered event kind {triggeredEventKind} is invalid");
+    }
+
+    private static void ValidateTriggerQueueBlueSentinelDelayedResourceContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceObjectId,
+        string? sourceVisibility,
+        string? effectKind,
+        string? triggeredEventKind,
+        List<string> errors)
+    {
+        if (triggerId is null || !IsBlueSentinelDelayedTriggerIdForRecovery(triggerId))
+        {
+            return;
+        }
+
+        if (!TryReadBlueSentinelDelayedTriggerContextForRecovery(
+                triggerId,
+                out _,
+                out var expectedSourceObjectId,
+                out _))
+        {
+            errors.Add($"{payloadLabel} blue sentinel delayed resource trigger id is invalid");
+            return;
+        }
+
+        if (sourceVisibility is not null
+            && !string.Equals(sourceVisibility, "VISIBLE", StringComparison.Ordinal))
+        {
+            errors.Add($"{payloadLabel} blue sentinel delayed resource source visibility must be VISIBLE");
+        }
+
+        if (sourceObjectId is not null
+            && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
+            && !string.Equals(sourceObjectId, expectedSourceObjectId, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} blue sentinel delayed resource source object id {sourceObjectId} must match trigger id source object id {expectedSourceObjectId}");
+        }
+
+        if (effectKind is not null
+            && !string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal)
+            && !string.Equals(effectKind, P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityEffectKind, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} blue sentinel delayed resource effect kind {effectKind} must be {P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityEffectKind}");
+        }
+
+        if (triggeredEventKind is not null
+            && !string.Equals(triggeredEventKind, "HIDDEN", StringComparison.Ordinal)
+            && !string.Equals(triggeredEventKind, "BATTLEFIELD_HELD", StringComparison.Ordinal))
+        {
+            errors.Add($"{payloadLabel} blue sentinel delayed resource triggered event kind {triggeredEventKind} must be BATTLEFIELD_HELD");
+        }
+    }
+
+    private static bool IsBlueSentinelDelayedTriggerIdForRecovery(string triggerId)
+    {
+        return string.Equals(triggerId, BlueSentinelDelayedTriggerIdPrefixForRecovery, StringComparison.Ordinal)
+            || triggerId.StartsWith($"{BlueSentinelDelayedTriggerIdPrefixForRecovery}::", StringComparison.Ordinal);
     }
 
     private static void ValidateTriggerQueueControllerPlayerMembership(
@@ -18720,6 +18797,15 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"authoritative state trigger queue item {triggerLabel} source object must not be redacted");
             }
+
+            ValidateTriggerQueueBlueSentinelDelayedResourceContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
+                sourceObjectId,
+                sourceVisibility: null,
+                effectKind,
+                triggeredEventKind,
+                errors);
         }
     }
 
