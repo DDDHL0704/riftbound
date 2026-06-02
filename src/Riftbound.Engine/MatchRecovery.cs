@@ -8932,6 +8932,10 @@ public static class MatchRecoveryValidator
             battlefieldItems,
             authoritativeState,
             errors);
+        ValidateSpectatorSnapshotBattlefieldObjectReferences(
+            battlefieldItems,
+            authoritativeState,
+            errors);
         ValidateSpectatorSnapshotStandbySlotPayloads(battlefieldItems, authoritativeState, errors);
     }
 
@@ -9388,6 +9392,84 @@ public static class MatchRecoveryValidator
                 "seats",
                 errors);
         }
+    }
+
+    private static void ValidateSpectatorSnapshotBattlefieldObjectReferences(
+        IReadOnlyList<object?> spectatorBattlefields,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        var authoritativeBattlefields = authoritativeState.BattlefieldStates.Values.ToArray();
+        var count = Math.Min(spectatorBattlefields.Count, authoritativeBattlefields.Length);
+        for (var index = 0; index < count; index++)
+        {
+            var spectatorBattlefield = spectatorBattlefields[index];
+            if (!IsSnapshotPlayerPayloadObject(spectatorBattlefield))
+            {
+                continue;
+            }
+
+            var authoritativeBattlefield = authoritativeBattlefields[index];
+            var battlefieldObjectId = authoritativeBattlefield.BattlefieldObjectId;
+            var payloadLabel = $"spectator replay frame snapshot lane battlefield {battlefieldObjectId}";
+            var occupantObjectIds = BuildNormalizedObjectIdSet(authoritativeBattlefield.OccupantObjectIds);
+            ValidateTimingObjectReferenceList(
+                spectatorBattlefield,
+                "occupantObjectIds",
+                $"{payloadLabel} occupant object id",
+                occupantObjectIds,
+                "authoritative state occupant object ids",
+                errors);
+            ValidateSpectatorSnapshotBattlefieldUnitsBySideObjectReferences(
+                spectatorBattlefield,
+                payloadLabel,
+                occupantObjectIds,
+                errors);
+
+            var visibleStandbyObjectIds = authoritativeBattlefield.StandbyObjectIds
+                .Where(objectId => !IsHiddenBattlefieldStandbyForSpectator(authoritativeState, objectId));
+            ValidateTimingObjectReferenceList(
+                spectatorBattlefield,
+                "standbyObjectIds",
+                $"{payloadLabel} standby object id",
+                BuildNormalizedObjectIdSet(visibleStandbyObjectIds),
+                "authoritative state visible standby object ids",
+                errors);
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotBattlefieldUnitsBySideObjectReferences(
+        object? battlefieldPayload,
+        string payloadLabel,
+        IReadOnlySet<string> knownOccupantObjectIds,
+        List<string> errors)
+    {
+        if (!TryReadObjectStringListDictionary(battlefieldPayload, "unitsBySide", out var unitsBySide))
+        {
+            return;
+        }
+
+        foreach (var (playerId, unitObjectIds) in unitsBySide)
+        {
+            var normalizedPlayerId = playerId.Trim();
+            foreach (var unitObjectId in unitObjectIds)
+            {
+                ValidateTimingObjectReference(
+                    $"{payloadLabel} units by side {normalizedPlayerId} unit object id",
+                    unitObjectId,
+                    knownOccupantObjectIds,
+                    "authoritative state occupant object ids",
+                    errors);
+            }
+        }
+    }
+
+    private static IReadOnlySet<string> BuildNormalizedObjectIdSet(IEnumerable<string> objectIds)
+    {
+        return objectIds
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Select(objectId => objectId.Trim())
+            .ToHashSet(StringComparer.Ordinal);
     }
 
     private static void ValidateSpectatorSnapshotBattlefieldUnitsBySidePayloadPropertyNames(
