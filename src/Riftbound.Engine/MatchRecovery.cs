@@ -5648,8 +5648,7 @@ public static class MatchRecoveryValidator
         {
             "HELD" => string.Equals(reason, "BATTLEFIELD_HELD", StringComparison.Ordinal),
             "CONQUERED" => string.Equals(reason, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal),
-            "CONTROL_RESOLVED" => string.Equals(reason, "BATTLEFIELD_CONTROL_RESOLVED", StringComparison.Ordinal)
-                || string.Equals(reason, "UNCONTROLLED", StringComparison.Ordinal)
+            "CONTROL_RESOLVED" => string.Equals(reason, "UNCONTROLLED", StringComparison.Ordinal)
                 || string.Equals(reason, "CONTROL_CHANGED", StringComparison.Ordinal)
                 || string.Equals(reason, "CONTROL_CONFIRMED", StringComparison.Ordinal),
             _ => false
