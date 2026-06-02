@@ -4147,6 +4147,10 @@ public static class MatchRecoveryValidator
             view,
             taskPayloads,
             errors);
+        ValidateSnapshotBattlefieldTaskWaitingBattleSpellDuelLifecycleConsistency(
+            view,
+            taskPayloads,
+            errors);
         ValidateSnapshotBattlefieldTaskActiveBattleLifecycleConsistency(
             view,
             taskPayloads,
@@ -4592,6 +4596,68 @@ public static class MatchRecoveryValidator
             {
                 errors.Add(
                     $"{taskLabel} battle id {taskBattleId} does not match active battle id {battleId} for battlefield object id {normalizedBattlefieldObjectId}");
+            }
+        }
+    }
+
+    private static void ValidateSnapshotBattlefieldTaskWaitingBattleSpellDuelLifecycleConsistency(
+        RecoveredPlayerView view,
+        IReadOnlyList<object?> taskPayloads,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectValue(view.Snapshot.Timing, "spellDuel", out var spellDuelPayload)
+            || !IsSnapshotPlayerPayloadObject(spellDuelPayload)
+            || !TryReadObjectBool(spellDuelPayload, "isActive", out var isSpellDuelActive)
+            || !isSpellDuelActive
+            || !TryReadObjectOptionalString(spellDuelPayload, "battlefieldObjectId", out var spellDuelBattlefieldObjectId)
+            || string.IsNullOrWhiteSpace(spellDuelBattlefieldObjectId))
+        {
+            return;
+        }
+
+        if (TryReadObjectValue(view.Snapshot.Timing, "battle", out var battlePayload)
+            && IsSnapshotPlayerPayloadObject(battlePayload)
+            && TryReadObjectBool(battlePayload, "isActive", out var isBattleActive)
+            && isBattleActive)
+        {
+            return;
+        }
+
+        var normalizedBattlefieldObjectId = spellDuelBattlefieldObjectId.Trim();
+        var taskLabel = $"snapshot for {view.PlayerId} timing battlefield task item";
+        foreach (var taskPayload in taskPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(taskPayload)
+                || !TryReadObjectString(taskPayload, "kind", out var kind)
+                || string.IsNullOrWhiteSpace(kind)
+                || !string.Equals(kind.Trim(), "START_BATTLE", StringComparison.Ordinal)
+                || !TryReadObjectString(taskPayload, "battlefieldObjectId", out var battlefieldObjectId)
+                || string.IsNullOrWhiteSpace(battlefieldObjectId)
+                || !string.Equals(battlefieldObjectId.Trim(), normalizedBattlefieldObjectId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (TryReadObjectString(taskPayload, "status", out var status)
+                && !string.Equals(status, "WAITING_FOR_SPELL_DUEL", StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{taskLabel} status {status} does not match active spell duel waiting battle status WAITING_FOR_SPELL_DUEL for battlefield object id {normalizedBattlefieldObjectId}");
+            }
+
+            if (TryReadObjectOptionalString(taskPayload, "actingPlayerId", out var actingPlayerId)
+                && !string.IsNullOrEmpty(actingPlayerId))
+            {
+                errors.Add(
+                    $"{taskLabel} acting player id {actingPlayerId} must be empty while waiting for active spell duel for battlefield object id {normalizedBattlefieldObjectId}");
+            }
+
+            if (TryReadObjectStringList(taskPayload, "stackItemIds", out var stackItemIds)
+                && stackItemIds.Count > 0)
+            {
+                errors.Add(
+                    $"{taskLabel} stack item ids must be empty while waiting for active spell duel for battlefield object id {normalizedBattlefieldObjectId}");
             }
         }
     }
