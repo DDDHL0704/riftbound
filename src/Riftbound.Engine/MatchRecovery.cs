@@ -5205,17 +5205,18 @@ public static class MatchRecoveryValidator
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
                 "destroyed object id",
                 errors);
-            ValidateSnapshotPayloadStringListValues(
+            var destroyedObjectIds = ValidateSnapshotPayloadStringListValues(
                 resolutionPayload,
                 "destroyedObjectIds",
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
                 "destroyed object id",
                 errors);
-            ValidateBattleResolutionSurvivorObjectMembership(
+            ValidateBattleResolutionResultListObjectMembership(
                 attackerObjectIds,
                 defenderObjectIds,
                 survivingAttackerObjectIds,
                 survivingDefenderObjectIds,
+                destroyedObjectIds,
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
                 errors);
             ValidateSnapshotPayloadRequiredStringListPayloadShape(
@@ -5421,18 +5422,20 @@ public static class MatchRecoveryValidator
         };
     }
 
-    private static void ValidateBattleResolutionSurvivorObjectMembership(
+    private static void ValidateBattleResolutionResultListObjectMembership(
         IReadOnlyList<string>? attackerObjectIds,
         IReadOnlyList<string>? defenderObjectIds,
         IReadOnlyList<string>? survivingAttackerObjectIds,
         IReadOnlyList<string>? survivingDefenderObjectIds,
+        IReadOnlyList<string>? destroyedObjectIds,
         string payloadLabel,
         List<string> errors)
     {
         if (attackerObjectIds is null
             || defenderObjectIds is null
             || survivingAttackerObjectIds is null
-            || survivingDefenderObjectIds is null)
+            || survivingDefenderObjectIds is null
+            || destroyedObjectIds is null)
         {
             return;
         }
@@ -5452,6 +5455,26 @@ public static class MatchRecoveryValidator
             if (!defenderObjectIdSet.Contains(survivingDefenderObjectId))
             {
                 errors.Add($"{payloadLabel} surviving defender object id {survivingDefenderObjectId} is missing from defender object ids");
+            }
+        }
+
+        var survivingAttackerObjectIdSet = survivingAttackerObjectIds.ToHashSet(StringComparer.Ordinal);
+        var survivingDefenderObjectIdSet = survivingDefenderObjectIds.ToHashSet(StringComparer.Ordinal);
+        foreach (var destroyedObjectId in destroyedObjectIds)
+        {
+            if (!attackerObjectIdSet.Contains(destroyedObjectId) && !defenderObjectIdSet.Contains(destroyedObjectId))
+            {
+                errors.Add($"{payloadLabel} destroyed object id {destroyedObjectId} is missing from attacker or defender object ids");
+            }
+
+            if (survivingAttackerObjectIdSet.Contains(destroyedObjectId))
+            {
+                errors.Add($"{payloadLabel} destroyed object id {destroyedObjectId} also appears in surviving attacker object ids");
+            }
+
+            if (survivingDefenderObjectIdSet.Contains(destroyedObjectId))
+            {
+                errors.Add($"{payloadLabel} destroyed object id {destroyedObjectId} also appears in surviving defender object ids");
             }
         }
     }
@@ -18147,18 +18170,19 @@ public static class MatchRecoveryValidator
                 resolution.SurvivingDefenderObjectIds,
                 errors,
                 requireList: false);
-            ValidateAuthoritativeStateResolutionTextList(
+            var destroyedObjectIds = ValidateAuthoritativeStateResolutionTextList(
                 "battle resolution",
                 resolutionId,
                 "destroyed object",
                 resolution.DestroyedObjectIds,
                 errors,
                 requireList: false);
-            ValidateBattleResolutionSurvivorObjectMembership(
+            ValidateBattleResolutionResultListObjectMembership(
                 attackerObjectIds,
                 defenderObjectIds,
                 survivingAttackerObjectIds,
                 survivingDefenderObjectIds,
+                destroyedObjectIds,
                 $"authoritative state battle resolution {(string.IsNullOrEmpty(resolutionId) ? "<missing>" : resolutionId)}",
                 errors);
             var relatedEventKinds = ValidateAuthoritativeStateResolutionTextList(
@@ -21675,17 +21699,18 @@ public static class MatchRecoveryValidator
             "destroyedObjectIds",
             "destroyed object id",
             errors);
-        ValidateSnapshotPayloadStringListValues(
+        var destroyedObjectIds = ValidateSnapshotPayloadStringListValues(
             resolutionPayload,
             "destroyedObjectIds",
             payloadLabel,
             "destroyed object id",
             errors);
-        ValidateBattleResolutionSurvivorObjectMembership(
+        ValidateBattleResolutionResultListObjectMembership(
             attackerObjectIds,
             defenderObjectIds,
             survivingAttackerObjectIds,
             survivingDefenderObjectIds,
+            destroyedObjectIds,
             payloadLabel,
             errors);
         ValidateSpectatorRequiredStringListPayloadShape(
