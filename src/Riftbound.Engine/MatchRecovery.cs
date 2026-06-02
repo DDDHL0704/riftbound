@@ -5511,6 +5511,31 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateBattlefieldResolutionCombatControllerAbsence(
+        string? kind,
+        string? previousControllerId,
+        string? controllerId,
+        string payloadLabel,
+        string previousControllerLabel,
+        string controllerLabel,
+        List<string> errors)
+    {
+        if (!IsCombatDerivedBattlefieldResolutionKind(kind))
+        {
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(previousControllerId))
+        {
+            errors.Add($"{payloadLabel} {previousControllerLabel} must be absent for kind {kind}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(controllerId))
+        {
+            errors.Add($"{payloadLabel} {controllerLabel} must be absent for kind {kind}");
+        }
+    }
+
     private static void ValidateBattlefieldResolutionControlControllerCompatibility(
         string? kind,
         string? reason,
@@ -18577,6 +18602,14 @@ public static class MatchRecoveryValidator
                 "previous controller",
                 "controller",
                 errors);
+            ValidateBattlefieldResolutionCombatControllerAbsence(
+                kind,
+                resolution.PreviousControllerId,
+                resolution.ControllerId,
+                $"authoritative state battlefield resolution {diagnosticResolutionId}",
+                "previous controller",
+                "controller",
+                errors);
             ValidateAuthoritativeStateResolutionText(
                 "battlefield resolution",
                 resolutionId,
@@ -22305,6 +22338,14 @@ public static class MatchRecoveryValidator
         ValidateBattlefieldResolutionControlPreviousControllerCompatibility(
             kind,
             reason,
+            previousControllerId,
+            controllerId,
+            payloadLabel,
+            "previous controller id",
+            "controller id",
+            errors);
+        ValidateBattlefieldResolutionCombatControllerAbsence(
+            kind,
             previousControllerId,
             controllerId,
             payloadLabel,
