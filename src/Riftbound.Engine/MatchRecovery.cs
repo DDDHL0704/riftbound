@@ -4397,6 +4397,60 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateSpectatorBattlefieldTaskKeyedAuthoritativeValues(
+        IReadOnlyList<object?> taskPayloads,
+        IReadOnlyDictionary<(string BattlefieldObjectId, string Kind), BattlefieldTaskState> authoritativeTasksByKey,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing battlefield task item";
+        foreach (var taskPayload in taskPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(taskPayload)
+                || !TryReadObjectString(taskPayload, "kind", out var kind)
+                || string.IsNullOrWhiteSpace(kind)
+                || !TryReadObjectString(taskPayload, "battlefieldObjectId", out var battlefieldObjectId)
+                || string.IsNullOrWhiteSpace(battlefieldObjectId))
+            {
+                continue;
+            }
+
+            var normalizedKind = kind.Trim();
+            if (!IsKnownBattlefieldTaskKind(normalizedKind))
+            {
+                continue;
+            }
+
+            var normalizedBattlefieldObjectId = battlefieldObjectId.Trim();
+            if (!authoritativeTasksByKey.TryGetValue(
+                    (normalizedBattlefieldObjectId, normalizedKind),
+                    out var authoritativeTask))
+            {
+                continue;
+            }
+
+            if (TryReadObjectString(taskPayload, "status", out var status)
+                && !string.Equals(status, authoritativeTask.Status, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} status {status} does not match authoritative state battlefield task status {authoritativeTask.Status} for battlefield object id {normalizedBattlefieldObjectId} kind {normalizedKind}");
+            }
+
+            if (TryReadObjectOptionalString(taskPayload, "actingPlayerId", out var actingPlayerId)
+                && !string.Equals(actingPlayerId, authoritativeTask.ActingPlayerId ?? string.Empty, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} acting player id {actingPlayerId} does not match authoritative state battlefield task acting player id {authoritativeTask.ActingPlayerId ?? string.Empty} for battlefield object id {normalizedBattlefieldObjectId} kind {normalizedKind}");
+            }
+
+            if (TryReadObjectStringList(taskPayload, "stackItemIds", out var stackItemIds)
+                && !StringListsEqual(stackItemIds, authoritativeTask.StackItemIds))
+            {
+                errors.Add(
+                    $"{payloadLabel} stack item ids disagree with authoritative state battlefield task stack item ids for battlefield object id {normalizedBattlefieldObjectId} kind {normalizedKind}");
+            }
+        }
+    }
+
     private static void ValidateSnapshotTimingBattlefieldTaskListPayloadValues(
         RecoveredPlayerView view,
         List<string> errors)
@@ -14538,6 +14592,8 @@ public static class MatchRecoveryValidator
         var knownStackItemIds = BuildKnownStackItemIds(authoritativeState.StackItems.Select(item => item?.StackItemId));
         var requiredTaskKindsByBattlefield =
             BuildAuthoritativeStateRequiredBattlefieldTaskKindsByBattlefield(authoritativeBattlefieldTasks);
+        var authoritativeBattlefieldTasksByKey =
+            BuildAuthoritativeStateBattlefieldTasksByKey(authoritativeBattlefieldTasks);
         foreach (var spectatorBattlefieldTask in spectatorBattlefieldTasks)
         {
             if (!IsSnapshotPlayerPayloadObject(spectatorBattlefieldTask))
@@ -14575,6 +14631,10 @@ public static class MatchRecoveryValidator
             requiredTaskKindsByBattlefield,
             "spectator replay frame timing battlefield task item",
             "authoritative state battlefield tasks",
+            errors);
+        ValidateSpectatorBattlefieldTaskKeyedAuthoritativeValues(
+            spectatorBattlefieldTasks,
+            authoritativeBattlefieldTasksByKey,
             errors);
 
         if (!validateAuthoritativeBattlefieldTaskParity)
@@ -17571,6 +17631,30 @@ public static class MatchRecoveryValidator
             entry => entry.Key,
             entry => (IReadOnlySet<string>)entry.Value,
             StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<(string BattlefieldObjectId, string Kind), BattlefieldTaskState>
+        BuildAuthoritativeStateBattlefieldTasksByKey(IReadOnlyList<BattlefieldTaskState> battlefieldTasks)
+    {
+        var battlefieldTasksByKey =
+            new Dictionary<(string BattlefieldObjectId, string Kind), BattlefieldTaskState>();
+        foreach (var battlefieldTask in battlefieldTasks)
+        {
+            if (string.IsNullOrWhiteSpace(battlefieldTask.BattlefieldObjectId)
+                || string.IsNullOrWhiteSpace(battlefieldTask.Kind)
+                || !IsKnownBattlefieldTaskKind(battlefieldTask.Kind))
+            {
+                continue;
+            }
+
+            var key = (battlefieldTask.BattlefieldObjectId.Trim(), battlefieldTask.Kind.Trim());
+            if (!battlefieldTasksByKey.ContainsKey(key))
+            {
+                battlefieldTasksByKey[key] = battlefieldTask;
+            }
+        }
+
+        return battlefieldTasksByKey;
     }
 
     private static IReadOnlyDictionary<string, string> BuildAuthoritativeStateObjectControllerIndex(MatchState authoritativeState)
