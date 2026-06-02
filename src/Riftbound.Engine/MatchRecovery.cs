@@ -10674,6 +10674,10 @@ public static class MatchRecoveryValidator
             spectatorEffects,
             authoritativeEffectsById,
             errors);
+        ValidateSpectatorContinuousEffectKeyedAuthoritativeValues(
+            spectatorEffects,
+            authoritativeEffectsById,
+            errors);
 
         if (!validateAuthoritativeParity)
         {
@@ -11085,6 +11089,292 @@ public static class MatchRecoveryValidator
                     $"{payloadLabel} effect id {authoritativeEffectId} is required by authoritative state continuous effects");
             }
         }
+    }
+
+    private static void ValidateSpectatorContinuousEffectKeyedAuthoritativeValues(
+        IReadOnlyList<object?> effectPayloads,
+        IReadOnlyDictionary<string, ContinuousEffectState> authoritativeEffectsById,
+        List<string> errors)
+    {
+        foreach (var effectPayload in effectPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(effectPayload)
+                || !TryReadObjectString(effectPayload, "effectId", out var effectId)
+                || string.IsNullOrWhiteSpace(effectId))
+            {
+                continue;
+            }
+
+            var normalizedEffectId = effectId.Trim();
+            if (!authoritativeEffectsById.TryGetValue(normalizedEffectId, out var authoritativeEffect))
+            {
+                continue;
+            }
+
+            ValidateSpectatorContinuousEffectKeyedStringValue(
+                effectPayload,
+                "scope",
+                "scope",
+                authoritativeEffect.Scope,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedStringValue(
+                effectPayload,
+                "layer",
+                "layer",
+                authoritativeEffect.Layer,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedStringValue(
+                effectPayload,
+                "duration",
+                "duration",
+                authoritativeEffect.Duration,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedOptionalStringValue(
+                effectPayload,
+                "targetObjectId",
+                "target object id",
+                authoritativeEffect.TargetObjectId,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedOptionalStringValue(
+                effectPayload,
+                "sourceObjectId",
+                "source object id",
+                authoritativeEffect.SourceObjectId,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedIntValue(
+                effectPayload,
+                "powerDelta",
+                "power delta",
+                authoritativeEffect.PowerDelta,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedIntValue(
+                effectPayload,
+                "basePower",
+                "base power",
+                authoritativeEffect.BasePower,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedIntValue(
+                effectPayload,
+                "effectivePower",
+                "effective power",
+                authoritativeEffect.EffectivePower,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedIntValue(
+                effectPayload,
+                "sequence",
+                "sequence",
+                authoritativeEffect.Sequence,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedOptionalStringValue(
+                effectPayload,
+                "effectKind",
+                "effect kind",
+                authoritativeEffect.EffectKind,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedOptionalStringValue(
+                effectPayload,
+                "sourceCardNo",
+                "source card number",
+                authoritativeEffect.SourceCardNo,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedOptionalStringValue(
+                effectPayload,
+                "sourcePath",
+                "source path",
+                authoritativeEffect.SourcePath,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedOptionalStringValue(
+                effectPayload,
+                "layerEngineStatus",
+                "layer engine status",
+                authoritativeEffect.IsLayerEngineFoundationOnly ? "FOUNDATION_ONLY" : null,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedOptionalIntValue(
+                effectPayload,
+                "requestedPowerDelta",
+                "requested power delta",
+                authoritativeEffect.RequestedPowerDelta,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedOptionalIntValue(
+                effectPayload,
+                "appliedPowerDelta",
+                "applied power delta",
+                authoritativeEffect.AppliedPowerDelta,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedOptionalIntValue(
+                effectPayload,
+                "minimumPower",
+                "minimum power",
+                authoritativeEffect.MinimumPower,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedOptionalIntValue(
+                effectPayload,
+                "resultingPower",
+                "resulting power",
+                authoritativeEffect.ResultingPower,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedOptionalIntValue(
+                effectPayload,
+                "appliedOrder",
+                "applied order",
+                authoritativeEffect.AppliedOrder,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedOptionalIntValue(
+                effectPayload,
+                "sourceOrder",
+                "source order",
+                authoritativeEffect.SourceOrder,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedOptionalStringValue(
+                effectPayload,
+                "condition",
+                "condition",
+                authoritativeEffect.Condition,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedOptionalStringValue(
+                effectPayload,
+                "lifecycle",
+                "lifecycle",
+                authoritativeEffect.Lifecycle,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedOptionalStringListValue(
+                effectPayload,
+                "participantObjectIds",
+                "participant object ids",
+                authoritativeEffect.ParticipantObjectIds,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedOptionalStringListValue(
+                effectPayload,
+                "sourceDependencyObjectIds",
+                "source dependency object ids",
+                authoritativeEffect.SourceDependencyObjectIds,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedOptionalStringListValue(
+                effectPayload,
+                "targetDependencyObjectIds",
+                "target dependency object ids",
+                authoritativeEffect.TargetDependencyObjectIds,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedOptionalStringListValue(
+                effectPayload,
+                "participantDependencyObjectIds",
+                "participant dependency object ids",
+                authoritativeEffect.ParticipantDependencyObjectIds,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedOptionalStringListValue(
+                effectPayload,
+                "deferredLayerEngineResiduals",
+                "deferred LayerEngine residuals",
+                authoritativeEffect.DeferredLayerEngineResiduals,
+                normalizedEffectId,
+                errors);
+        }
+    }
+
+    private static void ValidateSpectatorContinuousEffectKeyedStringValue(
+        object? effectPayload,
+        string key,
+        string fieldLabel,
+        string expected,
+        string effectId,
+        List<string> errors)
+    {
+        if (TryReadObjectString(effectPayload, key, out var actual)
+            && !string.Equals(actual, expected, StringComparison.Ordinal))
+        {
+            AddSpectatorContinuousEffectKeyedValueMismatch(fieldLabel, effectId, errors);
+        }
+    }
+
+    private static void ValidateSpectatorContinuousEffectKeyedOptionalStringValue(
+        object? effectPayload,
+        string key,
+        string fieldLabel,
+        string? expected,
+        string effectId,
+        List<string> errors)
+    {
+        if (!OptionalStringSnapshotValueMatches(effectPayload, key, expected))
+        {
+            AddSpectatorContinuousEffectKeyedValueMismatch(fieldLabel, effectId, errors);
+        }
+    }
+
+    private static void ValidateSpectatorContinuousEffectKeyedIntValue(
+        object? effectPayload,
+        string key,
+        string fieldLabel,
+        int expected,
+        string effectId,
+        List<string> errors)
+    {
+        if (TryReadObjectInt(effectPayload, key, out var actual)
+            && actual != expected)
+        {
+            AddSpectatorContinuousEffectKeyedValueMismatch(fieldLabel, effectId, errors);
+        }
+    }
+
+    private static void ValidateSpectatorContinuousEffectKeyedOptionalIntValue(
+        object? effectPayload,
+        string key,
+        string fieldLabel,
+        int? expected,
+        string effectId,
+        List<string> errors)
+    {
+        if (!OptionalIntSnapshotValueMatches(effectPayload, key, expected))
+        {
+            AddSpectatorContinuousEffectKeyedValueMismatch(fieldLabel, effectId, errors);
+        }
+    }
+
+    private static void ValidateSpectatorContinuousEffectKeyedOptionalStringListValue(
+        object? effectPayload,
+        string key,
+        string fieldLabel,
+        IReadOnlyList<string>? expected,
+        string effectId,
+        List<string> errors)
+    {
+        if (!OptionalStringListSnapshotValueMatches(effectPayload, key, expected))
+        {
+            AddSpectatorContinuousEffectKeyedValueMismatch(fieldLabel, effectId, errors);
+        }
+    }
+
+    private static void AddSpectatorContinuousEffectKeyedValueMismatch(
+        string fieldLabel,
+        string effectId,
+        List<string> errors)
+    {
+        errors.Add(
+            $"spectator replay frame timing continuous effect item {fieldLabel} does not match authoritative state continuous effect {fieldLabel} for effect id {effectId}");
     }
 
     private static (string? EffectId, int? Sequence) ValidateSpectatorContinuousEffectPayloadValues(
