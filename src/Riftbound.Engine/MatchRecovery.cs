@@ -11761,8 +11761,8 @@ public static class MatchRecoveryValidator
         string effectId,
         List<string> errors)
     {
-        if (TryReadObjectString(effectPayload, key, out var actual)
-            && !string.Equals(actual, expected, StringComparison.Ordinal))
+        if (!TryReadObjectString(effectPayload, key, out var actual)
+            || !string.Equals(actual, expected, StringComparison.Ordinal))
         {
             AddSpectatorContinuousEffectKeyedValueMismatch(fieldLabel, effectId, errors);
         }
@@ -11790,8 +11790,8 @@ public static class MatchRecoveryValidator
         string effectId,
         List<string> errors)
     {
-        if (TryReadObjectInt(effectPayload, key, out var actual)
-            && actual != expected)
+        if (!TryReadObjectInt(effectPayload, key, out var actual)
+            || actual != expected)
         {
             AddSpectatorContinuousEffectKeyedValueMismatch(fieldLabel, effectId, errors);
         }
