@@ -19393,6 +19393,13 @@ public static class MatchRecoveryValidator
                     errors);
             }
 
+            var authoritativeBattlefieldResolutionsById =
+                BuildAuthoritativeBattlefieldResolutionsById(authoritativeState.BattlefieldResolutions);
+            ValidateSpectatorBattlefieldResolutionAuthoritativeKeySet(
+                spectatorBattlefieldResolutions,
+                authoritativeBattlefieldResolutionsById,
+                errors);
+
             if (validateAuthoritativeBattlefieldResolutionParity)
             {
                 var spectatorBattlefieldResolutionIds = ExtractObjectStringValues(
@@ -19565,6 +19572,13 @@ public static class MatchRecoveryValidator
                     errors);
             }
 
+            var authoritativeBattleResolutionsById =
+                BuildAuthoritativeBattleResolutionsById(authoritativeState.BattleResolutions);
+            ValidateSpectatorBattleResolutionAuthoritativeKeySet(
+                spectatorBattleResolutions,
+                authoritativeBattleResolutionsById,
+                errors);
+
             if (validateAuthoritativeBattleResolutionParity)
             {
                 var spectatorBattleResolutionIds = ExtractObjectStringValues(
@@ -19727,6 +19741,118 @@ public static class MatchRecoveryValidator
             || spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("rngCursor"))
         {
             errors.Add("spectator replay frame timing leaks random state");
+        }
+    }
+
+    private static IReadOnlyDictionary<string, BattlefieldResolutionState> BuildAuthoritativeBattlefieldResolutionsById(
+        IReadOnlyList<BattlefieldResolutionState> authoritativeResolutions)
+    {
+        var authoritativeResolutionsById = new Dictionary<string, BattlefieldResolutionState>(StringComparer.Ordinal);
+        foreach (var authoritativeResolution in authoritativeResolutions)
+        {
+            if (string.IsNullOrWhiteSpace(authoritativeResolution.ResolutionId))
+            {
+                continue;
+            }
+
+            var normalizedResolutionId = authoritativeResolution.ResolutionId.Trim();
+            if (!authoritativeResolutionsById.ContainsKey(normalizedResolutionId))
+            {
+                authoritativeResolutionsById.Add(normalizedResolutionId, authoritativeResolution);
+            }
+        }
+
+        return authoritativeResolutionsById;
+    }
+
+    private static IReadOnlyDictionary<string, BattleResolutionState> BuildAuthoritativeBattleResolutionsById(
+        IReadOnlyList<BattleResolutionState> authoritativeResolutions)
+    {
+        var authoritativeResolutionsById = new Dictionary<string, BattleResolutionState>(StringComparer.Ordinal);
+        foreach (var authoritativeResolution in authoritativeResolutions)
+        {
+            if (string.IsNullOrWhiteSpace(authoritativeResolution.ResolutionId))
+            {
+                continue;
+            }
+
+            var normalizedResolutionId = authoritativeResolution.ResolutionId.Trim();
+            if (!authoritativeResolutionsById.ContainsKey(normalizedResolutionId))
+            {
+                authoritativeResolutionsById.Add(normalizedResolutionId, authoritativeResolution);
+            }
+        }
+
+        return authoritativeResolutionsById;
+    }
+
+    private static void ValidateSpectatorBattlefieldResolutionAuthoritativeKeySet(
+        IReadOnlyList<object?> resolutionPayloads,
+        IReadOnlyDictionary<string, BattlefieldResolutionState> authoritativeResolutionsById,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing battlefield resolution item";
+        var actualResolutionIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var resolutionPayload in resolutionPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(resolutionPayload)
+                || !TryReadObjectString(resolutionPayload, "resolutionId", out var resolutionId)
+                || string.IsNullOrWhiteSpace(resolutionId))
+            {
+                continue;
+            }
+
+            var normalizedResolutionId = resolutionId.Trim();
+            actualResolutionIds.Add(normalizedResolutionId);
+            if (!authoritativeResolutionsById.ContainsKey(normalizedResolutionId))
+            {
+                errors.Add(
+                    $"{payloadLabel} resolution id {normalizedResolutionId} is not present in authoritative state battlefield resolutions");
+            }
+        }
+
+        foreach (var authoritativeResolutionId in authoritativeResolutionsById.Keys.OrderBy(id => id, StringComparer.Ordinal))
+        {
+            if (!actualResolutionIds.Contains(authoritativeResolutionId))
+            {
+                errors.Add(
+                    $"{payloadLabel} resolution id {authoritativeResolutionId} is required by authoritative state battlefield resolutions");
+            }
+        }
+    }
+
+    private static void ValidateSpectatorBattleResolutionAuthoritativeKeySet(
+        IReadOnlyList<object?> resolutionPayloads,
+        IReadOnlyDictionary<string, BattleResolutionState> authoritativeResolutionsById,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing battle resolution item";
+        var actualResolutionIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var resolutionPayload in resolutionPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(resolutionPayload)
+                || !TryReadObjectString(resolutionPayload, "resolutionId", out var resolutionId)
+                || string.IsNullOrWhiteSpace(resolutionId))
+            {
+                continue;
+            }
+
+            var normalizedResolutionId = resolutionId.Trim();
+            actualResolutionIds.Add(normalizedResolutionId);
+            if (!authoritativeResolutionsById.ContainsKey(normalizedResolutionId))
+            {
+                errors.Add(
+                    $"{payloadLabel} resolution id {normalizedResolutionId} is not present in authoritative state battle resolutions");
+            }
+        }
+
+        foreach (var authoritativeResolutionId in authoritativeResolutionsById.Keys.OrderBy(id => id, StringComparer.Ordinal))
+        {
+            if (!actualResolutionIds.Contains(authoritativeResolutionId))
+            {
+                errors.Add(
+                    $"{payloadLabel} resolution id {authoritativeResolutionId} is required by authoritative state battle resolutions");
+            }
         }
     }
 
