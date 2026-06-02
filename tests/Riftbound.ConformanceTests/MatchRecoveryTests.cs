@@ -23247,6 +23247,90 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplaySnapshotStackItemControllerOutsideSeatsWithCountMismatch()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            stackItems:
+            [
+                new StackItemState(
+                    "stack-1",
+                    "alice",
+                    sourceObjectId: "spell-1",
+                    effectKind: "DRAW",
+                    cardNo: "SFD-001"),
+                new StackItemState(
+                    "stack-2",
+                    "bob",
+                    sourceObjectId: "spell-2",
+                    effectKind: "DAMAGE",
+                    cardNo: "SFD-002")
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var stack = spectatorReplayFrame.SpectatorSnapshot.Stack.ToArray();
+        Assert.Equal(2, stack.Length);
+
+        var firstStackItem = Assert.IsType<Dictionary<string, object?>>(stack[0]);
+        var secondStackItem = Assert.IsType<Dictionary<string, object?>>(stack[1]);
+        var forgedExtraStackItem = new Dictionary<string, object?>(secondStackItem, StringComparer.Ordinal)
+        {
+            ["stackItemId"] = "forged-stack-extra",
+            ["controllerId"] = "charlie"
+        };
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Stack = [firstStackItem, secondStackItem, forgedExtraStackItem]
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot stack item forged-stack-extra controller player charlie is missing from seats",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot stack item id forged-stack-extra is not present in authoritative state stack items",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot stack count 3 does not match authoritative state stack count 2",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplaySnapshotStackItemIdsMismatch()
     {
         var authoritativeState = new MatchState(

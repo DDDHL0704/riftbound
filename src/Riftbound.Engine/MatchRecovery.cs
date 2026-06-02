@@ -19170,6 +19170,10 @@ public static class MatchRecoveryValidator
                 spectatorReplayFrame.SpectatorSnapshot,
                 authoritativeState,
                 errors);
+            ValidateSpectatorSnapshotStackPlayerReferences(
+                spectatorReplayFrame.SpectatorSnapshot.Stack,
+                BuildNormalizedPlayerIdSet(authoritativeState.Seats.Keys),
+                errors);
             ValidateSpectatorSnapshotStackObjectReferences(
                 spectatorReplayFrame.SpectatorSnapshot.Stack,
                 BuildAuthoritativeStateKnownObjectIds(authoritativeState),
@@ -22025,6 +22029,38 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"spectator replay frame snapshot stack item {normalizedStackItemId} is duplicated");
             }
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotStackPlayerReferences(
+        IReadOnlyList<object?> stackItems,
+        IReadOnlySet<string> knownPlayerIds,
+        List<string> errors)
+    {
+        for (var index = 0; index < stackItems.Count; index++)
+        {
+            var stackItem = stackItems[index];
+            if (!IsSnapshotPlayerPayloadObject(stackItem))
+            {
+                continue;
+            }
+
+            var stackItemLabel = TryReadObjectString(stackItem, "stackItemId", out var stackItemId)
+                && !string.IsNullOrWhiteSpace(stackItemId)
+                ? stackItemId.Trim()
+                : $"#{index + 1}";
+            if (!TryReadObjectString(stackItem, "controllerId", out var controllerId)
+                || string.IsNullOrWhiteSpace(controllerId))
+            {
+                continue;
+            }
+
+            ValidateTimingPlayerReference(
+                $"spectator replay frame snapshot stack item {stackItemLabel} controller player",
+                controllerId,
+                knownPlayerIds,
+                "seats",
+                errors);
         }
     }
 
