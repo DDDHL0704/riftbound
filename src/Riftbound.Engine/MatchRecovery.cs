@@ -5441,6 +5441,15 @@ public static class MatchRecoveryValidator
         }
 
         var attackerObjectIdSet = attackerObjectIds.ToHashSet(StringComparer.Ordinal);
+        var defenderObjectIdSet = defenderObjectIds.ToHashSet(StringComparer.Ordinal);
+        foreach (var attackerObjectId in attackerObjectIds)
+        {
+            if (defenderObjectIdSet.Contains(attackerObjectId))
+            {
+                errors.Add($"{payloadLabel} attacker object id {attackerObjectId} also appears in defender object ids");
+            }
+        }
+
         foreach (var survivingAttackerObjectId in survivingAttackerObjectIds)
         {
             if (!attackerObjectIdSet.Contains(survivingAttackerObjectId))
@@ -5449,7 +5458,6 @@ public static class MatchRecoveryValidator
             }
         }
 
-        var defenderObjectIdSet = defenderObjectIds.ToHashSet(StringComparer.Ordinal);
         foreach (var survivingDefenderObjectId in survivingDefenderObjectIds)
         {
             if (!defenderObjectIdSet.Contains(survivingDefenderObjectId))
