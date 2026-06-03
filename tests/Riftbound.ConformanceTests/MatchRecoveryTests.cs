@@ -8076,6 +8076,100 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueJhinMovementResourceDestinationLocationContextDrift()
+    {
+        var alice = PlayerView("alice", 4, 0);
+        var players = alice.Snapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["objects"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["source-1"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "source-1",
+                ["cardNo"] = P4ActivatedAbilityCatalog.JhinCardNo,
+                ["ownerId"] = "alice",
+                ["controllerId"] = "alice",
+                ["isFaceDown"] = false,
+                ["tags"] = new[] { CardObjectTags.UnitCard },
+                ["location"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["playerId"] = "alice",
+                    ["zone"] = "BATTLEFIELD",
+                    ["battlefieldObjectId"] = "battlefield-2"
+                },
+                ["untilEndOfTurnEffects"] = Array.Empty<string>()
+            },
+            ["battlefield-1"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "battlefield-1",
+                ["isFaceDown"] = false,
+                ["tags"] = new[] { P6TokenFactoryCatalog.BattlefieldCardTag },
+                ["untilEndOfTurnEffects"] = Array.Empty<string>()
+            },
+            ["battlefield-2"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "battlefield-2",
+                ["isFaceDown"] = false,
+                ["tags"] = new[] { P6TokenFactoryCatalog.BattlefieldCardTag },
+                ["untilEndOfTurnEffects"] = Array.Empty<string>()
+            }
+        };
+        players["alice"] = alicePayload;
+        var lanes = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["battlefields"] = new object?[]
+            {
+                new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["battlefieldObjectId"] = "battlefield-1"
+                },
+                new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["battlefieldObjectId"] = "battlefield-2"
+                }
+            }
+        };
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["triggerQueue"] = new object?[]
+        {
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["triggerId"] = "JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD:battlefield-1",
+                ["controllerId"] = "alice",
+                ["sourceObjectId"] = "source-1",
+                ["sourceVisibility"] = "VISIBLE",
+                ["effectKind"] = P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind,
+                ["triggeredByEventKind"] = "UNIT_MOVED_TO_BATTLEFIELD"
+            }
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players,
+                    Lanes = lanes,
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item jhin movement resource destination BATTLEFIELD:battlefield-1 does not match source object id source-1 battlefield object id battlefield-2 in object locations",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueJhinMovementResourceFutureTickContextDrift()
     {
         var alice = PlayerView("alice", 3, 0);
@@ -24928,6 +25022,80 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD:battlefield-2 jhin movement resource destination battlefield object id battlefield-2 is missing from authoritative state battlefield states",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueJhinMovementResourceDestinationLocationContextDrift()
+    {
+        const string triggerId = "JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD:battlefield-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            4,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["source-1", "battlefield-1", "battlefield-2"]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new(
+                    "source-1",
+                    cardNo: P4ActivatedAbilityCatalog.JhinCardNo,
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.UnitCard]),
+                ["battlefield-1"] = new(
+                    "battlefield-1",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
+                ["battlefield-2"] = new(
+                    "battlefield-2",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new("alice", "BATTLEFIELD", "battlefield-2"),
+                ["battlefield-1"] = new("alice", "BATTLEFIELD"),
+                ["battlefield-2"] = new("alice", "BATTLEFIELD")
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    triggerId,
+                    "alice",
+                    sourceObjectId: "source-1",
+                    effectKind: P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind,
+                    triggeredByEventKind: "UNIT_MOVED_TO_BATTLEFIELD")
+            ]);
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 4);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"authoritative state trigger queue item {triggerId} jhin movement resource destination BATTLEFIELD:battlefield-1 does not match source object id source-1 battlefield object id battlefield-2 in authoritative state object locations",
                 StringComparison.Ordinal));
     }
 
@@ -62257,6 +62425,115 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item jhin movement resource destination battlefield object id battlefield-2 is missing from authoritative state battlefield states",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueJhinMovementResourceDestinationLocationContextDrift()
+    {
+        const string triggerId = "JHIN_MOVE_RESOURCE::3::source-1::BASE::BATTLEFIELD:battlefield-1";
+        const string forgedTriggerId = "JHIN_MOVE_RESOURCE::3::source-1::BASE::BATTLEFIELD:battlefield-2";
+        const string sourceObjectId = "source-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            2,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = [sourceObjectId, "battlefield-1", "battlefield-2"]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    cardNo: P4ActivatedAbilityCatalog.JhinCardNo,
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.UnitCard]),
+                ["battlefield-1"] = new(
+                    "battlefield-1",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
+                ["battlefield-2"] = new(
+                    "battlefield-2",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new("alice", "BATTLEFIELD", "battlefield-1"),
+                ["battlefield-1"] = new("alice", "BATTLEFIELD"),
+                ["battlefield-2"] = new("alice", "BATTLEFIELD")
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    triggerId,
+                    "alice",
+                    sourceObjectId,
+                    P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind,
+                    "UNIT_MOVED_TO_BATTLEFIELD")
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var triggerQueue = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["triggerQueue"])
+            .ToArray();
+        var trigger = Assert.IsType<Dictionary<string, object?>>(triggerQueue[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        trigger["triggerId"] = forgedTriggerId;
+        triggerQueue[0] = trigger;
+        timing["triggerQueue"] = triggerQueue;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item jhin movement resource destination BATTLEFIELD:battlefield-2 does not match source object id source-1 battlefield object id battlefield-1 in authoritative state object locations",
                 StringComparison.Ordinal));
     }
 

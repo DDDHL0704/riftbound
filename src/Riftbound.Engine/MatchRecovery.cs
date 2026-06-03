@@ -3958,6 +3958,9 @@ public static class MatchRecoveryValidator
         var objectTags = view.Snapshot.Players is null
             ? null
             : BuildSnapshotObjectTagIndex(view.Snapshot);
+        var objectLocations = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotObjectLocationIndex(view.Snapshot);
         var knownBattlefieldStateObjectIds = BuildSnapshotBattlefieldStateObjectIds(view.Snapshot);
         var seenTriggerIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var triggerPayload in triggerPayloads)
@@ -4065,6 +4068,8 @@ public static class MatchRecoveryValidator
                 "objects",
                 objectTags,
                 "objects",
+                objectLocations,
+                "object locations",
                 knownBattlefieldStateObjectIds,
                 "battlefield states",
                 effectKind,
@@ -16195,6 +16200,7 @@ public static class MatchRecoveryValidator
                 objectControllers,
                 objectFaceDowns,
                 objectTags,
+                authoritativeState.ObjectLocations,
                 battlefieldStateObjectIds,
                 authoritativeState.Tick,
                 authoritativeState.TurnNumber,
@@ -16454,6 +16460,7 @@ public static class MatchRecoveryValidator
         IReadOnlyDictionary<string, string> objectControllers,
         IReadOnlyDictionary<string, bool> objectFaceDowns,
         IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
         IReadOnlySet<string> battlefieldStateObjectIds,
         long currentTick,
         int currentTurnNumber,
@@ -16556,6 +16563,8 @@ public static class MatchRecoveryValidator
             "authoritative state object registry",
             objectTags,
             "authoritative state object registry",
+            objectLocations,
+            "authoritative state object locations",
             battlefieldStateObjectIds,
             "authoritative state battlefield states",
             effectKind,
@@ -16921,6 +16930,8 @@ public static class MatchRecoveryValidator
         string objectFaceDownLabel,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
         string objectTagLabel,
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
+        string objectLocationLabel,
         IReadOnlySet<string>? battlefieldStateObjectIds,
         string battlefieldStateLabel,
         string? effectKind,
@@ -16980,6 +16991,13 @@ public static class MatchRecoveryValidator
             destination,
             battlefieldStateObjectIds,
             battlefieldStateLabel,
+            errors);
+        ValidateJhinMovementDestinationLocationForRecovery(
+            payloadLabel,
+            expectedSourceObjectId,
+            destination,
+            objectLocations,
+            objectLocationLabel,
             errors);
 
         if (sourceObjectId is not null
@@ -17077,6 +17095,66 @@ public static class MatchRecoveryValidator
         {
             errors.Add(
                 $"{payloadLabel} jhin movement resource {endpointLabel} battlefield object id {battlefieldObjectId} is missing from {battlefieldStateLabel}");
+        }
+    }
+
+    private static void ValidateJhinMovementDestinationLocationForRecovery(
+        string payloadLabel,
+        string sourceObjectId,
+        string destination,
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
+        string objectLocationLabel,
+        List<string> errors)
+    {
+        if (objectLocations is null
+            || !objectLocations.TryGetValue(sourceObjectId, out var sourceLocation)
+            || string.IsNullOrWhiteSpace(sourceLocation.Zone))
+        {
+            return;
+        }
+
+        var sourceZone = sourceLocation.Zone.Trim();
+        if (string.Equals(destination, "BASE", StringComparison.Ordinal))
+        {
+            if (!string.Equals(sourceZone, "BASE", StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} jhin movement resource destination BASE does not match source object id {sourceObjectId} location {sourceZone} in {objectLocationLabel}");
+            }
+
+            return;
+        }
+
+        if (string.Equals(destination, "BATTLEFIELD", StringComparison.Ordinal))
+        {
+            if (!string.Equals(sourceZone, "BATTLEFIELD", StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} jhin movement resource destination BATTLEFIELD does not match source object id {sourceObjectId} location {sourceZone} in {objectLocationLabel}");
+            }
+
+            return;
+        }
+
+        if (!TryReadJhinPreciseBattlefieldEndpointForRecovery(destination, out var destinationBattlefieldObjectId))
+        {
+            return;
+        }
+
+        if (!string.Equals(sourceZone, "BATTLEFIELD", StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} jhin movement resource destination {destination} does not match source object id {sourceObjectId} location {sourceZone} in {objectLocationLabel}");
+            return;
+        }
+
+        if (!string.Equals(sourceLocation.BattlefieldObjectId, destinationBattlefieldObjectId, StringComparison.Ordinal))
+        {
+            var actualBattlefieldObjectId = string.IsNullOrWhiteSpace(sourceLocation.BattlefieldObjectId)
+                ? "<null>"
+                : sourceLocation.BattlefieldObjectId;
+            errors.Add(
+                $"{payloadLabel} jhin movement resource destination {destination} does not match source object id {sourceObjectId} battlefield object id {actualBattlefieldObjectId} in {objectLocationLabel}");
         }
     }
 
@@ -19986,6 +20064,7 @@ public static class MatchRecoveryValidator
             objectControllers,
             objectFaceDowns,
             objectTags,
+            authoritativeState.ObjectLocations,
             battlefieldStateObjectIds,
             authoritativeState.Tick,
             authoritativeState.TurnNumber,
@@ -20269,6 +20348,7 @@ public static class MatchRecoveryValidator
         IReadOnlyDictionary<string, string> objectControllers,
         IReadOnlyDictionary<string, bool> objectFaceDowns,
         IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
         IReadOnlySet<string> battlefieldStateObjectIds,
         long currentTick,
         int currentTurnNumber,
@@ -20376,6 +20456,8 @@ public static class MatchRecoveryValidator
                 "authoritative state object registry",
                 objectTags,
                 "authoritative state object registry",
+                objectLocations,
+                "authoritative state object locations",
                 battlefieldStateObjectIds,
                 "authoritative state battlefield states",
                 effectKind,
