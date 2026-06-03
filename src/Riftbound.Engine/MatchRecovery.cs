@@ -16938,6 +16938,18 @@ public static class MatchRecoveryValidator
             errors.Add($"{payloadLabel} jhin movement resource origin {origin} and destination {destination} must differ");
         }
 
+        if (!IsJhinMovementEndpointForRecovery(origin))
+        {
+            errors.Add(
+                $"{payloadLabel} jhin movement resource origin {origin} must be BASE, BATTLEFIELD, or BATTLEFIELD:<battlefieldObjectId>");
+        }
+
+        if (!IsJhinMovementEndpointForRecovery(destination))
+        {
+            errors.Add(
+                $"{payloadLabel} jhin movement resource destination {destination} must be BASE, BATTLEFIELD, or BATTLEFIELD:<battlefieldObjectId>");
+        }
+
         if (sourceObjectId is not null
             && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
             && !string.Equals(sourceObjectId, expectedSourceObjectId, StringComparison.Ordinal))
@@ -17013,6 +17025,19 @@ public static class MatchRecoveryValidator
     {
         return string.Equals(triggerId, JhinMovementResourceTriggerIdPrefixForRecovery, StringComparison.Ordinal)
             || triggerId.StartsWith($"{JhinMovementResourceTriggerIdPrefixForRecovery}::", StringComparison.Ordinal);
+    }
+
+    private static bool IsJhinMovementEndpointForRecovery(string endpoint)
+    {
+        if (string.Equals(endpoint, "BASE", StringComparison.Ordinal)
+            || string.Equals(endpoint, "BATTLEFIELD", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        const string preciseBattlefieldPrefix = "BATTLEFIELD:";
+        return endpoint.StartsWith(preciseBattlefieldPrefix, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(endpoint[preciseBattlefieldPrefix.Length..]);
     }
 
     private static bool TryReadJhinMovementTriggerContextForRecovery(
