@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-17ZR recovery timing trigger queue Sad Poro isolated-context validation tightens `MatchRecoveryValidator` so recovered snapshot, authoritative state and spectator replay-frame timing `triggerQueue[]` entries for `SAD_PORO_LAST_BREATH_DRAW_1` reject retained source contexts with another friendly face-up unit in the trigger controller's base. Validation passed: focused new Sad Poro non-isolated source context tests `3/3`, focused `TriggerQueue` `362/362`, focused recovery `1046/1046`, backend full `6992/6992`. It does not change DOC_MATRIX approved scope or open frontend/final-status locks.
+Current A_MAIN latest accepted slice: Stage 4D-17ZS recovery timing battlefield-task keyed participant-list validation tightens `MatchRecoveryValidator` so spectator replay-frame timing `battlefieldTasks[]` entries keyed by `(battlefieldObjectId, kind)` reject authoritative `reason`, `participantControllerIds[]` and `participantObjectIds[]` drift even when task-count mismatch skips broad ordered parity. Validation passed: focused new keyed participant-list test `1/1`, focused `BattlefieldTask` `60/60`, focused recovery `1047/1047`, adjacent recovery/official-opening/Postgres recovery-store `1628/1628`, backend full `6993/6993`. It does not change DOC_MATRIX approved scope or open frontend/final-status locks.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-17ZR; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-04 03:22 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-17ZS; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-04 03:37 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-04 03:37 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main`; latest local commit before this entry is `b1e97333` (`checkpoint: stage 4D recovery trigger queue sad poro isolated`). This entry records the Stage 4D-17ZS work to be committed/pushed as `checkpoint: stage 4D recovery battlefield task keyed participants`. DOC_MATRIX_CURRENT remains clean at `17bde0c3`; A_MAIN did not touch that worktree.
+
+Write locks: A_MAIN touched only `src/Riftbound.Engine/MatchRecovery.cs`, `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs`, current checkpoint/completion/P0-P1/next-dispatch docs, this shared board, and `docs/CURRENT_STAGE4D_17ZS_RECOVERY_TIMING_BATTLEFIELD_TASK_KEYED_PARTICIPANT_LIST_AUDIT.md`. Matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, frontend, protocol, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-17ZS recovery spectator timing battlefield-task keyed participant-list validation accepted. `MatchRecoveryValidator` now rejects same-key spectator replay-frame timing `battlefieldTasks[]` `reason`, `participantControllerIds[]` and `participantObjectIds[]` drift against authoritative `MatchState.BattlefieldTasks` before task-count mismatch skips broad ordered parity. Project remains **NOT READY**.
+
+Validation: focused new keyed participant-list test `1/1`; focused `BattlefieldTask` filter `60/60`; focused recovery `1047/1047`; adjacent recovery/official-opening/Postgres recovery-store filter `1628/1628`; backend full `6993/6993`; touched-file scoped whitespace format, `git diff --check`, anchored conflict-marker scan and matrix JSON parse passed.
+
+Requested action: none. A_MAIN will commit and push this checkpoint on `main`; future DOC_MATRIX work must re-read the shared board and observe current locks.
 
 ### 2026-06-04 03:22 A_MAIN
 

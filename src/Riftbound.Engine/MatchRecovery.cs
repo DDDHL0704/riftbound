@@ -4887,6 +4887,30 @@ public static class MatchRecoveryValidator
                 normalizedBattlefieldObjectId,
                 normalizedKind,
                 errors);
+            ValidateSpectatorBattlefieldTaskKeyedRequiredStringValue(
+                taskPayload,
+                "reason",
+                "reason",
+                authoritativeTask.Reason,
+                normalizedBattlefieldObjectId,
+                normalizedKind,
+                errors);
+            ValidateSpectatorBattlefieldTaskKeyedRequiredStringListValue(
+                taskPayload,
+                "participantControllerIds",
+                "participant controller ids",
+                authoritativeTask.ParticipantControllerIds,
+                normalizedBattlefieldObjectId,
+                normalizedKind,
+                errors);
+            ValidateSpectatorBattlefieldTaskKeyedRequiredStringListValue(
+                taskPayload,
+                "participantObjectIds",
+                "participant object ids",
+                authoritativeTask.ParticipantObjectIds,
+                normalizedBattlefieldObjectId,
+                normalizedKind,
+                errors);
             ValidateSpectatorBattlefieldTaskKeyedOptionalStringValue(
                 taskPayload,
                 "actingPlayerId",
