@@ -4251,6 +4251,8 @@ public static class MatchRecoveryValidator
                 "objects",
                 objectCardNos,
                 "objects",
+                objectLocations,
+                "object locations",
                 errors);
             ValidateTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContext(
                 triggerLabel,
@@ -16900,6 +16902,8 @@ public static class MatchRecoveryValidator
             "authoritative state object registry",
             objectCardNos,
             "authoritative state object registry",
+            objectLocations,
+            "authoritative state object locations",
             errors);
         ValidateTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContext(
             payloadLabel,
@@ -18642,6 +18646,8 @@ public static class MatchRecoveryValidator
         string objectControllerLabel,
         IReadOnlyDictionary<string, string?>? objectCardNos,
         string objectCardNoLabel,
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
+        string objectLocationLabel,
         List<string> errors)
     {
         ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
@@ -18654,6 +18660,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectLocations,
+            objectLocationLabel,
             WatchfulSentinelLastBreathDrawEffectKindForRecovery,
             "watchful sentinel last-breath draw",
             errors);
@@ -18667,6 +18675,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectLocations,
+            objectLocationLabel,
             UnsungHeroLastBreathPowerfulDrawEffectKindForRecovery,
             "unsung hero last-breath powerful draw",
             errors);
@@ -18680,6 +18690,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectLocations,
+            objectLocationLabel,
             ScoutingWarhawkLastBreathCallRuneEffectKindForRecovery,
             "scouting warhawk last-breath call rune",
             errors);
@@ -18693,6 +18705,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectLocations,
+            objectLocationLabel,
             SadPoroLastBreathDrawEffectKindForRecovery,
             "sad poro last-breath draw",
             errors);
@@ -18706,6 +18720,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectLocations,
+            objectLocationLabel,
             LoyalPoroLastBreathDrawEffectKindForRecovery,
             "loyal poro last-breath draw",
             errors);
@@ -18719,6 +18735,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectLocations,
+            objectLocationLabel,
             HonestBrokerLastBreathCreateGoldEffectKindForRecovery,
             "honest broker last-breath create gold",
             errors);
@@ -18732,6 +18750,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectLocations,
+            objectLocationLabel,
             MechanicalTricksterLastBreathCreateMinionsEffectKindForRecovery,
             "mechanical trickster last-breath create minions",
             errors);
@@ -18745,6 +18765,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectLocations,
+            objectLocationLabel,
             UndercoverAgentLastBreathEffectKindForRecovery,
             "undercover agent last-breath",
             errors);
@@ -18758,6 +18780,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectLocations,
+            objectLocationLabel,
             IroncladVanguardLastBreathCreateRobotsEffectKindForRecovery,
             "ironclad vanguard last-breath create robots",
             errors);
@@ -18771,6 +18795,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectLocations,
+            objectLocationLabel,
             MuddyDredgerLastBreathCreateWarhawkEffectKindForRecovery,
             "muddy dredger last-breath create warhawk",
             errors);
@@ -18786,6 +18812,8 @@ public static class MatchRecoveryValidator
         string objectControllerLabel,
         IReadOnlyDictionary<string, string?>? objectCardNos,
         string objectCardNoLabel,
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
+        string objectLocationLabel,
         string expectedEffectKind,
         string diagnosticName,
         List<string> errors)
@@ -18811,6 +18839,16 @@ public static class MatchRecoveryValidator
         {
             errors.Add(
                 $"{payloadLabel} {diagnosticName} trigger id stack item id is required before source object id {sourceObjectId}");
+        }
+
+        if (objectLocations is not null
+            && objectLocations.TryGetValue(sourceObjectId, out var sourceLocation)
+            && !string.IsNullOrWhiteSpace(sourceLocation.Zone)
+            && !string.Equals(sourceLocation.Zone.Trim(), "GRAVEYARD", StringComparison.Ordinal))
+        {
+            var sourceZone = sourceLocation.Zone.Trim();
+            errors.Add(
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} location zone {sourceZone} must be GRAVEYARD in {objectLocationLabel}");
         }
 
         if (controllerId is not null
@@ -21498,6 +21536,8 @@ public static class MatchRecoveryValidator
                 "authoritative state object registry",
                 objectCardNos,
                 "authoritative state object registry",
+                objectLocations,
+                "authoritative state object locations",
                 errors);
             ValidateTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContext(
                 $"authoritative state trigger queue item {triggerLabel}",
