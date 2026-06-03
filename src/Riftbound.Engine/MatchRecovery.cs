@@ -4028,6 +4028,8 @@ public static class MatchRecoveryValidator
                 triggerId,
                 sourceObjectId,
                 sourceVisibility,
+                knownBattlefieldStateObjectIds,
+                "battlefield states",
                 effectKind,
                 triggeredEventKind,
                 errors);
@@ -16415,6 +16417,8 @@ public static class MatchRecoveryValidator
             triggerId,
             sourceObjectId,
             sourceVisibility,
+            battlefieldStateObjectIds,
+            "authoritative state battlefield states",
             effectKind,
             triggeredEventKind,
             errors);
@@ -16646,6 +16650,8 @@ public static class MatchRecoveryValidator
         string? triggerId,
         string? sourceObjectId,
         string? sourceVisibility,
+        IReadOnlySet<string>? battlefieldStateObjectIds,
+        string battlefieldStateLabel,
         string? effectKind,
         string? triggeredEventKind,
         List<string> errors)
@@ -16659,10 +16665,17 @@ public static class MatchRecoveryValidator
                 triggerId,
                 out _,
                 out var expectedSourceObjectId,
-                out _))
+                out var battlefieldObjectId))
         {
             errors.Add($"{payloadLabel} blue sentinel delayed resource trigger id is invalid");
             return;
+        }
+
+        if (battlefieldStateObjectIds is not null
+            && !battlefieldStateObjectIds.Contains(battlefieldObjectId))
+        {
+            errors.Add(
+                $"{payloadLabel} blue sentinel delayed resource battlefield object id {battlefieldObjectId} is missing from {battlefieldStateLabel}");
         }
 
         if (sourceVisibility is not null
@@ -19986,6 +19999,8 @@ public static class MatchRecoveryValidator
                 triggerId,
                 sourceObjectId,
                 sourceVisibility: null,
+                battlefieldStateObjectIds,
+                "authoritative state battlefield states",
                 effectKind,
                 triggeredEventKind,
                 errors);
