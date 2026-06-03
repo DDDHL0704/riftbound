@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-17WU recovery timing trigger queue Ironclad Vanguard last-breath create-robots context validation tightens `MatchRecoveryValidator` so Ironclad Vanguard last-breath create-robots trigger ids reject source-visibility/effect/event context drift from runtime construction. Runtime creates these standard last-breath trigger queue items as `TRIGGER-{stackItemId}-{sourceObjectId}-IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS`, with effect kind `IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS` and triggered event kind `UNIT_DESTROYED`. Validation passed: focused new Ironclad Vanguard last-breath create-robots context tests `3/3`, focused `TriggerQueue` `137/137`, focused recovery `822/822`, adjacent recovery/official-opening/Postgres recovery-store filter `1402/1402`, backend full `6767/6767`. It does not change DOC_MATRIX approved scope or open frontend/final-status locks.
+Current A_MAIN latest accepted slice: Stage 4D-17WV recovery timing trigger queue Muddy Dredger last-breath create-warhawk context validation tightens `MatchRecoveryValidator` so Muddy Dredger last-breath create-warhawk trigger ids reject source-visibility/effect/event context drift from runtime construction. Runtime creates these standard last-breath trigger queue items as `TRIGGER-{stackItemId}-{sourceObjectId}-MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK`, with effect kind `MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK` and triggered event kind `UNIT_DESTROYED`. Validation passed: focused new Muddy Dredger last-breath create-warhawk context tests `3/3`, focused `TriggerQueue` `140/140`, focused recovery `825/825`, adjacent recovery/official-opening/Postgres recovery-store filter `1405/1405`, backend full `6770/6770`. It does not change DOC_MATRIX approved scope or open frontend/final-status locks.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-17WU; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-03 10:39 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-17WV; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-03 10:49 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-03 10:49 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main`; latest local commit before this entry is `115f6c28` (`checkpoint: stage 4D recovery trigger queue ironclad vanguard context`). This entry records the Stage 4D-17WV work to be committed/pushed as `checkpoint: stage 4D recovery trigger queue muddy dredger context`. DOC_MATRIX_CURRENT remains clean at `17bde0c3`; A_MAIN did not touch that worktree.
+
+Write locks: A_MAIN touched only `src/Riftbound.Engine/MatchRecovery.cs`, `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs`, current checkpoint/completion/P0-P1/next-dispatch docs, this shared board, and `docs/CURRENT_STAGE4D_17WV_RECOVERY_TIMING_TRIGGER_QUEUE_MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK_CONTEXT_AUDIT.md`. Matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, frontend, protocol, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-17WV recovery timing trigger queue Muddy Dredger last-breath create-warhawk context validation accepted. `MatchRecoveryValidator` now rejects recovered snapshot, authoritative state and spectator replay-frame timing `triggerQueue[]` entries whose Muddy Dredger last-breath create-warhawk trigger id carries source-visibility/effect/event context drift from runtime construction. Project remains **NOT READY**.
+
+Validation: focused new Muddy Dredger last-breath create-warhawk context tests `3/3`; focused `TriggerQueue` filter `140/140`; focused recovery `825/825`; adjacent recovery/official-opening/Postgres recovery-store filter `1405/1405`; backend full `6770/6770`; touched-file scoped whitespace format, `git diff --check`, anchored conflict-marker scan and matrix JSON parse passed.
+
+Requested action: no DOC_MATRIX action requested. Future DOC_MATRIX work must re-read this board and obtain/observe an approved scope before touching matrix/test/checkpoint files.
 
 ### 2026-06-03 10:39 A_MAIN
 
