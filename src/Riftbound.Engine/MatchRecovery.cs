@@ -4323,6 +4323,15 @@ public static class MatchRecoveryValidator
                 objectTags,
                 "objects",
                 errors);
+            ValidateTriggerQueueViktorDestroyedNonMinionDestroyedObjectControllerContext(
+                triggerLabel,
+                triggerId,
+                controllerId,
+                sourceObjectId,
+                effectKind,
+                objectControllers,
+                "objects",
+                errors);
             ValidateTriggerQueueFriendlyDestroyedSourceCardContext(
                 triggerLabel,
                 triggerId,
@@ -17087,6 +17096,15 @@ public static class MatchRecoveryValidator
             objectTags,
             "authoritative state object registry",
             errors);
+        ValidateTriggerQueueViktorDestroyedNonMinionDestroyedObjectControllerContext(
+            payloadLabel,
+            triggerId,
+            controllerId,
+            sourceObjectId,
+            effectKind,
+            objectControllers,
+            "authoritative state object registry",
+            errors);
         ValidateTriggerQueueFriendlyDestroyedSourceCardContext(
             payloadLabel,
             triggerId,
@@ -19096,6 +19114,44 @@ public static class MatchRecoveryValidator
 
         errors.Add(
             $"{payloadLabel} viktor destroyed non-minion create minion destroyed object id {destroyedObjectId} must not be a minion token family card in {objectTagLabel}");
+    }
+
+    private static void ValidateTriggerQueueViktorDestroyedNonMinionDestroyedObjectControllerContext(
+        string payloadLabel,
+        string? triggerId,
+        string? controllerId,
+        string? sourceObjectId,
+        string? effectKind,
+        IReadOnlyDictionary<string, string>? objectControllers,
+        string objectControllerLabel,
+        List<string> errors)
+    {
+        if (triggerId is null
+            || !IsStandardLastBreathTriggerForRecovery(
+                triggerId,
+                effectKind,
+                ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery)
+            || !IsStandardLastBreathTriggerIdForRecovery(
+                triggerId,
+                ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery)
+            || string.IsNullOrWhiteSpace(controllerId)
+            || string.Equals(controllerId, "HIDDEN", StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(sourceObjectId)
+            || string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
+            || objectControllers is null
+            || !TryReadFriendlyDestroyedTriggerDestroyedObjectIdForRecovery(
+                triggerId,
+                sourceObjectId,
+                ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery,
+                out var destroyedObjectId)
+            || !objectControllers.TryGetValue(destroyedObjectId, out var destroyedControllerId)
+            || string.Equals(destroyedControllerId, controllerId, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{payloadLabel} viktor destroyed non-minion create minion destroyed object id {destroyedObjectId} controller id {destroyedControllerId} must match trigger controller id {controllerId} in {objectControllerLabel}");
     }
 
     private static void ValidateTriggerQueueFriendlyDestroyedSourceCardContext(
@@ -22672,6 +22728,15 @@ public static class MatchRecoveryValidator
                 sourceObjectId,
                 effectKind,
                 objectTags,
+                "authoritative state object registry",
+                errors);
+            ValidateTriggerQueueViktorDestroyedNonMinionDestroyedObjectControllerContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
+                trigger.ControllerId,
+                sourceObjectId,
+                effectKind,
+                objectControllers,
                 "authoritative state object registry",
                 errors);
             ValidateTriggerQueueFriendlyDestroyedSourceCardContext(
