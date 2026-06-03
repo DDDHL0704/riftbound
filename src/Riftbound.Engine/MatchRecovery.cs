@@ -4315,6 +4315,14 @@ public static class MatchRecoveryValidator
                 objectTags,
                 "objects",
                 errors);
+            ValidateTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardLocationContext(
+                triggerLabel,
+                triggerId,
+                sourceObjectId,
+                effectKind,
+                objectLocations,
+                "object locations",
+                errors);
             ValidateTriggerQueueViktorDestroyedNonMinionDestroyedObjectUnitCardContext(
                 triggerLabel,
                 triggerId,
@@ -17096,6 +17104,14 @@ public static class MatchRecoveryValidator
             objectTags,
             "authoritative state object registry",
             errors);
+        ValidateTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardLocationContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            objectLocations,
+            "authoritative state object locations",
+            errors);
         ValidateTriggerQueueViktorDestroyedNonMinionDestroyedObjectUnitCardContext(
             payloadLabel,
             triggerId,
@@ -19095,6 +19111,91 @@ public static class MatchRecoveryValidator
 
         errors.Add(
             $"{payloadLabel} {diagnosticName} destroyed object id {destroyedObjectId} must not be an equipment card in {objectTagLabel}");
+    }
+
+    private static void ValidateTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardLocationContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceObjectId,
+        string? effectKind,
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
+        string objectLocationLabel,
+        List<string> errors)
+    {
+        ValidateTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardLocationContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            objectLocations,
+            objectLocationLabel,
+            GhostlyCentaurFriendlyDestroyedPowerEffectKindForRecovery,
+            "ghostly centaur friendly-destroyed power",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardLocationContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            objectLocations,
+            objectLocationLabel,
+            ResonantSoulFirstFriendlyDestroyedDrawEffectKindForRecovery,
+            "resonant soul first friendly-destroyed draw",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardLocationContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            objectLocations,
+            objectLocationLabel,
+            SavageJawfishFriendlyDestroyedExperienceEffectKindForRecovery,
+            "savage jawfish friendly-destroyed experience",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardLocationContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            objectLocations,
+            objectLocationLabel,
+            ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery,
+            "viktor destroyed non-minion create minion",
+            errors);
+    }
+
+    private static void ValidateTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardLocationContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceObjectId,
+        string? effectKind,
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
+        string objectLocationLabel,
+        string expectedEffectKind,
+        string diagnosticName,
+        List<string> errors)
+    {
+        if (triggerId is null
+            || !IsStandardLastBreathTriggerForRecovery(triggerId, effectKind, expectedEffectKind)
+            || !IsStandardLastBreathTriggerIdForRecovery(triggerId, expectedEffectKind)
+            || string.IsNullOrWhiteSpace(sourceObjectId)
+            || string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
+            || objectLocations is null
+            || !TryReadFriendlyDestroyedTriggerDestroyedObjectIdForRecovery(
+                triggerId,
+                sourceObjectId,
+                expectedEffectKind,
+                out var destroyedObjectId)
+            || !objectLocations.TryGetValue(destroyedObjectId, out var destroyedLocation)
+            || string.IsNullOrWhiteSpace(destroyedLocation.Zone)
+            || string.Equals(destroyedLocation.Zone.Trim(), "GRAVEYARD", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        var destroyedZone = destroyedLocation.Zone.Trim();
+        errors.Add(
+            $"{payloadLabel} {diagnosticName} destroyed object id {destroyedObjectId} location zone {destroyedZone} must be GRAVEYARD in {objectLocationLabel}");
     }
 
     private static void ValidateTriggerQueueViktorDestroyedNonMinionDestroyedObjectUnitCardContext(
@@ -22774,6 +22875,14 @@ public static class MatchRecoveryValidator
                 effectKind,
                 objectTags,
                 "authoritative state object registry",
+                errors);
+            ValidateTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardLocationContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
+                sourceObjectId,
+                effectKind,
+                objectLocations,
+                "authoritative state object locations",
                 errors);
             ValidateTriggerQueueViktorDestroyedNonMinionDestroyedObjectUnitCardContext(
                 $"authoritative state trigger queue item {triggerLabel}",
