@@ -4056,6 +4056,10 @@ public static class MatchRecoveryValidator
                 triggerLabel,
                 triggerId,
                 sourceObjectId,
+                objectCardNos,
+                "objects",
+                objectTags,
+                "objects",
                 effectKind,
                 triggeredEventKind,
                 errors);
@@ -16533,6 +16537,10 @@ public static class MatchRecoveryValidator
             payloadLabel,
             triggerId,
             sourceObjectId,
+            objectCardNos,
+            "authoritative state object registry",
+            objectTags,
+            "authoritative state object registry",
             effectKind,
             triggeredEventKind,
             errors);
@@ -16886,6 +16894,10 @@ public static class MatchRecoveryValidator
         string payloadLabel,
         string? triggerId,
         string? sourceObjectId,
+        IReadOnlyDictionary<string, string?>? objectCardNos,
+        string objectCardNoLabel,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
+        string objectTagLabel,
         string? effectKind,
         string? triggeredEventKind,
         List<string> errors)
@@ -16912,6 +16924,23 @@ public static class MatchRecoveryValidator
         {
             errors.Add(
                 $"{payloadLabel} jhin movement resource source object id {sourceObjectId} must match trigger id source object id {expectedSourceObjectId}");
+        }
+
+        if (objectCardNos is not null
+            && objectCardNos.TryGetValue(expectedSourceObjectId, out var sourceCardNo)
+            && !string.Equals(sourceCardNo, P4ActivatedAbilityCatalog.JhinCardNo, StringComparison.Ordinal))
+        {
+            var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
+            errors.Add(
+                $"{payloadLabel} jhin movement resource source object id {expectedSourceObjectId} card no {sourceCardNoLabel} must be {P4ActivatedAbilityCatalog.JhinCardNo} in {objectCardNoLabel}");
+        }
+
+        if (objectTags is not null
+            && objectTags.TryGetValue(expectedSourceObjectId, out var sourceTags)
+            && !sourceTags.Contains(CardObjectTags.UnitCard))
+        {
+            errors.Add(
+                $"{payloadLabel} jhin movement resource source object id {expectedSourceObjectId} must be a unit card in {objectTagLabel}");
         }
 
         if (effectKind is not null
@@ -20197,6 +20226,10 @@ public static class MatchRecoveryValidator
                 $"authoritative state trigger queue item {triggerLabel}",
                 triggerId,
                 sourceObjectId,
+                objectCardNos,
+                "authoritative state object registry",
+                objectTags,
+                "authoritative state object registry",
                 effectKind,
                 triggeredEventKind,
                 errors);
