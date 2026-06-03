@@ -4322,6 +4322,15 @@ public static class MatchRecoveryValidator
                 objectTags,
                 "objects",
                 errors);
+            ValidateTriggerQueueFriendlyDestroyedSourceLocationContext(
+                triggerLabel,
+                triggerId,
+                controllerId,
+                sourceObjectId,
+                effectKind,
+                objectLocations,
+                "object locations",
+                errors);
             ValidateTriggerQueueFriendlyDestroyedStackContext(
                 triggerLabel,
                 triggerId,
@@ -17037,6 +17046,15 @@ public static class MatchRecoveryValidator
             objectTags,
             "authoritative state object registry",
             errors);
+        ValidateTriggerQueueFriendlyDestroyedSourceLocationContext(
+            payloadLabel,
+            triggerId,
+            controllerId,
+            sourceObjectId,
+            effectKind,
+            objectLocations,
+            "authoritative state object locations",
+            errors);
         ValidateTriggerQueueFriendlyDestroyedStackContext(
             payloadLabel,
             triggerId,
@@ -18971,6 +18989,107 @@ public static class MatchRecoveryValidator
         {
             errors.Add(
                 $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must not be a standby card in {objectTagLabel}");
+        }
+    }
+
+    private static void ValidateTriggerQueueFriendlyDestroyedSourceLocationContext(
+        string payloadLabel,
+        string? triggerId,
+        string? controllerId,
+        string? sourceObjectId,
+        string? effectKind,
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
+        string objectLocationLabel,
+        List<string> errors)
+    {
+        ValidateTriggerQueueFriendlyDestroyedSourceLocationContext(
+            payloadLabel,
+            triggerId,
+            controllerId,
+            sourceObjectId,
+            effectKind,
+            objectLocations,
+            objectLocationLabel,
+            GhostlyCentaurFriendlyDestroyedPowerEffectKindForRecovery,
+            "ghostly centaur friendly-destroyed power",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedSourceLocationContext(
+            payloadLabel,
+            triggerId,
+            controllerId,
+            sourceObjectId,
+            effectKind,
+            objectLocations,
+            objectLocationLabel,
+            ResonantSoulFirstFriendlyDestroyedDrawEffectKindForRecovery,
+            "resonant soul first friendly-destroyed draw",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedSourceLocationContext(
+            payloadLabel,
+            triggerId,
+            controllerId,
+            sourceObjectId,
+            effectKind,
+            objectLocations,
+            objectLocationLabel,
+            SavageJawfishFriendlyDestroyedExperienceEffectKindForRecovery,
+            "savage jawfish friendly-destroyed experience",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedSourceLocationContext(
+            payloadLabel,
+            triggerId,
+            controllerId,
+            sourceObjectId,
+            effectKind,
+            objectLocations,
+            objectLocationLabel,
+            ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery,
+            "viktor destroyed non-minion create minion",
+            errors);
+    }
+
+    private static void ValidateTriggerQueueFriendlyDestroyedSourceLocationContext(
+        string payloadLabel,
+        string? triggerId,
+        string? controllerId,
+        string? sourceObjectId,
+        string? effectKind,
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
+        string objectLocationLabel,
+        string expectedEffectKind,
+        string diagnosticName,
+        List<string> errors)
+    {
+        if (triggerId is null
+            || !IsStandardLastBreathTriggerForRecovery(triggerId, effectKind, expectedEffectKind)
+            || !IsStandardLastBreathTriggerIdForRecovery(triggerId, expectedEffectKind)
+            || string.IsNullOrWhiteSpace(sourceObjectId)
+            || string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
+            || objectLocations is null
+            || !objectLocations.TryGetValue(sourceObjectId, out var sourceLocation)
+            || string.IsNullOrWhiteSpace(sourceLocation.Zone))
+        {
+            return;
+        }
+
+        var sourceZone = sourceLocation.Zone.Trim();
+        if (!string.Equals(sourceZone, "BASE", StringComparison.Ordinal)
+            && !string.Equals(sourceZone, "BATTLEFIELD", StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} location zone {sourceZone} must be BASE or BATTLEFIELD in {objectLocationLabel}");
+        }
+
+        if (controllerId is not null
+            && !string.Equals(controllerId, "HIDDEN", StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(sourceLocation.PlayerId))
+        {
+            var sourcePlayerId = sourceLocation.PlayerId.Trim();
+            if (!string.Equals(sourcePlayerId, controllerId, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} location player id {sourcePlayerId} must match trigger controller id {controllerId} in {objectLocationLabel}");
+            }
         }
     }
 
@@ -22057,6 +22176,15 @@ public static class MatchRecoveryValidator
                 "authoritative state object registry",
                 objectTags,
                 "authoritative state object registry",
+                errors);
+            ValidateTriggerQueueFriendlyDestroyedSourceLocationContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
+                trigger.ControllerId,
+                sourceObjectId,
+                effectKind,
+                objectLocations,
+                "authoritative state object locations",
                 errors);
             ValidateTriggerQueueFriendlyDestroyedStackContext(
                 $"authoritative state trigger queue item {triggerLabel}",
