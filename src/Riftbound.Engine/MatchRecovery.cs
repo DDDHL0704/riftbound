@@ -4312,6 +4312,16 @@ public static class MatchRecoveryValidator
                 objectControllers,
                 "objects",
                 errors);
+            ValidateTriggerQueueFriendlyDestroyedSourceVisibilityStateContext(
+                triggerLabel,
+                triggerId,
+                sourceObjectId,
+                effectKind,
+                objectFaceDowns,
+                "objects",
+                objectTags,
+                "objects",
+                errors);
             ValidateTriggerQueueFriendlyDestroyedStackContext(
                 triggerLabel,
                 triggerId,
@@ -17017,6 +17027,16 @@ public static class MatchRecoveryValidator
             objectControllers,
             "authoritative state object registry",
             errors);
+        ValidateTriggerQueueFriendlyDestroyedSourceVisibilityStateContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            objectFaceDowns,
+            "authoritative state object registry",
+            objectTags,
+            "authoritative state object registry",
+            errors);
         ValidateTriggerQueueFriendlyDestroyedStackContext(
             payloadLabel,
             triggerId,
@@ -18851,6 +18871,106 @@ public static class MatchRecoveryValidator
         {
             errors.Add(
                 $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} controller id {sourceControllerId} must match trigger controller id {controllerId} in {objectControllerLabel}");
+        }
+    }
+
+    private static void ValidateTriggerQueueFriendlyDestroyedSourceVisibilityStateContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceObjectId,
+        string? effectKind,
+        IReadOnlyDictionary<string, bool>? objectFaceDowns,
+        string objectFaceDownLabel,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
+        string objectTagLabel,
+        List<string> errors)
+    {
+        ValidateTriggerQueueFriendlyDestroyedSourceVisibilityStateContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            objectFaceDowns,
+            objectFaceDownLabel,
+            objectTags,
+            objectTagLabel,
+            GhostlyCentaurFriendlyDestroyedPowerEffectKindForRecovery,
+            "ghostly centaur friendly-destroyed power",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedSourceVisibilityStateContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            objectFaceDowns,
+            objectFaceDownLabel,
+            objectTags,
+            objectTagLabel,
+            ResonantSoulFirstFriendlyDestroyedDrawEffectKindForRecovery,
+            "resonant soul first friendly-destroyed draw",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedSourceVisibilityStateContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            objectFaceDowns,
+            objectFaceDownLabel,
+            objectTags,
+            objectTagLabel,
+            SavageJawfishFriendlyDestroyedExperienceEffectKindForRecovery,
+            "savage jawfish friendly-destroyed experience",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedSourceVisibilityStateContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            objectFaceDowns,
+            objectFaceDownLabel,
+            objectTags,
+            objectTagLabel,
+            ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery,
+            "viktor destroyed non-minion create minion",
+            errors);
+    }
+
+    private static void ValidateTriggerQueueFriendlyDestroyedSourceVisibilityStateContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceObjectId,
+        string? effectKind,
+        IReadOnlyDictionary<string, bool>? objectFaceDowns,
+        string objectFaceDownLabel,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
+        string objectTagLabel,
+        string expectedEffectKind,
+        string diagnosticName,
+        List<string> errors)
+    {
+        if (triggerId is null
+            || !IsStandardLastBreathTriggerForRecovery(triggerId, effectKind, expectedEffectKind)
+            || !IsStandardLastBreathTriggerIdForRecovery(triggerId, expectedEffectKind)
+            || string.IsNullOrWhiteSpace(sourceObjectId)
+            || string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        if (objectFaceDowns is not null
+            && objectFaceDowns.TryGetValue(sourceObjectId, out var isFaceDown)
+            && isFaceDown)
+        {
+            errors.Add(
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must not be face down in {objectFaceDownLabel}");
+        }
+
+        if (objectTags is not null
+            && objectTags.TryGetValue(sourceObjectId, out var standbySourceTags)
+            && standbySourceTags.Contains(CardObjectTags.Standby))
+        {
+            errors.Add(
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must not be a standby card in {objectTagLabel}");
         }
     }
 
@@ -21926,6 +22046,16 @@ public static class MatchRecoveryValidator
                 sourceObjectId,
                 effectKind,
                 objectControllers,
+                "authoritative state object registry",
+                errors);
+            ValidateTriggerQueueFriendlyDestroyedSourceVisibilityStateContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
+                sourceObjectId,
+                effectKind,
+                objectFaceDowns,
+                "authoritative state object registry",
+                objectTags,
                 "authoritative state object registry",
                 errors);
             ValidateTriggerQueueFriendlyDestroyedStackContext(
