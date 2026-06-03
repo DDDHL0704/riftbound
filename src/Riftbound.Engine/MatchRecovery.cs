@@ -886,6 +886,7 @@ public static class MatchRecoveryValidator
     private const string KogmawCardNoForRecovery = "OGN·190/298";
     private const string KogmawLastBreathAoeEffectKindForRecovery = "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT";
     private const string KogmawTriggerBattlefieldMarkerForRecovery = "::BATTLEFIELD::";
+    private const string OgsLuxHighCostSpellCardNoForRecovery = "OGS·006/024";
     private const string OgsLuxHighCostSpellPowerEffectKindForRecovery = "OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3";
     private const string StandardTriggerIdPrefixForRecovery = "TRIGGER-";
     private const string TeemoOnPlaySelfPowerEffectKindForRecovery = "TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3";
@@ -4112,6 +4113,12 @@ public static class MatchRecoveryValidator
                 triggerId,
                 sourceObjectId,
                 sourceVisibility,
+                objectCardNos,
+                "objects",
+                objectFaceDowns,
+                "objects",
+                objectTags,
+                "objects",
                 effectKind,
                 triggeredEventKind,
                 errors);
@@ -16661,6 +16668,12 @@ public static class MatchRecoveryValidator
             triggerId,
             sourceObjectId,
             sourceVisibility,
+            objectCardNos,
+            "authoritative state object registry",
+            objectFaceDowns,
+            "authoritative state object registry",
+            objectTags,
+            "authoritative state object registry",
             effectKind,
             triggeredEventKind,
             errors);
@@ -17683,6 +17696,12 @@ public static class MatchRecoveryValidator
         string? triggerId,
         string? sourceObjectId,
         string? sourceVisibility,
+        IReadOnlyDictionary<string, string?>? objectCardNos,
+        string objectCardNoLabel,
+        IReadOnlyDictionary<string, bool>? objectFaceDowns,
+        string objectFaceDownLabel,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
+        string objectTagLabel,
         string? effectKind,
         string? triggeredEventKind,
         List<string> errors)
@@ -17711,6 +17730,39 @@ public static class MatchRecoveryValidator
             {
                 errors.Add(
                     $"{payloadLabel} ogs lux high cost spell trigger id stack item id is required before source object id {sourceObjectId}");
+            }
+
+            if (objectCardNos is not null
+                && objectCardNos.TryGetValue(sourceObjectId, out var sourceCardNo)
+                && !string.Equals(sourceCardNo, OgsLuxHighCostSpellCardNoForRecovery, StringComparison.Ordinal))
+            {
+                var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
+                errors.Add(
+                    $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} card no {sourceCardNoLabel} must be {OgsLuxHighCostSpellCardNoForRecovery} in {objectCardNoLabel}");
+            }
+
+            if (objectFaceDowns is not null
+                && objectFaceDowns.TryGetValue(sourceObjectId, out var isFaceDown)
+                && isFaceDown)
+            {
+                errors.Add(
+                    $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} must not be face down in {objectFaceDownLabel}");
+            }
+
+            if (objectTags is not null
+                && objectTags.TryGetValue(sourceObjectId, out var sourceTags)
+                && !sourceTags.Contains(CardObjectTags.UnitCard))
+            {
+                errors.Add(
+                    $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} must be a unit card in {objectTagLabel}");
+            }
+
+            if (objectTags is not null
+                && objectTags.TryGetValue(sourceObjectId, out var standbySourceTags)
+                && standbySourceTags.Contains(CardObjectTags.Standby))
+            {
+                errors.Add(
+                    $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} must not be a standby card in {objectTagLabel}");
             }
         }
 
@@ -20894,6 +20946,12 @@ public static class MatchRecoveryValidator
                 triggerId,
                 sourceObjectId,
                 sourceVisibility: null,
+                objectCardNos,
+                "authoritative state object registry",
+                objectFaceDowns,
+                "authoritative state object registry",
+                objectTags,
+                "authoritative state object registry",
                 effectKind,
                 triggeredEventKind,
                 errors);
