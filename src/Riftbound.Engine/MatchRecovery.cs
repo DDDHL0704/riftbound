@@ -902,6 +902,7 @@ public static class MatchRecoveryValidator
     private const string IroncladVanguardLastBreathCreateRobotsEffectKindForRecovery = "IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS";
     private const string MuddyDredgerLastBreathCreateWarhawkEffectKindForRecovery = "MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK";
     private const string GhostlyCentaurFriendlyDestroyedPowerEffectKindForRecovery = "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
+    private const string ResonantSoulFirstFriendlyDestroyedDrawEffectKindForRecovery = "RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1";
 
     private sealed record BattleRequiredAssignmentView(
         string SourceObjectId,
@@ -4122,6 +4123,13 @@ public static class MatchRecoveryValidator
                 triggeredEventKind,
                 errors);
             ValidateTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContext(
+                triggerLabel,
+                triggerId,
+                sourceVisibility,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueResonantSoulFirstFriendlyDestroyedDrawContext(
                 triggerLabel,
                 triggerId,
                 sourceVisibility,
@@ -16475,6 +16483,13 @@ public static class MatchRecoveryValidator
             effectKind,
             triggeredEventKind,
             errors);
+        ValidateTriggerQueueResonantSoulFirstFriendlyDestroyedDrawContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            errors);
         ValidateTriggerQueueVisibleSourceObjectMembership(
             payloadLabel,
             sourceObjectId,
@@ -17158,6 +17173,25 @@ public static class MatchRecoveryValidator
             triggeredEventKind,
             GhostlyCentaurFriendlyDestroyedPowerEffectKindForRecovery,
             "ghostly centaur friendly-destroyed power",
+            errors);
+    }
+
+    private static void ValidateTriggerQueueResonantSoulFirstFriendlyDestroyedDrawContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceVisibility,
+        string? effectKind,
+        string? triggeredEventKind,
+        List<string> errors)
+    {
+        ValidateTriggerQueueStandardLastBreathContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            ResonantSoulFirstFriendlyDestroyedDrawEffectKindForRecovery,
+            "resonant soul first friendly-destroyed draw",
             errors);
     }
 
@@ -19734,6 +19768,13 @@ public static class MatchRecoveryValidator
                 triggeredEventKind,
                 errors);
             ValidateTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
+                sourceVisibility: null,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueResonantSoulFirstFriendlyDestroyedDrawContext(
                 $"authoritative state trigger queue item {triggerLabel}",
                 triggerId,
                 sourceVisibility: null,
