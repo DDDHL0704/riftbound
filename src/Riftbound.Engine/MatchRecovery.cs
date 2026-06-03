@@ -908,6 +908,12 @@ public static class MatchRecoveryValidator
     private const string UndercoverAgentCardNoForRecovery = "OGN·178/298";
     private const string IroncladVanguardCardNoForRecovery = "SFD·021/221";
     private const string MuddyDredgerCardNoForRecovery = "UNL-153/219";
+    private const string GhostlyCentaurCardNoForRecovery = "UNL-068/219";
+    private const string ResonantSoulCardNoForRecovery = "OGN·118/298";
+    private const string SavageJawfishCardNoForRecovery = "UNL-129/219";
+    private const string ViktorDestroyedNonMinionArcCardNoForRecovery = "ARC-006/006";
+    private const string ViktorDestroyedNonMinionOgnCardNoForRecovery = "OGN·246/298";
+    private const string ViktorDestroyedNonMinionOgnAltACardNoForRecovery = "OGN·246a/298";
     private const string WatchfulSentinelLastBreathDrawEffectKindForRecovery = "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
     private const string SadPoroLastBreathDrawEffectKindForRecovery = "SAD_PORO_LAST_BREATH_DRAW_1";
     private const string LoyalPoroLastBreathDrawEffectKindForRecovery = "LOYAL_PORO_LAST_BREATH_DRAW_1";
@@ -4286,6 +4292,16 @@ public static class MatchRecoveryValidator
                 sourceVisibility,
                 effectKind,
                 triggeredEventKind,
+                errors);
+            ValidateTriggerQueueFriendlyDestroyedSourceCardContext(
+                triggerLabel,
+                triggerId,
+                sourceObjectId,
+                effectKind,
+                objectCardNos,
+                "objects",
+                objectTags,
+                "objects",
                 errors);
             ValidateTriggerQueueFriendlyDestroyedStackContext(
                 triggerLabel,
@@ -16973,6 +16989,16 @@ public static class MatchRecoveryValidator
             effectKind,
             triggeredEventKind,
             errors);
+        ValidateTriggerQueueFriendlyDestroyedSourceCardContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            objectCardNos,
+            "authoritative state object registry",
+            objectTags,
+            "authoritative state object registry",
+            errors);
         ValidateTriggerQueueFriendlyDestroyedStackContext(
             payloadLabel,
             triggerId,
@@ -18615,6 +18641,113 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateTriggerQueueFriendlyDestroyedSourceCardContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceObjectId,
+        string? effectKind,
+        IReadOnlyDictionary<string, string?>? objectCardNos,
+        string objectCardNoLabel,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
+        string objectTagLabel,
+        List<string> errors)
+    {
+        ValidateTriggerQueueFriendlyDestroyedSourceCardContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            objectCardNos,
+            objectCardNoLabel,
+            objectTags,
+            objectTagLabel,
+            GhostlyCentaurFriendlyDestroyedPowerEffectKindForRecovery,
+            "ghostly centaur friendly-destroyed power",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedSourceCardContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            objectCardNos,
+            objectCardNoLabel,
+            objectTags,
+            objectTagLabel,
+            ResonantSoulFirstFriendlyDestroyedDrawEffectKindForRecovery,
+            "resonant soul first friendly-destroyed draw",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedSourceCardContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            objectCardNos,
+            objectCardNoLabel,
+            objectTags,
+            objectTagLabel,
+            SavageJawfishFriendlyDestroyedExperienceEffectKindForRecovery,
+            "savage jawfish friendly-destroyed experience",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedSourceCardContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            objectCardNos,
+            objectCardNoLabel,
+            objectTags,
+            objectTagLabel,
+            ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery,
+            "viktor destroyed non-minion create minion",
+            errors);
+    }
+
+    private static void ValidateTriggerQueueFriendlyDestroyedSourceCardContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceObjectId,
+        string? effectKind,
+        IReadOnlyDictionary<string, string?>? objectCardNos,
+        string objectCardNoLabel,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
+        string objectTagLabel,
+        string expectedEffectKind,
+        string diagnosticName,
+        List<string> errors)
+    {
+        if (triggerId is null
+            || !IsStandardLastBreathTriggerForRecovery(triggerId, effectKind, expectedEffectKind)
+            || !IsStandardLastBreathTriggerIdForRecovery(triggerId, expectedEffectKind)
+            || string.IsNullOrWhiteSpace(sourceObjectId)
+            || string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        if (objectCardNos is not null
+            && objectCardNos.TryGetValue(sourceObjectId, out var sourceCardNo))
+        {
+            var expectedSourceCardNos = GetFriendlyDestroyedSourceCardNosForRecovery(expectedEffectKind);
+            if (expectedSourceCardNos.Length > 0
+                && !Array.Exists(
+                    expectedSourceCardNos,
+                    expectedSourceCardNo => string.Equals(expectedSourceCardNo, sourceCardNo, StringComparison.Ordinal)))
+            {
+                var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
+                errors.Add(
+                    $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} card no {sourceCardNoLabel} must be {FormatExpectedCardNosForRecovery(expectedSourceCardNos)} in {objectCardNoLabel}");
+            }
+        }
+
+        if (objectTags is not null
+            && objectTags.TryGetValue(sourceObjectId, out var sourceTags)
+            && !sourceTags.Contains(CardObjectTags.UnitCard))
+        {
+            errors.Add(
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must be a unit card in {objectTagLabel}");
+        }
+    }
+
     private static void ValidateTriggerQueueStandardLastBreathContext(
         string payloadLabel,
         string? triggerId,
@@ -18971,6 +19104,23 @@ public static class MatchRecoveryValidator
             UndercoverAgentLastBreathEffectKindForRecovery => [UndercoverAgentCardNoForRecovery],
             IroncladVanguardLastBreathCreateRobotsEffectKindForRecovery => [IroncladVanguardCardNoForRecovery],
             MuddyDredgerLastBreathCreateWarhawkEffectKindForRecovery => [MuddyDredgerCardNoForRecovery],
+            _ => []
+        };
+    }
+
+    private static string[] GetFriendlyDestroyedSourceCardNosForRecovery(string effectKind)
+    {
+        return effectKind switch
+        {
+            GhostlyCentaurFriendlyDestroyedPowerEffectKindForRecovery => [GhostlyCentaurCardNoForRecovery],
+            ResonantSoulFirstFriendlyDestroyedDrawEffectKindForRecovery => [ResonantSoulCardNoForRecovery],
+            SavageJawfishFriendlyDestroyedExperienceEffectKindForRecovery => [SavageJawfishCardNoForRecovery],
+            ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery =>
+            [
+                ViktorDestroyedNonMinionArcCardNoForRecovery,
+                ViktorDestroyedNonMinionOgnCardNoForRecovery,
+                ViktorDestroyedNonMinionOgnAltACardNoForRecovery
+            ],
             _ => []
         };
     }
@@ -21652,6 +21802,16 @@ public static class MatchRecoveryValidator
                 sourceVisibility: null,
                 effectKind,
                 triggeredEventKind,
+                errors);
+            ValidateTriggerQueueFriendlyDestroyedSourceCardContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
+                sourceObjectId,
+                effectKind,
+                objectCardNos,
+                "authoritative state object registry",
+                objectTags,
+                "authoritative state object registry",
                 errors);
             ValidateTriggerQueueFriendlyDestroyedStackContext(
                 $"authoritative state trigger queue item {triggerLabel}",
