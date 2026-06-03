@@ -4111,8 +4111,11 @@ public static class MatchRecoveryValidator
             ValidateTriggerQueueOgsLuxHighCostSpellContext(
                 triggerLabel,
                 triggerId,
+                controllerId,
                 sourceObjectId,
                 sourceVisibility,
+                objectControllers,
+                "objects",
                 objectCardNos,
                 "objects",
                 objectFaceDowns,
@@ -16666,8 +16669,11 @@ public static class MatchRecoveryValidator
         ValidateTriggerQueueOgsLuxHighCostSpellContext(
             payloadLabel,
             triggerId,
+            controllerId,
             sourceObjectId,
             sourceVisibility,
+            objectControllers,
+            "authoritative state object registry",
             objectCardNos,
             "authoritative state object registry",
             objectFaceDowns,
@@ -17694,8 +17700,11 @@ public static class MatchRecoveryValidator
     private static void ValidateTriggerQueueOgsLuxHighCostSpellContext(
         string payloadLabel,
         string? triggerId,
+        string? controllerId,
         string? sourceObjectId,
         string? sourceVisibility,
+        IReadOnlyDictionary<string, string>? objectControllers,
+        string objectControllerLabel,
         IReadOnlyDictionary<string, string?>? objectCardNos,
         string objectCardNoLabel,
         IReadOnlyDictionary<string, bool>? objectFaceDowns,
@@ -17730,6 +17739,16 @@ public static class MatchRecoveryValidator
             {
                 errors.Add(
                     $"{payloadLabel} ogs lux high cost spell trigger id stack item id is required before source object id {sourceObjectId}");
+            }
+
+            if (controllerId is not null
+                && !string.Equals(controllerId, "HIDDEN", StringComparison.Ordinal)
+                && objectControllers is not null
+                && objectControllers.TryGetValue(sourceObjectId, out var sourceControllerId)
+                && !string.Equals(sourceControllerId, controllerId, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} controller id {sourceControllerId} must match trigger controller id {controllerId} in {objectControllerLabel}");
             }
 
             if (objectCardNos is not null
@@ -20944,8 +20963,11 @@ public static class MatchRecoveryValidator
             ValidateTriggerQueueOgsLuxHighCostSpellContext(
                 $"authoritative state trigger queue item {triggerLabel}",
                 triggerId,
+                trigger.ControllerId,
                 sourceObjectId,
                 sourceVisibility: null,
+                objectControllers,
+                "authoritative state object registry",
                 objectCardNos,
                 "authoritative state object registry",
                 objectFaceDowns,
