@@ -4081,9 +4081,12 @@ public static class MatchRecoveryValidator
                 triggerLabel,
                 triggerId,
                 sourceObjectId,
+                sourceVisibility,
                 knownObjectIds,
                 "objects",
                 objectCardNos,
+                "objects",
+                objectFaceDowns,
                 "objects",
                 objectTags,
                 "objects",
@@ -16579,9 +16582,12 @@ public static class MatchRecoveryValidator
             payloadLabel,
             triggerId,
             sourceObjectId,
+            sourceVisibility,
             knownObjectIds,
             "object registry",
             objectCardNos,
+            "authoritative state object registry",
+            objectFaceDowns,
             "authoritative state object registry",
             objectTags,
             "authoritative state object registry",
@@ -17229,10 +17235,13 @@ public static class MatchRecoveryValidator
         string payloadLabel,
         string? triggerId,
         string? sourceObjectId,
+        string? sourceVisibility,
         IReadOnlySet<string>? knownObjectIds,
         string knownObjectLabel,
         IReadOnlyDictionary<string, string?>? objectCardNos,
         string objectCardNoLabel,
+        IReadOnlyDictionary<string, bool>? objectFaceDowns,
+        string objectFaceDownLabel,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
         string objectTagLabel,
         IReadOnlySet<string>? battlefieldStateObjectIds,
@@ -17310,12 +17319,38 @@ public static class MatchRecoveryValidator
 
         if (!string.IsNullOrWhiteSpace(sourceObjectId)
             && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
+            && objectFaceDowns is not null
+            && objectFaceDowns.TryGetValue(sourceObjectId, out var isFaceDown)
+            && isFaceDown)
+        {
+            errors.Add(
+                $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} must not be face down in {objectFaceDownLabel}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(sourceObjectId)
+            && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
             && objectTags is not null
             && objectTags.TryGetValue(sourceObjectId, out var sourceTags)
             && !sourceTags.Contains(CardObjectTags.UnitCard))
         {
             errors.Add(
                 $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} must be a unit card in {objectTagLabel}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(sourceObjectId)
+            && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
+            && objectTags is not null
+            && objectTags.TryGetValue(sourceObjectId, out var standbySourceTags)
+            && standbySourceTags.Contains(CardObjectTags.Standby))
+        {
+            errors.Add(
+                $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} must not be a standby card in {objectTagLabel}");
+        }
+
+        if (sourceVisibility is not null
+            && !string.Equals(sourceVisibility, "VISIBLE", StringComparison.Ordinal))
+        {
+            errors.Add($"{payloadLabel} kogmaw last breath source visibility must be VISIBLE");
         }
 
         if (effectKind is not null
@@ -20499,9 +20534,12 @@ public static class MatchRecoveryValidator
                 $"authoritative state trigger queue item {triggerLabel}",
                 triggerId,
                 sourceObjectId,
+                sourceVisibility: null,
                 knownObjectIds,
                 "object registry",
                 objectCardNos,
+                "authoritative state object registry",
+                objectFaceDowns,
                 "authoritative state object registry",
                 objectTags,
                 "authoritative state object registry",
