@@ -4150,6 +4150,8 @@ public static class MatchRecoveryValidator
                 "objects",
                 objectTags,
                 "objects",
+                objectLocations,
+                "object locations",
                 effectKind,
                 triggeredEventKind,
                 errors);
@@ -16757,6 +16759,8 @@ public static class MatchRecoveryValidator
             "authoritative state object registry",
             objectTags,
             "authoritative state object registry",
+            objectLocations,
+            "authoritative state object locations",
             effectKind,
             triggeredEventKind,
             errors);
@@ -17958,6 +17962,8 @@ public static class MatchRecoveryValidator
         string objectFaceDownLabel,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
         string objectTagLabel,
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
+        string objectLocationLabel,
         string? effectKind,
         string? triggeredEventKind,
         List<string> errors)
@@ -18023,6 +18029,20 @@ public static class MatchRecoveryValidator
         {
             errors.Add(
                 $"{payloadLabel} teemo on-play self-power source object id {sourceObjectId} must be a unit card in {objectTagLabel}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(sourceObjectId)
+            && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
+            && objectLocations is not null
+            && objectLocations.TryGetValue(sourceObjectId, out var sourceLocation)
+            && !string.IsNullOrWhiteSpace(sourceLocation.Zone))
+        {
+            var sourceZone = sourceLocation.Zone.Trim();
+            if (!string.Equals(sourceZone, "BASE", StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} teemo on-play self-power source object id {sourceObjectId} location zone {sourceZone} must be BASE in {objectLocationLabel}");
+            }
         }
 
         if (sourceVisibility is not null
@@ -21187,6 +21207,8 @@ public static class MatchRecoveryValidator
                 "authoritative state object registry",
                 objectTags,
                 "authoritative state object registry",
+                objectLocations,
+                "authoritative state object locations",
                 effectKind,
                 triggeredEventKind,
                 errors);
