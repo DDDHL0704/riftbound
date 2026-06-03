@@ -896,6 +896,7 @@ public static class MatchRecoveryValidator
     private const string LoyalPoroLastBreathDrawEffectKindForRecovery = "LOYAL_PORO_LAST_BREATH_DRAW_1";
     private const string UnsungHeroLastBreathPowerfulDrawEffectKindForRecovery = "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2";
     private const string ScoutingWarhawkLastBreathCallRuneEffectKindForRecovery = "SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1";
+    private const string HonestBrokerLastBreathCreateGoldEffectKindForRecovery = "HONEST_BROKER_LAST_BREATH_CREATE_GOLD";
 
     private sealed record BattleRequiredAssignmentView(
         string SourceObjectId,
@@ -4074,6 +4075,13 @@ public static class MatchRecoveryValidator
                 triggeredEventKind,
                 errors);
             ValidateTriggerQueueLoyalPoroLastBreathDrawContext(
+                triggerLabel,
+                triggerId,
+                sourceVisibility,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueHonestBrokerLastBreathCreateGoldContext(
                 triggerLabel,
                 triggerId,
                 sourceVisibility,
@@ -16385,6 +16393,13 @@ public static class MatchRecoveryValidator
             effectKind,
             triggeredEventKind,
             errors);
+        ValidateTriggerQueueHonestBrokerLastBreathCreateGoldContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            errors);
         ValidateTriggerQueueVisibleSourceObjectMembership(
             payloadLabel,
             sourceObjectId,
@@ -16954,6 +16969,25 @@ public static class MatchRecoveryValidator
             triggeredEventKind,
             LoyalPoroLastBreathDrawEffectKindForRecovery,
             "loyal poro last-breath draw",
+            errors);
+    }
+
+    private static void ValidateTriggerQueueHonestBrokerLastBreathCreateGoldContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceVisibility,
+        string? effectKind,
+        string? triggeredEventKind,
+        List<string> errors)
+    {
+        ValidateTriggerQueueStandardLastBreathContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            HonestBrokerLastBreathCreateGoldEffectKindForRecovery,
+            "honest broker last-breath create gold",
             errors);
     }
 
@@ -19488,6 +19522,13 @@ public static class MatchRecoveryValidator
                 triggeredEventKind,
                 errors);
             ValidateTriggerQueueLoyalPoroLastBreathDrawContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
+                sourceVisibility: null,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueHonestBrokerLastBreathCreateGoldContext(
                 $"authoritative state trigger queue item {triggerLabel}",
                 triggerId,
                 sourceVisibility: null,
