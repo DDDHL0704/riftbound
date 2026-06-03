@@ -4260,6 +4260,8 @@ public static class MatchRecoveryValidator
                 "objects",
                 objectCardNos,
                 "objects",
+                objectTags,
+                "objects",
                 objectLocations,
                 "object locations",
                 playerGraveyardObjectIdsByPlayer,
@@ -17067,6 +17069,8 @@ public static class MatchRecoveryValidator
             "authoritative state object registry",
             objectCardNos,
             "authoritative state object registry",
+            objectTags,
+            "authoritative state object registry",
             objectLocations,
             "authoritative state object locations",
             playerGraveyardObjectIdsByPlayer,
@@ -20102,6 +20106,8 @@ public static class MatchRecoveryValidator
         string objectControllerLabel,
         IReadOnlyDictionary<string, string?>? objectCardNos,
         string objectCardNoLabel,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
+        string objectTagLabel,
         IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
         string objectLocationLabel,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? playerGraveyardObjectIdsByPlayer,
@@ -20118,6 +20124,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectTags,
+            objectTagLabel,
             objectLocations,
             objectLocationLabel,
             playerGraveyardObjectIdsByPlayer,
@@ -20135,6 +20143,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectTags,
+            objectTagLabel,
             objectLocations,
             objectLocationLabel,
             playerGraveyardObjectIdsByPlayer,
@@ -20152,6 +20162,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectTags,
+            objectTagLabel,
             objectLocations,
             objectLocationLabel,
             playerGraveyardObjectIdsByPlayer,
@@ -20169,6 +20181,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectTags,
+            objectTagLabel,
             objectLocations,
             objectLocationLabel,
             playerGraveyardObjectIdsByPlayer,
@@ -20186,6 +20200,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectTags,
+            objectTagLabel,
             objectLocations,
             objectLocationLabel,
             playerGraveyardObjectIdsByPlayer,
@@ -20203,6 +20219,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectTags,
+            objectTagLabel,
             objectLocations,
             objectLocationLabel,
             playerGraveyardObjectIdsByPlayer,
@@ -20220,6 +20238,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectTags,
+            objectTagLabel,
             objectLocations,
             objectLocationLabel,
             playerGraveyardObjectIdsByPlayer,
@@ -20237,6 +20257,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectTags,
+            objectTagLabel,
             objectLocations,
             objectLocationLabel,
             playerGraveyardObjectIdsByPlayer,
@@ -20254,6 +20276,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectTags,
+            objectTagLabel,
             objectLocations,
             objectLocationLabel,
             playerGraveyardObjectIdsByPlayer,
@@ -20271,6 +20295,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectTags,
+            objectTagLabel,
             objectLocations,
             objectLocationLabel,
             playerGraveyardObjectIdsByPlayer,
@@ -20290,6 +20316,8 @@ public static class MatchRecoveryValidator
         string objectControllerLabel,
         IReadOnlyDictionary<string, string?>? objectCardNos,
         string objectCardNoLabel,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
+        string objectTagLabel,
         IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
         string objectLocationLabel,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? playerGraveyardObjectIdsByPlayer,
@@ -20384,6 +20412,15 @@ public static class MatchRecoveryValidator
                 errors.Add(
                     $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} card no {sourceCardNoLabel} must be {FormatExpectedCardNosForRecovery(expectedSourceCardNos)} in {objectCardNoLabel}");
             }
+        }
+
+        if (objectTags is not null
+            && objectTags.TryGetValue(sourceObjectId, out var sourceTags)
+            && sourceTags.Contains(CardObjectTags.EquipmentCard)
+            && !sourceTags.Contains(CardObjectTags.UnitCard))
+        {
+            errors.Add(
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must not be an equipment card in {objectTagLabel}");
         }
     }
 
@@ -23066,6 +23103,8 @@ public static class MatchRecoveryValidator
                 objectControllers,
                 "authoritative state object registry",
                 objectCardNos,
+                "authoritative state object registry",
+                objectTags,
                 "authoritative state object registry",
                 objectLocations,
                 "authoritative state object locations",
