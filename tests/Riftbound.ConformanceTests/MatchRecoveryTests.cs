@@ -7805,6 +7805,70 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueJhinMovementResourceSourceVisibilityStateContextDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var players = alice.Snapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["objects"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["source-1"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "source-1",
+                ["cardNo"] = P4ActivatedAbilityCatalog.JhinCardNo,
+                ["ownerId"] = "alice",
+                ["controllerId"] = "alice",
+                ["isFaceDown"] = true,
+                ["tags"] = new[] { CardObjectTags.UnitCard, CardObjectTags.Standby },
+                ["untilEndOfTurnEffects"] = Array.Empty<string>()
+            }
+        };
+        players["alice"] = alicePayload;
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["triggerQueue"] = new object?[]
+        {
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["triggerId"] = "JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD",
+                ["controllerId"] = "alice",
+                ["sourceObjectId"] = "source-1",
+                ["sourceVisibility"] = "VISIBLE",
+                ["effectKind"] = P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind,
+                ["triggeredByEventKind"] = "UNIT_MOVED_TO_BATTLEFIELD"
+            }
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players,
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item jhin movement resource source object id source-1 must not be face down in objects",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item jhin movement resource source object id source-1 must not be a standby card in objects",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueKogmawLastBreathContextDrift()
     {
         const string triggerId = "TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1";
@@ -24330,6 +24394,73 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD jhin movement resource source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueJhinMovementResourceSourceVisibilityStateContextDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Base = ["source-1"]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new(
+                    "source-1",
+                    cardNo: P4ActivatedAbilityCatalog.JhinCardNo,
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    isFaceDown: true,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new("alice", "BASE")
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    "JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD",
+                    "alice",
+                    sourceObjectId: "source-1",
+                    effectKind: P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind,
+                    triggeredByEventKind: "UNIT_MOVED_TO_BATTLEFIELD")
+            ]);
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD jhin movement resource source object id source-1 must not be face down in authoritative state object registry",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD jhin movement resource source object id source-1 must not be a standby card in authoritative state object registry",
                 StringComparison.Ordinal));
     }
 
@@ -61203,6 +61334,90 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item jhin movement resource source object id wrong-source controller id bob must match trigger controller id alice in authoritative state object registry",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueJhinMovementResourceSourceVisibilityStateContextDrift()
+    {
+        const string triggerId = "JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD";
+        const string sourceObjectId = "source-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            2,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Base = [sourceObjectId]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    cardNo: P4ActivatedAbilityCatalog.JhinCardNo,
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    isFaceDown: true,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new("alice", "BASE")
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    triggerId,
+                    "alice",
+                    sourceObjectId,
+                    P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind,
+                    "UNIT_MOVED_TO_BATTLEFIELD")
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item jhin movement resource source object id source-1 must not be face down in authoritative state object registry",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item jhin movement resource source object id source-1 must not be a standby card in authoritative state object registry",
                 StringComparison.Ordinal));
     }
 

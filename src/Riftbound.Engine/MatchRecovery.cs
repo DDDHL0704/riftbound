@@ -4061,6 +4061,8 @@ public static class MatchRecoveryValidator
                 "objects",
                 objectCardNos,
                 "objects",
+                objectFaceDowns,
+                "objects",
                 objectTags,
                 "objects",
                 effectKind,
@@ -16545,6 +16547,8 @@ public static class MatchRecoveryValidator
             "authoritative state object registry",
             objectCardNos,
             "authoritative state object registry",
+            objectFaceDowns,
+            "authoritative state object registry",
             objectTags,
             "authoritative state object registry",
             effectKind,
@@ -16905,6 +16909,8 @@ public static class MatchRecoveryValidator
         string objectControllerLabel,
         IReadOnlyDictionary<string, string?>? objectCardNos,
         string objectCardNoLabel,
+        IReadOnlyDictionary<string, bool>? objectFaceDowns,
+        string objectFaceDownLabel,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
         string objectTagLabel,
         string? effectKind,
@@ -16954,12 +16960,28 @@ public static class MatchRecoveryValidator
                 $"{payloadLabel} jhin movement resource source object id {expectedSourceObjectId} card no {sourceCardNoLabel} must be {P4ActivatedAbilityCatalog.JhinCardNo} in {objectCardNoLabel}");
         }
 
+        if (objectFaceDowns is not null
+            && objectFaceDowns.TryGetValue(expectedSourceObjectId, out var isFaceDown)
+            && isFaceDown)
+        {
+            errors.Add(
+                $"{payloadLabel} jhin movement resource source object id {expectedSourceObjectId} must not be face down in {objectFaceDownLabel}");
+        }
+
         if (objectTags is not null
             && objectTags.TryGetValue(expectedSourceObjectId, out var sourceTags)
             && !sourceTags.Contains(CardObjectTags.UnitCard))
         {
             errors.Add(
                 $"{payloadLabel} jhin movement resource source object id {expectedSourceObjectId} must be a unit card in {objectTagLabel}");
+        }
+
+        if (objectTags is not null
+            && objectTags.TryGetValue(expectedSourceObjectId, out var standbySourceTags)
+            && standbySourceTags.Contains(CardObjectTags.Standby))
+        {
+            errors.Add(
+                $"{payloadLabel} jhin movement resource source object id {expectedSourceObjectId} must not be a standby card in {objectTagLabel}");
         }
 
         if (effectKind is not null
@@ -20249,6 +20271,8 @@ public static class MatchRecoveryValidator
                 objectControllers,
                 "authoritative state object registry",
                 objectCardNos,
+                "authoritative state object registry",
+                objectFaceDowns,
                 "authoritative state object registry",
                 objectTags,
                 "authoritative state object registry",
