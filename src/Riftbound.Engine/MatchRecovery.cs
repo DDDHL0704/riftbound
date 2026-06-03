@@ -3946,6 +3946,9 @@ public static class MatchRecoveryValidator
         var knownObjectIds = view.Snapshot.Players is null
             ? null
             : BuildSnapshotKnownObjectIds(view.Snapshot);
+        var objectCardNos = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotObjectCardNoIndex(view.Snapshot);
         var objectTags = view.Snapshot.Players is null
             ? null
             : BuildSnapshotObjectTagIndex(view.Snapshot);
@@ -4028,6 +4031,10 @@ public static class MatchRecoveryValidator
                 triggerId,
                 sourceObjectId,
                 sourceVisibility,
+                objectCardNos,
+                "objects",
+                objectTags,
+                "objects",
                 knownBattlefieldStateObjectIds,
                 "battlefield states",
                 view.Snapshot.TurnNumber,
@@ -6692,6 +6699,41 @@ public static class MatchRecoveryValidator
         }
 
         return objectControllers;
+    }
+
+    private static IReadOnlyDictionary<string, string?> BuildSnapshotObjectCardNoIndex(SnapshotDto snapshot)
+    {
+        var objectCardNos = new Dictionary<string, string?>(StringComparer.Ordinal);
+        if (snapshot.Players is null)
+        {
+            return objectCardNos;
+        }
+
+        foreach (var playerPayload in snapshot.Players.Values)
+        {
+            if (!TryReadObjectValue(playerPayload, "objects", out var objectsPayload)
+                || !TryReadObjectDictionaryValue(objectsPayload, out var objectPayloads))
+            {
+                continue;
+            }
+
+            foreach (var (objectId, objectPayload) in objectPayloads)
+            {
+                if (string.IsNullOrWhiteSpace(objectId)
+                    || !IsSnapshotPlayerPayloadObject(objectPayload)
+                    || !TryReadObjectValue(objectPayload, "cardNo", out var rawCardNo)
+                    || IsNullSnapshotPayloadValue(rawCardNo)
+                    || !TryReadStringValue(rawCardNo, out var cardNo)
+                    || string.IsNullOrWhiteSpace(cardNo))
+                {
+                    continue;
+                }
+
+                objectCardNos[objectId.Trim()] = cardNo.Trim();
+            }
+        }
+
+        return objectCardNos;
     }
 
     private static IReadOnlyDictionary<string, IReadOnlySet<string>> BuildSnapshotObjectTagIndex(SnapshotDto snapshot)
@@ -16071,6 +16113,7 @@ public static class MatchRecoveryValidator
 
         var seatPlayerIds = BuildNormalizedPlayerIdSet(authoritativeState.Seats.Keys);
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
+        var objectCardNos = BuildAuthoritativeStateObjectCardNoIndex(authoritativeState);
         var objectTags = BuildAuthoritativeStateObjectTagIndex(authoritativeState);
         var battlefieldStateObjectIds = BuildAuthoritativeStateBattlefieldStateObjectIds(authoritativeState);
         var seenTriggerIds = new HashSet<string>(StringComparer.Ordinal);
@@ -16091,6 +16134,7 @@ public static class MatchRecoveryValidator
                 seenTriggerIds,
                 seatPlayerIds,
                 knownObjectIds,
+                objectCardNos,
                 objectTags,
                 battlefieldStateObjectIds,
                 authoritativeState.TurnNumber,
@@ -16346,6 +16390,7 @@ public static class MatchRecoveryValidator
         HashSet<string> seenTriggerIds,
         IReadOnlySet<string> seatPlayerIds,
         IReadOnlySet<string> knownObjectIds,
+        IReadOnlyDictionary<string, string?> objectCardNos,
         IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
         IReadOnlySet<string> battlefieldStateObjectIds,
         int currentTurnNumber,
@@ -16420,6 +16465,10 @@ public static class MatchRecoveryValidator
             triggerId,
             sourceObjectId,
             sourceVisibility,
+            objectCardNos,
+            "authoritative state object registry",
+            objectTags,
+            "authoritative state object registry",
             battlefieldStateObjectIds,
             "authoritative state battlefield states",
             currentTurnNumber,
@@ -16654,6 +16703,10 @@ public static class MatchRecoveryValidator
         string? triggerId,
         string? sourceObjectId,
         string? sourceVisibility,
+        IReadOnlyDictionary<string, string?>? objectCardNos,
+        string objectCardNoLabel,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
+        string objectTagLabel,
         IReadOnlySet<string>? battlefieldStateObjectIds,
         string battlefieldStateLabel,
         int? currentTurnNumber,
@@ -16682,6 +16735,23 @@ public static class MatchRecoveryValidator
         {
             errors.Add(
                 $"{payloadLabel} blue sentinel delayed resource captured turn number {capturedTurnNumber} cannot be greater than current turn {turnNumber}");
+        }
+
+        if (objectCardNos is not null
+            && objectCardNos.TryGetValue(expectedSourceObjectId, out var sourceCardNo)
+            && !string.Equals(sourceCardNo, P4ActivatedAbilityCatalog.BlueSentinelCardNo, StringComparison.Ordinal))
+        {
+            var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
+            errors.Add(
+                $"{payloadLabel} blue sentinel delayed resource source object id {expectedSourceObjectId} card no {sourceCardNoLabel} must be {P4ActivatedAbilityCatalog.BlueSentinelCardNo} in {objectCardNoLabel}");
+        }
+
+        if (objectTags is not null
+            && objectTags.TryGetValue(expectedSourceObjectId, out var sourceTags)
+            && !sourceTags.Contains(CardObjectTags.UnitCard))
+        {
+            errors.Add(
+                $"{payloadLabel} blue sentinel delayed resource source object id {expectedSourceObjectId} must be a unit card in {objectTagLabel}");
         }
 
         if (battlefieldStateObjectIds is not null
@@ -19650,12 +19720,14 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
+        var objectCardNos = BuildAuthoritativeStateObjectCardNoIndex(authoritativeState);
         var objectTags = BuildAuthoritativeStateObjectTagIndex(authoritativeState);
         var battlefieldStateObjectIds = BuildAuthoritativeStateBattlefieldStateObjectIds(authoritativeState);
         ValidateAuthoritativeStateStackItemValues(authoritativeState.StackItems, errors);
         ValidateAuthoritativeStateTriggerQueueValues(
             authoritativeState.TriggerQueue,
             knownObjectIds,
+            objectCardNos,
             objectTags,
             battlefieldStateObjectIds,
             authoritativeState.TurnNumber,
@@ -19935,6 +20007,7 @@ public static class MatchRecoveryValidator
     private static void ValidateAuthoritativeStateTriggerQueueValues(
         IReadOnlyList<TriggerQueueItemState>? triggerQueue,
         IReadOnlySet<string> knownObjectIds,
+        IReadOnlyDictionary<string, string?> objectCardNos,
         IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
         IReadOnlySet<string> battlefieldStateObjectIds,
         int currentTurnNumber,
@@ -20014,6 +20087,10 @@ public static class MatchRecoveryValidator
                 triggerId,
                 sourceObjectId,
                 sourceVisibility: null,
+                objectCardNos,
+                "authoritative state object registry",
+                objectTags,
+                "authoritative state object registry",
                 battlefieldStateObjectIds,
                 "authoritative state battlefield states",
                 currentTurnNumber,
@@ -22158,6 +22235,24 @@ public static class MatchRecoveryValidator
         }
 
         return objectTags;
+    }
+
+    private static IReadOnlyDictionary<string, string?> BuildAuthoritativeStateObjectCardNoIndex(MatchState authoritativeState)
+    {
+        var objectCardNos = new Dictionary<string, string?>(StringComparer.Ordinal);
+        foreach (var (objectId, cardObject) in authoritativeState.CardObjects)
+        {
+            if (string.IsNullOrWhiteSpace(objectId))
+            {
+                continue;
+            }
+
+            objectCardNos[objectId.Trim()] = string.IsNullOrWhiteSpace(cardObject.CardNo)
+                ? null
+                : cardObject.CardNo.Trim();
+        }
+
+        return objectCardNos;
     }
 
     private static string? EffectiveAuthoritativeObjectControllerId(
