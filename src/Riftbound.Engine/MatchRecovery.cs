@@ -4272,6 +4272,8 @@ public static class MatchRecoveryValidator
                 "objects",
                 objectLocations,
                 "object locations",
+                playerBaseObjectIdsByPlayer,
+                "player zones",
                 playerGraveyardObjectIdsByPlayer,
                 "player zones",
                 errors);
@@ -17120,6 +17122,8 @@ public static class MatchRecoveryValidator
             "authoritative state object registry",
             objectLocations,
             "authoritative state object locations",
+            playerBaseObjectIdsByPlayer,
+            "authoritative state player zones",
             playerGraveyardObjectIdsByPlayer,
             "authoritative state player zones",
             errors);
@@ -20161,6 +20165,8 @@ public static class MatchRecoveryValidator
         string objectTagLabel,
         IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
         string objectLocationLabel,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? playerBaseObjectIdsByPlayer,
+        string playerBaseObjectIdsLabel,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? playerGraveyardObjectIdsByPlayer,
         string playerGraveyardObjectIdsLabel,
         List<string> errors)
@@ -20183,6 +20189,8 @@ public static class MatchRecoveryValidator
             objectTagLabel,
             objectLocations,
             objectLocationLabel,
+            playerBaseObjectIdsByPlayer,
+            playerBaseObjectIdsLabel,
             playerGraveyardObjectIdsByPlayer,
             playerGraveyardObjectIdsLabel,
             WatchfulSentinelLastBreathDrawEffectKindForRecovery,
@@ -20206,6 +20214,8 @@ public static class MatchRecoveryValidator
             objectTagLabel,
             objectLocations,
             objectLocationLabel,
+            playerBaseObjectIdsByPlayer,
+            playerBaseObjectIdsLabel,
             playerGraveyardObjectIdsByPlayer,
             playerGraveyardObjectIdsLabel,
             UnsungHeroLastBreathPowerfulDrawEffectKindForRecovery,
@@ -20229,6 +20239,8 @@ public static class MatchRecoveryValidator
             objectTagLabel,
             objectLocations,
             objectLocationLabel,
+            playerBaseObjectIdsByPlayer,
+            playerBaseObjectIdsLabel,
             playerGraveyardObjectIdsByPlayer,
             playerGraveyardObjectIdsLabel,
             ScoutingWarhawkLastBreathCallRuneEffectKindForRecovery,
@@ -20252,6 +20264,8 @@ public static class MatchRecoveryValidator
             objectTagLabel,
             objectLocations,
             objectLocationLabel,
+            playerBaseObjectIdsByPlayer,
+            playerBaseObjectIdsLabel,
             playerGraveyardObjectIdsByPlayer,
             playerGraveyardObjectIdsLabel,
             SadPoroLastBreathDrawEffectKindForRecovery,
@@ -20275,6 +20289,8 @@ public static class MatchRecoveryValidator
             objectTagLabel,
             objectLocations,
             objectLocationLabel,
+            playerBaseObjectIdsByPlayer,
+            playerBaseObjectIdsLabel,
             playerGraveyardObjectIdsByPlayer,
             playerGraveyardObjectIdsLabel,
             LoyalPoroLastBreathDrawEffectKindForRecovery,
@@ -20298,6 +20314,8 @@ public static class MatchRecoveryValidator
             objectTagLabel,
             objectLocations,
             objectLocationLabel,
+            playerBaseObjectIdsByPlayer,
+            playerBaseObjectIdsLabel,
             playerGraveyardObjectIdsByPlayer,
             playerGraveyardObjectIdsLabel,
             HonestBrokerLastBreathCreateGoldEffectKindForRecovery,
@@ -20321,6 +20339,8 @@ public static class MatchRecoveryValidator
             objectTagLabel,
             objectLocations,
             objectLocationLabel,
+            playerBaseObjectIdsByPlayer,
+            playerBaseObjectIdsLabel,
             playerGraveyardObjectIdsByPlayer,
             playerGraveyardObjectIdsLabel,
             MechanicalTricksterLastBreathCreateMinionsEffectKindForRecovery,
@@ -20344,6 +20364,8 @@ public static class MatchRecoveryValidator
             objectTagLabel,
             objectLocations,
             objectLocationLabel,
+            playerBaseObjectIdsByPlayer,
+            playerBaseObjectIdsLabel,
             playerGraveyardObjectIdsByPlayer,
             playerGraveyardObjectIdsLabel,
             UndercoverAgentLastBreathEffectKindForRecovery,
@@ -20367,6 +20389,8 @@ public static class MatchRecoveryValidator
             objectTagLabel,
             objectLocations,
             objectLocationLabel,
+            playerBaseObjectIdsByPlayer,
+            playerBaseObjectIdsLabel,
             playerGraveyardObjectIdsByPlayer,
             playerGraveyardObjectIdsLabel,
             IroncladVanguardLastBreathCreateRobotsEffectKindForRecovery,
@@ -20390,6 +20414,8 @@ public static class MatchRecoveryValidator
             objectTagLabel,
             objectLocations,
             objectLocationLabel,
+            playerBaseObjectIdsByPlayer,
+            playerBaseObjectIdsLabel,
             playerGraveyardObjectIdsByPlayer,
             playerGraveyardObjectIdsLabel,
             MuddyDredgerLastBreathCreateWarhawkEffectKindForRecovery,
@@ -20415,6 +20441,8 @@ public static class MatchRecoveryValidator
         string objectTagLabel,
         IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
         string objectLocationLabel,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? playerBaseObjectIdsByPlayer,
+        string playerBaseObjectIdsLabel,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? playerGraveyardObjectIdsByPlayer,
         string playerGraveyardObjectIdsLabel,
         string expectedEffectKind,
@@ -20518,6 +20546,19 @@ public static class MatchRecoveryValidator
                 $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} power {sourcePower} must be at least {PowerfulUnitPowerThresholdForRecovery} in {objectPowerLabel}");
         }
 
+        if (string.Equals(expectedEffectKind, LoyalPoroLastBreathDrawEffectKindForRecovery, StringComparison.Ordinal)
+            && !HasOtherFriendlyFaceUpBaseUnitForLoyalPoroLastBreathForRecovery(
+                controllerId,
+                sourceObjectId,
+                playerBaseObjectIdsByPlayer,
+                objectControllers,
+                objectFaceDowns,
+                objectTags))
+        {
+            errors.Add(
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} requires another friendly face-up unit in {playerBaseObjectIdsLabel} base for controller id {controllerId}");
+        }
+
         if (objectTags is not null
             && objectTags.TryGetValue(sourceObjectId, out var sourceTags)
             && sourceTags.Contains(CardObjectTags.EquipmentCard)
@@ -20553,6 +20594,70 @@ public static class MatchRecoveryValidator
             errors.Add(
                 $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must not be a standby card in {objectTagLabel}");
         }
+    }
+
+    private static bool HasOtherFriendlyFaceUpBaseUnitForLoyalPoroLastBreathForRecovery(
+        string? controllerId,
+        string sourceObjectId,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? playerBaseObjectIdsByPlayer,
+        IReadOnlyDictionary<string, string>? objectControllers,
+        IReadOnlyDictionary<string, bool>? objectFaceDowns,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags)
+    {
+        if (string.IsNullOrWhiteSpace(controllerId)
+            || string.Equals(controllerId, "HIDDEN", StringComparison.Ordinal)
+            || playerBaseObjectIdsByPlayer is null
+            || objectTags is null)
+        {
+            return true;
+        }
+
+        if (!playerBaseObjectIdsByPlayer.TryGetValue(controllerId, out var baseObjectIds))
+        {
+            return false;
+        }
+
+        return baseObjectIds.Any(candidateObjectId =>
+            IsOtherFriendlyFaceUpBaseUnitForLoyalPoroLastBreathForRecovery(
+                candidateObjectId,
+                controllerId,
+                sourceObjectId,
+                objectControllers,
+                objectFaceDowns,
+                objectTags));
+    }
+
+    private static bool IsOtherFriendlyFaceUpBaseUnitForLoyalPoroLastBreathForRecovery(
+        string candidateObjectId,
+        string controllerId,
+        string sourceObjectId,
+        IReadOnlyDictionary<string, string>? objectControllers,
+        IReadOnlyDictionary<string, bool>? objectFaceDowns,
+        IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags)
+    {
+        if (string.IsNullOrWhiteSpace(candidateObjectId)
+            || string.Equals(candidateObjectId, sourceObjectId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (objectControllers is not null
+            && objectControllers.TryGetValue(candidateObjectId, out var candidateControllerId)
+            && !string.Equals(candidateControllerId, controllerId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (objectFaceDowns is not null
+            && objectFaceDowns.TryGetValue(candidateObjectId, out var isFaceDown)
+            && isFaceDown)
+        {
+            return false;
+        }
+
+        return objectTags.TryGetValue(candidateObjectId, out var candidateTags)
+            && candidateTags.Contains(CardObjectTags.UnitCard)
+            && !candidateTags.Contains(CardObjectTags.Standby);
     }
 
     private static bool IsWatchfulSentinelLastBreathDrawEffectForRecovery(string effectKind)
@@ -23251,6 +23356,8 @@ public static class MatchRecoveryValidator
                 "authoritative state object registry",
                 objectLocations,
                 "authoritative state object locations",
+                playerBaseObjectIdsByPlayer,
+                "authoritative state player zones",
                 playerGraveyardObjectIdsByPlayer,
                 "authoritative state player zones",
                 errors);
