@@ -3952,6 +3952,9 @@ public static class MatchRecoveryValidator
         var objectControllers = view.Snapshot.Players is null
             ? null
             : BuildSnapshotObjectControllerIndex(view.Snapshot);
+        var objectFaceDowns = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotObjectFaceDownIndex(view.Snapshot);
         var objectTags = view.Snapshot.Players is null
             ? null
             : BuildSnapshotObjectTagIndex(view.Snapshot);
@@ -4038,6 +4041,8 @@ public static class MatchRecoveryValidator
                 objectControllers,
                 "objects",
                 objectCardNos,
+                "objects",
+                objectFaceDowns,
                 "objects",
                 objectTags,
                 "objects",
@@ -6740,6 +6745,38 @@ public static class MatchRecoveryValidator
         }
 
         return objectCardNos;
+    }
+
+    private static IReadOnlyDictionary<string, bool> BuildSnapshotObjectFaceDownIndex(SnapshotDto snapshot)
+    {
+        var objectFaceDowns = new Dictionary<string, bool>(StringComparer.Ordinal);
+        if (snapshot.Players is null)
+        {
+            return objectFaceDowns;
+        }
+
+        foreach (var playerPayload in snapshot.Players.Values)
+        {
+            if (!TryReadObjectValue(playerPayload, "objects", out var objectsPayload)
+                || !TryReadObjectDictionaryValue(objectsPayload, out var objectPayloads))
+            {
+                continue;
+            }
+
+            foreach (var (objectId, objectPayload) in objectPayloads)
+            {
+                if (string.IsNullOrWhiteSpace(objectId)
+                    || !IsSnapshotPlayerPayloadObject(objectPayload)
+                    || !TryReadObjectBool(objectPayload, "isFaceDown", out var isFaceDown))
+                {
+                    continue;
+                }
+
+                objectFaceDowns[objectId.Trim()] = isFaceDown;
+            }
+        }
+
+        return objectFaceDowns;
     }
 
     private static IReadOnlyDictionary<string, IReadOnlySet<string>> BuildSnapshotObjectTagIndex(SnapshotDto snapshot)
@@ -16121,6 +16158,7 @@ public static class MatchRecoveryValidator
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         var objectCardNos = BuildAuthoritativeStateObjectCardNoIndex(authoritativeState);
         var objectControllers = BuildAuthoritativeStateObjectControllerIndex(authoritativeState);
+        var objectFaceDowns = BuildAuthoritativeStateObjectFaceDownIndex(authoritativeState);
         var objectTags = BuildAuthoritativeStateObjectTagIndex(authoritativeState);
         var battlefieldStateObjectIds = BuildAuthoritativeStateBattlefieldStateObjectIds(authoritativeState);
         var seenTriggerIds = new HashSet<string>(StringComparer.Ordinal);
@@ -16143,6 +16181,7 @@ public static class MatchRecoveryValidator
                 knownObjectIds,
                 objectCardNos,
                 objectControllers,
+                objectFaceDowns,
                 objectTags,
                 battlefieldStateObjectIds,
                 authoritativeState.TurnNumber,
@@ -16400,6 +16439,7 @@ public static class MatchRecoveryValidator
         IReadOnlySet<string> knownObjectIds,
         IReadOnlyDictionary<string, string?> objectCardNos,
         IReadOnlyDictionary<string, string> objectControllers,
+        IReadOnlyDictionary<string, bool> objectFaceDowns,
         IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
         IReadOnlySet<string> battlefieldStateObjectIds,
         int currentTurnNumber,
@@ -16478,6 +16518,8 @@ public static class MatchRecoveryValidator
             objectControllers,
             "authoritative state object registry",
             objectCardNos,
+            "authoritative state object registry",
+            objectFaceDowns,
             "authoritative state object registry",
             objectTags,
             "authoritative state object registry",
@@ -16720,6 +16762,8 @@ public static class MatchRecoveryValidator
         string objectControllerLabel,
         IReadOnlyDictionary<string, string?>? objectCardNos,
         string objectCardNoLabel,
+        IReadOnlyDictionary<string, bool>? objectFaceDowns,
+        string objectFaceDownLabel,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
         string objectTagLabel,
         IReadOnlySet<string>? battlefieldStateObjectIds,
@@ -16771,12 +16815,28 @@ public static class MatchRecoveryValidator
                 $"{payloadLabel} blue sentinel delayed resource source object id {expectedSourceObjectId} card no {sourceCardNoLabel} must be {P4ActivatedAbilityCatalog.BlueSentinelCardNo} in {objectCardNoLabel}");
         }
 
+        if (objectFaceDowns is not null
+            && objectFaceDowns.TryGetValue(expectedSourceObjectId, out var isFaceDown)
+            && isFaceDown)
+        {
+            errors.Add(
+                $"{payloadLabel} blue sentinel delayed resource source object id {expectedSourceObjectId} must not be face down in {objectFaceDownLabel}");
+        }
+
         if (objectTags is not null
             && objectTags.TryGetValue(expectedSourceObjectId, out var sourceTags)
             && !sourceTags.Contains(CardObjectTags.UnitCard))
         {
             errors.Add(
                 $"{payloadLabel} blue sentinel delayed resource source object id {expectedSourceObjectId} must be a unit card in {objectTagLabel}");
+        }
+
+        if (objectTags is not null
+            && objectTags.TryGetValue(expectedSourceObjectId, out var standbySourceTags)
+            && standbySourceTags.Contains(CardObjectTags.Standby))
+        {
+            errors.Add(
+                $"{payloadLabel} blue sentinel delayed resource source object id {expectedSourceObjectId} must not be a standby card in {objectTagLabel}");
         }
 
         if (battlefieldStateObjectIds is not null
@@ -19747,6 +19807,7 @@ public static class MatchRecoveryValidator
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         var objectCardNos = BuildAuthoritativeStateObjectCardNoIndex(authoritativeState);
         var objectControllers = BuildAuthoritativeStateObjectControllerIndex(authoritativeState);
+        var objectFaceDowns = BuildAuthoritativeStateObjectFaceDownIndex(authoritativeState);
         var objectTags = BuildAuthoritativeStateObjectTagIndex(authoritativeState);
         var battlefieldStateObjectIds = BuildAuthoritativeStateBattlefieldStateObjectIds(authoritativeState);
         ValidateAuthoritativeStateStackItemValues(authoritativeState.StackItems, errors);
@@ -19755,6 +19816,7 @@ public static class MatchRecoveryValidator
             knownObjectIds,
             objectCardNos,
             objectControllers,
+            objectFaceDowns,
             objectTags,
             battlefieldStateObjectIds,
             authoritativeState.TurnNumber,
@@ -20036,6 +20098,7 @@ public static class MatchRecoveryValidator
         IReadOnlySet<string> knownObjectIds,
         IReadOnlyDictionary<string, string?> objectCardNos,
         IReadOnlyDictionary<string, string> objectControllers,
+        IReadOnlyDictionary<string, bool> objectFaceDowns,
         IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
         IReadOnlySet<string> battlefieldStateObjectIds,
         int currentTurnNumber,
@@ -20119,6 +20182,8 @@ public static class MatchRecoveryValidator
                 objectControllers,
                 "authoritative state object registry",
                 objectCardNos,
+                "authoritative state object registry",
+                objectFaceDowns,
                 "authoritative state object registry",
                 objectTags,
                 "authoritative state object registry",
@@ -22284,6 +22349,22 @@ public static class MatchRecoveryValidator
         }
 
         return objectCardNos;
+    }
+
+    private static IReadOnlyDictionary<string, bool> BuildAuthoritativeStateObjectFaceDownIndex(MatchState authoritativeState)
+    {
+        var objectFaceDowns = new Dictionary<string, bool>(StringComparer.Ordinal);
+        foreach (var (objectId, cardObject) in authoritativeState.CardObjects)
+        {
+            if (string.IsNullOrWhiteSpace(objectId))
+            {
+                continue;
+            }
+
+            objectFaceDowns[objectId.Trim()] = cardObject.IsFaceDown;
+        }
+
+        return objectFaceDowns;
     }
 
     private static string? EffectiveAuthoritativeObjectControllerId(
