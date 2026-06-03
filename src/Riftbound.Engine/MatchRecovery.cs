@@ -4043,6 +4043,7 @@ public static class MatchRecoveryValidator
             ValidateTriggerQueueOgsLuxHighCostSpellContext(
                 triggerLabel,
                 triggerId,
+                sourceObjectId,
                 sourceVisibility,
                 effectKind,
                 triggeredEventKind,
@@ -16417,6 +16418,7 @@ public static class MatchRecoveryValidator
         ValidateTriggerQueueOgsLuxHighCostSpellContext(
             payloadLabel,
             triggerId,
+            sourceObjectId,
             sourceVisibility,
             effectKind,
             triggeredEventKind,
@@ -16853,6 +16855,7 @@ public static class MatchRecoveryValidator
     private static void ValidateTriggerQueueOgsLuxHighCostSpellContext(
         string payloadLabel,
         string? triggerId,
+        string? sourceObjectId,
         string? sourceVisibility,
         string? effectKind,
         string? triggeredEventKind,
@@ -16867,6 +16870,16 @@ public static class MatchRecoveryValidator
         {
             errors.Add($"{payloadLabel} ogs lux high cost spell trigger id is invalid");
             return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(sourceObjectId)
+            && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
+            && !triggerId.EndsWith(
+                $"-{sourceObjectId}-{OgsLuxHighCostSpellPowerEffectKindForRecovery}",
+                StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} must match trigger id source object id before {OgsLuxHighCostSpellPowerEffectKindForRecovery}");
         }
 
         if (sourceVisibility is not null
@@ -19880,6 +19893,7 @@ public static class MatchRecoveryValidator
             ValidateTriggerQueueOgsLuxHighCostSpellContext(
                 $"authoritative state trigger queue item {triggerLabel}",
                 triggerId,
+                sourceObjectId,
                 sourceVisibility: null,
                 effectKind,
                 triggeredEventKind,
