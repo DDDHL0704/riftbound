@@ -904,6 +904,7 @@ public static class MatchRecoveryValidator
     private const string GhostlyCentaurFriendlyDestroyedPowerEffectKindForRecovery = "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
     private const string ResonantSoulFirstFriendlyDestroyedDrawEffectKindForRecovery = "RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1";
     private const string SavageJawfishFriendlyDestroyedExperienceEffectKindForRecovery = "SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1";
+    private const string ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery = "VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
 
     private sealed record BattleRequiredAssignmentView(
         string SourceObjectId,
@@ -4138,6 +4139,13 @@ public static class MatchRecoveryValidator
                 triggeredEventKind,
                 errors);
             ValidateTriggerQueueSavageJawfishFriendlyDestroyedExperienceContext(
+                triggerLabel,
+                triggerId,
+                sourceVisibility,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueViktorDestroyedNonMinionCreateMinionContext(
                 triggerLabel,
                 triggerId,
                 sourceVisibility,
@@ -16505,6 +16513,13 @@ public static class MatchRecoveryValidator
             effectKind,
             triggeredEventKind,
             errors);
+        ValidateTriggerQueueViktorDestroyedNonMinionCreateMinionContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            errors);
         ValidateTriggerQueueVisibleSourceObjectMembership(
             payloadLabel,
             sourceObjectId,
@@ -17226,6 +17241,25 @@ public static class MatchRecoveryValidator
             triggeredEventKind,
             SavageJawfishFriendlyDestroyedExperienceEffectKindForRecovery,
             "savage jawfish friendly-destroyed experience",
+            errors);
+    }
+
+    private static void ValidateTriggerQueueViktorDestroyedNonMinionCreateMinionContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceVisibility,
+        string? effectKind,
+        string? triggeredEventKind,
+        List<string> errors)
+    {
+        ValidateTriggerQueueStandardLastBreathContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery,
+            "viktor destroyed non-minion create minion",
             errors);
     }
 
@@ -19816,6 +19850,13 @@ public static class MatchRecoveryValidator
                 triggeredEventKind,
                 errors);
             ValidateTriggerQueueSavageJawfishFriendlyDestroyedExperienceContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
+                sourceVisibility: null,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueViktorDestroyedNonMinionCreateMinionContext(
                 $"authoritative state trigger queue item {triggerLabel}",
                 triggerId,
                 sourceVisibility: null,
