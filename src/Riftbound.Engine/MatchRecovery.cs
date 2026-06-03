@@ -17027,6 +17027,12 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        if (!DoesTeemoOnPlaySelfPowerTriggerIdHaveStackContextForRecovery(triggerId, expectedEffectKind))
+        {
+            errors.Add(
+                $"{payloadLabel} teemo on-play self-power trigger id stack item id is required before {expectedEffectKind}");
+        }
+
         if (sourceVisibility is not null
             && !string.Equals(sourceVisibility, "VISIBLE", StringComparison.Ordinal))
         {
@@ -17099,6 +17105,14 @@ public static class MatchRecoveryValidator
 
         effectKind = candidateEffectKind;
         return true;
+    }
+
+    private static bool DoesTeemoOnPlaySelfPowerTriggerIdHaveStackContextForRecovery(
+        string triggerId,
+        string expectedEffectKind)
+    {
+        var suffix = $"-{expectedEffectKind}";
+        return triggerId.Length > StandardTriggerIdPrefixForRecovery.Length + suffix.Length;
     }
 
     private static bool IsTeemoOnPlaySelfPowerEffectKindForRecovery(string? effectKind)
