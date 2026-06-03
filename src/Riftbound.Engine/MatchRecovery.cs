@@ -903,6 +903,7 @@ public static class MatchRecoveryValidator
     private const string MuddyDredgerLastBreathCreateWarhawkEffectKindForRecovery = "MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK";
     private const string GhostlyCentaurFriendlyDestroyedPowerEffectKindForRecovery = "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
     private const string ResonantSoulFirstFriendlyDestroyedDrawEffectKindForRecovery = "RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1";
+    private const string SavageJawfishFriendlyDestroyedExperienceEffectKindForRecovery = "SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1";
 
     private sealed record BattleRequiredAssignmentView(
         string SourceObjectId,
@@ -4130,6 +4131,13 @@ public static class MatchRecoveryValidator
                 triggeredEventKind,
                 errors);
             ValidateTriggerQueueResonantSoulFirstFriendlyDestroyedDrawContext(
+                triggerLabel,
+                triggerId,
+                sourceVisibility,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueSavageJawfishFriendlyDestroyedExperienceContext(
                 triggerLabel,
                 triggerId,
                 sourceVisibility,
@@ -16490,6 +16498,13 @@ public static class MatchRecoveryValidator
             effectKind,
             triggeredEventKind,
             errors);
+        ValidateTriggerQueueSavageJawfishFriendlyDestroyedExperienceContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            errors);
         ValidateTriggerQueueVisibleSourceObjectMembership(
             payloadLabel,
             sourceObjectId,
@@ -17192,6 +17207,25 @@ public static class MatchRecoveryValidator
             triggeredEventKind,
             ResonantSoulFirstFriendlyDestroyedDrawEffectKindForRecovery,
             "resonant soul first friendly-destroyed draw",
+            errors);
+    }
+
+    private static void ValidateTriggerQueueSavageJawfishFriendlyDestroyedExperienceContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceVisibility,
+        string? effectKind,
+        string? triggeredEventKind,
+        List<string> errors)
+    {
+        ValidateTriggerQueueStandardLastBreathContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            SavageJawfishFriendlyDestroyedExperienceEffectKindForRecovery,
+            "savage jawfish friendly-destroyed experience",
             errors);
     }
 
@@ -19775,6 +19809,13 @@ public static class MatchRecoveryValidator
                 triggeredEventKind,
                 errors);
             ValidateTriggerQueueResonantSoulFirstFriendlyDestroyedDrawContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
+                sourceVisibility: null,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueSavageJawfishFriendlyDestroyedExperienceContext(
                 $"authoritative state trigger queue item {triggerLabel}",
                 triggerId,
                 sourceVisibility: null,
