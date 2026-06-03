@@ -17313,6 +17313,19 @@ public static class MatchRecoveryValidator
                 $"{payloadLabel} kogmaw last breath battlefield object id {battlefieldObjectId} is missing from {battlefieldStateLabel}");
         }
 
+        if (battlefieldObjectKnown
+            && battlefieldObjectIsBattlefieldCard
+            && (battlefieldStateObjectIds is null || battlefieldStateObjectIds.Contains(battlefieldObjectId))
+            && objectLocations is not null
+            && objectLocations.TryGetValue(battlefieldObjectId, out var battlefieldObjectLocation)
+            && !string.IsNullOrWhiteSpace(battlefieldObjectLocation.Zone)
+            && !string.Equals(battlefieldObjectLocation.Zone.Trim(), "BATTLEFIELD", StringComparison.Ordinal))
+        {
+            var battlefieldObjectZone = battlefieldObjectLocation.Zone.Trim();
+            errors.Add(
+                $"{payloadLabel} kogmaw last breath battlefield object id {battlefieldObjectId} location zone {battlefieldObjectZone} must be BATTLEFIELD in {objectLocationLabel}");
+        }
+
         if (!string.IsNullOrWhiteSpace(sourceObjectId)
             && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
             && !DoesKogmawLastBreathTriggerIdMatchSourceObjectIdForRecovery(triggerId, sourceObjectId))
