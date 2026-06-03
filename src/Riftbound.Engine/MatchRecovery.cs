@@ -3949,6 +3949,7 @@ public static class MatchRecoveryValidator
         var objectTags = view.Snapshot.Players is null
             ? null
             : BuildSnapshotObjectTagIndex(view.Snapshot);
+        var knownBattlefieldStateObjectIds = BuildSnapshotBattlefieldStateObjectIds(view.Snapshot);
         var seenTriggerIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var triggerPayload in triggerPayloads)
         {
@@ -4044,6 +4045,8 @@ public static class MatchRecoveryValidator
                 knownObjectIds,
                 "objects",
                 objectTags,
+                knownBattlefieldStateObjectIds,
+                "battlefield states",
                 effectKind,
                 triggeredEventKind,
                 errors);
@@ -16066,6 +16069,7 @@ public static class MatchRecoveryValidator
         var seatPlayerIds = BuildNormalizedPlayerIdSet(authoritativeState.Seats.Keys);
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         var objectTags = BuildAuthoritativeStateObjectTagIndex(authoritativeState);
+        var battlefieldStateObjectIds = BuildAuthoritativeStateBattlefieldStateObjectIds(authoritativeState);
         var seenTriggerIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var spectatorTrigger in spectatorTriggers)
         {
@@ -16085,6 +16089,7 @@ public static class MatchRecoveryValidator
                 seatPlayerIds,
                 knownObjectIds,
                 objectTags,
+                battlefieldStateObjectIds,
                 errors);
         }
 
@@ -16338,6 +16343,7 @@ public static class MatchRecoveryValidator
         IReadOnlySet<string> seatPlayerIds,
         IReadOnlySet<string> knownObjectIds,
         IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
+        IReadOnlySet<string> battlefieldStateObjectIds,
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing trigger queue item";
@@ -16426,6 +16432,8 @@ public static class MatchRecoveryValidator
             knownObjectIds,
             "object registry",
             objectTags,
+            battlefieldStateObjectIds,
+            "authoritative state battlefield states",
             effectKind,
             triggeredEventKind,
             errors);
@@ -16790,6 +16798,8 @@ public static class MatchRecoveryValidator
         IReadOnlySet<string>? knownObjectIds,
         string knownObjectLabel,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
+        IReadOnlySet<string>? battlefieldStateObjectIds,
+        string battlefieldStateLabel,
         string? effectKind,
         string? triggeredEventKind,
         List<string> errors)
@@ -16812,18 +16822,34 @@ public static class MatchRecoveryValidator
                 $"{payloadLabel} kogmaw last breath battlefield object id {battlefieldObjectId} is missing from {knownObjectLabel}");
         }
 
+        var battlefieldObjectIsBattlefieldCard = objectTags is null;
         if (battlefieldObjectKnown && objectTags is not null)
         {
             if (!objectTags.TryGetValue(battlefieldObjectId, out var battlefieldObjectTags))
             {
+                battlefieldObjectIsBattlefieldCard = false;
                 errors.Add(
                     $"{payloadLabel} kogmaw last breath battlefield object id {battlefieldObjectId} is missing from object tags");
             }
             else if (!battlefieldObjectTags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag))
             {
+                battlefieldObjectIsBattlefieldCard = false;
                 errors.Add(
                     $"{payloadLabel} kogmaw last breath battlefield object id {battlefieldObjectId} is not a battlefield card");
             }
+            else
+            {
+                battlefieldObjectIsBattlefieldCard = true;
+            }
+        }
+
+        if (battlefieldObjectKnown
+            && battlefieldObjectIsBattlefieldCard
+            && battlefieldStateObjectIds is not null
+            && !battlefieldStateObjectIds.Contains(battlefieldObjectId))
+        {
+            errors.Add(
+                $"{payloadLabel} kogmaw last breath battlefield object id {battlefieldObjectId} is missing from {battlefieldStateLabel}");
         }
 
         if (!string.IsNullOrWhiteSpace(sourceObjectId)
@@ -19585,8 +19611,14 @@ public static class MatchRecoveryValidator
     {
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         var objectTags = BuildAuthoritativeStateObjectTagIndex(authoritativeState);
+        var battlefieldStateObjectIds = BuildAuthoritativeStateBattlefieldStateObjectIds(authoritativeState);
         ValidateAuthoritativeStateStackItemValues(authoritativeState.StackItems, errors);
-        ValidateAuthoritativeStateTriggerQueueValues(authoritativeState.TriggerQueue, knownObjectIds, objectTags, errors);
+        ValidateAuthoritativeStateTriggerQueueValues(
+            authoritativeState.TriggerQueue,
+            knownObjectIds,
+            objectTags,
+            battlefieldStateObjectIds,
+            errors);
     }
 
     private static void ValidateAuthoritativeStatePendingPaymentValues(
@@ -19863,6 +19895,7 @@ public static class MatchRecoveryValidator
         IReadOnlyList<TriggerQueueItemState>? triggerQueue,
         IReadOnlySet<string> knownObjectIds,
         IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
+        IReadOnlySet<string> battlefieldStateObjectIds,
         List<string> errors)
     {
         if (triggerQueue is null)
@@ -19956,6 +19989,8 @@ public static class MatchRecoveryValidator
                 knownObjectIds,
                 "object registry",
                 objectTags,
+                battlefieldStateObjectIds,
+                "authoritative state battlefield states",
                 effectKind,
                 triggeredEventKind,
                 errors);
