@@ -4050,6 +4050,8 @@ public static class MatchRecoveryValidator
                 "objects",
                 objectTags,
                 "objects",
+                objectLocations,
+                "object locations",
                 knownBattlefieldStateObjectIds,
                 "battlefield states",
                 view.Snapshot.TurnNumber,
@@ -16556,6 +16558,8 @@ public static class MatchRecoveryValidator
             "authoritative state object registry",
             objectTags,
             "authoritative state object registry",
+            objectLocations,
+            "authoritative state object locations",
             battlefieldStateObjectIds,
             "authoritative state battlefield states",
             currentTurnNumber,
@@ -16824,6 +16828,8 @@ public static class MatchRecoveryValidator
         string objectFaceDownLabel,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
         string objectTagLabel,
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
+        string objectLocationLabel,
         IReadOnlySet<string>? battlefieldStateObjectIds,
         string battlefieldStateLabel,
         int? currentTurnNumber,
@@ -16904,6 +16910,15 @@ public static class MatchRecoveryValidator
                 $"{payloadLabel} blue sentinel delayed resource battlefield object id {battlefieldObjectId} is missing from {battlefieldStateLabel}");
         }
 
+        ValidateBlueSentinelDelayedResourceSourceLocationForRecovery(
+            payloadLabel,
+            expectedSourceObjectId,
+            battlefieldObjectId,
+            objectLocations,
+            objectLocationLabel,
+            battlefieldStateObjectIds,
+            errors);
+
         if (sourceVisibility is not null
             && !string.Equals(sourceVisibility, "VISIBLE", StringComparison.Ordinal))
         {
@@ -16931,6 +16946,46 @@ public static class MatchRecoveryValidator
             && !string.Equals(triggeredEventKind, "BATTLEFIELD_HELD", StringComparison.Ordinal))
         {
             errors.Add($"{payloadLabel} blue sentinel delayed resource triggered event kind {triggeredEventKind} must be BATTLEFIELD_HELD");
+        }
+    }
+
+    private static void ValidateBlueSentinelDelayedResourceSourceLocationForRecovery(
+        string payloadLabel,
+        string sourceObjectId,
+        string battlefieldObjectId,
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
+        string objectLocationLabel,
+        IReadOnlySet<string>? battlefieldStateObjectIds,
+        List<string> errors)
+    {
+        if (objectLocations is null
+            || !objectLocations.TryGetValue(sourceObjectId, out var sourceLocation)
+            || string.IsNullOrWhiteSpace(sourceLocation.Zone))
+        {
+            return;
+        }
+
+        var sourceZone = sourceLocation.Zone.Trim();
+        if (!string.Equals(sourceZone, "BATTLEFIELD", StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} blue sentinel delayed resource source object id {sourceObjectId} location zone {sourceZone} must be BATTLEFIELD in {objectLocationLabel}");
+            return;
+        }
+
+        if (battlefieldStateObjectIds is not null
+            && !battlefieldStateObjectIds.Contains(battlefieldObjectId))
+        {
+            return;
+        }
+
+        if (!string.Equals(sourceLocation.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal))
+        {
+            var actualBattlefieldObjectId = string.IsNullOrWhiteSpace(sourceLocation.BattlefieldObjectId)
+                ? "<null>"
+                : sourceLocation.BattlefieldObjectId;
+            errors.Add(
+                $"{payloadLabel} blue sentinel delayed resource source object id {sourceObjectId} battlefield object id {actualBattlefieldObjectId} must match trigger id battlefield object id {battlefieldObjectId} in {objectLocationLabel}");
         }
     }
 
@@ -20555,6 +20610,8 @@ public static class MatchRecoveryValidator
                 "authoritative state object registry",
                 objectTags,
                 "authoritative state object registry",
+                objectLocations,
+                "authoritative state object locations",
                 battlefieldStateObjectIds,
                 "authoritative state battlefield states",
                 currentTurnNumber,
