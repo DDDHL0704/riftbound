@@ -3962,6 +3962,9 @@ public static class MatchRecoveryValidator
         var objectLocations = view.Snapshot.Players is null
             ? null
             : BuildSnapshotObjectLocationIndex(view.Snapshot);
+        var playerBattlefieldObjectIdsByPlayer = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotPlayerBattlefieldObjectIdsByPlayer(view.Snapshot);
         var knownBattlefieldStateObjectIds = BuildSnapshotBattlefieldStateObjectIds(view.Snapshot);
         var seenTriggerIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var triggerPayload in triggerPayloads)
@@ -4052,6 +4055,8 @@ public static class MatchRecoveryValidator
                 "objects",
                 objectLocations,
                 "object locations",
+                playerBattlefieldObjectIdsByPlayer,
+                "player zones",
                 knownBattlefieldStateObjectIds,
                 "battlefield states",
                 view.Snapshot.TurnNumber,
@@ -6706,6 +6711,35 @@ public static class MatchRecoveryValidator
         }
 
         return objectLocations;
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlySet<string>> BuildSnapshotPlayerBattlefieldObjectIdsByPlayer(SnapshotDto snapshot)
+    {
+        var playerBattlefieldObjectIdsByPlayer =
+            new Dictionary<string, IReadOnlySet<string>>(StringComparer.Ordinal);
+        if (snapshot.Players is null)
+        {
+            return playerBattlefieldObjectIdsByPlayer;
+        }
+
+        foreach (var (playerId, playerPayload) in snapshot.Players)
+        {
+            if (string.IsNullOrWhiteSpace(playerId)
+                || !IsSnapshotPlayerPayloadObject(playerPayload)
+                || !TryReadObjectValue(playerPayload, "zones", out var zonesPayload)
+                || !IsSnapshotPlayerPayloadObject(zonesPayload)
+                || !TryReadObjectStringList(zonesPayload, "battlefields", out var battlefieldObjectIds))
+            {
+                continue;
+            }
+
+            playerBattlefieldObjectIdsByPlayer[playerId.Trim()] = battlefieldObjectIds
+                .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+                .Select(objectId => objectId.Trim())
+                .ToHashSet(StringComparer.Ordinal);
+        }
+
+        return playerBattlefieldObjectIdsByPlayer;
     }
 
     private static IReadOnlyDictionary<string, string> BuildSnapshotObjectControllerIndex(SnapshotDto snapshot)
@@ -16192,6 +16226,8 @@ public static class MatchRecoveryValidator
         var objectFaceDowns = BuildAuthoritativeStateObjectFaceDownIndex(authoritativeState);
         var objectTags = BuildAuthoritativeStateObjectTagIndex(authoritativeState);
         var battlefieldStateObjectIds = BuildAuthoritativeStateBattlefieldStateObjectIds(authoritativeState);
+        var playerBattlefieldObjectIdsByPlayer =
+            BuildAuthoritativeStatePlayerBattlefieldObjectIdsByPlayer(authoritativeState.PlayerZones);
         var seenTriggerIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var spectatorTrigger in spectatorTriggers)
         {
@@ -16215,6 +16251,7 @@ public static class MatchRecoveryValidator
                 objectFaceDowns,
                 objectTags,
                 authoritativeState.ObjectLocations,
+                playerBattlefieldObjectIdsByPlayer,
                 battlefieldStateObjectIds,
                 authoritativeState.Tick,
                 authoritativeState.TurnNumber,
@@ -16475,6 +16512,7 @@ public static class MatchRecoveryValidator
         IReadOnlyDictionary<string, bool> objectFaceDowns,
         IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
         IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        IReadOnlyDictionary<string, IReadOnlySet<string>> playerBattlefieldObjectIdsByPlayer,
         IReadOnlySet<string> battlefieldStateObjectIds,
         long currentTick,
         int currentTurnNumber,
@@ -16560,6 +16598,8 @@ public static class MatchRecoveryValidator
             "authoritative state object registry",
             objectLocations,
             "authoritative state object locations",
+            playerBattlefieldObjectIdsByPlayer,
+            "authoritative state player zones",
             battlefieldStateObjectIds,
             "authoritative state battlefield states",
             currentTurnNumber,
@@ -16830,6 +16870,8 @@ public static class MatchRecoveryValidator
         string objectTagLabel,
         IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
         string objectLocationLabel,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? playerBattlefieldObjectIdsByPlayer,
+        string playerZoneLabel,
         IReadOnlySet<string>? battlefieldStateObjectIds,
         string battlefieldStateLabel,
         int? currentTurnNumber,
@@ -16929,6 +16971,20 @@ public static class MatchRecoveryValidator
             objectLocationLabel,
             battlefieldStateObjectIds,
             errors);
+        if (controllerId is not null)
+        {
+            ValidateBlueSentinelDelayedResourceSourcePlayerZoneMembershipForRecovery(
+                payloadLabel,
+                expectedSourceObjectId,
+                battlefieldObjectId,
+                controllerId,
+                objectControllers,
+                objectLocations,
+                playerBattlefieldObjectIdsByPlayer,
+                playerZoneLabel,
+                battlefieldStateObjectIds,
+                errors);
+        }
 
         if (sourceVisibility is not null
             && !string.Equals(sourceVisibility, "VISIBLE", StringComparison.Ordinal))
@@ -16998,6 +17054,49 @@ public static class MatchRecoveryValidator
             errors.Add(
                 $"{payloadLabel} blue sentinel delayed resource source object id {sourceObjectId} battlefield object id {actualBattlefieldObjectId} must match trigger id battlefield object id {battlefieldObjectId} in {objectLocationLabel}");
         }
+    }
+
+    private static void ValidateBlueSentinelDelayedResourceSourcePlayerZoneMembershipForRecovery(
+        string payloadLabel,
+        string sourceObjectId,
+        string battlefieldObjectId,
+        string controllerId,
+        IReadOnlyDictionary<string, string>? objectControllers,
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? playerBattlefieldObjectIdsByPlayer,
+        string playerZoneLabel,
+        IReadOnlySet<string>? battlefieldStateObjectIds,
+        List<string> errors)
+    {
+        if (string.Equals(controllerId, "HIDDEN", StringComparison.Ordinal)
+            || playerBattlefieldObjectIdsByPlayer is null
+            || !playerBattlefieldObjectIdsByPlayer.TryGetValue(controllerId, out var battlefieldObjectIds)
+            || objectControllers is null
+            || !objectControllers.TryGetValue(sourceObjectId, out var sourceControllerId)
+            || !string.Equals(sourceControllerId, controllerId, StringComparison.Ordinal)
+            || objectLocations is null
+            || !objectLocations.TryGetValue(sourceObjectId, out var sourceLocation)
+            || string.IsNullOrWhiteSpace(sourceLocation.Zone))
+        {
+            return;
+        }
+
+        if (battlefieldStateObjectIds is not null
+            && !battlefieldStateObjectIds.Contains(battlefieldObjectId))
+        {
+            return;
+        }
+
+        var sourceZone = sourceLocation.Zone.Trim();
+        if (!string.Equals(sourceZone, "BATTLEFIELD", StringComparison.Ordinal)
+            || !string.Equals(sourceLocation.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+            || battlefieldObjectIds.Contains(sourceObjectId))
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{payloadLabel} blue sentinel delayed resource source object id {sourceObjectId} must be in trigger controller battlefield zone in {playerZoneLabel}");
     }
 
     private static bool IsBlueSentinelDelayedTriggerIdForRecovery(string triggerId)
@@ -20240,6 +20339,8 @@ public static class MatchRecoveryValidator
         var objectFaceDowns = BuildAuthoritativeStateObjectFaceDownIndex(authoritativeState);
         var objectTags = BuildAuthoritativeStateObjectTagIndex(authoritativeState);
         var battlefieldStateObjectIds = BuildAuthoritativeStateBattlefieldStateObjectIds(authoritativeState);
+        var playerBattlefieldObjectIdsByPlayer =
+            BuildAuthoritativeStatePlayerBattlefieldObjectIdsByPlayer(authoritativeState.PlayerZones);
         ValidateAuthoritativeStateStackItemValues(authoritativeState.StackItems, errors);
         ValidateAuthoritativeStateTriggerQueueValues(
             authoritativeState.TriggerQueue,
@@ -20249,6 +20350,7 @@ public static class MatchRecoveryValidator
             objectFaceDowns,
             objectTags,
             authoritativeState.ObjectLocations,
+            playerBattlefieldObjectIdsByPlayer,
             battlefieldStateObjectIds,
             authoritativeState.Tick,
             authoritativeState.TurnNumber,
@@ -20533,6 +20635,7 @@ public static class MatchRecoveryValidator
         IReadOnlyDictionary<string, bool> objectFaceDowns,
         IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
         IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        IReadOnlyDictionary<string, IReadOnlySet<string>> playerBattlefieldObjectIdsByPlayer,
         IReadOnlySet<string> battlefieldStateObjectIds,
         long currentTick,
         int currentTurnNumber,
@@ -20623,6 +20726,8 @@ public static class MatchRecoveryValidator
                 "authoritative state object registry",
                 objectLocations,
                 "authoritative state object locations",
+                playerBattlefieldObjectIdsByPlayer,
+                "authoritative state player zones",
                 battlefieldStateObjectIds,
                 "authoritative state battlefield states",
                 currentTurnNumber,
@@ -22826,6 +22931,34 @@ public static class MatchRecoveryValidator
         }
 
         return objectFaceDowns;
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlySet<string>> BuildAuthoritativeStatePlayerBattlefieldObjectIdsByPlayer(
+        IReadOnlyDictionary<string, PlayerZones>? playerZones)
+    {
+        var playerBattlefieldObjectIdsByPlayer =
+            new Dictionary<string, IReadOnlySet<string>>(StringComparer.Ordinal);
+        if (playerZones is null)
+        {
+            return playerBattlefieldObjectIdsByPlayer;
+        }
+
+        foreach (var (playerId, zones) in playerZones)
+        {
+            if (string.IsNullOrWhiteSpace(playerId)
+                || zones is null
+                || zones.Battlefields is null)
+            {
+                continue;
+            }
+
+            playerBattlefieldObjectIdsByPlayer[playerId.Trim()] = zones.Battlefields
+                .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+                .Select(objectId => objectId.Trim())
+                .ToHashSet(StringComparer.Ordinal);
+        }
+
+        return playerBattlefieldObjectIdsByPlayer;
     }
 
     private static string? EffectiveAuthoritativeObjectControllerId(

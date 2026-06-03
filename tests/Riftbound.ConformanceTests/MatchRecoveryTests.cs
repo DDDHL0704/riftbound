@@ -6569,6 +6569,111 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueBlueSentinelDelayedResourceSourceZoneMembershipContextDrift()
+    {
+        const string triggerId = "BLUE_SENTINEL_HELD_DELAYED_RESOURCE::1::source-1::battlefield-1";
+        var alice = PlayerView("alice", 0, 0);
+        var players = alice.Snapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["zones"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["mainDeckCount"] = 0,
+            ["runeDeckCount"] = 0,
+            ["hand"] = Array.Empty<string>(),
+            ["handHidden"] = 0,
+            ["base"] = new[] { "source-1" },
+            ["battlefields"] = new[] { "battlefield-1" },
+            ["battlefieldHiddenStandbyCount"] = 0,
+            ["graveyard"] = Array.Empty<string>(),
+            ["banished"] = Array.Empty<string>(),
+            ["legendZone"] = Array.Empty<string>(),
+            ["championZone"] = Array.Empty<string>()
+        };
+        alicePayload["objects"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["source-1"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "source-1",
+                ["cardNo"] = P4ActivatedAbilityCatalog.BlueSentinelCardNo,
+                ["ownerId"] = "alice",
+                ["controllerId"] = "alice",
+                ["isFaceDown"] = false,
+                ["tags"] = new[] { CardObjectTags.UnitCard },
+                ["location"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["playerId"] = "alice",
+                    ["zone"] = "BATTLEFIELD",
+                    ["battlefieldObjectId"] = "battlefield-1"
+                },
+                ["untilEndOfTurnEffects"] = Array.Empty<string>()
+            },
+            ["battlefield-1"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "battlefield-1",
+                ["ownerId"] = "alice",
+                ["controllerId"] = "alice",
+                ["isFaceDown"] = false,
+                ["tags"] = new[] { P6TokenFactoryCatalog.BattlefieldCardTag },
+                ["location"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["playerId"] = "alice",
+                    ["zone"] = "BATTLEFIELD"
+                },
+                ["untilEndOfTurnEffects"] = Array.Empty<string>()
+            }
+        };
+        players["alice"] = alicePayload;
+        var lanes = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["battlefields"] = new object?[]
+            {
+                new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["battlefieldObjectId"] = "battlefield-1"
+                }
+            }
+        };
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["triggerQueue"] = new object?[]
+        {
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["triggerId"] = triggerId,
+                ["controllerId"] = "alice",
+                ["sourceObjectId"] = "source-1",
+                ["sourceVisibility"] = "VISIBLE",
+                ["effectKind"] = P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityEffectKind,
+                ["triggeredByEventKind"] = "BATTLEFIELD_HELD"
+            }
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players,
+                    Lanes = lanes,
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item blue sentinel delayed resource source object id source-1 must be in trigger controller battlefield zone in player zones",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueOgsLuxHighCostSpellContextDrift()
     {
         const string triggerId = "TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3";
@@ -24334,6 +24439,74 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::1::source-1::battlefield-1 blue sentinel delayed resource battlefield object id battlefield-1 controller id bob must match trigger controller id alice in authoritative state object registry",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueBlueSentinelDelayedResourceSourceZoneMembershipContextDrift()
+    {
+        const string triggerId = "BLUE_SENTINEL_HELD_DELAYED_RESOURCE::1::source-1::battlefield-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["battlefield-1"]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new(
+                    "source-1",
+                    cardNo: P4ActivatedAbilityCatalog.BlueSentinelCardNo,
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.UnitCard]),
+                ["battlefield-1"] = new(
+                    "battlefield-1",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new("alice", "BATTLEFIELD", "battlefield-1"),
+                ["battlefield-1"] = new("alice", "BATTLEFIELD")
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    triggerId,
+                    "alice",
+                    sourceObjectId: "source-1",
+                    effectKind: P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityEffectKind,
+                    triggeredByEventKind: "BATTLEFIELD_HELD")
+            ]);
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::1::source-1::battlefield-1 blue sentinel delayed resource source object id source-1 must be in trigger controller battlefield zone in authoritative state player zones",
                 StringComparison.Ordinal));
     }
 
@@ -61148,6 +61321,90 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item blue sentinel delayed resource battlefield object id battlefield-2 controller id bob must match trigger controller id alice in authoritative state object registry",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueBlueSentinelDelayedResourceSourceZoneMembershipContextDrift()
+    {
+        const string triggerId = "BLUE_SENTINEL_HELD_DELAYED_RESOURCE::2::source-1::battlefield-1";
+        const string sourceObjectId = "source-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            2,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["battlefield-1"]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    cardNo: P4ActivatedAbilityCatalog.BlueSentinelCardNo,
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.UnitCard]),
+                ["battlefield-1"] = new(
+                    "battlefield-1",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new("alice", "BATTLEFIELD", "battlefield-1"),
+                ["battlefield-1"] = new("alice", "BATTLEFIELD")
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    triggerId,
+                    "alice",
+                    sourceObjectId,
+                    P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityEffectKind,
+                    "BATTLEFIELD_HELD")
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id source-1 must be in trigger controller battlefield zone in authoritative state player zones",
                 StringComparison.Ordinal));
     }
 
