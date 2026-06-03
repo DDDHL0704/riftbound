@@ -4065,6 +4065,8 @@ public static class MatchRecoveryValidator
                 "objects",
                 objectTags,
                 "objects",
+                knownBattlefieldStateObjectIds,
+                "battlefield states",
                 effectKind,
                 triggeredEventKind,
                 view.SnapshotTick,
@@ -16554,6 +16556,8 @@ public static class MatchRecoveryValidator
             "authoritative state object registry",
             objectTags,
             "authoritative state object registry",
+            battlefieldStateObjectIds,
+            "authoritative state battlefield states",
             effectKind,
             triggeredEventKind,
             currentTick,
@@ -16917,6 +16921,8 @@ public static class MatchRecoveryValidator
         string objectFaceDownLabel,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
         string objectTagLabel,
+        IReadOnlySet<string>? battlefieldStateObjectIds,
+        string battlefieldStateLabel,
         string? effectKind,
         string? triggeredEventKind,
         long currentTick,
@@ -16960,6 +16966,21 @@ public static class MatchRecoveryValidator
             errors.Add(
                 $"{payloadLabel} jhin movement resource destination {destination} must be BASE, BATTLEFIELD, or BATTLEFIELD:<battlefieldObjectId>");
         }
+
+        ValidateJhinMovementPreciseBattlefieldEndpointForRecovery(
+            payloadLabel,
+            "origin",
+            origin,
+            battlefieldStateObjectIds,
+            battlefieldStateLabel,
+            errors);
+        ValidateJhinMovementPreciseBattlefieldEndpointForRecovery(
+            payloadLabel,
+            "destination",
+            destination,
+            battlefieldStateObjectIds,
+            battlefieldStateLabel,
+            errors);
 
         if (sourceObjectId is not null
             && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
@@ -17038,6 +17059,27 @@ public static class MatchRecoveryValidator
             || triggerId.StartsWith($"{JhinMovementResourceTriggerIdPrefixForRecovery}::", StringComparison.Ordinal);
     }
 
+    private static void ValidateJhinMovementPreciseBattlefieldEndpointForRecovery(
+        string payloadLabel,
+        string endpointLabel,
+        string endpoint,
+        IReadOnlySet<string>? battlefieldStateObjectIds,
+        string battlefieldStateLabel,
+        List<string> errors)
+    {
+        if (battlefieldStateObjectIds is null
+            || !TryReadJhinPreciseBattlefieldEndpointForRecovery(endpoint, out var battlefieldObjectId))
+        {
+            return;
+        }
+
+        if (!battlefieldStateObjectIds.Contains(battlefieldObjectId))
+        {
+            errors.Add(
+                $"{payloadLabel} jhin movement resource {endpointLabel} battlefield object id {battlefieldObjectId} is missing from {battlefieldStateLabel}");
+        }
+    }
+
     private static bool IsJhinMovementEndpointForRecovery(string endpoint)
     {
         if (string.Equals(endpoint, "BASE", StringComparison.Ordinal)
@@ -17049,6 +17091,21 @@ public static class MatchRecoveryValidator
         const string preciseBattlefieldPrefix = "BATTLEFIELD:";
         return endpoint.StartsWith(preciseBattlefieldPrefix, StringComparison.Ordinal)
             && !string.IsNullOrWhiteSpace(endpoint[preciseBattlefieldPrefix.Length..]);
+    }
+
+    private static bool TryReadJhinPreciseBattlefieldEndpointForRecovery(
+        string endpoint,
+        out string battlefieldObjectId)
+    {
+        const string preciseBattlefieldPrefix = "BATTLEFIELD:";
+        battlefieldObjectId = string.Empty;
+        if (!endpoint.StartsWith(preciseBattlefieldPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        battlefieldObjectId = endpoint[preciseBattlefieldPrefix.Length..];
+        return !string.IsNullOrWhiteSpace(battlefieldObjectId);
     }
 
     private static bool TryReadJhinMovementTriggerContextForRecovery(
@@ -20319,6 +20376,8 @@ public static class MatchRecoveryValidator
                 "authoritative state object registry",
                 objectTags,
                 "authoritative state object registry",
+                battlefieldStateObjectIds,
+                "authoritative state battlefield states",
                 effectKind,
                 triggeredEventKind,
                 currentTick,
