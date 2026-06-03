@@ -20336,6 +20336,20 @@ public static class MatchRecoveryValidator
             && !string.IsNullOrWhiteSpace(sourceGraveyardLocation.Zone)
             && string.Equals(sourceGraveyardLocation.Zone.Trim(), "GRAVEYARD", StringComparison.Ordinal)
             && !string.IsNullOrWhiteSpace(sourceGraveyardLocation.PlayerId)
+            && !string.IsNullOrWhiteSpace(controllerId)
+            && !string.Equals(controllerId, "HIDDEN", StringComparison.Ordinal)
+            && !string.Equals(sourceGraveyardLocation.PlayerId.Trim(), controllerId, StringComparison.Ordinal))
+        {
+            var sourceLocationPlayerId = sourceGraveyardLocation.PlayerId.Trim();
+            errors.Add(
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} location player id {sourceLocationPlayerId} must match trigger controller id {controllerId} in {objectLocationLabel}");
+        }
+
+        if (objectLocations is not null
+            && objectLocations.TryGetValue(sourceObjectId, out sourceGraveyardLocation)
+            && !string.IsNullOrWhiteSpace(sourceGraveyardLocation.Zone)
+            && string.Equals(sourceGraveyardLocation.Zone.Trim(), "GRAVEYARD", StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(sourceGraveyardLocation.PlayerId)
             && playerGraveyardObjectIdsByPlayer is not null
             && playerGraveyardObjectIdsByPlayer.TryGetValue(
                 sourceGraveyardLocation.PlayerId.Trim(),
