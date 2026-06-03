@@ -4226,6 +4226,12 @@ public static class MatchRecoveryValidator
                 effectKind,
                 triggeredEventKind,
                 errors);
+            ValidateTriggerQueueFriendlyDestroyedStackContext(
+                triggerLabel,
+                triggerId,
+                sourceObjectId,
+                effectKind,
+                errors);
             ValidateTriggerQueueVisibleSourceObjectMembership(
                 triggerLabel,
                 sourceObjectId,
@@ -16769,6 +16775,12 @@ public static class MatchRecoveryValidator
             effectKind,
             triggeredEventKind,
             errors);
+        ValidateTriggerQueueFriendlyDestroyedStackContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            errors);
         ValidateTriggerQueueVisibleSourceObjectMembership(
             payloadLabel,
             sourceObjectId,
@@ -18104,6 +18116,74 @@ public static class MatchRecoveryValidator
             ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery,
             "viktor destroyed non-minion create minion",
             errors);
+    }
+
+    private static void ValidateTriggerQueueFriendlyDestroyedStackContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceObjectId,
+        string? effectKind,
+        List<string> errors)
+    {
+        ValidateTriggerQueueFriendlyDestroyedStackContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            GhostlyCentaurFriendlyDestroyedPowerEffectKindForRecovery,
+            "ghostly centaur friendly-destroyed power",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedStackContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            ResonantSoulFirstFriendlyDestroyedDrawEffectKindForRecovery,
+            "resonant soul first friendly-destroyed draw",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedStackContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            SavageJawfishFriendlyDestroyedExperienceEffectKindForRecovery,
+            "savage jawfish friendly-destroyed experience",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedStackContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery,
+            "viktor destroyed non-minion create minion",
+            errors);
+    }
+
+    private static void ValidateTriggerQueueFriendlyDestroyedStackContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceObjectId,
+        string? effectKind,
+        string expectedEffectKind,
+        string diagnosticName,
+        List<string> errors)
+    {
+        if (triggerId is null
+            || !IsStandardLastBreathTriggerForRecovery(triggerId, effectKind, expectedEffectKind)
+            || !IsStandardLastBreathTriggerIdForRecovery(triggerId, expectedEffectKind)
+            || string.IsNullOrWhiteSpace(sourceObjectId)
+            || string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        if (triggerId.StartsWith(
+            $"{StandardTriggerIdPrefixForRecovery}-{sourceObjectId}-",
+            StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} {diagnosticName} trigger id stack item id is required before source object id {sourceObjectId}");
+        }
     }
 
     private static void ValidateTriggerQueueStandardLastBreathContext(
@@ -20911,6 +20991,12 @@ public static class MatchRecoveryValidator
                 sourceVisibility: null,
                 effectKind,
                 triggeredEventKind,
+                errors);
+            ValidateTriggerQueueFriendlyDestroyedStackContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
+                sourceObjectId,
+                effectKind,
                 errors);
         }
     }
