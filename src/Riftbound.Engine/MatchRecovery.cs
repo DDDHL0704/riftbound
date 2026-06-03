@@ -20452,6 +20452,15 @@ public static class MatchRecoveryValidator
         }
 
         if (!IsWatchfulSentinelLastBreathDrawEffectForRecovery(expectedEffectKind)
+            && objectTags is not null
+            && objectTags.TryGetValue(sourceObjectId, out var unitSourceTags)
+            && !unitSourceTags.Contains(CardObjectTags.UnitCard))
+        {
+            errors.Add(
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must be a unit card in {objectTagLabel}");
+        }
+
+        if (!IsWatchfulSentinelLastBreathDrawEffectForRecovery(expectedEffectKind)
             && objectFaceDowns is not null
             && objectFaceDowns.TryGetValue(sourceObjectId, out var isFaceDown)
             && isFaceDown)
