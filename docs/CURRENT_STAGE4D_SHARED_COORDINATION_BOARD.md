@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-17YJ recovery timing trigger queue OGS Lux source field-zone validation tightens `MatchRecoveryValidator` so recovered snapshot, authoritative state and spectator replay-frame timing `triggerQueue[]` entries for OGS Lux high-cost spell triggers reject readable source objects that are controlled by the trigger controller but absent from that controller's field zones (`base` plus `battlefields`) in the applicable player-zone registry. Validation passed: focused new OGS Lux source field-zone context tests `3/3`, focused `TriggerQueue` `260/260`, focused recovery `945/945`, adjacent recovery/official-opening/Postgres recovery-store filter `1525/1525`, backend full `6890/6890`. It does not change DOC_MATRIX approved scope or open frontend/final-status locks.
+Current A_MAIN latest accepted slice: Stage 4D-17YK recovery timing trigger queue OGS Lux source equipment-tag validation tightens `MatchRecoveryValidator` so recovered snapshot, authoritative state and spectator replay-frame timing `triggerQueue[]` entries for OGS Lux high-cost spell triggers reject readable source objects that carry `CardObjectTags.EquipmentCard` in the applicable object-tag registry. Validation passed: focused new OGS Lux source equipment-tag context tests `3/3`, focused `TriggerQueue` `263/263`, focused recovery `948/948`, adjacent recovery/official-opening/Postgres recovery-store filter `1528/1528`, backend full `6893/6893`. It does not change DOC_MATRIX approved scope or open frontend/final-status locks.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-17YJ; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-03 19:40 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-17YK; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-03 19:50 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-03 19:50 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main`; latest local commit before this entry is `535d573d` (`checkpoint: stage 4D recovery trigger queue ogs lux field zone`). This entry records the Stage 4D-17YK work to be committed/pushed as `checkpoint: stage 4D recovery trigger queue ogs lux equipment tag`. DOC_MATRIX_CURRENT remains clean at `17bde0c3`; A_MAIN did not touch that worktree.
+
+Write locks: A_MAIN touched only `src/Riftbound.Engine/MatchRecovery.cs`, `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs`, current checkpoint/completion/P0-P1/next-dispatch docs, this shared board, and `docs/CURRENT_STAGE4D_17YK_RECOVERY_TIMING_TRIGGER_QUEUE_OGS_LUX_SOURCE_EQUIPMENT_TAG_CONTEXT_AUDIT.md`. Matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, frontend, protocol, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-17YK recovery timing trigger queue OGS Lux source equipment-tag validation accepted. `MatchRecoveryValidator` now rejects recovered snapshot, authoritative state and spectator replay-frame timing `triggerQueue[]` entries for OGS Lux high-cost spell triggers when the readable source object carries `CardObjectTags.EquipmentCard` in the applicable object-tag registry. Project remains **NOT READY**.
+
+Validation: focused new OGS Lux source equipment-tag context tests `3/3`; focused `TriggerQueue` filter `263/263`; focused recovery `948/948`; adjacent recovery/official-opening/Postgres recovery-store filter `1528/1528`; backend full `6893/6893`; touched-file scoped whitespace format, `git diff --check`, anchored conflict-marker scan and matrix JSON parse passed.
+
+Requested action: no DOC_MATRIX action requested. Future DOC_MATRIX work must re-read this board and obtain/observe an approved scope before touching matrix/test/checkpoint files.
 
 ### 2026-06-03 19:40 A_MAIN
 

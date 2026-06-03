@@ -17840,6 +17840,14 @@ public static class MatchRecoveryValidator
                 errors.Add(
                     $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} must not be a standby card in {objectTagLabel}");
             }
+
+            if (objectTags is not null
+                && objectTags.TryGetValue(sourceObjectId, out var equipmentSourceTags)
+                && equipmentSourceTags.Contains(CardObjectTags.EquipmentCard))
+            {
+                errors.Add(
+                    $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} must not be an equipment card in {objectTagLabel}");
+            }
         }
 
         if (sourceVisibility is not null
