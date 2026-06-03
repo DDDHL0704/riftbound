@@ -4093,6 +4093,8 @@ public static class MatchRecoveryValidator
                 "objects",
                 objectTags,
                 "objects",
+                objectLocations,
+                "object locations",
                 knownBattlefieldStateObjectIds,
                 "battlefield states",
                 effectKind,
@@ -16597,6 +16599,8 @@ public static class MatchRecoveryValidator
             "authoritative state object registry",
             objectTags,
             "authoritative state object registry",
+            objectLocations,
+            "authoritative state object locations",
             battlefieldStateObjectIds,
             "authoritative state battlefield states",
             effectKind,
@@ -17253,6 +17257,8 @@ public static class MatchRecoveryValidator
         string objectFaceDownLabel,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
         string objectTagLabel,
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
+        string objectLocationLabel,
         IReadOnlySet<string>? battlefieldStateObjectIds,
         string battlefieldStateLabel,
         string? effectKind,
@@ -17313,6 +17319,18 @@ public static class MatchRecoveryValidator
         {
             errors.Add(
                 $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} must match trigger id source object id before {KogmawLastBreathAoeEffectKindForRecovery}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(sourceObjectId)
+            && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
+            && objectLocations is not null
+            && objectLocations.TryGetValue(sourceObjectId, out var sourceLocation)
+            && !string.IsNullOrWhiteSpace(sourceLocation.Zone)
+            && !string.Equals(sourceLocation.Zone.Trim(), "GRAVEYARD", StringComparison.Ordinal))
+        {
+            var sourceZone = sourceLocation.Zone.Trim();
+            errors.Add(
+                $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} location zone {sourceZone} must be GRAVEYARD in {objectLocationLabel}");
         }
 
         if (controllerId is not null
@@ -20567,6 +20585,8 @@ public static class MatchRecoveryValidator
                 "authoritative state object registry",
                 objectTags,
                 "authoritative state object registry",
+                objectLocations,
+                "authoritative state object locations",
                 battlefieldStateObjectIds,
                 "authoritative state battlefield states",
                 effectKind,
