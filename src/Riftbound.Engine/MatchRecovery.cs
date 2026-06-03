@@ -4067,6 +4067,7 @@ public static class MatchRecoveryValidator
                 "objects",
                 effectKind,
                 triggeredEventKind,
+                view.SnapshotTick,
                 errors);
             ValidateTriggerQueueKogmawLastBreathContext(
                 triggerLabel,
@@ -16193,6 +16194,7 @@ public static class MatchRecoveryValidator
                 objectFaceDowns,
                 objectTags,
                 battlefieldStateObjectIds,
+                authoritativeState.Tick,
                 authoritativeState.TurnNumber,
                 errors);
         }
@@ -16451,6 +16453,7 @@ public static class MatchRecoveryValidator
         IReadOnlyDictionary<string, bool> objectFaceDowns,
         IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
         IReadOnlySet<string> battlefieldStateObjectIds,
+        long currentTick,
         int currentTurnNumber,
         List<string> errors)
     {
@@ -16553,6 +16556,7 @@ public static class MatchRecoveryValidator
             "authoritative state object registry",
             effectKind,
             triggeredEventKind,
+            currentTick,
             errors);
         ValidateTriggerQueueKogmawLastBreathContext(
             payloadLabel,
@@ -16915,6 +16919,7 @@ public static class MatchRecoveryValidator
         string objectTagLabel,
         string? effectKind,
         string? triggeredEventKind,
+        long currentTick,
         List<string> errors)
     {
         if (triggerId is null || !IsJhinMovementResourceTriggerIdForRecovery(triggerId))
@@ -16924,13 +16929,19 @@ public static class MatchRecoveryValidator
 
         if (!TryReadJhinMovementTriggerContextForRecovery(
                 triggerId,
-                out _,
+                out var triggerTick,
                 out var expectedSourceObjectId,
                 out var origin,
                 out var destination))
         {
             errors.Add($"{payloadLabel} jhin movement resource trigger id is invalid");
             return;
+        }
+
+        if (triggerTick > currentTick)
+        {
+            errors.Add(
+                $"{payloadLabel} jhin movement resource trigger tick {triggerTick} cannot be greater than current tick {currentTick}");
         }
 
         if (string.Equals(origin, destination, StringComparison.Ordinal))
@@ -19919,6 +19930,7 @@ public static class MatchRecoveryValidator
             objectFaceDowns,
             objectTags,
             battlefieldStateObjectIds,
+            authoritativeState.Tick,
             authoritativeState.TurnNumber,
             errors);
     }
@@ -20201,6 +20213,7 @@ public static class MatchRecoveryValidator
         IReadOnlyDictionary<string, bool> objectFaceDowns,
         IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
         IReadOnlySet<string> battlefieldStateObjectIds,
+        long currentTick,
         int currentTurnNumber,
         List<string> errors)
     {
@@ -20308,6 +20321,7 @@ public static class MatchRecoveryValidator
                 "authoritative state object registry",
                 effectKind,
                 triggeredEventKind,
+                currentTick,
                 errors);
             ValidateTriggerQueueKogmawLastBreathContext(
                 $"authoritative state trigger queue item {triggerLabel}",
