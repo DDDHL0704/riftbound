@@ -4080,8 +4080,11 @@ public static class MatchRecoveryValidator
             ValidateTriggerQueueKogmawLastBreathContext(
                 triggerLabel,
                 triggerId,
+                controllerId,
                 sourceObjectId,
                 sourceVisibility,
+                objectControllers,
+                "objects",
                 knownObjectIds,
                 "objects",
                 objectCardNos,
@@ -16581,8 +16584,11 @@ public static class MatchRecoveryValidator
         ValidateTriggerQueueKogmawLastBreathContext(
             payloadLabel,
             triggerId,
+            controllerId,
             sourceObjectId,
             sourceVisibility,
+            objectControllers,
+            "authoritative state object registry",
             knownObjectIds,
             "object registry",
             objectCardNos,
@@ -17234,8 +17240,11 @@ public static class MatchRecoveryValidator
     private static void ValidateTriggerQueueKogmawLastBreathContext(
         string payloadLabel,
         string? triggerId,
+        string? controllerId,
         string? sourceObjectId,
         string? sourceVisibility,
+        IReadOnlyDictionary<string, string>? objectControllers,
+        string objectControllerLabel,
         IReadOnlySet<string>? knownObjectIds,
         string knownObjectLabel,
         IReadOnlyDictionary<string, string?>? objectCardNos,
@@ -17304,6 +17313,18 @@ public static class MatchRecoveryValidator
         {
             errors.Add(
                 $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} must match trigger id source object id before {KogmawLastBreathAoeEffectKindForRecovery}");
+        }
+
+        if (controllerId is not null
+            && !string.Equals(controllerId, "HIDDEN", StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(sourceObjectId)
+            && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
+            && objectControllers is not null
+            && objectControllers.TryGetValue(sourceObjectId, out var sourceControllerId)
+            && !string.Equals(sourceControllerId, controllerId, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} controller id {sourceControllerId} must match trigger controller id {controllerId} in {objectControllerLabel}");
         }
 
         if (!string.IsNullOrWhiteSpace(sourceObjectId)
@@ -20533,8 +20554,11 @@ public static class MatchRecoveryValidator
             ValidateTriggerQueueKogmawLastBreathContext(
                 $"authoritative state trigger queue item {triggerLabel}",
                 triggerId,
+                trigger.ControllerId,
                 sourceObjectId,
                 sourceVisibility: null,
+                objectControllers,
+                "authoritative state object registry",
                 knownObjectIds,
                 "object registry",
                 objectCardNos,
