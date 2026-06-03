@@ -4315,6 +4315,14 @@ public static class MatchRecoveryValidator
                 objectTags,
                 "objects",
                 errors);
+            ValidateTriggerQueueViktorDestroyedNonMinionDestroyedObjectUnitCardContext(
+                triggerLabel,
+                triggerId,
+                sourceObjectId,
+                effectKind,
+                objectTags,
+                "objects",
+                errors);
             ValidateTriggerQueueViktorDestroyedNonMinionDestroyedObjectMinionFamilyContext(
                 triggerLabel,
                 triggerId,
@@ -17088,6 +17096,14 @@ public static class MatchRecoveryValidator
             objectTags,
             "authoritative state object registry",
             errors);
+        ValidateTriggerQueueViktorDestroyedNonMinionDestroyedObjectUnitCardContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            objectTags,
+            "authoritative state object registry",
+            errors);
         ValidateTriggerQueueViktorDestroyedNonMinionDestroyedObjectMinionFamilyContext(
             payloadLabel,
             triggerId,
@@ -19079,6 +19095,43 @@ public static class MatchRecoveryValidator
 
         errors.Add(
             $"{payloadLabel} {diagnosticName} destroyed object id {destroyedObjectId} must not be an equipment card in {objectTagLabel}");
+    }
+
+    private static void ValidateTriggerQueueViktorDestroyedNonMinionDestroyedObjectUnitCardContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceObjectId,
+        string? effectKind,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
+        string objectTagLabel,
+        List<string> errors)
+    {
+        if (triggerId is null
+            || !IsStandardLastBreathTriggerForRecovery(
+                triggerId,
+                effectKind,
+                ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery)
+            || !IsStandardLastBreathTriggerIdForRecovery(
+                triggerId,
+                ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery)
+            || string.IsNullOrWhiteSpace(sourceObjectId)
+            || string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
+            || objectTags is null
+            || !TryReadFriendlyDestroyedTriggerDestroyedObjectIdForRecovery(
+                triggerId,
+                sourceObjectId,
+                ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery,
+                out var destroyedObjectId)
+            || !objectTags.TryGetValue(destroyedObjectId, out var destroyedTags)
+            || destroyedTags.Contains(CardObjectTags.UnitCard)
+            || (destroyedTags.Contains(CardObjectTags.EquipmentCard)
+                && !destroyedTags.Contains(CardObjectTags.UnitCard)))
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{payloadLabel} viktor destroyed non-minion create minion destroyed object id {destroyedObjectId} must be a unit card in {objectTagLabel}");
     }
 
     private static void ValidateTriggerQueueViktorDestroyedNonMinionDestroyedObjectMinionFamilyContext(
@@ -22715,6 +22768,14 @@ public static class MatchRecoveryValidator
                 "object registry",
                 errors);
             ValidateTriggerQueueFriendlyDestroyedDestroyedObjectCardContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
+                sourceObjectId,
+                effectKind,
+                objectTags,
+                "authoritative state object registry",
+                errors);
+            ValidateTriggerQueueViktorDestroyedNonMinionDestroyedObjectUnitCardContext(
                 $"authoritative state trigger queue item {triggerLabel}",
                 triggerId,
                 sourceObjectId,
