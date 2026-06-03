@@ -17699,13 +17699,19 @@ public static class MatchRecoveryValidator
         }
 
         if (!string.IsNullOrWhiteSpace(sourceObjectId)
-            && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
-            && !triggerId.EndsWith(
-                $"-{sourceObjectId}-{OgsLuxHighCostSpellPowerEffectKindForRecovery}",
-                StringComparison.Ordinal))
+            && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal))
         {
-            errors.Add(
-                $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} must match trigger id source object id before {OgsLuxHighCostSpellPowerEffectKindForRecovery}");
+            var sourceObjectSuffix = $"-{sourceObjectId}-{OgsLuxHighCostSpellPowerEffectKindForRecovery}";
+            if (!triggerId.EndsWith(sourceObjectSuffix, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} must match trigger id source object id before {OgsLuxHighCostSpellPowerEffectKindForRecovery}");
+            }
+            else if (triggerId.Length - sourceObjectSuffix.Length <= StandardTriggerIdPrefixForRecovery.Length)
+            {
+                errors.Add(
+                    $"{payloadLabel} ogs lux high cost spell trigger id stack item id is required before source object id {sourceObjectId}");
+            }
         }
 
         if (sourceVisibility is not null
