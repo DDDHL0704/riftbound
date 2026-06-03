@@ -4293,6 +4293,12 @@ public static class MatchRecoveryValidator
                 effectKind,
                 triggeredEventKind,
                 errors);
+            ValidateTriggerQueueFriendlyDestroyedSourceObjectIdContext(
+                triggerLabel,
+                triggerId,
+                sourceObjectId,
+                effectKind,
+                errors);
             ValidateTriggerQueueFriendlyDestroyedSourceCardContext(
                 triggerLabel,
                 triggerId,
@@ -17027,6 +17033,12 @@ public static class MatchRecoveryValidator
             effectKind,
             triggeredEventKind,
             errors);
+        ValidateTriggerQueueFriendlyDestroyedSourceObjectIdContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            errors);
         ValidateTriggerQueueFriendlyDestroyedSourceCardContext(
             payloadLabel,
             triggerId,
@@ -18714,6 +18726,93 @@ public static class MatchRecoveryValidator
         {
             errors.Add(
                 $"{payloadLabel} {diagnosticName} trigger id stack item id is required before source object id {sourceObjectId}");
+        }
+    }
+
+    private static void ValidateTriggerQueueFriendlyDestroyedSourceObjectIdContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceObjectId,
+        string? effectKind,
+        List<string> errors)
+    {
+        ValidateTriggerQueueFriendlyDestroyedSourceObjectIdContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            GhostlyCentaurFriendlyDestroyedPowerEffectKindForRecovery,
+            "ghostly centaur friendly-destroyed power",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedSourceObjectIdContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            ResonantSoulFirstFriendlyDestroyedDrawEffectKindForRecovery,
+            "resonant soul first friendly-destroyed draw",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedSourceObjectIdContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            SavageJawfishFriendlyDestroyedExperienceEffectKindForRecovery,
+            "savage jawfish friendly-destroyed experience",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedSourceObjectIdContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery,
+            "viktor destroyed non-minion create minion",
+            errors);
+    }
+
+    private static void ValidateTriggerQueueFriendlyDestroyedSourceObjectIdContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceObjectId,
+        string? effectKind,
+        string expectedEffectKind,
+        string diagnosticName,
+        List<string> errors)
+    {
+        if (triggerId is null
+            || !IsStandardLastBreathTriggerForRecovery(triggerId, effectKind, expectedEffectKind)
+            || !IsStandardLastBreathTriggerIdForRecovery(triggerId, expectedEffectKind)
+            || string.IsNullOrWhiteSpace(sourceObjectId)
+            || string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        var effectSuffix = $"-{expectedEffectKind}";
+        var effectSuffixIndex = triggerId.Length - effectSuffix.Length;
+        var sourceObjectMarker = $"-{sourceObjectId}-";
+        var sourceObjectMarkerIndex = triggerId.IndexOf(
+            sourceObjectMarker,
+            StandardTriggerIdPrefixForRecovery.Length,
+            StringComparison.Ordinal);
+        if (sourceObjectMarkerIndex < 0 || sourceObjectMarkerIndex >= effectSuffixIndex)
+        {
+            errors.Add(
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must match trigger id source object id before destroyed object id");
+            return;
+        }
+
+        var destroyedObjectId = triggerId[
+            (sourceObjectMarkerIndex + sourceObjectMarker.Length)..effectSuffixIndex];
+        if (string.IsNullOrWhiteSpace(destroyedObjectId))
+        {
+            errors.Add(
+                $"{payloadLabel} {diagnosticName} destroyed object id is required after source object id {sourceObjectId}");
+        }
+        else if (string.Equals(destroyedObjectId, sourceObjectId, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} {diagnosticName} destroyed object id must differ from source object id {sourceObjectId}");
         }
     }
 
@@ -22262,6 +22361,12 @@ public static class MatchRecoveryValidator
                 sourceVisibility: null,
                 effectKind,
                 triggeredEventKind,
+                errors);
+            ValidateTriggerQueueFriendlyDestroyedSourceObjectIdContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
+                sourceObjectId,
+                effectKind,
                 errors);
             ValidateTriggerQueueFriendlyDestroyedSourceCardContext(
                 $"authoritative state trigger queue item {triggerLabel}",
