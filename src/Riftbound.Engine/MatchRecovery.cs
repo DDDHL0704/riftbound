@@ -4037,6 +4037,7 @@ public static class MatchRecoveryValidator
             ValidateTriggerQueueKogmawLastBreathContext(
                 triggerLabel,
                 triggerId,
+                sourceObjectId,
                 effectKind,
                 triggeredEventKind,
                 errors);
@@ -16412,6 +16413,7 @@ public static class MatchRecoveryValidator
         ValidateTriggerQueueKogmawLastBreathContext(
             payloadLabel,
             triggerId,
+            sourceObjectId,
             effectKind,
             triggeredEventKind,
             errors);
@@ -16772,6 +16774,7 @@ public static class MatchRecoveryValidator
     private static void ValidateTriggerQueueKogmawLastBreathContext(
         string payloadLabel,
         string? triggerId,
+        string? sourceObjectId,
         string? effectKind,
         string? triggeredEventKind,
         List<string> errors)
@@ -16785,6 +16788,14 @@ public static class MatchRecoveryValidator
         {
             errors.Add($"{payloadLabel} kogmaw last breath trigger id is invalid");
             return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(sourceObjectId)
+            && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
+            && !DoesKogmawLastBreathTriggerIdMatchSourceObjectIdForRecovery(triggerId, sourceObjectId))
+        {
+            errors.Add(
+                $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} must match trigger id source object id before {KogmawLastBreathAoeEffectKindForRecovery}");
         }
 
         if (effectKind is not null
@@ -16816,6 +16827,20 @@ public static class MatchRecoveryValidator
         }
 
         return !IsNestedTriggerIdWithKogmawStackPrefixForRecovery(triggerId, effectKind, markerIndex);
+    }
+
+    private static bool DoesKogmawLastBreathTriggerIdMatchSourceObjectIdForRecovery(
+        string triggerId,
+        string sourceObjectId)
+    {
+        var marker = $"{KogmawLastBreathAoeEffectKindForRecovery}{KogmawTriggerBattlefieldMarkerForRecovery}";
+        var markerIndex = triggerId.LastIndexOf(marker, StringComparison.Ordinal);
+        if (markerIndex <= 0)
+        {
+            return false;
+        }
+
+        return triggerId[..markerIndex].EndsWith($"-{sourceObjectId}-", StringComparison.Ordinal);
     }
 
     private static bool IsNestedTriggerIdWithKogmawStackPrefixForRecovery(
@@ -19887,6 +19912,7 @@ public static class MatchRecoveryValidator
             ValidateTriggerQueueKogmawLastBreathContext(
                 $"authoritative state trigger queue item {triggerLabel}",
                 triggerId,
+                sourceObjectId,
                 effectKind,
                 triggeredEventKind,
                 errors);
