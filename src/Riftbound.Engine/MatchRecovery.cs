@@ -898,6 +898,7 @@ public static class MatchRecoveryValidator
     private const string ScoutingWarhawkLastBreathCallRuneEffectKindForRecovery = "SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1";
     private const string HonestBrokerLastBreathCreateGoldEffectKindForRecovery = "HONEST_BROKER_LAST_BREATH_CREATE_GOLD";
     private const string MechanicalTricksterLastBreathCreateMinionsEffectKindForRecovery = "MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS";
+    private const string UndercoverAgentLastBreathEffectKindForRecovery = "UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT";
 
     private sealed record BattleRequiredAssignmentView(
         string SourceObjectId,
@@ -4090,6 +4091,13 @@ public static class MatchRecoveryValidator
                 triggeredEventKind,
                 errors);
             ValidateTriggerQueueMechanicalTricksterLastBreathCreateMinionsContext(
+                triggerLabel,
+                triggerId,
+                sourceVisibility,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueUndercoverAgentLastBreathContext(
                 triggerLabel,
                 triggerId,
                 sourceVisibility,
@@ -16415,6 +16423,13 @@ public static class MatchRecoveryValidator
             effectKind,
             triggeredEventKind,
             errors);
+        ValidateTriggerQueueUndercoverAgentLastBreathContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            errors);
         ValidateTriggerQueueVisibleSourceObjectMembership(
             payloadLabel,
             sourceObjectId,
@@ -17022,6 +17037,25 @@ public static class MatchRecoveryValidator
             triggeredEventKind,
             MechanicalTricksterLastBreathCreateMinionsEffectKindForRecovery,
             "mechanical trickster last-breath create minions",
+            errors);
+    }
+
+    private static void ValidateTriggerQueueUndercoverAgentLastBreathContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceVisibility,
+        string? effectKind,
+        string? triggeredEventKind,
+        List<string> errors)
+    {
+        ValidateTriggerQueueStandardLastBreathContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            UndercoverAgentLastBreathEffectKindForRecovery,
+            "undercover agent last-breath",
             errors);
     }
 
@@ -19570,6 +19604,13 @@ public static class MatchRecoveryValidator
                 triggeredEventKind,
                 errors);
             ValidateTriggerQueueMechanicalTricksterLastBreathCreateMinionsContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
+                sourceVisibility: null,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueUndercoverAgentLastBreathContext(
                 $"authoritative state trigger queue item {triggerLabel}",
                 triggerId,
                 sourceVisibility: null,
