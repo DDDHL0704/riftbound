@@ -4127,6 +4127,8 @@ public static class MatchRecoveryValidator
                 "objects",
                 playerFieldObjectIdsByPlayer,
                 "player zones",
+                objectLocations,
+                "object locations",
                 effectKind,
                 triggeredEventKind,
                 errors);
@@ -16722,6 +16724,8 @@ public static class MatchRecoveryValidator
             "authoritative state object registry",
             playerFieldObjectIdsByPlayer,
             "authoritative state player zones",
+            objectLocations,
+            "authoritative state object locations",
             effectKind,
             triggeredEventKind,
             errors);
@@ -17755,6 +17759,8 @@ public static class MatchRecoveryValidator
         string objectTagLabel,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? playerFieldObjectIdsByPlayer,
         string playerZoneLabel,
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
+        string objectLocationLabel,
         string? effectKind,
         string? triggeredEventKind,
         List<string> errors)
@@ -17847,6 +17853,19 @@ public static class MatchRecoveryValidator
             {
                 errors.Add(
                     $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} must not be an equipment card in {objectTagLabel}");
+            }
+
+            if (objectLocations is not null
+                && objectLocations.TryGetValue(sourceObjectId, out var sourceLocation)
+                && !string.IsNullOrWhiteSpace(sourceLocation.Zone))
+            {
+                var sourceZone = sourceLocation.Zone.Trim();
+                if (!string.Equals(sourceZone, "BASE", StringComparison.Ordinal)
+                    && !string.Equals(sourceZone, "BATTLEFIELD", StringComparison.Ordinal))
+                {
+                    errors.Add(
+                        $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} location zone {sourceZone} must be BASE or BATTLEFIELD in {objectLocationLabel}");
+                }
             }
         }
 
@@ -21045,6 +21064,8 @@ public static class MatchRecoveryValidator
                 "authoritative state object registry",
                 playerFieldObjectIdsByPlayer,
                 "authoritative state player zones",
+                objectLocations,
+                "authoritative state object locations",
                 effectKind,
                 triggeredEventKind,
                 errors);
