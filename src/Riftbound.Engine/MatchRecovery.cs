@@ -4244,8 +4244,11 @@ public static class MatchRecoveryValidator
             ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
                 triggerLabel,
                 triggerId,
+                controllerId,
                 sourceObjectId,
                 effectKind,
+                objectControllers,
+                "objects",
                 objectCardNos,
                 "objects",
                 errors);
@@ -16890,8 +16893,11 @@ public static class MatchRecoveryValidator
         ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
             payloadLabel,
             triggerId,
+            controllerId,
             sourceObjectId,
             effectKind,
+            objectControllers,
+            "authoritative state object registry",
             objectCardNos,
             "authoritative state object registry",
             errors);
@@ -18629,8 +18635,11 @@ public static class MatchRecoveryValidator
     private static void ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
         string payloadLabel,
         string? triggerId,
+        string? controllerId,
         string? sourceObjectId,
         string? effectKind,
+        IReadOnlyDictionary<string, string>? objectControllers,
+        string objectControllerLabel,
         IReadOnlyDictionary<string, string?>? objectCardNos,
         string objectCardNoLabel,
         List<string> errors)
@@ -18638,8 +18647,11 @@ public static class MatchRecoveryValidator
         ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
             payloadLabel,
             triggerId,
+            controllerId,
             sourceObjectId,
             effectKind,
+            objectControllers,
+            objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
             WatchfulSentinelLastBreathDrawEffectKindForRecovery,
@@ -18648,8 +18660,11 @@ public static class MatchRecoveryValidator
         ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
             payloadLabel,
             triggerId,
+            controllerId,
             sourceObjectId,
             effectKind,
+            objectControllers,
+            objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
             UnsungHeroLastBreathPowerfulDrawEffectKindForRecovery,
@@ -18658,8 +18673,11 @@ public static class MatchRecoveryValidator
         ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
             payloadLabel,
             triggerId,
+            controllerId,
             sourceObjectId,
             effectKind,
+            objectControllers,
+            objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
             ScoutingWarhawkLastBreathCallRuneEffectKindForRecovery,
@@ -18668,8 +18686,11 @@ public static class MatchRecoveryValidator
         ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
             payloadLabel,
             triggerId,
+            controllerId,
             sourceObjectId,
             effectKind,
+            objectControllers,
+            objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
             SadPoroLastBreathDrawEffectKindForRecovery,
@@ -18678,8 +18699,11 @@ public static class MatchRecoveryValidator
         ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
             payloadLabel,
             triggerId,
+            controllerId,
             sourceObjectId,
             effectKind,
+            objectControllers,
+            objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
             LoyalPoroLastBreathDrawEffectKindForRecovery,
@@ -18688,8 +18712,11 @@ public static class MatchRecoveryValidator
         ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
             payloadLabel,
             triggerId,
+            controllerId,
             sourceObjectId,
             effectKind,
+            objectControllers,
+            objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
             HonestBrokerLastBreathCreateGoldEffectKindForRecovery,
@@ -18698,8 +18725,11 @@ public static class MatchRecoveryValidator
         ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
             payloadLabel,
             triggerId,
+            controllerId,
             sourceObjectId,
             effectKind,
+            objectControllers,
+            objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
             MechanicalTricksterLastBreathCreateMinionsEffectKindForRecovery,
@@ -18708,8 +18738,11 @@ public static class MatchRecoveryValidator
         ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
             payloadLabel,
             triggerId,
+            controllerId,
             sourceObjectId,
             effectKind,
+            objectControllers,
+            objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
             UndercoverAgentLastBreathEffectKindForRecovery,
@@ -18718,8 +18751,11 @@ public static class MatchRecoveryValidator
         ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
             payloadLabel,
             triggerId,
+            controllerId,
             sourceObjectId,
             effectKind,
+            objectControllers,
+            objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
             IroncladVanguardLastBreathCreateRobotsEffectKindForRecovery,
@@ -18728,8 +18764,11 @@ public static class MatchRecoveryValidator
         ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
             payloadLabel,
             triggerId,
+            controllerId,
             sourceObjectId,
             effectKind,
+            objectControllers,
+            objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
             MuddyDredgerLastBreathCreateWarhawkEffectKindForRecovery,
@@ -18740,8 +18779,11 @@ public static class MatchRecoveryValidator
     private static void ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
         string payloadLabel,
         string? triggerId,
+        string? controllerId,
         string? sourceObjectId,
         string? effectKind,
+        IReadOnlyDictionary<string, string>? objectControllers,
+        string objectControllerLabel,
         IReadOnlyDictionary<string, string?>? objectCardNos,
         string objectCardNoLabel,
         string expectedEffectKind,
@@ -18769,6 +18811,16 @@ public static class MatchRecoveryValidator
         {
             errors.Add(
                 $"{payloadLabel} {diagnosticName} trigger id stack item id is required before source object id {sourceObjectId}");
+        }
+
+        if (controllerId is not null
+            && !string.Equals(controllerId, "HIDDEN", StringComparison.Ordinal)
+            && objectControllers is not null
+            && objectControllers.TryGetValue(sourceObjectId, out var sourceControllerId)
+            && !string.Equals(sourceControllerId, controllerId, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} controller id {sourceControllerId} must match trigger controller id {controllerId} in {objectControllerLabel}");
         }
 
         if (objectCardNos is not null
@@ -21439,8 +21491,11 @@ public static class MatchRecoveryValidator
             ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
                 $"authoritative state trigger queue item {triggerLabel}",
                 triggerId,
+                trigger.ControllerId,
                 sourceObjectId,
                 effectKind,
+                objectControllers,
+                "authoritative state object registry",
                 objectCardNos,
                 "authoritative state object registry",
                 errors);
