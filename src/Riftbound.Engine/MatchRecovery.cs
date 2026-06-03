@@ -883,6 +883,7 @@ public static class MatchRecoveryValidator
     private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
     private const string BlueSentinelDelayedTriggerIdPrefixForRecovery = "BLUE_SENTINEL_HELD_DELAYED_RESOURCE";
     private const string JhinMovementResourceTriggerIdPrefixForRecovery = "JHIN_MOVE_RESOURCE";
+    private const string KogmawCardNoForRecovery = "OGN·190/298";
     private const string KogmawLastBreathAoeEffectKindForRecovery = "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT";
     private const string KogmawTriggerBattlefieldMarkerForRecovery = "::BATTLEFIELD::";
     private const string OgsLuxHighCostSpellPowerEffectKindForRecovery = "OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3";
@@ -4082,7 +4083,10 @@ public static class MatchRecoveryValidator
                 sourceObjectId,
                 knownObjectIds,
                 "objects",
+                objectCardNos,
+                "objects",
                 objectTags,
+                "objects",
                 knownBattlefieldStateObjectIds,
                 "battlefield states",
                 effectKind,
@@ -16577,7 +16581,10 @@ public static class MatchRecoveryValidator
             sourceObjectId,
             knownObjectIds,
             "object registry",
+            objectCardNos,
+            "authoritative state object registry",
             objectTags,
+            "authoritative state object registry",
             battlefieldStateObjectIds,
             "authoritative state battlefield states",
             effectKind,
@@ -17224,7 +17231,10 @@ public static class MatchRecoveryValidator
         string? sourceObjectId,
         IReadOnlySet<string>? knownObjectIds,
         string knownObjectLabel,
+        IReadOnlyDictionary<string, string?>? objectCardNos,
+        string objectCardNoLabel,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
+        string objectTagLabel,
         IReadOnlySet<string>? battlefieldStateObjectIds,
         string battlefieldStateLabel,
         string? effectKind,
@@ -17285,6 +17295,27 @@ public static class MatchRecoveryValidator
         {
             errors.Add(
                 $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} must match trigger id source object id before {KogmawLastBreathAoeEffectKindForRecovery}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(sourceObjectId)
+            && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
+            && objectCardNos is not null
+            && objectCardNos.TryGetValue(sourceObjectId, out var sourceCardNo)
+            && !string.Equals(sourceCardNo, KogmawCardNoForRecovery, StringComparison.Ordinal))
+        {
+            var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
+            errors.Add(
+                $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} card no {sourceCardNoLabel} must be {KogmawCardNoForRecovery} in {objectCardNoLabel}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(sourceObjectId)
+            && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
+            && objectTags is not null
+            && objectTags.TryGetValue(sourceObjectId, out var sourceTags)
+            && !sourceTags.Contains(CardObjectTags.UnitCard))
+        {
+            errors.Add(
+                $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} must be a unit card in {objectTagLabel}");
         }
 
         if (effectKind is not null
@@ -20470,7 +20501,10 @@ public static class MatchRecoveryValidator
                 sourceObjectId,
                 knownObjectIds,
                 "object registry",
+                objectCardNos,
+                "authoritative state object registry",
                 objectTags,
+                "authoritative state object registry",
                 battlefieldStateObjectIds,
                 "authoritative state battlefield states",
                 effectKind,
