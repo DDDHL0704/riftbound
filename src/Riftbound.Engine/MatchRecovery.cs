@@ -3949,6 +3949,9 @@ public static class MatchRecoveryValidator
         var objectCardNos = view.Snapshot.Players is null
             ? null
             : BuildSnapshotObjectCardNoIndex(view.Snapshot);
+        var objectControllers = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotObjectControllerIndex(view.Snapshot);
         var objectTags = view.Snapshot.Players is null
             ? null
             : BuildSnapshotObjectTagIndex(view.Snapshot);
@@ -4029,8 +4032,11 @@ public static class MatchRecoveryValidator
             ValidateTriggerQueueBlueSentinelDelayedResourceContext(
                 triggerLabel,
                 triggerId,
+                controllerId,
                 sourceObjectId,
                 sourceVisibility,
+                objectControllers,
+                "objects",
                 objectCardNos,
                 "objects",
                 objectTags,
@@ -16114,6 +16120,7 @@ public static class MatchRecoveryValidator
         var seatPlayerIds = BuildNormalizedPlayerIdSet(authoritativeState.Seats.Keys);
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         var objectCardNos = BuildAuthoritativeStateObjectCardNoIndex(authoritativeState);
+        var objectControllers = BuildAuthoritativeStateObjectControllerIndex(authoritativeState);
         var objectTags = BuildAuthoritativeStateObjectTagIndex(authoritativeState);
         var battlefieldStateObjectIds = BuildAuthoritativeStateBattlefieldStateObjectIds(authoritativeState);
         var seenTriggerIds = new HashSet<string>(StringComparer.Ordinal);
@@ -16135,6 +16142,7 @@ public static class MatchRecoveryValidator
                 seatPlayerIds,
                 knownObjectIds,
                 objectCardNos,
+                objectControllers,
                 objectTags,
                 battlefieldStateObjectIds,
                 authoritativeState.TurnNumber,
@@ -16391,6 +16399,7 @@ public static class MatchRecoveryValidator
         IReadOnlySet<string> seatPlayerIds,
         IReadOnlySet<string> knownObjectIds,
         IReadOnlyDictionary<string, string?> objectCardNos,
+        IReadOnlyDictionary<string, string> objectControllers,
         IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
         IReadOnlySet<string> battlefieldStateObjectIds,
         int currentTurnNumber,
@@ -16463,8 +16472,11 @@ public static class MatchRecoveryValidator
         ValidateTriggerQueueBlueSentinelDelayedResourceContext(
             payloadLabel,
             triggerId,
+            controllerId,
             sourceObjectId,
             sourceVisibility,
+            objectControllers,
+            "authoritative state object registry",
             objectCardNos,
             "authoritative state object registry",
             objectTags,
@@ -16701,8 +16713,11 @@ public static class MatchRecoveryValidator
     private static void ValidateTriggerQueueBlueSentinelDelayedResourceContext(
         string payloadLabel,
         string? triggerId,
+        string? controllerId,
         string? sourceObjectId,
         string? sourceVisibility,
+        IReadOnlyDictionary<string, string>? objectControllers,
+        string objectControllerLabel,
         IReadOnlyDictionary<string, string?>? objectCardNos,
         string objectCardNoLabel,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
@@ -16735,6 +16750,16 @@ public static class MatchRecoveryValidator
         {
             errors.Add(
                 $"{payloadLabel} blue sentinel delayed resource captured turn number {capturedTurnNumber} cannot be greater than current turn {turnNumber}");
+        }
+
+        if (controllerId is not null
+            && !string.Equals(controllerId, "HIDDEN", StringComparison.Ordinal)
+            && objectControllers is not null
+            && objectControllers.TryGetValue(expectedSourceObjectId, out var sourceControllerId)
+            && !string.Equals(sourceControllerId, controllerId, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} blue sentinel delayed resource source object id {expectedSourceObjectId} controller id {sourceControllerId} must match trigger controller id {controllerId} in {objectControllerLabel}");
         }
 
         if (objectCardNos is not null
@@ -19721,6 +19746,7 @@ public static class MatchRecoveryValidator
     {
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         var objectCardNos = BuildAuthoritativeStateObjectCardNoIndex(authoritativeState);
+        var objectControllers = BuildAuthoritativeStateObjectControllerIndex(authoritativeState);
         var objectTags = BuildAuthoritativeStateObjectTagIndex(authoritativeState);
         var battlefieldStateObjectIds = BuildAuthoritativeStateBattlefieldStateObjectIds(authoritativeState);
         ValidateAuthoritativeStateStackItemValues(authoritativeState.StackItems, errors);
@@ -19728,6 +19754,7 @@ public static class MatchRecoveryValidator
             authoritativeState.TriggerQueue,
             knownObjectIds,
             objectCardNos,
+            objectControllers,
             objectTags,
             battlefieldStateObjectIds,
             authoritativeState.TurnNumber,
@@ -20008,6 +20035,7 @@ public static class MatchRecoveryValidator
         IReadOnlyList<TriggerQueueItemState>? triggerQueue,
         IReadOnlySet<string> knownObjectIds,
         IReadOnlyDictionary<string, string?> objectCardNos,
+        IReadOnlyDictionary<string, string> objectControllers,
         IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
         IReadOnlySet<string> battlefieldStateObjectIds,
         int currentTurnNumber,
@@ -20085,8 +20113,11 @@ public static class MatchRecoveryValidator
             ValidateTriggerQueueBlueSentinelDelayedResourceContext(
                 $"authoritative state trigger queue item {triggerLabel}",
                 triggerId,
+                trigger.ControllerId,
                 sourceObjectId,
                 sourceVisibility: null,
+                objectControllers,
+                "authoritative state object registry",
                 objectCardNos,
                 "authoritative state object registry",
                 objectTags,
