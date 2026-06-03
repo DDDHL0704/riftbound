@@ -17866,6 +17866,18 @@ public static class MatchRecoveryValidator
                     errors.Add(
                         $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} location zone {sourceZone} must be BASE or BATTLEFIELD in {objectLocationLabel}");
                 }
+
+                if (controllerId is not null
+                    && !string.Equals(controllerId, "HIDDEN", StringComparison.Ordinal)
+                    && !string.IsNullOrWhiteSpace(sourceLocation.PlayerId))
+                {
+                    var sourcePlayerId = sourceLocation.PlayerId.Trim();
+                    if (!string.Equals(sourcePlayerId, controllerId, StringComparison.Ordinal))
+                    {
+                        errors.Add(
+                            $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} location player id {sourcePlayerId} must match trigger controller id {controllerId} in {objectLocationLabel}");
+                    }
+                }
             }
         }
 
