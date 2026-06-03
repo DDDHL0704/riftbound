@@ -6294,6 +6294,73 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueSadPoroLastBreathDrawContextDrift()
+    {
+        const string triggerId = "TRIGGER-stack-1-source-1-SAD_PORO_LAST_BREATH_DRAW_1";
+        var alice = PlayerView("alice", 0, 0);
+        var players = alice.Snapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["objects"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["source-1"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "source-1",
+                ["isFaceDown"] = false,
+                ["tags"] = Array.Empty<string>(),
+                ["untilEndOfTurnEffects"] = Array.Empty<string>()
+            }
+        };
+        players["alice"] = alicePayload;
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["triggerQueue"] = new object?[]
+        {
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["triggerId"] = triggerId,
+                ["controllerId"] = "alice",
+                ["sourceObjectId"] = "source-1",
+                ["sourceVisibility"] = "HIDDEN",
+                ["effectKind"] = "WRONG_EFFECT",
+                ["triggeredByEventKind"] = "CARD_PLAYED"
+            }
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players,
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item sad poro last-breath draw source visibility must be VISIBLE",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item sad poro last-breath draw effect kind WRONG_EFFECT must be SAD_PORO_LAST_BREATH_DRAW_1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item sad poro last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueJhinMovementResourceContextDrift()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -21315,6 +21382,60 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "authoritative state trigger queue item TRIGGER-stack-1-source-1-SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1 scouting warhawk last-breath call rune triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueSadPoroLastBreathDrawContextDrift()
+    {
+        const string triggerId = "TRIGGER-stack-1-source-1-SAD_PORO_LAST_BREATH_DRAW_1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new("source-1", ownerId: "alice", controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new("alice", "BASE")
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    triggerId,
+                    "alice",
+                    sourceObjectId: "source-1",
+                    effectKind: "WRONG_EFFECT",
+                    triggeredByEventKind: "CARD_PLAYED")
+            ]);
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-SAD_PORO_LAST_BREATH_DRAW_1 sad poro last-breath draw effect kind WRONG_EFFECT must be SAD_PORO_LAST_BREATH_DRAW_1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-SAD_PORO_LAST_BREATH_DRAW_1 sad poro last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
                 StringComparison.Ordinal));
     }
 
@@ -55699,6 +55820,109 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueSadPoroLastBreathDrawContextDrift()
+    {
+        const string triggerId = "TRIGGER-stack-1-source-1-SAD_PORO_LAST_BREATH_DRAW_1";
+        const string sourceObjectId = "source-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            2,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Base = [sourceObjectId]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new(sourceObjectId, ownerId: "alice", controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new("alice", "BASE")
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    triggerId,
+                    "alice",
+                    sourceObjectId,
+                    "SAD_PORO_LAST_BREATH_DRAW_1",
+                    "UNIT_DESTROYED")
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var triggerQueue = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["triggerQueue"])
+            .ToArray();
+        var trigger = Assert.IsType<Dictionary<string, object?>>(triggerQueue[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        trigger["sourceVisibility"] = "HIDDEN";
+        trigger["effectKind"] = "WRONG_EFFECT";
+        trigger["triggeredByEventKind"] = "CARD_PLAYED";
+        triggerQueue[0] = trigger;
+        timing["triggerQueue"] = triggerQueue;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item sad poro last-breath draw source visibility must be VISIBLE",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item sad poro last-breath draw effect kind WRONG_EFFECT must be SAD_PORO_LAST_BREATH_DRAW_1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item sad poro last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
                 StringComparison.Ordinal));
     }
 
