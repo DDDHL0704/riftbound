@@ -4331,6 +4331,16 @@ public static class MatchRecoveryValidator
                 objectLocations,
                 "object locations",
                 errors);
+            ValidateTriggerQueueFriendlyDestroyedSourceFieldZoneContext(
+                triggerLabel,
+                triggerId,
+                controllerId,
+                sourceObjectId,
+                effectKind,
+                objectControllers,
+                playerFieldObjectIdsByPlayer,
+                "player zones",
+                errors);
             ValidateTriggerQueueFriendlyDestroyedStackContext(
                 triggerLabel,
                 triggerId,
@@ -17055,6 +17065,16 @@ public static class MatchRecoveryValidator
             objectLocations,
             "authoritative state object locations",
             errors);
+        ValidateTriggerQueueFriendlyDestroyedSourceFieldZoneContext(
+            payloadLabel,
+            triggerId,
+            controllerId,
+            sourceObjectId,
+            effectKind,
+            objectControllers,
+            playerFieldObjectIdsByPlayer,
+            "authoritative state player zones",
+            errors);
         ValidateTriggerQueueFriendlyDestroyedStackContext(
             payloadLabel,
             triggerId,
@@ -19091,6 +19111,101 @@ public static class MatchRecoveryValidator
                     $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} location player id {sourcePlayerId} must match trigger controller id {controllerId} in {objectLocationLabel}");
             }
         }
+    }
+
+    private static void ValidateTriggerQueueFriendlyDestroyedSourceFieldZoneContext(
+        string payloadLabel,
+        string? triggerId,
+        string? controllerId,
+        string? sourceObjectId,
+        string? effectKind,
+        IReadOnlyDictionary<string, string>? objectControllers,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? playerFieldObjectIdsByPlayer,
+        string playerZoneLabel,
+        List<string> errors)
+    {
+        ValidateTriggerQueueFriendlyDestroyedSourceFieldZoneContext(
+            payloadLabel,
+            triggerId,
+            controllerId,
+            sourceObjectId,
+            effectKind,
+            objectControllers,
+            playerFieldObjectIdsByPlayer,
+            playerZoneLabel,
+            GhostlyCentaurFriendlyDestroyedPowerEffectKindForRecovery,
+            "ghostly centaur friendly-destroyed power",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedSourceFieldZoneContext(
+            payloadLabel,
+            triggerId,
+            controllerId,
+            sourceObjectId,
+            effectKind,
+            objectControllers,
+            playerFieldObjectIdsByPlayer,
+            playerZoneLabel,
+            ResonantSoulFirstFriendlyDestroyedDrawEffectKindForRecovery,
+            "resonant soul first friendly-destroyed draw",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedSourceFieldZoneContext(
+            payloadLabel,
+            triggerId,
+            controllerId,
+            sourceObjectId,
+            effectKind,
+            objectControllers,
+            playerFieldObjectIdsByPlayer,
+            playerZoneLabel,
+            SavageJawfishFriendlyDestroyedExperienceEffectKindForRecovery,
+            "savage jawfish friendly-destroyed experience",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedSourceFieldZoneContext(
+            payloadLabel,
+            triggerId,
+            controllerId,
+            sourceObjectId,
+            effectKind,
+            objectControllers,
+            playerFieldObjectIdsByPlayer,
+            playerZoneLabel,
+            ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery,
+            "viktor destroyed non-minion create minion",
+            errors);
+    }
+
+    private static void ValidateTriggerQueueFriendlyDestroyedSourceFieldZoneContext(
+        string payloadLabel,
+        string? triggerId,
+        string? controllerId,
+        string? sourceObjectId,
+        string? effectKind,
+        IReadOnlyDictionary<string, string>? objectControllers,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? playerFieldObjectIdsByPlayer,
+        string playerZoneLabel,
+        string expectedEffectKind,
+        string diagnosticName,
+        List<string> errors)
+    {
+        if (triggerId is null
+            || !IsStandardLastBreathTriggerForRecovery(triggerId, effectKind, expectedEffectKind)
+            || !IsStandardLastBreathTriggerIdForRecovery(triggerId, expectedEffectKind)
+            || string.IsNullOrWhiteSpace(controllerId)
+            || string.Equals(controllerId, "HIDDEN", StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(sourceObjectId)
+            || string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
+            || objectControllers is null
+            || !objectControllers.TryGetValue(sourceObjectId, out var sourceControllerId)
+            || !string.Equals(sourceControllerId, controllerId, StringComparison.Ordinal)
+            || playerFieldObjectIdsByPlayer is null
+            || !playerFieldObjectIdsByPlayer.TryGetValue(controllerId, out var fieldObjectIds)
+            || fieldObjectIds.Contains(sourceObjectId))
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must be in trigger controller field zone in {playerZoneLabel}");
     }
 
     private static void ValidateTriggerQueueStandardLastBreathContext(
@@ -22185,6 +22300,16 @@ public static class MatchRecoveryValidator
                 effectKind,
                 objectLocations,
                 "authoritative state object locations",
+                errors);
+            ValidateTriggerQueueFriendlyDestroyedSourceFieldZoneContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
+                trigger.ControllerId,
+                sourceObjectId,
+                effectKind,
+                objectControllers,
+                playerFieldObjectIdsByPlayer,
+                "authoritative state player zones",
                 errors);
             ValidateTriggerQueueFriendlyDestroyedStackContext(
                 $"authoritative state trigger queue item {triggerLabel}",
