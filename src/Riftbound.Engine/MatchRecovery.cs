@@ -901,6 +901,7 @@ public static class MatchRecoveryValidator
     private const string UndercoverAgentLastBreathEffectKindForRecovery = "UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT";
     private const string IroncladVanguardLastBreathCreateRobotsEffectKindForRecovery = "IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS";
     private const string MuddyDredgerLastBreathCreateWarhawkEffectKindForRecovery = "MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK";
+    private const string GhostlyCentaurFriendlyDestroyedPowerEffectKindForRecovery = "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
 
     private sealed record BattleRequiredAssignmentView(
         string SourceObjectId,
@@ -4114,6 +4115,13 @@ public static class MatchRecoveryValidator
                 triggeredEventKind,
                 errors);
             ValidateTriggerQueueMuddyDredgerLastBreathCreateWarhawkContext(
+                triggerLabel,
+                triggerId,
+                sourceVisibility,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContext(
                 triggerLabel,
                 triggerId,
                 sourceVisibility,
@@ -16460,6 +16468,13 @@ public static class MatchRecoveryValidator
             effectKind,
             triggeredEventKind,
             errors);
+        ValidateTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            errors);
         ValidateTriggerQueueVisibleSourceObjectMembership(
             payloadLabel,
             sourceObjectId,
@@ -17124,6 +17139,25 @@ public static class MatchRecoveryValidator
             triggeredEventKind,
             MuddyDredgerLastBreathCreateWarhawkEffectKindForRecovery,
             "muddy dredger last-breath create warhawk",
+            errors);
+    }
+
+    private static void ValidateTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceVisibility,
+        string? effectKind,
+        string? triggeredEventKind,
+        List<string> errors)
+    {
+        ValidateTriggerQueueStandardLastBreathContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            GhostlyCentaurFriendlyDestroyedPowerEffectKindForRecovery,
+            "ghostly centaur friendly-destroyed power",
             errors);
     }
 
@@ -19693,6 +19727,13 @@ public static class MatchRecoveryValidator
                 triggeredEventKind,
                 errors);
             ValidateTriggerQueueMuddyDredgerLastBreathCreateWarhawkContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
+                sourceVisibility: null,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContext(
                 $"authoritative state trigger queue item {triggerLabel}",
                 triggerId,
                 sourceVisibility: null,
