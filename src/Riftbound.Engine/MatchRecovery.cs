@@ -16910,6 +16910,17 @@ public static class MatchRecoveryValidator
                 $"{payloadLabel} blue sentinel delayed resource battlefield object id {battlefieldObjectId} is missing from {battlefieldStateLabel}");
         }
 
+        if (controllerId is not null
+            && !string.Equals(controllerId, "HIDDEN", StringComparison.Ordinal)
+            && (battlefieldStateObjectIds is null || battlefieldStateObjectIds.Contains(battlefieldObjectId))
+            && objectControllers is not null
+            && objectControllers.TryGetValue(battlefieldObjectId, out var battlefieldControllerId)
+            && !string.Equals(battlefieldControllerId, controllerId, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} blue sentinel delayed resource battlefield object id {battlefieldObjectId} controller id {battlefieldControllerId} must match trigger controller id {controllerId} in {objectControllerLabel}");
+        }
+
         ValidateBlueSentinelDelayedResourceSourceLocationForRecovery(
             payloadLabel,
             expectedSourceObjectId,
